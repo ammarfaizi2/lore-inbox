@@ -1,77 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261342AbULUTEk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261349AbULUTD4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261342AbULUTEk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 14:04:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbULUTEi
+	id S261349AbULUTD4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 14:03:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbULUTCb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 14:04:38 -0500
-Received: from web52605.mail.yahoo.com ([206.190.39.143]:44928 "HELO
-	web52605.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261342AbULUTDq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 14:03:46 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=menDgf/Ga8bImc/JthaTLZYPpYlJnYbc2+4Mc/PvHW4a+jCiEn1dKzz9zHz6Q8Y7pqFrNHihtdeJ1NiJ9AnQj4OovpdFEaWBqGHZivg9OhUOdxhSadUAgI1e4AyKNoif8qiZPg9iH0cwwFUDNox7PJZEJuEn0oMvk8FzF1h1Nc4=  ;
-Message-ID: <20041221190339.24215.qmail@web52605.mail.yahoo.com>
-Date: Tue, 21 Dec 2004 11:03:39 -0800 (PST)
-From: jesse <jessezx@yahoo.com>
-Subject: Re: Gurus, a silly question for preemptive behavior
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <41C86F2A.7020409@grupopie.com>
-MIME-Version: 1.0
+	Tue, 21 Dec 2004 14:02:31 -0500
+Received: from mail.kroah.org ([69.55.234.183]:25540 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261301AbULUS6R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 13:58:17 -0500
+Date: Tue, 21 Dec 2004 10:58:01 -0800
+From: Greg KH <greg@kroah.com>
+To: Arne Caspari <arne@datafloater.de>
+Cc: Arne Caspari <arnem@informatik.uni-bremen.de>,
+       linux1394-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] ieee1394_core.c: remove unneeded EXPORT_SYMBOL's
+Message-ID: <20041221185801.GA8784@kroah.com>
+References: <41C694E0.8010609@informatik.uni-bremen.de> <20041220143901.GD457@phunnypharm.org> <1103555716.29968.27.camel@localhost.localdomain> <20041220154638.GE457@phunnypharm.org> <1103573716.31512.10.camel@localhost.localdomain> <41C7DFE9.5070604@informatik.uni-bremen.de> <20041221120012.GC5217@stusta.de> <41C81BF4.9070602@datafloater.de> <20041221171547.GD1459@kroah.com> <41C87099.9040108@datafloater.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41C87099.9040108@datafloater.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paulo:
- 
-   I already said in the messsage that my user space
-application has a low nice priority, i set it to 10.
-since my application has low priority compared to
-other user space applications, it is supposed to be
-interrupted. but it is not.
-
- regards!
-
-jesse
-
-
---- Paulo Marques <pmarques@grupopie.com> wrote:
-
-> jesse wrote:
-> > Con:
-> > 
-> >    thank you for your prompt reply in the holiday
-> > season. 
-> > 
-> >    My point is: Even kernel 2.4 is not 
-> > preemptive, the latence should be very
-> > minimal.(<300ms)
-> > why user space application with low nice priority
-> > can't be effectively interrupted and holds the CPU
-> > resource since all user space application is
-> > preemptive?
+On Tue, Dec 21, 2004 at 07:51:05PM +0100, Arne Caspari wrote:
+> Greg KH schrieb:
+> >On Tue, Dec 21, 2004 at 01:49:56PM +0100, Arne Caspari wrote:
+> >>To make a long decision short:
+> >>
+> >>There is no stable kernel API that an external developer can rely on?
+> >
+> >That is correct.  Please see Documentation/stable_api_nonsense.txt for
+> >details as to why this is so.
 > 
-> If your process has got work to do and has a higher
-> priority than other 
-> processes, it gets to run. If you don't want this
-> behavior, don't give 
-> it such a high priority.
-> 
-> If you want low latency to do some quick high
-> priority task, just do it 
-> quickly and relinquish the processor, instead of
-> hogging it.
-> 
-> What are you trying to accomplish, anyway?
-> 
-> -- 
-> Paulo Marques - www.grupopie.com
-> 
-> "A journey of a thousand miles begins with a single
-> step."
-> Lao-tzu, The Way of Lao-tzu
-> 
+> There is no such file in the 2.6.9 release :-(
 
+It's in 2.6.10-rc3, and available online at:
+	http://www.kroah.com/log/linux/stable_api_nonsense.html
+
+thanks,
+
+greg k-h

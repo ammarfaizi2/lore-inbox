@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263280AbSJJHbJ>; Thu, 10 Oct 2002 03:31:09 -0400
+	id <S263281AbSJJHir>; Thu, 10 Oct 2002 03:38:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263304AbSJJHbI>; Thu, 10 Oct 2002 03:31:08 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:18337 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S263280AbSJJHbI>;
-	Thu, 10 Oct 2002 03:31:08 -0400
-Date: Thu, 10 Oct 2002 09:36:31 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: vojtech@suse.cz, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: Input - Make i8042.c less picky about AUX ports [1/3]
-Message-ID: <20021010093631.A7994@ucw.cz>
-References: <200210100725.JAA00155@bug.ucw.cz>
+	id <S263304AbSJJHir>; Thu, 10 Oct 2002 03:38:47 -0400
+Received: from f27.law11.hotmail.com ([64.4.17.27]:53004 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S263281AbSJJHir>;
+	Thu, 10 Oct 2002 03:38:47 -0400
+X-Originating-IP: [212.3.234.82]
+From: "lao nightwolf" <laonightwolf@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: use of bonding in kernel 2.4.19
+Date: Thu, 10 Oct 2002 07:44:26 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200210100725.JAA00155@bug.ucw.cz>; from pavel@ucw.cz on Thu, Oct 10, 2002 at 09:23:40AM +0200
+Content-Type: text/plain; format=flowed
+Message-ID: <F27YI9IJsaJbqJGNzsc000001ea@hotmail.com>
+X-OriginalArrivalTime: 10 Oct 2002 07:44:26.0392 (UTC) FILETIME=[DB8BF980:01C27030]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 10, 2002 at 09:23:40AM +0200, Pavel Machek wrote:
-> > ChangeSet@1.597.3.1, 2002-10-08 17:36:32+02:00, vojtech@suse.cz
-> >   Make i8042.c even less picky about detecting an AUX port because of
-> >   broken chipsets that don't support the LOOP command or report failure
-> >   on the TEST command. Hopefully this won't screw any old 386/486
-> >   systems without the AUX port.
-> 
-> would it make sense to at least printk() on such
-> broken chipsets? 
+Hello,
 
-Maybe. But if we wanted to printk() on every chipset which doesn't
-follow the i8042 spec in some way, we'd keep the logs full ...
+I've read in some posts to this list that there's a bug in kernel 2.4.19 
+stable regarding the use of bonding.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+I've setup bonding myself yesterday with the patch from 
+sourceforge.net/projects/bonding and everything works as it should be
+
+bond0 is bringing up both my nic's eth0 and eth1.
+
+Is this because I use an external patch? Or can someone give me more 
+explanation about using bonding in kernel 2.4.19. Or should I wait till 
+2.4.20 is released (does someone know when this will be? +/-)
+
+Regards,
+Lao
+
+
+_________________________________________________________________
+MSN Photos is the easiest way to share and print your photos: 
+http://photos.msn.com/support/worldwide.aspx
+

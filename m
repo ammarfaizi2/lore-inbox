@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273364AbRI0Pd0>; Thu, 27 Sep 2001 11:33:26 -0400
+	id <S273361AbRI0PfR>; Thu, 27 Sep 2001 11:35:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273361AbRI0PdR>; Thu, 27 Sep 2001 11:33:17 -0400
-Received: from mail1-gui.server.ntli.net ([194.168.222.13]:46762 "EHLO
-	mail1-gui.server.ntli.net") by vger.kernel.org with ESMTP
-	id <S273364AbRI0PdI>; Thu, 27 Sep 2001 11:33:08 -0400
-Date: Thu, 27 Sep 2001 16:33:33 +0100 (BST)
-From: Ben <linux-kernel@slimyhorror.com>
-X-X-Sender: <ben@baphomet.bogo.bogus>
-To: <linux-kernel@vger.kernel.org>
-Subject: -1M RSS with 2.4.10
-Message-ID: <Pine.LNX.4.33.0109271628200.16824-100000@baphomet.bogo.bogus>
+	id <S273372AbRI0PfG>; Thu, 27 Sep 2001 11:35:06 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14099 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S273361AbRI0Pes>; Thu, 27 Sep 2001 11:34:48 -0400
+Date: Thu, 27 Sep 2001 08:34:29 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Kiril Vidimce <vkire@pixar.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [patch] exec-argsize-2.4.10-A3
+In-Reply-To: <Pine.LNX.4.33.0109270859100.2745-200000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0109270829090.17030-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My machine has been running 2.4.10 (+preemptive kernel patches) happily.
-But then, running top and sorting by memory usage, I notice at the top:
 
- 16:30:47 up 2 days,  3:36, 22 users,  load average: 1.34, 1.62, 1.78
-140 processes: 135 sleeping, 4 running, 0 zombie, 1 stopped
-CPU states:   3.8% user,  22.4% system,  73.8% nice,   0.0% idle
-Mem:    239900K total,   235376K used,     4524K free,      888K buffers
-Swap:   262576K total,    24512K used,   238064K free,    88884K cached
+On Thu, 27 Sep 2001, Ingo Molnar wrote:
+>
+> Comments?
 
-  PID USER     PRI  NI  SIZE SWAP  RSS SHARE STAT LC %CPU %MEM   TIME COMMAND
-32139 ben        9   0  4440 3556  -1M   420 S     0  0.0 99.9   0:01 xterm
+I'd actually much rather see the argument size limit go away _completely_,
+and keep the arguments in the original VM instead of copying them over one
+page at a time etc.
 
-This looks bad! But is it a bug in the kernel, or with 'top'? There are no
-dmesg errors.  Has anyone got advice on what I could do to track down what
-the problem is?
+One of th ereasons for the limit is simply that otherwise there is a
+_nasty_ DoS-attack by causing lots of execve()'s to happen in parallel,
+and deadlocking the system by having 100 execve's all of which have 1MB of
+pinned argument pages.
 
+Leaving the data in the original VM and populating a _new_ VM has many
+advantages: if you have both VM's on the mm_list, you can automatically
+let the page-out logic handle the DoS case for you, and the pages aren't
+pinned any more (you'd keep just _one_ page pinned in the new VM: the page
+that you're currently copying in to)
 
-Thanks,
-Ben
+We can do that these days. Traditionally we couldn't, for various reasons
+(we didn't have a mm list and we didn't have the notion of independent VM
+address spaces when the code was written).
+
+		Linus
 

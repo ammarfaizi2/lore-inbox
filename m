@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbVCGW6z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261903AbVCGXd0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261770AbVCGW6z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 17:58:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261909AbVCGW4A
+	id S261903AbVCGXd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 18:33:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbVCGWzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 17:56:00 -0500
-Received: from rproxy.gmail.com ([64.233.170.205]:22078 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261861AbVCGWM6 (ORCPT
+	Mon, 7 Mar 2005 17:55:21 -0500
+Received: from rproxy.gmail.com ([64.233.170.197]:63431 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261254AbVCGWFY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 17:12:58 -0500
+	Mon, 7 Mar 2005 17:05:24 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=XG1Qb619KH2pnDFWSj3rLdu/2PT5k9pk0H5xEPARPDhYoh9cAFYAfa5/RCuuvHnscVi3XNgBM5/93V7XfKOeP6NuER3LkF2/0+TZZpQj/obWWLkw1w+rLStP6EC5uvH9BlfUY7gDTe+km4eDS8WH49T4QFOAOU6eGH9sLcScti0=
-Message-ID: <d120d50005030714126e345fe2@mail.gmail.com>
-Date: Mon, 7 Mar 2005 17:12:57 -0500
+        b=SuxuVRkNEyCVNw4SZVVtRKwMK14Y7KRg5lVDzWLSLUCsMic14MOOC/o5YKoYdu+FNvBIYNljLwpP2NFM70PS9mg5FyVHAxC8txjKVlAfL85KvV76jcgVkkE7Vb5GZ1MCRec6yuK3R0dYuOWlZUKp1jRaxCA4i1MCXCtVnHEWKpY=
+Message-ID: <d120d50005030714056511c214@mail.gmail.com>
+Date: Mon, 7 Mar 2005 17:05:17 -0500
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Reply-To: dtor_core@ameritech.net
 To: Adrian Bunk <bunk@stusta.de>
@@ -65,11 +65,20 @@ On Mon, 7 Mar 2005 22:52:06 +0100, Adrian Bunk <bunk@stusta.de> wrote:
 > 
 > After a quick look, it seems there are a dozen other sound drivers (most
 > OSS but also ALSA) with similar problems.
+> 
+> There are two possibilities:
+> 1. continue to #ifdef all GAMEPORT support in sound drivers
+> 2. remove all #ifdef's for GAMEPORT and let drivers that can use the
+>   gameport (including the sound drivers) simply select GAMEPORT
+>   As far as I can see, in this case GAMEPORT does no longer have to be
+>   user-visible?
+> 
+> I can send patches for both, but I'd prefer the second solution.
+> 
 
-Note that in input tree (and in -mm) I tried to clean up these #ifdefs
-by providing dummy functions when CONFIG_GAMEPORT is not selected. The
-original report caused by the typo in dummy function name
-(snc_ymfpci_create_gameport).
+Not everyone wants gameport. I think say very small percentage of
+people using sound cards that can support gameports actually uses
+them.
 
 -- 
 Dmitry

@@ -1,45 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319435AbSILFFI>; Thu, 12 Sep 2002 01:05:08 -0400
+	id <S319436AbSILFGp>; Thu, 12 Sep 2002 01:06:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319436AbSILFFI>; Thu, 12 Sep 2002 01:05:08 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:7138 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S319435AbSILFFH>;
-	Thu, 12 Sep 2002 01:05:07 -0400
-Date: Thu, 12 Sep 2002 07:06:20 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Phil Stracchino <alaric@babcom.com>, linux-kernel@vger.kernel.org
-Subject: Re: CDROM driver does not support Linux partition tables
-Message-ID: <20020912050620.GG30234@suse.de>
-References: <20020904181952.GA1158@babylon5.babcom.com> <1031182512.3017.139.camel@irongate.swansea.linux.org.uk> <20020911211959.GA31724@babylon5.babcom.com> <1031779715.2838.4.camel@irongate.swansea.linux.org.uk>
+	id <S319437AbSILFGp>; Thu, 12 Sep 2002 01:06:45 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:33804 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S319436AbSILFGn>; Thu, 12 Sep 2002 01:06:43 -0400
+Date: Wed, 11 Sep 2002 22:11:27 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: the userspace side of driverfs
+Message-ID: <20020912051127.GH10315@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <20020912012552.GF10315@pegasys.ws> <Pine.LNX.4.44.0209112254260.17242-100000@humbolt.us.dell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1031779715.2838.4.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.44.0209112254260.17242-100000@humbolt.us.dell.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 11 2002, Alan Cox wrote:
-> On Wed, 2002-09-11 at 22:19, Phil Stracchino wrote:
-> >  
-> > A deficiency in the Linux CDROM driver was just brought to my attention.
-> > Even on a kernel configured with support for UFS and Sun partition
-> > tables, it doesn't appear to be possible to mount any but the first
-> > slice of a Sun CDROM containing multiple slices.  Essentially, it seems
-> > that Solaris partition table support doesn't trickle down to the CDROM
-> > driver.
-> > 
-> > Is this something that's supposed to happen, and is there a reason why
-> > it's not supported, or is it simply that no-one has asked for it to be
-> > supported and/or no-one has gotten around to implementing it because of 
-> > lack of demand?
+On Wed, Sep 11, 2002 at 11:13:17PM -0500, Matt Domsch wrote:
+> > The main ideal that we're shooting for is to have one ASCII value per
+> > file. The ASCII part is mandatory, but there will definitely be exceptions
+> > where we will have an array of or multiple values per file. We want to
+> > minimize those instances, though. Both for the sake of easy parsing, but
+> > also for easy formatting within the drivers.
 > 
-> It ought to be supportable on scsi cd or with ide-scsi. ide-cd has no
-> minor space for partitioning, ide-scsi/sr do support partitions.
+> On IA-64, I've got the arch/ia64/kernel/efivars.c module that exports
+> /proc/efi/vars/{NVRAM-variables}.  It violates several rules of /proc
+> which I'd like to address in 2.5.x via driverfs.
+> 1) It's in /proc but isn't process-related.
+> 2) It exports its data as binary, not ascii.
+> 
+> Proc was chosen because it was simple, didn't require a major/minor
+> number, showed easily the set of NVRAM variables that were available
+> without needing a separate program to go and query a /dev/efivars file
+> to list them; cat and tar are sufficient for making copies of
+> variables and restoring them back again.  These exact features make
+> driverfs make sense too.
+> 
+> 1) is easy to fix.  2) a little less so.  The data structure being
+> exported is a little over 2KB in length; The data is binary (itself a
+> variable length set of structures each with no ascii representation).
+> An ascii representation in "%02x" format will be longer than a 4K page
+> given to fill out and return.  Undoubtedly there's a better way to
+> handle this, and I'm open to suggestions.  The thing being exported is
+> efi_variable_t.
+> 
+> For such cases where the data being exported is really binary,
+> having a common set of parse/unparse routines would be nice. 
 
-The opposite, surely? sr uses one minor per cd-rom, ide-cd has 64.
+I don't know what others think of this but i'd say that some
+binary files are appropriate.  In a case like this i'd say
+a files named 'nvram' and 'bios' or 'firmware' would be good
+candidates for opaque binary structures and firmware.  This
+is particularly the true if the data is purely related to
+the device.  Ultimately it'd be nice to be able to upload
+and download (install)  firmware this way.
+
+Now if a datum is a parameter suitable for tuning i'd like
+it made visible and updatable in an ASCII form.  In other
+words i'd like to see an end to the proliferation of obscure
+tools like hdparm.
+
+These opinion does not necessarily reflect the views of
+anyone else.
+
 
 -- 
-Jens Axboe
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
+		Remember Cernan and Schmitt

@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269324AbTCDH7p>; Tue, 4 Mar 2003 02:59:45 -0500
+	id <S269334AbTCDIFV>; Tue, 4 Mar 2003 03:05:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269325AbTCDH7p>; Tue, 4 Mar 2003 02:59:45 -0500
-Received: from packet.digeo.com ([12.110.80.53]:41609 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S269324AbTCDH7n>;
-	Tue, 4 Mar 2003 02:59:43 -0500
-Date: Tue, 4 Mar 2003 00:10:32 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BENCHMARK] 2.5.63-mm2 + i/o schedulers with contest
-Message-Id: <20030304001032.034f60fa.akpm@digeo.com>
-In-Reply-To: <200303041354.03428.kernel@kolivas.org>
-References: <200303041354.03428.kernel@kolivas.org>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S269337AbTCDIFU>; Tue, 4 Mar 2003 03:05:20 -0500
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:17079 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id <S269334AbTCDIFR>;
+	Tue, 4 Mar 2003 03:05:17 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: xmms (audio) skipping in 2.5 (not 2.4)
+Date: Tue, 4 Mar 2003 19:15:43 +1100
+User-Agent: KMail/1.5
+References: <103200000.1046755559@[10.10.2.4]> <200303041828.10130.kernel@kolivas.org> <107450000.1046764086@[10.10.2.4]>
+In-Reply-To: <107450000.1046764086@[10.10.2.4]>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 Mar 2003 08:10:05.0833 (UTC) FILETIME=[7705C790:01C2E225]
+Content-Disposition: inline
+Message-Id: <200303041915.43743.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> wrote:
+On Tue, 4 Mar 2003 06:48 pm, Martin J. Bligh wrote:
+> >> >> So ... is there any easy way I can diagnose this? Does anyone else
+> >> >> have a similar problem?
+> >> >
+> >> > Most of us who have worked with an O(1) scheduler based kernel have
+> >> > found this  at various times. See the previous discussion with akpm
+> >> > about the interactivity estimator. Akpm found that decreasing the
+> >> > maximum timeslice duration would blunt the effect of the interactivity
+> >> > estimator giving preference to the "wrong" task. In 2.4.20-ck4 I avoid
+> >> > this problem with the  "desktop tuning" of making the max
+> >> > timeslice==min timeslice. Try an -mm  kernel with the scheduler
+> >> > tunables patch and try playing with the max  timeslice. Most have
+> >> > found that <=25 will usually stop these skips. The  default max
+> >> > timeslice of 300ms is just too long for the desktop and interactivity
+> >> > estimator.
+> >>
+> >> Heh, cool. I have the same patch in my tree too, fixed it without
+> >> rebooting even ;-) Still a *tiny* bit of skipping, but infinitely better
+> >> than it was.
+> >
+> > Try decreasing prio_bonus_ratio to 15 as well
 >
-> Mem_load result of AS being slower was just plain weird with the result rising 
-> from 100 to 150 during testing.
-> 
+> Doesn't seem to make much difference, actually.
+> But "waggle scrollbar a bit" isn't very scientific .. ;-)
+> Does contest (or anything else) measure this kind of thing more precisely?
 
-Maybe we should just swap computers or something?
+Last time I tried to do a whole swag of tunables it was showing differences 
+but I was plagued by memory leaks ruining the data. I'll try again in the 
+near future. Also Bill Davidsen's trivial response benchmark may show 
+something too.
 
-Finished compiling kernel: elapsed: 145 user: 180 system: 18
-Finished mem_load: elapsed: 146 user: 0 system: 2 loads: 5000
-Finished compiling kernel: elapsed: 135 user: 181 system: 17
-Finished mem_load: elapsed: 136 user: 0 system: 2 loads: 4800
-Finished compiling kernel: elapsed: 129 user: 181 system: 17
-Finished mem_load: elapsed: 130 user: 0 system: 2 loads: 4800
+Con
 
-256MB, dual CPU, ext3/IDE.
-
-Whereas 2.5.63+bk gives:
-
-Finished compiling kernel: elapsed: 131 user: 182 system: 17
-Finished mem_load: elapsed: 131 user: 0 system: 1 loads: 4900
-Finished compiling kernel: elapsed: 135 user: 182 system: 17
-Finished mem_load: elapsed: 135 user: 0 system: 1 loads: 4800
-Finished compiling kernel: elapsed: 129 user: 182 system: 17
-Finished mem_load: elapsed: 129 user: 0 system: 1 loads: 4600
-
-Conceivably swap fragmentation, but unlikely.  Is it still doing a swapoff
-between runs?

@@ -1,59 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbVDCMFY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261709AbVDCMIC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261705AbVDCMFY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 08:05:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbVDCMFY
+	id S261709AbVDCMIC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 08:08:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbVDCMIC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 08:05:24 -0400
-Received: from chilli.pcug.org.au ([203.10.76.44]:53396 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S261702AbVDCMFR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 08:05:17 -0400
-Date: Sun, 3 Apr 2005 22:05:08 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Dag Arne Osvik <da@osvik.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Use of C99 int types
-Message-Id: <20050403220508.712e14ec.sfr@canb.auug.org.au>
-In-Reply-To: <424FD9BB.7040100@osvik.no>
-References: <424FD9BB.7040100@osvik.no>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Sun, 3 Apr 2005 08:08:02 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:2572 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261702AbVDCMHq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 08:07:46 -0400
+Date: Sun, 3 Apr 2005 22:07:09 +1000
+To: "Artem B. Bityuckiy" <dedekind@yandex.ru>
+Cc: "Artem B. Bityuckiy" <dedekind@infradead.org>, dwmw2@infradead.org,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+       jmorris@redhat.com, svenning@post5.tele.dk,
+       YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
+Subject: Re: [RFC] CryptoAPI & Compression
+Message-ID: <20050403120709.GB21388@gondor.apana.org.au>
+References: <1111766900.4566.20.camel@sauron.oktetlabs.ru> <20050326044421.GA24358@gondor.apana.org.au> <1112030556.17983.35.camel@sauron.oktetlabs.ru> <20050331095151.GA13992@gondor.apana.org.au> <424FD653.7020204@yandex.ru> <20050403114704.GC21255@gondor.apana.org.au> <424FDB0F.6000304@yandex.ru>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Sun__3_Apr_2005_22_05_08_+1000_Wh=7.0P_hXMToPD."
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <424FDB0F.6000304@yandex.ru>
+User-Agent: Mutt/1.5.6+20040907i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Sun__3_Apr_2005_22_05_08_+1000_Wh=7.0P_hXMToPD.
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Sun, 03 Apr 2005 13:55:39 +0200 Dag Arne Osvik <da@osvik.no> wrote:
+On Sun, Apr 03, 2005 at 04:01:19PM +0400, Artem B. Bityuckiy wrote:
+> 
+> >For instance for JFFS2 it's absolutely incorrect since it breaks
+> >compatibility.  Incidentally, JFFS should create a new compression
+> >type that doesn't include the zlib header so that we don't need the
+> >head-skipping speed hack.
 >
-> I've been working on a new DES implementation for Linux, and ran into
-> the problem of how to get access to C99 types like uint_fast32_t for
-> internal (not interface) use.  In my tests, key setup on Athlon 64 slows
-> down by 40% when using u32 instead of uint_fast32_t.
+> Anyway, in JFFS2 we may do that "hack" before calling pcompress(), so it 
+> isn't big problem.
 
-If you look in stdint.h you may find that uint_fast32_t is actually
-64 bits on Athlon 64 ... so does it help if you use u64?
+It still makes sense to use a negative window bits for JFFS since it
+means that you don't have to calculate the adler checksum in the
+first place AND you don't have to store the zlib header/trailer on
+disk.
 
---=20
+BTW, that hack can only be applied when there is no preset dictionary.
+Although the Linux implementation of JFFS probably never used a preset
+dictionary, it is theoretically possible that someone out there may
+have generated a JFFS image which contains a compressed stream that has
+a preset dictionary.
+
+In that case if you don't set the window bits to a postive value it
+won't work at all.
+
+> >Yes, I'd love to see a patch that makes windowBits configurable in
+> >crypto/deflate.c.
+>
+> I wonder, do we really want this?
+
+Yes since the the window bits determines the compression quality and
+the amount of memory used.  This is going to differ depending on the
+application.
+
+> Imagine we have 100 different compressors, and each is differently 
+> configurable. It may make cryptoAPI messy. May be it is better to stand 
+> that user must use deflate (and the other 99 compressors) directly if he 
+> wants something not standard/compliant?
+
+Each crypto/deflate user gets their own private zlib instance.
+Where is the problem?
+
 Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
---Signature=_Sun__3_Apr_2005_22_05_08_+1000_Wh=7.0P_hXMToPD.
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCT9v54CJfqux9a+8RAnMHAJ4sehVoqc2jEAzNvw1aLGaEM+wraQCcDALv
-IKRQ35mOfxq9aKNoNjaPFJY=
-=eAAp
------END PGP SIGNATURE-----
-
---Signature=_Sun__3_Apr_2005_22_05_08_+1000_Wh=7.0P_hXMToPD.--
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273854AbRKSIAj>; Mon, 19 Nov 2001 03:00:39 -0500
+	id <S273588AbRKSIIa>; Mon, 19 Nov 2001 03:08:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273588AbRKSIA3>; Mon, 19 Nov 2001 03:00:29 -0500
-Received: from web14303.mail.yahoo.com ([216.136.173.79]:53818 "HELO
-	web14303.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S273305AbRKSIAN>; Mon, 19 Nov 2001 03:00:13 -0500
-Message-ID: <20011119080012.75161.qmail@web14303.mail.yahoo.com>
-Date: Mon, 19 Nov 2001 00:00:12 -0800 (PST)
-From: Lee Chin <leechinus@yahoo.com>
-Subject: Re: sendfile from sockets
-To: Anton Blanchard <anton@samba.org>
-Cc: "linux, kernel" <linux-kernel@vger.kernel.org>,
-        Linux Net <linux-net@vger.kernel.org>
-In-Reply-To: <20011119171653.E6367@krispykreme>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S273622AbRKSIIU>; Mon, 19 Nov 2001 03:08:20 -0500
+Received: from zero.tech9.net ([209.61.188.187]:47878 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S273588AbRKSIIH>;
+	Mon, 19 Nov 2001 03:08:07 -0500
+Subject: Re: [RFC] tree-based bootmem
+From: Robert Love <rml@tech9.net>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Martin Mares <mj@ucw.cz>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011117160134.A11913@holomorphy.com>
+In-Reply-To: <20011117011415.B1180@holomorphy.com>
+	<20011118001657.A467@ucw.cz>  <20011117160134.A11913@holomorphy.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
+Date: 19 Nov 2001 03:08:07 -0500
+Message-Id: <1006157288.869.0.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Do I need to do something special to enable sendfile
-in the kernel?  It works on a 2.2 kernel, but not on a
-2.4 kernel (and this is sendfile in general... not
-just sockets)
-
-Thanks
-Lee
---- Anton Blanchard <anton@samba.org> wrote:
+On Sun, Nov 18, 2001 at 12:16:57AM +0100, Martin Mares wrote:
+> I don't understand why does it use segment trees instead of a simple
+> linked list. Bootmem allocations are obviously not going to be time
+> critical and shaving off a couple of ms during the boot process is
+> not worth the extra complexity involved.
 > 
-> > Although the man page says you can sendfile from a
-> > socket,I am unable to do so... I can only send
-> file
-> > from a file, to either a socket or file
-> > 
-> > Is this a kernel limitation?
-> 
-> Yes, the manpage needs updating, you can only
-> sendfile() from
-> something that exists in the pagecache (ie not a
-> socket).
-> 
-> Anton
+> (Nevertheless, treaps are a very nice structure...)
 
+I think there is merit in using segment trees here.  Previously I have
+replied demonstrating the benefit of the finer granularity in
+addressing, which results in a couple KB increase in total memory on my
+machines.  This is not the greatest benefit, IMO.
 
-__________________________________________________
-Do You Yahoo!?
-Find the one for you at Yahoo! Personals
-http://personals.yahoo.com
+What really stands out to me is the design; and I think segment trees
+are applicable here.  While I doubt performance of the bootmem allocator
+is ever a _terrible_ concern, it probably does have tight spots.
+
+The beauty is in the implementation.  With a linked list implementation,
+you have an exhaustive search and and at-worst O(n) insertion and
+searching complexity.  We also don't end up with any clean way to say
+"memory a belongs to x".  This is where the segment tree comes in, a
+segment tree stores intervals: it is a binary tree where each node
+represents an interval from a to b.  We only need to store nodes that
+have allocated intervals of memory, and insertion is O(log n). 
+Searching is even easier as you just walk the intervals until we get to
+what we want.  Searching would be O(log(n+s)) where s is the number of
+segments we had to walk.  OK, you know this, but my point is its is
+quite applicable.  Besides a performance boost, we end up with a nice
+way to interface with other code to work with bootmem and I think that
+is the main benefit here.
+
+Of course, the downside would be "good lord the complexity here is
+grossly overkill" but I think this doesn't have that problem.
+
+just my two bits, 
+
+	Robert Love
+

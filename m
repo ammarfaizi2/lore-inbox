@@ -1,72 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283360AbRLIMCq>; Sun, 9 Dec 2001 07:02:46 -0500
+	id <S283380AbRLIMkb>; Sun, 9 Dec 2001 07:40:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283365AbRLIMCf>; Sun, 9 Dec 2001 07:02:35 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:19466 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S283360AbRLIMCO>;
-	Sun, 9 Dec 2001 07:02:14 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200112091201.fB9C1wD158088@saturn.cs.uml.edu>
-Subject: Re: Intel I860
-To: jamagallon@able.es (J.A. Magallon)
-Date: Sun, 9 Dec 2001 07:01:58 -0500 (EST)
-Cc: n0ano@indstorage.com,
-        akruemmel@dohle.com (Achim =?iso-8859-1?Q?Kr=FCmmel?=),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20011127003327.C1546@werewolf.able.es> from "J.A. Magallon" at Nov 27, 2001 12:33:27 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S283381AbRLIMkV>; Sun, 9 Dec 2001 07:40:21 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:33801 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S283380AbRLIMkG>; Sun, 9 Dec 2001 07:40:06 -0500
+Message-ID: <3C135B9F.29A15701@namesys.com>
+Date: Sun, 09 Dec 2001 15:39:59 +0300
+From: "Vladimir V. Saveliev" <vs@namesys.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10-64GB-SMP i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Alexander Zarochentcev <zam@namesys.com>
+CC: thunder7@xs4all.nl, linux-kernel@vger.kernel.org
+Subject: Re: reiserfs_delete_solid_item [ xxx xxx 0(1) DIR ] not found when FS 
+ full?
+In-Reply-To: <20011208062921.GA3002@alpha.of.nowhere> <15378.8955.835551.333970@backtop.namesys.com>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J.A. Magallon writes:
-> On 20011126 n0ano@indstorage.com wrote:
+Hi
 
->> Uh, what exactly do you think you have here?  The I860 was a
->> completely new architecture that Intel dropped over 5 years
->> ago.  I've got one running Unix SVR4 in my basement but you
->> can't buy an I860 motherboard today.
->>
->> (For the record the 860 was a great architecture for the time
->> and I'm still bitter that Intel dropped it but that's a different
->> story.)
+Alexander Zarochentcev wrote:
+
+> Jurriaan on Alpha writes:
 >
-> You are talking about intel i860 _processor_, and he asks about
-> I860 chipset.
+>  > I was copying some tree and didn't notice my file-system filling up, but
+>  > I did notice this on the console (and in the logs):
+>  >
+>  > Dec 8 07:17:31 alpha sudo: jurriaan : TTY=tty3 ; PWD=/var/spool ; USER=root
+>  > ; COMMAND=/bin/cp -ax news testnews Dec 8 07:22:03 alpha kernel: vs-5355:
+>  > reiserfs_delete_solid_item: [434934 434961 0(1) DIR] not found<4>vs-5355:
+>  > reiserfs_delete_soli d_item: [434933 434961 0(1) DIR] not found<4>vs-5355:
+>  > reiserfs_delete_solid_item: [434961 434962 0(1) DIR] not found<4>vs-5355:
+>  > reise rfs_delete_solid_item: [434962 434963 0(1) DIR] not found<4>vs-5355:
+>  > reiserfs_delete_solid_item: [434962 434963 0(1) DIR] not found<4 >vs-5355:
+>  > reiserfs_delete_solid_item: [434962 434963 0(1) DIR] not found<4>vs-5355:
+>  > reiserfs_delete_solid_item: [434962 434963 0(1) D IR] not found<4>vs-5355:
+>  > reiserfs_delete_solid_item: [434962 434963 0(1) DIR] not found<4>vs-5355:
+>  > reiserfs_delete_solid_item: [43496 2 434963 0(1) DIR] not found<4>vs-5355:
+>  > reiserfs_delete_solid_item: [434962 434963 0(1) DIR] not found<4>vs-5355:
+>  > reiserfs_delete_sol id_item: [434962 434963 0(1) DIR] not found<4>vs-5355:
+>  > reiserfs_delete_solid_item: [434962 434963 0(1) DIR] not found<4>vs-5355:
+>  > reis erfs_delete_solid_item: [434962 434963 0(1) DIR] not found<4>vs-5355:
+>  > reiserfs_delete_solid_it
+>  >
+>  > Somehow, 'delete' is not what I expect when copying. Is this something
+>  > to worry about?
 >
-> BTW, I always desired to put my hands on an i860. It is the only real
-> good chip by Intel (it really looked like a Moto...). The only ones
-> I used were inside an HP Graphics accelerator on a 9000/385.
+> `Delete' is possible when copying. reiserfs_new_inode() fails due to no free
+> space and iput() is called on partially created inode. Some items could be
+> missing and delete_inode() => delete_solid_item() warns during attempt to
+> delete them.
+>
 
-You people are insane, but hey, it'd be cool to have i860 Linux.
-Maybe you don't realize just how unfit this chip is for normal
-UNIX-like use.
+This warning is 100% harmless when it appears as result of mkdir which fails due to
+lack of disk space.
 
-It's a RISC chip with the Pentium MMU. To get any speed out of it,
-you have to enable some strange features. First of all, you need
-the double-instruction mode. In every 64-bit chunk of memory you
-place 1 floating-point instruction and 1 integer instruction.
-Second of all, you need to enable pipelined FPU operation. This is
-an exposed pipeline, so watch out! Look what happens:
+Thanks,
+vs
 
-a = x + x
-b = a + a     <-- uses old value of "a", not x+x
-nop
-nop
-nop
-c = a + a
 
-Yep, c!=a after this!  Actually, "c" won't be set until a few
-instructions later because it too is still in the pipeline.
-You need a few dummy operations to push it out.
-
-Now lets have a trap of some sort while that floating-point
-pipeline is full. The chip leaves itself in a horrible messy
-state that may well require thousands of lines of assembly
-code to sort out. I'm not kidding.
-
-The chip made a fine DSP. You could put a few dozen together
-for radar.

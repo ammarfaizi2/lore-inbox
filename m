@@ -1,34 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129121AbQKMD0C>; Sun, 12 Nov 2000 22:26:02 -0500
+	id <S130219AbQKMD1D>; Sun, 12 Nov 2000 22:27:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129222AbQKMDZw>; Sun, 12 Nov 2000 22:25:52 -0500
-Received: from smtp-2u-1.atlantic.net ([209.208.25.2]:9735 "EHLO
-	smtp-2u-1.atlantic.net") by vger.kernel.org with ESMTP
-	id <S129121AbQKMDZj>; Sun, 12 Nov 2000 22:25:39 -0500
-Date: Sun, 12 Nov 2000 23:27:55 -0500 (EST)
-From: Burton Windle <burton@fint.org>
-To: linux-kernel@vger.kernel.org
-Subject: Broadcast Pings
-Message-ID: <Pine.LNX.4.21.0011122324070.21174-100000@fint.staticky.com>
+	id <S130216AbQKMD0x>; Sun, 12 Nov 2000 22:26:53 -0500
+Received: from james.kalifornia.com ([208.179.0.2]:60270 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S129222AbQKMD0n>; Sun, 12 Nov 2000 22:26:43 -0500
+Message-ID: <3A0F5F6D.F8B26CDF@linux.com>
+Date: Sun, 12 Nov 2000 19:26:37 -0800
+From: David Ford <david@linux.com>
+Reply-To: david+validemail@kalifornia.com
+Organization: Talon Technology, Intl.
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: tytso@mit.edu
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4 Status/TODO page (test11-pre3)
+In-Reply-To: <200011121939.eACJd9D01319@trampoline.thunk.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[sent to L-K at DaveM's suggestion]
+tytso@mit.edu wrote:
 
-Shouldn't Linux default to not respond to broadcasts pings? Perhaps I've
-set them up wrong, but all of my Linux boxes reply to pings sent to the
-broadcast address (RH's 2.2.16-3, 2.2.18pre18, and 2.4.0-test11-pre3).  
-Just for safety/non-smurfism, shouldn't they default to not reply ( I
-[think] they can be tuned to do so) ? Sorry if this is a config issue that
-I overlooked...
+> 6. In Progress
+>
+>      * The new hot plug PCI interface does not provide a method for
+>        passing the correct device name to cardmgr (David Hinds, a an)
 
--- 
-Burton Windle				burton@fint.org
-Linux: the "grim reaper of innocent orphaned children."
-          from /usr/src/linux/init/main.c:1384
+is this entry missing some text?
+
+
+> 9. To Do
+>
+>      * Tulip hang on rmmod/crashes sometimes
+
+This is a pretty old bug that has been worked on, can we get someone to test
+a system and validate the bug?
+
+Here's a USB addition, could go into #10 as it's pretty annoying but not a
+show stopper.
+++ usb-uhci and JE driver will both hang the machine on a warm boot when an
+external SIIG 4port hub is plugged in and has been used in a previous boot.
+The function call trace is usb_uhci->start_uhci->pci_write_config_word.
+Hangs on popf near end of pci_write_config_word.
+
+
+> 10. To Do But Non Showstopper
+>
+>      * PCMCIA serial cards using built-in PCMCIA code will crash if a
+>        serial card is removed. (David Ford)
+
+Did you/someone have a patch to try and address this?
+
+
+> 11. To Check
+>
+>           + dito if the file position changes between the call to
+
++t
+
+
+> Fixed
+>
+>      * Incredibly slow loopback tcp bug (believed fixed about 2.3.48)
+
+Note; if I set up ESD to listen on a tcp port, connecting locally sounds
+horrible.  I haven't looked to see who's fault it really is.
+
+-d
+
+-- ---NOTICE
+
+-- fwd: fwd: fwd: type emails will be deleted automatically.
+      "There is a natural aristocracy among men. The grounds of this are
+      virtue and talents", Thomas Jefferson [1742-1826], 3rd US President
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,47 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131484AbRANCO2>; Sat, 13 Jan 2001 21:14:28 -0500
+	id <S131517AbRANCP3>; Sat, 13 Jan 2001 21:15:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131517AbRANCOS>; Sat, 13 Jan 2001 21:14:18 -0500
-Received: from jalon.able.es ([212.97.163.2]:719 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S131484AbRANCOO>;
-	Sat, 13 Jan 2001 21:14:14 -0500
-Date: Sun, 14 Jan 2001 03:14:06 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Call for testers: ne2k-pci and io apic
-Message-ID: <20010114031406.A879@werewolf.able.es>
-In-Reply-To: <200101131237.f0DCb8g15518@flint.arm.linux.org.uk> <3A6071C2.47E8418A@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3A6071C2.47E8418A@colorfullife.com>; from manfred@colorfullife.com on Sat, Jan 13, 2001 at 16:18:26 +0100
-X-Mailer: Balsa 1.0.1
+	id <S131770AbRANCPT>; Sat, 13 Jan 2001 21:15:19 -0500
+Received: from [198.167.161.1] ([198.167.161.1]:1900 "EHLO kiln.isn.net")
+	by vger.kernel.org with ESMTP id <S131517AbRANCPE>;
+	Sat, 13 Jan 2001 21:15:04 -0500
+Message-ID: <3A610B68.A1F209BC@isn.net>
+Date: Sat, 13 Jan 2001 22:14:00 -0400
+From: "Garst R. Reese" <reese@isn.net>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1-pre2 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: kaos@ocs.com.au
+Subject: Re:2.4.1-pre3 compile problems
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 2001.01.13 Manfred Spraul wrote:
-> 
-> Any volunteers with ne2k-pci cards and other motherboards that include
-> an io apic (e.g. all Intel motherboards that use an IO Controller Hub,
-> Via Apollo Pro133, Pro133A, KX133)?
-> 
-
-In my case, (440GX/BX, PIIX4), network goes off (both with a ping-flood
-or some web browsing) with a message:
-
-Jan 14 03:01:25 werewolf kernel: NETDEV WATCHDOG: eth0: transmit timed out
-Jan 14 03:01:57 werewolf last message repeated 19 times
-
-
--- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
-
-Linux werewolf 2.4.0-ac9 #2 SMP Sun Jan 14 01:46:07 CET 2001 i686
-
+Thanks Keith,
+I did a make mrproper and that solved the problem.
+I thought I had done that already, but must have screwed up somewhere.
+Garst
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

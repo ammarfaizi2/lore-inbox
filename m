@@ -1,82 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVALSao@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVALScW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbVALSao (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 13:30:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVALSan
+	id S261212AbVALScW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 13:32:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbVALScW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 13:30:43 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42142 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261193AbVALSae
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 13:30:34 -0500
-Date: Wed, 12 Jan 2005 13:06:12 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: akpm@osdl.org, torvalds@osdl.org, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: thoughts on kernel security issues
-Message-ID: <20050112150611.GB32024@logos.cnet>
-References: <20050112094807.K24171@build.pdx.osdl.net>
+	Wed, 12 Jan 2005 13:32:22 -0500
+Received: from host245-95.pool217223.interbusiness.it ([217.223.95.245]:21382
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261196AbVALSb6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 13:31:58 -0500
+Subject: OOPS in kernel 2.6.10 with quickcam
+From: Sasa Ostrouska <sasa.ostrouska@volja.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Wed, 12 Jan 2005 19:30:25 +0100
+Message-Id: <1105554625.8730.2.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050112094807.K24171@build.pdx.osdl.net>
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi I have that message in my dmesg. If somebody is interested in that 
+can contact me by e-mail to provide more informations.
 
-Hi Chris!
+I use Slackware current with custom build kernel 2.6.10
+On a Sony Vaio PCG-GRT816S laptop.
 
-On Wed, Jan 12, 2005 at 09:48:07AM -0800, Chris Wright wrote:
-> This same discussion is taking place in a few forums.  Are you opposed to
-> creating a security contact point for the kernel for people to contact
-> with potential security issues?  This is standard operating procedure
-> for many projects and complies with RFPolicy.
-> 
-> http://www.wiretrip.net/rfp/policy.html
-> 
-> Right now most things come in via 1) lkml, 2) maintainers, 3) vendor-sec.
-> It would be nice to have a more centralized place for all of this
-> information to help track it, make sure things don't fall through
-> the cracks, and make sure of timely fix and disclosure.
+Best Regards
+Sasa Ostrouska
 
-I very much like the idea and I also think a "official" list of kernel security issues and 
-respective fixes is very much required, since not every Linux distribution is supposed
-to have kernel developers working for them, going through the whole changelogs 
-looking for security issues, which is just silly.
+quickcam: QuickCam USB camera found (driver version QuickCam USB $Date:
+2004/07/29 18:12:39 $)
+quickcam: Kernel:2.6.10 bus:2 class:FF subclass:FF vendor:046D
+product:0850
+quickcam: Sensor VV6410 detected
+quickcam: Registered device: /dev/video0
+usbcore: registered new driver quickcam
+ohci_hcd 0000:00:03.0: leak ed f70f80c0 (#2) state 2
+Unable to handle kernel paging request at virtual address 000379d4
+ printing eip:
+f8cd7366
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT
+Modules linked in: quickcam videodev audio snd_usb_audio snd_usb_lib
+snd_rawmidi snd_seq_device nls_iso8859_1 nls_cp437 vfat fat nls_base
+snd_pcm_oss snd_mixer_oss uhci_hcd parport_pc parport rtc sis_agp shpchp
+pci_hotplug usb_storage usbhid snd_intel8x0m usbmouse snd_intel8x0
+snd_ac97_codec snd_pcm snd_timer snd snd_page_alloc eth1394 ohci_hcd
+ehci_hcd usbcore sis900 ohci1394 ieee1394 nvidia agpgart psmouse
+CPU:    0
+EIP:    0060:[<f8cd7366>]    Tainted: P      VLI
+EFLAGS: 00210206   (2.6.10)
+EIP is at usb_unlink_urb+0x16/0x50 [usbcore]
+eax: d0c77480   ebx: d447a000   ecx: 00000002   edx: 00037914
+esi: d0c77480   edi: c18eaf80   ebp: d30ab830   esp: d447af64
+ds: 007b   es: 007b   ss: 0068
+Process xawtv (pid: 12808, threadinfo=d447a000 task=d4c56a80)
+Stack: f8f35047 00000000 f2b8e234 f8f37187 00000000 db23b800 f2b8e000
+00000000
+       f8f37868 f2b8e000 f8f37abd d95d7d80 c01556d8 d2dbf054 d95d7d80
+00000000
+       d5c6f980 d447a000 c0153f1f c0148db7 00000004 00000000 0810068c
+c0102f5f
+Call Trace:
+ [<f8f35047>] qc_unlink_urb_sync+0x17/0x40 [quickcam]
+ [<f8f37187>] qc_isoc_stop+0x37/0x100 [quickcam]
+ [<f8f37868>] qc_capt_exit+0x8/0x30 [quickcam]
+ [<f8f37abd>] qc_v4l_close+0x4d/0x60 [quickcam]
+ [<c01556d8>] __fput+0x108/0x120
+ [<c0153f1f>] filp_close+0x4f/0x80
+ [<c0148db7>] sys_munmap+0x47/0x70
+ [<c0102f5f>] syscall_call+0x7/0xb
+Code: e9 b5 fe ff ff b8 ed ff ff ff e9 4b ff ff ff 8d b6 00 00 00 00 85
+c0 ba ea ff ff ff 74 23 f6 40 28 10 74 31 8b 50 1c 85 d2 74 11 <8b> 92
+c0 00 00 00 85 d2 74 07 8b 4a 24 85 c9 75 08 ba ed ff ff
 
-Disclosing and bookkeeping of security issues is a job of the Linux kernel team.
+root@rc-vaio:/home/sasa/qc-usb-0.6.2#
 
-Alan used to list down security fixes between each v2.2 release, v2.4 has never 
-had such an official list (I'm trying to write CAN numbers on the changelogs lately), 
-neither v2.6. Its not a practical thing for Linus/Andrew to do, its a lot of
-work.
 
-It would be interesting to have all developers to know about such initiative 
-and have them send their security fixes to be logged and disclosed - its obviously
-impossible for you to read all changes in the kernel. And have Linus/Andrew 
-advocate in favour of it.
-
-IMO such initiative needs to be known by all contributors for
-it to be effective.
-
-> In addition, I think it's worth considering keeping the current stable
-> kernel version moving forward (point releases ala 2.6.x.y) for critical
-> (mostly security) bugs.  If nothing else, I can provide a subset of -ac
-> patches that are only that.
-
-Yes, -ac has been playing that role. It is general consensus that 
-such point releases are required. 
-
-Linus doesnt do it because it is too much extra work him (and he is focused
-on other things), glad you have stepped up.
-
-> I volunteer to help with _all_ of the above.  It's what I'm here for.
-> Use me, abuse me ;-)
-
-You've been doing a lot of security work/auditing in the kernel for a long time, 
-which fits the job position nicely.
-
-I'm willing to help.
 

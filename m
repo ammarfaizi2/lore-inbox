@@ -1,86 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbUFQRhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbUFQRmk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261231AbUFQRhR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 13:37:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbUFQRhR
+	id S261234AbUFQRmk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 13:42:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbUFQRmk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 13:37:17 -0400
-Received: from mail1.asahi-net.or.jp ([202.224.39.197]:4300 "EHLO
-	mail.asahi-net.or.jp") by vger.kernel.org with ESMTP
-	id S261231AbUFQRhI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 13:37:08 -0400
-Message-ID: <40D1D6BD.4050505@ThinRope.net>
-Date: Fri, 18 Jun 2004 02:37:01 +0900
-From: Kalin KOZHUHAROV <kalin@ThinRope.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
-X-Accept-Language: bg, en, ja, ru, de
-MIME-Version: 1.0
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ACPI vs. APM - Which is better for desktop and why?
-References: <Pine.LNX.4.60.0406171308080.17891@p500>
-In-Reply-To: <Pine.LNX.4.60.0406171308080.17891@p500>
-X-Enigmail-Version: 0.83.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Jun 2004 13:42:40 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:64726 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S261234AbUFQRmh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 13:42:37 -0400
+Date: Thu, 17 Jun 2004 19:41:54 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Andreas Schwab <schwab@suse.de>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: make checkstack on m68k
+Message-ID: <20040617174154.GA29029@wohnheim.fh-wedel.de>
+References: <Pine.GSO.4.58.0406161845490.1249@waterleaf.sonytel.be> <je3c4uqum0.fsf@sykes.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <je3c4uqum0.fsf@sykes.suse.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin Piszcz wrote:
-> I have enabled ACPI on my Dell GX1 (Pentium 3/500MHZ) machine and 
-> disabled APM, however, what are the benefits of using ACPI over APM?
+On Thu, 17 June 2004 13:41:59 +0200, Andreas Schwab wrote:
+> Geert Uytterhoeven <geert@linux-m68k.org> writes:
 > 
-> I am using Kernel 2.6.7
+> > I tried to add m68k support to `make checkstack', but got stuck due to my
+> > limited knowledge of complex perl expressions. I actually need to catch both
+> > expressions (incl. the one I commented out). Anyone who can help?
 > 
-> I see ACPI eats up an IRQ and does not share it:
+> Untested:
 > 
-> $ cat /proc/interrupts
->            CPU0
->   0:   64997374          XT-PIC  timer
->   1:         10          XT-PIC  i8042
->   2:          0          XT-PIC  cascade
->   5:       2625          XT-PIC  Crystal audio controller
->   8:          1          XT-PIC  rtc
->   9:          0          XT-PIC  acpi
->  10:     277489          XT-PIC  ide2
->  11:   11465050          XT-PIC  ide4, ide5, eth0, eth1, eth2, eth3
->  12:         58          XT-PIC  i8042
->  14:     307536          XT-PIC  ide0
->  15:         53          XT-PIC  ide1
-> NMI:          0
-> LOC:   65007290
-> ERR:          0
-> MIS:          0
-> 
-Yep, IRQ 11 is a bit crowded...
+>   $re = qr/.*(?:linkw %fp,|addw )#-([0-9]{1,4})(?:,%sp)?$/o;
 
-I was just about to ask a similar question...
-How do I have a better interrupt table (no or less shared intrerupts) with ACPI?
+Thanks!  Geert, can you test the patch below?
 
-My system (just rebooted) says:
- $ cat /proc/interrupts 
-           CPU0       
-  0:    1434691    IO-APIC-edge  timer
-  1:       5158    IO-APIC-edge  i8042
-  8:          2    IO-APIC-edge  rtc
-  9:          0   IO-APIC-level  acpi
- 14:       8097    IO-APIC-edge  ide0
- 15:        959    IO-APIC-edge  ide1
- 19:     105118   IO-APIC-level  nvidia
- 20:      17455   IO-APIC-level  ehci_hcd, eth0, NVidia nForce2
- 21:          0   IO-APIC-level  ohci_hcd
- 22:      16156   IO-APIC-level  ohci_hcd
-NMI:          0 
-LOC:    1434624 
-ERR:          0
-MIS:          0
+[ It will break all platforms except m68k, but I don't want to touch
+those REs before someone confirms it to work. ]
 
-The "problem" here might be IRQ 20 when I am using my scanner@4800dpi (USB2.0, Epson GT-X700) writing the output via NFS (through eth0). Will test the numbers some other time.
-
-Kalin.
-
+Jörn
 
 -- 
-||///_ o  *****************************
-||//'_/>     WWW: http://ThinRope.net/
+Simplicity is prerequisite for reliability.
+-- Edsger W. Dijkstra
+
+
+
+ checkstack.pl |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletion(-)
+
+--- linux-2.6.7cow/scripts/checkstack.pl~cs_m68k	2004-06-17 14:58:25.000000000 +0200
++++ linux-2.6.7cow/scripts/checkstack.pl	2004-06-17 19:39:15.000000000 +0200
+@@ -40,6 +40,11 @@
+ 	} elsif ($arch =~ /^ia64$/) {
+ 		#e0000000044011fc:       01 0f fc 8c     adds r12=-384,r12
+ 		$re = qr/.*adds.*r12=-(([0-9]{2}|[3-9])[0-9]{2}),r12/o;
++	 } elsif ($arch =~ /^m68k$/) {
++		#2b6c:       4e56 fb70       linkw %fp,#-1168
++		#1df770:       defc ffe4       addaw #-28,%sp
++		#$re = qr/.*linkw %fp,#-([0-9]{1,4})/o;
++		$re = qr/.*(?:linkw %fp,|addw )#-[0-9]{1,4}(?:,%sp)?$/o;
+ 	} elsif ($arch =~ /^mips64$/) {
+ 		#8800402c:       67bdfff0        daddiu  sp,sp,-16
+ 		$re = qr/.*daddiu.*sp,sp,-(([0-9]{2}|[3-9])[0-9]{2})/o;
+@@ -76,7 +81,7 @@
+ 		$func = $1;
+ 	}
+ 	if ($line =~ m/$re/) {
+-		my $size = $1;
++		my $size = $2;
+ 		$size = hex($size) if ($size =~ /^0x/);
+ 
+ 		if ($size > 0x80000000) {

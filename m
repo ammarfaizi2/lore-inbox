@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262871AbVCXRAS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263104AbVCXRAr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262871AbVCXRAS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 12:00:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263102AbVCXRAQ
+	id S263104AbVCXRAr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 12:00:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263102AbVCXRAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 12:00:16 -0500
-Received: from mx1.suse.de ([195.135.220.2]:62104 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S262871AbVCXQ6f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 11:58:35 -0500
-Message-ID: <4242CE43.1020806@suse.de>
-Date: Thu, 24 Mar 2005 15:27:15 +0100
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andy Isaacson <adi@hexapodia.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
-References: <20050323184919.GA23486@hexapodia.org>
-In-Reply-To: <20050323184919.GA23486@hexapodia.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Mar 2005 12:00:47 -0500
+Received: from tiu.fh-brandenburg.de ([195.37.0.8]:11633 "EHLO
+	tiu.fh-brandenburg.de") by vger.kernel.org with ESMTP
+	id S263104AbVCXRAK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 12:00:10 -0500
+Date: Thu, 24 Mar 2005 18:00:04 +0100
+From: Markus Dahms <dahms@fh-brandenburg.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] Lockup using ALi SATA controller (sata_uli)
+Message-ID: <20050324170004.GA18726@fh-brandenburg.de>
+References: <20050321224410.GA27760@fh-brandenburg.de> <20050322222606.760e03e4.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050322222606.760e03e4.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Isaacson wrote:
+Hello Andrew Morton,
 
-> Dmesg is attached; hardware is a Vaio r505te.
-> 
-> Unfortunately, the deadlock (?) is nondeterministic; it *sometimes*
-> suspends successfully, maybe one time out of 10.  And thinking back, I
-> *sometimes* saw failures to suspend with 2.6.11-rc3, maybe one failure
-> out of 20 suspends.
+>>  I have a reproducable lockup of my system using an ALi SATA controller
+>>  and writing some 100 MB to the attached disk.
+>> ...
+>>  Do you have some hints?
+> As a test you might like to try an uniprocessor kernel - we do have a
+> deadlock on the sata error recovery paths at present.
 
-Does it hang hard or is sysrq still working?
-If sysrq is still working, please try with "i8042.noaux" (this will kill
-your touchpad, which is what i intend :-)
+The UP kernel didn't change anything, same error on console. In addition
+this kernel crashes every second time or so immediately after boot
+(some pci stuff in backtrace), I'll try catch some error messages....
 
-Best regards,
+> Or ensure that you've enabled the io-apci in Kconfig and boot with
+> nmi_watchdog=1.
 
-    Stefan
+Except the line "testing NMI watchdog ... OK." in the boot messages
+I don't see any difference. :-(
 
+thanks anyway,
 
+	Markus
 
+-- 
+A CRAY is the only computer that runs an endless loop in just 4 hours...

@@ -1,75 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262633AbTFJNI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 09:08:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbTFJNI1
+	id S262657AbTFJNMk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 09:12:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262645AbTFJNMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 09:08:27 -0400
-Received: from wmail.atlantic.net ([209.208.0.84]:55749 "HELO
-	wmail.atlantic.net") by vger.kernel.org with SMTP id S262633AbTFJNIZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 09:08:25 -0400
-Message-ID: <3EE5DE7E.4090800@techsource.com>
-Date: Tue, 10 Jun 2003 09:34:54 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Krzysztof Halasa <khc@pm.waw.pl>
-CC: David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org
-Subject: Re: select for UNIX sockets?
-References: <MDEHLPKNGKAHNMBLJOLKOEKFDIAA.davids@webmaster.com> <m3isredh4e.fsf@defiant.pm.waw.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Jun 2003 09:12:40 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:38404 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262636AbTFJNMi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 09:12:38 -0400
+Date: Tue, 10 Jun 2003 14:26:14 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: =?iso-8859-1?Q?P=E1sztor_Szil=E1rd?= <silicon@inf.bme.hu>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       Adrian Bunk <bunk@fs.tum.de>
+Subject: Re: [2.5 patch] let COMX depend on PROC_FS
+Message-ID: <20030610142614.A25666@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	=?iso-8859-1?Q?P=E1sztor_Szil=E1rd?= <silicon@inf.bme.hu>,
+	linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+	Adrian Bunk <bunk@fs.tum.de>
+References: <20030608175850.A9513@infradead.org> <Pine.GSO.4.00.10306101347450.1700-100000@kempelen.iit.bme.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.GSO.4.00.10306101347450.1700-100000@kempelen.iit.bme.hu>; from silicon@inf.bme.hu on Tue, Jun 10, 2003 at 01:55:22PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jun 10, 2003 at 01:55:22PM +0200, Pásztor Szilárd wrote:
+> The drivers are used by some hundreds of cards today but we tell users to
+> get the small kernelpatch from www.itc.hu and the patch, among other things,
+> exports proc_get_inode. There was a process to integrate the patch into the
+> mainstream kernel last year but, due to lack of time on my part, it was
+> suspended. I hope to be able to pick the line up again and clean things up.
 
-
-Krzysztof Halasa wrote:
-> "David Schwartz" <davids@webmaster.com> writes:
-
->>	The kernel does not remember that you got a write hit on 'select'
->>and use
->>it to somehow ensure that your next 'write' doesn't block. A 'write' hit
->>from 'select' is just a hint and not an absolute guarantee that whatever
->>'write' operation you happen to choose to do won't block.
-> 
-> 
-> A "write" hit from select() is not a hit - it's exactly nothing and this
-> is the problem.
-> Have you at least looked at the actual code? unix_dgram_sendmsg() and
-> datagram_poll()?
-
-
-I think the issue here is not what it means when select() returns but 
-what it means when it DOESN'T return (well, blocks).
-
-In my understanding, one of select()'s purposes is to keep processes 
-from having to busy-wait, burning CPU for nothing.  Your guarantee with 
-select() is that if it blocks, then the write target(s) definately 
-cannot accept data.  The inverse is not true, although the inverse is 
-very likely:  if select() does not block, then it's extremely likely 
-that the target can accept SOME data.  But it it certainly can't accept 
-ALL data you want to give it if you want to give it a lot of data.
-
-If you were to use blocking writes, and you sent too much data, then you 
-would block.  If you were to use non-blocking writes, then the socket 
-would take as much data as it could, then return from write() with an 
-indication of how much data actually got sent.  Then you call select() 
-again so as to wait for your next opportunity to send some more of your 
-data.
-
-It may be that some operating systems have large or expandable queues 
-for UNIX sockets.  As a result, you have been able to send a lot of data 
-with a blocking write without it blocking.  I can see how it would be an 
-advantage to function that way, up to a certain point, after which you 
-start eating too much memory for your queue.  However, what you have 
-experienced is not universally guaranteed behavior.  What Linux does is 
-canonically correct; it's just a variant that you're not used to.  If 
-you were to change your approach to fit the standard, then you would get 
-more consistent behavior across multiple platforms.
-
-Up to this point, I believe you have been riding on luck, not guaranteed 
-behavior.
+So what about fixing it instead?  The usage of proc_get_inode is broken
+and so is the whole profs mess in the comx driver.  If you want to keep
+the API you need to add a ramfs-style filesystem instead of abusing
+procfs.
 

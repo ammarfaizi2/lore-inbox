@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263004AbTI2VLE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 17:11:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263002AbTI2VLE
+	id S263024AbTI2VZa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 17:25:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263039AbTI2VZa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 17:11:04 -0400
-Received: from smtp.terra.es ([213.4.129.129]:12628 "EHLO tsmtp10.mail.isp")
-	by vger.kernel.org with ESMTP id S263009AbTI2VLB convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 17:11:01 -0400
-Date: Mon, 29 Sep 2003 23:11:01 +0200
-From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
-To: "kartikey bhatt" <kartik_me@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Can't X be elemenated?
-Message-Id: <20030929231101.0496b0c7.diegocg@teleline.es>
-In-Reply-To: <LAW11-F18b4SaFMwr9y00007564@hotmail.com>
-References: <LAW11-F18b4SaFMwr9y00007564@hotmail.com>
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Mon, 29 Sep 2003 17:25:30 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:59551 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263036AbTI2VZZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 17:25:25 -0400
+Date: Mon, 29 Sep 2003 14:26:08 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+Reply-To: Hanna Linder <hannal@us.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       lse-tech@lists.sourceforge.net
+cc: sylvain.jeaugey@bull.net, Simon.Derr@bull.net, mark.gross@intel.com
+Subject: 10/1 LSE call topics: Cpusets and real-time app needs.
+Message-ID: <37470000.1064870768@w-hlinder>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Mon, 29 Sep 2003 20:14:56 +0530 "kartikey bhatt" <kartik_me@hotmail.com> escribió:
 
-> 1st. X is bloat. Though it's good for server environments. For desktop pcs
-> it's too heavy. On my machine (PIII500 with 128MB RAM) I have to choose from
-> either to run X or compile 2.6.0-test6.
-> 
-> 2nd. It's process based client/server architecture is a bottleneck. It's not
-> as interactive as is supposed to be.
+		LSE Con Call Agenda for Wednesday Oct 1, 2003
 
-You might want to discuss that with X people. It's been demonstrated that the
-client/server model is noy a bottleneck...in fact there're benchmarks which show
-X being almost as fast as the windows GDI... (using the shared memory extension)
+Typically the presenter gives a brief overview of their topic
+then the rest of the time is left open for questions.
 
-> 
-> 3rd. Most important. I can't impress or convince my window(crash)(TM) user
-> friends, relatives (who saw X running on my pc) to use Linux.
+I. Sylvain Jeaugey and Simon Derr: CPUSETS, Controlling CPU placement.
 
-I can impress them quite well running the X server in a different machine :)
+http://marc.theaimsgroup.com/?l=lse-tech&m=106441942222186&w=2
 
-> 
-> 4th. I want to see desktop being ruled by Linux.
+II. Mark Gross: Real-Time applications needs when system is stressed. 
 
-It's already ruling my desktop 8)
+III. Anything else if time permits.
 
-But you might want to talk with X developers. Linus it's just the kernel
-maintainer.
+
+USA Toll Free:      1-800-967-7148
+International Toll: +1-719-457-2710
+Passcode: 298900
+10:00am PDT (1700 GMT)
+
 
 

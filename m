@@ -1,105 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133023AbREERQj>; Sat, 5 May 2001 13:16:39 -0400
+	id <S133029AbREERUa>; Sat, 5 May 2001 13:20:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133029AbREERQ3>; Sat, 5 May 2001 13:16:29 -0400
-Received: from [24.93.67.55] ([24.93.67.55]:47120 "EHLO mail8.carolina.rr.com")
-	by vger.kernel.org with ESMTP id <S133023AbREERQO>;
-	Sat, 5 May 2001 13:16:14 -0400
-From: Zilvinas Valinskas <zvalinskas@carolina.rr.com>
-Date: Sat, 5 May 2001 13:15:05 -0400
-To: linux-kernel@vger.kernel.org
-Cc: zvalinskas@carolina.rr.com
-Subject: ABit KT7A-RAIN random lock ups 
-Message-ID: <20010505131505.A5386@clt88-175-140.carolina.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
+	id <S133070AbREERUV>; Sat, 5 May 2001 13:20:21 -0400
+Received: from feral.com ([192.67.166.1]:33576 "EHLO feral.com")
+	by vger.kernel.org with ESMTP id <S133029AbREERUN>;
+	Sat, 5 May 2001 13:20:13 -0400
+Date: Sat, 5 May 2001 10:20:09 -0700 (PDT)
+From: Matthew Jacob <mjacob@feral.com>
+Reply-To: mjacob@feral.com
+To: Larry McVoy <lm@bitmover.com>
+cc: linux-kernel@vger.kernel.org,
+        BitKeeper Development Source <dev@bitmover.com>
+Subject: Re: Wow! Is memory ever cheap!
+In-Reply-To: <20010505095802.X12431@work.bitmover.com>
+Message-ID: <Pine.BSF.4.21.0105051019390.79719-100000@beppo.feral.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello listers,
 
-as of yesterday I started to get random hard lockups. It was strange
-because just before that I've never had one ... MB worked just fine
-for now about two months. Until yesterday ...
-
-I tried to boot 2.4.3-ac14, 2.4.4, 2.4.4-ac4 ... the same. Btw. I have
-ACPI enabled, so sometimes I see lots of defunc processes 
-kacpidpc defunct ... and that number keeps growing. Ok, I see that new
-kernel might misbehave but for example 2.4.3-ac14 used to work as charm
-and there I see the same ... tons of defunc processes ... until fork:
-resource temporary unavailable error ...
-
-So that's not the kernel (my guess.). Last night I booted up win 98 to
-play unreal tournament. Then booted back to linux ... and there we go
-I hit strange pile of the problems and I don't know how to deal with them.
-
-Tinkered for a while. Disable acpi or so ... trying to recompile kernels
-- random lock ups. Sometimes it works fine for longer time sometimes it
-hangs much faster ... most of time I saw kacpidpc defuncs ...
-
-Yet later 5am. in the morning I gave up. ... But then I realized that win 98
-did something ... lets try clean up BIOS'es (with jumper). Now it works just
-fine again as it used to ... 
-
-Now I don't have a clue as to what was wrong ?
-
-Win98 reprograms hardware ? and linux can't handle it in this "win98" state ?
-Looks like it :(
+I'll frickin' whine if I want to :-). I still use bitkeeper on a Solaris 2.6
+machine with 32MB of memory.
 
 
-No Ooops. Just plain hard lock up. No cpu not overclocked. Latest BIOS version.
+On Sat, 5 May 2001, Larry McVoy wrote:
 
-My hardware :
-00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 03)
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 40)
+> This is a 750Mhz K7 system with 1.5GB of memory in 3 512MB DIMMS.  The
+> DIMMS are not ECC, but we use BitKeeper here and it tells us when we
+> have bad DIMMS.
+> 
+> Guess what the memory cost?  $396.58 shipped to my door, second day air,
+> with a lifetime warranty.  I got it at www.memory4less.com which I found
+> using www.pricewatch.com.  I have no association with either of those
+> places other than being a customer (i.e., this isn't advertising spam).
+> 
+> I'm burning it in right now, I wrote a little program which fills it
+> with different test patterns and then reads them back to make sure they
+> don't lose any bits.  Seems to be working, it's done about 30 passes.
+> 
+> 1.5GB for $400.  Amazing.  No more whining from you guys that BitKeeper
+> uses too much memory :-)
+> 
+> $ hinv
+> Main memory size: 1535.9375 Mbytes
+> 1 AuthenticAMD  processor
+> 1 1.44M floppy drive
+> 1 vga+ graphics device
+> 1 keyboard
+> IDE devices:
+>     /dev/hda is a ST310211A, 9541MB w/512kB Cache, CHS=1216/255/63
+> SCSI devices:
+>     /dev/sda is a 3ware disk, model 3w-xxxx 74.541 GB
+> PCI bus devices:
+>     Host bridge: VIA Technologies VT 82C691 Apollo Pro (rev 2).
+>     PCI bridge: VIA Technologies VT 82C598 Apollo MVP3 AGP (rev 0).
+>     ISA bridge: VIA Technologies VT 82C686 Apollo Super (rev 34).
+>     IDE interface: VIA Technologies VT 82C586 Apollo IDE (rev 16).
+>     Host bridge: VIA Technologies VT 82C686 Apollo Super ACPI (rev 48).
+>     Ethernet controller: 3Com 3C905B 100bTX (rev 48).
+>     Ethernet controller: 3Com 3C905B 100bTX (rev 48).
+>     Ethernet controller: 3Com 3C905B 100bTX (rev 48).
+>     Ethernet controller: 3Com 3C905B 100bTX (rev 48).
+>     RAID storage controller: Unknown vendor Unknown device (rev 18).
+>     VGA compatible controller: Matrox Matrox G200 AGP (rev 1).
+> -- 
+> ---
+> Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
-00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16)
-00:07.3 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16)
-00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
-00:08.0 Ethernet controller: Bridgecom, Inc: Unknown device 0985 (rev 11)
-00:0f.0 Multimedia audio controller: Creative Labs SB Live! EMU10000 (rev 07)
-00:0f.1 Input device controller: Creative Labs SB Live! (rev 07)
-01:00.0 VGA compatible controller: ATI Technologies Inc: Unknown device 5144
-
-swoop@tweakster:~$ cat /proc/ide/via     
-----------VIA BusMastering IDE Configuration----------------
-Driver Version:                     3.23
-South Bridge:                       VIA vt82c686b
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ????
-Revision:                           ISA 0x40 IDE 0x6
-Highest DMA rate:                   UDMA100
-BM-DMA base:                        0xd000
-PCI clock:                          33MHz
-Master Read  Cycle IRDY:            0ws
-Master Write Cycle IRDY:            0ws
-BM IDE Status Register Read Retry:  yes
-Max DRDY Pulse Width:               No limit
-
-swoop@tweakster:~$ cat /proc/cpuinfo 
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 4
-model name      : AMD Athlon(tm) Processor
-stepping        : 2
-cpu MHz         : 850.047
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
-bogomips        : 1697.38
-
-Any ideas ?
--- 
-Zilvinas Valinskas

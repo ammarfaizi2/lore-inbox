@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262847AbUKRSoQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262859AbUKSBME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262847AbUKRSoQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 13:44:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262864AbUKRSmw
+	id S262859AbUKSBME (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 20:12:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262864AbUKSBKw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 13:42:52 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:34245 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262863AbUKRSlM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 13:41:12 -0500
-Date: Thu, 18 Nov 2004 19:40:39 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Daniel Drake <dsd@gentoo.org>
-Cc: "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Missing SCSI command in the allowed list?
-Message-ID: <20041118184039.GM26240@suse.de>
-References: <cmikie$vif$1@sea.gmane.org> <200411061624.57918.dsd@gentoo.org> <cmkkd8$dm8$1@sea.gmane.org> <419CEC65.4020603@gentoo.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <419CEC65.4020603@gentoo.org>
+	Thu, 18 Nov 2004 20:10:52 -0500
+Received: from adsl-63-194-133-30.dsl.snfc21.pacbell.net ([63.194.133.30]:4224
+	"EHLO penngrove.fdns.net") by vger.kernel.org with ESMTP
+	id S262959AbUKSBFp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 20:05:45 -0500
+From: John Mock <kd6pag@qsl.net>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: linux-kernel@vger.kernel.org
+Subject: 2.6.10-rc2 on VAIO laptop and PowerMac 8500/G3
+Message-Id: <E1CUxDU-0000XP-00@penngrove.fdns.net>
+Date: Thu, 18 Nov 2004 17:05:36 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 18 2004, Daniel Drake wrote:
-> Hi,
-> 
-> Alexander E. Patrakov wrote:
-> >But the question remains: what should the users of not 100% MMC-compatible
-> >CR-RW drives (i.e. those which have a separate cdrado or cdrecord driver,
-> >not generic-mmc/generic-mmc-raw) do? Is the support for writing as non-root
-> >on such drives just dropped without any plans to "fix" it?
-> 
-> I'd also be interested to know the answer here. Jens?
-> 
-> Some Gentoo users have reported that commands such as ED/EB/E9/F5 are being 
-> rejected. When inspecting the cdrecord source code, it seems that these are 
-> specific to plextor drives. These drives are MMC but have a few 
-> vendor-specific extensions. How should we go about permitting cases like 
-> this in the command filter?
+Thank you very much for the quick response on the PowerPC issues!!
 
-See Alans post, that's the only real way to deal with the situation.
-Right now we are stuck with half a solution (which is better than none
-or the 5% initial solution), it would still be nice to have it finished.
-Search the archives, there were several posts on this.
+> You lack CONFIG_FRAMEBUFFER_CONSOLE maybe ? You should use the
+> pmac_defconfig ... Now, if controlfb still doesn't work, then I'll have
+> to dig out my old 8500, it's possible that the recent changes to the
+> fbdev layer broke some of those old drivers.
 
--- 
-Jens Axboe
+> As for serial, check out CONFIG_SERIAL_PMACZILOG and
+> CONFIG_SERIAL_PMACZILOG_CONSOLE.
 
+Rats!  I was hoping you'd suggest a CONFIG_... i'd missed for either issue. 
+As far as the video problem is concerned, i copied the '.config' from 2.6.8
+to 2.6.9-rc1, and the resultant Linux works on 2.6.8 but 2.6.9-rc1 fails.
+
+I do have both of the PMACZILOG switches set (see previously attached
+'.config' if there's anything else worth checking for), and if i run
+'gtkterm' on both machines, the keyboard of one appears in the terminal
+window of the other.  While the serial console on the laptop (Intel) will
+appear in the Mac screen, the reverse does not work.   The Linux command 
+line is:
+
+       root=/dev/md0 md=0,/dev/sda7,/dev/sdb7,/dev/sdc7 md=1,/dev/sda8,/dev/sdb8,/dev/sdc8,console=ttyS0,9600 console=tty0
+
+Note this doesn't seem to work under 2.4.27, with
+
+    CONFIG_MAC_SERIAL=y
+    CONFIG_SERIAL_CONSOLE=y
+
+Is the Mac side fussy about CTS/RTS?  I didn't make all of the adapters
+myself, so i can't be absolutely certain that all three modem control
+lines are propagated properly.
+
+If there's anything i can try which will save you the trouble of digging
+out your Old World Mac, please do let me know!
+
+> Yes, that is due to the 2.6 changes in fbdev/fbcon, the loss of the per
+> VT mode data structure, the driver is now sort-of supposed to re-invent
+> a mode based on bogus stuff sent by fbcon on console switch. I don't
+> like it much, but I suppose I'll have to fix controlfb (and platinumfb
+> etc...).
+
+If you might be so kind as to tell me which function and/or file that the
+video mode is being resynthesized in, then i can probably come with some
+kind of work-around.  Then you can feel like you can fix this issue when
+it's convenient to do so.  I looked for this once before but bogged down
+before i got anywhere.
+				     -- JM

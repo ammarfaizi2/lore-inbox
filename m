@@ -1,49 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319629AbSIMN0n>; Fri, 13 Sep 2002 09:26:43 -0400
+	id <S319630AbSIMN2E>; Fri, 13 Sep 2002 09:28:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319630AbSIMN0n>; Fri, 13 Sep 2002 09:26:43 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:22788 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S319629AbSIMN0m>; Fri, 13 Sep 2002 09:26:42 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
+	id <S319635AbSIMN2E>; Fri, 13 Sep 2002 09:28:04 -0400
+Received: from dsl-213-023-022-092.arcor-ip.net ([213.23.22.92]:398 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S319630AbSIMN2C>;
+	Fri, 13 Sep 2002 09:28:02 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Rusty Russell <rusty@rustcorp.com.au>,
+       Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [RFC] Raceless module interface
+Date: Fri, 13 Sep 2002 15:34:53 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+References: <20020913080709.9026B2C054@lists.samba.org>
+In-Reply-To: <20020913080709.9026B2C054@lists.samba.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15745.59564.28543.921212@laputa.namesys.com>
-Date: Fri, 13 Sep 2002 17:31:24 +0400
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: Jeff Dike <jdike@karaya.com>
-Cc: linux-kernel@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net,
-       Reiserfs developers mail-list <Reiserfs-Dev@Namesys.COM>
-Subject: Re: [reiserfs-dev] Re: UML 2.5.34 
-In-Reply-To: <200209131429.JAA02083@ccure.karaya.com>
-References: <15745.48975.172938.121684@laputa.namesys.com>
-	<200209131429.JAA02083@ccure.karaya.com>
-X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
-X-Windows: you'd better sit down.
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17pqaz-000891-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Dike writes:
- > Nikita@Namesys.COM said:
- > > And this is a patch to make it compilable (not sure about
- > > CLOCK_TICK_RATE and pte_addr_t parts though): 
- > 
+On Friday 13 September 2002 08:51, Rusty Russell wrote:
+> If you split registration interfaces into reserve (can fail) and
+> use (can't fail), then you do:
+> 
+> 	int my_module_init(void)
+> 	{
+> 		int ret;
+> 		ret = reserve_foo();
+> 		if (ret != 0)
+> 			return ret;
+> 		ret = reserve_bar();
+> 		if (ret != 0)
+> 			unreserve_foo();
+> 		return ret;
+> 	}
+> 
+> 	void my_module_start(void)
+> 	{
+> 		use_foo();
+> 		use_bar();
+> 	}
 
-pte_addr_t and CLOCK_TICK_RATE were undefined.
+Why is that different from:
 
-Wrong macro in include/asm-um/percpu.h resulted in
-include/asm-um/cacheflush.h never being included and a macros from the
-latter undefined also.
+ 	int my_module_init(void)
+ 	{
+ 		int ret;
+ 		ret = reserve_foo();
+ 		if (ret != 0)
+ 			return ret;
+ 		ret = reserve_bar();
+ 		if (ret != 0) {
+ 			unreserve_foo();
+	 		return ret;
+		}
+ 		use_foo();
+ 		use_bar();
+		return 0;
+ 	}
 
-By the way, I am talking about Linus BK tree, rather than patches you
-have posted. Sorry for not mentioning this from the beginning.
+> Note the symmetry here with the exit case: noone can actually use the
+> module until my_module_start is called, so even if the reserve_bar()
+> fails, we're safe.
 
- > Where did you get compilation problems?  It compiled for me fine.
- > 
- > 				Jeff
+And in my example above, nobody can actually use the module until
+use_foo().  What's the difference?
 
-Nikita.
+> > Sure, I know it's not going to change, but I'd like to know what the
+> > thinking was, and especially, if there's a non-bogus reason, I'd
+> > like to know it.
+> 
+> You should probably start playing with my code if you're really
+> interested.
+
+Of course, and you might consider actually reading my [RFC].  We still
+disagree on whether your fat interface or my thin one is the right way
+to go.  Don't forget that the Unix way has traditionally been to use
+the simplest interface that will do the job; if you propose a fat
+interface you need to prove that the thin one cannot do the job.
+
+-- 
+Daniel

@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267587AbTGWKpx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 06:45:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268047AbTGWKpx
+	id S267998AbTGWK5A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 06:57:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268006AbTGWK5A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 06:45:53 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:57608 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S267587AbTGWKpw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 06:45:52 -0400
-Date: Wed, 23 Jul 2003 20:59:03 +1000
-To: "David S. Miller" <davem@redhat.com>
-Cc: a.marsman@aYniK.com, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22-pre7: are security issues solved?
-Message-ID: <20030723105903.GA2582@gondor.apana.org.au>
-References: <Pine.LNX.4.44.0307212234390.3580-100000@localhost.localdomain> <E19fGMZ-0000Zm-00@gondolin.me.apana.org.au> <20030723033505.145db6b8.davem@redhat.com> <20030723104753.GA2479@gondor.apana.org.au> <20030723035022.23a75bc5.davem@redhat.com>
+	Wed, 23 Jul 2003 06:57:00 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:49419 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S267998AbTGWK47 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 06:56:59 -0400
+Date: Wed, 23 Jul 2003 07:13:35 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Jan Rychter <jan@rychter.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Suspend on one machine, resume elsewhere
+Message-ID: <20030723051335.GA729@zaurus.ucw.cz>
+References: <20030716083758.GA246@elf.ucw.cz> <200307161037.LAA01628@mauve.demon.co.uk> <20030716104026.GC138@elf.ucw.cz> <20030716195129.A9277@informatik.tu-chemnitz.de> <20030716181551.GD138@elf.ucw.cz> <m2r84m8jhh.fsf@tnuctip.rychter.com> <20030720225342.GA866@elf.ucw.cz> <m2adb7bojm.fsf@tnuctip.rychter.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030723035022.23a75bc5.davem@redhat.com>
-User-Agent: Mutt/1.5.4i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+In-Reply-To: <m2adb7bojm.fsf@tnuctip.rychter.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 23, 2003 at 03:50:22AM -0700, David S. Miller wrote:
->
-> > It's much smaller if you didn't know that it was at most 7 characters
-> > long.  However, if you did know the upper bound, or you were just
-> > brute forcing all passwords starting from 1 character, then the
-> > difference is relatively minor.  This is because
-> > 
-> > n + n^2 + n^3 + n^4 + n^5 + n^6
-> > 
-> > is much smaller than n^7 where n is something like 62 for a reasonable
-> > password.
+Hi!
+
+> I have the impression that the core developers are unaware of the fact
+> of how unstable Linux has become, particularly on laptops. I guess if
+> you do kernel work and reboot often, you never notice that. Besides,
+> doing stability work is "unfashionable"...
 > 
-> "7" in my example is an arbitrary number, increase it to any larger
-> number you like.
+> --J. (duly trying to report all bugs encountered)
 
-Well, as m gets larger, the number
+Well, for laptops thats not enough. Everyone sees problems,
+but too little people fix them. There are too many brands of those
+notebooks with different quirks each. :-(
 
-(n + n^2 + ... + n^(m-1)) / n^m
 
-tends to 1 / (n - 1).
-
-In other words, if you can break n^m, then you can probably break
-
-n + n^2 + ... + n^m
-
-Anyway, I'm not that bothered with making /proc/tty/driver root-only,
-even if it is only for what seems to me to be dubious reasons.
 -- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+

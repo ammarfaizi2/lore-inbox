@@ -1,81 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266076AbUFPCsc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266079AbUFPCsv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266076AbUFPCsc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 22:48:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266078AbUFPCsc
+	id S266079AbUFPCsv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 22:48:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266078AbUFPCsv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 22:48:32 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:2730 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266076AbUFPCsX (ORCPT
+	Tue, 15 Jun 2004 22:48:51 -0400
+Received: from crianza.bmb.uga.edu ([128.192.34.109]:2433 "EHLO crianza")
+	by vger.kernel.org with ESMTP id S266079AbUFPCss (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 22:48:23 -0400
-Date: Tue, 15 Jun 2004 22:48:09 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
+	Tue, 15 Jun 2004 22:48:48 -0400
+Date: Tue, 15 Jun 2004 22:48:42 -0400
 To: Andrew Morton <akpm@osdl.org>
-cc: "David S. Miller" <davem@redhat.com>, Stephen Smalley <sds@epoch.ncsc.mil>,
-       Chris Wright <chrisw@osdl.org>, <linux-kernel@vger.kernel.org>,
-       <selinux@tycho.nsa.gov>
-Subject: [SELINUX][PATCH 0/4] Fine-grained Netlink support
-Message-ID: <Xine.LNX.4.44.0406152216030.30562-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: processes hung in D (raid5/dm/ext3)
+Message-ID: <20040616024842.GC13672@porto.bmb.uga.edu>
+Reply-To: foo@porto.bmb.uga.edu
+References: <20040615062236.GA12818@porto.bmb.uga.edu> <20040615030932.3ff1be80.akpm@osdl.org> <20040615150036.GB12818@porto.bmb.uga.edu> <20040615162607.5805a97e.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040615162607.5805a97e.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: foo@porto.bmb.uga.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch set implements fine-grained Netlink support for
-SELinux.  It adds a set of extended Netlink socket classes, inherhited
-from the socket class.  This allows socket controls to be applied on a per
-Netlink family basis.
+On Tue, Jun 15, 2004 at 04:26:07PM -0700, Andrew Morton wrote:
+> OK, well I'd be suspecting that either devicemapper or raid5 lost an I/O
+> completion, causing that page to never be unlocked.
+> 
+> Please try the latest -mm kernel, which has a few devicemapper changes,
+> although they are unlikely to fix this.
 
-Additionally, two new permissions have been added:
+OK, this was fun...
 
-nlmsg_read
-nlmsg_write
+LILO 22.2 boot: linux-mm
+Loading Linux-mm.................................
 
-These permissions control whether a domain can send messages which cause
-kernel data to be read or written respectively (e.g. route table updates
-vs. listings). They are only applied to extended Netlink socket classes
-which carry user-generated messages.
+This is all I see on the serial console.  The machine did boot, though;
+a few minutes later I see this (and only this) from my syslog server:
 
-This is important for locking down applications which need to do things
-like read network configuration data, but not write any (e.g. Apache).  
-(Currently, this is not possible, as SELinux cannot distinguish bewteen
-different types of Netlink messages, or even different types of Netlink 
-sockets).
+xarello kernel: bonding: bond0: link status definitely up for interface
+eth1.
 
-Here are some example AVC messages with the patches applied:
+Getty didn't come up on the serial console, and it's refusing ssh
+requests, although it seems to be dropping lots of packets.
 
-Routing table listing:
+Now I have to go into work and hit the reset switch :(
 
-avc:  granted  { nlmsg_read } for  pid=2760 exe=/sbin/ip
-scontext=root:staff_r:staff_t tcontext=root:staff_r:staff_t
-tclass=netlink_route_socket
-
-Routing table update:
-
-avc:  granted  { nlmsg_write } for  pid=2763 exe=/sbin/ip 
-scontext=root:staff_r:staff_t tcontext=root:staff_r:staff_t 
-tclass=netlink_route_socket
-
-Reading socket status via 'ss':
-
-avc: denied  { nlmsg_read } for  pid=1798 exe=/usr/sbin/ss 
-scontext=root:staff_r:staff_t tcontext=root:staff_r:staff_t 
-tclass=netlink_tcpdiag_socket
-
-Note the new Netlink message permissions and extended Netlink socket
-classes.
-
-Patches for userspace components are available at:
-http://people.redhat.com/jmorris/selinux/netlink/
-
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
-
-
-
+-ryan

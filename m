@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264471AbTIDAyj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 20:54:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264478AbTIDAyj
+	id S264450AbTIDAtp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 20:49:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264419AbTIDAtp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 20:54:39 -0400
-Received: from dyn-ctb-210-9-244-61.webone.com.au ([210.9.244.61]:10500 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S264471AbTIDAyi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 20:54:38 -0400
-Message-ID: <3F568D42.1070004@cyberone.com.au>
-Date: Thu, 04 Sep 2003 10:54:26 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Cliff White <cliffw@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: UP Regression (was) Re: Scaling noise
-References: <200309031551.h83Fpu413835@mail.osdl.org>
-In-Reply-To: <200309031551.h83Fpu413835@mail.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Sep 2003 20:49:45 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:40453 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S264450AbTIDAto (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 20:49:44 -0400
+Date: Thu, 4 Sep 2003 02:49:41 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Aaron Dewell <acd@woods.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: partition weirdness
+Message-ID: <20030904024941.A2658@pclin040.win.tue.nl>
+References: <Pine.LNX.4.44.0309031758140.385-100000@dragon.woods.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0309031758140.385-100000@dragon.woods.net>; from acd@woods.net on Wed, Sep 03, 2003 at 06:07:52PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Sep 03, 2003 at 06:07:52PM -0600, Aaron Dewell wrote:
 
+> The problem is this:  the partition table is recognized, but the individual
+> partitions (the ones I care about) are zero, that is to say, they contain the
+> right size of zeros.  The disk device itself, at the partition table boundaries,
+> is not zero, and I can't explain this discrepency.  On the disk, there seem to be
+> correct and valid superblocks at the right places, they just don't exist in the
+> partition devices.
 
-Cliff White wrote:
-
->[snip]
->.
->
->>I don't think anyone advocates sacrificing UP performance for 32 ways, but
->>as he says it can happen .1% at a time.
->>
->>But it looks like 2.6 will scale well to 16 way and higher. I wonder if
->>there are many regressions from 2.4 or 2.2 on small systems.
->>
->>
->>
->On the Scalable Test Platform, running osdl-aim-7,  for the
->UP case, 2.4 is a bit better than 2.6, this is consistent across
->many runs. For SMP, 2.6 is better, but the delta is rather
->small, until we get to 8 CPUS. We have a lot of un-parsed data from other
->tests - might be some trends there also.
->See http://developer.osdl.org/cliffw/reaim/index.html 
->2.4 kernels are at the bottom of the page.
->
-
-Forgive my ignorance of your benchmarks, but this might very well
-be HZ == 1000?
-
+Does the kernel have support for sun partition tables built in?
+What are the kernel boot messages about the disk?
+What does /proc/partitions say?
+What does fdisk -l say?
 

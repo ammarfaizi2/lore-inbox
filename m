@@ -1,56 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287793AbSA1XwR>; Mon, 28 Jan 2002 18:52:17 -0500
+	id <S287769AbSA1Xx5>; Mon, 28 Jan 2002 18:53:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287769AbSA1XwH>; Mon, 28 Jan 2002 18:52:07 -0500
-Received: from ms25.windstoneinc.com ([206.222.212.217]:9201 "EHLO
-	unpythonic.dhs.org") by vger.kernel.org with ESMTP
-	id <S287781AbSA1Xvx>; Mon, 28 Jan 2002 18:51:53 -0500
-Date: Mon, 28 Jan 2002 17:51:51 -0600
-From: jepler@unpythonic.dhs.org
-To: linux-kernel@vger.kernel.org
-Subject: [OT] Re: Note describing poor dcache utilization under high memory pressure
-Message-ID: <20020128175151.A20978@unpythonic.dhs.org>
-Mail-Followup-To: jepler@unpythonic.dhs.org, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L.0201281940580.32617-100000@imladris.surriel.com> <3C55C9F7.6010106@vitalstream.com> <E16VKVM-0000DL-00@starship.berlin> <3C55D970.40605@vitalstream.com>
+	id <S287710AbSA1Xxs>; Mon, 28 Jan 2002 18:53:48 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:5714 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S287769AbSA1Xxj>; Mon, 28 Jan 2002 18:53:39 -0500
+Date: Tue, 29 Jan 2002 00:54:51 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Daniel Jacobowitz <dan@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH?] Crash in 2.4.17/ptrace
+Message-ID: <20020129005451.H1309@athlon.random>
+In-Reply-To: <20020128153210.A3032@nevyn.them.org> <3C55BC89.EDE3105C@zip.com.au>, <3C55BC89.EDE3105C@zip.com.au> <20020128161900.A9071@nevyn.them.org> <3C55C2AB.AE73A75D@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3C55D970.40605@vitalstream.com>
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <3C55C2AB.AE73A75D@zip.com.au>; from akpm@zip.com.au on Mon, Jan 28, 2002 at 01:29:15PM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 28, 2002 at 03:06:24PM -0800, Rick Stevens wrote:
-> Uh, I never said IBM ;-)  I said "a three-letter-acronym" company.
-> There were several.  The one I dealt with was in Massachusetts, had
-> a real penchant for three-letter acronyms and used a programming
-> dialect which was the only single word oxymoron in the English
-> language (enough hints yet?).
+On Mon, Jan 28, 2002 at 01:29:15PM -0800, Andrew Morton wrote:
+> Daniel Jacobowitz wrote:
+> > 
+> > Frame buffers aren't reliable marked VM_IO when mapped, currently.  Ben
+> > H. said he was going to push a fix for this at least to the PPC trees
+> > today or tomorrow.
+> 
+> They are now, I hope.  I fixed that in 2.4.18-pre2.
+>  drivers/video/fbmem.c:fb_mmap() marks the vma as
+> VM_IO for all architectures.  But perhaps I missed some;
+> an audit is needed in there, which I'll do.
+> 
+> > It's cute - fbmem.c goes out of its way to set the flag on some
+> > architectures and not others.  I can't imagine why.
+> > 
+> > But with that, yes, that should fix it.
+> > 
+> > > > Of course, I would much rather be able to see the contents of the
+> > > > framebuffer.  Any suggestions?
+> > >
+> > > Not with this patch, I'm afraid.  For your testing purposes you
+> > > could just remove the VALID_PAGE() test in mm/memory.c:get_page_map(),
+> > > and then gdb should be able to get at the framebuffer.
+> > 
+> > I'm sure there's a good reason to not do that in general.  Mind
+> > enlightening me?
+> 
+> Well, get_user_pages is used by several parts of the kernel.
+> In the O_DIRECT/map_user_kiobuf case, we could end up asking
+> the disk controller to perform busmastering against the video
+> PCI device, which will probably explode somewhere down the chain.
+> 
+> Also, just because the hardware is mapped into the process
+> virtual address space, it's not necessarily all accessible.
+> It is possible to get a bus fault against part of the mapping.
+> And the kernel doesn't expect to get bus faults on the source
+> of copy_to_user, I think.
 
-Nope, I haven't got it yet.  But, a note on "single-word oxymorons", from 
-http://www.wordways.com/oxymoron.htm:
-	Appropriately, the word oxymoron is itself oxymoronic because
-	it is formed from two Greek roots of opposite meaning, oxys
-	"sharp, keen," and moros "foolish," the same root that gives us
-	the word moron . Noting that oxymoron is a single-word oxymoron
-	consisting of two morphemes that are dependent in English, the
-	intrepid linguist senses a rich opportunity to impose order on
-	seeming chaos, to extract significance from the swirl of data
-	that escape through the holes in people's faces, leak from their
-	pens, and glow on their computer screens.
+another basic problem about allowing map_user_kiobuf to succeed on
+invalid pages, is that calling PageReserved/SetPageDirty on a null
+pointer will crash, etc...
 
-	With books such as Warren S. Blumenfeld's Jumbo Shrimp and Pretty
-	Ugly (Perigee, 1986, 1989) selling so well, oxymora (my preferred
-	plural form) were a hot language item in the 1980s. Now that we
-	can recollect that decade with some tranquility, it is time to
-	attempt a taxonomy of the collected oxymoronic specimens and to
-	set the aborning discipline of oxymoronology in some order.
+> 
+> I'm sure Andrea will have a better notion than I.  Sometimes I
+> just fling out random patches to get people thinking about
+> things ;)
 
-	Single-word oxymora composed of dependent morphemes The more in
-	oxymoron also gives us the more in sophomore, a "wise fool"--and
-	there are indeed many sophomoric sophomores. Other, examples:
-	pianoforte ("soft-loud"), preposterous ("before-after"), and
-	superette ("big-small").
+Well, I think your earlier suggestion to bale out with an error if an
+invalid page is found sounds like the cleaner fix (possibly in function
+of yet another bitflag, so if somebody wants to get the nearby pages
+regardless of an invalid pages somewhere, it can).
 
-Jeff
+Andrea

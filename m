@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318118AbSHGNuj>; Wed, 7 Aug 2002 09:50:39 -0400
+	id <S317730AbSHGN1r>; Wed, 7 Aug 2002 09:27:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318221AbSHGNuj>; Wed, 7 Aug 2002 09:50:39 -0400
-Received: from iris.mc.com ([192.233.16.119]:5100 "EHLO mc.com")
-	by vger.kernel.org with ESMTP id <S318118AbSHGNui>;
-	Wed, 7 Aug 2002 09:50:38 -0400
-Message-Id: <200208071354.JAA05835@mc.com>
-Content-Type: text/plain; charset=US-ASCII
-From: mbs <mbs@mc.com>
+	id <S317893AbSHGN1q>; Wed, 7 Aug 2002 09:27:46 -0400
+Received: from pD9E6AD6C.dip.t-dialin.net ([217.230.173.108]:43851 "EHLO
+	fefe.de") by vger.kernel.org with ESMTP id <S317730AbSHGN1p>;
+	Wed, 7 Aug 2002 09:27:45 -0400
+Date: Wed, 31 Jul 2002 18:59:41 +0200
+From: Felix von Leitner <leitner@fefe.de>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.19-rc3-ac5 UP compile error 
-Date: Wed, 7 Aug 2002 10:00:20 -0400
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Subject: Asus A7V333: PCI_GOBIOS and PCI_GODIRECT disagree on one device
+Message-ID: <20020731165941.GA3877@fefe.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is what PCI_GODIRECT says:
 
-when compiling for SMP no problems, but when compiling for UP using same 
-.config with only change being UP instead of SMP I get the following error:
+  Bus  0, device   7, function  0:
+    FireWire (IEEE 1394): PCI device 100c:8026 (Tseng Labs Inc) (rev 0).
+      Master Capable.  Latency=16.
+      Non-prefetchable 32 bit memory at 0x0 [0x7ff].
+      Non-prefetchable 32 bit memory at 0x0 [0xffffffff].
+      Non-prefetchable 32 bit memory at 0x0 [0xffffffff].
 
+This is what PCI_GOBIOS says:
 
-686   -nostdinc -I /usr/lib/gcc-lib/i386-redhat-linux/2.96/include
- -DKBUILD_BASENAME=ksyms  -DEXPORT_SYMTAB -c ksyms.c In file included from
- ksyms.c:18:
-/usr/src/linux/include/linux/kernel_stat.h: In function `kstat_irqs':
-/usr/src/linux/include/linux/kernel_stat.h:46: `smp_num_cpus' undeclared
- (first use in this function) /usr/src/linux/include/linux/kernel_stat.h:46:
- (Each undeclared identifier is reported only once
- /usr/src/linux/include/linux/kernel_stat.h:46: for each function it appears
- in.) make[2]: *** [ksyms.o] Error 1
-make[2]: Leaving directory `/usr/src/linux/kernel'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory `/usr/src/linux/kernel'
-make: *** [_dir_kernel] Error 2
+  Bus  0, device   7, function  0:
+    FireWire (IEEE 1394): PCI device 104d:8026 (Sony Corporation) (rev 0).
+      Master Capable.  Latency=16.
+      I/O at 0x0 [0x3].
+      I/O at 0x0 [0x3].
+      I/O at 0x0 [0xffffffff].
+      I/O at 0x0 [0x3].
+      I/O at 0x0 [0x3].
+      Non-prefetchable 64 bit memory at 0x0 [0xffffffff].
 
+This appears to be the only device where both methods differ.  The
+IEEE device is not detected under Windows either.  Is my mainboard
+broken?
 
--- 
-/**************************************************
-**   Mark Salisbury       ||      mbs@mc.com     **
-** If you would like to sponsor me for the       **
-** Mass Getaway, a 150 mile bicycle ride to for  **
-** MS, contact me to donate by cash or check or  **
-** click the link below to donate by credit card **
-**************************************************/
-https://www.nationalmssociety.org/pledge/pledge.asp?participantid=86736
+Felix

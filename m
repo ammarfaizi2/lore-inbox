@@ -1,54 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264182AbTKKCUj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 21:20:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264188AbTKKCUj
+	id S264220AbTKKCYz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 21:24:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264221AbTKKCYz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 21:20:39 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:44551
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S264182AbTKKCUi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 21:20:38 -0500
-Date: Mon, 10 Nov 2003 18:20:41 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Joseph Shamash <info@avistor.com>
-Cc: Peter Chubb <peter@chubb.wattle.id.au>, linux-kernel@vger.kernel.org
-Subject: Re: 2 TB partition support
-Message-ID: <20031111022041.GD2014@mis-mike-wstn.matchmail.com>
-Mail-Followup-To: Joseph Shamash <info@avistor.com>,
-	Peter Chubb <peter@chubb.wattle.id.au>,
-	linux-kernel@vger.kernel.org
-References: <16304.9647.994684.804486@wombat.chubb.wattle.id.au> <HBEHKOEIIJKNLNAMLGAOCECPDKAA.info@avistor.com>
+	Mon, 10 Nov 2003 21:24:55 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:39948 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S264220AbTKKCYx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 21:24:53 -0500
+Date: Tue, 11 Nov 2003 00:06:08 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Dag Brattli <dag@brattli.net>, Jean Tourrilhes <jt@hpl.hp.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       irda-users@lists.sourceforge.net
+Subject: [PATCH] irda: fix type of struct irda_ias_set.attribute.irda_attrib_string.len
+Message-ID: <20031111020608.GA1208@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Dag Brattli <dag@brattli.net>, Jean Tourrilhes <jt@hpl.hp.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	irda-users@lists.sourceforge.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <HBEHKOEIIJKNLNAMLGAOCECPDKAA.info@avistor.com>
+X-Url: http://advogato.org/person/acme
+Organization: Conectiva S.A.
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 10, 2003 at 06:10:15PM -0800, Joseph Shamash wrote:
-> Hello Peter,
-> 
-> Thank you for your quick reply.
-> 
-> Another Q.
-> 
-> What is the maximum partition size in TBs that 2.6 can handle?
+  CC [M]  net/irda/af_irda.o
+net/irda/af_irda.c: In function `irda_setsockopt':
+net/irda/af_irda.c:1894: warning: comparison is always false due to limited range of data type
 
-Are you using hardware raid that shows the entire array like one disk that
-should be partitioned, or do you want to use linux software raid?
+in irda_setsockopt:
 
-If you're using hardware raid, you should consider what Peter said in his
-message.
+                        /* Should check charset & co */
+                        /* Check length */
+                        if(ias_opt->attribute.irda_attrib_string.len >
+                           IAS_MAX_STRING) {
+                                kfree(ias_opt);
+                                return -EINVAL;
+                        }
 
-> What is the maximum file size?
+Ok, ias_opt->attribute.irda_attrib_string.len is __u8, but
+IAS_MAX_STRING = 256... so attribute.irda_attrib_string.len has to be at least
+__u18, this patch fix this, please see if it is appropriate and if it is so,
+apply.
 
-That depends on what filesystem you want to use.  With ext2/3 it varies
-between 16GB (with 1KB blocks) and 1 or 2 TB (with 4KB blocks) per file.
+Best Regards,
 
-Other filesystems have similair limits.  There have been several
-comparisons, and a quick google search should bring up a few.  Try "linux
-filesystem comparison"
+- Arnaldo
 
-Mike
+===== include/linux/irda.h 1.7 vs edited =====
+--- 1.7/include/linux/irda.h	Wed Jun  4 11:16:33 2003
++++ edited/include/linux/irda.h	Mon Nov 10 23:56:33 2003
+@@ -151,7 +151,7 @@
+ 			__u8 octet_seq[IAS_MAX_OCTET_STRING];
+ 		} irda_attrib_octet_seq;
+ 		struct {
+-			__u8 len;
++			__u16 len;
+ 			__u8 charset;
+ 			__u8 string[IAS_MAX_STRING];
+ 		} irda_attrib_string;

@@ -1,48 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269214AbUJKUGR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269210AbUJKTyc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269214AbUJKUGR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 16:06:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269217AbUJKUGR
+	id S269210AbUJKTyc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 15:54:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269239AbUJKTyb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 16:06:17 -0400
-Received: from hacksaw.org ([66.92.70.107]:61361 "EHLO hacksaw.org")
-	by vger.kernel.org with ESMTP id S269214AbUJKUGK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 16:06:10 -0400
-Message-Id: <200410112006.i9BK62Xn006966@hacksaw.org>
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.0.4
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: udev: what's up with old /dev ? 
-In-reply-to: Your message of "Mon, 11 Oct 2004 14:04:19 +0200."
-             <AE30E0FE-1B7D-11D9-96AD-000D9352858E@linuxmail.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 11 Oct 2004 16:06:02 -0400
-From: Hacksaw <hacksaw@hacksaw.org>
+	Mon, 11 Oct 2004 15:54:31 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:36305 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S269210AbUJKTyE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 15:54:04 -0400
+Message-ID: <416AD644.8010302@ens-lyon.fr>
+Date: Mon, 11 Oct 2004 20:51:48 +0200
+From: Brice Goglin <Brice.Goglin@ens-lyon.fr>
+Reply-To: Brice.Goglin@ens-lyon.org
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc4-mm1
+References: <20041011032502.299dc88d.akpm@osdl.org>
+In-Reply-To: <20041011032502.299dc88d.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> If the initrd gets corrupted, are we just hosed?
->
->In some way, the answer is yes... I think the best is having a real, 
->on-disk, full "/dev" hierarchy in case the INITRD gets lost or 
->corrupted, which will still allow booting. Now, the INITRD can mount 
->tmpfs over "/dev" and use udev to create needed device nodes.
+Hi Andrew,
 
-And see, this is where I say, what if /dev is hosed too? If the kernel at this 
-point gives up, then the user has to dig up a boot CD or something worse and 
-start trying to fix the system.
+The old Gamma DRM driver seems broken.
+(I removed the inter_module_ "deprecated" warnings)
 
-If, however, the kernel just made /dev/console and maybe /dev/null, it could 
-start a shell and say "/dev missing /console device, initrd corrupted. Hit 
-enter for a shell or ctrl-alt-del to reboot."
+Regards,
+Brice Goglin
 
-As a sys-admin, I'd like that. Get me into single user mode the best you can. 
-If a shell can be found, that's good enough.
--- 
-The best is the enemy of the good  -- Voltaire
-The Good Enough is the enemy of the Great -- Me
-http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
-
-
+  In file included from drivers/char/drm/gamma_drv.c:42:
+drivers/char/drm/gamma_context.h: Dans la fonction « 
+gamma_context_switch_complete »:
+drivers/char/drm/gamma_context.h:193: error: structure has no member 
+named `next_buffer'
+drivers/char/drm/gamma_context.h:193: error: structure has no member 
+named `next_buffer'
+In file included from drivers/char/drm/gamma_drv.c:44:
+drivers/char/drm/gamma_old_dma.h: Dans la fonction « 
+gamma_clear_next_buffer »:
+drivers/char/drm/gamma_old_dma.h:40: error: structure has no member 
+named `next_buffer'
+drivers/char/drm/gamma_old_dma.h:41: error: structure has no member 
+named `next_queue'
+drivers/char/drm/gamma_old_dma.h:41: error: structure has no member 
+named `next_queue'
+drivers/char/drm/gamma_old_dma.h:41: error: structure has no member 
+named `next_queue'
+drivers/char/drm/gamma_old_dma.h:41: error: structure has no member 
+named `next_queue'
+drivers/char/drm/gamma_old_dma.h:41: error: structure has no member 
+named `next_queue'
+drivers/char/drm/gamma_old_dma.h:41: error: structure has no member 
+named `next_queue'
+drivers/char/drm/gamma_old_dma.h:42: error: structure has no member 
+named `next_queue'
+drivers/char/drm/gamma_old_dma.h:44: error: structure has no member 
+named `next_queue'
+In file included from drivers/char/drm/gamma_drv.c:46:
+drivers/char/drm/drm_drv.h: Dans la fonction « gamma_release »:
+drivers/char/drm/drm_drv.h:808: attention : implicit declaration of 
+function `gamma_ctxbitmap_free'
+make[3]: *** [drivers/char/drm/gamma_drv.o] Erreur 1
+make[2]: *** [drivers/char/drm] Erreur 2
+make[1]: *** [drivers/char] Erreur 2
+make: *** [drivers] Erreur 2

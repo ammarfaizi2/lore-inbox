@@ -1,139 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264083AbRFKXzc>; Mon, 11 Jun 2001 19:55:32 -0400
+	id <S264092AbRFLAR6>; Mon, 11 Jun 2001 20:17:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264086AbRFKXzW>; Mon, 11 Jun 2001 19:55:22 -0400
-Received: from ppp71-3-70.miem.edu.ru ([194.226.32.70]:51204 "EHLO yahoo.com")
-	by vger.kernel.org with ESMTP id <S264083AbRFKXzK>;
-	Mon, 11 Jun 2001 19:55:10 -0400
-From: Stas Sergeev <stas_orel@yahoo.com>
-Reply-To: stas.orel@mailcity.com
-To: linux-kernel@vger.kernel.org
-Subject: [patch] do proper cleanups before requesting irq
-Date: Tue, 12 Jun 2001 03:53:57 +0400
-X-Mailer: KMail [version 1.0.29]
-Content-Type: text/plain; charset=US-ASCII
+	id <S264096AbRFLARs>; Mon, 11 Jun 2001 20:17:48 -0400
+Received: from smtp.dynatec.com ([206.111.126.213]:37385 "EHLO
+	smtp.dynatec.com") by vger.kernel.org with ESMTP id <S264092AbRFLARc>;
+	Mon, 11 Jun 2001 20:17:32 -0400
+Message-ID: <3B255FC1.90501@dynatec.com>
+Date: Mon, 11 Jun 2001 17:18:09 -0700
+From: Matt Nelson <mnelson@dynatec.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4 i686; en-US; rv:0.9.1) Gecko/20010607
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Message-Id: <01061202405801.06615@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: Any limitations on bigmem usage?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As nobody responded to my previous posting
-( http://www.uwsg.indiana.edu/hypermail/linux/kernel/0106.1/0219.html )
-I had no other options than to try to solve a problem myself.
-The problem was that linux fails to do a cleanup if a program does
-vm86()/VM86_REQUEST_IRQ without VM86_FREE_IRQ (see test program
-in my previous posting), so that I have to reboot my machine before I can
-start the program again.
+I am about to embark on a data processing software project that will require a 
+LOT of memory (about, ohhh, 6GB or so), and I was wondering if there are any 
+limitations to how one can use very large chunks of memory under Linux. 
+Specifically, is there anything to prevent me from malloc()ing 6GB of memory, 
+then accessing that memory as I would any other buffer?  FYI, the application
+will be buffering a stream of data, then performing a variety of calculations on 
+large blocks of data at a time, before writing it out to a socket.
 
-I have made a patch that solves a problem (it is not necessary to reboot now
-if dosemu crashes).
-The problem is that there are comparisons of pointers to task_struct when
-deciding if the task is alive. If one task dies and other one starts, it is
-possible (is it?) that the task structure of the newly created task resides
-at the very address where was the dead one's, so comparing pointers is not
-reliable. This patch changes it to comparisons of task's pids.
-Can anyone, please, atleast tell me if this patch is correct?
-I understand that noone here is interested in fixing vm86() syscall, but there
-are a few people in the world that still need it.
+I've been eyeing an 8-way Intel box with gobs of memory, but if there are subtle 
+issues with using that much memory, I need to know now.
 
+I haven't seen this specifcally addressed, so I figured I should ask you folk. 
+Any insights/comments/reccomendations would be greatly appreciated.
 
-----------------------------------------------------
---- linux/arch/i386/kernel/vm86.c	Sat May  5 06:31:51 2001
-+++ linux/arch/i386/kernel/vm86.c	Mon Jun 11 19:05:35 2001
-@@ -569,7 +569,7 @@
- #define VM86_IRQNAME		"vm86irq"
- 
- static struct vm86_irqs {
--	struct task_struct *tsk;
-+	pid_t tsk_pid;
- 	int sig;
- } vm86_irqs[16] = {{0},}; 
- static int irqbits=0;
-@@ -581,16 +581,18 @@
- static void irq_handler(int intno, void *dev_id, struct pt_regs * regs) {
- 	int irq_bit;
- 	unsigned long flags;
-+	struct task_struct *tsk;
- 	
- 	lock_kernel();
- 	save_flags(flags);
- 	cli();
-+	tsk = find_task_by_pid(vm86_irqs[intno].tsk_pid);
- 	irq_bit = 1 << intno;
--	if ((irqbits & irq_bit) || ! vm86_irqs[intno].tsk)
-+	if ((irqbits & irq_bit) || ! vm86_irqs[intno].tsk_pid || ! tsk)
- 		goto out;
- 	irqbits |= irq_bit;
- 	if (vm86_irqs[intno].sig)
--		send_sig(vm86_irqs[intno].sig, vm86_irqs[intno].tsk, 1);
-+		send_sig(vm86_irqs[intno].sig, tsk, 1);
- 	/* else user will poll for IRQs */
- out:
- 	restore_flags(flags);
-@@ -600,18 +602,18 @@
- static inline void free_vm86_irq(int irqnumber)
- {
- 	free_irq(irqnumber,0);
--	vm86_irqs[irqnumber].tsk = 0;
-+	vm86_irqs[irqnumber].tsk_pid = 0;
- 	irqbits &= ~(1 << irqnumber);
- }
- 
--static inline int task_valid(struct task_struct *tsk)
-+static inline int task_valid(pid_t tsk_pid)
- {
- 	struct task_struct *p;
- 	int ret = 0;
- 
- 	read_lock(&tasklist_lock);
- 	for_each_task(p) {
--		if ((p == tsk) && (p->sig)) {
-+		if ((p->pid == tsk_pid) && (p->sig)) {
- 			ret = 1;
- 			break;
- 		}
-@@ -624,8 +626,8 @@
- {
- 	int i;
- 	for (i=3; i<16; i++) {
--		if (vm86_irqs[i].tsk) {
--			if (task_valid(vm86_irqs[i].tsk)) continue;
-+		if (vm86_irqs[i].tsk_pid) {
-+			if (task_valid(vm86_irqs[i].tsk_pid)) continue;
- 			free_vm86_irq(i);
- 		}
- 	}
-@@ -637,7 +639,7 @@
- 	unsigned long flags;
- 	
- 	if ( (irqnumber<3) || (irqnumber>15) ) return 0;
--	if (vm86_irqs[irqnumber].tsk != current) return 0;
-+	if (vm86_irqs[irqnumber].tsk_pid != current->pid) return 0;
- 	save_flags(flags);
- 	cli();
- 	bit = irqbits & (1 << irqnumber);
-@@ -664,18 +666,18 @@
- 			if (!capable(CAP_SYS_ADMIN)) return -EPERM;
- 			if (!((1 << sig) & ALLOWED_SIGS)) return -EPERM;
- 			if ( (irq<3) || (irq>15) ) return -EPERM;
--			if (vm86_irqs[irq].tsk) return -EPERM;
-+			if (vm86_irqs[irq].tsk_pid) return -EPERM;
- 			ret = request_irq(irq, &irq_handler, 0, VM86_IRQNAME, 0);
- 			if (ret) return ret;
- 			vm86_irqs[irq].sig = sig;
--			vm86_irqs[irq].tsk = current;
-+			vm86_irqs[irq].tsk_pid = current->pid;
- 			return irq;
- 		}
- 		case  VM86_FREE_IRQ: {
- 			handle_irq_zombies();
- 			if ( (irqnumber<3) || (irqnumber>15) ) return -EPERM;
--			if (!vm86_irqs[irqnumber].tsk) return 0;
--			if (vm86_irqs[irqnumber].tsk != current) return -EPERM;
-+			if (!vm86_irqs[irqnumber].tsk_pid) return 0;
-+			if (vm86_irqs[irqnumber].tsk_pid != current->pid) return -EPERM;
- 			free_vm86_irq(irqnumber);
- 			return 0;
- 		}
+Thanks,
+
+Matt
+
+-- 
+Matthew Nelson
+Dynamics Technology, Inc.
+21311 Hawthorne Blvd., Suite 300, Torrance, CA 90503-5610
+Voice: (310) 543-5433   FAX: (310) 543-2117   Email: mnelson@dynatec.com
+

@@ -1,62 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261693AbUKTGw3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262746AbUKTG5Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261693AbUKTGw3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 01:52:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262746AbUKTGw3
+	id S262746AbUKTG5Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 01:57:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262769AbUKTG5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 01:52:29 -0500
-Received: from zhabb.mics.msu.su ([158.250.28.142]:34537 "EHLO
-	zhabb.mics.msu.su") by vger.kernel.org with ESMTP id S261693AbUKTGvh
+	Sat, 20 Nov 2004 01:57:23 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:58342 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262746AbUKTG5Q
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 01:51:37 -0500
-X-SMScore: 0
-X-SMRecipient: linux-kernel@vger.kernel.org
-From: Peter Volkov Alexandrovich <pvolkov@mics.msu.su>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 and route nat. Now I know. It's dead.
-Date: Sat, 20 Nov 2004 09:17:33 +0300
-User-Agent: KMail/1.7.1
-References: <200411191720.13423.pvolkov@mics.msu.su> <pan.2004.11.19.16.31.34.51328@altlinux.ru>
-In-Reply-To: <pan.2004.11.19.16.31.34.51328@altlinux.ru>
-Organization: GPI RAN
+	Sat, 20 Nov 2004 01:57:16 -0500
+Message-ID: <419EEAD2.4020600@us.ibm.com>
+Date: Fri, 19 Nov 2004 22:57:22 -0800
+From: Vara Prasad <prasadav@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: [Fwd: Re: [PATCH] kdump: Fix for boot problems on SMP]
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411200917.33425.pvolkov@mics.msu.su>
-X-OriginalArrivalTime: 20 Nov 2004 06:54:28.0750 (UTC) FILETIME=[C7B71AE0:01C4CECD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 19 November 2004 19:31, Sergey Vlasov wrote:
-> On Fri, 19 Nov 2004 17:20:13 +0300, Peter Volkov Alexandrovich wrote:
-> > Short question: Must "route nat", mentioned in ip-cref documentation
-> > coming with iproute2 package, work with 2.6.9 kernel?
->
-> Support for CONFIG_IP_ROUTE_NAT was removed from the kernel - it has been
-> broken by some networking changes, and nobody bothered to fix it.
->
-> See this thread in linux-netdev:
->
-> http://marc.theaimsgroup.com/?l=linux-netdev&m=109582576330019&w=2
->
-> You can use netfilter (iptables etc.) for NAT and more, but probably it
-> will consume more resources than the old "route nat" code.
+My following original message didn't make it the mailing list hence i am 
+resending it.
 
-Thank you for your answer. It's really pity. It's very bad.
+-------- Original Message --------
+Subject: 	Re: [PATCH] kdump: Fix for boot problems on SMP
+Date: 	Fri, 19 Nov 2004 22:27:06 -0800
+From: 	Vara Prasad <varap@us.ibm.com>
+To: 	pbadari@us.ibm.com
+CC: 	Andrew Morton <akpm@osdl.org>, Akinobu Mita 
+<amgta@yacht.ocn.ne.jp>, hari@in.ibm.com, Linux Kernel Mailing List 
+<linux-kernel@vger.kernel.org>, prasadav <prasadav@us.ibm.com>
 
--- 
 
-______________________________________
 
-Volkov Peter, <pvolkov@mics.msu.su>
-Moscow State University, Phys. Dep.
-______________________________________
 
-NO ePATENTS, eSIGN now on:
-http://petition.eurolinux.org
-and maybe this helps...
 
-Linux 2.4.26-gentoo-r9 i686
-Mobile Intel(R) Celeron(R) CPU 1.60GHz
+pbadari@us.ltcfwd.linux.ibm.com wrote on 11/19/2004 03:29:04 PM:
+
+ > Hi Andrew,
+ >
+ > I haven't tested it yet on any of my machines (due to the hang).
+ > I am about to give it a try. But my understanding (please update
+ > me if I am wrong) is,
+ >
+ > 1) DISCONTIG_MEM support is not working yet - so i can't use any
+ > of my NUMA boxes.
+The initial patch submitted to Andrew didn't include the NUMA
+support hence it is not expected to work on NUMA. We are testing
+the DISCONTIG_MEM patch, we will submit after finishing the testing.
+ >
+ > 2) AMD64 is not supported - i can't use my Opteron machine.
+ >
+ > 3) ppc is not supported - i can't use Power3 and Power4 machines.
+
+First set of patches are only meant to support 32bit x86 platform.
+Plan is to support Opteron and other platforms after stabilizing
+the initial patches. We are working on porting to AMD64 and PPC
+platforms.
+
+ >
+ > So, I can only try it on non-NUMA i386 smp boxes. I have few of
+ > those to try. I will give an update next week on my testing.
+You can try on i386 UP and SMP boxes. Thanks for your help
+in testing these patches.
+ >
+ > Thanks,
+ > Badari
+ >
+ >
+ > On Fri, 2004-11-19 at 15:30, Andrew Morton wrote:
+ > > Akinobu Mita <amgta@yacht.ocn.ne.jp> wrote:
+ > > >
+ > > > On Thursday 18 November 2004 23:08, Hariprasad Nellitheertha wrote:
+ > > >
+ > > > > There was a buggy (and unnecessary) reserve_bootmem call in the 
+kdump
+ > > > > call which was causing hangs during early on some SMP machines. The
+ > > > > attached patch removes that.
+ > > >
+ > > > Thanks! I also had the same problem.
+ > >
+ > > So..  How is the crashdump code working now?  I haven't heard from 
+anyone
+ > > who is using it and I haven't gotten onto testing it myself.
+ > >
+ > > Do we have any feeling for its success rate on various machines, 
+and on its
+ > > ease of use?
+ > >
+ > >
+ >
+
+bye,
+Vara Prasad
+IBM  Linux Technology Center
+Phone: 503-578-3303
+Tie Line: 775-3303
+email: varap@us.ibm.com
+---------------------------------------------------------------------------------------------
+If we pause to think, we will have a cause to thank. -Anonymous
+

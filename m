@@ -1,57 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282108AbRKWKWU>; Fri, 23 Nov 2001 05:22:20 -0500
+	id <S282118AbRKWK3B>; Fri, 23 Nov 2001 05:29:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282112AbRKWKWK>; Fri, 23 Nov 2001 05:22:10 -0500
-Received: from tisch.mail.mindspring.net ([207.69.200.157]:20000 "EHLO
-	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S282108AbRKWKV7>; Fri, 23 Nov 2001 05:21:59 -0500
-Date: Fri, 23 Nov 2001 05:27:08 -0500 (EST)
-From: rpjday <rpjday@mindspring.com>
-X-X-Sender: <rpjday@localhost.localdomain>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: is 2.4.15 really available at www.kernel.org?
-In-Reply-To: <7xpu69sttm.fsf@colargol.tihlde.org>
-Message-ID: <Pine.LNX.4.33.0111230523340.8063-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282116AbRKWK2v>; Fri, 23 Nov 2001 05:28:51 -0500
+Received: from bartender.antefacto.net ([193.120.245.19]:49037 "EHLO
+	bartender.internal.antefacto.com") by vger.kernel.org with ESMTP
+	id <S282118AbRKWK2k>; Fri, 23 Nov 2001 05:28:40 -0500
+Date: Fri, 23 Nov 2001 10:28:28 +0000
+From: "John P. Looney" <john@antefacto.com>
+To: linux-kernel@vger.kernel.org
+Subject: Etiquette of getting a driver into the kernel
+Message-ID: <20011123102828.D27980@antefacto.com>
+Reply-To: john@antefacto.com
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="hxkXGo8AKqTJ+9QI"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
+X-OS: Red Hat Linux 7.2/Linux 2.4.131afo
+X-URL: http://www.redbrick.dcu.ie/~valen
+X-GnuPG-publickey: http://www.redbrick.dcu.ie/~valen/public.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Nov 2001, Christian Haugan Toldnes wrote:
 
-> rpjday <rpjday@mindspring.com> writes:
-> 
->  
-> > i swear, i am not making this up.  i just tried again, through mozilla,
-> > to download the file 
-> > www.kernel.org/pub/linux/kernel/v2.4/linux-2.4.15.tar.bz2, and it 
-> > completed after downloading *exactly* 155312 bytes, just as before.
-> > 
-> > getting it via ftp works fine -- it's http that's giving me this
-> > weird problem.   is it just me?
-> > 
-> > rday
-> 
-> I experienced no problems at all:
-> (first one with ftp, second with mozilla)
-> 
-> 23747061 Nov 23 07:18 linux-2.4.15.tar.bz2
-> 23747061 Nov 23 10:45 linux-2.4.15.tar.bz2-2
-> 
-then i'm just plain baffled.  using mozilla, i've tried downloading both 
-2.4.15 and 2.5.0, from the main www.kernel.org page, and from the kernel
-subpage.  in *every* case, the download window starts off fine with
-"0K of 28716K", so it knows the right size at the beginning.
+--hxkXGo8AKqTJ+9QI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-the download progresses until it reads 115K of ...K, there is a several
-second pause, a brief flurry of activity, and the download terminates.
-in *every* case, the final downloaded file is 155312 bytes long.
+ I've a Phison "usb multiple card reader". Nice little device, though I
+think the driver isn't the best (block size of 1k when reading & writing
+gets 80k/sec, block size of 32k gets 850k/sec).
 
-as i said, i can ftp just fine, but it sure is puzzling me why mozilla
-is doing this.
+ The device came with a driver for linux on a floppy, as a patch against
+2.4.2. It needed a little beating to get it to compile, and it caused
+not-a-few kernel panics. Some kind soul on the net mailed me a newer
+version, which does work a lot more reliably. The email address given for
+the original author (in the source) doesn't seem to answer requests like
+"is there a newer version of this driver", or "Is this driver GPL'd ?".
 
-ok, i'll shut up now.
+ Basically, I've a patch for it against 2.4.15, and I'm wondering how I
+should go about getting it into the kernel, so others can debug it for me :)
 
-rday
+John
 
+--=20
+_______________________________________
+John Looney             Chief Scientist
+a n t e f a c t o     t: +353 1 8586004
+www.antefacto.com     f: +353 1 8586014
+
+
+--hxkXGo8AKqTJ+9QI
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7/iTMYBVPvqzGrWgRAi51AJ94LN9Mi62AGdsSSWdsqFK7RO1g2ACZAcKZ
+BNRaBrDkFAcqTDLkO0nZ5C8=
+=8c7E
+-----END PGP SIGNATURE-----
+
+--hxkXGo8AKqTJ+9QI--

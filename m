@@ -1,47 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265633AbTFXCkN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 22:40:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265637AbTFXCkN
+	id S265637AbTFXCk0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 22:40:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265639AbTFXCk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 22:40:13 -0400
-Received: from lucidpixels.com ([66.45.37.187]:21633 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S265633AbTFXCkK (ORCPT
+	Mon, 23 Jun 2003 22:40:26 -0400
+Received: from [203.94.130.164] ([203.94.130.164]:45773 "EHLO bad-sports.com")
+	by vger.kernel.org with ESMTP id S265637AbTFXCkR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 22:40:10 -0400
-Date: Mon, 23 Jun 2003 21:54:17 -0400 (EDT)
-From: war <war@lucidpixels.com>
-X-X-Sender: war@p500
+	Mon, 23 Jun 2003 22:40:17 -0400
+Date: Tue, 24 Jun 2003 12:25:47 +1000 (EST)
+From: Brett <generica@email.com>
+X-X-Sender: brett@bad-sports.com
 To: linux-kernel@vger.kernel.org
-Subject: Promise ATA/133 TX2 IDE Card - Linux 2.4.x driver problem.
-Message-ID: <Pine.LNX.4.56.0306232150120.690@p500>
+Subject: Re: [CFT] PCMCIA patches (fwd)
+Message-ID: <Pine.LNX.4.44.0306241225050.30736-100000@bad-sports.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It may be too early to speculate, however, I have received no spurious
-kernel messages with the first generation Promise ATA/100 board (so far).
 
-I have another motherboard (MSI), with another Promise ATA/133 board
-(TX2), which also gives this spurious interrupts.
+since russell doesn't want to accept my mail,
+forwarded here
 
-root@l1:/var/log# grep -i spurious *
-syslog.1:Jun 19 10:08:48 l1 kernel: spurious 8259A interrupt: IRQ7.
-syslog.2:Jun 12 09:33:07 l1 kernel: spurious 8259A interrupt: IRQ7.
-syslog.2:Jun 12 20:03:55 l1 kernel: spurious 8259A interrupt: IRQ7.
-syslog.2:Jun 14 06:42:23 l1 kernel: spurious 8259A interrupt: IRQ7.
-syslog.2:Jun 14 16:12:37 l1 kernel: spurious 8259A interrupt: IRQ7.
-syslog.3:Jun  3 09:27:44 l1 kernel: spurious 8259A interrupt: IRQ7.
+---------- Forwarded message ----------
+Date: Tue, 24 Jun 2003 12:17:00 +1000 (EST)
+From: Brett <generica@email.com>
+To: Russell King <rmk@arm.linux.org.uk>
+Subject: Re: [CFT] PCMCIA patches
 
-Is there a particular problem with the ATA/133 TX2 boards, this
-error/problem seems to appear with box (that I've used) with this board
-(ATA/133 TX2).
 
-Also, I've used the ATA/100 in another box for about a 2 year period
-without a single spurious interrupt message.
+Hey,
 
-This leads me to believe there may be something wrong with the Promise
-ATA/133 TX2 driver for Linux?
+works for me,
+i82365 controller
+xirc2ps_cs and 8250_cs
+
+i still get "Trying to free nonexistent resource <000002f8-000002ff>" on 
+eject/shutdown, but you can't have everything
+
+thanks,
+
+	/ Brett
+
+On Mon, 23 Jun 2003, Russell King wrote:
+
+> Ok guys,
+> 
+> Here's another set of PCMCIA patches to keep people occupied for a while.
+> Tested sa11xx and yenta here.  Please report successes/failures.
+> 
+> Note: if you are using modules, you will only be able to remove the
+> socket driver when the cards are ejected (by either physically removing
+> the card or via cardctl eject.)  Some init scripts may get upset with
+> this on shutdown; this will eventually be noted in davej's 2.6 changes
+> document.  The script needs to run cardctl eject before rmmoding the
+> pcmcia modules.
+> 
+>  drivers/pcmcia/cs.c           |  103 ++++++++++++++++++++++++------------------
+>  drivers/pcmcia/i82092.c       |   46 ++----------------
+>  drivers/pcmcia/i82092aa.h     |    1
+>  drivers/pcmcia/i82365.c       |   75 +++---------------------------
+>  drivers/pcmcia/sa11xx_core.c  |   66 +++++---------------------
+>  drivers/pcmcia/sa11xx_core.h  |    3 -
+>  drivers/pcmcia/tcic.c         |   48 ++-----------------
+>  drivers/pcmcia/yenta_socket.c |   39 +--------------
+>  drivers/pcmcia/yenta_socket.h |    5 --
+>  include/pcmcia/ss.h           |    3 -
+>  10 files changed, 96 insertions(+), 293 deletions(-)
+> 
+> http://patches.arm.linux.org.uk/pcmcia/pcmcia-event-20030623-1.diff
+> 
+> 	Move ->owner field from socket operations to pcmcia_socket.
+> 	(This change is mainly for the SA11xx drivers, which use
+> 	a core driver for the chip, and a separate module for all
+> 	the machine specific bits.)
+> 
+> http://patches.arm.linux.org.uk/pcmcia/pcmcia-event-20030623-2.diff
+> 
+> 	Get/Put module when we insert and remove a card.  This avoids
+> 	a potential deadlock when socket drivers are unloaded, and we
+> 	have a cardbus card known to the system.
+> 
+> http://patches.arm.linux.org.uk/pcmcia/pcmcia-event-20030623-3.diff
+> 
+> 	Remove original module use accounting in register_callback.
+> 
+> http://patches.arm.linux.org.uk/pcmcia/pcmcia-event-20030623-4.diff
+> 
+> 	Add work-around for i82365-based socket drivers to the core
+> 	PCMCIA code.  Since insert processing is not a time critical
+> 	event, we can afford to delay (by sleeping) these for everyone.
+> 
+> http://patches.arm.linux.org.uk/pcmcia/pcmcia-event-20030623-5.diff
+> 
+> 	Remove register_callback methods; allow socket drivers to call
+> 	pcmcia_parse_events() directly.
+> 
+> http://patches.arm.linux.org.uk/pcmcia/pcmcia-event-20030623-6.diff
+> 
+> 	Remove now obsolete work queues, spinlocks, and code from
+> 	socket drivers.
+> 
+> 
+> 
 
 

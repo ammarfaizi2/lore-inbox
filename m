@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285548AbRLYOKx>; Tue, 25 Dec 2001 09:10:53 -0500
+	id <S285568AbRLYPli>; Tue, 25 Dec 2001 10:41:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285566AbRLYOKc>; Tue, 25 Dec 2001 09:10:32 -0500
-Received: from 213-96-224-204.uc.nombres.ttd.es ([213.96.224.204]:50961 "EHLO
-	manty.net") by vger.kernel.org with ESMTP id <S285556AbRLYOKX>;
-	Tue, 25 Dec 2001 09:10:23 -0500
-Date: Tue, 25 Dec 2001 15:10:19 +0100
-From: Santiago Garcia Mantinan <manty@manty.net>
-To: jlladono@pie.xtec.es
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x kernels, big ide disks and old bios
-Message-ID: <20011225141019.GA3092@man.beta.es>
-In-Reply-To: <3C285B40.91A83EC7@jep.dhis.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C285B40.91A83EC7@jep.dhis.org>
-User-Agent: Mutt/1.3.24i
+	id <S285569AbRLYPl3>; Tue, 25 Dec 2001 10:41:29 -0500
+Received: from mail48-s.fg.online.no ([148.122.161.48]:55432 "EHLO
+	mail48.fg.online.no") by vger.kernel.org with ESMTP
+	id <S285568AbRLYPlN>; Tue, 25 Dec 2001 10:41:13 -0500
+Message-Id: <200112251541.QAA21082@mail48.fg.online.no>
+Content-Type: text/plain; charset=US-ASCII
+From: Svein Ove Aas <svein@crfh.dyndns.org>
+Reply-To: svein.ove@aas.no
+To: linux-kernel@vger.kernel.org
+Subject: Re: WHICH MACHINE?????
+Date: Tue, 25 Dec 2001 16:41:10 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <m16IMMg-0005khC@gherkin.frus.com> <002a01c18c85$30136140$d500a8c0@mshome.net> <20011224153721.GA11838@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20011224153721.GA11838@arthur.ubicom.tudelft.nl>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> bios only supports disks up to 32 Gb.
-> hard disk is 60 Gb.
+On Monday 24. December 2001 16:37, Erik Mouw wrote:
 
-What I'm using is change the geometry after the boot and before any
-partition besides root is mounted, I do this at the beginning of
-checkroot.sh by calling "/sbin/setmax -d 0 /dev/hda" but you can do it on
-your own script or where ever you want, just taking care that it is done
-befor any FS that goes above the 32gigs is accessed.
+> > I live in Europe.. and thing s tend to be more expensive than in the
+> > states.
+>
+> Nonsense. Computers are equally expensive in Europe and the US.
+>
 
-Setmax is a small program that I downloaded from the net, sorry, I don't
-remember where did I download it from or his author, but it was posted to
-this list some time ago, I have a version for the 2.4 kernel at
-ftp.manty.net/linux/programs/setmax.c
+You've obviously never been to Norway...
+Of course, *everything* is expensive here, it seems.
 
-This works ok for me, of course you can have other solutions.
-
-Regards...
--- 
-Manty/BestiaTester -> http://manty.net
+--
+Svein Ove Aas

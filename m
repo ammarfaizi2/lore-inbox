@@ -1,59 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262529AbTKVRRG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Nov 2003 12:17:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbTKVRRG
+	id S262407AbTKVRKR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Nov 2003 12:10:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbTKVRKR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Nov 2003 12:17:06 -0500
-Received: from web41906.mail.yahoo.com ([66.218.93.157]:55170 "HELO
-	web41906.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262529AbTKVRPu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Nov 2003 12:15:50 -0500
-Message-ID: <20031122171548.3020.qmail@web41906.mail.yahoo.com>
-Date: Sat, 22 Nov 2003 09:15:48 -0800 (PST)
-From: Michael Welles <mikewelles71@yahoo.com>
-Subject: Re: Using get_cwd inside a module.
-To: Christoph Hellwig <hch@infradead.org>, Juergen Hasch <lkml@elbonia.de>
-Cc: Michael Welles <mike@bangstate.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20031122101559.A30932@infradead.org>
+	Sat, 22 Nov 2003 12:10:17 -0500
+Received: from smtp5.wanadoo.fr ([193.252.22.26]:37816 "EHLO
+	mwinf0502.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S262407AbTKVRKH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Nov 2003 12:10:07 -0500
+Message-ID: <3FBF99E6.1070402@wanadoo.fr>
+Date: Sat, 22 Nov 2003 18:16:22 +0100
+From: Remi Colinet <remi.colinet@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test9-mm5 : compile error
+References: <3FBF5C79.5050409@wanadoo.fr> <Pine.LNX.4.53.0311220946280.2498@montezuma.fsmlabs.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Zwane Mwaikambo wrote:
 
---- Christoph Hellwig <hch@infradead.org> wrote:
-
-> Well, you can't return filenames.  There's no unique
-> path to a give
-> file. 
+>On Sat, 22 Nov 2003, Remi Colinet wrote:
+>
+>  
+>
+>>arch/i386/oprofile/built-in.o: In function `oprofile_reset_stats':
+>>/usr/src/mm/include/asm/bitops.h:251: undefined reference to 
+>>`cpu_possible_map'
+>>arch/i386/oprofile/built-in.o: In function `oprofile_create_stats_files':
+>>/usr/src/mm/include/asm/bitops.h:251: undefined reference to 
+>>`cpu_possible_map'
+>>make: *** [.tmp_vmlinux1] Error 1
+>>    
+>>
+>
+>Index: linux-2.6.0-test9-mm5/arch/i386/kernel/process.c
+>===================================================================
+>RCS file: /build/cvsroot/linux-2.6.0-test9-mm5/arch/i386/kernel/process.c,v
+>retrieving revision 1.1.1.1
+>diff -u -p -B -r1.1.1.1 process.c
+>--- linux-2.6.0-test9-mm5/arch/i386/kernel/process.c	21 Nov 2003 20:59:15 -0000	1.1.1.1
+>+++ linux-2.6.0-test9-mm5/arch/i386/kernel/process.c	21 Nov 2003 22:20:00 -0000
+>@@ -50,6 +50,7 @@
+> #include <asm/desc.h>
+> #include <asm/tlbflush.h>
+> #include <asm/cpu.h>
+>+#include <asm/atomic_kmap.h>
+> #ifdef CONFIG_MATH_EMULATION
+> #include <asm/math_emu.h>
+> #endif
+>Index: linux-2.6.0-test9-mm5/drivers/oprofile/oprofile_stats.c
+>===================================================================
+>RCS file: /build/cvsroot/linux-2.6.0-test9-mm5/drivers/oprofile/oprofile_stats.c,v
+>retrieving revision 1.1.1.1
+>diff -u -p -B -r1.1.1.1 oprofile_stats.c
+>--- linux-2.6.0-test9-mm5/drivers/oprofile/oprofile_stats.c	21 Nov 2003 20:59:40 -0000	1.1.1.1
+>+++ linux-2.6.0-test9-mm5/drivers/oprofile/oprofile_stats.c	21 Nov 2003 21:27:44 -0000
+>@@ -10,7 +10,8 @@
+> #include <linux/oprofile.h>
+> #include <linux/cpumask.h>
+> #include <linux/threads.h>
+>- 
+>+#include <linux/smp.h>
+>+
+> #include "oprofile_stats.h"
+> #include "cpu_buffer.h"
+>  
+>Index: linux-2.6.0-test9-mm5/include/linux/cpumask.h
+>===================================================================
+>RCS file: /build/cvsroot/linux-2.6.0-test9-mm5/include/linux/cpumask.h,v
+>retrieving revision 1.1.1.1
+>diff -u -p -B -r1.1.1.1 cpumask.h
+>--- linux-2.6.0-test9-mm5/include/linux/cpumask.h	21 Nov 2003 20:59:57 -0000	1.1.1.1
+>+++ linux-2.6.0-test9-mm5/include/linux/cpumask.h	21 Nov 2003 21:52:39 -0000
+>@@ -39,9 +39,8 @@ typedef unsigned long cpumask_t;
 > 
-> What are the exact requirements of changedfiles or
-> samba?
+> 
+> #ifdef CONFIG_SMP
+>-
+>+#include <asm/smp.h>
+> extern cpumask_t cpu_online_map;
+>-extern cpumask_t cpu_possible_map;
+> 
+> #define num_online_cpus()		cpus_weight(cpu_online_map)
+> #define cpu_online(cpu)			cpu_isset(cpu, cpu_online_map)
+>
+>  
+>
+It compiles completely. :-)
 
-For changedfiles, essentially a device special that
-reports file operations, e.g.
+Just a point : in the file arch/i383/process.c, I added the  following 
+lines.
 
-OPENW /home/foo/filename
-MKDIR /home/foo/bar
-RENAME /home/foo/bar -> /home/foo/goo
+#include <asm/tlbflush.h>
+#include <asm/cpu.h>
 
-The userspace deamon reads the operations and files,
-and compares then to regexp rules in the config file
-i.e, for an automatic image converter:
+My original processs.c file seems to be a little be bit different from 
+yours (?).
+The following line was already in the process.c file.
 
-RULE ^/home/dropbox/*.gif
-SHELL /usr/bin/convert __FILE__ `basename __FILE__
-.jpg`
++#include <asm/atomic_kmap.h>
 
-It also does in process FTP, so you can do poor man's
-replication to a remote machine without the overhead
-of polling.
+Thanks
+Rémi
 
 
-
-
-__________________________________
-Do you Yahoo!?
-Free Pop-Up Blocker - Get it now
-http://companion.yahoo.com/

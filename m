@@ -1,63 +1,198 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261287AbVCIIGu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbVCIIHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261287AbVCIIGu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 03:06:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbVCIIGu
+	id S261346AbVCIIHw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 03:07:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbVCIIHv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 03:06:50 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:2789 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261287AbVCIIGr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 03:06:47 -0500
-Subject: RE: [ANNOUNCE][PATCH 2.6.11 2/3] megaraid_sas: Announcing new mod
-	ule  for LSI Logic's SAS based MegaRAID controllers
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
-       Andrew Morton <akpm@osdl.org>,
-       "'Christoph Hellwig'" <hch@infradead.org>
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570230CC18@exa-atlanta>
-References: <0E3FA95632D6D047BA649F95DAB60E570230CC18@exa-atlanta>
-Content-Type: text/plain
-Date: Wed, 09 Mar 2005 09:06:38 +0100
-Message-Id: <1110355598.6280.61.camel@laptopd505.fenrus.org>
+	Wed, 9 Mar 2005 03:07:51 -0500
+Received: from mail.autoweb.net ([198.172.237.26]:58124 "EHLO mail.autoweb.net")
+	by vger.kernel.org with ESMTP id S261346AbVCIIHK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 03:07:10 -0500
+Date: Wed, 9 Mar 2005 03:06:38 -0500
+From: Ryan Anderson <ryan@michonline.com>
+To: Andrew Morton <akpm@osdl.org>, Sam Ravnborg <sam@ravnborg.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Automatically append a semi-random version for BK users
+Message-ID: <20050309080638.GW7828@mythryan2.michonline.com>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Sam Ravnborg <sam@ravnborg.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-08 at 18:08 -0500, Bagalkote, Sreenivas wrote:
-> 
-> I will make this an instance parameter if the idea to reduce as many
-> global variables as possible. But if the objection is because each
-> adapter
-> may have different value for variable, then it is indeed a global
-> value.
-> "is_dma64" - which is computed using the size of dma_addr_t - is
-> telling
-> something about the kernel rather than the controller feature.
-> 
+Automatically append a semi-random version if the tree we're building
+isn't tagged in BitKeeper and CONFIG_LOCALVERSION_AUTO is set.
 
-then having it as variable sounds really really wrong; the size of
-dma_addr_t is a compile time property...
-(and why do you care about it? you see high dma addresses when they come
-in, right?)
+This fixes the case when Linus (or someone else) does a release and tags
+it, someone else does a build of that release tree (i.e, 2.6.11), and
+installs it.  Later, before another release occurs (i.e, -rc1), another
+build happens, and the actual, released 2.6.11 is overwritten with the
+-current tree.
 
+Two approachs are present here, a Perl version that is setup to handle
+other automatic version appends (i.e, a CVS version shouldn't be much
+effort to add), and a simplistic shell version that depends on "md5sum".
+Both approaches generate the same hash.
+
+I've sent this twice before, gotten no comments, so I'm really looking
+for feedback on the approach and idea, more than anything else.
+
+Signed-Off-By: Ryan Anderson <ryan@michonline.com>
+
+diff -Nru a/Makefile b/Makefile
+--- a/Makefile	2005-03-09 02:51:15 -05:00
++++ b/Makefile	2005-03-09 02:51:15 -05:00
+@@ -550,6 +550,24 @@
+ 
+ #export	INSTALL_PATH=/boot
+ 
++# If CONFIG_LOCALVERSION_AUTO is set, we automatically perform some tests
++# and try to determine if the current source tree is a release tree, of any sort,
++# or if is a pure development tree.
++# A 'release tree' is any tree with a BitKeeper TAG associated with it.
++# The primary goal of this is to make it safe for a native BitKeeper user to
++# build a release tree (i.e, 2.6.9) and also to continue developing against the
++# current Linus tree, without having the Linus tree overwrite the 2.6.9 tree 
++# when installed.
++#
++# (In the future, CVS and SVN support will be added as well.)
++
++ifeq ($(CONFIG_LOCALVERSION_AUTO),y)
++	ifeq ($(shell ls -d $(srctree)/BitKeeper 2>/dev/null),$(srctree)/BitKeeper)
++		localversion-bk := $(shell $(srctree)/scripts/setlocalversion.sh $(srctree) $(objtree))
++		LOCALVERSION := $(LOCALVERSION)$(localversion-bk)
++	endif
++endif
++
+ #
+ # INSTALL_MOD_PATH specifies a prefix to MODLIB for module directory
+ # relocations required by build roots.  This is not defined in the
+diff -Nru a/init/Kconfig b/init/Kconfig
+--- a/init/Kconfig	2005-03-09 02:51:15 -05:00
++++ b/init/Kconfig	2005-03-09 02:51:15 -05:00
+@@ -69,6 +69,18 @@
+ 	  object and source tree, in that order.  Your total string can
+ 	  be a maximum of 64 characters.
+ 
++config LOCALVERSION_AUTO
++	bool "Automatically append version information to the version string"
++	default y
++	help
++	  This will try to automatically determine if the current tree is a
++	  release tree by looking for BitKeeper tags that belong to the
++	  current top of tree revision.
++	  A string of the format -BKxxxxxxxx will be added to the
++	  localversion.  The string generated by this will be appended 
++	  after any matching localversion* files, and after the 
++	  value set in CONFIG_LOCALVERSION
++
+ config SWAP
+ 	bool "Support for paging of anonymous memory (swap)"
+ 	depends on MMU
+diff -Nru a/scripts/setlocalversion b/scripts/setlocalversion
+--- /dev/null	Wed Dec 31 16:00:00 196900
++++ b/scripts/setlocalversion	2005-03-09 02:51:15 -05:00
+@@ -0,0 +1,62 @@
++#!/usr/bin/perl
++# Copyright 2004 - Ryan Anderson <ryan@michonline.com>  GPL v2
++
++use strict;
++use warnings;
++use Digest::MD5;
++require 5.006;
++
++if (@ARGV != 2) {
++	print <<EOT;
++Usage: setlocalversion <srctree> <objtree>
++EOT
++	exit(1);
++}
++
++my $debug = 0;
++
++my ($srctree,$objtree) = @ARGV;
++
++my @LOCALVERSIONS = ();
++
++# BitKeeper Version Checks
++
++# We are going to use the following commands to try and determine if
++# this repository is at a Version boundary (i.e, 2.6.10 vs 2.6.10 + some patches)
++# We currently assume that all meaningful version boundaries are marked by a tag.
++# We don't care what the tag is, just that something exists.
++
++#ryan@mythryan2 ~/dev/linux/local$ T=`bk changes -r+ -k`
++#ryan@mythryan2 ~/dev/linux/local$ bk prs -h -d':TAG:\n' -r$T
++
++sub do_bk_checks {
++	chdir($srctree);
++	my $changeset = `bk changes -r+ -k`;
++	chomp $changeset;
++	my $tag = `bk prs -h -d':TAG:' -r'$changeset'`;
++
++	printf("ChangeSet Key = '%s'\nTAG = '%s'\n", $changeset, $tag) if ($debug > 0);
++
++	if (length($tag) == 0) {
++		# We do not have a tag at the Top of Tree, so we need to generate a localversion file
++		# We'll use the given $changeset as input into this.
++		my $localversion = Digest::MD5::md5_hex($changeset);
++		$localversion = substr($localversion,0,8);
++
++		printf("localversion = '%s'\n",$localversion) if ($debug > 0);
++
++		push @LOCALVERSIONS, "BK" . $localversion;
++
++	}
++}
++
++
++if ( -d "BitKeeper" ) {
++	my $bk = `which bk`;
++	chomp $bk;
++	if (length($bk) != 0) {
++		do_bk_checks();
++	}
++}
++
++printf "-%s\n", join("-",@LOCALVERSIONS) if (scalar @LOCALVERSIONS > 0);
+diff -Nru a/scripts/setlocalversion.sh b/scripts/setlocalversion.sh
+--- /dev/null	Wed Dec 31 16:00:00 196900
++++ b/scripts/setlocalversion.sh	2005-03-09 02:51:15 -05:00
+@@ -0,0 +1,26 @@
++#!/bin/sh
++
++BK=`which bk`
++MD5SUM=`which md5sum`
++
++srctree=$1
++objtree=$2
++
++if [ "$BK" == "" ];
++then
++	echo "scripts/setlocalversion.sh: Failed to find BK, not appending a -BK* version" >&2
++	exit 0
++fi
++
++if [ "$MD5SUM" == "" ];
++then
++	echo "scripts/setlocalversion.sh: Couldn't find md5sum, trying Perl version instead." >&2
++	exec perl scripts/setlocalversion $srctree $objtree
++fi
++
++cd $srctree
++changeset=`$BK changes -r+ -k`
++tag=`$BK prs -h -d':TAG:' -r'$changeset'`
++if [ "$tag" == "" ]; then
++	echo -n $changeset | md5sum | awk '{printf "-BK%s",substr($1,1,8)}'
++fi
+
+
+-- 
+
+Ryan Anderson
+  sometimes Pug Majere

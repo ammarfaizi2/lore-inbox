@@ -1,60 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262195AbTLNSFd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Dec 2003 13:05:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbTLNSFd
+	id S262308AbTLNSjG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 13:39:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbTLNSjG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Dec 2003 13:05:33 -0500
-Received: from fw.osdl.org ([65.172.181.6]:35778 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262195AbTLNSFL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Dec 2003 13:05:11 -0500
-Date: Sun, 14 Dec 2003 10:05:03 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Peter Horton <pdh@colonel-panic.org>
-cc: Jamie Lokier <jamie@shareable.org>, linux-mips@linux-mips.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Possible shared mapping bug in 2.4.23 (at least MIPS/Sparc)
-In-Reply-To: <20031214103803.GA916@skeleton-jack>
-Message-ID: <Pine.LNX.4.58.0312141001090.14336@home.osdl.org>
-References: <20031213114134.GA9896@skeleton-jack> <20031213222626.GA20153@mail.shareable.org>
- <Pine.LNX.4.58.0312131740120.14336@home.osdl.org> <20031214103803.GA916@skeleton-jack>
+	Sun, 14 Dec 2003 13:39:06 -0500
+Received: from real-outmail.cc.huji.ac.il ([132.64.1.17]:1234 "EHLO
+	mail1.cc.huji.ac.il") by vger.kernel.org with ESMTP id S262308AbTLNSjD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Dec 2003 13:39:03 -0500
+Message-ID: <3FDC9EC8.1000908@mscc.huji.ac.il>
+Date: Sun, 14 Dec 2003 19:32:56 +0200
+From: Voicu Liviu <pacman@mscc.huji.ac.il>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en, he
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Roberto Sanchez <rcsanchez97@yahoo.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 vs 2.6
+References: <20031201062052.GA2022@frodo> <Pine.LNX.4.44.0312011202330.13692-100000@logos.cnet> <m2r7z8xl2o.fsf_-_@tnuctip.rychter.com> <3FDC0BAC.8020909@mscc.huji.ac.il> <3FDC8957.4000602@yahoo.es>
+In-Reply-To: <3FDC8957.4000602@yahoo.es>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Roberto Sanchez wrote:
 
-
-On Sun, 14 Dec 2003, Peter Horton wrote:
-> >
-> > Just document it as a bug in the user program if this causes problems.
-> > Don't blame the kernel - the kernel is only doing what the user asked it
-> > to do.
+> Voicu Liviu wrote:
 >
-> I've seen code written for X86 use MAP_FIXED to create self wrapping
-> ring buffers. Surely it's better to fail the mmap() on other archs
-> rather than for the code to fail in unexpected ways?
+>> My specs:
+>> Cpu:Athlon XP 2500+ BARTON {10x190}
+>> Mobo:EPOX 8RDA3 + NFORCE 2
+>> Ram:Corsair TWINX 512 3200LL{dual channel/11-3-2-2.0}
+>> Fan:Cooler Master +7
+>> Video:Hercules 3D Prophet 9600 PRO Radeon 128MB
+>>
+>> My Hercules 3D Prophet 9600 PRO Radeon simply freezes my comp. with
+>> ati-drivers from ati.com so I need to press reset!(so I only can run
+>> console)
+>> My sound (nvidia on board) works very shitty and I have no control on
+>> it (level sound I mean).
+>> I was running 2.4.23 vanilla + lvm1 so I moved to 2.6 vanilla+lvm2 and
+>> now I can not move back
+>>
+>> These are my biggest problems with 2.6.
+>
+>
+>
+> Have you treid the in kernel DRI drivers?  They work with my Radeon
+> 9000 on an nForce2.
+>
+> Also, why can't you go back to 2.4.23?
 
-Yes and no.
+Because i use lvm2 and I could not find the way to get back to lvm1
+Any clue?
 
-In _that_ case it would clearly be polite to just fail the mmap(). No
-question about that - it's always nice if the kernel can find problems
-early rather than late.
+>
+> -Roberto
 
-However, there are other ways you can screw yourself in user space, and
-I'm not convinced it is always wrong to create a unaligned shared mapping.
-For example, I can see that being useful exactly because you want to write
-some CPU test in user space, for example.
+Liviu
 
-So I'm generally opposed to the kernel saying "you can't do that" if there
-isn't some really fundamental reason (security or stability) for it to be
-really a no-no. It's often better to give the user rope to hang himself:
-that rope might be used for interesting things too.
-
-> It's a bug either way ... either the test should be fixed up or it
-> should be removed from arch_get_unmapped_area() to save confusion.
-
-I agree that we might as well remove it, but it's not 2.6.x material.
-
-		Linus

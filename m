@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315746AbSHRTP3>; Sun, 18 Aug 2002 15:15:29 -0400
+	id <S315709AbSHRTK2>; Sun, 18 Aug 2002 15:10:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315748AbSHRTP3>; Sun, 18 Aug 2002 15:15:29 -0400
-Received: from dsl-213-023-039-196.arcor-ip.net ([213.23.39.196]:6618 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S315746AbSHRTP2>;
-	Sun, 18 Aug 2002 15:15:28 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: linux-kernel@vger.kernel.org
-Subject: Generic list push/pop
-Date: Sun, 18 Aug 2002 21:21:41 +0200
+	id <S315717AbSHRTK2>; Sun, 18 Aug 2002 15:10:28 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:31761 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S315709AbSHRTK2>; Sun, 18 Aug 2002 15:10:28 -0400
+Message-Id: <200208181910.g7IJADp30225@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Ed Sweetman <safemode@speakeasy.net>, Alexander Viro <viro@math.psu.edu>
+Subject: Re: cerberus errors on 2.4.19 (ide dma related)
+Date: Sun, 18 Aug 2002 22:06:53 -0200
 X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.GSO.4.21.0208180509540.2495-100000@weyl.math.psu.edu> <1029662182.2970.23.camel@psuedomode> <1029694235.520.9.camel@psuedomode>
+In-Reply-To: <1029694235.520.9.camel@psuedomode>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17gVcL-00031m-00@starship>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I took a run at writing generic single-linked list push and pop macros, to be 
-used in the form:
+On 18 August 2002 16:10, Ed Sweetman wrote:
+> It appears i'm completely unable to not use devfs.  Attempting to run
+> the kernel without mounting devfs results in it still being mounted or
+> if not compiled in, locks up during boot.  Attempts to run the kernel
+> and mv /dev does not work, umounting /dev does not work and rm'ing /dev
+> does not work.  I cant create the non-devfs  nodes while devfs is
+> mounted and i cant boot the kernel without devfs.  It seems that no
+> uninstall procedure has been made and i've read the documentation that
+> comes with the kernel about devfs and it says nothing about how to move
+> back to the old device nodes from devfs.
+>
+> anyone have any suggestions?
 
-	push_list(foo_list, foo_node);
+Boot with devfs as usual.
+Mount your root fs again, say
 
-and
-	foo_node = pop_list(foo_list);
+#mount /dev/hda2 /mnt/tmp
 
-They came out predictably ugly:
+and you will see your /dev as it is on disk (i.e. without
+devfs mounted over it) in /mnt/tmp/dev.
+Now, mknod everything you need.
 
-#define push_list(_LIST_, _NODE_) \
-	_NODE_->next = _LIST_; \
-	_LIST_ =_NODE_;
-
-#define pop_list(_LIST_) ({ \
-	typeof(_LIST_) _NODE_ = _LIST_; \
-	_LIST_ = _LIST_->next; \
-	_NODE_; })
-
-These work but imho, they are too ugly to live.  For one thing, they assume 
-the link field is named 'next' and I don't see a nice way around that.
-Before moving them to my scraps.c file I thought I'd let other people throw 
-some tomatoes at them.
-
--- 
-Daniel
+BTW, NFS mount over loopback (127.0.0.1) works too.
+--
+vda

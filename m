@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288083AbSAUUGs>; Mon, 21 Jan 2002 15:06:48 -0500
+	id <S288040AbSAUUG6>; Mon, 21 Jan 2002 15:06:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288058AbSAUUGj>; Mon, 21 Jan 2002 15:06:39 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:27021 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S288040AbSAUUGZ>; Mon, 21 Jan 2002 15:06:25 -0500
-Date: Mon, 21 Jan 2002 12:06:35 -0800 (PST)
-From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: AOL in Negotiations to Buy Red Hat?
-In-Reply-To: <E16ShQ9-0008Tu-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0201211150240.1752-100000@shell1.aracnet.com>
+	id <S288058AbSAUUGs>; Mon, 21 Jan 2002 15:06:48 -0500
+Received: from colorfullife.com ([216.156.138.34]:28179 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S288040AbSAUUGm>;
+	Mon, 21 Jan 2002 15:06:42 -0500
+Message-ID: <3C4C74B2.27BD7796@colorfullife.com>
+Date: Mon, 21 Jan 2002 21:06:10 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Lee Packham <linux@mswinxp.net>
+CC: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+        "'Kai Germaschewski'" <kai@tp1.ruhr-uni-bochum.de>,
+        "'Linus Torvalds'" <torvalds@transmeta.com>,
+        "'Dave Jones'" <davej@suse.de>,
+        "'Jes Sorensen'" <jes@wildopensource.com>,
+        linux-kernel@vger.kernel.org,
+        "'Marcelo Tosatti'" <marcelo@conectiva.com.br>
+Subject: Re: [patch] VAIO irq assignment fix
+In-Reply-To: <fa.gd40p7v.187cd9o@ifi.uio.no> <fa.fhsq5hv.1q2eri1@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Jan 2002, Alan Cox wrote:
+Lee Packham wrote:
+> 
+> Now... I have a Sony Vaio FX-103 with the RICOH RL5C476 not the 75. The
+> laptop has 192 MB of RAM (not the standard 64) and a 10gb harddisk.
+> Mandrake 8.1 with a 2.4.16 kernel with a USB PCI IRQ Routing patch to
+> make USB work (yes I am waiting heavily for the ACPI stuff!).
+> 
+> Anyhow, no matter what I do (including your patch modified to work on
+> the different controller) I cannot get two cards to work inside this
+> laptop.
+>
+Have you tried Ingo's IRQ rate limiter? Perhaps someone forgets to send
+an EOI to the hardware, and then everything locks up due to a level
+triggered interrupt that remains active forever.
 
-> > well - AOL could replace that nice-looking young lady in their
-> > tele-ads (the one with the dress like a vdu) with Alan Cox in
-> > Wizard's hat n cloak :-)
-> >
-> > -- robert w hall
+http://groups.google.com/groups?hl=en&selm=fa.o69hfov.tl2696%40ifi.uio.no&rnum=5
 
-> Well I've no idea on the rumours (and if I did I wouldnt tell you!)
-> but Im insulted that anyone believes I would continue working for RH
-> if aol/time warner owned them.
-
-Sadly, I've heard statements like this before; I've even made them :-).
-If it were a choice between AOL/Time Warner/Red Hat and not working on
-Linux, would you still make that choice? If it were a choice between
-working for AOL/Time Warner/Red Hat or working for Red Hat and competing
-with AOL/Time Warner/Mandrake, would you still make that choice? The
-world of business, where money talks, presents us with interesting
-choices from time to time :).
-
--- 
-M. Edward Borasky
-znmeb@borasky-research.net
-
-The COUGAR Project
-http://www.borasky-research.com/Cougar.htm
-How to Stop A Folksinger Cold # 5
-"Where have all the flowers gone..."
-Beats me.
-
+--
+	Manfre

@@ -1,204 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261988AbUCLGgl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 01:36:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbUCLGgl
+	id S261996AbUCLGmG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 01:42:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261993AbUCLGmG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 01:36:41 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:11965 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S261988AbUCLGge
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 01:36:34 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: Linux Kernel <linux-kernel@vger.kernel.org>,
-       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>
-Subject: module scanning in kgdb 2.x
-Date: Fri, 12 Mar 2004 12:06:16 +0530
-User-Agent: KMail/1.5
-Cc: Tom Rini <trini@kernel.crashing.org>
+	Fri, 12 Mar 2004 01:42:06 -0500
+Received: from smtprelay02.ispgateway.de ([62.67.200.157]:46009 "EHLO
+	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
+	id S262008AbUCLGl4 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 01:41:56 -0500
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] per-backing dev unplugging #2
+Date: Fri, 12 Mar 2004 07:41:16 +0100
+User-Agent: KMail/1.6
+Cc: Jens Axboe <axboe@suse.de>
+References: <20040311083619.GH6955@suse.de>
+In-Reply-To: <20040311083619.GH6955@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200403121206.16130.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200403120741.18455.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Here is code to scan modules in kgdb for 2.6 kernels. It's been contributed by 
-TimeSys Corporation. 
+Hi Jens,
 
-It does following things:
-1. Adds MODULE_STATE_GONE to indicate that a module was removed. This is 
-differnent from MODULE_STATE_GOING. gdb needs to be notified of a module 
-event _after_ a module has been removed. Or else it'll still find the module 
-during a module list scan and will not remove it from its core.
+On Thursday 11 March 2004 09:36, Jens Axboe wrote:
+> diff -ur -X /home/axboe/cdrom/exclude /opt/kernel/linux-2.6.4-mm1/kernel/power/pmdisk.c linux-2.6.4-mm1/kernel/power/pmdisk.c
+> --- /opt/kernel/linux-2.6.4-mm1/kernel/power/pmdisk.c	2004-03-11 03:55:28.000000000 +0100
+> +++ linux-2.6.4-mm1/kernel/power/pmdisk.c	2004-03-11 09:07:12.000000000 +0100
+> @@ -859,7 +859,6 @@
+>  
+>  static void wait_io(void)
+>  {
+> -	blk_run_queues();
+>  	while(atomic_read(&io_done))
+>  		io_schedule();
+>  }
+> @@ -895,6 +894,7 @@
+>  		goto Done;
+>  	}
+>  
+> +	rw |= BIO_RW_SYNC;
+>  	if (rw == WRITE)
+>  		bio_set_pages_dirty(bio);
+>  	start_io();
 
-2. Defines a structure mod_section which stores module section names and 
-offsets preserved during loading of a module.
+These last 3 lines look bogus. The condition will never trigger. 
+Maybe you meant to move the assignment either down or change bio->bi_rw
+instead of rw.
 
-3. Adds a couple of fields to struct module to keep module section 
-information.
+Regards
 
-4. Adds a few notifications for gdb to know module related events.
+Ingo Oeser
 
-5. Saves module section names and offsets in load_module.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
--Amit
-
-Index: linux-2.6.3-kgdb/include/linux/module.h
-===================================================================
---- linux-2.6.3-kgdb.orig/include/linux/module.h	2004-02-24 10:44:47.000000000 
-+0530
-+++ linux-2.6.3-kgdb/include/linux/module.h	2004-03-04 18:58:47.116645760 
-+0530
-@@ -186,8 +186,17 @@
- 	MODULE_STATE_LIVE,
- 	MODULE_STATE_COMING,
- 	MODULE_STATE_GOING,
-+	MODULE_STATE_GONE,
- };
- 
-+#ifdef CONFIG_KGDB
-+#define MAX_SECTNAME 31
-+struct mod_section {
-+	void *address;
-+	char name[MAX_SECTNAME + 1];
-+};
-+#endif
-+
- struct module
- {
- 	enum module_state state;
-@@ -198,6 +207,13 @@
- 	/* Unique handle for this module */
- 	char name[MODULE_NAME_LEN];
- 
-+#ifdef CONFIG_KGDB
-+	/* keep kgdb info at the begining so that gdb doesn't have a chance to
-+	 * miss out any fields */
-+	unsigned long num_sections;
-+	struct mod_section *mod_sections;
-+#endif
-+
- 	/* Exported symbols */
- 	const struct kernel_symbol *syms;
- 	unsigned int num_syms;
-Index: linux-2.6.3-kgdb/kernel/module.c
-===================================================================
---- linux-2.6.3-kgdb.orig/kernel/module.c	2004-02-24 10:44:56.000000000 +0530
-+++ linux-2.6.3-kgdb/kernel/module.c	2004-03-04 18:55:59.136182672 +0530
-@@ -727,6 +727,11 @@
- 	mod->state = MODULE_STATE_GOING;
- 	restart_refcounts();
- 
-+	down(&notify_mutex);
-+	notifier_call_chain(&module_notify_list, MODULE_STATE_GOING,
-+				mod);
-+	up(&notify_mutex);
-+
- 	/* Never wait if forced. */
- 	if (!forced && module_refcount(mod) != 0)
- 		wait_for_zero_refcount(mod);
-@@ -734,6 +739,10 @@
- 	/* Final destruction now noone is using it. */
- 	mod->exit();
- 	free_module(mod);
-+	down(&notify_mutex);
-+	notifier_call_chain(&module_notify_list, MODULE_STATE_GONE,
-+				NULL);
-+	up(&notify_mutex);
- 
-  out:
- 	up(&module_mutex);
-@@ -1087,6 +1096,11 @@
- 	/* Arch-specific cleanup. */
- 	module_arch_cleanup(mod);
- 
-+#ifdef CONFIG_KGDB
-+	/* kgdb info */
-+	vfree(mod->mod_sections);
-+#endif
-+
- 	/* Module unload stuff */
- 	module_unload_free(mod);
- 
-@@ -1302,6 +1316,30 @@
- 	return NULL;
- }
- 
-+#ifdef CONFIG_KGDB
-+int add_modsects (struct module *mod, Elf_Ehdr *hdr, Elf_Shdr *sechdrs, const
-+		char *secstrings)
-+{
-+	int i;
-+
-+	mod->num_sections = hdr->e_shnum - 1;
-+	mod->mod_sections = vmalloc((hdr->e_shnum - 1)* sizeof (struct 
-mod_section));
-+
-+	if (mod->mod_sections == NULL) {
-+		return -ENOMEM;
-+	}
-+
-+	for (i = 1; i < hdr->e_shnum; i++) {
-+		mod->mod_sections[i - 1].address = (void *)sechdrs[i].sh_addr;
-+		strncpy(mod->mod_sections[i - 1].name, secstrings +
-+				sechdrs[i].sh_name, MAX_SECTNAME);
-+		mod->mod_sections[i - 1].name[MAX_SECTNAME] = '\0';
-+	}
-+
-+	return 0;
-+}
-+#endif
-+
- #ifdef CONFIG_KALLSYMS
- int is_exported(const char *name, const struct module *mod)
- {
-@@ -1650,6 +1688,12 @@
- 	percpu_modcopy(mod->percpu, (void *)sechdrs[pcpuindex].sh_addr,
- 		       sechdrs[pcpuindex].sh_size);
- 
-+#ifdef CONFIG_KGDB
-+	if ((err = add_modsects(mod, hdr, sechdrs, secstrings)) < 0) {
-+		goto nomodsectinfo;
-+	}
-+#endif
-+
- 	err = module_finalize(hdr, sechdrs, mod);
- 	if (err < 0)
- 		goto cleanup;
-@@ -1688,6 +1732,11 @@
-  arch_cleanup:
- 	module_arch_cleanup(mod);
-  cleanup:
-+
-+#ifdef CONFIG_KGDB
-+nomodsectinfo:
-+	vfree(mod->mod_sections);
-+#endif
- 	module_unload_free(mod);
- 	module_free(mod, mod->module_init);
-  free_core:
-@@ -1758,7 +1807,12 @@
- 	if (ret < 0) {
- 		/* Init routine failed: abort.  Try to protect us from
-                    buggy refcounters. */
-+
- 		mod->state = MODULE_STATE_GOING;
-+		down(&notify_mutex);
-+		notifier_call_chain(&module_notify_list, MODULE_STATE_GOING,
-+					mod);
-+		up(&notify_mutex);
- 		synchronize_kernel();
- 		if (mod->unsafe)
- 			printk(KERN_ERR "%s: module is now stuck!\n",
-
+iD8DBQFAUVuMU56oYWuOrkARAlxlAJ0Su6cddbBEu6j4lg9s880ZGI7YhQCgiXYU
+zxumQHLdGy/UcBIbx56IG1k=
+=vbeO
+-----END PGP SIGNATURE-----

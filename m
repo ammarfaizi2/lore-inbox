@@ -1,58 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261652AbUCPUqH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 15:46:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbUCPUqH
+	id S261654AbUCPUuF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 15:50:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbUCPUuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 15:46:07 -0500
-Received: from mail.fh-wedel.de ([213.39.232.194]:32916 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S261652AbUCPUqA (ORCPT
+	Tue, 16 Mar 2004 15:50:05 -0500
+Received: from mail5.iserv.net ([204.177.184.155]:42444 "EHLO mail5.iserv.net")
+	by vger.kernel.org with ESMTP id S261654AbUCPUt7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 15:46:00 -0500
-Date: Tue, 16 Mar 2004 21:45:34 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: unionfs
-Message-ID: <20040316204534.GB22482@wohnheim.fh-wedel.de>
-References: <20040316180413.GA22482@wohnheim.fh-wedel.de> <200403161940.i2GJeP6m007930@eeyore.valparaiso.cl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200403161940.i2GJeP6m007930@eeyore.valparaiso.cl>
-User-Agent: Mutt/1.3.28i
+	Tue, 16 Mar 2004 15:49:59 -0500
+Message-ID: <4057687D.5050902@didntduck.org>
+Date: Tue, 16 Mar 2004 15:50:05 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dominik Karall <dominik.karall@gmx.net>
+CC: Steve Youngs <sryoungs@bigpond.net.au>, linux-kernel@vger.kernel.org
+Subject: Re: NVIDIA and 2.6.4?
+References: <405082A2.5040304@blueyonder.co.uk> <200403130515.i2D5F7DG009253@turing-police.cc.vt.edu> <microsoft-free.87ad2ipyr2.fsf@eicq.dnsalias.org> <200403162149.41018.dominik.karall@gmx.net>
+In-Reply-To: <200403162149.41018.dominik.karall@gmx.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 March 2004 15:40:24 -0400, Horst von Brand wrote:
-> > 
-> > $ cp -cr dir1 dir2
-> > 
-> > Behaves similar to 'cp -lr', but creates COWs instead of hard links.
-> > Can take a few seconds to create the directories, but not minutes.
+Dominik Karall wrote:
+> On Monday 15 March 2004 04:36, Steve Youngs wrote:
 > 
-> Why does it magically take less time? The work done (recursing, fiddling
-> with directories, syscalls, ...) is nearly the same.
+>>* Valdis Kletnieks <Valdis.Kletnieks@vt.edu> writes:
+>>  > On Fri, 12 Mar 2004 18:24:01 GMT, Adam Jones <adam@yggdrasl.demon.co.uk>  
+> 
+> said:
+> 
+>>  >> A quick thought - have you got CONFIG_REGPARM enabled in the kernel
+>>  >> config?  If so, disable it and try again.  (It's almost certain to
+>>  >> cause crashes with binary modules.)
+>>
+>>  $ zgrep REGPARM /proc/config.gz
+>>CONFIG_REGPARM=y
+>>
+>>  $ grep nvidia /proc/modules
+>>nvidia 2066568 22 - Live 0xe0b2d000
+>>
+>>  $ uname -r
+>>2.6.4-sy1
+>>
+>>No problems here. :-)
+>>
+>>  > Also, the NVidia driver uses a bit of kernel stack, so it's
+>>  > incompatible with the CONFIG_4KSTACKS option in recent -mm
+>>  > kernels...
+>>
+>>Will have to remember that for 2.6.5, I'll let you know how it goes.
+>>Thanks, Valdis.
+> 
+> 
+> can you let me know how to compile the nvidia drivers for 4KSTACK? cause in 
+> the 2.6.5-rc1-mm1 is no more option to deactivate 4KSTACK.
+> thx!
 
-joern@limerick:~$ time cp -lr /usr/src/linux/ /tmp/linux
+Complain to NVidia.  It's the binary-only part of the driver that's the 
+real stack hog.
 
-real    0m22.356s
-user    0m0.167s
-sys     0m1.480s
-joern@limerick:~$ rm -r /tmp/linux/
-joern@limerick:~$ time cp -r /usr/src/linux/ /tmp/linux
-
-real    1m44.147s
-user    0m0.499s
-sys     0m7.987s
-
-'nuf said, eot.
-
-Jörn
-
--- 
-To recognize individual spam features you have to try to get into the
-mind of the spammer, and frankly I want to spend as little time inside
-the minds of spammers as possible.
--- Paul Graham
+--
+				Brian Gerst

@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293164AbSCEFYY>; Tue, 5 Mar 2002 00:24:24 -0500
+	id <S292867AbSCEFep>; Tue, 5 Mar 2002 00:34:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293608AbSCEFYO>; Tue, 5 Mar 2002 00:24:14 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:1568 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S293164AbSCEFYB>; Tue, 5 Mar 2002 00:24:01 -0500
-Date: Tue, 5 Mar 2002 00:23:58 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux390@de.ibm.com, Pete Zaitcev <zaitcev@redhat.com>
-Subject: s390 is totally broken in 2.4.18
-Message-ID: <20020305002358.A1670@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S292894AbSCEFef>; Tue, 5 Mar 2002 00:34:35 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3597 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S292867AbSCEFeR>; Tue, 5 Mar 2002 00:34:17 -0500
+Message-ID: <3C8458CA.30203@zytor.com>
+Date: Mon, 04 Mar 2002 21:34:02 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
+To: Jeff Dike <jdike@karaya.com>
+CC: Benjamin LaHaise <bcrl@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Arch option to touch newly allocated pages
+In-Reply-To: <200203050440.XAA07022@ccure.karaya.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Apparently, NOBODY bothered to test 2.4.18-pre*, 2.4.18 final,
-or 2.4.19-pre* on s390. The broken patch went into 2.4.18-pre1
-with a curt changelog:
+Jeff Dike wrote:
 
-- S390 merge                                    (IBM)
+> bcrl@redhat.com said:
+> 
+>>From your explanation of things, you only need to do the memsets once
+>>at  startup of UML where the ram is allocated -> a uml booted with
+>>64MB of  ram would write into every page of the backing store file
+>>before even  running the kernel.  Doesn't that accomplish the same
+>>thing?
+>>
+> 
+> Sort of, but it's very heavy-handed.  The UML will force memory to be
+> allocated on the host long before it will ever be needed, and it may never
+> be needed.  This patch doesn't waste memory like that.
+> 
 
-Patch attached.
 
--- Pete
+This is not necessarily a bad thing, however.  If the user hadn't set up 
+enough swap, they're probably better off getting the error message early.
 
---- linux-2.4.18-0.1.s390/arch/s390/kernel/entry.S	Mon Feb 25 11:37:56 2002
-+++ linux-2.4.18-0.1-x.s390/arch/s390/kernel/entry.S	Mon Mar  4 19:53:13 2002
-@@ -59,7 +59,7 @@
-  */
- _TSS_PTREGS  = 0
- _TSS_FPRS    = (_TSS_PTREGS+8)
--_TSS_AR2     = (_TSS_FPRS+136)
-+_TSS_AR2     = (_TSS_FPRS+128)
- _TSS_AR4     = (_TSS_AR2+4)
- _TSS_KSP     = (_TSS_AR4+4)
- _TSS_USERSEG = (_TSS_KSP+4)
---- linux-2.4.18-0.1.s390/arch/s390x/kernel/entry.S	Mon Feb 25 11:37:56 2002
-+++ linux-2.4.18-0.1-x.s390/arch/s390x/kernel/entry.S	Mon Mar  4 20:04:24 2002
-@@ -60,7 +60,7 @@
-  */
- _TSS_PTREGS  = 0
- _TSS_FPRS    = (_TSS_PTREGS+8)
--_TSS_AR2     = (_TSS_FPRS+136)
-+_TSS_AR2     = (_TSS_FPRS+128)
- _TSS_AR4     = (_TSS_AR2+4)
- _TSS_KSP     = (_TSS_AR4+4)
- _TSS_USERSEG = (_TSS_KSP+8)
+	-hpa
+
+
+

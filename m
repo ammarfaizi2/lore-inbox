@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278621AbRJVTtT>; Mon, 22 Oct 2001 15:49:19 -0400
+	id <S276695AbRJVTxj>; Mon, 22 Oct 2001 15:53:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278845AbRJVTtJ>; Mon, 22 Oct 2001 15:49:09 -0400
-Received: from [216.151.155.121] ([216.151.155.121]:39689 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S278655AbRJVTtA>; Mon, 22 Oct 2001 15:49:00 -0400
-To: stimits@idcomm.com
+	id <S278852AbRJVTx3>; Mon, 22 Oct 2001 15:53:29 -0400
+Received: from ns.ithnet.com ([217.64.64.10]:53260 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S278655AbRJVTxQ>;
+	Mon, 22 Oct 2001 15:53:16 -0400
+Date: Mon, 22 Oct 2001 21:53:35 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: jarausch@belgacom.net
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.20pre10
-In-Reply-To: <Pine.LNX.4.33L.0110221432490.22127-100000@duckman.distro.conectiva>
-	<200110221652.f9MGqpF04073@schroeder.cs.wisc.edu>
-	<3BD475FF.93273D9D@idcomm.com>
-From: Doug McNaught <doug@wireboard.com>
-Date: 22 Oct 2001 15:49:27 -0400
-In-Reply-To: "D. Stimits"'s message of "Mon, 22 Oct 2001 13:39:43 -0600"
-Message-ID: <m3vgh7jvzs.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: 2.4.13-pre6 breaks Nvidia's kernel module, or not?
+Message-Id: <20011022215335.18a31d9d.skraw@ithnet.com>
+In-Reply-To: <200110221846.f9MIkE416013@riker.skynet.be>
+In-Reply-To: <200110221846.f9MIkE416013@riker.skynet.be>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"D. Stimits" <stimits@idcomm.com> writes:
+On Mon, 22 Oct 2001 20:45:22 +0200 (CEST) jarausch@belgacom.net wrote:
 
-> In one location, I see senator Hollings listed as party
-> "Democrat-Disney". Disney is another spot to boycott, they are trying to
-> have Linux and open source o/s's declared illegal to even touch
-> copyright media...not as a web server, a home machine, or anything (say
-> bye to IBM's Linux efforts). I think the vote for this killer SSSCA is
-> somewhere around the 25th of this month, so you better hurry.
+> [...]
+> Running pre6 I get
+> (==) NVIDIA(0): Write-combining range (0xf0000000,0x2000000)
+> (EE) NVIDIA(0): Failed to allocate LUT context DMA
+> (EE) NVIDIA(0):  *** Aborting ***
 
-Committee hearings, not a vote.
+Probably you should do additional checks. I run a GeForce II MX here with
+exactly this driver and pre6 - and have no problem at all. I tried both driver
+version 1251 and 1541, and both work.
 
--Doug
--- 
-Let us cross over the river, and rest under the shade of the trees.
-   --T. J. Jackson, 1863
+Of course I do not back the manufacturers' religion "we don't wanna show people
+how we managed to make a kernel driver 800kB of size". Only I believe this is
+no real loss, as nobody wants to follow this god anyway.
+
+:-)
+
+Regards,
+Stephan
+
+

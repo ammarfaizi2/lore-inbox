@@ -1,66 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263096AbREWOSE>; Wed, 23 May 2001 10:18:04 -0400
+	id <S263100AbREWOcz>; Wed, 23 May 2001 10:32:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263097AbREWORy>; Wed, 23 May 2001 10:17:54 -0400
-Received: from mail.inup.com ([194.250.46.226]:11027 "EHLO mailhost.lineo.fr")
-	by vger.kernel.org with ESMTP id <S263096AbREWORo>;
-	Wed, 23 May 2001 10:17:44 -0400
-Date: Wed, 23 May 2001 16:16:54 +0200
-From: =?ISO-8859-1?Q?christophe_barb=E9?= <christophe.barbe@lineo.fr>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: sk_buff destructor in 2.2.18
-Message-ID: <20010523161654.C7531@pc8.lineo.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-X-Mailer: Balsa 1.1.4
+	id <S263103AbREWOcp>; Wed, 23 May 2001 10:32:45 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:31249 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S263100AbREWOc3>; Wed, 23 May 2001 10:32:29 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Rik van Riel <riel@conectiva.com.br>,
+        "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: write drop behind effect on active scanning
+Date: Wed, 23 May 2001 16:33:44 +0200
+X-Mailer: KMail [version 1.2]
+Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+In-Reply-To: <Pine.LNX.4.21.0105221910361.864-100000@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0105221910361.864-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Message-Id: <0105231633440L.06233@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Wednesday 23 May 2001 09:33, Marcelo Tosatti wrote:
+> Hi,
+>
+> I just noticed a "bad" effect of write drop behind yesterday during
+> some tests.
+>
+> The problem is that we deactivate written pages, thus making the
+> inactive list become pretty big (full of unfreeable pages) under
+> write intensive IO workloads.
+>
+> So what happens is that we don't do _any_ aging on the active list,
+> and in the meantime the inactive list (which should have "easily"
+> freeable pages) is full of locked pages.
+>
+> I'm going to fix this one by replacing "deactivate_page(page)" to
+> "ClearPageReferenced(page)" in generic_file_write(). This way the
+> written pages are aged faster but we avoid the bad effect just
+> described.
+>
+> Any comments on the fix ?
 
-I'm trying to figure out how to use the destructor function in the skbuff
-object. 
-I've read (the source code and) the alan cox's article from linuxjournal
-but it refers to linux 2.0.
-Perhaps someone can tell me what's wrong in the following :
+  page->age = 0 ?
 
-Normally the rx code of a network driver do the following code :
-allocate a skbuff
-	skb=dev_alloc_skb(length);
-	if (skb==NULL) ...
-fill data
-	skb_put(skb,length);
-	memcpy((void *)skb->data, buf,length);
-end so on ...
-
-In my case, I own the incomming buffer so I would like to use it directly
-without copying data.
-I've written a new allocation function.
-And use the destructor to free my buffer (replacing it on a free list).
-
-First I imagine something is wrong because the destructor is called before
-kfree_skbmem() so If I don't lie to skb->cloned (I set it to 1), an
-unexpected skb->head occured.
-I think the destructor method is provided to free privates data not the
-main data. But I can't see an another way to do it.
-
-Secondly, When my destructor function is called, the cloned flag is already
-set (and datarefp indicates also that data is referenced elsewhere).
-When is a skbuff cloned?
-Is there a way to avoid this?
-Where can I register a function to free (= replace it in my list) the data
-buffer?
-
-Thank you,
-Christophe
-
--- 
-Christophe Barbé
-Software Engineer - christophe.barbe@lineo.fr
-Lineo France - Lineo High Availability Group
-42-46, rue Médéric - 92110 Clichy - France
-phone (33).1.41.40.02.12 - fax (33).1.41.40.02.01
-http://www.lineo.com
-
+--
+Daniel

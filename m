@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130139AbRACOyL>; Wed, 3 Jan 2001 09:54:11 -0500
+	id <S131613AbRACPDX>; Wed, 3 Jan 2001 10:03:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130850AbRACOyC>; Wed, 3 Jan 2001 09:54:02 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:53515 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S130139AbRACOxu>;
-	Wed, 3 Jan 2001 09:53:50 -0500
-Message-ID: <3A533536.A1723DD6@innominate.de>
-Date: Wed, 03 Jan 2001 15:20:38 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-prerelease i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mike Galbraith <mikeg@wen-online.de>, linux-kernel@vger.kernel.org
-Subject: Re: scheduling problem?
-In-Reply-To: <3A52609D.E1D466EA@innominate.de> <Pine.Linu.4.10.10101030545440.1057-100000@mikeg.weiden.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131135AbRACPDN>; Wed, 3 Jan 2001 10:03:13 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:7119 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S131501AbRACPDG>;
+	Wed, 3 Jan 2001 10:03:06 -0500
+Date: Wed, 3 Jan 2001 15:32:38 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200101031432.PAA136866.aeb@texel.cwi.nl>
+To: linux-kernel@vger.kernel.org, sfr@gmx.net
+Subject: Re: Timeout: AT keyboard not present?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> 
-> On Wed, 3 Jan 2001, Daniel Phillips wrote:
-> 
-> > Could you try this patch just to see what happens?  It uses semaphores
-> > for the bdflush synchronization instead of banging directly on the task
-> > wait queues.  It's supposed to be a drop-in replacement for the bdflush
-> > wakeup/waitfor mechanism, but who knows, it may have subtly different
-> > behavious in your case.
-> 
-> Semaphore timed out during boot, leaving bdflush as zombie.
+	Jan  2 21:20:33 asterix kernel: keyboard: unknown scancode e0 12
+	Jan  2 21:20:33 asterix kernel: keyboard: unknown scancode e0 71
+	Jan  2 21:20:33 asterix kernel: keyboard: unknown scancode e0 70
+	Jan  2 21:20:33 asterix kernel: keyboard: unrecognized scancode (71) - ignored
+	Jan  2 21:20:33 asterix kernel: keyboard: unknown scancode e0 70
+	Jan  2 21:20:34 asterix kernel: keyboard: unrecognized scancode (70) - ignored
+	Jan  2 21:20:47 asterix last message repeated 13 times
 
-Hmm, how could that happen?  I'm booted and running with that patch
-right now and have beaten on it extensively - it sounds like something
-else is broken.  Or maybe we've already established that - let me read
-the thread again.
+This sounds very much as if you got your keyboard into scancode mode 1.
 
-Which semaphore timed out, bdflush_request or bdflush_waiter?
+(Ordinarily a key-up event gets scancode of key-down but with
+high-order bit set. In scancode set 1, a key-up event get the
+scancode of key-down prefixed by 0xf0. Since the high-order bit
+is masked here, this 0xf0 would show up as 0x70.
+Moreover, the key-up for a sequence like e0 71 is e0 f0 71,
+again what you see here.)
 
+How you got into scancode mode 1 I don't know
+(maybe by sending the command f0 01 to the keyboard).
+Do things improve if you rip this strange messy AUX_RECONNECT
+stuff out of drivers/char/pc_keyb.c?
 
---
-Daniel
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

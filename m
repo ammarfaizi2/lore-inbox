@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310206AbSEWJei>; Thu, 23 May 2002 05:34:38 -0400
+	id <S310637AbSEWJh1>; Thu, 23 May 2002 05:37:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310637AbSEWJeh>; Thu, 23 May 2002 05:34:37 -0400
-Received: from gate.perex.cz ([194.212.165.105]:51210 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id <S310206AbSEWJeh>;
-	Thu, 23 May 2002 05:34:37 -0400
-Date: Thu, 23 May 2002 12:32:09 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: <perex@pnote.perex-int.cz>
-To: ALSA development <alsa-devel@alsa-project.org>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Latest ALSA code available for tests
-Message-ID: <Pine.LNX.4.33.0205231221510.1197-100000@pnote.perex-int.cz>
+	id <S316431AbSEWJh0>; Thu, 23 May 2002 05:37:26 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:63752 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S310637AbSEWJhZ>; Thu, 23 May 2002 05:37:25 -0400
+Date: Thu, 23 May 2002 06:36:54 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: linux-mm@kvack.org, <linux-kernel@vger.kernel.org>
+Subject: Re: noninterfering drop_page()
+In-Reply-To: <20020522051102.GN2046@holomorphy.com>
+Message-ID: <Pine.LNX.4.44L.0205230633470.23276-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Tue, 21 May 2002, William Lee Irwin III wrote:
 
-	the latest ALSA -> kernel patch is available for tests at
+> Brewed this up a while ago as part of the rmap_locking project, though
+> the forward port itself hasn't gone through much more than a test boot.
 
-ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-2002-05-23-1-linux-2.5.17-cs1.582.patch.gz
+> # 02/05/21	wli@tisifone.holomorphy.com	1.424
+> # Noninterfering drop_page(). Doesn't grab at the global lock, but rather sets a per-page flag
+> # signalling to VM scanning that the page should be aggressively reclaimed.
 
-	I'd like to ask interested people to test this patch and report
-especially compilation problems, because there are some fixes in code
-dependency for OSS emulation layer. Also Hammerfall DSP code was recently
-added.
+This means we would reclaim normal inactive pages before
+looking at the "dropped" pages that still linger on the
+active list.
 
-					Thank you,
-						Jaroslav
+I'm not sure what this patch achieves except for disabling
+drop-behind (you'll end up reclaiming non-mapped pagecache
+pages in something resembling FIFO order).
 
-Note: cs1.582 really means that patch was made against ChangeSet 1.582.
+regards,
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project  http://www.alsa-project.org
-SuSE Linux    http://www.suse.com
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

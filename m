@@ -1,106 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbUEJTcO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbUEJTiQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbUEJTcO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 15:32:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbUEJTcN
+	id S261416AbUEJTiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 15:38:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbUEJTiQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 15:32:13 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:43394 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261347AbUEJTcH
+	Mon, 10 May 2004 15:38:16 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:55443 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261416AbUEJTiG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 15:32:07 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Rene Herman <rene.herman@keyaccess.nl>
-Subject: Re: Linux 2.6.6 "IDE cache-flush at shutdown fixes"
-Date: Mon, 10 May 2004 21:25:51 +0200
-User-Agent: KMail/1.5.3
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <409F4944.4090501@keyaccess.nl>
-In-Reply-To: <409F4944.4090501@keyaccess.nl>
+	Mon, 10 May 2004 15:38:06 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 10 May 2004 12:37:48 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Andi Kleen <ak@muc.de>
+cc: Fabiano Ramos <ramos_fabiano@yahoo.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ptrace in 2.6.5
+In-Reply-To: <m365b4kth8.fsf@averell.firstfloor.org>
+Message-ID: <Pine.LNX.4.58.0405101236200.1156@bigblue.dev.mdolabs.com>
+References: <1UlcA-6lq-9@gated-at.bofh.it> <m365b4kth8.fsf@averell.firstfloor.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405102125.51947.bzolnier@elka.pw.edu.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 10 May 2004, Andi Kleen wrote:
 
-Hi,
+> Fabiano Ramos <ramos_fabiano@yahoo.com.br> writes:
+> 
+> > Hi All.
+> >
+> >      Is ptrace(), in singlestep mode, required to stop after a int 0x80?
+> >     When tracing a sequence like
+> >
+> > 	mov ...
+> > 	int 0x80
+> > 	mov ....
+> >
+> >     ptrace would notify the tracer after the two movs, but not after the
+> > int 0x80. I want to know if it is a bug or the expected behaviour.
+> 
+> What happens is that after the int 0x80 the CPU is in ring 0 (you
+> don't get an trace event in that mode unless you use a kernel debugger). 
+> Then when the kernel returns the last instruction executed before it is an 
+> IRET. But the IRET is also executed still in ring 0 and you should not get 
+> an event for it (you can not even access its code from user space).
+> 
+> So it's expected behaviour.
 
-Rene, can you test these (incremental) patches?
-
-[PATCH] set drive->wcache only on the first ->open() call
-
---- linux/drivers/ide/ide-disk.c.orig   2004-05-07 15:05:46.000000000 +0200
-+++ linux/drivers/ide/ide-disk.c        2004-05-07 18:30:09.544793448 +0200
-@@ -1758,6 +1758,8 @@
-                if (drive->doorlocking && ide_raw_taskfile(drive, &args, NULL))
-                        drive->doorlocking = 0;
-        }
-+       if (drive->usage != 1)
-+               return 0;
-        drive->wcache = 0;
-        /* Cache enabled? */
-        if (drive->id->csfo & 1)
+IIRC, it's the "int" instruction that automatically clears the TF bit from 
+flags. The next "iret" will restore the caller flags and re-enable the TF bit.
 
 
-Patch below reverts handling of flush cache to be _exactly_ the same
-as in 2.4 (no unknown commands on ->suspend() and ->shutdown()).
 
-[PATCH] ide: don't send cacheflush to drives that don't understand it #2
-
---- linux/drivers/ide/ide-disk.c.orig 2004-05-07 18:30:09.000000000 +0200
-+++ linux/drivers/ide/ide-disk.c        2004-05-07 18:34:18.766905928 +0200
-@@ -1758,7 +1758,7 @@
-                if (drive->doorlocking && ide_raw_taskfile(drive, &args, NULL))
-                        drive->doorlocking = 0;
-        }
--       if (drive->usage != 1)
-+       if (drive->usage != 1 || !drive->removable)
-                return 0;
-        drive->wcache = 0;
-        /* Cache enabled? */
-
-On Monday 10 of May 2004 11:20, Rene Herman wrote:
-> Good day.
->
-> The 2.6.6-rc3 -> 2.6.6-final changes to ide-disk.c unfortunately make my
-> machine complain loudly both at boot and reboot:
-
-These warnings are _harmless_.
-
-Your drives have write cache support
-but don't understand flush cache commands.
-
-> Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> AMD7409: IDE controller at PCI slot 0000:00:07.1
-> AMD7409: chipset revision 7
-> AMD7409: not 100% native mode: will probe irqs later
-> AMD7409: 0000:00:07.1 (rev 07) UDMA66 controller
->      ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:pio
->      ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:pio
-> hda: Maxtor 6Y120P0, ATA DISK drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> hdc: PLEXTOR DVD-ROM PX-116A, ATAPI CD/DVD-ROM drive
-> ide1 at 0x170-0x177,0x376 on irq 15
-> hda: max request size: 128KiB
-> hda: 240121728 sectors (122942 MB) w/7936KiB Cache, CHS=65535/16/63,
-> UDMA(66)
->   hda: hda1 < hda5 hda6 hda7 hda8 hda9 hda10 hda11 hda12 hda13 > hda2
-> hda3 hda4
->   hda2: <bsd: hda14 hda15 hda16 hda17 hda18 >
->   hda4: <minix: hda19 hda20 >
-> hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> hda: Write Cache FAILED Flushing!
->
-> The disk, 6Y120P0, is a new-ish Maxtor "DiamondMax Plus 9", 120G, 8M
-> cache. Controller is an AMD756. Same complaints on reboot. Reverting the
-> rc3->final changes to ide-disk.c fixes/supresses them again.
->
-> Rene.
+- Davide
 

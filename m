@@ -1,39 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262689AbSJRUZw>; Fri, 18 Oct 2002 16:25:52 -0400
+	id <S265209AbSJRUdo>; Fri, 18 Oct 2002 16:33:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265200AbSJRUZw>; Fri, 18 Oct 2002 16:25:52 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:38926 "EHLO
-	mx2.cypherpunks.ca") by vger.kernel.org with ESMTP
-	id <S262689AbSJRUZv>; Fri, 18 Oct 2002 16:25:51 -0400
+	id <S265240AbSJRUdo>; Fri, 18 Oct 2002 16:33:44 -0400
+Received: from mozart.CS.Berkeley.EDU ([128.32.153.211]:11909 "EHLO
+	mozart.cs.berkeley.edu") by vger.kernel.org with ESMTP
+	id <S265209AbSJRUdn>; Fri, 18 Oct 2002 16:33:43 -0400
+Date: Fri, 18 Oct 2002 13:36:47 -0700
+From: David Wagner <daw@cs.berkeley.edu>
+Message-Id: <200210182036.g9IKalF00634@mozart.cs.berkeley.edu>
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: can chroot be made safe for non-root?
-Date: 18 Oct 2002 20:14:17 GMT
-Organization: University of California, Berkeley
+X-Also-Posted-To: isaac.lists.linux-security-module
+Subject: Re: [PATCH] remove sys_security
+References: <Pine.GSO.4.21.0210180309540.18575-100000@weyl.math.psu.edu> <20021018161828.A5523@infradead.org> <200210181830.28354.russell@coker.com.au> <20021018173339.A7481@infradead.org>
 Distribution: isaac
-Message-ID: <aopq2p$9pm$2@abraham.cs.berkeley.edu>
-References: <20021016015106.E30836@ma-northadams1b-3.bur.adelphia.net> <20021018190101.GE237@elf.ucw.cz>
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1034972057 10038 128.32.153.211 (18 Oct 2002 20:14:17 GMT)
-X-Complaints-To: news@abraham.cs.berkeley.edu
-NNTP-Posting-Date: 18 Oct 2002 20:14:17 GMT
+Organization: University of California, Berkeley
 X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek  wrote:
->> I am eager to be able to sandbox my processes on a system without the
->> help of suid-root programs (as I prefer to have none of these on my
->> system).
->
->You can do that using ptrace. subterfugue.sf.net.
+Christoph Hellwig  wrote:
+>And exactly these hooks harm.  They are all over the place, have performance
+>and code size impact and mess up readability.  Why can't you just maintain
+>an external patch like i.e. mosix folks that nead similar deep changes?
 
-ptrace() is ok, but it also has lots of disadvantages: performance,
-expressiveness, security, assurance.  I've posted before on this mailing
-list, at length, about them.  In short, ptrace() is not an ideal solution,
-and a secure chroot() or other way to construct a jail/sandbox would
-be better.  (LSM will be much better.)
+Actually, this is not an accurate description of LSM.  As you may know,
+the LSM hooks do not have a noticeable performance impact (with the
+exception of 1Gb networking, where I believe there is a 1-2% slowdown).
+This has been pointed out several times before, and the LSM folks have
+posted a pointer to the measurements.

@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277828AbRJIQup>; Tue, 9 Oct 2001 12:50:45 -0400
+	id <S277831AbRJIQzE>; Tue, 9 Oct 2001 12:55:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277826AbRJIQug>; Tue, 9 Oct 2001 12:50:36 -0400
-Received: from colorfullife.com ([216.156.138.34]:65297 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S277823AbRJIQuV>;
-	Tue, 9 Oct 2001 12:50:21 -0400
-Message-ID: <000901c150e2$97765470$010411ac@local>
-From: "Manfred Spraul" <manfred@colorfullife.com>
-To: "Richard Henderson" <rth@twiddle.net>
-Cc: <linux-kernel@vger.kernel.org>,
-        "\"Paul E. McKenney\"" <pmckenne@us.ibm.com>
-Subject: Re: RFC: patch to allow lock-free traversal of lists with insertion
-Date: Tue, 9 Oct 2001 18:51:00 +0200
+	id <S277840AbRJIQx7>; Tue, 9 Oct 2001 12:53:59 -0400
+Received: from ns.suse.de ([213.95.15.193]:15122 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S277832AbRJIQwu>;
+	Tue, 9 Oct 2001 12:52:50 -0400
+Date: Tue, 9 Oct 2001 18:53:19 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: Thomas Hood <jdthood@mail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: sysctl interface to bootflags?
+In-Reply-To: <1002643014.1103.42.camel@thanatos>
+Message-ID: <Pine.LNX.4.30.0110091851200.11249-100000@Appserv.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> On Tue, Oct 09, 2001 at 07:03:37PM +1000, Rusty Russell wrote:
-> > I don't *like* making Alpha's wmb() stronger, but it is the
-> > only solution which doesn't touch common code.
->
-> It's not a "solution" at all.  It's so heavy weight you'd be
-> much better off with locks.  Just use the damned rmb_me_harder.
+On 9 Oct 2001, Thomas Hood wrote:
 
-rmb_me_harder? smp_mb__{before,after}_{atomic_dec,clear_bit} are already ugly enough.
+> jdthood@thanatos:~/src/sbf$ gcc -O2 sbf.c
+> Segmentation fault
 
-What about hiding all these details in the list access macros? list_insert, list_get_next, etc. With a default implementation based
-on a spinlock, and the capable SMP architectures could define an optimized version.
+Ok, I managed to repeat this here. Fortunatly, the
+pending fixes from Randy Dunlap include a fix for this.
+Updated version at http://www.codemonkey.org.uk/cruft/
+(including a version with the /dev/nvram using interface
+which got dropped for reasons I don't recall).
 
-Then Alpha could do whatever flushing is required. But please do not scatter memory barrier instructions all around the kernel.
+regards,
 
---
-    Manfred
+Dave.
+
+-- 
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
 

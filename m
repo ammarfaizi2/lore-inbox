@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263620AbTIJOC1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 10:02:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263787AbTIJOCQ
+	id S264415AbTIJOYV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 10:24:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264468AbTIJOYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 10:02:16 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:55304 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263620AbTIJOCN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 10:02:13 -0400
-Date: Wed, 10 Sep 2003 15:01:56 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] 2.6.0-test5: serio config broken?
-Message-ID: <20030910150156.A30046@flint.arm.linux.org.uk>
-Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
-	Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0309081319380.1666-100000@home.osdl.org> <3F5DBC1F.8DF1F07A@eyal.emu.id.au> <20030910110225.GC27368@fs.tum.de>
+	Wed, 10 Sep 2003 10:24:21 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:21404 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S264415AbTIJOYS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 10:24:18 -0400
+Date: Wed, 10 Sep 2003 15:23:08 +0100
+From: Dave Jones <davej@redhat.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Mitchell Blank Jr <mitch@sfgoth.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] oops_in_progress is unlikely()
+Message-ID: <20030910142308.GL932@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Pavel Machek <pavel@ucw.cz>, Mitchell Blank Jr <mitch@sfgoth.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20030907064204.GA31968@sfgoth.com> <20030907221323.GC28927@redhat.com> <20030910142031.GB2589@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030910110225.GC27368@fs.tum.de>; from bunk@fs.tum.de on Wed, Sep 10, 2003 at 01:02:25PM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <20030910142031.GB2589@elf.ucw.cz>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 10, 2003 at 01:02:25PM +0200, Adrian Bunk wrote:
-> The patch below should fix it.
+On Wed, Sep 10, 2003 at 04:20:31PM +0200, Pavel Machek wrote:
 
-I'm confused why you're copying me and not Vojtech.
+ > > none of this patch seems to touch particularly performance critical code.
+ > > Is it really worth adding these macros to every if statement in the kernel?
+ > > There comes a point where readability is lost, for no measurable gain.
+ > 
+ > Perhaps we should have macros ifu() and ifl(), that would be used as a
+ > plain if, just with likelyness-indication? That way we could have it
+ > in *every* statement and readability would not suffer that much...
+
+You've got to be kidding.
+
+		Dave
 
 -- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-Linux kernel maintainer of:
-  2.6 ARM Linux   - http://www.arm.linux.org.uk/
-  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-  2.6 Serial core
+ Dave Jones     http://www.codemonkey.org.uk

@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136062AbRDVMSn>; Sun, 22 Apr 2001 08:18:43 -0400
+	id <S136063AbRDVMTD>; Sun, 22 Apr 2001 08:19:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136063AbRDVMSk>; Sun, 22 Apr 2001 08:18:40 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34321 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S136062AbRDVMSX>;
-	Sun, 22 Apr 2001 08:18:23 -0400
-Date: Sun, 22 Apr 2001 13:18:03 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Manuel McLure <manuel@mclure.org>, linux-kernel@vger.kernel.org
+	id <S136065AbRDVMSy>; Sun, 22 Apr 2001 08:18:54 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31247 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S136063AbRDVMSr>; Sun, 22 Apr 2001 08:18:47 -0400
 Subject: Re: Linux 2.4.3-ac12
-Message-ID: <20010422131803.C20807@flint.arm.linux.org.uk>
-In-Reply-To: <20010421211722.C976@ulthar.internal.mclure.org> <E14rIiE-0005h2-00@the-village.bc.nu>
-Mime-Version: 1.0
+To: eyal@eyal.emu.id.au (Eyal Lebedinsky)
+Date: Sun, 22 Apr 2001 13:20:13 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <3AE29CFD.C438C8B9@eyal.emu.id.au> from "Eyal Lebedinsky" at Apr 22, 2001 06:57:33 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14rIiE-0005h2-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Apr 22, 2001 at 01:11:31PM +0100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14rIqf-0005hx-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 22, 2001 at 01:11:31PM +0100, Alan Cox wrote:
-> This is from Linus tree. You currently need gcc 2.96 or higher to build
-> the 2.4.x kernel. 
+> gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4/include -Wall
+> -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
+> -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -DMODULE
+> -DMODVERSIONS -include
+> /data2/usr/local/src/linux-2.4/include/linux/modversions.h   -c -o
+> inode.o inode.c
+> inode.c: In function `affs_notify_change':
+> inode.c:236: void value not ignored as it ought to be
+> make[2]: *** [inode.o] Error 1
+> make[2]: Leaving directory `/data2/usr/local/src/linux-2.4/fs/affs'
 
-Which goes back to the old argument that 2.96 is a redhat-ism and not a
-real compiler.
+In the -ac tree inode_setattr is int. So if this is a -ac tree something is
+misapplied. It may well be wrong in Linus tree right now
 
-To date, no 2.96 version of gcc works properly on ARM, and I for one don't
-have the expertise necessary to fix gcc myself.  Do you recommend that I
-stop all ARM work because of this? ;(
 
-Anyway, the work around is a trivial one that I've already posted to the
-list, including the necessary GCC version tests.  Additionally David
-Howells has posted a patch to remove the __builtin_expect stuff, so
-this is a non-issue now.
-
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
 

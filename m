@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132186AbRCaELq>; Fri, 30 Mar 2001 23:11:46 -0500
+	id <S132281AbRCaFil>; Sat, 31 Mar 2001 00:38:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132194AbRCaELg>; Fri, 30 Mar 2001 23:11:36 -0500
-Received: from gull.prod.itd.earthlink.net ([207.217.121.85]:27614 "EHLO
-	gull.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S132186AbRCaELU>; Fri, 30 Mar 2001 23:11:20 -0500
-Date: Fri, 30 Mar 2001 20:11:39 -0800 (PST)
-From: James Simmons <jsimmons@linux-fbdev.org>
-X-X-Sender: <jsimmons@linux.local>
+	id <S132301AbRCaFic>; Sat, 31 Mar 2001 00:38:32 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:52678 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S132281AbRCaFiY>;
+	Sat, 31 Mar 2001 00:38:24 -0500
+Message-Id: <200103310537.f2V5bDO06729@pcug.org.au>
+From: Stephen Rothwell <sfr@canb.auug.org.au>
 To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-   Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: [Linux-fbdev-devel] Re: fbcon slowness [was NTP on 2.4.2?]
-Message-ID: <Pine.LNX.4.31.0103301959010.743-100000@linux.local>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+   Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+   Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Recent problems with APM and XFree86-4.0.1 
+In-Reply-To: Your message of Sat, 31 Mar 2001 02:15:14 +0200.
+             <20010331021514.A6784@pcep-jamie.cern.ch> 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <2394.986017034.1@rustcorp.com.au>
+Date: Sat, 31 Mar 2001 15:37:14 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Jamie,
 
->I took to using X, with a single screen size xterm to present the
->illusion of console mode.
+Jamie Lokier <lk@tantalophile.demon.co.uk> writes:
+> 
+> On that theme of power management with X problems, I have been having
+> trouble with my laptop crashing when the lid is closed, instead of
+> suspending as it used to.  The laptop is a Toshiba Satellite 4070CDT.
 
-Cute trick. I have seen some slow text mode cards. As time goes on it will
-get worst since text mode support is not the prime goal anymore. Especially
-now that you see graphical BIOS interfaces. Some graphics cards manufactures
-have dropped vga text mode support all together. In the next 5 years you
-will see the elimination of vga text mode.
+Can you please try adding
+	Option	"NoPM"
+to the device section of XF86Config or (XF86Config) and then try suspending
+and resuming.
 
->Probably the lack of hardware area copies has something to do with
->this.
+This made suspend/resume much more reliable on the Thinkpad 600E with
+XFree86 4.  Also you could try XFree86 4.0.2, as I know that it actually
+does interact with APM (4.0.1 may have as well - I am not sure).
 
-Yes this is problem. See my response to Paul about this. The only reason
-I'm using MMX for the vesa framebuffer because it has no acceleration. MMX
-gives a big boost for genuine intel chips. Other types of MMX are fast but
-they don't seemed to be optimized for memory transfers like MMX on intel
-chips. I also have regular code that does all kinds of tricks to optimize
-data transfers over the bus. It needs more testing but from my comparison
-between my voodoo 3 accel engine and this code it ran nearly as fast as
-the accelerator at all depths :-)
-
-Another idea for 2.5.X is to implement a font cache in video memory. Even
-with AGP it is just to slow to constantly transfer font data over the bus.
-Of course this requires a bit of work since we only have so much video
-memory but it is worth it for the performance improvement.
-
-MS: (n) 1. A debilitating and surprisingly widespread affliction that
-renders the sufferer barely able to perform the simplest task. 2. A disease.
-
-James Simmons  [jsimmons@linux-fbdev.org]               ____/|
-fbdev/console/gfx developer                             \ o.O|
-http://www.linux-fbdev.org                               =(_)=
-http://linuxgfx.sourceforge.net                            U
-http://linuxconsole.sourceforge.net
-
+Cheers,
+Stephen Rothwell		sfr@canb.auug.org.au

@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129615AbQKAB2Y>; Tue, 31 Oct 2000 20:28:24 -0500
+	id <S130794AbQKABbE>; Tue, 31 Oct 2000 20:31:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130794AbQKAB2O>; Tue, 31 Oct 2000 20:28:14 -0500
-Received: from fw.SuSE.com ([202.58.118.35]:5872 "EHLO linux.local")
-	by vger.kernel.org with ESMTP id <S129615AbQKAB15>;
-	Tue, 31 Oct 2000 20:27:57 -0500
-Date: Tue, 31 Oct 2000 18:33:57 -0800
-From: Jens Axboe <axboe@suse.de>
-To: Paul Jakma <paul@clubi.ie>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: scsi-cdrom lockup and ide-scsi problem (both EFS related)
-Message-ID: <20001031183357.B11727@suse.de>
-In-Reply-To: <20001031153106.A9458@suse.de> <Pine.LNX.4.21.0011010123220.9072-100000@fogarty.jakma.org>
+	id <S131006AbQKABaz>; Tue, 31 Oct 2000 20:30:55 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:41065 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S130794AbQKABat>; Tue, 31 Oct 2000 20:30:49 -0500
+Date: Wed, 1 Nov 2000 02:30:10 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Cc: Larry McVoy <lm@bitmover.com>, Paul Menage <pmenage@ensim.com>,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18Pre Lan Performance Rocks!
+Message-ID: <20001101023010.G13422@athlon.random>
+In-Reply-To: <E13qj56-0003h9-00@pmenage-dt.ensim.com> <39FF3D53.C46EB1A8@timpanogas.org> <20001031140534.A22819@work.bitmover.com> <39FF4488.83B6C1CE@timpanogas.org> <20001031142733.A23516@work.bitmover.com> <39FF49C8.475C2EA7@timpanogas.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0011010123220.9072-100000@fogarty.jakma.org>; from paul@clubi.ie on Wed, Nov 01, 2000 at 01:25:05AM +0000
-X-OS: Linux 2.4.0-test10 i686
+In-Reply-To: <39FF49C8.475C2EA7@timpanogas.org>; from jmerkey@timpanogas.org on Tue, Oct 31, 2000 at 03:38:00PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 01 2000, Paul Jakma wrote:
-> > Known problem, blocksizes != 2kb does not currently work
-> > correctly with SCSI CD-ROM (it's even on Ted's list).
-> > 
-> 
-> doesn't work is one thing.. but an instant lockup? that's a bit
-> unfriendly. :)
+> Larry McVoy wrote:
+>> Are there processes with virtual memory?
+On Tue, Oct 31, 2000 at 03:38:00PM -0700, Jeff V. Merkey wrote:
+> Yes.
 
-It's untested behaviour at this point, all bets are off. It
-hasn't oopses here though...
+If that stack switch is your context switch then you share the same VM for all
+tasks. I think the above answer "yes" just means you have pagetables so you can
+swap, but you _must_ miss memory protection across different processes.  That
+also mean any program can corrupt the memory of all the other programs.  Even
+on the Palm that's a showstopper limitation (and on the Palm that's an hardware
+limitation, not a software deficiency of PalmOS).
 
-> > Same deal, SCSI CD-ROM driver. As you noted, pure ATAPI drive will
-> > work just fine.
-> > 
-> 
-> so once the scsi cdrom is fixed then ide-scsi should work too?
+That will never happen in linux, nor in windows, nor internally to kde2. It
+happens in uclinux to deal with hardware without MMU. And infact the agenda
+uses mips with memory protection even on a organizer with obvious advantages.
 
-Yup
+Just think kde2 could have all the kde app sharing the same VM skipping all the
+tlb flushes by simply using clone instead of fork. Guess why they aren't doing
+that? And even if they would do that, the first bug would _only_ destabilize
+kde, so kill it and restart and everything else will keep running fine (you
+don't even need to kill X). With your ring 0 linux _everything_ will crash, not
+just kde.
 
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+And on sane architectures like alpha you don't even need to flush the TLB
+during "real" context switching so all your worry to share the same VM for
+everything is almost irrelevant there since it happens all the time anyways
+(until you overflow the available ASN bits that takes a lots of forks to
+happen).
+
+So IMHO for you it's much saner to move all your performance critical code into
+kernel space (that will be just stability-risky enough as khttpd and tux are).
+In 2.4.x that will avoid all the cr3 reloads and that will be enough as what
+you really care during fileserving are the copies that you must avoid.
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

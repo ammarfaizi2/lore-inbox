@@ -1,117 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263246AbVCDVXu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263206AbVCDXIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263246AbVCDVXu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 16:23:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263224AbVCDVLt
+	id S263206AbVCDXIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 18:08:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263278AbVCDWQ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 16:11:49 -0500
-Received: from mail.kroah.org ([69.55.234.183]:21154 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263172AbVCDUyl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 15:54:41 -0500
-Cc: khali@linux-fr.org
-Subject: [PATCH] I2C: Enable w83781d and w83627hf temperature channels
-In-Reply-To: <11099685942479@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 4 Mar 2005 12:36:34 -0800
-Message-Id: <1109968594643@kroah.com>
+	Fri, 4 Mar 2005 17:16:59 -0500
+Received: from wproxy.gmail.com ([64.233.184.192]:61846 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263045AbVCDU6w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 15:58:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=MKTn8lZh1d8jgJJeGNKD1kBe4oDnGnxDCoj20e+/XXz1bdZhs7j8sYN3Qeuuup5wJKByIX4LB8G0mhxy6SRE9lbq0YY1XO0A/h1mTh1ExTZ9tclh79qeIrV1FEjT+1yXZpJKBJTF9EN6pTn9bvrd4XnlUeJlbpgMfuUoTS+sWYc=
+Message-ID: <d91f4d0c050304125843dc1397@mail.gmail.com>
+Date: Fri, 4 Mar 2005 15:58:43 -0500
+From: George Georgalis <georgalis@gmail.com>
+Reply-To: George Georgalis <georgalis@gmail.com>
+To: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: problem with linux 2.6.11 and sa
+In-Reply-To: <d91f4d0c050304105339eb297d@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Content-Transfer-Encoding: 7bit
+References: <20050303184605.GB1061@ixeon.local>
+	 <d91f4d0c0503031057306a74e1@mail.gmail.com>
+	 <20050304043706.GA10336@havoc.gtf.org>
+	 <d91f4d0c050304105339eb297d@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2092, 2005/03/02 12:09:28-08:00, khali@linux-fr.org
+On Fri, 4 Mar 2005 13:53:50 -0500, George Georgalis <georgalis@gmail.com> wrote:
+> On Thu, 3 Mar 2005 23:37:06 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
+> > On Thu, Mar 03, 2005 at 01:57:28PM -0500, George Georgalis wrote:
+> > > I recall a problem a while back with a pipe from
+> > > /proc/kmsg that was sent by root to a program with a
+> > > user uid. The fix was to run the logging program as
+> > > root. Has that protected pipe method been extended
+> > > since 2.6.8.1?
+> > >
+> > > I'm very defiantly seeing a problem with the 2.6.11
+> > > kernel and my spamassassin setup. However, it's not
+> > > clear exactly where the problem is, seems like sa
+> > > but it might be 2.6.11 with daemontools + qmail +
+> > > QMAIL_QUEUE.
+> >
+> > Does reverting to 2.6.10 fix this behavior?
+> 
+> Yes, actually I revert to 2.6.8.1; will try 2.6.10 today...
 
-[PATCH] I2C: Enable w83781d and w83627hf temperature channels
+I did make oldconfig (n,n,n) with my 2.6.11 .config
+and seems to be working normal. Could
+CONFIG_PREEMPT_BKL=y
+have anything to do with it?
 
-The chips supported by the w83781d and w83627hf drivers might come up
-with their temperature channels disabled. Currently, the w83781d driver
-does so for temp3 but omits temp2, while the w83627hf driver omits both.
-The following patch fixes that, and prints warning messages when the
-driver has to enable the channels (normally the BIOS should do it for
-us). We also skip this initialization step for the AS99127F chips, for
-which we have no documentation.
+http://galis.org/linux-2.6.11-sta.config
+http://galis.org/linux-2.6.10-sta.conf
 
-This should hopefully solve the problem reported here:
-http://archives.andrew.net.au/lm-sensors/msg29150.html
-
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-
-
- drivers/i2c/chips/w83627hf.c |   21 +++++++++++++++++++++
- drivers/i2c/chips/w83781d.c  |   23 ++++++++++++++++++++---
- 2 files changed, 41 insertions(+), 3 deletions(-)
-
-
-diff -Nru a/drivers/i2c/chips/w83627hf.c b/drivers/i2c/chips/w83627hf.c
---- a/drivers/i2c/chips/w83627hf.c	2005-03-04 12:25:24 -08:00
-+++ b/drivers/i2c/chips/w83627hf.c	2005-03-04 12:25:24 -08:00
-@@ -1321,6 +1321,27 @@
- 	data->pwmenable[2] = 1;
- 
- 	if(init) {
-+		/* Enable temp2 */
-+		tmp = w83627hf_read_value(client, W83781D_REG_TEMP2_CONFIG);
-+		if (tmp & 0x01) {
-+			dev_warn(&client->dev, "Enabling temp2, readings "
-+				 "might not make sense\n");
-+			w83627hf_write_value(client, W83781D_REG_TEMP2_CONFIG,
-+				tmp & 0xfe);
-+		}
-+
-+		/* Enable temp3 */
-+		if (type != w83697hf) {
-+			tmp = w83627hf_read_value(client,
-+				W83781D_REG_TEMP3_CONFIG);
-+			if (tmp & 0x01) {
-+				dev_warn(&client->dev, "Enabling temp3, "
-+					 "readings might not make sense\n");
-+				w83627hf_write_value(client,
-+					W83781D_REG_TEMP3_CONFIG, tmp & 0xfe);
-+			}
-+		}
-+
- 		if (type == w83627hf) {
- 			/* enable PWM2 control (can't hurt since PWM reg
- 		           should have been reset to 0xff) */
-diff -Nru a/drivers/i2c/chips/w83781d.c b/drivers/i2c/chips/w83781d.c
---- a/drivers/i2c/chips/w83781d.c	2005-03-04 12:25:24 -08:00
-+++ b/drivers/i2c/chips/w83781d.c	2005-03-04 12:25:24 -08:00
-@@ -1562,11 +1562,28 @@
- 	}
- #endif				/* W83781D_RT */
- 
--	if (init) {
-+	if (init && type != as99127f) {
-+		/* Enable temp2 */
-+		tmp = w83781d_read_value(client, W83781D_REG_TEMP2_CONFIG);
-+		if (tmp & 0x01) {
-+			dev_warn(&client->dev, "Enabling temp2, readings "
-+				 "might not make sense\n");
-+			w83781d_write_value(client, W83781D_REG_TEMP2_CONFIG,
-+				tmp & 0xfe);
-+		}
-+
-+		/* Enable temp3 */
- 		if (type != w83783s && type != w83697hf) {
--			w83781d_write_value(client, W83781D_REG_TEMP3_CONFIG,
--					    0x00);
-+			tmp = w83781d_read_value(client,
-+				W83781D_REG_TEMP3_CONFIG);
-+			if (tmp & 0x01) {
-+				dev_warn(&client->dev, "Enabling temp3, "
-+					 "readings might not make sense\n");
-+				w83781d_write_value(client,
-+					W83781D_REG_TEMP3_CONFIG, tmp & 0xfe);
-+			}
- 		}
-+
- 		if (type != w83781d) {
- 			/* enable comparator mode for temp2 and temp3 so
- 			   alarm indication will work correctly */
-
+// George
+-- 
+George Georgalis, systems architect, administrator Linux BSD IXOYE
+http://galis.org/george/ cell:646-331-2027 mailto:george@galis.org

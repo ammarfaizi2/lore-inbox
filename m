@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbUCaNRS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 08:17:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbUCaNRS
+	id S261723AbUCaNSA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 08:18:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbUCaNSA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 08:17:18 -0500
-Received: from smtp.netcabo.pt ([212.113.174.9]:51022 "EHLO smtp.netcabo.pt")
-	by vger.kernel.org with ESMTP id S261704AbUCaNRQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 08:17:16 -0500
-Subject: Re: who is merlin.fit.vutbr.cz?
-From: Martijn Kuipers <mk@wipsim.net>
-Reply-To: mk@wipsim.net
+	Wed, 31 Mar 2004 08:18:00 -0500
+Received: from rrzd2.rz.uni-regensburg.de ([132.199.1.12]:30439 "EHLO
+	rrzd2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id S261723AbUCaNR6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 08:17:58 -0500
+From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
 To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-uHv3Yk8HqdgboDLXpIpQ"
-Message-Id: <1080738907.1611.16.camel@calvin>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 31 Mar 2004 14:15:07 +0100
-X-OriginalArrivalTime: 31 Mar 2004 13:16:31.0178 (UTC) FILETIME=[61E28AA0:01C41722]
+Date: Wed, 31 Mar 2004 15:16:36 +0200
+MIME-Version: 1.0
+Subject: 2.4.21 on Itanium2: floating-point assist fault at ip 400000000062ada1, isr 0000020000000008
+Reply-to: ulrich.windl@rz.uni-regensburg.de
+Message-ID: <406AE0D5.10359.1930261@localhost>
+X-mailer: Pegasus Mail for Windows (v4.12a)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Content-Conformance: HerringScan-0.25/Sophos-3.77+2.18+2.07.040+05 January 2004+87296@20040331.130955Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---=-uHv3Yk8HqdgboDLXpIpQ
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+I did try to find an answer is SuSE's support database, not in SAP's support 
+database, and also did search Google, but could not find an answer:
 
-Hi,
+We run SuSE Linux Enterprise Server 8 (SLES8) on a HP rx4640 Itanium2 server 
+with 2 CPUs (family: Itanium 2, model: 1, revision: 5, archrev: 0).
 
-I guess it is the student server (whatever that means) from the Faculty
-of Information Technology of the Brno University of Technology in the
-Czech Republic.
+In syslog is do see periodic kernel messages (with no implicit priority) that 
+read:
 
-They give this information on the machine:
-merlin
-Asus P4P800-VM, Pentium 4 HT/2,6GHz, 512 MB RAM, 80 GB HDD
-RedHat Linux
-studentsk=FD server Linux
+dw.sapC11_DVS02(14393): floating-point assist fault at ip 400000000062ada1, 
+isr 0000020000000008
 
-Also note that they list the following email-address for any problems:
-linux@fit.vutbr.cz
-or for information: info@fit.vutbr.cz
+("dw.sapC11_DVS02" is a SAP R/3 work process (46D_EXT, patch 1754, for those 
+who care)
 
-As to which person is behind the process on the machine, I got no clue.
+Can anybody explain what this message means? Is it an application problem, or 
+is it a kernel problem?
 
-Kind regards,
-Martijn Kuipers
-
-
-
---=-uHv3Yk8HqdgboDLXpIpQ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAasRbPxCZHR1qs1URAnOPAJ94PIs3RA8CDC7ZiXXjBkjXnHqD0QCglGIB
-7mEV0MHnK25NtQnGzBXPy0M=
-=7Lw5
------END PGP SIGNATURE-----
-
---=-uHv3Yk8HqdgboDLXpIpQ--
+Regards,
+Ulrich
+P.S. I'm not subscribed to linux-kernel, so please CC: at least.
 

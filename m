@@ -1,54 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266848AbTAORrV>; Wed, 15 Jan 2003 12:47:21 -0500
+	id <S266804AbTAORpe>; Wed, 15 Jan 2003 12:45:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266849AbTAORrV>; Wed, 15 Jan 2003 12:47:21 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:53009 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S266848AbTAORrT>; Wed, 15 Jan 2003 12:47:19 -0500
-Message-ID: <3E258DA5.4BB14A41@linux-m68k.org>
-Date: Wed, 15 Jan 2003 17:34:45 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: en
+	id <S266805AbTAORpe>; Wed, 15 Jan 2003 12:45:34 -0500
+Received: from 216-239-45-4.google.com ([216.239.45.4]:27656 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id <S266804AbTAORpd>; Wed, 15 Jan 2003 12:45:33 -0500
+Message-ID: <3E25A009.6010402@google.com>
+Date: Wed, 15 Jan 2003 09:53:13 -0800
+From: Ross Biro <rossb@google.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org, dledford@redhat.com
-Subject: Re: [PATCH] Proposed module init race fix.
-References: <20030115082444.13D1A2C128@lists.samba.org>
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andre Hedrick <andre@linux-ide.org>
+Subject: [RFC]: Changes to ide_task_request
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Rusty Russell wrote:
+Seagate has been kind enough to tell me how to update the firmware on 
+their drives (under NDA of course).  I believe adding a timeout field, a 
+recovery time field and an error handling field to ide_task_request_t 
+(and of course appropriate kernel handling code) would be enough to 
+allow a userspace program to update the drive firmware.  I am hoping 
+that if I write such a program and send the source back to Seagate that 
+they will support it.  I'm also hoping that the other manufacturers 
+firmware update methods are similiar enough to be handled by the same 
+system.
 
-> diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .17886-linux-2.5-bk/drivers/block/genhd.c .17886-linux-2.5-bk.updated/drivers/block/genhd.c
-> --- .17886-linux-2.5-bk/drivers/block/genhd.c   2003-01-13 16:56:23.000000000 +1100
-> +++ .17886-linux-2.5-bk.updated/drivers/block/genhd.c   2003-01-13 22:58:07.000000000 +1100
-> @@ -104,10 +104,13 @@ static int exact_lock(dev_t dev, void *d
->   * @gp: per-device partitioning information
->   *
->   * This function registers the partitioning information in @gp
-> - * with the kernel.
-> + * with the kernel.  Your init function MUST NOT FAIL after this.
->   */
->  void add_disk(struct gendisk *disk)
->  {
-> +       /* It needs to be accessible so we can read partitions. */
-> +       make_module_live(disk->fops->owner);
-> +
+I'd like to make the following changes to hdreg.h:
 
-After this the module can be removed without problems.
+#define ERROR_IGNORE 0  /* Just ignore it. */
+#define ERROR_NORMAL 1  /* Just call the device error handler */
+#define ERROR_SRST 2    /* Just do an SRST */
+#define ERROR_RETRY_ONCE 3 /* Retry Once */
+#define ERROR_RETRY  4   /* Retry until it suceedes. */
+.
+.
+.
 
->         disk->flags |= GENHD_FL_UP;
->         blk_register_region(MKDEV(disk->major, disk->first_minor), disk->minors,
->                         NULL, exact_match, exact_lock, disk);
 
-blk_register_region() allocates memory, which can fail?
+typedef struct ide_task_request_s {
+    task_ioreg_t    io_ports[8];
+    task_ioreg_t    hob_ports[8];
+    ide_reg_valid_t    out_flags;
+    ide_reg_valid_t    in_flags;
+    int        data_phase;
+    int        req_cmd;
+    unsigned long    out_size;
+    unsigned long    in_size;
+    int timeout;                 /* How long in HZ to wait for the 
+command to complete. */
+    int recovery_time;           /* How long in HZ to wait after
+                                    command completion or an error
+                                    before issuing a new command. */
+    int error_handling;
+                 
 
-bye, Roman
+} ide_task_request_t;
+
+I chose HZ instead of microseconds for the timeouts because I envision a 
+kernel specific shared library that does the translatation and actual 
+ioctl and HZ should make the kernel side of things a bit easier.
+
+    Ross
 
 

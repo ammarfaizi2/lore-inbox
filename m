@@ -1,46 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267364AbUBSQpa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 11:45:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267375AbUBSQp3
+	id S267365AbUBSQrR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 11:47:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267375AbUBSQrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 11:45:29 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:10996 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267364AbUBSQp2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 11:45:28 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: root@chaos.analogic.com, Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH] remove MAKEDEV scripts from scripts/
-Date: Thu, 19 Feb 2004 17:51:16 +0100
-User-Agent: KMail/1.5.3
-Cc: akpm@osdl.org, Linux kernel <linux-kernel@vger.kernel.org>
-References: <20040219161306.GA30620@lst.de> <Pine.LNX.4.53.0402191119480.520@chaos>
-In-Reply-To: <Pine.LNX.4.53.0402191119480.520@chaos>
+	Thu, 19 Feb 2004 11:47:17 -0500
+Received: from s2.ukfsn.org ([217.158.120.143]:47595 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S267365AbUBSQrK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 11:47:10 -0500
+From: "Nick Warne" <nick@ukfsn.org>
+To: linux-kernel@vger.kernel.org
+Date: Thu, 19 Feb 2004 16:47:08 -0000
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402191751.16652.bzolnier@elka.pw.edu.pl>
+Subject: 2.6.3 RT8139too NIC problems
+Message-ID: <4034E88C.24740.4C5D4B6@localhost>
+X-mailer: Pegasus Mail for Windows (v4.12a)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 19 of February 2004 17:25, Richard B. Johnson wrote:
-> On Thu, 19 Feb 2004, Christoph Hellwig wrote:
-> > makedev is a userland issue, and the distros already take care of ide
-> > and sound.  scripts/ OTOH is supposed to hold utils needed for building
-> > the kernel tree which the above certainly aren't.
->
-> If that's true, i.e., /scripts contains _only_ utilities for building
-> the kernel tree, then you make another directory to contain MAKEDEV.ide.
-> You don't simply delete it because you don't want it there. This
-> script substitutes for, and works in conjunction with a primary source
-> of documentation, ../Documentation/ide.txt
+Hello all,
 
-Thanks, for catching this!
+Due to traffic restraints, I am not on the lkml - please CC replies.
 
-Christoph, please remove MAKEDEV.ide references from Documentation/ide.txt 8).
+Yesterday I built 2.6.3.  Clean build, and system runs nice.
 
---bart
+I have two NIC's in the box, both rt8139.
+
+But I noticed I am getting this in syslogs:
+
+Linux233 kernel: NETDEV WATCHDOG: eth1: transmit timed out
+Linux233 kernel: eth1: link up, 10Mbps, half-duplex, lpa 0x0000
+Linux233 kernel: nfs: server 486Linux not responding, still trying
+Linux233 kernel: nfs: server 486Linux not responding, still trying
+Linux233 kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Linux233 kernel: nfs: server 486Linux OK
+Linux233 kernel: nfs: server 486Linux OK
+Linux233 kernel: nfs: server 486Linux not responding, still trying
+Linux233 kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Linux233 kernel: nfs: server 486Linux OK
+
+This happens about once every 3 hours.
+
+>From my config file:
+
+# CONFIG_8139CP is not set
+CONFIG_8139TOO=y
+# CONFIG_8139TOO_PIO is not set
+# CONFIG_8139TOO_TUNE_TWISTER is not set
+# CONFIG_8139TOO_8129 is not set
+# CONFIG_8139_OLD_RX_RESET is not set
+# CONFIG_8139_RXBUF_IDX= is not set
+
+No other NIC drivers are used.
+
+I am also stuck as to what the new RXBUF_IDX is for.  It appears the 
+new build needs it, as I cannot remove.
+
+These cards have worked fine under all 2.4.x and 2.6.1/2.6.2 kernels.
+
+Ideas?
+
+TIA,
+
+Nick
+
+-- 
+"I am not Spock", said Leonard Nimoy.
+"And it is highly illogical of humans to assume so."
 

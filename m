@@ -1,61 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262964AbUCRVCb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 16:02:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262962AbUCRVCb
+	id S262954AbUCRVCS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 16:02:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262961AbUCRVAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 16:02:31 -0500
-Received: from fw.osdl.org ([65.172.181.6]:41402 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262960AbUCRVAg (ORCPT
+	Thu, 18 Mar 2004 16:00:45 -0500
+Received: from ns.suse.de ([195.135.220.2]:63981 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262954AbUCRVAa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 16:00:36 -0500
-Date: Thu, 18 Mar 2004 12:57:33 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: mingo@elte.hu, torvalds@osdl.org, hch@infradead.org, drepper@redhat.com,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: sched_setaffinity usability
-Message-Id: <20040318125733.65c1f33f.rddunlap@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0403181248440.4976@dlang.diginsite.com>
-References: <40595842.5070708@redhat.com>
-	<20040318112913.GA13981@elte.hu>
-	<20040318120709.A27841@infradead.org>
-	<Pine.LNX.4.58.0403180748070.24088@ppc970.osdl.org>
-	<20040318182407.GA1287@elte.hu>
-	<Pine.LNX.4.58.0403181248440.4976@dlang.diginsite.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Thu, 18 Mar 2004 16:00:30 -0500
+Subject: Re: True  fsync() in Linux (on IDE)
+From: Chris Mason <mason@suse.com>
+To: Peter Zaitsev <peter@mysql.com>
+Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1079642801.2447.369.camel@abyss.local>
+References: <1079572101.2748.711.camel@abyss.local>
+	 <20040318064757.GA1072@suse.de> <1079639060.3102.282.camel@abyss.local>
+	 <20040318194745.GA2314@suse.de>  <1079640699.11062.1.camel@watt.suse.com>
+	 <1079641026.2447.327.camel@abyss.local>
+	 <1079642001.11057.7.camel@watt.suse.com>
+	 <1079642801.2447.369.camel@abyss.local>
+Content-Type: text/plain
+Message-Id: <1079643740.11057.16.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 18 Mar 2004 16:02:20 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Mar 2004 12:49:12 -0800 (PST) David Lang wrote:
+On Thu, 2004-03-18 at 15:46, Peter Zaitsev wrote:
+> On Thu, 2004-03-18 at 12:33, Chris Mason wrote:
+> 
+> > Some suse 8.2 kernels had write barriers for IDE, some did not.  If
+> > you're running any kind of recent suse kernel, you're doing cache
+> > flushes on fsync with ext3.
+> 
+> I have this kernel:
+> 
+> 
+> Linux abyss 2.4.20-4GB #1 Sat Feb 7 02:07:16 UTC 2004 i686 unknown
+> unknown GNU/Linux
+> 
+> I believe it is reasonably  recent one from Hubert's kernels.
+> 
+> The thing is the performance is different if file grows or it does not.
+> If it does - we have some 25 fsync/sec. IF we're writing to existing
+> one, we have some 1600 fsync/sec 
+> 
+> In the former case cache is surely not flushed. 
+> 
+Hmmm, is it reiser?  For both 2.4 reiserfs and ext3, the flush happens
+when you commit.  ext3 always commits on fsync and reiser only commits
+when you've changed metadata.
 
-| On Thu, 18 Mar 2004, Ingo Molnar wrote:
-| 
-| > * Linus Torvalds <torvalds@osdl.org> wrote:
-| >
-| > > sysconf() is a user-level implementation issue, and so is something
-| > > like "number of CPU's". Damn, the simplest way to do it is as a
-| > > environment variable, for christ sake! Just make a magic environment
-| > > variable called __SC_ARRAY, and make it be some kind of binary
-| > > encoding if you worry about performance.
-| >
-| > i am not arguing for any sysconf() support at all - it clearly belongs
-| > into glibc. Just doing 'man sysconf' shows that it should be in
-| > user-space. No argument about that.
-| >
-| > But how about the original issue Ulrich raised: how does user-space
-| > figure out the NR_CPUS value supported by the kernel? (not the current #
-| > of CPUs, that can be figured out using /proc/cpuinfo)
-| 
-| Doesn't /proc/config.gz answer this question?
+Thanks to Jens, the 2.6 barrier patch has a nice clean way to allow
+barriers on fsync, O_SYNC, O_DIRECT, etc, so we can make IDE drives much
+safer than the 2.4 code did.  
 
-I guess it could, but it's another CONFIG option...
+I had a patch to make fsync always generate the barriers in 2.4, but it
+was tricky since it had to figure out the last buffer it was going to
+write before it wrote it.  The 2.6 code is much better.
 
---
-~Randy
+> 2.4 does flush in one case but not in other. 2.6 does not do it in ether
+> case.
+> 
+> I was also surprised to see this simple test case has so different
+> performance with default and "deadline" IO scheduler   -  1.6 vs 0.5 sec
+> per 1000 fsync's.
+
+Not sure on that one, both cases are generating tons of unplugs, the
+drive is just responding insanely fast.
+
+-chris
+
+

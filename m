@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129245AbRB1ULT>; Wed, 28 Feb 2001 15:11:19 -0500
+	id <S129257AbRB1URj>; Wed, 28 Feb 2001 15:17:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129216AbRB1ULK>; Wed, 28 Feb 2001 15:11:10 -0500
-Received: from cc78409-a.hnglo1.ov.nl.home.com ([213.51.107.234]:45575 "EHLO
-	dexter.hensema.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S129249AbRB1UKv>; Wed, 28 Feb 2001 15:10:51 -0500
-Date: Wed, 28 Feb 2001 21:10:43 +0100
-From: Erik Hensema <erik@hensema.xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: binfmt_script and ^M
-Message-ID: <20010228211043.A4579@hensema.xs4all.nl>
-In-Reply-To: <20010227140333.C20415@cistron.nl> <E14XkQG-0003R7-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3i
-In-Reply-To: <E14XkQG-0003R7-00@the-village.bc.nu>
+	id <S129250AbRB1URa>; Wed, 28 Feb 2001 15:17:30 -0500
+Received: from cs.columbia.edu ([128.59.16.20]:8605 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S129216AbRB1URQ>;
+	Wed, 28 Feb 2001 15:17:16 -0500
+Date: Wed, 28 Feb 2001 12:17:13 -0800 (PST)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Alexander Viro <viro@math.psu.edu>
+cc: <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
+Subject: Re: [PATCH][CFT] per-process namespaces for Linux
+In-Reply-To: <Pine.GSO.4.21.0102281416460.7107-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.30.0102281152210.15118-100000@age.cs.columbia.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 27, 2001 at 01:44:08PM +0000, Alan Cox wrote:
-> > When running a script (perl in this case) that has DOS-style
-> > newlines (\r\n), Linux 2.4.2 can't find an interpreter because it
-> > doesn't recognize the \r.  The following patch should fix this
-> > (untested).
+On Wed, 28 Feb 2001, Alexander Viro wrote:
 
-> Fix the script. The kernel expects a specific format
+> > And disadvantages: you can't have broken symlinks.
+> > 
+> > This actually turns out to be quite a bit of a problem when one tries
+> > to use bind mounts with autofs. For one thing, it's perfectly legal
+> > to have /autofs/foo as a symlink to /autofs/bar/foo, where /autofs/bar
+> > is not yet mounted -- but a bind mount can't handle that...
+> 
+> First of all, you still have symlinks. 
 
+Oh yeah, of course. :-)
 
-How about letting the kernel return ENOEXEC instead of ENOENT? It would
-give the luser just the little extra hint about converting their files to
-Unix format.
+> What's more, the right solution is to use local objects at the
+> mountpoints. And forget about having a small tree full of links to
+> real mountpoints. Think of autofs-with-one-node.
 
-$ ls
-testscript
-$ head -1 testscript
-#!/bin/sh
-$ ./testscript
-bash: ./testscript: No such file or directory
+That's what Sun's autofs and am-utils call 'direct mounts', which are not 
+yet supported by our autofs (unless I missed something recently). Direct 
+mounts are good for some things, but not for everything. In particular, 
+they are useless for cascading auto-triggered mounts (think 
+/usr/local/src, /usr/local, and /usr, all automounted).
 
-versus
+[and, btw, Linux _still_ doesn't properly support am-utils' direct mounts, 
+although all that's needed is to remove LOOKUP_FOLLOW from path_init in 
+sys_umount...]
 
-$ ./testscript
-bash: ./testscript: Exec format error
+As for bind mounts, I'll probably revisit them after I'm done with the 
+Solaris autofs support in am-utils -- which will probably be a while. If I 
+can get the thing to chain-trigger all the necessary mounts, we might be 
+able to do something useful with it..
 
-I haven't got a clue what Posix requires though.
+Thanks,
+Ion
 
 -- 
-Erik Hensema (erik@hensema.xs4all.nl)
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
+

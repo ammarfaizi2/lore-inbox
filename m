@@ -1,88 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263574AbUDPSOS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 14:14:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263229AbUDPSOS
+	id S263229AbUDPSWx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 14:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263567AbUDPSWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 14:14:18 -0400
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:29834 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S263599AbUDPSNx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 14:13:53 -0400
-Message-ID: <4080229B.4020307@pacbell.net>
-Date: Fri, 16 Apr 2004 11:14:51 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: Bill Nottingham <notting@redhat.com>
-CC: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] oops when loading ehci_hcd
-References: <20040416082311.GA2756@nostromo.devel.redhat.com>
-In-Reply-To: <20040416082311.GA2756@nostromo.devel.redhat.com>
-Content-Type: multipart/mixed;
- boundary="------------010506030900090306080906"
+	Fri, 16 Apr 2004 14:22:53 -0400
+Received: from fw.osdl.org ([65.172.181.6]:59629 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263229AbUDPSWv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 14:22:51 -0400
+Date: Fri, 16 Apr 2004 11:20:51 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Ken Ashcraft <ken@coverity.com>
+Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu, scott.feldman@intel.com,
+       jgarzik@pobox.com
+Subject: Re: [CHECKER] Probable security holes in 2.6.5
+Message-ID: <20040416112051.V22989@build.pdx.osdl.net>
+References: <1082134916.19301.7.camel@dns.coverity.int>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1082134916.19301.7.camel@dns.coverity.int>; from ken@coverity.com on Fri, Apr 16, 2004 at 10:01:57AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010506030900090306080906
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Bill Nottingham wrote:
-> With a 2.6.6-rc1 based kernel. Happened when loading ehci_hcd some
-> 10 hours after booting, couldn't reproduce in initial attempts. I
-> suppose the question is also why it failed to init, but it certainly
-> didn't like the failure...
-
-Hmm, no it didn't.  The "illegal capability" is the hardware acting
-broken (what kind of EHCI hardware?); I've had reports of similar
-stuff happening after ACPI resume (bogus PCI config space values,
-in this case zero).
-
-The "-19" means -ENODEV, which seem likely to be another case of a PCI
-request not responding correctly:  handshake() failing because reading
-a register returned 0xffffffff.
-
-Looks like a cleanup path needs to handle early failure a bit better;
-likely just having ehci_stop test for ehci->async non-null (before
-calling scan-async to clean up any pending work) would suffice.
-
-- Dave
-
-
-> Bill
+* Ken Ashcraft (ken@coverity.com) wrote:
+> [BUG]
+> /home/kash/linux/linux-2.6.5/drivers/net/e1000/e1000_ethtool.c:1494:e1000_ethtool_ioctl: ERROR:TAINT: 1487:1494:Passing unbounded user value "(regs).len" as arg 2 to function "copy_to_user", which uses it unsafely in model [SOURCE_MODEL=(lib,copy_from_user,user,taintscalar)] [SINK_MODEL=(lib,copy_to_user,user,trustingsink)]    [PATH=] 
+> 	}
+> 	case ETHTOOL_GREGS: {
+> 		struct ethtool_regs regs = {ETHTOOL_GREGS};
+> 		uint32_t regs_buff[E1000_REGS_LEN];
 > 
-> PCI: Enabling device 0000:00:1d.7 (0000 -> 0002)
-> ehci_hcd 0000:00:1d.7: EHCI Host Controller
-> ehci_hcd 0000:00:1d.7: illegal capability!
-> PCI: Setting latency timer of device 0000:00:1d.7 to 64
-> ehci_hcd 0000:00:1d.7: irq 11, pci mem 22946000
-> ehci_hcd 0000:00:1d.7: new USB bus registered, assigned bus number 1
-> ehci_hcd 0000:00:1d.7: init error -19ehci_hcd 0000:00:1d.7: remove, state 0
-> Unable to handle kernel NULL pointer dereference at virtual address 00000048
-> ...
+> Start --->
+> 		if(copy_from_user(&regs, addr, sizeof(regs)))
+> 			return -EFAULT;
+> 		e1000_ethtool_gregs(adapter, &regs, regs_buff);
+> 		if(copy_to_user(addr, &regs, sizeof(regs)))
+> 			return -EFAULT;
+> 
+> 		addr += offsetof(struct ethtool_regs, data);
+> Error --->
+> 		if(copy_to_user(addr, regs_buff, regs.len))
+> 			return -EFAULT;
+> 
+> 		return 0;
 
---------------010506030900090306080906
-Content-Type: text/plain;
- name="Diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="Diff"
+Looks like a bug.  Possible patch below zeros the buffer (since it's not
+filled completely by e1000_ethtool_gregs()), and truncates len.
 
---- 1.75/drivers/usb/host/ehci-hcd.c	Wed Apr 14 20:20:58 2004
-+++ edited/drivers/usb/host/ehci-hcd.c	Fri Apr 16 11:03:50 2004
-@@ -592,7 +592,8 @@
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+
+===== drivers/net/e1000/e1000_ethtool.c 1.42 vs edited =====
+--- 1.42/drivers/net/e1000/e1000_ethtool.c	Fri Apr  9 16:39:34 2004
++++ edited/drivers/net/e1000/e1000_ethtool.c	Fri Apr 16 11:20:03 2004
+@@ -1514,6 +1514,9 @@
  
- 	/* root hub is shut down separately (first, when possible) */
- 	spin_lock_irq (&ehci->lock);
--	ehci_work (ehci, NULL);
-+	if (ehci->async)
-+		ehci_work (ehci, NULL);
- 	spin_unlock_irq (&ehci->lock);
- 	ehci_mem_cleanup (ehci);
- 
-
---------------010506030900090306080906--
-
+ 		if(copy_from_user(&regs, addr, sizeof(regs)))
+ 			return -EFAULT;
++		memset(regs_buff, 0, sizeof(regs_buff));
++		if (regs.len > E1000_REGS_LEN)
++			regs.len = E1000_REGS_LEN;
+ 		e1000_ethtool_gregs(adapter, &regs, regs_buff);
+ 		if(copy_to_user(addr, &regs, sizeof(regs)))
+ 			return -EFAULT;

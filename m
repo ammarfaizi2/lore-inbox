@@ -1,71 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263384AbRFAFLS>; Fri, 1 Jun 2001 01:11:18 -0400
+	id <S263374AbRFAFI5>; Fri, 1 Jun 2001 01:08:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263386AbRFAFLI>; Fri, 1 Jun 2001 01:11:08 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:12303 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S263384AbRFAFK6>;
-	Fri, 1 Jun 2001 01:10:58 -0400
-Message-ID: <3B1726B3.6ED0872C@candelatech.com>
-Date: Thu, 31 May 2001 22:22:59 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: John William <jw2357@hotmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Abysmal RECV network performance
-In-Reply-To: <F75GMVJ7AnvcesML51O000040fe@hotmail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S263384AbRFAFIh>; Fri, 1 Jun 2001 01:08:37 -0400
+Received: from [194.67.87.171] ([194.67.87.171]:31238 "EHLO
+	altair.office.altlinux.ru") by vger.kernel.org with ESMTP
+	id <S263374AbRFAFI0>; Fri, 1 Jun 2001 01:08:26 -0400
+Date: Fri, 1 Jun 2001 09:08:46 +0400
+From: Konstantin Volckov <goldhead@altlinux.ru>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Patch for Promise PDC20267 FastTrack100 Controller
+Message-Id: <20010601090846.13490f6f.goldhead@altlinux.ru>
+X-Mailer: Sylpheed version 0.4.66 (GTK+ 1.2.10; i586-alt-linux)
+Organization: ALT Linux
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart_Fri__1_Jun_2001_09:08:46_+0400_0819c0e0"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John William wrote:
-> 
-> >Depends on what is driving it...  An application I built can only push
-> >about
-> >80 Mbps bi-directional on PII 550Mhz machines.  It is not the most
-> >efficient program in
-> >the world, but it isn't too bad either...
-> >
-> >I missed the rest of this thread, so maybe you already mentioned it, but
-> >what is the bottleneck?  Is your CPU running at 100%?
-> >
-> >Greatly increasing the buffers both in the drivers and in the sockets
-> >does wonders for higher-speed connections, btw.
-> >
-> >Ben
-> 
-> I don't know what the bottleneck is. What I'm seeing is ~60Mbps transmit
-> speed and anywhere from 1 to 12Mpbs receive speed on a couple 10/100 cards
-> using the 2.2.16, 2.2.19 and 2.4.3 kernels.
-> 
-> I have tried increasing the size of the RX ring buffer and it did not seem
-> to make any difference. It appears that there is some sort of overrun or
-> other problem. There is a significant slowdown between the 2.2.x and 2.4.x
-> kernels.
-> 
-> However, just tonight, while really hammering on the system, I started to
-> get some messages like "eth1: Oversized Ethernet frame spanned multiple
-> buffers, status 7fff8301!". Any ideas what could be causing that?
+This is a multi-part message in MIME format.
 
-Nope, I'd take it up with the driver developers.  For what it's worth,
-the Intel Ether-Express Pro cards are the only ones I've found yet that
-really work right at high speeds.  Intel's e100 driver seems to work really
-well for me, but the eepro driver also works well with most versions of
-the eepro cards I've used...
+--Multipart_Fri__1_Jun_2001_09:08:46_+0400_0819c0e0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-I have had definate problems with the natsemi (locked up), tulip (won't
-autonegotiate multi-port cards correctly, or something), rtl8139 (would
-lock up, haven't tried recent drivers though)....
+Hi!
 
-I used to assume that Linux had the best/fastest networking support around,
-but the reality is that I've had a really hard time finding hardware/drivers
-that works at high speeds (60Mbps+, bi-directional).
+I've found that 2.4.5-ac kernels can't detect hdd's connected to
+FastTrack100 Promise controller, but Ultra100 works fine. Here is the
+patch, that solve this problem.
+
+Controllers tested - FastTrack100, Ultra100. Kernel - 2.4.5-ac4.
 
 -- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+Good luck,
+Konstantin
+
+--Multipart_Fri__1_Jun_2001_09:08:46_+0400_0819c0e0
+Content-Type: application/octet-stream;
+ name="linux-2.4.4-ac10-promise.patch"
+Content-Disposition: attachment;
+ filename="linux-2.4.4-ac10-promise.patch"
+Content-Transfer-Encoding: base64
+
+LS0tIGxpbnV4L2RyaXZlcnMvaWRlL2lkZS1wY2kuY19vbGQJVGh1IE1heSAxNyAyMjoxNjoxNSAy
+MDAxCisrKyBsaW51eC9kcml2ZXJzL2lkZS9pZGUtcGNpLmMJVGh1IE1heSAxNyAyMjoxMDo0MyAy
+MDAxCkBAIC02NTUsNiArNjU1LDkgQEAKIAkJaWYgKChJREVfUENJX0RFVklEX0VRKGQtPmRldmlk
+LCBERVZJRF9QREMyMDI2NSkpICYmIChzZWNvbmRwZGMrKz09MSkgJiYgKHBvcnQ9PTEpICApIAog
+CQkJZ290byBjb250cm9sbGVyX29rOwogCQkJCisJCWlmIChJREVfUENJX0RFVklEX0VRKGQtPmRl
+dmlkLCBERVZJRF9QREMyMDI2NykpIAorCQkJZ290byBjb250cm9sbGVyX29rOworCQkJCiAJCWlm
+IChlLT5yZWcgJiYgKHBjaV9yZWFkX2NvbmZpZ19ieXRlKGRldiwgZS0+cmVnLCAmdG1wKSB8fCAo
+dG1wICYgZS0+bWFzaykgIT0gZS0+dmFsKSkKIAkJCWNvbnRpbnVlOwkvKiBwb3J0IG5vdCBlbmFi
+bGVkICovCiBjb250cm9sbGVyX29rOgkJCQo=
+
+--Multipart_Fri__1_Jun_2001_09:08:46_+0400_0819c0e0--

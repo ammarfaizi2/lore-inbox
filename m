@@ -1,90 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129741AbQLHPQA>; Fri, 8 Dec 2000 10:16:00 -0500
+	id <S129778AbQLHPR1>; Fri, 8 Dec 2000 10:17:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130607AbQLHPPv>; Fri, 8 Dec 2000 10:15:51 -0500
-Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:9215 "EHLO
-	smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S129414AbQLHPPg>; Fri, 8 Dec 2000 10:15:36 -0500
-Date: Fri, 8 Dec 2000 09:44:59 -0500 (EST)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Jeff V. Merkey" <jmerkey@timpanogas.org>,
-        Peter Samuelson <peter@cadcamlab.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [Fwd: NTFS repair tools]
-In-Reply-To: <Pine.LNX.4.21.0012081226160.8655-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.30.0012080938560.11198-100000@viper.haque.net>
+	id <S129415AbQLHPRR>; Fri, 8 Dec 2000 10:17:17 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:59405 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129414AbQLHPRL>;
+	Fri, 8 Dec 2000 10:17:11 -0500
+Message-ID: <3A30F449.32C852A3@mandrakesoft.com>
+Date: Fri, 08 Dec 2000 09:46:33 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Peter Samuelson <peter@cadcamlab.org>
+CC: "Jeff V. Merkey" <jmerkey@timpanogas.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] NTFS repair tools
+In-Reply-To: <3A30552D.A6BE248C@timpanogas.org>
+		<20001207221347.R6567@cadcamlab.org>
+		<3A3066EC.3B657570@timpanogas.org>
+		<20001208005337.A26577@alcove.wittsend.com>
+		<20001207230407.S6567@cadcamlab.org>
+		<3A306CE4.47B366B0@timpanogas.org> <14896.31327.179696.632616@wire.cadcamlab.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You know, couldn't we do something like prompting the (l)user with an
-disclaimer/agreement or something when selecting the option or maybe
-even when doing a make dep?
+Peter Samuelson wrote:
+> 
+> [Jeff Merkey]
+> > Please consider the attached patch to make it a little bit harder for
+> > folks to enable NTFS Write Support under Linux until it can get fixed
+> > properly.
+> 
+> Hey!  It was a joke!  A better way would be just to comment out the
+> CONFIG_NTFS_RW line entirely.  Actually, I think that *would* be a good
+> idea.  Anyone who has any business messing with NTFS_RW is more than
+> capable of editing Config.in.
 
-They'd prolly blast through it without reading (You don't think they
-read teh MS agreement when istalling windows do you?) but I bet we could
-argue that they accepted the agreement to protect us.
+Agreed.  I would prefer that filesystems with known broken write support
+depend on CONFIG_BROKEN (which would be always defined to 'n')
 
+	Jeff
 
-Rik:
-I got a little diff happy ;-P
-
---- index.html.old	Fri Dec  8 09:35:58 2000
-+++ index.html	Fri Dec  8 09:38:03 2000
-@@ -21,7 +21,7 @@
- <p>If you spot a gem that's suitable for placement on this
- page, please <a href="mailto:riel@nl.linux.org">mail me</a>.
-
--<p><address>Rik van Riel, feb 11 2000</address>
-+<p><address>Rik van Riel, dec 08 2000</address>
-
- <table width=100%><tr>
- <td><a href="/">Back to surriel.com</a>
-@@ -31,14 +31,14 @@
- <hr>
-
- <ul>
--<li>April 2000: <a href="dec2000.shtml">fs/Config.in</a> by
-+<li>December 2000: <a href="dec2000.shtml">fs/Config.in</a> by
-     Peter Samuelson.
-+<li>June 2000: <a href="jun2000.shtml">kernel/sys.c patch</a> by
-+    Dominik Rothert.
- <li>April 2000: <a href="apr2000.shtml">drivers/block/floppy.c</a> by
-     Tim Waugh.
- <li>February 2000: <a href="feb2000.shtml">mm/swapfile.c patch</a> by
-     Aaron Botsis.
--<li>June 2000: <a href="jun2000.shtml">kernel/sys.c patch</a> by
--    Dominik Rothert.
- </ul>
-
- </body>
-
-On Fri, 8 Dec 2000, Rik van Riel wrote:
-> I must say I like the CONFIG_MORON though. By setting that the
-> (l)user exposes his true identity and leaves little for us to
-> doubt ;)
->
-> Added to the Patch of the Month page as suggested by David
-> Weinehall:
->
-> 	http://www.surriel.com/potm/
->
 
 -- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
-
-
+Jeff Garzik         |
+Building 1024       | These are not the J's you're lookin' for.
+MandrakeSoft        | It's an old Jedi mind trick.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

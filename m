@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129581AbQK0SGq>; Mon, 27 Nov 2000 13:06:46 -0500
+        id <S129572AbQK0SIq>; Mon, 27 Nov 2000 13:08:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129734AbQK0SGg>; Mon, 27 Nov 2000 13:06:36 -0500
-Received: from munchkin.spectacle-pond.org ([209.192.197.45]:41736 "EHLO
-        munchkin.spectacle-pond.org") by vger.kernel.org with ESMTP
-        id <S129581AbQK0SGS>; Mon, 27 Nov 2000 13:06:18 -0500
-Date: Mon, 27 Nov 2000 12:36:55 -0500
-From: Michael Meissner <meissner@spectacle-pond.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: "David S. Miller" <davem@redhat.com>, Werner.Almesberger@epfl.ch,
-        adam@yggdrasil.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] removal of "static foo = 0"
-Message-ID: <20001127123655.A16930@munchkin.spectacle-pond.org>
-In-Reply-To: <200011270556.VAA12506@baldur.yggdrasil.com> <20001127094139.H599@almesberger.net> <200011270839.AAA28672@pizda.ninka.net> <20001127182113.A15029@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20001127182113.A15029@athlon.random>; from andrea@suse.de on Mon, Nov 27, 2000 at 06:21:13PM +0100
+        id <S129645AbQK0SIg>; Mon, 27 Nov 2000 13:08:36 -0500
+Received: from sneaker.sch.bme.hu ([152.66.226.5]:32267 "EHLO
+        sneaker.sch.bme.hu") by vger.kernel.org with ESMTP
+        id <S129572AbQK0SIV>; Mon, 27 Nov 2000 13:08:21 -0500
+Date: Mon, 27 Nov 2000 18:37:48 +0100 (CET)
+From: "Mr. Big" <mrbig@sneaker.sch.bme.hu>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+cc: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PROBLEM: crashing kernels
+In-Reply-To: <Pine.GSO.3.96.1001127182529.13774T-100000@delta.ds2.pg.gda.pl>
+Message-ID: <Pine.LNX.3.96.1001127183433.9692E-100000@sneaker.sch.bme.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 27, 2000 at 06:21:13PM +0100, Andrea Arcangeli wrote:
-> On Mon, Nov 27, 2000 at 12:39:55AM -0800, David S. Miller wrote:
-> > Also I believe linkers are allowed to arbitrarily reorder members in
-> > the data and bss sections.  I could be wrong on this one though.
-> 
-> I'm not sure either, but we certainly rely on that behaviour somewhere.
-> Just to make an example fs/dquot.c:
-> 
-> 	int nr_dquots, nr_free_dquots;
-> 
-> kernel/sysctl.c:
-> 
-> 	{FS_NRDQUOT, "dquot-nr", &nr_dquots, 2*sizeof(int),
-> 
-> The above is ok also on mips in practice though.
 
-That needs to be fixed ASAP to use an array (not a structure).  It is simply
-wrong to depend on two variables winding up in at adjacent offsets.
+> > How could an APIC 'forget' how to deliver the interrupts? Could this mean
+> > a problem with the mainboard, or with the CPU?
+> 
+>  Do you have an USB host controller in your system?  If so, could you
+> please send me an output of `/sbin/lspci' and the contents of
+> /proc/interrupts?  I wonder if this might be the reason...
 
--- 
-Michael Meissner, Red Hat, Inc.
-PMB 198, 174 Littleton Road #3, Westford, Massachusetts 01886, USA
-Work:	  meissner@redhat.com		phone: +1 978-486-9304
-Non-work: meissner@spectacle-pond.org	fax:   +1 978-692-4482
+Nope, we also disabled all unneeded periferies, like serial and parallel
+ports.
+
+But maybe the /proc/interrupts could be usefull:
+           CPU0       CPU1       
+  0:     413111          0          XT-PIC  timer
+  1:        687          0          XT-PIC  keyboard
+  2:          0          0          XT-PIC  cascade
+  7:     751660          0          XT-PIC  eth1
+ 10:    7377626          0          XT-PIC  eth0
+ 11:     238981          0          XT-PIC  Mylex AcceleRAID 352, aic7xxx, aic7xxx
+ 13:          1          0          XT-PIC  fpu
+ 14:         10          0          XT-PIC  ide0
+NMI:          0
+ERR:          0
+
+This is how it looks like, since we have the apic disabled. I've tried to
+avoid that the Mylex and the Adaptec (aic7xxx) get the same irq, but the
+bios was too lame on these things :(
+
++--------------------------------------------+
+| Nagy Attila                                |
+|   mailto:mrbig@sneaker.sch.bme.hu          |
++--------------------------------------------+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

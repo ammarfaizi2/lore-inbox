@@ -1,322 +1,137 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265758AbTIETd6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 15:33:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265824AbTIETNi
+	id S265914AbTIETYB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 15:24:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265912AbTIETXi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 15:13:38 -0400
-Received: from fw.osdl.org ([65.172.181.6]:20881 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265758AbTIETKI (ORCPT
+	Fri, 5 Sep 2003 15:23:38 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:27912 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S265906AbTIETWC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 15:10:08 -0400
-Date: Fri, 5 Sep 2003 11:55:46 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: fsdev <linux-fsdevel@vger.kernel.org>
-Subject: [CFT] [6/15] ext2 options parsing
-Message-Id: <20030905115546.2681b924.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Fri, 5 Sep 2003 15:22:02 -0400
+Date: Fri, 5 Sep 2003 21:21:41 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: John Cherry <cherry@osdl.org>, "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: "Justin T. Gibbs" <gibbs@scsiguy.com>, trivial@rustcorp.com.au,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [TRIVIAL][PATCH] fix parallel builds for aic7xxx]
+Message-ID: <20030905192141.GA9277@mars.ravnborg.org>
+Mail-Followup-To: John Cherry <cherry@osdl.org>,
+	"Justin T. Gibbs" <gibbs@scsiguy.com>, trivial@rustcorp.com.au,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <1062698342.9322.73.camel@cherrytest.pdx.osdl.net> <59600000.1062714135@aslan.btc.adaptec.com> <1062779785.12723.41.camel@cherrytest.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1062779785.12723.41.camel@cherrytest.pdx.osdl.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Justin, John.
 
-diff -Naurp -X /home/rddunlap/doc/dontdiff-osdl linux-260-test4-pv/fs/ext2/super.c linux-260-test4-fs/fs/ext2/super.c
---- linux-260-test4-pv/fs/ext2/super.c	2003-08-22 16:57:23.000000000 -0700
-+++ linux-260-test4-fs/fs/ext2/super.c	2003-09-03 13:35:54.000000000 -0700
-@@ -22,6 +22,7 @@
- #include <linux/slab.h>
- #include <linux/init.h>
- #include <linux/blkdev.h>
-+#include <linux/parser.h>
- #include <linux/random.h>
- #include <linux/buffer_head.h>
- #include <linux/smp_lock.h>
-@@ -265,149 +266,152 @@ static unsigned long get_sb_block(void *
- 	return sb_block;
- }
+I agree with Justin that the patch for aic7xxx/Makefile looks a bit suspisious.
+I have modifed it to use a phony target as serialisation point.
+In this way it is more obvious what is actually happening.
+The patch for aicasm/Makefile looked OK - included here as well to make the
+patch complete.
+
+I have tested this patch on UP only, with make -j4.
+Before it broke in aicasm, now it succeeds.
+
+Justin, does this look OK for you?
+
+
+On Fri, Sep 05, 2003 at 09:36:25AM -0700, John Cherry wrote:
+> Short story: 
+> 
+> The makefile changes separate targets with identical dependencies.  In
+> the current Makefiles, things like "running the assembler" and "changing
+> file names" happen multiple times in parallel when building with
+> anything other than -j1.  Consider the following example Makefile:
+> 
+> targ: a b
+> a b: x
+>         touch a b
+> x:
+>         touch x
+> clean:
+>         rm a b x
+> 
+> Running the build with "make targ" yields:
+> touch x
+> touch a b
+> 
+> Running the build with "make -j2 targ" yields:
+> touch x
+> touch a b
+> touch a b
+> 
+> Notice that the "touch a b" output is not only executed twice, but on an
+> SMP machine, it could be run in parallel (with races).  These two
+> patches separate the targets with the same dependencies and prevent
+> these races.  I would actually consider this to be a bug in make, but
+> that is another story.
+Nope, consider the command to execute was: touch $@ - then it make all
+sense again.
+
+	Sam
+
+===== drivers/scsi/aic7xxx/Makefile 1.21 vs edited =====
+--- 1.21/drivers/scsi/aic7xxx/Makefile	Fri May  2 20:04:40 2003
++++ edited/drivers/scsi/aic7xxx/Makefile	Fri Sep  5 21:14:01 2003
+@@ -58,7 +58,13 @@
+ 	-p $(obj)/aic7xxx_reg_print.c -i aic7xxx_osm.h
  
--static int want_value(char *value, char *option)
--{
--	if (!value || !*value) {
--		printk(KERN_NOTICE "EXT2-fs: the %s option needs an argument\n",
--		       option);
--		return -1;
--	}
--	return 0;
--}
--
--static int want_null_value(char *value, char *option)
--{
--	if (*value) {
--		printk(KERN_NOTICE "EXT2-fs: Invalid %s argument: %s\n",
--		       option, value);
--		return -1;
--	}
--	return 0;
--}
-+enum {
-+	Opt_bsd_df, Opt_minix_df, Opt_grpid, Opt_nogrpid,
-+	Opt_resgid, Opt_resuid, Opt_sb, Opt_err_cont, Opt_err_panic, Opt_err_ro,
-+	Opt_nouid32, Opt_check, Opt_nocheck, Opt_debug, Opt_oldalloc, Opt_orlov, Opt_nobh,
-+	Opt_user_xattr, Opt_nouser_xattr, Opt_acl, Opt_noacl,
-+	Opt_ignore, Opt_err,
-+};
- 
--static int want_numeric(char *value, char *option, unsigned long *number)
--{
--	if (want_value(value, option))
--		return -1;
--	*number = simple_strtoul(value, &value, 0);
--	if (want_null_value(value, option))
--		return -1;
--	return 0;
--}
-+static match_table_t tokens = {
-+	{Opt_bsd_df, "bsddf"},
-+	{Opt_minix_df, "minixdf"},
-+	{Opt_grpid, "grpid"},
-+	{Opt_grpid, "bsdgroups"},
-+	{Opt_nogrpid, "nogrpid"},
-+	{Opt_nogrpid, "sysvgroups"},
-+	{Opt_resgid, "resgid=%d"},
-+	{Opt_resuid, "resuid=%d"},
-+	{Opt_sb, "sb=%d"},
-+	{Opt_err_cont, "errors=continue"},
-+	{Opt_err_panic, "errors=panic"},
-+	{Opt_err_ro, "errors=remount-ro"},
-+	{Opt_nouid32, "nouid32"},
-+	{Opt_nocheck, "check=none"},
-+	{Opt_nocheck, "nocheck"},
-+	{Opt_check, "check"},
-+	{Opt_debug, "debug"},
-+	{Opt_oldalloc, "oldalloc"},
-+	{Opt_orlov, "orlov"},
-+	{Opt_nobh, "nobh"},
-+	{Opt_user_xattr, "user_xattr"},
-+	{Opt_nouser_xattr, "nouser_xattr"},
-+	{Opt_acl, "acl"},
-+	{Opt_noacl, "noacl"},
-+	{Opt_ignore, "grpquota"},
-+	{Opt_ignore, "noquota"},
-+	{Opt_ignore, "quota"},
-+	{Opt_ignore, "usrquota"},
-+	{Opt_err, NULL}
-+};
- 
--/*
-- * This function has been shamelessly adapted from the msdos fs
-- */
- static int parse_options (char * options,
- 			  struct ext2_sb_info *sbi)
- {
--	char * this_char;
--	char * value;
-+	char * p;
-+	substring_t args[MAX_OPT_ARGS];
-+	unsigned long kind = EXT2_MOUNT_ERRORS_CONT;
- 
- 	if (!options)
- 		return 1;
--	while ((this_char = strsep (&options, ",")) != NULL) {
--		if (!*this_char)
+ ifeq ($(CONFIG_AIC7XXX_BUILD_FIRMWARE),y)
+-$(aic7xxx-gen-y): $(src)/aic7xxx.seq $(src)/aic7xxx.reg $(obj)/aicasm/aicasm
++$(aic7xxx-gen-y): $(src)/aic7xxx.seq $(src)/aic7xxx.reg
++$(aic7xxx-gen-y): doaic7xasm
 +
-+	while ((p = strsep (&options, ",")) != NULL) {
-+		int token;
-+		if (!*p)
- 			continue;
--		if ((value = strchr (this_char, '=')) != NULL)
--			*value++ = 0;
--#ifdef CONFIG_EXT2_FS_XATTR
--		if (!strcmp (this_char, "user_xattr"))
--			set_opt (sbi->s_mount_opt, XATTR_USER);
--		else if (!strcmp (this_char, "nouser_xattr"))
--			clear_opt (sbi->s_mount_opt, XATTR_USER);
--		else
--#endif
--#ifdef CONFIG_EXT2_FS_POSIX_ACL
--		if (!strcmp(this_char, "acl"))
--			set_opt(sbi->s_mount_opt, POSIX_ACL);
--		else if (!strcmp(this_char, "noacl"))
--			clear_opt(sbi->s_mount_opt, POSIX_ACL);
--		else
--#endif
--		if (!strcmp (this_char, "bsddf"))
--			clear_opt (sbi->s_mount_opt, MINIX_DF);
--		else if (!strcmp (this_char, "nouid32")) {
--			set_opt (sbi->s_mount_opt, NO_UID32);
--		}
--		else if (!strcmp (this_char, "check")) {
--			if (!value || !*value || !strcmp (value, "none"))
--				clear_opt (sbi->s_mount_opt, CHECK);
--			else
++.PHONY: doaic7xasm
++$(aic7xxx-gen-y): doaic7xasm
 +
-+		token = match_token(p, tokens, args);
-+		switch (token) {
-+			case Opt_bsd_df:
-+				clear_opt (sbi->s_mount_opt, MINIX_DF);
-+				break;
-+			case Opt_minix_df:
-+				set_opt (sbi->s_mount_opt, MINIX_DF);
-+				break;
-+			case Opt_grpid:
-+				set_opt (sbi->s_mount_opt, GRPID);
-+				break;
-+			case Opt_nogrpid:
-+				clear_opt (sbi->s_mount_opt, GRPID);
-+				break;
-+			case Opt_resuid:
-+				sbi->s_resuid = match_int(&args[0]);
-+				break;
-+			case Opt_resgid:
-+				sbi->s_resgid = match_int(&args[0]);
-+				break;
-+			case Opt_sb:
-+				/* handled by get_sb_block() instead of here */
-+				/* *sb_block = match_int(&args[0]); */
-+				break;
-+			case Opt_err_panic:
-+				kind = EXT2_MOUNT_ERRORS_PANIC;
-+				break;
-+			case Opt_err_ro:
-+				kind = EXT2_MOUNT_ERRORS_RO;
-+				break;
-+			case Opt_err_cont:
-+				kind = EXT2_MOUNT_ERRORS_CONT;
-+				break;
-+			case Opt_nouid32:
-+				set_opt (sbi->s_mount_opt, NO_UID32);
-+				break;
-+			case Opt_check:
- #ifdef CONFIG_EXT2_CHECK
- 				set_opt (sbi->s_mount_opt, CHECK);
- #else
- 				printk("EXT2 Check option not supported\n");
- #endif
--		}
--		else if (!strcmp (this_char, "debug"))
--			set_opt (sbi->s_mount_opt, DEBUG);
--		else if (!strcmp (this_char, "errors")) {
--			if (!value || !*value) {
--				printk ("EXT2-fs: the errors option requires "
--					"an argument\n");
--				return 0;
--			}
--			if (!strcmp (value, "continue")) {
--				clear_opt (sbi->s_mount_opt, ERRORS_RO);
--				clear_opt (sbi->s_mount_opt, ERRORS_PANIC);
--				set_opt (sbi->s_mount_opt, ERRORS_CONT);
--			}
--			else if (!strcmp (value, "remount-ro")) {
--				clear_opt (sbi->s_mount_opt, ERRORS_CONT);
--				clear_opt (sbi->s_mount_opt, ERRORS_PANIC);
--				set_opt (sbi->s_mount_opt, ERRORS_RO);
--			}
--			else if (!strcmp (value, "panic")) {
--				clear_opt (sbi->s_mount_opt, ERRORS_CONT);
--				clear_opt (sbi->s_mount_opt, ERRORS_RO);
--				set_opt (sbi->s_mount_opt, ERRORS_PANIC);
--			}
--			else {
--				printk ("EXT2-fs: Invalid errors option: %s\n",
--					value);
--				return 0;
--			}
--		}
--		else if (!strcmp (this_char, "grpid") ||
--			 !strcmp (this_char, "bsdgroups"))
--			set_opt (sbi->s_mount_opt, GRPID);
--		else if (!strcmp (this_char, "minixdf"))
--			set_opt (sbi->s_mount_opt, MINIX_DF);
--		else if (!strcmp (this_char, "nocheck"))
--			clear_opt (sbi->s_mount_opt, CHECK);
--		else if (!strcmp (this_char, "nogrpid") ||
--			 !strcmp (this_char, "sysvgroups"))
--			clear_opt (sbi->s_mount_opt, GRPID);
--		else if (!strcmp (this_char, "resgid")) {
--			unsigned long v;
--			if (want_numeric(value, "resgid", &v))
--				return 0;
--			sbi->s_resgid = v;
--		}
--		else if (!strcmp (this_char, "resuid")) {
--			unsigned long v;
--			if (want_numeric(value, "resuid", &v))
-+				break;
-+			case Opt_nocheck:
-+				clear_opt (sbi->s_mount_opt, CHECK);
-+				break;
-+			case Opt_debug:
-+				set_opt (sbi->s_mount_opt, DEBUG);
-+				break;
-+			case Opt_oldalloc:
-+				set_opt (sbi->s_mount_opt, OLDALLOC);
-+				break;
-+			case Opt_orlov:
-+				clear_opt (sbi->s_mount_opt, OLDALLOC);
-+				break;
-+			case Opt_nobh:
-+				set_opt (sbi->s_mount_opt, NOBH);
-+				break;
-+#ifdef CONFIG_EXT2_FS_XATTR
-+			case Opt_user_xattr:
-+				set_opt (sbi->s_mount_opt, XATTR_USER);
-+				break;
-+			case Opt_nouser_xattr:
-+				clear_opt (sbi->s_mount_opt, XATTR_USER);
-+				break;
-+#else
-+			case Opt_user_xattr:
-+			case Opt_nouser_xattr:
-+				printk("EXT2 (no)user_xattr options not supported\n");
-+				break;
-+#endif
-+#ifdef CONFIG_EXT2_FS_POSIX_ACL
-+			case Opt_acl:
-+				set_opt(sbi->s_mount_opt, POSIX_ACL);
-+				break;
-+			case Opt_noacl:
-+				clear_opt(sbi->s_mount_opt, POSIX_ACL);
-+				break;
-+#else
-+			case Opt_acl:
-+			case Opt_noacl:
-+				printk("EXT2 (no)acl options not supported\n");
-+				break;
-+#endif
-+			case Opt_ignore:
-+				break;
-+			default:
- 				return 0;
--			sbi->s_resuid = v;
--		}
--		else if (!strcmp (this_char, "oldalloc"))
--			set_opt (sbi->s_mount_opt, OLDALLOC);
--		else if (!strcmp (this_char, "orlov"))
--			clear_opt (sbi->s_mount_opt, OLDALLOC);
--		else if (!strcmp (this_char, "nobh"))
--			set_opt(sbi->s_mount_opt, NOBH);
--		/* Silently ignore the quota options */
--		else if (!strcmp (this_char, "grpquota")
--		         || !strcmp (this_char, "noquota")
--		         || !strcmp (this_char, "quota")
--		         || !strcmp (this_char, "usrquota"))
--			/* Don't do anything ;-) */ ;
--		else {
--			printk ("EXT2-fs: Unrecognized mount option %s\n", this_char);
--			return 0;
- 		}
- 	}
-+	sbi->s_mount_opt |= kind;
- 	return 1;
- }
++doaic7xasm: $(obj)/aicasm/aicasm
+ 	$(obj)/aicasm/aicasm -I$(src) -r $(obj)/aic7xxx_reg.h \
+ 			      $(aicasm-7xxx-opts-y) -o $(obj)/aic7xxx_seq.h \
+ 			      $(src)/aic7xxx.seq
+@@ -72,7 +78,12 @@
+ 	-p $(obj)/aic79xx_reg_print.c -i aic79xx_osm.h
  
-
-
---
-~Randy
+ ifeq ($(CONFIG_AIC79XX_BUILD_FIRMWARE),y)
+-$(aic79xx-gen-y): $(src)/aic79xx.seq $(src)/aic79xx.reg $(obj)/aicasm/aicasm
++$(aic79xx-gen-y): $(src)/aic79xx.seq $(src)/aic79xx.reg
++
++.PHONY: doaic79asm
++$(aic79xx-gen-y): doaic79asm
++
++doaic79asm: $(obj)/aicasm/aicasm
+ 	$(obj)/aicasm/aicasm -I$(src) -r $(obj)/aic79xx_reg.h \
+ 			      $(aicasm-79xx-opts-y) -o $(obj)/aic79xx_seq.h \
+ 			      $(src)/aic79xx.seq
+===== drivers/scsi/aic7xxx/aicasm/Makefile 1.11 vs edited =====
+--- 1.11/drivers/scsi/aic7xxx/aicasm/Makefile	Tue Mar 11 01:57:17 2003
++++ edited/drivers/scsi/aic7xxx/aicasm/Makefile	Fri Sep  5 21:02:54 2003
+@@ -49,14 +49,18 @@
+ clean:
+ 	rm -f $(clean-files)
+ 
+-aicasm_gram.c aicasm_gram.h: aicasm_gram.y
++aicasm_gram.c: aicasm_gram.h 
++	mv $(<:.h=).tab.c $(<:.h=.c)
++
++aicasm_gram.h: aicasm_gram.y
+ 	$(YACC) $(YFLAGS) -b $(<:.y=) $<
+-	mv $(<:.y=).tab.c $(<:.y=.c)
+ 	mv $(<:.y=).tab.h $(<:.y=.h)
+ 
+-aicasm_macro_gram.c aicasm_macro_gram.h: aicasm_macro_gram.y
++aicasm_macro_gram.c: aicasm_macro_gram.h
++	mv $(<:.h=).tab.c $(<:.h=.c)
++
++aicasm_macro_gram.h: aicasm_macro_gram.y
+ 	$(YACC) $(YFLAGS) -b $(<:.y=) -p mm $<
+-	mv $(<:.y=).tab.c $(<:.y=.c)
+ 	mv $(<:.y=).tab.h $(<:.y=.h)
+ 
+ aicasm_scan.c: aicasm_scan.l

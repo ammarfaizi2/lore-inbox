@@ -1,66 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262569AbUCRMXv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 07:23:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbUCRMXv
+	id S262571AbUCRM0l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 07:26:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262576AbUCRM0l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 07:23:51 -0500
-Received: from smtp03.uc3m.es ([163.117.136.123]:39342 "EHLO smtp03.uc3m.es")
-	by vger.kernel.org with ESMTP id S262569AbUCRMXt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 07:23:49 -0500
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200403181223.i2ICNkE13506@oboe.it.uc3m.es>
-Subject: Re: floppy driver 2.6.3 question
-In-Reply-To: <20040318113506.GL22234@suse.de> from Jens Axboe at "Mar 18, 2004
- 12:35:07 pm"
-To: Jens Axboe <axboe@suse.de>
-Date: Thu, 18 Mar 2004 13:23:46 +0100 (MET)
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	Thu, 18 Mar 2004 07:26:41 -0500
+Received: from www02.ies.inet6.fr ([62.210.153.202]:10192 "EHLO
+	smtp.ies.inet6.fr") by vger.kernel.org with ESMTP id S262571AbUCRM0i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 07:26:38 -0500
+Message-ID: <4059957B.2010704@inet6.fr>
+Date: Thu, 18 Mar 2004 13:26:35 +0100
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Michael Frank <mhf@linuxmail.org>
+Cc: kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: SiS APIC, hacker looking for docs/help, was : Re: 2.6.4 under
+ heavy ioload disables sis5513 DMA
+References: <opr410iiid4evsfm@smtp.pacific.net.th> <40598849.1070409@inet6.fr> <opr41292b64evsfm@smtp.pacific.net.th>
+In-Reply-To: <opr41292b64evsfm@smtp.pacific.net.th>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Also sprach Jens Axboe:"
-> > The floppy driver doesn't notice if the revalidation bio failed or not,
-> > btw (and I don't see an easy way of telling, hence my questions as to
-> > what the bi_size and bytes_done "really" mean - I can return them).  I
-> > suppose it can tell via the drive hardware what the state is. I also
-> > suppose reading the first block somehow triggers some kind of partition
-> > revision or other magic?
-> 
-> One way would be ala the attached, see how bio_endio() clears
-> BIO_UPTODATE on error.
+Michael Frank wrote the following on 03/18/2004 12:52 PM :
 
-Very good. Applied. Thanks!
+>
+>>
+>> Is reading the arch/i386/kernel/*pic* files (and probably others) enough
+>> to start or is there somewhere else to look for information ?
+>>
+>
+> Dunno how DMA timeout is related to interrupts or are you suggesting it
+> is loosing dma-complete interrupts?
+>
 
-(do get_bio(&bio) before submit_bio(&bio) and do put_bio(&bio)
-afterwards and examine bio.flags&BIO_UPTODATE on return from
-wait_for_completion between the two).
+I don't know the details (yet I hope), but I'm quite sure that interrupt 
+handling in XT-PIC mode leads to problems on several SiS configurations 
+(when you reorganize PCI cards in a system and the behaviour changes or 
+when you disable the VGA IRQ and some things start to work, the suspect 
+becomes obvious). One user reported that putting 2 disks on one channel 
+instead of one on each (so 1 IRQ used instead of 2) solve instability 
+issues too... I ruled out IDE driver problems several times by 
+repeatedly checking the code and the run-time register values against 
+known-good values. My lack of knowledge on the interrupt handling 
+details is what prevents me from being 100% sure that the problem lies 
+here. This is why I'm willing to work on this subject.
 
-> > know.  128 requests have just previously been errored due to readahead
-> > and the check_media_changed result setting the driver request function
-> > to error out requests.  Perhaps we have run out of requests (they're
-> > all put_ as far as I can see). Maybe the block layers get tired of
-> > talking to a device that errors requests. I'm just feeling my way!
-> > Any wild ideas are welcome!
-> 
-> If the 129th request fails, then that's a pretty good clue that you
-> aren't getting the requests freed. Perhaps you are overwriting something
-> in the request after allocating it? Always mask change ->flags (don't
-> just set it), and don't overwrite ->rl.
+> Same board runs same and higher loads with 2.4.2[345] flawlessly. Also
+> 8 hours OK with 2.4.26-pre4 last night + 430 cycles of swsusp2.
+>
 
-Good idea. rl is inviolate, but I set at least |=REQ_NOMERGE sometimes
-on flags. And I pass ioctl information in fake requests by setting
-the bit just beyond the edge of those currently used (__REQ_BITS) to
-indicate its an ioctl and treating it specially in end request. Maybe
-on error I forgot to remove the extra bit before doing put_blk_request
-..
+Now I remember why your name ringed a bell ! Thanks for your testing 
+work on swsusp, my amount of free time went up thanks to 2.4's swsusp.
 
-WIll look.
+Regards,
 
-Thanks again.
+-- 
+Lionel Bouton - inet6
+---------------------------------------------------------------------
+   o              Siege social: 51, rue de Verdun - 92158 Suresnes
+  /      _ __ _   Acces Bureaux: 33 rue Benoit Malon - 92150 Suresnes
+ / /\  /_  / /_   France
+ \/  \/_  / /_/   Tel. +33 (0) 1 41 44 85 36
+  Inetsys S.A.    Fax  +33 (0) 1 46 97 20 10
+ 
 
-Peter

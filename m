@@ -1,71 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbULJLde@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbULJMbK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbULJLde (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 06:33:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbULJLdd
+	id S261184AbULJMbK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 07:31:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbULJMbK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 06:33:33 -0500
-Received: from i-194-106-33-239.freedom2surf.net ([194.106.33.239]:15294 "EHLO
-	webmail.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S261180AbULJLdb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 06:33:31 -0500
-Message-ID: <1102678410.41b9898a485ad@webmail.freedom2surf.net>
-Date: Fri, 10 Dec 2004 11:33:30 +0000
-From: bugzilla@emiller.f2s.com
-To: linux-kernel@vger.kernel.org
-Subject: ACPI and APIC on nforce2 with 2.4 kernel - is there hope?
+	Fri, 10 Dec 2004 07:31:10 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:37153 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261184AbULJMbC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 07:31:02 -0500
+Date: Fri, 10 Dec 2004 12:30:39 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Christoph Lameter <clameter@sgi.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       <linux-mm@kvack.org>, <linux-ia64@vger.kernel.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: page fault scalability patch V12 [0/7]: Overview and performance
+    tests
+In-Reply-To: <41B931FC.8040109@yahoo.com.au>
+Message-ID: <Pine.LNX.4.44.0412101208160.20182-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.3
-X-Originating-IP: 81.171.131.10
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there any hope of seeing the acpi_skip_timer_override patch in the 2.4
-branch? It has been in the 2.6 branch since around 2.6.5-rcfoo. This patch
-addresses a problem specific to nforce2 motherboards that results in an XT-PIC
-timer on ACPI and APIC enabled 2.4.x kernels.
+On Fri, 10 Dec 2004, Nick Piggin wrote:
+> Benjamin Herrenschmidt wrote:
+> > On Fri, 2004-12-10 at 15:54 +1100, Nick Piggin wrote:
+> >>
+> >>The page-freed-before-update_mmu_cache issue can be solved in that way,
+> >>not the set_pte and update_mmu_cache not performed under the same ptl
+> >>section issue that you raised.
+> > 
+> > What is the problem with update_mmu_cache ? It doesn't need to be done
+> > in the same lock section since it's approx. equivalent to a HW fault,
+> > which doesn't take the ptl...
+> 
+> I don't think a problem has been observed, I think Hugh was just raising
+> it as a general issue.
 
-I really don't know how much of a Bad Thing (TM) this is but my anxieties are
-due to: 1) The fact that I see clock gain of about one minute per week; 2) The
-fact that nforce2 has suffered from notorious instability and I just want to
-feel comfort that all known problems are going to get ironed out. I acknowledge
-that this problem is: 1) a hardware problem; 2) fixed in the latest stable
-branch (as of the 2.6.6 release).
+That's right, I know little of the arches on which update_mmu_cache does
+something, so cannot say that separation is a problem.  And I did see mail
+from Ben a month ago in which he arrived at the conclusion that it's not a
+problem - but assumed he was speaking for ppc and ppc64.  (He was also
+writing in the context of your patches rather than Christoph's.)
 
-If the answer to my question is no, I would appreciate guidance on: 1) whether
-this issue could cause me problems (is it likely to result in clock gain; could
-it cause general instability or other problems); 2) what people recommend as a
-2.4.x kernel configuration for nforce2 motherboards (mine is Abit NF7-S Rev2)
-in terms of ACPI, IOAPIC and LAPIC parameters.
+Perhaps Ben has in mind a logical argument that if update_mmu_cache does
+just what its name implies, then doing it under a separate acquisition
+of page_table_lock cannot introduce incorrectness on any architecture.
+Maybe, but I'd still rather we heard that from an expert in each of the
+affected architectures.
 
-To demonstrate, with an ACPI and APIC enabled 2.4.26 Debianised kernel, I see:
+As it stands in Christoph's patches, update_mmu_cache is sometimes
+called inside page_table_lock and sometimes outside: I'd be surprised
+if that doesn't require adjustment for some architecture.
 
-cat /proc/interrupts
-           CPU0
-  0:    1180749          XT-PIC  timer
-  1:       1834    IO-APIC-edge  keyboard
-  2:          0          XT-PIC  cascade
-  8:          4    IO-APIC-edge  rtc
-  9:          0   IO-APIC-level  acpi
- 12:     234451    IO-APIC-edge  PS/2 Mouse
- 14:      20449    IO-APIC-edge  ide0
- 15:         23    IO-APIC-edge  ide1
- 19:          0   IO-APIC-level  mgacore
- 20:    1192269   IO-APIC-level  usb-ohci, eth0
- 21:        443   IO-APIC-level  ehci_hcd, NVidia nForce2
- 22:          3   IO-APIC-level  ohci1394, usb-ohci
-NMI:          0
-LOC:    1180732
-ERR:          0
-MIS:          0
+Your idea to raise do_anonymous_page's update_mmu_cache before the
+lru_cache_add_active sounds just right; perhaps it should then even be
+subsumed into the architectural ptep_cmpxchg.  But once we get this far,
+I do wonder again whether it's right to be changing the rules in
+do_anonymous_page alone (Christoph's patches) rather than all the
+other faults together (your patches).
 
-N.B. I understand that the separate issue of the non-availability of IRQ2
-because of the spurious reservation by cascade has now been patched, as of
-2.4.27-pre2 (and 2.6.6).
+But there's no doubt that the do_anonymous_page case is easier,
+or more obviously easy, to deal with - it helps a lot to know
+that the page cannot yet be exposed to vmscan.c and rmap.c.
 
-See also http://bugzilla.kernel.org/show_bug.cgi?id=1203
-
-Please cc me as I am not subscribed to this list.
+Hugh
 

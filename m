@@ -1,47 +1,556 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264909AbUEQG3V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264897AbUEQGcj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264909AbUEQG3V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 02:29:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264915AbUEQG3V
+	id S264897AbUEQGcj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 02:32:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264917AbUEQGcj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 02:29:21 -0400
-Received: from lac-1-82-66-8-145.fbx.proxad.net ([82.66.8.145]:38273 "EHLO
-	vignemale.local.eukrea.com") by vger.kernel.org with ESMTP
-	id S264909AbUEQG3U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 02:29:20 -0400
-From: Eric BENARD / Free <ebenard@free.fr>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: 2.6.6 : bad PCI device ID for SiS ISA bridge => SiS900 eth0: Can not find ISA bridge
-Date: Mon, 17 May 2004 08:29:14 +0200
+	Mon, 17 May 2004 02:32:39 -0400
+Received: from dialpool3-61.dial.tijd.com ([62.112.12.61]:6784 "EHLO
+	precious.kicks-ass.org") by vger.kernel.org with ESMTP
+	id S264915AbUEQGcH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 02:32:07 -0400
+From: Jan De Luyck <lkml@kcore.org>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: [2.6.6] Synaptics driver is 'jumpy'
+Date: Mon, 17 May 2004 08:32:25 +0200
 User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       webvenza@libero.it, dominik.karall@gmx.net
-References: <200405162004.57041.ebenard@free.fr> <40A7E161.5060207@pobox.com>
-In-Reply-To: <40A7E161.5060207@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+References: <200405161222.48581.lkml@kcore.org> <200405162106.29858.lkml@kcore.org> <200405161429.10448.dtor_core@ameritech.net>
+In-Reply-To: <200405161429.10448.dtor_core@ameritech.net>
 MIME-Version: 1.0
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405170829.15275.ebenard@free.fr>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_5xFqAIEv3T30J52"
+Message-Id: <200405170832.32256.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 16 May 2004 23:47, Jeff Garzik wrote:
-> Are you suggesting
-> a) the hardware PCI id changed from 0x0008 to 0x0018 when booting 2.6.6.
-> 	or
-> b) sis900.c changed when booting 2.6.6.
->
-> If "a", the PCI id in sis900.c seems to be 0x0008 in both 2.4 and 2.6.
-> And further, I did not see any changes to this line of code in while
-> searching 2.6.2 -> 2.6.6 patches on ftp.kernel.org.  I would lean
-> towards a solution that modified sis900.c to check for -both- 0x08 and
-> 0x18.
->
-This is what I mean in my email. 
-Yes sis900.c should check for both 0x08 and 0x18.
-But, I don't understand why the ID has changed (on the same hardware) between 
-2.6.3 & 2.6.6 
 
-Eric
+--Boundary-00=_5xFqAIEv3T30J52
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+=2D----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On Sunday 16 May 2004 21:29, Dmitry Torokhov wrote:
+> On Sunday 16 May 2004 02:06 pm, Jan De Luyck wrote:
+> > On Sunday 16 May 2004 19:18, Dmitry Torokhov wrote:
+> > > Hmm.. there was no changes to PS/2 processing between 2.6.5 and 2.6.6
+> > > except for some Logitech tweaking, but it should not affect Synaptics
+> > > handling in any way...
+> > >
+> > > Could you check if you still have DMA enabled on your disks, check yo=
+ur
+> > > time source (TSC, ACPI PM timer, etc) and probably boot with acpi off?
+> > >
+> > > Thank you.
+> >
+> > Dmitry,
+> >
+> > Booting with acpi=3Doff fixes the problem, although I'm curious to what=
+ the
+> > problem actually is.
+> >
+> > I've attached the dmesgs from 2.6.6, 2.6.5, and 2.6.6 with acpi=3Doff.
+> >
+> > There is a line that says "Invalid control registers" that I wonder whe=
+re
+> > it comes from, but you might see something more here than I do.
+>
+> It comes from speedstep-centrino module, could you please try booting with
+> ACPI but without speedstep-centrino loaded? Also, does it help if you do
+> not compile/ load ACPI battery module?
+
+Neither has any effect.=20
+
+I've also disabled CONFIG_X86_SPEEDSTEP_CENTRINO_ACPI, figuring there might=
+ be=20
+some problem with that, but that doesn't change a thing.=20
+
+Also, I'm wondering if there's any point in using the CONFIG_X86_PM_TIMER=20
+timesource?
+
+I'm including my .config for reference.
+
+Jan
+
+=2D --=20
+Never give an inch!
+=2D----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAqFx9UQQOfidJUwQRAkjbAJsGy8emc2FsEAiBcZ2Y9lTqmSEzVgCfcTEI
+agl2KG+OBZKRYmNEyUAm+Mo=3D
+=3DJwSf
+=2D----END PGP SIGNATURE-----
+
+--Boundary-00=_5xFqAIEv3T30J52
+Content-Type: text/plain;
+  charset="utf-8";
+  name="config"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="config"
+
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+
+CONFIG_EXPERIMENTAL=y
+CONFIG_BROKEN=y
+CONFIG_BROKEN_ON_SMP=y
+
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_POSIX_MQUEUE=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=14
+CONFIG_HOTPLUG=y
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+
+CONFIG_X86_PC=y
+CONFIG_MPENTIUMM=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=6
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_HPET_TIMER=y
+CONFIG_HPET_EMULATE_RTC=y
+CONFIG_PREEMPT=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_MICROCODE=y
+CONFIG_X86_MSR=y
+CONFIG_X86_CPUID=y
+
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+
+CONFIG_PM=y
+
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_SLEEP_PROC_FS=y
+CONFIG_ACPI_AC=m
+CONFIG_ACPI_BATTERY=m
+CONFIG_ACPI_BUTTON=m
+CONFIG_ACPI_FAN=m
+CONFIG_ACPI_PROCESSOR=m
+CONFIG_ACPI_THERMAL=m
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+
+
+CONFIG_CPU_FREQ=y
+CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y
+CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
+CONFIG_CPU_FREQ_GOV_POWERSAVE=m
+CONFIG_CPU_FREQ_GOV_USERSPACE=m
+CONFIG_CPU_FREQ_TABLE=m
+
+CONFIG_X86_ACPI_CPUFREQ=m
+CONFIG_X86_SPEEDSTEP_CENTRINO=m
+CONFIG_X86_SPEEDSTEP_CENTRINO_TABLE=y
+
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_MMCONFIG=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+
+CONFIG_PCMCIA=m
+CONFIG_YENTA=m
+CONFIG_CARDBUS=y
+CONFIG_I82092=m
+CONFIG_TCIC=m
+CONFIG_PCMCIA_PROBE=y
+
+CONFIG_HOTPLUG_PCI=m
+
+CONFIG_BINFMT_ELF=y
+
+
+CONFIG_FW_LOADER=y
+
+
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_1284=y
+
+CONFIG_PNP=y
+
+
+CONFIG_BLK_DEV_LOOP=y
+
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_IDE_TASKFILE_IO=y
+
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+
+CONFIG_SCSI=m
+CONFIG_SCSI_PROC_FS=y
+
+CONFIG_BLK_DEV_SD=m
+CONFIG_CHR_DEV_SG=m
+
+
+
+CONFIG_SCSI_QLA2XXX=m
+
+
+
+
+
+CONFIG_IEEE1394=m
+
+CONFIG_IEEE1394_EXTRA_CONFIG_ROMS=y
+CONFIG_IEEE1394_CONFIG_ROM_IP1394=y
+
+CONFIG_IEEE1394_OHCI1394=m
+
+CONFIG_IEEE1394_VIDEO1394=m
+CONFIG_IEEE1394_SBP2=m
+CONFIG_IEEE1394_ETH1394=m
+CONFIG_IEEE1394_DV1394=m
+CONFIG_IEEE1394_RAWIO=m
+CONFIG_IEEE1394_CMP=m
+CONFIG_IEEE1394_AMDTP=m
+
+
+CONFIG_NET=y
+
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_SYN_COOKIES=y
+
+CONFIG_NETFILTER=y
+
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IRC=m
+CONFIG_IP_NF_TFTP=m
+CONFIG_IP_NF_AMANDA=m
+CONFIG_IP_NF_QUEUE=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_IPRANGE=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_PKTTYPE=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_RECENT=m
+CONFIG_IP_NF_MATCH_ECN=m
+CONFIG_IP_NF_MATCH_DSCP=m
+CONFIG_IP_NF_MATCH_AH_ESP=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_HELPER=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_CONNTRACK=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_TARGET_NETMAP=m
+CONFIG_IP_NF_TARGET_SAME=m
+CONFIG_IP_NF_NAT_LOCAL=y
+CONFIG_IP_NF_NAT_SNMP_BASIC=m
+CONFIG_IP_NF_NAT_IRC=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_NAT_TFTP=m
+CONFIG_IP_NF_NAT_AMANDA=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_ECN=m
+CONFIG_IP_NF_TARGET_DSCP=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_CLASSIFY=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_ULOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IP_NF_ARPTABLES=m
+CONFIG_IP_NF_ARPFILTER=m
+CONFIG_IP_NF_ARP_MANGLE=m
+CONFIG_IP_NF_TARGET_NOTRACK=m
+CONFIG_IP_NF_RAW=m
+
+
+
+CONFIG_IRDA=m
+
+CONFIG_IRLAN=m
+CONFIG_IRNET=m
+CONFIG_IRCOMM=m
+CONFIG_IRDA_ULTRA=y
+
+CONFIG_IRDA_CACHE_LAST_LSAP=y
+CONFIG_IRDA_FAST_RR=y
+CONFIG_IRDA_DEBUG=y
+
+
+CONFIG_IRTTY_SIR=m
+
+
+CONFIG_IRPORT_SIR=m
+
+
+CONFIG_NSC_FIR=m
+CONFIG_BT=m
+
+CONFIG_BT_HCIUSB=m
+CONFIG_BT_HCIUART=m
+CONFIG_BT_HCIDTL1=m
+CONFIG_BT_HCIBT3C=m
+CONFIG_BT_HCIBLUECARD=m
+CONFIG_BT_HCIBTUART=m
+CONFIG_NETDEVICES=y
+
+
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=m
+
+CONFIG_NET_PCI=y
+CONFIG_B44=m
+
+
+
+
+CONFIG_NET_RADIO=y
+
+
+
+
+
+CONFIG_NET_WIRELESS=y
+
+
+CONFIG_PPP=m
+CONFIG_PPP_FILTER=y
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_SYNC_TTY=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_PPPOE=m
+
+
+
+CONFIG_INPUT=y
+
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1400
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=1050
+CONFIG_INPUT_EVDEV=y
+
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=m
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=m
+CONFIG_INPUT_UINPUT=m
+
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+
+CONFIG_SERIAL_8250=m
+CONFIG_SERIAL_8250_NR_UARTS=4
+
+CONFIG_SERIAL_CORE=m
+CONFIG_UNIX98_PTYS=y
+CONFIG_LEGACY_PTYS=y
+CONFIG_LEGACY_PTY_COUNT=256
+CONFIG_PRINTER=y
+
+
+CONFIG_RTC=y
+
+CONFIG_AGP=y
+CONFIG_AGP_INTEL=y
+CONFIG_DRM=y
+CONFIG_DRM_RADEON=y
+
+
+CONFIG_I2C=y
+
+CONFIG_I2C_ALGOBIT=y
+
+
+
+
+
+
+
+CONFIG_FB=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_RADEON=y
+CONFIG_FB_RADEON_I2C=y
+
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_PCI_CONSOLE=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+
+CONFIG_LOGO=y
+CONFIG_LOGO_LINUX_CLUT224=y
+
+CONFIG_SOUND=m
+
+
+CONFIG_SOUND_PRIME=m
+CONFIG_SOUND_ICH=m
+
+CONFIG_USB=m
+
+CONFIG_USB_DEVICEFS=y
+
+CONFIG_USB_EHCI_HCD=m
+CONFIG_USB_EHCI_ROOT_HUB_TT=y
+CONFIG_USB_OHCI_HCD=m
+CONFIG_USB_UHCI_HCD=m
+
+
+CONFIG_USB_PRINTER=m
+CONFIG_USB_STORAGE=m
+
+CONFIG_USB_HID=m
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_HIDDEV=y
+
+
+
+
+
+
+
+CONFIG_USB_SERIAL=m
+CONFIG_USB_SERIAL_VISOR=m
+CONFIG_USB_SERIAL_MCT_U232=m
+
+
+
+CONFIG_EXT2_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_REISERFS_FS=y
+CONFIG_XFS_FS=y
+CONFIG_MINIX_FS=m
+
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_UDF_FS=m
+
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_NTFS_FS=m
+
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+
+
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+CONFIG_NFSD=m
+CONFIG_NFSD_V3=y
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=m
+CONFIG_SUNRPC=m
+CONFIG_SMB_FS=m
+CONFIG_SMB_NLS_DEFAULT=y
+CONFIG_SMB_NLS_REMOTE="cp437"
+CONFIG_CIFS=m
+
+CONFIG_MSDOS_PARTITION=y
+
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-15"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_CODEPAGE_850=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_NLS_ISO8859_15=m
+CONFIG_NLS_UTF8=m
+
+
+CONFIG_DEBUG_KERNEL=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_MAGIC_SYSRQ=y
+
+
+
+CONFIG_CRC32=m
+CONFIG_ZLIB_INFLATE=m
+CONFIG_ZLIB_DEFLATE=m
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_X86_STD_RESOURCES=y
+CONFIG_PC=y
+
+--Boundary-00=_5xFqAIEv3T30J52--

@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264053AbTEJL6E (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 07:58:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264058AbTEJL6E
+	id S264058AbTEJMBP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 08:01:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264068AbTEJMBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 07:58:04 -0400
-Received: from tomts8.bellnexxia.net ([209.226.175.52]:27900 "EHLO
-	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S264053AbTEJL6D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 07:58:03 -0400
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] missing symbox in es18xx - isapnp_protocol
-Date: Sat, 10 May 2003 08:11:18 -0400
-User-Agent: KMail/1.5.9
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sat, 10 May 2003 08:01:15 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:41625 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264058AbTEJMBO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 08:01:14 -0400
+Date: Sat, 10 May 2003 05:12:33 -0700 (PDT)
+Message-Id: <20030510.051233.112594579.davem@redhat.com>
+To: davidm@hpl.hp.com, davidm@napali.hpl.hp.com
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: qla1280 mem-mapped I/O fix
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <16060.58322.808144.819886@napali.hpl.hp.com>
+References: <200305100951.h4A9pSAD012127@napali.hpl.hp.com>
+	<1052566211.22636.1.camel@rth.ninka.net>
+	<16060.58322.808144.819886@napali.hpl.hp.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200305100811.18633.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+   From: David Mosberger <davidm@napali.hpl.hp.com>
+   Date: Sat, 10 May 2003 04:34:42 -0700
 
-I converted a work 2.5 config for a second processor.   PNP is set as follows in .config
-
-oscar% grep PNP .config
-CONFIG_PNP=y
-CONFIG_PNP_NAMES=y
-CONFIG_PNP_DEBUG=y
-CONFIG_ISAPNP=y
-CONFIG_PNPBIOS=y
-CONFIG_BLK_DEV_IDEPNP=y
-# CONFIG_IP_PNP is not set
-
-Yet I get:
-
-*** Warning: "isapnp_protocol" [sound/isa/snd-es18xx.ko] undefined!
-  ld -m elf_i386  -r --format binary --oformat elf32-i386 -T arch/i386/boot/compressed/vmlinux.
-
-The following is set for sound.
-
-CONFIG_SND=m
-CONFIG_SND_SEQUENCER=m
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=m
-CONFIG_SND_PCM_OSS=m
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_VIRMIDI=m
-CONFIG_SND_ES18XX=m
-CONFIG_SND_EMU10K1=m
-
-It would seem that pnp.h exports the symbol and that es18xx.c includes this...
-
-Ideas?
-Ed Tomlinson
+   >>>>> On 10 May 2003 04:30:11 -0700, "David S. Miller" <davem@redhat.com> said:
+   
+     DaveM> David, you absolute MAY NOT pass this:
+   
+   Me?  It's the driver that's doing it! ;-)
+   
+It won't do it until your changes :-)

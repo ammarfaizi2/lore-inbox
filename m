@@ -1,64 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130117AbRARAls>; Wed, 17 Jan 2001 19:41:48 -0500
+	id <S131342AbRARAnI>; Wed, 17 Jan 2001 19:43:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131340AbRARAli>; Wed, 17 Jan 2001 19:41:38 -0500
-Received: from [129.94.172.186] ([129.94.172.186]:35311 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S130117AbRARAl3>; Wed, 17 Jan 2001 19:41:29 -0500
-Date: Wed, 17 Jan 2001 19:46:44 +1100 (EST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@localhost.localdomain>
-To: Daniel Phillips <phillips@innominate.de>
-cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Subtle MM bug
-In-Reply-To: <3A5B61F7.FB0E79C1@innominate.de>
-Message-ID: <Pine.LNX.4.31.0101171942550.31432-100000@localhost.localdomain>
+	id <S131340AbRARAmt>; Wed, 17 Jan 2001 19:42:49 -0500
+Received: from [24.65.192.120] ([24.65.192.120]:14832 "EHLO webber.adilger.net")
+	by vger.kernel.org with ESMTP id <S131342AbRARAlb>;
+	Wed, 17 Jan 2001 19:41:31 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200101180039.f0I0du929822@webber.adilger.net>
+Subject: Re: Linux not adhering to BIOS Drive boot order?
+In-Reply-To: <Pine.LNX.4.30.0101180009460.26536-100000@pine.parrswood.manchester.sch.uk>
+ "from Tim Fletcher at Jan 18, 2001 00:14:42 am"
+To: Tim Fletcher <tim@parrswood.manchester.sch.uk>
+Date: Wed, 17 Jan 2001 17:39:56 -0700 (MST)
+CC: Andreas Dilger <adilger@turbolinux.com>,
+        Werner Almesberger <Werner.Almesberger@epfl.ch>,
+        Venkatesh Ramamurthy <Venkateshr@ami.com>,
+        linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Jan 2001, Daniel Phillips wrote:
-> Linus Torvalds wrote:
-> > (This is why I worked so hard at getting the PageDirty semantics right in
-> > the last two months or so - and why I released 2.4.0 when I did. Getting
-> > PageDirty right was the big step to make all of the VM stuff possible in
-> > the first place. Even if it probably looked a bit foolhardy to change the
-> > semantics of "writepage()" quite radically just before 2.4 was released).
->
-> On the topic of writepage, it's not symmetric with readpage at
-> the moment - it still takes (struct file *).  Is this in the
-> cleanup pipeline?  It looks like nfs_readpage already ignores
-> the struct file *, but maybe some other net filesystems are
-> still depending on it.
+Tim Fletcher writes:
+> You can already do this, just specify /dev/md0 as the device to install
+> onto, and lilo does the rest
+> 
+> > This would potentially allow you to boot from the second drive if the
+> > first one fails, assuming the kernel does UUID or LABEL resolution for
+> > the root device.  The kernel would boot from the first BIOS drive, and
+> > would search for a UUID or LABEL as the root device.
+> 
+> I have a mirrored boot drive in a pair of firewalls / routers and to test
+> before I put them into service I pulled hda and the machine booted fine
+> from hdc and baring winging about the missing disk (all the drives are
+> mirrored) carried on as normal. A fresh disk was put and rebuilt no
+> problems and was then booted off with the other disk missing.
 
-writepage() and readpage() will never be symmetric...
+Ahh.  What I was missing was that by specifying /dev/md0 as the root device,
+not only do you get an identical map for the kernels, but the root device
+remains /dev/md0 no matter which drive fails and LILO/kernel don't need to
+do anything special to find it.  This assumes the BIOS can boot from /dev/hdc
+to start with (i.e. /dev/hda is totally gone).
 
-readpage()
-	program can't continue until data is there
-	reading in larger clusters eats (wastes?) more memory
-	done when we think a process needs data
+How does MD/RAID0 know which array should be /dev/md0?  What if you had a
+second array on /dev/hdb and /dev/hdd, would that become /dev/md0 (assuming
+it had a kernel/boot sector)?
 
-writepage()
-	called after the process has written data and moved on
-	writing larger clusters has no influence on memory use
-	often done to free up memory
-
-Since readpage() needs to tune readahead behaviour, we will
-always want to give it some information (eg. in the file *)
-so it can do the extra things it needs to do.
-
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263762AbTKFRB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 12:01:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263766AbTKFRB6
+	id S263751AbTKFRQe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 12:16:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263752AbTKFRQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 12:01:58 -0500
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:51075 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263762AbTKFRBz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 12:01:55 -0500
-Subject: Re: Highmem SCSI driver
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Mark Mokryn <markm@il.marvell.com>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-mm@vger.kernel.org
-In-Reply-To: <3FAA712F.2030409@il.marvell.com>
-References: <3FAA712F.2030409@il.marvell.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-CCwyfmWjAPPFahdBEn8q"
-Organization: Red Hat, Inc.
-Message-Id: <1068138107.5234.6.camel@laptop.fenrus.com>
+	Thu, 6 Nov 2003 12:16:34 -0500
+Received: from tolkor.SGI.COM ([198.149.18.6]:51114 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id S263751AbTKFRQc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 12:16:32 -0500
+Date: Thu, 6 Nov 2003 11:15:17 -0600
+From: Jack Steiner <steiner@sgi.com>
+To: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, davidm@hpl.hp.com, jbarnes@sgi.com
+Subject: Re: [PATCH] - Allow architectures to increase size of MAX_NR_MEMBLKS
+Message-ID: <20031106171517.GA11600@sgi.com>
+References: <20031105181911.GA22082@sgi.com> <20031106085735.A14360@infradead.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 06 Nov 2003 18:01:47 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031106085735.A14360@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 06, 2003 at 08:57:35AM +0000, Christoph Hellwig wrote:
+> On Wed, Nov 05, 2003 at 12:19:11PM -0600, Jack Steiner wrote:
+> > This fixes a problem that occurs on system with >64 nodes. 
+> > 
+> > Previously, MAX_NR_MEMBLKS was defined as BITS_PER_LONG. This
+> > patch allows an architecture to override this definition by
+> > defining a value in the arch-specific asm-xxx/mmzone.h file.
+> 
+> IMHO this is too much clutter.  Just make it mandatory for the
+> architectures to define their own MAX_NR_MEMBLKS in the numa case.
+> 
+> Or actually even better just have a 
+> 
+> #ifndef MAX_NR_MEMBLKS
+> #define MAX_NR_MEMBLKS	1
+> #endif
+> 
+> in the generic code and let every architecture that wants to override
+> it do so.
 
---=-CCwyfmWjAPPFahdBEn8q
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, 2003-11-06 at 17:05, Mark Mokryn wrote:
-> We are trying to test 64-bit PCI DMA for a SCSI driver on a Xeon box,=20
-> RH9 2.4.20-8 bigmem kernel, 6GB RAM.
-> The machine shows 6GB in top, we set highmem_io in the driver, PCI DMA=20
-> mask covers 64-bit range, etc.
+I like this idea but wanted to minimize risk to other architectures 
+at this point in 2.6.
 
-can you give an URL to the driver so that we can see why it breaks ?
+AFAICT, the only other achitecture that would require change would 
+be i386. I'm not familar with the i386 numa architecture. It
+looks like the change would be to add the definition of
+MAX_NR_MEMBLKS to include/asm-i386/numaq.h.
+
+What is the value of MAX_NR_MEMBLKS for NUMAQ? 
+
+Are any architectures affected that I am overlooking???
+
+I'm ok with either approach. What do other think??
 
 
---=-CCwyfmWjAPPFahdBEn8q
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+-- 
+Thanks
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+Jack Steiner (steiner@sgi.com)          651-683-5302
+Principal Engineer                      SGI - Silicon Graphics, Inc.
 
-iD8DBQA/qn57xULwo51rQBIRAl73AJ4iREs+pKaE4FnosuvXo2lUnpdhCwCdG1Oy
-j+INZ5WOJB7OZhZqIkzBmGw=
-=Jh1t
------END PGP SIGNATURE-----
 
---=-CCwyfmWjAPPFahdBEn8q--

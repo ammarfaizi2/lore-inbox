@@ -1,53 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265092AbTIDP2R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 11:28:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265097AbTIDP2R
+	id S265090AbTIDP0N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 11:26:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265092AbTIDP0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 11:28:17 -0400
-Received: from fw.osdl.org ([65.172.181.6]:34524 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265092AbTIDP2N (ORCPT
+	Thu, 4 Sep 2003 11:26:13 -0400
+Received: from [24.241.190.29] ([24.241.190.29]:23477 "EHLO wally.rdlg.net")
+	by vger.kernel.org with ESMTP id S265090AbTIDP0B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 11:28:13 -0400
-Date: Thu, 4 Sep 2003 08:25:38 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: Pavel Machek <pavel@suse.cz>
-cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp: revert to 2.6.0-test3 state
-In-Reply-To: <20030904115824.GD24015@atrey.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.33.0309040820520.940-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 4 Sep 2003 11:26:01 -0400
+Date: Thu, 4 Sep 2003 11:25:55 -0400
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Martin Schlemmer <azarah@gentoo.org>
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: nmi errors?
+Message-ID: <20030904152555.GH7353@rdlg.net>
+Mail-Followup-To: Martin Schlemmer <azarah@gentoo.org>,
+	"Richard B. Johnson" <root@chaos.analogic.com>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <20030903212038.GQ7353@rdlg.net> <Pine.LNX.4.53.0309031724470.362@chaos> <20030903213417.GT7353@rdlg.net> <1062688292.16818.148.camel@workshop.saharacpt.lan>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="z3PcgjD2qOzdkXVS"
+Content-Disposition: inline
+In-Reply-To: <1062688292.16818.148.camel@workshop.saharacpt.lan>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> I'm doing return -EAGAIN so I can call driver model myself, and so
-> that your code does not proceed with stopping tasks/etc after I've
-> done full suspend/resume cycle.
-> 
-> I see your point about S4. I want to use as little as power/main.c
-> infrastructure as possible for now, and this seems like the way to do
-> it.
-> 
-> Okay, it seems that I can move this to pm_suspend, and it will look better.
-
-No, you have to understand that I don't want to call software_suspend() at 
-all. You've made the choice not to accept the swsusp changes, so we're 
-forking the code. We will have competing implementations of 
-suspend-to-disk in the kernel. 
-
-You may keep the interfaces that you had to reach software_suspend(), but
-you may not modify the semantics of my code to call it. At some point, you 
-may choose to add hooks to swsusp that abide by the calling semantics of 
-the PM core, so that you may use the same infrastructure.
-
-Please send a patch that only removes the calls to swsusp_* from 
-pm_{suspend,resume}. That would be a minimal patch. 
-
-Thanks,
+--z3PcgjD2qOzdkXVS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-	Pat
 
+I ran some tests Richard gave me which said it wasn't bad ram but a bad
+motherboard.  I just upgraded to 2.4.22-bk10 and it ran MUCH better,
+able to use all 16Gigs happily for quite some time until a couple of the
+processes started finishing then it gave the NMI's en mass, guess it
+couldn't shove them off to the log server in time.
+
+I'll try the below just to make sure but this is getting odd.
+
+
+Thus spake Martin Schlemmer (azarah@gentoo.org):
+
+> On Wed, 2003-09-03 at 23:34, Robert L. Harris wrote:
+> > We ran "memtest" on the machine over the weekend and it completed 3
+> > times without any problems.  Know a better or different test?
+> >=20
+>=20
+> You might try to enable all the tests, addresses and set the
+> cache to be always on in memtest.  Typical keys pressed is:
+>=20
+>   c - 1 - 2 - 2 - 3 - 3 - 3
+>=20
+> Another is goldmemory, which is fairly the same in default setup
+> as memtest with above config, but shareware, not gpl.
+>=20
+> >=20
+> > Thus spake Richard B. Johnson (root@chaos.analogic.com):
+> >=20
+> > > On Wed, 3 Sep 2003, Robert L. Harris wrote:
+> > >=20
+> > > >
+> > > >
+> > > > Can anyone tell me what this is?
+> > > >
+> > > > 16:00:09 mailserver kernel: Uhhuh. NMI received for unknown reason =
+31.
+> > > > 16:00:09 mailserver kernel: Dazed and confused, but trying to conti=
+nue
+> > > > 16:00:09 mailserver kernel: Do you have a strange power saving mode=
+ enabled?
+> > > > 16:00:34 mailserver kernel: Uhhuh. NMI received for unknown reason =
+21.
+> > > > 16:00:34 mailserver kernel: Dazed and confused, but trying to conti=
+nue
+> > > >
+> > > > A coworker put a script on a server which loads up quite afew arrays
+> > > > with pre-set values and then compares the values against arrays.  A=
+s soon as he
+> > > > kicked off the script I got alot of these in my log files.  Not muc=
+h longer and the
+> > > > machine crashed hard.
+> > > >
+> > >=20
+> > > Possible bad RAM.
+> > >=20
+> > > Cheers,
+> > > Dick Johnson
+> > > Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
+> > >             Note 96.31% of all statistics are fiction.
+> > >=20
+> >=20
+> > :wq!
+> > -----------------------------------------------------------------------=
+----
+> > Robert L. Harris                     | GPG Key ID: E344DA3B
+> >                                          @ x-hkp://pgp.mit.edu
+> > DISCLAIMER:
+> >       These are MY OPINIONS ALONE.  I speak for no-one else.
+> >=20
+> > Life is not a destination, it's a journey.
+> >   Microsoft produces 15 car pileups on the highway.
+> >     Don't stop traffic to stand and gawk at the tragedy.
+> --=20
+> Martin Schlemmer
+>=20
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | GPG Key ID: E344DA3B
+                                         @ x-hkp://pgp.mit.edu
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+
+Life is not a destination, it's a journey.
+  Microsoft produces 15 car pileups on the highway.
+    Don't stop traffic to stand and gawk at the tragedy.
+
+--z3PcgjD2qOzdkXVS
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/V1mD8+1vMONE2jsRArAuAJ9AqfadCgQZVCqk+4djWUQ6M7WZ1ACg2gFH
+4xWirErt+xG0k7vekujKlqI=
+=/d47
+-----END PGP SIGNATURE-----
+
+--z3PcgjD2qOzdkXVS--

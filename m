@@ -1,86 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284445AbRLRSZx>; Tue, 18 Dec 2001 13:25:53 -0500
+	id <S284472AbRLRS2D>; Tue, 18 Dec 2001 13:28:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284451AbRLRSZo>; Tue, 18 Dec 2001 13:25:44 -0500
-Received: from holomorphy.com ([216.36.33.161]:31106 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S284445AbRLRSZd>;
-	Tue, 18 Dec 2001 13:25:33 -0500
-Date: Tue, 18 Dec 2001 10:25:26 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
+	id <S284451AbRLRS1y>; Tue, 18 Dec 2001 13:27:54 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:19173 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S284472AbRLRS1n>; Tue, 18 Dec 2001 13:27:43 -0500
+Message-ID: <3C1F8A9E.3050409@redhat.com>
+Date: Tue, 18 Dec 2001 13:27:42 -0500
+From: Doug Ledford <dledford@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011211
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Andreas Dilger <adilger@turbolabs.com>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Scheduler ( was: Just a second ) ...
-Message-ID: <20011218102526.A736@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>
-In-Reply-To: <20011217205547.C821@holomorphy.com> <Pine.LNX.4.33.0112172153410.2416-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <Pine.LNX.4.33.0112172153410.2416-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Dec 17, 2001 at 10:09:22PM -0800
-Organization: The Domain of Holomorphy
+In-Reply-To: <Pine.LNX.4.33.0112181216341.1237-100000@admin> <Pine.LNX.4.33.0112180922500.2867-100000@penguin.transmeta.com> <20011218105459.X855@lynx.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 17, 2001 at 10:09:22PM -0800, Linus Torvalds wrote:
-> Well, looking at the issue, the problem is probably not just in the sb
-> driver: the soundblaster driver shares the output buffer code with a
-> number of other drivers (there's some horrible "dmabuf.c" code in common).
-> And yes, the dmabuf code will wake up the writer on every single DMA
-> complete interrupt. Considering that you seem to have them at least 400
-> times a second (and probably more, unless you've literally had sound going
-> since the machine was booted), I think we know why your setup spends time
-> in the scheduler.
-> A number of sound drivers will use the same logic.
+Andreas Dilger wrote:
 
-I've chucked the sb32 and plugged in the emu10k1 I had been planning
-to install for a while, to good effect. It's not an ISA sb16, but it
-apparently uses the same driver.
-
-I'm getting an overall 1% reduction in system load, and the following
-"top 5" profile:
-
- 53374 total                                      0.0400
- 11430 default_idle                             238.1250
-  8820 handle_IRQ_event                          91.8750
-  2186 do_softirq                                10.5096
-  1984 schedule                                   1.2525
-  1612 number                                     1.4816
-  1473 __generic_copy_to_user                    18.4125
-
-Oddly, I'm getting even more interrupts than I saw with the sb32...
-
-  0:    2752924          XT-PIC  timer
-  9:   14223905          XT-PIC  EMU10K1, eth1
-
-(eth1 generates orders of magnitude fewer interrupts than the timer)
-
-On Mon, Dec 17, 2001 at 10:09:22PM -0800, Linus Torvalds wrote:
-> You may be able to change this more easily some other way, by using a
-> larger fragment size for example. That's up to the sw that actually feeds
-> the sound stream, so it might be your decoder that selects a small
-> fragment size.
-> Quite frankly I don't know the sound infrastructure well enough to make
-> any more intelligent suggestions about other decoders or similar to try,
-> at this point I just start blathering.
-
-Already more insight into the problem I was experiencing than I had
-before, and I must confess to those such as myself this lead certainly
-seems "plucked out of the air". Good work! =)
-
-On Mon, Dec 17, 2001 at 10:09:22PM -0800, Linus Torvalds wrote:
-> But yes, I bet you'll also see much less impact of this if you were to
-> switch to more modern hardware.
-
-I hear from elsewhere the emu10k1 has a bad reputation as source of
-excessive interrupts. Looks like I bought the wrong sound card(s).
-Maybe I should go shopping. =)
+> On Dec 18, 2001  09:27 -0800, Linus Torvalds wrote:
+> 
+>>Maybe the best thing to do is to educate the people who write the sound
+>>apps for Linux (somebody was complaining about "esd" triggering this, for
+>>example).
+>>
+> 
+> Yes, esd is an interrupt hog, it seems.  When reading this thread, I
+> checked, and sure enough I was getting 190 interrupts/sec on the
+> sound card while not playing any sound.  I killed esd (which I don't
+> use anyways), and interrupts went to 0/sec when not playing sound.
+> Still at 190/sec when using mpg123 on my ymfpci (Yamaha YMF744B DS-1S)
+> sound card.
 
 
-Thanks a bunch!
-Bill
+Weel, evidently esd and artsd both do this (well, I assume esd does now, it 
+didn't do this in the past).  Basically, they both transmit silence over the 
+sound chip when nothing else is going on.  So even though you don't hear 
+anything, the same sound output DMA is taking place.  That avoids things 
+like nasty pops when you start up the sound hardware for a beep and that 
+sort of thing.  It also maintains state where as dropping output entirely 
+could result in things like module auto unloading and then reloading on the 
+next beep, etc.  Personally, the interrupt count and overhead annoyed me 
+enough that when I started hacking on the i810 sound driver one of my 
+primary goals was to get overhead and interrupt count down.  I think I 
+suceeded quite well.  On my current workstation:
+
+Context switches per second not playing any sound: 8300 - 8800
+Context switches per second playing an MP3: 9200 - 9900
+Interrupts per second from sound device: 86
+%CPU used when not playing MP3: 0 - 3% (magicdev is a CPU pig once every 2 
+seconds)
+%CPU used when playing MP3s: 0 - 4%
+
+In any case, it might be worth the original poster's time in figuring out 
+just how much of his lost CPU is because of playing sound and how much is 
+actually caused by the windowing system and all the associated bloat that 
+comes with it now a days.
+
+
+
+
+
+-- 
+
+  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+       Please check my web site for aic7xxx updates/answers before
+                       e-mailing me about problems
+

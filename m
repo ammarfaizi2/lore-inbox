@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262524AbTFGCrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 22:47:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262530AbTFGCrZ
+	id S262543AbTFGDgw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 23:36:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbTFGDgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 22:47:25 -0400
-Received: from mail.casabyte.com ([209.63.254.226]:26892 "EHLO
-	mail.1casabyte.com") by vger.kernel.org with ESMTP id S262524AbTFGCrY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 22:47:24 -0400
-From: "Robert White" <rwhite@casabyte.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: VFAT Defragmentation under Linux
-Date: Fri, 6 Jun 2003 20:00:57 -0700
-Message-ID: <PEEPIDHAKMCGHDBJLHKGOELGCOAA.rwhite@casabyte.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
+	Fri, 6 Jun 2003 23:36:52 -0400
+Received: from ginger.cmf.nrl.navy.mil ([134.207.10.161]:63884 "EHLO
+	ginger.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
+	id S262543AbTFGDgw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 23:36:52 -0400
+Message-Id: <200306070350.h573oIsG004491@ginger.cmf.nrl.navy.mil>
+To: Werner Almesberger <wa@almesberger.net>
+cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations (take 2) 
+In-reply-to: Your message of "Fri, 06 Jun 2003 22:11:00 -0300."
+             <20030606221100.L3232@almesberger.net> 
+X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
+X-mailer: nmh 1.0
+Date: Fri, 06 Jun 2003 23:48:28 -0400
+From: chas williams <chas@cmf.nrl.navy.mil>
+X-Spam-Score: () hits=-0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+In message <20030606221100.L3232@almesberger.net>,Werner Almesberger writes:
+>> how about atm_async_release()?
+>That's just "tag and go away". If I understood Dave right, he
+>wants the device to actually disappear at that point (well, at
+>what would be the equivalent point for devices).
 
-I understand that the current file system drivers for the primary file
-system types have anti-fragmentation logic built into them already.  (e.g.
-ext2/3 moves things around and such while the file system is mounted.)
+that's ok.  the sk list (of vcc's) will be seperate from
+the atm dev so you can take the vcc w/o relying on a device
+to hold the list.
 
-Do the VFAT drivers likewise defragment the VFAT partitions?
+btw, you might get async device 'releases' more often than
+you would like.  some atm devices are usb and could be 
+unplugged during operation (yes, that's really bad but it
+would be wise to be prepared for this.)  i actually have
+a cardbus atm interface.  i might eject it accidentally.
 
-If not, is there a Linux-hosted defragment program for defragmenting an
-unmounted VFAT partition?
+>In return, the stack must not make any other calls for that
+>VCC after invoking "close".
+>Hmm, and I should have written all this in the device driver
+>interface document :-)
+>Looks like trouble ...
 
-If such exists I have been unable to find it via normal network searches
-because the dos/windows tools raise the noise floor on "VFAT defragment" so
-high that no other refinements seem to hit.
-
-So far the only Linux-level defragment operation that I seem to have
-available for a VFAT partition is to mount the drive, cpio everything off of
-it, delete its contents, and then copy everything back.  That's a little
-drastic and has obvious issues if you want to then boot that partition
-separately/later.
-
-Rob.
-
+right!

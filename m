@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279967AbRJ3PNU>; Tue, 30 Oct 2001 10:13:20 -0500
+	id <S279977AbRJ3PUV>; Tue, 30 Oct 2001 10:20:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279972AbRJ3PNJ>; Tue, 30 Oct 2001 10:13:09 -0500
-Received: from [200.248.92.2] ([200.248.92.2]:26372 "EHLO
-	inter.lojasrenner.com.br") by vger.kernel.org with ESMTP
-	id <S279967AbRJ3PM6>; Tue, 30 Oct 2001 10:12:58 -0500
-Message-Id: <200110301609.OAA01973@inter.lojasrenner.com.br>
-Content-Type: text/plain; charset=US-ASCII
-From: Andre Margis <andre@sam.com.br>
-Organization: SAM Informatica Ltda
-To: rscuss@omniti.com
-Subject: Re: linux-2.4.13 high SWAP
-Date: Tue, 30 Oct 2001 13:10:12 -0200
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org, jesus@omniti.com
-In-Reply-To: <3BDE3174.7718D64B@omniti.com>
-In-Reply-To: <3BDE3174.7718D64B@omniti.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S279976AbRJ3PUM>; Tue, 30 Oct 2001 10:20:12 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:1900 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S279978AbRJ3PUA>; Tue, 30 Oct 2001 10:20:00 -0500
+Date: Tue, 30 Oct 2001 16:20:08 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        "David S. Miller" <davem@redhat.com>, riel@conectiva.com.br,
+        linux-kernel@vger.kernel.org
+Subject: Re: please revert bogus patch to vmscan.c
+Message-ID: <20011030162008.G1340@athlon.random>
+In-Reply-To: <20011029.173400.35036258.davem@redhat.com> <Pine.LNX.4.33.0110291736010.7778-100000@penguin.transmeta.com> <20011029212546.B17506@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20011029212546.B17506@redhat.com>; from bcrl@redhat.com on Mon, Oct 29, 2001 at 09:25:46PM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I test 2.4.9 , 2.4.10-ac7, 2.4.13 and all have this problem, I'm not using 
-XFS, but reiserfs with LVM and 4 GB RAM. I detected if use tmpfs the kswapd 
-eat my all CPU's, in 2.4.13 the system hang after a time. Now I'm testing 
-2.4.13-ac3 without tmpfs and he is very better than the others versions. But 
-a nice test is disable the HIGHMEM support. I have a machine with 1GB RAM and 
-the system is very fine and stable, running 2.4.10-ac7.
+On Mon, Oct 29, 2001 at 09:25:46PM -0500, Benjamin LaHaise wrote:
+> I fully well expect it to be.  However, from the point of view of stability 
+> we *want* to be conservative and correct.  If Al had to demonstrate with 
 
- 
+Dave just told you what this change has to do with stability, not sure
+why you keep reiterating about stability and correctness.
 
+But of course going from page flush to the mm flush is fine from my part
+too. As Linus noted a few days ago during swapout we're going to block
+and reschedule all the time, so the range flush is going to be a noop in
+real life (the whole thing is an heuristic), and this is why it wasn't
+implemented right now. But I agree it shouldn't hurt either and it looks
+nicer.
 
-Em Ter 30 Out 2001 02:49, Robert Scussel escreveu:
-> Just thought that I would add our experience.
->
-> We have experienced the same kind of swap symptoms described, however we
-> have no mounted tmpfs, or ramfs partitions. We have, in fact,
-> experienced the same symptoms on the 2.4.2,2.4.5,2.4.7 and 2.4.12
-> kernel, haven't yet tried the 2.4.13 kernel.  The symptoms include hung
-> processes which can not be killed, system cannot right to disk, and
-> files accessed during this time are filled with binary zeros.  As sync
-> does not work as well, the only resolution is to do a reboot -f -n.
->
-> All systems are comprised of exclusively SGI XFS partitions, with dual
-> pentium II/III processors.
->
-> Any insight would be helpful,
->
-> Robert Scussel
+Andrea

@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284808AbRLLBC1>; Tue, 11 Dec 2001 20:02:27 -0500
+	id <S284816AbRLLBEH>; Tue, 11 Dec 2001 20:04:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284812AbRLLBCR>; Tue, 11 Dec 2001 20:02:17 -0500
-Received: from www3.aname.net ([62.119.28.103]:34691 "EHLO www3.aname.net")
-	by vger.kernel.org with ESMTP id <S284808AbRLLBCH>;
-	Tue, 11 Dec 2001 20:02:07 -0500
-From: "Johan Ekenberg" <johan@ekenberg.se>
-To: "Chris Mason" <mason@suse.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: SV: Lockups with 2.4.14 and 2.4.16
-Date: Wed, 12 Dec 2001 02:01:25 +0100
-Message-ID: <001001c182a8$8624a670$050010ac@FUTURE>
+	id <S284242AbRLLBDv>; Tue, 11 Dec 2001 20:03:51 -0500
+Received: from miami.integratus.com ([192.111.50.240]:16113 "HELO
+	mail.integratus.com") by vger.kernel.org with SMTP
+	id <S284812AbRLLBD2>; Tue, 11 Dec 2001 20:03:28 -0500
+Message-ID: <3C16AC44.E226F60D@integratus.com>
+Date: Tue, 11 Dec 2001 17:00:52 -0800
+From: curtis@integratus.com
+Organization: Integratus, Inc.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Hans Reiser <reiser@namesys.com>
+CC: Anton Altaparmakov <aia21@cam.ac.uk>, Nathan Scott <nathans@sgi.com>,
+        Andreas Gruenbacher <ag@bestbits.at>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: reiser4 (was Re: [PATCH] Revised extended attributesinterface)
+In-Reply-To: <20011205143209.C44610@wobbly.melbourne.sgi.com>	 <20011207202036.J2274@redhat.com>	 <20011208155841.A56289@wobbly.melbourne.sgi.com>	 <3C127551.90305@namesys.com>	 <20011211134213.G70201@wobbly.melbourne.sgi.com> <5.1.0.14.2.20011211184721.04adc9d0@pop.cus.cam.ac.uk> <3C166920.77F644F@integratus.com> <3C167BF1.6090301@namesys.com> <3C1690E6.914911A2@integratus.com> <3C16969C.3070508@namesys.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook 8.5, Build 4.71.2377.0
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
-In-Reply-To: <2502410000.1008118058@tiny>
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >## Kernel:
-> >  - 2.4.14 and 2.4.16
-> >  - Patched for reiserfs-quota with patches found at
-> >    ftp://ftp.suse.com/pub/people/mason/patches/reiserfs/quota-2.4/
-> >      ( * 50_quota-patch
-> >        * dquota_deadlock
-> >        * nesting
-> >        * reiserfs-quota )
->
-> For the 2.4.16 kernel, you used the quota patches from my 2.4.16 dir?
+Hans Reiser wrote:
+> I'll try to convince you again when I have working code that isn't
+> monstrous code, but allows users full choice, ok?
 
-Yes.
-
-> The fastest way to rule out filesystem deadlocks is to hook up a serial
-> console and send me the decoded output of sysrq-t.
-
-I'll look into this. A bit of a problem since there are 10 servers and you
-never know which one is going to lockup next time. Do I really need 10 PC's
-to monitor them simultaneously or could it be done more efficiently? I'm no
-kernel hacker, any pointers as to what tools to use etc would be most
-welcome.
+It's a deal!
 
 Thanks,
-/Johan Ekenberg
 
+	Curtis
+
+-- 
+Curtis Anderson						curtis@integratus.com

@@ -1,62 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261301AbVDDRe5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbVDDRkS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261301AbVDDRe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 13:34:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVDDRe5
+	id S261303AbVDDRkS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 13:40:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVDDRkS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 13:34:57 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:12804 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261301AbVDDRez (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 13:34:55 -0400
-Date: Mon, 4 Apr 2005 19:34:53 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Daniel Drake <dsd@gentoo.org>, perex@suse.cz
-Cc: David Ford <david+challenge-response@blue-labs.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       alsa-devel@alsa-project.org
-Subject: Re: ALSA bugs with 2.6.12-rc1
-Message-ID: <20050404173453.GB4087@stusta.de>
-References: <42515358.7020101@blue-labs.org> <4251749B.5060603@gentoo.org>
+	Mon, 4 Apr 2005 13:40:18 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:28581 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261303AbVDDRkO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 13:40:14 -0400
+Date: Mon, 4 Apr 2005 19:40:02 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.6.12-rc1-mm4-RT-V0.7.42-08
+Message-ID: <20050404174002.GA12306@elte.hu>
+References: <1112433149.13131.8.camel@twins> <1112507988.10235.3.camel@twins>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4251749B.5060603@gentoo.org>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <1112507988.10235.3.camel@twins>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 04, 2005 at 06:08:43PM +0100, Daniel Drake wrote:
-> David Ford wrote:
-> > It seems that 2.6.12-rc1 introduced an ALSA bug generating an oops for a
-> > null pointer.
-> > 
-> > codec_semaphore: semaphore is not ready [0x1][0x300300]
-> > codec_read 0: semaphore is not ready for register 0x2c
-> > Unable to handle kernel NULL pointer dereference at virtual address
-> > 00000000
-> > 
-> > This happens on multiple machines, 32b and 64bit.  I'll be happy to
-> > provide further information if needed.
+
+* Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
+
+> Hi Ingo,
 > 
-> This only happens when you mismatch your kernel and alsa-lib versions, e.g.
-> running alsa-lib-1.0.9-rc2 with alsa-1.0.8 in-kernel drivers, or possibly
-> vice-versa.
+> I need the following two patches to keep my system alive and avoid
+> the BUGs in the log send to you earlier (private mail).
 
-Are you saying the userspace interface of the ALSA kernel drivers has 
-incompatible changes between minor versions of ALSA?
+hm, the second patch does not apply (and the merge didnt look trivial) - 
+maybe it depends on some patch in -mm that is not yet upstream?
 
-If this is true, that's a serious bug.
-
-> Daniel
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+	Ingo

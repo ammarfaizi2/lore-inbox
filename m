@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318601AbSIFOAc>; Fri, 6 Sep 2002 10:00:32 -0400
+	id <S318627AbSIFOGG>; Fri, 6 Sep 2002 10:06:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318602AbSIFOAc>; Fri, 6 Sep 2002 10:00:32 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:52145 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S318601AbSIFOAb>; Fri, 6 Sep 2002 10:00:31 -0400
-Subject: pid_max hang again...
-From: Paul Larson <plars@linuxtestproject.org>
-To: mingo@elte.hu, Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 06 Sep 2002 08:52:47 -0500
-Message-Id: <1031320378.24570.44.camel@plars.austin.ibm.com>
-Mime-Version: 1.0
+	id <S318635AbSIFOGG>; Fri, 6 Sep 2002 10:06:06 -0400
+Received: from smtp02.uc3m.es ([163.117.136.122]:37130 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S318627AbSIFOGF>;
+	Fri, 6 Sep 2002 10:06:05 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200209061410.g86EAZu09177@oboe.it.uc3m.es>
+Subject: Re: (fwd) Re: [RFC] mount flag "direct"
+In-Reply-To: <20020906095058.GC8771@marowsky-bree.de> from Lars Marowsky-Bree
+ at "Sep 6, 2002 11:50:58 am"
+To: Lars Marowsky-Bree <lmb@suse.de>
+Date: Fri, 6 Sep 2002 16:10:35 +0200 (MET DST)
+Cc: "Peter T. Breuer" <ptb@it.uc3m.es>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the nightly bk pull testing I do, I saw that this got commited
-yesterday:
+"A month of sundays ago Lars Marowsky-Bree wrote:"
+> On 2002-09-06T11:17:05,
+>    "Peter T. Breuer" <ptb@it.uc3m.es> said:
+> 
+> Peter, you seem to be ignoring the long-ish mail I sent to you and l-k on Wed,
+> 4 Sep 2002 11:26:45 +0200, trying to figure out why you are trying what you
+> are saying. Could you please enlighten us?
 
--ChangeSet@1.619, 2002-09-05 08:45:49-07:00, mingo@elte.hu
--  [PATCH] pid-max-2.5.33-A0
--  
--  This is the pid-max patch, the one i sent for 2.5.31 was botched.  I
--  have removed the 'once' debugging stupidity - now PIDs start at 0
--  again.
--  Also, for an unknown reason the previous patch missed the hunk that 
--  had the declaration of 'DEFAULT_PID_MAX' which made it not compile
+I'm currrently travelling. I won't be back in my office till late
+sunday or monday. It's likely that I have missed mails and I apologise.
+I'll do my best to track them down on monday. I certainly have been
+unable to reply to all mails - for one thing, not all were cc'ed to me,
+which meant that I had to trawl lk, and for another, well, I likely
+just missed em. I get hundreds of mails a day. Do send it to me again.
 
-It looks like this change dropped us back to the same error all this was
-originally supposed to fix.  When you hit PID_MAX, get_pid() starts
-looping forever looking for a free pid and hangs.  I could probably make
-my original fix work on this very easily if you'd like.
-
-I wonder though, would it be possible to do this in a more simple way by
-just throttling max_threads back to something more sane if it gets
-defaulted too high?  Since it gets checked before we even get to the
-get_pid call in copy_process().  That would keep the number of processes
-down to a sane level without the risk.
-
-Thanks,
-Paul Larson
-http://www.linuxtestproject.org
-
+Peter

@@ -1,63 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263810AbUACS6O (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 13:58:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263792AbUACS5m
+	id S263742AbUACTNe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 14:13:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263805AbUACTNd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 13:57:42 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:32274 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263788AbUACS5i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 13:57:38 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: [CFT][RFC] HT scheduler
-Date: Sat, 03 Jan 2004 13:57:45 -0500
-Organization: TMR Associates, Inc
-Message-ID: <bt72kk$chk$1@gatekeeper.tmr.com>
-References: Your message of "Sat, 13 Dec 2003 17:43:35 +1100."             <3FDAB517.4000309@cyberone.com.au> <20031215060838.BF3D32C257@lists.samba.org>
+	Sat, 3 Jan 2004 14:13:33 -0500
+Received: from gprs214-81.eurotel.cz ([160.218.214.81]:12673 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263742AbUACTNE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 14:13:04 -0500
+Date: Sat, 3 Jan 2004 20:14:14 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Peter Osterlund <petero2@telia.com>
+Cc: Jens Axboe <axboe@suse.de>, packet-writing <packet-writing@suse.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: ext2 on a CD-RW
+Message-ID: <20040103191414.GE1080@elf.ucw.cz>
+References: <Pine.LNX.4.44.0401020022060.2407-100000@telia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1073155540 12852 192.168.12.10 (3 Jan 2004 18:45:40 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-In-Reply-To: <20031215060838.BF3D32C257@lists.samba.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0401020022060.2407-100000@telia.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
+Hi!
 
-> Actually, having produced the patch, I've changed my mind.
+> > > > I thought some people here might find this amusing. After I
+> > > > quick-formatted a CD-RW with cdrwtool today I then did the
+> > > > following:
+> > > > 
+> > > > mke2fs -b 2048 /dev/pktcdvd0
+> > > > 
+> > > > It appears to work OK and I'm compiling a kernel on it as I type
+> > > > this. pktcdvd can't handle this properly unless the '-b 2048' is
+> > > > given for a pretty obvious reason. df tells me that the capacity of
+> > > > a disc formatted like this is 530MB so there is a few MB lost
+> > > > compared to UDF. I'm pretty sure this is a follish thing to do so
+> > > > would anyone care to give me some technical reasons why? :)
+> > > 
+> > > Yes, I have tested this too. It works in 2.4 but not in 2.5. In 2.5
+> > > sr.c complains about unaligned transfers when I try to mount the
+> > > filesystem. 2.4 has code (sr_scatter_pad) to handle unaligned
+> > > transfers, but that code was removed in 2.5, and I havn't yet
+> > > investigated how it is supposed to work without that code.
+> > 
+> > There's supposed to be a reblocking player in the middle, ala loop. This
+> > doesn't really work well for pktcdvd of course, so I'd suggest writing a
+> > helper for reading and writing sub-block size units.
 > 
-> While it was spiritually rewarding to separate "struct runqueue" into
-> the stuff which was to do with the runqueue, and the stuff which was
-> per-cpu but there because it was convenient, I'm not sure the churn is
-> worthwhile since we will want the rest of your stuff anyway.
+> I finally decided to investigate why this didn't work in the 2.5/2.6 code.
+> (My tests were made with the 2.6.1-rc1 code and the latest packet patch.)
+> There are two problems. The first is that the packet writing code forgot
+> to set the hardsect size. This is fixed by the following patch.
 > 
-> It (and lots of other things) might become worthwhile if single
-> processors with HT become the de-facto standard.  For these, lots of
-> our assumptions about CONFIG_SMP, such as the desirability of per-cpu
-> data, become bogus.
+> --- linux/drivers/block/pktcdvd.c.old	2004-01-02 00:23:57.000000000 +0100
+> +++ linux/drivers/block/pktcdvd.c	2004-01-02 00:24:01.000000000 +0100
+> @@ -2164,6 +2164,7 @@
+>  	request_queue_t *q = disks[pkt_get_minor(pd)]->queue;
+>  
+>  	blk_queue_make_request(q, pkt_make_request);
+> +	blk_queue_hardsect_size(q, CD_FRAMESIZE);
+>  	blk_queue_max_sectors(q, PACKET_MAX_SECTORS);
+>  	blk_queue_merge_bvec(q, pkt_merge_bvec);
+>  	q->queuedata = pd;
+> 
 
-Now that Intel is shipping inexpensive CPUs with HT and faster memory 
-bus, I think that's the direction of the mass market. It would be very 
-desirable to have HT help rather than hinder. However, I admit I'm 
-willing to take the 1-2% penalty on light load to get the bonus on heavy 
-load.
+Where do I get this file? It does not appear to be in 2.6.0.
 
-If someone has measured the effect of HT on interrupt latency or server 
-transaction response I haven't seen it, but based on a server I just 
-built using WBEL and the RHEL scheduler, first numbers look as if the 
-response is better. This is just based on notably less data in the 
-incoming sockets, but it's encouraging.
+[I have few partly-bad cd-rws, and putting ext2 on them would be
+"cool" :-)]
 
-"netstat -t | sort +1nr" shows a LOT fewer sockets with unread bytes.
-
+							Pavel
 -- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

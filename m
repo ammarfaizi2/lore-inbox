@@ -1,83 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265993AbSKKJ5i>; Mon, 11 Nov 2002 04:57:38 -0500
+	id <S265995AbSKKKFW>; Mon, 11 Nov 2002 05:05:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265994AbSKKJ5i>; Mon, 11 Nov 2002 04:57:38 -0500
-Received: from kryton.mki.bz ([195.58.191.168]:12734 "EHLO mx0.mki.bz")
-	by vger.kernel.org with ESMTP id <S265993AbSKKJ5g>;
-	Mon, 11 Nov 2002 04:57:36 -0500
-Date: Mon, 11 Nov 2002 11:04:22 +0100 (CET)
-From: Michael Kummer <michael@kummer.cc>
-Reply-To: michael@kummer.cc
-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Linux 2.5.47 compile error
-In-Reply-To: <Pine.LNX.4.44.0211090103270.14371-100000@phoenix.infradead.org>
-Message-ID: <Pine.LNX.4.44.0211111103130.246-100000@epo>
+	id <S265997AbSKKKFV>; Mon, 11 Nov 2002 05:05:21 -0500
+Received: from relay01.rabobank.nl ([145.72.69.20]:30987 "HELO
+	relay01.rabobank.nl") by vger.kernel.org with SMTP
+	id <S265995AbSKKKFV>; Mon, 11 Nov 2002 05:05:21 -0500
+X-Server-Uuid: d32dbd14-b86d-11d3-8c8e-0008c7bba343
+X-Server-Uuid: 91077152-1bde-4e67-8480-731f07dac000
+From: "Heusden van, FJJ (Folkert)" <F.J.J.Heusden@rn.rabobank.nl>
+To: "Roy Sigurd Karlsbakk" <roy@karlsbakk.net>,
+       "Linux Kernel Development" <linux-kernel@vger.kernel.org>
+Subject: RE: random PID patch
+Date: Mon, 11 Nov 2002 11:12:00 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-WSS-ID: 11D18E6D1073547-1319-02
+Content-Type: text/plain; 
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Message-ID: <11D18E6D1073547-1319@_rabobank.nl_>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make -f scripts/Makefile.build obj=drivers/video/riva
-  gcc -Wp,-MD,drivers/video/riva/.fbdev.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=i686 -malign-functions=4 -Iarch/i386/mach-generic -nostdinc
--iwithprefix include    -DKBUILD_BASENAME=fbdev   -c -o
-drivers/video/riva/fbdev.o drivers/video/riva/fbdev.c
-drivers/video/riva/fbdev.c: In function `riva_set_dispsw':
-drivers/video/riva/fbdev.c:665: structure has no member named `type'
-drivers/video/riva/fbdev.c:666: structure has no member named `type_aux'
-drivers/video/riva/fbdev.c:667: structure has no member named `ypanstep'
-drivers/video/riva/fbdev.c:668: structure has no member named `ywrapstep'
-drivers/video/riva/fbdev.c:677: structure has no member named
-`line_length'
-drivers/video/riva/fbdev.c:678: structure has no member named `visual'
-drivers/video/riva/fbdev.c:686: structure has no member named
-`line_length'
-drivers/video/riva/fbdev.c:687: structure has no member named `visual'
-drivers/video/riva/fbdev.c:695: structure has no member named
-`line_length'
-drivers/video/riva/fbdev.c:696: structure has no member named `visual'
-drivers/video/riva/fbdev.c: In function `rivafb_get_fix':
-drivers/video/riva/fbdev.c:1294: structure has no member named `type'
-drivers/video/riva/fbdev.c:1295: structure has no member named `type_aux'
-drivers/video/riva/fbdev.c:1296: structure has no member named `visual'
-drivers/video/riva/fbdev.c:1302: structure has no member named
-`line_length'
-drivers/video/riva/fbdev.c: In function `rivafb_pan_display':
-drivers/video/riva/fbdev.c:1611: structure has no member named
-`line_length'
-drivers/video/riva/fbdev.c:1586: warning: `base' might be used
-uninitialized in this function
-drivers/video/riva/fbdev.c: At top level:
-drivers/video/riva/fbdev.c:1748: unknown field `fb_get_fix' specified in
-initializer
-drivers/video/riva/fbdev.c:1748: warning: initialization from incompatible
-pointer type
-drivers/video/riva/fbdev.c:1749: unknown field `fb_get_var' specified in
-initializer
-drivers/video/riva/fbdev.c:1749: warning: initialization from incompatible
-pointer type
-make[3]: *** [drivers/video/riva/fbdev.o] Error 1
-make[2]: *** [drivers/video/riva] Error 2
-make[1]: *** [drivers/video] Error 2
-make: *** [drivers] Error 2
+> I've ported my random-PID-patch from 2.2.19 to 2.4.19.
+> It should be downloadable from
+> http://www.vanheusden.com/Linux/fp-2.4.19.patch.gz
+> (or follow the link from
+> http://www.vanheusden.com/Linux/kernel_patches.php3 )
+RSK> hm
+RSK> what's the point of random PIDs?
+
+Sometimes, (well; frequently) programs that create temporary
+files let the filename depend on their PID. A hacker could use
+that knowledge. So if you know that the application that
+you're starting uses the last PID+1, you could make sure that
+that file already exists or create a symlink with that name or
+whatsoever causing the application you're starting to do
+things it's not supposed to. Like forcing suid apps to create
+a file in the startup-scripts dir. or something.
 
 
--- 
-best regards
-
-
-Michael Kummer
-
---
-Michael Kummer - [A]ustrian [E]lite [S]printer
-Lieferinger-Hauptstrasse 47 - A 5020 Salzburg
-Mobile: +43 664 3333995
-EMail: michael@kummer.cc
-Web: http://www.sprinter.cc
+================================================
+De informatie opgenomen in dit bericht kan vertrouwelijk zijn en 
+is uitsluitend bestemd voor de geadresseerde. Indien u dit bericht 
+onterecht ontvangt, wordt u verzocht de inhoud niet te gebruiken en 
+de afzender direct te informeren door het bericht te retourneren. 
+================================================
+The information contained in this message may be confidential 
+and is intended to be exclusively for the addressee. Should you 
+receive this message unintentionally, please do not use the contents 
+herein and notify the sender immediately by return e-mail.
 
 

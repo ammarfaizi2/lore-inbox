@@ -1,55 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317101AbSH1SSC>; Wed, 28 Aug 2002 14:18:02 -0400
+	id <S318561AbSH1SWD>; Wed, 28 Aug 2002 14:22:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317743AbSH1SSB>; Wed, 28 Aug 2002 14:18:01 -0400
-Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:21714 "EHLO
-	snipe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S317101AbSH1SR7>; Wed, 28 Aug 2002 14:17:59 -0400
-Date: Wed, 28 Aug 2002 11:15:45 -0700 (PDT)
-From: James Simmons <jsimmons@infradead.org>
-X-X-Sender: <jsimmons@maxwell.earthlink.net>
-To: "Clemens 'Gullevek' Schwaighofer" <schwaigl@eunet.at>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: still ati fb errors with 2.5.31, thought patch applied
-In-Reply-To: <46344979984.20020828090546@eunet.at>
-Message-ID: <Pine.LNX.4.33.0208281114420.1459-100000@maxwell.earthlink.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318166AbSH1SWD>; Wed, 28 Aug 2002 14:22:03 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:7431 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S317743AbSH1SWA>; Wed, 28 Aug 2002 14:22:00 -0400
+Date: Wed, 28 Aug 2002 20:26:16 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: ide-2.4.20-pre4-ac2.patch
+Message-ID: <20020828182616.GA16018@louise.pinerecords.com>
+References: <20020828175957.GA15860@louise.pinerecords.com> <Pine.LNX.4.10.10208281118340.24156-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10208281118340.24156-100000@master.linux-ide.org>
+User-Agent: Mutt/1.4i
+X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
+X-Uptime: 3 days, 10:28
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> WHOA Tomas,
+> 
+> That is a major problem, are you using legacy patch or taskfile io?
+> Ben H reported he was having problems with legacy path on PPC, but the new
+> taskfile io worked fine.
 
-> aty128fb.c: In function `aty128_pci_register':
-> aty128fb.c:1730: too many arguments to function `aty128find_ROM'
-> aty128fb.c:1736: warning: passing arg 1 of `aty128_get_pllinfo' from incompatible pointer type
-> aty128fb.c:1749: structure has no member named `mtrr'
-> aty128fb.c:1750: structure has no member named `vram_size'
-> aty128fb.c:1751: structure has no member named `mtrr'
-> aty128fb.c: At top level:
-> aty128fb.c:1402: warning: `aty128fb_rasterimg' defined but not used
-> make[3]: *** [aty128fb.o] Error 1
-> make[3]: Leaving directory `/usr/src/kernel/2.5.32/linux-2.5.32/drivers/video'
-> make[2]: *** [video] Error 2
-> make[2]: Leaving directory `/usr/src/kernel/2.5.32/linux-2.5.32/drivers'
-> make[1]: *** [drivers] Error 2
-> make[1]: Leaving directory `/usr/src/kernel/2.5.32/linux-2.5.32'
-> make: *** [bzImage] Error 2
+Damn! Andre, I owe you **A BIG** apology -- it turns out the kernel that
+caused the mess was actually a plain 2.4.20-pre4-ac2 _without_ your patch
+applied -- dunno how far that is from what you have now. Nevertheless,
+here's the corresponding 2.4.20-pre4-ac2 IDE config:
 
-This driver has not been ported to the new api.
+#
+# IDE chipset support/bugfixes
+#
+# CONFIG_BLK_DEV_CMD640 is not set
+# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
+# CONFIG_BLK_DEV_ISAPNP is not set
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+# CONFIG_BLK_DEV_OFFBOARD is not set
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+CONFIG_IDEDMA_PCI_AUTO=y
+# CONFIG_IDEDMA_ONLYDISK is not set
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_PCI_WIP is not set
+# CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
+CONFIG_BLK_DEV_ADMA=y
+# CONFIG_BLK_DEV_AEC62XX is not set
+# CONFIG_BLK_DEV_ALI15X3 is not set
+# CONFIG_WDC_ALI15X3 is not set
+# CONFIG_BLK_DEV_AMD74XX is not set
+# CONFIG_AMD74XX_OVERRIDE is not set
+# CONFIG_BLK_DEV_CMD64X is not set
+# CONFIG_BLK_DEV_CY82C693 is not set
+# CONFIG_BLK_DEV_CS5530 is not set
+# CONFIG_BLK_DEV_HPT34X is not set
+# CONFIG_HPT34X_AUTODMA is not set
+# CONFIG_BLK_DEV_HPT366 is not set
+CONFIG_BLK_DEV_PIIX=y
+# CONFIG_BLK_DEV_NFORCE is not set
+# CONFIG_BLK_DEV_NS87415 is not set
+# CONFIG_BLK_DEV_OPTI621 is not set
+# CONFIG_BLK_DEV_PDC202XX_OLD is not set
+# CONFIG_PDC202XX_BURST is not set
+CONFIG_BLK_DEV_PDC202XX_NEW=y
+# CONFIG_PDC202XX_FORCE is not set
+# CONFIG_BLK_DEV_RZ1000 is not set
+# CONFIG_BLK_DEV_SVWKS is not set
+# CONFIG_BLK_DEV_SIIMAGE is not set
+# CONFIG_BLK_DEV_SIS5513 is not set
+# CONFIG_BLK_DEV_SLC90E66 is not set
+# CONFIG_BLK_DEV_TRM290 is not set
+# CONFIG_BLK_DEV_VIA82CXXX is not set
+# CONFIG_IDE_CHIPSETS is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_IDEDMA_IVB is not set
+# CONFIG_DMA_NONPCI is not set
+CONFIG_BLK_DEV_PDC202XX=y
+CONFIG_BLK_DEV_IDE_MODES=y
+# CONFIG_BLK_DEV_ATARAID is not set
+# CONFIG_BLK_DEV_ATARAID_PDC is not set
+# CONFIG_BLK_DEV_ATARAID_HPT is not set
 
-> I have applied the atifb patch postet earlier (19th august by Paul
-> Mackerras), but still get this error ...
 
-The next set of changes for the fbdev layer includes a bunch of fixes
-including ones for atifb.
-
-MS: (n) 1. A debilitating and surprisingly widespread affliction that
-renders the sufferer barely able to perform the simplest task. 2. A disease.
-
-James Simmons  [jsimmons@users.sf.net] 	                ____/|
-fbdev/console/gfx developer                             \ o.O|
-http://www.linux-fbdev.org                               =(_)=
-http://linuxgfx.sourceforge.net                            U
-http://linuxconsole.sourceforge.net
-
+> On Wed, 28 Aug 2002, Tomas Szepe wrote:
+> 
+> > > This is out and has been forwarded to AC for review.
+> > 
+> > Okay, I tested this the hard way -- the root of one of my machines
+> > got trashed. The controller used was a PDC20268 (Ultra100TX2), the
+> > disks (with two partitions of equal size on each forming a raid0)
+> > are IBM and WD. Soon after the kernel came up, it started spitting
+> > messages like 'DMA disabled' and 'No DRQ after WRITE has been issued',
+> > after which the machine froze entirely. Rebooting w/ an alternate
+> > kernel revealed massive fs corruption with the superblock completely
+> > overwritten.
+> > 
+> >   *** Everybody please treat this patch with extreme care. ***
+> > 
+> > Reiserfs people, this unfortunate event also made me find out about
+> > the inability of reiserfsck 3.6.3-pre1 to rebuild the node tree --
+> > the program pretends to work just fine but the in-kernel fs code
+> > barfs when it's to operate on a repaired fs. 3.x.1b was able to
+> > get the job done for me, though.
+> > 
+> > T.
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> 
+> Andre Hedrick
+> LAD Storage Consulting Group

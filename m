@@ -1,69 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263387AbUJ2O5f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263390AbUJ2O5i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263387AbUJ2O5f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 10:57:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263396AbUJ2Owl
+	id S263390AbUJ2O5i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 10:57:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263373AbUJ2OxQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 10:52:41 -0400
-Received: from hostmaster.org ([212.186.110.32]:52402 "EHLO hostmaster.org")
-	by vger.kernel.org with ESMTP id S263373AbUJ2Otq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 10:49:46 -0400
-Subject: Re: status of DRM_MGA on x86_64
-From: Thomas Zehetbauer <thomasz@hostmaster.org>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1099052450.11282.72.camel@hostmaster.org>
-References: <1099052450.11282.72.camel@hostmaster.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-0IbNdBUvELaAkimejIg9"
-Date: Fri, 29 Oct 2004 16:49:44 +0200
-Message-Id: <1099061384.11918.4.camel@hostmaster.org>
+	Fri, 29 Oct 2004 10:53:16 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:27667 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S263386AbUJ2Ovr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 10:51:47 -0400
+Date: Fri, 29 Oct 2004 16:51:11 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       "H. Peter Anvin" <hpa@zytor.com>, Tonnerre <tonnerre@thundrix.ch>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Erik Andersen <andersen@codepoet.org>, uclibc@uclibc.org
+Subject: Re: The naming wars continue...
+Message-ID: <20041029145111.GO6677@stusta.de>
+References: <200410271133.25701.vda@port.imtp.ilyichevsk.odessa.ua> <417FF43C.5050208@tmr.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <417FF43C.5050208@tmr.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 27, 2004 at 03:17:16PM -0400, Bill Davidsen wrote:
+> Denis Vlasenko wrote:
+> >
+> >Why there is any distinction between, say, gcc and X?
+> >KDE and Midnight Commander? etc... Why some of them go
+> >to /opt while others are spread across dozen of dirs?
+> >This seems to be inconsistent to me.
+> 
+> At one time Sun had the convention that things in /usr could be mounted 
+> ro on multiple machines. That worked, it predates Linux so Linux was the 
+> o/s which chose to go another way, and it covered the base things in a 
+> system.
+> 
+> That actually seems like a good way to split a networked environment, 
+> with /bin and /sbin having just enough to get the system up and mount 
+> /usr. I can't speak to why that is being done differently now.
+> 
+> I guess someone was nervous about mounting a local /usr/local on a 
+> (possibly) network mounted /usr and theu /opt, but that's a guess on my 
+> part as well.
 
---=-0IbNdBUvELaAkimejIg9
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Read-only /usr is required according to the FHS, and at least on Debian 
+a read-only /usr works without problems.
 
-Hi again,
+A bigger problem might be to properly support it in the package manager.
 
-I have now changed Kconfig and successfully compiled, loaded and used
-DRI with a Matrox Millenium G550 on a dual Opteron system. I guess this
-is a pretty good test and I wonder if the problem has already been fixed
-or if it was limited to specific hard- or software.
+cu
+Adrian
 
-Tom
+[1] 
 
---=20
-  T h o m a s   Z e h e t b a u e r   ( TZ251 )
-  PGP encrypted mail preferred - KeyID 96FFCB89
-      finger thomasz@hostmaster.org for key
+-- 
 
-Those, who are willing to give up essential liberty
-for the sake of short-term security
-deserve neither liberty nor security.
-                                - Benjamin Franklin
-
-
-
-
---=-0IbNdBUvELaAkimejIg9
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iQEVAwUAQYJYiGD1OYqW/8uJAQLPQAf/XepdFO9kWvxG01JqvYbQT5a14dSLfROt
-/gSPp6FFiS1DeHBUTjbJTjvvgy8omv09fg5RscFOTSui+fheCUqW29NTovAvFb7X
-s2xi4+O6/z1PHGZ0qLr+WshuzmkgpKpmkvNEe15YmX+9wtCjvDDFaMvb0x02V8ok
-bvjuJ9U2CP53njz3gnRuNnBOy7fEL+JpuYYuVS1JSrO/gajO7bOqzXX8pNX5pCd2
-uM9sTi1AABxWHefjZmKdaQ4imQ5wAoxygFOpPM8gaXxlhstKwZunh4MH/n+PtuJY
-lHYWZlgEURi+GWnYzBuZEIVzVY1gjP4Q45WL/Auu2dWh4tHCcMWZNg==
-=gDnX
------END PGP SIGNATURE-----
-
---=-0IbNdBUvELaAkimejIg9--
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

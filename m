@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266038AbUFVWD7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265063AbUFVSHO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266038AbUFVWD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 18:03:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266035AbUFVV5V
+	id S265063AbUFVSHO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 14:07:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265065AbUFVSGk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 17:57:21 -0400
-Received: from gate.crashing.org ([63.228.1.57]:18091 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S265761AbUFVVze (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 17:55:34 -0400
-Subject: Re: [PATCH] ppc32: Support for new Apple laptop models
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200406221745.31553.jbarnes@engr.sgi.com>
-References: <1087934829.1832.3.camel@gaston>
-	 <200406221745.31553.jbarnes@engr.sgi.com>
-Content-Type: text/plain
-Message-Id: <1087940927.1854.43.camel@gaston>
+	Tue, 22 Jun 2004 14:06:40 -0400
+Received: from mail.kroah.org ([65.200.24.183]:37813 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265056AbUFVRnW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 13:43:22 -0400
+X-Donotread: and you are reading this why?
+Subject: Re: [PATCH] Driver Core patches for 2.6.7
+In-Reply-To: <10879261083581@kroah.com>
+X-Patch: quite boring stuff, it's just source code...
+Date: Tue, 22 Jun 2004 10:41:48 -0700
+Message-Id: <10879261083437@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 22 Jun 2004 16:48:48 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-06-22 at 16:45, Jesse Barnes wrote:
-> On Tuesday, June 22, 2004 4:07 pm, Benjamin Herrenschmidt wrote:
-> > This patch adds support for newer Apple laptop models. It adds the basic
-> > identification for the new motherboards and the cpufreq support for models
-> > using the new 7447A CPU from Motorola.
-> 
-> And here's a patch to add sound support for some of the newer PowerBooks.  It 
-> appears that this chip supports the AWACS sample rates, but has a 
-> snapper-style mixer.  Tested and works on my PowerBook5,4.
-> 
-> Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
+ChangeSet 1.1722.85.2, 2004/06/03 08:44:34-07:00, mochel@digitalimplant.org
 
-Can you check out in more details the OS X driver ? I think there
-need to be some i2s tweaking when changing the format and/or the
-frequency. Doing that right would allow to support 8 & 16 bits
-properly at least. 
+[Driver Model] Fix up silly scsi usage of DEVICE_ATTR() macros. 
 
-Also, don't leave the commented out line, especially with  the c++
-style comments. If the chip can byteswap, make sure you have proper
-code to do this, if not, leave can_byteswap to 0, or people will
-experience all sorts of funny troubles ;)
+- Hey, just because the macro incorrectly included a ';' doesn't mean
+  one shouldn't add one on their own.. (Or at least be consistent.)
 
-Ben.
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
+
+ drivers/scsi/scsi_sysfs.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+
+diff -Nru a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
+--- a/drivers/scsi/scsi_sysfs.c	Tue Jun 22 09:49:15 2004
++++ b/drivers/scsi/scsi_sysfs.c	Tue Jun 22 09:49:15 2004
+@@ -320,7 +320,7 @@
+ 	sdev->timeout = timeout * HZ;
+ 	return count;
+ }
+-static DEVICE_ATTR(timeout, S_IRUGO | S_IWUSR, sdev_show_timeout, sdev_store_timeout)
++static DEVICE_ATTR(timeout, S_IRUGO | S_IWUSR, sdev_show_timeout, sdev_store_timeout);
+ 
+ static ssize_t
+ store_rescan_field (struct device *dev, const char *buf, size_t count) 
+@@ -328,7 +328,7 @@
+ 	scsi_rescan_device(dev);
+ 	return count;
+ }
+-static DEVICE_ATTR(rescan, S_IWUSR, NULL, store_rescan_field)
++static DEVICE_ATTR(rescan, S_IWUSR, NULL, store_rescan_field);
+ 
+ static ssize_t sdev_store_delete(struct device *dev, const char *buf,
+ 				 size_t count)
 

@@ -1,34 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132370AbRDGByn>; Fri, 6 Apr 2001 21:54:43 -0400
+	id <S132468AbRDGCKg>; Fri, 6 Apr 2001 22:10:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132372AbRDGByc>; Fri, 6 Apr 2001 21:54:32 -0400
-Received: from web13702.mail.yahoo.com ([216.136.175.135]:40971 "HELO
-	web13702.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S132370AbRDGBy0>; Fri, 6 Apr 2001 21:54:26 -0400
-Message-ID: <20010407015400.5497.qmail@web13702.mail.yahoo.com>
-Date: Fri, 6 Apr 2001 18:54:00 -0700 (PDT)
-From: Bill Geissler <billgeissler@yahoo.com>
-Subject: How do I compile properly after changing tcp_input.c etc?
-To: linux-kernel@vger.kernel.org
+	id <S132405AbRDGCKZ>; Fri, 6 Apr 2001 22:10:25 -0400
+Received: from cr502987-a.rchrd1.on.wave.home.com ([24.42.47.5]:58637 "EHLO
+	the.jukie.net") by vger.kernel.org with ESMTP id <S132389AbRDGCKN>;
+	Fri, 6 Apr 2001 22:10:13 -0400
+Date: Fri, 6 Apr 2001 22:09:32 -0400 (EDT)
+From: Bart Trojanowski <bart@jukie.net>
+To: Bill Geissler <billgeissler@yahoo.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: How do I compile properly after changing tcp_input.c etc?
+In-Reply-To: <20010407015400.5497.qmail@web13702.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.30.0104062207070.18094-100000@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I need to modify the tcp_input.c and tcp_output.c code
-for a thesis, and want to make sure that I don't mess
-things up when I recompile the code.
+On Fri, 6 Apr 2001, Bill Geissler wrote:
 
-What do I need to do to properly recompile the tcp
-functions with my modifications?
+> I need to modify the tcp_input.c and tcp_output.c code
+> for a thesis, and want to make sure that I don't mess
+> things up when I recompile the code.
+>
+> What do I need to do to properly recompile the tcp
+> functions with my modifications?
 
-Any info would be appreciated.
+As long as you don't change the way the API is presented you need only to
+run 'make bzImage' (or whatever you used before) from the root of a
+preconfigued tree.
 
-Bill
+If you modify some functions or structures you may need to run 'make
+mrproper' (cleans out all versioning info and configuration) and then run
+your usual 'make ____'.
 
-__________________________________________________
-Do You Yahoo!?
-Get email at your own domain with Yahoo! Mail. 
-http://personal.mail.yahoo.com/
+> Any info would be appreciated.
+
+Cheers,
+Bart.
+
+
+
+-- 
+	WebSig: http://www.jukie.net/~bart/sig/
+
+

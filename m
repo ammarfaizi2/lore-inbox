@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262106AbTKDXuD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 18:50:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbTKDXuD
+	id S262434AbTKDXyo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 18:54:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbTKDXyo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 18:50:03 -0500
-Received: from mail3.ithnet.com ([217.64.64.7]:9864 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S262106AbTKDXt7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 18:49:59 -0500
-X-Sender-Authentication: net64
-Date: Wed, 5 Nov 2003 00:49:56 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: reiser@namesys.com, herbert@gondor.apana.org.au, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Debian Kernels was: 2.6.0test9 Reiserfs boot time "buffer layer
- error at fs/buffer.c:431"
-Message-Id: <20031105004956.19dbd3fb.skraw@ithnet.com>
-In-Reply-To: <20031104210310.GA1068@matchmail.com>
-References: <20031029141931.6c4ebdb5.akpm@osdl.org>
-	<E1AGCUJ-00016g-00@gondolin.me.apana.org.au>
-	<20031101233354.1f566c80.akpm@osdl.org>
-	<20031102092723.GA4964@gondor.apana.org.au>
-	<20031102014011.09001c81.akpm@osdl.org>
-	<20031104210310.GA1068@matchmail.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 4 Nov 2003 18:54:44 -0500
+Received: from fw.osdl.org ([65.172.181.6]:45230 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262434AbTKDXym (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 18:54:42 -0500
+Date: Tue, 4 Nov 2003 15:54:36 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: john stultz <johnstul@us.ibm.com>
+cc: Joel Becker <Joel.Becker@oracle.com>, lkml <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: get_cycles() on i386
+In-Reply-To: <1067988463.11437.115.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.44.0311041545030.20373-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Nov 2003 13:03:10 -0800
-Mike Fedyk <mfedyk@matchmail.com> wrote:
 
-> There was a bug in one of the released Debian kernels, and do you think this
-> hasn't happened with Redhat, SuSe, or Mandrake?  Just because Debian is
-> completely OSS and maintained mostly by unpaid volunteers, that shouldn't
-> keep them from having a seperate tree like everyone else.
+On 4 Nov 2003, john stultz wrote:
+> 
+> CONFIG_X86_TSC be the devil. Personally, I'd much prefer dropping the
+> compile time option and using dynamic detection. Something like (not
+> recently tested and i believe against 2.5.something, but you get the
+> idea):
 
-Just to avoid a false impression: I am in no way against debian project nor do
-I say there is anything specifically bad about it. I am generally disliking
-distros' ideas of having _own_ kernels. Commercial companies like SuSE or Red
-Hat may find arguments for that which are commercially backed, debian on the
-other hand can hardly argue commercially. From the community point of view it
-is just nonsense. It means more work and less useable feedback.
-Bugs is distro kernels are (always) the sole fault of their respective
-maintainers because they actively decided _not_ to follow the mainstream and
-made bogus patches. Why waste the appreciated work of (unpaid) debian
-volunteers in this area? There are tons of other work left with far more
-relevance for users than bleeding edge kernel patches...
+Some of the users are really timing-critical (eg scheduler).
 
-And if you really insist to pick up the tough pieces around kernel then find
-out why 2.4.20 is the last stable netfilter implementation... for sure far more
-relevant than loadable module ide code in 2.6.0-testX.
+How about just using the "alternative()" infrastructure that we already 
+have in 2.6.x for this? See <asm-i386/system.h> for details.
 
-Regards,
-Stephan
+We don't have an "alternative_output()" available yet, but using that it
+would look something like:
+
+	static inline unsigned long long get_cycle(void)
+	{
+		unsigned long long tsc;
+
+		alternative_output(
+			"xorl %%eax,%%eax ; xorl %%edx,%%edx",
+			"rdtsc",
+			X86_FEATURE_TSC,
+			"=A" (tsc));
+		return tsc;
+	 }
+
+which should allow for "perfect" code (well, gcc tends to mess up 64-bit 
+stuff, but you get the idea).
+
+We use the "alternative_input()" thing for prefetch() handling (see 
+<asm-i386/processor.h>).
+
+		Linus
+

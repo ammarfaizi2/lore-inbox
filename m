@@ -1,69 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283003AbRLMB5E>; Wed, 12 Dec 2001 20:57:04 -0500
+	id <S283002AbRLMCWv>; Wed, 12 Dec 2001 21:22:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283002AbRLMB4z>; Wed, 12 Dec 2001 20:56:55 -0500
-Received: from chmls16.mediaone.net ([24.147.1.151]:34766 "EHLO
-	chmls16.mediaone.net") by vger.kernel.org with ESMTP
-	id <S282999AbRLMB4o>; Wed, 12 Dec 2001 20:56:44 -0500
-Date: Wed, 12 Dec 2001 20:43:33 -0500
-To: Hans Reiser <reiser@namesys.com>
-Cc: Anton Altaparmakov <aia21@cam.ac.uk>, Nathan Scott <nathans@sgi.com>,
-        Andreas Gruenbacher <ag@bestbits.at>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: reiser4 (was Re: [PATCH] Revised extended attributes  interface)
-Message-ID: <20011212204333.A4017@pimlott.ne.mediaone.net>
-Mail-Followup-To: Hans Reiser <reiser@namesys.com>,
-	Anton Altaparmakov <aia21@cam.ac.uk>,
-	Nathan Scott <nathans@sgi.com>,
-	Andreas Gruenbacher <ag@bestbits.at>, linux-kernel@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org, linux-xfs@oss.sgi.com
-In-Reply-To: <20011205143209.C44610@wobbly.melbourne.sgi.com> <20011207202036.J2274@redhat.com> <20011208155841.A56289@wobbly.melbourne.sgi.com> <3C127551.90305@namesys.com> <20011211134213.G70201@wobbly.melbourne.sgi.com> <5.1.0.14.2.20011211184721.04adc9d0@pop.cus.cam.ac.uk> <3C1678ED.8090805@namesys.com>
-Mime-Version: 1.0
+	id <S283004AbRLMCWl>; Wed, 12 Dec 2001 21:22:41 -0500
+Received: from mpdr0.chicago.il.ameritech.net ([206.141.239.142]:15087 "EHLO
+	mailhost.chi.ameritech.net") by vger.kernel.org with ESMTP
+	id <S283002AbRLMCWa>; Wed, 12 Dec 2001 21:22:30 -0500
+Message-ID: <3C18114F.F9C7A25A@ameritech.net>
+Date: Wed, 12 Dec 2001 20:24:15 -0600
+From: watermodem <aquamodem@ameritech.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jan Kasprzak <kas@informatics.muni.cz>
+CC: Johannes Erdfelt <johannes@erdfelt.com>, linux-kernel@vger.kernel.org
+Subject: Re: USB mouse disconnect/reconnect
+In-Reply-To: <20011211222014.A13443@informatics.muni.cz> <20011211164059.C8227@sventech.com> <20011212103748.C14688@informatics.muni.cz>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C1678ED.8090805@namesys.com>
-User-Agent: Mutt/1.3.23i
-From: Andrew Pimlott <andrew@pimlott.ne.mediaone.net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 12, 2001 at 12:21:49AM +0300, Hans Reiser wrote:
-> Naming conventions are easy.
+On a machine at work with a Logitech USB MouseMan+ and no extension
+cable and a M$ usb keyboard I see the same thing.  Machine is a 
+Dell with PII-400 and BX chipset.
+  Happens during the night when not in use.
 
-Hans,
-
-While I look forward to your work, I think Anton points out some
-issues that you really should try to address now, only you have not
-understood them.  Can I take a crack at posing some concrete
-questions that manifest the issues?
-
-Let's imagine that we have a Linux system with an NTFS filesystem
-and a reiserfs4 filesystem.  You can make any tentative assumptions
-about reiserfs4 and new API's that you like, I just want to have an
-idea of how you envision the following working:
-
-First, I write a desktop application that wants to save an HTML file
-along with some other object that contains the name of the creating
-application.  The latter can go anywhere you want, except in the
-same stream as the HTML file.  The user has requested that the
-filename be /home/user/foo.html , and expects to be able to FTP this
-file to his ISP with a standard FTP program.  What calls does my
-application make to store the HTML and the application name?  If the
-answer is different depending on whether /home/user is NTFS or
-reiserfs4, explain both ways.
-
-Second, I booted NT and created a directory in the NTFS filesystem
-called /foo .  In the directory, I created a file called bar.  I
-also created a named stream called bar, and an extended attribute
-called bar.  Now I boot Linux.  What calls do I make to see each of
-the three objects called bar?
-
-The heart of Anton's argument is that the UNIX filesystem name space
-is basically used up--there's just not much room to add new
-semantics.  The only obvious avenue for extension is, if /foo is not
-a directory, you can give some interpretation to /foo/bar .  But
-this doesn't help if /foo is a directory.  So something has to give,
-and we want to see what will give in reiserfs4.
-
-Andrew
+Jan Kasprzak wrote:
+> 
+> Johannes Erdfelt wrote:
+> : It may be because of a flaky cable. Are there any messages above that?
+> :
+>         No messages from USB (some HW csum failures from the eth0, but
+> nothing related to my mouse). But you may be right, the mouse is connected
+> via a 5m extension USB cable.
+> 
+> : The device number changes because some process still has the first mouse
+> : open, so it assigns it the next available unused device.
+> :
+> : There's a shared mouse device as well you might find more to your
+> : liking.
+> 
+>         I'll look at it, thanks. Fortunately I do not use more than one
+> USB mouse (altough this is a dual-{head,keyboard,mouse} configuration,
+> the other mouse is on the PS/2 port).
+> 
+> -Y.
+> 
+> --
+> | Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+> | GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+> | http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
+> Having your own personal custom language dialect might be tempting but it is
+> normally something only the lisp community do.                    (Alan Cox)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

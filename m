@@ -1,36 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293736AbSB1UrC>; Thu, 28 Feb 2002 15:47:02 -0500
+	id <S293663AbSB1Ty7>; Thu, 28 Feb 2002 14:54:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293720AbSB1UpX>; Thu, 28 Feb 2002 15:45:23 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:34570 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S293734AbSB1Uoi>; Thu, 28 Feb 2002 15:44:38 -0500
-Date: Thu, 28 Feb 2002 12:44:26 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Dave Jones <davej@suse.de>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] tdfx ported to new fbdev api
-In-Reply-To: <20020228214045.E32662@suse.de>
-Message-ID: <Pine.LNX.4.10.10202281242570.20040-100000@www.transvirtual.com>
+	id <S293692AbSB1TxA>; Thu, 28 Feb 2002 14:53:00 -0500
+Received: from cnxt10002.conexant.com ([198.62.10.2]:58635 "EHLO
+	sophia-sousar2.nice.mindspeed.com") by vger.kernel.org with ESMTP
+	id <S293710AbSB1TvV>; Thu, 28 Feb 2002 14:51:21 -0500
+Date: Thu, 28 Feb 2002 20:50:20 +0100 (CET)
+From: Rui Sousa <rui.p.m.sousa@clix.pt>
+X-X-Sender: rsousa@sophia-sousar2.nice.mindspeed.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: German Gomez Garcia <german@piraos.com>,
+        =?ISO-8859-1?Q?Jos=E9?= Carlos Monteiro <jcm@netcabo.pt>,
+        <linux-kernel@vger.kernel.org>,
+        emu10k1-devel <emu10k1-devel@lists.sourceforge.net>,
+        Steve Stavropoulos <steve@math.upatras.gr>,
+        Daniel Bertrand <d.bertrand@ieee.org>, <dledford@redhat.com>
+Subject: Re: [Emu10k1-devel] Re: Emu10k1 SPDIF passthru doesn't work if
+In-Reply-To: <E16g6XY-0004v8-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.44.0202282042150.1215-100000@sophia-sousar2.nice.mindspeed.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 27 Feb 2002, Alan Cox wrote:
 
->  > As you can see I have ported the 3dfx fbdev driver to the new api. It has
->  > been tested on my home system and it works. I like others to try it out.
->  > The patch is against 2.5.5-dj2
->  > http://www.transvirtual.com/~jsimmons/tdfx.diff
+It's true dma_addr_t does change from u32 to u64 and we do thinks like:
+
+(32 bit pci register) = cpu_to_le32(dma_handle)
+
+What is the correct way of doing this?
+
+(32 bit pci register) = cpu_to_le32((u32)dma_handle)
+?
+
+Rui Sousa
+
+> > The most bizzare is that in a machine with 192Mib of memory but with a=20
+> > kernel compiled with HIGHMEM support I see the same type of problems.
 > 
->  Is this one different to the one I saw last time?
-
-Their are a few changes. I tested it last night and it worked for me. That
-doesn't mean much so if you could give it a try. BTW the penguin will not
-show up. I need to expand the imageblit function but it is not top
-priority right now.
-
+> Change of size in a structure or type ?
+> 
+> _______________________________________________
+> Emu10k1-devel mailing list
+> Emu10k1-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/emu10k1-devel
+> 
 

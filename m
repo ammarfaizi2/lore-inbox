@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262055AbTLJBpN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 20:45:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbTLJBpN
+	id S262695AbTLJBvM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 20:51:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262745AbTLJBvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 20:45:13 -0500
-Received: from 66-141-88-11.ded.swbell.net ([66.141.88.11]:35854 "EHLO
-	lcisp.com") by vger.kernel.org with ESMTP id S262055AbTLJBpJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 20:45:09 -0500
-From: "Kevin Krieser" <kkrieser@lcisp.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: very large FAT16 partition not readable on 2.6.0-test11
-Date: Tue, 9 Dec 2003 19:45:12 -0600
-Message-ID: <NDBBLFLJADKDMBPPNBALOEDBCLAB.kkrieser@lcisp.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+	Tue, 9 Dec 2003 20:51:12 -0500
+Received: from watson.far.bakerst.org ([209.167.125.194]:56194 "EHLO
+	moran.bakerst.org") by vger.kernel.org with ESMTP id S262695AbTLJBvL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 20:51:11 -0500
+Subject: Re: 2.4.23 masquerading broken? key.oif = 0;
+From: Neal Stephenson <neal@bakerst.org>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: Very Little
+Message-Id: <1071021069.16543.14.camel@moran.bakerst.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 09 Dec 2003 20:51:09 -0500
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-In-Reply-To: <3FD65CCA.3000408@triphoenix.de>
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually, there is an extension to 4GB that NT used in the 4.0 days (maybe
-earlier?).
+Hi,
+	I have this problem with 2.4.23. It is new problem, my setup was
+working fine on 2.4.22 and 2.4.22-ac4. I tried the patch of moving
+key.oif=0 without success. The problem occurs as soon as the machine
+comes up.
 
-Don't know if the Linux driver supports it.
-
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Dennis
-Bliefernicht
-Sent: Tuesday, December 09, 2003 5:38 PM
-To: linux-kernel@vger.kernel.org
-Subject: Re: very large FAT16 partition not readable on 2.6.0-test11
+	I use the iproute tools with rules and tables and mark packets with
+iptables so that port 80 traffic goes out through ppp0 rather than the
+default eth1. ppp0 has another iptable rule that masquerades everything.
+I see the packet enter through eth0 and it never reaches another
+interface, at least as far as I can tell with tcpdump. A brief
+description of my network is eth0 is my local network, ppp0 is my
+personal high speed, and eth1 is my permanent DSL connection. 
 
 
-Greg KH wrote:
-> I just bought a new USB/Firewire external drive.  It comes pre-formatted
-> as FAT16 (or so shows fdisk) as one big 80Gb partition.  Unfortunately,
-> Linux can't seem to mount this partition, and I get the following dmesg
-> output when trying to mount the partition:
-> 	FAT: bogus number of reserved sectors
-> 	VFS: Can't find a valid FAT filesystem on dev sdb1.
+	I can send my .config or routing tablef if wanted. The brief is
 
-Well, according to my sources FAT16 cannot sustain any partition larger
-than 2GiB, so 80GiB is probably a lot more than it can handle. Anyway,
-sdb1 is lacking any type of header and sdb containt something, but not a
-FAT header afaik. So probably theres just a partition table entry but
-not formatted.
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_IP_MULTIPLE_TABLES=y
+CONFIG_IP_ROUTE_FWMARK=y
+CONFIG_IP_ROUTE_NAT=y
 
+	along with ip netfilter essentially all modules. Some relevant iptable
+and ip commands
+
+iptables -t mangle -A PREROUTING --protocol tcp --destination-port 80 -j
+MARK --set-mark 0x932
+iptables -t nat -A POSTROUTING -o ppp0 -j MASQUERADE
+
+ip rule add pri 424 iif eth0 fwmark 0x932 table symp
+
+	and this is what shows up in dmesg
+
+MASQUERADE: Route sent us somewhere else.
+
+	Any suggestions appreciated,
+
+		Neal
 

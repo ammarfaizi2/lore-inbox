@@ -1,49 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268238AbTB1Vi5>; Fri, 28 Feb 2003 16:38:57 -0500
+	id <S268261AbTB1Vli>; Fri, 28 Feb 2003 16:41:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268165AbTB1Vhq>; Fri, 28 Feb 2003 16:37:46 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:26044 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id <S268215AbTB1VhE>; Fri, 28 Feb 2003 16:37:04 -0500
-Date: Fri, 28 Feb 2003 21:49:12 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-cc: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Memory modified after freeing in 2.5.63?
-In-Reply-To: <20030228150447.GA3862@vana.vc.cvut.cz>
-Message-ID: <Pine.LNX.4.44.0302282132360.2076-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S268246AbTB1Vkb>; Fri, 28 Feb 2003 16:40:31 -0500
+Received: from kweetal.tue.nl ([131.155.2.7]:502 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S268239AbTB1VjX>;
+	Fri, 28 Feb 2003 16:39:23 -0500
+Date: Fri, 28 Feb 2003 22:49:37 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, cliffw@osdl.org,
+       Andrew Morton <akpm@zip.com.au>, Steven Pratt <slpratt@austin.ibm.com>,
+       John Levon <levon@movementarian.org>, Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH] documentation for basic guide to profiling
+Message-ID: <20030228214937.GA15540@win.tue.nl>
+References: <8550000.1046419962@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8550000.1046419962@[10.10.2.4]>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Feb 2003, Petr Vandrovec wrote:
->   for some time I'm using patch attached at the end of this email, 
-> which modifies check_poison function to not only verify that
-> last byte is POISON_END, but also that all preceeding bytes are
-> either POISON_BEFORE or POISON_AFTER bytes. 
-> 
->   And now when I returned from my month vacation and upgraded 
-> from 2.5.52 to 2.5.63, when dselect/apt updates dozens of packages, 
-> I'm getting memory corruption reports as shown below - 22nd byte 
-> in vm_area_struct - which looks like that VM_ACCOUNT in vm_flags 
-> is set after vma is freeed...  Any clue? Setting VM_ACCOUNT
-> in mremap.c:move_vma after calling do_unmap() looks suspicious
-> to me, but as I know almost nothing about MM...
+On Fri, Feb 28, 2003 at 12:12:42AM -0800, Martin J. Bligh wrote:
 
-Petr, do you have a corner I can hide in?  Andrew will whip me.
-He nags me from time to time about that code, he's sceptical
-whereas I believed it fragile but okay for now.  Looks like
-you've caught me out, perhaps I should just take your POISON.
+> +Readprofile
+> +-----------
+> +get readprofile binary fixed for 2.5 / akpm's 2.5 patch from 
+> +ftp://ftp.kernel.org/pub/linux/people/mbligh/tools/readprofile/
+> +add "profile=2" to the kernel command line.
+> +
+> +clear		echo 2 > /proc/profile
 
-Hmm, it's really not what I want to be thinking about right now:
-the real fix is to split_vma explicitly before the do_unmap, but
-hard to get into that without opening up other cans of worms
-(what to do if split_vma fails for lack of memory).  Many thanks
-for the report, I won't be able to fix it in the next three days,
-but will get back to you when I have a patch to try.
+As far as I can see, the 2 is meaningless here. This should just be
 
-Hugh
+	echo > /proc/profile
 
+(On SMP when writing sizeof(int) bytes, the value written
+is significant. But 1 or 2 is not sizeof(int).)
+
+Andries
+
+-----
+Fragment of some notes:
+
+<sect1>Profiling the kernel<p>
+There are several facilities to see where the kernel spends
+its resources. A simple one is the profiling function, that
+stores the current EIP (instruction pointer) at each clock tick.
+<p>
+Boot the kernel with command line option <tt>profile=2</tt>
+(or some other number instead of 2). This will cause
+a file <tt>/proc/profile</tt> to be created.
+The number given after <tt>profile=</tt> is the number of positions
+EIP is shifted right when profiling. So a large number gives a
+coarse profile.
+The counters are reset by writing to <tt>/proc/profile</tt>.
+The utility <tt>readprofile</tt> will output statistics for you.
+It does not sort - you have to invoke <tt>sort</tt> explicitly.
+But given a memory map it will translate addresses to kernel symbols.
+<p>
+See <tt>kernel/profile.c</tt> and <tt>fs/proc/proc_misc.c</tt>
+and <tt>readprofile(1)</tt>.
+<p>
+For example:
+<verb>
+# echo > /proc/profile
+...
+# readprofile -m System.map-2.5.59 | sort -nr | head -2
+510502 total                                      0.1534
+508548 default_idle                           10594.7500
+</verb>

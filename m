@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267972AbRG0Rw7>; Fri, 27 Jul 2001 13:52:59 -0400
+	id <S268915AbRG0SBu>; Fri, 27 Jul 2001 14:01:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268912AbRG0Rwt>; Fri, 27 Jul 2001 13:52:49 -0400
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:56562 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S267972AbRG0Rwi>; Fri, 27 Jul 2001 13:52:38 -0400
-From: Christoph Rohland <cr@sap.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Joshua Schmidlkofer <menion@srci.iwpsd.org>, linux-kernel@vger.kernel.org
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-In-Reply-To: <E15Q9Bw-0005q5-00@the-village.bc.nu>
-	<0107270926070B.06707@widmers.oce.srci.oce.int>
-	<3B618CF2.5C105903@namesys.com>
-Organisation: SAP LinuxLab
-Date: 27 Jul 2001 19:46:58 +0200
-In-Reply-To: <3B618CF2.5C105903@namesys.com>
-Message-ID: <m3snfip8ml.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S268917AbRG0SBk>; Fri, 27 Jul 2001 14:01:40 -0400
+Received: from e22.nc.us.ibm.com ([32.97.136.228]:8660 "EHLO e22.nc.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S268915AbRG0SB3>;
+	Fri, 27 Jul 2001 14:01:29 -0400
+Date: Fri, 27 Jul 2001 11:01:00 -0700 (PDT)
+From: Sridhar Samudrala <samudrala@us.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Sridhar Samudrala <samudrala@us.ibm.com>, linux-kernel@vger.kernel.org,
+        linux-net@vger.kernel.org, lartc@mailman.ds9a.nl,
+        diffserv-general@lists.sourceforge.net, kuznet@ms2.inr.ac.ru,
+        rusty@rustcorp.com.au
+Subject: Re: [PATCH] Inbound Connection Control mechanism: Prioritized Accept
+In-Reply-To: <E15QBMf-00066p-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0107271036390.14246-100000@w-sridhar2.des.sequent.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SAP: out
-X-SAP: out
-X-SAP: out
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi Hans,
+There are couple of reasons why prioritization in kernel works better than at 
+user level. 
+* The kernel mechanisms are more efficient and scalable than the user space
+  mechanism. Non compliant connection requests are discarded earlier reducing the
+  queuing time of the compliant requests, in particular less CPU is consumed and
+  the context switch to userspace is avoided. 
+* Doing it in user space requires changes to existing applications which is not
+  always possible.
 
-On Fri, 27 Jul 2001, Hans Reiser wrote:
-> Maybe somebody else who is using both ReiserFS and RedHat's boot
-> scripts can comment on whether things are slow for them and if so,
-> where they get slow.
+Thanks
+Sridhar
 
-At least not if it's not the root disk. I have a RH71 box with a 19GB
-reiserfs partition and it's booting fast and fine.
+On Fri, 27 Jul 2001, Alan Cox wrote:
 
-Greetings
-		Christoph
-
+> > The documentation on HOWTO use this patch and the test results which show an
+> > improvement in connection rate for higher priority classes can be found at our
+> > project website.
+> >         http://oss.software.ibm.com/qos
+> > 
+> > We would appreciate any comments or suggestions.
+> 
+> Simple question.
+> 
+> How is this different from having a single userspace thread in your
+> application which accepts connections as they come in and then hands them
+> out in an order it chooses, if need be erorring and closing some ?
+> 
+> Alan
+> 
 

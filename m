@@ -1,44 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130484AbRBVQft>; Thu, 22 Feb 2001 11:35:49 -0500
+	id <S129066AbRBVQlK>; Thu, 22 Feb 2001 11:41:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130414AbRBVQfj>; Thu, 22 Feb 2001 11:35:39 -0500
-Received: from nilpferd.fachschaften.tu-muenchen.de ([129.187.176.79]:38878
-	"HELO nilpferd.fachschaften.tu-muenchen.de") by vger.kernel.org
-	with SMTP id <S130471AbRBVQfV>; Thu, 22 Feb 2001 11:35:21 -0500
-Date: Thu, 22 Feb 2001 17:35:21 +0100 (CET)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: <bunk@gaia.fachschaften.tu-muenchen.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.2ac1
-In-Reply-To: <E14VxLb-0004Nd-00@the-village.bc.nu>
-Message-ID: <Pine.NEB.4.33.0102221729550.25273-100000@gaia.fachschaften.tu-muenchen.de>
+	id <S130295AbRBVQlA>; Thu, 22 Feb 2001 11:41:00 -0500
+Received: from kxmail.berlin.de ([195.243.105.30]:53636 "EHLO kxmail.berlin.de")
+	by vger.kernel.org with ESMTP id <S129066AbRBVQko>;
+	Thu, 22 Feb 2001 11:40:44 -0500
+Message-ID: <3A95409D.85E89D95@berlin.de>
+Date: Thu, 22 Feb 2001 17:38:53 +0100
+From: Norbert Roos <n.roos@berlin.de>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Christoph Baumann <baumann@kip.uni-heidelberg.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Problem with DMA buffer (in 2.2.15)
+In-Reply-To: <20010222172458.A9717@kip.uni-heidelberg.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Feb 2001, Alan Cox wrote:
+Christoph Baumann wrote:
 
->
-> 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
->
-> 2.4.2-ac1
-> o	Merge Linus 2.4.2 tree
->...
+> is to do this in steps of PAGE_SIZE. What I'm looking for is a kernel routine
+> to force the mapping of previous unmapped pages. Browsing through the source
+> in mm/ I found make_pages_present(). Could this be the solution? I hadn't the
 
-Hi Alan,
+Have you already looked at mlock(2)?
 
-is it possible that you send a list of all the changes in 2.4.2ac1
-compared to plain 2.4.2?
-
-Thanks in advance
-Adrian
-
--- 
-
-Nicht weil die Dinge schwierig sind wagen wir sie nicht,
-sondern weil wir sie nicht wagen sind sie schwierig.
-
-
+Norbert

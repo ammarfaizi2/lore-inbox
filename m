@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315414AbSE2O0t>; Wed, 29 May 2002 10:26:49 -0400
+	id <S315415AbSE2O2Z>; Wed, 29 May 2002 10:28:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315416AbSE2O0s>; Wed, 29 May 2002 10:26:48 -0400
-Received: from sm14.texas.rr.com ([24.93.35.41]:38796 "EHLO sm14.texas.rr.com")
-	by vger.kernel.org with ESMTP id <S315414AbSE2O0q>;
-	Wed, 29 May 2002 10:26:46 -0400
-Subject: Re: [PATCH] 2.5.18 IDE 73
-From: Gerald Champagne <gerald@io.com>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3CF4D19F.9080402@evision-ventures.com>
+	id <S315419AbSE2O2Y>; Wed, 29 May 2002 10:28:24 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:11766 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315415AbSE2O2W>; Wed, 29 May 2002 10:28:22 -0400
+Subject: Re: A reply on the RTLinux discussion.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dana Lacoste <dana.lacoste@peregrine.com>
+Cc: Mark Mielke <mark@mark.mielke.cc>, linux-kernel@vger.kernel.org
+In-Reply-To: <1022682030.9044.8.camel@dlacoste.ottawa.loran.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 29 May 2002 09:26:42 -0500
-Message-Id: <1022682402.2951.33.camel@wiley>
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 29 May 2002 16:31:44 +0100
+Message-Id: <1022686304.9255.236.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> Dear Gerald please look closer. The hdparm -i is executing the
-> drive id command directly and does *not* rely on the internally
-> permanently dragged around id structure. So the change I did
-> is entierly fine. Just go ahead and check whatever hdparm -i /dev/hdx
-> reports the proper thing after changing some dma setting.
-> It does - I did check it :-).
+On Wed, 2002-05-29 at 15:20, Dana Lacoste wrote:
+> I wish it weren't so, but it IS.  If RedHat is filing patents, then
+> it's fairly apparent that RedHat thinks so too, isn't it?
 
-Ah, sorry about that.  I missed that in your patch.  The previous
-version of the ioctl just returned copied the values from the id
-structure.  Doing the id on the fly is much more accurate and will catch
-any other fields that happen to change over time.  
+Strange line of reasoning. Red Hat is an open source company. It doesn't
+have a proprietary installer, random bits of the binaries and libraries
+that are licensed per seat, embedded setups that happen to generate
+partially non free per unit licensed embedded targets.
 
-> BTW> The next thing to be gone is simple the fact that we drag
-> around the id information permanently, where infact only
-> some capabilitie fields are sucked out of it and the
-> device identification string is only needed for reporting
-> during boot-up.
-
-That sounds good.  That would make it easier to see what values from the
-id are actually used.
-
-Thanks.
-
-Gerald
-
+There are years old Cygnus patents on bits of gcc, there are current Red
+Hat filed patents with GPL grants, there are countless thousands of IBM
+patents a few of which have GPL grants. People keep assuming this is
+something new, yet I would not be suprised if some of the gcc related
+patents pre-date Red Hat's existance.
 

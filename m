@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316935AbSGNQ7I>; Sun, 14 Jul 2002 12:59:08 -0400
+	id <S316951AbSGNRPy>; Sun, 14 Jul 2002 13:15:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316951AbSGNQ7I>; Sun, 14 Jul 2002 12:59:08 -0400
-Received: from p50886DAC.dip.t-dialin.net ([80.136.109.172]:15241 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316935AbSGNQ7H>; Sun, 14 Jul 2002 12:59:07 -0400
-Date: Sun, 14 Jul 2002 11:01:57 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Sandy Harris <pashley@storm.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Advice saught on math functions
-In-Reply-To: <3D3187E6.426BB595@storm.ca>
-Message-ID: <Pine.LNX.4.44.0207141101120.3331-100000@hawkeye.luckynet.adm>
-X-Location: Potsdam; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316953AbSGNRPx>; Sun, 14 Jul 2002 13:15:53 -0400
+Received: from smtp.comcast.net ([24.153.64.2]:61505 "EHLO smtp.comcast.net")
+	by vger.kernel.org with ESMTP id <S316951AbSGNRPw>;
+	Sun, 14 Jul 2002 13:15:52 -0400
+Date: Sun, 14 Jul 2002 13:17:14 -0400
+From: Jerry McBride <mcbrides9@comcast.net>
+Subject: Re: missing include...
+In-reply-to: <20020714165357.GA12015@louise.pinerecords.com>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Message-id: <20020714131714.17d8773b.mcbrides9@comcast.net>
+Organization: TEAM LINUX
+MIME-version: 1.0
+X-Mailer: Sylpheed version 0.7.6claws (GTK+ 1.2.8; i586-pc-linux-gnu)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+X-message-flag: Join the Wave and install Linux
+References: <20020714120440.6b7eb93b.mcbrides9@comcast.net>
+ <20020714165357.GA12015@louise.pinerecords.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 14 Jul 2002 18:53:57 +0200 Tomas Szepe <szepe@pinerecords.com>
+wrote:
 
-On Sun, 14 Jul 2002, Sandy Harris wrote:
-> Use two machines, both set to put boot messages on a serial console and
-> connected so that when either reboots, the other is used as console. Do
-> your sound in userspace (which I agree is where it belongs). Now as long
-> as you don't reboot both at once (use a UPS!), you have sound for boot
-> messages.
+> > In compiling 2.4.18 I find that this include is missing from the
+> > source... linux-2.4.18/include/linux/version.h
+> 
+> It is not. You have just failed to follow the kernel build instructions:
+> See /usr/src/linux/README.
+> 
 
-One might set up an embedded device reading out console to do that.
+I read it, I printed it out. Where does it discuss a missing version.h
+include?
 
-							Regards,
-							Thunder
+
+
 -- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
 
+*************************************************************************
+*****
+                     Registered Linux User Number 185956
+          http://groups.google.com/groups?hl=en&safe=off&group=linux
+    1:12pm  up 123 days, 18:21,  5 users,  load average: 0.08, 0.09, 0.04

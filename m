@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264052AbTFPSoA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 14:44:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264192AbTFPSnm
+	id S264235AbTFPSqo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 14:46:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264091AbTFPSoK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 14:43:42 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:30708 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S264178AbTFPSmP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 14:42:15 -0400
-content-class: urn:content-classes:message
+	Mon, 16 Jun 2003 14:44:10 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:45803 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S264188AbTFPSng (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 14:43:36 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: e1000 performance hack for ppc64 (Power4)
-Date: Mon, 16 Jun 2003 11:56:03 -0700
-Message-ID: <C6F5CF431189FA4CBAEC9E7DD5441E010107D94F@orsmsx402.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: e1000 performance hack for ppc64 (Power4)
-Thread-Index: AcM0NZhCXHVlgXspR9CtCHUR7FqVhgAAfjpQ
-From: "Feldman, Scott" <scott.feldman@intel.com>
-To: "Dave Hansen" <haveblue@us.ibm.com>
-Cc: "Herman Dierks" <hdierks@us.ibm.com>, "David S. Miller" <davem@redhat.com>,
-       <ltd@cisco.com>, "Anton Blanchard" <anton@samba.org>, <dwg@au1.ibm.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Nancy J Milliner" <milliner@us.ibm.com>,
-       "Ricardo C Gonzalez" <ricardoz@us.ibm.com>,
-       "Brian Twichell" <twichell@us.ibm.com>, <netdev@oss.sgi.com>
-X-OriginalArrivalTime: 16 Jun 2003 18:56:03.0535 (UTC) FILETIME=[EF5FC5F0:01C33438]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16110.4883.885590.597687@napali.hpl.hp.com>
+Date: Mon, 16 Jun 2003 11:57:23 -0700
+To: "Riley Williams" <Riley@Williams.Name>
+Cc: "Vojtech Pavlik" <vojtech@suse.cz>, <linux-kernel@vger.kernel.org>
+Subject: RE: [patch] input: Fix CLOCK_TICK_RATE usage ...  [8/13]
+In-Reply-To: <BKEGKPICNAKILKJKMHCAOEGHEFAA.Riley@Williams.Name>
+References: <20030614231455.A26303@ucw.cz>
+	<BKEGKPICNAKILKJKMHCAOEGHEFAA.Riley@Williams.Name>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Scott, would you be pleased if something was implemented out 
-> of the driver, in generic net code?  Something that all the 
-> drivers could use, even if nothing but e1000 used it for now.
+>>>>> On Sun, 15 Jun 2003 11:51:00 +0100, "Riley Williams" <Riley@Williams.Name> said:
 
-I suppose the driver could unconditionally call something like
-skb_realign_for_broken_hw, which is a nop on non-broken archs, but would
-it make more sense to not have the driver mess with the skb at all?
+  Riley> 2. The IA64 arch didn't define CLOCK_TICK_RATE at all, but
+  Riley> then used the 1193182 value as a magic value in several
+  Riley> files. I've inserted that as the definition thereof in
+  Riley> timex.h for that arch.
 
--scott
+AFAIK, on ia64, it makes absolutely no sense at all to define this
+magic CLOCK_TICK_RATE in timex.h.  There simply is nothing in the ia64
+architecture that requires any timer to operate at 1193182 Hz.
+
+If there are drivers that rely on the frequency, those drivers should
+be fixed instead.
+
+Please do not add CLOCK_TICK_RATE to the ia64 timex.h header file.
+
+	--david

@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268149AbUHNH0p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268174AbUHNHgd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268149AbUHNH0p (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 03:26:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268115AbUHNH0o
+	id S268174AbUHNHgd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 03:36:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266195AbUHNHgd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 03:26:44 -0400
-Received: from mail.xor.ch ([212.55.210.163]:33037 "HELO mail.xor.ch")
-	by vger.kernel.org with SMTP id S268149AbUHNH0J (ORCPT
+	Sat, 14 Aug 2004 03:36:33 -0400
+Received: from wit.mht.bme.hu ([152.66.80.190]:44703 "EHLO wit.wit.mht.bme.hu")
+	by vger.kernel.org with ESMTP id S268174AbUHNHgb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 03:26:09 -0400
-Message-ID: <411DBE89.3EF61EB@orpatec.ch>
-Date: Sat, 14 Aug 2004 09:26:02 +0200
-From: Otto Wyss <otto.wyss@orpatec.ch>
-Reply-To: otto.wyss@orpatec.ch
-X-Mailer: Mozilla 4.78 (Macintosh; U; PPC)
-X-Accept-Language: de,en
+	Sat, 14 Aug 2004 03:36:31 -0400
+Date: Sat, 14 Aug 2004 09:36:30 +0200 (CEST)
+From: Ferenc Kubinszky <ferenc.kubinszky@wit.mht.bme.hu>
+To: linux-kernel@vger.kernel.org
+Subject: IPv6-IPv6 tunnel problem - again
+Message-ID: <Pine.LNX.4.44.0408140934140.5197-100000@wit.wit.mht.bme.hu>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: Re: New concept of ext3 disk checks
-References: <411BAFCA.92217D16@orpatec.ch> <1092339980.22362.1.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> I think it would indeed be a good project. If anyone has patches please
-> send them along to the linux-fsdevel list
+Hello,
 
-Unfortunately it won't be me, while I'm able to formulate a concept my
-knowledge of Linux is too limited to do much work. Also I've lot of
-other work as you might have seen in my signature. But I encurrage
-anyone with more insight of Linux file systems to have a look if such a
-concept can be implemented.
+I haven't got any response so I re-post my former mail...
 
-O. Wyss
+There is a strange problem with IPv6 tunnelling (at least) in kernel
+2.6.5-2.6.7.
 
--- 
-See a huge pile of work at "http://wyodesktop.sourceforge.net/"
+I configured a router with 4 interfaces towards 4 nets. Everithing works
+well.
+But if ip6tnl0 interface comes up, it gets eth0's link local address
+automatically. It does not cause any problem until the tunneling interface
+goes down. After it eth0 can't solicit its neighbour. Solicit messages are
+sent, advertisements are received (tcpdump). But somehow it has no result,
+so solicits are trasmitted again and again (the neighbour responds them).
+Eth0 still has its link local address.
+
+If ip6tnl0 set up again (ip l s ip6tnl0 up), the solicit works.
+This can be repeated for ever.
+
+Best regards,
+Kubi
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+

@@ -1,67 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267418AbTBLOkN>; Wed, 12 Feb 2003 09:40:13 -0500
+	id <S267263AbTBLN4v>; Wed, 12 Feb 2003 08:56:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267424AbTBLOkM>; Wed, 12 Feb 2003 09:40:12 -0500
-Received: from mail.dsa-ac.de ([62.112.80.99]:35592 "HELO k2.dsa-ac.de")
-	by vger.kernel.org with SMTP id <S267418AbTBLOkL>;
-	Wed, 12 Feb 2003 09:40:11 -0500
-Date: Wed, 12 Feb 2003 15:49:56 +0100 (CET)
-From: Guennadi Liakhovetski <gl@dsa-ac.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.60 "Badness in kobject_register at lib/kobject.c:152"
-In-Reply-To: <1044969981.12906.21.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.33.0302121509481.1173-100000@pcgl.dsa-ac.de>
+	id <S267264AbTBLN4v>; Wed, 12 Feb 2003 08:56:51 -0500
+Received: from dsl2-09018-wi.customer.centurytel.net ([209.206.215.38]:42952
+	"HELO thomasons.org") by vger.kernel.org with SMTP
+	id <S267263AbTBLN4r>; Wed, 12 Feb 2003 08:56:47 -0500
+From: scott thomason <scott-kernel@thomasons.org>
+Reply-To: scott-kernel@thomasons.org
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, perex@suse.cz
+Subject: alsa es1968 sound driver broken in 2.5.5x?
+Date: Wed, 12 Feb 2003 08:06:36 -0600
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200302120806.36310.scott-kernel@thomasons.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Known problem. Its probably fixed in the 2.4 changes I made to the
-> probe and flash bits yesterday. Its two bugs together. The vanishing
-> disk is definitely fixed, the oops from drive->id = NULL should be
-> sorted too (and the general noprobe, cdrom cases)
+Greetings. I've been trying to make the ALSA PCI es1968 sound 
+driver work, for both playback and mic-in recording, with no 
+success. I've tried kernel versions 2.5.53, 2.5.59, and 2.5.60, 
+with no luck. I believe that it has to do with the driver 
+itself, as I can successfully use the ALSA cmipci driver for 
+both recording and playback. Fortunately, the cmipci chipset 
+sucks for recording, or I may never have had the motivation to 
+find and report this bug :)
 
-Yep! Works! Thanks! There are still errors coming:
-hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-hda: task_no_data_intr: error=0x04 { DriveStatusError }
-hda: 31488 sectors (16 MB) w/1KiB Cache, CHS=246/4/32, BUG <=============
-Then same for hdb, then
-Partition chack:
- hda:hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hda: dma_intr: error=0x04 { DriveStatusError }
-repeated 4 times, then
-hda: DMA disabled
-hdb: DMA disabled
-ide0: reset: success
- hda1
- hdb: hdb1
+Unfortunately, I don't know how to give good information for 
+debugging, only some half-assed descriptions of the symptoms:
 
-then, on mounting root again
-hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-hda: task_no_data_intr: error=0x04 { DriveStatusError }
-hda: Write Cache FAILED Flushing!
-/dev/hda1: clean...
-hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-hda: task_no_data_intr: error=0x04 { DriveStatusError }
-hda: Write Cache FAILED Flushing!
-VFS: busy inodes on changed media.
-hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-hda: task_no_data_intr: error=0x04 { DriveStatusError }
-hda: Write Cache FAILED Flushing!
+1. KMixer won't show the card, just a big empty spot.
 
-And then these errors appear again on some disk-opoerations, e.g. when
-running lilo, doing dd if=/dev/hda, and some others (raw access?). Can
-this errors be disk-specific? (it's a SiliconTech disk, reported as
-Hitachi) I can try some others, e.g. SunDisk.
+2. My favorite synthesizer program, AlsaModularSyth, crashes 
+immediately upon attempted load.
 
-Thanks
-Guennadi
----------------------------------
-Guennadi Liakhovetski, Ph.D.
-DSA Daten- und Systemtechnik GmbH
-Pascalstr. 28
-D-52076 Aachen
-Germany
+3. Zinf (formerly freeamp) tells me it can't open audio device 
+/dev/dsp.
 
+I am using Gentoo 1.4rc1, which means I am using devfs, if that 
+helps any.
+
+Please let me know if there is a way I can provide better 
+debugging info.
+---scott

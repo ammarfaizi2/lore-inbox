@@ -1,87 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130834AbRCTV7p>; Tue, 20 Mar 2001 16:59:45 -0500
+	id <S130900AbRCTWDQ>; Tue, 20 Mar 2001 17:03:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130900AbRCTV7f>; Tue, 20 Mar 2001 16:59:35 -0500
-Received: from ns.suse.de ([213.95.15.193]:58121 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S130834AbRCTV71>;
-	Tue, 20 Mar 2001 16:59:27 -0500
-Date: Tue, 20 Mar 2001 22:58:45 +0100
-From: Olaf Hering <olh@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.2 freezes with bad ISOs in IDE cdroms
-Message-ID: <20010320225845.A5763@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S131025AbRCTWCq>; Tue, 20 Mar 2001 17:02:46 -0500
+Received: from front1.grolier.fr ([194.158.96.51]:30896 "EHLO
+	front1.grolier.fr") by vger.kernel.org with ESMTP
+	id <S130900AbRCTWC3> convert rfc822-to-8bit; Tue, 20 Mar 2001 17:02:29 -0500
+Date: Tue, 20 Mar 2001 20:50:58 +0100 (CET)
+From: Gérard Roudier <groudier@club-internet.fr>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: st corruption with 2.4.3-pre4
+In-Reply-To: <Pine.LNX.4.05.10103202024310.4053-100000@callisto.of.borg>
+Message-ID: <Pine.LNX.4.10.10103202029370.1698-100000@linux.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-this is a bogus bugreport.
-
-The 2.4.2 kernel freezes on some machines here when I try to access (or
-mount) a bad self burned ISO image, in this case the boot CD with the
-install system.
-
-There are different case:
-
-I have an iBook and a blue&white G3. The G3 has a cmd646 controller. It
-freezes when it tries to access the CD. No output.
-"ide0=nodma ide2=nodma" doesnt lead to a freeze, but endless error messages.
-The installer starts after a while, so it can mount the inst-sys, but it
-doest get very far (no output).
-
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-CMD646: IDE controller on PCI bus 01 dev 08
-CMD646: chipset revision 7
-CMD646: chipset revision 0x07, UltraDMA Capable
-CMD646: 100% native mode on irq 26
-    ide0: BM-DMA at 0x1800-0x1807, BIOS settings: hda:pio, hdb:pio
-    ide1: BM-DMA at 0x1808-0x180f, BIOS settings: hdc:pio, hdd:pio
-pmac_ide: enabling IDE bus ID 0
-hda: Maxtor 90648D3, ATA DISK drive
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-hde: MATSHITADVD-ROM SR-8583, ATAPI CD/DVD-ROM drive
-ide0 at 0x1840-0x1847,0x1832 on irq 26
-ide2 at 0xc8544000-0xc8544007,0xc8544160 on irq 13
-hda: 12656448 sectors (6480 MB) w/512KiB Cache, CHS=12556/16/63,
-UDMA(33)
-hde: Enabling MultiWord DMA 2
-hde: ATAPI 32X DVD-ROM drive, 512kB Cache, DMA
-Uniform CD-ROM driver Revision: 3.12
-Partition check:
- hda: [mac] hda1 hda2 hda3 hda4 hda5 hda6 hda7 hda8 hda9 hda10
 
 
-Today I got another report on a G4/500. It just freezes when it access a
-package on a bad block. Skipping the rpm package were it freezes solves that.
+On Tue, 20 Mar 2001, Geert Uytterhoeven wrote:
 
-I tried the same ISOs on a SCSI cdrom to verify the MD5SUMS, no crash,
-just read errors in dmesg. The controller is a "Symbios Logic Inc.
-(formerly NCR) 53c875 (rev 04)".
+> On Tue, 20 Mar 2001, Geert Uytterhoeven wrote:
+> > On Mon, 19 Mar 2001, Jeff Garzik wrote:
+> > > Is the corruption reproducible?  If so, does the corruption go away if
+> > 
+> > Yes, it is reproducible. In all my tests, I tarred 16 files of 16 MB each to
+> > tape (I used a new one).
+> >   - test 1: 4 files with failed md5sum (no further investigation on type of
+> > 	    corruption)
+> >   - test 2: 7 files with failed md5sum, 7 blocks of 32 consecutive bytes were
+> > 	    corrupted, all starting at an offset of the form 32*x+1.
+> >   - test 3: 7 files with failed md5sum, 7 blocks of 32 consecutive bytes were
+> > 	    corrupted, all starting at an offset of the form 32*x+1.
+> > 
+> > The files seem to be corrupted during writing only, as reading always gives the
+> > exact same (corrupted) data back.
+> > 
+> > Copying files from the disk on the MESH to a disk on the Sym53c875 (which also
+> > has the tape drive) shows no corruption.
+> 
+> I did some more tests:
+>   - The problem also occurs when tarring up files from a disk on the Sym53c875.
+>   - The corrupted data always occurs at offset 32*x (the `+1' above was caused
+>     by hexdump, starting counting at 1).
+>   - The 32 bytes of corrupted data at offset 32*x are always a copy of the data
+>     at offset 32*x-10240.
+>   - Since 10240 is the default blocksize of tar (bug in tar?), I made a tarball
+>     on disk instead of on tape, but no corruption.
+>   - 32 is the size of a cacheline on PPC. Is there a missing cacheflush
+>     somewhere in the Sym53c875 driver? But then it should happen on disk as
+>     well?
 
-However, my machine at home locks the SCSI bus in sometimes. It has a
-mesh SCSI controller, The last message in the syslog is that:
-Device not ready.  Make sure there is a disc in the drive
-I still can switch consoles, but the hard drive is not accessible
-anymore. 
-(this part of the bugreport is maybe not related to the lockups).
+The only PCI transaction that requires the cache line size to be correctly
+configured is PCI WRITE and INVALIDATE. This transaction may be used by
+the 875 only for data read from a SCSI device and DMAed to memory.
 
+Note that the controller may use optimized PCI transactions only if the 
+cache line size is configured in its PCI device configuration space.
+Otherwise only normal PCI memory read and PCI memory write transactions 
+will be used.
 
+Could you check if the cache line size is configured for your 875?
 
-Any ideas where to start here?
+Let me imagine it is so. Btw, I may be wasting my time if it is not ...
+Then the 875 may also use PCI read multiple transactions and/or PCI read
+line transactions when reading data from memory. If the corruption is due
+to the use of these transactions, the the PCI-HOST bridges may well be the
+culprit, in my opinion.
 
+Anyway, since the sym53c8xx driver does not try to change the configured
+cache line size on PPC, I would suggest to try again the same tests with
+the cache line size set to zero for the 875. You may hack the driver code
+or the PPC pci code if needed, for example, for value zero to be written
+in the proper place in the PCI configuration space of the 875.
 
-Gruss Olaf
+  Gérard.
 
--- 
- $ man clone
-
-BUGS
-       Main feature not yet implemented...

@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317371AbSIEJhB>; Thu, 5 Sep 2002 05:37:01 -0400
+	id <S317365AbSIEJmV>; Thu, 5 Sep 2002 05:42:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317365AbSIEJhB>; Thu, 5 Sep 2002 05:37:01 -0400
-Received: from rj.SGI.COM ([192.82.208.96]:48572 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S317363AbSIEJhA>;
-	Thu, 5 Sep 2002 05:37:00 -0400
-Date: Thu, 5 Sep 2002 02:39:41 -0700 (PDT)
-From: Jeremy Higdon <jeremy@classic.engr.sgi.com>
-Message-Id: <10209050239.ZM52086@classic.engr.sgi.com>
-In-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-        "Re: aic7xxx sets CDR offline, how to reset?" (Sep  4, 10:50am)
-References: <200209041613.g84GDtv02639@localhost.localdomain> 
-	<12750000.1031158209@aslan.btc.adaptec.com>
-X-Mailer: Z-Mail (3.2.3 08feb96 MediaMail)
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: aic7xxx sets CDR offline, how to reset?
-Mime-Version: 1.0
+	id <S317387AbSIEJmV>; Thu, 5 Sep 2002 05:42:21 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:28170 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S317365AbSIEJmV>; Thu, 5 Sep 2002 05:42:21 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15735.10250.877661.656133@laputa.namesys.com>
+Date: Thu, 5 Sep 2002 13:46:50 +0400
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: "David S. Miller" <davem@redhat.com>
+Cc: szepe@pinerecords.com, mason@suse.com, reiser@namesys.com,
+       shaggy@austin.ibm.com, marcelo@conectiva.com.br,
+       linux-kernel@vger.kernel.org, aurora-sparc-devel@linuxpower.org,
+       reiserfs-dev@namesys.com, linuxjfs@us.ibm.com, green@namesys.com
+Subject: Re: [reiserfs-dev] Re: [PATCH] sparc32: wrong type of nlink_t
+In-Reply-To: <20020904.224531.118542066.davem@redhat.com>
+References: <20020905054008.GH24323@louise.pinerecords.com>
+	<20020904.223651.79770866.davem@redhat.com>
+	<20020905054858.GI24323@louise.pinerecords.com>
+	<20020904.224531.118542066.davem@redhat.com>
+X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
+X-Emacs-Acronym: Extraneous Macros And Commands Stink
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 4, 10:50am, Justin T. Gibbs wrote:
-> 
->    This of course assumes that all transactions have a serial number and
->    that requeuing transactions orders them by serial number.  With QErr
->    set, the device closes the rest if the barrier race for you, but even
->    without barriers, full transaction ordering is required if you don't
->    want a read to inadvertantly pass a write to the same location during
->    recovery.
+David S. Miller writes:
+ >    From: Tomas Szepe <szepe@pinerecords.com>
+ >    Date: Thu, 5 Sep 2002 07:48:58 +0200
+ >    
+ >    And a pretty straightforward one, too. Convert the internal reiserfs
+ >    link stuff to an unsigned short, find NLINK_MAX using the code I posted
+ >    last night (or maybe simply grab it from userspace includes) and add
+ >    a check to your stat() code to return NLINK_MAX if necessary.
+ >    
+ > Whose stat() code?  These go straight to userspace via normal
+ > syscalls.
 
+In 2.5 is goes through ->getattr() method.
 
-The original FCP (SCSI commands over Fibre) profile specified that QERR=1
-was not available.  Unless that is changed, it would appear that you cannot
-count on being able to set Qerr.
+ >    
+ > It has to be done generically, in the VFS or reiserfs.
 
-Qerr was one of those annoying little things in SCSI that forces host
-adapter drivers to know a mode page setting.
-
-jeremy
+Nikita.

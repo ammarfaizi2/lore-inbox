@@ -1,44 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265682AbTFSOl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 10:41:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265766AbTFSOl4
+	id S265784AbTFSOpq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 10:45:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265787AbTFSOpq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 10:41:56 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59822 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265682AbTFSOlz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 10:41:55 -0400
-Date: Thu, 19 Jun 2003 15:55:54 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: David Howells <dhowells@warthog.cambridge.redhat.com>
-Cc: David Howells <dhowells@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] VFS autmounter support v2
-Message-ID: <20030619145554.GF6754@parcelfarce.linux.theplanet.co.uk>
-References: <20030618205945.GD6754@parcelfarce.linux.theplanet.co.uk> <3283.1056016010@warthog.warthog>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3283.1056016010@warthog.warthog>
-User-Agent: Mutt/1.4.1i
+	Thu, 19 Jun 2003 10:45:46 -0400
+Received: from adsl-66-124-76-105.dsl.sntc01.pacbell.net ([66.124.76.105]:25617
+	"EHLO www.baywinds.org") by vger.kernel.org with ESMTP
+	id S265784AbTFSOpo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 10:45:44 -0400
+Message-ID: <3EF1CFB7.7080004@baywinds.org>
+Date: Thu, 19 Jun 2003 07:59:03 -0700
+From: Bruce Ferrell <bferrell@baywinds.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Sco vs. IBM
+References: <063301c32c47$ddc792d0$3f00a8c0@witbe> <063301c32c47$ddc792d0$3f00a8c0@witbe> <5.2.0.9.2.20030607044649.00cd4590@pop.gmx.net> <1055957807.16818.12.camel@loke> <6119329250.20030618195802@mail.hypertrek.info> <20030618212017.B6248@almesberger.net> <Pine.LNX.4.53.0306190702580.3024@chaos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 19, 2003 at 10:46:50AM +0100, David Howells wrote:
- 
-> Besides, going back to your original argument, I think you make an invalid
-> assertion:
-> 
-> 	Namespaces are completely unrelated - I have them set for two
-> 	different users that happen to need some common files, but otherwise
-> 	have very different environments.
-> 
-> They are not quite completely unrelated. The only way (or so it seems) to get
-> a new namespace is to derive one by way of CLONE_NS. This clones the namespace
-> of the parent, and so the child's namespace then should have all the features
-> of the parent's namespace _UNTIL_ at such time the child or one of its
-> descendents rearranges the topology!
+Anbody know if the Canopy Group is still involved in SCO/Caldera?  Given 
+  that their web site lists the Caldera -> SCO name change, I would 
+suspect that they are. They did the original VC funding for Caldera and 
+Lineo so I have a hunch that Lineo will be left alone.
 
-And how the fuck do you "rearrange topology" with your patch?!?
+Ray Norda may be crazy, but he's crazy like a fox!
+
+Always, always, always... Follow the money
+
+
+Richard B. Johnson wrote:
+> On Wed, 18 Jun 2003, Werner Almesberger wrote:
+> 
+> 
+>>Luigi Rosa wrote:
+>>
+>>><http://www.forbes.com/2003/06/18/cz_dl_0618linux.html>
+>>
+>>"[...] in two other Canopy companies, Troll Tech and Lineo, [...]"
+>>
+>>Makes one wonder what else to expect in the future ...
+>>
+>>- Werner
+> 
+> 
+>>"[...] in two other Canopy companies, Troll Tech and Lineo, [...]"
+> 
+>                                          ^^^^^^^^^^
+>                  I thought this was a joke! There __is__ really
+> such a company???!! Wonder what they do....., maybe troll this
+> list... hehe....
+> 
+> 
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+> Why is the government concerned about the lunatic fringe? Think about it.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+

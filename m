@@ -1,54 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317467AbSGEOqs>; Fri, 5 Jul 2002 10:46:48 -0400
+	id <S317468AbSGEO4O>; Fri, 5 Jul 2002 10:56:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317466AbSGEOqr>; Fri, 5 Jul 2002 10:46:47 -0400
-Received: from [193.14.93.89] ([193.14.93.89]:37380 "HELO acolyte.hack.org")
-	by vger.kernel.org with SMTP id <S317467AbSGEOqo>;
-	Fri, 5 Jul 2002 10:46:44 -0400
-To: Alan Cox <alan@www.linux.org.uk>
-Cc: proski@gnu.org (Pavel Roskin), linux-kernel@vger.kernel.org,
-       dhinds@sonic.net (David Hinds), mj@ucw.cz (Martin Mares)
-Subject: Re: Cyrix IRQ routing is wrong?
-References: <Pine.LNX.4.44.0207031946230.4282-100000@marabou.research.att.com>
-	<E17QTp2-0004Ay-00@www.linux.org.uk>
-From: Christer Weinigel <wingel@acolyte.hack.org>
-Date: 05 Jul 2002 16:49:13 +0200
-In-Reply-To: Alan Cox's message of "Fri, 5 Jul 2002 15:12:32 +0100 (BST)"
-Message-ID: <m3wusa44d2.fsf@acolyte.hack.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) Emacs/20.5
+	id <S317471AbSGEO4N>; Fri, 5 Jul 2002 10:56:13 -0400
+Received: from [213.38.169.194] ([213.38.169.194]:29189 "EHLO
+	proxy.herefordshire.gov.uk") by vger.kernel.org with ESMTP
+	id <S317468AbSGEO4L>; Fri, 5 Jul 2002 10:56:11 -0400
+Message-ID: <AFE36742FF57D411862500508BDE8DD0059E8F17@cordelia.herefordshire.gov.uk>
+From: "Randal, Phil" <prandal@herefordshire.gov.uk>
+To: linux-kernel@vger.kernel.org
+Subject: RE: IBM Desktar disk problem?
+Date: Fri, 5 Jul 2002 16:04:57 +0100 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2655.55)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@www.linux.org.uk> writes:
+Here's a good place to start:
 
-> > 1) 2.4.17 was using the code I want to restore.  Where was your hanging 
-> > box then?
+http://www.geocities.com/dtla_update/
+
+Cheers,
+
+Phil
+---------------------------------------------
+Phil Randal
+Network Engineer
+Herefordshire Council
+Hereford, UK 
+
+> -----Original Message-----
+> From: Anton Altaparmakov [mailto:aia21@cantab.net]
+> Sent: 05 July 2002 15:30
+> To: Thunder from the hill
+> Cc: Daniel Egger; venom@sns.it; linux-kernel@vger.kernel.org
+> Subject: Re: IBM Desktar disk problem?
 > 
-> Hanging. Thats why I fixed it when Nat Semi documentation for the old cyrix
-> appeared
+> 
+> At 15:03 05/07/02, Thunder from the hill wrote:
+> >On 5 Jul 2002, Daniel Egger wrote:
+> > > <advise>
+> > > Buy decent drives, then get DriveFitnessTest (DFT) from 
+> their website
+> > > and check the harddrives, note the TRC number, request an 
+> RMA on their
+> > > website and ship the drives as soon as possible to IBM. 
+> Wait for the
+> > > replacement drives and sell them ASAP on Ebay to some 
+> freaks who don't
+> > > give a dime about data security.
+> > > </advise>
+> >
+> >...and tell all the people who got a DTLA (because it's not 
+> as expensive
+> >as others in some countries, mind France, USA, Germany) to drop their
+> >disks if they want to use Linux, because we're too lazy to find a
+> >solution. That might be cool to you, but we want HARDWARE SUPPORT for
+> >Linux! That's why we're here.
+> >
+> >There _is_ a solution, we just have to find it.
+> 
+> Um, the solution is already known. Upgrade the firmware on 
+> the drive, low 
+> level format if the drive thinks there are bad sectors, and 
+> be happy. At 
+> least it worked for me...
+> 
+> The very first question when making a support call for my 
+> broken deathstar 
+> was "Have you installed the firmware update?" "No." "Download 
+> it here and 
+> install, come back if it still doesn't work."
+> 
+> I never thought it would work but it did! It seems there is 
+> something wrong 
+> in the firmware the drives are shipped with and some 
+> suppliers obviously 
+> know this considering my experience... When I was running the 
+> DFT test 
+> utility it was telling me my drive is broken and needs to be 
+> returned. 
+> After the firmware update the same test utility passed all 
+> tests repeatedly!
+> 
+> With 5 deathstars (one DTLA and four IC ones), all with 
+> firmware updates 
+> now, I have no problems and the oldest of the drives is now 
+> over 3 years 
+> old IIRC and some are pretty much in constant spun-up state 
+> since purchase...
+> 
+> The only problem I can see is that IBM is not pushing people 
+> to apply the 
+> firmware updates. I have never been even able to find where 
+> to download 
+> them on the IBM website. - I downloaded them from the website 
+> of my supplier...
+> 
+> Best regards,
+> 
+>          Anton
+> 
+> 
+> -- 
+>    "I've not lost my mind. It's backed up on tape somewhere." 
+> - Unknown
+> -- 
+> Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+> Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+> WWW: http://linux-ntfs.sf.net/ & 
+http://www-stu.christs.cam.ac.uk/~aia21/
 
-So your BIOS probably has a buggy PIRQ table.  
-
->From page 155 of the CS5530 manual found at:
-
-    http://www.national.com/ds/CS/CS5530.pdf
-
-Index 5Ch PCI Interrupt Steering Register 1 (R/W) Reset Value = 00h
-
-7:4 INTB# Target Interrupt: Selects target interrupt for INTB#
-3:0 INTA# Target Interrupt: Selects target interrupt for INTA#
-
-Index 5Dh PCI Interrupt Steering Register 2 (R/W) Reset Value = 00h
-7:4 INTD# Target Interrupt: Selects target interrupt for INTD#
-3:0 INTC# Target Interrupt: Selects target interrupt for INTC#
-
-So I have to switch that code around on most GX1 boards that I use or
-I'll get a lot of messages about IRQ routing conflicts.
-
-  /Christer
-
--- 
-"Just how much can I get away with and still go to heaven?"
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

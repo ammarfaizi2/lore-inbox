@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312600AbSEDMSD>; Sat, 4 May 2002 08:18:03 -0400
+	id <S312619AbSEDMSt>; Sat, 4 May 2002 08:18:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312619AbSEDMSC>; Sat, 4 May 2002 08:18:02 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:16703 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S312600AbSEDMSB>; Sat, 4 May 2002 08:18:01 -0400
-Message-Id: <5.1.0.14.2.20020504131603.0455c960@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sat, 04 May 2002 13:18:10 +0100
-To: Christian Neumair <christian-neumair@web.de>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: GNU/linux 2.5.14 (?)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200205041207.g44C72X30485@mailgate5.cinetic.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S312634AbSEDMSs>; Sat, 4 May 2002 08:18:48 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:18922 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S312619AbSEDMSr>; Sat, 4 May 2002 08:18:47 -0400
+Date: Sat, 4 May 2002 13:58:14 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Keith Owens <kaos@ocs.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: kbuild 2.5 release 2.4 
+In-Reply-To: <23974.1020514265@ocs3.intra.ocs.com.au>
+Message-ID: <Pine.LNX.4.44.0205041357110.12156-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 13:07 04/05/02, Christian Neumair wrote:
->The following entangles me:
->Although kernelnewbies.org/status tells me that some features are merged 
->in the 2.4.14 release i can't find it on kernel.org.
+On Sat, 4 May 2002, Keith Owens wrote:
 
-you meant 2.5.14 here...
+> You will have to provide more details of the problem that you think you
+> are seeing.  The .tmp_include files are part of the infrastructure that
+> lets me separate source and object trees, they are meant to be there.
+> make -f Makefile-2.5 mrproper deletes .tmp_include.
 
->Please clear me up :-)
+I didn't try reproducing it, i just rm -rf'd .tmp_include when it failed. 
+I'll double check.
 
-You will have to wait for Linus to release 2.5.14... Alternatively have a 
-look at: http://linux.bkbits.net/ to see the work in progress on 2.5.14.
-
-Anton
-
+Thanks,
+	Zwane Mwaikambo
 
 -- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+http://function.linuxpower.ca
+		
 

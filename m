@@ -1,85 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262930AbUDEQNg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 12:13:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262931AbUDEQNg
+	id S262917AbUDEQXW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 12:23:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262936AbUDEQXW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 12:13:36 -0400
-Received: from host213-123-250-229.in-addr.btopenworld.com ([213.123.250.229]:63278
-	"EHLO 2003SERVER.sbs2003.local") by vger.kernel.org with ESMTP
-	id S262930AbUDEQN0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 12:13:26 -0400
-thread-index: AcQbKTwOeKR9kfoARuy6hejB1fAMzw==
-X-Sieve: Server Sieve 2.2
-Date: Mon, 5 Apr 2004 17:15:38 +0100
-From: "Tom Rini" <trini@kernel.crashing.org>
-To: <Administrator@vger.kernel.org>
-Message-ID: <000001c41b29$3c303d60$d100000a@sbs2003.local>
-Cc: "Sven Hartge" <hartge@ds9.gnuu.de>, <linux-kernel@vger.kernel.org>,
-       "linuxppc-dev list" <linuxppc-dev@lists.linuxppc.org>
+	Mon, 5 Apr 2004 12:23:22 -0400
+Received: from fw.osdl.org ([65.172.181.6]:42465 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262917AbUDEQXU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 12:23:20 -0400
+Date: Mon, 5 Apr 2004 09:19:33 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "Tony A. Lambley" <tal@vextech.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [usbfs] 2.6.3+ devmode?
+Message-Id: <20040405091933.3295744a.rddunlap@osdl.org>
+In-Reply-To: <1081096740.2235.6.camel@bony>
+References: <1081096740.2235.6.camel@bony>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: 2.6.5-pre* does not boot on my PReP PPC
-References: <20040329151515.GD2895@smtp.west.cox.net> <Pine.GSO.4.44.0403301430180.12030-100000@math.ut.ee> <E1B8OEW-0006Jb-BX@ds9.argh.org> <40704743.3000909@g-house.de>
-MIME-Version: 1.0
-X-Mailer: Microsoft CDO for Exchange 2000
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <40704743.3000909@g-house.de>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-Mailing-List: <linuxppc-dev@lists.linuxppc.org>
-X-Loop: linuxppc-dev@lists.linuxppc.org
-Content-Class: urn:content-classes:message
-Importance: normal
-Envelope-to: paul@sumlocktest.fsnet.co.uk
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-X-OriginalArrivalTime: 05 Apr 2004 16:15:39.0531 (UTC) FILETIME=[3C77CDB0:01C41B29]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 04 Apr 2004 12:39:00 -0400 Tony A. Lambley wrote:
 
-On Sun, Apr 04, 2004 at 07:34:59PM +0200, Christian Kujau wrote:
+| Hi, is my brain going yolky? I have perm problems with a scanner after
+| each boot, and have to manually locate the scanner in /proc/bus/usb then
+| chmod it.
+| 
+| My fstab has:
+| 
+| none /proc/bus/usb usbfs defaults,devmode=0666 0 0
+| 
+| It happens with 2.6.3 through to .5. Am I doing something wrong or is
+| usbfs+devmode a bit under the weather?
 
-> [ cc'ing linuxppc-dev ]
->
-> Sven Hartge wrote:
-> | Meelis Roos <mroos@linux.ee> wrote:
-> |
-> |
-> |>>Ok.  Can both of you try the following patch on top of the version
-> |>>which fails?
-> |
-> |
-> |>Tried it on top of fresh 2.6.5-rc3, no changes, it still hangs.
-> |
-> |
-> | Same here, still totally dead after tftp.
->
-> not so dead here. 2.6.4 is ok, 2.6.5-rc1|2|3 are loaded within the OF
-> menu, but no bootprompt appears. but: i can hear the scsi disk
-> initalizing, short after this, the atkbd is recognized and the LEDs on
-> my keyboard are flashing. then again my nfs-root is supposed to be
-> mounted, but my PReP still locks up completely upon network-init. (last
-> working is still 2.5.30).
+I think that's related to kernel bug #1418:
+  http://bugme.osdl.org/show_bug.cgi?id=1418
 
-OK, hmm.  I've got some better ideas then.  It sounds like the code to
-have puts show up on VGA isn't selected/compiled in.  Or, there's still
-some other problem wrt the OF transition code.  Just having a serial
-console selected still doesn't give output however, right?
+| Or maybe I shouldn't be using usbfs? Is it being depreciated?
 
-> another issue here: i was finally able to cross-compile 2.5.x / 2.6.x
-> kernels (on x86). i tried to compile kernels from 2.5.21 on with
-> "allnoconfig" (was introduced in 2.5.21). only 2.5.30 can be built, all
-> other attempts to build "zImage" fail...(still compiling 2.5.6x)...
-> (full logs of builds available...)
-
-The simple answer is, don't use allnoconfig :).  Do a 'make
-common_defconfig' and then from there turn off stuff you don't need.
+No, it's not being deprecated.
 
 --
-Tom Rini
-http://gate.crashing.org/~trini/
-
-** Sent via the linuxppc-dev mail list. See http://lists.linuxppc.org/
-
-
+~Randy

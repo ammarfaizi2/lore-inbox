@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278239AbRJ1M2A>; Sun, 28 Oct 2001 07:28:00 -0500
+	id <S278261AbRJ1Mfb>; Sun, 28 Oct 2001 07:35:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278258AbRJ1M1u>; Sun, 28 Oct 2001 07:27:50 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:31752 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S278239AbRJ1M1j>; Sun, 28 Oct 2001 07:27:39 -0500
-Message-ID: <3BDBF9C8.8E1F96AB@linux-m68k.org>
-Date: Sun, 28 Oct 2001 13:27:52 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Richard Gooch <rgooch@atnf.csiro.au>
-CC: Rik van Riel <riel@conectiva.com.br>,
-        Ryan Cumming <bodnar42@phalynx.dhs.org>,
-        Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: more devfs fun (Piled Higher and Deeper)
-In-Reply-To: <E15xaiJ-0001Na-00@localhost>
-		<Pine.LNX.4.33L.0110272259060.32445-100000@imladris.surriel.com> <200110280845.f9S8jjJ25269@mobilix.atnf.CSIRO.AU>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S278265AbRJ1MfV>; Sun, 28 Oct 2001 07:35:21 -0500
+Received: from [203.134.64.99] ([203.134.64.99]:50181 "EHLO
+	smtp01.iprimus.net.au") by vger.kernel.org with ESMTP
+	id <S278261AbRJ1MfL>; Sun, 28 Oct 2001 07:35:11 -0500
+Message-ID: <01C16009.C6751AA0.danduke@iprimus.com.au>
+From: Daniel Duke <danduke@iprimus.com.au>
+To: "Linux Kernel Mailing List (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Kernel 2.4.x freezes on boot
+Date: Sun, 28 Oct 2001 23:39:18 +1100
+X-Mailer: Microsoft Internet E-mail/MAPI - 8.0.0.4211
+X-OriginalArrivalTime: 28 Oct 2001 12:35:32.0494 (UTC) FILETIME=[08D062E0:01C15FAD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+As the subject indicates, I'm having trouble running 2.4.x kernels.  I've 
+tried 2.4.10 and 2.4.13, and both of them compile perfectly (no errors) but 
+when I insert them into LILO and reboot I get the following:
 
-Richard Gooch wrote:
+LILO:  Linux
+Loading Linux........
 
-> Furthermore, I've nearly finished the big rewrite of devfs which adds
-> proper locking and refcounting. That work was progressing nicely (but
-> it's a big job), although it's temporarily stalled because of some
-> important travel. Work on that will resume in the next couple of
-> weeks. There's no point sending in an incomplete version of the code.
+and the computer freezes at this point, every time.  I've tried compiling 
+it for PIII/Celeron Coppermine (which is the correct one for me I think) 
+and 386.  I've compiled the kernel under Debian GNU/Linux 2.2r3 (kernel 
+2.2.19) with GCC 2.91.66.
 
-What about putting them somewhere in a CVS repository, so people can see
-what's going on and maybe even can help out?
-BTW you should really do something about your coding style, your code is
-very confusing to read. I wouldn't care if it would be just some driver,
-but devfs is supposed to be a very important part, so it would be nice
-to use the same rules that apply to other important parts of the kernel.
+My computer's basic hardware specs are:
+CPU = Celeron 566
+RAM = 256MB PC100 SDRAM
+M/B = Gigabyte GA6VXE7+
+IDE = 	hda = primary hard disk (windows and MBR here)
+	hdb = cd-rw
+	hdc = secondry hard disk (linux root & swap partitions live here)
+	hdd = cd-rom
 
-bye, Roman
+I've been tearing my hair out over this for about a fortnight now.  I'd 
+provide more debugging info, but the computer doesn't give any because it 
+freezes so early.  I am probably just forgetting to do something important, 
+as this is the first time I've ever tried to compile my own kernel.  Any 
+pointers or suggestions would be greatly appreciated.
+
+>From Daniel
+
+

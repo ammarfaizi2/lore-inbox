@@ -1,81 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbVALTYz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbVALT2u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261353AbVALTYz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 14:24:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVALTW1
+	id S261356AbVALT2u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 14:28:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVALT0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 14:22:27 -0500
-Received: from fw.osdl.org ([65.172.181.6]:37331 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261305AbVALTUQ (ORCPT
+	Wed, 12 Jan 2005 14:26:31 -0500
+Received: from fw.osdl.org ([65.172.181.6]:60883 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261320AbVALTVo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 14:20:16 -0500
-Date: Wed, 12 Jan 2005 11:20:15 -0800
+	Wed, 12 Jan 2005 14:21:44 -0500
+Date: Wed, 12 Jan 2005 11:21:37 -0800
 From: Chris Wright <chrisw@osdl.org>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: Chris Wright <chrisw@osdl.org>, William Lee Irwin III <wli@holomorphy.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: node_online_map patch kills x86_64
-Message-ID: <20050112112015.P24171@build.pdx.osdl.net>
-References: <20050111151656.A24171@build.pdx.osdl.net> <20050112000726.GD14443@holomorphy.com> <20050111163504.D24171@build.pdx.osdl.net> <1105555323.8266.2.camel@arrakis>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Chris Wright <chrisw@osdl.org>, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: thoughts on kernel security issues
+Message-ID: <20050112112137.Q24171@build.pdx.osdl.net>
+References: <20050112094807.K24171@build.pdx.osdl.net> <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <20050112104407.N24171@build.pdx.osdl.net> <Pine.LNX.4.58.0501121051360.2310@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <1105555323.8266.2.camel@arrakis>; from colpatch@us.ibm.com on Wed, Jan 12, 2005 at 10:42:03AM -0800
+In-Reply-To: <Pine.LNX.4.58.0501121051360.2310@ppc970.osdl.org>; from torvalds@osdl.org on Wed, Jan 12, 2005 at 10:57:25AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Matthew Dobson (colpatch@us.ibm.com) wrote:
-> On Tue, 2005-01-11 at 16:35, Chris Wright wrote:
-> > Thanks wli.  Seems Andi understands the issue despite my unintelligible
-> > bug report ;-)
+* Linus Torvalds (torvalds@osdl.org) wrote:
+> On Wed, 12 Jan 2005, Chris Wright wrote:
 > > 
-> > thanks,
-> > -chris
+> > Right, I know you don't like the embargo stuff.
 > 
-> So I assume you were trying to saying that backing out the patches makes
-> the machine boot, and leaving them in kills it, right?
+> I'd very happy with a "private" list in the sense that people wouldn't 
+> feel pressured to fix it that day, and I think it makes sense to have some 
+> policy where we don't necessarily make them public immediately in order to 
+> give people the time to discuss them. 
 
-Yes, exactly.  Not sure which part of my brain was misfiring when I
-wrote that gibberish ;-)
+That's what I figured you meant.
 
-> And does Andi's
-> "[PATCH] x86_64: Optimize nodemask operations slightly" fix your
-> problem?  I'm assuming that's what the reference to "Andi understanding
-> the issue" meant?  Or is there still a problem booting x86_64 with the
-> numnodes -> node_online_map patches?
+> But it should be very clear that no entity (neither the reporter nor any
+> particular vendor/developer) can require silence, or ask for anything more
+> than "let's find the right solution". A purely _technical_ delay, in other
+> words, with no politics or other issues involved.
 
-The patch from Andi that I tested which fixed the issue for me was:
+Agreed.
 
-Index: linux/arch/x86_64/mm/srat.c
-===================================================================
---- linux.orig/arch/x86_64/mm/srat.c	2005-01-09 18:19:17.%N +0100
-+++ linux/arch/x86_64/mm/srat.c	2005-01-12 02:43:54.%N +0100
-@@ -29,8 +29,8 @@
- 	if (pxm2node[pxm] == 0xff) {
- 		if (num_online_nodes() >= MAX_NUMNODES)
- 			return -1;
--		pxm2node[pxm] = num_online_nodes();
--		node_set_online(num_online_nodes());
-+		pxm2node[pxm] = num_online_nodes() - 1;
-+		node_set_online(pxm2node[pxm]);
- 	}
- 	return pxm2node[pxm];
- }
+> Otherwise it just becomes politics:  you end up having security firms that
+> want a certain date because they want a PR blitz, and you end up having
+> vendors who want a certain date because they have release issues.
 
+There is value in coordinating with vendors, namely to keep them from
+being caught with pants down.  But vendor-sec already does this part
+well enough.
 
-This looks like just a straight fix for the following from your patch (AFAICT):
+> Does that mean that vendor-sec would end up being used for some things,
+> where people _want_ the politics and jockeying for position?  Probably.
+> But having a purely technical alternative would be wonderful.
+> 
+> > > If that means that you can get only the list by invitation-only, that's
+> > > fine. 
+> > 
+> > Opinions on where to set it up?  vger, osdl, ...?
+> 
+> I don't personally think it matters. Especially if we make it very clear 
+> that it's purely technical, and no vendor politics can enter into it. 
+> Whatever ends up being easiest. 
 
--		pxm2node[pxm] = numnodes - 1;
--		numnodes++;
-+		pxm2node[pxm] = num_online_nodes();
-+		node_set_online(num_online_nodes());
+Well, easiest for me is here ;-)
 
-However, what's in bk is a bit different and it too is working well:
-
-http://linux.bkbits.net:8080/linux-2.6/gnupatch@41e543d4Ujgg-Hk9pyWGiXvs7oXkBw
-
-Hope that clarifies.  Thanks.
+thanks,
 -chris
 -- 
 Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

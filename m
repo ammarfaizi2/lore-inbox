@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271697AbTGRFO4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 01:14:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271699AbTGRFO4
+	id S271700AbTGRFV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 01:21:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271703AbTGRFV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 01:14:56 -0400
-Received: from fed1mtao07.cox.net ([68.6.19.124]:49322 "EHLO
-	fed1mtao07.cox.net") by vger.kernel.org with ESMTP id S271697AbTGRFO4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 01:14:56 -0400
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] /proc/slabinfo formatting cosmetic fix (2.6.0-test1)
-From: junkio@cox.net
-Date: Thu, 17 Jul 2003 22:29:50 -0700
-Message-ID: <7v1xwo5rn5.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 18 Jul 2003 01:21:56 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:19433 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S271700AbTGRFVz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 01:21:55 -0400
+Date: Thu, 17 Jul 2003 22:26:51 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: "James H. Cloos Jr." <cloos@jhcloos.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SET_MODULE_OWNER
+Message-Id: <20030717222651.2747a93e.davem@redhat.com>
+In-Reply-To: <m3isq0d0wi.fsf@lugabout.jhcloos.org>
+References: <1058446580.18647.11.camel@ezquiel.nara.homeip.net>
+	<3F16C190.3080205@pobox.com>
+	<200307171756.19826.schlicht@uni-mannheim.de>
+	<3F16C83A.2010303@pobox.com>
+	<20030717125942.7fab1141.davem@redhat.com>
+	<1058477803.754.11.camel@ezquiel.nara.homeip.net>
+	<20030717144031.3bbacee5.davem@redhat.com>
+	<m3isq0d0wi.fsf@lugabout.jhcloos.org>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The slabinfo header line seems to have unbalanced <> pairs.
+On 17 Jul 2003 22:27:57 -0400
+"James H. Cloos Jr." <cloos@jhcloos.com> wrote:
 
---- linux-2.6.0-test1/mm/slab.c	2003-07-10 13:12:58.000000000 -0700
-+++ linux-2.6.0-test1/mm/slab.c	2003-07-17 22:26:26.000000000 -0700
-@@ -2482,11 +2482,11 @@
- 		seq_puts(m, "slabinfo - version: 2.0\n");
- #endif
- 		seq_puts(m, "# name            <active_objs> <num_objs> <objsize> <objperslab> <pagesperslab>");
--		seq_puts(m, " : tunables <batchcount> <limit <sharedfactor>");
-+		seq_puts(m, " : tunables <batchcount> <limit> <sharedfactor>");
- 		seq_puts(m, " : slabdata <active_slabs> <num_slabs> <sharedavail>");
- #if STATS
- 		seq_puts(m, " : globalstat <listallocs> <maxobjs> <grown> <reaped> <error> <maxfreeable> <freelimit>");
--		seq_puts(m, " : cpustat <allochit <allocmiss <freehit <freemiss>");
-+		seq_puts(m, " : cpustat <allochit> <allocmiss> <freehit> <freemiss>");
- #endif
- 		seq_putc(m, '\n');
- 	}
+> >>>>> "David" == David S Miller <davem@redhat.com> writes:
+> 
+> David> Are you using ipv6? 
+> 
+> Yes, compiled in.
 
+I really think this is the issue, try to eliminate
+it from your environment to verify.

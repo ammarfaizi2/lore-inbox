@@ -1,77 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262219AbTDVGbc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 02:31:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbTDVGbc
+	id S261848AbTDVGXz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 02:23:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbTDVGXz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 02:31:32 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:21157 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S262219AbTDVGbb
-	(ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Tue, 22 Apr 2003 02:31:31 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
+	Tue, 22 Apr 2003 02:23:55 -0400
+Received: from mx1.technologica.biz ([217.75.131.34]:60854 "EHLO
+	mx1.technologica.biz") by vger.kernel.org with ESMTP
+	id S261848AbTDVGXy convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 02:23:54 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16036.58518.467848.341356@laputa.namesys.com>
-Date: Tue, 22 Apr 2003 10:43:34 +0400
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: Andrew Morton <akpm@digeo.com>
-Cc: Linux-Kernel@Vger.Kernel.ORG
-Subject: Re: zone->nr_inactive race?
-In-Reply-To: <20030421153449.69b494fc.akpm@digeo.com>
-References: <16036.12627.477016.967042@laputa.namesys.com>
-	<20030421153449.69b494fc.akpm@digeo.com>
-X-Mailer: VM 7.07 under 21.5  (beta11) "cabbage" XEmacs Lucid
-X-Tom-Swifty: "Ed is the Standard Text Editor," Tom sed.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: Help needed: unable to stop /dev/md1 where root is mounted on 2.4.19.SuSE-246
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Date: Tue, 22 Apr 2003 09:37:22 +0300
+Message-ID: <15F26D0D9E18E24583D912511D668FF802722A@exchange.ad.tlogica.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-topic: Help needed: unable to stop /dev/md1 where root is mounted on 2.4.19.SuSE-246
+Thread-Index: AcMImaFCvDVvnPfeSKeXJ4tglhPGcw==
+From: "Michael Daskalov" <MDaskalov@technologica.biz>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
- > Nikita Danilov <Nikita@Namesys.COM> wrote:
- > >
- > > This fragment of refill_inactive_zone() looks strange:
- > > 
- > > 		list_move(&page->lru, &zone->inactive_list);
- > > 		if (!pagevec_add(&pvec, page)) {
- > > 			spin_unlock_irq(&zone->lru_lock);
- > > 			if (buffer_heads_over_limit)
- > > 				pagevec_strip(&pvec);
- > > 			__pagevec_release(&pvec);
- > > 			spin_lock_irq(&zone->lru_lock);
- > > 		}
- > > 
- > 
- > Thanks, you're dead right.  That's buggy.
- > 
- > I am fairly surprised that you were able to hit this.  How are you doing
- > it?  On a 1G machine with a teeny ZONE_HIGHMEM??
+Hi all,
+I have the following situation. I have my root partition on RAID1 (/dev/hda5 and /dev/sda5) - /dev/md1.
 
-:)
+I have two partitions for boot, which are also in raid1 configuration.
+/dev/md0 (/dev/hda1, /dev/sda1).
 
-Modester:
+On system reboot or shutdown the md device is not stopped (a clean record is not written on it),
+And after system reboot it always starts reconstructing.
 
-Dual Xeon, 2.20GHz with hyper threading.
+Which is the correct way to setup the situation?
 
-512M of ram, but with CONFIG_HIGHMEM4G=y.
 
-I am running
+I'm activating the raid devices through initrd's linuxrc, where I'm loading a 
+1) hpt302.o driver,
+2) raid1.o, raid5.o - The raid personality modules, and then I run 
+3)raidstart --all.
 
-ftp://ftp.namesys.com/pub/namesys-utils/nfs_fh_stale.c
 
-with 
+On shutdown I see messages that
+/dev/md2, /dev/md3, /dev/md4 are also stopped.
 
-./nfs -p 41 -i 100000000 -B -L 22000000 -F sync=0 -s 0 -f 1000000000 -M 1000000000
+I see a message saying /dev/md0 is put in read-only mode.
 
-on reiser4. Its on-disk working set stabilizes somewhere around 14G, and
-it produces large amounts of ->writepage() traffic.
+Only /dev/md1 where is my rootfs is not stopped.
+I see the following message:
+md: md1 is still active
 
- > 
- > I haven't tested this yet, but it should fix it up.
- > 
-
-OK, I shall try.
-
-Nikita.
+Best regards and 10x for any help,
+Mihail Daskalov

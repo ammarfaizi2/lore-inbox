@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285812AbRLTC1R>; Wed, 19 Dec 2001 21:27:17 -0500
+	id <S285828AbRLTCkT>; Wed, 19 Dec 2001 21:40:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285813AbRLTC1I>; Wed, 19 Dec 2001 21:27:08 -0500
-Received: from tierra.ucsd.edu ([132.239.214.132]:17042 "EHLO burn")
-	by vger.kernel.org with ESMTP id <S285812AbRLTC0x>;
-	Wed, 19 Dec 2001 21:26:53 -0500
-Date: Wed, 19 Dec 2001 18:26:28 -0800
-To: "David S. Miller" <davem@redhat.com>
-Cc: billh@tierra.ucsd.edu, bcrl@redhat.com, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, linux-aio@kvack.org
-Subject: Re: aio
-Message-ID: <20011219182628.A13280@burn.ucsd.edu>
-In-Reply-To: <20011219135708.A12608@devserv.devel.redhat.com> <20011219.161359.71089731.davem@redhat.com> <20011219171631.A544@burn.ucsd.edu> <20011219.172046.08320763.davem@redhat.com>
-Mime-Version: 1.0
+	id <S285831AbRLTCkK>; Wed, 19 Dec 2001 21:40:10 -0500
+Received: from pat.uio.no ([129.240.130.16]:52200 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S285828AbRLTCju>;
+	Wed, 19 Dec 2001 21:39:50 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011219.172046.08320763.davem@redhat.com>; from davem@redhat.com on Wed, Dec 19, 2001 at 05:20:46PM -0800
-From: Bill Huey <billh@tierra.ucsd.edu>
+Content-Transfer-Encoding: 7bit
+Message-ID: <15393.20331.862567.47007@charged.uio.no>
+Date: Thu, 20 Dec 2001 03:39:39 +0100
+To: David Chow <davidchow@rcn.com.hk>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: nfsroot dead slow with redhat 7.2
+In-Reply-To: <1008812943.16827.1.camel@star9.planet.rcn.com.hk>
+In-Reply-To: <3C2131FC.6040209@rcn.com.hk>
+	<shs6672n25h.fsf@charged.uio.no>
+	<1008812943.16827.1.camel@star9.planet.rcn.com.hk>
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 19, 2001 at 05:20:46PM -0800, David S. Miller wrote:
-> Precisely, in fact.  Anyone who can say that Java is going to be
-> relevant in a few years time, with a straight face, is only kidding
-> themselves.
+>>>>> " " == David Chow <davidchow@rcn.com.hk> writes:
 
-Oh give me coke shooting, Steeley Dan, late 70s bitter kernel
-programmer break...
+     > The network is fine. It is so slow that an ls -l at the rootfs
+     > takes more than 2 minutes. The readdir() seems alright because
+     > the ls immediate counts the number of records says "total
+     > blahbalh" but when doing individual lookup calls, it seems slow
+     > like hell. We have other production i686smp servers 2.4.14
 
-> Java is not something to justify a new kernel feature, that is for
-> certain.
+As I said: 'tcpdump' ought to show you what is going on.
 
-Java is here now and used extensively on server side applications.
-Simply dismissing it doesn't invalidate the claim that I made before
-about how this mentality is outdated.
+     > serving diskless i686 clients using
+     > 2.4.13 kernels works great. Is there any difference in nfsroot
+     >        with
+     > normal nfsmounts? And can we configure the nfsroot use a v3
 
-The economic inertia of Java driven server applications should have
-enough force that it is justifyable to RedHat and other commerical
-organizations to support it regardless of what your current view is
-on this topic.
+Nope: no differences. NFSroot uses the exact same code as standard
+NFS.
 
-Even within the BSD/OS group at BSDi/WindRiver, (/me former BSD/OS
-engineer) some kind of dedicated async IO system inside kernel was
-talked about as highly desireable and possibly a more direct way
-of dealing with VM page/async IO event issues that don't map
-conceptually to a scheduler context cleanly.
+     > mount?  becaus now it defaults to v2 always.
 
-AIO is good, plain and simple.
+As I said in my previous mail: use the mount option 'v3' on the kernel
+boot line if you want NFSv3.
 
-bill
+ e.g. nfsroot="10.0.0.1:/bar,v3"
 
+Cheers,
+   Trond

@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263946AbTLEMJT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 07:09:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263953AbTLEMJT
+	id S264113AbTLEMOx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 07:14:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264118AbTLEMOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 07:09:19 -0500
-Received: from as13-5-5.has.s.bonet.se ([217.215.179.23]:53141 "EHLO
-	K-7.stesmi.com") by vger.kernel.org with ESMTP id S263946AbTLEMJR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 07:09:17 -0500
-Message-ID: <3FD07611.4050709@stesmi.com>
-Date: Fri, 05 Dec 2003 13:12:01 +0100
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Fri, 5 Dec 2003 07:14:53 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:21655 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S264113AbTLEMOw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 07:14:52 -0500
 MIME-Version: 1.0
-To: Helge Hafting <helgehaf@aitel.hist.no>
-CC: "Ihar 'Philips' Filipau" <filia@softhome.net>,
-       Jason Kingsland <Jason_Kingsland@hotmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux GPL and binary module exception clause?
-References: <YPep.5Y5.21@gated-at.bofh.it> <Z3AK-Qw-13@gated-at.bofh.it> <3FCF696F.4000605@softhome.net> <3FD067CF.4010207@aitel.hist.no>
-In-Reply-To: <3FD067CF.4010207@aitel.hist.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16336.30392.344028.347132@alkaid.it.uu.se>
+Date: Fri, 5 Dec 2003 13:14:48 +0100
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Josh McKinney <forming@charter.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Catching NForce2 lockup with NMI watchdog
+In-Reply-To: <20031205083349.GA15152@forming>
+References: <20031205045404.GA307@tesore.local>
+	<16336.13962.285442.228795@alkaid.it.uu.se>
+	<20031205083349.GA15152@forming>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
+Josh McKinney writes:
+ > On approximately Fri, Dec 05, 2003 at 08:40:58AM +0100, Mikael Pettersson wrote:
+ > > Jesse Allen writes:
+ > >  > Hi,
+ > >  > 
+ > >  > I have a NForce2 board and can easily reproduce a lockup with grep on an IDE 
+ > >  > hard disk at UDMA 100.  The lockup occurs when both Local APIC + IO-APIC are 
+ > >  > enabled.  It was suggested to me to use NMI watchdog to catch it.  However, the 
+ > >  > NMI watchdog doesn't seem to work.
+ > >  > 
+ > >  > When I set the kernel parameter "nmi_watchdog=1" I get this message in 
+ > >  > /var/log/syslog:
+ > >  > Dec  4 20:10:30 tesore kernel: ..MP-BIOS bug: 8254 timer not connected to 
+ > >  > IO-APIC
+ > >  > Dec  4 20:10:30 tesore kernel: timer doesn't work through the IO-APIC - 
+ > >  > disabling NMI Watchdog!
+ > >  > 
+ > >  > "nmi_watchdog=2" seems to work at first, In /var/log/messages:
+ > >  > Dec  4 20:13:11 tesore kernel: testing NMI watchdog ... OK.
+ > >  > but it still locks up.
+ > > 
+ > > The NMI watchdog can only handle software lockups, since it relies on
+ > > the CPU, and for nmi_watchdog=1 the I/O-APIC + bus, still running.
+ > > Hardware lockups result in, well, hardware lockups :-(
+ > 
+ > So does this confirm that the lockups with nforce2 chipsets and apic
+ > is actually a hardware problem after all? 
 
-> Ihar 'Philips' Filipau wrote:
-> 
->>   GPL is about distribution.
->>
->>   e.g. NVidia can distribute .o file (with whatever license they have 
->> to) and nvidia.{c,h} files (even under GPL license).
->>   Then install.sh may do on behalf of user "gcc nvidia.c blob.o -o 
->> nvidia.ko". Resulting module are not going to be distributed - it is 
->> already at hand of end-user. So no violation of GPL whatsoever.
-> 
-> 
-> Open source still win if they do this.  Anybody interested
-> may then read the restricted source and find out how
-> the chip works.  They may then write an open driver
-> from scratch, using the knowledge.
+Confirm with very high probability. There may be quirks in nVidia's
+chipset that we (unlike their Windoze drivers) don't know about.
 
-What I think he means is that nvidia.c only contains glue code and
-blob.o contains the secret parts just like the current driver from
-nvidia.
-
-// Stefan
-
+Ask nVidia for detailed chipset documentation. Then maybe we can fix this.

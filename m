@@ -1,38 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264462AbTK0JUv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 04:20:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264463AbTK0JUv
+	id S264466AbTK0KEV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 05:04:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264468AbTK0KEU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 04:20:51 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:23816 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S264462AbTK0JUu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 04:20:50 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: bruce@perens.com (Bruce Perens), linux-kernel@vger.kernel.org
-Subject: Re: Signal left blocked after signal handler.
-Organization: Core
-In-Reply-To: <20031126173953.GA3534@perens.com>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.2-20031002 ("Berneray") (UNIX) (Linux/2.4.22-1-686-smp (i686))
-Message-Id: <E1APIKE-0002GV-00@gondolin.me.apana.org.au>
-Date: Thu, 27 Nov 2003 20:20:38 +1100
+	Thu, 27 Nov 2003 05:04:20 -0500
+Received: from mail.fh-wedel.de ([213.39.232.194]:53656 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S264466AbTK0KEF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Nov 2003 05:04:05 -0500
+Date: Thu, 27 Nov 2003 11:02:17 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: Nick Piggin <piggin@cyberone.com.au>, Robert White <rwhite@casabyte.com>,
+       "'Jesse Pollard'" <jesse@cats-chateau.net>,
+       "'Florian Weimer'" <fw@deneb.enyo.de>, Valdis.Kletnieks@vt.edu,
+       "'Daniel Gryniewicz'" <dang@fprintf.net>,
+       "'linux-kernel mailing list'" <linux-kernel@vger.kernel.org>
+Subject: Re: OT: why no file copy() libc/syscall ??
+Message-ID: <20031127100217.GA9199@wohnheim.fh-wedel.de>
+References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAilRHd97CfESTROe2OYd1HQEAAAAA@casabyte.com> <3FC5A7F0.8080507@cyberone.com.au> <Pine.LNX.4.58.0311270106430.6400@dlang.diginsite.com> <3FC5BC43.8030209@cyberone.com.au> <Pine.LNX.4.58.0311270143060.6400@dlang.diginsite.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0311270143060.6400@dlang.diginsite.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bruce Perens <bruce@perens.com> wrote:
+On Thu, 27 November 2003 01:50:46 -0800, David Lang wrote:
+> >
+> > I don't think it should do any linking / unlinking it should just work
+> > with file descriptors. Concurrent writes to a file don't have many
+> > guarantees. sys_copy shouldn't have to be any stronger (read weaker).
 > 
-> Test program attached below.
+> I'm thinking that it may actually be easier to do this via file paths
+> instead of file descripters. with file paths something like COW or
+> zero-copy copy can be done trivially (and the kernel knows the user
+> credentials of the program issuing the command and can pass them on to the
+> filesystem to see if it's allowed). I don't see how this can be done with
+> file descripters (if all you have is a file descripter you can truncate
+> and write a file, but you don't know all the links to that file so you
+> can't reposition that first inode for example).
 
-I don't know about your other problems, but your code is buggy.
+And how is userspace supposed to protect itself from race conditions?
+Just compare:
 
->        if ( sigsetjmp(sjbuf, 0) == 0 ) {
+fd1 = open(path1);
+if (stat(fd1) looks fishy)
+	abort();
+fd2 = open(path2);
+if (stat(fd2) looks fishy)
+	abort();
+copy(fd1, fd2);
 
-For sigsetjmp to be useful, you need to call it with a nonzero
-value in the second argument.
+and:
+
+fd1 = open(path1);
+if (stat(fd1) looks fishy)
+	abort();
+fd2 = open(path2);
+if (stat(fd2) looks fishy)
+	abort();
+copy(path1, path2);
+
+Jörn
+
 -- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Don't worry about people stealing your ideas. If your ideas are any good,
+you'll have to ram them down people's throats.
+-- Howard Aiken quoted by Ken Iverson quoted by Jim Horning quoted by
+   Raph Levien, 1979

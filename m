@@ -1,75 +1,89 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314281AbSEDPtg>; Sat, 4 May 2002 11:49:36 -0400
+	id <S314556AbSEDQVE>; Sat, 4 May 2002 12:21:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314360AbSEDPtf>; Sat, 4 May 2002 11:49:35 -0400
-Received: from [203.167.79.9] ([203.167.79.9]:8211 "EHLO willow.compass.com.ph")
-	by vger.kernel.org with ESMTP id <S314281AbSEDPtd>;
-	Sat, 4 May 2002 11:49:33 -0400
-Subject: Re: [Linux-fbdev-devel] Comments on fbgen.c and fbcon-accel.c
-From: Antonino Daplas <adaplas@pol.net>
-To: James Simmons <jsimmons@transvirtual.com>
-Cc: fbdev <linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10205031444260.9732-100000@www.transvirtual.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 04 May 2002 23:48:47 +0800
-Message-Id: <1020527361.752.1.camel@daplas>
-Mime-Version: 1.0
+	id <S314584AbSEDQVD>; Sat, 4 May 2002 12:21:03 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:8666 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S314556AbSEDQVB>; Sat, 4 May 2002 12:21:01 -0400
+Date: Sat, 4 May 2002 18:16:29 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Dave Jones <davej@suse.de>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.13-dj2
+In-Reply-To: <20020504114119.GA17853@suse.de>
+Message-ID: <Pine.NEB.4.44.0205041809410.283-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-05-04 at 05:47, James Simmons wrote:
-> 
-> > I have a few observations on fbgen and fbcon-accel.
-> 
-> Don't mix fbgen with fbcon-accel. The new gen_* stuff in fbgen.c is meant
-> to replace the old fbgen_* stuff. That is why the below doesn't work.
->  
-Okay, I've succeeded in rewriting the i810/i815 driver to use the gen_*
-stuff instead of fbgen_*.  As far as I can tell everything works :) --
-y-panning, accel, etc -- although gen_update_var() may not work
-properly.  I'm still getting incorrect cursor colors in 8 bpp, but
-that's probably my fault.  And you're right, it's actually easier to
-write the driver using the gen_* stuff.  
+Hi Dave,
 
-> 
-> > 2. Also, fbgen_switch basically just do an fbgen_do_set_var()
-> > (decode_var(), followed by set_par()).  This is okay most times, but
-> > it's probably better if fbgen_switch also does an encode_fix() since
-> > fbcon's drawing functions also rely on fix->line_length.
-> 
-> Most likely that is also broken. I haven't thought about it since I plan
-> to make all the old fbgen_* functions go away.
-> 
-fb_gen_switch may be broken, but I think gen_switch works just okay as
-long as info->fix is updated in set_par().
+I got the following compile error in cpqfcTSinit.c:
 
-> > If an fb_fix_screeninfo is not updated, display corruption occurs when
-> > switching to another display with a different pixelformat.
-> 
-> Correct. That is why I require info->fix to be updated when set_par is
-> called.
-> 
-Right.
+<--  snip  -->
 
-The i810fb patch is at
-http://prdownloads.sourceforge.net/i810fb/linux-2.5.13-i810fb.tar.bz2.
+...
+gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.5/linux-2.5.13/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc -I
+/usr/lib/gcc-lib/i386-linux/2.95.4/include -DKBUILD_BASENAME=cpqfcTSinit
+-c -o cpqfcTSinit.o cpqfcTSinit.c
+cpqfcTSinit.c: In function `cpqfcTS_ioctl':
+cpqfcTSinit.c:535: `CAP_RAW_IO' undeclared (first use in this function)
+cpqfcTSinit.c:535: (Each undeclared identifier is reported only once
+cpqfcTSinit.c:535: for each function it appears in.)
+cpqfcTSinit.c: At top level:
+cpqfcTSinit.c:1979: unknown field `reset' specified in initializer
+cpqfcTSinit.c:1979: duplicate initializer
+cpqfcTSinit.c:1979: (near initialization for
+`driver_template.eh_device_reset_handler')
+cpqfcTSinit.c:1979: unknown field `abort' specified in initializer
+make[3]: *** [cpqfcTSinit.o] Error 1
+make[3]: Leaving directory `/home/bunk/linux/kernel-2.5/linux-2.5.13/drivers/scsi'
 
-Tony
+<--  snip  -->
 
---- fbgen.c.orig	Sat May  4 14:35:32 2002
-+++ fbgen.c	Sat May  4 15:02:37 2002
-@@ -514,7 +514,8 @@
-     
- 	if (con == info->currcon) {
- 		if (info->fbops->fb_pan_display) {
--			if ((err = info->fbops->fb_pan_display(&info->var, con, info)))
-+		        /* Tony: offsets are still in disp->var, not info->var */
-+			if ((err = info->fbops->fb_pan_display(&fb_display[con].var, con, info)))
- 				return err;
- 		}
- 	}	
+
+The first part of the error message is strange. 2.5.13-dj2 does exactly
+the following change to this file:
+
+
+--- linux-2.5.13/drivers/scsi/cpqfcTSinit.c	Fri May  3 01:22:40 2002
++++ linux-2.5/drivers/scsi/cpqfcTSinit.c	Fri May  3 12:28:12 2002
+@@ -532,7 +532,7 @@
+
+ 	// must be super user to send stuff directly to the
+ 	// controller and/or physical drives...
+-	if( !capable(CAP_SYS_ADMIN) )
++	if( !capable(CAP_RAW_IO) )
+ 	  return -EPERM;
+
+ 	// copy the caller's struct to our space.
+
+
+
+This is the only place in the 2.5.13-dj2 patch where CAP_RAW_IO is
+mentioned and a grep showed that it's the only occurence of CAP_RAW_IO in
+the whole 2.5.13-dj2 kernel sources:
+
+<--  snip  -->
+
+~/linux/kernel-2.5/linux-2.5.13$ grep -r CAP_RAW_IO *
+drivers/scsi/cpqfcTSinit.c:     if( !capable(CAP_RAW_IO) )
+~/linux/kernel-2.5/linux-2.5.13$
+
+<--  snip  -->
+
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 

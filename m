@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261527AbTAOEK2>; Tue, 14 Jan 2003 23:10:28 -0500
+	id <S261495AbTAOENk>; Tue, 14 Jan 2003 23:13:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261530AbTAOEK1>; Tue, 14 Jan 2003 23:10:27 -0500
-Received: from blizzard.bluegravity.com ([64.57.64.28]:61458 "HELO
-	blizzard.bgci.net") by vger.kernel.org with SMTP id <S261527AbTAOEK0>;
-	Tue, 14 Jan 2003 23:10:26 -0500
-Message-ID: <3E24E1B2.3050308@ryanflynn.com>
-Date: Tue, 14 Jan 2003 23:21:06 -0500
-From: ryan <ryan@ryanflynn.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
+	id <S265681AbTAOENj>; Tue, 14 Jan 2003 23:13:39 -0500
+Received: from [64.8.50.184] ([64.8.50.184]:38892 "EHLO mta4.adelphia.net")
+	by vger.kernel.org with ESMTP id <S261495AbTAOENj>;
+	Tue, 14 Jan 2003 23:13:39 -0500
+Message-ID: <3029.10.1.0.252.1042604546.squirrel@webmail.laufernet.com>
+Date: Tue, 14 Jan 2003 20:22:26 -0800 (PST)
+Subject: Re: [PATCH] 2.5.58 sound/isa/sb/sb16.c isapnp compile
+From: <paul@laufernet.com>
+To: <matt@mh.dropbear.id.au>
+In-Reply-To: <20030115043417.GA12493@mh.dropbear.id.au>
+References: <20030115043417.GA12493@mh.dropbear.id.au>
+X-Priority: 3
+Importance: Normal
+X-MSMail-Priority: Normal
+Cc: <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.6)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.56 sound/oss/sb_mixer.c bounds check
-References: <3E24D1D5.5090200@ryanflynn.com> <200301141930.00567.akpm@digeo.com>
-In-Reply-To: <200301141930.00567.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yup.
-> 
-> It would be better to do:
-> 
-> 	if (dev < 0 || dev >= ARRAY_SIZE(smw_mix_regs))
+I have rewritten sb_card.c for use with the new pnp and modules interface.
+I'll get you a copy soon, my ISP has gone out of business and I've been
+without access for a few weeks now.
+I have also a patch to the rest of the oss soundblaster driver to make it
+use safe interfaces so that it can be unloaded.
+Paul
 
-yup, much better. i did a little housecleaning on the whole file, as 
-well as 2 more bounds checks in appropriate places.
+Matthew Hawkins said:
+> Here's a patch based on an earlier one by Ruslan Zakirov
+> to get the sb16 driver to compile again wrt. isapnp changes.
+>
+> Now, if someone could get it to _work_ I'd be grateful ;)
+>
+> Cheers,
+>
+> --
+> Matt
 
-i'm sorry to ask, but i'm new -- i've got a ~500 line patch, and my 
-email client is wrapping at 80 chars (unfortunately some lines run over 
-80 chars), is sending an attachment in ascii format ok? i've seen some 
-patches sent as attachments, not sure.
 
-waiting for a yes/no response, please cc me
 

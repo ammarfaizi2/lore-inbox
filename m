@@ -1,59 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbULNHey@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbULNHqD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261442AbULNHey (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 02:34:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbULNHey
+	id S261443AbULNHqD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 02:46:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbULNHqD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 02:34:54 -0500
-Received: from coyote.holtmann.net ([217.160.111.169]:2475 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S261442AbULNHev
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 02:34:51 -0500
-Subject: Re: [2.6 patch] net/bluetooth/: misc possible cleanups
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Max Krasnyansky <maxk@qualcomm.com>, bluez-devel@lists.sf.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Network Development Mailing List <netdev@oss.sgi.com>
-In-Reply-To: <20041214041352.GZ23151@stusta.de>
-References: <20041214041352.GZ23151@stusta.de>
-Content-Type: text/plain
-Date: Tue, 14 Dec 2004 08:34:08 +0100
-Message-Id: <1103009649.2143.65.camel@pegasus>
+	Tue, 14 Dec 2004 02:46:03 -0500
+Received: from news.suse.de ([195.135.220.2]:35743 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261443AbULNHqA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 02:46:00 -0500
+Date: Tue, 14 Dec 2004 08:45:54 +0100
+From: Andi Kleen <ak@suse.de>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 32-bit syscalls from 64-bit process on x86-64?
+Message-ID: <20041214074554.GK1046@wotan.suse.de>
+References: <1102004520.8707.10.camel@localhost> <20041203061520.GG31767@wotan.suse.de> <1102115789.8707.122.camel@localhost> <20041204144002.GA15404@vana.vc.cvut.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041204144002.GA15404@vana.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
+> #define TOLM                            \
+>                 "pushl %%cs\n"          \
+>                 "pushl $91f\n"          \
+>                 "ljmpl $0x33,$90f\n"    \
 
-> The patch below contains the following possible cleanups:
-> - make needlessly global code static
-> - remove the following EXPORT_SYMBOL'ed but unused functions in 
->   hci_core.c:
->   - hci_suspend_dev
->   - hci_resume_dev
->   - hci_register_cb
->   - hci_unregister_cb
+It's useless, there is nothing in the kernel code that checks the 
+32bit segment.
 
-these functions must stay. They have users outside the mainline kernel
-that are not merged back yet. Otherwise they won't be exported ;)
-
-> Please comment on which of these changes are correct and which conflict 
-> with pending patches.
-
-Please send a separate patch for all the RFCOMM changes, because these
-conflicts with some pending patches and then it will make it easier for
-me to merge them.
-
-The rest of the changes are fine with me, but I like to see also a
-separate patch for the CMTP stuff and cmtp_send_capimsg() don't need a
-forward declaration. Simply move the function to another place in the
-source code.
-
-Regards
-
-Marcel
-
-
+-Andi

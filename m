@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266438AbRGJObD>; Tue, 10 Jul 2001 10:31:03 -0400
+	id <S266428AbRGJOdM>; Tue, 10 Jul 2001 10:33:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266435AbRGJOaw>; Tue, 10 Jul 2001 10:30:52 -0400
-Received: from weta.f00f.org ([203.167.249.89]:42114 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S266422AbRGJOaq>;
-	Tue, 10 Jul 2001 10:30:46 -0400
-Date: Wed, 11 Jul 2001 02:30:39 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: Jesper Juhl <juhl@eisenstein.dk>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+	id <S266435AbRGJOcw>; Tue, 10 Jul 2001 10:32:52 -0400
+Received: from ns.caldera.de ([212.34.180.1]:27336 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S266428AbRGJOcv>;
+	Tue, 10 Jul 2001 10:32:51 -0400
+Date: Tue, 10 Jul 2001 16:32:43 +0200
+From: Christoph Hellwig <hch@caldera.de>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: linux-kernel@vger.kernel.org, hpa@zytor.com
 Subject: Re: How many pentium-3 processors does SMP support?
-Message-ID: <20010711023039.D31966@weta.f00f.org>
-In-Reply-To: <Pine.GSO.4.21.0107092315140.493-100000@faith.cs.utah.edu> <9ie450$d1p$1@cesium.transmeta.com> <20010711015128.E31799@weta.f00f.org> <3B4B28F8.49A6934A@eisenstein.dk>
+Message-ID: <20010710163243.A8818@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org,
+	hpa@zytor.com
+In-Reply-To: <20010710161943.A7785@caldera.de> <20010711022509.C31966@weta.f00f.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3B4B28F8.49A6934A@eisenstein.dk>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: Yes
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010711022509.C31966@weta.f00f.org>; from cw@f00f.org on Wed, Jul 11, 2001 at 02:25:09AM +1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 10, 2001 at 04:10:32PM +0000, Jesper Juhl wrote:
+On Wed, Jul 11, 2001 at 02:25:09AM +1200, Chris Wedgwood wrote:
+> What is the limit here? The 8/16 way SE chipsets?
 
-    There are some machines (like the Compaq Proliant ML770 -
-    http://www.compaq.com/products/quickspecs/10698_div/10698_div.html)
-    that are actually sold as 32 way systems based on Pentium III Xeon
-    CPU's, so why not let the cpu array be able to handle that many
-    CPU's by default (maybe make a config option?)?
+The largest Chipset I know about are the 8 Way ones.
+(What is SE?).
 
-Wow... what a beats.  Its CMP based which isn't supported.  I wonder
-if more details on that are available somewhere?
+>     > In anyone from Compaq is reading this, you should send me a 32-way
+>     > Xeon ASAP just to prove they really work :)
+>     
+>     It doesn't.
+> 
+> Oh, then they definately need to send me one.
 
+Heh :)
 
+> Are these not MP1.4 based? Something different?
 
-  --cw
+They must be the Unisys OEM machines.  They are based on some
+crossbar-architecture called CMP that allows logical partioning, etc..
+
+I have talked to Unisys engineers on last Cebit who said that the NT
+(now W2k) port required a huge amount of work.
+Also I noticed that UnixWare^H^H^H^H^HOpenUnix needed work to run on it.
+
+	Christoph
+
+-- 
+Whip me.  Beat me.  Make me maintain AIX.

@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267636AbUG3Gqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267635AbUG3Gtz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267636AbUG3Gqb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 02:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267635AbUG3Gqb
+	id S267635AbUG3Gtz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 02:49:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267641AbUG3Gtz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 02:46:31 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:57866 "HELO
+	Fri, 30 Jul 2004 02:49:55 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:59146 "HELO
 	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S267636AbUG3Gq1 convert rfc822-to-8bit (ORCPT
+	id S267639AbUG3Gtx convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 02:46:27 -0400
+	Fri, 30 Jul 2004 02:49:53 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: gene.heskett@verizon.net, linux-kernel@vger.kernel.org
+To: "Randy.Dunlap" <rddunlap@osdl.org>, gene.heskett@verizon.net
 Subject: Re: 2.6.8-rc2 crash(s)?
-Date: Fri, 30 Jul 2004 09:45:47 +0300
+Date: Fri, 30 Jul 2004 09:49:27 +0300
 X-Mailer: KMail [version 1.4]
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>
-References: <200407242156.40726.gene.heskett@verizon.net> <20040729203603.1023ed38.rddunlap@osdl.org> <200407300050.53523.gene.heskett@verizon.net>
-In-Reply-To: <200407300050.53523.gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+References: <200407242156.40726.gene.heskett@verizon.net> <200407300050.53523.gene.heskett@verizon.net> <20040729220342.0a747257.rddunlap@osdl.org>
+In-Reply-To: <20040729220342.0a747257.rddunlap@osdl.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200407300945.47019.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-Id: <200407300949.27359.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >| >make fs/dcache.s
-> >|
-> >| Aha!  Voila!! It doesn't work in the "fs" subdir, but back out to
-> >| the top of the src tree and it works just fine.  Duh...
-> >
-> >Right, it needs the top-level makfile and kbuild machinery to do
-> > that.
-> >
-> >| Now, I must confess that what I'm looking at in those two files is
-> >| the .s is the source assembly that would normally be fed to gas,
-> >| and the objdump'ed version is the dissed object translated back to
-> >| gas source.  If no mistakes, they should be pretty close to the
-> >| same I'd think.  Am I on the right track?  Or full of it?
-> >
-> >Yes, right.
->
-> Which?
->
-> Right track, or full of it? :-)
->
-> In any event, I could send those two files along if you'd like, I'm
-> not an assembly guru on "amd/intel" chips, not even in my wildest
-> dreams .
+> | >Yeah, oopsen often don't kill the entire machine.
+> |
+> | Running 2.6.8-rc2 it sure did, deader than a doornail.  X's clock
+> | stopped, the whole maryann.  Keyboard leds off.  Had to use the reset
+> | button, and once or twice I had to do a full powerdown before it
+> | would enter post and reboot.  Then sit thru 20+ minutes of e2fscking
+> | all the drives of course.
 
-Send them, along with oops.
+  +-----------------+
+  | I love ReiserFS |
+  +-----------------+
+          | |
+          | | 
 
-BTW, compile 'oops-hunting' kernels with frame pointers in the future
-(I just compile all my kernels with it).
---
+-- 
 vda

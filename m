@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310916AbSCYBts>; Sun, 24 Mar 2002 20:49:48 -0500
+	id <S311025AbSCYByT>; Sun, 24 Mar 2002 20:54:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311025AbSCYBt2>; Sun, 24 Mar 2002 20:49:28 -0500
-Received: from servidor.unam.mx ([132.248.10.1]:49572 "EHLO servidor.unam.mx")
-	by vger.kernel.org with ESMTP id <S310916AbSCYBtR>;
-	Sun, 24 Mar 2002 20:49:17 -0500
-Date: Sun, 24 Mar 2002 20:09:33 -0600
-From: David Eduardo Gomez Noguera <davidgn@servidor.unam.mx>
-To: linux-kernel@vger.kernel.org
-Subject: CRC Errors Question.
-Message-Id: <20020324200933.16b48ffe.davidgn@servidor.unam.mx>
-In-Reply-To: <E16oqpY-0002bT-00@the-village.bc.nu>
-Reply-To: davidgn@servidor.unam.mx
-Organization: casa
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-2022-JP
+	id <S311532AbSCYByJ>; Sun, 24 Mar 2002 20:54:09 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:16389 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S311025AbSCYByC>; Sun, 24 Mar 2002 20:54:02 -0500
+Message-ID: <3C9E82DA.99D53C94@zip.com.au>
+Date: Sun, 24 Mar 2002 17:52:26 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Arjan Opmeer <a.d.opmeer@student.utwente.nl>
+CC: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: Anyone else seen VM related oops on 2.4.18?
+In-Reply-To: <20020325005633.GA1121@Ado.student.utwente.nl> <Pine.LNX.4.44L.0203242200080.18660-100000@imladris.surriel.com> <20020325011139.GA1165@Ado.student.utwente.nl>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
-How can i track down CRC Errors?
-They are not very common, but happen some times with 2.4.x kernels.
-Are they on the side of the boot loader or on the kernel?
-I use LILO 21.4-4 to boot.
-If they can be tracked, is there anything i can do to help to?
+Arjan Opmeer wrote:
+> 
+> On Sun, Mar 24, 2002 at 10:01:09PM -0300, Rik van Riel wrote:
+> > On Mon, 25 Mar 2002, Arjan Opmeer wrote:
+> >
+> > > Are there other people that are suffering from a VM related oops on
+> > > kernel 2.4.18?
+> > >
+> > > ... I am just trying to find out whether the kernel or the driver
+> > > upgrade is causing this problem.
+> >
+> > Well, can you reproduce the problem without the NVidia driver ?
+> 
+> I am waiting... :)
+> 
 
-Thank you.
+Please ensure that the kernel was built with `verbose BUG reporting',
+under the kernel hacking menu.
 
--- 
-ICQ: 15605359 Bicho
-                                  =^..^=
-First, they ignore you. Then they laugh at you. Then they fight you. Then
-you win. Mahatma Gandhi.-------------------------------気検体の一致
------------------------------------- 暑さ寒さも彼岸まで。
-恋にししょうなし。恋はしあんの他。
-アン アン アン とっても大好き
+And when it happens again, make sure that you take note
+of the line number at which it's hitting the BUG().  It'll
+be `Kernel BUG at page_alloc.c:NNN'.
 
+-

@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264791AbRFSVNA>; Tue, 19 Jun 2001 17:13:00 -0400
+	id <S264794AbRFSVMu>; Tue, 19 Jun 2001 17:12:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264792AbRFSVMu>; Tue, 19 Jun 2001 17:12:50 -0400
-Received: from intranet.resilience.com ([209.245.157.33]:11942 "EHLO
-	intranet.resilience.com") by vger.kernel.org with ESMTP
-	id <S264791AbRFSVMi>; Tue, 19 Jun 2001 17:12:38 -0400
-Mime-Version: 1.0
-Message-Id: <p0510030ab7556d686012@[10.128.7.49]>
-In-Reply-To: <15151.48287.782428.953466@pizda.ninka.net>
-In-Reply-To: <Pine.LNX.4.30.0106190940420.28643-100000@gene.pbi.nrc.ca>
- <3B2F769C.DCDB790E@kegel.com>	<20010619090956.R3089@work.bitmover.com>
- <p05100302b7553d481172@[10.128.7.49]>
- <15151.48287.782428.953466@pizda.ninka.net>
-Date: Tue, 19 Jun 2001 14:11:16 -0700
-To: "David S. Miller" <davem@redhat.com>
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S264792AbRFSVMa>; Tue, 19 Jun 2001 17:12:30 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:33446 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S264791AbRFSVMV>; Tue, 19 Jun 2001 17:12:21 -0400
+Date: Tue, 19 Jun 2001 15:12:01 -0600
+Message-Id: <200106192112.f5JLC1T16528@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Kai Henningsen <kaih@khms.westfalen.de>, linux-kernel@vger.kernel.org
+Subject: Re: Alan Cox quote?
+In-Reply-To: <20010619114940.A3089@work.bitmover.com>
+In-Reply-To: <3B2F769C.DCDB790E@kegel.com>
+	<dank@kegel.com>
+	<Pine.LNX.4.30.0106190940420.28643-100000@gene.pbi.nrc.ca>
+	<20010619090956.R3089@work.bitmover.com>
+	<838x7gT1w-B@khms.westfalen.de>
+	<20010619114940.A3089@work.bitmover.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 1:57 PM -0700 2001-06-19, David S. Miller wrote:
->So my basic point is that I don't want people to read what you said
->and believe "oh then the difference between threads vs. different
->processes under Solaris is due to Sparc hw architecture reasons
->instead of sw reasons" which simply isn't true.
+Larry McVoy writes:
+> Great, then we are in violent agreement on the single abstraction. 
+> On the second part, I stand by my previous statements that threads or
+> processes should be used sparingly.
+> 
+> All I'm doing is trying to counter all the "threads are great" hype.
+> This is a pretty intelligent pile of people but there are also a fair
+> number of people who read this list looking for nuggets of information.
+> If they walk away going "(a) Linux has a cool threading model, and 
+> (b) I should only use threads if I absolutely have to do so and even
+> then if there are more than there are CPUs I'm probably making a 
+> mistake", if they get that message, that's a good thing, IMHO.
 
-Yeah, my observation wasn't central to the discussion, and the 
-overhead of SPARC register windows is probably more relevant to 
-user-level threads, not to mention small compared to IO.
+New FAQ entry: http://www.tux.org/lkml/#s7-21
 
-It seems to me that the telling argument against threads has much 
-more to do with the potential complexity of the resulting code than 
-with after-all-minor performance considerations. If threads truly 
-gave one an elegant, fool-proof way to implement otherwise complex 
-applications, well, what are MIPS for, anyway?
+Yeah, it's probably a bit harsh :-)
 
-I have a question, though. The SGI "state threads" mentioned earlier 
-use threads in a controlled way with a state-machine programming 
-model, which among other things has the potential to take advantage 
-of multiple processors. How does one otherwise take advantage of MP 
-with a state machine? Multiple processes and shared memory?
+				Regards,
 
-
--- 
-/Jonathan Lundell.
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

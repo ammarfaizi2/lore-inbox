@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261985AbULHBTK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262004AbULHBTJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261985AbULHBTK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 20:19:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbULHBRm
+	id S262004AbULHBTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 20:19:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbULHBRG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 20:17:42 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:61578 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261988AbULHBPw (ORCPT
+	Tue, 7 Dec 2004 20:17:06 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:62090 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261997AbULHBPq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 20:15:52 -0500
-Date: Wed, 8 Dec 2004 02:14:19 +0100
+	Tue, 7 Dec 2004 20:15:46 -0500
+Date: Wed, 8 Dec 2004 02:14:24 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] DVB av7110_hw.c: remove unused functions (fwd)
-Message-ID: <20041208011419.GD5496@stusta.de>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] sched.c: remove an unused macro (fwd)
+Message-ID: <20041208011424.GE5496@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -30,59 +31,45 @@ Please apply.
 
 ----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
 
-Date:	Fri, 29 Oct 2004 02:16:52 +0200
+Date:	Fri, 29 Oct 2004 13:31:47 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: linux-dvb-maintainer@linuxtv.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] DVB av7110_hw.c: remove unused functions
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+	linux-kernel@vger.kernel.org
+Subject: [2.6 patch] sched.c: remove an unused macro
 
-The patch below removes three unused functions from 
-drivers/media/dvb/ttpci/av7110_hw.c
+On Fri, Oct 29, 2004 at 11:30:48AM +1000, Peter Williams wrote:
+> 
+> You missed some :-).  The cpu_to_node_mask() macros don't seem to be 
+> used either.
+
+I only searched for unused static inline functions (since this was 
+relatively easy).
 
 
-diffstat output:
- drivers/media/dvb/ttpci/av7110_hw.c |   15 ---------------
- 1 files changed, 15 deletions(-)
+But your comment seems to be correct, and below is the patch that 
+removes the cpu_to_node_mask macros.
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
---- linux-2.6.10-rc1-mm1-full/drivers/media/dvb/ttpci/av7110_hw.c.old	2004-10-28 23:04:59.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/drivers/media/dvb/ttpci/av7110_hw.c	2004-10-28 23:05:26.000000000 +0200
-@@ -577,21 +577,11 @@
+--- linux-2.6.10-rc1-mm2-full/kernel/sched.c.old	2004-10-29 13:28:14.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/kernel/sched.c	2004-10-29 13:28:24.000000000 +0200
+@@ -51,12 +51,6 @@
  
- #ifdef CONFIG_DVB_AV7110_OSD
+ #include <asm/unistd.h>
  
--static inline int ResetBlend(struct av7110 *av7110, u8 windownr)
--{
--	return av7110_fw_cmd(av7110, COMTYPE_OSD, SetNonBlend, 1, windownr);
--}
+-#ifdef CONFIG_NUMA
+-#define cpu_to_node_mask(cpu) node_to_cpumask(cpu_to_node(cpu))
+-#else
+-#define cpu_to_node_mask(cpu) (cpu_online_map)
+-#endif
 -
- static inline int SetColorBlend(struct av7110 *av7110, u8 windownr)
- {
- 	return av7110_fw_cmd(av7110, COMTYPE_OSD, SetCBlend, 1, windownr);
- }
- 
--static inline int SetWindowBlend(struct av7110 *av7110, u8 windownr, u8 blending)
--{
--	return av7110_fw_cmd(av7110, COMTYPE_OSD, SetWBlend, 2, windownr, blending);
--}
--
- static inline int SetBlend_(struct av7110 *av7110, u8 windownr,
- 		     enum av7110_osd_palette_type colordepth, u16 index, u8 blending)
- {
-@@ -606,11 +596,6 @@
- 			     windownr, colordepth, index, colorhi, colorlo);
- }
- 
--static inline int BringToTop(struct av7110 *av7110, u8 windownr)
--{
--	return av7110_fw_cmd(av7110, COMTYPE_OSD, WTop, 1, windownr);
--}
--
- static inline int SetFont(struct av7110 *av7110, u8 windownr, u8 fontsize,
- 			  u16 colorfg, u16 colorbg)
- {
+ /*
+  * Convert user-nice values [ -20 ... 0 ... 19 ]
+  * to static priority [ MAX_RT_PRIO..MAX_PRIO-1 ],
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

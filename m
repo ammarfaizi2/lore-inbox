@@ -1,57 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266245AbRGJMS3>; Tue, 10 Jul 2001 08:18:29 -0400
+	id <S266250AbRGJMej>; Tue, 10 Jul 2001 08:34:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266250AbRGJMSU>; Tue, 10 Jul 2001 08:18:20 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:39895 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S266245AbRGJMSM>;
-	Tue, 10 Jul 2001 08:18:12 -0400
-Message-ID: <3B4AF282.A5EA4FA2@mandrakesoft.com>
-Date: Tue, 10 Jul 2001 08:18:10 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-pre3 i686)
-X-Accept-Language: en
+	id <S266251AbRGJMe3>; Tue, 10 Jul 2001 08:34:29 -0400
+Received: from wretched.demon.co.uk ([193.237.109.203]:62479 "EHLO
+	linux1.wretched.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S266250AbRGJMeQ>; Tue, 10 Jul 2001 08:34:16 -0400
+Message-ID: <3B4AF64C.B801E8DB@wretched.demon.co.uk>
+Date: Tue, 10 Jul 2001 13:34:20 +0100
+From: Simon Waters <Simon@wretched.demon.co.uk>
+Reply-To: Simon@wretched.demon.co.uk
+Organization: Eighth Layer Limited
 MIME-Version: 1.0
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.7-pre5 missing symbols?
-In-Reply-To: <20010710115400.5ED711C495@oscar.casa.dyndns.org>
+To: linux-kernel@vger.kernel.org
+Subject: Progress Re: IP DoS on 2.2.17
+In-Reply-To: <3B48829E.1975F8E4@wretched.demon.co.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Tomlinson wrote:
-> Is it just me or is there something missing?
+Simon Waters wrote:
 > 
-> oscar# depmod -ae 2.4.7-pre5
-> depmod: *** Unresolved symbols in /lib/modules/2.4.7-pre5/kernel/drivers/net/8139too.o
-> depmod:         cpu_raise_softirq
-> depmod: *** Unresolved symbols in /lib/modules/2.4.7-pre5/kernel/drivers/net/ppp_generic.o
-> depmod:         cpu_raise_softirq
-> depmod: *** Unresolved symbols in /lib/modules/2.4.7-pre5/kernel/drivers/net/tulip/tulip.o
-> depmod:         cpu_raise_softirq
-> depmod: *** Unresolved symbols in /lib/modules/2.4.7-pre5/kernel/drivers/net/via-rhine.o
-> depmod:         cpu_raise_softirq
+> Please excuse a post from a non-member, but this seems the
+> most suitable place I could find. Please e-mail me any
+> thoughts, and I'll summarise if I make any progress.
 
-Look like a bad patch, pre5 definitely has the following:
+The problem also occurs with 2.2.19. 
 
-> diff -Naur -X /g/g/lib/dontdiff linux-2.4.7-pre4/kernel/ksyms.c linux-2.4.7-pre5/k
-> ernel/ksyms.c
-> --- linux-2.4.7-pre4/kernel/ksyms.c     Mon Jul  9 23:11:59 2001
-> +++ linux-2.4.7-pre5/kernel/ksyms.c     Tue Jul 10 02:00:58 2001
-> @@ -538,6 +538,8 @@
->  EXPORT_SYMBOL(tasklet_kill);
->  EXPORT_SYMBOL(__run_task_queue);
->  EXPORT_SYMBOL(do_softirq);
-> +EXPORT_SYMBOL(raise_softirq);
-> +EXPORT_SYMBOL(cpu_raise_softirq);
->  EXPORT_SYMBOL(tasklet_schedule);
->  EXPORT_SYMBOL(tasklet_hi_schedule);
->  
+Symptoms are identical, following some sort of port scan,
+outgoing packets are dropped until you remove kernel modules
+down to and including slhc.
 
--- 
-Jeff Garzik      | A recent study has shown that too much soup
-Building 1024    | can cause malaise in laboratory mice.
-MandrakeSoft     |
+Demon users report a steady drip of problems related to
+compression of ISDN and Linux, including today a panic - I'm
+digging there for kernel versions etc.
+
+I'm going to mindlessly stare at the source code for slhc.c
+and see if I'm inspired.
+ 
+> Should I upgrade to 2.2.19 and hope it goes away?
+
+It doesn't.
+ 
+> Any one any idea on the scanner in use? If I could reproduce
+> the problem at will I'd be in a better position to analyse
+> what is happening.
+
+No news here. 
+
+I haven't found any neat tools either - pondering netcat and
+portsentry, netcat at least lets me run an arbitary program
+on receipt of an arbitary UDP IP packet, I guess I was
+hoping for something like IPtrap that sets TCPHOPSTIP before
+running an arbitary program....
+
+I'll try hacking netcat's GAPING_SECURITY_HOLE section....
+
+However if it is slhc.c getting muddled it could be a
+combination of packets, rather than just one bad egg. This
+is all a bit lower than the kind of IP problems I usually
+deal with.
+
+Meanwhile maybe I'll tcpdump the port 111 traffic, and see
+if the PEN-TEST list guys know what is hitting me.
+ 
+> I don't understand why I am the only one seeing this (I
+> found some promising references, only to find they were many
+> kernel revisions out of date) - it is a very infrequent
+> problem (Despite seeing scans against port 111 every few
+> hours, I've only seen this problem a handful of times).
+> 
+> Maybe others just assume it is yet another ISP problem and
+> reboot?!, but the ability to only get incoming packets is
+> rather distinctive (Although I only spotted this as I
+> happened to have pload running).
+
+I'm siding more with the nobody else has figured out what is
+wrong school of thought, and perhaps it only occurs with
+specific configurations.
+
+Replies as before by e-mail - thanks for the two replies so
+far. Good ideas both.
+
+	Simon

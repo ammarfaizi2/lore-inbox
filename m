@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbVA1OzS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVA1O6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261440AbVA1OzS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 09:55:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVA1OzS
+	id S261449AbVA1O6w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 09:58:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVA1O4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 09:55:18 -0500
-Received: from ns.suse.de ([195.135.220.2]:44996 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261440AbVA1OzM (ORCPT
+	Fri, 28 Jan 2005 09:56:55 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:15795 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261443AbVA1O41 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 09:55:12 -0500
-Date: Fri, 28 Jan 2005 15:55:11 +0100
-From: Olaf Hering <olh@suse.de>
-To: dtor_core@ameritech.net
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org
-Subject: Re: atkbd_init lockup with 2.6.11-rc1
-Message-ID: <20050128145511.GA29340@suse.de>
-References: <20050128132202.GA27323@suse.de> <20050128135827.GA28784@suse.de> <d120d50005012806435a17fe98@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <d120d50005012806435a17fe98@mail.gmail.com>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Fri, 28 Jan 2005 09:56:27 -0500
+Message-Id: <200501281456.j0SEuPRF017696@d01av04.pok.ibm.com>
+Subject: [PATCH 2/2] ppc64: Arch hook to determine config space size
+To: greg@kroah.com
+Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org, brking@us.ibm.com
+From: brking@us.ibm.com
+Date: Fri, 28 Jan 2005 08:56:24 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Fri, Jan 28, Dmitry Torokhov wrote:
 
-> On Fri, 28 Jan 2005 14:58:27 +0100, Olaf Hering <olh@suse.de> wrote:
-> > On Fri, Jan 28, Olaf Hering wrote:
-> > 
-> > >
-> > > My IBM RS/6000 B50 locks up with 2.6.11rc1, it dies in atkbd_init():
-> > 
-> > It fails also on PReP, not only on CHRP. 2.6.10 looks like this:
-> > 
-> > Calling initcall 0xc03bc430: atkbd_init+0x0/0x2c()
-> > atkbd.c: keyboard reset failed on isa0060/serio1
-> > atkbd.c: keyboard reset failed on isa0060/serio0
-> >
-> 
-> So it could not reset it even before, but it was not getting stuch
-> tough... What about passing atkbd.reset=0?
+When working with a PCI-X Mode 2 adapter on a PCI-X Mode 1 PPC64
+system, the current code used to determine the config space size
+of a device results in a PCI Master abort and an EEH error, resulting
+in the device being taken offline. This patch adds a ppc64
+override to query OF to determine if the system and PHB support
+PCI-X mode 2.
 
-I will try that.
-Adding a printk after the outb() fixes it as well. 
-Do you have a version of that i8042 delay patch for 2.6.11-rc2-bk6?
-Maybe it will help.
+Signed-off-by: Brian King <brking@us.ibm.com>
+---
+
+ linux-2.6.11-rc2-bk5-bjking1/arch/ppc64/kernel/pSeries_pci.c |   18 +++++++++++
+ 1 files changed, 18 insertions(+)
+
+diff -puN arch/ppc64/kernel/pSeries_pci.c~ppc64_arch_cfg_space_size arch/ppc64/kernel/pSeries_pci.c
+--- linux-2.6.11-rc2-bk5/arch/ppc64/kernel/pSeries_pci.c~ppc64_arch_cfg_space_size	2005-01-27 16:57:03.000000000 -0600
++++ linux-2.6.11-rc2-bk5-bjking1/arch/ppc64/kernel/pSeries_pci.c	2005-01-27 16:57:48.000000000 -0600
+@@ -583,3 +583,21 @@ static void fixup_winbond_82c105(struct 
+ }
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_WINBOND, PCI_DEVICE_ID_WINBOND_82C105,
+ 			 fixup_winbond_82c105);
++
++int pcibios_exp_cfg_space(struct pci_dev *dev)
++{
++	int *type;
++	struct device_node *dn;
++	struct pci_controller *hose = pci_bus_to_host(dev->bus);
++
++	if (!hose)
++		return 0;
++
++	dn = (struct device_node *) hose->arch_data;
++	type = (int *)get_property(dn, "ibm,pci-config-space-type", NULL);
++
++	if (type && *type == 1)
++		return 1;
++
++	return 0;
++}
+_

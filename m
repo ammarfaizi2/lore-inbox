@@ -1,102 +1,136 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264004AbSJOKFd>; Tue, 15 Oct 2002 06:05:33 -0400
+	id <S264628AbSJOKOe>; Tue, 15 Oct 2002 06:14:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264021AbSJOKFc>; Tue, 15 Oct 2002 06:05:32 -0400
-Received: from ns.suse.de ([213.95.15.193]:30472 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S264004AbSJOKFb> convert rfc822-to-8bit;
-	Tue, 15 Oct 2002 06:05:31 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SuSE Linux AG
-To: Andrew Morton <akpm@digeo.com>
-Subject: Re: [Ext2-devel] [PATCH] Compile without xattrs
-Date: Tue, 15 Oct 2002 12:11:19 +0200
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       ext2-devel@lists.sourceforge.net, tytso@mit.edu,
-       Matt Reppert <arashi@arashi.yi.org>
-References: <3DABA351.7E9C1CFB@digeo.com> <20021015005733.3bbde222.arashi@arashi.yi.org>
-In-Reply-To: <20021015005733.3bbde222.arashi@arashi.yi.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210151211.19353.agruen@suse.de>
+	id <S264632AbSJOKOe>; Tue, 15 Oct 2002 06:14:34 -0400
+Received: from mail18.svr.pol.co.uk ([195.92.67.23]:61961 "EHLO
+	mail18.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S264628AbSJOKOc>; Tue, 15 Oct 2002 06:14:32 -0400
+Date: Tue, 15 Oct 2002 11:20:23 +0100
+To: Jens Axboe <axboe@suse.de>
+Cc: Austin Gonyou <austin@coremetrics.com>, linux-lvm@sistina.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-lvm] Re: [PATCH] 2.5 version of device mapper submission
+Message-ID: <20021015102023.GA3929@fib011235813.fsnet.co.uk>
+References: <1034453946.15067.22.camel@irongate.swansea.linux.org.uk> <1034614756.29775.5.camel@UberGeek.coremetrics.com> <20021014175608.GA14963@fib011235813.fsnet.co.uk> <20021015082152.GA4827@suse.de> <20021015093244.GA3782@fib011235813.fsnet.co.uk> <20021015093608.GF5294@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021015093608.GF5294@suse.de>
+User-Agent: Mutt/1.4i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 October 2002 07:57, Matt Reppert wrote:
-> On Mon, 14 Oct 2002 22:10:41 -0700
->
-> Andrew Morton <akpm@digeo.com> wrote:
-> > - merge up the ext2/3 extended attribute code, convert that to use
-> >   the slab shrinking API in Linus's current tree.
->
-> Trivial patch for the "too chicken to enable xattrs for now" case, but I
-> need this to compile:
+On Tue, Oct 15, 2002 at 11:36:08AM +0200, Jens Axboe wrote:
+> (btw, do you have a complete patch against a recent kernel?)
 
-Please add this to include/linux/errno.h instead:
+Split patches are in here and were built against whatever bk pulled
+yesterday.
 
-#define ENOTSUP EOPNOTSUPP      /* Operation not supported */
+http://people.sistina.com/~thornber/patches/2.5-unstable
 
-ENOTSUPP is distinct from (EOPNOTSUPP = ENOTSUP)
+> Bouncing has just never been used with a cloned bio, so there might be a
+> corner case or two that needs to be fixed up.
 
-(Yes, it's a mess.)
+OK, in that case I think we have found one of those corner cases.
+Please review the BUG_ON at the top of blk_queue_bounce.
 
---Andreas.
+> But walk me through your
+> request handling, please. It seems you are always allocating a
+> clone_info and bio clone for io?
 
-> --- linux-2.5-orig/include/linux/ext2_xattr.h	2002-10-15 00:47:03 -0500
-> +++ linux-2.5/include/linux/ext2_xattr.h	2002-10-15 00:45:48 -0500
-> @@ -92,20 +92,20 @@
->  ext2_xattr_get(struct inode *inode, int name_index,
->  	       const char *name, void *buffer, size_t size)
->  {
-> -	return -ENOTSUP;
-> +	return -ENOTSUPP;
->  }
->
->  static inline int
->  ext2_xattr_list(struct inode *inode, char *buffer, size_t size)
->  {
-> -	return -ENOTSUP;
-> +	return -ENOTSUPP;
->  }
->
->  static inline int
->  ext2_xattr_set(struct inode *inode, int name_index, const char *name,
->  	       const void *value, size_t size, int flags)
->  {
-> -	return -ENOTSUP;
-> +	return -ENOTSUPP;
->  }
->
->  static inline void
-> --- linux-2.5-orig/include/linux/ext3_xattr.h	2002-10-15 00:49:59.000000000
-> -0500 +++ linux-2.5/include/linux/ext3_xattr.h	2002-10-15
-> 00:50:12.000000000 -0500 @@ -92,20 +92,20 @@
->  ext3_xattr_get(struct inode *inode, int name_index, const char *name,
->  	       void *buffer, size_t size, int flags)
->  {
-> -	return -ENOTSUP;
-> +	return -ENOTSUPP;
->  }
->
->  static inline int
->  ext3_xattr_list(struct inode *inode, void *buffer, size_t size, int flags)
->  {
-> -	return -ENOTSUP;
-> +	return -ENOTSUPP;
->  }
->
->  static inline int
->  ext3_xattr_set(handle_t *handle, struct inode *inode, int name_index,
->  	       const char *name, const void *value, size_t size, int flags)
->  {
-> -	return -ENOTSUP;
-> +	return -ENOTSUPP;
->  }
->
->  static inline void
->
->
-> Matt
+Before I dive into what dm is doing now I'll describe a couple of
+changes that I feel need to be made to the block layer.
 
+Flushing mapped io
+------------------
+
+Whever a mapping driver changes the mapping of a device that is in use
+it should ensure that any io already mapped with the previous
+mapping/table has completed.  At the moment I do this by hooking the
+bi_endio fn and incrementing an pending count (see
+dm_suspend/dm_resume).  Your new merge_bvec_fn (which I like) means
+that the request has effectively been partially remapped *before* it
+gets into the request function.  ie. the request is now mapping
+specific.  So before I can use merge_bvec_fn we need to move the
+suspend/resume functionality up into ll_rw_block (eg, move the pending
+count into the queue ?).  *Every* driver that dynamically changes a
+mapping needs this functionality, LVM1 ignores it but is so simple it
+*might* get away with it, dm certainly needs it, and I presume EVMS
+has similar code in their application.
+
+Agree ?
+
+
+Splitting pages
+---------------
+
+ATM the merge_bvec_fn is a predicate which states whether a page
+_can't_ be appended to a bio (a curious way round to do it).  The
+driver will always have to contain code that copes with the case when
+a mapping boundary occurs within a page (this happens).  I would
+really like to go the whole hog and change the merge_fn so that it
+returns how much of the page can be accepted.  As far as I can tell
+(you're probably about to put me right), the only reason you haven't
+done this is because:
+
+/*
+ * I/O completion handler for multipage BIOs.
+ *
+ * The mpage code never puts partial pages into a BIO (except for end-of-file).
+ * If a page does not map to a contiguous run of blocks then it simply falls
+ * back to block_read_full_page().
+ *
+ * Why is this?  If a page's completion depends on a number of different BIOs
+ * which can complete in any order (or at the same time) then determining the
+ * status of that page is hard.  See end_buffer_async_read() for the details.
+ * There is no point in duplicating all that complexity.
+ */
+
+I believe it _is_ possible to implement this without incurring
+significant CPU overhead or extra memory usage in the common case that
+the mapping boundaries do occur on page breaks (This was another
+reason why I was trying to get the users of bio_add_page using a
+slightly higher level api that takes the bio submitting out of their
+hands).
+
+BTW: is there any point calling the merge_bvec_fn in bio_add_page when
+the bios length is zero ?
+
+dm splitting now
+----------------
+
+The splitting code as it exists ATM is ignoring the merge_bvec_fn.
+I'm really not worried about performance yet, that said bonnie++
+results are very similar on a raw partition or a dm mapping.
+
+> request handling, please. It seems you are always allocating a
+> clone_info and bio clone for io?
+
+The clone_info is a little struct that sits on the stack, keeping
+track of the splitting progress.  It is not dynamically allocated.
+
+static void __split_bio(struct mapped_device *md, struct bio *bio)
+{
+	struct clone_info ci;
+
+	...
+
+	while (ci.sector_count)
+		__clone_and_map(&ci);
+
+
+If you look at the 2.4 version of dm you will see I'm using a struct
+io_hook to keep track of mapped bios in order to maintain the pending
+count for dm_suspend/dm_resume.  Since I will often need to allocate a
+bio_clone anyway I decided to do away with the struct io_hook, and
+always allocate the clone.
+
+I will be very happy when the above two changes have been made to the
+block layer and the request function can become a simple, single
+remapping.  No splitting or memory allocations will then be
+neccessary.
+
+- Joe

@@ -1,82 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264795AbSLBErq>; Sun, 1 Dec 2002 23:47:46 -0500
+	id <S264797AbSLBEvR>; Sun, 1 Dec 2002 23:51:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264797AbSLBErq>; Sun, 1 Dec 2002 23:47:46 -0500
-Received: from 182-121-ADSL.red.retevision.es ([80.224.121.182]:41923 "EHLO
-	jerry.marcet.dyndns.org") by vger.kernel.org with ESMTP
-	id <S264795AbSLBErp>; Sun, 1 Dec 2002 23:47:45 -0500
-Date: Mon, 2 Dec 2002 05:55:12 +0100
-From: Javier Marcet <jmarcet@pobox.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Nuno Monteiro <nuno@itsari.org>, linux-kernel@vger.kernel.org,
-       andrew@sol-1.demon.co.uk, jamagallon@able.es, khromy@lnuxlab.ath.cx,
-       conman@kolivas.net
-Subject: Re: Exaggerated swap usage
-Message-ID: <20021202045512.GA2479@jerry.marcet.dyndns.org>
-References: <20021201143713.GA871@hobbes.itsari.int> <20021202002108.GQ28164@dualathlon.random>
+	id <S264798AbSLBEvR>; Sun, 1 Dec 2002 23:51:17 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:53380 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S264797AbSLBEvQ>;
+	Sun, 1 Dec 2002 23:51:16 -0500
+Date: Mon, 2 Dec 2002 15:57:29 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       anton@samba.org, ak@muc.de, davidm@hpl.hp.com, schwidefsky@de.ibm.com,
+       ralf@gnu.org, willy@debian.org
+Subject: Re: [PATCH] Start of compat32.h (again)
+Message-Id: <20021202155729.55949b10.sfr@canb.auug.org.au>
+In-Reply-To: <1038804400.4411.4.camel@rth.ninka.net>
+References: <Pine.LNX.4.44.0212011047440.12964-100000@home.transmeta.com>
+	<1038804400.4411.4.camel@rth.ninka.net>
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ReaqsoxgOBHFXBhH"
-Content-Disposition: inline
-In-Reply-To: <20021202002108.GQ28164@dualathlon.random>
-X-Editor: Vim http://www.vim.org/
-X-Operating-System: Gentoo GNU/Linux 1.4 / 2.4.20-jam0-marcet i686 AMD Athlon(TM) XP 1800+ AuthenticAMD
-User-Agent: Mutt/1.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Dave,
 
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 01 Dec 2002 20:46:40 -0800 "David S. Miller" <davem@redhat.com> wrote:
+>
+> On Sun, 2002-12-01 at 10:54, Linus Torvalds wrote:
+> > But if the file is in kernel/xxxx, it 
+> > will be noticed - at least as well as it would be if it was uglifying 
+> > regular files with #ifdef's.
+> 
+> Ok, this I accept.
 
-* Andrea Arcangeli <andrea@suse.de> [021202 01:24]:
+So, does this mean you are happy if I produce patches with kernel/compat.c
+in them rather than code #ifdef'ed into the mainline? This, of course,
+begs the question of whether it should all go into kernel/compat.c or
+should there be an fs/compat.c, mm/compat.c ...
 
->> Pid: 2, comm:              keventd
->> EIP: 0010:[<c0142ae3>] CPU: 0 EFLAGS: 00000206    Not tainted
->> EAX: c10ec45c EBX: 00000033 ECX: c11f8838 EDX: 40000000
->> ESI: c2fed680 EDI: c10ec400 EBP: 00000033 DS: 0018 ES: 0018
->[..]
->> >>EIP; c0142ae3 <try_to_sync_unused_inodes+1f/1f8>   <=3D=3D=3D=3D=3D
-=20
->> >>EAX; c10ec45c <_end+e521e4/13c9de8>
->> >>ECX; c11f8838 <_end+f5e5c0/13c9de8>
->> >>ESI; c2fed680 <[sb].data.end+a7ffd/25a9dd>
->> >>EDI; c10ec400 <_end+e52188/13c9de8>
-=20
->> Trace; c0117114 <__run_task_queue+4c/60>
->> Trace; c011e0e9 <context_thread+11d/19c>
->> Trace; c010588c <kernel_thread+28/38>
+At the moment, I just want to get something that we all agree on past
+Linus and into his tree.
 
->ok, now it's clear what the problem is. there are inuse-dirty inodes
->that triggers a deadlock in the schedule-capable
-
->Can you give a spin to this untested incremental fix?
-
-This appears to do the trick. I've tried some tests which always locked
-it up before and now it's still rock stable.
-It's also the 2.4 kernel which works more smoothly here, under heavy io
-et all. Not yet 100% as well as 2.5 but quite near.
-Very good work :)
-
-Thanks for fixing the damn bug.
-
-
---=20
-Javier Marcet <jmarcet@pobox.com>
-
---ReaqsoxgOBHFXBhH
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iEYEARECAAYFAj3q57AACgkQx/ptJkB7frzDmwCcCtqNW6qVuxAAsiKvh7yES2aG
-qscAn0XuXdZ7YMb2GWG8IzZHBrNi7vOa
-=gOJr
------END PGP SIGNATURE-----
-
---ReaqsoxgOBHFXBhH--
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

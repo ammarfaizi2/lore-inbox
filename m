@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129410AbQLWUVd>; Sat, 23 Dec 2000 15:21:33 -0500
+	id <S129532AbQLWUbR>; Sat, 23 Dec 2000 15:31:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129532AbQLWUVX>; Sat, 23 Dec 2000 15:21:23 -0500
-Received: from tahallah.claranet.co.uk ([212.126.138.206]:28171 "EHLO
-	tahallah.clara.co.uk") by vger.kernel.org with ESMTP
-	id <S129410AbQLWUVG>; Sat, 23 Dec 2000 15:21:06 -0500
-Date: Sat, 23 Dec 2000 19:50:36 +0000 (GMT)
-From: Alex Buell <alex.buell@tahallah.clara.co.uk>
-Reply-To: <alex.buell@tahallah.clara.co.uk>
-To: Alex Buell <alex.buell@tahallah.clara.co.uk>
-cc: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Netgear FA311 (follow-up)
-In-Reply-To: <Pine.LNX.4.30.0012231607360.4359-100000@tahallah.clara.co.uk>
-Message-ID: <Pine.LNX.4.30.0012231946530.4671-100000@tahallah.clara.co.uk>
+	id <S129823AbQLWUbH>; Sat, 23 Dec 2000 15:31:07 -0500
+Received: from uberbox.mesatop.com ([208.164.122.9]:6665 "EHLO
+	uberbox.mesatop.com") by vger.kernel.org with ESMTP
+	id <S129532AbQLWUa4>; Sat, 23 Dec 2000 15:30:56 -0500
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.4.0-test13-pre4 fix drivers/ieee1394/Makefile
+Date: Sat, 23 Dec 2000 11:17:08 -0700
+X-Mailer: KMail [version 1.1.95.2]
+Content-Type: text/plain; charset=US-ASCII
+Cc: ebi4@ozob.net
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <00122311170801.07144@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Dec 2000, Alex Buell wrote:
+ebi4 wrote:
+>ld: cannot open drivers/ieee1394/ieee1394.a: No such file or directory
+>make: *** [vmlinux] Error 1
 
-> I recently bought a Netgear FA311 which does 10/100Mb/ethernet for my
-> first home network. I've looked and found driver sources which
-> apparently works only for 2.0.36. Ulp! Before I start cracking my
-> knuckles and working my deep magic to get it to work on 2.2.x, is
-> there any drivers already sorted for this card on the 2.2.x series?
+Changing the order of a few lines in linux/drivers/ieee1394/Makefile fixes 
+this problem.  Here is the patch:
+Steven
 
-Thanks to everyone who replied. I've now got Donald Becker's natsemi
-drivers from his site and have successfully compiled it. Whether it'll
-work is another story as I've got to crack this box and put in the card..
-
-Won't be long before I'll have my 100 megabits home network up and
-running, I hope. <big evil grin> Not long before I'll frag my kid brother
-in Quake too!
-
-Cheers,
-Alex
--- 
-I stand in my undergarments and hurl inventive in your general direction.
-
-http://www.tahallah.clara.co.uk
-
+diff -u linux/drivers/ieee1394/Makefile.orig linux/drivers/ieee1394/Makefile
+--- linux/drivers/ieee1394/Makefile.orig        Sat Dec 23 11:03:06 2000
++++ linux/drivers/ieee1394/Makefile     Sat Dec 23 11:04:08 2000
+@@ -23,7 +23,7 @@
+ obj-$(CONFIG_IEEE1394_VIDEO1394) += video1394.o
+ obj-$(CONFIG_IEEE1394_RAWIO) += raw1394.o
+ 
++include $(TOPDIR)/Rules.make
++
+ ieee1394.o: $(ieee1394-objs)
+        $(LD) -r -o $@ $(ieee1394-objs)
+-
+-include $(TOPDIR)/Rules.make
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311635AbSCTPGv>; Wed, 20 Mar 2002 10:06:51 -0500
+	id <S311642AbSCTPRD>; Wed, 20 Mar 2002 10:17:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311643AbSCTPGm>; Wed, 20 Mar 2002 10:06:42 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:40458 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S311635AbSCTPG1>; Wed, 20 Mar 2002 10:06:27 -0500
-Subject: Re: make rpm is not documented
-To: maftoul@esrf.fr (Samuel Maftoul)
-Date: Wed, 20 Mar 2002 15:22:35 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (lkml)
-In-Reply-To: <20020320154100.D21789@pcmaftoul.esrf.fr> from "Samuel Maftoul" at Mar 20, 2002 03:41:00 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S311643AbSCTPQw>; Wed, 20 Mar 2002 10:16:52 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:31943 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S311642AbSCTPQp>;
+	Wed, 20 Mar 2002 10:16:45 -0500
+Date: Wed, 20 Mar 2002 16:38:27 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Manon Goo <manon@manon.de>
+Cc: arrays@compaq.com, <linux-kernel@vger.kernel.org>, <tytso@MIT.EDU>,
+        =?ISO-8859-1?Q?Markus_Schr=F6der?= <schroeder.markus@allianz.de>
+Subject: Re: Hooks for random device entropy generation missing in cpqarray.c
+In-Reply-To: <4461574.1016634817@eva.dhcp.gimlab.org>
+Message-ID: <Pine.LNX.4.44.0203201630100.1268-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16nhv9-0002XX-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Second stuff, make rpm don't work for me on suse's kernel.
+On Wed, 20 Mar 2002, Manon Goo wrote:
 
-Ask SuSE 8)
+> All hooks for the random ganeration (add_blkdev_randomness() ) are ignored 
+> in the cpqarray / ida  driver.
+> 	Is a patch available ?
+> 	or an other updated driver ?
+> 	any hints where to put add_blkdev_randomness() in your driver ?
 
-> Didn't yet watched what is the problem, but seems to be related with
-> EXTRAVERSION or something like this.
+Its all handled by drivers/scsi/scsi_lib.c, its a generic service so is 
+done for all drivers.
 
-At least some versions of the script didnt like multiple '-' symbols. 
-Gerald Britton fixed this for 2.4.18
+> is add_interrupt_randomness() called on an i386 SMP IO-APCI system ?
 
-> I will have further look and will try to say as much as I can with my
-> poor knowledge.
+Yes, check out arch/i386/kernel/irq.c:handle_IRQ_event, irq.c is the 
+generic code which sits on top of the real interrupt controller driver, be 
+it an IOAPIC or regular PIC.
 
-Basically the thing works with
+Cheers,
+	Zwane
 
-make config/menuconfig/xconfig
-if you use make menu/xconfig then run make oldconfig (I dont trust xconfig..)
-make rpm
-
-[wait.. wait.. wait.. ]
-
-rpm --install
-
-add to lilo.conf
-
-enjoy
 

@@ -1,69 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292000AbSCEBGe>; Mon, 4 Mar 2002 20:06:34 -0500
+	id <S292763AbSCEBIO>; Mon, 4 Mar 2002 20:08:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293096AbSCEBGY>; Mon, 4 Mar 2002 20:06:24 -0500
-Received: from razor.hemmet.chalmers.se ([193.11.251.99]:26499 "EHLO
-	razor.hemmet.chalmers.se") by vger.kernel.org with ESMTP
-	id <S292000AbSCEBGO>; Mon, 4 Mar 2002 20:06:14 -0500
-Message-ID: <3C8419FF.10103@kjellander.com>
-Date: Tue, 05 Mar 2002 02:06:07 +0100
-From: Carl-Johan Kjellander <carljohan@kjellander.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020212
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: pwc-webcam attached to usb-ohci card blocks on read() indefinitely.
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S293103AbSCEBIF>; Mon, 4 Mar 2002 20:08:05 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:32101 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S292763AbSCEBHp>; Mon, 4 Mar 2002 20:07:45 -0500
+Date: Tue, 5 Mar 2002 02:05:46 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Bill Davidsen <davidsen@tmr.com>, Mike Fedyk <mfedyk@matchmail.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre1aa1
+Message-ID: <20020305020546.W20606@dualathlon.random>
+In-Reply-To: <20020305005215.U20606@dualathlon.random> <Pine.LNX.4.44L.0203042056110.2181-100000@imladris.surriel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L.0203042056110.2181-100000@imladris.surriel.com>
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a computer with four USB ports, one UHCI-controller on the
-motherboard and three OHCI PCI-cards from Lucent Technologies (can't
-get the exact make and model until tomorrow, no physical access right now).
+On Mon, Mar 04, 2002 at 09:01:31PM -0300, Rik van Riel wrote:
+> This could be expressed as:
+> 
+> "node A"  HIGHMEM A -> HIGHMEM B -> NORMAL -> DMA
+> "node B"  HIGHMEM B -> HIGHMEM A -> NORMAL -> DMA
 
-Attached to each one of these is an Philips ToUCam pro which uses the pwc
-and pwcx modules. (yes, the kernel becomes tainted by the pwcx module)
+Highmem? Let's assume you speak about "normal" and "dma" only of course.
 
-The camera attached to the UHCI-controller running usb-uhci works just fine,
-but the three attached to the OHCI-controllers running usb-ohci don't. After
-a random amount of frames being read from a camera the read()-call blocks
-indefinitely until the device is closed. Next time the v4l-device is opened
-the program can again read frames from the camera but read() always blocks
-after some time.
+And that's not always the right zonelist layout. If an allocation asks for
+ram from a certain node, like during the ram bindings, we should use the
+current layout of the numa zonelist. If node A is the preferred, than we
+should allocate from node A first, other logics (see the point-of-view
+watermarks in my tree) will make sure you fallback into node B if we
+risk to be unbalanced across the zones. However, the layout you mentioned
+above is sometime the right layout, for example for allocations with no
+"preference" on the node to allocate from, your layout would make
+perfect sense. But at the moment we miss an API to choose if the node
+allocation should be strict or not.
 
-The amount of frames that are successfully read can range from 50 to a
-couple of thousand, the amount seems to be totally random. There are no
-messages in the logs of any kind when the blocking occurs. It happens with
-both read() and mmap(), always on the usb-ohci cards and never on the
-usb-uhci onboard controller.
+Said that, see below to see how to implement the zonelist layout you
+suggested on top of the current vm (regardless if it's the best generic
+layout or not).
 
-Since we have never seen this problem with these cameras, and we've been
-using them for well over a year, so I don't think it is a bug in pwc.o. It
-could be flaky hardware, in which case usb-ohci should have a workaround.
-It could be that some of the cards are sharing IRQ's but one of the cards
-has a differant one, and the UHCI is on the same IRQ as two of the OHCI
-cards.
+>
+> How would you express this situation in classzone ?
 
-The most probable is that there is a bug somewhere in usb-ohci since we
-only see the behaviour with this card/driver combination, or that the
-cards are crap.
+Check my tree in the 20_numa-mm-1 patch, to implement your above layout,
+you need to make a 10 line change to build_zonelistss so that it fills
+the zonelist array with normal B before dma (and other way around for
+the normal classzone zonelist on the node B).
 
-I've tried both 2.4.17 and 18 with the same result.
+The memory balancing in my tree will just do the right thing after that,
+check the memclass based on zone_idx (that was needed for the old numa
+too infact).
 
-The only thing in dmesg is:
-pwc Iso frame 1 of USB has error -18
+In short it fits beautifully into it.
 
-But these messages occur without read() blocking most of the times.
+> So why would kswapd not go mad _with_ classzone ?
 
-Is there any way to get more info on what is going on in usb-ohci?
+because nobody asks for GFP_DMA and nobody cares about the state of the
+DMA classzone. And if somebody does it is right that kswapd has to try
+to make some progress, but if nobody asks there's no good reason to
+waste CPU.
 
-/Carl-Johan Kjellander
-please Cc me as I'm not subscribing to the list.
--- 
-begin 644 carljohan_at_kjellander_dot_com.gif
-Y1TE&.#=A(0`F`(```````/___RP`````(0`F```"@XR/!\N<#U.;+MI`<[U(>\!UGQ9BGT%>'D2I
-Y*=NX,2@OUF2&<827ILW;^822C>\7!!Z1,!K'B5(6H<SH-"E*TJ3%*/>QI6:7"A>Y?):D2^*U@NCV
-R<MOQ=]V(B6>LZYD-_T1U<@3W]A4(^$-W4]A#V")W6#.R"$;IR'@).46BN7$9>5D``#L`
+the scsi pool being allocated from DMA is not a problem, that never
+happens at runtime. if it happens before production kswapd will stop in
+a few seconds after a failed try.
 
+> I bet the workaround for that problem has very little
+> to do with classzones...
+
+that is not a workaround, the memory balancing knows what classzone it
+has to work on and so it doesn't fall into a senseless trap of trying to
+free a classzone that nobody cares about.
+
+My current VM code is very advanced about knowing every detail, it's not
+a guess "let's look at which zones have plenty of memory".  Just like it
+supports NUMA layouts like the above you mentioned just fine (even if
+you want to add highmem or any other zones you want). Note that this is
+all unrelated to rmap, we can just put rmap on top of my VM bits without
+any problem, that's completly orthogonal with the other bits.
+
+Andrea

@@ -1,51 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269428AbRIDWEw>; Tue, 4 Sep 2001 18:04:52 -0400
+	id <S269632AbRIDWIo>; Tue, 4 Sep 2001 18:08:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269421AbRIDWEm>; Tue, 4 Sep 2001 18:04:42 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:31012 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S269428AbRIDWEb>; Tue, 4 Sep 2001 18:04:31 -0400
-Date: Wed, 5 Sep 2001 00:04:37 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Jan Harkes <jaharkes@cs.cmu.edu>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: page_launder() on 2.4.9/10 issue
-Message-ID: <20010905000437.T699@athlon.random>
-In-Reply-To: <20010904131349.B29711@cs.cmu.edu> <20010904135427.A30503@cs.cmu.edu> <20010904215449.S699@athlon.random> <20010904200348Z16581-32383+3477@humbolt.nl.linux.org>
+	id <S269673AbRIDWId>; Tue, 4 Sep 2001 18:08:33 -0400
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:10048 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S269651AbRIDWI0>; Tue, 4 Sep 2001 18:08:26 -0400
+Date: Wed, 5 Sep 2001 00:08:44 +0200
+From: Kurt Garloff <kurt@garloff.de>
+To: David Rundle <davekern@ihug.co.nz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: gcc
+Message-ID: <20010905000844.W1055@gum01m.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <kurt@garloff.de>,
+	David Rundle <davekern@ihug.co.nz>,
+	kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B9541C1.5BEFE0BA@ihug.co.nz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="cxfMsoqvp1jUizWj"
 Content-Disposition: inline
-In-Reply-To: <20010904200348Z16581-32383+3477@humbolt.nl.linux.org>; from phillips@bonn-fries.net on Tue, Sep 04, 2001 at 10:10:42PM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <3B9541C1.5BEFE0BA@ihug.co.nz>
+User-Agent: Mutt/1.3.20i
+X-Operating-System: Linux 2.4.7 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 04, 2001 at 10:10:42PM +0200, Daniel Phillips wrote:
-> Which reproducible deadlocks did you have in mind, and how do I reproduce
-> them?
 
-I meant the various known oom deadlocks. I've one showstopper report
-with the blkdev in pagecache patch with in use also a small ramdisk
-pagecache backed, the pagecache backed works like ramfs etc.. marks the
-page dirty again in writepage, somebody must have broken page_launder or
-something else in the memory managment because exactly the same code was
-working fine in 2.4.7. Now it probably loops or breaks totally when
-somebody marks the page dirty again, but the vm problems are much much
-wider, starting from the kswapd loop on gfp dma or gfp normal, the
-overkill swapping when there's tons of ram in freeable cache and you are
-taking advantage of the cache, lack of defragmentation, lack of
-knowledge of the classzone to balance in the memory balancing (this in
-turn is why kswapd goes mad),  very imprecise estimation of the freeable
-ram, overkill code in the allocator (the limit stuff is senseless), tons
-magic numbers that doesn't make any sensible difference, tons of cpu
-wasted, performance that decreases at every run of the benchmarks,
-etc...
+--cxfMsoqvp1jUizWj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-If you believe I'm dreaming just forget about this email, this is my
-last email about this until I've finished.
+On Wed, Sep 05, 2001 at 09:04:01AM +1200, David Rundle wrote:
+> hi i need help i have a data struct that matchs some hardwear but=20
+> gcc is alignin it this meins it is out of sync whit the hardwear=20
+> like=20
+> char is              2 bytes=20
+> long double is 12 bytes=20
+> will thats what gcc thinks=20
+>=20
+> so i need to tell gcc not to align the data struct=20
+>=20
+> may be like=20
 
-Andrea
+__attribute__((packed))
+
+Regards,
+--=20
+Kurt Garloff                   <kurt@garloff.de>         [Eindhoven, NL]
+Physics: Plasma simulations  <K.Garloff@Phys.TUE.NL>  [TU Eindhoven, NL]
+Linux: SCSI, Security          <garloff@suse.de>    [SuSE Nuernberg, DE]
+ (See mail header or public key servers for PGP2 and GPG public keys.)
+
+--cxfMsoqvp1jUizWj
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7lVDsxmLh6hyYd04RAqDWAJ0SCzvhlNfFSjaJx1RHUfcUNd4geACgupcR
+JbrndmmybkOsJIXQPLVvdSY=
+=RiQg
+-----END PGP SIGNATURE-----
+
+--cxfMsoqvp1jUizWj--

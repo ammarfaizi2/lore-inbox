@@ -1,106 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267367AbTBNULU>; Fri, 14 Feb 2003 15:11:20 -0500
+	id <S267417AbTBNUWF>; Fri, 14 Feb 2003 15:22:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267390AbTBNULU>; Fri, 14 Feb 2003 15:11:20 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:60680 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267367AbTBNULS>; Fri, 14 Feb 2003 15:11:18 -0500
-Date: Fri, 14 Feb 2003 20:21:10 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: RFC/CFT 1/1: SIGWINCH - behaviour change
-Message-ID: <20030214202110.G14659@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+	id <S267421AbTBNUWF>; Fri, 14 Feb 2003 15:22:05 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:63212 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S267417AbTBNUWE>; Fri, 14 Feb 2003 15:22:04 -0500
+Date: Fri, 14 Feb 2003 21:31:51 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Larry McVoy <lm@bitmover.com>, Rik van Riel <riel@imladris.surriel.com>,
+       Andrea Arcangeli <andrea@e-mind.com>, linux-kernel@vger.kernel.org
+Subject: Re: openbkweb-0.0
+Message-ID: <20030214203151.GL20159@fs.tum.de>
+References: <20030206021029.GW19678@dualathlon.random> <20030213024751.GA14016@bjl1.jlokier.co.uk> <Pine.LNX.4.50L.0302130946541.21354-100000@imladris.surriel.com> <20030213161337.GA9654@work.bitmover.com> <20030213211127.GG20159@fs.tum.de> <20030213220522.GA11214@work.bitmover.com> <20030213225621.GA17508@bjl1.jlokier.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030213225621.GA17508@bjl1.jlokier.co.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I keep on tripping over an annoying "feature" of our tty layer - if
-you have a session running with multiple jobs (eg, three ssh sessions)
-and you resize the window, SIGWINCH is only sent to the foreground
-process, be it the shell, or one of the ssh sessions.
+On Thu, Feb 13, 2003 at 10:56:21PM +0000, Jamie Lokier wrote:
+> Larry McVoy wrote:
+> > Please show me the case law which says we have to give you our technology,
+> > for free, and we do not have the right to say "no way unless you agree to
+> > not reverse engineer".
+>...
+> Correct.  You have the right to say "no way unless you agree not to
+> reverse engineer".
+>...
 
-This means if you perform the following actions in order:
+Wrong.
 
-- open window.
-- start two telnet sessions, suspending the first.
-- resize the window.
+Current German copyright law says that any contractual appointments that 
+disallow the allowed cases of reverse engineering are void.
 
-the active telnet session gets the right terminal size on the remote
-pty, and is reflected under bash.
+> -- Jamie
 
-- suspend the current telnet, resume the first session.
-
-this session has the wrong terminal size on the remote pty because
-the telnet process didn't get the SIGWINCH.
-
-openssh doesn't seem to suffer from this because it always checks
-the window size after resuming; I guess someone reported it as a
-bug against openssh.
-
-A similar thing happens when bash isn't running in the foreground
-either; however since bash neither automatically check the window
-size when commands complete nor listens for SIGWINCH during command
-execution, this patch doesn't solve this problem.  I believe there
-is an option which can be set to correct this though.
-
-POSIX doesn't appear to specify to which processes SIGWINCH is
-sent, so here's a patch which sends SIGWINCH to the session rather
-than the process group.
-
-Comments?  Should bash and telnet be fixed (if we care about telnet
-anymore)?
-
---- orig/drivers/char/tty_io.c	Fri Feb 14 16:31:25 2003
-+++ linux/drivers/char/tty_io.c	Fri Feb 14 19:57:52 2003
-@@ -1503,10 +1503,17 @@
- 	return 0;
- }
- 
-+/*
-+ * In the case of pty's, "tty" is the master side
-+ * and "real_tty" is the slave side.
-+ */
- static int tiocswinsz(struct tty_struct *tty, struct tty_struct *real_tty,
- 	struct winsize * arg)
- {
- 	struct winsize tmp_ws;
-+	struct task_struct *p;
-+	struct list_head *l;
-+	struct pid *pid;
- 
- 	if (copy_from_user(&tmp_ws, arg, sizeof(*arg)))
- 		return -EFAULT;
-@@ -1521,8 +1528,21 @@
- #endif
- 	if (tty->pgrp > 0)
- 		kill_pg(tty->pgrp, SIGWINCH, 1);
--	if ((real_tty->pgrp != tty->pgrp) && (real_tty->pgrp > 0))
--		kill_pg(real_tty->pgrp, SIGWINCH, 1);
-+
-+	/*
-+	 * Send SIGWINCH to the whole session on the slave tty.
-+	 * However, in the case of slave pty's, be careful not
-+	 * to send two SIGWINCH to the same process group.
-+	 */
-+	if (real_tty->session > 0) {
-+		read_lock(&tasklist_lock);
-+		for_each_task_pid(real_tty->session, PIDTYPE_SID, p, l, pid) {
-+			if (p->pgrp != tty->pgrp)
-+				group_send_sig_info(SIGWINCH, (void *)1L, p);
-+		}
-+		read_unlock(&tasklist_lock);
-+	}
-+
- 	tty->winsize = tmp_ws;
- 	real_tty->winsize = tmp_ws;
- 	return 0;
+cu
+Adrian
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

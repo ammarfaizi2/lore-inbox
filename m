@@ -1,56 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269040AbUJQDo4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269042AbUJQDr6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269040AbUJQDo4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 23:44:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269048AbUJQDo4
+	id S269042AbUJQDr6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 23:47:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269043AbUJQDr6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 23:44:56 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:16596 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269049AbUJQDoI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 23:44:08 -0400
-Subject: Re: High pitched noise from laptop: processor.c in linux 2.6
-From: Lee Revell <rlrevell@joe-job.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Pavel Machek <pavel@ucw.cz>, M <mru@mru.ath.cx>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1097979705.13269.9.camel@localhost.localdomain>
-References: <41650CAF.1040901@unimail.com.au>
-	 <20041007103210.GA32260@atrey.karlin.mff.cuni.cz>
-	 <yw1x7jq2n6k3.fsf@mru.ath.cx>  <20041007143245.GA1698@openzaurus.ucw.cz>
-	 <1097956343.2148.17.camel@krustophenia.net>
-	 <1097963167.13226.4.camel@localhost.localdomain>
-	 <1097976283.2148.34.camel@krustophenia.net>
-	 <1097979705.13269.9.camel@localhost.localdomain>
-Content-Type: text/plain
-Message-Id: <1097984002.2148.44.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 16 Oct 2004 23:33:23 -0400
+	Sat, 16 Oct 2004 23:47:58 -0400
+Received: from mail3.speakeasy.net ([216.254.0.203]:36073 "EHLO
+	mail3.speakeasy.net") by vger.kernel.org with ESMTP id S269042AbUJQDrr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 23:47:47 -0400
+Message-ID: <4171EB60.50800@speakeasy.net>
+Date: Sat, 16 Oct 2004 23:47:44 -0400
+From: Andrew <cmkrnl@speakeasy.net>
+Reply-To: cmkrnl@speakeasy.net
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] kernel-2.6.9.rc4 lib/kobject.c
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-10-16 at 22:21, Alan Cox wrote:
-> On Sul, 2004-10-17 at 02:24, Lee Revell wrote:
-> > > And heavily reduced accuracy on a lot of laptops where 1000Hz
-> > > is enough to make the clock slide every time the battery state is
-> > > queried or an SMM event triggers.
-> > Wouldn't such a laptop be horribly broken?  1ms is a LONG time to
-> > disable interrupts.  That's millions of CPU cycles...
-> 
-> Yes, and most laptops have this problem. They use SMM traps to talk to
-> the battery including huge delay loops and during those SMM traps no
-> interrupt code runs.
-> 
 
-Ugh!  I was under the impression that mostly older machines had this
-problem and it was a minority of laptops.  I could not find a lot of 
-info on SMM  - several of the links I found were DDJ "Undocumented
-Corner" articles.
 
-Anyway this explains probably half the weird bug reports on the linux
-audio user list.
+There are two conditions where kset_hotplug can exit without the call to 
+call_usermodehelper() after incrementing the sequence_number.  This 
+patch eliminates the first by getting the kobj_path before the 
+sequence_number++. It also reduces the likelihood of the second by 
+decrementing the sequence_number (if it can) if the call to 
+kset->hotplug_ops->hotplug() fails.
 
-Lee
+Some user space programs (rightly or wrongly) are expecting there would 
+be no "gaps" in hotplug event sequence numbers, and hang waiting for the 
+"missing" events.
+
+
+   Signed-off-by: Andrew Duggan <cmkrnl@speakeasy.net>
+
+
+
+--- lib/kobject.c.orig    2004-10-16 20:51:01.450973973 -0400
++++ lib/kobject.c    2004-10-16 21:08:19.961602269 -0400
+@@ -177,6 +177,10 @@ static void kset_hotplug(const char *act
+    envp [i++] = scratch;
+    scratch += sprintf(scratch, "ACTION=%s", action) + 1;
+
++    kobj_path = kobject_get_path(kset, kobj, GFP_KERNEL);
++    if (!kobj_path)
++        goto exit;
++
+    spin_lock(&sequence_lock);
+    seq = sequence_num++;
+    spin_unlock(&sequence_lock);
+@@ -184,10 +188,6 @@ static void kset_hotplug(const char *act
+    envp [i++] = scratch;
+    scratch += sprintf(scratch, "SEQNUM=%ld", seq) + 1;
+
+-    kobj_path = kobject_get_path(kset, kobj, GFP_KERNEL);
+-    if (!kobj_path)
+-        goto exit;
+-
+    envp [i++] = scratch;
+    scratch += sprintf (scratch, "DEVPATH=%s", kobj_path) + 1;
+
+@@ -199,6 +199,13 @@ static void kset_hotplug(const char *act
+        if (retval) {
+            pr_debug ("%s - hotplug() returned %d\n",
+                  __FUNCTION__, retval);
++            /* decr sequence_num since no event will happen
++               but only if it is consistent */
++            spin_lock(&sequence_lock);
++            if (sequence_num == seq+1)
++               sequence_num--;
++            spin_unlock(&sequence_lock);
++
+            goto exit;
+        }
+    }
+
+
 

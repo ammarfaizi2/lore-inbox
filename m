@@ -1,75 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262597AbTJOXZU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 19:25:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262600AbTJOXZT
+	id S262720AbTJOXfA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 19:35:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262725AbTJOXfA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 19:25:19 -0400
-Received: from pchome.iram.es ([150.214.224.97]:32640 "EHLO ltgp.iram.es")
-	by vger.kernel.org with ESMTP id S262597AbTJOXZK (ORCPT
+	Wed, 15 Oct 2003 19:35:00 -0400
+Received: from dp.samba.org ([66.70.73.150]:51844 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262720AbTJOXe4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 19:25:10 -0400
-From: Gabriel Paubert <paubert@iram.es>
-Date: Wed, 15 Oct 2003 20:16:58 +0200
-To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
-       jbglaw@lug-owl.de
-Subject: Re: Unbloating the kernel, action list
-Message-ID: <20031015181658.GA9652@iram.es>
-References: <HMQWM7$61FA432C2B793029C11F4F77EEAABD1F@libero.it> <20031014214311.GC933@inwind.it> <16710000.1066170641@flay> <20031014155638.7db76874.cliffw@osdl.org> <20031015124842.GE20846@lug-owl.de> <20031015131015.GR16158@holomorphy.com>
+	Wed, 15 Oct 2003 19:34:56 -0400
+Date: Thu, 16 Oct 2003 05:15:00 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Stuart Longland <stuartl@longlandclan.hopto.org>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>, lgb@lgb.hu,
+       Fabian.Frederick@prov-liege.be, linux-kernel@vger.kernel.org
+Subject: Re: 2.7 thoughts
+Message-ID: <20031015191500.GI610@krispykreme>
+References: <D9B4591FDBACD411B01E00508BB33C1B01F13BCE@mesadm.epl.prov-liege.be> <20031009115809.GE8370@vega.digitel2002.hu> <20031009165723.43ae9cb5.skraw@ithnet.com> <3F864F82.4050509@longlandclan.hopto.org> <20031010125137.4080a13b.skraw@ithnet.com> <3F86BD0E.4060607@longlandclan.hopto.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031015131015.GR16158@holomorphy.com>
+In-Reply-To: <3F86BD0E.4060607@longlandclan.hopto.org>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 15, 2003 at 06:10:15AM -0700, William Lee Irwin III wrote:
-> On Tue, 2003-10-14 15:56:38 -0700, cliff white <cliffw@osdl.org>
-> >> Marco, if you could supply time on a small client box, and a desired .config,
-> >> we can add you as a Tinderbox client,
-> >>  then you have a place to point people when the size increases. 
-> 
-> On Wed, Oct 15, 2003 at 02:48:42PM +0200, Jan-Benedict Glaw wrote:
-> > I can put on the table:
-> > 486SLC, 12MB RAM
-> > i386, 8MB RAM (hey, this box is nearly build up by discrete parts:)
-> > Am386, 8MB RAM
-> > P-Classic, 32MB RAM (even that much RAM can go short after an uptme of
-> > about a month...)
-> > Unfortunately, you need an additional kernel patch because nearly all
-> > distros are using mach==i486 which gives you nice sigills on an i386
-> > otherwise...
-> > MfG, JBG
-> 
-> Can you quantify the performance impact of cmov emulation (or whatever
-> it is)? I have a vague notion it could be hard given the daunting task
-> of switching userspace around to verify it.
+ 
+> Hotplug RAM I could see would be possible, but hotplug CPUs?  I spose if 
+> you've got a multiprocessor box, you could swap them one at a time, but 
+> my thinking is that this would cause issues with the OS as it wouldn't 
+> be expecting the CPU to suddenly disappear.  Problems would be even 
+> worse if the old and new CPUs were of different types too.
 
-It can't be cmov emulation since neither 486 or Pentia have cmov, but
-one of the following (differences between 386 and 486):
+Our ppc64 hardware supports hotswap cpu - not physically adding a cpu but
+rather moving the pool of cpus into and out of partitions.
 
-- cmpxchg: not used by UP kernels AFAICT, used by threading libraries,
-  but maybe it's infrequent enough that it can be emulated
+There are many uses for cpu hotplug. If you hit a threshold of
+correctible errors on a cpu, we can remove the failing cpu and swap in a
+spare if available. If we do this before we get a UE then all is good.
+One day we can get even more intelligent and recover from certain UEs, I
+was talking to Andi and the ia64 guys at OLS about this (eg UE in a cpu
+array mapped to a userspace address, we can kill the task and continue
+on).
 
-- xadd: can't tell whether it's used, could be emulated in any case
-  since it looks so rare that you'll have to write specific code
-  to exercise the emulator ;-)
+You can also move cpus between partitions on the fly, moving cpus out of
+idle partitions and into the busy ones.
 
-- bswap: heavily used by network code at least, both applications and 
-  kernel (ntohl/htonl). Emulation would probably be too expensive.
-
-- invlpg: kernel only, easy to test and flush the whole TLB instead,
-  perhaps even by boot-time patching of the code to minimize size.
-  (I have no ideas of the number of occurences in an average kernel
-  but it should be rather small).
-
-- invd/wbinvd: only listed here for completeness :-)
-
-The other problem of the 386 is that it has a fundamental MMU flaw:
-no write protection on kernel mode accesses to user space, which makes 
-put_user() intrinsically racy on a 386 and way more bloated when it is
-inlined (access_ok has to call a function which searches the VMA tree).
-
-	Regards,
-	Gabriel
+Anton

@@ -1,39 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263087AbVCEFmc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261955AbVCEF0W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263087AbVCEFmc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 00:42:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263147AbVCEFgs
+	id S261955AbVCEF0W (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 00:26:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVCEFPy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 00:36:48 -0500
-Received: from fire.osdl.org ([65.172.181.4]:5255 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263232AbVCEF3R (ORCPT
+	Sat, 5 Mar 2005 00:15:54 -0500
+Received: from main.gmane.org ([80.91.229.2]:10968 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S263486AbVCEFJM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 00:29:17 -0500
-Date: Fri, 4 Mar 2005 21:28:39 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jeffrey Mahoney <jeffm@suse.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil,
-       chrisw@osdl.org
-Subject: Re: [PATCH 1/4] vfs: adds the S_PRIVATE flag and adds use to
- security
-Message-Id: <20050304212839.1d5aca4c.akpm@osdl.org>
-In-Reply-To: <20050304195204.GA19711@locomotive.unixthugs.org>
-References: <20050304195204.GA19711@locomotive.unixthugs.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 5 Mar 2005 00:09:12 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Ian Pilcher <i.pilcher@comcast.net>
+Subject: Re: [RFQ] Rules for accepting patches into the linux-releases tree
+Date: Fri, 04 Mar 2005 23:08:55 -0600
+Message-ID: <d0bejc$r11$1@sea.gmane.org>
+References: <20050304222146.GA1686@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: c-24-0-215-208.client.comcast.net
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+In-Reply-To: <20050304222146.GA1686@kroah.com>
+X-Gmane-MailScanner: Found to be clean
+X-Gmane-MailScanner: Found to be clean
+X-Gmane-MailScanner-SpamScore: s
+X-MailScanner-From: glk-linux-kernel@m.gmane.org
+X-MailScanner-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeffrey Mahoney <jeffm@suse.com> wrote:
->
->  This patch adds an S_PRIVATE flag to inode->i_flags to mark an inode as
->  filesystem-internal. As such, it should be excepted from the security
->  infrastructure to allow the filesystem to perform its own access control.
+Greg KH wrote:
+> Anything else anyone can think of?  Any objections to any of these?
+> I based them off of Linus's original list.
 
-OK, thanks.  I'll assume that the other three patches are unchanged.
+Must already be in Linus tree (i.e. 2.6.X+1)?
 
-I don't think we've heard from the SELinux team regarding these patches?
+-- 
+========================================================================
+Ian Pilcher                                        i.pilcher@comcast.net
+========================================================================
 
-(See http://www.zip.com.au/~akpm/linux/patches/stuff/selinux-reiserfs/)

@@ -1,55 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267792AbUJMOwr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268716AbUJMO5V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267792AbUJMOwr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 10:52:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267823AbUJMOwr
+	id S268716AbUJMO5V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 10:57:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267823AbUJMO5V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 10:52:47 -0400
-Received: from phoenix.infradead.org ([81.187.226.98]:18437 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267792AbUJMOwn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 10:52:43 -0400
-Date: Wed, 13 Oct 2004 15:52:42 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [Ext-rt-dev] Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
-Message-ID: <20041013145242.GA335@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <20041012211201.GA28590@nietzsche.lynx.com> <EOEGJOIIAIGENMKBPIAEGEJGDKAA.sdietrich@mvista.com> <20041012225706.GC30966@nietzsche.lynx.com> <027e01c4b12a$188fda40$161b14ac@boromir> <416D2D08.3060709@timesys.com> <02af01c4b135$fc496cf0$161b14ac@boromir> <20041013145540.GA26008@kurtwerks.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041013145540.GA26008@kurtwerks.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 13 Oct 2004 10:57:21 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:25535 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268716AbUJMO4O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 10:56:14 -0400
+Message-ID: <416D41FF.6080002@redhat.com>
+Date: Wed, 13 Oct 2004 10:55:59 -0400
+From: Neil Horman <nhorman@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; hi, Mom) Gecko/20020604 Netscape/7.01
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Martijn Sipkema <martijn@entmoot.nl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: waiting on a condition
+References: <02bb01c4b138$8a786f10$161b14ac@boromir>
+In-Reply-To: <02bb01c4b138$8a786f10$161b14ac@boromir>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 13, 2004 at 10:55:40AM -0400, Kurt Wall wrote:
-> On Wed, Oct 13, 2004 at 04:04:48PM +0100, Martijn Sipkema took 42 lines to write:
-> > From: "La Monte H.P. Yarroll" <piggy@timesys.com>
-> > > Martijn Sipkema wrote:
-> > > 
-> > > >As you are mentioning TimeSys; they are distributing a modified kernel
-> > > >with added realtime features, but do they also make the source available?
-> > > >  
-> > > >
-> > > Yes we do.  We're releasing all of our 2.6.x work.  Is there anything 
-> > > you're having difficulty finding?
-> > 
-> > The source code for the module adding realtime functionality to Linux 2.4; at
-> > least at the time I downloaded it, that source was not available.
-> > 
-> > > >I know that they used to extend the kernel using a proprietary kernel
-> > > >module; a clear violation of the GPL.
-> > 
-> > You did not comment on this.. why?
+Martijn Sipkema wrote:
+> L.S.
 > 
-> Perhaps because it was a troll?
+> I'd like to do something similar as can be done using a POSIX condition
+> variable in the kernel, i.e. wait for some condition to become true. The
+> pthread_cond_wait() function allows atomically unlocking a mutex and
+> waiting on a condition. I think I should do something like:
+> (the condition is updated from an interrupt handler)
+> 
+> disable interrupts
+> acquire spinlock
+> if condition not satisfied
+>     add task to wait queue
+>     set task to sleep
+> release spinlock
+> restore interrupts
+> schedule
+> 
+> Now, this will only work with preemption disabled within the critical
+> section. How would something like this be done whith preemption
+> enabled?
+> 
+you above algorithm seems rather prone to deadlock.  Everything else in 
+the kernel does more or less this operation by using a wait queue and a 
+call to schedule to make tasks sleep until an event is signaled with a 
+call to one of the wake_up family of functions.  Then a spinlock is used 
+  to protect any critical data regions in smp environments.  Search the 
+kernel for calls to add_wait_queue and wake_up[_interruptible] for 
+examples of how this is implemented.
 
-No.  This is a real issue, Timesys has been violating the GPL all the time
-with their 2.4 based offerings.  I still haven't found a european distributor
-I could easily sue for it, though.
+HTH
+Neil
 
+> 
+> --ms
+> 
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+
+-- 
+/***************************************************
+  *Neil Horman
+  *Software Engineer
+  *Red Hat, Inc.
+  *nhorman@redhat.com
+  *gpg keyid: 1024D / 0x92A74FA1
+  *http://pgp.mit.edu
+  ***************************************************/

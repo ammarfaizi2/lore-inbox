@@ -1,92 +1,137 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315923AbSGVSrI>; Mon, 22 Jul 2002 14:47:08 -0400
+	id <S317165AbSGVSs7>; Mon, 22 Jul 2002 14:48:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317730AbSGVSrI>; Mon, 22 Jul 2002 14:47:08 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:52465 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S315923AbSGVSrH>; Mon, 22 Jul 2002 14:47:07 -0400
-Subject: Re: [PATCH] low-latency zap_page_range
-From: Robert Love <rml@tech9.net>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: torvalds@transmeta.com, riel@conectiva.com.br,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <3D3C517F.6BD3650A@zip.com.au>
-References: <3D3B94AF.27A254EA@zip.com.au> <1027360686.932.33.camel@sinai> 
-	<3D3C517F.6BD3650A@zip.com.au>
-Content-Type: text/plain
+	id <S317361AbSGVSs7>; Mon, 22 Jul 2002 14:48:59 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:26380 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S317165AbSGVSs5>; Mon, 22 Jul 2002 14:48:57 -0400
+Message-ID: <3D3C5307.2090404@evision.ag>
+Date: Mon, 22 Jul 2002 20:46:31 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020625
+X-Accept-Language: en-us, en, pl, ru
+MIME-Version: 1.0
+To: Alexander Viro <viro@math.psu.edu>
+CC: martin@dalecki.de, Richard Gooch <rgooch@ras.ucalgary.ca>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.27 devfs
+References: <Pine.GSO.4.21.0207221412240.7619-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 22 Jul 2002 11:50:06 -0700
-Message-Id: <1027363806.931.64.camel@sinai>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-07-22 at 11:40, Andrew Morton wrote:
+Alexander Viro wrote:
+> 
+> On Mon, 22 Jul 2002, Marcin Dalecki wrote:
+> 
+> 
+>>Richard Gooch wrote:
+>>
+>>>Marcin Dalecki writes:
+>>>
+>>>
+>>>>Kill two inlines which are notwhere used and which don't make sense
+>>>>in the case someone is not compiling devfs at all.
+>>>
+>>>
+>>>Rejected. Linus, please don't apply this bogus patch. External patches
+>>>and drivers rely on the inline stubs so that #ifdef CONFIG_DEVFS_FS
+>>>isn't needed.
+>>
+>>Dare to actually *name* one of them?
+> 
+> 
+> [snip]
+> 
+> OK, that's enough.  Martin, kindly stay the fsck away from that pile of
+> garbage for a couple of weeks.
+> 
+> _All_ partition-related code is getting rewritten and the last thing
+> we need right now is additional clutter in the neighborhood.  And
+> devfs_fs_kernel.h, shite as it is, qualifies.
 
-> Disagree, really.  It's not a thing of beauty, but it is completely
-> obvious what the code is doing and why it is doing it.  There are
-> no subtle side-effects and the whole lot can be understood from a
-> single screenful.  Unmaintainable code is code which requires you
-> to spend days crawling all over the tree working out what it's doing
-> any why it's doing it.  It's awkward, but it's simple, and I wouldn't
-> get very worked up over it personally.
+No problem as long as long somebody cares.
+That part stuff needs treatment as well is obvious if one looks at the 
+extensive allocation fallback chains I have in my small sand pille...
+Would you dare to keep the following botch in mind as well please:
 
-I agree with your points although I do not find the previous version any
-less of this.
+/*
+  * Returns the (struct ata_device *) for a given device number.  Return
+  * NULL if the given device number does not match any present drives.
+  */
+struct ata_device *get_info_ptr(kdev_t i_rdev)
+{
+	unsigned int major = major(i_rdev);
+	int h;
 
-> Hard call.   In general I suspect it's best to hold onto a lock
-> for as long as possible, get a lot of work done rather than
-> reacquiring it all the time.  But there are some locks which are
-> occasionally held for a very long time and are often held for very
-> short periods.  Such as this one (mm->page_table_lock) and pagemap_lru_lock.
-> In those cases, dropping the lock to let someone else get in, out and
-> away may help.  But not as much as a little bit of locking redesign...
-
-Agreed.
-
-> zap_page_range is sometimes called under another lock, (eg, vmtruncate_list).
-> So there's nothing useful to be done there.  Perhaps you should test
-> ->preempt_count as well - if it's greater than one then don't bother with
-> the lock dropping.
-
-Hrm, this means cond_resched_lock() is out of the question here, then.
-
-We could use break_spin_locks() but that would mean we drop the lock w/o
-checking for need_resched (or wrap it in need_resched() and then we
-check twice).
-
-Finally, we could take your approach, change cond_resched_lock() to be:
-
-	if (need_resched() && preempt_count() == 1) {
-		spin_unlock_no_resched(lock);
-		__cond_resched();
-		spin_lock(lock);
+	for (h = 0; h < MAX_HWIFS; ++h) {
+		struct ata_channel *ch = &ide_hwifs[h];
+		if (ch->present && major == ch->major) {
+			int unit = DEVICE_NR(i_rdev);
+			if (unit < MAX_DRIVES) {
+				struct ata_device *drive = &ch->drives[unit];
+				if (drive->present)
+					return drive;
+			}
+			break;
+		}
 	}
+	return NULL;
+}
 
-but then we need to break the function up into a preempt and a
-non-preempt version as preempt_count() unconditionally returns 0 with
-!CONFIG_PREEMPT.  Right now the functions I posted do the right thing on
-any combination of UP, SMP, and preempt.
+This get's feed to the revalidate method.
 
-Thoughts?
+struct block_device_operations ide_fops[] = {{
+         .owner =                THIS_MODULE,
+         .open =                 ide_open,
+         .release =              ide_release,
+         .ioctl =                ata_ioctl,
+         .check_media_change =   ide_check_media_change,
+         .revalidate =           ata_revalidate
+}};
 
-> This, btw, probably means that your code won't be very effective yet: large
-> truncates will still exhibit poor latency.  However, truncate _is_ something
-> which we can improve algorithmically.  One possibility is to implement a
-> radix tree split function: split the radix tree into two trees along the
-> truncation point, clean up the end and then drop the bulk of the pages
-> outside locks.
+and the following ide_xlate_1024(kdev_t i_rdev botch.
 
-I would _much_ prefer to tackle these issues via better algorithms...
-your suggestion for truncate is good.
+I would love to go the bdev way there too :-).
+But then please keep in mind that the georgeous random number
+device is using the major number of a device all over the kernel...
+and it's feeding the following ugly global array:
 
-Note that I make an exception here (part of my argument for a preemptive
-kernel was no more need to do "hackish" conditional scheduling and lock
-breaking) because there really is not much you can do to this
-algorithm.  It does a lot of work on potentially a lot of data and the
-cleanest solution we have is to just break it up into chunks.
+void add_blkdev_randomness(int major)
+{
+         if (major >= MAX_BLKDEV)
+                 return;
 
-	Robert Love
+         if (blkdev_timer_state[major] == 0) {
+                 rand_initialize_blkdev(major, GFP_ATOMIC);
+                 if (blkdev_timer_state[major] == 0)
+                         return;
+         }
+
+         add_timer_randomness(blkdev_timer_state[major], 0x200+major);
+}
+
+Which should of course look more like:
+
+void add_blkdev_randomness(struct block_device *ptr)
+{
+         add_timer_randomness(((unsigned long) ptr) %
+                               SOME_REASONABLE_VALUE, 0x200);
+}
+
+Simple couldn't resist:
+
+1.  Enabled devfs... system printed far too long
+incomprehensive device names and didn't reboot.
+
+2. I disabled automatic devfs mount... system didn't find root part either.
+
+The only single expirence in my life, where I thought that naming disks
+C: D: E: Z: isn't the worst thing that can happen.
+
+I went curious and looked there... and *cry*.
 

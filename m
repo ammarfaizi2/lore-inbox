@@ -1,70 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266590AbUGUW5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266635AbUGUW6P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266590AbUGUW5z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 18:57:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266635AbUGUW5y
+	id S266635AbUGUW6P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 18:58:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266766AbUGUW6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 18:57:54 -0400
-Received: from web50902.mail.yahoo.com ([206.190.38.122]:18279 "HELO
-	web50902.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S266590AbUGUW5w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 18:57:52 -0400
-Message-ID: <20040721225752.90581.qmail@web50902.mail.yahoo.com>
-Date: Wed, 21 Jul 2004 15:57:52 -0700 (PDT)
-From: sankarshana rao <san_wipro@yahoo.com>
-Subject: Re: Inode question
-To: root@chaos.analogic.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.53.0407211708040.18371@chaos>
+	Wed, 21 Jul 2004 18:58:15 -0400
+Received: from mail-gw4.njit.edu ([128.235.251.32]:18365 "EHLO
+	mail-gw4.njit.edu") by vger.kernel.org with ESMTP id S266635AbUGUW6I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 18:58:08 -0400
+Date: Wed, 21 Jul 2004 18:58:01 -0400 (EDT)
+From: rahul b jain cs student <rbj2@oak.njit.edu>
+To: Thomas Giese <Thomas.giese@tgsoftware.de>
+cc: Kernel Traffic Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Turning off TCP Delayed acks
+In-Reply-To: <007c01c46f47$af32f510$2f8afea9@tgsiemens>
+Message-ID: <Pine.GSO.4.58.0407211854530.6744@chrome.njit.edu>
+References: <2ks8W-2RR-51@gated-at.bofh.it> <007c01c46f47$af32f510$2f8afea9@tgsiemens>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guys,
-Thx for the inputs...I got it with path_lookup....
+Mr. Giese,
 
-Can I pass the inode pointer back to the user space???
-I have a scenario in which I have to create multiple
-folders on the harddisk. The number of folders can be
-in hundreds. Instead of parsing the path name
-everytime I need to create a folder (that's what
-sys_mkdir does??? ), I was thinking if I have the
-inode* of the parent folder, I can avoid this parsing
-and directly create a subfolder under the parent
-folder...
+Thank you for your response.
 
-Pls advice if this approach makes sense or not and if
-it is doable or not??
+As you wrote TCP_NODELAY is used to turn off Nagle. As per theory this
+algo will be running at the sender side and delay acks at the reciever
+side. If I turn off Nagel at sender side, wont this lead to the silly
+window syndrome ??
 
-any input in this regard will be very helpful..
+Also is it true that Nagles algo and hence delay acks come into play only
+if the packet size is small ??
 
+Thanks,
+Rahul.
 
---- "Richard B. Johnson" <root@chaos.analogic.com>
-wrote:
-> On Wed, 21 Jul 2004, sankarshana rao wrote:
-> 
-> > Thx for the reply...
-> > When I try to call lookup() from my kernel module,
-> it
-> > gives undefined symbol error during INSMOD..
-> > any clues???
+On Wed, 21 Jul 2004, Thomas Giese wrote:
+
+>
+> Nagle is automatically turned off on a per socket basis if you set the
+> TCP_NODELAY
+>  socket option on the socket. Turning nagle off globally is a bit drastic in
+> most cases.
+>
+> Thomas Giese
+>
+> ----- Original Message -----
+> From: "rahul b jain cs student" <rbj2@oak.njit.edu>
+> Newsgroups: linux.kernel
+> Sent: Wednesday, July 21, 2004 6:30 PM
+> Subject: Turning off TCP Delayed acks
+>
+>
+> > Hi everyone,
 > >
-> 
-> It's probably not an exported symbol.
-> 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.4.26 on an i686 machine
-> (5570.56 BogoMips).
->             Note 96.31% of all statistics are
-> fiction.
-> 
-> 
-> 
-
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+> > For an experiment, I wanted to turn off the delayed ack system in the
+> > kernel so that there is an ack for each and every packet sent by the
+> > source. Can anyone give me some ideas on how to go about doing this.
+> >
+> >
+> > Thanks,
+> > Rahul.
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+>
+>

@@ -1,65 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261863AbTEFXyP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 19:54:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbTEFXyP
+	id S261950AbTEFX7k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 19:59:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbTEFX7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 19:54:15 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:13255 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S261863AbTEFXyO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 19:54:14 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Wakko Warner <wakko@animx.eu.org>
-Date: Wed, 7 May 2003 10:06:18 +1000
+	Tue, 6 May 2003 19:59:40 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:30893 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S261950AbTEFX7j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 19:59:39 -0400
+Date: Tue, 06 May 2003 17:11:35 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: LKML <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 664] New: bcm4400 won't transmit
+Message-ID: <3710000.1052266295@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16056.19962.192303.994466@notabene.cse.unsw.edu.au>
-Cc: viro@parcelfarce.linux.theplanet.co.uk,
-       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-       Ezra Nugroho <ezran@goshen.edu>, linux-kernel@vger.kernel.org
-Subject: Re: partitions in meta devices
-In-Reply-To: message from Wakko Warner on Monday May 5
-References: <1052153060.29588.196.camel@ezran.goshen.edu>
-	<3EB693B1.9020505@gmx.net>
-	<1052153834.29676.219.camel@ezran.goshen.edu>
-	<3EB69883.8090609@gmx.net>
-	<20030505191604.GC10374@parcelfarce.linux.theplanet.co.uk>
-	<20030505173839.A22502@animx.eu.org>
-X-Mailer: VM 7.14 under Emacs 21.3.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday May 5, wakko@animx.eu.org wrote:
-> > > OK. Maybe I wasn't clear enough.
-> > > 1. Partition a drive
-> > > 2. Reboot
-> > > 3. Now the kernel should see the partitions and let you create file
-> > > systems on them.
-> > > 
-> > > You rebooted and fdisk sees the partitions now. Fine. Please try to
-> > > mke2fs /dev/md0p1
-> > > That should work. If it doesn't, devfs could be the problem.
-> > 
-> > 	No, it should not.  And devfs, for once, has nothing to do with it.
-> > RAID devices (md*) have _one_ (1) minor allocated to each.  Consequently,
-> > they could not be partitioned by any kernel - there is no device numbers
-> > to be assigned to their partitions.
-> >  
-> > > Could you please tell us which kernel version you're using?
-> > 
-> > 	What would be much more interesting, which kernel are _you_ using
-> > and what device numbers, in your experience, do these partitions get?
-> 
-> I recall an MdPart patch for the kernel that would allow this, however, it
-> was way too buggy for real use.  google for mdpart.
+http://bugme.osdl.org/show_bug.cgi?id=664
 
-Unreported bugs don't get fixed ... or did I miss your report?
+           Summary: bcm4400 won't transmit
+    Kernel Version: Linux slappy 2.5.69 #1 Mon May 5 12:54:32 EDT 2003 i686
+                    unknown
+            Status: NEW
+          Severity: normal
+             Owner: jgarzik@pobox.com
+         Submitter: lkml-bugs@sigkill.net
 
-Work great for me on most of my servers.
 
-NeilBrown
+Distribution: debian unstable  
+Hardware Environment: Dell Inspiron 8500  
+Software Environment: single-user boot for testing  
+Problem Description:   
+bcm4400 receives packets, but will not transmit (behaves as if the hardware link  
+detection is down).  Works with the external driver under 2.4.20.  
+  
+Steps to reproduce:  
+Get one (I believe they are built into i810 motherboards, among others) and build  
+2.5.69 with support for it (modular or in-kernel makes no difference).  I believe it  
+worked under 2.5.68 but it was not heavily tested at the time (I can do so if it is  
+needed.)  
+  
+Ifconfig (after multiple dhcp attempts, raising by hand and pinging, etc) shows:  
+eth0      Link encap:Ethernet  HWaddr 00:0B:DB:1B:89:3C  
+          inet addr:192.168.33.47  Bcast:192.168.33.255  Mask:255.255.255.0  
+          BROADCAST MULTICAST  MTU:1500  Metric:1  
+          RX packets:505 errors:0 dropped:10 overruns:0 frame:0  
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0  
+          collisions:0 txqueuelen:100  
+          RX bytes:198656 (194.0 KiB)  TX bytes:0 (0.0 b)  
+          Interrupt:11  
+  
+(note 0 TX packets)  
+  
+Modinfo shows:  
+author:         David S. Miller (davem@redhat.com)  
+description:    Broadcom 4400 10/100 PCI ethernet driver  
+license:        GPL  
+parm:           b44_debug:B44 bitmapped debugging message enable value  
+vermagic:       2.5.69 preempt PENTIUM4 gcc-3.3  
+depends:  
+alias:          pci:v000014E4d00004401sv*sd*bc*sc*i*  
+  
+The only thing relating in dmesg is:  
+b44.c:v0.6 (Nov 11, 2002)  
+eth0: Broadcom 4400 10/100BaseT Ethernet 00:0b:db:1b:89:3c  
+  
+config, dmesg, etc all available.  ACPI enabled, standard DSDT.  APIC disabled by  
+blacklisting ("Dell Inspiron with broken BIOS detected.")
+
+

@@ -1,99 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261984AbTJSHSG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 03:18:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbTJSHSG
+	id S262015AbTJSHjB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 03:39:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbTJSHjB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 03:18:06 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:53521 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S261984AbTJSHSB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 03:18:01 -0400
-Date: Sun, 19 Oct 2003 09:17:56 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Thomas Steudten <alpha@steudten.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG: linux-2.6.0-test7: make O=/var/tmp/build xconfig
-Message-ID: <20031019071756.GA1162@mars.ravnborg.org>
-Mail-Followup-To: Thomas Steudten <alpha@steudten.com>,
-	linux-kernel@vger.kernel.org
-References: <3F849088.7010105@steudten.com>
+	Sun, 19 Oct 2003 03:39:01 -0400
+Received: from adsl-215-226.38-151.net24.it ([151.38.226.215]:64018 "EHLO
+	gateway.milesteg.arr") by vger.kernel.org with ESMTP
+	id S262015AbTJSHi7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 03:38:59 -0400
+Date: Sun, 19 Oct 2003 09:38:45 +0200
+From: Daniele Venzano <webvenza@libero.it>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ollie Lho <ollie@sis.com.tw>
+Subject: Re: Linux 2.6.0-test7 - Suspend to Disk success
+Message-ID: <20031019073845.GA820@picchio.gall.it>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Ollie Lho <ollie@sis.com.tw>
+References: <Pine.LNX.4.44.0310081235280.4017-100000@home.osdl.org> <20031015172742.GZ30375@earth.li> <20031015210054.GA1492@picchio.gall.it> <20031016140644.GJ1659@openzaurus.ucw.cz> <20031018175423.GA1038@renditai.milesteg.arr> <20031018180102.GA461@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3F849088.7010105@steudten.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20031018180102.GA461@elf.ucw.cz>
+X-Operating-System: Debian GNU/Linux on kernel Linux 2.4.22
+X-Copyright: Forwarding or publishing without permission is prohibited.
+X-Truth: La vita e' una questione di culo, o ce l'hai o te lo fanno.
+X-GPG-Fingerprint: 642A A345 1CEF B6E3 925C  23CE DAB9 8764 25B3 57ED
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 09, 2003 at 12:32:40AM +0200, Thomas Steudten wrote:
-> Hello
-> 
-> Maybe i´m not up-to-date, but i tried out the new 2.6 kernel
-> with the new O option and it fails with:
-> I think here´s something wrong, one -I is missing between
-> the //: 
-> -I/usr/src/linux_dir/kernel2.6/linux-2.6.0-test7//usr/lib/qt-2.3.1/include
-> 
-> --------------------8<-------------------8<--------------
-> [62]:thomas (2) $ make  -w V=1 O=/var/tmp/build xconfig
+CC'ed sis900 mantainer.
 
-Hi Thomas - the following patch fixes this and also avoid duplicating
-some options on the gcc command line.
+On Sat, Oct 18, 2003 at 08:01:02PM +0200, Pavel Machek wrote:
+> Did sis900 driver work in -test7?
 
-	Sam
+No, it didn't and reconfiguring the interface after resume doesn't 
+make it work, probably it needs a module reload, but I use sis900
+compiled in.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1296.61.1 -> 1.1296.61.2
-#	scripts/Makefile.lib	1.22    -> 1.23   
-#	            Makefile	1.435   -> 1.436  
-#
-# The following is the BitKeeper ChangeSet Log
-# 03/10/12	sam@mars.ravnborg.org	1.1296.61.2
-# kbuild: Fix make O=../build xconfig
-# 
-# Compilation of qconf required -I path to qt. kbuild invalidated the
-# path to qt by prefixing it with $(srctree). No longer prefix absolute paths.
-# Also do not duplicate CPPFLAGS. Previously it was appended twice to CFLAGS
-# --------------------------------------------
-#
-diff -Nru a/Makefile b/Makefile
---- a/Makefile	Sat Oct 18 09:48:02 2003
-+++ b/Makefile	Sat Oct 18 09:48:02 2003
-@@ -404,10 +404,6 @@
- 
- include $(srctree)/arch/$(ARCH)/Makefile
- 
--# Let architecture Makefiles change CPPFLAGS if needed
--CFLAGS := $(CPPFLAGS) $(CFLAGS)
--AFLAGS := $(CPPFLAGS) $(AFLAGS)
--
- core-y		+= kernel/ mm/ fs/ ipc/ security/ crypto/
- 
- SUBDIRS		+= $(patsubst %/,%,$(filter %/, $(init-y) $(init-m) \
-diff -Nru a/scripts/Makefile.lib b/scripts/Makefile.lib
---- a/scripts/Makefile.lib	Sat Oct 18 09:48:02 2003
-+++ b/scripts/Makefile.lib	Sat Oct 18 09:48:02 2003
-@@ -154,7 +154,8 @@
- __hostcxx_flags	= $(_hostcxx_flags)
- else
- flags = $(foreach o,$($(1)),\
--	$(if $(filter -I%,$(o)),$(patsubst -I%,-I$(srctree)/%,$(o)),$(o)))
-+		$(if $(filter -I%,$(filter-out -I/%,$(o))), \
-+		$(patsubst -I%,-I$(srctree)/%,$(o)),$(o)))
- 
- # -I$(obj) locate generated .h files
- # -I$(srctree)/$(src) locate .h files in srctree, from generated .c files
-@@ -162,7 +163,7 @@
- __c_flags	= -I$(obj) -I$(srctree)/$(src) $(call flags,_c_flags)
- __a_flags	=                              $(call flags,_a_flags)
- __hostc_flags	= -I$(obj)                     $(call flags,_hostc_flags)
--__hostcxx_flags	=                              $(call flags,_hostcxx_flags)
-+__hostcxx_flags	= -I$(obj)                     $(call flags,_hostcxx_flags)
- endif
- 
- c_flags        = -Wp,-MD,$(depfile) $(NOSTDINC_FLAGS) $(CPPFLAGS) \
+For the bash problem, there is something different between test7 and test8, 
+with test7 I get on resume:
+
+Unable to handle kernel paging request at virtual address 401289b8
+ printing eip:
+401289b8
+*pde = 0155d067
+*pte = 00000000
+Oops: 0004 [#1]
+CPU:    0
+EIP:    0073:[<401289b8>]    Not tainted
+EFLAGS: 00010246
+EIP is at 0x401289b8
+eax: 00000004   ebx: 00000001   ecx: 080f8c08   edx: 00000004
+esi: 00000004   edi: 080f8c08   ebp: bffff868   esp: bffff838
+ds: 007b   es: 007b   ss: 007b
+Process bash (pid: 1037, threadinfo=dafec000 task=db29a140)
+ <6>note: bash[1037] exited with preempt_count 1
+
+And then bash dies. With test8, bash dies the same, but there is no such
+message on resume...
+
+-- 
+----------------------------------------
+Daniele Venzano
+Web: http://digilander.iol.it/webvenza/
+

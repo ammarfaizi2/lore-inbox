@@ -1,70 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261348AbTCJQaX>; Mon, 10 Mar 2003 11:30:23 -0500
+	id <S261360AbTCJQp1>; Mon, 10 Mar 2003 11:45:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261354AbTCJQaW>; Mon, 10 Mar 2003 11:30:22 -0500
-Received: from comtv.ru ([217.10.32.4]:49889 "EHLO comtv.ru")
-	by vger.kernel.org with ESMTP id <S261348AbTCJQaU>;
-	Mon, 10 Mar 2003 11:30:20 -0500
-X-Comment-To: Andreas Dilger
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: Alex Tomas <bzzz@tmi.comex.ru>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: [PATCH] concurrent block allocation for ext3
-References: <m3zno3grfz.fsf@lexa.home.net>
-	<20030310092546.D12806@schatzie.adilger.int>
-From: Alex Tomas <bzzz@tmi.comex.ru>
-Organization: HOME
-Date: 10 Mar 2003 19:33:44 +0300
-In-Reply-To: <20030310092546.D12806@schatzie.adilger.int>
-Message-ID: <m3n0k3gp07.fsf@lexa.home.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	id <S261361AbTCJQp1>; Mon, 10 Mar 2003 11:45:27 -0500
+Received: from blowme.phunnypharm.org ([65.207.35.140]:39438 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S261360AbTCJQp0>; Mon, 10 Mar 2003 11:45:26 -0500
+Date: Mon, 10 Mar 2003 11:55:48 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] Device removal callback
+Message-ID: <20030310165548.GA753@phunnypharm.org>
+References: <20030310010232.GB16134@phunnypharm.org> <Pine.LNX.4.33.0303100949490.1002-100000@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0303100949490.1002-100000@localhost.localdomain>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Andreas Dilger (AD) writes:
+> I much prefer this, as I would like to see it eventually, but I'd rather
+> see the implications worked out before it's generalized.
 
- AD> Any ideas on how much this improves the performance?  What sort
- AD> of tests were you running?  We could improve things a bit further
- AD> by having separate per-group locks for the update of the group
- AD> descriptor info, and only lazily update the superblock at statfs
- AD> and unmount time (with a suitable feature flag so e2fsck can fix
- AD> this up at recovery time), but you seem to have gotten the
- AD> majority of the parallelism from this fix.
+Then I have to be concerned about parts of the driver model removing
+parents of my devices without my knowing it. Didn't PCI already go
+through this problem with bus's being removed?
 
-I'm trying to measure improvement.
+If my PCI devices gets removed, it simply calls my PCI callbacks, but
+then my PCI drivers have to link into the core and call remove on all
+the host devices, then node devices, then unit directories. All this has
+to happen manually, and it puts the burden all the way down the tree,
+when it should remain only in the bus.
 
-The tests were:
+It also does not help the case where something emulates an IEEE-1394
+node on the locally handled bus. If it creates a node, and then behind
+that, creates unit directories, and then attaches some other sort of
+children unknown to the ieee1394 core. There's no possible way that
+device can safely be removed by the ieee1394 core. So then I have to
+export all sorts of extra functionality to provide the same thing this
+2 line callback can do.
 
-1) on big fs (1GB)
-lots of processes (up to 50) creating, removing directories and files +
-untaring kernel and make -j4 bzImage +
-dd if=/dev/zero of=/mnt/dump.file bs=1M count=8000; rm -f /mnt/dump.file
+I'm not sure what the problem is in allowing the bus driver to know when
+a device is about to be removed for some reason. At the very least it
+makes for a good sanity check mechanism.
 
-2) on small fs (64MB)
-20 processes create and remove lots of files and directories
-
-
-in fact, I catched dozens of debug messages about set_bit collision. Then
-I fscked fs to be sure all is ok.
-
- >> @@ -214,11 +213,13 @@ block + i); BUFFER_TRACE(bitmap_bh, "bit
- >> already cleared"); } else { +
- >> spin_lock(&EXT3_SB(sb)->s_alloc_lock); dquot_freed_blocks++;
- gdp-> bg_free_blocks_count =
- >> cpu_to_le16(le16_to_cpu(gdp->bg_free_blocks_count)+1);
- es-> s_free_blocks_count =
- >> cpu_to_le32(le32_to_cpu(es->s_free_blocks_count)+1); +
- >> spin_unlock(&EXT3_SB(sb)->s_alloc_lock);
-
- AD> One minor nit is that you left an ext3_error() for the "bit
- AD> already cleared" case just above this patch hunk.
-
-
-hmm. whats wrong with it?
-
-with best regards, Alex
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271344AbRIAU37>; Sat, 1 Sep 2001 16:29:59 -0400
+	id <S271336AbRIAUd7>; Sat, 1 Sep 2001 16:33:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271336AbRIAU3j>; Sat, 1 Sep 2001 16:29:39 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:62224 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S271344AbRIAU31>;
-	Sat, 1 Sep 2001 16:29:27 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Samium Gromoff <_deepfire@mail.ru>
+	id <S271347AbRIAUdt>; Sat, 1 Sep 2001 16:33:49 -0400
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:29514 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S271336AbRIAUdd>; Sat, 1 Sep 2001 16:33:33 -0400
+Date: Sat, 1 Sep 2001 15:33:49 -0500 (CDT)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Ken Moffat <ken@kenmoffat.uklinux.net>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: is bzImage container large enough? 
-In-Reply-To: Your message of "Sat, 01 Sep 2001 16:28:06 GMT."
-             <200109011628.f81GS6R01079@vegae.deep.net> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 02 Sep 2001 06:29:41 +1000
-Message-ID: <22500.999376181@ocs3.ocs-net>
+Subject: Re: Why is tulip in its own directory (at least to 2.4.8) ?
+In-Reply-To: <Pine.LNX.4.21.0108312031320.711-100000@pppg_penguin.linux.bogus>
+Message-ID: <Pine.LNX.3.96.1010901153238.27935B-100000@mandrakesoft.mandrakesoft.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 1 Sep 2001 16:28:06 +0000 (UTC), 
-Samium Gromoff <_deepfire@mail.ru> wrote:
->      If one wanting to turn on virtually every kernel CONFIG_* option
->  in order to check if the kernel compiles and then report possible
->  gcc errors to lkml, will the resulting kernel fit the bzImage format?
+On Fri, 31 Aug 2001, Ken Moffat wrote:
+> I've just changed the NIC on my main box from a natsemi to a tulip. The
+> natsemi module was in /lib/modules/`uname -r`/kernel/drivers/net along
+> with the ppp modules, but the tulip module is in a tulip subdirectory.
+> 
+> Is there a good reason for this ?
 
-No, it is far too big.
+A sane organization.  At least two more tulip-alikes are moving into
+that directory in 2.5, even though they will remain separate drivers.
 
-BTW, if you want to test compiles against various combinations of
-config, there are kbuild patches that add make allyes, make allno, make
-allmod and make randconfig.  Included in separate mail.
+"8390" and "lance" sub-directories are also coming in 2.5.
+
+	Jeff
+
+
 

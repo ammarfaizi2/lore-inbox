@@ -1,36 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129371AbQKTRhC>; Mon, 20 Nov 2000 12:37:02 -0500
+	id <S129532AbQKTRxJ>; Mon, 20 Nov 2000 12:53:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129368AbQKTRgw>; Mon, 20 Nov 2000 12:36:52 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25906 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129227AbQKTRgn>; Mon, 20 Nov 2000 12:36:43 -0500
-Subject: Re: [patch] Remove tq_scheduler
-To: andrewm@uow.edu.au (Andrew Morton)
-Date: Mon, 20 Nov 2000 17:07:14 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (lkml)
-In-Reply-To: <3A15FD94.F19DA5F0@uow.edu.au> from "Andrew Morton" at Nov 18, 2000 02:55:00 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13xuPV-0003pc-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S129453AbQKTRxA>; Mon, 20 Nov 2000 12:53:00 -0500
+Received: from mail2.uni-bielefeld.de ([129.70.4.90]:41684 "EHLO
+	mail.uni-bielefeld.de") by vger.kernel.org with ESMTP
+	id <S129379AbQKTRwx>; Mon, 20 Nov 2000 12:52:53 -0500
+Date: Mon, 20 Nov 2000 17:15:40 +0000
+From: Marc Mutz <Marc@Mutz.com>
+Subject: Re: [PATCH] Re: What is 2.4.0-test10: md1 has overlapping physical
+ unitswith md2!
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Jasper Spaans <jasper@spaans.ds9a.nl>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        George Garvey <tmwg-linuxknl@inxservices.com>,
+        linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
+        MOLNAR Ingo <mingo@chiara.elte.hu>
+Message-id: <3A195C3C.6539D0CE@Mutz.com>
+Organization: University of Bielefeld - Dep. of Mathematics / Dep. of Physics
+MIME-version: 1.0
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17i10-0001 i586)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en
+In-Reply-To: <20001119033943.C935@inxservices.com>
+ <20001119140809.A21693@spaans.ds9a.nl>
+ <14872.29951.707116.16506@notabene.cse.unsw.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   The patch against test11-pre7 (1043 lines) is at
+Neil Brown wrote:
 > 
-> 	http://www.uow.edu.au/~andrewm/linux/tq_scheduler.patch
+> Linus, Ingo:
 > 
->   It affects the following files:
+>  the attached patch, modifies a warning message in md.c which seems to
+>  often cause confusion - the following email includes one example
+>  there-of (there have been others over the months).
+> 
+>  Hopefully the new text is clearer.
+> 
+>  (patch against 2.4.0-test11-pre7)
+> 
+There is a 'has' left in the text of the corrected line.
 
-Andrew, can you put your patches on a properly configured site.  The site
-admins have all ICMP packets blocked on www.uow.edu.au so you are a PMTU 
-blackhole and unreachable via my tunnel.
+> NeilBrown
+> 
+This patch will has it fixed:
 
-Alan
+Marc
+
+--- ./drivers/md/md.c   2000/11/20 00:33:08     1.2
++++ ./drivers/md/md.c   2000/11/20 00:44:19     1.3
+@@ -3279,7 +3279,7 @@
+                if (mddev2 == mddev)
+                        continue;
+                if (mddev2->curr_resync && match_mddev_units(mddev,mddev2)) {
+-                       printk(KERN_INFO "md: serializing resync, md%d has overlapping physical units with md%d!\n", mdidx(mddev), mdidx(mddev2));
++                       printk(KERN_INFO "md: serializing resync, md%d shares one or more physical units with md%d!\n", mdidx(mddev), mdidx(mddev2));
+                        serialize = 1;
+                        break;
+                }
+
+
+-- 
+Marc Mutz <Marc@Mutz.com>     http://EncryptionHOWTO.sourceforge.net/
+University of Bielefeld, Dep. of Mathematics / Dep. of Physics
+
+PGP-keyID's:   0xd46ce9ab (RSA), 0x7ae55b9e (DSS/DH)
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

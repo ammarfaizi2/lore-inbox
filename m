@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbVBIGhd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261796AbVBIHEx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261795AbVBIGhd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 01:37:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVBIGhd
+	id S261796AbVBIHEx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 02:04:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbVBIHEw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 01:37:33 -0500
-Received: from fsmlabs.com ([168.103.115.128]:63210 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261795AbVBIGh2 (ORCPT
+	Wed, 9 Feb 2005 02:04:52 -0500
+Received: from fw.osdl.org ([65.172.181.6]:12463 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261796AbVBIHEv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 01:37:28 -0500
-Date: Tue, 8 Feb 2005 23:38:12 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: John Levon <levon@movementarian.org>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] OProfile: exit.text referenced in init.text
-Message-ID: <Pine.LNX.4.61.0502082312010.26742@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 9 Feb 2005 02:04:51 -0500
+Date: Tue, 8 Feb 2005 23:04:47 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: "Mark F. Haigh" <Mark.Haigh@SpirentCom.COM>
+Cc: chrisw@osdl.org, linux-security-module@wirex.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kernel/fork.c: VM accounting bugfix (2.6.11-rc3-bk5)
+Message-ID: <20050208230447.V24171@build.pdx.osdl.net>
+References: <420988C1.5030408@spirentcom.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <420988C1.5030408@spirentcom.com>; from Mark.Haigh@SpirentCom.COM on Tue, Feb 08, 2005 at 07:51:29PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The linker doesn't complain, but i got this error on ARM which has 
-similar code.
+Hi Mark,
 
-oprofile_arch_exit: discarded in section `.exit.text' from arch/arm/oprofile/built-in.o
-arch/arm/oprofile/built-in.o(.init.text+0x4c): In function `oprofile_init':
-: relocation truncated to fit: R_ARM_PC24 oprofile_arch_exit
+* Mark F. Haigh (Mark.Haigh@SpirentCom.COM) wrote:
+> [Aargh!  Missing Signed-off-by.]
+> 
+> Unless I'm missing something, in kernel/fork.c, dup_mmap():
+> 
+> 			if (security_vm_enough_memory(len))
+> 				goto fail_nomem;
+> /* ... */
+> fail_nomem:
+> 	retval = -ENOMEM;
+> 	vm_unacct_memory(charge);
+> /* ... */
+> 
+> If security_vm_enough_memory() fails there, then we vm_unacct_memory()
+> that we never accounted (if security_vm_enough_memory() fails, no memory
+> is accounted).
 
-oprofile_arch_init()
-	<error path>
-	oprofile_arch_exit()
-		__exit nmi_exit()
-			__exit exit_driverfs()
+You missed one subtle point.  That failure case actually unaccts 0 pages
+(note the use of charge).  Not the nicest, but I believe correct.
 
-Signed-off-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-
-===== arch/i386/oprofile/nmi_int.c 1.27 vs edited =====
---- 1.27/arch/i386/oprofile/nmi_int.c	2005-01-30 23:33:47 -07:00
-+++ edited/arch/i386/oprofile/nmi_int.c	2005-02-08 23:08:33 -07:00
-@@ -70,7 +70,7 @@ static int __init init_driverfs(void)
- }
- 
- 
--static void __exit exit_driverfs(void)
-+static void exit_driverfs(void)
- {
- 	sysdev_unregister(&device_oprofile);
- 	sysdev_class_unregister(&oprofile_sysclass);
-@@ -420,7 +420,7 @@ int __init nmi_init(struct oprofile_oper
- }
- 
- 
--void __exit nmi_exit(void)
-+void nmi_exit(void)
- {
- 	if (using_nmi)
- 		exit_driverfs();
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

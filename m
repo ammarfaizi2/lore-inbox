@@ -1,73 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbVBHGRG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261489AbVBHGSC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261487AbVBHGRG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 01:17:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVBHGRG
+	id S261489AbVBHGSC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 01:18:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVBHGSC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 01:17:06 -0500
-Received: from 207-105-1-25.zarak.com ([207.105.1.25]:23098 "HELO
-	iceberg.Adtech-Inc.COM") by vger.kernel.org with SMTP
-	id S261487AbVBHGRA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 01:17:00 -0500
-Message-ID: <4208590C.1040500@spirentcom.com>
-Date: Mon, 07 Feb 2005 22:15:40 -0800
-From: "Mark F. Haigh" <Mark.Haigh@spirentcom.com>
-User-Agent: Mozilla Thunderbird  (X11/20041216)
+	Tue, 8 Feb 2005 01:18:02 -0500
+Received: from mgr2.xmission.com ([198.60.22.202]:56990 "EHLO
+	mgr2.xmission.com") by vger.kernel.org with ESMTP id S261489AbVBHGRz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 01:17:55 -0500
+Message-ID: <4208599C.9020904@xmission.com>
+Date: Mon, 07 Feb 2005 23:18:04 -0700
+From: maxer <maxer@xmission.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050109 Fedora/1.7.5-3
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: marcelo.tosatti@cyclades.com
-CC: "Mark F. Haigh" <Mark.Haigh@spirentcom.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4.29-bk8] Resend: sym53c8xx.c: Add ULL suffix to fix
- warning
-References: <420845CE.50908@spirentcom.com> <420853A2.2010405@spirentcom.com>
-In-Reply-To: <420853A2.2010405@spirentcom.com>
-Content-Type: multipart/mixed;
- boundary="------------060106090108080204050404"
-X-OriginalArrivalTime: 08 Feb 2005 06:17:00.0334 (UTC) FILETIME=[CC9A0CE0:01C50DA5]
+To: linux-kernel@vger.kernel.org
+Subject: skge driver from Stephen H. doesn't support the following SysKonnect
+ sk98lin supported on board lan
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 166.70.55.125
+X-SA-Exim-Mail-From: maxer@xmission.com
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on mgr1.xmission.com)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060106090108080204050404
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+The description in kernel 2.6.11-rc3-mm1 make for the skge driver states 
+the following:
+ 
+"*New SysKonnect GigaEthernet support (EXPERIMENTAL) (SKGE)
 
-Mark F. Haigh wrote:
-> 
-> Apologies.  Patch now -p1-able.
-> 
+This driver support the Marvell Yukon or SysKonnect SK-98xx/SK-95xx
+and related Gigabit Ethernet adapters. It is a new smaller driver
+driver with better performance and more complete ethtool support.
 
-[Apolgies yet again, description included now]
+It does not support the link failover and network management
+features that "portable" vendor supplied sk98lin driver does.* "
 
-Noticed that in drivers/scsi/sym53c8xx.c:
+What makes my PCI Express mobo with on board 04:00.0 Ethernet 
+controller: Marvell Technology Group Ltd. Gigabit Ethernet Controller 
+(rev 17)
+*not *supported by skge driver is that it is a  NEW generation  driver  
+Marvell Yukon  2.
 
-sym53c8xx.c:13185: warning: integer constant is too large for "long" type
+I have SysKonnect's sk98lin driver working for me under a custom built 
+2.6.9 kernel using SysKonnect's driver version 7.09 patched in the kernel.
 
-Since we're not dealing with C99 (yet), this 64 bit integer constant
-needs to be suffixed with ULL.  Patch included.
+The motherboard I'm using is a new Intel D915GEV. The specs on the lan 
+show as:
 
-Mark F. Haigh
-Mark.Haigh@spirentcom.com
+Gigabit (10/100/1000 Mbits/sec) LAN subsystem using the Marvel* Yukon* 
+88E8050 PCI Express* Gigabit Ethernet Controller.
 
-Signed-off-by: Mark F. Haigh  <Mark.Haigh@spirentcom.com>
+Don't try this Stephen's skge driver with this, it isn't supported.
 
---------------060106090108080204050404
-Content-Type: text/plain;
- name="sym53c8xx-patch2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sym53c8xx-patch2"
-
---- linux-2.4.29-bk8/drivers/scsi/sym53c8xx.c.orig	2005-02-07 19:53:05.000000000 -0800
-+++ linux-2.4.29-bk8/drivers/scsi/sym53c8xx.c	2005-02-07 19:53:36.000000000 -0800
-@@ -13182,7 +13182,7 @@
- 	** descriptors.
- 	*/
- 	if (chip && (chip->features & FE_DAC)) {
--		if (pci_set_dma_mask(pdev, (u64) 0xffffffffff))
-+		if (pci_set_dma_mask(pdev, (u64) 0xffffffffffULL))
- 			chip->features &= ~FE_DAC_IN_USE;
- 		else
- 			chip->features |= FE_DAC_IN_USE;
-
---------------060106090108080204050404--
+RaXeT

@@ -1,61 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261777AbTIPGNW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 02:13:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbTIPGNW
+	id S261170AbTIPGkd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 02:40:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbTIPGkd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 02:13:22 -0400
-Received: from pentafluge.infradead.org ([213.86.99.235]:8615 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261777AbTIPGNV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 02:13:21 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: =?ISO-8859-1?Q?Dani=EBl?= Mantione <daniel@deadlock.et.tudelft.nl>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Olaf Hering <olh@suse.de>, Geert Uytterhoeven <geert@linux-m68k.org>
-In-Reply-To: <Pine.LNX.4.44.0309160011540.24675-100000@deadlock.et.tudelft.nl>
-References: <Pine.LNX.4.44.0309160011540.24675-100000@deadlock.et.tudelft.nl>
-Message-Id: <1063692749.585.64.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 16 Sep 2003 08:12:29 +0200
-X-SA-Exim-Mail-From: benh@kernel.crashing.org
-Subject: Re: atyfb still broken on 2.4.23-pre4 (on sparc64)
-Content-Type: text/plain
+	Tue, 16 Sep 2003 02:40:33 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:61650 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S261170AbTIPGkb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 02:40:31 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: David Yu Chen <dychen@stanford.edu>
+Date: Tue, 16 Sep 2003 16:40:12 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
-X-SA-Exim-Scanned: Yes
-X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
+Message-ID: <16230.45132.727984.324258@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu
+Subject: Re: [CHECKER] 32 Memory Leaks on Error Paths
+In-Reply-To: message from David Yu Chen on Monday September 15
+References: <200309160435.h8G4ZkQM009953@elaine4.Stanford.EDU>
+X-Mailer: VM 7.17 under Emacs 21.3.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Same problem for me :)
+On Monday September 15, dychen@stanford.edu wrote:
+> Hi All,
 > 
-> I did post the driver on the Linux-fbdev and LinuxPPC mailinglists.
-> Replies: 0. I also asked you, you didn't have time, no problem, but again
-> no test. It gets merged, people start testing...
-
-I know the problem, but I'm opposed to doing that in the middle
-of a stable release.
-
-> I agree the stable series should have a stable driver, I proposed that
-> Marcelo would merge the driver, I would aggressively investigate problems,
-> and in case of serious trouble a revert.
-
-Ok, but then, we need to make sure it works. Most people won't test
-before 2.4.23 is final and released by distros and at this point it
-will be too late.
-
-> > Why don't you push it to 2.6 first then backport to 2.4 ? That would
-> > be better imho...
+> I'm with the Stanford Meta-level Compilation research group, and I
+> have a set of memory leaks on error paths for the 2.6.0-test5 kernel.
+> (I also have error reports for 2.4.18 and a couple other kernels if
+> anyone is interested).
 > 
-> It's a possibility, Alexander Kern is porting the code to 2.6. But
-> please wait a few days, it's quite likely things will be fixed and stable then.
+> There may be one or more "GOTO -->" markers showing the different
+> paths of execution that can occur between where the memory is
+> allocated and where the function returns.
+> 
+> My checker identifies error paths with a learning algorithm on
+> features surrounding goto and return statements.  I'd greatly
+> appreciate any comments or confirmation on these bugs.
+> 
+> Thanks!
 
-Let's see...
+The nfsd/nfsctl.c one isn't actually a bug (though I had to think
+about it a bit to be sure).
 
-Ben.
+One of the "... DETELED 4 lines ..." is
+
+		file->private_data = ar;
+
+which takes a copy of "ar" into a structure that has a lifetime
+greater than the function.
+So when the "return -EFAULT" happends (at END -->), at is stored in
+file->private_data, and a subsequent call to TA_release will free that
+memory.
+
+NeilBrown
 
 
+> 
+> [FILE:  2.6.0-test5/fs/nfsd/nfsctl.c]
+> [FUNC:  TA_write]
+> [LINES: 105-120]
+> [VAR:   ar]
+>  100:	if (file->private_data) 
+>  101:		return -EINVAL; /* only one write allowed per open */
+>  102:	if (size > PAGE_SIZE - sizeof(struct argresp))
+>  103:		return -EFBIG;
+>  104:
+> START -->
+>  105:	ar = kmalloc(PAGE_SIZE, GFP_KERNEL);
+>  106:	if (!ar)
+>  107:		return -ENOMEM;
+>  108:	ar->size = 0;
+>  109:	down(&file->f_dentry->d_inode->i_sem);
+>  110:	if (file->private_data)
+>         ... DELETED 4 lines ...
+>  115:	if (rv) {
+>  116:		kfree(ar);
+>  117:		return rv;
+>  118:	}
+>  119:	if (copy_from_user(ar->data, buf, size))
+> END -->
+>  120:		return -EFAULT;
+>  121:	
+>  122:	rv =  write_op[ino](file, ar->data, size);
+>  123:	if (rv>0) {
+>  124:		ar->size = rv;
+>  125:		rv = size;

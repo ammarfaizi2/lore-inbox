@@ -1,49 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129136AbQKKCZX>; Fri, 10 Nov 2000 21:25:23 -0500
+	id <S129213AbQKKC3x>; Fri, 10 Nov 2000 21:29:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129265AbQKKCZN>; Fri, 10 Nov 2000 21:25:13 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:32517 "EHLO
+	id <S129250AbQKKC3d>; Fri, 10 Nov 2000 21:29:33 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:34053 "EHLO
 	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129136AbQKKCZG>; Fri, 10 Nov 2000 21:25:06 -0500
-Date: Fri, 10 Nov 2000 20:20:51 -0700
+	id <S129213AbQKKC31>; Fri, 10 Nov 2000 21:29:27 -0500
+Date: Fri, 10 Nov 2000 20:25:27 -0700
 From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
 To: David Ford <david@linux.com>
-Cc: Steve VanDevender <stevev@efn.org>,
-        "Jeff V. Merkey" <jmerkey@timpanogas.org>, sendmail-bugs@sendmail.org,
-        Igmar Palsenberg <maillist@chello.nl>, root@chaos.analogic.com,
-        Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in /var/spool/mqueue]
-Message-ID: <20001110202051.C3285@vger.timpanogas.org>
-In-Reply-To: <3A0C5EDC.3F30BE9C@timpanogas.org> <Pine.LNX.4.21.0011110113590.6465-100000@server.serve.me.nl> <20001110151232.A16552@sendmail.com> <3A0C8117.20853855@timpanogas.org> <14860.40393.864532.703716@tzadkiel.efn.org> <3A0CA8B4.5D254820@linux.com>
+Cc: "Jeff V. Merkey" <jmerkey@timpanogas.org>, sendmail-bugs@sendmail.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: Wild thangs, was: sendmail fails to deliver mail with attachments in /var/spool/mqueue
+Message-ID: <20001110202527.A3342@vger.timpanogas.org>
+In-Reply-To: <20001110095227.A15010@sendmail.com> <3A0C37FF.23D7B69@timpanogas.org> <20001110101138.A15087@sendmail.com> <3A0C3F30.F5EB076E@timpanogas.org> <20001110133431.A16169@sendmail.com> <3A0C6B7C.110902B4@timpanogas.org> <3A0C6E01.EFA10590@timpanogas.org> <3A0C929B.EE6F7137@linux.com> <3A0C9277.273FA907@timpanogas.org> <3A0C96FD.8441F995@linux.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3A0CA8B4.5D254820@linux.com>; from david@linux.com on Fri, Nov 10, 2000 at 06:02:28PM -0800
+In-Reply-To: <3A0C96FD.8441F995@linux.com>; from david@linux.com on Fri, Nov 10, 2000 at 04:46:53PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 10, 2000 at 06:02:28PM -0800, David Ford wrote:
-> >  > With a handle like
-> >  > "Assmann", deviation is proably something you already understand quite
-> >  > well ...
-> >
-> > Don't be a moron.  Claus is German, Assman really is his last name and
-> > not some "handle", and it's pronounced "Oss-man".
+On Fri, Nov 10, 2000 at 04:46:53PM -0800, David Ford wrote:
+> To be honest Jeff, most of my sendmail systems have default load values
+> and large (read created by microsoft mua) emails make it through
+> constantly with no distinguishable delays.  I just launched 45 "cat
+> core|mail david@kalifornia.com" and core is a 10 meg binary file.  It
+> results in a 14 meg total message size.
 > 
-> Claus is a well liked, knowledgable and well experienced person in numerous
-> domains.  Please don't stoop to such silly games with people's proper name.
+> The load spiked to .75 and dropped back to .45 while launching.  I started
+> them two minutes ago and they are all in client DATA phase with the remote
+> MTA at the moment.  I only have 30K/s upstream.
+> 
+> At present the load is .10 and the net is hopping.  This isn't a power box
+> and the rest of the system is running as well.
+> 
+> My guess is that the system reporting the problem has an elevated load
+> average from those 11 modprobes stuck in D state.
 
-Sounded like a handle of some kind, like Santa Claus or something.  I had no 
-idea.  I speak some native american, and I'm certain if I used "Oi-ach 
-Ch'ei e'ho" as a a email handle, many folks would be confused, when what I 
-was trying to say is my proper (non-english) name.
+They're not modprobes, they're misnamed processes sleeping from NWFS.  
+I got the fix from someone so now they display their proper names.
+top displays the names correctly, ps does not.  Several people have 
+verified this problem, and all you are saying is that your servers
+are never heavily loaded for long periods of time, say 200 hours
+at a stretch of consatnt ftp traffic?
 
 Jeff
 
 
 > 
+> I manage servers that transport hundreds of thousands of emails daily and
+> their load is minimal.  They handle large messages fine.  The only
+> defaults I've really had to change are the max children and some of the
+> timing simply because I want stalled connections (read routing loss) to
+> requeue quickly.
+> 
 > -d
+> 
+> 
+> "Jeff V. Merkey" wrote:
+> 
+> > David Ford wrote:
+> >
+> > David,
+> >
+> > We got to the bottom of it.  sendmail is using a BSD method to react to
+> > load average which is different than what linux is providing.  You have
+> > to crank up
+> >
+> > O QueueLA = 18
+> > O RefuseLA = 12
+> >
+> > on a busy Linux server since the defaults will result in large emails
+> > never getting sent.
+> >
+> > Jeff
 > 
 > --
 > "The difference between 'involvement' and 'commitment' is like an

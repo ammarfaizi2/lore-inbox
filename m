@@ -1,52 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319015AbSIJCyo>; Mon, 9 Sep 2002 22:54:44 -0400
+	id <S319018AbSIJDQQ>; Mon, 9 Sep 2002 23:16:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319018AbSIJCyo>; Mon, 9 Sep 2002 22:54:44 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29451 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S319015AbSIJCyn>; Mon, 9 Sep 2002 22:54:43 -0400
-Date: Mon, 9 Sep 2002 19:59:32 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-cc: Greg KH <greg@kroah.com>, <linux-usb-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] USB changes for 2.5.34
-In-Reply-To: <Pine.LNX.4.44.0209091926320.1911-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0209091951550.1911-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319019AbSIJDQQ>; Mon, 9 Sep 2002 23:16:16 -0400
+Received: from sv1.valinux.co.jp ([202.221.173.100]:47634 "HELO
+	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S319018AbSIJDQP>;
+	Mon, 9 Sep 2002 23:16:15 -0400
+Date: Tue, 10 Sep 2002 12:13:36 +0900 (JST)
+Message-Id: <20020910.121336.95055718.taka@valinux.co.jp>
+To: scott.feldman@intel.com
+Cc: davem@redhat.com, nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] zerocopy NFS for 2.5.33
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <288F9BF66CD9D5118DF400508B68C446047588D5@orsmsx113.jf.intel.com>
+References: <288F9BF66CD9D5118DF400508B68C446047588D5@orsmsx113.jf.intel.com>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-On Mon, 9 Sep 2002, Linus Torvalds wrote:
+> > As far as I know e1000 has a feature that it can split a 
+> > jumbo UDP frame into some IP fragments.
 > 
-> Which basically means that a driver that uses BUG() for something that
-> isn't certain to be fatal anyway is a BUGGY driver.
+> UDP segmentation but not UDP fragmentation, sorry.
 
-There are probably good exceptions to this rule, like any rule.
-
-For example, if the request queue (or some other fundamental internal data
-structure) is found to be corrupted, I couldn't really fault a driver for
-BUG()'ing out on it. It's not as if the driver could sanely even do an 
-end_request() in that case.
-
-But even broken hardware is not a reason for a BUG(). For example, if the
-driver notices that some part of the controller is hung hard (ie provable
-hardware problem), the last thing it should do is to bring the system
-down. It should fail the IO, and maybe turn itself off, but let the system 
-continue otherwise.
-
-One of the best things I ever did from a debuggability standpoint was to 
-almost never use panic() in the base kernel, and make various kernel page 
-faults etc just try to kill the offender and go on.
-
-Sometimes that "try to continue" approach ends up being nasty too (the
-problem repeats and you end up with a dead machine that scrolls infinite
-bug reports off the screen, making them really hard to catch), but on the
-whole it tends to make things much easier to debug ("oops, I just lost my
-floppy drive, let's save the messages on the harddisk and reboot").
-
-			Linus
-
+Really?
+it's too sad.

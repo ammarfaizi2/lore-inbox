@@ -1,46 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312852AbSCVVot>; Fri, 22 Mar 2002 16:44:49 -0500
+	id <S312855AbSCVVq3>; Fri, 22 Mar 2002 16:46:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312855AbSCVVoj>; Fri, 22 Mar 2002 16:44:39 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:19719 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S312852AbSCVVoa>; Fri, 22 Mar 2002 16:44:30 -0500
-Date: Fri, 22 Mar 2002 22:44:13 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Martin Blais <blais@discreet.com>
-Cc: Martin Blais <blais@IRO.UMontreal.CA>, linux-kernel@vger.kernel.org
-Subject: Re: xxdiff as a visual diff tool (shameless plug)
-Message-ID: <20020322214413.GG16382@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020321061423.HIXG2746.tomts17-srv.bellnexxia.net@there> <20020322092712.GA233@elf.ucw.cz> <200203221829.NAA22671161@cuba.discreet.qc.ca>
+	id <S312858AbSCVVqT>; Fri, 22 Mar 2002 16:46:19 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:56038 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S312855AbSCVVqI> convert rfc822-to-8bit;
+	Fri, 22 Mar 2002 16:46:08 -0500
+Date: Fri, 22 Mar 2002 13:42:08 -0800 (PST)
+Message-Id: <20020322.134208.64317316.davem@redhat.com>
+To: pasik@iki.fi
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BETA-0.97] Eigth test release of Tigon3 driver
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0203222333520.10668-100000@edu.joroinen.fi>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+   From: Pasi Kärkkäinen <pasik@iki.fi>
+   Date: Fri, 22 Mar 2002 23:37:34 +0200 (EET)
+   
+   How about vlans.. should it say something about enabling hardware vlan
+   tagging when I configure some vlans?
 
-> > It would be great to somehow split patches before feeding them to the
-> > patch. If you have one big hunk, and it fails because of one letter
-> > added somewhere in file, it is *big pain* to find/kill offending
-> > letter.
-> 
-> oops.. sorry Pavel, never mind previous email, i got it now (brain is slowly 
-> booting this morning).
-
-Problem is that sometimes even one hunk is too much.
-
-> that seems more like a patch problem/improvement request. i wouldn't do the 
-> patch myself... however, with the rejected hunks problem, i wonder if it is 
-> at all possible to avoid implementing patch functionality in the diffing tool 
-> itself.
-
-Question is how to do it in patch. Even one *long line* can be too
-much, and then your horizontal highlight would come very handy.
-
-								Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+It just should work.  The VLAN layer might print something out,
+but the tg3 driver won't have anything interesting to say.

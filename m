@@ -1,29 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268034AbTBMNJe>; Thu, 13 Feb 2003 08:09:34 -0500
+	id <S268033AbTBMNIl>; Thu, 13 Feb 2003 08:08:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268035AbTBMNI5>; Thu, 13 Feb 2003 08:08:57 -0500
-Received: from services.cam.org ([198.73.180.252]:44535 "EHLO mail.cam.org")
-	by vger.kernel.org with ESMTP id <S268034AbTBMNIh>;
-	Thu, 13 Feb 2003 08:08:37 -0500
+	id <S268035AbTBMNIl>; Thu, 13 Feb 2003 08:08:41 -0500
+Received: from services.cam.org ([198.73.180.252]:43767 "EHLO mail.cam.org")
+	by vger.kernel.org with ESMTP id <S268033AbTBMNIc>;
+	Thu, 13 Feb 2003 08:08:32 -0500
 From: Ed Tomlinson <tomlins@cam.org>
 Organization: me
-Date: Thu, 13 Feb 2003 08:18:29 -0500
+Date: Thu, 13 Feb 2003 08:18:24 -0500
 User-Agent: KMail/1.5.9
 MIME-Version: 1.0
 Content-Disposition: inline
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] (2-2) governors for 60-bk
+Subject: [PATCH] (1-2) governors for 60-bk
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200302130818.29431.tomlins@cam.org>
+Message-Id: <200302130818.24529.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is the modified schedule tunables patch
+Here is the patch for governors
 
-schedule_tunables-C4
+ptg-C4
 
 Ed Tomlinson
 
@@ -31,315 +31,257 @@ Ed Tomlinson
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.963   -> 1.964  
-#	     kernel/sysctl.c	1.39    -> 1.40   
-#	Documentation/filesystems/proc.txt	1.13    -> 1.14   
-#	include/linux/sysctl.h	1.40    -> 1.41   
-#	      kernel/sched.c	1.156   -> 1.157  
+#	           ChangeSet	1.994   -> 1.995  
+#	include/linux/sched.h	1.129   -> 1.130  
+#	       kernel/fork.c	1.104   -> 1.105  
+#	       kernel/user.c	1.6     -> 1.7    
+#	      kernel/sched.c	1.158   -> 1.159  
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
-# 03/01/25	ed@oscar.et.ca	1.964
-# add scheduler tunables including governors and NUMA knobs
+# 03/02/12	ed@oscar.et.ca	1.995
+# governors for thread groups and users
 # --------------------------------------------
 #
-diff -Nru a/Documentation/filesystems/proc.txt b/Documentation/filesystems/proc.txt
---- a/Documentation/filesystems/proc.txt	Sat Jan 25 11:07:17 2003
-+++ b/Documentation/filesystems/proc.txt	Sat Jan 25 11:07:17 2003
-@@ -37,6 +37,7 @@
-   2.8	/proc/sys/net/ipv4 - IPV4 settings
-   2.9	Appletalk
-   2.10	IPX
-+  2.11  /proc/sys/sched - scheduler tunables
+diff -Nru a/include/linux/sched.h b/include/linux/sched.h
+--- a/include/linux/sched.h	Wed Feb 12 12:13:01 2003
++++ b/include/linux/sched.h	Wed Feb 12 12:13:01 2003
+@@ -177,6 +177,11 @@
  
- ------------------------------------------------------------------------------
- Preface
-@@ -1662,6 +1663,113 @@
- The /proc/net/ipx_route  table  holds  a list of IPX routes. For each route it
- gives the  destination  network, the router node (or Directly) and the network
- address of the router (or Connected) for internal networks.
-+
-+2.11 /proc/sys/sched - scheduler tunables
-+-----------------------------------------
-+
-+Useful knobs for tuning the scheduler live in /proc/sys/sched.
-+
-+child_penalty
-+-------------
-+
-+Percentage of the parent's sleep_avg that children inherit.  sleep_avg is
-+a running average of the time a process spends sleeping.  Tasks with high
-+sleep_avg values are considered interactive and given a higher dynamic
-+priority and a larger timeslice.  You typically want this some value just
-+under 100.
-+
-+exit_weight
-+-----------
-+
-+When a CPU hog task exits, its parent's sleep_avg is reduced by a factor of
-+exit_weight against the exiting task's sleep_avg.
-+
-+interactive_delta
-+-----------------
-+
-+If a task is "interactive" it is reinserted into the active array after it
-+has expired its timeslice, instead of being inserted into the expired array.
-+How "interactive" a task must be in order to be deemed interactive is a
-+function of its nice value.  This interactive limit is scaled linearly by nice
-+value and is offset by the interactive_delta.
-+
-+max_sleep_avg
-+-------------
-+
-+max_sleep_avg is the largest value (in ms) stored for a task's running sleep
-+average.  The larger this value, the longer a task needs to sleep to be
-+considered interactive (maximum interactive bonus is a function of
-+max_sleep_avg).
-+
-+max_timeslice
-+-------------
-+
-+Maximum timeslice, in milliseconds.  This is the value given to tasks of the
-+highest dynamic priority.
-+
-+min_timeslice
-+-------------
-+
-+Minimum timeslice, in milliseconds.  This is the value given to tasks of the
-+lowest dynamic priority.  Every task gets at least this slice of the processor
-+per array switch.
-+
-+parent_penalty
-+--------------
-+
-+Percentage of the parent's sleep_avg that it retains across a fork().
-+sleep_avg is a running average of the time a process spends sleeping.  Tasks
-+with high sleep_avg values are considered interactive and given a higher
-+dynamic priority and a larger timeslice.  Normally, this value is 100 and thus
-+task's retain their sleep_avg on fork.  If you want to punish interactive
-+tasks for forking, set this below 100.
-+
-+prio_bonus_ratio
-+----------------
-+
-+Middle percentage of the priority range that tasks can receive as a dynamic
-+priority.  The default value of 25% ensures that nice values at the
-+extremes are still enforced.  For example, nice +19 interactive tasks will
-+never be able to preempt a nice 0 CPU hog.  Setting this higher will increase
-+the size of the priority range the tasks can receive as a bonus.  Setting
-+this lower will decrease this range, making the interactivity bonus less
-+apparent and user nice values more applicable.
-+
-+starvation_limit
-+----------------
-+
-+Sufficiently interactive tasks are reinserted into the active array when they
-+run out of timeslice.  Normally, tasks are inserted into the expired array.
-+Reinserting interactive tasks into the active array allows them to remain
-+runnable, which is important to interactive performance.  This could starve
-+expired tasks, however, since the interactive task could prevent the array
-+switch.  To prevent starving the tasks on the expired array for too long. the
-+starvation_limit is the longest (in ms) we will let the expired array starve
-+at the expense of reinserting interactive tasks back into active.  Higher
-+values here give more preferance to running interactive tasks, at the expense
-+of expired tasks.  Lower values provide more fair scheduling behavior, at the
-+expense of interactivity.  The units are in milliseconds.
-+
-+thread_governor
-+---------------
-+
-+When the number of active threads in a threadgroup exceeds the limit reduce the   
-+timeslices of active members by thread_governor / active_threads_in_group.  In
-+the NUMA case the limits are per node.  The thread_governor is applied before
-+the user_governor.  Units are number of threads times 10.
-+
-+user_governor
-+-------------
-+
-+When the number of active threads of user exceeds the limit reduce the timeslices
-+of the user's active processes by user_governor / active_threads_of_user. In the
-+NUMA case the limits are per node.  Units are number of threads times 10.
-+
-+node_threshold
-+--------------
-+
-+Consider NUMA nodes imbalanced when there is a difference of more than this
-+percentage.
+ #include <linux/aio.h>
  
- ------------------------------------------------------------------------------
- Summary
-diff -Nru a/include/linux/sysctl.h b/include/linux/sysctl.h
---- a/include/linux/sysctl.h	Sat Jan 25 11:07:17 2003
-+++ b/include/linux/sysctl.h	Sat Jan 25 11:07:17 2003
-@@ -66,7 +66,8 @@
- 	CTL_DEV=7,		/* Devices */
- 	CTL_BUS=8,		/* Busses */
- 	CTL_ABI=9,		/* Binary emulation */
--	CTL_CPU=10		/* CPU stuff (speed scaling, etc) */
-+	CTL_CPU=10,		/* CPU stuff (speed scaling, etc) */
-+	CTL_SCHED=11,		/* scheduler tunables */
- };
- 
- /* CTL_BUS names: */
-@@ -157,6 +158,21 @@
- 	VM_LOWER_ZONE_PROTECTION=20,/* Amount of protection of lower zones */
- };
- 
-+/* Tunable scheduler parameters in /proc/sys/sched/ */
-+enum {
-+	SCHED_MIN_TIMESLICE=1,		/* minimum process timeslice */
-+	SCHED_MAX_TIMESLICE=2,		/* maximum process timeslice */
-+	SCHED_CHILD_PENALTY=3,		/* penalty on fork to child */
-+	SCHED_PARENT_PENALTY=4,		/* penalty on fork to parent */
-+	SCHED_EXIT_WEIGHT=5,		/* penalty to parent of CPU hog child */
-+	SCHED_PRIO_BONUS_RATIO=6,	/* percent of max prio given as bonus */
-+	SCHED_INTERACTIVE_DELTA=7,	/* delta used to scale interactivity */
-+	SCHED_MAX_SLEEP_AVG=8,		/* maximum sleep avg attainable */
-+	SCHED_STARVATION_LIMIT=9,	/* no re-active if expired is starved */
-+	SCHED_THREAD_GOVERNOR=10,	/* govern threadgroups when needed */
-+	SCHED_USER_GOVERNOR=11,		/* govern users when needed  */
-+	SCHED_NODE_THRESHOLD=12,	/* NUMA imbalance threshold */
++struct ptg_struct {		/* pseudo thread groups */
++        atomic_t active;        /* number of tasks in run queues */
++        atomic_t count;         /* number of refs */
 +};
++
+ struct mm_struct {
+ 	struct vm_area_struct * mmap;		/* list of VMAs */
+ 	struct rb_root mm_rb;
+@@ -277,6 +282,7 @@
+ struct user_struct {
+ 	atomic_t __count;	/* reference count */
+ 	atomic_t processes;	/* How many processes does this user have? */
++	atomic_t active;	/* How many active processes does this user have? */
+ 	atomic_t files;		/* How many open files does this user have? */
  
- /* CTL_NET names: */
- enum
+ 	/* Hash table maintenance information */
+@@ -322,6 +328,8 @@
+ 	struct list_head ptrace_list;
+ 
+ 	struct mm_struct *mm, *active_mm;
++	struct ptg_struct * ptgroup;		/* pseudo thread group for this task */
++	atomic_t *governor;			/* the atomic_t that governs this task */
+ 
+ /* task state */
+ 	struct linux_binfmt *binfmt;
+diff -Nru a/kernel/fork.c b/kernel/fork.c
+--- a/kernel/fork.c	Wed Feb 12 12:13:01 2003
++++ b/kernel/fork.c	Wed Feb 12 12:13:01 2003
+@@ -74,6 +74,14 @@
+ 
+ void __put_task_struct(struct task_struct *tsk)
+ {
++	if (tsk->ptgroup && atomic_sub_and_test(1,&tsk->ptgroup->count)) {
++		kfree(tsk->ptgroup);
++		tsk->ptgroup = NULL;
++		tsk->governor = &tsk->user->active;
++		if (tsk == current)
++			atomic_inc(tsk->governor);
++	}
+chedule_tunables-C4
+ 	if (tsk != current) {
+ 		free_thread_info(tsk->thread_info);
+ 		kmem_cache_free(task_struct_cachep,tsk);
+@@ -450,6 +458,7 @@
+ 
+ 	tsk->mm = NULL;
+ 	tsk->active_mm = NULL;
++	tsk->ptgroup = NULL;
+ 
+ 	/*
+ 	 * Are we cloning a kernel thread?
+@@ -715,6 +724,29 @@
+ 	p->flags = new_flags;
+ }
+ 
++static inline int setup_governor(unsigned long clone_flags, struct task_struct *p)
++{
++	if ( ((clone_flags & CLONE_VM) && (clone_flags & CLONE_FILES)) ||
++	     (clone_flags & CLONE_THREAD)) {
++		if (current->ptgroup)
++			atomic_inc(&current->ptgroup->count);
++		else {
++			current->ptgroup = kmalloc(sizeof(struct ptg_struct), GFP_ATOMIC);
++			if (!current->ptgroup)
++				return 1;
++			/* printk(KERN_INFO "ptgroup - pid %u\n",current->pid); */
++			atomic_set(&current->ptgroup->count,2);
++			atomic_set(&current->ptgroup->active,1);
++			atomic_dec(current->governor);
++			current->governor = &current->ptgroup->active;
++		}
++		p->ptgroup = current->ptgroup;
++		p->governor = &p->ptgroup->active;
++	} else
++		p->governor = &p->user->active;
++	return 0;
++}
++
+ asmlinkage int sys_set_tid_address(int *tidptr)
+ {
+ 	current->clear_child_tid = tidptr;
+@@ -855,6 +887,12 @@
+ 		goto bad_fork_cleanup_mm;
+ 	retval = copy_thread(0, clone_flags, stack_start, stack_size, p, regs);
+ 	if (retval)
++		goto bad_fork_cleanup_namespace;
++	/*
++	 * Setup the governor pointer for the new process, allocating a new ptg as
++	 * required if the process is a member of a thread group. 
++	 */
++	if (setup_governor(clone_flags, p))
+ 		goto bad_fork_cleanup_namespace;
+ 
+ 	if (clone_flags & CLONE_CHILD_SETTID)
 diff -Nru a/kernel/sched.c b/kernel/sched.c
---- a/kernel/sched.c	Sat Jan 25 11:07:17 2003
-+++ b/kernel/sched.c	Sat Jan 25 11:07:17 2003
-@@ -57,19 +57,35 @@
-  * Minimum timeslice is 10 msecs, default timeslice is 150 msecs,
-  * maximum timeslice is 300 msecs. Timeslices get refilled after
-  * they expire.
-+ *
-+ * They are configurable via /proc/sys/sched
-  */
--#define MIN_TIMESLICE		( 10 * HZ / 1000)
--#define MAX_TIMESLICE		(300 * HZ / 1000)
--#define CHILD_PENALTY		95
--#define PARENT_PENALTY		100
--#define THREAD_GOVERNOR		15	/* allow threads groups 1.5 full timeslices */
--#define USER_GOVERNOR		300	/* allow user 30 full timeslices */
--#define EXIT_WEIGHT		3
--#define PRIO_BONUS_RATIO	25
--#define INTERACTIVE_DELTA	2
--#define MAX_SLEEP_AVG		(2*HZ)
--#define STARVATION_LIMIT	(2*HZ)
--#define NODE_THRESHOLD          125
-+
-+int min_timeslice = (10 * HZ) / 1000;
-+int max_timeslice = (300 * HZ) / 1000;
-+int child_penalty = 95;
-+int parent_penalty = 100;
-+int thread_governor = 15;
-+int user_governor = 300;
-+int exit_weight = 3;
-+int prio_bonus_ratio = 25;
-+int interactive_delta = 2;
-+int max_sleep_avg = 2 * HZ;
-+int starvation_limit = 2 * HZ;
-+int node_threshold = 125;
-+
-+#define MIN_TIMESLICE		(min_timeslice)
-+#define MAX_TIMESLICE		(max_timeslice)
-+#define CHILD_PENALTY		(child_penalty)
-+#define PARENT_PENALTY		(parent_penalty)
-+#define THREAD_GOVERNOR		(thread_governor)
-+#define USER_GOVERNOR		(user_governor)
-+#define EXIT_WEIGHT		(exit_weight)
-+#define PRIO_BONUS_RATIO	(prio_bonus_ratio)
-+#define INTERACTIVE_DELTA	(interactive_delta)
-+#define MAX_SLEEP_AVG		(max_sleep_avg)
-+#define STARVATION_LIMIT	(starvation_limit)
-+#define NODE_THRESHOLD		(node_threshold)
+--- a/kernel/sched.c	Wed Feb 12 12:13:01 2003
++++ b/kernel/sched.c	Wed Feb 12 12:13:01 2003
+@@ -62,6 +62,8 @@
+ #define MAX_TIMESLICE		(300 * HZ / 1000)
+ #define CHILD_PENALTY		95
+ #define PARENT_PENALTY		100
++#define THREAD_GOVERNOR		15	/* allow threads groups 1.5 full timeslices */
++#define USER_GOVERNOR		300	/* allow user 30 full timeslices */
+ #define EXIT_WEIGHT		3
+ #define PRIO_BONUS_RATIO	25
+ #define INTERACTIVE_DELTA	2
+@@ -121,9 +123,23 @@
+ #define BASE_TIMESLICE(p) (MIN_TIMESLICE + \
+ 	((MAX_TIMESLICE - MIN_TIMESLICE) * (MAX_PRIO-1-(p)->static_prio)/(MAX_USER_PRIO - 1)))
+ 
++static int next;
+ static inline unsigned int task_timeslice(task_t *p)
+ {
+-	return BASE_TIMESLICE(p);
++	int slice = BASE_TIMESLICE(p);
++	int threads = atomic_read(p->governor) * 10;
++	int govern = threads;
++	if (p->user->uid)
++		govern = (p->ptgroup) ? THREAD_GOVERNOR : USER_GOVERNOR;
++	if (threads > govern) {
++		slice = (slice * govern) / threads;
++		slice = (slice > MIN_TIMESLICE) ? slice : MIN_TIMESLICE;
++	}
++/*	if (jiffies > next) {
++		printk(KERN_INFO "uid %d pid %d ptg %x gov %x threads %d lim %d slice %d\n",p->uid, p->pid, p->ptgroup, p->governor, threads/10, govern, slice);
++		next = jiffies + HZ*300;
++	} */
++	return slice;
+ }
  
  /*
-  * If a task is 'interactive' then we reinsert it in the active
-diff -Nru a/kernel/sysctl.c b/kernel/sysctl.c
---- a/kernel/sysctl.c	Sat Jan 25 11:07:17 2003
-+++ b/kernel/sysctl.c	Sat Jan 25 11:07:17 2003
-@@ -55,6 +55,18 @@
- extern int cad_pid;
- extern int pid_max;
- extern int sysctl_lower_zone_protection;
-+extern int min_timeslice;
-+extern int max_timeslice;
-+extern int child_penalty;
-+extern int parent_penalty;
-+extern int exit_weight;
-+extern int prio_bonus_ratio;
-+extern int interactive_delta;
-+extern int max_sleep_avg;
-+extern int starvation_limit;
-+extern int thread_governor;
-+extern int user_governor;
-+extern int node_threshold;
+@@ -196,16 +212,18 @@
+ 	rq->node_nr_running = &node_nr_running[0];
+ }
  
- /* this is needed for the proc_dointvec_minmax for [fs_]overflow UID and GID */
- static int maxolduid = 65535;
-@@ -112,6 +124,7 @@
+-static inline void nr_running_inc(runqueue_t *rq)
++static inline void nr_running_inc(task_t *p, runqueue_t *rq)
+ {
+ 	atomic_inc(rq->node_nr_running);
+ 	rq->nr_running++;
++	atomic_inc(p->governor);
+ }
  
- static ctl_table kern_table[];
- static ctl_table vm_table[];
-+static ctl_table sched_table[];
- #ifdef CONFIG_NET
- extern ctl_table net_table[];
- #endif
-@@ -156,6 +169,7 @@
- 	{CTL_FS, "fs", NULL, 0, 0555, fs_table},
- 	{CTL_DEBUG, "debug", NULL, 0, 0555, debug_table},
-         {CTL_DEV, "dev", NULL, 0, 0555, dev_table},
-+	{CTL_SCHED, "sched", NULL, 0, 0555, sched_table},
- 	{0}
+-static inline void nr_running_dec(runqueue_t *rq)
++static inline void nr_running_dec(task_t *p, runqueue_t *rq)
+ {
+ 	atomic_dec(rq->node_nr_running);
+ 	rq->nr_running--;
++	atomic_dec(p->governor);
+ }
+ 
+ __init void node_nr_running_init(void)
+@@ -219,8 +237,8 @@
+ #else /* !CONFIG_NUMA */
+ 
+ # define nr_running_init(rq)   do { } while (0)
+-# define nr_running_inc(rq)    do { (rq)->nr_running++; } while (0)
+-# define nr_running_dec(rq)    do { (rq)->nr_running--; } while (0)
++# define nr_running_inc(p, rq)    do { (rq)->nr_running++; atomic_inc((p)->governor); } while (0)
++# define nr_running_dec(p, rq)    do { (rq)->nr_running--; atomic_dec((p)->governor); } while (0)
+ 
+ #endif /* CONFIG_NUMA */
+ 
+@@ -341,7 +359,7 @@
+ 		p->prio = effective_prio(p);
+ 	}
+ 	enqueue_task(p, array);
+-	nr_running_inc(rq);
++	nr_running_inc(p, rq);
+ }
+ 
+ /*
+@@ -349,7 +367,7 @@
+  */
+ static inline void deactivate_task(struct task_struct *p, runqueue_t *rq)
+ {
+-	nr_running_dec(rq);
++	nr_running_dec(p, rq);
+ 	if (p->state == TASK_UNINTERRUPTIBLE)
+ 		rq->nr_uninterruptible++;
+ 	dequeue_task(p, p->array);
+@@ -910,9 +928,9 @@
+ static inline void pull_task(runqueue_t *src_rq, prio_array_t *src_array, task_t *p, runqueue_t *this_rq, int this_cpu)
+ {
+ 	dequeue_task(p, src_array);
+-	nr_running_dec(src_rq);
++	nr_running_dec(p, src_rq);
+ 	set_task_cpu(p, this_cpu);
+-	nr_running_inc(this_rq);
++	nr_running_inc(p, this_rq);
+ 	enqueue_task(p, this_rq->active);
+ 	/*
+ 	 * Note that idle threads have a prio of MAX_PRIO, for this test
+@@ -2450,6 +2468,7 @@
+ 	rq->curr = current;
+ 	rq->idle = current;
+ 	set_task_cpu(current, smp_processor_id());
++	current->governor = &current->user->active;
+ 	wake_up_forked_process(current);
+ 
+ 	init_timers();
+diff -Nru a/kernel/user.c b/kernel/user.c
+--- a/kernel/user.c	Wed Feb 12 12:13:01 2003
++++ b/kernel/user.c	Wed Feb 12 12:13:01 2003
+@@ -30,6 +30,7 @@
+ struct user_struct root_user = {
+ 	.__count	= ATOMIC_INIT(1),
+ 	.processes	= ATOMIC_INIT(1),
++	.active		= ATOMIC_INIT(1),
+ 	.files		= ATOMIC_INIT(0)
  };
  
-@@ -358,7 +372,47 @@
+@@ -96,6 +97,7 @@
+ 		new->uid = uid;
+ 		atomic_set(&new->__count, 1);
+ 		atomic_set(&new->processes, 0);
++		atomic_set(&new->active, 0);
+ 		atomic_set(&new->files, 0);
  
- static ctl_table dev_table[] = {
- 	{0}
--};  
-+};
-+
-+static ctl_table sched_table[] = {
-+	{SCHED_MAX_TIMESLICE, "max_timeslice", &max_timeslice,
-+	 sizeof(int), 0644, NULL, &proc_dointvec_minmax,
-+	 &sysctl_intvec, NULL, &one, NULL},
-+	{SCHED_MIN_TIMESLICE, "min_timeslice", &min_timeslice,
-+	 sizeof(int), 0644, NULL, &proc_dointvec_minmax,
-+	 &sysctl_intvec, NULL, &one, NULL},
-+	{SCHED_CHILD_PENALTY, "child_penalty", &child_penalty,
-+	 sizeof(int), 0644, NULL, &proc_dointvec_minmax,
-+	 &sysctl_intvec, NULL, &zero, NULL},
-+	{SCHED_PARENT_PENALTY, "parent_penalty", &parent_penalty,
-+	 sizeof(int), 0644, NULL, &proc_dointvec_minmax,
-+	 &sysctl_intvec, NULL, &zero, NULL},
-+	{SCHED_EXIT_WEIGHT, "exit_weight", &exit_weight,
-+	 sizeof(int), 0644, NULL, &proc_dointvec_minmax,
-+	 &sysctl_intvec, NULL, &zero, NULL},
-+	{SCHED_PRIO_BONUS_RATIO, "prio_bonus_ratio", &prio_bonus_ratio,
-+	 sizeof(int), 0644, NULL, &proc_dointvec_minmax,
-+	 &sysctl_intvec, NULL, &zero, NULL},
-+	{SCHED_INTERACTIVE_DELTA, "interactive_delta", &interactive_delta,
-+	 sizeof(int), 0644, NULL, &proc_dointvec_minmax,
-+	 &sysctl_intvec, NULL, &zero, NULL},
-+	{SCHED_MAX_SLEEP_AVG, "max_sleep_avg", &max_sleep_avg,
-+	 sizeof(int), 0644, NULL, &proc_dointvec_minmax,
-+	 &sysctl_intvec, NULL, &one, NULL},
-+	{SCHED_STARVATION_LIMIT, "starvation_limit", &starvation_limit,
-+	 sizeof(int), 0644, NULL, &proc_dointvec_minmax,
-+	 &sysctl_intvec, NULL, &zero, NULL},
-+	{SCHED_THREAD_GOVERNOR, "thread_governor", &thread_governor,
-+	 sizeof(int), 0644, NULL, &proc_dointvec_minmax,
-+	 &sysctl_intvec, NULL, &zero, NULL},
-+	{SCHED_USER_GOVERNOR, "user_governor", &user_governor,
-+	 sizeof(int), 0644, NULL, &proc_dointvec_minmax,
-+	 &sysctl_intvec, NULL, &zero, NULL},
-+	{SCHED_NODE_THRESHOLD, "node_threshold", &node_threshold,
-+	 sizeof(int), 0644, NULL, &proc_dointvec_minmax,
-+	 &sysctl_intvec, NULL, &zero, NULL},
-+	{0}
-+};
+ 		/*
+@@ -130,6 +132,11 @@
+ 	atomic_inc(&new_user->processes);
+ 	atomic_dec(&old_user->processes);
+ 	current->user = new_user;
++	if (!current->ptgroup) {
++		atomic_dec(current->governor);
++		current->governor = &current->user->active;
++		atomic_inc(current->governor);
++	}
+ 	free_uid(old_user);
+ }
  
- extern void init_irq_proc (void);
- 
+
 
 

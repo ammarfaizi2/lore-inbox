@@ -1,47 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266078AbTIKADW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 20:03:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266084AbTIKADW
+	id S266155AbTIKA2I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 20:28:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266156AbTIKA2I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 20:03:22 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:10477 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S266078AbTIKADV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 20:03:21 -0400
-Date: Wed, 10 Sep 2003 17:03:03 -0700
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] you have how many nodes??
-Message-ID: <20030911000303.GA20329@sgi.com>
-Mail-Followup-To: "Martin J. Bligh" <mbligh@aracnet.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20030910153601.36219ed8.akpm@osdl.org> <41000000.1063237600@flay>
+	Wed, 10 Sep 2003 20:28:08 -0400
+Received: from adsl-67-124-157-90.dsl.pltn13.pacbell.net ([67.124.157.90]:2528
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id S266155AbTIKA2E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 20:28:04 -0400
+Date: Wed, 10 Sep 2003 17:27:55 -0700
+To: Breno <brenosp@brasilsec.com.br>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [OT] Re: Size of Tasks during ddos
+Message-ID: <20030911002755.GA13177@triplehelix.org>
+Mail-Followup-To: joshk@triplehelix.org, Breno <brenosp@brasilsec.com.br>,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <001b01c39047$d65cf580$f8e4a7c8@bsb.virtua.com.br>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
 Content-Disposition: inline
-In-Reply-To: <41000000.1063237600@flay>
+In-Reply-To: <001b01c39047$d65cf580$f8e4a7c8@bsb.virtua.com.br>
 User-Agent: Mutt/1.5.4i
-From: jbarnes@sgi.com (Jesse Barnes)
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 10, 2003 at 04:46:40PM -0700, Martin J. Bligh wrote:
-> Yes, it's a turgid mess.
-> 
-> I'd prefer to define things in terms of MAX_NUMNODES, and derive the shifts
-> from that if possible - much more intuitive to maintain.
-> But other than that I agree completely with you.
 
-Yeah, I don't mind switching, should just be a search and replace.
+--a8Wt8u1KmwUX3Y2C
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > Could you please get together with Martin Bligh, come up with something
-> > which works on NUMAQ and your 128 CPU PDA and also cast an eye across the
-> > other architectures (sparc64, sh, ...)?  It all needs a bit of thought and
-> > a spring clean.
-> 
-> I'll have a look, I'm sure we can come up with something between us.
+On Sat, Oct 11, 2003 at 07:34:28PM -0300, Breno wrote:
+   ^^^^^^^^^^^^^^^^^
 
-Cool, thanks.
+Sorry, but could you PLEASE fix the date on your workstation? :(
 
-Jesse
+--=20
+Joshua Kwan
+
+--a8Wt8u1KmwUX3Y2C
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iQIVAwUBP1/BiaOILr94RG8mAQJ5chAAxjMUX3w4bBAD/rqf6udlVkUfvlSj+cpG
+MwJIKkwz36miskCmJk/9TMoJQgk7EKEJ8FMfToJIRlWTNpSO9SHDMNFMuEZxZGCl
+sN0nH2s4YcSwd02d3LKOSWmC4N7Bw+wri9a1LyskGZ5pPcVZtc0m7B/Hj54O1xli
++WBJgImWBWBs8Q23puKMy+jGD/F6/F3+GwrTqP6Hsz19ChjSSJCbNoi+yjnreDM7
+slxhyLs2swrdD3AseGxCIVZ/4VqlFDKzpL9Vfzmr3f1JDEQs97c0ZJykso02jQ8U
+12HZeraazlsvxPhi6cl1nwfJqJiq56bV3uKKyJBxz1JTmRN+ORtWn7LKwxSfq6u8
+XL9iFGb17vxyb6IUjHhWdIDZ8Oi5Ld8ZC7qgXKR2bZwfiDXGyJ5M11ZbhBwy9/fd
+knIAvQDl8gNLrN39tZGDtPjhTJPb/5MP8Y7NKzdAlfWJAKyoCAzDgubf+h0GzA8c
+DTTmDY0j5aVyyxerbVw9YgGxPnwZ7b8VKQvrt3x4KHOcID6gsfiWeuoOCrQADZw0
+3AMKNryfrDC+ukmMAbrVAx2ljPeYBWpnPIkQbKlAMOb1PfKg5De7iShwX/ZAMUz4
+1wccg1zsoswvZwUlGBXe9urmVk9R71Yoyc0LyfMzpXa5/vJEDmINmfM2OprD7ysn
+zRibK5CsFbo=
+=k73O
+-----END PGP SIGNATURE-----
+
+--a8Wt8u1KmwUX3Y2C--

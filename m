@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264757AbSJOQgO>; Tue, 15 Oct 2002 12:36:14 -0400
+	id <S264756AbSJOQf2>; Tue, 15 Oct 2002 12:35:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264758AbSJOQgN>; Tue, 15 Oct 2002 12:36:13 -0400
-Received: from rrzs2.rz.uni-regensburg.de ([132.199.1.2]:18070 "EHLO
-	rrzs2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id <S264757AbSJOQgK>; Tue, 15 Oct 2002 12:36:10 -0400
-Date: Tue, 15 Oct 2002 18:41:48 +0200
-From: Christian Guggenberger 
-	<christian.guggenberger@physik.uni-regensburg.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-pre10-aa1: unresolved symbol in xfs.o
-Message-ID: <20021015184148.A5026@pc9391.uni-regensburg.de>
-References: <20021015172558.A3154@pc9391.uni-regensburg.de> <20021015161908.GC2546@dualathlon.random>
+	id <S264757AbSJOQf2>; Tue, 15 Oct 2002 12:35:28 -0400
+Received: from thunk.org ([140.239.227.29]:13518 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S264756AbSJOQf1>;
+	Tue, 15 Oct 2002 12:35:27 -0400
+Date: Tue, 15 Oct 2002 12:41:16 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Christoph Hellwig <hch@infradead.org>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/4] Add extended attributes to ext2/3
+Message-ID: <20021015164116.GD31235@think.thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Christoph Hellwig <hch@infradead.org>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
+References: <E181IS8-0001DQ-00@snap.thunk.org> <20021015125816.A22877@infradead.org> <20021015131507.GC31235@think.thunk.org> <20021015163121.B27906@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20021015161908.GC2546@dualathlon.random>; from andrea@suse.de on Tue, Oct 15, 2002 at 18:19:08 +0200
-X-Mailer: Balsa 1.2.4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021015163121.B27906@infradead.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Oct 2002 18:19:08 Andrea Arcangeli wrote:
-> On Tue, Oct 15, 2002 at 05:25:58PM +0200, Christian Guggenberger wrote:
-> > Hi Andrea,
-> >
-> > I'm trying to compile 2.4.20-pre10aa1 with xfs enabled as module.
-> > make modules_install ends up in:
-> >
-> > depmod: *** Unresolved symbols in
-> > /lib/modules/2.4.20-pre10aa1/kernel/fs/xfs/xfs.o
-> > depmod: 	do_generic_file_write
-> >
-> > what to do?
+On Tue, Oct 15, 2002 at 04:31:21PM +0100, Christoph Hellwig wrote:
 > 
-> I logged it so it will be fixed. You can link it into the kernel in the
-> meantime (select Y instead of M). For some reason bleeding edge gcc from
-> CVS generates a flood of symbol errors when I run depmod before
-> rebooting, so I don't easily notice these missing exports anymore (I
-> should run depmod post reboot to notice them). thanks,
+> Patch 2: mbcache (all against 2.5.42-mm3):
+> 
+> o remove LINUX_VERSION_CODE mess
 
-nope, static linking ends up in an error, too.
+Note that this was fixed in the version I sent out; I don't think
+Andrew grabbed my latest patches.  Anyway, I'll merge in the various
+suggested changes, and send Andrew an updated patch.
 
-fs/fs.o: In function `xfs_write':
-fs/fs.o(.text+0xa1158): undefined reference to `do_generic_file_write'
-make: *** [vmlinux] Error 1
-
-Christian
+						- Ted

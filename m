@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317625AbSFMOWh>; Thu, 13 Jun 2002 10:22:37 -0400
+	id <S317624AbSFMO0A>; Thu, 13 Jun 2002 10:26:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317626AbSFMOWf>; Thu, 13 Jun 2002 10:22:35 -0400
-Received: from web14402.mail.yahoo.com ([216.136.174.59]:49068 "HELO
-	web14402.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317625AbSFMOVz>; Thu, 13 Jun 2002 10:21:55 -0400
-Message-ID: <20020613142156.62673.qmail@web14402.mail.yahoo.com>
-Date: Thu, 13 Jun 2002 07:21:56 -0700 (PDT)
+	id <S317626AbSFMOZ7>; Thu, 13 Jun 2002 10:25:59 -0400
+Received: from web14406.mail.yahoo.com ([216.136.174.76]:13839 "HELO
+	web14406.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S317624AbSFMOZr>; Thu, 13 Jun 2002 10:25:47 -0400
+Message-ID: <20020613142548.64646.qmail@web14406.mail.yahoo.com>
+Date: Thu, 13 Jun 2002 07:25:48 -0700 (PDT)
 From: manjuanth n <manju_tt@yahoo.com>
 Subject: Re: need help
 To: Michael Clark <michael@metaparadigm.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3D04BA0E.7000702@metaparadigm.com>
+In-Reply-To: <3D025E50.1020506@metaparadigm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
@@ -340,6 +340,68 @@ wio wmerge wsect wuse running use aveq
 > >#include "constants.h"
 > 
 === message truncated ===
+--- Michael Clark <michael@metaparadigm.com> wrote:
+> 2.4.18 needs a hint added to
+> drivers/scsi/scsi_scan.c
+> to allow it to scan targets with sparse luns.
+> 
+> Look in /proc/scsi/scsi for the vendor and model and
+> add them into the device_list array in scsi_scan.c
+> 
+> ...
+> {"<VENDOR>", "<MODEL>", "*", BLIST_SPARSELUN},
+> 
+> If you don't configure lun 0, you may have to use
+> BLIST_FORCELUN which if my understanding is correct
+> will force scanning of all luns.
+> 
+> I hear there is some REPORT_LUNS code that will
+> eliminate the need to do this, although don't know
+> which kernel has it.
+> 
+> ~mc
+> 
+> On 06/08/02 19:27, manjuanth n wrote:
+> 
+> >Dear sir,
+> > we have SAN environment  with hitachi  storage box
+> >and  brocade  switch. we are trying to  install
+> Linux 
+> >with  qlogic  HBA card.  we  are facing strange 
+> >problems 
+> >1. If  we  disable LUN 0  we will not be able to
+> see
+> >any LUNs on liunx  machine
+> >2. If we  enable  LUN 0  we can  see all the  LUNS 
+> >but  it  should be in sequence  i.e LUN0 ,1,2 , 3 
+> etc
+> >if we disable  LUN 3  we will not be able  to see
+> LUNS
+> >4 and  the  rest
+> > Is the  above things  are limitation of linux.
+> >Linux  machine is  running with  2.4.18 kernel
+> >
+> >Is there any solutions for  these problems? 
+> >
+> >Thanks and Regards
+> >Manjuanth
+> >
+> >
+> >__________________________________________________
+> >Do You Yahoo!?
+> >Yahoo! - Official partner of 2002 FIFA World Cup
+> >http://fifaworldcup.yahoo.com
+> >-
+> >To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> >  
+> >
+> 
+> 
 
 
 __________________________________________________

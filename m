@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276879AbRJCGbB>; Wed, 3 Oct 2001 02:31:01 -0400
+	id <S276882AbRJCGhV>; Wed, 3 Oct 2001 02:37:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276878AbRJCGaw>; Wed, 3 Oct 2001 02:30:52 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:31674 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S276876AbRJCGan> convert rfc822-to-8bit; Wed, 3 Oct 2001 02:30:43 -0400
-From: David Schwartz <davids@webmaster.com>
-To: <kaos@ocs.com.au>
-CC: Linux-Kernel (E-mail) <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.51 (988) - Registered Version
-Date: Tue, 2 Oct 2001 23:31:09 -0700
-In-Reply-To: <31512.1002085772@kao2.melbourne.sgi.com>
-Subject: Re: Getting system time in kernel..
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <20011003063110.AAA11976@shell.webmaster.com@whenever>
+	id <S276884AbRJCGhB>; Wed, 3 Oct 2001 02:37:01 -0400
+Received: from 202-54-39-145.tatainfotech.co.in ([202.54.39.145]:47630 "EHLO
+	brelay.tatainfotech.com") by vger.kernel.org with ESMTP
+	id <S276882AbRJCGgu>; Wed, 3 Oct 2001 02:36:50 -0400
+Date: Wed, 3 Oct 2001 12:29:39 +0530 (IST)
+From: "SATHISH.J" <sathish.j@tatainfotech.com>
+To: Anthony <aslan@ispdr.net.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Single .c files
+In-Reply-To: <4.3.2.7.2.20011003004105.02280710@mail.ispdr.net.au>
+Message-ID: <Pine.LNX.4.10.10110031222590.10911-100000@blrmail>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Refer to :   www.lxr.linux.no/source
 
-On Wed, 03 Oct 2001 15:09:32 +1000, Keith Owens wrote:
->On Tue, 2 Oct 2001 22:01:41 -0700,
->David Schwartz <davids@webmaster.com> wrote:
+On Wed, 3 Oct 2001, Anthony wrote:
 
->>    As an example, a filesystem might internally store local times in its
->>inodes. You may not be free to change the on-disk format.
-
->Whose local time?  The local time where the machine is or the local time of
->the user accessing the machine from the other side of the world?  There is a
->very good reason why timestamps are GMT (UTC).
-
-	Well that's an argument in favor of two things:
-
-	1) Avoiding such situations whenever possible by using UTC timestamps in 
-things like filesystems, and
-
-	2) Making local time offsets tuneable for each case where you need one. The 
-physical location of the machine might or might not be meaningful.
-
-	DS
-
-
-
+> Hi everyone,
+> 	Just a quick question: Is it possible for an average person (like me) to 
+> download from somewhere, single .c files from the latest stable kernel? I 
+> only need a few files from the 2.4.9 or .10 release and I'm really not keen 
+> on downloading all 27Mb. :) Any info on this would be great.
+> 
+> 
+> ----------------------------
+> Anthony (aslan@ispdr.net.au)
+> ----------------------------
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

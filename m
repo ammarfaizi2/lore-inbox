@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129381AbRD3ECx>; Mon, 30 Apr 2001 00:02:53 -0400
+	id <S132701AbRD3D5x>; Sun, 29 Apr 2001 23:57:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130768AbRD3ECo>; Mon, 30 Apr 2001 00:02:44 -0400
-Received: from e166066.upc-e.chello.nl ([213.93.166.66]:16391 "EHLO Ion.var.cx")
-	by vger.kernel.org with ESMTP id <S129381AbRD3EC2>;
-	Mon, 30 Apr 2001 00:02:28 -0400
-Date: Mon, 30 Apr 2001 06:02:22 +0200
-From: Frank v Waveren <fvw@var.cx>
-To: "Mike A. Harris" <mharris@opensourceadvocate.org>
-Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: ICQ masq modules for 2.2?
-Message-ID: <20010430060221.A10805@var.cx>
-In-Reply-To: <Pine.LNX.4.33.0104291653410.21901-100000@asdf.capslock.lan>
-Mime-Version: 1.0
+	id <S132057AbRD3D5n>; Sun, 29 Apr 2001 23:57:43 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5738 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S130768AbRD3D5d>; Sun, 29 Apr 2001 23:57:33 -0400
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: "Magnus Naeslund(f)" <mag@fbab.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Alpha compile problem solved by Andrea (pte_alloc)
+In-Reply-To: <052901c0ceca$e6a543c0$020a0a0a@totalmef> <20010427155246.O16020@athlon.random> <m1k843qoc1.fsf@frodo.biederman.org> <20010430014653.C923@athlon.random>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 29 Apr 2001 21:55:06 -0600
+In-Reply-To: Andrea Arcangeli's message of "Mon, 30 Apr 2001 01:46:53 +0200"
+Message-ID: <m1g0erqbxh.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0104291653410.21901-100000@asdf.capslock.lan>; from mharris@opensourceadvocate.org on Sun, Apr 29, 2001 at 04:56:16PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 29, 2001 at 04:56:16PM -0400, Mike A. Harris wrote:
-> Any help in obtaining the source for this module would be greatly
-> appreciated.
+Andrea Arcangeli <andrea@suse.de> writes:
 
->From the readme included in the tarball:
+> On Sun, Apr 29, 2001 at 05:27:10PM -0600, Eric W. Biederman wrote:
+> > 
+> > Do you know if anyone has fixed the lazy vmalloc code?  I know of
+> > as of early 2.4 it was broken on alpha.  At the time I noticed it I didn't
+> > have time to persue it, but before I forget to even put in a bug
+> > report I thought I'd ask if you know anything about it?
+> 
+> On alpha it's racy if you set CONFIG_ALPHA_LARGE_VMALLOC y (so don't do
+> that as you don't need it). As long as you use only 1 entry of the pgd
+> for the whole vmalloc space (CONFIG_ALPHA_LARGE_VMALLOC n) alpha is
+> safe.
 
-Homepage
-~~~~~~~~
-    primary:    http://freeshell.org/~djsf/masq-icq/
-    alternate:  http://djsf.narod.ru/masq-icq/
-                http://www.chat.ru/~djsf/masq-icq/
-                http://djsf.webjump.com/masq-icq/
-                http://members.xoom.com/djsf/masq-icq/
-                http://djsf.tripod.com/masq-icq/
+Hmm. I was having problems reproducible with
+CONFIG_ALPHA_LARGE_VMALLOC n.
 
-At least some of these work for me... I really wonder why this guy
-didn't go to sourceforge or something, I'm sure there are lots of
-people who would like to properly something as useful as this.
+Enabling the large vmalloc was my work around, because the large
+vmalloc whet back to the prelazy allocation code.
 
--- 
-Frank v Waveren                                      Fingerprint: 0EDB 8787
-fvw@[var.cx|dse.nl|stack.nl|chello.nl] ICQ#10074100     09B9 6EF5 6425 B855
-Public key: http://www.var.cx/pubkey/fvw@var.cx-gpg     7179 3036 E136 B85D
+I was getting repeatable problems inside of an mtd driver.  The
+problem I had was entries failed to propagate across different tasks.
+I think it was something like the first pgd was lazily allocated and
+not propagated.   
+
+I don't have a SRM on my 264 alpha so alpha (for reference on which
+code paths were followed.
+
+> 
+> OTOH x86 is racy and there's no workaround available at the moment.
+
+GH
+
+Well racy is easier to work with than just plain non-functional. 
+
+Eric
 

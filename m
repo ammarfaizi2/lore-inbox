@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263161AbUCPBHq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 20:07:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263157AbUCPBDk
+	id S262872AbUCPBOl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 20:14:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262942AbUCPADO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 20:03:40 -0500
-Received: from monitor.cc.swin.edu.au ([136.186.1.62]:48648 "EHLO
-	monitor.cc.swin.edu.au") by vger.kernel.org with ESMTP
-	id S263058AbUCPBDU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 20:03:20 -0500
-Message-ID: <D00002dbb7@monitor.cc.swin.edu.au>
-From: postmaster@groupwise.swin.edu.au
+	Mon, 15 Mar 2004 19:03:14 -0500
+Received: from mail.kroah.org ([65.200.24.183]:1711 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262871AbUCPABy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 19:01:54 -0500
+Subject: Re: [PATCH] Driver Core update for 2.6.4
+In-Reply-To: <10793951472062@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 15 Mar 2004 15:59:08 -0800
+Message-Id: <10793951481021@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
-Date: Tue, 16 Mar 2004 12:03:15 +1100
-Subject: Undelivered (Virus)
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="--=bae8905e-5cec-4abe-bc50-db2328c4907c"
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-----=bae8905e-5cec-4abe-bc50-db2328c4907c
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+ChangeSet 1.1608.84.9, 2004/03/11 13:21:13-08:00, greg@kroah.com
 
-Swinburne University of Technology has prevented delivery of your email because:
-It contains a virus.
+Kobject: add decl_subsys_name() macro for users who want to set the subsystem name
 
-The details of the email are as follows:
-  Recipient: hkitson@groupwise.swin.edu.au
-  Sender: linux-kernel@vger.kernel.org
-  Subject: important
-  Date: 3/16/2004
 
-While the mail message appears to have been sent from yourself,
-Swinburne University understands that your email address may have
-been spoofed/faked.
+ include/linux/kobject.h |    8 ++++++++
+ 1 files changed, 8 insertions(+)
 
-If this is a legitimate email from yourself, please clean the
-email and resend it, if not, please disregard this notice.
 
-Regards,
+diff -Nru a/include/linux/kobject.h b/include/linux/kobject.h
+--- a/include/linux/kobject.h	Mon Mar 15 15:29:10 2004
++++ b/include/linux/kobject.h	Mon Mar 15 15:29:10 2004
+@@ -151,6 +151,14 @@
+ 		.hotplug_ops =_hotplug_ops, \
+ 	} \
+ }
++#define decl_subsys_name(_varname,_name,_type,_hotplug_ops) \
++struct subsystem _varname##_subsys = { \
++	.kset = { \
++		.kobj = { .name = __stringify(_name) }, \
++		.ktype = _type, \
++		.hotplug_ops =_hotplug_ops, \
++	} \
++}
+ 
+ 
+ /**
 
-Swinburne University of Technology
-GroupWise Postmaster
-
-----=bae8905e-5cec-4abe-bc50-db2328c4907c--

@@ -1,70 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264759AbTFERdM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 13:33:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264763AbTFERdM
+	id S264768AbTFERhH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 13:37:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264777AbTFERhH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 13:33:12 -0400
-Received: from holomorphy.com ([66.224.33.161]:11706 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264759AbTFERdL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 13:33:11 -0400
-Date: Thu, 5 Jun 2003 10:46:41 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org
-Subject: pgcl-2.5.70-bk10-1
-Message-ID: <20030605174641.GJ20413@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 5 Jun 2003 13:37:07 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:18342 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S264768AbTFERhF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 13:37:05 -0400
+From: Kevin Corry <kevcorry@us.ibm.com>
+To: dm-devel@sistina.com, Daniel Phillips <dphillips@sistina.com>,
+       Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [dm-devel] Re: [RFC] device-mapper ioctl interface
+Date: Thu, 5 Jun 2003 12:50:30 -0500
+User-Agent: KMail/1.5
+References: <20030605093943.GD434@fib011235813.fsnet.co.uk> <200306051147.10775.kevcorry@us.ibm.com> <200306051900.37276.dphillips@sistina.com>
+In-Reply-To: <200306051900.37276.dphillips@sistina.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Message-Id: <200306051250.30994.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From pgcl-2.5.70-bk9-2:
-Do some intelligent pagetable preconstruction, in combination with a
-small bit of restoration of struct mmu_gather's opacity to the core VM.
->From pgcl-2.5.70-bk9-3:
-Also inline various things to cope with identified regressions and for
-utterly trivial functions that can be inlined with the non-private
-structure declaration.
+On Thursday 05 June 2003 12:00, Daniel Phillips wrote:
+> On Thursday 05 June 2003 18:47, Kevin Corry wrote:
+> > 2) Removing suspended devices. The current code (2.5.70) does not allow a
+> > suspended device to be removed/unlinked from the ioctl interface, since
+> > removing it would leave you with no way to resume it (and hence flush any
+> > pending I/Os). Alasdair mentioned a couple of new ideas. One would be to
+> > reload the device with an error-map and force it to resume, thus erroring
+> > any pending I/Os and allowing the device to be removed. This seems a bit
+> > heavy-handed.
+>
+> Which is the heavy-handed part?
 
-This hopefully addresses a performance degradation in pte_alloc_one()
-in the autoconf build benchmark identified by Randy Hron. Further
-tuning may be required to keep space consumption more tightly bounded.
-Oddly, this technique is potentially also applicable to mainline. I
-vaguely wonder why no one's done it yet.
+The part about automatically reloading the table with an error map and forcing 
+it to resume. It just seemed to me that user-space ought to be able to gather 
+enough information to determine that a device needed to be resumed before it 
+could be removed. Thus the kernel driver wouldn't be forced to implement such 
+a policy.
 
-Unfortunately, neither the sysenter bug nor the bug encountered during
-the AIM7 run have had progress made on them.
+Talking with Alasadair again, he mentioned a case I hadn't considered. Devices 
+would now be created without a mapping and initially suspended. If some other 
+error occurred, and you decided to just delete the device before loading a 
+mapping, it would fail.  And having to resume a device with no mapping just 
+to be able to delete it definitely seems odd.
 
-The unified anonymizing fault handling may end up just going in even
-with those bugs pending since it doesn't look likely forward progress
-will get made on either in a timely fashion. For testers looking to
-just avoid the bugs for now, there are workarounds to #ifdef out some
-of the sysenter hooks for ELF loading and coredumping that can help
-carry out test runs of things like LTP without tripping things up
-I can send out in private mail. The AIM7 bug has no known workaround
-or reliable method of reproduction. The sysenter bug is trivial to
-reproduce, so don't bother hunting.
+So, it's not like I'm dead-set against this idea. I was just curious what the 
+reasoning was behind this change.
 
-This thing's broken the 300KB of diff mark and I've yet to touch a
-significant number of drivers, fs's, or non-i386 architectures (3 or 4
-drivers, 0 fs's, and 0 non-i386 architectures), and worse yet, I've yet
-to polish off the actual core functionality. It could get harder to
-maintain, I suppose, but I'm not sure how. I guess I asked for it.
+-- 
+Kevin Corry
+kevcorry@us.ibm.com
+http://evms.sourceforge.net/
 
-I'm at least hoping the aggressive keeping up-to-date of the past week
-or so will float me through the time I'm preoccupied with cpumask_t,
-which should happen soon, since the big MIPS merge looks like it's
-rapidly closing in on -CURRENT.
-
-As usual, available from:
-ftp://ftp.kernel.org/pub/linux/kernel/people/wli/vm/pgcl/
-
-
--- wli

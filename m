@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318142AbSGRPlB>; Thu, 18 Jul 2002 11:41:01 -0400
+	id <S318138AbSGRPiZ>; Thu, 18 Jul 2002 11:38:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318145AbSGRPlB>; Thu, 18 Jul 2002 11:41:01 -0400
-Received: from ip68-100-183-147.nv.nv.cox.net ([68.100.183.147]:59624 "HELO
-	ascellatech.com") by vger.kernel.org with SMTP id <S318142AbSGRPlA> convert rfc822-to-8bit;
-	Thu, 18 Jul 2002 11:41:00 -0400
-Subject: Re: Linux 2.4.19-rc1-ac7
-From: Amith Varghese <amith@xalan.com>
+	id <S318140AbSGRPiZ>; Thu, 18 Jul 2002 11:38:25 -0400
+Received: from crisium.vnl.com ([194.46.8.33]:22541 "EHLO crisium.vnl.com")
+	by vger.kernel.org with ESMTP id <S318138AbSGRPiY>;
+	Thu, 18 Jul 2002 11:38:24 -0400
+Date: Thu, 18 Jul 2002 16:45:33 +0100
+From: Dale Amon <amon@vnl.com>
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020718172929.2fcc92ff.diegocg@teleline.es>
-References: <200207171056.g6HAuXR24678@devserv.devel.redhat.com>
-	<1026920340.11636.63.camel@spc9.esa.lanl.gov> 
-	<20020718172929.2fcc92ff.diegocg@teleline.es>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 18 Jul 2002 11:43:54 -0400
-Message-Id: <1027007034.3493.144.camel@viper>
+Cc: Frank Davis <fdavis@si.rr.com>
+Subject: 2.5.26 : drivers/scsi/BusLogic.c
+Message-ID: <20020718154533.GA6851@vnl.com>
+Mail-Followup-To: Dale Amon <amon@vnl.com>, linux-kernel@vger.kernel.org,
+	Frank Davis <fdavis@si.rr.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux, the choice of a GNU generation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get the same error on my dual athlon 1900MP - Asus A7M266-D
-motherboard
+>As noted below, Frank Davis suggests I fire this back into the
+>list for discussion.
+>
+>On Thu, Jul 18, 2002 at 11:04:17AM -0400, Frank Davis wrote:
+>
+>>Dale,
+>> Here's what I know....
+>>not all architectures define an 'address' variable in the struct 
+>>scatterlist, so some archs will compile with no problems, others won't. 
+>>If you're using a i386, there isn't an address variable. Here's what I 
+>>suggest....email linux-kernel with the problem report for 2.5.26, and 
+>>explain what I have stated above. I could have a bunch of #ifdef for 
+>>each arch, but thats plain crazy. I'd be interested in what some other 
+>>developers suggest. Sorry, I couldn't provide you a patch.
+>>
+>>Regards,
+>>Frank
+>>
 
-Amith
-
-On Thu, 2002-07-18 at 11:29, Diego Calleja wrote:
-> On 17 Jul 2002 09:39:00 -0600
-> Steven Cole <scole@lanl.gov> escribió:
-> 
-> > 
-> > Not yet fixed for me. Here is the error shortly after the very
-> > beginning of the boot:
-> > 
-> > APIC error on CPU0: 08(08)
-> > APIC error on CPU0: 08(08)
-> > message repeats at this point.
-> > 
-> > This is on a VALinux 2231 dual p-III with an Intel Server Board STL2.
-> > Same .config which I sent last time.  I can resend if necessary.
-> 
-> 
-> Same for a hp netserver lh plus dual P200mhz:
-> 
-> APIC error on CPU0: 08(08)
-> <forever>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+BusLogic.c:32: #error Please convert me to Documentation/DMA-mapping.txt
+BusLogic.c: In function `BusLogic_DetectHostAdapter':
+BusLogic.c:2841: warning: long unsigned int format, BusLogic_IO_Address_T arg (arg 2)
+BusLogic.c: In function `BusLogic_QueueCommand':
+BusLogic.c:3415: structure has no member named `address'
+BusLogic.c: In function `BusLogic_BIOSDiskParameters':
+BusLogic.c:4141: warning: implicit declaration of function `scsi_bios_ptable'
+BusLogic.c:4141: warning: assignment makes pointer from integer without a cast
+make[2]: *** [BusLogic.o] Error 1
 

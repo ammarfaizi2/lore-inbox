@@ -1,231 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264550AbSIVVzR>; Sun, 22 Sep 2002 17:55:17 -0400
+	id <S264561AbSIVWC6>; Sun, 22 Sep 2002 18:02:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264563AbSIVVzR>; Sun, 22 Sep 2002 17:55:17 -0400
-Received: from ophelia.ess.nec.de ([193.141.139.8]:34487 "EHLO
-	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
-	id <S264550AbSIVVzN>; Sun, 22 Sep 2002 17:55:13 -0400
-From: Erich Focht <efocht@ess.nec.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: [Lse-tech] [PATCH 1/2] node affine NUMA scheduler
-Date: Sun, 22 Sep 2002 23:59:16 +0200
-User-Agent: KMail/1.4.1
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LSE <lse-tech@lists.sourceforge.net>, Ingo Molnar <mingo@elte.hu>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>
-References: <78206124.1032689516@[10.10.2.3]> <85905225.1032697215@[10.10.2.3]>
-In-Reply-To: <85905225.1032697215@[10.10.2.3]>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_S21V9M5F6YSX6TPPYJQ2"
-Message-Id: <200209222359.16296.efocht@ess.nec.de>
+	id <S264565AbSIVWC6>; Sun, 22 Sep 2002 18:02:58 -0400
+Received: from vti01.vertis.nl ([145.66.4.26]:58378 "EHLO vti01.vertis.nl")
+	by vger.kernel.org with ESMTP id <S264561AbSIVWC4>;
+	Sun, 22 Sep 2002 18:02:56 -0400
+Date: Mon, 23 Sep 2002 00:07:22 +0200
+From: Rolf Fokkens <fokkensr@fokkensr.vertis.nl>
+Message-Id: <200209222207.g8MM7MM04998@fokkensr.vertis.nl>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 32bit wraps and USER_HZ [64 bit counters], kernel 2.5.37
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---------------Boundary-00=_S21V9M5F6YSX6TPPYJQ2
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+With the introduction of USER_HZ some counters may wrap much faster on 32 bit
+platforms. On i386 HZ=1000 which means that all kinds of time related counters
+may wrap within (4294967296 / 1000 / 60 / 60 / 24) = 49 days.
 
-On Sunday 22 September 2002 21:20, Martin J. Bligh wrote:
-> I tried putting back the current->node logic now that we have
-> the correct node IDs, but it made things worse (not as bad as
-> before, but ... looks like we're still allocing off the wrong
-> node.
+This patch is an attempt to overcome this problem by replacing the relevant
+counters with 64 bit counters. This introduces the necessity to do additional
+locking when these counters are accessed as operations on these counters no
+longer are atomic.
 
-Thanks a lot for the testing! It looks like something is still
-wrong. NUMAQ suffers a lot more from hops across the nodes than
-the Azusa therefore I expect it is more sensitive to initial
-load balancing errors.
+To limit the size of this message the attached patch is restricted to the
+kernel_stat.h and sched.h files, just to give an impression. The full patch
+can be downloaded from:
 
-The easiest thing to try is "nodpol -P 2" in the shell before
-running the test. This changes the initial load balancing policy
-from exec() to fork() ("nodpol -P 0" gets you back to the default).
+    ftp://twww.vertis.nl/pub/linux/userhz/linux-2.5.38-u64-1.patch
 
-A bit more difficult is tuning the scheduler parameters which can
-be done pretty simply by changing the __node_distance matrix. A first
-attempt could be: 10 on the diagonal, 100 off-diagonal. This leads to
-larger delays when stealing from a remote node.
+Rolf Fokkens
+fokkensr@fokkensr.vertis.nl
 
-Anyhow, it would be good to understand what is going on and maybe
-simpler tests than a kernel compile can reveal something. Or looking
-into at the /proc/sched/load/rqNN files (you need the patch I posted
-a few mails ago).
-
-I'll modify alloc_pages not to take into acount the kernel threads
-in the mean time.
-
-Regards,
-Erich
-
-> This run is the last one in the list.
->
-> Virgin:
-> Elapsed: 20.82s User: 191.262s System: 59.782s CPU: 1206.4%
->   7059 do_anonymous_page
->   4459 page_remove_rmap
->   3863 handle_mm_fault
->   3695 .text.lock.namei
->   2912 page_add_rmap
->   2458 rmqueue
->   2119 vm_enough_memory
->
-> Both numasched patches, just compile fixes:
-> Elapsed: 28.744s User: 204.62s System: 173.708s CPU: 1315.8%
->  38978 do_anonymous_page
->  36533 rmqueue
->  35099 __free_pages_ok
->   5551 page_remove_rmap
->   4694 handle_mm_fault
->   3166 page_add_rmap
->
-> Both numasched patches, alloc from local node
-> Elapsed: 21.094s User: 195.808s System: 62.41s CPU: 1224.4%
->   7475 do_anonymous_page
->   4564 page_remove_rmap
->   4167 handle_mm_fault
->   3467 .text.lock.namei
->   2520 page_add_rmap
->   2112 rmqueue
->   1905 .text.lock.dec_and_lock
->   1849 zap_pte_range
->   1668 vm_enough_memory
->
-> Both numasched patches, hack node IDs, alloc from local node
-> Elapsed: 21.918s User: 190.224s System: 59.166s CPU: 1137.4%
->   5793 do_anonymous_page
->   4475 page_remove_rmap
->   4281 handle_mm_fault
->   3820 .text.lock.namei
->   2625 page_add_rmap
->   2028 .text.lock.dec_and_lock
->   1748 vm_enough_memory
->   1713 file_read_actor
->   1672 rmqueue
->
-> Both numasched patches, hack node IDs, alloc from current->node
-> Elapsed: 24.414s User: 194.86s System: 98.606s CPU: 1201.6%
->  30317 do_anonymous_page
->   6962 rmqueue
->   5190 page_remove_rmap
->   4773 handle_mm_fault
->   3522 .text.lock.namei
->   3161 page_add_rmap
-
---------------Boundary-00=_S21V9M5F6YSX6TPPYJQ2
-Content-Type: text/x-csrc;
-  charset="iso-8859-1";
-  name="nodpol.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="nodpol.c"
-
-/*-------------------------------------------------------------------------
-  Read and set the homenode and the node_policy used for node affine
-  scheduling.
-
-  (c) Erich Focht <efocht@ess.nec.de>
-
-  $Id:$
-  $Revision:$
-  $Log:$
-
-  -------------------------------------------------------------------------*/
-
-#include <linux/config.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <getopt.h>
-#include <errno.h>
-#include <pwd.h>
-#include <sys/prctl.h>
-#include <string.h>
-
-
-static char VersionString[] = "$Revision:$";
-
-void usage(char *exe)
-{
-	printf("Usage: %s [-n] [-N node] [-p] [-P policy] [pid]\n",
-	       exe);
-	printf("  -n         : get preferred node for process pid\n");
-	printf("  -N         : set preferred node for process pid\n");
-	printf("  -p         : get scheduler node_policy for process pid\n");
-	printf("  -P         : set scheduler node_policy for process pid\n");
-	printf("  pid        : process ID of targetted process (default: parent)\n");
-	printf("\n%s\n\n",VersionString);
-}
-
-#define MAXPIDS 256
-
-int main(int argc,char *argv[])
-{
-	int ierr=0, pid[MAXPIDS], policy, numpids=0, i;
-	int result;
-        extern char *optarg;
-        extern int optind;
-        int c;
-	int getpol=0, getnod=0, setnod=0, setpol=0, help=0, node;
-
-	// set PID to parent process ID of current process, this is what we
-	// usually mean to change
-	pid[numpids++]=getppid();
-
-        // parse options
-        while (( c = getopt(argc, argv, "nN:pP:h")) != EOF ) {
-		switch( c ) {
-		case 'n':    /* get task->node value */
-			getnod=1;
-			break;
-		case 'N':    /* set task->node value */
-			setnod=1;
-			sscanf(optarg,"%d",&node);
-			break;
-		case 'p':    /* get task->node_policy value */
-			getpol=1;
-			break;
-		case 'P':    /* set task->node_policy value */
-			setpol=1;
-			sscanf(optarg,"%d",&policy);
-			break;
-		case 'h':
-			help=1;
-			break;
-		default:
-			printf("Unknown option %s\n",optarg);
-		}
-        }
-	if (optind<argc) numpids=0;
-
-	while (optind<argc && numpids<MAXPIDS-1)
-		sscanf(argv[optind++],"%d",&pid[numpids++]);
-		
-	if (help) {
-		usage(argv[0]);
-		exit(0);
-	}
-	
-	if (getnod)
-		printf("pid \t node\n");
-	if (getpol)
-		printf("pid \t policy\n");
-	for (i=0;i<numpids;i++) {
-		if (getnod)
-			if((ierr = prctl(PR_GET_NODE,&result,pid[i])) == 0)
-				printf("%d\t%d\n",pid[i],result);
-		if (setnod)
-			ierr = prctl(PR_SET_NODE,(int)node,pid[i]);
-		if (getpol)
-			if((ierr = prctl(PR_GET_NODPOL,&result,pid[i])) == 0)
-				printf("%d\t%d\n",pid[i],result);
-		if (setpol)
-			ierr = prctl(PR_SET_NODPOL,(int)policy,pid[i]);
-	}
-	exit(ierr);
-}				
-
---------------Boundary-00=_S21V9M5F6YSX6TPPYJQ2--
-
+diff -ruN linux-2.5.38.orig/include/linux/kernel_stat.h linux-2.5.38/include/linux/kernel_stat.h
+--- linux-2.5.38.orig/include/linux/kernel_stat.h	Sun Aug 11 03:41:27 2002
++++ linux-2.5.38/include/linux/kernel_stat.h	Sun Sep 22 20:28:55 2002
+@@ -5,6 +5,8 @@
+ #include <asm/irq.h>
+ #include <linux/smp.h>
+ #include <linux/threads.h>
++#include <linux/time.h>
++#include <linux/spinlock.h>
+ 
+ /*
+  * 'kernel_stat.h' contains the definitions needed for doing
+@@ -16,9 +18,10 @@
+ #define DK_MAX_DISK 16
+ 
+ struct kernel_stat {
+-	unsigned int per_cpu_user[NR_CPUS],
+-	             per_cpu_nice[NR_CPUS],
+-	             per_cpu_system[NR_CPUS];
++	rwlock_t times_lock;
++	u64 uptime,
++	    cpu_utime[NR_CPUS], cpu_ntime[NR_CPUS],
++	    cpu_stime[NR_CPUS];
+ 	unsigned int dk_drive[DK_MAX_MAJOR][DK_MAX_DISK];
+ 	unsigned int dk_drive_rio[DK_MAX_MAJOR][DK_MAX_DISK];
+ 	unsigned int dk_drive_wio[DK_MAX_MAJOR][DK_MAX_DISK];
+diff -ruN linux-2.5.38.orig/include/linux/sched.h linux-2.5.38/include/linux/sched.h
+--- linux-2.5.38.orig/include/linux/sched.h	Sat Sep 21 13:03:22 2002
++++ linux-2.5.38/include/linux/sched.h	Sun Sep 22 20:28:39 2002
+@@ -82,9 +82,6 @@
+ 	load += n*(FIXED_1-exp); \
+ 	load >>= FSHIFT;
+ 
+-#define CT_TO_SECS(x)	((x) / HZ)
+-#define CT_TO_USECS(x)	(((x) % HZ) * 1000000/HZ)
+-
+ extern int nr_threads;
+ extern int last_pid;
+ extern unsigned long nr_running(void);
+@@ -155,8 +152,6 @@
+ extern void cpu_init (void);
+ extern void trap_init(void);
+ extern void update_process_times(int user);
+-extern void update_one_process(struct task_struct *p, unsigned long user,
+-			       unsigned long system, int cpu);
+ extern void scheduler_tick(int user_tick, int system);
+ extern unsigned long cache_decay_ticks;
+ 
+@@ -340,9 +335,12 @@
+ 	unsigned long it_real_value, it_prof_value, it_virt_value;
+ 	unsigned long it_real_incr, it_prof_incr, it_virt_incr;
+ 	struct timer_list real_timer;
+-	unsigned long utime, stime, cutime, cstime;
+-	unsigned long start_time;
+-	long per_cpu_utime[NR_CPUS], per_cpu_stime[NR_CPUS];
++
++	rwlock_t times_lock;
++	u64 utime, stime, cutime, cstime;
++	u64 cpu_utime[NR_CPUS], cpu_stime[NR_CPUS];
++	u64 start_time;
++
+ /* mm fault and swap info: this can arguably be seen as either mm-specific or thread-specific */
+ 	unsigned long min_flt, maj_flt, nswap, cmin_flt, cmaj_flt, cnswap;
+ 	int swappable:1;

@@ -1,67 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265071AbSKAQha>; Fri, 1 Nov 2002 11:37:30 -0500
+	id <S265327AbSKAQpc>; Fri, 1 Nov 2002 11:45:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265076AbSKAQha>; Fri, 1 Nov 2002 11:37:30 -0500
-Received: from skyline.vistahp.com ([65.67.58.21]:7650 "HELO
-	escalade.vistahp.com") by vger.kernel.org with SMTP
-	id <S265071AbSKAQh3>; Fri, 1 Nov 2002 11:37:29 -0500
-Message-ID: <20021101164421.22388.qmail@escalade.vistahp.com>
-References: <Pine.GSO.4.21.0211011004050.20586-100000@weyl.math.psu.edu>
-            <Pine.LNX.4.44.0211011108320.10880-100000@ibm-ps850.purdueriots.com>
-            <20021101083243.E22577@work.bitmover.com>
-In-Reply-To: <20021101083243.E22577@work.bitmover.com>
-From: "Brian Jackson" <brian-kernel-list@mdrx.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux without Linus was Re: What's left over.
-Date: Fri, 01 Nov 2002 10:44:21 -0600
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S265339AbSKAQpc>; Fri, 1 Nov 2002 11:45:32 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:60548 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S265327AbSKAQpb>; Fri, 1 Nov 2002 11:45:31 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 1 Nov 2002 09:01:31 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Patch: linux-2.5.45/fs/fcblist.c - export symbols for unix
+ sockets
+In-Reply-To: <20021101032554.A441@baldur.yggdrasil.com>
+Message-ID: <Pine.LNX.4.44.0211010858420.1715-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy writes: 
+On Fri, 1 Nov 2002, Adam J. Richter wrote:
 
-> On Fri, Nov 01, 2002 at 11:16:20AM -0500, Patrick Finnegan wrote:
->> On Fri, 1 Nov 2002, Alexander Viro wrote:
->> > It's not a fscking public service.  Linus has full control over his
->> > tree.  You have equally full control over your tree.  Linus can't
->> > tell you what patches to apply in your tree.  You can't tell Linus
->> > what patches he should apply to his. 
->> 
->> I'm sorry it _is_ a public service.  Once tens of people started
->> contributing to it, it became one.  
-> 
-> Pat, the public service that Linus provides is doing exactly what he does.
-> He's acting as a filter.  You may or may not agree with the things he
-> lets in or does not.  That's fine, if you think you can do a better job
-> you have that option.  i can imagine your answer is "I think he's doing
-> a fine job except for my project which isn't getting in" or something
-> like that.  That's a bummer for you but keep the big picture in mind.
-> Linus is the glue which keeps the Linux world from turning into the
-> BSD mess.  He is the acknowledged leader.  Without him we have a bunch
-> of semi-leaders, with him we have a real leader.  The fact that Linus
-> is here, leading this herd of cats, is a gift to the world.  Try and
-> imagine Linux without him, it's not a pretty picture. 
-> 
+> 	linux-2.5.45/fs/fcblist.c contains some symbols that are
+> needed for unix domain sockets if unix sockets are compiled as a
+> module.  fcblist.o is already in the export-objs declaration in
+> fs/Makefile, so I think the intention was for the EXPORT_SYMBOL
+> declarations to be in that file.
+>
+> 	Here is the patch.  I have verified that unix domain sockets
+> load with this patch (possibly with some more EXPORT_SYMBOL changes in
+> my netsyms.c, which has a bunch of additional exports).
+>
+> 	Davide: please let me know if this patch is OK (others are
+> welcome to comment too), and, if so, if you are going to forward this
+> to Linus or if you want me to do something more.
 
-What something like:
-Virox
-Hellwigix
-Alanix
-KHix 
+I'll put this in my next patch to Linus. Exports were there in the
+original patch ( /dev/epoll ) but after being caught by a cleanup phobia I
+nuke them all :)
 
-eeewww, I can't bring myself to think about it 
 
-> So figure out a way to work with him, don't stress him out, he's a
-> critical resource without a viable replacement.
-> -- 
-> ---
-> Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
- 
+
+- Davide
+
+

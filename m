@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289294AbSBNBQt>; Wed, 13 Feb 2002 20:16:49 -0500
+	id <S289298AbSBNBXw>; Wed, 13 Feb 2002 20:23:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289307AbSBNBQm>; Wed, 13 Feb 2002 20:16:42 -0500
-Received: from web14401.mail.yahoo.com ([216.136.174.58]:22379 "HELO
-	web14401.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S289294AbSBNBQc>; Wed, 13 Feb 2002 20:16:32 -0500
-Message-ID: <20020214011631.38381.qmail@web14401.mail.yahoo.com>
-Date: Wed, 13 Feb 2002 17:16:31 -0800 (PST)
-From: Sanjeev Lakshmanan <survivor_eagles@yahoo.com>
-Subject: USB device driver
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0202131955210.17093-100000@northface.intercarve.net>
+	id <S289296AbSBNBXl>; Wed, 13 Feb 2002 20:23:41 -0500
+Received: from dsl-213-023-039-092.arcor-ip.net ([213.23.39.92]:33678 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S289299AbSBNBXX>;
+	Wed, 13 Feb 2002 20:23:23 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andrew Morton <akpm@zip.com.au>
+Subject: Re: [patch] sys_sync livelock fix
+Date: Thu, 14 Feb 2002 02:27:39 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Bill Davidsen <davidsen@tmr.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.96.1020213170030.12448F-100000@gatekeeper.tmr.com> <E16bA59-0002Qa-00@starship.berlin> <3C6B0A70.D11DFC2A@zip.com.au>
+In-Reply-To: <3C6B0A70.D11DFC2A@zip.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16bAgV-0002R2-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
+On February 14, 2002 01:53 am, Andrew Morton wrote:
+> Daniel Phillips wrote:
+> > 
+> > What's the theory behind writing the data both before and after the commit?
+> 
+> see fsync_dev().  It starts I/O against existing dirty data, then
+> does various fs-level syncy things which can produce more dirty
+> data - this is where ext3 runs its commit, via brilliant reverse
+> engineering of its calling context :-(.
 
-I need to develop a USB device driver for a custom
-made switch. I shall give a brief description.
+OK, so it sounds like cleaning that up with an ext3-specific super->sync would
+be cleaner for what it's worth, and save a little cpu.
 
- The switch (which is connected to the USB port of a
-Linux box running REdHat 7.1) has four RJ 45
-connectors for ethernet cables and it needs to
-exchange data packets of size 8 bytes every .5
-seconds. The Transmit ethernet port(1,2,3,4) and
-Receive ethernet port(1,2,3,4) need to be selected for
-each transfer and the data packet which is to be sent
-out and received on those ports changes accordingly.
+> It then again starts I/O against new dirty data then waits on it again.  And
+> then again.  There's quite a lot of overkill there.  But that's OK, as long
+> as it terminates sometime.
 
-Please let me know how I can start off writing the
-code for  this driver.
+/me doesn't comment
 
-Also please let me know if there are any SIMILAR
-device drivers already developed and available.
-
-I am aware of the files
-usr/src/linux/drivers/usb/usb.*
-but as I have no prior experience with device drivers,
-I am unable to start off.
-
-Regards,
-Sanjeev.
-
-
-
-
-__________________________________________________
-Do You Yahoo!?
-Send FREE Valentine eCards with Yahoo! Greetings!
-http://greetings.yahoo.com
+-- 
+Daniel

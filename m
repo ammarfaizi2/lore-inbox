@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262146AbTHTTfj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 15:35:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbTHTTfj
+	id S262201AbTHTTmQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 15:42:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262211AbTHTTmQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 15:35:39 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:7429 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id S262146AbTHTTff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 15:35:35 -0400
-Date: Wed, 20 Aug 2003 21:35:18 +0200
-From: Jurriaan <thunder7@xs4all.nl>
-To: Svetoslav Slavtchev <galia@st-peter.stw.uni-erlangen.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6 test3-bk7 & -mm3 : HPT374 - cable missdetection, lock-ups
-Message-ID: <20030820193518.GA1547@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-References: <1061384019.3f436f531a333@secure.st-peter.stw.uni-erlangen.de>
-Mime-Version: 1.0
+	Wed, 20 Aug 2003 15:42:16 -0400
+Received: from mauve.demon.co.uk ([158.152.209.66]:211 "EHLO mauve.demon.co.uk")
+	by vger.kernel.org with ESMTP id S262201AbTHTTmP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 15:42:15 -0400
+From: root@mauve.demon.co.uk
+Message-Id: <200308201940.UAA23958@mauve.demon.co.uk>
+Subject: Re: Console on USB
+To: rddunlap@osdl.org (Randy.Dunlap)
+Date: Wed, 20 Aug 2003 20:40:19 +0100 (BST)
+Cc: Valdis.Kletnieks@vt.edu, root@mauve.demon.co.uk, tmolina@cablespeed.com,
+       linux-kernel@vger.kernel.org, greg@kroah.com, zwane@linuxpower.ca
+In-Reply-To: <20030820110742.0cd0160a.rddunlap@osdl.org> from "Randy.Dunlap" at Aug 20, 2003 11:07:42 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1061384019.3f436f531a333@secure.st-peter.stw.uni-erlangen.de>
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Svetoslav Slavtchev <galia@st-peter.stw.uni-erlangen.de>
-Date: Wed, Aug 20, 2003 at 02:53:39PM +0200
-> Hi
 > 
-> first test run of 2.6 on Epox 8k9a3+ VIA KT400 VT8235, 
-> HPT374 and 4 IBM Deskstar GXP120 80Gb on each chanel as master
-> Mandrake-cooker gcc-3.3.1
+> On Wed, 20 Aug 2003 13:56:18 -0400 Valdis.Kletnieks@vt.edu wrote:
 > 
-> the 3rd and the 4th chanel of the HPT374 are saying that the used cable
-> is 40 wires, so it forces the drives in UDMA33 which i think causes the lock-
-> ups several seconds after booting in runlevel 1
+> | On Wed, 20 Aug 2003 18:44:58 BST, root@mauve.demon.co.uk said:
+> | 
+> | > For laptops, might console=/dev/irda work?
+> | 
+> | Hmm.... <looks around>  Do I have anything handy that will *catch* stuff being
+> | spewed out the irda port?  Don't think so, or I'd have built that driver....
+> | 
+> | Yes, might work, *if* you have hardware handy.
 > 
-As far as I know, I have no problems with my 3rd channel on my Epox
-8K9A3+ motherboard. I've got a WD 80 Gb disk (8 Mb cache model) on it.
+> I don't see any console support in the irda drivers...
+> How is it supposed to work?
+> or do you just mean that in theory it could be made to work?
 
-However, I've noticed something else.
+I last looked at irda, when my laptop was a 486/745, and thought that
+the hardware still looked more or less like a 8250 variant.
+I had previously used /dev/ttyS1 (where that was an IR port) to dump
+debugging data.
 
-As soon as I type 
-
-cat /proc/ide/hpt366
-
-I get hit by the dreaded 'status=0x58 .... hdi interrupt lost' thing.
-It tries to reset ide4, but keeps telling 'interrupt lost' and finally I
-have to use the reset button. If I never cat /proc/ide/hpt366 I can run
-the system for a week at a time, where hdi is part of a raid-0 partition
-that contains both /home and my newsspool - so it's used frequently.
-
-Kind regards,
-Jurriaan
--- 
-Carson heaved a sigh. "Easley tried to kill you. You retaliate by calling
-yourself Jim Harrison. It seems a subtle revenge. Perhaps I'm stupid..."
-	Jack Vance - The Deadly Isles
-Debian (Unstable) GNU/Linux 2.6.0-test3-mm3 4259 bogomips 1.04 0.41
+Looking at the documentation for more recent hardware, I find this isn't really
+the case any more for all hardware.

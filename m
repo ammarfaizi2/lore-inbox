@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277255AbRJLGXW>; Fri, 12 Oct 2001 02:23:22 -0400
+	id <S277253AbRJLG0m>; Fri, 12 Oct 2001 02:26:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277252AbRJLGXC>; Fri, 12 Oct 2001 02:23:02 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:62062 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S277247AbRJLGWv>; Fri, 12 Oct 2001 02:22:51 -0400
-Date: Fri, 12 Oct 2001 02:23:21 -0400 (EDT)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: <mingo@devserv.devel.redhat.com>
-To: <gaby@applianceware.com>
-cc: <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] for Multiple Device driver - md.c (kernel 2.4.12)
-In-Reply-To: <Pine.LNX.4.33.0110111801490.1143-100000@gaby.applianceware.com>
-Message-ID: <Pine.LNX.4.33.0110120220290.7954-100000@devserv.devel.redhat.com>
+	id <S277252AbRJLG0c>; Fri, 12 Oct 2001 02:26:32 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:62986 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S277247AbRJLG0T>;
+	Fri, 12 Oct 2001 02:26:19 -0400
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15302.35510.947325.295210@cargo.ozlabs.ibm.com>
+Date: Fri, 12 Oct 2001 16:16:22 +1000 (EST)
+To: "Christopher Friesen" <cfriesen@nortelnetworks.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: so, no way to kill process? have to reboot?
+In-Reply-To: <3BC6097F.79B6E2D1@nortelnetworks.com>
+In-Reply-To: <3BC6097F.79B6E2D1@nortelnetworks.com>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Christopher Friesen writes:
 
-On Thu, 11 Oct 2001 gaby@applianceware.com wrote:
+> Well, the unkillable process continues on.  Does nobody else have any ideas on
+> how to kill an unkillable process in the R state thats sucking up all my unused
+> cpu cycles?
 
-> Suppose you can hot-swap a hard disk in a system. Now if you have a
-> degraded Software RAID device (for example a RAID-5 with one disk
-> failed) and you replace the failed disk on-the-fly you cannot start
-> reconstruction (with raidhotadd) of the Software RAID device with the
-> replaced disk because it says it is BUSY.
+I would suspect that it is actually looping inside the kernel, which
+would mean that there indeed was no way to kill it.  You could try
+alt-scrolllock on the console and see if you get a register dump of
+it, or maybe one of the alt-sysrq magic keys might give you some
+information.  But I suspect that rebooting is ultimately going to be
+your only solution.
 
-this is possible already: you should first raidhotremove the failed drive,
-then raidhotadd the new drive. It can be the 'same' drive if it's a
-hot-swap disk, or it can be another, spare disk.
-
-> +	if (rdev && rdev->faulty) {
-> +		err = hot_remove_disk(mddev, dev);
-
-what your patch does is a forced remove of any drive that is
-raidhotadd-ed. This is less finegrained than the current solution, and
-might make the method more volatile. (easier to mess up accidentally.) Is
-there anything your patch allows that is not possible today, via
-raidhotremove+raidhotadd?
-
-	Ingo
+Paul.
 

@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266380AbUGJUM7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266381AbUGJUOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266380AbUGJUM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 16:12:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266386AbUGJUM7
+	id S266381AbUGJUOk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 16:14:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266386AbUGJUOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 16:12:59 -0400
-Received: from iris-63.mc.com ([63.96.239.5]:64446 "EHLO mc.com")
-	by vger.kernel.org with ESMTP id S266380AbUGJUMr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 16:12:47 -0400
-Subject: Re: [PATCH] Fix building on Solaris (and don't break Cygwin)
-From: Jean-Christophe Dubois <jdubois@mc.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Tom Rini <trini@kernel.crashing.org>, Andrew Morton <akpm@osdl.org>,
-       Sam Ravnborg <sam@ravnborg.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jean-Christophe Dubois <jdubois@mc.com>
-In-Reply-To: <20040709212004.GA6203@infradead.org>
-References: <20040709210011.GG28002@smtp.west.cox.net>
-	 <20040709211605.GA6126@infradead.org>
-	 <20040709211853.GH28002@smtp.west.cox.net>
-	 <20040709212004.GA6203@infradead.org>
-Content-Type: text/plain
-Message-Id: <1089490341.25093.151.camel@lancelot.dubois.etowns.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Sat, 10 Jul 2004 22:12:22 +0200
+	Sat, 10 Jul 2004 16:14:40 -0400
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:5110 "EHLO
+	mail.kroptech.com") by vger.kernel.org with ESMTP id S266381AbUGJUO0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 16:14:26 -0400
+Message-ID: <099101c466ba$7d75aa30$03c8a8c0@kroptech.com>
+From: "Adam Kropelin" <akropel1@rochester.rr.com>
+To: "Dmitry Torokhov" <dtor_core@ameritech.net>,
+       <linux-kernel@vger.kernel.org>
+Cc: "Tim Bird" <tim.bird@am.sony.com>,
+       "CE Linux Developers List" <celinux-dev@tree.celinuxforum.org>,
+       "Todd Poynor" <tpoynor@mvista.com>,
+       "Geert Uytterhoeven" <geert@linux-m68k.org>
+References: <40EEF10F.1030404@am.sony.com> <20040710115413.A31260@mail.kroptech.com> <20040710142800.A5093@mail.kroptech.com> <200407101319.31147.dtor_core@ameritech.net>
+Subject: Re: [PATCH] preset loops_per_jiffy for faster booting
+Date: Sat, 10 Jul 2004 16:14:22 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Jul 2004 20:12:24.0722 (UTC) FILETIME=[3713EF20:01C466BA]
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1409
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Christoph,
+Dmitry Torokhov wrote:
+> On Saturday 10 July 2004 01:28 pm, Adam Kropelin wrote:
+>> + Note that on SMP systems the preset will be applied to all CPUs
+>> + which will cause problems if for some reason your CPUs need
+>> + significantly divergent settings.
+>> +
+>> + If unsure, set this to 0. An incorrect value will cause delays in
+>> + the kernel to be wrong, leading to unpredictable I/O errors and
+>> + other breakage. Although unlikely, in the extreme case this might
+>> + damage your hardware.
+>
+> Note that it may also not work correctly on laptops that switch
+> frequency when working on battery/AC. Also one needs to be careful
+> when changing timesource (pit, tsc, pm, hpet). And always look out
+> for timer code changes in next version of kernel.
 
-On Fri, 2004-07-09 at 23:20, Christoph Hellwig wrote:
-> On Fri, Jul 09, 2004 at 02:18:53PM -0700, Tom Rini wrote:
-> > I forgot to CC Jean on this, but that's not exactly a nice option.  In
-> > fact, it'd be fine to just switch to <inttypes.h>, afaics, except that
-> > cygwin doesn't have that.
-> 
-> Tell him to build on Linux, we don't support legacy OSes ;-)
+Certainly many demons lurk around the corner, but embedded guys are used to
+that.
 
-Although I am certainly hopeful I will be able to use Linux end to end
-in a not too distant future :), I have to work with what I am given
-today. And maybe I am not the only one in this situation ...
+> Does 250 ms worth all this pain?
 
-Please be a bit compassionate with the poor souls out there that have to
-cope with Legacy OSes as build systems and/or configuration management
-systems :(
+On a desktop box, almost certainly not. On a massive SMP machine, maybe. On
+an embedded system that is required to boot in a ridiculously short time,
+absolutely.
 
-Also please note that 2.4 uses to build OK on Solaris. The actual 2.6
-situation is a little step-back in this matter.
-
-JC
+--Adam
 

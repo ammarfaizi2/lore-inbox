@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267378AbUGVX3y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267376AbUGVX25@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267378AbUGVX3y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 19:29:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267377AbUGVX3x
+	id S267376AbUGVX25 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 19:28:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267375AbUGVX24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 19:29:53 -0400
-Received: from port-195-158-167-243.dynamic.qsc.de ([195.158.167.243]:32956
-	"EHLO gw.localnet") by vger.kernel.org with ESMTP id S266124AbUGVX3h
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 19:29:37 -0400
-Message-ID: <41004DBB.5030801@trash.net>
-Date: Fri, 23 Jul 2004 01:28:59 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Balint Marton <cus@fazekas.hu>
-CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] get_random_bytes returns the same on every boot
-References: <Pine.LNX.4.58.0407222254440.3652@pingvin.fazekas.hu>
-In-Reply-To: <Pine.LNX.4.58.0407222254440.3652@pingvin.fazekas.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Jul 2004 19:28:56 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:3977 "EHLO hermes.sc.intel.com")
+	by vger.kernel.org with ESMTP id S266124AbUGVX1G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 19:27:06 -0400
+Date: Thu, 22 Jul 2004 16:23:27 -0700
+From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+To: Nathan Lynch <nathanl@austin.ibm.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       "Matthew C. Dobson [imap]" <colpatch@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: sched domains bringup race?
+Message-ID: <20040722162327.A27935@unix-os.sc.intel.com>
+Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+References: <1089944026.32312.47.camel@nighthawk> <20040718134559.A25488@unix-os.sc.intel.com> <40FB78D5.1070604@yahoo.com.au> <1090533339.3041.13.camel@booger>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1090533339.3041.13.camel@booger>; from nathanl@austin.ibm.com on Thu, Jul 22, 2004 at 04:55:40PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balint Marton wrote:
-> Hi, 
-> 
-> At boot time, get_random_bytes always returns the same random data, as if
-> there were a constant random seed. For example, if I use the kernel level
-> ip autoconfiguration with dhcp, the kernel will create a dhcp request
-> packet with always the same transaction ID. (If you have more than one
-> computers, and they are booting at the same time, then this is a big
-> problem)
-> 
-> That happens, because only the primary entropy pool is initialized with
-> the system time, in function rand_initialize. The secondary pool is only
-> cleared. In this early stage of booting, there is usually no user
-> interaction, or usable disk interrupts, so the kernel can't add any real
-> random bytes to the primary pool. And altough the system time is in the
-> primary pool, the kernel does not consider it real random data, so you
-> can't read from the primary pool, before at least a part of it will be
-> filled with some real randomness (interrupt timing).
-> Therefore all random data will come from the secondary pool, and the
-> kernel cannot reseed the secondary pool, because there is no real 
-> randomness in the primary one.
-> 
-> The solution is simple: Initialize not just the primary, but also the 
-> secondary pool with the system time. My patch worked for me with 
-> 2.6.8-rc2, but it was not tested too long. 
+On Thu, Jul 22, 2004 at 04:55:40PM -0500, Nathan Lynch wrote:
+> On Mon, 2004-07-19 at 02:31, Nick Piggin wrote:
+> > Keshavamurthy Anil S wrote:
+> > > Even on my system which is Intel 865 chipset (P4 with HT enabled system) 
+> > > I see a bug check somewhere in the schedular_tick during boot.
+> > > However if I move the sched_init_smp() after do_basic_setup() the
+> > > kernel boots without any problem. Any clue here?
 
-Many network hashes use get_random_bytes() to initialize a secret
-value to avoid attacks on the hash function when first used.
-I assume if DHCP can get bad random, they can too. Is this patch
-enough to prevent get_random_bytes() from returning predictable
-data at boot time ?
+  This was happening even without CONFIG_SCHED_SMT and later found to be
+ACPI bug. Sorry for the confusion.
 
-Regards
-Patrick
+> > 
+> > There shouldn't be any problem doing that if we have to, obviously we
+> > need to know why. Is it possible that cpu_sibling_map, or one of the
+> > CPU masks isn't set up correctly at the time of the call?
+> 
+> In 2.6.8-rc1-mm1 at least, backing this patch out fixed it for me on
+> ppc64:
+> 
+> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc1/2.6.8-rc1-mm1/broken-out/detect-too-early-schedule-attempts.patch
+> 
+> Code with statements of the form:
+> 
+> if (system_state == SYSTEM_BOOTING)
+> 	/* do something boot-specific */
+> else
+> 	/* do something assuming system_state == SYSTEM_RUNNING */
+> 
+> is broken by this change.  Parts of the cpu bringup code in arch/ppc64
+> do this (and thus need to be fixed if the above change is kept). 
+> Chances are there is similar code in some x86 setups.
+> 
+> Nathan
+> 

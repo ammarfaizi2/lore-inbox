@@ -1,77 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269926AbRHSDH0>; Sat, 18 Aug 2001 23:07:26 -0400
+	id <S269937AbRHSDMr>; Sat, 18 Aug 2001 23:12:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269927AbRHSDHQ>; Sat, 18 Aug 2001 23:07:16 -0400
-Received: from mail.mesatop.com ([208.164.122.9]:29706 "EHLO thor.mesatop.com")
-	by vger.kernel.org with ESMTP id <S269926AbRHSDHF>;
-	Sat, 18 Aug 2001 23:07:05 -0400
-Message-Id: <200108190307.f7J373e23205@thor.mesatop.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-To: Luigi Genoni <kernel@Expansa.sns.it>, Rik van Riel <riel@conectiva.com.br>
-Subject: Re: disk I/O slower with kernel 2.4.9
-Date: Sat, 18 Aug 2001 21:06:48 -0400
-X-Mailer: KMail [version 1.2.3]
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0108190319080.2859-100000@Expansa.sns.it>
-In-Reply-To: <Pine.LNX.4.33.0108190319080.2859-100000@Expansa.sns.it>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S269936AbRHSDMg>; Sat, 18 Aug 2001 23:12:36 -0400
+Received: from odyssey.netrox.net ([204.253.4.3]:47516 "EHLO t-rex.netrox.net")
+	by vger.kernel.org with ESMTP id <S269930AbRHSDM3>;
+	Sat, 18 Aug 2001 23:12:29 -0400
+Subject: Re: [PATCH] let Net Devices feed Entropy, updated (1/2)
+From: Robert Love <rml@tech9.net>
+To: Oliver Xymoron <oxymoron@waste.org>
+Cc: linux-kernel@vger.kernel.org, riel@conectiva.com.br
+In-Reply-To: <Pine.LNX.4.30.0108181839130.31188-100000@waste.org>
+In-Reply-To: <Pine.LNX.4.30.0108181839130.31188-100000@waste.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99+cvs.2001.08.18.07.08 (Preview Release)
+Date: 18 Aug 2001 23:12:39 -0400
+Message-Id: <998190772.8307.8.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 18 August 2001 09:19 pm, Luigi Genoni wrote:
-> I still have to try it, tomorrow i will post the results....
->
-> On Sat, 18 Aug 2001, Rik van Riel wrote:
-> > On Sun, 19 Aug 2001, Luigi Genoni wrote:
-> > > just making time make -j 2 bzImage with kernel source 2.4.9
-> > > gives me:
-> > >
-> > > real    3m36.041s
-> > > user    2m2.950s
-> > > sys     0m9.740s
-> > >
-> > > while compiling the same sources running kernel 2.4.7 gives:
-> > >
-> > > real    2m28.350s
-> > > user    1m56.150s
-> > > sys     0m5.262s
-> >
-> > How does 2.4.8-ac7 do ?
-> >
-> > Rik
+On 18 Aug 2001 18:41:30 -0500, Oliver Xymoron wrote:
+> Why don't those who aren't worried about whether they _really_ have enough
+> entropy simply use /dev/urandom?
 
-Rik, Luigi:
+because there still is no entropy.  /dev/urandom and /dev/random are
+from the same source - /dev/random will just block if the entropy count
+drops to 0.  note that entropy != bytes in pool.  the "entropy" is an
+estimate of the randomness of the pool.  it decrements as bytes are
+pulled from the pool.  the byte count does not, thus the pool is not
+empty when /dev/random blocks, it just has no "entropy".
 
-Excuse me for jumping in, but here are a few more data points,
-using a slower system. I built 2.4.8-ac7 with the following kernels, using:
+on a diskless/headless system, there are no devices to feed the entropy
+pool.  thus this patch, which is a lifesaver for some, as Rik pointed
+out.
 
-time make -j2 'MAKE = make -j2' bzImage
+or maybe you are like me, and on a personal LAN or dont care about
+external attackers trying to guess your /dev/random, and just want
+another source of entropy to boost your self-esteem.
 
-to produce the output. Yes, I know this is overkill for an UP system.
-This version of time is GNU time 1.7.  Each kernel build was performed
-right after the boot and login, running KDE 2.2 and an xterm.
+i would like to see this in the mainline kernel. i posted a 2.4.8-pre
+patch early, i will rediff for 2.4.9 asap.
 
-The system is UP, PIII 450, 384 MB, ATA-33, /usr/src mounted ReiserFS
-on a WDC WD102AA, the rest of the system ReiserFS on a WDC WD136AA.
+fyi, i am considering rewriting the patch. Alex Bligh and I had a
+discussion where he suggested a sysctl/proc interface to toggle the
+option. this would add post-compile code to the kernel, but allow
+greater flexibility.  
 
-2.4.7
-681.66user 80.16system 13:32.51elapsed 93%CPU (0avgtext+0avgdata 
-0maxresident)k
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 
-2.4.8
-682.90user 83.25system 13:29.98elapsed 94%CPU (0avgtext+0avgdata 
-0maxresident)k
-
-2.4.9
-684.77user 80.55system 13:32.35elapsed 94%CPU (0avgtext+0avgdata 
-0maxresident)k
-
-2.4.8-ac7
-683.99user 80.54system 13:21.91elapsed 95%CPU (0avgtext+0avgdata 
-0maxresident)k
-
-Steven

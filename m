@@ -1,78 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272144AbTGYPNH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 11:13:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272138AbTGYPNG
+	id S272153AbTGYPQj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 11:16:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272154AbTGYPQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 11:13:06 -0400
-Received: from tomts23-srv.bellnexxia.net ([209.226.175.185]:42942 "EHLO
-	tomts23-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S272148AbTGYPMp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 11:12:45 -0400
-Date: Fri, 25 Jul 2003 11:26:17 -0400 (EDT)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: John Bradford <john@grabjohn.com>
-cc: ecki-lkm@lina.inka.de, Fabian.Frederick@prov-liege.be,
-       linux-kernel@vger.kernel.org
-Subject: RE: why the current kernel config menu layout is a mess
-In-Reply-To: <200307251458.h6PEwAMD001065@81-2-122-30.bradfords.org.uk>
-Message-ID: <Pine.LNX.4.53.0307251114590.26545@localhost.localdomain>
-References: <200307251458.h6PEwAMD001065@81-2-122-30.bradfords.org.uk>
+	Fri, 25 Jul 2003 11:16:39 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:6276 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S272153AbTGYPQe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 11:16:34 -0400
+Date: Fri, 25 Jul 2003 11:33:59 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: =?iso-8859-1?q?Ga=EBl_Le_Mignot?= <kilobug@freesurf.fr>
+cc: Larry McVoy <lm@work.bitmover.com>, Jesse Pollard <jesse@cats-chateau.net>,
+       Larry McVoy <lm@bitmover.com>,
+       Leandro Guimar?es Faria Corsetti Dutra 
+	<lgcdutra@terra.com.br>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Switching to the OSL License, in a dual way.
+In-Reply-To: <plopm3oeziy6wa.fsf@drizzt.kilobug.org>
+Message-ID: <Pine.LNX.4.53.0307251119280.2588@chaos>
+References: <pan.2003.07.24.18.06.06.546220@terra.com.br>
+ <pan.2003.07.24.21.05.40.969654@terra.com.br> <20030724215744.GA7777@work.bitmover.com>
+ <03072508173301.16381@tabby> <20030725145534.GB13840@work.bitmover.com>
+ <plopm3oeziy6wa.fsf@drizzt.kilobug.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Jul 2003, John Bradford wrote:
+On Fri, 25 Jul 2003, [iso-8859-1] Gaël Le Mignot wrote:
 
-> Anyway, going back to the re-design of the kernel configurator, maybe
-> we have simply reached the practical limit of the simple menu based
-> system?
+>  >> Nonesense. If the business no longer has the licence to use BK (for
+>  >> whatever reason) then it no longer has access to the data. Now to
+>  >> get access to the data you must reverse engineer BK...
+>
+>  > Oh, I see, you violate our license, your license is revoked, and
+>  > now you have the write to reverse engineer BK?  Show me the law which
+>  > says that is true.
+>
+> I was working  on a project during  my free time using BK,  and then I
+> get employed  by a company  contributing to Subversion. My  license is
+> then void, but I want to be  able to still use the files and servers I
+> used before. Reverse is allowed, and moral, in this case.
+>
+>  > BK has a command that will take a BK tree and produce pure SCCS files,
+>  > there is even a GNU SCCS clone so tell me again you need to go poking
+>  > around in BK?
+>
+> Without any lose of data and meta-data ?
+> And still, my license being void, how could I do that ?
+>
+> (of course, I am not in this  case - I'll never be crazy enough to use
+> a non-free software to store my data).
+>
 
-i see no evidence of that.  i think Kconfig works fine.  i just
-think it's not being used in as structured a way as it might be.
- 
-> There are now so many options that you either have a lot of options
-> under vague headings, (which I prefer because I think that once you're
-> used to it, it's quicker and simpler), or, (in my opinion), excessive
-> levels of abstraction, and options deep within submenus, like:
-> 
-> Buses -> Internal -> Legacy -> ISA
+Ever heard of "Peoplesoft"? Some IT types converted a
+business database(s) to Peoplesoft. The license expired.
+The company was out of business until it was reinstated.
+The fee to reinstate the expired license was like extortion.
+Never again. You don't want to __ever__ convert your company
+databases to some proprietary format that must be unlocked
+with a license key that can expire. If you run a business,
+you need to have access to your database even if the company
+that produced the software goes out of business so you can't
+renew your license. If a software company won't provide such
+a license, then you set yourself up for a stockholders revolt
+and suit. You need to get a perpetual license. If the software
+company doesn't provide one, go to the competition.
 
-i just want to point out that i never suggested *this* level of
-sub-menuing, but even if i had, so what?  typically, when you
-rebuild a kernel, you don't go through the entire menu tree every
-time.  you typically want to tweak an option or two, so having
-an extra level every so often is not going to be fatal.
+There are software databases and development environments
+that need to be reviewed to make sure they don't expire.
+Rational Software is an example. We use Rational for some
+of our stuff. Can I extract my source-code from their
+proprietary VOBs if they go out of business? Actually, yes.
+So, even if we have expiring licenses, we can still get
+access to our intellectual property. These things are
+important, but alas... off-topic..
 
-what's important, i think, is to be able to look at the top-level
-menu and be able to deduce quickly where to find the option you're
-interested in.  (pop quiz:  without looking, where would you find
-the option for the ftape floppy driver?  see?)
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-(aside:  i'm just breathless that someone could make a statement
-like "a lot of options under vague headings (which I prefer ..."
-you *prefer* vagueness?  someone help me out -- is mr. bradford
-really this clueless, or is he just trolling at my expense?  i'm
-pretty naive at times.)
- 
-> There are also complications with taking configurations from old
-> kernel versions, and using them with later kernels - a 2.4 config
-> typically won't work simply by using make oldconfig on a 2.6 tree.
-
-oh, puhleeze.  going from one major, stable release to the next one
-should be considered such a big step that you shouldn't be surprised
-if you might have to do a whole, fresh kernel configuration perhaps
-that one time.
- 
-> Maybe a completely new, out of kernel tree configurator would be worth
-> thinking about, leaving the in-kernel configurator as a legacy option.
-> I know the config system underwent a major overhaul during 2.5, but I
-> think we could go even further.
-
-that does it.  it's .procmailrc time for mr. bradford.  life is too
-short to listen to people criticize things they don't even
-understand.
-
-rday

@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267132AbTAKDH0>; Fri, 10 Jan 2003 22:07:26 -0500
+	id <S267142AbTAKDMr>; Fri, 10 Jan 2003 22:12:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267135AbTAKDH0>; Fri, 10 Jan 2003 22:07:26 -0500
-Received: from mta9.srv.hcvlny.cv.net ([167.206.5.133]:10690 "EHLO
-	mta9.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S267132AbTAKDH0>; Fri, 10 Jan 2003 22:07:26 -0500
-Date: Fri, 10 Jan 2003 22:14:52 -0500
-From: Rob Wilkens <robw@optonline.net>
+	id <S267143AbTAKDMr>; Fri, 10 Jan 2003 22:12:47 -0500
+Received: from hughes-fe01.direcway.com ([66.82.20.91]:65210 "EHLO
+	hughes-fe01.direcway.com") by vger.kernel.org with ESMTP
+	id <S267142AbTAKDMq>; Fri, 10 Jan 2003 22:12:46 -0500
+Message-ID: <015901c2b920$7420e4c0$fe01a8c0@deepspace9>
+From: "Tom Sightler" <ttsig@tuxyturvy.com>
+To: <robw@optonline.net>
+Cc: <linux-kernel@vger.kernel.org>
+References: <7BFCE5F1EF28D64198522688F5449D5A03C0F4@xchangeserver2.storigen.com> <1042250324.1278.18.camel@RobsPC.RobertWilkens.com>
 Subject: Re: Nvidia and its choice to read the GPL "differently"
-In-reply-to: <Pine.LNX.4.44.0301102207060.2124-100000@montezuma.mastecende.com>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Cc: Larry McVoy <lm@bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Larry Sendlosky <Larry.Sendlosky@storigen.com>,
-       Richard Stallman <rms@gnu.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Reply-to: robw@optonline.net
-Message-id: <1042254892.1278.82.camel@RobsPC.RobertWilkens.com>
-Organization: Robert Wilkens
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.1
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <Pine.LNX.4.44.0301102207060.2124-100000@montezuma.mastecende.com>
+Date: Fri, 10 Jan 2003 22:20:09 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-01-10 at 22:11, Zwane Mwaikambo wrote:
-> Please say you're simply trolling...
+> He just got lucky on his timing... Anyone studying operating systems at
+> the time (and heck, I remember owning a book "Creating your own 32-bit
+> operating system" by SAMS publishing and being inspired, and I also
+> owned "Disecting DOS" which was a nice analysis of a DOS-like operating
+> system at the code-level book w/disk)
 
-Sorry, started to get a bit off-topic.  Not trolling, though no matter
-what the topic and no matter what the list, people always assume that
-I'm a troll when they first meet me.  I guess they don't realize that I
-think differently.  If you get used to me, you'll realize that I'm just
-crazy and can either ignore me (plonk me as Larry McVoy did) or laugh at
-me.  
+You could also argue that GNU got lucky on it's timing, otherwise we might
+still be waiting on a "GNU OS" rather than arguing over how important it is
+to put GNU in front of Linux.
 
-Whatever you do, I laugh at myself in the end too, and won't be insulted
--- I am proud to report that I take four different psychiatric
-medications, and still have hallucinations and delusions regularly, so I
-certainly won't claim to be normal by any standard.
-
-Of course, on an intelligence test given at the hospital (same one that
-diagnosed me as schizoaffective), I was scored as "high superior
-intelligence" which (to you) might mean that there's a chance there's
-something useful that might occasionally come out of my mouth.  It's
-doubtful, but if plonk me, you'll never know.
-
--Rob
+Later,
+Tom
 

@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271006AbRH1ODZ>; Tue, 28 Aug 2001 10:03:25 -0400
+	id <S271017AbRH1OST>; Tue, 28 Aug 2001 10:18:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271017AbRH1ODQ>; Tue, 28 Aug 2001 10:03:16 -0400
-Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:59893 "EHLO
-	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S271006AbRH1ODL> convert rfc822-to-8bit; Tue, 28 Aug 2001 10:03:11 -0400
-Importance: Normal
-Subject: Re: VM: Bad swap entry 0044cb00
-To: hugh@veritas.com, linux-kernel@vger.kernel.org
-Cc: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFB30CAF04.8B81270C-ONC1256AB6.004C780A@de.ibm.com>
-From: "Christian Borntraeger" <CBORNTRA@de.ibm.com>
-Date: Tue, 28 Aug 2001 16:01:13 +0200
-X-MIMETrack: Serialize by Router on D12ML020/12/M/IBM(Release 5.0.6 |December 14, 2000) at
- 28/08/2001 16:01:09
+	id <S271068AbRH1OSJ>; Tue, 28 Aug 2001 10:18:09 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:31501 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S271017AbRH1ORy>; Tue, 28 Aug 2001 10:17:54 -0400
+Date: Tue, 28 Aug 2001 07:15:17 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <E15bgl2-0005oW-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0108280713480.8418-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->If you're still getting such messages, please let me know and
->I'll send a test patch to make the message more informative.
+On Tue, 28 Aug 2001, Alan Cox wrote:
 >
->Is this an SMP machine?
->
->Hugh
+> The unfortunate thing is that its min and max as opposed to typed_min and
+> typed_max (with min/max set up to error), since its now a nightmare to
+> maintain compatibility between two allegedly stable releases of the same
+> kernel, as well as with 2.2
 
-I am also interested in getting this patch as I face the same problem on an
-S/390, but with Kernel 2.4.7
-It is a SMP machine.
-I don´t know, if you can get informations about this issue from non-intel
-platforms, but we should try.
+Note that 2.2.x does not HAVE a "min/max" function, so that cannot be an
+issue.
 
---
-Mit freundlichen Grüßen / Best Regards
+Yes, some drivers and filesystems did their own private version, but if
+they are maintained in both 2.2.x and 2.4.x, then it's obviously very easy
+for them to change their private version to match the 2.4.x tree, so I
+think this particular argument is rather bogus.
 
-Christian Bornträger
-IBM Deutschland Entwicklung GmbH
-eServer SW  System Evaluation + Test
-email: CBORNTRA@de.ibm.com
-Tel +49 7031-16-3507
-
+		Linus
 

@@ -1,99 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262290AbTEIES0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 00:18:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262293AbTEIES0
+	id S262293AbTEIEYf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 00:24:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262294AbTEIEYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 00:18:26 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:27860 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262290AbTEIESY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 00:18:24 -0400
-Date: Thu, 8 May 2003 21:31:19 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Roland McGrath <roland@redhat.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386 uaccess to fixmap pages
-Message-Id: <20030508213119.58dd490d.akpm@digeo.com>
-In-Reply-To: <200305090203.h4923CM11039@magilla.sf.frob.com>
-References: <200305090203.h4923CM11039@magilla.sf.frob.com>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 9 May 2003 00:24:35 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:52383 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S262293AbTEIEYe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 00:24:34 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Jan Harkes <jaharkes@cs.cmu.edu>
+Date: Fri, 9 May 2003 14:36:33 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 May 2003 04:30:56.0841 (UTC) FILETIME=[C8E05390:01C315E3]
+Message-ID: <16059.12369.932394.482644@notabene.cse.unsw.edu.au>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH - Don't remove inode from hash until filesystem has deleted it.
+In-Reply-To: message from Jan Harkes on Thursday May 8
+References: <16057.46720.778667.845306@notabene.cse.unsw.edu.au>
+	<20030508204334.GA8577@delft.aura.cs.cmu.edu>
+X-Mailer: VM 7.14 under Emacs 21.3.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland McGrath <roland@redhat.com> wrote:
->
-> This patch against 2.5.69 makes uaccess (i.e., access_ok and get/put_user)
-> to user-accessible fixmap addresses on x86 work.
+On Thursday May 8, jaharkes@cs.cmu.edu wrote:
+> On Thu, May 08, 2003 at 11:44:32AM +1000, Neil Brown wrote:
+> > ------------------------------------------------------
+> > Don't remove inode from hash until filesystem has deleted it.
+> >
+> > With this patch, the inode being deleted is left on the hash table,
+> > and if a lookup find an inode being freed in the hashtable, it waits
+> > in the inode waitqueue for the inode to be fully deleted.
+> 
+> I could be wrong, but won't that break the following sequence of
+> operations,
+> 
+>     mkdir("foo", 0755);
+>     fd = creat("foo/bar", 0644);
+>     unlink("foo/bar");
+>     rmdir("foo"); /* this should succeed, but if the file is hashed
+> 		     we get EBUSY here */
+>     close(fd);
+> 
+> Or have potential deadlock effects when rmdir is replaced with some
+> operation that tries to perform a lookup for the inode, f.i. a
+> stat("foo/bar", &statbuf);
+> 
+> Jan
 
-This doesn't apply against Linus's current tree.
+Thankyou for your feedback.
 
-> -#define access_ok(type,addr,size) (__range_ok(addr,size) == 0)
-> +#define access_ok(type,addr,size) (__range_ok(addr,size) == 0 || \
-> +				   __fixmap_access_ok((unsigned long)(addr), \
-> +						      (size), (type)))
+However I don't think this is a problem.
 
-Your patch increases the kernel text by nearly 1%.  That's rather a lot for
-what is a fairly esoteric feature.
+The patch keeps the *inode* in the *inode hash table* slightly longer
+than normal, but it does nothing to any dentry that might be connected
+to the inode and might be hashed in a dentry table.
+So when you unlink("foo/bar") the dentry is treated just as it always
+is and is unhashed.
 
+It is just the inode that instead of being unhash before the
+filesystem it told that it is to be delete (this is different from
+telling it that a filename is to be deleted), it is now unhash after
+the filesystem has completed it's deletion process.
 
-   text    data     bss     dec     hex filename
-2805911  592912  732516 4131339  3f0a0b /tmp/vmlinux
-2825167  592982  732516 4150665  3f5589 vmlinux
-
-Would it be possible to avoid this by just taking the fault and fixing
-things up in the exception handler?
-
->  #else
->  
-> -#define access_ok(type,addr,size) ( (__range_ok(addr,size) == 0) && \
-> +#define access_ok(type,addr,size) ((__range_ok(addr,size) == 0) ? \
->  			 ((type) == VERIFY_READ || boot_cpu_data.wp_works_ok || \
-> -			  __verify_write((void *)(addr),(size))))
-> +			  __verify_write((void *)(addr),(size))) : \
-> +			  __fixmap_access_ok((unsigned long)(addr),size,type))
-
-You'll be wanting to parenthesise `size' and `type' here.
-
-
-For some reason the patch causes gcc-2.95.3 to choke over the
-
-	__put_user(d_off, &lastdirent->d_off);
-
-statement in sys_getdents64().
-
-
-fs/readdir.c: In function `sys_getdents64':
-fs/readdir.c:285: internal error--unrecognizable insn:
-(insn 138 212 147 (set (reg:SI 3 %ebx)
-        (asm_operands/v ("1:	movl %%eax,0(%2)
-2:	movl %%edx,4(%2)
-3:
-.section .fixup,"ax"
-4:	movl %3,%0
-	jmp 3b
-.previous
-.section __ex_table,"a"
-	.align 4
-	.long 1b,4b
-	.long 2b,4b
-.previous") ("=r") 0[ 
-                (reg:DI 1 %edx)
-                (reg:SI 0 %eax)
-                (const_int -14 [0xfffffff2])
-                (reg:SI 3 %ebx)
-            ] 
-            [ 
-                (asm_input:DI ("A"))
-                (asm_input:SI ("r"))
-                (asm_input:SI ("i"))
-                (asm_input:SI ("0"))
-            ]  ("fs/readdir.c") 277)) -1 (insn_list 112 (insn_list 119 (insn_list 137 (nil))))
-    (nil))
-make[1]: *** [fs/readdir.o] Error 1
-make[1]: *** Waiting for unfinished jobs....
-make: *** [fs] Error 2
+NeilBrown

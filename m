@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289965AbSAWSry>; Wed, 23 Jan 2002 13:47:54 -0500
+	id <S289972AbSAWSse>; Wed, 23 Jan 2002 13:48:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289973AbSAWSrh>; Wed, 23 Jan 2002 13:47:37 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:20637 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S289968AbSAWSrY>; Wed, 23 Jan 2002 13:47:24 -0500
-Date: Wed, 23 Jan 2002 02:45:24 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Barry Wu <wqb123@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Can linux support ccNUMA machine now?
-Message-ID: <74750000.1011782724@flay>
-In-Reply-To: <20020123003530.60778.qmail@web13903.mail.yahoo.com>
-In-Reply-To: <20020123003530.60778.qmail@web13903.mail.yahoo.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S289973AbSAWSsZ>; Wed, 23 Jan 2002 13:48:25 -0500
+Received: from mx1.sac.fedex.com ([199.81.208.10]:22026 "EHLO
+	mx1.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S289972AbSAWSsO>; Wed, 23 Jan 2002 13:48:14 -0500
+Date: Wed, 23 Jan 2002 10:47:30 -0800 (PST)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: <root@speech.corp.fedex.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Which version of glibc?
+Message-ID: <Pine.LNX.4.33.0201231042130.16094-100000@speech.corp.fedex.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/24/2002
+ 02:48:11 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/24/2002
+ 02:48:13 AM,
+	Serialize complete at 01/24/2002 02:48:13 AM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Can linux support ccNUMA machine now? 
 
-Yes.
+Should I upgrade to glibc-2.2.5 for linux kernel compilation?
 
-> How mcuh memory linux support? 64GB or more?
+I'm on gcc-2.95.3, glibc-2.1.3
 
-Theoritically 64Gb on 32 bit machines, in practice
-significantly less than that (IIRC, something like
-25-30Gb). It's not terribly efficient in using it though ;-)
+What about gcc?
 
-Martin.
+I'm asking this now as Xfree86 is just release and it's build with glib22.
 
 
+Thanks,
+Jeff
+[ jchua@fedex.com ]
 

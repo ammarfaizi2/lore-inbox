@@ -1,60 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263310AbUA0Wvf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 17:51:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265464AbUA0Wvf
+	id S264450AbUA0WpH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 17:45:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbUA0WpH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 17:51:35 -0500
-Received: from fed1mtao04.cox.net ([68.6.19.241]:19131 "EHLO
-	fed1mtao04.cox.net") by vger.kernel.org with ESMTP id S263310AbUA0Wvd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 17:51:33 -0500
-Date: Tue, 27 Jan 2004 10:18:58 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Dave Johnson <davejohnson_hifi@yahoo.com>
-Cc: cort@fsmlabs.com, linux-kernel@vger.kernel.org,
-       linuxppc-dev@lists.linuxppc.org
-Subject: Re: Using 8 Instruction and Data BAT registers in 82xx
-Message-ID: <20040127171858.GG32525@stop.crashing.org>
-References: <20040126182941.50687.qmail@web21405.mail.yahoo.com>
+	Tue, 27 Jan 2004 17:45:07 -0500
+Received: from relay1.eltel.net ([195.209.236.38]:23174 "EHLO relay1.eltel.net")
+	by vger.kernel.org with ESMTP id S264450AbUA0WpC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 17:45:02 -0500
+Date: Wed, 28 Jan 2004 01:45:00 +0300
+From: Andrew Zabolotny <zap@homelink.ru>
+To: linux-kernel@vger.kernel.org
+Subject: A small fix to ac97 OSS driver
+Message-Id: <20040128014500.7c2ff5e3.zap@homelink.ru>
+Organization: home
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: #%`a@cSvZ:n@M%n/to$C^!{JE%'%7_0xb("Hr%7Z0LDKO7?w=m~CU#d@-.2yO<l^giDz{>9
+ epB|2@pe{%4[Q3pw""FeqiT6rOc>+8|ED/6=Eh/4l3Ru>qRC]ef%ojRz;GQb=uqI<yb'yaIIzq^NlL
+ rf<gnIz)JE/7:KmSsR[wN`b\l8:z%^[gNq#d1\QSuya1(
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040126182941.50687.qmail@web21405.mail.yahoo.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Wed__28_Jan_2004_01_45_00_+0300__8qAnRWSWog6MfNG"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 26, 2004 at 10:29:41AM -0800, Dave Johnson wrote:
-> 
-> Hi All:
-> As there are 8 data and Instruction BAT registers in
-> some 82xx flavors, and Cort has posted a patch to ADD
-> these registers
-> (http://www.ussg.iu.edu/hypermail/linux/kernel/0209.1/0871.html)
-> I was wondering if anyone has any idea how to use
-> these addistional BAT regs be used?? Perhaps for new
-> processes and threads, etc.
+This is a multi-part message in MIME format.
 
-Step one would be to audit the usages of the 8_BATS feature to ensure
-that they'll be fine if invoked on an 82xx with 8 BATS.  It's almost
-certainly going to be true, but should still be done.
+--Multipart=_Wed__28_Jan_2004_01_45_00_+0300__8qAnRWSWog6MfNG
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Step two would be to distinguish the 82xx's with 8 BATs from the ones
-that don't.  I don't know if these have a different PVR, but I hope they
-do, otherwise it'll be harder (but not impossible certainly) to.
+Hello!
 
-Finally, as you've probably surmised, all that we do with these
-additional BATs is to clear them out.  It could be possible to extend
-io_block_mapping to make use of these additional BATs (and
-v_mapped_by_bats/p_mapped_by_bats, etc).
+There is a small obvious bug in sound/oss/ac97_codec.c. I've found the
+bug in handhelds.org' branch of kernel 2.6 which is a little behind
+the mainstream kernel so please don't kill me if this has been already
+fixed.
 
-Trying to do processes and/or threads (i.e. userland stuff) becomes a
-giant pain (per-context BAT mappings have to be tracked), there's lots
-of security implications to keep in mind, and of course the overhead of
-doing all of this will probably cancel out any speed gain you would have
-otherwise gotten.
+--
+Greetings,
+   Andrew
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+--Multipart=_Wed__28_Jan_2004_01_45_00_+0300__8qAnRWSWog6MfNG
+Content-Type: application/x-gzip;
+ name="ac97_codec.diff.gz"
+Content-Disposition: attachment;
+ filename="ac97_codec.diff.gz"
+Content-Transfer-Encoding: base64
+
+H4sICKvkFkAAA2FjOTdfY29kZWMuZGlmZgClUE1PwzAMPSe/wqepU5t1/dgmOnWqxAk0cQBxrqbE
+hYguQUlbhtD+O2nL0IbghOUoznsvz5ZvlMBDBjt+tSq5FshnnOb/D3p//QCVrDGDkHc2rKVqD+EL
+GoV1vAytbpUItbXheeOgowYbI7GT6gmMu6zUCqLZggpZVcBaYMa9LqdljF0AJE7gTncQz+cJRMss
+TbMkATZ3QXor3/d/6Fdwu1O9PoU4zlwmi1FPiwJYlKarIErAH4sUioICcSn0m/Img0tpcT9dO6yW
+tikF1qVUsvEmwsgODdv0sOMZof5JVGlT4o4/e3UAo4mdOu7DHcIhh0GEqjHvvcI2puXN2dwBfHsS
+WXmcbcZekOcwVlPq/0nB0IacxjO41x16zvSLH2zPPsLd43a77g1/R4/O7jhupX293Mkni89EPGEC
+AAA=
+
+--Multipart=_Wed__28_Jan_2004_01_45_00_+0300__8qAnRWSWog6MfNG--

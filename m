@@ -1,83 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261415AbTCGHdX>; Fri, 7 Mar 2003 02:33:23 -0500
+	id <S261406AbTCGH3h>; Fri, 7 Mar 2003 02:29:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261431AbTCGHdV>; Fri, 7 Mar 2003 02:33:21 -0500
-Received: from isdn451.s.netic.de ([212.9.163.195]:9344 "EHLO solfire")
-	by vger.kernel.org with ESMTP id <S261415AbTCGHdQ>;
-	Fri, 7 Mar 2003 02:33:16 -0500
-Date: Fri, 07 Mar 2003 08:44:25 +0100 (MET)
-Message-Id: <20030307.084425.41197714.mccramer@s.netic.de>
-To: linux-kernel@vger.kernel.org
-From: Meino Christian Cramer <mccramer@s.netic.de>
-In-Reply-To: <20030306132904.A838@flint.arm.linux.org.uk>
-References: <20030306130340.GA453@zip.com.au>
-	<20030306132904.A838@flint.arm.linux.org.uk>
-X-Mailer: Mew version 3.2 on Emacs 21.2 / Mule 5.0 (SAKAKI)
+	id <S261413AbTCGH3h>; Fri, 7 Mar 2003 02:29:37 -0500
+Received: from [196.41.29.142] ([196.41.29.142]:18930 "EHLO
+	workshop.saharact.lan") by vger.kernel.org with ESMTP
+	id <S261406AbTCGH3g>; Fri, 7 Mar 2003 02:29:36 -0500
+Subject: Re: Corruption problem with ext3 and htree
+From: Martin Schlemmer <azarah@gentoo.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030306234819.Q1373@schatzie.adilger.int>
+References: <20030307063940.6d81780e.azarah@gentoo.org>
+	 <20030306234819.Q1373@schatzie.adilger.int>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1047022581.22533.111.camel@workshop.saharact.lan>
 Mime-Version: 1.0
-X-SA-Exim-Rcpt-To: linux-kernel@vger.kernel.org
-Subject: 2.5.64p5 No USB support when APIC mode enabled
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Ximian Evolution 1.2.2- 
+Date: 07 Mar 2003 09:38:01 +0200
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Scanned: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 2003-03-07 at 08:48, Andreas Dilger wrote:
+> On Mar 07, 2003  06:39 +0200, Martin Schlemmer wrote:
+> > For some time now I have been having a problem with ext3 and htree.
+> > 
+> > I use Gentoo, with portage as package system.  My root is on ext3
+> > without htree, and my portage tmp/build directory is on another
+> > drive with ext3 and htree.
+> > 
+> > Now, when you install something, it unpacks and compile and then
+> > install it to the build root on the tmp partition (ext3 with htree),
+> > and then 'merge' it to / (ext3 without htree) from that build root.
+> 
+> There have been a number of ext3+htree fixes in the last week or so.
+> I'm not sure if all of them are in the kernel yet, but I think the -mm
+> tree will have the majority of them.  Please also see the ext2-devel
+> and ext3-users mailing list archives for the last week for the patches.
+> 
 
- I got some problems with USB (in my case the mouse).
- If I enable "APIC" in the BIOS of the motherboard,
- usb failed to "accept" my USB device.
+Thanks, will have a try tonight and let you know.
 
- It constantly prints on the console (and log file):
 
- Mar  7 08:14:33 solfire kernel: usb_control/bulk_msg: timeout
- Mar  7 08:14:33 solfire kernel: usb.c: USB device not accepting new address=4 (error=-110)
- Mar  7 08:14:39 solfire kernel: usb_control/bulk_msg: timeout
- Mar  7 08:14:39 solfire kernel: usb.c: USB device not accepting new address=5 (error=-110)
- Mar  7 08:14:44 solfire kernel: usb_control/bulk_msg: timeout
- Mar  7 08:14:44 solfire kernel: usb.c: USB device not accepting new address=6 (error=-110)
+Regards,
 
- the address is constantly increased...printing does not stop, I hat
- to rmmod uhci for that.
+-- 
+Martin Schlemmer
+Gentoo Linux Developer, Desktop Team
+Cape Town, South Africa
 
- The mouse was not recognized.
-
- The failure seems to arise before  the mouse is recognized as such.
-
- I cannot decide, whether it is a problem of the motherboard or a
- linux kernel thingy...
-
- My system:
- Linux 2.4.21rc5
- EPoX 8K5A3+ (VIA KT333) motherboard
- Athlon XP 2400+
- DDR RAM 256 MB (Samsung)
- USB Mouse
- USB Cardreader
-
- I have enabled in the linux config:
- CONFIG_X86_GOOD_APIC=y
- CONFIG_X86_UP_APIC=y
- CONFIG_X86_UP_IOAPIC=y
- CONFIG_X86_LOCAL_APIC=y
- CONFIG_X86_IO_APIC=y
- CONFIG_APM=m
- CONFIG_APM_DO_ENABLE=y
-
- CONFIG_USB=m
- CONFIG_USB_DEVICEFS=y
- CONFIG_USB_UHCI=m
- CONFIG_USB_UHCI_ALT=m
- CONFIG_USB_OHCI=m
- CONFIG_USB_STORAGE=m
- CONFIG_USB_HID=m
- CONFIG_USB_KBD=m
- CONFIG_USB_MOUSE=m
-
- What did I wrong ?
-
- Any help would be very appreciated. Thank you very much in advance.
-
- Kind regards,
- Meino Cramer

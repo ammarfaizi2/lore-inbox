@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262188AbUKQDWJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262193AbUKQDXo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262188AbUKQDWJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 22:22:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbUKQDWI
+	id S262193AbUKQDXo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 22:23:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbUKQDWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 22:22:08 -0500
-Received: from mproxy.gmail.com ([216.239.56.248]:37508 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262188AbUKQDVZ (ORCPT
+	Tue, 16 Nov 2004 22:22:19 -0500
+Received: from fw.osdl.org ([65.172.181.6]:16063 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262185AbUKQDVM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 22:21:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=PRrMyLn9m/iBE0bce0W87DwYGPqRjubgc+r52ckVlgKJ7U9dSQZPOApsxf3Lm6CY3mGWK8JVOJ+CYiSXx8PmzJVVX16J6MeE/wrc2BXHRSUwXThjOxEHJFBR+tj5uGmNLMVBarQb3Y5/z9KxK8rjMCUDJKticWE5KyNUJx32T/o=
-Message-ID: <21d7e99704111619218577ffd@mail.gmail.com>
-Date: Wed, 17 Nov 2004 14:21:24 +1100
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.10-rc2-mm1
-Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20041116182233.097d9d85.akpm@osdl.org>
+	Tue, 16 Nov 2004 22:21:12 -0500
+Date: Tue, 16 Nov 2004 19:20:49 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: aia21@cam.ac.uk, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-ntfs-dev@lists.sourceforge.net
+Subject: Re: [2.6-BK-URL] NTFS 2.1.22 - Bug and race fixes and improved
+ error handling.
+Message-Id: <20041116192049.0ca4efa3.akpm@osdl.org>
+In-Reply-To: <1100644656.17573.0.camel@krustophenia.net>
+References: <E1CRsk5-0006JQ-KD@imp.csi.cam.ac.uk>
+	<1100644656.17573.0.camel@krustophenia.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <20041116014213.2128aca9.akpm@osdl.org>
-	 <1100640653.16765.0.camel@krustophenia.net>
-	 <20041116182233.097d9d85.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(sorry Andrew for the DUP- I'm still learning how to drive gmail :-)
-
-> >  Why was the VIA DRM removed?  It was in 2.6.9-mm1 but seems to be gone
-> >  now.
+Lee Revell <rlrevell@joe-job.com> wrote:
 >
+> On Wed, 2004-11-10 at 13:42 +0000, Anton Altaparmakov wrote:
+> > Hi Linus, Hi Andrew, please do a
+> > 
+> > 	bk pull bk://linux-ntfs.bkbits.net/ntfs-2.6
+> > 
+> 
+> New warning with 2.6.10-rc2-mm1:
+> 
+>   CC [M]  fs/ntfs/super.o
+> fs/ntfs/super.c: In function `__get_nr_free_mft_records':
+> fs/ntfs/super.c:2105: warning: initialization from incompatible pointer type
 
- I asked Andrew to kill it, I wasn't happy with it security wise still,
-resurrecting it could be messy as the tree isn't converted over to the
-core/library split, I'll probably pick it back up once Linus merges
-the current diffs after 2.6.10 is released... VIA DRM still only is
-useful for 2D HwMC stuff for non-root users, having to make a user run
-3d apps as root is probably worse than having an in-secure DRM, so I'm
-still waiting for the VIA/unichrome people to see what they can do
-with it...
-
-Dave.
+That's my whacky hack to detect kunmap_atomic() bugs.  I'll fix things up,
+thanks.

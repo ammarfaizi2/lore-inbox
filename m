@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273372AbRJFLRr>; Sat, 6 Oct 2001 07:17:47 -0400
+	id <S273723AbRJFLiq>; Sat, 6 Oct 2001 07:38:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273723AbRJFLRh>; Sat, 6 Oct 2001 07:17:37 -0400
-Received: from colorfullife.com ([216.156.138.34]:60683 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S273372AbRJFLRd>;
-	Sat, 6 Oct 2001 07:17:33 -0400
-Message-ID: <002701c14e58$96ca8d70$010411ac@local>
-From: "Manfred Spraul" <manfred@colorfullife.com>
-To: "Christian Widmer" <cwidmer@iiic.ethz.ch>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: unnecessary retransmit from network stack
-Date: Sat, 6 Oct 2001 13:18:09 +0200
+	id <S274064AbRJFLig>; Sat, 6 Oct 2001 07:38:36 -0400
+Received: from mail1.svr.pol.co.uk ([195.92.193.18]:30504 "EHLO
+	mail1.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S273723AbRJFLiZ>; Sat, 6 Oct 2001 07:38:25 -0400
+Message-ID: <3BBEED4A.6030009@humboldt.co.uk>
+Date: Sat, 06 Oct 2001 12:38:50 +0100
+From: Adrian Cox <adrian@humboldt.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4+) Gecko/20010914
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Andrew Ebling <kernelhacker@lineone.net>
+CC: adam.keys@HOTARD.engr.smu.edu, linux-kernel@vger.kernel.org
+Subject: Re: Development Setups
+In-Reply-To: <20011005041759.OPDP14306.femail26.sdc1.sfba.home.com@there> <1002302124.1034.5.camel@kernighan>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That isn't a duplicate:
+Andrew Ebling wrote:
 
->0x186dce1f8b03 | TxMit | 909902972 | 897283492
-> 0x186dce220317 | TxIrq | 909902972 | 897283492
-> 0x186dce3002e8 | RxIrq | 897283492 | 909902972
-> 0x186dce308560 | TxMit | 909902972 | 897283515 <- dublicate
-Acknowledge 897283515, send 0 bytes.
-(must be send 0, since the next tx has the same sequence no)
 
-> 0x186dce330bab | TxIrq | 909902972 | 897283515
-> 0x186dce3c09bf | TxMit | 909902972 | 897283515 <- dublicate
-Acknowledge didn't change, send 22 bytes
-(must be 22 bytes, 909902994-909902972)
+> Feedback on this document from anyone would be very much appreciated
+> from anyone :)
 
-> 0x186dce3e9b6f | TxIrq | 909902972 | 897283515
-> 0x186dce424310 | RxIrq | 897283515 | 909902994
-> 0x186dce47bc44 | RxIrq | 897283515 | 909902994
-> 0x186dcf094683 | TxMit | 909902994 | 897283791
 
-I'd say bad luck: you try to send data 2 milliseconds after the delack
-timer expired.
+The only thing I'd add is some pointers to setting up the target box 
+with NFS root. In my setup for driver development both my x86 and ppc 
+target boxes are diskless. The x86 boots using etherboot on a floppy, 
+and the ppc has network booting in the rom.  I just compile a new kernel 
+on the development box, copy it into my /tftpboot directory, and hit the 
+reset button on the target. No mess, no fuss, no fsck.
 
---
-    Manfred
+-- 
+Adrian Cox   http://www.humboldt.co.uk/
 

@@ -1,77 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267382AbUHZAn0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266173AbUHZAtM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267382AbUHZAn0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 20:43:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267363AbUHZAnZ
+	id S266173AbUHZAtM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 20:49:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266512AbUHZAtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 20:43:25 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:55755 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S267380AbUHZAnE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 20:43:04 -0400
-Subject: Re: silent semantic changes with reiser4
-From: Nicholas Miell <nmiell@gmail.com>
-To: Wichert Akkerman <wichert@wiggy.net>
-Cc: Jeremy Allison <jra@samba.org>, Andrew Morton <akpm@osdl.org>,
-       Spam <spam@tnonline.net>, torvalds@osdl.org, reiser@namesys.com,
-       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-In-Reply-To: <20040825234629.GF2612@wiggy.net>
-References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com>
-	 <20040825152805.45a1ce64.akpm@osdl.org>
-	 <112698263.20040826005146@tnonline.net>
-	 <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org>
-	 <1453698131.20040826011935@tnonline.net>
-	 <20040825163225.4441cfdd.akpm@osdl.org>
-	 <20040825233739.GP10907@legion.cup.hp.com>
-	 <20040825234629.GF2612@wiggy.net>
-Content-Type: text/plain
-Message-Id: <1093480940.2748.35.camel@entropy>
+	Wed, 25 Aug 2004 20:49:12 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:131 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S266173AbUHZAtL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 20:49:11 -0400
+Date: Thu, 26 Aug 2004 01:48:57 +0100
+From: Dave Jones <davej@redhat.com>
+To: Dan Hollis <goemon@anime.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bizarre 2.6.8.1 /sys permissions
+Message-ID: <20040826004857.GA5583@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Dan Hollis <goemon@anime.net>, linux-kernel@vger.kernel.org
+References: <20040825221814.GA20283@redhat.com> <Pine.LNX.4.44.0408251630380.17580-100000@sasami.anime.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.njm.1) 
-Date: Wed, 25 Aug 2004 17:42:21 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0408251630380.17580-100000@sasami.anime.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-08-25 at 16:46, Wichert Akkerman wrote:
-> Previously Jeremy Allison wrote:
-> > Multiple-data-stream files are something we should offer, definately (IMHO).
-> > I don't care how we do it, but I know it's something we need as application
-> > developers.
-> 
-> Aside from samba, is there any other application that has a use for
-> them? 
-> 
+On Wed, Aug 25, 2004 at 04:31:50PM -0700, Dan Hollis wrote:
+ > >  > $ cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq
+ > >  > cat: /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq: Permission denied
+ > > Reading this file causes reads from hardware on some cpufreq drivers.
+ > > This can be a slow operation, so a user could degrade system performance
+ > > for everyone else by repeatedly cat'ing it.
+ > 
+ > any reason why cpuinfo_cur_freq cant read cpu_khz ?
 
-Anything that currently stores a file's metadata in another file really
-wants this right now. Things like image thumbnails, document summaries,
-digital signatures, etc.
+cpufreq_cur_freq will be one of scaling_available_frequencies.
+These are usually a value such as 1300MHz, where cpu_mhz is a
+'measured' value and will look something like 1303.852
 
-As to how to do it, I think the Solaris interface is reasonably decent.
-The overview is at http://docs.sun.com/db/doc/816-0220/6m6nkorp9?a=view
+the values cpufreq uses are the values either returned by the
+hardware as its settable states, or from BIOS tables defining
+those states.
 
-(An important detail for those who want to access their
-multiple-data-streams from non-MDS aware apps is the runat shell
-command, which basically does a chdir into the specified file's
-attribute directory and then runs a command. i.e. 'runat ~/blah ls' will
-list the ~/blah's attributes.)
+ > or rather, is there any reason why cpuinfo_cur_freq and /proc/cpuinfo 
+ > should legitimately differ?
 
-The only real problem I have with their design is the calling them
-attributes and using "at" everywhere. 
+They aren't identical, and serve different purposes.
 
-"Attributes",  because it will get confused with the current Linux xattr
-implementation (which is still useful for things that actually are file
-attributes, like security labels, ACLs, weird attributess that
-FAT/NTFS/whatever have, etc.).
-
-I don't like "at" because the API changes don't have anything to do with
-the actual attributes. It's a general set of changes to allow paths
-relative to a fd instead of the cwd, and doesn't really have anything
-specifically to do with attributes (with the exception of the O_XATTR
-flag). 
-
-Replace "at" with "rel" and O_XATTR with O_FORK or O_MULTI or something,
-and it's all good.
-
+		Dave
 

@@ -1,28 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261561AbTAUEjj>; Mon, 20 Jan 2003 23:39:39 -0500
+	id <S261799AbTAUFBX>; Tue, 21 Jan 2003 00:01:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261615AbTAUEjj>; Mon, 20 Jan 2003 23:39:39 -0500
-Received: from lakemtao05.cox.net ([68.1.17.116]:15014 "EHLO
-	lakemtao05.cox.net") by vger.kernel.org with ESMTP
-	id <S261561AbTAUEjj>; Mon, 20 Jan 2003 23:39:39 -0500
-From: steve roemen <sdroemen1@cox.net>
-Reply-To: sdroemen1@cox.net
-To: linux-kernel@vger.kernel.org
-Date: Mon, 20 Jan 2003 22:48:39 -0600
-User-Agent: KMail/1.5.9
-MIME-Version: 1.0
-Content-Disposition: inline
-Subject: ppa locks up 2.5.x
-Content-Type: text/plain;
-  charset="us-ascii"
+	id <S261829AbTAUFBX>; Tue, 21 Jan 2003 00:01:23 -0500
+Received: from dhcp34.trinity.linux.conf.au ([130.95.169.34]:2944 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id <S261799AbTAUFBW>; Tue, 21 Jan 2003 00:01:22 -0500
+Subject: Re: spinlock efficiency problem [was 2.5.57 IO slowdown with
+	CONFIG_PREEMPT enabled)
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Joe Korty <joe.korty@ccur.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200301202258.WAA02263@rudolph.ccur.com>
+References: <200301202258.WAA02263@rudolph.ccur.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <200301202248.39210.sdroemen1@cox.net>
+Organization: 
+Message-Id: <1043119361.13344.11.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 21 Jan 2003 03:22:42 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-just an FYI  there isn't an oops that appears, as it just locks up the box 
-hard when i try to get my zip (100Mb) drive working under 2.5.x.  it works 
-under 2.4.x just fine.  are there any suggestions?
+On Mon, 2003-01-20 at 22:58, Joe Korty wrote:
+> The new, preemptable spin_lock() spins on an atomic bus-locking
+> read/write instead of an ordinary read, as the original spin_lock
+> implementation did.  Perhaps that is the source of the inefficiency
+> being seen.
 
--Steven Roemen
+Its a fairly critical "Never do this" on older intel processors and
+kills the box very efficiently so your diagnosis is extremely 
+plausible
+

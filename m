@@ -1,59 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263205AbUBRDPg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 22:15:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbUBRDPg
+	id S261681AbUBRDZx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 22:25:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263101AbUBRDZx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 22:15:36 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38672 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263205AbUBRDPY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 22:15:24 -0500
-Message-ID: <4032D893.9050508@zytor.com>
-Date: Tue, 17 Feb 2004 19:14:27 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031030
-X-Accept-Language: en, sv
+	Tue, 17 Feb 2004 22:25:53 -0500
+Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:4565 "EHLO
+	gaimboi.tmr.com") by vger.kernel.org with ESMTP id S261681AbUBRDZv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 22:25:51 -0500
+Message-ID: <4032D6E6.1060906@tmr.com>
+Date: Tue, 17 Feb 2004 22:07:18 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: UTF-8 and case-insensitivity
-References: <16433.38038.881005.468116@samba.org> <16433.47753.192288.493315@samba.org> <Pine.LNX.4.58.0402170704210.2154@home.osdl.org> <16434.41376.453823.260362@samba.org> <c0uj52$3mg$1@terminus.zytor.com> <Pine.LNX.4.58.0402171859570.2686@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0402171859570.2686@home.osdl.org>
-Content-Type: text/plain; charset=us-ascii
+To: Bas Mevissen <ml@basmevissen.nl>
+CC: "Theodore Ts'o" <tytso@mit.edu>, Jan Dittmer <j.dittmer@portrix.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: ext3 on raid5 failure
+References: <400A5FAA.5030504@portrix.net> <20040118180232.GD1748@srv-lnx2600.matchmail.com> <20040119153005.GA9261@thunk.org> <4010D9C1.50508@portrix.net> <20040127190813.GC22933@thunk.org> <401794F4.80701@portrix.net> <20040129114400.GA27702@thunk.org> <4020BA67.9020604@basmevissen.nl> <20040206191840.GB2459@thunk.org> <40274AEF.8040600@basmevissen.nl>
+In-Reply-To: <40274AEF.8040600@basmevissen.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Bas Mevissen wrote:
+> Theodore Ts'o wrote:
 > 
-> On Wed, 18 Feb 2004, H. Peter Anvin wrote:
+>>
+>> Was it just the permissions screwy?  Was the contents of these files
+>> with the "funny" permission sane, or did they contain garbage?  What
+>> about the modtime of the files?
+>>
 > 
->>Well, we don't want to support a bunch of hacks to make it behave like
->>Windows if what Windows does doesn't make sense.
+> Only permissions. Something like r-Sr-S--- . File  contents were OK.
 > 
+>> The question is whether the problems you are seeing seem to be caused
+>> by wholesale corruption of an entire block of the inode table, or is
+>> some other kind of problem.  For example, if only the permissions are
+>> getting screwed up, when the rest of the inode data is correct, then
+>> yes, it would most likely be a filesystem bug.  I haven't noticed any
+>> such problem myself, but it's possible that something like that might
+>> be going on.  On the other hand, if it is an entire block in the inode
+>> table getting corrupted then I'd be less likely to presume it to be a
+>> filesystem flaw.
+>>
 > 
-> I'd disagree, for a very simple reason: case-insensitivity itself simply 
-> does not make sense, so the _only_ reason for having a bunch of hacks is 
-> literally to support windows file exports and nothing else.
-> 
-> I obviously agree with the fact that we should _not_ put those hacks into 
-> the VFS layer proper - we should keep them as a separate thing, and we 
-> should make it clear that it makes no sense _except_ for Windows 
-> compatibility.
-> 
-> Think of it as nothing more than a binary compatibility layer, the same 
-> way we have hooks to support "lcall 7,0" for binary compatibility with 
-> some silly (and much less interesting) x86 OSes through external modules.
-> 
+> It looks like this only appeared once. The FS looks fine now. So I guess 
+>  I won't be able to reproduce it. Let's just go to 2.6.[23] and see if 
+> it happens again.
 
-Well, this is also true :)  I still say it belongs in userspace.
+Did this go away on reboot, or did you have to fix it? If it went away 
+on reboot, it could be that the copy of the inode in memory was borked.
 
-For 100% bug-compatibility with Windows, though, it is probably
-worthwhile to have the filename in the native filesystem be not what a
-Windows user would see, but rather the normalized filename.  That makes
-a userspace implementation much easier.
-
-	-hpa
-
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbTKCRmz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 12:42:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbTKCRmz
+	id S262126AbTKCRqo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 12:46:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbTKCRqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 12:42:55 -0500
-Received: from main.gmane.org ([80.91.224.249]:7573 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262063AbTKCRmy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 12:42:54 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: NFS on 2.6.0-test9
-Date: Mon, 03 Nov 2003 18:42:51 +0100
-Message-ID: <yw1xbrrtpcv8.fsf@kth.se>
-References: <NN6j.pY.25@gated-at.bofh.it> <NPhU.42k.19@gated-at.bofh.it>
- <3FA68CD1.80608@driscollnewsletter.com>
+	Mon, 3 Nov 2003 12:46:44 -0500
+Received: from mail3.ithnet.com ([217.64.64.7]:14530 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S262126AbTKCRqm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 12:46:42 -0500
+X-Sender-Authentication: net64
+Date: Mon, 3 Nov 2003 18:46:41 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux@3ware.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Bug during media scan, kernel 2.4.23-pre9
+Message-Id: <20031103184641.7bceb740.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:j6Rv/FuxFHTsZZ0nwPF0+Ulo1Vw=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luke Driscoll <news.cis@driscollnewsletter.com> writes:
+Hello,
 
->>>On a kernel 2.6.0-test9 as an NFS client I am having trouble transferring
->>>data to and from NFS servers. It it extraordinarily slow.  I receive the
->>>following information in dmesg:
->>>
->>>nfs warning: mount version older than kernel
->> I see that one, too.  Apart from that, it appears to work.  Try the
->> tcp option, and see if it helps.
->>
-> tcp option seems to have helped, except when attempting to mount a
-> redhat 9 nfs server.  Mount says:
-> "nfs server reported service unavailable: Address already in use"
+I just encountered a real bad problem with using media scan on 3ware
+controllers. I have 3 hds connected and configured a RAID5. I use media scan
+regularly (daily basis). Since two days I see this problem:
 
-Maybe the NFS server in RH9 doesn't support TCP mounts.  I just spent
-the better part of the afternoon fighting with almost every other
-aspect of an RH9 system, so nothing surprises me when it comes to
-redhat.  They even ship a broken perl.
+Nov  3 18:12:11 box 3w-xxxx[2039]: INFORMATION: Verify started on unit 0 on
+controller ID:2. (0x29)
+Nov  3 18:19:41 box kernel: 3w-xxxx: scsi2: Unit #0: Command (f6e5d800) timed
+out, resetting card.
 
--- 
-Måns Rullgård
-mru@kth.se
+After that the box has problems, the controller obviously hangs.
+This in itself can be considered a bug, but what is really annoying is that one
+has no chance finding out _which_ port caused the problem.
+So at this point you can play roulette and replace one of the hds hoping that
+it was indeed the bad one.
 
+It would be really a lot better to degrade the unit in this case and give a
+hint which port has problems (command timed out on port ...).
+This would:
+a) not hang the box
+b) give you a chance to replace the hd, as you would expect in RAID5
+
+The current situation is absolutely _no good_.
+
+Regards,
+Stephan

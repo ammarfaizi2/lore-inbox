@@ -1,67 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289094AbSAVA06>; Mon, 21 Jan 2002 19:26:58 -0500
+	id <S289107AbSAVAgu>; Mon, 21 Jan 2002 19:36:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289107AbSAVA0s>; Mon, 21 Jan 2002 19:26:48 -0500
-Received: from mail1.amc.com.au ([203.15.175.2]:5380 "HELO mail1.amc.com.au")
-	by vger.kernel.org with SMTP id <S289094AbSAVA0j>;
-	Mon, 21 Jan 2002 19:26:39 -0500
-Message-Id: <5.1.0.14.0.20020122110233.00a1e2e0@mail.amc.localnet>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 22 Jan 2002 11:26:33 +1100
+	id <S289106AbSAVAgl>; Mon, 21 Jan 2002 19:36:41 -0500
+Received: from [24.131.1.59] ([24.131.1.59]:13981 "EHLO
+	mnmai05.mn.mediaone.net") by vger.kernel.org with ESMTP
+	id <S289104AbSAVAg2> convert rfc822-to-8bit; Mon, 21 Jan 2002 19:36:28 -0500
+From: Steve Brueggeman <brewgyman@mediaone.net>
 To: linux-kernel@vger.kernel.org
-From: Stuart Young <sgy@amc.com.au>
 Subject: Re: Athlon PSE/AGP Bug
-Cc: "David S. Miller" <davem@redhat.com>, akpm@zip.com.au, andrea@suse.de,
-        reid.hekman@ndsu.nodak.edu, alan@lxorg.ukuu.org
-In-Reply-To: <20020121.142320.123999571.davem@redhat.com>
+Date: Mon, 21 Jan 2002 18:36:15 -0600
+Message-ID: <o7cp4ukpr9ehftpos1hg807a9hfor7s55e@4ax.com>
+In-Reply-To: <1011610422.13864.24.camel@zeus> <20020121.053724.124970557.davem@redhat.com>, <20020121.053724.124970557.davem@redhat.com>; from davem@redhat.com on Mon, Jan 21, 2002 at 05:37:24AM -0800 <20020121175410.G8292@athlon.random> <3C4C5B26.3A8512EF@zip.com.au>
 In-Reply-To: <3C4C5B26.3A8512EF@zip.com.au>
- <20020121.053724.124970557.davem@redhat.com>
- <20020121175410.G8292@athlon.random>
- <3C4C5B26.3A8512EF@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Mailer: Forte Agent 1.8/32.548
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:23 PM 21/01/02 -0800, David S. Miller wrote:
->    I does seem that the nVidia driver is usually involved.
+Actually, this one hit home this weekend.
+
+I bought a new computer at a computer fair.
+ECS K7S5A Motherboard
+1.8Ghz (1.5actually) Athelon XP
+3DForce2-MX
+256MB DDR SDRAM PC-2100
+AHA2940UW SCSI Controller
+Compaq CDROM (reused from other upgraded system)
+
+Spent all of Saturday trying to install Mandrake Linux 8.1 with random crashes,
+segfaults, IDE-Timeouts.  Figuring this to be a memory problem, I ran memtest86
+for 4 hours without any errors.  Was getting late, and said screw-it and went to
+bed.  
+
+Sunday, set the memory and CPU both to 100Mhz, still have problems. so I set
+both back to 133Mhz.  Booted kernel 2.2.19 from 2nd CD in Mandrake set, and had
+better luck.  Got it installed after 3 restarts.  Figuring this was somehow
+related to APM or ACPI, I compiled a standard Marcello  kernel 2.4.17, but could
+not make it through a whole compile without segfaults.  I'd just restart the
+compile, letting make skip past the stuff that was already compiled.  Got an
+average of 3-4 segfaults on compile run, and I tried about 5 runs.
+
+Boot to linux-2.4.17 with APM and ACPI disabled, and only stuff in my system
+enabled, and no Frame Buffer, still get segfaults when compiling kernel.
+
+Then by sheer luck, while doing my normal check of linuxtoday.com, the top
+article mentioned this Athelon bug.  I figure, "Hey, this sounds somewhat
+familar", so I reboot with mem=nopentium as they suggested.
+
+I've compiled the linux-2.4.17 about 10 times now, without a single segfault.
+
+So, add me to the "Yes I've got this problem" list, and Yes, it appears to be
+related to Nvidia AGP boards.
+
+I've been running a 1Ghz Thunderbird for about a year now, with 2 different ATI
+boards without any problems.  I'll try swapping the ATI and Nvidia display
+adapters and see if it follows.
+
+Steve Brueggeman
+
+On Mon, 21 Jan 2002 10:17:10 -0800, you wrote:
+
+>Andrea Arcangeli wrote:
+>> 
+>> ...
+>> 
+>> I think this is a very very minor issue, I doubt anybody ever triggered
+>> it in real life with linux.
 >
->I think this is all "just so happens" personally, and all the that
->turning off the large pages really does is change the timings so that
->whatever bug is really present simply becomes a heisenbug.
-
-I'd definitely agree with that. My home system seems rock stable in regards 
-to games. Every game problem I've had I've somehow tracked down to a memory 
-leak in the game (or another app running in the background) that 
-(assumedly) blew out the VM after a while. (Athlon 1400, Asus A7M, Creative 
-SBLive!, Asus V8200 GF3DDR, decent power supply and cooling).
-
-I would not be surprised if some of these "crashes" were power related. 
-It's quite possible that by slowing things down (even marginally) it will 
-reduce the current drain on the system. Some systems power supplies (and 
-associated m/board power circuitry) can be so touchy they become unstable, 
-and will eventually provide unclean power (usually an AC ripple on the DC). 
- From there, chaos.
-
-Then you've got heat, which is the "next big killer" with the Athlon's. 
-They produce a lot of it, and if it doesn't circulate properly, you can 
-never expect anything reliable. Of course, the video card generally is 
-quite close to the CPU, and it generates heat too, and can suffer from all 
-sorts of issues if they get too hot.
-
-Almost all the Athlon problems I've looked at for friends (with lockups 
-specifically) have pretty much fallen into either; the above failure 
-categories, "broken hardware" or "kernel issues" (usually known issues, not 
-specific to Athlon).
-
-I doubt it's as bad as everyone makes out. Unfortunately people buy cheap 
-hardware because it's cheap, not because it's reliable.
-
-
-Stuart Young - sgy@amc.com.au
-(aka Cefiar) - cefiar1@optushome.com.au
-
-[All opinions expressed in the above message are my]
-[own and not necessarily the views of my employer..]
+>It is said that the crashes cease when the `nopentium' option
+>is used, so it does appear that something is up.
+>
+>I does seem that the nVidia driver is usually involved.
+>
+>> And Gentoo is shipping a kernel with preempt and rmaps included, so it
+>> can crash anytime anyways, no matter how good the cpu is, so if they
+>> got crashes with such a kernel (maybe even with nvidia driver) that's
+>> normal. I was speaking today with a trusted party doing vm benchmarking
+>> and rmap crashes the kernel reproducibly under a stright calloc while
+>> swapping heavily, so clearly the implementation is still broken.
+>
+>-rmap is still young.  I did some heavy stress testing on it a couple
+>of days ago and it was rock-solid, and performed well.
+>
+>> preempt additionally will mess up all the locking into the nvidia driver as
+>> well. so if the combination of the two runs for some time without any
+>> lockup that's pure luck IMHO.
+>
+>Yup.  But don't forget about the `nopentium' observations.
+>
+>-
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 

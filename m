@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263475AbTH0RRR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 13:17:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263489AbTH0RRR
+	id S263739AbTH0RbO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 13:31:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263730AbTH0RbO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 13:17:17 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:23424 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263475AbTH0RRP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 13:17:15 -0400
-Date: Wed, 27 Aug 2003 13:17:15 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Laurent =?iso-8859-1?q?Hug=E9?= <laurent.huge@wanadoo.fr>
-cc: herbert@13thfloor.at, Stuart MacDonald <stuartm@connecttech.com>,
-       "'Russell King'" <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Reading accurate size of recepts from serial port
-In-Reply-To: <200308271853.18821.laurent.huge@wanadoo.fr>
-Message-ID: <Pine.LNX.4.53.0308271312060.2174@chaos>
-References: <005c01c36bdd$8ae58d30$294b82ce@stuartm> <200308261723.04683.laurent.huge@wanadoo.fr>
- <20030827145041.GC26817@www.13thfloor.at> <200308271853.18821.laurent.huge@wanadoo.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 27 Aug 2003 13:31:14 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:5007 "EHLO smtp.bitmover.com")
+	by vger.kernel.org with ESMTP id S263739AbTH0RbK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 13:31:10 -0400
+Date: Wed, 27 Aug 2003 10:30:56 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Ricky Beam <jfbeam@bluetronic.net>,
+       Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: BK tree?
+Message-ID: <20030827173056.GA32397@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Jeff Garzik <jgarzik@pobox.com>, Ricky Beam <jfbeam@bluetronic.net>,
+	Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+References: <Pine.GSO.4.33.0308271303500.7750-100000@sweetums.bluetronic.net> <20030827171806.GC6147@gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030827171806.GC6147@gtf.org>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Aug 2003, Laurent [iso-8859-1] Hugé wrote:
+Hmm.  Andrew, what's the workflow?  Is Linus still the guy who pushes to
+bkbits or is that now your or him?  If you need to be able to do it I'll
+set that up.
 
-> Le Mercredi 27 Août 2003 16:50, Herbert Pötzl a écrit :
-> > hmm, why not do simple framing ...
-> > [length]<data>[length]<data> ....
-> That's impossible. CCSDS is the committee for space date systems and it
-> provides standards that I can't overrule (even if I can't really understand
-> why they've done it like that !).
-> --
-> Laurent Hugé.
->
+On Wed, Aug 27, 2003 at 01:18:06PM -0400, Jeff Garzik wrote:
+> On Wed, Aug 27, 2003 at 01:06:37PM -0400, Ricky Beam wrote:
+> > bk://linux.bkbits.net/linux-2.5 has shown no updates for several days now.
+> > Has someone forgotten to push the "ok" button or have there really been
+> > no commits for days?
+> 
+> 
+> Linus is on vacation.
+> 
+> 	Jeff
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-The transfer frame in your reference specified, contains all
-the information necessary for the protocol, even if it's stupid
-to use that protocol on a RS-232C link. Nevertheless, there is
-a minimim size for the header (5 octets in length). There is
-also the 3 octets used for sync, which I'm pretty sure will
-not be put onto the RS-232C links. Anyway, you need to read
-40 bytes (always), from that, you will learn the length
-of the rest of the data. So you use poll()/read() until you
-get that header information. Then you will know what the
-total read-length should be.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

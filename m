@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266918AbVBERi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268893AbVBERvw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266918AbVBERi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 12:38:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266943AbVBERi1
+	id S268893AbVBERvw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 12:51:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268866AbVBERvv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 12:38:27 -0500
-Received: from rproxy.gmail.com ([64.233.170.205]:36126 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S266918AbVBERiM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 12:38:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=fF0sOA36lBVmCFQRg/KeHFiJZ3IFv5S2FGJ5DabEkSJ1dqQV6Wd2Bo3HIdUpSQ9IWF4jFK3aiyhqtQBHaVRxYx0LwFEy/+kDMQ8vhbKmLr5MXW3O+VJJq3tSMOmDEDlcvf1cx1iojOMxbZzS3rbPAQFyk+itu9lfzSQX9UrjEcY=
-Message-ID: <9e47339105020509382adbbf39@mail.gmail.com>
-Date: Sat, 5 Feb 2005 12:38:07 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: =?ISO-8859-1?Q?Stefan_D=F6singer?= <stefandoesinger@gmx.at>
-Subject: Re: [ACPI] Re: [RFC] Reliable video POSTing on resume
-Cc: acpi-devel@lists.sourceforge.net, Ondrej Zary <linux@rainbow-software.org>,
-       Matthew Garrett <mjg59@srcf.ucam.org>, Pavel Machek <pavel@ucw.cz>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       ncunningham@linuxmail.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200502051748.43547.stefandoesinger@gmx.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-References: <20050122134205.GA9354@wsc-gmbh.de>
-	 <4204B3C1.80706@rainbow-software.org>
-	 <9e473391050205074769e4f10@mail.gmail.com>
-	 <200502051748.43547.stefandoesinger@gmx.at>
+	Sat, 5 Feb 2005 12:51:51 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:63366 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S273430AbVBERvV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 12:51:21 -0500
+Date: Sat, 5 Feb 2005 17:50:38 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] remove truncate mapped BUG
+Message-ID: <Pine.LNX.4.61.0502051748430.16107@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Feb 2005 17:48:43 +0100, Stefan Dösinger
-<stefandoesinger@gmx.at> wrote:
-> The reset code of radeon card seems to be easy to reverse engineer. I have
-> started an attempt and I have 50-60% of my radeon M9 reset code implemented
-> in a 32 bit C program. I had to stop due to school reasons.
+It's time to remove truncate_complete_page's BUG_ON(page_mapped(page)):
+it was there to give confidence in the new vm_truncate_count mechanism.
+Earlier releases had no such check, and it wouldn't be at all helpful
+if it ever bugged up file truncation on a production system - though
+we don't know of any scenario in which that could happen now.
 
-The problem with the radeon reset code is that there are many, many
-variations of the radeon chips, including different steppings of the
-same part. The ROM is matched to the paticular bugs of the chip. From
-what I know ATI doesn't even have a universal radeon reset program.
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+--- 2.6.11-rc3/mm/truncate.c	2005-02-03 09:06:16.000000000 +0000
++++ linux/mm/truncate.c	2005-02-03 17:26:40.000000000 +0000
+@@ -45,7 +45,6 @@ static inline void truncate_partial_page
+ static void
+ truncate_complete_page(struct address_space *mapping, struct page *page)
+ {
+-	BUG_ON(page_mapped(page));
+ 	if (page->mapping != mapping)
+ 		return;
+ 

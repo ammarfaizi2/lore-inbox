@@ -1,86 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129868AbRAKAsU>; Wed, 10 Jan 2001 19:48:20 -0500
+	id <S130463AbRAKAyM>; Wed, 10 Jan 2001 19:54:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130893AbRAKAsJ>; Wed, 10 Jan 2001 19:48:09 -0500
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:20237 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S129868AbRAKAsB>;
-	Wed, 10 Jan 2001 19:48:01 -0500
-Date: Wed, 10 Jan 2001 16:44:51 -0800
-From: Greg KH <greg@kroah.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: f5ibh <f5ibh@db0bm.ampr.org>, linux-kernel@vger.kernel.org,
-        linux-usb-devel@lists.sourceforge.net
-Subject: [PATCH] USB Config fix for 2.2.19-pre7
-Message-ID: <20010110164451.A16985@kroah.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="NzB8fVQJ5HfG6fxh"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010110002639.B26680@wirex.com>; from greg@wirex.com on Wed, Jan 10, 2001 at 12:26:39AM -0800
-X-Operating-System: Linux 2.2.16-immunix (i586)
+	id <S129868AbRAKAyB>; Wed, 10 Jan 2001 19:54:01 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:52490 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129584AbRAKAxt>; Wed, 10 Jan 2001 19:53:49 -0500
+Date: Wed, 10 Jan 2001 19:54:46 -0500 (EST)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+X-X-Sender: <mharris@asdf.capslock.lan>
+To: Jeremy Huddleston <jeremyhu@uclink4.berkeley.edu>
+cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with module versioning in 2.4.0
+In-Reply-To: <3A5CFE41.D6064638@uclink4.berkeley.edu>
+Message-ID: <Pine.LNX.4.31.0101101950520.701-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 10 Jan 2001, Jeremy Huddleston wrote:
 
---NzB8fVQJ5HfG6fxh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+O - K then.  Nice sig.  Too bad that it is at least as big as
+most spam mailings themselves.  Instead of preventing spam,
+all you're doing is contributing to it.
 
-Hi,
+I just delete spam now as it is easiest most of the time.
+However fortunately, the below sig comes from a static and easily
+procmailable address.
 
-Here's a fix for the USB Config for 2.2.19-pre7.  I messed up and took
-out the HID devices in the patch I sent you for 2.2.19-pre6.
+One more note is that no law of California, nor anywhre else
+means jack shit 50 meters away from your keyboard, so it is all
+just a waste of bandwidth.
 
-thanks,
 
-greg k-h
+>---- A notice to spammers ----
+>Unsolicited electronic mail advertisements to my email address is
+>strictly prohibited. Pursuant to California Business and Professions
+>Code, Section 17538.45, senders of unsolicited electronic mail
+>advertisements to me may be subject to a civil penalty of $50 per
+>message plus attorney's fees.
+[SNIP long sig]
 
--- 
-greg@(kroah|wirex).com
 
---NzB8fVQJ5HfG6fxh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="usb-Config-2.2.19-pre7.diff"
+----------------------------------------------------------------------
+    Mike A. Harris  -  Linux advocate  -  Free Software advocate
+          This message is copyright 2001, all rights reserved.
+  Views expressed are my own, not necessarily shared by my employer.
+----------------------------------------------------------------------
 
-diff -Naur -X dontdiff linux-2.2.19-pre7/drivers/usb/Config.in linux-2.2.19-pre7-greg/drivers/usb/Config.in
---- linux-2.2.19-pre7/drivers/usb/Config.in	Wed Jan 10 15:43:28 2001
-+++ linux-2.2.19-pre7-greg/drivers/usb/Config.in	Wed Jan 10 16:14:04 2001
-@@ -36,16 +36,23 @@
-    dep_tristate '  USB Printer support' CONFIG_USB_PRINTER $CONFIG_USB
- 
-    comment 'USB Human Interface Devices (HID)'
--   if [ "$CONFIG_INPUT" = "n" ]; then
--      comment '  Input core support is needed for USB HID'
--   else
--      dep_tristate '  USB Human Interface Device (full HID) support' CONFIG_USB_HID $CONFIG_USB $CONFIG_INPUT
--      if [ "$CONFIG_USB_HID" != "y" ]; then
--         dep_tristate '  USB HIDBP Keyboard (basic) support' CONFIG_USB_KBD $CONFIG_USB $CONFIG_INPUT
--         dep_tristate '  USB HIDBP Mouse (basic) support' CONFIG_USB_MOUSE $CONFIG_USB $CONFIG_INPUT
--      fi
--      dep_tristate '  Wacom Intuos/Graphire tablet support' CONFIG_USB_WACOM $CONFIG_USB $CONFIG_INPUT
-+   dep_tristate '  USB Human Interface Device (full HID) support' CONFIG_USB_HID $CONFIG_USB
-+   if [ "$CONFIG_USB_HID" != "y" ]; then
-+      dep_tristate '  USB HIDBP Keyboard (basic) support' CONFIG_USB_KBD $CONFIG_USB
-+      dep_tristate '  USB HIDBP Mouse (basic) support' CONFIG_USB_MOUSE $CONFIG_USB
-    fi
-+   if [ "$CONFIG_VT" = "y" ]; then
-+      dep_tristate '  Keyboard support' CONFIG_INPUT_KEYBDEV $CONFIG_USB $CONFIG_USB_HID
-+   fi
-+   dep_tristate '  Mouse support' CONFIG_INPUT_MOUSEDEV $CONFIG_USB $CONFIG_USB_HID
-+   if [ "$CONFIG_INPUT_MOUSEDEV" != "n" ]; then
-+      int '   Horizontal screen resolution' CONFIG_INPUT_MOUSEDEV_SCREEN_X 1024
-+      int '   Vertical screen resolution' CONFIG_INPUT_MOUSEDEV_SCREEN_Y 768
-+   fi
-+   dep_tristate '  Joystick support' CONFIG_INPUT_JOYDEV $CONFIG_USB $CONFIG_USB_HID
-+   dep_tristate '  Logitech WingMan Force joystick support' CONFIG_USB_WMFORCE $CONFIG_USB $CONFIG_USB_HID
-+   dep_tristate '  Wacom Intuos/Graphire tablet support' CONFIG_USB_WACOM $CONFIG_USB $CONFIG_USB_HID
-+   dep_tristate '  Event interface support' CONFIG_INPUT_EVDEV $CONFIG_USB $CONFIG_USB_HID
- 
-    comment 'USB Imaging devices'
-    dep_tristate '  USB Kodak DC-2xx Camera support' CONFIG_USB_DC2XX $CONFIG_USB
 
---NzB8fVQJ5HfG6fxh--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

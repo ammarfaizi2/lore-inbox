@@ -1,74 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264271AbTKZSAy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 13:00:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264273AbTKZSAy
+	id S264299AbTKZRyU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 12:54:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264300AbTKZRyU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 13:00:54 -0500
-Received: from web80502.mail.yahoo.com ([66.218.79.72]:42369 "HELO
-	web80502.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264271AbTKZSAw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 13:00:52 -0500
-Message-ID: <20031126175304.42296.qmail@web80502.mail.yahoo.com>
-Date: Wed, 26 Nov 2003 09:53:04 -0800 (PST)
-From: Yogesh Swami <prem_yogesh@sbcglobal.net>
-Subject: Linux TCP state machine is broken?
-To: linux-kernel@vger.kernel.org
+	Wed, 26 Nov 2003 12:54:20 -0500
+Received: from ferreol-1-82-66-171-16.fbx.proxad.net ([82.66.171.16]:18316
+	"EHLO diablo.hd.free.fr") by vger.kernel.org with ESMTP
+	id S264299AbTKZRyS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 12:54:18 -0500
+Message-ID: <3FC4E8C8.4070902@free.fr>
+Date: Wed, 26 Nov 2003 18:54:16 +0100
+From: Vince <fuzzy77@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031105 Thunderbird/0.3
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [kernel panic @ reboot] 2.6.0-test10-mm1
+References: <3FC4DA17.4000608@free.fr> <Pine.LNX.4.58.0311261213510.1683@montezuma.fsmlabs.com> <3FC4E42A.40906@free.fr> <Pine.LNX.4.58.0311261240210.1683@montezuma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.58.0311261240210.1683@montezuma.fsmlabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Zwane Mwaikambo wrote:
+> On Wed, 26 Nov 2003, Vince wrote:
+>>parameter LOG_BUF_LEN. Some people required 32 kB. But you shouldn't
+>>exceed 60 kB since the dump is done in real mode (16 bits).
+>>For kernel versions 2.5.6x and later, the LOG_BUF_LEN parameter is part
+>>of the kernel .config file (LOG_BUF_SHIFT) so you don't need to modify
+>>it at all.
+>>---------------------------------
+>>
+>>...so I you think 60kB would be enough to catch the first oops -- or if
+>>the doc is outdated -- I can try this...
+> 
+> 
+> *groan* do you have a PDA?
+> 
 
-[I'm not subscribed to this mailing list, so please CC
-your reply to me]
+Nope. I could probably borrow a laptop to a friend but am not excited at 
+the idea of having to setup some serial console thing (I do not even 
+have a serial cable). Dump to floppy/swap/disk would be much easier in 
+my case... if it could me made to work, of course ;-)
 
-I have been trying to implement one of the Internet
-Drafts in the kernel for experimentation, and while
-debugging I reliazed that TCP sender is almost always
-in TCP_CA_CWR state. Since Linux doesn't follow the
-RFCs, I am not sure if this is what is intended, or if
-this is bug.
-
-I think the reason the sender is always in TCP_CA_CWR
-and not in TCP_CA_Open is because in the function
-"tcp_transmit_skb" (tcp_out.c:190), after sending the
-packet to IP-layer, the sender call tcp_enter_cwr() if
-the IP layer did not return any non congestion error.
-I have put the code fragement at the end of the
-e-mail.
-
-I am not clear why a successfuly transmission should
-cause the sender to enter CWR (the only other places
-when tcp_enter_cwr is called are when there is a ICMP
-source quench or when there is ECE bit set for ECN). 
-
-If someone could explain this to me, that would be
-great.
-
-Thanks
-Yogesh
-
-
-------tcp_output.c; line 279 -------------
-
-       err = tp->af_specific->queue_xmit(skb, 0);
-       if (err <= 0)
-              return err;
-                                                      
-                         
-              tcp_enter_cwr(tp);
-                                                      
-                         
-      /* NET_XMIT_CN is special. It does not
-guarantee,
-       * that this packet is lost. It tells that
-device
-       * is about to start to drop packets or already
-       * drops some packets of the same priority and
-       * invokes us to send less aggressively.
-       */
-       return err == NET_XMIT_CN ? 0 : err;
-
--------------------------------------

@@ -1,64 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318526AbSGZVxJ>; Fri, 26 Jul 2002 17:53:09 -0400
+	id <S318541AbSGZVz1>; Fri, 26 Jul 2002 17:55:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318530AbSGZVxJ>; Fri, 26 Jul 2002 17:53:09 -0400
-Received: from cpe-24-221-212-80.co.sprintbbd.net ([24.221.212.80]:44017 "EHLO
-	servidor.linux-ha.org") by vger.kernel.org with ESMTP
-	id <S318526AbSGZVxI>; Fri, 26 Jul 2002 17:53:08 -0400
-Message-ID: <3D41C544.9090702@unix.sh>
-Date: Fri, 26 Jul 2002 15:55:16 -0600
-From: Alan Robertson <alanr@unix.sh>
-Organization: IBM Linux Technology Center
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	id <S318543AbSGZVz1>; Fri, 26 Jul 2002 17:55:27 -0400
+Received: from ierw.net.avaya.com ([198.152.13.101]:27627 "EHLO
+	ierw.net.avaya.com") by vger.kernel.org with ESMTP
+	id <S318541AbSGZVzU>; Fri, 26 Jul 2002 17:55:20 -0400
+Date: Fri, 26 Jul 2002 15:58:33 -0600 (MDT)
+From: Bhavesh_P_Davda <bhaveshd@earth.dr.avaya.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.2.21 IPv4/devinet enhancements for down'ing interfaces
+Message-ID: <Pine.LNX.4.21.0207261533560.2616-100000@earth.dr.avaya.com>
 MIME-Version: 1.0
-To: "Isabelle, Francois" <Francois.Isabelle@ca.kontron.com>
-Cc: "Linux-Ha (E-mail)" <linux-ha@muc.de>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Handling NMI in a kernel module
-References: <5009AD9521A8D41198EE00805F85F18F219A7E@sembo111.teknor.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Isabelle, Francois wrote:
-> Is it possible to request_nmi() the way you can request_irq() from a kernel
-> driver on the i386 arch?
-> 
-> Our hardware watchdog is dual stage and can generate NMI on first stage ,
-> our cPCI handle switch can also be used for Hot swap request via NMI.
-> I'ld like to make use of this, I noticed cpqhealth module already
-> implemented some nmi handling but this driver is close sourced.
-> 
-> Should we patch in i386/kernel/traps.c to add a callback to our stuff in
-> unkown_nmi_error().
-> 
-> I'ld like my driver to register a callback there, what about maintaining a
-> list of user callback functions which could be registered via:
->  
-> request_nmi(int option, void (*hander)(void *dev_id, struct pt_regs *regs),
-> unsigned long flags, const char *dev_name, void *dev_id);
-> 
-> where option could take meaning such as
->  - prepend   : place at start of nmi callback functions
->  - append    : place at end of nmi callback functions 
->  - truncate : replace callback chain
-> 
-> Is there any standard mecanism to implement such features( dual stage
-> watchdog ) ?
 
-We've created a separate mailing list to talk about enhancements to the 
-watchdog driver API.  Dual stage watchdog is on the list.  It's pretty quiet 
-now, but perhaps now that summer is winding down, we can get started again...
+Sometimes, one would like to play with an IP address/netmask/etc. on a
+network interface temporarily, and then be able to down the interface, and
+reuse that IP address/netmask/etc. on another host on the same subnet.
+
+However, a simple "ifconfig eth0 192.11.13.15 netmask 255.255.255.192 up",
+followed by an "ifconfig eth0 down" still leaves FIB rules in place for
+the 192.11.13.15 address, so that an ARP request that arrives on, say eth1
+for 192.11.13.15 would result in a response being generated from eth1 for
+the old 192.11.13.15 address that was on eth0, even though eth0 is down.
+
+There are a couple of ways that  one can get around this problem:
+
+1. From user space, by modifying the "ifdown" scripts to "ifconfig eth0 0
+down", i.e. remove the IP address information associated with the network
+interface entirely.
+
+or
+
+2. From the kernel, with the following enhancement that I have
+developed. If a user specifies "ifconfig eth0 down -arp" with my kernel
+changes, this gets rid of the FIB rules in the kernel for the IP address
+associated with the interface, but leaves the IP address information still
+associated with the down network interface. So a subsequent "ifconfig eth0
+up" will restore the FIB rules and re-enable the interface with its old IP
+address information.
 
 
-Info on the list is here:  	
-	http://lists.tummy.com/mailman/listinfo/watchdogng
+I believe that this could be a differentiating feature of Linux
+versus other Un*x OSes, that some system/network admins would like to
+use. The reason I went down this path is because we got bitten by this
+problem on a number of subnets, because we have many
+multi-network-interface servers on our networks that we play around with.
 
+Here is the patch against the 2.2.21 kernel...
 
+diff -aur linux-2.2.21/net/ipv4/devinet.c linux-2.2.21-arp/net/ipv4/devinet.c
+--- linux-2.2.21/net/ipv4/devinet.c	Sun Mar 25 09:31:12 2001
++++ linux-2.2.21-arp/net/ipv4/devinet.c	Fri Jul 26 14:29:15 2002
+@@ -512,6 +512,14 @@
+ 				break;
+ 			}
+ #endif
++			if (!(ifr.ifr_flags&IFF_UP) &&
++				(ifr.ifr_flags&IFF_NOARP)) {
++					ifr.ifr_flags &= ~IFF_NOARP;
++					in_dev->flags |= IFF_NOARP;
++					notifier_call_chain(&inetaddr_chain, 
++						NETDEV_DOWN, ifa);
++					in_dev->flags &= ~IFF_NOARP;
++			}
+ 			ret = dev_change_flags(dev, ifr.ifr_flags);
+ 			break;
+ 	
+diff -aur linux-2.2.21/net/ipv4/fib_frontend.c linux-2.2.21-arp/net/ipv4/fib_frontend.c
+--- linux-2.2.21/net/ipv4/fib_frontend.c	Sun Mar 25 09:31:12 2001
++++ linux-2.2.21-arp/net/ipv4/fib_frontend.c	Fri Jul 26 14:30:27 2002
+@@ -546,7 +546,9 @@
+ 		rt_cache_flush(-1);
+ 		break;
+ 	case NETDEV_DOWN:
+-		if (ifa->ifa_dev && ifa->ifa_dev->ifa_list == NULL) {
++		if (ifa->ifa_dev && 
++			((ifa->ifa_dev->ifa_list == NULL) ||
++			(ifa->ifa_dev->flags&IFF_NOARP))) {
+ 			/* Last address was deleted from this interface.
+ 			   Disable IP.
+ 			 */
 
-	-- Alan Robertson
-	   alanr@unix.sh
+-- 
+Bhavesh P. Davda
+Avaya Inc.
+bhavesh@avaya.com
 

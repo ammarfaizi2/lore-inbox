@@ -1,76 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269756AbRHTWkz>; Mon, 20 Aug 2001 18:40:55 -0400
+	id <S269740AbRHTWlP>; Mon, 20 Aug 2001 18:41:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269752AbRHTWkp>; Mon, 20 Aug 2001 18:40:45 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:2052 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S269740AbRHTWke>; Mon, 20 Aug 2001 18:40:34 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Subject: Re: 2.4.8/2.4.9 VM problems
-Date: Tue, 21 Aug 2001 00:47:16 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Mike Galbraith <mikeg@wen-online.de>,
-        Frank Dekervel <Frank.dekervel@student.kuleuven.ac.Be>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L.0108201841400.31410-100000@duckman.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.33L.0108201841400.31410-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010820224041Z16363-32383+593@humbolt.nl.linux.org>
+	id <S269752AbRHTWlF>; Mon, 20 Aug 2001 18:41:05 -0400
+Received: from logger.gamma.ru ([194.186.254.23]:36875 "EHLO logger.gamma.ru")
+	by vger.kernel.org with ESMTP id <S269740AbRHTWkt>;
+	Mon, 20 Aug 2001 18:40:49 -0400
+To: linux-kernel@vger.kernel.org
+Path: pccross!not-for-mail
+From: crosser@average.org (Eugene Crosser)
+Newsgroups: linux.kernel
+Subject: Re: Patch for bizzare oops in USB
+Date: 21 Aug 2001 02:12:35 +0400
+Organization: Average
+Message-ID: <9ls20j$g3f$1@pccross.average.org>
+In-Reply-To: <3B80FBA9.556B7B2B@scs.ch>
+Mime-Version: 1.0
+X-Newsreader: knews 0.9.8
+X-Comment-To: Thomas Sailer <sailer@scs.ch>
+Content-Type: text/plain; charset=koi8-r
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 20, 2001 11:44 pm, Rik van Riel wrote:
-> On Mon, 20 Aug 2001, Daniel Phillips wrote:
-> > On August 20, 2001 09:12 pm, Marcelo Tosatti wrote:
-> > > Find riel's message with topic "VM tuning" to linux-mm, then take a look
-> > > at the 4th aging option.
-> > >
-> > > That one _should_ be able to make us remove all kinds of "hacks" to do
-> > > drop behind, and also it should keep hot/warm active memory _in cache_
-> > > for more time.
-> >
-> > I looked at it yesterday.  The problem is, it loses the
-> > information about *how* a page is used: pagecache lookup via
-> > readahead has different implications than actual usage.
+In article <3B80FBA9.556B7B2B@scs.ch>,
+        Thomas Sailer <sailer@scs.ch> writes:
+
+>> --- linux-2.4.8/drivers/usb/usb.c       Tue Jul 24 14:20:56 2001
+>> +++ linux-2.4.8-e/drivers/usb/usb.c     Fri Aug 17 22:03:27 2001
+>> @@ -1066,7 +1066,7 @@
+>> 
+>>         awd.wakeup = &wqh;
+>>         init_waitqueue_head(&wqh);
+>> -       current->state = TASK_INTERRUPTIBLE;
+>> +       current->state = TASK_UNINTERRUPTIBLE;  /* MUST BE SO. -- zaitcev */
+>>         add_wait_queue(&wqh, &wait);
+>>         urb->context = &awd;
+>>         status = usb_submit_urb(urb);
 > 
-> - How is that different from your use-once thing ?
+> This is bad for other users of usb_control_msg/usb_bulk_msg that depend on
+> the sleep to be interruptible. Instead of bouncing back and forth whether
+> those routines shall sleep interruptibly or uninterruptibly, we should either
+> provide two routines or a parameter that specifies whether the sleep
+> shall be interruptible, or create a local version of usb_control_msg
+> if ov511 is the only user requiring uninterruptible sleep.
 
-I presume that new pages start on the active list with age=2.  So they will
-survive two complete scans before being deactivated.  This by itself is a
-big difference.  The other difference is, you don't distinguish between page 
-references caused by readahead and page references caused by actual use.  
-This is not to say that your strategy is bad, only that it is different.  In 
-the end, measured performance is the only important difference.  
+I observe similar Oops with D-Link USB radio tuner on uhci when I hit
+Ctrl-C (SMP system, UP system with ohci works).  I was preparing to
+post ksymoops report when I read Pete's message ;)
 
-> - Where do we do "pagecache lookup via readahead"
->   without "actual usage" of the page ?
-
-Both in do_generic_file_read and do_swap_page.  Usually, we use all the 
-readahead pages, yes, but not always, especially in the case of swap or 
-random IO.
-
-> > The other thing that looks a little problematic, which Rik also
-> > pointed out, is the potential long lag before the inactive page
-> > is detected. A lot of IO can take place in this time, filling up
-> > the active list with pages that we could have evicted much
-> > earlier.
-> 
-> The lag I described to you had to do with the different
-> kinds of page aging used and with the time it takes for
-> previously "hot" pages to cool down and become inactive
-> pages.
-> 
-> I think you have things mixed up here ;)
-
-OK, just strike the "which Rik pointed out".  It's still quite a lot more lag 
-than we get when the page just moves from one end of the inactive queue to 
-the other.  The lag you mentioned had more to do with replacing an entire 
-working set, an orthogonal problem.
-
---
-Daniel
+Eugene

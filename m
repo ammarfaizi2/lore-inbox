@@ -1,65 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262489AbTEVFY7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 01:24:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbTEVFY7
+	id S262493AbTEVFfO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 01:35:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262494AbTEVFfO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 01:24:59 -0400
-Received: from mail.cpt.sahara.co.za ([196.41.29.142]:32242 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id S262489AbTEVFY6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 01:24:58 -0400
-Subject: Re: Strange terminal problem with 2.5.6[8-9]
-From: Martin Schlemmer <azarah@gentoo.org>
-To: Matthew Harrell 
-	<mharrell-dated-1053999362.22891b@bittwiddlers.com>
-Cc: Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030522013601.GA1327@bittwiddlers.com>
-References: <20030511004349.GA1366@bittwiddlers.com>
-	 <20030522013601.GA1327@bittwiddlers.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1053581519.6507.22.camel@workshop.saharact.lan>
+	Thu, 22 May 2003 01:35:14 -0400
+Received: from pop.gmx.net ([213.165.65.60]:56898 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262493AbTEVFfN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 01:35:13 -0400
+Message-Id: <5.2.0.9.2.20030522063421.00cc3e90@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Thu, 22 May 2003 07:52:44 +0200
+To: Rik van Riel <riel@imladris.surriel.com>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: web page on O(1) scheduler
+Cc: davidm@hpl.hp.com, "" <linux-kernel@vger.kernel.org>,
+       "" <linux-ia64@linuxia64.org>
+In-Reply-To: <Pine.LNX.4.50L.0305212038120.5425-100000@imladris.surriel.
+ com>
+References: <5.2.0.9.2.20030521111037.01ed0d58@pop.gmx.net>
+ <5.2.0.9.2.20030521111037.01ed0d58@pop.gmx.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 22 May 2003 07:31:59 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-05-22 at 03:36, Matthew Harrell wrote:
-> : 
-> : The last working kernel I had under my X windows system was 2.5.67-bk7.  After
-> : that point every 2.5.6[8-9] and bk patch has had one major problem on my
-> : laptop - when I bring up a gnome-terminal or xterm the console prompt never
-> : shows up.  The terminals just hang with a blinking cursor but I never get
-> : a prompt.  If I reboot with the same setup into my 2.5.67 or any previous
-> : kernel then everything works fine.
-> : 
-> : This is a Debian Sid system running gnome2.  Any ideas?
-> : 
-> 
-> This problem still exists with all current bk patches for 2.5.69.  I'm not
-> even sure where to look for the problem.  Since nobody else has reported a 
-> problem I'm going to boot back to an older, working kernel and assume the 
-> problem as something to do with the configuration I'm using (attached below).
-> If anyone has any ideas just let me know and I'll give them a try
+At 08:38 PM 5/21/2003 -0400, Rik van Riel wrote:
+>On Wed, 21 May 2003, Mike Galbraith wrote:
+> > At 11:49 PM 5/20/2003 -0700, David Mosberger wrote:
+> > >Recently, I started to look into some odd performance behaviors of the
+> > >O(1) scheduler.  I decided to document what I found in a web page
+> > >at:
+> > >
+> > >         http://www.hpl.hp.com/research/linux/kernel/o1.php
+> >
+> > The page mentions persistent starvation.  My own explorations of this
+> > issue indicate that the primary source is always selecting the highest
+> > priority queue.
+>
+>It's deeper than that.  The O(1) scheduler doesn't consider
+>actual CPU usage as a factor of CPU priority.
 
-2.5.68 and later have depreciated devpts support in devfs.  Thus
-you have to enable:
+Oh, there's no doubt in my mind that it's _much_ deeper than my little 
+surface scratchings ;-)
 
- CONFIG_DEVPTS_FS=y
+It does consider cpu usage though.  Your run history is right there in your 
+accumulated sleep_avg.  Unfortunately (in some ways, fortunate in others.. 
+conflict) that information can be diluted down to nothing instantly by new 
+input from one wakeup.
 
-and mount it during boot.  Easy way is just to add to fstab:
-
-------------------
-none	/dev/pts	devpts	defaults	0 0
-------------------
-
-
-Regards,
-
--- 
-Martin Schlemmer
-
+         -Mike 
 

@@ -1,140 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbUB2IJd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 03:09:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbUB2IJd
+	id S262010AbUB2IKx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 03:10:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbUB2IKw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 03:09:33 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:59146 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262009AbUB2IJZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 03:09:25 -0500
-To: "Nick Warne" <nick@ukfsn.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3 - 8139too timeout debug info
-References: <403F7EEF.4124.2432E62F@localhost>
-	<4040E258.29625.299F47FC@localhost>
-	<87vflqtiz6.fsf@devron.myhome.or.jp>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sun, 29 Feb 2004 17:09:17 +0900
-In-Reply-To: <87vflqtiz6.fsf@devron.myhome.or.jp>
-Message-ID: <87llmmtihe.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sun, 29 Feb 2004 03:10:52 -0500
+Received: from mtaw6.prodigy.net ([64.164.98.56]:17094 "EHLO mtaw6.prodigy.net")
+	by vger.kernel.org with ESMTP id S262010AbUB2IKu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Feb 2004 03:10:50 -0500
+Message-ID: <40419E7E.8090101@matchmail.com>
+Date: Sun, 29 Feb 2004 00:10:38 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+To: Vipin <vipindravid@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Processor set functionality in linux
+References: <20040228043450.53729.qmail@web12505.mail.yahoo.com>
+In-Reply-To: <20040228043450.53729.qmail@web12505.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> writes:
-
-> "Nick Warne" <nick@ukfsn.org> writes:
+Vipin wrote:
+>  
+>  Hi, 
 > 
-> > Thanks for your help.  I have hell of a trouble doing this, as soon 
-> > as any network load happens, the box becomes unresponsive during 
-> > timeouts - but hopefully I have caught the info required.
+>  I would like to know if there is something in linux
+> (2.4.21) akin to processor set feature available on HP
+> /SUN . 
 > 
-> Umm.. Looks like chip registers is normal, but TX/RX interrupt doesn't
-> happen. (BTW, there isn't rtl8139_open on debuginfo.txt. Was it already
-> scrolled?)
-> 
-> The following patch (incremental patch) is some part reverts to
-> 2.6.2. Is behavior changed?
+>  Basically idea is to be able to dedicate a processor 
+>  to a vertain high priority task with not even the  
+>  interrupts being allowed to run there.
 
-Oops, wrong patches. Please try these.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Yes.
 
+I haven't had to do it myself, but search for "process affinity" and 
+"interrupt affinity".
 
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: attachment; filename=8139too-revert01.patch
-
----
-
- drivers/net/8139too.c |   14 ++++++--------
- 1 files changed, 6 insertions(+), 8 deletions(-)
-
-diff -puN drivers/net/8139too.c~8139too-revert01 drivers/net/8139too.c
---- linux-2.6.3/drivers/net/8139too.c~8139too-revert01	2004-02-29 17:02:32.000000000 +0900
-+++ linux-2.6.3-hirofumi/drivers/net/8139too.c	2004-02-29 17:02:59.000000000 +0900
-@@ -1374,6 +1374,7 @@ static int rtl8139_open (struct net_devi
- 
- 	rtl8139_start_thread(dev);
- 
-+	printk("%s: revert01\n", dev->name);
- 	spin_lock_irq(&tp->lock);
- 	RTL8139_DUMP(dev);
- 	spin_unlock_irq(&tp->lock);
-@@ -2043,12 +2044,10 @@ static int rtl8139_rx(struct net_device 
- 			skb_put (skb, pkt_size);
- 
- 			skb->protocol = eth_type_trans (skb, dev);
--
-+			netif_rx (skb);
- 			dev->last_rx = jiffies;
- 			tp->stats.rx_bytes += pkt_size;
- 			tp->stats.rx_packets++;
--
--			netif_receive_skb (skb);
- 		} else {
- 			if (net_ratelimit()) 
- 				printk (KERN_WARNING
-@@ -2204,11 +2203,10 @@ static irqreturn_t rtl8139_interrupt (in
- 
- 	/* Receive packets are processed by poll routine.
- 	   If not running start it now. */
--	if (status & RxAckBits){
--		if (netif_rx_schedule_prep(dev)) {
--			RTL_W16_F (IntrMask, rtl8139_norx_intr_mask);
--			__netif_rx_schedule (dev);
--		}
-+	if (status & RxAckBits) {
-+		RTL_W16_F(IntrMask, rtl8139_norx_intr_mask);
-+		rtl8139_rx(dev, tp, dev->weight);
-+		RTL_W16_F(IntrMask, rtl8139_intr_mask);
- 	}
- 
- 	/* Check uncommon events with one test. */
-
-_
-
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: attachment; filename=8139too-revert02.patch
-
----
-
- drivers/net/8139too.c |    7 ++-----
- 1 files changed, 2 insertions(+), 5 deletions(-)
-
-diff -puN drivers/net/8139too.c~8139too-revert02 drivers/net/8139too.c
---- linux-2.6.3/drivers/net/8139too.c~8139too-revert02	2004-02-29 17:04:38.000000000 +0900
-+++ linux-2.6.3-hirofumi/drivers/net/8139too.c	2004-02-29 17:04:58.000000000 +0900
-@@ -1374,7 +1374,7 @@ static int rtl8139_open (struct net_devi
- 
- 	rtl8139_start_thread(dev);
- 
--	printk("%s: revert01\n", dev->name);
-+	printk("%s: revert02\n", dev->name);
- 	spin_lock_irq(&tp->lock);
- 	RTL8139_DUMP(dev);
- 	spin_unlock_irq(&tp->lock);
-@@ -2203,11 +2203,8 @@ static irqreturn_t rtl8139_interrupt (in
- 
- 	/* Receive packets are processed by poll routine.
- 	   If not running start it now. */
--	if (status & RxAckBits) {
--		RTL_W16_F(IntrMask, rtl8139_norx_intr_mask);
-+	if (status & RxAckBits)
- 		rtl8139_rx(dev, tp, dev->weight);
--		RTL_W16_F(IntrMask, rtl8139_intr_mask);
--	}
- 
- 	/* Check uncommon events with one test. */
- 	if (unlikely(status & (PCIErr | PCSTimeout | RxUnderrun | RxErr)))
-
-_
-
---=-=-=--
+Mike

@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289195AbSANK6D>; Mon, 14 Jan 2002 05:58:03 -0500
+	id <S289194AbSANK7e>; Mon, 14 Jan 2002 05:59:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289194AbSANK5x>; Mon, 14 Jan 2002 05:57:53 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:2056 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S289190AbSANK5l>; Mon, 14 Jan 2002 05:57:41 -0500
-Date: Mon, 14 Jan 2002 11:55:53 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: <roman@serv>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Robert Love <rml@tech9.net>,
-        Kenneth Johansson <ken@canit.se>, <arjan@fenrus.demon.nl>,
-        Rob Landley <landley@trommello.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <Pine.LNX.4.33L.0201132349450.32617-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.33.0201141154020.28881-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289196AbSANK7S>; Mon, 14 Jan 2002 05:59:18 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:43453 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S289194AbSANK7C>; Mon, 14 Jan 2002 05:59:02 -0500
+Message-Id: <200201141058.g0EAwPR16578@jupiter.cs.uni-dortmund.de>
+To: Andrew Morton <akpm@zip.com.au>
+cc: Kyle <kyle@actarg.com>, linux-kernel@vger.kernel.org,
+        chaffee@cs.berkeley.edu
+Subject: Re: Hard lock when mounting loopback file 
+In-Reply-To: Message from Andrew Morton <akpm@zip.com.au> 
+   of "Sat, 12 Jan 2002 23:49:04 PST." <3C413BF0.24576AEC@zip.com.au> 
+Date: Mon, 14 Jan 2002 11:58:25 +0100
+From: "Prof. Brand " <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrew Morton <akpm@zip.com.au> said:
 
-On Sun, 13 Jan 2002, Rik van Riel wrote:
+[...]
 
-> > So far I haven't seen any evidence, that preempt introduces any _new_
-> > serious problems, so I'd rather like to see to get the best out of
-> > both.
->
-> Are you seriously suggesting you haven't read a single
-> email in this thread yet ?
+> I don't know a thing about fat layout, but it appears that it uses a
+> linked list of blocks, and if that list ends up pointing back onto
+> itself, the kernel goes into an infinite loop in several places chasing
+> its way to the end of the list.
 
-Could you please be more explicit?
+Right.
 
-bye, Roman
+> The below patch fixed it for me, and I was able to mount and read
+> your filesystem image.
 
+AFAIKS, this just cures the case where the wild pointer points to the first
+block of the offending file. You should perhaps count the blocks you go
+through, so a file something like:
+
+ -------+-----+
+        ^     |
+        |     |
+        +-----+
+
+or other strange pointer messups don't get you.
+
+BTW, is fsck (the Linux or the Win32 variety) able to fix this?
+-- 
+Horst von Brand			     http://counter.li.org # 22616

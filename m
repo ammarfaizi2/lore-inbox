@@ -1,47 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129631AbRAKU5F>; Thu, 11 Jan 2001 15:57:05 -0500
+	id <S130192AbRAKVCp>; Thu, 11 Jan 2001 16:02:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131768AbRAKU4z>; Thu, 11 Jan 2001 15:56:55 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:7955 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S129631AbRAKU4k>; Thu, 11 Jan 2001 15:56:40 -0500
-Message-ID: <3A5E1E0D.B420A045@Hell.WH8.TU-Dresden.De>
-Date: Thu, 11 Jan 2001 21:56:45 +0100
-From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
-Organization: Dept. Of Computer Science, Dresden University Of Technology
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, de-DE
+	id <S131768AbRAKVCg>; Thu, 11 Jan 2001 16:02:36 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:61312 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S130192AbRAKVCX>; Thu, 11 Jan 2001 16:02:23 -0500
+Date: Thu, 11 Jan 2001 16:01:08 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Paul Powell <moloch16@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux driver:  __get_free_pages()
+In-Reply-To: <20010111203933.17385.qmail@web119.yahoomail.com>
+Message-ID: <Pine.LNX.3.95.1010111154554.379A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Strange umount problem in latest 2.4.0 kernels
-In-Reply-To: <Pine.GSO.4.21.0101111337250.17363-100000@weyl.math.psu.edu> <3A5E0886.4389692E@Hell.WH8.TU-Dresden.De>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Udo A. Steinberg" wrote:
+On Thu, 11 Jan 2001, Paul Powell wrote:
+
+> Our driver is trying to allocate a DMA buffer to flash
+> an adapter's firmware.  This can require as much as
+> 512K ( of contiguous DMA memory ). We are using the
+> function __get_free_pages( GFP_KERNEL | GFP_DMA, order
+> ) .  The call is failing if 'order' is greater than 6.
+> The problem is seen on systems with system memory of
+> only 64MB.  It works fine on systems with more memory.
+>  Does it make sense that a system with 64MB would not
+> have 512K ( contiguous ) available?  The most that can
+> be allocated successfully on the 64MB system appears
+> to be 256K.  (Nothing else is running that would eat
+> up 64MB of memory).
 > 
-> The very strange stuff is umount at reboot:
+> Does this make sense and/or is there another way that
+> the DMA memory could be allocated successfully?
 > 
-> umount: none busy - remounted read-only
-> umount: /: device is busy
-> Remounting root-filesystem read-only
-> mount: / is busy
-> Rebooting.
 
-I just noticed another strange effect:
+Are you sure it needs memory? Usually, you need address-space
+to flash firmware. Also, in recent months, I've evaluated a
+lot of NVRAM from flash to single-bit SEEPROM. I have never
+seen anything that would `know` how to flash from DMA.
 
-ps uxa misses a couple dozen processes. Effectively I'm seeing
-only the kernel processes, all gettys, rpc.portmap, bash and ps.
-All other processes, all daemons etc. are invisible. If I kill
-portmap another process becomes visible.
+Typically, with NVRAM, you scribble some 0xaaa, 0x555, 0xetc, at some
+specified offset, then you write a single byte/word/longword (depending
+upon its addressing), at the location to program. Then you loop, waiting
+for it to "take", then you do the next. All stuff you would never do with
+DMA.
 
-I've checked a couple of other machines, different setups etc.
-all with -ac6 and all show this behavior - also the umount stuff.
+If all you need is a kernel buffer to store the stuff that will be
+written to NVRAM, then just use kmalloc(). It is virtual and will
+seem contiguous to your driver.
 
--Udo.
+If you have to 'bus-master' data from your buffer to the NVRAM, you
+just do it one page at a time, using the same page.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.0 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,83 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262598AbVBBRjb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262580AbVBBRph@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbVBBRjb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 12:39:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262477AbVBBRjb
+	id S262580AbVBBRph (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 12:45:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262415AbVBBRpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 12:39:31 -0500
-Received: from vds-320151.amen-pro.com ([62.193.204.86]:22715 "EHLO
-	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
-	id S262420AbVBBRjJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 12:39:09 -0500
-Subject: Re: [PATCH] OpenBSD Networking-related randomization port
-From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
-	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-To: linux@horizon.com
-Cc: mingo@elte.hu, Arjan van de Ven <arjan@infradead.org>, bunk@stusta.de,
-       Chris Wright <chrisw@osdl.org>, davem@redhat.com,
-       Hank Leininger <hlein@progressive-comp.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com, shemminger@osdl.org, Valdis.Kletnieks@vt.edu,
-       spender@grsecurity.net
-In-Reply-To: <20050202171702.24523.qmail@science.horizon.com>
-References: <20050202171702.24523.qmail@science.horizon.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-JOyczWpX46u3ytv/yRYL"
-Date: Wed, 02 Feb 2005 18:38:37 +0100
-Message-Id: <1107365917.3754.155.camel@localhost.localdomain>
+	Wed, 2 Feb 2005 12:45:34 -0500
+Received: from pat.uio.no ([129.240.130.16]:41173 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262376AbVBBRpS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 12:45:18 -0500
+Date: Wed, 2 Feb 2005 18:45:09 +0100
+From: Haakon Riiser <haakon.riiser@fys.uio.no>
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Accelerated frame buffer functions
+Message-ID: <20050202174509.GA773@s>
+Mail-Followup-To: Linux kernel <linux-kernel@vger.kernel.org>
+References: <20050202133108.GA2410@s> <Pine.LNX.4.61.0502020900080.16140@chaos.analogic.com> <20050202142155.GA2764@s> <1107357093.6191.53.camel@gonzales> <20050202154139.GA3267@s> <9e4733910502020825434a477@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9e4733910502020825434a477@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0.05, required 12,
+	autolearn=disabled, FORGED_RCVD_HELO 0.05)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[Jon Smirl]
 
---=-JOyczWpX46u3ytv/yRYL
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+> On Wed, 2 Feb 2005 16:41:39 +0100, Haakon Riiser
+> <haakon.riiser@fys.uio.no> wrote:
+>> Thanks for the tip, I hadn't heard about it.  I will take a look,
+>> but only to see if it can show me the user space API of /dev/fb.
+>> I don't need a general library that supports a bunch of different
+>> graphics cards.  I'm writing my own frame buffer driver for the
+>> GX2 CPU, and I just want to know how to call the various functions
+>> registered in struct fb_ops, so that I can test my code.  I mean,
+>> all those functions registered in fb_ops must be accessible
+>> somehow; if they weren't, what purpose would they serve?
+> 
+> You should look at writing a DRM driver. DRM implements the kernel
+> interface to get 3D hardware running. It is a fully accelerated driver
+> interface. They are located in drivers/char/drm
 
-El mi=E9, 02-02-2005 a las 17:17 +0000, linux@horizon.com escribi=F3:
-> There *are* things in OpenBSD, like randomized port assignment (as oppose=
-d
-> to the linear scan in tcp_v4_get_port()) that would be worth emulating.
-> Maybe worry about that first?
->=20
+Have the standard frame buffer drivers been abandoned, even
+for devices that have no 3D acceleration (like the Geode GX2)?
+I took a quick look at the DRM stuff, and it looked like extreme
+overkill for what I need, if it even can be used for what I want
+to do.  At first glance it looked like this is only relevant for
+OpenGL/X11 3D-stuff, which I have absolutely no use for.
 
-Completely agreed with you, I was just trying to help with split up
-patches, but, as your analysis shows, it's more a weak implementation
-than a real security improvement.
+GX2 is an integrated CPU/graphics chip for embedded systems.
+We have third party applications that use the framebuffer device,
+and I was hoping to make things faster by writing an accelerated
+driver.  The only thing I need answered is how to access fb_ops
+from userspace.  If that is impossible because all the framebuffer
+code is leftover junk that no one uses anymore, or even /can/
+use anymore because the userspace interface is gone, please let
+me know now so I don't have to waste any more time.
 
-All I can say, just ignore the patch.I will work on other (worthy)
-issues that are in a bigger need.
-
-Maybe I would work something out on randomized source ports, as soon as
-I get time for it.
-
-Note also that Brad fixed obsd_rand.c code this week, I've added him to
-the CC list because there are things that may concern grSecurity he
-should be able to comment further on it and discuss whatever concerns
-*his* work (which is, BTW, a good thing (tm) to have in mind even if he
-didn't send split up patches for each feature, which I really don't
-know).
-
-I've just ported it out of grsecurity.
-
-Thanks for your meaningful comments,
-Cheers.
---=20
-Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
-[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
-
---=-JOyczWpX46u3ytv/yRYL
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD4DBQBCARAdDcEopW8rLewRAk/FAJwO9z7+G3+j67CGEDEDy/CJ5NnnKACY3VxJ
-3SkgAMBcW3GKrhQGvVNXFg==
-=yQ6v
------END PGP SIGNATURE-----
-
---=-JOyczWpX46u3ytv/yRYL--
-
+-- 
+ Haakon

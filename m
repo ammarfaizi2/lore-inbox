@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131128AbRCGWls>; Wed, 7 Mar 2001 17:41:48 -0500
+	id <S131210AbRCGV4R>; Wed, 7 Mar 2001 16:56:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131129AbRCGWlj>; Wed, 7 Mar 2001 17:41:39 -0500
-Received: from niwot.scd.ucar.edu ([128.117.8.223]:59031 "EHLO
-	niwot.scd.ucar.edu") by vger.kernel.org with ESMTP
-	id <S131128AbRCGWld>; Wed, 7 Mar 2001 17:41:33 -0500
-Date: Wed, 7 Mar 2001 15:41:01 -0700
-From: Craig Ruff <cruff@ucar.edu>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Microsoft ZERO Sector Virus, Result of Taskfile WAR
-Message-ID: <20010307154101.A1206@bells.scd.ucar.edu>
-In-Reply-To: <20010307150506.A1046@bells.scd.ucar.edu> <Pine.LNX.4.10.10103071430351.19253-100000@master.linux-ide.org>
-Mime-Version: 1.0
+	id <S131217AbRCGV4I>; Wed, 7 Mar 2001 16:56:08 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:37134 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S131211AbRCGVzy>; Wed, 7 Mar 2001 16:55:54 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: "otto meier" <gf435@gmx.net>
+Date: Thu, 8 Mar 2001 08:55:28 +1100 (EST)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <Pine.LNX.4.10.10103071430351.19253-100000@master.linux-ide.org>; from andre@linux-ide.org on Wed, Mar 07, 2001 at 02:35:56PM -0800
+Content-Transfer-Encoding: 7bit
+Message-ID: <15014.44624.26763.798524@notabene.cse.unsw.edu.au>
+Cc: "linux-raid@vger.kernel.org" <linux-raid@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel crash during resync of raid5 on SMP
+In-Reply-To: message from Otto Meier on Wednesday March 7
+In-Reply-To: <14955.19182.663691.194031@notabene.cse.unsw.edu.au>
+	<200103072130.f27LU0B05886@gate2.private.net>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 07, 2001 at 02:35:56PM -0800, Andre Hedrick wrote:
-> So basically you are pointing out that there is now a sequencer reject in
-> linux?  Because this used to effect and wipe drives, but you are showing
-> that Linux now does scsi commands check for execution on the /dev/sdxx?
+On Wednesday March 7, gf435@gmx.net wrote:
+> I run a Dual prozessor SMP system on 2.4.2-ac12 for a while
+> in degraded mode. Today I put in a new disk to switch to
+> full raid5 mode. Shortly after the command raidhotadd  the 
+> system crashed with the message lost interrupt on cpu1.
 
-Nope, there is a "sequencer reject" is not present.  SCSI drives do not store
-sensitive, driver controller private, information in a user accessible
-location.
+Was there an Oops? Can we see? decoded with ksymoops of course.
+Are you happy to retry? (i.e. raidsetfaulty; raidhotremove,
+raidhotadd).  If so, Could you try with 2.4.2?
 
-Now, it may be possible to really mess up a drive with the write buffer
-command to attempt to download new firmware.  One hopes that the
-manufacturers include some sanity checking to prevent short firmware
-writes, bad checksum, etc from rendering the drive useless.
+Where abouts in the sync-process did it die?  Start? end? middle?
+various?
 
-Typically what happens is that the user confuses a partition table overwrite
-with the drive having been rendered useless.  Of course, there is always
-a chance for firmware bugs, but I've never been bit by one.
+NeilBrown
+
+
+> 
+> This continued after reboot. I finaly managed to get it running again
+> by booting with kernel parameter maxcpus=1. In this one CPU mode
+> it finished resycing. 
+> 
+> During this process I was never able to resync with two CPU's.
+> 
+> After finishing rescyncing the system run now fine in SMP Dual mode again.
+> 
+> Perhaps there might be an issue with spinlocks during resyncing.
+> 
+> Bye Otto
+> 
+> 
+> 
+> 
+> 
+> 

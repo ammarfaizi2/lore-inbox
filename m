@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130192AbQLYSdQ>; Mon, 25 Dec 2000 13:33:16 -0500
+	id <S131031AbQLYSzy>; Mon, 25 Dec 2000 13:55:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130682AbQLYSdG>; Mon, 25 Dec 2000 13:33:06 -0500
-Received: from www.wen-online.de ([212.223.88.39]:34571 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S130192AbQLYScu>;
-	Mon, 25 Dec 2000 13:32:50 -0500
-Date: Mon, 25 Dec 2000 19:00:07 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Andreas Franck <afranck@gmx.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Fatal Oops on boot with 2.4.0testX and recent GCC snapshots
-In-Reply-To: <00122517123400.00573@dg1kfa.ampr.org>
-Message-ID: <Pine.Linu.4.10.10012251847030.637-100000@mikeg.weiden.de>
+	id <S130820AbQLYSze>; Mon, 25 Dec 2000 13:55:34 -0500
+Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:2710 "EHLO
+	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S130682AbQLYSzc>; Mon, 25 Dec 2000 13:55:32 -0500
+Message-ID: <3A479102.C7611586@rcn.com>
+Date: Mon, 25 Dec 2000 13:25:06 -0500
+From: Marvin Stodolsky <stodolsk@rcn.com>
+X-Mailer: Mozilla 4.7 [en] (X11; U; Linux 2.4.0-test12 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Martin Mares <mj@suse.cz>
+CC: linux-kernel@vger.kernel.org, Jacques.Goldberg@cern.ch,
+        Mark Spieth <mark@digivation.com.au>, Sean Walbran <sean@walbran.org>
+Subject: Re: BIOS problem, pro Microsoft, anti other OS
+In-Reply-To: <3A4769AC.F38B372C@rcn.com> <20001225170914.A15598@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Dec 2000, Andreas Franck wrote:
+Jacques
 
-> Hello Mike, hello linux-kernel hackers,
-> 
-> Mike Galbraith wrote:
-> > I wouldn't (not going to here;) spend a lot of time on it.  The compiler
-> > has problems.  It won't build glibc-2.2, and chokes horribly on ipchains.
-> 
-> Maybe, but you were lucky getting an ICE, and not silently failing code :-)
+> Can you check what does Linux 2.4.0-test<latest> behave, please?
+Are you comfortable compiling kernels?
+If not I'll compile one for you for the test.
+Currently I'm happily under 2.4.0-test 12: 
+   lsmod:
+Module                  Size  Used by
+ppp_deflate            39164   1  (autoclean)
+bsd_comp                4148   0  (autoclean)
+ppp_async               6220   1  (autoclean)
+ppp_generic            12820   2  (autoclean) [ppp_deflate bsd_comp
+ppp_async]
+ltmodem               364948   1
+input                   3328   0
+serial                 42192   1  (autoclean) (ONLY suporting my mouse)
+isa-pnp                27528   0  (autoclean) [ltmodem serial]
+usbcore                27684   0  (unused) 
 
-You bet.
+Martin  
+   Are there any particular kernel config choices that will be
+beneficial for this problem?
 
-> After having spent several hours debugging now, I think it was 
-> worth it (at least for my understanding of lower-level kernel issues and of 
-> the (rather nice and almost readable) assembly code gcc generates). There 
+Mark
+> You probably should make the ltmodem driver check the region base
+> registers and interrupts and if they are not set, recommend the user to
+> change the OS or PNP settings in their BIOS setup.
+Can these be included in the LTmodem packages you are working up?
 
-Don't get me wrong, chasing things like this is never a waste of time.
-In the case of gcc in particular.  Our next 'stable' kernel compiler
-is going to come from the gcc development tree just as the next 'stable'
-kernel is coming out of the kernel development tree.
-
-	-Mike
-
+MarvS
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,81 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbUEVMTO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbUEVMXP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbUEVMTO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 08:19:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbUEVMTO
+	id S261162AbUEVMXP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 08:23:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbUEVMXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 08:19:14 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:8924 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261156AbUEVMTL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 08:19:11 -0400
-Date: Sat, 22 May 2004 14:19:05 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>,
-       David Woodhouse <dwmw2@infradead.org>, Sam Ravnborg <sam@ravnborg.org>,
-       l.s.r@web.de, Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] 2.6.6-mm5: JFFS2_FS_NAND=y compile error
-Message-ID: <20040522121905.GM18564@fs.tum.de>
-References: <20040522013636.61efef73.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040522013636.61efef73.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+	Sat, 22 May 2004 08:23:15 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:30159 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261162AbUEVMXB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 May 2004 08:23:01 -0400
+Message-ID: <40AF4618.5060300@colorfullife.com>
+Date: Sat, 22 May 2004 14:22:48 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: mpm@selenic.com, linux-kernel@vger.kernel.org
+Subject: Re: slab redzoning
+References: <20040522034902.GB2161@holomorphy.com> <40AF0911.6020000@colorfullife.com> <20040522082602.GJ2161@holomorphy.com> <40AF12C3.80902@colorfullife.com> <20040522085236.GL2161@holomorphy.com>
+In-Reply-To: <20040522085236.GL2161@holomorphy.com>
+Content-Type: multipart/mixed;
+ boundary="------------030709040309070708060501"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch
-  [PATCH] trivial: Make JFFS2 ready for Linux 2.7
-from Linus' tree is broken with CONFIG_JFFS2_FS_NAND=y:
+This is a multi-part message in MIME format.
+--------------030709040309070708060501
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-<--  snip  -->
+William Lee Irwin III wrote:
 
-...
-  LD      .tmp_vmlinux1
-fs/built-in.o(.text+0x16bdc2): In function `jffs2_wbuf_recover':
-: undefined reference to `jffs2_erase_pending_trigger'
-fs/built-in.o(.text+0x16c0e2): In function `jffs2_wbuf_recover':
-: undefined reference to `jffs2_reserve_space_gc'
-fs/built-in.o(.text+0x16c198): In function `jffs2_wbuf_recover':
-: undefined reference to `jffs2_alloc_raw_node_ref'
-fs/built-in.o(.text+0x16c1d0): In function `jffs2_wbuf_recover':
-: undefined reference to `jffs2_add_physical_node_ref'
-fs/built-in.o(.text+0x16c46b): In function `jffs2_wbuf_recover':
-: undefined reference to `jffs2_erase_pending_trigger'
-fs/built-in.o(.text+0x16c8f9): In function `__jffs2_flush_wbuf':
-: undefined reference to `jffs2_erase_pending_trigger'
-fs/built-in.o(.text+0x16c9f3): In function `jffs2_flush_wbuf_gc':
-: undefined reference to `jffs2_garbage_collect_pass'
-fs/built-in.o(.text+0x16cac8): In function `jffs2_flash_writev':
-: undefined reference to `jffs2_flash_direct_writev'
-make: *** [.tmp_vmlinux1] Error 1
+>William Lee Irwin III wrote:
+>  
+>
+>>>It returns a false positive when size + 3*BYTES_PER_WORD == 2**n, e.g.
+>>>size == 16373. Here, fls(size - 1) == 13, but fls(size - 1 + 12) == 13
+>>>while size - 1 + 12 == 16384, where we'd want the check to fail.
+>>>      
+>>>
+>
+>On Sat, May 22, 2004 at 10:43:47AM +0200, Manfred Spraul wrote:
+>  
+>
+>>No, 16373 must fail: After adding 12 bytes the object size would be 
+>>16385, which would mean an order==3 allocation.
+>>And 16372 must succeed: 16384 is still an order==2 allocation.
+>>The idea is that there shouldn't be an allocation order increase due to 
+>>redzoning, and afaics that doesn't happen, except between 4082 and 4095 
+>>bytes.
+>>    
+>>
+>
+>Yes. While you've corrected the one-offs in my post (arithmetic is boring,
+>we have machines to do that for us now)
+>
+I admit, I'm cheating:
+I'd copied the test to user space and then tested all values between 32 
+and 131072. 16372 passes:
+fls(16371) == fls(16383).
 
-<--  snip  -->
+I'll send a patch to Andrew to fix the range between 4084 and 4095.
 
+--
+    Manfred
 
-The bug is obvious, and the fix is trivial:
+--------------030709040309070708060501
+Content-Type: text/x-csrc;
+ name="test.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="test.c"
 
+#include <stdio.h>
 
---- linux-2.6.6-mm5-full/fs/jffs2/Makefile.old	2004-05-22 14:15:47.000000000 +0200
-+++ linux-2.6.6-mm5-full/fs/jffs2/Makefile	2004-05-22 14:16:30.000000000 +0200
-@@ -12,4 +12,4 @@
- jffs2-y	+= symlink.o build.o erase.o background.o fs.o writev.o
- jffs2-y	+= super.o
- 
--jffs2-$(CONFIG_JFFS2_FS_NAND)	:= wbuf.o
-+jffs2-$(CONFIG_JFFS2_FS_NAND)	+= wbuf.o
+#define BYTES_PER_WORD	4
+#define PAGE_SIZE 4096
 
+/*
+ * fls: find last bit set.
+ */
 
+static int fls(int x)
+{
+	int r = 32;
 
-cu
-Adrian
+	if (!x)
+		return 0;
+	if (!(x & 0xffff0000u)) {
+		x <<= 16;
+		r -= 16;
+	}
+	if (!(x & 0xff000000u)) {
+		x <<= 8;
+		r -= 8;
+	}
+	if (!(x & 0xf0000000u)) {
+		x <<= 4;
+		r -= 4;
+	}
+	if (!(x & 0xc0000000u)) {
+		x <<= 2;
+		r -= 2;
+	}
+	if (!(x & 0x80000000u)) {
+		x <<= 1;
+		r -= 1;
+	}
+	return r;
+}
 
--- 
+int main(void)
+{
+	int size;
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+	for (size=32;size<131073;size++) {
+		if ((size <= PAGE_SIZE-3*BYTES_PER_WORD || fls(size-1) == fls(size-1+3*BYTES_PER_WORD))) {
+			/* printf("%6d: no order change \n", size); */
+		} else {
+			printf("%6d: order change \n", size);
+		}
+	}
+	return 0;
+}
+
+--------------030709040309070708060501--
 

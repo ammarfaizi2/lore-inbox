@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316958AbSFWCHS>; Sat, 22 Jun 2002 22:07:18 -0400
+	id <S316961AbSFWCqC>; Sat, 22 Jun 2002 22:46:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316959AbSFWCHR>; Sat, 22 Jun 2002 22:07:17 -0400
-Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:32511 "EHLO
-	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
-	id <S316958AbSFWCHQ>; Sat, 22 Jun 2002 22:07:16 -0400
-Message-Id: <5.1.0.14.2.20020623120148.0399aae8@mira-sjcm-3.cisco.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sun, 23 Jun 2002 12:05:44 +1000
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Lincoln Dale <ltd@cisco.com>
-Subject: Re: RFC: per-socket statistics on received/dropped packets
-Cc: vonbrand@inf.utfsm.cl (Horst von Brand),
-       davem@redhat.com (David S. Miller),
-       greearb@candelatech.com (Ben Greear), linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-In-Reply-To: <E17LwjD-0003hT-00@the-village.bc.nu>
-References: <5.1.0.14.2.20020612221925.0283fb18@mira-sjcm-3.cisco.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S316962AbSFWCqC>; Sat, 22 Jun 2002 22:46:02 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:17388 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S316961AbSFWCqB>; Sat, 22 Jun 2002 22:46:01 -0400
+Date: Sat, 22 Jun 2002 21:46:02 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: sean darcy <seandarcy@hotmail.com>
+cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: piggy broken in 2.5.24 build
+In-Reply-To: <3D152513.8010801@hotmail.com>
+Message-ID: <Pine.LNX.4.44.0206222143550.7338-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-g'day Alan,
+On Sat, 22 Jun 2002, sean darcy wrote:
 
-At 03:03 AM 23/06/2002 +0100, you wrote:
-> > i know of many many folk who use transaction logs from HTTP caches for
-> > volume-based billing.
-> > right now, those bills are anywhere between 10% to 25% incorrect.
-> >
-> > you call that "extremely limited"?
->
->It wouldnt help you anyway. Prove which frames were not due to the
->overloading and congestion/errors on your network which therefore the 
->customer should
->not have a duty to pay. Account for bitstuffing on HDLC links...
+> 20 gigs free. Aren't these big new disks great?
 
-sure - but these are all Layer-8 (politics) and layer-9 (religion) issues.
+I somehow manage to fill them up just fine no matter how big they are ;)
 
-typically Service Providers on this side of the planet handle that side of 
-things via SLAs internal to their own network.  i.e. "we guarantee X% 
-uptime, less than Y% packet-loss across our own core network as measured 
-using XXYYZZ method".
+> Glad it's not a build problem. Just wish I could figure out what kind of 
+> problem it is.
 
-the fact that an IP packet may have a PPP header on it across one hop, a 
-HDLC header across another, perhaps some MPLS labels across another, 
-802.1q-in-802.1q across another is generally immaterial.
-if you did want to get fancy and account for it, at least you have 
-packet-counters on a per-socket basis from which to do that with.
-without per-socket accounting, you just don't have that anyway.
+Well, could you try to 
 
+cd /opt/kernel/linux-2.5.24/arch/i386/boot/compressed
+objcopy -O binary -R .note -R .comment -S /opt/kernel/linux-2.5.24/vmlinux 
+_tmp_piggy
 
-cheers,
+and see if that generates _tmp_piggy in that directory?
 
-lincoln.
+--Kai
+
 

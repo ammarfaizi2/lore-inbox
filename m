@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264009AbTE0RlC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 13:41:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264010AbTE0RlC
+	id S264023AbTE0RmV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 13:42:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264002AbTE0RlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 13:41:02 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:20637 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264008AbTE0Rkw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 13:40:52 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 27 May 2003 10:53:54 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Thomas Winischhofer <thomas@winischhofer.net>,
-       Martin Diehl <lists@mdiehl.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sis650 irq router fix for 2.4.x
-In-Reply-To: <1054053901.18814.0.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.55.0305271050150.2340@bigblue.dev.mcafeelabs.com>
-References: <3ED21CE3.9060400@winischhofer.net> 
- <Pine.LNX.4.55.0305261431230.3000@bigblue.dev.mcafeelabs.com> 
- <3ED32BA4.4040707@winischhofer.net>  <Pine.LNX.4.55.0305271000550.2340@bigblue.dev.mcafeelabs.com>
- <1054053901.18814.0.camel@dhcp22.swansea.linux.org.uk>
+	Tue, 27 May 2003 13:41:21 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:23046 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S263986AbTE0RkE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 13:40:04 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+Date: Tue, 27 May 2003 19:52:34 +0200
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org,
+       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
+       manish <manish@storadinc.com>,
+       Christian Klose <christian.klose@freenet.de>,
+       William Lee Irwin III <wli@holomorphy.com>
+References: <3ED2DE86.2070406@storadinc.com> <200305271936.34006.m.c.p@wolk-project.de> <Pine.LNX.4.55L.0305271447100.756@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.55L.0305271447100.756@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305271952.34843.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 May 2003, Alan Cox wrote:
+On Tuesday 27 May 2003 19:47, Marcelo Tosatti wrote:
 
-> I'm keeping an eye on it. The correct answer appears to be
-> "use ACPI" once it works on SiS
+Hi Marcelo,
 
-ACPI does fix it. Sadly it rock crashes my machine.
+> > A pause is _not_ perfectly fine, even not to some extent. That pause we
+> > are discussing about is a pause of the _whole_ machine, not just disk i/o
+> > pauses. Mouse stops, keyboard stops, everything stops, who knows wtf.
+> Do you also notice them?
+I do, people I know do also, numbers of those people only _I_ know are about 
+~30. I've reported this problem over a year ago while 2.4.19-pre time.
 
+> > That behaviour is absolutely bullshit for desktop users. For serverusage
+> > you may not notice it in this dimension (mostly no X so no mouse), but
+> > also for a server environment this may be very bad.
+> Agreed.
+thanks =)
 
-> I'll probably try some of those changes in a later -ac and see what
-> happens
-
-Are you going to take care of this for 2.4 and 2.5 Alan ?
-If yes I'd rather bail out, otherwise I'll continue to follow the 2.4 and
-2.5 patch ..
-
-
-
-- Davide
+ciao, Marc
 

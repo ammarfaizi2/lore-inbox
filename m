@@ -1,58 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267977AbRHMUgT>; Mon, 13 Aug 2001 16:36:19 -0400
+	id <S269229AbRHMU5Y>; Mon, 13 Aug 2001 16:57:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267992AbRHMUgL>; Mon, 13 Aug 2001 16:36:11 -0400
-Received: from gent-smtp1.xs4all.be ([195.144.67.21]:41736 "EHLO
-	gent-smtp1.xs4all.be") by vger.kernel.org with ESMTP
-	id <S267977AbRHMUgE>; Mon, 13 Aug 2001 16:36:04 -0400
-Date: Mon, 13 Aug 2001 22:34:33 +0200
-From: Filip Van Raemdonck <filipvr@xs4all.be>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] New ISA-PnP gameport device ID
-Message-ID: <20010813223433.A541@lucretia.debian.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S269119AbRHMU5F>; Mon, 13 Aug 2001 16:57:05 -0400
+Received: from teranet244-12-200.monarch.net ([24.244.12.200]:50938 "HELO
+	lustre.dyn.ca.clusterfilesystem.com") by vger.kernel.org with SMTP
+	id <S269229AbRHMU45>; Mon, 13 Aug 2001 16:56:57 -0400
+Date: Mon, 13 Aug 2001 14:56:22 -0600
+From: "Peter J. Braam" <braam@clusterfilesystem.com>
+To: Joseph Cheek <joseph@cheek.com>
+Cc: Johannes Erdfelt <johannes@erdfelt.com>, linux-kernel@vger.kernel.org,
+        linux-usb-users@lists.sourceforge.net
+Subject: Re: [Linux-usb-users] Re: 2.4.8-ac2 USB keyboard capslock hang
+Message-ID: <20010813145621.A1863@lustre.dyn.ca.clusterfilesystem.com>
+In-Reply-To: <E15WM1P-0007uJ-00@the-village.bc.nu> <3B782D38.3080600@cheek.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.18i
-X-Marks-The-Spot: xxxxxxxxxx
-X-GPG-Fingerprint: 1024D/8E950E00 CAC1 0932 B6B9 8768 40DB  C6AA 1239 F709 8E95 0E00
-X-Machine-info: Linux lucretia 2.4.8 i686
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B782D38.3080600@cheek.com>; from joseph@cheek.com on Mon, Aug 13, 2001 at 12:40:40PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ah - but I don't have the difficulties with the Linux beta kernel in
+Rosswell (2.4.6-ac?? + red hat patches). 
 
-I had to add this for the gameport on my ALS120 soundcard to be detected.
-Please apply.
+It's 100% reproducible here on 2.4.8-ac2 for example - but it does
+freeze the system pretty much. What can I do to help?
 
-Regards,
+- Peter -
 
-Filip
-
-
---- 2.4.8-old/drivers/char/joystick/ns558.c	Mon Aug 13 22:14:49 2001
-+++ 2.4.8/drivers/char/joystick/ns558.c	Mon Aug 13 18:31:33 2001
-@@ -231,6 +231,7 @@
-  * PnP IDs:
-  *
-  * @P@0001 - ALS 100 (no comp. ID)
-+ * @P@2001 - ALS 120 (no comp. ID)
-  * CTL00c1 - SB AWE32 PnP
-  * CTL00c3 - SB AWE64 PnP
-  * CTL00f0 - SB16 PnP / Vibra 16x
-@@ -245,6 +246,7 @@
- 
- static struct isapnp_device_id pnp_devids[] = {
- 	{ ISAPNP_ANY_ID, ISAPNP_ANY_ID, ISAPNP_VENDOR('@','P','@'), ISAPNP_DEVICE(0x0001), 0 },
-+	{ ISAPNP_ANY_ID, ISAPNP_ANY_ID, ISAPNP_VENDOR('@','P','@'), ISAPNP_DEVICE(0x2001), 0 },
- 	{ ISAPNP_ANY_ID, ISAPNP_ANY_ID, ISAPNP_VENDOR('C','T','L'), ISAPNP_DEVICE(0x7001), 0 },
- 	{ ISAPNP_ANY_ID, ISAPNP_ANY_ID, ISAPNP_VENDOR('C','T','L'), ISAPNP_DEVICE(0x7002), 0 },
- 	{ ISAPNP_ANY_ID, ISAPNP_ANY_ID, ISAPNP_VENDOR('C','S','C'), ISAPNP_DEVICE(0x0b35), 0 },
+On Mon, Aug 13, 2001 at 12:40:40PM -0700, Joseph Cheek wrote:
+> this bug has been around since 2.4.3-ac *at least*, and the linux-usb 
+> folks are aware of it [but can't get a repro].  i've had repros since 
+> 2.4.3-ac.
+> 
+> this is the first time afaik that this bug has been reported on a non 
+> ms-natural-pro keyboard tho.
+> 
+> Alan Cox wrote:
+> 
+> >>On Mon, Aug 13, 2001 at 06:56:48PM +0100, Alan Cox wrote:
+> >>
+> >>>Roswell is the Red Hat 7.2 beta, so its probably another bug that was fixed
+> >>>in the USB and input updates in -ac
+> >>>
+> >>It hangs on 2.4.8-ac2, so was this bug fix lost perhaps? 
+> >>
+> >
+> >It would be useful to know if 2.4.7ac3 say works and if so which one after
+> >that it broke at
+> >
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> 
+> -- 
+> thanks!
+> 
+> joe
+> 
+> --
+> Joseph Cheek, CTO, Redmond Linux Corp.
+> joseph@redmondlinux.org, www.redmondlinux.org
+> Redmond Linux.  Linux is for everyone.
+> 
+> 
+> 
+> 
+> _______________________________________________
+> Linux-usb-users@lists.sourceforge.net
+> To unsubscribe, use the last form field at:
+> http://lists.sourceforge.net/lists/listinfo/linux-usb-users
 
 -- 
-"Also we should remember that unfortunately free software is not widely used
- because people prefers to have something to plug'n'play and not something to
- configure'n'work."
-	-- Pier Luca.

@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267380AbUHZDWz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266560AbUHZDyY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267380AbUHZDWz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 23:22:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267388AbUHZDWz
+	id S266560AbUHZDyY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 23:54:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267407AbUHZDyY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 23:22:55 -0400
-Received: from smtp-out.hotpop.com ([38.113.3.61]:9106 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S267380AbUHZDWx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 23:22:53 -0400
-Message-ID: <005401c48b1b$fae38890$6401a8c0@novustelecom.net>
-From: "Zarakin" <zarakin@hotpop.com>
-To: <linux-kernel@vger.kernel.org>
-References: <021101c48a44$c8f846e0$6401a8c0@novustelecom.net> <20040825160107.GA562@zaniah>
-Subject: Re: nmi_watchdog=2 - Oops with 2.6.8
-Date: Wed, 25 Aug 2004 20:22:53 -0700
+	Wed, 25 Aug 2004 23:54:24 -0400
+Received: from jsc-ems-vws02.jsc.nasa.gov ([139.169.16.51]:48914 "EHLO
+	JSC-EMS-VWS02.jsc.nasa.gov") by vger.kernel.org with ESMTP
+	id S266560AbUHZDyX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 23:54:23 -0400
+Message-ID: <A850C6B3EB02F044907B475259FFF56501724A18@jsc-mail08.jsc.nasa.gov>
+From: "HOLTZ, CORBIN L. (JSC-ER) (LM)" <corbin.l.holtz1@jsc.nasa.gov>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Disable kscand/Normal?
+Date: Wed, 25 Aug 2004 22:54:20 -0500
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> try this patch please.
->
-> --- linux-2.5/arch/i386/kernel/nmi.c~ 2004-06-15 10:52:00.000000000 +0200
-> +++ linux-2.5/arch/i386/kernel/nmi.c 2004-08-25 17:33:45.000000000 +0200
-> @@ -376,7 +376,13 @@
->   clear_msr_range(0x3F1, 2);
->   /* MSR 0x3F0 seems to have a default value of 0xFC00, but current
->      docs doesn't fully define it, so leave it alone for now. */
-> - clear_msr_range(0x3A0, 31);
-> + if (boot_cpu_data.x86_model >= 0x3) {
-> + /* MSR_P4_IQ_ESCR0/1 (0x3ba/0x3bb) removed */
-> + clear_msr_range(0x3A0, 26);
-> + clear_msr_range(0x3BC, 3);
-> + } else {
-> + clear_msr_range(0x3A0, 31);
-> + }
->   clear_msr_range(0x3C0, 6);
->   clear_msr_range(0x3C8, 6);
->   clear_msr_range(0x3E0, 2);
+Hello,
 
-It worked, my machine boots now fine with nmi_watchdog=2.
+Sorry to post to the list without being subscribed, but I've searched the
+web for information on this and I can't find anything useful.  I'm currenty
+building a realtime visualization system for a Space Shuttle landing
+simulator at NASA.  I'm using a small network of 5 Pentium 4 computers
+running RedHat's 2.4.20-31.9 kernel.  I'm easily running 60 frames/second on
+my systems, but I'm having a problem because the kscand/Normal thread comes
+in every 25 seconds and causes me to drop a frame (very annoying).  I've
+looked into the kernel source and found where the kscand threads are
+spawned.  I also see where the 25 second period is coming from.  What I'm
+wondering is what would happen if I disabled the kscand/Normal thread?  I've
+got plenty of memory, and my process is the only thing running on the
+system.  Would I eventually see problems, or would I be OK since I'm not
+running low on memory?  What if I modified the kernel to allow me to
+temporarily disable the thread while my application is running (using a
+/proc file or something similar)?  Sorry if this is a bad question, but I
+figure the people on this list are the best source of info.
 
-I can also confirm that oprofile is broken due to the missing
-MSR_P4_IQ_ESCR0/1:
-http://marc.theaimsgroup.com/?l=oprofile-list&m=109323108114060&w=2
+Please CC: me directly since I'm not subscribed to the list. 
 
+Thanks for any help or suggestions,
+Corbin
+corbin.l.holtz@jsc.nasa.gov
 

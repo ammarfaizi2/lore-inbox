@@ -1,1250 +1,189 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129535AbQJ2CD3>; Sat, 28 Oct 2000 22:03:29 -0400
+	id <S130122AbQJ2Cv4>; Sat, 28 Oct 2000 22:51:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130122AbQJ2CDU>; Sat, 28 Oct 2000 22:03:20 -0400
-Received: from rmx308-mta.mail.com ([165.251.48.43]:8115 "EHLO
-	rmx308-mta.mail.com") by vger.kernel.org with ESMTP
-	id <S129535AbQJ2CDE>; Sat, 28 Oct 2000 22:03:04 -0400
-Message-ID: <381216085.972784983226.JavaMail.root@web641-wra.mail.com>
-Date: Sat, 28 Oct 2000 22:03:00 -0400 (EDT)
-From: Frank Davis <fdavis112@juno.com>
-To: linux-kernel@vger.kernel.org
-Subject: test10-6: can't mount root partition
-CC: alan@lxorguk.ukuu.org.uk
+	id <S130262AbQJ2Cvq>; Sat, 28 Oct 2000 22:51:46 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:8711 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S130122AbQJ2Cvj>;
+	Sat, 28 Oct 2000 22:51:39 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kbuild@torque.net
+cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: [patch] 2.4.0-test10-pre6 fix usb initialization order
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Mailer: mail.com
-X-Originating-IP: 151.201.242.133
+Date: Sun, 29 Oct 2000 13:51:26 +1100
+Message-ID: <11431.972787886@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-   I compiled 2.4.0-test10-6 fine....modules and all, and for some reason I can't mount my root partition on boot..I get a 
-VFS kernel panic. I thought it might have something to do with devfs, but I disabled it, and it still doesn't work. I'm using loadlin 1.6a..I haven't tried a boot disk yet. I have attached my .config and output from the ver_linux script (kernel 2.3.36 boots fine from loadlin). The machine is a Dell Latitude CPi laptop, 64MB.
-
-
--- Versions installed: (if some fields are empty or look
--- unusual then possibly you have very old versions)
-Linux localhost.localdomain 2.3.36 #55 SMP Tue Jan 4 20:53:13 EST 2000 i686 unknown
-Kernel modules         2.3.19
-Gnu C                  egcs-2.91.66
-Gnu Make               3.77
-Binutils               2.9.1.0.23
-Linux C Library        2.1.1
-Dynamic linker         ldd (GNU libc) 2.1.1
-Procps                 2.0.2
-Mount                  2.9o
-Net-tools              1.51
-Console-tools          1999.03.02
-Sh-utils               1.16
-Modules Loaded         nfsd
-
-#
-# Automatically generated make config: don't edit
-#
-CONFIG_X86=y
-CONFIG_ISA=y
-# CONFIG_SBUS is not set
-CONFIG_UID16=y
-
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
-
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-
-#
-# Processor type and features
-#
-# CONFIG_M386 is not set
-# CONFIG_M486 is not set
-# CONFIG_M586 is not set
-# CONFIG_M586TSC is not set
-# CONFIG_M586MMX is not set
-CONFIG_M686=y
-# CONFIG_M686FXSR is not set
-# CONFIG_MK6 is not set
-# CONFIG_MK7 is not set
-# CONFIG_MCRUSOE is not set
-# CONFIG_MWINCHIPC6 is not set
-# CONFIG_MWINCHIP2 is not set
-# CONFIG_MWINCHIP3D is not set
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_PGE=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-# CONFIG_TOSHIBA is not set
-CONFIG_MICROCODE=y
-CONFIG_X86_MSR=y
-CONFIG_X86_CPUID=y
-# CONFIG_NOHIGHMEM is not set
-# CONFIG_HIGHMEM4G is not set
-CONFIG_HIGHMEM64G=y
-CONFIG_HIGHMEM=y
-CONFIG_X86_PAE=y
-CONFIG_MATH_EMULATION=y
-CONFIG_MTRR=y
-CONFIG_SMP=y
-CONFIG_HAVE_DEC_LOCK=y
-
-#
-# General setup
-#
-CONFIG_NET=y
-# CONFIG_VISWS is not set
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_PCI=y
-# CONFIG_PCI_GOBIOS is not set
-# CONFIG_PCI_GODIRECT is not set
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-# CONFIG_MCA is not set
-CONFIG_HOTPLUG=y
-
-#
-# PCMCIA/CardBus support
-#
-CONFIG_PCMCIA=m
-CONFIG_CARDBUS=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_KCORE_ELF=y
-# CONFIG_KCORE_AOUT is not set
-CONFIG_BINFMT_AOUT=m
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=m
-# CONFIG_PM is not set
-# CONFIG_ACPI is not set
-# CONFIG_APM is not set
-
-#
-# Memory Technology Devices (MTD)
-#
-CONFIG_MTD=m
-# CONFIG_MTD_DOC1000 is not set
-# CONFIG_MTD_DOC2000 is not set
-# CONFIG_MTD_DOC2001 is not set
-# CONFIG_MTD_DOCPROBE is not set
-# CONFIG_MTD_SLRAM is not set
-# CONFIG_MTD_PMC551 is not set
-# CONFIG_MTD_MTDRAM is not set
-
-#
-# MTD drivers for mapped chips
-#
-CONFIG_MTD_CFI=m
-CONFIG_MTD_CFI_INTELEXT=m
-# CONFIG_MTD_CFI_AMDSTD is not set
-# CONFIG_MTD_JEDEC is not set
-# CONFIG_MTD_RAM is not set
-# CONFIG_MTD_ROM is not set
-CONFIG_MTD_PHYSMAP=m
-CONFIG_MTD_PHYSMAP_START=8000000
-CONFIG_MTD_PHYSMAP_LEN=4000000
-
-#
-# Drivers for chip mappings
-#
-# CONFIG_MTD_MIXMEM is not set
-CONFIG_MTD_NORA=m
-# CONFIG_MTD_OCTAGON is not set
-# CONFIG_MTD_PNC2000 is not set
-# CONFIG_MTD_RPXLITE is not set
-# CONFIG_MTD_VMAX is not set
-
-#
-# User modules and translation layers for MTD devices
-#
-CONFIG_MTD_CHAR=m
-CONFIG_MTD_BLOCK=m
-CONFIG_FTL=m
-CONFIG_NFTL=m
-CONFIG_NFTL_RW=y
-
-#
-# Parallel port support
-#
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-CONFIG_PARPORT_PC_FIFO=y
-# CONFIG_PARPORT_PC_SUPERIO is not set
-# CONFIG_PARPORT_AMIGA is not set
-# CONFIG_PARPORT_MFC3 is not set
-# CONFIG_PARPORT_ATARI is not set
-# CONFIG_PARPORT_SUNBPP is not set
-# CONFIG_PARPORT_OTHER is not set
-CONFIG_PARPORT_1284=y
-
-#
-# Plug and Play configuration
-#
-CONFIG_PNP=m
-CONFIG_ISAPNP=m
-
-#
-# Block devices
-#
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_XD=m
-CONFIG_PARIDE=m
-CONFIG_PARIDE_PARPORT=m
-
-#
-# Parallel IDE high-level drivers
-#
-CONFIG_PARIDE_PD=m
-CONFIG_PARIDE_PCD=m
-CONFIG_PARIDE_PF=m
-CONFIG_PARIDE_PT=m
-CONFIG_PARIDE_PG=m
-
-#
-# Parallel IDE protocol modules
-#
-# CONFIG_PARIDE_ATEN is not set
-# CONFIG_PARIDE_BPCK is not set
-# CONFIG_PARIDE_COMM is not set
-# CONFIG_PARIDE_DSTR is not set
-# CONFIG_PARIDE_FIT2 is not set
-# CONFIG_PARIDE_FIT3 is not set
-# CONFIG_PARIDE_EPAT is not set
-# CONFIG_PARIDE_EPIA is not set
-# CONFIG_PARIDE_FRIQ is not set
-# CONFIG_PARIDE_FRPW is not set
-# CONFIG_PARIDE_KBIC is not set
-# CONFIG_PARIDE_KTTI is not set
-# CONFIG_PARIDE_ON20 is not set
-# CONFIG_PARIDE_ON26 is not set
-# CONFIG_BLK_CPQ_DA is not set
-# CONFIG_BLK_CPQ_CISS_DA is not set
-# CONFIG_BLK_DEV_DAC960 is not set
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_NBD=y
-CONFIG_BLK_DEV_RAM=m
-CONFIG_BLK_DEV_RAM_SIZE=4096
-# CONFIG_BLK_DEV_INITRD is not set
-
-#
-# Multi-device support (RAID and LVM)
-#
-# CONFIG_MD is not set
-# CONFIG_BLK_DEV_MD is not set
-# CONFIG_MD_LINEAR is not set
-# CONFIG_MD_RAID0 is not set
-# CONFIG_MD_RAID1 is not set
-# CONFIG_MD_RAID5 is not set
-# CONFIG_BLK_DEV_LVM is not set
-# CONFIG_LVM_PROC_FS is not set
-
-#
-# Networking options
-#
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_NETLINK=y
-CONFIG_RTNETLINK=y
-CONFIG_NETLINK_DEV=y
-CONFIG_NETFILTER=y
-CONFIG_NETFILTER_DEBUG=y
-CONFIG_FILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_RTNETLINK=y
-CONFIG_NETLINK=y
-CONFIG_IP_MULTIPLE_TABLES=y
-CONFIG_IP_ROUTE_FWMARK=y
-CONFIG_IP_ROUTE_NAT=y
-CONFIG_IP_ROUTE_MULTIPATH=y
-CONFIG_IP_ROUTE_TOS=y
-CONFIG_IP_ROUTE_VERBOSE=y
-CONFIG_IP_ROUTE_LARGE_TABLES=y
-CONFIG_IP_PNP=y
-# CONFIG_IP_PNP_BOOTP is not set
-# CONFIG_IP_PNP_RARP is not set
-CONFIG_NET_IPIP=m
-CONFIG_NET_IPGRE=m
-CONFIG_NET_IPGRE_BROADCAST=y
-CONFIG_IP_MROUTE=y
-CONFIG_IP_PIMSM_V1=y
-CONFIG_IP_PIMSM_V2=y
-CONFIG_ARPD=y
-# CONFIG_INET_ECN is not set
-CONFIG_SYN_COOKIES=y
-
-#
-#   IP: Netfilter Configuration
-#
-# CONFIG_IP_NF_CONNTRACK is not set
-CONFIG_IP_NF_QUEUE=m
-CONFIG_IP_NF_IPTABLES=y
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_UNCLEAN=m
-CONFIG_IP_NF_MATCH_OWNER=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_TARGET_MIRROR=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IPV6=m
-CONFIG_IPV6_EUI64=y
-# CONFIG_IPV6_NO_PB is not set
-
-#
-#   IPv6: Netfilter Configuration
-#
-# CONFIG_IP6_NF_IPTABLES is not set
-CONFIG_KHTTPD=m
-CONFIG_ATM=y
-CONFIG_ATM_CLIP=y
-# CONFIG_ATM_CLIP_NO_ICMP is not set
-CONFIG_ATM_LANE=m
-CONFIG_ATM_MPOA=m
-
-#
-#  
-#
-CONFIG_IPX=m
-CONFIG_IPX_INTERN=y
-CONFIG_SPX=m
-CONFIG_ATALK=m
-CONFIG_DECNET=m
-CONFIG_DECNET_SIOCGIFCONF=y
-# CONFIG_DECNET_ROUTER is not set
-CONFIG_BRIDGE=y
-CONFIG_X25=m
-CONFIG_LAPB=m
-CONFIG_LLC=y
-# CONFIG_NET_DIVERT is not set
-# CONFIG_ECONET is not set
-CONFIG_WAN_ROUTER=m
-CONFIG_NET_FASTROUTE=y
-CONFIG_NET_HW_FLOWCONTROL=y
-
-#
-# QoS and/or fair queueing
-#
-CONFIG_NET_SCHED=y
-CONFIG_NETLINK=y
-CONFIG_RTNETLINK=y
-# CONFIG_NET_SCH_CBQ is not set
-# CONFIG_NET_SCH_CSZ is not set
-# CONFIG_NET_SCH_ATM is not set
-CONFIG_NET_SCH_PRIO=m
-# CONFIG_NET_SCH_RED is not set
-# CONFIG_NET_SCH_SFQ is not set
-# CONFIG_NET_SCH_TEQL is not set
-# CONFIG_NET_SCH_TBF is not set
-# CONFIG_NET_SCH_GRED is not set
-CONFIG_NET_SCH_DSMARK=m
-# CONFIG_NET_SCH_INGRESS is not set
-CONFIG_NET_QOS=y
-CONFIG_NET_ESTIMATOR=y
-CONFIG_NET_CLS=y
-# CONFIG_NET_CLS_TCINDEX is not set
-CONFIG_NET_CLS_ROUTE4=m
-CONFIG_NET_CLS_ROUTE=y
-CONFIG_NET_CLS_FW=y
-CONFIG_NET_CLS_U32=m
-# CONFIG_NET_CLS_RSVP is not set
-# CONFIG_NET_CLS_RSVP6 is not set
-CONFIG_NET_CLS_POLICE=y
-
-#
-# Telephony Support
-#
-CONFIG_PHONE=m
-# CONFIG_PHONE_IXJ is not set
-
-#
-# ATA/IDE/MFM/RLL support
-#
-CONFIG_IDE=m
-
-#
-# IDE, ATA and ATAPI Block devices
-#
-CONFIG_BLK_DEV_IDE=m
-
-#
-# Please see Documentation/ide.txt for help/info on IDE drives
-#
-# CONFIG_BLK_DEV_HD_IDE is not set
-# CONFIG_BLK_DEV_HD is not set
-CONFIG_BLK_DEV_IDEDISK=m
-# CONFIG_IDEDISK_MULTI_MODE is not set
-# CONFIG_BLK_DEV_IDEDISK_VENDOR is not set
-# CONFIG_BLK_DEV_IDEDISK_FUJITSU is not set
-# CONFIG_BLK_DEV_IDEDISK_IBM is not set
-# CONFIG_BLK_DEV_IDEDISK_MAXTOR is not set
-# CONFIG_BLK_DEV_IDEDISK_QUANTUM is not set
-# CONFIG_BLK_DEV_IDEDISK_SEAGATE is not set
-# CONFIG_BLK_DEV_IDEDISK_WD is not set
-# CONFIG_BLK_DEV_COMMERIAL is not set
-# CONFIG_BLK_DEV_TIVO is not set
-CONFIG_BLK_DEV_IDECS=m
-CONFIG_BLK_DEV_IDECD=m
-CONFIG_BLK_DEV_IDETAPE=m
-CONFIG_BLK_DEV_IDEFLOPPY=m
-CONFIG_BLK_DEV_IDESCSI=m
-
-#
-# IDE chipset support/bugfixes
-#
-CONFIG_BLK_DEV_CMD640=y
-CONFIG_BLK_DEV_CMD640_ENHANCED=y
-# CONFIG_BLK_DEV_ISAPNP is not set
-CONFIG_BLK_DEV_RZ1000=y
-CONFIG_BLK_DEV_IDEPCI=y
-# CONFIG_IDEPCI_SHARE_IRQ is not set
-# CONFIG_BLK_DEV_IDEDMA_PCI is not set
-# CONFIG_BLK_DEV_OFFBOARD is not set
-# CONFIG_IDEDMA_PCI_AUTO is not set
-# CONFIG_BLK_DEV_IDEDMA is not set
-# CONFIG_IDEDMA_PCI_WIP is not set
-# CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
-# CONFIG_BLK_DEV_AEC62XX is not set
-# CONFIG_AEC62XX_TUNING is not set
-# CONFIG_BLK_DEV_ALI15X3 is not set
-# CONFIG_WDC_ALI15X3 is not set
-# CONFIG_BLK_DEV_AMD7409 is not set
-# CONFIG_AMD7409_OVERRIDE is not set
-# CONFIG_BLK_DEV_CMD64X is not set
-# CONFIG_BLK_DEV_CY82C693 is not set
-# CONFIG_BLK_DEV_CS5530 is not set
-# CONFIG_BLK_DEV_HPT34X is not set
-# CONFIG_HPT34X_AUTODMA is not set
-# CONFIG_BLK_DEV_HPT366 is not set
-# CONFIG_BLK_DEV_PIIX is not set
-# CONFIG_PIIX_TUNING is not set
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_OPTI621 is not set
-# CONFIG_BLK_DEV_PDC202XX is not set
-# CONFIG_PDC202XX_BURST is not set
-# CONFIG_BLK_DEV_OSB4 is not set
-# CONFIG_BLK_DEV_SIS5513 is not set
-# CONFIG_BLK_DEV_SLC90E66 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-# CONFIG_BLK_DEV_VIA82CXXX is not set
-CONFIG_IDE_CHIPSETS=y
-
-#
-# Note: most of these also require special kernel boot parameters
-#
-# CONFIG_BLK_DEV_4DRIVES is not set
-# CONFIG_BLK_DEV_ALI14XX is not set
-# CONFIG_BLK_DEV_DTC2278 is not set
-# CONFIG_BLK_DEV_HT6560B is not set
-# CONFIG_BLK_DEV_QD6580 is not set
-# CONFIG_BLK_DEV_UMC8672 is not set
-# CONFIG_IDEDMA_AUTO is not set
-# CONFIG_DMA_NONPCI is not set
-CONFIG_BLK_DEV_IDE_MODES=y
-
-#
-# SCSI support
-#
-CONFIG_SCSI=y
-
-#
-# SCSI support type (disk, tape, CD-ROM)
-#
-CONFIG_BLK_DEV_SD=y
-CONFIG_SD_EXTRA_DEVS=40
-CONFIG_CHR_DEV_ST=m
-CONFIG_BLK_DEV_SR=m
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_SR_EXTRA_DEVS=2
-CONFIG_CHR_DEV_SG=m
-
-#
-# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
-#
-CONFIG_SCSI_DEBUG_QUEUES=y
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_LOGGING=y
-
-#
-# SCSI low-level drivers
-#
-# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
-# CONFIG_SCSI_7000FASST is not set
-# CONFIG_SCSI_ACARD is not set
-# CONFIG_SCSI_AHA152X is not set
-# CONFIG_SCSI_AHA1542 is not set
-# CONFIG_SCSI_AHA1740 is not set
-# CONFIG_SCSI_AIC7XXX is not set
-# CONFIG_SCSI_ADVANSYS is not set
-# CONFIG_SCSI_IN2000 is not set
-# CONFIG_SCSI_AM53C974 is not set
-# CONFIG_SCSI_MEGARAID is not set
-# CONFIG_SCSI_BUSLOGIC is not set
-# CONFIG_SCSI_CPQFCTS is not set
-# CONFIG_SCSI_DMX3191D is not set
-# CONFIG_SCSI_DTC3280 is not set
-# CONFIG_SCSI_EATA is not set
-# CONFIG_SCSI_EATA_DMA is not set
-# CONFIG_SCSI_EATA_PIO is not set
-# CONFIG_SCSI_FUTURE_DOMAIN is not set
-# CONFIG_SCSI_GDTH is not set
-# CONFIG_SCSI_GENERIC_NCR5380 is not set
-# CONFIG_SCSI_IPS is not set
-# CONFIG_SCSI_INITIO is not set
-# CONFIG_SCSI_INIA100 is not set
-CONFIG_SCSI_PPA=m
-CONFIG_SCSI_IMM=m
-# CONFIG_SCSI_IZIP_EPP16 is not set
-# CONFIG_SCSI_IZIP_SLOW_CTR is not set
-# CONFIG_SCSI_NCR53C406A is not set
-# CONFIG_SCSI_NCR53C7xx is not set
-# CONFIG_SCSI_NCR53C8XX is not set
-# CONFIG_SCSI_SYM53C8XX is not set
-# CONFIG_SCSI_PAS16 is not set
-# CONFIG_SCSI_PCI2000 is not set
-# CONFIG_SCSI_PCI2220I is not set
-# CONFIG_SCSI_PSI240I is not set
-# CONFIG_SCSI_QLOGIC_FAS is not set
-# CONFIG_SCSI_QLOGIC_ISP is not set
-# CONFIG_SCSI_QLOGIC_FC is not set
-# CONFIG_SCSI_QLOGIC_1280 is not set
-# CONFIG_SCSI_SEAGATE is not set
-# CONFIG_SCSI_SIM710 is not set
-# CONFIG_SCSI_SYM53C416 is not set
-# CONFIG_SCSI_DC390T is not set
-# CONFIG_SCSI_T128 is not set
-# CONFIG_SCSI_U14_34F is not set
-# CONFIG_SCSI_ULTRASTOR is not set
-# CONFIG_SCSI_DEBUG is not set
-
-#
-# PCMCIA SCSI adapter support
-#
-CONFIG_SCSI_PCMCIA=y
-# CONFIG_PCMCIA_AHA152X is not set
-# CONFIG_PCMCIA_QLOGIC is not set
-# CONFIG_PCMCIA_FDOMAIN is not set
-# CONFIG_PCMCIA_APA1480 is not set
-
-#
-# IEEE 1394 (FireWire) support
-#
-CONFIG_IEEE1394=m
-# CONFIG_IEEE1394_PCILYNX is not set
-CONFIG_IEEE1394_OHCI1394=m
-# CONFIG_IEEE1394_VIDEO1394 is not set
-CONFIG_IEEE1394_RAWIO=m
-# CONFIG_IEEE1394_VERBOSEDEBUG is not set
-
-#
-# I2O device support
-#
-CONFIG_I2O=m
-CONFIG_I2O_PCI=m
-CONFIG_I2O_BLOCK=m
-CONFIG_I2O_LAN=m
-CONFIG_I2O_SCSI=m
-CONFIG_I2O_PROC=m
-
-#
-# Network device support
-#
-CONFIG_NETDEVICES=y
-
-#
-# ARCnet devices
-#
-CONFIG_ARCNET=m
-# CONFIG_ARCNET_1201 is not set
-CONFIG_ARCNET_1051=m
-# CONFIG_ARCNET_RAW is not set
-# CONFIG_ARCNET_COM90xx is not set
-# CONFIG_ARCNET_COM90xxIO is not set
-# CONFIG_ARCNET_RIM_I is not set
-# CONFIG_ARCNET_COM20020 is not set
-
-#
-# Appletalk devices
-#
-# CONFIG_APPLETALK is not set
-CONFIG_DUMMY=y
-CONFIG_BONDING=m
-CONFIG_EQUALIZER=m
-# CONFIG_TUN is not set
-CONFIG_ETHERTAP=m
-# CONFIG_NET_SB1000 is not set
-
-#
-# Ethernet (10 or 100Mbit)
-#
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_VENDOR_3COM=y
-# CONFIG_EL1 is not set
-# CONFIG_EL2 is not set
-# CONFIG_ELPLUS is not set
-# CONFIG_EL16 is not set
-# CONFIG_EL3 is not set
-# CONFIG_3C515 is not set
-# CONFIG_VORTEX is not set
-# CONFIG_LANCE is not set
-# CONFIG_NET_VENDOR_SMC is not set
-# CONFIG_NET_VENDOR_RACAL is not set
-# CONFIG_AT1700 is not set
-# CONFIG_DEPCA is not set
-CONFIG_NET_ISA=y
-# CONFIG_E2100 is not set
-# CONFIG_EEXPRESS is not set
-# CONFIG_EEXPRESS_PRO is not set
-# CONFIG_HPLAN_PLUS is not set
-# CONFIG_HPLAN is not set
-# CONFIG_HP100 is not set
-# CONFIG_ETH16I is not set
-# CONFIG_NE2000 is not set
-# CONFIG_SK_G16 is not set
-# CONFIG_NET_PCI is not set
-# CONFIG_NET_POCKET is not set
-
-#
-# Ethernet (1000 Mbit)
-#
-# CONFIG_ACENIC is not set
-# CONFIG_HAMACHI is not set
-# CONFIG_YELLOWFIN is not set
-# CONFIG_SK98LIN is not set
-CONFIG_FDDI=y
-# CONFIG_DEFXX is not set
-# CONFIG_SKFP is not set
-CONFIG_HIPPI=y
-CONFIG_ROADRUNNER=m
-CONFIG_ROADRUNNER_LARGE_RINGS=y
-CONFIG_PLIP=m
-CONFIG_PPP=m
-# CONFIG_PPP_MULTILINK is not set
-CONFIG_PPP_ASYNC=m
-CONFIG_PPP_SYNC_TTY=m
-CONFIG_PPP_DEFLATE=m
-CONFIG_PPP_BSDCOMP=m
-# CONFIG_PPPOE is not set
-CONFIG_SLIP=m
-CONFIG_SLIP_COMPRESSED=y
-CONFIG_SLIP_SMART=y
-CONFIG_SLIP_MODE_SLIP6=y
-
-#
-# Wireless LAN (non-hamradio)
-#
-CONFIG_NET_RADIO=y
-# CONFIG_STRIP is not set
-# CONFIG_WAVELAN is not set
-# CONFIG_ARLAN is not set
-# CONFIG_AIRONET4500 is not set
-# CONFIG_AIRONET4500_NONCS is not set
-# CONFIG_AIRONET4500_PROC is not set
-
-#
-# Token Ring devices
-#
-CONFIG_TR=y
-# CONFIG_IBMTR is not set
-# CONFIG_IBMOL is not set
-# CONFIG_IBMLS is not set
-# CONFIG_TMS380TR is not set
-# CONFIG_SMCTR is not set
-CONFIG_NET_FC=y
-# CONFIG_IPHASE5526 is not set
-CONFIG_RCPCI=m
-CONFIG_SHAPER=m
-
-#
-# Wan interfaces
-#
-CONFIG_WAN=y
-# CONFIG_HOSTESS_SV11 is not set
-# CONFIG_COSA is not set
-# CONFIG_COMX is not set
-# CONFIG_LANMEDIA is not set
-# CONFIG_SEALEVEL_4021 is not set
-# CONFIG_SYNCLINK_SYNCPPP is not set
-CONFIG_DLCI=m
-CONFIG_DLCI_COUNT=24
-CONFIG_DLCI_MAX=8
-# CONFIG_SDLA is not set
-CONFIG_WAN_ROUTER_DRIVERS=y
-# CONFIG_VENDOR_SANGOMA is not set
-# CONFIG_CYCLADES_SYNC is not set
-CONFIG_LAPBETHER=m
-CONFIG_X25_ASY=m
-# CONFIG_SBNI is not set
-
-#
-# PCMCIA network device support
-#
-CONFIG_NET_PCMCIA=y
-CONFIG_PCMCIA_3C589=m
-CONFIG_PCMCIA_3C574=m
-# CONFIG_PCMCIA_FMVJ18X is not set
-CONFIG_PCMCIA_PCNET=m
-# CONFIG_PCMCIA_NMCLAN is not set
-# CONFIG_PCMCIA_SMC91C92 is not set
-# CONFIG_PCMCIA_XIRC2PS is not set
-# CONFIG_ARCNET_COM20020_CS is not set
-# CONFIG_PCMCIA_IBMTR is not set
-# CONFIG_PCMCIA_XIRTULIP is not set
-# CONFIG_NET_PCMCIA_RADIO is not set
-
-#
-# ATM drivers
-#
-CONFIG_ATM_TCP=m
-# CONFIG_ATM_ENI is not set
-# CONFIG_ATM_ZATM is not set
-# CONFIG_ATM_NICSTAR is not set
-# CONFIG_ATM_AMBASSADOR is not set
-# CONFIG_ATM_HORIZON is not set
-# CONFIG_ATM_IA is not set
-# CONFIG_ATM_FORE200E_MAYBE is not set
-
-#
-# Amateur Radio support
-#
-# CONFIG_HAMRADIO is not set
-
-#
-# IrDA (infrared) support
-#
-CONFIG_IRDA=m
-
-#
-# IrDA protocols
-#
-CONFIG_IRLAN=m
-CONFIG_IRCOMM=m
-CONFIG_IRDA_ULTRA=y
-CONFIG_IRDA_OPTIONS=y
-
-#
-#   IrDA options
-#
-CONFIG_IRDA_CACHE_LAST_LSAP=y
-CONFIG_IRDA_FAST_RR=y
-CONFIG_IRDA_DEBUG=y
-
-#
-# Infrared-port device drivers
-#
-
-#
-# SIR device drivers
-#
-CONFIG_IRTTY_SIR=m
-CONFIG_IRPORT_SIR=m
-
-#
-# FIR device drivers
-#
-# CONFIG_NSC_FIR is not set
-# CONFIG_WINBOND_FIR is not set
-# CONFIG_TOSHIBA_FIR is not set
-# CONFIG_SMC_IRCC_FIR is not set
-
-#
-# Dongle support
-#
-CONFIG_DONGLE=y
-# CONFIG_ESI_DONGLE is not set
-# CONFIG_ACTISYS_DONGLE is not set
-# CONFIG_TEKRAM_DONGLE is not set
-# CONFIG_GIRBIL_DONGLE is not set
-# CONFIG_LITELINK_DONGLE is not set
-# CONFIG_OLD_BELKIN_DONGLE is not set
-
-#
-# ISDN subsystem
-#
-CONFIG_ISDN=m
-CONFIG_ISDN_PPP=y
-CONFIG_ISDN_PPP_VJ=y
-CONFIG_ISDN_MPP=y
-CONFIG_ISDN_AUDIO=y
-CONFIG_ISDN_TTY_FAX=y
-CONFIG_ISDN_X25=y
-
-#
-# ISDN feature submodules
-#
-CONFIG_ISDN_DRV_LOOP=m
-CONFIG_ISDN_DIVERSION=y
-
-#
-# low-level hardware drivers
-#
-
-#
-# Passive ISDN cards
-#
-# CONFIG_ISDN_DRV_HISAX is not set
-
-#
-# Active ISDN cards
-#
-CONFIG_ISDN_DRV_ICN=m
-CONFIG_ISDN_DRV_PCBIT=m
-# CONFIG_ISDN_DRV_SC is not set
-# CONFIG_ISDN_DRV_ACT2000 is not set
-# CONFIG_ISDN_DRV_EICON is not set
-# CONFIG_ISDN_CAPI is not set
-# CONFIG_ISDN_CAPI_MIDDLEWARE is not set
-# CONFIG_HYSDN is not set
-
-#
-# Old CD-ROM drivers (not SCSI, not IDE)
-#
-CONFIG_CD_NO_IDESCSI=y
-# CONFIG_AZTCD is not set
-# CONFIG_GSCD is not set
-# CONFIG_SBPCD is not set
-# CONFIG_MCD is not set
-# CONFIG_MCDX is not set
-# CONFIG_OPTCD is not set
-# CONFIG_CM206 is not set
-# CONFIG_SJCD is not set
-# CONFIG_ISP16_CDI is not set
-# CONFIG_CDU31A is not set
-# CONFIG_CDU535 is not set
-
-#
-# Input core support
-#
-CONFIG_INPUT=m
-CONFIG_INPUT_KEYBDEV=m
-CONFIG_INPUT_MOUSEDEV=m
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-# CONFIG_INPUT_JOYDEV is not set
-CONFIG_INPUT_EVDEV=m
-
-#
-# Character devices
-#
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=m
-# CONFIG_SERIAL_EXTENDED is not set
-CONFIG_SERIAL_NONSTANDARD=y
-# CONFIG_COMPUTONE is not set
-# CONFIG_ROCKETPORT is not set
-# CONFIG_CYCLADES is not set
-# CONFIG_DIGIEPCA is not set
-# CONFIG_DIGI is not set
-# CONFIG_ESPSERIAL is not set
-# CONFIG_MOXA_INTELLIO is not set
-# CONFIG_MOXA_SMARTIO is not set
-# CONFIG_ISI is not set
-# CONFIG_SYNCLINK is not set
-CONFIG_N_HDLC=m
-# CONFIG_RISCOM8 is not set
-# CONFIG_SPECIALIX is not set
-# CONFIG_SX is not set
-# CONFIG_RIO is not set
-# CONFIG_STALDRV is not set
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=m
-CONFIG_LP_CONSOLE=y
-CONFIG_PPDEV=m
-
-#
-# I2C support
-#
-CONFIG_I2C=m
-CONFIG_I2C_ALGOBIT=m
-# CONFIG_I2C_PHILIPSPAR is not set
-# CONFIG_I2C_ELV is not set
-# CONFIG_I2C_VELLEMAN is not set
-# CONFIG_I2C_ALGOPCF is not set
-CONFIG_I2C_CHARDEV=m
-
-#
-# Mice
-#
-# CONFIG_BUSMOUSE is not set
-CONFIG_MOUSE=y
-CONFIG_PSMOUSE=y
-CONFIG_82C710_MOUSE=y
-# CONFIG_PC110_PAD is not set
-
-#
-# Joysticks
-#
-# CONFIG_JOYSTICK is not set
-
-#
-# Input core support is needed for joysticks
-#
-# CONFIG_QIC02_TAPE is not set
-
-#
-# Watchdog Cards
-#
-CONFIG_WATCHDOG=y
-# CONFIG_WATCHDOG_NOWAYOUT is not set
-CONFIG_SOFT_WATCHDOG=m
-CONFIG_WDT=m
-# CONFIG_WDTPCI is not set
-CONFIG_WDT_501=y
-CONFIG_WDT_501_FAN=y
-CONFIG_PCWATCHDOG=m
-# CONFIG_ACQUIRE_WDT is not set
-# CONFIG_60XX_WDT is not set
-CONFIG_MIXCOMWD=m
-# CONFIG_I810_TCO is not set
-# CONFIG_INTEL_RNG is not set
-CONFIG_NVRAM=m
-CONFIG_RTC=m
-CONFIG_DTLK=m
-# CONFIG_R3964 is not set
-# CONFIG_APPLICOM is not set
-
-#
-# Ftape, the floppy tape device driver
-#
-# CONFIG_FTAPE is not set
-CONFIG_AGP=m
-CONFIG_AGP_INTEL=y
-# CONFIG_AGP_I810 is not set
-# CONFIG_AGP_VIA is not set
-# CONFIG_AGP_AMD is not set
-CONFIG_AGP_SIS=y
-# CONFIG_AGP_ALI is not set
-# CONFIG_DRM is not set
-CONFIG_PCMCIA_SERIAL=m
-
-#
-# PCMCIA character device support
-#
-CONFIG_PCMCIA_SERIAL_CS=m
-CONFIG_PCMCIA_SERIAL_CB=m
-
-#
-# Multimedia devices
-#
-CONFIG_VIDEO_DEV=m
-
-#
-# Video For Linux
-#
-# CONFIG_VIDEO_PROC_FS is not set
-CONFIG_I2C_PARPORT=m
-
-#
-# Video Adapters
-#
-CONFIG_VIDEO_BT848=m
-# CONFIG_VIDEO_PMS is not set
-CONFIG_VIDEO_BWQCAM=m
-CONFIG_VIDEO_CQCAM=m
-# CONFIG_VIDEO_CPIA is not set
-# CONFIG_VIDEO_SAA5249 is not set
-# CONFIG_TUNER_3036 is not set
-# CONFIG_VIDEO_STRADIS is not set
-# CONFIG_VIDEO_ZORAN is not set
-# CONFIG_VIDEO_BUZ is not set
-# CONFIG_VIDEO_ZR36120 is not set
-
-#
-# Radio Adapters
-#
-# CONFIG_RADIO_CADET is not set
-# CONFIG_RADIO_RTRACK is not set
-# CONFIG_RADIO_RTRACK2 is not set
-# CONFIG_RADIO_AZTECH is not set
-# CONFIG_RADIO_GEMTEK is not set
-# CONFIG_RADIO_MAESTRO is not set
-# CONFIG_RADIO_MIROPCM20 is not set
-# CONFIG_RADIO_SF16FMI is not set
-# CONFIG_RADIO_TERRATEC is not set
-# CONFIG_RADIO_TRUST is not set
-# CONFIG_RADIO_TYPHOON is not set
-# CONFIG_RADIO_ZOLTRIX is not set
-
-#
-# File systems
-#
-CONFIG_QUOTA=y
-CONFIG_AUTOFS_FS=y
-CONFIG_AUTOFS4_FS=y
-CONFIG_ADFS_FS=m
-CONFIG_ADFS_FS_RW=y
-CONFIG_AFFS_FS=m
-CONFIG_HFS_FS=m
-CONFIG_BFS_FS=m
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_UMSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_EFS_FS=m
-CONFIG_JFFS_FS=m
-CONFIG_JFFS_FS_VERBOSE=0
-CONFIG_CRAMFS=m
-CONFIG_RAMFS=m
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_MINIX_FS=m
-CONFIG_NTFS_FS=m
-CONFIG_NTFS_RW=y
-CONFIG_HPFS_FS=m
-CONFIG_PROC_FS=y
-# CONFIG_DEVFS_FS is not set
-# CONFIG_DEVFS_MOUNT is not set
-# CONFIG_DEVFS_DEBUG is not set
-CONFIG_DEVPTS_FS=y
-CONFIG_QNX4FS_FS=m
-CONFIG_QNX4FS_RW=y
-CONFIG_ROMFS_FS=m
-CONFIG_EXT2_FS=y
-CONFIG_SYSV_FS=y
-CONFIG_SYSV_FS_WRITE=y
-CONFIG_UDF_FS=m
-CONFIG_UDF_RW=y
-CONFIG_UFS_FS=m
-CONFIG_UFS_FS_WRITE=y
-
-#
-# Network File Systems
-#
-CONFIG_CODA_FS=m
-CONFIG_NFS_FS=m
-CONFIG_NFS_V3=y
-# CONFIG_ROOT_NFS is not set
-CONFIG_NFSD=y
-CONFIG_NFSD_V3=y
-CONFIG_SUNRPC=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_SMB_FS=m
-# CONFIG_SMB_NLS_DEFAULT is not set
-CONFIG_NCP_FS=m
-CONFIG_NCPFS_PACKET_SIGNING=y
-CONFIG_NCPFS_IOCTL_LOCKING=y
-CONFIG_NCPFS_STRONG=y
-CONFIG_NCPFS_NFS_NS=y
-CONFIG_NCPFS_OS2_NS=y
-CONFIG_NCPFS_SMALLDOS=y
-CONFIG_NCPFS_MOUNT_SUBDIR=y
-CONFIG_NCPFS_NDS_DOMAINS=y
-CONFIG_NCPFS_NLS=y
-CONFIG_NCPFS_EXTRAS=y
-
-#
-# Partition Types
-#
-CONFIG_PARTITION_ADVANCED=y
-CONFIG_ACORN_PARTITION=y
-CONFIG_ACORN_PARTITION_ICS=y
-CONFIG_ACORN_PARTITION_ADFS=y
-CONFIG_ACORN_PARTITION_POWERTEC=y
-CONFIG_ACORN_PARTITION_RISCIX=y
-CONFIG_OSF_PARTITION=y
-CONFIG_AMIGA_PARTITION=y
-CONFIG_ATARI_PARTITION=y
-CONFIG_MAC_PARTITION=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_BSD_DISKLABEL=y
-CONFIG_SOLARIS_X86_PARTITION=y
-CONFIG_UNIXWARE_DISKLABEL=y
-CONFIG_SGI_PARTITION=y
-CONFIG_ULTRIX_PARTITION=y
-CONFIG_SUN_PARTITION=y
-CONFIG_NLS=y
-
-#
-# Native Language Support
-#
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=m
-# CONFIG_NLS_CODEPAGE_737 is not set
-# CONFIG_NLS_CODEPAGE_775 is not set
-# CONFIG_NLS_CODEPAGE_850 is not set
-# CONFIG_NLS_CODEPAGE_852 is not set
-# CONFIG_NLS_CODEPAGE_855 is not set
-# CONFIG_NLS_CODEPAGE_857 is not set
-# CONFIG_NLS_CODEPAGE_860 is not set
-# CONFIG_NLS_CODEPAGE_861 is not set
-# CONFIG_NLS_CODEPAGE_862 is not set
-# CONFIG_NLS_CODEPAGE_863 is not set
-# CONFIG_NLS_CODEPAGE_864 is not set
-# CONFIG_NLS_CODEPAGE_865 is not set
-# CONFIG_NLS_CODEPAGE_866 is not set
-# CONFIG_NLS_CODEPAGE_869 is not set
-# CONFIG_NLS_CODEPAGE_874 is not set
-# CONFIG_NLS_CODEPAGE_932 is not set
-# CONFIG_NLS_CODEPAGE_936 is not set
-# CONFIG_NLS_CODEPAGE_949 is not set
-# CONFIG_NLS_CODEPAGE_950 is not set
-# CONFIG_NLS_ISO8859_1 is not set
-# CONFIG_NLS_ISO8859_2 is not set
-# CONFIG_NLS_ISO8859_3 is not set
-# CONFIG_NLS_ISO8859_4 is not set
-# CONFIG_NLS_ISO8859_5 is not set
-# CONFIG_NLS_ISO8859_6 is not set
-# CONFIG_NLS_ISO8859_7 is not set
-# CONFIG_NLS_ISO8859_8 is not set
-# CONFIG_NLS_ISO8859_9 is not set
-# CONFIG_NLS_ISO8859_14 is not set
-# CONFIG_NLS_ISO8859_15 is not set
-# CONFIG_NLS_KOI8_R is not set
-# CONFIG_NLS_UTF8 is not set
-
-#
-# Console drivers
-#
-CONFIG_VGA_CONSOLE=y
-CONFIG_VIDEO_SELECT=y
-# CONFIG_MDA_CONSOLE is not set
-
-#
-# Frame-buffer support
-#
-# CONFIG_FB is not set
-
-#
-# Sound
-#
-CONFIG_SOUND=m
-# CONFIG_SOUND_CMPCI is not set
-# CONFIG_SOUND_EMU10K1 is not set
-# CONFIG_SOUND_FUSION is not set
-# CONFIG_SOUND_CS4281 is not set
-# CONFIG_SOUND_ES1370 is not set
-# CONFIG_SOUND_ES1371 is not set
-# CONFIG_SOUND_ESSSOLO1 is not set
-# CONFIG_SOUND_MAESTRO is not set
-# CONFIG_SOUND_SONICVIBES is not set
-# CONFIG_SOUND_TRIDENT is not set
-# CONFIG_SOUND_MSNDCLAS is not set
-# CONFIG_SOUND_MSNDPIN is not set
-# CONFIG_SOUND_VIA82CXXX is not set
-CONFIG_SOUND_OSS=m
-CONFIG_SOUND_TRACEINIT=y
-# CONFIG_SOUND_DMAP is not set
-# CONFIG_SOUND_AD1816 is not set
-# CONFIG_SOUND_SGALAXY is not set
-# CONFIG_SOUND_ADLIB is not set
-# CONFIG_SOUND_ACI_MIXER is not set
-# CONFIG_SOUND_CS4232 is not set
-# CONFIG_SOUND_SSCAPE is not set
-# CONFIG_SOUND_GUS is not set
-# CONFIG_SOUND_ICH is not set
-CONFIG_SOUND_VMIDI=m
-# CONFIG_SOUND_TRIX is not set
-CONFIG_SOUND_MSS=m
-CONFIG_SOUND_MPU401=m
-# CONFIG_SOUND_NM256 is not set
-# CONFIG_SOUND_MAD16 is not set
-# CONFIG_SOUND_PAS is not set
-# CONFIG_PAS_JOYSTICK is not set
-# CONFIG_SOUND_PSS is not set
-# CONFIG_SOUND_SB is not set
-# CONFIG_SOUND_AWE32_SYNTH is not set
-# CONFIG_SOUND_WAVEFRONT is not set
-# CONFIG_SOUND_MAUI is not set
-# CONFIG_SOUND_YM3812 is not set
-CONFIG_SOUND_OPL3SA1=m
-# CONFIG_SOUND_OPL3SA2 is not set
-# CONFIG_SOUND_YMPCI is not set
-CONFIG_SOUND_UART6850=m
-# CONFIG_SOUND_AEDSP16 is not set
-# CONFIG_SOUND_TVMIXER is not set
-
-#
-# USB support
-#
-CONFIG_USB=m
-# CONFIG_USB_DEBUG is not set
-
-#
-# Miscellaneous USB options
-#
-CONFIG_USB_DEVICEFS=y
-# CONFIG_USB_BANDWIDTH is not set
-
-#
-# USB Controllers
-#
-CONFIG_USB_UHCI=m
-CONFIG_USB_UHCI_ALT=m
-# CONFIG_USB_OHCI is not set
-
-#
-# USB Devices
-#
-CONFIG_USB_PRINTER=m
-CONFIG_USB_SCANNER=m
-# CONFIG_USB_MICROTEK is not set
-CONFIG_USB_AUDIO=m
-CONFIG_USB_ACM=m
-CONFIG_USB_SERIAL=m
-CONFIG_USB_SERIAL_GENERIC=y
-# CONFIG_USB_SERIAL_VISOR is not set
-# CONFIG_USB_SERIAL_WHITEHEAT is not set
-# CONFIG_USB_SERIAL_FTDI_SIO is not set
-# CONFIG_USB_SERIAL_KEYSPAN_PDA is not set
-# CONFIG_USB_SERIAL_KEYSPAN is not set
-# CONFIG_USB_SERIAL_DIGI_ACCELEPORT is not set
-# CONFIG_USB_SERIAL_OMNINET is not set
-# CONFIG_USB_SERIAL_DEBUG is not set
-# CONFIG_USB_IBMCAM is not set
-# CONFIG_USB_OV511 is not set
-# CONFIG_USB_DC2XX is not set
-# CONFIG_USB_MDC800 is not set
-# CONFIG_USB_STORAGE is not set
-# CONFIG_USB_USS720 is not set
-# CONFIG_USB_DABUSB is not set
-# CONFIG_USB_PLUSB is not set
-# CONFIG_USB_PEGASUS is not set
-# CONFIG_USB_RIO500 is not set
-# CONFIG_USB_DSBR is not set
-# CONFIG_USB_BLUETOOTH is not set
-# CONFIG_USB_NET1080 is not set
-
-#
-# USB Human Interface Devices (HID)
-#
-# CONFIG_USB_HID is not set
-# CONFIG_USB_KBD is not set
-# CONFIG_USB_MOUSE is not set
-# CONFIG_USB_WACOM is not set
-
-#
-# Kernel hacking
-#
-CONFIG_MAGIC_SYSRQ=y
-
+This patch against 2.4.0-test10-pre6 implements LINK_FIRST and
+LINK_LAST to fix the problem with usb initialization order.  The patch
+*only* affects drivers/usb because that is the only Makefile that
+specifies LINK_FIRST.  All the other Makefiles still rely on the kludge
+where the link order is implicit in the order that objects are
+declared.  USB is a special case[*] and the kludge is no longer enough,
+it really does need LINK_FIRST.  Comments before it goes to Linus?
+
+[*]http://www.uwsg.indiana.edu/hypermail/linux/kernel/0010.3/0661.html
+
+Do not change any other Makefiles to use LINK_FIRST/LAST unless you can
+guarantee that you know and have take care of all the side effects of
+changing link order.  Given the lack of documentation on link order in
+most Makefiles, that means leave link order alone until 2.5 unless
+there is absolutely no other way of fixing the problem.
+
+Index: 0-test10-pre6.1/drivers/usb/Makefile
+--- 0-test10-pre6.1/drivers/usb/Makefile Tue, 24 Oct 2000 14:20:12 +1100 kaos (linux-2.4/n/b/19_Makefile 1.1.1.11 644)
++++ 0-test10-pre6.1(w)/drivers/usb/Makefile Sun, 29 Oct 2000 12:38:11 +1100 kaos (linux-2.4/n/b/19_Makefile 1.1.1.11 644)
+@@ -18,6 +18,18 @@ O_OBJS		:=
+ 
+ export-objs		:= usb.o
+ 
++# usb.o contains usb_init which is marked as __initcall (actually
++# module_init).  usb_init must be executed before all other usb __initcall
++# routines, otherwise the individual drivers will be initialized before the
++# hub driver is, causing the hub driver initialization sequence to
++# needlessly probe every USB driver with the root hub device.  This causes
++# a lot of unnecessary system log messages, a lot of user confusion, and
++# has been known to cause a incorrectly programmed USB device driver to
++# grab the root hub device improperly.
++#     Greg Kroah-Hartman, 27 Oct 2000
++
++LINK_FIRST := usb.o
++
+ # Multipart objects.
+ 
+ list-multi		:= usbcore.o
+@@ -98,6 +110,10 @@ int-m		:= $(sort $(foreach m, $(multi-m)
+ 
+ obj-m		:= $(filter-out $(obj-y), $(obj-m))
+ int-m		:= $(filter-out $(int-y), $(int-m))
++
++# Take multi-part drivers out of obj-y and put components in.
++
++obj-y		:= $(filter-out $(list-multi), $(obj-y)) $(int-y)
+ 
+ # Translate to Rules.make lists.
+ 
+Index: 0-test10-pre6.1/Rules.make
+--- 0-test10-pre6.1/Rules.make Tue, 19 Sep 2000 10:36:07 +1100 kaos (linux-2.4/B/c/24_Rules.make 1.2.1.4 644)
++++ 0-test10-pre6.1(w)/Rules.make Sun, 29 Oct 2000 12:04:05 +1100 kaos (linux-2.4/B/c/24_Rules.make 1.2.1.4 644)
+@@ -31,6 +31,9 @@ unexport LX_OBJS
+ unexport MX_OBJS
+ unexport MIX_OBJS
+ unexport SYMTAB_OBJS
++# Control link order, added 29 Oct 200 Keith Owens <kaos@ocs.com.au>
++unexport LINK_FIRST
++unexport LINK_LAST
+ 
+ #
+ # Get things started.
+@@ -84,8 +87,19 @@ all_targets: $(O_TARGET) $(L_TARGET)
+ #
+ # Rule to compile a set of .o files into one .o file
+ #
++# Note: if LINK_FIRST or LINK_LAST are specified, the rest of the
++# object files are sorted to remove duplicates.  Thus, if you use
++# LINK_FIRST/LAST, make sure they specify all ordering requirements.
++#
+ ifdef O_TARGET
+-ALL_O = $(OX_OBJS) $(O_OBJS)
++  ALL_O = $(OX_OBJS) $(O_OBJS)
++  ifneq ($(strip $(LINK_FIRST)$(LINK_LAST)),)
++    ALL_O := $(sort $(ALL_O))
++    ALL_O := \
++      $(filter $(ALL_O), $(LINK_FIRST)) \
++      $(filter-out $(LINK_FIRST) $(LINK_LAST), $(ALL_O)) \
++      $(filter $(ALL_O), $(LINK_LAST))
++  endif
+ $(O_TARGET): $(ALL_O)
+ 	rm -f $@
+     ifneq "$(strip $(ALL_O))" ""
+Index: 0-test10-pre6.1/Documentation/kbuild/makefiles.txt
+--- 0-test10-pre6.1/Documentation/kbuild/makefiles.txt Mon, 02 Oct 2000 15:28:44 +1100 kaos (linux-2.4/b/d/12_makefiles. 1.3 644)
++++ 0-test10-pre6.1(w)/Documentation/kbuild/makefiles.txt Sun, 29 Oct 2000 13:39:06 +1100 kaos (linux-2.4/b/d/12_makefiles. 1.3 644)
+@@ -1,6 +1,8 @@
+ Linux Kernel Makefiles
+ 2000-September-14
+ Michael Elizabeth Chastain, <mec@shout.net>
++2000-October-29
++LINK_FIRST/LAST Keith Owens <kaos@ocs.com.au>
+ 
+ 
+ 
+@@ -656,7 +658,12 @@ The public interface of Rules.make consi
+ 	with the name $(O_TARGET).  This $(O_TARGET) name also appears
+ 	in the top Makefile.
+ 
+-	The order of files in $(O_OBJS) and $(OX_OBJS) is significant.
++	Even if a subdirectory Makefile has an $(O_TARGET), the .config
++	options still control whether or not its $(O_TARGET) goes into
++	vmlinux.  See the $(M_OBJS) example below.
++
++	If neither of LINK_FIRST nor LINK_LAST are defined then the
++	order of files in $(O_OBJS) and $(OX_OBJS) is significant.
+ 	All $(OX_OBJS) files come first, in the order listed, followed by
+ 	all $(O_OBJS) files, in the order listed.  Duplicates in the lists
+ 	are allowed: the first instance will be linked into $(O_TARGET)
+@@ -680,9 +687,53 @@ The public interface of Rules.make consi
+ 		O_OBJS   += pci.o pci_iommu.o
+ 		endif
+ 
+-	Even if a subdirectory Makefile has an $(O_TARGET), the .config
+-	options still control whether or not its $(O_TARGET) goes into
+-	vmlinux.  See the $(M_OBJS) example below.
++	If either of LINK_FIRST or LINK_LAST are defined then the order of
++	files in $(O_OBJS) and $(OX_OBJS) is ignored.  Instead the files
++	are linked in the order $(LINK_FIRST), the rest, $(LINK_LAST).  The
++	order of entries in LINK_FIRST and LINK_LAST is preserved exactly
++	as specified.  The order of the rest of the files is undefined,
++	currently it is alphabetical but you must not rely on any order for
++	the rest of the files.  When either LINK_FIRST or LINK_LAST are
++	defined, they must define the complete link order for all files, do
++	not rely on manual ordering of the rest of the filenames in the
++	Makefile.
++
++	The only justification for LINK_FIRST and LINK_LAST is to control
++	the order of initialization routines.  Routines which are defined
++	as __initcall or module_init and are linked into the kernel will be
++	executed during kernel startup in the order they were linked.  So
++	moving objects to the start of their O_TARGET via LINK_FIRST
++	defines which initialization routines in O_TARGET are executed
++	first.
++
++	Use LINK_FIRST for routines which must be executed before all
++	others.  For example, usb_init in usb_init must be executed before
++	all other usb initialization routines so drivers/usb/Makefile has
++	LINK_FIRST := usb.o.
++
++	Use LINK_LAST where you have multiple drivers that can recognise a
++	piece of hardware and you want the older drivers to be tried last.
++	For example, SCSI card foo can be controlled by drivers bar.o and
++	baz.o but you only want to try bar.o if all else fails.
++	LINK_LAST := bar.o
++	will ensure that the initialization routines in bar.o are tried
++	last.
++
++	LINK_FIRST and LINK_LAST must not contain any duplicate object
++	names.  There is no need to make any entries in LINK_FIRST/LAST
++	conditional on CONFIG_xxx options, the ordering lists are only
++	effective if the specified objects are actually compiled.  In other
++	words, when you use LINK_FIRST/LAST, specify all the objects in one
++	assignment, do not create LINK_FIRST/LAST from multiple
++	assignments.
++
++	All uses of LINK_FIRST and LINK_LAST must be justified and fully
++	documented in the Makefile.  Historically entries in Makefile were
++	manually ordered with no documentation, now we do not know if an
++	order is coincidence or it is required and, if it is required, why
++	the order matters.  This lack of critical information is
++	unacceptable.  See drivers/usb/Makefile for an example of the level
++	of detail required.
+ 
+ 
+ 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbVBVSIk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbVBVSP6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261265AbVBVSIk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 13:08:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbVBVSHi
+	id S261232AbVBVSP6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 13:15:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbVBVSP6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 13:07:38 -0500
-Received: from fmr13.intel.com ([192.55.52.67]:710 "EHLO
-	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261266AbVBVSHU convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 13:07:20 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
+	Tue, 22 Feb 2005 13:15:58 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:20926
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261197AbVBVSPx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 13:15:53 -0500
+Date: Tue, 22 Feb 2005 10:14:47 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: John Heffner <jheffner@psc.edu>
+Cc: shemminger@osdl.org, mlists@danielinux.net, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org, ccaini@deis.unibo.it,
+       rfirrincieli@arces.unibo.it
+Subject: Re: [PATCH] TCP-Hybla proposal
+Message-Id: <20050222101447.68a02c12.davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.58.0502221247130.22393@dexter.psc.edu>
+References: <200502221534.42948.mlists@danielinux.net>
+	<20050222094219.0a8efbe1@dxpl.pdx.osdl.net>
+	<Pine.LNX.4.58.0502221247130.22393@dexter.psc.edu>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [patch -mm series] ia64 specific /dev/mem handlers
-Date: Tue, 22 Feb 2005 10:05:42 -0800
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F02F17D6A@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch -mm series] ia64 specific /dev/mem handlers
-Thread-Index: AcUZB053vQYiJq82RFiI2L+bCIx14wAAPM5Q
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Jes Sorensen" <jes@wildopensource.com>
-Cc: "Andrew Morton" <akpm@osdl.org>, <linux-ia64@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>, "Matthew Wilcox" <matthew@wil.cx>
-X-OriginalArrivalTime: 22 Feb 2005 18:05:43.0999 (UTC) FILETIME=[2076E4F0:01C51909]
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On Tue, Feb 22, 2005 at 09:41:04AM -0500, Jes Sorensen wrote:
->> >> + if (page->flags & PG_uncached)
->> 
->> Andrew> dude.  That ain't gonna work ;)
->> 
->> Pardon my lack of clue, but why not?
->
->I think you're supposed to always use test_bit() to check page flags
+On Tue, 22 Feb 2005 13:03:11 -0500 (EST)
+John Heffner <jheffner@psc.edu> wrote:
 
-You defined PG_uncached as "20" ... so either:
+> An idea I've been toying with for a while now is completely abstracting
+> congestion control.  Then you could have congestion control loadable
+> modules, which would avoid this mess of experimental algorithms inside the
+> main-line kernel.  If done right, they might be able to work seamlessly
+> with SCTP, too.  The tricky part is making sure the interface is complete
+> enough.
 
-	if (page->flags & (1<<PG_uncached))
-
-or (much better) to use:
-
-	test_bit(PG_uncached, &page->flags).
-
--Tony
+The symbols exported to allow this would need to be EXPORT_SYMBOL_GPL().

@@ -1,44 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262130AbTLKVLU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 16:11:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTLKVLU
+	id S264388AbTLKVXV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 16:23:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264389AbTLKVXV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 16:11:20 -0500
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:55469 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S262130AbTLKVLT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 16:11:19 -0500
-Date: Thu, 11 Dec 2003 13:11:04 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org, mason <mason@namesys.com>
-Subject: Re: Accept ReiserFS Data Logging? was: Linux 2.4.24-pre1
-Message-ID: <20031211211104.GG15401@matchmail.com>
-Mail-Followup-To: Hans Reiser <reiser@namesys.com>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	linux-kernel@vger.kernel.org, mason <mason@namesys.com>
-References: <Pine.LNX.4.44.0312111017420.3109-100000@logos.cnet> <3FD86531.6080405@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 11 Dec 2003 16:23:21 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:47071 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264388AbTLKVXS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 16:23:18 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Daniel Tram Lux <daniel@starbattle.com>
+Subject: Re: [patch] ide.c as a module
+Date: Thu, 11 Dec 2003 22:25:14 +0100
+User-Agent: KMail/1.5.4
+References: <20031211202536.GA10529@starbattle.com>
+In-Reply-To: <20031211202536.GA10529@starbattle.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3FD86531.6080405@namesys.com>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200312112225.14540.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >On Wed, 10 Dec 2003, Mike Fedyk wrote:
-> >>Will you accept the data-logging patches for reiserfs3 from suse in this
-> >>release if it is submitted ?
-> >
 
-> Marcelo Tosatti wrote:
-> >Its up to the reiserfs people. 
+On Thursday 11 of December 2003 21:25, Daniel Tram Lux wrote:
+> Hi,
 
-On Thu, Dec 11, 2003 at 03:38:09PM +0300, Hans Reiser wrote:
-> I will approve it once Chris tells me it is ready.  (Especially since I 
-> asked him for the patch port....;-)  )
-> 
+Hi,
 
-Hasn't it been ready for a while now?  Let's get the merging started. :)
+> I needed the ide-subsytem as a module on 2.4.23 and noticed (due to the
+> missing modprobe on the embedded linux system) that ide.c tries to load the
+> module ide-probe-mod which is called ide-detect now. The patch also get's
+> rid of the need for ide-probe-mini alias ide-detect, but I don't know if
+> that is desired? (it was in my case).
+
+It is incorrect, it will make most of modules for PCI IDE chipsets fail
+due to always calling ide_init() from ide.c:init_module().
+
+You need to modprobe ide-detect if you are using generic IDE code
+(no chipset specific driver - probably the case for your embedded system).
+
+You are right that ide-probe-mini alias is not needed, ide-probe-mini.c should
+be renamed to ide-detect.c (or ide-detect.o to ide-probe-mini.o).
+
+> --- linux-2.4.23.org/drivers/ide/ide.c  2003-11-28 19:26:20.000000000 +0100
+> +++ linux-2.4.23/drivers/ide/ide.c      2004-03-11 20:31:51.000000000 +0100
+> @@ -514,11 +514,7 @@
+>
+>  void ide_probe_module (int revaldiate)
+>  {
+> -       if (!ide_probe) {
+> -#if  defined(CONFIG_BLK_DEV_IDE_MODULE)
+> -               (void) request_module("ide-probe-mod");
+> -#endif
+> -       } else {
+> +       if (ide_probe) {
+>                 (void) ide_probe->init();
+>         }
+>         revalidate_drives(revaldiate);
+
+You should make this change in ide_register_hw() instead:
+
+-		ide_probe_module();
++#ifdef MODULE
++		if (ideprobe_init_module() == -EBUSY)
++#endif
++			ideprobe_init();
+
+And get rid of ide_probe pointer.
+
+--bart
+

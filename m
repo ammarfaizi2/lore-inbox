@@ -1,52 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261981AbUL0Un1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261983AbUL0Upp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261981AbUL0Un1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 15:43:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbUL0Un0
+	id S261983AbUL0Upp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 15:45:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbUL0Upp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 15:43:26 -0500
-Received: from smtp-out3.iol.cz ([194.228.2.91]:13794 "EHLO smtp-out3.iol.cz")
-	by vger.kernel.org with ESMTP id S261981AbUL0UnX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 15:43:23 -0500
-Message-ID: <41D073E6.3050207@stud.feec.vutbr.cz>
-Date: Mon, 27 Dec 2004 21:43:18 +0100
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041201)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Rog=E9rio_Brito?= <rbrito@ime.usp.br>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.10-ac1
-References: <1104103881.16545.2.camel@localhost.localdomain> <58cb370e04122616577e1bd33@mail.gmail.com> <1104157999.20952.40.camel@localhost.localdomain> <20041227203146.GA27615@ime.usp.br>
-In-Reply-To: <20041227203146.GA27615@ime.usp.br>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 27 Dec 2004 15:45:45 -0500
+Received: from h80ad26af.async.vt.edu ([128.173.38.175]:1510 "EHLO
+	h80ad26af.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261984AbUL0Upf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 15:45:35 -0500
+Message-Id: <200412272045.iBRKjPFb030253@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
+To: "Pedro Venda (SYSADM)" <pjvenda@rnl.ist.utl.pt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] pid randomness 
+In-Reply-To: Your message of "Mon, 27 Dec 2004 19:39:01 GMT."
+             <41D064D5.1030900@rnl.ist.utl.pt> 
+From: Valdis.Kletnieks@vt.edu
+References: <41D064D5.1030900@rnl.ist.utl.pt>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1767933060P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 27 Dec 2004 15:45:25 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rogério Brito wrote:
-> I have an Asus A7V motherboard with chipset VIA KT133 and it has 2 VIA IDE
-> (vt82c686a) controllers and 2 Promise PDC20265 controllers.
+--==_Exmh_-1767933060P
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-I used to have the same MB.
+On Mon, 27 Dec 2004 19:39:01 GMT, =22Pedro Venda (SYSADM)=22 said:
 
-> I'm seeing an strange behaviour. Until yesterday I had a DVD reader (hdc)
-> and an HP CD-Writer 9100 (hdd) both on the same VIA ide controller (ide1 in
-> my system).
-> 
-> Unfortunately, with this setup, I could not burn a CD and read a CD-ROM of
-> archived files at the same time.
+> I don't know if this has been discussed before... but I'd like to ask=20
+> why isn't the pids randomized by default?
 
-I think that's normal.
+It's a pretty easy thing to do, actually.  There's a patch for that
+in Grsecurity, and I did one up myself a while ago...
 
-> As it was a nuisance, I decided to put the
-> CD-Writer on the Promise controller, which is an UDMA100 controller and,
-> thus, I thought things would only get better.
+One big problem that remains beyond my technical skill to fix - for the
+32 bit machines, there's some funkiness in the /proc filesystem code
+where it invents inode numbers based in the process ID that restrict the
+effective value of max_pid to 64K.  Unfortunately, if you're in the camp =
+that
+believes that randomizing the PID is useful at *all*, you probably want a=
 
-I remember reading somewhere that one should not connect ATAPI devices 
-to the Promise controller.
+bigger space for the random number.  So you can either fix that issue (an=
+d
+whatever *OTHER* issues lurk after that one) or only deploy on 64 bit box=
+en...
 
-Michal
+A secondary issue that I've never been able to test is whether over time,=
+
+a =22randomized=22 PID ends up sparsely dirtying the list of pidmap pages=
+ (so
+you have enough pages to hold 4M PID bits, but only 1 or 2 bits per page
+are actually set), or do the occasional long-lived processes end up essen=
+tially
+leaving at least one process on each page anyhow?  Any operational experi=
+ence
+on that one from the big-system guys?
+
+At worst, 4M pids will take 128 4K pages (or equivalent for other page si=
+zes) -
+is that considered =22unacceptable=22 on 64-bit boxes that want to do thi=
+s?
+
+
+--==_Exmh_-1767933060P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFB0HRkcC3lWbTT17ARArmBAKCRJlyWRdd/ToBfPNZssj0BeJechwCaA8RT
+fy2KvtSWcN02+1wvpTj8uns=
+=VzbT
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1767933060P--

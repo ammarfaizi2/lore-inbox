@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262731AbTJPERs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 00:17:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262732AbTJPERs
+	id S262687AbTJPEka (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 00:40:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262690AbTJPEka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 00:17:48 -0400
-Received: from fw.osdl.org ([65.172.181.6]:46296 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262731AbTJPERr (ORCPT
+	Thu, 16 Oct 2003 00:40:30 -0400
+Received: from holomorphy.com ([66.224.33.161]:21634 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262687AbTJPEk3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 00:17:47 -0400
-Date: Wed, 15 Oct 2003 21:21:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.6] constant_test_bit doesn't like my gcc
-Message-Id: <20031015212134.41a427d3.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.53.0310160008530.2328@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.53.0310152244330.2328@montezuma.fsmlabs.com>
-	<20031015211012.5daac8fc.akpm@osdl.org>
-	<Pine.LNX.4.53.0310160008530.2328@montezuma.fsmlabs.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 16 Oct 2003 00:40:29 -0400
+Date: Wed, 15 Oct 2003 21:43:34 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Alberto Bertogli <albertogli@telpin.com.ar>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test5/6 (and probably 7 too) size-4096 memory leak
+Message-ID: <20031016044334.GE4461@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Alberto Bertogli <albertogli@telpin.com.ar>,
+	linux-kernel@vger.kernel.org
+References: <20031016025554.GH4292@telpin.com.ar> <20031015211918.1a70c4d2.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031015211918.1a70c4d2.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
->
->  > The volatile is rather important.
-> 
->  Good point, how about;
-> 
->  Index: linux-2.6.0-test7-mm1/include/asm-i386/bitops.h
->  ===================================================================
->  RCS file: /build/cvsroot/linux-2.6.0-test7-mm1/include/asm-i386/bitops.h,v
->  retrieving revision 1.1.1.1
->  diff -u -p -B -r1.1.1.1 bitops.h
->  --- linux-2.6.0-test7-mm1/include/asm-i386/bitops.h	15 Oct 2003 09:02:10 -0000	1.1.1.1
->  +++ linux-2.6.0-test7-mm1/include/asm-i386/bitops.h	16 Oct 2003 04:10:37 -0000
->  @@ -241,7 +241,7 @@ static int test_bit(int nr, const volati
->   
->   static __inline__ int constant_test_bit(int nr, const volatile unsigned long * addr)
->   {
->  -	return ((1UL << (nr & 31)) & (((const volatile unsigned int *) addr)[nr >> 5])) != 0;
->  +	return ((1UL << (nr & 31)) & (addr[nr >> 5])) != 0;
->   }
->  
+Alberto Bertogli <albertogli@telpin.com.ar> wrote:
+>>  Slabinfo reports that size-4096 has 104341 active objects and growing.
+>>  On another box at home I see the same issue with test6, but "only" with
+>>  11612 objects; I'm not posting info on this box as I guess the mailserver
+>>  is much more important because the leak is really noticeable.
 
-Looks fine.  Does your compiler get this right? 
+On Wed, Oct 15, 2003 at 09:19:18PM -0700, Andrew Morton wrote:
+> At least I'm not the only one; my main desktop machine does the same
+> thing.  It leaks two megabytes a day into size-4096, like clockwork.  It's
+> up to 43 megs now.
+> I was ignoring it and hoping it would go away.  Ho hum.  Tricky.
+
+I immediately thought of bundling this in with the do_exit() BUG() and
+/proc/ oopsen, but we would see a task_t leak also in that case. I still
+say the /proc/ change is swiss cheese (well, in concept there's nothing
+wrong with what it wants to do, but there's something definitely wrong
+with the implementation since backing it out stops things from oopsing),
+but this looks unrelated therefore (which is actually depressing, since
+we can't kill all three in one shot and/or get anywhere by correlating).
+I should try using a dedicated stack slab to see if they're stacks even
+though task_t's aren't leaking.
+
+-- wli

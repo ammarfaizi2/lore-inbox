@@ -1,32 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269630AbUJSRbr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269954AbUJSRhH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269630AbUJSRbr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 13:31:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269518AbUJSR2E
+	id S269954AbUJSRhH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 13:37:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269938AbUJSRhD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 13:28:04 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:62892 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269903AbUJSRQ3 (ORCPT
+	Tue, 19 Oct 2004 13:37:03 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:10148 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S269954AbUJSRen (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 13:16:29 -0400
-Date: Tue, 19 Oct 2004 19:17:43 +0200
+	Tue, 19 Oct 2004 13:34:43 -0400
+Date: Tue, 19 Oct 2004 19:35:10 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>
+To: Adam Heath <doogie@debian.org>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U6
-Message-ID: <20041019171743.GA15832@elte.hu>
-References: <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019144642.GA6512@elte.hu> <28172.195.245.190.93.1098199429.squirrel@195.245.190.93> <20041019155008.GA9116@elte.hu> <20041019162047.GA12055@elte.hu> <20041019162811.GA13454@elte.hu> <20041019163125.GA13498@elte.hu>
+Message-ID: <20041019173510.GA18323@elte.hu>
+References: <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <Pine.LNX.4.58.0410191222050.1216@gradall.private.brainfood.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041019163125.GA13498@elte.hu>
+In-Reply-To: <Pine.LNX.4.58.0410191222050.1216@gradall.private.brainfood.com>
 User-Agent: Mutt/1.4.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -39,119 +32,28 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+* Adam Heath <doogie@debian.org> wrote:
 
-> enabling 8K stacks ought to help this one. I've made the limit a bit
-> too conservative - there's still 1000 bytes left and the assert hits.
-> Here's the full trace, the large footprint seems to be in zlib
-> initialization:
-> 
-> mcount: stack overflow: 1008
+> I am still having the same bug(repeatable by running liquidwar) as I
+> reported with -U5(see my earlier email).
 
-i've added a stackframe-size field to the end of every stack trace
-entry:
-
-mcount: stack overflow: 1008
- [<c012cdaf>] ___trace+0x105/0x117 (12)
- [<c012cde7>] __mcount+0x1d/0x1f (32)
- [<c013e025>] cache_grow+0xe/0x1ab (4)
- [<c013e3dd>] cache_alloc_refill+0x21b/0x253 (4)
- [<c010effc>] mcount+0x14/0x18 (8)
- [<c013e025>] cache_grow+0xe/0x1ab (20)
- [<c013e3dd>] cache_alloc_refill+0x21b/0x253 (52)
- [<c013e740>] __kmalloc+0x82/0x9f (48)
- [<c03607c8>] malloc+0x1e/0x20 (28)
- [<c01008c9>] huft_build+0x309/0x5e8 (16)
- [<c0101bec>] inflate+0x4c/0xb0 (1444)
- [<c010effc>] mcount+0x14/0x18 (8)
- [<c0101279>] inflate_fixed+0xcb/0x1a4 (20)
- [<c0101bec>] inflate+0x4c/0xb0 (1212)
- [<c010effc>] mcount+0x14/0x18 (12)
- [<c0101eae>] gunzip+0x1d4/0x396 (20)
- [<c036130e>] unpack_to_rootfs+0x162/0x225 (28)
- [<c010effc>] mcount+0x14/0x18 (8)
- [<c0100434>] init+0x0/0x124 (4)
- [<c03613fe>] populate_rootfs+0x2d/0x3f (16)
- [<c010046b>] init+0x37/0x124 (20)
- [<c0102365>] kernel_thread_helper+0x5/0xb (20)
-
-as suspected, zlib's huft_build() is fun:
-
-  lib/inflate.c:
-
-  #define N_MAX 288       /* maximum number of codes in any set */
-
-  STATIC int huft_build(
-  ...
-  {
-
-    unsigned v[N_MAX];            /* values in order of bit length */
-
-a whopping 1152 bytes for this local variable alone! The patch below
-fixes this, but there are other overflows as well, later in the bootup.
+ok, this seems to be some questionable code in OSS. It really has no
+business up()-ing the inode semaphore - nobody down()-ed it before! This
+could be either a bad workaround for a bug/hang someone saw, or an old
+VFS assumption that doesnt hold anymore. In any case, could you try the
+patch below, does it fix liquidwar?
 
 	Ingo
 
---- linux/lib/inflate.c.orig
-+++ linux/lib/inflate.c
-@@ -300,7 +300,7 @@ STATIC int huft_build(
-   register struct huft *q;      /* points to current table */
-   struct huft r;                /* table entry for structure assignment */
-   struct huft *u[BMAX];         /* table stack */
--  unsigned v[N_MAX];            /* values in order of bit length */
-+  unsigned *v;                  /* values in order of bit length */
-   register int w;               /* bits before this table == (l * h) */
-   unsigned x[BMAX+1];           /* bit offsets, then code stack */
-   unsigned *xp;                 /* pointer into x */
-@@ -309,6 +309,10 @@ STATIC int huft_build(
- 
- DEBG("huft1 ");
- 
-+  /* allocate new table */
-+  v = (unsigned *)malloc(sizeof(unsigned)*N_MAX);
-+  if (!v)
-+    return 3;             /* not enough memory */
-   /* Generate counts for each bit length */
-   memzero(c, sizeof(c));
-   p = b;  i = n;
-@@ -322,6 +326,7 @@ DEBG("huft1 ");
-   {
-     *t = (struct huft *)NULL;
-     *m = 0;
-+    free(v);
-     return 0;
-   }
- 
-@@ -347,10 +352,14 @@ DEBG("huft3 ");
- 
-   /* Adjust last length count to fill out codes, if needed */
-   for (y = 1 << j; j < i; j++, y <<= 1)
--    if ((y -= c[j]) < 0)
-+    if ((y -= c[j]) < 0) {
-+      free(v);
-       return 2;                 /* bad input: more codes than bits */
--  if ((y -= c[i]) < 0)
-+    }
-+  if ((y -= c[i]) < 0) {
-+    free(v);
-     return 2;
-+  }
-   c[i] += y;
- 
- DEBG("huft4 ");
-@@ -422,6 +431,7 @@ DEBG1("3 ");
-         {
-           if (h)
-             huft_free(u[0]);
-+          free(v);
-           return 3;             /* not enough memory */
-         }
- DEBG1("4 ");
-@@ -485,6 +495,7 @@ DEBG("h6f ");
- 
- DEBG("huft7 ");
- 
-+  free(v);
-   /* Return true (1) if we were given an incomplete table */
-   return y != 0 && g != 1;
- }
+--- linux/sound/core/oss/pcm_oss.c.orig
++++ linux/sound/core/oss/pcm_oss.c
+@@ -2120,9 +2120,7 @@ static ssize_t snd_pcm_oss_write(struct 
+ 	substream = pcm_oss_file->streams[SNDRV_PCM_STREAM_PLAYBACK];
+ 	if (substream == NULL)
+ 		return -ENXIO;
+-	up(&file->f_dentry->d_inode->i_sem);
+ 	result = snd_pcm_oss_write1(substream, buf, count);
+-	down(&file->f_dentry->d_inode->i_sem);
+ #ifdef OSS_DEBUG
+ 	printk("pcm_oss: write %li bytes (wrote %li bytes)\n", (long)count, (long)result);
+ #endif

@@ -1,54 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264910AbUFRX7G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265433AbUFRX7U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264910AbUFRX7G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 19:59:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265490AbUFRXzW
+	id S265433AbUFRX7U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 19:59:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265490AbUFRX7N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 19:55:22 -0400
-Received: from outmail1.freedom2surf.net ([194.106.33.237]:1177 "EHLO
-	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S265502AbUFRXvv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 19:51:51 -0400
-Date: Sat, 19 Jun 2004 00:51:06 +0100
-From: Ian Molton <spyro@f2s.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: david-b@pacbell.net, linux-kernel@vger.kernel.org, greg@kroah.com,
-       tony@atomide.com, jamey.hicks@hp.com, joshua@joshuawise.com
-Subject: Re: DMA API issues
-Message-Id: <20040619005106.15b8c393.spyro@f2s.com>
-In-Reply-To: <1087601363.2078.208.camel@mulgrave>
-References: <1087582845.1752.107.camel@mulgrave>
-	<20040618193544.48b88771.spyro@f2s.com>
-	<1087584769.2134.119.camel@mulgrave>
-	<20040618195721.0cf43ec2.spyro@f2s.com>
-	<40D34078.5060909@pacbell.net>
-	<20040618204438.35278560.spyro@f2s.com>
-	<1087588627.2134.155.camel@mulgrave>
-	<20040619002522.0c0d8e51.spyro@f2s.com>
-	<1087601363.2078.208.camel@mulgrave>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.9.12-gtk2-20040617 (GTK+ 2.4.1; i686-pc-linux-gnu)
+	Fri, 18 Jun 2004 19:59:13 -0400
+Received: from cantor.suse.de ([195.135.220.2]:55017 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265749AbUFRX4y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 19:56:54 -0400
+Date: Sat, 19 Jun 2004 01:56:52 +0200
+From: Andi Kleen <ak@suse.de>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: bcasavan@sgi.com, linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: [PATCH] Add kallsyms_lookup() result cache
+Message-Id: <20040619015652.232b3b55.ak@suse.de>
+In-Reply-To: <200406181926.39294.jbarnes@engr.sgi.com>
+References: <Pine.SGI.4.58.0406181435570.5029@kzerza.americas.sgi.com>
+	<20040619000326.067c3ff6.ak@suse.de>
+	<200406181926.39294.jbarnes@engr.sgi.com>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Jun 2004 18:29:22 -0500
-James Bottomley <James.Bottomley@SteelEye.com> wrote:
+On Fri, 18 Jun 2004 19:26:39 -0400
+Jesse Barnes <jbarnes@engr.sgi.com> wrote:
 
-> > 
-> > I wasnt talking about a PCI system here.
+> On Friday, June 18, 2004 6:03 pm, Andi Kleen wrote:
+> > On Fri, 18 Jun 2004 15:03:00 -0500
+> >
+> > Brent Casavant <bcasavan@sgi.com> wrote:
+> > > On 2.6 based systems, the top command utilizes /proc/[pid]/wchan to
+> > > determine WCHAN symbol name information.  This information is provided
+> > > by the kernel function kallsyms_lookup(), which expands a stem-compressed
+> >
+> > That sounds more like a bug in your top to me. /proc/*/wchan itself
+> > does not access kallsyms, it just outputs a number.undisclosed-recipients:;
 > 
-> ioremap is used for all bus remote MMIO regions, not just PCI.
+> No, it outputs a string:
+> jbarnes@mill:~$ cat /proc/1/wchan
+> do_select
 
-Im aware of that but the OHCI core doesnt do that, it uses the DMA API,
-which is entirely reasonable, given its tring to access a DMA-able chunk
-of memory.
+Indeed. I looked at /proc/self/wchan, but of course that is 0 because
+the process is running. 
 
-I *could* write a new driver ohci-ioremapped for all these chips but its
-needless duplication which is going to result in bugs bveing fixed in
-one ohci driver and not the other.
+But there is numerical wchan anyways - just get it from /proc/*/stat
+That is what all 2.4 based tops always used.  I bet they still
+have the fallback code for that around.The 2.6 change 
+will just be to read the symbol table from /proc/kallsyms instead
+of from the System.map file.
 
-why not simply expand the DMA API to allow DMA to these easily DMA-able
-chips ?
+> 
+> > Doing the cache in the kernel is the wrong place. This should be fixed
+> > in user space.
+> 
+> Sure, but that would be a change in behavior.  It's arguably the right thing 
+> to do though.
+
+Change what behaviour? I argue that doing it in the kernel is the wrong
+thing.
+
+-Andi

@@ -1,111 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264831AbTGCQCC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 12:02:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264432AbTGCP7b
+	id S264610AbTGCQCT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 12:02:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264898AbTGCQCS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 11:59:31 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:14077 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S264850AbTGCP6y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 11:58:54 -0400
-Date: Thu, 3 Jul 2003 18:13:18 +0200 (MEST)
-Message-Id: <200307031613.h63GDID8007098@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: ak@suse.de
-Subject: [PATCH][2.5.74] x86_64 apic/nmi driver model conversion cleanups
-Cc: linux-kernel@vger.kernel.org
+	Thu, 3 Jul 2003 12:02:18 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:33747 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264610AbTGCQAL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 12:00:11 -0400
+Date: Thu, 3 Jul 2003 18:14:29 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       trivial@rustcorp.com.au
+Subject: [patch] 2.5.74: i2o_scsi.c must include pci.h
+Message-ID: <20030703161429.GN282@fs.tum.de>
+References: <Pine.LNX.4.44.0307021433520.2323-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0307021433520.2323-100000@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi,
+I got the following compile error with 2.5.74:
 
-There is still cruft remaining in x86-64 from the apic/nmi
-system device model conversion, including obsolete #includes
-and whitespace/intendation breakage.
+<--  snip  -->
 
-While non-critical from a functional standpoint, please apply
-this cleanup patch.
+...
+  CC      drivers/message/i2o/i2o_scsi.o
+drivers/message/i2o/i2o_scsi.c: In function `i2o_scsi_reply':
+drivers/message/i2o/i2o_scsi.c:327: warning: implicit declaration of 
+function `pci_unmap_sg'
+drivers/message/i2o/i2o_scsi.c:329: warning: implicit declaration of 
+function `pci_unmap_single'
+drivers/message/i2o/i2o_scsi.c: In function `i2o_scsi_queuecommand':
+drivers/message/i2o/i2o_scsi.c:763: warning: implicit declaration of 
+function `pci_map_sg'
+drivers/message/i2o/i2o_scsi.c:833: warning: implicit declaration of 
+function `pci_map_single'
+...
+  LD      .tmp_vmlinux1
+drivers/built-in.o(.text+0x5e871c): In function `i2o_scsi_reply':
+: undefined reference to `pci_unmap_single'
+drivers/built-in.o(.text+0x5e873c): In function `i2o_scsi_reply':
+: undefined reference to `pci_unmap_sg'
+drivers/built-in.o(.text+0x5e9471): In function `i2o_scsi_queuecommand':
+: undefined reference to `pci_map_sg'
+drivers/built-in.o(.text+0x5e9781): In function `i2o_scsi_queuecommand':
+: undefined reference to `pci_map_single'
+make: *** [.tmp_vmlinux1] Error 1
 
-/Mikael
+<--  snip  -->
 
---- linux-2.5.74/arch/x86_64/kernel/apic.c.~1~	2003-06-17 12:51:19.000000000 +0200
-+++ linux-2.5.74/arch/x86_64/kernel/apic.c	2003-07-03 17:19:59.000000000 +0200
-@@ -441,9 +441,6 @@
- 
- #ifdef CONFIG_PM
- 
--#include <linux/device.h>
--#include <linux/module.h>
--
- static struct {
- 	/* 'active' is true if the local APIC was enabled by us and
- 	   not the BIOS; this signifies that we are also responsible
-@@ -540,7 +537,6 @@
- 	.suspend	= lapic_suspend,
- };
- 
--/* not static, needed by child devices */
- static struct sys_device device_lapic = {
- 	.id		= 0,
- 	.cls		= &lapic_sysclass,
---- linux-2.5.74/arch/x86_64/kernel/nmi.c.~1~	2003-07-03 12:32:44.000000000 +0200
-+++ linux-2.5.74/arch/x86_64/kernel/nmi.c	2003-07-03 17:19:59.000000000 +0200
-@@ -141,14 +141,14 @@
- 	/* tell do_nmi() and others that we're not active any more */
- 	nmi_watchdog = 0;
- }
-+
- void enable_lapic_nmi_watchdog(void)
--  {
-+{
- 	if (nmi_active < 0) {
- 		nmi_watchdog = NMI_LOCAL_APIC;
- 		setup_apic_nmi_watchdog();
- 	}
--  }
--
-+}
- 
- void disable_timer_nmi_watchdog(void)
- {
-@@ -173,8 +173,6 @@
- 
- #ifdef CONFIG_PM
- 
--#include <linux/device.h>
--
- static int nmi_pm_active; /* nmi_active before suspend */
- 
- static int lapic_nmi_suspend(struct sys_device *dev, u32 state)
-@@ -187,7 +185,7 @@
- static int lapic_nmi_resume(struct sys_device *dev)
- {
- 	if (nmi_pm_active > 0)
--	enable_lapic_nmi_watchdog();
-+		enable_lapic_nmi_watchdog();
- 	return 0;
- }
- 
-@@ -199,7 +197,7 @@
- 
- static struct sys_device device_lapic_nmi = {
- 	.id		= 0,
--	.cls	= &nmi_sysclass,
-+	.cls		= &nmi_sysclass,
- };
- 
- static int __init init_lapic_nmi_sysfs(void)
---- linux-2.5.74/include/asm-x86_64/apic.h.~1~	2003-07-03 12:32:46.000000000 +0200
-+++ linux-2.5.74/include/asm-x86_64/apic.h	2003-07-03 17:19:59.000000000 +0200
-@@ -84,10 +84,6 @@
- extern void disable_APIC_timer(void);
- extern void enable_APIC_timer(void);
- 
--#ifdef CONFIG_PM
--extern struct sys_device device_lapic;
--#endif
--
- extern int check_nmi_watchdog (void);
- 
- extern unsigned int nmi_watchdog;
+
+The fix is simple:
+
+
+--- linux-2.5.74-not-full/drivers/message/i2o/i2o_scsi.c.old	2003-07-03 17:59:18.000000000 +0200
++++ linux-2.5.74-not-full/drivers/message/i2o/i2o_scsi.c	2003-07-03 18:00:11.000000000 +0200
+@@ -49,6 +49,7 @@
+ #include <linux/delay.h>
+ #include <linux/proc_fs.h>
+ #include <linux/prefetch.h>
++#include <linux/pci.h>
+ #include <asm/dma.h>
+ #include <asm/system.h>
+ #include <asm/io.h>
+
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

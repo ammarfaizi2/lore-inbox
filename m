@@ -1,60 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292535AbSBTWD2>; Wed, 20 Feb 2002 17:03:28 -0500
+	id <S292538AbSBTWJi>; Wed, 20 Feb 2002 17:09:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292538AbSBTWDS>; Wed, 20 Feb 2002 17:03:18 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:43495 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S292535AbSBTWDC>; Wed, 20 Feb 2002 17:03:02 -0500
-Date: Wed, 20 Feb 2002 15:20:11 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
-Subject: Re: ioremap()/PCI sickness in 2.4.18-rc2 (FIXED ALMOST)
-Message-ID: <20020220152011.A1252@vger.timpanogas.org>
-In-Reply-To: <20020220103320.A32211@vger.timpanogas.org> <20020220103539.B32211@vger.timpanogas.org> <3C73DC34.E83CCD35@mandrakesoft.com> <20020220.093034.112623671.davem@redhat.com> <20020220110004.A32431@vger.timpanogas.org> <20020220145449.A1102@vger.timpanogas.org> <3C741A44.94FE4F56@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C741A44.94FE4F56@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Wed, Feb 20, 2002 at 04:51:00PM -0500
+	id <S292539AbSBTWJ2>; Wed, 20 Feb 2002 17:09:28 -0500
+Received: from 213-97-45-174.uc.nombres.ttd.es ([213.97.45.174]:44816 "EHLO
+	pau.intranet.ct") by vger.kernel.org with ESMTP id <S292538AbSBTWJU>;
+	Wed, 20 Feb 2002 17:09:20 -0500
+Date: Wed, 20 Feb 2002 23:09:12 +0100 (CET)
+From: Pau Aliagas <linuxnow@wanadoo.es>
+X-X-Sender: pau@pau.intranet.ct
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: now yes... 2.5.5 compile error
+Message-ID: <Pine.LNX.4.44.0202202308480.11844-100000@pau.intranet.ct>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 20, 2002 at 04:51:00PM -0500, Jeff Garzik wrote:
-> "Jeff V. Merkey" wrote:
-> > regions of memory.  I would propose that the maintainer of
-> > vmalloc.c look at using 48 bit PTE entries or some other solution
-> > as a way to alloc larger virtual address frames when the system has
-> > a lot of physical memory.  It's seems pretty lame to me for a machine
-> > with 2 GB of physical memory not to have at lest 256 MB of address space
-> > left over for address mapping.
-> 
-> Instead of constantly trying to map >32-bit addresses onto 32-bit
-> processors, why not just get a 64-bit processor?
-> 
-> One constantly runs into limitations with highmem...
-> 
-> 	Jeff
 
-Sigh .... I am only using 2 GB on a 4GB capable processor (actually 
-a 64 GB capable processor).  Looks like a patch is needed.  Who is 
-maintaining vmalloc.c at present so I know who to submit a patch 
-to?
+gcc -D__KERNEL__ -I/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
+-march=i686 -DMODULE -DMODVERSIONS -include 
+/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5/include/linux/modversions.h  
+-DKBUILD_BASENAME=vfs  -c -o vfs.o vfs.c
+vfs.c: In function `presto_do_create':
+vfs.c:410: structure has no member named `i_zombie'
+vfs.c:414: structure has no member named `i_zombie'
+vfs.c:498: structure has no member named `i_zombie'
+vfs.c: In function `presto_do_link':
+vfs.c:588: structure has no member named `i_zombie'
+vfs.c:592: structure has no member named `i_zombie'
+vfs.c:667: structure has no member named `i_zombie'
+vfs.c: In function `presto_do_unlink':
+vfs.c:742: structure has no member named `i_zombie'
+vfs.c:746: structure has no member named `i_zombie'
+vfs.c:754: structure has no member named `i_zombie'
+vfs.c:761: structure has no member named `i_zombie'
+vfs.c:771: structure has no member named `i_zombie'
+vfs.c:806: structure has no member named `i_zombie'
+vfs.c: In function `presto_do_symlink':
+vfs.c:897: structure has no member named `i_zombie'
+vfs.c:902: structure has no member named `i_zombie'
+vfs.c:980: structure has no member named `i_zombie'
+vfs.c: In function `presto_do_mkdir':
+vfs.c:1059: structure has no member named `i_zombie'
+vfs.c:1064: structure has no member named `i_zombie'
+vfs.c:1145: structure has no member named `i_zombie'
+vfs.c: In function `presto_do_rmdir':
+vfs.c:1258: warning: implicit declaration of function `double_down'
+vfs.c:1258: structure has no member named `i_zombie'
+vfs.c:1258: structure has no member named `i_zombie'
+vfs.c:1274: warning: implicit declaration of function `double_up'
+vfs.c:1274: structure has no member named `i_zombie'
+vfs.c:1274: structure has no member named `i_zombie'
+vfs.c: In function `presto_do_mknod':
+vfs.c:1361: structure has no member named `i_zombie'
+vfs.c:1366: structure has no member named `i_zombie'
+vfs.c:1447: structure has no member named `i_zombie'
+vfs.c: In function `presto_rename_dir':
+vfs.c:1643: warning: implicit declaration of function `triple_down'
+vfs.c:1643: structure has no member named `i_zombie'
+vfs.c:1644: structure has no member named `i_zombie'
+vfs.c:1645: structure has no member named `i_zombie'
+vfs.c:1648: structure has no member named `i_zombie'
+vfs.c:1649: structure has no member named `i_zombie'
+vfs.c:1660: warning: implicit declaration of function `triple_up'
+vfs.c:1660: structure has no member named `i_zombie'
+vfs.c:1661: structure has no member named `i_zombie'
+vfs.c:1662: structure has no member named `i_zombie'
+vfs.c:1667: structure has no member named `i_zombie'
+vfs.c:1668: structure has no member named `i_zombie'
+vfs.c: In function `presto_rename_other':
+vfs.c:1708: structure has no member named `i_zombie'
+vfs.c:1708: structure has no member named `i_zombie'
+vfs.c:1714: structure has no member named `i_zombie'
+vfs.c:1714: structure has no member named `i_zombie'
+vfs.c: In function `lento_do_rename':
+vfs.c:1773: warning: implicit declaration of function `double_lock'
+make[3]: *** [vfs.o] Error 1
+make[3]: Leaving directory 
+`/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5/fs/intermezzo'
+make[2]: *** [_modsubdir_intermezzo] Error 2
+make[2]: Leaving directory `/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5/fs'
+make[1]: *** [_mod_fs] Error 2
+make[1]: Leaving directory `/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5'
+error: Bad exit status from /home/pau/LnxZip/tmp/rpm-tmp.45153 (%build)
 
-Jeff
 
+-- 
 
-> 
-> 
-> 
-> -- 
-> Jeff Garzik      | "Why is it that attractive girls like you
-> Building 1024    |  always seem to have a boyfriend?"
-> MandrakeSoft     | "Because I'm a nympho that owns a brewery?"
->                  |             - BBC TV show "Coupling"
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Pau
+

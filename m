@@ -1,35 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264334AbTEaOWB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 10:22:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264339AbTEaOWB
+	id S264336AbTEaOaK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 10:30:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264339AbTEaOaK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 10:22:01 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:27616
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264334AbTEaOWA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 10:22:00 -0400
-Subject: Re: [2.5.70] - APIC error on CPU0: 00(40)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: rol@as2917.net, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200305311052.h4VAqxEM001927@harpo.it.uu.se>
-References: <200305311052.h4VAqxEM001927@harpo.it.uu.se>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1054388239.27311.3.camel@dhcp22.swansea.linux.org.uk>
+	Sat, 31 May 2003 10:30:10 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:37547 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264336AbTEaOaI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 10:30:08 -0400
+Date: Sat, 31 May 2003 07:43:23 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Christoph Hellwig <hch@infradead.org>, Chris Heath <chris@heathens.co.nz>,
+       linux-kernel@vger.kernel.org
+Subject: coding style (was Re: [PATCH][2.5] UTF-8 support in console)
+Message-ID: <20030531144323.GA22810@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Chris Heath <chris@heathens.co.nz>, linux-kernel@vger.kernel.org
+References: <20030531095521.5576.CHRIS@heathens.co.nz> <20030531152133.A32144@infradead.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 31 May 2003 14:37:22 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030531152133.A32144@infradead.org>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2003-05-31 at 11:52, mikpe@csd.uu.se wrote:
-> Received illegal vector errors. Your boot log reveals that you're
-> using ACPI and IO-APIC on a SiS chipset. Disable those and try
-> again -- I wouldn't bet on ACPI+IO-APIC working on SiS.
+> Please linewrap after 80 chars.
 
-2.5.x has the needed code to handle SiS APIC. Does Linus 2.5.70 also
-have the fixes to not re-route the SMI pins ?
+Amen to that.
 
+> +	if (!q) {
+> 
+> Kill the blank line above.
+> 
+> +		if (!q) return;
+> 
+> Two lines again.
+
+A couple of comments: in the BK source tree, we've diverged from the Linux
+coding style a bit (maybe a lot, Linus has read the source, ask him).
+
+One thing is 
+
+	unless (p) {
+		....
+	}
+instead of 
+	if (!p) {
+		....
+	}
+
+It's just a
+#define unless(x) if (!(x)) 
+but it makes some code read quite a bit easier.  I'm a stickler for not using
+2 lines where one will do, i.e.,
+
+	FILE	*f;
+
+	...
+	unless (f = fopen(file, "r")) {
+		error handling;
+		return (-1);
+	}
+
+You hiccup the first time you see it, then you can read it, then you
+start using it.  Yeah, I know, I'm using the value of an assignment in
+a conditional, trust me, it works fine.
+
+One other one is the 
+
+	if (!q) return;
+
+Chris said two lines, we don't do it that way.  The coding style we use is
+a) one line is fine for a single statement.
+b) in all other cases there are curly braces
+
+	unless (q) return;	/* OK */
+	unless (q) {		/* also OK */
+		return;
+	}
+	unless (q)
+		return;		/* not OK, no "}" */
+
+
+The point of this style is twofold: save a line when the thing you are
+doing is a singe statement, and make it easier for your eyes (or my 
+tired old eyes) to run over the code.  If you see indentation you know
+it is a block and there will be a closing } without exception.
+
+It keeps the line counts about 10% smaller or so in our source base.
+If you are looking for bragging rights about how big your stuff is that
+might be bad but I like it because I can read more code in a window.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

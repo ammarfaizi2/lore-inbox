@@ -1,40 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264940AbSKEV7A>; Tue, 5 Nov 2002 16:59:00 -0500
+	id <S262782AbSKEWCy>; Tue, 5 Nov 2002 17:02:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265028AbSKEV7A>; Tue, 5 Nov 2002 16:59:00 -0500
-Received: from nameservices.net ([208.234.25.16]:41534 "EHLO opersys.com")
-	by vger.kernel.org with ESMTP id <S264940AbSKEV67>;
-	Tue, 5 Nov 2002 16:58:59 -0500
-Message-ID: <3DC8418D.A0B8E752@opersys.com>
-Date: Tue, 05 Nov 2002 17:09:17 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ps performance sucks (was Re: dcache_rcu [performance results])
-References: <20021030161912.E2613@in.ibm.com> <20021031162330.B12797@in.ibm.com> <3DC32C03.C3910128@digeo.com> <20021102144306.A6736@dikhow> <1025970000.1036430954@flay> <20021105000010.GA21914@pegasys.ws> <1118170000.1036458859@flay>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S265028AbSKEWCy>; Tue, 5 Nov 2002 17:02:54 -0500
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:22248 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262782AbSKEWCx>; Tue, 5 Nov 2002 17:02:53 -0500
+Date: Tue, 5 Nov 2002 23:09:01 +0100
+From: Martin Waitz <tali@admingilde.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: cpu_devclass removed from cpu.h
+Message-ID: <20021105220900.GA1317@admingilde.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20021102003027.GD16236@admingilde.org> <3DC6CB01.7080102@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="TB36FDmn/VVEgNH/"
+Content-Disposition: inline
+In-Reply-To: <3DC6CB01.7080102@us.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I'm not sure why people are trying to make pigs fly, but if you
-really need in-depth information regarding a process or a set
-of processes, you should be looking at something that's been
-designed from the ground up to actually carry this weight, which
-is exactly what LTT is about. Using this approach, all the
-accounting gets to be done in user-space. It's like using
-"top -q" without the actual disadvantage of killing your system.
+--TB36FDmn/VVEgNH/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Karim
+hi :)
 
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================
+On Mon, Nov 04, 2002 at 11:31:13AM -0800, Matthew Dobson wrote:
+> If you need it, you should be able to reference it...  just stick an
+> extern in your file.
+that's what i did...
+
+however, it' of course not the place it belongs to.
+
+--=20
+CU,		  / Friedrich-Alexander University Erlangen, Germany
+Martin Waitz	//  [Tali on IRCnet]  [tali.home.pages.de] _________
+______________/// - - - - - - - - - - - - - - - - - - - - ///
+dies ist eine manuell generierte mail, sie beinhaltet    //
+tippfehler und ist auch ohne grossbuchstaben gueltig.   /
+			    -
+Wer bereit ist, grundlegende Freiheiten aufzugeben, um sich=20
+kurzfristige Sicherheit zu verschaffen, der hat weder Freiheit=20
+noch Sicherheit verdient.
+			Benjamin Franklin  (1706 - 1790)
+
+--TB36FDmn/VVEgNH/
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE9yEF8j/Eaxd/oD7IRAoJGAJ96Ew/wqMvix6reGBms+XZsQkPMoACfSgmv
+266+vH3pQ4skNlm2rSwE+hM=
+=15Oy
+-----END PGP SIGNATURE-----
+
+--TB36FDmn/VVEgNH/--

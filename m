@@ -1,92 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269523AbUJVG2m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269709AbUJVGb2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269523AbUJVG2m (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 02:28:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269549AbUJVG1W
+	id S269709AbUJVGb2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 02:31:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269852AbUJSQym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 02:27:22 -0400
-Received: from mailgate2.mysql.com ([213.136.52.47]:35024 "EHLO
-	mailgate.mysql.com") by vger.kernel.org with ESMTP id S269504AbUJVG0L
+	Tue, 19 Oct 2004 12:54:42 -0400
+Received: from mail.kroah.org ([69.55.234.183]:50372 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269777AbUJSQin convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 02:26:11 -0400
-Subject: IO performance problems with 2.6.9
-From: Peter Zaitsev <peter@mysql.com>
-To: linux-kernel@vger.kernel.org
-Cc: andrea@novell.com, alexeyk@mysql.com, markw@osdl.org
-Content-Type: text/plain
-Message-Id: <1098426220.5482.235.camel@sphere.site>
+	Tue, 19 Oct 2004 12:38:43 -0400
+X-Donotread: and you are reading this why?
+Subject: Re: [PATCH] Driver Core patches for 2.6.9
+In-Reply-To: <10982038054079@kroah.com>
+X-Patch: quite boring stuff, it's just source code...
+Date: Tue, 19 Oct 2004 09:36:47 -0700
+Message-Id: <10982038072700@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 21 Oct 2004 23:23:41 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ChangeSet 1.1946.10.10, 2004/09/24 11:50:39-07:00, mochel@digitalimplant.org
 
-I was testing Linux performance on 80 drives disk array today
-(8 hardware RAID volumes stripped by Linux RAID0 256K stripe) 
+[sysfs] Change symbol exports to GPL only in file.c.
 
-I've initially spotted this by very poor performance with DBT2
-benchmark, while later isolated test to "SysBench" 
-http://sysbench.sourceforge.net/,  running random read/write tests 
-on single 40G file. 
-
-The system is dual Opteron 2.4  with 8G of memory. 
-
-ReiserFS file system (data=writeback,noatime,notail) was used.
-
-Results I'm getting in IOs/Sec with 256 concurrent threads are:
-
-                    READ     WRITE
-Buffered IO 16K     6185     2496 
-O_DIRECT 16K        5169      471
-Buffered IO 4K      7091     4758
-O_DIRECT    4K      7676      571 
+Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
-Note I had only 1Gb FC connection so 16K reads saturated about 5xxx/sec
+ fs/sysfs/file.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
 
-For Comparison I also did the run with SUSE SLES Kernel  (2.6.5-7.97SMP)
-
-
-                    READ     MIXED (R/W)
-Buffered IO 16K     2375     2520
-O_DIRECT 16K        5391     1052
-Buffered IO 4K      9576     5736
-O_DIRECT    4K      8063     1041 
-
-Sorry I did not do Exactly the same run due to lack of time accessing
-hardware.
-
-The issues with these results are:
-
-1) SuSE kernel does "Buffered" reads in 4K reads instead of 16K reads.
-This can be seen in "iostat -x". This seems to be fixed in 2.6.9
-
-2) 2.6.9 does writes in 4K requests instead of 16K. This also can be 
-seen in "iostat -x" 
-
-3) O_DIRECT writes are simply broken :)
-One can see in vmstat only 1 thread will be in "b" if this mode is used
-and only one outstanding request will be submitted to SCSI controller at
-the same time. Interesting enough if I use 128 files totaling the same
-size  O_DIRECT shows good performance.  I thought inode locking problem
-was removed in 2.6 :(
-
-4) Unrelated but still unfortunate.  2.6.9 kernel seems to behave weird
-if swap is disabled.  I was running with 8G of memory allocating 6G for
-MySQL buffers  which left about 1.5G for kernel, 1G of which was used
-for file cache.   During IO intensive run, using buffered IO I got
-"kswapd" running like a crazy taking 90% of CPU time on one of CPUs. 
-What for is it running if there is no swap files enabled ? 
-
-
-
--- 
-Peter Zaitsev, Senior Support Engineer
-MySQL AB, www.mysql.com
-
-
+diff -Nru a/fs/sysfs/file.c b/fs/sysfs/file.c
+--- a/fs/sysfs/file.c	2004-10-19 09:21:27 -07:00
++++ b/fs/sysfs/file.c	2004-10-19 09:21:27 -07:00
+@@ -436,7 +436,7 @@
+ }
+ 
+ 
+-EXPORT_SYMBOL(sysfs_create_file);
+-EXPORT_SYMBOL(sysfs_remove_file);
+-EXPORT_SYMBOL(sysfs_update_file);
++EXPORT_SYMBOL_GPL(sysfs_create_file);
++EXPORT_SYMBOL_GPL(sysfs_remove_file);
++EXPORT_SYMBOL_GPL(sysfs_update_file);
+ 
 

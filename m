@@ -1,63 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266751AbUFYOy2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266752AbUFYOz5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266751AbUFYOy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 10:54:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266752AbUFYOy2
+	id S266752AbUFYOz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 10:55:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263596AbUFYOz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 10:54:28 -0400
-Received: from [196.25.168.8] ([196.25.168.8]:6793 "EHLO lbsd.net")
-	by vger.kernel.org with ESMTP id S266751AbUFYOyZ (ORCPT
+	Fri, 25 Jun 2004 10:55:56 -0400
+Received: from fire.osdl.org ([65.172.181.4]:23493 "EHLO fire-2.osdl.org")
+	by vger.kernel.org with ESMTP id S266752AbUFYOzh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 10:54:25 -0400
-Date: Fri, 25 Jun 2004 16:54:03 +0200
-From: Nigel Kukard <nkukard@lbsd.net>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: webvenza@libero.it, linux-kernel@vger.kernel.org
-Subject: Re: [HANG] SIS900 + P4 Hyperthread
-Message-ID: <20040625145403.GI11501@lbsd.net>
-References: <40C0E37C.4030905@lbsd.net> <20040604214721.GC22679@picchio.gall.it> <20040605005033.A26051@electric-eye.fr.zoreil.com> <20040605070239.GM14247@lbsd.net> <20040605130526.A31872@electric-eye.fr.zoreil.com> <20040614182737.GG18169@lbsd.net> <20040614203917.A12228@electric-eye.fr.zoreil.com>
+	Fri, 25 Jun 2004 10:55:37 -0400
+Subject: Re: gcc-3.4.1 and -Winline
+From: John Cherry <cherry@osdl.org>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040624234455.GA4058@werewolf.able.es>
+References: <20040624234455.GA4058@werewolf.able.es>
+Content-Type: text/plain
+Message-Id: <1088175248.4344.6.camel@cherrybomb.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jaTU8Y2VLE5tlY1O"
-Content-Disposition: inline
-In-Reply-To: <20040614203917.A12228@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.4.2.1i
-X-PHP-Key: http://www.lbsd.net/~nkukard/keys/gpg_public.asc
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 25 Jun 2004 07:54:09 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"J.A. Magallon" wrote:
+> 
+> This are the warnings I get with gcc-3.4.1 CVS, when building
+2.6.7-mm2.
+> Just for if some is really serious, ie, something that does not work
+if
+> compiled out-of-line (but I suppose I had noticed ;) ).
+> Or if it origins a huge performace penalty.
+[...]
+> 
+>   CC      arch/i386/kernel/timers/timer_tsc.o
+> arch/i386/kernel/timers/timer_tsc.c: In function `mark_offset_tsc':
+> arch/i386/kernel/timers/timer_tsc.c:30: warning: inlining failed in
+call to \
+> 'cpufreq_delayed_get': function body not available \
+> arch/i386/kernel/timers/timer_tsc.c:248: warning: called from here
+[... more warnings deleted for brevity ...]
 
---jaTU8Y2VLE5tlY1O
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Well, gcc 3.2.2 with -Winline does not complain, but interestingly 
+enough sparse does (at least in the above case and some others):
+
+  CHECK   arch/i386/kernel/timers/timer_tsc.c
+arch/i386/kernel/timers/timer_tsc.c:30:39: warning: marked inline, but without a definition
+
+Basically this is a case of having:
+        #1:     static inline void foo(void); /* forward decl without body */
+        ...
+        #2:     void bar(void) { foo(); } /* function using the inline */
+        ...
+        #3:     static inline void foo(void) { return; } /* actual inline def. */
+in the above order.
+
+I have not looked at resulting .o file with gcc 3.2.2, but would not be too
+surprised if it also silently just ignores the "inline" in lines #1 and #3 above.
+
+There are obviously two trivial fixes above, either just remove the inline (making
+foo a normal static function) or reorder #2 and #3.
+
+John
 
 
-It must be non-sis900 driver related, is there a way i can get more
-debugging info?
-
-error doesn't occur if i enable sis900 debugging, might be because the
-hardware isn't operating at full speed.
-
--Nigel
-
-On Mon, Jun 14, 2004 at 08:39:17PM +0200, Francois Romieu wrote:
-> Nigel Kukard <nkukard@lbsd.net> :
-> > Any more ideas?  :(
->=20
-> Tried to increase NUM_{RX/TX}_DESC ?
->=20
-
---jaTU8Y2VLE5tlY1O
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFA3DyLKoUGSidwLE4RAqdFAJoD6QmsCitsto1wvHqLmtAXzanfAwCfSrkX
-w08Qjq+X5r4KjtTUCmHSe6Y=
-=r6Vp
------END PGP SIGNATURE-----
-
---jaTU8Y2VLE5tlY1O--

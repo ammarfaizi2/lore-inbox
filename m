@@ -1,99 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263635AbUKAOTb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263297AbUKAOWG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263635AbUKAOTb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 09:19:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbUKAOTT
+	id S263297AbUKAOWG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 09:22:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262631AbUKAOWF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 09:19:19 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:56241 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S265769AbUKAOSi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 09:18:38 -0500
-Subject: Linux 2.6.9-ac6
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1099314945.18809.66.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 01 Nov 2004 13:15:46 +0000
+	Mon, 1 Nov 2004 09:22:05 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:14782 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S263546AbUKAOU4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 09:20:56 -0500
+Date: Mon, 1 Nov 2004 15:20:54 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: John M Collins <jmc@xisl.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Fchown on unix domain sockets?
+In-Reply-To: <200410312255.00621.jmc@xisl.com>
+Message-ID: <Pine.LNX.4.53.0411011517570.29275@yvahk01.tjqt.qr>
+References: <200410312255.00621.jmc@xisl.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.6/2.6.9/
+>Please CC any reply to jmc AT xisl.com as I'm not subscribed.
+>
+>I wanted to change the ownership on a unix domain socket in a program (running
+>as root) I was writing and I was wondering if "fchown" worked on the socket
+>descriptor (after I'd run "bind" of course).
+>
+>It doesn't, you have to use "chown" on the path name - however "fchown"
+>silently does nothing, it doesn't report an error.
 
-2.6.9-ac6
-o	Fix problem with -ac5 msdos changes		(Vojtech Pavlik)
+I think that's normal, because chown() applies to an object in the filesystem,
+while fchown() applies to the FD. (In fact, it applies to an inode.)
+However, socket fd of any kind don't have an associated inode, because, well
+sockets are not stored on the filesystem.
 
-2.6.9-ac5
-o	Fix oops in and enable IT8212 driver		(me)
-o	Minor delkin driver fix				(Mark Lord)
-o	Fix NFS mount hangs with long FQDN		(Jan Kasprzak)
-	| I've used this version as its clearly correct for 2.6.9 
-	| although it might not be the right future solution
-o	Fix overstrict FAT checks stopping reading of	(Vojtech Pavlik)
-	some devices like Nokia phones
-o	Fix misdetection of some drives as MRW capable	(Peter Osterlund)
-o	Fix promise 20267 hang with very long I/O's	(Krzysztof Chmielewski)
-o	Fix a case where serial break was not sent for	(Paul Fulghum)
-	the right time.
-o	Fix S/390 specific SACF hole			(Martin Schwidefsky)
-o	NVidia ACPI timer override			(Andi Kleen)
-o	Correct VIA PT880 PCI ident (and AGP ident)	(Dave Jones)
-o	Fix EDID/E820 corruption 			(Venkatesh Pallipadi)
-o	Tighten security on TIOCCONS			(od@suse.de)
-o	Fix incorrect __init s that could cause crash	(Randy Dunlap)
+As some manpage might say, the socket thing you see in "ls -l" is just a
+reference thing. When you connect to it, ls -l /proc/pidofprogram/fd/ does not
+show the path, but [socket:xxxx] which shows that the filesystem object is not
+used anymore.
 
-2.6.9-ac4
-o	Fix minor DoS bug in visor USB driver		(Greg Kroah-Hartmann)
-o	Delkin cardbus IDE support			(Mark Lord)
-o	Fix SMP hang with IDE unregister		(Mark Lord)
-o	Fix proc file removal with IDE unregister	(Mark Lord)
-o	Fix aic7xxx sleep with locks held and debug	(Luben Tuikov)
-	spew
-o	First take at HPT372N problem fixing		(Alan Cox)
+>I don't mind it not working but I think it should report an error. This is on
+>2.6.3 kernel.
 
-2.6.9-ac3
-o	Fix syncppp/async ppp problems with new hangup	(Paul Fulghum)
-o	Fix broken parport_pc unload			(Andrea Arcangeli)
-o	Security fix for smbfs leak/overrun		(Urban Widmark)
-o	Stop i8xx_tco making some boxes reboot on load	(wim@iguana)
-o	Fix cpia/module tools deadlock			(Peter Pregler)
-o	Fix missing suid_dumpable export		(Alan Cox)
+What would you like it to do? EINVAL like the others or change the actual
+inode's permission?
 
-2.6.9-ac2
-o	Fix invalid kernel version stupidity		(Adrian Bunk)
-o	Compiler ICE workaround/fixup			(Linus Torvalds)
-o	Fix network DoS bug in 2.6.9			(Herbert Xu)
-	| Suggested by Sami Farin
-o	Flash lights on panic as in 2.4			(Andi Kleen)
 
-2.6.9-ac1
 
-Security Fixes
-o	Set VM_IO on areas that are temporarily		(Alan Cox)
-	marked PageReserved (Serious bug)
-o	Lock ide-proc against driver unload		(Alan Cox)
-	(very low severity)
-
-Bug Fixes
-o	Working IDE locking				(Alan Cox)
-	| And a great deal of review by Bartlomiej
-o	Handle E7xxx boxes with USB legacy flaws	(Alan Cox)
-	
-Functionality
-o	Allow booting with "irqpoll" or "irqfixup"	(Alan Cox)
-	on systems with broken IRQ tables.
-o	Support for setuid core dumping in some		(Alan Cox)
-	environments (off by default)
-o	Support for drives that don't report geometry
-o	IT8212 support (raid and passthrough)		(Alan Cox)
-o	Allow IDE to grab all unknown generic IDE	(Alan Cox)
-	devices (boot with "all-generic-ide")
-o	Restore PWC driver				(Luc Saillard)
-
-Other
-o	Small pending tty clean-up to moxa		(Alan Cox)
-o	Put VIA Velocity (tm) adapters under gigabit	(VIA)
-
+Jan Engelhardt
+-- 
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130345AbRCBHqb>; Fri, 2 Mar 2001 02:46:31 -0500
+	id <S130351AbRCBI0B>; Fri, 2 Mar 2001 03:26:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130346AbRCBHqU>; Fri, 2 Mar 2001 02:46:20 -0500
-Received: from 4dyn170.com21.casema.net ([212.64.95.170]:44812 "HELO
-	home.ds9a.nl") by vger.kernel.org with SMTP id <S130345AbRCBHqI>;
-	Fri, 2 Mar 2001 02:46:08 -0500
-Date: Fri, 2 Mar 2001 08:45:45 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: linux-kernel@vger.kernel.org
-Subject: ftruncate not extending files?
-Message-ID: <20010302084544.A26070@home.ds9a.nl>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0103011502050.23650-100000@swamp.bayern.net> <E14YXft-0008GK-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S130352AbRCBIZw>; Fri, 2 Mar 2001 03:25:52 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:16903 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S130351AbRCBIZn>; Fri, 2 Mar 2001 03:25:43 -0500
+Message-ID: <3A9E8028.1C83695@eikon.tum.de>
+Date: Thu, 01 Mar 2001 18:00:24 +0100
+From: Mario Hermann <ario@eikon.tum.de>
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.2-ac7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: report bug: System reboots when accessing a loop-device over a 
+ second loop-device with 2.4.2-ac7
+In-Reply-To: <3A9E66BB.70FB0C75@eikon.tum.de> <20010301172145.T21518@suse.de>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre4i
-In-Reply-To: <E14YXft-0008GK-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Mar 01, 2001 at 06:19:35PM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 01, 2001 at 06:19:35PM +0000, Alan Cox wrote:
-> > In that case, why was it changed for FAT only? Ext2 will still
-> > happily enlarge a file by truncating it.
+Hello,
+
+Jens Axboe wrote:
+
 > 
-> ftruncate() and truncate() may extend a file but they are not required to
-> do so.
+> This should make it work again.
 
-Stevens' example code assumes that it does. And given the number of people
-that regard his work as Holy, it might not be a bad idea to implement Linux
-so that it does what people think it does.
+Yeah! Works fine.
 
-I would've sworn, based on the fact that I saw people do it, that ftruncate
-was a legitimate way to extend a file - especially useful in combination
-with mmap().
 
-I don't really care where it is done, in glibc or in the kernel - but let's
-honor this convention and not needlessly break code.
+> 
+> --
+> Jens Axboe
+> 
 
-Regards,
+Thx
 
-bert hubert
 
--- 
-http://www.PowerDNS.com      Versatile DNS Services  
-Trilab                       The Technology People   
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+Mario Hermann

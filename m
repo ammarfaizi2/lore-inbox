@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261472AbVAaXoB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261460AbVAaXn3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261472AbVAaXoB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 18:44:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVAaXoA
+	id S261460AbVAaXn3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 18:43:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVAaXn2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 18:44:00 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4102 "HELO
+	Mon, 31 Jan 2005 18:43:28 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3590 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261461AbVAaXmd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 18:42:33 -0500
-Date: Tue, 1 Feb 2005 00:42:28 +0100
+	id S261460AbVAaXmb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 18:42:31 -0500
+Date: Tue, 1 Feb 2005 00:42:26 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] i386/mach-default/topology.c: make cpu_devices static
-Message-ID: <20050131234228.GS21437@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] i386/x86_64 process.c: make hlt_counter static
+Message-ID: <20050131234226.GR21437@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,39 +22,39 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes a needlessly global struct static.
+This patch makes a needlessly global variable static.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- arch/i386/mach-default/topology.c |    2 +-
- include/asm-i386/cpu.h            |    1 -
- 2 files changed, 1 insertion(+), 2 deletions(-)
+ arch/i386/kernel/process.c   |    2 +-
+ arch/x86_64/kernel/process.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-This patch was already sent on:
+This patch was alread sent on:
 - 16 Jan 2005
 
---- linux-2.6.11-rc1-mm1-full/include/asm-i386/cpu.h.old	2005-01-16 05:41:55.000000000 +0100
-+++ linux-2.6.11-rc1-mm1-full/include/asm-i386/cpu.h	2005-01-16 05:42:09.000000000 +0100
-@@ -12,7 +12,6 @@
- struct i386_cpu {
- 	struct cpu cpu;
- };
--extern struct i386_cpu cpu_devices[NR_CPUS];
- extern int arch_register_cpu(int num);
- #ifdef CONFIG_HOTPLUG_CPU
- extern void arch_unregister_cpu(int);
---- linux-2.6.11-rc1-mm1-full/arch/i386/mach-default/topology.c.old	2005-01-16 05:42:18.000000000 +0100
-+++ linux-2.6.11-rc1-mm1-full/arch/i386/mach-default/topology.c	2005-01-16 05:42:43.000000000 +0100
-@@ -30,7 +30,7 @@
- #include <linux/nodemask.h>
- #include <asm/cpu.h>
+--- linux-2.6.10-rc2-mm4-full/arch/i386/kernel/process.c.old	2004-12-06 01:25:27.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/i386/kernel/process.c	2004-12-06 01:25:38.000000000 +0100
+@@ -60,7 +60,7 @@
  
--struct i386_cpu cpu_devices[NR_CPUS];
-+static struct i386_cpu cpu_devices[NR_CPUS];
+ asmlinkage void ret_from_fork(void) __asm__("ret_from_fork");
  
- int arch_register_cpu(int num){
- 	struct node *parent = NULL;
-
+-int hlt_counter;
++static int hlt_counter;
+ 
+ unsigned long boot_option_idle_override = 0;
+ EXPORT_SYMBOL(boot_option_idle_override);
+--- linux-2.6.10-rc2-mm4-full/arch/x86_64/kernel/process.c.old	2004-12-06 01:26:17.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/x86_64/kernel/process.c	2004-12-06 01:26:28.000000000 +0100
+@@ -53,7 +53,7 @@
+ 
+ unsigned long kernel_thread_flags = CLONE_VM | CLONE_UNTRACED;
+ 
+-atomic_t hlt_counter = ATOMIC_INIT(0);
++static atomic_t hlt_counter = ATOMIC_INIT(0);
+ 
+ unsigned long boot_option_idle_override = 0;
+ EXPORT_SYMBOL(boot_option_idle_override);
 

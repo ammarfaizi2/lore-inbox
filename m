@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264916AbTFYSTh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 14:19:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264918AbTFYSTh
+	id S264925AbTFYS1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 14:27:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264930AbTFYS1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 14:19:37 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:42914 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S264916AbTFYSTg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 14:19:36 -0400
-Date: Wed, 25 Jun 2003 20:33:40 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Must-fix] Keyboard occasionally endlessly repeating keys
-Message-ID: <20030625183340.GD1770@wohnheim.fh-wedel.de>
-References: <20030620202444.GD22732@wohnheim.fh-wedel.de> <1056495483.1027.260.camel@w-jstultz2.beaverton.ibm.com> <20030625090723.GA10864@wohnheim.fh-wedel.de> <1056563557.1033.278.camel@w-jstultz2.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1056563557.1033.278.camel@w-jstultz2.beaverton.ibm.com>
-User-Agent: Mutt/1.3.28i
+	Wed, 25 Jun 2003 14:27:23 -0400
+Received: from atlas.williams.edu ([137.165.4.25]:20836 "EHLO
+	atlas.williams.edu") by vger.kernel.org with ESMTP id S264925AbTFYS1W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 14:27:22 -0400
+Date: Wed, 25 Jun 2003 14:41:29 -0400 (EDT)
+From: Jeremy A Redburn <jredburn@wso.williams.edu>
+Subject: Problem detecting SATA drive in 2.4.21-ac2
+To: linux-kernel@vger.kernel.org
+Message-id: <Pine.LNX.4.21.0306251437300.24753-100000@olga.williams.edu>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 June 2003 10:52:37 -0700, john stultz wrote:
-> On Wed, 2003-06-25 at 02:07, Jörn Engel wrote:
-> > 
-> > Should I still test w/ clock=pit?
-> 
-> Not if its resolved for you. I was just seeing a number of time related
-> keyboard problems on laptops (kbd repeat rates too fast)and wanted to
-> see if you were affected as well. 
+Hello,
 
-Not resolved, but understood.  The hardware is broken, no doubt about
-it.  2.5 should be able to deal with the broken hardware just as good
-as 2.4 was, but Vojtech appears to be working on it.  Until then I
-have to live with my problem. :(
+I am using the latest 2.4-ac kernel (2.4.21-ac2) and trying to get support
+for my WD Raptor SATA drive. The kernel detects the SATA controller just
+fine and loads it as ide2 and ide3 -- but there is no detection of the
+attached drive (which would presumably be hde). Anyone have any advice for
+me?
 
-Jörn
+Thanks,
+Jeremy Redburn
 
--- 
-When in doubt, use brute force.
--- Ken Thompson
+ps. I've read of a similar problem at
+http://www.linuxhardware.org/Features/03/04/16/1610236.shtml -
+
+> Oddly enough, the SATA drives disappeared now that the drive
+> controller was detected correctly. This may be an intermediate problem
+> while they are still patching up to 2.4.21 stable.
+

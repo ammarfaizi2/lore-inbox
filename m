@@ -1,69 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263274AbTENRaj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 13:30:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263310AbTENRaj
+	id S262645AbTENRaW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 13:30:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263274AbTENRaV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 13:30:39 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:33160 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263274AbTENRag
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 13:30:36 -0400
-Date: Wed, 14 May 2003 10:44:31 -0700
-From: Greg KH <greg@kroah.com>
-To: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-Cc: linux-kernel@vger.kernel.org, "Saxena, Sunil" <sunil.saxena@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Carbonari, Steven" <steven.carbonari@intel.com>
-Subject: Re: RFC Proposal to enable MSI support in Linux kernel
-Message-ID: <20030514174431.GA2750@kroah.com>
-References: <C7AB9DA4D0B1F344BF2489FA165E50241361D9@orsmsx404.jf.intel.com>
-Mime-Version: 1.0
+	Wed, 14 May 2003 13:30:21 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:1953 "EHLO
+	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
+	id S262645AbTENRaU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 13:30:20 -0400
+Date: Wed, 14 May 2003 12:42:32 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: mika.penttila@kolumbus.fi, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Race between vmtruncate and mapped areas?
+Message-ID: <82240000.1052934152@baldur.austin.ibm.com>
+In-Reply-To: <20030514103421.197f177a.akpm@digeo.com>
+References: <154080000.1052858685@baldur.austin.ibm.com>
+ <3EC15C6D.1040403@kolumbus.fi><199610000.1052864784@baldur.austin.ibm.com>
+ <20030513181018.4cbff906.akpm@digeo.com>
+ <18240000.1052924530@baldur.austin.ibm.com>
+ <20030514103421.197f177a.akpm@digeo.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <C7AB9DA4D0B1F344BF2489FA165E50241361D9@orsmsx404.jf.intel.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Even though you are trying to withdraw this message (which is pointless
-for something sent to a mailing list), I had a few small questions with
-regards to PCI Hotplug devices:
 
-> +/**
-> + * msi_hp_free_vectors: reclaim all MSI previous assigned to this device
-> + * argument: device pointer of type struct pci_dev 
-> + *
-> + * description: used during hotplug removed, from which device is
-> hot-removed;
+--On Wednesday, May 14, 2003 10:34:21 -0700 Andrew Morton <akpm@digeo.com>
+wrote:
 
-Oops, your patch wrapped, please try another email client, or change the
-configuration options of your current one.
-
-> + * PCI subsystem reclaims associated MSI to unused state, which may be used
+> How so?  Truncate will chop the page off the mapping - it doesn't
+> miss any pages.
 > 
-> + * later on.
-> + **/ 
-> +void remove_hotplug_vectors(void* dev_id)
-> +{
-> +     struct msi_desc_t *entry;
-> +     struct pci_dev *dev = (struct pci_dev *)dev_id;
-> +     int type;
-> +     void *mask_entry_addr;
-> +      unsigned int flags;
+> Truncate has to wait for the page lock, so the page may be removed from
+> the mapping shortly after the major fault's IO has completed.  Maybe
+> that's what you are seeing.
 
-Hm, wierd indenting style, can you just follow Documentation/CodingStyle
-and use tabs?
+My guess on the order is this:
 
-Anyway, what code is supposed to use this function?  A PCI Hotplug
-controller driver?  If so, do you have any patches to the current
-drivers that show how it is used?
+task 1 waits for IO in the page fault.
 
-Also, why pass a void *?  That's usually forbidden in the kernel, and
-since you are instantly casting it to a struct pci_dev *, why not just
-use that?
+task 2 calls truncate, which does zap_page_range() on the range that page
+is in.
 
-thanks,
+task 1 wakes up and maps the page.
 
-greg k-h
+task 2 calls truncate_inode_pages which removes the newly mapped page from
+the page cache.
+
+Now the state is that the page has been disconnected from the file, but
+it's still mapped in task 1's address space.  That task thinks it has valid
+data from the file in that page, and may continue to read/write there, and
+assume any changes will get written back..
+
+Dave
+
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
+

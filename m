@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131624AbRCOD1v>; Wed, 14 Mar 2001 22:27:51 -0500
+	id <S131629AbRCOEBS>; Wed, 14 Mar 2001 23:01:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131626AbRCOD1b>; Wed, 14 Mar 2001 22:27:31 -0500
-Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:63927 "EHLO
-	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S131624AbRCOD13>; Wed, 14 Mar 2001 22:27:29 -0500
-Date: Wed, 14 Mar 2001 22:26:42 -0500
-From: Tom Vier <thomassr@erols.com>
-To: Denis Perchine <dyp@perchine.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: O_DSYNC flag for open
-Message-ID: <20010314222642.A19634@zero>
-In-Reply-To: <01031013035702.00608@dyp.perchine.com>
-Mime-Version: 1.0
+	id <S131632AbRCOEBI>; Wed, 14 Mar 2001 23:01:08 -0500
+Received: from web11804.mail.yahoo.com ([216.136.172.158]:27654 "HELO
+	web11804.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S131629AbRCOEAy>; Wed, 14 Mar 2001 23:00:54 -0500
+Message-ID: <20010315040013.28464.qmail@web11804.mail.yahoo.com>
+Date: Wed, 14 Mar 2001 20:00:13 -0800 (PST)
+From: Jeffrey Butler <jeffreymbutler@yahoo.com>
+Subject: Re: poll() behaves differently in Linux 2.4.1 vs. Linux 2.2.14 (POLLHUP)
+To: linux-kernel@vger.kernel.org
+Cc: kuznet@ms2.inr.ac.ru, davem@redhat.COM
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.0.1i
-In-Reply-To: <01031013035702.00608@dyp.perchine.com>; from dyp@perchine.com on Sat, Mar 10, 2001 at 01:03:57PM +0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fdatasync() is the same as fsync(), in linux. until fdatasync() is
-implimented (ie, syncs the data only), there's no reason to define O_DSYNC.
-just use:
+Alexy wrote:
+>> Damn, we did not test behaviour on absolutely new
+>> clean never connected socket... Solaris really may
+>> return 0 on it.
+>>
+>> However, looking from other hand the issue looks as
+>> absolutely academic and not related to practice in
+>> any way.
 
-#ifndef O_DSYNC
-# define O_DSYNC O_SYNC
-#endif
+Hi,
+  I'm not sure this issue is really that academic.  In
+fact, it's one of those nitty-gritty, annoying details
+that academics tend to ignore :).  Anyway, I'm looking
+at this from a very pragmatic standpoint.  I'd like to
+minimize the complexity and the number of special
+cases when trying to support an application on several
+different platforms.  If other popular Unix OS's
+behave this way I definely understand the reasoning,
+but it seems that at least Solaris 7 does not... 
+Sure, workarounds exist, but they just complicates
+things.
 
-On Sat, Mar 10, 2001 at 01:03:57PM +0600, Denis Perchine wrote:
-> one small question... Will O_DSYNC flag be available in Linux?
-> It is available at least on AIX, and HP-UX. The difference with O_SYNC is the 
-> same as between fsync and fdatasync.
+-jeff
 
--- 
-Tom Vier <thomassr@erols.com>
-DSA Key id 0x27371A2C
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Auctions - Buy the things you want at great prices.
+http://auctions.yahoo.com/

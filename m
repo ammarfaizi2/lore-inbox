@@ -1,38 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbVAROCS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbVAROFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261299AbVAROCS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 09:02:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbVAROCS
+	id S261300AbVAROFT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 09:05:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVAROFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 09:02:18 -0500
-Received: from piggy.rz.tu-ilmenau.de ([141.24.4.8]:42967 "EHLO
-	piggy.rz.tu-ilmenau.de") by vger.kernel.org with ESMTP
-	id S261299AbVAROCN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 09:02:13 -0500
-Date: Tue, 18 Jan 2005 15:02:03 +0100
-From: Mario Holbe <Mario.Holbe@TU-Ilmenau.DE>
-To: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4: "access beyond end of device" after ext2 mount
-Message-ID: <20050118140203.GH2839@darkside.22.kls.lan>
-Mail-Followup-To: Mario Holbe <Mario.Holbe@TU-Ilmenau.DE>,
-	"Piszcz, Justin Michael" <justin.piszcz@mitretek.org>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
-References: <2E314DE03538984BA5634F12115B3A4E01BC42AE@email1.mitretek.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2E314DE03538984BA5634F12115B3A4E01BC42AE@email1.mitretek.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 18 Jan 2005 09:05:19 -0500
+Received: from mail45.messagelabs.com ([140.174.2.179]:8132 "HELO
+	mail45.messagelabs.com") by vger.kernel.org with SMTP
+	id S261300AbVAROFI convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 09:05:08 -0500
+X-VirusChecked: Checked
+X-Env-Sender: justin.piszcz@mitretek.org
+X-Msg-Ref: server-7.tower-45.messagelabs.com!1106057106!9481838!1
+X-StarScan-Version: 5.4.5; banners=-,-,-
+X-Originating-IP: [66.10.26.57]
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.4: "access beyond end of device" after ext2 mount
+Date: Tue, 18 Jan 2005 09:05:05 -0500
+Message-ID: <2E314DE03538984BA5634F12115B3A4E01BC42B1@email1.mitretek.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.4: "access beyond end of device" after ext2 mount
+thread-index: AcT9ZnSvCOVCrAWyQda/Z3QzbcyAYAAADNyA
+From: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
+To: "Mario Holbe" <Mario.Holbe@TU-Ilmenau.DE>
+Cc: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>,
+       "Andries Brouwer" <aebr@win.tue.nl>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+Okay but what hard drive model and IDE Chipset/Controller are you using?
+
+Thanks!
+
+-----Original Message-----
+From: Mario Holbe [mailto:Mario.Holbe@TU-Ilmenau.DE] 
+Sent: Tuesday, January 18, 2005 9:02 AM
+To: Piszcz, Justin Michael
+Cc: Marcelo Tosatti; Andries Brouwer; linux-kernel@vger.kernel.org
+Subject: Re: 2.4: "access beyond end of device" after ext2 mount
 
 On Tue, Jan 18, 2005 at 08:42:08AM -0500, Piszcz, Justin Michael wrote:
 > Normally, this problem associated with drives over 32GB or 127GB on a
 > controller that cannot support it.  It was not discussed here, I was
-> wondering if that is the problem, if it is not, what type of Hard Drive
+> wondering if that is the problem, if it is not, what type of Hard
+Drive
 > is giving you these problems?
 
 This does not depend on the type of the hard disk for sure.

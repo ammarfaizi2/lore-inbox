@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263015AbTLJB12 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 20:27:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbTLJB12
+	id S263325AbTLJB25 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 20:28:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263356AbTLJB25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 20:27:28 -0500
-Received: from CPE-65-30-34-80.kc.rr.com ([65.30.34.80]:43142 "EHLO
-	cognition.home.hanaden.com") by vger.kernel.org with ESMTP
-	id S263015AbTLJB10 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 20:27:26 -0500
-Message-ID: <3FD67678.5050704@hanaden.com>
-Date: Tue, 09 Dec 2003 19:27:20 -0600
-From: hanasaki <hanasaki@hanaden.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031204 Thunderbird/0.4RC1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [BUG 2.4] NFS unlocking operation accesses invalid file struct
-References: <200311252000.32094.mita@miraclelinux.com> <200311272054.22316.mita@miraclelinux.com> <16326.9448.320003.775274@charged.uio.no> <200312101006.46157.mita@miraclelinux.com>
-In-Reply-To: <200312101006.46157.mita@miraclelinux.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 9 Dec 2003 20:28:57 -0500
+Received: from ssatchell1.pyramid.net ([208.170.252.115]:21647 "EHLO
+	ssatchell1.pyramid.net") by vger.kernel.org with ESMTP
+	id S263325AbTLJB2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 20:28:53 -0500
+Subject: Re: Swap performance statistics in 2.6 -- which /proc file has it?
+From: Stephen Satchell <list@satchell.net>
+To: Dominik Kubla <dominik@kubla.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3FD62845.8090301@kubla.de>
+References: <BF1FE1855350A0479097B3A0D2A80EE00184D619@hdsmsx402.hd.intel.com>
+	 <1070911748.2408.39.camel@dhcppc4>  <3FD546D5.2000003@nishanet.com>
+	 <1070975964.5966.5.camel@ssatchell1.pyramid.net>
+	 <Pine.LNX.4.53.0312090854080.8425@chaos>
+	 <1070981185.6243.58.camel@ssatchell1.pyramid.net>
+	 <Pine.LNX.4.53.0312091014250.525@chaos>  <3FD62845.8090301@kubla.de>
+Content-Type: text/plain
+Message-Id: <1071019731.8045.31.camel@ssatchell1.pyramid.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 09 Dec 2003 17:28:51 -0800
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-could this be related to the problem I had?
+On Tue, 2003-12-09 at 11:53, Dominik Kubla wrote:
+> Richard B. Johnson wrote:
+> > If you need statistics v.s. time, you need to write an application
+> > that samples things at some fixed interval. In a previous life,
+> > I requested that "nr_free_pages()" be accessible from user-space,
+> > probably via /proc. That's all you need. Maybe that could be
+> > added now?  In any event, samping free pages at some fixed-time
+> > interval should give you all the information you need.
+> 
+> vmstat -a
+> sar -B
+> sar -r
+> 
+> O'Reilly's "System Performance Tuning" might make for an interesting read,
+> especially pages 110ff (also its Linux informations are a bit out of date).
 
-debian sarge nfs client on 2.4.23
-debian sarge nfs server on 2.6test11 - rpc number erros and bad locks
+How does sampling free pages give you an accurate measurement of swap
+activity?  If I look at the free-page count at one-minute intervals, the
+system can, and WILL, inhale and exhale pages at a frightening clip, and
+there is no way I can see that sampling free-page count in a
+low-overhead way will do the trick.
 
-Akinobu Mita wrote:
-> Hello Trond,
-> 
-> I apologize for the delay in responding.
-> 
-> On Friday 28 November 2003 01:23, Trond Myklebust wrote:
-> 
->>So then the correct thing to do is indeed to wrap the call to
->>locks_unlock_delete() with an fget()/fput() pair, and then to remove
->>the test for fl_pid in locks_same_owner().
->>
->>We then need to fix lockd so that it generates correct fl_owners for
->>its locks...
->>
->>Let me see if I can get that right.
->>
-> 
-> 
-> I looked at your patch carefully
-> (http://www.fys.uio.no/~trondmy/src/Linux-2.4.x/2.4.23-rc1/linux-2.4.23-01-posix_race.dif)
-> and I think it would fix the problem completely.
-> 
-> Thanks,
-> 
-> --
-> Akinobu Mita
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+How does vmstat disk-swap activity?  Looking at the source for vmstat in
+procps-2.0.11 I see how they do it for 2.4 kernels, but the part for 2.5
+kernels doesn't seem to try to pick up swap statistics at all -- because
+there are none to get?
+
+(signed) Puzzled.
+
+(Why does this whole discussion remind me of the Firesign Theatre album
+_I Think We're All Bozos On This Bus_, and the question that Ah Clem
+asked:  "Why does the porridge-bird lay his eggs in the air?")
+

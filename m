@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314124AbSD2RvL>; Mon, 29 Apr 2002 13:51:11 -0400
+	id <S314136AbSD2RxZ>; Mon, 29 Apr 2002 13:53:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314136AbSD2RvK>; Mon, 29 Apr 2002 13:51:10 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:13922 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S314124AbSD2RvK>; Mon, 29 Apr 2002 13:51:10 -0400
-To: suparna@in.ibm.com
-Cc: linux-kernel@vger.kernel.org, marcelo@brutus.conectiva.com.br,
-        <linux-mm@kvack.org>
-Subject: Re: [PATCH]Fix: Init page count for all pages during higher order allocs
-In-Reply-To: <20020429202446.A2326@in.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 29 Apr 2002 11:40:21 -0600
-Message-ID: <m1r8ky1jzu.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S314140AbSD2RxY>; Mon, 29 Apr 2002 13:53:24 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:13481 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S314136AbSD2RxX>; Mon, 29 Apr 2002 13:53:23 -0400
+Message-ID: <3CCD884D.70009@us.ibm.com>
+Date: Mon, 29 Apr 2002 10:52:13 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: devfs: BKL *not* taken while opening devices
+In-Reply-To: <Pine.LNX.4.21.0204291937430.23113-100000@serv>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suparna Bhattacharya <suparna@in.ibm.com> writes:
+Roman Zippel wrote:
+ > The BKL doesn't make a driver safe, remember that it's released on
+ > schedule.
 
-> The call to set_page_count(page, 1) in page_alloc.c appears to happen 
-> only for the first page, for order 1 and higher allocations.
-> This leaves the count for the rest of the pages in that block 
-> uninitialised.
+Not safe, but _safer_, and definitely safe enough for almost all uses. 
+Some of the drivers rely on the fact that open() cannot be run 
+concurrently.  The BKL does provide this if open never blocks.
 
-Actually it should be zero.
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 
-This is deliberate because high order pages should not be referenced by
-their partial pages.  It might make sense to add a PG_large flag and
-then in the immediately following struct page add a pointer to the next
-page, so you can identify these pages by inspection.  Doing something
-similar to the PG_skip flag.
-
-Beyond that I get nervous, that people will treat it as endorsement of
-doing a high order continuous allocation and then fragmenting the page.
-
-Eric

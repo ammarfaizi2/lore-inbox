@@ -1,67 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132937AbQLHVfo>; Fri, 8 Dec 2000 16:35:44 -0500
+	id <S132870AbQLHVjp>; Fri, 8 Dec 2000 16:39:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132870AbQLHVff>; Fri, 8 Dec 2000 16:35:35 -0500
-Received: from battlejitney.wdhq.scyld.com ([216.254.93.178]:2287 "EHLO
-	vaio.greennet") by vger.kernel.org with ESMTP id <S132883AbQLHVfa>;
-	Fri, 8 Dec 2000 16:35:30 -0500
-Date: Fri, 8 Dec 2000 16:09:47 -0500 (EST)
-From: Donald Becker <becker@scyld.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: question about tulip patch to set CSR0 for pci 2.0 bus
-Message-ID: <Pine.LNX.4.10.10012081558000.797-100000@vaio.greennet>
+	id <S132954AbQLHVjZ>; Fri, 8 Dec 2000 16:39:25 -0500
+Received: from ip252.uni-com.net ([205.198.252.252]:26117 "HELO www.nondot.org")
+	by vger.kernel.org with SMTP id <S132870AbQLHVjT>;
+	Fri, 8 Dec 2000 16:39:19 -0500
+Date: Fri, 8 Dec 2000 17:10:47 -0600 (CST)
+From: Chris Lattner <sabre@nondot.org>
+To: linux-kernel@vger.kernel.org, orbit-list@gnome.org
+Cc: korbit-cvs@lists.sourceforge.net
+Subject: ANNOUNCE: Linux Kernel ORB: kORBit
+Message-ID: <Pine.LNX.4.21.0012081626140.7741-100000@www.nondot.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Jeff Garzik wrote:
-> Clayton Weaver wrote: 
->>> 
->> Shouldn't the setting of the CSR0 value for x86 switch between normal 
->> (0x01A08000) and cautious (0x01A04800) based on some notion of 
->> what generation of pci bus is installed rather than what cpu the kernel 
->> is compiled for? 
+This email is here to announce the availability of a port of ORBit (the
+GNOME ORB) to the Linux kernel.  This ORB, named kORBit, is available from
+our sourceforge web site (http://korbit.sourceforge.net/).  A kernel ORB
+allows you to write kernel extensions in CORBA and have the kernel call
+into them, or to call into the kernel through CORBA.  This opens the door
+to a wide range of experiments/hacks:
 
-No, you misunderstand the reason for that code.  It's not based on the PCI
-bus version.  It's to work-around a specific bug in the Intel chipset
-used on 486 PCI motherboards such as the Asus SP3 and SP3G.
+* We can now write device drivers in perl, and let them run on the iMAC
+  across the hall from you. :)
+* Through the use of a LD_PRELOAD'd syscall wrapper library, you can
+  forward system calls through CORBA to an arbitrary local/remote machine.
+* CORBA servers are implemented as Linux kernel modules, so they may be
+  dynamically loaded or unloaded from a running system at any time.  CORBA
+  servers expose their IOR's through a /proc/corba filesystem.
+* Filesystems may be implemented as remote CORBA objects and mounted on
+  the local machine, by using 'mount -t corbafs -o IOR:... none /mnt/corba'
 
-The best way to check for this buggy chipset was to check for a 486
-processor.  There are very few 486 chips on non-buggy motherboards, and the
-performance impact of shorter PCI bursts is minimal given the slow speed of
-the 486.
+This are just some of the features available _RIGHT_NOW_ that are
+supported by kORBit.  I'm sure that YOU can think of many more.
 
->> That's one thing that bothered me about the method that the .90 driver 
->> used. It worked for me, of course, cool, but when I thought about putting 
+Implementation:
+We implemented this port by providing a user->kernel mapping layer that
+consists of providing standard system header files for the "user" code to
+#include.  In these header files, we do the mapping required.  For
+example, we implement a <stdio.h> that #defines printf to printk (as a
+trivial example).  Only user level code sees or uses these wrappers... all
+of our modifications to the Linux kernel are contained within the
+linux/net/korbit subdirectory.  
 
-I put the check in the old drivers because the SP3 was a common motherboard
-"way back in the old days".  The check was removed becaues the kernel
-changes and removed the variable that held the processor architecture.
+This is currently implemented with a 2.4.0test10 kernel, although forward
+porting should be very easy.  This project was implemented as a cs423
+semester project by Chris Lattner, Fredrik Vraalsen, Andy Reitz, and Keith
+Wessel at the University of Illinois @ Urbana Champaign.
 
->> If the pci bus level is 2.0, it makes sense to use the cautious CSR0 
->> setting, for the same reasons that the .90 tulip.c in 2.0.38 does, and if 
->> the pci level is 2.1, you aren't taking any chances with 0x01A08000 that 
->> the driver doesn't take now. The pci driver, initialized before any 
->> pci devices, appears to know whether you have a pci 2.0 or pci 2.1 bus, so 
->> why not use that information instead of cpu generation? 
->
->A good suggestion, too... Some other hardware behaves differently 
->based on PCI bus version, it would be nice for the driver to notice that 
->and enable (or disable) advanced features. To blindly assume is just a 
->PCI bus lockup waiting to happen... 
+Unresolved issues:
+* Our poll model is not optimial.  Currently we actually do a real poll on
+  a (struct socket *) set.  This causes relatively high latencies (on the
+  order 1 second, worst case) for CORBA requests.  Our waitqueues are not
+  working quite as well as they should.  :)
+* Security is completely unimplemented.  Someone could use corba
+  interfaces to read any file on your system, for example (if the
+  CORBA-FileServer module is installed).  Thus, this is really more for
+  prototyping and development than actual real world use. :)
 
-Just in case you didn't catch it: this is not a PCI v2.0 vs. v2.1 issue.
-The older Tulips work great with PCI v2.0 and v2.1.  The bug is with longer
-bursts and a specific i486 chipset/motherboard.
+If you have any questions or comments, please feel free to contact us at:
+
+Chris Lattner, Fredrik Vraalsen, Andy Reitz, Keith Wessel
+<korbit-cvs@lists.sourceforge.net>
+
+btw, yes we are quite crazy, but what good is it to be normal and
+conformist afterall?  :)
 
 
-Donald Becker				becker@scyld.com
-Scyld Computing Corporation		http://www.scyld.com
-410 Severn Ave. Suite 210		Second Generation Beowulf Clusters
-Annapolis MD 21403			410-990-9993
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

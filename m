@@ -1,56 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268297AbUHKXBn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268296AbUHKXJp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268297AbUHKXBn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 19:01:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268318AbUHKW6o
+	id S268296AbUHKXJp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 19:09:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268308AbUHKXID
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 18:58:44 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:16853 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S268310AbUHKW4m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 18:56:42 -0400
-Date: Thu, 12 Aug 2004 00:56:34 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
-       davem@redhat.com, netdev@oss.sgi.com
-Subject: Re: 2.6: rxrpc compile errors with SYSCTL=n
-Message-ID: <20040811225634.GR26174@fs.tum.de>
-References: <20040811223225.GN26174@fs.tum.de> <20040811224102.GU11200@holomorphy.com>
+	Wed, 11 Aug 2004 19:08:03 -0400
+Received: from rproxy.gmail.com ([64.233.170.193]:53803 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268296AbUHKXFR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 19:05:17 -0400
+Message-ID: <d577e5690408111605d352be6@mail.gmail.com>
+Date: Wed, 11 Aug 2004 19:05:16 -0400
+From: Patrick McFarland <diablod3@gmail.com>
+To: "valdis.kletnieks@vt.edu" <valdis.kletnieks@vt.edu>
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, dwmw2@infradead.org,
+       james.bottomley@steeleye.com, alan@lxorguk.ukuu.org.uk, axboe@suse.de,
+       eric@lammerts.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200408110217.i7B2HLnP012319@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040811224102.GU11200@holomorphy.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <200408101515.i7AFFwGs014308@burner.fokus.fraunhofer.de> <200408110217.i7B2HLnP012319@turing-police.cc.vt.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 11, 2004 at 03:41:02PM -0700, William Lee Irwin III wrote:
-> On Thu, Aug 12, 2004 at 12:32:25AM +0200, Adrian Bunk wrote:
-> > I'm getting tons of the following compile errors in 2.6.8-rc4-mm1 (but 
-> > it doesn't seem to be specific to -mm) with CONFIG_SYSCTL=n:
-> > <--  snip  -->
-> > ...
-> >   LD      .tmp_vmlinux1
-> > net/built-in.o(.text+0x154127): In function `__rxrpc_call_acks_timeout':
-> > : undefined reference to `rxrpc_kdebug'
-> > net/built-in.o(.text+0x154167): In function `__rxrpc_call_rcv_timeout':
-> > : undefined reference to `rxrpc_kdebug'
-> 
-> Does this help?
->...
+On Tue, 10 Aug 2004 22:17:21 -0400, valdis.kletnieks@vt.edu
+<valdis.kletnieks@vt.edu> wrote:
+> Uh oh... if creating buggy/unclear/stupid mods to a GPL'ed program violates the
+> GPL, then I'm surely doomed to burn in the afterlife, for I've certainly done
+> my share and then some. :)
 
-Yes.
+So has everyone. 
 
-Thanks for the quick patch!
-
-cu
-Adrian
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Patrick "Diablo-D3" McFarland || diablod3@gmail.com
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids, we'd 
+all be running around in darkened rooms, munching magic pills and listening to
+repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989

@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264071AbTEWWpb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 18:45:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264098AbTEWWpb
+	id S263718AbTEWW5w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 18:57:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264098AbTEWW5w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 18:45:31 -0400
-Received: from relay04.roc.ny.frontiernet.net ([66.133.131.37]:29587 "EHLO
-	relay04.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
-	id S264071AbTEWWpa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 18:45:30 -0400
-Date: Fri, 23 May 2003 18:58:35 -0400
-From: Scott McDermott <vaxerdec@frontiernet.net>
-To: Oliver Pitzeier <o.pitzeier@uptime.at>
-Cc: "'Marc-Christian Petersen'" <m.c.p@wolk-project.de>,
-       "'Sven Krohlas'" <darkshadow@web.de>, marcelo@conectiva.com.br,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
-Message-ID: <20030523185835.F1334@newbox.localdomain>
-References: <20030522173318.B1342@newbox.localdomain> <002b01c32107$b5686030$020b10ac@pitzeier.priv.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <002b01c32107$b5686030$020b10ac@pitzeier.priv.at>; from o.pitzeier@uptime.at on Fri, May 23, 2003 at 10:45:48AM +0200
+	Fri, 23 May 2003 18:57:52 -0400
+Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:11840 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S263718AbTEWW5v
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 18:57:51 -0400
+From: "Paul Fulghum" <paulkf@microgate.com>
+To: "Andrew Morton" <akpm@digeo.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [BUGS] 2.5.69 syncppp
+Date: Fri, 23 May 2003 18:11:02 -0500
+Message-ID: <OPENKONOOJPFMJFAJLHAKEPCCBAA.paulkf@microgate.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+In-Reply-To: <20030523143138.4701982e.akpm@digeo.com>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Pitzeier on Fri 23/05 10:45 +0200:
-> > Why isn't this in mainline again? It seems everyone and
-> > their grandmother needs it for their machine not to fall
-> > apart.
->
-> Thanks for this information. Now it would be great to get
-> a statement from Marcelo, wouldn't it?  Why did you
-> release the -rc3 without this? I believe there are more
-> people like me, that have such problems and do not even
-> know about it.
+> sppp_lcp_open() is called from other places
+> without that lock held, so it is probably not
+> totally stupid to drop it in the timer handler too.
 
-To be fair, I think it used to be in either a late -pre or
-an early -rc but was withdrawn my Marcelo when it broke some
-people.  But, I think it had been said that those bugs are
-fixed now.
+That section was previously covered by cli/sti,
+and I changed it to use the spinlock instead
+when cli/sti went away in 2.5.x. 
 
-We'll just hope for 2.4.22-pre
+I thought it was in place to serialize state changes.
+I'll look at it harder, you may be right in that
+it is not necessary.
+
+> It's good (and surprising) that someone is
+> actually using that stuff.
+
+It's not pretty, but it works.
+Some customers prefer it to pppd.
+
+> Please beat on it for a while.
+
+Yes, that code is in need of a good beating :-)
+
+Paul Fulghum
+paulkf@microgate.com
+
+

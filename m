@@ -1,49 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319528AbSIGWBj>; Sat, 7 Sep 2002 18:01:39 -0400
+	id <S319529AbSIGWHR>; Sat, 7 Sep 2002 18:07:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319529AbSIGWBj>; Sat, 7 Sep 2002 18:01:39 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:44297
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S319528AbSIGWBj>; Sat, 7 Sep 2002 18:01:39 -0400
-Date: Sat, 7 Sep 2002 15:05:12 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Daniel Egger <degger@fhm.edu>
-cc: jbradford@dial.pipex.com, linux-kernel@vger.kernel.org
-Subject: Re: ide drive dying?
-In-Reply-To: <1031429984.2723.29.camel@sonja.de.interearth.com>
-Message-ID: <Pine.LNX.4.10.10209071458540.16589-100000@master.linux-ide.org>
+	id <S319531AbSIGWHR>; Sat, 7 Sep 2002 18:07:17 -0400
+Received: from netfinity.realnet.co.sz ([196.28.7.2]:17372 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S319529AbSIGWHP>; Sat, 7 Sep 2002 18:07:15 -0400
+Date: Sun, 8 Sep 2002 00:34:37 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@mwaikambo.name>
+X-X-Sender: zwane@linux-box.realnet.co.sz
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Robert Love <rml@tech9.net>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH][RFC] per isr in_progress markers
+Message-ID: <Pine.LNX.4.44.0209072342450.1096-100000@linux-box.realnet.co.sz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7 Sep 2002, Daniel Egger wrote:
+Hi Ingo, Robert,
+	What do you make of the following patch. It is supposed to ease 
+irq sharing by allowing multiple isrs to be executed, but still not 
+allowing a specific isr to be run asynchronously. I haven't been able to 
+test it on SMP proper, only SMP kernel on UP machine and using a shared 
+network card and sound card concurrently with an interrupt load of 
+~3000irqs/s
 
-> Am Sam, 2002-09-07 um 17.02 schrieb jbradford@dial.pipex.com:
-> 
-> > No, but you've upgraded the firmware, right?
-> 
-> Not exactly. According to IBM technical support there is no such thing
-> as a new firmware. The drives are alright, the OS is broken.
+Few questions;
+1) Should we set IRQ_PENDING on the way out again if it is found to be 
+ISR_INPROGRESS?
 
-They are full of CRAP!
+2) Is the spin_unlock(desc->lock).. handle_IRQ_event() ... 
+spin_lock(desc->lock) window large enough to allow another cpu in there 
+to handle another interrupt on that descriptor?
 
-IBM ran TASKFILE IO throught there bus analyzers and it came up clean.
-IBM also introduced FLAGGED versions of the diagnostic TASKFILE transport
-for eventual use of their DFT (Drive Fitness Test).
+Thanks,
+	Zwane
 
-You tell the service tech he is smoking crack.
-The kernel passed with flying colors in their disk labs. If you read
-in ide-taskfile.c version 0.33 and above, you will see they did some work
-on the driver and verified issues.
+Index: linux-2.5.33/include/linux/interrupt.h
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.33/include/linux/interrupt.h,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 interrupt.h
+--- linux-2.5.33/include/linux/interrupt.h	31 Aug 2002 22:30:51 -0000	1.1.1.1
++++ linux-2.5.33/include/linux/interrupt.h	7 Sep 2002 17:21:40 -0000
+@@ -13,6 +13,8 @@
+ #include <asm/system.h>
+ #include <asm/ptrace.h>
+ 
++#define ISR_INPROGRESS	1	/* ISR currently being executed */
++
+ struct irqaction {
+ 	void (*handler)(int, void *, struct pt_regs *);
+ 	unsigned long flags;
+@@ -20,6 +22,7 @@
+ 	const char *name;
+ 	void *dev_id;
+ 	struct irqaction *next;
++	unsigned long status;
+ };
+ 
+ 
+Index: linux-2.5.33/arch/i386/kernel/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.33/arch/i386/kernel/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.33/arch/i386/kernel/irq.c	31 Aug 2002 22:31:11 -0000	1.1.1.1
++++ linux-2.5.33/arch/i386/kernel/irq.c	7 Sep 2002 17:22:26 -0000
+@@ -200,21 +200,27 @@
+  */
+ int handle_IRQ_event(unsigned int irq, struct pt_regs * regs, struct irqaction * action)
+ {
+-	int status = 1;	/* Force the "do bottom halves" bit */
++	int ret = 1;	/* Force the "do bottom halves" bit */
+ 
+ 	if (!(action->flags & SA_INTERRUPT))
+ 		local_irq_enable();
+ 
++	/* Ease irq sharing by allowing other handlers to be run instead
++	 * of blocking all with IRQ_INPROGRESS */
++
+ 	do {
+-		status |= action->flags;
+-		action->handler(irq, action->dev_id, regs);
++		if (test_and_set_bit(ISR_INPROGRESS, &action->status) == 0) {
++			action->handler(irq, action->dev_id, regs);
++			clear_bit(ISR_INPROGRESS, &action->status);
++		}
++		ret |= action->flags;
+ 		action = action->next;
+ 	} while (action);
+-	if (status & SA_SAMPLE_RANDOM)
++	if (ret & SA_SAMPLE_RANDOM)
+ 		add_interrupt_randomness(irq);
+ 	local_irq_disable();
+ 
+-	return status;
++	return ret;
+ }
+ 
+ /*
+@@ -342,10 +348,13 @@
+ 
+ 	/*
+ 	 * If the IRQ is disabled for whatever reason, we cannot
+-	 * use the action we have.
++	 * use the action we have. Note that we don't check for
++	 * IRQ_INPROGRESS, we allow multiple ISRs from a shared
++	 * interrupt to be run concurrently, but still not allowing
++	 * the same handler to be run asynchronously.
+ 	 */
+ 	action = NULL;
+-	if (likely(!(status & (IRQ_DISABLED | IRQ_INPROGRESS)))) {
++	if (likely(!(status & IRQ_DISABLED))) {
+ 		action = desc->action;
+ 		status &= ~IRQ_PENDING; /* we commit to handling */
+ 		status |= IRQ_INPROGRESS; /* we are handling it */
+@@ -463,6 +472,7 @@
+ 	action->mask = 0;
+ 	action->name = devname;
+ 	action->next = NULL;
++	action->status = 0;
+ 	action->dev_id = dev_id;
+ 
+ 	retval = setup_irq(irq, action);
+-- 
+function.linuxpower.ca
 
-Now earlier I published a method of how to stablize the drive once you
-back up all the data you can off of it.  Since I do not yet have a source
-verison of DFT-Linux, or binary yet, I can not offer much more native.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
 

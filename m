@@ -1,29 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265540AbRFVWIH>; Fri, 22 Jun 2001 18:08:07 -0400
+	id <S265548AbRFVWN4>; Fri, 22 Jun 2001 18:13:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265541AbRFVWH5>; Fri, 22 Jun 2001 18:07:57 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18958 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S265540AbRFVWHp>; Fri, 22 Jun 2001 18:07:45 -0400
-Subject: Re: /dev/nvram driver
-To: thockin@sun.com (Tim Hockin)
-Date: Fri, 22 Jun 2001 23:07:10 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <3B339380.C0D973CB@sun.com> from "Tim Hockin" at Jun 22, 2001 11:50:40 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S265547AbRFVWNq>; Fri, 22 Jun 2001 18:13:46 -0400
+Received: from sncgw.nai.com ([161.69.248.229]:55756 "EHLO mcafee-labs.nai.com")
+	by vger.kernel.org with ESMTP id <S265541AbRFVWNj>;
+	Fri, 22 Jun 2001 18:13:39 -0400
+Message-ID: <XFMail.20010622151650.davidel@xmailserver.org>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15DZ54-0004FC-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <E15DYwE-00023t-00@pmenage-dt.ensim.com>
+Date: Fri, 22 Jun 2001 15:16:50 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: Paul Menage <pmenage@ensim.com>
+Subject: Re: signal dequeue ...
+Cc: linux-kernel@vger.kernel.org, george anzinger <george@mvista.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Currently it tracks O_EXCL on open() and sets a flag, whereby no other
-> open() calls can succeed.  Is this functionality really needed?  Perhaps it
-> should just be a reader/writer model : n readers or 1 writer.  In that
-> case, should open() block on a writer, or return -EBUSY?
 
-Several tools expect that mode of behaviour so that they can atomically
-recompute the checksum when writing low bytes of the CMOS
+On 22-Jun-2001 Paul Menage wrote:
+> In article <0C01A29FBAE24448A792F5C68F5EA47D120354@nasdaq.ms.ensim.com>,
+> you write:
+>>
+>>Right, but the remaining signals are still pending.  In your method, the
+>>kernel doesn't know which were and which were not actually delivered.
+>>
+> 
+> You could add an SA_MULTIPLE flag to the sigaction() sa_flags, which
+> permit the kernel to stack multiple signals up in this way for apps
+> that guarantee not to misbehave. In do_signal()/handle_signal(), only
+> allow a signal to be stacked on another signal if its handler has
+> SA_MULTIPLE set. So non-stackable signals will always be the last
+> signal frame of the stack to be entered, and it won't matter if they
+> longjmp() out.
+> 
+> Would the performance improvement from this be worthwhile? I imagine if
+> you're handling a lot of SIGIO signals, the ability to batch up several
+> signals in a single user/kernel crossing might be of noticeable benefit.
+
+This could be a good idea but before moving a single hair I want to measure the
+maximum ( and average ) queue length for rt signals.
+In case this will be constantly > 1 to have a multiple signal dispatch will
+save a lot of kernel-mode / user-mode switches.
+Otherwise this will be files under NAI ( Not An Issue ) :)
+
+
+
+
+
+- Davide
+

@@ -1,47 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281309AbRKPLiS>; Fri, 16 Nov 2001 06:38:18 -0500
+	id <S281320AbRKPLvj>; Fri, 16 Nov 2001 06:51:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281311AbRKPLiI>; Fri, 16 Nov 2001 06:38:08 -0500
-Received: from h55p103-2.delphi.afb.lu.se ([130.235.187.175]:43157 "EHLO gin")
-	by vger.kernel.org with ESMTP id <S281309AbRKPLh6>;
-	Fri, 16 Nov 2001 06:37:58 -0500
-Date: Fri, 16 Nov 2001 12:37:35 +0100
-To: Nathan Myers <ncm@nospam.cantrip.org>
-Cc: linux-kernel@vger.kernel.org, alan@redhat.com, torvalds@transmeta.com
-Subject: Re: [PATCH] omnibus include/ cleanup (biggish)
-Message-ID: <20011116123735.B1804@h55p111.delphi.afb.lu.se>
-In-Reply-To: <20011115175144.A6622@shell7.ba.best.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011115175144.A6622@shell7.ba.best.com>
-User-Agent: Mutt/1.3.23i
-From: andersg@0x63.nu
+	id <S281317AbRKPLv3>; Fri, 16 Nov 2001 06:51:29 -0500
+Received: from mustard.heime.net ([194.234.65.222]:44208 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S281313AbRKPLvM>; Fri, 16 Nov 2001 06:51:12 -0500
+Date: Fri, 16 Nov 2001 12:51:07 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: RE: Tuning Linux for high-speed disk subsystems
+In-Reply-To: <20011116025639Z281196-17408+14879@vger.kernel.org>
+Message-ID: <Pine.LNX.4.30.0111161249440.17531-100000@mustard.heime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 15, 2001 at 05:51:44PM -0800, Nathan Myers wrote:
-> I have located every place under linux/include/ that #defines
-> a macro with an improper unary expression, like any of
+> Our 100 Gig SCSI raid, consisting of 6 15,000 rpm drives on the motherboard's
+> two SCSI 160 channels gives a full 110MB/sec read and write with RAID 0. With
+> RAID chunks set to 1MB the write accesses go to 160MB/sec and read accesses
+> go to 90MB/sec sustained. This system would make a good motion capture tool.
+> Previous Intel attempts at onboard disk I/O would give 50MB/sec.
 
-you missed this which generates a compiletime-error in sched.c with compiled
-with WAITQUEUE_DEBUG
+How much do you think I can get out of 2x6 15k disks - each 6 disks are on
+their own SCSI-3/160 bus.
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
 
---- wait.h~	Thu Nov 15 22:54:50 2001
-+++ wait.h	Thu Nov 15 22:59:04 2001
-@@ -105,7 +105,7 @@
- 	} while (0)
- #define WQ_CHECK_LIST_HEAD(list) 						\
- 	do {									\
--		if (!list->next || !list->prev)					\
-+		if (!(list)->next || !(list)->prev)					\
- 			WQ_BUG();						\
- 	} while(0)
- #define WQ_NOTE_WAKER(tsk)							\
-
-
--- 
-
-//anders/g
+Computers are like air conditioners.
+They stop working when you open Windows.
 

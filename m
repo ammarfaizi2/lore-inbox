@@ -1,88 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266181AbUF3Knm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265970AbUF3Ksy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266181AbUF3Knm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 06:43:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266579AbUF3Knm
+	id S265970AbUF3Ksy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 06:48:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266579AbUF3Ksy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 06:43:42 -0400
-Received: from everest.2mbit.com ([24.123.221.2]:30118 "EHLO mail.sosdg.org")
-	by vger.kernel.org with ESMTP id S266181AbUF3Knj (ORCPT
+	Wed, 30 Jun 2004 06:48:54 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:12198 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S265970AbUF3Ksx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 06:43:39 -0400
-Message-ID: <40E29945.6080107@greatcn.org>
-Date: Wed, 30 Jun 2004 18:43:17 +0800
-From: Coywolf Qi Hunt <coywolf@greatcn.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (Windows/20040626)
-X-Accept-Language: en-us, en
+	Wed, 30 Jun 2004 06:48:53 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
+Subject: Re: Preemption of the OS system call due to expiration of the time-sl ice for: a) SCHED_NORMAL (aka SCHED_OTHER) b) SCHED_RR
+Date: Wed, 30 Jun 2004 12:50:04 +0200
+User-Agent: KMail/1.6.2
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'andrebalsa@altern.org'" <andrebalsa@altern.org>,
+       "'Richard E. Gooch'" <rgooch@atnf.csiro.au>,
+       "'Ingo Molnar'" <mingo@elte.hu>, "'rml@tech9.net'" <rml@tech9.net>,
+       "'akpm@osdl.org'" <akpm@osdl.org>, "'Con Kolivas'" <kernel@kolivas.org>
+References: <313680C9A886D511A06000204840E1CF08F42FAE@whq-msgusr-02.pit.comms.marconi.com>
+In-Reply-To: <313680C9A886D511A06000204840E1CF08F42FAE@whq-msgusr-02.pit.comms.marconi.com>
 MIME-Version: 1.0
-To: Coywolf Qi Hunt <coywolf@greatcn.org>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org, rmk+lkml@arm.linux.org.uk
-References: <40E03F71.8010902@greatcn.org>
-In-Reply-To: <40E03F71.8010902@greatcn.org>
-X-Scan-Signature: 343c02c2eb63e9fdf8bb9e8b0a6769b7
-X-SA-Exim-Connect-IP: 218.24.174.116
-X-SA-Exim-Mail-From: coywolf@greatcn.org
-Subject: [BUG FIX]  fork_init() OOM bug on big highmem machine
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
-	*      [score: 0.0000]
-	*  3.0 RCVD_IN_AHBL_CNKR RBL: AHBL: sender is listed in the AHBL China/Korea blocks
-	*      [218.24.174.116 listed in cnkrbl.ahbl.org]
-X-SA-Exim-Version: 4.0 (built Wed, 05 May 2004 12:02:20 -0500)
+Message-Id: <200406301250.04473.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Coywolf Qi Hunt wrote:
+Am Mittwoch, 30. Juni 2004 11:50 schrieb Povolotsky, Alexander:
+> Con - thanks for your kind answers !
+> 
+> Preemption (due to the expiration of the time-slice) of the process, while
+> it executes OS system call, -  by another process (of equal or higher
+> priority) when running under following scheduling policies:
+> 
+>  a) SCHED_NORMAL (aka SCHED_OTHER)
+>  b) SCHED_RR 
+> 
+> Is it possible in Linux 2.6 ? Linux 2.4 ?
 
-> Hello all,
->
-> On machine with 16G(or 8G if 4k stacks) or more memory, high 
-> max_threads could let system run out of low memory.
-> This patch decides max_threads by the amount of low memory instead of 
-> the total physical memory.
-> Systems without high memory would not be affected. 
+It is possible if the kernel is compiled with CONFIG_PREEMPT
+and the calling task has not blocked it.
 
-This patch should be ok by taking ``max_low_pfn - min_low_pfn'' and also 
-becomes more accurate.
-
-On those systems where physical RAM doesn't start at address 0, we 
-should initialize min_low_pfn.
-Anyway min_low_pfn is already defined on all platforms. The bug of 
-forgetting min_low_pfn initialization
-on those platforms isn't more severe than this bug.
-
-====================================================================
-
-diff -rup linux-2.6.7/init/main.c linux-2.6.7-cy/init/main.c
---- linux-2.6.7/init/main.c	Wed Jun  9 00:07:40 2004
-+++ linux-2.6.7-cy/init/main.c	Thu Jun 17 04:55:54 2004
-@@ -467,7 +467,7 @@ asmlinkage void __init start_kernel(void
- 	if (efi_enabled)
- 		efi_enter_virtual_mode();
- #endif
--	fork_init(num_physpages);
-+	fork_init(max_low_pfn - min_low_pfn);
- 	proc_caches_init();
- 	buffer_init();
- 	unnamed_dev_init();
-diff -rup linux-2.6.7/kernel/fork.c linux-2.6.7-cy/kernel/fork.c
---- linux-2.6.7/kernel/fork.c	Wed Jun  9 00:07:40 2004
-+++ linux-2.6.7-cy/kernel/fork.c	Mon Jun 28 22:55:50 2004
-@@ -224,8 +224,8 @@ void __init fork_init(unsigned long memp
- 
- 	/*
- 	 * The default maximum number of threads is set to a safe
--	 * value: the thread structures can take up at most half
--	 * of memory.
-+	 * value: the thread structures can take up at most 1/8
-+	 * of low memory.
- 	 */
- 	max_threads = mempages / (THREAD_SIZE/PAGE_SIZE) / 8;
- 	/*
-
-
--- 
-Coywolf Qi Hunt
-Admin of http://GreatCN.org and http://LoveCN.org
-
+	HTH
+		Oliver

@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313924AbSECOjB>; Fri, 3 May 2002 10:39:01 -0400
+	id <S314058AbSECOnv>; Fri, 3 May 2002 10:43:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314041AbSECOjA>; Fri, 3 May 2002 10:39:00 -0400
-Received: from ucsu.Colorado.EDU ([128.138.129.83]:11400 "EHLO
-	ucsu.colorado.edu") by vger.kernel.org with ESMTP
-	id <S313924AbSECOi7>; Fri, 3 May 2002 10:38:59 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: "Ivan G." <ivangurdiev@linuxfreemail.com>
-Reply-To: ivangurdiev@linuxfreemail.com
-Organization: ( )
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-pre8
-Date: Fri, 3 May 2002 08:32:12 -0600
-X-Mailer: KMail [version 1.2]
+	id <S314128AbSECOnu>; Fri, 3 May 2002 10:43:50 -0400
+Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:37283 "EHLO
+	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S314058AbSECOnu>; Fri, 3 May 2002 10:43:50 -0400
+Date: Fri, 3 May 2002 15:43:44 +0100 (BST)
+From: Anton Altaparmakov <aia21@cantab.net>
+To: skmail@mcewen.wcnet.org
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel strangeness
+In-Reply-To: <E173ePc-0006Uu-00@the-village.bc.nu>
+Message-ID: <Pine.SOL.3.96.1020503154207.17346A-100000@virgo.cus.cam.ac.uk>
 MIME-Version: 1.0
-Message-Id: <02050308321201.07377@cobra.linux>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Upgrading 2.4.19-pre3 to 2.4.19-pre8
-but problem is probably created by 2.4.19-pre7 where i saw apic changes
+On Fri, 3 May 2002, Alan Cox wrote:
 
-_________________________________
+> > Thank you.  I will try replacing the glibc.  If I understand right (I'm 
+> > not a programmer) I will need to recompile the kernel, and possibly some 
+> > other programs, against the i386 glibc.  Correct?
+> 
+> You don't. You just need to replace the i686 rpm of glibc with the i386 one
+> and all should be well
 
-init/main.o: In function `smp_init':
-init/main.o(.text.init+0x5e1): undefined reference to `skip_ioapic_setup'
-arch/i386/kernel/kernel.o: In function `broken_pirq':
-arch/i386/kernel/kernel.o(.text.init+0x3547): undefined reference to 
-`skip_ioapic_setup'
-make: *** [vmlinux] Error 1
+Note you probably will need to use the --force flag for this to work...
 
-..or perhaps my config is wrong. 
-I am not sure about the apic feature.
+(At least I needed to use --force when going from i386 to i686 RH7.0 glibc
+rpm last night as it complained about conflicting files otherwise...)
 
-#define CONFIG_MK7 1
-...
-#define CONFIG_X86_GOOD_APIC
-....
-#undef  CONFIG_SMP
-#define CONFIG_X86_UP_APIC 1
-#undef  CONFIG_X86_UP_IOAPIC
-#define CONFIG_X86_LOCAL_APIC 1
--------------------------------
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,46 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270746AbRHWXlM>; Thu, 23 Aug 2001 19:41:12 -0400
+	id <S270779AbRHWXnL>; Thu, 23 Aug 2001 19:43:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270772AbRHWXlB>; Thu, 23 Aug 2001 19:41:01 -0400
-Received: from delhi1.mtnl.net.in ([203.94.243.51]:1666 "EHLO
-	delhi1.mtnl.net.in") by vger.kernel.org with ESMTP
-	id <S270758AbRHWXkr>; Thu, 23 Aug 2001 19:40:47 -0400
-Date: Fri, 24 Aug 2001 05:23:06 +0530
-From: Sandip Bhattacharya <subscriptions@sandipb.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ram device not initialised to zero in 2.4.8
-Message-ID: <20010824052306.A3157@bigfoot.com>
-In-Reply-To: <200108232153.XAA06231@xilofon.it.uc3m.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <200108232153.XAA06231@xilofon.it.uc3m.es>; from ptb@it.uc3m.es on Thu, Aug 23, 2001 at 11:53:43PM +0200
-X-HomePage: http://www.sandipb.net
-X-OS: Linux kajaal.home 2.4.8 i586 unknown
-X-Serialmail-Rcpt: postman@kajaal.home
+	id <S270774AbRHWXnA>; Thu, 23 Aug 2001 19:43:00 -0400
+Received: from adsl-64-175-255-50.dsl.sntc01.pacbell.net ([64.175.255.50]:54207
+	"HELO kobayashi.soze.net") by vger.kernel.org with SMTP
+	id <S270772AbRHWXmq>; Thu, 23 Aug 2001 19:42:46 -0400
+Date: Thu, 23 Aug 2001 16:43:03 -0700 (PDT)
+From: Justin Guyett <justin@soze.net>
+X-X-Sender: <tyme@kobayashi.soze.net>
+To: jacob berkman <jacob@ximian.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: mmap() return value when length == 0
+In-Reply-To: <998604774.796.10.camel@wet-pants>
+Message-ID: <Pine.LNX.4.33.0108231557430.7753-100000@kobayashi.soze.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 23, 2001 at 11:53:43PM +0200, Peter T. Breuer merrily said:
-> I don't see what harm it does, but the ram devices are full of
-> interesting data if you read them after setting them up. Either
-> this is a security hole waiting to happen, or somebody is being
-> very inventive with the fill ...
+On 23 Aug 2001, jacob berkman wrote:
+
+> on linux (2.4.9 and 2.2.18), the mmap() syscall will return NULL if the
+> length argument is 0 rather than returning MAP_FAILED (-1).  this is
+> different than both solaris and hp-ux, and the linux man page doesn't
+> indicate that it should do this.
+>
+> so, is this indeed the desired behaviour or a longstanding bug?
+
+Surely the posix standard would say.
+
+The sol8 manpage says specifically that EINVAL is returned if len <= 0;
+
+And an openbsd and freebsd box i tried it on happily do the mmaps as
+well.
+
+All three (linux, sol8, fbsd) segfault with the following code for various
+values of x and y.
+
+fd = open();
+marea = mmap(0, x, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0);
+munmap(marea, y);
+fclose(fd);
+
+mmap:
+ linux
+  succeeds
+ sol8
+  succeeds if x>0, fails otherwise
+ fbsd4.3
+  succeeds
+
+munmap:
+ linux
+  succeeds unless x>0 and y>x, in which case it segfaults
+ sol8
+  succeeds
+ fbsd
+  succeeds
+
+close:
+ linux
+  succeeds
+ sol8
+  segfaults if y>x
+ fbsd
+  segfaults if y>x
 
 
-Well. It would probably be the first possibility. I tried out what you
-said, and it showed me the contents of a mail which I had just sent
-out ...
-
-- Sandip
-
-
--- 
--------------------------------------
-Sandip Bhattacharya 
-sandipb @ bigfoot.com
-http://www.sandipb.net
--------------------------------------
+justin
 

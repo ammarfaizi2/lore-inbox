@@ -1,97 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262888AbUCPA7e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 19:59:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262961AbUCPA4W
+	id S263159AbUCPBDd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 20:03:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263157AbUCPAQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 19:56:22 -0500
-Received: from fmr04.intel.com ([143.183.121.6]:17377 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262888AbUCPAxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 19:53:37 -0500
-Message-Id: <200403160053.i2G0rNm31241@unix-os.sc.intel.com>
-From: "Kenneth Chen" <kenneth.w.chen@intel.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Patch - make config_max_raw_devices work
-Date: Mon, 15 Mar 2004 16:53:23 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcQK8RT9znrkbjNjTBeiDzSkh110lg==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Mon, 15 Mar 2004 19:16:54 -0500
+Received: from mail.kroah.org ([65.200.24.183]:19631 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262894AbUCPACT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 19:02:19 -0500
+Subject: Re: [PATCH] Driver Core update for 2.6.4
+In-Reply-To: <10793951472319@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 15 Mar 2004 15:59:07 -0800
+Message-Id: <10793951472400@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Even though there is a CONFIG_MAX_RAW_DEVS option, it doesn't actually
-increase the number of raw devices beyond 256 because during the char
-registration, it uses the standard register_chrdev() interface which
-has hard coded 256 minor in it.  Here is a patch that fix this problem
-by using register_chrdev_region() and cdev_(init/add/del) functions.
+ChangeSet 1.1608.84.7, 2004/03/10 17:34:33-08:00, ogasawara@osdl.org
 
-I'm also thinking this config option probably should be converted into
-module_param.  Would that be worthwhile?
+[PATCH] Add sysfs simple class support for netlink
 
-- Ken
+Patch adds sysfs simple class support for netlink character device
+(Major 36).  Feedback appreciated.  Thanks,
 
 
+ net/netlink/netlink_dev.c |   20 ++++++++++++++++++--
+ 1 files changed, 18 insertions(+), 2 deletions(-)
 
-diff -Nurp linux-2.6.4/drivers/char/raw.c linux-2.6.4-raw/drivers/char/raw.c
---- linux-2.6.4/drivers/char/raw.c	2004-03-10 18:55:34.000000000 -0800
-+++ linux-2.6.4-raw/drivers/char/raw.c	2004-03-15 15:51:19.000000000 -0800
-@@ -17,6 +17,7 @@
- #include <linux/raw.h>
- #include <linux/capability.h>
- #include <linux/uio.h>
-+#include <linux/cdev.h>
 
- #include <asm/uaccess.h>
-
-@@ -260,11 +261,26 @@ static struct file_operations raw_ctl_fo
- 	.owner	=	THIS_MODULE,
- };
-
-+static struct cdev raw_cdev = {
-+	.kobj	=	{.name = "raw", },
-+	.owner	=	THIS_MODULE,
-+};
+diff -Nru a/net/netlink/netlink_dev.c b/net/netlink/netlink_dev.c
+--- a/net/netlink/netlink_dev.c	Mon Mar 15 15:29:27 2004
++++ b/net/netlink/netlink_dev.c	Mon Mar 15 15:29:27 2004
+@@ -27,6 +27,7 @@
+ #include <linux/init.h>
+ #include <linux/devfs_fs_kernel.h>
+ #include <linux/smp_lock.h>
++#include <linux/device.h>
+ 
+ #include <asm/bitops.h>
+ #include <asm/system.h>
+@@ -34,6 +35,7 @@
+ 
+ static long open_map;
+ static struct socket *netlink_user[MAX_LINKS];
++static struct class_simple *netlink_class;
+ 
+ /*
+  *	Device operations
+@@ -229,17 +231,26 @@
+ 		return -EIO;
+ 	}
+ 
++	netlink_class = class_simple_create(THIS_MODULE, "netlink");
++	if (IS_ERR(netlink_class)) {
++		printk (KERN_ERR "Error creating netlink class.\n");
++		unregister_chrdev(NETLINK_MAJOR, "netlink");
++		return PTR_ERR(netlink_class);
++	}
 +
- static int __init raw_init(void)
+ 	devfs_mk_dir("netlink");
+ 
+ 	/*  Someone tell me the official names for the uppercase ones  */
+ 	for (i = 0; i < ARRAY_SIZE(entries); i++) {
+ 		devfs_mk_cdev(MKDEV(NETLINK_MAJOR, entries[i].minor),
+ 			S_IFCHR|S_IRUSR|S_IWUSR, "netlink/%s", entries[i].name);
++		class_simple_device_add(netlink_class, MKDEV(NETLINK_MAJOR, entries[i].minor), NULL, "%s", entries[i].name);
+ 	}
+ 
+ 	for (i = 0; i < 16; i++) {
+ 		devfs_mk_cdev(MKDEV(NETLINK_MAJOR, i + 16),
+ 			S_IFCHR|S_IRUSR|S_IWUSR, "netlink/tap%d", i);
++		class_simple_device_add(netlink_class, MKDEV(NETLINK_MAJOR, i + 16), NULL, "tap%d", i);
+ 	}
+ 
+ 	return 0;
+@@ -249,11 +260,16 @@
  {
  	int i;
-+	dev_t dev = MKDEV(RAW_MAJOR, 0);
-+
-+	if (register_chrdev_region(dev, MAX_RAW_MINORS, "raw"))
-+		goto error;
-+
-+	cdev_init(&raw_cdev, &raw_fops);
-+	if (cdev_add(&raw_cdev, dev, MAX_RAW_MINORS)) {
-+		kobject_put(&raw_cdev.kobj);
-+		unregister_chrdev_region(dev, MAX_RAW_MINORS);
-+		goto error;
+ 
+-	for (i = 0; i < ARRAY_SIZE(entries); i++)
++	for (i = 0; i < ARRAY_SIZE(entries); i++) {
+ 		devfs_remove("netlink/%s", entries[i].name);
+-	for (i = 0; i < 16; i++)
++		class_simple_device_remove(MKDEV(NETLINK_MAJOR, entries[i].minor));
 +	}
-
--	register_chrdev(RAW_MAJOR, "raw", &raw_fops);
- 	devfs_mk_cdev(MKDEV(RAW_MAJOR, 0),
- 		      S_IFCHR | S_IRUGO | S_IWUGO,
- 		      "raw/rawctl");
-@@ -273,6 +289,10 @@ static int __init raw_init(void)
- 			      S_IFCHR | S_IRUGO | S_IWUGO,
- 			      "raw/raw%d", i);
- 	return 0;
-+
-+error:
-+	printk(KERN_ERR "error register raw device\n");
-+	return 1;
++	for (i = 0; i < 16; i++) {
+ 		devfs_remove("netlink/tap%d", i);
++		class_simple_device_remove(MKDEV(NETLINK_MAJOR, i + 16));
++	}
+ 	devfs_remove("netlink");
++	class_simple_destroy(netlink_class);
+ 	unregister_chrdev(NETLINK_MAJOR, "netlink");
  }
-
- static void __exit raw_exit(void)
-@@ -283,7 +303,8 @@ static void __exit raw_exit(void)
- 		devfs_remove("raw/raw%d", i);
- 	devfs_remove("raw/rawctl");
- 	devfs_remove("raw");
--	unregister_chrdev(RAW_MAJOR, "raw");
-+	cdev_del(&raw_cdev);
-+	unregister_chrdev_region(MKDEV(RAW_MAJOR, 0), MAX_RAW_MINORS);
- }
-
- module_init(raw_init);
-
+ 
 

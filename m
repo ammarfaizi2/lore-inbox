@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261552AbUAWM5n (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 07:57:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266547AbUAWM5n
+	id S261190AbUAWNFe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 08:05:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbUAWNFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 07:57:43 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:59592 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261552AbUAWM5m (ORCPT
+	Fri, 23 Jan 2004 08:05:34 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:65412 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S261190AbUAWNFa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 07:57:42 -0500
-MIME-Version: 1.0
+	Fri, 23 Jan 2004 08:05:30 -0500
+Date: Fri, 23 Jan 2004 14:05:35 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Ed Tomlinson <edt@aei.ca>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: vts have stopped working here
+Message-ID: <20040123130535.GA4046@ucw.cz>
+References: <224300000.1074839500@[10.10.2.4]> <4010C2BF.7090806@cyberone.com.au> <200401230743.38488.edt@aei.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16401.6720.115695.872847@alkaid.it.uu.se>
-Date: Fri, 23 Jan 2004 13:57:36 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.6] local APIC LVTT init bug
-In-Reply-To: <Pine.LNX.4.55.0401231250310.3223@jurand.ds.pg.gda.pl>
-References: <16400.9569.745184.16182@alkaid.it.uu.se>
-	<Pine.LNX.4.55.0401231250310.3223@jurand.ds.pg.gda.pl>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Content-Disposition: inline
+In-Reply-To: <200401230743.38488.edt@aei.ca>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej W. Rozycki writes:
- > On Thu, 22 Jan 2004, Mikael Pettersson wrote:
- > 
- > > __setup_APIC_LVTT() incorrectly sets i82489DX-only bits
- > > which are reserved in integrated local APICs, causing
- > > problems in some machines. Fixed in this patch by making
- > > this setting conditional.
- > 
- >  Sigh -- why can't designers keep such a trivial backwards
- > compatibility???  The integrated APIC was said to be backwards compatible
- > when introduced and so far all implementations used to.  What you write
- > means that has been broken -- could please say which vendor to blame?
+On Fri, Jan 23, 2004 at 07:43:38AM -0500, Ed Tomlinson wrote:
 
-The ASUS L3800C was mentioned. I don't know of any others.
+> Is anyone else having problems with vt(s)?  I can switch between X and vt 1 without
+> problems.  Trying to use any of the other vt(s) fails.   
+> 
+> A+C+F1 flips from X to vt1
+> A+F2 flips to vt7 (x)
+> A+C+F2 from X does nothing
+> 
+> In my logs there are messages about init spawing too fast.  Suspect that these are
+> the processes for the Vt(s) started with:
+> 
+> 2:23:respawn:/sbin/getty 38400 tty2
 
- >  Your proposal is therefore the only correct one.
+Interesting. The vt's don't exist until something writes to them. So
+most likely X is running on vt2 in your case. As to why the processes
+keep dying - no idea.
 
-Thanks for confirming that.
-
-/Mikael
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

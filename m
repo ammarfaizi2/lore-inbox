@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263632AbSITV3c>; Fri, 20 Sep 2002 17:29:32 -0400
+	id <S263770AbSITVaM>; Fri, 20 Sep 2002 17:30:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263770AbSITV3b>; Fri, 20 Sep 2002 17:29:31 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:33029
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S263632AbSITV3b>; Fri, 20 Sep 2002 17:29:31 -0400
-Subject: Re: [PATCH] list_head debugging?
-From: Robert Love <rml@tech9.net>
-To: Zach Brown <zab@zabbo.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020920165304.A4588@bitchcake.off.net>
-References: <20020920165304.A4588@bitchcake.off.net>
-Content-Type: text/plain
+	id <S263810AbSITVaL>; Fri, 20 Sep 2002 17:30:11 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:16037 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S263770AbSITVaE>;
+	Fri, 20 Sep 2002 17:30:04 -0400
+Date: Fri, 20 Sep 2002 14:30:23 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Maneesh Soni <maneesh@in.ibm.com>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org, viro@math.psu.edu
+Subject: Re: 2.5.36-mm1 dbench 512 profiles
+Message-ID: <68810000.1032557423@flay>
+In-Reply-To: <20020920120358.GV28202@holomorphy.com>
+References: <20020919223007.GP28202@holomorphy.com> <68630000.1032477517@w-hlinder> <3D8A5FE6.4C5DE189@digeo.com> <20020920000815.GC3530@holomorphy.com> <200209200747.g8K7la9B174532@northrelay01.pok.ibm.com> <20020920080628.GK3530@holomorphy.com> <20020920120358.GV28202@holomorphy.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 20 Sep 2002 17:34:36 -0400
-Message-Id: <1032557677.966.863.camel@phantasy>
-Mime-Version: 1.0
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-09-20 at 16:53, Zach Brown wrote:
-
-> A friend recently was bitten by passing a list_head from list_for_each
-> to a code path that later moved the list_head around.  Does the attached
-> patch re-create some debugging wheel that's hiding off in a corner
-> somewhere?
+> AFAICT, with one bottleneck out of the way, a new one merely arises to
+> take its place. Ugly. OTOH the qualitative difference is striking. The
+> interactive responsiveness of the machine, even when entirely unloaded,
+> is drastically improved, along with such nice things as init scripts
+> and kernel compiles also markedly faster. I suspect this is just the
+> wrong benchmark to show throughput benefits with.
 > 
-> Beyond catching the obvious use of uninitialized things, it also seems
-> to catch double adds, double deletes, and simple deletes of 'pos' in
-> list_for_each.  it even seems to bark about the seemingly hard-to-detect
-> movement of 'pos' from the iterating list to another, but probably only
-> in the rare case where you're unconditionally moving all 'pos' in the
-> loop body.  (you eventually iterate into the second list's head and try
-> to add it to itself)
+> Also notable is that the system time was significantly reduced though
+> I didn't log it. Essentially a long period of 100% system time is
+> entered after a certain point in the benchmark, during which there are
+> few (around 60 or 70) context switches in a second, and the duration
+> of this period was shortened.
+> 
+> The results here contradict my prior conclusions wrt. HZ 100 vs. 1000.
 
-Hey, cool!
+Hmmm ... I think you need the NUMA aware scheduler ;-) 
+On the plus side, that does look like RCU pretty much obliterated the dcache
+problems ....
 
-Yes, I think a lot of people would be all for something like this as a
-CONFIG_DEBUG_LISTS or such.  Very nice.
+M.
 
-	Robert Love
 

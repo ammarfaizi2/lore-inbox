@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293049AbSCFTB0>; Wed, 6 Mar 2002 14:01:26 -0500
+	id <S293722AbSCFTC0>; Wed, 6 Mar 2002 14:02:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293722AbSCFTBQ>; Wed, 6 Mar 2002 14:01:16 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:44550 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S293049AbSCFTBD>; Wed, 6 Mar 2002 14:01:03 -0500
-Date: Wed, 6 Mar 2002 13:59:01 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Shawn Starr <spstarr@sh0n.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ANNOUNCEMENT: 2.4.19-pre2-ac2-xfs-shawn9 released
-In-Reply-To: <Pine.LNX.4.40.0203052117390.278-100000@coredump.sh0n.net>
-Message-ID: <Pine.LNX.3.96.1020306135614.386B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293749AbSCFTCR>; Wed, 6 Mar 2002 14:02:17 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:10749
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S293722AbSCFTB5>; Wed, 6 Mar 2002 14:01:57 -0500
+Date: Wed, 6 Mar 2002 11:02:49 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [STATUS 2.5]  March 6, 2002
+Message-ID: <20020306190249.GB342@matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <3C861CE4.6284.237C28E4@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C861CE4.6284.237C28E4@localhost>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Mar 2002, Shawn Starr wrote:
+> o in -ac      32bit UID quota support                         (?)
+>
 
-> 
-> What change did you have to make with rml's patch? Some people are
-> wondering. I haven't tried it yet.
+I'm surprised this is still pending, it's been in -ac for ages...
 
-The 19-pre2-ac2 preempt patch worked as-is, no changes needed. What you
-would need to do after you add your stuff is another matter, of course.
+> o Beta        Fix long-held locks for low scheduling latency  (Andrew Morton, 
+> etc.)
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+IIRC, LL isn't compatible with preempt, so maybe this item should be removed?
+
+Also Andrew, where's the listing for the delayed allocation patch you're
+working on.  It looks like it's just about ready to go to beta stage...
+
+> o Alpha       Replace old NTFS driver with NTFS TNG driver    (Anton 
+> Altaparmakov)
+
+Is this still in alpha stage?
+
+> o Alpha       Rewrite of the framebuffer layer                (James Simmons)
+> o Started     Rewrite of the console layer                    (James Simmons)
+
+Since this is in -dj and people are using it, maybe it should be beta?
 

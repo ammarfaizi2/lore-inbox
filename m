@@ -1,90 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262392AbVAJS1a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262390AbVAJSbT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262392AbVAJS1a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 13:27:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262404AbVAJSZF
+	id S262390AbVAJSbT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 13:31:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262411AbVAJSY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 13:25:05 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:52175 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262407AbVAJSHv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 13:07:51 -0500
-Subject: [PATCH 3/6] 2.4.19-rc1 nfs_lookup stack reduction patch
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1105378550.4000.132.camel@dyn318077bld.beaverton.ibm.com>
-References: <1105378550.4000.132.camel@dyn318077bld.beaverton.ibm.com>
-Content-Type: multipart/mixed; boundary="=-jTGeYO5zJT+ZPg43roAX"
-Organization: 
-Message-Id: <1105378818.4000.140.camel@dyn318077bld.beaverton.ibm.com>
+	Mon, 10 Jan 2005 13:24:28 -0500
+Received: from rproxy.gmail.com ([64.233.170.198]:49186 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262390AbVAJSDQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 13:03:16 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=fYQny538bGDBbGQLK6OKg0CSpZRatDl6AIDmmjW4hW+MmOEofEOwGDUNXVY/jH+T7syhM+wWhbHs/HSu1CEfiVzdgNm8eQXB93uibc+X07iy1Z+JU3NxTA1NayGwwru5hG3E7Jgq/eUC9rs5HJBKft6MqKTDAm0d07Y5AXu6zCE=
+Message-ID: <884a349a050110100347dfc583@mail.gmail.com>
+Date: Mon, 10 Jan 2005 19:03:12 +0100
+From: Roseline Bonchamp <roseline.bonchamp@gmail.com>
+Reply-To: Roseline Bonchamp <roseline.bonchamp@gmail.com>
+To: "Stephen J. Gowdy" <gowdy@slac.stanford.edu>
+Subject: Re: [Linux-usb-users] USB problem with a mass storage device on 2.6.10
+Cc: linux-usb-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0501100752270.5108@antonia.sgowdy.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 10 Jan 2005 09:40:19 -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <884a349a050110044654d75f7b@mail.gmail.com>
+	 <Pine.LNX.4.58.0501100752270.5108@antonia.sgowdy.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> What is in /proc/bus/usb/devices when it doesn't work (and when it works)?
+> What command fails?
 
---=-jTGeYO5zJT+ZPg43roAX
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+When it does'nt work, I see my 2 UHCI controllers and my EHCI
+controller (driver=Hub)
 
+When it does work, I see the same, plus:
 
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 15 Spd=480 MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=0ea0 ProdID=2168 Rev= 2.00
+S:  Manufacturer=USB
+S:  Product=Flash Disk
+S:  SerialNumber=106C1141B1C3762C
+C:* #Ifs= 1 Cfg#= 1 Atr=80 MxPwr=200mA
+I:  If#= 0 Alt= 0 #EPs= 3 Cls=08(stor.) Sub=06 Prot=50 Driver=usb-storage
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=83(I) Atr=03(Int.) MxPS=   2 Ivl=125us
 
---=-jTGeYO5zJT+ZPg43roAX
-Content-Disposition: attachment; filename=nfs_lookup.patch
-Content-Type: text/plain; name=nfs_lookup.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+What fails is that I don't see anything related to USB mass storage in
+logs, and so cannot access the device through de SCSI interface
+(/dev/sda...)
 
-Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
---- linux-2.4.29-rc1.org/fs/nfs/dir.c	2005-01-07 07:39:06.000000000 -0800
-+++ linux-2.4.29-rc1/fs/nfs/dir.c	2005-01-10 00:15:56.000000000 -0800
-@@ -580,8 +580,8 @@ static struct dentry *nfs_lookup(struct 
- {
- 	struct inode *inode;
- 	int error;
--	struct nfs_fh fhandle;
--	struct nfs_fattr fattr;
-+	struct nfs_fh *fhandle;
-+	struct nfs_fattr *fattr;
- 
- 	dfprintk(VFS, "NFS: lookup(%s/%s)\n",
- 		dentry->d_parent->d_name.name, dentry->d_name.name);
-@@ -591,15 +591,22 @@ static struct dentry *nfs_lookup(struct 
- 		goto out;
- 
- 	error = -ENOMEM;
-+	fhandle = kmalloc(sizeof(struct nfs_fh), GFP_KERNEL);
-+	if (!fhandle)
-+		goto out;
-+	fattr = kmalloc(sizeof(struct nfs_fattr), GFP_KERNEL);
-+	if (!fattr)
-+		goto free_fhandle;
-+
- 	dentry->d_op = &nfs_dentry_operations;
- 
--	error = NFS_PROTO(dir)->lookup(dir, &dentry->d_name, &fhandle, &fattr);
-+	error = NFS_PROTO(dir)->lookup(dir, &dentry->d_name, fhandle, fattr);
- 	inode = NULL;
- 	if (error == -ENOENT)
- 		goto no_entry;
- 	if (!error) {
- 		error = -EACCES;
--		inode = nfs_fhget(dentry, &fhandle, &fattr);
-+		inode = nfs_fhget(dentry, fhandle, fattr);
- 		if (inode) {
- 	    no_entry:
- 			d_add(dentry, inode);
-@@ -607,6 +614,9 @@ static struct dentry *nfs_lookup(struct 
- 		}
- 		nfs_renew_times(dentry);
- 	}
-+	kfree(fattr);
-+free_fhandle:
-+	kfree(fhandle);
- out:
- 	return ERR_PTR(error);
- }
-
---=-jTGeYO5zJT+ZPg43roAX--
-
+Also I've just fount out that it seems that "echo y >
+/sys/module/usbcore/parameters/old_scheme_first" makes it work!

@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263152AbRFMLRT>; Wed, 13 Jun 2001 07:17:19 -0400
+	id <S263461AbRFMLjp>; Wed, 13 Jun 2001 07:39:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263418AbRFMLRJ>; Wed, 13 Jun 2001 07:17:09 -0400
-Received: from tangens.hometree.net ([212.34.181.34]:2693 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S263152AbRFMLQ7>; Wed, 13 Jun 2001 07:16:59 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
-Newsgroups: hometree.linux.kernel
-Subject: Re: 2.2.19: eepro100 and cmd_wait issues
-Date: Wed, 13 Jun 2001 11:16:57 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9g7i39$d33$1@forge.intermeta.de>
-In-Reply-To: <Pine.LNX.4.33.0106121702500.25366-100000@dlang.diginsite.com> <3B26C779.ECE9017C@candelatech.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 992431017 23814 212.34.181.4 (13 Jun 2001 11:16:57 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Wed, 13 Jun 2001 11:16:57 +0000 (UTC)
-X-Copyright: (C) 1996-2001 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S263469AbRFMLje>; Wed, 13 Jun 2001 07:39:34 -0400
+Received: from u-115-20.karlsruhe.ipdial.viaginterkom.de ([62.180.20.115]:44023
+	"EHLO dea.waldorf-gmbh.de") by vger.kernel.org with ESMTP
+	id <S263461AbRFMLjU>; Wed, 13 Jun 2001 07:39:20 -0400
+Date: Wed, 13 Jun 2001 12:39:01 +0200
+From: Ralf Baechle <ralf@conectiva.com.br>
+To: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+Cc: "'Rik van Riel'" <riel@conectiva.com.br>,
+        Rob Landley <landley@webofficenow.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Matt Nelson <mnelson@dynatec.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Any limitations on bigmem usage?
+Message-ID: <20010613123901.A31221@bacchus.dhis.org>
+In-Reply-To: <3AB544CBBBE7BF428DA7DBEA1B85C79C9B6AE1@nocmail.ma.tmpw.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AB544CBBBE7BF428DA7DBEA1B85C79C9B6AE1@nocmail.ma.tmpw.net>; from bruce.holzrichter@monster.com on Tue, Jun 12, 2001 at 02:34:40PM -0400
+X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Greear <greearb@candelatech.com> writes:
+On Tue, Jun 12, 2001 at 02:34:40PM -0400, Holzrichter, Bruce wrote:
 
->David Lang wrote:
->> 
->> I am useing the D-link 4 port card without running into problems
->> (admittidly I have not been stressing it much yet)
+> > Brilliant.  You need what, a 6x larger cache just to break even with
+> > the amount of time you're running in-cache? 
+> 
+> This may be the wrong platform for this question, but after reading Rob
+> Landley's note on performance on Itanium and architecture concerns, I am
+> interested in Kernel hackers who have had to write code for Itanium's
+> comments on the same, if you are not bound by NDA's.  Correct me if I am
+> wrong, but I thought I saw the announcement that Itanium is shipping.  Have
+> you tested Itanium performance?  We have an preproduction unit with quad
+> Itanium's.  I have not had time to benchmark against other units, I am
+> interested in performance items.  Feel free to drop me a line off list if
+> you can.
 
->I was able to get the D-Link to work in half-duplex (100bt), but
->not in auto-negotiate or full-duplex mode.  (Packets would pass,
->but there would be huge number of carrier and other bad packets.)
+A number of Specbench numbers of Itanium systems is now available.  Itanium
+performs relativly bad for the integer numbers compared to the entire
+competition but is a true fp killer.  As a developer I hate that compiling
+code for Itanium due to the extra complexity of optimization and code
+generation is way slower than for others CPUs.  So all in all Itanium is
+a two edged sword.
 
-Yes. Exactly my experience (with 2.2.18 / 19 / 20pre). It is simply
-not possible to make a tulip based card work reliably against our
-Cisco Catalyst switches in these days. Sadly, because under 2.0.x,
-these were rock-solid.
-
-So I started to use 3COM exclusively (which work perfectly with our
-switches) and eepro100 if necessary (or built onboard).
-
-	Regards
-		Henning
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+  Ralf

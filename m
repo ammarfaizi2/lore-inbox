@@ -1,101 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131512AbRAJMlF>; Wed, 10 Jan 2001 07:41:05 -0500
+	id <S131556AbRAJMqz>; Wed, 10 Jan 2001 07:46:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131556AbRAJMk4>; Wed, 10 Jan 2001 07:40:56 -0500
-Received: from mail.spinnakernet.com ([141.151.129.90]:21774 "EHLO 
-	mail.spinnakernet.com") by vger.kernel.org with ESMTP
-	id <S131512AbRAJMkm>; Wed, 10 Jan 2001 07:40:42 -0500
-Message-ID: <3A5C589D.DC8A90AA@spinnakernet.com>
-Date: Wed, 10 Jan 2001 07:42:05 -0500
-From: "Brian O'Keefe" <okeefe@spinnakernet.com>
-Organization: Spinnaker Networks, Inc.
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
+	id <S131369AbRAJMqp>; Wed, 10 Jan 2001 07:46:45 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:63360 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S132787AbRAJMqd>; Wed, 10 Jan 2001 07:46:33 -0500
+Date: Wed, 10 Jan 2001 07:46:13 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.0 Network device incompatibility
+Message-ID: <Pine.LNX.3.95.1010110074439.19676A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: trond.myklebust@fys.uio.no
-CC: Andrew Morton <andrewm@uow.edu.au>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: NFS client deadlock on SMP machines
-In-Reply-To: <3A5B42BF.EC16F7EE@spinnakernet.com>
-		<3A5C1CF2.170E0A04@uow.edu.au> <14940.12224.406961.510615@charged.uio.no>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
-> Doh. You're quite right on both accounts. I made a small modification
-> to your patch for the rpc_new_task() problem (you forgot to release
-> the RPC task if it's not used).
-> 
-> Linus, please apply for 2.4.1...
 
-Thanks guys! I'm testing it now, and so far, so good. I've merged
-Andrew's and Trond's patches into one:
+Testing Linux version 2.4.0
+	(Linux chaos 2.4.0 #4 SMP Tue Jan 9 10:20:29 EST 2001 i686)
 
-*******************************************
---- linux-2.4.0/fs/nfs/flushd.c.orig       Wed Jan 10 07:18:32 2001
-+++ linux-2.4.0/fs/nfs/flushd.c    Wed Jan 10 07:18:38 2001
-@@ -55,7 +55,7 @@
- /*
-  * Spinlock
-  */
--spinlock_t nfs_flushd_lock = SPIN_LOCK_UNLOCKED;
-+static spinlock_t nfs_flushd_lock = SPIN_LOCK_UNLOCKED;
+.. shows some compatibility problems with previous software and
+De-facto standards.
 
- /*
-  * Local function declarations.
-@@ -71,18 +71,17 @@
-        int                     status = 0;
+(1)	The netmask of the loop-back device can no longer be set 
+	using:
+	socket(PF_INET, SOCK_DGRAM, IPPROTO_IP)
+	ioctl(SIOCSIFNETMASK)
+(2)	The broadcast address of the loop-back device can no longer
+	be set using:
+	socket(PF_INET, SOCK_DGRAM, IPPROTO_IP)
+	ioctl(SIOCSIFBRDADDR)
 
-        dprintk("NFS: writecache_init\n");
-+
-+       /* Create the RPC task */
-+       if (!(task = rpc_new_task(server->client, NULL,
-RPC_TASK_ASYNC)))
-+               return -ENOMEM;
-+
-        spin_lock(&nfs_flushd_lock);
-        cache = server->rw_requests;
+The errors returned are EADDRNOTAVAIL (cannot assign requested address)
 
-        if (cache->task)
-                goto out_unlock;
+This breaks embedded software that has to do everything itself, i.e.,
+does not use 'ifconfig', but instead executes the ioctl()s.
 
--       /* Create the RPC task */
--       status = -ENOMEM;
--       task = rpc_new_task(server->client, NULL, RPC_TASK_ASYNC);
--       if (!task)
--               goto out_unlock;
--
-        task->tk_calldata = server;
-
-        cache->task = task;
-@@ -99,6 +98,7 @@
-        return 0;
-  out_unlock:
-        spin_unlock(&nfs_flushd_lock);
-+       rpc_release_task(task);
-        return status;
- }
-
-@@ -195,7 +195,9 @@
-        if (*q) {
-                *q = inode->u.nfs_i.hash_next;
-                NFS_FLAGS(inode) &= ~NFS_INO_FLUSH;
-+               spin_unlock(&nfs_flushd_lock);
-                iput(inode);
-+               return;
-        }
-  out:
-        spin_unlock(&nfs_flushd_lock);
-*******************************************
+A new `ifconfig`, that came with Red Hat 7, will not set these
+addresses eitherB. However, an old `ifconfig` that uses two different
+kinds of sockets, SOCK_PACKET and SOCK_RAW, is sucessful.
 
 
-Brian O'Keefe
-Spinnaker Networks, Inc.
-okeefe@spinnakernet.com
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.0 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

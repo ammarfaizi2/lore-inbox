@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266135AbSKLC6R>; Mon, 11 Nov 2002 21:58:17 -0500
+	id <S266157AbSKLDbq>; Mon, 11 Nov 2002 22:31:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266146AbSKLC6R>; Mon, 11 Nov 2002 21:58:17 -0500
-Received: from vitelus.com ([64.81.243.207]:57099 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S266135AbSKLC6R>;
-	Mon, 11 Nov 2002 21:58:17 -0500
-Date: Mon, 11 Nov 2002 19:04:53 -0800
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: Con Kolivas <conman@kolivas.net>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: [BENCHMARK] 2.5.47{-mm1} with contest
-Message-ID: <20021112030453.GB15812@vitelus.com>
-References: <1037057498.3dd03dda5a8b9@kolivas.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1037057498.3dd03dda5a8b9@kolivas.net>
-User-Agent: Mutt/1.5.1i
+	id <S266162AbSKLDbq>; Mon, 11 Nov 2002 22:31:46 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:57244 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S266157AbSKLDbp>; Mon, 11 Nov 2002 22:31:45 -0500
+Message-ID: <3DD077B1.5090303@nortelnetworks.com>
+Date: Mon, 11 Nov 2002 22:38:25 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] cs46xx compile error 2.5.47
+References: <200211111740.18312.tomlins@cam.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 12, 2002 at 10:31:38AM +1100, Con Kolivas wrote:
-> Here are the latest contest (http://contest.kolivas.net) benchmarks up to and
-> including 2.5.47. 
+Ed Tomlinson wrote:
 
-This is just great to see. Most previous contest runs made me cringe
-when I saw how -mm and recent 2.5 kernels were faring, but it looks
-like Andrew has done something right in 2.5.47-mm1. I hope the
-appropriate get merged so that 2.6.0 has stunning performance across
-the board.
+> Anyone have any ideas?
+
+See my post w/ subject "patch for cs46xx driver on 2.5.47 to fix 
+compilation error".
+
+Chris
+
+
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

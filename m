@@ -1,78 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265327AbUEZH1a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265334AbUEZHaW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265327AbUEZH1a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 03:27:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265334AbUEZH1a
+	id S265334AbUEZHaW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 03:30:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265335AbUEZHaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 03:27:30 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:64142 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S265327AbUEZH12 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 03:27:28 -0400
-From: "Buddy Lumpkin" <b.lumpkin@comcast.net>
-To: <orders@nodivisions.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: why swap at all?
-Date: Wed, 26 May 2004 00:31:16 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <40B43B5F.8070208@nodivisions.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Thread-Index: AcRC7EFjnCM+Y9BNS4SdC0T85K5ooQABZFSQ
-Message-Id: <S265327AbUEZH12/20040526072728Z+1185@vger.kernel.org>
+	Wed, 26 May 2004 03:30:22 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:52950 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S265334AbUEZHaO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 03:30:14 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: Zwane Mwaikambo <zwane@fsmlabs.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.6-mm] i386: enable interrupts on contention in spin_lock_irq 
+In-reply-to: Your message of "Wed, 26 May 2004 03:11:07 -0400."
+             <Pine.LNX.4.58.0405260250310.1794@montezuma.fsmlabs.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 26 May 2004 17:29:46 +1000
+Message-ID: <14280.1085556586@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a really good point. I think the bar should be set at max
-performance for systems that never need to use the swap device. 
+On Wed, 26 May 2004 03:11:07 -0400 (EDT), 
+Zwane Mwaikambo <zwane@fsmlabs.com> wrote:
+>This little bit was missing from the previous patch. It will enable
+>interrupts whilst a cpu is spinning on a lock in spin_lock_irq as well as
+>spin_lock_irqsave. UP/SMP compile and runtime/stress tested on i386,
+>UP/SMP compile tested on amd64.
+>
+>+#define _raw_spin_lock_irq(lock)	_raw_spin_lock_flags(lock, X86_EFLAGS_IF)
 
-If someone wants to tune swap performance to their hearts content, so be it.
-But given cheap prices for memory, and the horrible best case performance
-for swap, an increase in swap performance should never, ever come at the
-expense of performance for a system that has been sized such that executable
-address spaces, libraries and anonymous memory will fit easily within
-physical ram.
+You are assuming that all uses of spin_lock_irq() are done when
+interrupts are already enabled.  This _should_ be true, because the
+matching spin_unlock_irq() will unconditionally reenable interrupts.
+However I have seen buggy code where spin_lock_irq() was issued with
+interrupts disabled.  By unconditionally passing X86_EFLAGS_IF, that
+buggy code can now run in one of two states :-
 
-This of course doesn't address the VM paging storms that happen due to large
-amounts of file system writes. Once the pagecache fills up, dirty pages must
-be evicted from the pagecache so that new pages can be added to the
-pagecache.
+state 1
+Enter with interrupts disabled
+Do some work
+spin_lock_irq()
+No lock contention, do not enable interrupts
+Do some more work
+spin_unlock_irq()
 
---Buddy
+state 2
+Enter with interrupts disabled
+Do some work
+spin_lock_irq()
+Lock contention, enable interrupts, get lock, disable interrupts
+Do some more work
+spin_unlock_irq()
 
+Your patch opens a window where data that was protected by the disabled
+interrupt on entry becomes unprotected while waiting for the lock and
+can therefore change.
 
-
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Anthony DiSante
-Sent: Tuesday, May 25, 2004 11:38 PM
-To: linux-kernel@vger.kernel.org
-Subject: why swap at all?
-
-As a general question about ram/swap and relating to some of the issues in 
-this thread:
-
-	~500 megs cached yet 2.6.5 goes into swap hell
-
-Consider this: I have a desktop system with 256MB ram, so I make a 256MB 
-swap partition.  So I have 512MB "memory" and if some process wants more, 
-too bad, there is no more.
-
-Now I buy another 256MB of ram, so I have 512MB of real memory.  Why not 
-just disable my swap completely now?  I won't have increased my memory's 
-size at all, but won't I have increased its performance lots?
-
-Or, to make it more appealing, say I initially had 512MB ram and now I have 
-1GB.  Wouldn't I much rather not use swap at all anymore, in this case, on 
-my desktop?
-
--Anthony
-http://nodivisions.com/
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+It could be that I am worrying unnecessarily, after all any code that
+calls spin_lock_irq() with interrupts already disabled is probably
+wrong to start off with.  But it does need to be considered as a
+possible failure mode.
 

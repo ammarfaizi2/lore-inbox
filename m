@@ -1,50 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130126AbRCESIB>; Mon, 5 Mar 2001 13:08:01 -0500
+	id <S130170AbRCESKl>; Mon, 5 Mar 2001 13:10:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130170AbRCESHv>; Mon, 5 Mar 2001 13:07:51 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:43259 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130126AbRCESHj>; Mon, 5 Mar 2001 13:07:39 -0500
-Date: Mon, 5 Mar 2001 15:07:17 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Oswald Buddenhagen <ob6@inf.tu-dresden.de>
-cc: Jeremy Jackson <jerj@coplanar.net>, <linux-kernel@vger.kernel.org>,
-        <linux-kernel-owner@vger.kernel.org>
-Subject: Re: anti-spam regexps
-In-Reply-To: <20010305181252.A1589@ugly.wh8.tu-dresden.de>
-Message-ID: <Pine.LNX.4.33.0103051504150.1409-100000@duckman.distro.conectiva>
+	id <S130176AbRCESKV>; Mon, 5 Mar 2001 13:10:21 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:13060 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130170AbRCESKO>; Mon, 5 Mar 2001 13:10:14 -0500
+Subject: Re: Annoying CD-rom driver error messages
+To: law@sgi.com (LA Walsh)
+Date: Mon, 5 Mar 2001 18:13:06 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <3AA3D180.24661D6B@sgi.com> from "LA Walsh" at Mar 05, 2001 09:48:48 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14ZzTo-0007Rv-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Mar 2001, Oswald Buddenhagen wrote:
+> > this isnt a kernel problem, its a _very_ stupid app
+> ---
+> 	Must be more than one stupid app...
 
-> > Anybody interested in the ~100 anti-spam regexps I'm using
-> > on NL.linux.org at the moment ?
-> >
-> there is a much simpler method:
-> drop any mail, which does not contain the address of the mailing list
-> in To: or Cc:.
-> Bcc: mails (who wants to post with a bcc legitimately?) and bulk
-> mailers (which don't put the receipients into the headers)
-
-Unfortunately, spam to lists often *does* contain the list
-address in the To: or Cc: header these days ...
-
-... but it does contain all the usual spam disclaimers.
-
-regards,
-
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+Could well be. You have something continually trying to open your cdrom and
+see if there is media in it

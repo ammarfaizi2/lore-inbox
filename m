@@ -1,284 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286297AbSAIMnO>; Wed, 9 Jan 2002 07:43:14 -0500
+	id <S286343AbSAIMqY>; Wed, 9 Jan 2002 07:46:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286322AbSAIMm4>; Wed, 9 Jan 2002 07:42:56 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:18955 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S286297AbSAIMmj>;
-	Wed, 9 Jan 2002 07:42:39 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: cw@f00f.org
-Date: Wed, 9 Jan 2002 13:41:38 +0100
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: "APIC error on CPUx" - what does this mean?
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, swsnyder@home.com,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        macro@ds2.pg.gda.pl
-X-mailer: Pegasus Mail v3.40
-Message-ID: <E67476B613D@vcnet.vc.cvut.cz>
+	id <S286358AbSAIMqF>; Wed, 9 Jan 2002 07:46:05 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:49760 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S286343AbSAIMqC>; Wed, 9 Jan 2002 07:46:02 -0500
+Date: Wed, 9 Jan 2002 14:45:49 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, Jani Forssell <jani.forssell@viasys.com>,
+        sak@iki.fi
+Subject: Re: 2.2.21pre2 oops
+Message-ID: <20020109144549.L1331@niksula.cs.hut.fi>
+In-Reply-To: <20020108215818.J1331@niksula.cs.hut.fi> <E16O2fD-0007Vn-00@the-village.bc.nu> <20020108221315.U1200@niksula.cs.hut.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020108221315.U1200@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Tue, Jan 08, 2002 at 10:13:15PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  8 Jan 02 at 18:35, I wrote:
+On Tue, Jan 08, 2002 at 10:13:15PM +0200, you [Ville Herva] claimed:
+> On Tue, Jan 08, 2002 at 08:16:03PM +0000, you [Alan Cox] claimed:
+> > > essentially cat /dev/md0 > /dev/null kind of test to stress the Via KT133
+> > > pci transfers.
+> > > 
+> > > Rootfs is on ide cdrom, the harddrives had no fs on them.
+> > > 
+> > > ksymoops 0.7c on i686 2.2.21pre2-ide+e2compr+raid.  Options
+> > > used
+> > 
+> > Can you repeat the test to make sure its replicable, then repeat it again
+> > after disabling the new VIA fixups in pci/quirks.c
 > 
-> As spurious IRQ happens during HLT, and IRR is clear at the time
-> we are going to ack IRQ, it looks like real spurious IRQ (caused by
-> noise?). Or delay between spurious one and real IRQ is really long. 
-> I'll try some of your suggestions today night.
+> The test has been repeated several times even with 2.2.21pre2 (although
+> we've run a lot more 2.2.20 tests). This was the first time we saw an oops.
+> The difference between this and the former 2.2.21pre2 runs is certain bios
+> settings. (We are still trying to isolate the one setting that triggers the
+> Via pci transfer corruption on HPT reads.) We'll repeat the test with these
+> settings and try to see if it is via bios settings / pci/quirks.c related.
+> 
+> There seems to be _something_ fishy in the pre2 quirks, since there is at
+> least one bios setting combination with which 2.2.20 does not show the pci
+> corruption, but 2.2.21pre2 does. It just that it is really tedious to
+> isolate. But we are working on it.
 
-Hm, I'm missing something :-( It happens 4.9us after another IRQ
-arrives on 8259 master, or ~100us after another IRQ arrives on slave.
-Spurious IRQs do not happen when ELCR registers are cleared; unfortunately
-Promise cannot live with edge trigerred interrupts.
-IRQ1 is keyboard, IRQ5 es1371 and IRQ10 promise. I was able to get
-spurious IRQ after either of these IRQs. I was not able to trigger
-spurious IRQ from RTC irq, but maybe that I did not tried hard enough.
+Bleah.
 
-I have no idea why it happens 5us when IRQ arrives to master, but
-100us when IRQ arrives to slave. And to make it even less clean,
-when I replaced outb(xx, 0xA1) and outb(xx, 0x21) with outb_p,
-spurious IRQ happens 6us when another IRQ arrive to master, but
-12us when IRQ arrives to slave... I have no idea why it drops from
-100us to 12us. 
+It turned out that mere hpt370 read/write test hadn't caused it. My
+colleague had launched "ping -f" on background which had immediately
+triggered the oops. (When I found the oops on the screen, I initially tought
+he had just left the hpt370 read/write test running and left.)
 
-I have an idea that with outb() spurious IRQ happens some time 
-after Promise deasserts IRQ, while with outb_p() it happens when 
-we mask it. Unfortunately stack traces at arrival of spurious 
-IRQ (available on request, 120KB uncompressed) do not agree with 
-this idea - they always lead to default_idle. It is possible that 
-it always arrives in default_idle because of my CPU is so fast 
-that even endless stream of IRQs from 8259 arrives always when 
-CPU is in default_idle, but I have some doubts that 1GHz is fast 
-enough to see such effect.
+We booted and tried to reproduce it. ping -f didn't immediately trigger it,
+but after a while it happened. We got a number of oopses one of which was
+similar to the first one and one of which showed process table corruption
+(the name of the process in the oops was a random ascii pattern.)
 
-Time stamps were obtained from TSC register of my 1GHz Athlon.
-                                            Best regards,
-                                                    Petr Vandrovec
-                                                    vandrove@vc.cvut.cz
-                                                    
-IRQ7 arrived, previous irq was 10, it happened 103028 ns ago
-Master: ISR: 00, IRR: 80, IMR: D8, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0E
-IRQ0 arrived after spurious IRQ. It happened 4843934 ns ago
-Master: ISR: 01, IRR: 80, IMR: D8, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0E
+We also got the oops with 2.2.20+patches, so this is not a pre2 thing.
+Rather, the difference is that we now ran ping -f on background.
 
-IRQ7 arrived, previous irq was 10, it happened 94475 ns ago
-Master: ISR: 00, IRR: 84, IMR: D8, ELCR: 20
-Slave : ISR: 00, IRR: 04, IMR: A8, ELCR: 0E
-IRQ10 arrived after spurious IRQ. It happened 1586275 ns ago
-Master: ISR: 04, IRR: 80, IMR: D8, ELCR: 20
-Slave : ISR: 04, IRR: 04, IMR: A8, ELCR: 0E
+The bad news is that all the bios setting configurations we thought stable
+(that had run the hpt370 read/write test without a hitch for days) now give
+oopses and corruption pretty quickly when we run ping -f on background :(.
 
-IRQ7 arrived, previous irq was 5, it happened 4959 ns ago
-Master: ISR: 00, IRR: A0, IMR: F8, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0E
-IRQ0 arrived after spurious IRQ. It happened 4830426 ns ago
-Master: ISR: 01, IRR: 80, IMR: D8, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0E
+Also, ping -f shows "...EEE.EE.EEE.." which I gather means the packets get
+corrupted somewhere.
 
-IRQ7 arrived, previous irq was 5, it happened 4959 ns ago
-Master: ISR: 00, IRR: A0, IMR: F8, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0E
-IRQ0 arrived after spurious IRQ. It happened 4831445 ns ago
-Master: ISR: 01, IRR: 80, IMR: D8, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0E
+I'm not too hopeful regarding finding a set of bios settings that would fix
+this. It seems the "stable" configuration we found just hid the problem, but
+when we push the board further, it appears again.
 
-IRQ7 arrived, previous irq was 5, it happened 4929 ns ago
-Master: ISR: 00, IRR: A0, IMR: F8, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0E
-IRQ0 arrived after spurious IRQ. It happened 4794576 ns ago
-Master: ISR: 01, IRR: 80, IMR: D8, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0E
+The two disks on HPT370 read on parallel give about 60MB/s. Add the 10MB/s
+from 3c905 to that, and we are pretty close to the 75MB/s number that I've
+seen referred somewhere(1) as the maximum Via KT133 can do.
 
-IRQ7 arrived, previous irq was 5, it happened 5469 ns ago
-Master: ISR: 00, IRR: A0, IMR: F8, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0E
-IRQ0 arrived after spurious IRQ. It happened 4795415 ns ago
-Master: ISR: 01, IRR: 80, IMR: D8, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0E
+My conclusion at this point is that Via KT133 / Abit KT7-RAID pci transfer
+is positively FUBAR, and no sane person should touch the bugger with a ten
+foot pole. I'd be happy to be proven wrong, though.
 
-IRQ7 arrived, previous irq was 5, it happened 4929 ns ago
-Master: ISR: 00, IRR: A0, IMR: F8, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0E
-IRQ0 arrived after spurious IRQ. It happened 4759656 ns ago
-Master: ISR: 01, IRR: 80, IMR: D8, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0E
 
-IRQ7 arrived, previous irq was 5, it happened 4929 ns ago
-Master: ISR: 00, IRR: A0, IMR: F8, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0E
-IRQ0 arrived after spurious IRQ. It happened 4761185 ns ago
-Master: ISR: 01, IRR: 80, IMR: D8, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0E
+-- v --
 
-IRQ7 arrived, previous irq was 10, it happened 94389 ns ago
-Master: ISR: 00, IRR: 84, IMR: D8, ELCR: 20
-Slave : ISR: 00, IRR: 04, IMR: A8, ELCR: 0E
-IRQ10 arrived after spurious IRQ. It happened 1609311 ns ago
-Master: ISR: 04, IRR: 80, IMR: D8, ELCR: 20
-Slave : ISR: 04, IRR: 04, IMR: A8, ELCR: 0E
+v@iki.fi
 
-IRQ7 arrived, previous irq was 10, it happened 94607 ns ago
-Master: ISR: 00, IRR: 84, IMR: D8, ELCR: 20
-Slave : ISR: 00, IRR: 04, IMR: A8, ELCR: 0E
-IRQ10 arrived after spurious IRQ. It happened 195708 ns ago
-Master: ISR: 04, IRR: 80, IMR: D8, ELCR: 20
-Slave : ISR: 04, IRR: 04, IMR: A8, ELCR: 0E
-
-IRQ7 arrived, previous irq was 10, it happened 101889 ns ago
-Master: ISR: 00, IRR: 84, IMR: D8, ELCR: 20
-Slave : ISR: 00, IRR: 04, IMR: A8, ELCR: 0E
-IRQ10 arrived after spurious IRQ. It happened 1555839 ns ago
-Master: ISR: 04, IRR: 80, IMR: D8, ELCR: 20
-Slave : ISR: 04, IRR: 04, IMR: A8, ELCR: 0E
-
-IRQ7 arrived, previous irq was 10, it happened 94419 ns ago
-Master: ISR: 00, IRR: 84, IMR: D8, ELCR: 20
-Slave : ISR: 00, IRR: 04, IMR: A8, ELCR: 0E
-IRQ10 arrived after spurious IRQ. It happened 1605751 ns ago
-Master: ISR: 04, IRR: 80, IMR: D8, ELCR: 20
-Slave : ISR: 04, IRR: 04, IMR: A8, ELCR: 0E
-
-IRQ7 arrived, previous irq was 1, it happened 4930 ns ago
-Master: ISR: 00, IRR: 80, IMR: DA, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0E
-IRQ0 arrived after spurious IRQ. It happened 4484164 ns ago
-Master: ISR: 01, IRR: 80, IMR: D8, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0E
-
-IRQ7 arrived, previous irq was 10, it happened 101889 ns ago
-Master: ISR: 00, IRR: 84, IMR: D8, ELCR: 20
-Slave : ISR: 00, IRR: 04, IMR: A8, ELCR: 0E
-IRQ10 arrived after spurious IRQ. It happened 1638040 ns ago
-Master: ISR: 04, IRR: 80, IMR: D8, ELCR: 20
-Slave : ISR: 04, IRR: 04, IMR: A8, ELCR: 0E
-
-IRQ7 arrived, previous irq was 10, it happened 101888 ns ago
-Master: ISR: 00, IRR: 84, IMR: F8, ELCR: 20
-Slave : ISR: 00, IRR: 04, IMR: A8, ELCR: 0E
-IRQ10 arrived after spurious IRQ. It happened 1632361 ns ago
-Master: ISR: 04, IRR: 80, IMR: F8, ELCR: 20
-Slave : ISR: 04, IRR: 04, IMR: A8, ELCR: 0E
-
-IRQ7 arrived, previous irq was 10, it happened 95015 ns ago
-Master: ISR: 00, IRR: 84, IMR: F8, ELCR: 20
-Slave : ISR: 00, IRR: 04, IMR: A8, ELCR: 0E
-IRQ10 arrived after spurious IRQ. It happened 1591085 ns ago
-Master: ISR: 04, IRR: 80, IMR: F8, ELCR: 20
-Slave : ISR: 04, IRR: 04, IMR: A8, ELCR: 0E
-
-IRQ7 arrived, previous irq was 10, it happened 94688 ns ago
-Master: ISR: 00, IRR: 84, IMR: F8, ELCR: 20
-Slave : ISR: 00, IRR: 04, IMR: A8, ELCR: 0E
-IRQ10 arrived after spurious IRQ. It happened 1591840 ns ago
-Master: ISR: 04, IRR: 80, IMR: F8, ELCR: 20
-Slave : ISR: 04, IRR: 04, IMR: A8, ELCR: 0E
-
-IRQ7 arrived, previous irq was 10, it happened 94389 ns ago
-Master: ISR: 00, IRR: 84, IMR: F8, ELCR: 20
-Slave : ISR: 00, IRR: 04, IMR: A8, ELCR: 0E
-IRQ10 arrived after spurious IRQ. It happened 1578193 ns ago
-Master: ISR: 04, IRR: 80, IMR: F8, ELCR: 20
-Slave : ISR: 04, IRR: 04, IMR: A8, ELCR: 0E
-
-IRQ7 arrived, previous irq was 10, it happened 94444 ns ago
-Master: ISR: 00, IRR: 84, IMR: F8, ELCR: 20
-Slave : ISR: 00, IRR: 04, IMR: A8, ELCR: 0E
-IRQ10 arrived after spurious IRQ. It happened 1575884 ns ago
-Master: ISR: 04, IRR: 80, IMR: F8, ELCR: 20
-Slave : ISR: 04, IRR: 04, IMR: A8, ELCR: 0E
-
-IRQ7 arrived, previous irq was 10, it happened 101889 ns ago
-Master: ISR: 00, IRR: A4, IMR: F8, ELCR: 00
-Slave : ISR: 00, IRR: 04, IMR: A8, ELCR: 0E
-IRQ10 arrived after spurious IRQ. It happened 1606411 ns ago
-Master: ISR: 04, IRR: A0, IMR: F8, ELCR: 00
-Slave : ISR: 04, IRR: 04, IMR: A8, ELCR: 0E
-
-IRQ7 arrived, previous irq was 10, it happened 103119 ns ago
-Master: ISR: 00, IRR: A0, IMR: F8, ELCR: 00
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0E
-IRQ10 arrived after spurious IRQ. It happened 3797929 ns ago
-Master: ISR: 04, IRR: A0, IMR: F8, ELCR: 00
-Slave : ISR: 04, IRR: 04, IMR: A8, ELCR: 0E
-
-IRQ7 arrived, previous irq was 10, it happened 8495 ns ago
-Master: ISR: 00, IRR: A0, IMR: F8, ELCR: 00
-Slave : ISR: 00, IRR: 00, IMR: AC, ELCR: 0E
-IRQ10 arrived after spurious IRQ. It happened 1899226 ns ago
-Master: ISR: 04, IRR: A0, IMR: F8, ELCR: 00
-Slave : ISR: 04, IRR: 04, IMR: A8, ELCR: 0E
-
-IRQ7 arrived, previous irq was 10, it happened 94419 ns ago
-Master: ISR: 00, IRR: A4, IMR: F8, ELCR: 00
-Slave : ISR: 00, IRR: 04, IMR: A8, ELCR: 0E
-IRQ10 arrived after spurious IRQ. It happened 1594701 ns ago
-Master: ISR: 04, IRR: A0, IMR: F8, ELCR: 00
-Slave : ISR: 04, IRR: 04, IMR: A8, ELCR: 0E
-
-IRQ7 arrived, previous irq was 10, it happened 95105 ns ago
-Master: ISR: 00, IRR: A4, IMR: F8, ELCR: 00
-Slave : ISR: 00, IRR: 04, IMR: A8, ELCR: 0E
-IRQ10 arrived after spurious IRQ. It happened 1674535 ns ago
-Master: ISR: 04, IRR: A0, IMR: F8, ELCR: 00
-Slave : ISR: 04, IRR: 04, IMR: A8, ELCR: 0E
-
-IRQ7 arrived, previous irq was 10, it happened 94389 ns ago
-Master: ISR: 00, IRR: A4, IMR: F8, ELCR: 00
-Slave : ISR: 00, IRR: 04, IMR: A8, ELCR: 0E
-IRQ10 arrived after spurious IRQ. It happened 1597919 ns ago
-Master: ISR: 04, IRR: A0, IMR: F8, ELCR: 00
-Slave : ISR: 04, IRR: 04, IMR: A8, ELCR: 0E
-
-IRQ7 arrived, previous irq was 10, it happened 101889 ns ago
-Master: ISR: 00, IRR: A4, IMR: F8, ELCR: 00
-Slave : ISR: 00, IRR: 04, IMR: A8, ELCR: 0E
-IRQ10 arrived after spurious IRQ. It happened 1640221 ns ago
-Master: ISR: 04, IRR: A0, IMR: F8, ELCR: 00
-Slave : ISR: 04, IRR: 04, IMR: A8, ELCR: 0E
-
-IRQ7 arrived, previous irq was 10, it happened 101888 ns ago
-Master: ISR: 00, IRR: A4, IMR: F8, ELCR: 00
-Slave : ISR: 00, IRR: 04, IMR: A8, ELCR: 04
-IRQ10 arrived after spurious IRQ. It happened 1636792 ns ago
-Master: ISR: 04, IRR: A0, IMR: F8, ELCR: 00
-Slave : ISR: 04, IRR: 04, IMR: A8, ELCR: 04
-
-IRQ7 arrived, previous irq was 5, it happened 4929 ns ago
-Master: ISR: 00, IRR: A0, IMR: F8, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0A
-IRQ0 arrived after spurious IRQ. It happened 3868746 ns ago
-Master: ISR: 01, IRR: 80, IMR: D8, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0A
-
-IRQ7 arrived, previous irq was 5, it happened 4959 ns ago
-Master: ISR: 00, IRR: A0, IMR: F8, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0A
-IRQ0 arrived after spurious IRQ. It happened 3820746 ns ago
-Master: ISR: 01, IRR: 80, IMR: D8, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0A
-
-IRQ7 arrived, previous irq was 5, it happened 5004 ns ago
-Master: ISR: 00, IRR: A0, IMR: F8, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0A
-IRQ0 arrived after spurious IRQ. It happened 3822035 ns ago
-Master: ISR: 01, IRR: 80, IMR: D8, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0A
-
-IRQ7 arrived, previous irq was 5, it happened 4989 ns ago
-Master: ISR: 00, IRR: A0, IMR: F8, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0A
-IRQ0 arrived after spurious IRQ. It happened 3823625 ns ago
-Master: ISR: 01, IRR: 80, IMR: D8, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0A
-
-IRQ7 arrived, previous irq was 1, it happened 4990 ns ago
-Master: ISR: 00, IRR: 80, IMR: DA, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0E
-IRQ0 arrived after spurious IRQ. It happened 3422855 ns ago
-Master: ISR: 01, IRR: 80, IMR: D8, ELCR: 20
-Slave : ISR: 00, IRR: 00, IMR: A8, ELCR: 0E
+(1) http://www.tecchannel.de/hardware/817/1.html

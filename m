@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266078AbTAUPfL>; Tue, 21 Jan 2003 10:35:11 -0500
+	id <S266564AbTAUPnd>; Tue, 21 Jan 2003 10:43:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266330AbTAUPfL>; Tue, 21 Jan 2003 10:35:11 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:772 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266078AbTAUPfK>;
-	Tue, 21 Jan 2003 10:35:10 -0500
-Date: Tue, 21 Jan 2003 16:15:28 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Wolfgang Fritz <wolfgang.fritz@gmx.net>
+	id <S267032AbTAUPnd>; Tue, 21 Jan 2003 10:43:33 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:55556 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S266564AbTAUPnc>; Tue, 21 Jan 2003 10:43:32 -0500
+Date: Tue, 21 Jan 2003 18:52:22 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: mmoneta@optonline.net
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: swsuspend: possible with VIA Eden processor? Or alternatives?
-Message-ID: <20030121151524.GA2487@elf.ucw.cz>
-References: <b0c20t$rt$1@fritz38552.news.dfncis.de> <20030120125100.GA27330@codemonkey.org.uk> <b0h6qr$hqs$1@fritz38552.news.dfncis.de>
+Subject: Re: [Problem] PCI resource conflicts in recent 2.4 kernels - second try
+Message-ID: <20030121185222.A1359@jurassic.park.msu.ru>
+References: <1042989167.7294.31.camel@optonline.net> <1043154817.25168.4.camel@optonline.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <b0h6qr$hqs$1@fritz38552.news.dfncis.de>
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1043154817.25168.4.camel@optonline.net>; from mace@monetafamily.org on Tue, Jan 21, 2003 at 08:13:38AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Jan 21, 2003 at 08:13:38AM -0500, Mace Moneta wrote:
+> > 00:06.0 PCI bridge: Toshiba America Info Systems: Unknown device 0605 (rev 04)
+> > (prog-if 00 [Normal decode])
 
-> > > the swsuspend mini howto says that a processor with pse/pse36 feature 
-> > is > required for swsupend in 2.4.
-> > > 
-> > > So I am obviously out of luck with 2.4 kernels, but what about 2.5 (the 
-> > > mini-howto is silent here)?
-> >
-> >>From include/asm-i386/suspend.h
-> >
-> >static inline void
-> >arch_prepare_suspend(void)
-> >{
-> >    if (!cpu_has_pse)
-> >        panic("pse required");
-> >}
-> >
-> I assume this is from a 2.5 kernel (I have no source tree available 
-> here). I'll check that tomorrow in the office.
+Yet another broken bridge...
+Does this patch help?
 
-If it is not in 2.4.X it only means 2.4.X will randomly flip bits in
-memory during resume.
+Ivan.
 
-> >There's really no requirement that you *need* PSE to be able to
-> >do suspend, but it seems no-one has stepped forward to write the
-> >necessary code to support non-PSE afaics.
-> >
-> I don't even know what pse means :-(
-
-4MB pages, basically.
-
-[Hey, this is great time to learn something new!]
-								Pavel
-
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+--- linux/drivers/pci/quirks.c.orig	Tue Jan 21 18:45:55 2003
++++ linux/drivers/pci/quirks.c	Tue Jan 21 18:43:13 2003
+@@ -586,6 +586,7 @@ static struct pci_fixup pci_fixups[] __i
+ 	 * instead of 0x01.
+ 	 */
+ 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82380FB,	quirk_transparent_bridge },
++	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_TOSHIBA,	0x605,				quirk_transparent_bridge },
+ 
+ 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_CYRIX,	PCI_DEVICE_ID_CYRIX_PCI_MASTER, quirk_mediagx_master },
+ 

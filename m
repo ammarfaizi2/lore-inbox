@@ -1,60 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129454AbQKFRe0>; Mon, 6 Nov 2000 12:34:26 -0500
+	id <S129243AbQKFR1Z>; Mon, 6 Nov 2000 12:27:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129649AbQKFReQ>; Mon, 6 Nov 2000 12:34:16 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30294 "EHLO
+	id <S129765AbQKFR1P>; Mon, 6 Nov 2000 12:27:15 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61780 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129454AbQKFReA>; Mon, 6 Nov 2000 12:34:00 -0500
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-To: alonz@usa.net (Alon Ziv)
-Date: Mon, 6 Nov 2000 17:34:30 +0000 (GMT)
-Cc: dwmw2@infradead.org (David Woodhouse), linux-kernel@vger.kernel.org
-In-Reply-To: <03da01c04816$8b178a30$650201c0@guidelet> from "Alon Ziv" at Nov 06, 2000 07:25:22 PM
+	id <S129243AbQKFR1D>; Mon, 6 Nov 2000 12:27:03 -0500
+Subject: Re: rdtsc to mili secs?
+To: anton@linuxcare.com (Anton Blanchard)
+Date: Mon, 6 Nov 2000 17:27:44 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), andrea@suse.de (Andrea Arcangeli),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20001106091723.A516@linuxcare.com> from "Anton Blanchard" at Nov 06, 2000 09:17:23 AM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E13sqAB-0006RI-00@the-village.bc.nu>
+Message-Id: <E13sq3d-0006QT-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 1. Before auto-unload of the driver, run a small utility which will read
-> mixer settings
->    and save them somewhere
-> 2. When auto-loading the driver, use driver arguments which are initialized
-> from the
->    settings saved above
-> All that's missing is the method of passing data from step 1 to step 2.
+> This means our offset calculations in do_fast_gettimeoffset are way off
+> and taking a reading just before a timer tick and just after results in
+> a negative interval. Perhaps we should disable tsc based gettimeofday
+> for these type of machines.
 
-A simple more generic solution is to do this
+I seem to remember we have a 'notsc' option. Figuring out which boxes are
+infected with the problem may be trickier. We really need to be able to 
+read the current CPU clock rate off whatever generates the clocks when we
+do a udelay
 
-
-struct things_to_keep my_bits
-{
-	..
-};
-
-struct things_to_keep __persistent card_info[NUM_CARDS]
-{
-}
-
-and have insmod do
-
-	load module up
-	open /var/run/moduledata/$modname
-	if exists && is from this boot then && is right size
-		read data into __persistent ELF section
-	endif
-	load into kernel
-	init module
-
-and rmmod
-	cleanup module
-	open /var/run/moduledata/$modname
-	write data from __persistent segment into file
-	
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

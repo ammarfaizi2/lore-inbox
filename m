@@ -1,38 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268452AbUJJTe6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268453AbUJJTmH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268452AbUJJTe6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 15:34:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268453AbUJJTe6
+	id S268453AbUJJTmH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 15:42:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268457AbUJJTmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 15:34:58 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:44809 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S268452AbUJJTe5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 15:34:57 -0400
-Date: Sun, 10 Oct 2004 21:40:26 +0200
-To: "Yoshinori K. Okuji" <okuji@gnu.org>
-Cc: linux-kernel@vger.kernel.org, videolan@videolan.org
-Subject: Re: possible GPL violation by Free
-Message-ID: <20041010194026.GA6474@hh.idb.hist.no>
-References: <200410091958.25251.okuji@gnu.org>
+	Sun, 10 Oct 2004 15:42:07 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:17659 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S268453AbUJJTmE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 15:42:04 -0400
+Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Sven-Thorsten Dietrich <sdietrich@mvista.com>,
+       linux-kernel@vger.kernel.org,
+       Alexander Batyrshin <abatyrshin@ru.mvista.com>,
+       "Amakarov@Ru. Mvista. " Com <amakarov@ru.mvista.com>,
+       "Eugeny S. Mints" <emints@ru.mvista.com>,
+       "Ext-Rt-Dev@Mvista. Com" <ext-rt-dev@mvista.com>,
+       New Zhang Haitao <hzhang@ch.mvista.com>,
+       "Yyang@Ch. Mvista. Com" <yyang@ch.mvista.com>
+In-Reply-To: <20041010084633.GA13391@elte.hu>
+References: <41677E4D.1030403@mvista.com>  <20041010084633.GA13391@elte.hu>
+Content-Type: text/plain
+Organization: MontaVista
+Message-Id: <1097437314.17309.136.camel@dhcp153.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410091958.25251.okuji@gnu.org>
-User-Agent: Mutt/1.5.6+20040722i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 10 Oct 2004 12:41:56 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 09, 2004 at 07:58:25PM +0200, Yoshinori K. Okuji wrote:
-> Hello,
-[...] 
-> The company Free reasons that they don't need to make the source code
-> available, because they don't sell Freebox but merely _rents_ Freebox
-> to customers. So the company thinks that customers do not own Freebox
-> legally, and so they have no right to claim that they can ask the
-> source code.
+On Sun, 2004-10-10 at 01:46, Ingo Molnar wrote:
+>  - the generic irq subsystem: irq threading is a simple ~200-lines,
+>    architecture-independent add-on to this. It makes no sense to offer 3
+>    different implementations - pick one and help make it work well.
 > 
-Perhaps customers can demand to _rent_ the source code too then?  ;-)
+>  - preemptible BKL. Related to this is new debugging infrastructure in
+>    -mm that allows the safe and slow conversion of spinlocks to mutexes. 
+>    In the case of the BKL this conversion is expected to be permanent, 
+>    for most of the other spinlocks it will be optional - but the 
+>    debugging code can still be used.
 
-Helge Hafting
+	Are you referring to the lock metering? I've ported our changes to
+-mm3-VP-T3 on top of lock metering. It needs some clean up but It will
+be released soon. It's very similar to our rc3 release only without the
+IRQ threads patch.
+
+Daniel Walker
+

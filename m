@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270792AbUJUPpe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270748AbUJUPpE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270792AbUJUPpe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 11:45:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270723AbUJUPpJ
+	id S270748AbUJUPpE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 11:45:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270723AbUJUPlb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 11:45:09 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:51366 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S270774AbUJUPaj (ORCPT
+	Thu, 21 Oct 2004 11:41:31 -0400
+Received: from rproxy.gmail.com ([64.233.170.197]:21720 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S270763AbUJUPgz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 11:30:39 -0400
-Date: Thu, 21 Oct 2004 11:29:30 -0400
-From: Dave Jones <davej@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Adrian Bunk <bunk@stusta.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] 2.6.9-ac1: invalid SUBLEVEL
-Message-ID: <20041021152930.GH26170@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Adrian Bunk <bunk@stusta.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1098356892.17052.18.camel@localhost.localdomain> <20041021124945.GD10801@stusta.de> <1098365506.17096.23.camel@localhost.localdomain>
+	Thu, 21 Oct 2004 11:36:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=I6zKKnI7Q40QClHII/S7GNBfQxB14phjF4bRw7rIJMhMXqmEdI2xeqpsvFTnZLQmPfXT66LLoP82WqFjR+fzmrZBXFL5IzJtpL/48FN7lG7ok14bQIKqQpXXSPhOKfyS0R6ClyeNMHvs0MrHEolcgLkJkoUvcH8CtamSpcpBH8c=
+Message-ID: <d182dda004102108361e8ebffa@mail.gmail.com>
+Date: Thu, 21 Oct 2004 09:36:55 -0600
+From: Shaun Kruger <shaun.kruger@gmail.com>
+Reply-To: Shaun Kruger <shaun.kruger@gmail.com>
+To: Timothy Miller <miller@techsource.com>, linux-kernel@vger.kernel.org
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+In-Reply-To: <4177D20F.2080205@techsource.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098365506.17096.23.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <4176E08B.2050706@techsource.com>
+	 <9e4733910410201808c0796c8@mail.gmail.com>
+	 <4177D20F.2080205@techsource.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21, 2004 at 02:31:47PM +0100, Alan Cox wrote:
- > On Iau, 2004-10-21 at 13:49, Adrian Bunk wrote:
- > >  VERSION = 2
- > >  PATCHLEVEL = 6
- > > -SUBLEVEL = 9-ac1
- > > -EXTRAVERSION =
- > > +SUBLEVEL = 9
- > > +EXTRAVERSION = -ac1
- > >  NAME=AC 1
- > 
- > Doh I'm -amazed- that worked for me. Fixed in my tree, I'll go and hide
- > in a corner for a bit.
- 
-I think we can forgive you Alan, clearly you're out of practise 8-)
+> 
+> I don't think we can get away without supporting some minimal VGA
+> functionality.
+> 
 
-		Dave
+Just a thought...  What would be the viability of buying someone elses
+low end card design?  Would anyone in the market place be willing to
+part with one of their old 2D chipsets with the understanding that it
+would be developed and optimized for open source applications?  I
+would probably start with a chip maker who has some video chipsets,
+but is moving away from it because they don't have the market share
+they want...
 
+It's probably crazy, but it doesn't hurt to look around.
+
+Shaun Kruger
+
+-- 
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCS dpu s:++ a-- C++ UL+++ P+ L+++ E--- W+ N o- K- w++
+O M- V- PS+ PE++ Y+ PGP- t 5 X R tv b+ DI+++ D+
+G e h-- r* !y
+------END GEEK CODE BLOCK------

@@ -1,57 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262042AbREXOYr>; Thu, 24 May 2001 10:24:47 -0400
+	id <S262036AbREXO3r>; Thu, 24 May 2001 10:29:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262033AbREXOYi>; Thu, 24 May 2001 10:24:38 -0400
-Received: from www.wen-online.de ([212.223.88.39]:24071 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S262036AbREXOY1>;
-	Thu, 24 May 2001 10:24:27 -0400
-Date: Thu, 24 May 2001 16:23:32 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: [RFC][PATCH] Re: Linux 2.4.4-ac10
-In-Reply-To: <Pine.LNX.4.33.0105240800020.10469-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0105241557160.894-100000@mikeg.weiden.de>
+	id <S262040AbREXO3h>; Thu, 24 May 2001 10:29:37 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:24595 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262036AbREXO32>; Thu, 24 May 2001 10:29:28 -0400
+Subject: Re: [PATCH] bulkmem.c - null ptr fixes for 2.4.4
+To: praveens@stanford.edu (Praveen Srinivasan)
+Date: Thu, 24 May 2001 15:26:20 +0100 (BST)
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk, dhinds@zen.stanford.edu
+In-Reply-To: <200105240723.f4O7NG403563@smtp1.Stanford.EDU> from "Praveen Srinivasan" at May 24, 2001 12:24:21 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E152w4C-00052g-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 May 2001, Rik van Riel wrote:
+> kernel code. This patch fixes numerous unchecked pointers in the PCMCIA 
+> bulkmem driver. 
 
-> > > > OK.. let's forget about throughput for a moment and consider
-> > > > those annoying reports of 0 order allocations failing :)
-> > >
-> > > Those are ok.  All failing 0 order allocations are either
-> > > atomic allocations or GFP_BUFFER allocations.  I guess we
-> > > should just remove the printk()  ;)
-> >
-> > Hmm.  The guy who's box locks up on him after a burst of these
-> > probably doesn't think these failures are very OK ;-)  I don't
-> > think order 0 failing is cool at all.. ever.
->
-> You may not think it's cool, but it's needed in order to
-> prevent deadlocks. Just because an allocation cannot do
-> disk IO or sleep, that's no reason to loop around like
-> crazy in __alloc_pages() and hang the machine ... ;)
-
-True, but if we have resources available there's no excuse for a
-failure.  Well, yes there is.  If the cost of that resource is
-higher than the value of letting the allocation succeed.  We have
-no data on the value of success, but we do plan on consuming the
-reclaimable pool and do that (must), so I still think turning
-these resources loose at strategic moments is logically sound.
-(doesn't mean there's not a better way.. it's just an easy way)
-
-I'd really like someone who has this problem to try the patch to
-see if it does help.  I don't have this darn problem myself, so
-I'm left holding a bag of idle curiosity. ;-)
-
-	Cheers,
-
-	-Mike
-
+Since when has two been numerous - also I dont thin the fix is right - you need
+to undo what has already been done

@@ -1,45 +1,123 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264543AbRFKN2M>; Mon, 11 Jun 2001 09:28:12 -0400
+	id <S264545AbRFKNfm>; Mon, 11 Jun 2001 09:35:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264545AbRFKN2D>; Mon, 11 Jun 2001 09:28:03 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:2450 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S264543AbRFKN1u>;
-	Mon, 11 Jun 2001 09:27:50 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S264546AbRFKNfc>; Mon, 11 Jun 2001 09:35:32 -0400
+Received: from horus.its.uow.edu.au ([130.130.68.25]:42399 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S264545AbRFKNfR>; Mon, 11 Jun 2001 09:35:17 -0400
+Message-ID: <3B24C763.16E8E360@uow.edu.au>
+Date: Mon, 11 Jun 2001 23:28:03 +1000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: Alexander Viro <viro@math.psu.edu>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] truncate_inode_pages
+In-Reply-To: <Pine.GSO.4.21.0106091331120.19361-100000@weyl.math.psu.edu> <01061018402300.05248@starship> <3B24BD57.E1D6D1D0@uow.edu.au>,
+		<3B24BD57.E1D6D1D0@uow.edu.au> <01061115131301.05248@starship>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15140.51018.942446.320621@pizda.ninka.net>
-Date: Mon, 11 Jun 2001 06:27:38 -0700 (PDT)
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Russell King <rmk@arm.linux.org.uk>, Ben LaHaise <bcrl@redhat.com>,
-        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: 3C905b partial  lockup in 2.4.5-pre5 and up to 2.4.6-pre1
-In-Reply-To: <3B24C185.824EBBE0@uow.edu.au>
-In-Reply-To: <3B23A4BB.7B4567A3@mandrakesoft.com>
-	<20010610093838.A13074@flint.arm.linux.org.uk>
-	<Pine.LNX.4.33.0106101201490.9384-100000@toomuch.toronto.redhat.com>
-	<20010610173419.B13164@flint.arm.linux.org.uk>
-	<15140.5762.589629.252904@pizda.ninka.net>
-	<3B24C185.824EBBE0@uow.edu.au>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Phillips wrote:
+> 
+> On Monday 11 June 2001 14:45, Andrew Morton wrote:
+> > Daniel Phillips wrote:
+> > > On Sunday 10 June 2001 03:31, Andrew Morton wrote:
+> > > > Daniel Phillips wrote:
+> > > > > This is easy, just set the list head to the page about to be
+> > > > > truncated.
+> > > >
+> > > > Works for me.
+> > >
+> > > It looks good, but it's black magic
+> >
+> > No, it's wrong.  I'm getting BUG()s in clear_inode():
+> > [...]
+> > The lists are mangled.
+> 
+> curr is being advanced in the wrong place.
 
-Andrew Morton writes:
- > It'd need to be callable from interrupt context - otherwise
- > each device/driver which has link status change interrupts
- > will need to implement some form of interrupt->process context
- > trick.
+Yes.
 
-Well, we could make the netif_carrier_*() implementation do the
-"interrupt->process context" trick.
+> /me makes note to self: never resist the temptation to clean things up the
+> rest of the way
+> 
+> I'll actually apply the patch and try it this time ;-)
 
-Jamal can feel free to post what he has.
+The bug is surprisingly hard to trigger.
 
-Later,
-David S. Miller
-davem@redhat.com
+
+Take three:
+
+
+--- linux-2.4.5/mm/filemap.c	Mon May 28 13:31:49 2001
++++ linux-akpm/mm/filemap.c	Mon Jun 11 23:31:08 2001
+@@ -230,17 +230,17 @@
+ 		unsigned long offset;
+ 
+ 		page = list_entry(curr, struct page, list);
+-		curr = curr->next;
+ 		offset = page->index;
+ 
+ 		/* Is one of the pages to truncate? */
+ 		if ((offset >= start) || (*partial && (offset + 1) == start)) {
++			list_del(head);
++			list_add(head, curr);
+ 			if (TryLockPage(page)) {
+ 				page_cache_get(page);
+ 				spin_unlock(&pagecache_lock);
+ 				wait_on_page(page);
+-				page_cache_release(page);
+-				return 1;
++				goto out_restart;
+ 			}
+ 			page_cache_get(page);
+ 			spin_unlock(&pagecache_lock);
+@@ -252,11 +252,15 @@
+ 				truncate_complete_page(page);
+ 
+ 			UnlockPage(page);
+-			page_cache_release(page);
+-			return 1;
++			goto out_restart;
+ 		}
++		curr = curr->next;
+ 	}
+ 	return 0;
++out_restart:
++	page_cache_release(page);
++	spin_lock(&pagecache_lock);
++	return 1;
+ }
+ 
+ 
+@@ -273,15 +277,19 @@
+ {
+ 	unsigned long start = (lstart + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
+ 	unsigned partial = lstart & (PAGE_CACHE_SIZE - 1);
++	int complete;
+ 
+-repeat:
+ 	spin_lock(&pagecache_lock);
+-	if (truncate_list_pages(&mapping->clean_pages, start, &partial))
+-		goto repeat;
+-	if (truncate_list_pages(&mapping->dirty_pages, start, &partial))
+-		goto repeat;
+-	if (truncate_list_pages(&mapping->locked_pages, start, &partial))
+-		goto repeat;
++	do {
++		complete = 1;
++		while (truncate_list_pages(&mapping->clean_pages, start, &partial))
++			complete = 0;
++		while (truncate_list_pages(&mapping->dirty_pages, start, &partial))
++			complete = 0;
++		while (truncate_list_pages(&mapping->locked_pages, start, &partial))
++			complete = 0;
++	} while (!complete);
++	/* Traversed all three lists without dropping the lock */
+ 	spin_unlock(&pagecache_lock);
+ }

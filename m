@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268831AbUJPUPK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268817AbUJPUTa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268831AbUJPUPK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 16:15:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268846AbUJPUPF
+	id S268817AbUJPUTa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 16:19:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268846AbUJPUT3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 16:15:05 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:10697 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S268831AbUJPUNv (ORCPT
+	Sat, 16 Oct 2004 16:19:29 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:7819 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S268817AbUJPUTB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 16:13:51 -0400
-Date: Sat, 16 Oct 2004 22:14:17 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Adam Heath <doogie@debian.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U4
-Message-ID: <20041016201417.GA12371@elte.hu>
-References: <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <Pine.LNX.4.58.0410161426020.1223@gradall.private.brainfood.com> <20041016193626.GB10626@elte.hu> <Pine.LNX.4.58.0410161457410.1223@gradall.private.brainfood.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0410161457410.1223@gradall.private.brainfood.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sat, 16 Oct 2004 16:19:01 -0400
+Date: Sat, 16 Oct 2004 22:18:35 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: "Randy.Dunlap" <rddunlap@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       olh@suse.de, akpm@osdl.org
+Subject: Re: [PATCH] kconfig: OVERRIDE: save kernel version in .config file
+In-Reply-To: <20041016212859.GC8765@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.61.0410162206560.7182@scrub.home>
+References: <20040917154346.GA15156@suse.de> <20040917102024.50188756.rddunlap@osdl.org>
+ <20040917104334.1b7d7d19.rddunlap@osdl.org> <20041016212859.GC8765@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Adam Heath <doogie@debian.org> wrote:
+On Sat, 16 Oct 2004, Sam Ravnborg wrote:
 
-> > after bootup it makes sense to reset the maximum:
-> >
-> > 	echo 10 > /proc/sys/kernel/preempt_max_latency
-> >
-> > because during bootup there are a number of latencies that are one-time
-> > only.
-> 
-> So, I did that, and immediately started getting more stack dumps.  Are
-> these things that are interesting, or only informational?
+> Applied - but I named it KCONFIG_TIMESTAMP so people would not
+> think that kbuild suddenly stopped checking timestamps.
 
-they are informational, if you are evaluating latencies. Feel free to
-post larger latencies. Right now the threshold for "large" depends - on
-a fast box i'd say latencies above 200 usecs are worth reporting - but
-any trace can be interesting. Latencies above 1000 usecs are definitely
-worth seeing.
+That reminds me, I'm not really happy with this patch, it's a hack not a 
+real solution, either we save the timestamp always or not at all, making 
+it dependent on an environment variable is IMO ugly.
+I have a patch which does some tighter checking during config loading, 
+which can be used whether it's needed to write the config. Other front 
+ends could use this as well (e.g. xconfig right now always ask to save
+the config).
 
-stability has the highest priority at the moment, and the other type of
-non-latency stackdumps (scheduling while atomic, smp_processor_id()
-warnings or outright kernel oopses) should always be reported if
-possible.
-
-	Ingo
+bye, Roman

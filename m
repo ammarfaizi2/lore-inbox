@@ -1,62 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265555AbSJXQ6m>; Thu, 24 Oct 2002 12:58:42 -0400
+	id <S265552AbSJXQ5v>; Thu, 24 Oct 2002 12:57:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265556AbSJXQ6m>; Thu, 24 Oct 2002 12:58:42 -0400
-Received: from mail.actcom.co.il ([192.114.47.13]:18600 "EHLO
-	lmail.actcom.co.il") by vger.kernel.org with ESMTP
-	id <S265555AbSJXQ6i>; Thu, 24 Oct 2002 12:58:38 -0400
-Subject: Re: One for the Security Guru's
-From: Gilad Ben-Yossef <gilad@benyossef.com>
-To: hps@intermeta.de
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <ap97nr$h6e$1@forge.intermeta.de>
-References: <1035453664.1035.11.camel@syntax.dstl.gov.uk>
-	<Pine.LNX.4.44.0210241209250.648-100000@innerfire.net> 
-	<ap97nr$h6e$1@forge.intermeta.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 24 Oct 2002 19:04:46 +0200
-Message-Id: <1035479086.9935.6.camel@gby.benyossef.com>
+	id <S265555AbSJXQ5v>; Thu, 24 Oct 2002 12:57:51 -0400
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:2833 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S265552AbSJXQ5u>;
+	Thu, 24 Oct 2002 12:57:50 -0400
+Date: Thu, 24 Oct 2002 10:02:27 -0700
+From: Greg KH <greg@kroah.com>
+To: Richard J Moore <richardj_moore@uk.ibm.com>
+Cc: Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org,
+       S Vamsikrishna <vamsi_krishna@in.ibm.com>,
+       Werner Almesberger <wa@almesberger.net>
+Subject: Re: 2.4 Ready list - Kernel Hooks
+Message-ID: <20021024170226.GI22654@kroah.com>
+References: <OF7660C6E6.D4E17A02-ON80256C5C.005B1F20@portsmouth.uk.ibm.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF7660C6E6.D4E17A02-ON80256C5C.005B1F20@portsmouth.uk.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-24 at 18:39, Henning P. Schmiedehausen wrote:
-> Gerhard Mack <gmack@innerfire.net> writes: 
-> >It gets even worse if almost all of your services are encrypted(like you
-> >would find on an e-commerse site).  https will blind an IDS.  The last
-> >place I worked only had 3 ports open and 2 of them were encrypted.
+On Thu, Oct 24, 2002 at 05:38:12PM +0100, Richard J Moore wrote:
 > 
-> Nah. Do it right:
-> 
-> Internet ----- Firewall ---- SSL Accelerator Box --+---- Webserver
->          HTTPS          HTTPS                      | HTTP
->                                                    |
->                                                   IDS
-> 
+> A few weeks ago Suparna told me LSM had been enquiring about kernel
+> hooks - never heard the outcome though.
 
-Eh... not really:
+Wrong type of "hooks".  Ours would not work for what you are stating you
+need to do, sorry.
 
-A. If there's a buffer overflow in the SSL Accelerator box the firewall
-wont do you much good (it helps, but only a little). 
+thanks,
 
-B. The firewall in this setup provides very little besides packet
-filtering anyway.
-
-SO... basically we're back to square one. A better firewall might offer
-more features but in the end the end point must be secure or all of
-these features wont do a damn good, thus in many cases it would make
-sense to use the free (as in both beer and speech) solution provided by
-Linux, not because it's the best, but because it's enough: there are
-weaker links to worry about.
-
-Gilad.
-
--- 
-Gilad Ben-Yossef <gilad@benyossef.com>
-http://benyossef.com
-
- "Geeks rock bands cool name #8192: RAID against the machine"
-
+greg k-h

@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265060AbTFCPj1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 11:39:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265064AbTFCPj1
+	id S265056AbTFCPiS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 11:38:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbTFCPiR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 11:39:27 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:38798 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S265060AbTFCPjX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 11:39:23 -0400
-Date: Tue, 3 Jun 2003 08:52:46 -0700
-From: David Mosberger <davidm@napali.hpl.hp.com>
-Message-Id: <200306031552.h53FqknC023999@napali.hpl.hp.com>
-To: torvalds@transmeta.com
-Cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org,
-       linux-ia64@linuxia64.org
-Subject: fix TCP roundtrip time update code
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
-Reply-To: davidm@hpl.hp.com
+	Tue, 3 Jun 2003 11:38:17 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:40429
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S265056AbTFCPfv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 11:35:51 -0400
+Subject: Re: select for UNIX sockets?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <m3llwkauq5.fsf@defiant.pm.waw.pl>
+References: <m3llwkauq5.fsf@defiant.pm.waw.pl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1054651886.9233.35.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 03 Jun 2003 15:51:28 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One of those very-hard-to-track-down, trivial-to-fix kind of problems:
-without this patch, TCP roundtrip time measurements will corrupt the
-routing cache's RTT estimates under heavy network load (the bug causes
-RTAX_RTT to go negative, but since its type is u32, you end up with a
-huge positive value...).  From there on, later TCP connections quickly
-will go south.
+On Maw, 2003-06-03 at 01:08, Krzysztof Halasa wrote:
+> Hi,
+> 
+> Should something like this work correctly?
 
-The typo was introduced 8 months ago in v1.29 of the file by the patch
-entitled "Cleanup DST metrics and abstrct MSS/PMTU further".
+Sort of. The wakeup may occur for several reasons and you need to check
+the return (for signals). Also the wakeup can occur when there is room
+but another thread fills it, or return room but not enough for a large
+datagram. Those don't seem to be the case on your example
 
-	--david
 
-===== net/ipv4/tcp_input.c 1.36 vs edited =====
---- 1.36/net/ipv4/tcp_input.c	Mon Apr 28 09:27:57 2003
-+++ edited/net/ipv4/tcp_input.c	Tue Jun  3 08:19:36 2003
-@@ -556,8 +556,8 @@
- 			if (m >= dst_metric(dst, RTAX_RTTVAR))
- 				dst->metrics[RTAX_RTTVAR-1] = m;
- 			else
--				dst->metrics[RTAX_RTT-1] -=
--					(dst->metrics[RTAX_RTT-1] - m)>>2;
-+				dst->metrics[RTAX_RTTVAR-1] -=
-+					(dst->metrics[RTAX_RTTVAR-1] - m)>>2;
- 		}
- 
- 		if (tp->snd_ssthresh >= 0xFFFF) {
+

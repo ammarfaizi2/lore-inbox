@@ -1,54 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132231AbRCYWgt>; Sun, 25 Mar 2001 17:36:49 -0500
+	id <S132229AbRCYWe7>; Sun, 25 Mar 2001 17:34:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132237AbRCYWgk>; Sun, 25 Mar 2001 17:36:40 -0500
-Received: from inet-smtp3.oracle.com ([205.227.43.23]:6632 "EHLO
-	inet-smtp3.oracle.com") by vger.kernel.org with ESMTP
-	id <S132231AbRCYWg1>; Sun, 25 Mar 2001 17:36:27 -0500
-Message-ID: <3ABE639A.5F45B026@oracle.com>
-Date: Sun, 25 Mar 2001 23:31:06 +0200
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Support Services
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre7 i686)
-X-Accept-Language: en
+	id <S132231AbRCYWeu>; Sun, 25 Mar 2001 17:34:50 -0500
+Received: from linas.org ([207.170.121.1]:36600 "HELO backlot.linas.org")
+	by vger.kernel.org with SMTP id <S132229AbRCYWek>;
+	Sun, 25 Mar 2001 17:34:40 -0500
+Subject: mouse problems in 2.4.2
+To: linux-kernel@vger.kernel.org
+Date: Sun, 25 Mar 2001 16:33:58 -0600 (CST)
+From: linas@linas.org
+X-Hahahaha: hehehe
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Tom Sightler <ttsig@tuxyturvy.com>
-CC: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: [PATCH] Fix for serial.c to work with Xircom Cardbus Ethernet+Modem
-In-Reply-To: <012301c0b357$3d29cc50$1601a8c0@zeusinc.com> <3ABBD639.12BE1035@oracle.com> <001e01c0b41d$1665de80$1601a8c0@zeusinc.com> <3ABD2C2A.7333D132@oracle.com> <001701c0b4dc$de099a70$08080808@zeusinc.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <20010325223358.71E5F1B7A4@backlot.linas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Sightler wrote:
-> 
-[snip]
-> I tested 2.4.3-pre7 and it still fails without my patch.  With my patch I
-> get the above message about 'Redundant entry in serial pci_table' but it
-> still manages to setup my serial device as /dev/ttyS4 (the same patch
-> applied to 2.4.2-ac21 sets the device to /dev/ttyS1).  However it only works
-> if I load serial.c as a module AFTER the card is inserted, if serial.c is
-> already loaded it doesn't register correctly with a messages similar to
-> above.  Perhaps I need to check my hotplug setup.
-> 
-> Could your try serial.c as a module and see if it works for you like that?
-> That way I'd know I'm on the right track and haven't just found some strange
-> way to make it work on my system alone.
-
-OK, now I'm in 2.4.3-pre7 plus your patch and serial as a module (it was
- built in kernel previously) and indeed I have my modem detected
- automatically by the PCMCIA startup sequence (I don't need to manually
- do anything).
-
-I lost the IrDA port, though - ttyS2. Now I only see ttyS0 and ttyS4.
 
 
-Thanks & ciao,
+Hi,
 
---alessandro      <alessandro.suardi@oracle.com> <asuardi@uninetcom.it>
+I am experiencing debilitating intermittent mouse problems & was about 
+to dive into the kernel to see if I could debug it.  But first, I thought
+a quick note to the mailing list may help.
 
-Linux:  kernel 2.2.19p18/2.4.3p7 glibc-2.2 gcc-2.96-69 binutils-2.11.90.0.1
-Oracle: Oracle8i 8.1.7.0.1 Enterprise Edition for Linux
-motto:  Tell the truth, there's less to remember.
+Symptoms:
+After a long time of flawless operation (ranging from nearly a week to 
+as little as five minutes), the X11 pointer flies up to top-right corner, 
+and mostly wants to stay there.  Moving the mouse causes a cascade of 
+spurious button-press events get generated.
+
+This did not occur with 2.4.0test2 or 2.2.16 (to the best of my
+recollection) and first showed up in 2.4.0test7 or 2.4.1 (not sure).
+With 2.4.2, the symptoms seem slightly different (almost all pointer
+movement events seem to be lost; although spurious button-press events
+still happen).
+
+Mouse is a logitech trackman marble, with USB connector to
+logitech-supplied USB to ps/2 DIN plug.  Configured as a PS/2 mouse.
+Motherboard is a Athalon/VIA Apollo KA7.
+
+Unplugging mouse for 10 seconds sometimes fixes the problem on the sixth
+try, sometimes. 
+
+Switching to virtual terminal running gpm, and back to X11 used to fix
+the problem, sometimes, after some magic incantations, unplugging,
+starting gpm, moving mouse, etc.  This no longer does the trick w/
+2.4.2.
+
+Rebooting X11 frequently, but not always, fixed the problem.
+
+The *only* sure-fire fix is to reboot the system. 
+
+Sometimes, the mouse seemed usable with gpm even as it wasn't with X11;
+sometimes it had the same bad behaviour (scooting to the corner,
+spurious button-press) even under gpm.
+
+Changing mouse protocols to imps2 from ps2 in gpm/X11 seems to make no
+difference.
+
+Disabling power management in kernel and bios to various degrees (including 
+disabling *all* power management) doesn't seem to fix anything.  (It
+was suggested to me that this was an APM bug; indeed, an early
+manifestation of the bug seemed to be that it triggered if/when I moved
+the mouse just as the video-powersave triggered. )
+
+Sometimes, the problem seems to be associated with moving the mouse
+during CPU-intensive or disk-i/o intensive operations (e.g. a large 
+file copy, compile; or system activity during mp3 playing) Lost
+interrupt?
+
+On rare ocasions, its associated with system lockup.  (specifically,
+some keyboard buffer seems to fill up, and everything seems hung,  
+not even ctrl-alt-del works).  (I haven't checked to see if I can 
+still telnet in). 
+
+I've been living with this problem for 6+ months, and it is getting to
+be infuriating.  As you can see above, all sorts of different attempts
+above make subtle variations in the symptoms, but no fixes.  
+
+I conclude that this is probably a hardware (motherboard chipset)
+bug, that its rare (google/deja  searches are unfruitful) and that 
+the only place to hunt is in the kernel. 
+
+---------------
+So: any advice, comments, suggestions before I embark on a long and
+possibly fruitless hunt?  Any recommendations for best tools/proceedures
+to catch it 'in the act'?  
+
+--linas
+
+p.s. direct replies to linas@linas.org appreciated.
+
+
+

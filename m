@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262689AbTHZPOC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 11:14:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbTHZPOC
+	id S261180AbTHZPJW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 11:09:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbTHZPJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 11:14:02 -0400
-Received: from orion.netbank.com.br ([200.203.199.90]:8710 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S261362AbTHZPN7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 11:13:59 -0400
-Date: Tue, 26 Aug 2003 12:22:52 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Andrew Morton <akpm@osdl.org>, Gustavo Niemeyer <niemeyer@conectiva.com>,
-       linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       linux-net@vger.kernel.org
-Subject: Re: 2.6.0-test4-mm1: wl3501_cs.c doesn't compile
-Message-ID: <20030826152251.GI921@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
-	Gustavo Niemeyer <niemeyer@conectiva.com>,
-	linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-	linux-net@vger.kernel.org
-References: <20030824171318.4acf1182.akpm@osdl.org> <20030825173007.GT7038@fs.tum.de> <20030825174627.GA1094@conectiva.com.br> <20030825182441.GF1094@conectiva.com.br> <20030825183948.GG1094@conectiva.com.br> <20030825220108.GW7038@fs.tum.de>
+	Tue, 26 Aug 2003 11:09:22 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:3485 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261180AbTHZPJU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 11:09:20 -0400
+Subject: Re: Interesting problem with 450NX based Compaq server
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Bryan Ballard <ballard@netsolus.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030825225820.2d1c6e29.akpm@osdl.org>
+References: <1061875433.24196.15.camel@ant>
+	 <20030825225820.2d1c6e29.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1061910515.20846.43.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030825220108.GW7038@fs.tum.de>
-X-Url: http://advogato.org/person/acme
-Organization: Conectiva S.A.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 26 Aug 2003 16:08:36 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Tue, Aug 26, 2003 at 12:01:08AM +0200, Adrian Bunk escreveu:
-> It's attached.
+On Maw, 2003-08-26 at 06:58, Andrew Morton wrote:
+> I have an Intel ad450nx server, based on the 450NX PCISet chipset. 
+> 4x500MHz Xeons.  It runs like a champ.
 
-Not needed as per what you said below :)
+450NX does have bugs (browse the intel pdf). None of them I can see
+should bite people unless they are using mtrr ranges or have out of
+date bioses.
 
-> I traced the problem down to the gcc version: The file compiles with
-> gcc 3.3 but fails to compile with gcc 2.95.
-
-I see, I'll fix this one, I had a problem with this in another source file,
-IIRC. Die, gcc 2.95 die! :-)
-
-- Arnaldo

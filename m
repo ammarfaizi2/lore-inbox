@@ -1,113 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263542AbUC3JBN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 04:01:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263548AbUC3JBN
+	id S263531AbUC3JAx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 04:00:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263542AbUC3JAx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 04:01:13 -0500
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:34949 "EHLO phoebee.mail")
-	by vger.kernel.org with ESMTP id S263542AbUC3JBE (ORCPT
+	Tue, 30 Mar 2004 04:00:53 -0500
+Received: from solarsystems.de ([217.160.216.16]:45737 "EHLO solarsystems.de")
+	by vger.kernel.org with ESMTP id S263531AbUC3JAt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 04:01:04 -0500
-Date: Tue, 30 Mar 2004 11:00:57 +0200
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: [BUG] 2.6.5-rc2-mm5 usb pl2303 oops on module remove
-Message-Id: <20040330110057.1b46daa9@phoebee>
-X-Mailer: Sylpheed version 0.9.10claws36 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.6.2 i686 Intel(R) Pentium(R) 4 CPU
- 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
-Organization: Technotrend AG
+	Tue, 30 Mar 2004 04:00:49 -0500
+Date: Tue, 30 Mar 2004 11:00:48 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Alpha/2.6.4: Kernel bug at mm/page_alloc.c:752
+Message-ID: <20040330090048.GA8022@solarsystems.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Tue__30_Mar_2004_11_00_57_+0200_be87uFoL+w+n9S0="
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+From: Christian Vogel <chris@solarsystems.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Tue__30_Mar_2004_11_00_57_+0200_be87uFoL+w+n9S0=
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Hi,
 
-Hi there!
+I'm trying to get 2.6.4 running on a AlphaStation 250 4/266.
+I get a BUG right after mounting the root filesystem,
+Compiled using gcc-3.3.3, binutils from cvs[1]. 
 
-I get this if I 'rmmod pl2303':
+Any ideas? You can get .config, system.map, serial console log here:
+        http://www.hedonism.cx/~chris/bug_alpha/
 
-usb 1-1: new full speed USB device using address 10
-usb 1-1: USB disconnect, address 10
-usb 1-1: new full speed USB device using address 11
-usbserial 1-1:1.0: PL-2303 converter detected
-usb 1-1: PL-2303 converter now attached to ttyUSB1 (or usb/tts/1 for devfs)
-usb 5-2: new full speed USB device using address 4
-drivers/usb/core/devio.c: proc_resetdevice - this function is broken
-usb 5-2: USB disconnect, address 4
-usb 5-2: new full speed USB device using address 5
-usb 5-2: USB disconnect, address 5
-PL-2303 ttyUSB0: pl2303_write - failed submitting write urb, error -19
-PL-2303 ttyUSB0: pl2303_write - failed submitting write urb, error -19
-PL-2303 ttyUSB0: pl2303_write - failed submitting write urb, error -19
-PL-2303 ttyUSB0: pl2303_write - failed submitting write urb, error -19
-PL-2303 ttyUSB0: PL-2303 converter now disconnected from ttyUSB0
-usbcore: deregistering driver pl2303
-drivers/usb/serial/usb-serial.c: USB Serial deregistering driver PL-2303
-PL-2303 ttyUSB1: PL-2303 converter now disconnected from ttyUSB1
-usbserial 1-1:1.0: device disconnected
-Unable to handle kernel NULL pointer dereference at virtual address 0000003d
- printing eip:
-c0268812
-*pde = 00000000
-Oops: 0002 [#1]
-PREEMPT 
-CPU:    0
-EIP:    0060:[<c0268812>]    Tainted: PF  VLI
-EFLAGS: 00010286   (2.6.5-rc2-mm5) 
-EIP is at kref_put+0x7/0x1d
-eax: 0000003d   ebx: c94d0f9c   ecx: 00000003   edx: 0000003d
-esi: 00000001   edi: c94d0f88   ebp: 00000000   esp: d9d97f18
-ds: 007b   es: 007b   ss: 0068
-Process rmmod (pid: 24692, threadinfo=d9d96000 task=c8ced190)
-Stack: 00000000 e09e30e7 0000003d c02bdc6d c46c2294 c94d0f80 00000001 e09ec7e0 
-       e09e3470 c94d0f88 c46c2280 e09eb0f9 e09ec900 c04679fc 00000880 e09eb00f 
-       e09ec7e0 c0130d01 e09ec900 00000880 d9d97f6c 00000000 33326c70 40003330 
-Call Trace:
- [<e09e30e7>] usb_serial_disconnect+0x38/0x82 [usbserial]
- [<c02bdc6d>] device_release_driver+0x64/0x66
- [<e09e3470>] usb_serial_deregister+0xa8/0xac [usbserial]
- [<e09eb00f>] pl2303_exit+0x1b/0x1f [pl2303]
- [<c0130d01>] sys_delete_module+0x14d/0x19c
- [<c014519f>] do_munmap+0x146/0x183
- [<c03e48db>] syscall_call+0x7/0xb
+        Chris
 
-Code: 00 c7 44 24 08 2b 6f 42 c0 c7 44 24 04 2a 92 3f c0 c7 04 24 61 aa 40 c0 e8
-15 4c eb ff e8 a5 ea e9 ff eb c9 83 ec 04 8b 54 24 08 <ff> 0a 0f 94 c0 84 c0 75
-04 83 c4 04 c3 89 14 24 ff 52 04 eb f4 
+[1]: binutins from cvs, because older binutils segfault on linking.
+        The bug also happened when using gcc-3.3.2 and latest release
+        plus a simple patch against that segfault on linking
 
-Is it because of my tainted kernel or is it a known bug?
+Kernel bug at mm/page_alloc.c:752
+        ---> this is BUG_ON(!virt_addr_valid(addr));
+swapper(1): Kernel Bug 1
+pc = [<fffffc000034cfc4>]  ra = [<fffffc0000320bcc>]  ps = 0000    Not
+tainted
+Using defaults from ksymoops -t elf64-alpha -a alpha
+v0 = 0000000000000000  t0 = 0000000000000000  t1 = fffffc00005d01d0
+t2 = 0000000000000001  t3 = 0000000000000001  t4 = 0000000000000000
+t5 = fffffc0007fe2ec0  t6 = 0000000000000001  t7 = fffffc0007f80000
+a0 = fffffc000052c000  a1 = 0000000000000000  a2 = fffffc0007e37cc0
+a3 = 0000000000000000  a4 = 0000000000000000  a5 = 000000000000001f
+t8 = 0000000000000004  t9 = fffffc00003b37dc  t10= 0000000000000080
+t11= 0000000000000020  pv = 0000000000000000  at = fffffc0000392d98
+gp = fffffc00005cff80  sp = fffffc0007f83e28
+Trace:fffffc0000320bcc fffffc0000320d2c fffffc0000310164
+fffffc0000313018 
+Code: 40200561  40200441  23bd2fe8  402b064c  c3ffffd0  00000081
+<000002f0> 004e0745 
 
-Regards,
-Martin
+
+>>RA;  fffffc0000320bcc <free_reserved_mem+10c/240>
+
+>>PC;  fffffc000034cfc4 <free_pages+144/1f0>   <=====
+
+Trace; fffffc0000320bcc <free_reserved_mem+10c/240>
+Trace; fffffc0000320d2c <free_initmem+2c/70>
+Trace; fffffc0000310164 <init+44/130>
+Trace; fffffc0000313018 <kernel_thread+28/90>
+
+Code;  fffffc000034cfac <free_pages+12c/1f0>
+0000000000000000 <_PC>:
+Code;  fffffc000034cfac <free_pages+12c/1f0>
+   0:   61 05 20 40       s4subq       t0,v0,t0
+Code;  fffffc000034cfb0 <free_pages+130/1f0>
+   4:   41 04 20 40       s4addq       t0,v0,t0
+Code;  fffffc000034cfb4 <free_pages+134/1f0>
+   8:   e8 2f bd 23       lda  gp,12264(gp)
+Code;  fffffc000034cfb8 <free_pages+138/1f0>
+   c:   4c 06 2b 40       s8addq       t0,s2,s3
+Code;  fffffc000034cfbc <free_pages+13c/1f0>
+  10:   d0 ff ff c3       br   ffffffffffffff54 <_PC+0xffffffffffffff54>
+fffffc000034cf00 <free_pages+80/1f0>
+Code;  fffffc000034cfc0 <free_pages+140/1f0>
+  14:   81 00 00 00       call_pal     0x81
+Code;  fffffc000034cfc4 <free_pages+144/1f0>   <=====
+  18:   f0 02 00 00       call_pal     0x2f0   <=====
+Code;  fffffc000034cfc8 <free_pages+148/1f0>
+  1c:   45 07 4e 00       call_pal     0x4e0745
 
 -- 
-MyExcuse:
-Operators killed when huge stack of backup tapes fell over.
-
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
-
-TechnoTrend AG <http://www.technotrend.de>
-
---Signature=_Tue__30_Mar_2004_11_00_57_+0200_be87uFoL+w+n9S0=
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAaTdJmjLYGS7fcG0RArtnAJsECh3HFDE54//Svfbw3VCeW7sixwCgorAC
-Qz8Yzwu67N+OKrULAaB8fyI=
-=hAIi
------END PGP SIGNATURE-----
-
---Signature=_Tue__30_Mar_2004_11_00_57_+0200_be87uFoL+w+n9S0=--
+Christian Vogel -- chris@solarsystems.de

@@ -1,32 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261594AbTBSVM3>; Wed, 19 Feb 2003 16:12:29 -0500
+	id <S261527AbTBSVLx>; Wed, 19 Feb 2003 16:11:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261599AbTBSVM2>; Wed, 19 Feb 2003 16:12:28 -0500
-Received: from rth.ninka.net ([216.101.162.244]:6049 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id <S261594AbTBSVM1>;
-	Wed, 19 Feb 2003 16:12:27 -0500
+	id <S261599AbTBSVLx>; Wed, 19 Feb 2003 16:11:53 -0500
+Received: from rth.ninka.net ([216.101.162.244]:4769 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S261527AbTBSVLv>;
+	Wed, 19 Feb 2003 16:11:51 -0500
 Subject: Re: [PATCH] add new DMA_ADDR_T_SIZE define
 From: "David S. Miller" <davem@redhat.com>
-To: Ion Badulescu <ionut@badula.org>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, torvalds@transmeta.com,
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Ion Badulescu <ionut@badula.org>, torvalds@transmeta.com,
        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0302191225510.29393-100000@guppy.limebrokerage.com>
-References: <Pine.LNX.4.44.0302191225510.29393-100000@guppy.limebrokerage.com>
+In-Reply-To: <20030219092046.458c2876.rddunlap@osdl.org>
+References: <Pine.LNX.4.44.0302191050290.29393-100000@guppy.limebrokerage.com> 
+	<20030219092046.458c2876.rddunlap@osdl.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 19 Feb 2003 14:06:47 -0800
-Message-Id: <1045692407.14307.11.camel@rth.ninka.net>
+Date: 19 Feb 2003 14:06:12 -0800
+Message-Id: <1045692372.14268.9.camel@rth.ninka.net>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-02-19 at 09:28, Ion Badulescu wrote:
-> then you're probably debugging, not performance-tuning, so the cast to u64 
-> is acceptable.
+On Wed, 2003-02-19 at 09:20, Randy.Dunlap wrote:
+> Does this help with being able to printk() a <dma_addr_t>?  How?
+> Always use a cast to (u64) or something else?
 
-Not true, you must cast to 'long long' as there is no appropriate
-printf format string for u64 that works warning-free on all
-systems.
+One should always cast to long long and use %llx.  There is no
+printf format appropriate for a 'u64'.
 

@@ -1,55 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269059AbUIBUff@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269040AbUIBUff@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269059AbUIBUff (ORCPT <rfc822;willy@w.ods.org>);
+	id S269040AbUIBUff (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 2 Sep 2004 16:35:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269040AbUIBUeY
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269023AbUIBUeE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 16:34:24 -0400
-Received: from fw.osdl.org ([65.172.181.6]:51123 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269025AbUIBUbL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 16:31:11 -0400
-Date: Thu, 2 Sep 2004 13:31:09 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Andrey Savochkin <saw@saw.sw.com.sg>
-Cc: Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] exec: atomic MAY_EXEC check and SUID/SGID handling
-Message-ID: <20040902133109.H1973@build.pdx.osdl.net>
-References: <20040902174521.A13656@castle.nmd.msu.ru>
+	Thu, 2 Sep 2004 16:34:04 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:14464 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S269041AbUIBUcW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 16:32:22 -0400
+Date: Thu, 2 Sep 2004 13:32:13 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Nathan Bryant <nbryant@optonline.net>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] i386 reduce spurious interrupt noise
+Message-ID: <20040902203213.GA7256@taniwha.stupidest.org>
+References: <20040902192820.GA6427@taniwha.stupidest.org> <20040902193454.GI5492@holomorphy.com> <20040902194739.GA6673@taniwha.stupidest.org> <41377EF6.4010902@optonline.net> <1094153248.5809.41.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040902174521.A13656@castle.nmd.msu.ru>; from saw@saw.sw.com.sg on Thu, Sep 02, 2004 at 05:45:21PM +0400
+In-Reply-To: <1094153248.5809.41.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrey Savochkin (saw@saw.sw.com.sg) wrote:
-> There is a time window between permission(MAY_EXEC) check in
-> open_exec() and S_ISUID check plus bprm->e_uid setting in prepare_binprm().
-> And S_ISUID is checked and bprm->e_uid is copied from the inode without
-> any serialization with attribute updates.
-> 
-> That means that some executable may have permissions
-> -rwxr-xr-x    root     disk     /bin/file
-> at the moment of MAY_EXEC check and
-> -rwsr-x---    root     disk     /bin/file
-> at the moment of S_ISUID check, providing lucky users starting /bin/file at
-> the moment of permission change with a setuid-root program.
-> 
-> It's arguable whether it's a big security issue, but certainly such behavior
-> is not what administrators may expect.
+On Thu, Sep 02, 2004 at 08:27:28PM +0100, Alan Cox wrote:
 
-If you can find a way for a user to exploit this it's an issue.  Looks
-like it's not, and doesn't warrant such a big change as your patch.
-The fact that you introduce a new field and then almost always supply it
-with NULL is a clue that it's not the right direction IMO.  Something
-simple (as you mentioned) that grabs i_sem and rechecks during suid
-setup in binprm_prepare is sufficient.  Worth it?  Guess I'm not
-convinced.
+> It also happens on a lot of hardware on the odd instance a non IRQ
+> code path clears down an interrupt just as its being raised. IDE
+> does it now and then for example.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+So how about we just remove those printk statements completely then?
+I've never heard of a single need for them other than reporting things
+we don't really care about....

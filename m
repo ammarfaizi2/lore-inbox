@@ -1,51 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319557AbSIMIN3>; Fri, 13 Sep 2002 04:13:29 -0400
+	id <S319556AbSIMIJh>; Fri, 13 Sep 2002 04:09:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319558AbSIMIN2>; Fri, 13 Sep 2002 04:13:28 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:20101 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S319557AbSIMIN1>;
-	Fri, 13 Sep 2002 04:13:27 -0400
-Date: Fri, 13 Sep 2002 10:18:18 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: "David S. Miller" <davem@redhat.com>, lm@bitmover.com, gmack@innerfire.net,
-       rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [OFFTOPIC] Spamcop
-Message-ID: <20020913081818.GA32312@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Andries Brouwer <aebr@win.tue.nl>,
-	"David S. Miller" <davem@redhat.com>, lm@bitmover.com,
-	gmack@innerfire.net, rmk@arm.linux.org.uk,
-	linux-kernel@vger.kernel.org
-References: <20020912211056.J4739@flint.arm.linux.org.uk> <Pine.LNX.4.44.0209121657590.27346-100000@innerfire.net> <20020912141338.B14230@work.bitmover.com> <20020912.164754.133954355.davem@redhat.com> <20020913005245.GA12954@win.tue.nl>
-Mime-Version: 1.0
+	id <S319559AbSIMIJh>; Fri, 13 Sep 2002 04:09:37 -0400
+Received: from packet.digeo.com ([12.110.80.53]:37844 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S319556AbSIMIJg>;
+	Fri, 13 Sep 2002 04:09:36 -0400
+Message-ID: <3D81A200.C1B6A293@digeo.com>
+Date: Fri, 13 Sep 2002 01:29:52 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Hirokazu Takahashi <taka@valinux.co.jp>
+CC: linux-kernel@vger.kernel.org, janetmor@us.ibm.com
+Subject: Re: [patch] readv/writev rework
+References: <3D80E139.ACC1719D@digeo.com> <20020913.162252.56050784.taka@valinux.co.jp>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020913005245.GA12954@win.tue.nl>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Sep 2002 08:14:20.0820 (UTC) FILETIME=[8FF4B540:01C25AFD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 13, 2002 at 02:52:45AM +0200, Andries Brouwer wrote:
-> On Thu, Sep 12, 2002 at 04:47:54PM -0700, David S. Miller wrote:
+Hirokazu Takahashi wrote:
 > 
-> > There is someone basically forging email from anyone prominent
-> > in the opensource community.  I've even got these forges myself
-> > addressed as from myself which is even more amusing :-)
+> Hello,
 > 
-> Yes, indeed. However, their address collection may be a bit out-of-date:
+> I updated the writev patch which may be easy to understand.
+> How about it?
 
-It is less smart than you may think - it sends email 'FROM' people 'TO'
-people who are listed next to eachother on webpages. See for example the
-authors list on http://lartc.org, we continually get virusses that appear to
-come from ourselves.
+Looks nice.   And yes, you hung onto the atomic kmap across multiple
+iov segments ;)  That will save a tlb invalidate per segment.
+ 
+> But I have one question, Could let me know if you have any idea,
+> why does filemap_copy_from_user() try to call kamp()+__copy_from_user()
+> again after the first trial get fault.
+> 
+> Is there any meanings?
 
-Regards,
+We're not allowed to schedule away inside atomic_kmap - must remain
+in the same task, on the same CPU etc.  So the pagefault handler
+will return immediately if we take a pagefault while copying to/from
+userspace while holding an atomic kmap.
 
-bert
+So the code first touches the userspace page (via __get_user) to
+fault it in.  Now, there is a 99.999999% chance that the copy_*_user()
+will not fault - it will remain wholly atomic.
 
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://www.tk                              the dot in .tk
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+But there is the 0.0000001% chance that the VM will evict (or at least
+unmap) the page between the __get_user() and the completion of the 
+copy_*_user().  In this case, copy_*_user() will fail and will return
+a short copy.
+
+Now, we could just touch the page with another __get_user() and retry
+the atomic kmap approach.  But I flipped a coin and decided to fall back
+to a regular sleeping kmap instead.  With a sleeping kmap, in a
+non-atomic region the kernel will actually take the fault, fix it up
+and the copy_*_user() will work OK.
+
+> ...
+> --- linux/mm/filemap.c.ORG      Wed Sep 11 19:48:00 2030
+> +++ linux/mm/filemap.c  Fri Sep 13 16:08:51 2030
+
+I shall retest...

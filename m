@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbULGIXO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbULGI1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261621AbULGIXO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 03:23:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbULGIXO
+	id S261570AbULGI1J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 03:27:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbULGI1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 03:23:14 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:29836 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261621AbULGIXL
+	Tue, 7 Dec 2004 03:27:09 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:32908 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S261570AbULGI1G
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 03:23:11 -0500
-Date: Tue, 7 Dec 2004 09:21:06 +0100
+	Tue, 7 Dec 2004 03:27:06 -0500
+Date: Tue, 7 Dec 2004 09:26:51 +0100
 From: Francois Romieu <romieu@fr.zoreil.com>
-To: Lenar =?unknown-8bit?Q?L=C3=B5hmus?= <lenar@vision.ee>
-Cc: Johan <johan@ccs.neu.edu>, linux-kernel@vger.kernel.org
+To: Johan <johan@ccs.neu.edu>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: status of via velocity in 2.6.9
-Message-ID: <20041207082106.GA24306@electric-eye.fr.zoreil.com>
-References: <41B4F447.2060808@ccs.neu.edu> <41B56518.2070108@vision.ee>
+Message-ID: <20041207082651.GB24306@electric-eye.fr.zoreil.com>
+References: <41B4F447.2060808@ccs.neu.edu> <20041207004400.GC12838@electric-eye.fr.zoreil.com> <41B5061B.1010004@ccs.neu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <41B56518.2070108@vision.ee>
+In-Reply-To: <41B5061B.1010004@ccs.neu.edu>
 User-Agent: Mutt/1.4.1i
 X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lenar Lõhmus <lenar@vision.ee> :
+Johan <johan@ccs.neu.edu> :
 [...]
-> the machine just locked up after ifconfig up. With 2.6.9, it doesn't 
-> lock up, but it doesn't work either (data seems to go to black hole
-> or sth). But there seem to be some success reports too with this kernel.
+> 3. I would love to provide any debugging output, but don't know how. 
+> Please be more specific.  A pointer to the proper FAQ will suffice.
+> 
+> There is is no discernable error message: at least not to console or to 
+> /var/log/messages.  It just stops sending or receiving.
 
-Can you check if the computer hosts the latest bios from its vendor and
-if booting with "acpi=off" makes a difference ?
+See REPORTING-BUGS for some hints. ethtool output before/after problem can
+be added. It surprises me that the TX watchdog does not trigger if the device
+stops working. Anything like a cron which could take place during the
+5 minutes ? ifconfig and /proc/interrupts does not evolve any more once the
+traffic is stopped ?
 
-The content of /proc/interrupts after a known number of TX packets could
-give some hint (use ping or such and correlate ifconfig output with
-/proc/interrupts).
-
-Please direct/Cc: further messages to netdev@oss.sgi.com.
+Cc: on netdev@oss.sgi.com is welcome.
 
 --
 Ueimor

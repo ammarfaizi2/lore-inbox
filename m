@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265841AbRF3LIW>; Sat, 30 Jun 2001 07:08:22 -0400
+	id <S265878AbRF3LSW>; Sat, 30 Jun 2001 07:18:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265815AbRF3LIC>; Sat, 30 Jun 2001 07:08:02 -0400
-Received: from web13907.mail.yahoo.com ([216.136.175.70]:60686 "HELO
-	web13907.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S265799AbRF3LH6>; Sat, 30 Jun 2001 07:07:58 -0400
-Message-ID: <20010630110757.85227.qmail@web13907.mail.yahoo.com>
-Date: Sat, 30 Jun 2001 04:07:57 -0700 (PDT)
-From: szonyi calin <caszonyi@yahoo.com>
-Subject: Re: Cosmetic JFFS patch.
-To: David Lang <david.lang@digitalinsight.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0106291024240.21533-100000@dlang.diginsite.com>
+	id <S265882AbRF3LSM>; Sat, 30 Jun 2001 07:18:12 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:26089 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S265878AbRF3LR6>;
+	Sat, 30 Jun 2001 07:17:58 -0400
+Date: Sat, 30 Jun 2001 07:17:51 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Philips <philips@iph.to>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: A Possible 2.5 Idea, maybe?
+In-Reply-To: <3B3DB318.B799F4E3@iph.to>
+Message-ID: <Pine.GSO.4.21.0106300713330.1200-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---- David Lang <david.lang@digitalinsight.com> wrote:
-> back when I was doing PC repair (1.x kernel days) I
-> started useing linux
-> becouse the boot messages gave me so much info about
-> the system (I started
-> to keep a Slackware boot/root disk set on hand so
-> when faced with a
-> customer machine I could boot and see what hardware
-> was actually
-> installed)
-> 
-> make a boot option to turn on the verbose mode if
-> you want, but don't
-> eliminate it completely.
-> 
 
-I like to see boot messages which give me info about
-my
-pc: cpu -- type, speed, cache; motherboard -- type,
-cache; busses; cards information (not copyright).
+On Sat, 30 Jun 2001, Philips wrote:
 
-when I want too see what has a computer inside without
-opening it i boot a linux kernel, and if i have linux
-on it a 'cat /proc/pci' is sufficient for an average 
-computer. This is one thing you don't see on
-windblows.
+> 	If I could choose what filesystem to run on / - it impact performance greatly
 
-I wouldn't like a UN*X which wouldn't tell me what is
-he doing.(I don't like fancy GUI's which hide the
-sistem from the user and then screw up everything).
+No, it doesn't. Most of lookups go outside of root and within root you
+mostly deal with cached lookups from dcache (which doesn't give a damn for
+fs type) and with page cache lookups for data (mostly in libc) (ditto).
 
+[snip]
 
-__________________________________________________
-Do You Yahoo!?
-Get personalized email addresses from Yahoo! Mail
-http://personal.mail.yahoo.com/
+> 	This would be one little step toward the microkernel architecture (like Hurd).
+> Good again :-)
+
+	Hurd and architecture in one sentence? Uh-oh...
+

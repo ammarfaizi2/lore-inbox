@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262130AbTLPT3k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 14:29:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbTLPT3k
+	id S262131AbTLPTb2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 14:31:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTLPTb2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 14:29:40 -0500
-Received: from 213-0-194-193.dialup.nuria.telefonica-data.net ([213.0.194.193]:24964
-	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
-	id S262130AbTLPT3i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 14:29:38 -0500
-Date: Tue, 16 Dec 2003 20:29:35 +0100
-From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Need Quota Support for Reiserfs Partition
-Message-ID: <20031216192935.GA3084@localhost>
-Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
-References: <01a901c3c2a7$f5d8a9d0$0900a8c0@BOBHITT> <20031215085312.GD6613@atrey.karlin.mff.cuni.cz> <3FDF2632.C83B80D7@bull.net>
+	Tue, 16 Dec 2003 14:31:28 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:50130 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262131AbTLPTb1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 14:31:27 -0500
+Subject: Re: Double Interrupt with HT
+From: john stultz <johnstul@us.ibm.com>
+To: Miroslaw KLABA <totoro@totoro.be>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031215155843.210107b6.totoro@totoro.be>
+References: <20031215155843.210107b6.totoro@totoro.be>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1071603069.991.194.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FDF2632.C83B80D7@bull.net>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 16 Dec 2003 11:31:10 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 16 December 2003, at 16:35:14 +0100,
-Jacky Malcles wrote:
+On Mon, 2003-12-15 at 06:58, Miroslaw KLABA wrote:
+> I've got a problem while using Hyper-Threading on a motherboard with Via P4M266A
+> chipset with 2.4.23 kernel.
 
-> do you know if quotas are working with ext3 FS ?
->
-Yes, they work, I have just tested it over a LV block-device.
+Could you try to narrow down when the problem first appeared? Was it not
+seen in 2.4.23-pre3 but showed up in 2.4.23-rc1? The narrower the
+better. 
 
-> I'm using kernel 2.6.0test9 and quota-3.09-1
->
-kernel version 2.6.0-test10-mm1 and 3.09-3 (Debian Sid) here.
+thanks
+-john
 
-> and I  can't turn them on,
->
-Did you mount the filesystem with "-o usrquota,grpquota" ?. Do you
-compiled support for generic quotas and for the quota version (V2) you
-seem to be using (module quota_v2) ?.
 
-Greetings.
 
--- 
-Jose Luis Domingo Lopez
-Linux Registered User #189436     Debian Linux Sid (Linux 2.6.0-test10-mm1)

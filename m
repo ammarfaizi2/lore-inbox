@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292865AbSBVN5O>; Fri, 22 Feb 2002 08:57:14 -0500
+	id <S292866AbSBVODx>; Fri, 22 Feb 2002 09:03:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292866AbSBVN5D>; Fri, 22 Feb 2002 08:57:03 -0500
-Received: from [200.180.163.180] ([200.180.163.180]:31300 "EHLO quatroint")
-	by vger.kernel.org with ESMTP id <S292865AbSBVN4y>;
-	Fri, 22 Feb 2002 08:56:54 -0500
-Message-ID: <004801c1bba8$831250c0$c50016ac@spps.com.br>
-Reply-To: "Fernando Korndorfer" <fernando@quatro.com.br>
-From: "Fernando Korndorfer" <fernando@quatro.com.br>
-To: "Stephan von Krawczynski" <skraw@ithnet.com>
-Cc: "Adam Lackorzynski" <adam@os.inf.tu-dresden.de>,
-        "LKML" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020220104129.GP13774@os.inf.tu-dresden.de><051a01c1bb01$70634580$c50016ac@spps.com.br><20020221211142.0cf0efa4.skraw@ithnet.com><20020222130246.GD13774@os.inf.tu-dresden.de> <20020222141101.0cc342e1.skraw@ithnet.com>
-Subject: Re: 2.4.18-rcx: Dual P3 + VIA + APIC
-Date: Fri, 22 Feb 2002 10:54:55 -0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S292867AbSBVODo>; Fri, 22 Feb 2002 09:03:44 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:43282 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S292866AbSBVODZ>; Fri, 22 Feb 2002 09:03:25 -0500
+Date: Fri, 22 Feb 2002 15:03:23 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Gadi Oxman <gadio@netvision.net.il>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
+Message-ID: <20020222150323.A5530@suse.cz>
+In-Reply-To: <Pine.LNX.4.33.0202131434350.21395-100000@home.transmeta.com> <3C723B15.2030409@evision-ventures.com> <00a201c1bb8d$90dd2740$0300a8c0@lemon> <3C764B7C.2000609@evision-ventures.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C764B7C.2000609@evision-ventures.com>; from dalecki@evision-ventures.com on Fri, Feb 22, 2002 at 02:45:32PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Adam Lackorzynski <adam@os.inf.tu-dresden.de> wrote:
->
-> > Same MB here, the lspci output is also the same (for the onboard stuff
-;).
->
-> Ok, this is fine and makes the comparison at least possible to some
-extent.
+On Fri, Feb 22, 2002 at 02:45:32PM +0100, Martin Dalecki wrote:
 
-> Please start from a setup as close to mine as possible. That is
-2.4.18-rc2.
-> In setup switch MPS 1.4 support to disable and Power Management to
-disable.
->
-> > I even updated the BIOS from 1010 to 1014 as well (just in case). What
-> > BIOS version are you running? And at how many MHz are the CPUs?
->
-> I use BIOS 1010, 2 x P3 1 GHz and tried RAM from 512MB to 2GB. Currently
-installed are 2GB being 2 x 1GB registered DIMM.
+> See above that is *not* the proper interface for implementation choice,
+> which is *user* policy anyway and can be handled fine by the
+> existing generic module interface infrastructure.
+> 
+> For the sake of modularization. I have already at home a version
+> of ide-pci.c, where the signatures of chipset initialization
+> source code modules match the singature of a normal pci device
+> initialization hook. This should enable it to make them true modules
+> RSN.
 
-    The MB is the same for me (I guess). The machine is about 60Km distant
-from me now, so I have not compiled with your .config yet. Next time I'll
-try to gather some info for the list. The lspci is almost the same.
+If you can, please send this to me - I'd like to take a look.
 
+> The chipset drivers will register lists of PCI-id's they can handle
+> instead of the single only global list found in ide-pci.c.
 
+I think it'd be even better if the chipset drivers did the probing
+themselves, and once they find the IDE device, they can register it with
+the IDE core. Same as all the other subsystem do this.
 
-
------------------------------------------------
-Fernando Korndorfer
-Novo Hamburgo, RS, Brasil
------------------------------------------------
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs

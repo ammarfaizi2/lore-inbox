@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264798AbUEVBVo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264809AbUEVBYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264798AbUEVBVo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 21:21:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264488AbUEVBS2
+	id S264809AbUEVBYv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 21:24:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264800AbUEVBWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 21:18:28 -0400
-Received: from not.theboonies.us ([66.139.79.224]:14027 "EHLO
-	not.theboonies.us") by vger.kernel.org with ESMTP id S264798AbUEVBPr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 21:15:47 -0400
-Message-ID: <1085002775.40abd417121b0@mail.theboonies.us>
-Date: Wed, 19 May 2004 16:39:35 -0500
-To: James Simmons <jsimmons@infradead.org>
-Cc: akpm@osdl.org,
-       Linux Frame Buffer Dev 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Linux-fbdev-devel] FB accel capabilities patch
-References: <Pine.LNX.4.44.0405192026290.28783-100000@phoenix.infradead.org>
-In-Reply-To: <Pine.LNX.4.44.0405192026290.28783-100000@phoenix.infradead.org>
+	Fri, 21 May 2004 21:22:16 -0400
+Received: from lucidpixels.com ([66.45.37.187]:7572 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S263614AbUEVBUD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 21:20:03 -0400
+Date: Thu, 20 May 2004 18:07:09 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p500
+To: linux-kernel@vger.kernel.org
+Subject: How do you enable MCE under Linux 2.6.x?
+Message-ID: <Pine.LNX.4.60.0405201805260.29638@p500>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.3
-X-Originating-IP: 213.197.71.87
-X-Delivery-Agent: TMDA/1.0.2 (Bold Forbes)
-From: David Eger <eger@theboonies.us>
-X-Primary-Address: random@theboonies.us
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting James Simmons <jsimmons@infradead.org>:
+Anyone know?
 
-> > +/* FBIF = FB_Info.Flags */
-> > +#define FBIF_MODULE		0x0001	/* Low-level driver is a module */
->
-> Ug. You changed that. Could that remain the same.
+I assume put mce or nomce in append="" line in lilo or grub conf?
+   nomce   [IA-32] Machine Check Exception
 
-Will it suffice to add
+Also, for 32bit, what is the appropriate device minor/major number for the 
+block device /dev/mcelog(if it is applicable to 32bits)?
 
-#define FBINFO_FLAG_MODULE FBIF_MODULE
+# /usr/src/linux/Documentation$ grep mce -r *
 
-for backwards compatibility?
+devices.txt:            227 = /dev/mcelog       X86_64 Machine Check 
+Exception driver
+kernel-parameters.txt:  mce             [IA-32] Machine Check Exception
+kernel-parameters.txt:  nomce           [IA-32] Machine Check Exception
+grep: networking/netif-msg.txt: Permission denied
+grep: scsi/ChangeLog.megaraid: Permission denied
+x86_64/boot-options.txt:   mce=off disable machine check
+x86_64/boot-options.txt:   nomce (for compatibility with i386): same as 
+mce=off
+war@war:/usr/src/linux/Documentation$
 
-I'd prefer the new flags to be FBIF_*, as the identifier
-FBINFO_FLAG_HWACCEL_COPYAREA seems sorta long to me...
-
-I'll sync with linus's bk tomorrow and try to rework my main patch; the
-"mainline" patch I posted was against his bk shortly after 2.6.6...
-
-> I have a patch coming that fixes the mode setting. It changes alot of the
-> core fbcon.c so I will apply your patch to the fbdev-2.5 tree.
-
-I take it this is in addition to your con2fb patch I have posted at that web
-address?
-
--dte

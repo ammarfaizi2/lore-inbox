@@ -1,67 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288566AbSBIHlh>; Sat, 9 Feb 2002 02:41:37 -0500
+	id <S288595AbSBIIMA>; Sat, 9 Feb 2002 03:12:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288594AbSBIHl1>; Sat, 9 Feb 2002 02:41:27 -0500
-Received: from bitmover.com ([192.132.92.2]:41608 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S288566AbSBIHlS>;
-	Sat, 9 Feb 2002 02:41:18 -0500
-Date: Fri, 8 Feb 2002 23:41:18 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>, Patrick Mochel <mochel@osdl.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [bk patch] Make cardbus compile in -pre4
-Message-ID: <20020208234118.C8129@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0202081824070.25114-100000@segfault.osdlab.org> <20020208203931.X15496@lynx.turbolabs.com> <3C649F4F.7E190D26@mandrakesoft.com> <20020209002920.Z15496@lynx.turbolabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020209002920.Z15496@lynx.turbolabs.com>; from adilger@turbolabs.com on Sat, Feb 09, 2002 at 12:29:20AM -0700
+	id <S288622AbSBIILv>; Sat, 9 Feb 2002 03:11:51 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:42851 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S288595AbSBIILq>; Sat, 9 Feb 2002 03:11:46 -0500
+Date: Sat, 9 Feb 2002 08:13:12 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] BUG preserve registers
+Message-ID: <Pine.LNX.4.21.0202090808390.872-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 09, 2002 at 12:29:20AM -0700, Andreas Dilger wrote:
-> Yes, that would be my thought as well.  Sadly, running the command
-> 
-> bk send -d -r+ -wgzip_uu -
-> 
-> does not work as I would _hope_ it would, namely putting a regular context
-> diff at the beginning of the email, and gzip_uu for only the CSET.  
+It's frustrating that when Verbose BUG() reporting is configured,
+info gets lost: fix for i386 below.  This is your area, Andrew:
+please confirm to Marcelo if you'd like him to apply this.
 
-Whoops, that's a bug.  Type "bk sendbug" and send us a bug report, we'll
-fix it.  Sorry about that.
+Example: in hpa's recent prune_dcache crash, %eax showed the length of
+the kernel BUG printk, when we'd have liked to see the invalid d_count:
+off-by-one or obviously corrupted?
 
-> > But this is still a trial run of BK, so who knows what will wind up to
-> > be the best policy for casual submitters.
-> > 
-> > And there's nothing wrong at all with sending GNU patches...
-> 
-> Oh, I agree that for people without BK they can keep sending patches.
+Hugh
 
-It occurs to me that there is no reason you can't generate a regular
-patch from BK and mail it to the list w/ the changeset comments.  That
-keeps all the non-BK users perfectly happy, nothing has changed for
-them and they can use BK or not as they see fit.  In addition, you can
-send off a BK patch to Linus and/or stuff a patch into a publicly
-available BK tree and point him at it.
+--- 2.4.18-pre9/arch/i386/kernel/entry.S	Thu Feb  7 14:38:06 2002
++++ linux/arch/i386/kernel/entry.S	Fri Feb  8 21:47:39 2002
+@@ -132,6 +132,30 @@
+ 	movl $-8192, reg; \
+ 	andl %esp, reg
+ 
++#ifdef CONFIG_DEBUG_BUGVERBOSE
++BUG_format:
++	.asciz "kernel BUG at %s:%d!\n"
++ENTRY(do_BUG)
++	pushfl			# Save flags and registers changed in C
++	pushl %eax
++	pushl %ecx
++	pushl %edx
++	pushl $1
++	call SYMBOL_NAME(bust_spinlocks)
++	movl 28(%esp),%eax
++	movl 24(%esp),%ecx
++	pushl %eax
++	pushl %ecx
++	pushl $BUG_format
++	call SYMBOL_NAME(printk)
++	addl $16,%esp
++	popl %edx		# Restore registers and flags for display
++	popl %ecx
++	popl %eax
++	popfl
++	ret
++#endif /* CONFIG_DEBUG_BUGVERBOSE */
++
+ ENTRY(lcall7)
+ 	pushfl			# We get a different stack layout with call gates,
+ 	pushl %eax		# which has to be cleaned up later..
+--- 2.4.18-pre9/arch/i386/mm/fault.c	Thu Feb  7 14:38:07 2002
++++ linux/arch/i386/mm/fault.c	Fri Feb  8 19:06:45 2002
+@@ -125,12 +125,6 @@
+ 	}
+ }
+ 
+-void do_BUG(const char *file, int line)
+-{
+-	bust_spinlocks(1);
+-	printk("kernel BUG at %s:%d!\n", file, line);
+-}
+-
+ asmlinkage void do_invalid_op(struct pt_regs *, unsigned long);
+ extern unsigned long idt;
+ 
 
-If you all can reach any sort of concensus on what is a pleasant patch
-format for non-BK users, just tell me, and I'll make sure BK can generate
-that sort of patch easily.
-
-> This might also be possible if BK could export/import a whole changeset
-> in patch form, plus some magic stuff at the beginning/end (gzip_uu) which
-> had all of the BK metadata in it, but I don't know if that is possible or
-> desirable.
-
-Well, send -d is essentially that - it's two patches, a GNU patch and a
-BK patch.  It was a mistake for us to wrap the whole thing, we should
-leave the regular diffs alone and just wrap the BK stuff.  We can do
-that.  
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

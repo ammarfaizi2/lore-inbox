@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130792AbRCJBQo>; Fri, 9 Mar 2001 20:16:44 -0500
+	id <S130797AbRCJBm7>; Fri, 9 Mar 2001 20:42:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130800AbRCJBQX>; Fri, 9 Mar 2001 20:16:23 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:56070 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130792AbRCJBQW>; Fri, 9 Mar 2001 20:16:22 -0500
-Subject: Re: [PATCH]: allow notsc option for buggy cpus
-To: anton@linuxcare.com.au (Anton Blanchard)
-Date: Sat, 10 Mar 2001 01:19:03 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <20010310115828.A7514@linuxcare.com> from "Anton Blanchard" at Mar 10, 2001 11:58:29 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14bY2D-00063q-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S130799AbRCJBmu>; Fri, 9 Mar 2001 20:42:50 -0500
+Received: from f45.law8.hotmail.com ([216.33.241.45]:1291 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S130797AbRCJBmm>;
+	Fri, 9 Mar 2001 20:42:42 -0500
+X-Originating-IP: [24.228.19.252]
+From: "s d" <seandarcy@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Real Time Clock driver hangs in 2.2.17
+Date: Fri, 09 Mar 2001 20:41:55 -0500
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F45cF1s5IOiV3XpfbFT00004fb1@hotmail.com>
+X-OriginalArrivalTime: 10 Mar 2001 01:41:56.0044 (UTC) FILETIME=[4A2700C0:01C0A903]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> My IBM Thinkpad 600E changes between 100MHz and 400MHz depending if the
-> power is on. This means gettimeofday goes backwards if you boot with the
+I'm using an old Intel Pentium 90 mb -I think its "Plato". It's worked well 
+as a gateway and file server for over two years.
 
-Intel speedstep CPU. 
+When I boot 2.2.17, the machine always hangs at the Real Time Clock driver. 
+Pressing any key gets it going, but this is a remote machine - which makes 
+it a real pain.
 
-> Even so, we should really catch these cpus at run time. 
+Without a clue, I ve done the following:
 
-Intel are being remarkably reluctant on the documentation front.  We have
-the AMD speed change docs, but the intel ones (chipset not cpu based
-primarily) don't seem to be publically available. In fact the 815M manual
-looks like someone quite pointedly went through and removed the relevant
-material before publication
+I've put in a new cmos battery
+
+I renamed /dev/rtc to dev/somethingelse ( a suggestion from a ng)
+
+Same problem. Is there a way to fix this? rtc.txt doesn't say much. Can I do 
+without it? If so, how do I compile the kernel without it?
+
+thanks
+jay
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com
 

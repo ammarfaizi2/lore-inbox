@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317643AbSGOVYM>; Mon, 15 Jul 2002 17:24:12 -0400
+	id <S317647AbSGOV2N>; Mon, 15 Jul 2002 17:28:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317647AbSGOVYL>; Mon, 15 Jul 2002 17:24:11 -0400
-Received: from [209.184.141.189] ([209.184.141.189]:58933 "HELO UberGeek")
-	by vger.kernel.org with SMTP id <S317643AbSGOVYK>;
-	Mon, 15 Jul 2002 17:24:10 -0400
-Subject: Re: Some sysctl parameter change questions.
-From: Austin Gonyou <austin@digitalroadkill.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1026763622.14848.0.camel@UberGeek>
-References: <1026763622.14848.0.camel@UberGeek>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 15 Jul 2002 16:26:58 -0500
-Message-Id: <1026768418.14850.12.camel@UberGeek>
-Mime-Version: 1.0
+	id <S317649AbSGOV2M>; Mon, 15 Jul 2002 17:28:12 -0400
+Received: from lockupnat.curl.com ([216.230.83.254]:48628 "EHLO
+	egghead.curl.com") by vger.kernel.org with ESMTP id <S317647AbSGOV2M>;
+	Mon, 15 Jul 2002 17:28:12 -0400
+To: Chris Mason <mason@suse.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+References: <20020712162306$aa7d@traf.lcs.mit.edu>
+	<s5gsn2lt3ro.fsf@egghead.curl.com>
+	<20020715173337$acad@traf.lcs.mit.edu>
+	<s5gsn2kst2j.fsf@egghead.curl.com> <1026767676.4751.499.camel@tiny>
+From: "Patrick J. LoPresti" <patl@curl.com>
+Date: 15 Jul 2002 17:31:07 -0400
+In-Reply-To: <1026767676.4751.499.camel@tiny>
+Message-ID: <s5gy9ccr84k.fsf@egghead.curl.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just FYI on this. I'm not having any particular problem per se, I'm just
-trying to tune for my DB as best I can and watch the performance stats
-of various operations. So, please don't be hindered, if you have
-anything to say about these items, that I didn't specify a problem.
-There isn't a real *problem* ATM.
+Chris Mason <mason@suse.com> writes:
 
-On Mon, 2002-07-15 at 15:07, Austin Gonyou wrote:
-> Looking through some tuning documentation about sysctl values as related
-> to Oracle and other DB tuning bits, I noticed that the following don't
-> exist anymore, and was curious where or if they were moved.
-> 
-> /proc/sys/kernel/inode-max
-> /proc/sys/vm/freepages
-> 
-> In coincidence with this info, I was curious if anyone has tweaked the
-> following and if it makes any difference, with regard to performance:
-> 
-> /proc/fs/pagebuf
-> /proc/sys/vm/pagebuf
-> /proc/sys/vm/pagebuf/max_dio_pages
-> /proc/sys/vm/page-cluster
-> /proc/sys/vm/pagetable_cache
-> 
-> 
-> -- 
-> Austin Gonyou <austin@digitalroadkill.net>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Austin Gonyou <austin@digitalroadkill.net>
+> Yes, most mtas do this for queue files, I'm not sure how many do it for
+> the actual spool file.
+
+Maybe the control files are small enough to fit in one disk block,
+making the operations atomic in practice.  Or something.
+
+> mail server authors are more than welcome to recommend the best
+> safety/performance combo for their product, and to ask the FS guys
+> which combinations are safe.
+
+Yeah, but it's a shame if those combinations require performance hits
+like "synchronous directory updates" or, worse, "fsync() == sync()".
+
+I really wish MTA authors would just support Linux's "fsync the
+directory" approach.  It is simple, reliable, and fast.  Yes, it does
+require Linux-specific support in the application, but that's what
+application authors should expect when there is a gap in the
+standards.
+
+ - Pat

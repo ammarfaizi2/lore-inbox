@@ -1,87 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261290AbSIZNv6>; Thu, 26 Sep 2002 09:51:58 -0400
+	id <S261295AbSIZNv6>; Thu, 26 Sep 2002 09:51:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261296AbSIZNue>; Thu, 26 Sep 2002 09:50:34 -0400
-Received: from pc-62-31-66-34-ed.blueyonder.co.uk ([62.31.66.34]:21379 "EHLO
+	id <S261290AbSIZNv4>; Thu, 26 Sep 2002 09:51:56 -0400
+Received: from pc-62-31-66-34-ed.blueyonder.co.uk ([62.31.66.34]:22659 "EHLO
 	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S261290AbSIZNu3>; Thu, 26 Sep 2002 09:50:29 -0400
+	id <S261295AbSIZNue>; Thu, 26 Sep 2002 09:50:34 -0400
 Date: Thu, 26 Sep 2002 14:55:32 +0100
-Message-Id: <200209261355.g8QDtWh17010@sisko.scot.redhat.com>
+Message-Id: <200209261355.g8QDtWc16998@sisko.scot.redhat.com>
 From: Stephen Tweedie <sct@redhat.com>
 To: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
 Cc: Stephen Tweedie <sct@redhat.com>
-Subject: [Patch 6/7] 2.4.20-pre4/ext3: jbd commit interval tuning
+Subject: [Patch 3/7] 2.4.20-pre4/ext3: evict truncated buffers more easily.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allow an arbitrary commit interval to be set when mounting or remounting
-a filesystem.
+Performance tweak: when we truncate a file but encounter pages which are still
+being journaled from a previous transaction, we can't evict the page from
+memory immediately.
 
-Note that if this is greater than the system bdflush interval, then the
-regular sync()s will beat the commit timer and you won't get longer
-commit timeouts.
+This patch just makes it a little easier for the VM to evict the page later on:
+the page is marked unreferenced while we're committing the transaction which
+pins it, and the commit logic tries to free the page completely once the
+transaction has committed.
 
---- linux-2.4-ext3merge/fs/ext3/super.c.=K0005=.orig	Thu Sep 26 12:25:37 2002
-+++ linux-2.4-ext3merge/fs/ext3/super.c	Thu Sep 26 12:25:37 2002
-@@ -646,6 +646,11 @@
- 				*mount_options &= ~EXT3_MOUNT_DATA_FLAGS;
- 				*mount_options |= data_opt;
- 			}
-+		} else if (!strcmp (this_char, "commit")) {
-+			unsigned long v;
-+			if (want_numeric(value, "commit", &v))
-+				return 0;
-+			sbi->s_commit_interval = (HZ * v);
+--- linux-2.4-ext3merge/fs/jbd/commit.c.=K0002=.orig	Thu Sep 26 12:19:14 2002
++++ linux-2.4-ext3merge/fs/jbd/commit.c	Thu Sep 26 12:25:37 2002
+@@ -683,13 +683,25 @@
+ 			JBUFFER_TRACE(jh, "refile for checkpoint writeback");
+ 			__journal_refile_buffer(jh);
  		} else {
- 			printk (KERN_ERR 
- 				"EXT3-fs: Unrecognized mount option %s\n",
-@@ -1228,6 +1233,22 @@
- 	return NULL;
- }
- 
-+/*
-+ * Setup any per-fs journal parameters now.  We'll do this both on
-+ * initial mount, once the journal has been initialised but before we've
-+ * done any recovery; and again on any subsequent remount. 
-+ */
-+static void ext3_init_journal_params(struct ext3_sb_info *sbi, 
-+				     journal_t *journal)
-+{
-+	if (sbi->s_commit_interval)
-+		journal->j_commit_interval = sbi->s_commit_interval;
-+	/* We could also set up an ext3-specific default for the commit
-+	 * interval here, but for now we'll just fall back to the jbd
-+	 * default. */
-+}
++			struct page *page = bh->b_page;
++			
+ 			J_ASSERT_BH(bh, !buffer_dirty(bh));
+ 			J_ASSERT_JH(jh, jh->b_next_transaction == NULL);
+ 			__journal_unfile_buffer(jh);
+ 			jh->b_transaction = 0;
+ 			__journal_remove_journal_head(bh);
+-			__brelse(bh);
 +
-+
- static journal_t *ext3_get_journal(struct super_block *sb, int journal_inum)
- {
- 	struct inode *journal_inode;
-@@ -1262,7 +1283,7 @@
- 		printk(KERN_ERR "EXT3-fs: Could not load journal inode\n");
- 		iput(journal_inode);
++			if (TryLockPage(page)) {	
++				__brelse(bh);
++			} else {
++				__brelse(bh);
++				page_cache_get(page);
++				try_to_free_buffers(page, 0);
++				unlock_page(page);
++				page_cache_release(page);
++			}
+ 		}
++		
+ 		spin_unlock(&journal_datalist_lock);
  	}
--	
-+	ext3_init_journal_params(EXT3_SB(sb), journal);
- 	return journal;
- }
  
-@@ -1340,6 +1361,7 @@
- 		goto out_journal;
+--- linux-2.4-ext3merge/fs/jbd/transaction.c.=K0002=.orig	Thu Sep 26 12:19:14 2002
++++ linux-2.4-ext3merge/fs/jbd/transaction.c	Thu Sep 26 12:25:37 2002
+@@ -1903,8 +1903,17 @@
+ 	unlock_journal(journal);
+ 
+ 	if (!offset) {
+-		if (!may_free || !try_to_free_buffers(page, 0))
++		if (!may_free || !try_to_free_buffers(page, 0)) {
++			if (!offset) {
++				/* We are still using the page, but only
++                                   because a transaction is pinning the
++                                   page.  Once it commits, we want to
++                                   encourage the page to be reaped as
++                                   quickly as possible. */
++				ClearPageReferenced(page);
++			}
+ 			return 0;
++		}
+ 		J_ASSERT(page->buffers == NULL);
  	}
- 	EXT3_SB(sb)->journal_bdev = bdev;
-+	ext3_init_journal_params(EXT3_SB(sb), journal);
- 	return journal;
- out_journal:
- 	journal_destroy(journal);
-@@ -1637,6 +1659,8 @@
- 
- 	es = sbi->s_es;
- 
-+	ext3_init_journal_params(sbi, sbi->s_journal);
-+	
- 	if ((*flags & MS_RDONLY) != (sb->s_flags & MS_RDONLY)) {
- 		if (sbi->s_mount_opt & EXT3_MOUNT_ABORT)
- 			return -EROFS;
+ 	return 1;

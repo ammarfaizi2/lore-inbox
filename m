@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291198AbSAaRsP>; Thu, 31 Jan 2002 12:48:15 -0500
+	id <S291202AbSAaRtP>; Thu, 31 Jan 2002 12:49:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291199AbSAaRsG>; Thu, 31 Jan 2002 12:48:06 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:275 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S291198AbSAaRr7>; Thu, 31 Jan 2002 12:47:59 -0500
-Date: Thu, 31 Jan 2002 09:46:52 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Rik van Riel <riel@conectiva.com.br>, Momchil Velikov <velco@fadata.bg>,
-        John Stoffel <stoffel@casc.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Radix-tree pagecache for 2.5
-In-Reply-To: <20020131153607.C1309@athlon.random>
-Message-ID: <Pine.LNX.4.33.0201310942210.1537-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291201AbSAaRtG>; Thu, 31 Jan 2002 12:49:06 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:33152 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S291199AbSAaRsz>;
+	Thu, 31 Jan 2002 12:48:55 -0500
+Date: Thu, 31 Jan 2002 12:48:52 -0500
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: World Domination Now! <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+Message-ID: <20020131124852.A29925@havoc.gtf.org>
+In-Reply-To: <20020131035810.B3284@havoc.gtf.org> <11985.1012478587@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <11985.1012478587@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Thu, Jan 31, 2002 at 11:03:07PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Jan 2002, Andrea Arcangeli wrote:
->
-> but with the radix tree (please correct me if I'm wrong) the height will
-> increase eventually, no matter what (so it won't be an effective O(1)
-> like the hashtable provides in real life, not the worst case, the common
-> case). With the hashtable the height won't increase instead.
+On Thu, Jan 31, 2002 at 11:03:07PM +1100, Keith Owens wrote:
+> On Thu, 31 Jan 2002 03:58:10 -0500, 
+> Jeff Garzik <garzik@havoc.gtf.org> wrote:
+> >On Thu, Jan 31, 2002 at 06:52:55PM +1100, Keith Owens wrote:
+> >You are missing a huge point.
+> >	You:	"Look Ma, nothing breaks!"
+> >	Ma sez: "It's supposed to, silly"
+> 
+> Hypocrisy, Jeff.  In your previous mail you complained that kbuild 2.5
+> was not ready to go in.  When I point out that not only is it ready but
+> it can go in without breaking the existing code, then you complain that
+> I am not breaking anything.  Make up your mind.
 
-No.
+You still do not appear to understand.  Please re-read my last message.
 
-The radix tree is basically O(1), because the maximum depth of a 7-bit
-radix tree is just 5. The index is only a 32-bit number.
+If kbuild was ready to go in, the old build system should go away.
 
-We could, in fact, make all page caches use a fixed-depth tree, which is
-clearly O(1). But the radix tree is slightly faster and tends to use less
-memory under common loads, so..
+ready != not breaking things, if you are breaking things on purpose.
 
-Remember: you must NOT ignore the constant part of a "O(x)" equation.
-Hashes tend to be effectively O(1) under most loads, but they have cache
-costs, and they have scalability costs that a radix tree doesn't have.
 
-		Linus
+> >Cleanup does not occur if cruft lives on as "backwards compatibility."
+> >You simply promote further bitrot and discontinuity.
+> 
+> The old code does not live on indefinitely, it gets removed as soon as
+> kbuild 2.5 is deemed stable.  Four weeks, tops.
+
+You don't prove something stable with most people not using it.
+
+
+> >Let's see if I have this right:
+> >* You want completely duplicate build and config systems in the kernel,
+> >  with all the accompanying headaches for maintainers.
+> 
+> Only for as long as it takes to prove that kbuild 2.5 is ready.
+
+Not the Linux kernel way.
+
+	Jeff
+
+
 

@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313658AbSDJWb6>; Wed, 10 Apr 2002 18:31:58 -0400
+	id <S313913AbSDJWjI>; Wed, 10 Apr 2002 18:39:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313912AbSDJWb5>; Wed, 10 Apr 2002 18:31:57 -0400
-Received: from rwcrmhc54.attbi.com ([216.148.227.87]:53436 "EHLO
-	rwcrmhc54.attbi.com") by vger.kernel.org with ESMTP
-	id <S313658AbSDJWb4>; Wed, 10 Apr 2002 18:31:56 -0400
-From: "Guillaume Boissiere" <boissiere@attbi.com>
+	id <S313914AbSDJWjH>; Wed, 10 Apr 2002 18:39:07 -0400
+Received: from francis.hilman.org ([216.231.42.188]:40698 "HELO hilman.org")
+	by vger.kernel.org with SMTP id <S313913AbSDJWjG>;
+	Wed, 10 Apr 2002 18:39:06 -0400
 To: linux-kernel@vger.kernel.org
-Date: Wed, 10 Apr 2002 18:31:46 -0400
+Subject: ioremap() >= 128Mb (was: Memory problem with bttv driver)
+From: Kevin Hilman <kevin@hilman.org>
+Organization: None to speak of.
+Date: Wed, 10 Apr 2002 15:39:05 -0700
+Message-ID: <87sn63tbzq.fsf@bugs.hilman.org>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.2
+ (i386-debian-linux-gnu)
 MIME-Version: 1.0
-Subject: [STATUS]  Spring cleanup
-Message-ID: <3CB48512.17441.E3FE393@localhost>
-X-mailer: Pegasus Mail for Windows (v4.01)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These four items have been marked as Ready or Pending for a while and yet nothing 
-has happened for the last 2 months so I'm planning to change their status in the
-next status update.
-Comments?  Objections?
+I followed the 'Memory problem with bttv driver' thread from the
+archives and was curious if there was any resolution.
 
--- Guillaume
+The basic problem is that I have a machine with 1G physical memory and
+a device with an 128Mb of on-board memory that I would like to
+ioremap().  Of course, since VMALLOC_RESERVE is 128Mb this will always
+fail if there have been any previous calls to vmalloc() or ioremap()
+(which is aways true when the driver loads as a module.)
 
+So far I have a few workarounds, but no good long term solution.
+- boot the kernel with less than 1G on cmdline: mem=768M
+- hack VMALLOC_RESERVE 
 
+Is it reasonable to make VMALLOC_RESERVE be configurable at boot-time
+instead of compile time?
 
-o Ready       Add hardware sensors drivers                    (lm_sensors team)
---> Mark as Beta?  Reason: not in sync with latest kernel and problems with IBM Thinkpads
+Or, is there a better way to get memory-mapped access to all of the
+devices on-board memory?
 
-o Ready       New kernel config system: CML2                  (Eric Raymond)
---> Mark as Beta?  Reason: needs to be broken up in chunks before inclusion
-
-o Ready       Read-Copy Update Mutual Exclusion               (Dipankar Sarma, Rusty Russell, Andrea Arcangeli, LSE 
-Team)
---> Mark as Beta?  Reason: patch exists against 2.5.7, but not sure if it needs more work 
-    before inclusion or there is objection from Linus?
-
-o Pending     Finalize new device naming convention           (Linus Torvalds)
---> ???  I am not sure what is going on here -- it seems Linus is waiting for someone to step up and 
-    submit a patch following the new device naming convention he vaguely outlined a while back?
-
+Thanks.
+-- 
+Kevin Hilman <kevin@hilman.org>

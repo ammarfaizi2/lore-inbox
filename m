@@ -1,51 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270073AbRIXReq>; Mon, 24 Sep 2001 13:34:46 -0400
+	id <S274076AbRIXRkI>; Mon, 24 Sep 2001 13:40:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274076AbRIXRe0>; Mon, 24 Sep 2001 13:34:26 -0400
-Received: from rj.sgi.com ([204.94.215.100]:26805 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S270073AbRIXReV>;
-	Mon, 24 Sep 2001 13:34:21 -0400
-Message-Id: <200109241735.f8OHZB125271@jen.americas.sgi.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Binary only module overview 
-In-Reply-To: Message from Arjan van de Ven <arjanv@redhat.com> 
-   of "Mon, 24 Sep 2001 12:40:44 EDT." <20010924124044.B17377@devserv.devel.redhat.com> 
-Date: Mon, 24 Sep 2001 12:35:11 -0500
-From: Steve Lord <lord@sgi.com>
+	id <S274080AbRIXRjq>; Mon, 24 Sep 2001 13:39:46 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:26885 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S274076AbRIXRji>; Mon, 24 Sep 2001 13:39:38 -0400
+Date: Mon, 24 Sep 2001 19:40:00 +0200
+From: Jan Kara <jack@suse.cz>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: UDF, UFS quota patch
+Message-ID: <20010924194000.B3184@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="H+4ONPRPur6+Ovig"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi,
-> 
-> I'm composing a list of all existing binary only modules, 
-> and I got to a list of 26 different modules; I undoubtedly forgot a few, 
-> so I hereby request feedback from people who know about modules I
-> left out, so that I can complete the list. (I do not really care about
-> modules that once existed for 2.0 or earlier and no longer exist for all
-> intents and purposes)
-> 
-> Greetings,
->   Arjan van de Ven
-> 
-> 
 
-> SGI		- XFS cluster extensions
+--H+4ONPRPur6+Ovig
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-This is not something which is available yet.
+  Hello,
 
-and you can add:
+  Attached patch should fix quota in UDF & UFS (it's just the same
+bug as was in ext2).
+							Honza
 
-Tricord		- filesystem,
+--
+Jan Kara <jack@suse.cz>
+SuSE Labs
 
-the only public info about this appears here:
+--H+4ONPRPur6+Ovig
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="quotaiput-fix.diff"
 
-http://www.tricord.com/appliance/aggregation?PID=Detail.html&CID=5ecf5843151b4891af7924eb65d548fe&DID=b18e43e06c44406ea73ceedc7f1448f4
+Only in linux-2.4.10-pre11-fix/fs/udf: .balloc.c.swp
+diff -ru -X /home/jack/.kerndiffexclude linux-2.4.10-pre11/fs/udf/ialloc.c linux-2.4.10-pre11-fix/fs/udf/ialloc.c
+--- linux-2.4.10-pre11/fs/udf/ialloc.c	Sat Sep 22 17:28:51 2001
++++ linux-2.4.10-pre11-fix/fs/udf/ialloc.c	Sat Sep 22 17:31:20 2001
+@@ -155,7 +155,8 @@
+ 	unlock_super(sb);
+ 	if (DQUOT_ALLOC_INODE(sb, inode))
+ 	{
+-		sb->dq_op->drop(inode);
++		DQUOT_DROP(inode);
++		inode->i_flags |= S_NOQUOTA;
+ 		inode->i_nlink = 0;
+ 		iput(inode);
+ 		*err = -EDQUOT;
+diff -ru -X /home/jack/.kerndiffexclude linux-2.4.10-pre11/fs/ufs/ialloc.c linux-2.4.10-pre11-fix/fs/ufs/ialloc.c
+--- linux-2.4.10-pre11/fs/ufs/ialloc.c	Sat Sep 22 17:41:36 2001
++++ linux-2.4.10-pre11-fix/fs/ufs/ialloc.c	Sat Sep 22 17:42:10 2001
+@@ -279,7 +279,8 @@
+ 	unlock_super (sb);
+ 
+ 	if(DQUOT_ALLOC_INODE(sb, inode)) {
+-		sb->dq_op->drop(inode);
++		DQUOT_DROP(inode);
++		inode->i_flags |= S_NOQUOTA;
+ 		inode->i_nlink = 0;
+ 		iput(inode);
+ 		*err = -EDQUOT;
+@@ -293,6 +294,7 @@
+ 
+ failed:
+ 	unlock_super (sb);
++	make_bad_inode(inode);
+ 	iput (inode);
+ 	UFSD(("EXIT (FAILED)\n"))
+ 	return NULL;
 
-they do not advertise the fact that their hardware runs Linux too much.
-
-Steve
-
-
+--H+4ONPRPur6+Ovig--

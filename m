@@ -1,445 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261393AbTCOE5O>; Fri, 14 Mar 2003 23:57:14 -0500
+	id <S261391AbTCOFU1>; Sat, 15 Mar 2003 00:20:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261394AbTCOE5O>; Fri, 14 Mar 2003 23:57:14 -0500
-Received: from lakemtao04.cox.net ([68.1.17.241]:51155 "EHLO
-	lakemtao04.cox.net") by vger.kernel.org with ESMTP
-	id <S261393AbTCOE5H>; Fri, 14 Mar 2003 23:57:07 -0500
-Message-ID: <3E72B573.1010007@cox.net>
-Date: Fri, 14 Mar 2003 23:09:07 -0600
-From: David van Hoose <davidvh@cox.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: USB issue in latest BK
-Content-Type: multipart/mixed;
- boundary="------------040908090200090701080401"
+	id <S261392AbTCOFU1>; Sat, 15 Mar 2003 00:20:27 -0500
+Received: from holomorphy.com ([66.224.33.161]:14032 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261391AbTCOFUZ>;
+	Sat, 15 Mar 2003 00:20:25 -0500
+Date: Fri, 14 Mar 2003 21:30:53 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: bzzz@tmi.comex.ru, adilger@clusterfs.com, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [PATCH] concurrent block allocation for ext2 against 2.5.64
+Message-ID: <20030315053053.GM20188@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@digeo.com>, bzzz@tmi.comex.ru,
+	adilger@clusterfs.com, linux-kernel@vger.kernel.org,
+	ext2-devel@lists.sourceforge.net
+References: <m3el5bmyrf.fsf@lexa.home.net> <20030313015840.1df1593c.akpm@digeo.com> <m3of4fgjob.fsf@lexa.home.net> <20030313165641.H12806@schatzie.adilger.int> <m38yvixvlz.fsf@lexa.home.net> <20030315043744.GM1399@holomorphy.com> <20030314205455.49f834c2.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030314205455.49f834c2.akpm@digeo.com>
+User-Agent: Mutt/1.3.28i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040908090200090701080401
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>> dbench on 32x/48G NUMA-Q, aic7xxx adapter, pbay disk, 32K PAGE_SIZE
+>> (pgcl was used for benchmark feasibility purposes)
+>> throughput:
+>> ---------- 
+>> before:
+>> Throughput 61.5376 MB/sec 512 procs
+>> dbench 512  637.21s user 15739.41s system 565% cpu 48:16.28 total
+>> after:
+>> Throughput 104.074 MB/sec 512 procs
+>> (GRR, didn't do time, took ca. 30 minutes)
 
-In the last 3 bk snapshots my USB logitech cordless trackman has not 
-been detected at startup. Attached is my config. It worked in 2.5.64. 
-Something changed in the snapshots broke the driver.
+On Fri, Mar 14, 2003 at 08:54:55PM -0800, Andrew Morton wrote:
+> `dbench 512' will presumably do lots of IO and spend significant
+> time in I/O wait.  You should see the effects of this change more
+> if you use fewer clients (say, 32) so it doesn't hit disk.
+> On quad power4, dbench 32:
 
-Regards,
-David
+Hmm. I'm just trying to spawn enough tasks to keep the cpus busy to get
+a large enough thread pool to have something to run when someone sleeps.
+There's enough idle time now that this sounds like the wrong direction
+to move the task count in...
 
---------------040908090200090701080401
-Content-Type: text/plain;
- name=".config"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename=".config"
 
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-CONFIG_X86_PC=y
-CONFIG_MPENTIUM4=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=7
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_PREFETCH=y
-CONFIG_X86_SSE2=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-CONFIG_X86_MCE_P4THERMAL=y
-CONFIG_MICROCODE=y
-CONFIG_X86_MSR=y
-CONFIG_X86_CPUID=y
-CONFIG_HIGHMEM4G=y
-CONFIG_HIGHMEM=y
-CONFIG_HIGHPTE=y
-CONFIG_MTRR=y
-CONFIG_PM=y
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-CONFIG_ACPI_THERMAL=y
-CONFIG_ACPI_DEBUG=y
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_APM=y
-CONFIG_APM_CPU_IDLE=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_HOTPLUG=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PARPORT_PC_CML1=y
-CONFIG_PARPORT_SERIAL=y
-CONFIG_PARPORT_PC_FIFO=y
-CONFIG_PARPORT_PC_SUPERIO=y
-CONFIG_PARPORT_1284=y
-CONFIG_PNP=y
-CONFIG_PNP_NAMES=y
-CONFIG_PNPBIOS=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_NBD=m
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_BLK_DEV_INITRD=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDEFLOPPY=y
-CONFIG_BLK_DEV_IDESCSI=y
-CONFIG_BLK_DEV_CMD640=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_PCI_WIP=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_PDC202XX_OLD=y
-CONFIG_BLK_DEV_PDC202XX_NEW=y
-CONFIG_PDC202XX_FORCE=y
-CONFIG_BLK_DEV_RZ1000=y
-CONFIG_BLK_DEV_SIS5513=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_PDC202XX=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_CHR_DEV_SG=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_LOGGING=y
-CONFIG_SCSI_PPA=y
-CONFIG_SCSI_IMM=m
-CONFIG_IEEE1394=m
-CONFIG_IEEE1394_OHCI1394=m
-CONFIG_IEEE1394_VIDEO1394=m
-CONFIG_IEEE1394_SBP2=m
-CONFIG_IEEE1394_ETH1394=m
-CONFIG_IEEE1394_DV1394=m
-CONFIG_IEEE1394_RAWIO=m
-CONFIG_IEEE1394_CMP=m
-CONFIG_IEEE1394_AMDTP=m
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_NETLINK_DEV=y
-CONFIG_NETFILTER=y
-CONFIG_FILTER=y
-CONFIG_UNIX=y
-CONFIG_NET_KEY=y
-CONFIG_INET=y
-CONFIG_NET_IPIP=y
-CONFIG_NET_IPGRE=y
-CONFIG_INET_AH=y
-CONFIG_INET_ESP=y
-CONFIG_XFRM_USER=y
-CONFIG_IP_NF_CONNTRACK=y
-CONFIG_IP_NF_FTP=y
-CONFIG_IP_NF_IRC=y
-CONFIG_IP_NF_QUEUE=m
-CONFIG_IP_NF_IPTABLES=y
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_PKTTYPE=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_ECN=m
-CONFIG_IP_NF_MATCH_DSCP=m
-CONFIG_IP_NF_MATCH_AH_ESP=m
-CONFIG_IP_NF_MATCH_LENGTH=m
-CONFIG_IP_NF_MATCH_TTL=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-CONFIG_IP_NF_MATCH_HELPER=m
-CONFIG_IP_NF_MATCH_STATE=m
-CONFIG_IP_NF_MATCH_CONNTRACK=m
-CONFIG_IP_NF_MATCH_UNCLEAN=m
-CONFIG_IP_NF_MATCH_OWNER=m
-CONFIG_IP_NF_MATCH_PHYSDEV=m
-CONFIG_IP_NF_FILTER=y
-CONFIG_IP_NF_TARGET_REJECT=y
-CONFIG_IP_NF_TARGET_MIRROR=m
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-CONFIG_IP_NF_NAT_SNMP_BASIC=m
-CONFIG_IP_NF_NAT_IRC=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_ECN=m
-CONFIG_IP_NF_TARGET_DSCP=m
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_ULOG=m
-CONFIG_IP_NF_TARGET_TCPMSS=m
-CONFIG_IP_NF_ARPTABLES=m
-CONFIG_IP_NF_ARPFILTER=m
-CONFIG_IPV6=y
-CONFIG_IPV6_PRIVACY=y
-CONFIG_INET6_AH=y
-CONFIG_INET6_ESP=y
-CONFIG_IP6_NF_QUEUE=m
-CONFIG_IP6_NF_IPTABLES=y
-CONFIG_IP6_NF_MATCH_LIMIT=m
-CONFIG_IP6_NF_MATCH_MAC=m
-CONFIG_IP6_NF_MATCH_RT=m
-CONFIG_IP6_NF_MATCH_OPTS=m
-CONFIG_IP6_NF_MATCH_FRAG=m
-CONFIG_IP6_NF_MATCH_HL=m
-CONFIG_IP6_NF_MATCH_MULTIPORT=m
-CONFIG_IP6_NF_MATCH_OWNER=m
-CONFIG_IP6_NF_MATCH_MARK=m
-CONFIG_IP6_NF_MATCH_IPV6HEADER=m
-CONFIG_IP6_NF_MATCH_AHESP=m
-CONFIG_IP6_NF_MATCH_LENGTH=m
-CONFIG_IP6_NF_MATCH_EUI64=m
-CONFIG_IP6_NF_FILTER=y
-CONFIG_IP6_NF_TARGET_LOG=m
-CONFIG_IP6_NF_MANGLE=m
-CONFIG_IP6_NF_TARGET_MARK=m
-CONFIG_IPV6_SCTP__=y
-CONFIG_VLAN_8021Q=m
-CONFIG_LLC=y
-CONFIG_LLC_UI=y
-CONFIG_IPX=y
-CONFIG_ATALK=m
-CONFIG_DEV_APPLETALK=y
-CONFIG_IPDDP=m
-CONFIG_IPDDP_ENCAP=y
-CONFIG_IPDDP_DECAP=y
-CONFIG_BRIDGE=m
-CONFIG_X25=m
-CONFIG_LAPB=m
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=m
-CONFIG_BONDING=m
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_TULIP=y
-CONFIG_TULIP=y
-CONFIG_NET_PCI=y
-CONFIG_SIS900=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_JOYDEV=y
-CONFIG_INPUT_EVDEV=y
-CONFIG_GAMEPORT=y
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_GAMEPORT_NS558=y
-CONFIG_GAMEPORT_EMU10K1=m
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_INPUT_JOYSTICK=y
-CONFIG_JOYSTICK_ANALOG=y
-CONFIG_INPUT_TOUCHSCREEN=y
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=y
-CONFIG_INPUT_UINPUT=m
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_8250_EXTENDED=y
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=2048
-CONFIG_PRINTER=y
-CONFIG_LP_CONSOLE=y
-CONFIG_PPDEV=m
-CONFIG_BUSMOUSE=y
-CONFIG_INTEL_RNG=m
-CONFIG_AMD_RNG=m
-CONFIG_NVRAM=m
-CONFIG_RTC=y
-CONFIG_AGP=m
-CONFIG_AGP3=y
-CONFIG_AGP_INTEL=m
-CONFIG_AGP_VIA=m
-CONFIG_AGP_AMD=m
-CONFIG_AGP_SIS=m
-CONFIG_AGP_ALI=m
-CONFIG_AGP_AMD_8151=m
-CONFIG_AGP_I7505=m
-CONFIG_RAW_DRIVER=m
-CONFIG_HANGCHECK_TIMER=m
-CONFIG_QUOTA=y
-CONFIG_QFMT_V1=m
-CONFIG_QFMT_V2=m
-CONFIG_QUOTACTL=y
-CONFIG_AUTOFS_FS=m
-CONFIG_AUTOFS4_FS=m
-CONFIG_HFS_FS=m
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_NTFS_FS=y
-CONFIG_HPFS_FS=y
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=y
-CONFIG_SMB_FS=y
-CONFIG_SMB_NLS_DEFAULT=y
-CONFIG_SMB_NLS_REMOTE="cp437"
-CONFIG_ZISOFS_FS=y
-CONFIG_PARTITION_ADVANCED=y
-CONFIG_MAC_PARTITION=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_BSD_DISKLABEL=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_NLS_ISO8859_15=y
-CONFIG_NLS_UTF8=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_SOUND=m
-CONFIG_SND=m
-CONFIG_SND_SEQUENCER=m
-CONFIG_SND_SEQ_DUMMY=m
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=m
-CONFIG_SND_PCM_OSS=m
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_RTCTIMER=m
-CONFIG_SND_DUMMY=m
-CONFIG_SND_VIRMIDI=m
-CONFIG_SND_MTPAV=m
-CONFIG_SND_SERIAL_U16550=m
-CONFIG_SND_MPU401=m
-CONFIG_SND_EMU10K1=m
-CONFIG_SND_INTEL8X0=m
-CONFIG_SND_USB_AUDIO=m
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_BANDWIDTH=y
-CONFIG_USB_EHCI_HCD=y
-CONFIG_USB_OHCI_HCD=y
-CONFIG_USB_UHCI_HCD=y
-CONFIG_USB_AUDIO=m
-CONFIG_USB_MIDI=m
-CONFIG_USB_PRINTER=m
-CONFIG_USB_HID=y
-CONFIG_USB_HIDINPUT=y
-CONFIG_USB_HIDDEV=y
-CONFIG_USB_MDC800=m
-CONFIG_USB_SCANNER=m
-CONFIG_USB_MICROTEK=m
-CONFIG_USB_HPUSBSCSI=m
-CONFIG_USB_SERIAL=m
-CONFIG_USB_SERIAL_GENERIC=y
-CONFIG_USB_SERIAL_BELKIN=m
-CONFIG_USB_SERIAL_WHITEHEAT=m
-CONFIG_USB_SERIAL_DIGI_ACCELEPORT=m
-CONFIG_USB_SERIAL_EMPEG=m
-CONFIG_USB_SERIAL_FTDI_SIO=m
-CONFIG_USB_SERIAL_VISOR=m
-CONFIG_USB_SERIAL_IPAQ=m
-CONFIG_USB_SERIAL_IR=m
-CONFIG_USB_SERIAL_EDGEPORT=m
-CONFIG_USB_SERIAL_KEYSPAN_PDA=m
-CONFIG_USB_SERIAL_KEYSPAN=m
-CONFIG_USB_SERIAL_KEYSPAN_USA28XA=y
-CONFIG_USB_SERIAL_KEYSPAN_USA28XB=y
-CONFIG_USB_SERIAL_KEYSPAN_USA19QW=y
-CONFIG_USB_SERIAL_KEYSPAN_USA19QI=y
-CONFIG_USB_SERIAL_KEYSPAN_USA49W=y
-CONFIG_USB_SERIAL_KLSI=m
-CONFIG_USB_SERIAL_MCT_U232=m
-CONFIG_USB_SERIAL_PL2303=m
-CONFIG_USB_SERIAL_CYBERJACK=m
-CONFIG_USB_SERIAL_XIRCOM=m
-CONFIG_USB_SERIAL_OMNINET=m
-CONFIG_USB_EZUSB=y
-CONFIG_USB_EMI26=m
-CONFIG_USB_TIGL=y
-CONFIG_USB_RIO500=m
-CONFIG_PROFILING=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_KALLSYMS=y
-CONFIG_FRAME_POINTER=y
-CONFIG_X86_EXTRA_IRQS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_CRYPTO=y
-CONFIG_CRYPTO_HMAC=y
-CONFIG_CRYPTO_NULL=y
-CONFIG_CRYPTO_MD4=y
-CONFIG_CRYPTO_MD5=y
-CONFIG_CRYPTO_SHA1=y
-CONFIG_CRYPTO_SHA256=y
-CONFIG_CRYPTO_SHA512=y
-CONFIG_CRYPTO_DES=y
-CONFIG_CRYPTO_BLOWFISH=y
-CONFIG_CRYPTO_TWOFISH=y
-CONFIG_CRYPTO_SERPENT=y
-CONFIG_CRYPTO_AES=y
-CONFIG_CRC32=m
-CONFIG_ZLIB_INFLATE=y
-CONFIG_X86_BIOS_REBOOT=y
+On Fri, Mar 14, 2003 at 08:54:55PM -0800, Andrew Morton wrote:
+> Unpatched:
+> 	Throughput 334.372 MB/sec (NB=417.965 MB/sec  3343.72 MBit/sec)
+[...]
+> patched:
+> 	Throughput 335.262 MB/sec (NB=419.078 MB/sec  3352.62 MBit/sec)
+[...]
+> No difference at all.
+> On the quad Xeon (after increasing dirty_ratio and dirty_background_ratio so
+> I/O was negligible) I was able to measure a 1.5% improvement.
+> I worry about the hardware you're using there.
 
---------------040908090200090701080401--
+Why? The adapter is "vaguely modern" (actually acquired as part of a
+hunt for an HBA w/a less buggy driver) but the box and disks and so on
+are still pretty ancient, so the absolute numbers aren't useful.
 
+To get a real comparison we'd have to compare spindles, HBA's, and
+cpus, and attempt to factor them out. The disks are actually only
+capable of doing 30MB/s or 40MB/s, the buses can only do 40MB/s, and
+the cpus are 700MHz P-III's. Where dbench gets its numbers faster than
+wirespeed I have no idea...
+
+This locking issue may just need more cpus to bring out.
+
+
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>> profile:
+>> --------
+[...]
+>> after:
+>> vma        samples  %-age       symbol name
+>> c0106ff4   52751908 30.8696     default_idle
+>> c01dc3b0   28988721 16.9637     __copy_to_user_ll
+>> c01dc418    8240854  4.82242    __copy_from_user_ll
+>> c011e472    8044716  4.70764    .text.lock.fork
+[...]
+> Lots of idle time.  Try it with a smaller client count, get the I/O out of
+> the picture.
+
+I'll have trouble as there won't be enough tasks to keep the cpus busy.
+Why do you think reducing the client count gets io out of the picture?
+Why do you think reducing the client count will reduce idle time?
+
+
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>> vmstat (short excerpt, edited for readability):
+
+On Fri, Mar 14, 2003 at 08:54:55PM -0800, Andrew Morton wrote:
+> With what interval?
+
+Sorry, 1s.
+
+
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>> after:
+>> procs -----------memory---------- -----io---- --system-- ----cpu----
+>>  r  b     free    buff    cache     bi    bo   in    cs   us sy id wa
+>> 60 11   38659840 533920  9226720   100  1672  2760  1853   5 66 11 18
+>> 31 23   38565472 531264  9320384   240  1020  1195  1679   2 35 37 26
+>> 23 23   38384928 521952  9503104   772  3372  5624  5093   2 62  9 27
+>> 24 31   37945664 518080  9916448  1536  5808 10449 13484   1 45 13 41
+>> 31 86   37755072 516096 10091104  1040  1916  3672  9744   2 51 15 32
+>> 24 30   37644352 512864 10192960   900  1612  3184  8414   2 49 12 36
+>> There's a lot of odd things going on in both of the vmstat logs.
+
+On Fri, Mar 14, 2003 at 08:54:55PM -0800, Andrew Morton wrote:
+> Where are all those interrupts coming from?
+
+Well, the timer interrupt is a killer. 1KHz*num_cpus_online() blows
+goats for sufficiently large num_cpus_online(), but for some reason
+things are slower without it. I suspect that scheduling response
+time is somehow dependent on it.
+
+I got a hold of an aic7xxx so io throughput is slightly better than my
+usual NUMA-Q runs (i.e. oopsen). The disks are still clockwork, though.
+
+
+-- wli

@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261762AbUJYLPa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbUJYLUn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261762AbUJYLPa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 07:15:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbUJYLP3
+	id S261759AbUJYLUn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 07:20:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbUJYLUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 07:15:29 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:40130 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261762AbUJYLPT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 07:15:19 -0400
-Date: Mon, 25 Oct 2004 13:15:17 +0200
-From: Jan Kara <jack@suse.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: [PATCH] Quota warnings somewhat broken
-Message-ID: <20041025111517.GF13208@atrey.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.53.0410211807020.12823@yvahk01.tjqt.qr> <20041022093423.GC31932@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.58.0410220804040.2101@ppc970.osdl.org>
+	Mon, 25 Oct 2004 07:20:43 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:33197 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261759AbUJYLUi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 07:20:38 -0400
+Subject: Re: [RFC/PATCH 0/4] cpus, nodes, and the device model: dynamic cpu
+	registration
+From: Nathan Lynch <nathanl@austin.ibm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>, mochel@digitalimplant.org,
+       Anton Blanchard <anton@samba.org>
+In-Reply-To: <1098684724.8098.57.camel@localhost.localdomain>
+References: <20041024094551.28808.28284.87316@biclops>
+	 <1098684724.8098.57.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Mon, 25 Oct 2004 06:20:32 -0500
+Message-Id: <1098703232.8582.10.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0410220804040.2101@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, 22 Oct 2004, Jan Kara wrote:
-> >
-> >   Thanks for notifying. It looks like a good idea. Attached patch should apply
-> > well to 2.6.9. Linus, please apply.
+On Mon, 2004-10-25 at 16:12 +1000, Rusty Russell wrote:
+> On Sun, 2004-10-24 at 03:42 -0600, Nathan Lynch wrote:
+> > For starters, the current situation is that cpu sysdevs are registered
+> > from architecture code at boot.  Already we have inconsistencies
+> > betweeen the arches -- ia64 registers only online cpus, ppc64
+> > registers all "possible" cpus.
 > 
-> Why does this code use tty_write_message() in the first place? It's a bit 
-> rude to mess up the users tty without any way to disable it, isn't it? 
-  OK, I'll tide up a bit a patch of Jan Engelhardt <jengelh@linux01.gwdg.de>
-and send it to you.
+> Um, how does ia64 bring up a new CPU without
+> a /sys/devices/system/cpu/cpuX/online?
 
-								Honza
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+I don't think they have that capability merged yet, but I have seen a
+few patches for ACPI-based physical hotplug support go by, e.g.
+http://lkml.org/lkml/2004/9/20/126
+
+
+Nathan
+

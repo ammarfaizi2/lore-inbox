@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280081AbRJaFiB>; Wed, 31 Oct 2001 00:38:01 -0500
+	id <S280084AbRJaFhv>; Wed, 31 Oct 2001 00:37:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280083AbRJaFhv>; Wed, 31 Oct 2001 00:37:51 -0500
-Received: from THANK.THUNK.ORG ([216.175.175.163]:31108 "EHLO thunk.org")
-	by vger.kernel.org with ESMTP id <S280081AbRJaFhk>;
-	Wed, 31 Oct 2001 00:37:40 -0500
-Date: Tue, 30 Oct 2001 11:07:13 -0500
+	id <S280083AbRJaFhb>; Wed, 31 Oct 2001 00:37:31 -0500
+Received: from THANK.THUNK.ORG ([216.175.175.163]:27780 "EHLO thunk.org")
+	by vger.kernel.org with ESMTP id <S280081AbRJaFhZ>;
+	Wed, 31 Oct 2001 00:37:25 -0500
+Date: Tue, 30 Oct 2001 12:29:08 -0500
 From: Theodore Tso <tytso@mit.edu>
-To: Oliver Xymoron <oxymoron@waste.org>,
-        Horst von Brand <vonbrand@inf.utfsm.cl>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] random.c bugfix
-Message-ID: <20011030110713.A583@thunk.org>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Christoph Rohland <cr@sap.com>, Larry McVoy <lm@bitmover.com>,
+        Jan-Frode Myklebust <janfrode@parallab.uib.no>,
+        ML-linux-kernel <linux-kernel@vger.kernel.org>,
+        Wayne Scott <wscott@bitmover.com>
+Subject: Re: Kernel Compile in tmpfs crumples in 2.4.12 w/epoll patch
+Message-ID: <20011030122908.A734@thunk.org>
 Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Oliver Xymoron <oxymoron@waste.org>,
-	Horst von Brand <vonbrand@inf.utfsm.cl>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011029163920.F806@lynx.no> <Pine.LNX.4.30.0110291814100.30096-100000@waste.org> <20011029205005.L806@lynx.no>
+	Alexander Viro <viro@math.psu.edu>, Christoph Rohland <cr@sap.com>,
+	Larry McVoy <lm@bitmover.com>,
+	Jan-Frode Myklebust <janfrode@parallab.uib.no>,
+	ML-linux-kernel <linux-kernel@vger.kernel.org>,
+	Wayne Scott <wscott@bitmover.com>
+In-Reply-To: <m3pu7gggbf.fsf@linux.local> <Pine.GSO.4.21.0110220556150.2294-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.15i
-In-Reply-To: <20011029205005.L806@lynx.no>; from adilger@turbolabs.com on Mon, Oct 29, 2001 at 08:50:05PM -0700
+In-Reply-To: <Pine.GSO.4.21.0110220556150.2294-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Mon, Oct 22, 2001 at 06:01:32AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 29, 2001 at 08:50:05PM -0700, Andreas Dilger wrote:
+On Mon, Oct 22, 2001 at 06:01:32AM -0400, Alexander Viro wrote:
 > 
-> Well, I just saw that the "in++" and "nwords * 4" patches went into -pre4.
-> These are the only real non-cosmetic parts of what has been sent.  The
-> other patches were not officially submitted to Linus yet (using bytes
-> as parameters, and removing poolwords from the struct).  I have reverted
-> those patches in my tree, and gone back to using words as units for
-> add_entropy(), since it doesn't make sense to take bytes as a parameter
-> and then require a multiple of 4 bytes for input sizes.
+> If you are changing directory between the calls of getdents(2) - you have
+> no warranty that offsets will stay stable.  It's not just Linux.
+> 
 
-Oops, ouch.  Thanks for catching the in++ bug; I can't believe that
-remained unnoticed for so long.  
+Umm... it's not Linux, but it is POSIX.  POSIX states that if a file
+is removed or created in a directory in the middle of a readir() scan,
+that it's undefined whether or not that file which has been removed or
+created will be returned by readdir().  But you're not allowed to
+randomly shuffle things around and make files disappear or be returned
+multiple times.  Otherwise, it becomes impossible for readdir() to be
+used reliably --- after all, even if an individual process isn't
+deleting or creating files while doing a readdir(), it can't protect
+itself from other processes happening to create or delete files while
+it's doing an readdir() scan.
 
-Could you send me a pointer to the proposed change to remove poolwords
-from the struct?  I'm not sure why that wwould be a good thing at all.
+> Frankly, I don't see what could be done, short of doing qsort() by inumber
+> or something equivalent...
 
-Also, the reason why add_entropy_words did stuff in multiple of 4
-bytes was simply because it made the code much more efficient.
-Zero-padding isn't a problem, since it's perfectly safe to mix in zero
-bytes into the pool.  It is an issue for the entropy credit
-calculation, but that's completely separate from add_entropy_words()....
+Yup, that's what you'd have to do.  Readdir() semantics are a bitch,
+and a pain in the *ss for filesystems that are doing something other
+than a FFS-style linear directory.  Telldir()/seedir() semantics makes
+things even worse....
 
-						- Ted
+							- Ted

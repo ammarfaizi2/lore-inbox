@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130531AbRBQM5w>; Sat, 17 Feb 2001 07:57:52 -0500
+	id <S129136AbRBQM6w>; Sat, 17 Feb 2001 07:58:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130430AbRBQM5m>; Sat, 17 Feb 2001 07:57:42 -0500
-Received: from nathan.polyware.nl ([193.67.144.241]:57350 "EHLO
-	nathan.polyware.nl") by vger.kernel.org with ESMTP
-	id <S129136AbRBQM52>; Sat, 17 Feb 2001 07:57:28 -0500
-Date: Sat, 17 Feb 2001 13:57:23 +0100
-From: Pauline Middelink <middelink@polyware.nl>
-To: linux-kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] a more efficient BUG() macro
-Message-ID: <20010217135723.A26653@polyware.nl>
-Mail-Followup-To: Pauline Middelink <middelin@polyware.nl>,
-	linux-kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <3A8E3BA5.4B98E94E@yahoo.com> <3A8E6E0C.2F205328@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3A8E6E0C.2F205328@colorfullife.com>; from manfred@colorfullife.com on Sat, Feb 17, 2001 at 01:26:52PM +0100
+	id <S131442AbRBQM6M>; Sat, 17 Feb 2001 07:58:12 -0500
+Received: from limes.hometree.net ([194.231.17.49]:47912 "EHLO
+	limes.hometree.net") by vger.kernel.org with ESMTP
+	id <S130430AbRBQM5y>; Sat, 17 Feb 2001 07:57:54 -0500
+To: linux-kernel@vger.kernel.org
+Date: Sat, 17 Feb 2001 12:45:33 +0000 (UTC)
+From: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
+Message-ID: <96lrpd$dem$1@forge.intermeta.de>
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+In-Reply-To: <058701c09875$1977efa0$f40237d1@MIACFERNANDEZ>, <20010216194121.B26627@alcove.wittsend.com>
+Reply-To: hps@tanstaafl.de
+Subject: Re: Linux stifles innovation...
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Feb 2001 around 13:26:52 +0100, Manfred Spraul wrote:
-> Paul Gortmaker wrote:
-> > 
-> > Anyway this small patch makes sure there is only one "kernel BUG..." string,
-> > and dumps __FILE__ in favour of an address value since System.map data is
-> > needed to make full use of the BUG() dump anyways.  The memory stats of two
-> > otherwise identical kernels:
-> >
-> 
-> Shouldn't the linker drop duplicate strings?
+mhw@wittsend.com (Michael H. Warfield) writes:
 
-Yes, but that wasn't his patch. He split off the
-constant text in the bugline to a separate string and
-made sure /that/ string was used only once.
+>	But wasn't that Xerox that had that?  Yeah, the same ones that
+>screwed us over with the compression patent that shot .gif images out
+>of the sky.  There was inovation for you.
 
-The old way contained the 'kernel BUG at' string a
-zillion times, now it only contains 'bla.c: 412'
-and variants thereof a lot of times. (And most of
-them are NO duplicates, or you would have had 2 BUGs
-at the same line...
+Wrong company. You may want to check your facts before bashing.
 
-    Met vriendelijke groet,
-        Pauline Middelink
+
 -- 
-GPG Key fingerprint = 2D5B 87A7 DDA6 0378 5DEA  BD3B 9A50 B416 E2D0 C3C2
-For more details look at my website http://www.polyware.nl/~middelink
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

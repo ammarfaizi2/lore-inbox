@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265228AbSKNU43>; Thu, 14 Nov 2002 15:56:29 -0500
+	id <S265238AbSKNVQy>; Thu, 14 Nov 2002 16:16:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265230AbSKNU43>; Thu, 14 Nov 2002 15:56:29 -0500
-Received: from cpe-66-1-218-52.fl.sprintbbd.net ([66.1.218.52]:24841 "EHLO
-	daytona.compro.net") by vger.kernel.org with ESMTP
-	id <S265228AbSKNU42>; Thu, 14 Nov 2002 15:56:28 -0500
-Message-ID: <3DD40F77.F4217D4A@compro.net>
-Date: Thu, 14 Nov 2002 16:02:47 -0500
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-lcrs i686)
-X-Accept-Language: en
+	id <S265243AbSKNVQx>; Thu, 14 Nov 2002 16:16:53 -0500
+Received: from wildsau.idv.uni.linz.at ([213.157.128.253]:17427 "EHLO
+	wildsau.idv.uni.linz.at") by vger.kernel.org with ESMTP
+	id <S265238AbSKNVQw>; Thu, 14 Nov 2002 16:16:52 -0500
+From: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
+Message-Id: <200211142115.gAELFNm0002811@wildsau.idv.uni.linz.at>
+Subject: bug: cant write to solaris partitioned disk
+To: linux-kernel@vger.kernel.org
+Date: Thu, 14 Nov 2002 22:15:20 +0100 (MET)
+Cc: herp@wildsau.idv.uni.linz.at (Herbert Rosmanith),
+       kernel@wildsau.idv.uni.linz.at (H.Rosmanith (Kernel Mailing List)),
+       ferdl@wildsau.idv.uni.linz.at (Ferdinand Goldmann)
+X-Mailer: ELM [version 2.4ME+ PL37 (25)]
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       Nicolas Pitre <nico@cam.org>, Andreas Steinmetz <ast@domdv.de>,
-       Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: make distclean and make dep??
-References: <Pine.LNX.4.44.0211131628010.16858-100000@xanadu.home> <Pine.LNX.4.44.0211140933150.5313-100000@chaos.physics.uiowa.edu> <20021114174246.GB10723@mars.ravnborg.org>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
-> 
-> On Thu, Nov 14, 2002 at 09:35:53AM -0600, Kai Germaschewski wrote:
-> > I think there's good reasons for both distclean and mrproper, distclean is
-> > the standard target which most projects use, and mrproper is the
-> > traditional Linux kernel target. So I would vote for keeping them both
-> > (and share a common help entry).
-> >
-> > What I don't see is why we would need different semantics, though,
-> > anybody?
-> How about the following:
-> clean   Delete all intermidiate files, including symlinks and modversions
-> mrproper        clean + deletes .config and .config.old
-> distclean       mrproper + all editor backup, patch backup files
-> 
-> In other words a more powerfull clean compared to today.
-> The difference between clean and mrproper is then _only_ the configuration
-> files. That easy to explain, and thats easy to understand. Today only
-> very few people know the difference, and simply save their config,
-> and do make mrproper.
-> 
-> I have many times seen people do something like:
-> cp .config xxx
-> make mrproper
-> mv xxx .config
-> 
-> No need for that, when make clean deletes enough.
 
-I thought make mrproper cleaned whatever make dep did also. Make clean certainly
-does not.
-I never need a make dep after a clean. Only after a make mrproper???
+hi,
 
-Mark
+after not being active on a solaris machine, I forgot the root-password.
+since the machine is a blade100, I just plugged the harddisk to my
+linux-workstation, mounted the filesystem with ufs, but no matter what,
+I was not able to reset the root-password by modifying /mnt/etc/shadow,
+allthough I had CONFIG_EXPERIMENTAL=y and CONFIG_UFS_FS_WRITE=y and
+specifed -o ufstype=sun on the mount-command-line.
+
+therefore, I tried a different approach: search the partition for
+the string "root:cryptpw:1234:::::" and clear the root-pw with
+"dd". so I specified "dd if=newrootpw of=/dev/hdc1 bs=4096 seek=10794 count=1"
+(the 10794 are the result of the previous search-operation). since I
+couldnt get "dd" to work, I wrote a small helperprog, which does an
+"lseek(fd,4096*10794,SEEK_SET)" and then write the new shadow-entry with
+the cleared root-pw. but that one failed too!! the error-code I got
+was -EBADF. quite strange.
+
+so I tried another approach, which worked: copy the *whole* solaris-partition
+to my linux-disk, make a copy of that, modify the root-pw on the copy and
+copy the whole partition back. that worked, and I am now logged in as
+root with no password on the blade100 again (phew!).
+
+so, what the bug seems to me: it is not possible to write() to a solaris
+partition when previously, an lseek() operation has been performed, in
+contrast, write()ing without lseek()ing *is* possible.
+
+bug or feature?
+
+please comment/fix, thank you,
+herbert rosmanith
+
+
+
+
+

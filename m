@@ -1,57 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263874AbRFEI1Z>; Tue, 5 Jun 2001 04:27:25 -0400
+	id <S263803AbRFEIbz>; Tue, 5 Jun 2001 04:31:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263804AbRFEI1Q>; Tue, 5 Jun 2001 04:27:16 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:29967 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S263742AbRFEI1C>;
-	Tue, 5 Jun 2001 04:27:02 -0400
-Date: Tue, 5 Jun 2001 10:25:00 +0200 (CEST)
+	id <S263804AbRFEIbp>; Tue, 5 Jun 2001 04:31:45 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:32783 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S263803AbRFEIbc>;
+	Tue, 5 Jun 2001 04:31:32 -0400
+Date: Tue, 5 Jun 2001 10:29:28 +0200 (CEST)
 From: Ingo Molnar <mingo@elte.hu>
 Reply-To: <mingo@elte.hu>
-To: George Bonser <george@gator.com>
-Cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: 2.4.6-pre1 unresolved symbols
-In-Reply-To: <CHEKKPICCNOGICGMDODJKENIDDAA.george@gator.com>
-Message-ID: <Pine.LNX.4.33.0106051023530.2339-200000@localhost.localdomain>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Missing cache flush.
+In-Reply-To: <9fhqlj$7jt$1@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0106051027390.2339-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1166221113-991729500=:2339"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
---8323328-1166221113-991729500=:2339
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+On 4 Jun 2001, Linus Torvalds wrote:
 
+>  - even when it works, it is necessarily very very very slow. Not to be
+>    used lightly. As you can imagine, the work-around is even slower.
 
-On Tue, 5 Jun 2001, George Bonser wrote:
-
-> depmod:         do_softirq
-> depmod:         tasklet_hi_schedule
-
-forgot about those - the attached softirq-2.4.6-A0 patch exports these
-symbols.
+i've measured it once, IIRC it was around 10-15 millisecs on normal
+pentiums, so while it's indeed the slowest x86 instruction on the planet,
+it's still perhaps acceptable for hot-swapping ECC RAM.
 
 	Ingo
 
---8323328-1166221113-991729500=:2339
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="softirq-2.4.6-A0"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0106051025000.2339@localhost.localdomain>
-Content-Description: 
-Content-Disposition: attachment; filename="softirq-2.4.6-A0"
-
-LS0tIGxpbnV4L2tlcm5lbC9rc3ltcy5jLm9yaWcJVHVlIEp1biAgNSAwOTo1
-OTo0NCAyMDAxDQorKysgbGludXgva2VybmVsL2tzeW1zLmMJVHVlIEp1biAg
-NSAxMDowMDoxOCAyMDAxDQpAQCAtNTM1LDYgKzUzNSw5IEBADQogRVhQT1JU
-X1NZTUJPTCh0YXNrbGV0X2luaXQpOw0KIEVYUE9SVF9TWU1CT0wodGFza2xl
-dF9raWxsKTsNCiBFWFBPUlRfU1lNQk9MKF9fcnVuX3Rhc2tfcXVldWUpOw0K
-K0VYUE9SVF9TWU1CT0woZG9fc29mdGlycSk7DQorRVhQT1JUX1NZTUJPTCh0
-YXNrbGV0X3NjaGVkdWxlKTsNCitFWFBPUlRfU1lNQk9MKHRhc2tsZXRfaGlf
-c2NoZWR1bGUpOw0KIA0KIC8qIGluaXQgdGFzaywgZm9yIG1vdmluZyBrdGhy
-ZWFkIHJvb3RzIC0gb3VnaHQgdG8gZXhwb3J0IGEgZnVuY3Rpb24gPz8gKi8N
-CiANCg==
---8323328-1166221113-991729500=:2339--

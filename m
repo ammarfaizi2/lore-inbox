@@ -1,62 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264450AbTCXRUW>; Mon, 24 Mar 2003 12:20:22 -0500
+	id <S264363AbTCXRLN>; Mon, 24 Mar 2003 12:11:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264280AbTCXRSt>; Mon, 24 Mar 2003 12:18:49 -0500
-Received: from files.ssi.bg ([217.79.71.21]:2574 "HELO files.ssi.bg")
-	by vger.kernel.org with SMTP id <S264422AbTCXRSd>;
-	Mon, 24 Mar 2003 12:18:33 -0500
-Date: Mon, 24 Mar 2003 19:24:51 +0200
-From: Alexander Atanasov <alex@ssi.bg>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux@brodo.de, linux-kernel@vger.kernel.org,
-       B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: Re: ide: indeed, using list_for_each_entry_safe removes endless
- looping / hang [Was: Re: 2.5.65-ac2 -- hda/ide trouble on ICH4]
-Message-Id: <20030324192451.13aa10b2.alex@ssi.bg>
-In-Reply-To: <1048527607.25655.18.camel@irongate.swansea.linux.org.uk>
-References: <Pine.LNX.4.21.0303241129420.855-100000@mars.zaxl.net>
-	<1048514373.25136.4.camel@irongate.swansea.linux.org.uk>
-	<20030324180125.2606b046.alex@ssi.bg>
-	<1048527607.25655.18.camel@irongate.swansea.linux.org.uk>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S264356AbTCXRKs>; Mon, 24 Mar 2003 12:10:48 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:15803 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S264345AbTCXRJ6>;
+	Mon, 24 Mar 2003 12:09:58 -0500
+Date: Mon, 24 Mar 2003 18:21:06 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: current BK boot failure, d_alloc()
+Message-ID: <20030324172106.GT2371@suse.de>
+References: <20030324115048.GA2371@suse.de> <20030324120217.GB2371@suse.de> <33047.4.64.238.61.1048525736.squirrel@www.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <33047.4.64.238.61.1048525736.squirrel@www.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello, Alan!
-
-On 24 Mar 2003 17:40:08 +0000
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-
-> On Mon, 2003-03-24 at 16:01, Alexander Atanasov wrote:
-> > 	I don't understand, what's the difference and how the list is
-> > 	lost?
-> > ata_unused used to hold all drives that were not claimed by any
-> > driver, now idedefault_driver claims all that drives, all drives go
-> > in the .list
+On Mon, Mar 24 2003, Randy.Dunlap wrote:
+> > On Mon, Mar 24 2003, Jens Axboe wrote:
+> >> Hi,
+> >>
+> >>
+> [snip]
+> >> craps out in memcpy() due to name->name == NULL
+> >
+> > smells like a compiler problem, with the following patch:
+> >
+> > ===== fs/dcache.c 1.43 vs edited =====
+> > --- 1.43/fs/dcache.c	Sat Mar 22 05:05:21 2003
+> > +++ edited/fs/dcache.c	Mon Mar 24 12:58:19 2003
+> > @@ -784,7 +784,8 @@
+> >  	struct dentry *res = NULL;
+> >
+> >  	if (root_inode) {
+> > -		res = d_alloc(NULL, &(const struct qstr) { "/", 1, 0 });
+> > +		struct qstr name = { .name = "/", .len = 1, .hash = 0 };
+> > +		res = d_alloc(NULL, &name);
+> >  		if (res) {
+> >  			res->d_sb = root_inode->i_sb;
+> >  			res->d_parent = res;
+> >
+> > --
 > 
-> ata_unused -> unattached device slots, new hotplug discoveries
+> what compiler, please?
 
-	Ok. 
+gcc 3.3 pre-release, I cannot reproduce it in userspace though. I'll try
+and take a look at the generated code.
 
-> idedefault_driver -> attached/known devices with no driver
-> other list -> driven by that driver
-> 
-> > The bug is there,  and waiting to explode, keeping both lists would
-> > mean to add one more  list head  in ide_drive_t,  is that the fix
-> > you want?
-> 
-> I don't see where stuff is ending up on both lists yet. I've not had
-> time to look hard at it though
-> 
+-- 
+Jens Axboe
 
-	It happens this way:
-	ide_register_driver -> ata_attach -> idedefault_driver.attach -> ide_register_subdriver -> list_add(&driver->list, &driver->drives) ->
-return to ata_attach -> list_add_tail(&drive->list, &ata_unused);
-	
---
-have fun,
-alex

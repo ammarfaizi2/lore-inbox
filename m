@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263410AbTDSQYI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 12:24:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263411AbTDSQYI
+	id S263414AbTDSQdX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 12:33:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263415AbTDSQdX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 12:24:08 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3339 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263410AbTDSQYH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 12:24:07 -0400
-Date: Sat, 19 Apr 2003 17:36:02 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: John Bradford <john@grabjohn.com>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
-Message-ID: <20030419173602.E4082@flint.arm.linux.org.uk>
-Mail-Followup-To: John Bradford <john@grabjohn.com>,
-	Stephan von Krawczynski <skraw@ithnet.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20030419180421.0f59e75b.skraw@ithnet.com> <200304191622.h3JGMI9L000263@81-2-122-30.bradfords.org.uk>
-Mime-Version: 1.0
+	Sat, 19 Apr 2003 12:33:23 -0400
+Received: from khms.westfalen.de ([62.153.201.243]:64158 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP id S263414AbTDSQdW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 12:33:22 -0400
+Date: 19 Apr 2003 13:45:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8kAuh4Wmw-B@khms.westfalen.de>
+In-Reply-To: <Pine.LNX.4.53.0304181512220.22901@chaos>
+Subject: Re: [TRIVIAL] kstrdup
+X-Mailer: CrossPoint v3.12d.kh10 R/C435
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200304191622.h3JGMI9L000263@81-2-122-30.bradfords.org.uk>; from john@grabjohn.com on Sat, Apr 19, 2003 at 05:22:18PM +0100
-X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
+Organization: Organisation? Me?! Are you kidding?
+References: <Pine.LNX.4.44.0304180919380.2950-100000@home.transmeta.com> <Pine.LNX.4.53.0304181323400.22493@chaos> <3EA0469D.7090602@pobox.com> <3EA0469D.7090602@pobox.com> <Pine.LNX.4.53.0304181512220.22901@chaos>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 19, 2003 at 05:22:18PM +0100, John Bradford wrote:
-> A RAID-0 array and regular backups are the best way to protect your
-> data.
+root@chaos.analogic.com (Richard B. Johnson)  wrote on 18.04.03 in <Pine.LNX.4.53.0304181512220.22901@chaos>:
 
-Correction.  RAID-0 is the best way to loose your data.  If any device
-containing any part of the array goes down, you loose at least some of
-your data.
+> The test for every byte transferred is, quite obviously, correct.
+> It is also, quite obviously, non optimum.
 
-RAID-1 is the redundant raid level, where each device in the set
-contains a duplicate of the other device(s).
+Actually, that is very much not obvious.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Especially if you're familiar with architectures where every move has an  
+implicit test (typically for zero and sign), and so checking for the zero  
+byte during the move is quite obviously the only sane thing to do - the  
+version with a count is slower, because the inner loop does more. (Those  
+architectures typically don't have a REP-style prefix.)
 
+MfG Kai

@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265414AbTA1NnE>; Tue, 28 Jan 2003 08:43:04 -0500
+	id <S265470AbTA1Ntk>; Tue, 28 Jan 2003 08:49:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265306AbTA1NnE>; Tue, 28 Jan 2003 08:43:04 -0500
-Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:48016 "EHLO
-	mail.pronto.tv") by vger.kernel.org with ESMTP id <S265414AbTA1NnD> convert rfc822-to-8bit;
-	Tue, 28 Jan 2003 08:43:03 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Stefan Reinauer <stepan@suse.de>, Robert Morris <rob@r-morris.co.uk>
-Subject: Re: Bootscreen
-Date: Tue, 28 Jan 2003 14:52:02 +0100
-User-Agent: KMail/1.4.1
-Cc: Raphael Schmid <Raphael_Schmid@CUBUS.COM>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-References: <398E93A81CC5D311901600A0C9F2928946936D@cubuss2> <Pine.LNX.4.44.0301281113480.20283-100000@schubert.rdns.com> <20030128133252.GC23296@suse.de>
-In-Reply-To: <20030128133252.GC23296@suse.de>
+	id <S265480AbTA1Ntk>; Tue, 28 Jan 2003 08:49:40 -0500
+Received: from webmail7.rediffmail.com ([202.54.124.152]:2692 "HELO
+	rediffmail.com") by vger.kernel.org with SMTP id <S265470AbTA1Ntj>;
+	Tue, 28 Jan 2003 08:49:39 -0500
+Date: 28 Jan 2003 14:06:11 -0000
+Message-ID: <20030128140611.31677.qmail@webmail7.rediffmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301281452.02856.roy@karlsbakk.net>
+From: "nitin  kumbhar" <nkumbhar@rediffmail.com>
+Reply-To: "nitin  kumbhar" <nkumbhar@rediffmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: driver address space
+Content-type: text/plain;
+	format=flowed
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 28 January 2003 14:32, Stefan Reinauer wrote:
-> * Robert Morris <rob@r-morris.co.uk> [030128 12:20]:
-> > There is a very simple reason why Linux shouldn't have a "bootscreen" -
-> > its a lame idea. We have copied enough of the bad "features" of Windows
-> > et al into Linux already, IMHO.
+Hello,
+ 	I have a small query about kernel image organization. i am 
+using
+2.4.7 kernel version.Is there any data structure in kernel which 
+will give
+information about _all_ kernel symbols? i could get the data 
+structure
+which gives _exported_ symbols only. But not all symbols. Using 
+this
+structure i want to access information about functions present in 
+a driver,
+which can be used to find out address range(_start_address_ &
+_end_address_) of the driver in kernel address space.
+ 	It is possible to get this information about functions in a 
+driver
+using System.map. to get this information into kernel can we push 
+the
+content of this file into kernel image? i think this can be done 
+either by
+putting it at specific address or appending the image. Will it be 
+OK to
+access System.map(all kernel symbols) in this way from kernel? 
+Could
+this cause any security or some other problems?
+ 	Or apart from this is there any other way to find out driver's
+address range in the kernel?
 
-I'm working for a company doing VoD and IPTV applications, and you surely 
-don't want some verbose kernel output upon booting set-top-boxes. At least - 
-the customer doesn't want it, meaning you shouldn't have it. Then it's better 
-to have some LED flashing in case of error.
+ 	I hope this not something totally out of context. Thank You.
 
-roy
+Regards,
+Nitin
 
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-ProntoTV AS - http://www.pronto.tv/
-Tel: +47 9801 3356
 
-Computers are like air conditioners.
-They stop working when you open Windows.
 

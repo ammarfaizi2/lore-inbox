@@ -1,39 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273282AbSISVTK>; Thu, 19 Sep 2002 17:19:10 -0400
+	id <S273213AbSISVVX>; Thu, 19 Sep 2002 17:21:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273545AbSISVTI>; Thu, 19 Sep 2002 17:19:08 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:64017 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S273541AbSISVS4>; Thu, 19 Sep 2002 17:18:56 -0400
-Date: Thu, 19 Sep 2002 17:16:43 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Patrick Mansfield <patmans@us.ibm.com>
-cc: Brian Waite <waite@skycomputers.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [RFC] [PATCH] 0/7 2.5.35 SCSI multi-path
-In-Reply-To: <20020918090802.B14245@eng2.beaverton.ibm.com>
-Message-ID: <Pine.LNX.3.96.1020919171118.24603A-100000@gatekeeper.tmr.com>
+	id <S273178AbSISVVW>; Thu, 19 Sep 2002 17:21:22 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57612 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S273213AbSISVVK>;
+	Thu, 19 Sep 2002 17:21:10 -0400
+Message-ID: <3D8A3E3B.5030201@mandrakesoft.com>
+Date: Thu, 19 Sep 2002 17:14:35 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jason Lunz <lunz@falooley.org>
+CC: netdev@oss.sgi.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Donald Becker <becker@scyld.com>,
+       Richard Gooch <rgooch@ras.ucalgary.ca>,
+       "Patrick R. McManus" <mcmanus@ducksong.com>, edward_peng@dlink.com.tw
+Subject: Re: PATCH: sundance #4b
+References: <Pine.LNX.4.44.0209190903050.29420-100000@beohost.scyld.com> <3D8A25D1.3060300@mandrakesoft.com> <20020919205249.GB17492@orr.falooley.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Sep 2002, Patrick Mansfield wrote:
+applied, then changed USE_MEM_OPS to a CONFIG_xxx option
 
-> Devices without serial numbers are treated as if they had different serial
-> numbers, they show up as if there was no multi-path support.
-
-That doesn't solve the problem, does it? If you have two devices w/o
-serial they could look like one with multipath, with the change you note
-that is prevented by making a single multipath device w/o serial look like
-two. I have visions of programs using /dev/st0 and /dev/st1, having used
-backup programs which grabbed every drive with a tape ready.
-
-It is indeed a messy problem.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
 

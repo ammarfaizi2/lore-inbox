@@ -1,57 +1,142 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266807AbUBMHQF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 02:16:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266808AbUBMHQF
+	id S266785AbUBMHTB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 02:19:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266786AbUBMHTB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 02:16:05 -0500
-Received: from hera.kernel.org ([63.209.29.2]:37526 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S266807AbUBMHQC (ORCPT
+	Fri, 13 Feb 2004 02:19:01 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:48396 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S266785AbUBMHS4 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 02:16:02 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: PS/2 Mouse does no longer work with kernel 2.6 on a laptop
-Date: Fri, 13 Feb 2004 07:15:37 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <c0htip$gf1$1@terminus.zytor.com>
-References: <200402112344.23378.rototor@rototor.de> <20040213070333.GA1555@intern.kubla.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
-X-Trace: terminus.zytor.com 1076656537 16866 63.209.29.3 (13 Feb 2004 07:15:37 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Fri, 13 Feb 2004 07:15:37 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+	Fri, 13 Feb 2004 02:18:56 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Junio C Hamano <junkio@cox.net>, Michael Frank <mhf@linuxmail.org>
+Subject: Re: PATCH, RFC: 2.6 Documentation/Codingstyle
+Date: Fri, 13 Feb 2004 09:18:45 +0200
+X-Mailer: KMail [version 1.4]
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+References: <fa.fbh88ra.kn8094@ifi.uio.no> <7voes31ny4.fsf@assigned-by-dhcp.cox.net>
+In-Reply-To: <7voes31ny4.fsf@assigned-by-dhcp.cox.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200402130918.45587.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20040213070333.GA1555@intern.kubla.de>
-By author:    Dominik Kubla <dominik@kubla.de>
-In newsgroup: linux.dev.kernel
+On Friday 13 February 2004 08:41, Junio C Hamano wrote:
+
+> MF> +Periods terminating kernel messages are deprecated
+> MF> +Usage of the apostrophe <'> in kernel messages is deprecated
 >
-> On Wed, Feb 11, 2004 at 11:44:23PM +0000, Emmeran Seehuber wrote:
-> > Hello everybody!
-> > 
-> > I'm trying to switch my laptop from kernel 2.4 to kernel 2.6.2. Everything 
-> > seems to work correctly, only my PS/2 mouse doesn't.
-> 
-> Seconded. After update from 2.6.0 to 2.6.2 both the built-in touchpad and
-> stick stopped working. XFree86 complained about "no such device" (or something
-> similiar) when accessing /dev/psaux. /dev/input/mice is also configured but
-> seems not to work.
-> 
-> Hardware is a Dell Inspiron 8000.
-> 
+> I do not think encouraging bad spelling like above has reached
+> community consensus.  Personally I do not like those sloppy
+> grammar ("donts" and missing period at the end of the sentence).
 
-I've seen the same on a Transmeta development platform, which is
-designed to "look like" a laptop.  Makes me wonder if there is some
-interaction with ACPI.
+About dots. Let's look how it would look like with those
+dots added everywhere, and then with dots removed.
 
-	-hpa
+klogd 1.4.1, log source = /proc/kmsg started.
+Linux version 2.4.22-rc2_QoS (root@vda) (gcc version 3.2) #1 Tue Nov 18 15:55:00 GMT-2 2003.
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009e000 (usable).
+ BIOS-e820: 000000000009e000 - 00000000000a0000 (reserved).
+ BIOS-e820: 00000000000c0000 - 00000000000cc000 (reserved).
+ BIOS-e820: 00000000000dc000 - 0000000000100000 (reserved).
+ BIOS-e820: 0000000000100000 - 0000000007cf0000 (usable).
+ BIOS-e820: 0000000007cf0000 - 0000000007cff000 (ACPI data).
+ BIOS-e820: 0000000007cff000 - 0000000007d00000 (ACPI NVS).
+ BIOS-e820: 0000000007d00000 - 0000000007e80000 (usable).
+ BIOS-e820: 0000000007e80000 - 0000000008000000 (reserved).
+ BIOS-e820: 00000000ff800000 - 00000000ffc00000 (reserved).
+ BIOS-e820: 00000000fff00000 - 0000000100000000 (reserved).
+126MB LOWMEM available.
+On node 0 totalpages: 32384.
+zone(0): 4096 pages.
+zone(1): 28288 pages.
+zone(2): 0 pages.
+Kernel command line: root=/dev/nfs  nfsroot=172.16.42.75:/.rootfs/.std,hard,intr  ip=:172.16.42.75:::(none):eth0:dhcp  devfs=mount.
+Initializing CPU#0.
+Detected 1196.031 MHz processor.
+Console: colour VGA+ 80x30.
+Calibrating delay loop... 2385.51 BogoMIPS.
+Memory: 123856k/129536k available (2268k kernel code, 5224k reserved, 694k data, 564k init, 0k highmem).
+Dentry cache hash table entries: 16384 (order: 5, 131072 bytes).
+Inode cache hash table entries: 8192 (order: 4, 65536 bytes).
+Mount cache hash table entries: 512 (order: 0, 4096 bytes).
+Buffer cache hash table entries: 4096 (order: 2, 16384 bytes).
+Page-cache hash table entries: 32768 (order: 5, 131072 bytes).
+CPU: L1 I cache: 16K, L1 D cache: 16K.
+CPU: L2 cache: 256K.
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU:     After generic, caps: 0383fbff 00000000 00000000 00000000.
+CPU:             Common caps: 0383fbff 00000000 00000000 00000000.
+CPU: Intel(R) Celeron(TM) CPU                1200MHz stepping 01.
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+Checking for popad bug... OK.
+POSIX conformance testing by UNIFIX.
+mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au).
+mtrr: detected mtrr type: Intel.
+PCI: PCI BIOS revision 2.10 entry at 0xfd9b8, last bus=1.
+PCI: Using configuration type 1.
+PCI: Probing PCI hardware.
+PCI: Probing PCI hardware (bus 00).
 
--- 
-PGP public key available - finger hpa@zytor.com
-Key fingerprint: 2047/2A960705 BA 03 D3 2C 14 A8 A8 BD  1E DF FE 69 EE 35 BD 74
-"The earth is but one country, and mankind its citizens."  --  Bahá'u'lláh
-Just Say No to Morden * The Shadows were defeated -- Babylon 5 is renewed!!
+Kinda ugly, isn't it?
+
+klogd 1.4.1, log source = /proc/kmsg started
+Linux version 2.4.22-rc2_QoS (root@vda) (gcc version 3.2) #1 Tue Nov 18 15:55:00 GMT-2 2003
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009e000 (usable)
+ BIOS-e820: 000000000009e000 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000c0000 - 00000000000cc000 (reserved)
+ BIOS-e820: 00000000000dc000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 0000000007cf0000 (usable)
+ BIOS-e820: 0000000007cf0000 - 0000000007cff000 (ACPI data)
+ BIOS-e820: 0000000007cff000 - 0000000007d00000 (ACPI NVS)
+ BIOS-e820: 0000000007d00000 - 0000000007e80000 (usable)
+ BIOS-e820: 0000000007e80000 - 0000000008000000 (reserved)
+ BIOS-e820: 00000000ff800000 - 00000000ffc00000 (reserved)
+ BIOS-e820: 00000000fff00000 - 0000000100000000 (reserved)
+126MB LOWMEM available
+On node 0 totalpages: 32384
+zone(0): 4096 pages
+zone(1): 28288 pages
+zone(2): 0 pages
+Kernel command line: root=/dev/nfs  nfsroot=172.16.42.75:/.rootfs/.std,hard,intr  ip=:172.16.42.75:::(none):eth0:dhcp  devfs=mount
+Initializing CPU#0
+Detected 1196.031 MHz processor
+Console: colour VGA+ 80x30
+Calibrating delay loop... 2385.51 BogoMIPS
+Memory: 123856k/129536k available (2268k kernel code, 5224k reserved, 694k data, 564k init, 0k highmem)
+Dentry cache hash table entries: 16384 (order: 5, 131072 bytes)
+Inode cache hash table entries: 8192 (order: 4, 65536 bytes)
+Mount cache hash table entries: 512 (order: 0, 4096 bytes)
+Buffer cache hash table entries: 4096 (order: 2, 16384 bytes)
+Page-cache hash table entries: 32768 (order: 5, 131072 bytes)
+CPU: L1 I cache: 16K, L1 D cache: 16K
+CPU: L2 cache: 256K
+Intel machine check architecture supported
+Intel machine check reporting enabled on CPU#0
+CPU:     After generic, caps: 0383fbff 00000000 00000000 00000000
+CPU:             Common caps: 0383fbff 00000000 00000000 00000000
+CPU: Intel(R) Celeron(TM) CPU                1200MHz stepping 01
+Enabling fast FPU save and restore... done
+Enabling unmasked SIMD FPU exception support... done
+Checking 'hlt' instruction... OK
+Checking for popad bug... OK
+POSIX conformance testing by UNIFIX
+mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
+mtrr: detected mtrr type: Intel
+PCI: PCI BIOS revision 2.10 entry at 0xfd9b8, last bus=1
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+PCI: Probing PCI hardware (bus 00)
+
+Personally I like this better
+--
+vda

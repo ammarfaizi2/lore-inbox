@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129819AbQLOSZi>; Fri, 15 Dec 2000 13:25:38 -0500
+	id <S130271AbQLOS02>; Fri, 15 Dec 2000 13:26:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130271AbQLOSZ2>; Fri, 15 Dec 2000 13:25:28 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5641 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130265AbQLOSZ0>; Fri, 15 Dec 2000 13:25:26 -0500
-Subject: Re: [lkml]Re: VM problems still in 2.2.18
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Fri, 15 Dec 2000 17:57:18 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), jjs@toyota.com (J Sloan),
-        linux-kernel@vger.kernel.org (Linux kernel)
-In-Reply-To: <20001215152908.M11505@inspiron.random> from "Andrea Arcangeli" at Dec 15, 2000 03:29:08 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130338AbQLOS0S>; Fri, 15 Dec 2000 13:26:18 -0500
+Received: from mailb.telia.com ([194.22.194.6]:54795 "EHLO mailb.telia.com")
+	by vger.kernel.org with ESMTP id <S130271AbQLOS0B>;
+	Fri, 15 Dec 2000 13:26:01 -0500
+From: Anders Torger <torger@ludd.luth.se>
+Reply-To: torger@ludd.luth.se
+Organization: -
+To: linux-kernel@vger.kernel.org
+Subject: mmap'ing IO memory on i386
+Date: Fri, 15 Dec 2000 18:52:20 +0100
+X-Mailer: KMail [version 1.1.61]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E146z6f-0001ZD-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <00121518522008.21281@paganini>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The changes in semaphore semantics are necessary to fix the spurious out of
-> memory with MAP_SHARED mappings and they came together with the removal of the
-> always-asynchronous kpiod. While it's certainly possible to remove it I don't
-> think removing the fix for MAP_SHARED stuff is a good idea.
 
-How hard is it to seperate losing kpiod (optimisation) from the MAP_SHARED 
-changes ? I am assuming they are two seperate issues, possibly wrongly
+I'm writing an ALSA sound card driver, for a card that does not support DMA, 
+thus the CPU need to do the copying to and from the onboard buffer. ALSA 
+allows for optional mmap'd access, that is accessing the in memory dma buffer 
+directly from user space. However, for this card that does not support DMA, 
+it would be best to mmap its IO memory directly, this way I get rid of a copy 
+in the interrupt handler to an intermediate kernel buffer. This should be 
+possible on the i386 as far as I know.
 
-> Basically it's always safe to replace:
-> 
-> 	down(&inode->i_sem);
-> 	/* critical section */
-> 	up(&inode->isem);
-> 
-> with the new fs-semaphore:
-> 
-> 	fs_down(&inode->i_sem);
-> 	/* critical section */
-> 	fs_up(&inode->i_sem);
+I use a 2.2.14 kernel, and ioremap (also tested ioremap_nocache) to relocate 
+the IO memory. In kernel space it works fine to access the ioremap'd area 
+just like any other kernel buffer. However, when the ioremap'd area is mmap'd 
+from user space, problems occur. In user space: when the memory is read, all 
+bytes are always 0xFF, and when written to, nothing happens (the memory being 
+on the sound card is unchanged).
 
-Providing no inode semaphore is upped from a different task , which seems
-currently quite a valid legal thing to do (ditto doing the up on completion of
-something in bh or irq context)
+I have two questions: (1) why is this happening? (2) is it possible to make 
+it work?
 
-Alan
+Please reply to my address directly, since I'm not on the mailing list.
 
+/Anders Torger
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,86 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264424AbUEXTJ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264677AbUEXTMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264424AbUEXTJ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 15:09:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264677AbUEXTJ1
+	id S264677AbUEXTMj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 15:12:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264680AbUEXTMj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 15:09:27 -0400
-Received: from lvs00-fl-n02.valueweb.net ([216.219.253.98]:52434 "EHLO
-	ams002.ftl.affinity.com") by vger.kernel.org with ESMTP
-	id S264424AbUEXTJY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 15:09:24 -0400
-Message-ID: <40B246C6.4020404@coyotegulch.com>
-Date: Mon, 24 May 2004 15:02:30 -0400
-From: Scott Robert Ladd <coyote@coyotegulch.com>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040522)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: NUMA Questions
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 24 May 2004 15:12:39 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:43916 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S264677AbUEXTMi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 15:12:38 -0400
+Date: Mon, 24 May 2004 23:13:55 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] MAP_POPULATE prot 0
+Message-ID: <20040524211355.GA16165@elte.hu>
+References: <Pine.LNX.4.44.0405242003270.27145-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0405242003270.27145-100000@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm running a Tyan K8W 2885, with two Opteron 240s and 512MB in each
-memory bank. I've compiled kernel 2.6.7-rc1 with the following in my config:
 
-CONFIG_K8_NUMA=y
-CONFIG_DISCONTIGMEM=y
-CONFIG_NUMA=y
+* Hugh Dickins <hugh@veritas.com> wrote:
 
-In /var/log/messages, I see:
+> It seems eccentric to implement MAP_POPULATE only on PROT_NONE
+> mappings: do_mmap_pgoff is passing down prot, then
+> sys_remap_file_pages verifies it's not set.  I guess that's an
+> oversight from when we realized that the prot arg to
+> sys_remap_file_pages was misdesigned.
 
-May 24 14:45:11 Corwin Scanning NUMA topology in Northbridge 24
-May 24 14:45:11 Corwin Number of nodes 2 (10010)
-May 24 14:45:11 Corwin Node 0 MemBase 0000000000000000 Limit 
-000000001fffffff
-May 24 14:45:11 Corwin Node 1 MemBase 0000000020000000 Limit 
-000000003fff0000
-May 24 14:45:11 Corwin Using node hash shift of 24
-May 24 14:45:11 Corwin Bootmem setup node 0 
-0000000000000000-000000001fffffff
-May 24 14:45:11 Corwin Bootmem setup node 1 
-0000000020000000-000000003fff0000
-May 24 14:45:11 Corwin ACPI: have wakeup address 0x10020005000
-May 24 14:45:11 Corwin No mptable found.
-May 24 14:45:11 Corwin No mptable found.
-May 24 14:45:11 Corwin setting up node 0 0-1ffff
-May 24 14:45:11 Corwin On node 0 totalpages: 131071
-May 24 14:45:11 Corwin DMA zone: 4096 pages, LIFO batch:1
-May 24 14:45:11 Corwin Normal zone: 126975 pages, LIFO batch:16
-May 24 14:45:11 Corwin HighMem zone: 0 pages, LIFO batch:1
-May 24 14:45:11 Corwin setting up node 1 20000-3fff0
-May 24 14:45:11 Corwin On node 1 totalpages: 131056
-May 24 14:45:11 Corwin DMA zone: 0 pages, LIFO batch:1
-May 24 14:45:11 Corwin Normal zone: 131056 pages, LIFO batch:16
-May 24 14:45:11 Corwin HighMem zone: 0 pages, LIFO batch:1
+yeah.
 
-So am I correct in assuming that NUMA is up and running? I note that 
-Andi's numastat displays:
+> There's another oddity whose heritage is harder for me to understand,
+> so please let me leave it to you: sys_remap_file_pages is declared as
+> asmlinkage in mm/fremap.c, but is the one syscall declared without
+> asmlinkage in include/linux/syscalls.h.
 
-		         node1         node0
-numa_hit	        304539        472556
-numa_miss	             0             0
-numa_foreign	             0             0
-interleave_hit	             0             0
-local_node	        303607        472549
-other_node	           932             7
+i think that's just an oversight.
 
-Yet when I run Andi's numactl, it states:
-
-Corwin /usr/src/numactl-0.6.3 # numactl --show
-No NUMA support available on this system.
-
-A quick test program, and I see:
-
-numa_available() returns -1
-numa_max_node() return 1
-
-Can anyone shed light on this?
-
--- 
-Scott Robert Ladd
-Coyote Gulch Productions (http://www.coyotegulch.com)
-Software Invention for High-Performance Computing
-
+	Ingo

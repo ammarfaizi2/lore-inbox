@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbUJXNpm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbUJXNsM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261485AbUJXNpm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 09:45:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbUJXNpl
+	id S261491AbUJXNsM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 09:48:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbUJXNq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 09:45:41 -0400
-Received: from verein.lst.de ([213.95.11.210]:36774 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S261485AbUJXNgm (ORCPT
+	Sun, 24 Oct 2004 09:46:58 -0400
+Received: from verein.lst.de ([213.95.11.210]:59046 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S261474AbUJXNoF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 09:36:42 -0400
-Date: Sun, 24 Oct 2004 15:36:37 +0200
+	Sun, 24 Oct 2004 09:44:05 -0400
+Date: Sun, 24 Oct 2004 15:43:59 +0200
 From: Christoph Hellwig <hch@lst.de>
-To: akpm@osdl.org
+To: davem@redhat.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] remove dead exports in sounds/oss
-Message-ID: <20041024133637.GA20149@lst.de>
+Subject: [PATCH] remove dead socket layer exports
+Message-ID: <20041024134359.GA20316@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,210 +24,123 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---- 1.11/sound/oss/aci.c	2004-07-26 20:06:53 +02:00
-+++ edited/sound/oss/aci.c	2004-10-23 14:06:02 +02:00
-@@ -62,11 +62,10 @@
- #include "sound_config.h"
+--- 1.25/include/linux/net.h	2004-09-15 21:58:39 +02:00
++++ edited/include/linux/net.h	2004-10-23 13:43:46 +02:00
+@@ -176,7 +176,6 @@
+ extern int	     sock_wake_async(struct socket *sk, int how, int band);
+ extern int	     sock_register(struct net_proto_family *fam);
+ extern int	     sock_unregister(int family);
+-extern struct socket *sock_alloc(void);
+ extern int	     sock_create(int family, int type, int proto,
+ 				 struct socket **res);
+ extern int	     sock_create_kern(int family, int type, int proto,
+===== include/net/sock.h 1.85 vs edited =====
+--- 1.85/include/net/sock.h	2004-10-08 00:09:21 +02:00
++++ edited/include/net/sock.h	2004-10-23 13:46:58 +02:00
+@@ -746,7 +746,6 @@
+  * Functions to fill in entries in struct proto_ops when a protocol
+  * does not implement a particular function.
+  */
+-extern int                      sock_no_release(struct socket *);
+ extern int                      sock_no_bind(struct socket *, 
+ 					     struct sockaddr *, int);
+ extern int                      sock_no_connect(struct socket *,
+@@ -1275,7 +1274,6 @@
  
- int aci_port;	/* as determined by bit 4 in the OPTi 929 MC4 register */
--int aci_idcode[2];	/* manufacturer and product ID */
-+static int aci_idcode[2];	/* manufacturer and product ID */
- int aci_version;	/* ACI firmware version	*/
+ extern atomic_t netstamp_needed;
+ extern void sock_enable_timestamp(struct sock *sk);
+-extern void sock_disable_timestamp(struct sock *sk);
  
- EXPORT_SYMBOL(aci_port);
--EXPORT_SYMBOL(aci_idcode);
- EXPORT_SYMBOL(aci_version);
+ static inline void net_timestamp(struct timeval *stamp) 
+ { 
+===== net/socket.c 1.90 vs edited =====
+--- 1.90/net/socket.c	2004-08-08 04:05:14 +02:00
++++ edited/net/socket.c	2004-10-23 13:44:07 +02:00
+@@ -459,7 +459,7 @@
+  *	NULL is returned.
+  */
  
- #include "aci.h"
-===== sound/oss/aci.h 1.3 vs edited =====
---- 1.3/sound/oss/aci.h	2002-02-11 03:50:17 +01:00
-+++ edited/sound/oss/aci.h	2004-10-23 14:05:50 +02:00
-@@ -2,7 +2,6 @@
- #define _ACI_H_
- 
- extern int aci_port;
--extern int aci_idcode[2];	/* manufacturer and product ID */
- extern int aci_version;		/* ACI firmware version	*/
- extern int aci_rw_cmd(int write1, int write2, int write3);
- 
-===== sound/oss/audio.c 1.7 vs edited =====
---- 1.7/sound/oss/audio.c	2004-05-29 11:13:03 +02:00
-+++ edited/sound/oss/audio.c	2004-10-23 14:34:38 +02:00
-@@ -38,7 +38,7 @@
- #define NEUTRAL16	0x00
- 
- 
--int             dma_ioctl(int dev, unsigned int cmd, void __user *arg);
-+static int             dma_ioctl(int dev, unsigned int cmd, void __user *arg);
- 
- static int set_format(int dev, int fmt)
+-struct socket *sock_alloc(void)
++static struct socket *sock_alloc(void)
  {
-@@ -735,7 +735,7 @@
- 	return bytes | ((count - 1) << 16);
- }
- 
--int dma_ioctl(int dev, unsigned int cmd, void __user *arg)
-+static int dma_ioctl(int dev, unsigned int cmd, void __user *arg)
- {
- 	struct dma_buffparms *dmap_out = audio_devs[dev]->dmap_out;
- 	struct dma_buffparms *dmap_in = audio_devs[dev]->dmap_in;
-===== sound/oss/audio_syms.c 1.3 vs edited =====
---- 1.3/sound/oss/audio_syms.c	2003-03-14 01:52:26 +01:00
-+++ edited/sound/oss/audio_syms.c	2004-10-23 14:34:40 +02:00
-@@ -14,6 +14,3 @@
- EXPORT_SYMBOL(DMAbuf_close_dma);
- EXPORT_SYMBOL(DMAbuf_inputintr);
- EXPORT_SYMBOL(DMAbuf_outputintr);
--EXPORT_SYMBOL(dma_ioctl);
--EXPORT_SYMBOL(audio_open);
--EXPORT_SYMBOL(audio_release);
-===== sound/oss/dev_table.c 1.3 vs edited =====
---- 1.3/sound/oss/dev_table.c	2003-05-25 02:00:00 +02:00
-+++ edited/sound/oss/dev_table.c	2004-10-23 13:49:17 +02:00
-@@ -16,6 +16,8 @@
- #define _DEV_TABLE_C_
- #include "sound_config.h"
- 
-+static int sound_alloc_audiodev(void);
-+
- int sound_install_audiodrv(int vers, char *name, struct audio_driver *driver,
- 			int driver_size, int flags, unsigned int format_mask,
- 			void *devc, int dma1, int dma2)
-@@ -121,7 +123,7 @@
+ 	struct inode * inode;
+ 	struct socket * sock;
+@@ -2089,8 +2089,6 @@
+ /* ABI emulation layers need these two */
+ EXPORT_SYMBOL(move_addr_to_kernel);
+ EXPORT_SYMBOL(move_addr_to_user);
+-EXPORT_SYMBOL(sock_alloc);
+-EXPORT_SYMBOL(sock_alloc_inode);
+ EXPORT_SYMBOL(sock_create);
+ EXPORT_SYMBOL(sock_create_kern);
+ EXPORT_SYMBOL(sock_create_lite);
+===== net/core/sock.c 1.51 vs edited =====
+--- 1.51/net/core/sock.c	2004-09-14 01:05:09 +02:00
++++ edited/net/core/sock.c	2004-10-23 13:47:45 +02:00
+@@ -175,6 +175,15 @@
  	}
  }
  
--int sound_alloc_audiodev(void)
-+static int sound_alloc_audiodev(void)
- { 
- 	int i = register_sound_dsp(&oss_sound_fops, -1);
- 	if(i==-1)
-===== sound/oss/dev_table.h 1.6 vs edited =====
---- 1.6/sound/oss/dev_table.h	2004-05-29 11:13:04 +02:00
-+++ edited/sound/oss/dev_table.h	2004-10-23 13:49:06 +02:00
-@@ -397,7 +397,6 @@
- void sound_unload_mididev(int dev);
- void sound_unload_synthdev(int dev);
- void sound_unload_timerdev(int dev);
--int sound_alloc_audiodev(void);
- int sound_alloc_mixerdev(void);
- int sound_alloc_timerdev(void);
- int sound_alloc_synthdev(void);
-===== sound/oss/msnd.c 1.10 vs edited =====
---- 1.10/sound/oss/msnd.c	2004-08-26 03:59:03 +02:00
-+++ edited/sound/oss/msnd.c	2004-10-23 14:23:51 +02:00
-@@ -79,25 +79,6 @@
- 	--num_devs;
- }
- 
--int msnd_get_num_devs(void)
--{
--	return num_devs;
--}
--
--multisound_dev_t *msnd_get_dev(int j)
--{
--	int i;
--
--	for (i = 0; i < MSND_MAX_DEVS && j; ++i)
--		if (devs[i] != NULL)
--			--j;
--
--	if (i == MSND_MAX_DEVS || j != 0)
--		return NULL;
--
--	return devs[i];
--}
--
- void msnd_init_queue(unsigned long base, int start, int size)
- {
- 	isa_writew(PCTODSP_BASED(start), base + JQS_wStart);
-@@ -201,7 +182,7 @@
- 	return count;
- }
- 
--int msnd_wait_TXDE(multisound_dev_t *dev)
-+static int msnd_wait_TXDE(multisound_dev_t *dev)
- {
- 	register unsigned int io = dev->io;
- 	register int timeout = 1000;
-@@ -213,7 +194,7 @@
- 	return -EIO;
- }
- 
--int msnd_wait_HC0(multisound_dev_t *dev)
-+static int msnd_wait_HC0(multisound_dev_t *dev)
- {
- 	register unsigned int io = dev->io;
- 	register int timeout = 1000;
-@@ -338,7 +319,6 @@
- EXPORT_SYMBOL(msnd_register);
- EXPORT_SYMBOL(msnd_unregister);
- EXPORT_SYMBOL(msnd_get_num_devs);
--EXPORT_SYMBOL(msnd_get_dev);
- 
- EXPORT_SYMBOL(msnd_init_queue);
- 
-@@ -349,8 +329,6 @@
- EXPORT_SYMBOL(msnd_fifo_write);
- EXPORT_SYMBOL(msnd_fifo_read);
- 
--EXPORT_SYMBOL(msnd_wait_TXDE);
--EXPORT_SYMBOL(msnd_wait_HC0);
- EXPORT_SYMBOL(msnd_send_dsp_cmd);
- EXPORT_SYMBOL(msnd_send_word);
- EXPORT_SYMBOL(msnd_upload_host);
-===== sound/oss/msnd.h 1.4 vs edited =====
---- 1.4/sound/oss/msnd.h	2004-08-26 03:59:10 +02:00
-+++ edited/sound/oss/msnd.h	2004-10-23 14:23:42 +02:00
-@@ -258,8 +258,6 @@
- 
- int				msnd_register(multisound_dev_t *dev);
- void				msnd_unregister(multisound_dev_t *dev);
--int				msnd_get_num_devs(void);
--multisound_dev_t *		msnd_get_dev(int i);
- 
- void				msnd_init_queue(unsigned long, int start, int size);
- 
-@@ -270,8 +268,6 @@
- int				msnd_fifo_write(msnd_fifo *f, const char *buf, size_t len);
- int				msnd_fifo_read(msnd_fifo *f, char *buf, size_t len);
- 
--int				msnd_wait_TXDE(multisound_dev_t *dev);
--int				msnd_wait_HC0(multisound_dev_t *dev);
- int				msnd_send_dsp_cmd(multisound_dev_t *dev, BYTE cmd);
- int				msnd_send_word(multisound_dev_t *dev, unsigned char high,
- 					       unsigned char mid, unsigned char low);
-===== sound/oss/sound_calls.h 1.3 vs edited =====
---- 1.3/sound/oss/sound_calls.h	2004-05-29 11:13:04 +02:00
-+++ edited/sound/oss/sound_calls.h	2004-10-23 14:34:42 +02:00
-@@ -39,7 +39,6 @@
- 	   unsigned int cmd, void __user *arg);
- void audio_init_devices (void);
- void reorganize_buffers (int dev, struct dma_buffparms *dmap, int recording);
--int dma_ioctl (int dev, unsigned int cmd, void __user *arg);
- 
++static void sock_disable_timestamp(struct sock *sk)
++{	
++	if (sock_flag(sk, SOCK_TIMESTAMP)) { 
++		sock_reset_flag(sk, SOCK_TIMESTAMP);
++		atomic_dec(&netstamp_needed);
++	}
++}
++
++
  /*
-  *	System calls for the /dev/sequencer
-===== sound/oss/sound_syms.c 1.2 vs edited =====
---- 1.2/sound/oss/sound_syms.c	2002-02-11 03:50:15 +01:00
-+++ edited/sound/oss/sound_syms.c	2004-10-23 14:26:53 +02:00
-@@ -22,10 +22,8 @@
- EXPORT_SYMBOL(midi_devs);
- EXPORT_SYMBOL(num_midis);
- EXPORT_SYMBOL(synth_devs);
--EXPORT_SYMBOL(num_synths);
+  *	This is meant for all protocols to use and covers goings on
+  *	at the socket level. Everything here is generic.
+@@ -972,11 +981,6 @@
+  * function, some default processing is provided.
+  */
  
- EXPORT_SYMBOL(sound_timer_devs);
--EXPORT_SYMBOL(num_sound_timers);
+-int sock_no_release(struct socket *sock)
+-{
+-	return 0;
+-}
+-
+ int sock_no_bind(struct socket *sock, struct sockaddr *saddr, int len)
+ {
+ 	return -EOPNOTSUPP;
+@@ -1247,15 +1251,6 @@
+ }
+ EXPORT_SYMBOL(sock_enable_timestamp); 
  
- EXPORT_SYMBOL(sound_install_audiodrv);
- EXPORT_SYMBOL(sound_install_mixer);
-@@ -33,7 +31,6 @@
- EXPORT_SYMBOL(sound_free_dma);
- EXPORT_SYMBOL(sound_open_dma);
- EXPORT_SYMBOL(sound_close_dma);
--EXPORT_SYMBOL(sound_alloc_audiodev);
- EXPORT_SYMBOL(sound_alloc_mididev);
- EXPORT_SYMBOL(sound_alloc_mixerdev);
- EXPORT_SYMBOL(sound_alloc_timerdev);
+-void sock_disable_timestamp(struct sock *sk)
+-{	
+-	if (sock_flag(sk, SOCK_TIMESTAMP)) { 
+-		sock_reset_flag(sk, SOCK_TIMESTAMP);
+-		atomic_dec(&netstamp_needed);
+-	}
+-}
+-EXPORT_SYMBOL(sock_disable_timestamp);
+-
+ /*
+  *	Get a socket option on an socket.
+  *
+@@ -1371,7 +1366,6 @@
+ EXPORT_SYMBOL(sk_send_sigurg);
+ EXPORT_SYMBOL(sock_alloc_send_pskb);
+ EXPORT_SYMBOL(sock_alloc_send_skb);
+-EXPORT_SYMBOL(sock_getsockopt);
+ EXPORT_SYMBOL(sock_init_data);
+ EXPORT_SYMBOL(sock_kfree_s);
+ EXPORT_SYMBOL(sock_kmalloc);
+@@ -1385,14 +1379,12 @@
+ EXPORT_SYMBOL(sock_no_mmap);
+ EXPORT_SYMBOL(sock_no_poll);
+ EXPORT_SYMBOL(sock_no_recvmsg);
+-EXPORT_SYMBOL(sock_no_release);
+ EXPORT_SYMBOL(sock_no_sendmsg);
+ EXPORT_SYMBOL(sock_no_sendpage);
+ EXPORT_SYMBOL(sock_no_setsockopt);
+ EXPORT_SYMBOL(sock_no_shutdown);
+ EXPORT_SYMBOL(sock_no_socketpair);
+ EXPORT_SYMBOL(sock_rfree);
+-EXPORT_SYMBOL(sock_rmalloc);
+ EXPORT_SYMBOL(sock_setsockopt);
+ EXPORT_SYMBOL(sock_wfree);
+ EXPORT_SYMBOL(sock_wmalloc);

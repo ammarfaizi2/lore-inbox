@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265865AbTB0Tf3>; Thu, 27 Feb 2003 14:35:29 -0500
+	id <S266367AbTB0Tgh>; Thu, 27 Feb 2003 14:36:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266257AbTB0Tf3>; Thu, 27 Feb 2003 14:35:29 -0500
-Received: from blowme.phunnypharm.org ([65.207.35.140]:53252 "EHLO
-	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S265865AbTB0Tf2>; Thu, 27 Feb 2003 14:35:28 -0500
-Date: Thu, 27 Feb 2003 14:44:40 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>, schwidefsky@de.ibm.com,
-       ak@suse.de, davem@redhat.com, arnd@bergmann-dalldorf.de
-Subject: Re: ioctl32 consolidation -- call for testing
-Message-ID: <20030227194440.GM21100@phunnypharm.org>
-References: <20030226222606.GA9144@elf.ucw.cz>
+	id <S266434AbTB0Tgg>; Thu, 27 Feb 2003 14:36:36 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:37763 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S266367AbTB0Tfz>; Thu, 27 Feb 2003 14:35:55 -0500
+Message-Id: <200302271946.h1RJkAJT010712@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.1 02/18/2003 with nmh-1.0.4+dev
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.63 - if/ifdef janitor work - actual bug found..
+From: Valdis.Kletnieks@vt.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030226222606.GA9144@elf.ucw.cz>
-User-Agent: Mutt/1.5.3i
+Content-Type: multipart/signed; boundary="==_Exmh_1352218482P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 27 Feb 2003 14:46:10 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 26, 2003 at 11:26:06PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> This is next version of ioctl32 consolidation. At one point it
-> compiled on x86-64 and sparc64. I'm not 100% sure it still does...
-> 
-> Could you try to apply it on your architecture, fix whatever breakage
-> it causes, and submit patch back to me?
-> 
-> ia64 has very different ioctl32 emulation (and very short). What is
-> going on there? Also not all architectures knew about
-> register_ioctl32_translation. Ouch.
+--==_Exmh_1352218482P
+Content-Type: text/plain; charset=us-ascii
 
-FYI, whatever changes you made to sparc64's ioctl32.c broke. Doesn't
-appear that any of the 32bit ioctl's are registered, so the system never
-boots to usermode fully (since it's completely 32bit).
+The previous patches cleaned things up enough that -Wundef doesn't trigger
+a lot of false positives.. which made this one visible.  There's no other
+occurrence of MAX_OWNER_OVERRIDE in the tree, and it's obviously not
+MAY_OWNER_OVERRIDE either.  Looks like just remaindered cruft that I've
+cleaned up....
 
-Not sure I'll be able to look into the reason, but it's probably simple.
+--- include/linux/nfsd/nfsd.h.dist	2003-02-24 14:06:01.000000000 -0500
++++ include/linux/nfsd/nfsd.h	2003-02-27 00:21:53.957428476 -0500
+@@ -39,7 +39,7 @@
+ #define MAY_LOCK		32
+ #define MAY_OWNER_OVERRIDE	64
+ #define	MAY_LOCAL_ACCESS	128 /* IRIX doing local access check on device special file*/
+-#if (MAY_SATTR | MAY_TRUNC | MAY_LOCK | MAX_OWNER_OVERRIDE | MAY_LOCAL_ACCESS) & (MAY_READ | MAY_WRITE | MAY_EXEC | MAY_OWNER_OVERRIDE)
++#if (MAY_SATTR | MAY_TRUNC | MAY_LOCK | MAY_LOCAL_ACCESS) & (MAY_READ | MAY_WRITE | MAY_EXEC | MAY_OWNER_OVERRIDE)
+ # error "please use a different value for MAY_SATTR or MAY_TRUNC or MAY_LOCK or MAY_OWNER_OVERRIDE."
+ #endif
+ #define MAY_CREATE		(MAY_EXEC|MAY_WRITE)
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+
+
+--==_Exmh_1352218482P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+XmsCcC3lWbTT17ARAlKPAKCgn+ctrKYzi9bwpp70OVQNPVfp3wCdH/Zi
+4/BFc+ZaBvKKP3zTwfsrq24=
+=Ye4O
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1352218482P--

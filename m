@@ -1,70 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261779AbVAKTAN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261816AbVAKTAl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbVAKTAN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 14:00:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbVAKTAN
+	id S261816AbVAKTAl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 14:00:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbVAKTAl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 14:00:13 -0500
-Received: from gw.unix-scripts.info ([62.212.121.13]:29418 "EHLO
-	gw.unix-scripts.info") by vger.kernel.org with ESMTP
-	id S261779AbVAKTAF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 14:00:05 -0500
-Message-ID: <41E42233.2060102@apartia.fr>
-Date: Tue, 11 Jan 2005 20:00:03 +0100
-From: Laurent CARON <lcaron@apartia.fr>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
+	Tue, 11 Jan 2005 14:00:41 -0500
+Received: from mail.tyan.com ([66.122.195.4]:51461 "EHLO tyanweb.tyan")
+	by vger.kernel.org with ESMTP id S261816AbVAKTAZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 14:00:25 -0500
+Message-ID: <3174569B9743D511922F00A0C943142307291407@TYANWEB>
+From: YhLu <YhLu@tyan.com>
+To: "'Andi Kleen'" <ak@muc.de>
+Cc: "'Mikael Pettersson'" <mikpe@csd.uu.se>,
+       "'jamesclv@us.ibm.com'" <jamesclv@us.ibm.com>,
+       "'Matt_Domsch@dell.com'" <Matt_Domsch@dell.com>,
+       "'discuss@x86-64.org'" <discuss@x86-64.org>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'suresh.b.siddha@intel.com'" <suresh.b.siddha@intel.com>
+Subject: RE: 256 apic id for amd64
+Date: Tue, 11 Jan 2005 11:11:45 -0800
 MIME-Version: 1.0
-To: Grzegorz Kulewski <kangur@polcom.net>
-Cc: linux-kernel@vger.kernel.org, Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: Unable to burn DVDs
-References: <41E2F823.1070608@apartia.fr> <Pine.LNX.4.61.0501110802180.8535@yvahk01.tjqt.qr> <41E41B32.9070206@apartia.fr> <Pine.LNX.4.60.0501111943500.8024@alpha.polcom.net>
-In-Reply-To: <Pine.LNX.4.60.0501111943500.8024@alpha.polcom.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grzegorz Kulewski wrote:
+On 2.4.28 84 bit
+~ # cat /proc/interrupts 
+           CPU0       CPU1       CPU2       CPU3       
+  0:       5302         19          0          0    IO-APIC-edge  timer
+  1:          0          0          0          0    IO-APIC-edge  keyboard
+  2:          0          0          0          0          XT-PIC  cascade
+  4:        175          0          0          0    IO-APIC-edge  serial
+ 19:          3          0          0          0   IO-APIC-level  ohci1394
+ 22:          0          0          0          0   IO-APIC-level  usb-ohci
+ 23:          0          0          0          0   IO-APIC-level  ehci_hcd
+NMI:        147        139        110         77 
+LOC:       5063       5060       5061       5062 
+ERR:        406
+MIS:          0
+~ # cat /proc/interrupts 
+           CPU0       CPU1       CPU2       CPU3       
+  0:       5612         19          0          0    IO-APIC-edge  timer
+  1:          0          0          0          0    IO-APIC-edge  keyboard
+  2:          0          0          0          0          XT-PIC  cascade
+  4:        226          0          0          0    IO-APIC-edge  serial
+ 19:          3          0          0          0   IO-APIC-level  ohci1394
+ 22:          0          0          0          0   IO-APIC-level  usb-ohci
+ 23:          0          0          0          0   IO-APIC-level  ehci_hcd
+NMI:        147        139        110         77 
+LOC:       5373       5370       5371       5372 
+ERR:        406
+MIS:          0
 
-> On Tue, 11 Jan 2005, Laurent CARON wrote:
->
->> Jan Engelhardt wrote:
->>
->>>> Hello,
->>>>
->>>> I recently upgraded to 2.6.10 and tried (today) to burn a dvd with 
->>>> growisofs.
->>>>
->>>> It seems there is a problem
->>>>
->>>> Here is the output
->>>>
->>>>
->>>> # growisofs -Z /dev/scd0 -R -J ~/foobar
->>>>
->>>>
->>>
->>> I remember ide-scsi being broken now since you can use /dev/hdX 
->>> directly for writing CDs.
->>>
->>>
->>>
->> doesn't work for me
->>
->> growisofs -Z /dev/hdc -R -J ~/sendmail.mc
->> :-( unable to open64("/dev/hdc",O_RDONLY): No such device or address
->
->
-> Do you have /dev/hdc?
-> Also if you have scsi emulation loaded it (IIRC) eats your normal 
-> device. Just try without it.
->
-it is without ide-scsi
+-----Original Message-----
+From: YhLu 
+Sent: Tuesday, January 11, 2005 11:05 AM
+To: YhLu; Andi Kleen
+Cc: 'Mikael Pettersson'; jamesclv@us.ibm.com; Matt_Domsch@dell.com;
+discuss@x86-64.org; linux-kernel@vger.kernel.org; suresh.b.siddha@intel.com
+Subject: RE: 256 apic id for amd64
 
-> Also there is packet cdrw/dvd+-rw driver in kernel now (2.6.10?) that 
-> permits you to mount normal filesystem (for example UDF, but FAT or 
-> ISO - readonly of course or EXT2 or any other but better for your 
-> media without journal) on such device.
+On 2.6.10 32 bit, it only crash core1/node0, still can go on but lost one
+cpu.
 
-I don't want UDF
+~ # cat /proc/interrupts 
+           CPU0       CPU1       CPU2       
+  0:      47612          5       7643    IO-APIC-edge  timer
+  2:          0          0          0          XT-PIC  cascade
+  4:        365          0          1    IO-APIC-edge  serial
+  8:          0          0          0    IO-APIC-edge  rtc
+ 17:          0          0          0   IO-APIC-level  libata
+ 18:          0          0          0   IO-APIC-level  libata
+ 19:          2          0          1   IO-APIC-level  ohci1394
+ 22:          0          0          0   IO-APIC-level  ohci_hcd
+ 23:          0          0          0   IO-APIC-level  ehci_hcd
+NMI:          0          0          0 
+LOC:      49259      49254      49253 
+ERR:       5729
+MIS:          0
+~ #
+
+-----Original Message-----
+From: Yinghai Lu [mailto:yhlu@tyan.com] 
+Sent: Tuesday, January 11, 2005 10:50 AM
+To: 'Andi Kleen'
+Cc: 'Mikael Pettersson'; 'jamesclv@us.ibm.com'; 'Matt_Domsch@dell.com';
+'discuss@x86-64.org'; 'linux-kernel@vger.kernel.org';
+'suresh.b.siddha@intel.com'
+Subject: RE: 256 apic id for amd64
+
+> It looks like the timer interrupt goes to the second CPU.
+Even I don't lift the apic id for bsp, the MB with Nvidia chipset still can
+not start core1/node0, from core0/node0 in kernel 2.6. But the 2.4.28 (32
+bit, 64 bit) works well. 
+
+How come?
+
+YH

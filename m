@@ -1,66 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269506AbUHZUPk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269548AbUHZUD2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269506AbUHZUPk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 16:15:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269561AbUHZUPD
+	id S269548AbUHZUD2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 16:03:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269550AbUHZT5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 16:15:03 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:54943 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269496AbUHZUN1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 16:13:27 -0400
-Date: Thu, 26 Aug 2004 16:10:48 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Diego Calleja <diegocg@teleline.es>, <jamie@shareable.org>,
-       <christophe@saout.de>, <vda@port.imtp.ilyichevsk.odessa.ua>,
-       <christer@weinigel.se>, <spam@tnonline.net>, <akpm@osdl.org>,
-       <wichert@wiggy.net>, <jra@samba.org>, <reiser@namesys.com>,
-       <hch@lst.de>, <linux-fsdevel@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>, <flx@namesys.com>,
-       <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <Pine.LNX.4.58.0408261217140.2304@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 26 Aug 2004 15:57:42 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:38628 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S269548AbUHZT4v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 15:56:51 -0400
+Date: Thu, 26 Aug 2004 21:56:43 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, linux-net@vger.kernel.org
+Subject: [2.4 patch][1/6] lmc_media.c: fix gcc 3.4 compilation
+Message-ID: <20040826195643.GD12772@fs.tum.de>
+References: <20040826195133.GB12772@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040826195133.GB12772@fs.tum.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Aug 2004, Linus Torvalds wrote:
+I got the following compile error when trying to build 2.4.28-pre2 using
+gcc 3.4:
 
-> So "/tmp/bash" is _not_ two different things. It is _one_ entity, that
-> contains both a standard data stream (the "file" part) _and_ pointers to
-> other named streams (the "directory" part).
 
-Thinking about it some more, how would file managers and
-file chosers handle this situation ?
+<--  snip  -->
 
-Currently the user browses the directory tree and when
-the user clicks on something, one of the following 
-happens:
+...
+gcc-3.4 -D__KERNEL__ 
+-I/home/bunk/linux/kernel-2.4/linux-2.4.28-pre2-full/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon 
+-fno-unit-at-a-time  -I.  -nostdinc -iwithprefix include 
+-DKBUILD_BASENAME=lmc_media  -c -o lmc_media.o lmc_media.c
+lmc_media.c: In function `lmc_t1_get_link_status':
+lmc_debug.h:50: sorry, unimplemented: inlining failed in call to 
+'lmc_trace': function body not available
+lmc_media.c:1073: sorry, unimplemented: called from here
+lmc_debug.h:50: sorry, unimplemented: inlining failed in call to 
+'lmc_trace': function body not available
+lmc_media.c:1168: sorry, unimplemented: called from here
+make[5]: *** [lmc_media.o] Error 1
+make[5]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.28-pre2-full/drivers/net/wan/lmc'
 
-1) if it is a directory, the file manager/choser changes
-   into that directory
+<--  snip  -->
 
-2) if it is a file, the file is opened
 
-Now how do we present things to users ?
+The patch below fixes this issue by uninlining lmc_trace.
 
-How will users know when an object can only be chdired
-into, or only be opened ?
 
-For objects that do both, how does the user choose ?
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
 
-Do we really want to have a file paradigm that's different
-from the other OSes out there ?
+--- linux-2.4.28-pre2-full/drivers/net/wan/lmc/lmc_debug.h.old	2004-08-26 18:58:03.000000000 +0200
++++ linux-2.4.28-pre2-full/drivers/net/wan/lmc/lmc_debug.h	2004-08-26 18:58:32.000000000 +0200
+@@ -47,6 +47,6 @@
+ 
+ void lmcConsoleLog(char *type, unsigned char *ucData, int iLen);
+ void lmcEventLog (u_int32_t EventNum, u_int32_t arg2, u_int32_t arg3);
+-inline void lmc_trace(struct net_device *dev, char *msg);
++void lmc_trace(struct net_device *dev, char *msg);
+ 
+ #endif
+--- linux-2.4.28-pre2-full/drivers/net/wan/lmc/lmc_debug.c.old	2004-08-26 18:59:32.000000000 +0200
++++ linux-2.4.28-pre2-full/drivers/net/wan/lmc/lmc_debug.c	2004-08-26 18:59:47.000000000 +0200
+@@ -66,7 +66,7 @@
+ #endif
+ }
+ 
+-inline void lmc_trace(struct net_device *dev, char *msg){
++void lmc_trace(struct net_device *dev, char *msg){
+ #ifdef LMC_TRACE
+     unsigned long j = jiffies + 3; /* Wait for 50 ms */
+ 
 
-What happens when users want to transfer data from Linux
-to another system ?
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
 

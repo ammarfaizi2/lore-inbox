@@ -1,139 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129041AbRBCDsv>; Fri, 2 Feb 2001 22:48:51 -0500
+	id <S129191AbRBCDtH>; Fri, 2 Feb 2001 22:49:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129191AbRBCDsb>; Fri, 2 Feb 2001 22:48:31 -0500
-Received: from ganymede.or.intel.com ([134.134.248.3]:22797 "EHLO
-	ganymede.or.intel.com") by vger.kernel.org with ESMTP
-	id <S129041AbRBCDsZ>; Fri, 2 Feb 2001 22:48:25 -0500
-Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDFEE@orsmsx31.jf.intel.com>
-From: "Dunlap, Randy" <randy.dunlap@intel.com>
-To: "'lkml'" <linux-kernel@vger.kernel.org>
-Cc: "'mblack@csihq.com'" <mblack@csihq.com>
-Subject: RE: IDE timeouts 2.4.1
-Date: Fri, 2 Feb 2001 19:48:21 -0800 
+	id <S129814AbRBCDsw>; Fri, 2 Feb 2001 22:48:52 -0500
+Received: from corp.commerceflow.com ([208.185.105.100]:61169 "EHLO
+	mail.commerceflow.com") by vger.kernel.org with ESMTP
+	id <S129144AbRBCDsc>; Fri, 2 Feb 2001 22:48:32 -0500
+Message-ID: <3A7B7F8C.67C2B603@commerceflow.com>
+Date: Fri, 02 Feb 2001 19:48:28 -0800
+From: Jeffrey Keller <jeff@commerceflow.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.15 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: sct@redhat.com, linux-kernel@vger.kernel.org
+Subject: Reasons to honor readonly mount requests
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm also getting a ton of these, along with lots of
-file corruption.  I could handle the timeouts and
-rebooting every once in awhile if I didn't also have
-the corruption.
+On Thu, Jan 04 2001 at 17:49:46 EST, Stephen C. Tweedie wrote:
 
-Do I have some incorrect IDE parameters?
+> I will be adding support for virtual replay for root filesystems to 
+> act as a last-chance way of recovering if you really cannot write to 
+> the root, but journaling filesystems really do expect to be able to 
+> write to the media so I am not sure whether it makes sense to support 
+> this on non-root filesystems too. 
+> ...
+> A root fs readonly mount is usually designed to prevent 
+> the filesystem from being stomped on during the initial boot so that 
+> fsck can run without the filesystem being volatile. That's the only 
+> reason for the readonly mount: to allow recovery before we enable 
+> writes. With ext3, that recovery is done in the kernel, so doing that 
+> recovery during mount makes perfect sense even if the user is mounting 
+> root readonly. 
 
-(using 2.4.0, not 2.4.1)
-dual Pentium III 933 MHz (STL2 board)
-SAMSUNG 20 GB IDE hard drive
-ServerWorks chipset
+Apologies for a belated follow-up, but the coverage of this thread in
+Kernel Traffic caught my eye.  I understand that both ext3fs and
+reiserfs will try to fix corrupt filesystems (or at least filesystems
+with unprocessed log entries) in-place even if they're mounted
+read-only.  Clearly, virtual replay means more work, but -- just for
+fun -- here are some cases in which it might matter:
 
-details----------------------------------
+1. You want the disk image untouched for forensic analysis or data
+   recovery.
+2. You don't trust the disk to do writes properly.
+3. You don't trust the driver to do writes properly.
+4. You want to test a newer or unstable FS implementation w/ option to
+   go back to the older one.
+5. You're sharing the disk via:
+        VMWare (multiple OS instances on 1 computer)
+        passive backplane (multiple computers on 1 bus)
+        PCI bridge (multiple computers w/ connected buses)
+        SCSI/FC/FireWire (multiple computers sharing device)
 
-Feb  2 19:34:51 localhost kernel: Linux version 2.4.0
-(rdunlap@localhost.localdomain) (gcc version 2.95.3 19991030 (prerelease))
-#34 SMP Tue Jan 30 17:49:24 PST 2001 
-Feb  2 19:35:00 localhost kernel: DMI table at 0x000EF5C0. 
-Feb  2 19:35:00 localhost kernel: BIOS Vendor: Intel Corporation 
-Feb  2 19:35:01 localhost kernel: BIOS Version:
-STL20.86B.0016.P01.0010111108 
-Feb  2 19:35:01 localhost kernel: BIOS Release: 10/11/2000 
-Feb  2 19:35:01 localhost kernel: System Vendor: Intel. 
-Feb  2 19:35:01 localhost kernel: Product Name: STL2. 
-Feb  2 19:35:01 localhost kernel: Version  . 
-Feb  2 19:35:01 localhost kernel: Serial Number  . 
-Feb  2 19:35:01 localhost kernel: Board Vendor: Intel. 
-Feb  2 19:35:01 localhost kernel: Board Name: STL2. 
-Feb  2 19:35:01 localhost kernel: Board Version: 133-639718. 
-Feb  2 19:35:01 localhost kernel: Asset Tag: 0000000000000000. 
-Feb  2 19:35:01 localhost kernel: Uniform Multi-Platform E-IDE driver
-Revision: 6.31 
-Feb  2 19:35:02 localhost kernel: ide: Assuming 33MHz system bus speed for
-PIO modes; override with idebus=xx 
-Feb  2 19:35:02 localhost kernel: ServerWorks OSB4: IDE controller on PCI
-bus 00 dev 79 
-Feb  2 19:35:02 localhost kernel: ServerWorks OSB4: chipset revision 0 
-Feb  2 19:35:02 localhost kernel: ServerWorks OSB4: not 100% native mode:
-will probe irqs later 
-Feb  2 19:35:02 localhost kernel: hda: SAMSUNG SV2006D fc2_17, ATA DISK
-drive 
-Feb  2 19:35:02 localhost kernel: hdb: TOSHIBA CD-ROM XM-6402B, ATAPI CDROM
-drive 
-Feb  2 19:35:02 localhost kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14 
-Feb  2 19:35:02 localhost kernel: hda: 40142592 sectors (20553 MB) w/480KiB
-Cache, CHS=2498/255/63 
-Feb  2 19:35:02 localhost kernel: hdb: ATAPI 32X CD-ROM drive, 256kB Cache 
-Feb  2 19:35:02 localhost kernel: Uniform CD-ROM driver Revision: 3.12 
-Feb  2 19:35:02 localhost kernel: Partition check: 
-Feb  2 19:35:02 localhost kernel:  hda: hda1 hda2 hda3 < hda5 hda6 hda7 > 
+The merit of #5 is reduced but not quite obviated by the fact that
+it's generally unsafe to share a disk if even one party is writing to
+it.  (It might barely be possible do safe one-writer/many-reader disk
+sharing using a phase-tree-like FS, but as interesting projects go, it
+probably rivals heterogeneous SMP in perversity.)
 
-/dev/hda:
- Model=SAMSUNG SV2006D fc2_17, FwRev=LS100, SerialNo=V7**BT0521
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=32256, SectSize=512, ECCbytes=4
- BuffType=DualPortCache, BuffSize=480kB, MaxMultSect=16, MultSect=off
- CurCHS=17475/15/63, CurSects=16513875, LBA=yes, LBAsects=40142592
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4 
- DMA modes: sdma0 sdma1 sdma2 *mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3
-udma4 
+Come to think of it, you could probably use loopback to insulate the
+disk from writes in all these cases.  Hmm.
 
-/dev/hda:
- I/O support  =  0 (default 16-bit)
-
-           CPU0       CPU1       
-  0:      15519       9063    IO-APIC-edge  timer
-  1:        404        289    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
- 12:          0          0    IO-APIC-edge  PS/2 Mouse
- 14:      21517      20366    IO-APIC-edge  ide0
- 18:        138        121   IO-APIC-level  eth0
-NMI:      24511      24512 
-LOC:      24491      24492 
-ERR:          0
-
-00:0f.1 IDE interface: Relience Computer: Unknown device 0211 (prog-if 8a
-[Master SecP PriP])
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64 set
-	Region 4: I/O ports at 5440 [size=16]
-
-
-~Randy_________________________________________
-________________________________________ 
-Michael D. Black wrote:
-Happens every night on both hda and hdc -- no sure yet what triggers it but 
-it is repeatable. Has happened since I've installed this machine with all 
-the 2.4.x series. 
-Jan 31 00:34:16 kernel: hdc: timeout waiting for DMA 
-Jan 31 00:34:16 kernel: ide_dmaproc: chipset supported ide_dma_timeout func 
-only: 14 
-Jan 31 00:34:16 kernel: hdc: irq timeout: status=0x58 { DriveReady 
-SeekComplete DataRequest } 
-Jan 31 00:34:26 kernel: hdc: timeout waiting for DMA 
-Jan 31 00:34:26 kernel: ide_dmaproc: chipset supported ide_dma_timeout func 
-only: 14 
-Jan 31 00:34:26 kernel: hdc: irq timeout: status=0x58 { DriveReady 
-SeekComplete DataRequest } 
-Jan 31 00:34:36 kernel: hdc: timeout waiting for DMA 
-Jan 31 00:34:36 kernel: ide_dmaproc: chipset supported ide_dma_timeout func 
-only: 14 
-Jan 31 00:34:36 kernel: hdc: irq timeout: status=0x58 { DriveReady 
-SeekComplete DataRequest } 
-Jan 31 00:34:46 kernel: hdc: timeout waiting for DMA 
-Jan 31 00:34:46 kernel: ide_dmaproc: chipset supported ide_dma_timeout func 
-only: 14 
-Jan 31 00:34:46 kernel: hdc: irq timeout: status=0x58 { DriveReady 
-SeekComplete DataRequest } 
-Jan 31 00:34:46 kernel: hdc: DMA disabled 
-Jan 31 00:34:46 i kernel: ide1: reset: success 
-
+Please CC me on any follow-ups.
+--Jeff
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

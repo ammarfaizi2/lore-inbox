@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270183AbRHMNK0>; Mon, 13 Aug 2001 09:10:26 -0400
+	id <S270185AbRHMNL0>; Mon, 13 Aug 2001 09:11:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270185AbRHMNKR>; Mon, 13 Aug 2001 09:10:17 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:2185 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S270183AbRHMNKA>;
-	Mon, 13 Aug 2001 09:10:00 -0400
-Date: Mon, 13 Aug 2001 06:10:10 -0700 (PDT)
-Message-Id: <20010813.061010.21928346.davem@redhat.com>
-To: jlnance@intrex.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Still problems with 2.4.8 VM
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20010813090743.A7418@bessie.localdomain>
-In-Reply-To: <20010813090743.A7418@bessie.localdomain>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S270186AbRHMNLS>; Mon, 13 Aug 2001 09:11:18 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:45316 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270185AbRHMNLH>; Mon, 13 Aug 2001 09:11:07 -0400
+Subject: Re: 2.4.7-ac4 disk thrashing (SOLVED?)
+To: Dieter.Nuetzel@hamburg.de (Dieter =?iso-8859-1?q?N=FCtzel?=)
+Date: Mon, 13 Aug 2001 14:13:07 +0100 (BST)
+Cc: phillips@bonn-fries.net (Daniel Phillips),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux Kernel List),
+        reiserfs-list@namesys.com (ReiserFS List),
+        mason@suse.com (Chris Mason), NikitaDanilov@Yahoo.COM (Nikita Danilov),
+        tmv5@home.com (Tom Vier)
+In-Reply-To: <E15WBGG-0006uH-00@the-village.bc.nu> from "Dieter =?iso-8859-1?q?N=FCtzel?=" at Aug 13, 2001 08:24:08 AM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15WHWl-0007Nh-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: jlnance@intrex.net
-   Date: Mon, 13 Aug 2001 09:07:43 -0400
+> 2.4.7-ac1 +
+> use-once-pages                                  		Daniel Phillips
+> use-once-pages-2                                		Daniel Phillips
+> transaction-tracking-2.diff                             		Chris Mason
+> 2.4.7-unlink-truncate-rename-rmdir.dif          	Vladimir V.Saveliev
+> 2.4.7-plug-hole-and-pap-5660-pathrelse-fixes.dif       Vladimir V.Saveliev
 
- ...
-       5 root      20   0     0    0     0 SW   96.6  0.0  18:46 kswapd
- ...   
-   Let me know if any further information would be helpful.
-
-If you turn on kernel profiling, does __get_swap_page() show up near
-the top after a couple of these unresponsive events?
-
-Later,
-David S. Miller
-davem@redhat.com
+You mean "some weird hack of your own". Every bench I've done involving -ac
+and use one has worked better without use once

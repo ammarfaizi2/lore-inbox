@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287932AbSABTqk>; Wed, 2 Jan 2002 14:46:40 -0500
+	id <S287933AbSABTvk>; Wed, 2 Jan 2002 14:51:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287919AbSABTqa>; Wed, 2 Jan 2002 14:46:30 -0500
-Received: from twinlark.arctic.org ([204.107.140.52]:63241 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id <S287932AbSABTqS>; Wed, 2 Jan 2002 14:46:18 -0500
-Date: Wed, 2 Jan 2002 11:46:16 -0800 (PST)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Michal Moskal <malekith@pld.org.pl>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: strange TCP stack behiviour with write()es in pieces
-In-Reply-To: <20020102162806.GA29399@ep09.kernel.pl>
-Message-ID: <Pine.LNX.4.33.0201021140130.22556-100000@twinlark.arctic.org>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+	id <S287919AbSABTva>; Wed, 2 Jan 2002 14:51:30 -0500
+Received: from svr3.applink.net ([206.50.88.3]:32518 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S287933AbSABTvU>;
+	Wed, 2 Jan 2002 14:51:20 -0500
+Message-Id: <200201021951.g02JpCSr021687@svr3.applink.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: timothy.covell@ashavan.org, adrian kok <adriankok2000@yahoo.com.hk>,
+        linux-kernel@vger.kernel.org
+Subject: How can one get System.map w/o vmlinux?
+Date: Wed, 2 Jan 2002 13:47:29 -0600
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20020102191157.49760.qmail@web21204.mail.yahoo.com> <200201021930.g02JUCSr021556@svr3.applink.net>
+In-Reply-To: <200201021930.g02JUCSr021556@svr3.applink.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Jan 2002, Michal Moskal wrote:
 
-> 	void send_packet(int cmd, void *data, int len)
-> 	{
-> 		struct header h = { cmd, len };
->
-> 		write(fd, &h, sizeof(h));
-> 		write(fd, data, len);
-> 	}
+The System.map question brings up several more:
 
-you should look into writev(2).
+1. Is it correct to say that System.map is basically
+the software interrupt table? ( and that for Linux
+software Interrupts equal syscalls)
 
-you might also want to look at this paper
-<http://www.isi.edu/~johnh/PAPERS/Heidemann97a.html>, it's probably
-similar to the problems you're seeing.
+2. If one doesn't have vmlinux lying around, is there
+an easy way to recreate this (via a syscall or small
+SUID root C program to dump out the vectors)
 
--dean
+3. Wouldn't it be a good idea to allow for System.map
+to be handled automagically like Lilo and Grub handle
+different kernels?  If only to avoid this confusion and
+those pesky "ps" warnings.
 
+4. Why does "ps" really care about System.map?
+
+
+-- 
+timothy.covell@ashavan.org.

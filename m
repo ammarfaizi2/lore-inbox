@@ -1,31 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267124AbSLKMI3>; Wed, 11 Dec 2002 07:08:29 -0500
+	id <S267133AbSLKMPY>; Wed, 11 Dec 2002 07:15:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267126AbSLKMI3>; Wed, 11 Dec 2002 07:08:29 -0500
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:21650 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S267124AbSLKMI2> convert rfc822-to-8bit; Wed, 11 Dec 2002 07:08:28 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-To: linux-kernel@vger.kernel.org
-Subject: (a working) Preempt Patch for 2.4.20-aa1
-Date: Wed, 11 Dec 2002 13:15:35 +0100
-User-Agent: KMail/1.4.3
-Organization: WOLK - Working Overloaded Linux Kernel
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200212111315.10372.m.c.p@wolk-project.de>
+	id <S267134AbSLKMO3>; Wed, 11 Dec 2002 07:14:29 -0500
+Received: from ns.suse.de ([213.95.15.193]:50699 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S267133AbSLKMNO>;
+	Wed, 11 Dec 2002 07:13:14 -0500
+Date: Wed, 11 Dec 2002 13:20:59 +0100
+From: Dave Jones <davej@suse.de>
+To: Nicolas ASPERT <Nicolas.Aspert@epfl.ch>
+Cc: Margit Schubert-While <margitsw@t-online.de>, linux-kernel@vger.kernel.org,
+       faith@redhat.com, dri-devel@lists.sourceforge.net
+Subject: Re: 2.4.20 AGP for I845 wrong ?
+Message-ID: <20021211132059.C11689@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Nicolas ASPERT <Nicolas.Aspert@epfl.ch>,
+	Margit Schubert-While <margitsw@t-online.de>,
+	linux-kernel@vger.kernel.org, faith@redhat.com,
+	dri-devel@lists.sourceforge.net
+References: <fa.jjk71mv.1kja10g@ifi.uio.no> <3DF72A91.5080804@epfl.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3DF72A91.5080804@epfl.ch>; from Nicolas.Aspert@epfl.ch on Wed, Dec 11, 2002 at 01:07:45PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Wed, Dec 11, 2002 at 01:07:45PM +0100, Nicolas ASPERT wrote:
+ > IIRC, the 845G is a "new" version of the 830MP chipset (it had been
+ > added by Abraham vd Merwe & Graeme Fisher some months ago), but acts
+ > basically just as the 830MP. Therefore the entry is correct.... Or maybe
+ > if it gets confusing adding a comment would not hurt...
 
-$subject says it all. Does anyone have such?
+I'll check the chipset docs when I get time, and add a comment if
+necessary. No-one seems to be complaining that it isn't working,
+so I'm inclined to believe your diagnosis is correct.
 
-TIA!
+ > > Also in drivers/char/drm/drm_agpsupport.h, the switch statement at 262 
+ > > is missing the
+ > > cases for INTEL_I830_M, INTEL_I845_G.
+ > That's true. It is also missing in 2.5.51.
+ > I attach two patches, one for 2.4.21-pre1 and one for 2.5.51 that should 
+ > fix this.
+ > diff -ru linux-2.5.51.clean/drivers/char/drm/drm_agpsupport.h linux-2.5.51/drivers/char/drm/drm_agpsupport.h
+ > --- linux-2.5.51.clean/drivers/char/drm/drm_agpsupport.h	Tue Dec 10 03:45:39 2002
+ > +++ linux-2.5.51/drivers/char/drm/drm_agpsupport.h	Wed Dec 11 12:55:08 2002
+ > @@ -271,10 +271,12 @@
+ >  #if LINUX_VERSION_CODE >= 0x02040f /* KERNEL_VERSION(2,4,15) */
+ >  	 	case INTEL_I820:	head->chipset = "Intel i820";	 break;
+ >  #endif
+ > +		case INTEL_I830_M:	head->chipset = "Intel i830M";	 break;
+ >  		case INTEL_I840:	head->chipset = "Intel i840";    break;
+ >  #if LINUX_VERSION_CODE >= 0x02040f /* KERNEL_VERSION(2,4,15) */
+ >  		case INTEL_I845:	head->chipset = "Intel i845";    break;
+ >  #endif
+ > +		case INTEL_I845:	head->chipset = "Intel i845G";	 break;
+ >  		case INTEL_I850:	head->chipset = "Intel i850";	 break;
+ >  		case INTEL_460GX:	head->chipset = "Intel 460GX";	 break;
 
-ciao, Marc
+DRI folks, this seems like duplication given that this data is available
+in agpgart. How about changing this to read whatever agpgart has set in
+.chipset_name ?
 
+Keeping these two lists in sync seems somewhat pointless.
 
+        Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

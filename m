@@ -1,66 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263784AbUHGRZf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263775AbUHGR1I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263784AbUHGRZf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 13:25:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263795AbUHGRZf
+	id S263775AbUHGR1I (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 13:27:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263772AbUHGR1I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 13:25:35 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:55031 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263784AbUHGRZb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 13:25:31 -0400
-Date: Sat, 7 Aug 2004 19:25:18 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Christoph Hellwig <hch@infradead.org>, wli@holomorphy.com,
-       davem@redhat.com, geert@linux-m68k.org, schwidefsky@de.ibm.com,
-       linux390@de.ibm.com, sparclinux@vger.kernel.org,
-       linux-m68k@lists.linux-m68k.org, linux-kernel@vger.kernel.org
-Subject: Re: architectures with their own "config PCMCIA"
-Message-ID: <20040807172518.GA25169@fs.tum.de>
-References: <20040807170122.GM17708@fs.tum.de> <20040807181051.A19250@infradead.org>
+	Sat, 7 Aug 2004 13:27:08 -0400
+Received: from c-67-171-146-69.client.comcast.net ([67.171.146.69]:13773 "EHLO
+	kryten.internal.splhi.com") by vger.kernel.org with ESMTP
+	id S263775AbUHGR04 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 13:26:56 -0400
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+From: Tim Wright <timw@splhi.com>
+To: Martin Mares <mj@ucw.cz>
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       James.Bottomley@steeleye.com, axboe@suse.de,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040807001427.GA10890@ucw.cz>
+References: <200408070001.i7701PSa006663@burner.fokus.fraunhofer.de>
+	 <20040807001427.GA10890@ucw.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Splhi
+Message-Id: <1091899593.20043.14.camel@kryten.internal.splhi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040807181051.A19250@infradead.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 07 Aug 2004 10:26:33 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 07, 2004 at 06:10:51PM +0100, Christoph Hellwig wrote:
-> On Sat, Aug 07, 2004 at 07:01:22PM +0200, Adrian Bunk wrote:
-> > The following architetures have their own "config PCMCIA" instead of 
-> > including drivers/pcmcia/Kconfig (in 2.6.8-rc3-mm1):
-> > - m68k
-> > - s390
-> > - sparc
-> > - sparc64
-> > 
-> > Is there any good reason for this, or would a patch to change these 
-> > architectures to include drivers/pcmcia/Kconfig be OK?
+On Fri, 2004-08-06 at 17:14, Martin Mares wrote:
+> Hello!
 > 
-> What about switching them to use drivers/Kconfig instead?
+> > I see always the same answers from Linux people who don't know anyrthing than
+> > their belly button :-(
+> > 
+> > Chek Solaris to see that your statements are wrong.
+> 
+> Well, so could you please enlighten the Linux people and say in a couple
+> of words how it could be done?
+> 
+> 				Have a nice fortnight
 
-drivers/Kconfig doesn't source drivers/pcmcia/Kconfig (and m68k 
-already uses drivers/Kconfig).
+I can offer reasons as to why it cannot :-)
 
+The path_to_inst stuff assumes a simple physical bus topology. It is
+completely unsuited to e.g. a fibre-channel fabric. It is also unsuited
+to iSCSI - my disks aren't attached to eth0, they're attached to
+whichever interface has a route to the server. It's also worthless for
+USB. The controller, bus and target are meaningless - the target number
+is dynamically assigned at plugin so giving a name to controller 0, bus
+0 target 3 is utterly pointless.
 
-But after a second look, I begin to understand a bit more:
-Most of the architectures in question even have help text for the PCMCIA 
-option, but the option itself isn't asked.
+Linux and/or associated drivers has mechanisms to handle consistent
+naming for a number of these (WWPN-binding for FC, similar device
+binding of the unique ids for iSCSI, the hotplug infrastructure for usb
+etc.). All of these map devices to consistent device names in /dev. The
+"Unix" way of accessing devices has always been via names in /dev. I
+completely fail to understand why Joerg wants to try to force a naming
+model that is both alien to the native systems (I want /dev/cdrw on
+Linux; I probably want D: on Windows or something like that), and is
+inadequate to the task if you move beyond the simple world of parallel
+SCSI.
 
-IOW: It's impossible to enable them.
-
-Is there eny reason for such options that are never visible nor enabled, 
-or could they be removed?
-
-
-cu
-Adrian
+Tim
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Tim Wright <timw@splhi.com>

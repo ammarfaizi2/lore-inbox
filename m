@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313083AbSDYLn5>; Thu, 25 Apr 2002 07:43:57 -0400
+	id <S313087AbSDYLxx>; Thu, 25 Apr 2002 07:53:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313087AbSDYLn4>; Thu, 25 Apr 2002 07:43:56 -0400
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:21679 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S313089AbSDYLnq>; Thu, 25 Apr 2002 07:43:46 -0400
-Message-ID: <3CC7EBC3.6030707@antefacto.com>
-Date: Thu, 25 Apr 2002 12:42:59 +0100
-From: Padraig Brady <padraig@antefacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
+	id <S313089AbSDYLxw>; Thu, 25 Apr 2002 07:53:52 -0400
+Received: from mx1-corp.corp.nl.home.com ([212.120.66.113]:1675 "EHLO
+	mx1-corp.corp.nl.home.com") by vger.kernel.org with ESMTP
+	id <S313087AbSDYLxv>; Thu, 25 Apr 2002 07:53:51 -0400
+From: Thomas Tonino <ttonino@corp.home.nl>
+To: linux-kernel@vger.kernel.org
+Message-ID: <3CC7EDC0.9080509@corp.home.nl>
+Date: Thu, 25 Apr 2002 13:51:28 +0200
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020416
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: ebuddington@wesleyan.edu
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Dissociating process from bin's filesystem
-In-Reply-To: <20020424224714.B19073@ma-northadams1b-46.bur.adelphia.net>
+Subject: Re: sard/iostat disk I/O statistics/accounting for 2.5.8-pre3
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm think this is not possible at the moment.
+Zlatko Calusic wrote:
 
-The file of the executing process is in use as the backing store for
-one or more live virtual memory areas, so changing it could
-corrupt the processes using those areas. Hence you can't umount.
-
-Now the Mach kernel has a MAP_COPY flag to the mmap system call
-which would do what you want, but this is mucho complex/messy,
-so don't hold your breath for a linux implementation.
-
-A related note on shared libraries is you don't get the
-"text file busy" message if you  update them while they're in use,
-like you do for executable files. The reason is MAP_DENYWRITE
-is ignored for security reasons. I think Eric Biederman has
-a workaround though?
-
-So in summary if you want a process to run independently of
-a filesystem, make it static and run it from a ramdisk.
-
-Padraig.
-
-Eric Buddington wrote:
-> Is there any way to dissociate a process from its on-disk binary?  In
-> other words, I want to start 'foo_daemon', then unmount the filesystem
-> it started from. It seems to me this would be reasonably accomplished
-> by loading the binary completely into memory first ro eliminate the
-> dependence.
+> All this gives Linux a much needed functionality - extensive
+> measurements and reporting of disk device performance/bottlenecks.
+> No server should be without it. See below for a real life story.
 > 
-> Is this possible, or planned? Are there intractable problems with it
-> that I don't see?
+> The patch, iostat utility and man page can be found at
 > 
-> Eric Buddington
+>  <URL:http://linux.inet.hr/> 
 
+This is very useful functionality. I'm currently looking at a similar 
+patch for the 2.4 series, taken from
+
+http://www.kernel.at/pub/linux/kernel/people/hch/patches/v2.4/2.4.18-pre4/
+
+which seems to work fine so far (with very limited testing). This patch 
+gives information that is really needed to maintain systems that 
+actually use their disks, such as mail, database and news servers.
+
+May I vote for inclusion in the mainline kernel, both 2.4 and 2.5? 
+Again, it is an important part of server maintainability.
+
+
+Thomas

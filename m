@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVCVMcJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbVCVMhg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbVCVMcJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 07:32:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbVCVMcJ
+	id S261173AbVCVMhg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 07:37:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbVCVMhd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 07:32:09 -0500
-Received: from ipx10786.ipxserver.de ([80.190.251.108]:38043 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S261174AbVCVMb4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 07:31:56 -0500
-Date: Tue, 22 Mar 2005 13:18:10 +0100
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Magnus Damm <magnus.damm@gmail.com>
-Cc: Magnus Damm <damm@opensource.se>, linux-kernel@vger.kernel.org
-Message-ID: <20050322121810.GB18889@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Magnus Damm <magnus.damm@gmail.com>,
-	Magnus Damm <damm@opensource.se>, linux-kernel@vger.kernel.org
-References: <20050321154226.19053.36781.35540@clementine.local> <20050322025104.GA18067@linuxtv.org> <aec7e5c3050322000677d5f22f@mail.gmail.com>
+	Tue, 22 Mar 2005 07:37:33 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:25788 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261173AbVCVMh1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 07:37:27 -0500
+Subject: Re: Fusion-MPT much faster as module
+From: Arjan van de Ven <arjan@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       "'Holger Kiehl'" <Holger.Kiehl@dwd.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org,
+       "Moore, Eric  Dean" <emoore@lsil.com>
+In-Reply-To: <20050322122801.GI3982@stusta.de>
+References: <200503221029.j2MATNg12775@unix-os.sc.intel.com>
+	 <1111488742.7096.61.camel@laptopd505.fenrus.org>
+	 <20050322122801.GI3982@stusta.de>
+Content-Type: text/plain
+Date: Tue, 22 Mar 2005 13:37:10 +0100
+Message-Id: <1111495030.7096.71.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aec7e5c3050322000677d5f22f@mail.gmail.com>
-User-Agent: Mutt/1.5.6+20040907i
-X-SA-Exim-Connect-IP: 217.231.45.50
-Subject: Re: [PATCH] dvb_frontend: MODULE_PARM_DESC
-X-SA-Exim-Version: 4.2 (built Tue, 25 Jan 2005 19:36:50 +0100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 22, 2005 at 09:06:29AM +0100, Magnus Damm wrote:
-> On Tue, 22 Mar 2005 03:51:04 +0100, Johannes Stezenbach <js@linuxtv.org> wrote:
-> > On Mon, Mar 21, 2005 at 05:10:27PM +0100, Magnus Damm wrote:
-> > > Remove "dvb_"-prefix from parameters. Without the patch all parameters except
-> > > the declaration of parameter "frontend_debug" have a "dvb_"-prefix.
-> > 
-> > Why is that dvb_ prefix a problem?
-> 
-> It is no biggie and probably not worth breaking users' configuration
-> like you said, but most drivers do not have their KBUILD_MODNAME
-> included in the parameter names.
-> 
-> Setting parameters that have KBUILD_MODNAME as prefix from the kernel
-> commandline is then done by KBUILD_MODNAME.KBUILD_MODNAME_xxx and that
-> is plain ugly - especially when a list of parameters are generated
-> from the source.
-> Some bad citizens IMO:
-> 
-> dvb.dvb_shutdown_timeout, asus.asus_gid, arlan.arlan_entry_debug
 
-I agree it's ugly. For now it's better not to touch them anyway.
+> 
+> And there are places where it's actually useful:
+> 
+>   #if defined(CONFIG_FOO) || (defined(MODULE) && defined(CONFIG_FOO_MODULE))
+> 
+> is a good way to express that driver bar can use functionality of driver 
+> foo if it's available.
 
-Johannes
+a good way? I'd disagree with that :)
+
+

@@ -1,1389 +1,590 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268121AbUHYSD4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268170AbUHYSJZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268121AbUHYSD4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 14:03:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268170AbUHYSD4
+	id S268170AbUHYSJZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 14:09:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268186AbUHYSJZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 14:03:56 -0400
-Received: from holomorphy.com ([207.189.100.168]:19086 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268121AbUHYSBy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 14:01:54 -0400
-Date: Wed, 25 Aug 2004 11:01:38 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: [1/2] convert linux/user.h users to asm/user.h
-Message-ID: <20040825180138.GA2793@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Rusty Russell <rusty@rustcorp.com.au>
-References: <20040819143907.GA4236@redhat.com> <20040819150632.GP11200@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040819150632.GP11200@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Wed, 25 Aug 2004 14:09:25 -0400
+Received: from web14930.mail.yahoo.com ([216.136.225.159]:54364 "HELO
+	web14930.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S268170AbUHYSGH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 14:06:07 -0400
+Message-ID: <20040825180607.10858.qmail@web14930.mail.yahoo.com>
+Date: Wed, 25 Aug 2004 11:06:06 -0700 (PDT)
+From: Jon Smirl <jonsmirl@yahoo.com>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+To: Greg KH <greg@kroah.com>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Martin Mares <mj@ucw.cz>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+In-Reply-To: <20040825174238.GA26714@kroah.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-1982334958-1093457166=:8372"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 19, 2004 at 03:39:07PM +0100, Dave Jones wrote:
->> I noticed that every file that could be built as a module was sucking
->> in sched.h (and therefore, every other include file under the sun).
->> This patch
->[... which bits got moved to more appropriate places...]
+--0-1982334958-1093457166=:8372
+Content-Type: text/plain; charset=us-ascii
+Content-Id: 
+Content-Disposition: inline
 
-On Thu, Aug 19, 2004 at 08:06:32AM -0700, William Lee Irwin III wrote:
-> sched.h is such an extreme garbage can header I wouldn't mind seeing the
-> whole thing torn completely apart. Every little trimming is good. =)
+Final version, I hope, includes short decription and Signed-off-by at
+top of patch.
 
-I hereby declare open season on linux/sched.h!
+--- Greg KH <greg@kroah.com> wrote:
 
-In preparation for moving all user-related bits out of sched.h and
-coopting linux/user.h for this purpose, this patch converts all
-inclusions of linux/user.h to asm/user.h
+> On Wed, Aug 25, 2004 at 10:32:41AM -0700, Jon Smirl wrote:
+> > No functional changes from previous version. I fixed the braces and
+> > diff'd it against 2.6.8.1-mm4. 
+> > 
+> > Where does "Signed-off-by:" go in a patch? Jesse and I added a
+> > copyright  statement.
+> 
+> Please read Documentation/SubmittingPatches for details on this.  It
+> should just go into the description of what the patch does, that I
+> need
+> in order to provide a good changelog entry for the patch.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-The #error in linux/user.h is blown away by the successor to this
-patch, which fills it in with user-related bits split off from sched.h.
+=====
+Jon Smirl
+jonsmirl@yahoo.com
 
-vs. 2.6.8.1-mm4
 
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail Address AutoComplete - You start. We finish.
+http://promotions.yahoo.com/new_mail 
+--0-1982334958-1093457166=:8372
+Content-Type: text/x-patch; name="pci-sysfs-rom-17-mm.patch"
+Content-Description: pci-sysfs-rom-17-mm.patch
+Content-Disposition: inline; filename="pci-sysfs-rom-17-mm.patch"
 
-Index: mm4-2.6.8.1/arch/alpha/kernel/alpha_ksyms.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/alpha/kernel/alpha_ksyms.c	2004-08-25 09:53:58.804142696 -0700
-+++ mm4-2.6.8.1/arch/alpha/kernel/alpha_ksyms.c	2004-08-25 09:54:39.877898536 -0700
-@@ -8,7 +8,6 @@
- #include <linux/config.h>
- #include <linux/module.h>
- #include <linux/string.h>
--#include <linux/user.h>
- #include <linux/elfcore.h>
- #include <linux/socket.h>
- #include <linux/syscalls.h>
-Index: mm4-2.6.8.1/arch/alpha/kernel/osf_sys.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/alpha/kernel/osf_sys.c	2004-08-25 09:53:58.816140872 -0700
-+++ mm4-2.6.8.1/arch/alpha/kernel/osf_sys.c	2004-08-25 09:54:39.878898384 -0700
-@@ -21,7 +21,6 @@
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/utsname.h>
- #include <linux/time.h>
-@@ -38,6 +37,7 @@
- #include <linux/uio.h>
- #include <linux/vfs.h>
+Exposes PCI ROMs via sysfs. Four new routine for drivers to use when 
+accessing ROMs: pci_map_rom, pci_map_rom_copy, pci_unmap_rom, pci_remove_rom. 
+Handles shadow ROMs for laptops that compress actual ROMs.
+
+Signed-off-by: "Jon Smirl" <jonsmirl@yahoo.com>
+
+diff -Nru a/arch/i386/pci/fixup.c b/arch/i386/pci/fixup.c
+--- a/arch/i386/pci/fixup.c	Wed Aug 25 13:56:18 2004
++++ b/arch/i386/pci/fixup.c	Wed Aug 25 13:56:18 2004
+@@ -255,3 +255,41 @@
+ }
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE2, pci_fixup_nforce2);
  
-+#include <asm/user.h>
- #include <asm/fpu.h>
- #include <asm/io.h>
++/*
++ * Fixup to mark boot BIOS video selected by BIOS before it changes
++ *
++ * From information provided by "Jon Smirl" <jonsmirl@yahoo.com>
++ *
++ * The standard boot ROM sequence for an x86 machine uses the BIOS
++ * to select an initial video card for boot display. This boot video 
++ * card will have it's BIOS copied to C0000 in system RAM. 
++ * IORESOURCE_ROM_SHADOW is used to associate the boot video
++ * card with this copy. On laptops this copy has to be used since
++ * the main ROM may be compressed or combined with another image.
++ * See pci_map_rom() for use of this flag. IORESOURCE_ROM_SHADOW
++ * is marked here since the boot video device will be the only enabled
++ * video device at this point.
++ *
++ */static void __devinit pci_fixup_video(struct pci_dev *pdev)
++{
++	struct pci_dev *bridge;
++	struct pci_bus *bus;
++	u16 l;
++
++	if ((pdev->class >> 8) != PCI_CLASS_DISPLAY_VGA)
++		return;
++
++	/* Is VGA routed to us? */
++	bus = pdev->bus;
++	while (bus) {
++		bridge = bus->self;
++		if (bridge) {
++			pci_read_config_word(bridge, PCI_BRIDGE_CONTROL, &l);
++			if (!(l & PCI_BRIDGE_CTL_VGA))
++				return;
++		}
++		bus = bus->parent;
++	}
++	pdev->resource[PCI_ROM_RESOURCE].flags |= IORESOURCE_ROM_SHADOW;
++}
++DECLARE_PCI_FIXUP_HEADER(PCI_ANY_ID, PCI_ANY_ID, pci_fixup_video);
+diff -Nru a/drivers/pci/bus.c b/drivers/pci/bus.c
+--- a/drivers/pci/bus.c	Wed Aug 25 13:56:18 2004
++++ b/drivers/pci/bus.c	Wed Aug 25 13:56:18 2004
+@@ -97,10 +97,6 @@
+ 		spin_lock(&pci_bus_lock);
+ 		list_add_tail(&dev->global_list, &pci_devices);
+ 		spin_unlock(&pci_bus_lock);
+-
+-		pci_proc_attach_device(dev);
+-		pci_create_sysfs_dev_files(dev);
+-
+ 	}
+ 
+ 	list_for_each_entry(dev, &bus->devices, bus_list) {
+diff -Nru a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
+--- a/drivers/pci/pci-sysfs.c	Wed Aug 25 13:56:18 2004
++++ b/drivers/pci/pci-sysfs.c	Wed Aug 25 13:56:18 2004
+@@ -5,6 +5,8 @@
+  * (C) Copyright 2002-2004 IBM Corp.
+  * (C) Copyright 2003 Matthew Wilcox
+  * (C) Copyright 2003 Hewlett-Packard
++ * (C) Copyright 2004 Jon Smirl <jonsmirl@yahoo.com>
++ * (C) Copyright 2004 Silicon Graphics, Inc. Jesse Barnes <jbarnes@sgi.com>
+  *
+  * File attributes for PCI devices
+  *
+@@ -164,6 +166,220 @@
+ 	return count;
+ }
+ 
++/**
++ * pci_enable_rom - enable ROM decoding for a PCI device
++ * @dev: PCI device to enable
++ *
++ * Enable ROM decoding on @dev.  This involves simply turning on the last
++ * bit of the PCI ROM BAR.  Note that some cards may share address decoders
++ * between the ROM and other resources, so enabling it may disable access
++ * to MMIO registers or other card memory.
++ */
++static void
++pci_enable_rom(struct pci_dev *pdev)
++{
++	u32 rom_addr;
++	
++	pci_read_config_dword(pdev, pdev->rom_base_reg, &rom_addr);
++	rom_addr |= PCI_ROM_ADDRESS_ENABLE;
++	pci_write_config_dword(pdev, pdev->rom_base_reg, rom_addr);
++}
++
++/**
++ * pci_disable_rom - disable ROM decoding for a PCI device
++ * @dev: PCI device to disable
++ *
++ * Disable ROM decoding on a PCI device by turning off the last bit in the
++ * ROM BAR.
++ */
++static void
++pci_disable_rom(struct pci_dev *pdev)
++{
++	u32 rom_addr;
++	pci_read_config_dword(pdev, pdev->rom_base_reg, &rom_addr);
++	rom_addr &= ~PCI_ROM_ADDRESS_ENABLE;
++	pci_write_config_dword(pdev, pdev->rom_base_reg, rom_addr);
++}
++
++/**
++ * pci_map_rom - map a PCI ROM to kernel space
++ * @dev: pointer to pci device struct
++ * @size: pointer to receive size of pci window over ROM
++ * @return: kernel virtual pointer to image of ROM
++ *
++ * Map a PCI ROM into kernel space. If ROM is boot video ROM,
++ * the shadow BIOS copy will be returned instead of the 
++ * actual ROM.
++ */
++unsigned char *
++pci_map_rom(struct pci_dev *pdev, size_t *size)
++{
++	struct resource *res = &pdev->resource[PCI_ROM_RESOURCE];
++	loff_t start;
++	unsigned char *rom;
++	
++	if (res->flags & IORESOURCE_ROM_SHADOW) {	/* IORESOURCE_ROM_SHADOW only set on x86 */
++		start = (loff_t)0xC0000; 	/* primary video rom always starts here */
++		*size = 0x20000;		/* cover C000:0 through E000:0 */
++	} else {
++		if (res->flags & IORESOURCE_ROM_COPY) {
++			*size = pci_resource_len(pdev, PCI_ROM_RESOURCE);
++			return (unsigned char *)pci_resource_start(pdev, PCI_ROM_RESOURCE);
++		} else {
++			/* assign the ROM an address if it doesn't have one */
++			if (res->parent == NULL)
++				pci_assign_resource(pdev, PCI_ROM_RESOURCE);
++	
++			start = pci_resource_start(pdev, PCI_ROM_RESOURCE);
++			*size = pci_resource_len(pdev, PCI_ROM_RESOURCE);
++			if (*size == 0)
++				return NULL;
++			
++			/* Enable ROM space decodes */
++			pci_enable_rom(pdev);
++		}
++	}
++	
++	rom = ioremap(start, *size);
++	if (!rom) {
++		/* restore enable if ioremap fails */
++		if (!(res->flags & (IORESOURCE_ROM_ENABLE | IORESOURCE_ROM_SHADOW | IORESOURCE_ROM_COPY)))
++			pci_disable_rom(pdev);
++		return NULL;
++	}		
++	/* Standard PCI ROMs start out with these three bytes 55 AA size/512 */
++	if ((*rom == 0x55) && (*(rom + 1) == 0xAA))
++		*size = *(rom + 2) * 512;	/* return true ROM size, not PCI window size */
++		
++	return rom;
++}
++
++/**
++ * pci_map_rom_copy - map a PCI ROM to kernel space, create a copy
++ * @dev: pointer to pci device struct
++ * @size: pointer to receive size of pci window over ROM
++ * @return: kernel virtual pointer to image of ROM
++ *
++ * Map a PCI ROM into kernel space. If ROM is boot video ROM,
++ * the shadow BIOS copy will be returned instead of the 
++ * actual ROM.
++ */
++unsigned char *
++pci_map_rom_copy(struct pci_dev *pdev, size_t *size)
++{
++	struct resource *res = &pdev->resource[PCI_ROM_RESOURCE];
++	unsigned char *rom;
++	
++	rom = pci_map_rom(pdev, size);
++	if (!rom)
++		return NULL;
++		
++	if (res->flags & (IORESOURCE_ROM_COPY | IORESOURCE_ROM_SHADOW))
++		return rom;
++		
++	res->start = (unsigned long)kmalloc(*size, GFP_KERNEL);
++	if (!res->start) 
++		return rom;
++
++	res->end = res->start + *size; 
++	memcpy((void*)res->start, rom, *size);
++	pci_unmap_rom(pdev, rom);
++	res->flags |= IORESOURCE_ROM_COPY;
++	
++	return (unsigned char *)res->start;
++}
++
++/**
++ * pci_unmap_rom - unmap the ROM from kernel space
++ * @dev: pointer to pci device struct
++ * @rom: virtual address of the previous mapping
++ *
++ * Remove a mapping of a previously mapped ROM
++ */
++void 
++pci_unmap_rom(struct pci_dev *pdev, unsigned char *rom)
++{
++	struct resource *res = &pdev->resource[PCI_ROM_RESOURCE];
++
++	if (res->flags & IORESOURCE_ROM_COPY)
++		return;
++		
++	iounmap(rom);
++		
++	/* Disable again before continuing, leave enabled if pci=rom */
++	if (!(res->flags & (IORESOURCE_ROM_ENABLE | IORESOURCE_ROM_SHADOW)))
++		pci_disable_rom(pdev);
++}
++
++static struct bin_attribute rom_attr;
++
++/**
++ * pci_remove_rom - disable the ROM and remove it's sysfs attribute
++ * @dev: pointer to pci device struct
++ *
++ */
++void 
++pci_remove_rom(struct pci_dev *pdev) 
++{
++	struct resource *res = &pdev->resource[PCI_ROM_RESOURCE];
++	
++	if (pci_resource_len(pdev, PCI_ROM_RESOURCE))
++		sysfs_remove_bin_file(&pdev->dev.kobj, &rom_attr);
++	if (!(res->flags & (IORESOURCE_ROM_ENABLE | IORESOURCE_ROM_SHADOW | IORESOURCE_ROM_COPY)))
++		pci_disable_rom(pdev);
++}
++
++/**
++ * pci_remove_rom - disable the ROM and remove it's sysfs attribute
++ * @dev: pointer to pci device struct
++ *
++ */
++void 
++pci_cleanup_rom(struct pci_dev *pdev) 
++{
++	struct resource *res = &pdev->resource[PCI_ROM_RESOURCE];
++	if (res->flags & IORESOURCE_ROM_COPY) {
++		kfree((void*)res->start);
++		res->flags &= ~IORESOURCE_ROM_COPY;
++		res->start = 0;
++		res->end = 0;
++	}
++}
++
++/**
++ * pci_read_rom - read a PCI ROM
++ * @kobj: kernel object handle
++ * @buf: where to put the data we read from the ROM
++ * @off: file offset
++ * @count: number of bytes to read
++ *
++ * Put @count bytes starting at @off into @buf from the ROM in the PCI
++ * device corresponding to @kobj.
++ */
++static ssize_t
++pci_read_rom(struct kobject *kobj, char *buf, loff_t off, size_t count)
++{
++	struct pci_dev *pdev = to_pci_dev(container_of(kobj, struct device, kobj));
++	unsigned char *rom;
++	size_t size;
++	
++	rom = pci_map_rom(pdev, &size);	/* size starts out as PCI window size */
++	if (!rom)
++		return 0;
++		
++	if (off >= size)
++		count = 0;
++	else {
++		if (off + count > size)
++			count = size - off;
++		
++		memcpy_fromio(buf, rom + off, count);
++	}
++	pci_unmap_rom(pdev, rom);
++		
++	return count;
++}
++
+ static struct bin_attribute pci_config_attr = {
+ 	.attr =	{
+ 		.name = "config",
+@@ -192,7 +408,60 @@
+ 		sysfs_create_bin_file(&pdev->dev.kobj, &pci_config_attr);
+ 	else
+ 		sysfs_create_bin_file(&pdev->dev.kobj, &pcie_config_attr);
+-
++		
++	/* If the device has a ROM, try to expose it in sysfs. */
++	if (pci_resource_len(pdev, PCI_ROM_RESOURCE)) {
++		struct bin_attribute *rom_attr;
++		
++		rom_attr = kmalloc(sizeof(*rom_attr), GFP_ATOMIC);
++		if (rom_attr) {
++			pdev->rom_attr = rom_attr;
++			rom_attr->size = pci_resource_len(pdev, PCI_ROM_RESOURCE);
++			rom_attr->attr.name = "rom";
++			rom_attr->attr.mode = S_IRUSR;
++			rom_attr->attr.owner = THIS_MODULE;
++			rom_attr->read = pci_read_rom;
++			sysfs_create_bin_file(&pdev->dev.kobj, rom_attr);
++		}
++	}
+ 	/* add platform-specific attributes */
+ 	pcibios_add_platform_entries(pdev);
+ }
++
++/**
++ * pci_remove_sysfs_dev_files - cleanup PCI specific sysfs files
++ * @pdev: device whose entries we should free
++ *
++ * Cleanup when @pdev is removed from sysfs.
++ */
++void pci_remove_sysfs_dev_files(struct pci_dev *pdev)
++{
++	if (pdev->cfg_size < 4096)
++		sysfs_remove_bin_file(&pdev->dev.kobj, &pci_config_attr);
++	else
++		sysfs_remove_bin_file(&pdev->dev.kobj, &pcie_config_attr);
++
++	if (pci_resource_len(pdev, PCI_ROM_RESOURCE)) {
++		if (pdev->rom_attr) {
++			sysfs_remove_bin_file(&pdev->dev.kobj, pdev->rom_attr);
++			kfree(pdev->rom_attr);
++		}
++	}
++}
++
++static int __init pci_sysfs_init(void)
++{
++	struct pci_dev *pdev = NULL;
++	
++	while ((pdev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, pdev)) != NULL)
++		pci_create_sysfs_dev_files(pdev);
++
++	return 0;
++}
++
++__initcall(pci_sysfs_init);
++
++EXPORT_SYMBOL(pci_map_rom);
++EXPORT_SYMBOL(pci_map_rom_copy);
++EXPORT_SYMBOL(pci_unmap_rom);
++EXPORT_SYMBOL(pci_remove_rom);
+diff -Nru a/drivers/pci/pci.h b/drivers/pci/pci.h
+--- a/drivers/pci/pci.h	Wed Aug 25 13:56:18 2004
++++ b/drivers/pci/pci.h	Wed Aug 25 13:56:18 2004
+@@ -3,6 +3,8 @@
+ extern int pci_hotplug (struct device *dev, char **envp, int num_envp,
+ 			 char *buffer, int buffer_size);
+ extern void pci_create_sysfs_dev_files(struct pci_dev *pdev);
++extern void pci_remove_sysfs_dev_files(struct pci_dev *pdev);
++void pci_cleanup_rom(struct pci_dev *dev);
+ extern int pci_bus_alloc_resource(struct pci_bus *bus, struct resource *res,
+ 				  unsigned long size, unsigned long align,
+ 				  unsigned long min, unsigned int type_mask,
+diff -Nru a/drivers/pci/probe.c b/drivers/pci/probe.c
+--- a/drivers/pci/probe.c	Wed Aug 25 13:56:18 2004
++++ b/drivers/pci/probe.c	Wed Aug 25 13:56:18 2004
+@@ -170,7 +170,7 @@
+ 		if (sz && sz != 0xffffffff) {
+ 			sz = pci_size(l, sz, PCI_ROM_ADDRESS_MASK);
+ 			if (sz) {
+-				res->flags = (l & PCI_ROM_ADDRESS_ENABLE) |
++				res->flags = (l & IORESOURCE_ROM_ENABLE) |
+ 				  IORESOURCE_MEM | IORESOURCE_PREFETCH |
+ 				  IORESOURCE_READONLY | IORESOURCE_CACHEABLE;
+ 				res->start = l & PCI_ROM_ADDRESS_MASK;
+diff -Nru a/drivers/pci/proc.c b/drivers/pci/proc.c
+--- a/drivers/pci/proc.c	Wed Aug 25 13:56:18 2004
++++ b/drivers/pci/proc.c	Wed Aug 25 13:56:18 2004
+@@ -16,7 +16,6 @@
  #include <asm/uaccess.h>
-Index: mm4-2.6.8.1/arch/alpha/kernel/process.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/alpha/kernel/process.c	2004-08-25 09:53:58.817140720 -0700
-+++ mm4-2.6.8.1/arch/alpha/kernel/process.c	2004-08-25 09:54:39.878898384 -0700
-@@ -20,7 +20,6 @@
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/utsname.h>
- #include <linux/time.h>
-Index: mm4-2.6.8.1/arch/alpha/kernel/ptrace.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/alpha/kernel/ptrace.c	2004-08-25 09:53:58.817140720 -0700
-+++ mm4-2.6.8.1/arch/alpha/kernel/ptrace.c	2004-08-25 09:54:39.878898384 -0700
-@@ -11,10 +11,10 @@
- #include <linux/smp_lock.h>
- #include <linux/errno.h>
- #include <linux/ptrace.h>
--#include <linux/user.h>
- #include <linux/slab.h>
- #include <linux/security.h>
- 
-+#include <asm/user.h>
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
- #include <asm/system.h>
-Index: mm4-2.6.8.1/arch/alpha/kernel/setup.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/alpha/kernel/setup.c	2004-08-25 09:53:58.817140720 -0700
-+++ mm4-2.6.8.1/arch/alpha/kernel/setup.c	2004-08-25 09:54:39.879898232 -0700
-@@ -17,7 +17,6 @@
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/tty.h>
- #include <linux/delay.h>
-@@ -39,6 +38,7 @@
- #include <linux/reboot.h>
- #endif
- #include <linux/notifier.h>
-+#include <asm/user.h>
- #include <asm/setup.h>
- #include <asm/io.h>
- 
-Index: mm4-2.6.8.1/arch/arm/kernel/process.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/arm/kernel/process.c	2004-08-23 16:10:52.000000000 -0700
-+++ mm4-2.6.8.1/arch/arm/kernel/process.c	2004-08-25 09:55:32.414911696 -0700
-@@ -19,7 +19,6 @@
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/delay.h>
- #include <linux/reboot.h>
-@@ -27,6 +26,7 @@
- #include <linux/kallsyms.h>
- #include <linux/init.h>
- 
-+#include <asm/user.h>
- #include <asm/system.h>
- #include <asm/io.h>
- #include <asm/leds.h>
-Index: mm4-2.6.8.1/arch/arm/kernel/ptrace.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/arm/kernel/ptrace.c	2004-08-23 16:11:18.000000000 -0700
-+++ mm4-2.6.8.1/arch/arm/kernel/ptrace.c	2004-08-25 09:55:43.379244864 -0700
-@@ -15,10 +15,10 @@
- #include <linux/smp.h>
- #include <linux/smp_lock.h>
- #include <linux/ptrace.h>
--#include <linux/user.h>
- #include <linux/security.h>
- #include <linux/init.h>
- 
-+#include <asm/user.h>
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
- #include <asm/system.h>
-Index: mm4-2.6.8.1/arch/arm26/kernel/armksyms.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/arm26/kernel/armksyms.c	2004-08-14 03:55:19.000000000 -0700
-+++ mm4-2.6.8.1/arch/arm26/kernel/armksyms.c	2004-08-25 09:55:21.754532320 -0700
-@@ -9,7 +9,6 @@
-  */
- #include <linux/config.h>
- #include <linux/module.h>
--#include <linux/user.h>
- #include <linux/string.h>
- #include <linux/fs.h>
- #include <linux/mm.h>
-@@ -23,6 +22,7 @@
- #include <linux/smp_lock.h>
- #include <linux/syscalls.h>
- 
-+#include <asm/user.h>
  #include <asm/byteorder.h>
- #include <asm/elf.h>
- #include <asm/io.h>
-Index: mm4-2.6.8.1/arch/arm26/kernel/process.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/arm26/kernel/process.c	2004-08-25 09:53:58.817140720 -0700
-+++ mm4-2.6.8.1/arch/arm26/kernel/process.c	2004-08-25 09:54:39.879898232 -0700
-@@ -20,13 +20,13 @@
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/delay.h>
- #include <linux/reboot.h>
- #include <linux/interrupt.h>
- #include <linux/init.h>
  
-+#include <asm/user.h>
- #include <asm/system.h>
- #include <asm/io.h>
- #include <asm/leds.h>
-Index: mm4-2.6.8.1/arch/arm26/kernel/ptrace.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/arm26/kernel/ptrace.c	2004-08-25 09:53:58.817140720 -0700
-+++ mm4-2.6.8.1/arch/arm26/kernel/ptrace.c	2004-08-25 09:54:39.879898232 -0700
-@@ -16,9 +16,9 @@
- #include <linux/smp.h>
- #include <linux/smp_lock.h>
- #include <linux/ptrace.h>
--#include <linux/user.h>
- #include <linux/security.h>
+-static int proc_initialized;	/* = 0 */
  
-+#include <asm/user.h>
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
- #include <asm/system.h>
-Index: mm4-2.6.8.1/arch/cris/arch-v10/kernel/ptrace.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/cris/arch-v10/kernel/ptrace.c	2004-08-25 09:53:58.817140720 -0700
-+++ mm4-2.6.8.1/arch/cris/arch-v10/kernel/ptrace.c	2004-08-25 09:54:39.879898232 -0700
-@@ -9,8 +9,8 @@
- #include <linux/smp_lock.h>
- #include <linux/errno.h>
- #include <linux/ptrace.h>
--#include <linux/user.h>
+ static loff_t
+ proc_bus_pci_lseek(struct file *file, loff_t off, int whence)
+@@ -387,9 +386,6 @@
+ 	struct proc_dir_entry *de, *e;
+ 	char name[16];
  
-+#include <asm/user.h>
- #include <asm/uaccess.h>
- #include <asm/page.h>
- #include <asm/pgtable.h>
-Index: mm4-2.6.8.1/arch/cris/kernel/crisksyms.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/cris/kernel/crisksyms.c	2004-08-14 03:55:48.000000000 -0700
-+++ mm4-2.6.8.1/arch/cris/kernel/crisksyms.c	2004-08-25 09:58:33.753344064 -0700
-@@ -1,6 +1,5 @@
- #include <linux/config.h>
- #include <linux/module.h>
--#include <linux/user.h>
- #include <linux/elfcore.h>
- #include <linux/sched.h>
- #include <linux/in6.h>
-Index: mm4-2.6.8.1/arch/cris/kernel/process.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/cris/kernel/process.c	2004-08-25 09:53:58.818140568 -0700
-+++ mm4-2.6.8.1/arch/cris/kernel/process.c	2004-08-25 09:54:39.880898080 -0700
-@@ -110,7 +110,6 @@
- #include <linux/init_task.h>
- #include <linux/sched.h>
- #include <linux/fs.h>
--#include <linux/user.h>
- #include <linux/elfcore.h>
- #include <linux/mqueue.h>
- 
-Index: mm4-2.6.8.1/arch/cris/kernel/ptrace.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/cris/kernel/ptrace.c	2004-08-25 09:53:58.818140568 -0700
-+++ mm4-2.6.8.1/arch/cris/kernel/ptrace.c	2004-08-25 09:54:39.880898080 -0700
-@@ -64,8 +64,8 @@
- #include <linux/smp_lock.h>
- #include <linux/errno.h>
- #include <linux/ptrace.h>
--#include <linux/user.h>
- 
-+#include <asm/user.h>
- #include <asm/uaccess.h>
- #include <asm/page.h>
- #include <asm/pgtable.h>
-Index: mm4-2.6.8.1/arch/h8300/kernel/h8300_ksyms.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/h8300/kernel/h8300_ksyms.c	2004-08-25 09:53:58.818140568 -0700
-+++ mm4-2.6.8.1/arch/h8300/kernel/h8300_ksyms.c	2004-08-25 09:54:39.880898080 -0700
-@@ -3,7 +3,6 @@
- #include <linux/sched.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/user.h>
- #include <linux/elfcore.h>
- #include <linux/in6.h>
- #include <linux/interrupt.h>
-Index: mm4-2.6.8.1/arch/h8300/kernel/process.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/h8300/kernel/process.c	2004-08-25 09:53:58.818140568 -0700
-+++ mm4-2.6.8.1/arch/h8300/kernel/process.c	2004-08-25 09:54:39.880898080 -0700
-@@ -34,11 +34,11 @@
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/interrupt.h>
- #include <linux/reboot.h>
- 
-+#include <asm/user.h>
- #include <asm/uaccess.h>
- #include <asm/system.h>
- #include <asm/traps.h>
-Index: mm4-2.6.8.1/arch/h8300/kernel/ptrace.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/h8300/kernel/ptrace.c	2004-08-25 09:53:58.818140568 -0700
-+++ mm4-2.6.8.1/arch/h8300/kernel/ptrace.c	2004-08-25 09:54:39.881897928 -0700
-@@ -22,9 +22,9 @@
- #include <linux/smp_lock.h>
- #include <linux/errno.h>
- #include <linux/ptrace.h>
--#include <linux/user.h>
- #include <linux/config.h>
- 
-+#include <asm/user.h>
- #include <asm/uaccess.h>
- #include <asm/page.h>
- #include <asm/pgtable.h>
-Index: mm4-2.6.8.1/arch/i386/kernel/i386_ksyms.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/i386/kernel/i386_ksyms.c	2004-08-23 16:10:55.000000000 -0700
-+++ mm4-2.6.8.1/arch/i386/kernel/i386_ksyms.c	2004-08-25 09:55:50.992087536 -0700
-@@ -1,7 +1,6 @@
- #include <linux/config.h>
- #include <linux/module.h>
- #include <linux/smp.h>
--#include <linux/user.h>
- #include <linux/elfcore.h>
- #include <linux/mca.h>
- #include <linux/sched.h>
-Index: mm4-2.6.8.1/arch/i386/kernel/process.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/i386/kernel/process.c	2004-08-25 09:53:58.818140568 -0700
-+++ mm4-2.6.8.1/arch/i386/kernel/process.c	2004-08-25 09:54:39.881897928 -0700
-@@ -25,7 +25,6 @@
- #include <linux/stddef.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/interrupt.h>
- #include <linux/config.h>
-@@ -39,6 +38,7 @@
- #include <linux/kallsyms.h>
- #include <linux/ptrace.h>
- 
-+#include <asm/user.h>
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
- #include <asm/system.h>
-Index: mm4-2.6.8.1/arch/i386/kernel/ptrace.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/i386/kernel/ptrace.c	2004-08-25 09:53:58.818140568 -0700
-+++ mm4-2.6.8.1/arch/i386/kernel/ptrace.c	2004-08-25 09:54:39.881897928 -0700
-@@ -12,10 +12,10 @@
- #include <linux/smp_lock.h>
- #include <linux/errno.h>
- #include <linux/ptrace.h>
--#include <linux/user.h>
- #include <linux/security.h>
- #include <linux/audit.h>
- 
-+#include <asm/user.h>
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
- #include <asm/system.h>
-Index: mm4-2.6.8.1/arch/ia64/kernel/ptrace.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/ia64/kernel/ptrace.c	2004-08-25 09:53:58.819140416 -0700
-+++ mm4-2.6.8.1/arch/ia64/kernel/ptrace.c	2004-08-25 09:54:39.882897776 -0700
-@@ -15,9 +15,9 @@
- #include <linux/errno.h>
- #include <linux/ptrace.h>
- #include <linux/smp_lock.h>
--#include <linux/user.h>
- #include <linux/security.h>
- 
-+#include <asm/user.h>
- #include <asm/pgtable.h>
- #include <asm/processor.h>
- #include <asm/ptrace_offsets.h>
-Index: mm4-2.6.8.1/arch/m68k/kernel/m68k_ksyms.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/m68k/kernel/m68k_ksyms.c	2004-08-25 09:53:58.819140416 -0700
-+++ mm4-2.6.8.1/arch/m68k/kernel/m68k_ksyms.c	2004-08-25 09:54:39.882897776 -0700
-@@ -3,7 +3,6 @@
- #include <linux/sched.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/user.h>
- #include <linux/elfcore.h>
- #include <linux/in6.h>
- #include <linux/interrupt.h>
-Index: mm4-2.6.8.1/arch/m68k/kernel/process.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/m68k/kernel/process.c	2004-08-25 09:53:58.819140416 -0700
-+++ mm4-2.6.8.1/arch/m68k/kernel/process.c	2004-08-25 09:54:39.882897776 -0700
-@@ -22,12 +22,12 @@
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/reboot.h>
- #include <linux/init_task.h>
- #include <linux/mqueue.h>
- 
-+#include <asm/user.h>
- #include <asm/uaccess.h>
- #include <asm/system.h>
- #include <asm/traps.h>
-Index: mm4-2.6.8.1/arch/m68k/kernel/ptrace.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/m68k/kernel/ptrace.c	2004-08-25 09:53:58.819140416 -0700
-+++ mm4-2.6.8.1/arch/m68k/kernel/ptrace.c	2004-08-25 09:54:39.882897776 -0700
-@@ -17,9 +17,9 @@
- #include <linux/smp_lock.h>
- #include <linux/errno.h>
- #include <linux/ptrace.h>
--#include <linux/user.h>
- #include <linux/config.h>
- 
-+#include <asm/user.h>
- #include <asm/uaccess.h>
- #include <asm/page.h>
- #include <asm/pgtable.h>
-Index: mm4-2.6.8.1/arch/m68k/kernel/traps.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/m68k/kernel/traps.c	2004-08-25 09:53:58.819140416 -0700
-+++ mm4-2.6.8.1/arch/m68k/kernel/traps.c	2004-08-25 09:54:39.883897624 -0700
-@@ -25,13 +25,13 @@
- #include <linux/mm.h>
- #include <linux/module.h>
- #include <linux/a.out.h>
--#include <linux/user.h>
- #include <linux/string.h>
- #include <linux/linkage.h>
- #include <linux/init.h>
- #include <linux/ptrace.h>
- #include <linux/kallsyms.h>
- 
-+#include <asm/user.h>
- #include <asm/setup.h>
- #include <asm/fpu.h>
- #include <asm/system.h>
-Index: mm4-2.6.8.1/arch/m68knommu/kernel/m68k_ksyms.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/m68knommu/kernel/m68k_ksyms.c	2004-08-25 09:53:58.819140416 -0700
-+++ mm4-2.6.8.1/arch/m68knommu/kernel/m68k_ksyms.c	2004-08-25 09:54:39.883897624 -0700
-@@ -3,7 +3,6 @@
- #include <linux/sched.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/user.h>
- #include <linux/elfcore.h>
- #include <linux/in6.h>
- #include <linux/interrupt.h>
-Index: mm4-2.6.8.1/arch/m68knommu/kernel/process.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/m68knommu/kernel/process.c	2004-08-25 09:53:58.820140264 -0700
-+++ mm4-2.6.8.1/arch/m68knommu/kernel/process.c	2004-08-25 09:54:39.883897624 -0700
-@@ -25,11 +25,11 @@
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/interrupt.h>
- #include <linux/reboot.h>
- 
-+#include <asm/user.h>
- #include <asm/uaccess.h>
- #include <asm/system.h>
- #include <asm/traps.h>
-Index: mm4-2.6.8.1/arch/m68knommu/kernel/ptrace.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/m68knommu/kernel/ptrace.c	2004-08-25 09:53:58.820140264 -0700
-+++ mm4-2.6.8.1/arch/m68knommu/kernel/ptrace.c	2004-08-25 09:54:39.884897472 -0700
-@@ -17,9 +17,9 @@
- #include <linux/smp_lock.h>
- #include <linux/errno.h>
- #include <linux/ptrace.h>
--#include <linux/user.h>
- #include <linux/config.h>
- 
-+#include <asm/user.h>
- #include <asm/uaccess.h>
- #include <asm/page.h>
- #include <asm/pgtable.h>
-Index: mm4-2.6.8.1/arch/m68knommu/kernel/traps.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/m68knommu/kernel/traps.c	2004-08-25 09:53:58.820140264 -0700
-+++ mm4-2.6.8.1/arch/m68knommu/kernel/traps.c	2004-08-25 09:54:39.884897472 -0700
-@@ -23,12 +23,12 @@
- #include <linux/mm.h>
- #include <linux/types.h>
- #include <linux/a.out.h>
--#include <linux/user.h>
- #include <linux/string.h>
- #include <linux/linkage.h>
- #include <linux/init.h>
- #include <linux/ptrace.h>
- 
-+#include <asm/user.h>
- #include <asm/setup.h>
- #include <asm/fpu.h>
- #include <asm/system.h>
-Index: mm4-2.6.8.1/arch/mips/kernel/process.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/mips/kernel/process.c	2004-08-25 09:53:58.820140264 -0700
-+++ mm4-2.6.8.1/arch/mips/kernel/process.c	2004-08-25 09:54:39.884897472 -0700
-@@ -19,11 +19,11 @@
- #include <linux/mman.h>
- #include <linux/personality.h>
- #include <linux/sys.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/init.h>
- #include <linux/completion.h>
- 
-+#include <asm/user.h>
- #include <asm/bootinfo.h>
- #include <asm/cpu.h>
- #include <asm/fpu.h>
-Index: mm4-2.6.8.1/arch/mips/kernel/ptrace.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/mips/kernel/ptrace.c	2004-08-25 09:53:58.820140264 -0700
-+++ mm4-2.6.8.1/arch/mips/kernel/ptrace.c	2004-08-25 09:54:39.884897472 -0700
-@@ -23,9 +23,9 @@
- #include <linux/ptrace.h>
- #include <linux/smp.h>
- #include <linux/smp_lock.h>
--#include <linux/user.h>
- #include <linux/security.h>
- 
-+#include <asm/user.h>
- #include <asm/cpu.h>
- #include <asm/fpu.h>
- #include <asm/mipsregs.h>
-Index: mm4-2.6.8.1/arch/mips/kernel/ptrace32.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/mips/kernel/ptrace32.c	2004-08-25 09:53:58.820140264 -0700
-+++ mm4-2.6.8.1/arch/mips/kernel/ptrace32.c	2004-08-25 09:54:39.884897472 -0700
-@@ -22,9 +22,9 @@
- #include <linux/ptrace.h>
- #include <linux/smp.h>
- #include <linux/smp_lock.h>
--#include <linux/user.h>
- #include <linux/security.h>
- 
-+#include <asm/user.h>
- #include <asm/cpu.h>
- #include <asm/fpu.h>
- #include <asm/mipsregs.h>
-Index: mm4-2.6.8.1/arch/mips/kernel/setup.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/mips/kernel/setup.c	2004-08-25 09:53:58.820140264 -0700
-+++ mm4-2.6.8.1/arch/mips/kernel/setup.c	2004-08-25 09:54:39.885897320 -0700
-@@ -22,7 +22,6 @@
- #include <linux/string.h>
- #include <linux/unistd.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/utsname.h>
- #include <linux/a.out.h>
- #include <linux/tty.h>
-@@ -34,6 +33,7 @@
- #include <linux/highmem.h>
- #include <linux/console.h>
- 
-+#include <asm/user.h>
- #include <asm/addrspace.h>
- #include <asm/bootinfo.h>
- #include <asm/cpu.h>
-Index: mm4-2.6.8.1/arch/parisc/kernel/ptrace.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/parisc/kernel/ptrace.c	2004-08-25 09:53:58.821140112 -0700
-+++ mm4-2.6.8.1/arch/parisc/kernel/ptrace.c	2004-08-25 09:54:39.885897320 -0700
-@@ -13,11 +13,11 @@
- #include <linux/smp_lock.h>
- #include <linux/errno.h>
- #include <linux/ptrace.h>
--#include <linux/user.h>
- #include <linux/personality.h>
- #include <linux/security.h>
- #include <linux/compat.h>
- 
-+#include <asm/user.h>
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
- #include <asm/system.h>
-Index: mm4-2.6.8.1/arch/ppc/kernel/process.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/ppc/kernel/process.c	2004-08-23 16:11:15.000000000 -0700
-+++ mm4-2.6.8.1/arch/ppc/kernel/process.c	2004-08-25 09:56:04.811986592 -0700
-@@ -28,7 +28,6 @@
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/elf.h>
- #include <linux/init.h>
- #include <linux/prctl.h>
-@@ -38,6 +37,7 @@
- #include <linux/perfctr.h>
- #include <linux/mqueue.h>
- 
-+#include <asm/user.h>
- #include <asm/pgtable.h>
- #include <asm/uaccess.h>
- #include <asm/system.h>
-Index: mm4-2.6.8.1/arch/ppc/kernel/ptrace.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/ppc/kernel/ptrace.c	2004-08-14 03:55:09.000000000 -0700
-+++ mm4-2.6.8.1/arch/ppc/kernel/ptrace.c	2004-08-25 09:56:18.574894312 -0700
-@@ -24,9 +24,9 @@
- #include <linux/smp_lock.h>
- #include <linux/errno.h>
- #include <linux/ptrace.h>
--#include <linux/user.h>
- #include <linux/security.h>
- 
-+#include <asm/user.h>
- #include <asm/uaccess.h>
- #include <asm/page.h>
- #include <asm/pgtable.h>
-Index: mm4-2.6.8.1/arch/ppc/kernel/softemu8xx.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/ppc/kernel/softemu8xx.c	2004-08-14 03:55:33.000000000 -0700
-+++ mm4-2.6.8.1/arch/ppc/kernel/softemu8xx.c	2004-08-25 09:56:31.193975920 -0700
-@@ -22,10 +22,10 @@
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/interrupt.h>
- 
-+#include <asm/user.h>
- #include <asm/pgtable.h>
- #include <asm/uaccess.h>
- #include <asm/system.h>
-Index: mm4-2.6.8.1/arch/ppc/kernel/traps.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/ppc/kernel/traps.c	2004-08-23 16:10:56.000000000 -0700
-+++ mm4-2.6.8.1/arch/ppc/kernel/traps.c	2004-08-25 09:56:41.239448776 -0700
-@@ -24,7 +24,6 @@
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/interrupt.h>
- #include <linux/config.h>
-@@ -32,6 +31,7 @@
- #include <linux/module.h>
- #include <linux/prctl.h>
- 
-+#include <asm/user.h>
- #include <asm/pgtable.h>
- #include <asm/uaccess.h>
- #include <asm/system.h>
-Index: mm4-2.6.8.1/arch/ppc/platforms/chrp_setup.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/ppc/platforms/chrp_setup.c	2004-08-25 09:53:58.822139960 -0700
-+++ mm4-2.6.8.1/arch/ppc/platforms/chrp_setup.c	2004-08-25 09:54:39.885897320 -0700
-@@ -19,7 +19,6 @@
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/tty.h>
- #include <linux/major.h>
-@@ -38,6 +37,7 @@
- #include <linux/root_dev.h>
- #include <linux/initrd.h>
- 
-+#include <asm/user.h>
- #include <asm/io.h>
- #include <asm/pgtable.h>
- #include <asm/prom.h>
-Index: mm4-2.6.8.1/arch/ppc/platforms/pmac_setup.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/ppc/platforms/pmac_setup.c	2004-08-25 09:53:58.822139960 -0700
-+++ mm4-2.6.8.1/arch/ppc/platforms/pmac_setup.c	2004-08-25 09:54:39.886897168 -0700
-@@ -33,7 +33,6 @@
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/tty.h>
- #include <linux/string.h>
-@@ -52,6 +51,7 @@
- #include <linux/seq_file.h>
- #include <linux/root_dev.h>
- 
-+#include <asm/user.h>
- #include <asm/reg.h>
- #include <asm/sections.h>
- #include <asm/prom.h>
-Index: mm4-2.6.8.1/arch/ppc/platforms/prep_setup.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/ppc/platforms/prep_setup.c	2004-08-25 09:53:58.822139960 -0700
-+++ mm4-2.6.8.1/arch/ppc/platforms/prep_setup.c	2004-08-25 09:54:39.886897168 -0700
-@@ -24,7 +24,6 @@
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/tty.h>
- #include <linux/major.h>
-@@ -40,6 +39,7 @@
- #include <linux/seq_file.h>
- #include <linux/root_dev.h>
- 
-+#include <asm/user.h>
- #include <asm/sections.h>
- #include <asm/mmu.h>
- #include <asm/processor.h>
-Index: mm4-2.6.8.1/arch/ppc/platforms/residual.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/ppc/platforms/residual.c	2004-08-25 09:53:58.822139960 -0700
-+++ mm4-2.6.8.1/arch/ppc/platforms/residual.c	2004-08-25 09:54:39.886897168 -0700
-@@ -29,7 +29,6 @@
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/tty.h>
- #include <linux/major.h>
-@@ -40,6 +39,7 @@
- #include <linux/pci.h>
- #include <linux/ide.h>
- 
-+#include <asm/user.h>
- #include <asm/sections.h>
- #include <asm/mmu.h>
- #include <asm/io.h>
-Index: mm4-2.6.8.1/arch/ppc/syslib/m8260_setup.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/ppc/syslib/m8260_setup.c	2004-08-25 09:53:58.822139960 -0700
-+++ mm4-2.6.8.1/arch/ppc/syslib/m8260_setup.c	2004-08-25 09:54:39.887897016 -0700
-@@ -21,7 +21,6 @@
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/tty.h>
- #include <linux/major.h>
-@@ -33,6 +32,7 @@
- #include <linux/ide.h>
- #include <linux/seq_file.h>
- 
-+#include <asm/user.h>
- #include <asm/mmu.h>
- #include <asm/residual.h>
- #include <asm/io.h>
-Index: mm4-2.6.8.1/arch/ppc/syslib/m8xx_setup.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/ppc/syslib/m8xx_setup.c	2004-08-25 09:53:58.822139960 -0700
-+++ mm4-2.6.8.1/arch/ppc/syslib/m8xx_setup.c	2004-08-25 09:54:39.887897016 -0700
-@@ -21,7 +21,6 @@
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/tty.h>
- #include <linux/major.h>
-@@ -34,6 +33,7 @@
- #include <linux/seq_file.h>
- #include <linux/root_dev.h>
- 
-+#include <asm/user.h>
- #include <asm/mmu.h>
- #include <asm/reg.h>
- #include <asm/residual.h>
-Index: mm4-2.6.8.1/arch/ppc64/kernel/chrp_setup.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/ppc64/kernel/chrp_setup.c	2004-08-25 09:53:58.821140112 -0700
-+++ mm4-2.6.8.1/arch/ppc64/kernel/chrp_setup.c	2004-08-25 09:54:39.887897016 -0700
-@@ -24,7 +24,6 @@
- #include <linux/stddef.h>
- #include <linux/unistd.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/tty.h>
- #include <linux/major.h>
-@@ -43,6 +42,7 @@
- #include <linux/seq_file.h>
- #include <linux/root_dev.h>
- 
-+#include <asm/user.h>
- #include <asm/mmu.h>
- #include <asm/processor.h>
- #include <asm/io.h>
-Index: mm4-2.6.8.1/arch/ppc64/kernel/pmac_setup.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/ppc64/kernel/pmac_setup.c	2004-08-25 09:53:58.821140112 -0700
-+++ mm4-2.6.8.1/arch/ppc64/kernel/pmac_setup.c	2004-08-25 09:54:39.887897016 -0700
-@@ -33,7 +33,6 @@
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/tty.h>
- #include <linux/string.h>
-@@ -52,6 +51,7 @@
- #include <linux/seq_file.h>
- #include <linux/root_dev.h>
- 
-+#include <asm/user.h>
- #include <asm/processor.h>
- #include <asm/sections.h>
- #include <asm/prom.h>
-Index: mm4-2.6.8.1/arch/ppc64/kernel/process.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/ppc64/kernel/process.c	2004-08-25 09:53:58.821140112 -0700
-+++ mm4-2.6.8.1/arch/ppc64/kernel/process.c	2004-08-25 09:54:39.888896864 -0700
-@@ -27,7 +27,6 @@
- #include <linux/stddef.h>
- #include <linux/unistd.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/elf.h>
- #include <linux/init.h>
- #include <linux/init_task.h>
-@@ -36,6 +35,7 @@
- #include <linux/kallsyms.h>
- #include <linux/version.h>
- 
-+#include <asm/user.h>
- #include <asm/pgtable.h>
- #include <asm/uaccess.h>
- #include <asm/system.h>
-Index: mm4-2.6.8.1/arch/ppc64/kernel/ptrace.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/ppc64/kernel/ptrace.c	2004-08-25 09:53:58.821140112 -0700
-+++ mm4-2.6.8.1/arch/ppc64/kernel/ptrace.c	2004-08-25 09:54:39.888896864 -0700
-@@ -24,10 +24,10 @@
- #include <linux/smp_lock.h>
- #include <linux/errno.h>
- #include <linux/ptrace.h>
--#include <linux/user.h>
- #include <linux/security.h>
- #include <linux/audit.h>
- 
-+#include <asm/user.h>
- #include <asm/uaccess.h>
- #include <asm/page.h>
- #include <asm/pgtable.h>
-Index: mm4-2.6.8.1/arch/ppc64/kernel/ptrace32.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/ppc64/kernel/ptrace32.c	2004-08-25 09:53:58.821140112 -0700
-+++ mm4-2.6.8.1/arch/ppc64/kernel/ptrace32.c	2004-08-25 09:54:39.888896864 -0700
-@@ -24,9 +24,9 @@
- #include <linux/smp_lock.h>
- #include <linux/errno.h>
- #include <linux/ptrace.h>
--#include <linux/user.h>
- #include <linux/security.h>
- 
-+#include <asm/user.h>
- #include <asm/uaccess.h>
- #include <asm/page.h>
- #include <asm/pgtable.h>
-Index: mm4-2.6.8.1/arch/ppc64/kernel/traps.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/ppc64/kernel/traps.c	2004-08-25 09:53:58.821140112 -0700
-+++ mm4-2.6.8.1/arch/ppc64/kernel/traps.c	2004-08-25 09:54:39.888896864 -0700
-@@ -24,12 +24,12 @@
- #include <linux/stddef.h>
- #include <linux/unistd.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/interrupt.h>
- #include <linux/init.h>
- #include <linux/module.h>
- 
-+#include <asm/user.h>
- #include <asm/pgtable.h>
- #include <asm/uaccess.h>
- #include <asm/system.h>
-Index: mm4-2.6.8.1/arch/s390/kernel/process.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/s390/kernel/process.c	2004-08-25 09:53:58.823139808 -0700
-+++ mm4-2.6.8.1/arch/s390/kernel/process.c	2004-08-25 09:54:39.889896712 -0700
-@@ -29,7 +29,6 @@
- #include <linux/ptrace.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/interrupt.h>
- #include <linux/delay.h>
-@@ -38,6 +37,7 @@
- #include <linux/module.h>
- #include <linux/notifier.h>
- 
-+#include <asm/user.h>
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
- #include <asm/system.h>
-Index: mm4-2.6.8.1/arch/s390/kernel/ptrace.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/s390/kernel/ptrace.c	2004-08-25 09:53:58.823139808 -0700
-+++ mm4-2.6.8.1/arch/s390/kernel/ptrace.c	2004-08-25 09:54:39.889896712 -0700
-@@ -29,9 +29,9 @@
- #include <linux/smp_lock.h>
- #include <linux/errno.h>
- #include <linux/ptrace.h>
--#include <linux/user.h>
- #include <linux/security.h>
- 
-+#include <asm/user.h>
- #include <asm/segment.h>
- #include <asm/page.h>
- #include <asm/pgtable.h>
-Index: mm4-2.6.8.1/arch/s390/kernel/setup.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/s390/kernel/setup.c	2004-08-25 09:53:58.823139808 -0700
-+++ mm4-2.6.8.1/arch/s390/kernel/setup.c	2004-08-25 09:54:39.889896712 -0700
-@@ -23,7 +23,6 @@
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/tty.h>
- #include <linux/ioport.h>
-@@ -37,6 +36,7 @@
- #include <linux/seq_file.h>
- #include <linux/kernel_stat.h>
- 
-+#include <asm/user.h>
- #include <asm/uaccess.h>
- #include <asm/system.h>
- #include <asm/smp.h>
-Index: mm4-2.6.8.1/arch/sh/kernel/ptrace.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/sh/kernel/ptrace.c	2004-08-25 09:53:58.823139808 -0700
-+++ mm4-2.6.8.1/arch/sh/kernel/ptrace.c	2004-08-25 09:54:39.890896560 -0700
-@@ -18,10 +18,10 @@
- #include <linux/smp_lock.h>
- #include <linux/errno.h>
- #include <linux/ptrace.h>
--#include <linux/user.h>
- #include <linux/slab.h>
- #include <linux/security.h>
- 
-+#include <asm/user.h>
- #include <asm/io.h>
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-Index: mm4-2.6.8.1/arch/sh/kernel/sh_ksyms.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/sh/kernel/sh_ksyms.c	2004-08-25 09:53:58.823139808 -0700
-+++ mm4-2.6.8.1/arch/sh/kernel/sh_ksyms.c	2004-08-25 09:54:39.890896560 -0700
-@@ -1,7 +1,6 @@
- #include <linux/config.h>
- #include <linux/module.h>
- #include <linux/smp.h>
--#include <linux/user.h>
- #include <linux/elfcore.h>
- #include <linux/sched.h>
- #include <linux/in6.h>
-Index: mm4-2.6.8.1/arch/sh64/kernel/process.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/sh64/kernel/process.c	2004-08-25 09:53:58.823139808 -0700
-+++ mm4-2.6.8.1/arch/sh64/kernel/process.c	2004-08-25 09:54:39.890896560 -0700
-@@ -44,7 +44,6 @@
- #include <linux/ptrace.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/interrupt.h>
- #include <linux/unistd.h>
-@@ -52,6 +51,7 @@
- #include <linux/reboot.h>
- #include <linux/init.h>
- 
-+#include <asm/user.h>
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
- #include <asm/system.h>
-Index: mm4-2.6.8.1/arch/sh64/kernel/ptrace.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/sh64/kernel/ptrace.c	2004-08-25 09:53:58.824139656 -0700
-+++ mm4-2.6.8.1/arch/sh64/kernel/ptrace.c	2004-08-25 09:54:39.890896560 -0700
-@@ -26,8 +26,8 @@
- #include <linux/smp_lock.h>
- #include <linux/errno.h>
- #include <linux/ptrace.h>
--#include <linux/user.h>
- 
-+#include <asm/user.h>
- #include <asm/io.h>
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-Index: mm4-2.6.8.1/arch/sh64/kernel/setup.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/sh64/kernel/setup.c	2004-08-25 09:53:58.824139656 -0700
-+++ mm4-2.6.8.1/arch/sh64/kernel/setup.c	2004-08-25 09:54:39.891896408 -0700
-@@ -34,7 +34,6 @@
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/tty.h>
- #include <linux/ioport.h>
-@@ -48,6 +47,7 @@
- #include <linux/root_dev.h>
- #include <linux/cpu.h>
- #include <linux/initrd.h>
-+#include <asm/user.h>
- #include <asm/processor.h>
- #include <asm/page.h>
- #include <asm/pgtable.h>
-Index: mm4-2.6.8.1/arch/sh64/kernel/sh_ksyms.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/sh64/kernel/sh_ksyms.c	2004-08-25 09:53:58.824139656 -0700
-+++ mm4-2.6.8.1/arch/sh64/kernel/sh_ksyms.c	2004-08-25 09:54:39.891896408 -0700
-@@ -13,7 +13,6 @@
- #include <linux/rwsem.h>
- #include <linux/module.h>
- #include <linux/smp.h>
--#include <linux/user.h>
- #include <linux/elfcore.h>
- #include <linux/sched.h>
- #include <linux/in6.h>
-Index: mm4-2.6.8.1/arch/sparc/kernel/process.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/sparc/kernel/process.c	2004-08-25 09:53:58.825139504 -0700
-+++ mm4-2.6.8.1/arch/sparc/kernel/process.c	2004-08-25 09:54:39.891896408 -0700
-@@ -20,7 +20,6 @@
- #include <linux/stddef.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/config.h>
- #include <linux/smp.h>
-@@ -30,6 +29,7 @@
- #include <linux/pm.h>
- #include <linux/init.h>
- 
-+#include <asm/user.h>
- #include <asm/auxio.h>
- #include <asm/oplib.h>
- #include <asm/uaccess.h>
-Index: mm4-2.6.8.1/arch/sparc/kernel/ptrace.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/sparc/kernel/ptrace.c	2004-08-25 09:53:58.825139504 -0700
-+++ mm4-2.6.8.1/arch/sparc/kernel/ptrace.c	2004-08-25 09:54:39.892896256 -0700
-@@ -14,11 +14,11 @@
- #include <linux/mm.h>
- #include <linux/errno.h>
- #include <linux/ptrace.h>
--#include <linux/user.h>
- #include <linux/smp.h>
- #include <linux/smp_lock.h>
- #include <linux/security.h>
- 
-+#include <asm/user.h>
- #include <asm/pgtable.h>
- #include <asm/system.h>
- #include <asm/uaccess.h>
-Index: mm4-2.6.8.1/arch/sparc/kernel/setup.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/sparc/kernel/setup.c	2004-08-25 09:53:58.825139504 -0700
-+++ mm4-2.6.8.1/arch/sparc/kernel/setup.c	2004-08-25 09:54:39.892896256 -0700
-@@ -15,7 +15,6 @@
- #include <linux/slab.h>
- #include <linux/initrd.h>
- #include <asm/smp.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/tty.h>
- #include <linux/delay.h>
-@@ -32,6 +31,7 @@
- #include <linux/spinlock.h>
- #include <linux/root_dev.h>
- 
-+#include <asm/user.h>
- #include <asm/segment.h>
- #include <asm/system.h>
- #include <asm/io.h>
-Index: mm4-2.6.8.1/arch/sparc64/kernel/binfmt_aout32.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/sparc64/kernel/binfmt_aout32.c	2004-08-25 09:53:58.824139656 -0700
-+++ mm4-2.6.8.1/arch/sparc64/kernel/binfmt_aout32.c	2004-08-25 09:54:39.892896256 -0700
-@@ -22,12 +22,12 @@
- #include <linux/stat.h>
- #include <linux/fcntl.h>
- #include <linux/ptrace.h>
--#include <linux/user.h>
- #include <linux/slab.h>
- #include <linux/binfmts.h>
- #include <linux/personality.h>
- #include <linux/init.h>
- 
-+#include <asm/user.h>
- #include <asm/system.h>
- #include <asm/uaccess.h>
- #include <asm/pgalloc.h>
-Index: mm4-2.6.8.1/arch/sparc64/kernel/process.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/sparc64/kernel/process.c	2004-08-23 16:11:15.000000000 -0700
-+++ mm4-2.6.8.1/arch/sparc64/kernel/process.c	2004-08-25 09:56:51.115947320 -0700
-@@ -24,7 +24,6 @@
- #include <linux/stddef.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/config.h>
- #include <linux/reboot.h>
-@@ -32,6 +31,7 @@
- #include <linux/compat.h>
- #include <linux/init.h>
- 
-+#include <asm/user.h>
- #include <asm/oplib.h>
- #include <asm/uaccess.h>
- #include <asm/system.h>
-Index: mm4-2.6.8.1/arch/sparc64/kernel/ptrace.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/sparc64/kernel/ptrace.c	2004-08-25 09:53:58.824139656 -0700
-+++ mm4-2.6.8.1/arch/sparc64/kernel/ptrace.c	2004-08-25 09:54:39.892896256 -0700
-@@ -15,11 +15,11 @@
- #include <linux/mm.h>
- #include <linux/errno.h>
- #include <linux/ptrace.h>
--#include <linux/user.h>
- #include <linux/smp.h>
- #include <linux/smp_lock.h>
- #include <linux/security.h>
- 
-+#include <asm/user.h>
- #include <asm/asi.h>
- #include <asm/pgtable.h>
- #include <asm/system.h>
-Index: mm4-2.6.8.1/arch/sparc64/kernel/setup.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/sparc64/kernel/setup.c	2004-08-25 09:53:58.824139656 -0700
-+++ mm4-2.6.8.1/arch/sparc64/kernel/setup.c	2004-08-25 09:54:39.893896104 -0700
-@@ -14,7 +14,6 @@
- #include <linux/ptrace.h>
- #include <linux/slab.h>
- #include <asm/smp.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/tty.h>
- #include <linux/delay.h>
-@@ -33,6 +32,7 @@
- #include <linux/cpu.h>
- #include <linux/initrd.h>
- 
-+#include <asm/user.h>
- #include <asm/segment.h>
- #include <asm/system.h>
- #include <asm/io.h>
-Index: mm4-2.6.8.1/arch/v850/kernel/process.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/v850/kernel/process.c	2004-08-25 09:53:58.825139504 -0700
-+++ mm4-2.6.8.1/arch/v850/kernel/process.c	2004-08-25 09:54:39.893896104 -0700
-@@ -22,10 +22,10 @@
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/reboot.h>
- 
-+#include <asm/user.h>
- #include <asm/uaccess.h>
- #include <asm/system.h>
- #include <asm/pgtable.h>
-Index: mm4-2.6.8.1/arch/v850/kernel/v850_ksyms.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/v850/kernel/v850_ksyms.c	2004-08-25 09:53:58.825139504 -0700
-+++ mm4-2.6.8.1/arch/v850/kernel/v850_ksyms.c	2004-08-25 09:54:39.893896104 -0700
-@@ -3,7 +3,6 @@
- #include <linux/sched.h>
- #include <linux/string.h>
- #include <linux/mm.h>
--#include <linux/user.h>
- #include <linux/elfcore.h>
- #include <linux/in6.h>
- #include <linux/interrupt.h>
-Index: mm4-2.6.8.1/arch/x86_64/ia32/ia32_aout.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/x86_64/ia32/ia32_aout.c	2004-08-25 09:53:58.826139352 -0700
-+++ mm4-2.6.8.1/arch/x86_64/ia32/ia32_aout.c	2004-08-25 09:54:39.893896104 -0700
-@@ -20,12 +20,12 @@
- #include <linux/stat.h>
- #include <linux/fcntl.h>
- #include <linux/ptrace.h>
--#include <linux/user.h>
- #include <linux/slab.h>
- #include <linux/binfmts.h>
- #include <linux/personality.h>
- #include <linux/init.h>
- 
-+#include <asm/user.h>
- #include <asm/system.h>
- #include <asm/uaccess.h>
- #include <asm/pgalloc.h>
-Index: mm4-2.6.8.1/arch/x86_64/ia32/tls32.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/x86_64/ia32/tls32.c	2004-08-25 09:53:58.826139352 -0700
-+++ mm4-2.6.8.1/arch/x86_64/ia32/tls32.c	2004-08-25 09:54:39.894895952 -0700
-@@ -1,8 +1,8 @@
- #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/sched.h>
--#include <linux/user.h>
- 
-+#include <asm/user.h>
- #include <asm/uaccess.h>
- #include <asm/desc.h>
- #include <asm/system.h>
-Index: mm4-2.6.8.1/arch/x86_64/kernel/process.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/x86_64/kernel/process.c	2004-08-25 09:53:58.825139504 -0700
-+++ mm4-2.6.8.1/arch/x86_64/kernel/process.c	2004-08-25 09:54:39.894895952 -0700
-@@ -25,7 +25,6 @@
- #include <linux/elfcore.h>
- #include <linux/smp.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/module.h>
- #include <linux/a.out.h>
- #include <linux/interrupt.h>
-Index: mm4-2.6.8.1/arch/x86_64/kernel/ptrace.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/x86_64/kernel/ptrace.c	2004-08-25 09:53:58.825139504 -0700
-+++ mm4-2.6.8.1/arch/x86_64/kernel/ptrace.c	2004-08-25 09:54:39.894895952 -0700
-@@ -14,10 +14,10 @@
- #include <linux/smp_lock.h>
- #include <linux/errno.h>
- #include <linux/ptrace.h>
--#include <linux/user.h>
- #include <linux/security.h>
- #include <linux/audit.h>
- 
-+#include <asm/user.h>
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
- #include <asm/system.h>
-Index: mm4-2.6.8.1/arch/x86_64/kernel/setup.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/x86_64/kernel/setup.c	2004-08-25 09:53:58.826139352 -0700
-+++ mm4-2.6.8.1/arch/x86_64/kernel/setup.c	2004-08-25 09:54:39.895895800 -0700
-@@ -21,7 +21,6 @@
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/tty.h>
- #include <linux/ioport.h>
-@@ -40,6 +39,7 @@
- #include <linux/acpi.h>
- #include <linux/kallsyms.h>
- #include <linux/edd.h>
-+#include <asm/user.h>
- #include <asm/mtrr.h>
- #include <asm/uaccess.h>
- #include <asm/system.h>
-Index: mm4-2.6.8.1/arch/x86_64/kernel/x8664_ksyms.c
-===================================================================
---- mm4-2.6.8.1.orig/arch/x86_64/kernel/x8664_ksyms.c	2004-08-25 09:53:58.826139352 -0700
-+++ mm4-2.6.8.1/arch/x86_64/kernel/x8664_ksyms.c	2004-08-25 09:54:39.895895800 -0700
-@@ -1,7 +1,6 @@
- #include <linux/config.h>
- #include <linux/module.h>
- #include <linux/smp.h>
--#include <linux/user.h>
- #include <linux/sched.h>
- #include <linux/in6.h>
- #include <linux/interrupt.h>
-@@ -15,6 +14,7 @@
- #include <linux/tty.h>
- #include <linux/ioctl32.h>
- 
-+#include <asm/user.h>
- #include <asm/semaphore.h>
- #include <asm/processor.h>
- #include <asm/i387.h>
-Index: mm4-2.6.8.1/drivers/ide/ppc/mpc8xx.c
-===================================================================
---- mm4-2.6.8.1.orig/drivers/ide/ppc/mpc8xx.c	2004-08-25 09:53:58.826139352 -0700
-+++ mm4-2.6.8.1/drivers/ide/ppc/mpc8xx.c	2004-08-25 09:54:39.895895800 -0700
-@@ -20,7 +20,6 @@
- #include <linux/unistd.h>
- #include <linux/ptrace.h>
- #include <linux/slab.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/tty.h>
- #include <linux/major.h>
-@@ -31,6 +30,7 @@
- #include <linux/ide.h>
- #include <linux/bootmem.h>
- 
-+#include <asm/user.h>
- #include <asm/mpc8xx.h>
- #include <asm/mmu.h>
- #include <asm/processor.h>
-Index: mm4-2.6.8.1/fs/binfmt_aout.c
-===================================================================
---- mm4-2.6.8.1.orig/fs/binfmt_aout.c	2004-08-25 09:53:58.826139352 -0700
-+++ mm4-2.6.8.1/fs/binfmt_aout.c	2004-08-25 09:54:39.895895800 -0700
-@@ -19,12 +19,12 @@
- #include <linux/stat.h>
- #include <linux/fcntl.h>
- #include <linux/ptrace.h>
--#include <linux/user.h>
- #include <linux/slab.h>
- #include <linux/binfmts.h>
- #include <linux/personality.h>
- #include <linux/init.h>
- 
-+#include <asm/user.h>
- #include <asm/system.h>
- #include <asm/uaccess.h>
- #include <asm/cacheflush.h>
-Index: mm4-2.6.8.1/fs/binfmt_flat.c
-===================================================================
---- mm4-2.6.8.1.orig/fs/binfmt_flat.c	2004-08-25 09:53:58.827139200 -0700
-+++ mm4-2.6.8.1/fs/binfmt_flat.c	2004-08-25 09:54:39.896895648 -0700
-@@ -30,13 +30,13 @@
- #include <linux/stat.h>
- #include <linux/fcntl.h>
- #include <linux/ptrace.h>
--#include <linux/user.h>
- #include <linux/slab.h>
- #include <linux/binfmts.h>
- #include <linux/personality.h>
- #include <linux/init.h>
- #include <linux/flat.h>
- 
-+#include <asm/user.h>
- #include <asm/byteorder.h>
- #include <asm/system.h>
- #include <asm/uaccess.h>
-Index: mm4-2.6.8.1/fs/proc/kcore.c
-===================================================================
---- mm4-2.6.8.1.orig/fs/proc/kcore.c	2004-08-25 09:53:58.827139200 -0700
-+++ mm4-2.6.8.1/fs/proc/kcore.c	2004-08-25 09:54:39.896895648 -0700
-@@ -12,7 +12,6 @@
- #include <linux/config.h>
- #include <linux/mm.h>
- #include <linux/proc_fs.h>
--#include <linux/user.h>
- #include <linux/a.out.h>
- #include <linux/elf.h>
- #include <linux/elfcore.h>
-Index: mm4-2.6.8.1/include/linux/elfcore.h
-===================================================================
---- mm4-2.6.8.1.orig/include/linux/elfcore.h	2004-08-25 09:53:58.827139200 -0700
-+++ mm4-2.6.8.1/include/linux/elfcore.h	2004-08-25 09:54:39.896895648 -0700
-@@ -4,7 +4,7 @@
- #include <linux/types.h>
- #include <linux/signal.h>
- #include <linux/time.h>
--#include <linux/user.h>
-+#include <asm/user.h>
- 
- struct elf_siginfo
+-	if (!proc_initialized)
+-		return -EACCES;
+-
+ 	if (!(de = bus->procdir)) {
+ 		if (pci_name_bus(name, bus))
+ 			return -EEXIST;
+@@ -425,9 +421,6 @@
  {
-Index: mm4-2.6.8.1/include/linux/user.h
-===================================================================
---- mm4-2.6.8.1.orig/include/linux/user.h	2004-08-25 09:53:58.827139200 -0700
-+++ mm4-2.6.8.1/include/linux/user.h	2004-08-25 09:54:39.896895648 -0700
-@@ -1 +1 @@
--#include <asm/user.h>
-+#error do not include this header
+ 	struct proc_dir_entry *de = bus->procdir;
+ 
+-	if (!proc_initialized)
+-		return -EACCES;
+-
+ 	if (!de) {
+ 		char name[16];
+ 		sprintf(name, "%02x", bus->number);
+@@ -583,6 +576,7 @@
+ {
+ 	return seq_open(file, &proc_bus_pci_devices_op);
+ }
++
+ static struct file_operations proc_bus_pci_dev_operations = {
+ 	.open		= proc_bus_pci_dev_open,
+ 	.read		= seq_read,
+@@ -593,16 +587,20 @@
+ static int __init pci_proc_init(void)
+ {
+ 	struct proc_dir_entry *entry;
+-	struct pci_dev *dev = NULL;
++	struct pci_dev *pdev = NULL;
++
+ 	proc_bus_pci_dir = proc_mkdir("pci", proc_bus);
++
+ 	entry = create_proc_entry("devices", 0, proc_bus_pci_dir);
+ 	if (entry)
+ 		entry->proc_fops = &proc_bus_pci_dev_operations;
+-	proc_initialized = 1;
+-	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
+-		pci_proc_attach_device(dev);
++
++	while ((pdev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, pdev)) != NULL) {
++		pci_proc_attach_device(pdev);
+ 	}
++
+ 	legacy_proc_init();
++
+ 	return 0;
+ }
+ 
+diff -Nru a/drivers/pci/remove.c b/drivers/pci/remove.c
+--- a/drivers/pci/remove.c	Wed Aug 25 13:56:18 2004
++++ b/drivers/pci/remove.c	Wed Aug 25 13:56:18 2004
+@@ -16,6 +16,7 @@
+ 
+  	msi_remove_pci_irq_vectors(dev);
+ 
++	pci_cleanup_rom(dev);
+ 	for (i = 0; i < PCI_NUM_RESOURCES; i++) {
+ 		struct resource *res = dev->resource + i;
+ 		if (res->parent)
+@@ -26,6 +27,7 @@
+ static void pci_destroy_dev(struct pci_dev *dev)
+ {
+ 	pci_proc_detach_device(dev);
++	pci_remove_sysfs_dev_files(dev);
+ 	device_unregister(&dev->dev);
+ 
+ 	/* Remove the device from the device lists, and prevent any further
+diff -Nru a/drivers/pci/setup-res.c b/drivers/pci/setup-res.c
+--- a/drivers/pci/setup-res.c	Wed Aug 25 13:56:18 2004
++++ b/drivers/pci/setup-res.c	Wed Aug 25 13:56:18 2004
+@@ -56,7 +56,7 @@
+ 	if (resno < 6) {
+ 		reg = PCI_BASE_ADDRESS_0 + 4 * resno;
+ 	} else if (resno == PCI_ROM_RESOURCE) {
+-		new |= res->flags & PCI_ROM_ADDRESS_ENABLE;
++		new |= res->flags & IORESOURCE_ROM_ENABLE;
+ 		reg = dev->rom_base_reg;
+ 	} else {
+ 		/* Hmm, non-standard resource. */
+diff -Nru a/include/linux/ioport.h b/include/linux/ioport.h
+--- a/include/linux/ioport.h	Wed Aug 25 13:56:18 2004
++++ b/include/linux/ioport.h	Wed Aug 25 13:56:18 2004
+@@ -82,6 +82,11 @@
+ #define IORESOURCE_MEM_SHADOWABLE	(1<<5)	/* dup: IORESOURCE_SHADOWABLE */
+ #define IORESOURCE_MEM_EXPANSIONROM	(1<<6)
+ 
++/* PCI ROM control bits (IORESOURCE_BITS) */
++#define IORESOURCE_ROM_ENABLE		(1<<0)	/* ROM is enabled, same as PCI_ROM_ADDRESS_ENABLE */
++#define IORESOURCE_ROM_SHADOW		(1<<1)	/* ROM is copy at C000:0 */
++#define IORESOURCE_ROM_COPY		(1<<2)	/* ROM is alloc'd copy, resource field overlaid */
++
+ /* PC/ISA/whatever - the normal PC address spaces: IO and memory */
+ extern struct resource ioport_resource;
+ extern struct resource iomem_resource;
+diff -Nru a/include/linux/pci.h b/include/linux/pci.h
+--- a/include/linux/pci.h	Wed Aug 25 13:56:18 2004
++++ b/include/linux/pci.h	Wed Aug 25 13:56:18 2004
+@@ -537,6 +537,7 @@
+ 	unsigned int	is_busmaster:1; /* device is busmaster */
+ 	
+ 	u32		saved_config_space[16]; /* config space saved at suspend time */
++	struct bin_attribute *rom_attr; /* attribute descriptor for sysfs ROM entry */
+ #ifdef CONFIG_PCI_NAMES
+ #define PCI_NAME_SIZE	96
+ #define PCI_NAME_HALF	__stringify(43)	/* less than half to handle slop */
+@@ -777,6 +778,12 @@
+ int pci_dac_set_dma_mask(struct pci_dev *dev, u64 mask);
+ int pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask);
+ int pci_assign_resource(struct pci_dev *dev, int i);
++
++/* ROM control related routines */
++unsigned char *pci_map_rom(struct pci_dev *pdev, size_t *size);
++unsigned char *pci_map_rom_copy(struct pci_dev *pdev, size_t *size);
++void pci_unmap_rom(struct pci_dev *pdev, unsigned char *rom);
++void pci_remove_rom(struct pci_dev *pdev);
+ 
+ /* Power management related routines */
+ int pci_save_state(struct pci_dev *dev, u32 *buffer);
+
+--0-1982334958-1093457166=:8372--

@@ -1,110 +1,120 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281916AbRLAWeR>; Sat, 1 Dec 2001 17:34:17 -0500
+	id <S281921AbRLAWgh>; Sat, 1 Dec 2001 17:36:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281917AbRLAWd6>; Sat, 1 Dec 2001 17:33:58 -0500
-Received: from adsl-63-193-243-214.dsl.snfc21.pacbell.net ([63.193.243.214]:2945
-	"EHLO dmz.ruault.com") by vger.kernel.org with ESMTP
-	id <S281914AbRLAWdh>; Sat, 1 Dec 2001 17:33:37 -0500
-Message-ID: <3C095B0B.7EA478C1@ruault.com>
-Date: Sat, 01 Dec 2001 14:34:51 -0800
-From: Charles-Edouard Ruault <ce@ruault.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
+	id <S281914AbRLAWgV>; Sat, 1 Dec 2001 17:36:21 -0500
+Received: from tnt1-161-74.cac.psu.edu ([130.203.161.74]:16777 "HELO
+	funkmachine.cac.psu.edu") by vger.kernel.org with SMTP
+	id <S281917AbRLAWgG>; Sat, 1 Dec 2001 17:36:06 -0500
+Message-ID: <3C095B2F.AAE4E34C@psu.edu>
+Date: Sat, 01 Dec 2001 17:35:27 -0500
+From: Jason Holmes <jholmes@psu.edu>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: J Sloan <jjs@pobox.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: File system Corruption with 2.4.16
-In-Reply-To: <3C0954D5.6AA3532B@ruault.com> <3C09580F.5F323195@pobox.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IO degradation in 2.4.17-pre2 vs. 2.4.16
+In-Reply-To: <3C092CAB.4D1541F4@psu.edu> <3C094CDF.A3FF1D26@zip.com.au>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J Sloan wrote:
-
-> Charles-Edouard Ruault wrote:
->
-> > Hi there,
+Andrew Morton wrote:
+> 
+> Jason Holmes wrote:
 > >
-> > i've experienced very weird behaviour with kernel 2.4.16 ( on at least 2
-> > different machines with different motherboards & CPUs ).
-> > I'm having ext2 filesystem problems on both machines now, one is totally
-> > unusable i need to reinstall it from scratch.
->
-> Are you sure? perhaps a forced fsck of all
-> filesystems would do the trick. New linux users
-> coming from a microsoft background are too
-> quick to reinstall as a means of maintenance.
-
-Well i did a forced fsck on all my filesystems and now a bunch of files are
-corrupted/missing in /usr so rather than figuring out which file is missing
-and which package to reinstall i'll reinstall the whole system ( will be much
-faster in my opinion ).
-
->
->
+> > I saw in a previous thread that the interactivity improvements in
+> > 2.4.17-pre2 had some adverse effect on IO throughput and since I was
+> > already evaluating 2.4.16 for a somewhat large fileserving project, I
+> > threw 2.4.17-pre2 on to see what has changed.  Throughput while serving
+> > a large number of clients is important to me, so my tests have included
+> > using dbench to try to see how things scale as clients increase.
 > >
-> > I've noticed the problem on different points :
-> > - first lots of problems with symlinks ....
-> >  unable to compile the kernel for example it bails out with "too many
-> > symlinks levels" ,
+> > 2.4.16:
 > >
-> > /usr/include/asm/pgtable.h:109:33:
-> > /usr/src/linux/include/asm/pgtable-2level.h: Too many levels of symbolic
-> > links
->
-> Yes, it looks like the filesystem is corrupted.
->
-> > I backtracked to kernel 2.4.14 and now after doing an fsck on all my
-> > partitions ( only one problem reported on /home ) , everything is back
-> > to normal.
->
-> Have you tried 2.4.16 since the fsck?
+> > ...
+> > Throughput 210.989 MB/sec (NB=263.736 MB/sec  2109.89 MBit/sec)  16 procs
+> > ...
+> >
+> > 2.4.17-pre2:
+> >
+> > ...
+> > Throughput 153.672 MB/sec (NB=192.09 MB/sec  1536.72 MBit/sec)  16 procs
+> > ...
+> 
+> This is expected, and tunable.
+> 
+> The thing about dbench is this:  it creates files and then it
+> quickly deletes them.  It is really, really important to understand
+> this!
+> 
+> If the kernel allows processes to fill all of memory with dirty
+> data and to *not* start IO on that data, then this really helps
+> dbench, because when the delete comes along, that data gets tossed
+> away and is never written.
+> 
+> If you have enough memory, an entire dbench run can be performed
+> and it will do no disk IO at all.
 
-I did a fsck ( not forced ) then bootedup 2.4.16 and had the problem , then i
-tried to compile 2.4.14 on the machine and it failed ( because of the symlink
-problems ) , i compiled the kernel on another machine, installed it and
-booted i had the same problem again. I then did the force fsck and booted
-2.4.14 and it was fine. You might be right about 2.4.16 , i'll boot it again
-and see if the problem is still there.
-What's weird is that the fsck did not report any problem on my root partition
-and i was seeing problem on it ...
-The only problem it saw ( and fixed )  was in /home
+Yeah, I was basically treating the lower process runs (<64) as in-memory
+performance and the higher process runs as a mix (since, for example,
+the 128 run deals with ~8 GB of data and I only have 1.25 GB of RAM).
 
+> ...
 >
->
-> > I've read that there was a filesystem problem in 2.4.15 that is supposed
-> > to be fixed in 2.4.16.
->
-> That is the case,
->
-> > These 2 machines did run 2.4.15 from it's birtday until 2.4.16 was born
-> > so maybe the problem was created in 2.4.15 but showed up in 2.4.16 ...
-> > If someone has an explanation to this behaviour, i would be really happy
->
-> Of course.
->
-> The 2.4.15 filesystem corruption problem occurred
-> on shutdown. When you booted up into 2.4.16, the
-> filesystem was corrupt and you began to see the
-> strange symptoms. when you backtracked to 2.4.14
-> and did the fsck, the problems were corrected.
->
-> I'll bet $20 that 2.4.16 runs fine now as well.
+> You'll find that running
+> 
+>         echo 80 0 0 0 500 3000 90 0 0  > /proc/sys/vm/bdflush
+> 
+> will boost your dbench throughput muchly.
 
-I'll try and let you know !
-thanks a lot for your quick reply !
+Yeah, actually, I've been sorta "brute-forcing" the bdflush and
+max-readahead space (or the part of it that I chose for a start) over
+the past few days for bonnie++ and dbench.  The idea was to use these
+quicker-running benchmarks to get an general idea of good values to use
+and then zero in on the final values with longer, more real-world load. 
+I was thinking that bonnie++ would at least give me an idea of
+sequential read/write performance for files larger than RAM (one part of
+the typical workload I see is moving large files out to multiple [32-64
+or so] machines at the same time) and that dbench would give me an idea
+of performance for many small read/write operations, both for cached and
+on-disk data (another aspect of the workload I see is reading/writing
+many small files from multiple machines, such as postprocessing the
+results of some large computational run).  Oh, I don't think I actually
+mentioned that I'm looking to tune fileservers here for medium-sized
+(100-200 node) computational clusters and that in the end there will be
+something much more powerful than a single SCSI disk in the backend.
 
->
->
-> cu
->
-> jjs
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+FWIW, the top 10 bdflush/max-readahead combinations for dbench (sorted
+by 128 processes) that I've seen so far are:
 
+                             16        32        64       128
+                       --------  --------  --------  --------
+70-900-1000-90-2047     208.056   159.598   144.721   122.514
+30-100-1000-50-127      113.829   101.820   110.699   120.017
+70-500-1000-90-2047     209.547   150.172   142.556   115.979
+30-300-1000-90-63       108.862   118.443   109.060   112.901
+30-100-1000-50-63       113.904    96.648   113.969   112.021
+50-700-1000-90-63       208.062   137.579   134.504   111.656
+30-500-1000-50-255      111.955    97.373   115.360   111.004
+30-100-1000-70-1023     115.110    99.823   122.720   110.016
+70-300-1000-90-1023     220.096   169.194   160.025   109.753
+70-700-1000-90-255      208.468   146.202   140.098   109.618
+
+(with the numbers on the left being
+nfract-interval-age_buffer-nfract_sync-max_readahead, the column entries
+being the non-adjusted MB/s that dbench reports, and the columns being
+the number of processes).  Unfortunately, these are a bit bunk because I
+haven't run the tests enough times to average the results to remove
+variance between runs.
+
+If you have any suggestions on better ways than dbench to somewhat
+quickly simulate performance for many clients hitting a fileserver at
+the same time, I'd love to hear it.
+
+Thanks,
+
+--
+Jason Holmes

@@ -1,48 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262450AbTDBHPP>; Wed, 2 Apr 2003 02:15:15 -0500
+	id <S262534AbTDBHTb>; Wed, 2 Apr 2003 02:19:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262534AbTDBHPP>; Wed, 2 Apr 2003 02:15:15 -0500
-Received: from modemcable226.131-200-24.mtl.mc.videotron.ca ([24.200.131.226]:4350
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S262450AbTDBHPO>; Wed, 2 Apr 2003 02:15:14 -0500
-Date: Wed, 2 Apr 2003 02:22:07 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Jos Hulzink <josh@stack.nl>
-cc: Matthew Harrell 
-	<mharrell-dated-1049658915.d5a407@bittwiddlers.com>,
-       Matthew Harrell <lists-sender-14a37a@bittwiddlers.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, "" <chris@wirex.com>,
-       "" <andrew.grover@intel.com>
-Subject: Re: [Bug 529] New: ACPI under 2.5.50+ (approx) locks system hard
- during bootup
-In-Reply-To: <200304020107.58676.josh@stack.nl>
-Message-ID: <Pine.LNX.4.50.0304020221230.8773-100000@montezuma.mastecende.com>
-References: <130680000.1049224849@flay> <20030401114749.A7647@figure1.int.wirex.com>
- <20030401195514.GA29214@bittwiddlers.com> <200304020107.58676.josh@stack.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262554AbTDBHTb>; Wed, 2 Apr 2003 02:19:31 -0500
+Received: from dp.samba.org ([66.70.73.150]:49307 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S262534AbTDBHT2>;
+	Wed, 2 Apr 2003 02:19:28 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] __try_module_get()
+Date: Wed, 02 Apr 2003 17:30:23 +1000
+Message-Id: <20030402073054.35DF12C05A@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Apr 2003, Jos Hulzink wrote:
+Linus, please apply.
 
-> The only way I can boot recent 2.5 kernels is to make sure my BIOS does 
-> nothing that even smells like ACPI. The only response I got so far on the 
-> lkml is "disable acpi support" and "disable apic support". The only 
-> conclusion I can make is that the ACPI support in 2.5 is buggy enough to 
-> prevent 2.5 to emerge into 2.6 for a long time from now, and unfortunately 
-> nobody seems to care. I detected big IRQ / ACPI / APIC trouble since about  
-> 2.5.44 - 2.5.53, and nothing has changed since. 
-> 
-> NFI, I just don't understand that a core problem that prevents me from booting 
-> 2.5 kernels, is noticed by so few others that it is able to remain unfixed 
-> for so long.
+Name: __try_module_get
+Author: Rusty Russell
+Status: Trivial
 
-Can you send me a boot log and your config file? Also a bootlog from 2.4 
-would be nice.
+D: Introduces __try_module_get for places where we know we already hold
+D: a reference and ignoring the fact that the module is being "rmmod --wait"ed
+D: is simpler.
 
-	Zwane
--- 
-function.linuxpower.ca
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .5936-linux-2.5.66-bk2/fs/filesystems.c .5936-linux-2.5.66-bk2.updated/fs/filesystems.c
+--- .5936-linux-2.5.66-bk2/fs/filesystems.c	2003-03-18 12:21:38.000000000 +1100
++++ .5936-linux-2.5.66-bk2.updated/fs/filesystems.c	2003-03-27 12:58:34.000000000 +1100
+@@ -32,17 +32,7 @@ static rwlock_t file_systems_lock = RW_L
+ /* WARNING: This can be used only if we _already_ own a reference */
+ void get_filesystem(struct file_system_type *fs)
+ {
+-	if (!try_module_get(fs->owner)) {
+-#ifdef CONFIG_MODULE_UNLOAD
+-		unsigned int cpu = get_cpu();
+-		local_inc(&fs->owner->ref[cpu].count);
+-		put_cpu();
+-#else
+-		/* Getting filesystem while it's starting up?  We're
+-                   already supposed to have a reference. */
+-		BUG();
+-#endif
+-	}
++	__try_module_get(fs->owner);
+ }
+ 
+ void put_filesystem(struct file_system_type *fs)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .5936-linux-2.5.66-bk2/include/linux/module.h .5936-linux-2.5.66-bk2.updated/include/linux/module.h
+--- .5936-linux-2.5.66-bk2/include/linux/module.h	2003-03-25 12:17:31.000000000 +1100
++++ .5936-linux-2.5.66-bk2.updated/include/linux/module.h	2003-03-27 12:58:34.000000000 +1100
+@@ -272,6 +272,7 @@ int module_text_address(unsigned long ad
+ 
+ #ifdef CONFIG_MODULE_UNLOAD
+ 
++unsigned int module_refcount(struct module *mod);
+ void __symbol_put(const char *symbol);
+ #define symbol_put(x) __symbol_put(MODULE_SYMBOL_PREFIX #x)
+ void symbol_put_addr(void *addr);
+@@ -282,6 +283,17 @@ void symbol_put_addr(void *addr);
+ #define local_dec(x) atomic_dec(x)
+ #endif
+ 
++/* Sometimes we know we already have a refcount, and it's easier not
++   to handle the error case (which only happens with rmmod --wait). */
++static inline void __try_module_get(struct module *module)
++{
++	if (module) {
++		BUG_ON(module_refcount(module) == 0);
++		local_inc(&module->ref[get_cpu()].count);
++		put_cpu();
++	}
++}
++
+ static inline int try_module_get(struct module *module)
+ {
+ 	int ret = 1;
+@@ -317,6 +329,9 @@ static inline int try_module_get(struct 
+ static inline void module_put(struct module *module)
+ {
+ }
++static inline void __try_module_get(struct module *module)
++{
++}
+ #define symbol_put(x) do { } while(0)
+ #define symbol_put_addr(p) do { } while(0)
+ 
+@@ -371,6 +386,10 @@ static inline int module_text_address(un
+ #define symbol_put(x) do { } while(0)
+ #define symbol_put_addr(x) do { } while(0)
+ 
++static inline void __try_module_get(struct module *module)
++{
++}
++
+ static inline int try_module_get(struct module *module)
+ {
+ 	return 1;
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .5936-linux-2.5.66-bk2/kernel/module.c .5936-linux-2.5.66-bk2.updated/kernel/module.c
+--- .5936-linux-2.5.66-bk2/kernel/module.c	2003-03-18 05:01:52.000000000 +1100
++++ .5936-linux-2.5.66-bk2.updated/kernel/module.c	2003-03-27 12:59:06.000000000 +1100
+@@ -374,7 +374,7 @@ static inline void restart_refcounts(voi
+ }
+ #endif
+ 
+-static unsigned int module_refcount(struct module *mod)
++unsigned int module_refcount(struct module *mod)
+ {
+ 	unsigned int i, total = 0;
+ 
+@@ -382,6 +382,7 @@ static unsigned int module_refcount(stru
+ 		total += atomic_read(&mod->ref[i].count);
+ 	return total;
+ }
++EXPORT_SYMBOL(module_refcount);
+ 
+ /* This exists whether we can unload or not */
+ static void free_module(struct module *mod);
+
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+

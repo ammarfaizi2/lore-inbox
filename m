@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267920AbTAHUL4>; Wed, 8 Jan 2003 15:11:56 -0500
+	id <S268001AbTAHURF>; Wed, 8 Jan 2003 15:17:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267921AbTAHUL4>; Wed, 8 Jan 2003 15:11:56 -0500
-Received: from packet.digeo.com ([12.110.80.53]:42422 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267920AbTAHULz>;
-	Wed, 8 Jan 2003 15:11:55 -0500
-Message-ID: <3E1C880A.87A93CFA@digeo.com>
-Date: Wed, 08 Jan 2003 12:20:26 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.51 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Bob_Tracy(0000)" <rct@gherkin.frus.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: XFree86 vs. 2.5.54 - reboot
-References: <20030108140525.DF0434EE7@gherkin.frus.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Jan 2003 20:20:26.0305 (UTC) FILETIME=[6156EB10:01C2B753]
+	id <S267999AbTAHURF>; Wed, 8 Jan 2003 15:17:05 -0500
+Received: from hell.ascs.muni.cz ([147.251.60.186]:27008 "EHLO
+	hell.ascs.muni.cz") by vger.kernel.org with ESMTP
+	id <S268001AbTAHURE>; Wed, 8 Jan 2003 15:17:04 -0500
+Date: Wed, 8 Jan 2003 21:25:42 +0100
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.54: ide-scsi still buggy?
+Message-ID: <20030108202542.GA870@mail.muni.cz>
+References: <20030108014005.GC725@mail.muni.cz> <Pine.LNX.4.50.0301072116450.4046-100000@montezuma.mastecende.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.50.0301072116450.4046-100000@montezuma.mastecende.com>
+User-Agent: Mutt/1.4i
+X-Muni: zakazka, vydelek, firma, komerce, vyplata
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, Mossad, Iraq, Pentagon, WTC, president, assassination, A-bomb, kua, vic joudu uz neznam
+X-policie-CR: Neserte mi nebo ukradnu, vyloupim, vybouchnu, znasilnim, zabiju, podpalim, umucim, podriznu, zapichnu a vubec vsechno
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Bob_Tracy(0000)" wrote:
+On Tue, Jan 07, 2003 at 09:17:46PM -0500, Zwane Mwaikambo wrote:
+> > It freezes kernel (sysrq do nothing) after lines:
+> > scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+> >   Vendor: TEAC      Model: CD-W512EB         Rev: 2
+> >   Type:   CD-ROM                             ANSI SCSI revision: 02
+> > scsi scan: host 0 channel 0 id 0 lun 0 identifier too long, length 60, max 50. Device might be improperly identified.
+> >
+> > while attaching it to /dev/hde works ok. Why?
 > 
-> This probably applies to immediately prior kernels in the 2.5 series
-> as well.  2.5.54 seemed like a good time to jump in and test the waters,
-> so to speak...
-> 
-> AMD K6-III 450 running a 2.4.19 kernel with vesafb, XFree86 4.1.0, and
-> a USB mouse works fine.  Same setup with a 2.5.54 kernel does a cold
-> reboot when I type "startx".
+> This has been observed to cause an oops on some boxes and nothing on mine,
+> try this patch from Andries
 
-I saw exactly the same.  In my case it appears to be due to miscompilation
-of a particular sysenter patch which went into 2.5.53.  If you're using
-gcc-2.91.66 (aka `kgcc') then try 2.95.x instead.
+Acctualy this patch caused only I do not see "scsi scan: host 0 channel 0 id
+0 lun 0 identifier too long, length 60, max 50. Device might be improperly
+identified."
+
+how ever after above message kernel causes hard hw lockup. IDE activity
+LED is turned on but nothing else works. (nor sysrq)
+
+I believe that code that report this message causes hw lockup. 
+sr0: scsi3-mmc drive: 32x/32x writer cd/rw xa/form2 cdda tray
+
+-- 
+Luká¹ Hejtmánek

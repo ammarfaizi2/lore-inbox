@@ -1,79 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268838AbUJFRfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269310AbUJFRmX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268838AbUJFRfS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 13:35:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268886AbUJFRfS
+	id S269310AbUJFRmX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 13:42:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269318AbUJFRmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 13:35:18 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:31388 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268838AbUJFRfG (ORCPT
+	Wed, 6 Oct 2004 13:42:23 -0400
+Received: from mail.kroah.org ([69.55.234.183]:37298 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269310AbUJFRmU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 13:35:06 -0400
-Message-ID: <41642CBA.7030709@redhat.com>
-Date: Wed, 06 Oct 2004 13:34:50 -0400
-From: Neil Horman <nhorman@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; hi, Mom) Gecko/20020604 Netscape/7.01
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alex Bennee <kernel-hacker@bennee.com>
-CC: "LinuxSH (sf)" <linuxsh-dev@lists.sourceforge.net>,
-       "Linux-SH (m17n)" <linux-sh@m17n.org>,
+	Wed, 6 Oct 2004 13:42:20 -0400
+Date: Wed, 6 Oct 2004 10:41:08 -0700
+From: Greg KH <greg@kroah.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       J?rn Engel <joern@wohnheim.fh-wedel.de>, Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] RFC. User space backtrace on segv
-References: <1097080652.5420.34.camel@cambridge>
-In-Reply-To: <1097080652.5420.34.camel@cambridge>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] Console: fall back to /dev/null when no console is availlable
+Message-ID: <20041006174108.GA26797@kroah.com>
+References: <20041005185214.GA3691@wohnheim.fh-wedel.de> <20041005212712.I6910@flint.arm.linux.org.uk> <20041005210659.GA5276@kroah.com> <20041005221333.L6910@flint.arm.linux.org.uk> <1097074822.29251.51.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1097074822.29251.51.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Bennee wrote:
-> Hi,
+On Wed, Oct 06, 2004 at 04:00:23PM +0100, Alan Cox wrote:
+> On Maw, 2004-10-05 at 22:13, Russell King wrote:
+> > I'm redirecting them in the /sbin/hotplug script to something sane,
+> > but I think the kernel itself should be directing these three fd's
+> > to somewhere whenever it invokes any user program, even if it is
+> > /dev/null.
 > 
-> I hacked up this little patch to dump the stack and attempt to generate
-> a back-trace for errant user-space tasks.
-> 
-> What:
-> 
-> Generates a back-trace of the user application on (in this case) a segv
-> caused by an unaligned access. This particular patch is against 2.4.22
-> on the SH which is what I'm working with but there no reason it couldn't
-> be more generalised.
-> 
-> How:
-> 
-> Its not the most intelligent approach as it basically walks up the stack
-> reading values and seeing if the address corresponds to one of the
-> processes executable VMA's. If it matches it assumes its the return
-> address treats that section as a "frame"
-> 
-> Why:
-> 
-> I work with embedded systems and for a myriad of reasons doing a full
-> core dump of the crashing task is a pain. Often just knowing the
-> immediate call stack and local variables is enough to look at what went
-> wrong with objdump -S.
-> 
-> Questions:
-> 
-> Have I replicated anything that is already hidden in the code base?
-> Would this be useful (as a CONFIG_ option) for embedded systems?
-> 
+> Someone should yes. There are lots of fascinating things happen when
+> hotplug opens a system file, it gets assigned fd 2 and then we write to
+> stderr.
 
+Good point.  So, should we do it in the kernel, in call_usermodehelper,
+so that all users of this function get it correct, or should I do it in
+userspace, in the /sbin/hotplug program?
 
-IIRC, there is already a backtrace function defined for most arches in 
-the c library.  in execinfo.h there is a family of backtrace functions 
-that can unwind the stack fairly well for most arches, and store the 
-trace in a post SIGSEGV-safe fashion.
+Any opinions?
 
-Neil
+thanks,
 
--- 
-/***************************************************
-  *Neil Horman
-  *Software Engineer
-  *Red Hat, Inc.
-  *nhorman@redhat.com
-  *gpg keyid: 1024D / 0x92A74FA1
-  *http://pgp.mit.edu
-  ***************************************************/
+greg k-h

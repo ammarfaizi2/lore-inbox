@@ -1,28 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318009AbSIJStA>; Tue, 10 Sep 2002 14:49:00 -0400
+	id <S317947AbSIJSg4>; Tue, 10 Sep 2002 14:36:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318016AbSIJStA>; Tue, 10 Sep 2002 14:49:00 -0400
-Received: from gherkin.frus.com ([192.158.254.49]:62600 "HELO gherkin.frus.com")
-	by vger.kernel.org with SMTP id <S318009AbSIJSs7>;
-	Tue, 10 Sep 2002 14:48:59 -0400
-Message-Id: <m17oq8v-0005khC@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob_Tracy)
-Subject: 2.5.X config: USB speedtouch driver
-To: linux-kernel@vger.kernel.org
-Date: Tue, 10 Sep 2002 13:53:45 -0500 (CDT)
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+	id <S317971AbSIJSgz>; Tue, 10 Sep 2002 14:36:55 -0400
+Received: from albireo.ucw.cz ([81.27.194.19]:20742 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id <S317947AbSIJSgn>;
+	Tue, 10 Sep 2002 14:36:43 -0400
+Date: Tue, 10 Sep 2002 20:41:28 +0200
+From: Martin Mares <mj@ucw.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Gerd Knorr <kraxel@bytesex.org>,
+       Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ignore pci devices?
+Message-ID: <20020910184128.GA5627@ucw.cz>
+References: <20020910134708.GA7836@bytesex.org> <20020910163023.GA3862@ucw.cz> <1031683362.1537.104.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1031683362.1537.104.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Minor nit: the subject driver depends on ATM, so a config-time check to
-see if ATM support is enabled is appropriate.
+> pci_driver has no implicit ordering.
 
+Agreed, but I meant inserting it as a module before the other
+modules.
+
+				Have a nice fortnight
 -- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+Current root password is "p3s5vwF50". Keep secret.

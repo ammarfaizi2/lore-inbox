@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUHGMwX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261987AbUHGNDq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbUHGMwX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 08:52:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbUHGMwX
+	id S261987AbUHGNDq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 09:03:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbUHGNDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 08:52:23 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:7903 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S261875AbUHGMwK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 08:52:10 -0400
-Date: Sat, 7 Aug 2004 14:51:35 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Message-Id: <200408071251.i77CpZqE007029@burner.fokus.fraunhofer.de>
-To: axboe@suse.de, schilling@fokus.fraunhofer.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Linux Kernel bug report (includes fix)
+	Sat, 7 Aug 2004 09:03:46 -0400
+Received: from as1-2-5.han.s.bonet.se ([194.236.155.59]:22278 "EHLO
+	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
+	id S261987AbUHGNDo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 09:03:44 -0400
+Date: Sat, 7 Aug 2004 15:03:41 +0200
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
+To: linux-kernel@vger.kernel.org
+Subject: ReiserFS errors
+Message-ID: <20040807130338.GB18603@hardeman.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--	Linux Kernel include files (starting with Linux-2.5) are buggy and 
-	prevent compilation. Many files may be affected but let me name
-	the most important files for me:
+Hi,
 
-	-	/usr/src/linux/include/scsi/scsi.h depends on a nonexistant
-		type "u8". The correct way to fix this would be to replace
-		any "u8" by "uint8_t". A quick and dirty fix is to call:
+during a recent upgrade of the distribution (Debian Unstable) on my 
+laptop, I accidentally filled the entire root partition (hda1). apt-get 
+complained accordingly as some packages failed to be updated (no space 
+left on device errors filled half of the console).
 
-			"change u8 __u8 /usr/src/linux/include/scsi/scsi.h"
+After freeing some more space, I reinstalled the packages which had 
+failed installation, only to discover later that some files from the 
+packages which where supposed to have been installed just fine were 
+corrupt.
 
-		ftp://ftp.berlios.de/pub/change/
+In the kernel logs I also saw this message repeated 20 or so times:
+ReiserFS: hda1: warning: vs-8115: get_num_ver: not directory item
 
-	-	/usr/src/linux/include/scsi/sg.h includes "extra text" "__user"
-		in some structure definitions. This may be fixed by adding
-		#include <linux/compiler.h> somewhere at the beginning of
-		/usr/src/linux/include/scsi/sg.h
+As there was now space on the device, a quick reinstall of the damaged 
+packages rectified the situation, but my question is if this is an error 
+in reiserfs? (I've experienced the exact same thing a few months ago, 
+also then when the partition was full).
 
-	This bug has been reported several times (starting with Linux-2.5).
+Hardware is an IBM G40 laptop with ICH4 IDE chipset, unknown HD 
+(reported as IC25N040ATMR04-0) and kernel 2.6.6-mm4.
 
-	Time to fix: 5 minutes.
-	
-I did spend far to much time with the discussion on LKML..... so I need a cue
-whether it makes sense to continue this discussion.
+Please CC me on any replies.
 
-You now again have the bug report _and_ the fix in a single short mail.
+Regards,
+David Härdeman
+david (AT) 2gen (dot) com
 
-If the bug mentioned above is not fixed in Linux-2.6.8, I will asume that it 
-makes no sense to spend further time in discussions with LKML.
-
-Best regards
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

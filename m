@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280897AbRKCArP>; Fri, 2 Nov 2001 19:47:15 -0500
+	id <S280898AbRKCAtg>; Fri, 2 Nov 2001 19:49:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280898AbRKCArF>; Fri, 2 Nov 2001 19:47:05 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:3768 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S280897AbRKCAqs>; Fri, 2 Nov 2001 19:46:48 -0500
-Date: Sat, 3 Nov 2001 00:47:00 +0000 (GMT)
-From: Dave Jones <davej@suse.de>
-X-X-Sender: <davej@noodles.codemonkey.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Use OOSTORE.
-Message-ID: <Pine.LNX.4.33.0111030044070.25694-100000@noodles.codemonkey.org.uk>
+	id <S280899AbRKCAtZ>; Fri, 2 Nov 2001 19:49:25 -0500
+Received: from intra.cyclades.com ([209.81.55.6]:50447 "HELO
+	intra.cyclades.com") by vger.kernel.org with SMTP
+	id <S280898AbRKCAtM>; Fri, 2 Nov 2001 19:49:12 -0500
+Date: Fri, 2 Nov 2001 16:51:44 -0800 (PST)
+From: Ivan Passos <lists@cyclades.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Annoying msgs about hda
+Message-ID: <Pine.LNX.4.30.0111021629480.742-100000@intra.cyclades.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Linus,
- Now that the OOSTORE bits are merged into your tree, it makes
-sense to use them, the patch below changes the build options
-for Winchips.
+Hello,
 
-regards,
+[*** Please CC your answer to me directly, as I'm currently not subscribed
+to lkml ***]
 
-Dave.
+I'm building a tiny Linux system of my own (no distro, although I'm using
+Debian as a "sample"), which boots from a CompactFlash and uncompresses a
+RAMDisk into RAM. The CompactFlash remains usually unmounted (except
+during boot, when I want to save the system's configuration, upgrade the
+RAMDIsk image, etc.). I'm using kernel 2.4.9.
 
-diff -urN --exclude-from=/home/davej/.exclude linux-2.4.14-pre6/arch/i386/config.in linux-2.4.13-ac6/arch/i386/config.in
---- linux-2.4.14-pre6/arch/i386/config.in	Sun Oct 21 03:17:19 2001
-+++ linux-2.4.13-ac6/arch/i386/config.in	Sat Nov  3 00:24:55 2001
-@@ -135,18 +144,21 @@
-    define_int  CONFIG_X86_L1_CACHE_SHIFT 5
-    define_bool CONFIG_X86_ALIGNMENT_16 y
-    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
-+   define_bool CONFIG_X86_OOSTORE y
- fi
- if [ "$CONFIG_MWINCHIP2" = "y" ]; then
-    define_int  CONFIG_X86_L1_CACHE_SHIFT 5
-    define_bool CONFIG_X86_ALIGNMENT_16 y
-    define_bool CONFIG_X86_TSC y
-    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
-+   define_bool CONFIG_X86_OOSTORE y
- fi
- if [ "$CONFIG_MWINCHIP3D" = "y" ]; then
-    define_int  CONFIG_X86_L1_CACHE_SHIFT 5
-    define_bool CONFIG_X86_ALIGNMENT_16 y
-    define_bool CONFIG_X86_TSC y
-    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
-+   define_bool CONFIG_X86_OOSTORE y
- fi
- tristate 'Toshiba Laptop support' CONFIG_TOSHIBA
+I've noticed that every time I mount, fsck, or do any other "low-level"
+access to the CompactFlash (which is seen as a HD, /dev/hda), I get the
+following msgs:
+
+# mount /flash/config
+ hda: hda1 hda2 hda3  <--+---- These msgs (yes, they always show up twice)
+ hda: hda1 hda2 hda3  <--+
+#
 
 
--- 
-| Dave Jones.                    http://www.codemonkey.org.uk
-| SuSE Labs .
+If I place the _same_ CF in a Debian Potato system using the same kernel,
+I don't get these msgs when mounting the CF. I'm pretty sure these msgs
+come from the kernel (I believe from the check_partition() function on
+linux/fs/partitions/check.c), but it's really annoying to get these msgs
+every time I mount the device!!
+
+Is there a way to prevent this?!?! Or ... why doesn't it happen on a
+"regular" distro (like my Debian system)??
+
+TIA for any advice/comment/insight.
+
+Later,
+Ivan
 

@@ -1,50 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314542AbSDXFZ3>; Wed, 24 Apr 2002 01:25:29 -0400
+	id <S293722AbSDXGaW>; Wed, 24 Apr 2002 02:30:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314543AbSDXFZ2>; Wed, 24 Apr 2002 01:25:28 -0400
-Received: from mail.mesatop.com ([208.164.122.9]:31245 "EHLO thor.mesatop.com")
-	by vger.kernel.org with ESMTP id <S314542AbSDXFZ2>;
-	Wed, 24 Apr 2002 01:25:28 -0400
-Subject: [PATCH] 2.5.9-dj1, add to help text in arch/s390/Config.help.
-From: Steven Cole <elenstev@mesatop.com>
-To: schwidefsky@de.ibm.com
-Cc: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1019625712.29005.22.camel@localhost.localdomain>
+	id <S313927AbSDXGaV>; Wed, 24 Apr 2002 02:30:21 -0400
+Received: from line103-203.adsl.actcom.co.il ([192.117.103.203]:60170 "HELO
+	alhambra.merseine.nu") by vger.kernel.org with SMTP
+	id <S293722AbSDXGaU>; Wed, 24 Apr 2002 02:30:20 -0400
+Date: Wed, 24 Apr 2002 09:27:45 +0300
+From: Muli Ben-Yehuda <mulix@actcom.co.il>
+To: Russ Fink <russfink@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: structure of ftp.kernel.org, patch dirs
+Message-ID: <20020424092745.H22237@actcom.co.il>
+In-Reply-To: <F43O6Nr85kNScMZ3lVR00008888@hotmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 23 Apr 2002 23:23:05 -0600
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following snippet is from arch/s390/config.in:
+On Thu, Apr 18, 2002 at 01:10:29PM -0400, Russ Fink wrote:
+> Hello,
+> 
+> I'm a linux vet, but am relatively new to kernel compiling.  I'm trying to 
+> trace a nasty bug, and I wish to build incremental kernels of the 2.2 tree. 
+> I'm looking at ftp.kernel.org in the v2.2/testing directory, and have a 
+> question about the directory setup.
+> 
+> Can someone tell me, what is the difference between patches in the "incr" 
+> directory and patches in the "old" directory?
+> 
+> In pub/linux/kernel/v2.2/testing/incr/ I see files such as:
+> patch-2.2.19-pre1-pre2.gz
 
-if [ "$CONFIG_IPL" = "y" ]; then
-  choice 'IPL method generated into head.S' \
-          "tape                   CONFIG_IPL_TAPE \
-           vm_reader              CONFIG_IPL_VM" tape
-fi
+That would be the patch that is the diff between 2.2.19-pre1 and
+2.2.19-pre2. If you already have a tree with 2.2.19-pre1, you could
+apply this patch and get a tree which is 2.2.19-pre2. 
 
-This patch adds help for the vm_reader choice option.
+> whereas in pub/linux/kernel/v2.2/testing/old/ I see:
+> patch-2.2.19-pre2.gz
 
-Steven
+That would be a patch between 2.2.19 and 2.2.19-pre2. If you had a
+pristine tree with 2.2.19, you would apply this one and get a tree
+with 2.2.19-pre2. 
 
---- linux-2.5.9-dj1/arch/s390/Config.help.orig	Tue Apr 23 20:28:41 2002
-+++ linux-2.5.9-dj1/arch/s390/Config.help	Tue Apr 23 23:13:04 2002
-@@ -155,7 +155,10 @@
-   IPL device.
- 
- CONFIG_IPL_TAPE
--  Select this option if you want to IPL the image from a Tape.
-+  Select "tape" if you want to IPL the image from a Tape.
-+
-+  Select "vm_reader" if you are running under VM/ESA and want
-+  to IPL the image from the emulated card reader.
- 
- CONFIG_FAST_IRQ
-   Select this option in order to get the interrupts processed faster
+> My objective is to start with the latest 2.2.17 sources and patch it up to 
+> specific levels, e.g., 2.2.18-pre3.  Do I use patches in "incr", or patches 
+> in "old"?
 
+If you want to go 17->18-prex directly, use the specific patch in
+'old'. If you want to go through each pre in order, use those in
+'incr'. 
 
+> I'm guessing that "old" patches will take me from 2.2.17 to version
+> 2.2.18-pre-"N" without needing to go through the previous N-1 patches first, 
+> but that patches in "incr" will only take me from one patch level to the 
+> next higher level (from 1 to 2, etc).  They appear to be smaller patch 
+> files.  Is this right?
 
+Sounds so. 
+-- 
+The ill-formed Orange
+Fails to satisfy the eye:       http://vipe.technion.ac.il/~mulix/
+Segmentation fault.             http://syscalltrack.sf.net/

@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318924AbSHMDbZ>; Mon, 12 Aug 2002 23:31:25 -0400
+	id <S318925AbSHMDok>; Mon, 12 Aug 2002 23:44:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318925AbSHMDbZ>; Mon, 12 Aug 2002 23:31:25 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:1949 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S318924AbSHMDbY>;
-	Mon, 12 Aug 2002 23:31:24 -0400
-Message-ID: <3D587E89.4EF18102@alphalink.com.au>
-Date: Tue, 13 Aug 2002 13:35:37 +1000
-From: Greg Banks <gnb@alphalink.com.au>
-Organization: Corpus Canem Pty Ltd.
-X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.15-4mdkfb i686)
-X-Accept-Language: en
+	id <S318929AbSHMDok>; Mon, 12 Aug 2002 23:44:40 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:16651 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S318925AbSHMDok>; Mon, 12 Aug 2002 23:44:40 -0400
+Date: Mon, 12 Aug 2002 23:58:26 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Erik Andersen <andersen@codepoet.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH] cdrom sane fallback vs 2.4.20-pre1
+In-Reply-To: <20020811215914.GC27048@codepoet.org>
+Message-ID: <Pine.LNX.4.44.0208122357590.3620-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org.com>
-CC: Tom Rini <trini@kernel.crashing.org>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org,
-       kbuild-devel@lists.sourceforge.net
-Subject: Re: [patch] config language dep_* enhancements
-References: <Pine.LNX.4.44.0208130053360.28515-100000@serv>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
-> 
-> I only used it as an example, because my tool has problems to
-> automatically convert this construct into something useful (e.g. because
-> of CONFIG_WILLOW in 2 seperate choice statements).
 
-You too?  I had to rewrite my branch merging code to make CONFIG_WILLOW fit.
 
-Greg.
--- 
-the price of civilisation today is a courageous willingness to prevail,
-with force, if necessary, against whatever vicious and uncomprehending
-enemies try to strike it down.     - Roger Sandall, The Age, 28Sep2001.
+On Sun, 11 Aug 2002, Erik Andersen wrote:
+
+> --- drivers/cdrom/cdrom.c~	Sun Aug 11 15:37:20 2002
+> +++ drivers/cdrom/cdrom.c	Sun Aug 11 15:37:24 2002
+> @@ -1916,6 +1916,7 @@
+>  {
+>  	struct cdrom_device_ops *cdo = cdi->ops;
+>  	struct cdrom_generic_command cgc;
+> +	struct request_sense sense;
+>  	kdev_t dev = cdi->dev;
+>  	char buffer[32];
+>  	int ret = 0;
+> @@ -1951,9 +1952,11 @@
+>  		cgc.buffer = (char *) kmalloc(blocksize, GFP_KERNEL);
+>  		if (cgc.buffer == NULL)
+>  			return -ENOMEM;
+> +		memset(&sense, 0, sizeof(sense));
+> +		cgc.sense = &sense;
+>  		cgc.data_direction = CGC_DATA_READ;
+>  		ret = cdrom_read_block(cdi, &cgc, lba, 1, format, blocksize);
+> -		if (ret) {
+> +		if (ret && sense.sense_key==0x05 && sense.asc==0x20 && sense.ascq==0x00) {
+
+Do you really need to hardcode this values ?
+

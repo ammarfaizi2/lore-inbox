@@ -1,42 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136247AbRD0WQq>; Fri, 27 Apr 2001 18:16:46 -0400
+	id <S136249AbRD0WW0>; Fri, 27 Apr 2001 18:22:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136248AbRD0WQh>; Fri, 27 Apr 2001 18:16:37 -0400
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:8464
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S136247AbRD0WQY>; Fri, 27 Apr 2001 18:16:24 -0400
-Date: Fri, 27 Apr 2001 18:22:28 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Cc: Xavier Bestel <xavier.bestel@free.fr>,
-        Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>,
-        William T Wilson <fluffy@snurgle.org>, Matt_Domsch@Dell.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4 and 2GB swap partition limit
-Message-ID: <20010427182228.D9778@animx.eu.org>
-In-Reply-To: <988368729.1406.2.camel@nomade> <200104271113.NAA16761@cave.bitwizard.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <200104271113.NAA16761@cave.bitwizard.nl>; from Rogier Wolff on Fri, Apr 27, 2001 at 01:13:39PM +0200
+	id <S136250AbRD0WWR>; Fri, 27 Apr 2001 18:22:17 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:64908 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S136249AbRD0WWJ>;
+	Fri, 27 Apr 2001 18:22:09 -0400
+Date: Sat, 28 Apr 2001 00:22:07 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200104272222.AAA33242.aeb@vlet.cwi.nl>
+To: astavitsky@yahoo.com, linux-kernel@vger.kernel.org
+Subject: Re: Seagate ST340824A and (un)clipping max LBA: 2.2.19+ide04092001 patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've always been trying to convice people that 2x RAM remains a good 
-> rule-of-thumb.
+    From: Alexander Stavitsky <astavitsky@yahoo.com>
 
-IMO this is pointless
+    Disk capacity unclipping routines in ide.2.2.19.04092001.patch do not unclip
+    Seagate ST340824A.
 
-             total       used       free     shared    buffers     cached
-Mem:        517456     505332      12124     111016      97752     236884
--/+ buffers/cache:     170696     346760
-Swap:       131048      23216     107832
+    I have to use the jumper on the drive to make system boot.
+    I tried "setmax" program and it is able to unclip the capacity,
+    kernel however does not.
 
-Of course for me, I'm not about to waste 1gb of disk space for swap.
+    I digged a little and I think the problem is that ST340824A does not follow
+    the ATA standard - it does support both READ NATIVE MAX ADDRESS
+    and SET MAX ADDRESS, but does not advertise support for
+    Host Protected Area feature set.
 
-The swap I have is 2 partitions, one on each drive both with a priority of
-0.  Personally, I like the way it's done on my box.
+(maybe support is incomplete and therefore not announced?)
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+    drive->id->command_set_1 =3D 0x306b for the this drive.
+
+    The unclipping routines compare
+    drive->id->command_set_1 and 0x0400 (Host Protected Feature set)
+
+That is correct.
+
+    The earlier version of the patch compared
+    drive->id->command_set_1 and 0x000a (Security Mode & Power Managment ???)
+
+    When I changed it back to 0x000a, it unclipped the capacity just fine.
+    But 0x000a doesn't make any sense to me.
+
+No. Maybe someone can tell us about its origin, but in your case
+of course this just works because 0xa intersects 0x306b. You might
+comment out this entire test.
+
+    What is the correct solution?
+
+In the case of this particular disk the manufacturer says:
+Use the Set Features command (EF) with subfunction F1.
+That tells the disk to report full capacity.
+(ATA-6 says that F1 is reserved for use by the Compact Flash Association)
+
+[Could you try that and report identify output before and after?]
+
+    Also a related question: when I use "setmax", the drive reports full
+    capacity through "hdparm -I /dev/hd*", but kernel still uses the old info.
+    How does one update the kernel info after using "setmax"?
+
+Details depend on kernel version and patches used.
+There is not yet a good framework here.
+(Many kernel versions will believe the partition table, even if it
+extends beyond the end of the disk. That may be regarded as a bug,
+but is useful in cases like this where the disk lies about its size.)
+
+
+Andries

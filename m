@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318650AbSHLD0o>; Sun, 11 Aug 2002 23:26:44 -0400
+	id <S318314AbSHLDfA>; Sun, 11 Aug 2002 23:35:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318657AbSHLD0o>; Sun, 11 Aug 2002 23:26:44 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14855 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318650AbSHLD0n>;
-	Sun, 11 Aug 2002 23:26:43 -0400
-Message-ID: <3D572E2F.D7DE8DF9@zip.com.au>
-Date: Sun, 11 Aug 2002 20:40:31 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Adam Kropelin <akropel1@rochester.rr.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 1/21] random fixes
-References: <3D56146B.C3CAB5E1@zip.com.au> <20020811142938.GA681@www.kroptech.com> <3D56A83E.ECF747C6@zip.com.au> <20020812025431.GA4429@www.kroptech.com>
+	id <S318657AbSHLDfA>; Sun, 11 Aug 2002 23:35:00 -0400
+Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:23502 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S318314AbSHLDe7>; Sun, 11 Aug 2002 23:34:59 -0400
+Date: Mon, 12 Aug 2002 04:17:36 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Rob Landley <landley@trommello.org>
+Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+       Oliver Xymoron <oxymoron@waste.org>, "H. Peter Anvin" <hpa@zytor.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: klibc development release
+Message-ID: <20020812041736.A4016@kushida.apsleyroad.org>
+References: <200208111820.g7BIKPd172856@saturn.cs.uml.edu> <200208112031.g7BKVHQ209420@pimout1-ext.prodigy.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200208112031.g7BKVHQ209420@pimout1-ext.prodigy.net>; from landley@trommello.org on Sun, Aug 11, 2002 at 11:31:13AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Kropelin wrote:
-> 
-> FYI, just got this while un-tarring a kernel tree with 2.5.31+everything.gz:
-> (no nvidia ;)
-> 
+Rob Landley wrote:
+> (Dietlibc is straight GPL: it can't even be the dynamic replacement
+> for glibc in a real world linux distribution.  HPA suggested I look at
+> newlibc, which I've added to my to-do list).
 
-That'll be this one:
+Since klibc is meant for compiling programs tightly bound to the kernel
+in initramfs, such as partition scanning, NFS root mounting, module
+loading etc., I wonder what the problem with even a GPLed klibc is?
 
-	        BUG_ON(page->pte.chain != NULL);
+Surely all the programs that its intended to be used with will be GPLed,
+perhaps even part of the kernel source tree?
 
-we've had a few reports of this dribbling in since rmap went in.  But
-nothing repeatable enough for it to be hunted down.
+(Not that I mind at all.  I expect I will be using klibc's simplicity
+and 3-clause BSD license in my employer's proprietary product soon enough..)
 
-But we do have a repeatable inconsistency happening with ntpd and
-memory pressure.  That may be related, but in that case it's probably
-related to mlock().
-
-So.  An open bug, alas.
+-- Jamie

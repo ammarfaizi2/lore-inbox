@@ -1,100 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266434AbTAFFL0>; Mon, 6 Jan 2003 00:11:26 -0500
+	id <S266473AbTAFFOy>; Mon, 6 Jan 2003 00:14:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266435AbTAFFL0>; Mon, 6 Jan 2003 00:11:26 -0500
-Received: from dp.samba.org ([66.70.73.150]:35987 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S266434AbTAFFLY>;
-	Mon, 6 Jan 2003 00:11:24 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
+	id <S266514AbTAFFOy>; Mon, 6 Jan 2003 00:14:54 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:25383 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S266473AbTAFFOx>; Mon, 6 Jan 2003 00:14:53 -0500
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au,
-       Thomas Sailer <sailer@ife.ee.ethz.ch>,
-       Marcel Holtmann <marcel@holtmann.org>,
-       Jose Orlando Pereira <jop@di.uminho.pt>,
-       J.E.J.Bottomley@HansenPartnership.com
-Subject: Re: [PATCH] Deprecated exec_usermodehelper, enhance call_usermodehelper 
-In-reply-to: Your message of "Sun, 05 Jan 2003 19:54:07 -0800."
-             <Pine.LNX.4.44.0301051952450.3087-100000@home.transmeta.com> 
-Date: Mon, 06 Jan 2003 15:35:45 +1100
-Message-Id: <20030106052000.DE13C2C276@lists.samba.org>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Paul Mackerras <paulus@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>, <davidm@hpl.hp.com>,
+       <grundler@cup.hp.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2.5] PCI: allow alternative methods for probing the BARs
+References: <Pine.LNX.4.44.0301052009050.3087-100000@home.transmeta.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 05 Jan 2003 22:22:14 -0700
+In-Reply-To: <Pine.LNX.4.44.0301052009050.3087-100000@home.transmeta.com>
+Message-ID: <m1n0mej1ix.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0301051952450.3087-100000@home.transmeta.com> you wri
-te:
-> 
-> On Mon, 6 Jan 2003, Rusty Russell wrote:
+Linus Torvalds <torvalds@transmeta.com> writes:
+
+> On Sun, 5 Jan 2003, Ivan Kokshaysky wrote:
 > >
-> > Linus, please apply.
+> > Hopefully this patch should solve most problems with probing the BARs.
+> > The changes are quite minimal as everything still is done in one pass.
 > 
-> Nope, I really don't want to deprecate any more interfaces while my build 
-> is still so noisy about the _existing_ deprecated stuff.
+> Can you do the same with a multi-pass thing? 
+> 
+> I really think the single-pass approach is broken, because it means that
+> we _cannot_ have a fixup for device that runs _before_ the fixup for the 
+> bridge that bridges to the device.
+> 
+> As such, the "PCI_FIXUP_EARLY" is not _nearly_ early enough, since it's
+> way too late for the actual problem that started this whole thread (ie in
+> order to turn off a bridge, we have to make sure that everything behind
+> the bridge is turned off _first_).
+> 
+> In other words, we really should be able to do all the bus number setup
+> _first_. That isn't dependent ont eh BAR's or anything else. The actual 
+> _sizing_ of the bus is clearly somethign we cannot do early, but we can 
+> (and should) enumerate the devices first in phase #1.
+> 
+> Alternatively, we could even have a very limited phase #1 that only 
+> enumerates _reachable_ devices (ie it doesn't even try to create bus 
+> numbers, it only enumerates devices and buses that have already been set 
+> up by the firmware, and ignores bridges that aren't set up yet). A pure 
+> discovery phase, without any configuration at all.
+> 
+> Hmm?
 
-OK.  I'll work with the various authors to actually remove all 3 users
-in the tree, then submit a patch to rip it out.
+I have done something similar to this in LinuxBIOS, perhaps a
+description of that will spark ideas.  
 
-> The noisiness of the current build is quite distracting, and likely makes 
-> people just ignore potentially valid warnings simply because there are too 
-> many of them-
+In the enumeration phase I look at the vendor+device id and then hdr
+type to assign methods.  The methods I have are:
+scan_bus,
+read_bases,
+write_bases.
 
-Damn.  I guess you don't want this patch then?
+Then for all children of a bus that have a scan_bus function I
+recurse.  This fits in very naturally with devices not necessarily
+being pci devices.
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+When it comes time to assign pci resources I call the read_bases
+method to get the size and possibly fixed location of the resource.  I
+play with my data structures to get a non conflicting set of resources
+and then I call write_bases on each device to write the resource
+assignments to the actual device.
 
-Name: Deprecate cli/sti/restore_flags etc.
-Author: Rusty Russell
-Status: Tested on 2.5.54
+The setup works well enough that I don't have to differentiation later
+in the code between pci busses and normal pci devices.
 
-D: These functions have long been deprecated: they don't exist on SMP.
-D: Mark them deprecated.
+I have not had to push beyond the standard pci devices yet, but I
+don't think I have missed anything that would cause me problems.
 
-diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5-bk/include/linux/interrupt.h working-2.5-bk-clisti/include/linux/interrupt.h
---- linux-2.5-bk/include/linux/interrupt.h	Thu Jan  2 12:36:08 2003
-+++ working-2.5-bk-clisti/include/linux/interrupt.h	Mon Jan  6 14:41:25 2003
-@@ -5,6 +5,7 @@
- #include <linux/config.h>
- #include <linux/linkage.h>
- #include <linux/bitops.h>
-+#include <linux/compiler.h>
- #include <asm/atomic.h>
- #include <asm/hardirq.h>
- #include <asm/ptrace.h>
-@@ -28,12 +29,29 @@ extern void free_irq(unsigned int, void 
- /*
-  * Temporary defines for UP kernels, until all code gets fixed.
-  */
--#if !CONFIG_SMP
--# define cli()			local_irq_disable()
--# define sti()			local_irq_enable()
--# define save_flags(x)		local_save_flags(x)
--# define restore_flags(x)	local_irq_restore(x)
--# define save_and_cli(x)	local_irq_save(x)
-+#ifndef CONFIG_SMP
-+static inline void __deprecated cli(void)
-+{
-+	local_irq_disable();
-+}
-+static inline void __deprecated sti(void)
-+{
-+	local_irq_enable();
-+}
-+static inline void __deprecated deprecated_save_flags(unsigned long *flags)
-+{
-+	local_save_flags(*flags);
-+}
-+static inline void __deprecated restore_flags(unsigned long flags)
-+{
-+	local_irq_restore(flags);
-+}
-+static inline void __deprecated deprecated_save_and_cli(unsigned long *flags)
-+{
-+	local_irq_save(*flags);
-+}
-+# define save_flags(x)		deprecated_save_flags(&(x))
-+# define save_and_cli(x)	deprecated_save_and_cli(&(x))
- #endif
- 
- 
+Linus is this the kind of thing you are thinking of?
+
+Eric

@@ -1,104 +1,119 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129702AbQKQRoN>; Fri, 17 Nov 2000 12:44:13 -0500
+	id <S129602AbQKQRrd>; Fri, 17 Nov 2000 12:47:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129688AbQKQRoD>; Fri, 17 Nov 2000 12:44:03 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:60288 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129227AbQKQRn5>; Fri, 17 Nov 2000 12:43:57 -0500
-Date: Fri, 17 Nov 2000 12:13:14 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
-        mj@suse.cz
-Subject: Re: VGA PCI IO port reservations
-In-Reply-To: <3A155E8C.7D345649@mandrakesoft.com>
-Message-ID: <Pine.LNX.3.95.1001117114858.19946A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129451AbQKQRr1>; Fri, 17 Nov 2000 12:47:27 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:26803 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S129660AbQKQRrD>;
+	Fri, 17 Nov 2000 12:47:03 -0500
+Date: Fri, 17 Nov 2000 18:16:59 +0100
+From: Andries Brouwer <aeb@veritas.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test10 truncate() change broke `dd'
+Message-ID: <20001117181659.C29847@veritas.com>
+In-Reply-To: <200011160058.BAA20802@harpo.it.uu.se> <Pine.GSO.4.21.0011160251450.11017-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.GSO.4.21.0011160251450.11017-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Thu, Nov 16, 2000 at 03:02:31AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Nov 2000, Jeff Garzik wrote:
+On Thu, Nov 16, 2000 at 03:02:31AM -0500, Alexander Viro wrote:
+: On Thu, 16 Nov 2000, Mikael Pettersson wrote:
+: 
+:: dd implements the seek=NNN option by calling ftruncate() before
+:: starting the write. This is where 2.4.0-test10 breaks, since
+:: ftruncate on a block device now provokes an EACCES error.
+:: Does anyone know the reason for the S_ISDIR -> !S_ISREG change in test10?
+: 
+: For one thing, you really don't want it working on pipes. For another -
+: it's just damn meaningless on devices, symlinks and sockets. Which leaves
+: regular files.
+: 
+: OTOH, -EACCES looks wrong - for directories we must return -EISDIR and for
+: sockets ftruncate() should return -EINVAL. Adopting -EINVAL for devices
+: and pipes may be a good idea... Andries, could you comment on that?
 
-> Russell King wrote:
-> > I've been looking at a number of VGA cards recently, and I've started
-> > wondering out the Linux resource management as far as allocation of
-> > IO ports.  I've come to the conclusion that it does not contain all
-> > information necessary to allow allocations to be made safely.
-> > 
-> > Thus far, VGA cards that I've looked at scatter extra registers through
-> > out the PCI IO memory region without appearing in the PCI BARs.  In fact,
-> > for some cards there wouldn't be enough BARs to list them all.
-> 
-> > For example, S3 cards typically use:
-> > 
-> >  0x0102,  0x42e8,  0x46e8,  0x4ae8,  0x8180 - 0x8200,  0x82e8,  0x86e8,
-> >  0x8ae8,  0x8ee8,  0x92e8,  0x96e8,  0x9ae8,  0x9ee8,  0xa2e8,  0xa6e8,
-> >  0xaae8,  0xaee8,  0xb2e8,  0xb6e8,  0xbae8,  0xbee8,  0xe2e8,
-> >  0xff00 - 0xff44
-> [...]
-> > Surely we should be reserving these regions before we start to allocate
-> > resources to PCI cards?
-> 
+Well, open() must return EISDIR upon an attempt to open a
+directory for writing. Similarly, truncate() must return EISDIR
+for a directory. On the other hand, ftruncate() returns EINVAL
+for a fd not open for writing (and not EISDIR).
 
-This can't be. If the IO decode doesn't exist in the BAR, the board
-can't access that address if it exists above 0x1000. Some ISA compatibable
-ports are decoded by some SVGA boards so that the BIOS can do an
-early initialization of compatible boards before the board's ROM bios
-is located, shadowed, then executed.
+The behaviour on files other than regular files and shared memory
+is mostly undefined.
 
-Anything you see above 0x1000, that seems to be coming from a PCI
-video board, has got to be an ISA alias and can be ignored.
+The Austin draft says (among other things)
 
-When you write bits to the base address registers, these turn out
-to be the physical bits set into the hardware decoder. That's why,
-if you need N kb of address space, it needs to be on a N kb boundary.
+=====================================================================
+If fd is not a valid file descriptor open for writing, the
+ftruncate( ) function shall fail.  If fd refers to a regular file,
+the ftruncate( ) function shall cause the size of the file to be
+truncated to length. If the size of the file previously exceeded
+length, the extra data shall no longer be available to reads on the
+file. If the file previously was smaller than this size, ftruncate( )
+shall either increase the size of the file or fail.  [XSI-conformant
+systems shall increase the size of the file.]  If the file size is
+increased, the extended area shall appear as if it were zero-filled.
+The value of the seek pointer shall not be modified by a call
+to ftruncate( ).  Upon successful completion, if fd refers to a
+regular file, the ftruncate( ) function shall mark for update the
+st_ctime and st_mtime fields of the file and the S_ISUID and S_ISGID
+bits of the file mode may be cleared. If the ftruncate( ) function is
+unsuccessful, the file is unaffected.
 
-If these bits are not set, the board is isolated.
+If fd refers to a directory, ftruncate( ) shall fail.
+If fd refers to any other file type, except a shared memory object,
+the result is unspecified.
 
-In the same vain, Linux may not have the information available to
-properly allocate addresses to PCI and AGP boards. This happens
-because some devices will fail if you change their addresses once
-they are initialized (Most SCSI controllers). Therefore you
-can't change them.
+... [shm description omitted] ...
 
-This means that you can't really change anything else.
+The ftruncate( ) function shall fail if:
+EINTR	A signal was caught during execution.
+EINVAL	The length argument was less than 0.
+EFBIG or EINVAL	The length argument was greater than the maximum file size.
+EFBIG	The file is a regular file and length is greater than
+	the offset maximum established in the open file description
+	associated with fd.
+EIO	An I/O error occurred while reading from or writing to a file system.
+EBADF or EINVAL The fd argument is not a file descriptor open for writing.
+EINVAL	The fd argument references a file that was opened without write
+	permission.
+EROFS	The named file resides on a read-only file system.
+=====================================================================
 
+In other words, it is unspecified what happens on special files.
+Of course other error returns are permitted (in non-listed situations).
 
-What the BIOS does:
+Digital Unix Man says:
+---------------------------------------------------------------------
+The truncate() and ftruncate() functions have no effect on FIFO special
+files or directories.
 
-(1)	Learn the last address occupied by memory.
-(2)	Learn the lowest unaliased port address above 0x1000.
-(3)	Starting with the bridge, allocate resources both
-	ports and memory addresses. 
-	The memory addresses start after the last RAM.
-	The port addresses start after the last alias.
-	The I/O or memory enables are usually left OFF.
-(4)	Copy any BIOS found for screen cards and IPL devices,
-	shadow them, remove the BIOS decode, then execute
-	their initialization code. These I/O or memory enables
-	are left ON.
-
-If Linux tries to do this after, say a BusLogic SCSI controller
-booted it, it may set a different I/O address for the SCSI controller.
-Since the SCSI controller needs a hardware reset to accept new
-I/O decodes, you are dead. Several "smart" controllers are like
-this. They have processors that "remember" stuff that you'd like
-them to forget.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
+EAGAIN	The write operation failed due to an enforced write
+	lock on the file.
+EINVAL	The file is not a regular file.
+---------------------------------------------------------------------
 
 
+SunOS Man says:
+---------------------------------------------------------------------
+EINVAL fd is not a valid descriptor of a file open for writing
+       or fd refers to a socket, not to a file.
+---------------------------------------------------------------------
+
+
+AIX Man says:
+---------------------------------------------------------------------
+EINVAL	The file is not a regular file.
+---------------------------------------------------------------------
+
+
+Etc. So - there seems little doubt that if we return an error
+for non-regular files, the error should be -EINVAL.
+
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

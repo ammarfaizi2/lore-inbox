@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262364AbTINLOS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 07:14:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262366AbTINLOS
+	id S262369AbTINLSU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 07:18:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbTINLSU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 07:14:18 -0400
-Received: from strawberry.blancmange.org ([62.3.122.65]:15623 "EHLO
-	strawberry.blancmange.org") by vger.kernel.org with ESMTP
-	id S262364AbTINLOR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 07:14:17 -0400
-Date: Sun, 14 Sep 2003 12:14:08 +0100
-From: Mo McKinlay <lkml@ekto.ekol.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: logging when SIGSEGV is processed?
-Message-ID: <20030914111408.GA14514@strawberry.blancmange.org>
+	Sun, 14 Sep 2003 07:18:20 -0400
+Received: from tench.street-vision.com ([212.18.235.100]:38808 "EHLO
+	tench.street-vision.com") by vger.kernel.org with ESMTP
+	id S262369AbTINLSQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 07:18:16 -0400
+Subject: Re: 2.7 block ramblings (was Re: DMA for ide-scsi?)
+From: Justin Cormack <justin@street-vision.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030913212723.GA21426@gtf.org>
+References: <1063484193.1781.48.camel@mulgrave> 
+	<20030913212723.GA21426@gtf.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
+Date: 14 Sep 2003 12:15:27 +0100
+Message-Id: <1063538182.1510.78.camel@lotte.street-vision.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I found this patch for kernel 2.2 which logs a message when some process 
-> receives SIGSEGV.
+On Sat, 2003-09-13 at 22:27, Jeff Garzik wrote:
 
-Why not just do it in userspace? A program which does nothing more than
-spawn a child and wait for it to terminate, performing some action based on
-the kind and status of exit, should be fairly trivial?
+> IMO, we need to move users from a [probe-]order-based device and bus
+> enumeration to some system based on unique ids.  I'm of the opinion
+> that _both_ block devices and filesystems need some sort of GUID.
+> Luckily, a lot of blkdevs/fs's are already there.
+> 
+> If you look at current usage out there, order isn't _terribly_ important
+> given today's tools (such as LABEL=).  More important IMO is figuring
+> out which spindle is your boot disk, and which is your root disk.
+> Red Hat handles root disks by doing LABEL= from initrd.  But discovering
+> the boot disk is still largely an unsolved problem AFAIK...
 
-Admittedly, it might need some shoehorning into some existing setups (i.e.,
-where the daemon you wish to watch isn't started directly, but by something
-else), but it wouldn't be too tricky, I'd've thought.
+LABEL= is so broken that I immediately remove it from all my redhat
+systems. It is not unique at all. As soon as you plug another system
+disk into your system at boot time all hell breaks loose. At least it
+could have a random number in it or something.
 
-[See wait(2), specifically the bits about how to interpret `status']
+If you need to know your bootdisk (why?) why not just get the bootloader
+to tell you?
 
-Mo.
+Justin
+
+

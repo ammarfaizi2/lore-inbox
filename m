@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbUKSHsl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbUKSH5k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261284AbUKSHsl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 02:48:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbUKSHsl
+	id S261290AbUKSH5k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 02:57:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbUKSH5k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 02:48:41 -0500
-Received: from mproxy.gmail.com ([216.239.56.243]:59681 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261284AbUKSHsj (ORCPT
+	Fri, 19 Nov 2004 02:57:40 -0500
+Received: from holomorphy.com ([207.189.100.168]:34186 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261290AbUKSH5i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 02:48:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=lsWItMlNfwndkMJ7Cq+5cd+9bUZZ1MtINkuSRUFjB7eGJOGRlFu4sS+pvHtBPNPY/9kZ7Ga1n3/vECV28x3TGR7stW4RymTVz+jc2X/xeEMpMrvzJyzmftAkLpEzSCKikc1ej6EoYTpeomXudTG643N6guTKi2EG9Fih0kHq250=
-Message-ID: <21d7e9970411182348704d2f0@mail.gmail.com>
-Date: Fri, 19 Nov 2004 18:48:39 +1100
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Ralf Gerbig <rge@quengel.org>
-Subject: Re: 2.6.10-rc2-mm1 (8139too interrupt)
-Cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <87sm76q40b.fsf-news@hsp-law.de>
+	Fri, 19 Nov 2004 02:57:38 -0500
+Date: Thu, 18 Nov 2004 23:57:32 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc2-mm1
+Message-ID: <20041119075732.GO2268@holomorphy.com>
+References: <20041116014213.2128aca9.akpm@osdl.org> <20041117113225.GP3217@holomorphy.com> <20041117123401.GQ3217@holomorphy.com> <20041117125624.GR3217@holomorphy.com> <20041118102210.GB3217@holomorphy.com> <20041118023123.4365de41.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041116014213.2128aca9.akpm@osdl.org>
-	 <87lld0rb2i.fsf-news@hsp-law.de>
-	 <20041117110640.1c7ccccd.akpm@osdl.org>
-	 <87actgt8zy.fsf-news@hsp-law.de> <87sm76q40b.fsf-news@hsp-law.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041118023123.4365de41.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> investigating further, radeon.ko nukes the NIC / INT
-> 
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>> sparc64 broke between 2.6.9 and 2.6.10-rc1. Are there any split-up
+>> diffs of what went on between 2.6.9 and 2.6.10-rc1?
 
-hmm I can't see what could be majorly different between 2.6.9-mm1 and
-2.6.10-rc2-mm2 with the DRM apart from core/personality split and that
-shouldn't affect the IRQ code I've just  reviewed it another time but
-can see nothing in this area,
+On Thu, Nov 18, 2004 at 02:31:23AM -0800, Andrew Morton wrote:
+> That'll be hard to do, because 2.6.9->2.6.10-rc1 was one of those brief
+> periods of frenetic patchbombing.
+> You could try 2.6.9-rc4-mm1 and if the bug is there, try 2.6.9-rc4-mm1's
+> linus.patch and if the bug is not there, iterate though 2.6.9-rc4-mm1's
+> patches.
+> If the bug isn't in 2.6.9-rc4-mm1 I guess you're down to a binary search
+> with `bk clone'.  It might be a bit easier with bkcvs actually.
 
-Can you try on 2.6.10-rc2-mm2 from runlevel 3
-modprobe drm
-echo 1 > /sys/module/drm/parameters/debug
-modprobe radeon
+I got it narrowed down to the exact patch and bad interaction, then
+davem spotted the right thing to do instantly, so this one's closed.
 
-and get the dmesg it should be a lot more verbose.. does the IRQ die
-at this point? if not start X running and send me the X startup log
-from /var/log and the dmesg..
 
-Thanks,
-Dave.
+-- wli

@@ -1,79 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261286AbSKBQEl>; Sat, 2 Nov 2002 11:04:41 -0500
+	id <S261287AbSKBQJD>; Sat, 2 Nov 2002 11:09:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261287AbSKBQEl>; Sat, 2 Nov 2002 11:04:41 -0500
-Received: from main.gmane.org ([80.91.224.249]:58818 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S261286AbSKBQEk>;
-	Sat, 2 Nov 2002 11:04:40 -0500
+	id <S261288AbSKBQJD>; Sat, 2 Nov 2002 11:09:03 -0500
+Received: from khms.westfalen.de ([62.153.201.243]:22233 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S261287AbSKBQJC>; Sat, 2 Nov 2002 11:09:02 -0500
+Date: 02 Nov 2002 15:02:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-X-Injected-Via-Gmane: http://gmane.org/
-Path: not-for-mail
-From: Nicholas Wourms <nwourms@netscape.net>
-Subject: Re: [ANNOUNCE] [PATCH] Linux-2.5.45-mcp2
-Date: Sat, 02 Nov 2002 11:12:11 -0500
-Message-ID: <aq0tca$5h4$1@main.gmane.org>
-References: <200211020255.05597.m.c.p@wolk-project.de>
-Reply-To: nwourms@netscape.net
-NNTP-Posting-Host: 130-127-121-177.generic.clemson.edu
-Mime-Version: 1.0
+Message-ID: <8$44uP-Xw-B@khms.westfalen.de>
+In-Reply-To: <Pine.LNX.4.44.0211011205330.26575-100000@nakedeye.aparity.com>
+Subject: Re: [lkcd-devel] Re: What's left over.
+X-Mailer: CrossPoint v3.12d.kh10 R/C435
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Trace: main.gmane.org 1036253387 5668 130.127.121.177 (2 Nov 2002 16:09:47 GMT)
-X-Complaints-To: usenet@main.gmane.org
-NNTP-Posting-Date: Sat, 2 Nov 2002 16:09:47 +0000 (UTC)
-User-Agent: KNode/0.7.2
+Organization: Organisation? Me?! Are you kidding?
+References: <Pine.LNX.4.44.0211011107470.4673-100000@penguin.transmeta.com> <Pine.LNX.4.44.0211011205330.26575-100000@nakedeye.aparity.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc-Christian Petersen wrote:
+yakker@aparity.com (Matt D. Robinson)  wrote on 01.11.02 in <Pine.LNX.4.44.0211011205330.26575-100000@nakedeye.aparity.com>:
 
-> Hi there,
-> 
-> point me to/send me the fixes/patches you want to see in here please!
-> 
+> On Fri, 1 Nov 2002, Linus Torvalds wrote:
 
-Here's a few:
+> |>And if you get these things wrong, you're quite likely to stomp on your
+> |>disk. Hard. You may be tryign to write the swap partition, but if the
+> |>driver gets confused, you just overwrote all your important data. At which
+> |>point it doesn't matter if your filesystem is journaling or not, since you
+> |>just potentially overwrote it.
+>
+> We haven't seen this before, but it is always a possibility for any
+> dump scenario.  That's why you some choose netdump instead. :)
 
-*WOLK's TIOCGDEV patch [you have it]
+*If* you want safe dumping to a partition, it seems wrong to me to try to  
+figure that out after the crash.
 
-*High-res timers: 
-[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=103606199703196&w=4
-[2] http://marc.theaimsgroup.com/?l=linux-kernel&m=103606200203215&w=4
-[3] http://marc.theaimsgroup.com/?l=linux-kernel&m=103609269506881&w=4
-[4] http://marc.theaimsgroup.com/?l=linux-kernel&m=103608788300481&w=4
+Instead,
 
-*[NFS] kNFSd - 1 of 2 - Use ->sendpage to send nfsd (and lockd) replies:
-[1] http://marc.theaimsgroup.com/?l=linux-nfs&m=103612463504116&w=4
+* configure the crash space with a user-mode app or possibly a kernel  
+command line arg
+* Whenever repartitioning, check if the crash dump partition is affected,  
+and if so, clear it until it is explicitely reconfigured
+* Save a good checksum (say, md5 or sha1) of the crash partition config,  
+and only dump if that checksum checks out
 
-*[NFS] kNFSd - 2 of 2 - Support zero-copy read for NFSD:
-[1] http://marc.theaimsgroup.com/?l=linux-nfs&m=103612462404104&w=4
+You might want to checksum even more than that, of course :-)
 
-*[NFS] Secure user authentication using RPCSEC_GSS:
-[1] http://marc.theaimsgroup.com/?l=linux-nfs&m=103609628111315&w=4
-[2] http://marc.theaimsgroup.com/?l=linux-nfs&m=103609605611023&w=4
-[3] http://marc.theaimsgroup.com/?l=linux-nfs&m=103609597410932&w=4
-[4] http://marc.theaimsgroup.com/?l=linux-nfs&m=103609597610936&w=4
-[5] http://marc.theaimsgroup.com/?l=linux-nfs&m=103609666811720&w=4
-[6] http://marc.theaimsgroup.com/?l=linux-nfs&m=103609627211299&w=4
-[7] http://marc.theaimsgroup.com/?l=linux-nfs&m=103609682311889&w=4
+But there's certainly a reason Netware liked to crash dump to a series of  
+floppies - too bad those are much too small for today's machines. When  
+floppy sizes stopped to be slightly larger than standard RAM sizes[*], the  
+computing public lost big time, and we haven't recovered from that.
 
-*[NFS] Kerberos 5 security framework for RPCSEC_GSS:
-[1] http://marc.theaimsgroup.com/?l=linux-nfs&m=103609919914755&w=4
+[*] Apple ][+: 48 KB RAM, 140 KB floppy. IBM PC: 640 KB RAM, 1.2 MB  
+floppy. (Yes, I know there were other combinations as well.) Where's my  
+approximately-1-GB floppy that everyone and their aunt have installed  
+today? No, CD writers are *not* universal. And burn-once CDs aren't much  
+like floppies.
 
-*Get latest diff for XFS+DMAPI+ACL+KDB against cvs:
-[1]cvs -z9 -d:pserver:cvs@oss.sgi.com:/cvs login
-[2]password is "cvs"
-[3]cvs -z9 -d:pserver:cvs@oss.sgi.com:/cvs export -rHEAD linux-2.5-xfs/linux
-[4]diff linux-2.5-xfs/linux to a virgin 2.5.45 tree
+Of course, the same problem exists with general backup technology - tape  
+the size of modern disks is not really affordable anymore.
 
-*Import dcl bitkeeper tree [contains LKCD and LTT!] from:
-[1] bk://bk.osdl.org/dcl-2.5
-
-*Import ppc tree [contains radeonfb fixes] from:
-[1] bk://ppc.bkbits.net/linuxppc-2.5
-
-Cheers,
-Nicholas
-
-
+MfG Kai

@@ -1,69 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261952AbVC1Q6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261955AbVC1RHp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261952AbVC1Q6w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 11:58:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbVC1Q6v
+	id S261955AbVC1RHp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 12:07:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbVC1RHp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 11:58:51 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:36107 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261952AbVC1Q6l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 11:58:41 -0500
-Date: Mon, 28 Mar 2005 17:58:37 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Eran Mann <emann@mrv.com>, Andrew Morton <akpm@osdl.org>
+	Mon, 28 Mar 2005 12:07:45 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:65423 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261955AbVC1RHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 12:07:36 -0500
+Date: Mon, 28 Mar 2005 18:07:35 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: ecashin@noserose.net
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] paport related OOPS since 2.6.11-bk7
-Message-ID: <20050328175837.A2222@flint.arm.linux.org.uk>
-Mail-Followup-To: Eran Mann <emann@mrv.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <424834B7.5080805@mrv.com>
+Subject: Re: [PATCH 2.6.11] aoe [7/12]: support configuration of AOE_PARTITIONS from Kconfig
+Message-ID: <20050328170735.GA9567@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	ecashin@noserose.net, linux-kernel@vger.kernel.org
+References: <87mztbi79d.fsf@coraid.com> <20050317234641.GA7091@kroah.com> <1111677688.29912@geode.he.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <424834B7.5080805@mrv.com>; from emann@mrv.com on Mon, Mar 28, 2005 at 06:45:43PM +0200
+In-Reply-To: <1111677688.29912@geode.he.net>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 28, 2005 at 06:45:43PM +0200, Eran Mann wrote:
-> The OOPS below gets generated consistently when FC3 kudzu is run during 
-> boot (tested between 2.6.11-bk7 and 2.6.11.6-bk1). It seems to be caused 
-> by the hotplug-parport changeset:
-> http://linux.bkbits.net:8080/linux-2.5/cset@4230791b6YtcIhZDSvvWbzSdUpg2zg?nav=index.html|ChangeSet@-4w
-> (reverting this changeset eliminates the oops).
+On Thu, Mar 24, 2005 at 07:21:28AM -0800, ecashin@noserose.net wrote:
+> 
+> support configuration of AOE_PARTITIONS from Kconfig
+> 
+> Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
+> 
+> diff -uprN a/drivers/block/Kconfig b/drivers/block/Kconfig
+> --- a/drivers/block/Kconfig	2005-03-07 17:37:58.000000000 -0500
+> +++ b/drivers/block/Kconfig	2005-03-10 12:19:54.000000000 -0500
+> @@ -506,4 +506,19 @@ config ATA_OVER_ETH
+>  	This driver provides Support for ATA over Ethernet block
+>  	devices like the Coraid EtherDrive (R) Storage Blade.
+>  
+> +config AOE_PARTITIONS
+> +	int "Partitions per AoE device" if ATA_OVER_ETH
+> +	default "16"
+> +	help
+> +	  The default is to support 16 partitions per aoe device. Some
+> +	  systems lack good support for devices with large minor
+> +	  numbers.
+> +
+> +	  Such systems will be able to use more aoe disks when
+> +	  AOE_PARTITIONS is set to one, but you won't be able to
+> +	  partition the disks, and you must make sure your device
+> +	  nodes are created to work with the value you select.
+> +
+> +	  If unsure, use 16.
+> +
 
-Please try this instead.
+NACK.  this changes devices nodes based on a compile-time option.  Just
+tell people to update their userland to a 2.6-copatible version.
 
-It appears that the parport driver claims on-board superio devices
-without actually doing anything.  When the driver is removed, we
-try to dereference non-existent driver data to unregister the ports.
-Since we didn't register anything, it's safe to ignore these devices
-in the remove function.
-
-Signed-off-by: Russell King <rmk@arm.linux.org.uk>
-
-diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej orig/drivers/parport/parport_pc.c linux/drivers/parport/parport_pc.c
---- orig/drivers/parport/parport_pc.c	Sat Mar 19 11:22:08 2005
-+++ linux/drivers/parport/parport_pc.c	Mon Mar 28 17:55:51 2005
-@@ -2976,10 +2976,12 @@ static void __devexit parport_pc_pci_rem
- 
- 	pci_set_drvdata(dev, NULL);
- 
--	for (i = data->num - 1; i >= 0; i--)
--		parport_pc_unregister_port(data->ports[i]);
-+	if (data) {
-+		for (i = data->num - 1; i >= 0; i--)
-+			parport_pc_unregister_port(data->ports[i]);
- 
--	kfree(data);
-+		kfree(data);
-+	}
- }
- 
- static struct pci_driver parport_pc_pci_driver = {
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

@@ -1,37 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278879AbRKXQp1>; Sat, 24 Nov 2001 11:45:27 -0500
+	id <S278722AbRKXQhH>; Sat, 24 Nov 2001 11:37:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278742AbRKXQpR>; Sat, 24 Nov 2001 11:45:17 -0500
-Received: from ns01.netrox.net ([64.118.231.130]:50149 "EHLO smtp01.netrox.net")
-	by vger.kernel.org with ESMTP id <S278940AbRKXQpF>;
-	Sat, 24 Nov 2001 11:45:05 -0500
-Subject: Re: Error: compiling with preempt-kernel-rml-2.4.15-1.patch
-From: Robert Love <rml@tech9.net>
-To: Steven Walter <srwalter@yahoo.com>
-Cc: listmail@majere.epithna.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20011123194249.A5258@hapablap.dyn.dhs.org>
-In-Reply-To: <Pine.LNX.4.33.0111231906210.3406-100000@majere.epithna.com> 
-	<20011123194249.A5258@hapablap.dyn.dhs.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
-Date: 24 Nov 2001 11:43:45 -0500
-Message-Id: <1006620228.1220.2.camel@icbm>
+	id <S278742AbRKXQgz>; Sat, 24 Nov 2001 11:36:55 -0500
+Received: from vega.ipal.net ([206.97.148.120]:41909 "HELO vega.ipal.net")
+	by vger.kernel.org with SMTP id <S278722AbRKXQgn>;
+	Sat, 24 Nov 2001 11:36:43 -0500
+Date: Sat, 24 Nov 2001 10:36:42 -0600
+From: Phil Howard <phil-linux-kernel@ipal.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Journaling pointless with today's hard disks?
+Message-ID: <20011124103642.A32278@vega.ipal.net>
+In-Reply-To: <tgpu68gw34.fsf@mercury.rus.uni-stuttgart.de> <Pine.LNX.4.33L.0111241138070.4079-100000@imladris.surriel.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L.0111241138070.4079-100000@imladris.surriel.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2001-11-23 at 20:42, Steven Walter wrote:
+On Sat, Nov 24, 2001 at 11:40:11AM -0200, Rik van Riel wrote:
 
-> Looks like the patch misses a place to has x->has_cpu to task_has_cpu(x)
-> Shouldn't be difficult for you to change it.
+| On 24 Nov 2001, Florian Weimer wrote:
+| 
+| > In the German computer community, a statement from IBM[1] is
+| > circulating which describes a rather peculiar behavior of certain IBM
+| > IDE hard drivers (the DTLA series):
+| 
+| That seems more like a case of "hard drives being pointless
+| for people wanting to store their data" ;)
 
-Indeed.  I put preempt-kernel-rml-2.4.15-2 up at kernel.org:
+Or at least "powering down IBM DTLA series hard drives is pointless
+for people wanting to store their data".
 
-	ftp://ftp.kernel.org/pub/linux/kernel/people/rml/
+Now I can see a problem if the drive can't flush a write-back cache
+during the "power fade".  With some pretty big caches many drives
+have these days (although I wonder just how useful that is with OS
+caches being as good as they are), the time it takes to flush could
+be long (a few seconds ... and lights are out by then).  I sure hope
+all my drives do write-through caching or don't cache writes at all.
 
-which fixes the problem.  I believe kernel.org is now up ...
+I would think that as fast as these drives spin these days, they
+could finish a sector between the time the power fade is detected
+and the time the voltage is too low to have the correct write
+current and servo speed.  Obviously one problem with lighter weight
+platters is the momentum advantage is reduced for keeping the speed
+right as the power is declining (if the speed is an issue, which I
+am not sure of at all).
 
-	Robert Love
 
+| The disks which _do_ store your data right also tend to work
+| great with journaling; in fact, they tend to work better with
+| journaling if you make a habit of crashing your system by
+| hacking the kernel...
+
+OOC, do you think there is any real advantage to the 1m to 4m cache
+that drives have these days, considering the effective caching in
+the OS that all OSes these days have ... over adding that much
+memory to your system RAM?  The only use for caching I can see in
+a drive is if it has physical sector sizes greater than the logical
+sector write granularity size which would require a read-mod-write
+kind of operation internally.  But that's not really "cache" anyway.
+
+
+| The article you point to seems more like a "if you value your
+| data, don't use IBM DTLA" thingy.
+
+For now I use Maxtor for new servers.  Fortunately the IBM ones I
+have are on UPS and not doing heavy write applications.
+
+-- 
+-----------------------------------------------------------------
+| Phil Howard - KA9WGN |   Dallas   | http://linuxhomepage.com/ |
+| phil-nospam@ipal.net | Texas, USA | http://phil.ipal.org/     |
+-----------------------------------------------------------------

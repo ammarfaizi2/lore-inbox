@@ -1,55 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262146AbSIZCjQ>; Wed, 25 Sep 2002 22:39:16 -0400
+	id <S262145AbSIZCgy>; Wed, 25 Sep 2002 22:36:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262148AbSIZCjQ>; Wed, 25 Sep 2002 22:39:16 -0400
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:30901 "EHLO
-	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S262146AbSIZCjP>; Wed, 25 Sep 2002 22:39:15 -0400
-Date: Wed, 25 Sep 2002 19:44:47 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] [RFC] consolidate /sbin/hotplug call for pci and
- usb
-To: Greg KH <greg@kroah.com>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Patrick Mochel <mochel@osdl.org>
-Message-id: <3D92749F.9050504@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-References: <20020925212955.GA32487@kroah.com> <3D9250CD.7090409@pacbell.net>
- <20020926002554.GB518@kroah.com>
+	id <S262146AbSIZCgy>; Wed, 25 Sep 2002 22:36:54 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:11726 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S262145AbSIZCgx>;
+	Wed, 25 Sep 2002 22:36:53 -0400
+Date: Wed, 25 Sep 2002 19:42:09 -0700
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Jeff Garzik <jgarzik@mandrakesoft.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.4.20-pre8] Minor Wavelan update
+Message-ID: <20020926024209.GB17708@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Hi,
 
-> I also found the unload USB module problem.  The driver core was calling
-> hotplug after the device was already removed.  Made it a bit difficult
-> to be able to describe the device that way :)
+	Trivial Wavelan patch that dropped in my mailbox. Plus bloat
+reduction. Low risk, 2.4.X ready (this fix is already going in 2.5.X).
+	Regards,
 
-On the other hand, since there's no internal "this is an ex-device"
-state, that's also insurance that nothing could use "usbfs" to try
-to re-activate the device.  I seem to recall oopses going away by
-reporting the hotplug "remove" events after the usbfs path could
-no longer be used.  Not that I ever liked that consequence, but
-a fix adding such a "zombie" state would have taken a bit of time.
+	Jean
 
-The real "module unload problem" has a lot to do with not having any
-way to track how many devices a module is bound to ... that aren't
-necessarily opened at the moment.  (Does Rusty's patch set touch
-any of that?)
+----------------------------------------------------
 
-Without having a way to answer that question, today's un-helpful
-"driver is in active use" refcount would encourage rmmodding drivers
-that users will expect to still be available.  Plug in two devices,
-look at one, decide to use the other, unplug the first ... and just
-because you hadn't yet opened the second device, its driver module
-vanishes.  As you start to use it ... huge frustration quotient! :)
-
-- Dave
-
-
-
-
+--- linux/drivers/net/pcmcia/wavelan_cs.b2.c	Wed Sep 25 19:22:40 2002
++++ linux/drivers/net/pcmcia/wavelan_cs.c	Wed Sep 25 19:25:15 2002
+@@ -707,7 +707,7 @@ void wl_cell_expiry(unsigned long data)
+   
+   while(wavepoint!=NULL)
+     {
+-      if(wavepoint->last_seen < jiffies-CELL_TIMEOUT)
++      if(time_after(jiffies, wavepoint->last_seen + CELL_TIMEOUT))
+ 	{
+ #ifdef WAVELAN_ROAMING_DEBUG
+ 	  printk(KERN_DEBUG "WaveLAN: Bye bye %.4X\n",wavepoint->nwid);
+@@ -1890,7 +1890,8 @@ wl_his_gather(device *	dev,
+ }
+ #endif	/* HISTOGRAM */
+ 
+-static int netdev_ethtool_ioctl(struct net_device *dev, void *useraddr)
++static inline int
++wl_netdev_ethtool_ioctl(struct net_device *dev, void *useraddr)
+ {
+ 	u32 ethcmd;
+ 		
+@@ -1933,7 +1934,7 @@ wavelan_ioctl(struct net_device *	dev,	/
+ #endif
+ 
+   if (cmd == SIOCETHTOOL)
+-    return netdev_ethtool_ioctl(dev, (void *) rq->ifr_data);
++    return wl_netdev_ethtool_ioctl(dev, (void *) rq->ifr_data);
+ 
+   /* Disable interrupts & save flags */
+   wv_splhi(lp, &flags);

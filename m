@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314676AbSDTRjr>; Sat, 20 Apr 2002 13:39:47 -0400
+	id <S314675AbSDTRkt>; Sat, 20 Apr 2002 13:40:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312915AbSDTRjp>; Sat, 20 Apr 2002 13:39:45 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27921 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S314676AbSDTRjc>; Sat, 20 Apr 2002 13:39:32 -0400
-Date: Sat, 20 Apr 2002 10:38:59 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Brian Gerst <bgerst@didntduck.org>, "H. Peter Anvin" <hpa@zytor.com>,
-        <ak@suse.de>, <linux-kernel@vger.kernel.org>, <jh@suse.cz>
-Subject: Re: [PATCH] Re: SSE related security hole
-In-Reply-To: <20020420192729.I1291@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0204201036400.19512-100000@home.transmeta.com>
+	id <S312915AbSDTRjt>; Sat, 20 Apr 2002 13:39:49 -0400
+Received: from 24.159.204.122.roc.nc.chartermi.net ([24.159.204.122]:40720
+	"EHLO tweedle.cabbey.net") by vger.kernel.org with ESMTP
+	id <S314677AbSDTRjf>; Sat, 20 Apr 2002 13:39:35 -0400
+Date: Sat, 20 Apr 2002 12:37:52 -0500 (CDT)
+From: Chris Abbey <linux@cabbey.net>
+X-X-Sender: <cabbey@tweedle.cabbey.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: PDC20268 TX2 support?
+In-Reply-To: <Pine.LNX.4.33.0204201253250.21092-100000@coffee.psychology.mcmaster.ca>
+Message-ID: <Pine.LNX.4.33.0204201234150.25636-100000@tweedle.cabbey.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Today, Mark Hahn wrote:
+> are you sure it's not already in there?  afaik, promise makes
 
+positive.
 
-On Sat, 20 Apr 2002, Andrea Arcangeli wrote:
->
-> Then the thing is different, I expected SSE3 not to mess the xmm layout.
-> If you just know SSE3 would break with the xorps the fxrestor way is
-> better. Anyways the problems I have about the implementation remains
-> (memset and duplicate efforts with ptrace in creating the empty fpu
-> state).
+> three categories of cards: straight ide, fake-raid (just bios
+> level software raid), and i2o raid (hardware, but disgustingly expensive and
+> slow as well.)  are you referring to the latter?
 
-Hey, send a clean patch and it will definitely get fixed.. I don't
-disagree with that part, although actual numbers are always good to have.
+hrm, I dunno which of the last two the fasttrak 100 tx2 is... any guess?
 
-> If they tell you the xmm registers won't change with SSE3 instead I
-> still prefer the xorps, that's 3bytes x 8 registers = 24 bytes of
-> icachce, compared to throwing away 512bytes/32 = 16 dcache cachelines so
-> it should be significantly faster.
+> i2o is basically
+[...]
+>   in short, inherently fragile.
 
-Oh, if they promise to not add registers we have an easy time, I agree.
+heh, an apt description... I'd put my bet on this without any
+better data.
 
-		Linus
+-- 
+Never make a technical decision based upon the politics of the situation.
+Never make a political decision based upon technical issues.
+The only place these realms meet is in the mind of the unenlightened.
+			-- Geoffrey James, The Zen of Programming
 

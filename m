@@ -1,70 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283061AbRK1Ojz>; Wed, 28 Nov 2001 09:39:55 -0500
+	id <S282147AbRK1OvZ>; Wed, 28 Nov 2001 09:51:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282147AbRK1Ojq>; Wed, 28 Nov 2001 09:39:46 -0500
-Received: from insws8501.gs.com ([204.4.182.10]:12796 "HELO insws8501.gs.com")
-	by vger.kernel.org with SMTP id <S283061AbRK1Oje>;
-	Wed, 28 Nov 2001 09:39:34 -0500
-Message-Id: <D28C5BE01ECBD41198ED00D0B7E4C9DA08E1AE3F@gsny31e.ny.fw.gs.com>
-From: "Galappatti, Kishantha" <Kishantha.Galappatti@gs.com>
-To: "'nbecker@fred.net'" <nbecker@fred.net>, linux-kernel@vger.kernel.org
-Subject: RE: 3c905 problem
-Date: Wed, 28 Nov 2001 09:39:28 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
+	id <S281864AbRK1OvQ>; Wed, 28 Nov 2001 09:51:16 -0500
+Received: from pop.gmx.net ([213.165.64.20]:13554 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S282147AbRK1OvD> convert rfc822-to-8bit;
+	Wed, 28 Nov 2001 09:51:03 -0500
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="iso-8859-1"
+From: Sebastian =?iso-8859-1?q?Dr=F6ge?= <sebastian.droege@gmx.de>
+Reply-To: sebastian.droege@gmx.de
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: 2.5.1-pre2 compile error in ide-scsi.o ide-scsi.c
+Date: Wed, 28 Nov 2001 15:52:41 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20011128135552.204311E532@Cantor.suse.de> <20011128150717.C23858@suse.de> <20011128153718.D23858@suse.de>
+In-Reply-To: <20011128153718.D23858@suse.de>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <20011128145113Z282147-17409+19920@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sounds like your hub and NIC card are mismatching on duplex, i.e. one is set
-to half duplex (HDX) and one to full duplex (FDX). You don't need a switch
-to fix the problem, you need to set them both to FDX.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
------Original Message-----
-From: nbecker@fred.net [mailto:nbecker@fred.net]
-Sent: Wednesday, November 28, 2001 9:09 AM
-To: linux-kernel@vger.kernel.org
-Subject: 3c905 problem
+Am Mittwoch, 28. November 2001 15:37 schrieben Sie:
+> On Wed, Nov 28 2001, Jens Axboe wrote:
+> > On Wed, Nov 28 2001, Sebastian Dröge wrote:
+> > > -----BEGIN PGP SIGNED MESSAGE-----
+> > > Hash: SHA1
+> > >
+> > > Am Mittwoch, 28. November 2001 14:58 schrieben Sie:
+> > > > On Wed, Nov 28 2001, Sebastian Dröge wrote:
+> > > > > -----BEGIN PGP SIGNED MESSAGE-----
+> > > > > Hash: SHA1
+> > > > >
+> > > > > Hi Jens,
+> > > > > your patch doesn't work for ide-scsi
+> > > > > I get this oops when trying to mount a CD:
+> > > >
+> > > > [oops in sr_scatter_pad]
+> > > >
+> > > > Hmm ok, and 2.5.1-pre1 works for you right?
+> > >
+> > > Yes it works very well
+> >
+> > Ok, thanks for confirming that. Going to take a look at it now.
+>
+> Does this work for you? Apply on top of what you already have.
 
+Yes it does work :)
+Thank you very much
 
-Sorry to bother you with a stupid question, but I don't know enough to
-understand this.
+BTW my patch does work, too in addition with the sr-sg patch ;) But Jens' is 
+cleaner
 
-I moved a machine which has a 3c905 connected to a linksys autosense
-10/100 hub.  I set no options on the 3c905 module.
+Bye
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-I get millions of dreaded:
-
- Nov 28 08:58:15 adglinux1 kernel:   9: @cf2b3440  length 800005ea status
-000105ea
-Nov 28 08:58:15 adglinux1 kernel:   10: @cf2b3480  length 800005ea status
-000105ea
-Nov 28 08:58:15 adglinux1 kernel:   11: @cf2b34c0  length 800005ea status
-000105ea
-Nov 28 08:58:15 adglinux1 kernel:   12: @cf2b3500  length 800005ea status
-000105ea
-Nov 28 08:58:15 adglinux1 kernel:   13: @cf2b3540  length 800005ea status
-000105ea
-Nov 28 08:58:15 adglinux1 kernel:   14: @cf2b3580  length 80000043 status
-00010043
-Nov 28 08:58:15 adglinux1 kernel:   15: @cf2b35c0  length 80000043 status
-00010043
-Nov 28 08:58:15 adglinux1 kernel: eth0: Transmit error, Tx status register
-82.
-Nov 28 08:58:15 adglinux1 kernel: Probably a duplex mismatch.  See
-Documentation/networking/vortex.txt
-Nov 28 08:58:15 adglinux1 kernel:   Flags; bus-master 1, dirty 77261(13)
-current 77263(15)
-
-What exactly does this mean?  How do I fix it?  I have looked at
-Documentation/networking/vortex.txt, but I don't know what this
-HDX/FDX means exactly, and how works with a hub or switch.  Would my
-problem be fixed by replacing the hub with a "switch"?
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+iD8DBQE8BPo7vIHrJes3kVIRAqtJAJ9zDUEC3hOr/YrhD0u9ffDq+0Qu/gCgkCFO
+BZ/hoLNeJn69teIN8L1msSI=
+=lXPv
+-----END PGP SIGNATURE-----

@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314338AbSDVSJG>; Mon, 22 Apr 2002 14:09:06 -0400
+	id <S314385AbSDVSMa>; Mon, 22 Apr 2002 14:12:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314382AbSDVSJF>; Mon, 22 Apr 2002 14:09:05 -0400
-Received: from dsl-213-023-039-131.arcor-ip.net ([213.23.39.131]:50589 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S314338AbSDVSJE>;
-	Mon, 22 Apr 2002 14:09:04 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Larry McVoy <lm@bitmover.com>
+	id <S314394AbSDVSM3>; Mon, 22 Apr 2002 14:12:29 -0400
+Received: from server0011.freedom2surf.net ([194.106.56.14]:61799 "EHLO
+	server0011.freedom2surf.net") by vger.kernel.org with ESMTP
+	id <S314385AbSDVSM2>; Mon, 22 Apr 2002 14:12:28 -0400
+Date: Mon, 22 Apr 2002 19:19:53 +0100
+From: Ian Molton <spyro@armlinux.org>
+To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Cc: phillips@bonn-fries.net, lm@bitmover.com, linux-kernel@vger.kernel.org
 Subject: Re: BK, deltas, snapshots and fate of -pre...
-Date: Sun, 21 Apr 2002 20:09:38 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Larry McVoy <lm@bitmover.com>, Ian Molton <spyro@armlinux.org>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0204202108410.10137-100000@home.transmeta.com> <E16zLSQ-0001IS-00@starship> <20020422105340.J17613@work.bitmover.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16zLmM-0001In-00@starship>
+Message-Id: <20020422191953.034f51d4.spyro@armlinux.org>
+In-Reply-To: <31CB8B22019@vcnet.vc.cvut.cz>
+Reply-To: spyro@armlinux.org
+Organization: The dragon roost
+X-Mailer: Sylpheed version 0.7.4cvs5 (GTK+ 1.2.10; )
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 22 April 2002 19:53, Larry McVoy wrote:
-> > > On Sun, Apr 21, 2002 at 07:34:49PM +0200, Daniel Phillips wrote:
-> > > > How about a URL instead?  Any objection?
-> > > 
-> > > Yes.
-> > 
-> > And that objection is?  
+Petr Vandrovec Awoke this dragon, who will now respond:
+
 > 
-> My objection is that you are singling out one thing that you don't like and
-> attempting to impose your will on a project which is not under your control.
-> In the US, we still have some semblance of free speech rights and you are 
-> stomping all over those rights.
+>  Why we have kernel tarball at all, then? Just put URLs where you can 
+>  download different pieces of kernel, and we are done. You finally
 
-<confused>
-First I don't control it, then I'm stomping on rights.  What the?
+Actually, the kernel tarball is full of crap we dont need.
 
-> Your position would be somewhat stronger
-> if you were applying the same metric to all aspects of the kernel, which
-> you are not,
+Sooner or later its going to get too big and be split up into
 
-If I were able, I'd fix all bugs in the kernel at once too.  But I am not able
-to do that so I do what I can.  Anyway, there is only one non-open tool in the
-toochain, it attracts special attention.
+core kernel
+drivers (drivers/net, drivers/video etc.)
+arch specifics
+documentation
 
-> but even then I would object based on the fact that it isn't
-> your job to police the kernel for political correctness.  If you want that
-> to be your job, go form your own project and impose whatever rules you see
-> fit.
-
-OK, so you are now requiring that I fix everything that is wrong with the
-kernel before you reinstate your offer?
-
--- 
-Daniel
+all for seperate download.

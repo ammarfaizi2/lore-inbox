@@ -1,70 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272439AbRH3Umf>; Thu, 30 Aug 2001 16:42:35 -0400
+	id <S272433AbRH3Ufz>; Thu, 30 Aug 2001 16:35:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272438AbRH3UmZ>; Thu, 30 Aug 2001 16:42:25 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:14345 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id <S272434AbRH3UmO>;
-	Thu, 30 Aug 2001 16:42:14 -0400
-To: <linux-kernel@vger.kernel.org>
-Subject: OHCI1394 hangs
-From: Krzysztof Halasa <khc@intrepid.pm.waw.pl>
-Date: 30 Aug 2001 22:32:34 +0200
-Message-ID: <m31yltl259.fsf@intrepid.pm.waw.pl>
+	id <S272436AbRH3Ufq>; Thu, 30 Aug 2001 16:35:46 -0400
+Received: from wildsau.idv-edu.uni-linz.ac.at ([140.78.40.25]:47372 "EHLO
+	wildsau.idv-edu.uni-linz.ac.at") by vger.kernel.org with ESMTP
+	id <S272433AbRH3Uf0>; Thu, 30 Aug 2001 16:35:26 -0400
+From: Herbert Rosmanith <herp@wildsau.idv-edu.uni-linz.ac.at>
+Message-Id: <200108302035.f7UKZ6I20020@wildsau.idv-edu.uni-linz.ac.at>
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+To: linux-kernel@vger.kernel.org
+Date: Thu, 30 Aug 2001 22:35:06 +0200 (MET DST)
+X-Mailer: ELM [version 2.4ME+ PL37 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-2.4.9 UP kernel here, OHCI 1394 Exsys card + Sony DCR-TRV110E Digital8
-camcorder. 440BX mobo.
-
-The problem manifests itselt when I turn the camera off and then try
-to load the ohci1394 driver. It halts with the following messages
-(debugging on, hand-edited):
-
-devctl: Bus reset requested
-Get PHY Req timeout [0x0/0x0/100]
-IntEvent: 20010
-irq_handler: Bus reset requested
-Cancel request received
-IntEvent: 20000
-IntEvent: 20000
-(this message loops here)
-
-The driver loads and works correctly when the camera is on or when nothing
-is connected to 1394 bus.
 
 
+hi,
 
-00:0d.0 FireWire (IEEE 1394): Texas Instruments: Unknown device 8020 (prog-if 10 [OHCI])
-  Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-  Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-  Latency: 32 (750ns min, 1000ns max), cache line size 08
-  Interrupt: pin A routed to IRQ 10
-  Region 0: Memory at d9004000 (32-bit, non-prefetchable) [size=2K]
-  Region 1: Memory at d9000000 (32-bit, non-prefetchable) [size=16K]
-  Capabilities: [44] Power Management version 1
-  Flags: PMEClk- DSI- D1- D2+ AuxCurrent=0mA PME(D0-,D1-,D2+,D3hot+,D3cold-)
-  Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+I just can't see why the new min/max macros are any better than the old
+one.
+
+given the following two variables: "signed int i" and "unsigned int j"
+assume i=-1 and j=2. we all know that -1 < 2, unfortunately, C doesnt
+know that, probably when these values are stored in machineword quantities.
+(i.e. no problem wich char and short, but with int on 32bit platform).
+
+now, the new macros come in. we could now either write:
+
+    min(unsigned int,i,j)           ; case 1
+or
+    min(signed int,i,j)             ; case 2
 
 
-The IRQ is being shared with (inactive) SB Live:
+when casting to unsigned int, -1 will become 0xffffffff and 
+"min(unsigned int,-1,2)" will return 2. this is wrong.
 
-00:0b.0 Multimedia audio controller: Creative Labs SB Live! EMU10000 (rev 08)
-  Subsystem: Creative Labs CT4832 SBLive! Value
-  Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-  Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-  Latency: 32 (500ns min, 5000ns max)
-  Interrupt: pin A routed to IRQ 10
-  Region 0: I/O ports at d800 [size=32]
-  Capabilities: [dc] Power Management version 1
-  Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-  Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+case 2 will give the right result.
 
-Any ideas?
--- 
-Krzysztof Halasa
-Network Administrator
+but what will happen if the unsigned variable is so large that it will
+use the most significant bit?
+
+assume i=-1 and j=0xfffffff0;
+still, -1 < 0xfffffff0 is true.
+
+	min(unsigned int,i,j)
+will give 0xfffffff0 because its < 0xffffffff;
+wrong result.
+
+	min(signed int,i,j)
+will give 0xfffffff0 because it will be cast to -16 which is < -1.
+wrong result again.
+
+I think this shows that the type-argument in the macros gain nothing.
+Instead, whenever we encounter such a problem, the code should be
+closely investigated.
+
+I think that this really is some compiler-issue. signed/unsigned comparison
+is okay for char and short, but not for int; looks like the compiler
+forgets to set or evaluate the carry-flag, perhaps?
+

@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265934AbUBCI3U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 03:29:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265937AbUBCI3U
+	id S265924AbUBCI21 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 03:28:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265934AbUBCI21
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 03:29:20 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:19146 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S265934AbUBCI3O (ORCPT
+	Tue, 3 Feb 2004 03:28:27 -0500
+Received: from dp.samba.org ([66.70.73.150]:57835 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265924AbUBCI20 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 03:29:14 -0500
-Date: Tue, 3 Feb 2004 09:29:49 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] restore protections after forced fault in get_user_pages
-Message-ID: <20040203082949.GA1116@elte.hu>
-References: <200402030009.i1309TeY016316@magilla.sf.frob.com> <Pine.LNX.4.58.0402021616340.9720@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402021616340.9720@home.osdl.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: SpamAssassin 2.60
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 3 Feb 2004 03:28:26 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Srivatsa Vaddagiri <vatsa@in.ibm.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>,
+       dipankar@in.ibm.com
+Subject: Re: [PATCH 3/4] 2.6.2-rc2-mm2 CPU Hotplug: The Core 
+In-reply-to: Your message of "Tue, 03 Feb 2004 09:04:36 BST."
+             <20040203080436.GA374@elte.hu> 
+Date: Tue, 03 Feb 2004 19:16:27 +1100
+Message-Id: <20040203082839.DA05B2C0AB@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Linus Torvalds <torvalds@osdl.org> wrote:
-
-> > I think this question is orthogonal to my concern about follow_page.
+In message <20040203080436.GA374@elte.hu> you write:
 > 
-> The follow_page issue should be fixable by just marking the _page_
-> dirty inside the ptrace routines. I think we do that anyway (or we'd
-> already be buggy wrt perfectly normal writes).
+> * Rusty Russell <rusty@rustcorp.com.au> wrote:
+> 
+> > This terminating signal idea is simply flawed: affinity is inherited,
+> > so you're killing a process which knows nothing anyway.
+> > 
+> > If we can't do it well, leave it to userspace to sort out 8)
+> 
+> yes, but currently there's no mechanism for userspace to get notified -
+> hence no clean way for userspace to sort it out. (other than userspace
+> continuously polling the CPU mask - bleh.) But this is a separate issue.
 
-the follow_page() issue could be handled like the 4/4 patch does it: a
-repeat-until loop of manual-fault + lookup-pte (we break out of the loop
-if the manual fault fails or when the lookup is successful). The race
-window is so small that the repeating solution is i think far superior
-to artificially dirtying the pte.
+We use /sbin/hotplug at the moment.  I'm hoping that DBUS turn this
+from "possible" into "easy" some day...
 
-	Ingo
+Thanks,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

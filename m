@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317164AbSEXPh6>; Fri, 24 May 2002 11:37:58 -0400
+	id <S317180AbSEXPoQ>; Fri, 24 May 2002 11:44:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317144AbSEXPh2>; Fri, 24 May 2002 11:37:28 -0400
-Received: from daimi.au.dk ([130.225.16.1]:3942 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S317146AbSEXPgk>;
-	Fri, 24 May 2002 11:36:40 -0400
-Message-ID: <3CEE5DFB.985EFF6E@daimi.au.dk>
-Date: Fri, 24 May 2002 17:36:27 +0200
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: It hurts when I shoot myself in the foot
-In-Reply-To: <E17BHKb-0006hz-00@the-village.bc.nu>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S314457AbSEXPoP>; Fri, 24 May 2002 11:44:15 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:13321 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S317180AbSEXPoO>; Fri, 24 May 2002 11:44:14 -0400
+Date: Fri, 24 May 2002 16:43:27 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jan Kara <jack@suse.cz>,
+        Nathan Scott <nathans@sgi.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Quota patches
+Message-ID: <20020524164327.A20050@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Martin Dalecki <dalecki@evision-ventures.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Jan Kara <jack@suse.cz>,
+	Nathan Scott <nathans@sgi.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E17BHEJ-0006ed-00@the-village.bc.nu> <3CEE4ECB.5070603@evision-ventures.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > If the kernel knew multipliers couldn't it actually use the TSCs
-> > anyway? Of course it would take some work, but is there any
-> > reason why it would not be posible?
-> 
-> In 2.4 yes. In 2.5 it would be close to impossible due to the pre-empt code
+On Fri, May 24, 2002 at 04:31:39PM +0200, Martin Dalecki wrote:
+> It is an illusion to think that you can actually run *that old*
+> a.out binaries on a modern kernel I think.
 
-Couldn't that be solved in one of the following ways?
+Of course you can.  Even the latest OpenLinux release (shipping 2.4.13-ac)
+uses a libc4/a.out based installer fo space reasons.  Not to forget the
+old quake1 binary from some redhat 4.x CD I run from time to time :)
 
-1) Disable pre-emption while reading TSC and CPU nr.
-2) Use affinity for processes pre-empted in kernel mode.
-3) Disable pre-emption for SMP systems.
-
--- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:razor-report@daimi.au.dk

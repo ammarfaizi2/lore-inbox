@@ -1,124 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262894AbTDRHMH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 03:12:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbTDRHMG
+	id S262903AbTDRHMI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 03:12:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbTDRHMI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 03:12:06 -0400
-Received: from dp.samba.org ([66.70.73.150]:34006 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262894AbTDRHME (ORCPT
+	Fri, 18 Apr 2003 03:12:08 -0400
+Received: from dp.samba.org ([66.70.73.150]:34262 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262903AbTDRHME (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 18 Apr 2003 03:12:04 -0400
 From: Rusty Russell <rusty@rustcorp.com.au>
 To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] __module_get()
-Date: Fri, 18 Apr 2003 17:17:58 +1000
-Message-Id: <20030418072401.87DB92C014@lists.samba.org>
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [PATCH] SET_MODULE_OWNER comment
+Date: Fri, 18 Apr 2003 17:23:38 +1000
+Message-Id: <20030418072401.8C3E52C016@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Re-xmit.  Linus, please apply.
+Re-xmit.  This should clarify when to use SET_MODULE_OWNER: some
+people thought it was the One True Way to do the owner assignment.
 
-Name: __module_get
-Author: Rusty Russell
-Status: Trivial
+Linus, pleae apply.
+Rusty.
 
-D: Introduces __module_get for places where we know we already hold
-D: a reference and ignoring the fact that the module is being "rmmod --wait"ed
-D: is simpler.
-
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .5001-linux-2.5.67-bk5/fs/filesystems.c .5001-linux-2.5.67-bk5.updated/fs/filesystems.c
---- .5001-linux-2.5.67-bk5/fs/filesystems.c	2003-04-14 13:45:44.000000000 +1000
-+++ .5001-linux-2.5.67-bk5.updated/fs/filesystems.c	2003-04-14 15:44:36.000000000 +1000
-@@ -32,17 +32,7 @@ static rwlock_t file_systems_lock = RW_L
- /* WARNING: This can be used only if we _already_ own a reference */
- void get_filesystem(struct file_system_type *fs)
- {
--	if (!try_module_get(fs->owner)) {
--#ifdef CONFIG_MODULE_UNLOAD
--		unsigned int cpu = get_cpu();
--		local_inc(&fs->owner->ref[cpu].count);
--		put_cpu();
--#else
--		/* Getting filesystem while it's starting up?  We're
--                   already supposed to have a reference. */
--		BUG();
--#endif
--	}
-+	__module_get(fs->owner);
- }
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.67-bk1/include/linux/module.h working-2.5.67-bk1-set-owner/include/linux/module.h
+--- linux-2.5.67-bk1/include/linux/module.h	2003-04-08 11:15:01.000000000 +1000
++++ working-2.5.67-bk1-set-owner/include/linux/module.h	2003-04-09 15:15:47.000000000 +1000
+@@ -408,6 +408,12 @@ __attribute__((section(".gnu.linkonce.th
+ #endif /* MODULE */
  
- void put_filesystem(struct file_system_type *fs)
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .5001-linux-2.5.67-bk5/include/linux/module.h .5001-linux-2.5.67-bk5.updated/include/linux/module.h
---- .5001-linux-2.5.67-bk5/include/linux/module.h	2003-04-08 11:15:01.000000000 +1000
-+++ .5001-linux-2.5.67-bk5.updated/include/linux/module.h	2003-04-14 15:45:15.000000000 +1000
-@@ -255,6 +255,7 @@ struct module *module_text_address(unsig
- 
- #ifdef CONFIG_MODULE_UNLOAD
- 
-+unsigned int module_refcount(struct module *mod);
- void __symbol_put(const char *symbol);
- #define symbol_put(x) __symbol_put(MODULE_SYMBOL_PREFIX #x)
- void symbol_put_addr(void *addr);
-@@ -265,6 +266,17 @@ void symbol_put_addr(void *addr);
- #define local_dec(x) atomic_dec(x)
- #endif
- 
-+/* Sometimes we know we already have a refcount, and it's easier not
-+   to handle the error case (which only happens with rmmod --wait). */
-+static inline void __module_get(struct module *module)
-+{
-+	if (module) {
-+		BUG_ON(module_refcount(module) == 0);
-+		local_inc(&module->ref[get_cpu()].count);
-+		put_cpu();
-+	}
-+}
+ #define symbol_request(x) try_then_request_module(symbol_get(x), "symbol:" #x)
 +
- static inline int try_module_get(struct module *module)
- {
- 	int ret = 1;
-@@ -300,6 +317,9 @@ static inline int try_module_get(struct 
- static inline void module_put(struct module *module)
- {
- }
-+static inline void __module_get(struct module *module)
-+{
-+}
- #define symbol_put(x) do { } while(0)
- #define symbol_put_addr(p) do { } while(0)
++/* If you want backwards compat: some structs didn't have owner fields once */
++/* Think of SET_MODULE_OWNER like an IBM mainframe: leave it in a dark 
++   corner for years, don't break it, but don't ever upgrade it either :) 
++   If there is something newer and sexier than the mainframe, it's ok to 
++   use that instead.  The mainframe won't feel lonely. -- Jeff Garzik */
+ #define SET_MODULE_OWNER(dev) ((dev)->owner = THIS_MODULE)
  
-@@ -357,6 +377,10 @@ static inline struct module *module_text
- #define symbol_put(x) do { } while(0)
- #define symbol_put_addr(x) do { } while(0)
- 
-+static inline void __module_get(struct module *module)
-+{
-+}
-+
- static inline int try_module_get(struct module *module)
- {
- 	return 1;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .5001-linux-2.5.67-bk5/kernel/module.c .5001-linux-2.5.67-bk5.updated/kernel/module.c
---- .5001-linux-2.5.67-bk5/kernel/module.c	2003-04-14 13:45:46.000000000 +1000
-+++ .5001-linux-2.5.67-bk5.updated/kernel/module.c	2003-04-14 15:44:36.000000000 +1000
-@@ -431,7 +431,7 @@ static inline void restart_refcounts(voi
- }
- #endif
- 
--static unsigned int module_refcount(struct module *mod)
-+unsigned int module_refcount(struct module *mod)
- {
- 	unsigned int i, total = 0;
- 
-@@ -439,6 +439,7 @@ static unsigned int module_refcount(stru
- 		total += atomic_read(&mod->ref[i].count);
- 	return total;
- }
-+EXPORT_SYMBOL(module_refcount);
- 
- /* This exists whether we can unload or not */
- static void free_module(struct module *mod);
+ /* BELOW HERE ALL THESE ARE OBSOLETE AND WILL VANISH */
+
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129366AbQKBVRG>; Thu, 2 Nov 2000 16:17:06 -0500
+	id <S129026AbQKBVRg>; Thu, 2 Nov 2000 16:17:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129312AbQKBVQ5>; Thu, 2 Nov 2000 16:16:57 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17996 "EHLO
+	id <S129312AbQKBVR1>; Thu, 2 Nov 2000 16:17:27 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:19020 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129026AbQKBVQo>; Thu, 2 Nov 2000 16:16:44 -0500
-Subject: Re: Floating point emulation problem
-To: izivkov@yahoo.com (Ivo Zivkov)
-Date: Thu, 2 Nov 2000 20:55:33 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20001102192108.85567.qmail@web9904.mail.yahoo.com> from "Ivo Zivkov" at Nov 02, 2000 11:21:08 AM
+	id <S129026AbQKBVRA>; Thu, 2 Nov 2000 16:17:00 -0500
+Subject: Re: non-gcc linux? (was Re: Where did kgcc go in 2.4.0-test10?)
+To: Tim@Rikers.org (Tim Riker)
+Date: Thu, 2 Nov 2000 21:17:44 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <3A01D6D1.44BD66FE@Rikers.org> from "Tim Riker" at Nov 02, 2000 02:04:17 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E13rROY-0001sz-00@the-village.bc.nu>
+Message-Id: <E13rRk1-0001ut-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am running kernel 2.2.5-15. I am trying to calculate sin(0.9), and it crashes on a 386 board with no f/p hardware. The message I get is:
-> 
-> "Unable to handle kernel paging request at virtual address 7f3c0070......"
-> 
-> The interesting thing is sin(0.8) works fine. On a Pentium the program executes fine for all values.
-> 
-> I tried in 2 different 386 boards, and I get the same problem. The program was compiled on R.H.6.0, and "libm" was present on the 386. I even linked the program statically to eliminate any library dependencies. 
-> 
-> This seems like a common problem, and easy to reproduce. Anybody had the same experience?
+> How can I insure that the largest possible amount of my efforts benefit
+> the community at large? Hopefully this will make it easier to move to
+> C99 or any other future compiler porting project.
 
-Either upgrade to a later 2.2 kernel or rebuild the kernel with gcc 2.7.2.3. Its
-a bug in the FPU code when compiled with later compilers
+The asm I dont know - its a hard problem. Things like C99 initializers for 2.5
+seem quite a reasonable change. There are also things like partial structure
+packing with __attribute((packed)) that can be hard to port
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,46 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262603AbUBZCFp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 21:05:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbUBZCFo
+	id S262590AbUBZCEq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 21:04:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUBZCEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 21:05:44 -0500
-Received: from fw.osdl.org ([65.172.181.6]:43141 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262603AbUBZCFk (ORCPT
+	Wed, 25 Feb 2004 21:04:46 -0500
+Received: from alt.aurema.com ([203.217.18.57]:57506 "EHLO smtp.sw.oz.au")
+	by vger.kernel.org with ESMTP id S262604AbUBZCEn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 21:05:40 -0500
-Date: Wed, 25 Feb 2004 18:06:00 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: torvalds@osdl.org, willy@debian.org, jes@wildopensource.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] move dma_consistent_dma_mask to the generic device
-Message-Id: <20040225180600.273bbf55.akpm@osdl.org>
-In-Reply-To: <1077759287.14081.24.camel@mulgrave>
-References: <1077759287.14081.24.camel@mulgrave>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Feb 2004 21:04:43 -0500
+Date: Thu, 26 Feb 2004 13:04:32 +1100 (EST)
+From: John Lee <johnl@aurema.com>
+To: Timothy Miller <miller@techsource.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] O(1) Entitlement Based Scheduler
+In-Reply-To: <403D3E47.4080501@techsource.com>
+Message-ID: <Pine.GSO.4.03.10402261238410.8776-100000@swag.sw.oz.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley <James.Bottomley@SteelEye.com> wrote:
+
+
+On Wed, 25 Feb 2004, Timothy Miller wrote:
+
+> > Hm, I would have thought the vast majority of xmms users would be running
+> > it on their own machines, to which they have root access. Hope I'm not 
+> > missing something here... :-)
+> 
+> It's a security concern to have to login as root unnecessarily.  It's 
+> bad enough we have to do that to change X11 configuration, but we 
+> shouldn't have to do that every time we want to start xmms.  And just 
+> suid root is also a security concern.
+
+Ah, OK. Security point taken.
+
+> > Assuming that all/most xmms users do have root permissions, I would think
+> > that this is a very minor inconvenience... isn't xmms something which you
+> > tend to start up once and leave running until you log out?
+
+<snip>
+
+> What about computer labs of Linux boxes where users do not own the 
+> computers and are therefore not allowed to login as root.  Should they 
+> be prohibited from running xmms properly?
 >
-> pci_dev.consistent_dma_mask was introduced to get around problems in the
->  IA64 Altix machine. 
+> If someone does not own the box they're using, but they want to, say, 
+> contribute to xmms development, they're going to be starting and 
+> stopping the program quite frequently.  They're not going to have any 
+> way to set the nice level.
 > 
->  Now, we have a use for it in x86: the aacraid needs coherent memory in a
->  31 bit address range (2GB).  Unfortunately, x86 is converted to the dma
->  model, so it can't see the pci_dev by the time coherent memory is
->  allocated. 
+> Consider what happens if some other user logs in remotely to that 
+> workstation and starts a large compile.
+
+Valid points. I guess I've been too accustomed to playing MP3s on my own
+box :-(.
+
+> >From my testing so far, X and xmms have been the only candidates for a
 > 
->  The solution to all of this is to move pci_dev.consistent_dma_mask to
->  dev.coherent_dma_mask and make x86 use it in the dma_alloc_coherent()
->  calls. 
+> They are the most talked about, so you tested them.  Fine.  But we all 
+> know that they are not representative samples.  There are bound to be 
+> numerous other programs that have similar problems.
 
-A bit more grepping is needed.
+No others that I've noticed yet, but yes you're probably right. Which is
+why I'm really looking forward to getting feedback in this area.
 
-sound/core/memalloc.c: In function `snd_pci_hack_alloc_consistent':
-sound/core/memalloc.c:103: structure has no member named `consistent_dma_mask'
+> The way your scheduler works, USERS cannot "allocate CPU to their tasks 
+> in any way they deem fit".  Only system administrators can.
+
+Correct, I used the wrong word. Another symptom of too much play on my own
+boxes...
+
+> I read your paper, and I think you have some wonderful ideas.  Don't get 
+> me wrong.  I think that your ideas, coupled with an interactivity 
+> estimator, have an excellent chance of producing a better scheduler.
+
+Thanks :-).
+
+And thanks for your feedback.
+
+Cheers,
+
+John
+
 

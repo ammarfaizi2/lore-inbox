@@ -1,74 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129401AbRBIAp2>; Thu, 8 Feb 2001 19:45:28 -0500
+	id <S129253AbRBIArs>; Thu, 8 Feb 2001 19:47:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129672AbRBIApS>; Thu, 8 Feb 2001 19:45:18 -0500
-Received: from river.it.gvsu.edu ([148.61.1.16]:16109 "EHLO river.it.gvsu.edu")
-	by vger.kernel.org with ESMTP id <S129401AbRBIApJ>;
-	Thu, 8 Feb 2001 19:45:09 -0500
-Message-ID: <3A833D84.7060302@lycosmail.com>
-Date: Thu, 08 Feb 2001 19:44:52 -0500
-From: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.1-ac6 i686; en-US; 0.7) Gecko/20010105
-X-Accept-Language: en
+	id <S129505AbRBIAri>; Thu, 8 Feb 2001 19:47:38 -0500
+Received: from cs.columbia.edu ([128.59.16.20]:59525 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S129253AbRBIAr0>;
+	Thu, 8 Feb 2001 19:47:26 -0500
+Date: Thu, 8 Feb 2001 16:47:17 -0800 (PST)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Donald Becker <becker@scyld.com>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Alan Cox <alan@redhat.com>,
+        <linux-kernel@vger.kernel.org>, <jes@linuxcare.com>
+Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
+In-Reply-To: <Pine.LNX.4.10.10102081924330.7141-100000@vaio.greennet>
+Message-ID: <Pine.LNX.4.30.0102081640550.31024-100000@age.cs.columbia.edu>
 MIME-Version: 1.0
-To: "Dunlap, Randy" <randy.dunlap@intel.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Mem detection problem
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE021@orsmsx31.jf.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dunlap, Randy wrote:
+On Thu, 8 Feb 2001, Donald Becker wrote:
 
->> From: Adam Schrotenboer [mailto:ajschrotenboer@lycosmail.com]
->> 
->> This is actually a repost of a problem that received few 
->> serious replies (IMNSHO).
+> > Or we can just tell people, "hey, don't use this 64-bit PCI card on a real 
+> > 64-bit system, it's broken by design"? I don't think that's a good 
+> > solution either.
 > 
-> 
-> Well, I claim not to have ignored it.
-> I have gone thru the entire patch-2.4.1 file and can't see
-> anything there that would cause what you are seeing.
-> 
-> You aren't using ACPI, right?  (not in your log files)
-> [That just makes the patch file of interest smaller.]
+> This is not a 64 bit PCI issue.  
 
-Nope, result of grep ACPI .config
-# CONFIG_ACPI is not set
+I know. It was just an ironic comment: we have a card with a 64-bit PCI 
+bus, we have a 64-bit system which very likely has some 64-bit PCI slots 
+on its motherboard, perfect match, right? Well, au contraire, the 
+performance is going to suck big-time, at least for Rx.
 
-> 
-> 
->> Basically 2.4.0 detects 192 MB(maybe 191, but big whoop) of 
->> memory. This 
->> is correct. However, 2.4.1-ac6 (as did Linus-blessed 2.4.1) 
->> detects 64. 
->> The problem is simple. 2.4.1 and later for some reason uses bios-88, 
->> instead of e820.
->> 
->> Attached are the dmesgs from 2.4.0 and 2.4.1-ac6.
-> 
-> 
-> Have you booted 2.4.0 again (lately)?  You log file is from
-> Jan-08-2001.  It may also report only 64 MB now, based on
-> some kind of BIOS change (or ESCD ...) since Jan-08.
+> It is an issue with the protocol
+> stack.  The IP protocol handling code must expect that the header words
+> will be misaligned in some circumstances.
 
-Yes I have booted 2.4.0 much more recently than Jan 8.
-Just checked, Jan 8 is the build date, not the boot date.
+I won't get into this...
 
+> It's amusing that a full receive copy is added without any concern, in
+> the same discussion where zero-copy transmit is treated as a holy grail!
+
+Amusing? Maybe. Zerocopy will still help with Tx, and with Rx we're just 
+trying to contain the damage, *with the existent stack*.
+
+> This might be a transceiver preamble issue with the specific
+> transceivers on the recent cards.  Debugging this type of problem
+> sometimes requires a D-Oscope on the MII data pins.
 > 
-> 
-> Someone else with a similar "problem" actually had a fruit fly
-> in one of their slots that caused a problem, so I would ask that
-> you (a) boot 2.4.0 again to see if it works now and (b) remove
-> adapters, clean slots, reseat adapters, boot 2.4.1 again.
-> 
-> ~Randy
-> 
-Weird, but might be worth the try, about as soon as I grab my 
-screwdriver from my car (in parking lot ~1/5 mile away)
+> Normally I would suspect a timing problem with a very fast machine, but
+> the Starfire hardware generates its own preamble and clock signals, not
+> the driver code.
+
+See my previous mail. It turned out to be just a confused chipset.
+
+Thanks,
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

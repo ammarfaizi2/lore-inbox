@@ -1,109 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270405AbTGMVHY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 17:07:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270406AbTGMVHY
+	id S270069AbTGMVTP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 17:19:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270403AbTGMVTP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 17:07:24 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:22151 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S270405AbTGMVHQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 17:07:16 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 13 Jul 2003 14:14:33 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: David Schwartz <davids@webmaster.com>
-cc: Eric Varsanyi <e0206@foo21.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: [Patch][RFC] epoll and half closed TCP connections
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIEEPEFAA.davids@webmaster.com>
-Message-ID: <Pine.LNX.4.55.0307131334380.15022@bigblue.dev.mcafeelabs.com>
-References: <MDEHLPKNGKAHNMBLJOLKIEEPEFAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 13 Jul 2003 17:19:15 -0400
+Received: from main.gmane.org ([80.91.224.249]:31973 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S270069AbTGMVTN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 17:19:13 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jan Rychter <jan@rychter.com>
+Subject: 2.4.22-pre5: rmmod i810_audio caused an oops
+Date: Sun, 13 Jul 2003 14:34:50 -0700
+Message-ID: <m2smpayuth.fsf@tnuctip.rychter.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Complaints-To: usenet@main.gmane.org
+X-Spammers-Please: blackholeme@rychter.com
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:DbwLuLZ3yqq+TdEDoN8G15YNgZ4=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Jul 2003, David Schwartz wrote:
+--=-=-=
+Content-Transfer-Encoding: quoted-printable
 
-> 	For most real-world loads, M is some fraction of N. The fraction
-> asymptotically approaches 1 as load increases because under load it takes
-> you longer to get back to polling, so a higher fraction of the descriptors
-> will be ready when you do.
->
-> 	Even if you argue that most real-world loads consists of a few very busy
-> file descriptors and a lot of idle file descriptors, why would you think
-> that this ratio changes as the number of connections increase? Say a group
-> of two servers is handling a bunch of connections. Some of those connections
-> will be very active and some will be very idle. But surely the *percentage*
-> of active connections won't change just becase the connections are split
-> over the servers 50/50 rather than 10/90.
->
-> 	If a particular protocol and usage sees 10 idle connections for every
-> active one, then N will be ten times M, and O(M) will be the same as O(N).
-> It's only if a higher percentage of connections are idle when there are more
-> connections (which seems an extreme rarity to me) that O(M) is better than
-> O(N).
+Typing 'rmmod i810_audio' proced this oops. Perhaps that's useful info.
+I can't reproduce this at will -- this happened after unloading alsa,
+loading i810_audio, then trying to unload it.
 
-Apoligize, I abused of O(*) (hopefully noone of my math profs are on lkml :).
-Yes, N/M has little/none fluctuation in the N domain. So, using O(*)
-correctly, they both scale O(N). But, we can trivially say that if we call
-CP the cost of poll() in CPU cycles, and CE the cost of epoll :
-
-CP(N, M) = KP * N
-EP(N, M) = KE * M
-
-Where KP and KE are constant that depends on the code architecture of the
-two systems. If we fix KA (active coefficent ) :
-
-KA = M / N
-
-we can write the scalability coefficent like :
-
-         KP * N          KP
-KS = ------------- = ---------
-      KE * KA * N     KE * KA
-
-The scalability coefficent is clearly inv. proportional to KA. Let's look
-at what the poll code does :
-
-1) It has to allocate the kernel buffer for events
-
-2) It has to copy it from userspace
-
-3) It has to allocate wait queue buffer calling get_free_page (possibly
-	multiple times when we talk about decent fds numbers)
-
-4) It has to loop calling N times f_op->poll() that in turn will add into
-	the wait queue getting/releasing IRQ locks
-
-5) Loop another M loop to copy events to userspace
-
-6) Call kfree() for all blocks allocated
-
-7) Call poll_freewait() that will go with another N loop to unregister
-	poll waits, that in turn will do another N IRQ locks
-
-The epoll code does remember/cache things so that KE is largely lower that
-KP, and this together with a pretty low KA explain results about poll
-scalability against epoll.
+Unable to handle kernel NULL pointer dereference at virtual address 00000004
+d09dccdf
+*pde =3D 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<d09dccdf>]    Tainted: P Z
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010246
+eax: 00000000   ebx: cfb295a0   ecx: d09df9b8   edx: 00000000
+esi: cf6f85f8   edi: cf6f8400   ebp: 00000003   esp: c8e0ff5c
+ds: 0018   es: 0018   ss: 0018
+Process rmmod (pid: 10044, stackpage=3Dc8e0f000)
+Stack: 00000000 d09e54b9 cfb295a0 00000000 cfe2dc00 d09e7240 d09e1000 bfffe=
+b08=20
+       c01f7996 cfe2dc00 d09e1000 fffffff0 d09e58aa d09e7240 c01181f3 d09e1=
+000=20
+       fffffff0 cb610000 bfffeb08 c0117597 d09e1000 00000000 c8e0e000 00000=
+001=20
+Call Trace:    [<d09e54b9>] [<d09e7240>] [<c01f7996>] [<d09e58aa>] [<d09e72=
+40>]
+  [<c01181f3>] [<c0117597>] [<c01086df>]
+Code: 89 50 04 89 02 c7 03 00 00 00 00 c7 43 04 00 00 00 00 ff 05=20
 
 
+>>EIP; d09dccdf <[ac97_codec]ac97_release_codec+1b/58>   <=3D=3D=3D=3D=3D
 
-> 	Is there any actual evidence to suggest that epoll scales better than poll
-> for "real loads"? Tests with increasing numbers of idle file descriptors as
-> the active count stays constant are not real loads.
+>>ebx; cfb295a0 <_end+f820788/10501248>
+>>ecx; d09df9b8 <[ac97_codec]codec_sem+0/13>
+>>esi; cf6f85f8 <_end+f3ef7e0/10501248>
+>>edi; cf6f8400 <_end+f3ef5e8/10501248>
+>>esp; c8e0ff5c <_end+8b07144/10501248>
 
-Yes, of course. The time spent inside poll/select becomes a PITA when you
-start dealing with huge number of fds. And this is kernel time. This does
-not obviously mean that if epoll is 10 times faster than poll under load,
-and you switch your app on epoll, it'll be ten times faster. It means that
-the kernel time spent inside poll will be 1/10. And many of the operations
-done by poll require IRQ locks and this increase the time the kernel
-spend with disabled IRQs, that is never a good thing.
+Trace; d09e54b9 <[ac97_codec].data.end+5aee/9695>
+Trace; d09e7240 <[ac97_codec].data.end+7875/9695>
+Trace; c01f7996 <pci_unregister_driver+3a/54>
+Trace; d09e58aa <[ac97_codec].data.end+5edf/9695>
+Trace; d09e7240 <[ac97_codec].data.end+7875/9695>
+Trace; c01181f3 <free_module+17/98>
+Trace; c0117597 <sys_delete_module+f3/1b0>
+Trace; c01086df <system_call+33/38>
 
+Code;  d09dccdf <[ac97_codec]ac97_release_codec+1b/58>
+00000000 <_EIP>:
+Code;  d09dccdf <[ac97_codec]ac97_release_codec+1b/58>   <=3D=3D=3D=3D=3D
+   0:   89 50 04                  mov    %edx,0x4(%eax)   <=3D=3D=3D=3D=3D
+Code;  d09dcce2 <[ac97_codec]ac97_release_codec+1e/58>
+   3:   89 02                     mov    %eax,(%edx)
+Code;  d09dcce4 <[ac97_codec]ac97_release_codec+20/58>
+   5:   c7 03 00 00 00 00         movl   $0x0,(%ebx)
+Code;  d09dccea <[ac97_codec]ac97_release_codec+26/58>
+   b:   c7 43 04 00 00 00 00      movl   $0x0,0x4(%ebx)
+Code;  d09dccf1 <[ac97_codec]ac97_release_codec+2d/58>
+  12:   ff 05 00 00 00 00         incl   0x0
 
+=2D-J.
 
-- Davide
+--=-=-=
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/EdB7Lth4/7/QhDoRAqLtAJ9IOspBPVcaadFkSdRQEczt1F9bnACfdFjB
+e2gifcQMQnSt6CSbVweq0l0=
+=c9dP
+-----END PGP SIGNATURE-----
+--=-=-=--
 

@@ -1,78 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130493AbRDWUO7>; Mon, 23 Apr 2001 16:14:59 -0400
+	id <S130552AbRDWUS3>; Mon, 23 Apr 2001 16:18:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129359AbRDWUOu>; Mon, 23 Apr 2001 16:14:50 -0400
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:49927 "EHLO
-	mailout00.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S130493AbRDWUOo>; Mon, 23 Apr 2001 16:14:44 -0400
-Message-ID: <3AE48D23.4A13FB91@folkwang-hochschule.de>
-Date: Mon, 23 Apr 2001 22:14:27 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Nettingsmeier 
-	<nettings@folkwang-hochschule.de>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre4 i686)
-X-Accept-Language: en
+	id <S131276AbRDWUSU>; Mon, 23 Apr 2001 16:18:20 -0400
+Received: from cnxt10143.conexant.com ([198.62.10.143]:21772 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S130552AbRDWUSN>; Mon, 23 Apr 2001 16:18:13 -0400
+Date: Mon, 23 Apr 2001 22:17:26 +0200 (CEST)
+From: <rui.sousa@mindspeed.com>
+X-X-Sender: <rsousa@localhost.localdomain>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+cc: Matt <madmatt@bits.bris.ac.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: ioctl arg passing
+In-Reply-To: <20010423195043.S682@nightmaster.csn.tu-chemnitz.de>
+Message-ID: <Pine.LNX.4.33.0104232155230.1417-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: jochen@tolot.escape.de, linux-kernel@vger.kernel.org
-Subject: 2.4.4-pre6 does not compile
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jochen wrote:
- 
-> 
->               Hi,
-> 
->       2.4.4-pre6 actually is the 4th 2.4.4pre-Patch that does not compile
->       without further patching on my system. :-(
-> 
-> 
->       ld -m elf_i386 -T /usr/src/linux-2.4.4-pre6/arch/i386/vmlinux.lds -e stext 
->       arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o \
->               --start-group \
->               arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o 
->       ipc/ipc.o \
->               drivers/block/block.o drivers/char/char.o drivers/misc/misc.o 
->       drivers/net/net.o drivers/media/media.o  drivers/ide/idedriver.o 
->       drivers/scsi/scsidrv.o drivers/scsi/aic7xxx/aic7xxx_drv.o drivers/cdrom/driver.o 
->       drivers/pci/driver.o drivers/video/video.o \
->               net/network.o \
->               /usr/src/linux-2.4.4-pre6/arch/i386/lib/lib.a 
->       /usr/src/linux-2.4.4-pre6/lib/lib.a /usr/src/linux-2.4.4-pre6/arch/i386/lib/lib.a \
->               --end-group \
->               -o vmlinux
->       /usr/src/linux-2.4.4-pre6/lib/lib.a(rwsem.o): In function `__rwsem_do_wake':
->       rwsem.o(.text+0x30): undefined reference to `__builtin_expect'
->       rwsem.o(.text+0x73): undefined reference to `__builtin_expect'
->       make: *** [vmlinux] Error 1
+On Mon, 23 Apr 2001, Ingo Oeser wrote:
+
+> On Mon, Apr 23, 2001 at 05:06:48PM +0100, Matt wrote:
+> > I'm writing a char device driver for a dsp card that drives a motion
+> > platform.
+>
+> Can you elaborate on the dsp card? Is it freely programmable? I'm
+> working on a project to support this kind of stuff via a
+> dedicated subsystem for Linux.
+
+Very interesting... The emu10k1 driver (SBLive!) that will appear
+shortly in acXX will support loading code to it's DSP. It's a very
+simple chip with only 16 instructions but it can generate
+hardware interrupts, DMA to host memory, 32 bit math. The maximum
+program size is 512 instructions (64 bits each) and can make use of 256
+registers (32 bits).
+
+Is there a web page for your project?
 
 
-same problem here.
-i'm using
-# gcc -v
-Reading specs from /usr/lib/gcc-lib/i486-suse-linux/2.95.2/specs
-gcc version 2.95.2 19991024 (release)
+> The problem is, that it's hard to get access to such cards. So
+> development is moving very slow :-(
 
-and this one has successfully built the last couple of kernels. if
-compiler requirements have changed, may i humbly suggest to add this
-to the pre-patch logfile ?
+If you care, the cheapest emu10k1 is 40$...
 
-btw: i have installed clean vanilla sources. the only  possible
-source of pollution was my old .config, which i copied into the tree
-before making menuconfig. but this has always worked before.
+> > To pass the instructions I'm using a generic ioctl which passes the data
+> > between user & kernel-space using a struct which is basically like:
+> >
+> > struct instruction_t {
+> > 	__s16 code;
+> > 	__s16 rxlen;
+> > 	__s16 *rxbuf;
+> > 	__s16 txlen;
+> > 	__s16 *txbuf;
+> > };
+>
+> Such stuff is handled already by my subsystem. You just have to
+> provide some function to do some checks on memory buffers
+> (readable, writeable, executable, unreachable, properly aligned
+> and sized transfer unit and so on) and functions for transfers
+> (which can be sych/asych), ioctls and and debugging interface for
+> special purposes.
+>
+> > (rx|tx)len is the length of the extra data that is provided/requested
+> > in/to be in (rx|tx)buf. Got me so far?
+> >
+> > Am I allowed to do this across the ioctl interface? In my ioctl
+> > "handler" I'm attempting to do:
+> >
+> > --8<--
+> >
+> > struct instruction_t local;
+> > __s16 *temp;
+> >
+> > copy_from_user( &local, ( struct instruction_t * ) arg, sizeof( struct instruction_t ) );
+> > temp = kmalloc( sizeof( __s16 ) * local.rxlen, GFP_KERNEL );
+> > copy_from_user( temp, arg, sizeof( __s16 ) * local.rxlen );
+                          ^^^ local.rxbuf, no ?
 
-regards,
+> > local.rxbuf = temp;
+> > temp = kmalloc( sizeof( __s16 ) * local.txlen, GFP_KERNEL );
+> > ....
+> >
+> > --8<--
+> >
+> > Is this going to work as expected? Or am I gonna generate oops-a-plenty?
 
-jörn
+I've used this method in some of my drivers. It works just fine, but
+as everybody already told you, you should do some checking on the values
+you are passed from user space.
 
-(please cc: me, i only read the archives, which have some lag.
-thanks.)
+> What do you want to do with the buffers? If you plan to expose
+> them to user space, this is just plain wrong.
+>
+> If you use it only inside the kernel, please check that you avoid
+> using more than PAGE_SIZE as rxlen/txlen. Do scatter-gather
+> instead and vmalloc(). Either in the driver or by hardware
+> features.
+>
+> Regards
+>
+> Ingo Oeser
+>
 
--- 
-Jörn Nettingsmeier     
-home://Kurfürstenstr.49.45138.Essen.Germany      
-phone://+49.201.491621
-http://www.folkwang.uni-essen.de/~nettings/
-http://www.linuxdj.com/audio/lad/
+Rui Sousa
+

@@ -1,82 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270183AbUJTMVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270129AbUJTK0s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270183AbUJTMVm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 08:21:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270125AbUJTMVl
+	id S270129AbUJTK0s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 06:26:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270201AbUJSXBO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 08:21:41 -0400
-Received: from relay.snowman.net ([66.92.160.56]:31760 "EHLO relay.snowman.net")
-	by vger.kernel.org with ESMTP id S269880AbUJTMUk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 08:20:40 -0400
-Date: Wed, 20 Oct 2004 08:21:08 -0400
-From: Stephen Frost <sfrost@snowman.net>
-To: LKML <linux-kernel@vger.kernel.org>,
-       Vserver <vserver@list.linux-vserver.org>
-Subject: Re: [Vserver] PROBLEM: Oops in log_do_checkpoint, using vserver
-Message-ID: <20041020122108.GC12780@ns.snowman.net>
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>,
-	Vserver <vserver@list.linux-vserver.org>
-References: <20041018032511.GY21419@ns.snowman.net> <20041018115523.GA2352@mail.13thfloor.at> <20041018122025.GA28813@ns.snowman.net> <20041019220100.GB12780@ns.snowman.net> <20041020024342.GA9260@mail.13thfloor.at>
+	Tue, 19 Oct 2004 19:01:14 -0400
+Received: from mail.kroah.org ([69.55.234.183]:62089 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270078AbUJSWqV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 18:46:21 -0400
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] PCI fixes for 2.6.9
+User-Agent: Mutt/1.5.6i
+In-Reply-To: <10982257372797@kroah.com>
+Date: Tue, 19 Oct 2004 15:42:17 -0700
+Message-Id: <1098225737586@kroah.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qjNfmADvan18RZcF"
-Content-Disposition: inline
-In-Reply-To: <20041020024342.GA9260@mail.13thfloor.at>
-X-Editor: Vim http://www.vim.org/
-X-Info: http://www.snowman.net
-X-Operating-System: Linux/2.4.24ns.3.0 (i686)
-X-Uptime: 08:16:42 up 263 days,  7:15, 12 users,  load average: 0.06, 0.27, 0.26
-User-Agent: Mutt/1.5.6+20040523i
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ChangeSet 1.1997.37.44, 2004/10/06 13:05:44-07:00, greg@kroah.com
 
---qjNfmADvan18RZcF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[PATCH] PCI: change cyrix.c driver to use pci_dev_present
 
-* Herbert Poetzl (herbert@13thfloor.at) wrote:
-> On Tue, Oct 19, 2004 at 06:01:00PM -0400, Stephen Frost wrote:
-> > Assertion failure in log_do_checkpoint() at fs/jbd/checkpoint.c:361:=20
-> > "drop_count !=3D 0 || cleanup_ret !=3D 0"
->=20
-> you can split up this assertion into
->=20
->  - drop_count !=3D 0
->  - cleanup_ret !=3D 0
->=20
-> and fail on that (or just output those values
-> before you panic) ... this might give some
-> deeper insight into the issue ...
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-Hmm, that's a good thought, though I have to say I'd really like to get
-a comment from the ext3 folks.  This is also a production server, so I'd
-kind of like to minimize the downtime. :)
 
-> > If there's anything else I can do to help get this resolved, please let
-> > me know..  This is the only problem I'm having with this server now,
-> > other than this it's behaving pretty nicely. :)
->=20
-> maybe until it gets fixed, mounting the ext3
-> without journal might help here?
+ arch/i386/kernel/cpu/cyrix.c |   19 +++++++++----------
+ 1 files changed, 9 insertions(+), 10 deletions(-)
 
-Yeah, I've mounted it as ext2 for now.  It's been working fine so far.
 
-	Stephen
+diff -Nru a/arch/i386/kernel/cpu/cyrix.c b/arch/i386/kernel/cpu/cyrix.c
+--- a/arch/i386/kernel/cpu/cyrix.c	2004-10-19 15:23:42 -07:00
++++ b/arch/i386/kernel/cpu/cyrix.c	2004-10-19 15:23:42 -07:00
+@@ -187,12 +187,19 @@
+ }
+ 
+ 
++#ifdef CONFIG_PCI
++static struct pci_device_id cyrix_55x0[] = {
++	{ PCI_DEVICE(PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5510) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5520) },
++	{ },
++};
++#endif
++
+ static void __init init_cyrix(struct cpuinfo_x86 *c)
+ {
+ 	unsigned char dir0, dir0_msn, dir0_lsn, dir1 = 0;
+ 	char *buf = c->x86_model_id;
+ 	const char *p = NULL;
+-	struct pci_dev *dev;
+ 
+ 	/* Bit 31 in normal CPUID used for nonstandard 3DNow ID;
+ 	   3DNow is IDd by bit 31 in extended CPUID (1*32+31) anyway */
+@@ -275,16 +282,8 @@
+ 		/*
+ 		 *  The 5510/5520 companion chips have a funky PIT.
+ 		 */  
+-		dev = pci_get_device(PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5510, NULL);
+-		if (dev) {
+-			pci_dev_put(dev);
+-			pit_latch_buggy = 1;
+-		}
+-		dev =  pci_get_device(PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5520, NULL);
+-		if (dev) {
+-			pci_dev_put(dev);
++		if (pci_dev_present(cyrix_55x0))
+ 			pit_latch_buggy = 1;
+-		}
+ 
+ 		/* GXm supports extended cpuid levels 'ala' AMD */
+ 		if (c->cpuid_level == 2) {
 
---qjNfmADvan18RZcF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBdlgzrzgMPqB3kigRApfOAKCPv6q4ds/sCLBw4B1UI4X8tsGnOwCffJWO
-nnqQRQeA6+ZO02mNz4DI1PE=
-=muVl
------END PGP SIGNATURE-----
-
---qjNfmADvan18RZcF--

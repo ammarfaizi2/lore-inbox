@@ -1,56 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268979AbUJKOQv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268987AbUJKOSY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268979AbUJKOQv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 10:16:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268989AbUJKOQv
+	id S268987AbUJKOSY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 10:18:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268993AbUJKOSY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 10:16:51 -0400
-Received: from linaeum.absolutedigital.net ([63.87.232.45]:937 "EHLO
-	linaeum.absolutedigital.net") by vger.kernel.org with ESMTP
-	id S268979AbUJKOQe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 10:16:34 -0400
-Date: Mon, 11 Oct 2004 10:16:25 -0400 (EDT)
-From: Cal Peake <cp@absolutedigital.net>
-To: viro@parcelfarce.linux.theplanet.co.uk
-cc: Jan Dittmer <j.dittmer@portrix.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       NetDev Mailing List <netdev@oss.sgi.com>, proski@gnu.org,
-       hermes@gibson.dropbear.id.au
-Subject: Re: [PATCH] Fix readw/writew warnings in drivers/net/wireless/hermes.h
-In-Reply-To: <20041011131603.GU23987@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.61.0410111014030.9330@linaeum.absolutedigital.net>
-References: <Pine.LNX.4.61.0410110702590.7899@linaeum.absolutedigital.net>
- <416A7484.1030703@portrix.net> <Pine.LNX.4.61.0410110819370.8480@linaeum.absolutedigital.net>
- <20041011131603.GU23987@parcelfarce.linux.theplanet.co.uk>
+	Mon, 11 Oct 2004 10:18:24 -0400
+Received: from smtp09.auna.com ([62.81.186.19]:39412 "EHLO smtp09.retemail.es")
+	by vger.kernel.org with ESMTP id S268987AbUJKOSL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 10:18:11 -0400
+Date: Mon, 11 Oct 2004 14:18:10 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: Linux 2.6.9-rc4
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+X-Mailer: Balsa 2.2.5
+Message-Id: <1097504290l.6177l.1l@werewolf.able.es>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII;
+	Format=Flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Oct 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
+Hi...
 
-> On Mon, Oct 11, 2004 at 08:23:35AM -0400, Cal Peake wrote:
-> > On Mon, 11 Oct 2004, Jan Dittmer wrote:
-> > 
-> > > Cal Peake wrote:
-> > > 
-> > > >  	inw((hw)->iobase + ( (off) << (hw)->reg_spacing )) : \
-> > > > -	readw((hw)->iobase + ( (off) << (hw)->reg_spacing )))
-> > > > +	readw((void __iomem *)(hw)->iobase + ( (off) << (hw)->reg_spacing )))
-> > > >  #define hermes_write_reg(hw, off, val) do { \
-> > > 
-> > > Isn't the correct fix to declare iobase as (void __iomem *) ?
-> > 
-> > iobase is an unsigned long, declaring it as a void pointer is prolly not 
-> > what we want to do here. The typecast seems proper. A lot of other drivers 
-> > do this as well thus it must be proper ;-)
-> 
-> Typecast is not a proper solution here.   Folks, there are cleanups underway
-> for all that mess, but it's not _that_ simple.
-> 
-> And adding casts to shut the warnings up is wrong in 99% of cases.
+Lets polish it... I get this warnings on build:
 
-ok, I'm retarded. I'll shut up for the moment and get a clue :^)
+  CC      fs/binfmt_elf.o
+fs/binfmt_elf.c: In function `padzero':
+fs/binfmt_elf.c:113: warning: ignoring return value of `clear_user', declared with attribute warn_unused_result
+include/asm/uaccess.h: In function `create_elf_tables':
+fs/binfmt_elf.c:175: warning: ignoring return value of `__copy_to_user', declared with attribute warn_unused_result
+fs/binfmt_elf.c:273: warning: ignoring return value of `copy_to_user', declared with attribute warn_unused_result
+fs/binfmt_elf.c: In function `load_elf_binary':
+fs/binfmt_elf.c:758: warning: ignoring return value of `clear_user', declared with attribute warn_unused_result
+fs/binfmt_elf.c: In function `fill_psinfo':
+fs/binfmt_elf.c:1226: warning: ignoring return value of `copy_from_user', declared with attribute warn_unused_result
 
--- Cal
+  CC [M]  drivers/ieee1394/raw1394.o
+include/asm/uaccess.h: In function `raw1394_read':
+drivers/ieee1394/raw1394.c:446: warning: ignoring return value of `__copy_to_user', declared with attribute warn_unused_result
+
+  CC      drivers/pci/msi.o
+drivers/pci/msi.c: In function `msi_set_mask_bit':
+drivers/pci/msi.c:80: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/pci/msi.c: In function `set_msi_affinity':
+drivers/pci/msi.c:121: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/pci/msi.c:126: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/pci/msi.c: In function `msi_free_vector':
+drivers/pci/msi.c:838: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/pci/msi.c: In function `reroute_msix_table':
+drivers/pci/msi.c:901: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/pci/msi.c:903: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/pci/msi.c:905: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/pci/msi.c:907: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+drivers/pci/msi.c:909: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/pci/msi.c:911: warning: passing arg 2 of `writel' makes pointer from integer without a cast
+
+  CC      drivers/scsi/aic7xxx/aic7xxx_osm.o
+drivers/scsi/aic7xxx/aic7xxx_osm.c:440: warning: 'aic7xxx' defined but not used
+drivers/scsi/aic7xxx/aic7xxx_osm.c:446: warning: 'dummy_buffer' defined but not used
+
+  CC [M]  net/ipv4/netfilter/ip_tables.o
+net/ipv4/netfilter/ip_tables.c: In function `do_replace':
+net/ipv4/netfilter/ip_tables.c:1133: warning: ignoring return value of `copy_to_user', declared with attribute warn_unused_result
+
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.1 (Community) for i586
+Linux 2.6.9-rc4-mm1 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #1
+
 

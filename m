@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314459AbSGDWDD>; Thu, 4 Jul 2002 18:03:03 -0400
+	id <S314529AbSGDWDR>; Thu, 4 Jul 2002 18:03:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314514AbSGDWDC>; Thu, 4 Jul 2002 18:03:02 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:53426 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S314459AbSGDWDC>; Thu, 4 Jul 2002 18:03:02 -0400
-Date: Fri, 5 Jul 2002 00:05:11 +0200
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Andrew Morton <akpm@zip.com.au>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Automatically mount or remount EXT3 partitions with EXT2 when alaptop is powered by a battery?
-Message-ID: <20020704220511.GA4728@pelks01.extern.uni-tuebingen.de>
-Mail-Followup-To: "Stephen C. Tweedie" <sct@redhat.com>,
-	Andrew Morton <akpm@zip.com.au>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <1024948946.30229.19.camel@turbulence.megapathdsl.net> <3D18A273.284F8EDD@zip.com.au> <20020628215942.GA3679@pelks01.extern.uni-tuebingen.de> <20020702131314.B4711@redhat.com>
+	id <S314546AbSGDWDQ>; Thu, 4 Jul 2002 18:03:16 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:65111 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S314529AbSGDWDP>; Thu, 4 Jul 2002 18:03:15 -0400
+Date: Thu, 4 Jul 2002 21:45:21 +0100
+From: Stephen Tweedie <sct@redhat.com>
+To: Naseer Bhatti <naseer@digitallinx.com>
+Cc: security@proftpd.org, security@apache.org, linux-kernel@vger.kernel.org,
+       sct@redhat.com, akpm@zip.com.au, adilger@turbolinux.com,
+       ext3-users@redhat.com
+Subject: Re: your mail
+Message-ID: <20020704214521.D27198@redhat.com>
+References: <000d01c22361$62c9d6f0$0100a8c0@digital>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020702131314.B4711@redhat.com>
-User-Agent: Mutt/1.4i
-From: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <000d01c22361$62c9d6f0$0100a8c0@digital>; from naseer@digitallinx.com on Thu, Jul 04, 2002 at 06:47:11PM +0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 02, 2002 at 01:13:14PM +0100, Stephen C. Tweedie wrote:
-> On Fri, Jun 28, 2002 at 11:59:42PM +0200, Daniel Kobras wrote:
-> > Or is there a
-> > way to flush the current queue of transactions, eg. by fsync()ing the
-> > underlying block device, or by sending a magic signal to kjournald? 
-> 
-> an fsync() on any file or directory on the filesystem will ensure that
-> all old transactions have completed, and a sync() will ensure that any
-> old transactions are at least on their way to disk.
+Hi,
 
-With emphasis on 'on the filesystem', I suppose?  In other words, if we
-have an ext3 fs on /dev/hda1 mounted on /mnt, it is not sufficient to
-fsync("/dev/hda1") to flush the transactions, but fsync("/mnt") will do?
-(Excuse the sloppy notation.)
+On Thu, Jul 04, 2002 at 06:47:11PM +0500, Naseer Bhatti <naseer@digitallinx.com> wrote:
 
-Regards,
+> I got these errors in the log on a Production server. I am running ProFTPD 1.2.4 with RedHat 7.2 Kernel 2.4.7-10 not yet compiled myself and Apache 1.3.26. I got my server stop responding and after reboot I checked the logs and got a lots of kernel bugs. ProFTPD was also involved in that. httpd (Apache 1.3.26) also gave some stack output. Correct me if I am wrong. I have attached the file for detailed analysis. Please check it and let me know about the possible bug/solution.
 
-Daniel.
+The log shows no sign of any ext3 problem.  I can't see anything in it
+which would justify trying to send a compressed log of nearly 400kB to
+an ext3 general users mailing list.
 
+For what it's worth, your dcache oopses are most often associated with
+bad memory --- try memtest86 on that machine before you go any
+further.
+
+--Stephen

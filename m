@@ -1,34 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131407AbRDSQhn>; Thu, 19 Apr 2001 12:37:43 -0400
+	id <S131386AbRDSQhn>; Thu, 19 Apr 2001 12:37:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131323AbRDSQhg>; Thu, 19 Apr 2001 12:37:36 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:9742 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131386AbRDSQhL>; Thu, 19 Apr 2001 12:37:11 -0400
-Subject: Re: light weight user level semaphores
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Thu, 19 Apr 2001 17:38:23 +0100 (BST)
-Cc: alonz@nolaviz.org (Alon Ziv),
-        linux-kernel@vger.kernel.org (Kernel Mailing List),
-        mkravetz@sequent.com (Mike Kravetz),
-        drepper@cygnus.com (Ulrich Drepper)
-In-Reply-To: <Pine.LNX.4.31.0104190849170.3842-100000@penguin.transmeta.com> from "Linus Torvalds" at Apr 19, 2001 09:03:42 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S131407AbRDSQhe>; Thu, 19 Apr 2001 12:37:34 -0400
+Received: from ns0.petreley.net ([64.170.109.178]:58330 "EHLO petreley.com")
+	by vger.kernel.org with ESMTP id <S131323AbRDSQgY>;
+	Thu, 19 Apr 2001 12:36:24 -0400
+Date: Thu, 19 Apr 2001 09:36:09 -0700
+From: Nicholas Petreley <nicholas@petreley.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: More ATA100 oddity
+Message-ID: <20010419093609.A7170@petreley.com>
+Mail-Followup-To: Nicholas Petreley <nicholas@petreley.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14qHRp-0007Yc-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> can libraries use fast semaphores behind the back of the user? They might
-> well want to use the semaphores exactly for things like memory allocator
-> locking etc. But libc certainly cant use fd's behind peoples backs.
+I just noticed something odd. (I'm using 2.4.3-ac9 on an
+ASUS A7V, Athlon 1000 mHz)
 
-libc is entitled to, and most definitely does exactly that. Take a look at
-things like gethostent, getpwent etc etc.
 
-Alan
+(1) As noted in other messages, my machine boots up the Promise
+chipset as UDMA(100)
 
+
+hde: 80041248 sectors (40981 MB) w/2048KiB Cache, CHS=79406/16/63, UDMA(100)
+
+
+(2) hdparm recognizes it as UDMA5 with 27 MB/sec speed
+
+
+/dev/hde:
+ 
+ Model=Maxtor 54098H8, FwRev=DAC10SC0, SerialNo=K80EP5NC Config={ Fixed }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
+ BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16,MultSect=off
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes,LBAsects=80041248
+ IORDY=on/off, tPIO={min:120,w/IORDY:120},tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4
+ DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5
+ Timing buffered disk reads:  64 MB in  2.31 seconds = 27.71 MB/sec
+
+
+
+(3) /proc/ide/pdc202xx sees it as UDMA 4
+
+
+
+                                PDC20265 Chipset.
+------------------------------- General Status ---------------------------------
+Burst Mode                           : enabled
+Host Mode                            : Normal
+Bus Clocking                         : 33 PCI Internal
+IO pad select                        : 10 mA
+Status Polling Period                : 1
+Interrupt Check Status Polling Delay : 2
+--------------- Primary Channel ---------------- Secondary Channel -------------
+                enabled                          enabled
+66 Clocking     enabled                          disabled
+           Mode PCI                         Mode PCI
+                FIFO Empty                       FIFO Empty
+--------------- drive0 --------- drive1 -------- drive0---------- drive1 ------
+DMA enabled:    yes              no              no             no
+DMA Mode:       UDMA 4           NOTSET          NOTSET         NOTSET
+PIO Mode:       PIO 4            NOTSET           NOTSET        NOTSET
+
+
+
+Oh, and by the way, ACPI support has never powered off this
+machine.  Ever.  But I use apm and I'm happy. 
+
+
+-Nick
+
+-- 
+**********************************************************
+Nicholas Petreley   Caldera Systems - LinuxWorld/InfoWorld
+nicholas@petreley.com - http://www.petreley.com - Eph 6:12
+**********************************************************
+.

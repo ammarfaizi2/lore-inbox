@@ -1,131 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316672AbSHFWyg>; Tue, 6 Aug 2002 18:54:36 -0400
+	id <S316544AbSHFXAS>; Tue, 6 Aug 2002 19:00:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316674AbSHFWxy>; Tue, 6 Aug 2002 18:53:54 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:481 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S316672AbSHFWxn>;
-	Tue, 6 Aug 2002 18:53:43 -0400
-From: Paul Mackerras <paulus@samba.org>
+	id <S316408AbSHFXAR>; Tue, 6 Aug 2002 19:00:17 -0400
+Received: from p0001.as-l043.contactel.cz ([194.108.242.1]:13813 "EHLO
+	SnowWhite.SuSE.cz") by vger.kernel.org with ESMTP
+	id <S316544AbSHFXAR> convert rfc822-to-8bit; Tue, 6 Aug 2002 19:00:17 -0400
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Intel EtherExpress 16 can use 0x240 too
+From: Pavel@Janik.cz (Pavel =?iso-8859-2?q?Jan=EDk?=)
+X-Face: $"d&^B_IKlTHX!y2d,3;grhwjOBqOli]LV`6d]58%5'x/kBd7.MO&n3bJ@Zkf&RfBu|^qL+
+ ?/Re{MpTqanXS2'~Qp'J2p^M7uM:zp[1Xq#{|C!*'&NvCC[9!|=>#qHqIhroq_S"MH8nSH+d^9*BF:
+ iHiAs(t(~b#1.{w.d[=Z
+Date: Tue, 06 Aug 2002 23:40:26 +0200
+Message-ID: <m3wur3hdit.fsf@Janik.cz>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.3.50
+ (i386-suse-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15696.21420.687910.686964@argo.ozlabs.ibm.com>
-Date: Wed, 7 Aug 2002 08:54:36 +1000 (EST)
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] add FP exception mode prctl [RESEND]
-X-Mailer: VM 6.75 under Emacs 20.7.2
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+Hi,
 
-This patch that adds a prctl so that processes can set their
-floating-point exception mode on PPC (and potentially on PPC64).  We
-need this because the FP exception mode is controlled by bits in the
-machine state register, which can only be accessed by the kernel, and
-because the exception mode setting interacts with the lazy FPU
-save/restore that the kernel does.
+please apply this patch. It helped my customer to reuse those old cards (we
+have about 500 pcs of it in various client systems).
 
-Would you mind applying this to your tree?
-
- arch/ppc/kernel/process.c   |   10 ++++++++--
- include/asm-ppc/processor.h |    5 +++--
- include/linux/prctl.h       |    8 ++++++++
- kernel/sys.c                |   13 +++++++++++++
- 4 files changed, 32 insertions(+), 4 deletions(-)
-
-Thanks,
-Paul.
-
-
-diff -urN linux-2.5/include/linux/prctl.h pmac-2.5/include/linux/prctl.h
---- linux-2.5/include/linux/prctl.h	Thu Apr 18 10:38:54 2002
-+++ pmac-2.5/include/linux/prctl.h	Fri Aug  2 10:34:04 2002
-@@ -26,4 +26,12 @@
- # define PR_FPEMU_NOPRINT	1	/* silently emulate fp operations accesses */
- # define PR_FPEMU_SIGFPE	2	/* don't emulate fp operations, send SIGFPE instead */
- 
-+/* Get/set floating-point exception mode (if meaningful) */
-+#define PR_GET_FPEXC	11
-+#define PR_SET_FPEXC	12
-+# define PR_FP_EXC_DISABLED	0	/* FP exceptions disabled */
-+# define PR_FP_EXC_NONRECOV	1	/* async non-recoverable exc. mode */
-+# define PR_FP_EXC_ASYNC	2	/* async recoverable exception mode */
-+# define PR_FP_EXC_PRECISE	3	/* precise exception mode */
-+
- #endif /* _LINUX_PRCTL_H */
-diff -urN linux-2.5/kernel/sys.c pmac-2.5/kernel/sys.c
---- linux-2.5/kernel/sys.c	Fri Aug  2 07:48:46 2002
-+++ pmac-2.5/kernel/sys.c	Fri Aug  2 16:25:32 2002
-@@ -37,6 +37,12 @@
- #ifndef GET_FPEMU_CTL
- # define GET_FPEMU_CTL(a,b)	(-EINVAL)
- #endif
-+#ifndef SET_FPEXC_CTL
-+# define SET_FPEXC_CTL(a,b)	(-EINVAL)
-+#endif
-+#ifndef GET_FPEXC_CTL
-+# define GET_FPEXC_CTL(a,b)	(-EINVAL)
-+#endif
- 
- /*
-  * this is where the system-wide overflow UID and GID are defined, for
-@@ -1283,6 +1289,13 @@
- 		case PR_GET_FPEMU:
- 			error = GET_FPEMU_CTL(current, arg2);
- 			break;
-+		case PR_SET_FPEXC:
-+			error = SET_FPEXC_CTL(current, arg2);
-+			break;
-+		case PR_GET_FPEXC:
-+			error = GET_FPEXC_CTL(current, arg2);
-+			break;
-+
- 
- 		case PR_GET_KEEPCAPS:
- 			if (current->keep_capabilities)
-diff -urN linux-2.5/arch/ppc/kernel/process.c pmac-2.5/arch/ppc/kernel/process.c
---- linux-2.5/arch/ppc/kernel/process.c	Sat Jul 27 21:52:45 2002
-+++ pmac-2.5/arch/ppc/kernel/process.c	Sat Aug  3 19:22:31 2002
-@@ -418,7 +418,6 @@
- #endif /* CONFIG_ALTIVEC */
- }
- 
--#if 0
- int set_fpexc_mode(struct task_struct *tsk, unsigned int val)
+diff -urN linux.orig/drivers/net/eexpress.c linux/drivers/net/eexpress.c
+--- linux.orig/drivers/net/eexpress.c	Tue Aug  6 23:23:27 2002
++++ linux/drivers/net/eexpress.c	Tue Aug  6 23:24:19 2002
+@@ -341,7 +341,7 @@
+ int __init express_probe(struct net_device *dev)
  {
- 	struct pt_regs *regs = tsk->thread.regs;
-@@ -431,7 +430,14 @@
- 			| tsk->thread.fpexc_mode;
- 	return 0;
- }
--#endif
-+
-+int get_fpexc_mode(struct task_struct *tsk, unsigned long adr)
-+{
-+	unsigned int val;
-+
-+	val = __unpack_fe01(tsk->thread.fpexc_mode);
-+	return put_user(val, (unsigned int *) adr);
-+}
+ 	unsigned short *port;
+-	static unsigned short ports[] = { 0x300,0x310,0x270,0x320,0x340,0 };
++	static unsigned short ports[] = { 0x240,0x300,0x310,0x270,0x320,0x340,0 };
+ 	unsigned short ioaddr = dev->base_addr;
  
- int sys_clone(int p1, int p2, int p3, int p4, int p5, int p6,
- 	      struct pt_regs *regs)
-diff -urN linux-2.5/include/asm-ppc/processor.h pmac-2.5/include/asm-ppc/processor.h
---- linux-2.5/include/asm-ppc/processor.h	Wed Jul 31 09:53:49 2002
-+++ pmac-2.5/include/asm-ppc/processor.h	Fri Aug  2 16:26:42 2002
-@@ -747,9 +747,10 @@
- #define KSTK_ESP(tsk)  ((tsk)->thread.regs? (tsk)->thread.regs->gpr[1]: 0)
- 
- /* Get/set floating-point exception mode */
--#define GET_FP_EXC_MODE(tsk)		__unpack_fe01((tsk)->thread.fpexc_mode)
--#define SET_FP_EXC_MODE(tsk, val)	set_fpexc_mode((tsk), (val))
-+#define GET_FPEXC_CTL(tsk, adr)	get_fpexc_mode((tsk), (adr))
-+#define SET_FPEXC_CTL(tsk, val)	set_fpexc_mode((tsk), (val))
- 
-+extern int get_fpexc_mode(struct task_struct *tsk, unsigned long adr);
- extern int set_fpexc_mode(struct task_struct *tsk, unsigned int val);
- 
- static inline unsigned int __unpack_fe01(unsigned int msr_bits)
+ 	SET_MODULE_OWNER(dev);
+-- 
+Pavel Janík
+
+640 K ought be enough.
+                  -- Bill Gates, 1984

@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262400AbTI0H2M (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Sep 2003 03:28:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262402AbTI0H2M
+	id S262407AbTI0Id2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Sep 2003 04:33:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbTI0Id2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Sep 2003 03:28:12 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6404 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262400AbTI0H2L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Sep 2003 03:28:11 -0400
-Date: Sat, 27 Sep 2003 08:28:06 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: Ejecting a CardBus device
-Message-ID: <20030927082806.A681@flint.arm.linux.org.uk>
-Mail-Followup-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-	Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-References: <1064628015.1393.5.camel@teapot.felipe-alfaro.com>
+	Sat, 27 Sep 2003 04:33:28 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:34701 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262407AbTI0IdY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Sep 2003 04:33:24 -0400
+Date: Sat, 27 Sep 2003 10:33:03 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Steven Dake <sdake@mvista.com>
+Cc: neilb@cse.unsw.edu.au, Matthew Wilcox <willy@debian.org>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linux-raid@vger.kernel.org
+Subject: Re: [PATCH] fixes defect with kernel BUG using multipath on 2.6.0-test5
+Message-ID: <20030927083303.GE3416@suse.de>
+References: <1064541435.4763.51.camel@persist.az.mvista.com> <20030926121703.GG24824@parcelfarce.linux.theplanet.co.uk> <20030926122646.GA15415@suse.de> <1064607249.4779.1.camel@persist.az.mvista.com> <1064622862.4779.38.camel@persist.az.mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1064628015.1393.5.camel@teapot.felipe-alfaro.com>; from felipe_alfaro@linuxmail.org on Sat, Sep 27, 2003 at 04:00:16AM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <1064622862.4779.38.camel@persist.az.mvista.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 27, 2003 at 04:00:16AM +0200, Felipe Alfaro Solana wrote:
-> How can I tell the CardBus subsystem to eject my CardBus NIC by software
-> with 2.6.0 kernels? In 2.4 I could use "cardctl eject", but I don't know
-> how to do the same on 2.6.0-test5-mm4.
+On Fri, Sep 26 2003, Steven Dake wrote:
+> Folks,
+> Thanks Matt and Jens for the debug help on the multipath problem.  I now
+> have a patch (attached) which solves the problem and makes multipath
+> work properly.   There are two types of "flags" that are used in a block
+> io request, bi_flags, and bi_rw.  bi_flags is used for flags to the
+> block level code, and bi_rw is used for flags to the low level device
+> drivers.  The code in the multipath driver used the wrong flag in the
+> wrong field.  In this case, the flag FASTFAIL (value 3) was being set to
+> the bi_flags field.  FASTFAIL is a hint to the low level driver that it
+> should try to fail out quickly.  Unfortunately, the value 3 is also
+> BIO_SEG_VALID, which is a flag to the block subsystem that the segments
+> shouldn't be recalculated.  The result was that the wrong field was set,
+> telling the block layer not to recalculate the segments resulting in
+> phys and hw segments of 0.  Not good.
+> 
+> Neil can you send upstream ?
 
-The same works with 2.6.0-test5.
-
-> I need to eject my CardBus NIC if I want to be able to suspend the
-> machine using APM. Resuming from APM when the "yenta_socket" and
-> "pcmcia_core" modules are loaded causes a deadlock in the kernel during
-> resume, and the machine never comes back completely.
-
-It would be nice to solve this problem.  Since APM suspend with 2.6
-kernels seems to be a complete dead loss with my laptop, don't look
-to me to diagnose this one.
+Auch good catch! I'm sorry to say this is actually my fault...
 
 -- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-      Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
-      maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                      2.6 Serial core
+Jens Axboe
+

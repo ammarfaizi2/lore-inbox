@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283190AbRK2M4S>; Thu, 29 Nov 2001 07:56:18 -0500
+	id <S283205AbRK2NFK>; Thu, 29 Nov 2001 08:05:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283198AbRK2M4I>; Thu, 29 Nov 2001 07:56:08 -0500
-Received: from ns.caldera.de ([212.34.180.1]:9858 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S283190AbRK2M4D>;
-	Thu, 29 Nov 2001 07:56:03 -0500
-Date: Thu, 29 Nov 2001 13:55:49 +0100
-Message-Id: <200111291255.fATCtnE25671@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: ink@jurassic.park.msu.ru (Ivan Kokshaysky)
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [CFT][PATCH] /proc/interrupts fixes
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <20011129154611.A13470@jurassic.park.msu.ru>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S283210AbRK2NFB>; Thu, 29 Nov 2001 08:05:01 -0500
+Received: from smtp014.mail.yahoo.com ([216.136.173.58]:30990 "HELO
+	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S283205AbRK2NEx>; Thu, 29 Nov 2001 08:04:53 -0500
+Message-ID: <001601c17873$c664ee00$8b64a8c0@PREM>
+From: "McEnroe" <mcensamuel@yahoo.com>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C043B11.2FA17A19@pobox.com> <3C05B561.75F210C7@pobox.com>
+Subject: interrupt ?
+Date: Thu, 29 Nov 2001 06:48:23 +0530
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011129154611.A13470@jurassic.park.msu.ru> you wrote:
-> Is /proc/interrupts now allowed only on s390, x86 and mips? ;-)
+hi,
 
-Umm, it is present everywhere _but_ s390, afaik.
+what is fast and slow interrupt ?
+what is the difference between this ?
+bye
 
-> -#if defined(CONFIG_ARCH_S390) || defined(CONFIG_X86) || defined(CONFIG_ARCH_MIPS)
->  	create_seq_entry("interrupts", 0, &proc_interrupts_operations);
-> -#endif
 
-I think that should be
 
-#if !defined(CONFIG_ARCH_S390)
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 

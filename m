@@ -1,41 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUFCPYD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264379AbUFCPXy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264377AbUFCPYD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 11:24:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264382AbUFCPYA
+	id S264379AbUFCPXy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 11:23:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264377AbUFCPXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 11:24:00 -0400
-Received: from mail.broadpark.no ([217.13.4.2]:45967 "EHLO mail.broadpark.no")
-	by vger.kernel.org with ESMTP id S264397AbUFCPNN (ORCPT
+	Thu, 3 Jun 2004 11:23:45 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:34511 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S265554AbUFCPUv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 11:13:13 -0400
-Message-ID: <40BF4007.8010102@linux-user.net>
-Date: Thu, 03 Jun 2004 17:13:11 +0200
-From: Daniel Andersen <anddan@linux-user.net>
-Reply-To: daniel@linux-user.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Francois Pernet <WebMonster@idsa.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: .config question
-References: <s0bf4d74.020@idfw.idsa.ch>
-In-Reply-To: <s0bf4d74.020@idfw.idsa.ch>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Jun 2004 11:20:51 -0400
+Date: Thu, 3 Jun 2004 17:20:43 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, len.brown@intel.com
+Subject: Re: 2.6.7-rc2-mm2
+Message-ID: <20040603152042.GK1946@suse.de>
+References: <20040603015356.709813e9.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040603015356.709813e9.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Pernet wrote:
+On Thu, Jun 03 2004, Andrew Morton wrote:
+>  bk-acpi.patch
 
-> I've got a kernel already installed in my machine (SuSe Pro 9). I would
-> like to modify something and recompile the kernel. Since it has been
-> installed from rpm, there is no .config in /usr/src/linux. Is there any
-> way to create this file from the image and modules, so i do not need to
-> verify all my config prior to change something ?
+Doesn't compile if you disable ACPI, since mp_register_gsi is guarded by
 
-Suse Pro 9.1 has a copy of the running kernelconfig in /proc/config.gz.
-Type 'zcat /proc/config.gz > /usr/src/linux/.confg' to copy it to your 
-sourcetree.
+#if defined(CONFIG_X86_IO_APIC) && defined(CONFIG_ACPI_INTERPRETER)
 
-Daniel Andersen
+but used in arch/i386/kernel/acpi/boot.c if CONFIG_X86_IO_APIC is set
+alone. I have to disable ACPI on this box still, otherwise it crashes
+very hard immediately after displaying ACPI banner.
+
+-- 
+Jens Axboe
+

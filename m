@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315438AbSFDRxG>; Tue, 4 Jun 2002 13:53:06 -0400
+	id <S315375AbSFDSCO>; Tue, 4 Jun 2002 14:02:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315379AbSFDRxE>; Tue, 4 Jun 2002 13:53:04 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:1702 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S315374AbSFDRwu>; Tue, 4 Jun 2002 13:52:50 -0400
-Date: Tue, 4 Jun 2002 13:52:47 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200206041752.g54HqlW04012@devserv.devel.redhat.com>
-To: Ian Soboroff <ian.soboroff@nist.gov>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Patch for broken Dell C600 and I5000
-In-Reply-To: <mailman.1023209101.6092.linux-kernel2news@redhat.com>
+	id <S315372AbSFDSCN>; Tue, 4 Jun 2002 14:02:13 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:44933 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S315275AbSFDSCM>; Tue, 4 Jun 2002 14:02:12 -0400
+Date: Tue, 4 Jun 2002 19:33:41 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Gerald Teschl <gerald.teschl@univie.ac.at>
+Cc: linux-kernel@vger.kernel.org, <linux-sound@vger.kernel.org>
+Subject: Re: [PATCH] opl3sa2 isapnp activation fix
+In-Reply-To: <3CFCFA33.7020106@univie.ac.at>
+Message-ID: <Pine.LNX.4.44.0206041909490.26634-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Some time ago I had to work around broken BIOS in Dell C600
->> and Linus accepted the patch (it was before Marcelo, IIRC). All this
->> time BIOS writers continued to search for the bottom in the barrel
->> of brokenness and now we have I5000 brain damaged in a similar way.
->> Since I5000 is broken even before it sleeps, I made a different
->> workaround.
-> 
-> What is the problem this fixes?  I don't have any problems with my
-> C600 suspending and resuming (2.4.19pre7-ac4).  Some of the comments
-> look BIOS-version-specific... why not just upgrade the BIOS?  (The
-> comment I saw referred to version A06, but I have A17!)
-> 
-> Correct me if I'm missing something here... I didn't read the patch
-> too carefully...
+On Tue, 4 Jun 2002, Gerald Teschl wrote:
 
-There is an explanation in the comments. I am not surprised
-that your C600 works, because your kernel has the old workaround
-for the C600 specifically (activated by DMI scan).
-Upgrades do not help, because: 1) they do not fix the problem,
-2) even if they did, many could not do it, 3) even if your C600
-worked perfectly, there is a number of 5000's and 5000e's in
-the field which are broken.
+> >>Oops, that won't work on isapnp since dma = dma2 = -1 at this stage, how 
+> >>about;
+> >>
+> >>if ((dma != -1) && (dma2 != -1)) frob();
+> >>
+> I don't get what you mean? I tested this, if I do "modprobe opl3sa2 
+> dma=1 dma2=3" it will activate
+> the card with dma 1,3 (according to /proc/isapnp). However, my card will 
+> not work with these values.
 
-You can test your C600 with A17 by doing this. Apply the patch
-(this removes the old workaround), build, reboot. Without
-explicit parameter the new workaround is not activated.
-Kill gpm. Verify that psaux is not open by doing
-"cat /proc/interrupts". Suspend and resume. Very carefuly
-type something - keyboard should be working. Now touch the
-touchpad. If your keyboard locks, A17 is no better than A06.
-If keyboard continues to work, A17 is good, and you may ignore
-the rest of this discussion.
+How about this, you check if the resource register reads 0 for the DMA 
+value and you reassign it using the resource registers, that way you skip 
+on using magic values.
 
--- Pete
+Cheers,
+	Zwane
 
-P.S. Your list gateway mangles subjects.
+-- 
+http://function.linuxpower.ca
+		
+
+
+
+
+

@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265686AbTFSBIA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 21:08:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265681AbTFSBIA
+	id S265678AbTFSBJV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 21:09:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265681AbTFSBJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 21:08:00 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:18117 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S265686AbTFSBH6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 21:07:58 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Wed, 18 Jun 2003 21:09:21 -0400
+Received: from fed1mtao01.cox.net ([68.6.19.244]:48857 "EHLO
+	fed1mtao01.cox.net") by vger.kernel.org with ESMTP id S265678AbTFSBJO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 21:09:14 -0400
+Message-ID: <3EF11080.5060507@cox.net>
+Date: Wed, 18 Jun 2003 18:23:12 -0700
+From: "Kevin P. Fleming" <kpfleming@cox.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030612
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Re: glibc compiling with kernel 2.5.70-bk17
+References: <3EF10F3E.1090308@cern.ch>
+In-Reply-To: <3EF10F3E.1090308@cern.ch>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16113.4147.36631.795094@napali.hpl.hp.com>
-Date: Wed, 18 Jun 2003 18:21:54 -0700
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: davidm@hpl.hp.com, nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       davidm@napali.hpl.hp.com
-Subject: Re: make NFS work with 64KB page-size
-In-Reply-To: <16113.5317.341448.162576@gargle.gargle.HOWL>
-References: <16112.60959.588900.824473@napali.hpl.hp.com>
-	<16113.5317.341448.162576@gargle.gargle.HOWL>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Thu, 19 Jun 2003 11:41:25 +1000, Neil Brown <neilb@cse.unsw.edu.au> said:
+Riccardo-Maria Bianchi wrote:
+> 
+> Good morning,
+> 
+> I'm trying to compiling several version of the glibc but always during 
+> the "make" I obtain these errors:
+> 
 
-  Neil> Something like the following.
+<snip>
 
-That works for me.
+> 
+> Someone have an idea? :)
+> 
 
-Thanks,
+Yes, the kernel headers are currently borked for compiling userspace C 
+libraries. The fix is going to take either a large effort to get a 
+sanitized set of userspace kernel headers created, or someone to be 
+willing to accept patches that fix the problems with the existing 
+headers even though userspace is not supposed to be using them.
 
-	--david

@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261629AbVCGFan@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbVCGFcQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261629AbVCGFan (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 00:30:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbVCGFan
+	id S261631AbVCGFcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 00:32:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261633AbVCGFcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 00:30:43 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:1285 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S261629AbVCGFah (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 00:30:37 -0500
-Date: Mon, 7 Mar 2005 06:30:32 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Ben Greear <greearb@candelatech.com>,
-       Christian Schmid <webmaster@rapidforum.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: BUG: Slowdown on 3000 socket-machines tracked down
-Message-ID: <20050307053032.GA30052@alpha.home.local>
-References: <4229E805.3050105@rapidforum.com> <422BAAC6.6040705@candelatech.com> <422BB548.1020906@rapidforum.com> <422BC303.9060907@candelatech.com> <422BE33D.5080904@yahoo.com.au>
+	Mon, 7 Mar 2005 00:32:16 -0500
+Received: from fire.osdl.org ([65.172.181.4]:14226 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261631AbVCGFcG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 00:32:06 -0500
+Date: Sun, 6 Mar 2005 21:31:29 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nish Aravamudan <nish.aravamudan@gmail.com>
+Cc: domen@coderock.org, linux-kernel@vger.kernel.org, nacc@us.ibm.com,
+       mochel@digitalimplant.org, greg@kroah.com
+Subject: Re: [patch 12/14] drivers/dmapool: use TASK_UNINTERRUPTIBLE instead
+ of TASK_INTERRUPTIBLE
+Message-Id: <20050306213129.0d6a1504.akpm@osdl.org>
+In-Reply-To: <29495f1d0503062101549b14e8@mail.gmail.com>
+References: <20050306223654.3EE871EC90@trashy.coderock.org>
+	<20050306194414.68239e90.akpm@osdl.org>
+	<29495f1d0503062101549b14e8@mail.gmail.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <422BE33D.5080904@yahoo.com.au>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 07, 2005 at 04:14:37PM +1100, Nick Piggin wrote:
- 
-> I think you would have better luck in reproducing this problem if you
-> did the full sendfile thing.
+Nish Aravamudan <nish.aravamudan@gmail.com> wrote:
+>
+> > Also, __set_current_state() can be user here: the add_wait_queue() contains
+>  > the necessary barriers.  (Grubby, but we do that in quite a few places with
+>  > this particular code sequence (we should have an add_wait_queue() variant
+>  > which does the add_wait_queue+__set_current_state all in one hit (but let's
+>  > not, else I'll be buried in another 1000 cleanuplets))).
 > 
-> I think it is becoming disk bound due to page reclaim problems, which
-> is causing the slowdown.
-> 
-> In that case, writing the network only test would help to confirm the
-> problem is not a networking one - so not useless by any means.
+>  Ok, I will re-spin this patch. Or would you prefer an incremental one?
 
-Not necessarily, Nick. I have written an HTTP testing tool which matches
-the description of Ben's : non-blocking, single-threaded, no disk I/O,
-etc... It works flawlessly under 2.4, and gives me random numbers in 2.6,
-especially if I start some CPU activity on the system, I can get pauses
-of up to 13 seconds without this tool doing anything !!! At first I
-believed it was because of the scheduler, but it might also be related
-to what is described here since I had somewhat the same setup (gigE, 1500,
-thousands of sockets). I never had enough time to investigate more, so I
-went back to 2.4.
-
-It makes me think that for the problem described here, we have no
-indication of CPU & I/O activity, which might help Ben try to reproduce.
-
-Cheers,
-Willy
+Let's forget about this one while we work out whether that code is doing
+what we want it to do.
 

@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265791AbUAKIDJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 03:03:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265792AbUAKIDI
+	id S265797AbUAKINh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 03:13:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265799AbUAKINh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 03:03:08 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:20685 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S265791AbUAKICv (ORCPT
+	Sun, 11 Jan 2004 03:13:37 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:7351 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265797AbUAKINa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 03:02:51 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-Subject: Re: [linux-usb-devel] Re: USB hangs
-Date: Sun, 11 Jan 2004 09:02:07 +0100
-User-Agent: KMail/1.5.1
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       USB Developers <linux-usb-devel@lists.sourceforge.net>,
-       Greg KH <greg@kroah.com>
-References: <1073779636.17720.3.camel@dhcp23.swansea.linux.org.uk> <20040111002304.GE16484@one-eyed-alien.net> <1073788437.17793.0.camel@dhcp23.swansea.linux.org.uk>
-In-Reply-To: <1073788437.17793.0.camel@dhcp23.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Sun, 11 Jan 2004 03:13:30 -0500
+Date: Sun, 11 Jan 2004 09:13:21 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: Do not use synaptics extensions by default
+Message-ID: <20040111081321.GC25497@ucw.cz>
+References: <20040110175930.GA1749@elf.ucw.cz> <20040110201057.GA1367@elf.ucw.cz> <20040110201512.GA23208@ucw.cz> <200401101852.56429.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200401110902.07054.oliver@neukum.org>
+In-Reply-To: <200401101852.56429.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sonntag, 11. Januar 2004 03:33 schrieb Alan Cox:
-> On Sul, 2004-01-11 at 00:23, Matthew Dharm wrote:
-> > Where is USB kmalloc'ing with GFP_KERNEL?  I thought we tracked all those
-> > down and eliminated them.
+On Sat, Jan 10, 2004 at 06:52:56PM -0500, Dmitry Torokhov wrote:
+> On Saturday 10 January 2004 03:15 pm, Vojtech Pavlik wrote:
+> > On Sat, Jan 10, 2004 at 09:10:58PM +0100, Pavel Machek wrote:
+> > > Hi!
+> > >
+> > > > > > Why would you document something that is deprecated? It was
+> > > > > > removed so the new users would not start using it instead of
+> > > > > > psmouse.proto. psmouse.noext should be gone soon.
+> > > > >
+> > > > > My understanding is that Documentation/kernel-parameters.txt
+> > > > > should document all available parameters...
+> > > >
+> > > > Well, I wouldn't mind documenting psmouse.noext, with a comment
+> > > > that it shouldn't be used because it'll be removed in near future.
+> > >
+> > > AFAICS, it is still psmouse*_*noext in mainline kernel, so this
+> > > should be correct...
+> > >
+> > > 								Pavel
+> >
+> > No problem with this patch, though it'd be better if you could provide
+> > it against the -mm kernel for Andrew.
+> >
 > 
-> Not sure. I just worked from tracebacks. I needed it to work rather
-> than having the time to go hunting for specific faults. Plus I'd
-> argue PF_MEMALLOC is a better solution anyway.
+> In Andrew's tree noext option is already gone.
 
-Until recently this line from usb-ohci.h read GFP_KERNEL instead of GFP_NOIO
+That makes the patch rather trivial then, doesn't it? ;)
 
-#define ALLOC_FLAGS (in_interrupt () || current->state != TASK_RUNNING ? GFP_ATOMIC : GFP_NOIO)
-
-Was it an earlier kernel without that change?
-
-	Regards
-		Oliver
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

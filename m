@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261387AbULEUwG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbULEUyZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261387AbULEUwG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 15:52:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbULEUwG
+	id S261393AbULEUyZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 15:54:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbULEUyY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 15:52:06 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:23495 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261387AbULEUt7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 15:49:59 -0500
-Subject: Re: 2.6.10-rc2-mm4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Terence Ripperda <tripperda@nvidia.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041203215927.GE1709@hygelac>
-References: <20041203215927.GE1709@hygelac>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1102275985.9335.22.camel@localhost.localdomain>
+	Sun, 5 Dec 2004 15:54:24 -0500
+Received: from gate.ebshome.net ([64.81.67.12]:65243 "EHLO gate.ebshome.net")
+	by vger.kernel.org with ESMTP id S261393AbULEUww (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 15:52:52 -0500
+Date: Sun, 5 Dec 2004 12:52:51 -0800
+From: Eugene Surovegin <ebs@ebshome.net>
+To: Linh Dang <dang.linh@gmail.com>
+Cc: Paul Mackerras <paulus@samba.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][PPC32[NEWBIE] enhancement to virt_to_bus/bus_to_virt (try 2)
+Message-ID: <20041205205251.GD3448@gate.ebshome.net>
+Mail-Followup-To: Linh Dang <dang.linh@gmail.com>,
+	Paul Mackerras <paulus@samba.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <3b2b32004120206497a471367@mail.gmail.com> <3b2b320041202082812ee4709@mail.gmail.com> <16815.31634.698591.747661@cargo.ozlabs.ibm.com> <3b2b32004120306463b016029@mail.gmail.com> <20041205101110.GC3448@gate.ebshome.net> <3b2b320041205111821527278@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 05 Dec 2004 19:46:27 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3b2b320041205111821527278@mail.gmail.com>
+X-ICQ-UIN: 1193073
+X-Operating-System: Linux i686
+X-PGP-Key: http://www.ebshome.net/pubkey.asc
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-12-03 at 21:59, Terence Ripperda wrote:
-> I assume you mean traditional pci in this case, but I remain confused.
-> the pci spec calls for 32-bits of addressing, although there is an
-> optional extension for 64-bit bus extension pins. I can't speak for other
-> pci devices, but all of our pci devices are 32-bit.
-
-The current DRI drivers don't really deal much with PCI devices. A pure
-PCI video card on 64bit boxes might be problematic although I'd question
-the sanity of anyone doing this 8)
-
+On Sun, Dec 05, 2004 at 02:18:45PM -0500, Linh Dang wrote:
+> From a single virtual buffer, the DMA library will build a chained list of
+> physically contiguous buffers (it  can be one or more physical buffers).
+> All the DMA engines I'm familiar with (mpc8260, mpc8580, marvell, etc.)
+> accept a list of physical buffers.
 > 
-> additionally, the pci-express spec defines legacy and non-legacy
-> devices.  legacy devices are only required to address 32-bits, whereas
-> non-legacy devices are required to handle 64-bit addresses.
+> The decoding algorithm (from a single virtual buffer to a chained list of
+> physical buffers) is dead simple.
 
-I'd assumed video card vendors were non-legacy but ok
+So you gonna call virt_to_bus several times (for each page) and see 
+whether you get new phys page or not? This could work, but for the 
+common case of phys-continuous buffer it'll be suboptimal, i.e. you 
+waste time calling virt_to_bus when it's not needed. TO make it better 
+you have to move that range check from virt_to_bus and friends to your 
+DMA library, in this case we end up in the same situation we are 
+already :) - no need to modify virt_to_bus....
 
-> I certainly understand the concerns with this, although I was led to
-> believe that recent 2.6 work made the zone balancing much less
-> expensive.  is that not the case?
-
-Andrew certainly believes this is. Certainly in 2.4 it was not.
-
-> > I can find users for a 512Mb or 1Gb DMA region
-> 
-> there was some brief discussion of this when we originally discussed
-> 32-bit addressing issues, but I don't know if a satisfactory solution was
-> reached.  If a 1Gb region was prefered for this reason, that should satisfy
-> nvidia's needs for 32-bit addressing, but I couldn't speak for any other device
-> drivers.
-
-If the VM can take it and get it right I am all for a 512Mb or 1Gb DMA
-region to fix the various devices that have 29-31bit DMA issues. If it
-fixes Nvidia's needs to then fine.
-
-Alan
-
+--
+Eugene

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268480AbUHaN1D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268144AbUHaN1x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268480AbUHaN1D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 09:27:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268144AbUHaN1C
+	id S268144AbUHaN1x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 09:27:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268472AbUHaN1w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 09:27:02 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:54799 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S268480AbUHaNXX
+	Tue, 31 Aug 2004 09:27:52 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:57359 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S268482AbUHaNYS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 09:23:23 -0400
+	Tue, 31 Aug 2004 09:24:18 -0400
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] FAT: document fix/update
+Subject: [PATCH] NLS: nls_cp932 fix
 From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Tue, 31 Aug 2004 22:23:11 +0900
-Message-ID: <87eklnqw5c.fsf@devron.myhome.or.jp>
+Date: Tue, 31 Aug 2004 22:24:12 +0900
+Message-ID: <87acwbqw3n.fsf@devron.myhome.or.jp>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,45 +22,86 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Some unicode chars is missing to convert on nls_cp932.
+This patch fixes the following chars.
 
+    U+00A2, U+00A3, U+00A7, U+00A8, U+00AC, U+00B0, U+00B1, U+00B4,
+    U+00B6, U+00D7, U+00F7, U+FFE2
 
 Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 ---
 
- fs/Kconfig |   15 +++++++++------
- 1 files changed, 9 insertions(+), 6 deletions(-)
+ fs/nls/nls_cp932.c |   43 +++++++++++++++++++++++++++++++++++++++----
+ 1 files changed, 39 insertions(+), 4 deletions(-)
 
-diff -puN fs/Kconfig~fat_doc-fixes fs/Kconfig
---- linux-2.6.9-rc1/fs/Kconfig~fat_doc-fixes	2004-08-28 23:14:51.000000000 +0900
-+++ linux-2.6.9-rc1-hirofumi/fs/Kconfig	2004-08-28 23:14:51.000000000 +0900
-@@ -650,18 +650,21 @@ config FAT_DEFAULT_CODEPAGE
- 	default 437
- 	help
- 	  This option should be set to the codepage of your FAT filesystems.
--	  It can be overridden with the 'codepage' mount option.
-+	  It can be overridden with the "codepage" mount option.
-+	  See <file:Documentation/filesystems/vfat.txt> for more information.
+diff -puN fs/nls/nls_cp932.c~nls_cp932-fix fs/nls/nls_cp932.c
+--- linux-2.6.9-rc1/fs/nls/nls_cp932.c~nls_cp932-fix	2004-08-28 23:14:45.000000000 +0900
++++ linux-2.6.9-rc1-hirofumi/fs/nls/nls_cp932.c	2004-08-28 23:14:45.000000000 +0900
+@@ -1619,6 +1619,33 @@ static wchar_t *page_charset2uni[256] = 
+ 	NULL,   NULL,   c2u_FA, c2u_FB, c2u_FC, NULL,   NULL,   NULL,   
+ };
  
- config FAT_DEFAULT_IOCHARSET
- 	string "Default iocharset for FAT"
- 	depends on VFAT_FS
- 	default "iso8859-1"
- 	help
--	  Set this to the default I/O character set you'd like FAT to use.
--	  It should probably match the character set that most of your
--	  FAT filesystems use, and can be overridded with the 'iocharset'
--	  mount option for FAT filesystems.  Note that UTF8 is *not* a
--	  supported charset for FAT filesystems.
-+	  Set this to the default input/output character set you'd
-+	  like FAT to use. It should probably match the character set
-+	  that most of your FAT filesystems use, and can be overridden
-+	  with the "iocharset" mount option for FAT filesystems.
-+	  Note that "utf8" is not recommended for FAT filesystems.
-+	  If unsure, you shouldn't set "utf8" here.
-+	  See <file:Documentation/filesystems/vfat.txt> for more information.
++static unsigned char u2c_00hi[256 - 0xA0][2] = {
++	{0x00, 0x00}, {0x00, 0x00}, {0x81, 0x91}, {0x81, 0x92},/* 0xA0-0xA3 */
++	{0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00}, {0x81, 0x98},/* 0xA4-0xA7 */
++	{0x81, 0x4E}, {0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00},/* 0xA8-0xAB */
++	{0x81, 0xCA}, {0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00},/* 0xAC-0xAF */
++	{0x81, 0x8B}, {0x81, 0x7D}, {0x00, 0x00}, {0x00, 0x00},/* 0xB0-0xB3 */
++	{0x81, 0x4C}, {0x00, 0x00}, {0x81, 0xF7}, {0x00, 0x00},/* 0xB4-0xB7 */
++	{0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00},/* 0xB8-0xBB */
++	{0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00},/* 0xBC-0xBF */
++	{0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00},/* 0xC0-0xC3 */
++	{0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00},/* 0xC4-0xC7 */
++	{0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00},/* 0xC8-0xCB */
++	{0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00},/* 0xCC-0xCF */
++	{0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00},/* 0xD0-0xD3 */
++	{0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00}, {0x81, 0x7E},/* 0xD4-0xD7 */
++	{0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00},/* 0xD8-0xDB */
++	{0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00},/* 0xDC-0xDF */
++	{0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00},/* 0xE0-0xE3 */
++	{0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00},/* 0xE4-0xE7 */
++	{0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00},/* 0xE8-0xEB */
++	{0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00},/* 0xEC-0xEF */
++	{0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00},/* 0xF0-0xF3 */
++	{0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00}, {0x81, 0x80},/* 0xF4-0xF7 */
++	{0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00},/* 0xF8-0xFB */
++	{0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00}, {0x00, 0x00},/* 0xFC-0xFF */
++};
++
+ static unsigned char u2c_03[512] = {
+ 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* 0x00-0x03 */
+ 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* 0x04-0x07 */
+@@ -7708,7 +7735,7 @@ static unsigned char u2c_FF[512] = {
+ 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* 0xD4-0xD7 */
+ 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* 0xD8-0xDB */
+ 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* 0xDC-0xDF */
+-	0x81, 0x91, 0x81, 0x92, 0xEE, 0xF9, 0x81, 0x50, /* 0xE0-0xE3 */
++	0x81, 0x91, 0x81, 0x92, 0x81, 0xCA, 0x81, 0x50, /* 0xE0-0xE3 */
+ 	0xEE, 0xFA, 0x81, 0x8F, 0x00, 0x00, 0x00, 0x00, /* 0xE4-0xE7 */
+ };
  
- config UMSDOS_FS
- #dep_tristate '    UMSDOS: Unix-like file system on top of standard MSDOS fs' CONFIG_UMSDOS_FS $CONFIG_MSDOS_FS
+@@ -7842,9 +7869,17 @@ static int uni2char(const wchar_t uni,
+ 		if (out[0] == 0x00 && out[1] == 0x00)
+ 			return -EINVAL;
+ 		return 2;
+-	} else if ((ch == 0) && (cl <= 0x7F)) {
+-		out[0] = cl;
+-		return 1;
++	} else if (ch == 0) {
++		if (cl <= 0x7F) {
++			out[0] = cl;
++			return 1;
++		} else if (0xA0 <= cl) {
++			out[0] = u2c_00hi[cl - 0xA0][0];
++			out[1] = u2c_00hi[cl - 0xA0][1];
++			if (out[0] && out[1])
++				return 2;
++		}
++		return -EINVAL;
+ 	}
+ 	else
+ 		return -EINVAL;
 _
+
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

@@ -1,79 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261539AbSIZWpV>; Thu, 26 Sep 2002 18:45:21 -0400
+	id <S261541AbSIZWrw>; Thu, 26 Sep 2002 18:47:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261541AbSIZWpV>; Thu, 26 Sep 2002 18:45:21 -0400
-Received: from dodge.jordet.nu ([217.13.8.142]:29195 "EHLO dodge.hybel")
-	by vger.kernel.org with ESMTP id <S261539AbSIZWpQ>;
-	Thu, 26 Sep 2002 18:45:16 -0400
-Subject: Re: Mouse/Keyboard problems with 2.5.38
-From: Stian Jordet <liste@jordet.nu>
-To: Vojtech Pavlik <vojtech@suse.cz>
+	id <S261546AbSIZWrw>; Thu, 26 Sep 2002 18:47:52 -0400
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:11138 "EHLO
+	completely") by vger.kernel.org with ESMTP id <S261541AbSIZWrv>;
+	Thu, 26 Sep 2002 18:47:51 -0400
+From: Ryan Cumming <ryan@completely.kicks-ass.org>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
+Date: Thu, 26 Sep 2002 15:53:02 -0700
+User-Agent: KMail/1.4.7-cool
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020926185717.B27676@ucw.cz>
-References: <1032996672.11642.6.camel@chevrolet>
-	<20020926105853.A168142@ucw.cz> <1033039991.708.6.camel@chevrolet>
-	<20020926133725.A8851@ucw.cz> <1033054211.587.6.camel@chevrolet> 
-	<20020926185717.B27676@ucw.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 27 Sep 2002 00:50:40 +0200
-Message-Id: <1033080648.593.12.camel@chevrolet>
-Mime-Version: 1.0
+References: <E17uINs-0003bG-00@think.thunk.org> <200209261208.59020.ryan@completely.kicks-ass.org> <20020926220432.GB10551@think.thunk.org>
+In-Reply-To: <20020926220432.GB10551@think.thunk.org>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="big5"
+Content-Transfer-Encoding: 8bit
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200209261553.07593.ryan@completely.kicks-ass.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tor, 2002-09-26 kl. 18:57 skrev Vojtech Pavlik:
-> Great. So, the problem is in i8042.c untranslating the keycodes. Please
-> also enable #define I8042_DEBUG_IO in drivers/input/serio/i8042.h, don't
-> start X, enable maximum console loglevel by "echo 16 16 16 16 >
-> /proc/sys/kernel/printk", and press the killing key combination.
-> (without i8042_direct, of course). Then send me the ten last or so lines
-> printed. This should allow me to fix the problem. Thanks.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Ok, I did as prescribed. I did press SHIFT+PAGEUP, and it came quite a
-lot of output, more than one page. I'm not sure if this is enough, but
-it was all I could see. When I booted, I looked in the syslog, but none
-of what I wrote off the screen was there. I guess that's because it
-froze. Ok, here come. This is writeoff, so might be some small errors.
+On September 26, 2002 15:04, Theodore Ts'o wrote:
+> Was there anything in the logs at all?  There should be, if the
+> filesystem was remounted read-only.
+There is nothing. grep -i "ext3" /var/log/messages returned a whole lot of the 
+usual:
+Sep 25 15:51:00 completely kernel: EXT3-fs: mounted filesystem with ordered 
+data mode.
+Sep 25 15:51:00 completely kernel: EXT3 FS 2.4-0.9.18, 14 May 2002 on 
+ide0(3,2), internal journal
+The one mildly interesting thing was:
+Sep 26 11:49:06 (none) kernel: EXT3-fs: INFO: recovery required on readonly 
+filesystem.
+Sep 26 11:49:06 (none) kernel: EXT3-fs: write access will be enabled during 
+recovery.
+Sep 26 11:49:06 (none) kernel: EXT3-fs warning (device ide0(3,2)): 
+ext3_clear_journal_err: Filesystem error recorded from previous mount: IO 
+failure
+Sep 26 11:49:06 (none) kernel: EXT3-fs warning (device ide0(3,2)): 
+ext3_clear_journal_err: Marking fs in need of filesystem check.
+Sep 26 11:49:06 (none) kernel: EXT3-fs: ide0(3,2): orphan cleanup on readonly 
+fs
+Sep 26 11:49:06 (none) kernel: EXT3-fs: recovery complete.
+Sep 26 11:49:06 (none) kernel: EXT3-fs: mounted filesystem with ordered data 
+mode.
+Sep 26 11:49:06 (none) kernel: EXT3 FS 2.4-0.9.18, 14 May 2002 on ide0(3,2), 
+internal journal
 
-I don't know, but I guess I must have touched the mouse to get the four
-last lines? I guess so, but I'm including them to be sure.
+> The real question is what was the original error that caused the ext3
+> filesystme to decide it needed to remount the filesystem read-only.
+> That should be in your logs, since calls to ext3_error should always
+> cause printk's explaining what the error was to be sent to the logs.
+I've seen the printk's (although I didn't write down this one). However, they 
+are never hitting the disk. I could try to log the messages to my FreeBSD 
+mail server...
 
-i8042.c: fa <- i8042 (interrupt, kbd, 1) [60519]
-atkbd.c: Received fa flags 00
-atkbd.c: Sent: 02
-i8042.c: 02 -> i8042 (kbd-data) [60519]
-i8042.c: fa <- i8042 (interrupt, kbd, 1) [60523]
-atkbd.c: Received fa flags 00
-atkbd.c: Sent: f0
-i8042.c: f0 -> i8042 (kbd-data) [60523]
-i8042.c: fa <- i8042 (interrupt, kbd, 1) [60527]
-atkbd.c: Received fa flags 00
-atkbd.c: Sent: 00
-i8042.c: 00 -> i8042 (kbd-data) [60527]
-i8042.c: fa <- i8042 (interrupt, kbd, 1) [60531]
-atkbd.c: Received fa flags 00
-i8042.c: 41 <- i8042 (interrupt, kbd, 1) [60532]
-atkbd.c: Received 02 flags 00
-input: AT Set 2 keyboard on isa0060/serio0
-i8042.c: b6 <- i8042 (interrupt, kbd, 1) [60599]
-atkbd.c: Received f0 flags 00
-atkbd.c: Received 59 flags 00
-i8042.c: 38 <- i8042 (interrupt, aux, 12) [104472]
-i8042.c: fd <- i8042 (interrupt, aux, 12) [104473]
-i8042.c: fe <- i8042 (interrupt, aux, 12) [104474]
-i8042.c: 00 <- i8042 (interrupt, aux, 12) [104475]
+> The filesystem wouldn't happen to be running close to full either on
+> the number of blocks or the number of inodes, would it?  
+Inode count:              4767744
+Block count:              9522528
+Reserved block count:     476126
+Free blocks:              2362117
+Free inodes:              4490071
 
+Seems to be fine.....
 
-I hope you get something out of this, I don't, for sure. The input:...
-line is the same as I get without any debug info when it locks.
+- -Ryan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
 
-Oh well, time for some schoolwork. 
-
-Thanks.
-
-Best regards,
-Stian Jordet
-
+iD8DBQE9k4/TLGMzRzbJfbQRAgp6AJ9Xp7WviFP9ByQaUJ8Ak9sYVf1C4ACffemS
+tS4gB+W4WE7VrPKa+tan/68=
+=MhXA
+-----END PGP SIGNATURE-----

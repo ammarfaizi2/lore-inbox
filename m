@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVAMImw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbVAMInV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261298AbVAMImw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 03:42:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVAMImw
+	id S261302AbVAMInV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 03:43:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261303AbVAMInU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 03:42:52 -0500
-Received: from av3-1-sn4.m-sp.skanova.net ([81.228.10.114]:13485 "EHLO
-	av3-1-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
-	id S261298AbVAMImu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 03:42:50 -0500
-Date: Thu, 13 Jan 2005 09:42:50 +0100
-From: Voluspa <lista1@telia.com>
-To: Terence Ripperda <tripperda@nvidia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.11-rc1
-Message-Id: <20050113094250.706fd9a8.lista1@telia.com>
-In-Reply-To: <20050113012159.GB15008@hygelac>
-References: <20050112095238.32a89245.lista1@telia.com>
-	<20050113021328.137435b8.lista1@telia.com>
-	<20050113012159.GB15008@hygelac>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 13 Jan 2005 03:43:20 -0500
+Received: from baythorne.infradead.org ([81.187.226.107]:48586 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S261302AbVAMInQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 03:43:16 -0500
+Subject: Re: [PATCH] kill symbol_get & friends
+From: David Woodhouse <dwmw2@redhat.com>
+To: Dave Airlie <airlied@gmail.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Christoph Hellwig <hch@lst.de>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       adaplas@pol.net,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <21d7e997050112165935b89a27@mail.gmail.com>
+References: <20050112203136.GA3150@lst.de>
+	 <1105575573.12794.27.camel@localhost.localdomain>
+	 <21d7e997050112165935b89a27@mail.gmail.com>
+Content-Type: text/plain
+Organization: Red Hat UK Ltd.
+Date: Thu, 13 Jan 2005 08:42:59 +0000
+Message-Id: <1105605779.30759.76.camel@baythorne.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.2 (2.0.2-3.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Jan 2005 19:21:59 -0600
-Terence Ripperda wrote:
+On Thu, 2005-01-13 at 11:59 +1100, Dave Airlie wrote:
+> what weak symbol support? can I actually use gcc weak symbols and have
+> it all work?
 
-> change_page_attr has a book-keeping bug that surprisingly hasn't
-> caused problems until recently (on my todo list is to track down what
-> caused this problem to suddenly start triggering).
+Weak undefined symbols used to work, certainly. The MTD code used them
+for a while, before kaos imposed the inter_module_crap on it despite my
+objections.
 
-If it can help, I'm writing this on a 2.6.10-bk14 kernel. So it's just
-the final bits going into 2.6.11-rc1 that pushed the bug on. At
-least on my machine.
+> what happens if the module goes away? 
 
-Can't find any incremental bk14->rc1 to finalize that statement, though.
-
-Ok kernels, from 2.6.10, that I've compiled and run now is: -bk7, -bk11,
--bk13 and -bk14.
+If another module is using a weak symbol, IIRC the module providing the
+symbol _can't_ go away. I could be wrong -- I didn't use that
+functionality. I was using get_symbol() and I added put_symbol() so I
+could explicitly refcount it. 
 
 -- 
-Mvh
-Mats Johannesson
+dwmw2
+
+

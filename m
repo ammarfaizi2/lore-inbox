@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262658AbSI1Aj3>; Fri, 27 Sep 2002 20:39:29 -0400
+	id <S262655AbSI1Ae4>; Fri, 27 Sep 2002 20:34:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262659AbSI1Aj3>; Fri, 27 Sep 2002 20:39:29 -0400
-Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:4992 "EHLO
-	gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id <S262658AbSI1Aj2>; Fri, 27 Sep 2002 20:39:28 -0400
-Date: Fri, 27 Sep 2002 17:44:48 -0700
-To: linux-kernel@vger.kernel.org
-Cc: "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
-Subject: Assert failure, IDE ?
-Message-ID: <20020928004448.GA764@gnuppy.monkey.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
+	id <S262656AbSI1Aez>; Fri, 27 Sep 2002 20:34:55 -0400
+Received: from bigglesworth.mail.be.easynet.net ([212.100.160.67]:44508 "EHLO
+	bigglesworth.mail.be.easynet.net") by vger.kernel.org with ESMTP
+	id <S262655AbSI1Aez>; Fri, 27 Sep 2002 20:34:55 -0400
+Message-ID: <3D94FB23.9040109@easynet.be>
+Date: Sat, 28 Sep 2002 02:43:15 +0200
+From: Luc Van Oostenryck <luc.vanoostenryck@easynet.be>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: (more) Sleeping function called from illegal context...
+References: <20020927233044.GA14234@kroah.com> <3D94EEBF.D6328392@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+With CONFIG_PREEMPT=y on an SMP AMD (2CPU):
 
-Hello,
+Sleeping function called from illegal context at /kernel/l-2.5.39/include/asm/semaphore.h:119
+c1b75e20 c0117094 c0280b00 c028d480 00000077 c1b41cf0 c016bcf9 c028d480
+        00000077 c1b41c50 ffffffea c1b74000 00001000 c01937c6 c02e9578 c1b41cf0
+        c1b41c50 f7f0b840 c1b75eda c018ad0a c1b41c50 c02e9578 00000020 00000000
+Call Trace:
+  [<c0117094>]__might_sleep+0x54/0x58
+  [<c016bcf9>]driverfs_create_file+0x39/0xa0
+  [<c01937c6>]device_create_file+0x26/0x40
+  [<c018ad0a>]pci_pool_create+0xea/0x170
+  [<c02034af>]hcd_buffer_create+0x3f/0x80
+  [<c02039c3>]usb_hcd_pci_probe+0x253/0x370
+  [<c01563d8>]alloc_inode+0x58/0x190
+  [<c018b751>]pci_device_probe+0x41/0x60
+  [<c0191b88>]probe+0x18/0x30
+  [<c0191c2b>]found_match+0x2b/0x60
+  [<c0191d57>]do_driver_attach+0x37/0x50
+  [<c019296c>]bus_for_each_dev+0x9c/0x130
+  [<c0191d83>]driver_attach+0x13/0x20
+  [<c0191d20>]do_driver_attach+0x0/0x50
+  [<c0192ee4>]driver_register+0x94/0xb0
+  [<c018b856>]pci_register_driver+0x36/0x50
+  [<c01050b7>]init+0x47/0x1c0
+  [<c0105070>]init+0x0/0x1c0
+  [<c010553d>]kernel_thread_helper+0x5/0x18
 
-In 2.5.39, I get at boot time:
-
-Sep 27 17:37:38 gnuppy kernel: Sleeping function called from illegal context at slab.c:1374
-Sep 27 17:37:38 gnuppy kernel: c15d3ed8 c0113856 c02b8300 c02ba607 0000055e c15750c0 c012f3e3 c02ba607 
-Sep 27 17:37:38 gnuppy kernel:        0000055e c03b3aac 00033d82 4a320068 00000068 d7d7c200 c0223a40 20000000 
-Sep 27 17:37:38 gnuppy kernel:        c03b1e10 c010898c 00000018 000001d0 d7d7c200 c03b1e00 0000000e 00000008 
-Sep 27 17:37:38 gnuppy kernel: Call Trace:
-Sep 27 17:37:38 gnuppy kernel:  [__might_sleep+86/96]__might_sleep+0x56/0x60
-Sep 27 17:37:38 gnuppy kernel:  [kmalloc+99/336]kmalloc+0x63/0x150
-Sep 27 17:37:38 gnuppy kernel:  [ide_intr+0/464]ide_intr+0x0/0x1d0
-Sep 27 17:37:38 gnuppy kernel:  [request_irq+60/160]request_irq+0x3c/0xa0
-Sep 27 17:37:38 gnuppy kernel:  [init_irq+325/880]init_irq+0x145/0x370
-Sep 27 17:37:38 gnuppy kernel:  [ide_intr+0/464]ide_intr+0x0/0x1d0
-Sep 27 17:37:38 gnuppy kernel:  [hwif_init+118/624]hwif_init+0x76/0x270
-Sep 27 17:37:38 gnuppy kernel:  [ideprobe_init+140/272]ideprobe_init+0x8c/0x110
-Sep 27 17:37:38 gnuppy kernel:  [init+50/432]init+0x32/0x1b0
-Sep 27 17:37:38 gnuppy kernel:  [init+0/432]init+0x0/0x1b0
-Sep 27 17:37:38 gnuppy kernel:  [kernel_thread_helper+5/16]kernel_thread_helper+0x5/0x10
-Sep 27 17:37:38 gnuppy kernel: 
-Sep 27 17:37:38 gnuppy kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-
-bill
 

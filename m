@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265311AbSJRUzE>; Fri, 18 Oct 2002 16:55:04 -0400
+	id <S265353AbSJRU5g>; Fri, 18 Oct 2002 16:57:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265317AbSJRUzE>; Fri, 18 Oct 2002 16:55:04 -0400
-Received: from 217-125-101-55.uc.nombres.ttd.es ([217.125.101.55]:22239 "EHLO
-	jep.dhis.org") by vger.kernel.org with ESMTP id <S265311AbSJRUzE>;
-	Fri, 18 Oct 2002 16:55:04 -0400
-Message-ID: <3DB07685.A9DDE785@jep.dhis.org>
-Date: Fri, 18 Oct 2002 23:00:53 +0200
-From: Josep Lladonosa i Capell <jep@jep.dhis.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: ca, en, es
+	id <S265354AbSJRU5f>; Fri, 18 Oct 2002 16:57:35 -0400
+Received: from dsl-213-023-020-002.arcor-ip.net ([213.23.20.2]:5554 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S265353AbSJRU5e>;
+	Fri, 18 Oct 2002 16:57:34 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: "Xavier Pegenaute" <xpegenaute@telepolis.es>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: (May be off-topic) .. i want make my final project playing with kernel Linux ..
+Date: Fri, 18 Oct 2002 23:04:21 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <011601c2769a$1e61c400$ca00030a@xavip>
+In-Reply-To: <011601c2769a$1e61c400$ca00030a@xavip>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ide-disk patch for big drives in old bioses for 2.4.19 kernel
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E182eI9-0004yG-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 18 October 2002 13:33, Xavier Pegenaute wrote:
+> Hi all..
+> 
+> i'm a student of computer systems and i want make my final project about
+> Linux and developing over the kernel.
+> 
+> Any one need help about some thing ..?
 
-To Eric Lammerts (or anyone interested in...)
+Yes, knfsd... you might find it interesting to look into how to
+accelerate nfs server writes using the new aio subsystem.
 
-some time ago, you sent a patch for ide-disk.c to perform SET_MAX
-command to use big ide disks with old
-bioses. It applied against 2.4.18pre1 and 2.5.2pre2.
-
-Any new patch for 2.4.19? It seems it changed, or... is that 'matter'
-already implemented in newer kernels?
-By taking a look at ide-disk.c, it talks about now using LBA instead of
-CHS, and 48 bit,...
-
-
---
-Salutacions...Josep
-http://www.geocities.com/SiliconValley/Horizon/1065/
---
-
-
-
+-- 
+Daniel

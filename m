@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268680AbUHLTuG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268679AbUHLTt7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268680AbUHLTuG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 15:50:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268682AbUHLTuG
+	id S268679AbUHLTt7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 15:49:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268683AbUHLTt7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 15:50:06 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:59071 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268680AbUHLTt4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 15:49:56 -0400
-Date: Thu, 12 Aug 2004 12:48:54 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: alan@lxorguk.ukuu.org.uk, tytso@mit.edu, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] enhanced version of net_random()
-Message-Id: <20040812124854.646f1936.davem@redhat.com>
-In-Reply-To: <20040812104835.3b179f5a@dell_ss3.pdx.osdl.net>
-References: <20040812104835.3b179f5a@dell_ss3.pdx.osdl.net>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Thu, 12 Aug 2004 15:49:59 -0400
+Received: from fed1rmmtao08.cox.net ([68.230.241.31]:24058 "EHLO
+	fed1rmmtao08.cox.net") by vger.kernel.org with ESMTP
+	id S268679AbUHLTtt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 15:49:49 -0400
+Date: Thu, 12 Aug 2004 12:49:44 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Paul Mackerras <paulus@samba.org>
+Subject: [PATCH] ppc32: Fix warning on CONFIG_PPC32 && CONFIG_6xx
+Message-ID: <20040812194944.GA5583@smtp.west.cox.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Aug 2004 10:48:35 -0700
-Stephen Hemminger <shemminger@osdl.org> wrote:
+In the *ppos cleanups, proc_dol2crvec was updated, but the prototype
+found at the top of kernel/sysctl.h was not, generating warning.  This
+corrects the prototype to match the code.
 
-> Here is a proposed alternative to use a longer period PRNG for net_random().
-> The choice of TT800 was because it was freely available, had a long period,
-> was fast and relatively small footprint. The existing net_random() was not
-> really thread safe, but was immune to thread corruption. 
+(I'm gonna take a stab at moving these into arch/ppc shortly)
 
-Any chance of a version that doesn't grab a global lock and
-disable interrupts every call? :(
+Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+
+===== kernel/sysctl.c 1.82 vs edited =====
+--- 1.82/kernel/sysctl.c	2004-08-07 23:43:41 -07:00
++++ edited/kernel/sysctl.c	2004-08-12 12:45:43 -07:00
+@@ -113,7 +113,7 @@
+ #if defined(CONFIG_PPC32) && defined(CONFIG_6xx)
+ extern unsigned long powersave_nap;
+ int proc_dol2crvec(ctl_table *table, int write, struct file *filp,
+-		  void __user *buffer, size_t *lenp);
++		  void __user *buffer, size_t *lenp, loff_t *ppos);
+ #endif
+ 
+ #ifdef CONFIG_BSD_PROCESS_ACCT
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

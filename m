@@ -1,76 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261582AbUCKIFs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 03:05:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262892AbUCKIFs
+	id S262900AbUCKIX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 03:23:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262911AbUCKIX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 03:05:48 -0500
-Received: from [212.239.225.213] ([212.239.225.213]:32130 "EHLO
-	precious.kicks-ass.org") by vger.kernel.org with ESMTP
-	id S261582AbUCKIFq convert rfc822-to-8bit (ORCPT
+	Thu, 11 Mar 2004 03:23:26 -0500
+Received: from [193.108.190.253] ([193.108.190.253]:53405 "EHLO
+	pluto.linuxkonsulent.dk") by vger.kernel.org with ESMTP
+	id S262900AbUCKIXY convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 03:05:46 -0500
-From: Jan De Luyck <lkml@kcore.org>
-To: James Ketrenos <jketreno@linux.co.intel.com>
-Subject: Re: [Announce] Intel PRO/Wireless 2100 802.11b driver
-Date: Thu, 11 Mar 2004 09:05:39 +0100
-User-Agent: KMail/1.6.1
+	Thu, 11 Mar 2004 03:23:24 -0500
+Subject: Re: UID/GID mapping system
+From: =?ISO-8859-1?Q?S=F8ren?= Hansen <sh@warma.dk>
+To: Jesse Pollard <jesse@cats-chateau.net>
 Cc: linux-kernel@vger.kernel.org
-References: <404E27E6.40200@linux.co.intel.com> <200403110723.47400.lkml@kcore.org> <405019C2.5060409@linux.co.intel.com>
-In-Reply-To: <405019C2.5060409@linux.co.intel.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200403110905.42588.lkml@kcore.org>
+In-Reply-To: <04031015412900.03270@tabby>
+References: <1078775149.23059.25.camel@luke> <04031009285900.02381@tabby>
+	 <1078941525.1343.19.camel@homer>  <04031015412900.03270@tabby>
+Content-Type: text/plain; charset=ISO-8859-1
+Message-Id: <1078993376.1576.33.camel@quaoar>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 11 Mar 2004 09:22:56 +0100
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+ons, 2004-03-10 kl. 22:41 skrev Jesse Pollard:
+> > > > > and unlimited number of groups assigned to a single user?
+> > > > No. That's not my problem, is it? I just provide the mapping system.
+> > > but the mapping system has to be able to handle it.
+> > How do you figure that?
+> I should have said "designed to handle it" in a future expansion. I was
+> wrong in making 64 bits as important as it looks.
 
-On Thursday 11 March 2004 08:48, James Ketrenos wrote:
-> Jan De Luyck wrote:
-> >>I can't test the actual transmitting since I've got no accesspoint handy.
-> >>Will do so when at home, though.
-> >
-> > Tested this. It works, _if_ you set the AP address first, otherwise it
-> > bails out with 'Fatal interrupt'.
->
-> So you're doing something like:
->
-> # modprobe ipw2100
-> # iwconfig eth1 ap 00:0d:88:28:2e:91
-> # ifconfig eth1 up
+I'm not talking about the 64 bits uid's and gid's. I'm talking about the
+mapping system having to handle users' group memberships. Why would it
+have to do that?
 
-I believe I wasn't awake when I typed that mail ;p
+> > > > The maps are on the client, so that's no issue. The trick is to make it
+> > > > totally transparent to the filesystem being mounted, be it networked or
+> > > > non-networked.
+> > > The server cannot trust the clients to do the right thing.
+> > The server can't trust the client as it is now anyway. The client can do
+> > whatever it wants already. There is no security impact as I see it.
+> Ah - but if the server refuses to map the uid then the server is more
+> protected.
 
-The problem is that if you try to set an IP using DHCP (in my case ISC dhcpcd  
-version 1.3.22pl4) without first enabling your interface, you get a fatal 
-interrupt.
+Yes. I know. This is not the problem i was trying to fix. This
+discussion is going nowhere.
+If I redesigned the way house doors worked, you'd be moaning about the
+fact that the TV inside the house might be broken or stolen by someone
+who enters the house. That's true. It might very well be. The only way
+to secure it is to give your key to noone. The second you give you key
+to someone else, you're basically fscked. And of course I know this is a
+problem. It's a huge problem. I hope someone will fix it some day. It is
+not, however, what I'm trying to do here.
 
-If you enable your interface, then do a dhcp request, it works.
 
-Why I got mixed up with the ap setting is that I first thought that was the 
-problem (since iwconfig eth1 showed 00:00:00:00:00:00 instead of the mac 
-address of the AP. It was shown in /proc/iwp2100/eth1/bssconfig though)
+-- 
+Salu2, Søren.
 
-> Btw, thanks for your prior post with the oops info.  There is a fix in the
-> latest snapshot (0.30) on http://ipw2100.sf.net.
-
-Yup, I'm compiling that one (together with 2.6.4) right now.
-
-Maybe this should be cc-ed to the devel mailing list too?
-
-Jan
-
-- -- 
-You see but you do not observe.
-Sir Arthur Conan Doyle, in "The Memoirs of Sherlock Holmes"
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAUB3VUQQOfidJUwQRAix/AJ9GdhYEH/MlK8AToIgnHVpdIuekywCfYQ9V
-SqTUbdIeZVEDrhoSt+HJ9z0=
-=Nej6
------END PGP SIGNATURE-----

@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289589AbSAKGxp>; Fri, 11 Jan 2002 01:53:45 -0500
+	id <S289773AbSAKHAP>; Fri, 11 Jan 2002 02:00:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289743AbSAKGxg>; Fri, 11 Jan 2002 01:53:36 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14093 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289589AbSAKGxV>; Fri, 11 Jan 2002 01:53:21 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [RFC] klibc requirements, round 2
-Date: 10 Jan 2002 22:53:14 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a1m24q$qrd$1@cesium.transmeta.com>
-In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211CB2C@mail0.myrio.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S289830AbSAKHAJ>; Fri, 11 Jan 2002 02:00:09 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:48646 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S289773AbSAKG7z>;
+	Fri, 11 Jan 2002 01:59:55 -0500
+Date: Fri, 11 Jan 2002 07:59:51 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Mike <m.mohr@laposte.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.5.[0&1]
+Message-ID: <20020111075951.O19814@suse.de>
+In-Reply-To: <3C3E8D2A.66C96E37@laposte.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C3E8D2A.66C96E37@laposte.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <D52B19A7284D32459CF20D579C4B0C0211CB2C@mail0.myrio.com>
-By author:    "Torrey Hoffman" <torrey.hoffman@myrio.com>
-In newsgroup: linux.dev.kernel
+On Thu, Jan 10 2002, Mike wrote:
+> Good evening everyone.
 > 
-> My concern is with the minority who are using initrd, and in
-> some cases a very customized initrd.  
+> I'm new to this list.  After using Linux off and on for about 1 year, I
+> have learned just enough to get around and do very basic system
+> maintenance.  I am at the point where I need to recompile my kernel.  I
+> have done so successfully with the source-code included in my dist
+> (Slackware 8 currently), but am having problems with the most current
+> kernels.
 > 
+> Kernel sources decompressed without error and compiled just as expected,
+> no errors.  Total bzImage size was about 920kb.  After using LILO to
+> install kernel 2.5.0 and rebooting, my computer shows the Loading
+> Linux............ text, then very briefly shows OK, Uncompressing
+> Linux..., but immediately reboots the system before it can initialize.
 
-They can presumably use whatever they already do, except they'll make
-it into a .cpio.gz file instead of an .img.gz file.
+Did you choose the right CPU type?
 
-> The important thing, I think, is that it should be easy for
-> less-than-guru level hackers to add programs to the initramfs,
-> even if the program they want can't be linked with klibc.
-> 
-> This really comes down to: What will the build process be for
-> these initramfs images?
-> 
-> By the way, is initramfs intended to supercede initrd, or will 
-> they co-exist?  
-
-Eventually supercede; it will let us pull out an amazing amount of
-crud.
-
-	-hpa
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Jens Axboe
+

@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbUKIAAg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbUKIAD6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261312AbUKIAAg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 19:00:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbUKIAAg
+	id S261316AbUKIAD6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 19:03:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbUKIAD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 19:00:36 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:31971 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261312AbUKIAAa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 19:00:30 -0500
-X-Envelope-From: kraxel@bytesex.org
-To: Olaf Titz <olaf@bigred.inka.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why my computer freeze completely with xawtv ?
-References: <20041107224621.GB5360@magma.epfl.ch>
-	<418EB58A.7080309@kolivas.org> <20041108000229.GC5360@magma.epfl.ch>
-	<418EB8EB.30405@kolivas.org> <20041108003323.GE5360@magma.epfl.ch>
-	<418EBFE5.5080903@kolivas.org>
-	<Pine.LNX.4.60.0411080919220.32677@alpha.polcom.net>
-	<E1CRGZd-0002ss-00@bigred.inka.de>
-From: Gerd Knorr <kraxel@bytesex.org>
-Organization: SUSE Labs, Berlin
-Date: 09 Nov 2004 00:45:36 +0100
-In-Reply-To: <E1CRGZd-0002ss-00@bigred.inka.de>
-Message-ID: <87is8frjkv.fsf@bytesex.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 8 Nov 2004 19:03:57 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:28876 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261314AbUKIADg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 19:03:36 -0500
+Subject: RE: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox +code
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: davids@webmaster.com
+Cc: =?ISO-8859-1?Q?Rapha=EBl?= Rigo LKML <lkml@twilight-hall.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIECMPKAA.davids@webmaster.com>
+References: <MDEHLPKNGKAHNMBLJOLKIECMPKAA.davids@webmaster.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1099954836.14146.0.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 08 Nov 2004 23:00:37 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Titz <olaf@bigred.inka.de> writes:
-
-> > I suspect two things:
-> > - there is some bug in bttv and similar drivers (DVB) that corrupts memory
-> > related with internal mm and vfs structures or does something equally bad,
-> > - or maybe PCI bandwitch is overflowed, but I do not think it should
-> > happen.
+On Llu, 2004-11-08 at 20:53, David Schwartz wrote:
+> > I don't see the problem. If I ship you GPL code then you have no "right"
+> > to updates from me.
 > 
-> This (first alternative) sounds related to the problem I had with DVB;
-> I got visible corruption of video memory when using xawtv on the DVB
-> video device using Xv on a G550.
+> 	Correct, but you do have the right to distribute the GPL'd code that you
+> received.
 
-Thats something completely different and usually caused by the gfx
-card not being able to handle the bandwith needed for full video
-display.  Result are aborted PCI transfers, which results in the video
-being displayed fine on the left side and not being displayed
-correctly on the right side of the window.
+You do with Sveasoft. 
 
-Usually can be workarounded by using 16 bpp instead of 32 which halves
-the video data rate.
+> 	Can I say, "I'll ship you a copy to my privately-made derivative of the
+> Linux kernel, but only if you first sign a contract promising not to
+> distribute it".
 
-  Gerd
+No but you can say "if you redistribute this I'm not interested in
+working with you any more"
 
--- 
-#define printk(args...) fprintf(stderr, ## args)

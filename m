@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268008AbUIUT0g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268004AbUIUTaV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268008AbUIUT0g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 15:26:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268003AbUIUT0g
+	id S268004AbUIUTaV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 15:30:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268010AbUIUTaU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 15:26:36 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3538 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268004AbUIUT02
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 15:26:28 -0400
-Message-ID: <41508055.6000401@pobox.com>
-Date: Tue, 21 Sep 2004 15:26:13 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Tue, 21 Sep 2004 15:30:20 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:15161 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S268004AbUIUTaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 15:30:16 -0400
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>
+X-Message-Flag: Warning: May contain useful information
+References: <1095758630.3332.133.camel@gaston>
+	<1095761113.30931.13.camel@localhost.localdomain>
+	<1095766919.3577.138.camel@gaston>
+From: Roland Dreier <roland@topspin.com>
+Date: Tue, 21 Sep 2004 12:30:13 -0700
+In-Reply-To: <1095766919.3577.138.camel@gaston> (Benjamin Herrenschmidt's
+ message of "Tue, 21 Sep 2004 21:41:59 +1000")
+Message-ID: <523c1bpghm.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-To: Mark Lord <lsml@rtr.ca>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] QStor SATA/RAID v.96 for 2.6.9-rc2
-References: <4150666A.90807@rtr.ca> <41506BBE.2050507@rtr.ca> <4150712F.3080504@pobox.com> <41507F21.8010800@rtr.ca>
-In-Reply-To: <41507F21.8010800@rtr.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: Re: [PATCH] ppc64: Fix __raw_* IO accessors
+Content-Type: text/plain; charset=us-ascii
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 21 Sep 2004 19:30:14.0358 (UTC) FILETIME=[6B04C760:01C4A011]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
-> Jeff Garzik wrote:
-> 
->>
->> Where is this seperate RAID management module?  :)
->>
->> Typically we do not add kernel hooks to non-public stuff...
-> 
-> 
-> It is still under development.  The vendor will likely
-> distribute it in source code form with the product installation disk,
-> since it is likely to undergo far more frequent updates that the
-> base kernel driver.
-> 
-> This allows them to decouple the portion not needed at boot-time,
-> from the more difficult to change kernel code that has to be
-> there to boot the system on RAID.
+Is it possible to use __raw_*() in portable code?  I have some places
+in my code where non-byte-swap IO functions would be useful, but on
+ppc64, __raw_*() doesn't know about EEH.  Clearly I don't want to
+teach portable code about IO_TOKEN_TO_ADDR etc. so it seems I'm out of
+luck.  I end up doing the fairly insane:
 
+	writel(swab32(val), addr);
 
-Regardless, if the RAID code isn't in the kernel or otherwise posted 
-somewhere publicly and GPL'd, the hooks are unlikely to be accepted.
+instead of what I really mean, which is:
 
-	Jeff
+	__raw_writel(cpu_to_be32(val), addr);
 
+I'm also a little worried that m68k, sh64 and s390 at least don't
+define __raw_* functions.
 
+Thanks,
+  Roland

@@ -1,19 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265721AbRFXDA2>; Sat, 23 Jun 2001 23:00:28 -0400
+	id <S265716AbRFXDA2>; Sat, 23 Jun 2001 23:00:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265716AbRFXDAT>; Sat, 23 Jun 2001 23:00:19 -0400
-Received: from smtpnotes.altec.com ([209.149.164.10]:44050 "HELO
+	id <S265720AbRFXDAT>; Sat, 23 Jun 2001 23:00:19 -0400
+Received: from smtpnotes.altec.com ([209.149.164.10]:39442 "HELO
 	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S265715AbRFXDAE>; Sat, 23 Jun 2001 23:00:04 -0400
+	id <S265716AbRFXDAH>; Sat, 23 Jun 2001 23:00:07 -0400
 X-Lotus-FromDomain: ALTEC
 From: Wayne.Brown@altec.com
-To: "Mike Jagdis" <mjagdis@kokuacom.com>
-cc: "Alan Chandler" <alan@chandlerfamily.org.uk>, linux-kernel@vger.kernel.org,
-        "Rob Landley" <landley@webofficenow.com>
-Message-ID: <86256A75.00106DD0.00@smtpnotes.altec.com>
-Date: Sat, 23 Jun 2001 21:59:14 -0500
-Subject: RE: Microsoft and Xenix.
+To: John Adams <johna@onevista.com>
+cc: linux-kernel@vger.kernel.org
+Message-ID: <86256A75.00106D55.00@smtpnotes.altec.com>
+Date: Sat, 23 Jun 2001 21:41:29 -0500
+Subject: Re: Microsoft and Xenix.
 Mime-Version: 1.0
 Content-type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,52 +21,43 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-I have a complete set of the "XENIX System V" manuals and diskettes (User's
-Guide, User's Reference, Runtime Operating System, and Development System) for
-the AT&T Personal Computer 6300.  The slipcases have the AT&T "Death Star" logo
-on the spines, and the manuals have separate copyrights listed for AT&T (1985),
-Microsoft (1983, 1984, 1985), and the Santa Cruz Operation (1984, 1985).  I
-never had a 6300, but I did try booting the install diskette once on a Leading
-Edge Model D (PC/XT clone) and to my surprise it booted OK.
+Ah, yes, the RT/PC.  That brings back some fond memories.  My first exposure to
+Unix was with AIX on the RT.  I still have some of those weird-sized RT AIX
+manuals around somewhere...
 
 Wayne
 
 
 
 
-"Mike Jagdis" <mjagdis@kokuacom.com> on 06/23/2001 12:57:37 PM
+John Adams <johna@onevista.com> on 06/23/2001 07:49:42 PM
 
-To:   "Alan Chandler" <alan@chandlerfamily.org.uk>, linux-kernel@vger.kernel.org
-cc:   "Rob Landley" <landley@webofficenow.com> (bcc: Wayne
-      Brown/Corporate/Altec)
+To:   linux-kernel@vger.kernel.org
+cc:    (bcc: Wayne Brown/Corporate/Altec)
 
-Subject:  RE: Microsoft and Xenix.
-
+Subject:  Re: Microsoft and Xenix.
 
 
-> I hope the following adds a more direct perspective on this, as I
-> was a user at the time.
 
-I was _almost_ at university :-). However I do have a first edition
-of the IBM Xenix Software Development Guide from december 1984. It has
-'84 IBM copyright and '83 MS copyright. The SCO stuff I have goes back
-to '83 - MS copyrights on it go back to '81 but that's probably just
-the compiler and DOS compatibility.
+On Saturday 23 June 2001 10:07, Rob Landley wrote:
+> Here's what I'm looking for:
+>
+> AIX was first introduced for the IBM RT/PC in 1986, which came out of the
+> early RISC research.  It was ported to PS/2 and S/370 by SAA, and was
+> based on unix SVR2.  (The book didn't specify whether the original
+> version or the version ported to SAA was based on SVR2, I'm guessing both
+> were.)
 
-  Basically Xenix was the first MS/IBM attempt at a "real OS" for the
-PC. MS realised that multiuser/multitasking was less important than
-colour graphics for PC owners and decided to pull out of the Xenix business.
-IBM licensed it under their name to keep their desktop computer concept
-alive while the Xenix team emerged from the shake out to form SCO.
+You are partially correct.  AIX (Advanced Interactive eXecutive) was built
+by the Boston office of Interactive Systems under contract to IBM.  We had
+a maximum of 17 people in the effort which shipped on the RT in January
+1986.
 
-                    Mike
+Prior to that time, Interactive Systems had produced a port of System III
+running on the PC/XT called PC/IX which was sold via IBM.  I used PC/IX to
+produce the software only floating point code in the first version of AIX.
 
---
-Chief Network Architect       Mobile:    +44 7780 608 368
-Kokua Communications Ltd Office:   +44 20 7292 1680
-52-53 Conduit Street          Fax:       +44 20 7292 1681
-London W1S 2YX
-
+johna
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265667AbSLER2E>; Thu, 5 Dec 2002 12:28:04 -0500
+	id <S267364AbSLERXy>; Thu, 5 Dec 2002 12:23:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267359AbSLER2E>; Thu, 5 Dec 2002 12:28:04 -0500
-Received: from pc1-cwma1-5-cust42.swan.cable.ntl.com ([80.5.120.42]:28585 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265667AbSLER2D>; Thu, 5 Dec 2002 12:28:03 -0500
-Subject: RE: is KERNEL developement finished, yet ???
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Joseph D. Wagner" <wagnerjd@prodigy.net>
-Cc: "'Shane Helms'" <shanehelms@eircom.net>, "'Ed Vance'" <EdV@macrolink.com>,
-       "'jeff millar'" <wa1hco@adelphia.net>,
+	id <S267363AbSLERXy>; Thu, 5 Dec 2002 12:23:54 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:53522 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S267359AbSLERXw>; Thu, 5 Dec 2002 12:23:52 -0500
+Date: Thu, 5 Dec 2002 17:31:20 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Antonino Daplas <adaplas@pol.net>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <000901c29c5d$6d194760$2e833841@joe>
-References: <000901c29c5d$6d194760$2e833841@joe>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Dec 2002 18:09:56 +0000
-Message-Id: <1039111796.19636.27.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+Subject: Re: [Linux-fbdev-devel] [PATCH 1/3: FBDEV: VGA State Save/Restore
+ module
+In-Reply-To: <1039017469.1013.30.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0212051729230.31967-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-12-05 at 12:54, Joseph D. Wagner wrote:
-> trying to advance new features.  For example, the POSIX standard is the
-> reason we have the three-by-three secure permissions on files (three users:
-> owner, group, everyone; three permissions: read, write, execute) instead of
-> Access Control Lists (ACL's).
 
-POSIX allows ACLS and MAC.
+> Limitations:
+> 1.  Restoring the VGA state from high-resolution graphics mode may
+> result in a corrupt display which can be corrected by switching
+> consoles.  May need a screen redraw at this point.  Restoring from VGA
+> graphics mode to text mode and vice versa is okay.
+> 
+> 2. Assumes some things about the hardware which is not universally
+> correct:  VGA memory base is at 0xA0000, memory size is 64KB, the
+> hardware palette is readable, etc. 
+> 
+> Any comments welcome.
 
-
-> I don't know of any mistakes per say, but if I had to do it over again,
-> there's about a thousands things I'd do differently (preference in design
-> choices, not mistakes) especially not to cling so religiously to POSIX
-> compliance.
-
-And then you'd have no applications.
+One thing I like to suggest. I like to move the vga code in fb.h to vga.h. 
+Alot of fbdev devices don't have a VGA core. 
 
 

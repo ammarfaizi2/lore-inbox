@@ -1,95 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262838AbSJ1EXq>; Sun, 27 Oct 2002 23:23:46 -0500
+	id <S262835AbSJ1ETg>; Sun, 27 Oct 2002 23:19:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262841AbSJ1EXq>; Sun, 27 Oct 2002 23:23:46 -0500
-Received: from ns.suse.de ([213.95.15.193]:33032 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S262838AbSJ1EXp>;
-	Sun, 27 Oct 2002 23:23:45 -0500
-Date: Mon, 28 Oct 2002 05:30:04 +0100
-From: Andi Kleen <ak@suse.de>
-To: andrew@pimlott.net, linux-kernel@vger.kernel.org
-Subject: Re: The return of the return of crunch time (2.5 merge candidate list 1.6)
-Message-ID: <20021028053004.C2558@wotan.suse.de>
-References: <200210251557.55202.landley@trommello.org.suse.lists.linux.kernel> <p7365vptz49.fsf@oldwotan.suse.de> <20021026190906.GA20571@pimlott.net> <20021027080125.A14145@wotan.suse.de> <20021027152038.GA26297@pimlott.net>
-Mime-Version: 1.0
+	id <S262838AbSJ1ETg>; Sun, 27 Oct 2002 23:19:36 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:2763 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S262835AbSJ1ETf>; Sun, 27 Oct 2002 23:19:35 -0500
+Date: Sun, 27 Oct 2002 20:23:09 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Michael Hohnbaum <hohnbaum@us.ibm.com>
+cc: Erich Focht <efocht@ess.nec.de>, mingo@redhat.com,
+       Andrew Theurer <habanero@us.ibm.com>, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] Re: NUMA scheduler  (was: 2.5 merge candidate list	1.5)
+Message-ID: <3142297164.1035750188@[10.10.2.3]>
+In-Reply-To: <1035766530.8077.82.camel@hbaum>
+References: <1035766530.8077.82.camel@hbaum>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20021027152038.GA26297@pimlott.net>
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 27, 2002 at 10:20:38AM -0500, Andrew Pimlott wrote:
-> 
-> I'm sure there is a case where this is true, but my imagination and
-> googling failed to provide one.  Even the messages to the GNU make
+>> Michael, the way I read the NR_CPUS loop, you walk every cpu
+>> in the system, and take the best from all of them. In which case
+>> what's the point of the last_exec_cpu stuff? On the other hand, 
+>> I changed your NR_CPUS to 4 (ie just walk the cpus in that node), 
+>> and it got worse. So perhaps I'm just misreading your code ...
+>> and it does seem significantly cheaper to execute than Erich's.
+>> 
+> You are reading it correct.  The only thing that the last_exec_cpu
+> does is to help spread the load across nodes.  Without that what was
+> happening is that node 0 would get completely loaded, then node 1,
+> etc.  With it, in cases where one or more runqueues have the same
+> length, the one chosen tends to get spread out a bit.  Not the 
+> greatest solution, but it helps.
 
-foo: bar
-	action1 <something that takes less than a second> 
+OK. I made a simple boring optimisation to your patch. Shaved almost
+a second off system time for kernbench, and seems idiotproof to me,
+shouldn't change anything apart from touching fewer runqueues: if
+we find a runqueue with nr_running == 0, stop searching ... we ain't
+going to find anything better ;-)
 
-frob: foo
-	action2 <something that takes a long time>
+Kernbench:
+                                   Elapsed        User      System         CPU
+                    2.5.44-mm4     19.676s    192.794s     42.678s     1197.4%
+            2.5.44-mm4-hbaum-1     19.746s    189.232s     38.354s     1152.2%
+           2.5.44-mm4-hbaum-12     19.322s    190.176s     40.354s     1192.6%
+ 2.5.44-mm4-hbaum-12-firstzero     19.292s     189.66s     39.428s     1187.4%
 
+Patch is probably space-eaten, so just whack it in by hand.
 
-action1 is executed. foo and bar have the same time stamp. action2 
-is executed.
+--- 2.5.44-mm4-hbaum-12/kernel/sched.c  2002-10-27 19:54:25.000000000 -0800
++++ 2.5.44-mm4-hbaum-12-first_low/kernel/sched.c        2002-10-27 16:42:10.000000000 -0800
+@@ -2206,6 +2206,8 @@
+                if (minload > cpu_rq(cur_cpu)->nr_running) {
+                        minload = cpu_rq(cur_cpu)->nr_running;
+                        best_cpu = cur_cpu;
++                       if (minload == 0)
++                               break;
+                }
+                if (++cur_cpu >= NR_CPUS)
+                        cur_cpu = 0;
 
-
-make runs again. Default rule sees foo.mtime == bar.mtime and starts
-action1 and action2 again. action2 takes a long time. But it's unnecessary,
-because bar has not really changed.
-
-
-> Example problem case (assuming a fs that stores only seconds, and a
-> make that uses nanoseconds):
-> 
-> - I run the "save and build" command while editing foo.c at T = 0.1.
-> - foo.o is built at T = 0.2.
-> - I do some read-only operations on foo.c (eg, checkin), such that
->   foo.o gets flushed but foo.c stays in memory.
-> - I build again.  foo.o is reloaded and has timestamp T = 0, and so
->   gets spuriously rebuilt.
-
-Yes, when you file system has only second resolution then you can get
-spurious rebuilds if your inodes get flushed. There is no way my patch
-can fix that. While some of the cases may be avoided by better
-rounding, it would be better to handle such heuristics in user space
-if you really wanted to be clever. Or just make sure you have enough
-ram.
-
-The point of my patchkit is to allow the file systems
-who support better resolution to handle it properly. Other filesystems
-are not worse than before when they flush inodes (and better off when
-they keep everything in ram for your build because then they will enjoy 
-full time resolution) 
-
-My notes about possible problems with older fs were really not about 
-make, but about other programs that could see inconsistencies
-
-It's a fairly obscure case because the inode has to be flushed
-and reloaded in less than a second (so not likely to trigger
-often in practice) 
-
-
-> 
-> > Another way would be to round on flush, but that also has some problems :-
-> > for example you can get timestamps which are ahead of the current
-> > wall clock.
-> 
-> Only if the flush is less than a second after the write, right?
-> How likely is that in Linux?
-
-Not very, but could happen in extreme cases.
-
-
-> 
-> I tend to prefer the proposal to set the nanosecond field to 10^9-1.
-> At least my scenario above doesn't happen.
-
-If you really wanted that I would recommend to change make.
-When all nanosecond parts are 0 it is reasonable for make to assume that
-the fs doesn't support finegrained resolution. But I'm not sure it's 
-worth it.
-
--Andi

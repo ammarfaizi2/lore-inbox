@@ -1,58 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263142AbUKTSmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263147AbUKTSpy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263142AbUKTSmT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 13:42:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263146AbUKTSmT
+	id S263147AbUKTSpy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 13:45:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263148AbUKTSpy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 13:42:19 -0500
-Received: from 82-43-72-5.cable.ubr06.croy.blueyonder.co.uk ([82.43.72.5]:56303
-	"EHLO home.chandlerfamily.org.uk") by vger.kernel.org with ESMTP
-	id S263142AbUKTSmP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 13:42:15 -0500
-From: Alan Chandler <alan@chandlerfamily.org.uk>
-To: linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: ide-cd problem
-Date: Sat, 20 Nov 2004 18:42:14 +0000
-User-Agent: KMail/1.7.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sat, 20 Nov 2004 13:45:54 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9227 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263147AbUKTSpF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 13:45:05 -0500
+Date: Sat, 20 Nov 2004 18:45:01 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PCI fixes for 2.6.9
+Message-ID: <20041120184500.A28206@flint.arm.linux.org.uk>
+Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+References: <10982257353682@kroah.com> <10982257352301@kroah.com> <20041020091045.D1047@flint.arm.linux.org.uk> <20041022234508.GA28380@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200411201842.15091.alan@chandlerfamily.org.uk>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20041022234508.GA28380@kroah.com>; from greg@kroah.com on Fri, Oct 22, 2004 at 04:45:08PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been trying to track down why all attempts to burn a cd on my ide cdrw 
-fails (see bug #3741 on bugzilla ), with a subprocess of cdrecord ending up 
-hanging in uninterruptable sleep state.
+On Fri, Oct 22, 2004 at 04:45:08PM -0700, Greg KH wrote:
+> On Wed, Oct 20, 2004 at 09:10:45AM +0100, Russell King wrote:
+> > On Tue, Oct 19, 2004 at 03:42:15PM -0700, Greg KH wrote:
+> > > ChangeSet 1.1997.37.29, 2004/10/06 12:50:32-07:00, kaneshige.kenji@jp.fujitsu.com
+> > > 
+> > > [PATCH] PCI: warn of missing pci_disable_device()
+> > > 
+> > > As mentioned in Documentaion/pci.txt, pci device driver should call
+> > > pci_disable_device() when it decides to stop using the device. But
+> > > there are some drivers that don't use pci_disable_device() so far.
+> > 
+> > No.  This is wrong.  There are some classes of devices, notably
+> > PCMCIA Cardbus drivers where buggy BIOS means this should _NOT_
+> > be done.
+> 
+> But what happens if you reload that driver and try to enable the device?
+> Does that "just work" somehow on this kind of hardware?
 
-I think I understand what is happening, I just don't know what to do about it.
+Why wouldn't it work?  Surely there are no side effects to trying to enable
+an already enabled device - if there are, then wouldn't x86 have problems
+where PCI devices were enabled before control was passed to the kernel?
 
-Inside drivers/ide/ide-cd.c
+> > There are BIOSen out there which refuse to suspend/resume if the
+> > Cardbus bridge is disabled.
+> > 
+> > It's not that the driver is buggy.  It's that the driver has far
+> > more information than the PCI layer could ever have.
+> 
+> Ugh, I hate broken hardware.  I'll revert this in my next round of pci
+> changes (sometime next week.)
 
-the ide_do_rw_cdrom routine has been called via a request with the request 
-flags having the REQ_BLOCK_PC flag set.  The request->data_len of this 
-request is set to 0.
+It's got nothing to do with hardware.  It's BIOS.
 
-This request is sent to the device and it generates interrupts to eventually 
-land it up inside the routine cdrom_newpc_intr.
+Also, upon re-reading the bug report, the problem was putting the Cardbus
+bridge into D3 state, not calling pci_disable_device() for it.  However,
+if pci_disable_device() puts the bridge into D3, then we'll hit the same
+issue.
 
-At this point the status register on the hardware is set to 0x58 - implying, I 
-think that the DRQ_STAT bit is set and that something should be sent to the 
-device.
-
-Normally, because the requested data_len is not zero, the data is sent.  In 
-this case however, because the original request had nothing to send, the 
-while/if clauses to initiate a new transfer are skipped and the routine ends 
-up setting a new interrupt handler address and returning to await an 
-interrupt that will never come.
-
-Question: should something validate that the request length is not zero 
-earlier, or should there be a check in ide-cd.c, or is it my hardware (its a 
-generic cd read/rewriter which announces itself as 'CW078D CD-R/RW')
 -- 
-Alan Chandler
-alan@chandlerfamily.org.uk
-First they ignore you, then they laugh at you,
- then they fight you, then you win. --Gandhi
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

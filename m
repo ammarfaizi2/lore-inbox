@@ -1,56 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261486AbVCCGIe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbVCCGNm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261486AbVCCGIe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 01:08:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbVCCFem
+	id S261188AbVCCGNm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 01:13:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbVCCGIo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 00:34:42 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:54897 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261194AbVCCFbn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 00:31:43 -0500
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH][7/11] IB/ipoib: use list_for_each_entry_safe when required
-In-Reply-To: <2005322131.6N8qBqgz1WuD4wnL@topspin.com>
-X-Mailer: Roland's Patchbomber
-Date: Wed, 2 Mar 2005 21:31:22 -0800
-Message-Id: <2005322131.K2SnvQsocHnkTwPm@topspin.com>
+	Thu, 3 Mar 2005 01:08:44 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:8680
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261489AbVCCFdj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 00:33:39 -0500
+Date: Wed, 2 Mar 2005 21:33:23 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Russell Miller <rmiller@duskglow.com>
+Cc: jgarzik@pobox.com, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+Message-Id: <20050302213323.4934b8e2.davem@davemloft.net>
+In-Reply-To: <200503022108.07117.rmiller@duskglow.com>
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
+	<4226969E.5020101@pobox.com>
+	<20050302205826.523b9144.davem@davemloft.net>
+	<200503022108.07117.rmiller@duskglow.com>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-To: akpm@osdl.org
-Content-Transfer-Encoding: 7BIT
-From: Roland Dreier <roland@topspin.com>
-X-OriginalArrivalTime: 03 Mar 2005 05:31:22.0835 (UTC) FILETIME=[3C6D1A30:01C51FB2]
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Shirley Ma <xma@us.ibm.com>
+On Wed, 2 Mar 2005 21:08:07 -0800
+Russell Miller <rmiller@duskglow.com> wrote:
 
-Change uses of list_for_each_entry() where the loop variable is freed
-inside the loop to list_for_each_entry_safe().
+> How do you know that they won't stop the announcements if this change is made?
 
-Signed-off-by: Shirley Ma <xma@us.ibm.com>
-Signed-off-by: Roland Dreier <roland@topspin.com>
-
-
---- linux-export.orig/drivers/infiniband/ulp/ipoib/ipoib_multicast.c	2005-03-02 20:26:02.832873236 -0800
-+++ linux-export/drivers/infiniband/ulp/ipoib/ipoib_multicast.c	2005-03-02 20:26:12.799709771 -0800
-@@ -790,7 +790,7 @@
- 
- 	spin_unlock_irqrestore(&priv->lock, flags);
- 
--	list_for_each_entry(mcast, &remove_list, list) {
-+	list_for_each_entry_safe(mcast, tmcast, &remove_list, list) {
- 		ipoib_mcast_leave(dev, mcast);
- 		ipoib_mcast_free(mcast);
- 	}
-@@ -902,7 +902,7 @@
- 	spin_unlock_irqrestore(&priv->lock, flags);
- 
- 	/* We have to cancel outside of the spinlock */
--	list_for_each_entry(mcast, &remove_list, list) {
-+	list_for_each_entry_safe(mcast, tmcast, &remove_list, list) {
- 		ipoib_mcast_leave(mcast->dev, mcast);
- 		ipoib_mcast_free(mcast);
- 	}
-
+Nobody knows such things for sure, let's test it and find out :-)

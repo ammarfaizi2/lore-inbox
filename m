@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263483AbTDSWoK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 18:44:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263487AbTDSWoJ
+	id S263488AbTDSWpx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 18:45:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263489AbTDSWpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 18:44:09 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:57040
+	Sat, 19 Apr 2003 18:45:52 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:58064
 	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263483AbTDSWoJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 18:44:09 -0400
-Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
+	id S263488AbTDSWpv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 18:45:51 -0400
+Subject: Re: [PATCH 2.5] report unknown NMI reasons only once
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+To: Pascal Schmidt <der.eremit@email.de>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030419184120.GH669@gallifrey>
-References: <20030419180421.0f59e75b.skraw@ithnet.com>
-	 <87lly6flrz.fsf@deneb.enyo.de> <20030419200712.3c48a791.skraw@ithnet.com>
-	 <20030419184120.GH669@gallifrey>
+In-Reply-To: <Pine.LNX.4.44.0304192010020.1306-100000@neptune.local>
+References: <Pine.LNX.4.44.0304192010020.1306-100000@neptune.local>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1050789452.3955.12.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1050789585.3961.15.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 19 Apr 2003 22:57:33 +0100
+Date: 19 Apr 2003 22:59:46 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2003-04-19 at 19:41, Dr. David Alan Gilbert wrote:
-> 	2) I don't think all drives are set to remap sectors by default.
+On Sad, 2003-04-19 at 19:21, Pascal Schmidt wrote:
+> Those NMIs happen only rarely when the machine is lightly loaded, but
+> under load, I get several of them per second. This quickly makes
+> /var/log/messages grow.
 
-I don't know any that do not remap on write if needed. 
+I guess they are overheat traps then
 
-> 	3) I don't believe that all drivers recover neatly from a drive error.
+> I don't think reporting any of those NMIs more than once provides
+> valuable information, so I've cooked up a patch which only reports each
+> unknown NMI reason once.
 
-For IDE we have some issues with ATA6 drives in certain cases at least. 
-
-> 	2) A disc exerciser - something that I can use to see if this drive,
-> 	connected to this controller, on this motherboard on this kernel
-> 	actually works and keeps its data safe before I put it into live
-> 	service.
-
-SMART supports some of this. Andre also has some disk stress testing
-tools
+Its sitting there saying "Something is wrong" "Something is still
+wrong". By all means kill it on your box, but this is not good for
+general consumption. 
 

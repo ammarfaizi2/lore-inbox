@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315285AbSEGCUd>; Mon, 6 May 2002 22:20:33 -0400
+	id <S315286AbSEGDBC>; Mon, 6 May 2002 23:01:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315286AbSEGCUc>; Mon, 6 May 2002 22:20:32 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:58054 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S315285AbSEGCUb>;
-	Mon, 6 May 2002 22:20:31 -0400
-Date: Tue, 7 May 2002 12:20:14 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Anton Altaparmakov <aia21@cantab.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: TRIVIAL: Remove warning in mm/memory.c
-Message-ID: <20020507022014.GF1163@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Anton Altaparmakov <aia21@cantab.net>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020507011013.GD1163@zax> <5.1.0.14.2.20020507022951.01fadc60@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S315291AbSEGDBB>; Mon, 6 May 2002 23:01:01 -0400
+Received: from flrtn-4-m1-42.vnnyca.adelphia.net ([24.55.69.42]:37775 "EHLO
+	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S315286AbSEGDBA>;
+	Mon, 6 May 2002 23:01:00 -0400
+Message-ID: <3CD7436B.4060405@tmsusa.com>
+Date: Mon, 06 May 2002 20:00:59 -0700
+From: J Sloan <joe@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020505
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: John Stoffel <stoffel@casc.com>
+CC: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Tux in main kernel tree? (was khttpd rotten?)
+In-Reply-To: <3CD5ECEE.E6C0B894@kegel.com>	<Pine.LNX.4.44.0205061608300.26867-100000@mustard.heime.net> <15574.52864.321544.44124@gargle.gargle.HOWL>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 07, 2002 at 02:32:15AM +0100, Anton Altaparmakov wrote:
-> This is already removed in 2.5.14!
+John Stoffel wrote:
 
-Oops, I was working 
+>Or maybe we should include kDNS and kftpd as well now?
+>
 
-> At 02:10 07/05/02, David Gibson wrote:
-> >Linus, please apply.  This patch removes an unused variable in
-> >mm/memory.c.
+We do have knfsd -
 
-Oops, I was working of the linuxppc-2.5 bk tree and forget to check
-that it was up to date with the Linus tree.  Sorry.
+and FWIW, tux does ftp as well as http -
 
--- 
-David Gibson			| For every complex problem there is a
-david@gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.  -- H.L. Mencken
-http://www.ozlabs.org/people/dgibson
+></sarcasm>
+>
+>An httpd server is a *user space* issue, not a kernel issue.
+>
+What about nfs? also a user space issue?
+
+If a userspace httpd could come anywhere near
+the performance of tux, your protest might be
+just a little more beleivable.
+
+google "specweb champ" for a gentle heads-up
+on the subject.
+
+Joe
+
+
+
+

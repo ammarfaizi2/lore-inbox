@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262074AbVBUT2m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262075AbVBUT2l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262074AbVBUT2m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 14:28:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262083AbVBUT1R
+	id S262075AbVBUT2l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 14:28:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbVBUT07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 14:27:17 -0500
-Received: from mta11.adelphia.net ([68.168.78.205]:43514 "EHLO
-	mta11.adelphia.net") by vger.kernel.org with ESMTP id S262082AbVBUTUk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 14:20:40 -0500
-Message-ID: <421A3414.2020508@nodivisions.com>
-Date: Mon, 21 Feb 2005 14:18:44 -0500
-From: Anthony DiSante <theant@nodivisions.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+	Mon, 21 Feb 2005 14:26:59 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:991 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S262074AbVBUTMa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 14:12:30 -0500
+Message-ID: <421A2B18.2000102@grupopie.com>
+Date: Mon, 21 Feb 2005 18:40:24 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: uninterruptible sleep lockups
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: gene.heskett@verizon.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: OT: Why is usb data many times the cpu hog that firewire is?
+References: <200502211216.35194.gene.heskett@verizon.net> <200502211858.34301.oliver@neukum.org> <200502211325.55013.gene.heskett@verizon.net>
+In-Reply-To: <200502211325.55013.gene.heskett@verizon.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Processes that get permanently stuck in "uninterruptible sleep" (the D state 
-as indicated by "ps aux") are such a pain.  Of course they've always 
-existed, but at least on the 3 systems that I administer, they are far more 
-frequent with udev than they ever were before.  I'm constantly upgrading 
-udev, hal, etc on these 3 different systems, but still not a week goes by 
-that one of them doesn't need a reboot because some hardware-related process 
-is hung.
+Gene Heskett wrote:
+> On Monday 21 February 2005 12:58, Oliver Neukum wrote:
+>[...]
+>>A video stream over usb1.1 must be compressed due to bandwidth
+>>available. Decompression needs cpu.
+>>
+> 
+> Thats what I was afraid of, which makes using it for a motion detected 
+> burgular alarm source considerably less than practical since the 
+> machine must be able to do other things too.  Darn.  And its usb1.1 
+> even when plugged into a 2.0 capable port.
 
-The most recent one was yesterday: I had run lsusb in the morning and had no 
-problems, but at the end of the day I ran it again, and after outputting 3 
-lines of data, it hung, stuck in D-state.  So now I have this:
+Depending on the camera model you can try some bandwidth reduction 
+measures to try to make it send uncompressed video:
+  - reduce frame rate. Something as low as 2 fps should be enough for 
+motion detection.
+  - reduce requested resolution. This of course depends on whether you 
+have enough resolution or not.
+  - selecting gray scale images. I don't know if your motion detection 
+software is greatly affected by this, or not.
 
-[/home/user]$ ps aux|grep D
-USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
-root        92  0.0  0.0     0    0 ?        D    Feb19   0:00 [khubd]
-root       845  0.0  0.0     0    0 ?        D    Feb19   0:00 [knodemgrd_0]
-root     29016  0.0  0.1  1512  592 ?        D    00:28   0:00 lsusb
+USB1.1 bandwidth is enought for 640x480, 8 bits gray scale (or color, 8 
+bits bayer pattern), at 3 fps.
 
-It seems like this problem is always going to exist, because some hardware 
-and some drivers will always be buggy.  So shouldn't we have some sort of 
-watchdog higher up in the kernel, that watches for hung processes like this 
-and kills them?
+Of course, you can always buy a USB2.0 camera :)
 
-Don't get me wrong, I love rebooting every couple days... but I have a 
-Windows system for that.
+-- 
+Paulo Marques - www.grupopie.com
 
--Anthony DiSante
-http://nodivisions.com/
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)

@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261674AbSJAPan>; Tue, 1 Oct 2002 11:30:43 -0400
+	id <S261819AbSJAP0E>; Tue, 1 Oct 2002 11:26:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261680AbSJAPan>; Tue, 1 Oct 2002 11:30:43 -0400
-Received: from [202.64.97.34] ([202.64.97.34]:21254 "EHLO main.coppice.org")
-	by vger.kernel.org with ESMTP id <S261674AbSJAPal>;
-	Tue, 1 Oct 2002 11:30:41 -0400
-Message-ID: <3D99C0D9.7060704@coppice.org>
-Date: Tue, 01 Oct 2002 23:35:53 +0800
-From: Steve Underwood <steveu@coppice.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020911
-X-Accept-Language: en, en-us
+	id <S261852AbSJAP0D>; Tue, 1 Oct 2002 11:26:03 -0400
+Received: from landfill.ihatent.com ([217.13.24.22]:8937 "EHLO
+	mail.ihatent.com") by vger.kernel.org with ESMTP id <S261819AbSJAP0C>;
+	Tue, 1 Oct 2002 11:26:02 -0400
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       marcelo@conectiva.com.br
+Subject: Re: CPU/cache detection wrong
+References: <m3hegaxpp0.fsf@lapper.ihatent.com>
+	<1033403655.16933.20.camel@irongate.swansea.linux.org.uk>
+	<m3wup3bcgb.fsf@lapper.ihatent.com> <20020930221536.GA6987@suse.de>
+	<m3smzqipzd.fsf@lapper.ihatent.com> <20021001110628.GA17865@suse.de>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 01 Oct 2002 17:31:07 +0200
+In-Reply-To: <20021001110628.GA17865@suse.de>
+Message-ID: <m3d6qu41ms.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: Tim Waugh <twaugh@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: USB IEEE1284 gadgets and ppdev
-References: <3D90831A.7060709@coppice.org> <20020924162130.GE9457@redhat.com> <3D91BF58.8080803@coppice.org> <20020925142757.GL9457@redhat.com> <20020925150129.GC30339@kroah.com> <20020925150915.GM9457@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Waugh wrote:
+Dave Jones <davej@codemonkey.org.uk> writes:
 
->On Wed, Sep 25, 2002 at 08:01:29AM -0700, Greg KH wrote:
->
->  
->
->>I understand that the uss720 driver should register with parport, as
->>it is a USB to parallel port adapter, but the usblp driver should
->>not, as it is just a pass-through to a printer.  Do you see any
->>advantage to having usblp registering with parport?
->>    
->>
->
->Well, it would mean that ppdev could use it.  I understand that only a
->few functions of a normal parallel port could be implemented (read,
->write, get status).
->
->Alternatively I suppose I could get libieee1284 to grok /dev/usb/lp*.
->Steve---would that solve the problem that you're running into?
->
->Tim.
->*/
->  
->
-Well, the application is this. A lot of industrial control, embedded 
-processor development interfaces, and other stuff use a parallel port to 
-connect to a PC. The parallel port has gone from some notebooks, and is 
-soon to go from desktops too. I want to access some of those devices 
-through a USB to IEEE1284 cable. If the programming interface is ppdev, 
-that is great - no changes needed for code that already works with a 
-real parallel port. If it requires a somewhat different API, that's no 
-big deal. Being able to bit twiddle to the extent that ppdev allows is 
-pretty important, though. I guess there may be some latency issues 
-slowing the bit twiddling across a USB interface, but nothing's perfect.
+> On Tue, Oct 01, 2002 at 09:21:26AM +0200, Alexander Hoogerhuis wrote:
+>  > Here we go:
+>  > 
+>  > CPU: Trace cache: 12K uops, L1 D cache: 8K
+>  > CPU: L2 cache: 512K
+>  > 
+>  > But my BIOS still say I should have 8Kb/8Kb I/D L1 cache... oh
+>  > well. I'm sure Alan Cox would just write it up as marketing, since
+>  > thats about how reliable a BIOS is :)
+> 
+> Hmm, can a P4 have a trace cache AND an L1 I cache ?
+> I thought they were exclusive, which is why the code
+> doesn't take this into account. Easily fixed if so though..
+> 
 
-Regards,
-Steve
+I don't know the gory details of it, but my BIOS claims I got 8/8, but
+I'm deep enough in it now to start taking the 5th amendment on the
+details here :)
 
-
+ttfn,
+A
+-- 
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

@@ -1,37 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267818AbUJRXlZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267807AbUJRXl4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267818AbUJRXlZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 19:41:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267807AbUJRXlZ
+	id S267807AbUJRXl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 19:41:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267829AbUJRXl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 19:41:25 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:3221 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S267841AbUJRXkR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 19:40:17 -0400
-Message-ID: <4174543A.1030906@nortelnetworks.com>
-Date: Mon, 18 Oct 2004 17:39:38 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: question on memory map cleanup stuff
-References: <41744A50.3030700@nortelnetworks.com> <20041018231432.GI5607@holomorphy.com>
-In-Reply-To: <20041018231432.GI5607@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Oct 2004 19:41:56 -0400
+Received: from waste.org ([209.173.204.2]:48515 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S267807AbUJRXly (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 19:41:54 -0400
+Date: Mon, 18 Oct 2004 18:41:27 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Mingming Cao <cmm@us.ibm.com>
+Cc: akpm@osdl.org, "Stephen C. Tweedie" <sct@redhat.com>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>
+Subject: Re: [PATCH 1/3] ext3 reservation remove stale window fix
+Message-ID: <20041018234126.GB28904@waste.org>
+References: <1098140107.8803.1062.camel@w-ming2.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1098140107.8803.1062.camel@w-ming2.beaverton.ibm.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
+On Mon, Oct 18, 2004 at 03:55:04PM -0700, Mingming Cao wrote:
+> 
+> Before we changed the per-filesystem reservations from a linked list
+> to a red-black tree, in order to speed up the linear search from the
+> list head, we keep the current(stale) reservation window as a
+> reference pointer to skip the nodes prior to the current/stale
+> window node, when failed to allocate a new window in current group
+> and try to do allocation in next group.
 
-> vma->vm_ops->close() often suffices for such without disturbing the core.
+One wonders whether a prio tree of the sort used by the current VMA
+searching code would be a better match to the problem than the
+red-black approach.
 
-Ah.  That looks promising.
-
-Thanks.
-
-Chris
+-- 
+Mathematics is the supreme nostalgia of our time.

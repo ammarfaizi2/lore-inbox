@@ -1,78 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269530AbUJFVxe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269453AbUJFV2n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269530AbUJFVxe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 17:53:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269524AbUJFVuf
+	id S269453AbUJFV2n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 17:28:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269448AbUJFU20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 17:50:35 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:36586 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S269530AbUJFVtT
+	Wed, 6 Oct 2004 16:28:26 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:31981 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S269477AbUJFUXD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 17:49:19 -0400
-Subject: 2.6.9-rc3-mm2 compile problems on ppc64
-From: Badari Pulavarty <pbadari@us.ibm.com>
+	Wed, 6 Oct 2004 16:23:03 -0400
+Date: Wed, 06 Oct 2004 13:23:28 -0700
+From: Hanna Linder <hannal@us.ibm.com>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1097098866.12861.219.camel@dyn318077bld.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 06 Oct 2004 14:41:06 -0700
+cc: greg@kroah.com, hannal@us.ibm.com, kernel-janitors@lists.osdl.org,
+       Christoph Hellwig <hch@infradead.org>
+Subject: [PATCH 2.6] [1/54] arch/i386/pci/i386.c: Use new for_each_pci_dev macro 
+Message-ID: <3600000.1097094208@w-hlinder.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I can't build 2.6.9-rc3-mm2 on ppc64. Any fixes ?
+As requested by Christoph Hellwig I've created a new macro called
+for_each_pci_dev. It is a wrapper for this common use of pci_get/find_device:
 
-Thanks,
-Badari
+(while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL))
+
+This macro will return the pci_dev *for all pci devices.  Here is the first patch I 
+used to test this macro with. Compiled and booted on my T23. There will be
+53 more patches using this new macro.
+
+Hanna Linder
+IBM Linux Technology Center
+
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+
+---
+
+diff -Nrup linux-2.6.9-rc3-mm2cln/arch/i386/pci/i386.c linux-2.6.9-rc3-mm2patch2/arch/i386/pci/i386.c
+--- linux-2.6.9-rc3-mm2cln/arch/i386/pci/i386.c	2004-10-04 11:38:04.000000000 -0700
++++ linux-2.6.9-rc3-mm2patch2/arch/i386/pci/i386.c	2004-10-06 12:25:50.449991552 -0700
+@@ -124,7 +124,7 @@ static void __init pcibios_allocate_reso
+ 	u16 command;
+ 	struct resource *r, *pr;
  
+-	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
++	for_each_pci_dev(dev) {
+ 		pci_read_config_word(dev, PCI_COMMAND, &command);
+ 		for(idx = 0; idx < 6; idx++) {
+ 			r = &dev->resource[idx];
+@@ -168,7 +168,7 @@ static int __init pcibios_assign_resourc
+ 	int idx;
+ 	struct resource *r;
+ 
+-	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
++	for_each_pci_dev(dev) {
+ 		int class = dev->class >> 8;
+ 
+ 		/* Don't touch classless devices and host bridges */
 
- LD      arch/ppc64/kernel/built-in.o
-arch/ppc64/kernel/pSeries_pci.o(.text+0x9fc): In function
-`pcibios_fixup_bus':
-arch/ppc64/kernel/pSeries_pci.c:508: multiple definition of
-`.pcibios_fixup_bus'
-arch/ppc64/kernel/pci.o(.text+0x540):arch/ppc64/kernel/pci.c:815: first
-defined
-here
-ld: Warning: size of symbol `.pcibios_fixup_bus' changed from 456 in
-arch/ppc64/
-kernel/pci.o to 464 in arch/ppc64/kernel/pSeries_pci.o
-arch/ppc64/kernel/pSeries_pci.o(.opd+0x0): In function
-`pcibios_fixup_device_res
-ources':
-: multiple definition of `pcibios_fixup_device_resources'
-arch/ppc64/kernel/pci.o(.opd+0x90):arch/ppc64/kernel/pci.c:157: first
-defined he
-re
-arch/ppc64/kernel/pSeries_pci.o(*ABS*+0x27fc96b4): In function
-`__crc_pcibios_fi
-xup_device_resources':
-pSeries_pci.c: multiple definition of
-`__crc_pcibios_fixup_device_resources'
-arch/ppc64/kernel/pSeries_pci.o(*ABS*+0x212b253a): In function
-`__crc_pcibios_fi
-xup_bus':
-pSeries_pci.c: multiple definition of `__crc_pcibios_fixup_bus'
-arch/ppc64/kernel/pSeries_pci.o(.text+0x0): In function
-`.pcibios_fixup_device_r
-esources':
-: multiple definition of `.pcibios_fixup_device_resources'
-arch/ppc64/kernel/pci.o(.text+0x184):arch/ppc64/kernel/pci.c:781: first
-defined
-here
-arch/ppc64/kernel/pSeries_pci.o(.opd+0xf0): In function
-`pSeries_final_fixup':
-arch/ppc64/kernel/pSeries_pci.c:477: multiple definition of
-`pcibios_fixup_bus'
-arch/ppc64/kernel/pci.o(.opd+0x138):arch/ppc64/kernel/pci.c:743: first
-defined h
-ere
-make[1]: *** [arch/ppc64/kernel/built-in.o] Error 1
-make: *** [arch/ppc64/kernel] Error 2
-make: *** Waiting for unfinished jobs....
 
 

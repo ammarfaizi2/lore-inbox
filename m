@@ -1,57 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129177AbQKMXfj>; Mon, 13 Nov 2000 18:35:39 -0500
+	id <S129457AbQKMXl3>; Mon, 13 Nov 2000 18:41:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129210AbQKMXf3>; Mon, 13 Nov 2000 18:35:29 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:57349 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S129177AbQKMXfO>; Mon, 13 Nov 2000 18:35:14 -0500
-Date: Mon, 13 Nov 2000 23:04:19 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: David Hinds <dhinds@valinux.com>, <torvalds@transmeta.com>,
-        <tytso@valinux.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pcmcia event thread. (fwd)
-In-Reply-To: <3A106F81.FB5BE7F1@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.30.0011132254320.29233-100000@imladris.demon.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129478AbQKMXlT>; Mon, 13 Nov 2000 18:41:19 -0500
+Received: from vena.lwn.net ([206.168.112.25]:21767 "HELO eklektix.com")
+	by vger.kernel.org with SMTP id <S129457AbQKMXlF>;
+	Mon, 13 Nov 2000 18:41:05 -0500
+Message-ID: <20001113231104.13349.qmail@eklektix.com>
+To: linux-kernel@vger.kernel.org
+Cc: Steven_Snyder@3com.com
+Subject: Re: Current doc for writing device drivers? 
+From: corbet-lk@lwn.net (Jonathan Corbet)
+In-Reply-To: Your message of "Mon, 13 Nov 2000 10:53:30 EST."
+             <3A100E7A.2F00682E@mandrakesoft.com> 
+Date: Mon, 13 Nov 2000 16:11:04 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Nov 2000, Jeff Garzik wrote:
+> The Rubini book is being updated for 2.2 and 2.4, but I dunno when it
+> will go to press.
 
-> It's purposefully not on Ted's critical list, the official line is "use
-> pcmcia_cs external package" if you need i82365 or tcic instead of yenta
-> AFAIK.  However... fixing things and being able to support all pcmcia
-> and cardbus adapters would be wonderful.
->
-> drivers/pcmcia/Config.in:
-> > #tristate 'PCMCIA/CardBus support' CONFIG_PCMCIA
-> > #if [ "$CONFIG_PCMCIA" != "n" ]; then
-> > #   if [ "$CONFIG_PCI" != "n" ]; then
-> > #      bool '  CardBus support' CONFIG_CARDBUS
-> > #   fi
-> > #   bool '  i82365 compatible bridge support' CONFIG_I82365
-> > #   bool '  Databook TCIC host bridge support' CONFIG_TCIC
-> > #fi
+We're working on it - honest!
 
-Ok, well the patch I've just submitted _ought_ to fix stuff, and certainly
-works with my own socket drivers for an embedded board I'm working on.
+The book will go out for technical review before too long; I believe the
+current target date to have it on the shelves is April.  We'd hoped for
+sooner, but, given how 2.4 development has gone, I think the timing is
+about right.  After all, we wouldn't want to present the wrong prototype
+for kmap() or miss out on the new inter-module communication API...:)
 
-I have an i82365 eval board kicking around somewhere. I'll see if I can
-dig it out tomorrow and verify that it now works, and then perhaps we can
-consider re-enabling the config options.
-
-I may add code to handle non-CardBus PCI->PCMCIA i82365 devices again
-while I'm at it - because I disapprove of having to specify
-"i365_base=0xc800 cs_irq=17" for a PCI card.
-
--- 
-dwmw2
-
-
-
+jon
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130660AbRBAPa0>; Thu, 1 Feb 2001 10:30:26 -0500
+	id <S130595AbRBAPqk>; Thu, 1 Feb 2001 10:46:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130611AbRBAPaQ>; Thu, 1 Feb 2001 10:30:16 -0500
-Received: from oxmail1.ox.ac.uk ([129.67.1.1]:37116 "EHLO oxmail.ox.ac.uk")
-	by vger.kernel.org with ESMTP id <S130280AbRBAPaG>;
-	Thu, 1 Feb 2001 10:30:06 -0500
-Date: Thu, 1 Feb 2001 15:30:01 +0000
-From: Malcolm Beattie <mbeattie@sable.ox.ac.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Serious reproducible 2.4.x kernel hang
-Message-ID: <20010201153000.C27009@sable.ox.ac.uk>
-In-Reply-To: <Pine.LNX.4.30.0102011406210.14706-100000@ferret.lmh.ox.ac.uk> <20010201144052.B27009@sable.ox.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010201144052.B27009@sable.ox.ac.uk>; from mbeattie@sable.ox.ac.uk on Thu, Feb 01, 2001 at 02:40:52PM +0000
+	id <S130597AbRBAPqb>; Thu, 1 Feb 2001 10:46:31 -0500
+Received: from datafoundation.com ([209.150.125.194]:21770 "EHLO
+	datafoundation.com") by vger.kernel.org with ESMTP
+	id <S130595AbRBAPqQ>; Thu, 1 Feb 2001 10:46:16 -0500
+Date: Thu, 1 Feb 2001 10:46:12 -0500 (EST)
+From: John Jasen <jjasen@datafoundation.com>
+To: Michal Jaegermann <michal@ellpspace.math.ualberta.ca>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.1 not fully sane on Alpha - file systems
+In-Reply-To: <20010131234925.A14300@ellpspace.math.ualberta.ca>
+Message-ID: <Pine.LNX.4.30.0102011039180.31149-100000@flash.datafoundation.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Malcolm Beattie writes:
-> Chris Evans writes:
-> > I've just managed to reproduce this personally on 2.4.0. I've had a report
-> > that 2.4.1 is also affected. Both myself and the other person who
-> > reproduced this have SMP i686 machines, which may or may not be relevant.
-> > 
-> > To reproduce, all you need to do is get my vsftpd ftp server:
-> > ftp://ferret.lmh.ox.ac.uk/pub/linux/vsftpd-0.0.9.tar.gz
-[...]
-> As in Chris' case, vzftpd was a zombie (so Foo-ScrollLock told me) and
-> all other processes were looking OK in R or S state.
+On Wed, 31 Jan 2001, Michal Jaegermann wrote:
 
-Mapping the addresses from whichever ScrollLock combination produced
-the task list to symbols produces the call trace
- do_exit <- do_signal <- tcp_destroy_sock <- inet_ioctl <- signal_return
+> I just tried to boot 2.4.1 kernel on Alpha UP1100.  This machine
+> happens to have two SCSI disks on sym53c875 controller and two IDE
+> drives hooked to a builtin "Acer Laboratories Inc. [ALi] M5229 IDE".
 
-The inet_ioctl is odd there--vsftpd doesn't explicitly call ioctl
-anywhere at all and the next function before it in memory is
-inet_shutdown which looks more believable. I have checked I'm looking
-at the right System.map but I suppose I may have mis-transcribed the
-address when writing it down. vsftpd doesn't make use of signal
-handlers except to unset some existing ones and a SIGALRM handler
-which I don't think would have triggered. Something like a seg fault
-may have caused it (I should have seen an oops if it had happened in
-kernel space) perhaps?
+ALI M1535D pci-ide bridge, isn't it? That's what the specs on
+API's webpage seem to indicate.
 
---Malcolm
+> It boots and in the first moment makes even a pretty good impression
+> of beeing healthy.  But an attempt to compile something causes the
+> whole setup to start behaving weird, with a compiler obviously unable
+> to find both itself and the right sources, and the whole thing ends in
+> a silent lockup.
 
--- 
-Malcolm Beattie <mbeattie@sable.ox.ac.uk>
-Unix Systems Programmer
-Oxford University Computing Services
+Try this for fun: dd if=/dev/hda of=/dev/null bs=4096, and see if it
+cronks out.
+
+In my case, any serious I/O on the IDE drives quickly results in pretty
+technicolor on the VGA screen, and then a hard lockup.
+
+Furthermore, after power-reset, 2.4.x, x=0 or 1, cannot successfully fsck
+the drives.  It hangs after about the 2nd-3rd partition, again in a hard
+lockup.
+
+I have to boot into 2.2.x to fsck the drives, make changes, and reboot to
+hang the system.
+
+My WAG is that there are problems in the ALI driver.
+
+> On the second boot I tried to copy kernel sources from a SCSI to an
+> IDE drive.  This time I got something in my logs and the same stuff
+> was printed on my screen before everything lockded up really tight
+> again (no sysrq).  Here it is:
+>
+>  kernel: attempt to access beyond end of device
+>  kernel: 08:05: rw=0, want=198500353, limit=5779456
+>  kernel: attempt to access beyond end of device
+>  kernel: 08:05: rw=0, want=4294934529, limit=5779456
+>  kernel: attempt to access beyond end of device
+>  kernel: 08:05: rw=0, want=198500353, limit=5779456
+>  kernel: EXT2-fs error (device sd(8,5)): ext2_readdir: bad entry in
+>  directory #250255: directory entry across blocks - offset=0,
+>  inode=198505472, rec_len=32768, name_len=255
+>
+> (and the machine dies at this point).
+
+AIC7xxx controller, just recently started spewing errors very similar to
+this -- amongst a host of others, as I was trying to get the UP1100 to use
+a generic IDE interface rather than the ALI 15x3.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,70 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129026AbRBGDzq>; Tue, 6 Feb 2001 22:55:46 -0500
+	id <S129028AbRBGEMd>; Tue, 6 Feb 2001 23:12:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129028AbRBGDzh>; Tue, 6 Feb 2001 22:55:37 -0500
-Received: from Mail.ubishops.ca ([192.197.190.5]:40203 "EHLO Mail.ubishops.ca")
-	by vger.kernel.org with ESMTP id <S129026AbRBGDzY>;
-	Tue, 6 Feb 2001 22:55:24 -0500
-Message-ID: <3A80C703.84099624@yahoo.co.uk>
-Date: Tue, 06 Feb 2001 22:54:43 -0500
-From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac3 i686)
-X-Accept-Language: en
+	id <S129031AbRBGEMX>; Tue, 6 Feb 2001 23:12:23 -0500
+Received: from hnlmail2.hawaii.rr.com ([24.25.227.35]:42507 "EHLO
+	hawaii.rr.com") by vger.kernel.org with ESMTP id <S129028AbRBGEMG>;
+	Tue, 6 Feb 2001 23:12:06 -0500
+Message-ID: <001901c090bb$ff965420$0200a8c0@halfcomp>
+From: "Ray Strode" <halfline@hawaii.rr.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "jeff covey" <jeff.covey@pobox.com>
+In-Reply-To: <20010206215610.T22705@jeffcovey.net>
+Subject: Re: freshmeat editorial on journaling filesystems
+Date: Tue, 6 Feb 2001 18:11:06 -1000
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Bug: 2.4.0 w/ PCMCIA on ThinkPad: KERNEL: 
- assertion(dev->ip_ptr==NULL)failed at 
- dev.c(2422):netdev_finish_unregister
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a bit more information about this bug now.
-The message "assertion(yadda) failed ..." occurs only
-if the eth0 interface has been configured using pump
-or dhclient.  If the card isn't connected to the network
-the message never occurs.  If eth0 is merely brought up
-and down using ifconfig the message doesn't occur.  Only
-if pump or dhclient has configured eth0 does the message
-occur.  Sometimes it occurs on "ifdown eth0", sometimes
-on "cardctl eject" and sometimes during the shutdown
-sequence.
+>We'd like to run an editorial this coming Saturday about the
+>journaling filesystems available for Linux.  We'd like an author who
+>isn't a developer on any of them so he/she can give an object analysis
+>of the pros and cons of each and share thoughts on his/her opinions
+>about which should be eventually be supported by the kernel.
+I disagree.  I think you should ask someone who works on more than 
+one of the filesystems.  That person will know the pros and cons of all
+of them, and surely will be objective.
 
-Thomas
+--Ray Strode
 
-> Dear l-k. 
-> 
-> I'm still having this problem with kernel 2.4.0: 
-> 
-> Conditions: 
-> Linux 2.4.0 compiled on an IBM ThinkPad 600 51U (Pentium II) 
-> laptop with PCMCIA support. Same behavior with integral kernel 
-> PCMCIA, modular kernel PCMCIA and modular Hinds PCMCIA. System 
-> is Progeny Debian beta II. 
-> 
-> I have a Xircom modem/ethernet card which works correctly using 
-> the serial_cs, xirc2ps_cs, ds, i82365 and pcmcia_core modules; 
-> however when I try to "cardctl eject" or "reboot" I get first, 
->    "KERNEL: assertion(dev->ip_ptr==NULL)failed at 
->     dev.c(2422):netdev_finish_unregister" 
-> (not exact since I had to copy it down on paper ... doesn't 
-> show up in the logs) then a perpetual series of: 
->    "unregister_netdevice: waiting for eth0 to become free. 
->     Usage count = -1" 
-> messages every five seconds or so. "ps -A" reveals that 
-> modprobe is running; it can't be killed even with "kill -9". 
-> The "ifconfig" command locks up. Shutdown won't complete 
-> so I end up having to use SysRq-S-U-B to reboot. 
-> 
-> This problem only occurs if the Xircom card is connected to 
-> the Ethernet (in which case it is configured using DHCP). 
-> If the card is left unconnected to the network, the problem 
-> does not occur---the card can be ejected. 
-> 
-> Thomas Hood 
-> Please cc: your replies to me at jdthood_AT_yahoo.co.uk
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

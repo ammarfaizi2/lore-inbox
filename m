@@ -1,96 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262322AbUG1S6l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262382AbUG1TJG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262322AbUG1S6l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 14:58:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbUG1S6l
+	id S262382AbUG1TJG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 15:09:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbUG1TJG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 14:58:41 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:8950 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262322AbUG1S6g (ORCPT
+	Wed, 28 Jul 2004 15:09:06 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:51429 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S262382AbUG1TJB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 14:58:36 -0400
-Subject: Re: [announce][draft3] HVCS for inclusion in 2.6 tree
-From: Ryan Arnold <rsa@us.ibm.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Paul Mackerras <paulus@samba.org>
-In-Reply-To: <20040727155011.77897e68.rddunlap@osdl.org>
-References: <1089819720.3385.66.camel@localhost>
-	 <16633.55727.513217.364467@cargo.ozlabs.ibm.com>
-	 <1090528007.3161.7.camel@localhost> <20040722191637.52ab515a.akpm@osdl.org>
-	 <1090958938.14771.35.camel@localhost>
-	 <20040727155011.77897e68.rddunlap@osdl.org>
-Content-Type: text/plain
-Organization: IBM
-Message-Id: <1091032768.14771.283.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 28 Jul 2004 11:39:29 -0500
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Jul 2004 15:09:01 -0400
+Date: Wed, 28 Jul 2004 21:08:38 +0200 (MEST)
+Message-Id: <200407281908.i6SJ8c9I015801@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: erik@harddisk-recovery.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.26 doesn't boot on a 386 without "Unsynced TSC support"
+Cc: wli@holomorphy.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-07-27 at 17:50, Randy.Dunlap wrote:
-> +struct hvcs_partner_info {};
-> 
-> Ugly comments style.  Which comment goes with which
-> data?  Commenting data can be very helpful, but most of these
-> are close to useless since they are so obvious.
-> And put a space after "/*".
+On Wed, 28 Jul 2004 17:47:49 +0200, Erik Mouw wrote:
+>I tried to boot 2.4.26 on my good old 386 board, but got a kernel
+>panic:
+>
+>  CPU: 386
+>  Kernel panic: Kernel compiled for Pentium+, requires TSC feature!
+...
+>I am sure I selected support for a 80386 CPU, so the error message
+>looks wrong to me. CONFIG_M586TSC is not set, but CONFIG_X86_TSC is
+>enabled by default. The only way to disable it, is to enable "Unsynced
+>TSC support", (CONFIG_X86_TSC_DISABLE).
+...
+>My question is: is this a code bug, or a documentation bug? Right now,
+>I guess 2.4.26 will not run on anything < Pentium without
+>CONFIG_X86_TSC_DISABLE enabled.
 
-Right, this is definitely more obvious now.  I think I can pretty much
-remove the comments now that the element names make sense.
+It's a limitation in scripts/Configure.
+If you start with a .config with TSC enabled/required,
+and just flip the CPU selection option to a TSC-less
+CPU, like 386 or 486, then you end up with a .config
+that _still_ has TSC enabled/required.
 
-> +int hvcs_convert(long to_convert)
-> +{
-> +	switch (to_convert) {
-> +		case H_Success:
-> +			return 0;
-> +		case H_Parameter:
-> +			return -EINVAL;
-> +		case H_Hardware:
-> +			return -EIO;
-> +		case H_Busy:
-> 
-> Can these H_values be converted from that coding style?
+The workaround is to run 'make oldconfig' afterwards.
 
-Converted to what/how?  I am confused by your question.
-
-> 
-> +		/* This is a very small struct and will be freed soon */
-> +		next_partner_info = kmalloc(sizeof(struct hvcs_partner_info),
-> +				GFP_ATOMIC);
-> 
-> Where is it freed?
-> 
-It is freed in hvcs_free_partner_info() because the partner info that is
-allocated needs to have scope outside of the hvcs_get_partner_info()
-call.
-
->  config PC9800_OLDLP
-> 
-> This patch segment won't apply since PC9800 has been removed.
-
-I'll make future patches against 2.6.8-rc2.
-
-> +#define __ALIGNED__	__attribute__((__aligned__(8)))
-> 
-> Why aligned? why 8?  (just curious)  Could use a comment if it's important.
-
-Randy, here's an explanation given by Hollis Blanchard and Paul
-Mackerras that I'll add to the code as a comment.
-
-The hcall interface involves putting 8 chars into each of two registers.
-We load up those 2 registers (in arch/ppc64/hvconsole.c) by casting
-char[16] to long[2].  It would work without __ALIGNED__, but a little
-(tiny) bit slower because an unaligned load is slower than aligned load.
-
-I took care of all the other formatting things you pointed out.
-
-Thanks for the suggestions Randy.  Hopefully I'll have a patch out this
-afternoon encompassing your suggestions.
-
-Ryan S. Arnold
-IBM Linux Technology Center
-
+FWIW, both 2.4 and 2.6 kernels run Ok on my 486.
+(My 486's Fedora user-space is another matter,
+requiring kernel hacks for unconditional RDTSC
+usage in RPM, but that's another issue.)

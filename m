@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261758AbSI2Tqe>; Sun, 29 Sep 2002 15:46:34 -0400
+	id <S261191AbSI2TsG>; Sun, 29 Sep 2002 15:48:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261759AbSI2Tqe>; Sun, 29 Sep 2002 15:46:34 -0400
-Received: from ASte-Genev-Bois-101-1-3-193.abo.wanadoo.fr ([193.252.180.193]:49420
-	"EHLO slartibartfast.ouaou.org") by vger.kernel.org with ESMTP
-	id <S261758AbSI2Tq3>; Sun, 29 Sep 2002 15:46:29 -0400
-Date: Sun, 29 Sep 2002 21:51:50 +0200
-From: Ignacy Gawedzki <ig@zenon.netmonk.org>
-To: linux-kernel@vger.kernel.org
-Subject: DMA audio-CD extraction/writing and ide-scsi
-Message-ID: <20020929215150.A2049@zenon.ouaou.org>
-Mail-Followup-To: Ignacy Gawedzki <ig@zenon.netmonk.org>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S261761AbSI2TsF>; Sun, 29 Sep 2002 15:48:05 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:266 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261760AbSI2Trk>;
+	Sun, 29 Sep 2002 15:47:40 -0400
+Message-ID: <3D9759FF.2050802@pobox.com>
+Date: Sun, 29 Sep 2002 15:52:31 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jaroslav Kysela <perex@suse.cz>
+CC: Arjan van de Ven <arjanv@fenrus.demon.nl>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ALSA update [6/10] - 2002/07/20
+References: <Pine.LNX.4.33.0209292120171.591-100000@pnote.perex-int.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Jaroslav Kysela wrote:
+> On 29 Sep 2002, Arjan van de Ven wrote:
+>>what is wrong with the PCI DMA API that makes ALSA wants a private
+>>interface/implementation ?
+> 
+> 
+> These lines (i386 arch):
+> 
+>         if (hwdev == NULL || ((u32)hwdev->dma_mask != 0xffffffff))
+>                 gfp |= GFP_DMA;
+>         ret = (void *)__get_free_pages(gfp, get_order(size));
+> 
+> Note that some of soundcards have various PCI DMA transfer limits 
+> (dma_mask is not set to use full 32-bits). In this case, restricting this 
+> hardware to allocate these buffers in first 16MB is not a very good idea.
+> Thus, we have own hacks to allocate memory in whole hardware area.
 
-I resign to post the question directly here after hours of vain
-searching on other sources of information. If the question has already
-been answered hundreds of times, I am *really* sorry about the mess...
-(I also tried to check on the latest development version, but failed at
-booting the system at all).
+It sounds like it would be reasonable to fix the ia32 arch code, would 
+it not?
 
-I would like to know if there is a particular reason that forbids audio
-extraction/writing from/of CDs using UDMA (as opposed to PIO) when using
-the ide-scsi driver.
 
-Apparently the problem seems not to be such an issue as it seems that
-very few people extract audio data from CDs and/or write audio CDs. But
-still...
+> Debugging. We enumerate all allocations, so we can check for memory leaks.
+> I'm happy to say, that our code is very well debugged in this regard.
 
-I already applied a patch from akpm to make audio extraction use DMA
-with the ide-cd driver. It works very fine for me and I miss the feature
-really badly on the ide-scsi driver.
+So are the net drivers, but without wrappers :)
 
-If there are some SCSI gurus here willing to enlight me on this specific
-issue, I will be very thankful. =)
-
-Regards,
-
-Ignacy Gawedzki
-
--- 
-I drive way too fast to worry about cholesterol.

@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129094AbQKJD64>; Thu, 9 Nov 2000 22:58:56 -0500
+	id <S129100AbQKJEOD>; Thu, 9 Nov 2000 23:14:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129187AbQKJD6q>; Thu, 9 Nov 2000 22:58:46 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:32640 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129094AbQKJD6g>;
-	Thu, 9 Nov 2000 22:58:36 -0500
-Date: Thu, 9 Nov 2000 19:44:04 -0800
-Message-Id: <200011100344.TAA01282@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-CC: linux-kernel@vger.kernel.org
-In-Reply-To: <E13u4XD-0001oe-00@the-village.bc.nu> (message from Alan Cox on
-	Fri, 10 Nov 2000 03:07:21 +0000 (GMT))
-Subject: Re: Linux 2.2.18pre21
-In-Reply-To: <E13u4XD-0001oe-00@the-village.bc.nu>
+	id <S129152AbQKJENx>; Thu, 9 Nov 2000 23:13:53 -0500
+Received: from mail1.rdc3.on.home.com ([24.2.9.40]:13042 "EHLO
+	mail1.rdc3.on.home.com") by vger.kernel.org with ESMTP
+	id <S129100AbQKJENl>; Thu, 9 Nov 2000 23:13:41 -0500
+Message-ID: <3A0B8881.F444DF5@home.com>
+Date: Fri, 10 Nov 2000 00:32:49 -0500
+From: John Kacur <jkacur@home.com>
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16-3 i586)
+X-Accept-Language: en, ru, ja
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: test11-pre2 compile error undefined reference to `bust_spinlocks'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: 	Fri, 10 Nov 2000 03:07:21 +0000 (GMT)
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+ 
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-   o	Resnchronize Apple PowerMac codebase		(Paul Mackerras & co)
+When attempting to compile test11-pre2, I get the following compile
+error.
 
-BUUUG, new DEV_MAC_HID sysctl number conflicts with DEV_MD
-in Ingo's raid patches.
+arch/i386/mm/mm.o: In function `do_page_fault':
+arch/i386/mm/mm.o(.text+0x781): undefined reference to `bust_spinlocks'
+make: *** [vmlinux] Error 1
 
-Later,
-David S. Miller
-davem@redhat.com
-
+John Kacur
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

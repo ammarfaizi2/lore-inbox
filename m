@@ -1,46 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262226AbTELPZx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 11:25:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbTELPZx
+	id S262211AbTELPXJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 11:23:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbTELPXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 11:25:53 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:16900 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id S262226AbTELPZv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 11:25:51 -0400
-Date: Mon, 12 May 2003 17:37:47 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] new kconfig goodies
-In-Reply-To: <20030512141619.GO1107@fs.tum.de>
-Message-ID: <Pine.LNX.4.44.0305121733010.5042-100000@serv>
-References: <Pine.LNX.4.44.0305111838300.14274-100000@serv>
- <20030512141619.GO1107@fs.tum.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 12 May 2003 11:23:09 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:46029 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S262211AbTELPXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 11:23:08 -0400
+Date: Mon, 12 May 2003 17:31:39 +0200
+From: kladit@t-online.de (Klaus Dittrich)
+To: linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: Undo aic7xxx changes
+Message-ID: <20030512153139.GA12275@xeon2.local.here>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I today compiled  2.4.21-rc2 smp with aic79xx-linux-2.4-20030502-tar.gz 
+and discovered no problems or hangs. (Tyan-S2665 with AIC-7902)
 
-On Mon, 12 May 2003, Adrian Bunk wrote:
+I haven't had any problems with the driver since I got this 
+motherboard starting with aic79xx-linux-2.4-20030318-tar.gz 
+and linux-2.4.21-pre5.
 
-> A choice with the possibility to select one or more entries, to support 
-> things like:
->   Supported processors:
->     [ ] 386
->     [ ] 486
->     [ ] 586
->     ...
-> 
-> It should be possible to select more than one item but selecting zero 
-> items should be illegal.
-
-I think that has to wait, supporting this properly would require too many 
-changes and there are other ways to achieve almost the same.
-
-bye, Roman
-
+-- 
+Regards Klaus

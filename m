@@ -1,66 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265978AbSKKIkL>; Mon, 11 Nov 2002 03:40:11 -0500
+	id <S265713AbSKKJVN>; Mon, 11 Nov 2002 04:21:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265982AbSKKIkL>; Mon, 11 Nov 2002 03:40:11 -0500
-Received: from lopsy-lu.misterjones.org ([62.4.18.26]:20153 "EHLO
-	crisis.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
-	id <S265978AbSKKIkK>; Mon, 11 Nov 2002 03:40:10 -0500
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: [PATCH] sysfs stuff for eisa bus [1/3]
-References: <wrpbs4xgke4.fsf@hina.wild-wind.fr.eu.org>
-	<20021110233206.GA3988@win.tue.nl>
-Organization: Metropolis -- Nowhere
-X-Attribution: maz
-X-Baby-1: =?iso-8859-1?q?Lo=EBn?= 12 juin 1996 13:10
-X-Baby-2: None
-X-Love-1: Gone
-X-Love-2: Crazy-Cat
-Reply-to: mzyngier@freesurf.fr
-From: Marc Zyngier <mzyngier@freesurf.fr>
-Date: 11 Nov 2002 09:46:33 +0100
-Message-ID: <wrpwunkfq8m.fsf@hina.wild-wind.fr.eu.org>
-In-Reply-To: <20021110233206.GA3988@win.tue.nl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265982AbSKKJVM>; Mon, 11 Nov 2002 04:21:12 -0500
+Received: from babsi.intermeta.de ([212.34.181.3]:3596 "EHLO mail.intermeta.de")
+	by vger.kernel.org with ESMTP id <S265713AbSKKJVL>;
+	Mon, 11 Nov 2002 04:21:11 -0500
+Subject: Re: [PATCH] Re: sscanf("-1", "%d", &i) fails, returns 0
+From: Henning Schmiedehausen <hps@intermeta.de>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L2.0211101854350.22017-100000@dragon.pdx.osdl.net>
+References: <Pine.LNX.4.33L2.0211101854350.22017-100000@dragon.pdx.osdl.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 11 Nov 2002 10:27:53 +0100
+Message-Id: <1037006873.2011.12.camel@forge>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Andries" == Andries Brouwer <aebr@win.tue.nl> writes:
+Hi,
 
-Andries> Is the database not very incomplete?
+On Mon, 2002-11-11 at 04:05, Randy.Dunlap wrote:
+> On Sun, 10 Nov 2002, Henning P. Schmiedehausen wrote:
+> 
+> | "Randy.Dunlap" <rddunlap@osdl.org> writes:
+> |
+> | >+		digit = *str;
+> | >+		if (is_sign && digit == '-')
+> | >+			digit = *(str + 1);
+> |
+> | If signed is not allowed and you get a "-", you're in an error case
+> | again...
+> 
+> Yes, and a 0 value is returned.
+> IOW, asking for an unsigned number (in the format string)
+> and getting "-123" does return 0.
+> 
+> What should it do?
 
-Well, it is about a thousand entries long, and I beleive it to be
-fairly complete. There weren't *that* many EISA cards produced, anyway
-:-).
+I would model this after user space. (Which does strange things:
 
-Andries> What use is a very long and very incomplete list?
+--- cut ---
+#include <stdio.h>
 
-A big part of this database contains in fact ISA cards for which an
-EISA config file exists. So it could be trimmed down to 50%, I think.
-I was thinking the database could be useful for ISAPNP (since it uses
-the same IDs).
+main()
+{
+  char *scan = "-100";
+  unsigned int foo;
+  int bar;
 
-Anyway, I don't really care about this list. It was just an effort to
-mimic what the PCI code did for years, with a database that is 5 times
-bigger, and still growing. At least with EISA, it won't be growing
-that much... :-)
+  int res = sscanf(scan, "%ud", &foo);
 
-Andries> Just like for USB and PCI it might be more reasonable to
-Andries> have such a list with IDs on a website instead of in the
-Andries> kernel source?
+  printf("%s = %ud = %d\n", scan, foo, res);
 
-If people are ready to give up this kind of thing, fair enough :
+  res = sscanf(scan, "%ud", &bar);
 
-$ cat /sys/devices/pci0/00\:0c.0/name 
-Digital Equipment Corporation DECchip 21140 [FasterNet]
-$ cat /sys/devices/eisa/00\:05/name 
-3Com EtherLink III Bus Master EISA (3C592) Network Adapter
+  printf("%s = %d = %d\n", scan, bar, res);
 
-But once again, the EISA list is not a big deal. I care about the core
-code and the drivers, not the fancy naming. If it has to go, it will.
+}
+--- cut ---
 
-        M.
+% gcc -o xxx xxx.c
+./xxx 
+-100 = 4294967196d = 1
+-100 = -100 = 1
+
+Hm, so I guess, yes, a warning message would be nice IMHO. Returning an
+error code would IMHO moot, because noone is checking these codes
+anyway.
+
+	Regards
+		Henning
+
+
+
+> This function can't return -EINPUTERROR or -EILSEQ.
+> (since it's after feature-freeze :)
+> And the original problem was that a leading '-' sign on a
+> signed number (!) caused a return of 0.  At least that is fixed.
+> 
+> So now the problem (?) is that a '-' sign on an unsigned number
+> returns 0.  We can always add a big printk() there that
+> something is foul.  Other ideas?
+
+
 -- 
-Places change, faces change. Life is so very strange.
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+

@@ -1,70 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261765AbREPBqF>; Tue, 15 May 2001 21:46:05 -0400
+	id <S261767AbREPBw0>; Tue, 15 May 2001 21:52:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261766AbREPBpz>; Tue, 15 May 2001 21:45:55 -0400
-Received: from adelphi.physics.adelaide.edu.au ([129.127.36.1]:7440 "EHLO
-	adelphi.physics.adelaide.edu.au") by vger.kernel.org with ESMTP
-	id <S261765AbREPBpt>; Tue, 15 May 2001 21:45:49 -0400
-From: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
-Message-Id: <200105160145.LAA11531@mercury.physics.adelaide.edu.au>
-Subject: Re: Kernel 2.2.19 + VIA chipset + strange behaviour
-To: kaos@ocs.com.au (Keith Owens)
-Date: Wed, 16 May 2001 11:15:44 +0930 (CST)
-Cc: jwoithe@physics.adelaide.edu.au (Jonathan Woithe),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <32518.989916932@ocs3.ocs-net> from "Keith Owens" at May 15, 2001 06:55:32 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S261768AbREPBwP>; Tue, 15 May 2001 21:52:15 -0400
+Received: from geos.coastside.net ([207.213.212.4]:9661 "EHLO
+	geos.coastside.net") by vger.kernel.org with ESMTP
+	id <S261767AbREPBwF>; Tue, 15 May 2001 21:52:05 -0400
+Mime-Version: 1.0
+Message-Id: <p05100335b7278c9651ef@[207.213.214.37]>
+In-Reply-To: <Pine.LNX.4.33.0105152132580.30128-100000@xanadu.home>
+In-Reply-To: <Pine.LNX.4.33.0105152132580.30128-100000@xanadu.home>
+Date: Tue, 15 May 2001 18:51:45 -0700
+To: Nicolas Pitre <nico@cam.org>, Daniel Phillips <phillips@bonn-fries.net>
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: LANANA: To Pending Device Number Registrants
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, 15 May 2001 18:04:35 +0930 (CST), 
-> Jonathan Woithe <jwoithe@physics.adelaide.edu.au> wrote:
-> >ksymoops 2.4.1 on i686 2.2.19.  Options used
-> >Warning (compare_maps): ksyms_base symbol module_list_R__ver_module_list not found in System.map.  Ignoring ksyms_base entry
-> 
-> module_list was added to the export list in 2.2.17 so the message above
-> implies that you are using kernel build information from 2.2.17 in your
-> 2.2.19 build.  I suggest you follow http://www.tux.org/lkml/#s8-8 and
-> see if your problems recur after a completely clean kernel build.
+At 9:34 PM -0400 2001-05-15, Nicolas Pitre wrote:
+>On Wed, 16 May 2001, Daniel Phillips wrote:
+>
+>>  On Tuesday 15 May 2001 23:20, Nicolas Pitre wrote:
+>>  > Personally, I'd really like to see /dev/ttyS0 be the first detected
+>>  > serial port on a system, /dev/ttyS1 the second, etc.
+>>
+>>  There are well-defined rules for the first four on PC's.  The ttySx
+>>  better match the labels the OEM put on the box.
+>
+>Then just make them be detected first.
 
-This is curious because the compilation was done from a completely fresh
-2.2.19 tree (ie: not patched, no old .configs used).  In any case, I have
-just carried out the following as per the URL above:
-  mv .config ..
-  make mrproper
-  mv ../.config .
-  make oldconfig
-  make dep clean bzImage modules
-  # install, boot
+Well, they traditionally start with 1, not 0, too. Or have cute 
+little icons and no text. Or aren't labelled at all. I'm using one 
+fairly well-known dual-port PCI serial board that silently 
+interchanged the two ports on a rev change, with no labelling change 
+at all ('cause there was no label!). Make your ttySx match *that*!
 
-After going through these steps and rebooting, ksymoops still complains
-about the missing symbol, and checking System.map confirms that
-module_list_R__ver_module_list is indeed not present:
-  auster:~>ksymoops
-  ksymoops 2.4.1 on i686 2.2.19.  Options used
-       -V (default)
-       -k /proc/ksyms (default)
-       -l /proc/modules (default)
-       -o /lib/modules/2.2.19/ (default)
-       -m /usr/src/linux/System.map (default)
-  :
-  Warning (compare_maps): ksyms_base symbol module_list_R__ver_module_list not
-  found in System.map.  Ignoring ksyms_base entry
-
-/usr/src/linux is a symlink to the 2.2.19 tree.
-
-The mystery of this ksymoops message remains.
-
-Thanks and regards
-  jonathan
 -- 
-* Jonathan Woithe    jwoithe@physics.adelaide.edu.au                        *
-*                    http://www.physics.adelaide.edu.au/~jwoithe            *
-***-----------------------------------------------------------------------***
-** "Time is an illusion; lunchtime doubly so"                              **
-*  "...you wouldn't recognize a subtle plan if it painted itself purple     *
-*   and danced naked on a harpsicord singing 'subtle plans are here again'" *
+/Jonathan Lundell.

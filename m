@@ -1,89 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbUFXKTA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263784AbUFXKTi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261576AbUFXKTA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 06:19:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263784AbUFXKTA
+	id S263784AbUFXKTi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 06:19:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264183AbUFXKTi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 06:19:00 -0400
-Received: from mailout.despammed.com ([65.112.71.29]:20176 "EHLO
-	mailout.despammed.com") by vger.kernel.org with ESMTP
-	id S261576AbUFXKS5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 06:18:57 -0400
-Date: Thu, 24 Jun 2004 05:05:22 -0500 (CDT)
-Message-Id: <200406241005.i5OA5Mk29843@mailout.despammed.com>
-From: alftanner@despammed.com
+	Thu, 24 Jun 2004 06:19:38 -0400
+Received: from bay17-f24.bay17.hotmail.com ([64.4.43.74]:43792 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S263784AbUFXKTf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 06:19:35 -0400
+X-Originating-IP: [69.104.143.247]
+X-Originating-Email: [jayrusman@hotmail.com]
+From: "Jason Mancini" <jayrusman@hotmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Sata and pata for SiS 180
-X-Mailer: despammed.com
+Subject: fs/isofs/inode.c "bug"
+Date: Thu, 24 Jun 2004 03:19:34 -0700
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY17-F24AlDCVrvGAk00075c7b@hotmail.com>
+X-OriginalArrivalTime: 24 Jun 2004 10:19:34.0671 (UTC) FILETIME=[BF10E1F0:01C459D4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
-
-I own a brand new mb for my AMD3200+, Jetway S755max
-with a Sis chipset 755, southbridge 963 + Sis 180.
-
-I would like to use my Pioneer dvd recorder on the
-third parallel ide, controlled by the sis 180 chipset.
-I am running fedora core 1, with
-kernel-2.4.22-1.2188.nptl.
-I have tried this patch for kernel 2.4.25
-
-2.4.25-libata16.patch.bz2 
-found at:
-http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/old/
-
-and enabled sata_sis.c, compiling it directly in the
-kernel (not as module).
-
-Unfortunately it is not detected at boot time. The
-lspci -vv output gives:
-00:0c.0 RAID bus controller: Silicon Integrated
-Systems [SiS]: Unknown device 0180 (prog-if 85)
-        Subsystem: Silicon Integrated Systems [SiS]:
-Unknown device 0180
-        Control: I/O+ Mem+ BusMaster+ SpecCycle-
-MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz+ UDF- FastB2B- ParErr-
-DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 128
-        Interrupt: pin A routed to IRQ 12
-        Region 0: I/O ports at d400 [size=8]
-        Region 1: I/O ports at d800 [size=4]
-        Region 2: I/O ports at dc00 [size=8]
-        Region 3: I/O ports at e000 [size=4]
-        Region 4: I/O ports at e400 [size=16]
-        Region 5: I/O ports at <unassigned>
-        Expansion ROM at <unassigned> [disabled]
-[size=64K]
+DVDs with 2-4GB files get their filesizes truncated.  Are there even
+"cruft" CDs in circulation today?  Maybe it should be a config item.
+A popular competing os seems to handle 2-4GB isofs filesizes.
+-Jason Mancini
 
 
-I have installed the SiS driver and xp is happy with
-the dvd recorder. It is correctly detected by the
-bios.
+--- inode.c     2004-06-24 02:43:33.000000000 -0700
++++ /usr/src/linux/fs/isofs/inode.c     2004-06-24 03:09:44.290764261 -0700
+@@ -1282,13 +1286,20 @@
+         * WARNING: ISO-9660 filesystems > 1 GB and even > 2 GB are fully
+         *          legal. Do not prevent to use DVD's 
+schilling@fokus.gmd.de
+         */
++       /*
+        if ((inode->i_size < 0 || inode->i_size > 0x7FFFFFFE) &&
+            sbi->s_cruft == 'n') {
+                printk(KERN_WARNING "Warning: defective CD-ROM.  "
+                       "Enabling \"cruft\" mount option.\n");
+                sbi->s_cruft = 'y';
+        }
++       */
 
-Afterwards, I tried to compile sata_sis as a module.
++       /*  Forget "cruft", I have DVDs to read with 2-4GB filesizes.
++        */
++       if (inode->i_size < 0) {
++         inode->i_size &= 0x0FFFFFFFF;
++       }
+        /*
+         * Some dipshit decided to store some other bit of information
+         * in the high byte of the file length.  Catch this and holler.
 
-The parallel Pioneer is still not recognised:
-
-When I modprobe sata_sis I obtain:
-
-libata version 1.02 loaded.
-ata1: SATA max UDMA/133 cmd 0xD400 ctl 0xD802 bmdma
-0xE400 irq 12
-ata2: SATA max UDMA/133 cmd 0xDC00 ctl 0xE002 bmdma
-0xE408 irq 12
-ata1: no device found (phy stat 41b7c0c6)
-ata1: thread exiting
-i8253 count too high! resetting..
-ata2: no device found (phy stat 00ff078b)
-ata2: thread exiting
-scsi1 : sata_sis
-scsi2 : sata_sis
-i8253 count too high! resetting..
-
-Does it mean that Sis 180 works only with sata, not
-with its parallel port?
-
-Thanks
+_________________________________________________________________
+MSN Toolbar provides one-click access to Hotmail from any Web page – FREE 
+download! http://toolbar.msn.click-url.com/go/onm00200413ave/direct/01/
 

@@ -1,82 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUGLTVI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbUGLTYB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbUGLTVI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 15:21:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbUGLTVI
+	id S262006AbUGLTYB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 15:24:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUGLTYB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 15:21:08 -0400
-Received: from mail.ccur.com ([208.248.32.212]:23044 "EHLO exchange.ccur.com")
-	by vger.kernel.org with ESMTP id S261375AbUGLTVA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 15:21:00 -0400
-Date: Mon, 12 Jul 2004 15:20:59 -0400
-From: Joe Korty <joe.korty@ccur.com>
-To: akpm@osdl.org, marcelo.tosatti@cyclades.com
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.[46] Fix double reset in aic7xxx driver
-Message-ID: <20040712192059.GA7660@tsunami.ccur.com>
-Reply-To: joe.korty@ccur.com
+	Mon, 12 Jul 2004 15:24:01 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61826 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262006AbUGLTXw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 15:23:52 -0400
+Date: Mon, 12 Jul 2004 15:38:19 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Jan Rychter <jan@rychter.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.26: kernel BUG at page_alloc.c:235\
+Message-ID: <20040712183819.GA5059@logos.cnet>
+References: <m23c3wzacq.fsf@tnuctip.rychter.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <m23c3wzacq.fsf@tnuctip.rychter.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix occasional PCI bus parity errors on the Dell PowerEdge 4600 during
-boot.
+On Mon, Jul 12, 2004 at 11:31:49PM -0700, Jan Rychter wrote:
+> Linux 2.4.26 compiled with gcc-2.96 20000731 (RH7.1 2.96-85), running on
+> an Athlon XP2200+ clocked at 1800MHz.
+> 
+> Any ideas?
 
-Symptoms: The LCD display would turn orange and display "PCI SYSTEM
-E13F5", and the following message would appear in /var/log/dmesg:
-"Uhhuh. NMI received. Dazed and confused, but trying to continue".
+Hi Jan,
 
-By inserting a PCI card with a PDC20268 IDE controller and attaching to
-that a Sony DRU-510A DVD RW burner with an unloaded tray, the failure
-can be made to happen on every boot.
+The BUG() is at rmqueue(), "if (PageLRU(page)) BUG".
 
-Cause: The aic7xxx driver was resetting the onboard AIC7891 SCSI controller
-while waiting for a previous reset to complete.  This second reset confuses
-the controller causing it to put bad data onto the PCI bus.
+The same BUG has been seen before. The BUG means an LRU page was found in a zone's free list
+(this is not a valid thing to happen).
 
-This is a backport of a RedHat 2.4.21-15.ELsmp fix.  A letter discussing
-this problem, or one very close to it, may be found at:
+This could be either a driver bug (which uses a page after freeing it, as wli smartly pointed
+out at the time) or faulty hardware, as it showed to be in that occasion.
 
-   http://lists.us.dell.com/pipermail/linux-poweredge/2003-May/025010.html
+What drivers are you using and, just as matter of "safety", have you ran 
+memtest on this box?
 
-Against 2.6.7 and 2.4.26.
-
-Regards,
-Joe
-
-
-diff -ura base/drivers/scsi/aic7xxx/aic79xx_pci.c new/drivers/scsi/aic7xxx/aic79xx_pci.c
---- base/drivers/scsi/aic7xxx/aic79xx_pci.c	2004-06-16 01:19:22.000000000 -0400
-+++ new/drivers/scsi/aic7xxx/aic79xx_pci.c	2004-07-12 12:50:11.000000000 -0400
-@@ -452,8 +452,10 @@
- 	 * or read prefetching could be initiated by the
- 	 * CPU or host bridge.  Our device does not support
- 	 * either, so look for data corruption and/or flaged
--	 * PCI errors.
-+	 * PCI errors.  First pause without causing another
-+	 * chip reset.
- 	 */
-+	hcntrl &= ~CHIPRST;
- 	ahd_outb(ahd, HCNTRL, hcntrl|PAUSE);
- 	while (ahd_is_paused(ahd) == 0)
- 		;
-diff -ura base/drivers/scsi/aic7xxx/aic7xxx_pci.c new/drivers/scsi/aic7xxx/aic7xxx_pci.c
---- base/drivers/scsi/aic7xxx/aic7xxx_pci.c	2004-06-16 01:18:57.000000000 -0400
-+++ new/drivers/scsi/aic7xxx/aic7xxx_pci.c	2004-07-12 12:50:11.000000000 -0400
-@@ -1284,8 +1284,10 @@
- 	 * or read prefetching could be initiated by the
- 	 * CPU or host bridge.  Our device does not support
- 	 * either, so look for data corruption and/or flagged
--	 * PCI errors.
-+	 * PCI errors.  First pause without causing another
-+	 * chip reset.
- 	 */
-+	hcntrl &= ~CHIPRST;
- 	ahc_outb(ahc, HCNTRL, hcntrl|PAUSE);
- 	while (ahc_is_paused(ahc) == 0)
- 		;
-
+> --J.
+> 
+> Jul 11 11:03:26 screech kernel: kernel BUG at page_alloc.c:235!
+> Jul 11 11:03:26 screech kernel: invalid operand: 0000
+> Jul 11 11:03:26 screech kernel: CPU:    0
+> Jul 11 11:03:26 screech kernel: EIP:    0010:[<c012f69e>]    Not tainted
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> Jul 11 11:03:26 screech kernel: EFLAGS: 00010202
+> Jul 11 11:03:26 screech kernel: eax: 00000040   ebx: c125ca44   ecx: 00001000   edx: 0000dbde
+> Jul 11 11:03:26 screech kernel: esi: c02b86b8   edi: 00000001   ebp: 00000000   esp: d062be68
+> Jul 11 11:03:26 screech kernel: ds: 0018   es: 0018   ss: 0018
+> Jul 11 11:03:26 screech kernel: Process imapd (pid: 31910, stackpage=d062b000)
+> Jul 11 11:03:26 screech kernel: Stack: 00001000 0000cbde 00000282 00000000 c02b86b8 c02b888c 00000001 0000000c 
+> Jul 11 11:03:26 screech kernel:        00000001 c012f964 c02b86b8 c012e0b5 c125ca70 00000001 c02b86b8 c02b8888 
+> Jul 11 11:03:26 screech kernel:        00000000 000001d2 c125ca70 cffb3b34 00000010 00007637 df68c1a8 c0127cf1 
+> Jul 11 11:03:26 screech kernel: Call Trace:    [<c012f964>] [<c012e0b5>] [<c0127cf1>] [<c0128367>] [<c01285b8>]
+> Jul 11 11:03:26 screech kernel:   [<c0128bc6>] [<c0128ac0>] [<c0135975>] [<c0135640>] [<c01357ee>] [<c01086a3>]
+> Jul 11 11:03:26 screech kernel: Code: 0f 0b eb 00 73 ff 26 c0 8b 43 18 a9 80 00 00 00 74 08 0f 0b 
+> 
+> >>EIP; c012f69e <rmqueue+1fe/240>   <=====
+> Trace; c012f964 <__alloc_pages+74/2c0>
+> Trace; c012e0b5 <lru_cache_add+65/70>
+> Trace; c0127cf1 <page_cache_read+61/b0>
+> Trace; c0128367 <generic_file_readahead+117/150>
+> Trace; c01285b8 <do_generic_file_read+1d8/450>
+> Trace; c0128bc6 <generic_file_read+86/160>
+> Trace; c0128ac0 <file_read_actor+0/80>
+> Trace; c0135975 <sys_read+95/f0>
+> Trace; c0135640 <generic_file_llseek+0/b0>
+> Trace; c01357ee <sys_lseek+6e/80>
+> Trace; c01086a3 <system_call+33/38>
+> Code;  c012f69e <rmqueue+1fe/240>
+> 00000000 <_EIP>:
+> Code;  c012f69e <rmqueue+1fe/240>   <=====
+>    0:   0f 0b                     ud2a      <=====
+> Code;  c012f6a0 <rmqueue+200/240>
+>    2:   eb 00                     jmp    4 <_EIP+0x4> c012f6a2 <rmqueue+202/240>
+> Code;  c012f6a2 <rmqueue+202/240>
+>    4:   73 ff                     jae    5 <_EIP+0x5> c012f6a3 <rmqueue+203/240>
+> Code;  c012f6a4 <rmqueue+204/240>
+>    6:   26 c0 8b 43 18 a9 80      rorb   $0x0,%es:0x80a91843(%ebx)
+> Code;  c012f6ab <rmqueue+20b/240>
+>    d:   00 
+> Code;  c012f6ac <rmqueue+20c/240>
+>    e:   00 00                     add    %al,(%eax)
+> Code;  c012f6ae <rmqueue+20e/240>
+>   10:   74 08                     je     1a <_EIP+0x1a> c012f6b8 <rmqueue+218/240>
+> Code;  c012f6b0 <rmqueue+210/240>
+>   12:   0f 0b                     ud2a   
+> 
+> Jul 11 11:03:29 screech kernel:  kernel BUG at page_alloc.c:235!
+> Jul 11 11:03:29 screech kernel: invalid operand: 0000
+> Jul 11 11:03:29 screech kernel: CPU:    0
+> Jul 11 11:03:29 screech kernel: EIP:    0010:[<c012f69e>]    Not tainted
+> Jul 11 11:03:29 screech kernel: EFLAGS: 00010202
+> Jul 11 11:03:29 screech kernel: eax: 00000040   ebx: c128cc18   ecx: 00001000   edx: 0000ed5d
+> Jul 11 11:03:29 screech kernel: esi: c02b86b8   edi: 00000001   ebp: 00000000   esp: d062be40
+> Jul 11 11:03:29 screech kernel: ds: 0018   es: 0018   ss: 0018
+> Jul 11 11:03:29 screech kernel: Process imapd (pid: 31916, stackpage=d062b000)
+> Jul 11 11:03:29 screech kernel: Stack: 00001000 0000dd5d 00000282 00000000 c02b86b8 c02b888c 00000001 0000000c 
+> Jul 11 11:03:29 screech kernel:        00000001 c012f964 c02b86b8 db31f7c0 ce38d8c0 ce38d8c0 c02b86b8 c02b8888 
+> Jul 11 11:03:29 screech kernel:        00000000 000001d2 ce38dd40 c138f4f4 00000001 ce38dd40 db9c98c0 c012590d 
+> Jul 11 11:03:29 screech kernel: Call Trace:    [<c012f964>] [<c012590d>] [<c0125eb4>] [<c0125a58>] [<c01264af>]
+> Jul 11 11:03:29 screech kernel:   [<c0114806>] [<c010d45a>] [<c012b48d>] [<c013550d>] [<c0114690>] [<c0108794>]
+> Jul 11 11:03:29 screech kernel: Code: 0f 0b eb 00 73 ff 26 c0 8b 43 18 a9 80 00 00 00 74 08 0f 0b 

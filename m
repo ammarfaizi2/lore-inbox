@@ -1,61 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262423AbTFBPL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 11:11:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbTFBPL3
+	id S262427AbTFBPMi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 11:12:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbTFBPMi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 11:11:29 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:27634 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S262423AbTFBPL2
+	Mon, 2 Jun 2003 11:12:38 -0400
+Received: from garnet.acns.fsu.edu ([146.201.2.25]:12003 "EHLO
+	garnet.acns.fsu.edu") by vger.kernel.org with ESMTP id S262427AbTFBPMg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 11:11:28 -0400
-Subject: Re: Strange load issues with 2.5.69/70 in both -mm and -bk trees.
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Tom Sightler <ttsig@tuxyturvy.com>, Andrew Morton <akpm@digeo.com>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0306021712530.7224-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0306021712530.7224-100000@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YlGSxd0+QQ/IldE3icmX"
-Organization: Red Hat, Inc.
-Message-Id: <1054567475.5187.3.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.92 (1.3.92-1) (Preview Release)
-Date: 02 Jun 2003 17:24:35 +0200
+	Mon, 2 Jun 2003 11:12:36 -0400
+Message-ID: <3EDB6C4A.3040008@cox.net>
+Date: Mon, 02 Jun 2003 11:24:58 -0400
+From: David van Hoose <davidvh@cox.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jaroslav Kysela <perex@suse.cz>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH/BK] ALSA update 0.9.4
+References: <Pine.LNX.4.44.0306012117170.7783-100000@pnote.perex-int.cz>
+In-Reply-To: <Pine.LNX.4.44.0306012117170.7783-100000@pnote.perex-int.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jaroslav Kysela wrote:
+> Linus, please do a
+> 
+>   bk pull http://linux-sound.bkbits.net/linux-sound
+> 
+> The GNU patch is available at:
+> 
+>   ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-bk-2003-06-01.patch.gz
+> 
+> The pull command will update the following files:
+> 
+(SNIP)
+>  sound/usb/usbaudio.c                                         |  420 ++
+>  sound/usb/usbaudio.h                                         |    3 
+(SNIP)
+>  158 files changed, 16599 insertions(+), 3235 deletions(-)
 
---=-YlGSxd0+QQ/IldE3icmX
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Just compiled -bk4, and the above 2 files make this patch a broken one.
+'usbaudio.c' does not compile. Function parameters were changed, but the 
+usage in the functions were not changed/removed.
+Need a patch.
 
-On Mon, 2003-06-02 at 17:14, Ingo Molnar wrote:
-> On 2 Jun 2003, Tom Sightler wrote:
->=20
-> > Sorry, this is my fault, I'm actually renicing the process to '10' not
-> > '-10' that's a typo.  I tested this again this morning to make sure. =20
-> > I'm renicing this as a regular user, I don't think that a regular user
-> > is allowed to renice to a negative value.
->=20
-> hm. Which process is generating the sound? But yes, if a positive renicin=
-g
-> for the wine process solved the audio problem then this is bad.
+-David
 
-given that audio mixing also happens in userspace it doesn't sound that
-weird..... niceing wine gives the userspace sound mixer more cpu time :)
-
---=-YlGSxd0+QQ/IldE3icmX
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA+22wzxULwo51rQBIRAvQLAJ9wsZCNQ7lpO7LWivJVUFyo+Rh+PACdFFbo
-w8k+LwA19T80jhuEJKudrEc=
-=khbL
------END PGP SIGNATURE-----
-
---=-YlGSxd0+QQ/IldE3icmX--

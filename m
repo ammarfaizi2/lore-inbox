@@ -1,91 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277431AbRKDB7j>; Sat, 3 Nov 2001 20:59:39 -0500
+	id <S277512AbRKDCI7>; Sat, 3 Nov 2001 21:08:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277398AbRKDB7U>; Sat, 3 Nov 2001 20:59:20 -0500
-Received: from shed.alex.org.uk ([195.224.53.219]:26529 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S277382AbRKDB7Q>;
-	Sat, 3 Nov 2001 20:59:16 -0500
-Date: Sun, 04 Nov 2001 00:59:17 -0000
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@alex.org.uk
-Cc: Thomas Hood <jdthood@mail.com>, linux-kernel@vger.kernel.org,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: [PATCH] IBM T23; quirks force enable interrupts in APM set
-Message-ID: <23580000.1004835556@araucaria>
-In-Reply-To: <E160BnF-0007ME-00@the-village.bc.nu>
-In-Reply-To: <E160BnF-0007ME-00@the-village.bc.nu>
-X-Mailer: Mulberry/2.1.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S277530AbRKDCIt>; Sat, 3 Nov 2001 21:08:49 -0500
+Received: from unthought.net ([212.97.129.24]:19922 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S277512AbRKDCIe>;
+	Sat, 3 Nov 2001 21:08:34 -0500
+Date: Sun, 4 Nov 2001 03:08:32 +0100
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Tim Jansen <tim@tjansen.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
+Message-ID: <20011104030832.C26842@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Rusty Russell <rusty@rustcorp.com.au>, Tim Jansen <tim@tjansen.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E15zF9H-0000NL-00@wagner> <15zGYm-1gibkeC@fmrl05.sul.t-online.com> <20011102132014.41f2d90a.rusty@rustcorp.com.au> <20011104013951Z16981-4784+741@humbolt.nl.linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <20011104013951Z16981-4784+741@humbolt.nl.linux.org>; from phillips@bonn-fries.net on Sun, Nov 04, 2001 at 02:40:51AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
+On Sun, Nov 04, 2001 at 02:40:51AM +0100, Daniel Phillips wrote:
+> On November 2, 2001 03:20 am, Rusty Russell wrote:
+> > I agree with the "one file, one value" idea.
+> 
+> So cat /proc/partitions goes from being a nice, easy to read and use human 
+> interface to something other than that.  Lets not go overboard.
 
-> Send me the dmi strings (dmidecode output) for the old and new BIOS, the
-> URL for the firmware and not only can I make the kernel ensure they are
-> called IRQ off, I can make it tell you where ot get new firmware
+/proc is usually a very nice interface that's both human- and machine-readable.
+Some changes have gone in though (such as /proc/mdstat) that makes the proc
+files implement something more like a pretty-printing user interface with
+text-mode progress bars and what not.  That's a PITA to parse.
 
-Short of dmidecode, assuming you're going to do what I think
-you're going to do, I think the following should be sufficient
-(change dmi_printk to use printk). If you really need dmidecode,
-give me a pointer to it, not that I'm sure how to revert the
-BIOS image...
+Now, if established files in proc could just be stable, so that they would not
+change unless non-backwards-compatible information absolutely must be
+presented, that would be a major step in the right direction.  Further, if we
+could find some acceptable compromise between human- and machine- readability,
+as has happened in the past...
 
-This is assuming it's the BIOS which causes the problem, as opposed
-to the embedded controller which I upgraded from 1.00 to 1.02
-contemperaneously.
+Then, someone might just implement the equivalent of kstat (from Solaris) or
+pstat (from HP-UX).   Under a license so that commercial players could actually
+link to the library as well (unlike the gproc library).
 
-And the answer to 'where is the new firmware' is, for BIOS & embedded
-controller:
-  http://www.pc.ibm.com/qtechinfo/MIGR-39366.html
-  http://www.pc.ibm.com/qtechinfo/MIGR-40022.html
+So call me a dreamer   ;)
 
-Sadly they aren't indexed properly from the main IBM site (i.e.
-find 'T23 BIOS' finds 1.02).
+(For the record, it's not unlikely that I would be able to dedicate some
+ time to that effort in a not too distant future - say, 2.5 ?)
 
-
-Old (BIOS 1.01b)
-
-All processors have done init_idle
-DMI 0.0 present.
-48 structures occupying 1720 bytes.
-DMI table at 0x27F7C000.
-BIOS Vendor: IBM
-BIOS Version: 1AET38WW (1.01b)
-BIOS Release: 07/27/2001
-System Vendor: IBM.
-Product Name: 26479LU.
-Version Not Available.
-Serial Number 787PR4K.
-Board Vendor: IBM.
-Board Name: 26479LU.
-Board Version: Not Available.
-Asset Tag: No Asset Information.
-IBM machine detected. Enabling interrupts during APM calls.
-
-New Bios (1.03b)
-
-DMI 0.0 present.
-48 structures occupying 1720 bytes.
-DMI table at 0x27F7C000.
-BIOS Vendor: IBM
-BIOS Version: 1AET43WW (1.03b)
-BIOS Release: 09/25/2001
-System Vendor: IBM.
-Product Name: 26479LU.
-Version Not Available.
-Serial Number 787PR4K.
-Board Vendor: IBM.
-Board Name: 26479LU.
-Board Version: Not Available.
-Asset Tag: No Asset Information.
-IBM machine detected. Enabling interrupts during APM calls.
-
-
---
-Alex Bligh
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

@@ -1,69 +1,70 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316530AbSFDKL0>; Tue, 4 Jun 2002 06:11:26 -0400
+	id <S317474AbSFDKNo>; Tue, 4 Jun 2002 06:13:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317466AbSFDKL0>; Tue, 4 Jun 2002 06:11:26 -0400
-Received: from vivi.uptime.at ([62.116.87.11]:33452 "EHLO vivi.uptime.at")
-	by vger.kernel.org with ESMTP id <S316530AbSFDKLZ>;
-	Tue, 4 Jun 2002 06:11:25 -0400
-Reply-To: <o.pitzeier@uptime.at>
-From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
-To: <o.pitzeier@uptime.at>, "'Ivan Kokshaysky'" <ink@jurassic.park.msu.ru>
-Cc: "'Richard Henderson'" <rth@twiddle.net>, <linux-kernel@vger.kernel.org>,
-        <axp-kernel-list@redhat.com>
-Subject: kernel 2.5.20 on alpha (RE: [patch] Re: kernel 2.5.18 on alpha)
-Date: Tue, 4 Jun 2002 12:11:05 +0200
-Organization: =?us-ascii?Q?UPtime_Systemlosungen?=
-Message-ID: <000101c20bb0$27e93620$010b10ac@sbp.uptime.at>
+	id <S317466AbSFDKNn>; Tue, 4 Jun 2002 06:13:43 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:26072 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S317474AbSFDKNm>; Tue, 4 Jun 2002 06:13:42 -0400
+Date: Tue, 4 Jun 2002 12:13:39 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: linux-kernel@vger.kernel.org
+Subject: [patch] remove 8253x tools from the Makefile
+Message-ID: <Pine.NEB.4.44.0206041209230.8847-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
-In-Reply-To: 
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Pitzeier wrote:
-[ ... ]
+Hi Marcelo,
 
-> If you want to know the error:
+the 8253x tools were removed from the kernel source but the Makefile still
+tries to build them. The result is the following compile error in
+2.4.19-pre10:
 
-[ ... ]
+<--  snip  -->
 
-> `copy_user_page' undeclared (first use in this function)
-> make[1]: *** [main.o] Error 1
-> make[1]: Leaving directory `/usr/src/linux-2.5.20/init'
-> make: *** [init] Error 2
+...
+ld -m elf_i386  -r -o ASLX.o 8253xini.o 8253xnet.o 8253xsyn.o crc32.o
+8253xdbg.o 8253xplx.o 8253xtty.o 8253xchr.o 8253xint.o amcc5920.o 8253xmcs.o
+8253xutl.o
+make[4]: *** No rule to make target `8253xcfg', needed by `all'.  Stop.
+make[4]: Leaving directory
+`/home/bunk/linux/kernel-2.4/linux-full/drivers/net/wan/8253x'
 
-I guess I found where the error comes from:
-
-(from the 2.5.20 Changelog):
-> <davidm@napali.hpl.hp.com>
-> [PATCH] pass "page" pointer to clear_user_page()/copy_user_page()
-> 
-> Hi Linus,
-> 
-> Are you willing to change the interfaces of clear_user_page() and
-> copy_user_page() so that they can receive the relevant page pointer as
-> a separate argument?  I need this on ia64 to implement the lazy-cache
-> flushing scheme.
->
-> I believe PPC would also benefit from this.
->
-> --david
-
-Now I believe, that Alpha also benefits from this. :o) The only thing
-I have to do - I guess - is to change the defines for copy_user_page()
-and clear_user_page. Adding the not used parameter >pg< should not make
-any problems.
-
-Greetz,
-  Oliver 
+<--  snip  -->
 
 
+The fix is simple:
+
+
+--- drivers/net/wan/8253x/Makefile.old	Tue Jun  4 12:05:21 2002
++++ drivers/net/wan/8253x/Makefile	Tue Jun  4 12:06:24 2002
+@@ -11,7 +11,7 @@
+ # Specifically the 2520, 4020, 4520, 8520
+ #
+
+-all: ASLX.o 8253xcfg 8253xmac eprom9050 8253xspeed 8253xpeer eprom9050
++all: ASLX.o
+
+ O_TARGET := ASLX.o
+
+@@ -24,5 +24,5 @@
+ include $(TOPDIR)/Rules.make
+
+ clean:
+-	rm -f core *.o *.a *.s 8253xcfg 8253xmac eprom9050 *~
++	rm -f core *.o *.a *.s *~
+
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 

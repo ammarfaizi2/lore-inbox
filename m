@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262121AbTIMKd6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 06:33:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbTIMKd6
+	id S262112AbTIMKZK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 06:25:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbTIMKZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 06:33:58 -0400
-Received: from us01smtp2.synopsys.com ([198.182.44.80]:52642 "EHLO
-	kiruna.synopsys.com") by vger.kernel.org with ESMTP id S262121AbTIMKd5
+	Sat, 13 Sep 2003 06:25:10 -0400
+Received: from mor-or.pn.psu.ac.th ([202.12.73.74]:38548 "EHLO
+	mor-or.PN.PSU.AC.TH") by vger.kernel.org with ESMTP id S262112AbTIMKZI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 06:33:57 -0400
-Date: Sat, 13 Sep 2003 12:33:29 +0200
-From: Alex Riesen <alexander.riesen@synopsys.COM>
-To: Breno <brenosp@brasilsec.com.br>
-Cc: Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Stack size
-Message-ID: <20030913103329.GC1091@Synopsys.COM>
-Reply-To: alexander.riesen@synopsys.COM
-Mail-Followup-To: Breno <brenosp@brasilsec.com.br>,
-	Kernel List <linux-kernel@vger.kernel.org>
-References: <004801c390bd$55cca700$f8e4a7c8@bsb.virtua.com.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <004801c390bd$55cca700$f8e4a7c8@bsb.virtua.com.br>
-Organization: Synopsys, Inc.
-User-Agent: Mutt/1.5.4i
+	Sat, 13 Sep 2003 06:25:08 -0400
+Date: Sat, 13 Sep 2003 17:26:23 +0700 (GMT)
+From: Somsak RAKTHAI <rsomsak@mor-or.pn.psu.ac.th>
+X-X-Sender: rsomsak@mor-or
+To: linux-kernel@vger.kernel.org
+Subject: st_options.h
+Message-ID: <Pine.GSO.4.43.0309131716590.19568-100000@mor-or>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Breno, Sun, Oct 12, 2003 14:35:33 +0200:
-> What happen when stack increase more than 8mb ?
+Dear sir,
+  I used Linux RedHat 7.2. My kernel is 2.4.7-10smp.
+I want to modify file below to make new kernel.
+    /usr/src/linux/drivers/scsi/st_options.h
 
-in the kernel or in a user program?
-
-In user program - probably nothing.
+  But don"t have "st_optioms.h" in my system.
+  Please let me know how to solve this problem.
+          Thank you very much.
+              regards,
+              Somsak.
 

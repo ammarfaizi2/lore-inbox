@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262634AbRF2WAu>; Fri, 29 Jun 2001 18:00:50 -0400
+	id <S262436AbRF2WAU>; Fri, 29 Jun 2001 18:00:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262655AbRF2WAl>; Fri, 29 Jun 2001 18:00:41 -0400
-Received: from beppo.feral.com ([192.67.166.79]:61702 "EHLO beppo.feral.com")
-	by vger.kernel.org with ESMTP id <S262634AbRF2WAe>;
-	Fri, 29 Jun 2001 18:00:34 -0400
-Date: Fri, 29 Jun 2001 15:00:17 -0700 (PDT)
-From: Matthew Jacob <mjacob@feral.com>
-Reply-To: <mjacob@feral.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: RESEND: [ PATCH ] externalize (new) scsi timer function
-In-Reply-To: <Pine.LNX.4.21.0101111613210.29666-100000@zeppo.feral.com>
-Message-ID: <20010629145838.X13977-100000@wonky.feral.com>
+	id <S262634AbRF2WAK>; Fri, 29 Jun 2001 18:00:10 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:25511 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262436AbRF2V75>;
+	Fri, 29 Jun 2001 17:59:57 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15164.64070.934822.960708@pizda.ninka.net>
+Date: Fri, 29 Jun 2001 14:59:34 -0700 (PDT)
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Dmitry Meshchaninov <dima@flash.datafoundation.com>,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        alan@lxorguk.ukuu.org.uk, cwl@iol.unh.edu,
+        Denis Gerasimov <denis@datafoundation.com>
+Subject: Re: qlogicfc driver
+In-Reply-To: <3B3CF618.DDE40F17@mandrakesoft.com>
+In-Reply-To: <Pine.LNX.4.30.0106291714470.11344-100000@flash.datafoundation.com>
+	<3B3CF618.DDE40F17@mandrakesoft.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I sent this back in January and previously. I still think they're important.
-FWIW, Doug Gilbert thought they were okay.
+Jeff Garzik writes:
+ > If you are working on qlogicfc, that's great!
+ > 
+ > But since others are currently using this driver without problems, you
+ > might consider sending in your patches separated out (per
+ > Documentation/SubmittingPatches) so that it is easier for others to
+ > review and apply them in turn.
 
--matt
+One thing that is especially important is multi-platform testing
+since the current driver does use all of the proper APIs and is
+mindful of endianness and word size issues.
 
---- linux.orig/drivers/scsi/scsi_syms.c Wed Nov 29 18:19:45 2000
-+++ linux/drivers/scsi/scsi_syms.c Wed Nov 29 18:18:35 2000
-@@ -91,3 +91,10 @@
- EXPORT_SYMBOL(scsi_devicelist);
- EXPORT_SYMBOL(scsi_device_types);
-
-+/*
-+ * Externalize timers so that HBAs can safely start/restart commands.
-+ */
-+extern void scsi_add_timer(Scsi_Cmnd *, int, void ((*) (Scsi_Cmnd *)));
-+extern int scsi_delete_timer(Scsi_Cmnd *);
-+EXPORT_SYMBOL(scsi_add_timer);
-+EXPORT_SYMBOL(scsi_delete_timer);
-
-
-
-
+Later,
+David S. Miller
+davem@redhat.com

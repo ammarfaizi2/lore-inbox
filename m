@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261349AbUJXBdW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbUJXB0k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261349AbUJXBdW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 21:33:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbUJXBdW
+	id S261352AbUJXB0k (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 21:26:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbUJXB0k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 21:33:22 -0400
-Received: from dsl017-059-236.wdc2.dsl.speakeasy.net ([69.17.59.236]:22237
-	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
-	id S261349AbUJXBdT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 21:33:19 -0400
-Date: Sat, 23 Oct 2004 21:39:38 -0400
-From: Kurt Wall <kwall@kurtwerks.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: IDE warning: "Wait for ready failed before probe!"
-Message-ID: <20041024013938.GD3245@kurtwerks.com>
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
-References: <1098564453l.9607l.0l@localhost>
+	Sat, 23 Oct 2004 21:26:40 -0400
+Received: from mo00.iij4u.or.jp ([210.130.0.19]:12261 "EHLO mo00.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S261352AbUJXB0d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 21:26:33 -0400
+Date: Sun, 24 Oct 2004 10:26:15 +0900
+From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+To: Ralf Baechle <ralf@linux-mips.org>
+Cc: yuasa@hh.iij4u.or.jp, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mips: fixed compile error
+Message-Id: <20041024102616.50dee9f7.yuasa@hh.iij4u.or.jp>
+In-Reply-To: <20041023170505.GA17110@linux-mips.org>
+References: <20041024010659.2c4a3f1e.yuasa@hh.iij4u.or.jp>
+	<20041023170505.GA17110@linux-mips.org>
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098564453l.9607l.0l@localhost>
-User-Agent: Mutt/1.4.2.1i
-X-Operating-System: Linux 2.6.9
-X-Woot: Woot!
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 23, 2004 at 08:47:33PM +0000, Alan Jenkins took 46 lines to write:
-> I have no problems (I hope!), but the warnings I get when linux (2.6.9) 
-> tries to probe a non existant IDE device (controller/channel (?) not  
-> hard disk) are slightly over the top..
+On Sat, 23 Oct 2004 19:05:05 +0200
+Ralf Baechle <ralf@linux-mips.org> wrote:
+
+> On Sun, Oct 24, 2004 at 01:06:59AM +0900, Yoichi Yuasa wrote:
 > 
-> 1. Are these warnings usual for a nonexistant IDE drive?
-> 2. Could they be toned down?
+> > This patch had fixed "causes a section type conflict".
+> > 
+> > ex.
+> > arch/mips/pci/fixup-mpc30x.c:32: error: irq_tab_mpc30x causes a section type conflict
+> 
+> This is bogus.
 
-Disable CONFIG_IDE_GENERIC
-- or -
-Use the ideX=noprobe boot parm, replacing X with the interface number
-not to probe.
+Thank you for your comment.
+Which is the right way of fixing this problem?
 
-Kurt
--- 
-A lack of leadership is no substitute for inaction.
+I'm using following toolchain.
+
+$ mipsel-linux-gcc -v
+Reading specs from /usr/local/lib/gcc-lib/mipsel-linux/3.3.2/specs
+Configured with: ../gcc-3.3.2/configure --target=mipsel-linux --enable-languages=c --disable-shared --with-headers=/usr/mipsel-linux/include --with-libs=/usr/mipsel-linux/lib
+Thread model: posix
+gcc version 3.3.2
+$ mipsel-linux-ld -v
+GNU ld version 2.14.90.0.8 20040114
+
+Yoichi

@@ -1,84 +1,200 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285783AbSA2Wu0>; Tue, 29 Jan 2002 17:50:26 -0500
+	id <S285850AbSA2Wwz>; Tue, 29 Jan 2002 17:52:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285720AbSA2Wt0>; Tue, 29 Jan 2002 17:49:26 -0500
-Received: from dsl-213-023-043-145.arcor-ip.net ([213.23.43.145]:51848 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S285516AbSA2WtS>;
-	Tue, 29 Jan 2002 17:49:18 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Oliver Xymoron <oxymoron@waste.org>
-Subject: Re: Note describing poor dcache utilization under high memory pressure
-Date: Tue, 29 Jan 2002 23:53:21 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Josh MacDonald <jmacd@CS.Berkeley.EDU>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        <reiserfs-list@namesys.com>, <reiserfs-dev@namesys.com>
-In-Reply-To: <Pine.LNX.4.44.0201291446460.25443-100000@waste.org>
-In-Reply-To: <Pine.LNX.4.44.0201291446460.25443-100000@waste.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Vh7y-0000Ac-00@starship.berlin>
+	id <S285692AbSA2Wvt>; Tue, 29 Jan 2002 17:51:49 -0500
+Received: from noodles.codemonkey.org.uk ([62.49.180.5]:27520 "EHLO
+	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id <S285720AbSA2Wvd>; Tue, 29 Jan 2002 17:51:33 -0500
+Date: Tue, 29 Jan 2002 22:55:26 +0000
+From: Dave Jones <davej@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Linux 2.5.2-dj7
+Message-ID: <20020129225526.A3064@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 29, 2002 10:00 pm, Oliver Xymoron wrote:
-> On Tue, 29 Jan 2002, Daniel Phillips wrote:
-> 
-> > On January 29, 2002 06:25 pm, Rik van Riel wrote:
-> > > On Tue, 29 Jan 2002, Oliver Xymoron wrote:
-> > >
-> > > > Daniel's approach seems to be workable (once he's spelled out all the
-> > > > details) but it misses the big performance win for fork/exec, which is
-> > > > surely the common case. Given that exec will be throwing away all these
-> > > > mappings, we can safely assume that we will not be inheriting many shared
-> > > > mappings from parents of parents so Daniel's approach also still ends up
-> > > > marking most of the pages RO still.
-> > >
-> > > It gets worse.  His approach also needs to adjust the reference
-> > > counts on all pages (and swap pages).
-> >
-> > Well, Rik, time to present your algorithm.  I assume it won't reference
-> > counts on pages, and will do some kind of traversal of the mm tree.  Note
-> > however, that I did investigate the class of algorithm you are interested in,
-> > and found only nasty, complex solutions there, with challenging locking
-> > problems.  (I also looked at a number of possible improvements to virtual
-> > scanning, as you know, and likewise only found ugly or inadequate solutions.)
-> 
-> I think it goes something like this:
-> 
-> fork:
->   detach page tables from parent
->   retain pointer to "backing page tables" in parent and child
->   update use count in page tables
->   "prefault" tables for current stack and instruction pages in both parent
->     and child
-> 
-> page fault:
->   if faulted on page table:
->     look up backing page tables
->     if use count > 1: copy, dec use count
->     else: take ownership
-> 
-> > Before you sink a lot of time into it though, you might add up the actual
-> > overhead you're worried about above, and see if it moves the needle in a real
-> > system.
-> 
-> I'm pretty sure something like the above does signficantly less work in
-> the fork/exec case, which is the important one.
+Catch up with -Linus, resync with the Reiserfs folks, and
+fix up some of the pending problems with the recently merged stuff.
+Plus the usual mixed bag of one liners.
 
-With fork/exec, for each page table there are two cases:
+Patch against 2.5.2 vanilla is available from:
+http://www.codemonkey.org.uk/patches/2.5/patch-2.5.2-dj7.diff.gz
 
-  - The parent instantiated the page table.  In this case the extra work to
-    set the ptes RO (only for CoW pages) is insignificant.
+When kernel.org's upload master returns, it'll also be at
+ ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
 
-  - The parent is still sharing the page table with its parent and so the
-    ptes are still set RO.
+ -- Davej.
 
-I don't see how there is a whole lot of fat to cut here. 
+2.5.2-dj7
+o   Merge 2.5.3pre6
+o   Remove fs.h inclusion from sched.h again.		(Christoph Hellwig)
+o   Remove some segment.h inclusions that reappeared.	(Me)
+o   Unmangle dl2k crc fix from -dj6			(Jim McDonald)
+o   Fix tsdev compile.					(Me)
+o   aty128fb & radeonfb compile fixes.			(James Simmons)
+o   Updated Config.help entries for input layer.	(Vojtech Pavlik)
+o   Input layer tweak for old IBM keyboards.		(Vojtech Pavlik)
+o   Fix USB HID feature report output.			(Vojtech Pavlik)
+o   Workaround some broken PS/2 mice.			(Vojtech Pavlik)
+o   Don't filter outgoing fields to HID defined ranges.	(Vojtech Pavlik)
+o   Disable address in scatterlist for sg.		(Douglas Gilbert)
+o   Limit NR_IRQS in no IO-APIC case.			(Brian Gerst)
+o   Sonypi driver update (C1MRX Vaio).			(Stelian Pop)
+o   Remove bogus release_region in eexpress.		(Gianluca Anzolin)
+o   Neofb compile fixes.				(James Simmons)
+o   Reiserfs update.					(all@namesys)
+o   Further reiserfs fixes.				(Oleg Drokin)
+o   Fix keyboard not working with nothing in AUX port.	(Vojtech Pavlik)
+o   Small devfs changes.				(Richard Gooch)
+o   Rage128 Pro TF identification to aty128fb.		(James Simmons)
+
+
+2.5.2-dj6
+o   Merge 2.5.3pre5
+o   Merge 2.4.18pre7
+o   Fix pci_unmap_addr_SET typo.			(David S. Miller)
+o   Make dl2k driver use generic crc function.		(Jim McDonald)
+o   Revoke 007's right to kill.				(John Levon)
+o   Drop i2oblock changes on Alans request.
+o   removes gcc-2.4.5 workaround.			(Adrian Bunk)
+o   Further input/usb updates.				(Vojtech Pavlik)
+o   Trigraph warning cleanup for wavelan_cs.		(Jean Tourrilhes)
+o   driverfs support for USB.				(Greg KH)
+o   ext2 FS corruption fix.				(Alexander Viro)
+o   Work around reiserfs kmem_cache_create() problem.	(Andi Kleen)
+o   CONFIG_MELAN typo in i386/setup.c			(Robert Schwebel)
+o   Scheduler update to J7.				(Ingo Molnar)
+o   Some Config.help / Config.in cleaning.		(Me)
+o   Reiserfs update.					(Oleg Drokin et al)
+    | Oleg, not all of this applied. I'll do the rest by
+    | hand next time.
+o   Convert PnPBIOS to use new subsys_initcall()	(Me)
+o   Move screen_base to struct fb_info			(James Simmons)
+o   Preliminary EISA support for driverfs.		(Me)
+    | don't take this too seriously yet, it needs work.
+o   UFS blocksize fix.					(Zwane Mwaikambo)
+
+
+2.5.2-dj5
+o   Merge 2.5.3-pre3
+o   Merge 2.4.18pre6
+o   ieee1394 videodev compile fix.		(Frank Davis)
+o   Removed bogus CVSIDs			(Eagle eye Christoph Hellwig)
+o   Register EISA io ports.			(Paul Gortmaker, me)	
+o   Various APM tweaking.			(Stephen Rothwell, others)
+o   Skeleton PCI hotplug driver.		(Greg KH)
+o   Make IMM driver work again.			(Rich Baum)
+o   PPC idleloop bugfix.			(Rusty Russell)
+o   Fix USB mouse modular compile.		(Greg KH)
+o   Make fbgen compile modular.			(Various)
+o   Fix SMP kernel on UP boot.			(Al Viro)
+o   Plug usb_make_path memory leaks		(Greg KH)
+o   Only incr io_count on bio_alloc success.	(Badari Pulavarty)
+o   Fix block backed loop mounts.		(Adam Richter)
+o   DAC960 bio changes.				(Jim McDonald)
+o   i2o block bio changes.			(Jim McDonald)
+
+
+2.5.2-dj4
+o   Merge 2.5.3-pre2
+o   Scheduler update to J4.			(Ingo Molnar)
+o   Input layer updates.			(Vojtech Pavlik, James Simmons)
+o   Matroxfb Configure.help updates.		(Robert love)
+o   Framebuffer colourmap improvements.		(James Simmons)
+o   Fix FAT infinite loops.			(OGAWA Hirofumi)
+o   Various compile fixes.			(Me)
+o   Small cpqarray cleanup.			(Me)
+o   devfs fixes.				(Richard Gooch)
+    | should fix the no-booting problem some people saw.
+o   ipv6 endian fixes.				(Russell King)
+o   Make AFFS fsx-proof.			(Roman Zippel)
+
+
+2.5.2-dj3
+o   Remove/Add some mismerged bits.			(Me)
+o   Reiserfs rename fixes.				(Oleg Drokin)
+o   Remove 2.4 only netdriver changes.			(Jeff Garzik, Me)
+o   Scheduler update to J2				(Ingo Molnar)
+o   GUID partition support update.			(Matt Domsch)
+o   Configure help entries for IDE.			(Andre Hedrick, Rob Radez,
+							 Anton Altaparmakov)
+o   Reduce NTFS vmalloc use.				(Anton Altaparmakov)
+o   Parallel port SCSI zip driver update.		(derek@signalmarketing.com)
+o   Iforce & Vortex joystick compile fix.		(James Simmons)
+o   IDE Tape driver bio fixes.				(Frank Davis)
+o   i820 & i830mp AGPGart & APM fix.			(Nicolas Aspert)
+o   i820up AGPGart recognition.				(Daniele Venzano)
+o   Radeonfb 1400x1050 mode timings.			(Michael Clark)
+
+
+2.5.2-dj2
+o   Merge 2.4.18pre4
+o   Remove duplicate soundblaster ISAPNP ID.		(Jeff Garzik)
+o   devexit fix for dmfe.				(Jeff Garzik)
+o   Multiport tulip irq assignment fix.			(Christoph Dworzak)
+o   Small include file cleanup.				(Andi Kleen)
+o   message cleanup of fatfs				(OGAWA Hirofumi)
+o   GUID Partition Tables support.			(Matt Domsch)
+o   Hyperthreading support for MTRR.			(Sunil Saxena)
+o   More fbdev infrastructure work.			(James Simmons)
+o   Numerous advansys driver fixes.			(Douglas Gilbert)
+o   buffer.c thinko.					(Andrew Morton)
+o   Fix ramdisk compile breakage.			(Me)
+o   Fix acpitable.c mapping problems.			(James Cleverdon)
+o   Input layer reworking.				(James Simmons,
+							 Vojtech Pavlik)
+o   Netfilter build fix.				(Steven Cole)
+o   ATA PIO & Multimode fixes.				(Jens Axboe)
+o   Update scheduler to J0.				(Ingo Molnar, others)
+o   fbdev colormap cleanup.				(James Simmons)
+
+
+2.5.2-dj1
+o   Merge 2.5.2 final.
+o   Merge 2.5.3pre1
+o   Numerous compile fixes.				(Various)
+o   Fix crc32 JFFS2 problem.				(Russell King)
+o   Remove left over ARM bits from 2.5.1-dj15.		(Me)
+o   Mips Magnum fb compile fix.				(Me)
+o   Update to sched-I3					(Ingo Molnar)
+o   Add missing cp1250 file.				(Me)
+
+
+2.5.1-dj15
+o   Merge selective bits of 2.4.18pre3ac1 & ac2
+    | Drop rmap (except for rate-limit oom_kill change),
+    | IDE changes & 32bit uid quota
+o   Add 'nowayout' module param for watchdogs.		(Matt Domsch)
+o   BSD partition fixes.				(Andries Brouwer)
+o   wavelan_cs update					(Jean Tourrilhes)
+o   Numerous LVM fixes.					(andersg)
+o   Prevent ramdisk buffercache corruption.		(Andrea Arcangeli)
+o   MS_ASYNC implementation.				(Andrea, Andrew Morton)
+o   Truncate blocks when prepare_write() fails.		(Andrea, Andrew Morton)
+o   winbond-840 OOM handling.				(Manfred Spraul)
+o   Natsemi OOM handling.				(Manfred Spraul)
+o   Eliminate some stalls in i386 syscall path.		(Alex Khripin)
+o   Export release_console_sem()			(Andrew Morton)
+o   Remove bogus sbp2 changes.				(Christoph Hellwig)
+o   Remove i386 mmu_context.h				(Me)
+o   Remove reiserfs build warnings.			(Me)
+o   Fix ignorance of SCSI I/O errors.			(Peter Osterlund)
+o   Fix IDE floppy thinko.				(Luc Van Oostenryck)
+o   Radeonfb compile fixes.				(Erik Andersen)
+o   Radeonfb flat panel support.			(Michael Clark)
+o   Remove bogus extraneous return.			(Paul Gortmaker)
+o   Fix potential oom-killer race.			(Andres Salomon)
+o   Fix bio + highmem bounce BUG().			(Jens Axboe)
+o   PATH_MAX fixes.					(Rusty Russell)
+o   Frame buffer _setcolreg changes.			(James Simmons)
 
 -- 
-Daniel
+Dave Jones.                    http://www.codemonkey.org.uk
+SuSE Labs.

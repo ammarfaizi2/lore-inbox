@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312843AbSDFVpT>; Sat, 6 Apr 2002 16:45:19 -0500
+	id <S312848AbSDFWEL>; Sat, 6 Apr 2002 17:04:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312846AbSDFVpS>; Sat, 6 Apr 2002 16:45:18 -0500
-Received: from zero.tech9.net ([209.61.188.187]:43270 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S312843AbSDFVpS>;
-	Sat, 6 Apr 2002 16:45:18 -0500
-Subject: Re: [PATCH] Clean up x86 interrupt entry code
-From: Robert Love <rml@tech9.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Brian Gerst <bgerst@didntduck.org>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0204061216570.26740-100000@penguin.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 06 Apr 2002 16:45:20 -0500
-Message-Id: <1018129520.899.113.camel@phantasy>
-Mime-Version: 1.0
+	id <S312850AbSDFWEK>; Sat, 6 Apr 2002 17:04:10 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:32569 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S312848AbSDFWEJ>; Sat, 6 Apr 2002 17:04:09 -0500
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Byron Stanoszek <gandalf@winds.org>, Jeremy Jackson <jerj@coplanar.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Faster reboots - calling _start?
+In-Reply-To: <Pine.LNX.4.44.0204061201281.7190-100000@winds.org>
+	<1745393533.1018100235@[10.10.2.3]>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 06 Apr 2002 14:57:33 -0700
+Message-ID: <m1hemoo5gy.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-04-06 at 15:18, Linus Torvalds wrote:
+"Martin J. Bligh" <Martin.Bligh@us.ibm.com> writes:
 
-> It seems to be always loaded by the common interrupt code (and %ebx is a 
-> call-saved register, so calling the interrupt handlers and returning 
-> doesn't clobber it).
+> > Wouldn't it be easier to just ljmp to the start address of the kernel in
+> > memory (the address after the bootloader has done its thing), effectively
+> > restarting the kernel from line 1? Or is tehre an issue with some
+> > hardware being in an invalid state when doing this?
+> 
+> Two issues with that:
+> 
+> 1. I want to be able to boot a different kernel on reboot - this
+> is a development machine.
+> 
+> 2. I believe we free all the __init stuff around the end of
+> start_kernel, so the initial functions and data just aren't 
+> there any more ... of course that could be changed, but it's
+> both a more major change than I really want to do, and it still
+> doesn't solve (1) ;-)
 
-True enough.  I guess I should of done this from the beginning ...
+Seriously check out my code it should just work unless there are special
+apic shutdown rules for NUMAQ machines.
 
-> But testing it may be a good idea ;^p
-
-Of course I will, but it is hard (and subject to Heisenberg principals)
-to test that we preempt whenever necessary.  Only with the patch I sent
-you earlier am I seeing no missed preemptions ... now to work on the
-egregiously long-held locks.
-
-	Robert Love
+Eric
 

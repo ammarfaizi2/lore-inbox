@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268618AbTCCTja>; Mon, 3 Mar 2003 14:39:30 -0500
+	id <S268654AbTCCTlD>; Mon, 3 Mar 2003 14:41:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268621AbTCCTj3>; Mon, 3 Mar 2003 14:39:29 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:59909 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S268618AbTCCTj2>;
-	Mon, 3 Mar 2003 14:39:28 -0500
-Date: Mon, 3 Mar 2003 20:49:58 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Lerhaupt, Gary" <Gary_Lerhaupt@Dell.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] DKMS: Dynamic Kernel Module Support
-Message-ID: <20030303194958.GA3847@mars.ravnborg.org>
-Mail-Followup-To: "Lerhaupt, Gary" <Gary_Lerhaupt@Dell.com>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-References: <20BF5713E14D5B48AA289F72BD372D680326F88E@AUSXMPC122.aus.amer.dell.com>
+	id <S268657AbTCCTlC>; Mon, 3 Mar 2003 14:41:02 -0500
+Received: from cub.phpwebhosting.com ([66.33.48.250]:33809 "HELO
+	cub.phpwebhosting.com") by vger.kernel.org with SMTP
+	id <S268654AbTCCTlA> convert rfc822-to-8bit; Mon, 3 Mar 2003 14:41:00 -0500
+From: "Jared Daniel J. Smith" <linux@trios.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.6 (1006) - Licensed Version
+Date: Mon, 3 Mar 2003 13:46:34 -0800
+Subject: RE: [PATCH] 2.5.63-current Yet more spelling fixes from spell-fix.pl
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20BF5713E14D5B48AA289F72BD372D680326F88E@AUSXMPC122.aus.amer.dell.com>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <20030303194100Z268654-29901+7275@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 03, 2003 at 11:07:03AM -0600, Lerhaupt, Gary wrote:
-> I wanted to post a follow-up as I have seen only a few downloads of DKMS
-> since my original posting and also given that the Linux Development Group
-> here at Dell is very interested in feedback from the community.
+Steven,
 
-Hi Gary.
-I have made a brief look at the shell script.
-It assume .o for modules, which is not true for 2.5.
+The following diff corrects address=addresss
+when it should correct addresses=addresss
 
-When building a module it simply executes $MAKE - which is plain wrong.
-As have been discussed in several threads you cannot reliably track
-changes in CFLAGS etc. without utilising the kbuild infrastructure.
+IOW, the script singularized a plural typo.
 
-DKMS is also highly connected to the usage of /lib/modules/...
-and naming of config files. It looks to me as it is very distribution
-specic.
+-Jared
 
-	Sam
+>diff -ur 2.5-current/include/net/sctp/user.h linux/include/net/sctp/user.h
+>--- 2.5-current/include/net/sctp/user.h        Mon Mar  3 10:41:43 2003
+>+++ linux/include/net/sctp/user.h        Mon Mar  3 10:45:23 2003
+>@@ -100,13 +100,13 @@
+>#define SCTP_SOCKOPT_BINDX_REM        SCTP_SOCKOPT_BINDX_REM
+>SCTP_SOCKOPT_PEELOFF,         /* peel off association. */
+>#define SCTP_SOCKOPT_PEELOFF        SCTP_SOCKOPT_PEELOFF
+>-        SCTP_GET_PEER_ADDRS_NUM,         /* Get number of peer addresss. */
+>+        SCTP_GET_PEER_ADDRS_NUM,         /* Get number of peer address. */
+>#define SCTP_GET_PEER_ADDRS_NUM        SCTP_GET_PEER_ADDRS_NUM
+>-        SCTP_GET_PEER_ADDRS,         /* Get all peer addresss. */
+>+        SCTP_GET_PEER_ADDRS,         /* Get all peer address. */
+>#define SCTP_GET_PEER_ADDRS        SCTP_GET_PEER_ADDRS
+>-        SCTP_GET_LOCAL_ADDRS_NUM,         /* Get number of local addresss. */
+>+        SCTP_GET_LOCAL_ADDRS_NUM,         /* Get number of local address. */
+>#define SCTP_GET_LOCAL_ADDRS_NUM        SCTP_GET_LOCAL_ADDRS_NUM
+>-        SCTP_GET_LOCAL_ADDRS,         /* Get all local addresss. */
+>+        SCTP_GET_LOCAL_ADDRS,         /* Get all local address. */
+>#define SCTP_GET_LOCAL_ADDRS        SCTP_GET_LOCAL_ADDRS
+>};
+>
+
+
+

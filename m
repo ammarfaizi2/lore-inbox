@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263046AbTHVGNY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 02:13:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263048AbTHVGNY
+	id S263033AbTHVGLj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 02:11:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262990AbTHVGLj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 02:13:24 -0400
-Received: from warden3-p.diginsite.com ([208.147.64.186]:59811 "HELO
-	warden3.diginsite.com") by vger.kernel.org with SMTP
-	id S263046AbTHVGNW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 02:13:22 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Matthew Wilcox <willy@debian.org>, Lou Langholtz <ldl@aros.net>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>
-Date: Thu, 21 Aug 2003 23:10:48 -0700 (PDT)
-Subject: Re: [PATCH] bio.c: reduce verbosity at boot
-In-Reply-To: <Pine.LNX.4.44.0308211254360.1606-100000@home.osdl.org>
-Message-ID: <Pine.LNX.4.44.0308212308350.2232-100000@dlang.diginsite.com>
+	Fri, 22 Aug 2003 02:11:39 -0400
+Received: from [62.13.18.67] ([62.13.18.67]:18370 "EHLO
+	mail.kontorshotellet.nu") by vger.kernel.org with ESMTP
+	id S263035AbTHVGLe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 02:11:34 -0400
+Message-ID: <3F45B417.6010507@lanil.mine.nu>
+Date: Fri, 22 Aug 2003 08:11:35 +0200
+From: Christian Axelsson <smiler@lanil.mine.nu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030814 Thunderbird/0.2a
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Martin Diehl <lists@mdiehl.de>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [2.6.0-test3-mm3] irda compile error
+References: <Pine.LNX.4.44.0308212120380.3006-100000@notebook.home.mdiehl.de>
+In-Reply-To: <Pine.LNX.4.44.0308212120380.3006-100000@notebook.home.mdiehl.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Aug 2003, Linus Torvalds wrote:
+Martin Diehl wrote:
 
-> On Thu, 21 Aug 2003, Matthew Wilcox wrote:
-> >
-> > But why is it interesting to have this information at boot time?  As a
-> > user, I certainly don't care.  As a developer, I don't find it interesting
-> > information.
+>On Thu, 21 Aug 2003, Christian Axelsson wrote:
 >
-> I do agree. The message may have been useful when the code was young and
-> people wanted to see that it got executed correctly at all, but there
-> doesn't seem to be a lot of point to it any more.
+>  
 >
-> But hey, I'll leave it to the maintainer..
+>>Got this while doing  make. Config attached.
+>>Same config compiles fine under mm2
+>>
+>> CC      drivers/net/irda/vlsi_ir.o
+>>drivers/net/irda/vlsi_ir.c: In function `vlsi_proc_pdev':
+>>drivers/net/irda/vlsi_ir.c:167: structure has no member named `name'
+>>    
+>>
 >
-> 		Linus
+>Yep, Thanks. I'm aware of the problem which is due to the recent 
+>device->name removal. In fact a fix for this was already included in the 
+>latest resent of my big vlsi update patch pending since long.
+>
+>Anyway, it was pointed out now the patch is too big so I'm currently 
+>working on splitting it up. Bunch of patches will follow soon :-)
+>
+>Btw., are you actually using this driver? I'm always looking for testers 
+>with 2.6 to give better real life coverage...
+>  
+>
 
-as a user I find a minimal set of messages (loading driver, hardware
-found) handy for identifying what hardware is actually in old machines I
-am given.
+No, not until I get a cellphone or similar that I can use it with :)
+I smiply have it for eventual cases like this as I want to find as much 
+bugs as possible before the actual 2.6 release.
 
-that said there is a lot of distance between that and the current
-situation where you print out 3-4 screens worth of info for a single
-driver.
+--
+Christian Axelsson
+smiler@lanil.mine.nu
 
-David Lang
+

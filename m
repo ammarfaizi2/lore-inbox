@@ -1,59 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318182AbSHPGFf>; Fri, 16 Aug 2002 02:05:35 -0400
+	id <S318211AbSHPGT1>; Fri, 16 Aug 2002 02:19:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318184AbSHPGFf>; Fri, 16 Aug 2002 02:05:35 -0400
-Received: from mortar.viawest.net ([216.87.64.7]:5803 "EHLO mortar.viawest.net")
-	by vger.kernel.org with ESMTP id <S318182AbSHPGFe>;
-	Fri, 16 Aug 2002 02:05:34 -0400
-Date: Thu, 15 Aug 2002 23:09:25 -0700
-From: A Guy Called Tyketto <tyketto@wizard.com>
-To: Ivan Gyurdiev <ivangurdiev@attbi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Floppies under 2.5.
-Message-ID: <20020816060925.GA22648@wizard.com>
-References: <200208130907.23127.ivangurdiev@attbi.com>
-Mime-Version: 1.0
+	id <S318216AbSHPGT1>; Fri, 16 Aug 2002 02:19:27 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26638 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318211AbSHPGT0>;
+	Fri, 16 Aug 2002 02:19:26 -0400
+Message-ID: <3D5C9CD7.55287BCB@zip.com.au>
+Date: Thu, 15 Aug 2002 23:33:59 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.31 kmap_atomic copy_*_user benefits
+References: <20020815232126.GR15685@holomorphy.com> <3D5C5F05.7080004@us.ibm.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200208130907.23127.ivangurdiev@attbi.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux/2.4.19 (i686)
-X-uptime: 11:03pm  up 12 days, 10:02,  2 users,  load average: 0.00, 0.00, 0.00
-X-RSA-KeyID: 0xE9DF4D85
-X-DSA-KeyID: 0xE319F0BF
-X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 13, 2002 at 09:07:23AM -0400, Ivan Gyurdiev wrote:
-> My floppy refuses to mount under 2.5.31.
-> The first attempt leads to segmentation fault.
-> The second attempt leads to an unkillable
-> (killall -9 mount as root has no effect) process which freezes on the 
-> open call:
+Dave Hansen wrote:
 > 
-> stat64("/dev/fd0", {st_mode=S_IFBLK|0660, st_rdev=makedev(2, 0), ...}) = 0
-> open("/dev/fd0", O_RDONLY|O_LARGEFILE
-> ========================
+> William Lee Irwin III wrote:
+> > With and without kmap_atomic() -based copy_*_user() patches from akpm.
+> > Taken on a 16x/16GB box.
 > 
-> Mounting floppies works fine under 2.4.
+> Have you seen any instability with these things applied?  I seem to be
+> getting a fair amount of these BUG()s.  But, I imagine that it could
+> be a race uncovered because of the serialization that highmem locks
+> caused.
+> 
+> kernel BUG at softirq.c:229!
 
-        Of course it works in 2.4. that's the stable series! ;)
+I just hit it.  No kmap patches though.
 
-        Seriously, the floppy driver has been broken since 2.5.8, and will 
-probably stay that way until someone comes along and fixes it. I believe it's 
-being ported over to the new API, but I'm sure Dave or the others will get 
-more into that. I last had the floppy working with 2.5.7. If you're expecting
-to use the floppy driver to mount any sort of filesystem, expect either 
-severe corruption, kernel freezing as you've reported, oops, or any other
-thing that has or hasn't been reported, excluding normal ops. Use 2.4 for
-mounting floppies.
+> ...
+> 
+>  >>EIP; 8011c8dd <tasklet_hi_action+5d/c4>   <=====
+> 
+>  >>ebx; 80374f54 <bh_task_vec+14/280>
+>  >>ecx; 8037e194 <tv1+14/804>
+>  >>ebp; 80357560 <__bss_start+0/0>
+> 
+> Trace; 8011c62a <do_softirq+5a/ac>
+> Trace; 801092e1 <do_IRQ+f1/100>
+> Trace; 80105334 <poll_idle+0/48>
+> Trace; 80107d28 <common_interrupt+18/20>
+> Trace; 80105334 <poll_idle+0/48>
+> Trace; 8010535d <poll_idle+29/48>
+> Trace; 801053b3 <cpu_idle+37/48>
 
-                                                        BL.
--- 
-Brad Littlejohn                         | Email:        tyketto@wizard.com
-Unix Systems Administrator,             |           tyketto@ozemail.com.au
-Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
-  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
+#0  tasklet_hi_action (a=0xc03671a0) at softirq.c:230
+#1  0xc011e74d in do_softirq () at softirq.c:89
+#2  0xc0112b53 in smp_apic_timer_interrupt (regs=
+      {ebx = -1056148556, ecx = 8, edx = 1024, esi = 134587171, edi = -997773344, ebp = -870006964, eax = 0, xds = -870055832, xes = -1072562072, orig_eax = -17, eip = -1072501662, xcs = 96, eflags = 66054, esp = -965588688, xss = 63491})
+    at apic.c:1091
+#3  0xc0107f7a in apic_timer_interrupt () at stats.c:204
+#4  0xc012ee3f in generic_file_write (file=0xcb90d5e0, buf=0x804b340 '\001' <repeats 200 times>..., count=63491, 
+    ppos=0xcb90d600) at filemap.c:2085
+#5  0xc013e210 in vfs_write (file=0xcb90d5e0, buf=0x804b340 '\001' <repeats 200 times>..., count=63491, pos=0xcb90d600)
 
+(gdb) p t->func
+$1 = (void (*)()) 0xc011eb90 <bh_action>
+(gdb) p t->data
+$2 = 0
+(gdb) p bh_base[0]
+$3 = (void (*)()) 0xc0121c94 <timer_bh>

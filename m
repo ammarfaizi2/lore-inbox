@@ -1,56 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263138AbRE1Uba>; Mon, 28 May 2001 16:31:30 -0400
+	id <S263141AbRE1UlV>; Mon, 28 May 2001 16:41:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263139AbRE1UbU>; Mon, 28 May 2001 16:31:20 -0400
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:1363
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S263138AbRE1UbO>; Mon, 28 May 2001 16:31:14 -0400
-Date: Mon, 28 May 2001 22:31:04 +0200
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] remove unnecessary zero initializations from aironet4500_proc.c (245ac1)
-Message-ID: <20010528223103.J846@jaquet.dk>
+	id <S263143AbRE1UlB>; Mon, 28 May 2001 16:41:01 -0400
+Received: from [195.184.98.160] ([195.184.98.160]:38406 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S263142AbRE1Uk6>;
+	Mon, 28 May 2001 16:40:58 -0400
+Date: Mon, 28 May 2001 22:37:33 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+Cc: andre@linux-ide.org, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch]: ide dma timeout retry in pio
+Message-ID: <20010528223733.O9102@suse.de>
+In-Reply-To: <20010528203421.N9102@suse.de> <Pine.LNX.4.10.10105281533400.25183-100000@coffee.psychology.mcmaster.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10105281533400.25183-100000@coffee.psychology.mcmaster.ca>; from hahn@coffee.psychology.mcmaster.ca on Mon, May 28, 2001 at 03:39:00PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Forgot l-k again... :<)
+On Mon, May 28 2001, Mark Hahn wrote:
+> > request, when we hit a dma timout. In this case, what we really want to
+> > do is retry the request in pio mode and revert to normal dma operations
+> > later again.
+> 
+> really?  do we know the nature of the DMA engine problem well enough?
+> is there a reason to believe that it'll work better "later"?
+> I guess I was surprised at resorting to PIO - couldn't we just
+> break the request up into smaller chunks, still using DMA?
 
------ Forwarded message from Rasmus Andersen <rasmus@jaquet.dk> -----
+That is indeed possible, it will require some surgery to the dma request
+path though. IDE has no concept of doing part of a request for dma
+currently, it's an all-or-nothing approach. That's why it falls back to
+pio right now.
 
-Hi.
+> I seem to recall Andre saying that the problem arises when the 
+> ide DMA engine looses PCI arbitration during a burst.  shorter 
+> bursts would seem like the best workaround if this is the problem...
 
-The following patch removes two superfluous initializations
-from aironet4500_proc.c, making the .o ~12K smaller in
-size. It applies against 245ac1 and was discovered by Adam
-Ritcher some time ago.
- 
---- linux-245-ac1-clean/drivers/net/aironet4500_proc.c	Sat May 19 20:58:24 2001
-+++ linux-245-ac1/drivers/net/aironet4500_proc.c	Mon May 28 22:13:26 2001
-@@ -59,7 +59,7 @@
- 	char 				proc_name[10];
- };	        
- static char awc_drive_info[AWC_STR_SIZE]="Zcom \n\0";
--static char awc_proc_buff[AWC_STR_SIZE]="\0";
-+static char awc_proc_buff[AWC_STR_SIZE];
- static int  awc_int_buff;
- static struct awc_proc_private awc_proc_priv[MAX_AWCS]; 
- 
-@@ -403,7 +403,7 @@
-         {0}
- };
- 
--struct ctl_table_header * awc_driver_sysctl_header = NULL;
-+struct ctl_table_header * awc_driver_sysctl_header;
- 
- const char awc_procname[]= "awc5";
+It's worth a shot. My patch was not meant as the end-all solution,
+however we need something _now_. Loosing sectors is not funny.
+Dynamically limiting general request size for to make dma work is a
+piece of cake, that'll be about a one-liner addition to the current
+patch. So the logic could be something of the order of:
+
+	- 1st dma timeout
+	- scale max size down from 128kB (127.5kB really) to half that
+	...
+	- things aren't working, 2nd dma timeout. Scale down to 32kB.
+
+and so forth, revert to pio and reset full size if it's really no good.
+If limiting transfer sizes solves the problem, this would be the way to
+go. I'll do another version that does this.
+
+Testers? Who has frequent ide dma timeout problems??
+
+> resorting to PIO would be such a shame, not only because it eats
+> CPU so badly, but also because it has no checksum like UDMA...
+
+Look at the patch -- we resort to pio for _one_ hunk. That's 8 sectors
+tops, then back to dma. Hardly a big issue.
+
 -- 
-        Rasmus(rasmus@jaquet.dk)
+Jens Axboe
 
-"If you aim the gun at your foot and pull the trigger, it's UNIX's job to 
-ensure reliable delivery of the bullet to where you aimed the gun (in
-this case, Mr. Foot)." -- Terry Lambert, FreeBSD-Hackers mailing list.

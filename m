@@ -1,31 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291193AbSAaRlf>; Thu, 31 Jan 2002 12:41:35 -0500
+	id <S291195AbSAaRof>; Thu, 31 Jan 2002 12:44:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291195AbSAaRlZ>; Thu, 31 Jan 2002 12:41:25 -0500
-Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:35491 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S291193AbSAaRlI>; Thu, 31 Jan 2002 12:41:08 -0500
-Date: Thu, 31 Jan 2002 12:41:07 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200201311741.g0VHf7c15207@devserv.devel.redhat.com>
-To: rathamahata@php4.ru, Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Cc: linux390@de.ibm.com
-Subject: Re: [PATCH] fs/partitions/ibm.c compile fixes
-In-Reply-To: <mailman.1012486827.28619.linux-kernel2news@redhat.com>
-In-Reply-To: <mailman.1012486827.28619.linux-kernel2news@redhat.com>
+	id <S291196AbSAaRoZ>; Thu, 31 Jan 2002 12:44:25 -0500
+Received: from mailgate.rz.uni-karlsruhe.de ([129.13.64.97]:46346 "EHLO
+	mailgate.rz.uni-karlsruhe.de") by vger.kernel.org with ESMTP
+	id <S291195AbSAaRoS> convert rfc822-to-8bit; Thu, 31 Jan 2002 12:44:18 -0500
+Subject: Re: Current Reiserfs Update / 2.5.2-dj7 Oops
+From: Martin Bahlinger <ry42@rz.uni-karlsruhe.de>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 31 Jan 2002 18:44:09 +0100
+Message-Id: <1012499057.704.0.camel@hek411>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -	if (ioctl_by_bdev(bdev, HDIO_GETGEO, (unsigned long)geo);
-> +	if (ioctl_by_bdev(bdev, HDIO_GETGEO, (unsigned long)geo))
-> @@ -131,7 +131,7 @@
-> -	data = read_dev_sector(bdev, inode->label_block*blocksize, &sect);
-> +	data = read_dev_sector(bdev, info->label_block*blocksize, &sect);
+Hi!
 
-I did that too, but 2.4.17 does not boot for me on a 31-bit VM.
-It's probably not bootable in nature. I wish IBM people updated
-actual kernels instead of posting pachsets on developerwoks
-website.
+Sebastian Dröge wrote:
+> Oleg Drokin <green@namesys.com> wrote:
+> > Ok, I think we got it. And yes it it was reiserfs fault.
+> > What I really cannot understand is how it was working before???
+> > Ok, so anybody who sees the oopses should try 2 patches attached.
+> > prealloc_init_list_head.diff is just forgotten initialisation
+> > and pick_correct_key_version.diff is the real fix.
+> > I wonder is anybody will be able to reproduce a bug with these 2
+> > fixes
+> > (I hope not).
+> everything seems to work perfect :)
+> my system has booted without any problems
 
--- Pete
+After applying those patches to 2.5.3 I still got an Oops after a
+PAP-14030 message. I will try to catch the Oops (have never done this
+before, may take some time) and feed it to ksymoops.
+
+bye
+  Martin
+
+-- 
+Martin Bahlinger <bahlinger@rz.uni-karlsruhe.de>   (PGP-ID: 0x98C32AC5)
+

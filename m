@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbUKIWBo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261719AbUKIWD6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261718AbUKIWBo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 17:01:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbUKIWBl
+	id S261719AbUKIWD6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 17:03:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbUKIWD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 17:01:41 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:24811 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261718AbUKIWAj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 17:00:39 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Tue, 9 Nov 2004 22:43:54 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.6.10-rc1-mm4: bttv-driver.c compile error
-Message-ID: <20041109214354.GA17538@bytesex>
-References: <20041109074909.3f287966.akpm@osdl.org> <1100018489.7011.4.camel@lb.loomes.de> <20041109211107.GB5892@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 9 Nov 2004 17:03:57 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:41386 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261719AbUKIWCQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 17:02:16 -0500
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Mark Goodwin <markgw@sgi.com>
+Subject: Re: Externalize SLIT table
+Date: Tue, 9 Nov 2004 17:00:56 -0500
+User-Agent: KMail/1.7
+Cc: Matthew Dobson <colpatch@us.ibm.com>, Erich Focht <efocht@hpce.nec.com>,
+       Jack Steiner <steiner@sgi.com>, Takayoshi Kochi <t-kochi@bq.jp.nec.com>,
+       linux-ia64@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+References: <20041103205655.GA5084@sgi.com> <1100029381.3980.12.camel@arrakis> <Pine.LNX.4.61.0411100722070.14545@woolami.melbourne.sgi.com>
+In-Reply-To: <Pine.LNX.4.61.0411100722070.14545@woolami.melbourne.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20041109211107.GB5892@stusta.de>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200411091700.56957.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> As far as I can see, the radio parameter is already handled correctly.
-> Is the patch below correct?
+On Tuesday, November 09, 2004 3:34 pm, Mark Goodwin wrote:
+> On Tue, 9 Nov 2004, Matthew Dobson wrote:
+> > ...
+> > I don't think we should export the *exact same* node distance information
+> > through the CPUs, though.
+>
+> We should still export cpu distances though because the distance between
+> cpus on the same node may not be equal. e.g. consider a node with multiple
+> cpu sockets, each socket with a hyperthreaded (or dual core) cpu.
+>
+> Once again however, it depends on the definition of distance. For nodes,
+> we've established it's the ACPI SLIT (relative distance to memory). For
+> cpus, should it be distance to memory? Distance to cache? Registers? Or
+> what?
 
-> -/* kernel args */
-> -#ifndef MODULE
-> -static int __init p_radio(char *str) { return bttv_parse(str,BTTV_MAX,radio); }
-> -__setup("bttv.radio=", p_radio);
-> -#endif
+Yeah, that's a tough call.  We should definitely get the node stuff in there 
+now though, IMO.  We can always add the CPU distances later if we figure out 
+what they should mean.
 
-Yes, it's already in Andrew's inbox, just forgot to delete that and
-didn't notice due to modular builds ...
-
-  Gerd
-
--- 
-#define printk(args...) fprintf(stderr, ## args)
+Jesse

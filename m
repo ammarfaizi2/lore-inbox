@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129830AbQLAXTY>; Fri, 1 Dec 2000 18:19:24 -0500
+	id <S129825AbQLAXaE>; Fri, 1 Dec 2000 18:30:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129891AbQLAXTN>; Fri, 1 Dec 2000 18:19:13 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:21508 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129830AbQLAXTD>; Fri, 1 Dec 2000 18:19:03 -0500
-Date: Fri, 1 Dec 2000 16:48:13 -0600
-To: Roger Crandell <rwc@lanl.gov>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: multiprocessor kernel problem
-Message-ID: <20001201164813.C25464@wire.cadcamlab.org>
-In-Reply-To: <3A27D4D6.4DA47346@lanl.gov>
+	id <S129891AbQLAX3z>; Fri, 1 Dec 2000 18:29:55 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:34830 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129825AbQLAX3m>;
+	Fri, 1 Dec 2000 18:29:42 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: John Levon <moz@compsoc.man.ac.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18pre24 and drm/agpgart static? 
+In-Reply-To: Your message of "Fri, 01 Dec 2000 14:52:11 -0000."
+             <Pine.LNX.4.21.0012011450270.1317-100000@mrworry.compsoc.man.ac.uk> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A27D4D6.4DA47346@lanl.gov>; from rwc@lanl.gov on Fri, Dec 01, 2000 at 09:41:58AM -0700
-From: Peter Samuelson <peter@cadcamlab.org>
+Date: Sat, 02 Dec 2000 09:59:08 +1100
+Message-ID: <21249.975711548@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 1 Dec 2000 14:52:11 +0000 (GMT), 
+John Levon <moz@compsoc.man.ac.uk> wrote:
+>Probably you have modversions enabled (CONFIG_MODVERSION=y). Disable that
+>and try again, or build as modules. 2.4 fixed this problem in the proper
+>way, but I don't know what's going to happen about 2.2 ...
 
-[Roger Crandell]
-> When I boot the machine with the multiprocessor kernel and run
-> iptables, the kernel dumps several pages of hex and the final two
-> lines of output are:
-> 
-> Killing interrupt handler
-> scheduling in interrupt
+I have sent a backport of inter_module_xxx to Alan Cox, he has not
+included it in 2.2 kernels yet, maybe 2.2.19.  When inter_module_xxx is
+available in 2.2, the DRM/AGP change can be backported as well.
 
-Look through the "several pages of hex" for any number in square +
-angle brackets i.e. [<xxxxxxxx>] (particularly the EIP and the stack),
-and write these down.  Then run these numbers through ksymoops.
-
-Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,65 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263153AbTJVBmK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 21:42:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263295AbTJVBmK
+	id S263329AbTJVCQo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 22:16:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263339AbTJVCQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 21:42:10 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:12961 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S263153AbTJVBmH convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 21:42:07 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [PATCHSET] 0/3 Dynamic cpufreq governor and updates to ACPI P-state driver
-Date: Tue, 21 Oct 2003 18:42:03 -0700
-Message-ID: <88056F38E9E48644A0F562A38C64FB60077929@scsmsx403.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCHSET] 0/3 Dynamic cpufreq governor and updates to ACPI P-state driver
-Thread-Index: AcOXrTiWyr2S+aWBRwa9EOZ5/dlxSAAjpmrA
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-       <linux-kernel@vger.kernel.org>
-Cc: <cpufreq@www.linux.org.uk>
-X-OriginalArrivalTime: 22 Oct 2003 01:42:04.0000 (UTC) FILETIME=[B1CDFE00:01C3983D]
+	Tue, 21 Oct 2003 22:16:44 -0400
+Received: from 116.Red-81-38-199.pooles.rima-tde.net ([81.38.199.116]:53843
+	"EHLO falafell.ghetto") by vger.kernel.org with ESMTP
+	id S263329AbTJVCQn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 22:16:43 -0400
+Date: Wed, 22 Oct 2003 04:10:28 +0200
+From: Pedro Larroy <piotr@member.fsf.org>
+To: linux-usb-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: aborts in usb-storage in branch 2.6
+Message-ID: <20031022021028.GA4454@81.38.200.176>
+Reply-To: piotr@member.fsf.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Måns Rullgård
-> 
-> So, how does this work?  I'd like to be able to set minimum and
-> maximum clock frequencies to allow, and CPU utilization thresholds at
-> which to switch frequencies.  Is that possible, or is it work yet to
-> be done?  Adjustable polling interval would also be nice.
-> 
+I experience aborts with external usb hd, that also pause all disk
+operations for some seconds.
 
-Yes. You can set the maximum and minimum allowed frequencies using 
-the standard cpufreq interface. Something like:
-echo 800000 >  /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+It doesn't happen with 2.4.21 kernel.
 
-However, other interfaces to tune this particular governor is not 
-there yet. Other tunables that will be exported to user in future are 
-Polling interval and CPU utilization thresholds.
+Please tell me if I can do anything useful to debug the problem. I can use
+kgdb or other techniques.
 
-> > The patches will work on all laptops with EST technology 
-> > (Centrino) and also on any other system that supports low 
-> > latency frequency change. 
-> 
-> Does Pentium 4 M work?
-
-AFAIK, P4M does not support EST. You can double check with 
-/proc/cpuinfo and look out for EST flag.
+It's getting very annoying since the disk stays for more than 10 seconds
+without responding.
 
 
-Thanks,
--Venkatesh
+usb-storage: usb_stor_control_msg: rq=01 rqtype=02 value=0000 index=88
+len=0
+usb-storage: usb_stor_clear_halt: result = 0
+usb-storage: Attempting to get CSW (2nd try)...
+usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+usb-storage: Status code -32; transferred 0/13
+usb-storage: clearing endpoint halt for pipe 0xc0040280
+usb-storage: usb_stor_control_msg: rq=01 rqtype=02 value=0000 index=88
+len=0
+usb-storage: usb_stor_clear_halt: result = 0
+usb-storage: Bulk status result = 2
+usb-storage: -- transport indicates error, resetting
+usb-storage: usb_stor_Bulk_reset called
+usb-storage: usb_stor_control_msg: rq=ff rqtype=21 value=0000 index=00
+len=0
+[ACPI Debug] String: ==Battery1 _BST==
+[ACPI Debug] String: ==Battery1 _BST==
+b-storage: scsi command aborted
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Command TEST_UNIT_READY (6 bytes)
+usb-storage:  00 00 00 00 00 00
+usb-storage: Bulk Command S 0x43425355 T 0x1162 L 0 F 0 Trg 0 LUN 0 CL 6
+usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+usb-storage: Status code 0; transferred 31/31
+
+
+
+Regards.
+
+-- 
+  Pedro Larroy Tovar  |  piotr%member.fsf.org 
+
+Software patents are a threat to innovation in Europe please check: 
+	http://www.eurolinux.org/     

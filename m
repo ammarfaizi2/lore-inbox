@@ -1,33 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263354AbTECQ4s (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 12:56:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263355AbTECQ4s
+	id S263366AbTECQ74 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 12:59:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263365AbTECQ74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 12:56:48 -0400
-Received: from AMarseille-201-1-2-221.abo.wanadoo.fr ([193.253.217.221]:10792
-	"EHLO gaston") by vger.kernel.org with ESMTP id S263354AbTECQ4s
+	Sat, 3 May 2003 12:59:56 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:21453 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263366AbTECQ7y
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 12:56:48 -0400
-Subject: Re: Reserving an ATA interface
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Sat, 3 May 2003 12:59:54 -0400
+Date: Sat, 3 May 2003 19:12:05 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
        linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Reserving an ATA interface
 In-Reply-To: <1051981168.4107.58.camel@gaston>
-References: <Pine.SOL.4.30.0305031805170.10296-100000@mion.elka.pw.edu.pl>
-	 <1051981168.4107.58.camel@gaston>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1051981705.7818.63.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 03 May 2003 19:08:26 +0200
+Message-ID: <Pine.SOL.4.30.0305031905060.10296-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On 3 May 2003, Benjamin Herrenschmidt wrote:
+
+>
+> > Yesterday I was thinking about:
+> > - default arch hwifs, added/probed in ide_init_defult_hwifs() if no
+> >   IDE PCI/PCI (depends on arch, should be IDE PCI?) support is compiled in
+> > - PCI hwifs
+> > - legacy hwifs probed in ide_setup()
+> > - legacy hwifs probed after PCI
+> > and about ide_register_hw() + initializing flag.
+> >
+> > What a mess... ordering issues can make you crazy.
+>
+> Yup, I'd suggest we think about re-writing all that stuff for 2.7 :)
+
+Yes, only remaining question is how... :-)
+
+> > > The simplest solution I have in mind is to add an hwif flag,
+> > > called "hold" (or whatever better name you find). Drivers like
+> > > ide/ppc/pmac.c would set this flag for the "hotswap" media bay
+> > > interface, and not for others.
+> >
+> > This change is obviously correct and it doesn't have influence on
+> > any existing code.
+> >
+> > > The only change to the core code would then be for ide_register_hw
+> > > to 'skip' those when searching for an available slot, and to call
+> > > init_hwif_data when (!hwif->present && !hwif->hold) to handle case 2
+> > > where the iops & other hwif fields (mmio among others) need to be
+> > > reset to initial/legacy state.
+> >
+> > Less safe change but also okay, as callers .
+> > btw, Can't "ghost ides" be dealed inside ppc specific code?
+> >      Do you know when interface is valid and when it is "ghost",
+> >      and what other OS-es do in this case?
+>
+> Not re-using the slot for an interface with the "hold" bit won't
+> affect anybody but setters of that bit, so we are ok. The act of
+> calling init_hwif_data when !present && !hold is the one bringing
+> a possible change of behaviour to existing code.
+>
+> However, who calls ide_register_hw() dynamically ? ide-cs and ?
+> I don't think there would much harm in re-calling init_hwif_data
+> at this point since hwif->present is not set, we _are_ re-using
+> the hwif, wether it was previously initialized or not by somebody
+> else. In this case, we really want to "clean" it, don't we ?
+
+Yes.
+
+> Right now, the only problem with re-initializing this way that
+> I've found is with hotswap interfaces like ide-pmac, because
+> they will have preset special MMIO ops etc... and that call
+> would revert that pre-setting. That's exactly why such interfaces
+> should set the "hold" bit to "reserve" the hwif slot. You see
+> the point ? I don't think there are much drivers aroung playing
+> with such tricks though.
+>
+> All I can do within ide pmac itself is set or not that "hold"
+> bit for those interfaces. I just need to set it on the hotswap
+> ones (wthr they have devices connected or not) that way they
+> stay around "reserved" for when a device gets plugged. Other
+> "fixed" interfaces will have hwif->present cleared automatically
+> by the probe code, and thus will be "freed" for other uses, if
+> they don't have any device attached.
+> (Which is why that init_hwif_data is needed to reset their hwif
+> to something good default, and not whatever ide pmac have set).
+>
+> In 2.5, I can be slightly smarted since I'm calling the probe
+> myself and no longer rely on the automatic initial probe done
+> by the IDE layer, like for PCI devices, so I can actually
+> "clear" those "empty" interfaces myself after they are probed.
+> But still, it makes sense to have this "hold" flag to let a
+> hotswap interface reserve a slot, and it makes sense when the
+> interface isn't held by anybody to "clean it up" before giving
+> it to somebody else.
+
+Fully agreed.
+
+> The only problem I see right now is for a dynamic interface
+> (like ide-cs) where the _controller_ itself is hotswap, so
+> the hwif slot cannot be reserved in advance _and_ that interface
+> needs special IOps (which is fortunately not the case of ide-cs)
+>
 > Such an interface can't really know what slot will be
 > picked by ide_register_hw() and can't "prepare" the HWIF with
 > special iops, so it won't be much harmed by the fact we are
@@ -37,16 +115,9 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 > things that are currently mixed in bad ways. I don't beleive
 > fixing that fits in the 2.6 timeframe though.
 
-I just though about another possible crap, though I haven't looked
-enough to be sure, but PCI interfaces with no device will trigger
-a similar problem as "empty" ide-pmac interfaces in that sense that
-they will change dma ops, possibly mmio ops, etc.... If they hold
-no device, their hwif->present will not be set, and thus the hwif
-slot can possibly get re-used by thing like ide-cs (or anybody else
-that rely on ide_register_hw() to allocate a new slot) without
-those changes to hwif done by the PCI interface beeing cleared.
+Yeah, to be done, probably 2.7 :\.
+--
+Bartlomiej
 
-So my patch may actually fix some cases there too.
-
-Ben.
+> Ben.
 

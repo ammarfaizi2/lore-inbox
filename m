@@ -1,54 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129675AbRALESW>; Thu, 11 Jan 2001 23:18:22 -0500
+	id <S132608AbRALETx>; Thu, 11 Jan 2001 23:19:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132608AbRALESM>; Thu, 11 Jan 2001 23:18:12 -0500
-Received: from relay1.pair.com ([209.68.1.20]:22276 "HELO relay1.pair.com")
-	by vger.kernel.org with SMTP id <S129675AbRALESE>;
-	Thu, 11 Jan 2001 23:18:04 -0500
-X-pair-Authenticated: 203.164.4.223
-From: "Manfred Bartz" <md-linux-kernel@logi.cc>
-Message-ID: <20010112041630.32368.qmail@logi.cc>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Anyone else interested in a high-precision monotonic counter?
-In-Reply-To: <Pine.BSF.4.21.0012180711330.89819-100000@beppo.feral.com> <3A3E336C.B29BBA89@nortelnetworks.com> <14912.11470.540247.408234@diego.linuxcare.com.au> <3A550AC8.D22D0CE4@nortelnetworks.com> <20010105032900.22980.qmail@logi.cc> <3A55DC2E.9C342224@nortelnetworks.com>
-X-Subversion: anarchy bomb crypto drug explosive fission gun nuclear sex terror
-In-Reply-To: "Christopher Friesen"'s message of "Fri, 05 Jan 2001 09:37:34 -0500"
-Organization: rows-n-columns
-Date: 12 Jan 2001 15:16:30 +1100
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) XEmacs/21.1 (Bryce Canyon)
+	id <S133020AbRALETn>; Thu, 11 Jan 2001 23:19:43 -0500
+Received: from acct2.voicenet.com ([207.103.26.205]:45823 "HELO voicenet.com")
+	by vger.kernel.org with SMTP id <S132608AbRALET2>;
+	Thu, 11 Jan 2001 23:19:28 -0500
+Message-ID: <3A5E85CC.40606@voicefx.com>
+Date: Thu, 11 Jan 2001 23:19:24 -0500
+From: "John O'Donnell" <johnod@voicefx.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; 0.7) Gecko/20010105
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: IDE DMA problems on 2.4.0 with vt82c686a driver
+In-Reply-To: <E14Gj32-0002ND-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Christopher Friesen" <cfriesen@nortelnetworks.com> wrote:
+Alan Cox wrote:
 
-> Manfred Bartz wrote:
+>> us who have via chipset motherboards, suggesting that it is limited 
+>> to that chipset, that chipset is ubiquitous, or via chipset 
+>> motherboard owners are generally the complaining type. no idea which 
+>> applies there, either.
 > 
-> > Why a new system call?
-> Well, you'd be accessing a different kernel variable--"ytime" instead of
-> "xtime". This new variable wouldn't be adjusted when the  system
-> time/date was, it would start at zero and always increase. 
-
-> > have you looked at the return-value of times(2)
-> > Or roll your own using setitimer(2)
 > 
-> Both of these are precise only to jiffies, which defaults at 10
-> milliseconds on x86 and PPC.  If you want microsecond timing, the only
-> current standard way to do it is to use gettimeofday(), which is
-> sensitive to changes in system date and time.
+> Or there are a lot of them. 90% of scsi bug reports I get are adaptec 29xx
+> driver. Thats not because the adaptec 29xx is the most sucky driver 8)
+> 
+> Firstly there are numerous reasons for CRC errors. At ATA100 even the track
+> length and the capacitance of the connectors becomes an issue. It is quite
+> possibly a driver issue. It could even be that specific combination of drives
+> and ide controller is right on the edge of the spec limits and just slightly
+> dipping over. It might be the odd power spike.
+> 
+> Providing the code is working sanely the odd CRC error shouldnt be a 
+> problem and should be causing a command retry. The CRC checking used in ATA
+> is very robust so unlike scsi parity errors which couldnt be ignored ATA
+> ones on occassion are probably fine
+> 
+> ATA100 is another testimony to the fact that pigs can be made to fly given 
+> sufficient thrust (to borrow an RFC)
+> 
+> Alan
 
-Ok.  A monotonic, high resolution timer would be useful.
+I acquired a VIA Mobo (ASUS CUV4X) for home and it is workin pretty damn
+spiffy with Linux - Even better with 2.4.0 with regards to IDE!!!
+Once a month I boot WinDOS to play a game I can't play in Linux, THEN
+my troubles begin!!!
+parport_pc: Via 686A parallel port: io=0x378, irq=7, dma=3
+VP_IDE: VIA vt82c686a IDE UDMA66 controller on pci0:4.1
+etc... etc... etc...
+yadda yadda yadda ....
 
-Maybe one should then push for a full implementation of xtime
-including TIME_MONOTONIC and TIME_TAI?
-
-        <http://www.cl.cam.ac.uk/~mgk25/c-time/>
-        <http://cr.yp.to/time.html>
+Alan,
+My father repaired F-4 Phantoms in Vietnam.  He said the F-4 Phantom was
+proof that if you put enough power behind a brick, it would fly!!!
+Your comment remonded me of that - just had to share  :-)
 
 -- 
-Manfred
+<SomeLamer> what's the difference between chattr and chmod?
+<SomeGuru> SomeLamer: man chattr > 1; man chmod > 2; diff -u 1 2 | less
+	-- Seen on #linux on irc
+=== Never ask a geek why, just nod your head and slowly back away.===
++==============================+====================================+
+| John O'Donnell (Sr. Systems Engineer, Net Admin, Webmaster, etc.) |
+| Voice FX Corporation (a subsidiary of Student Advantage)          |
+| One Plymouth Meeting         |     E-Mail: johnod@voicefx.com     |
+| Suite 610                    |           www.voicefx.com          |
+| Plymouth Meeting, PA 19462   |         www.campusdirect.com       |
++==============================+====================================+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

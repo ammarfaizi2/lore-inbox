@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130634AbQKGMws>; Tue, 7 Nov 2000 07:52:48 -0500
+	id <S130667AbQKGMys>; Tue, 7 Nov 2000 07:54:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130642AbQKGMwi>; Tue, 7 Nov 2000 07:52:38 -0500
-Received: from ns.dce.bg ([212.50.14.242]:33285 "HELO home.dce.bg")
-	by vger.kernel.org with SMTP id <S130634AbQKGMw2>;
-	Tue, 7 Nov 2000 07:52:28 -0500
-Message-ID: <3A07FADF.D886D61F@dce.bg>
-Date: Tue, 07 Nov 2000 14:51:43 +0200
-From: Petko Manolov <petkan@dce.bg>
-Organization: Deltacom Electronics
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en, bg
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "James A. Sutherland" <jas88@cam.ac.uk>, Dan Hollis <goemon@anime.net>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Oliver Xymoron <oxymoron@waste.org>, Keith Owens <kaos@ocs.com.au>,
-        linux-kernel@vger.kernel.org
+	id <S130700AbQKGMyi>; Tue, 7 Nov 2000 07:54:38 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17786 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130642AbQKGMy3>; Tue, 7 Nov 2000 07:54:29 -0500
 Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-In-Reply-To: <E13t7yE-0007MV-00@the-village.bc.nu>
+To: jas88@cam.ac.uk (James A. Sutherland)
+Date: Tue, 7 Nov 2000 12:52:08 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), jas88@cam.ac.uk (James A. Sutherland),
+        goemon@anime.net (Dan Hollis), dwmw2@infradead.org (David Woodhouse),
+        jgarzik@mandrakesoft.com (Jeff Garzik),
+        oxymoron@waste.org (Oliver Xymoron), kaos@ocs.com.au (Keith Owens),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <00110712495300.01753@dax.joh.cam.ac.uk> from "James A. Sutherland" at Nov 07, 2000 12:49:19 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E13t8ET-0007Nw-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+> > eth0	pegasus
+> > nopersist eth0
+> > post-install eth0 /usr/local/sbin/my-dhcp-stuff
 > 
-> > In the NIC example, I might well want the DHCP client to run whenever I
-> > activate the card. Bringing the NIC up with the old configuration - which, with
-> > dynamic IP addresses, could now include someone else's IP address! - is worse
-> > than useless.
-> 
-> You'll notice the pcmcia subsystem already handles this, and keeps data in user
-> space although it doesnt support saving it back. And it all works
-> 
-> In your case it would be something like
-> 
-> eth0    pegasus
-> nopersist eth0
-> post-install eth0 /usr/local/sbin/my-dhcp-stuff
+> So, in short, this is already done perfectly well in userspace without some
+> sort of Registry-style kernelside hack?
 
+Thats the idea. Once the rmmod code can read back values the cycle is complete
+and the kernel doesnt care
 
-Oops! Don't try to do this with pegasus.c older than 0.4.13.
-I have set the ethernet address at open time, which breaks
-dhcpd. I fixed that in test-10, but it's release took a long
-time.
-
-Sorry if the note doesn't make sense, i didn't follow the
-thread from the beginning.
-
-
-	Petkan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

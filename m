@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318542AbSHEOWc>; Mon, 5 Aug 2002 10:22:32 -0400
+	id <S318497AbSHEO2A>; Mon, 5 Aug 2002 10:28:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318541AbSHEOWb>; Mon, 5 Aug 2002 10:22:31 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:51981 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S318542AbSHEOWb>; Mon, 5 Aug 2002 10:22:31 -0400
-Message-ID: <3D4E89D2.7020408@evision.ag>
-Date: Mon, 05 Aug 2002 16:21:06 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
+	id <S318501AbSHEO2A>; Mon, 5 Aug 2002 10:28:00 -0400
+Received: from csmail.cs.ccu.edu.tw ([140.123.101.2]:29200 "EHLO
+	csmail.cs.ccu.edu.tw") by vger.kernel.org with ESMTP
+	id <S318497AbSHEO17>; Mon, 5 Aug 2002 10:27:59 -0400
+Message-ID: <021b01c23c8d$22becc60$74667b8c@edward>
+From: "=?big5?B?RWR3YXJkIFNoYW8gXCiq8qp2sOpcKQ==?=" <szg90@cs.ccu.edu.tw>
+To: <linux-kernel@vger.kernel.org>
+Subject: a question about __down() in Linux/arch/i386/kernel/semaphore.c
+Date: Mon, 5 Aug 2002 22:33:58 +0800
 MIME-Version: 1.0
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IDE udma_status = 0x76 and 2.5.30...
-References: <1264DE104D6@vcnet.vc.cvut.cz>
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="big5"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Petr Vandrovec napisa?:
+Hi,
 
-> PDC20265 works correctly without setting stop-bit in last descriptor
-> for reads, as IDE drive signals no more data, and we stop udma engine
-> manually in such case. But for writes PDC20265 prefetches beyond last 
-> pointer, finds garbage here (probably descriptor crossing 64KB, or
-> odd length or ...), and aborts whole transfer in the middle (about 
-> 4 bytes before end of real write, when it tries to prefetch beginning 
-> of next sector).
+I have a question about __down() in kernel 2.4.18
+(Linux/arch/i386/kernel/semaphore.c)
+I found the last line of __down() is
+wake_up(&sem->wait);
+but in kernel 2.5.28, i didn't see this line..
+is this line necessary in kernel 2.4.18?
+why?
 
-What about inserting a trap pointer there? One which would allow to 
-determine "overflows" fast? However I don't see a way to trigger 
-something as convenient as a simple page fault here.
+Thank you very much.
+
+Best Regard!!!
+
+-Edward Shao-
+
 

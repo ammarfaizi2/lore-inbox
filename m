@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261274AbSIZNM2>; Thu, 26 Sep 2002 09:12:28 -0400
+	id <S261165AbSIZNSa>; Thu, 26 Sep 2002 09:18:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261281AbSIZNM2>; Thu, 26 Sep 2002 09:12:28 -0400
-Received: from holomorphy.com ([66.224.33.161]:26021 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261274AbSIZNM1>;
-	Thu, 26 Sep 2002 09:12:27 -0400
-Date: Thu, 26 Sep 2002 06:17:40 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: Re: 2.5.38-mm3
-Message-ID: <20020926131740.GP3530@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Dipankar Sarma <dipankar@in.ibm.com>,
-	Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
-	"linux-mm@kvack.org" <linux-mm@kvack.org>
-References: <3D92BE07.B6CDFE54@digeo.com> <20020926175445.B18906@in.ibm.com> <20020926122909.GN3530@holomorphy.com> <20020926181052.C18906@in.ibm.com> <20020926124244.GO3530@holomorphy.com> <20020926183558.D18906@in.ibm.com>
+	id <S261177AbSIZNSa>; Thu, 26 Sep 2002 09:18:30 -0400
+Received: from thunk.org ([140.239.227.29]:11168 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S261165AbSIZNS3>;
+	Thu, 26 Sep 2002 09:18:29 -0400
+Date: Thu, 26 Sep 2002 09:23:03 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Ryan Cumming <ryan@completely.kicks-ass.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
+Message-ID: <20020926132303.GB5612@think.thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Ryan Cumming <ryan@completely.kicks-ass.org>,
+	linux-kernel@vger.kernel.org
+References: <E17uINs-0003bG-00@think.thunk.org> <200209252223.13758.ryan@completely.kicks-ass.org> <20020926055755.GA5612@think.thunk.org> <200209260041.59855.ryan@completely.kicks-ass.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-In-Reply-To: <20020926183558.D18906@in.ibm.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+In-Reply-To: <200209260041.59855.ryan@completely.kicks-ass.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 26, 2002 at 05:42:44AM -0700, William Lee Irwin III wrote:
->> This is only aggravated by cacheline bouncing on SMP. The reductions
->> of system cpu time will doubtless be beneficial for all.
+On Thu, Sep 26, 2002 at 12:41:54AM -0700, Ryan Cumming wrote:
+> 
+> Using GCC 2.95.4 seems to stabilize dir_index nicely, both before and after 
+> the hdparm -fD run. Only the kernel was recompiled with 2.95.4, I reused the 
+> original GCC 3.2 compiled e2fsprogs.
+> 
 
-On Thu, Sep 26, 2002 at 06:35:58PM +0530, Dipankar Sarma wrote:
-> On SMP, I would have thought that only sharing the fd table
-> while cloning tasks (CLONE_FILES) affects performance by bouncing the rwlock
-> cache line. Are there a lot of common workloads where this happens ?
-> Anyway the files_struct_rcu patch for 2.5.38 is up at
-> http://sourceforge.net/project/showfiles.php?group_id=8875&release_id=112473
+Thanks for willing to be a Guienea Pig; now I know what to look for.  
 
-It looks very unusual, but it is very real. Some of my prior profile
-results show this. I'll run a before/after profile with this either
-tonight or tomorrow night (it's 6:06AM PST here -- tonight is unlikely).
+I didn't have a chance to answer your question last night about how to
+test it without risking your data, but the answer is that that patch
+doesn't change how ext3 works unless the dir_index feature flag is
+set.  So it would have been safe to boot the patched, kernel, and then
+create a test filesystem in a plain file, and the mount it using the
+loop device:
 
+	dd if=/dev/zero of=test.img bs=1024k count=32
+	mke2fs -f -j test.img
+	mount -o loop test.img /mnt
 
-Cheers,
-Bill
+So I'll take a look at things and try to figure out what GCC bug we
+might be triggering.  It's strange; it's not like the code using
+inline instructions, or anything else that might be triggering a GCC
+bug or discrepancy between how GCC 2.95.4 and GCC 3.2 works.  In fact,
+it's all relatively straightforward C code.
+
+Anyway, thanks.
+
+						- Ted
+

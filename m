@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316783AbSFUU1J>; Fri, 21 Jun 2002 16:27:09 -0400
+	id <S316788AbSFUUhe>; Fri, 21 Jun 2002 16:37:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316786AbSFUU1I>; Fri, 21 Jun 2002 16:27:08 -0400
-Received: from holomorphy.com ([66.224.33.161]:62147 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S316783AbSFUU1E>;
-	Fri, 21 Jun 2002 16:27:04 -0400
-Date: Fri, 21 Jun 2002 13:26:31 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-Cc: Erik McKee <camhanaich99@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: [BUGREPORT] kernel BUG in page_alloc.c:141!
-Message-ID: <20020621202631.GD22961@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Kai Germaschewski <kai-germaschewski@uiowa.edu>,
-	Erik McKee <camhanaich99@yahoo.com>, linux-kernel@vger.kernel.org
-References: <20020621200613.GB22961@holomorphy.com> <Pine.LNX.4.44.0206211521130.14251-100000@chaos.physics.uiowa.edu>
+	id <S316789AbSFUUhd>; Fri, 21 Jun 2002 16:37:33 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:59918 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S316788AbSFUUhc>; Fri, 21 Jun 2002 16:37:32 -0400
+Date: Fri, 21 Jun 2002 22:37:26 +0200
+From: Jurriaan on Alpha <thunder7@xs4all.nl>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.24 doesn't compile on Alpha
+Message-ID: <20020621203726.GA2308@alpha.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+References: <20020621064835.GA13502@alpha.of.nowhere> <000301c2191e$5a4a3080$010b10ac@sbp.uptime.at> <20020621141957.GA22555@alpha.of.nowhere> <20020621192405.A749@jurassic.park.msu.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0206211521130.14251-100000@chaos.physics.uiowa.edu>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+In-Reply-To: <20020621192405.A749@jurassic.park.msu.ru>
+User-Agent: Mutt/1.3.28i
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 21, 2002 at 12:15:28PM -0700, Erik McKee wrote:
->>> Booted 2.5.24, and it ran fine for sometime, before it dead(live) locked,
->>> causing a reboot.  Attempts to reboot were met with the following bug
->>> immediatly after calibrating delay loop, which equates out to an
->>> if(bad_range(buddy1,zone)) BUG; in __free_pages_ok:
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Date: Fri, Jun 21, 2002 at 07:24:05PM +0400
+> On Fri, Jun 21, 2002 at 04:19:57PM +0200, Jurriaan on Alpha wrote:
+> > I tried #define smp_num_cpus 1 in include/asm-alpha/smp.h (the non-smp
+> > section) but the same line in include/asm/mmu_context.h works - for a
+> > while.
+> 
+> I'm running 2.5.24 on sx164 with following (unfinished - SMP is broken)
+> patch.
+> 
+This patchs helps a lot; now I get:
 
-On Fri, 21 Jun 2002, William Lee Irwin III wrote:
->> This looks odd. Can you by any chance disassemble the parts before this?
->> Or better yet, reproduce it with a kernel compiled with -g and objdump
->> --source --disassemble vmlinux to get the disassembly of __free_pages_ok()?
+make[1]: Entering directory `/usr/src/linux-2.5.24/init'
+  Generating /usr/src/linux-2.5.24/include/linux/compile.h (updated)
+  gcc -Wp,-MD,./.version.o.d -D__KERNEL__ -I/usr/src/linux-2.5.24/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-p
+ointer -fno-strict-aliasing -fno-common -pipe -mno-fp-regs -ffixed-8 -mcpu=ev56 -Wa,-mev6 -nostdinc -iwithprefix include    -DKBUILD_
+BASENAME=version   -c -o version.o version.c
+   ld  -r -o init.o main.o version.o do_mounts.o
+make[1]: Leaving directory `/usr/src/linux-2.5.24/init'
+  ld -static -T arch/alpha/vmlinux.lds -N  arch/alpha/kernel/head.o init/init.o --start-group arch/alpha/kernel/kernel.o arch/alpha/m
+m/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o arch/alpha/math-emu/built-in.o /usr/src/linux-2.5.24/arch/alpha/lib/lib.a lib/lib.a
+/usr/src/linux-2.5.24/arch/alpha/lib/lib.a drivers/built-in.o sound/sound.o net/network.o --end-group -o vmlinux
+drivers/built-in.o(.data+0x37118): undefined reference to `local symbols in discarded section .text.exit'
+net/network.o: In function `ip_conntrack_helper_register':
+net/network.o(.text+0x5e68c): undefined reference to `__this_module'
+net/network.o: In function `ip_conntrack_helper_unregister':
+net/network.o(.text+0x5e76c): undefined reference to `__this_module'
+net/network.o: In function `ip_nat_helper_register':
+net/network.o(.text+0x62894): undefined reference to `__this_module'
+net/network.o: In function `ip_nat_helper_unregister':
+net/network.o(.text+0x62b5c): undefined reference to `__this_module'
+make: *** [vmlinux] Error 1
+alpha:/usr/src/linux-2.5.24#
 
-On Fri, Jun 21, 2002 at 03:23:13PM -0500, Kai Germaschewski wrote:
-> "make mm/page_alloc.lst" may simplify this task. However, the usage of the
-> various macros seems to confuse gcc -g / objdump somewhat, so the output
-> isn't as clear as it could be.
-> --Kai
+I'll probably have to fiddle with my .config to solve this.
 
-I've had to work around that before, I'll probably still be able to
-recognize it. It's still a royal PITA.
-
-Cheers,
-Bill
+Thanks,
+Jurriaan
+-- 
+Our music has many faces and many moods like the land we live in.
+It is a fusion of energy and serenity
+        Kansas
+Debian GNU/Linux 2.4.19p10 on Alpha 990 bogomips load:0.54 0.74 0.77

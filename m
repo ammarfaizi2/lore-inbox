@@ -1,36 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbTIXRco (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 13:32:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbTIXRco
+	id S261489AbTIXRoc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 13:44:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbTIXRoc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 13:32:44 -0400
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:12833 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S261566AbTIXRcn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 13:32:43 -0400
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200309241732.h8OHWj05015957@green.mif.pg.gda.pl>
-Subject: Re: Minimizing the Kernel
-To: linux-kernel@vger.kernel.org (kernel list)
-Date: Wed, 24 Sep 2003 19:32:45 +0200 (CEST)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	Wed, 24 Sep 2003 13:44:32 -0400
+Received: from hera.kernel.org ([63.209.29.2]:12712 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261489AbTIXRob (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 13:44:31 -0400
+To: linux-kernel@vger.kernel.org
+From: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Can we kill f inb_p, outb_p and other random I/O on port 0x80, in 2.6?
+Date: Wed, 24 Sep 2003 10:43:39 -0700
+Organization: OSDL
+Message-ID: <bksl4b$d6b$1@build.pdx.osdl.net>
+References: <20030922153651.16497.qmail@science.horizon.com> <m1brtck6wq.fsf@ebiederm.dsl.xmission.com> <20030922215432.GE29869@mail.jlokier.co.uk> <bkq44o$f47$1@gatekeeper.tmr.com>
+Reply-To: torvalds@osdl.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7Bit
+X-Trace: build.pdx.osdl.net 1064425419 13515 172.20.1.2 (24 Sep 2003 17:43:39 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Wed, 24 Sep 2003 17:43:39 +0000 (UTC)
+User-Agent: KNode/0.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Well for starters dont use gcc 3 or above.. code size has increased
-> > dramatically with thoose versions. sure they give you more optimization
-> Hmm, has anyone tried -Os with gcc3+ ?
-> Maybe that'd be good for size optimization?
+bill davidsen wrote:
+>
+> Isn't one of the benefits of a rethink not to use any i/o bus cycles?
 
-AFAIK, the -Os optimization in gcc3 gives you larger binary than -Os in
-gcc2.
+I wouldn't worry about the bloat as much as I do about synchronization.
 
--- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Gdansk University of Technology
+Doing an IO to an ISA device not just causes a delay, but tends to actually
+force the PCI forwarding buffers to flush. 
+
+Of course, IOIO shouldn't be buffered anyway, and if we wanted to flush
+stuff we'd actually be better with a read, so..
+
+But what we _could_ do is to make "inb_p()" be more like this
+
+        #define inb_p(port) ({ unsigned char val; \
+                asm volatile("call __inb_p" \
+                        :"=a" (val) \
+                        :"d" ((unsigned short)(port))); \
+                val; })
+
+where we call to an out-of-line function with a magic calling convention (so
+that it doesn't flush the register state like a normal call would).
+
+That would likely shrink the code, and it would mean that we could more
+easily play with what we do in the delay case (including deciding the code
+at boot-time).
+
+Anybody want to try that?
+
+                Linus

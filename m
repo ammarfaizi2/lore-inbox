@@ -1,111 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261850AbTJGHQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 03:16:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbTJGHQZ
+	id S261863AbTJGHRo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 03:17:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTJGHRo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 03:16:25 -0400
-Received: from [212.123.215.12] ([212.123.215.12]:2576 "EHLO dmx.imc.nl")
-	by vger.kernel.org with ESMTP id S261850AbTJGHQX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 03:16:23 -0400
-Message-ID: <3F82682E.1030409@imc.nl>
-Date: Tue, 07 Oct 2003 09:15:58 +0200
-From: Roelf Schreurs <rosc@imc.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030425
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: mptbase module problem on 2.6
-X-Enigmail-Version: 0.74.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Tue, 7 Oct 2003 03:17:44 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:64437 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261863AbTJGHRn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 03:17:43 -0400
+Date: Tue, 7 Oct 2003 12:47:16 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Patrick Mochel <mochel@osdl.org>, Greg KH <gregkh@us.ibm.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Dipankar Sarma <dipankar@in.ibm.com>
+Subject: Re: [RFC 2/6] sysfs-mount.patch
+Message-ID: <20031007071716.GC9036@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <20031006085915.GE4220@in.ibm.com> <20031006090003.GF4220@in.ibm.com> <20031006090030.GG4220@in.ibm.com> <20031006134320.GP7665@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20031006134320.GP7665@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Mon, Oct 06, 2003 at 02:43:20PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Mon, Oct 06, 2003 at 02:30:30PM +0530, Maneesh Soni wrote:
+> > @@ -692,6 +693,10 @@ do_kern_mount(const char *fstype, int fl
+> >  	mnt->mnt_mountpoint = sb->s_root;
+> >  	mnt->mnt_parent = mnt;
+> >  	up_write(&sb->s_umount);
+> > +
+> > +	if (!strcmp(fstype, "sysfs"))
+> > +		sysfs_mount = mnt;
+> > +
+> >  	put_filesystem(type);
+> >  	return mnt;
+> >  out_sb:
+> 
+> That's too ugly for words.  Vetoed.  Sorry, but *that* will not fly.
 
-I'm having trouble with the mptbase module.
-This is what I do and the error I get.
+Yeah.. that was not meant to fly.. and I didnot pushed the patches on runway
+and to any of the Air Traffic Controllers..(tree maintainers) :-).. 
 
-xconfig - Fusion MPT device support - all is selected as modules
-make bzImage
-make modules
-...
- CC [M]  drivers/message/fusion/mptbase.o
- CC [M]  drivers/message/fusion/mptscsih.o
- CC [M]  drivers/message/fusion/mptctl.o
- CC      drivers/message/fusion/mptbase.mod.o
- LD [M]  drivers/message/fusion/mptbase.ko
- CC      drivers/message/fusion/mptctl.mod.o
- LD [M]  drivers/message/fusion/mptctl.ko
- CC      drivers/message/fusion/mptscsih.mod.o
- LD [M]  drivers/message/fusion/mptscsih.ko
-...
-make modules_install
-...
-depmod:         mpt_register_ascqops_strings
-depmod:         mpt_deregister_ascqops_strings
-depmod: *** Unresolved symbols in
-/lib/modules/2.6.0-test6/kernel/drivers/message/fusion/mptctl.ko
+I will get rid of sysfs_mount.
 
-depmod:         mpt_free_fw_memory
-depmod:         mpt_reset_deregister
-depmod:         mpt_free_msg_frame
-depmod:         mpt_register
-depmod:         mpt_HardResetHandler
-depmod:         mpt_put_msg_frame
-depmod:         mpt_add_sge
-depmod:         mpt_GetIocState
-depmod:         mpt_alloc_fw_memory
-depmod:         mpt_reset_register
-depmod:         mpt_verify_adapter
-depmod:         mpt_send_handshake_request
-depmod:         mpt_deregister
-depmod:         mpt_get_msg_frame
-depmod:         mpt_config
-depmod: *** Unresolved symbols in
-/lib/modules/2.6.0-test6/kernel/drivers/message/fusion/mptscsih.ko
-
-depmod:         mpt_adapter_find_first
-depmod:         mpt_print_ioc_summary
-depmod:         mpt_reset_deregister
-depmod:         mpt_event_deregister
-depmod:         mpt_free_msg_frame
-depmod:         mpt_register
-depmod:         mpt_HardResetHandler
-depmod:         mpt_put_msg_frame
-depmod:         mpt_v_ASCQ_TablePtr
-depmod:         mpt_add_sge
-depmod:         mpt_read_ioc_pg_3
-depmod:         mpt_ASCQ_TableSz
-depmod:         mpt_GetIocState
-depmod:         mpt_adapter_find_next
-depmod:         mpt_reset_register
-depmod:         mpt_event_register
-depmod:         mpt_ScsiOpcodesPtr
-depmod:         mpt_send_handshake_request
-depmod:         mpt_deregister
-depmod:         mpt_get_msg_frame
-depmod:         mpt_config
-
-INSTALL drivers/message/fusion/mptbase.ko
-...
-
-mkinitrd /boot/initrd-2.6.0-test6 2.6.0-test6
-([root@magelhaen kernel2.6]# ls -l /lib/modules/
-total 4
-drwxr-xr-x    4 root     root         1024 Oct  3 19:49 2.4.18-3
-drwxr-xr-x    4 root     root         1024 Oct  6 12:44 2.4.18-3debug
-drwxr-xr-x    4 root     root         1024 Oct  3 19:49 2.4.18-3smp
-drwxr-xr-x    3 root     root         1024 Oct  7 09:01 2.6.0-test6
-)
-
-No module mptbase found for kernel 2.6.0-test6 - This is the problem.
-
-using linux-2.6.0-test6.tar on Red Hat Linux release 7.3 (Valhalla)
-
+Maneesh
 -- 
-Roelf Schreurs
-
+Maneesh Soni
+Linux Technology Center, 
+IBM Software Lab, Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-5044999 Fax: 91-80-5268553
+T/L : 9243696

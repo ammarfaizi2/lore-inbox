@@ -1,31 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266718AbRHJJm7>; Fri, 10 Aug 2001 05:42:59 -0400
+	id <S266808AbRHJKRs>; Fri, 10 Aug 2001 06:17:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266806AbRHJJmt>; Fri, 10 Aug 2001 05:42:49 -0400
-Received: from office.mandrakesoft.com ([195.68.114.34]:57582 "HELO
-	giants.mandrakesoft.com") by vger.kernel.org with SMTP
-	id <S266718AbRHJJmq>; Fri, 10 Aug 2001 05:42:46 -0400
-To: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
-Cc: Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org
-Subject: Re: using bug reports on vendor kernels
-In-Reply-To: <200108092131.f79LV4Hr024656@webber.adilger.int>
-	<01080923423801.04822@idun>
-From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
-Date: 10 Aug 2001 11:42:52 +0200
-In-Reply-To: <01080923423801.04822@idun> (Oliver Neukum's message of "Thu, 9 Aug 2001 23:42:38 +0200")
-Message-ID: <m3n1585jz7.fsf@giants.mandrakesoft.com>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.104
+	id <S266864AbRHJKRi>; Fri, 10 Aug 2001 06:17:38 -0400
+Received: from relay01.cablecom.net ([62.2.33.101]:39948 "EHLO
+	relay01.cablecom.net") by vger.kernel.org with ESMTP
+	id <S266808AbRHJKRU>; Fri, 10 Aug 2001 06:17:20 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Christian Widmer <cwidmer@iiic.ethz.ch>
+Reply-To: cwidmer@iiic.ethz.ch
+To: linux-kernel@vger.kernel.org
+Subject: scsi subsystem doc
+Date: Fri, 10 Aug 2001 12:17:27 +0200
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <01081012172701.00645@asterix>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de> writes:
+hi 
+im looking for some documentation about the scsi subsystem in 
+kernel 2.4. i found some realy incomplete documentations about
+the old one and some words about differences between the old
+one and the new one. but that all dont help. i'm looking for docs
+that describe the the internals since i'm planing to write a scsi 
+driver for a NIC.
 
-> It might do so. However the speed of my internet connectivity would make this 
-> a very, very slow task.
-> And the day after having completed that I'd be bound to get a bug report from 
-> a Mandrake user.
-
-https://kenobi.mandrakesoft.com/cgi-bin/viewcvs.cgi/SPECS/kernel/
+thanks for any hints

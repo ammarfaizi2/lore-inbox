@@ -1,58 +1,74 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314629AbSDTOYi>; Sat, 20 Apr 2002 10:24:38 -0400
+	id <S314628AbSDTPH4>; Sat, 20 Apr 2002 11:07:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314631AbSDTOYh>; Sat, 20 Apr 2002 10:24:37 -0400
-Received: from moutvdomng1.kundenserver.de ([212.227.126.181]:51662 "EHLO
-	moutvdomng1.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S314629AbSDTOYg>; Sat, 20 Apr 2002 10:24:36 -0400
-Message-ID: <3CC17A1D.20901@ngforever.de>
-Date: Sat, 20 Apr 2002 08:24:29 -0600
-From: Thunder from the hill <thunder@ngforever.de>
-Organization: The LuckyNet Administration
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.9+) Gecko/20020405
-X-Accept-Language: en-us, en
+	id <S314630AbSDTPHz>; Sat, 20 Apr 2002 11:07:55 -0400
+Received: from ar6-101i.dial-up.arnes.si ([194.249.1.101]:260 "EHLO
+	tedi.linux.rules") by vger.kernel.org with ESMTP id <S314628AbSDTPHy>;
+	Sat, 20 Apr 2002 11:07:54 -0400
+Date: Sat, 20 Apr 2002 17:06:05 +0200 (CEST)
+From: Andrej Lajovic <andrej.lajovic@guest.arnes.si>
+To: linux-kernel@vger.kernel.org
+cc: alan@redhat.com
+Subject: kd.h patch for keyboard LEDs
+Message-ID: <Pine.LNX.4.40.0204201651320.3755-100000@tedi.linux.rules>
 MIME-Version: 1.0
-To: "Trever L. Adams" <tadams-lists@myrealbox.com>
-CC: Christian Schoenebeck <christian.schoenebeck@epost.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: power off (again)
-In-Reply-To: <20020418201220.C6D6247B1@debian.heim.lan> <1019163766.6743.8.camel@aurora>
-Content-Type: multipart/mixed;
- boundary="------------010601090103070308090000"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010601090103070308090000
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Hello!
 
-Hi,
+While playing around with ioctls for keyboard LEDs, I noticed the
+following thing: if you just want to set the LEDs on or off, everything
+works normally. But if you try to actually change the state of
+Num/Caps/Scrolllock flags, you get the following:
 
-Trever L. Adams wrote:
-> I can't remember where you make this change on RedHat
+ioctl(0, KDSKBLED, K_SCROLLLOCK) -> ScrollLock led is lit
+ioctl(0, KDSKBLED, K_CAPSLOCK)   -> NumLock led is lit (!)
+ioctl(0, KDSKBLED, K_NUMLOCK)    -> CapsLock led is lit (!)
 
-Should be /etc/rc.d/init.d/halt. See appended patch.
+When I browsed the kd.h file (kernel 2.4.18) again, I noticed that the
+definitions for *Lock flags are probably mistyped:
 
-Regards,
-Thunder
--- 
-                                                   Thunder from the hill.
-Not a citizen of any town.                   Not a citizen of any state.
-Not a citizen of any country.               Not a citizen of any planet.
-                          Citizen of our universe.
+#define         K_SCROLLLOCK    0x01
+#define         K_CAPSLOCK      0x02
+#define         K_NUMLOCK       0x04
 
---------------010601090103070308090000
-Content-Type: text/plain;
- name="halt.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="halt.diff"
+while the definitions for LEDs (which _do_ work) look like this:
 
-LS0tIC9ldGMvcmMuZC9pbml0LmQvaGFsdAlNb24gTWFyIDE4IDA2OjI3OjM3IDIwMDIKKysr
-IC9ldGMvcmMuZC9pbml0LmQvaGFsdH4JU2F0IEFwciAyMCAwODoyMDowMCAyMDAyCkBAIC0y
-MzQsMyArMjM0LDMgQEAKIAotSEFMVEFSR1M9Ii1pIC1kIC1wIgorSEFMVEFSR1M9Ii1pIC1k
-IgogaWYgWyAtZiAvaGFsdCBdOyB0aGVuCg==
---------------010601090103070308090000--
+#define         LED_SCR         0x01    /* scroll lock led */
+#define         LED_CAP         0x04    /* caps lock led */
+#define         LED_NUM         0x02    /* num lock led */
+
+People on the local LUG mailing list also confirmed the bug, so I am
+sending a small patch to correct it.
+
+-----------kd.h_patch-------------------
+--- 2.4.18/include/linux/kd.h	Thu Nov 22 20:47:07 2001
++++ 2.4.18-k_fix/include/linux/kd.h	Fri Apr 12 11:47:44 2002
+@@ -26,8 +26,8 @@
+ #define KDGETLED	0x4B31	/* return current led state */
+ #define KDSETLED	0x4B32	/* set led state [lights, not flags] */
+ #define 	LED_SCR		0x01	/* scroll lock led */
+-#define 	LED_CAP		0x04	/* caps lock led */
+ #define 	LED_NUM		0x02	/* num lock led */
++#define 	LED_CAP		0x04	/* caps lock led */
+
+ #define KDGKBTYPE	0x4B33	/* get keyboard type */
+ #define 	KB_84		0x01
+@@ -89,8 +89,8 @@
+ #define KDSKBMETA	0x4B63	/* sets meta key handling mode */
+
+ #define		K_SCROLLLOCK	0x01
+-#define		K_CAPSLOCK	0x02
+-#define		K_NUMLOCK	0x04
++#define		K_NUMLOCK	0x02
++#define		K_CAPSLOCK	0x04
+ #define	KDGKBLED	0x4B64	/* get led flags (not lights) */
+ #define KDSKBLED	0x4B65	/* set led flags (not lights) */
+----------end-kd.h_patch-----------------end
+
+Kind regards,
+Andrej Lajovic
 

@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313083AbSEYAWC>; Fri, 24 May 2002 20:22:02 -0400
+	id <S313113AbSEYAfq>; Fri, 24 May 2002 20:35:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313087AbSEYAWB>; Fri, 24 May 2002 20:22:01 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38418 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S313083AbSEYAWA>; Fri, 24 May 2002 20:22:00 -0400
-Subject: Re: [RFC] POSIX personality
-To: jw@pegasys.ws (jw schultz)
-Date: Sat, 25 May 2002 01:38:37 +0100 (BST)
-Cc: torvalds@transmeta.com (Linus Torvalds), davidsen@tmr.com (Bill Davidsen),
-        dmccr@us.ibm.com (Dave McCracken),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <20020524170207.C9600@pegasys.ws> from "jw schultz" at May 24, 2002 05:02:07 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S313114AbSEYAfp>; Fri, 24 May 2002 20:35:45 -0400
+Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:54150 "EHLO
+	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
+	id <S313113AbSEYAfo>; Fri, 24 May 2002 20:35:44 -0400
+Date: Fri, 24 May 2002 17:35:40 -0700 (PDT)
+From: Wayne Whitney <whitney@math.berkeley.edu>
+Reply-To: whitney@math.berkeley.edu
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: AMD 760MP vs AMD 760MPX -ac kernel support
+Message-ID: <Pine.LNX.4.44.0205241711490.21993-100000@mf1.private>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17BPZt-0007jK-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It seems to me that the biggest issue here is maintaining
-> POSIX behavior without having to modify application source
-> every time the flag set changes.
+Hello,
 
-I don't think that is a big problem. Think about how it evolves over time
+Since Alan Cox has a machine with the AMD 760MPX chipset (AMD 762
+northbridge and AMD 768 southbridge), the -ac kernel tree contains support
+for various AMD 760MPX functionality:
+
+arch/i386/kernel/pci-irq.c	AMD 768 IRQ Router
+drivers/char/amd768_rng.c	AMD 768 Random Number Generator
+driver/char/amd768_pm.c		AMD 762/768 Power Management
+drivers/sound/i810_audio.c	AMD 768 AC97 Audio
+
+I was wondering which of this functionality might also exist in the 760MP
+chipset (AMD 762 northbridge and AMD 766 southbridge).  According to its
+datasheet, the AMD 766 does not have a RNG or AC97 Audio.  But what about
+the IRQ Router and Power Management support, should these work on the AMD
+766?  If so, should it be possible to support the AMD 766 by just adding
+entries to the PCI device tables in each file?
+
+Thanks,
+Wayne
 
 
-App calls pthread_foo   libpthreads/ngpt does all the work by emulation
-
-	Add CLONE_somefoo
-
-App calls pthread_foo	libpthreads/ngpt does all the work by emulation
-			and doesnt set the flag
-
-	New libpthreads
-
-App calls pthread_foo	libpthreads/ngpt uses the kernel assists
-
-
-
-
-The behaviour is good - it means that the new kernel/old library setup won't
-break the emulation gunge by suddenely providing precise semantics itself

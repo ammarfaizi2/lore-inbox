@@ -1,123 +1,355 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266305AbUGTVb4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264419AbUGTXEp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266305AbUGTVb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 17:31:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266310AbUGTVb4
+	id S264419AbUGTXEp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 19:04:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266207AbUGTXEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 17:31:56 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:43411 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266305AbUGTVbw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 17:31:52 -0400
-Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel
-	Preemption Patch
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-audio-dev@music.columbia.edu, arjanv@redhat.com,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040720121905.GG1651@suse.de>
-References: <1089673014.10777.42.camel@mindpipe>
-	 <20040712163141.31ef1ad6.akpm@osdl.org>
-	 <1089677823.10777.64.camel@mindpipe>
-	 <20040712174639.38c7cf48.akpm@osdl.org>
-	 <1089687168.10777.126.camel@mindpipe>
-	 <20040712205917.47d1d58b.akpm@osdl.org>
-	 <1089705440.20381.14.camel@mindpipe> <20040719104837.GA9459@elte.hu>
-	 <1090301906.22521.16.camel@mindpipe> <20040720061227.GC27118@elte.hu>
-	 <20040720121905.GG1651@suse.de>
-Content-Type: text/plain
-Message-Id: <1090359127.28175.64.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 20 Jul 2004 17:32:08 -0400
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Jul 2004 19:04:44 -0400
+Received: from web53805.mail.yahoo.com ([206.190.36.200]:5767 "HELO
+	web53805.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264419AbUGTXEb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 19:04:31 -0400
+Message-ID: <20040720230431.72586.qmail@web53805.mail.yahoo.com>
+Date: Tue, 20 Jul 2004 16:04:31 -0700 (PDT)
+From: Carl Spalletta <cspalletta@yahoo.com>
+Subject: [PATCH] remove 55 dead prototypes from include/acpi/acdisasm.h
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: en.brown@intel.com, acpi-devel@lists.sourceforge.net
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-07-20 at 08:19, Jens Axboe wrote:
-> On Tue, Jul 20 2004, Ingo Molnar wrote:
-> > > How much I/O do you allow to be in flight at once?  It seems like by
-> > > decreasing the maximum size of I/O that you handle in one interrupt
-> > > you could improve this quite a bit.  Disk throughput is good enough,
-> > > anyone in the real world who would feel a 10% hit would just throw
-> > > hardware at the problem.
-> > 
-> > i'm not sure whether this particular value (max # of sg-entries per IO
-> > op) is runtime tunable. Jens? Might make sense to enable elvtune-alike
-> > tunability of this value.
-> 
-> elvtune is long dead :-)
-> 
-> it's not tweakable right now, but if you wish to experiment you just
-> need to add a line to ide-disk.c:idedisk_setup() - pseudo patch:
-> 
-> +	blk_queue_max_sectors(drive->queue, 32);
-> +
-> 	printk("%s: max request size: %dKiB\n", drive->name, drive->queue->max_sectors / 2);
-> 
-> 	/* Extract geometry if we did not already have one for the drive */
-> 
-> above will limit max request to 16kb, experiment as you see fit.
+This patch removes 55 prototypes of nonexistent functions.
 
-I will give this a try.
+N.B.
+ Due to my inability to cut and paste the tab chars embedded in file to be patched (they are
+ picked up as sequences of spaces), you must either a) 'unexpand --first-only' the enclosed patch
+ to recover the tab chars from the original file, or b) apply with 'patch --ignore-whitespace'.
+ The latter option can't hurt since we are only removing lines from the file, not adding.
 
-Using 2.6.8-rc1-mm1, with La Monte H. P. Yarroll's patch to daemonize
-softirqs, running two jackds (one in the playback direction, one in
-capture, to work around an issue with the emu10k1 driver) with 2 periods
-of 32 frames (666 usec), I am no longer seeing any XRUNS at all once the
-jackd processes are up and running.  I tried stressing the filesystem by
-recompiling ALSA while running a 'du /' and a 'find / -ls'.  The
-scheduling jitter peaks occasionally at around 100000 CPU cycles (166
-usecs) every few seconds, but this is as high as it goes.
+Signed-off-by: Carl Spalletta <cspalletta@yahoo.com>
 
-This is as good or better than a 2.4 kernel with the low latency
-patches.
+diff -ru /usr/src/linux-2.6.7-orig/include/acpi/acdisasm.h
+/usr/src/linux-2.6.7-new/include/acpi/acdisasm.h
+--- /usr/src/linux-2.6.7-orig/include/acpi/acdisasm.h   2004-06-15 22:19:26.000000000 -0700
++++ /usr/src/linux-2.6.7-new/include/acpi/acdisasm.h    2004-07-18 20:10:42.000000000 -0700
+@@ -86,317 +86,14 @@
+        u32                                 level,
+        void                                *context);
 
-I do not have voluntary preemption enabled, as I do not have a version
-of the patch that corresponds to this kernel.
+-
+-/*
+- * dmwalk
+- */
+-
+-void
+-acpi_dm_walk_parse_tree (
+-       union acpi_parse_object         *op,
+-       asl_walk_callback               descending_callback,
+-       asl_walk_callback               ascending_callback,
+-       void                            *context);
+-
+-acpi_status
+-acpi_dm_descending_op (
+-       union acpi_parse_object         *op,
+-       u32                             level,
+-       void                            *context);
+-
+-acpi_status
+-acpi_dm_ascending_op (
+-       union acpi_parse_object         *op,
+-       u32                             level,
+-       void                            *context);
+-
+-
+-/*
+- * dmopcode
+- */
+-
+-void
+-acpi_dm_validate_name (
+-       char                            *name,
+-       union acpi_parse_object         *op);
+-
+-u32
+-acpi_dm_dump_name (
+-       char                            *name);
+-
+-void
+-acpi_dm_unicode (
+-       union acpi_parse_object         *op);
+-
+-void
+-acpi_dm_disassemble (
+-       struct acpi_walk_state          *walk_state,
+-       union acpi_parse_object         *origin,
+-       u32                             num_opcodes);
+-
+-void
+-acpi_dm_namestring (
+-       char                            *name);
+-
+-void
+-acpi_dm_display_path (
+-       union acpi_parse_object         *op);
+-
+-void
+-acpi_dm_disassemble_one_op (
+-       struct acpi_walk_state          *walk_state,
+-       struct acpi_op_walk_info        *info,
+-       union acpi_parse_object         *op);
+-
+-void
+-acpi_dm_decode_internal_object (
+-       union acpi_operand_object       *obj_desc);
+-
+-u32
+-acpi_dm_block_type (
+-       union acpi_parse_object         *op);
+-
+-u32
+-acpi_dm_list_type (
+-       union acpi_parse_object         *op);
+-
+-acpi_status
+-acpi_ps_display_object_pathname (
+-       struct acpi_walk_state          *walk_state,
+-       union acpi_parse_object         *op);
+-
+-void
+-acpi_dm_method_flags (
+-       union acpi_parse_object         *op);
+-
+-void
+-acpi_dm_field_flags (
+-       union acpi_parse_object         *op);
+-
+-void
+-acpi_dm_address_space (
+-       u8                              space_id);
+-
+-void
+-acpi_dm_region_flags (
+-       union acpi_parse_object         *op);
+-
+-void
+-acpi_dm_match_op (
+-       union acpi_parse_object         *op);
+-
+-void
+-acpi_dm_match_keyword (
+-       union acpi_parse_object         *op);
+-
+-u8
+-acpi_dm_comma_if_list_member (
+-       union acpi_parse_object         *op);
+-
+-void
+-acpi_dm_comma_if_field_member (
+-       union acpi_parse_object         *op);
+-
+-
+ /*
+  * dmobject
+  */
 
-The only XRUNS I still get seem related to ioctl() and mlockall().  
-These both cause an XRUN in one jackd process when starting another:
+ void
+-acpi_dm_decode_node (
+-       struct acpi_namespace_node      *node);
+-
+-void
+-acpi_dm_display_internal_object (
+-       union acpi_operand_object       *obj_desc,
+-       struct acpi_walk_state          *walk_state);
+-
+-void
+-acpi_dm_display_arguments (
+-       struct acpi_walk_state          *walk_state);
+-
+-void
+-acpi_dm_display_locals (
+-       struct acpi_walk_state          *walk_state);
+-
+-void
+ acpi_dm_dump_method_info (
+        acpi_status                     status,
+        struct acpi_walk_state          *walk_state,
+        union acpi_parse_object         *op);
 
-Jul 20 16:25:46 mindpipe kernel: ALSA /home/rlrevell/cvs/alsa-driver/alsa-kernel/core/pcm_lib.c:169: XRUN: pcmC0D0p
-Jul 20 16:25:46 mindpipe kernel:  [dump_stack+23/32] dump_stack+0x17/0x20
-Jul 20 16:25:46 mindpipe kernel:  [__crc_totalram_pages+115469/3518512] snd_pcm_period_elapsed+0x2c7/0x400 [snd_pcm]
-Jul 20 16:25:46 mindpipe kernel:  [__crc_totalram_pages+291773/3518512] snd_emu10k1_interrupt+0x337/0x3c0 [snd_emu10k1]
-Jul 20 16:25:46 mindpipe kernel:  [handle_IRQ_event+51/96] handle_IRQ_event+0x33/0x60
-Jul 20 16:25:46 mindpipe kernel:  [do_IRQ+161/320] do_IRQ+0xa1/0x140
-Jul 20 16:25:46 mindpipe kernel:  [common_interrupt+24/32] common_interrupt+0x18/0x20
-Jul 20 16:25:46 mindpipe kernel:  [do_anonymous_page+124/384] do_anonymous_page+0x7c/0x180
-Jul 20 16:25:46 mindpipe kernel:  [do_no_page+78/784] do_no_page+0x4e/0x310
-Jul 20 16:25:46 mindpipe kernel:  [handle_mm_fault+193/368] handle_mm_fault+0xc1/0x170
-Jul 20 16:25:46 mindpipe kernel:  [get_user_pages+337/960] get_user_pages+0x151/0x3c0
-Jul 20 16:25:46 mindpipe kernel:  [make_pages_present+104/144] make_pages_present+0x68/0x90
-Jul 20 16:25:46 mindpipe kernel:  [mlock_fixup+141/176] mlock_fixup+0x8d/0xb0
-Jul 20 16:25:46 mindpipe kernel:  [do_mlockall+112/144] do_mlockall+0x70/0x90
-Jul 20 16:25:46 mindpipe kernel:  [sys_mlockall+150/160] sys_mlockall+0x96/0xa0
-Jul 20 16:25:46 mindpipe kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Jul 20 16:25:46 mindpipe kernel: IRQ: delay =  9213566 cycles, jitter = 8820554
-
-Jul 20 16:54:02 mindpipe kernel: ALSA /home/rlrevell/cvs/alsa-driver/alsa-kernel/core/pcm_lib.c:169: XRUN: pcmC0D2c
-Jul 20 16:54:02 mindpipe kernel:  [dump_stack+23/32] dump_stack+0x17/0x20
-Jul 20 16:54:02 mindpipe kernel:  [__crc_totalram_pages+115469/3518512] snd_pcm_period_elapsed+0x2c7/0x400 [snd_pcm]
-Jul 20 16:54:02 mindpipe kernel:  [__crc_totalram_pages+291159/3518512] snd_emu10k1_interrupt+0xd1/0x3c0 [snd_emu10k1]
-Jul 20 16:54:02 mindpipe kernel:  [handle_IRQ_event+51/96] handle_IRQ_event+0x33/0x60
-Jul 20 16:54:02 mindpipe kernel:  [do_IRQ+161/320] do_IRQ+0xa1/0x140
-Jul 20 16:54:02 mindpipe kernel:  [common_interrupt+24/32] common_interrupt+0x18/0x20
-Jul 20 16:54:02 mindpipe kernel:  [__crc_totalram_pages+86289/3518512] snd_pcm_hw_rule_div+0x4b/0x60 [snd_pcm]
-Jul 20 16:54:02 mindpipe kernel:  [__crc_totalram_pages+77959/3518512] snd_pcm_hw_refine+0x371/0x4a0 [snd_pcm]
-Jul 20 16:54:02 mindpipe kernel:  [__crc_totalram_pages+111312/3518512] snd_pcm_hw_param_mask+0x3a/0x50 [snd_pcm]
-Jul 20 16:54:02 mindpipe kernel:  [__crc_totalram_pages+882570/3518512] snd_pcm_oss_change_params+0xf4/0x850 [snd_pcm_oss]
-Jul 20 16:54:02 mindpipe kernel:  [__crc_totalram_pages+884572/3518512] snd_pcm_oss_get_active_substream+0x76/0x90 [snd_pcm_oss]
-Jul 20 16:54:02 mindpipe kernel:  [__crc_totalram_pages+888499/3518512] snd_pcm_oss_get_formats+0x1d/0x120 [snd_pcm_oss]
-Jul 20 16:54:02 mindpipe kernel:  [__crc_totalram_pages+888796/3518512] snd_pcm_oss_set_format+0x26/0x60 [snd_pcm_oss]
-Jul 20 16:54:02 mindpipe kernel:  [__crc_totalram_pages+894737/3518512] snd_pcm_oss_ioctl+0x49b/0x740 [snd_pcm_oss]
-Jul 20 16:54:02 mindpipe kernel:  [sys_ioctl+256/608] sys_ioctl+0x100/0x260
-Jul 20 16:54:02 mindpipe kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Jul 20 16:54:02 mindpipe kernel: IRQ: delay =  6702030 cycles, jitter = 6302828
-
-Lee
-
-
+-
+-/*
+- * dmbuffer
+- */
+-
+-void
+-acpi_is_eisa_id (
+-       union acpi_parse_object         *op);
+-
+-void
+-acpi_dm_eisa_id (
+-       u32                             encoded_id);
+-
+-u8
+-acpi_dm_is_unicode_buffer (
+-       union acpi_parse_object         *op);
+-
+-u8
+-acpi_dm_is_string_buffer (
+-       union acpi_parse_object         *op);
+-
+-
+-/*
+- * dmresrc
+- */
+-
+-void
+-acpi_dm_disasm_byte_list (
+-       u32                             level,
+-       u8                              *byte_data,
+-       u32                             byte_count);
+-
+-void
+-acpi_dm_byte_list (
+-       struct acpi_op_walk_info        *info,
+-       union acpi_parse_object         *op);
+-
+-void
+-acpi_dm_resource_descriptor (
+-       struct acpi_op_walk_info        *info,
+-       u8                              *byte_data,
+-       u32                             byte_count);
+-
+-u8
+-acpi_dm_is_resource_descriptor (
+-       union acpi_parse_object         *op);
+-
+-void
+-acpi_dm_indent (
+-       u32                             level);
+-
+-void
+-acpi_dm_bit_list (
+-       u16                             mask);
+-
+-void
+-acpi_dm_decode_attribute (
+-       u8                              attribute);
+-
+-/*
+- * dmresrcl
+- */
+-
+-void
+-acpi_dm_io_flags (
+-               u8                          flags);
+-
+-void
+-acpi_dm_memory_flags (
+-       u8                              flags,
+-       u8                              specific_flags);
+-
+-void
+-acpi_dm_word_descriptor (
+-       struct asl_word_address_desc    *resource,
+-       u32                             length,
+-       u32                             level);
+-
+-void
+-acpi_dm_dword_descriptor (
+-       struct asl_dword_address_desc   *resource,
+-       u32                             length,
+-       u32                             level);
+-
+-void
+-acpi_dm_qword_descriptor (
+-       struct asl_qword_address_desc   *resource,
+-       u32                             length,
+-       u32                             level);
+-
+-void
+-acpi_dm_memory24_descriptor (
+-       struct asl_memory_24_desc       *resource,
+-       u32                             length,
+-       u32                             level);
+-
+-void
+-acpi_dm_memory32_descriptor (
+-       struct asl_memory_32_desc       *resource,
+-       u32                             length,
+-       u32                             level);
+-
+-void
+-acpi_dm_fixed_mem32_descriptor (
+-       struct asl_fixed_memory_32_desc *resource,
+-       u32                             length,
+-       u32                             level);
+-
+-void
+-acpi_dm_generic_register_descriptor (
+-       struct asl_general_register_desc *resource,
+-       u32                             length,
+-       u32                             level);
+-
+-void
+-acpi_dm_interrupt_descriptor (
+-       struct asl_extended_xrupt_desc *resource,
+-       u32                             length,
+-       u32                             level);
+-
+-void
+-acpi_dm_vendor_large_descriptor (
+-       struct asl_large_vendor_desc    *resource,
+-       u32                             length,
+-       u32                             level);
+-
+-
+-/*
+- * dmresrcs
+- */
+-
+-void
+-acpi_dm_irq_descriptor (
+-       struct asl_irq_format_desc      *resource,
+-       u32                             length,
+-       u32                             level);
+-
+-void
+-acpi_dm_dma_descriptor (
+-       struct asl_dma_format_desc      *resource,
+-       u32                             length,
+-       u32                             level);
+-
+-void
+-acpi_dm_io_descriptor (
+-       struct asl_io_port_desc         *resource,
+-       u32                             length,
+-       u32                             level);
+-
+-void
+-acpi_dm_fixed_io_descriptor (
+-       struct asl_fixed_io_port_desc   *resource,
+-       u32                             length,
+-       u32                             level);
+-
+-void
+-acpi_dm_start_dependent_descriptor (
+-       struct asl_start_dependent_desc *resource,
+-       u32                             length,
+-       u32                             level);
+-
+-void
+-acpi_dm_end_dependent_descriptor (
+-       struct asl_start_dependent_desc *resource,
+-       u32                             length,
+-       u32                             level);
+-
+-void
+-acpi_dm_vendor_small_descriptor (
+-       struct asl_small_vendor_desc    *resource,
+-       u32                             length,
+-       u32                             level);
+-
+-
+ #endif  /* __ACDISASM_H__ */
 

@@ -1,119 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263803AbUDFN0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 09:26:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263807AbUDFN0Q
+	id S263810AbUDFNcG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 09:32:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263813AbUDFNcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 09:26:16 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:51448 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S263803AbUDFN0N
+	Tue, 6 Apr 2004 09:32:06 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:28172 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263810AbUDFNcC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 09:26:13 -0400
-Content-Type: text/plain;
-  charset="CP 1252"
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: Sergiy Lozovsky <serge_lozovsky@yahoo.com>,
-       Timothy Miller <miller@techsource.com>
+	Tue, 6 Apr 2004 09:32:02 -0400
+Date: Tue, 6 Apr 2004 15:32:46 +0200
+To: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
 Subject: Re: kernel stack challenge
-Date: Tue, 6 Apr 2004 08:25:35 -0500
-X-Mailer: KMail [version 1.2]
-Cc: Chris Wright <chrisw@osdl.org>, John Stoffel <stoffel@lucent.com>,
-       Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-References: <20040405234957.69998.qmail@web40509.mail.yahoo.com>
-In-Reply-To: <20040405234957.69998.qmail@web40509.mail.yahoo.com>
-MIME-Version: 1.0
-Message-Id: <04040608253500.31915@tabby>
-Content-Transfer-Encoding: 8bit
+Message-ID: <20040406133246.GA19091@hh.idb.hist.no>
+References: <40712952.6040100@aitel.hist.no> <20040405170537.94432.qmail@web40513.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040405170537.94432.qmail@web40513.mail.yahoo.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 April 2004 18:49, Sergiy Lozovsky wrote:
-> --- Timothy Miller <miller@techsource.com> wrote:
-> > Sergiy Lozovsky wrote:
-> > > LSM use another way of doing similar things :-)
-> >
-> > I'm
-> >
-> > > not sure that it is nice to forward system calls
-> >
-> > back
-> >
-> > > to userspace where they came from in the first
-> >
-> > place
-> >
-> > > :-) VXE use high level language to create security
-> > >
-> > > models.
-> >
-> > "Kernel space -> user space -> kernel space" is
->
-> To be more precise "user space -> kernel space -> user
-> space -> kernel space -> user space"
->
-> against ordinary "user space -> kernel space -> user
-> space"
->
-> So, what happens - task makes system calls and blocks;
-> request goes to a user space security server. Will it
-> process request right away? No, it will wait for
-> scheduler to chose it for execution. Ok server got CPU
-> and returns results to the kernel. Will initial task
-> continue? No, it will wait for be chosen by scheduler.
-> This is what I call overhead (though i understand,
-> that can be wrong). My system (VXE) doesn't involve
-> scheduler at all.
+On Mon, Apr 05, 2004 at 10:05:37AM -0700, Sergiy Lozovsky wrote:
+> > Consider rewriting your function to use allocated
+> > memory instead of stack, this isn't all that hard.
+> 
+> I put LISP interpreter inside the Kernel -
+> http://vxe.quercitron.com
+> 
+> It works, but it use a lot of stack memory. It's
+> impossible to rewrite it easily, though I'll
+> investigate why exactly it uses so much of stack
+> memory (though it's nature of LISP). There are no
+> serious kernel memory allocation (as of my interpreter
+> code review, only function calls; recursions in LISP
+> application itself are eliminated for sure), but I'll
+> trace stack usage more thouroughly.
+> 
+Consider this.  We're currently experimenting with a
+transition from 8k to 4k stacks on x86, and that is
+considered a very good thing.  Allocating a single-
+page stack is easy, two (contigous) pages might fail.
 
-Depends on what the requirement is. In some cases you
-MUST do this - otherwise the tables required for making
-the decision would be WAY too large for the kernel.
+So a bigger kernel stack is out.
 
-Some models even require reference to remote hosts
-for validation. The current Kerberos authentication
-requires this. So do AFS requests.
+As for rewriting code so it doesn't use stack - it
+_is_ easy, but it might be a lot of _work_.
 
-Other requests can be satisfied by a cached table entry
-without waiting.
+The simple approach is to replace all (big) stack
+allocations with an explicit stack structure that you manages
+on the heap. There'll be more code, but it won't be slower
+because all the extra code is stuff that happen automatically
+with the hw stack. (I.e. stuff the compiler normally take
+care of.)
 
-> So we should not just look into length of this chain
-> at the picture. - "user space -> kernel space -> user
-> space -> kernel space -> user space" - we should
-> remember that it involves to mandatory task switches
-> to accomplish jus one system call.
+There is some more work if your interpreter also does deep recursion.
+It involves making one big function of those that do the recursion
+and manage the "calls" yourself with an array and a switch statement.
+Again, not particularly hard, but it could take some time to implement.
 
-It only depends on the request. If the entire security
-context is local, then this is not required.
-
-> > nothing compared to the
-> > overhead of a LISP interpreter.
->
-> LISP code, is very small actually. And nobody can just
-> kill it. I know it's not a real protection, but intent
-> was to place a security system in such place where it
-> will be more protected by itself. I placed additional
-> security mechanisms in the place where designers of
-> UNIX placed theirs (file permissions an so on) - in
-> the kernel.
-
-LISP code (if compiled machine code) IS small. LISP
-VM is not - when you combine it with the lisp code,
-the heap management, and garbage collector. And you
-can STILL have memory leaks out the wazoo. To prevent
-the memory leaks you have to have a mark and sweep GC.
-Which still doesn't prevent circular loop leaks. Then
-you need a memory pool allocator to relocate all valid
-references. The combination is NOT small. BTW, the JVM
-suffers from circular loop leaks too, since all it uses
-is reference counting (for speed).
-
-> > Doing interpretation of LISP is a monster compared
-> > to some piddly
-> > context switches.
->
-> When people say LISP they mean Common LISP, which is a
-> monster and I agree with you. VXE uses stripped down
-> version of LISP and syntax of LISP is far simpler than
-> C for example.
-
-No - they mean the VM + garbage collector + error handler +
-the lisp pcode.
+Helge Hafting  

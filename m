@@ -1,84 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbVCUSFe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261407AbVCUSIn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261341AbVCUSFe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 13:05:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVCUSFc
+	id S261407AbVCUSIn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 13:08:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261394AbVCUSIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 13:05:32 -0500
-Received: from fmr24.intel.com ([143.183.121.16]:9188 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261341AbVCUSFV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 13:05:21 -0500
-Date: Mon, 21 Mar 2005 10:04:57 -0800
-From: Rajesh Shah <rajesh.shah@intel.com>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       pcihpd-discuss@lists.sourceforge.net, akpm@osdl.org,
-       len.brown@intel.com, tony.luck@intel.com, dely.l.sy@intel.com
-Subject: Re: [RFC/Patch 0/12] ACPI based root bridge hot-add
-Message-ID: <20050321100457.A4477@unix-os.sc.intel.com>
-Reply-To: Rajesh Shah <rajesh.shah@intel.com>
-References: <20050318133856.A878@unix-os.sc.intel.com> <20050319051331.GC21485@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050319051331.GC21485@suse.de>; from gregkh@suse.de on Fri, Mar 18, 2005 at 09:13:32PM -0800
+	Mon, 21 Mar 2005 13:08:42 -0500
+Received: from nijmegen.renzel.net ([195.243.213.130]:43664 "EHLO
+	mx1.renzel.net") by vger.kernel.org with ESMTP id S261407AbVCUSI0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 13:08:26 -0500
+From: Mws <mws@twisted-brains.org>
+To: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2/2] SquashFS
+Date: Mon, 21 Mar 2005 19:08:40 +0100
+User-Agent: KMail/1.8
+References: <20050314170653.1ed105eb.akpm@osdl.org> <423727BD.7080200@grupopie.com> <20050321101441.GA23456@elf.ucw.cz>
+In-Reply-To: <20050321101441.GA23456@elf.ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2651774.BZUJQqAiiK";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200503211908.46602.mws@twisted-brains.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 18, 2005 at 09:13:32PM -0800, Greg KH wrote:
-> 
-> This all looks very good, nice job.  I only had one minor comment on the
-> patches, which I'll reply to directly.
-> 
-> But I did have a few questions:
-> 	- This series relys on Mathew's rewrite of the acpiphp driver.
-> 	  Is that acceptable?  Is that patch necessary for your work?
-> 	  And if so, can you include it in the whole series?
+--nextPart2651774.BZUJQqAiiK
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-The last patch (12) in the series is the only one that depends on
-Matthew's acpiphp rewrite.  I do have a really old version of my
-patch that worked with the original acpiphp code base but this
-version is cleaner. I could probably resurrect my old patch if you
-want, but I'd rather prefer to work on and fix any other objections
-you or others may have with Matthew's re-write, since that's the 
-better overall approach.
+hi everybody, hi pavel
 
-> 	- Does this break the i386 acpiphp functionality?
+>On Monday 21 March 2005 11:14, you wrote:
+> Hi!
+>=20
+> > >Also, this filesystem seems to do the same thing as cramfs.  We'd need=
+ to
+> > >understand in some detail what advantages squashfs has over cramfs to
+> > >justify merging it.  Again, that is something which is appropriate to =
+the
+> > >changelog for patch 1/1.
+> >=20
+> > Well, probably Phillip can answer this better than me, but the main=20
+> > differences that affect end users (and that is why we are using SquashF=
+S=20
+> > right now) are:
+> >                           CRAMFS          SquashFS
+> >=20
+> > Max File Size               16Mb               4Gb
+> > Max Filesystem Size        256Mb              4Gb?
+>=20
+> So we are replacing severely-limited cramfs with also-limited
+> squashfs... For live DVDs etc 4Gb filesystem size limit will hurt for
+> sure, and 4Gb file size limit will hurt, too. Can those be fixed?
+>=20
+> 								Pavel
+no - squashfs _is_ indeed an advantage for embedded systems in
+comparison to cramfs. why does everybody think about huge systems=20
+with tons of ram, cpu power whatever - there are also small embedded systems
+which have real small resources.=20
 
-Dely Sy had tested hotplug with an earlier version of my patches
-(with minor differences from the current series) on i386 and it
-worked fine. She probably hasn't tested the latest one. Dely,
-could you check that please? The i386 hotplug capable box I
-have doesn't seem to have the right firmware, so I haven't 
-been able to test hotplug on that (I'm working on fixing that).
-Of course, I tested my patches on i386 (ACPI as well as non-ACPI)
-and x86_64 machines to make sure I didn't break boot on those.
+some notes maybe parts are OT - but imho it must be said someday
+
+=2D reviewing the code is absolutely ok.=20
+=2D adding comments helps the coder and also the users to understand=20
+  _how_ kernel coding is to be meant
+
+=2D but why can't people just stop to blame every really good thing?
+
+in this case it means:
+	of course cramfs and squashfs are to different solutions for saving data
+	in embedded environments like set-top-boxes, pda, ect., but there is=20
+        a need for having inventions as higher compression rates or more da=
+ta security.=20
+=09
+in other cases that means:
+       of course there are finished network drivers from Syskonnect/Marvel/=
+Yukon=20
+       for the GBit network interfaces.=20
+       Also they were send to the ml. but nearly the same thing happened to=
+ them
+       reviewing the code, critics, and rejection of their code.=20
+=20
+this all ends up in not supported hardware - or - someday supported hardwar=
+e cause
+somebody is in reel need of those features and just publishes the patches o=
+nline like a=20
+DIY-Patchset for different kernel versions.=20
+
+Hasn't it been the aim of linux to run on different architectures, support =
+lots of filesystems,=20
+partition types, network adapters, bus-systems whatever?=20
+
+but if there is a contribution from the outside - it is not taken "as is" a=
+nd maybe fixed up, which
+should be nearly possible in the same time like analysing and commenting th=
+e code - it ends up
+in having less supported hardware.=20
+
+imho if a hardware company does indeed provide us with opensource drivers, =
+we should take these
+things as a gift, not as a "not coding guide a'like" intrusion which has to=
+ be defeated.
+
+ready to take your comments :)
+
+regards
+marcel
 
 
-> 	- Have you tested other pci hotplug systems with this patch
-> 	  series?  Like pci express hotplug, standard pci hotplug,
-> 	  cardbus, etc?
 
-No, because I the one system I have access to isn't doing any
-hot-plug. I'm working on fixing that but was also hoping to hear
-from others who surely have access to more machines than I do.
+--nextPart2651774.BZUJQqAiiK
+Content-Type: application/pgp-signature
 
-> 	- Are you wanting the acpi specific patches to go into the tree
-> 	  through the acpi developers?  How about the ia64 specific
-> 	  patches?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-I honestly don't know what the best approach is here - what do you
-recommend? I did receive an email from Andrew indicating he wants
-to pick these up for the next mm. Perhaps the best thing is to
-let Andrew include the whole series after I've addressed all
-feedback and you, Tony, Len etc. all agree these are OK to go in.
+iD8DBQBCPw2uPpA+SyJsko8RAma+AJ9NjEOPqGVXCuORxKGEEn/uTQIsHQCg349+
+bafuIy+TkOpXxjkNelmO6uc=
+=gzEJ
+-----END PGP SIGNATURE-----
 
-> 	- Have the acpi developers agreed with your acpi patches?
-> 
-This is the first time I sent the patches to the acpi list, so I do
-need to give them a few days to weigh in. 
-
-Rajesh
-
+--nextPart2651774.BZUJQqAiiK--

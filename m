@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284037AbRLXVXF>; Mon, 24 Dec 2001 16:23:05 -0500
+	id <S285347AbRLXVfQ>; Mon, 24 Dec 2001 16:35:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285337AbRLXVW4>; Mon, 24 Dec 2001 16:22:56 -0500
-Received: from colorfullife.com ([216.156.138.34]:42508 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S284037AbRLXVWp>;
-	Mon, 24 Dec 2001 16:22:45 -0500
-Message-ID: <003301c18cc1$2aa7eeb0$010411ac@local>
-From: "Manfred Spraul" <manfred@colorfullife.com>
-To: "Frank van Maarseveen" <F.vanMaarseveen@inter.NL.net>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <002101c18cb7$f575b3c0$010411ac@local> <20011224215615.A22826@iapetus.localdomain>
-Subject: Re: <=2.4.17 deadlock (RedHat 7.2, SMP, ext3 related?) (2)
-Date: Mon, 24 Dec 2001 22:22:53 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S285352AbRLXVfG>; Mon, 24 Dec 2001 16:35:06 -0500
+Received: from pD9E576B5.dip.t-dialin.net ([217.229.118.181]:17930 "EHLO
+	Marvin.DL8BCU.ampr.org") by vger.kernel.org with ESMTP
+	id <S285347AbRLXVfC>; Mon, 24 Dec 2001 16:35:02 -0500
+Date: Mon, 24 Dec 2001 21:34:52 +0000
+From: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
+To: jbglaw@lug-owl.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Data sitting and remaining in Send-Q
+Message-ID: <20011224213452.A7761@Marvin.DL8BCU.ampr.org>
+Reply-To: dl8bcu@dl8bcu.de
+Mail-Followup-To: jbglaw@lug-owl.de, linux-kernel@vger.kernel.org
+In-Reply-To: <20011224211726.H2461@lug-owl.de> <1062462662.1009226676@[195.224.237.69]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <1062462662.1009226676@[195.224.237.69]>; from linux-kernel@alex.org.uk on Mon, Dec 24, 2001 at 08:44:37PM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Frank van Maarseveen" <F.vanMaarseveen@inter.NL.net>
+On Mon, Dec 24, 2001 at 08:44:37PM -0000, Alex Bligh - linux-kernel wrote:
+> > That would give a different result: "functional TCP connections" or
+> > "non-functional TCP connections". Mine are between that. If data gets
+> > sent in small chunks, everything is fine, but if it's a larger
+> > transfer (more than one ethernet frame may transport???), write()
+> > stalls (or non-blocking write returns), but data is kept in
+> > Send-Q rather than being sent down to the client.
 > 
-> 0xc03fe0b1 <stext_lock+7289>: cmpb   $0x0,0xc05dd400
-> 0xc03fe0b8 <stext_lock+7296>: repz nop 
-> 0xc03fe0ba <stext_lock+7298>: jle    0xc03fe0b1 <stext_lock+7289>
-> 0xc03fe0bc <stext_lock+7300>: jmp    0xc013fde0 <get_chrfops+240>
+> Just to check the completely obvious:
+> 
+[...]
+> 
+> If you have an L3 device (router etc.) in the middle, you can get
+> a similar effect if the device does not fragment data correctly
+> (for instance the Cisco into ip tunnels bug - now fixed I think),
+> or, if you are using PMTU discovery (probably), if some evil device,
 
-I assume 0xd05dd400 is kernel_flag.
+Jan,
+do you have some DSL Modem in between?
 
-> 0xc0403068 <stext_lock+27696>: cmpb   $0x0,0xc057d540
-> 0xc040306f <stext_lock+27703>: repz nop 
-> 0xc0403071 <stext_lock+27705>: jle    0xc0403068 <stext_lock+27696>
-> 0xc0403073 <stext_lock+27707>: jmp    0xc0292df0 <ppp_destroy_interface+68>
+Thorsten
 
-And 0xc057d540 is all_ppp_lock.
-
-The only obvious abuse is that both ppp_destroy_interface and ppp_create_interface
-call rtnl_lock (that's a semaphore) with the spinlock acquired.
-
---
-    Manfred
-
+-- 
+| Thorsten Kranzkowski        Internet: dl8bcu@dl8bcu.de                      |
+| Mobile: ++49 170 1876134       Snail: Niemannsweg 30, 49201 Dissen, Germany |
+| Ampr: dl8bcu@db0lj.#rpl.deu.eu, dl8bcu@marvin.dl8bcu.ampr.org [44.130.8.19] |

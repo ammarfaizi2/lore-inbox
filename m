@@ -1,118 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270496AbTHJSRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 14:17:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270530AbTHJSRQ
+	id S270608AbTHJSem (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 14:34:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270617AbTHJSem
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 14:17:16 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:61444 "EHLO
-	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S270496AbTHJSRN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 14:17:13 -0400
-Message-ID: <3F368BC4.BEB892E3@SteelEye.com>
-Date: Sun, 10 Aug 2003 14:15:32 -0400
-From: Paul Clements <Paul.Clements@SteelEye.com>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.13 i686)
-X-Accept-Language: en
+	Sun, 10 Aug 2003 14:34:42 -0400
+Received: from pop015pub.verizon.net ([206.46.170.172]:57545 "EHLO
+	pop015.verizon.net") by vger.kernel.org with ESMTP id S270608AbTHJSek
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 14:34:40 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None that appears to be detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test3 does Oops: as soon as penguin is onscreen
+Date: Sun, 10 Aug 2003 14:34:38 -0400
+User-Agent: KMail/1.5.1
 MIME-Version: 1.0
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4.22-pre] nbd: fix race conditions
-References: <200308101706.h7AH6Hd21642@oboe.it.uc3m.es>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308101434.38753.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at pop015.verizon.net from [151.205.63.55] at Sun, 10 Aug 2003 13:34:39 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Peter T. Breuer" wrote:
-> 
-> In article <iKef.8c1.15@gated-at.bofh.it> you wrote:
-> > This patch is similar to one I posted yesterday for 2.6. It fixes the
-> > following race conditions in nbd:
-> >
-> > 1) adds locking and properly orders the code in NBD_CLEAR_SOCK to
-> > eliminate races with other code
-> 
-> This is not so clear as for the 2.6 code.
+Oops: 0000 [#1]
+cpu:  0
+EIP:  0060:[<c02056ac>]	Not tainted
+EFLAGS: 0010286
+EID: is at acpi_register_driver+0x38/0x62
+eax: c04ac32c	ebx: 00000000	ecx: c03dd5450	edx: 00000296
+esi: c040ee018	edi: 00000000	ebp: c152ff90	esp: c152ff84
+ds:  007b	es: 00yb	ss: 0068
+process_swapper pid:1, threadinfo=c152e0000 task=c152d880
+stack: c0496414 00000001 00000000 c1529ffc c01ea955 c040ec18 c152ffa8 c01e8c29
+       c0496414 c152ffb8 c047c029 c03a0e80 c03964d4 c046c77c c152ffcc 
+       c012d732 c038887d c152e000 00000000 c152ffec c0105066 00000000 c0105070
+call trace:
+[<c01ea955>] acpiphp_glue_init+0x025/0x030
+[<c01e8c29>] init_acpi+0x9/0x30
+[<c047c029>] acpiphp_init+0x29/0x40
+[<c046c77e>] do_initcalls+0x2c/0xa0
+[<c012d732>] init_workqueues+0x12/0x60
+[<c01050a6>] init+0x36/0x190
+[<c0105070>] init+0x0/0x190
+[<c0107259>] kernel_thread_helper+0x5/0xc
+code: 8b 03 0f 18 00 90 81 ff 24 03 4a 00 74 18 ff 73 08 ff 56 04
+<0> kernel panic:Attempted to kill init!
+------------
+It took me about 20 minutes and 3 reboots to get all that because 
+the screen kept blanking, and I see that I missed getting one
+sequence of the stack trace in the 2nd line.  Minor squawk,
 
-Sure it is. We have to NULL the socket and file before trying to clear
-the queue, otherwise we're racing against do_nbd_request, which is
-filling the queue.
+but what have I done wrong other than turn acpi on, which works
+just fine for 2.4.22-rc2?
 
+Here is a grep of the .config for ACPI
+# Power management options (ACPI, APM)
+# ACPI Support
+CONFIG_ACPI=y
+# CONFIG_ACPI_HT_ONLY is not set
+CONFIG_ACPI_BOOT=y
+# CONFIG_ACPI_SLEEP is not set
+# CONFIG_ACPI_AC is not set
+# CONFIG_ACPI_BATTERY is not set
+CONFIG_ACPI_BUTTON=y
+# CONFIG_ACPI_FAN is not set
+# CONFIG_ACPI_PROCESSOR is not set
+# CONFIG_ACPI_ASUS is not set
+# CONFIG_ACPI_TOSHIBA is not set
+# CONFIG_ACPI_DEBUG is not set
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_HOTPLUG_PCI_ACPI=y
+CONFIG_SERIAL_8250_ACPI=y
 
-> There's no ref_count in the
-> 2.4 request struct, so you have no standard way to mark a request as
-> in-flight, and hence no standard way to get clr_queue to skip it for the
+Thanks for any hints you can throw my way.
 
-Correct. This patch does not protect against one particular race that
-the 2.6 patch does, namely the one that ref_count protects us from.
-There is no ref_count in 2.4, so another workaround would have to be
-employed to fix that race...I don't know if it's worth fixing in 2.4 at
-this point...it's a very small window, and there's no really clean fix.
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 
-
-> > 2) adds an lo->sock check to nbd_clear_que to eliminate races between
-> > do_nbd_request and nbd_clear_que, which resulted in the dequeuing of
-> > active requests
-> >
-> > 3) adds an lo->sock check to NBD_DO_IT to eliminate races with
-> > NBD_CLEAR_SOCK, which caused an Oops when "nbd-client -d" was called
-> >
-> 
-> All these are for the same thing - the metadataraces.
-
-No, actually 2), above, fixes one of the races between sending requests
-and freeing them. It disallows nbd_clear_que before the socket has been
-NULLed.
-
-
-> > -             file = lo->file;
-> > -             if (!file) {
-> > -                     spin_unlock(&lo->queue_lock);
-> > -                     return -EINVAL;
-> > +                     printk(KERN_ERR "nbd: disconnect: some requests are in progress -> please try again.\n");
-> > +                     error = -EBUSY;
-> >               }
-> 
-> ... it looks as though if the queue is nonempty, we now still return
-> busy. So what you did was remove the test on lo->file. Now we don't
-> care about the lo->file state. Why?
-
-We don't care about lo->file since we really just want NBD_CLEAR_SOCK to
-cleanup as best it can. There's no harm in running this on a device that
-has lo->file NULL anyway, since the device would be inactive at that
-point. 
-
-Also, the reordering of the code actually makes it impossible to hit the
-"queue not empty" case now. do_nbd_request will not queue a request if
-lo->file is NULL.
- 
-
-> >       case NBD_CLEAR_QUE:
-> > +             down(&lo->tx_lock);
-> > +             if (lo->sock) {
-> > +                     up(&lo->tx_lock);
-> > +                     return 0; /* probably should be error, but that would
-> > +                                * break "nbd-client -d", so just return 0 */
-> > +             }
-> > +             up(&lo->tx_lock);
-> 
-> You don't clear queue while lo->sock is nonzero. This means that one
-> must have cleared socket beforehand.
-
-Yes, clearing the queue while the device is still active is racy, so we
-disallow it. 
-
- 
-> I don't see any race conditions going away. Except possibly a race
-> between set sock and clear sock to set lo->sock. The setting of
-> lo->file is also a little more atomic now, and that's OK. But surely
-> the race condition you cured in 2.6 was not this at all, but a race
-> between clearing the queue and doing the requests?
-
-3 of 4 race conditions that were fixed in the 2.6 patch are fixed here.
-As I said above, fixing the 4th is not simple, and may not be worth it
-at this point for 2.4.
-
---
-Paul

@@ -1,93 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbVANMSx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261966AbVANMWn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261964AbVANMSx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 07:18:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261966AbVANMSx
+	id S261966AbVANMWn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 07:22:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbVANMWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 07:18:53 -0500
-Received: from tornado.reub.net ([60.234.136.108]:41936 "EHLO tornado.reub.net")
-	by vger.kernel.org with ESMTP id S261964AbVANMSt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 07:18:49 -0500
-Message-Id: <6.2.0.14.2.20050115011704.01da8ec8@tornado.reub.net>
-X-Mailer: QUALCOMM Windows Eudora Version 6.2.0.14
-Date: Sat, 15 Jan 2005 01:18:46 +1300
-To: Andrew Morton <akpm@osdl.org>
-From: Reuben Farrelly <reuben-lkml@reub.net>
-Subject: Re: Breakage with raid in 2.6.11-rc1-mm1 [Regression in mm]
-Cc: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>
-In-Reply-To: <20050114035852.3b5ff1a3.akpm@osdl.org>
-References: <6.2.0.14.2.20050114233439.01cbb8d8@tornado.reub.net>
- <20050114035852.3b5ff1a3.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Fri, 14 Jan 2005 07:22:43 -0500
+Received: from lakermmtao04.cox.net ([68.230.240.35]:17833 "EHLO
+	lakermmtao04.cox.net") by vger.kernel.org with ESMTP
+	id S261966AbVANMWl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 07:22:41 -0500
+In-Reply-To: <20050114120101.GA29859@pazke>
+References: <71216E5F-5F6C-11D9-B39F-000393ACC76E@mac.com> <20050114120101.GA29859@pazke>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <FBD27F98-6626-11D9-A56D-000393ACC76E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: Russell King <rmk+serial@arm.linux.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH] [2.6] Clean up useless 8250 siig functions and header
+Date: Fri, 14 Jan 2005 07:22:40 -0500
+To: Andrey Panin <pazke@donpac.ru>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:58 a.m. 15/01/2005, Andrew Morton wrote:
->Reuben Farrelly <reuben-lkml@reub.net> wrote:
-> >
-> > Something seems to have broken with 2.6.11-rc1-mm1, which worked ok with
-> > 2.6.10-mm3.
-> >
-> > NET: Registered protocol family 17
-> > Starting balanced_irq
-> > BIOS EDD facility v0.16 2004-Jun-25, 2 devices found
-> > md: Autodetecting RAID arrays.
-> > md: autorun ...
-> > md: ... autorun DONE.
-> > VFS: Waiting 19sec for root device...
-> > VFS: Waiting 18sec for root device...
-> > VFS: Waiting 17sec for root device...
-> > VFS: Waiting 16sec for root device...
-> > VFS: Waiting 15sec for root device...
-> > VFS: Waiting 14sec for root device...
-> > VFS: Waiting 13sec for root device...
-> > VFS: Waiting 12sec for root device...
-> > VFS: Waiting 11sec for root device...
-> > VFS: Waiting 10sec for root device...
-> > VFS: Waiting 9sec for root device...
-> > VFS: Waiting 8sec for root device...
-> > VFS: Waiting 7sec for root device...
-> > VFS: Waiting 6sec for root device...
-> > VFS: Waiting 5sec for root device...
-> > VFS: Waiting 4sec for root device...
-> > VFS: Waiting 3sec for root device...
-> > VFS: Waiting 2sec for root device...
-> > VFS: Waiting 1sec for root device...
-> > VFS: Cannot open root device "md2" or unknown-block(0,0)
-> > Please append a correct "root=" boot option
-> > Kernel panic - not syncing: VFS: Unable to mount root fs on 
-> unknown-block(0,0)
-> >
-> > The system is running 5 RAID-1 partitions, and md2 is the root as per
-> > grub.conf.  Problem seems to be that raid autodetection finds no raid
-> > partitions :(
-> >
-> > The two ST380013AS SATA drives are detected earlier in the boot, so I 
-> don't
-> > think that's the problem..
+On Jan 14, 2005, at 07:01, Andrey Panin wrote:
+> On 005, 01 05, 2005 at 05:52:14PM -0500, Kyle Moffett wrote:
+>> This removes two simple siig functions that should just be integrated
+>> into the calling code.
 >
->hm, the only raidy thing we have in there is the below.  Maybe you could
->try reverting that?
->
->
->--- 25/drivers/md/raid5.c~raid5-overlapping-read-hack   2005-01-09 
->22:20:40.211246912 -0800
->+++ 25-akpm/drivers/md/raid5.c  2005-01-09 22:20:40.216246152 -0800
->@@ -232,6 +232,7 @@ static struct stripe_head *__find_stripe
->  }
->
->  static void unplug_slaves(mddev_t *mddev);
->+static void raid5_unplug_device(request_queue_t *q);
->
->  static struct stripe_head *get_active_stripe(raid5_conf_t *conf, 
-> sector_t sector,
->                                              int pd_idx, int noblock)
+> Good idea, wrong patch. You deleted wrapper code, but actual init
+> functions left not exported for use by parport_serial module.
+> Even worse, they are left static, so monilithic kernel build will
+> not work too :/
 
-It's not that patch...with it reverted as above, it I'm still seeing the 
-same problem.  I'll give a generic 2.6.11-rc1 a try and see if the problem 
-is in there also.
+Oops, sorry!
 
-Reuben
+> Did you compiled the kernel with your patch applied ?
+
+Yes, but I think I managed to lose some changes somewhere in the
+process of managing my patchset.
+
+> Please use attached patch instead.
+
+Thanks,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
+
 

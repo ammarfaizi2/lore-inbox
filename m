@@ -1,69 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261850AbTLTXiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Dec 2003 18:38:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbTLTXgv
+	id S261825AbTLTXi5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 18:38:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbTLTXi5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Dec 2003 18:36:51 -0500
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:3758 "EHLO
+	Sat, 20 Dec 2003 18:38:57 -0500
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:4526 "EHLO
 	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S261825AbTLTXgh convert rfc822-to-8bit (ORCPT
+	id S261825AbTLTXhk convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Dec 2003 18:36:37 -0500
+	Sat, 20 Dec 2003 18:37:40 -0500
 MIME-Version: 1.0
 To: torvalds@osdl.org, marcelo.tosatti@cyclades.com.br
-Subject: BK-kernel-tools/shortlog update
-Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de, samel@mail.cz
+Subject: lk-changelog.pl 0.206
+Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de
 From: Matthias Andree <matthias.andree@gmx.de>
-Content-ID: <Sat_Dec_20_23_36_27_UTC_2003_0@merlin.emma.line.org>
+Content-ID: <Sat_Dec_20_23_37_30_UTC_2003_0@merlin.emma.line.org>
 Content-type: text/plain; charset=iso-8859-1
 Content-Description: An object packed by metasend
 Content-Transfer-Encoding: 8BIT
-Message-Id: <20031220233627.F3FD09766C@merlin.emma.line.org>
-Date: Sun, 21 Dec 2003 00:36:27 +0100 (CET)
+Message-Id: <20031220233730.D1A20975DC@merlin.emma.line.org>
+Date: Sun, 21 Dec 2003 00:37:30 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Linus,
+This is a semi-automatic announcement.
 
-you can either use "bk receive" to patch with this mail,
-or you can
-Pull from: bk://krusty.dt.e-technik.uni-dortmund.de/BK-kernel-tools
-or in cases of dire need, you can apply the patch below.
+lk-changelog.pl aka. shortlog version 0.206 has been released.
 
-BK: Parent repository is http://bktools.bkbits.net/bktools
+This script is used by Linus and Marcelo to rearrange and reformat BK
+ChangeSet logs into a more human-readable format, and the official
+repository is Parent repository is http://bktools.bkbits.net/bktools
 
-Patch description:
-ChangeSet@1.105, 2003-12-21 00:35:32+01:00, matthias.andree@gmx.de
-  Marcus Alanen: Fix Kai Mäkisara's name spelling.
-  Vitezslav Samel: Eight new mappings.
+As the script has grown large, this mail only contains a diff against
+the last released version.
 
-Matthias
+You can always download the full script and GPG signatures from
+http://mandree.home.pages.de/linux/kernel/
 
-------------------------------------------------------------------------
+My thanks go to Vitezslav Samel who has spent a lot of time on digging
+out the real names for addresses sending in BK ChangeSets.
 
-##### DIFFSTAT #####
-# shortlog |   25 +++++++++++++++++++++----
-# 1 files changed, 21 insertions(+), 4 deletions(-)
+Note that your mailer must be MIME-capable to save this mail properly,
+because it is in the "quoted-printable" encoding.
 
-##### GNUPATCH #####
-# This is a BitKeeper generated patch for the following project:
-# Project Name: BK kernel tools
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.104   -> 1.105  
-#	            shortlog	1.77    -> 1.78   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/12/21	matthias.andree@gmx.de	1.105
-# Marcus Alanen: Fix Kai Mäkisara's name spelling.
-# Vitezslav Samel: Eight new mappings.
-# --------------------------------------------
-#
-diff -Nru a/shortlog b/shortlog
---- a/shortlog	Sun Dec 21 00:36:27 2003
-+++ b/shortlog	Sun Dec 21 00:36:27 2003
+= <- if you see just an equality sign, but no "3D", your mailer is fine.
+= <- if you see 3D on this line, then upgrade your mailer or pipe this mail
+= <- into metamail.
+
+-- 
+A sh script on behalf of Matthias Andree
+-------------------------------------------------------------------------
+Changes since last release:
+
+----------------------------
+revision 0.206
+date: 2003/12/20 23:32:45;  author: emma;  state: Exp;  lines: +5 -2
+Resolve conflict with Linus' version.
+----------------------------
+revision 0.205
+date: 2003/12/11 14:08:38;  author: vita;  state: Exp;  lines: +13 -2
+new translations to cover 2.4.24-pre1
+----------------------------
+revision 0.204
+date: 2003/12/07 18:30:25;  author: emma;  state: Exp;  lines: +6 -3
+Fix Kai Mäkisara's name. Patch by Marcus Alanen.
+----------------------------
+revision 0.203
+date: 2003/12/06 16:40:13;  author: emma;  state: Exp;  lines: +6 -1
+Add two addresses, three still nknown since 2.4.23.
+=============================================================================
+Index: lk-changelog.pl
+===================================================================
+RCS file: /var/CVS/lk-changelog/lk-changelog.pl,v
+retrieving revision 0.203
+retrieving revision 0.206
+diff -u -r0.203 -r0.206
+--- lk-changelog.pl	6 Dec 2003 16:40:13 -0000	0.203
++++ lk-changelog.pl	20 Dec 2003 23:32:45 -0000	0.206
 @@ -8,7 +8,7 @@
  #			Tomas Szepe <szepe@pinerecords.com>
  #			Vitezslav Samel <samel@mail.cz>
@@ -135,6 +149,15 @@ diff -Nru a/shortlog b/shortlog
  'nathans:sgi.com' => 'Nathan Scott',
  'neilb:cse.unsw.edu.au' => 'Neil Brown',
  'neilt:slimy.greenend.org.uk' => 'Neil Turton',
+@@ -1066,7 +1073,7 @@
+ 'pavel:janik.cz' => 'Pavel Janík',
+ 'pavel:suse.cz' => 'Pavel Machek',
+ 'pavel:ucw.cz' => 'Pavel Machek',
+-'pavlin:icir.org' => 'Pavlin Radoslavov', # lbdb
++'pavlin:icir.org' => 'Pavlin Radoslavov',
+ 'pazke:donpac.ru' => 'Andrey Panin',
+ 'pazke:orbita1.ru' => 'Andrey Panin',
+ 'pbadari:us.ibm.com' => 'Badari Pulavarty',
 @@ -1412,6 +1419,7 @@
  'wensong:linux-vs.org' => 'Wensong Zhang',
  'wes:infosink.com' => 'Wes Schreiner',
@@ -159,32 +182,4 @@ diff -Nru a/shortlog b/shortlog
  # Revision 0.203  2003/12/06 16:40:13  emma
  # Add two addresses, three still nknown since 2.4.23.
  #
-
-##### BKPATCH #####
-This BitKeeper patch contains the following changesets:
-1.105
-## Wrapped with gzip_uu ##
-
-
-M'XL( /O<Y#\  ]5576_;-A1]#G_%!5+ #ZUI4A^63,!%TR3;O#1;$:/;,TW3
-M%F=*%$3*20;_W/V07<E)#*<)BFY[F2U(D'C.N;SW'I*G\,7K1IR4,H3"2$]E
-MM6RT)J?PD_-!G*S+.[KL7F^<P]>1;[T>;713:3OZ>(77</\R#,Y93Q#X6095
-MP%8W7IQP&C]]"?>U%B<WES]^^71V0\AT"N>%K-9ZK@-,IR2X9BOMTG^H=;5N
-M345#(RM?ZB"I<N7N";N+&(OPSZ.8C=/)+IJ,TW2G(YVF*N%RD>695A%YEL^'
-M?1[',C&/4"F.69+M4(^-R05PRED*+![Q:!1Q8$S$J8BCMXP+QN!E57C+8<C(
-M1_B/<S@G"JYEHUH/9U96NA+P@[F#*VG@^J^-\;*1 P^5+#7X6EMKJC5%RF\F
-MZ#^]E5N8XY 5<&G618!*W^+\ZQI1GI(KP(1S\OG0!#+\SA\A3#+R_I!UX4K]
-M+&5?N"98M]YGG/*<94G&\UW,LTFZ6^F)7*F,32332[E8OE+?(Y7'IJ4QWT7C
-M),MZ*STBCISTK^?SFHM>F@]+QKN$)7G6FRC+O_(0_X:'$#E,_F\FVG?@5Q@V
-MMW?=-;Q#2SV6YQ\XZH)SX&36WT_AS6PIP&Z&JL\9%6EMWVV!45RKT-6^KS"#
-M*,8E*I(4=%E*N+RKX0V91?$810;2UT850<AFHTU?P@%,W\/@K*EDNX1Y/SIX
-M1V8Q!HW)0&%[-!9*V+9V-!1Z(9OJ0+MIO<<JP?D##)D'2B47SE&L5V,4-MBO
-MS7<1M5SC]]?0%UD2=[7I'A$9_.%+L5*TJ \A?G9%!7/:M7MK^@ =J%W:;HNF
-MWP)?9&G6Z_>/P48:6LJ]0<3&V;9<M)ZNS)Y]9!\L7L[3GG1OM4#;>J>HDHW5
-MP6'MY ,'!^%:8<"P#YAG78=F^\?@*9A<&.TI&M[*5^-QABL)294,Z TO%DVK
-M-'+LPK5X'!V7_I<>!'/E0M]IGO"D(]]J[TL3"G&$_EU[J^]AWHUTZ(@G"4RZ
-M$U!OC3>N>O#?BP;L'=ACO;-;#<I5*VM4@%M4@T^F:OV@/QM1AY+3YZKI0;5;
-M HE@N8AS@*T)G6JW^OK=P,J %(][!49 .8AH0J-D6#>:?ZV:'%09]A8EF8@.
-H<WUE.Z /Y_;B_GC_Z*;]=*BK0JN-;\MIFK-XS-()^1N3+\(+40@     
- 
 

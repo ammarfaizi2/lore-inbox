@@ -1,87 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261851AbSJZEdq>; Sat, 26 Oct 2002 00:33:46 -0400
+	id <S261857AbSJZEiv>; Sat, 26 Oct 2002 00:38:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261854AbSJZEdp>; Sat, 26 Oct 2002 00:33:45 -0400
-Received: from gate.gau.hu ([192.188.242.65]:44440 "EHLO gate.gau.hu")
-	by vger.kernel.org with ESMTP id <S261851AbSJZEdo>;
-	Sat, 26 Oct 2002 00:33:44 -0400
-Date: Sat, 26 Oct 2002 06:32:20 +0200 (CEST)
-From: Cajoline <cajoline@andaxin.gau.hu>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ASUS TUSL2-C and Promise Ultra100 TX2
-In-Reply-To: <15801.20136.556691.985301@kim.it.uu.se>
-Message-ID: <Pine.LNX.4.44.0210252219040.25901-100000@andaxin.gau.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261859AbSJZEiv>; Sat, 26 Oct 2002 00:38:51 -0400
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:44787 "EHLO
+	www.kroptech.com") by vger.kernel.org with ESMTP id <S261857AbSJZEiu>;
+	Sat, 26 Oct 2002 00:38:50 -0400
+Date: Sat, 26 Oct 2002 00:45:00 -0400
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Adrian Pop <adrpo@ida.liu.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The pain with the Net Drivers (ne*, xirc2ps_c, etc)
+Message-ID: <20021026044500.GA11483@www.kroptech.com>
+References: <Pine.GSO.4.44.0210260441200.11632-100000@mir20.ida.liu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.44.0210260441200.11632-100000@mir20.ida.liu.se>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Oct 26, 2002 at 05:07:01AM +0200, Adrian Pop wrote:
+> 
+> Hi,
+> 
+> Sorry for bothering you people but i can't stand this anymore!
 
+<...much pointless wanking snipped...>
 
-On Fri, 25 Oct 2002, Mikael Pettersson wrote:
+If you want the problem solved, try supplying us with some useful
+information rather than just p*ssing and moaning about it. What kernel
+are you running? What's your architecture? Motherboard chipset? What
+specific NIC(s) are you using? How do we reproduce the problem? What,
+for $DEITY's sake, is the exact error message you're getting? 
 
-> Cajoline writes:
->  > I recently setup a box with the following components:
->  > Intel Celeron 1300 MHz
->  > ASUS TUSL2-C motherboard
->  > 2 x Promise Ultra100 TX2 controllers
->
-> Those have the 20268 chip, right?
+Show a little effort.
 
-Yes it is the 20268 chip.
-
->
->  > Any 2.4 kernel I have tried on this machine displays this strange
->  > behavior: any drives attached to the PDC controllers only work at udma
->  > mode 2 (UDMA33).
->
-> I've recently installed a Ultra133 TX2 (PDC 20269) in a box, and it
-> also only does UDMA33 in 2.4.20-pre11. 2.5.44 with the PDC driver
-> for "new" chips does UDMA100, however. (The disk is only UDMA100.)
->
-> The latest 2.4.20-pre-ac is supposed to have new IDE drivers, but
-> I haven't had time to test it myself.
-
-I tested with up to 2.4.19, with the same results. Since there were no
-errors and I couldn't find any relevant information in LKML, I didn't
-bother to try 2.4.20 test or ac kernels.
-
-This is interesting information, however it still looks very strange to
-me, since this is not exactly brand-spanking-new hardware (Ultra 100 TX2
-has been around for quite some time) and it does work just fine with other
-boards (see below). Also, how come there are absolutely no
-errors? Finally, could the motherboard's IDE chipset really have such a
-huge impact on the performance of the PDC driver? I mean, after all, PIIX4
-is a very widely used chipset, afaik.
-
->
->  > So I have come to the conclusion there must be some rather bizarre
->  > incompatibility between the PDCs and this motherboard.
->
-> Unlikely.
->
->  > Let me note that the PDC controllers do work just fine with other older
->  > motherboards. And another thing, during boot-up, the PDCs do show the
->  > drives attached to it, detected at the right udma mode.
->
-> Did those boards also use standard 2.4 kernels?
-
-I can assure you the controllers work just fine on some older QDI
-Advance 10F motherboard (VP_IDE: VIA vt82c686a (rev 22) IDE UDMA66
-controller), but there were others too.
-
-And yes, I am talking about the same kernels: stock 2.4.18, .19, and Red
-Hat's 2.4.18 kernels, among others.
-
->
-> /Mikael
->
-
-I appreciate your insight & help on this. I hope my questions are not too
-naive, but I was totally in the dark on this issue until now.
-
-Regards,
-Cajoline Leblanc
+--Adam, who has no patience left by the end of the week
 

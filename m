@@ -1,63 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263903AbUDFQpa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 12:45:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263920AbUDFQp3
+	id S263913AbUDFQsc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 12:48:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263914AbUDFQra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 12:45:29 -0400
-Received: from gemini.rz.uni-ulm.de ([134.60.246.16]:46981 "EHLO
-	mail.rz.uni-ulm.de") by vger.kernel.org with ESMTP id S263903AbUDFQk6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 12:40:58 -0400
-Date: Tue, 6 Apr 2004 18:32:27 +0200
-From: Juergen Salk <juergen.salk@gmx.de>
-To: Andreas Schwab <schwab@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Strip whitespace from EXTRAVERSION?
-Message-ID: <20040406163227.GE16564@oest181.str.klinik.uni-ulm.de>
-References: <20040406144709.GC16564@oest181.str.klinik.uni-ulm.de> <jeu0zx5cdm.fsf@sykes.suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="QRj9sO5tAVLaXnSD"
+	Tue, 6 Apr 2004 12:47:30 -0400
+Received: from atlrel9.hp.com ([156.153.255.214]:58016 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S263895AbUDFQpy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 12:45:54 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Ruud Linders <rkmp@xs4all.nl>
+Subject: Re: 2.6.x kernels and ttyS45 for 6 serial ports ?
+Date: Tue, 6 Apr 2004 10:45:51 -0600
+User-Agent: KMail/1.6.1
+Cc: linux-kernel@vger.kernel.org, Russell King <rmk+lkml@arm.linux.org.uk>
+References: <200404061037.23867.bjorn.helgaas@hp.com>
+In-Reply-To: <200404061037.23867.bjorn.helgaas@hp.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <jeu0zx5cdm.fsf@sykes.suse.de>
-User-Agent: Mutt/1.3.28i
-X-DCC-RollaNet-Metrics: gemini 1040; Body=2 Fuz1=2 Fuz2=2
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404061045.51958.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 06 April 2004 10:37 am, Bjorn Helgaas wrote:
+> > The way this device numbering seems to work is that many device names
+> > are reserved in include/asm/serial.h for devices like fourport/boca/hub6.
+> > Anything else (=all PCI cards?) gets a number still unassigned.
 
---QRj9sO5tAVLaXnSD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I forgot to mention another patch along these lines:
 
-* Andreas Schwab <schwab@suse.de> [040406 17:56]:
+    http://www.ussg.iu.edu/hypermail/linux/kernel/0402.1/0904.html
 
-> > +EXTRAVERSION :=3D $(shell echo $(EXTRAVERSION) | sed -e 's/[ 	]//g')
-                 ^  ^
+This gives you output like this:
 
-> EXTRAVERSION :=3D $(strip $(EXTRAVERSION))
-
-Ok. I think this still leaves embedded whitespace (which may also
-cause some trouble), but this is much harder to to overlook, if
-not introduced intentionally, anyway. ;-)
-
-Regards - Juergen
-
---=20
-GPG A997BA7A | 87FC DA31 5F00 C885 0DC3  E28F BD0D 4B33 A997 BA7A
-
---QRj9sO5tAVLaXnSD
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFActubvQ1LM6mXunoRAiGIAKCnm8IxpWRBdBbOL//i1ecpdincyQCggtsU
-7q2tf98I+NEVALqhSqy2OhM=
-=F3m0
------END PGP SIGNATURE-----
-
---QRj9sO5tAVLaXnSD--
+ ttyS0 at MMIO 0xf8030000 (HCDP PCI 0000:e0:01.1, irq = 49) is a 16550A
+ ttyS1 at MMIO 0xf8031000 (PCI 0000:e0:01.0, irq = 49) is a 16550A
+ ttyS2 at MMIO 0xf8030010 (PCI 0000:e0:01.1, irq = 49) is a 16550A
+ ttyS3 at MMIO 0xf8030038 (PCI 0000:e0:01.1, irq = 49) is a 16550A
+ ttyS4 at MMIO 0xff5e0000 (ACPI SER0, irq = 67) is a 16550A
+ 
+so you have a clue about what ports are on what cards.  There wasn't
+any interest at the time, though.

@@ -1,89 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbUKIBQZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbUKIBQb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261331AbUKIBQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 20:16:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbUKIBOS
+	id S261361AbUKIBQb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 20:16:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbUKIBJJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 20:14:18 -0500
-Received: from fw.osdl.org ([65.172.181.6]:37793 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261331AbUKIBKH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 20:10:07 -0500
-Date: Mon, 8 Nov 2004 17:09:59 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Sripathi Kodi <sripathik@in.ibm.com>
-cc: linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       dino@in.ibm.com
-Subject: Re: [PATCH] do_wait fix for 2.6.10-rc1
-In-Reply-To: <Pine.LNX.4.58.0411080820110.24286@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0411081708000.2301@ppc970.osdl.org>
-References: <418B4E86.4010709@in.ibm.com> <Pine.LNX.4.58.0411051101500.30457@ppc970.osdl.org>
- <418F826C.2060500@in.ibm.com> <Pine.LNX.4.58.0411080744320.24286@ppc970.osdl.org>
- <Pine.LNX.4.58.0411080806400.24286@ppc970.osdl.org>
- <Pine.LNX.4.58.0411080820110.24286@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 8 Nov 2004 20:09:09 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:31242 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261331AbUKIBFn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 20:05:43 -0500
+Date: Tue, 9 Nov 2004 02:05:12 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: video4linux-list@redhat.com, linux-kernel@vger.kernel.org
+Subject: [10/11] zoran_device.c: make zr36057_init_vfe static
+Message-ID: <20041109010511.GY15077@stusta.de>
+References: <20041107175017.GP14308@stusta.de> <20041108114008.GB20607@bytesex> <20041109004341.GO15077@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041109004341.GO15077@stusta.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The patch below makes function zr36057_init_vfe in 
+drivers/media/video/zoran_device.c which has no external users static.
 
 
-Ok, I haven't gotten any response on this one, but I'm running it in my 
-tree, and look as I might, it still seems right to me. It should fix not 
-only the problem Sripathi Kodi saw (can we verify that?), but also a more 
-fundamental problem with the access of stale memory.
+diffstat output:
+ drivers/media/video/zoran_device.c |    5 ++++-
+ drivers/media/video/zoran_device.h |    1 -
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-I'll commit it. I would still prefer to have somebody else check out my 
-logic (or lack there-of).
 
-		Linus
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-On Mon, 8 Nov 2004, Linus Torvalds wrote:
-> 
-> Anyway, if I'm right, the suggested fix would be something like this (this 
-> replaces the earlier patches, since it also makes the zero return case go 
-> away - we don't need to mark anything runnable, since we restart the whole 
-> loop).
-> 
-> NOTE! -EAGAIN should be safe, because the other routines involved can only
-> return -EFAULT as an error, so this is all unique to the "try again"  
-> case.
-> 
-> Ok, three patches for the same piece of code withing minutes. Please tell 
-> me this one is not also broken..
-> 
-> 			Linus
-> 
-> ----
-> ===== kernel/exit.c 1.166 vs edited =====
-> --- 1.166/kernel/exit.c	2004-11-04 11:13:19 -08:00
-> +++ edited/kernel/exit.c	2004-11-08 08:34:37 -08:00
-> @@ -1201,8 +1201,15 @@
->  		write_unlock_irq(&tasklist_lock);
->  bail_ref:
->  		put_task_struct(p);
-> -		read_lock(&tasklist_lock);
-> -		return 0;
-> +		/*
-> +		 * We are returning to the wait loop without having successfully
-> +		 * removed the process and having released the lock. We cannot
-> +		 * continue, since the "p" task pointer is potentially stale.
-> +		 *
-> +		 * Return -EAGAIN, and do_wait() will restart the loop from the
-> +		 * beginning. Do _not_ re-acquire the lock.
-> +		 */
-> +		return -EAGAIN;
->  	}
->  
->  	/* move to end of parent's list to avoid starvation */
-> @@ -1343,6 +1350,8 @@
->  							   (options & WNOWAIT),
->  							   infop,
->  							   stat_addr, ru);
-> +				if (retval == -EAGAIN)
-> +					goto repeat;
->  				if (retval != 0) /* He released the lock.  */
->  					goto end;
->  				break;
-> 
+--- linux-2.6.10-rc1-mm3-full/drivers/media/video/zoran_device.h.old	2004-11-07 17:11:04.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/media/video/zoran_device.h	2004-11-07 17:11:12.000000000 +0100
+@@ -79,7 +79,6 @@
+ 				 int set_master);
+ extern void zoran_init_hardware(struct zoran *zr);
+ extern void zr36057_restart(struct zoran *zr);
+-extern void zr36057_init_vfe(struct zoran *zr);
+ 
+ /* i2c */
+ extern int decoder_command(struct zoran *zr,
+--- linux-2.6.10-rc1-mm3-full/drivers/media/video/zoran_device.c.old	2004-11-07 17:11:20.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/media/video/zoran_device.c	2004-11-07 17:12:25.000000000 +0100
+@@ -80,6 +79,9 @@
+ MODULE_PARM_DESC(lml33dpath,
+ 		 "Use digital path capture mode (on LML33 cards)");
+ 
++static void
++zr36057_init_vfe (struct zoran *zr);
++
+ /*
+  * General Purpose I/O and Guest bus access
+  */
+@@ -1701,7 +1703,7 @@
+  * initialize video front end
+  */
+ 
+-void
++static void
+ zr36057_init_vfe (struct zoran *zr)
+ {
+ 	u32 reg;
+

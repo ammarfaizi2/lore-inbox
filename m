@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262301AbSJOCoY>; Mon, 14 Oct 2002 22:44:24 -0400
+	id <S262289AbSJOCr6>; Mon, 14 Oct 2002 22:47:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262302AbSJOCoY>; Mon, 14 Oct 2002 22:44:24 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:46025 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S262301AbSJOCoV>; Mon, 14 Oct 2002 22:44:21 -0400
-Subject: Re: Linux v2.5.42
-To: dipankar@beaverton.ibm.com, Andrew Morton <akpm@zip.com.au>,
-       Alan Cox <alan@redhat.com>, Jens Axboe <axboe@suse.de>,
-       Christoph Hellwig <hch@infradead.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFA3F4BE8A.D4A810ED-ON88256C53.000F3D3B@boulder.ibm.com>
-From: "Paul McKenney" <Paul.McKenney@us.ibm.com>
-Date: Mon, 14 Oct 2002 19:47:52 -0700
-X-MIMETrack: Serialize by Router on D03NM045/03/M/IBM(Release 5.0.10 |March 22, 2002) at
- 10/14/2002 08:49:20 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S262283AbSJOCr6>; Mon, 14 Oct 2002 22:47:58 -0400
+Received: from h-64-105-137-41.SNVACAID.covad.net ([64.105.137.41]:38058 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S262289AbSJOCr4>; Mon, 14 Oct 2002 22:47:56 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Mon, 14 Oct 2002 19:53:40 -0700
+Message-Id: <200210150253.TAA02434@adam.yggdrasil.com>
+To: ebiederm@xmission.com
+Subject: Re: Patch: linux-2.5.42/kernel/sys.c - warm reboot should not suspend devices
+Cc: eblade@blackmagik.dynup.net, linux-kernel@vger.kernel.org,
+       rmk@arm.linux.org.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eric W. Biederman writes:
+>>       You do not understand.  The fundamental problem is that
+>> sys_reboot in linux-2.5.42/kernel/sys.c makes exactly the same power
+>> management call for a reboot and for a halt (device_shutdown()).  I
+>> want my IDE, SCSI, USB, and FireWire hard disks to spin down if I do a
+>> halt.  I do not want them to do that when I reboot.  I also do not
+>> want my reboot to wait for an interrupt from a sound card because
+>> remove() needs to determine if it is being called because the device
+>> had just been unplugged.  It is not just about IDE disk drives.
+[...]
+>Do you seriously have a hot-plug sound card, that waits for an
+>interrupt to be certain the card is plugged in during remove?
 
-On Sat, Oct 12, 2002 at 01:46:17PM +0000, Christoph Hellwig wrote:
-> Even if those existing users don't get in yet I don't want to miss the
-> infrastructure in the 2.6 series.
+        Although I was being hypothetical, come to think of it, I do
+some USB speakers that I have not been using, and detecting their
+removal is done by the host contoller polling the hub for an
+"interrupt", typically once per millisecond.
 
-One important thing to note: all of the RCU patches
-we have constructed have shown benefit.  Since we
-have not been very selective in choosing what patches
-to generate, it seems a reasonable guess that other
-parts of Linux would benefit as well.  There is no
-shortage of read-mostly data structures in Linux!
+>If there is non-trivial work to detect if a card is present it
+>probably makes sense to factor remove into
+>->quiet() and ->remove()
+>Where quiet would put the device into a quiescent state, and
+>remove would simply clean up the driver state.
 
-                        Thanx, Paul
+        Splitting into ->quiet() and ->removed() would be helpful
+in any case, where removed() would normally not touch the hardware,
+since it is quite possible the device has already been removed,
+since the callers of these routines generally know if they are
+calling because the device has been removed or because they want
+just want to turn it off, while ->remove() currently has to guess,
+which not only wastes time but also can be difficult to do safely
+when you don't know if the device that you're talking to is even
+present anymore.
 
-
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America

@@ -1,36 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265820AbUBFXfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 18:35:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265801AbUBFXfY
+	id S265580AbUBFXs6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 18:48:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265175AbUBFXs5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 18:35:24 -0500
-Received: from vsmtp14.tin.it ([212.216.176.118]:56812 "EHLO vsmtp14.tin.it")
-	by vger.kernel.org with ESMTP id S265799AbUBFXef (ORCPT
+	Fri, 6 Feb 2004 18:48:57 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:18823 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265580AbUBFXsJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 18:34:35 -0500
-Message-ID: <3FE986970091192E@vsmtp14.tin.it> (added by postmaster@virgilio.it)
-From: Marco Gulino <rockman81@tin.it>
-Subject: Multimedia Keyboard (no scancodes?)
-To: linux-kernel@vger.kernel.org
-Date: Sat, 07 Feb 2004 00:34:16 +0100
-User-Agent: KNode/0.7.6
+	Fri, 6 Feb 2004 18:48:09 -0500
+Date: Fri, 06 Feb 2004 15:47:46 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Nick Piggin <piggin@cyberone.com.au>
+cc: Rick Lindsley <ricklind@us.ibm.com>, Anton Blanchard <anton@samba.org>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, dvhltc@us.ibm.com
+Subject: Re: [PATCH] Load balancing problem in 2.6.2-mm1
+Message-ID: <232690000.1076111266@flay>
+In-Reply-To: <4024261E.5070702@cyberone.com.au>
+References: <200402062311.i16NBdF14365@owlet.beaverton.ibm.com> <40242152.5030606@cyberone.com.au> <231480000.1076110387@flay> <4024261E.5070702@cyberone.com.au>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
- Where i was using the 2.4.x kernel my multimedia keyboard was sending the
- special keys to usermode apps, allowing to control them and assign some
- functions.
- Now i'm on 2.6.2 and some of these keys are not working... no scancode,
- nothing, either looking with dmesg or xev.
- It's like the kernel is "filtering" the unknown scancodes and delete them.
- Ideas?
- Thanks anyway.
- p.s.: the 2.4 kernel i was using was a standard bareacpi.i from SlackWare
- 9.1, while the config for 2.6 was strongly edited. However i didn't see any
- option for keyboards, so i don't think it's a config fault.
- p.p.s.: sorry for bad english :P
+>> If CPU 8 has 2 tasks, and cpu 1 has 1 task, there's an imbalance of 1.
+>> *If* that imbalance persists (and it probably won't, given tasks being
+>> created, destroyed, and blocking for IO), we may want to rotate that 
+>> to 1 vs 2, and then back to 2 vs 1, etc. in the interests of fairness,
+>> even though it's slower throughput overall.
+>> 
+> 
+> Yes, although as long as it's node local and happens a couple of
+> times a second you should be pretty hard pressed noticing the
+> difference.
+
+Not sure how true that turns out to be in practice ... probably depends
+heavily on both the workload (how heavily it's using the cache) and the
+chip (larger caches have proportionately more to lose).
+
+As we go forward in time, cache warmth gets increasingly important, as
+CPUs accelerate speeds quicker than memory. Cache sizes also get larger.
+I'd really like us to be conservative here - the unfairness thing is 
+really hard to hit anyway - you need a static number of processes that
+don't ever block on IO or anything.
+
+M.
+

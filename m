@@ -1,59 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268961AbUJKNlb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268954AbUJKNpW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268961AbUJKNlb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 09:41:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268954AbUJKNlb
+	id S268954AbUJKNpW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 09:45:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268959AbUJKNpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 09:41:31 -0400
-Received: from mail.dif.dk ([193.138.115.101]:14538 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S268961AbUJKNlS (ORCPT
+	Mon, 11 Oct 2004 09:45:22 -0400
+Received: from nef.ens.fr ([129.199.96.32]:47890 "EHLO nef.ens.fr")
+	by vger.kernel.org with ESMTP id S268954AbUJKNpP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 09:41:18 -0400
-Date: Mon, 11 Oct 2004 15:48:59 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Mike Phillips <mikep@linuxtr.net>
-Cc: linux-net <linux-net@vger.kernel.org>, linux-tr <linux-tr@linuxtr.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Trivial Patch Monkey <trivial@rustcorp.com.au>
-Subject: [PATCH][Trivial] kill unused variable in olympic.c
-Message-ID: <Pine.LNX.4.61.0410111532340.26100@dragon.hygekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 11 Oct 2004 09:45:15 -0400
+Subject: Re: possible GPL violation by Free
+From: Eric Rannaud <eric.rannaud@ens.fr>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20041011091411.1335746c@pirandello>
+References: <1097456379.27877.51.camel@frenchenigma>
+	 <20041011091411.1335746c@pirandello>
+Content-Type: text/plain
+Date: Mon, 11 Oct 2004 15:45:08 +0200
+Message-Id: <1097502309.27877.124.camel@frenchenigma>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.0 
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.3.3 (nef.ens.fr [129.199.96.32]); Mon, 11 Oct 2004 15:45:14 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2004-10-11 at 09:14 +0200, Colin Leroy wrote:
+> Hi,
+> 
+> I think you just scanned the router, or whatever network appliance it is,
+> behind the freebox :-)
+> 
+> The freebox is quite transparent when it's plugged to the network. Try to 
+> just plug in to your computer and assign it an IP using arp -s...
+> 
+> (not sure, however)
 
-Here's a trivial patch that removes an unused variable in olympic.c and 
-thus kill the associated warning.
+Ermmm, indeed, that's quite possible :-{ I've been lured by the MAC
+address, which was correct. But that didn't mean anything.
+The problem is that once the freebox is disconnected from the xDSL line,
+it becomes completely silent on the network. nmap -O -P0 is meaningless.
 
-drivers/net/tokenring/olympic.c: In function `olympic_arb_cmd':
-drivers/net/tokenring/olympic.c:1404: warning: unused variable `i'
-  LD      drivers/net/tokenring/built-in.o
+It does seem to act like a bridge, indeed.
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+Mathieu wrote:
+> Are you sure you don't scan your computer : the freebox v1 don't have
+> router mode and act like a bridge.
 
-diff -up linux-2.6.9-rc4-orig/drivers/net/tokenring/olympic.c linux-2.6.9-rc4/drivers/net/tokenring/olympic.c
---- linux-2.6.9-rc4-orig/drivers/net/tokenring/olympic.c	2004-10-11 09:59:55.000000000 +0200
-+++ linux-2.6.9-rc4/drivers/net/tokenring/olympic.c	2004-10-11 15:31:29.000000000 +0200
-@@ -1401,7 +1401,6 @@ static void olympic_arb_cmd(struct net_d
- 	u16 lan_status = 0, lan_status_diff  ; /* Initialize to stop compiler warning */
- 	u8 fdx_prot_error ; 
- 	u16 next_ptr;
--	int i ; 
- 
- 	arb_block = (olympic_priv->olympic_lap + olympic_priv->arb) ; 
- 	asb_block = (olympic_priv->olympic_lap + olympic_priv->asb) ; 
+No, my computer doesn't look like that.
 
+I have asked Free for more information about the OS running on the
+freebox. I don't know what kind of tests could be performed on such a
+device. If you have any suggestion.
 
-I guess this should just wait post 2.6.9 final since Linus said "hold the 
-patches" in the -rc4 announcement, and it's quite trivial anyway, so no 
-hurry.
+   /er.
 
-
---
-Jesper Juhl
-
-PS. I'm only subscribed to linux-kernel, so please CC me on replies from 
-other lists.
-
+-- 
+Eric Rannaud <eric.rannaud@ens.fr>
+http://www.eleves.ens.fr/home/rannaud/
 

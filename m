@@ -1,74 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262341AbVBQUhW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262340AbVBQUfF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262341AbVBQUhW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 15:37:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbVBQUfP
+	id S262340AbVBQUfF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 15:35:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262338AbVBQUex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 15:35:15 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:3970 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S262346AbVBQUdL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 15:33:11 -0500
-Date: Thu, 17 Feb 2005 21:33:08 +0100
-From: David Weinehall <tao@debian.org>
-To: lm@bitmover.com, linux-os <linux-os@analogic.com>,
-       Jeff Sipek <jeffpc@optonline.net>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK] upgrade will be needed
-Message-ID: <20050217203308.GG19998@khan.acc.umu.se>
-Mail-Followup-To: lm@bitmover.com, linux-os <linux-os@analogic.com>,
-	Jeff Sipek <jeffpc@optonline.net>,
-	Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <20050214020802.GA3047@bitmover.com> <58cb370e05021404081e53f458@mail.gmail.com> <20050214150820.GA21961@optonline.net> <20050214154015.GA8075@bitmover.com> <Pine.LNX.4.61.0502141113200.4019@chaos.analogic.com> <20050214171219.GA8846@bitmover.com>
+	Thu, 17 Feb 2005 15:34:53 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:780 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262340AbVBQUct (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 15:32:49 -0500
+Date: Thu, 17 Feb 2005 21:32:47 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: jgarzik@pobox.com
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/net/ethertap.c: make 2 functions static
+Message-ID: <20050217203247.GE6194@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050214171219.GA8846@bitmover.com>
-User-Agent: Mutt/1.4.1i
-X-Editor: Vi Improved <http://www.vim.org/>
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 14, 2005 at 09:12:19AM -0800, Larry McVoy wrote:
-> > >So how would you suggest that we resolve it?  The protection we need is
-> > >that people don't get to
-> > >
-> > >   - use BK
-> > >   - stop using BK so they can go work on another system
-> > >   - start using BK again
-> > >   - stop using BK so they can go work on another system
-> > 
-> > What??? Why not? BK is a PROGRAM. You can't tell somebody
-> > that once they use some program in one job, they can't
-> > use it again. What kind of "protection" are you claiming?
-> 
-> It is a program that comes with a license.  Licenses have terms which
-> survive the termination of the license, that's industry standard, they
-> all have such terms.
-> 
-> In this case the situation is unusual because we have a program that is
-> ahead, in some ways, of all the other programs out there that do the
-> same thing.  We'd like to protect that lead.  We put that lead at risk
-> by giving you BK for free, that's more or less suicide because the open
-> source world has a long track record of copying that which they find
-> useful.  We don't want you to copy it.  If you can't agree to not copy
-> it then you don't get to use it in the first place.
+This patch makes two needlessly global functions static.
 
-Does these license terms (the ones concerning developing competing
-software while, or within a year of, using BK) also apply to the
-commercial license?
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-BTW: Wishlist request.  Would you consider adding -p (--show-c-function)
-to the set of flags used for the diffs created by BitKeeper?
+---
 
+ drivers/net/ethertap.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-Regards: David Weinehall
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+--- linux-2.6.11-rc3-mm2-full/drivers/net/ethertap.c.old	2005-02-16 15:40:05.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/ethertap.c	2005-02-16 15:40:17.000000000 +0100
+@@ -343,7 +343,7 @@
+ }
+ 
+ 
+-int __init ethertap_init(void)
++static int __init ethertap_init(void)
+ {
+ 	int i, err = 0;
+ 
+@@ -371,7 +371,7 @@
+ }
+ module_init(ethertap_init);
+ 
+-void __exit ethertap_cleanup(void)
++static void __exit ethertap_cleanup(void)
+ {
+ 	int i;
+ 
+

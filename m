@@ -1,66 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272120AbRHVVGx>; Wed, 22 Aug 2001 17:06:53 -0400
+	id <S272124AbRHVVIm>; Wed, 22 Aug 2001 17:08:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272119AbRHVVGm>; Wed, 22 Aug 2001 17:06:42 -0400
-Received: from [209.202.108.240] ([209.202.108.240]:42256 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S272122AbRHVVGb>; Wed, 22 Aug 2001 17:06:31 -0400
-Date: Wed, 22 Aug 2001 17:06:31 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] (comments requested) adding finer-grained timing to PPC
-  add_timer_randomness()
-In-Reply-To: <3B841CC3.E7040002@nortelnetworks.com>
-Message-ID: <Pine.LNX.4.33.0108221702300.12521-100000@terbidium.openservices.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
+	id <S272121AbRHVVIc>; Wed, 22 Aug 2001 17:08:32 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:56239 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S272122AbRHVVIS>; Wed, 22 Aug 2001 17:08:18 -0400
+Date: Wed, 22 Aug 2001 17:08:33 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: dag@brattli.net
+Cc: linux-kernel@vger.kernel.org
+Subject: IrDA gcc warnings in 2.4.8-ac9
+Message-ID: <20010822170833.A26433@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Aug 2001, Chris Friesen wrote:
+In case anyone cares about such minor things as warnings...
 
-> I'd like some comments on the following patch.
->
-> This patch is designed to add finer-grained timing (similar to the i386 timing)
-> to add_timer_randomness().  The only tricky bit is that the PPC601 doesn't
-> support the timebase registers.  Accordingly, I've added a flag to the PPC port
-> that is used to keep track of whether or not the processor supports the timebase
-> register.
->
-> Is there a better way to keep track of this information?  i386 has a struct with
-> useful information stored, but it doesn't look like PPC does.
->
-> Thanks,
->
-> Chris
-
->From the patch:
-
---- linux-2.2.19-clean/arch/ppc/kernel/setup.c  Sun Mar 25 11:31:49 2001
-+++ linux-2.2.19/arch/ppc/kernel/setup.c        Wed Aug 22 16:34:51 2001
-  ...
-+extern int have_timebase = 1;
-  ...
---- linux-2.2.19-clean/include/asm-ppc/processor.h      Sun Mar 25 11:31:08 2001
-+++ linux-2.2.19/include/asm-ppc/processor.h    Wed Aug 22 16:34:51 2001
-  ...
-+extern int have_timebase;
-  ...
-
-Hrmm...
-
-Am I missing something, or should at least one of these not be extern?
-
--- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
-
-
-
-
-
-
-
+--- linux-2.4.8-ac9/init/main.c	Wed Aug 22 11:02:12 2001
++++ linux-2.4.8-ac9-niph/init/main.c	Wed Aug 22 12:09:23 2001
+@@ -67,6 +67,7 @@
+ 
+ #ifdef CONFIG_IRDA
+ #include <net/irda/irda_device.h>
++extern int irda_proto_init(void);
+ #endif
+ 
+ #ifdef CONFIG_X86_LOCAL_APIC
+--- linux-2.4.8-ac9/net/irda/irda_device.c	Wed Apr 18 14:40:07 2001
++++ linux-2.4.8-ac9-niph/net/irda/irda_device.c	Wed Aug 22 12:11:47 2001
+@@ -457,15 +457,17 @@
+ dongle_t *irda_device_dongle_init(struct net_device *dev, int type)
+ {
+ 	struct dongle_reg *reg;
+-	char modname[32];
+ 	dongle_t *dongle;
+ 
+ 	ASSERT(dev != NULL, return NULL;);
+ 
+ #ifdef CONFIG_KMOD
++	{
++	char modname[32];
+ 	/* Try to load the module needed */
+ 	sprintf(modname, "irda-dongle-%d", type);
+ 	request_module(modname);
++	}
+ #endif /* CONFIG_KMOD */
+ 
+ 	if (!(reg = hashbin_find(dongles, type, NULL))) {
 

@@ -1,44 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277018AbRJIMdR>; Tue, 9 Oct 2001 08:33:17 -0400
+	id <S277103AbRJIMuK>; Tue, 9 Oct 2001 08:50:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277102AbRJIMdH>; Tue, 9 Oct 2001 08:33:07 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22792 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277018AbRJIMcu>; Tue, 9 Oct 2001 08:32:50 -0400
-Subject: Re: [PATCH] Re: ENOATTR and other error enums
-To: nathans@sgi.com (Nathan Scott)
-Date: Tue, 9 Oct 2001 13:37:55 +0100 (BST)
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        ag@bestbits.at (Andreas Gruenbacher), linux-xfs@oss.sgi.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20011009150113.A497835@wobbly.melbourne.sgi.com> from "Nathan Scott" at Oct 09, 2001 03:01:14 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S276225AbRJIMuA>; Tue, 9 Oct 2001 08:50:00 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:46208 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S277103AbRJIMtw>; Tue, 9 Oct 2001 08:49:52 -0400
+Date: Tue, 9 Oct 2001 08:50:19 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Peter Moscatt <pmoscatt@yahoo.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Can't exec /usr/sbin/sendmail  (After Kernel Install) ??
+In-Reply-To: <20011008220328.2217.qmail@web14708.mail.yahoo.com>
+Message-ID: <Pine.LNX.3.95.1011009083517.3739A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15qw8x-00041l-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> XFS needs both values.  ENOATTR is also required by the ext2
-> extended attributes project (and any other filesystem intending
-> to implement extended attributes in the future).  Both values
-> need to be visible in both kernel and user space, so this patch
-> would be an initial step toward libc support also, hopefully.
+On Mon, 8 Oct 2001, Peter Moscatt wrote:
+
+> I have just recently compiled my first kernel (2.4.10)
+> onto my Mandrake 8.0 system.
 > 
-> In the absence of any cleaner way to do this (?), could we have
-> this patch applied please?  Any/all feedback much appreciated
+> All seems to be working fine, so I had a look at the
+> 'dmesg' file in /var/log just to see it any errors
+> were appearing.
+> 
+> I have noticed that the following is occuring:
+> 
+> Oct 8 19:46:53 qld anacron[818]: Job 'cron.daily'
+> terminate (mailing output)
+> Oct 8 19:46:53 qld anacron[1302]: Can't exec
+> /usr/sbin/sendmail: No such file or directory
 
-Such an update needs to be synchronized with glibc to avoid people
-getting all sorts of odd "unknown" error messages. In general I dn't
-see why its needed.
+Merely installing a new kernel should not have affected any
+of the executables. First, see if the file exists:
 
-> > EFSCORRUPTED = Filesystem is corrupted
+ls -la /usr/sbin/sendmail
 
-EIO is normally used for this
+If it doesn't, try to find it:
 
-As to the string names for errors. They can't sanely go into the kernel
-or kernel headers. Remember there are a lot of languages out there
+which sendmail
+
+or:
+
+
+find / -name "sendmail"
+
+If it doesn't exist, find it in your distribution and install it.
+You can actually just do the following from the root account:
+
+cp /wherever_on_distribution/sendmail /usr/sbin/sendmail
+chown 0.0 /usr/sbin/sendmail
+chmod 4755 /usr/sbin/sendmail
+
+If it exists somewhere else, like  /usr/sendmail, do:
+
+ln -s /usr/sendmail /usr/sbin/sendmail
+
+It may exist in /lost+found. If so, don't use it. It's probably
+corrupt, having been put there by fsck during startup.
+
+If it does exist, try to find out why it blows up when being
+executed, do:
+
+strace /usr/sbin/sendmail -q
+
+If that works, try:
+
+strace /usr/sbin/sendmail
+
+It should print a message and wait for input if it's working. Just
+^C out. It seems to work.
+
+Otherwise, see from strace, what system call failed and report it.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

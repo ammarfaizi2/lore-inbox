@@ -1,43 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310204AbSCABOH>; Thu, 28 Feb 2002 20:14:07 -0500
+	id <S293702AbSCABPs>; Thu, 28 Feb 2002 20:15:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310295AbSCABKp>; Thu, 28 Feb 2002 20:10:45 -0500
-Received: from ns.suse.de ([213.95.15.193]:58120 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S310284AbSCABHY>;
-	Thu, 28 Feb 2002 20:07:24 -0500
-Date: Fri, 1 Mar 2002 02:03:28 +0100
-From: Dave Jones <davej@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Dennis Jim <jdennis@snapserver.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Congrats Marcelo,
-Message-ID: <20020301020328.A7662@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Dennis Jim <jdennis@snapserver.com>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0203010137090.8089-100000@Appserv.suse.de> <E16gbbh-0001tN-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S310159AbSCABMX>; Thu, 28 Feb 2002 20:12:23 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64016 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S310293AbSCABKR>; Thu, 28 Feb 2002 20:10:17 -0500
+Subject: Re: Dual P4 Xeon i860 system - lockups in 2.4 & no boot in 2.2
+To: texas@ludd.luth.se (texas)
+Date: Fri, 1 Mar 2002 01:25:12 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSU.4.33.0202280355460.24329-100000@father.ludd.luth.se> from "texas" at Feb 28, 2002 04:07:18 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16gbbh-0001tN-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Mar 01, 2002 at 01:13:09AM +0000
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16gbnM-0001x7-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 01, 2002 at 01:13:09AM +0000, Alan Cox wrote:
- > DMI can help in a much more productive way. DMI tells you the type of 
- > sensor in the machine. Once you are using ACPI though you talk to ACPI
- > and it talks to the smbus etc and knows whats in the box
+> are present as well as "init.c:148: bad pte 3fff3163" but none seem
 
- Given the fears of what happens when you look at i2c/smbus etc
- the wrong way, is this something we can rely on DMI tables
- to get right ?  When they can't get cachesize info right, I begin
- to question their ability to describe a temperature sensor.
+The bad pte one needs looking into. That may actually be  cured in the
+bt_ioremap diffs pending though.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Alan

@@ -1,58 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267380AbSKPVxw>; Sat, 16 Nov 2002 16:53:52 -0500
+	id <S267375AbSKPVsz>; Sat, 16 Nov 2002 16:48:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267381AbSKPVxw>; Sat, 16 Nov 2002 16:53:52 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:14858 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S267380AbSKPVxu>; Sat, 16 Nov 2002 16:53:50 -0500
-Date: Sat, 16 Nov 2002 20:00:38 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-Message-ID: <20021116220038.GC26275@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
-References: <20021116214140.GP24641@conectiva.com.br> <551278547.1037454258@[10.10.2.3]> <3DD6BEB2.203@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DD6BEB2.203@pobox.com>
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+	id <S267382AbSKPVsz>; Sat, 16 Nov 2002 16:48:55 -0500
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:62103 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267375AbSKPVsv> convert rfc822-to-8bit; Sat, 16 Nov 2002 16:48:51 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: WOLK - Working Overloaded Linux Kernel
+To: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@digeo.com>
+Subject: Re: 2.[45] fixes for design locking bug in wait_on_page/wait_on_buffer/get_request_wait
+Date: Sat, 16 Nov 2002 22:55:43 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <200211161958.57677.m.c.p@wolk-project.de>
+In-Reply-To: <200211161958.57677.m.c.p@wolk-project.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211162235.39620.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sat, Nov 16, 2002 at 04:54:58PM -0500, Jeff Garzik escreveu:
-> Martin J. Bligh wrote:
+On Saturday 16 November 2002 19:58, Marc-Christian Petersen wrote:
 
-> >One thing we've done before in other bug-tracking systems was to create
-> >a "STALE" state (or something similar) for this type of bug. So it
-> >wouldn't get closed (I have seen this done as a closing resolution, but
-> >I think that's a bad idea), but it wouldn't be in the default searches
-> >either ... you could just select it if you wanted it ... does that sound
-> >sane? (obviously we don't need this yet, but might be a good plan
-> >longer-term).
- 
-> Personally...  if they really are bugs, I would rather keep them open, 
-> even in the absence of a maintainer...   maybe that's not scalable, but 
-> I would rather not auto-expire things which really are bugs.  The 
-> maintainer (or "someone who cares") may not appear until the next stable 
-> series, for example.  Vendors do that alot.
+Hi Andrea,
 
-Jeff, ok, so we could do as vendors: mark the ticket as LATER, or whatever
-that doesnt make clearly stale tickets that nobody is looking appear on
-the default queries.
+> > just to make a quick test, can you try an hack like this combined with a
+> > setting of elvtune -r 128 -w 256 on top of 2.4.20rc1?
+> >
+> > --- x/drivers/block/ll_rw_blk.c.~1~     Sat Nov  2 19:45:33 2002
+> > +++ x/drivers/block/ll_rw_blk.c Sat Nov 16 19:44:20 2002
+> > @@ -432,7 +432,7 @@ static void blk_init_free_list(request_q
+> >
+> >         si_meminfo(&si);
+> >         megs = si.totalram >> (20 - PAGE_SHIFT);
+> > -       nr_requests = 128;
+> > +       nr_requests = 16;
+> >         if (megs < 32)
+> >                 nr_requests /= 2;
+> >         blk_grow_request_list(q, nr_requests);
+>
+> hehe, Andrea, it seem's we both think of the same ... :-) ... I am just
+> recompiling the kernel ... hang on.
+Andrea, this makes a difference! The pausings are much less than before, but 
+still occur. Situation below.
 
-If somebody is _so_ interested in a particular feature he/she can look for
-tickets marked LATER, add comments and state that he/she is working on it,
-provide more info, etc.
- 
-> 'stale' may be a decent compromise if people disagree with my logic, 
-> though...
+Another thing I've noticed, while doing the "cp -a xyz abc" in 
+a loop the available memory decreases alot (silly caching of files)
 
-:-)
 
-- Arnaldo
+Before copying:
+---------------
+MemTotal:       515992 kB
+MemFree:        440876 kB
+Buffers:          3808 kB
+Cached:          24128 kB
+
+
+While copying:
+--------------
+root@codeman:[/usr/src] # ./bla.sh
++ cd /usr/src
++ rm -rf linux-2.4.19-blaold linux-2.4.19-blanew
++ COUNT=0
++ echo 0
+0
++ cp -a linux-2.4.19-vanilla linux-2.4.19-blaold
++ cp -a linux-2.4.19-vanilla linux-2.4.19-blanew
+
+not yet finished the above and memory is this:
+
+MemTotal:       515992 kB
+MemFree:          3348 kB
+Buffers:         12244 kB
+Cached:         451608 kB
+
+swap (500mb) turned off. Pausings are almost none. (without your patch / 
+elvtune) even there were massive pauses.
+
+If swap is turned on, swapusage grows alot and then, if SWAP is used, we have 
+pauses (even more less than without your patch).
+
+To free the used/cached memory I use umount /usr/src.
+
+I think your proposal is good. Anything else I should test/change? Any further 
+informations/test I can/should run?
+
+Thnx alot!
+
+ciao, Marc
+
+

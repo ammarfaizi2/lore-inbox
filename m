@@ -1,51 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268703AbUIGW00@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268711AbUIGWaY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268703AbUIGW00 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 18:26:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268711AbUIGW00
+	id S268711AbUIGWaY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 18:30:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268709AbUIGWaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 18:26:26 -0400
-Received: from [216.70.31.95] ([216.70.31.95]:34221 "HELO
-	rock.mm-interactive.com") by vger.kernel.org with SMTP
-	id S268703AbUIGW0W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 18:26:22 -0400
-Date: Tue, 7 Sep 2004 17:26:22 -0500
-From: Thor Kooda <tkooda-patch-kernel@devsec.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.8.1 crypto: tea.c xtea_encrypt should use XTEA_DELTA
-Message-ID: <20040907222622.GA15730@rock>
-References: <20040903223458.GD18362@rock> <20040907134141.6c634f26.davem@davemloft.net>
-Mime-Version: 1.0
+	Tue, 7 Sep 2004 18:30:24 -0400
+Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:59099 "EHLO
+	zoo.weinigel.se") by vger.kernel.org with ESMTP id S268711AbUIGW2X
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 18:28:23 -0400
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Spam <spam@tnonline.net>, Christer Weinigel <christer@weinigel.se>,
+       David Masover <ninja@slaphack.com>, Tonnerre <tonnerre@thundrix.ch>,
+       Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       Jamie Lokier <jamie@shareable.org>, Chris Wedgwood <cw@f00f.org>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+References: <200409071530.i87FUCP1003927@laptop11.inf.utfsm.cl>
+From: Christer Weinigel <christer@weinigel.se>
+Organization: Weinigel Ingenjorsbyra AB
+Date: 08 Sep 2004 00:28:20 +0200
+In-Reply-To: <200409071530.i87FUCP1003927@laptop11.inf.utfsm.cl>
+Message-ID: <m3r7pdiuij.fsf@zoo.weinigel.se>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040907134141.6c634f26.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 07 Sep 2004, David S. Miller wrote:
-> Thor, your patches do not apply because your email
-> client turns tab characters into spaces, please fix
-> this up.
+Horst von Brand <vonbrand@inf.utfsm.cl> writes:
 
-Fixed.
+> > > 1. Do we want support for named streams?
+> > 
+> > >    I belive the answer is yes [...]
+> 
+> There are many people around here who disagree (that is precisely the heart
+> of the discussion). I for one don't think Linux has to get $RANDOM_FEATURE
+> just because $SOME_OTHER_OS has got it. Either the feature stands on its
+> own _in the context of POSIX/Unix/Linux_ (possibly as an extension or
+> modification of said standards) or it isn't worth it.
 
-Signed-off-by: Thor Kooda <tkooda-patch-kernel@devsec.org>
+Ok, noted. :-)
+
+I myself am not very interested in generic named stream support in
+Linux.  But since we have support for filesystems with named streams
+and people are interested in getting at those streams (if nothing else
+thanq to serve streams from an NTFS file system via Samba on a dual boot
+machine), we'd better do it well, instead of with ugly hacks.
+
+> We need to sort out exactly how far it makes sense to go, by showing
+> concrete, down to earth uses for whatever substructure we want. Then show
+> the effect can't be easily gotten through tools for power users or faking
+> it for unsuspecting users via GUI, and that overall the complexity and
+> performance cost is less than the win. Note that the success of the Unix
+> way is in large part due to its use of few, simple concepts that can be
+> combined endlessly; and tools following the same strategy. Adding extra
+> concepts that current tools can't naturally handle has to be considered
+> with extreme care.
+
+Regarding this section and all you wrote before, I definitely agree.
+Simplicity wins hands down every time.
+
+  /Christer
 
 -- 
-Thor Kooda
-tkooda-patch-kernel@devsec.org
+"Just how much can I get away with and still go to heaven?"
 
-
---- linux-2.6.8.1.orig/crypto/tea.c	Sat Aug 14 05:56:25 2004
-+++ linux-2.6.8.1/crypto/tea.c	Tue Sep  7 17:22:51 2004
-@@ -154,7 +154,7 @@
- 
- 	while (sum != limit) {
- 		y += (z << 4 ^ z >> 5) + (z ^ sum) + ctx->KEY[sum&3]; 
--		sum += TEA_DELTA;
-+		sum += XTEA_DELTA;
- 		z += (y << 4 ^ y >> 5) + (y ^ sum) + ctx->KEY[sum>>11 &3]; 
- 	}
- 	
-
+Freelance consultant specializing in device driver programming for Linux 
+Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

@@ -1,76 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136695AbREGWp6>; Mon, 7 May 2001 18:45:58 -0400
+	id <S136641AbREGWo6>; Mon, 7 May 2001 18:44:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136697AbREGWpt>; Mon, 7 May 2001 18:45:49 -0400
-Received: from fe040.worldonline.dk ([212.54.64.205]:48137 "HELO
-	fe040.worldonline.dk") by vger.kernel.org with SMTP
-	id <S136695AbREGWph>; Mon, 7 May 2001 18:45:37 -0400
-Message-ID: <3AF72730.3030604@eisenstein.dk>
-Date: Tue, 08 May 2001 00:52:32 +0200
-From: Jesper Juhl <juhl@eisenstein.dk>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-mosix i586; en-US; m18) Gecko/20010131 Netscape6/6.01
-X-Accept-Language: en, da
+	id <S136697AbREGWos>; Mon, 7 May 2001 18:44:48 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:32938 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S136641AbREGWon>;
+	Mon, 7 May 2001 18:44:43 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86 page fault handler not interrupt safe
-In-Reply-To: <Pine.LNX.4.21.0105071003330.12733-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15095.9557.998522.571971@pizda.ninka.net>
+Date: Mon, 7 May 2001 15:44:37 -0700 (PDT)
+To: torvalds@transmeta.com (Linus Torvalds)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: page_launder() bug
+In-Reply-To: <9d6npn$dhp$1@penguin.transmeta.com>
+In-Reply-To: <Pine.A41.4.31.0105062307290.59664-100000@pandora.inf.elte.hu>
+	<9d6npn$dhp$1@penguin.transmeta.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
 
-> 
-> In particular, does anybody have a buggy Pentium to test with the F0 0F
-> lock-up bug? It _should_ be caught with the error-code test (it's a
-> protection fault, not a non-present fault and thus the F0 0F case never
-> enters the vmalloc path), but it's been several years since the thing..
-> 
-> If anybody has such a beast, please try this kernel patch _and_ running
-> the F0 0F bug-producing program (search for it on the 'net - it must be
-> out there somewhere) to verify that the code still correctly handles that
-> case.
-> 
+Linus Torvalds writes:
+ > The whole "dead_swap_page" optimization in the -ac tree is apparentrly
+ > completely bogus.  It caches a value that is not valid: you cannot
+ > reliably look at whether the page has buffers etc without holding the
+ > page locked. 
 
-I have a Thinkpad with a buggy pentium (see cat /proc/cpuinfo below) and 
-I tried running the F00F test program available from 
-http://lwn.net/2001/0329/a/ltp-f00f.php3 first on a 2.2.17 kernel that 
-I've been running for ages without problems I got this output:
+It caches a value controlling heuristics, not "state".  Specifically
+it controls whether we:
 
-Testing for proper f00f instruction handling.
-SIGILL received from f00f instruction.  Good.
+1) Ignore the referenced bit, this is fine.
 
-Then I tried 2.4.4 with your patch applied and got the same output (and 
-no lockup), so according to that test program your patch does not break 
-the F00F handling code. :-)
+2) Allow writepage() operations in the first pass.  This is fine too.
 
-If you want me to test other patches, just let me know and I'll be happy 
-to do so!
+All normal checks are redone, only heuristics are changed.
 
-$ cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 5
-model           : 8
-model name      : Mobile Pentium MMX
-stepping        : 1
-cpu MHz         : 232.111
-fdiv_bug        : no
-hlt_bug         : no
-sep_bug         : no
-f00f_bug        : yes
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr mce cx8 mmx
-bogomips        : 463.67
+Please show me how this is illegal.  Everyone comes to this conclusion
+when the first read the code, that I am doing something illegal, then
+when I explain what that dead_swap_page thing is doing and they read
+it a second time (how shocking! :-) they go "oh, I see".
 
+If the patch is causing problems, it is due to some other bug not my
+patch itself.
 
-Best regards,
-Jesper Juhl - juhl@eisenstein.dk
+I do not argue that my patch is "the" way to solve the dead swap page
+problem, to the contrary.  Stephen has something which seems to try to
+attack this issue in a much nicer way.
 
+Later,
+David S. Miller
+davem@redhat.com

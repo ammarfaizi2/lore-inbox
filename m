@@ -1,67 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131665AbQLVGq0>; Fri, 22 Dec 2000 01:46:26 -0500
+	id <S131557AbQLVG4z>; Fri, 22 Dec 2000 01:56:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131696AbQLVGqO>; Fri, 22 Dec 2000 01:46:14 -0500
-Received: from cambot.suite224.net ([209.176.64.2]:1030 "EHLO suite224.net")
-	by vger.kernel.org with ESMTP id <S131665AbQLVGpz>;
-	Fri, 22 Dec 2000 01:45:55 -0500
-Message-ID: <001901c06bdf$1d6c74e0$3b42b0d1@pittscomp.com>
-From: "Matthew D. Pitts" <mpitts@suite224.net>
-To: "Robert B. Easter" <reaster@comptechnews.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <0012212320430F.02217@comptechnews>
-Subject: Re: recommended gcc compiler version
-Date: Fri, 22 Dec 2000 01:19:07 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
+	id <S131696AbQLVG4p>; Fri, 22 Dec 2000 01:56:45 -0500
+Received: from smtpnotes.altec.com ([209.149.164.10]:29199 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S131557AbQLVG4h>; Fri, 22 Dec 2000 01:56:37 -0500
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: linux-kernel@vger.kernel.org
+cc: torvalds@transmeta.com
+Message-ID: <862569BD.00234C86.00@smtpnotes.altec.com>
+Date: Fri, 22 Dec 2000 00:23:26 -0600
+Subject: 2.4.0-test13 drivers/net/pcmcia fix
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Robert,
-gcc 2.7.2.3 is the safest, but egcs 1.1.2 will work. any kernels built with
-gcc 2.95.x work but can be buggy.
-
-Matthew Pitts
-mpitts@suite224.net
-
------ Original Message -----
-From: Robert B. Easter <reaster@comptechnews.com>
-To: <linux-kernel@vger.kernel.org>
-Sent: Thursday, December 21, 2000 11:20 PM
-Subject: recommended gcc compiler version
 
 
-> This is a newbie question, but what are the recommended gcc compiler
-versions
-> for compiling,
->
-> Linux 2.2.18?
->
-> Linux 2.4.0?
->
->
-> I'd rather use the recommended version than not and have difficult bugs.
->
-> Thanks.  If there is a FAQ, kindy direct me to it, or, if this info isn't
-in
-> there specificly, perhaps a FAQ maintainer can add this stuff.
->
-> --
-> -------- Robert B. Easter  reaster@comptechnews.com ---------
-> - CompTechNews Message Board   http://www.comptechnews.com/ -
-> - CompTechServ Tech Services   http://www.comptechserv.com/ -
-> ---------- http://www.comptechnews.com/~reaster/ ------------
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+The files in drivers/net/pcmcia are skipped when configured to compile as
+modules.  Here's a patch (against test13-pre4) for the Makefile:
+
+--- linux.old/drivers/net/Makefile Thu Dec 21 22:14:46 2000
++++ linux/drivers/net/Makefile     Thu Dec 21 23:38:20 2000
+@@ -8,7 +8,7 @@
+ obj-n           :=
+ obj-            :=
+
+-mod-subdirs     := wan
++mod-subdirs     := pcmcia wan
+
+ O_TARGET := net.o
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

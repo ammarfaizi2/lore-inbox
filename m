@@ -1,71 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVCRJda@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbVCRJfj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261548AbVCRJda (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 04:33:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbVCRJda
+	id S261549AbVCRJfj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 04:35:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbVCRJfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 04:33:30 -0500
-Received: from fire.osdl.org ([65.172.181.4]:55968 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261548AbVCRJdN (ORCPT
+	Fri, 18 Mar 2005 04:35:39 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:7055 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261549AbVCRJfX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 04:33:13 -0500
-Date: Fri, 18 Mar 2005 01:32:51 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: rostedt@goodmis.org
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove lame schedule in journal inverted_lock (was: Re:
- [patch 0/3] j_state_lock, j_list_lock, remove-bitlocks)
-Message-Id: <20050318013251.330e4d78.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0503180415370.21994@localhost.localdomain>
-References: <Pine.LNX.4.58.0503141024530.697@localhost.localdomain>
-	<Pine.LNX.4.58.0503150641030.6456@localhost.localdomain>
-	<20050315120053.GA4686@elte.hu>
-	<Pine.LNX.4.58.0503150746110.6456@localhost.localdomain>
-	<20050315133540.GB4686@elte.hu>
-	<Pine.LNX.4.58.0503151150170.6456@localhost.localdomain>
-	<20050316085029.GA11414@elte.hu>
-	<20050316011510.2a3bdfdb.akpm@osdl.org>
-	<20050316095155.GA15080@elte.hu>
-	<20050316020408.434cc620.akpm@osdl.org>
-	<20050316101906.GA17328@elte.hu>
-	<20050316024022.6d5c4706.akpm@osdl.org>
-	<Pine.LNX.4.58.0503160600200.11824@localhost.localdomain>
-	<20050316031909.08e6cab7.akpm@osdl.org>
-	<Pine.LNX.4.58.0503160853360.11824@localhost.localdomain>
-	<Pine.LNX.4.58.0503161141001.14087@localhost.localdomain>
-	<Pine.LNX.4.58.0503161234350.14460@localhost.localdomain>
-	<20050316131521.48b1354e.akpm@osdl.org>
-	<Pine.LNX.4.58.0503170406500.17019@localhost.localdomain>
-	<Pine.LNX.4.58.0503180415370.21994@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 18 Mar 2005 04:35:23 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16954.41169.665960.627306@alkaid.it.uu.se>
+Date: Fri, 18 Mar 2005 10:35:13 +0100
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
+Subject: Re: ppc64 build broke between 2.6.11-bk6 and 2.6.11-bk7
+In-Reply-To: <16954.40800.839009.64848@alkaid.it.uu.se>
+References: <445800000.1111127533@[10.10.2.4]>
+	<20050317224409.41f0f5c5.akpm@osdl.org>
+	<16954.40800.839009.64848@alkaid.it.uu.se>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt <rostedt@goodmis.org> wrote:
->
-> 
-> Andrew,
-> 
-> Since I haven't gotten a response from you,
+Mikael Pettersson writes:
+ > Andrew Morton writes:
+ >  > "Martin J. Bligh" <mbligh@aracnet.com> wrote:
+ >  > >
+ >  > > drivers/built-in.o(.text+0x182bc): In function `.matroxfb_probe':
+ >  > > : undefined reference to `.mac_vmode_to_var'
+ >  > > make: *** [.tmp_vmlinux1] Error 1
+ >  > > 
+ >  > > Anyone know what that is?
+ >  > > 
+ >  > 
+ >  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm4/broken-out/fbdev-kconfig-fix-for-macmodes-and-ppc.patch
+ >  > 
+ >  > should fix it.
+ > 
+ > It seems the culprit is "matroxfb-compile-error.patch" which unconditionally adds
+ > macmodes.o to the Makefile line for CONFIG_FB_MATROX. This obviously breaks on !ppc.
 
-It sometimes takes me half a day to get onto looking at patches.  And if I
-take them I usually don't reply (sorry).  But I don't drop stuff, so if you
-don't hear, please assume the patch stuck.  If others raise objections
-to the patch I'll usually duck it as well, but it's pretty obvious when that
-happens.
+!pmac of course; I assume Martin configured for some kind of POWER box and not a G5.
 
-I really should knock up a script to send out an email when I add a patch
-to -mm.
-
-> I'd figure that you may have
-> missed this, since the subject didn't change.  So I changed the subject to
-> get your attention, and I've resent this. Here's the patch to get rid of
-> the the lame schedule that was in fs/jbd/commit.c.   Let me know if this
-> patch is appropriate.
-
-I'm rather aghast at all the ifdeffery and complexity in this one.  But I
-haven't looked at it closely yet.
-
+ > The patch Andrew mentions above converts the Kconfig entry for FB_MATROX to do a
+ > "select FB_MACMODES if PPC_PMAC", so dropping matroxfb-compile-error.patch should suffice.

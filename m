@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261644AbTILOcT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 10:32:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbTILOcS
+	id S261651AbTILOZX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 10:25:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbTILOZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 10:32:18 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:12432 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261644AbTILOcP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 10:32:15 -0400
-Message-ID: <3F61D8E4.6020309@nortelnetworks.com>
-Date: Fri, 12 Sep 2003 10:32:04 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	Fri, 12 Sep 2003 10:25:23 -0400
+Received: from vlugnet.org ([217.160.107.28]:62119 "EHLO vlugnet.org")
+	by vger.kernel.org with ESMTP id S261651AbTILOZS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 10:25:18 -0400
+From: Ronny Buchmann <ronny-lkml@vlugnet.org>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [OOPS] 2.4.22 / HPT372N
+Date: Fri, 12 Sep 2003 16:24:41 +0200
+User-Agent: KMail/1.5.3
+Cc: Marko Kreen <marko@l-t.ee>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200309091406.56334.ronny-lkml@vlugnet.org> <1063363684.5409.8.camel@dhcp23.swansea.linux.org.uk> <200309121458.25327.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200309121458.25327.bzolnier@elka.pw.edu.pl>
 MIME-Version: 1.0
-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: firewalling PPPOE stream without terminating it
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309121624.41989.ronny-lkml@vlugnet.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Freitag 12 September 2003 14:58 schrieb Bartlomiej Zolnierkiewicz:
+> On Friday 12 of September 2003 12:48, Alan Cox wrote:
+> > On Gwe, 2003-09-12 at 10:41, Ronny Buchmann wrote:
+> > > -	d->channels = 1;
+> > > +	d->channels = 2;
+> >
+> > Need to work out which 372N and others are dual channel but yes
+>
+> No, "d->channels = 1" is only executed for orginal HPT366 which has
+> separate PCI configurations for first and second channel.  For HPT372N you
+> have correct value in hpt366.h - ".channels = 2".
+so it should be something like this?
 
-I've got a PPPOE DSL line coming into my house, and I and my roommates 
-each terminate our own connection and get our own dynamic IP address.
-
-With the recent bunch of viruses/worms, a couple of us were thinking 
-about setting up a box as a transparent firewalling bridge.  The only 
-tricky bit is that we don't want to terminate the PPPOE connection at 
-that box, since that would then force us to do NAT/ipmasq.
-
-Does anyone know of any way to filter the contents of a tunnelled packet 
-(PPPOE in particular) using standard tools like ebtables/iptables?
-
-The other possibility I had considered was a netfilter module that tied 
-into the ebtables hooks and knew how to look inside the PPPOE packet, 
-but then I wouldn't get the userspace interface from ebtables/iptables.
-
-Chris
+switch(class_rev) {
+	case 5:
+ 	case 4:
+  	case 3: ide_setup_pci_device(dev, d);
+		return;
+	case 1: d->channels = 1;
+	default:        break;
+}
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+ronny
+
 

@@ -1,69 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272688AbTHEL7I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 07:59:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272689AbTHEL7I
+	id S272691AbTHEMA7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 08:00:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272692AbTHEMA7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 07:59:08 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34067 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S272688AbTHEL7C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 07:59:02 -0400
-Date: Tue, 5 Aug 2003 12:58:54 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Martin J. Bligh" <mbligh@aracnet.com>, hien1@us.ibm.com,
-       sglass@us.ibm.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 982] New: cu -l /dev/ttyS0 got a signal hangup in 2.5 kernel
-Message-ID: <20030805125854.B30676@flint.arm.linux.org.uk>
-Mail-Followup-To: "Martin J. Bligh" <mbligh@aracnet.com>, hien1@us.ibm.com,
-	sglass@us.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>
-References: <3606320000.1059369234@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3606320000.1059369234@[10.10.2.4]>; from mbligh@aracnet.com on Sun, Jul 27, 2003 at 10:13:54PM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Tue, 5 Aug 2003 08:00:59 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:11279 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S272691AbTHEMAz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 08:00:55 -0400
+Date: Tue, 5 Aug 2003 14:00:40 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Christoph Hellwig <hch@lst.de>
+cc: James.Bottomley@steeleye.com, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] simplify i386 mca Kconfig bits
+In-Reply-To: <20030805113551.GB23754@lst.de>
+Message-ID: <Pine.LNX.4.44.0308051347060.717-100000@serv>
+References: <20030805113154.GA23728@lst.de> <20030805113351.GA23754@lst.de>
+ <20030805113551.GB23754@lst.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 27, 2003 at 10:13:54PM -0700, Martin J. Bligh wrote:
-> Distribution: SuSE SLES8 
-> Hardware Environment:NetVista 6579-A4U Pentium III - 866 MHz 256MB RAM 
-> Software Environment:2.5.75 kernel 
-> Problem Description: cu session fails to log into the other machine which is connected with a 
-> null modem serial cable between serial ports. 
-> It works fine in 2.4.19 4GB kernel 
+Hi,
+
+On Tue, 5 Aug 2003, Christoph Hellwig wrote:
+
+> --- 1.62/arch/i386/Kconfig	Thu Jun 19 19:06:56 2003
+> +++ edited/arch/i386/Kconfig	Tue Jun 24 21:31:52 2003
+> @@ -1104,16 +1104,13 @@
 >  
-> Steps to reproduce: 
->   1. connecting two systems with a null modem serial cable between serial ports. 
->   2. On one machine, do : cu -l /dev/ttyS0 
->       On other system, have /sbin/agetty -L 9600 ttyS0 vt100  running. 
->       and ttyS0 has been defined in /etc/securetty 
->   3. cu session connected and showed you the login prompt. 
->   4. Got a hangup signal and disconnected after typing "root" or any user ID. 
->       It supposes to prompt you "password:" to let you type the password of the other machine 
->       to login to that system.
+>  config MCA
+>  	bool "MCA support"
+> -	depends on !(X86_VISWS || X86_VOYAGER)
+> +	depends on !X86_VISWS
+> +	default y if X86_VOYAGER
+>  	help
+>  	  MicroChannel Architecture is found in some IBM PS/2 machines and
+>  	  laptops.  It is a bus system similar to PCI or ISA. See
+>  	  <file:Documentation/mca.txt> (and especially the web page given
+>  	  there) before attempting to build an MCA bus kernel.
+> -
+> -config MCA
+> -	depends on X86_VOYAGER
+> -	default y if X86_VOYAGER
 
-If I remember to update bugzilla...
+This is not really the same as before, e.g. this might be better:
 
-What seems to be happening is that cu is clearing the "clocal" termios bit.
-This means that when the CD line is dropped on ttyS0, cu receives a hangup
-signal, as per the POSIX spec.  This seems reasonable.
+config MCA
+	bool "MCA support" if !(X86_VISWS || X86_VOYAGER)
+	default y if X86_VOYAGER
 
-There is a change of behaviour between 2.4 and 2.5 kernels though
-(please confirm) - if you use the "callout" devices in 2.4, you don't
-receive this hangup signal, even if the clocal bit is cleared.  Callout
-devices no longer exist in 2.5.
+or you could do this:
 
-The real question is this - why is the CD line being dropped between the
-two machines between typing in the user name and asking for the password.
+config X86_VOYAGER
+	bool "Voyager (NCR)"
+	select MCA
 
-Maybe someone with this problem can give some details about the system
-they're trying to log into rather than the local system.
+config MCA
+	bool "MCA support"
+	depends on !X86_VISWS
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+bye, Roman
 

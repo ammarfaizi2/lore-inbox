@@ -1,101 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261935AbVCaDu4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262484AbVCaDw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261935AbVCaDu4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 22:50:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262484AbVCaDuz
+	id S262484AbVCaDw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 22:52:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbVCaDwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 22:50:55 -0500
-Received: from graphe.net ([209.204.138.32]:5138 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S261935AbVCaDuf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 22:50:35 -0500
-Date: Wed, 30 Mar 2005 19:50:22 -0800 (PST)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@server.graphe.net
-To: Matthew Wilcox <matthew@wil.cx>
-cc: Manfred Spraul <manfred@colorfullife.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       linux-mm@kvack.org, shai@scalex86.org,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH] Pageset Localization V2
-In-Reply-To: <20050330134049.GA21986@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.58.0503301947450.26235@server.graphe.net>
-References: <Pine.LNX.4.58.0503292147200.32571@server.graphe.net>
- <20050330134049.GA21986@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
+	Wed, 30 Mar 2005 22:52:55 -0500
+Received: from pacific.moreton.com.au ([203.143.235.130]:60833 "EHLO
+	moreton.com.au") by vger.kernel.org with ESMTP id S262484AbVCaDwr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 22:52:47 -0500
+Date: Thu, 31 Mar 2005 13:52:14 +1000
+From: David McCullough <davidm@snapgear.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: johnpol@2ka.mipt.ru, Andrew Morton <akpm@osdl.org>,
+       cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org, jmorris@redhat.com,
+       herbert@gondor.apana.org.au
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
+Message-ID: <20050331035214.GA12181@beast>
+References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast> <20050323203856.17d650ec.akpm@osdl.org> <1111666903.23532.95.camel@uganda> <42432596.2090709@pobox.com> <1111724759.23532.121.camel@uganda> <42439781.4080007@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42439781.4080007@pobox.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch to fix the issues mentioned so far. The MAKE_LIST macro would also
-not be good to some things that I have planned so lets drop it.
 
-Index: linux-2.6.11/mm/page_alloc.c
-===================================================================
---- linux-2.6.11.orig/mm/page_alloc.c	2005-03-30 19:45:23.000000000 -0800
-+++ linux-2.6.11/mm/page_alloc.c	2005-03-30 19:46:23.000000000 -0800
-@@ -1613,15 +1613,6 @@ void zone_init_free_lists(struct pglist_
- 	memmap_init_zone((size), (nid), (zone), (start_pfn))
- #endif
+Jivin Jeff Garzik lays it down ...
+...
+> >If kernelspace can assist and driver _knows_ in advance that data
+> >produced is cryptographically strong, why not allow it directly
+> >access pools?
+> 
+> A kernel driver cannot know in advance that the data from a hardware RNG 
+> is truly random, unless the data itself is 100% validated beforehand.
 
--#define MAKE_LIST(list, nlist)  \
--	do {    \
--		if(list_empty(&list))      \
--			INIT_LIST_HEAD(nlist);          \
--		else {  nlist->next->prev = nlist;      \
--			nlist->prev->next = nlist;      \
--		}                                       \
--	}while(0)
--
- /*
-  * Dynamicaly allocate memory for the
-  * per cpu pageset array in struct zone.
-@@ -1629,6 +1620,7 @@ void zone_init_free_lists(struct pglist_
- static inline int __devinit process_zones(int cpu)
- {
- 	struct zone *zone, *dzone;
-+	int i;
+You can also say that it cannot know that data written to /dev/random
+is truly random unless it is also validated ?
 
- 	for_each_zone(zone) {
- 		struct per_cpu_pageset *npageset = NULL;
-@@ -1642,9 +1634,17 @@ static inline int __devinit process_zone
+For argument you could just run "cat < /dev/hwrandom > /dev/random"
+instead of using rngd.
 
- 		if(zone->pageset[cpu]) {
- 			memcpy(npageset, zone->pageset[cpu], sizeof(struct per_cpu_pageset));
--			MAKE_LIST(zone->pageset[cpu]->pcp[0].list, (&npageset->pcp[0].list));
--			MAKE_LIST(zone->pageset[cpu]->pcp[1].list, (&npageset->pcp[1].list));
--		}
-+
-+			/* Fix up the list pointers */
-+			for(i = 0; i<2; i++) {
-+				if (list_empty(&zone->pageset[cpu]->pcp[i].list))
-+					INIT_LIST_HEAD(&npageset->pcp[i].list);
-+				else {
-+					npageset->pcp[i].list.next->prev = &npageset->pcp[i].list;
-+					npageset->pcp[i].list.prev->next = &npageset->pcp[i].list;
-+				}
-+			}
-+ 		}
- 		else {
- 			struct per_cpu_pages *pcp;
- 			unsigned long batch;
-@@ -1721,11 +1721,14 @@ struct notifier_block pageset_notifier =
+If /dev/random demands a level of randomness,  shouldn't it enforce it ?
 
- void __init setup_per_cpu_pageset()
- {
--	/*Iintialize per_cpu_pageset for cpu 0.
--	  A cpuup callback will do this for every cpu
--	  as it comes online
-+	int err;
-+
-+	/* Initialize per_cpu_pageset for cpu 0.
-+	 * A cpuup callback will do this for every cpu
-+	 * as it comes online
- 	 */
--	BUG_ON(process_zones(smp_processor_id()));
-+	err = process_zones(smp_processor_id());
-+	BUG_ON(err);
- 	register_cpu_notifier(&pageset_notifier);
- }
+If the HW is using 2 random sources, a non-linear mixer and a FIPS140
+post processor before handing you a random number it would be nice to
+take advantage of that IMO.
 
+Cheers,
+Davidm
+
+-- 
+David McCullough, davidm@snapgear.com  Ph:+61 7 34352815 http://www.SnapGear.com
+Custom Embedded Solutions + Security   Fx:+61 7 38913630 http://www.uCdot.org

@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316862AbSE1Rjr>; Tue, 28 May 2002 13:39:47 -0400
+	id <S316867AbSE1RzN>; Tue, 28 May 2002 13:55:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316864AbSE1Rjq>; Tue, 28 May 2002 13:39:46 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:37649
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S316862AbSE1Rjo>; Tue, 28 May 2002 13:39:44 -0400
-Date: Tue, 28 May 2002 10:23:43 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "Adam J. Richter" <adam@freya.yggdrasil.com>, gilad@benyossef.com,
-        linux-kernel@vger.kernel.org, lm@bitmover.com, phillips@bonn-fries.net
-Subject: Re: business models [was patent stuff]
-In-Reply-To: <1022610136.4124.131.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10205281021520.8598-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S316868AbSE1RzM>; Tue, 28 May 2002 13:55:12 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:3346 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S316867AbSE1RzL>;
+	Tue, 28 May 2002 13:55:11 -0400
+Date: Tue, 28 May 2002 10:53:58 -0700
+From: Greg KH <greg@kroah.com>
+To: "Jonathan B. Horen" <horen@mail.iucc.ac.il>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.18 Compile-time Error for Philips USB Video
+Message-ID: <20020528175358.GF11993@kroah.com>
+In-Reply-To: <3CF2700A.2090405@mail.iucc.ac.il>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Tue, 30 Apr 2002 16:43:25 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, May 27, 2002 at 08:42:34PM +0300, Jonathan B. Horen wrote:
+> make[3]: Entering directory `/usr/src/linux-2.5.18/drivers/usb/media'
+> gcc -D__KERNEL__ -I/usr/src/linux-2.5.18/include -Wall 
+> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
+> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
+> -march=i686    -DKBUILD_BASENAME=pwc_if  -c -o pwc-if.o pwc-if.c
+> pwc-if.c: In function `pwc_isoc_init':
+> pwc-if.c:818: structure has no member named `next'
+> pwc-if.c: In function `pwc_isoc_cleanup':
+> pwc-if.c:861: structure has no member named `next'
 
-There is a major problem with your argument.
+Known problem.  That field was removed from the struct urb in the USB
+core.  The driver (and some other USB video drivers) needs to be fixed.
+Patches are welcome :)
 
-"FREE" is covered in BLACK's Book.
+thanks,
 
-"RELEASE" is not.  RMS specifically picked "RELEASE" in the GPL to force a
-litigation in court.  "RELEASE" is subjective to the reviewing body.
-
-Cheers,
-
-On 28 May 2002, Alan Cox wrote:
-
-> On Tue, 2002-05-28 at 18:13, Adam J. Richter wrote:
-> > 	You could license all programs that consist entirely of
-> > free software.  That way, BSD, LGPL, and MPL software that did
-> > not link in proprietary software would be allowed too, but your
-> > example of a proprietary program that linked in the BSD'ed
-> > libpatent.o/c would not be covered by this permission.
-> 
-> Define "free software" using only legally defined phrases which have
-> precedent. In fact put four people in a room and get them to define free
-> software.
-> 
-> > software would address issues like GPL'ed software that contains
-> > content that is GPL compatible but not GPL'ed, future versions of
-> 
-> If its linked then it is GPL in the linked form, otherwise you wouldn't
-> be allowed to link it
-> 
-> Alan
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+greg k-h

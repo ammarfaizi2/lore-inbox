@@ -1,91 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265280AbUBEOGk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 09:06:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265277AbUBEOGk
+	id S265231AbUBEORD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 09:17:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265238AbUBEORD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 09:06:40 -0500
-Received: from srv1a-cta.bs2.com.br ([200.203.183.35]:13841 "EHLO
-	srv1a-cta.bs2.com.br") by vger.kernel.org with ESMTP
-	id S265264AbUBEOGh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 09:06:37 -0500
-Message-ID: <402244FE.5010107@gardenali.biz>
-Date: Thu, 05 Feb 2004 11:28:30 -0200
-From: Evaldo Gardenali <evaldo@gardenali.biz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+	Thu, 5 Feb 2004 09:17:03 -0500
+Received: from tristate.vision.ee ([194.204.30.144]:62180 "HELO mail.city.ee")
+	by vger.kernel.org with SMTP id S265231AbUBEORB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 09:17:01 -0500
+Message-ID: <4022505B.1020900@vision.ee>
+Date: Thu, 05 Feb 2004 16:16:59 +0200
+From: =?ISO-8859-1?Q?Lenar_L=F5hmus?= <lenar@vision.ee>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040205 Thunderbird/0.4
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: problem on __alloc_pages
-X-Enigmail-Version: 0.82.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+Subject: Re: 2.6.2-mm1 aka "Geriatric Wombat"
+References: <20040205014405.5a2cf529.akpm@osdl.org> <200402051357.04005.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200402051357.04005.s0348365@sms.ed.ac.uk>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Alistair John Strachan wrote:
 
-Hi.
-I am a newbie to kernel memory alloc, and got this on my server.
+>On Thursday 05 February 2004 09:44, Andrew Morton wrote:
+>  
+>
+>Still doesn't boot on my nForce 2 system, hangs while probing PDC RAID card. 
+>Confirmed from 2.6.2-rc3-mm1 that it was likely related to ACPI changes, but 
+>reverting bk-acpi.patch makes no difference.
+>
+>I'd like to test mainline, but I'm using gcc 3.4 snapshot, so I'll try later 
+>today with 2.6.2 + linus.patch.
+>
+>  
+>
+Same here, hangs probing hpt366 ide controller. After some time says:
 
-Feb  5 11:09:39 server1 kernel: __alloc_pages: 1-order allocation failed
-(gfp=0x1f0/0)
-Feb  5 11:09:39 server1 kernel: __alloc_pages: 0-order allocation failed
-(gfp=0x1f0/0)
-Feb  5 11:10:36 server1 kernel: __alloc_pages: 0-order allocation failed
-(gfp=0x1d2/0)
-Feb  5 11:11:18 server1 kernel: __alloc_pages: 0-order allocation failed
-(gfp=0x1d2/0)
-Feb  5 11:11:18 server1 kernel: __alloc_pages: 0-order allocation failed
-(gfp=0x1d2/0)
-Feb  5 11:11:18 server1 kernel: __alloc_pages: 0-order allocation failed
-(gfp=0xf0/0)
-Feb  5 11:11:18 server1 kernel: __alloc_pages: 0-order allocation failed
-(gfp=0x1d2/0)
-Fev  5 11:11:39 server1 gconfd (evaldo-2337): Recebido sinal 15,
-desligando corretamente
-Fev  5 11:11:40 server1 gconfd (evaldo-2337): Terminando
-Feb  5 11:11:52 server1 /usr/sbin/gpm[437]: imps2: Auto-detected
-intellimouse PS/2
-^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@
-^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@Feb  5 11:13:12 server1
-syslogd 1.4.1: restart.
+hde: lost interrupt
 
-(server reboot)
+boots ok with pci=noacpi
 
-my server runs like this normally:
-~        total:    used:    free:  shared: buffers:  cached:
-Mem:  527372288 422723584 104648704        0 45375488 222887936
-Swap: 978726912        0 978726912
-MemTotal:       515012 kB
-MemFree:        102196 kB
-MemShared:           0 kB
-Buffers:         44312 kB
-Cached:         217664 kB
-SwapCached:          0 kB
-Active:          58560 kB
-Inactive:       325604 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       515012 kB
-LowFree:        102196 kB
-SwapTotal:      955788 kB
-SwapFree:       955788 kB
-
-Linux server1 2.4.25-pre6-athlonxp #1 Tue Jan 20 11:49:48 BRST 2004 i686
-unknown unknown GNU/Linux
-"-athlonxp" is just a descriptive name, for me to differentiate my
-kernels. no extra patch was made
-
-Thanks
-Evaldo Gardenali
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFAIkT95121Y+8pAbIRAsmYAJwLAsTxZ2S6Q+RKQ//6l+Qrv25VXwCdHrTd
-2+wNbdm7uNFfAUcYMG+g+qI=
-=EyDh
------END PGP SIGNATURE-----
+Lenar

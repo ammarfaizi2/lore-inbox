@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262325AbUCOIRh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 03:17:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbUCOIRh
+	id S262351AbUCOIjO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 03:39:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbUCOIjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 03:17:37 -0500
-Received: from mail.shareable.org ([81.29.64.88]:18060 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S262325AbUCOIRg
+	Mon, 15 Mar 2004 03:39:14 -0500
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:49576 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S262351AbUCOIjN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 03:17:36 -0500
-Date: Mon, 15 Mar 2004 08:17:13 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: finding out the value of HZ from userspace
-Message-ID: <20040315081713.GB7188@mail.shareable.org>
-References: <20040311141703.GE3053@luna.mooo.com> <200403140245.i2E2jKSx005375@eeyore.valparaiso.cl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200403140245.i2E2jKSx005375@eeyore.valparaiso.cl>
-User-Agent: Mutt/1.4.1i
+	Mon, 15 Mar 2004 03:39:13 -0500
+In-Reply-To: <1079153403.2348.82.camel@gaston>
+References: <20040313041547.GB11512@staidm.org> <1079153403.2348.82.camel@gaston>
+Mime-Version: 1.0 (Apple Message framework v612)
+Message-Id: <2412BC40-765C-11D8-8673-000A95A4DC02@kernel.crashing.org>
+Cc: linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Bryan Rittmeyer <bryan@staidm.org>, Paul Mackerras <paulus@samba.org>
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: [PATCH] ppc32 copy_to_user dcbt fixup
+Date: Mon, 15 Mar 2004 09:38:32 +0100
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+X-Mailer: Apple Mail (2.612)
+X-MIMETrack: Itemize by SMTP Server on D12ML046/12/M/IBM(Release 6.0.2CF2|July 23, 2003) at
+ 15/03/2004 09:38:27,
+	Serialize by Router on D12ML046/12/M/IBM(Release 6.0.2CF2|July 23, 2003) at
+ 15/03/2004 09:38:30,
+	Serialize complete at 15/03/2004 09:38:30
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
-> What for? It should be invisible to userspace...
+> It would be wise to make the dcbz as long as
+> possible in "advance" before the actual write to the cache line.
 
-It's not invisible.  select/poll/epoll/setitimer round their time
-argument according to HZ, and programs which do smooth (i.e. low
-_jitter_) animation of the kind where the eye is sensitive to the
-jitter need to track it and correct for it.
+And use dcbzl instead, if available...
 
--- Jamie
+
+Segher
+

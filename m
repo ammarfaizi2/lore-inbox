@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263564AbTLSRYZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 12:24:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263580AbTLSRYZ
+	id S263496AbTLSRfi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 12:35:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263510AbTLSRfh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 12:24:25 -0500
-Received: from pcp701542pcs.bowie01.md.comcast.net ([68.50.82.18]:56296 "EHLO
-	floyd.gotontheinter.net") by vger.kernel.org with ESMTP
-	id S263564AbTLSRYX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 12:24:23 -0500
-Subject: Re: [2.4] Nforce2 oops and occasional hang (tried the lockups
-	patch, no difference)
-From: Disconnect <lkml@sigkill.net>
-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1071773523.1282.6.camel@slappy>
-References: <200312131225.34937.ross@datscreative.com.au>
-	 <1071506410.2030.35.camel@slappy>  <1071773523.1282.6.camel@slappy>
-Content-Type: text/plain
-Message-Id: <1071854664.6110.21.camel@slappy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 19 Dec 2003 12:24:25 -0500
+	Fri, 19 Dec 2003 12:35:37 -0500
+Received: from obsidian.spiritone.com ([216.99.193.137]:34460 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S263496AbTLSRfg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 12:35:36 -0500
+Date: Fri, 19 Dec 2003 09:22:48 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>, David Mosberger <davidm@napali.hpl.hp.com>,
+       Andi Kleen <ak@muc.de>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.0-test11-mm1 doesn't compile on x86_64
+Message-ID: <41640000.1071854568@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-12-18 at 13:52, Disconnect wrote:
-> memory/cpu timings.  (Even underclocked it to 133 and 1G with no
-> change.)  So its unfortunately back on a stock 2.4.23-pre9 with
-> noapic/noacpi. (It disables one of the sets of usb ports, as I recall,
-> but it mostly works...)
+fs/proc/task_mmu.c: In function `show_map':
+fs/proc/task_mmu.c:127: `gate_dso_path' undeclared (first use in this function)
+fs/proc/task_mmu.c:127: (Each undeclared identifier is reported only once
+fs/proc/task_mmu.c:127: for each function it appears in.)
+make[2]: *** [fs/proc/task_mmu.o] Error 1
+make[1]: *** [fs/proc] Error 2
+make: *** [fs] Error 2
+make: *** Waiting for unfinished jobs....
 
-Update: Underclocked from 1.8G to 1.2G (whups, meant to go down only
-2-300mhz) and its been vaguely stable for about 1.5 days.  I don't have
-another week (yet..) to run it under its normal load and wait for a
-crash, so what I'm going to do is:
- - Move the workload (web/mail/..) to a different machine so this one
-can be down for an extended period
- - Replace the ram with new sticks (they arrived this morning)
- - Reclock everything to stock (1.83G cpu, 200mhz ram and verify the
-timings from kingston)
- - Replace the video card
- - Memtest86 until it cries
- - If it passes, bonnie++ on the new drives
- - If that passes, usb/acpi/apic testing with the associated patches
+It seems to be fixmap-in-proc-pid-maps-ng.patch that's broken
+(davidm cc'ed). Maybe something as simple as the below fixes it.
+Or maybe it's total crap ... I don't really know what AT_SYSINFO_EHDR
+is, but presumably someone does.
 
-Anyone still watching this?  Tips and suggestions on what else might be
-useful/informative are more than welcome.  The tests above mostly
-replicate what I did when building this box, and it passed them then..
+M.
 
-Recap:
- Epox 8rda+ nforce2 mobo
- AMD Athlon XP 2500+ (Barton) 1.83G
- Kingston HyperX PC3200
- WD Caviar WD1200JB 8M/UDMA100
- Antec case w/ 350W AMD-certified PSU
-
-Oopses and occasional hangs, usually in do_generic_file_read, using
-stock kernel.org 2.4.2x kernels.  Hardware passed testing (memtest86,
-bonnie++) before I put Linux on it.
-
--- 
-Disconnect <lkml@sigkill.net>
+diff -urpN -X /home/fletch/.diff.exclude mm1/fs/proc/task_mmu.c mm1-fix/fs/proc/task_mmu.c
+--- mm1/fs/proc/task_mmu.c	Fri Dec 19 09:15:45 2003
++++ mm1-fix/fs/proc/task_mmu.c	Fri Dec 19 09:21:11 2003
+@@ -76,9 +76,10 @@ int task_statm(struct mm_struct *mm, int
+ 	return size;
+ }
+ 
++char gate_dso_path[256] = "";
++
+ #ifdef AT_SYSINFO_EHDR
+ 
+-char gate_dso_path[256] = "";
+ static struct vm_area_struct gate_vmarea = {
+ 	/* Do _not_ mark this area as readable, cuz not the entire range may be readable
+ 	   (e.g., due to execute-only pages or holes) and the tools that read
 

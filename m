@@ -1,22 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264110AbTDOVjc (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 17:39:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264112AbTDOVjc 
+	id S264112AbTDOVlv (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 17:41:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264114AbTDOVlv 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 17:39:32 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:1447 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264110AbTDOVjb 
+	Tue, 15 Apr 2003 17:41:51 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:8871 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264112AbTDOVlt 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 17:39:31 -0400
-Date: Tue, 15 Apr 2003 14:50:05 -0700
+	Tue, 15 Apr 2003 17:41:49 -0400
+Date: Tue, 15 Apr 2003 14:51:55 -0700
 From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: 76306.1226@compuserve.com, linux-kernel@vger.kernel.org
-Subject: Re: Problem: 2.4.20, 2.5.66 have different IDE channel order
-Message-Id: <20030415145005.20383a70.rddunlap@osdl.org>
-In-Reply-To: <1050439381.28591.15.camel@dhcp22.swansea.linux.org.uk>
-References: <200304151436_MC3-1-3487-2162@compuserve.com>
-	<1050439381.28591.15.camel@dhcp22.swansea.linux.org.uk>
+To: Robert Love <rml@tech9.net>
+Cc: patmans@us.ibm.com, gert.vervoort@hccnet.nl, tconnors@astro.swin.edu.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: 2.5.67: ppa driver & preempt == oops
+Message-Id: <20030415145155.49df44c7.rddunlap@osdl.org>
+In-Reply-To: <1050442676.3664.162.camel@localhost>
+References: <3E982AAC.3060606@hccnet.nl>
+	<1050172083.2291.459.camel@localhost>
+	<3E993C54.40805@hccnet.nl>
+	<1050255133.733.6.camel@localhost>
+	<3E99A1E4.30904@hccnet.nl>
+	<20030415120000.A30422@beaverton.ibm.com>
+	<1050442676.3664.162.camel@localhost>
 Organization: OSDL
 X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
@@ -25,26 +31,28 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Apr 2003 21:43:02 +0100 Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+On 15 Apr 2003 17:37:56 -0400 Robert Love <rml@tech9.net> wrote:
 
-| On Maw, 2003-04-15 at 19:33, Chuck Ebbert wrote:
-| >   Well, that matches what 2.4 does:
-| > 
-| > 
-| > 00:0d.1 IDE interface: Intel Corp. 82371SB PIIX3 IDE [Natoma/Triton II]
-| > 00:10.0 Unknown mass storage controller: Promise Technology, Inc. 20268 (rev 02)
-| > 01:0b.0 Unknown mass storage controller: Triones Technologies, Inc. HPT366 / HPT370 (rev 03)
-| > 
-| > 
-| >   2.5 nonmodular seems to be doing it in BIOS order  -- the HPT370 BIOS
-| > initializes before the Promise (and won't let it boot but I can deal
-| > with that.)  I'll probably replace it with a PDC20262 before looking
+| On Tue, 2003-04-15 at 15:00, Patrick Mansfield wrote:
 | 
-| Im a bit puzzled by this because it does look like a bug. Our pci scan code hasnt changed
-| that materially. I assume the promise and hpt are both plug in cards >
+| > We never hold the host_lock while calling the detect function (unlike the
+| > io_request_lock, see the bizzare 2.4 code), so acquiring it inside
+| > ppa_detect is very wrong. I don't know why your scsi scan did not hang.
+| 
+| I do not have this device so I cannot test it, but your logic seems
+| correct.
+| 
+| This is a much nicer fix for the preempt-related issues than others
+| proposed, too.
+| 
+| Anyone out there who _can_ mount the device?  Can you test this?  It
+| ought to be merged if it works.  We need to get device drivers in 2.5 up
+| to par..
 
-but something also changed NIC interface ordering (according to davej et al)...
-so maybe it's deep inside PCI bus scanning.
+I have such a device at home.  I can try to test it (if the device
+still works).  What needs to be tested?
+
+or maybe I can loan it to patmans for 1 day...
 
 --
 ~Randy

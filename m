@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316291AbSELB1s>; Sat, 11 May 2002 21:27:48 -0400
+	id <S316293AbSELBki>; Sat, 11 May 2002 21:40:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316294AbSELB1r>; Sat, 11 May 2002 21:27:47 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:53515 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S316291AbSELB1r>;
-	Sat, 11 May 2002 21:27:47 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "skidley" <skidley@crrstv.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-pre8-ac2 compile error 
-In-Reply-To: Your message of "Sat, 11 May 2002 21:56:40 -0300."
-             <20020512005640.GA2171@crrstv.net> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 12 May 2002 11:27:35 +1000
-Message-ID: <17777.1021166855@ocs3.intra.ocs.com.au>
+	id <S316294AbSELBkh>; Sat, 11 May 2002 21:40:37 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:50153 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316293AbSELBkg>;
+	Sat, 11 May 2002 21:40:36 -0400
+Message-ID: <3CDDC7F0.6010407@us.ibm.com>
+Date: Sat, 11 May 2002 18:40:00 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020504
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthew Wilcox <willy@debian.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: fs/locks.c BKL removal
+In-Reply-To: <3CDC4037.8040104@us.ibm.com> <20020511204551.M32414@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 May 2002 21:56:40 -0300, 
-"skidley" <skidley@crrstv.net> wrote:
->
->make[1]: Leaving directory `/home/kernel/linux/Documentation/DocBook'
->gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o
->scripts/split-include scripts/split-include.c
->scripts/split-include include/linux/autoconf.h include/config
->make -r -f .tmp_include_depends all
->make[1]: Entering directory `/home/kernel/linux'
->make[1]: .tmp_include_depends: No such file or directory
->make[1]: *** No rule to make target `.tmp_include_depends'.  Stop.
->make[1]: Leaving directory `/home/kernel/linux'
->make: *** [.tmp_include_depends] Error 2
+Matthew Wilcox wrote:
+> Ick... I'd really like to see one spinlock protecting all activity in this
+> area.  And obviously not the magic BKL ;-)
 
-You forgot to make dep after applying the patch.
+Do you really think a single lock is the way to go?  Maybe I'm just 
+paranoid, but somebody is going to run into a locking bottleneck here 
+eventually.  I also just don't like global locks.
+
+I'll ask our benchmarking team if they have test suites for file 
+locking.  I crossing my fingers.
+
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 

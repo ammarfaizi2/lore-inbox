@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbUJaSdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbUJaSel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261493AbUJaSdG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 13:33:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbUJaSdF
+	id S261497AbUJaSel (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 13:34:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbUJaSel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 13:33:05 -0500
-Received: from LPBPRODUCTIONS.COM ([68.98.211.131]:58756 "HELO
-	lpbproductions.com") by vger.kernel.org with SMTP id S261493AbUJaSc6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 13:32:58 -0500
-From: Matt Heler <lkml@lpbproductions.com>
-Reply-To: lkml@lpbproductions.com
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: 2.6.10-rc1-mm2: konqueror crash because of cputime patches
-Date: Sun, 31 Oct 2004 11:32:21 -0700
-User-Agent: KMail/1.7.50
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>
-References: <200410291823.34175.rjw@sisk.pl> <200410301837.25828.rjw@sisk.pl> <200410311651.23631.rjw@sisk.pl>
-In-Reply-To: <200410311651.23631.rjw@sisk.pl>
+	Sun, 31 Oct 2004 13:34:41 -0500
+Received: from 81-223-104-78.krugerstrasse.xdsl-line.inode.at ([81.223.104.78]:41363
+	"EHLO mail.sk-tech.net") by vger.kernel.org with ESMTP
+	id S261497AbUJaSee (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 13:34:34 -0500
+Date: Sun, 31 Oct 2004 19:35:02 +0100 (CET)
+From: Kianusch Sayah Karadji <kianusch@sk-tech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Raid1 DM vs MD
+Message-ID: <Pine.LNX.4.61.0410311902300.1819@merlin.sk-tech.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410311132.22766.lkml@lpbproductions.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 31 October 2004 8:51 am, Rafael J. Wysocki wrote:
-> Done.  Evidently, if the cputime patches:
->
-> cputime-introduce-cputime-fix.patch
-> cputime-introduce-cputime.patch
-> cputime-missing-pieces.patch
->
+Hi!
 
+After loosing some Data this week ... the question upon with technology to 
+use for Soft-RAID1 emerged the last days.
 
-Reversing theese fixed my konqueror issues to. In 2.6.10-rc1-mm2 , konqueror 
-would crash instantly when I tried browsing a webpage ( any page ).
+So which one is the recomended approach?
 
+Should I use MD or DM?
 
-mattt
+One benefit on using MD is that one can use it for root-devices without 
+initrd.
+
+But where will the development go?
+
+Will MD be supported in the future or will it be replaced by DM?
+
+Will there be other raid levels supported in DM?
+
+Which one has better Clean/Dirty recognition/detection?
+
+I had one MD-Raid1 where a good copy of the mirror was overwritten by the 
+bad (old) copy ... I lost 3 Month worth of data and I am expecting loosing 
+a linux project and in the worst case - even a court case :(
+
+Questions upon questions.
+
+Sooner or later I'l migrate from SW-Raid to a HW-Raid-Controller ...
+
+Thanx
+Kianusch
+
+---
+   SK-TECH.net
+   http://www.sk-tech.net

@@ -1,36 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264881AbUH3WbU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264991AbUH3Wd2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264881AbUH3WbU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 18:31:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264954AbUH3WbU
+	id S264991AbUH3Wd2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 18:33:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264980AbUH3Wd2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 18:31:20 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:4782 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S264881AbUH3W1r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 18:27:47 -0400
-Subject: Re: [2.6.7] ReiserFS borks with preempt
-From: Lee Revell <rlrevell@joe-job.com>
-To: Tommy Faasen <tommy@zwanebloem.nl>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <41337F5F.7030503@zwanebloem.nl>
-References: <41337F5F.7030503@zwanebloem.nl>
-Content-Type: text/plain
-Message-Id: <1093904868.1348.16.camel@krustophenia.net>
+	Mon, 30 Aug 2004 18:33:28 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:5248 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264704AbUH3Wcd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 18:32:33 -0400
+Date: Mon, 30 Aug 2004 15:31:24 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: neroden@fastmail.fm (Nathanael Nerode)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: TG3(Tigoon) & Kernel 2.4.27
+Message-Id: <20040830153124.03aa84be.davem@redhat.com>
+In-Reply-To: <20040830221638.GA3596@fastmail.fm>
+References: <20040830221638.GA3596@fastmail.fm>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 30 Aug 2004 18:27:49 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-08-30 at 15:26, Tommy Faasen wrote:
-> Hi,
+On Mon, 30 Aug 2004 18:16:38 -0400
+neroden@fastmail.fm (Nathanael Nerode) wrote:
 
-Argh, does anyone READ these before posting them?
+> >I guess if I ran objdump --disassemble on the image and
+> >used the output of that in the tg3 driver and "compiled
+> >that source" they'd be happy.  And this makes the situation
+> >even more ludicrious.
+> 
+> Before you blithely made this claim, you should have actually tried running
+> objdump --disassemble on the image.
 
-Your kernel is tainted.  Please reproduce with an untainted kernel and
-repost.
-
-Lee
-
+I was speaking abstractly.  It is well definted which parts of
+the hex arrays are the data, bss, and text sections.  It doesn't
+take a rocket scientist to reconstruct things.

@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262278AbRENKGk>; Mon, 14 May 2001 06:06:40 -0400
+	id <S262323AbRENKta>; Mon, 14 May 2001 06:49:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262310AbRENKGa>; Mon, 14 May 2001 06:06:30 -0400
-Received: from mean.netppl.fi ([195.242.208.16]:33796 "EHLO mean.netppl.fi")
-	by vger.kernel.org with ESMTP id <S262278AbRENKGP>;
-	Mon, 14 May 2001 06:06:15 -0400
-Date: Mon, 14 May 2001 13:06:12 +0300
-From: Pekka Pietikainen <pp@evil.netppl.fi>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 3c590 vs. tulip
-Message-ID: <20010514130612.A32567@netppl.fi>
-In-Reply-To: <OE73aZbF27y4RbrxUrO000014d0@hotmail.com> <20010511155641.A11827@gruyere.muc.suse.de>
+	id <S262326AbRENKtU>; Mon, 14 May 2001 06:49:20 -0400
+Received: from t2.redhat.com ([199.183.24.243]:29168 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S262323AbRENKtE>; Mon, 14 May 2001 06:49:04 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <15103.18224.265350.877968@pizda.ninka.net> 
+In-Reply-To: <15103.18224.265350.877968@pizda.ninka.net>  <200105131759.VAA27768@ms2.inr.ac.ru> <Pine.LNX.4.33.0105132319120.3026-100000@netcore.fi> 
+To: "David S. Miller" <davem@redhat.com>
+Cc: Pekka Savola <pekkas@netcore.fi>, kuznet@ms2.inr.ac.ru,
+        linux-kernel@vger.kernel.org
+Subject: Re: IPv6: the same address can be added multiple times 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3i
-In-Reply-To: <20010511155641.A11827@gruyere.muc.suse.de>
+Date: Mon, 14 May 2001 11:48:53 +0100
+Message-ID: <27266.989837333@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 11, 2001 at 03:56:41PM +0200, Andi Kleen wrote:
-> On Fri, May 11, 2001 at 09:27:29AM -0400, Dan Mann wrote:
-> > I was just wondering if anybody had an idea which nic card might be a better
-> > choice for me; I have a pci 3c590 and a pci smc that uses the tulip driver.
-> > I don't have the card number for the smc with me handy, however I know both
-> > cards were manufactured in 1995.  Is either card/driver a better choice for
-> > a mildly used file server (I am running 2.4.4 Linus)?
-> 
-> As of 2.4.4 newer 3c90x (I guess you mean that, 3c59x should be mostly
-> extinct now) are a better choice because they support zero copy TX and 
-> hardware checksumming while tulip does not.
->From what I remember, 3c590 was a horribly buggy card that sometimes
-broke even in workstation use (possibly fixed by driver updates more
-recently). 3c905B and later are fine, I'm not sure if the original
-905 had any bad issues. The original ones definately won't do zero-copy.
 
-The tulips from that era work pretty reliably. Some of the older ones
-just won't do autonegotiation (I've seen this with an old 
-SMC with both 10/100baseTX and 9-pin "for use with token ring cabling"
-connectors). Forcing the link speed works just fine, though.
+davem@redhat.com said:
+>  There is this growing (think growing as in "fungus") set of thinking
+> that just because something can be misused, this is an argument
+> against it even existing.
 
--- 
-Pekka Pietikainen
+> I think this is wrong.  I'm seeing it a lot, especially on this list,
+> and it's becomming a real concern at least to me. 
 
+The removal of the perfectly sane get_module_symbol() and replacement with 
+a less useful function which looks stuff up in a dynamic table instead of a 
+static table built at link time is an example of this. Now I have horrible 
+link order dependencies in code which was previously relatively clean. It 
+sucks, and there was absolutely no reason for it.
+
+The fact that it was done so late in 2.4-test without even a period of 
+marking the original sane version as deprecated made it even worse.
+
+Thinks... if I violently abuse inter_module_crap() will it suffer the same 
+fate and can I replace it with get_module_symbol() again? :)
+
+--
+dwmw2
 
 

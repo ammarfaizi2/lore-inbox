@@ -1,89 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263184AbUFFJnv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263159AbUFFJwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263184AbUFFJnv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 05:43:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbUFFJnv
+	id S263159AbUFFJwN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 05:52:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbUFFJwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 05:43:51 -0400
-Received: from atlas.informatik.uni-freiburg.de ([132.230.150.3]:61884 "EHLO
-	atlas.informatik.uni-freiburg.de") by vger.kernel.org with ESMTP
-	id S263184AbUFFJns convert rfc822-to-8bit (ORCPT
+	Sun, 6 Jun 2004 05:52:13 -0400
+Received: from quechua.inka.de ([193.197.184.2]:47765 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S263159AbUFFJwL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 05:43:48 -0400
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: keyboard problem with 2.6.6
-From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-Date: 06 Jun 2004 11:43:47 +0200
-Message-ID: <xb7hdtpyqb0.fsf@savona.informatik.uni-freiburg.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=big5
-Content-Transfer-Encoding: 8BIT
-Organization: Universitaet Freiburg, Institut fuer Informatik
+	Sun, 6 Jun 2004 05:52:11 -0400
+From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: clone() <-> getpid() bug in 2.6?
+Organization: Deban GNU/Linux Homesite
+In-Reply-To: <Pine.LNX.4.58.0406052244290.7010@ppc970.osdl.org>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.5 (i686))
+Message-Id: <E1BWuK1-0003PT-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Sun, 06 Jun 2004 11:52:09 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Valdis" == Valdis Kletnieks <Valdis.Kletnieks@vt.edu> writes:
+In article <Pine.LNX.4.58.0406052244290.7010@ppc970.osdl.org> you wrote:
+> It literally does things like
+> 
+>        random = now() + (getpid() << 16);
 
-    Valdis> On Fri, 04 Jun 2004 22:33:41 +0300, Denis Vlasenko said:
-    >> Using shell scripts instead of 'standard' init etc is way more
-    >> configurable. As an example, my current setup at home:
-    >> 
-    >> My kernel params are:
+It does that  for the unique  filenames and id stamps (maildir format and
+message ids). But it should be easy to replace this with a cached getpid
+result, if this is realy a performance problem. On a traditional unix system
+pid and timestamp should be locally unique for non threaded applications.
 
-    Valdis> Yes. Those are *YOUR* config setup parameters, that happen
-    Valdis> to work with *your* specific configuration when everything
-    Valdis> is operational. Some problems:
+> Anyway, you did find something that used more than a handful of getpid() 
+> calls, but no, it doesn't qualify as performance-critical, and even 
+> despite it's peyote-induced (or hey, some people are just crazy on their 
+> own) getpid() usage, it's not a reason to have a buggy glibc.
 
-    Valdis> 1) Not all the world uses initrd....
+I wonder if it easyly would be possible to cache the getpid() result in some
+thread local segment. Is there any, which is present for all clone flags?
+Not tha I care much about this unneeded glibc optimizsation, but more out of
+curiousity about the new threadind functionality.
 
-Does ever /etc/rcS.d/* require initrd?
-
-Moreover, not all the world uses a keyboard, either.
-
-
-
-    Valdis> 2) I hope your /script/mount_root will Do The Right Thing
-    Valdis> if the mount fails because it needs an fsck, for example.
-    Valdis> Answering those 'y' and 'n' prompts can be a problem if
-    Valdis> your keyboard isn't working yet..
-
-Things even worse  can happen, too, such as  harddisk dying.  In those
-problematic situations,  you'd rather boot a failsafe  partition, or a
-rescue floppy, or Knoppix CD.
-
-
-    Valdis> 3) Bonus points if you can explain how to, *without* a
-    Valdis> working keyboard, modify that /linuxrc on your initrd to
-    Valdis> deal with the situation where your keyboard setup is wrong
-    Valdis> (think "booting with borrowed keyboard because your usual
-    Valdis> one just suffered a carbonated caffeine overdose")...
-
-How  do you  do the  same if  you had  only SCSI  disks, but  the SCSI
-modules are not loaded or compiled in?
-
-
-    Valdis> There's a *BASIC* bootstrapping problem here - if you move
-    Valdis> "initialize and handle the keyboard" into userspace, you
-    Valdis> then *require* that a significantly larger chunk of
-    Valdis> userspace be operational in order to be able to even type
-    Valdis> at the machine.  If you're trying to recover a *broken*
-    Valdis> userspace, it gets a lot harder.
-
-
-    Valdis> And the embedded people who use
-    Valdis> "init=/onlyprogramthateverruns" are going to have a
-    Valdis> significant collective cow about this....
-
-Does embedded systems always have a keyboard?
-
-
-
-
+Greetings
+Bernd
 -- 
-Sau Dan LEE                     §õ¦u´°(Big5)                    ~{@nJX6X~}(HZ) 
-
-E-mail: danlee@informatik.uni-freiburg.de
-Home page: http://www.informatik.uni-freiburg.de/~danlee
-
+eckes privat - http://www.eckes.org/
+Project Freefire - http://www.freefire.org/

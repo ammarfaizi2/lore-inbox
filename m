@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbUKXDCR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261701AbUKXDEF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261707AbUKXDCR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 22:02:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbUKXDCQ
+	id S261701AbUKXDEF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 22:04:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbUKXDEF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 22:02:16 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:24836 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261700AbUKXDCK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 22:02:10 -0500
-Date: Wed, 24 Nov 2004 04:02:08 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: chas@cmf.nrl.navy.mil, linux-atm-general@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       linux-net@vger.kernel.org
-Subject: Re: [2.6 patch] small drivers/atm cleanups (fwd)
-Message-ID: <20041124030208.GN2927@stusta.de>
-References: <20041124020411.GL2927@stusta.de> <20041123180931.36f1a733.akpm@osdl.org>
+	Tue, 23 Nov 2004 22:04:05 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:20650 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261701AbUKXDDf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 22:03:35 -0500
+Date: Wed, 24 Nov 2004 05:06:04 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Adam Heath <doogie@debian.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
+Message-ID: <20041124040604.GA13340@elte.hu>
+References: <OF73D7316A.42DF9BE5-ON86256F54.0057B6DC@raytheon.com> <Pine.LNX.4.58.0411222237130.2287@gradall.private.brainfood.com> <20041123115201.GA26714@elte.hu> <Pine.LNX.4.58.0411231206240.2146@gradall.private.brainfood.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041123180931.36f1a733.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <Pine.LNX.4.58.0411231206240.2146@gradall.private.brainfood.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 23, 2004 at 06:09:31PM -0800, Andrew Morton wrote:
-> Adrian Bunk <bunk@stusta.de> wrote:
+
+* Adam Heath <doogie@debian.org> wrote:
+
+> > > I'm seeing something very odd.  It's against 29-0.  I also seem to
+> > > recall seeing something similiar reported earlier.
+> > >
+> > > I'm seeing pauses on my system.  Not certain what is causing it.
+> > > Hitting a key on the keyboard unsticks it.
 > >
-> >   /*
-> >  - * This routine will clock the Read_Status_reg function into the X2520
-> >  - * eeprom, then pull the result from bit 16 of the NicSTaR's General Purpose 
-> >  - * register.  
-> >  - */
-> >  -
-> >  -u_int32_t
-> >  -nicstar_read_eprom_status( virt_addr_t base )
+> > at first sight this looks like a scheduling/wakeup anomaly. Please
+> > re-report this if it happens with the current (30-4) kernel too. Also,
+> > could you test the vanilla -mm tree, it has a few scheduler updates too.
 > 
-> I'd be inclined to whack an #if 0 around functions such as this rather than
-> removing them.  Someone may come along one day and do some work on the
-> driver, and nicstar_read_eprom_status() may prove to be useful to them.
->...
+> 2.6.10-rc1-mm3 doesn't have the same problem.  Didn't have a more
+> recent mm kernel available last night.  Will compile one, and always
+> keep it available.
 
-In this case, you also have to #if 0 rdsrtab.
+-rc2-mm2 would be nice to test - there are a number of new interactivity
+fixes from Con being test-driven in -mm right now. In particular, these
+patches were added in -rc1-mm4. These are the patches in question:
 
-Are you editing my patch or shall I send an updated patch?
+ sched-adjust_timeslice_granularity.patch
+ requeue_granularity.patch
+ sched-remove_interactive_credit.patch
 
-cu
-Adrian
+you can download them individually from:
 
--- 
+ http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc2/2.6.10-rc2-mm2/broken-out/
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+so if these symptoms still occur with vanilla -rc2-mm2, could you try to
+unapply them, in reverse order? (there might be rejects when you try
+that, due to patch dependencies - let me know if it doesnt work out and
+i'll do an undo patch.)
 
+	Ingo

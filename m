@@ -1,53 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261377AbULXGXe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbULXHY5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261377AbULXGXe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Dec 2004 01:23:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbULXGXd
+	id S261382AbULXHY5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Dec 2004 02:24:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbULXHY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Dec 2004 01:23:33 -0500
-Received: from smtp.knology.net ([24.214.63.101]:27812 "HELO smtp.knology.net")
-	by vger.kernel.org with SMTP id S261377AbULXGXa (ORCPT
+	Fri, 24 Dec 2004 02:24:57 -0500
+Received: from faye.voxel.net ([69.9.164.210]:10162 "EHLO faye.voxel.net")
+	by vger.kernel.org with ESMTP id S261382AbULXHY2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Dec 2004 01:23:30 -0500
-Subject: Re: [Ipsec] Issue on input process of Linux native IPsec
-From: David Dillow <dave@thedillows.org>
-To: Park Lee <parklee_sel@yahoo.com>
-Cc: Kausty <kkumbhalkar@gmail.com>, ipsec@ietf.org,
-       ipsec-tools-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
-In-Reply-To: <20041223062905.20979.qmail@web51503.mail.yahoo.com>
-References: <20041223062905.20979.qmail@web51503.mail.yahoo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 24 Dec 2004 01:23:27 -0500
-Message-Id: <1103869407.3016.7.camel@ori.thedillows.org>
+	Fri, 24 Dec 2004 02:24:28 -0500
+Subject: [PATCH] kernel_read result fixes
+From: Andres Salomon <dilinger@voxel.net>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5hsuTyTA+fQfw8aKsCQx"
+Date: Fri, 24 Dec 2004 02:24:24 -0500
+Message-Id: <1103873064.5994.6.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+X-Mailer: Evolution 2.0.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-12-22 at 22:29 -0800, Park Lee wrote:
-> Thanks.
-> But, After a packet was received, It has already been
-> processed by xfrm4_rcv(), xfrm4_rcv_encap(),
-> ah_input(), esp_input(),etc. so, I think that there is
-> no need to search(or created) a bundle everytime a
-> packet is recieved, since it has already been
-> processed. Am I right?
 
-Are you sure you're not seeing the creation of a reply packet? Unless
-you're testing with UDP and a listening socket on the receiver, you're
-going to get a response packet if the incoming packet makes it through
-the iptables rules. You were testing with ICMP echo requests (ping), if
-I recall.
+--=-5hsuTyTA+fQfw8aKsCQx
+Content-Type: multipart/mixed; boundary="=-ooh+tf2gIXB37udFuCht"
 
-I think either you're basing your idea of the packet flow on printk()'s,
-or I'm just too tired and missing where xfrm_lookup() gets called on the
-rx path... (yes, sk can be NULL there, but I was wrong about it being
-called for Rx'd packets, I think).
 
-However, if your NIC driver does NAPI, you can see an xfrm_lookup() on
-the reply packet when the driver calls netif_receive_skb() -- this bit
-me recently...
--- 
-David Dillow <dave@thedillows.org>
+--=-ooh+tf2gIXB37udFuCht
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+A few potential vulnerabilities were pointed out by Katrina Tsipenyuk in
+<http://seclists.org/lists/linux-kernel/2004/Dec/1878.html>.  I haven't
+seen any discussion or fixes of the issue yet, so here's a patch
+(against 2.6.9).  The fixes are along the same lines as the previous
+binfmt_elf fixes.  There's one additional place (inside fs/binfmt_som.c)
+that a fix could be applied, but since that doesn't compile anyways, I
+didn't see a point in patching it.
+
+
+--=20
+Andres Salomon <dilinger@voxel.net>
+
+--=-ooh+tf2gIXB37udFuCht
+Content-Disposition: attachment; filename=kernel_read-result-validation.patch
+Content-Type: text/x-patch; name=kernel_read-result-validation.patch;
+	charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+
+UmV2aXNpb246IGxpbnV4LWZzLS1rZXJuZWwtcmVhZC12dWxuLS0wLS1wYXRjaC0xDQpBcmNoaXZl
+OiBkaWxpbmdlckB2b3hlbC5uZXQtLTIwMDQtcHVibGljDQpDcmVhdG9yOiBBbmRyZXMgU2Fsb21v
+biA8ZGlsaW5nZXJAdm94ZWwubmV0Pg0KRGF0ZTogVGh1IERlYyAyMyAyMzoxMDoxMSBFU1QgMjAw
+NA0KU3RhbmRhcmQtZGF0ZTogMjAwNC0xMi0yNCAwNDoxMDoxMSBHTVQNCk1vZGlmaWVkLWZpbGVz
+OiBiaW5mbXRfZW04Ni5jIGJpbmZtdF9taXNjLmMgYmluZm10X3NjcmlwdC5jDQogICAgY29tcGF0
+LmMgZXhlYy5jDQpOZXctcGF0Y2hlczogZGlsaW5nZXJAdm94ZWwubmV0LS0yMDA0LXB1YmxpYy9s
+aW51eC1mcy0ta2VybmVsLXJlYWQtdnVsbi0tMC0tcGF0Y2gtMQ0KU3VtbWFyeTogZml4IGJ1Z3Mg
+bWVudGlvbmVkIGluIGFkdmlzb3J5DQpLZXl3b3JkczogDQoNCmh0dHA6Ly9zZWNsaXN0cy5vcmcv
+bGlzdHMvYnVndHJhcS8yMDA0L0RlYy8wMjE0Lmh0bWwNCg0KVGhpcyBmaXhlcyBhbGwgNiBwbGFj
+ZXMgbWVudGlvbmVkIGluIHRoZSBhZHZpc29yeS4gIE1vc3QgYXJlIGluIGJpbmZtdF9sb2FkZXIN
+CmNhbGxiYWNrcywgY2FsbGVkIGZyb20gZXhlYzo6ZG9fZXhlY3ZlOyB0aGV5IGZhaWwgdy8gLUVJ
+TyBpZiB0aGUga2VybmVsX3JlYWQNCnN1Y2NlZWRlZCwgYnV0IGZvciBzb21lIHJlYXNvbiBhIHNo
+b3J0IHJlYWQgd2FzIGRvbmUuDQoNCg0KUmV2aXNpb246IGxpbnV4LWZzLS1rZXJuZWwtcmVhZC12
+dWxuLS0wLS1wYXRjaC0yDQpBcmNoaXZlOiBkaWxpbmdlckB2b3hlbC5uZXQtLTIwMDQtcHVibGlj
+DQpDcmVhdG9yOiBBbmRyZXMgU2Fsb21vbiA8ZGlsaW5nZXJAdm94ZWwubmV0Pg0KRGF0ZTogVGh1
+IERlYyAyMyAyMzozMzowMSBFU1QgMjAwNA0KU3RhbmRhcmQtZGF0ZTogMjAwNC0xMi0yNCAwNDoz
+MzowMSBHTVQNCk1vZGlmaWVkLWZpbGVzOiBiaW5mbXRfZmxhdC5jDQpOZXctcGF0Y2hlczogZGls
+aW5nZXJAdm94ZWwubmV0LS0yMDA0LXB1YmxpYy9saW51eC1mcy0ta2VybmVsLXJlYWQtdnVsbi0t
+MC0tcGF0Y2gtMg0KU3VtbWFyeTogZml4IGFub3RoZXIgcGxhY2Ugd2hlcmUga2VybmVsX3JlYWQg
+aXNuJ3Qgc3VmZmljaWVudGx5IGNoZWNrZWQgDQpLZXl3b3JkczogDQoNCkkgZG9uJ3Qga25vdyB3
+aGF0IHdhcyB1cCB3LyB0aGlzIG9yaWdpbmFsIGNoZWNrIChjaGVja2luZyBmb3IgYSByZXMgYmV0
+d2Vlbg0KLTQwOTYgYW5kIDAsIG5vbi1pbmNsdXNpdmUpLCBidXQgaXQgc2VlbXMuLiAgb2ZmLiAg
+QmV0dGVyIHRvIGNoZWNrIHNwZWNpZmljYWxseQ0KZm9yIEJJTlBSTV9CVUZfU0laRS4NCg0KLS0t
+IG9yaWcvZnMvYmluZm10X2VtODYuYw0KKysrIG1vZC9mcy9iaW5mbXRfZW04Ni5jDQpAQCAtODks
+OCArODksMTEgQEANCiAJYnBybS0+ZmlsZSA9IGZpbGU7DQogDQogCXJldHZhbCA9IHByZXBhcmVf
+YmlucHJtKGJwcm0pOw0KLQlpZiAocmV0dmFsIDwgMCkNCisJaWYgKHJldHZhbCAhPSBCSU5QUk1f
+QlVGX1NJWkUpIHsNCisJCWlmIChyZXR2YWwgPj0gMCkNCisJCQlyZXR2YWwgPSAtRUlPOw0KIAkJ
+cmV0dXJuIHJldHZhbDsNCisJfQ0KIA0KIAlyZXR1cm4gc2VhcmNoX2JpbmFyeV9oYW5kbGVyKGJw
+cm0sIHJlZ3MpOw0KIH0NCg0KDQotLS0gb3JpZy9mcy9iaW5mbXRfZmxhdC5jDQorKysgbW9kL2Zz
+L2JpbmZtdF9mbGF0LmMNCkBAIC03ODAsOSArNzgwLDExIEBADQogCQlyZXR1cm4gcmVzOw0KIA0K
+IAlyZXMgPSBwcmVwYXJlX2JpbnBybSgmYnBybSk7DQotDQotCWlmIChyZXMgPD0gKHVuc2lnbmVk
+IGxvbmcpLTQwOTYpDQorCWlmIChyZXMgPT0gQklOUFJNX0JVRl9TSVpFKQ0KIAkJcmVzID0gbG9h
+ZF9mbGF0X2ZpbGUoJmJwcm0sIGxpYnMsIGlkLCBOVUxMKTsNCisJZWxzZSBpZiAocmVzID49IDAp
+DQorCQlyZXMgPSAtRUlPOw0KKw0KIAlpZiAoYnBybS5maWxlKSB7DQogCQlhbGxvd193cml0ZV9h
+Y2Nlc3MoYnBybS5maWxlKTsNCiAJCWZwdXQoYnBybS5maWxlKTsNCg0KDQotLS0gb3JpZy9mcy9i
+aW5mbXRfbWlzYy5jDQorKysgbW9kL2ZzL2JpbmZtdF9taXNjLmMNCkBAIC0xOTUsOCArMTk1LDEx
+IEBADQogCX0gZWxzZQ0KIAkJcmV0dmFsID0gcHJlcGFyZV9iaW5wcm0gKGJwcm0pOw0KIA0KLQlp
+ZiAocmV0dmFsIDwgMCkNCisJaWYgKHJldHZhbCAhPSBCSU5QUk1fQlVGX1NJWkUpIHsNCisJCWlm
+IChyZXR2YWwgPj0gMCkNCisJCQlyZXR2YWwgPSAtRUlPOw0KIAkJZ290byBfZXJyb3I7DQorCX0N
+CiANCiAJcmV0dmFsID0gc2VhcmNoX2JpbmFyeV9oYW5kbGVyIChicHJtLCByZWdzKTsNCiAJaWYg
+KHJldHZhbCA8IDApDQoNCg0KLS0tIG9yaWcvZnMvYmluZm10X3NjcmlwdC5jDQorKysgbW9kL2Zz
+L2JpbmZtdF9zY3JpcHQuYw0KQEAgLTkxLDggKzkxLDExIEBADQogDQogCWJwcm0tPmZpbGUgPSBm
+aWxlOw0KIAlyZXR2YWwgPSBwcmVwYXJlX2JpbnBybShicHJtKTsNCi0JaWYgKHJldHZhbCA8IDAp
+DQorCWlmIChyZXR2YWwgIT0gQklOUFJNX0JVRl9TSVpFKSB7DQorCQlpZiAocmV0dmFsID49IDAp
+DQorCQkJcmV0dmFsID0gLUVJTzsNCiAJCXJldHVybiByZXR2YWw7DQorCX0NCiAJcmV0dXJuIHNl
+YXJjaF9iaW5hcnlfaGFuZGxlcihicHJtLHJlZ3MpOw0KIH0NCiANCg0KDQotLS0gb3JpZy9mcy9j
+b21wYXQuYw0KKysrIG1vZC9mcy9jb21wYXQuYw0KQEAgLTE0MjYsOCArMTQyNiwxMSBAQA0KIAkJ
+Z290byBvdXQ7DQogDQogCXJldHZhbCA9IHByZXBhcmVfYmlucHJtKGJwcm0pOw0KLQlpZiAocmV0
+dmFsIDwgMCkNCisJaWYgKHJldHZhbCAhPSBCSU5QUk1fQlVGX1NJWkUpIHsNCisJCWlmIChyZXR2
+YWwgPj0gMCkNCisJCQlyZXR2YWwgPSAtRUlPOw0KIAkJZ290byBvdXQ7DQorCX0NCiANCiAJcmV0
+dmFsID0gY29weV9zdHJpbmdzX2tlcm5lbCgxLCAmYnBybS0+ZmlsZW5hbWUsIGJwcm0pOw0KIAlp
+ZiAocmV0dmFsIDwgMCkNCg0KDQotLS0gb3JpZy9mcy9leGVjLmMNCisrKyBtb2QvZnMvZXhlYy5j
+DQpAQCAtMTAyNCw4ICsxMDI0LDExIEBADQogCQlicHJtLT5maWxlID0gZmlsZTsNCiAJCWJwcm0t
+PmxvYWRlciA9IGxvYWRlcjsNCiAJCXJldHZhbCA9IHByZXBhcmVfYmlucHJtKGJwcm0pOw0KLQkJ
+aWYgKHJldHZhbDwwKQ0KKwkJaWYgKHJldHZhbCAhPSBCSU5QUk1fQlVGX1NJWkUpIHsNCisJCQlp
+ZiAocmV0dmFsID49IDApDQorCQkJCXJldHZhbCA9IC1FSU87DQogCQkJcmV0dXJuIHJldHZhbDsN
+CisJCX0NCiAJCS8qIHNob3VsZCBjYWxsIHNlYXJjaF9iaW5hcnlfaGFuZGxlciByZWN1cnNpdmVs
+eSBoZXJlLA0KIAkJICAgYnV0IGl0IGRvZXMgbm90IG1hdHRlciAqLw0KIAkgICAgfQ0KQEAgLTEx
+MzksOCArMTE0MiwxMSBAQA0KIAkJZ290byBvdXQ7DQogDQogCXJldHZhbCA9IHByZXBhcmVfYmlu
+cHJtKGJwcm0pOw0KLQlpZiAocmV0dmFsIDwgMCkNCisJaWYgKHJldHZhbCAhPSBCSU5QUk1fQlVG
+X1NJWkUpIHsNCisJCWlmIChyZXR2YWwgPj0gMCkNCisJCQlyZXR2YWwgPSAtRUlPOw0KIAkJZ290
+byBvdXQ7DQorCX0NCiANCiAJcmV0dmFsID0gY29weV9zdHJpbmdzX2tlcm5lbCgxLCAmYnBybS0+
+ZmlsZW5hbWUsIGJwcm0pOw0KIAlpZiAocmV0dmFsIDwgMCkNCg0KDQoNCg==
+
+
+--=-ooh+tf2gIXB37udFuCht--
+
+--=-5hsuTyTA+fQfw8aKsCQx
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBy8Qo78o9R9NraMQRArXEAJ9xWPxxtsCWibu16hEXy7yL3Uqq2ACfXYvo
+ijyF1R1CT4JCdbhP6Ez0zGI=
+=F3td
+-----END PGP SIGNATURE-----
+
+--=-5hsuTyTA+fQfw8aKsCQx--
+

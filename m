@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263584AbTLDW23 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 17:28:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263618AbTLDW23
+	id S263620AbTLDWaE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 17:30:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263625AbTLDWaE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 17:28:29 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:60852 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S263584AbTLDW22 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 17:28:28 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [ACPI] Re: [RFC] enhanced psxface.c error handling
-Date: Thu, 4 Dec 2003 14:27:45 -0800
-Message-ID: <CFF522B18982EA4481D3A3E23B83141C24B5E7@orsmsx407.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [ACPI] Re: [RFC] enhanced psxface.c error handling
-Thread-Index: AcO6skjBvYbUeXG0RUCrEeMxa9rMlgAA1wXw
-From: "Moore, Robert" <robert.moore@intel.com>
-To: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>,
-       <acpi-devel@lists.sourceforge.net>
-Cc: "Linux Kernel Mailinglist" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 04 Dec 2003 22:27:46.0326 (UTC) FILETIME=[D7771B60:01C3BAB5]
+	Thu, 4 Dec 2003 17:30:04 -0500
+Received: from mail.kroah.org ([65.200.24.183]:59095 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263620AbTLDW37 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 17:29:59 -0500
+Date: Thu, 4 Dec 2003 14:28:26 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Subject: [PATCH] i2c driver fix for 2.6.0-test11
+Message-ID: <20031204222826.GB2541@kroah.com>
+References: <20031204222752.GA2541@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031204222752.GA2541@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ChangeSet 1.1505, 2003/12/04 14:14:33-08:00, khali@linux-fr.org
 
-I've made a stab at this in ACPI CA version 20031203.  There are a
-couple of additional subtleties to get unwound correctly with no memory
-leaks.
+[PATCH] I2C: fix i2c_smbus_write_byte() for i2c-nforce2
 
-It has turned into a bit of spaghetti code, I'm going to restructure it
-later.
+This patch fixes i2c_smbus_write_byte() being broken for i2c-nforce2.
+This causes trouble when that module is used together with eeprom (which
+is also in 2.6). We have had three user reports about the problem.
 
-Bob
+Credits go to Mark D. Studebaker for finding and fixing the problem.
 
 
-> -----Original Message-----
-> From: acpi-devel-admin@lists.sourceforge.net [mailto:acpi-devel-
-> admin@lists.sourceforge.net] On Behalf Of Felipe Alfaro Solana
-> Sent: Thursday, December 04, 2003 2:00 PM
-> To: acpi-devel@lists.sourceforge.net
-> Cc: Linux Kernel Mailinglist
-> Subject: [ACPI] Re: [RFC] enhanced psxface.c error handling
-> 
-> On Thu, 2003-12-04 at 17:14, Mihai RUSU wrote:
-> 
-> > I think you missed the order on this one
-> 
-> Yep! You're right... thanks!
+ drivers/i2c/busses/i2c-nforce2.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+
+diff -Nru a/drivers/i2c/busses/i2c-nforce2.c b/drivers/i2c/busses/i2c-nforce2.c
+--- a/drivers/i2c/busses/i2c-nforce2.c	Thu Dec  4 14:22:52 2003
++++ b/drivers/i2c/busses/i2c-nforce2.c	Thu Dec  4 14:22:52 2003
+@@ -147,7 +147,7 @@
+ 
+ 		case I2C_SMBUS_BYTE:
+ 			if (read_write == I2C_SMBUS_WRITE)
+-				outb_p(data->byte, NVIDIA_SMB_DATA);
++				outb_p(command, NVIDIA_SMB_CMD);
+ 			protocol |= NVIDIA_SMB_PRTCL_BYTE;
+ 			break;
+ 

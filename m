@@ -1,48 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270537AbUJTXrv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270536AbUJTXrl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270537AbUJTXrv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 19:47:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270521AbUJTXro
+	id S270536AbUJTXrl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 19:47:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270537AbUJTXri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 19:47:44 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:53152
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S270506AbUJTXrX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 19:47:23 -0400
-Date: Wed, 20 Oct 2004 16:41:44 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Andi Kleen <ak@suse.de>
-Cc: ak@suse.de, dhowells@redhat.com, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       sparclinux@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-m68k@vger.kernel.org, linux-sh@m17n.org,
-       linux-arm-kernel@lists.arm.linux.org.uk, parisc-linux@parisc-linux.org,
-       linux-ia64@vger.kernel.org, linux-390@vm.marist.edu,
-       linux-mips@linux-mips.org
-Subject: Re: [discuss] Re: [PATCH] Add key management syscalls to non-i386
- archs
-Message-Id: <20041020164144.3457eafe.davem@davemloft.net>
-In-Reply-To: <20041020232509.GF995@wotan.suse.de>
-References: <3506.1098283455@redhat.com>
-	<20041020150149.7be06d6d.davem@davemloft.net>
-	<20041020225625.GD995@wotan.suse.de>
-	<20041020160450.0914270b.davem@davemloft.net>
-	<20041020232509.GF995@wotan.suse.de>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 20 Oct 2004 19:47:38 -0400
+Received: from pop-a065c05.pas.sa.earthlink.net ([207.217.121.183]:51862 "EHLO
+	pop-a065c05.pas.sa.earthlink.net") by vger.kernel.org with ESMTP
+	id S270455AbUJTXnt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 19:43:49 -0400
+From: Eric Bambach <eric@cisu.net>
+Reply-To: eric@cisu.net
+To: "Jeff V. Merkey" <jmerkey@drdos.com>
+Subject: Re: Linux v2.6.9 and GPL Buyout
+Date: Wed, 20 Oct 2004 18:43:49 -0500
+User-Agent: KMail/1.6.2
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <417550FB.8020404@drdos.com>
+In-Reply-To: <417550FB.8020404@drdos.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200410201843.49835.eric@cisu.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Oct 2004 01:25:09 +0200
-Andi Kleen <ak@suse.de> wrote:
+On Tuesday 19 October 2004 12:38 pm, you wrote:
 
-> IMHO breaking the build unnecessarily is extremly bad because
-> it will prevent all testing. And would you really want to hold
-> up the whole linux testing machinery just for some obscure 
-> system call? IMHO not a good tradeoff.
+> On a side note, the GPL buyout previously offered has been modified. We
+> will be contacting
+> individual contributors and negotiating with each copyright holder for
+> the code we wish to
+> convert on a case by case basis. The remaining portions of code will
+> remain GPL
+> The 50K per copy offer still stands for the whole thing if you guys can
+> ever figure out
+> how to set something like this up.
+>
 
-Then change the unistd.h cookie from "#error" to a "#warning".  It
-accomplishes both of our goals.
+*sigh* 
+
+Although I own no code in the kernel, I hope to some day and offers like this 
+sicken me. It seems that most of the coders have either ignored this person 
+or flat out said no. His offer is ridiculous and he wants to rip out some of 
+the most useful code to get what he wants. 
+
+	However I urge all you developers to stand up and say no. Just out of 
+curiosity can we get AM, CK, AC,Linus and other major devolpers to say no 
+publicly? As I understand it these people have all made significant 
+contributions to the kernel  and keeping their code GPL would ensure all this 
+joker could get (for proprietary greed only shady-business practice purposes) 
+would be useless in any real project.
+
+	I think a large "no" from key players would be a great show of strength in 
+the ideaologies and commitment many of the developers on this list hold about 
+the kernel. It would also go a long way in affirming that the true len
+
+----------------------------------------
+EB
+
+> All is fine except that I can reliably "oops" it simply by trying to read
+> from /proc/apm (e.g. cat /proc/apm).
+> oops output and ksymoops-2.3.4 output is attached.
+> Is there anything else I can contribute?
+
+The latitude and longtitude of the bios writers current position, and
+a ballistic missile.
+
+		--Alan Cox 2000-12-08 
+
+----------------------------------------

@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130458AbRBQNR2>; Sat, 17 Feb 2001 08:17:28 -0500
+	id <S131277AbRBQNfR>; Sat, 17 Feb 2001 08:35:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131568AbRBQNRU>; Sat, 17 Feb 2001 08:17:20 -0500
-Received: from host55.osagesoftware.com ([209.142.225.55]:34568 "EHLO
-	nic.osagesoftware.com") by vger.kernel.org with ESMTP
-	id <S130458AbRBQNRH>; Sat, 17 Feb 2001 08:17:07 -0500
-Message-Id: <4.3.2.7.2.20010217081035.00bd6270@mail.osagesoftware.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Sat, 17 Feb 2001 08:16:47 -0500
-To: Dan Hollis <goemon@anime.net>
-From: David Relson <relson@osagesoftware.com>
-Subject: re:  XOR  [ was: Linux stifles innovation... ]
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0102161828500.14561-100000@anime.net>
-In-Reply-To: <4.3.2.7.2.20010216211931.00c6d360@mail.osagesoftware.com>
+	id <S131483AbRBQNfH>; Sat, 17 Feb 2001 08:35:07 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:8964 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S131277AbRBQNfA>;
+	Sat, 17 Feb 2001 08:35:00 -0500
+Message-ID: <20010214202220.A304@bug.ucw.cz>
+Date: Wed, 14 Feb 2001 20:22:20 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Matt Stegman <mas9483@ksu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: gzipped executables
+In-Reply-To: <Pine.GSO.4.21L.0102122251040.24003-100000@unix2.cc.ksu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <Pine.GSO.4.21L.0102122251040.24003-100000@unix2.cc.ksu.edu>; from Matt Stegman on Mon, Feb 12, 2001 at 11:09:39PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 09:32 PM 2/16/01, Dan Hollis wrote:
->On Fri, 16 Feb 2001, David Relson wrote:
-> > At 08:52 PM 2/16/01, you wrote:
-> >  > On Fri, 16 Feb 2001, Michael H. Warfield wrote:
-> >  > > > You know XOR is patented (yes, the logical bit operation XOR).
-> >  > >  But wasn't that Xerox that had that?
-> >  > US Patent #4,197,590 held by NuGraphics, Inc.
-> > The patent was for using the technique of using XOR for dragging/moving
-> > parts of a graphics image without erasing other parts.  Also, since the
-> > patent was granted in 1980, the inventors have had their 17 years of patent
-> > protection, and we're all free to use the technique - legally!
->
->So you approve of 4,197,590 and think it was an innovative and non obvious
->invention in 1980?
->
->-Dan
+Hi!
 
+> Is there any kernel patch that would allow Linux to properly recognize,
+> and execute gzipped executables?
+> 
+> I know I could use binfmt_misc to run a wrapper script:
+> 
+>     decompress to /tmp/prog.decompressed
+>     execute /tmp/prog.decompressed
+>     rm /tmp/prog.decompressed
+> 
+> But that's not as clean, secure, or fast as the kernel transparently
+> decompressing & executing.  Is there a better way to do this?
 
-Dan,
+You could do this with uservfs(.sourceforge.net):
 
-No, I didn't say I approved of the patent.  I merely reported a bit of the 
-when and what of the patent and said that that is no longer relevant, i.e. 
-it's not a concern.
+ln -s /overlay/path/.../executable.gz#ugz executable
 
-I don't approve of software patents.  I think the idea of granting software 
-patents is a bad idea.  As programmers solving problems everyday, we are 
-constantly developing techniques for dealing with new problems or finding 
-new and better solutions for old problems.  This is a process of continuous 
-invention carried out simultaneously and independently in many 
-places.  Putting patent restrictions on this process is a bad idea.
+and let uservfs do it for you. It will essentially do what you
+described, but it will work on any file.
+								Pavel
 
-David
-
-
-
---------------------------------------------------------
-David Relson                   Osage Software Systems, Inc.
-relson@osagesoftware.com       Ann Arbor, MI 48103
-www.osagesoftware.com          tel:  734.821.8800
-
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

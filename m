@@ -1,81 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276034AbRI1NPs>; Fri, 28 Sep 2001 09:15:48 -0400
+	id <S276046AbRI1NdN>; Fri, 28 Sep 2001 09:33:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276045AbRI1NPi>; Fri, 28 Sep 2001 09:15:38 -0400
-Received: from [192.25.22.11] ([192.25.22.11]:1643 "EHLO
-	bmdipc2c.germany.agilent.com") by vger.kernel.org with ESMTP
-	id <S276034AbRI1NP0>; Fri, 28 Sep 2001 09:15:26 -0400
-Message-Id: <200109281315.f8SDFpA01669@bmdipc2c.germany.agilent.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Joachim Weller <joachim_weller@hsgmed.com>
+	id <S275996AbRI1NdC>; Fri, 28 Sep 2001 09:33:02 -0400
+Received: from ns.muni.cz ([147.251.4.33]:967 "EHLO aragorn.ics.muni.cz")
+	by vger.kernel.org with ESMTP id <S276046AbRI1Ncw>;
+	Fri, 28 Sep 2001 09:32:52 -0400
 To: linux-kernel@vger.kernel.org
-Subject: BUG: cat /proc/partitions endless loop
-Date: Fri, 28 Sep 2001 15:15:51 +0200
-X-Mailer: KMail [version 1.3.1]
-Organization: Philips Medical Systems Boeblingen GmbH 
-Cc: JoachimWeller@web.de
+Subject: 2.4.10: oops and panic in usb-uhci
+X-URL: http://www.fi.muni.cz/~pekon/
+From: Petr Konecny <pekon@informatics.muni.cz>
+Date: 28 Sep 2001 15:33:01 +0200
+Message-ID: <qwwpu8bigoi.fsf@decibel.fi.muni.cz>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.5 (anise)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After upgrading from 2.4.9 to 2.4.10, I discovered that
-a "cat /proc/partitions" resulted in an infinite  repetition
-of the partition list.
-This resulted in a complete hang of SuSE's sys admin tool yast.
-A more detailed report was sent to Jens Axboe (axboe@suse.de)
+Hi,
 
-The affected machine is a dual pentium pro:
- Linux version 2.4.10 (root@bmdipc2c) (gcc version 2.95.3 20010315 (SuSE)) #1 
-SMP Fri Sep 28 13:10:18 CEST 2001
+I tried to play a wav on my USB audio speakers (Yamaha YSTMS35D) and got
+panic. The oops (processed by ksymoops) is appended. uhci works OK.
 
- I traced the problem down to drivers/block/genhd.c, 
-where the function get_partition_list() outer loop does not 
-terminate due to the last element in the structured list starting 
-with gendisk_head is not initialized to NULL, by whatever reason.
-My fix does not cure the pointered endless loop, but prevents
-from looping when stepping thru the pointered list.
---------------------------------------------------------------------------------------
-diff -u --recursive --new-file 2.4.10/linux/drivers/block/genhd.c 
-linux/drivers/block/genhd.c
---- 2.4.10/linux/drivers/block/genhd.c  Sun Sep  9 21:00:55 2001
-+++ linux/drivers/block/genhd.c Fri Sep 28 14:45:13 2001
-@@ -14,6 +14,15 @@
-  * TODO:  rip out the remaining init crap from this file  --hch
-  */
+                                                Regards, Petr
 
-+/*
-+ * Change: Blocked potential endless loop within get_partition_list()
-+ *         which occured for "cat /proc/partitions"
-+ *         because gendisk_head->next is not initialized correctly to NULL
-+ *         before add_gendisk() is called the first time.
-+ *         Joachim Weller 28sep2001 (JoachimWeller@web.de)
-+ *
-+ */
-+
- #include <linux/config.h>
- #include <linux/module.h>
- #include <linux/fs.h>
-@@ -115,7 +124,7 @@
+ksymoops 2.4.3 on i686 2.4.10.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.10/ (default)
+     -m /boot/System.map-2.4.10 (default)
 
-        len = sprintf(page, "major minor  #blocks  name\n\n");
-        read_lock(&gendisk_lock);
--       for (gp = gendisk_head; gp; gp = gp->next) {
-+       for (gp = gendisk_head; gp; gp = (gp->next!=gendisk_head ?  gp->next 
-: NULL)) {
-                for (n = 0; n < (gp->nr_real << gp->minor_shift); n++) {
-                        if (gp->part[n].nr_sects == 0)
-                                continue;
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
---------------------------------------------------------------------------------------
+chazelle login: Unable to handle kernel paging request at virtual address ffffffdc
+cc902471
+*pde = 00001063
+Oops: 0000
+CPU:    0
+EIP:    0010:[<cc902471>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010203
+eax: 00000000   ebx: c7dd746c   ecx: 00000000   edx: c02e9400
+esi: 00000000   edi: c7dd73c0   ebp: c7df3000   esp: c0281eec
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 0, stackpage=c0281000)
+Stack: c7dd746c c7dd73c0 c1322d60 00000000 00000010 c7dea120 00000000 00000001 
+       cc9025f9 c1322d60 c7dd73c0 00000000 c7dd746c c1322d60 00000000 00000000 
+       00000000 c011ad8f 00000000 cc90284d c1322d60 c7dd73c8 ca905360 04000001 
+Call Trace: [<cc9025f9>] [<c011ad8f>] [<cc90284d>] [<c0107d0f>] [<c0107e6e>] 
+   [<c0105150>] [<c0105150>] [<c0105150>] [<c0105150>] [<c0105173>] [<c01051d9>] 
+   [<c0105000>] [<c0105027>] 
+Code: 8b 46 dc 8d 6e d8 a9 00 00 80 00 74 39 25 ff ff 7f ff 89 46 
+
+>>EIP; cc902470 <[usb-uhci]process_iso+64/184>   <=====
+Trace; cc9025f8 <[usb-uhci]process_urb+68/1fc>
+Trace; c011ad8e <timer_bh+22e/268>
+Trace; cc90284c <[usb-uhci]uhci_interrupt+c0/120>
+Trace; c0107d0e <handle_IRQ_event+2e/58>
+Trace; c0107e6e <do_IRQ+6e/b0>
+Trace; c0105150 <default_idle+0/28>
+Trace; c0105150 <default_idle+0/28>
+Trace; c0105150 <default_idle+0/28>
+Trace; c0105150 <default_idle+0/28>
+Trace; c0105172 <default_idle+22/28>
+Trace; c01051d8 <cpu_idle+40/54>
+Trace; c0105000 <_stext+0/0>
+Trace; c0105026 <rest_init+26/28>
+Code;  cc902470 <[usb-uhci]process_iso+64/184>
+00000000 <_EIP>:
+Code;  cc902470 <[usb-uhci]process_iso+64/184>   <=====
+   0:   8b 46 dc                  mov    0xffffffdc(%esi),%eax   <=====
+Code;  cc902472 <[usb-uhci]process_iso+66/184>
+   3:   8d 6e d8                  lea    0xffffffd8(%esi),%ebp
+Code;  cc902476 <[usb-uhci]process_iso+6a/184>
+   6:   a9 00 00 80 00            test   $0x800000,%eax
+Code;  cc90247a <[usb-uhci]process_iso+6e/184>
+   b:   74 39                     je     46 <_EIP+0x46> cc9024b6 <[usb-uhci]process_iso+aa/184>
+Code;  cc90247c <[usb-uhci]process_iso+70/184>
+   d:   25 ff ff 7f ff            and    $0xff7fffff,%eax
+Code;  cc902482 <[usb-uhci]process_iso+76/184>
+  12:   89 46 00                  mov    %eax,0x0(%esi)
+
+ <0>Kernel panic: Aiee, killing interrupt handler!
+
+1 warning issued.  Results may not be reliable.
 
 -- 
-Joachim Weller
-
-Philips Medizinsysteme Boeblingen GmbH		Mail:  joachim_weller@hsgmed.com
-Cardiac and Monitoring Systems (CMS)		Phone: {+49|0}-7031-463-1891
-New Product Engineering				Fax:   {+49|0}-7031-463-2112
-
-Hewlett-Packard Str. 2,	D 71034 Boeblingen	-GERMANY-
-
+Life sucks, but death doesn't put out at all.
+		-- Thomas J. Kopp

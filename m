@@ -1,187 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264538AbTFYPPx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 11:15:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbTFYPPx
+	id S264542AbTFYPRY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 11:17:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264544AbTFYPRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 11:15:53 -0400
-Received: from mailrelay1.lanl.gov ([128.165.4.101]:24743 "EHLO
-	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP id S264538AbTFYPPq
+	Wed, 25 Jun 2003 11:17:23 -0400
+Received: from pD9E4ECA4.dip.t-dialin.net ([217.228.236.164]:14322 "EHLO
+	domino.nowhere") by vger.kernel.org with ESMTP id S264542AbTFYPRL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 11:15:46 -0400
-Subject: [PATCH] 2.4.22-pre2 add nine Configure.help entries from 2.5
-	Kconfig
-From: Steven Cole <elenstev@mesatop.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1056554975.2042.10.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 25 Jun 2003 09:29:35 -0600
+	Wed, 25 Jun 2003 11:17:11 -0400
+From: Ralf Hoelzer <ralf@well.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21 panic on CDRW Mount
+Date: Wed, 25 Jun 2003 17:37:01 +0200
+User-Agent: KMail/1.5.9
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200306251737.01070.ralf@well.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following nine CONFIG options exist in [Cc]onfig.in files,
-but do not have corresponding Configure.help entries.
+Here's some debug output from the crash after mounting my AOpen CD-RW drive 
+using ide-scsi on 2.4.21 (Athlon XP 1800+ / NVidia nforce chipset).
 
-CONFIG_BLK_DEV_TRIFLEX
-CONFIG_BLK_DEV_SC1200
-CONFIG_FB_MATROX_G100A
-CONFIG_ATM_HE_USE_SUNI
-CONFIG_FUSION_MAX_SGE
-CONFIG_DRM_I830
-CONFIG_CHECKING
-CONFIG_CHASSIS_LCD_LED
-CONFIG_GART_IOMMU
+------------------
+relevant dmesg output:
+------------------
+Kernel command line: auto BOOT_IMAGE=linux-2.4.21 ro root=341 quiet 
+devfs=mount hdd=ide-scsi
+ide_setup: hdd=ide-scsi
+CPU: AMD Athlon(tm) XP 1800+ stepping 02
+hdc: DVD-ROM DDU1621, ATAPI CD/DVD-ROM drive
+hdd: AOPEN CD-RW CRW2440, ATAPI CD/DVD-ROM drive
+hdd: attached ide-scsi driver.
+scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+  Vendor: AOPEN     Model: CD-RW CRW2440     Rev: 2.08
+  Type:   CD-ROM                             ANSI SCSI revision: 02
 
-The help texts were borrowed from the Kconfig files in 2.5, and
-modified as necessary.
+------------------
+ksymoops output:
+------------------
 
-There are quite a few more of these, so more will come when I find
-the time.
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<00000000>]    Tainted: P
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010202
+eax: c02aba54   ebx: c02abc40   ecx: 00000000   edx: 00000170
+esi: dfecae00   edi: dfeb5580   ebp: db095b04   esp: db095adc
+ds: 0018   es: 0018   ss: 0018
+Process mount (pid: 18884, stackpage=db095000)
+Stack: e0feaad4 c02abc40 dfecae00 0000000c 00000000 000001f4 dfeb5580 c02abc40
+       00000040 00000000 db095b38 c0195c8a c02abc40 dfecae00 00000000 00000088
+       000001f4 db095b58 00000000 00000016 c02abc40 dfeeb280 d13f2e40 db095b5c
+Call Trace:    [<e0feaad4>] [<c0195c8a>] [<c0195e00>] [<c01964af>] 
+[<e0feb72c>]
+               [<e0fd3634>] [<e0fd9350>] [<e0fd90c0>] [<e0fdad73>] 
+[<e0fda255>] [<e0fda2d9>]
+               [<e0fd3755>] [<e0fd30c0>] [<e101c580>] [<e101a995>] 
+[<e101c580>] [<e101ac96>]
+               [<e101ada5>] [<c01a2594>] [<e0fd3788>] [<e0fd30c0>] 
+[<c01a24f2>] [<c013c481>]
+               [<c012fd9a>] [<c013c50b>] [<c013b017>] [<c0120001>] 
+[<e11a4850>] [<c013b413>]
+               [<e11a4850>] [<c014cf09>] [<c014d1e3>] [<c014d058>] 
+[<c014d5f2>] [<c010736f>]
+Code:  Bad EIP value.
 
-Patch is against the current 2.4 bk tree.
-
-Steven
-
---- testing-2.4/Documentation/Configure.help.orig	Wed Jun 25 07:27:25 2003
-+++ testing-2.4/Documentation/Configure.help	Wed Jun 25 08:52:27 2003
-@@ -1129,6 +1129,15 @@
-   Say Y here if you have an IDE controller which uses any of these
-   chipsets: CMD643, CMD646 and CMD648.
- 
-+Compaq Triflex IDE support
-+CONFIG_BLK_DEV_TRIFLEX
-+  Say Y here if you have a Compaq Triflex IDE controller, such
-+  as those commonly found on Compaq Pentium-Pro systems
-+
-+  If you want to compile it as a module, say M here and read
-+  <file:Documentation/modules.txt>.  The module will be called
-+  triflex.o.
-+
- CY82C693 chipset support
- CONFIG_BLK_DEV_CY82C693
-   This driver adds detection and support for the CY82C693 chipset
-@@ -1198,6 +1207,15 @@
-   This is a driver for the OPTi 82C621 EIDE controller.
-   Please read the comments at the top of <file:drivers/ide/pci/opti621.c>.
- 
-+National SCx200 chipset support
-+CONFIG_BLK_DEV_SC1200
-+  This driver adds support for the built in IDE on the National
-+  SCx200 series of embedded x86 "Geode" systems
-+
-+  If you want to compile it as a module, say M here and read
-+  <file:Documentation/modules.txt>.  The module will be called
-+  sc1200.o.
-+
- ServerWorks OSB4/CSB5 chipset support
- CONFIG_BLK_DEV_SVWKS
-   This driver adds PIO/(U)DMA support for the ServerWorks OSB4/CSB5
-@@ -4812,6 +4830,19 @@
-   If you need support for G450 or G550 secondary head, say Y to
-   "Matrox G450/G550 second head support" below.
- 
-+G100/G200/G400 support
-+CONFIG_FB_MATROX_G100A
-+  Say Y here if you have a Matrox G100, G200 or G400 based
-+  video card. If you select "Advanced lowlevel driver options", you
-+  should check 8 bpp packed pixel, 16 bpp packed pixel, 24 bpp packed
-+  pixel and 32 bpp packed pixel. You can also use font widths
-+  different from 8.
-+
-+  If you need support for G400 secondary head, you must first say Y to
-+  "I2C support" and "I2C bit-banging support" in the character devices
-+  section, and then to "Matrox I2C support" and "G400 second head
-+  support" here in the framebuffer section.
-+
- Matrox I2C support
- CONFIG_FB_MATROX_I2C
-   This drivers creates I2C buses which are needed for accessing the
-@@ -6648,6 +6679,11 @@
-   need that capability don't include S-UNI support (it's not needed to
-   make the card work).
- 
-+Use S/UNI PHY driver
-+CONFIG_ATM_HE_USE_SUNI
-+  Support for the S/UNI-Ultra and S/UNI-622 found in the ForeRunner
-+  HE cards.  This driver provides carrier detection some statistics.
-+
- Use IDT77015 PHY driver (25Mbps)
- CONFIG_ATM_NICSTAR_USE_IDT77105
-   Support for the PHYsical layer chip in ForeRunner LE25 cards. In
-@@ -6960,6 +6996,16 @@
-   architecture is based on LSI Logic's Message Passing Interface (MPI)
-   specification.
- 
-+Maximum number of scatter gather entries
-+CONFIG_FUSION_MAX_SGE
-+  This option allows you to specify the maximum number of scatter-
-+  gather entries per I/O. The driver defaults to 40, a reasonable number
-+  for most systems. However, the user may increase this up to 128.
-+  Increasing this parameter will require significantly more memory
-+  on a per controller instance. Increasing the parameter is not
-+  necessary (or recommended) unless the user will be running
-+  large I/O's via the raw interface.
-+
- Fusion MPT enhanced SCSI error reporting [optional] module
- CONFIG_FUSION_ISENSE
-   The isense module (roughly stands for Interpret SENSE data) is
-@@ -18425,6 +18471,13 @@
-   selected, the module will be called i810.o.  AGP support is required
-   for this driver to work.
- 
-+Intel 830M, 845G, 852GM, 855GM, 865G
-+CONFIG_DRM_I830
-+  Choose this option if you have a system that has Intel 830M, 845G,
-+  852GM, 855GM or 865G integrated graphics.  If M is selected, the
-+  module will be called i830.o.  AGP support is required for this driver
-+  to work.
-+
- Matrox G200/G400/G450
- CONFIG_DRM_MGA
-   Choose this option if you have a Matrox G200, G400 or G450 graphics
-@@ -26054,6 +26107,11 @@
-   best used in conjunction with the NMI watchdog so that spinlock
-   deadlocks are also debuggable.
- 
-+Additional run-time checks
-+CONFIG_CHECKING
-+  Enables some internal consistency checks for kernel debugging.
-+  You should normally say N.
-+
- Read-write spinlock debugging
- CONFIG_DEBUG_RWLOCK
-   If you say Y here then read-write lock processing will count how many
-@@ -26767,6 +26825,24 @@
-   kernel tree does. Such modules that use library CRC32 functions
-   require that you say M or Y here.
- 
-+Chassis LCD and LED support
-+CONFIG_CHASSIS_LCD_LED
-+  Say Y here if you want to enable support for the Heartbeat,
-+  Disk/Network activities LEDs on some PA-RISC machines,
-+  or support for the LCD that can be found on recent material.
-+
-+  This has nothing to do with LED State support for A, J and E class.
-+
-+  If unsure, say Y.
-+
-+IOMMU support
-+CONFIG_GART_IOMMU
-+  Support the K8 IOMMU. Needed to run systems with more than 4GB of memory
-+  properly with 32-bit PCI devices that do not support DAC (Double Address
-+  Cycle). The IOMMU can be turned off at runtime with the iommu=off parameter.
-+  Normally the kernel will take the right choice by itself.
-+  If unsure say Y
-+
- #
- # A couple of things I keep forgetting:
- #   capitalize: AppleTalk, Ethernet, DOS, DMA, FAT, FTP, Internet,
-
-
-
-
+>>EIP; 00000000 Before first symbol
+Trace; e0feaad4 <[ide-scsi]idescsi_transfer_pc+124/130>
+Trace; c0195c8a <start_request+18a/200>
+Trace; c0195e00 <ide_do_request+b0/190>
+Trace; c01964af <ide_do_drive_cmd+af/8d0>
+Trace; e0feb72c <[ide-scsi]idescsi_queue+19c/2c0>
+Trace; e0fd3634 <[scsi_mod]scsi_dispatch_cmd+194/250>
+Trace; e0fd9350 <[scsi_mod]scsi_old_done+0/620>
+Trace; e0fd90c0 <[scsi_mod]scsi_old_times_out+0/140>
+Trace; e0fdad73 <[scsi_mod]scsi_request_fn+1a3/350>
+Trace; e0fda255 <[scsi_mod]__scsi_insert_special+55/80>
+Trace; e0fda2d9 <[scsi_mod]scsi_insert_special_req+29/30>
+Trace; e0fd3755 <[scsi_mod]scsi_wait_req+65/b0>
+Trace; e0fd30c0 <[scsi_mod]scsi_wait_done+0/20>
+Trace; e101c580 <[ac97_codec].data.end+739/1239>
+Trace; e101a995 <[ac97_codec].text.end+5a/7e5>
+Trace; e101c580 <[ac97_codec].data.end+739/1239>
+Trace; e101ac96 <[ac97_codec].text.end+35b/7e5>
+Trace; e101ada5 <[ac97_codec].text.end+46a/7e5>
+Trace; c01a2594 <cdrom_open+114/5e0>
+Trace; e0fd3788 <[scsi_mod]scsi_wait_req+98/b0>
+Trace; e0fd30c0 <[scsi_mod]scsi_wait_done+0/20>
+Trace; c01a24f2 <cdrom_open+72/5e0>
+Trace; c013c481 <ioctl_by_bdev+171/1a0>
+Trace; c012fd9a <__alloc_pages+4a/190>
+Trace; c013c50b <blkdev_get+5b/60>
+Trace; c013b017 <get_super+3b7/8e0>
+Trace; c0120001 <dequeue_signal+231/4c0>
+Trace; e11a4850 <.data.end+1b49/????>
+Trace; c013b413 <get_super+7b3/8e0>
+Trace; e11a4850 <.data.end+1b49/????>
+Trace; c014cf09 <may_umount+979/16f0>
+Trace; c014d1e3 <may_umount+c53/16f0>
+Trace; c014d058 <may_umount+ac8/16f0>
+Trace; c014d5f2 <may_umount+1062/16f0>
+Trace; c010736f <__up_wakeup+12b7/1698>

@@ -1,58 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbTHKT7g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 15:59:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269559AbTHKT7g
+	id S272505AbTHKUIv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 16:08:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272910AbTHKUIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 15:59:36 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:27266 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262116AbTHKT7d (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 15:59:33 -0400
-Message-Id: <200308111959.h7BJxT0r030229@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] lirc for 2.5/2.6 kernels - 20030802 
-In-Reply-To: Your message of "Mon, 11 Aug 2003 21:34:01 +0200."
-             <20030811193401.GA8957@ucw.cz> 
-From: Valdis.Kletnieks@vt.edu
-References: <1060616931.8472.22.camel@defiant.flameeyes> <20030811163913.GA16568@bytesex.org> <20030811175642.GC2053@convergence.de> <20030811185947.GA8549@ucw.cz> <20030811191709.GN2627@elf.ucw.cz>
-            <20030811193401.GA8957@ucw.cz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-624470548P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Mon, 11 Aug 2003 16:08:51 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:44684 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S272505AbTHKUIt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 16:08:49 -0400
+Date: Mon, 11 Aug 2003 13:12:27 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 1084] New: Kernel panic while initializing HP Smart Array (cciss)
+Message-ID: <866870000.1060632747@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Mon, 11 Aug 2003 15:59:29 -0400
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-624470548P
-Content-Type: text/plain; charset=us-ascii
+http://bugme.osdl.org/show_bug.cgi?id=1084
 
-On Mon, 11 Aug 2003 21:34:01 +0200, Vojtech Pavlik said:
-> On Mon, Aug 11, 2003 at 09:17:10PM +0200, Pavel Machek wrote:
-> > Ahha, I thought BTN_1 would be first mouse button ;-). Will fix that.
-> No, that'd be BTN_LEFT.
-
-Urp.  My mouse has 7 buttons (ok, 5, one of which is a scrollwheel and
-generates 3 different events).  Which left button do you mean? ;)
-
-http://www.microsoft.com/catalog/display.asp?subid=22&site=10561
-
-Fortunately for the coders, it doesn't come in a wireless version yet. ;)
+           Summary: Kernel panic while initializing HP Smart Array (cciss)
+    Kernel Version: 2.6.0-test3
+            Status: NEW
+          Severity: blocking
+             Owner: andmike@us.ibm.com
+         Submitter: tetsuo@geekbunker.org
 
 
---==_Exmh_-624470548P
-Content-Type: application/pgp-signature
+Distribution: Red Hat 7.3
+Hardware Environment: HP DL380 G3, dual P4 2.4Ghz (hyperthreading), 512Mb, 2 x 
+36G discs in RAID 1, HP Smart Array 5i (v. 2.36)
+Software Environment: No external packages, just using RH 7.3 .rpm.
+GCC version 2.96 (rpm release 110)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Problem Description:
+During the boot process, the kernel will panic just after it initializes 
+the "Compaq CISS Drive (v.2.5.0)":
 
-iD8DBQE/N/WhcC3lWbTT17ARAtdpAKCSRTJf2exhKTtIscwhwgL/D3VE9wCgjE8/
-efyqSFMMQ0t9gMP/rpQ/A1Y=
-=rq0L
------END PGP SIGNATURE-----
+Unable to handle kernel NULL pointer dereference at virtual address 0000019a
+ printing eip:
+c0216249
+*pde = 00000000
+Oops: 0002 [#1]
+CPU:    0
+EIP:    0060:[<c0216249>]    Not tainted
+EFLAGS: 00010202
+EIP is at blk_queue_hardsect_size+0x9/0x20
+eax: 00000020 ebx: df79e050 ecx: 00000000 edx: 00000000
+esi: 00000000 edi: df7b0002 ebp: 00000000 esp: dff7bee8
+ds: 007b es: 007b ss: 0068
+Process swapper (pid:1, threadinfo=dff7a000 task=c1527000)
+Stack: (lots of hexas)
+Call: Trace:
+ [<c0387944>] cciss_init_one+0x4d4/0x510
+ [<c018b40c>] sysfs_create+0x5c/0x80
+ [<c01f6dcc>] pci_device_probe_static+0x2c/0x50
+(..)
+ <0>Kernel panic: Attempted to kill init!
 
---==_Exmh_-624470548P--
+I have the whole message as a screenshot, which i can send to anyone interested.
+
+Steps to reproduce:
+Compile the kernel with Compaq Smart Array 5xxx suport and boot.
+Using the same .config file i was able to compile a 2.6.0-test2 which worked 
+fine.
+

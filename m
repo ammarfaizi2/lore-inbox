@@ -1,225 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262767AbTJGUdX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 16:33:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262769AbTJGUdX
+	id S262864AbTJGUr1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 16:47:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262865AbTJGUr1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 16:33:23 -0400
-Received: from [193.138.115.2] ([193.138.115.2]:56583 "HELO
-	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
-	id S262767AbTJGUdR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 16:33:17 -0400
-Date: Tue, 7 Oct 2003 22:31:35 +0200 (CEST)
-From: Jesper Juhl <jju@dif.dk>
-To: jw schultz <jw@pegasys.ws>
-cc: Matthias Andree <matthias.andree@gmx.de>,
-       Mike Fedyk <mfedyk@matchmail.com>, jdow <jdow@earthlink.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 71MB compressed for COMPILED(!!!) 2.6.0-test6
-In-Reply-To: <20031006233758.GF22023@pegasys.ws>
-Message-ID: <8A43C34093B3D5119F7D0004AC56F4BC0649321E@difpst1a.dif.dk>
-References: <20031006082340.GA1135@matchmail.com> <1065428996.5033.5.camel@laptop.fenrus.com>
- <20031006083803.GB1135@matchmail.com> <20031006102415.GB7598@merlin.emma.line.org>
- <Pine.LNX.4.56.0310061655070.26687@jju_lnx.backbone.dif.dk>
- <00b401c38c31$d1360390$2eedfea9@kittycat> <20031006233758.GF22023@pegasys.ws>
+	Tue, 7 Oct 2003 16:47:27 -0400
+Received: from 205-158-62-67.outblaze.com ([205.158.62.67]:58080 "EHLO
+	spf13.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S262864AbTJGUrY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 16:47:24 -0400
+Message-ID: <20031007204720.25379.qmail@email.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Clayton Weaver" <cgweav@email.com>
+To: linux-kernel@vger.kernel.org
+Date: Tue, 07 Oct 2003 15:47:20 -0500
+Subject: Re: Circular Convolution scheduler
+X-Originating-Ip: 172.131.225.53
+X-Originating-Server: ws3-3.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Note: the point of my question was not to belittle
+the current work on scheduler heuristics to get better interactive usability on workstations.
 
-On Mon, 6 Oct 2003, jw schultz wrote:
+Here is what the development process for the scheduler over the last couple of years looks
+like to me: we start with a fair scheduler,
+bias it for processes that always have work to do when they are scheduled, then poke around at it
+with heuristics to try mitigate the starvation of interactive processes that resulted from favoring "always have work to do" batch processes in the
+initial design.
 
-> On Mon, Oct 06, 2003 at 10:46:48AM -0700, jdow wrote:
-> > From: "Jesper Juhl" <jju@dif.dk>
-> > > On Mon, 6 Oct 2003, Matthias Andree wrote:
-> > >
-> > > > On Mon, 06 Oct 2003, Mike Fedyk wrote:
-> > > >
-> > > > > config DEBUG_INFO
-> > > > > bool "Compile the kernel with debug info"
-> > > > > depends on DEBUG_KERNEL
-> > > > > help
-> > > > >           If you say Y here the resulting kernel image will include
-> > > > >   debugging info resulting in a larger kernel image.
-> > > > >   Say Y here only if you plan to use gdb to debug the kernel.
-> > > > >   If you don't debug the kernel, you can say N.
-> > > > >
-> > > > > "Larger kernel image" yeah, NO SHIT! ;)
-> > > > >
-> > > > > Maybe something that says it may enlarge your kernel by 5-10 times
-> > would be
-> > > > > nice...
-> > > >
-> > > > Send a patch...
-> > > >
-> > >
-> > > How about this one?  :
-> > >
-> > >
-> > > diff -ur linux-2.6.0-test6-orig/arch/alpha/Kconfig
-> > linux-2.6.0-test6/arch/alpha/Kconfig
-> > > --- linux-2.6.0-test6-orig/arch/alpha/Kconfig 2003-09-28
-> > 02:50:39.000000000 +0200
-> > > +++ linux-2.6.0-test6/arch/alpha/Kconfig 2003-10-06 17:10:32.000000000
-> > +0200
-> > > @@ -769,6 +769,8 @@
-> > >   help
-> > >            If you say Y here the resulting kernel image will include
-> > >     debugging info resulting in a larger kernel image.
-> > > +   This will substantially increase the size of the kernel image.
-> > > +   Size increases of 5 to 10 times normal size is to be expected.
-> >
-> > --------------------------------------------------^^ "are"
->
-> It isn't multiple increases but one of variable size.
->
-> 	"A size of 5 to 10 times normal is to be expected."
->
-> Gets the conjugation correct and eliminates the implied
-> 	size += 6..10 * normal
->
+This seems a bit like reverse-engineering code
+that we wrote ourselves to begin with.
 
-Here's a corrected patch...
-Is there an official maintainer for documentation that this should be send
-to? Or should we just cross our fingers and hope someone "higher up" will
-pick it up from linux-kernel and merge it?
-I see noone listed as maintaining docs in general or Kconfig in
-particular in the MAINTAINERS file.
+Ingo's idea of making scheduling itself faster
+regardless of assigned priorities is a good plan,
+but it is not really relevant to my question,
+which is what sort of priority adjustment algorithm would take interactive (or batch) priority
+adjustment code tweaks out of the realm of
+guesswork.
 
+Right now we seem to be writing new code without
+knowing what effect it will have on batch-interactive
+scheduling until after a lot of testing, because
+the code is too complex to predict the effect
+of changes beforehand. This seems like doing
+things the hard way, with lots of detours.
 
-diff -ur linux-2.6.0-test6-orig/arch/alpha/Kconfig linux-2.6.0-test6/arch/alpha/Kconfig
---- linux-2.6.0-test6-orig/arch/alpha/Kconfig	2003-09-28 02:50:39.000000000 +0200
-+++ linux-2.6.0-test6/arch/alpha/Kconfig	2003-10-07 21:50:38.000000000 +0200
-@@ -769,6 +769,8 @@
- 	help
-           If you say Y here the resulting kernel image will include
- 	  debugging info resulting in a larger kernel image.
-+	  This will substantially increase the size of the kernel image.
-+	  A size of 5 to 10 times normal is to be expected.
- 	  Say Y here only if you plan to use gdb to debug the kernel.
- 	  If you don't debug the kernel, you can say N.
+Is interactive performance acceptable with a
+completely fair scheduler that does not adjust
+priorities based on runtime behavior? (Ie could
+we possibly fix this in simpler fashion not
+by special-casing interactivity but rather by
+un-special-casing something else, maybe adjustable
+with a /proc value, sysctl() call, etc.)
 
-diff -ur linux-2.6.0-test6-orig/arch/arm26/Kconfig linux-2.6.0-test6/arch/arm26/Kconfig
---- linux-2.6.0-test6-orig/arch/arm26/Kconfig	2003-09-28 02:50:29.000000000 +0200
-+++ linux-2.6.0-test6/arch/arm26/Kconfig	2003-10-07 21:50:38.000000000 +0200
-@@ -336,6 +336,8 @@
- 	help
-           If you say Y here the resulting kernel image will include
- 	  debugging info resulting in a larger kernel image.
-+	  This will substantially increase the size of the kernel image.
-+	  A size of 5 to 10 times normal is to be expected.
- 	  Say Y here only if you plan to use gdb to debug the kernel.
- 	  If you don't debug the kernel, you can say N.
+I'm also reminded of "compile for network router"
+in earlier kernel configs.
 
-diff -ur linux-2.6.0-test6-orig/arch/i386/Kconfig linux-2.6.0-test6/arch/i386/Kconfig
---- linux-2.6.0-test6-orig/arch/i386/Kconfig	2003-09-28 02:50:10.000000000 +0200
-+++ linux-2.6.0-test6/arch/i386/Kconfig	2003-10-07 21:50:38.000000000 +0200
-@@ -1244,6 +1244,8 @@
- 	help
-           If you say Y here the resulting kernel image will include
- 	  debugging info resulting in a larger kernel image.
-+	  This will substantially increase the size of the kernel image.
-+	  A size of 5 to 10 times normal is to be expected.
- 	  Say Y here only if you plan to use gdb to debug the kernel.
- 	  If you don't debug the kernel, you can say N.
+"Compile as workstation? [Y]  "
 
-diff -ur linux-2.6.0-test6-orig/arch/ia64/Kconfig linux-2.6.0-test6/arch/ia64/Kconfig
---- linux-2.6.0-test6-orig/arch/ia64/Kconfig	2003-09-28 02:51:04.000000000 +0200
-+++ linux-2.6.0-test6/arch/ia64/Kconfig	2003-10-07 21:50:38.000000000 +0200
-@@ -683,6 +683,8 @@
- 	help
-           If you say Y here the resulting kernel image will include
- 	  debugging info resulting in a larger kernel image.
-+	  This will substantially increase the size of the kernel image.
-+	  A size of 5 to 10 times normal is to be expected.
- 	  Say Y here only if you plan to use gdb to debug the kernel.
- 	  If you don't debug the kernel, you can say N.
+(Not very intuitive. Everyone that didn't read
+Configure.help wouldn't be able to guess what
+the difference would be between Yes and No answers
+to that question. But that's a pretty simple
+way to put it.)
 
-diff -ur linux-2.6.0-test6-orig/arch/m68k/Kconfig linux-2.6.0-test6/arch/m68k/Kconfig
---- linux-2.6.0-test6-orig/arch/m68k/Kconfig	2003-09-28 02:50:29.000000000 +0200
-+++ linux-2.6.0-test6/arch/m68k/Kconfig	2003-10-07 21:50:38.000000000 +0200
-@@ -1166,6 +1166,8 @@
- 	help
-           If you say Y here the resulting kernel image will include
- 	  debugging info resulting in a larger kernel image.
-+	  This will substantially increase the size of the kernel image.
-+	  A size of 5 to 10 times normal is to be expected.
- 	  Say Y here only if you plan to use gdb to debug the kernel.
- 	  If you don't debug the kernel, you can say N.
+Regards,
 
-diff -ur linux-2.6.0-test6-orig/arch/parisc/Kconfig linux-2.6.0-test6/arch/parisc/Kconfig
---- linux-2.6.0-test6-orig/arch/parisc/Kconfig	2003-09-28 02:50:29.000000000 +0200
-+++ linux-2.6.0-test6/arch/parisc/Kconfig	2003-10-07 21:50:38.000000000 +0200
-@@ -257,6 +257,8 @@
- 	help
-           If you say Y here the resulting kernel image will include
- 	  debugging info resulting in a larger kernel image.
-+	  This will substantially increase the size of the kernel image.
-+	  A size of 5 to 10 times normal is to be expected.
- 	  Say Y here only if you plan to use gdb to debug the kernel.
- 	  If you don't debug the kernel, you can say N.
+Clayton Weaver
+<mailto: cgweav@email.com>
 
-diff -ur linux-2.6.0-test6-orig/arch/ppc/Kconfig linux-2.6.0-test6/arch/ppc/Kconfig
---- linux-2.6.0-test6-orig/arch/ppc/Kconfig	2003-09-28 02:51:12.000000000 +0200
-+++ linux-2.6.0-test6/arch/ppc/Kconfig	2003-10-07 21:50:38.000000000 +0200
-@@ -1390,6 +1390,8 @@
- 	help
-           If you say Y here the resulting kernel image will include
- 	  debugging info resulting in a larger kernel image.
-+	  This will substantially increase the size of the kernel image.
-+	  A size of 5 to 10 times normal is to be expected.
- 	  Say Y here only if you plan to use some sort of debugger to
- 	  debug the kernel.
- 	  If you don't debug the kernel, you can say N.
+-- 
+__________________________________________________________
+Sign-up for your own personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
 
-diff -ur linux-2.6.0-test6-orig/arch/ppc64/Kconfig linux-2.6.0-test6/arch/ppc64/Kconfig
---- linux-2.6.0-test6-orig/arch/ppc64/Kconfig	2003-09-28 02:50:25.000000000 +0200
-+++ linux-2.6.0-test6/arch/ppc64/Kconfig	2003-10-07 21:50:38.000000000 +0200
-@@ -374,6 +374,8 @@
- 	help
-           If you say Y here the resulting kernel image will include
- 	  debugging info resulting in a larger kernel image.
-+	  This will substantially increase the size of the kernel image.
-+	  A size of 5 to 10 times normal is to be expected.
- 	  Say Y here only if you plan to use gdb to debug the kernel.
- 	  If you don't debug the kernel, you can say N.
+CareerBuilder.com has over 400,000 jobs. Be smarter about your job search
+http://corp.mail.com/careers
 
-diff -ur linux-2.6.0-test6-orig/arch/s390/Kconfig linux-2.6.0-test6/arch/s390/Kconfig
---- linux-2.6.0-test6-orig/arch/s390/Kconfig	2003-09-28 02:50:16.000000000 +0200
-+++ linux-2.6.0-test6/arch/s390/Kconfig	2003-10-07 21:50:38.000000000 +0200
-@@ -309,6 +309,8 @@
- 	help
-           If you say Y here the resulting kernel image will include
- 	  debugging info resulting in a larger kernel image.
-+	  This will substantially increase the size of the kernel image.
-+	  A size of 5 to 10 times normal is to be expected.
- 	  Say Y here only if you plan to use gdb to debug the kernel.
- 	  If you don't debug the kernel, you can say N.
-
-diff -ur linux-2.6.0-test6-orig/arch/sparc64/Kconfig linux-2.6.0-test6/arch/sparc64/Kconfig
---- linux-2.6.0-test6-orig/arch/sparc64/Kconfig	2003-09-28 02:50:53.000000000 +0200
-+++ linux-2.6.0-test6/arch/sparc64/Kconfig	2003-10-07 21:50:38.000000000 +0200
-@@ -819,6 +819,8 @@
- 	help
-           If you say Y here the resulting kernel image will include
- 	  debugging info resulting in a larger kernel image.
-+	  This will substantially increase the size of the kernel image.
-+	  A size of 5 to 10 times normal is to be expected.
- 	  Say Y here only if you plan to use gdb to debug the kernel.
- 	  If you don't debug the kernel, you can say N.
-
-diff -ur linux-2.6.0-test6-orig/arch/x86_64/Kconfig linux-2.6.0-test6/arch/x86_64/Kconfig
---- linux-2.6.0-test6-orig/arch/x86_64/Kconfig	2003-09-28 02:50:40.000000000 +0200
-+++ linux-2.6.0-test6/arch/x86_64/Kconfig	2003-10-07 21:50:38.000000000 +0200
-@@ -495,6 +495,8 @@
- 	help
-           If you say Y here the resulting kernel image will include
- 	  debugging info resulting in a larger kernel image.
-+	  This will substantially increase the size of the kernel image.
-+	  A size of 5 to 10 times normal is to be expected.
- 	  Say Y here only if you plan to use gdb to debug the kernel.
- 	  If you don't debug the kernel, you can say N.
-
-
-/Jesper Juhl <jju@dif.dk>

@@ -1,61 +1,38 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263766AbTEYUpP (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 25 May 2003 16:45:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbTEYUpP
+	id S263749AbTEYUi6 (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 25 May 2003 16:38:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263750AbTEYUi6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 16:45:15 -0400
-Received: from ip67-95-245-82.z245-95-67.customer.algx.net ([67.95.245.82]:55558
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S263771AbTEYUpN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 16:45:13 -0400
-Date: Sun, 25 May 2003 13:55:11 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Willy Tarreau <willy@w.ods.org>,
-   Marcelo Tosatti <marcelo@conectiva.com.br>,
-   lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-rc3 : IDE pb on Alpha
-Message-ID: <20030525205511.GC23651@matchmail.com>
-Mail-Followup-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-	Willy Tarreau <willy@w.ods.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <20030525203709.GA23651@matchmail.com> <Pine.SOL.4.30.0305252242430.10573-100000@mion.elka.pw.edu.pl>
+	Sun, 25 May 2003 16:38:58 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:58415 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263749AbTEYUi5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 16:38:57 -0400
+Date: Sun, 25 May 2003 13:55:32 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Alistair J Strachan <alistair@devzero.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69-mm9
+Message-Id: <20030525135532.244dbbff.akpm@digeo.com>
+In-Reply-To: <200305252135.37109.alistair@devzero.co.uk>
+References: <200305251619.40137.alistair@devzero.co.uk>
+	<20030525131512.45ce0cc2.akpm@digeo.com>
+	<200305252135.37109.alistair@devzero.co.uk>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.30.0305252242430.10573-100000@mion.elka.pw.edu.pl>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 25 May 2003 20:52:08.0166 (UTC) FILETIME=[8187A060:01C322FF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 25, 2003 at 10:45:00PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> On Sun, 25 May 2003, Mike Fedyk wrote:
-> 
-> > On Sun, May 25, 2003 at 07:00:46PM +0200, Willy Tarreau wrote:
-> > > hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> > > hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> >
-> > Can you revert back to your previous kernel and run badblocks read-only on
-> > it a few times.  Your drive may be going bad.
-> 
-> 
-> 
-> Everything is okay, older drives don't understand some commands.
-> I will fix it, but now its low on my TODO list.
-> 
+Alistair J Strachan <alistair@devzero.co.uk> wrote:
+>
+> The kernel barfed out the attached junk
 
-Bart, is there any chace you could change the printks to show the name of
-the command that caused the drive to produce the error (assuming non
-ide-tcq, with tcq I'd immagine that it'd be a bit harder).
+oops.  It needs either CONFIG_SMP or CONFIG_DEBUG_SPINLOCK.
 
-This way someone who hasn't read the IDE spec might be able to tell that
-this isn't a warning of impending failure.
+I don't know why you hit the final assertion failure in
+__journal_remove_journal_head().  Please see if adding
+CONFIG_DEBUG_SPINLOCK makes that go away.
 
-BTW, is this information encoded in the two lines above somewhere, and if so
-how would I read it?
-
-Thanks,
-
-Mike

@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263949AbTDYMrK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 08:47:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263957AbTDYMrK
+	id S263953AbTDYMpF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 08:45:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263949AbTDYMpE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 08:47:10 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:3601 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S263949AbTDYMrJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 08:47:09 -0400
-Date: Fri, 25 Apr 2003 14:59:18 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@clear.net.nz>
-Cc: Andreas Dilger <adilger@clusterfs.com>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@digeo.com>, cat@zip.com.au, mbligh@aracnet.com,
-       gigerstyle@gmx.ch, geert@linux-m68k.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fix SWSUSP & !SWAP
-Message-ID: <20030425125918.GA25733@atrey.karlin.mff.cuni.cz>
-References: <20030424022505.5b22eeed.akpm@digeo.com> <20030424093534.GB3084@elf.ucw.cz> <20030424024613.053fbdb9.akpm@digeo.com> <1051182797.2250.10.camel@laptop-linux> <20030424043637.71c3812e.akpm@digeo.com> <20030424142632.GB229@elf.ucw.cz> <20030424103734.O26054@schatzie.adilger.int> <20030424204805.GA379@elf.ucw.cz> <20030424154608.V26054@schatzie.adilger.int> <1051232975.1919.26.camel@laptop-linux>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1051232975.1919.26.camel@laptop-linux>
-User-Agent: Mutt/1.3.28i
+	Fri, 25 Apr 2003 08:45:04 -0400
+Received: from [65.244.37.61] ([65.244.37.61]:4421 "EHLO
+	WSPNYCON1IPC.corp.root.ipc.com") by vger.kernel.org with ESMTP
+	id S263953AbTDYMpD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 08:45:03 -0400
+Message-ID: <170EBA504C3AD511A3FE00508BB89A9201FD92E9@exnanycmbx4.ipc.com>
+From: "Downing, Thomas" <Thomas.Downing@ipc.com>
+To: John Bradford <john@grabjohn.com>, jamie@shareable.org
+Cc: core@enodev.com, miller@techsource.com, phillips@arcor.de,
+       wli@holomorphy.com, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: RE: Flame Linus to a crisp!
+Date: Fri, 25 Apr 2003 08:57:13 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+From: John Bradford [mailto:john@grabjohn.com]
 
-> > On Apr 24, 2003  22:48 +0200, Pavel Machek wrote:
-> > OK, then why all of the talk earlier saying that journal recovery will
-> > corrupt a swapfile?  That was the reason journaling was brought into the
-> > discussion in the first place:
-> > 
-> > 	"And now you have kernel which expects data still in journal (that was
-> > 	 state before suspend), but reality on disk is quite different (journal
-> > 	 was replayed). Data corruption." -- Pavel
-> 
-> I don't believe Pavel was saying the image would be corrupted. Rather,
-> the rest of the disk contents are corrupted by replaying the journal and
-> then resuming back to a memory state that has been made inconsistent
-> with the disk state because of the journal replay.
+>> > I'd like to see an x86 completely in perf board. I thought my high
+>> > school digital electronics type stuff looked bad...
+>> 
+>> You could do it nowadays using dynamic binary translation, and an
+>> absurdly simple CPU capable of accessing a large memory.  You'd need a
+>> DIMM for the large memory, but get away with discrete logic for the
+>> CPU if you really wanted to.
+>> 
+>> At perf board sizes using discrete logic, expect it run run quite slow :)
+>
+> Could we not take this idea to it's logical extreme, and simply
+> calculate the results of every opcode, on every value, for every state
+> of all of the registers, and store them in an array of DIMMs, and
+> simply look up the necessary results?  I.E. a cpu which is one _huge_
+> look up table :-).
+>
+> John.
 
-Right.
-
-> > If that is the case, then the only way to avoid this would be to call
-> > sync_super_lockfs() on each filesystem before the suspend, which will
-> > force the journal to be empty when it returns.  That API is supported
-> > by all of the journaling filesystems, and is probably a good thing to
-> > do anyways, as it will potentially free a lot of dirty data from RAM,
-> > and also ensure that the on-disk data is consistent in case the resume
-> > isn't handled gracefully.
-> 
-> Sounds like a good idea to me.
-
-When I do sys_sync(), will it trigger that?
-								Pavel
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+NOW your'e talking! Alan Turing meets Julian Barbour.

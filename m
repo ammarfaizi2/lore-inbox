@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263713AbTEMWUu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 18:20:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263717AbTEMWUs
+	id S263637AbTEMWLB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 18:11:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263623AbTEMWJw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 18:20:48 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:27890 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263713AbTEMWSw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 18:18:52 -0400
-Date: Tue, 13 May 2003 15:27:13 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Joel Becker <Joel.Becker@oracle.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69-mm4 fails to boot
-Message-Id: <20030513152713.217aac7a.akpm@digeo.com>
-In-Reply-To: <20030513221435.GI32128@ca-server1.us.oracle.com>
-References: <20030513221435.GI32128@ca-server1.us.oracle.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 May 2003 22:31:34.0265 (UTC) FILETIME=[68A51690:01C3199F]
+	Tue, 13 May 2003 18:09:52 -0400
+Received: from corky.net ([212.150.53.130]:24265 "EHLO marcellos.corky.net")
+	by vger.kernel.org with ESMTP id S263624AbTEMWJP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 18:09:15 -0400
+Date: Wed, 14 May 2003 01:21:56 +0300 (IDT)
+From: Yoav Weiss <ml-lkml@unpatched.org>
+X-X-Sender: yoavw@marcellos.corky.net
+To: Jesse Pollard <jesse@cats-chateau.net>
+Cc: 76306.1226@compuserve.com, <alan@lxorguk.ukuu.org.uk>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: The disappearing sys_call_table export.
+In-Reply-To: <03051316261500.20373@tabby>
+Message-ID: <Pine.LNX.4.44.0305140109160.20904-100000@marcellos.corky.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joel Becker <Joel.Becker@oracle.com> wrote:
+On Tue, 13 May 2003, Jesse Pollard wrote:
+
+> Though part of it has to do with large systems and crash. What is done
+> on some of these systems is to periodically checkpoint batch jobs. If the
+> kernel crashes, the job has a physical memory failure, a cpu dies (one out
+> of many...) the system resumes processing (after reboot, or removing the
+> memory page from the valid list ... whatever recovery method) to then
+> reload/resume the processes.
 >
-> 	2.5.69-mm4 is failing to boot.  It completes init_rootfs() in
-> mnt_init() but does not complete init_mount_tree().  Call me dumb, but
-> nothing obvious jumps out at me, I don't see any diff(1) from -mm3, and
-> I don't really have time to actively debug it.  I can indeed build and
-> try kernels.
+> If the random key is lost due to a crash, then reload/resume fails.
+>
 
-Could be a device driver or IO scheduler problem.  You may find that it's
-stuck waiting for a disk read to complete.
+I thought checkpointing usually takes the whole virtual memory of the
+process, regardless of whats in swap and whats in real memory, in which
+case the encrypted swap key is not an issue.  If this isn't the case, I
+guess the random key has to be preserved as a part of the checkpointing.
+Of course, this beats the whole purpose of encrypted swap unless
+checkpointing is done into an encrypted device too.  This device must be
+encrypted anyway, regardless of swap, because the whole process image will
+be stored there.
 
-Try using a different IO scheduler?
 
-Does sysrq-T work?
-
-What device driver does an ML570 use?
-
-Please share your .config.

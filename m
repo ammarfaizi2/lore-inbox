@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262414AbSJWBMs>; Tue, 22 Oct 2002 21:12:48 -0400
+	id <S262453AbSJWBVO>; Tue, 22 Oct 2002 21:21:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262440AbSJWBMs>; Tue, 22 Oct 2002 21:12:48 -0400
-Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:1007 "EHLO
+	id <S262454AbSJWBVO>; Tue, 22 Oct 2002 21:21:14 -0400
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:1263 "EHLO
 	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id <S262414AbSJWBMr>; Tue, 22 Oct 2002 21:12:47 -0400
+	id <S262453AbSJWBVL>; Tue, 22 Oct 2002 21:21:11 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15797.63740.520358.783516@wombat.chubb.wattle.id.au>
-Date: Wed, 23 Oct 2002 11:18:52 +1000
-To: david@gibson.dropbear.id.au, linux-kernel@vger.kernel.org,
-       dhinds@zen.standford.edu
-Subject: Ejecting an orinoco card causes hang
-From: peterc@gelato.unsw.edu.au
+Message-ID: <15797.64245.366204.917107@wombat.chubb.wattle.id.au>
+Date: Wed, 23 Oct 2002 11:27:17 +1000
+To: linux-kernel@vger.kernel.org, ajoshi@unixbox.com,
+       jsimmons@maxwell.earthlink.net
+Subject: radeon framebuffer code doesn't compile (2.5.44 kernel)
 X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
 X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
  !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
@@ -24,34 +24,43 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Davids,
-   I see the following problems with the orinoco plus cardbus plus
-yenta_socket system on 2.5.44.
-I'm using a Netgear MA401.
+When trying to compile the radeon framebuffer code in 2.5.44 I see
+compilation errors (appended).  My guess is that it hasn't been
+updated to match the current fb.h.
 
-1.  cardctl reset gives a warning:
-      orinoco_lock() called with hw_unavailable.
-    I added a call to dump_stack() where the message was being printed
-    out --- it's happening when pcmcia_release_configuration() calls
-    set_socket, which calls yenta_get_socket() which calls set_cis_map
-    which causes an interrupt, and then orinoco_interrupt reports the
-    problem.   So it's probably benign.
 
-2.  cardctl eject gives a warning, Bad: scheduling while atomic. I
-    think this is a generic problem, not orinoco-specific ---
-    pcmcia_eject_card() disables interrupts, then calls do_shutdown()
-    which calls cs_sleep(), and cs_sleep() tries to sleep (but with
-    interrupts disabled, bad)
-
-3.  Manually ejecting the card (without doing a cardctl eject first)
-    locks the machine solid.  Nothing in the logs, nothing on the
-    screen.  I suspect it's disabling interrupts then doing something
-    silly. 
-
-4.  Transferring lots of data causes the link to collapse, and the
-    logs to fill up with `eth0: Error -110 writing Tx descriptor to
-    BAP' messages
-
---
-Dr Peter Chubb				    peterc@gelato.unsw.edu.au
-You are lost in a maze of BitKeeper repositories, all almost the same.
+drivers/video/radeonfb.c:605: unknown field `fb_get_fix' specified in initializer
+drivers/video/radeonfb.c:605: warning: initialization from incompatible pointer type
+drivers/video/radeonfb.c:606: unknown field `fb_get_var' specified in initializer
+drivers/video/radeonfb.c:606: warning: initialization from incompatible pointer type
+drivers/video/radeonfb.c: In function `radeon_set_dispsw':
+drivers/video/radeonfb.c:1385: structure has no member named `type'
+drivers/video/radeonfb.c:1386: structure has no member named `type_aux'
+drivers/video/radeonfb.c:1387: structure has no member named `ypanstep'
+drivers/video/radeonfb.c:1388: structure has no member named `ywrapstep'
+drivers/video/radeonfb.c:1397: structure has no member named `visual'
+drivers/video/radeonfb.c:1398: structure has no member named `line_length'
+drivers/video/radeonfb.c:1405: structure has no member named `visual'
+drivers/video/radeonfb.c:1406: structure has no member named `line_length'
+drivers/video/radeonfb.c:1413: structure has no member named `visual'
+drivers/video/radeonfb.c:1414: structure has no member named `line_length'
+drivers/video/radeonfb.c:1421: structure has no member named `visual'
+drivers/video/radeonfb.c:1422: structure has no member named `line_length'
+drivers/video/radeonfb.c: In function `radeonfb_get_fix':
+drivers/video/radeonfb.c:1514: structure has no member named `type'
+drivers/video/radeonfb.c:1515: structure has no member named `type_aux'
+drivers/video/radeonfb.c:1516: structure has no member named `visual'
+drivers/video/radeonfb.c:1522: structure has no member named `line_length'
+drivers/video/radeonfb.c: In function `radeonfb_set_var':
+drivers/video/radeonfb.c:1578: structure has no member named `line_length'
+drivers/video/radeonfb.c:1579: structure has no member named `visual'
+drivers/video/radeonfb.c:1590: structure has no member named `line_length'
+drivers/video/radeonfb.c:1591: structure has no member named `visual'
+drivers/video/radeonfb.c:1606: structure has no member named `line_length'
+drivers/video/radeonfb.c:1607: structure has no member named `visual'
+drivers/video/radeonfb.c:1619: structure has no member named `line_length'
+drivers/video/radeonfb.c:1620: structure has no member named `visual'
+drivers/video/radeonfb.c: At top level:
+drivers/video/radeonfb.c:2487: warning: `fbcon_radeon8' defined but not used
+drivers/video/radeonfb.c:598: warning: `radeon_read_OF' declared `static' but never defined
+drivers/video/radeonfb.c:1710: warning: `radeonfb_set_cmap' defined but not used

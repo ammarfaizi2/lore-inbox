@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317380AbSHMFY6>; Tue, 13 Aug 2002 01:24:58 -0400
+	id <S318934AbSHMF1X>; Tue, 13 Aug 2002 01:27:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318934AbSHMFY6>; Tue, 13 Aug 2002 01:24:58 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:59896 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S317380AbSHMFY5>; Tue, 13 Aug 2002 01:24:57 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Mon, 12 Aug 2002 23:25:59 -0600
-To: Adam Kropelin <akropel1@rochester.rr.com>
-Cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>,
-       riel@conectiva.com.br
-Subject: Re: [patch 1/21] random fixes
-Message-ID: <20020813052559.GC9642@clusterfs.com>
-Mail-Followup-To: Adam Kropelin <akropel1@rochester.rr.com>,
-	Andrew Morton <akpm@zip.com.au>,
-	lkml <linux-kernel@vger.kernel.org>, riel@conectiva.com.br
-References: <3D56146B.C3CAB5E1@zip.com.au> <20020811142938.GA681@www.kroptech.com> <3D56A83E.ECF747C6@zip.com.au> <20020812002739.GA778@www.kroptech.com> <3D57406E.D39E9B89@zip.com.au> <20020813002603.GA20817@www.kroptech.com> <3D5857A4.FE358FA2@zip.com.au> <20020813022550.GA6810@www.kroptech.com> <3D587706.A0F2DC21@zip.com.au> <20020813041011.GA12227@www.kroptech.com>
+	id <S318941AbSHMF1X>; Tue, 13 Aug 2002 01:27:23 -0400
+Received: from smtp-stjh-01-03.rogers.nf.net ([192.75.13.143]:46477 "EHLO
+	smtp-stjh-01-03.rogers.nf.net") by vger.kernel.org with ESMTP
+	id <S318934AbSHMF1W>; Tue, 13 Aug 2002 01:27:22 -0400
+From: "Chad Young" <skidley@roadrunner.nf.net>
+Date: Tue, 13 Aug 2002 03:01:13 -0230
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.20-pre2 compile error
+Message-ID: <20020813053113.GC398@hendrix>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020813041011.GA12227@www.kroptech.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 13, 2002  00:10 -0400, Adam Kropelin wrote:
-> On Mon, Aug 12, 2002 at 08:03:34PM -0700, Andrew Morton wrote:
-> > Are you _sure_ it was bad with ext2?
-> 
-> Yes.
-> 
-> [root@devbox adk0212] mount
-> /dev/hda3 on / type ext2 (rw)
-> /dev/hda1 on /boot type ext2 (rw)
-> 
-> Is it possible that the darn thing is mounted ext3 even though fstab and mount
-> agree that it's ext2?
+any idea what causes these errors?
 
-Yes, if you have a journal on your root filesystem, then it will be mounted
-as ext3 regardless of what it says in /etc/fstab.  Since "mount" also
-looks in /etc/fstab for writing the entry in /etc/mtab _after_ the root
-filesystem is mounted, the output from "mount" can also be bogus.  You
-need to check /proc/mounts to see the real answer.
-
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
-
+make[3]: Entering directory
+`/home/skidley/kernel/linux-2.4.20-pre2/fs/partitions'
+gcc -D__KERNEL__ -I/home/skidley/kernel/linux-2.4.20-pre2/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686
+-nostdinc -I /usr/lib/gcc-lib/i386-linux/2.95.4/include
+-DKBUILD_BASENAME=check  -DEXPORT_SYMTAB -c check.c
+check.c: In function `devfs_register_disc':
+check.c:328: structure has no member named `number'
+check.c:329: structure has no member named `number'
+check.c: In function `devfs_register_partitions':
+check.c:361: structure has no member named `number'
+make[3]: *** [check.o] Error 1
+make[3]: Leaving directory
+`/home/skidley/kernel/linux-2.4.20-pre2/fs/partitions'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory
+`/home/skidley/kernel/linux-2.4.20-pre2/fs/partitions'
+make[1]: *** [_subdir_partitions] Error 2
+make[1]: Leaving directory `/home/skidley/kernel/linux-2.4.20-pre2/fs'
+make: *** [_dir_fs] Error 2
+-- 
+"I mean they are gonna kill ya so like if ya give em a quick, short, sharp, 
+shock they won't do it again. Dig it! I mean he got off lightly cuz I would 
+have given him a thrashing. I only hit him once. It was only a difference of 
+opinion but really... I mean good manners don't cost nothin do they. Eh?"

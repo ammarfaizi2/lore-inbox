@@ -1,35 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280625AbRKNPKK>; Wed, 14 Nov 2001 10:10:10 -0500
+	id <S280628AbRKNPIu>; Wed, 14 Nov 2001 10:08:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280627AbRKNPKA>; Wed, 14 Nov 2001 10:10:00 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:19214 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S280625AbRKNPJo>; Wed, 14 Nov 2001 10:09:44 -0500
-Date: Wed, 14 Nov 2001 15:09:40 +0000
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]Disk IO statistics for all disks (request queue)
-Message-ID: <20011114150939.A41654@compsoc.man.ac.uk>
-In-Reply-To: <20011114092022.A23345@joshua.mesa.nl> <HBEHIIBBKKNOBLMPKCBBIEGGEBAA.znmeb@aracnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <HBEHIIBBKKNOBLMPKCBBIEGGEBAA.znmeb@aracnet.com>
-User-Agent: Mutt/1.3.19i
-X-Url: http://www.movement.uklinux.net/
-X-Record: Hot Toddy - Super Magic
-X-Toppers: N/A
+	id <S280629AbRKNPIk>; Wed, 14 Nov 2001 10:08:40 -0500
+Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:45030 "EHLO
+	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
+	id <S280628AbRKNPI1>; Wed, 14 Nov 2001 10:08:27 -0500
+Date: Wed, 14 Nov 2001 15:08:25 +0000 (GMT)
+From: Matt Bernstein <matt@theBachChoir.org.uk>
+To: Arjan van de Ven <arjanv@redhat.com>
+cc: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Athlon SMP blues - kernels 2.4.[9 13 15-pre4]
+In-Reply-To: <3BF285D7.8F5AAB6E@redhat.com>
+Message-ID: <Pine.LNX.4.33.0111141502110.8473-100000@nick.dcs.qmul.ac.uk>
+X-URL: http://www.theBachChoir.org.uk/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 14, 2001 at 06:59:35AM -0800, M. Edward Borasky wrote:
+At 14:55 -0000 Arjan van de Ven wrote:
 
-> Where might I find the Stephan Tweedie patches?
+>Alastair Stevens wrote:
+>>
+>> Hi folks - I'm having real problems getting our new dual CPU server
+>> going. It's a 2x Athlon XP 1800+ on a Tyan mobo, AMD 760MP chipset, with
+>
+>Ehm you know that XP cpu's don't support SMP configuration ?
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/ probably
+I hope they do; I've just set up a very similar beast (looks like the same
+mobo and same CPUs). Is the RAM "registered" ECC? Are your CPUs the same
+stepping? One problem we were bitten by was the Radeon DRI, so we disabled
+it (in XF86Config-4) and it now seems to at least boot into X. However,
+it's not any faster than a dual PIII (1GHz) at the task it's meant to
+perform :( both CPUs report 75% usage, and vmstat 1 doesn't show the IO
+systems being slugged. Very strange. We're wondering if we've hit memory
+bandwidth as the tasks involve some hard sums with big matrices.
 
-john
+$ cat /proc/cpuinfo
+processor	: 0
+vendor_id	: AuthenticAMD
+cpu family	: 6
+model		: 6
+model name	: AMD Athlon(tm) Processor
+stepping	: 2
+cpu MHz		: 1526.519
+cache size	: 256 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 1
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
+pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
+bogomips	: 3047.42
 
--- 
-"Your superior intellect is no match for our puny weapons."
+processor	: 1
+vendor_id	: AuthenticAMD
+cpu family	: 6
+model		: 6
+model name	: AMD Athlon(tm) Processor
+stepping	: 2
+cpu MHz		: 1526.519
+cache size	: 256 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 1
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
+pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
+bogomips	: 3047.42
+
+

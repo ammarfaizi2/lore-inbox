@@ -1,28 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270772AbRIGBhj>; Thu, 6 Sep 2001 21:37:39 -0400
+	id <S270841AbRIGCLS>; Thu, 6 Sep 2001 22:11:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270787AbRIGBh3>; Thu, 6 Sep 2001 21:37:29 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:34820 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270772AbRIGBhK>; Thu, 6 Sep 2001 21:37:10 -0400
-Subject: Re: [patch] proposed fix for ptrace() SMP race
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Fri, 7 Sep 2001 02:41:11 +0100 (BST)
-Cc: davidm@hpl.hp.com (David Mosberger), linux-kernel@vger.kernel.org
-In-Reply-To: <20010907032801.N11329@athlon.random> from "Andrea Arcangeli" at Sep 07, 2001 03:28:01 AM
+	id <S270905AbRIGCLI>; Thu, 6 Sep 2001 22:11:08 -0400
+Received: from mx4.port.ru ([194.67.57.14]:4363 "EHLO smtp4.port.ru")
+	by vger.kernel.org with ESMTP id <S270841AbRIGCK4>;
+	Thu, 6 Sep 2001 22:10:56 -0400
+From: Samium Gromoff <_deepfire@mail.ru>
+Message-Id: <200109070633.f876XWH01002@vegae.deep.net>
+Subject: IDE UDMA blacklist++
+To: linux-kernel@vger.kernel.org
+Date: Fri, 7 Sep 2001 06:33:30 +0000 (UTC)
+Cc: alan@lxorguk.ukuu.org.uk, andre@aslab.com
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15fAdr-0000r7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +#ifdef CONFIG_SMP
-> +	rmb(); /* read child->has_cpu after child->state */
-> +	while (child->has_cpu);
-		rep_nop();
+     Now after 20+ days of error-free disk operation,
+  it may be somewhat clean that 60GXP ibm drive doesnt like
+   UDMA on pIIX3 controllers.
 
-otherwise your PIV will overheat
+cheers, Sam
+ 

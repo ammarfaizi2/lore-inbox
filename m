@@ -1,103 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267496AbTAQLpL>; Fri, 17 Jan 2003 06:45:11 -0500
+	id <S266020AbTAQMXV>; Fri, 17 Jan 2003 07:23:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267497AbTAQLpL>; Fri, 17 Jan 2003 06:45:11 -0500
-Received: from tomts20-srv.bellnexxia.net ([209.226.175.74]:56992 "EHLO
-	tomts20-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S267496AbTAQLpJ>; Fri, 17 Jan 2003 06:45:09 -0500
-Date: Fri, 17 Jan 2003 06:53:43 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@dell
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: questions about config files, I2C and hardware sensors (2.5.59)
-Message-ID: <Pine.LNX.4.44.0301170636120.13098-100000@dell>
+	id <S267081AbTAQMXV>; Fri, 17 Jan 2003 07:23:21 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:19340 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S266020AbTAQMXT>;
+	Fri, 17 Jan 2003 07:23:19 -0500
+Date: Fri, 17 Jan 2003 13:28:10 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+cc: Anders Gustafsson <andersg@0x63.nu>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.59
+In-Reply-To: <Pine.LNX.4.44.0301162220160.19302-100000@chaos.physics.uiowa.edu>
+Message-ID: <Pine.GSO.4.21.0301171326040.8910-100000@vervain.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 16 Jan 2003, Kai Germaschewski wrote:
+> On Fri, 17 Jan 2003, Anders Gustafsson wrote:
+> > On Thu, Jan 16, 2003 at 10:12:23PM -0600, Kai Germaschewski wrote:
+> > > > ./scripts/kconfig/mconf arch/i386/Kconfig
+> > > > arch/i386/Kconfig:1185: can't open file "drivers/eisa/Kconfig"
+> > > > make: *** [menuconfig] Error 1
+> > > 
+> > > 	bk -r get -q
+> > > 
+> > > or just
+> > > 
+> > > 	bk get drivers/eisa
+> > > 
+> > > in this case. I guess this is becoming a FAQ.
+> > 
+> > It would be cool if the the Makefile let make knew about these dependencies
+> > so they would be checked out automagically.
+> 
+> Unfortunately, the Makefile doesn't really know about the Kconfig files, 
+> the "source drivers/whatever/Kconfig" commands are in Kconfig, and 
+> duplicating them into the Makefile would be rather error-prone.
 
-  just to make sure i understand the kbuild language, a couple
-questions about the I2C config option and its menu dependencies.
+What about learning `make depend' a bit Kconfig syntax?
 
-  in .../drivers/i2c/Kconfig, we have the relevant lines:
+> Even if that was done, the Makefiles also cannot know about e.g. headers 
+> included into C files, so it'd die at that point. At some point I hacked a 
+> LD_PRELOAD library which would try to exec a "get" when open(2) fails, 
+> which fixes gcc, kconfig and whatnotsoever. I suppose a better solution is 
+> "checkout: get", though.
 
------------------
+Isn't all of this in .depend?
 
-menu "I2C support"
+Gr{oetje,eeting}s,
 
-config I2C
-	tristate "I2C support"
-     ... blah blah ...
+						Geert
 
-config I2C_PROC
-	tristate "more blah"
- 	depends on I2C && SYSCTL
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-source drivers/i2c/busses/Kconfig
-source drivers/i2c/chips/Kconfig
-
-endmenu
-
--------------------
-
-  so far, so good.  and since the next issue deals with both of 
-those sourced files similarly, i'll just pick on the first one --
-busses/Kconfig, which contains:
-
--------------------
-
-#  .. All depend on EXPERIMENTAL, I2C and I2CPROC.
-
-menu "I2C HW Sensors Mainboard Support"
-
-config I2C_AMD756
-	tristate "..."
-	depends on I2C && I2C_PROC
-
-config I2C_AMD8111
-	tristate "..."
-	depends on I2C && I2C_PROC
-
-...
-
-endmenu
-
---------------------
-
-  so the issues:
-
-1) trivial: comment is wrong, there is no dependency on 
-   EXPERIMENTAL
-
-2) since, in the sourcing Kconfig file, I2C_PROC *already* depends
-   on I2C, is there any practical value in having the dependency
-   "I2C && I2C_PROC".  wouldn't "depends on I2C_PROC" be sufficient?
-   that is, do option dependencies carry across sourced Kconfig
-   files?  not a major issue, just unnecessary verbosity.
-
-3) finally, given that the comment at the top is adamant that
-   all of these options depend on I2C and I2C_PROC, wouldn't it
-   be cleaner to just make the menu itself say:
-
-   menu "I2C HW Sensors Mainboard Support"
-	depends on I2C && I2C_PROC		(or just I2C_PROC)
-	...
-
-   and let the internal options inherit this dependency?  as it
-   is, those two submenu names show up even though clicking on
-   them shows an empty option screen.  
-
-   by changing to the above, these become invisible submenus
-   until you actually select I2C_PROC in the "Option"
-   window.  is there any drawback to this?  seems cleaner.
-   (this assumes, of course, that *all* options in this menu
-   share exactly the same dependencies, but that's what the
-   comment seems to imply.)
-
-i can easily knock off a patch for this as long as i'm 
-understanding this correctly.
-
-rday
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

@@ -1,43 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278813AbRKDUgd>; Sun, 4 Nov 2001 15:36:33 -0500
+	id <S278810AbRKDUgn>; Sun, 4 Nov 2001 15:36:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278685AbRKDUgX>; Sun, 4 Nov 2001 15:36:23 -0500
-Received: from EUNICH.REM.CMU.EDU ([128.237.160.239]:61076 "HELO
-	eunich.rem.cmu.edu") by vger.kernel.org with SMTP
-	id <S278813AbRKDUgD>; Sun, 4 Nov 2001 15:36:03 -0500
-Date: Sun, 04 Nov 2001 15:36:00 -0500
-From: Adam Pennington <adamp@andrew.cmu.edu>
-To: linux-kernel@vger.kernel.org
-cc: riel@conectiva.com.br
-Subject: OOM may be being too nice to killed processes
-Message-ID: <4107440000.1004906160@eunich>
-X-Mailer: Mulberry/2.1.0 (Linux/x86 Demo)
+	id <S278685AbRKDUgd>; Sun, 4 Nov 2001 15:36:33 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:51976 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S278810AbRKDUgU>; Sun, 4 Nov 2001 15:36:20 -0500
+Subject: Re: linux-2.2.20a and gcc 3.0 ?
+To: f5ibh@db0bm.ampr.org (f5ibh)
+Date: Sun, 4 Nov 2001 20:38:37 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200111042026.fA4KQ0m01876@db0bm.ampr.org> from "f5ibh" at Nov 04, 2001 09:26:00 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <E160U2P-0002yH-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I may be misunderstanding this, but looking at this portion of code from 
-the oom task killer... Isn't it dangerous to give a process PF_MEMALLOC and 
-then only pass it a SIGTERM? My take is that the high priority bump up 
-should only happen for the force_sig(SIGKILL,p).
+> Is 2.2.20 supposed to works when compiled with gcc-3.0.2 ?
+> It boots, but I have some missing symbols while loading some modules.
+> The same config works fine with gcc-2.95.4
 
-        /*
-         * We give our sacrificial lamb high priority and access to
-         * all the memory it needs. That way it should be able to
-         * exit() and clear out its resources quickly...
-         */
-        p->counter = 5 * HZ;
-        p->flags |= PF_MEMALLOC;
+Use egcs-1.1.2 or gcc 2.95.[3,4]
 
-        /* This process has hardware access, be more careful. */
-        if (cap_t(p->cap_effective) & CAP_TO_MASK(CAP_SYS_RAWIO)) {
-                force_sig(SIGTERM, p);
-        } else {
-                force_sig(SIGKILL, p);
-        }
-
-Adam Pennington
+gcc 3.0 is not supported in 2.2, and there are no plans to do so

@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268670AbUH3TsW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268884AbUH3TxF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268670AbUH3TsW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 15:48:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268408AbUH3TrK
+	id S268884AbUH3TxF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 15:53:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268929AbUH3TxB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 15:47:10 -0400
-Received: from mail.gmx.net ([213.165.64.20]:46767 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S268884AbUH3Tpt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 15:45:49 -0400
-X-Authenticated: #1725425
-Date: Mon, 30 Aug 2004 21:42:55 +0200
-From: Marc Ballarin <Ballarin.Marc@gmx.de>
-To: Brian Litzinger <brian@worldcontrol.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pwc/x users/sufferers may want to consider the  Orange Micro
- iBot2 Webcam
-Message-Id: <20040830214255.58c37485.Ballarin.Marc@gmx.de>
-In-Reply-To: <20040830180409.GA2969@top.worldcontrol.com>
-References: <20040830180409.GA2969@top.worldcontrol.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 30 Aug 2004 15:53:01 -0400
+Received: from av8-1-sn2.hy.skanova.net ([81.228.8.110]:6869 "EHLO
+	av8-1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S268884AbUH3Ts2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 15:48:28 -0400
+Message-ID: <41338487.2050007@df.lth.se>
+Date: Mon, 30 Aug 2004 21:48:23 +0200
+From: Johan Billing <billing@df.lth.se>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040821
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: CD-ripping using ioctl() does not work when DMA is disabled (ide-cd)
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Aug 2004 11:04:09 -0700
-Brian Litzinger <brian@worldcontrol.com> wrote:
+In kernel 2.6.8, my old TEAC CD-532E-A CD-ROM is blacklisted and DMA is 
+automatically disabled. When I try to rip an audio CD using cdparanoia, 
+all I get is a silent wav file full of zeroes. I know that there was 
+some discussions about this on the list during the summer in conjunction 
+with the "dropping to single frame DMA" issue, but I think I have some 
+new information to add...
 
-> If you are currently suffering under on going debacle related to the
-> removal of pwc/x support from the kernel you might direct your energies
-> to the Orange Micro iBot2 webcam:
-> 
+I investigated the cdparanoia source a bit and was able to pinpoint the 
+problem a bit more. cdparanoia uses the ioctl() interface with 
+CDROMREADAUDIO to read data from the CD and normally tries to read 6 or 
+8 frames at a time. The problem is that only the first read frame 
+contains valid data, the others are blank and only contain zeroes. If I 
+disable error correction and only read one frame at a time ("cdparanoia 
+-n1 -Z") it seems to work fine. If I defy the blacklist and turn DMA on 
+using "hdparm -d1", cdparanoia can read multiple frames without any 
+problems.
 
-First you are insulting people (in an incredibly stupid way), now you are
-spamming.
+So in conclusion, this seems to be a problem that only occurs when 
+reading multiple frames using ioctl() with DMA off. I hope that this 
+will help find and fix the problem.
 
-In case you haven't realised: No one is suffering from the removal of the
-driver, unless he or she is using the latest -rc versions of the kernel.
-Additionally, Nemosoft is publishing the driver again (check his website).
-Future versions of Linux might contain a new driver. Whining, spamming and
-insults won't help in any way. So stop this nonsense.
+/Johan
+

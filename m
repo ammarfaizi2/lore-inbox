@@ -1,40 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263672AbUJ2X6g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263693AbUJ3A2H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263672AbUJ2X6g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 19:58:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263701AbUJ2XpZ
+	id S263693AbUJ3A2H (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 20:28:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263704AbUJ3ATr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 19:45:25 -0400
-Received: from fw.osdl.org ([65.172.181.6]:6856 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263690AbUJ2Xjq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 19:39:46 -0400
-Date: Fri, 29 Oct 2004 16:39:44 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Steven Dake <sdake@mvista.com>
-Cc: Mark Haverkamp <markh@osdl.org>, Openais List <openais@lists.osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9 kernel oops with openais
-Message-ID: <20041029163944.H14339@build.pdx.osdl.net>
-References: <1099090282.14581.19.camel@persist.az.mvista.com> <1099091302.13961.42.camel@markh1.pdx.osdl.net> <1099091816.14581.22.camel@persist.az.mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1099091816.14581.22.camel@persist.az.mvista.com>; from sdake@mvista.com on Fri, Oct 29, 2004 at 04:16:57PM -0700
+	Fri, 29 Oct 2004 20:19:47 -0400
+Received: from out001pub.verizon.net ([206.46.170.140]:63371 "EHLO
+	out001.verizon.net") by vger.kernel.org with ESMTP id S263739AbUJ3AOl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 20:14:41 -0400
+From: james4765@verizon.net
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, james4765@verizon.net
+Message-Id: <20041030001436.12226.99920.80944@localhost.localdomain>
+In-Reply-To: <20041030001423.12226.74257.30654@localhost.localdomain>
+References: <20041030001423.12226.74257.30654@localhost.localdomain>
+Subject: [PATCH 2/2] to MAINTAINERS
+X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [209.158.211.53] at Fri, 29 Oct 2004 19:14:36 -0500
+Date: Fri, 29 Oct 2004 19:14:36 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Steven Dake (sdake@mvista.com) wrote:
-> well probably all related..  The best way around the memset problem is
-> to comment out the code that does the mlockall (the function is
-> aisexec_mlockall().  This then allows all memory allocations to
-> succeed.  I think there must be some new limit with mlockall in the
-> 2.6.9 kernel series or later.
+Description: Update status of digiecpa driver in MAINTAINERS.
+Apply against 2.6.9.
 
-What's the mlock issue?  I changed that code about 2.6.9-rc4.
+Signed-off-by: James Nelson <james4765@gmail.com>
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+diff -urN --exclude='*~' linux-2.6.9-original/MAINTAINERS linux-2.6.9/MAINTAINERS
+--- linux-2.6.9-original/MAINTAINERS	2004-10-18 17:54:37.000000000 -0400
++++ linux-2.6.9/MAINTAINERS	2004-10-29 19:41:30.570556137 -0400
+@@ -670,7 +670,7 @@
+ M:	Eng.Linux@digi.com
+ L:	Eng.Linux@digi.com
+ W:	http://www.digi.com
+-S:	Maintained
++S:	Orphaned
+ 
+ DIGI RIGHTSWITCH NETWORK DRIVER
+ P:	Rick Richardson

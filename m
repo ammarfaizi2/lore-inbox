@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261850AbTKBVp1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 16:45:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbTKBVp1
+	id S261837AbTKBVk6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 16:40:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbTKBVk6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 16:45:27 -0500
-Received: from mail02.agrinet.ch ([81.221.250.51]:52754 "EHLO
-	mail02.agrinet.ch") by vger.kernel.org with ESMTP id S261850AbTKBVpX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 16:45:23 -0500
-From: Erwin Telser <erwin.telser@pop.agri.ch>
-To: linux-kernel@vger.kernel.org
-Subject: Responsiveness of 2.6.0-Test9
-Date: Sun, 2 Nov 2003 23:45:08 +0000
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 2 Nov 2003 16:40:58 -0500
+Received: from madrid10.amenworld.com ([62.193.203.32]:6159 "EHLO
+	madrid10.amenworld.com") by vger.kernel.org with ESMTP
+	id S261837AbTKBVk5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Nov 2003 16:40:57 -0500
+Date: Sun, 2 Nov 2003 22:40:51 +0100
+From: DervishD <raul@pleyades.net>
+To: Ville Herva <vherva@niksula.hut.fi>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Using proc in chroot environments
+Message-ID: <20031102214051.GC54@DervishD>
+References: <20031102204934.GB54@DervishD> <20031102210320.GP4868@niksula.cs.hut.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200311022345.08192.erwin.telser@pop.agri.ch>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20031102210320.GP4868@niksula.cs.hut.fi>
+User-Agent: Mutt/1.4i
+Organization: Pleyades
+User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Hi Ville :)
 
-Are there things to observe when switching from 2.4 to 2.6, if I want the same 
-responsiveness? I'm asking because I' ve made the following observation. (I 
-always had the feeling, 2.4 seems to faster, but this is the first time it' s 
-very obvious)
+ * Ville Herva <vherva@niksula.hut.fi> dixit:
+> >     - I must mount copies of devpts, usbfs, etc... under the 'second'
+> > proc, too, and this is even more annoying.
+> Mount them under /.../chroot/proc ? Hm.
 
-I' ve connected two monitors on a Matrox G550. One runs with DRI the other one 
-doesn't (not possible with the current driver). The Monitor with DRI I'm 
-using as a TV Set, watching movies with xawtv. (With a bttv 878 tuner card).
+    That's what I'm doing right now (well I mount them under the /dev
+directory of the chroot environment ;)
+  
+> >     The perfect solution for me is to hardlink the proc directory of
+> > the chrooted environment to the proc directory on the true root dir,
+> > but since this is not possible, whan can I do instead of remounting a
+> > second copy of proc (which, by the way, makes /proc/mounts a little
+> > bit weird...)?
+> mount --bind is closest to hardlink you can get and it works. But I don't
+> know if that is that much different from mounting proc second time.
 
-Now with the 2.4.22 kernel (preemptible patch aplied) I can play the little 
-game kbounce on the other monitor, without to notice any slowdown, no matter, 
-whether xawtv is running or not.
+    For other filesystems I don't know, for proc is more or less the
+same, except maybe that --bind maybe doesn't show proc mounted twice
+:???
 
-But with the 2.6 Kernel (compiled with preemptible option) the bouncing balls 
-slow down considerably, as soon as I move the mouse.
+    Thanks :))
 
-I know the whole thing is a little foolish. But anyway, are there some tricks 
-to get the same responsiveness?
+    Raúl Núñez de Arenas Coronado
 
-Erwin
-
-
-
+-- 
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

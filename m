@@ -1,48 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313181AbSIDRxD>; Wed, 4 Sep 2002 13:53:03 -0400
+	id <S313305AbSIDR7G>; Wed, 4 Sep 2002 13:59:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313190AbSIDRxD>; Wed, 4 Sep 2002 13:53:03 -0400
-Received: from anor.ics.muni.cz ([147.251.4.35]:19844 "EHLO anor.ics.muni.cz")
-	by vger.kernel.org with ESMTP id <S313181AbSIDRxC>;
-	Wed, 4 Sep 2002 13:53:02 -0400
-Date: Wed, 4 Sep 2002 19:57:29 +0200
-From: Jan Kasprzak <kas@informatics.muni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: IDE write speed (Promise versus AMD)
-Message-ID: <20020904195729.A3985@fi.muni.cz>
+	id <S313113AbSIDR7F>; Wed, 4 Sep 2002 13:59:05 -0400
+Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:10893 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S313305AbSIDR7F>; Wed, 4 Sep 2002 13:59:05 -0400
+Date: Wed, 4 Sep 2002 19:02:25 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Alex Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Question about pseudo filesystems
+Message-ID: <20020904190225.A13448@kushida.apsleyroad.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello, all!
+I have a small problem with a module I'm writing.  It uses a
+pseudo-filesystem, rather like futexes and pipes, so that it can hand
+out special file descriptors on request.
 
-	I have a machine with six identical IDE drives (WD1200BB),
-three of them connected to the on-board controller (it is AMD 768MPX chipset),
-and other three are connected to the Promise controller (PDC 20269).
-All drives are UDMA 100, read speed measured by "hdparm -t /dev/hd[abcefg]"
-is about 45 MBytes/s for every drive. However, the write speed seems
-to differ between AMD and Promise controllers. I've tried to do
+Following the examples of pipe.c and futex.c, but specifically for a 2.4
+kernel, I'm doing this:
 
-time sh -c 'dd if=/dev/zero of=/dev/hdX bs=1024k count=2048; sync'
+	static DECLARE_FSTYPE (mymod_fs_type, "mymod_fs",
+			       mymod_read_super, FS_NOMOUNT);
 
-- it takes about 50 seconds (~40 MByte/s write speed) on hda, hdb and hdc,
-but 2 minutes 48 seconds (~12 MByte/s write speed) on hde, hdf and hdg.
-I have 1 GB of RAM, server is dual athlon 2000+. Kernel is 2.4.20-pre5-ac1.
 
-	Is there any problem with the Promise IDE driver on Linux?
+	static int __init mymod_init (void)
+	{
+		int err = register_filesystem (&mymod_fs_type);
+		if (err)
+			return err;
+		mymod_mnt = kern_mount (&mymod_fs_type);
+		if (IS_ERR (mymod_mnt)) {
+			unregister_filesystem (&mymod_fs_type);
+			return PTR_ERR (mymod_mnt);
+		}
+	}
 
-	Thanks,
+	static void __exit mymod_exit (void)
+	{
+		mntput (mymod_mnt);
+		unregister_filesystem (&mymod_fs_type);
+	}
 
--Yenya
+Unfortunately, when I come to _unload_ the module, it can't be unloaded
+because the kern_mount increments the module reference count.
 
--- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
-       Pruning my incoming mailbox after being 10 days off-line,
-       sorry for the delayed reply.
+(pipe.c in 2.4 appears to have the same problem, but of course nobody
+can ever unload it anyway so it doesn't matter).
+
+I'm handing out file descriptors rather like futexes from 2.5: they all
+share the same dentry, which is the root of the filesystem.  In my
+code's case, that dentry is created in `mymod_read_super' (just the same
+way as 2.4 pipe.c).
+
+Somehow, it looks like I need to mount the filesystem when it first
+generates an fd, and unmount it when the last fd is destroyed -- but is
+it safe to unmount the filesystem _within_ a release function of an
+inode on the filesystem?
+
+Either that, or I need something else.
+
+Thanks,
+-- Jamie
+

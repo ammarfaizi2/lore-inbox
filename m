@@ -1,50 +1,85 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316729AbSERBCv>; Fri, 17 May 2002 21:02:51 -0400
+	id <S316736AbSERBPn>; Fri, 17 May 2002 21:15:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316733AbSERBCu>; Fri, 17 May 2002 21:02:50 -0400
-Received: from slip-202-135-75-205.ca.au.prserv.net ([202.135.75.205]:45449
-	"EHLO wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S316729AbSERBCt>; Fri, 17 May 2002 21:02:49 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Pete Zaitcev <zaitcev@redhat.com>
+	id <S316737AbSERBPm>; Fri, 17 May 2002 21:15:42 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:16971 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S316736AbSERBPm>; Fri, 17 May 2002 21:15:42 -0400
+Date: Sat, 18 May 2002 03:14:10 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Keith Owens <kaos@ocs.com.au>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: AUDIT: copy_from_user is a deathtrap. 
-In-Reply-To: Your message of "Fri, 17 May 2002 13:36:49 -0400."
-             <200205171736.g4HHant04061@devserv.devel.redhat.com> 
-Date: Sat, 18 May 2002 11:05:26 +1000
-Message-Id: <E178sfK-0006dG-00@wagner.rustcorp.com.au>
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel
+Message-ID: <20020518011410.GD29509@dualathlon.random>
+In-Reply-To: <Pine.GSO.4.44.0205030131470.11340-100000@epic7.Stanford.EDU> <11840.1020427634@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <200205171736.g4HHant04061@devserv.devel.redhat.com> you write:
-> >[...]
-> > We could do that, or, we could fix the actual problem, which is the
-> > HUGE FUCKING BEARTRAP WHICH CATCHES EVERY SINGLE NEW PROGRAMMER ON THE
-> > WAY THROUGH.
+On Fri, May 03, 2002 at 10:07:14PM +1000, Keith Owens wrote:
+> On Fri, 3 May 2002 01:33:34 -0700 (PDT), 
+> Vikram <vvikram@stanford.edu> wrote:
+> ><snip>
+> >ccache is a compiler cache. It acts as a caching pre-processor to C/C++
+> >compilers, using the -E compiler switch and a hash to detect when a
+> >compilation can be satisfied from cache. This often results in a 5 to 10
+> >times speedup in common compilations
+> ></snip>
+> >
+> >http://ccache.samba.org/
 > 
-> It is but one of many crooked interfaces. For example, Linux
-> has outb() arguments swapped relatively to all other environments.
+> Firstly kbuild 2.5 removes the need to make clean or make mrproper for
+> most compilations.  You need to make mrproper when changing to a new
+> architecture in the same directory (it is much better to use a separate
+> object directory for each architecture), but apart from that you should
+> not need to make clean or mrproper.  IMNSHO having to issue make clean
 
-Yes, and they should all be fixed.  But the one which is never found
-by the compiler or any simple testing is a clear winner in the "trap
-for programmers" category.
+you're right if we need a make clean it's because the buildsystem is
+broken. However one thing that happens all the time to me, is that I
+change an header like mm.h or sched.h and ~everything needs to be
+rebuilt then. And since I cannot trust the current buildsystem I need to
+`make clean` first just in case somebody is getting mm.h included
+implicitly and fastdep so cannot notice it has to rebuild such object
+too. But in such case make clean doesn't hurt much because almost
+everything needs to be rebuilt anyways. Now the only regression I can
+see is that kbuild was quite slower in compiling the kernel from scrach
+(so I suspect that for me after editing mm.h it would take more time
+with kbuild2.5 to reach the vmlinux generation than it took with the old
+buildsystem after the make clean) Is that the case, or did you improved
+the performance of kbuild recently?
 
-> I think it may be the best to have Corbet to update the O'Reily
-> book with a chapter of common traps and add a @-comment near
-> the copy_from_user.
+Said that I look forward to avoid touching those .h so it becomes
+possible to do parallel developement from two hardlinked trees.  Also
+the ability of compile out of the tree is very clean feature, even if
+it's a secondary need for me at least.
+
+> is a sign that your build system is broken, relying on human
+> intervention in an automated build is falt out wrong.  Automatic
+> detection of an arch switch is on the enhancement list for kbuild 2.5.
 > 
-> In the interest of full disclosure, I must admit that I used
-> copy_from_user wrong once, many years ago. The lesson which
-> I extracted was different though. I decided that I was arrogant
-> and foolish to program without reading interface specifications
-> or the code. It did not occur to me to shift the blame onto
-> copy_from_user creators.
+> Secondly kbuild 2.5 keeps objects that were built but are not currently
+> selected, it just does not link or install them.  Build a kernel,
+> disable a set of drivers, build the kernel and it will just bump the
+> version number and relink vmlinux.  Enable the drivers again, kbuild
+> 2.5 does not need to compile them, they are still there, it just bumps
+> the version number and relinks vmlinux.  Same with installing modules.
+> Various .tmp files list the objects and modules required for the
+> current .config.
+> 
+> So kbuild 2.5 removes the need to make clean after patches, changing
+> configs, etc.  It gets it right without human intervention.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Please send me your mailing address.  I shall send you a copy of
-"Design of Everyday Things" (Donald A Norman).  You should not blame
-yourself for others' bad design.
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Andrea

@@ -1,30 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311206AbSCLOG4>; Tue, 12 Mar 2002 09:06:56 -0500
+	id <S311208AbSCLOO1>; Tue, 12 Mar 2002 09:14:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311207AbSCLOGr>; Tue, 12 Mar 2002 09:06:47 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15366 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S311206AbSCLOGj>; Tue, 12 Mar 2002 09:06:39 -0500
-Subject: Re: strange dmesg output on athlon notebook
-To: pavel@suse.cz (Pavel Machek)
-Date: Tue, 12 Mar 2002 14:22:14 +0000 (GMT)
-Cc: davej@suse.de (Dave Jones), linux-kernel@vger.kernel.org (kernel list)
-In-Reply-To: <20020310220056.GA189@elf.ucw.cz> from "Pavel Machek" at Mar 10, 2002 11:00:57 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S311209AbSCLOOR>; Tue, 12 Mar 2002 09:14:17 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:10145 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S311208AbSCLOOF>; Tue, 12 Mar 2002 09:14:05 -0500
+Date: Tue, 12 Mar 2002 15:58:07 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Mark Hahn <hahn@physics.mcmaster.ca>,
+        Adam K Kirchhoff <adamk@voicenet.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: SMP & APIC problem.
+In-Reply-To: <132630000.1015893417@flay>
+Message-ID: <Pine.LNX.4.44.0203121556530.32078-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16knAM-0003pe-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> CPU: After vendor init, caps: 0383fbff c1c7fbff 00000000 00000000
-> Intel machine check reporting enabled on CPU#0.
-> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> Why _Intel_ machine check? And why it says  CPU: After vendor init
-> twice? [This is 2.5.6-acpi...]
+On Mon, 11 Mar 2002, Martin J. Bligh wrote:
 
-AMD supports the intel machine check on Athlon
+> There's also an esr_disable flag variable I put in a while back
+> when doing bringup of NUMA-Q to smack the ESR into submission. 
+> You might want to try tweaking that on in smp.h. It's not like we
+> actually do anything with the errors anyway. (all assuming my
+> mind isn't faulty, and this is actually the same thing). The read / 
+> write protocol for ESR is really .... wierd, and it seems to need
+> smacking multiple times to accept a write.
+
+We noticed that ;)
+
+void __init setup_local_APIC (void)
+{
+        unsigned long value, ver, maxlvt;
+
+        /* Pound the ESR really hard over the head with a big hammer - mbligh */
+        if (esr_disable) {
+                apic_write(APIC_ESR, 0);
+                apic_write(APIC_ESR, 0);
+                apic_write(APIC_ESR, 0);
+                apic_write(APIC_ESR, 0);
+        }
+
+Cheers,
+	Zwane
+
 

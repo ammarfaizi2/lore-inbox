@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289089AbSCCVrA>; Sun, 3 Mar 2002 16:47:00 -0500
+	id <S289046AbSCCVrK>; Sun, 3 Mar 2002 16:47:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288174AbSCCVqu>; Sun, 3 Mar 2002 16:46:50 -0500
-Received: from dsl-213-023-040-044.arcor-ip.net ([213.23.40.44]:3981 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S289046AbSCCVqh>;
-	Sun, 3 Mar 2002 16:46:37 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andrea Arcangeli <andrea@suse.de>, Bill Davidsen <davidsen@tmr.com>
-Subject: Re: 2.4.19pre1aa1
-Date: Sun, 3 Mar 2002 22:38:34 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020301013056.GD2711@matchmail.com> <Pine.LNX.3.96.1020228221750.3310D-100000@gatekeeper.tmr.com> <20020302030615.G4431@inspiron.random>
-In-Reply-To: <20020302030615.G4431@inspiron.random>
+	id <S288174AbSCCVrA>; Sun, 3 Mar 2002 16:47:00 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:12815 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289046AbSCCVqz>; Sun, 3 Mar 2002 16:46:55 -0500
+Subject: Re: [RFC] Arch option to touch newly allocated pages
+To: jdike@karaya.com (Jeff Dike)
+Date: Sun, 3 Mar 2002 22:01:30 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200203032112.QAA03497@ccure.karaya.com> from "Jeff Dike" at Mar 03, 2002 04:12:38 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16hdgg-0000Py-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16he2s-0005ak-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On March 2, 2002 03:06 am, Andrea Arcangeli wrote:
-> On Thu, Feb 28, 2002 at 10:26:48PM -0500, Bill Davidsen wrote:
-> > rather than patches. But there are a lot more small machines (which I feel
-> > are better served by rmap) than large. I would like to leave the jury out
-> 
-> I think there's quite some confusion going on from the rmap users, let's
-> clarify the facts.
-> 
-> The rmap design in the VM is all about decreasing the complexity of
-> swap_out on the huge boxes (so it's all about saving CPU), by slowing
-> down a big lots of fast common paths like page faults and by paying with
-> some memory too. See the lmbench numbers posted by Randy after applying
-> rmap to see what I mean.
+> The reason for this is that for UML, those pages are backed by host memory,
+> which may or may not be available when they are finally touched at some
+> arbitrary place in the kernel.  I hit this by tmpfs running out of room
+> because my UMLs have their memory backed by tmpfs mounted on /tmp.  So, I
+> want to be able to dirty those pages before they are seen by any other code.
 
-Do you know any reason why rmap must slow down the page fault fast, or are
-you just thinking about Rik's current implementation?  Yes, rmap has to add
-a pte_chain entry there, but it can be a direct pointer in the unshared case
-and the spinlock looks like it can be avoided in the common case as well.
+No - you think you want to dirty the pages - you want to account the address
+space. What you want to do is run 2.4.18ac3 and do
 
--- 
-Daniel
+	echo "2" > /proc/sys/vm/overcommit_memory
+
+which on a good day will give you overcommit protection. Your map requests
+will fail without the pages being dirtied and the extra swap that would
+cause. It knows about tmpfs too but not ramfs, ramdisk or ptrace yet
+
+Alan

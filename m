@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266665AbSKOSO3>; Fri, 15 Nov 2002 13:14:29 -0500
+	id <S266772AbSKOSYa>; Fri, 15 Nov 2002 13:24:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266649AbSKOSO3>; Fri, 15 Nov 2002 13:14:29 -0500
-Received: from roc-24-169-118-30.rochester.rr.com ([24.169.118.30]:8628 "EHLO
-	death.krwtech.com") by vger.kernel.org with ESMTP
-	id <S266665AbSKOSO1>; Fri, 15 Nov 2002 13:14:27 -0500
-Date: Fri, 15 Nov 2002 13:21:14 -0500 (EST)
-From: Ken Witherow <ken@krwtech.com>
-X-X-Sender: ken@death
-Reply-To: Ken Witherow <ken@krwtech.com>
-To: steve roemen <steve.roemen@wcom.com>
-cc: "'David Crooke'" <dave@convio.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Dual athlon XP 1800 problems
-In-Reply-To: <005801c28cce$1d6e6180$e70a7aa5@WSXA7NCC106.wcomnet.com>
-Message-ID: <Pine.LNX.4.44.0211151314460.1153-100000@death>
-Organization: KRW Technologies
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266774AbSKOSYa>; Fri, 15 Nov 2002 13:24:30 -0500
+Received: from brussels-smtp.planetinternet.be ([195.95.34.12]:23567 "EHLO
+	firebird.planetinternet.be") by vger.kernel.org with ESMTP
+	id <S266772AbSKOSY3>; Fri, 15 Nov 2002 13:24:29 -0500
+Date: Fri, 15 Nov 2002 19:35:25 +0100
+To: alan@cotse.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CD IO error
+Message-ID: <20021115183525.GA1285@gouv>
+References: <YWxhbg==.a513a46732330fd5f834894ae7200923@1037378527.cotse.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YWxhbg==.a513a46732330fd5f834894ae7200923@1037378527.cotse.net>
+User-Agent: Mutt/1.4i
+From: Leopold Gouverneur <lgouv@pi.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Nov 2002, steve roemen wrote:
-
-> i had similar issues on my old 2460 board.
->
-> i found out that a huge power supply doesn't cut it, you need a QUALITY
-> power supply of ~400watts( more specifically the 5 volt bus).
->
-> i also found out the hard way that i believe tyan didn't design that board
-> properly because the 5 volt part of the connectors were burned up on the PS
-> and MB.
->
-> i've since replaced with a s2466n-4m  and am very happy.
->
-> i'd check your power supply connector before it burns up yours too...
-
-PSU connector is fine... and I definitely need the extra juice since I'm
-running quite a bit of power hungry hardware in this box (5 SCSI drives, a
-GF4, etc). Both power supplies are pretty good Antecs. It does bother me
-that they didn't use the AUX connector for the extra 5V power though
-
--- 
-       Ken Witherow <phantoml AT rochester.rr.com>
-           ICQ: 21840670  AIM: phantomlordken
-               http://www.krwtech.com/ken
-
-
+On Fri, Nov 15, 2002 at 11:42:07AM -0500, Alan Willis wrote:
+> 
+>   I've been getting these messages since about 2.5.45.  I can't mount any
+> cds at all.  Elvtune (util-linux-2.11r) also fails on /dev/hda which I'm
+> running on, and /dev/hdc, my cdrom.
+> 
+> Any further info needed?
+> 
+> -alan
+> 
+> end_request: I/O error, dev hdc, sector 0
+> hdc: ATAPI 48X CD-ROM drive, 120kB Cache, UDMA(33)
+> Uniform CD-ROM driver Revision: 3.12
+> end_request: I/O error, dev hdc, sector 0
+ Same here. I have disabled DMA for cdrom(CONFIG_IDEDMA_ONLYDISK=y)
+ and things are working again, perhaps with a loss operformance?
+ Hope it helps.
+ 

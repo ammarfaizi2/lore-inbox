@@ -1,46 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262304AbTJNRB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 13:01:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262374AbTJNRB3
+	id S262374AbTJNRMr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 13:12:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbTJNRMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 13:01:29 -0400
-Received: from lindsey.linux-systeme.com ([62.241.33.80]:20742 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S262304AbTJNRB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 13:01:28 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: "Grover, Andrew" <andrew.grover@intel.com>, <earny@net4u.de>
-Subject: Re: ACPI in -pre7 builds with -Os
-Date: Tue, 14 Oct 2003 18:57:07 +0200
-User-Agent: KMail/1.5.3
-References: <F760B14C9561B941B89469F59BA3A84702C93046@orsmsx401.jf.intel.com>
-In-Reply-To: <F760B14C9561B941B89469F59BA3A84702C93046@orsmsx401.jf.intel.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-X-Operating-System: Linux 2.4.20-wolk4.10s i686 GNU/Linux
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310141857.07774.m.c.p@wolk-project.de>
+	Tue, 14 Oct 2003 13:12:47 -0400
+Received: from adsl-63-194-133-30.dsl.snfc21.pacbell.net ([63.194.133.30]:48788
+	"EHLO penngrove.fdns.net") by vger.kernel.org with ESMTP
+	id S262374AbTJNRMp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 13:12:45 -0400
+From: John Mock <kd6pag@qsl.net>
+To: linux-kernel@vger.kernel.org
+Subject: parport_pc not releasing all ioports on 2.6.0-test7-bk3
+Message-Id: <E1A9Siy-0001gV-00@penngrove.fdns.net>
+Date: Tue, 14 Oct 2003 10:12:44 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 October 2003 18:50, Grover, Andrew wrote:
+If 'parport_pc' is compile as a module, it fails to properly return certain
+ioport resources after being removed.
 
-Hi Andrew,
+    Debian GNU/Linux testing/unstable tvr-vaio tty1
 
-> > Looks like a bug. And a missing feature.
-> > - ACPI_CFLAGS := -Os
-> > + ACPI_CFLAGS := -Os --bzip2
+    tvr-vaio login: root
+    Password:
+    Last login: Tue Oct 14 08:26:30 2003 on tty1
+    Linux tvr-vaio 2.6.0-test7-bk3 #23 Sun Oct 12 15:42:38 PDT 2003 i686 GNU/Linux
+    You have new mail.
+    tvr-vaio:~# cat /proc/ioports > /tmp/ioports1
+    tvr-vaio:~# modprobe parport_pc
+    parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE]
+    parport0: irq 7 detected
+    tvr-vaio:~# cat /proc/ioports > /tmp/ioports2
+    tvr-vaio:~# rmmod parport_pc
+    tvr-vaio:~# cat /proc/ioports > /tmp/ioports3
+    tvr-vaio:~# diff /tmp/ioports{1,2}
+    12a13,14
+    > 0378-037a : parport0
+    > 037b-037f : parport0
+    tvr-vaio:~# diff /tmp/ioports{2,3}
+    13,14c13
+    < 0378-037a : parport0
+    < 037b-037f : parport0
+    ---
+    > 037b-037f : kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk&#65533;q&#65533;,Z$S&#65533;&#65533;&#65533;&#65533;$K6&#65533;{
+    tvr-vaio:~# cat > /tmp/console.log
 
-> What does that do, excatly? (Obviously compression-related...) I
-> couldn't find it in the gcc 3.2.2 documentation, is it new?
+Additional details on http://bugzilla.kernel.org/show_bug.cgi?id=1356 :
 
-rotfl. I think it was meant as a joke ;)
+    'dmesg'	    http://bugzilla.kernel.org/attachment.cgi?id=1056
+    .config	    http://bugzilla.kernel.org/attachment.cgi?id=1057
+    /tmp/ioports2   http://bugzilla.kernel.org/attachment.cgi?id=1058
 
-ciao, Marc
+Please write if you would like additional information.
 
+			       -- JM
 
+P.S.  Does the following patch fix this properly??
+-------------------------------------------------------------------------------
+--- drivers/parport/parport_pc.c.orig	2003-10-08 12:24:51.000000000 -0700
++++ drivers/parport/parport_pc.c	2003-10-14 10:05:25.000000000 -0700
+@@ -2358,7 +2358,11 @@
+ 		release_region(base_hi, 3);
+ 		ECR_res = NULL;
+ 	}
+-
++	/* Likewise for EEP ports */
++	if (EPP_res && (p->modes & PARPORT_MODE_EPP) == 0) {
++		release_region(base+3, 5);
++		EPP_res = NULL;
++	}
+ 	if (p->irq != PARPORT_IRQ_NONE) {
+ 		if (request_irq (p->irq, parport_pc_interrupt,
+ 				 0, p->name, p)) {
+===============================================================================

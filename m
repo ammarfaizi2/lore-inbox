@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbVC0M6u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261640AbVC0NwT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261639AbVC0M6u (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 07:58:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbVC0M6u
+	id S261640AbVC0NwT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 08:52:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVC0NwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 07:58:50 -0500
-Received: from mailgate2.urz.uni-halle.de ([141.48.3.8]:31623 "EHLO
-	mailgate2.uni-halle.de") by vger.kernel.org with ESMTP
-	id S261639AbVC0M6c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 07:58:32 -0500
-Date: Sun, 27 Mar 2005 14:58:27 +0200 (MEST)
-From: Bert Wesarg <wesarg@informatik.uni-halle.de>
-Subject: [PATCH] fix module_param_string() calls
-X-X-Sender: wesarg@turing
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: video4linux-list@redhat.com, linux-kernel@vger.kernel.org
-Message-id: <Pine.GSO.4.56.0503271457280.25037@turing>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-X-Scan-Signature: a35061c0abf4d8fa2201d8bd9fe648d3
+	Sun, 27 Mar 2005 08:52:19 -0500
+Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:38793 "EHLO
+	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S261640AbVC0NwO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 08:52:14 -0500
+Subject: inotify issue: iput called atomically
+From: Christophe Saout <christophe@saout.de>
+To: Robert Love <rml@novell.com>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-oHYSHtf55eTNJdK/vtgK"
+Date: Sun, 27 Mar 2005 15:52:06 +0200
+Message-Id: <1111931527.20371.8.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-this patch fix 3 calls to module_param_string() in
-driver/media/video/tuner-core.c and drivers/media/video/tda9887.c.
-In all three places, the len and the perm parameter was switched.
+--=-oHYSHtf55eTNJdK/vtgK
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Patch is against 2.6.12-rc1.
+Hi Robert,
 
-Signed-off-by: Bert Wesarg <wesarg@informatik.uni-halle.de>
+it looks like you shouldn't call iput with spinlocks held. iput might
+call down into the filesystem to delete the inode and this can sleep.
 
-diff -uprN linux-2.6.12-rc1.orig/drivers/media/video/tda9887.c linux-2.6.12-rc1/drivers/media/video/tda9887.c
---- linux-2.6.12-rc1.orig/drivers/media/video/tda9887.c	2005-03-27 14:44:23.000000000 +0200
-+++ linux-2.6.12-rc1/drivers/media/video/tda9887.c	2005-03-27 14:48:06.000000000 +0200
-@@ -478,9 +478,9 @@ static int tda9887_set_pinnacle(struct t
- /* ---------------------------------------------------------------------- */
+Mar 27 14:38:18 server Debug: sleeping function called from invalid
+context at include/asm/semaphore.h:102
+Mar 27 14:38:18 server in_atomic():1, irqs_disabled():0
+Mar 27 14:38:18 server [<c0103e37>] dump_stack+0x17/0x20
+Mar 27 14:38:18 server [<c0118973>] __might_sleep+0xa3/0xb0
+Mar 27 14:38:18 server [<c03fc5ab>] lock_kernel+0x2b/0x50
+Mar 27 14:38:18 server [<c019fc33>] reiserfs_delete_inode+0x13/0x100
+Mar 27 14:38:18 server [<c0172c64>] generic_delete_inode+0xa4/0x160
+Mar 27 14:38:18 server [<c0172f16>] iput+0x56/0x80
+Mar 27 14:38:18 server [<c017f9bd>] remove_watch_no_event+0x8d/0x100
+Mar 27 14:38:18 server [<c01805f9>] inotify_ignore+0x49/0x90
+Mar 27 14:38:18 server [<c018070d>] inotify_ioctl+0xcd/0x110
+Mar 27 14:38:18 server [<c016ac26>] do_ioctl+0x76/0x90
+Mar 27 14:38:18 server [<c016adb9>] vfs_ioctl+0x59/0x1c0
+Mar 27 14:38:18 server [<c016af59>] sys_ioctl+0x39/0x60
+Mar 27 14:38:18 server [<c0102f6b>] sysenter_past_esp+0x54/0x75
 
- static char pal[] = "-";
--module_param_string(pal, pal, 0644, sizeof(pal));
-+module_param_string(pal, pal, sizeof(pal), 0644);
- static char secam[] = "-";
--module_param_string(secam, secam, 0644, sizeof(secam));
-+module_param_string(secam, secam, sizeof(secam), 0644);
+I've looked through the code and iput can usually be called after
+releasing spinlocks. It doesn't look trivial to implement though.
 
- static int tda9887_fixup_std(struct tda9887 *t)
- {
-diff -uprN linux-2.6.12-rc1.orig/drivers/media/video/tuner-core.c linux-2.6.12-rc1/drivers/media/video/tuner-core.c
---- linux-2.6.12-rc1.orig/drivers/media/video/tuner-core.c	2005-03-27 14:44:23.000000000 +0200
-+++ linux-2.6.12-rc1/drivers/media/video/tuner-core.c	2005-03-27 14:47:17.000000000 +0200
-@@ -162,7 +162,7 @@ static void set_type(struct i2c_client *
- }
 
- static char pal[] = "-";
--module_param_string(pal, pal, 0644, sizeof(pal));
-+module_param_string(pal, pal, sizeof(pal), 0644);
+--=-oHYSHtf55eTNJdK/vtgK
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
- static int tuner_fixup_std(struct tuner *t)
- {
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBCRrqGZCYBcts5dM0RAjG7AJ4uGMi9dhnPqTE4RSmPVAXhi+2S/QCeLRgd
+D4odjY8ywK87b1RZMAYbmjc=
+=30eh
+-----END PGP SIGNATURE-----
+
+--=-oHYSHtf55eTNJdK/vtgK--
+

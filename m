@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293686AbSCESbQ>; Tue, 5 Mar 2002 13:31:16 -0500
+	id <S293692AbSCESdQ>; Tue, 5 Mar 2002 13:33:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293702AbSCESbG>; Tue, 5 Mar 2002 13:31:06 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:17465 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S293686AbSCESa4>; Tue, 5 Mar 2002 13:30:56 -0500
-Date: Tue, 5 Mar 2002 13:30:54 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Jeff Dike <jdike@karaya.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Arch option to touch newly allocated pages
-Message-ID: <20020305133054.B432@redhat.com>
-In-Reply-To: <3C84F449.8090404@zytor.com> <200203051812.NAA03363@ccure.karaya.com>
+	id <S293701AbSCESdH>; Tue, 5 Mar 2002 13:33:07 -0500
+Received: from pc3-camc5-0-cust13.cam.cable.ntl.com ([80.4.125.13]:21161 "EHLO
+	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S293692AbSCEScx>;
+	Tue, 5 Mar 2002 13:32:53 -0500
+Date: Tue, 5 Mar 2002 18:30:53 +0000
+From: Arjan van de Ven <arjan@fenrus.demon.nl>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre1aa1
+Message-ID: <20020305183053.A27064@fenrus.demon.nl>
+In-Reply-To: <20020305161032.F20606@dualathlon.random> <Pine.LNX.4.44L.0203051354590.1413-100000@duckman.distro.conectiva> <20020305192604.J20606@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200203051812.NAA03363@ccure.karaya.com>; from jdike@karaya.com on Tue, Mar 05, 2002 at 01:12:19PM -0500
+In-Reply-To: <20020305192604.J20606@dualathlon.random>; from andrea@suse.de on Tue, Mar 05, 2002 at 07:26:04PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 05, 2002 at 01:12:19PM -0500, Jeff Dike wrote:
-> Really?  And you're unconcerned about the impact on the rest of the system
-> of a UML grabbing (say) 128M of memory when it starts up?  Especially if it
-> may never use it?
+On Tue, Mar 05, 2002 at 07:26:04PM +0100, Andrea Arcangeli wrote:
 
-Honestly, I think that most people want to know if the system they've setup 
-is overcommited at as early a point as possible: a UML failing at startup 
-with out of memory is better than random segvs at some later point when the 
-system is under load.  Refer to the principle of least surprise.  And if the 
-user truely wants to disable that, well, you can give them a command line 
-option to shoot themselves in the foot with.
+> Another approch would be to add the pages backing the bh into the lru
+> too, but then we'd need to mess with the slab and new bitflags, new
+> methods and so I don't think it's the best solution. The only good
+> reason for putting new kind of entries in the lru would be to age them
+> too the same way as the other pages, but we don't need that with the bh
+> (they're just in, and we mostly care only about the page age, not the bh
+> age).
 
-		-ben
--- 
-"A man with a bass just walked in,
- and he's putting it down
- on the floor."
+For 2.5 I kind of like this idea. There is one issue though: to make
+this work really well we'd probably need a ->prepareforfreepage()
+or similar page op (which for page cache pages can be equal to writepage()
+) which the vm can use to prepare this page for freeing.

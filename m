@@ -1,96 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291429AbSBSOWn>; Tue, 19 Feb 2002 09:22:43 -0500
+	id <S291432AbSBSOfH>; Tue, 19 Feb 2002 09:35:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291426AbSBSOWe>; Tue, 19 Feb 2002 09:22:34 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:48514 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S291425AbSBSOWV>; Tue, 19 Feb 2002 09:22:21 -0500
-Date: Tue, 19 Feb 2002 09:24:08 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Jens Schmidt <j.schmidt@paradise.net.nz>
-cc: Jan-Frode Myklebust <janfrode@parallab.uib.no>,
-        Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
-Subject: Re: secure erasure of files?
-In-Reply-To: <3C724B02.CDF8F71F@paradise.net.nz>
-Message-ID: <Pine.LNX.3.95.1020219092159.27270A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291431AbSBSOer>; Tue, 19 Feb 2002 09:34:47 -0500
+Received: from natpost.webmailer.de ([192.67.198.65]:36094 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S291430AbSBSOei>; Tue, 19 Feb 2002 09:34:38 -0500
+Date: Tue, 19 Feb 2002 15:32:48 +0100
+From: Kristian <kristian.peters@korseby.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, andre@linux-ide.org
+Subject: Re: 2.4.18-pre9-ac4 filesystem corruption
+Message-Id: <20020219153248.39a1b7fc.kristian.peters@korseby.net>
+In-Reply-To: <E16dB0A-0000aZ-00@the-village.bc.nu>
+In-Reply-To: <20020219135758.67f7f4c2.kristian.peters@korseby.net>
+	<E16dB0A-0000aZ-00@the-village.bc.nu>
+X-Mailer: Sylpheed version 0.7.1claws7 (GTK+ 1.2.10; i386-redhat-linux)
+X-Operating-System: Debian GNU/Linux 2.4.17
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Feb 2002, Jens Schmidt wrote:
-
-> Hi All,
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 > 
-> The information in this message is very interesting, and provided me with
-> a real insight in the matter of magnetic media.
+> PIIX and the WDC drive is supposed to be past the range that had the
+> nasty UDMA DMA bugs.
 > 
+> > Before you ask: I'll test memory later just to be sure.	
+>  
+> Ok
 
-You can't read back overwritten magnetic media by running some
-magic program. However, it is not impossible to recover some
-data from disk-drive tracks that have been overwritten. This
-is because new data is unlikely to be written exactly over the
-same area of a track as old data. This happens because of the
-normal expansion and contraction of the media with changing
-temperature.
+memtest86 completed successfully.
 
-By changing the alignment phase of the tracking servo, it
-may be possible to read data that was written at a different
-temperature. The data is not recovered intact, but a significant
-percentage may be recovered, enough to be useful in a forensic
-investigation or, perhaps espionage.
+I'll test with -rc2-ac1 for ext2 corruption again.
 
-Since it is not impossible to recover such data, this information
-is often exploited. I observed an advertisement on the Web which
-showed a burned up disk-drive with its platters exposed and
-charred. Implicit in the advertisement was that data had been
-recovered from this drive. Such advertising is "legendary".
+*Kristian
 
-You can prevent recovery of overwritten data by keeping your
-machine running all the while, thus at a near constant temperature.
-If you periodically execute a program which writes a file large
-enough to fill up the media, sync the file data, then delete it.
-The result will be a drive clean enough so it would not contain
-evidence of previous file-content except for file names. So,
-if the file-name is not evidence you can be assured that the
-"Thought Police" will not find your computer useful.
-
-Truly paranoid persons should use file-names like this:
-
-total 2916
-drwxr-xr-x  53 root     root         4096 Feb 19 09:06 .
-drwxr-xr-x  24 root     root         4096 Feb 19 05:03 ..
--rw-r--r--   1 root     root         1093 Oct 10 13:56 0x00000000 
--rw-r--r--   1 root     root          366 Aug  3  2001 0x00000001 
--rw-r--r--   1 root     root           69 Apr 24  1998 0x00000002 
--rw-r--r--   1 root     root          625 Jun  3  1998 0x00000003 
--rw-r--r--   1 root     root           43 Aug  4  1999 0x00000004 
--rw-r--r--   1 root     root          399 Feb 13 11:16 0x00000005 
--rw-r--r--   1 root     root           69 Aug  4  1999 0x00000006 
-drwxr-xr-x   2 root     root         4096 Oct  9  2000 0x00000007 
-drwxr-xr-x   2 root     root         4096 Aug 15  2000 0x00000008
-
-
-Such file names contain no evidence of the file or directory
-content. However, you note that there is some information conveyed
-in the date-time. The date-time can be useful for evidence because
-it (may) establish when the file was created or modified.
-
-You can fix this problem by setting your system time to 1/1/1970
-every time you boot. You could also install Windows-2000/Professional.
-That Operating System doesn't stay running long enough to provide
-useful evidence.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+  :... [snd.science] ...:
+ ::
+ :: http://www.korseby.net
+ :: http://gsmp.sf.net
+  :..........................:

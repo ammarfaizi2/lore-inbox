@@ -1,110 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262779AbSJ0X0s>; Sun, 27 Oct 2002 18:26:48 -0500
+	id <S262006AbSJ0Xt2>; Sun, 27 Oct 2002 18:49:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262780AbSJ0X0s>; Sun, 27 Oct 2002 18:26:48 -0500
-Received: from ophelia.ess.nec.de ([193.141.139.8]:29415 "EHLO
-	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
-	id <S262779AbSJ0X0r> convert rfc822-to-8bit; Sun, 27 Oct 2002 18:26:47 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Erich Focht <efocht@ess.nec.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: NUMA scheduler  (was: 2.5 merge candidate list 1.5)
-Date: Mon, 28 Oct 2002 01:32:33 +0100
-User-Agent: KMail/1.4.1
-Cc: Michael Hohnbaum <hohnbaum@us.ibm.com>, mingo@redhat.com,
+	id <S262129AbSJ0Xt2>; Sun, 27 Oct 2002 18:49:28 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:460 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S262006AbSJ0Xt0>; Sun, 27 Oct 2002 18:49:26 -0500
+Date: Sun, 27 Oct 2002 15:52:55 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Erich Focht <efocht@ess.nec.de>
+cc: Michael Hohnbaum <hohnbaum@us.ibm.com>, mingo@redhat.com,
        habanero@us.ibm.com, linux-kernel@vger.kernel.org,
        lse-tech@lists.sourceforge.net
-References: <3022997410.1035634489@[10.10.2.3]> <3105925354.1035713817@[10.10.2.3]>
-In-Reply-To: <3105925354.1035713817@[10.10.2.3]>
+Subject: Re: NUMA scheduler  (was: 2.5 merge candidate list 1.5)
+Message-ID: <3126082889.1035733974@[10.10.2.3]>
+In-Reply-To: <200210280132.33624.efocht@ess.nec.de>
+References: <200210280132.33624.efocht@ess.nec.de>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210280132.33624.efocht@ess.nec.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 27 October 2002 19:16, Martin J. Bligh wrote:
-> > OK, I went to your latest patches (just 1 and 2). And they worked!
-> > You've fixed the performance degradation problems for kernel compile
-> > (now a 14% improvement in systime), that core set works without
-> > further futzing about or crashing, with or without TSC, on either
-> > version of gcc ... congrats!
->
-> So I have a slight correction to make to the above ;-) Your patches
-> do work just fine, no crashes any more. HOWEVER ... turns out I only
-> had the first patch installed, not both. Silly mistake, but turns out
-> to be very interesting.
->
-> So your second patch is the balance on exec stuff ... I've looked at
-> it, and think it's going to be very expensive to do in practice, at
-> least the simplistic "recalc everything on every exec" approach. It
-> does benefit the low end schedbench results, but not the high end ones,
-> and you can see the cost of your second patch in the system times of
-> the kernbench.
+> This is interesting, indeed. As you might have seen from the tests I
+> posted on LKML I could not see that effect on our IA64 NUMA machine.
+> Which arises the question: is it expensive to recalculate the load
+> when doing an exec (which I should also see) or is the strategy of
+> equally distributing the jobs across the nodes bad for certain
+> load+architecture combinations? 
 
-This is interesting, indeed. As you might have seen from the tests I
-posted on LKML I could not see that effect on our IA64 NUMA machine.
-Which arises the question: is it expensive to recalculate the load
-when doing an exec (which I should also see) or is the strategy of
-equally distributing the jobs across the nodes bad for certain
-load+architecture combinations? As I'm not seeing the effect, maybe
-you could do the following experiment:
-In sched_best_node() keep only the "while" loop at the beginning. This
-leads to a cheap selection of the next node, just a simple round robin. 
+I suspect the former. Bouncing a whole pile of cachelines every time
+would be much more expensive for me than it would for you, and 
+kernbench will be heavy on exec.
 
-Regarding the schedbench results: are they averages over multiple runs?
-The numa_test needs to be repeated a few times to get statistically
-meaningful results.
+> As I'm not seeing the effect, maybe
+> you could do the following experiment:
+> In sched_best_node() keep only the "while" loop at the beginning. This
+> leads to a cheap selection of the next node, just a simple round robin. 
 
-Thanks,
-Erich
+Maybe I could just send you the profiles instead ;-)
+If I have more time, I'll try your suggestion.
+I'm trying Michael's balance_exec on top of your patch 1 at the 
+moment, but I'm somewhat confused by his code for sched_best_cpu.
 
-> In summary, I think I like the first patch alone better than the
-> combination, but will have a play at making a cross between the two.
-> As I have very little context about the scheduler, would appreciate
-> any help anyone would like to volunteer ;-)
->
-> Corrected results are:
->
-> Kernbench:
->                              Elapsed        User      System         CPU
->               2.5.44-mm4     19.676s    192.794s     42.678s     1197.4%
->         2.5.44-mm4-hbaum     19.422s    189.828s     40.204s     1196.2%
->       2.5.44-mm4-focht-1      19.46s    189.838s     37.938s       1171%
->      2.5.44-mm4-focht-12      20.32s        190s       44.4s     1153.6%
->
-> Schedbench 4:
->                              Elapsed   TotalUser    TotalSys     AvgUser
->               2.5.44-mm4       32.45       49.47      129.86        0.82
->         2.5.44-mm4-hbaum       31.31       43.85      125.29        0.84
->       2.5.44-mm4-focht-1       38.61       45.15      154.48        1.06
->      2.5.44-mm4-focht-12       23.23       38.87       92.99        0.85
->
-> Schedbench 8:
->                              Elapsed   TotalUser    TotalSys     AvgUser
->               2.5.44-mm4       39.90       61.48      319.26        2.79
->         2.5.44-mm4-hbaum       32.63       46.56      261.10        1.99
->       2.5.44-mm4-focht-1       37.76       61.09      302.17        2.55
->      2.5.44-mm4-focht-12       28.40       34.43      227.25        2.09
->
-> Schedbench 16:
->                              Elapsed   TotalUser    TotalSys     AvgUser
->               2.5.44-mm4       62.99       93.59     1008.01        5.11
->         2.5.44-mm4-hbaum       49.78       76.71      796.68        4.43
->       2.5.44-mm4-focht-1       51.69       60.23      827.20        4.95
->      2.5.44-mm4-focht-12       51.24       60.86      820.08        4.23
->
-> Schedbench 32:
->                              Elapsed   TotalUser    TotalSys     AvgUser
->               2.5.44-mm4       88.13      194.53     2820.54       11.52
->         2.5.44-mm4-hbaum       54.67      147.30     1749.77        7.91
->       2.5.44-mm4-focht-1       56.71      123.62     1815.12        7.92
->      2.5.44-mm4-focht-12       55.69      118.85     1782.25        7.28
->
-> Schedbench 64:
->                              Elapsed   TotalUser    TotalSys     AvgUser
->               2.5.44-mm4      159.92      653.79    10235.93       25.16
->         2.5.44-mm4-hbaum       65.20      300.58     4173.26       16.82
->       2.5.44-mm4-focht-1       55.60      232.36     3558.98       17.61
->      2.5.44-mm4-focht-12       56.03      234.45     3586.46       15.76
++static int sched_best_cpu(struct task_struct *p)
++{
++       int i, minload, best_cpu, cur_cpu, node;
++       best_cpu = task_cpu(p);
++       if (cpu_rq(best_cpu)->nr_running <= 2)
++               return best_cpu;
++
++       node = __cpu_to_node(__get_cpu_var(last_exec_cpu));
++       if (++node >= numnodes)
++               node = 0;
++       
++       cur_cpu = __node_to_first_cpu(node);
++       minload = cpu_rq(best_cpu)->nr_running;
++
++       for (i = 0; i < NR_CPUS; i++) {
++               if (!cpu_online(cur_cpu))
++                       continue;
++
++               if (minload > cpu_rq(cur_cpu)->nr_running) {
++                       minload = cpu_rq(cur_cpu)->nr_running;
++                       best_cpu = cur_cpu;
++               }
++               if (++cur_cpu >= NR_CPUS)
++                       cur_cpu = 0;
++       }
++       __get_cpu_var(last_exec_cpu) = best_cpu;
++       return best_cpu;
++}
+
+Michael, the way I read the NR_CPUS loop, you walk every cpu
+in the system, and take the best from all of them. In which case
+what's the point of the last_exec_cpu stuff? On the other hand, 
+I changed your NR_CPUS to 4 (ie just walk the cpus in that node), 
+and it got worse. So perhaps I'm just misreading your code ...
+and it does seem significantly cheaper to execute than Erich's.
+
+Erich, on the other hand, your code does this:
+
++void sched_balance_exec(void)
++{
++       int new_cpu, new_node=0;
++
++       while (pooldata_is_locked())
++               cpu_relax();
++       if (numpools > 1) {
++               new_node = sched_best_node(current);
++       } 
++       new_cpu = sched_best_cpu(current, new_node);
++       if (new_cpu != smp_processor_id())
++               sched_migrate_task(current, new_cpu);
++}
+
+which seems to me to walk every runqueue in the system (in
+sched_best_node), then walk one node's worth all over again
+in sched_best_cpu .... doesn't it? Again, I may be misreading
+this ... haven't looked at the scheduler much. But I can't 
+help feeling some sort of lazy evaluation is in order ....
+
+And what's this doing?
+
++       do {
++               /* atomic_inc_return is not implemented on all archs [EF] */
++               atomic_inc(&sched_node);
++               best_node = atomic_read(&sched_node) % numpools;
++       } while (!(pool_mask[best_node] & mask));
+
+I really don't think putting a global atomic in there is going to
+be cheap ....
+
+> Regarding the schedbench results: are they averages over multiple runs?
+> The numa_test needs to be repeated a few times to get statistically
+> meaningful results.
+
+No. But I don't have 2 hours to run each set of tests either. I did
+a couple of runs, and didn't see huge variances. Seems stable enough.
+
+M.
 

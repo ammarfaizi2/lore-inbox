@@ -1,53 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbUKNJ0P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbUKNJod@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261272AbUKNJ0P (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 04:26:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbUKNJ0P
+	id S261274AbUKNJod (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 04:44:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbUKNJod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 04:26:15 -0500
-Received: from mproxy.gmail.com ([216.239.56.242]:37185 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261272AbUKNJYx (ORCPT
+	Sun, 14 Nov 2004 04:44:33 -0500
+Received: from verein.lst.de ([213.95.11.210]:33460 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S261274AbUKNJo0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 04:24:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=aNAq5OKssLTrtJkYtR39kQ1sC9v5TwHAawvgAbmt1NeuWtIGvjeHJE7qQI9gjFitXRG8SklgN8DyCiu2dn2kgtEKhD/dsExP7QeEV7eXDS78COJh42FkT1yR+t8WFiTFjEg4ounIz6aM9xXNv/w1r5ybzMzSzCoVZ+j6lAUUlcM=
-Message-ID: <21d7e99704111401242e713fb4@mail.gmail.com>
-Date: Sun, 14 Nov 2004 20:24:49 +1100
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Stas Sergeev <stsp@aknet.ru>
-Subject: Re: 2.6.10-rc1-mm5
-Cc: Andrew Morton <akpm@osdl.org>, Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <41967669.3070707@aknet.ru>
+	Sun, 14 Nov 2004 04:44:26 -0500
+Date: Sun, 14 Nov 2004 10:44:18 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: Mike Werner <werner@sgi.com>, davej@codemonkey.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][AGPGART] Allow multiple backends to be initialized
+Message-ID: <20041114094418.GA31154@lst.de>
+References: <200411131826.31770.werner@sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <41967669.3070707@aknet.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200411131826.31770.werner@sgi.com>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> 2. Radeon DRM driver stopped working.
-> dmesg says:
-> ---
-> Linux agpgart interface v0.100 (c) Dave Jones
-> agpgart: Detected AMD Irongate chipset
-> agpgart: Maximum main memory to use for agp memory: 439M
-> agpgart: AGP aperture is 64M @ 0xe8000000
-> [drm] Initialized radeon 1.11.0 20020828 on minor 0: ATI Technologies Inc Radeon RV200 QW [Radeon 7500]
-> [drm:radeon_cp_init] *ERROR* radeon_cp_init called without lock held
-> [drm:drm_unlock] *ERROR* Process 3124 using kernel context 0
-> ---
->
+Last time I checked Dave Jones (davej@codemonkey.org.uk) was agpgart
+maintainer, not Rusty or me.  So please resend to Dave and the
+linux-kernel list so other people (like me can comment).
 
-You are building AGP as a module with DRM as a built-in ,the DRM
-cannot use the AGP if it is not built in also, I think the latest DRM
-bk tree should enforce this I'm not sure if -mm5 has  the patches in
-it or not...
+Comments on the patch format:  Please don't send output of bk export
+over multiple changesets - while you can use that to generate the
+patch please strip the bk checkin comments and write a single patch
+description that explains your overall changes, aka what you did
+and if it's not obvious why.
 
-I'm going to add something in the DRM debug to state whether AGP is in
-use or not ..
+If you patch does multiple things at once split it into one patch per
+problem or feature.
 
-Dave.
+
+> -struct agp_bridge_data agp_bridge_dummy = { .type = NOT_SUPPORTED };
+> -struct agp_bridge_data *agp_bridge = &agp_bridge_dummy;
+> +struct agp_bridge_data *agp_bridge = NULL;
+
+there's no need to initialize global variables to NULL - the C standard
+guarantees that gets done implicitly - and letting the compile do that
+decreases the size of the kernel image.
+
+> -/* XXX Kludge alert: agpgart isn't ready for multiple bridges yet */
+>  struct agp_bridge_data *agp_alloc_bridge(void)
+>  {
+> -	return agp_bridge;
+> +	struct  agp_bridge_data *bridge = kmalloc(sizeof(struct agp_bridge_data), 
+> GFP_KERNEL);
+> +	if(!agp_count) agp_bridge = bridge;
+> +	return bridge;
+>  }
+
+Some style problems here - never create lines longer than 80
+charactersm, and follow Documentation/CodingStyle indentation (or just
+look at the other agpgart code).
+
+Also you should check the kmalloc return value;
+
+It should look like:
+
+struct agp_bridge_data *agp_alloc_bridge(void)
+{
+	struct agp_bridge_data *bridge;
+
+	bridge = kmalloc(sizeof(*bridge), GFP_KERNEL);
+	if (!bridge)
+		return NULL;
+
+	/* cludge for the transition to passing the agp_bridge around */
+	if (!agp_count)
+		agp_bridge = bridge;
+
+	return bridge;
+}
+
+Also where do you free the kmalloced bridges again?
+
+> +	if(!agp_count) {
+
+	if (!agp_count) {
+
+> +	if(!agp_count) {
+
+Dito.
+
+>  	memset(info, 0, sizeof(struct agp_kern_info));
+> -	if (!agp_bridge || agp_bridge->type == NOT_SUPPORTED ||
+> -	    !agp_bridge->version) {
+> +	if ((agp_bridge == NULL) || (agp_bridge->type == NOT_SUPPORTED)) {
+
+Why do you drop the version check here?
+

@@ -1,60 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261409AbTH2QQS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 12:16:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbTH2QQS
+	id S261363AbTH2QNn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 12:13:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbTH2QNn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 12:16:18 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:63404 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261409AbTH2QPS (ORCPT
+	Fri, 29 Aug 2003 12:13:43 -0400
+Received: from fw.osdl.org ([65.172.181.6]:56197 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261363AbTH2QNk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 12:15:18 -0400
-Date: Fri, 29 Aug 2003 18:15:08 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Larry McVoy <lm@bitmover.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE wierdness
-In-Reply-To: <1061394048.550.18.camel@dhcp23.swansea.linux.org.uk>
-Message-ID: <Pine.GSO.4.21.0308291810150.3919-100000@waterleaf.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 29 Aug 2003 12:13:40 -0400
+Date: Fri, 29 Aug 2003 08:57:26 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ed Sweetman <ed.sweetman@wmich.edu>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.0-test4-mm3
+Message-Id: <20030829085726.452d7a3f.akpm@osdl.org>
+In-Reply-To: <3F4F747E.7020601@wmich.edu>
+References: <20030828235649.61074690.akpm@osdl.org>
+	<3F4F747E.7020601@wmich.edu>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20 Aug 2003, Alan Cox wrote:
-> On Mer, 2003-08-20 at 16:09, Larry McVoy wrote:
-> > It's clear to me that I don't want to use this drive but I'm wondering if
-> > there is any interest in debugging the lock up.  I've only done it on
-> > 2.4.18 as shipped by redhat but I could try 2.6 or whatever you like.
+Ed Sweetman <ed.sweetman@wmich.edu> wrote:
+>
+> Andrew Morton wrote:
 > > 
-> > If the concensus is that it is OK that bad hardware locks you up then I'll
-> > toss the drive and move on.
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4/2.6.0-test4-mm3/
+> > 
+> > 
+> > . Lots of small fixes.
 > 
-> Some PIO transfers are regulated by the drive and the drive can lock the
-> bus forever. Newer chipsets like the SI680/3112 support watchdog
-> deadlock breakers for this but we don't really support them right now.
 > 
-> Getting different data off a failing drive is unusual because the blocks
-> are ECC'd extensively (well more than ECC'd) and have checks, could be
-> the RAM/CPU going I guess.
+> It seems that since test3-mm2 ...possibly mm3, my kernels just hang 
+> after loading the input driver for the pc speaker.  Now directly after 
+> this on test3-mm1 serio loads.
+>   serio: i8042 AUX port at 0x60,0x64 irq 12
+> input: AT Set 2 keyboard on isa0060/serio0
+> serio: i8042 KBD port at 0x60,0x64 irq 1
+> 
+> I'm guessing this is where the later kernels are hanging.
+> I checked and i dont see any serio/input patches since mm1 in test3 but 
+> every mm kernel i've tried since mm3 hangs at the same point where as 
+> mm1 does not.  All have the same config.  I'm using acpi as well.  This 
+> is a via amd board.  I dont wanna send a general email with all kinds of 
+> extra info (.config and such) unless someone is interested in the 
+> problem and needs it.
 
-Although it can happen. I used to see corrupted data in /etc/motd (which is
-rewritten on each boot up) and random SEGVs on an embedded box. A few weeks
-later the drive started to report real errors. After mapping out the bad blocks
-using e2fsck -c, and replacing the files that were affected, the problem
-disappeared.
+The only patch I can see in there is syn-multi-btn-fix.patch in test3-mm3,
+which seems unlikely.
 
-Looks like ECC is not always ECC...
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Have you tested 2.6.0-test4?  If that also fails then I'd be suspecting the
+ACPI changes; there seem to be a few new problems in that area lately.
 

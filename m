@@ -1,38 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271658AbRHUNbQ>; Tue, 21 Aug 2001 09:31:16 -0400
+	id <S271665AbRHUNe0>; Tue, 21 Aug 2001 09:34:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271659AbRHUNbG>; Tue, 21 Aug 2001 09:31:06 -0400
-Received: from smtp3.cern.ch ([137.138.131.164]:54246 "EHLO smtp3.cern.ch")
-	by vger.kernel.org with ESMTP id <S271658AbRHUNa5>;
-	Tue, 21 Aug 2001 09:30:57 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Qlogic/FC firmware
-In-Reply-To: <20010821.055856.08326920.davem@redhat.com>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 21 Aug 2001 15:31:05 +0200
-In-Reply-To: "David S. Miller"'s message of "Tue, 21 Aug 2001 05:58:56 -0700 (PDT)"
-Message-ID: <d3elq5a6au.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S271660AbRHUNeQ>; Tue, 21 Aug 2001 09:34:16 -0400
+Received: from [193.120.224.170] ([193.120.224.170]:8080 "EHLO florence.itg.ie")
+	by vger.kernel.org with ESMTP id <S271661AbRHUNeK>;
+	Tue, 21 Aug 2001 09:34:10 -0400
+Date: Tue, 21 Aug 2001 14:34:16 +0100 (IST)
+From: Paul Jakma <paulj@alphyra.ie>
+To: David Schwartz <davids@webmaster.com>
+cc: Paul Jakma <paul@clubi.ie>, <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] let Net Devices feed Entropy, updated (1/2)
+In-Reply-To: <NOEJJDACGOHCKNCOGFOMAEGBDFAA.davids@webmaster.com>
+Message-ID: <Pine.LNX.4.33.0108211425250.14271-100000@dunlop.itg.ie>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "David" == David S Miller <davem@redhat.com> writes:
+On Mon, 20 Aug 2001, David Schwartz wrote:
 
-David> Who removed it from the 2.4.x driver recently, and why?
+> appropriate ioctl function (RND_ADD_ENTROPY). Search drivers/chars/random.c
 
-David> I've been playing around, accidently corrupting my firmware a
-David> few times, and had to grab the firmware back from older trees
-David> to make my qlogic,FC card usable again.
+shame on me.
 
-David> Removing the firmware makes no sense, if the firmware was
-David> incorrect for some reason, simply correct it.
+it appears the i810 RNG daemon does update the entropy count.
 
-Alan did after I pointed out to him that it was incompatible with the
-GPL (BSD license with advertisement clause). Really hard to fix unless
-you get QLogic to change the license for you.
+--paulj
 
-Jes

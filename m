@@ -1,61 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263645AbUAHEYo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 23:24:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263723AbUAHEYa
+	id S263702AbUAHElT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 23:41:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263711AbUAHElT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 23:24:30 -0500
-Received: from fw.osdl.org ([65.172.181.6]:45544 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263702AbUAHEXn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 23:23:43 -0500
-Date: Wed, 7 Jan 2004 20:23:36 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Gene Heskett <gene.heskett@verizon.net>
-cc: Olaf Hering <olh@suse.de>, Greg KH <greg@kroah.com>,
-       Andrey Borzenkov <arvidjaar@mail.ru>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: removable media revalidation - udev vs. devfs or static /dev
-In-Reply-To: <200401072316.18169.gene.heskett@verizon.net>
-Message-ID: <Pine.LNX.4.58.0401072019040.2131@home.osdl.org>
-References: <200401012333.04930.arvidjaar@mail.ru> <20040107205237.GB16832@suse.de>
- <Pine.LNX.4.58.0401071801310.12602@home.osdl.org> <200401072316.18169.gene.heskett@verizon.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 Jan 2004 23:41:19 -0500
+Received: from sea2-f38.sea2.hotmail.com ([207.68.165.38]:43279 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S263702AbUAHElS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 23:41:18 -0500
+X-Originating-IP: [81.250.248.165]
+X-Originating-Email: [thadeum@hotmail.com]
+From: "Silk Thadeum" <thadeum@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: /drivers/net/tulip/dmfe.c may be outdated : kernel loading problem
+Date: Thu, 08 Jan 2004 05:41:17 +0100
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <Sea2-F38LFQG101s7hp0000e306@hotmail.com>
+X-OriginalArrivalTime: 08 Jan 2004 04:41:17.0710 (UTC) FILETIME=[A7BC6AE0:01C3D5A1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
+I have been working on Linux 2.4.20 for a couple of months and use a Davicom 
+Semiconductor Ethernet network card driver known as dmfe.c for module dmfe.
 
-On Wed, 7 Jan 2004, Gene Heskett wrote:
-> 
-> I do too, except the card is still in my camera when I do it.
+I had no problem since here, but on Linux 2.6.0-i386-stable kernel is 
+refusing to load the module :
 
-My camera just does USB-1, and with a gigabyte card that's just too 
-painful. Besides, I don't want to eat camera batteries. So I just pop it 
-over in something that is ten times faster.
+--
+$ insmod dmfe.o
+insmod: error inserting 'dmfe.o': -1 Invalid module format
+$ lspci | grep Davicom
+00:0a.0 Ethernet controller : Davicom Semiconductor, Inc. Ethernet 100/10 
+Mbit (rev 31)
+--
 
-> But, I do have to ask, why the ro?
+I tried to load the module by various ways : with old (for 2.4.20) and new 
+(from 2.6.0 stable) compiled driver, but that didn't work. I quickly looked 
+at the source code which seems quite old. I can't actually help you in 
+having a deeper workaround because I don't yet have sufficient technical 
+skills for that.
 
-I don't trust camera firmware to do a full VFAT implementation, so out of 
-principle I only let the camera write to it normally. That way I don't 
-need to worry about the limited braincapacity of my poor camera.
+I'm working on a Debian Sarge testing prerelease.
 
-> Apparently fat thinks an empty sector is the end of the directory.  So
-> one must delete on LIFO basis.
+Have fun in debug ;p
 
-Sounds like your camera gets easily confused too. Me, I just transfer the 
-whole thing, and then I let the camera do a "format". 
+Regards,
 
-I've seen cameras that have serious problems with old filesystems - when 
-they get fragmented enough, the camera says that there is 50% free space, 
-but can't actually write a single picture any more. Deleting pictures to 
-make space only helps a bit, then it's "full" again.
+Thadeum.
 
-Which is why I just delete everything by letting the camera do the
-formatting. 
+_________________________________________________________________
+Help STOP SPAM with the new MSN 8 and get 2 months FREE*  
+http://join.msn.com/?page=features/junkmail
 
-Some day cameras will run Linux too, and I'll trust them. In the meantime 
-I just don't expect them to do that well.
-
-		Linus

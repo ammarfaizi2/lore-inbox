@@ -1,49 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271486AbRIFRDG>; Thu, 6 Sep 2001 13:03:06 -0400
+	id <S271467AbRIFRFg>; Thu, 6 Sep 2001 13:05:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271487AbRIFRC4>; Thu, 6 Sep 2001 13:02:56 -0400
-Received: from sal.qcc.sk.ca ([198.169.27.3]:62730 "HELO sal.qcc.sk.ca")
-	by vger.kernel.org with SMTP id <S271486AbRIFRCo>;
-	Thu, 6 Sep 2001 13:02:44 -0400
-Date: Thu, 6 Sep 2001 11:03:02 -0600
-From: Charles Cazabon <linux-kernel@discworld.dyndns.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19]
-Message-ID: <20010906110302.B2323@qcc.sk.ca>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010906203854.A23109@castle.nmd.msu.ru> <20010906164314.74F68BC06C@spike.porcupine.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S271473AbRIFRF0>; Thu, 6 Sep 2001 13:05:26 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:43697 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S271467AbRIFRFM>;
+	Thu, 6 Sep 2001 13:05:12 -0400
+Date: Thu, 06 Sep 2001 18:05:30 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Andrey Savochkin <saw@saw.sw.com.sg>,
+        Matthias Andree <matthias.andree@gmx.de>
+Cc: Wietse Venema <wietse@porcupine.org>, Andi Kleen <ak@suse.de>,
+        linux-kernel@vger.kernel.org,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip
+ alias bug 2.4.9 and 2.2.19]
+Message-ID: <605440607.999799530@[10.132.112.53]>
+In-Reply-To: <20010906203854.A23109@castle.nmd.msu.ru>
+In-Reply-To: <20010906203854.A23109@castle.nmd.msu.ru>
+X-Mailer: Mulberry/2.1.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010906164314.74F68BC06C@spike.porcupine.org>; from wietse@porcupine.org on Thu, Sep 06, 2001 at 12:43:14PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wietse Venema <wietse@porcupine.org> wrote:
-> 
-> An SMTP MTA is required to correctly recognize user@[ip.address]
-> as local.  That's the rules, like it or not. These address forms
-> are actually being used, like it or not.
+Andrey,
 
-Yes.  MTAs have to work around this; qmail does a reasonable job.  Why
-not look at how djb does this?  See ipme.c.
- 
-> It also is desirable for an MTA to treat clients on local subnets
-> different than strangers that happen to be on the same class A,
-> like it or not.  Failure to do so can make one end up on black
-> lists, like it or not.
+--On Thursday, September 06, 2001 8:38 PM +0400 Andrey Savochkin 
+<saw@saw.sw.com.sg> wrote:
 
-Having an MTA automatically treat clients on "local subnets" differently
-than the rest of the 'net at large is definitely _not_ desirable.  The
-administrator should have to explicitly configure the MTA to grant
-additional access to every subnet he desires; anything else is begging
-for trouble in the form of absued relaying privileges.
- 
-Charles
--- 
------------------------------------------------------------------------
-Charles Cazabon                            <linux@discworld.dyndns.org>
-GPL'ed software available at:  http://www.qcc.sk.ca/~charlesc/software/
------------------------------------------------------------------------
+> Hell, how else could you define the notion of a local address as not the
+> address which responds to pings without external network, the address for
+> which
+
+So the remote end of a looped /30 serial line is now a local address?
+Can you bind() to 127.0.0.2? In any case, all you've found is a
+peculiarity of the loopback driver. So send a patch.
+
+The read RFC1122. (hosts & routers requirements).
+Not only does this define local address, but specifically writes:
+
+         3.3.4.2  Multihoming Requirements
+
+            The following general rules apply to the selection of an IP
+            source address for sending a datagram from a multihomed
+            host.
+
+            (1)  If the datagram is sent in response to a received
+                 datagram, the source address for the response SHOULD be
+                 the specific-destination address of the request.  See
+                 Sections 4.1.3.5 and 4.2.3.7 and the "General Issues"
+                 section of [INTRO:1] for more specific requirements on
+                 higher layers.
+
+                 Otherwise, a source address must be selected.
+
+            (2)  An application MUST be able to explicitly specify the
+                 source address for initiating a connection or a
+                 request.
+
+How can (2) be usefully true if the application cannot determine
+what the list of valid local addresses are? Or is your argument
+that all such addresses should be configured manually, rather
+than by the application? Which would not only be a rather
+odd point of view, but makes implementing things like
+BGP, which depends on being able to get the outbound interface
+address used for a session up to the higher layers, rather hard.
+
+--
+Alex Bligh

@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316592AbSE0Vjx>; Mon, 27 May 2002 17:39:53 -0400
+	id <S316613AbSE0VqF>; Mon, 27 May 2002 17:46:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316613AbSE0Vjw>; Mon, 27 May 2002 17:39:52 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58117 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316592AbSE0Vjv>; Mon, 27 May 2002 17:39:51 -0400
-Message-ID: <3CF2A7A0.5030107@zytor.com>
-Date: Mon, 27 May 2002 14:39:44 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020524
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@redhat.com>
-CC: linux-kernel@vger.kernel.org
+	id <S316659AbSE0VqE>; Mon, 27 May 2002 17:46:04 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:30450 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316613AbSE0VqE>; Mon, 27 May 2002 17:46:04 -0400
 Subject: Re: Memory management in Kernel 2.4.x
-In-Reply-To: <fa.iklie8v.5k2hbj@ifi.uio.no> <actahk$6bp$1@ID-44327.news.dfncis.de> <3CF23893.207@loewe-komp.de> <1022513156.1126.289.camel@irongate.swansea.linux.org.uk> <acu82e$7qn$1@cesium.transmeta.com> <20020527173306.C15560@redhat.com> <3CF2A648.1070303@zytor.com> <20020527173738.D15560@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <acu82e$7qn$1@cesium.transmeta.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 27 May 2002 23:48:46 +0100
+Message-Id: <1022539726.4124.2.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise wrote:
-> On Mon, May 27, 2002 at 02:34:00PM -0700, H. Peter Anvin wrote:
+On Mon, 2002-05-27 at 22:22, H. Peter Anvin wrote:
+> Followup to:  <1022513156.1126.289.camel@irongate.swansea.linux.org.uk>
+> By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
+> In newsgroup: linux.dev.kernel
+> > 
+> > On a -ac kernel with mode 2 or 3 set for overcommit you have to run out
+> > of kernel resources to hang the box. It won't go OOM because it can't.
+> > That wouldn't be a VM bug but a leak or poor handling of kernel
+> > allocations somewhere. Sadly the changes needed to do that (beancounter
+> > patch) were things Linus never accepted for 2.4
+> > 
 > 
->>Doesn't help.  exec() should fail.
-> 
-> 
-> Only if you're out of memory (any sane app nowadays does not allocate 
-> memory from data/bss).
-> 
+> Well, if you can't fork a new process because that would push you into
+> overcommit, then you usually can't actually do anything useful on the
+> machine.
 
-.data/.bss is writable, and will need to be allocated to avoid 
-overcommitment, so the exec() will fail.
-
-	-hpa
-
+Thats actually easy to deal with and on my list for modes 4 and 5 (2 and
+3 with root granted a reserved fraction)
 

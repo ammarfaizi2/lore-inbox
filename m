@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbULDXsZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbULDXuK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbULDXsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 18:48:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbULDXsZ
+	id S261198AbULDXuK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Dec 2004 18:50:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbULDXuJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 18:48:25 -0500
-Received: from main.gmane.org ([80.91.229.2]:4528 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261197AbULDXsV (ORCPT
+	Sat, 4 Dec 2004 18:50:09 -0500
+Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:148 "EHLO mta1.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S261198AbULDXuA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 18:48:21 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Paul Ionescu <i_p_a_u_l@yahoo.com>
-Subject: Re: Linux 2.6.10-rc3
-Date: Sun, 05 Dec 2004 01:48:04 +0200
-Message-ID: <pan.2004.12.04.23.48.03.367311@yahoo.com>
-References: <Pine.LNX.4.58.0412031611460.22796@ppc970.osdl.org> <pan.2004.12.04.09.06.09.707940@nn7.de> <87oeha6lj1.fsf@sycorax.lbl.gov> <cosrt1$j67$1@sea.gmane.org> <87eki66jx8.fsf@sycorax.lbl.gov> <1102195032.1560.58.camel@tux.rsn.bth.se> <877jnxago0.fsf@sycorax.lbl.gov> <Pine.LNX.4.58.0412042241070.13328@tux.rsn.bth.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: home-33027.b.astral.ro
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
+	Sat, 4 Dec 2004 18:50:00 -0500
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>, Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel@vger.kernel.org, Steven.Hand@cl.cam.ac.uk,
+       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk,
+       "David S. Miller" <davem@redhat.com>,
+       William Lee Irwin III <wli@holomorphy.com>, Ian.Pratt@cl.cam.ac.uk
+Subject: Re: [4/7] Xen VMM patch set : /dev/mem io_remap_page_range for CONFIG_XEN 
+In-reply-to: Your message of "Tue, 30 Nov 2004 19:03:37 +0100."
+             <20041130180337.GT4365@dualathlon.random> 
+Date: Sat, 04 Dec 2004 23:49:32 +0000
+From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Message-Id: <E1Cajei-00040t-00@mta1.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 04 Dec 2004 22:42:11 +0100, Martin Josefsson wrote:
-> That's an usb2.0 bug, the ehci driver sleeps when it can't sleep.
+> On Tue, Nov 30, 2004 at 01:16:56PM +0000, Ian Pratt wrote:
+> > point it would solve our problem. I'm not sure what this would
+> > mean for architectures other than i386.
+> 
+> Only sparc implements io_remap_page_range differently from
+> remap_pte_range and from Wli answer I understand it's probably ok for
+> sparc to use io_remap_page_range outside ram.
 
-I have the message bellow without ehci-hcd module loaded, so I took out
-USB2 problem, but this one I don't know what it means:
+So, do we think the best /dev/mem patch is to change the call to
+io_remap_page_range, and have a #ifdef for the SPARC case until
+the number of arguments gets unified?
 
-
-Warning: CPU frequency is 1700000, cpufreq assumed 600000 kHz.
-Debug: sleeping function called from invalid context at mm/slab.c:2063
-in_atomic():0[expected: 0], irqs_disabled():1
- [<0211cbcb>] __might_sleep+0x7d/0x8a
- [<0214bf9f>] __kmalloc+0x42/0x7d
- [<021f48e9>] acpi_os_allocate+0xa/0xb
- [<0220878a>] acpi_ut_allocate+0x2e/0x52
- [<02208721>] acpi_ut_initialize_buffer+0x41/0x7c
- [<02205474>] acpi_rs_create_byte_stream+0x23/0x3b
- [<02206976>] acpi_rs_set_srs_method_data+0x1b/0x9d
- [<0211b101>] recalc_task_prio+0x128/0x133
- [<0220e15c>] acpi_pci_link_set+0xfe/0x176
- [<0220e4e0>] irqrouter_resume+0x1c/0x24
- [<0224366a>] sysdev_resume+0x3e/0xa5
- [<02246564>] device_power_up+0x5/0xa
- [<0213db9a>] suspend_enter+0x25/0x2d
- [<0213dc08>] enter_state+0x3f/0x5e
- [<0220ad54>] acpi_suspend+0x28/0x34
- [<0220b7c4>] acpi_system_write_sleep+0x5c/0x6d
- [<02179769>] locate_fd+0x5c/0x78
- [<02165c82>] vfs_write+0xb6/0xe2
- [<02165d4c>] sys_write+0x3c/0x62
-PCI: Setting latency timer of device 0000:00:1d.0 to 64
-
+Thanks,
+Ian
 

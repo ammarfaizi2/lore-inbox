@@ -1,29 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132606AbREBLOF>; Wed, 2 May 2001 07:14:05 -0400
+	id <S132614AbREBLPz>; Wed, 2 May 2001 07:15:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132614AbREBLNz>; Wed, 2 May 2001 07:13:55 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:13583 "EHLO
+	id <S132688AbREBLPp>; Wed, 2 May 2001 07:15:45 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:14351 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132606AbREBLNq>; Wed, 2 May 2001 07:13:46 -0400
-Subject: Re: DISCOVERED! Cause of Athlon/VIA KX133 Instability
-To: bergsoft@home.com (Seth Goldberg)
-Date: Wed, 2 May 2001 12:17:08 +0100 (BST)
-Cc: hahn@coffee.psychology.mcmaster.ca (Mark Hahn),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3AEF6F71.A75D478F@home.com> from "Seth Goldberg" at May 01, 2001 07:22:41 PM
+	id <S132614AbREBLPa>; Wed, 2 May 2001 07:15:30 -0400
+Subject: Re: Question on including 'math.h' from C runtime...
+To: sjhill@cotw.com
+Date: Wed, 2 May 2001 12:18:56 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (lkml)
+In-Reply-To: <3AEF7C43.9955C970@cotw.com> from "Steven J. Hill" at May 01, 2001 10:17:23 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14uud4-0003Pv-00@the-village.bc.nu>
+Message-Id: <E14uuep-0003Q4-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > why resort to silly windows tools, when lspci under Linux does it for you?
+> '/usr/include/math.h' in most cases. There are only two places
+> in the kernel that also include this header file. They are:
 > 
->   Because lspci does not display all 256 bytes of pci configuration
-> information.
+>    drivers/atm/iphase.c
 
-RTFM ;)
+That probably shouldnt be using it
+
+>    drivers/net/hamradio/soundmodem/gentbl.c
+
+This one is intentional. gentbl is a program linked in user space and used
+to generate a .h file then built for the kernel

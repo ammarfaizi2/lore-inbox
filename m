@@ -1,81 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317637AbSHOW47>; Thu, 15 Aug 2002 18:56:59 -0400
+	id <S317641AbSHOXEX>; Thu, 15 Aug 2002 19:04:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317639AbSHOW47>; Thu, 15 Aug 2002 18:56:59 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:8877 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S317637AbSHOW46>;
-	Thu, 15 Aug 2002 18:56:58 -0400
-Date: Fri, 16 Aug 2002 01:01:21 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] user-vm-unlock-2.5.31-A2
-In-Reply-To: <Pine.LNX.4.44.0208160003260.24255-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0208160100430.19466-100000@localhost.localdomain>
+	id <S317648AbSHOXEX>; Thu, 15 Aug 2002 19:04:23 -0400
+Received: from mons.uio.no ([129.240.130.14]:22698 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S317641AbSHOXEX>;
+	Thu, 15 Aug 2002 19:04:23 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15708.13368.625078.207115@charged.uio.no>
+Date: Fri, 16 Aug 2002 01:07:36 +0200
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Dax Kelson <dax@gurulabs.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Kendrick M. Smith" <kmsmith@umich.edu>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "nfs@lists.sourceforge.net" <nfs@lists.sourceforge.net>,
+       <beepy@netapp.com>
+Subject: Re: Will NFSv4 be accepted?
+In-Reply-To: <Pine.LNX.4.44.0208151027510.3130-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0208141938350.31203-100000@mooru.gurulabs.com>
+	<Pine.LNX.4.44.0208151027510.3130-100000@home.transmeta.com>
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Linus Torvalds <torvalds@transmeta.com> writes:
 
-> personally i'd make it even more compact by merging the two clone flags
-> as well, something along: CLONE_MANAGE_TID. I cannot see any reason for
-> a thread library to use one of the bits only. This also reflects the
-> fact that it's thread state that the kernel helps managing, both in the
-> thread-create and in the thread-exit path. But this might be stretching
-> things a bit?
+     > I personally doubt that NFS would be the thing driving
+     > this. Judging by past performance, NFS security issues don't
+     > seem to bother people. I'd personally assume that the thing
+     > that would be important enough to people for vendors to add it
+     > is VPN or encrypted (local) disks.
 
-the attached patch implements this. (ontop the previous patch.)
+As I said: one of the main motivations for NFSv4 is WAN support, and
+in those environments, strong authentication is a must.
 
-	Ingo
+That said, the plan is to also prepare a 'null' authentication scheme
+for RPCSEC_GSS (basically using RPCSEC_GSS as a wrapper for AUTH_UNIX)
+so that the strong auth can be provided as a simple plugin in case its
+inclusion in the kernel would not be acceptable.
 
---- linux/arch/i386/kernel/process.c.orig	Fri Aug 16 01:01:27 2002
-+++ linux/arch/i386/kernel/process.c	Fri Aug 16 01:02:03 2002
-@@ -591,7 +591,7 @@
- 	/*
- 	 * The common fastpath:
- 	 */
--	if (!(clone_flags & (CLONE_SETTLS | CLONE_SETTID | CLONE_CLEARTID)))
-+	if (!(clone_flags & (CLONE_SETTLS | CLONE_MANAGE_TID)))
- 		return 0;
- 	/*
- 	 * Set a new TLS for the child thread?
-@@ -616,17 +616,13 @@
- 	}
- 
- 	/*
--	 * Notify the child of the TID?
-+	 * Notify the child of the TID, and clear it on exit?
- 	 */
--	if (clone_flags & CLONE_SETTID)
-+	if (clone_flags & CLONE_MANAGE_TID) {
- 		if (put_user(p->pid, (pid_t *)childregs->edx))
- 			return -EFAULT;
--
--	/*
--	 * Does the userspace VM want the TID cleared on mm_release()?
--	 */
--	if (clone_flags & CLONE_CLEARTID)
- 		p->user_tid = (long *) childregs->edx;
-+	}
- 	return 0;
- }
- 
---- linux/include/linux/sched.h.orig	Fri Aug 16 01:00:33 2002
-+++ linux/include/linux/sched.h	Fri Aug 16 01:01:19 2002
-@@ -46,10 +46,8 @@
- #define CLONE_NEWNS	0x00020000	/* New namespace group? */
- #define CLONE_SYSVSEM	0x00040000	/* share system V SEM_UNDO semantics */
- #define CLONE_SETTLS	0x00080000	/* create a new TLS for the child */
--#define CLONE_SETTID	0x00100000	/* write the TID back to userspace */
--#define CLONE_CLEARTID	0x00200000	/* clear the userspace TID */
--#define CLONE_DETACHED	0x00400000	/* parent wants no child-exit signal */
--#define CLONE_RELEASE_VM 0x00800000	/* release the userspace VM */
-+#define CLONE_MANAGE_TID 0x00100000	/* set and clear the userspace TID */
-+#define CLONE_DETACHED	0x00200000	/* parent wants no child-exit signal */
- 
- #define CLONE_SIGNAL	(CLONE_SIGHAND | CLONE_THREAD)
- 
-
+Cheers,
+  Trond

@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315794AbSFOXEh>; Sat, 15 Jun 2002 19:04:37 -0400
+	id <S315746AbSFPAAh>; Sat, 15 Jun 2002 20:00:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315792AbSFOXEg>; Sat, 15 Jun 2002 19:04:36 -0400
-Received: from crack.them.org ([65.125.64.184]:20489 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S315783AbSFOXEf>;
-	Sat, 15 Jun 2002 19:04:35 -0400
-Date: Sat, 15 Jun 2002 18:04:26 -0500
-From: Daniel Jacobowitz <drow@false.org>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Inexplicable disk activity trying to load modules on devfs
-Message-ID: <20020615180426.C19472@crack.them.org>
-Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020615172244.C19123@crack.them.org> <3D0BC34E.BAE89EB9@zip.com.au>
+	id <S315758AbSFPAAg>; Sat, 15 Jun 2002 20:00:36 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:60174 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S315746AbSFPAAg>; Sat, 15 Jun 2002 20:00:36 -0400
+Message-Id: <200206160000.g5G00PX24105@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Dave Jones <davej@suse.de>, James Bottomley <James.Bottomley@SteelEye.com>,
+        James Bottomley <James.Bottomley@HansenPartnership.com>,
+        Andrey Panin <pazke@orbita1.ru>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH: NEW SUBARCHITECTURE FOR 2.5.21] support for NCR voyager 
+ (3/4/5xxx series)
+In-Reply-To: Message from Andrey Panin <pazke@orbita1.ru> 
+   of "Fri, 14 Jun 2002 17:41:52 +0400." <20020614134152.GA1293@pazke.ipt> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Date: Sat, 15 Jun 2002 20:00:25 -0400
+From: James Bottomley <James.Bottomley@SteelEye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 15, 2002 at 03:44:30PM -0700, Andrew Morton wrote:
-> Daniel Jacobowitz wrote:
-> > 
-> > I just booted into 2.4.19-pre10-ac2 for the first time, and noticed
-> > something very odd: my disk activity light was flashing at about
-> > half-second intervals, very regularly, and I could hear the disk
-> > moving.  I was only able to track it down to which disk controller, via
-> > /proc/interrupts (are there any tools for monitoring VFS activity?
-> > They'd be really useful).  Eventually I hunted down the program causing
-> > it: xmms.
-> > 
-> > The reason turned out to be that I hadn't remembered to build my sound
-> > driver for this kernel version.  Every half-second xmms tried to open
-> > /dev/mixer (and failed, ENOENT).  Every time it did that there was
-> > actual disk activity.  Easily reproducible without xmms.  Reproducible
-> > on any non-existant device in devfs, but not for nonexisting files on
-> > other filesystems.  Is something bypassing the normal disk cache
-> > mechanisms here?  That doesn't seem right at all.
-> > 
-> 
-> syslog activity from a printk, perhaps?
+pazke@orbita1.ru said:
+> "Latest" (2.4.17) visws patch which i'm planning to convert for 2.5,
+> uses function MP_processor_info() from generic mpparse.c. May be it
+> makes sence to move to some generic file ? 
 
-Nope.  No log activity whatsoever.
+OK, I moved mpparse back into kernel (and gated it on CONFIG_X86_MPPARSE).  It 
+probably makes sense to split it up so that you only get the piece you need 
+for visws.
 
--- 
-Daniel Jacobowitz                           Debian GNU/Linux Developer
-MontaVista Software                         Carnegie Mellon University
+I've also done the mach-* renames by popular request.  The new patch is at:
+
+http://www.hansenpartnership.com/voyager/files/arch-split-2.5.21-II.diff
+
+and also in the bitkeeper repository:
+
+http://linux-voyager.bkbits.net/arch-split-2.5
+
+James
+
+

@@ -1,52 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261666AbSI3P14>; Mon, 30 Sep 2002 11:27:56 -0400
+	id <S262090AbSI3ObW>; Mon, 30 Sep 2002 10:31:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261811AbSI3P14>; Mon, 30 Sep 2002 11:27:56 -0400
-Received: from dsl-213-023-038-108.arcor-ip.net ([213.23.38.108]:27538 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S261666AbSI3P1z>;
-	Mon, 30 Sep 2002 11:27:55 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Greg KH <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] In-kernel module loader 1/7
-Date: Mon, 30 Sep 2002 17:32:36 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-References: <20020919125906.21DEA2C22A@lists.samba.org> <1032461895.27865.54.camel@irongate.swansea.linux.org.uk> <20020919201140.GB17131@kroah.com>
-In-Reply-To: <20020919201140.GB17131@kroah.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17w2XF-0005oW-00@starship>
+	id <S262163AbSI3ObW>; Mon, 30 Sep 2002 10:31:22 -0400
+Received: from node-d-1ef6.a2000.nl ([62.195.30.246]:37102 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S262090AbSI3ObU>; Mon, 30 Sep 2002 10:31:20 -0400
+Subject: Re: [PATCH] 2.5.39 s390 (3/26): drivers.
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+In-Reply-To: <200209301451.19791.schwidefsky@de.ibm.com>
+References: <200209301451.19791.schwidefsky@de.ibm.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-0B6POSbowId8qMszVYVh"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 30 Sep 2002 16:39:23 +0200
+Message-Id: <1033396763.1718.1.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 19 September 2002 22:11, Greg KH wrote:
-> On Thu, Sep 19, 2002 at 07:58:15PM +0100, Alan Cox wrote:
-> > On Thu, 2002-09-19 at 19:38, Greg KH wrote:
-> > > And with a LSM module, how can it answer that?  There's no way, unless
-> > > we count every time someone calls into our module.  And if you do that,
-> > > no one will even want to use your module, given the number of hooks, and
-> > > the paths those hooks are on (the speed hit would be horrible.)
-> > 
-> > So the LSM module always says no. Don't make other modules suffer
-> 
-> Ok, I don't have a problem with that, I was just trying to point out
-> that not all modules can know when they are able to be unloaded, as
-> Roman stated.
 
-Not being able to unload LSM would suck enormously.  At last count, we
-knew how to do this:
+--=-0B6POSbowId8qMszVYVh
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-  1) Unhook the function hooks (using a call table simplifies this)
-  2) Schedule on each CPU to ensure all tasks are out of the module
-  3) A schedule where the module count is incremented doesn't count
+> --- linux-2.5.39/drivers/s390/misc/chandev.c	Fri Sep 27 23:49:45 2002
+> +++ linux-2.5.39-s390/drivers/s390/misc/chandev.c	Mon Sep 30 14:34:55 200=
+2
+> @@ -24,6 +24,7 @@
+>  #include <asm/s390dyn.h>
+>  #include <asm/queue.h>
+>  #include <linux/kmod.h>
+> +#include <linux/tqueue.h>
+>  #ifndef MIN
+>  #define MIN(a,b) ((a<b)?a:b)
+>  #endif
+> @@ -2825,6 +2826,7 @@
+>  	struct stat statbuf;
+>  	char        *buff;
+>  	int         curr,left,len,fd;
+> +	mm_segment_t oldfs;
+> =20
+>  	/* if called from chandev_register_and_probe &=20
+>  	   the driver is compiled into the kernel the
+> @@ -2835,6 +2837,7 @@
+>  	if(in_interrupt()||current->fs->root=3D=3DNULL)
+>  		return;
+>  	atomic_set(&chandev_conf_read,TRUE);
+> +	oldfs =3D get_fs();
+>  	set_fs(KERNEL_DS);
+>  	if(stat(CHANDEV_FILE,&statbuf)=3D=3D0)
+>  	{
+> @@ -2859,7 +2862,7 @@
+>  			vfree(buff);
+>  		}
+>  	}
+> -	set_fs(USER_DS);
+> +	set_fs(oldfs);
+>  }
+> =20
+>  static void chandev_read_conf_if_necessary(void)
 
-and we rely on the rule that and module code that could sleep must be
-bracketed by inc/dec of the module count.
+Ehm. Ok. This code STILL tries to read and parse config files. If you're
+fixing it, can you please fix it to NOT read and parse config files from
+inside the kernel? Please?=20
 
-Did somebody come up with a reason why this will not work?
+Greetings,
+   Arjan van de Ven
 
--- 
-Daniel
+
+--=-0B6POSbowId8qMszVYVh
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9mGIbxULwo51rQBIRAgawAJ9as+T56nxrdVJWGQaswN9moeyaQQCeLwQR
+LeKxJLFwMpeZn8fFa2Ce5C8=
+=CAsb
+-----END PGP SIGNATURE-----
+
+--=-0B6POSbowId8qMszVYVh--
+

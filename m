@@ -1,88 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265801AbRF2J0w>; Fri, 29 Jun 2001 05:26:52 -0400
+	id <S265807AbRF2JaM>; Fri, 29 Jun 2001 05:30:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265803AbRF2J0m>; Fri, 29 Jun 2001 05:26:42 -0400
-Received: from lsmls01.we.mediaone.net ([24.130.1.20]:63437 "EHLO
-	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S265801AbRF2J0Z>; Fri, 29 Jun 2001 05:26:25 -0400
-Message-ID: <3B3C4A67.1D03A916@kegel.com>
-Date: Fri, 29 Jun 2001 02:29:11 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christopher Smith <x@xman.org>
-CC: "Daniel R. Kegel" <dank@alumni.caltech.edu>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: A signal fairy tale
-In-Reply-To: <5.1.0.14.0.20010629011855.00a98098@imap.xman.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S265803AbRF2J3w>; Fri, 29 Jun 2001 05:29:52 -0400
+Received: from smtp.alcove.fr ([212.155.209.139]:4365 "EHLO smtp.alcove.fr")
+	by vger.kernel.org with ESMTP id <S265802AbRF2J3m>;
+	Fri, 29 Jun 2001 05:29:42 -0400
+Date: Fri, 29 Jun 2001 11:29:04 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: volodya@mindspring.com
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.4.5-ac12] New Sony Vaio Motion Eye camera driver
+Message-ID: <20010629112903.B30190@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+In-Reply-To: <E15A7os-0003e9-00@come.alcove-fr> <Pine.LNX.4.20.0106281504570.1132-100000@node2.localnet.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <Pine.LNX.4.20.0106281504570.1132-100000@node2.localnet.net>; from volodya@mindspring.com on Thu, Jun 28, 2001 at 03:11:22PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christopher Smith wrote:
+On Thu, Jun 28, 2001 at 03:11:22PM -0400, volodya@mindspring.com wrote:
+
+> I imagine it is either using ZV port or VIP/MPP connector - I'll be happy
+> to help you to get it to work, provided you know the part that produces
+> video stream.
+
+This part is described in the chip's doc here:
+	http://va.samba.org/picturebook/72002_E_.pdf
+
+Look at the page 9 where the connections between the chip and
+the video bus are described. The problem is that there are 2 possible
+modes (ZV-port or Digital YC), and I'm not sure which one Sony
+chose to use...
+
+> > Well, not quite... I've had several X lockups while using the YUV 
+> > acceleration code. Let's say one lockup per half an hour.
 > 
-> At 07:57 PM 6/27/2001 -0700, Daniel R. Kegel wrote:
-> >From: Christopher Smith <x@xman.org>
-> > >I guess the main thing I'm thinking is this could require some significant
-> > >changes to the way the kernel behaves. Still, it's worth taking a "try it
-> > >and see approach". If anyone else thinks this is a good idea I may hack
-> > >together a sample patch and give it a whirl.
-> >
-> >What's the biggest change you see?  From my (two-martini-lunch-tainted)
-> >viewpoint, it's just another kind of signal masking, sorta...
+> That's not supposed to happen - let me know what causes it.. what you are
+> using, etc..
+
+The lockups happen upon closing xawtv (used with xv output). Let's
+say one time in ten runs... Then the X server is dead, but I can
+still log in using the network and do whatever I want. But if I kill
+the X server the whole system freezes hard.
+
+> > but in 640x480 the framerate achieved with Xv is below the
+> > one I get by converting YUV->RGB in software...
 > 
-> Yeah, the more I think about it, the more I think this is just another
-> branch in the signal delivery code. Not necessarily too huge a change. I'll
-> hack on this over the weekend I think.
+> You have to be careful here - you can't write to the framebuffer without 
+> waiting for engine to go idle. Otherwise it'll lockup.
 
-Cool, have fun!
+??? That's not me, it's xawtv, through the XV facilities of the 
+X server which writes to the framebuffer... Or maybe I don't 
+understand the question...
 
-Feature checklist for future reference:
+Anyway, I've retested it with the latest ati.2 binaries and how
+the 640x480 xv speed seems to have improved (or something in
+my configuration changed, of course :-) ).
 
-If sigopen() has been called, and the file descriptor is still open,
-sigaction(x, 0, &foo) should show foo != SIG_DFL for compatibility
-with the traditional signal allocation scheme.
+> > (but no X driver recognizes this connector today). The motion jpeg
+> > chip this camera is based on definately has a video output.
+> 
+> I can help you get this to work.
 
-If sigopen() has been called, and the file descriptor is still open,
-sending a signal to the thread (or if posix, the process) that called
-sigopen() should cause the signal to stick until picked up by
-read(), or until close() is called on the fd(), in which case it will
-be delivered or picked up as normal.
+I'd like to, thanks.
 
-sigaction(x, &foo, 0) should return EBUSY if fd=sigopen(x) has been
-called but close(fd) has not yet been called.
+> > Or it could just be the application who gets YUV data from the chip
+> > then send it directly to the video board. Today this works, almost
+> > (because we need a patched X - read gatos - and a patched xawtv - in
+> > order to do scaling).
+> 
+> Try using xv_stream from ati_xv branch on gatos.
 
-Pseudocode:
+It won't work out of the box either (it uses only v4l read calls and
+doesn't support mmap, it assumes a capture size of 352x288 which this
+camera does not support etc). But it should be easy to patch it and
+make it work with this camera, just like I did with xawtv.
 
-  sigemptyset(&s);
-  sigaddset(SIGUSR1, &s);
-  fd=sigopen(&s);
-  m=read(fd, buf, n*sizeof(siginfo_t)) 
-  close(fd);
+Stelian.
 
-should probably be equivalent to
-
-  sigemptyset(&s);
-  sigaddset(SIGUSR1, &s);
-  struct sigaction newaction, oldaction;
-  newaction.sa_handler = dummy_handler;
-  newaction.sa_flags = SA_SIGINFO;
-  newaction.sa_mask = 0;
-  sigaction(SIGUSR1, &newaction, &oldaction);
-  for (i=0; i<n; i++)
-     if (sigwaitinfo(&s, buf+i))
-        break;
-  m = n * sizeof(siginfo_t);
-  sigaction(SIGUSR1, &oldaction, 0);
-
-(apologies if any of the above is wrong)
-
-But, um, Chris, could you check your library code to make sure you did
-the sigaction stuff?  Could it be that you forgot that, and if you did
-that properly, the main application would notice that you'd allocated
-a signal, and not suck up your signals?
-
-- Dan
+PS: this hasn't much to do with the kernel anymore, I suggest we
+take this discussion off list now. I'm not sure neither if Linus
+is really interested in getting a copy of this. :-)
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+|---------------- Free Software Engineer -----------------|
+| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+|------------- Alcôve, liberating software ---------------|

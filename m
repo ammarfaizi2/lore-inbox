@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265151AbTF2Uqx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 16:46:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264908AbTF2Unz
+	id S264027AbTF2Unt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 16:43:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264835AbTF2Um5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 16:43:55 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:58629 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264899AbTF2Unc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 16:43:32 -0400
-Date: Sun, 29 Jun 2003 21:57:45 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Ricardo Galli <gallir@uib.es>, linux-kernel@vger.kernel.org
-Subject: Re: Dell vs. GPL
-Message-ID: <20030629215745.C5653@flint.arm.linux.org.uk>
-Mail-Followup-To: Jamie Lokier <jamie@shareable.org>,
-	Ricardo Galli <gallir@uib.es>, linux-kernel@vger.kernel.org
-References: <200306291624.47221.gallir@uib.es> <20030629195003.GF26258@mail.jlokier.co.uk> <200306292158.52878.gallir@uib.es> <20030629204210.GA26758@mail.jlokier.co.uk>
+	Sun, 29 Jun 2003 16:42:57 -0400
+Received: from h80ad24fc.async.vt.edu ([128.173.36.252]:6273 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265762AbTF2UmT (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 16:42:19 -0400
+Message-Id: <200306292056.h5TKuPEA005995@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       davej@codemonkey.org.uk
+Subject: Re: 2.5.73-mm2 - odd audio problem, bad intel8x0/ac97 clocking. 
+In-Reply-To: Your message of "Sun, 29 Jun 2003 21:33:33 BST."
+             <1056918812.16255.15.camel@dhcp22.swansea.linux.org.uk> 
+From: Valdis.Kletnieks@vt.edu
+References: <200306282131.h5SLVjGk001833@turing-police.cc.vt.edu> <20030628171036.4af51e08.akpm@digeo.com> <200306291810.h5TIApEA002032@turing-police.cc.vt.edu>
+            <1056918812.16255.15.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030629204210.GA26758@mail.jlokier.co.uk>; from jamie@shareable.org on Sun, Jun 29, 2003 at 09:42:10PM +0100
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Content-Type: multipart/signed; boundary="==_Exmh_-1548410243P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 29 Jun 2003 16:56:25 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So, in the UK, you lose some (non-transferable) moral rights by virtue
-> of it being a computer program, but not all moral rights.  In
-> particular you don't have the moral right to be identified as author
-> or director of the work, or the right to object to derogatory
-> treatment of the work.
+--==_Exmh_-1548410243P
+Content-Type: text/plain; charset=us-ascii
 
-Now go back and read the URL Richard posted:
+On Sun, 29 Jun 2003 21:33:33 BST, Alan Cox said:
 
-	http://europa.eu.int/scadplus/leg/en/lvb/l26027.htm
+> > Hmm.. wonder why it's 40K rather than the expected 50K...
+> 
+> Lots of laptops clock the i810 audio off an existing clock and software
+> fix up the difference. Saves components.
 
-particularly (7).  Next, you need to find out what happened when this
-later piece of law got passed through parliament:
+And works fine until the speedstep stuff leaves you running at 1.6G
+but jiffies_per_loop set for 1.2G, which is why mdelay(50) only
+waited 40ms.  ;)
 
-	http://www.hmso.gov.uk/si/si1992/Uksi_19923233_en_5.htm
+--==_Exmh_-1548410243P
+Content-Type: application/pgp-signature
 
-Note that the Copyright, Designs and Patents Act 1988 seems to have
-been ammended.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+iD8DBQE+/1J5cC3lWbTT17ARAgf3AKCw3DwVkYyeTNjX5WmRgutQxsLYrgCeJynS
+cSbhYOgGDkrfZZODmtt5Z+I=
+=hcBs
+-----END PGP SIGNATURE-----
 
+--==_Exmh_-1548410243P--

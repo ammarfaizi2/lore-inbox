@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285363AbRLGBax>; Thu, 6 Dec 2001 20:30:53 -0500
+	id <S285362AbRLGBgn>; Thu, 6 Dec 2001 20:36:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285364AbRLGBan>; Thu, 6 Dec 2001 20:30:43 -0500
-Received: from daytona.gci.com ([205.140.80.57]:57357 "EHLO daytona.gci.com")
-	by vger.kernel.org with ESMTP id <S285363AbRLGBaa>;
-	Thu, 6 Dec 2001 20:30:30 -0500
-Message-ID: <BF9651D8732ED311A61D00105A9CA31506DB3FA5@berkeley.gci.com>
-From: Leif Sawyer <lsawyer@gci.com>
-To: Tim Hockin <thockin@sun.com>, Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] eepro100 - need testers
-Date: Thu, 6 Dec 2001 16:30:12 -0900 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S285364AbRLGBgd>; Thu, 6 Dec 2001 20:36:33 -0500
+Received: from mtiwmhc23.worldnet.att.net ([204.127.131.48]:16547 "EHLO
+	mtiwmhc23.worldnet.att.net") by vger.kernel.org with ESMTP
+	id <S285362AbRLGBg2>; Thu, 6 Dec 2001 20:36:28 -0500
+Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
+From: Cory Bell <cory.bell@usa.net>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: john@deater.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20011206170335.03856f7b.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.4.33.0112060938340.32381-100000@pianoman.cluster.toy>
+	<1007685691.6675.1.camel@localhost.localdomain> 
+	<20011206170335.03856f7b.rddunlap@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.0 (Preview Release)
+Date: 06 Dec 2001 17:27:20 -0800
+Message-Id: <1007688442.6675.8.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Hockin responded to
-> Jeff Garzik who wrote:
->  
->> This patch got me thinking about net driver ring sizes in 
->> general.  When you are talking thousands of packets per second
->> at 100 mbit, a larger ring size than the average 32-64 seems
->> to make sense too.
+On Thu, 2001-12-06 at 17:03, Randy.Dunlap wrote:
+> Hi-
 > 
-> Well, the math for the very worst case is something like: 
-> 
-> 100,000,000  bits/sec
-> /8  = 12500000  bytes/sec
-> /64 bytes/ping = 195312.5  ping/sec
-> /100 = 1953 ping/jiffy
-> rounded to 2048 /2 = 1024 rx buffers per 1/2 jiffie.  
-> 
-> 1024 means you can withstand a wire-speed storm while 
-> interrupting twice per jiffy.
+> Did your search for "$PIR" or "RIP$" ?
+> It is suppsed to be the latter (little-endian).
 
-Given this, and the ever-upward climb in ethernet speed,
-what would be the dangers involved in making this a run-time
-option?
+Tried both. The flash BIOS update might be reading system specific stuff
+and then appending it to the new update, though. Maybe they have
+separate "code" and data areas, and the the data part never gets
+overwritten.
 
-As soon as we detect the device, we know what it's max speed is,
-and we can then build the ring size base on that knowledge.
+Would you happen to have any thoughts or advice WRT the problem we have
+and the proper method of addressing it? Absent a BIOS fix, of course,
+which I imagine would be the ultimate solution.
 
-just some ignorant thoughts..
+-Cory
 

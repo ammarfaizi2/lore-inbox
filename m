@@ -1,61 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269006AbUIQQDZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268968AbUIQQ04@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269006AbUIQQDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 12:03:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269012AbUIQQDC
+	id S268968AbUIQQ04 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 12:26:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269028AbUIQQYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 12:03:02 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:59287 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S268995AbUIQP7v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 11:59:51 -0400
-Date: Fri, 17 Sep 2004 17:59:44 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Yuval Turgeman <yuvalt@gmail.com>
-cc: sam@ravnborg.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Menuconfig search changes - pt. 3
-In-Reply-To: <9ae345c004091415197ea06621@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0409171752540.877@scrub.home>
-References: <20040914121401.GA13531@aduva.com>  <Pine.LNX.4.61.0409141613050.877@scrub.home>
- <9ae345c004091415197ea06621@mail.gmail.com>
+	Fri, 17 Sep 2004 12:24:13 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:38886 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S269008AbUIQQOU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 12:14:20 -0400
+Date: Fri, 17 Sep 2004 17:14:06 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Stelian Pop <stelian@popies.net>
+cc: James R Bruce <bruce@andrew.cmu.edu>, Andrew Morton <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>, Andrea Arcangeli <andrea@novell.com>
+Subject: Re: [RFC, 2.6] a simple FIFO implementation
+In-Reply-To: <20040917154834.GA3180@crusoe.alcove-fr>
+Message-ID: <Pine.LNX.4.44.0409171708210.3162-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 17 Sep 2004, Stelian Pop wrote:
+> + * The size will be rounded-up to a power of 2.
 
-On Wed, 15 Sep 2004, Yuval Turgeman wrote:
+> +	l = min(len, fifo->size - (fifo->in % fifo->size));
+> +	memcpy(fifo->buffer + (fifo->in % fifo->size), buffer, l);
 
-> > This still prints duplicate information, look at how
-> > ConfigMainWindow::setHelp() in qconf.cc does it. Your function should have
-> > pretty much the same structure, e.g.
-> 
-> I don't understand - duplicate information of what ?
-> Can you perhaps give me an example (it seems to me that i am actually
-> doing what qconf is doing... printing all the P_SELECT of the all the
-> properties, printing the dependencies and the reverse dependencies) ?
+> +	l = min(len, fifo->size - (fifo->out % fifo->size));
+> +	memcpy(buffer, fifo->buffer + (fifo->out % fifo->size), l);
 
-try the following:
+The moduli can now be replaced by faster masks "& (fifo->size - 1)".
 
-config FOO
-	bool "foo1"
-	select BAR
+Hugh
 
-config FOO
-	bool "foo2"
-
-config BAR
-	bool "bar"
-
-> > here you should iterate over all properties and print the info about it.
-> 
-> The search prints out plenty of info already - what info do you think
-> is missing ?
-
-defaults are missing. Don't concentrate too much on the menu structure 
-(it's only relevant for the prompts), if you want to print information 
-about a symbol, you have to primarily work with the properties.
-
-bye, Roman

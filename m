@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317627AbSFRVV5>; Tue, 18 Jun 2002 17:21:57 -0400
+	id <S317628AbSFRVaL>; Tue, 18 Jun 2002 17:30:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317628AbSFRVV4>; Tue, 18 Jun 2002 17:21:56 -0400
-Received: from ajax.rutgers.edu ([128.6.10.9]:36092 "EHLO ajax.rutgers.edu")
-	by vger.kernel.org with ESMTP id <S317627AbSFRVVz>;
-	Tue, 18 Jun 2002 17:21:55 -0400
-Date: Tue, 18 Jun 2002 17:21:49 -0400 (EDT)
-From: zaimi@pegasus.rutgers.edu
-To: linux-kernel@vger.kernel.org
-Subject: kernel upgrade on the fly
-Message-ID: <Pine.GSO.4.44.0206181703540.26846-100000@pegasus.rutgers.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317629AbSFRVaK>; Tue, 18 Jun 2002 17:30:10 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:33037 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317628AbSFRVaJ>; Tue, 18 Jun 2002 17:30:09 -0400
+Date: Tue, 18 Jun 2002 22:30:08 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: zaimi@pegasus.rutgers.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel upgrade on the fly
+Message-ID: <20020618223008.A17795@flint.arm.linux.org.uk>
+References: <Pine.GSO.4.44.0206181703540.26846-100000@pegasus.rutgers.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.GSO.4.44.0206181703540.26846-100000@pegasus.rutgers.edu>; from zaimi@pegasus.rutgers.edu on Tue, Jun 18, 2002 at 05:21:49PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Tue, Jun 18, 2002 at 05:21:49PM -0400, zaimi@pegasus.rutgers.edu wrote:
+>  has anybody worked or thought about a property to upgrade the kernel
+> while the system is running?  ie. with all processes waiting in their
+> queues while the resident-older kernel gets replaced by a newer one.
 
- has anybody worked or thought about a property to upgrade the kernel
-while the system is running?  ie. with all processes waiting in their
-queues while the resident-older kernel gets replaced by a newer one.
+This has been discussed over and over and over and over and over and over
+and over and over and over and over and over and over and over and over
+here; typically it comes up about once every six months.  Please see
+the FAQ: http://www.tux.org/lkml or alternatively search the lkml
+archives.
 
-I can see the advantage of such a thing when a server can have the kernel
-upgraded (major or minor upgrade) without disrupting the ongoing services
-(ok, maybe a small few-seconds delay). Another instance would be to
-switch between different kernels in the /boot/ directory (for testing
-purposes, etc.) without rebooting the machine.
-
-A search of the web resulted in no related information to the above so I
-dont know if such an issue has been raised before.
-
-Would anybody else think this to be an interesting property to have for
-the linux kernel or care to comment on this idea?
-
-Cheers,
-
-Adi Zaimi
-Rutgers University
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

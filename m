@@ -1,59 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263016AbUKTBPw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262872AbUKTBPv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263016AbUKTBPw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 20:15:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263074AbUKTBIl
+	id S262872AbUKTBPv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 20:15:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263058AbUKTBPr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 20:08:41 -0500
-Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:7049 "HELO
-	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263067AbUKTBH5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 20:07:57 -0500
-Message-ID: <419E98E7.1080402@yahoo.com.au>
-Date: Sat, 20 Nov 2004 12:07:51 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
+	Fri, 19 Nov 2004 20:15:47 -0500
+Received: from smtp2.wanadoo.fr ([193.252.22.29]:43226 "EHLO
+	mwinf0212.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S263049AbUKTBPI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 20:15:08 -0500
+Message-ID: <419EA8A3.7040002@wanadoo.fr>
+Date: Sat, 20 Nov 2004 03:14:59 +0100
+From: Olsimar <olsimar@wanadoo.fr>
+Reply-To: olsimar@wanadoo.fr
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Christoph Lameter <clameter@sgi.com>, akpm@osdl.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Hugh Dickins <hugh@veritas.com>, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: page fault scalability patch V11 [0/7]: overview
-References: <Pine.LNX.4.44.0411061527440.3567-100000@localhost.localdomain>  <Pine.LNX.4.58.0411181126440.30385@schroedinger.engr.sgi.com>  <Pine.LNX.4.58.0411181715280.834@schroedinger.engr.sgi.com>  <419D581F.2080302@yahoo.com.au>  <Pine.LNX.4.58.0411181835540.1421@schroedinger.engr.sgi.com>  <419D5E09.20805@yahoo.com.au>  <Pine.LNX.4.58.0411181921001.1674@schroedinger.engr.sgi.com> <1100848068.25520.49.camel@gaston> <Pine.LNX.4.58.0411190704330.5145@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0411191155180.2222@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0411191155180.2222@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Subject: patch for bttv help in 2.6.X
+Content-Type: multipart/mixed;
+ boundary="------------090301060203080108030405"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Fri, 19 Nov 2004, Christoph Lameter wrote:
-> 
->>Note that I have posted two other approaches of dealing with the rss problem:
-> 
-> 
-> You could also make "rss" be a _signed_ integer per-thread.
-> 
-> When unmapping a page, you decrement one of the threads that shares the mm 
-> (doesn't matter which - which is why the per-thread rss may go negative), 
-> and when mapping a page you increment it.
-> 
-> Then, anybody who actually wants a global rss can just iterate over
-> threads and add it all up. If you do it under the mmap_sem, it's stable,
-> and if you do it outside the mmap_sem it's imprecise but stable in the
-> long term (ie errors never _accumulate_, like the non-atomic case will 
-> do).
-> 
-> Does anybody care enough? Maybe, maybe not. It certainly sounds a hell of 
-> a lot better than the periodic scan.
-> 
+This is a multi-part message in MIME format.
+--------------090301060203080108030405
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I think this sounds like it might be a good idea. I prefer it to having
-the unbounded error of sloppy rss (as improbable as it may be in practice).
+Hi all
 
-The per thread rss may wrap (maybe not 64-bit counters), but even so,
-the summation over all threads should still end up being correct I
-think.
+I found one mistake in the help of bttv in 2.6.10-rc2-bk4 :
+
+"I2C bit-banging interfaces" in the character device section.
+
+or it's in the device drivers section since 2.6.X.
+
+I have made a patch for you.
+
+bye
+
+--- a/drivers/media/video/Kconfig       2004-11-19 20:46:04.000000000 +0100
++++ b/drivers/media/video/Kconfig       2004-11-20 02:57:07.000000000 +0100
+@@ -22,7 +22,7 @@
+          <file:Documentation/video4linux/bttv/> for more information.
+ 
+          If you say Y or M here, you need to say Y or M to "I2C 
+support" and
+-         "I2C bit-banging interfaces" in the character device section.
++         "I2C bit-banging interfaces" in the device drivers section.
+ 
+          To compile this driver as a module, choose M here: the
+          module will be called bttv.
+
+
+--------------090301060203080108030405
+Content-Type: text/plain;
+ name="patch-2.6.10-rc2-bk4-bttv-help"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-2.6.10-rc2-bk4-bttv-help"
+
+diff -Nru a/drivers/media/video/Kconfig b/drivers/media/video/Kconfig
+--- a/drivers/media/video/Kconfig	2004-11-19 20:46:04.000000000 +0100
++++ b/drivers/media/video/Kconfig	2004-11-20 02:57:07.000000000 +0100
+@@ -22,7 +22,7 @@
+ 	  <file:Documentation/video4linux/bttv/> for more information.
+ 
+ 	  If you say Y or M here, you need to say Y or M to "I2C support" and
+-	  "I2C bit-banging interfaces" in the character device section.
++	  "I2C bit-banging interfaces" in the device drivers section.
+ 
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called bttv.
+
+--------------090301060203080108030405--

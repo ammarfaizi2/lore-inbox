@@ -1,73 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318133AbSGMJ3y>; Sat, 13 Jul 2002 05:29:54 -0400
+	id <S318135AbSGMJhZ>; Sat, 13 Jul 2002 05:37:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318134AbSGMJ3x>; Sat, 13 Jul 2002 05:29:53 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:43970 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S318133AbSGMJ3x>;
-	Sat, 13 Jul 2002 05:29:53 -0400
-Date: Sat, 13 Jul 2002 11:32:36 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: A Guy Called Tyketto <tyketto@wizard.com>
-Cc: Ed Sweetman <safemode@speakeasy.net>, linux-kernel@vger.kernel.org
-Subject: Re: kbd not functioning in 2.5.25-dj2
-Message-ID: <20020713113236.A29227@ucw.cz>
-References: <1026545050.1203.116.camel@psuedomode> <20020713073717.GA9203@wizard.com> <1026547292.1224.132.camel@psuedomode> <1026549957.1224.136.camel@psuedomode> <20020713090702.GA1094@wizard.com>
+	id <S318134AbSGMJhY>; Sat, 13 Jul 2002 05:37:24 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:58304 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S318135AbSGMJhX>;
+	Sat, 13 Jul 2002 05:37:23 -0400
+Message-Id: <200207130940.g6D9e3g02976@zeus.kernel.org>
+From: "seeindesign" <seeindesign@hanmail.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: =?ISO-8859-1?Q?=C0=DA=BD=C5=C0=D6=B0=D4?= =?ISO-8859-1?Q?=B8=ED=C7=D4=C0=BB?= =?ISO-8859-1?Q?=B3=BB=B9=CC=BC=BC=BF=E4~(=B1=E2=BE=F7=B7=CE=B0=ED,=C8=A8=C6=E4=C0=CC=C1=F6?= =?ISO-8859-1?Q?=C0=FA=B7=C5=C7=CF=B0=D4?=)=?ISO-8859-1?Q?[=B1=A4=B0=ED]?=
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020713090702.GA1094@wizard.com>; from tyketto@wizard.com on Sat, Jul 13, 2002 at 02:07:02AM -0700
+Content-Type: text/plain; charset="ISO-2022-KR"
+Date: Sat, 13 Jul 2002 18:40:06 +0900
+Reply-To: "seeindesign" <seeindesign@hanmail.net>
+X-Priority: 1 (Highest)
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 13, 2002 at 02:07:02AM -0700, A Guy Called Tyketto wrote:
+원치 않는 메일이었다면 사과드립니다.
+이 메일은 일회성이므로 다시 메일이 가는 일은 없을 것입니다.
+------------------------------------------------
 
-> On Sat, Jul 13, 2002 at 04:45:56AM -0400, Ed Sweetman wrote:
-> > Nope, failure.  I'm not getting any reaction from the kernel at all
-> > about the keyboard.  I'm including my config 
-> 
->         You have network support compiled in. Are you able to get into the box 
-> remotely (ssh, telnet, etc)? If so, get onto the box, and mail me the output 
-> of `cat /proc/interrupts. I'd like to confirm something that's on my end as 
-> well. my guess is that  IRQ 1 is not listed. Another thing I should mention: 
-> I'm encountering this problem with 2.5.25, though I reported this in the 
-> 2.5.20-dj tree. Vanilla 2.5.25 still has the legacy API there, so I'm able to 
-> fall back on that.
+회사의 'CI' 에 대해서는 생각해 보셨습니까?
+대기업부터 작은 벤처 기업까지, 눈만 돌리면 보이는 것이
+기업 이미지를 표현한 로고 디자인이나 마크입니다.   
+하지만, 회사를 운영하는데 있어서 그런 부분은 별로 관심을
+두지 않으시거나 대강 만들어 사용하시는 경우가 많습니다. 
+그 이유는 중요성을 모르거나, 제작비용이 만만치 않기
+때문이겠죠.
+인터넷 사이트를 뒤져봐도, 제작하려면 수백만원에서
+수천만원까지 드는 실정입니다.작은 로고이미지에 많은 투자는
+필요 없다고 말하십니까?  
+  
+로고는 기업의 역사, 이념, 목표 등을 함축하고 있는 기업의
+얼굴입니다. 
+명함 하나를 건넨다고 해도 로고에 따라서 기업과 대표가 주는
+이미지의 차이는 매우 큽니다. 
+그런 의미에서 따로 광고를 하지 않더라도, 로고가 주는
+광고적 이미지 효과는 엄청납니다. 
+마케팅에 발휘하는 효용성.. 바로 그것이죠. 
+그래서 대기업들이 엄청난 돈을 들여가며, 로고를 바꾸는
+것입니다. 
+'선경'이라는 회사가 있었죠? 별로 대단한 회사라는 느낌이 안
+들었지만, 'SK'로 로고를 바꾸고  
+대기업이라는 이미지를 확실히 심어 주지 않았습니까? 
+이제 CI는 무슨 사업을 시작하던지 반드시 필요한 요소가
+되었습니다. 
+  
+그러나, 보통 기업에서 상당 비용을 CI제작에 투자하기란 쉬운
+일이 아닙니다. 
+때문에 CI는 대기업이 아니면 엄두도 못 낼 일이라고
+생각하시는 분이 많으실 지도 모릅니다.  
+그래서, 중요성을 아시면서도 대부분 직접 만드시거나 그냥
+서체를 한가지 선정해 사용하시게 됩니다. 
+  
+씨인디자인에서는 불필요한 비용을 최대한 절감하시도록, 
+필요한 부분만 의뢰가 가능하게 계획하였습니다. 
+필요하지 않을 수 있는 차량, 유니폼 등은 제외하고, 상담 후
+꼭 필요하신 부분만 최소비용으로 제작해 드립니다. 
+의뢰시 직접 찾아뵙고 자세한 상담을 해드리겠습니다. 
 
-Vanilla 2.5.25 still uses the original driver even if the new one was
-enabled. It isn't removed there. If both are enabled, they won't work.
 
--dj trees have the old driver removed, so the new one can work. In
-2.5.26 (or http://linux-input.bkbits.net:8080/linux-input) the new
-driver config option will disable the old one.
+http://www.see-in.com/
 
-> I haven't run a -dj kernel since 2.5.20-dj3. 
-> 
-> > CONFIG_INPUT=y
-> > #
-> > # Userland interfaces
-> > #
-> > CONFIG_INPUT_KEYBDEV=y
-> > CONFIG_INPUT_MOUSEDEV=y
-> > CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-> > CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-> > CONFIG_INPUT_EVDEV=y
-> > # CONFIG_INPUT_EVBUG is not set
-> > 
-> > CONFIG_SERIO=y
-> > # CONFIG_SERIO_I8042 is not set
-> 
->         IIRC, CONFIG_SERIO_I8042 must be set for you to have a keyboard 
-> present. This is the chipset that the keyboard and mouse use. This has to be 
-> set to y.
-> 
-> > CONFIG_I8042_REG_BASE=60
-> > CONFIG_I8042_KBD_IRQ=1
-> > CONFIG_I8042_AUX_IRQ=12
-> 
->         Rest looks fine. give that a go, and see what you get.
-
--- 
-Vojtech Pavlik
-SuSE Labs
+문의   ejkim@see-in.com

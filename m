@@ -1,61 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268297AbUIBM6L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268299AbUIBNOF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268297AbUIBM6L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 08:58:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268296AbUIBM6L
+	id S268299AbUIBNOF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 09:14:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268300AbUIBNOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 08:58:11 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:65449 "HELO ithnet.com")
-	by vger.kernel.org with SMTP id S268297AbUIBM6G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 08:58:06 -0400
-X-Sender-Authentication: net64
-Date: Thu, 2 Sep 2004 14:58:04 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Frank van Maarseveen <frankvm@xs4all.nl>
-Cc: torvalds@osdl.org, kangur@polcom.net, linux-kernel@vger.kernel.org
-Subject: Re: silent semantic changes with reiser4
-Message-Id: <20040902145804.796e561d.skraw@ithnet.com>
-In-Reply-To: <20040902112623.GA3059@janus>
-References: <20040829150231.GE9471@alias>
-	<4132205A.9080505@namesys.com>
-	<20040829183629.GP21964@parcelfarce.linux.theplanet.co.uk>
-	<20040829185744.GQ21964@parcelfarce.linux.theplanet.co.uk>
-	<41323751.5000607@namesys.com>
-	<20040829212700.GA16297@parcelfarce.linux.theplanet.co.uk>
-	<Pine.LNX.4.58.0408291431070.2295@ppc970.osdl.org>
-	<Pine.LNX.4.60.0408300009001.10533@alpha.polcom.net>
-	<Pine.LNX.4.58.0408291523130.2295@ppc970.osdl.org>
-	<20040902125156.2dc6fe97.skraw@ithnet.com>
-	<20040902112623.GA3059@janus>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 2 Sep 2004 09:14:04 -0400
+Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:59838 "EHLO
+	ti41.telemetry-investments.com") by vger.kernel.org with ESMTP
+	id S268299AbUIBNOA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 09:14:00 -0400
+Date: Thu, 2 Sep 2004 09:13:59 -0400
+From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+To: lkml@einar-lueck.de
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] net/ipv4 for Source VIPA support, kernel BK Head
+Message-ID: <20040902131359.GA11758@ti64.telemetry-investments.com>
+Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+	lkml@einar-lueck.de, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200409021401.42255.elueck@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200409021401.42255.elueck@de.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Sep 2004 13:26:23 +0200
-Frank van Maarseveen <frankvm@xs4all.nl> wrote:
+On Thu, Sep 02, 2004 at 02:01:42PM +0200, Einar Lueck wrote:
+> The complexity of the relevant setups necessitates an easy and 
+> requirements-driven configuration and solution approach. The overall 
+> concept of setting up a virtual device with a virtual IP adress and 
+> assigning this virtual IP adress as a Source VIPA to the devices which should
+> allow for a failover is well known from other operating system and expected 
+> by relevant enterprise customers.  IP routes and NAT allow to achieve the 
+> same effect with the exception mentioned above, but the corresponding 
+> configuration overhead is in the opinion of customers having enterprise 
+> setups too complex and complicated.  Our overall approach introduces 
+> this concept as a facility to address these requirements very clearly. 
 
-> On Thu, Sep 02, 2004 at 12:51:56PM +0200, Stephan von Krawczynski wrote:
-> > 
-> > I therefore declare as this years hot issue:
-> > How to use more than 32 GIDs on nfs? Frank van Maarseveens' patch being
->                        ^^
-> The limit for NFS is 16.
+The problem here is not the kernel, it's the awful state of network
+management in the common initscripts and routing daemons, which have not
+evolved far beyond the traditional (static) BSD model of interfaces,
+despite the qualitative leap in functionality brought on by Alexey's
+contributions to Linux 2.2, netfilter and vlans in 2.4, and now IPsec in 2.6.
 
-Yes, of course. Sorry for that exaggeration ;-)
+While policy routing, traffic control, netfilter, etc., are extremely
+powerful separately and in combination, there is no unified mechanism
+for managing different aspects of network configuration (addressing,
+redundancy, security, QoS, etc.) that cut across each of these kernel
+mechanisms.
 
-> > available for years I guess, but with 2.6 supporting lots of GIDs becoming
-> > very actual...
-> 
-> thank you for reminding me that I still need to port it to 2.6. The patch
-> came into existence around 2.2.17 IIRC.
+Several of the routing daemons (Quagga, Bird, etc.) have gotten partway
+there, but none is (AFAIK, correct me if I'm wrong) in a state where
+one can eliminate all of the other networking-related scripts from
+initscripts and just expect the daemon(s) to manage networking.
 
-Oh it will be very welcome once your done, the only way to circumvent the
-situation currently is to give world-rights, which is of course _bad_.
+It seems that effort would be better spent cleaning up userspace, by
+looking at use cases, identifying the right abstractions, and reifying
+them.  Choose a routing daemon, and turn it into a "Network Mgmt daemon".
 
-Thanks in advance for this patch,
-Stephan
+Should this be built on top of HAL/D-BUS?  I don't know, will HAL/D-BUS
+remain lightweight enough to be used in an embedded router?  I sure
+hope so.
+
+Regards,
+
+	Bill Rugolsky

@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264432AbRFST7n>; Tue, 19 Jun 2001 15:59:43 -0400
+	id <S264755AbRFSUCN>; Tue, 19 Jun 2001 16:02:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264755AbRFST7e>; Tue, 19 Jun 2001 15:59:34 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:46591 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S264432AbRFST7W>;
-	Tue, 19 Jun 2001 15:59:22 -0400
-Date: Tue, 19 Jun 2001 15:59:20 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Joerg Pommnitz <pommnitz@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-In-Reply-To: <20010619194850.80973.qmail@web13303.mail.yahoo.com>
-Message-ID: <Pine.GSO.4.21.0106191557030.22741-100000@weyl.math.psu.edu>
+	id <S264756AbRFSUCD>; Tue, 19 Jun 2001 16:02:03 -0400
+Received: from zmamail03.zma.compaq.com ([161.114.64.103]:17675 "EHLO
+	zmamail03.zma.compaq.com") by vger.kernel.org with ESMTP
+	id <S264755AbRFSUBz>; Tue, 19 Jun 2001 16:01:55 -0400
+Reply-To: <martin.frey@compaq.com>
+From: "Martin Frey" <frey@scs.ch>
+To: "'Alan Cox'" <laughing@shared-source.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: Linux 2.4.5-ac16  (linux_booted_ok: only on Intel implemented)
+Date: Tue, 19 Jun 2001 16:01:42 -0400
+Message-ID: <014801c0f8fa$a98ebbb0$0100007f@SCHLEPPDOWN>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+In-Reply-To: <20010619183135.A24337@lightning.swansea.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+linux_booted_ok(), called from init/main.c is not implemented on
+other architectures than Intel.
 
-On Tue, 19 Jun 2001, Joerg Pommnitz wrote:
-
->  > But that foregoes the point that the code is far more complex and
->  > harder to make 'obviously correct', a concept that *does* translate
->  > well to userspace.
-> 
-> Check the state threads library from SGI:
-> http://oss.sgi.com/projects/state-threads/
-> 
-> It should provide the code clarity one is used from
-> "real" threads and the efficiency of a state machine.
-
-... along with usual quality of SGI design and their normal attention
-to potential races. Thank you, I'll pass.
-
+Regards, Martin

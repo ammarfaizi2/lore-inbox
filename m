@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262381AbVBBM3y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262533AbVBBMrd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262381AbVBBM3y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 07:29:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262383AbVBBM3y
+	id S262533AbVBBMrd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 07:47:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262549AbVBBMrd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 07:29:54 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:63909 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S262525AbVBBM3k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 07:29:40 -0500
-References: <1107228501.41fef755e66e8@webmail.grupopie.com>
-            <84144f0205020108441679cbef@mail.gmail.com>
-            <41FFB5A1.20100@grupopie.com>
-            <84144f02050201232324bebb3f@mail.gmail.com>
-            <4200C4D3.9060805@grupopie.com>
-In-Reply-To: <4200C4D3.9060805@grupopie.com>
-From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: Pekka Enberg <penberg@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: Re: 1/7 create kstrdup library function
-Date: Wed, 02 Feb 2005 14:29:39 +0200
+	Wed, 2 Feb 2005 07:47:33 -0500
+Received: from main.gmane.org ([80.91.229.2]:2779 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262533AbVBBMr0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 07:47:26 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Richard Hughes <ee21rh@surrey.ac.uk>
+Subject: Re: Linux hangs during IDE initialization at boot for 30 sec
+Date: Wed, 2 Feb 2005 12:46:27 +0000 (UTC)
+Message-ID: <loom.20050202T134427-571@post.gmane.org>
+References: <200502011257.40059.brade@informatik.uni-muenchen.de>  <pan.2005.02.01.20.21.46.334334@surrey.ac.uk> <1107299901.5624.28.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <courier.4200C7B3.00003E1B@courier.cs.helsinki.fi>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 20.133.0.12 (Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.7.5) Gecko/20041107 Firefox/1.0)
+X-Gmane-MailScanner: Found to be clean
+X-Gmane-MailScanner: Found to be clean
+X-MailScanner-From: glk-linux-kernel@m.gmane.org
+X-MailScanner-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paulo Marques writes:
-> I agree with the "is like kcalloc" argument in the sense that it does an 
-> allocation + something else. But in this case the "something else" is in 
-> fact a string operation, so this just seem to be in the middle.
+Benjamin Herrenschmidt <benh <at> kernel.crashing.org> writes:
+> This looks like bogus HW, or bogus list of IDE interfaces ...
 
-Sure, but now you're forcing all users of <string.h> to depend on the slab 
-as well. Conceptually, kstrdup() is an initializing memory allocator, not a 
-string operation, which is why I think it should go into slab.c. 
+How can I test to see if this is the case?
 
-Paulo Marques writes:
-> I don't like this approach. From a quick grep you get 4972 kmalloc's in .c 
-> files in the kernel tree and only 35 kstrdup's. Moving kstrdup around is 
-> still just 7 patches, kmalloc is a much bigger problem.
-
-Hmm? Yes, moving the declaration from slab.h to some other header is 
-painful. I only talked about moving the definition from slab.c. 
-
-Paulo Marques writes:
-> Anyway, as I said before, if more people believe that moving kstrdup into 
-> mm/slab.c is the way to go, then its fine by me. The problem I was trying 
-> to solve was having several versions of strdup-like functions all around 
-> the kernel, and this problem gets fixed either way. Right now, the poll 
-> goes something like this: 
 > 
-> string.c: me, Rusty Russell
-> slab.c: Pekka Enberg 
-> 
-> I think we need more votes :)
+> The IDE layer waits up to 30 seconds for a device to drop it's busy bit,
+> which is necessary for some drives that aren't fully initialized yet.
 
-Could we also get Rusty's confirmation on this? 
+Sure, make sense.
 
-       Pekka 
+> I suspect in your case, it's reading "ff", which indicates either that
+> there is no hardware where the kernel tries to probe, or that there is
+> bogus IDE interfaces which don't properly have the D7 line pulled low so
+> that BUSY appears not set in absence of a drive.
+
+Right. How do I find the value of D7?
+
+> I'm not sure how the list of intefaces is probed on this machine, that's
+> probably where the problem is.
+
+Thanks, Richard Hughes
+
+
+
 

@@ -1,40 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261627AbUK2E5M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbUK2FCV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261627AbUK2E5M (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 23:57:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbUK2E5M
+	id S261631AbUK2FCV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 00:02:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbUK2FCV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 23:57:12 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15563 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261627AbUK2E5J
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 23:57:09 -0500
-Date: Mon, 29 Nov 2004 04:57:06 +0000
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
-       Greg KH <greg@kroah.com>, David Woodhouse <dwmw2@infradead.org>,
-       Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
-       hch@infradead.org, aoliva@redhat.com, linux-kernel@vger.kernel.org,
-       libc-hacker@sources.redhat.com, Mariusz Mazur <mmazur@kernel.pl>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-Message-ID: <20041129045705.GM26051@parcelfarce.linux.theplanet.co.uk>
-References: <19865.1101395592@redhat.com> <20041125165433.GA2849@parcelfarce.linux.theplanet.co.uk> <1101406661.8191.9390.camel@hades.cambridge.redhat.com> <20041127032403.GB10536@kroah.com> <16810.24893.747522.656073@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org> <41AAA746.5000003@pobox.com>
-Mime-Version: 1.0
+	Mon, 29 Nov 2004 00:02:21 -0500
+Received: from web13527.mail.yahoo.com ([216.136.173.208]:57772 "HELO
+	web13527.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261631AbUK2FCQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 00:02:16 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=lrnHNZEwoarRENcdbYgLGWorFV/DkW/OIP7N/da+s3o1awycdi4Fl3L0dGKxgPCTq1eq2+2jHXtroebifIhv3nEA1FjEGW2Ll59ZwJkadDG6byxyOITjsG4+5hKGKXNceGeQLORlNjZu0VWvAR0Y/wKvqQH7R5NSz+ZOroWxRZI=  ;
+Message-ID: <20041129050215.7465.qmail@web13527.mail.yahoo.com>
+Date: Sun, 28 Nov 2004 21:02:15 -0800 (PST)
+From: Richard Patterson <vectro@yahoo.com>
+Subject: Re: Seekable pipes
+To: jengelh@linux01.gwdg.de, linux-kernel@vger.kernel.org
+In-Reply-To: <20041128120006.312.69326.Mailman@lists.us.dell.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41AAA746.5000003@pobox.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 28, 2004 at 11:36:22PM -0500, Jeff Garzik wrote:
-> If people want to go beyond that, IMHO it would be simple and easy to 
-> start putting new kernel headers in include/kernel (or somesuch).  That 
-> way there are no massive reorganizations; kernel-specific stuff gets 
-> slowly migrated to a kernel-specific area.
+Jan,
 
-ITYM "to areas where it actually gets used".  A _lot_ in include/* is
-used only by a couple of drivers and should've been sitting in
-drivers/*/* instead.
+> > I want to implement an interface for seekable
+pipes
+> > (and FIFOs) in the Linux kernel.
+
+> Why not simply create two pipes, and use one for the
+> data (from writer to reader) and the other for 
+> control (r->w)? Then you would  not need to poke
+> with the kernel after all.
+
+The idea is that the reading side dosen't know it's a
+pipe -- thus this interface can be used to provide
+file-like access to non-filesystem objects like HTTP
+files or Postgres large objects. With kernel support,
+the reading side can be unaware that it is reading
+from a pipe -- it just seeks. So you can do wierd
+things like wget http://stuff/stuff.pdf | xpdf
+/dev/stdin -- even though xpdf doesn't support piped
+input.
+
+However, Chris Siebenmann pointed out that a file
+descriptor can be passed to other processes with
+fork() or domain sockets -- thus the writer side of
+the pipe would have to support multiple readers with
+distinct positions. Which is a lot hairer than the
+interface I outlined earlier.
+
+Cheers,
+
+--Ian Turner
+
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Take Yahoo! Mail with you! Get it on your mobile phone. 
+http://mobile.yahoo.com/maildemo 

@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136774AbRECMcU>; Thu, 3 May 2001 08:32:20 -0400
+	id <S136782AbRECMeA>; Thu, 3 May 2001 08:34:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136782AbRECMcK>; Thu, 3 May 2001 08:32:10 -0400
-Received: from [195.6.125.97] ([195.6.125.97]:26640 "EHLO looping.sycomore.fr")
-	by vger.kernel.org with ESMTP id <S136774AbRECMb4>;
-	Thu, 3 May 2001 08:31:56 -0400
-Date: Thu, 3 May 2001 14:29:29 +0200
-From: =?ISO-8859-1?Q?s=E9bastien?= person <sebastien.person@sycomore.fr>
-To: liste noyau linux <linux-kernel@vger.kernel.org>,
-        liste dev network device <netdev@oss.sgi.com>
-Subject: NEWBEE "reverse ioctl" or someting like
-Message-Id: <20010503142929.773147bf.sebastien.person@sycomore.fr>
-X-Mailer: Sylpheed version 0.4.64 (GTK+ 1.2.6; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S136783AbRECMdl>; Thu, 3 May 2001 08:33:41 -0400
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:4877 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S136782AbRECMde>; Thu, 3 May 2001 08:33:34 -0400
+Message-Id: <200105031232.f43CW7aA009990@pincoya.inf.utfsm.cl>
+To: John Stoffel <stoffel@casc.com>
+cc: esr@thyrsus.com, cate@dplanet.ch, CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: Requirement of make oldconfig [was: Re: [kbuild-devel] Re: CML2 1.3.1, aka ...] 
+In-Reply-To: Message from John Stoffel <stoffel@casc.com> 
+   of "Wed, 02 May 2001 16:12:07 -0400." <15088.27159.630786.913424@gargle.gargle.HOWL> 
+Date: Thu, 03 May 2001 08:32:07 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+John Stoffel <stoffel@casc.com> said:
 
-I've made a network driver wich is attached to the serial port.
-The network hardware is able to return information to the pc. theses
-informations are belong to the configuration of the hardware. I 
-succeed on receive information in the driver but I've no idea to alert
-higher process (like configuration app ...) that I've received something
-(wich is not network data like TCP or ARP etc ...).
+[...]
 
-I think that use of pipe isn't preconised because I must fork process
-to use pipe, I search something like ioctl but in the other way : 
+> No, we're just asking you to make the CML2 parser more tolerant of old
+> and possibly broken configs.
 
- kernel process ---> user process
+It is _much_ easier on everybody involved to just bail out and ask the user
+(once!) to rebuild the configuration from scratch starting from the defaults.
 
-Is somebody know the best and easy way ??
+If you support broken configurations in any way, your program is just
+wildly guessing what they did mean. The exact (and very probably not in any
+way cleanly thought out) behaviour in corner cases then becomes "the way
+things work", and we end up in an unmaintainable mess yet again.
 
-thank (I hope this is the right place to ask)
-
-sebastien person
+Please don't.
+-- 
+Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

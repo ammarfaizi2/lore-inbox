@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbUHBSyk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbUHBTBL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbUHBSyk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 14:54:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUHBSyk
+	id S261857AbUHBTBL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 15:01:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbUHBTBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 14:54:40 -0400
-Received: from mail.tmr.com ([216.238.38.203]:51463 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S261563AbUHBSyi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 14:54:38 -0400
-Date: Mon, 2 Aug 2004 14:48:51 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: New dev model (was [PATCH] delete devfs)
-In-Reply-To: <m38yd3j02q.fsf@defiant.pm.waw.pl>
-Message-ID: <Pine.LNX.3.96.1040802144144.17578B-100000@gatekeeper.tmr.com>
+	Mon, 2 Aug 2004 15:01:11 -0400
+Received: from smtp02.ya.com ([62.151.11.161]:25234 "EHLO smtp.ya.com")
+	by vger.kernel.org with ESMTP id S261857AbUHBTBC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 15:01:02 -0400
+From: Luis Miguel =?iso-8859-1?q?Garc=EDa_Mancebo?= <ktech@wanadoo.es>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: USB troubles in rc2
+Date: Mon, 2 Aug 2004 21:00:54 +0200
+User-Agent: KMail/1.6.82
+Cc: akpm@osdl.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200408022100.54850.ktech@wanadoo.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jul 2004, Krzysztof Halasa wrote:
+Hello,
 
-> Bill Davidsen <davidsen@tmr.com> writes:
-> 
-> > And akpm posted that he intended to remove cryptoloop, while others
-> > are calling for the end to devfs. Not having features disappear is
-> > part of stable, I would think, not just "not oops more often."
-> 
-> OTOH removing things declared "obsolete" for a long time doesn't make
-> it unstable - does it?
+	I have a nforce2 motherboard. I have to report that recent changes in usb 
+code make my board don't work at all.
 
-Obsolete for a long time? This is a new feature in 2.6! It was just added
-and was the hook that got some people to go to 2.6 in some cases, to have
-some useful security in laptops. To remove it would effectively block
-following newer kernels when security holes are found, since dm-crypt
-would mean installing new software, training the support group,
-reformatting the disk to generate a partition to use, etc.
+	In 2.6.7-mm7, I just reverted the bk-usb.patch and the things started to 
+work, but now it's on mainstream, so I cannot make it work.
 
-When major new features just added to a stable series vanish after they
-are adopted I most definitely do call that unstable.
+	Do you want for me to do some tests?
 
-And dm-crypt is vulnerable to the same types of attacks, it's just harder
-to use.
+Thanks.
+
+P.S.: Please, CC me as I'm not subscribed.
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Luis Miguel García Mancebo
+Universidad de Deusto / Deusto University
+Spain

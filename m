@@ -1,68 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268883AbUHLXRt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268899AbUHLXRm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268883AbUHLXRt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 19:17:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268890AbUHLXQ7
+	id S268899AbUHLXRm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 19:17:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268888AbUHLXQu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 19:16:59 -0400
-Received: from gate.crashing.org ([63.228.1.57]:7150 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S268866AbUHLXKN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 19:10:13 -0400
-Subject: Re: [PATCH] SCSI midlayer power management
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Nathan Bryant <nbryant@optonline.net>,
-       Linux SCSI Reflector <linux-scsi@vger.kernel.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <1092339247.1755.36.camel@mulgrave>
-References: <4119611D.60401@optonline.net>
-	 <20040811080935.GA26098@elf.ucw.cz> <411A1B72.1010302@optonline.net>
-	 <1092231462.2087.3.camel@mulgrave> <1092267400.2136.24.camel@gaston>
-	 <1092314892.1755.5.camel@mulgrave> <20040812131457.GB1086@elf.ucw.cz>
-	 <1092328173.2184.15.camel@mulgrave>  <20040812191120.GA14903@elf.ucw.cz>
-	 <1092339247.1755.36.camel@mulgrave>
-Content-Type: text/plain
-Message-Id: <1092351878.26425.15.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 13 Aug 2004 09:04:39 +1000
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Aug 2004 19:16:50 -0400
+Received: from mail.broadpark.no ([217.13.4.2]:13490 "EHLO mail.broadpark.no")
+	by vger.kernel.org with ESMTP id S268880AbUHLXKx convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 19:10:53 -0400
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+References: <1092124796.1438.3695.camel@imladris.demon.co.uk>
+	<yw1x7js79vn3.fsf@kth.se> <411BF1E6.5060309@tmr.com>
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Date: Fri, 13 Aug 2004 01:10:53 +0200
+In-Reply-To: <411BF1E6.5060309@tmr.com> (Bill Davidsen's message of "Thu, 12
+ Aug 2004 18:40:38 -0400")
+Message-ID: <yw1xpt5wgdfm.fsf@kth.se>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-08-13 at 05:34, James Bottomley wrote:
-> On Thu, 2004-08-12 at 15:11, Pavel Machek wrote:
-> > Ok, but what happens on next resume? If coherent mbox is at exactly
-> > same place at every boot I guess it could even work, but...
-> 
-> Er, well this is a huge problem then.  Even if DMA were stopped, the
-> registers for all these locations need to be altered to change the
-> location of the DMA mboxes.  This isn't just a SCSI problem, it's a
-> general device problem (most devices having mboxes programmed by
-> register).  If we can't rely on the resuming kernel setting up these
-> registers for us to exactly what they were in the resume image, then
-> we're in a bit of trouble.
+Bill Davidsen <davidsen@tmr.com> writes:
 
-Ugh ? What do you mean ? The suspend kernel will snapshot the kernel
-memory at one point, after the device suspend call has been done. If
-the device relies on some changes done after that, then it's broken
-somewhat.
+> Måns Rullgård wrote:
+>> David Woodhouse <dwmw2@infradead.org> writes:
+>
+>>>That seems reasonable, but _only_ if burnfree is not enabled. If the
+>>>hardware _supports_ burnfree but it's disabled, the warning should also
+>>>recommend turning it on.
+>> I'm also wondering why cdrecord disables it by default.  Can it ever
+>> do any harm being enabled?
+>>
+>
+> In theory, yes. It makes the track longer, so it could in theory make
+> something large not fit. In practice, there really are some readers
+> which skip on audio when they see the blanks. As Joerg which ones, but
+> other people have agreed that it does happen.
 
-The resume will restore all memory, not MMIO of course, and it's up
-to the driver to do whatever is necessary to restore operations
-properly.
+As has been pointed out by others, the alternative is a wasted disk.
+Even if the quality is degraded slightly where burnfree kicks in, the
+disk may still be suitable for its intended use.  CDs are often used
+for moving some data to another machine and discarded after a single
+use.  In these cases, a lower resistance to scratches is not a
+problem.  For long-term storage the situation could of course be
+different.
 
-> Architecturally what you are trying to do is to re POST the SCSI card. 
-> Except it's the kernel's job to POST it, so the kernel init code needs
-> to be re-run.  I assume that's what the pci suspend/resume calls are
-> supposed to do?
-
-Yes.
-
-The problem is the same with suspend-to-RAM basically.
-
-Ben.
-
-
+-- 
+Måns Rullgård
+mru@kth.se

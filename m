@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292535AbSB0Oqe>; Wed, 27 Feb 2002 09:46:34 -0500
+	id <S292508AbSB0Oqy>; Wed, 27 Feb 2002 09:46:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292533AbSB0Oq1>; Wed, 27 Feb 2002 09:46:27 -0500
-Received: from ns.suse.de ([213.95.15.193]:38918 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S292508AbSB0OqL>;
-	Wed, 27 Feb 2002 09:46:11 -0500
-To: Bjorn Wesen <bjorn.wesen@axis.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What is TCPRenoRecoveryFail ?
-In-Reply-To: <Pine.LNX.3.96.1020227144128.18713E-100000@fafner.axis.se.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 27 Feb 2002 15:46:07 +0100
-In-Reply-To: Bjorn Wesen's message of "27 Feb 2002 14:49:43 +0100"
-Message-ID: <p73664j9e4w.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S292533AbSB0Oqq>; Wed, 27 Feb 2002 09:46:46 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:14611 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S292508AbSB0Oqe>; Wed, 27 Feb 2002 09:46:34 -0500
+Message-ID: <3C7CF0F6.5060300@evision-ventures.com>
+Date: Wed, 27 Feb 2002 15:45:10 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+CC: Roberto Nibali <ratz@drugphish.ch>, Helge Hafting <helgehaf@aitel.hist.no>,
+        Nathan <wfilardo@fuse.net>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        Dave Jones <davej@suse.de>, Jaroslav Kysela <perex@perex.cz>
+Subject: Re: 2.5.5-dj2 compile failures
+In-Reply-To: <Pine.LNX.4.44.0202271614450.16294-100000@netfinity.realnet.co.sz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bjorn Wesen <bjorn.wesen@axis.com> writes:
-
-> Around the time of the packet loss happened, the counter
-> TCPRenoRecoveryFail increased by one, but I'm not sufficiently into the
-> TCP code to figure out why that happens and if that is the reason why
-> Linux stop retransmitting anything.. any ideas ?
+Just a sinde note
+> -	snd_pcm_lib_preallocate_isa_pages_for_all(pcm, 64*1024, chip->dma1 > 3 || chip->dma2 > 3 ? 128*1024 : 64*1024, GFP_KERNEL|GFP_DMA);
+> +	snd_pcm_lib_preallocate_isa_pages_for_all(pcm, 64*1024, chip->dma1 > 3 || chip->dma2 > 3 ? 128*1024 : 64*1024);
 
 
-TCPRenoRecovery fail just means that fast retransmit didn't help and
-it is going into a full retransmit. Fast retransmit is a short cut retransmit
-mechanism that works faster when only a few packets got lost. You lost 
-more than 1. You have to find out why you are losing them.
+I think this method should be named as follows:
 
--Andi
+i_have_no_fear_of_wirst_desease_from_programming_linux_alsa_or_sound_drivers_at_all()
+
+
+BAH! It should be: spl_alloc_isap() at most!
+
+
+

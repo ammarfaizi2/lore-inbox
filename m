@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbUFEKVH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264586AbUFEKYz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261181AbUFEKVH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 06:21:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbUFEKVH
+	id S264586AbUFEKYz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 06:24:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264398AbUFEKYz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 06:21:07 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:42383 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261181AbUFEKVE (ORCPT
+	Sat, 5 Jun 2004 06:24:55 -0400
+Received: from cantor.suse.de ([195.135.220.2]:65504 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266069AbUFEKWl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 06:21:04 -0400
-Message-ID: <40C19E85.7090809@colorfullife.com>
-Date: Sat, 05 Jun 2004 12:20:53 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+	Sat, 5 Jun 2004 06:22:41 -0400
+Date: Sat, 5 Jun 2004 12:22:39 +0200
+From: Andi Kleen <ak@suse.de>
+To: Anton Blanchard <anton@samba.org>
+Cc: manfred@colorfullife.com, akpm@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Use numa policy API for boot time policy
-References: <20040605034356.1037d299.ak@suse.de>	<40C12865.9050803@colorfullife.com> <20040605041813.75e2d22d.ak@suse.de>
-In-Reply-To: <20040605041813.75e2d22d.ak@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Message-Id: <20040605122239.4a73f5e8.ak@suse.de>
+In-Reply-To: <20040605023211.GA16084@krispykreme>
+References: <20040605034356.1037d299.ak@suse.de>
+	<40C12865.9050803@colorfullife.com>
+	<20040605041813.75e2d22d.ak@suse.de>
+	<20040605023211.GA16084@krispykreme>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
+On Sat, 5 Jun 2004 12:32:12 +1000
+Anton Blanchard <anton@samba.org> wrote:
 
->On Sat, 05 Jun 2004 03:56:53 +0200
->Manfred Spraul <manfred@colorfullife.com> wrote:
 >  
->
->>Does it work for order != 0 allocations? It's important that the big 
->>hash tables do not end up all in node 0. AFAICS alloc_pages_current() 
->>calls interleave_nodes() only for order==0 allocs.
->>    
->>
->
->That's correct. It will only work for order 0 allocations.
->
->  
->
-What's the purpose of the "&& order == 0)" test for MPOL_INTERLEAVE in 
-alloc_pages_current?
-What would break if it's removed?
+> Hi,
+> 
+> > That's correct. It will only work for order 0 allocations.
+> > 
+> > But it sounds quite bogus anyways to move the complete hash tables
+> > to another node anyways. It would probably be better to use vmalloc() 
+> > and a interleaving mapping for it. Then you would get the NUMA bandwidth 
+> > benefit even for accessing single tables.
+> 
+> I posted some before and after numbers when we merged Manfreds patch,
+> it would be interesting to see the same thing with your patch applied.
+> 
+> Im not only worried about NUMA bandwidth but keeping the amount of
+> memory left in all the nodes reasonably even. Allocating all the big
+> hashes on node 0 will decrease that balance.
 
-And what about in_interrupt() allocations? During boot everything should 
-be interleaved - I'd modify default_policy to MPOL_INTERLEAVE instead of 
-setting process affinity.
+It would be a one liner change to allow process policy interleaving 
+for orders > 0 in mempolicy. But I'm not sure how useful it is, since
+the granuality would be really bad.
 
---
-    Manfred
+Have you ever tried to switch to implement a vmalloc_interleave() for these
+tables instead? My bet is that it will perform better.
+
+-Andi

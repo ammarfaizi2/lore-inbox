@@ -1,60 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279418AbRKMVmF>; Tue, 13 Nov 2001 16:42:05 -0500
+	id <S279317AbRKMVqz>; Tue, 13 Nov 2001 16:46:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279412AbRKMVl4>; Tue, 13 Nov 2001 16:41:56 -0500
-Received: from sushi.toad.net ([162.33.130.105]:8930 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S279382AbRKMVlm>;
-	Tue, 13 Nov 2001 16:41:42 -0500
-Subject: Re: [PATCH] parport_pc to use pnpbios_register_driver()
-From: Thomas Hood <jdthood@mail.com>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0111120921110.16450-100000@chaos.tp1.ruhr-uni-bochum.de>
-In-Reply-To: <Pine.LNX.4.33.0111120921110.16450-100000@chaos.tp1.ruhr-uni-bochum.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.0 (Preview Release)
-Date: 13 Nov 2001 16:41:46 -0500
-Message-Id: <1005687707.21561.14.camel@thanatos>
-Mime-Version: 1.0
+	id <S279416AbRKMVqp>; Tue, 13 Nov 2001 16:46:45 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:896 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S279317AbRKMVqh>; Tue, 13 Nov 2001 16:46:37 -0500
+Date: Tue, 13 Nov 2001 16:45:49 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: fdutils.
+In-Reply-To: <Pine.GSO.3.96.1011113214448.11222E-100000@delta.ds2.pg.gda.pl>
+Message-ID: <Pine.LNX.3.95.1011113162546.134A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-11-12 at 03:30, Kai Germaschewski wrote:
-> On Mon, 12 Nov 2001, Keith Owens wrote:
-> > Does this combination make sense?  If you are building a pnpbios driver
-> > into the kernel then the configuration should force pnpbios support to
-> > be built in as well.  We don't allow this combination for things like
-> > scsi or ide, they require the common support to be built in if any
-> > drivers are built in.  IMHO this problem should be fixed in .config,
-> > not in driver source.
+On Tue, 13 Nov 2001, Maciej W. Rozycki wrote:
+
+> On Tue, 13 Nov 2001, H. Peter Anvin wrote:
 > 
-> The affected drivers usually support different interfaces to the hardware, 
-> like ISA, ISAPnP, PCI, so it makes sense to build them w/o ISAPnP support.
+> > >  Hmm, Sun used to have a software-controlled standard floppy drives years
+> > > ago... 
+> > 
+> > I'm not talking about Suns.
+> 
+>  I'm just pointing out there used to be no problem with making a
+> software-controlled eject for a legacy floppy device even long ago if one
+> wanted to. 
+> 
+> > >  Based on local obervations hardly anyone uses floppies anymore...  They
+> > > are mostly used for system rescue purposes, where the kind of a device
+> > > doesn't really matter.
+> > 
+> > ... except that you no longer can fit a reasonable system rescue/install
+> > setup on a floppy, so it *defintitely* matters.  Also, the floppy device
+> > is like a rash all over the hardware; it maintains a highly undesirable
+> > legacy.
 
-True.
+Hmm. I have a two-floppy rescue system with enough software thereon to
+boot the system, install modules for SCSI, install a new SCSI hard-disk,
+recover files using tar from off a tape and/or compressed CDROM or
+network.
 
-> For instance, people may want to have built-in serial support (w/o ISAPnP 
-> support is fine, because they've only got a standard SuperI/O chip), but 
-> also modular isapnp and sound driver support, so they can demand load 
-> sound support if necessary.
+The boot floppy contains a comprssed ram disk and the other is just
+ext2 mounted off /usr/bin on the ram disk. If I needed more stuff,
+I would mount a cdrom off from /usr/bin, instead.
 
-Fine.
+Without a floppy-based rescue system, you have to use bootable CDROM,
+usually supplied by a vendor, without the tools to truly rescue a
+system. You can only re-install. For instance some vendors don't
+provide a SCSI-tape module so you can't recover from a SCSI tape.
 
-> Making ISAPnP mandatory only because you build a driver which supports
-> ISAPnP hardware is not an option IMO. This would force people to build
-> ISAPnP support who don't even have an ISA bus (only because the driver for
-> their PCI card also supports an ISAPnP variant).
+In any event, you have to roll your own if you want to truly recover.
+It only takes two floppies. If your hard-disk file system isn't
+corrupt, it only takes one floppy.
 
-You misunderstand.  Obviously we don't want to force anyone
-to build in isa-pnp or pnpbios support.  What Keith is saying
-is that IF isa-pnp code is enabled in a driver then the isa-pnp
-driver should also be built.  Furthermore if isa-pnp code is
-enabled in an _integral_ (i.e., non-modular) driver, then the
-isa-pnp driver should also be built integrally.  The combination
-of integral-driver-with-isa-pnp-support-enabled and modular
-isa-pnp driver should be disallowed by the configurator.
+> 
+>  You only confirm what I wrote -- hardly anyone uses floppies, so there is
+> no need to keep mechanical compatibility in devices -- a complete dump of
+> 1.44" FD support would be almost harmless.  Hence whether a Zip or a
+> LS-120 -- it doesn't really matter.  You need new media anyway. 
 
-Thomas
+It would be a disaster, hardly harmless. Have you a clue how much
+work gets done off-site (perhaps at home), using "sneaker-net"
+(floppies)? Engineers who have to work for a living take work home
+every night. They don't have to take a whole source-code tree because
+they have already duplicated their work environment via CDROM or tape.
+They take home, work on, and return, current source-code or
+documentation on floppies.
+
+Whether or not these Engineers have home connections to the Internet
+means nothing because their companies (often) deny access to their
+workstations from the "outside". The only way to do your job is
+via sneaker-net. You get rid of floppies and you get rid of Engineers.
+
+FYI, the current trend here it to remove all I/O devices from
+PC/Workstations, requiring everybody to boot off the network. This
+makes sure that everybody is running the same M$Garbage.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

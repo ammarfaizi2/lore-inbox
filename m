@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314077AbSHIPct>; Fri, 9 Aug 2002 11:32:49 -0400
+	id <S314138AbSHIPpn>; Fri, 9 Aug 2002 11:45:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314080AbSHIPct>; Fri, 9 Aug 2002 11:32:49 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:9299 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S314077AbSHIPcs>;
-	Fri, 9 Aug 2002 11:32:48 -0400
-Date: Fri, 9 Aug 2002 17:36:15 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Hubertus Franke <frankeh@watson.ibm.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@zip.com.au>,
-       Paul Larson <plars@austin.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       andrea@suse.de, gh@us.ibm.com
-Subject: Re: Analysis for Linux-2.5 fix/improve get_pid(), comparing various approaches
-Message-ID: <20020809153615.GA1062@win.tue.nl>
-References: <1028757835.22405.300.camel@plars.austin.ibm.com> <3D51A7DD.A4F7C5E4@zip.com.au> <20020808002419.GA528@win.tue.nl> <200208090722.08223.frankeh@watson.ibm.com>
+	id <S314085AbSHIPpn>; Fri, 9 Aug 2002 11:45:43 -0400
+Received: from bitmover.com ([192.132.92.2]:52406 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S314138AbSHIPpm>;
+	Fri, 9 Aug 2002 11:45:42 -0400
+Date: Fri, 9 Aug 2002 08:49:16 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Paul Larson <plars@austin.ibm.com>, Jeff Garzik <jgarzik@mandrakesoft.com>,
+       Rik van Riel <riel@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Announce: daily 2.5 BK snapshots
+Message-ID: <20020809084916.E14025@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+	Paul Larson <plars@austin.ibm.com>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Rik van Riel <riel@conectiva.com.br>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1028903778.19435.348.camel@plars.austin.ibm.com> <1505209847.1028881191@[10.10.2.3]>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200208090722.08223.frankeh@watson.ibm.com>
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1505209847.1028881191@[10.10.2.3]>; from Martin.Bligh@us.ibm.com on Fri, Aug 09, 2002 at 08:19:53AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 09, 2002 at 07:22:08AM -0400, Hubertus Franke wrote:
+> Personally, I'd love to see the *changes* in what passed and failed
+> posted every day - the whole result set is obviously too big. The 
+> quicker people know what's wrong, the quicker it gets fixed, before
+> we build more on top of an unstable foundation.
 
-> Particulary for large number of tasks, this can lead to frequent exercise of
-> the repeat resulting in a O(N^2) algorithm. We call this : <algo-0>.
+I really like "fix it before we build on an unstable foundation".
 
-Your math is flawed. The O(N^2) happens only when the name space for pid's
-has the same order of magnitude as the number N of processes.
-Now consider N=100000 with 31-bit name space. In a series of
-2.10^9 forks you have to do the loop fewer than N times and
-N^2 / 2.10^9 = 5. You see that on average for each fork there
-are 5 comparisons.
-For N=1000000 you rearrange the task list as I described yesterday
-so that each loop takes time sqrt(N), and altogether N.sqrt(N)
-comparisons are needed in a series of 2.10^9 forks.
-That is 0.5 comparisons per fork.
+It seems to me that we could get to something like tinderbox (? One of the
+mozilla tools).  What I'm imagining is something like a web page which
+has a set of links in which point at the csets which cause the problem.
+In order to make this work, we need to fix BK/Web to talk URLs with
+"keys" instead of revs because, as some of you have noticed, revs change
+when there is parallel development which makes the URLs pretty useless
+if they contain revs.
 
-You see that thanks to the large pid space things get really
-efficient. Ugly constructions are only needed when a large fraction
-of all possible pids is actually in use, or when you need hard
-real time guarantees.
-
-Andries
+If you need that fix in order to be able to have a list of URLs pointing
+int BK/Web on bkbits.net, bug me about it, we'll do it right away.
+I like the idea of having a status page which says "these changesets
+cause problems".  You can have two links, one which gets you to the BK
+cset html and the other which gets the patch corresponding to the cset.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

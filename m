@@ -1,42 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261923AbTJXDcP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 23:32:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbTJXDcP
+	id S261957AbTJXDfq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 23:35:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbTJXDfq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 23:32:15 -0400
-Received: from user-118bg4o.cable.mindspring.com ([66.133.192.152]:24716 "EHLO
-	BL4ST") by vger.kernel.org with ESMTP id S261923AbTJXDcO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 23:32:14 -0400
-Date: Thu, 23 Oct 2003 20:32:26 -0700
-From: Eric Wong <normalperson@yhbt.net>
-To: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] trivial compile fix when FANCY_STATUS_DUMPS disabled
-Message-ID: <20031024033226.GA530@BL4ST>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Thu, 23 Oct 2003 23:35:46 -0400
+Received: from conure.mail.pas.earthlink.net ([207.217.120.54]:50099 "EHLO
+	conure.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S261957AbTJXDfn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 23:35:43 -0400
+Message-ID: <06d801c399df$f8af9880$6501a8c0@rhyde>
+From: "Randall Hyde" <randyhyde@earthlink.net>
+To: <linux-kernel@vger.kernel.org>
+References: <102420030310.18374.4e89@comcast.net>
+Subject: mmap to Access PCI space?
+Date: Thu, 23 Oct 2003 20:36:12 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixes compilation when FANCY_STATUS_DUMPS is disabled in
-include/linux/ide.h
+Hi All,
+I need to access a couple of SATA chips from a user-mode
+program (yep, running as root). I know for a fact that my
+chip resides at address 0xfc300000 (/proc/iomem and /proc/ide/siimage
+tells me this).  Can I do a mmap like the following to access the registers
+on ths chip?
 
-diff -ruNp a/drivers/ide/ide-disk.c b/drivers/ide/ide-disk.c
---- a/drivers/ide/ide-disk.c	2003-06-13 07:51:33.000000000 -0700
-+++ b/drivers/ide/ide-disk.c	2003-10-23 02:05:53.000000000 -0700
-@@ -881,8 +881,8 @@ static u8 idedisk_dump_status (ide_drive
- 				printk(", sector=%ld",
- 					HWGROUP(drive)->rq->sector);
- 		}
--	}
- #endif	/* FANCY_STATUS_DUMPS */
-+	}
- 	printk("\n");
- 	local_irq_restore(flags);
- 	return err;
+fdDevMem = open( "/dev/mem", O_RDWR );
+ptr =
+    mmap
+    (
+        NULL,
+        4096,
+        PROT_READ | PROT_WRITE,
+        MAP_SHARED,
+        fdDevMem,
+        0xfc300000
+    );
 
--- 
-Eric Wong
+When I try this, I get a valid pointer back, but it doesn't seem to
+be mapped to my si3112 chip register bank.
+
+I've also used code like the following:
+ptr =
+    mmap
+    (
+        0xfc300000,
+        4096,
+        PROT_READ | PROT_WRITE,
+        MAP_SHARED | MAP_ANONYMOUS,
+        -1,
+        0
+    );
+
+Same story.
+If I use MAP_FIXED and/or MAP_PRIVATE, the mmap call fails.
+
+What am I doing wrong here?
+Thanks,
+Randy Hyde
+

@@ -1,83 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265493AbUAKAZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 19:25:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265502AbUAKAZ0
+	id S265528AbUAKAmM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 19:42:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265628AbUAKAmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 19:25:26 -0500
-Received: from kluizenaar.xs4all.nl ([213.84.184.247]:41286 "EHLO samwel.tk")
-	by vger.kernel.org with ESMTP id S265493AbUAKAZT (ORCPT
+	Sat, 10 Jan 2004 19:42:12 -0500
+Received: from dire.bris.ac.uk ([137.222.10.60]:37300 "EHLO dire.bris.ac.uk")
+	by vger.kernel.org with ESMTP id S265528AbUAKAmK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 19:25:19 -0500
-Message-ID: <400097E0.5040900@samwel.tk>
-Date: Sun, 11 Jan 2004 01:25:04 +0100
-From: Bart Samwel <bart@samwel.tk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Sat, 10 Jan 2004 19:42:10 -0500
+Date: Sun, 11 Jan 2004 00:39:59 +0000 (GMT)
+From: Bart Oldeman <bartoldeman@users.sf.net>
+X-X-Sender: enbeo@enm-bo-lt.enm.bris.ac.uk
+To: linux-kernel@vger.kernel.org
+cc: akpm@osdl.org, torvalds <torvalds@osdl.org>
+Subject: [PATCH] 2.6.1 (not 2.4.24!) mremap fixes broke shm alias mappings
+Message-ID: <Pine.LNX.4.44.0401110020260.25252-100000@enm-bo-lt.enm.bris.ac.uk>
 MIME-Version: 1.0
-To: Davide Libenzi <davidel@xmailserver.org>
-CC: Tim Cambrant <tim@cambrant.com>, Mario Vanoni <vanonim@bluewin.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH][TRIVIAL] Remove bogus "value 0x37ffffff truncated to
- 0x37ffffff" warning.
-References: <Pine.LNX.4.44.0401101243110.2210-100000@bigblue.dev.mdolabs.com>
-In-Reply-To: <Pine.LNX.4.44.0401101243110.2210-100000@bigblue.dev.mdolabs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
->>>#define MAXMEM                       (~__PAGE_OFFSET + 1 - __VMALLOC_RESERVE)
->>
->>I tried that first, before I came up with the solution in the patch, 
->>because I didn't like the dependency of 0xFFFFFFFF being 32-bit. It was 
->>a nice idea, but it didn't work. Apparently, gas interprets ~ as a one's 
->>complement negation operator, not a bitwise or. Therefore, 
->>~__PAGE_OFFSET is just as negative as -__PAGE_OFFSET as far as gas is 
->>concerned. It gives me the same warning.
-> 
-> 
-> That would mean a bug in as. __PAGE_OFFSET is unsigned and ~ is documented 
-> (not a surprise) as "bitwise not". The bitwise not of __PAGE_OFFSET 
-> (unsigned) is still unsigned. BTW 2.14 does not give warnings with both 
-> the original statement and the ~ one. This:
-> 
->                                                                                                                         
->         PG=0xC0000000                                                                                                   
->         VM=(128 << 20)                                                                                                  
->                                                                                                                         
->         mov (~PG + 1 - VM), %eax                                                                                        
->         mov (-PG - VM), %eax                                                                                            
->                                                                                                                         
-> generate this:
-> 
-> zzzzzzzz:     file format elf32-i386
-> 
-> Disassembly of section .text:
-> 
-> 00000000 <.text>:
->    0:   a1 00 00 00 38          mov    0x38000000,%eax
->    5:   a1 00 00 00 38          mov    0x38000000,%eax
-> 
-> 
-> w/out any warnings. And the result is obviously 0x38000000 and 
-> not 0x37ffffff.
+Hi Linus,
 
-I get the same behaviour. The 0x37ffffff is from the place where MAXMEM 
-is used (the ramdisk_max variable in setup.S); it subtracts one from the 
-value. It turns out that the error only occurs when the value is used in 
-a data definition. Experimentally found first value for which it gives 
-the error is:
+DOSEMU needs to alias memory, for instance to emulate the HMA. A long time
+ago this was done using mmaps of /proc/self/mem. This was replaced by
+mremap combined with IPC SHM during 2.1 development.
 
-ramdisk_max: .long ~(0x80000000)
+According to DOSEMUs changelog you agreed to allow old_len==0:
+            - using _one_ big IPC shm segment and mremap(addr, 0 ...)
+              (Linus agreed on keeping shmat()+mremap(,0,..) functionality)
+so you agreed on something you have removed after all now!
 
-Interestingly, it doesn't occur for 0x7fffffff. I've taken a look at gas 
-to see where it goes wrong, but my newly built version doesn't exhibit 
-this behaviour -- it compiles the above statement without warnings. It 
-might have to do with the differences between the build environment that 
-the Debian binutils package is built in and my own machine -- I'll do 
-some more investigating.
+(comment in DOSEMU source)
+  /* The trick is to set old_len = 0,
+   * this won't unmap at the old address, but with
+   * shared mem the 'nopage' vm_op will map in the right
+   * pages.
+   */
 
--- Bart
+An example usage is as follows:
+shmget(IPC_PRIVATE, 31498240, 0x1c0|0600) = 11337732
+shmat(11337732, 0, 0)                   = 0x40299000
+shmctl(11337732, IPC_RMID, 0)           = 0
+mremap(0x402a9000, 0, 65536, MREMAP_MAYMOVE|MREMAP_FIXED, 0) = 0
+mremap(0x402a9000, 0, 65536, MREMAP_MAYMOVE|MREMAP_FIXED, 0x100000) = 0x100000
+
+The security problems only affect the case new_len==0 so I don't see any
+reason for not applying this patch.
+
+Bart
+
+--- mm/mremap.c~	Sat Jan 10 19:22:39 2004
++++ mm/mremap.c	Sun Jan 11 00:19:13 2004
+@@ -315,8 +315,11 @@
+ 	old_len = PAGE_ALIGN(old_len);
+ 	new_len = PAGE_ALIGN(new_len);
+
+-	/* Don't allow the degenerate cases */
+-	if (!old_len || !new_len)
++	/* Don't allow the degenerate cases
++	 * however, old_len == 0 can be used in combination with shmat()
++	 * to create alias mappings.
++	 */
++	if (!new_len)
+ 		goto out;
+
+ 	/* new_addr is only valid if MREMAP_FIXED is specified */
+

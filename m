@@ -1,74 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267338AbSLEPi2>; Thu, 5 Dec 2002 10:38:28 -0500
+	id <S267337AbSLEPpB>; Thu, 5 Dec 2002 10:45:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267339AbSLEPi2>; Thu, 5 Dec 2002 10:38:28 -0500
-Received: from splat.lanl.gov ([128.165.17.254]:46789 "EHLO
-	balance.radtt.lanl.gov") by vger.kernel.org with ESMTP
-	id <S267338AbSLEPi1>; Thu, 5 Dec 2002 10:38:27 -0500
-Date: Thu, 5 Dec 2002 08:44:41 -0700
-From: Eric Weigle <ehw@lanl.gov>
-To: "Joseph D. Wagner" <wagnerjd@prodigy.net>
-Cc: "'Nicholas Berry'" <nikberry@med.umich.edu>, wa1hco@adelphia.net,
-       shanehelms@eircom.net, EdV@macrolink.com, linux-kernel@vger.kernel.org
-Subject: Re: is KERNEL developement finished, yet ???
-Message-ID: <20021205154441.GO10934@lanl.gov>
-References: <sdef2367.029@mail-02.med.umich.edu> <000401c29c71$5fb52620$43833841@joe>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0zDq8CFkxn2hi9iJ"
-Content-Disposition: inline
-In-Reply-To: <000401c29c71$5fb52620$43833841@joe>
-User-Agent: Mutt/1.3.28i
-X-Eric-Conspiracy: There is no conspiracy
-X-Editor: Vim, http://www.vim.org
-X-GnuPG-fingerprint: 112E F8CA 12A9 771E DB10  6514 D4B0 D758 59EA 9C4F
-X-GnuPG-key: http://public.lanl.gov/ehw/ehw.gpg.key
+	id <S267339AbSLEPpA>; Thu, 5 Dec 2002 10:45:00 -0500
+Received: from earth.colorado-research.com ([65.171.192.8]:63154 "EHLO
+	earth.colorado-research.com") by vger.kernel.org with ESMTP
+	id <S267337AbSLEPpA>; Thu, 5 Dec 2002 10:45:00 -0500
+Message-ID: <3DEF763E.1050302@cora.nwra.com>
+Date: Thu, 05 Dec 2002 08:52:30 -0700
+From: Orion Poplawski <orion@cora.nwra.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Barry K. Nathan" <barryn@pobox.com>
+CC: Samuel Flory <sflory@rackable.com>, linux-kernel@vger.kernel.org
+Subject: Re: NFS - IRIX client issues
+References: <3DEE85D3.6070009@cora.nwra.com> <3DEE8EC2.2040305@rackable.com> <3DEE9425.40204@cora.nwra.com> <20021205051507.GA17498@ip68-4-86-174.oc.oc.cox.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Barry K. Nathan wrote:
 
---0zDq8CFkxn2hi9iJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>I'm having the same problem, with Solaris 8 on SPARC for the NFS server
+>(as opposed to Linux), on one of my machines. For some reason it only
+>happens when it's plugged into a 100MBps Netgear non-switching (i.e, "old
+>fashioned" in a sense -- half-duplex) hub. If I plug it straight into
+>the wall at work (this is connected directly to a 10MBps (I know),
+>full-duplex (I think) port on some kind of switch whose other details I
+>have no idea about), the problem instantly disappears.
+>
+>At least, I think it's the same problem. When your connection collapses,
+>does IRIX complain about timeouts trying to contact the NFS server,
+>almost as if the NFS server fell off the face of the planet?
+>  
+>
+Actually, I get exactly zero in the logs and aparently zero NFS traffic 
+arriving at the server, so we may have different problems.
 
->>>Unix (and Linux) developers are far too concerned with clinging to the
->>>30-year-old outdated POSIX standard, which creates numerous problems when
->>>trying to advance new features.=20
->>Er, 16-year-old maybe?
->Wow! I thought I really knew what I was talking about, but you've really
->convinced me to see things you're way!
->[snip]
-"In early 1985, the /usr/group committee was merged with the newly formed
-IEEE POSIX Working Group (POSIX stands for Portable Operating Systems
-for Computing Environments) and the /usr/group standard was adopted as a
-first draft."
+Thanks for the support links, but unfortunately I'm basically in the 
+same situation - support cancelled in the belief we will eventually move 
+completely to linux (though for now the SGI is our only large memory 
+64-bit platform).
 
-UN*Xen were around for 15 years before anybody was brave (or stupid :)
-enough to really standardize. The first drafts of these standards are only
-16-18 years old.
+- Orion
 
-http://www.acm.org/crossroads/xrds1-3/unix-standards.html
 
---=20
-------------------------------------------------------------
-        Eric H. Weigle -- http://public.lanl.gov/ehw/
-"They that can give up essential liberty to obtain a little
-temporary safety deserve neither" -- Benjamin Franklin
-------------------------------------------------------------
-
---0zDq8CFkxn2hi9iJ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE973Rp1LDXWFnqnE8RAhdDAKDTF813+jH2XBvkvTXr21RS3qKWwQCffgfq
-iWCNR5dKAp9HTT2NTkIsgTE=
-=UL1A
------END PGP SIGNATURE-----
-
---0zDq8CFkxn2hi9iJ--

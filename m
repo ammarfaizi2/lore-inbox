@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbVBDMJ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbVBDMJ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261166AbVBDMJ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 07:09:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbVBDMJ3
+	id S261168AbVBDMJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 07:09:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbVBDMJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 07:09:29 -0500
-Received: from animx.eu.org ([216.98.75.249]:42414 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S261166AbVBDMJ0 (ORCPT
+	Fri, 4 Feb 2005 07:09:57 -0500
+Received: from palrel12.hp.com ([156.153.255.237]:61416 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S261168AbVBDMJy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 07:09:26 -0500
-Date: Fri, 4 Feb 2005 07:18:17 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: jerome lacoste <jerome.lacoste@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Huge unreliability - does Linux have something to do with it?
-Message-ID: <20050204121817.GA7721@animx.eu.org>
-Mail-Followup-To: jerome lacoste <jerome.lacoste@gmail.com>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <5a2cf1f605020401037aa610b9@mail.gmail.com>
+	Fri, 4 Feb 2005 07:09:54 -0500
+Date: Fri, 4 Feb 2005 13:02:41 +0100
+From: Torben Mathiasen <torben.mathiasen@hp.com>
+To: Greg KH <greg@kroah.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torben.mathiasen@hp.com, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH] Devices.txt, update with LANANA
+Message-ID: <20050204120241.GB4132@linux2>
+References: <200502021845.j12Ij99X030188@hera.kernel.org> <20050203175710.GA24656@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5a2cf1f605020401037aa610b9@mail.gmail.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050203175710.GA24656@kroah.com>
+X-OS: Linux 2.6.5-7.111-default
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please keep me CCd
+On Thu, Feb 03 2005, Greg KH wrote:
 
-jerome lacoste wrote:
-> particular hardware (Dell Inspiron 8100)? I run Linux on 3 other
+<snip>
 
-I have this exact same laptop.  It works perfectly for me with linux. 
-Originally started with a 2.4 kernel and recently went to 2.6.10.  The modem
-works well, the video card works well even with 3D accel.  I replaced the
-original 30gb hdd with a 40gb (for space reasons).  The only complaint about
-this thing I have is the fact they used an nvidia video chip.  I have seen
-more than 4 months uptime on it (I used to use it as a desktop)
+> Hm, this is just wrong.  As I recall, LANANA is in charge of the major
+> numbers, but for the USB major, the USB developers have been assigning
+> the USB minors.  This patch just made the file different from what is
+> currently present in the kernel.
+> 
+> Should I just submit a patch to LANANA to update the USB minors for
+> their copy so this doesn't happen again?
+>
 
-I did have a hardware mouse problem, but replacing the touchpad/palm rest
-fixed that.  I'd give it a 4 star (out of five, mainly because of the video
-chipset and the keyboard layout)
+Yes please!. Since the devices file at lanana.org is the one being merged into
+the one in the kernel tree, please send future updates to lanana and it'll go
+in that way.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Thanks,
+Torben

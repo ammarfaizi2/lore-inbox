@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265234AbUFWO1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265922AbUFWOb4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265234AbUFWO1M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 10:27:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265249AbUFWO1M
+	id S265922AbUFWOb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 10:31:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265270AbUFWO3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 10:27:12 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:11689 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S265234AbUFWO1G (ORCPT
+	Wed, 23 Jun 2004 10:29:45 -0400
+Received: from www.nute.net ([66.221.212.1]:12940 "EHLO mail.nute.net")
+	by vger.kernel.org with ESMTP id S265249AbUFWO3j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 10:27:06 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Keith Moore <keithmo@exmsft.com>
-Date: Wed, 23 Jun 2004 16:26:52 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: 2.6.7-mm1 PCNet Problems under VMWare 4.5.2
-Cc: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <A212D9E4842@vcnet.vc.cvut.cz>
+	Wed, 23 Jun 2004 10:29:39 -0400
+Date: Wed, 23 Jun 2004 14:29:36 +0000
+From: Mikael Bouillot <xaajimri@corbac.com>
+To: linux-kernel@vger.kernel.org
+Cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+Subject: Forcedeth driver bug
+Message-ID: <20040623142936.GA10440@mail.nute.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Jun 04 at 11:23, Keith Moore wrote:
-> -    /* Clear any other interrupt, and set interrupt enable. */
-> -    lp->a.write_csr (ioaddr, 0, 0x7940);
-> +    /* Set interrupt enable. */
-> +    lp->a.write_csr (ioaddr, 0, 0x0040);
-> 
-> Reverting this one section of the patch makes eth0 happy again.
-> 
-> I poked around with the values written to the csr register, and it 
-> appears the virtual PCNet-II adapter needs bit 0x0100 (initialzation 
-> done) set. So, writing 0x0140 instead of 0x0040 seems to work well.
-> 
-> I have no idea how accurate VMWare's emulation of this adapter is, or if 
-> this change may cause problems with other (physical) adapters.
+  Hi all,
 
-I believe that it is not emulation bug. What happens is that you do not
-confirm INIT DONE irq, causing endless stream of interrupts from card to
-the CPU. This happens because CSR3 default value is 0 (enable all 
-interrupts), and driver does not modify it in any way (f.e. for
-preventing INIT from causing interrupt). So when init is done, IDON
-irq fires. In old driver it was acked by 0x7940 (or by 0x0140 in your
-modified driver), but in new driver it is not acked in any way,
-triggering this very same IRQ over and over.
+  I'm having trouble with the forcedeth driver in kernel version 2.6.7.
+>From what I can see, it seems that incoming packets sometime get stuck
+on their way in.
 
-pcnet32_interrupt should loop while csr0 contains some pending
-interrupts (current mask 0x8600 should be changed to 0xDE00 to be 100%
-sure that all interrupts we handle in loop are catched), and then
-clear all other interrupts sources (0x2140) out of the loop.
+  What happens is this: some packet enters the NIC, and for some reason,
+it doesn't come out of the driver. As soon as another incoming packet
+gets in, both packets are handed down by the driver.
 
-Other possibility is masking these unused sources in CSR3...
+  It is usually invisible during normal TCP operation, as there are
+several packets in flight and the stuck packet gets pushed down by the
+one following it very soon. But for lockstep protocols like SMB, it very
+annoying as it means you get "blanks" of 2 to 5 seconds during the
+transfer.
 
-But I believe that driver from -mm1 will hang even on real Am79C970A
-hardware.
-                                            Best regards,
-                                                Petr Vandrovec
-                                                
+  I can reproduce this very easily with a modified version of ping. I
+do a flood ping from another machine to the one with the nvnet NIC, but
+I modified ping to send a new packet if one gets "lost" only 10 seconds
+later instead of after 10 ms. The result is that after a couple hundred
+ping-pong at full speed, one ping gets stuck. After 10 seconds, another
+ping is sent and both pong come back.
 
+  This didn't happen with the proprietary nvnet driver on kernel 2.4.24.
+My hardware is a nForce 2 mobo (in a shuttle SN45G barebones).
+
+  Is this a know bug? If someone working on it already or should I
+investigate the matter further? Please CC any reply to me as I'm not on
+the list.
+
+
+  Mikael Bouillot
+
+-- 
+Hi! I'm a .signature virus! Copy me into your ~/.signature to help me spread!

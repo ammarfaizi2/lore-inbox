@@ -1,41 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263802AbUGMFF3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264530AbUGMFXT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263802AbUGMFF3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 01:05:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263824AbUGMFF3
+	id S264530AbUGMFXT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 01:23:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263895AbUGMFXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 01:05:29 -0400
-Received: from rproxy.gmail.com ([64.233.170.201]:46095 "HELO mproxy.gmail.com")
-	by vger.kernel.org with SMTP id S263802AbUGMFFY (ORCPT
+	Tue, 13 Jul 2004 01:23:19 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:6313 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S263962AbUGMFXQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 01:05:24 -0400
-Message-ID: <57861437040712220518dee67d@mail.gmail.com>
-Date: Tue, 13 Jul 2004 00:05:10 -0500
-From: Jesus Delgado <jdelgado@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Broken driver via-rhine.c in kernel 2.6.8-rc1
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 13 Jul 2004 01:23:16 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16627.29119.12240.152760@napali.hpl.hp.com>
+Date: Mon, 12 Jul 2004 22:23:11 -0700
+To: Ingo Molnar <mingo@redhat.com>
+Cc: davidm@hpl.hp.com, Linus Torvalds <torvalds@osdl.org>,
+       Jakub Jelinek <jakub@redhat.com>, suresh.b.siddha@intel.com,
+       jun.nakajima@intel.com, Andrew Morton <akpm@osdl.org>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: serious performance regression due to NX patch
+In-Reply-To: <Pine.LNX.4.58.0407122358570.13111@devserv.devel.redhat.com>
+References: <200407100528.i6A5SF8h020094@napali.hpl.hp.com>
+	<Pine.LNX.4.58.0407110437310.26065@devserv.devel.redhat.com>
+	<Pine.LNX.4.58.0407110536130.2248@devserv.devel.redhat.com>
+	<Pine.LNX.4.58.0407110550340.4229@devserv.devel.redhat.com>
+	<20040711123803.GD21264@devserv.devel.redhat.com>
+	<Pine.LNX.4.58.0407121402160.2451@devserv.devel.redhat.com>
+	<Pine.LNX.4.58.0407121315170.1764@ppc970.osdl.org>
+	<16626.62318.880165.774044@napali.hpl.hp.com>
+	<Pine.LNX.4.58.0407122358570.13111@devserv.devel.redhat.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- hi:
+>>>>> On Tue, 13 Jul 2004 00:23:29 -0400 (EDT), Ingo Molnar <mingo@redhat.com> said:
 
-The problems with driver via-rhine.c version v1.10-LK1.1.20-2.6
-May-23-2004:via-rhine: probe of 0000:00:12.0 failed with error -5
-Invalid MAC address for card #0
+  Ingo> it's not just about the stack! It's a "is the value of the
+  Ingo> PROT_EXEC bit just an embelishment of /proc output or is it
+  Ingo> taken seriously" thing.
 
-kernel 2.6.7 and kernel 2.6.7-mm7  working good via-rhine.c
+Fine, but it seems to me NX bit patch wasn't properly integrated with
+VM_DATA_DEFAULT_FLAGS.  In fact, if you hadn't changed the x86 version
+of VM_DATA_DEFAULT_FLAGS and instead had in mm/mmap.c replaced the
+macro with (VM_READ | VM_WRITE | VM_MAYREAD | VM_MAYWRITE), then
+things would have behaved exactly right with my patch applied and the
+logic would make much more sense.
 
-The version via-rhine.c:v1.10-LK1.2.0-2.6 June-10-2004: working good:
+There would also need to be a small change to arch/ia64/mm/init.c, but
+I'd be happy to take care of that.
 
-via-rhine.c:v1.10-LK1.2.0-2.6 June-10-2004 Written by Donald Becker
-PCI: Found IRQ 9 for device 0000:00:12.0
-PCI: Sharing IRQ 9 with 0000:00:0c.0
-PCI: Sharing IRQ 9 with 0000:00:10.0
-PCI: Sharing IRQ 9 with 0000:00:11.1
-PCI: Sharing IRQ 9 with 0000:01:00.0
-divert: allocating divert_blk for eth0
-eth0: VIA Rhine II (VT8235) at 0xd0002c00, 00:03:25:0d:9e:58, IRQ 9.
-eth0: MII PHY found at address 1, status 0x7869 advertising 05e1 Link 41e1.
+	--david

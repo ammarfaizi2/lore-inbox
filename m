@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267505AbUHJQKX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267531AbUHJQRU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267505AbUHJQKX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 12:10:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267476AbUHJQJu
+	id S267531AbUHJQRU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 12:17:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267490AbUHJQQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 12:09:50 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:14224 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S267510AbUHJQHZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 12:07:25 -0400
-Date: Tue, 10 Aug 2004 12:05:23 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-cc: alan@lxorguk.ukuu.org.uk, axboe@suse.de, diablod3@gmail.com,
-       dwmw2@infradead.org, eric@lammerts.org, james.bottomley@steeleye.com,
-       Linux kernel <linux-kernel@vger.kernel.org>, skraw@ithnet.com
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-In-Reply-To: <200408101544.i7AFic0s014401@burner.fokus.fraunhofer.de>
-Message-ID: <Pine.LNX.4.53.0408101159170.12681@chaos>
-References: <200408101544.i7AFic0s014401@burner.fokus.fraunhofer.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 Aug 2004 12:16:54 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:62957 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267531AbUHJQNL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 12:13:11 -0400
+Subject: Re: [PATCH 2.6] Remove spaces from PCI IDE pci_driver.name field
+From: Lee Revell <rlrevell@joe-job.com>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, dsaxena@plexity.net, greg@kroah.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040810155701.GB21534@louise.pinerecords.com>
+References: <20040810001316.GA7292@plexity.net>
+	 <1092096699.14934.4.camel@localhost.localdomain>
+	 <20040810021209.GA10495@plexity.net>
+	 <1092138774.16979.13.camel@localhost.localdomain>
+	 <20040810155701.GB21534@louise.pinerecords.com>
+Content-Type: text/plain
+Message-Id: <1092154407.10794.14.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 10 Aug 2004 12:13:28 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2004-08-10 at 11:57, Tomas Szepe wrote:
 
-Sorry to break into this wonderful conversation, but it seems
-I have all the actors corralled in one place.
+> Sure, but while with a GUI you can click on almost anything, on the
+> command line spaces in filenames have always been a real pain in
+> the ass, so let's not pretend otherwise.
 
-The fascist US government forced 321software out-of-business. It
-was a company that provided software that could copy DVDs.
+Ever heard of tab completion?  Think of it as click for the command
+line.
 
-Does any of the DVD software that you people provide have potential
-problems along this line? If so, this is something that should
-be addressed, perhaps instead of whether or not the Linux software
-opens a "device" or not.
+Seriously, do you really *prefer* filenames like
+Foo_Bar-Baa_Baaz_Quux.mp3?
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+Lee
 

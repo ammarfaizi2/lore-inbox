@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbTJITZp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 15:25:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262400AbTJITZp
+	id S262412AbTJITe3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 15:34:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbTJITe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 15:25:45 -0400
-Received: from fw.osdl.org ([65.172.181.6]:22761 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262070AbTJITZo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 15:25:44 -0400
-Date: Thu, 9 Oct 2003 12:21:09 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@localhost.localdomain
-To: Narayan Desai <desai@mcs.anl.gov>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: pmdisk performance problem
-In-Reply-To: <87k77ejkfp.fsf@mcs.anl.gov>
-Message-ID: <Pine.LNX.4.44.0310091218210.985-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 9 Oct 2003 15:34:29 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:46864 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262412AbTJITe1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 15:34:27 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: 2.6.0-test6-mm4 - oops in __aio_run_iocbs()
+Date: 9 Oct 2003 19:24:45 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bm4clt$5n6$1@gatekeeper.tmr.com>
+References: <20031005013326.3c103538.akpm@osdl.org> <1065655095.1842.34.camel@ibm-c.pdx.osdl.net> <20031009111624.GA11549@in.ibm.com>
+X-Trace: gatekeeper.tmr.com 1065727485 5862 192.168.12.62 (9 Oct 2003 19:24:45 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20031009111624.GA11549@in.ibm.com>,
+Suparna Bhattacharya  <suparna@in.ibm.com> wrote:
+| On Wed, Oct 08, 2003 at 04:18:15PM -0700, Daniel McNeil wrote:
+| 
+| __aio_run_iocbs should have been called only for buffered i/o, 
+| so this sounds like an O_DIRECT fallback to buffered i/o.
+| Possibly after already submitting some blocks direct to BIO,
+| the i/o completion path for which ends up calling aio_complete
+| releasing the iocb. That could explain the use-after-free situation
+| you see.
+| 
+| But, O_DIRECT write should fallback to buffered i/o only if it 
+| encounters holes in the middle of the file, not for simple appends 
+| as in your case. Need to figure out how this could have happened ...
 
-> When using 2.6.0-test7 on an ibm thinkpad t21, pmdisk works properly,
-> though it takes quite a while to write out pages to disk. On my last
-> suspend to disk, it took on the order of 8-10 minutes. After this
-> completed, i was able to successfully resume, fairly speedily, however
-> my hardware clock was 8-10 minutes behind. Does anyone have any ideas
-> why this is happening? thanks...
-
-Do you know if this was just for the write operation, or also included 
-stopping all processes? 
-
-Could you increase the log-level before you suspend and let me know -- by 
-looking at the debug messages -- what seems to take the most time? 
-
-Thanks,
-
-
-	Pat
-
+Are the write kept ordered?
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

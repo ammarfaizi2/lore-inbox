@@ -1,41 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289487AbSBJKOl>; Sun, 10 Feb 2002 05:14:41 -0500
+	id <S289496AbSBJLL5>; Sun, 10 Feb 2002 06:11:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289492AbSBJKOa>; Sun, 10 Feb 2002 05:14:30 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5640 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289487AbSBJKOU>;
-	Sun, 10 Feb 2002 05:14:20 -0500
-Message-ID: <3C6647BB.A69310BA@zip.com.au>
-Date: Sun, 10 Feb 2002 02:13:15 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: paule@ilu.vu
-CC: Chris Ball <chris@void.printf.net>, linux-kernel@vger.kernel.org
-Subject: Re: 3com pcmcia modules.
-In-Reply-To: <20020209151533.A644@ilu.vu> <877kpmvetv.fsf@lexis.house.pkl.net>, <877kpmvetv.fsf@lexis.house.pkl.net>; <20020209160407.A1222@ilu.vu> <3C6584F3.D571C1CB@zip.com.au> <20020209220805.A383@ilu.vu>,
-		<20020209220805.A383@ilu.vu>; from paule@ilu.vu on Sat, Feb 09, 2002 at 10:08:05PM +0000 <20020210095940.A1147@ilu.vu>
+	id <S289504AbSBJLLs>; Sun, 10 Feb 2002 06:11:48 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:26829 "HELO
+	outpost.powerdns.com") by vger.kernel.org with SMTP
+	id <S289496AbSBJLLc>; Sun, 10 Feb 2002 06:11:32 -0500
+Date: Sun, 10 Feb 2002 12:11:30 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ingress policing still not working in 2.4?
+Message-ID: <20020210121130.A4814@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020209114529.GA6753@links2linux.de> <20020210005636.A21350@outpost.ds9a.nl> <20020210085521.GA2153@links2linux.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020210085521.GA2153@links2linux.de>; from marc.schiffbauer@links2linux.de on Sun, Feb 10, 2002 at 08:56:42AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-paule@ilu.vu wrote:
+On Sun, Feb 10, 2002 at 08:56:42AM +0000, Marc Schiffbauer wrote:
+
+> > > Before that I successfully did this:
+> > > # install root CBQ
+> > > DEV=ppp0
+> > > UPLINK=100
+> > > DOWNLINK=750
+> > > tc qdisc add dev $DEV root handle 1: cbq avpkt 1000 bandwidth 100mbit
+> > 
+> > The WonderShaper! 
+> > 
+> What?
+
+That's the name of this script.
+
+> Ok, I changed the 10mbit to 100mbit because this is my LAN speed
+> here. I first didn't see, that the root handle is per device.
+
+I haven't yet seen DSL devices that talk 100mbit, btw. But there might be.
+
+> But
+> tc qdisc add dev $DEV root handle 1: cbq avpkt 1000 bandwidth 10mbit
 > 
-> An old problem has re-appeared since I have done this,
-> On a soft-reboot ('reboot / shutdown -r now') the kernel
-> stops on its way back up stating
-> Socket Status 0x0000003
-> 
-> (or something similar)
-> and it then requires a hard-reset to clear.
-> This only seems to be under the 3c59x code / more-so the vortex module.
+> is exactly the line from your HOWTO. So what will be proper values
+> for my DSL Line with 128kbit up and 768kbit downstream?
 
-IRQ storm on the Cardbus controller, probably.
+I get a lot of email about this script and generally it requires some
+tuning. Not all kbits are equal it appears. Some ISPs measure without ip
+overhead, some with, other ISPs include PPP overhead, or PPPoA overhead, so
+there is no general rule.
 
-Try the pcmcia-ip-autoconf and yenta-hack patches at
-http://www.zip.com.au/~akpm/linux/2.4/2.4.18-pre9/
+Whenever I deploy this script I spend some time tuning the UPLINK and
+DOWNLINK values until I get the best results (maximum speed, but no
+queueuing).
 
--
+Good luck!
+
+Regards,
+
+bert
+
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
+Linux Advanced Routing & Traffic Control: http://ds9a.nl/lartc

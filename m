@@ -1,111 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286363AbRLTTr7>; Thu, 20 Dec 2001 14:47:59 -0500
+	id <S286356AbRLTTqJ>; Thu, 20 Dec 2001 14:46:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286350AbRLTTrv>; Thu, 20 Dec 2001 14:47:51 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28683 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S286357AbRLTTre>; Thu, 20 Dec 2001 14:47:34 -0500
-From: Linus Torvalds <torvalds@transmeta.com>
-Date: Thu, 20 Dec 2001 11:46:23 -0800
-Message-Id: <200112201946.fBKJkNw01262@penguin.transmeta.com>
-To: torrey.hoffman@myrio.com, linux-kernel@vger.kernel.org,
-        Alexander Viro <viro@math.psu.edu>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: ramdisk corruption problems - was: RE: pivot_root and initrd 	kern el panic woes
-Newsgroups: linux.dev.kernel
-In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211CB0F@mail0.myrio.com>
-Organization: 
+	id <S286354AbRLTTpv>; Thu, 20 Dec 2001 14:45:51 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:3210
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S286351AbRLTTpJ>; Thu, 20 Dec 2001 14:45:09 -0500
+Date: Thu, 20 Dec 2001 14:32:47 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Configure.help editorial policy
+Message-ID: <20011220143247.A19377@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <D52B19A7284D32459CF20D579C4B0C0211CB0F@mail0.myrio.com> you write:
->Yes, this does fix the problem.  Thank you very much!
->
->Hopefully something like this will make it into 2.4.18?
+I guess it's a pretty quiet week in kernel-hacker land.  Must be,
+otherwise people would have better things to do than argue over KB
+vs. KiB.  The alternative would be to conclude that significant
+portions of the lkml population prefer flaming to coding, and that
+couldn't possibly be the case, could it?
 
-This does not seem quite right.
+Let me make a couple of things clear:
 
->Tachino Nobuhiro (tachino@open.nm.fujitsu.co.jp) wrote:
->> Hello,
->> 
->> Following patch may fix your problem. 
->> 
->> diff -r -u linux-2.4.17-rc2.org/drivers/block/rd.c 
->> linux-2.4.17-rc2/drivers/block/rd.c
->> --- linux-2.4.17-rc2.org/drivers/block/rd.c	Thu Dec 20 20:30:57 2001
->> +++ linux-2.4.17-rc2/drivers/block/rd.c	Thu Dec 20 20:46:53 2001
->> @@ -194,9 +194,11 @@
->>  static int ramdisk_readpage(struct file *file, struct page * page)
->>  {
->>  	if (!Page_Uptodate(page)) {
->> -		memset(kmap(page), 0, PAGE_CACHE_SIZE);
->> -		kunmap(page);
->> -		flush_dcache_page(page);
->> +		if (!page->buffers) {
->> +			memset(kmap(page), 0, PAGE_CACHE_SIZE);
->> +			kunmap(page);
->> +			flush_dcache_page(page);
->> +		}
->>  		SetPageUptodate(page);
->>  	}
->>  	UnlockPage(page);
->> 
->> 
->>   grow_dev_page() creates not Uptodate page which has valid 
->> buffers, so
->> it is wrong that ramdisk_readpage() clears whole page unconditionally.
+I am by no means in love with the new abbreviations described at
+<http://physics.nist.gov/cuu/Units/binary.html>.  I have the same 
+reflexes as the rest of you -- they kind of make me want to gag.
 
-The problem is that having buffers doesn't necessarily always mean that
-they are valid, nor that _all_ of them are valid.
+If there is a clear consensus from lkml, I will be happy to back
+out this change.  Perhaps this terminological standard does not
+meet a real need, perhaps it will be rejected by most engineers and 
+deserves to wither on the vine.  It's happened before.
 
-Also, if the ramdisk "readpage" code is wrong, then so is the
-"prepare_write" code.  They share the same logic, which basically says
-that "if the page isn't up-to-date, then it is zero".  Which is always
-true for normal read/write accesses, but as you found out it's not true
-when parts of the page have been accessed by filesystems through the
-buffers. 
+However.  In the *absence* of a clear consensus, I will follow best
+practices.  Best practice in editing a technical or standards document
+is to (a) avoid ambiguous usages, seek clarity and precision; and (b)
+to use, follow and reference international standards.
 
-So the code _should_ use a common helper, something like
+In fact, the first time David Woodhouse submitted this change, some
+months ago, I rejected it.  I have since, reluctantly, concluded
+that I was wrong to do so.  So when he re-submitted, I merged in
+the patch.
 
-	static void ramdisk_updatepage(struct page * page)
-	{
-		if (!Page_Uptodate(page)) {
-			struct buffer_head *bh = page->buffers;
-			void * address = page_address(page);
-			if (bh) {
-				struct buffer_head *tmp = bh;
-				do {
-					if (!buffer_uptodate(tmp)) {
-						memset(address, 0, tmp->b_size);
-						 set_buffer_uptodate(tmp);
-					}
-					address += tmp->b_size;
-					tmp = tmp->b_this_page;
-				} while (tmp != bh);
-			} else
-				memset(address, 0, PAGE_SIZE);
-			flush_dcache_page(page);
-			SetPageUptodate(page);
-		}
-	}
+My personal esthetic distaste for the new terminology (gack!  "kibi" 
+sounds like something I would feed my cat!) is less important
+than following best practices.  I'm hoping it will seem less ugly as it
+becomes more familiar.
 
-and then ramdisk_readpage() would just be
+I don't like my duty much in this instance.  But my duty is clear.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-	kmap(page);
-	ramdisk_updatepage(page);
-	UnlockPage(page);
-	kunmap(page);
-	return 0;
-
-while ramdisk_prepare_write() would be
-
-	ramdisk_updatepage(page);
-	SetPageDirty(page);
-	return 0;
-
-NOTE NOTE NOTE! This is untested.  Please somebody test it, and in
-particular verify that there aren't any stupid highmem bugs, and
-resubmit the patch to me and Marcelo, ok?
-
-		Linus
+"As to the species of exercise, I advise the gun. While this gives [only]
+moderate exercise to the body, it gives boldness, enterprise, and independence
+to the mind.  Games played with the ball and others of that nature, are too
+violent for the body and stamp no character on the mind. Let your gun,
+therefore, be the constant companion to your walks."
+        -- Thomas Jefferson, writing to his teenaged nephew.

@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129029AbQKAMok>; Wed, 1 Nov 2000 07:44:40 -0500
+	id <S129055AbQKAMqa>; Wed, 1 Nov 2000 07:46:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129055AbQKAMoa>; Wed, 1 Nov 2000 07:44:30 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:30980 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129029AbQKAMo0>; Wed, 1 Nov 2000 07:44:26 -0500
-Date: Wed, 1 Nov 2000 07:44:03 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: mdaljeet@in.ibm.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: system call handling
-In-Reply-To: <CA25698A.00434741.00@d73mta05.au.ibm.com>
-Message-ID: <Pine.LNX.3.95.1001101073637.6028A-100000@chaos.analogic.com>
+	id <S130619AbQKAMqU>; Wed, 1 Nov 2000 07:46:20 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35088 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129055AbQKAMqJ>; Wed, 1 Nov 2000 07:46:09 -0500
+Subject: Re: scsi-cdrom lockup and ide-scsi problem (both EFS related)
+To: axboe@suse.de (Jens Axboe)
+Date: Wed, 1 Nov 2000 12:47:20 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), paul@clubi.ie (Paul Jakma),
+        linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <20001031191043.C11727@suse.de> from "Jens Axboe" at Oct 31, 2000 07:10:43 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13qxIX-0000OZ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Nov 2000 mdaljeet@in.ibm.com wrote:
-
-> Hi,
+> On Wed, Nov 01 2000, Alan Cox wrote:
+> > > It's untested behaviour at this point, all bets are off. It
+> > > hasn't oopses here though...
+> > 
+> > Not just CD either. SCSI disk has the same problem in 2.4 but not 2.2
 > 
-> By looking into the structure of GDT as used by linux kernel(file
-> include/asm/desc.c, kernel ver 2.4), it appears as if linux kernel does not
-> use the "call gate descriptors" for system call handling. Is this correct?
-> 
+> Disk too? I guess Eric broke more than he bargained for :)
 
-You could use a call-gate to get from one priv level to another but
-Linux uses a software trap (int 0x80). It provides good locality
-of the kernel entry code which helps keep caches warm. If you used
-call-gates, their entry points would be scattered all over kernel
-space. Further, you'd  have a lot of them (as many as there are
-kernel functions).
-
-If you designed it with just one call-gate, with one entry point,
-you would have exactly what we have now except you would execute
-a `call	CALL_GATE` instead of `int 0x80`. This turns out to be
-6 of one and 1/2 dozen of another when it comes to performance.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.2.17 on an i686 machine (801.18 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
+Magneto optical disks are 2K block size with 512 byte chunked MSDOS fs on them
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

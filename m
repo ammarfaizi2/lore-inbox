@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265211AbTA1MKX>; Tue, 28 Jan 2003 07:10:23 -0500
+	id <S265238AbTA1MMc>; Tue, 28 Jan 2003 07:12:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265238AbTA1MKX>; Tue, 28 Jan 2003 07:10:23 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:53469 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S265211AbTA1MKW>;
-	Tue, 28 Jan 2003 07:10:22 -0500
-Date: Tue, 28 Jan 2003 13:19:40 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200301281219.NAA03575@harpo.it.uu.se>
-To: pavel@suse.cz
-Subject: Re: Switch APIC to driver model (and make S3 sleep with APIC on)
-Cc: ak@suse.de, linux-kernel@vger.kernel.org, torvalds@transmeta.com
+	id <S265230AbTA1MMc>; Tue, 28 Jan 2003 07:12:32 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:32896 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S265238AbTA1MMb>;
+	Tue, 28 Jan 2003 07:12:31 -0500
+Date: Tue, 28 Jan 2003 13:24:07 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Srihari Vijayaraghavan <harisri@bigpond.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Solved 2.4.21-pre3aa1 and RAID-0 issue (was: Re: 2.4.21-pre3aa1 and RAID0 issue]
+Message-ID: <20030128122407.GK1237@dualathlon.random>
+References: <200212270856.13419.harisri@bigpond.com> <200301271441.11112.harisri@bigpond.com> <20030127113002.GB889@suse.de> <200301282046.58473.harisri@bigpond.com> <20030128094433.GX17791@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030128094433.GX17791@suse.de>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Jan 2003 10:26:09 +0100, Pavel Machek wrote:
->>    - You're hardcoding that the local-APIC NMI watchdog is the
->>      only possible sub-client of the local APIC. Not true.
->>    - perfctr_pmdev exists precisely to handle both these cases
->>      in a clean way.
->
->While being as ugly as night, which is even noted in sources:
->
->-       /* 'perfctr_pmdev' is here because the current (2.4.1) PM
->-          callback system doesn't handle hierarchical dependencies */
->
->Nothing prevents more clients from registering as subtrees to APIC. I
->did not do that for NMI watchdog because it is hardcoded in Makefile,
->anyway.
+On Tue, Jan 28, 2003 at 10:44:33AM +0100, Jens Axboe wrote:
+> On Tue, Jan 28 2003, Srihari Vijayaraghavan wrote:
+> > Hello Jens,
+> > 
+> > On Monday 27 January 2003 22:30, Jens Axboe wrote:
+> > > Could you please try this patch on top of 2.4.21-pre3aa1 instead of
+> > > backing out blk-atomic? Does that work, too? Thanks!
+> > 
+> > Yes, the RAID-0 works fine on 2.4.21-pre3aa1 after applying your patch on top 
+> > of it.
+> 
+> Great, thanks for confirming that it solves the problem.
 
-Not "more" clients, OTHER clients. They're exclusive.
-The NMI watchdog simply happens to be the default client, but it
-needs to unregister itself before any other client can take over
-the performance counters and the local APIC's LVTPC entry.
-(And that's what happens today.)
+thanks. the patch is obviously right indeed.
 
-If the device model handles hierarchical dependencies correctly,
-there should be no need to hardcode calls from the local APIC's
-PM routines to whoever happens to be its current sub-client.
-
-(And if it doesn't do this correctly, please fix the device
-model first before migrating apic.c/nmi.c to it.)
-
->I'll fix APM to call device model methods.
-
-Good.
-
->Because PM_SUSPEND/PM_RESUME is ugly and can not be made to work
->(devices are hierarchical, and PM_SUSPEND/PM_RESUME system does not
->honour that).
-
-Agreed, but existing PM users do work. Most are leaves in the
-dependency tree (e.g. sound cards). The only one I know of that
-isn't is apic.c, and it has a local workaround as you noted.
-
-Given that we're supposed to be in a feature freeze getting 2.5
-into some kind of 2.6-worthy shape soonish, I think PM should
-be hooked into the device model as a legacy API.
-
-/Mikael
+Andrea

@@ -1,64 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272495AbRH3Vph>; Thu, 30 Aug 2001 17:45:37 -0400
+	id <S271364AbRH3VoR>; Thu, 30 Aug 2001 17:44:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272492AbRH3Vp1>; Thu, 30 Aug 2001 17:45:27 -0400
-Received: from dfw-smtpout4.email.verio.net ([129.250.36.44]:3785 "EHLO
-	dfw-smtpout4.email.verio.net") by vger.kernel.org with ESMTP
-	id <S272493AbRH3VpR>; Thu, 30 Aug 2001 17:45:17 -0400
-Message-ID: <3B8EB3FE.F7FEEAAB@bigfoot.com>
-Date: Thu, 30 Aug 2001 14:45:34 -0700
-From: Tim Moore <timothymoore@bigfoot.com>
-Organization: Yoyodyne Propulsion Systems, Inc.
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.20p9ai i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Pascal Schmidt <pleasure.and.pain@web.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: System crashes with via82cxxx ide driver
-In-Reply-To: <Pine.LNX.4.33.0108292239410.861-100000@neptune.sol.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S272493AbRH3VoI>; Thu, 30 Aug 2001 17:44:08 -0400
+Received: from pop.gmx.net ([213.165.64.20]:48343 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S271364AbRH3Vn5>;
+	Thu, 30 Aug 2001 17:43:57 -0400
+Date: Thu, 30 Aug 2001 22:56:27 +0200
+From: Stefan Fleiter <stefan.fleiter@gmx.de>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Diet /sbin/hotplug package released
+Message-ID: <20010830225627.A11646@shuttle.mothership.home.dhs.org>
+Mail-Followup-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010830124700.A3694@shuttle.mothership.home.dhs.org> <3117682009.999188508@[10.132.112.53]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <3117682009.999188508@[10.132.112.53]>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> How do I know that this is because of the via82cxxx driver? Well, it
-> always happens with 2.4.x and this driver enabled. It never happens to me
-> with 2.2.19, which has an older driver for this kind of ide controller.
-> But when I apply the ide backport patch to 2.2.19, giving me the via82cxxx
-> driver on 2.2.19, the machine once again crashes at the same 75.6% of the
-> e2fsck run. When I disable the driver in the kernel config, e2fsck does
-> not crash the machine. So it's not the newer IDE stuff in general, but
-> specifically this driver.
+Hi Alex!
 
-FWIW no problems with this setup:
+On Thu, 30 Aug 2001 Alex Bligh - linux-kernel wrote:
 
-2.2.20p9, ide.2.2.19.05042001.patch.bz2, e2fsck v1.19.
+>> Does it really make any sense to optimize for size and at the same time
+>> force the user to install a bash compatible shell?
+> No, that's why diet /sbin/hotplug didn't require any shell (as I understood
+> it), whereas the normal hotplug suite does.
 
-[tim@abit 2.2]# e2fsck -f -p /dev/hdc4 -C 0
-/dev/hdc4: 30/1411488 files (16.7% non-contiguous), 1754402/2819407
-blocks     
+Oh. That really makes sense...
 
-00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 0391 (rev
-02)
-00:01.0 PCI bridge: VIA Technologies, Inc.: Unknown device 8391
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev
-22)
-00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev
-10)
-00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
-(rev 30)
-00:08.0 FireWire (IEEE 1394): Texas Instruments TSB12LV23 OHCI Compliant
-IEEE-1394 Controller
-00:09.0 Multimedia audio controller: Cirrus Logic CS 4614/22/24
-[CrystalClear SoundFusion Audio Accelerator] (rev 01)
-00:0f.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev
-20)
-01:00.0 VGA compatible controller: nVidia Corporation Riva TNT2 Model 64
-(rev 11)
-
-rgds,
-tim
-
-
---
+Stefan, a bit ashamed...

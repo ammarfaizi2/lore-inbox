@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263770AbUHSIGT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263769AbUHSILV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263770AbUHSIGT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 04:06:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbUHSIGS
+	id S263769AbUHSILV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 04:11:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUHSILV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 04:06:18 -0400
-Received: from postfix4-1.free.fr ([213.228.0.62]:16274 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S263770AbUHSIFt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 04:05:49 -0400
-Message-ID: <41245F59.4080608@free.fr>
-Date: Thu, 19 Aug 2004 10:05:45 +0200
-From: Eric Valette <eric.valette@free.fr>
-Reply-To: eric.valette@free.fr
-Organization: HOME
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Li, Shaohua" <shaohua.li@intel.com>
-Cc: Karol Kozimor <sziwan@hell.org.pl>, "Brown, Len" <len.brown@intel.com>,
-       "Wang, Zhenyu Z" <zhenyu.z.wang@intel.com>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>, linux@brodo.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.8.1-mm1 and Asus L3C : problematic change found, can be reverted.
- Real fix still missing
-References: <B44D37711ED29844BEA67908EAF36F039A1877@pdsmsx401.ccr.corp.intel.com>
-In-Reply-To: <B44D37711ED29844BEA67908EAF36F039A1877@pdsmsx401.ccr.corp.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 19 Aug 2004 04:11:21 -0400
+Received: from mail.tactel.se ([195.22.66.197]:43469 "EHLO mail.tactel.se")
+	by vger.kernel.org with ESMTP id S263775AbUHSIK5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 04:10:57 -0400
+Subject: Re: 2.6.8.1-mm1 hangs on boot with ACPI
+From: Pontus Fuchs <pontus.fuchs@tactel.se>
+To: Len Brown <len.brown@intel.com>
+Cc: linux-kernel@vger.kernel.org,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+In-Reply-To: <1092898173.25911.224.camel@dhcppc4>
+References: <566B962EB122634D86E6EE29E83DD808182C35CE@hdsmsx403.hd.intel.com>
+	 <1092898173.25911.224.camel@dhcppc4>
+Content-Type: text/plain
+Message-Id: <1092903048.6392.7.camel@dhcp-225.mlm.tactel.se>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 19 Aug 2004 10:10:48 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Li, Shaohua wrote:
-> Eric,
-> The patch for bug 3049 has been in 2.6.8.1 and should fix the IO port
-> problem. If the Asus quirk is just because of IO port problem, I'd like
-> to remove it. Note PNP driver also reserves the IO port for the SMBus
-> and lets SMBus driver to use it. ACPI motherboard driver behaves the
-> same as PNP driver.
+On Thu, 2004-08-19 at 08:49, Len Brown wrote:
+> > After upgrading to 2.6.8.1-mm1 from plain 2.6.8.1 my machine does not
+> > boot anymore. The last message i see is:
+> > 
+> > ACPI: Processor [CPU0] (supports C1,C2,C3, 8 throttling states)
+> > 
+> > In plain 2.6.8.1 the next messages would be:
+> > 
+> > ACPI: Thermal Zone [THRM] (52 C)
+> > Console: switching to colour frame buffer device 175x65
+> > Linux agpgart interface v0.100 (c) Dave Jones
+> > agpgart: Detected SiS 648 chipset
+> > 
+> > Booting with acpi=off works fine. I have also tried pci=routeirq but
+> > it
+> > does not make any difference.
+> > 
+> > The machine is an Asus L5c laptop.
+> 
+> Please try booting with "pci=routeirq"
+> If that doesn't work, please take stock 2.6.8.1 and apply the latest
+> patch here:
+> http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.8/
+> and give it a go.
+> 
+> This will bring your kernel up to the same ACPI patch that is in the -mm
+> tree, but without all the other stuff in the mm tree.
+> 
+> If it fails, then ACPI broke.  If it works, then something in -mm broke
+> ACPI.
 
-Unfortunately, as I understand it, the fix is done to "unhide" the SMBus 
-that otherwyse is not seen but it has unexpected side effect of messing 
-ioports allocation/reservation. I guess lspci with and without the fix 
-could help to understand the problem. Here is the comment on top of the 
-function :
+Hi,
 
-/*
-  * On ASUS P4B boards, the SMBus PCI Device within the ICH2/4 southbridge
-  * is not activated. The myth is that Asus said that they do not want the
-  * users to be irritated by just another PCI Device in the Win98 device
-  * manager. (see the file prog/hotplug/README.p4b in the lm_sensors
-  * package 2.7.0 for details)
-  *
-  * The SMBus PCI Device can be activated by setting a bit in the ICH LPC
-  * bridge. Unfortunately, this device has no subvendor/subdevice ID. So it
-  * becomes necessary to do this tweak in two steps -- I've chosen the Host
-  * bridge as trigger.
-  */
+I did what you suggested but the kernel still hangs. I have put the
+details on bugme.osdl.org:
 
-BTW, maybe we should change the comment because it is on many ASUS 
-boards if not all ...
+http://bugme.osdl.org/show_bug.cgi?id=3233
 
--- eric
+Pontus Fuchs
+
 
 

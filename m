@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263656AbUFKAhr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263665AbUFKAkF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263656AbUFKAhr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 20:37:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263702AbUFKAhr
+	id S263665AbUFKAkF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 20:40:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263626AbUFKAkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 20:37:47 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:32896 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263656AbUFKAhB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 20:37:01 -0400
-Date: Thu, 10 Jun 2004 20:36:42 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: alan <alan@clueserver.org>
-cc: walt <wa1ter@myrealbox.com>, linux-kernel@vger.kernel.org
+	Thu, 10 Jun 2004 20:40:05 -0400
+Received: from mx1.cs.washington.edu ([128.208.5.52]:65459 "EHLO
+	mx1.cs.washington.edu") by vger.kernel.org with ESMTP
+	id S263664AbUFKAin (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 20:38:43 -0400
+Date: Thu, 10 Jun 2004 17:38:32 -0700 (PDT)
+From: Vadim Lobanov <vadim@cs.washington.edu>
+To: James Buchanan <buchanan@iinet.net.au>
+cc: Tim Hockin <thockin@hockin.org>, walt <wa1ter@myrealbox.com>,
+       alan <alan@clueserver.org>, <linux-kernel@vger.kernel.org>
 Subject: Re: Insults in the kernel-sources
-In-Reply-To: <Pine.LNX.4.44.0406101543160.18250-100000@www.fnordora.org>
-Message-ID: <Pine.LNX.4.53.0406102030480.28013@chaos>
-References: <Pine.LNX.4.44.0406101543160.18250-100000@www.fnordora.org>
+In-Reply-To: <1086914046.1812.2.camel@localhost>
+Message-ID: <20040610173731.I8547-100000@attu2.cs.washington.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Jun 2004, alan wrote:
+On Fri, 11 Jun 2004, James Buchanan wrote:
 
-> On Thu, 10 Jun 2004, walt wrote:
->
-> > alan wrote:
-> >
-> > > Turns out the Microsoft code has just as much profanity, if not more, than
-> > > the Linux kernel source.  (Of course, they have more to swear about...)
-> >
-> > Not that I doubt you for one second -- but I'd like to examine the M$ source
-> > code for myself if you don't mind.  Only for the purpose of verifying your
-> > somewhat unusual claim, naturally.
-> >
-> > Oh, BTW, where can I find their source code...
->
-> The M$ swearwords was widely reported by the press after the source code
-> leakage.
->
-> You might still be able to find it on one of the file sharing networks.
->
+> 
+> > Note to all: do not accept patches from Vadim.  Sorry, guy.  You're
+> > tainted.
+> 
+> Yeah, we don't want microshit's source in Linux!!  Hah.
+> 
+> Seriously, how can this amount to anything?  M$ claiming Vadim stole
+> Win2K source and contributed it to Linux?  Pu-leeease....
+> 
+> Maybehap they could use their lawyers to stir up a great mess and cause
+> people to waste a lot of money defending spurious lawsuits... in which
+> case I get your point...
+> 
+> 
+> 
 
-Yes. I recall is was something like:
+In which case they could go after anyone with an internet connection, 
+given that their sources were (still are?) floating around on the net. In 
+any case, even if I wanted to copy, I couldn't, for the simple fact that I 
+don't have the source.
 
-10 IF MID$(LEFT$(A$,3), B$) THEN GOTO 20 ELSE GOTO 10
-20 GOTO 100
-100 WHILE((SCREW$, 4Q2), CUSTOMER$) GOTO BANK
-200 GOTO 10
-
-All written in MBASIC.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+-VadimL
 

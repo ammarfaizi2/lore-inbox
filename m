@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319034AbSIDDjc>; Tue, 3 Sep 2002 23:39:32 -0400
+	id <S319040AbSIDDo4>; Tue, 3 Sep 2002 23:44:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319036AbSIDDjc>; Tue, 3 Sep 2002 23:39:32 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:6149 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S319034AbSIDDjb>; Tue, 3 Sep 2002 23:39:31 -0400
-Date: Tue, 3 Sep 2002 20:43:45 -0700 (PDT)
-From: Andre Hedrick <andre@pyxtechnologies.com>
-To: Thomas Molina <tmolina@cox.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5 Problem Report Status
-In-Reply-To: <Pine.LNX.4.44.0209032223110.2336-100000@dad.molina>
-Message-ID: <Pine.LNX.4.10.10209032042090.3253-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S319039AbSIDDo4>; Tue, 3 Sep 2002 23:44:56 -0400
+Received: from holomorphy.com ([66.224.33.161]:2979 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S319038AbSIDDoz>;
+	Tue, 3 Sep 2002 23:44:55 -0400
+Date: Tue, 3 Sep 2002 20:42:12 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       davem@vger.kernel.org, akpm@zip.com.au
+Subject: Re: [PATCH] Important per-cpu fix.
+Message-ID: <20020904034212.GW888@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Rusty Russell <rusty@rustcorp.com.au>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org, davem@vger.kernel.org,
+	akpm@zip.com.au
+References: <20020904023535.73D922C12D@lists.samba.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <20020904023535.73D922C12D@lists.samba.org>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Sep 2002, Thomas Molina wrote:
+On Wed, Sep 04, 2002 at 12:35:41PM +1000, Rusty Russell wrote:
+> Frankly, I'm amazed the kernel worked for long without this.
+> Every linker script thinks the section is called .data.percpu.
+> Without this patch, every CPU ends up sharing the same "per-cpu"
+> variable.
+> This might explain the wierd per-cpu problem reports from Andrew and
+> Dave, and also that nagging feeling that I'm an idiot...
 
-> The latest version of the followng problem report status page can be found 
-> at: http://members.cox.net/tmolina/kernprobs/status.html
-> 
->    Notes:
->      * Off-list  email sent to me regarding these reports is much 
-> appreciated. Relevant comments to a problem report will
->        be added to the discussion thread unless specifically requested not 
-> to. If you do send me a comment, please CC the
->        list.
->      * Great  progress has been made in forward porting IDE driver code 
-> from 2.4 to 2.5. Several people have tried 2.5.33
->        without disaster. Updates continue to be added to the -ac kernels 
-> and the 2.5 bitkeeper kernels.
-
-Yipee!  I was worried this could be a disaster to rush updates to 2.5.
+Hmm, 2.5.33 is doing some *really* weird crap. OTOH it doesn't appear
+to be tripping the BUG() in softirq.c, and disks seem to be doing okay.
+It survived 4 parallel mkfs's. I'll follow up with some kind of
+bugreport on the PCI and/or starfire.c front in a separate post.
 
 
-Andre Hedrick
-iSCSI Software Solutions Provider
-http://www.PyXTechnologies.com/
-
+Cheers,
+Bill

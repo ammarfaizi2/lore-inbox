@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316545AbSE3KZy>; Thu, 30 May 2002 06:25:54 -0400
+	id <S316567AbSE3KaM>; Thu, 30 May 2002 06:30:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316567AbSE3KZx>; Thu, 30 May 2002 06:25:53 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:55795 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S316545AbSE3KZw>; Thu, 30 May 2002 06:25:52 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20020530064048.GJ19308@atrey.karlin.mff.cuni.cz> 
-To: Jan Hubicka <jh@suse.cz>
-Cc: Pavel Machek <pavel@suse.cz>, Dave Jones <davej@suse.de>,
-        Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>,
-        Luigi Genoni <kernel@Expansa.sns.it>,
-        "J.A. Magallon" <jamagallon@able.es>, Luca Barbieri <ldb@ldb.ods.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [2.4] [2.5] [i386] Add support for GCC 3.1 -march=pentium{-mmx,3,4} 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 30 May 2002 11:25:14 +0100
-Message-ID: <27631.1022754314@redhat.com>
+	id <S316568AbSE3KaL>; Thu, 30 May 2002 06:30:11 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:26305 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S316567AbSE3KaK> convert rfc822-to-8bit;
+	Thu, 30 May 2002 06:30:10 -0400
+Message-Id: <200205301029.g4UATuE03249@mail.pronto.tv>
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: Pronto TV AS
+To: Andrew Morton <akpm@zip.com.au>,
+        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Subject: Re: [BUG] 2.4 VM sucks. Again
+Date: Thu, 30 May 2002 12:29:55 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200205241004.g4OA4Ul28364@mail.pronto.tv> <1572079531.1022225730@[10.10.2.3]> <3CEE954F.9CB99816@zip.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > I don't think Andrew is ready to submit this yet ... before anything
+> > gets merged back, it'd be very worthwhile testing the relative
+> > performance of both solutions ... the more testers we have the
+> > better ;-)
+>
+> Cripes no.  It's pretty experimental.  Andrea spotted a bug, too.  Fixed
+> version is below.
 
-jh@suse.cz said:
->  I don't do that at the moment.  I am thinking about teaching it to
-> use SSE moves for moving/clearing 64bit and larger values in memory.
-> (ie for inlining constantly sized string operations)
+Works great! This should _definetely_ be merged into the main kernel after 
+som testing. Without it _all_ other kernels I've tested (2.4.lots) goes OOM 
+under the mentioned scenarios. This one simply does the job.
 
-Please ensure that we get -mno-implicit-fp and/or -mno-implicit-sse options 
-to GCC _long_ before there's any chance of actually _needing_ to use them 
-to get a correct kernel compile.
+> It's possible that keeping the number of buffers as low as possible
+> will give improved performance over Andrea's approach because it
+> leaves more ZONE_NORMAL for other things.  It's also possible that
+> it'll give worse performance because more get_block's need to be
+> done for file overwriting.
 
---
-dwmw2
+Andrea's patch merely pushed the problem forward. This one fixed it
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
 
-
+Computers are like air conditioners.
+They stop working when you open Windows.

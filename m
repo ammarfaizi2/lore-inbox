@@ -1,69 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265117AbRFUTEu>; Thu, 21 Jun 2001 15:04:50 -0400
+	id <S265116AbRFUTEu>; Thu, 21 Jun 2001 15:04:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265118AbRFUTEp>; Thu, 21 Jun 2001 15:04:45 -0400
-Received: from web9604.mail.yahoo.com ([216.136.129.183]:5640 "HELO
-	web9604.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S265116AbRFUTEg>; Thu, 21 Jun 2001 15:04:36 -0400
-Message-ID: <20010621190434.82955.qmail@web9604.mail.yahoo.com>
-Date: Thu, 21 Jun 2001 12:04:34 -0700 (PDT)
-From: abc abc <netlogin_99@yahoo.com>
-Subject: rename problem on vfat file systems
-To: linux-kernel@vger.kernel.org
+	id <S265117AbRFUTEo>; Thu, 21 Jun 2001 15:04:44 -0400
+Received: from srv01s4.cas.org ([134.243.50.9]:11409 "EHLO srv01.cas.org")
+	by vger.kernel.org with ESMTP id <S265118AbRFUTEb>;
+	Thu, 21 Jun 2001 15:04:31 -0400
+From: Mike Harrold <mharrold@cas.org>
+Message-Id: <200106211904.PAA10433@mah21awu.cas.org>
+Subject: Re: Controversy over dynamic linking -- how to end the panic
+To: ttabi@interactivesi.com (Timur Tabi)
+Date: Thu, 21 Jun 2001 15:04:21 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <qi1bhC.A.lfF.ZEkM7@dinero.interactivesi.com> from "Timur Tabi" at Jun 21, 2001 01:46:48 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> To be honest, I disagree that #include'ing a GPL header file should force your
+> app to be GPL as well.  That may be how the license reads, but I think it's a
+> very bad idea.  I could write 1 million lines of original code, but if someone
+> told me that but simply adding #include <stdio.h> my code is now a derivative of
+> the stdio.h, I'd tell him to go screw himself.
 
-I have been having problems using rename system call
-on vfat file systems. I have looked at the kernel code
-and tried everything I could do to figure out what
-might be going wrong. As a last resort I thought you
-might be able to help me.
+Not to mention utterly unenforceable. Consider:
 
-The /etc/fstab entry for the drive that I mount looks
-like this
+1) Oracle Corp. builds their database for Linux on a Linux system.
+2) Said system comes with standard header files, which happen in this case to
+   be GPL'd header files.
+3) Oracle Corp.'s database becomes GPL.
 
-/dev/sdc1 /mnt/sns-c vfat noauto,sync,user 0 0
+There's not a court in the civilised world that would uphold the GPL in that
+scenario.
 
-here's the code snippet of what I am trying to do
+Regards,
 
-int copy_seg_file(char *segFile)
-{
-  char command[128];
-  sprintf(command, "cp %s /mnt/sns-c/tmp/segfile",
-          *segFile);
-  system(command);
-  sync();
-  rename("/mnt/sns-c/tmp/segfile",
-         "/mnt/sns-c/segments/segfile");
-  printf("file copied\n");
-}
-
-initially the file is copied to the temporary
-directory to deal with the power outage during the
-file copy. Once the file is completely copied, it will
-be renamed to the final destination.
-
-If I reboot the machine just after the rename() call
-is completed, when the machine comes up the file
-/mnt/sns-c/segments/segfile has zero bytes and there
-is no file in the tmp directory. Effectively the file
-is lost some where. Running fsck recovers the file,
-but it doesn't help me much because I would be copying
-hundreds of files and its difficult to match the
-files.
-
-Can you think of any thing that might be causing this.
-Any help is highly appreciated.
-
-Thanks,
-Kumar
-
-__________________________________________________
-Do You Yahoo!?
-Get personalized email addresses from Yahoo! Mail
-http://personal.mail.yahoo.com/
+/Mike

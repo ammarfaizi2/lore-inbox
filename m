@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280961AbRKCOsr>; Sat, 3 Nov 2001 09:48:47 -0500
+	id <S280964AbRKCPVi>; Sat, 3 Nov 2001 10:21:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280962AbRKCOsg>; Sat, 3 Nov 2001 09:48:36 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:30925 "EHLO
-	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S280961AbRKCOs2>; Sat, 3 Nov 2001 09:48:28 -0500
-Disclaimer: this mail was relayed by an official relay of the linux-society.
-From: Andreas Achtzehn <linux-kernel@achtzehn.2y.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.13: unresolved symbols with modules_install
-Date: Sat, 3 Nov 2001 15:48:18 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
+	id <S280965AbRKCPV1>; Sat, 3 Nov 2001 10:21:27 -0500
+Received: from sitar.i-cable.com ([210.80.60.11]:3217 "HELO sitar.i-cable.com")
+	by vger.kernel.org with SMTP id <S280964AbRKCPVS>;
+	Sat, 3 Nov 2001 10:21:18 -0500
+Message-ID: <3BE4B4D5.5090704@rcn.com.hk>
+Date: Sun, 04 Nov 2001 11:24:05 +0800
+From: David Chow <davidchow@rcn.com.hk>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-GB; rv:0.9.2) Gecko/20010726 Netscape6/6.1
+X-Accept-Language: en-gb
 MIME-Version: 1.0
-Message-Id: <01110315481802.06645@paris>
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: wrong domainname in ipconfig.c
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear list readers,
+Dear all,
 
-I have severe problems compiling a 2.4.13 kernel on a LFS based system. (gcc 
-2.95.2, glibc 2.2.4)
-For those who have not yet used a LFS system: I have a fully running 
-linux-system on a partition. I do the following before compiling the kernel
+In ipconfig.c the GNU extension'ss domainname (ypdomain or nisdomain) in 
+system_utsname.domainname is wrong after executing the function "__init 
+ip_auto_config_setup()". It has mixed with the dnsdomain passed from the 
+kernel command line "ip=". This also results in the wrong hostname which 
+is passed by the command line, this make commands like "domainname", 
+"nisdomainname", "dnsdomainname" and "hostname" output wrong 
+information. The dns domainname should be read from the hostname from 
+the "uname()" call. The nisdomainname stored in the 
+system_utsname.domainname is a GNU extension. To support passing 
+nisdomain from the kernel command line should use a separate parameter 
+such as "nisdomain=" or "ypdomain=" where #ifdef _GNU_SOURCE will enable 
+compile-in of this bootup option to allow bootup configure with the 
+nisdomain. I will make a patch for this later. If anyone is also doing 
+the same thing, please give me a notice. Thanks.
 
-mount -t proc proc /mnt2/proc
-chroot /mnt2 /usr/bin/env -i HOME=/root TERM=$TERM /bin/bash --login
+regards,
 
-I follow this way to compile a kernel for my system:
+DC
 
-tar xvfz linux-2.4.13.tar.gz
-cd linux
-cp ../config.aktuell ./.config # this is a config I created before
-make menuconfig # no changes, just exit (otherwise no autoconfig.h)
-make dep 
-make clean
-make bzImage # works quite well up to here
-cp System.map /boot
-make modules
-make modules_install 
-
-The modules_install ends with 
-
-mkdir -p pcmcia; \
-find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.13; fi
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.13/kernel/drivers/net/wan/comx.o
-depmod:         proc_get_inode
-achtzehn:/usr/src/linux#       
-
-Is it possible that this is due to the proc-system and its unusual mounting?
-
-Regards,
-Andreas Achtzehn

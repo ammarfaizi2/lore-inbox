@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261339AbSLJM16>; Tue, 10 Dec 2002 07:27:58 -0500
+	id <S261368AbSLJMpt>; Tue, 10 Dec 2002 07:45:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261368AbSLJM16>; Tue, 10 Dec 2002 07:27:58 -0500
-Received: from cm19173.red.mundo-r.com ([213.60.19.173]:14267 "EHLO
-	demo.mitica") by vger.kernel.org with ESMTP id <S261339AbSLJM15>;
-	Tue, 10 Dec 2002 07:27:57 -0500
-To: Daniel Egger <degger@fhm.edu>
-Cc: Dave Jones <davej@codemonkey.org.uk>, Joseph <jospehchan@yahoo.com.tw>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Why does C3 CPU downgrade in kernel 2.4.20?
-References: <009f01c2a000$f38885d0$3716a8c0@taipei.via.com.tw>
-	<20021210055215.GA9124@suse.de> <1039504941.30881.10.camel@sonja>
-X-Url: http://people.mandrakesoft.com/~quintela
-From: Juan Quintela <quintela@mandrakesoft.com>
-In-Reply-To: <1039504941.30881.10.camel@sonja>
-Date: 10 Dec 2002 13:40:56 +0100
-Message-ID: <m27kei9hd3.fsf@demo.mitica>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2.92
+	id <S261370AbSLJMpt>; Tue, 10 Dec 2002 07:45:49 -0500
+Received: from web10305.mail.yahoo.com ([216.136.130.83]:20819 "HELO
+	web10305.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S261368AbSLJMps>; Tue, 10 Dec 2002 07:45:48 -0500
+Message-ID: <20021210125332.69872.qmail@web10305.mail.yahoo.com>
+Date: Tue, 10 Dec 2002 12:53:32 +0000 (GMT)
+From: "=?iso-8859-1?q?J.D.=20Hood?=" <jdthood@yahoo.co.uk>
+Subject: Re: 2.4.20-ac1 hangs IBM Thinkpad
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "daniel" == Daniel Egger <degger@fhm.edu> writes:
+I have also stopped using 2.4.20-ac1 on my ThinkPad.
+It performs much worse than 2.4.20-pre8-ac1 when running
+large applications such as OpenOffice.  (It never crashed
+on me, though.)  Having read the recent thread on changes
+to the scheduler and yield(), I suspect that the problem
+is related to that, since the 2.4-ac series has the O(1)
+scheduler.
 
-daniel> Am Die, 2002-12-10 um 06.52 schrieb Dave Jones:
->> I believe someone (Jeff Garzik?) benchmarked gcc code generation,
->> and the C3 executed code scheduled for a 486 faster than it did for
->> -m586
->> I'm not sure about the alignment flags. I've been meaning to look
->> into that myself...
+If my suspicion is correct, then I concur with the opinion
+that O(1) should not be backported to mainline 2.4.
 
-daniel> Interesting. I have no clue about which C3 you're talking about here but
-daniel> a VIA Ezra has all 686 instructions including cmov and thus optimising 
-daniel> for PPro works best for me.
+--
+Thomas Hood
 
-Have you tested it?
-
-Here, we got cmov to work if the two operands are registers, if any of
-the operands is in memory, it don't work.
-
-Been there, been burned :p 
-
-Later, Juan.
-
--- 
-In theory, practice and theory are the same, but in practice they 
-are different -- Larry McVoy
+__________________________________________________
+Do You Yahoo!?
+Everything you'll ever need on one web page
+from News and Sport to Email and Music Charts
+http://uk.my.yahoo.com

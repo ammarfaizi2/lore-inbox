@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269149AbTB0Bbe>; Wed, 26 Feb 2003 20:31:34 -0500
+	id <S269151AbTB0C0A>; Wed, 26 Feb 2003 21:26:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269150AbTB0Bbe>; Wed, 26 Feb 2003 20:31:34 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:16840 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S269149AbTB0Bba>; Wed, 26 Feb 2003 20:31:30 -0500
-Date: Wed, 26 Feb 2003 17:41:46 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: LKML <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 415] New: aty128fb.c fails to compile (logic error)
-Message-ID: <13740000.1046310106@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S269152AbTB0C0A>; Wed, 26 Feb 2003 21:26:00 -0500
+Received: from nwkea-mail-1.sun.com ([192.18.42.13]:49643 "EHLO
+	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
+	id <S269151AbTB0CZ7>; Wed, 26 Feb 2003 21:25:59 -0500
+Message-ID: <3E5D799B.7030207@sun.com>
+Date: Wed, 26 Feb 2003 18:36:11 -0800
+From: Tim Hockin <thockin@sun.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Quota and Q_SYNC - broken
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=415
+Can someone please fill me in on two questions?
 
-           Summary: aty128fb.c fails to compile (logic error)
-    Kernel Version: 2.5.63
-            Status: NEW
-          Severity: normal
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: donaldlf@i-55.com
+1)  Why did the Q_SYNC and friends constants get changed?  I have old 
+binaries that don't work anymore, and in fact, new binaries don't work 
+either unless I update my sys/quota.h.
 
+2)  Does quoatctl(Q_SYNC) still work with a NULL special (meaning sync 
+all quotas)?  The man page has it listed, but it seems to be broken.
 
-Distribution:rawhide
-Hardware Environment: LX164/alpha
-Software Environment: redhat
-Problem Description:
+I'll provide a patch for the second, if someone wants to point out why 
+the first was broken (braindead) and what the preferred solution is.
 
-the driver aty128fb.c aka DRI for ATI Rage pro fails to compile
-due to logic error in aty128fb_setup there are 3 #define cases each
-is for mac, intel , or ppc. there is an 4th case for default purposes.
-The logic is constructed so that it's an if else logic tree, find a good
- case short circuit around the rest. The problem is if one of the three
-conditions don't apply then there is an else with no if. I restructured
-the code so now it uses continues. Same speed fewer indentions and 
-it will now compile. 
+Thanks.
 
-patch will be include in followup.
-
-Steps to reproduce:
-
-select XFree 4.1 DRI modules.
-select an non PPC no Intel hardware
-select ATI Rage 128 DRI driver
-compile.
-
+Tim
+-- 
+Tim Hockin
+Systems Software Engineer
+Sun Microsystems, Linux Kernel Engineering
+thockin@sun.com
 

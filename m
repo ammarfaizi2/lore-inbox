@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262836AbUBZUKV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 15:10:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbUBZUKV
+	id S262834AbUBZUNH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 15:13:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262964AbUBZUNG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 15:10:21 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:38275 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262836AbUBZUKQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 15:10:16 -0500
-Message-ID: <403E53C3.9090106@tmr.com>
-Date: Thu, 26 Feb 2004 15:14:59 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mike Fedyk <mfedyk@matchmail.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] O(1) Entitlement Based Scheduler
-References: <1tfy0-7ly-29@gated-at.bofh.it> <1thzJ-A5-13@gated-at.bofh.it> <1tjrN-2m5-1@gated-at.bofh.it> <1tjLa-2Ab-9@gated-at.bofh.it> <1tlaf-3OY-11@gated-at.bofh.it> <1tljX-3Wf-5@gated-at.bofh.it> <1tznd-CP-35@gated-at.bofh.it> <1tzQe-10s-25@gated-at.bofh.it>
-In-Reply-To: <1tzQe-10s-25@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Feb 2004 15:13:06 -0500
+Received: from guug.galileo.edu ([168.234.203.30]:21384 "EHLO guug.galileo.edu")
+	by vger.kernel.org with ESMTP id S262971AbUBZULy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 15:11:54 -0500
+Date: Thu, 26 Feb 2004 14:12:16 -0600
+To: James Simmons <jsimmons@infradead.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] fbdv/fbcon pending problems
+Message-ID: <20040226201216.GH17390@guug.org>
+References: <20040226194020.GF17390@guug.org> <Pine.LNX.4.44.0402261941520.20525-100000@phoenix.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0402261941520.20525-100000@phoenix.infradead.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Otto Solares <solca@guug.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk wrote:
-> Shailabh Nagar wrote:
+On Thu, Feb 26, 2004 at 07:45:47PM +0000, James Simmons wrote:
 > 
->>>> Mike Fedyk wrote:
->>>>
->>>>> Better would be to have the kernel tell the daemon whenever a 
->>>>> process in exec-ed, and you have simplicity in the kernel, and 
->>>>> policy in user space.
->>
->>
->>
->>
->> As it turns out, one can still use a fairly simple in-kernel module 
->> which provides a *mechanism* for effectively changing a process' 
->> entitlement while retaining the policy component in userland.
+> > Exactly, that's the whole point, if you want userland accel you must disable
+> > kernel land accel.  That's was my question against acceleration work inside
+> > the kernel.  Nobody use it in userland and is the stability devil in fbdev.
+> > If you want acceleration in userland there is mesa-solo or directfb or console-sdl.
+> > 
+> > In short acceleration belongs to specialized libs not the kernel.
+> > 
+> > Why accel it is needed for font drawing?, i am pretty sure my 8bit video old
+> > sparc doesn't have any accel and is pretty capable for drawing fonts.
 > 
-> 
-> How much code could be removed if CKRM triggered a userspace process to 
-> perform the operations required?
+> Because we are going to run into graphics hardware that don't have 
+> framebuffers. The solution is the one we are approaching now. That fbcon 
+> be a client like userland apps to the accel engine. You will see it will 
+> all work out :-)
 
-One other interesting question is what would happen if the userspace 
-program didn't run, died, etc. Or set some ill-behaved other user 
-program to a higher priority and the other program did a DoS 
-(intentional or not)?
+Oh, that fact changes everything :)
 
-I don't like the whole idea, but I like it even less with a user program 
-requiring context switches on scheduling.
+-otto
 

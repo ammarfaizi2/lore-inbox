@@ -1,31 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130029AbQLGXpP>; Thu, 7 Dec 2000 18:45:15 -0500
+	id <S131678AbQLGXpP>; Thu, 7 Dec 2000 18:45:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130786AbQLGXpF>; Thu, 7 Dec 2000 18:45:05 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:33298 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S130029AbQLGXo7>;
-	Thu, 7 Dec 2000 18:44:59 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Joseph Cheek <joseph@cheek.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at buffer.c:827 in test12-pre6 and 7 
-In-Reply-To: Your message of "Thu, 07 Dec 2000 14:42:38 -0800."
-             <3A30125D.5F71110D@cheek.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 08 Dec 2000 10:14:28 +1100
-Message-ID: <5837.976230868@ocs3.ocs-net>
+	id <S130029AbQLGXpG>; Thu, 7 Dec 2000 18:45:06 -0500
+Received: from 62-6-231-122.btconnect.com ([62.6.231.122]:35588 "EHLO
+	penguin.homenet") by vger.kernel.org with ESMTP id <S129645AbQLGXo5>;
+	Thu, 7 Dec 2000 18:44:57 -0500
+Date: Thu, 7 Dec 2000 23:16:19 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andreas Klein <asklein@cip.physik.uni-wuerzburg.de>,
+        linux-kernel@vger.kernel.org, drew@colorado.edu
+Subject: Re: bug in scsi.c
+In-Reply-To: <E144ACA-00038L-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0012072314021.933-100000@penguin.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 07 Dec 2000 14:42:38 -0800, 
-Joseph Cheek <joseph@cheek.com> wrote:
->loop.o built as module.  this hard crashes the machine, every time
->[PIII-450].  i don't know how to debug this, is there a FAQ?
+On Thu, 7 Dec 2000, Alan Cox wrote:
+> > > > A proper way to release the references to resources is to call daemonize()
+> > > > function from within the kernel thread function, which calls
+> > > > exit_fs()/exit_files() internally.
+> > > 
+> > > Nearly correct, the daemonize function does NOT call exit_files.
+> > 
+> > I do not post messages to linux-kernel without checking the facts
+> > first. Read the daemonize() function and see for yourself that you are
+> > wrong.
+> 
+> Andreas is looking at a slightly older kernel, and was right for that. Every
+> caller to daemonize either then did the file stuff or needed to and forgot
+> so I fixed daemonize
 
-linux/Documentation/oops-tracing.txt
+Yes, yes, Alan, I do know that. I just took it for granted that the
+correctness of the statement when applied to the latest kernel should not
+upset someone who is looking at the older version so me calling someone
+"wrong" is not a strong offensive term, just a mild thing saying "guess
+what -- things changed". Just trying to exercise the human mind to get
+used to quick changes in the Linux world -- that is all :)
+
+Regards,
+Tigran
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

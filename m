@@ -1,80 +1,159 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132151AbRDJVTw>; Tue, 10 Apr 2001 17:19:52 -0400
+	id <S132127AbRDJVWW>; Tue, 10 Apr 2001 17:22:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132127AbRDJVTn>; Tue, 10 Apr 2001 17:19:43 -0400
-Received: from elf.ihep.su ([194.190.161.106]:37617 "EHLO fay.elferno.lo")
-	by vger.kernel.org with ESMTP id <S132151AbRDJVT3>;
-	Tue, 10 Apr 2001 17:19:29 -0400
-Date: Wed, 11 Apr 2001 01:19:01 +0400
-From: "Eugene B. Berdnikov" <berd@elf.ihep.su>
-To: kuznet@ms2.inr.ac.ru
-Cc: "Eugene B. Berdnikov" <berd@elf.ihep.su>, linux-kernel@vger.kernel.org,
-        Dave Miller <davem@redhat.com>
-Subject: Re: Bug report: tcp staled when send-q != 0, timers == 0.
-Message-ID: <20010411011901.A2029@fay.elferno.lo>
-In-Reply-To: <20010409184338.B1396@elf.ihep.su> <200104101738.VAA21467@ms2.inr.ac.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200104101738.VAA21467@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Tue, Apr 10, 2001 at 09:38:43PM +0400
+	id <S132220AbRDJVWM>; Tue, 10 Apr 2001 17:22:12 -0400
+Received: from mail.mediatrix.com ([205.237.248.11]:32016 "EHLO
+	mail.mediatrix.com") by vger.kernel.org with ESMTP
+	id <S132127AbRDJVWD>; Tue, 10 Apr 2001 17:22:03 -0400
+Message-ID: <F1BED55F35F4D3118C0F00E0295CFF4D414A49@mail.mediatrix.com>
+From: Jean-Denis Boyer <jdboyer@mediatrix.com>
+To: linux-kernel@vger.kernel.org
+Subject: Patch for arch/ppc/8xx_io/fec.c
+Date: Tue, 10 Apr 2001 17:18:50 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_000_01C0C203.D67DE840"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello.
+This message is in MIME format. Since your mail reader does not understand
+this format, some or all of this message may not be legible.
 
-On Tue, Apr 10, 2001 at 09:38:43PM +0400, kuznet@ms2.inr.ac.ru wrote:
-> If my guess is right, you can easily put this socket to funny state
-> just catting a large file and kill -STOP'ing ssh. ssh will close window,
-> but sshd will not send zero probes.
+------_=_NextPart_000_01C0C203.D67DE840
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
- [1] I have checked your statement on 2 different machines, running 2.2.17.
- No confirmation. But this is much more funny than it simply sounds. :)
 
- The thing is that one machine (which run ssh client in my bug report)
- do send ACKs when ssh is SIGSTOP'ed. The other one does not send ACKs,
- but much more curious is that it does not send ACKs even when input
- buffer is filled, and client IS NOT stopped! :))) Hence connection dies
- due to retransmission timeout on the server side.
+Hello.
 
- I did not believe my own eyes and tried this test several times, with
- ssh1 and openssh, copying ssh configs, but results were always the same.
+I've attached to this mail a patch for the FEC driver
+on the Motorola MPC8xx embedded CPU.
 
- Both hosts are running 2.2.17 on K6 processors, compiled via egcs-1.1.2,
- with minor differences in the kernel configuration. If you really check
- your statements before writing, you surely have a 2.2.17 which behave some
- another way, which I can't reproduce. Isn't funny? :)))
+This patch includes both a bug fix, and a new PHYter implementation.
 
- I can send configs (and even binary kernels with modules) for verification.
- If this is not a complete fault, we have a very-very sad situation, when
- tcp core behaviour depends on the secondary configuration options.
- I have no other ideas how it can be explained.
+ Symptom
+---------
+I was experiencing problems of "transmission timeout" when heavily
+loading the network (throughput tests), particularly when the board
+was wired to a 10MBits link (but I could also reproduce it on 100Mbits
+using the packet sockets). The user process was then "held" by the IP
+stack, I had no choice but to kill it.
 
- [2] Your second statement is that sshd with keepalive enabled does not send
- zero probes when input window is closed. Be sure, in my case it sends:
+ Bug description
+-----------------
+When, in rare cases, the ring buffer became full, the driver was =
+stopping
+the network queue, which is OK. But, it did not set a flag to restart
+the queue in the transmission interrupt service routine.
 
- 01:04:05.025715 194.190.166.31.22 > 194.190.161.106.1006: . ack 1 win 32120 <nop,nop,timestamp 117938386 1780393243> (DF) [tos 0x10]
- 01:04:05.025816 194.190.161.106.1006 > 194.190.166.31.22: . ack 17376 win 0 <nop,nop,timestamp 1780405324 117898941> (DF) [tos 0x10]
- 01:06:05.953026 194.190.166.31.22 > 194.190.161.106.1006: . ack 1 win 32120 <nop,nop,timestamp 117950477 1780405324> (DF) [tos 0x10]
- 01:06:05.953122 194.190.161.106.1006 > 194.190.166.31.22: . ack 17376 win 0 <nop,nop,timestamp 1780417417 117898941> (DF) [tos 0x10]
+ Bug fix
+---------
+I only had to set this flag, at the same time the network queue was =
+stopped
+(already wrapped in a spin lock).
 
- BTW, I strongly rule out a possibility to stop my ssh client when I
- encounter the reported bug.
 
-> Any socket with keepalives enabled
-> enters this state after the first keepalive is sent.
+Supplement:
+ PHYter implementation
+-----------------------
+My board uses the NS chip model DP83843BVJE, for which I filled out the
+needed structures.
+However, I could not test the PHYter interrupt since it is not wired to =
+the
+PPC on our board
+(but it is enabled in this patch). I had to code a polling routine (not
+included in this patch).
 
- I do not understand how connection with closed window can wait until
- first keepalive - it must do zero probes instead.
+It might be a good idea to move all these implementations outside of
+"fec.c".
+It might be also useful to choose the supported models through the =
+kernel
+configuration.
+Perhaps I will work on that during the next weeks...
 
-> [ Note, that it is not Butenko's problem, it is still to be discovered. 8) ]
-> 
-> I think you will not able to reproduce full problem: socket will revive
-> after the first received ACK. It is another bug and its probability is
-> astronomically low.
+By the way, who is maintaining that part (MPC8xx, MPC82xx) of the =
+kernel?
 
- Hmm... I observed this bug on the host, which never performs more
- than 10 conn/sec and has peak loadvg ~ 0.15.
--- 
- Eugene Berdnikov
+
+ Other issue=20
+-------------
+I have another problem I will have to address. I'm experiencing a =
+strange
+behaviour
+in the response time when I 'ping flood' my board.
+
+Through the 10Mbits, everything works fine, the average response time =
+is
+468us,
+with realist minimum and maximum values.
+
+  > round-trip min/avg/max/mdev =3D 0.458/0.468/0.600/0.029 ms
+
+But, through the 100Mbits, the response time ranges from 0.26ms to =
+10ms,
+and an average of about 5ms, always different from test to test.
+
+  > round-trip min/avg/max/mdev =3D 0.265/6.764/10.311/4.512 ms
+
+Strangely, the board is not running anything but bash.
+If a start 'top' with a refresh period of 1 second, I get a lower =
+average,
+but still the same min and max.
+
+  > round-trip min/avg/max/mdev =3D 0.264/0.583/10.018/1.421 ms
+
+If I start an NFS copy of a big file, the maximum gets down to 2ms.
+
+
+The maximum of 10ms sounds like the timer tick.
+Since it is working well in 10Mbps and not in 100Mbps,
+can I suspect a problem with the Ethernet driver?
+
+
+Thank you for your time.
+
+--------------------------------------------
+ Jean-Denis Boyer, B.Eng., Technical Leader
+ Mediatrix Telecom Inc.
+ 4229 Garlock Street
+ Sherbrooke (Qu=E9bec)
+ J1L 2C8  CANADA
+--------------------------------------------
+
+
+------_=_NextPart_000_01C0C203.D67DE840
+Content-Type: application/octet-stream;
+	name="ppc.8xx_io.fec.c.patch.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="ppc.8xx_io.fec.c.patch.gz"
+
+H4sICLtV0zoAA3BwYy44eHhfaW8uZmVjLmMucGF0Y2gArVbhbtpIEP4NTzHqSRHBBmwgTZpeq9CE
+pFybNIe5U6uqssx6DdsY291dA1Eu9+w3syaJG5IcrWoJMDs738zOfDM7jUYDYpHky0a72W12WoFk
+01aWsdbecumLtBVx1mQVL9BwGkiADrid/Z32vtuBtuO4VcuyCvVHFEc5h14mwXXA7e53X+w77ULx
+4AAae/YuWPR1cFAFqEPIFZNizBWwNEk40yJNFORKJBPQUw4i0VwmQQxZIIM45viSSg2D1gcbFlPB
+pgZFKBgHSjDccQn4BWkE57TvqEnyagP3DBIW52gOVJ4ZjCiVxkSUxnG6IIPnbz+pffjTe/7cbdvw
+/uPoxa6z+nVb7WbV+hUwNhyd73X2up03f//RL9yjIwzFZKohSRc2DCCYwZzLS1gESvMoj2Eh9NRY
+GedRxKVqAu1CgyzQHGZ8lspLA5MFE/QtSELanUAo5iLk9D6jUKbQfgeRDGZloNEUw7cILhHxAu3D
+wCSq49jPwcLvIlW/5UnIo8rhh7PjwYl/3D/0i3OhBNdFwtdE7kNKRVCqViEBKIlKUakC6ooi0PB7
+wTWkRyQmzenrddEFMoTHJCLHu84Lew+sruvYyEDyvVIZh5llvcS3a4RuVEQENVxqvGbj0FcMtuDN
+kd8/64/80Ud/2O8dfdquWpvsgitCT7gWka90mvnfcp7zWsjn2y8RoRJxVNdLH1MYwytwaZFcgELC
+cunrJQpqZEJDfRvtoZvmHK7b6VIK8HfX3nWLLPAkRLdadViLKdRbBFy1UNj4NQ9BEtwIeXcWUGVi
+HXp8JjAXYc40Er+UNCrCXPEQ0gRUigw75aEItBRLGKeBDOEG7ld6h0wSETHpESJZxuKQTwQWkgRD
+VVH0GFJfcRdOB4Oymo8V7I08cJbIIIo2/gdPBzpXd1hP6Z8Ozr3DIem7Rt/LOBORYD8KcuIZkLYB
+OeEJl49gVC2FqyicpyKEmRA+9kvF/TAzeOP5V+4zJWs5NgEjlnxig9IS0wjIXx8pKxiHOlG3al0h
+T1dC7Ok+px2ZFHNqNnWkLlIWNzZe0xpxep7GaD3mYPDrCuVbNUPxbHrpK+MwVQRuReHWK/i3hiH1
+vVFv5Hvnpz3v3UpKNbdyD+vNWTqO00Z/AB/y6SF5l2q1Qrj/vIJbVNc5PvpoapDHij+8422x4xo/
+xaafMbOBnZKh61KqKDQiiVIs/NvXUr4whuQLGsfL09lhro3/npUI8sw2IathNaoCgs2oi3z+gn3J
+MKbomUgQAPLsCmYXPh1rIYXmNeLbsH/i9856Q5sO6fbdbRvO/nr/HuDaJoBertPGGZ+kTJj6vyPd
+YZpomcaguAa8VqCo7koFfuxBGwHZSFY2OE4NLYzY6ZtM2fA2iKPWMfXOMM9ivlzZuD2H5EF4e4zD
+IToPJe4znF3wHI9r0MFR504jSHDeuaeBHdcGoohZfyLYmFWp8wwawJNgHK9GF5lnWt33+y7+603D
+vmH9KhNFIvqbQxaxsE3fcJzbhML3SDQhDLnx+S7LepXlp8LsfR8yJQHWw7xR0Cj37MI3HeMRg+vt
+sBQWQ1BGI0vMw8lTwdnoAAbvWGBc0lybWQuvZ8nRu6J/beRkcXF8Z+BeC/55fk1zHaaLBAkWCvU/
+dLhDxZ5jWuuDo0P5+i6ukSqsd6f6zfvnL6Ypmens/q27GgeLyaW7ayaXtrtzM4OtK6xGQahs3Zr6
+pszI/MicU0yVm137JdBS/O3NwkDzGZGsChi6/wCmeKp0LQ0AAA==
+
+------_=_NextPart_000_01C0C203.D67DE840--

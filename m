@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265696AbSJSW1x>; Sat, 19 Oct 2002 18:27:53 -0400
+	id <S265687AbSJSW04>; Sat, 19 Oct 2002 18:26:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265697AbSJSW1x>; Sat, 19 Oct 2002 18:27:53 -0400
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:47122 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S265696AbSJSW1w>; Sat, 19 Oct 2002 18:27:52 -0400
-Path: Home.Lunix!not-for-mail
-Subject: Re: [PATCH] linux-2.5.43_vsyscall_A0
-Date: Sat, 19 Oct 2002 22:36:30 +0000 (UTC)
-Organization: lunix confusion services
-References: <200210190352.WAA05769@ccure.karaya.com>
-NNTP-Posting-Host: kali.eth
+	id <S265689AbSJSW04>; Sat, 19 Oct 2002 18:26:56 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:51473 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S265687AbSJSW0z>;
+	Sat, 19 Oct 2002 18:26:55 -0400
+Message-ID: <3DB1DD67.5020203@domdv.de>
+Date: Sun, 20 Oct 2002 00:32:07 +0200
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Trace: quasar.home.lunix 1035066990 24846 10.253.0.3 (19 Oct 2002
-    22:36:30 GMT)
-X-Complaints-To: abuse-0@ton.iguana.be
-NNTP-Posting-Date: Sat, 19 Oct 2002 22:36:30 +0000 (UTC)
-X-Newsreader: knews 1.0b.0
-Xref: Home.Lunix mail.linux.kernel:188371
-X-Mailer: Perl5 Mail::Internet v1.33
-Message-Id: <aosmpe$o8e$1@post.home.lunix>
-From: linux-kernel@ton.iguana.be (Ton Hospel)
-To: linux-kernel@vger.kernel.org
-Reply-To: linux-kernel@ton.iguana.be (Ton Hospel)
+To: Andre Hedrick <andre@linux-ide.org>
+CC: Christian Borntraeger <linux@borntraeger.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: ide-related kernel panic in 2.4.19 and 2.4.20-pre11
+References: <Pine.LNX.4.10.10210191451530.24031-100000@master.linux-ide.org>
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200210190352.WAA05769@ccure.karaya.com>,
-	Jeff Dike <jdike@karaya.com> writes:
+Andre Hedrick wrote:
+> So could you ask the question a little more blunt?
 > 
-> This needs to be virtualizable somehow, which means that apps run inside
-> UML, without being changed, get the UML vsyscalls.  There are a couple of
-> possiblities that I can think of:
-> 	a get_vsyscall system call which is executed by libc on startup -
-> UML would return a different calue from the host
-> 	some mechanism for UML to map its own vsyscall area in place of
-> the host's - it wouldn't necessarily need to be able to unmap it when it's
-> running its own kernel code because it can probably arrange not to use the
-> host's vsyscalls.
+> "Gee, I am trying to break a US Law on content protection, would you be my
+> enabler?  Don't worry, it only effects the US, and we are in a public
+> forum.  Also, do you prefer gray or black in your future pin stripped
+> suit?"
 > 
-> 				Jeff
-> 
-In case you want UML to also be able to work as a jail, it should
-actually be impossible to get to the "real" systemcalls. In that case
-just asking libc is not acceptable if the other area remains available
+I'm not taking any side in this, but:
+
+US law != World law (and hopefully this will stay so for a long time)
+
+Looking at the originators address and name he's from germany. FYI: 
+There's no provision in the law here that denies you personal copies of 
+copy protected contents assuming you own the original.
+In fact you even pay for this use when buying emtpy media, regardless if 
+for data backup or copying.
+So what may be illegal in the US is legal in other countries and 
+royalties are already taken care of (by law).
+As I do assume that in case of this posting the actual target was a 
+personal record compilation for mobile use you should not accuse people 
+lightly of breaking the law when you seemingly don't know what law applies.
+This doesn't mean that you have to take any action as it seems you live 
+in a country where any private software development already tends to be 
+illegal.
+To state it again: I'm strictly against illegal copying but what you 
+state here is nonsense for a lot of countries.
+-- 
+Andreas Steinmetz
+

@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272143AbTGYPJ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 11:09:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272142AbTGYPJ1
+	id S272142AbTGYPMw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 11:12:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272138AbTGYPMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 11:09:27 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:17794 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S272138AbTGYPIs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 11:08:48 -0400
-Date: Fri, 25 Jul 2003 16:33:24 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200307251533.h6PFXOQk001185@81-2-122-30.bradfords.org.uk>
-To: kilobug@freesurf.fr, lm@work.bitmover.com
-Subject: Re: Switching to the OSL License, in a dual way.
-Cc: jesse@cats-chateau.net, lgcdutra@terra.com.br,
-       linux-kernel@vger.kernel.org, lm@bitmover.com
+	Fri, 25 Jul 2003 11:12:52 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:269 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S272145AbTGYPMn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 11:12:43 -0400
+Date: Fri, 25 Jul 2003 17:27:51 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Andrew Barton <andrevv@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: forkpty with streams
+Message-ID: <20030725152751.GA606@win.tue.nl>
+References: <1059089316.8596.14.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1059089316.8596.14.camel@localhost>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  >> Nonesense. If the business no longer has the licence to use BK (for
->  >> whatever reason) then it no longer has access to the data. Now to
->  >> get access to the data you must reverse engineer BK...
->
->  > Oh, I see, you violate our license, your license is revoked, and
->  > now you have the write to reverse engineer BK?  Show me the law which 
->  > says that is true.
->
-> I was working  on a project during  my free time using BK,  and then I
-> get employed  by a company  contributing to Subversion. My  license is
-> then void, but I want to be  able to still use the files and servers I
-> used before. Reverse is allowed, and moral, in this case.
+On Thu, Jul 24, 2003 at 11:28:36PM +0000, Andrew Barton wrote:
 
-What if a patent is discovered which is owned by somebody other than
-Larry, which covers something in BK?  If nobody is allowed to use BK,
-how would we get the data out?
+> I've got the 2.4 kernel, and I'm trying to use the forkpty() system call
 
-John.
+forkpty is not a system call
+
+> with the standard I/O stream functions. The calls to forkpty() and
+> fdopen() and fprintf() all return successfully, but the data never seems
+> to get to the child process.
+
+> 	pid = forkpty (&fd, 0, 0, 0);
+> 	if (pid == 0) {
+> 		execlp ("sh", "sh", (void *)0);
+> 	} else {
+> 		F = fdopen (fd, "w");
+> 		fprintf (F, "exit\n");
+> 		fflush (F);
+> 		wait (0);
+> 	}
+
+Let me see. Your sh gets input from this pseudotty and sends its
+output there again. But you never read that filedescriptor.
+No doubt things will improve if you let the parent read from fd.
+
+Andries
+

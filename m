@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293403AbSCSA5r>; Mon, 18 Mar 2002 19:57:47 -0500
+	id <S293410AbSCSBSb>; Mon, 18 Mar 2002 20:18:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293407AbSCSA5i>; Mon, 18 Mar 2002 19:57:38 -0500
-Received: from ns.suse.de ([213.95.15.193]:14866 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S293403AbSCSA5Y>;
-	Mon, 18 Mar 2002 19:57:24 -0500
-Date: Tue, 19 Mar 2002 01:57:23 +0100
-From: Dave Jones <davej@suse.de>
-To: Paul Mackerras <paulus@samba.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 7.52 second kernel compile
-Message-ID: <20020319015722.N17410@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020318153637.J4783@host110.fsmlabs.com> <Pine.LNX.4.33.0203181446200.10517-100000@penguin.transmeta.com> <15510.32200.595707.145452@argo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S293423AbSCSBSW>; Mon, 18 Mar 2002 20:18:22 -0500
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:38152 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S293410AbSCSBSL>; Mon, 18 Mar 2002 20:18:11 -0500
+Message-ID: <3C9691C8.51A4A504@linux-m68k.org>
+Date: Tue, 19 Mar 2002 02:18:00 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Larry McVoy <lm@bitmover.com>
+CC: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Bitkeeper licence issues
+In-Reply-To: <20020318212617.GA498@elf.ucw.cz> <20020318144255.Y10086@work.bitmover.com>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 19, 2002 at 10:52:40AM +1100, Paul Mackerras wrote:
- > The G4 has 4 performance monitor counters that you can set up to
- > measure things like ITLB misses, DTLB misses, cycles spent doing
- > tablewalks for ITLB misses and DTLB misses, etc.
- > What I need to do now is
- > to put some better infrastructure for using those counters in place
- > and try your program using those counters instead of the timebase.
+Hi,
 
- Sounds like a good candidate for the first non-x86 port of oprofile[1].
- Write the kernel part, and all the nice userspace tools come for free.
- There are also a few other perfctr abstraction projects, which are
- linked off the oprofile pages somewhere iirc.
+Larry McVoy wrote:
 
-[1] http://oprofile.sf.net
+>  Go read this, this is you Pavel,
+> and I'm sick of arguing with people like you.
+> 
+> http://www.linuxandmain.com/essay/sgordon.html
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+That's someone, who doesn't understand what free software is about and
+desperately looking for someone to blame it on.
+What are you trying to tell us?
+
+bye, Roman

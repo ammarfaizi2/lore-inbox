@@ -1,87 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263205AbUB1FCS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 00:02:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263198AbUB1FCS
+	id S262950AbUB1F0W (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 00:26:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbUB1F0V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 00:02:18 -0500
-Received: from alt.aurema.com ([203.217.18.57]:11154 "EHLO smtp.sw.oz.au")
-	by vger.kernel.org with ESMTP id S263205AbUB1FCF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 00:02:05 -0500
-Message-ID: <4040207E.8040706@aurema.com>
-Date: Sat, 28 Feb 2004 16:00:46 +1100
-From: Peter Williams <peterw@aurema.com>
-Organization: Aurema Pty Ltd
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Timothy Miller <miller@techsource.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] O(1) Entitlement Based Scheduler
-References: <Pine.GSO.4.03.10402260834530.27582-100000@swag.sw.oz.au> <403D3E47.4080501@techsource.com> <403D576A.6030900@aurema.com> <403E1A11.5050704@techsource.com> <403E53EA.2010001@aurema.com> <403F582E.10500@techsource.com>
-In-Reply-To: <403F582E.10500@techsource.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Feb 2004 00:26:21 -0500
+Received: from smtp4.wanadoo.fr ([193.252.22.27]:5085 "EHLO
+	mwinf0402.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S262950AbUB1F0U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Feb 2004 00:26:20 -0500
+Date: Sat, 28 Feb 2004 06:26:18 +0000
+From: Philippe Elie <phil.el@wanadoo.fr>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: x86/64 and oprofile [was Re: Linux 2.6.4-rc1]
+Message-ID: <20040228062618.GH25439@zaniah>
+References: <Pine.LNX.4.58.0402271458480.1078@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0402271458480.1078@ppc970.osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Miller wrote:
-> 
-> 
-> Peter Williams wrote:
-> 
->> Timothy Miller wrote:
->>
-> 
->>>
->>>
->>> We don't want user-space programs to have control over priority. 
->>
->>
->>
->> They already do e.g. renice is such a program.
-> 
-> 
-> No one's talking about LOWERING priority here.  You can only DoS someone 
-> else if you can set negative nice values, and non-root can't do that.
+On Fri, 27 Feb 2004 at 15:03 +0000, Linus Torvalds wrote:
 
-Which is why root has to be in control of the mechanism.
+>   o Allow P4 oprofile code for x86-64
 
-> 
->>
->>> This is DoS waiting to happen.
->>>
->>>> 2. have a user space daemon poll running tasks periodically and 
->>>> renice them if they are running specified binaries
->>>
->>>
->>>
->>>
->>> This is much too specific.  Again, if the USER has control over this
->>> list,
->>
->>
->>
->> It would obviously be under root control.
-> 
-> 
-> And that means if someone wants to run a program which is not on the 
-> list but which requires (and deserves) higher priority, they cannot.
+P4 oprofile needs cpu_sibling_map and smp_num_siblings, the later
+was not exported
 
-Any mechanism that causes a task to be treated more favourably than 
-others needs to be under root's control.  It's root's prerogative to 
-decide who deserves more favourable treatment.  This is even more 
-important (for obvious reasons) if a reservation (or guarantee) 
-mechanism is involved.
+regards,
+Phil
 
-I'd like to stress at this point that xmms only needs a boost under 
-extremely high loads and this issue is being blown out of proportion.
-
-Peter
--- 
-Dr Peter Williams, Chief Scientist                peterw@aurema.com
-Aurema Pty Limited                                Tel:+61 2 9698 2322
-PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
-79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
-
+===== arch/x86_64/kernel/x8664_ksyms.c 1.25 vs edited =====
+--- 1.25/arch/x86_64/kernel/x8664_ksyms.c	Wed Feb 25 16:06:01 2004
++++ edited/arch/x86_64/kernel/x8664_ksyms.c	Sat Feb 28 06:10:55 2004
+@@ -196,6 +196,7 @@
+ 
+ #ifdef CONFIG_SMP
+ EXPORT_SYMBOL(cpu_sibling_map);
++EXPORT_SYMBOL(smp_num_siblings);
+ #endif
+ 
+ extern void do_softirq_thunk(void);

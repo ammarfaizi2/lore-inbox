@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313773AbSFQODE>; Mon, 17 Jun 2002 10:03:04 -0400
+	id <S313867AbSFQODQ>; Mon, 17 Jun 2002 10:03:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313867AbSFQODD>; Mon, 17 Jun 2002 10:03:03 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:48132 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S313773AbSFQODD> convert rfc822-to-8bit; Mon, 17 Jun 2002 10:03:03 -0400
-Message-ID: <3D0DEBF4.5080209@evision-ventures.com>
-Date: Mon, 17 Jun 2002 16:02:28 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
-X-Accept-Language: pl, en-us
-MIME-Version: 1.0
-To: Lionel Bouton <Lionel.Bouton@inet6.fr>
-CC: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.20 hardlock w/ hdparm
-References: <Pine.LNX.4.44.0206150948140.30400-100000@netfinity.realnet.co.sz> <3D0DE4CC.9010901@inet6.fr>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
+	id <S313898AbSFQODP>; Mon, 17 Jun 2002 10:03:15 -0400
+Received: from ns.suse.de ([213.95.15.193]:1554 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S313867AbSFQODO>;
+	Mon, 17 Jun 2002 10:03:14 -0400
+Date: Mon, 17 Jun 2002 16:03:15 +0200
+From: Dave Jones <davej@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH: NEW SUBARCHITECTURE FOR 2.5.21] support for NCR voyager (3/4/5xxx series)
+Message-ID: <20020617160315.B758@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	linux-kernel@vger.kernel.org
+References: <davej@suse.de> <200206140013.g5E0DQR25561@localhost.localdomain> <20020614024547.H16772@suse.de> <20020614134152.GA1293@pazke.ipt> <20020614154945.M16772@suse.de> <20020614135229.GA313@pazke.ipt> <20020614161627.O16772@suse.de> <20020617133632.GA3270@pazke.ipt>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020617133632.GA3270@pazke.ipt>; from pazke@orbita1.ru on Mon, Jun 17, 2002 at 05:36:32PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-U¿ytkownik Lionel Bouton napisa³:
-> Zwane Mwaikambo wrote:
-> 
->> Hi Lionel, Martin,
->> 2.5.20, hdparm + IDE deadlocks on my testbox
->>  
->>
-> 
-> I don't follow 2.5 dev (yet). I merely follow Andre's work on 2.4 and 
-> code a new chipset capabilities detection code in order to support newer 
-> chipsets.
-> Is the v0.13 driver driver already forward ported to 2.5 by somebody ?
+On Mon, Jun 17, 2002 at 05:36:32PM +0400, Andrey Panin wrote:
 
-Yeep. In fact my main devel box is based on SiS 635...
+ > >  > >  > "Latest" (2.4.17) visws patch which i'm planning to convert for 25, uses
+ > >  > >  > function MP_processor_info() from generic mpparse.c. May be it makes sence
+ > >  > >  > to move to some generic file ?
+ > >  > > Is that the one from the visws sourceforge project ?
+ > >  > Yes it is.
+ > > 
+ > > Ah good. *cross item off TODO list*
+ >  
+ > Does it make sense to submit it right now before i386 arch split will
+ > be completed ?
 
-> If there's a need (some 2.5 developpers needing a more uptodate driver 
-> and uncomfortable with forward porting IDE chipset drivers), I'll do it...
+I took a quick look over James' current patch last night. In it's
+current state, I think it's quite large already, and as it touches
+so many areas, I'm wondering if it's possible to split it up into
+chunks and merge it gradually.
 
-Please just keep an eye on it. The internal interface for host chip
-setup should now be much more... well palatable :-).
+merging visws now would mean a large part of James' current work
+would be out of sync.
 
-> Hum, 486 SiS chipsets might bring pain to me also...
-> I've received several bugreports for old SiS IDE chipset (ie pre ATA66) 
-> that I couldn't solve without disabling the SiS driver or passing 
-> "ide=nodma". I've triple-checked the specs and couldn't see the problem.
+        Dave
 
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

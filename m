@@ -1,80 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262572AbUKANeC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262617AbUKANl7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262572AbUKANeC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 08:34:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262567AbUKANeB
+	id S262617AbUKANl7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 08:41:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262477AbUKANl6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 08:34:01 -0500
-Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:25565 "EHLO
-	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262282AbUKANdt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 08:33:49 -0500
-Message-ID: <41863AF4.1040905@kolivas.org>
-Date: Tue, 02 Nov 2004 00:32:36 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Mon, 1 Nov 2004 08:41:58 -0500
+Received: from pop.gmx.de ([213.165.64.20]:62594 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262683AbUKANky (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 08:40:54 -0500
+X-Authenticated: #4399952
+Date: Mon, 1 Nov 2004 14:40:18 +0100
+From: Florian Schmidt <mista.tapas@gmx.net>
 To: Ingo Molnar <mingo@elte.hu>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Peter Williams <pwil3058@bigpond.net.au>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Alexander Nyberg <alexn@dsv.su.se>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH][plugsched 0/28] Pluggable cpu scheduler framework
-References: <4183A602.7090403@kolivas.org> <20041031233313.GB6909@elf.ucw.cz> <20041101114124.GA31458@elte.hu>
-In-Reply-To: <20041101114124.GA31458@elte.hu>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig61C37280096E7796787E473A"
+Cc: Thomas Gleixner <tglx@linutronix.de>, Lee Revell <rlrevell@joe-job.com>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+Message-ID: <20041101144018.24a7fea9@mango.fruits.de>
+In-Reply-To: <20041101131511.GA16832@elte.hu>
+References: <20041031124828.GA22008@elte.hu>
+	<1099227269.1459.45.camel@krustophenia.net>
+	<20041031131318.GA23437@elte.hu>
+	<20041031134016.GA24645@elte.hu>
+	<20041031162059.1a3dd9eb@mango.fruits.de>
+	<20041031165913.2d0ad21e@mango.fruits.de>
+	<20041101115546.GA2620@elte.hu>
+	<20041101123701.GA4443@elte.hu>
+	<1099312527.3337.5.camel@thomas>
+	<20041101125127.GA13442@elte.hu>
+	<20041101131511.GA16832@elte.hu>
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig61C37280096E7796787E473A
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, 1 Nov 2004 14:15:11 +0100
+Ingo Molnar <mingo@elte.hu> wrote:
 
-Ingo Molnar wrote:
-> my main worry with this approach is not really overhead but the impact
-> on scheduler development. 
+> 
+> * Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> > [...] I am too seeing rtc_wakeup weirdnesses that were not present in
+> > earlier -V0.6 kernels.
+> 
+> this turned out to be a user error - used the wrong script to renice
+> IRQ8. Perhaps rtc_wakeup could check for the presence of IRQ 8 and chrt
+> it to 99 if it's present? :-|
 
-> no problem even under the current model, and it has happened before. We
-> made the scheduler itself easily 'rip-out-able' in 2.6 by decreasing the
-> junction points between the scheduler and the rest of the system. Also,
-> the current scheduler is no way cast into stone, we could easily end up
-> having a different interactivity code within the scheduler, as a result
-> of the various 'get rid of the two arrays' efforts currently underway.
+Hi,
 
-Do you honestly think with the current "2.6 forever" development process 
-that this is likely, even possible any more?
+well, how would i best check for the presence of the process/thread "IRQ 8"?
+A quick glance through the output of apropos pid didn't show anything. i
+suppose in the worst case i'd have to iterate over the list of all processes
+and find the one that matches the name. Dunno how to do that either yet. If
+it's fairly straightforward, i'll add it.
 
-Given that fact, it means the current scheduler policy mechanism is 
-effectively set in stone. Do you think we can polish the current 
-scheduler enough to be, if not perfect, good enough for _every_ situation?
+Although: is rtc always garanteed to be "IRQ 8" or is this only the case on
+ia32 with XT-PIC?
 
-Noone said that if we have a plugsched infrastructure that we should 
-instantly accept any scheduler.
+?
 
-Regards,
-Con
-
---------------enig61C37280096E7796787E473A
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBhjr3ZUg7+tp6mRURAs0fAJ48pyeoaqxfyhRvvNUSgrpOUAJbnACfbSJE
-t7hZBD9O7ZdNvYw3nsu/PQY=
-=Qwg7
------END PGP SIGNATURE-----
-
---------------enig61C37280096E7796787E473A--
+flo

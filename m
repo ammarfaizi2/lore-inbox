@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262650AbUKEL6M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262658AbUKEMBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262650AbUKEL6M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 06:58:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbUKEL6M
+	id S262658AbUKEMBd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 07:01:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262659AbUKEMBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 06:58:12 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:10929 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262650AbUKEL6J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 06:58:09 -0500
-Message-Id: <200411050146.iA51kFmB004582@laptop11.inf.utfsm.cl>
-To: linux-os@analogic.com
-cc: Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.6.9 won't allow a write to a NTFS file-system. 
-In-Reply-To: Message from linux-os <linux-os@chaos.analogic.com> 
-   of "Thu, 04 Nov 2004 12:09:47 CDT." <Pine.LNX.4.61.0411041158010.5193@chaos.analogic.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Thu, 04 Nov 2004 22:46:15 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Fri, 5 Nov 2004 07:01:33 -0500
+Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:11396
+	"EHLO ladymac.shadowen.org") by vger.kernel.org with ESMTP
+	id S262658AbUKEMB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 07:01:28 -0500
+To: akpm@osdl.org
+Subject: [PATCH] fix pnpbios fault message
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <E1CQ2mU-0004xT-QX@ladymac.shadowen.org>
+From: Andy Whitcroft <apw@shadowen.org>
+Date: Fri, 05 Nov 2004 12:01:26 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os <linux-os@chaos.analogic.com> said:
+When your plug-n-play BIOS is truly broken and generates a fault
+during use, we report this and suggest disabling it.  The message
+produced suggests using "nobiospnp" to achive this, the correct
+option is "pnpbios=off".  This patch upates the message.
 
-[...]
+Revision: $Rev: 741 $
 
-> Huh? Are we talking about the same thing? I'm talking about
-> the NTFS that Windows/NT and later versions puts on its
-> file-systems. I use an USB external disk with my M$ Laptop
-> and I have always been able to transfer data to/from
-> my machines using that drive. Now I can't. The drive it
-> writable under M$, but I can't even delete anything
-> (no permission for root) under Linux.
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
 
-Looks like you reformated from the original VFAT (== Win9x) to NTFS.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+diffstat 500-fix-pnpbios-fault-message
+---
+
+diff -X /home/apw/brief/lib/vdiff.excl -rupN reference/drivers/pnp/pnpbios/bioscalls.c current/drivers/pnp/pnpbios/bioscalls.c
+--- reference/drivers/pnp/pnpbios/bioscalls.c
++++ current/drivers/pnp/pnpbios/bioscalls.c
+@@ -165,7 +165,7 @@ static inline u16 call_pnp_bios(u16 func
+ 	if(pnp_bios_is_utter_crap)
+ 	{
+ 		printk(KERN_ERR "PnPBIOS: Warning! Your PnP BIOS caused a fatal error. Attempting to continue\n");
+-		printk(KERN_ERR "PnPBIOS: You may need to reboot with the \"nobiospnp\" option to operate stably\n");
++		printk(KERN_ERR "PnPBIOS: You may need to reboot with the \"pnpbios=off\" option to operate stably\n");
+ 		printk(KERN_ERR "PnPBIOS: Check with your vendor for an updated BIOS\n");
+ 	}
+ 

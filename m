@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129460AbRAEDGv>; Thu, 4 Jan 2001 22:06:51 -0500
+	id <S129703AbRAEDKl>; Thu, 4 Jan 2001 22:10:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129703AbRAEDGl>; Thu, 4 Jan 2001 22:06:41 -0500
-Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:35597 "EHLO
-	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S129460AbRAEDG1>; Thu, 4 Jan 2001 22:06:27 -0500
-Message-ID: <3A553A03.DCFBCB9@easypenguin.co.uk>
-Date: Fri, 05 Jan 2001 03:05:40 +0000
-From: Jon Masters <jonathan@easypenguin.co.uk>
-Organization: http://www.jonmasters.org.uk
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S129387AbRAEDKc>; Thu, 4 Jan 2001 22:10:32 -0500
+Received: from sgi.SGI.COM ([192.48.153.1]:51235 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S129267AbRAEDKM>;
+	Thu, 4 Jan 2001 22:10:12 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
 To: linux-kernel@vger.kernel.org
-Subject: Crypto in 2.4
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Announce: ksymoops 2.4.0 is available
+Date: Fri, 05 Jan 2001 14:10:06 +1100
+Message-ID: <15155.978664206@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I am aware of work being done to create crypto patches for 2.4 however I
-am wondering what kind of time scale is likely to be involved before a
-patch for 2.4.0 becomes available and, more importantly, when such a
-patch will be suitable for daily use (disclaimers withstanding
-obviously).
+Content-Type: text/plain; charset=us-ascii
 
-Let's just say I'm cautious after a bad experience with one of the
-previous dud patch releases :P
+Mirror at ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/ksymoops/v2.4
 
-Thanks,
-	Jonathan.
+ksymoops-2.4.0.tar.gz		Source tarball, includes RPM spec file
+ksymoops-2.4.0-1.src.rpm	As above, in SRPM format
+ksymoops-2.4.0-1.i386.rpm	Compiled with egcs-2.91.66, glibc 2.1.2
 
-P.S. Congrats to everyone involved with 2.4 - I guess the
-"vapourwareists" finally got what they wanted.
+Changelog extract
 
--- 
- ________oooo_________ jonathan@jonmasters.org.uk _________oooo________
-| Technical, Easy Penguin.  +44 777 61 31337       GPG keys available. |
-|"And am I, who lived but for my country"         [quote: Robert Emmet]|
- --------oooo-------- http://www.jonmasters.org.uk --------oooo--------
+	* Clone from ksymoops 2.3.6.
+	* Correct DEF_VMLINUX.  Eirikur Hjartarson.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.3 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE6VTsNi4UHNye0ZOoRAuLLAJ9lof9VNXJKoUlZFwnTnPRpfk2/RACgjiDo
+6f3pscCbZBSuek/BeGG0SnI=
+=cb5z
+-----END PGP SIGNATURE-----
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281512AbRKUAUB>; Tue, 20 Nov 2001 19:20:01 -0500
+	id <S281507AbRKUAWL>; Tue, 20 Nov 2001 19:22:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281507AbRKUATv>; Tue, 20 Nov 2001 19:19:51 -0500
-Received: from jalon.able.es ([212.97.163.2]:22779 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S281521AbRKUATe>;
-	Tue, 20 Nov 2001 19:19:34 -0500
-Date: Wed, 21 Nov 2001 01:19:26 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: updates for ata/atapi hosts ...
-Message-ID: <20011121011926.A6696@werewolf.able.es>
-In-Reply-To: <Pine.LNX.4.10.10111200451300.12141-100000@master.linux-ide.org>
+	id <S281521AbRKUAWD>; Tue, 20 Nov 2001 19:22:03 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:25485 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S281507AbRKUAVp>;
+	Tue, 20 Nov 2001 19:21:45 -0500
+Date: Tue, 20 Nov 2001 16:21:32 -0800 (PST)
+Message-Id: <20011120.162132.25418218.davem@redhat.com>
+To: riel@conectiva.com.br
+Cc: akpm@zip.com.au, dmaas@dcine.com, linux-kernel@vger.kernel.org
+Subject: Re: Swap
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.33L.0111202218360.4079-100000@imladris.surriel.com>
+In-Reply-To: <20011120.154004.123980549.davem@redhat.com>
+	<Pine.LNX.4.33L.0111202218360.4079-100000@imladris.surriel.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.10.10111200451300.12141-100000@master.linux-ide.org>; from andre@linux-ide.org on Tue, Nov 20, 2001 at 13:54:05 +0100
-X-Mailer: Balsa 1.2.3
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Rik van Riel <riel@conectiva.com.br>
+   Date: Tue, 20 Nov 2001 22:19:26 -0200 (BRST)
 
-On 20011120 Andre Hedrick wrote:
->
->Greeting All,
->
->ide.2.4.13-ac8.11192001.patch.bz2
->ide.2.4.14.11192001.patch.bz2
->
+   On Tue, 20 Nov 2001, David S. Miller wrote:
+   > The Apache folks were keeping it mapped across requests,
+   > so even if it was "primed" (ie. pre-faulted), a read() into
+   > a static buffer was still significantly faster.
+   
+   Interesting.  I wonder how read() and mmap() compare when the
+   data is in highmem pages and we're facing a kmap()/kunmap()
+   for read() ...
 
-Are there any news on ServerWorks DMA ? I want to know if I can put
-my drives to dma again...
+Probably, the performance drops for read() to be equivalent,
+or slightly below, mmap() peformance.  That would be my guess.
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.15-pre7-beo #1 SMP Tue Nov 20 16:05:08 CET 2001 i686
+Franks a lot,
+David S. Miller
+davem@redhat.com

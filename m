@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263336AbTIVTtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 15:49:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263340AbTIVTtZ
+	id S263329AbTIVTqL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 15:46:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263330AbTIVTqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 15:49:25 -0400
-Received: from 143.80-203-43.nextgentel.com ([80.203.43.143]:16873 "EHLO
-	sort.fjase.net") by vger.kernel.org with ESMTP id S263336AbTIVTtX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 15:49:23 -0400
-Subject: RE: SiI3112: problemes with shared interrupt line?
-From: Per Andreas Buer <perbu@linpro.no>
-To: Allen Martin <AMartin@nvidia.com>
-Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F6B3@mail-sc-6.nvidia.com>
-References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F6B3@mail-sc-6.nvidia.com>
-Content-Type: text/plain
+	Mon, 22 Sep 2003 15:46:11 -0400
+Received: from smtp4.wanadoo.fr ([193.252.22.26]:2581 "EHLO
+	mwinf0504.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S263329AbTIVTqI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 15:46:08 -0400
+Message-ID: <3F6F52AE.3080206@wanadoo.fr>
+Date: Mon, 22 Sep 2003 21:51:10 +0200
+From: Remi Colinet <remi.colinet@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [Patch] Compile fix for 2.6.0-test5-mm4 in net/atm/proc.c
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1064260163.2414.3.camel@sort.fjase.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
-Date: Mon, 22 Sep 2003 21:49:23 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-09-22 at 21:42, Allen Martin wrote:
+Hi,
 
-> There are two issues I know about:
-> 
-> 1) Earlier versions of the Asus BIOS would program incorrect timing in the
-> nForce internal P2P bridge, causing failures with SI3112 under high disk
-> activity.  This is fixed in rev 1005 of their BIOS or later.
+--- linux-2.6.0-test5-mm4/net/atm/proc.c        2003-09-22 
+21:42:09.000000000 +0200
++++ linux-2.6.0-test5-mm4-new/net/atm/proc.c    2003-09-22 
+21:44:24.000000000 +0200
+@@ -192,7 +192,9 @@
+                goto out_kfree;
 
-I am running the latest (1006, I think) ASUS (this is a ASUS A7
-something Deluxe motherboard) BIOS revision.
+        state->family = family;
++#if defined(CONFIG_ATM_CLIP) || defined(CONFIG_ATM_CLIP_MODULE)
+        state->clip_info = try_atm_clip_ops();
++#endif
 
-> 2) PCI interrupts getting put into edge triggered mode when ACPI/APIC are
-> enabled.  Andrew de Quincey said this should be fixed in 2.4.22, but I
-> haven't tested it myself (I have ACPI disabled on all my test systems).  I
-> did verify his patch on 2.6 when he first posted it, and it works.
+        seq = file->private_data;
+        seq->private = state;
 
-I've tried disabeling APIC - it did not help.
+This patch fixes the following compile error :
 
-I'll try 2.6.something tomorrow. 
+  CC      arch/i386/lib/usercopy.o
+  AR      arch/i386/lib/lib.a
+  GEN     .version
+  CHK     include/linux/compile.h
+  UPD     include/linux/compile.h
+  CC      init/version.o
+  LD      init/built-in.o
+  LD      .tmp_vmlinux1
+net/built-in.o: In function `__vcc_seq_open':
+/usr/src/mm/net/atm/proc.c:195: undefined reference to `try_atm_clip_ops'
+make: *** [.tmp_vmlinux1] Error 1
 
--- 
-There are only 10 different kinds of people in the world,
-those who understand binary, and those who don't.
+Remi
+
 

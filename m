@@ -1,50 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281205AbRKPFaC>; Fri, 16 Nov 2001 00:30:02 -0500
+	id <S281214AbRKPGtT>; Fri, 16 Nov 2001 01:49:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281203AbRKPF3w>; Fri, 16 Nov 2001 00:29:52 -0500
-Received: from [24.198.47.158] ([24.198.47.158]:30217 "EHLO golux.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S281162AbRKPF3m>;
-	Fri, 16 Nov 2001 00:29:42 -0500
-Date: Fri, 16 Nov 2001 00:25:27 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Greg KH <greg@kroah.com>
-Cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2 1.8.6 is available -- bug list is cleared
-Message-ID: <20011116002527.A11550@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Greg KH <greg@kroah.com>, CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20011115001659.A9067@thyrsus.com> <20011115111839.A10955@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011115111839.A10955@kroah.com>; from greg@kroah.com on Thu, Nov 15, 2001 at 11:18:39AM -0800
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S281215AbRKPGtI>; Fri, 16 Nov 2001 01:49:08 -0500
+Received: from [195.211.46.202] ([195.211.46.202]:48930 "EHLO serv02.lahn.de")
+	by vger.kernel.org with ESMTP id <S281214AbRKPGsw>;
+	Fri, 16 Nov 2001 01:48:52 -0500
+X-Spam-Filter: check_local@serv02.lahn.de by digitalanswers.org
+Date: Fri, 16 Nov 2001 07:44:11 +0100 (CET)
+From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
+Reply-To: <pmhahn@titan.lahn.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: [OOPS] net/8139too
+Message-ID: <Pine.LNX.4.33.0111160721120.6043-100000@titan.lahn.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com>:
->  - CONFIG_USB_UHCI and CONFIG_USB_UHCI_ALT should be able to be selected
->    as modules at the same time.  Currently they are not.
->  - USB Serial menu should be below "USS720 parport driver"
->  - If USB_SERIAL = 'M' then USB_SERIAL_DEBUG should be not be shown.
->  - HOTPLUG_PCI_COMPAQ should be tristate.
+Hello LKML!
 
-Done for 1.8.7.
+Since linux-2.4.15-pre[14]+kdb+freeswan I get an oops when stopping my
+8139too network:
 
->  - USB_SERIAL_IR does not show up in the menu, is this due to there not
->    being a help entry for it?
+# ifdown eth0
+eth0: unable to signal thread
+# rmmod -a
+<<< Unplug the network kable >>>
+Inable to handle kernel paging request at virtual address c904b600
+ printing eip:
+c904b600
+*pde = 0127d067
+*pte = 00000000
 
-That's right.  Symbols with no help are visible only when EXPERT is on.
+Entering kdb (current=0xc792a000, pid 59) Oops: Oops
+due to oops @ 0xc904b600
+eax = 0xc904b600 ebx = 0xc217aaa0 ecx = 0xc9065000 edx = 0x00000020
+esi = 0x04000001 edi = 0x00000009 esp = 0xc792beae eip = 0xc904b600
+ebp = 0xc792bef6 xss = 0x00000018 xcs = 0x00000010 eflegs = 0x00010202
+xds = 0x00000018 xes = 0x00000018 origeax = 0xffffffff &regs = 0xc792be7a
+kdb> bt
+    EBP       EIP         Function(args)
+0xc792bef6 0xc904b600 <unknown>+0xc904b600
+                               kernel <unknown> 0x0 0x0 0x0
+
+# ksymoops -A 0xc904b600
+Adhoc c904b600 <[8139too]rtl8139_interrupt+0/dc>
+
+Quoting from Documentation/networking/8139too.txt:
+> Version 0.9.22 - November 8, 2001
+> ...
+> Version 0.9.21 - November 1, 2001
+> ...
+> * Fix problems with kernel thread exit.
+an from drivers/net/8139too.c:
+> Robert Kuebel - Save kernel thread from dying on any signal.
+
+Hope that helps.
+
+BYtE
+Philipp
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+  / /  (_)__  __ ____  __ Philipp Hahn
+ / /__/ / _ \/ // /\ \/ /
+/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de
 
-That the said Constitution shall never be construed to authorize
-Congress to infringe the just liberty of the press or the rights of
-conscience; or to prevent the people of the United states who are
-peaceable citizens from keeping their own arms...
-        -- Samuel Adams, in "Phila. Independent Gazetteer", August 20, 1789

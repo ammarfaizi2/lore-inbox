@@ -1,80 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265243AbSLVULo>; Sun, 22 Dec 2002 15:11:44 -0500
+	id <S265275AbSLVUNc>; Sun, 22 Dec 2002 15:13:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265250AbSLVULo>; Sun, 22 Dec 2002 15:11:44 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:7406 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S265243AbSLVULm>; Sun, 22 Dec 2002 15:11:42 -0500
-Date: Sun, 22 Dec 2002 12:19:46 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Panic on shutdown
-Message-ID: <63340000.1040588386@titus>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S265285AbSLVUNc>; Sun, 22 Dec 2002 15:13:32 -0500
+Received: from eamail1-out.unisys.com ([192.61.61.99]:13980 "EHLO
+	eamail1-out.unisys.com") by vger.kernel.org with ESMTP
+	id <S265275AbSLVUNa>; Sun, 22 Dec 2002 15:13:30 -0500
+Message-ID: <3FAD1088D4556046AEC48D80B47B478C1AEC74@usslc-exch-4.slc.unisys.com>
+From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+To: "'William Lee Irwin III'" <wli@holomorphy.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "Van Maren, Kevin" <kevin.vanmaren@UNISYS.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       James Cleverdon <jamesclv@us.ibm.com>,
+       John Stultz <johnstul@us.ibm.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+Subject: RE: [PATCH][2.4]  generic support for systems with more than 8 CP
+	Us (2/2)
+Date: Sun, 22 Dec 2002 14:21:15 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Internet Mail Service (5.5.2656.59)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does this look familiar to anyone? Virgin 2.5.52 on NUMA-Q.
+>> 2/2 : switching to physical mode APIC setup in case of more than 8 CPU
+system
+[...]
+>> -	printk("Enabling APIC mode: ");
+>> -	if(clustered_apic_mode == CLUSTERED_APIC_NUMAQ)
+>> -		printk("Clustered Logical.	");
+>> -	else if(clustered_apic_mode == CLUSTERED_APIC_XAPIC)
+>> -		printk("Physical.	");
+>> -	else
+>> -		printk("Flat.	");
+>> -	printk("Using %d I/O APICs\n",nr_ioapics);
 
-Saving random seed... done.
-Unmounting remote filesystems... Unable to handle kernel NULL pointer 
-dereferenc
-e at virtual address 00000504
- printing eip:
-c012e5d0
-*pde = 00104001
-*pte = 00000000
-Oops: 0002
-CPU:    15
-EIP:    0060:[<c012e5d0>]    Not tainted
-EFLAGS: 00010046
-EIP is at __pdflush+0x30/0x1e8
-eax: 00000000   ebx: ede14000   ecx: eeff2d64   edx: eeff2cc0
-esi: c020bcf4   edi: eeff2fae   ebp: ede15fd8   esp: ede15fc0
-ds: 0068   es: 0068   ss: 0068
-Process pdflush (pid: 4033, threadinfo=ede14000 task=eeff2cc0)
-Stack: c012e788 00000000 00000000 00000000 c012e793 ede15fd8 00000000 
-00000000
-       00000068 00000068 ffffffff c0106e7c c0106e81 00000000 00000000 
-00000000
-Call Trace:
- [<c012e788>] pdflush+0x0/0x14
- [<c012e793>] pdflush+0xb/0x14
- [<c0106e7c>] kernel_thread_helper+0x0/0xc
- [<c0106e81>] kernel_thread_helper+0x5/0xc
+>IIRC NUMA-Q can be dynamically detected at boot by means of an MP OEM
+>table's presence, in particular if there's a matching string in the 8B
+>OEM record in the OEM table, with a value of "IBM NUMA" IIRC. This is
+>probably a line or two's worth of change to mpparse.c and declaring a
+>variable for clustered_apic_mode. If it were difficult to detect, I
+>wouldn't have suggested implementing it (though do so at your leisure). =)
 
-Code: f0 fe 88 04 05 00 00 0f 88 60 02 00 00 8b 03 c7 80 a0 05 00
- <1>Unable to handle kernel NULL pointer dereference at virtual address 
-0000051c
- printing eip:
-c011c3e3
-*pde = 2f664001
-*pte = 00000000
-Oops: 0000
-CPU:    10
-EIP:    0060:[<c011c3e3>]    Not tainted
-EFLAGS: 00010286
-EIP is at sys_wait4+0x23b/0x418
-eax: 00000008   ebx: 00000000   ecx: 00000000   edx: 00000008
-esi: eeff2cc0   edi: f018e0dc   ebp: f0198000   esp: f0199f7c
-ds: 0068   es: 0068   ss: 0068
-Process init (pid: 1, threadinfo=f0198000 task=f018e040)
-Stack: f0198000 00000000 bffff750 bffff714 f0198000 00000001 f018e040 
-00000000
-       f018e040 c0116d88 00000000 00000000 00000000 f018e040 c0116d88 
-f018e194
-       f018e194 c0108a27 ffffffff bffff750 00000001 00000000 bffff750 
-bffff714
-Call Trace:
- [<c0116d88>] default_wake_function+0x0/0x34
- [<c0116d88>] default_wake_function+0x0/0x34
- [<c0108a27>] syscall_call+0x7/0xb
+The format for the OEM table is pretty much freelance. ES7000 uses it in the
+most informal way. However, we need information from this table to switch to
+APIC mode, start CPUs, etc. To have the hook for OEM tables in MP parsing
+(and in ACPI, for that matter) seems pretty natural. Or if reading of the
+OEM table could also be done in more generic way so other platforms had
+chance to read their tables seamlessly...
 
-Code: 83 b9 1c 05 00 00 00 74 2a 8b 54 24 4c 83 c2 04 19 c0 39 55
- <0>Kernel panic: Attempted to kill init!
+Also, could the clustered_logical and clustered_physical modes be
+implemented as a primary item, with NUMA being a secondary with the set of
+its unique features on top of the certain APIC mode? This way, a clustered
+mode for the APIC could be selectable without NUMA. CLUSTERED_APIC_NUMAQ
+could be still an option with an appropriate clustered mode defined. 
 
+--Natalie
+
+>I still think this is 2.5 material + backport once it gets testing there.
+
+
+>Bill

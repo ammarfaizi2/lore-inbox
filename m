@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265886AbUA1JlT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 04:41:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265887AbUA1JlS
+	id S265897AbUA1Jwd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 04:52:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265899AbUA1Jwd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 04:41:18 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:47113 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265886AbUA1JlJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 04:41:09 -0500
-Date: Wed, 28 Jan 2004 09:41:06 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, netdev@oss.sgi.com
-Subject: Re: 2.6.2-rc2-mm1
-Message-ID: <20040128094106.A26158@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, netdev@oss.sgi.com
-References: <20040127233402.6f5d3497.akpm@osdl.org>
+	Wed, 28 Jan 2004 04:52:33 -0500
+Received: from delerium.kernelslacker.org ([81.187.208.145]:50905 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S265897AbUA1Jwc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 04:52:32 -0500
+Date: Wed, 28 Jan 2004 09:50:17 +0000
+From: Dave Jones <davej@redhat.com>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Chris Wright <chrisw@osdl.org>, akpm@osdl.org, george@mvista.com,
+       amitkale@emsyssoft.com, Andi Kleen <ak@suse.de>,
+       jim.houston@comcast.net,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: BitKeeper repo for KGDB
+Message-ID: <20040128095017.GA22136@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Tom Rini <trini@kernel.crashing.org>,
+	Chris Wright <chrisw@osdl.org>, akpm@osdl.org, george@mvista.com,
+	amitkale@emsyssoft.com, Andi Kleen <ak@suse.de>,
+	jim.houston@comcast.net,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040127184029.GI32525@stop.crashing.org> <20040127120744.A11525@osdlab.pdx.osdl.net> <20040127210246.GK32525@stop.crashing.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040127233402.6f5d3497.akpm@osdl.org>; from akpm@osdl.org on Tue, Jan 27, 2004 at 11:34:02PM -0800
+In-Reply-To: <20040127210246.GK32525@stop.crashing.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 27, 2004 at 11:34:02PM -0800, Andrew Morton wrote:
-> 	Jeff's tree:		netdev.patch
+On Tue, Jan 27, 2004 at 02:02:47PM -0700, Tom Rini wrote:
 
-Any plan when we'll get the damn netdev lifetime rule fixes merged?
-They're real life problems and have been around for a long time..
+ > > seems I missed where the repo is.
+ > Der, whoops.
+ > 
+ > bk://ppc.bkbits.net/linux-2.6-kgdb
+
+daily diffs vs mainline generated at..
+ http://www.codemonkey.org.uk/projects/bitkeeper/kgdb
+
+		Dave
 

@@ -1,41 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265477AbRF1B7S>; Wed, 27 Jun 2001 21:59:18 -0400
+	id <S265476AbRF1ByI>; Wed, 27 Jun 2001 21:54:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265479AbRF1B7I>; Wed, 27 Jun 2001 21:59:08 -0400
-Received: from dnscache.cbr.au.asiaonline.net ([210.215.8.100]:4319 "EHLO
-	dnscache.cbr.au.asiaonline.net") by vger.kernel.org with ESMTP
-	id <S265477AbRF1B67>; Wed, 27 Jun 2001 21:58:59 -0400
-Message-ID: <3B3A8EF4.8F8DF887@acm.org>
-Date: Thu, 28 Jun 2001 11:57:08 +1000
-From: Gareth Hughes <gareth.hughes@acm.org>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: VIA 686B/Data Corruption FAQ
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S265477AbRF1Bx7>; Wed, 27 Jun 2001 21:53:59 -0400
+Received: from secure.hostnoc.net ([66.96.192.200]:50439 "EHLO
+	secure.hostnoc.net") by vger.kernel.org with ESMTP
+	id <S265476AbRF1Bxv>; Wed, 27 Jun 2001 21:53:51 -0400
+Date: Wed, 27 Jun 2001 21:53:04 -0400
+From: "J. Nick Koston" <nick@burst.net>
+To: linux-kernel@vger.kernel.org
+Subject: Asus CUV4X-DLS
+Message-ID: <20010627215304.D28795@burst.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="GpGaEY17fSl8rd50"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - secure.hostnoc.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [1003 1004] / [1003 1004]
+X-AntiAbuse: Sender Address Domain - secure.hostnoc.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://www.viahardware.com/686bfaq.shtm
 
-Couldn't find a mention of this in the archives, but those interested in
-the VIA chipset issues should check this out.  The page contains the
-following officail statement from VIA:
+--GpGaEY17fSl8rd50
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The data corruption error, which some web sites and people have reported
-with the 686b Southbridge, is caused by incorrect bios registry setting
-to the Northbridge. These bios settings were made by motherboard
-manufacturers, in an attempt to fix a conflict with the Sound Blaster
-Live Value cards. Information has been provided to all motherboard
-manufacturers on how to correctly resolve both the data corruption error
-and the Sound Blaster Live conflict. The patch released by VIA in the
-4in1 4.31 drivers replicates the correct bios settings. We provided
-this patch to make sure as many people got a fix to their Sound Blaster
-Live problems as soon as possible. Most motherboard manufacturers have
-now corrected their bios and the patch is not necessarily needed
-although it will not harm any VIA based system if installed.
 
--- Gareth
+There seems to be a major problem with this board and 2.4.x kernels.
+I consistantly get SCSI Input/Output errors on multiple drives that I
+know are good when running a SMP kernel.  These errors do no happen
+with a UP kernel.  This is happening on multiple systems and with
+multiple know good scsi drives of all speeds and sizes.
+
+Test#1:
+
+2.4.2 (redhat 7.1 version)
+
+dd if=3D/dev/sda of=3D/dev/null
+(fails with input/output error)
+
+Test #2:
+
+2.4.2 (redhat 7.1 version)
+noapic on boot
+
+dd if=3D/dev/sda of=3D/dev/null
+(fails with input/output error)
+
+Test #3:
+
+2.4.2 (redhat 7.1 edition)
+
+dd if=3D/dev/sda of=3D/dev/null
+PASS!
+
+
+               Nick
+
+
+
+
+
+
+
+--=20
+
+--GpGaEY17fSl8rd50
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7Oo3/T5huNxcQLWARAs1hAKCJgvgDJDqY6UyrUvEUfq9CZK0QJQCeMK4f
+donpIpDbKLDj34KFr5i3v6g=
+=7T8N
+-----END PGP SIGNATURE-----
+
+--GpGaEY17fSl8rd50--

@@ -1,82 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130663AbQKRVYe>; Sat, 18 Nov 2000 16:24:34 -0500
+	id <S130681AbQKRWFo>; Sat, 18 Nov 2000 17:05:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130681AbQKRVYY>; Sat, 18 Nov 2000 16:24:24 -0500
-Received: from h201.s254.netsol.com ([216.168.254.201]:39625 "EHLO
-	tesla.admin.cto.netsol.com") by vger.kernel.org with ESMTP
-	id <S130663AbQKRVYP>; Sat, 18 Nov 2000 16:24:15 -0500
-Date: Sat, 18 Nov 2000 15:54:41 -0500
-From: Pete Toscano <pete@research.netsol.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.2.18pre21 and ipv6 problems/questions
-Message-ID: <20001118155441.T11099@tesla.admin.cto.netsol.com>
-Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S131356AbQKRWFd>; Sat, 18 Nov 2000 17:05:33 -0500
+Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:59657 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S130681AbQKRWFU>;
+	Sat, 18 Nov 2000 17:05:20 -0500
+Date: Sat, 18 Nov 2000 22:34:55 +0100
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] swap=<device> kernel commandline
+Message-ID: <20001118223455.G23033@almesberger.net>
+In-Reply-To: <20001118141524.A15214@nic.fr> <Pine.LNX.4.21.0011181804360.9267-100000@duckman.distro.conectiva>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="V7BlxAaPrdhzdIM1"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Uptime: 3:37pm  up 12 days,  3:13,  8 users,  load average: 0.20, 0.14, 0.10
-X-Married: 370 days, 19 hours, 52 minutes, and 33 seconds
+In-Reply-To: <Pine.LNX.4.21.0011181804360.9267-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Sat, Nov 18, 2000 at 06:05:05PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rik van Riel wrote:
+> Did you try to load an initrd on a low-memory machine?
+> It shouldn't work and it probably won't ;)
 
---V7BlxAaPrdhzdIM1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+You must be really low on memory ;-)
 
-hello,
+# zcat initrd.gz | wc -c
+ 409600
 
-i'm trying to set up an ipv6 machine.  i got a setup script from
-freenet6 complete with an ipv6 address and the ipv6 and ipv4 addresses
-of my tunnel endpoint.  i'm seeing some strange behavior, so i have a
-few questions.  most of these are probably ubd (user brain damage), but
-i'd like to have these verified if possibe =3D).
+(ash, pwd, chroot, pivot_root, smount, and still about 82 kB free.)
 
-0. basically, how complete/correct is the ipv6 implementation on
-2.2.18pre21?  should i even bother or is it fairly stable and correct?
+- Werner
 
-1. how come i can ping6 ::1 just fine as long as the sit0 device is
-down, but as soon as it comes up, i can't?
-
-2. i understand that the sit devices are pseudo devices on top of (well,
-in my case) eth0.  afaict, sit0 represents my side of an ipv6-in-ipv4
-tunnel and sit1 is the other side of it.  ipv6 packets destined for
-removte ipv6 networks should be routed to the like-scoped ipv6 address
-of the sit1 device, right?
-
-3. aliased interfaces are in ipv4-only construct right?  i shouldn't be
-able to create an alias interface with only an ipv6 address, da?
-
-4. should i be able to delete an address i add to an interface?  when i
-"ifconfig add" an ipv6 address to an interface and then try to "ifconfig
-del" it, i get "SIOCDIFADDR: Invalid argument".  i've tried to del with
-and without the /prefixlen and neither has worked.
-
-thanks,
-pete
-
---=20
-Pete Toscano    p:sigsegv@psinet.com     w:pete@research.netsol.com
-GPG fingerprint: D8F5 A087 9A4C 56BB 8F78  B29C 1FF0 1BA7 9008 2736
-
---V7BlxAaPrdhzdIM1
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6FuyRH/Abp5AIJzYRAkgRAJ9VK3KX9RMoORgLn4oLQj8OaNsc4gCgtOBM
-QMTBAfMpfz6urHw6AXTvfdI=
-=niWb
------END PGP SIGNATURE-----
-
---V7BlxAaPrdhzdIM1--
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,133 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262233AbVAUC0M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262235AbVAUCii@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262233AbVAUC0M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 21:26:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262234AbVAUC0M
+	id S262235AbVAUCii (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 21:38:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262237AbVAUCih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 21:26:12 -0500
-Received: from [220.248.27.114] ([220.248.27.114]:41618 "HELO soulinfo.com")
-	by vger.kernel.org with SMTP id S262233AbVAUC0G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 21:26:06 -0500
-Date: Fri, 21 Jan 2005 10:23:48 +0800
-From: hugang@soulinfo.com
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Pavel Machek <pavel@suse.cz>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] swsusp: speed up image restoring on x86-64
-Message-ID: <20050121022348.GA18166@hugang.soulinfo.com>
-References: <200501202032.31481.rjw@sisk.pl> <20050120205950.GF468@openzaurus.ucw.cz> <200501202246.38506.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501202246.38506.rjw@sisk.pl>
-User-Agent: Mutt/1.3.28i
-X-Virus-Checked: Checked
+	Thu, 20 Jan 2005 21:38:37 -0500
+Received: from gizmo04bw.bigpond.com ([144.140.70.14]:40647 "HELO
+	gizmo04bw.bigpond.com") by vger.kernel.org with SMTP
+	id S262235AbVAUCie (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 21:38:34 -0500
+Message-ID: <41F06B26.6000702@bigpond.net.au>
+Date: Fri, 21 Jan 2005 13:38:30 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Marc E. Fiuczynski" <mef@cs.princeton.edu>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Con Kolivas <kernel@kolivas.org>, Chris Han <xiphux@gmail.com>,
+       ckrm-tech@lists.sourceforge.net
+Subject: Re: [ANNOUNCE][RFC] plugsched-2.0 patches ...
+References: <NIBBJLJFDHPDIBEEKKLPGELGDHAA.mef@cs.princeton.edu>
+In-Reply-To: <NIBBJLJFDHPDIBEEKKLPGELGDHAA.mef@cs.princeton.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 20, 2005 at 10:46:37PM +0100, Rafael J. Wysocki wrote:
-> On Thursday, 20 of January 2005 21:59, Pavel Machek wrote:
+Marc E. Fiuczynski wrote:
+> Peter, thank you for maintaining Con's plugsched code in light of Linus' and
+> Ingo's prior objections to this idea.  On the one hand, I partially agree
+> with Linus&Ingo's prior views that when there is only one scheduler that the
+> rest of the world + dog will focus on making it better. On the other hand,
+> having a clean framework that lets developers in a clean way plug in new
+> schedulers is quite useful.
 > 
-> Sure, but I think it's there for a reason.
+> Linus & Ingo, it would be good to have an indepth discussion on this topic.
+> I'd argue that the Linux kernel NEEDS a clean pluggable scheduling
+> framework.
 > 
-> > Anyway, this is likely to clash with hugang's work; I'd prefer this not to be applied.
-> 
-> I am aware of that, but you are not going to merge the hugang's patches soon, are you?
-> If necessary, I can change the patch to work with his code (hugang, what do you think?).
-> 
-I like this patch, And I change my code with this, Please have a look,
-It pass in qemu X86_64. :)
+> Let me make a case for this NEED by example.  Ingo's scheduler belongs to
+> the egalitarian regime of schedulers that do a poor job of isolating
+> workloads from each other in multiprogrammed environments such as those
+> found on Enterprise servers and in my case on PlanetLab (www.planet-lab.org)
+> nodes.  This has been rectified by HP-UX, Solaris, and AIX through the use
+> of fair share schedulers that use O(1) schedulers within a share.  Currently
+> PlanetLab uses a CKRM modified version of Ingo's scheduler.
 
-Full patch still can get from
- http://soulinfo.com/~hugang/swsusp/2005-1-21/
+I'm hoping that the CKRM folks will send me a patch to add their 
+scheduler to plugsched :-)
 
-here is only x86_64 part.
+>  Similarly, the
+> linux-vserver project also modifies Ingo's scheduler to construct an
+> entitlement based scheduling regime. These are not just variants of O(1)
+> schedulers in the sense of Con's staircase O(1). Nor is it clear what the
+> best type of scheduler is for these environments (i.e., HP-UX, Solaris and
+> AIX don't have it fully solved yet either). The ability to dynamically swap
+> out schedulers on a production system like PlanetLab would help in
+> determining what type of scheduler is the most appropriate.  This is because
+> it is non-trivial, if not impossible, to recreate the multiprogrammed
+> workloads that we see in a lab.
+> 
+> For these reasons, it would be useful for plugsched (or something like it)
+> to make its way into the mainline kernel as a framework to plug in different
+> schedulers.  Alternatively, it would be useful to consider in what way
+> Ingo's scheduler needs to support plugins such as the CKRM and Vserver types
+> of changes.
+> 
+> Best regards,
+> Marc
 
---- 2.6.11-rc1-mm1/arch/x86_64/kernel/suspend_asm.S	2004-12-30 14:56:35.000000000 +0800
-+++ 2.6.11-rc1-mm1-swsusp-x86_64/arch/x86_64/kernel/suspend_asm.S	2005-01-21 10:13:15.000000000 +0800
-@@ -35,6 +35,7 @@ ENTRY(swsusp_arch_suspend)
- 	call swsusp_save
- 	ret
- 
-+	.section    .data.nosave
- ENTRY(swsusp_arch_resume)
- 	/* set up cr3 */	
- 	leaq	init_level4_pgt(%rip),%rax
-@@ -49,43 +50,32 @@ ENTRY(swsusp_arch_resume)
- 	movq	%rcx, %cr3;
- 	movq	%rax, %cr4;  # turn PGE back on
- 
--	movl	nr_copy_pages(%rip), %eax
--	xorl	%ecx, %ecx
--	movq	$0, %r10
--	testl	%eax, %eax
--	jz	done
--.L105:
--	xorl	%esi, %esi
--	movq	$0, %r11
--	jmp	.L104
--	.p2align 4,,7
--copy_one_page:
--	movq	%r10, %rcx
--.L104:
--	movq	pagedir_nosave(%rip), %rdx
--	movq	%rcx, %rax
--	salq	$5, %rax
--	movq	8(%rdx,%rax), %rcx
--	movq	(%rdx,%rax), %rax
--	movzbl	(%rsi,%rax), %eax
--	movb	%al, (%rsi,%rcx)
--
--	movq	%cr3, %rax;  # flush TLB
--	movq	%rax, %cr3;
--
--	movq	%r11, %rax
--	incq	%rax
--	cmpq	$4095, %rax
--	movq	%rax, %rsi
--	movq	%rax, %r11
--	jbe	copy_one_page
--	movq	%r10, %rax
--	incq	%rax
--	movq	%rax, %rcx
--	movq	%rax, %r10
--	mov	nr_copy_pages(%rip), %eax
--	cmpq	%rax, %rcx
--	jb	.L105
-+	movq	pagedir_nosave(%rip), %rax
-+	testq	%rax, %rax
-+	je		done
-+
-+copyback_page:
-+	movq	24(%rax), %r9
-+	xorl	%r8d, %r8d
-+
-+copy_one_pgdir:
-+	movq    8(%rax), %rdi
-+	testq   %rdi, %rdi
-+	je  	done
-+	movq    (%rax), %rsi
-+	movq    $512, %rcx
-+	rep
-+	movsq
-+
-+	incq    %r8
-+	addq    $32, %rax
-+	cmpq    $127, %r8
-+	jbe 	copy_one_pgdir; # copy one pgdir
-+
-+	testq   %r9, %r9
-+	movq    %r9, %rax
-+	jne 	copyback_page
-+
- done:
- 	movl	$24, %eax
- 	movl	%eax, %ds
 
 -- 
-Hu Gang       .-.
-              /v\
-             // \\ 
-Linux User  /(   )\  [204016]
-GPG Key ID   ^^-^^   http://soulinfo.com/~hugang/hugang.asc
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

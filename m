@@ -1,143 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262281AbVBQJci@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262280AbVBQJrL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262281AbVBQJci (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 04:32:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbVBQJci
+	id S262280AbVBQJrL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 04:47:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbVBQJrL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 04:32:38 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.51]:4241 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S262281AbVBQJcb (ORCPT
+	Thu, 17 Feb 2005 04:47:11 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:32231 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262280AbVBQJrH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 04:32:31 -0500
-Date: Thu, 17 Feb 2005 10:32:30 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: [Patch] passcred cleanup in struct socket
-Message-ID: <20050217093230.GA15066@mail.13thfloor.at>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Thu, 17 Feb 2005 04:47:07 -0500
+Date: Thu, 17 Feb 2005 10:46:41 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Pavel Machek <pavel@suse.cz>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BK] upgrade will be needed
+In-Reply-To: <20050217000032.GG3865@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.62.0502171045130.30106@numbat.sonytel.be>
+References: <20050214020802.GA3047@bitmover.com> <200502142324.43269.gjury@inode.at>
+ <20050214225704.GD16029@bitmover.com> <200502150029.15993.gjury@inode.at>
+ <or7jla0vy4.fsf@livre.redhat.lsd.ic.unicamp.br> <20050217000032.GG3865@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 17 Feb 2005, Pavel Machek wrote:
+> > >> if they really need the more powerful features.  Or we could donate
+> > >> some on a case by case basis.
+> > >> 
+> > >> If the hackers who are using BK can reach agreement that it would be
+> > >> better if the BK they had didn't move forward unless they got commercial
+> > >> seats then we could start moving towards a license on the free product
+> > >> that was less restrictive.  What that would mean is that the BK you have
+> > 
+> > > I want to pay the fee for Linus and Alan.
+> > 
+> > I'd like to pay the fee to have Linus' license to use BK revoked.  But
+> > I probably can't afford it, oh well :-)
+> 
+> Easy, start working for OSDL, then start hacking arch or
+> whatever. Puff, you are his coworker, you are competing with Larry,
+> Linus license goes away.
 
-struct socket uses a 'bool' (unsigned char) to
-'flag' the pass-credential option for sockets
-(which can be easily replaced by a flag)
+I don't know whether the kernel hackers that work for IBM use the `free'
+version of BK or not, but if they do, s/OSDL/IBM/ and s/arch/ClearCase/ and
+there's a problem...
 
-best,
-Herbert
+Gr{oetje,eeting}s,
 
+						Geert
 
-diff -NurpP --minimal linux-2.6.11-rc4/include/linux/net.h linux-2.6.11-rc4-sock/include/linux/net.h
---- linux-2.6.11-rc4/include/linux/net.h	2005-02-13 17:17:06 +0100
-+++ linux-2.6.11-rc4-sock/include/linux/net.h	2005-02-17 09:47:44 +0100
-@@ -61,6 +61,7 @@ typedef enum {
- #define SOCK_ASYNC_NOSPACE	0
- #define SOCK_ASYNC_WAITDATA	1
- #define SOCK_NOSPACE		2
-+#define SOCK_PASSCRED		3
- 
- #ifndef ARCH_HAS_SOCKET_TYPES
- /** sock_type - Socket types
-@@ -111,7 +112,6 @@ struct socket {
- 	struct sock		*sk;
- 	wait_queue_head_t	wait;
- 	short			type;
--	unsigned char		passcred;
- };
- 
- struct vm_area_struct;
-diff -NurpP --minimal linux-2.6.11-rc4/include/net/scm.h linux-2.6.11-rc4-sock/include/net/scm.h
---- linux-2.6.11-rc4/include/net/scm.h	2004-08-14 12:55:32 +0200
-+++ linux-2.6.11-rc4-sock/include/net/scm.h	2005-02-17 09:49:42 +0100
-@@ -51,13 +51,13 @@ static __inline__ void scm_recv(struct s
- {
- 	if (!msg->msg_control)
- 	{
--		if (sock->passcred || scm->fp)
-+		if (test_bit(SOCK_PASSCRED, &sock->flags) || scm->fp)
- 			msg->msg_flags |= MSG_CTRUNC;
- 		scm_destroy(scm);
- 		return;
- 	}
- 
--	if (sock->passcred)
-+	if (test_bit(SOCK_PASSCRED, &sock->flags))
- 		put_cmsg(msg, SOL_SOCKET, SCM_CREDENTIALS, sizeof(scm->creds), &scm->creds);
- 
- 	if (!scm->fp)
-diff -NurpP --minimal linux-2.6.11-rc4/net/core/sock.c linux-2.6.11-rc4-sock/net/core/sock.c
---- linux-2.6.11-rc4/net/core/sock.c	2005-02-13 17:17:18 +0100
-+++ linux-2.6.11-rc4-sock/net/core/sock.c	2005-02-17 09:49:42 +0100
-@@ -333,7 +333,10 @@ int sock_setsockopt(struct socket *sock,
- 			break;
- 
- 		case SO_PASSCRED:
--			sock->passcred = valbool;
-+			if (valbool)
-+				set_bit(SOCK_PASSCRED, &sock->flags);
-+			else
-+				clear_bit(SOCK_PASSCRED, &sock->flags);
- 			break;
- 
- 		case SO_TIMESTAMP:
-@@ -557,7 +560,7 @@ int sock_getsockopt(struct socket *sock,
- 			break; 
- 
- 		case SO_PASSCRED:
--			v.val = sock->passcred;
-+			v.val = test_bit(SOCK_PASSCRED, &sock->flags) ? 1 : 0;
- 			break;
- 
- 		case SO_PEERCRED:
-diff -NurpP --minimal linux-2.6.11-rc4/net/socket.c linux-2.6.11-rc4-sock/net/socket.c
---- linux-2.6.11-rc4/net/socket.c	2005-02-13 17:17:19 +0100
-+++ linux-2.6.11-rc4-sock/net/socket.c	2005-02-17 09:34:41 +0100
-@@ -287,7 +287,7 @@ static struct inode *sock_alloc_inode(st
- 	ei->socket.ops = NULL;
- 	ei->socket.sk = NULL;
- 	ei->socket.file = NULL;
--	ei->socket.passcred = 0;
-+	ei->socket.flags = 0;
- 
- 	return &ei->vfs_inode;
- }
-diff -NurpP --minimal linux-2.6.11-rc4/net/unix/af_unix.c linux-2.6.11-rc4-sock/net/unix/af_unix.c
---- linux-2.6.11-rc4/net/unix/af_unix.c	2005-02-13 17:17:19 +0100
-+++ linux-2.6.11-rc4-sock/net/unix/af_unix.c	2005-02-17 09:49:42 +0100
-@@ -861,8 +861,8 @@ static int unix_dgram_connect(struct soc
- 			goto out;
- 		alen = err;
- 
--		if (sock->passcred && !unix_sk(sk)->addr &&
--		    (err = unix_autobind(sock)) != 0)
-+		if (test_bit(SOCK_PASSCRED, &sock->flags) &&
-+		    !unix_sk(sk)->addr && (err = unix_autobind(sock)) != 0)
- 			goto out;
- 
- 		other=unix_find_other(sunaddr, alen, sock->type, hash, &err);
-@@ -952,7 +952,8 @@ static int unix_stream_connect(struct so
- 		goto out;
- 	addr_len = err;
- 
--	if (sock->passcred && !u->addr && (err = unix_autobind(sock)) != 0)
-+	if (test_bit(SOCK_PASSCRED, &sock->flags)
-+		&& !u->addr && (err = unix_autobind(sock)) != 0)
- 		goto out;
- 
- 	timeo = sock_sndtimeo(sk, flags & O_NONBLOCK);
-@@ -1286,7 +1287,8 @@ static int unix_dgram_sendmsg(struct kio
- 			goto out;
- 	}
- 
--	if (sock->passcred && !u->addr && (err = unix_autobind(sock)) != 0)
-+	if (test_bit(SOCK_PASSCRED, &sock->flags)
-+		&& !u->addr && (err = unix_autobind(sock)) != 0)
- 		goto out;
- 
- 	err = -EMSGSIZE;
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

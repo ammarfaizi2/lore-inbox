@@ -1,38 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263295AbUEWSbA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263309AbUEWSdh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263295AbUEWSbA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 14:31:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263304AbUEWSbA
+	id S263309AbUEWSdh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 14:33:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263324AbUEWSdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 14:31:00 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9949 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263295AbUEWSa7
+	Sun, 23 May 2004 14:33:37 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16605 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263309AbUEWSdf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 14:30:59 -0400
-Message-ID: <40B0EDD4.9090700@pobox.com>
-Date: Sun, 23 May 2004 14:30:44 -0400
+	Sun, 23 May 2004 14:33:35 -0400
+Message-ID: <40B0EE6C.70400@pobox.com>
+Date: Sun, 23 May 2004 14:33:16 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-CC: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] Fix userspace inclusion of linux/fs.h (resend)
-References: <yw1x1xlb6m1x.fsf@kth.se>
-In-Reply-To: <yw1x1xlb6m1x.fsf@kth.se>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.7-rc1
+References: <200405231619.i4NGJBe18903@pincoya.inf.utfsm.cl>
+In-Reply-To: <200405231619.i4NGJBe18903@pincoya.inf.utfsm.cl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Måns Rullgård wrote:
-> The patch below fixes compilation of userspace using linux/fs.h.  The
-> patch is against Linux 2.6.6.  Please apply of fix some other way.
+Horst von Brand wrote:
+> Linus Torvalds <torvalds@osdl.org> said:
+> 
+>>Hmm.. This is stuff all over the map, but most interesting (or at least
+>>most "core") is probably the merging of the NUMA scheduler and the anonvma
+>>rmap code. The latter gets rid of the expensive pte chains, and instead
+>>allows reverse page mapping by keeping track of which vma (and offset)  
+>>each page is associated with. Special kudos to Andrea Arcangeli and Hugh
+>>Dickins.
+>>
+>>		Linus
+> 
+> 
+> Not wanting to start a flamewar, but this sort of massive changes in a
+> _stable_ series has got me quite confused... either 2.6.0 was premature, or
+> the "just stabilize 2.6, new stuff only into 2.7 (when it opens)" got lost
+> somewhere.
 
 
-Userspace should not be directly including the kernel headers.
+Linux has a tradition of completely rewriting the VM in the middle of a 
+stable series, why not again?  :)
 
-Some dude maintains a "linux-libc-headers" package, you probably want that.
+/me is joking, but similarly annoyed...
+
+The VM, like the rest of the kernel, will _always_ be a work in 
+progress.  A stable series should freeze us for bug fixing and 
+stabilization...
 
 	Jeff
 

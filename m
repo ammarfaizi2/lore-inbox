@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262791AbSJTIcC>; Sun, 20 Oct 2002 04:32:02 -0400
+	id <S262676AbSJTIeR>; Sun, 20 Oct 2002 04:34:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262750AbSJTIb6>; Sun, 20 Oct 2002 04:31:58 -0400
-Received: from mark.mielke.cc ([216.209.85.42]:20237 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S262730AbSJTIb4>;
-	Sun, 20 Oct 2002 04:31:56 -0400
-Date: Sun, 20 Oct 2002 04:38:41 -0400
+	id <S262730AbSJTIeR>; Sun, 20 Oct 2002 04:34:17 -0400
+Received: from findaloan-online.cc ([216.209.85.42]:21773 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S262676AbSJTIeQ>;
+	Sun, 20 Oct 2002 04:34:16 -0400
+Date: Sun, 20 Oct 2002 04:40:56 -0400
 From: Mark Mielke <mark@mark.mielke.cc>
-To: linux-kernel@vger.kernel.org
+To: Zac Hansen <xaxxon@chopper.slackworks.com>
+Cc: Nicholas Wourms <nwourms@netscape.net>, linux-kernel@vger.kernel.org
 Subject: Re: Bitkeeper outrage, old and new
-Message-ID: <20021020083841.GC5064@mark.mielke.cc>
-References: <aosvuf$scn$1@main.gmane.org> <Pine.LNX.4.44.0210192157001.14117-100000@cerberus.localhost> <20021020021818.GA2085@Master.Wizards>
+Message-ID: <20021020084056.GD5064@mark.mielke.cc>
+References: <aot5a4$894$1@main.gmane.org> <Pine.LNX.4.44.0210200155580.4306-100000@chopper.slackworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021020021818.GA2085@Master.Wizards>
+In-Reply-To: <Pine.LNX.4.44.0210200155580.4306-100000@chopper.slackworks.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 19, 2002 at 10:18:18PM -0400, Murray J. Root wrote:
-> On Sat, Oct 19, 2002 at 10:00:08PM -0400, Jon Portnoy wrote:
-> > Since RMS is a troll, I highly suggest you immediately uninstall all 
-> > software with any code written by him, including the GNU C Compiler suite.
-> That doesn't make sense. Just because he did a good thing we need to put up 
-> with his ranting and raving if we want to use it? Sorry - he forgot to put
-> that condition into the GPL so we aren't bound by it.
+On Sun, Oct 20, 2002 at 01:58:26AM -0400, Zac Hansen wrote:
+> I disagree with your statement that his rants are off topic.  Unless you 
+> believe that the purpose of Linux isn't the advancement of Free software, 
+> then debating the merits of using non-Free software in the development 
+> process of a major cornerstone of the Free software movement is 
+> fundamentally on topic.  
 
-Seriously. According to Richard, my freedom as the user supercedes
-Richard's freedom as author or contributor.
+Ask Richard if GCC was ever initially bootstrapped using a non-GPL
+compiler suite.
+
+In the answer to that question lies the truth about the merits of Richard's
+rant against those with dissimilar opinions to his own.
 
 mark
 

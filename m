@@ -1,83 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263434AbVCEAhJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263577AbVCEBRc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263434AbVCEAhJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 19:37:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263454AbVCEAKs
+	id S263577AbVCEBRc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 20:17:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263578AbVCEBHB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 19:10:48 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:10418 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S263314AbVCDXYK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 18:24:10 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: BIOS overwritten during resume (was: Re: Asus L5D resume on battery power)
-Date: Sat, 5 Mar 2005 00:26:05 +0100
+	Fri, 4 Mar 2005 20:07:01 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:46052 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S263482AbVCEA7h convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 19:59:37 -0500
+From: Jason Gaston <jason.d.gaston@intel.com>
+Organization: Intel Corp.
+To: bzolnier@gmail.com
+Subject: [PATCH] pci_ids.h correction for Intel ICH7M - 2.6.11
+Date: Fri, 4 Mar 2005 18:04:43 -0800
 User-Agent: KMail/1.7.1
-Cc: Andi Kleen <ak@suse.de>, kernel list <linux-kernel@vger.kernel.org>,
-       paul.devriendt@amd.com, Nigel Cunningham <ncunningham@cyclades.com>
-References: <200502252237.04110.rjw@sisk.pl> <200503041415.35162.rjw@sisk.pl> <20050304201109.GB2385@elf.ucw.cz>
-In-Reply-To: <20050304201109.GB2385@elf.ucw.cz>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200503050026.06378.rjw@sisk.pl>
+Message-Id: <200503041804.43413.jason.d.gaston@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This patch corrects the ICH7M LPC controller DID in pci_ids.h from x27B1 to x27B9.  This patch was build against 2.6.11.
+If acceptable, please apply.
 
-On Friday, 4 of March 2005 21:11, Pavel Machek wrote:
-> Hi!
-> 
-> > > > > IIRC kernel code/data is marked as PageReserved(), that's why we need
-> > > > > to save that :(. Not sure what to do with data e820 marked as
-> > > > > reserved...
-> > > > 
-> > > > Perhaps we need another page flag, like PG_readonly, and mark the pages
-> > > > reserved by the e820 as PG_reserved | PG_readonly (the same for the areas
-> > > > that are not returned by e820 at all).  Would that be acceptable?
-> > > 
-> > > This flags are little in the short supply, but being able to tell
-> > > kernel code from memory hole seems like "must have", so yes, that
-> > > looks ok.
-> > > 
-> > > You could get subtle and reuse some other pageflag. I do not think
-> > > PG_reserved can have PG_locked... So using for example PG_locked for
-> > > this purpose should be okay.
-> > 
-> > The following patch does this.  It is only for x86-64 without
-> > CONFIG_DISCONTIGMEM, but it has no effect in other cases.
-> 
-> Actually, take a look at Nigel's patch. He simply uses PageNosave
-> instead of PageLocked -- that is cleaner.
+Thanks,
 
-Yes.  I thought about using PG_nosave in the begining, but there's a
+Jason Gaston
 
-BUG_ON(PageReserved(page) && PageNosave(page));
+Signed-off-by:  Jason Gaston <Jason.d.gaston@intel.com>
 
-in swsusp.c:saveable() that I just didn't want to trigger.  It seems to me,
-though, that we don't need it any more, do we?
+--- linux-2.6.11/include/linux/pci_ids.h.orig	2005-03-04 17:58:10.490587200 -0800
++++ linux-2.6.11/include/linux/pci_ids.h	2005-03-04 17:58:29.990622744 -0800
+@@ -2261,7 +2261,7 @@
+ #define PCI_DEVICE_ID_INTEL_ICH6_18	0x266e
+ #define PCI_DEVICE_ID_INTEL_ICH6_19	0x266f
+ #define PCI_DEVICE_ID_INTEL_ICH7_0	0x27b8
+-#define PCI_DEVICE_ID_INTEL_ICH7_1	0x27b1
++#define PCI_DEVICE_ID_INTEL_ICH7_1	0x27b9
+ #define PCI_DEVICE_ID_INTEL_ICH7_2	0x27c0
+ #define PCI_DEVICE_ID_INTEL_ICH7_3	0x27c1
+ #define PCI_DEVICE_ID_INTEL_ICH7_4	0x27c2
 
-> He also found a few places where reserved page becomes un-reserved,
-> and you probably need to fix those, too.
-
-Yes, I think I'll just port the Nigel's patch to x86-64.  BTW, it's striking
-that we found similar solutions independently (I didn't know the Nigel's
-patch before :-)).
-
-Unfortunately, it turns out that the patch does not fix my problem with random
-reboots during resume on battery power, but I really think that we need to mark
-non-RAM areas with PG_nosave, at least for sanity reasons (eg to be sure that
-we do not break things by dumping stuff to where we should not write to).
-
-Greets,
-Rafael
-
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"

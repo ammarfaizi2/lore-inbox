@@ -1,70 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274180AbRISUwf>; Wed, 19 Sep 2001 16:52:35 -0400
+	id <S274182AbRISUzP>; Wed, 19 Sep 2001 16:55:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274182AbRISUw0>; Wed, 19 Sep 2001 16:52:26 -0400
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:34313 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S274180AbRISUwL>; Wed, 19 Sep 2001 16:52:11 -0400
-Date: Wed, 19 Sep 2001 22:52:34 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Athlon bug stomper. Pls apply.
-Message-ID: <20010919225234.C3775@suse.cz>
-In-Reply-To: <3EDB9E14576@vcnet.vc.cvut.cz>
+	id <S274185AbRISUzG>; Wed, 19 Sep 2001 16:55:06 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:55800 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S274182AbRISUzA>;
+	Wed, 19 Sep 2001 16:55:00 -0400
+Date: Wed, 19 Sep 2001 22:55:05 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.10-pre11
+Message-ID: <20010919225505.P720@athlon.random>
+In-Reply-To: <20010919202539.E720@athlon.random> <Pine.GSO.4.21.0109191515200.901-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3EDB9E14576@vcnet.vc.cvut.cz>; from VANDROVE@vc.cvut.cz on Wed, Sep 19, 2001 at 09:15:17PM +0000
+In-Reply-To: <Pine.GSO.4.21.0109191515200.901-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, Sep 19, 2001 at 03:21:09PM -0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 19, 2001 at 09:15:17PM +0000, Petr Vandrovec wrote:
-> On 19 Sep 01 at 19:55, Arjan van de Ven wrote:
-> > 
-> > Ok but that part is simple:
-> > 
-> > run
-> > 
-> > http://www.fenrus.demon.nl/athlon.c
+On Wed, Sep 19, 2001 at 03:21:09PM -0400, Alexander Viro wrote:
 > 
-> Small question - is it OK that 'faster_copy' is faster than
-> 'even_faster'? By only few percents, but... It is dual cpu Tyan,
-> with two AMD MP 1.2MHz, with 1022:700C AMD hostbridge. I'll
-> check KT133 at home if I'll remember...
-
-Same here. In a quite number of cases, even_faster is actually slower.
-Not always, though. I suspect the measurement is not really exact.
-
->                                         Thanks,
->                                                 Petr Vandrovec
->                                                 vandrove@vc.cvut.cz
->                                                 
 > 
-> Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $ 
-> clear_page() tests 
-> clear_page function 'warm up run'    took 13967 cycles per page
-> clear_page function '2.4 non MMX'    took 9298 cycles per page
-> clear_page function '2.4 MMX fallback'   took 9284 cycles per page
-> clear_page function '2.4 MMX version'    took 8508 cycles per page
-> clear_page function 'faster_clear_page'  took 4016 cycles per page
-> clear_page function 'even_faster_clear'  took 3916 cycles per page
+> On Wed, 19 Sep 2001, Andrea Arcangeli wrote:
 > 
-> copy_page() tests 
-> copy_page function 'warm up run'     took 15118 cycles per page
-> copy_page function '2.4 non MMX'     took 17002 cycles per page
-> copy_page function '2.4 MMX fallback'    took 16978 cycles per page
-> copy_page function '2.4 MMX version'     took 15163 cycles per page
-> copy_page function 'faster_copy'     took 8569 cycles per page
-> copy_page function 'even_faster'     took 8805 cycles per page
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> > Quite frankly the BDEV_* handling was and is a total mess IMHO, even if
+> > it was written by you ;), there was no difference at all from many of
+> > them, I didn't fixed that but I had to check all them on the differences
+> > until I realized there was none. I also think the other things you
+> 
+> There certainly _are_ differences  (e.g. in handling the moment
+> when you close them).
 
--- 
-Vojtech Pavlik
-SuSE Labs
+there aren't difference, only thing that matters is: "is that an fs
+or a blkdev". SWAP/RAW/FILE is useless.
+
+> > mentioned (besides the inode pinning bug, non critical) are not buggy
+> 
+> _What_?
+> 
+> int fd = open("/dev/ram0", O_RDWR);
+> ioctl(fd, BLKFLSBUF);
+> ioctl(fd, BLKFLSBUF);
+> 
+> and you claim that resulting oops is not a bug?
+
+that is a bug.
+
+> > (infact I never had a single report), but well we'll verify that in
+> 
+> Richard, is that you?  What had you done with real Andrea?
+
+You also screwup things sometime (think the few liner you posts to l-k
+after your cleanups).  Those are minor bugs, so I'm not going to panic
+on them (ramdisk works not by luck), this is what I meant, and they will
+be fixed shortly somehow, and many thanks for the further auditing.
+
+Andrea

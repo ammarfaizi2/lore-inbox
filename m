@@ -1,63 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268577AbUHaN5j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268533AbUHaOKn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268577AbUHaN5j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 09:57:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268582AbUHaN5j
+	id S268533AbUHaOKn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 10:10:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268580AbUHaOKn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 09:57:39 -0400
-Received: from nevyn.them.org ([66.93.172.17]:51153 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S268577AbUHaN5Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 09:57:24 -0400
-Date: Tue, 31 Aug 2004 09:56:54 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Linus Torvalds <torvalds@osdl.org>, Roland McGrath <roland@redhat.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cleanup ptrace stops and remove notify_parent
-Message-ID: <20040831135654.GA22337@nevyn.them.org>
-Mail-Followup-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200408310411.i7V4B8Vs027772@magilla.sf.frob.com> <Pine.LNX.4.58.0408302119110.2295@ppc970.osdl.org> <87k6vfqwc7.fsf@devron.myhome.or.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87k6vfqwc7.fsf@devron.myhome.or.jp>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Tue, 31 Aug 2004 10:10:43 -0400
+Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:33415 "EHLO
+	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
+	id S268533AbUHaOKW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 10:10:22 -0400
+Date: Tue, 31 Aug 2004 10:09:52 -0400
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: silent semantic changes in reiser4 (brief attempt to document the
+ idea of what reiser4 wants to do with metafiles and why
+In-reply-to: <41323AD8.7040103@namesys.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, reiserfs-list@namesys.com
+Message-id: <413486B0.4050101@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <41323AD8.7040103@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 31, 2004 at 10:19:04PM +0900, OGAWA Hirofumi wrote:
-> Linus Torvalds <torvalds@osdl.org> writes:
-> 
-> > Ok, I definitely agree with the approach
-> 
-> I agree with that approach.
-> 
-> > Looks pretty clean as an implementation. The question is whether we should 
-> > aim for 2.6.9 or 2.6.10 - if the first, then I should probably take it 
-> > now, otherwise it should go into -mm first and be merged early after 2.6.9 
-> > has been released, for the first -rc.
-> > 
-> > I _looks_ pretty safe, and it's hopefully much less likely to have subtle
-> > bugs and races than our old approach had, but I have a hard time judging. 
-> 
-> Ptrace has several ugly things. And I'm thinking those needs
-> user-visible change more or less to improve, like this.
-> (->parent/wait4/child_list, PTRACE_SYSCALL/PTRACE_SINGLESTEP ...)
-> 
-> Should we also clean up and improve those with user-visible change?
-> Those should be thought as separate issue?
-> 
-> I think we should be improved with new interface... (after it, we
-> can deprecate ptrace)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I recommend the same thing I recommend every time this comes up: make
-sure to take a look at how Solaris does this through /proc.  It seems
-to be much nicer.
+Hans Reiser wrote:
 
--- 
-Daniel Jacobowitz
+>
+> Why Openat Sucks:
+>
+> because you can't go cat filenameA/metas/permissions >
+> filenameB/permissions
+>
+> If cat doesn't work, then we are suffering exactly the problem with
+> namespace fragmentation that this whole scheme was invented to avoid.
+>
+
+Sure you can.  All you need to do is fix your shell.
+
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
+http://www.sun.com
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBNIavdQs4kOxk3/MRAmvAAJ9sZfEgIOfINZsT23pa+Y3nQ4lfMACgmN3q
+sdgPzBUg9i/c+roWDrXq5BI=
+=poSJ
+-----END PGP SIGNATURE-----

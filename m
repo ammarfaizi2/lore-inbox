@@ -1,116 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263112AbUJ2G32@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263098AbUJ2Go5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263112AbUJ2G32 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 02:29:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263098AbUJ2G32
+	id S263098AbUJ2Go5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 02:44:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263116AbUJ2Go5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 02:29:28 -0400
-Received: from pD9F8759B.dip0.t-ipconnect.de ([217.248.117.155]:4738 "EHLO
-	susi.maya.org") by vger.kernel.org with ESMTP id S263112AbUJ2G3O
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 02:29:14 -0400
-From: Andreas Hartmann <andihartmann@01019freenet.de>
-X-Newsgroups: fa.linux.kernel
-Subject: kswapd crashed 2.4.27
-Date: Fri, 29 Oct 2004 08:27:29 +0200
-Organization: privat
-Message-ID: <clsnsh$6p0$1@pD9F8759B.dip0.t-ipconnect.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: abuse@fu.berlin.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.4) Gecko/20041017
-X-Accept-Language: de, en-us, en
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Fri, 29 Oct 2004 02:44:57 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:11120 "EHLO
+	pd3mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S263098AbUJ2Gov (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 02:44:51 -0400
+Date: Fri, 29 Oct 2004 00:52:01 -0600
+From: Chad Christopher Giffin <typo@shaw.ca>
+Subject: Linuxant/Conexant HSF/HCF Modem Drivers Unlocked
 To: linux-kernel@vger.kernel.org
+Reply-to: typo@shaw.ca
+Message-id: <1099032721.23148.5.camel@localhost>
+Organization: T-Net Information Systems
+MIME-version: 1.0
+X-Mailer: Evolution 2.0.0
+Content-type: multipart/signed; boundary="=-LSYm1bBnWbqIRzwPwOgp";
+ protocol="application/pgp-signature"; micalg=pgp-sha1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-I had a hard crash this morning on a XSeries 235 with IBM Serveraid, 512
-MB RAM and 1024 MB Swap during rsyncing datas to this machine. The datas
-were copied to a drbd-device, which reported some seconds before:
-
-Oct 29 05:30:20 FAGINTSC kernel: drbd16: Epoch set size wrong!!found=1061
-reported=1060
+--=-LSYm1bBnWbqIRzwPwOgp
+Content-Type: multipart/mixed; boundary="=-jzbpt0FvvmxME0OsJk6I"
 
 
-~> ksymoops -m /usr/src/linux-2.4.27/System.map oops
-ksymoops 2.4.5 on i686 2.4.27.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.27/ (default)
-     -m /usr/src/linux-2.4.27/System.map (specified)
+--=-jzbpt0FvvmxME0OsJk6I
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Oct 29 05:30:29 FAGINTSC kernel: CPU:    0
-Oct 29 05:30:29 FAGINTSC kernel: EIP:    0010:[<c0135400>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-Oct 29 05:30:29 FAGINTSC kernel: EFLAGS: 00010002
-Oct 29 05:30:29 FAGINTSC kernel: eax: ffffffff   ebx: dbcbd160   ecx:
-00000001   edx: dffed600
-Oct 29 05:30:29 FAGINTSC kernel: esi: c158a37c   edi: 00001db7   ebp:
-dffed6a4   esp: c15b9f30
-Oct 29 05:30:29 FAGINTSC kernel: ds: 0018   es: 0018   ss: 0018
-Oct 29 05:30:29 FAGINTSC kernel: Process kswapd (pid: 5, stackpage=c15b9000)
-Oct 29 05:30:29 FAGINTSC kernel: Stack: 00000000 c1243108 c158a38c
-c158a384 c15b8000 dffed600 00000000 00000008
-Oct 29 05:30:29 FAGINTSC kernel:        00000000 00000000 00000000
-00000020 000001d0 c028f69c c028f69c c01368ac
-Oct 29 05:30:29 FAGINTSC kernel:        c15b9f90 000001d0 0000003c
-00000020 c0136952 c15b9f90 00000246 00000000
-Oct 29 05:30:29 FAGINTSC kernel: Call Trace:    [<c01368ac>] [<c0136952>]
-[<c0136b0c>] [<c0136b78>] [<c0136cbd>]
-Oct 29 05:30:29 FAGINTSC kernel:   [<c0105000>] [<c010745e>] [<c0136c20>]
-Oct 29 05:30:29 FAGINTSC kernel: Code: 8b 00 47 3b 44 24 08 75 f7 8b 5e 2c
-89 fa 8b 46 4c 88 d9 d3
+I couldn't help but notice that the Linuxant Modem drivers appear to be
+GPL'd, as a strings of the modules shows that License=3DGPL.
+
+Therefor, it seems to be O.K. to send this script out to unlock them.
+Perhaps the script should be GPL'd.
+
+Attached is a perl script that generates the keys to the GPL'd Linuxant
+Modem Drivers for HCF and HSF modems.
+
+Please do not use this script on Non-GPL'd modules ;-) =20
+As that would clearly be illegal.
 
 
->>EIP; c0135400 <kmem_cache_reap+230/340>   <=====
 
->>eax; ffffffff <END_OF_CODE+1f701d74/????>
->>ebx; dbcbd160 <_end+1b96ee68/204b3d68>
->>edx; dffed600 <_end+1fc9f308/204b3d68>
->>esi; c158a37c <_end+123c084/204b3d68>
->>edi; 00001db7 Before first symbol
->>ebp; dffed6a4 <_end+1fc9f3ac/204b3d68>
->>esp; c15b9f30 <_end+126bc38/204b3d68>
+--=20
+Chad Christopher Giffin
+mailto:typo@shaw.ca
 
-Trace; c01368ac <shrink_caches+1c/60>
-Trace; c0136952 <try_to_free_pages_zone+62/f0>
-Trace; c0136b0c <kswapd_balance_pgdat+6c/b0>
-Trace; c0136b78 <kswapd_balance+28/40>
-Trace; c0136cbd <kswapd+9d/b7>
-Trace; c0105000 <_stext+0/0>
-Trace; c010745e <arch_kernel_thread+2e/40>
-Trace; c0136c20 <kswapd+0/b7>
-
-Code;  c0135400 <kmem_cache_reap+230/340>
-00000000 <_EIP>:
-Code;  c0135400 <kmem_cache_reap+230/340>   <=====
-   0:   8b 00                     mov    (%eax),%eax   <=====
-Code;  c0135402 <kmem_cache_reap+232/340>
-   2:   47                        inc    %edi
-Code;  c0135403 <kmem_cache_reap+233/340>
-   3:   3b 44 24 08               cmp    0x8(%esp,1),%eax
-Code;  c0135407 <kmem_cache_reap+237/340>
-   7:   75 f7                     jne    0 <_EIP>
-Code;  c0135409 <kmem_cache_reap+239/340>
-   9:   8b 5e 2c                  mov    0x2c(%esi),%ebx
-Code;  c013540c <kmem_cache_reap+23c/340>
-   c:   89 fa                     mov    %edi,%edx
-Code;  c013540e <kmem_cache_reap+23e/340>
-   e:   8b 46 4c                  mov    0x4c(%esi),%eax
-Code;  c0135411 <kmem_cache_reap+241/340>
-  11:   88 d9                     mov    %bl,%cl
-Code;  c0135413 <kmem_cache_reap+243/340>
-  13:   d3 00                     roll   %cl,(%eax)
+There are 10 kinds of people in this world... those who understand
+binary and those who do not.   -- Anonymous
 
 
-Does anybody know what could be broken?
+--=-jzbpt0FvvmxME0OsJk6I
+Content-Disposition: attachment; filename=keygen.pl
+Content-Type: application/x-perl; name=keygen.pl
+Content-Transfer-Encoding: base64
+
+IyEvdXNyL2Jpbi9wZXJsCnVzZSBEaWdlc3Q6Ok1ENSAgcXcobWQ1X2hleCk7CnByaW50ZiAiVXNh
+Z2UgOiBrZXlnZW4ucGwgZS1tYWlsIGtleS1pZFxuZS1tYWlsIDogdGhlIG9uZSB5b3UgcHJvdmlk
+ZWRcbmtleS1pZCA6IHByb3ZpZGVkIGJ5IGhjZi9oc2Zjb25maWdcbiI7CgokcGFkID0gcGFjaygi
+SDIwNDgiLCAiMDAwMDAwMDA5NjMwMDc3NzJjNjEwZWVlYmE1MTA5OTkxOWM0NmQwNzhmZjQ2YTcw
+MzVhNTYzZTlhMzk1NjQ5ZTMyODhkYjBlYTRiOGRjNzkxZWU5ZDVlMDg4ZDlkMjk3MmI0Y2I2MDli
+ZDdjYjE3ZTA3MmRiOGU3OTExZGJmOTA2NDEwYjcxZGYyMjBiMDZhNDg3MWI5ZjNkZTQxYmU4NDdk
+ZDRkYTFhZWJlNGRkNmQ1MWI1ZDRmNGM3ODVkMzgzNTY5ODZjMTNjMGE4NmI2NDdhZjk2MmZkZWNj
+OTY1OGE0ZjVjMDExNGQ5NmMwNjYzNjMzZDBmZmFmNTBkMDg4ZGM4MjA2ZTNiNWUxMDY5NGNlNDQx
+NjBkNTcyNzE2N2EyZDFlNDAzM2M0N2Q0MDQ0YmZkODUwZGQyNmJiNTBhYTVmYWE4YjUzNTZjOThi
+MjQyZDZjOWJiZGI0MGY5YmNhY2UzNmNkODMyNzU1Y2RmNDVjZjBkZDZkYzU5M2RkMWFiYWMzMGQ5
+MjYzYTAwZGU1MTgwNTFkN2M4MTY2MWQwYmZiNWY0YjQyMTIzYzRiMzU2OTk5NWJhY2YwZmE1YmRi
+ODllYjgwMjI4MDg4ODA1NWZiMmQ5MGNjNjI0ZTkwYmIxODc3YzZmMmYxMTRjNjg1OGFiMWQ2MWMx
+M2QyZDY2YjY5MDQxZGM3NjA2NzFkYjAxYmMyMGQyOTgyYTEwZDVlZjg5ODViMTcxMWZiNWI2MDZh
+NWU0YmY5ZjMzZDRiOGU4YTJjOTA3NzgzNGY5MDAwZjhlYTgwOTk2MTg5ODBlZTFiYjBkNmE3ZjJk
+M2Q2ZDA4OTc2YzY0OTEwMTVjNjNlNmY0NTE2YjZiNjI2MTZjMWNkODMwNjU4NTRlMDA2MmYyZWQ5
+NTA2NmM3YmE1MDExYmMxZjQwODgyNTdjNDBmZjVjNmQ5YjA2NTUwZTliNzEyZWFiOGJlOGI3Yzg4
+YjlmY2RmMWRkZDYyNDkyZGRhMTVmMzdjZDM4YzY1NGNkNGZiNTg2MWIyNGRjZTUxYjUzYTc0MDBi
+Y2EzZTIzMGJiZDQ0MWE1ZGY0YWQ3OTVkODNkNmRjNGQxYTRmYmY0ZDZkMzZhZTk2OTQzZmNkOTZl
+MzQ0Njg4NjdhZGQwYjg2MGRhNzMyZDA0NDRlNTFkMDMzMzVmNGMwYWFhYzk3YzBkZGQzYzcxMDU1
+MGFhNDEwMjI3MTAxMDBiYmU4NjIwMGNjOTI1YjU2ODU3YjM4NTZmMjAwOWQ0NjZiOTlmZTQ2MWNl
+MGVmOWRlNWU5OGM5ZDkyOTIyOThkMGIwYjRhOGQ3YzcxNzNkYjM1OTgxMGRiNDJlM2I1Y2JkYjdh
+ZDZjYmFjMDIwODNiOGVkYjZiM2JmOWEwY2UyYjYwMzlhZDJiMTc0Mzk0N2Q1ZWFhZjc3ZDI5ZDE1
+MjZkYjA0ODMxNmRjNzMxMjBiNjNlMzg0M2I2NDk0M2U2YTZkMGRhODVhNmE3YTBiY2YwZWU0OWRm
+ZjA5OTMyN2FlMDAwYWIxOWUwNzdkNDQ5MzBmZjBkMmEzMDg4NzY4ZjIwMTFlZmVjMjA2Njk1ZDU3
+NjJmN2NiNjc2NTgwNzEzNjZjMTllNzA2NmI2ZTc2MWJkNGZlZTAyYmQzODk1YTdhZGExMGNjNGFk
+ZDY3NmZkZmI5ZjlmOWVmYmU4ZTQzYmViNzE3ZDU4ZWIwNjBlOGEzZDZkNjdlOTNkMWExYzRjMmQ4
+Mzg1MmYyZGY0ZmYxNjdiYmQxNjc1N2JjYTZkZDA2YjUzZjRiMzZiMjQ4ZGEyYjBkZDg0YzFiMGFh
+ZmY2NGEwMzM2NjA3YTA0NDFjM2VmNjBkZjU1ZGY2N2E4ZWY4ZTZlMzE3OWJlNjk0NjhjYjM2MWNi
+MWE4MzY2YmNhMGQyNmYyNTM2ZTI2ODUyOTU3NzBjY2MwMzQ3MGJiYmI5MTYwMjIyMmYyNjA1NTVi
+ZTNiYmFjNTI4MGJiZGIyOTI1YWI0MmIwNDZhYjM1Y2E3ZmZkN2MyMzFjZmQwYjU4YjllZDkyYzFk
+YWVkZTViYjBjMjY0OWIyNmYyNjNlYzljYTM2YTc1MGE5MzZkMDJhOTA2MDk5YzNmMzYwZWViODU2
+NzA3NzIxMzU3MDAwNTgyNGFiZjk1MTQ3YWI4ZTJhZTJiYjE3YjM4MWJiNjBjOWI4ZWQyOTIwZGJl
+ZDVlNWI3ZWZkYzdjMjFkZmRiMGJkNGQyZDM4NjQyZTJkNGYxZjhiM2RkNjg2ZTgzZGExZmNkMTZi
+ZTgxNWIyNmI5ZjZlMTc3YjA2Zjc3NDdiNzE4ZTY1YTA4ODg3MDZhMGZmZmNhM2IwNjY2NWMwYjAx
+MTFmZjllNjU4ZjY5YWU2MmY4ZDNmZjZiNjE0NWNmNmMxNjc4ZTIwYWEwZWVkMjBkZDc1NDgzMDQ0
+ZWMyYjMwMzM5NjEyNjY3YTdmNzE2NjBkMDRkNDc2OTQ5ZGI3NzZlM2U0YTZhZDFhZWRjNWFkNmQ5
+NjYwYmRmNDBmMDNiZDgzNzUzYWViY2E5YzU5ZWJiZGU3ZmNmYjI0N2U5ZmZiNTMwMWNmMmJkYmQ4
+YWMyYmFjYTMwOTNiMzUzYTZhM2I0MjQwNTM2ZDBiYTkzMDZkN2NkMjk1N2RlNTRiZjY3ZDkyMzJl
+N2E2NmIzYjg0YTYxYzQwMjFiNjg1ZDk0MmI2ZjJhMzdiZTBiYjRhMThlMGNjMzFiZGYwNTVhOGRl
+ZjAyMmQiKTsKCkBwYWQgPSB1bnBhY2soIkwyNTYiLCRwYWQpOwoKQG93bmVyID0gdW5wYWNrKCJD
+KiIsJEFSR1ZbMF0pOwpAcmVnaWQgPSByZXZlcnNlIHVucGFjaygiQyoiLCBwYWNrKCJIKiIsIHN1
+YnN0cigkQVJHVlsxXSw1LDQpLnN1YnN0cigkQVJHVlsxXSwxMCw0KSkpOwoKQHRhYiA9IChAcmVn
+aWQsIEBvd25lcik7CiRnID0gJHBhZFs3MV07Cgpmb3JlYWNoICRjKEB0YWIpCnsKCSRpID0gKCRj
+XiRnKSAmIDB4ZmY7CgkkZyA9ICgkZz4+OCkgXiAkcGFkWyRpXTsKfQoKJGtleSA9ICRnIDw8IDE2
+OwokZyA9ICgkZz4+OCkgXiAoJHBhZFskZyAmIDB4ZmZdKTsKJGcgPSAoJGc+PjgpIF4gKCRwYWRb
+JGcgJiAweGZmXSk7CiRrZXkgPSAka2V5IHwgKCAoKCRnPj4xNileJGcpICYgMHhmZmZmKTsKCiRr
+ZXlzdHIgPSAgdWModW5wYWNrKCJIKiIsIHBhY2soIk4iLCRrZXkpKSk7CiRkaWdlc3QgPSBtZDVf
+aGV4KCIka2V5c3RyXG4iKTsKCiRrZXlzdHIgPSAka2V5c3RyLnVjKHN1YnN0cigkZGlnZXN0LDAs
+NCkpOwoka2V5c3RyID1+IHMvXiguLikoLi4pKC4uKSguLikoLi4pKC4uKSQvXDEtXDItXDMtXDQt
+XDUtXDYvOwpwcmludGYgImtleTogICVzXG4iLCAka2V5c3RyOwo=
 
 
-Kind regards,
-Andreas Hartmann
+--=-jzbpt0FvvmxME0OsJk6I--
+
+--=-LSYm1bBnWbqIRzwPwOgp
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBgeiRE11tuFHhP4oRAuVLAJsFDhnKvcOprrJbu8FTz2GgpOu+ngCfRWcD
+GsWv/13BMpei6ccNZavj3Vs=
+=GRyF
+-----END PGP SIGNATURE-----
+
+--=-LSYm1bBnWbqIRzwPwOgp--

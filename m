@@ -1,122 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264506AbTE1ElG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 00:41:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264507AbTE1ElF
+	id S264507AbTE1E5c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 00:57:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264508AbTE1E5b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 00:41:05 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.92.226.49]:28890 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S264506AbTE1ElC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 00:41:02 -0400
-Date: Wed, 28 May 2003 00:50:54 -0400
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.70 - ATI DRM broken
-Message-ID: <20030528045054.GA545@andromeda>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Justin Pryzby <justinpryzby@users.sourceforge.net>
+	Wed, 28 May 2003 00:57:31 -0400
+Received: from smtp.actcom.co.il ([192.114.47.13]:33474 "EHLO
+	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S264507AbTE1E5a
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 00:57:30 -0400
+Message-ID: <3ED444D0.8050407@shemesh.biz>
+Date: Wed, 28 May 2003 08:10:40 +0300
+From: Shachar Shemesh <lkml@shemesh.biz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030521 Debian/1.3.1-1
+X-Accept-Language: en, he
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?Hanno_B=F6ck?= <hanno@gmx.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: laptopkernel-2.4.21-rc4-laptop1 released
+References: <20030527211346.11bed9c1.hanno@gmx.de>
+In-Reply-To: <20030527211346.11bed9c1.hanno@gmx.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ATI 128 DRM broke between 2.5.69 and 2.5.70.  I've manually played with
-the diff in 'drivers/char/drm/*', but never got .70 to work.  The
-problem may not even be in drm/.
+Hanno Böck wrote:
 
-Linus' message said he included 'DRM from CVS', so I imagine it'll be
-fixed soon enough, but probably someone should make sure .71 has another
-CVS update of DRI.
+>Hello,
+>
+>I have started a project to create a kernel-patch containing various
+>laptop-specific things.
+>Especially it contains acpi, software suspend, supermount and some
+>hardware compatibility patches.
+>
+>Our goal is to create a kernel that runs all hardware found in current
+>laptops.
+>If you have laptop-specific patches you think that should be in
+>laptopkernel, contact us or submit them through savannahs patch-tracker.
+>
+>Full list of patches below, it can be downloaded at
+>http://savannah.nongnu.org/projects/laptopkernel/
+>  
+>
+Have you considered http://tpctl.sourceforge.net/tpctlhome.htm for 
+thinkpads? There is also an alternative driver called "thinkpad", but I 
+only know of it from the debian package, and they don't give the 
+project's homepage there.
 
-FWIW, a full description of the problem follows.
-
-Everything seems to works well even in FB console mode (x86 processor).
-However, if I try to `startx`, then it appears that X loads, and I can
-see and move the cursor (not the regular X cursor, but my window
-manager's).  The background is never updated by X, so I just see a black
-screen with a cursor.  It appears that X doesn't respond to mouse
-clicks, as wm menus don't show up.
-
-X doesn't seem to notice a problem as my XFree86.log doesn't show
-anything abnormal.  In the console, with gpm, the mouse works fine.
-
-Once I `startx`, I cannot switch back to a console, nor can I exit,
-even with Ctrl-Alt-Bkspace.  I have not disabled that key sequence.
-
-Running `X`, the background still doesn't show up, but I am able to exit
-with C-A-BS.  The X log shows nothing.  HOWEVER!, if I rerun `X`, I
-don't get a cursor; nor can I C-A-BS.
-
-Sometimes it seems X works once or twice, but it never works a third
-time.  Seems to be a problem switching between X/console,console/X.
-
-Recompiling without DRM (and running with vesafb) fixes the problem.
-
-More information is available, just tell me what to look for.
-
-Justin Pryzby
-
-PS
-
-Dell Inspiron 4k laptop, relevant `lspci` follows:
-
-...
-00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge
-(rev 03) (prog-if 00 [Normal decode])
-        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV+ VGASnoop-
-ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32
-        Bus: primary=00, secondary=01, subordinate=01, sec-latency=32
-        I/O behind bridge: 0000e000-0000efff
-        Memory behind bridge: fd000000-feffffff
-        Prefetchable memory behind bridge: f8000000-fbffffff
-        BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B+
-...
-01:00.0 VGA compatible controller: ATI Technologies Inc Rage Mobility M3
-AGP 2x (rev 02) (prog-if 00 [VGA])
-        Subsystem: Dell Computer Corporation: Unknown device 00b0
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping+ SERR- FastB2B-
-        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 (2000ns min), cache line size 08
-        Interrupt: pin A routed to IRQ 11
-        Region 0: Memory at f8000000 (32-bit, prefetchable) [size=64M]
-        Region 1: I/O ports at ec00 [size=256]
-        Region 2: Memory at fdffc000 (32-bit, non-prefetchable)
-[size=16K]
-        Expansion ROM at <unassigned> [disabled] [size=128K]
-        Capabilities: [50] AGP version 2.0
-                Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64-
-HTrans- 64bit- FW- AGP3- Rate=x1,x2
-                Command: RQ=1 ArqSz=0 Cal=0 SBA+ AGP- GART64- 64bit- FW-
-Rate=<none>
-        Capabilities: [5c] Power Management version 2
-                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+-- 
+Shachar Shemesh
+Open Source integration consultant
+Home page & resume - http://www.shemesh.biz/
 
 
-
-Relevant `dmesg` output follows:
-
-...
-vesafb: framebuffer at 0xf8000000, mapped to 0xc8814000, size 8192k
-vesafb: mode is 1024x768x24, linelength=3072, pages=2
-vesafb: protected mode interface info at c000:6294
-vesafb: scrolling: redraw
-EDID checksum failed, aborting
-EDID checksum failed, aborting
-vesafb: directcolor: size=0:8:8:8, shift=0:16:8:0
-fb0: VESA VGA frame buffer device
-Console: switching to colour frame buffer device 128x48
-...
-Linux agpgart interface v0.100 (c) Dave Jones
-agpgart: Detected Intel 440BX chipset
-agpgart: Maximum main memory to use for agp memory: 94M
-agpgart: AGP aperture is 64M @ 0xf4000000
-[drm] Initialized r128 2.3.0 20021029 on minor 0
-...

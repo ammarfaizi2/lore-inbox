@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263526AbTLXByr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 20:54:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263447AbTLXBvv
+	id S263299AbTLXCEa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 21:04:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263298AbTLXCEa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 20:51:51 -0500
-Received: from wombat.indigo.net.au ([202.0.185.19]:60939 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S263345AbTLXBsq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 20:48:46 -0500
-Date: Wed, 24 Dec 2003 09:52:00 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-X-X-Sender: <raven@wombat.indigo.net.au>
-To: Greg KH <greg@kroah.com>, <akpm@osdl.org>
-cc: "Bradley W. Allen" <ULMO@Q.NET>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Tue, 23 Dec 2003 21:04:30 -0500
+Received: from [141.154.95.10] ([141.154.95.10]:26856 "EHLO peabody.ximian.com")
+	by vger.kernel.org with ESMTP id S263299AbTLXCEZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 21:04:25 -0500
 Subject: Re: DevFS vs. udev
-In-Reply-To: <20031223215910.GA15946@kroah.com>
-Message-ID: <Pine.LNX.4.33.0312240938450.890-100000@wombat.indigo.net.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-4.2, required 8, AWL,
-	BAYES_20, EMAIL_ATTRIBUTION, IN_REP_TO, USER_AGENT_PINE)
+From: Rob Love <rml@ximian.com>
+To: Ian Kent <raven@themaw.net>
+Cc: Greg KH <greg@kroah.com>, akpm@osdl.org, "Bradley W. Allen" <ULMO@Q.NET>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0312240938450.890-100000@wombat.indigo.net.au>
+References: <Pine.LNX.4.33.0312240938450.890-100000@wombat.indigo.net.au>
+Content-Type: text/plain
+Message-Id: <1072231437.3826.3.camel@fur>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
+Date: Tue, 23 Dec 2003 21:03:57 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Dec 2003, Greg KH wrote:
+On Tue, 2003-12-23 at 20:52, Ian Kent wrote:
 
->
-> Are you volunteering?
+> It certainly seems like a good project for a someone, such as myself, that
+> is new to kernel development.
 
-Well I was. That was the point of my post which started this again. Sorry.
+Please take no offense to this, but it is an awful project for someone
+new to kernel development.  Plenty of knowledgeable/semi-knowledgeable
+kernel hackers looked at devfs and given up on it.  Despite what some
+people say about Richard, he is a good guy, and he did not succeed
+either.
 
-Seems to me that the best way to remedy this unrest is to have someone
-accept maintenance of devfs and when/if it is not used to remove it
-from the kernel then.
+devfs is hard to get right and, worse, you will be starting with a bad
+base of code that I would not want to touch with an 18.72 foot pole.
 
-It certainly seems like a good project for a someone, such as myself, that
-is new to kernel development.
+Greg, via udev, has made it so easy to just back up, slowly, and walk
+away from devfs.  devfs is not going anywhere in 2.6, I do not think,
+but let sleeping piles of crap sleep and let's just jettison this thing
+as soon as we can.
 
-However, if Andrew wants it gone from the kernel there is no point.
+Just my two cents - I am warning you ;)
 
-Ian
-
+	Rob Love
 
 

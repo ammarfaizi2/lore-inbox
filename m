@@ -1,53 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbUJXMv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbUJXNEf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261462AbUJXMv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 08:51:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbUJXMv6
+	id S261463AbUJXNEf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 09:04:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbUJXNEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 08:51:58 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:64755 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261462AbUJXMv4 (ORCPT
+	Sun, 24 Oct 2004 09:04:35 -0400
+Received: from verein.lst.de ([213.95.11.210]:52645 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S261463AbUJXNEb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 08:51:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=ZiGvKLLSGagfuxFLkWDVFkTWglIaxNPku6DraBVdsMxG4T4uUSptCxiAnbh0SVjsc6yx9mMmlpe4l5jfO86swHaXgr3Vql3tYVR+dB6kjGKDY0VJuEUeEVvGEDWg9y0WWzWdfxPy/HteYZRFw/72oBr/Dl1AL3EOPhdP3polo2s=
-Message-ID: <58cb370e041024055157a0b779@mail.gmail.com>
-Date: Sun, 24 Oct 2004 14:51:56 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Nick Warne <nick@linicks.net>
-Subject: Re: IDE warning: "Wait for ready failed before probe!"
+	Sun, 24 Oct 2004 09:04:31 -0400
+Date: Sun, 24 Oct 2004 15:04:28 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: anton@samba.org
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200410241343.50664.nick@linicks.net>
+Subject: [PATCH] cleanups hpte_init_native, kill warning for !PSERIES builds
+Message-ID: <20041024130428.GA19391@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <200410241343.50664.nick@linicks.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00,REMOVE_REMOVAL_NEAR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Oct 2004 13:43:50 +0100, Nick Warne <nick@linicks.net> wrote:
-> >> 1. Are these warnings usual for a nonexistant IDE drive?
-> >> 2. Could they be toned down?
-> 
-> > Disable CONFIG_IDE_GENERIC
-> > - or -
-> > Use the ideX=noprobe boot parm, replacing X with the interface number
-> > not to probe.
-> 
-> > Kurt
-> 
-> I started to get these messages in logs since building 2.6.9, and a google
-> reveals this from Alan Cox:
-> 
-> http://www.redhat.com/archives/fedora-test-list/2004-September/msg00300.html
-> 
-> So, will these be turned off, or do we have to follow above instructions?
+this splits out a small helper that checks whether tlb batching should
+be enabled from hpte_init_native, thus cleaning up the ifdef hell and
+killing a warning for pmac builds.
 
-Send a patch and it will be turned off (printks should be replaced by
-pr_debugs). :)
 
-It is still a good thing to disable ide-generic if it is not needed
-(faster boot).
+--- 1.19/arch/ppc64/mm/hash_native.c	2004-09-30 07:34:39 +02:00
++++ edited/arch/ppc64/mm/hash_native.c	2004-10-24 11:56:10 +02:00
+@@ -387,33 +387,37 @@
+ 	local_irq_restore(flags);
+ }
+ 
+-void hpte_init_native(void)
+-{
+ #ifdef CONFIG_PPC_PSERIES
+-	struct device_node *root;
+-	const char *model;
+-#endif /* CONFIG_PPC_PSERIES */
++/* Disable TLB batching on nighthawk */
++static inline int tlb_batching_enabled(void)
++{
++	struct device_node *root = of_find_node_by_path("/");
++	int enabled = 1;
++
++	if (root) {
++		const char *model = get_property(root, "model", NULL);
++		if (!strcmp(model, "CHRP IBM,9076-N81"))
++			enabled = 0;
++		of_node_put(root);
++	}
++
++	return enabled;
++}
++#else
++static inline int tlb_batching_enabled(void)
++{
++	return 1;
++}
++#endif
+ 
++void hpte_init_native(void)
++{
+ 	ppc_md.hpte_invalidate	= native_hpte_invalidate;
+ 	ppc_md.hpte_updatepp	= native_hpte_updatepp;
+ 	ppc_md.hpte_updateboltedpp = native_hpte_updateboltedpp;
+ 	ppc_md.hpte_insert	= native_hpte_insert;
+ 	ppc_md.hpte_remove     	= native_hpte_remove;
+-
+-#ifdef CONFIG_PPC_PSERIES
+-	/* Disable TLB batching on nighthawk */
+-	root = of_find_node_by_path("/");
+-	if (root) {
+-		model = get_property(root, "model", NULL);
+-		if (!strcmp(model, "CHRP IBM,9076-N81")) {
+-			of_node_put(root);
+-			goto bail;
+-		}
+-		of_node_put(root);
+-	}
+-#endif /* CONFIG_PPC_PSERIES */
+-
+-	ppc_md.flush_hash_range = native_flush_hash_range;
+- bail:
++	if (tlb_batching_enabled())
++		ppc_md.flush_hash_range = native_flush_hash_range;
+ 	htab_finish_init();
+ }

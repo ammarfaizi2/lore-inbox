@@ -1,42 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131761AbRBNIgu>; Wed, 14 Feb 2001 03:36:50 -0500
+	id <S131006AbRBNIxe>; Wed, 14 Feb 2001 03:53:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131716AbRBNIgl>; Wed, 14 Feb 2001 03:36:41 -0500
-Received: from 13dyn76.delft.casema.net ([212.64.76.76]:32005 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S129027AbRBNIg2>; Wed, 14 Feb 2001 03:36:28 -0500
-Message-Id: <200102140835.JAA10246@cave.bitwizard.nl>
-Subject: Re: Stale NFS handles on 2.4.1
-In-Reply-To: <E14SovJ-0003H1-00@the-village.bc.nu> from Alan Cox at "Feb 13,
- 2001 11:31:50 pm"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Wed, 14 Feb 2001 09:35:59 +0100 (MET)
-CC: "[Jakob _stergaard]" <jakob@unthought.net>, linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S131761AbRBNIxZ>; Wed, 14 Feb 2001 03:53:25 -0500
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:2999 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S131006AbRBNIxM>; Wed, 14 Feb 2001 03:53:12 -0500
+Date: Wed, 14 Feb 2001 08:53:06 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
+cc: Tim Waugh <twaugh@redhat.com>, Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.2-pre3: parport_pc init_module bug
+In-Reply-To: <Pine.LNX.3.96.1010214020126.28011B-100000@mandrakesoft.mandrakesoft.com>
+Message-ID: <Pine.SOL.4.21.0102140851320.11339-100000@green.csi.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > The NFS clients are getting
-> >  "Stale NFS handle"
-> > messages every once in a while which will make a "touch somefile.o"
-> > fail.
+On Wed, 14 Feb 2001, Jeff Garzik wrote:
+
+> On Tue, 13 Feb 2001, Tim Waugh wrote:
+> > Here's a patch that fixes a bug that can cause PCI driver list
+> > corruption.  If parport_pc's init_module fails after it calls
+> > pci_register_driver, cleanup_module isn't called and so it's still
+> > registered when it gets unloaded.
 > 
-> If they have the previous .o handle cached and it was removed on another
-> client thats quite reasonable behaviour. NFS isnt coherent
+> > --- linux/drivers/parport/parport_pc.c.init	Tue Feb 13 23:31:25 2001
+> > +++ linux/drivers/parport/parport_pc.c	Tue Feb 13 23:35:56 2001
+> > @@ -89,6 +89,7 @@
+> >  } superios[NR_SUPERIOS] __devinitdata = { {0,},};
+> >  
+> >  static int user_specified __devinitdata = 0;
+> > +static int registered_parport;
+> >  
+> >  /* frob_control, but for ECR */
+> >  static void frob_econtrol (struct parport *pb, unsigned char m,
+> > @@ -2605,6 +2606,7 @@
+> >  	count += parport_pc_find_nonpci_ports (autoirq, autodma);
+> >  
+> >  	r = pci_register_driver (&parport_pc_pci_driver);
+> > +	registered_parport = 1;
+> >  	if (r > 0)
+> >  		count += r;
+> 
+> Bad patch.  It should be
+> 
+> 	if (r >= 0) {
+> 		registered_parport = 1;
+> 		if (r > 0)
+> 			count += r;
+> 	}
 
-As reported before, I see simliar stuff on an 2.2. SMP NFS client, and
-an 2.2. NFS server.
+The second "if" is redundant here: if r==0, count+=r has no effect. I
+don't think gcc would spot that on optimization, would it??
 
-			Roger. 
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+James.
+

@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265888AbTFSSgH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 14:36:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265889AbTFSSgH
+	id S265889AbTFSShd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 14:37:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265891AbTFSShd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 14:36:07 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:18931 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id S265888AbTFSSgF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 14:36:05 -0400
-Date: Thu, 19 Jun 2003 11:49:01 -0700
-From: Chris Wright <chris@wirex.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] PCI device list locking - take 3
-Message-ID: <20030619114901.A23053@figure1.int.wirex.com>
-References: <20030619181412.GA5257@kroah.com>
+	Thu, 19 Jun 2003 14:37:33 -0400
+Received: from adsl-157-201-192.dab.bellsouth.net ([66.157.201.192]:33965 "EHLO
+	midgaard.us") by vger.kernel.org with ESMTP id S265889AbTFSShb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 14:37:31 -0400
+Subject: Re: [PATCH] sleep_decay for interactivity 2.5.72 - testers  needed
+From: Andreas Boman <aboman@midgaard.us>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <5.2.0.9.2.20030619184906.00cea3c0@pop.gmx.net>
+References: <5.2.0.9.2.20030619171843.02299e00@pop.gmx.net>
+	 <5.2.0.9.2.20030619171843.02299e00@pop.gmx.net>
+	 <5.2.0.9.2.20030619184906.00cea3c0@pop.gmx.net>
+Content-Type: text/plain
+Message-Id: <1056048717.810.90.camel@asgaard.midgaard.us>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030619181412.GA5257@kroah.com>; from greg@kroah.com on Thu, Jun 19, 2003 at 11:14:12AM -0700
+X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
+Date: 19 Jun 2003 14:51:57 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Greg KH (greg@kroah.com) wrote:
-> Here's the latest version of the pci list locking patch.  I've taken
-> Chris's comments and addressed them by making sure we don't walk off the
-> end of a deleted device in the pci_find_* and pci_get_* functions.
+On Thu, 2003-06-19 at 13:31, Mike Galbraith wrote:
+> At 02:02 AM 6/20/2003 +1000, Con Kolivas wrote:
+> >On Fri, 20 Jun 2003 01:47, Mike Galbraith wrote:
+> > > At 12:05 AM 6/20/2003 +1000, Con Kolivas wrote:
+> > > >Testers required. A version for -ck will be created soon.
+> > >
+> > > That idea definitely needs some refinement.
+> >
+> >Actually no it needs a bugfix even more than a refinement!
+> >
+> >The best_sleep_decay should be 60, NOT 60*Hz
+> 
+> Ok.  Now it acts as you described.
+> 
+> thud is also now THUD though, and a parallel kernel build goes insane 
+> pretty much instantly.  On the bright side, process_load seems to have lost 
+> it's ability to crawl up (under X) and starve new processes forever.
+> 
 
-Looks good.  Perhaps the pci_proc_detach should be earlier (i.e. before
-list removal) to reflect the order in which things are added.  I'm not
-sure of the dependencies, but seems a good practice anyway.
+Hmm, I'm still able to completely starve xmms by just moving a window
+around ontop of evolution or mozilla though (not possible without this
+patch).
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+	Andreas
+

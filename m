@@ -1,75 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129060AbQKMSMy>; Mon, 13 Nov 2000 13:12:54 -0500
+	id <S129044AbQKMS1k>; Mon, 13 Nov 2000 13:27:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129130AbQKMSMo>; Mon, 13 Nov 2000 13:12:44 -0500
-Received: from ns.caldera.de ([212.34.180.1]:13063 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S129060AbQKMSM2>;
-	Mon, 13 Nov 2000 13:12:28 -0500
+	id <S129079AbQKMS1a>; Mon, 13 Nov 2000 13:27:30 -0500
+Received: from mail.sun.ac.za ([146.232.128.1]:54793 "EHLO mail.sun.ac.za")
+	by vger.kernel.org with ESMTP id <S129044AbQKMS1P>;
+	Mon, 13 Nov 2000 13:27:15 -0500
+Date: Mon, 13 Nov 2000 20:27:07 +0200 (SAST)
+From: Hans Grobler <grobh@sun.ac.za>
+To: "Willis L. Sarka" <wlsarka@the-republic.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] Hard lockup using emu10k1-based sound card
+In-Reply-To: <Pine.LNX.4.30.0011131751160.21258-100000@matrix.the-republic.org>
+Message-ID: <Pine.LNX.4.21.0011132009020.6877-100000@ccs.sun.ac.za>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14864.12007.216381.254700@ns.caldera.de>
-Date: Mon, 13 Nov 2000 19:11:51 +0100 (CET)
-To: Chris Evans <chris@scary.beasts.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Modprobe local root exploit
-In-Reply-To: <Pine.LNX.4.21.0011131655430.22139-100000@ferret.lmh.ox.ac.uk>
-In-Reply-To: <14864.6812.849398.988598@ns.caldera.de>
-	<Pine.LNX.4.21.0011131655430.22139-100000@ferret.lmh.ox.ac.uk>
-X-Mailer: VM 6.72 under 21.1 (patch 10) "Capitol Reef" XEmacs Lucid
-From: Torsten Duwe <duwe@caldera.de>
-Reply-to: Torsten.Duwe@caldera.de
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Chris" == Chris Evans <chris@scary.beasts.org> writes:
+On Mon, 13 Nov 2000, Willis L. Sarka wrote:
+> I get a hard lockup when trying to play a mp3 with XMMS;
+> Sound Blaster Live card.  The first second loops, and I lose all
+> connectivity to the machine; I can't ping it, can't to a an Alt-Sysq,
+> nothing.
 
-    Chris> What's wrong with isalnum() ?
+Just for reference, I've been use the ALSA drivers for most of the
+2.4.0-testX kernels without any problems (provided you use the driver
+version that matches the kernel version). Even under high memory
+preasure, swapping, NFS traffic, etc. the worst that happens is sporadic
+skipping. XMMS and mpg123 in use. I've tried the kernel emu10k1 a few
+times but also got similar lockup's. I haven't tried the kernel emu10k1
+since the NMI watchdog was added. This should show something? ... but 
+I guess you can't see anything because you're in X. I wonder if you'd see
+anything if you were using mpg123 and working on the console?
 
-Hm, must admit that I wasn't 100% sure if that's in the kernel lib or an evil
-gcc expands it inline to some static array lookup. Now I see that it's
-already in the kernel. Do some of you also sometimes wonder why the kernel is
-so big ;-) ?
+My system:
+  RedHat 7.0
+  kernel 2.4.0-test11pre3 SMP (soundcore as modules)
+  ALSA drivers 0.5.9d
+  Gigabyte 440BX SMP (Dual Pentium II 450), 256MB, 
+    Intel Ethernet Pro 100, Adaptec AIC-7895 Ultra SCSI
 
-OK, so let's go for the isalnum() version, and don't forget to
-#include <linux/ctype.h>
-above...
+-- 
+Hans Grobler <grobh@sun.ac.za>
+Department Electronic & Electrical Engineering
+University of Stellenbosch, South Africa
 
-	Torsten
-
-For those who joined the program late here's the complete patch:
-
---- linux/kernel/kmod.c.orig	Tue Sep 26 01:18:55 2000
-+++ linux/kernel/kmod.c	Mon Nov 13 19:09:11 2000
-@@ -18,6 +18,7 @@
- #include <linux/config.h>
- #include <linux/sched.h>
- #include <linux/unistd.h>
-+#include <linux/ctype.h>
- #include <linux/smp_lock.h>
- 
- #include <asm/uaccess.h>
-@@ -168,6 +169,19 @@
- 	static atomic_t kmod_concurrent = ATOMIC_INIT(0);
- #define MAX_KMOD_CONCURRENT 50	/* Completely arbitrary value - KAO */
- 	static int kmod_loop_msg;
-+	const char * p;
-+
-+	/* For security reasons ensure the requested name consists
-+	 * only of allowed characters. Especially whitespace and
-+	 * shell metacharacters might confuse modprobe.
-+	 */
-+	for (p = module_name; *p; p++)
-+	{
-+	  if (isalnum(*p) || *p == '_' || *p == '-')
-+	    continue;
-+
-+	  return -EINVAL;
-+	}
- 
- 	/* Don't allow request_module() before the root fs is mounted!  */
- 	if ( ! current->fs->root ) {
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

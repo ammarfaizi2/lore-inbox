@@ -1,38 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268071AbRH0UEA>; Mon, 27 Aug 2001 16:04:00 -0400
+	id <S268217AbRH0UGA>; Mon, 27 Aug 2001 16:06:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268217AbRH0UDv>; Mon, 27 Aug 2001 16:03:51 -0400
-Received: from ns.cablesurf.de ([195.206.131.193]:39163 "EHLO ns.cablesurf.de")
-	by vger.kernel.org with ESMTP id <S268071AbRH0UDe>;
-	Mon, 27 Aug 2001 16:03:34 -0400
-Message-Id: <200108272013.WAA20853@ns.cablesurf.de>
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        Rik van Riel <riel@conectiva.com.br>
-Subject: Re: [resent PATCH] Re: very slow parallel read performance
-Date: Mon, 27 Aug 2001 22:03:07 +0200
-X-Mailer: KMail [version 1.3]
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L.0108271213370.5646-100000@imladris.rielhome.cone ctiva> <516649838.998944465@[169.254.198.40]>
-In-Reply-To: <516649838.998944465@[169.254.198.40]>
+	id <S268286AbRH0UFu>; Mon, 27 Aug 2001 16:05:50 -0400
+Received: from archive.osdlab.org ([65.201.151.11]:8673 "EHLO fire.osdlab.org")
+	by vger.kernel.org with ESMTP id <S268217AbRH0UFc>;
+	Mon, 27 Aug 2001 16:05:32 -0400
+Message-ID: <3B8AA6AE.975DD35F@osdlab.org>
+Date: Mon, 27 Aug 2001 12:59:42 -0700
+From: "Randy.Dunlap" <rddunlap@osdlab.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: Bart Vandewoestyne <Bart.Vandewoestyne@pandora.be>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: DOS2linux
+In-Reply-To: <3B8AA1EC.9ECD94BD@pandora.be>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Bart Vandewoestyne wrote:
+> 
+> I have a routine from a DOS driver that looks like this:
+> 
+> static int getslotinfo( void )
+> {
+>   static char buff[320], *s=&buff[0]; int valid;
+> 
+>   inregs.h.ah=0xd8; inregs.h.al=0x1; inregs.h.cl=DiSC_Id.slot>>12;
+> inregs.h.ch=0;
+>   sregs.ds=FP_SEG(s); inregs.x.si=FP_OFF(s);
+>   int86x(0x15, &inregs, &outregs, &sregs);
+>   valid=outregs.h.ah;
+>   if(!valid) { DiSC_Id.it=buff[itconf]; DiSC_Id.dma=buff[dmachd]; }
+>   return(valid);
+> }
+> 
+> (full DOS-code is at http://mc303.ulyssis.org/heim/downloads/DISCDRV.C
+> )
+> 
+> Doing some research learned me that this piece of code does the
+> following things (according to http://www.ctyme.com/intr/rb-1641.htm
+> ):
+> 
+> 1) set AX register to 0xd800
+                        ^^^^^^ actually to 0xd801
 
-> Thinking about it a bit more, we also want to drop pages
-> from fast streams faster, to an extent, than we drop
-> them from slow streams (as well as dropping quite
-> a few pages at once), as these 'cost' more to replace.
+> 2) set slot number to DiSC_Id.slot, (eg. 1 in my case -> base is
+> 0x1000)
+> 3) set function number to read
+> 4) assign a 320-byte buffer for standard configuration data block
+> 5) execute a software interrupt via the DOS specific int86x function,
+> this puts configuration data into the 320-byte buffer.
+> 6) check if we get a valid return
+> 7) if we have a valid situation, assign values from the configuration
+> block to DiSC_Id.it (it level) and DiSC_Id.dma (dma level)
+> 
+> So here's my question:
+> 
+> On http://www.ctyme.com/intr/rb-1641.htm I can see that this is all
+> about reading data from an EISA SYSTEM ROM.  I can't imagine there
+> doesn't exist some linux-API that allows me to do just the same.
 
-what leads you to this conclusion ?
-A task that needs little time to process data it reads in is hurt much more 
-by added latency due to a disk read.
+I don't have any direct EISA experience on Linux, but the
+Linux Device Drivers book (remember that one?) says:
 
-	Regards
-		Oliver
+"EISA devices are configured by software, but they don't need any
+particular operating system
+support. EISA drivers already exist in the Linux kernel for Ethernet
+devices and SCSI controllers."
+
+and
+
+"As far as the driver is concerned, there is no special support for
+EISA in the kernel, and the
+programmer must deal with ISA extensions by himself. The driver uses
+standard EISA I/O
+operations to access the EISA registers. The drivers that are already
+in the kernel can be used as
+sample code."
+
+See (and read) http://www.xml.com/ldd/chapter/book/ch15.html
+and some drivers that already do this.
+
+
+> What function calls and header files should I use in order to read
+> this 'EISA SYSTEM ROM' and assign the correct values to DiSC_Id.it and
+> DiSC_Id.dma ?
+> 
+> If there doesn't exist an API for this, what memory ranges should i
+> probe in order to get these values?
+
+~Randy

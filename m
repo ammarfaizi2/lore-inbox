@@ -1,47 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262327AbTLSK20 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 05:28:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbTLSK20
+	id S262353AbTLSKgQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 05:36:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbTLSKgQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 05:28:26 -0500
-Received: from holomorphy.com ([199.26.172.102]:40342 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262327AbTLSK2Z (ORCPT
+	Fri, 19 Dec 2003 05:36:16 -0500
+Received: from legolas.restena.lu ([158.64.1.34]:26767 "EHLO smtp.restena.lu")
+	by vger.kernel.org with ESMTP id S262353AbTLSKgO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 05:28:25 -0500
-Date: Fri, 19 Dec 2003 02:28:21 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Alexander Poquet <atp@csbd.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0 fails to complete boot - Sony VAIO laptop
-Message-ID: <20031219102821.GJ31393@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Alexander Poquet <atp@csbd.org>, linux-kernel@vger.kernel.org
-References: <20031219101806.9CD491E030CA3@csbd.org>
+	Fri, 19 Dec 2003 05:36:14 -0500
+Subject: Re: Catching NForce2 lockup with NMI watchdog
+From: Craig Bradney <cbradney@zip.com.au>
+To: ross@datscreative.com.au
+Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>, george@mvista.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200312191538.34551.ross@datscreative.com.au>
+References: <200312180414.17925.ross@datscreative.com.au>
+	 <Pine.LNX.4.55.0312181347540.23601@jurand.ds.pg.gda.pl>
+	 <1071757363.18749.42.camel@athlonxp.bradney.info>
+	 <200312191538.34551.ross@datscreative.com.au>
+Content-Type: text/plain
+Message-Id: <1071830168.5624.2.camel@athlonxp.bradney.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031219101806.9CD491E030CA3@csbd.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 19 Dec 2003 11:36:08 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Dec 2003 02:16:27 -0800, William Lee Irwin III wrote:
->> Okay, nothing matching other bugreports turned up here. I might have
->> to ask you to try to capture some log information. Do you have a null
->> modem cable or a null modem adapter and serial cable, and another box
->> to hook that up to?
+On Fri, 2003-12-19 at 06:38, Ross Dickson wrote:
+> On Friday 19 December 2003 00:22, Craig Bradney wrote:
+> > Just as an FYI, still going strong here with the old api and ioapic
+> > patches. 5d 20h now.
+> > 
+> > When the official 2.6.0 comes to Gentoo Linux I can try that with
+> > whatever patches people are finding stable for these nforce fixes.
+> > 
+> > Anyone had any luck in talking to ASUS re a BIOS update?
+> > 
+> > Craig
+> > 
+> 
+> I have not talked to ASUS. I note from peoples postings that with the
+> latest award bios we may need no apic patches (C1 disconnect auto),
+> just an ioapic one to work round a buggy bios. I don't think you can run
+> nmi_watchdog=1 with the old io-apic (not of my doing) patch.
+> 
+> I have pheonix bios MOBOS from albatron and epox so award bios doesn't help me.
+> No disconnect options available in setup.
+> My apic ack delay patch lets the bios have its disconnect on and keep the cpu a
+> few degrees cooler besides whatever else it and the nforce2 chipset might want
+> to control it for.
+> 
+> I have been advised my query wrt my apic ack delay patch is progressing
+> with AMD but I have nothing technical to report on it.
+> 
+> I have made and am trialling, but have not yet posted a kernel arg controlled
+> version combining my v1 and v2 apic ack delay patches. This would be better
+> than what I have released in the past because people can fix bioses as the
+> fixes become available and use timer ack delay in the mean time.
+> Of course there is still athcool and the earlier disconnect patch to force 
+> things if desired.
+> 
+> Regards
+> Ross.
 
-On Fri, Dec 19, 2003 at 10:27:12AM +0000, Alexander Poquet wrote:
-> Unfortunately not.  Is there any other way I might capture some output?  I 
-> was thinking I might be able to install a null loop a la while( 1 ) { } 
-> somewhere before filesystems are mounted, and then move it down until 
-> the blank out occurs.  What do you think?  Could you point me to a relevant
-> place in the boot process that I could do this?  Would it even help?
+Ok Ross. Well, Gentoo's 2.6 is out now so whenever you want me to test
+your new patch I can try it. Ive been looking back through the list for
+the updated patches but things seemed to have changed here and there
+even for the v2 patches so I think I'll wait for the next round of
+patchesas things seem a little confusing.
 
-The hardware solution is better, but I'll settle for anything you can
-get that way.
+2.6test11 is still running happily.. 6d15h now.
 
+Craig
 
--- wli

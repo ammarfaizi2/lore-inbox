@@ -1,71 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276050AbRI1NkC>; Fri, 28 Sep 2001 09:40:02 -0400
+	id <S276052AbRI1NuC>; Fri, 28 Sep 2001 09:50:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276052AbRI1Njy>; Fri, 28 Sep 2001 09:39:54 -0400
-Received: from gateway.advanced-unibyte.de ([213.69.4.70]:39256 "EHLO
-	nt3.au.de") by vger.kernel.org with ESMTP id <S276050AbRI1Njn> convert rfc822-to-8bit;
-	Fri, 28 Sep 2001 09:39:43 -0400
-Content-Class: urn:content-classes:message
-Subject: AW: Problems with LVM and "scsi add-single-device"
+	id <S276056AbRI1Ntx>; Fri, 28 Sep 2001 09:49:53 -0400
+Received: from mail.gmx.de ([213.165.64.20]:62513 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S276053AbRI1Ntk>;
+	Fri, 28 Sep 2001 09:49:40 -0400
+From: Martin =?iso-8859-1?q?R=F6der?= <m-roeder@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: ACPI processor throttling problem in 2.4.10
+Date: Fri, 28 Sep 2001 15:50:01 +0200
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 8BIT
-Date: Fri, 28 Sep 2001 15:40:14 +0200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Message-ID: <A0D931F9C43F0941A4AF334EBF2E2B1605169E@nt3.au.de>
-X-MS-TNEF-Correlator: <A0D931F9C43F0941A4AF334EBF2E2B1605169E@nt3.au.de>
-Thread-Topic: Problems with LVM and "scsi add-single-device"
-thread-index: AcFIGdW6Dj60v02yQ6y5as/Wcl3luQACRP8A
-From: "Michael Dr|ing" <Michael.Drueing@advanced-unibyte.de>
-To: "Michael Dr|ing" <Michael.Drueing@advanced-unibyte.de>,
-        "Linux Kernel Mailing List \(E-Mail\)" <linux-kernel@vger.kernel.org>
-Cc: "Alexander Landgraf" <Alexander.Landgraf@advanced-unibyte.de>
-X-OriginalArrivalTime: 28 Sep 2001 13:40:17.0074 (UTC) FILETIME=[1BCFC120:01C14823]
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_D3LDPHLKQPGMJSJVIQ0N"
+Message-Id: <20010928134942Z276053-760+18150@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The problem was fixed by applying the patch for "/proc/partitions endless loop" posted on the kernel mailing list.
-Hope this patch will be in the next kernel-release...
 
---Michael
+--------------Boundary-00=_D3LDPHLKQPGMJSJVIQ0N
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-> -----Ursprüngliche Nachricht-----
-> Von: Michael Drüing 
-> Gesendet: Freitag, 28. September 2001 14:34
-> An: Linux Kernel Mailing List (E-Mail)
-> Cc: Alexander Landgraf
-> Betreff: Problems with LVM and "scsi add-single-device"
-> 
-> 
-> Hi,
-> 
-> we're having problems using LVM (see end of mail for version 
-> numbers) together with the "scsi add-single-device"-feature:
-> We have an external RAID which responds on three SCSI-LUN's: 
-> ID 2, LUN 0 to 2. On LUNs 0 and 1 we have created PVs and 
-> mapped them into one LV. Now we wanted to extend our 
-> filesystem (XFS) on the third LUN without bringing the system down.
-> We did an "echo scsi add-single-device 2 0 2 2 > 
-> /proc/scsi/scsi" to make the kernel recognize the new LUN. 
-> But after that all calls to "pvscan" or "pvcreate" or even 
-> "vgscan" failed. They slow down the system extremely and we 
-> have to interrupt them with Ctrl-C.
-> Anyone got an idea what the problem might be?
-> 
-> Thanks
-> --Michael
-> 
-> Here are some version numbers of our system:
-> Linux 2.4.10 (base system is SuSE 7.1 with SGI XFS kernel 
-> built from CVS-tree)
-> LVM 0.9.1 beta 6 (however, the user programs [pvscan, 
-> pvcreate, ...] are from beta 7)
-> aic7xxx driver 6.2.1 (that's our SCSI adapter)
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Hi,
+
+with the 2.4.10 kernel my processor doesn't enter the C2 power state any 
+more. I found the reason to be the state promotion part of pr_power_idle() 
+which actually does no state promotion if bm_control is 0.
+As far as I understand, the bm_control flag should only disable the C3 state 
+on machines where busmastering can't be controlled and not disable state 
+changing completely.
+The attached patch should correct this problem.
+
+  Martin
+--------------Boundary-00=_D3LDPHLKQPGMJSJVIQ0N
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="prpower.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="prpower.diff"
+
+LS0tIGxpbnV4L2RyaXZlcnMvYWNwaS9vc3BtL3Byb2Nlc3Nvci9wcnBvd2VyLmMub3JpZwlTdW4g
+U2VwIDIzIDE4OjQyOjMyIDIwMDEKKysrIGxpbnV4L2RyaXZlcnMvYWNwaS9vc3BtL3Byb2Nlc3Nv
+ci9wcnBvd2VyLmMJRnJpIFNlcCAyOCAxMzowMTo0NSAyMDAxCkBAIC0yNzQsNyArMjc0LDcgQEAK
+IAkJCSAqIGJ5IHRoaXMgc3RhdGUncyBwcm9tb3Rpb24gcG9saWN5LCBwcmV2ZW50cwogCQkJICog
+cHJvbW90aW9ucyBmcm9tIG9jY3VyaW5nLgogCQkJICovCi0JCQlpZiAoYm1fY29udHJvbCAmJiAh
+KHByb2Nlc3Nvci0+cG93ZXIuYm1fYWN0aXZpdHkgJgorCQkJaWYgKCFibV9jb250cm9sIHx8ICEo
+cHJvY2Vzc29yLT5wb3dlci5ibV9hY3Rpdml0eSAmCiAJCQkJY19zdGF0ZS0+cHJvbW90aW9uLmJt
+X3RocmVzaG9sZCkpIHsKIAkJCQluZXh0X3N0YXRlID0gY19zdGF0ZS0+cHJvbW90aW9uLnRhcmdl
+dF9zdGF0ZTsKIAkJCX0K
+
+--------------Boundary-00=_D3LDPHLKQPGMJSJVIQ0N--

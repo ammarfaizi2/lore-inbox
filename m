@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261294AbVABRZi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261295AbVABR0U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261294AbVABRZi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 12:25:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbVABRZe
+	id S261295AbVABR0U (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 12:26:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbVABR0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 12:25:34 -0500
-Received: from mail.tmr.com ([216.238.38.203]:20425 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S261294AbVABRZ2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 12:25:28 -0500
-Message-ID: <41D8313F.1000003@tmr.com>
-Date: Sun, 02 Jan 2005 12:37:03 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux lover <linux_lover2004@yahoo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: why there is different kernel versions from RedHat?
-References: <20041231133525.47475.qmail@web52205.mail.yahoo.com>	 <41D5FDCE.2090905@tmr.com> <1104676568.14712.61.camel@localhost.localdomain>
-In-Reply-To: <1104676568.14712.61.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 2 Jan 2005 12:26:19 -0500
+Received: from mail04.birthdayalarm.com ([65.19.128.164]:5035 "EHLO
+	mail04.birthdayalarm.com") by vger.kernel.org with ESMTP
+	id S261295AbVABR0P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 12:26:15 -0500
+Message-ID: <938045063.1104686774146.JavaMail.root@rs03>
+Date: Sun, 2 Jan 2005 17:26:14 +0000 (GMT)
+From: BirthdayAlarm Welcome <service@birthdayalarm.com>
+To: linux-kernel@vger.kernel.org
+Subject: Important: Please verify your email address
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Sad, 2005-01-01 at 01:33, Bill Davidsen wrote:
-> 
->>linux lover wrote:
->>
->>>Hi all,
->>>Where can i get special pathces used by RedHat to
->>>original kernels from www.kernel.org?
->>
->>Three step process
->>1 - get the RH source RPM and unpack
->>2 - get the kernel.org source of the same number
->>3 - use diff to generate the patch.
->>
->>Optional step 4 - look at the size of it, shake your head and swear.
-> 
-> 
-> If you do it such a dumb way then sure. Most of the patches in the 2.6.8
-> and 2.6.9 ones are post 2.6.9 fixes already in the base tree because of
-> the lack of a stable base kernel tree in Linus new model.
-> 
-> In order that we don't go collectively insane maintaining it those are
-> broken out from the feature patches we needed. Generating a single giant
-> diff loses all the useful info.
+2.6.1-rc1-bk4
 
-I didn't feel the need of editorial comment on the original question, 
-clearly if you had a better way to get WHAT HE ASKED FOR you might have 
-included it instead of commenting on the answer.
+Welcome to BirthdayAlarm. 
 
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+IMPORTANT: Please click below to verify your email address and to ensure you receive your reminders: 
+
+http://www.birthdayalarm.com/verify/30644726a447943730 
+
+If you did not register or have simply changed your mind please click below to cancel your membership: 
+
+http://www.birthdayalarm.com/notme/33203177a882507695 
+
+Kindest regards 
+Xochi, Michael and Paul 
+(Who are Xochi, Michael and Paul? Click here: http://www.birthdayalarm.com/who) 
+
+~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+Please do not reply directly to this email. 
+
+If you have a question about your use of the BirthdayAlarm service: 
+
+1) Read our Frequently Asked Questions (FAQs) by clicking - http://www.birthdayalarm.com/help . This will probably answer your question about BirthdayAlarm. 
+
+2) If you still have a question, then please contact us with your question by clicking - http://www.birthdayalarm.com/contactus 
+
+We believe in supporting our members and do answer all questions. Rather than accepting questions by email we have developed a Customer Support System (http://www.birthdayalarm.com/contactus) that enables us to cope in a timely manner with the volume of questions we receive. 
+
+Birthday Alarm, LLC., 222 Sutter Street, 5th Floor, San Francisco, CA 94108, USA.

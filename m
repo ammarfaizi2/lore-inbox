@@ -1,102 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267968AbRHFLIw>; Mon, 6 Aug 2001 07:08:52 -0400
+	id <S267973AbRHFLRN>; Mon, 6 Aug 2001 07:17:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267972AbRHFLIm>; Mon, 6 Aug 2001 07:08:42 -0400
-Received: from mail.2d3d.co.za ([196.14.185.200]:46231 "HELO mail.2d3d.co.za")
-	by vger.kernel.org with SMTP id <S267968AbRHFLIj>;
-	Mon, 6 Aug 2001 07:08:39 -0400
-Date: Mon, 6 Aug 2001 13:09:24 +0200
-From: Abraham vd Merwe <abraham@2d3d.co.za>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-        Felix von Leitner <leitner@fefe.de>
-Subject: Re: kernel headers & userland
-Message-ID: <20010806130924.A14167@crystal.2d3d.co.za>
-Mail-Followup-To: Abraham vd Merwe <abraham@2d3d.co.za>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>,
-	Felix von Leitner <leitner@fefe.de>
-In-Reply-To: <20010806095638.A5638@crystal.2d3d.co.za> <m166c1wj66.fsf@frodo.biederman.org>
+	id <S267977AbRHFLRE>; Mon, 6 Aug 2001 07:17:04 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:56454 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267973AbRHFLQv>; Mon, 6 Aug 2001 07:16:51 -0400
+Date: Mon, 6 Aug 2001 07:16:59 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: David Luyer <david_luyer@pacific.net.au>, linux-kernel@vger.kernel.org,
+        Linus Torvalds <torvalds@transmeta.com>,
+        "David S. Miller" <davem@redhat.com>
+Subject: Re: /proc/<n>/maps growing...
+Message-ID: <20010806071659.K3862@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+In-Reply-To: <997080081.3938.28.camel@typhaon> <20010806105904.A28792@athlon.random> <20010806063003.H3862@devserv.devel.redhat.com> <20010806124952.G15925@athlon.random>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wac7ysb48OaltWcw"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <m166c1wj66.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Mon, Aug 06, 2001 at 04:56:49 -0600
-Organization: 2d3D, Inc.
-X-Operating-System: Debian GNU/Linux crystal 2.4.2 i686
-X-GPG-Public-Key: http://oasis.blio.net/pgpkeys/keys/2d3d.gpg
-X-Uptime: 1:05pm  up 12 days,  3:45,  6 users,  load average: 0.02, 0.02, 0.00
-X-Edited-With-Muttmode: muttmail.sl - 2000-11-20
+In-Reply-To: <20010806124952.G15925@athlon.random>; from andrea@suse.de on Mon, Aug 06, 2001 at 12:49:52PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Aug 06, 2001 at 12:49:52PM +0200, Andrea Arcangeli wrote:
+> I never noticed this limit and personally I don't like it regardless of
+> the merge_segments (but of course without merge_segments it is can
+> trigger problems while switching between 2.2 and 2.4).
 
---wac7ysb48OaltWcw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Note that mprotect has this behaviour even if the mprotect range covers the
+area before it, so unless the heap is allocated without PROT_NONE initially
+with mprotect calls later, there isn't anything glibc can do to avoid this.
 
-Hi Eric!
+The program below creates 3 times 10 new vma areas:
 
-> > Apparently Linus told Felix von Leitner (the author of dietlibc - a sma=
-ll,
-> > no nonsense glibc replacement C library) a while ago _not_ to include a=
-ny
-> > linux kernel headers in userland (i.e. the C library headers in this ca=
-se).
-> >=20
-> > This imho is obviously wrong since there are definitely a need for incl=
-uding
-> > kernel headers on a linux platform.
->=20
-> ???  Necessity no.  Are there practical benefits yes.
->=20
-> The policy of the kernel developers in general is that if your apps
-> includes kernel headers and it breaks, it is a kernel problem.
->=20
-> As for ioctl it is a giant mess that needs to be taken out and shot.
->=20
-> And yes there are places where even the mighty glibc is in the wrong.
+#include <sys/mman.h>
+#include <unistd.h>
+#include <stdio.h>
 
-Just acknowledging that it is a problem doesn't solve the problem though.
-The question remains how you approach the kernel headers issue at the momen=
-t?
+int main(void)
+{
+  void *p, *q, *r;
+  p = mmap(NULL, 10*4096, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0);
+  printf ("p %p\n", p);
+  mprotect(p+1*4096, 4096, PROT_READ|PROT_WRITE);
+  mprotect(p+2*4096, 4096, PROT_READ|PROT_WRITE);
+  mprotect(p+3*4096, 4096, PROT_READ|PROT_WRITE);
+  mprotect(p+4*4096, 4096, PROT_READ|PROT_WRITE);
+  mprotect(p+5*4096, 4096, PROT_READ|PROT_WRITE);
+  mprotect(p+6*4096, 4096, PROT_READ|PROT_WRITE);
+  mprotect(p+7*4096, 4096, PROT_READ|PROT_WRITE);
+  mprotect(p+8*4096, 4096, PROT_READ|PROT_WRITE);
+  q = mmap(NULL, 10*4096, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0);
+  printf ("q %p\n", q);
+  mprotect(q+1*4096, 4096, PROT_READ|PROT_WRITE);
+  mprotect(q+1*4096, 8192, PROT_READ|PROT_WRITE);
+  mprotect(q+2*4096, 8192, PROT_READ|PROT_WRITE);
+  mprotect(q+3*4096, 8192, PROT_READ|PROT_WRITE);
+  mprotect(q+4*4096, 8192, PROT_READ|PROT_WRITE);
+  mprotect(q+5*4096, 8192, PROT_READ|PROT_WRITE);
+  mprotect(q+6*4096, 8192, PROT_READ|PROT_WRITE);
+  mprotect(q+7*4096, 8192, PROT_READ|PROT_WRITE);
+  r = mmap(NULL, 10*4096, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0);
+  printf ("r %p\n", r);
+  mprotect(r+4096, 1*4096, PROT_READ|PROT_WRITE);
+  mprotect(r+4096, 2*4096, PROT_READ|PROT_WRITE);
+  mprotect(r+4096, 3*4096, PROT_READ|PROT_WRITE);
+  mprotect(r+4096, 4*4096, PROT_READ|PROT_WRITE);
+  mprotect(r+4096, 5*4096, PROT_READ|PROT_WRITE);
+  mprotect(r+4096, 6*4096, PROT_READ|PROT_WRITE);
+  mprotect(r+4096, 7*4096, PROT_READ|PROT_WRITE);
+  mprotect(r+4096, 8*4096, PROT_READ|PROT_WRITE);
+  fflush(stdout);
+  pause();
+  return 0;
+}
 
-My guess is the only way is by including the kernel headers for now and
-change it one day when someone decides to clean up the mess.
-
---=20
-
-Regards
- Abraham
-
-Every absurdity has a champion who will defend it.
-
-__________________________________________________________
- Abraham vd Merwe - 2d3D, Inc.
-
- Device Driver Development, Outsourcing, Embedded Systems
-
-  Cell: +27 82 565 4451         Snailmail:
-   Tel: +27 21 761 7549            Block C, Antree Park
-   Fax: +27 21 761 7648            Doncaster Road
- Email: abraham@2d3d.co.za         Kenilworth, 7700
-  Http: http://www.2d3d.com        South Africa
-
-
---wac7ysb48OaltWcw
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7bnrkzNXhP0RCUqMRAo9DAJ4uG5iVVw8W+0woX0UTKcDjeH/9owCgkdM1
-YyGheDP9/cIq4s5inA/P8Yk=
-=Z7lB
------END PGP SIGNATURE-----
-
---wac7ysb48OaltWcw--
+	Jakub

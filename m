@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264679AbSJOQOr>; Tue, 15 Oct 2002 12:14:47 -0400
+	id <S264721AbSJOQ0k>; Tue, 15 Oct 2002 12:26:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264677AbSJOQOr>; Tue, 15 Oct 2002 12:14:47 -0400
-Received: from mailout09.sul.t-online.com ([194.25.134.84]:46211 "EHLO
-	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S264679AbSJOQOq> convert rfc822-to-8bit; Tue, 15 Oct 2002 12:14:46 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Use of yield() in the kernel
-Date: Tue, 15 Oct 2002 18:20:24 +0200
-User-Agent: KMail/1.4.3
-Organization: WOLK - Working Overloaded Linux Kernel
-Cc: Duncan Sands <baldrick@wanadoo.fr>
+	id <S264723AbSJOQ0j>; Tue, 15 Oct 2002 12:26:39 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:32667 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S264721AbSJOQ0i>;
+	Tue, 15 Oct 2002 12:26:38 -0400
+Date: Tue, 15 Oct 2002 09:35:07 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: ebiederm@xmission.com, <eblade@blackmagik.dynup.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Patch: linux-2.5.42/kernel/sys.c - warm reboot should not suspend
+ devices
+In-Reply-To: <200210132214.PAA00953@adam.yggdrasil.com>
+Message-ID: <Pine.LNX.4.44.0210150928340.1038-100000@cherise.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210151820.24429.m.c.p@wolk-project.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Duncan,
 
-> The semantics of sched_yield() changed in the 2.5 kernel.
-> In the 2.4 series it meant "sleep a little".
-> The new 2.5 semantics are correct (move to the end of the
-> run queue) but can mean "sleep a lot" under load.
->
-> This already bit ext3 transaction batching, c.f. Andrew Morton's
->
->> [PATCH] remove the sched_yield from the ext3 fsync path
-where did you read this ^^? :)
+> 	device_shutdown and device_suspend are for power management.
+> It is important to turn the device off as soon as possible if a power
+> management routine has told you that the device is not going to be
+> used any more.
 
-ciao, Marc
+device_suspend() is for power management. device_shutdown() is for 
+quiescing devices before a system reboot or power off. 
+
+It's true that the same function is called when the device is physically 
+removed from the system as when the system is shutting down, and that 
+might be kinda bad. If it gets to the point where it's really difficult to 
+deal with for drivers, we can create another callback: ->shutdown() for 
+struct device_driver. 
+
+> 	If you've identified a bunch of devices that need
+> reboot_notifier, please list them so we can fix them rather than
+> taxing the users with unnecessarily slow reboots or poor battery life
+> (due to device not being shut down when they are no longer being used).
+
+No, reboot notifiers are the completely wrong way to go, for one reason 
+alone: ordering. device_shutdown() does a depth-first walk of the tree to 
+shut down children devices before ancestors. You cannot guarantee that 
+with reboot notifiers. 
+
+Please don't try and convolute the code because you're worried about a few
+microseconds. It's about correctness first; then we can worry about
+micro-optimizing the hell out of it.
+
+	-pat
+

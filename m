@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277341AbRJEKln>; Fri, 5 Oct 2001 06:41:43 -0400
+	id <S277343AbRJEKmX>; Fri, 5 Oct 2001 06:42:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277343AbRJEKld>; Fri, 5 Oct 2001 06:41:33 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:27656 "HELO
+	id <S277344AbRJEKmH>; Fri, 5 Oct 2001 06:42:07 -0400
+Received: from thebsh.namesys.com ([212.16.0.238]:28936 "HELO
 	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S277341AbRJEKlV>; Fri, 5 Oct 2001 06:41:21 -0400
-Message-ID: <3BBD8E61.E5CCEB23@namesys.com>
-Date: Fri, 05 Oct 2001 14:41:37 +0400
+	id <S277343AbRJEKlx>; Fri, 5 Oct 2001 06:41:53 -0400
+Message-ID: <3BBD8E82.592130A7@namesys.com>
+Date: Fri, 05 Oct 2001 14:42:10 +0400
 From: Hans Reiser <reiser@namesys.com>
 Organization: Namesys
 X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.4 i686)
@@ -52,6 +52,6 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
-NFS and Reiserfs interaction is stable from all reports.
+Err, I meant it is stable from all reports for recent kernels:-/.... excuse me.
 
 Hans

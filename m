@@ -1,82 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270487AbTHOWGv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 18:06:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271025AbTHOWGZ
+	id S271924AbTHOWQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 18:16:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271969AbTHOWQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 18:06:25 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:39439
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S270487AbTHOWFU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 18:05:20 -0400
-Date: Fri, 15 Aug 2003 15:05:19 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Ed L Cashin <ecashin@uga.edu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] do_wp_page: BUG on invalid pfn
-Message-ID: <20030815220519.GS1027@matchmail.com>
-Mail-Followup-To: Ed L Cashin <ecashin@uga.edu>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Rusty Russell <rusty@rustcorp.com.au>
-References: <20030815184720.A4D482CE79@lists.samba.org> <877k5e8vwe.fsf@uga.edu> <20030815212244.GQ1027@matchmail.com> <87k79e7fna.fsf@uga.edu>
+	Fri, 15 Aug 2003 18:16:28 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:59777 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S271924AbTHOWQ0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 18:16:26 -0400
+Date: Fri, 15 Aug 2003 23:16:08 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: M?ns Rullg?rd <mru@users.sourceforge.net>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
+Message-ID: <20030815221608.GC19707@mail.jlokier.co.uk>
+References: <20030813032038.GA1244@think> <20030813040614.GP31810@waste.org> <20030814165320.GA2839@speare5-1-14> <bhgoj9$9ab$1@abraham.cs.berkeley.edu> <20030815001713.GD5333@speare5-1-14> <20030815093003.A2784@pclin040.win.tue.nl> <20030815004004.52f94f9a.davem@redhat.com> <20030815095503.C2784@pclin040.win.tue.nl> <yw1xfzk3pcod.fsf@users.sourceforge.net> <20030815151116.GY325@waste.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87k79e7fna.fsf@uga.edu>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030815151116.GY325@waste.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 15, 2003 at 05:52:09PM -0400, Ed L Cashin wrote:
-> Mike Fedyk <mfedyk@matchmail.com> writes:
-> 
-> > On Fri, Aug 15, 2003 at 05:15:45PM -0400, Ed L Cashin wrote:
-> >> Rusty Russell <rusty@rustcorp.com.au> writes:
-> >> 
-> >> > In message <87d6fixvpm.fsf@uga.edu> you write:
-> >> >> This patch just does what the comment says should be done.
-> >> >
-> >> > Hi Ed!
-> >> >
-> >> > 	Not trivial I'm afraid.  Send to Linus and lkml.
-> >> 
-> >> 
-> >> This patch just does what the comment says should be done.  I thought
-> >> it was a trivial patch, but Rusty Russell has informed me otherwise.
-> >> (Thanks, RR).
-> >> 
-> >> 
-> >> --- linux-2.6.0-test2/mm/memory.c.orig	Sun Jul 27 13:01:24 2003
-> >> +++ linux-2.6.0-test2/mm/memory.c	Wed Aug  6 18:30:55 2003
-> >> @@ -990,15 +990,10 @@
-> >>  	int ret;
-> >>  
-> >>  	if (unlikely(!pfn_valid(pfn))) {
-> >> -		/*
-> >> -		 * This should really halt the system so it can be debugged or
-> >> -		 * at least the kernel stops what it's doing before it corrupts
-> >> -		 * data, but for the moment just pretend this is OOM.
-> >> -		 */
-> >> -		pte_unmap(page_table);
-> >>  		printk(KERN_ERR "do_wp_page: bogus page at address %08lx\n",
-> >>  				address);
-> >> -		goto oom;
-> >> +		dump_stack();
-> >> +		BUG();
-> >
-> > You're not unmapping the pte I guess to not interfere with the dump_stack,
-> 
-> This patch changes the logic from "pretend it's out of memory" to
-> "announce something's very wrong and bail out right away."  Unmapping
-> the pte seems like a precursor to carrying on business as usual, but
-> there must be some subtleties here that I am unaware of, or Rusty
-> Russell wouldn't have called this patch non-trivial.
+Matt Mackall wrote:
+> No, it's a premise stated at the beginning of the thread. We're
+> assuming perfect distribution for x and y. The problem here is that x
+> and y can be dependent or independent. If they're independent, then
+> there's no issue. If they're dependent (for instance correlated or
+> anticorrelated) then x^y biases toward zero or one. Which clearly has
+> less entropy.
 
-So does show_stack() halt the kernel?  If not, then you probably want the
-pte_unmap since you'll have a working/semi-working system after the bug()
-call.
+Sure, but that only holds when you assume a specific mix of
+independence and dependence among the bits.
 
-And if show_stack() does halt the kernel, what's the point of bug() then?
+(Bits within x are independent of each other, and also within y, while
+at the same time x and y are dependent.)
+
+In general, bits from x^y do not have more bias towards zero or one
+than bits from x or y alone.  Consider an extreme:
+
+   x = [ random_bit_0, random_bit_0 ]
+   y = [ random_bit_1, ~random_bit_1 ]
+
+Then:
+
+   entropy(x) = entropy(y) = 1
+   entropy(x^y)            = 2
+
+This is no more arbitrary a mix of dependence and independence than
+your assumption.
+
+-- Jamie

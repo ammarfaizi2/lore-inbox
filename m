@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268097AbTCAC52>; Fri, 28 Feb 2003 21:57:28 -0500
+	id <S266210AbTCADCu>; Fri, 28 Feb 2003 22:02:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268212AbTCAC52>; Fri, 28 Feb 2003 21:57:28 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:4301 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S268097AbTCAC51> convert rfc822-to-8bit; Fri, 28 Feb 2003 21:57:27 -0500
-content-class: urn:content-classes:message
-Subject: RE: [BUG] 2.5.63: ESR killed my box!
-Date: Fri, 28 Feb 2003 19:07:44 -0800
-Message-ID: <DC675A50D067E045B80AAEDCBD2648BD2F2C3E@fmsmsx408.fm.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [BUG] 2.5.63: ESR killed my box!
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6334.0
-Thread-Index: AcLeURVl/AucJyFTSoG5Ora7YzHpRwBCtTvQABCgV/A=
-From: "Mallick, Asit K" <asit.k.mallick@intel.com>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-       "Linus Torvalds" <torvalds@transmeta.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       "William Lee Irwin III" <wli@holomorphy.com>,
-       "Rusty Russell" <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
-       <mingo@redhat.com>, "Mikael Pettersson" <mikpe@csd.uu.se>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>
-X-OriginalArrivalTime: 01 Mar 2003 03:07:45.0232 (UTC) FILETIME=[BB247D00:01C2DF9F]
+	id <S268212AbTCADCt>; Fri, 28 Feb 2003 22:02:49 -0500
+Received: from are.twiddle.net ([64.81.246.98]:4773 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S266210AbTCADCt>;
+	Fri, 28 Feb 2003 22:02:49 -0500
+Date: Fri, 28 Feb 2003 19:12:53 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390 (7/13): gcc 3.3 adaptions.
+Message-ID: <20030228191253.B26656@twiddle.net>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	"Richard B. Johnson" <root@chaos.analogic.com>,
+	Martin Schwidefsky <schwidefsky@de.ibm.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.3.95.1030224143236.14614A-100000@chaos> <Pine.LNX.4.44.0302241259320.13406-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0302241259320.13406-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Feb 24, 2003 at 01:02:39PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-I want to correct the cumulative part:
-
+On Mon, Feb 24, 2003 at 01:02:39PM -0800, Linus Torvalds wrote:
+> Does gcc still warn about things like
 > 
-> It is the real value. Error interrupt is generated when any 
-> bit is set in the real value (error bits) and does not use 
-> visible ESR. However, the ESR (latch) bits are cumulative and 
-> if the ESR is not cleared (using 2 writes) when we handle the 
-> interrupt the read of ESR status will also contain the errors 
-> for the previous error. So, the interrupt handler also should 
-> use the clear and read current state as you mentioned.
+> 	#define COUNT (sizeof(array)/sizeof(element))
+> 
+> 	int i;
+> 	for (i = 0; i < COUNT; i++)
+> 		...
+> 
+> where COUNT is obviously unsigned (because sizeof is size_t and thus 
+> unsigned)?
 
-The error interrupt is generated based on the real error bits and
-readable ESR bits does not affect the interrupt generation (did verify
-with the architects). We need the back-to-back write only to make the
-readable ESR to get 0 on a read. So, the interrupt handler should be
-able to use the write to ESR and read of ESR to get the current error
-status.
+Yes.  We don't do complete value-range propagation to figure
+out if a warning is needed.  We only look at the comparison
+itself and note that one of the arguments changed signedness
+due to forced promotions.
 
-Thanks,
-Asit
 
+r~

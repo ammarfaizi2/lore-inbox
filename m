@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264973AbSJWNPB>; Wed, 23 Oct 2002 09:15:01 -0400
+	id <S264972AbSJWNOf>; Wed, 23 Oct 2002 09:14:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264978AbSJWNPA>; Wed, 23 Oct 2002 09:15:00 -0400
-Received: from gateway.cinet.co.jp ([210.166.75.129]:32326 "EHLO
-	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S264973AbSJWNO7>; Wed, 23 Oct 2002 09:14:59 -0400
-Message-ID: <3DB6A212.74D592D0@cinet.co.jp>
-Date: Wed, 23 Oct 2002 22:20:18 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.44-pc98smp i686)
-X-Accept-Language: ja, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Andrey Panin <pazke@orbita1.ru>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCHSET] PC-9800 architecture (CORE only)
-References: <20021022065028.GA304@pazke.ipt> 
-		<3DB5706A.9D3915F0@cinet.co.jp> <1035374538.4033.40.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+	id <S264973AbSJWNOf>; Wed, 23 Oct 2002 09:14:35 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:262 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S264972AbSJWNOe>;
+	Wed, 23 Oct 2002 09:14:34 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: One for the Security Guru's 
+In-reply-to: Your message of "Wed, 23 Oct 2002 09:02:51 -0400."
+             <20021023130251.GF25422@rdlg.net> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 23 Oct 2002 23:20:33 +1000
+Message-ID: <24321.1035379233@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> On Tue, 2002-10-22 at 16:36, Osamu Tomita wrote:
-> > IORESOURCE98_SPARSE flag means odd or even only addressing.
-> > We modify check_region(), request_region() and release_region().
-> > If length parameter has negative value, addressing is sparse.
-> > For example,
-> >  request_region(0x100, -5, "xxx"); gets 0x100, 0x102 and 0x104.
-> 
-> Does PC-9800 ever have devices on 0x100/2/4/8 overlapping another device
-> on 0x101/103/105 ?
-Yes.
-Here is io resource definition for PC-9800. (extract from patch)
-struct resource standard_io_resources[] = {
-        { "pic1", 0x00, 0x02, IORESOURCE_BUSY | IORESOURCE98_SPARSE},
-        { "dma", 0x01, 0x2d, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
-        { "pic2", 0x08, 0x0a, IORESOURCE_BUSY | IORESOURCE98_SPARSE },
-        { "calender clock", 0x20, 0x22, IORESOURCE98_SPARSE },
-PIC1 uses 0x00 and 0x02.
-DMA controler uses 0x01, 0x03, 0x05,....0x2d.
-PIC2 uses 0x08 and 0x0a.
-RTC uses 0x20 and 0x22.
-They are overlapping.
+On Wed, 23 Oct 2002 09:02:51 -0400, 
+"Robert L. Harris" <Robert.L.Harris@rdlg.net> wrote:
+>  The consultants aparantly told the company admins that kernel modules
+>were a massive security hole and extremely easy targets for root kits.
 
-Regards
-Osamu Tomita
+Typical consultant rubbish.  Yes, LKMs can hide rooted systems, but the
+system has already been broken into by then.  You must be root to load
+a module or copy a module to /lib/modules, depmod ignores modules that
+are not owned by root.  IOW, if somebody can load a module then they
+already own your system!
+
+Fingerprinting modules is a hardy perennial.  It cannot be done in user
+space (how do you fingerprint the loader, libc, insmod etc.?), it can
+only be done in kernel.  No kernel code exists to do that, although LSM
+may be getting there.  The stumbling block is - who creates the
+fingerprint?  Answer - root.  You are trying to identify the difference
+between a valid root user and a malicious root user, both of whom have
+exactly the same privileges.  It does not work!
+
+LSM with its fine grained security model might help in this area, but
+don't hold your breath.  LSM has not been accepted into the kernel yet.
+
+>As a result every machine has a 100% monolithic kernel
+
+There are techniques for getting the same effect as LKMs even when the
+kernel is not compiled with modules.  Phrack had a series of articles
+on this subject.  Turning off modules increases the effort of hiding
+the break in by 5-10%, it does not make the system any more secure.
+Remember, if somebody can load a module then they have already broken
+in.
+

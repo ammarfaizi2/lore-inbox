@@ -1,31 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316686AbSGHAxo>; Sun, 7 Jul 2002 20:53:44 -0400
+	id <S316693AbSGHBBg>; Sun, 7 Jul 2002 21:01:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316693AbSGHAxn>; Sun, 7 Jul 2002 20:53:43 -0400
-Received: from quechua.inka.de ([212.227.14.2]:26996 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S316686AbSGHAxn>;
-	Sun, 7 Jul 2002 20:53:43 -0400
-From: Bernd Eckenfels <ecki-news2002-06@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: BKL removal
-In-Reply-To: <20020707222417.GC18298@kroah.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
-Message-Id: <E17RMpC-0006c8-00@sites.inka.de>
-Date: Mon, 8 Jul 2002 02:56:22 +0200
+	id <S316695AbSGHBBf>; Sun, 7 Jul 2002 21:01:35 -0400
+Received: from cpe-24-221-186-48.ca.sprintbbd.net ([24.221.186.48]:11529 "HELO
+	jose.vato.org") by vger.kernel.org with SMTP id <S316693AbSGHBBe>;
+	Sun, 7 Jul 2002 21:01:34 -0400
+From: "Tim Pepper" <tpepper@vato.org>
+Date: Sun, 7 Jul 2002 18:04:08 -0700
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux 2.5.25
+Message-ID: <20020707180408.A11779@vato.org>
+Mail-Followup-To: Tim Pepper <tpepper@vato.org>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.33.0207051646280.2484-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33.0207051646280.2484-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Jul 05, 2002 at 04:54:20PM -0700
+X-Mailer: None of your business.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20020707222417.GC18298@kroah.com> you wrote:
-> Either way, you get my same response, "Why?"  Again, as someone stated,
-> where in the USB code is the BKL used that affects performance in any
-> real life situations?
+On Fri 05 Jul at 16:54:20 -0700 torvalds@transmeta.com done said:
+> 
+> The other thing that we should sort out eventually is the unified naming
+> for disk devices, now that both IDE and SCSI are starting to have some
+> support for driverfs.  Let's make sure that we _can_ have sane ways of
+> accessing a disk, without having to care whether it is IDE or SCSI or
+> anything else.
 
-AFAIK the BKL in a not often used path can still be hold too long and affect
-latecy. I think the most recent low latency patches find a few instances. I
-am not completly shure if that is only about interrupts, or if it applies to
-the BKL, too.
+...and a way that scales better when naming large numbers of disks than
+disk_name()'s stuff like:
+     sprintf(buf, "sd%c%c", 'a' + unit / 26, 'a' + unit % 26);
 
-Greetings
-Bernd
+
+t.

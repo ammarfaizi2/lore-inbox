@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262213AbUDKCyl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Apr 2004 22:54:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbUDKCyl
+	id S262215AbUDKDHm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Apr 2004 23:07:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbUDKDHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Apr 2004 22:54:41 -0400
-Received: from fw.osdl.org ([65.172.181.6]:44444 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262213AbUDKCxt (ORCPT
+	Sat, 10 Apr 2004 23:07:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:26789 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262215AbUDKDGF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Apr 2004 22:53:49 -0400
-Date: Sat, 10 Apr 2004 19:53:35 -0700
+	Sat, 10 Apr 2004 23:06:05 -0400
+Date: Sat, 10 Apr 2004 20:05:51 -0700
 From: Andrew Morton <akpm@osdl.org>
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.5-mc4
-Message-Id: <20040410195335.1e3f674c.akpm@osdl.org>
+Subject: 2.6.5-mm4
+Message-Id: <20040410200551.31866667.akpm@osdl.org>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -22,228 +22,119 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5/2.6.5-mm4/
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5/2.6.5-mc4/
+- Added the DRM development tree to -mm kernel.  Please Cc
+  dri-devel@lists.sourceforge.net on any bug reports.
 
-This is my patch queue for Linus next week.
+- Mainly small fixes
 
 
-- Added the ia64 implementation of vectored interrupts
 
-- A significant ext3 speedup on big SMP
+Changes since 2.6.5-mm3:
 
-- lots of small fixes.
 
+ bk-alsa.patch
+ bk-arm.patch
+ bk-driver-core.patch
+ bk-drm.patch
+ bk-i2c.patch
+ bk-ieee1394.patch
+ bk-input.patch
+ bk-libata.patch
+ bk-netdev.patch
+ bk-pci.patch
+ bk-pcmcia.patch
+ bk-scsi.patch
+ bk-serial.patch
+ bk-usb.patch
+ bk-agpgart.patch
+ bk-cpufreq.patch
 
+ External trees
 
+-sbp2-build-fix.patch
+-i2c-ali1563-section-fix.patch
+-8250-resource-management-fix.patch
 
-Changes since 2.6.5-mc3:
+ Merged
 
++netpoll-early-arp-handling.patch
++netpoll-transmit-busy-bugfix.patch
 
-+ppc64-move-epow-log-buffer-to-bss.patch
+ netpoll fixes
 
- ppc64 fix
++kgdb-x86_64-warning-fixes.patch
 
-+more-fixups-for-compat_mq.patch
-+mq-timespec-checking-fix.patch
+ Fix a warning in the kgdb-for-x86_64 code
 
- POSIX message queue compat emulation fixes
+-CONFIG_SYSFS-boot-from-disk-fix.patch
 
-+msi-ia64.patch
-+msi-ia64-x86_64-fix.patch
-+ia32-msi-fixup.patch
+ Folded into CONFIG_SYSFS.patch
 
- Message Sigalled Interrupts for ia64
+-DRM-cvs-update.patch
+-drm-include-fix.patch
 
-+auto-size-dram-on-motorola-5272-coldfire-board.patch
-+add-start-code-for-cobra5272-board.patch
-+use-irqreturn_t-in-coldfire-5282-setup-code.patch
-+add-start-code-for-cobra5282-board.patch
-+cleanup-coldfire-5307-ints-code.patch
-+use-irqreturn_t-in-coldfire-5307-setup-code.patch
-+m68knommu-mm-5307-vectorsc-printk-cleanup.patch
-+conditional-romfs-copy-for-5407-cleopatra-board.patch
-+68360-commprocc-printk-cleanup.patch
-+68360-configc-printk-cleanup.patch
-+68ez328-configc-printk-cleanup.patch
-+use-irqreturn_t-in-coldfire-5407-setup-code.patch
-+use-irqreturn_t-in-motorola-68328-setup-code.patch
-+cleanup-motorola-68328-ints-code.patch
-+cleanup-motorola-68360-ints-code.patch
-+mk68knommu-dragonengine-setup-code-printk-cleanup.patch
-+cleanup-startup-code-for-68ez328-dragonengine-board.patch
-+68ez328-ucdimm-setup-code-printk-cleanup.patch
-+add-support-for-64mhz-clock-for-coldfire-boards.patch
+ Dropped - -m now includes the DRM BK tree
 
- m68knommu updates
++x86_64-probe_roms-c89.patch
 
-+hugetlb-consolidation-highmem-fix.patch
+ x86_64 ROM probing fixes/cleanup
 
- Make hugetlb-consolidation.patch compile with CONFIG_HIGHMEM
-
-+rw_swap_page_sync-fixes.patch
-
- The final word in the rw_swap_page_sync() follies
-
-+rename-page_to_nodenum.patch
-
- NUMA naming consistency
-
-+alpha-fix-unaligned-stxncpy-again.patch
-
- Alpha string function fix
-
-+cyclades-works-on-smp.patch
-
- cyclades is not CONFIG_BROKEN_ON_SMP
-
-+dnotify_parent-speedup.patch
-
- Make dnotify_parent() faster if /proc/sys/fs/dir-notify-enable is zero
-
-+floppy_format_265.patch
-
- Feed floppy.c through Lindent
-
-+jbd-do_get_write_access-lock-contention-reduction.patch
-+jbd-b_transaction-zeroing-cleanup.patch
-
- JBD speedups
-
-+probe_roms-01-move-stuff.patch
-+probe_roms-02-fixes.patch
-
- Cleanup/fix ia32 early boot ROM probing
-
-+swsusp-update.patch
-+swsusp-highmem-fixes.patch
-+swsusp-dont-start-stopped-processes.patch
-
- Software suspend updates
-
-+mandocs_params-007.patch
-
- kerneldoc fix
-
-+get_user_pages-shortcut.patch
-
- Prevent get_user_pages() from instantiating vast amounts of pagetable pages
- during codedump processing.
-
-+isicom-jiffies-fix.patch
-+isicom-unused-vars.patch
-+parport-dependency-fix.patch
-+dvd-dependency-fix.patch
-+isicom-error-path-fix.patch
-+QD65xx-io-ports-fix.patch
-+parportbook-build-fix.patch
-+saa7134-asus-tv-fm-inputs.patch
-+pdaudiocf-build-fix.patch
-
- Little fixlets
-
-+dont-offer-gen_rtc-on-ia64.patch
-
- ia64 Kconfig fix
-
-+remove_concat_FUNCTION_arch.patch
-+remove_concat_FUNCTION_drivers.patch
-+remove_concat_FUNCTION_include.patch
-+remove_concat_FUNCTION_sound.patch
-
- Avoid pasting __FUNCTION__ into other strings
-
-+raid56-masking-fix.patch
-
- RAID 64-bit sector_t fixes
-
-+ibmasm-dependency-fix.patch
-
- Kconfig dependency fix
-
-+bitop-comment-fix.patch
-
- Fix a buggy comment
-
-+ext2-alternate-sb-mount-fix.patch
-+ext3-alternate-sb-mount-fix.patch
-
- Fix `sb=' option processing.
-
-+zoran-overflow-fix.patch
-
- Avoid an integer overflow
-
-+mdacon-warning-fix.patch
-
- Fix a warning
-
-+do_fork-error-path-memory-leak.patch
-
- Don't leak mm_structs during clone() errors
-
-+Fix-More-Problems-Introduced-By-Module-Structure-Added-in-modpostc.patch
-
- Module fixes
-
-+Rename-bitmap_clear-to-bitmap_zero-remove-CLEAR_BITMAP.patch
-
- Give bitmap_clear() a more sensible name.
-
-+i2c-dev-warning-fixes.patch
-+policydb-printk-warnings.patch
-+applicom-warnings.patch
-+tpqic02-warnings.patch
++sctp-printk-warnings.patch
++atm-warning-fixes.patch
++firestream-warnings.patch
++cpufreq_userspace-warning.patch
 
  Fix warnings
 
-+acct-oops-fix.patch
++compute-creds-race-fix.patch
++compute-creds-race-fix-fix.patch
 
- Fix a race+oops in BSD accounting
+ Fix possible race in permission calculation across exec()
 
-+framebuffer-bugfix.patch
++rndis-fix.patch
 
- Fix fbmem error handling
+ USB gadget fix
 
-+updated-fbmem-patch.patch
++sir_dev-warnings.patch
++donauboe-ptr-fix.patch
++strip-warnings.patch
++pc300_drv-warnings.patch
++strip-warnings-2.patch
 
- Use the right userspace copy function in fbmem.c
+ More warnings
 
-+make-%docs-depend-on-scripts_basic.patch
++sk_mca-multicast-fix.patch
 
- Kerneldoc fix
+ net driver multicast fix
 
-+kbuild-cleaning-in-three-steps.patch
-+kbuild-external-module-support.patch
++kstrdup-and-friends.patch
 
- kbuild updates
+ Add long-missing string functions
 
-+parport-no-procfs-warning-fix.patch
++call_usermodehelper_async.patch
 
- Fix a warning with CONFIG_PROCFS=n
+ Fully async call_usermodehelper() workalike.
 
-+CONFIG_SYSFS.patch
++get_files_struct.patch
 
- Add an option to disable sysfs altogether.  Requires CONFIG_EMBEDDED
+ Code consolidation
 
-+jbd-BH_Revoke-cleanup.patch
++fix-acer-travelmate-360-interrupt-routing.patch
 
- JBS cleanup
+ laptop quirks
 
-+cciss-proc-fix.patch
-+cciss_scsi-warning.patch
++shrink-hash-sizes-on-small-machines-take-2.patch
 
- CCISS driver updates
-
-+pmdisk-is-x86-only.patch
-
- pmdisk.c only links on ia32.
-
+ More accurate sizing of the VFS caches.
 
 
 
 
-All 344 patches
+
+All 538 patches
+
 
 x86_64-update.patch
   x86-64 update
@@ -1289,6 +1180,583 @@ pmdisk-is-x86-only.patch
 
 mc.patch
   Add -mcN to EXTRAVERSION
+
+bk-alsa.patch
+
+bk-arm.patch
+
+bk-driver-core.patch
+
+bk-drm.patch
+
+bk-i2c.patch
+
+bk-ieee1394.patch
+
+bk-input.patch
+
+bk-libata.patch
+
+bk-netdev.patch
+
+bk-pci.patch
+
+bk-pcmcia.patch
+
+bk-scsi.patch
+
+bk-serial.patch
+
+bk-usb.patch
+
+bk-agpgart.patch
+
+bk-cpufreq.patch
+
+mm.patch
+  add -mmN to EXTRAVERSION
+
+r8169-warning-fix.patch
+  r8169 warning fix
+
+netpoll-early-arp-handling.patch
+  netpoll early ARP handling
+
+netpoll-transmit-busy-bugfix.patch
+  netpoll transmit busy bugfix
+
+kgdb-ga.patch
+  kgdb stub for ia32 (George Anzinger's one)
+  kgdbL warning fix
+  kgdb buffer overflow fix
+  kgdbL warning fix
+  kgdb: CONFIG_DEBUG_INFO fix
+  x86_64 fixes
+  correct kgdb.txt Documentation link (against  2.6.1-rc1-mm2)
+
+kgdb-ga-recent-gcc-fix.patch
+  kgdb: fix for recent gcc
+
+kgdboe-netpoll.patch
+  kgdb-over-ethernet via netpoll
+
+kgdboe-configuration-logic-fix.patch
+  kgdboe: fix configuration of MAC address
+
+kgdboe-configuration-logic-fix-fix.patch
+
+kgdboe-non-ia32-build-fix.patch
+
+kgdb-warning-fixes.patch
+  kgdb warning fixes
+
+kgdb-x86_64-support.patch
+  kgdb-x86_64-support.patch for 2.6.2-rc1-mm3
+
+kgdb-x86_64-warning-fixes.patch
+  kgdb-x86_64-warning-fixes
+
+wchan-use-ELF-sections-kgdb-fix.patch
+  wchan-use-ELF-sections-kgdb-fix
+
+kgdb-THREAD_SIZE-fixes.patch
+  THREAD_SIZE fixes for kgdb
+
+must-fix.patch
+  must fix lists update
+  must fix list update
+  mustfix update
+
+must-fix-update-5.patch
+  must-fix update
+
+ppc64-reloc_hide.patch
+
+ext3-journalled-quotas.patch
+  Journalled quota patch
+
+ext3-journalled-quotas-export.patch
+  ext3-journalled-quotas export
+
+invalidate_inodes-speedup.patch
+  invalidate_inodes speedup
+  more invalidate_inodes speedup fixes
+
+config_spinline.patch
+  uninline spinlocks for profiling accuracy.
+
+pdflush-diag.patch
+
+get_user_pages-handle-VM_IO.patch
+  fix get_user_pages() against mappings of /dev/mem
+
+pci_set_power_state-might-sleep.patch
+
+CONFIG_STANDALONE-default-to-n.patch
+  Make CONFIG_STANDALONE default to N
+
+extra-buffer-diags.patch
+
+selinux-inode-race-trap.patch
+  Try to diagnose Bug 2153
+
+slab-leak-detector.patch
+  slab leak detector
+  mm/slab.c warning in cache_alloc_debugcheck_after
+
+local_bh_enable-warning-fix.patch
+
+nfs-01-prepare_nfspage.patch
+  Subject: [PATCH] Prepare NFS asynchronous read/write structures for 	rsize/wsize < PAGE_SIZE
+
+nfs-02-small_rsize.patch
+  Subject: [PATCH] Add asynchronous read support for rsize<PAGE_SIZE
+
+nfs-02-small_rsize-warning-fixes.patch
+  Fix nfs-02-small_rsize ppc64 warnings
+
+nfs-03-small_wsize.patch
+  nfs: Add asynchronous write support for wsize<PAGE_SIZE
+
+nfs-03-small_wsize-warning-fixes.patch
+  Fix ppc64 warnings in nfs-03-small_wsize patch
+
+nfs-04-congestion.patch
+  Subject: [PATCH] Throttle writes when memory pressure forces a flush
+
+nfs-05-unrace.patch
+  Subject: [PATCH] Remove a couple of races in RPC layer...
+
+nfs-06-rpc_throttle.patch
+  Subject: [PATCH] add fair queueing to the RPC scheduler.
+
+nfs-07-rpc_fixes.patch
+  Subject: [PATCH] Close some potential scheduler races in rpciod.
+
+nfs-08-short_rw.patch
+  Subject: [PATCH] Add support for short reads/writes (< rsize/wsize)
+
+nfsv4-updates.patch
+  nfsv4 updates
+
+Move-saved_command_line-to-init-mainc.patch
+  Move saved_command_line to init/main.c
+
+sched-run_list-cleanup.patch
+  small scheduler cleanup
+
+sched-find_busiest_node-resolution-fix.patch
+  sched: improved resolution in find_busiest_node
+
+sched-domains.patch
+  sched: scheduler domain support
+  sched: fix for NR_CPUS > BITS_PER_LONG
+  sched: clarify find_busiest_group
+  sched: find_busiest_group arithmetic fix
+
+sched-find-busiest-fix.patch
+  sched-find-busiest-fix
+
+sched-sibling-map-to-cpumask.patch
+  sched: cpu_sibling_map to cpu_mask
+  p4-clockmod sibling_map fix
+  p4-clockmod: handle more than two siblings
+
+sched-domains-i386-ht.patch
+  sched: implement domains for i386 HT
+  sched: Fix CONFIG_SMT oops on UP
+  sched: fix SMT + NUMA bug
+  Change arch_init_sched_domains to use cpu_online_map
+  Fix build with NR_CPUS > BITS_PER_LONG
+
+sched-no-drop-balance.patch
+  sched: handle inter-CPU jiffies skew
+
+sched-directed-migration.patch
+  sched_balance_exec(): don't fiddle with the cpus_allowed mask
+
+sched-domain-debugging.patch
+  sched_domain debugging
+
+sched-domain-balancing-improvements.patch
+  scheduler domain balancing improvements
+
+sched-group-power.patch
+  sched-group-power
+  sched-group-power warning fixes
+
+sched-domains-use-cpu_possible_map.patch
+  sched_domains: use cpu_possible_map
+
+sched-smt-nice-handling.patch
+  sched: SMT niceness handling
+
+sched-local-load.patch
+  sched: add local load metrics
+
+process-migration-speedup.patch
+  Reduce TLB flushing during process migration
+
+sched-trivial.patch
+  sched: trivial fixes, cleanups
+
+sched-misc-fixes.patch
+  sched: misc fixes
+
+sched-wakebalance-fixes.patch
+  sched: wakeup balancing fixes
+
+sched-imbalance-fix.patch
+  sched: fix imbalance calculations
+
+sched-altix-tune1.patch
+  sched: altix tuning
+
+sched-fix-activelb.patch
+  sched: oops fix
+
+ppc64-sched-domain-support.patch
+  ppc64: sched-domain support
+
+sched-domain-setup-lock.patch
+  sched: fix setup races
+
+ppc64-sched_domains-fix.patch
+  ppc64-sched_domains-fix
+
+sched-domain-setup-lock-ppc64-fix.patch
+
+sched-minor-cleanups.patch
+  sched: minor cleanups
+
+sched-inline-removals.patch
+  sched: uninlinings
+
+sched-move-cold-task.patch
+  sched: move cold task in mysteriouis ways
+
+sched-migrate-shortcut.patch
+  sched: add migration shortcut
+
+sched-more-sync-wakeups.patch
+  sched: extend sync wakeups
+
+sched-boot-fix.patch
+  sched: lock cpu_attach_domain for hotplug
+
+sched-cleanups.patch
+  sched: cleanups
+
+sched-damp-passive-balance.patch
+  sched: passive balancing damping
+
+sched-cpu-load-cleanup.patch
+  sched: cpu load management cleanup
+
+fa311-mac-address-fix.patch
+  wrong mac address with netgear FA311 ethernet card
+
+pid_max-fix.patch
+  Bug when setting pid_max > 32k
+
+use-soft-float.patch
+  Use -msoft-float
+
+non-readable-binaries.patch
+  Handle non-readable binfmt_misc executables
+
+binfmt_misc-credentials.patch
+  binfmt_misc: improve calaulation of interpreter's credentials
+
+aic7xxx-deadlock-fix.patch
+  aic7xxx deadlock fix
+
+poll-select-longer-timeouts.patch
+  poll()/select(): support longer timeouts
+
+poll-select-range-check-fix.patch
+  poll()/select() range checking fix
+
+poll-select-handle-large-timeouts.patch
+  poll()/select(): handle long timeouts
+
+add-a-slab-for-ethernet.patch
+  Add a kmalloc slab for ethernet packets
+
+siimage-update.patch
+  ide: update for siimage driver
+
+ipmi-socket-interface.patch
+  IPMI: socket interface
+
+nmi_watchdog-local-apic-fix.patch
+  Fix nmi_watchdog=2 and P4 HT
+
+nmi-1-hz-2.patch
+  reduce NMI watchdog call frequency with local APIC.
+
+pcmcia-netdev-ordering-fixes.patch
+  PCMCIA netdevice ordering issues
+
+3ware-update.patch
+  3ware driver update
+
+devinet-ctl_table-fix.patch
+  devinet_ctl_table[] null termination
+
+idr-extra-features.patch
+  idr.c: extra features enhancements
+
+shm-do_munmap-check.patch
+
+stack-overflow-test-fix.patch
+  Fix stack overflow test for non-8k stacks
+
+jbd-remove-livelock-avoidance.patch
+  JBD: remove livelock avoidance code in journal_dirty_data()
+
+jgarzik-warnings.patch
+
+logitech-keyboard-fix.patch
+  2.6.5-rc2 keyboard breakage
+
+signal-race-fix.patch
+  signal handling race fix
+
+signal-race-fix-ia64.patch
+  signal-race-fix: ia64
+
+signal-race-fix-s390.patch
+  signal-race fixes for s390
+
+signal-race-fix-x86_64.patch
+  signal-race-fixes: x86-64 support
+
+signal-race-fixes-ppc.patch
+  signal-race fixes for ppc32 and ppc64
+
+warn-on-mdelay-in-irq-handlers.patch
+  Warn on mdelay() in irq handlers
+
+stack-reductions-nfsread.patch
+  stack reductions: nfs read
+
+stack-reductions-nfsroot.patch
+  stack reductions: nfs root
+
+x86_64-probe_roms-c89.patch
+  x86_64: probe_roms()
+
+speed-up-sata.patch
+  speed up SATA
+
+yenta-TI-irq-routing-fix.patch
+  yenta: interrupt routing for TI briges
+
+advansys-fix.patch
+  advansys check_region() fix
+
+pnp-updates.patch
+  PnP Updates for 2.6.5-rc3-mm4 (testing)
+
+aic7xxx-unload-fix.patch
+  aic7xxx: fix oops whe hardware is not present
+  aic7xxx-unload-fix-fix
+
+journal_add_journal_head-debug.patch
+  journal_add_journal_head-debug
+
+nfs-O_DIRECT-fixes.patch
+  NFS: O_DIRECT fixes
+
+aic7xxx-swsusp-support.patch
+  support swsusp for aic7xxx
+
+reiserfs-commit-default.patch
+  Add "commit=0" to reiserfs
+
+xfs-laptop-mode.patch
+  Laptop mode support for XFS
+
+xfs-laptop-mode-syncd-synchronization.patch
+  Synchronize XFS sync daemon with laptop mode syncs.
+
+vmscan-less-sleepiness.patch
+  vmscan: Fix up the determination of when to throttle
+
+list_del-debug.patch
+  list_del debug check
+
+oops-dump-preceding-code.patch
+  i386 oops output: dump preceding code
+
+lockmeter.patch
+  lockmeter
+  ia64 CONFIG_LOCKMETER fix
+
+reslabify-pgds-and-pmds-2.patch
+
+jbd-journal_dirty_metadata-locking-speedup.patch
+  jbd: journal_dirty_metadata locking speedup
+
+0-autofs4-2.6.0-signal-20040405.patch
+  autofs: dnotify + autofs may create signal/restart syscall loop
+
+1-autofs4-2.6.4-cleanup-20040405.patch
+  autofs: printk cleanups
+
+2-autofs4-2.6.4-fill_super-20040405.patch
+
+3-autofs4-2.6.0-bkl-20040405.patch
+  autofs: locking rework
+
+4-autofs4-2.6.0-expire-20040405.patch
+  autofs: expiry refcount fixes
+
+5-autofs4-2.6.0-readdir-20040405.patch
+  autofs: readdir fixes
+
+6-autofs4-2.6.0-may_umount-20040405.patch
+  autofs: add ioctl to query unmountability
+
+7-autofs4-2.6.0-extra-20040405.patch
+  autofs: readdir futureproofing
+
+cciss-logical-device-queues.patch
+  cciss: per logical device queues
+
+numa-api-x86_64.patch
+  numa api: -64 support
+
+numa-api-bitmap-fix.patch
+  numa api: Bitmap bugfix
+
+numa-api-i386.patch
+  numa api: Add i386 support
+
+numa-api-ia64.patch
+  numa api: Add IA64 support
+
+numa-api-core.patch
+  numa api: Core NUMA API code
+
+numa-api-core-tweaks.patch
+  numa-api-core-tweaks
+
+numa-api-core-bitmap_clear-fixes.patch
+  numa-api-core bitmap_clear fixes
+
+numa-api-vma-policy-hooks.patch
+  numa api: Add VMA hooks for policy
+
+numa-api-vma-policy-hooks-fix.patch
+  numa-api-vma-policy-hooks fix
+
+numa-api-shared-memory-support.patch
+  numa api: Add shared memory support
+
+numa-api-shared-memory-support-tweaks.patch
+  numa-api-shared-memory-support-tweaks
+
+numa-api-statistics.patch
+  numa api: Add statistics
+
+numa-api-anon-memory-policy.patch
+  numa api: Add policy support to anonymous  memory
+
+sk98lin-buggy-vpd-workaround.patch
+  net/sk98lin: correct buggy VPD in ASUS MB
+  skvpd-build-fix
+
+kNFSdv4-4-of-10-nfsd4_readdir-fixes.patch
+  kNFSdv4: nfsd4_readdir fixes
+
+nfsd4_readdir-build-fix.patch
+  nfsd4_readdir build fix
+
+kNFSdv4-5-of-10-Fix-bad-error-returm-from-svcauth_gss_accept.patch
+  kNFSdv4: Fix bad error returm from svcauth_gss_accept
+
+kNFSdv4-6-of-10-Keep-state-to-allow-replays-for-close-to-work.patch
+  kNFSdv4: Keep state to allow replays for 'close' to work.
+
+nfsd_list_cleanup.patch
+  Subject: Re: [PATCH] kNFSdv4 - 6 of 10 - Keep state to allow replays for 'close' to work.
+
+kNFSdv4-7-of-10-Allow-locku-replays-aswell.patch
+  kNFSdv4: Allow locku replays aswell
+
+kNFSdv4-8-of-10-Improve-how-locking-copes-with-replays.patch
+  kNFSdv4: Improve how locking copes with replays
+
+kNFSdv4-9-of-10-Set-credentials-properly-when-puutrootfh-is-used.patch
+  kNFSdv4: Set credentials properly when puutrootfh is used
+
+kNFSdv4-10-of-10-Implement-server-side-reboot-recovery-mostly.patch
+  kNFSdv4: Implement server-side reboot recovery (mostly)
+
+Oprofile-ARM-XScale-PMU-driver.patch
+  Oprofile: ARM/XScale PMU driver
+
+unplug-can-sleep.patch
+  unplug functions can sleep
+
+fix-load_elf_binary-error-path-on-unshare_files-error.patch
+  fix load_elf_binary error path on unshare_files error
+
+sctp-printk-warnings.patch
+  sctp printk warnings
+
+atm-warning-fixes.patch
+  atm warning fixes
+
+firestream-warnings.patch
+  firestream warnings
+
+cpufreq_userspace-warning.patch
+  cpufreq_userspace warning
+
+compute-creds-race-fix.patch
+  compute_creds race
+
+compute-creds-race-fix-fix.patch
+  compute-creds-race-fix-fix
+
+rndis-fix.patch
+  usb/gadget/rndis.c fix
+
+sir_dev-warnings.patch
+  sir_dev.c warnings
+
+donauboe-ptr-fix.patch
+  donauboe.c 32-bit pointer fix
+
+strip-warnings.patch
+  drivers/net/wireless/strip.c warnings
+
+pc300_drv-warnings.patch
+  pc300_drv-warnings
+
+strip-warnings-2.patch
+  strip.c warnings
+
+sk_mca-multicast-fix.patch
+  sk_mca multicast fix
+
+kstrdup-and-friends.patch
+  add string replication functions
+
+call_usermodehelper_async.patch
+  Add call_usermodehelper_async
+
+get_files_struct.patch
+  get_files_struct cleanup
+
+fix-acer-travelmate-360-interrupt-routing.patch
+  fix Acer TravelMate 360 interrupt routing
+
+shrink-hash-sizes-on-small-machines-take-2.patch
+  shrink VFS hash sizes on small machines
 
 
 

@@ -1,64 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312590AbSGQMMK>; Wed, 17 Jul 2002 08:12:10 -0400
+	id <S312619AbSGQMTI>; Wed, 17 Jul 2002 08:19:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313190AbSGQMMI>; Wed, 17 Jul 2002 08:12:08 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:27367 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S312590AbSGQMMH>; Wed, 17 Jul 2002 08:12:07 -0400
-Message-ID: <3D355FD0.9F0E4F8@delusion.de>
-Date: Wed, 17 Jul 2002 14:15:12 +0200
-From: "Udo A. Steinberg" <reality@delusion.de>
-Organization: Disorganized
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.26 i686)
-X-Accept-Language: en, de
+	id <S313113AbSGQMTI>; Wed, 17 Jul 2002 08:19:08 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:26629 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S312619AbSGQMTG>; Wed, 17 Jul 2002 08:19:06 -0400
+Date: Wed, 17 Jul 2002 09:21:50 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrew Morton <akpm@zip.com.au>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 1/13] minimal rmap
+In-Reply-To: <3D3500AA.131CE2EB@zip.com.au>
+Message-ID: <Pine.LNX.4.44L.0207170914060.12241-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PS2 Input Core Support
-References: <3D35435F.E5CFA5E2@delusion.de> <20020717122000.A12529@ucw.cz> <3D355940.96EE8327@delusion.de> <20020717141004.C12529@ucw.cz>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> 
-> This is interesting. Can you try the attached test utility? You need to
-> enable CONFIG_INPUT_EVDEV, as well, and use it on /dev/input/evdev0 or
-> 1, depening what's your mouse.
-> 
-> I'm wondering whether the scroll events show up or not.
+On Tue, 16 Jul 2002, Andrew Morton wrote:
 
-Hello,
+> The rest of the VM - list management, the classzone concept, etc
+> remains unchanged.
 
-They show up in the output. First 4 events are scroll-down, last
-4 events are scroll-up.
+> 5: per-cpu pte_chain freelists (Rik?)
 
-Regards,
--Udo.
+Will look into this soon.
 
-./evtest /dev/input/event2 
-Input driver version is 1.0.0
-Input device ID: bus 0x11 vendor 0x6 product 0x2 version 0x100
-Input device name: "ImExPS/2 Microsoft IntelliMouse Explorer"
-Supported events:
-  Event type 1 (Key)
-    Event code 272 (LeftBtn)
-    Event code 273 (RightBtn)
-    Event code 274 (MiddleBtn)
-    Event code 275 (SideBtn)
-    Event code 276 (ExtraBtn)
-  Event type 2 (Relative)
-    Event code 0 (X)
-    Event code 1 (Y)
-    Event code 8 (Wheel)
-Testing ... (interrupt to exit)
-Event: time 1026908021.053509, type 2 (Relative), code 8 (Wheel), value -1
-Event: time 1026908021.607555, type 2 (Relative), code 8 (Wheel), value -1
-Event: time 1026908022.017017, type 2 (Relative), code 8 (Wheel), value -1
-Event: time 1026908022.412833, type 2 (Relative), code 8 (Wheel), value -1
-Event: time 1026908023.241679, type 2 (Relative), code 8 (Wheel), value -7
-Event: time 1026908023.711842, type 2 (Relative), code 8 (Wheel), value -7
-Event: time 1026908024.149266, type 2 (Relative), code 8 (Wheel), value -7
-Event: time 1026908024.529600, type 2 (Relative), code 8 (Wheel), value -7
+> 6: maybe GC the pte_chain backing pages. (Seems unavoidable.  Rik?)
+
+And probably into this, if it turns out that we're wasting
+too much memory in no longer used pte_chains in real workloads,
+which will probably happen ;)
+
+> 7: multithread the page reclaim code.  (I have patches).
+
+Rmap for 2.4 also has some code which could be used for this.
+
+> 8: clustered add-to-swap.  Not sure if I buy this.  anon pages are
+>    often well-ordered-by-virtual-address on the LRU, so it "just
+>    works" for benchmarky loads.  But there may be some other loads...
+
+Benchmarky loads without a working set probably aren't all that
+suitable for evaluating page replacement. VM (and general caching)
+works _because_ of the working set property.
+
+Does anybody know of a working set simulator we could use to test
+things like this ?
+
+> 9: Fix bad IO latency in page reclaim (I have lame patches)
+>
+> 10: Develop tuning tools, use them.
+>
+> 11: The nightly updatedb run is still evicting everything.
+
+That's the "minimal" part of "minimal rmap" ;))
+
+Ed Tomlinson has some code for 11), which should be mergeable
+soon.  In combination with changed page replacement priorities
+we'll be able to make sure updatedb won't evict everything.
+
+The importance of rmap here is making sure we're _able_ to do
+this kind of tuning instead of tweaking the same magic knobs
+we've (unsuccessfully) tweaked in the last 8 years.
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

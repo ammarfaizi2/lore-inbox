@@ -1,175 +1,295 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264566AbUAAUmL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 15:42:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265435AbUAAUjE
+	id S265444AbUAAUqq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 15:46:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264568AbUAAUEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 15:39:04 -0500
-Received: from iron-c-1.tiscali.it ([212.123.84.81]:19796 "EHLO
-	mailr-1.tiscali.it") by vger.kernel.org with ESMTP id S264566AbUAAUhr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 15:37:47 -0500
-X-BrightmailFiltered: true
-Date: Thu, 1 Jan 2004 21:37:43 +0100
-From: Kronos <kronos@kronoz.cjb.net>
-To: linux-net@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6.0] ip_local_deliver: bad loopback skb: PRE_ROUTING LOCAL_IN
-Message-ID: <20040101203743.GA8934@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Thu, 1 Jan 2004 15:04:40 -0500
+Received: from amsfep13-int.chello.nl ([213.46.243.24]:11305 "EHLO
+	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
+	id S264575AbUAAUBx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 15:01:53 -0500
+Date: Thu, 1 Jan 2004 21:01:50 +0100
+Message-Id: <200401012001.i01K1oZM031721@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 346] M68k RMW accesses
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I saw the following messages in my logs:
+M68k: Avoid bus fault for certain RMW accesses (from Roman Zippel)
 
-ip_local_deliver: bad loopback skb: PRE_ROUTING LOCAL_IN
-skb: pf=2 (unowned) dev=lo len=16436
-PROTO=6 10.0.0.1:3128 10.0.0.1:36227 L=16436 S=0x00 I=20054 F=0x4000 T=64
-ip_local_deliver: bad loopback skb: PRE_ROUTING LOCAL_IN
-skb: pf=2 (unowned) dev=lo len=4148
-PROTO=6 10.0.0.1:3128 10.0.0.1:36227 L=4148 S=0x00 I=20055 F=0x4000 T=64
-ip_local_deliver: bad loopback skb: PRE_ROUTING LOCAL_IN
-skb: pf=2 (unowned) dev=lo len=16436
-PROTO=6 10.0.0.1:3128 10.0.0.1:36234 L=16436 S=0x00 I=30461 F=0x4000 T=64
-ip_local_deliver: bad loopback skb: PRE_ROUTING LOCAL_IN
-skb: pf=2 (unowned) dev=lo len=4148
-PROTO=6 10.0.0.1:3128 10.0.0.1:36234 L=4148 S=0x00 I=30462 F=0x4000 T=64
-ip_local_deliver: bad loopback skb: PRE_ROUTING LOCAL_IN
-skb: pf=2 (unowned) dev=lo len=16436
-PROTO=6 10.0.0.1:3128 10.0.0.1:36228 L=16436 S=0x00 I=28891 F=0x4000 T=64
-ip_local_deliver: bad loopback skb: PRE_ROUTING LOCAL_IN
-skb: pf=2 (unowned) dev=lo len=4148
-PROTO=6 10.0.0.1:3128 10.0.0.1:36228 L=4148 S=0x00 I=28892 F=0x4000 T=64
-ip_local_deliver: bad loopback skb: PRE_ROUTING LOCAL_IN
-skb: pf=2 (unowned) dev=lo len=16436
-PROTO=6 10.0.0.1:3128 10.0.0.1:36228 L=16436 S=0x00 I=28896 F=0x4000 T=64
-ip_local_deliver: bad loopback skb: PRE_ROUTING LOCAL_IN
-skb: pf=2 (unowned) dev=lo len=5502
-PROTO=6 10.0.0.1:3128 10.0.0.1:36228 L=5502 S=0x00 I=28897 F=0x4000 T=64
+--- linux-2.6.0/arch/m68k/kernel/traps.c	8 Oct 2003 20:34:14 -0000	1.1.1.12
++++ linux-m68k-2.6.0/arch/m68k/kernel/traps.c	16 Oct 2003 21:13:34 -0000
+@@ -583,12 +583,9 @@
+ 	unsigned short mmusr;
+ 	unsigned long addr, errorcode;
+ 	unsigned short ssw = fp->un.fmtb.ssw;
+-	int user_space_fault = 1;
+ #if DEBUG
+ 	unsigned long desc;
+-#endif
+ 
+-#if DEBUG
+ 	printk ("pid = %x  ", current->pid);
+ 	printk ("SSW=%#06x  ", ssw);
+ 
+@@ -605,128 +602,116 @@
+ 			space_names[ssw & DFC], fp->ptregs.pc);
+ #endif
+ 
+-	if (fp->ptregs.sr & PS_S) {
+-		/* kernel fault must be a data fault to user space */
+-		if (! ((ssw & DF) && ((ssw & DFC) == USER_DATA))) {
+-			/* instruction fault or kernel data fault! */
+-			if (ssw & (FC | FB))
+-				printk ("Instruction fault at %#010lx\n",
+-					fp->ptregs.pc);
+-			if (ssw & DF) {
+-				printk ("Data %s fault at %#010lx in %s (pc=%#lx)\n",
+-					ssw & RW ? "read" : "write",
+-					fp->un.fmtb.daddr,
+-					space_names[ssw & DFC], fp->ptregs.pc);
+-			}
+-			printk ("BAD KERNEL BUSERR\n");
+-			die_if_kernel("Oops",&fp->ptregs,0);
+-			force_sig(SIGKILL, current);
+-			return;
+-		}
+-	} else {
+-		/* user fault */
+-		if (!(ssw & (FC | FB)) && !(ssw & DF))
+-			/* not an instruction fault or data fault! BAD */
+-			panic ("USER BUSERR w/o instruction or data fault");
+-		user_space_fault = 1;
+-#if DEBUG
+-		printk("User space bus-error\n");
+-#endif
+-	}
+-
+ 	/* ++andreas: If a data fault and an instruction fault happen
+ 	   at the same time map in both pages.  */
+ 
+ 	/* First handle the data fault, if any.  */
+-	if (ssw & DF)
+-	  {
+-	    addr = fp->un.fmtb.daddr;
++	if (ssw & DF) {
++		addr = fp->un.fmtb.daddr;
+ 
+-	    mmusr = MMU_I;
+-	    if (user_space_fault) {
+ #if DEBUG
+-		    asm volatile ("ptestr #1,%2@,#7,%0\n\t"
+-				  "pmove %/psr,%1@"
+-				  : "=a&" (desc)
+-				  : "a" (&temp), "a" (addr));
++		asm volatile ("ptestr %3,%2@,#7,%0\n\t"
++			      "pmove %%psr,%1@"
++			      : "=a&" (desc)
++			      : "a" (&temp), "a" (addr), "d" (ssw));
+ #else
+-		    asm volatile ("ptestr #1,%1@,#7\n\t"
+-				  "pmove %/psr,%0@"
+-				  : : "a" (&temp), "a" (addr));
+-#endif
+-		    mmusr = temp;
+-	    }
+-      
+-#if DEBUG
+-	    printk ("mmusr is %#x for addr %#lx in task %p\n",
+-		    mmusr, addr, current);
+-	    printk ("descriptor address is %#lx, contents %#lx\n",
+-		    __va(desc), *(unsigned long *)__va(desc));
++		asm volatile ("ptestr %2,%1@,#7\n\t"
++			      "pmove %%psr,%0@"
++			      : : "a" (&temp), "a" (addr), "d" (ssw));
+ #endif
++		mmusr = temp;
+ 
+-	    errorcode = (mmusr & MMU_I) ? 0 : 1;
+-	    if (!(ssw & RW) || (ssw & RM))
+-		    errorcode |= 2;
+-
+-	    if (mmusr & (MMU_I | MMU_WP)) {
+-		/* Don't try to do anything further if an exception was
+-		   handled. */
+-		if (do_page_fault (&fp->ptregs, addr, errorcode) < 0)
++#if DEBUG
++		printk("mmusr is %#x for addr %#lx in task %p\n",
++		       mmusr, addr, current);
++		printk("descriptor address is %#lx, contents %#lx\n",
++		       __va(desc), *(unsigned long *)__va(desc));
++#endif
++
++		errorcode = (mmusr & MMU_I) ? 0 : 1;
++		if (!(ssw & RW) || (ssw & RM))
++			errorcode |= 2;
++
++		if (mmusr & (MMU_I | MMU_WP)) {
++			if (ssw & 4) {
++				printk("Data %s fault at %#010lx in %s (pc=%#lx)\n",
++				       ssw & RW ? "read" : "write",
++				       fp->un.fmtb.daddr,
++				       space_names[ssw & DFC], fp->ptregs.pc);
++				goto buserr;
++			}
++			/* Don't try to do anything further if an exception was
++			   handled. */
++			if (do_page_fault (&fp->ptregs, addr, errorcode) < 0)
++				return;
++		} else if (!(mmusr & MMU_I)) {
++			/* propably a 020 cas fault */
++			if (!(ssw & RM))
++				printk("unexpected bus error (%#x,%#x)\n", ssw, mmusr);
++		} else if (mmusr & (MMU_B|MMU_L|MMU_S)) {
++			printk("invalid %s access at %#lx from pc %#lx\n",
++			       !(ssw & RW) ? "write" : "read", addr,
++			       fp->ptregs.pc);
++			die_if_kernel("Oops",&fp->ptregs,mmusr);
++			force_sig(SIGSEGV, current);
+ 			return;
+-	    } else if (mmusr & (MMU_B|MMU_L|MMU_S)) {
+-		    printk ("invalid %s access at %#lx from pc %#lx\n",
+-			    !(ssw & RW) ? "write" : "read", addr,
+-			    fp->ptregs.pc);
+-		    die_if_kernel("Oops",&fp->ptregs,mmusr);
+-		    force_sig(SIGSEGV, current);
+-		    return;
+-	    } else {
++		} else {
+ #if 0
+-		    static volatile long tlong;
++			static volatile long tlong;
+ #endif
+ 
+-		    printk ("weird %s access at %#lx from pc %#lx (ssw is %#x)\n",
+-			    !(ssw & RW) ? "write" : "read", addr,
+-			    fp->ptregs.pc, ssw);
+-		    asm volatile ("ptestr #1,%1@,#0\n\t"
+-				  "pmove %/psr,%0@"
+-				  : /* no outputs */
+-				  : "a" (&temp), "a" (addr));
+-		    mmusr = temp;
++			printk("weird %s access at %#lx from pc %#lx (ssw is %#x)\n",
++			       !(ssw & RW) ? "write" : "read", addr,
++			       fp->ptregs.pc, ssw);
++			asm volatile ("ptestr #1,%1@,#0\n\t"
++				      "pmove %%psr,%0@"
++				      : /* no outputs */
++				      : "a" (&temp), "a" (addr));
++			mmusr = temp;
+ 
+-		    printk ("level 0 mmusr is %#x\n", mmusr);
++			printk ("level 0 mmusr is %#x\n", mmusr);
+ #if 0
+-		    asm volatile ("pmove %/tt0,%0@"
+-				  : /* no outputs */
+-				  : "a" (&tlong));
+-		    printk ("tt0 is %#lx, ", tlong);
+-		    asm volatile ("pmove %/tt1,%0@"
+-				  : /* no outputs */
+-				  : "a" (&tlong));
+-		    printk ("tt1 is %#lx\n", tlong);
++			asm volatile ("pmove %%tt0,%0@"
++				      : /* no outputs */
++				      : "a" (&tlong));
++			printk("tt0 is %#lx, ", tlong);
++			asm volatile ("pmove %%tt1,%0@"
++				      : /* no outputs */
++				      : "a" (&tlong));
++			printk("tt1 is %#lx\n", tlong);
+ #endif
+ #if DEBUG
+-		    printk("Unknown SIGSEGV - 1\n");
++			printk("Unknown SIGSEGV - 1\n");
+ #endif
+-		    die_if_kernel("Oops",&fp->ptregs,mmusr);
+-		    force_sig(SIGSEGV, current);
+-		    return;
+-	    }
+-
+-	    /* setup an ATC entry for the access about to be retried */
+-	    if (!(ssw & RW))
+-		    asm volatile ("ploadw %1,%0@" : /* no outputs */
+-				  : "a" (addr), "d" (ssw));
+-	    else
+-		    asm volatile ("ploadr %1,%0@" : /* no outputs */
+-				  : "a" (addr), "d" (ssw));
+-	  }
++			die_if_kernel("Oops",&fp->ptregs,mmusr);
++			force_sig(SIGSEGV, current);
++			return;
++		}
++
++		/* setup an ATC entry for the access about to be retried */
++		if (!(ssw & RW) || (ssw & RM))
++			asm volatile ("ploadw %1,%0@" : /* no outputs */
++				      : "a" (addr), "d" (ssw));
++		else
++			asm volatile ("ploadr %1,%0@" : /* no outputs */
++				      : "a" (addr), "d" (ssw));
++	}
+ 
+ 	/* Now handle the instruction fault. */
+ 
+ 	if (!(ssw & (FC|FB)))
+ 		return;
+ 
++	if (fp->ptregs.sr & PS_S) {
++		printk("Instruction fault at %#010lx\n",
++			fp->ptregs.pc);
++	buserr:
++		printk ("BAD KERNEL BUSERR\n");
++		die_if_kernel("Oops",&fp->ptregs,0);
++		force_sig(SIGKILL, current);
++		return;
++	}
++
+ 	/* get the fault address */
+ 	if (fp->ptregs.format == 10)
+ 		addr = fp->ptregs.pc + 4;
+@@ -740,21 +725,18 @@
+ 		   should still create the ATC entry.  */
+ 		goto create_atc_entry;
+ 
+-	mmusr = MMU_I;
+-	if (user_space_fault) {
+ #if DEBUG
+-		asm volatile ("ptestr #1,%2@,#7,%0\n\t"
+-			      "pmove %/psr,%1@"
+-			      : "=a&" (desc)
+-			      : "a" (&temp), "a" (addr));
++	asm volatile ("ptestr #1,%2@,#7,%0\n\t"
++		      "pmove %%psr,%1@"
++		      : "=a&" (desc)
++		      : "a" (&temp), "a" (addr));
+ #else
+-		asm volatile ("ptestr #1,%1@,#7\n\t"
+-			      "pmove %/psr,%0@"
+-			      : : "a" (&temp), "a" (addr));
++	asm volatile ("ptestr #1,%1@,#7\n\t"
++		      "pmove %%psr,%0@"
++		      : : "a" (&temp), "a" (addr));
+ #endif
+-		mmusr = temp;
+-	}
+-      
++	mmusr = temp;
++
+ #ifdef DEBUG
+ 	printk ("mmusr is %#x for addr %#lx in task %p\n",
+ 		mmusr, addr, current);
 
-10.0.0.1 is my eth0 card, connected to my hub. It's an Intel 82557 card with
-e100 driver. On port 3128 there is squid. Kernel is 2.6.0.
+Gr{oetje,eeting}s,
 
-The messages come from netfilter.c, but netfilter is build as module and
-wasn't loaded. Any idea of what went wrong?
+						Geert
 
-This is the relevant part .config:
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-#
-# Networking support
-#
-CONFIG_NET=y
-
-#
-# Networking options
-#
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_NETLINK_DEV=m
-CONFIG_UNIX=y
-CONFIG_NET_KEY=m
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_IP_MULTIPLE_TABLES=y
-# CONFIG_IP_ROUTE_FWMARK is not set
-CONFIG_IP_ROUTE_NAT=y
-CONFIG_IP_ROUTE_MULTIPATH=y
-# CONFIG_IP_ROUTE_TOS is not set
-# CONFIG_IP_ROUTE_VERBOSE is not set
-# CONFIG_IP_PNP is not set
-CONFIG_NET_IPIP=m
-CONFIG_NET_IPGRE=m
-# CONFIG_NET_IPGRE_BROADCAST is not set
-# CONFIG_IP_MROUTE is not set
-# CONFIG_ARPD is not set
-CONFIG_INET_ECN=y
-CONFIG_SYN_COOKIES=y
-# CONFIG_INET_AH is not set
-# CONFIG_INET_ESP is not set
-# CONFIG_INET_IPCOMP is not set
-
-#
-# IP: Virtual Server Configuration
-#
-# CONFIG_IP_VS is not set
-CONFIG_IPV6=m
-# CONFIG_IPV6_PRIVACY is not set
-# CONFIG_INET6_AH is not set
-# CONFIG_INET6_ESP is not set
-CONFIG_INET6_IPCOMP=m
-# CONFIG_IPV6_TUNNEL is not set
-# CONFIG_DECNET is not set
-# CONFIG_BRIDGE is not set
-CONFIG_NETFILTER=y
-CONFIG_NETFILTER_DEBUG=y
-
-#
-# IP: Netfilter Configuration
-#
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_FTP=m
-CONFIG_IP_NF_IRC=m
-CONFIG_IP_NF_TFTP=m
-CONFIG_IP_NF_AMANDA=m
-CONFIG_IP_NF_QUEUE=m
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_IPRANGE=m
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_PKTTYPE=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_RECENT=m
-CONFIG_IP_NF_MATCH_ECN=m
-CONFIG_IP_NF_MATCH_DSCP=m
-CONFIG_IP_NF_MATCH_AH_ESP=m
-CONFIG_IP_NF_MATCH_LENGTH=m
-CONFIG_IP_NF_MATCH_TTL=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-CONFIG_IP_NF_MATCH_HELPER=m
-CONFIG_IP_NF_MATCH_STATE=m
-CONFIG_IP_NF_MATCH_CONNTRACK=m
-CONFIG_IP_NF_MATCH_OWNER=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-CONFIG_IP_NF_TARGET_NETMAP=m
-CONFIG_IP_NF_TARGET_SAME=m
-CONFIG_IP_NF_NAT_LOCAL=y
-CONFIG_IP_NF_NAT_SNMP_BASIC=m
-CONFIG_IP_NF_NAT_IRC=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_NAT_TFTP=m
-CONFIG_IP_NF_NAT_AMANDA=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_ECN=m
-CONFIG_IP_NF_TARGET_DSCP=m
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_CLASSIFY=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_ULOG=m
-CONFIG_IP_NF_TARGET_TCPMSS=m
-CONFIG_IP_NF_ARPTABLES=m
-CONFIG_IP_NF_ARPFILTER=m
-CONFIG_IP_NF_ARP_MANGLE=m
-# CONFIG_IP_NF_COMPAT_IPCHAINS is not set
-# CONFIG_IP_NF_COMPAT_IPFWADM is not set
-
-Luca
--- 
-Reply-To: kronos@kronoz.cjb.net
-Home: http://kronoz.cjb.net
-#include <stdio.h> 
-int main(void) {printf("\t\t\b\b\b\b\b\b");
-printf("\t\t\b\b\b\b\b\b");return 0;}
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

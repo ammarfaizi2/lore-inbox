@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261688AbUBVQXg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 11:23:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbUBVQXg
+	id S261693AbUBVQ2y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 11:28:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbUBVQ2y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 11:23:36 -0500
-Received: from h196n1fls22o974.bredband.comhem.se ([213.64.79.196]:64917 "EHLO
-	latitude.mynet.no-ip.org") by vger.kernel.org with ESMTP
-	id S261688AbUBVQXb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 11:23:31 -0500
-X-Mailer: exmh version 2.6.3 04/02/2003 with nmh-1.0.4
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Simon Gate <simon@noir.se>, linux-kernel@vger.kernel.org
-Subject: Re: psmouse.c: Mouse at isa0060/serio1/input0 lost 
- synchronization, throwing 2 bytes away.
-In-Reply-To: Message from Vojtech Pavlik <vojtech@suse.cz> 
-   of "Sun, 15 Feb 2004 09:06:10 +0100." <20040215080610.GA314@ucw.cz>
+	Sun, 22 Feb 2004 11:28:54 -0500
+Received: from mail.shareable.org ([81.29.64.88]:2178 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S261693AbUBVQ2x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 11:28:53 -0500
+Date: Sun, 22 Feb 2004 16:28:48 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Alex Belits <abelits@phobos.illtel.denver.co.us>,
+       =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
+       linux-kernel@vger.kernel.org
+Subject: Re: UTF-8 practically vs. theoretically in the VFS API
+Message-ID: <20040222162848.GC25664@mail.shareable.org>
+References: <20040217071448.GA8846@schmorp.de> <Pine.LNX.4.58.0402170739580.2154@home.osdl.org> <20040217161111.GE8231@schmorp.de> <Pine.LNX.4.58.0402170820070.2154@home.osdl.org> <20040217164651.GB23499@mail.shareable.org> <yw1xr7wtcz0n.fsf@ford.guide> <20040217205707.GF24311@mail.shareable.org> <Pine.LNX.4.58.0402171402460.23115@sm1420.belits.com> <20040217214733.GJ24311@mail.shareable.org> <m1vflzjfk5.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 22 Feb 2004 17:23:24 +0100
-From: aeriksson@fastmail.fm
-Message-Id: <20040222162325.4F3FF3F04@latitude.mynet.no-ip.org>
+Content-Disposition: inline
+In-Reply-To: <m1vflzjfk5.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eric W. Biederman wrote:
+> I guess my question is when do we know the information is going to
+> a terminal so we should translate it?
 
-Vojtech Pavlik <vojtech@suse.cz> wrote:
-> On Sat, Feb 14, 2004 at 10:43:48PM +0100, Simon Gate wrote:
-> > Changed from kernel 2.6.1 to 2.6.2 an get this error in dmesg
-> > 
-> > psmouse.c: Mouse at isa0060/serio1/input0 lost synchronization, throwing 2 
-> bytes away.
-> > 
-> > My mouse goes crazy for a few secs and then returns to normal for a while. 
-> Is this a 2.6.2 problem or is this is something old?
-> 
-> It's a 2.6.2 bug and fixed in 2.6.3-rc1.
-> 
+When a program is writing to a terminal device, then we know it's
+going to a terminal _or_ to a program which is pretending to be one
+(pseudo-terminal).  Either way, the behaviour should be the same
 
-Just switched to 2.6.3 and I can report that this misbehavior is still
-there. Not quite as frequent as before (just a feeling). There seems
-to be another failure mode introduced now. At time it just freezes for
-about 1-3 seconds. I.e. The mouse just don't respond to anything. The
-crazy movements are the more common failure mode though.
+The "screen" program can be used to do translation, although it's a
+rather cumbersome way to go about it, and it has other effects which
+are annoying (at least one key is always designated for "screen" commands).
 
-Anyone else recognize this? I get the infamous "psmouse.c: Wheel Mouse
-at isa0060/serio1/input0 lost synchronization, throwing 1 bytes away."
-thing still...
-
-suggestions are welcome...
-
-/Anders
-
-
+-- Jamie

@@ -1,103 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263686AbUCUSPq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 13:15:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263699AbUCUSPp
+	id S263685AbUCUSOv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 13:14:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263686AbUCUSOv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 13:15:45 -0500
-Received: from bay4-f10.bay4.hotmail.com ([65.54.171.10]:2056 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S263686AbUCUSPe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 13:15:34 -0500
-X-Originating-IP: [213.42.2.21]
-X-Originating-Email: [waelghandour@msn.com]
-From: "Wael Ghandour" <waelghandour@msn.com>
-To: jad@saklawi.info, linux-kernel@vger.kernel.org
-Cc: hisham@hisham.cc, llug-users@greencedars.org
-Subject: RE: [llug-users] Fwd: MAC / IP conflict
-Date: Sun, 21 Mar 2004 19:15:32 +0100
+	Sun, 21 Mar 2004 13:14:51 -0500
+Received: from mail.fh-wedel.de ([213.39.232.194]:16514 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S263685AbUCUSOt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 13:14:49 -0500
+Date: Sun, 21 Mar 2004 19:14:30 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: "Patrick J. LoPresti" <patl@users.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cowlinks v2
+Message-ID: <20040321181430.GB29440@wohnheim.fh-wedel.de>
+References: <20040321125730.GB21844@wohnheim.fh-wedel.de> <Pine.LNX.4.44.0403210944310.12359-100000@bigblue.dev.mdolabs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY4-F10XmYYknzVPOs0003a730@hotmail.com>
-X-OriginalArrivalTime: 21 Mar 2004 18:15:33.0289 (UTC) FILETIME=[8015E990:01C40F70]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.44.0403210944310.12359-100000@bigblue.dev.mdolabs.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 21 March 2004 09:59:39 -0800, Davide Libenzi wrote:
+> 
+> When I did that, fumes of an in-kernel implementation invaded my head for 
+> a little while. Then you start thinking that you have to teach apps of new 
+> open(2) semantics, you have to bloat kernel code a little bit and you have 
+> to deal with a new set of errors cases that open(2) is not expected to 
+> deal with. A fully userspace implementation did fit my needs at that time, 
+> even if the LD_PRELOAD trick might break if weak aliases setup for open 
+> functions change inside glibc.
 
-Jad,
+209 fairly simple lines definitely have more appear than a full
+in-kernel implementation with many new corner-cases, yes.  But it
+looks as if you ignore the -ENOSPC case, so you cheated a little. ;)
 
-Giving more details about your network topology (switched vs. non-switched, 
-segmentation, e.t.c) would be useful. As a primer, I suggest looking into 
-arpwatch, setting major arp-entries (such as your gateway address) as 
-static, as well as investigating the use of ettercap. If the switches your 
-provider is using on his LAN are manageable, nabbing the culprit will be a 
-piece of cake.
+No matter how you try, there is no way around an additional return
+code for open(), so we have to break compatibility anyway.  The good
+news is that a) people not using this feature won't notice and b) all
+programs I tried so far can deal with the problem.  Vim even has a
+decent error message - as if my patch was anticipated already.
 
-Good luck.
+Jörn
 
-Wael
-
->From: Jad Saklawi <saki@mail.portland.co.uk>
->Reply-To: Jad Saklawi <jad@saklawi.info>
->To: linux-kernel@vger.kernel.org
->CC: hisham@hisham.cc,  llug-users@greencedars.org
->Subject: [llug-users] Fwd: MAC / IP conflict
->Date: Sun, 21 Mar 2004 07:09:47 +0200
->MIME-Version: 1.0
->Received: from byblos.greencedars.org ([66.93.193.9]) by 
->mc5-f15.hotmail.com with Microsoft SMTPSVC(5.0.2195.6824); Sun, 21 Mar 2004 
->09:13:10 -0800
->Received: (qmail 381 invoked by uid 505); 21 Mar 2004 17:22:08 -0000
->Received: (qmail 373 invoked from network); 21 Mar 2004 17:22:08 -0000
->X-Message-Info: JGTYoYF78jEHjJx36Oi8+YDSEg8qKPPD
->Mailing-List: contact llug-users-help@greencedars.org; run by ezmlm
->Precedence: bulk
->X-No-Archive: yes
->List-Post: <mailto:llug-users@greencedars.org>
->List-Help: <mailto:llug-users-help@greencedars.org>
->List-Unsubscribe: <mailto:llug-users-unsubscribe@greencedars.org>
->List-Subscribe: <mailto:llug-users-subscribe@greencedars.org>
->Delivered-To: mailing list llug-users@greencedars.org
->Message-ID: <405D239B.30602@mail.portland.co.uk>
->User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031105 
->Thunderbird/0.3
->X-Accept-Language: en-us, en
->X-SA-Exim-Mail-From: saki@mail.portland.co.uk
->X-Spam-Checker-Version: SpamAssassin 2.63 (2004-01-11) on calcium.dnsix.com
->X-Spam-Level: X-Spam-Status: No, hits=0.4 required=10.0 
->tests=DATE_IN_PAST_12_24 autolearn=no version=2.63
->X-Spam-Report: *  0.4 DATE_IN_PAST_12_24 Date: is 12 to 24 hours before 
->Received: date
->X-SA-Exim-Version: 3.1 (built Thu Oct 23 13:26:47 PDT 2003)
->X-SA-Exim-Scanned: Yes
->X-uvscan-result: clean (1B56Tx-0003PK-Ei)
->Return-Path: llug-users-return-443-waelghandour=msn.com@greencedars.org
->X-OriginalArrivalTime: 21 Mar 2004 17:13:11.0151 (UTC) 
->FILETIME=[C998F7F0:01C40F67]
->
->----- Forwarded message from Hisham Mardam Bey -----
->    Date: Sun, 21 Mar 2004 13:52:59 +0200
->
->In short, I need to detect when someone on the network uses my MAC and
->my IP address.
->
->Longer story follows. I am on a LAN which might have some potentially
->dangerous users. Those users might spoof my MAC address and additionally
->use my IP address, thus forcing my box to go offline, and not be able to
->communicate with my gateway. What I need is a passive way to check for
->something of the sort, and perhaps a notofication into syslog (the
->latter is not very important).
->
->
->
->--------------------------------------------------------------
->subscribe: llug-users-subscribe@greencedars.org
->unsubscribe: llug-users-unsubscribe@greencedars.org
->help: llug-users-help@greencedars.org
->--------------------------------------------------------------
->
-
-_________________________________________________________________
-Tired of spam? Get advanced junk mail protection with MSN 8. 
-http://join.msn.com/?page=features/junkmail
-
+-- 
+Everything should be made as simple as possible, but not simpler.
+-- Albert Einstein

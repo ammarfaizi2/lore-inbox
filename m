@@ -1,68 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261669AbUKGRb4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261294AbUKGRiX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261669AbUKGRb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 12:31:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbUKGRbz
+	id S261294AbUKGRiX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 12:38:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbUKGRiX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 12:31:55 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:14 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261669AbUKGRaE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 12:30:04 -0500
-Date: Sun, 7 Nov 2004 18:29:29 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, vojtech@suse.cz,
-       linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] small input cleanup
-Message-ID: <20041107172929.GM14308@stusta.de>
-References: <20041107031256.GD14308@stusta.de> <200411062249.54887.dtor_core@ameritech.net>
+	Sun, 7 Nov 2004 12:38:23 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:5063 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261294AbUKGRiV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 12:38:21 -0500
+Subject: Re: [no problem] PC110 broke 2.6.9
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, vojtech@ucw.cz,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0411061851300.2223@ppc970.osdl.org>
+References: <20041106232228.GA9446@apps.cwi.nl>
+	 <Pine.LNX.4.58.0411061529200.2223@ppc970.osdl.org>
+	 <1099791769.5564.118.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0411061851300.2223@ppc970.osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1099845291.5564.120.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200411062249.54887.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 07 Nov 2004 16:34:52 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 06, 2004 at 10:49:54PM -0500, Dmitry Torokhov wrote:
-
-> Hi,
-
-Hi Dmitry,
-
-> On Saturday 06 November 2004 10:12 pm, Adrian Bunk wrote:
-> > The patch below does the following cleanups under drivers/input/ :
-> > - make some needlessly global code static
-> > - remove the completely unused EXPORT_SYMBOL'ed function gameport_rescan
+On Sul, 2004-11-07 at 02:57, Linus Torvalds wrote:
+> > driver IBM shipped with the PC110. It's a pre pci, pre dmi machine so
+> > there aren't any obvious sane ways to probe. Its not something you'd
+> > want to build in as opposed to modular on any other system but the PC110
 > 
-> It will be used (but in some transformed) once I finish gameport sysfs
-> support, but it probably need not be exported.
->  
-> > - make the EXPORT_SYMBOL'ed function ps2_sendbyte static since it isn't
-> >   used outside the file where it's defined
+> Well, that actually _is_ something we can probe for: "does this machine 
+> have PCI". 
 > 
-> libps2 is a library for communicating with standard PS/2 device and while
-> the function is not currently used it is part of the interface. I would
-> like to leave the function as is.
+> IOW, we could have a trivial "if the list of PCI devices is non-empty, 
+> then return immediately" kind of thing, no?
 
-my personal opinions:
-- if gameport_rescan will not be needed in it's current form, there's
-  no need for it (you can always add the "real" function when it's 
-  required
-- could ps2_sendbyte be #ifdef 0'ed until it's required?
-  this way, it wouldn't make the kernel bigger today
-
-> Dmitry
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Works for me
 

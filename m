@@ -1,21 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261999AbRESXnS>; Sat, 19 May 2001 19:43:18 -0400
+	id <S262004AbRETABw>; Sat, 19 May 2001 20:01:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262016AbRESXnH>; Sat, 19 May 2001 19:43:07 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:29861 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262015AbRESXmz>;
-	Sat, 19 May 2001 19:42:55 -0400
-Date: Sat, 19 May 2001 19:42:53 -0400 (EDT)
+	id <S262008AbRETABm>; Sat, 19 May 2001 20:01:42 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:50878 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S262004AbRETABe>;
+	Sat, 19 May 2001 20:01:34 -0400
+Date: Sat, 19 May 2001 20:01:32 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Pavel Machek <pavel@suse.cz>
 cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Ben LaHaise <bcrl@redhat.com>,
-        Andrew Morton <andrewm@uow.edu.au>, Andries.Brouwer@cwi.nl,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
-In-Reply-To: <20010520003400.N754@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <Pine.GSO.4.21.0105191939480.7162-100000@weyl.math.psu.edu>
+        James Simmons <jsimmons@transvirtual.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        "H. Peter Anvin" <hpa@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: no ioctls for serial ports? [was Re: LANANA: To Pending Device
+ Number Registrants]
+In-Reply-To: <20010519211717.A7961@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.GSO.4.21.0105191958090.7162-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -23,13 +27,12 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sun, 20 May 2001, Ingo Oeser wrote:
+On Sat, 19 May 2001, Pavel Machek wrote:
 
-> PS: English is neither mine, nor Linus native language. Why do
->    the English natives complain instead of us? ;-)
+> I thought about how to do networking without sockets, and it seems to
+> me like this kind of modify syscall is needed, because network sockets
+> connect to *two* different places (one local address and one
+> remote). Sockets are really nasty :-(.
 
-Because we had some experience with, erm, localized systems and for
-Alan it's most likely pure theory? ;-)
-
-				Al, still shuddering at the memories
+Pavel, take a look at http://plan9.bell-labs.com/sys/man/3/ip
 

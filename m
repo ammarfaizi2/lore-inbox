@@ -1,119 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266561AbUIAMBe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266208AbUIAL5R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266561AbUIAMBe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 08:01:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266310AbUIAL7E
+	id S266208AbUIAL5R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 07:57:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266204AbUIALyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 07:59:04 -0400
-Received: from cheddar.cendio.se ([193.12.253.77]:6896 "EHLO mail.cendio.se")
-	by vger.kernel.org with ESMTP id S266252AbUIAL52 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 07:57:28 -0400
-Date: Wed, 1 Sep 2004 13:57:23 +0200 (CEST)
-From: Peter Astrand <peter@cendio.se>
-X-X-Sender: peter@maggie.lkpg.cendio.se
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>, <linux-kernel@vger.kernel.org>
-Subject: Re: ncpfs problems
-In-Reply-To: <2505C593E0E@vcnet.vc.cvut.cz>
-Message-ID: <Pine.LNX.4.44.0409011322580.29446-100000@maggie.lkpg.cendio.se>
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+	Wed, 1 Sep 2004 07:54:18 -0400
+Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:19863 "HELO
+	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S266263AbUIALu7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 07:50:59 -0400
+From: Romain Moyne <aero_climb@yahoo.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Time runs exactly three times too fast
+Date: Thu, 2 Sep 2004 14:53:09 +0200
+User-Agent: KMail/1.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409021453.09730.aero_climb@yahoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello, I'm french, sorry for my bad english :(
 
-Thanks for your quick response. 
+I have a problem with my kernel: Time runs exactly three times too fast.
 
-> > I'm having severe problems with ncpfs. What I'm trying to accomplish is to
-> > run KDE with a NCP-mounted home directory. This actually worked with the 2.4
-> > kernel, but the problem with "df"/"statfs" reporting zero bytes free
-> > required patching of the startkde script. 
-> 
-> With 2.6.x you should get free space on a volume if you mount volume
-> or subdirectory instead of all volumes from server (i.e. you used -V
-> option to ncpmount).
+I tested the kernel 2.6.8.1 and the 2.6.9-rc1, no success. 
+It is really strange because yesterday I reinstalled my debian with a kernel 
+2.6.8.1 (made by me): Time ran correctly. And this morning when I rebooted my 
+computer (Compaq presario R3000 series, R3215EA exactly) the time is running 
+again three times too fast (with the kernel 2.6.8.1 and 2.6.9-rc1).
 
-Yes, this works. 
+All my applications (KDE, command "date"...) runs three times too fast. It's 
+very annoying.
 
+My /dev/cpuinfo : 
+presario:~# cat /proc/cpuinfo
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 15
+model           : 12
+model name      : AMD Athlon(tm) XP Processor 3000+
+stepping        : 0
+cpu MHz         : 266.127
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
+cmovpat pse36 clflush mmx fxsr sse sse2 syscall nx mmxext 3dnowext 3dnow
+bogomips        : 517.12
 
-> > * When shutting down KDE, the file system startas reporting EIO 
-> > (Input/output error). It's also very un-responsive; if one process runs
-> > read() (returning EIO) in a tight loop, other processes hangs forever (well,
-> > at least > 12 hours). 
-> 
-> Someone aborted process in the middle of ncpfs operation with SIGKIL.  
-> As ncp request/responses are handled in context of calling
-> process, if you SIGKILL process after it sent request but before it
-> received response, connection is invalidated.  
+My config file for my kernel is here: 
+http://romain.webzzanine.net/linux/myconfig-2.6.8.1
 
-This is _major_ drawback. The mount shouldn't stop working just because 
-you killed a process. 
-
-
-> But it should not hang other processes which have nothing to do with
-> ncpfs.
-
-Probably it doesn't; all hangs I've experienced has been with processes
-using NCP mount.
-
-
-> If you run in a loop process which does some (failing) ncpfs operation,
-> other processes which want to use that mountpoint of course blocks:
-> Linux semaphores are not fair.
-
-So, the ncpfs client is sort of "single-threaded"? 
-
-
-> If you do not want SIGKILL to abort connection, replace
-> sigmask(SIGKILL) with sigmask(0) in fs/ncpfs/sock.c.  But then you may
-> get unkillable process in the case TCP connected server dies, or if you'll
-> set infinite timeout for UDP/IPX servers.
-
-Not good. Are these two alternatives the only ones? Patching the kernel is 
-not an option for us; our customers are only using unmodified kernels from 
-their distribution or perhaps kernel.org. 
-
-Having unkillable processes are frustrating, but it's probably better than
-being able to kill the entire mount by a single SIGKILL. So, if these are
-the only options, I guess the unkillable process solution should be
-default.
-
-
-> > * Some files are impossible to remove, for example the files in 
-> > ~/.kde/socket-dhcp-253-234: An unlink returns EBUSY:
-> > 
-> > unlink("kdeinit_maggie_2")              = -1 EBUSY (Device or resource busy)
-> > 
-> > Do you have any ideas what can cause this? Do you consider ncpfs stable
-> > enough to be used for the home directory? 
-> 
-> File is open... You cannot remove opened files from Netware filesystem.
-
-In my opinion, ncpfs should try to emulate POSIX semantics as close as
-possible. This means that "strong" should be default, and it should be
-possible to remove open files. Even if the Netware server refuses this
-operation, why cannot it be simulated by ncpfs? At least this should be
-possible to implement by using "silly deletes", as NFS does, but since NCP
-is stateful, too me it seems like this shouldn't be necessary.
-
-
-> I cannot think about any other reason why you should get EBUSY.
-
-The glibc 2.3.3 manpage for unlink actually says that EBUSY shouldn't
-happen on Linux.
-
-
-(Please CC me on this topic.)
-
-Regards, Peter
-
-
+Please help me :)
+Romain Moyne

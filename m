@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266608AbUAWRif (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 12:38:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266611AbUAWRif
+	id S261368AbUAWRmP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 12:42:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266592AbUAWRmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 12:38:35 -0500
-Received: from jik.kamens.brookline.ma.us ([66.92.77.120]:56448 "EHLO
-	jik.kamens.brookline.ma.us") by vger.kernel.org with ESMTP
-	id S266608AbUAWRh5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 12:37:57 -0500
-From: Jonathan Kamens <jik@kamens.brookline.ma.us>
+	Fri, 23 Jan 2004 12:42:15 -0500
+Received: from fw.osdl.org ([65.172.181.6]:20668 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261368AbUAWRmN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 12:42:13 -0500
+Date: Fri, 23 Jan 2004 09:42:09 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+cc: Greg KH <greg@kroah.com>, Patrick Mochel <mochel@osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: (as177)  Add class_device_unregister_wait() and
+ platform_device_unregister_wait() to the driver model core
+In-Reply-To: <Pine.LNX.4.44L0.0401231135400.856-100000@ida.rowland.org>
+Message-ID: <Pine.LNX.4.58.0401230939170.2151@home.osdl.org>
+References: <Pine.LNX.4.44L0.0401231135400.856-100000@ida.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16401.23536.363448.1368@jik.kamens.brookline.ma.us>
-Date: Fri, 23 Jan 2004 12:37:52 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Hard lock-ups with 2.6.1-rc1; plus is there an "ac" equivalent for 2.6.x?
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-Bogosity: No, tests=bogofilter
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I switched from 2.4.22-ac4 to 2.6.1-rc1 in the hope that perhaps if I
-could reproduce the hangs my SIIG SIi680 Ultra ATA 133 controller is
-causing in a 2.6.x kernel, the people on this list might be more
-forthcoming in suggestions for debugging them (I've received no
-responses at all to my request for help debugging the hangs with
-2.4.22-ac4).
 
-I've had to switch back to 2.4.22-ac4 because 2.6.1-rc1 regularly,
-reliably locks up on me under heavy load.  I don't think this is
-related to the IDE controller lockups I'm seeing occasionally under
-2.4.22-ac4, because it happens reliably under heavy load and the
-lockups under 2.4.22-ac4 weren't nearly as reliable.
 
-Furthermore, even before it looks up, I find that the performance
-under heavy load is much slower than 2.4.22-ac4's performance.
+On Fri, 23 Jan 2004, Alan Stern wrote:
+>
+> Since I haven't seen any progress towards implementing the 
+> class_device_unregister_wait() and platform_device_unregister_wait() 
+> functions, here is my attempt.
 
-I understood how to get the ac kernel patches to make a 2.4.x kernel
-into something useful, but I don't know if perhaps there's something
-equivalent for 2.6.x kernels which I'm not doing but should be.  Alan
-doesn't seem to be putting out patch-sets for recent kernels.  I see
-the "mm" kernel mentioned regularly on this list, but I don't know if
-that's something I should be using instead of the plain kernel, and if
-so, how to get it (for the ac patches, I have looked in
-ftp://ftp.kernel.org/pub/linux/kernel/people/alan).
+So why would this not deadlock?
 
-I'd appreciate any help and/or suggestions you can provide.
+The reason we don't wait on things like this is that it's basically
+impossible not to deadlock.
 
-Thanks,
+There are damn good reasons why the kernel uses reference counting 
+everywhere. Any other approach is broken.
 
-  jik
+		Linus

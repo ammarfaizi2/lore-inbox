@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263188AbUELX1J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263219AbUELXfX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263188AbUELX1J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 19:27:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263199AbUELX1J
+	id S263219AbUELXfX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 19:35:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263199AbUELXfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 19:27:09 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:36280 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S263188AbUELX1G (ORCPT
+	Wed, 12 May 2004 19:35:22 -0400
+Received: from fw.osdl.org ([65.172.181.6]:41926 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263231AbUELXfJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 19:27:06 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Wed, 12 May 2004 19:35:09 -0400
+Date: Wed, 12 May 2004 16:34:56 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Yang, Chen" <chyang@clusterfs.com>
+cc: Muli Ben-Yehuda <mulix@mulix.org>, Anton Blanchard <anton@samba.org>,
+       intermezzo-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Peter Braam <braam@clusterfs.com>, arjanv@redhat.com, akpm@osdl.org
+Subject: Re: [PATCH]InterMezzo Patch against linux-2.6.6
+In-Reply-To: <55980.202.38.64.248.1084303628.squirrel@webmail.ustc.edu.cn>
+Message-ID: <Pine.LNX.4.58.0405121631200.3636@evo.osdl.org>
+References: <55980.202.38.64.248.1084303628.squirrel@webmail.ustc.edu.cn>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16546.45767.833654.478258@napali.hpl.hp.com>
-Date: Wed, 12 May 2004 16:27:03 -0700
-To: Andrew Morton <akpm@osdl.org>
-Cc: davidm@hpl.hp.com, rddunlap@osdl.org, ebiederm@xmission.com,
-       drepper@redhat.com, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] Re: [announce] kexec for linux 2.6.6
-In-Reply-To: <20040512161603.44c50cec.akpm@osdl.org>
-References: <20040511212625.28ac33ef.rddunlap@osdl.org>
-	<40A1AF53.3010407@redhat.com>
-	<m13c66qicb.fsf@ebiederm.dsl.xmission.com>
-	<40A243C8.401@redhat.com>
-	<m1brktod3f.fsf@ebiederm.dsl.xmission.com>
-	<40A2517C.4040903@redhat.com>
-	<m17jvhoa6g.fsf@ebiederm.dsl.xmission.com>
-	<20040512143233.0ee0405a.rddunlap@osdl.org>
-	<16546.41076.572371.307153@napali.hpl.hp.com>
-	<20040512152815.76280eac.akpm@osdl.org>
-	<16546.42537.765495.231960@napali.hpl.hp.com>
-	<20040512161603.44c50cec.akpm@osdl.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 12 May 2004 16:16:03 -0700, Andrew Morton <akpm@osdl.org> said:
 
-  Andrew> But it needs work for the kexec requirement.
 
-Sorry, I wasn't suggesting that kexec should be done that way _now_.
+On Wed, 12 May 2004, Yang, Chen wrote:
+>
+>    Below is the patch of InterMezzo again linux-2.6.6, I can confirm that
+> it's effective. I'm sad to see it's removed in bkl. It seems that this
+> is the last patch for InterMezzo. :(
 
-I don't think it's nearly as simple as just adding an entry point in
-the DSO.  For example, how would strace be affected by the new entry
-points?  The syscall entry path probably would have to be almost
-duplicated to do a syscall-number-free entry.  What about syscall
-restarting?  Would VDSO entry points work with statically linked
-binaries? etc.
+It's removed because Peter seems to not want to support it any more, and 
+there didn't seem to be any usage. But if people out there are actually 
+using it, and somebody wants to support it _and_ it is in good working 
+state for 2.6.x, we could certainly bring it back to life.
 
-Perhaps Uli has answers to all of these, but no matter how you do it,
-it'd be a pretty dramatic shift in how applications interact with the
-kernel.
+But if you only do this because you want to fix warnings that people have 
+posted about the sources, and you're not actually seriously using it and 
+maintaining it, then I'll just apply this patch against plain 2.6.6 (so 
+that it doesn't go away if somebody wants to resurrect it later).
 
-	--david
+In other words - holler if you want to seriously support it. We're not 
+deleting it to be spiteful..
+
+		Linus

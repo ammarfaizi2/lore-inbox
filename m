@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263711AbUA0VCv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 16:02:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264477AbUA0VCu
+	id S265931AbUA0U5k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 15:57:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265939AbUA0U5k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 16:02:50 -0500
-Received: from fed1mtao05.cox.net ([68.6.19.126]:19675 "EHLO
-	fed1mtao05.cox.net") by vger.kernel.org with ESMTP id S263711AbUA0VCt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 16:02:49 -0500
-Date: Tue, 27 Jan 2004 14:02:47 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Chris Wright <chrisw@osdl.org>
-Cc: akpm@osdl.org, george@mvista.com, amitkale@emsyssoft.com,
-       Andi Kleen <ak@suse.de>, jim.houston@comcast.net,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: BitKeeper repo for KGDB
-Message-ID: <20040127210246.GK32525@stop.crashing.org>
-References: <20040127184029.GI32525@stop.crashing.org> <20040127120744.A11525@osdlab.pdx.osdl.net>
+	Tue, 27 Jan 2004 15:57:40 -0500
+Received: from smtp101.mail.sc5.yahoo.com ([216.136.174.139]:17750 "HELO
+	smtp101.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265931AbUA0U4M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 15:56:12 -0500
+Subject: Re: Re : Alsa create high problems...
+From: Eddahbi Karim <installation_fault_association@yahoo.fr>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0401230936130.1875@pnote.perex-int.cz>
+References: <1074382859.29525.20.camel@gamux>
+	 <1074839589.8684.1.camel@gamux>
+	 <Pine.LNX.4.58.0401230936130.1875@pnote.perex-int.cz>
+Content-Type: text/plain; charset=iso-8859-1
+Organization: Installation Fault
+Message-Id: <1075236891.18717.3.camel@gamux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040127120744.A11525@osdlab.pdx.osdl.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 27 Jan 2004 21:54:52 +0100
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 27, 2004 at 12:07:44PM -0800, Chris Wright wrote:
-> * Tom Rini (trini@kernel.crashing.org) wrote:
-> > Hello everybody.  Since I've been talking with George off-list about
-> > trying to merge the various versions of KGDB around, and I just read the
-> > thread between Andy and Jim about conflicting on KGDB work, I've put up
-> > a BitKeeper repository[1] to try and coordinate things.
-> <snip>
-> > [1]: If anyone here won't / can't use BitKeeper, I'll happily move over
-> > to a repo someone else sets up in something else.
-> 
-> seems I missed where the repo is.
-> thanks,
-> -chris
+Le ven 23/01/2004 à 09:39, Jaroslav Kysela a écrit :
+> On Fri, 23 Jan 2004, Eddahbi Karim wrote:
 
-Der, whoops.
+It seems like 2.6.2-rc2 resolves my problem...
+I'll confirm it in 2 days...
 
-bk://ppc.bkbits.net/linux-2.6-kgdb
+Best regards,
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Eddahbi Karim <installation_fault_association@yahoo.fr>
+Installation Fault
+

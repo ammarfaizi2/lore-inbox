@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262184AbUKQGnj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262215AbUKQGp0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262184AbUKQGnj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 01:43:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262215AbUKQGnj
+	id S262215AbUKQGp0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 01:45:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262218AbUKQGpZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 01:43:39 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:25316 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262184AbUKQGnb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 01:43:31 -0500
-Subject: Re: 2.6.10-rc2-mm1
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041116182233.097d9d85.akpm@osdl.org>
-References: <20041116014213.2128aca9.akpm@osdl.org>
-	 <1100640653.16765.0.camel@krustophenia.net>
-	 <20041116182233.097d9d85.akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 16 Nov 2004 21:28:20 -0500
-Message-Id: <1100658500.17573.10.camel@krustophenia.net>
+	Wed, 17 Nov 2004 01:45:25 -0500
+Received: from egg.hpc2n.umu.se ([130.239.45.244]:4261 "EHLO egg.hpc2n.umu.se")
+	by vger.kernel.org with ESMTP id S262215AbUKQGoI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 01:44:08 -0500
+Date: Wed, 17 Nov 2004 07:44:03 +0100
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Ake <Ake.Sandgren@hpc2n.umu.se>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Slab corruption with 2.6.9 + swsusp2.1
+Message-ID: <20041117064403.GB26723@hpc2n.umu.se>
+References: <20041116115917.GN4344@hpc2n.umu.se> <1100635759.4362.4.camel@desktop.cunninghams>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1100635759.4362.4.camel@desktop.cunninghams>
+User-Agent: Mutt/1.5.6+20040722i
+From: Ake.Sandgren@hpc2n.umu.se (Ake)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-11-16 at 18:22 -0800, Andrew Morton wrote:
-> Lee Revell <rlrevell@joe-job.com> wrote:
-> >
-> >  On Tue, 2004-11-16 at 01:42 -0800, Andrew Morton wrote:
-> >  > http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.10-rc2-mm1.gz
-> >  > 
-> > 
-> >  Why was the VIA DRM removed?  It was in 2.6.9-mm1 but seems to be gone
-> >  now.
+On Wed, Nov 17, 2004 at 07:09:19AM +1100, Nigel Cunningham wrote:
+> On Tue, 2004-11-16 at 22:59, Ake wrote:
+> > I got a slab corruption message running 2.6.9 + swsusp2.1 and
+> > nvidia_compat.patch + vm-pages_scanned-active_list.patch from -ck3.
 > 
-> Actually I haven't been updating that for a while, because of ghastly
-> conflicts upstream.  Then it disappeared altogether due to administrative
-> error.
-> 
-> I'll see if I can resurrect it.
+> Just so I'm clear, why do you think it's suspending that's causing the
+> corruption?
 
-OK thanks.  Not many people use the 3D but there are now Xine and
-mplayer plugins that use the DRI for hardware accelerated playback on
-this chip.
+I don't. I was just making clear exactly what kernel source i was using.
 
-Lee
+It probably haven't got anything to do with the swsusp code, but since
+those patches are applied i though i better let you know.
 
+The machine was basically doing nothing since i was out for lunch.
+X was running screensaver and it was playing some mp3's.
+
+-- 
+Ake Sandgren, HPC2N, Umea University, S-90187 Umea, Sweden
+Internet: ake@hpc2n.umu.se	Phone: +46 90 7866134 Fax: +46 90 7866126
+Mobile: +46 70 7716134 WWW: http://www.hpc2n.umu.se

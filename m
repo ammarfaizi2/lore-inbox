@@ -1,61 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbVCLGNV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbVCLGYb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261635AbVCLGNV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 01:13:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261880AbVCLGNV
+	id S261880AbVCLGYb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 01:24:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbVCLGYb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 01:13:21 -0500
-Received: from omta05sl.mx.bigpond.com ([144.140.93.195]:387 "EHLO
-	omta05sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S261635AbVCLGNT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 01:13:19 -0500
-Message-ID: <4232887D.3090007@bigpond.net.au>
-Date: Sat, 12 Mar 2005 17:13:17 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Peter Williams <pwil3058@bigpond.net.au>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>
-Subject: Re: [ANNOUNCE][RFC] PlugSched-3.0.2 for 2.6.11
-References: <4226796A.9080502@bigpond.net.au>
-In-Reply-To: <4226796A.9080502@bigpond.net.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 12 Mar 2005 01:24:31 -0500
+Received: from fire.osdl.org ([65.172.181.4]:27841 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261880AbVCLGYa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 01:24:30 -0500
+Date: Fri, 11 Mar 2005 22:23:58 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: mike kravetz <kravetz@us.ibm.com>
+Cc: paulus@samba.org, anton@samba.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PPC64 NUMA memory fixup
+Message-Id: <20050311222358.7f9697ae.akpm@osdl.org>
+In-Reply-To: <20050311221110.GG6360@w-mikek2.ibm.com>
+References: <16942.30144.513313.26103@cargo.ozlabs.ibm.com>
+	<20050310023613.23499386.akpm@osdl.org>
+	<16945.23578.505529.220972@cargo.ozlabs.ibm.com>
+	<20050311221110.GG6360@w-mikek2.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> A patch of PlugSched-3.0.2 (containing ingosched, staircase, 
-> spa_no_frills and zaphod CPU schedulers) against a 2.6.11 kernel is
-> available for download from:
-> 
-> <http://prdownloads.sourceforge.net/cpuse/plugsched-3.0.2-for-2.6.11.patch?download> 
-> 
-> 
-> PlugSched's version number has been bumped to 3.0.2 as it contains minor 
-> bug fixes and a patch for this version against a 2.6.10 kernel is 
-> available at:
-> 
-> <http://prdownloads.sourceforge.net/cpuse/plugsched-3.0.2-for-2.6.10.patch?download> 
-> 
-> 
-> and against a CKRM modified 2.6.10 kernel at:
-> 
-> <http://prdownloads.sourceforge.net/cpuse/plugsched-3.0.2%2Bckrm-E17-for-2.6.10.patch?download> 
+mike kravetz <kravetz@us.ibm.com> wrote:
+>
+> Here is another version of the patch.  This one gets the cell sizes
+>  before extracting the cells.  I have made this change to existing
+>  code in the file, as well as the code I added.  This works fine on
+>  my 720, but so did the previous patch. :)  I'd appreciate it if
+>  someone could touch test this on a machine known to break with
+>  the previous version (such as G5).
 
-A bug fix update, PlugSched-3.0.2.1, of the 2.6.11 version is available at:
-
-<http://prdownloads.sourceforge.net/cpuse/plugsched-3.0.2.1-for-2.6.11.patch?download>
-
-and an incremental patch from 3.0.2 to 3.0.2.1 is available at:
-
-<http://prdownloads.sourceforge.net/cpuse/plugsched-3.0.2-to-3.0.2.1-for-2.6.11.patch?download>
-
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+That works, thanks.

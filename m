@@ -1,80 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264945AbTAESag>; Sun, 5 Jan 2003 13:30:36 -0500
+	id <S264910AbTAESZ0>; Sun, 5 Jan 2003 13:25:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264954AbTAESag>; Sun, 5 Jan 2003 13:30:36 -0500
-Received: from mail.hometree.net ([212.34.181.120]:18578 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S264945AbTAESaf>; Sun, 5 Jan 2003 13:30:35 -0500
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
+	id <S264945AbTAESZ0>; Sun, 5 Jan 2003 13:25:26 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:4512 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S264910AbTAESZ0>; Sun, 5 Jan 2003 13:25:26 -0500
+From: Richard Stallman <rms@gnu.org>
+To: lm@bitmover.com
+CC: linux-kernel@vger.kernel.org, mark@mark.mielke.cc, billh@gnuppy.monkey.org,
+       paul@clubi.ie, riel@conectiva.com.br, Hell.Surfers@cwctv.net
+In-reply-to: <20030104222330.GA1386@work.bitmover.com> (message from Larry
+	McVoy on Sat, 4 Jan 2003 14:23:30 -0800)
 Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Date: Sun, 5 Jan 2003 18:39:09 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <av9u4d$fij$1@forge.intermeta.de>
-References: <20030102013736.GA2708@gnuppy.monkey.org> <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org> <20030102055859.GA3991@gnuppy.monkey.org> <20030102061430.GA23276@mark.mielke.cc> <E18UIZS-0006Cr-00@fencepost.gnu.org> <20030103040612.GA10651@work.bitmover.com> <E18UYT2-0004xV-00@fencepost.gnu.org>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1041791949 17898 212.34.181.4 (5 Jan 2003 18:39:09 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Sun, 5 Jan 2003 18:39:09 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+Reply-to: rms@gnu.org
+References: <20030102013736.GA2708@gnuppy.monkey.org> <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org> <20030102055859.GA3991@gnuppy.monkey.org> <20030102061430.GA23276@mark.mielke.cc> <E18UIZS-0006Cr-00@fencepost.gnu.org> <20030103040612.GA10651@work.bitmover.com> <20030104220651.GA30907@merlin.emma.line.org> <20030104222330.GA1386@work.bitmover.com>
+Message-Id: <E18VFaz-0008S0-00@fencepost.gnu.org>
+Date: Sun, 05 Jan 2003 13:34:01 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Stallman <rms@gnu.org> writes:
+    Linux is a copy of Unix.  There is very little new stuff in Linux.
 
->to contribute to free software.  We are fortunate that Netscape, Sun,
->and IBM, and the people who won their partial cooperation, did not
->take your advice.
+This is no coincidence.  GNU/Linux parallels Unix because I chose that
+design in 1983.  It is foolish to focus on innovation when you are
+starting a race with a multi-year handicap.  The first task is to
+catch up.
 
-Funny you mention IBM here. I was always under the impression, that
-the IBM Open Source effort is mainly there to sell more boxes (which
-are well supported by the "good guys' operating system" because they
-offer and support open source GPL drivers.
+The primary purpose of GNU is the freedom to cooperate.  Innovation is
+nice, but secondary.  We followed the design of Unix because that was
+the most reliable way to produce a working portable system.  We made
+it compatible with Unix so that many users could easily switch to it.
+We deliberately avoided innovative approaches in many cases--the
+noteworthy exception being the GNU Hurd.  (Perhaps that exception was
+a bad decision.)
 
-And then run their applications on it, which are not, I repeat, _NOT_
-open sourced or free.
+Although innovation is not our primary focus, there is a fair amount
+of innovation in GNU packages.  GNU Emacs is better than any previous
+Emacs.  (The first Emacs was another innovation in our community.)
+GCC was the first portable truly optimizing compiler, and the first
+optimizing compiler that supported debugging.  Autoconf was an
+innovation in portability technology.  Looking elsewhere in our
+community, Perl and Python seem to be innovative; the X Window System
+was too.  There are surely more examples that I don't know of.
 
-So they give away a few drivers which doesn't earn any money anyway,
-get lots of good publicity and community support for free and also put
-a foot in the back of a company which they don't like but have to
-license/support their OS anyway (Microsoft).
+    You get the idea.  Sun makes more in 2 days than Red Hat makes all year.
 
-To my (and obviously to the clued people inside IBM) this sounds
-win-win.
+This is very significant if money is your main goal.  Both GNU and
+Linux exist because of people who have different priorities.
 
-You can do this if you're IBM.
-
-Any before you ask why I wrote this: To me, by calling IBM "the good
-guys", you're activly promoting their non-free, close-sourced
-applications running on top of Linux (and their hardware).
-
-"Stallman called IBM the good guys. Buy their Websphere application
-suite running on Linux on eSeries Hardware. Film at 11".
-
-They're not an open source company. Neither are Sun (which also sells
-Hardware and applications; ironically their iPlanet stuff comes from
-Netscape) or Netscape (their Applications are now called "iPlanet" and
-come from Sun =:-) and with open sourcing their browser they didn't
-give away anything; they already lost the browser wars to Microsoft
-and noone could read their code anyway).
-
-But all three sucked you into saying "IBM, Sun and Netscape
-contributed to free software". But you don't understand their
-motive. Which is money. And the stuff that earns the money wasn't open
-sourced at all.
-
-	Regards
-		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   

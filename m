@@ -1,60 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266815AbSKOWJm>; Fri, 15 Nov 2002 17:09:42 -0500
+	id <S266817AbSKOWIb>; Fri, 15 Nov 2002 17:08:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266818AbSKOWJm>; Fri, 15 Nov 2002 17:09:42 -0500
-Received: from packet.digeo.com ([12.110.80.53]:32393 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266815AbSKOWJk>;
-	Fri, 15 Nov 2002 17:09:40 -0500
-Message-ID: <3DD5723E.CED7AE1A@digeo.com>
-Date: Fri, 15 Nov 2002 14:16:30 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S266818AbSKOWIa>; Fri, 15 Nov 2002 17:08:30 -0500
+Received: from fantomas.webnet.pl ([195.205.113.35]:3456 "EHLO
+	fantomas.webnet.pl") by vger.kernel.org with ESMTP
+	id <S266817AbSKOWI3>; Fri, 15 Nov 2002 17:08:29 -0500
+Message-ID: <3DD571F1.3010502@wfmh.org.pl>
+Date: Fri, 15 Nov 2002 23:15:13 +0100
+From: Miloslaw Smyk <thorgal@wfmh.org.pl>
+Organization: W.F.M.H.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021109
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-To: Justin A <ja6447@albany.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.47-ac4 panic on boot.
-References: <200211150059.51743.ja6447@albany.edu> <200211150254.25306.ja6447@albany.edu> <3DD4B01F.B3C1DCDC@digeo.com> <200211151712.11347.ja6447@albany.edu>
-Content-Type: text/plain; charset=us-ascii
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Ian Chilton <ian@ichilton.co.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Anyone use HPT366 + UDMA in Linux?
+References: <20021115123541.GA1889@buzz.ichilton.co.uk> <1037371184.19971.0.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1037371184.19971.0.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Nov 2002 22:16:30.0391 (UTC) FILETIME=[A5F39C70:01C28CF4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin A wrote:
-> 
-> .config crashes, it oopses as soon as pnp starts, then 2 seconds later the
-> previous oops comes up and it panics.
+Hello!
 
-Irritating when it does that.  Here's a little patch which should
-stop the machine dead after the first ooops, prevent stuff from
-scrolling off the screen.
+Alan Cox wrote:
 
-This, with the missing touch_nmi_watchdog() would be a handy
-kernel boot option, perhaps.
+> If it still doesnt work in 2.4.20-rc1-ac2 or later please send me a
+> detailed bug report
+
+All versions of hpt366.c newer than 0.18 (namely 0.22, 0.33 and 0.34) do not 
+work on my setup, but hang during "partition check" on boot. I've tried 
+changing UDMA mode in HPT BIOS, but it does not seem to affect anything and 
+the drives are still recognized as "UDMA(100)". The latest kernel I tried 
+was 2.4.20-rc-ac4, but it behaved just the same.
+
+My setup is (all info gathered on 2.4.17 which is the last kernel version I 
+can successfully boot with and which btw has been working flawlessly for a 
+long time):
+
+ From dmesg:
+
+HPT370A: chipset revision 4
+HPT370A: not 100% native mode: will probe irqs later
+     ide2: BM-DMA at 0xe400-0xe407, BIOS settings: hde:pio, hdf:DMA
+     ide3: BM-DMA at 0xe408-0xe40f, BIOS settings: hdg:pio, hdh:DMA
+hdf: IC35L040AVER07-0, ATA DISK drive
+hdh: IC35L040AVER07-0, ATA DISK drive
+hdf: 80418240 sectors (41174 MB) w/1916KiB Cache, CHS=79780/16/63, UDMA(44)
+hdh: 80418240 sectors (41174 MB) w/1916KiB Cache, CHS=79780/16/63, UDMA(44)
 
 
---- 25/arch/i386/kernel/traps.c~noscroll	Tue Nov 12 13:13:24 2002
-+++ 25-akpm/arch/i386/kernel/traps.c	Tue Nov 12 13:14:16 2002
-@@ -84,7 +84,7 @@ asmlinkage void alignment_check(void);
- asmlinkage void spurious_interrupt_bug(void);
- asmlinkage void machine_check(void);
- 
--static int kstack_depth_to_print = 24;
-+static int kstack_depth_to_print = 10;
- 
- 
- /*
-@@ -246,6 +246,9 @@ bad:
- 			printk("%02x ", c);
- 		}
- 	}
-+	local_irq_disable();
-+	for ( ; ; )
-+		;
- 	printk("\n");
- }	
- 
+fantomas:/home/thorgal# hdparm -i /dev/hdf
 
-_
+/dev/hdf:
+
+  Model=IC35L040AVER07-0, FwRev=ER4OA44A, SerialNo=SX0SXM07352
+  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
+  BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=16
+  CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=80418240
+  IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+  PIO modes:  pio0 pio1 pio2 pio3 pio4
+  DMA modes:  mdma0 mdma1 mdma2
+  UDMA modes: udma0 udma1 udma2 *udma3 udma4 udma5
+  AdvancedPM=yes: disabled (255) WriteCache=enabled
+  Drive conforms to: ATA/ATAPI-5 T13 1321D revision 1:  2 3 4 5
+
+Drive /dev/hdh is identical sans SerialNo.
+
+
+Please tell me what other info I can provide to help you.
+
+Best regards,
+Milek
+-- 
+mailto:thorgal@wfmh.org.pl    |  "Man in the Moon and other weird things" -
+http://wfmh.org.pl/~thorgal/  |  see it at http://wfmh.org.pl/~thorgal/Moon/
+        PLEASE UPDATE YOUR ADDRESSBOOK WITH MY NEW EMAIL ADDRESS.
+
+

@@ -1,61 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288149AbSBEEpj>; Mon, 4 Feb 2002 23:45:39 -0500
+	id <S288308AbSBEEs3>; Mon, 4 Feb 2002 23:48:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288308AbSBEEpW>; Mon, 4 Feb 2002 23:45:22 -0500
-Received: from rtlab.med.cornell.edu ([140.251.145.175]:63104 "HELO
-	openlab.rtlab.org") by vger.kernel.org with SMTP id <S288149AbSBEEo7>;
-	Mon, 4 Feb 2002 23:44:59 -0500
-Date: Mon, 4 Feb 2002 23:44:58 -0500 (EST)
-From: "Calin A. Culianu" <calin@ajvar.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Stevie O <stevie@qrpff.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Asynchronous CDROM Events in Userland
-In-Reply-To: <3C5F5F7E.8090703@zytor.com>
-Message-ID: <Pine.LNX.4.30.0202042341030.31336-100000@rtlab.med.cornell.edu>
+	id <S288338AbSBEEsT>; Mon, 4 Feb 2002 23:48:19 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56594 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S288308AbSBEEsP>; Mon, 4 Feb 2002 23:48:15 -0500
+Message-ID: <3C5F63F8.90808@zytor.com>
+Date: Mon, 04 Feb 2002 20:47:52 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Calin A. Culianu" <calin@ajvar.org>
+CC: Stevie O <stevie@qrpff.net>, linux-kernel@vger.kernel.org
+Subject: Re: Asynchronous CDROM Events in Userland
+In-Reply-To: <Pine.LNX.4.30.0202042341030.31336-100000@rtlab.med.cornell.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Feb 2002, H. Peter Anvin wrote:
+Calin A. Culianu wrote:
 
-> Stevie O wrote:
->
-> > At 09:07 PM 2/3/2002 -0800, H. Peter Anvin wrote:
-> >
-> >> Rather than a signal, it should be a file descriptor of some sort, so
-> >> one can select() etc on it.  Personally I can't imagine polling would
-> >> take any appreciable amount of resources, though.
-> >
-> >
-> > Windows 95 polls the cd-rom drive for autorun.
-> > It kills laptop batteries REAL quick.
-> > CPU & memory aren't the only resources...
-> >
->
-> Does it spin up the CD-ROM doing so?
->
-> 	-hpa
+>>>
+>>Does it spin up the CD-ROM doing so?
+>>
+> 
+> Probably it doesn't, but just having the cpu be non-idle when it could
+> otherwise be idle does add up over time.  In linux, polling the cdrom
+> *seems* inexpensive enough, but if you look at 'top' it seems to average
+> out to like 1-2% cpu time!  (Ok, these stats aren't super-accurate,
+> they're just from running 'top' with the kde autorun tool running).
+> 
+> [Admitedly, the autorun tool is written kind of strangely (it does one
+> redundant ioctl, plus it wait()s on its children constantly rather than
+> installing a signal handler), but still.. it would be nice to get those
+> extra cycles for quake3 or wolfenstein...]
+> 
 
-Probably it doesn't, but just having the cpu be non-idle when it could
-otherwise be idle does add up over time.  In linux, polling the cdrom
-*seems* inexpensive enough, but if you look at 'top' it seems to average
-out to like 1-2% cpu time!  (Ok, these stats aren't super-accurate,
-they're just from running 'top' with the kde autorun tool running).
 
-[Admitedly, the autorun tool is written kind of strangely (it does one
-redundant ioctl, plus it wait()s on its children constantly rather than
-installing a signal handler), but still.. it would be nice to get those
-extra cycles for quake3 or wolfenstein...]
+That just indicates a bullsh*t program.  It's also pretty certain that 
+these kinds of things don't belong in the GUI; one of the things I'd 
+like to do at some point is to write a daemon to mount things on insert 
+(vold).
 
--Calin
+	-hpa
 
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
 

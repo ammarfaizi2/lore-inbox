@@ -1,66 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129404AbRBUJaC>; Wed, 21 Feb 2001 04:30:02 -0500
+	id <S129634AbRBUJbw>; Wed, 21 Feb 2001 04:31:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129634AbRBUJ3x>; Wed, 21 Feb 2001 04:29:53 -0500
-Received: from air.lug-owl.de ([62.52.24.190]:13575 "HELO air.lug-owl.de")
-	by vger.kernel.org with SMTP id <S129404AbRBUJ3k>;
-	Wed, 21 Feb 2001 04:29:40 -0500
-Date: Wed, 21 Feb 2001 10:29:37 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Network console project
-Message-ID: <20010221102935.B13225@lug-owl.de>
-Reply-To: jbglaw@lug-owl.de
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.SOL.4.21.0102171739240.2241-100000@red.csi.cam.ac.uk> <3A9331DE.63C19CB@transmeta.com>
+	id <S130297AbRBUJbm>; Wed, 21 Feb 2001 04:31:42 -0500
+Received: from nas3-182.wms.club-internet.fr ([213.44.30.182]:29426 "EHLO
+	microsoft.com") by vger.kernel.org with ESMTP id <S129634AbRBUJbf>;
+	Wed, 21 Feb 2001 04:31:35 -0500
+Message-Id: <200102210930.KAA14861@microsoft.com>
+Subject: Re: Is this the ultimate stack-smash fix?
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Andreas Bombe <andreas.bombe@munich.netsurf.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010221011303.A3045@storm.local>
+In-Reply-To: <3A899FEB.D54ABBC7@sympatico.ca>  
+	<m1lmr98c5t.fsf@frodo.biederman.org> <3A8ADA30.2936D3B1@sympatico.ca>  
+	<m1hf1w8qea.fsf@frodo.biederman.org> <3A8BF5ED.1C12435A@colorfullife.com>  
+	<m1k86s6imn.fsf@frodo.biederman.org> <20010217084330.A17398@cadcamlab.org>  
+	<m1y9v4382r.fsf@frodo.biederman.org> <20010220021012.A1481@storm.local>  
+	<200102200909.KAA12190@microsoft.com>  <20010221011303.A3045@storm.local>
+Content-Type: text/plain; charset=ISO-8859-1
+X-Mailer: Evolution (0.8 - Preview Release)
+Date: 21 Feb 2001 10:30:36 +0100
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1UWUbFP1cBYEclgG"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <3A9331DE.63C19CB@transmeta.com>; from hpa@transmeta.com on Tue, Feb 20, 2001 at 07:11:26PM -0800
-X-Operating-System: Linux air 2.4.0-test8-pre1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Le 21 Feb 2001 01:13:03 +0100, Andreas Bombe a écrit :
+> On Tue, Feb 20, 2001 at 10:09:55AM +0100, Xavier Bestel wrote:
+> > Le 20 Feb 2001 02:10:12 +0100, Andreas Bombe a écrit :
+> > > On Sat, Feb 17, 2001 at 09:53:48PM -0700, Eric W. Biederman wrote:
+> > > > Peter Samuelson <peter@cadcamlab.org> writes:
+> > > > > It also sounds like you will be
+> > > > > breaking the extremely useful C postulate that, at the ABI level at
+> > > > > least, arrays and pointers are equivalent.  I can't see *how* you plan
+> > > > > to work around that one.
+> > > > 
+> > > > Huh?  Pointers and arrays are clearly different at the ABI level.
+> > > > 
+> > > > A pointer is a word that contains an address of something.
+> > > > An array is an array.
+> > > 
+> > > An array is a word that contains the address of the first element.
+> > 
+> > 
+> > No. Exercise 3: compile and run this:
+> > file a.c:
+> > char array[] = "I'm really an array";
+> > 
+> > file b.c:
+> > extern char* array;
+> >
+> > main() { printf("array = %s\n", array); }
+> > 
+> > ... and watch it biting the dust !
+> 
+> Deliberately linking to the wrong symbol is not a point.  Might as well
+> replace file a.c with "int array = 0;".  That'll also bite the dust.  So?
+> 
+> > in short: an array is NOT a pointer.
+> 
+> In this context we were talking *function calls*, not confusing the
+> linker.  And whether you say "char array[];" or "char *const array;",
+> array is a pointer.  Even more so at the ABI = function call interface.
 
---1UWUbFP1cBYEclgG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+OK, I missed this. There are no arrays in the function call interface,
+they are promoted to pointers.
 
-On Tue, Feb 20, 2001 at 07:11:26PM -0800, H. Peter Anvin wrote:
-> Hi everyone,
->=20
-> We have set up a network console project on sourceforge and are starting
-> to work on actual details.  If you're interested in this subject please
-> do join that list.
+Xav
 
-DEC's old protocol called MOP (Maintainence and Operations Protocol)
-comes in mind...
-
-MfG, JBG
-
---=20
-Fehler eingestehen, Gr=F6=DFe zeigen: Nehmt die Rechtschreibreform zur=FCck=
-!!!
-/* Jan-Benedict Glaw <jbglaw@lug-owl.de> -- +49-177-5601720 */
-keyID=3D0x8399E1BB fingerprint=3D250D 3BCF 7127 0D8C A444 A961 1DBD 5E75 83=
-99 E1BB
-     "insmod vi.o and there we go..." (Alexander Viro on linux-kernel)
-
---1UWUbFP1cBYEclgG
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjqTin8ACgkQHb1edYOZ4bv5FQCbB0ws54UPTfXW0jaAxMYeDYFb
-zlAAnA9B+270zflz03Q51F7IYKf24l4a
-=KW3X
------END PGP SIGNATURE-----
-
---1UWUbFP1cBYEclgG--

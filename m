@@ -1,156 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284162AbRLARdZ>; Sat, 1 Dec 2001 12:33:25 -0500
+	id <S284163AbRLARkg>; Sat, 1 Dec 2001 12:40:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284163AbRLARdR>; Sat, 1 Dec 2001 12:33:17 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:11419
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S284162AbRLARdB>; Sat, 1 Dec 2001 12:33:01 -0500
-Date: Sat, 1 Dec 2001 12:26:08 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Missing Configure,help entries need filling in
-Message-ID: <20011201122608.A9983@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S284164AbRLARk1>; Sat, 1 Dec 2001 12:40:27 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:61325 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S284163AbRLARkL>;
+	Sat, 1 Dec 2001 12:40:11 -0500
+Date: Sat, 01 Dec 2001 17:40:07 -0000
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: sct@redhat.com, Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: [PATCH] if (foo) kfree(foo) /fs cleanup + reverted JBD code
+ path changes
+Message-ID: <420365759.1007228406@[195.224.237.69]>
+In-Reply-To: <Pine.LNX.4.33.0112011830550.14290-100000@netfinity.realnet.co.sz>
+In-Reply-To: <Pine.LNX.4.33.0112011830550.14290-100000@netfinity.realnet.co.s
+ z>
+X-Mailer: Mulberry/2.1.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We're down to 120 missing help entries.  If you can fill some of these
-in, please send me a patch for Configure.help.
+What is the purpose behind these patches?
 
-ALPHA_EV67
-ARCH_CDB89712
-ARCH_CLEP7312
-ARCH_EDB7211
-ARC_CONSOLE
-ATM_LANAI
-AU1000_SERIAL_CONSOLE
-AU1000_UART
-BLK_DEV_IT8172
-BLK_DEV_Q40IDE
-CPU_ARM1020_D_CACHE_ON
-CPU_ARM1020_FORCE_WRITE_THROUGH
-CPU_ARM1020_I_CACHE_ON
-CPU_ARM1020_ROUND_ROBIN
-CPU_ARM920_CPU_IDLE
-CPU_ARM920_D_CACHE_ON
-CPU_ARM920_I_CACHE_ON
-CPU_ARM920_WRITETHROUGH
-CPU_ARM926T
-CPU_ARM926_CPU_IDLE
-CPU_ARM926_D_CACHE_ON
-CPU_ARM926_I_CACHE_ON
-CPU_ARM926_ROUND_ROBIN
-CPU_ARM926_WRITETHROUGH
-CPU_FREQ
-DASD_AUTO_DIAG
-DASD_AUTO_ECKD
-DASD_AUTO_FBA
-DEBUG_RWLOCK
-DEBUG_SEMAPHORE
-EP7211_IR
-EP72XX_ROM_BOOT
-ETRAX_ETHERNET_LPSLAVE
-ETRAX_ETHERNET_LPSLAVE_HAS_LEDS
-ETRAX_NETWORK_LED_ON_WHEN_ACTIVITY
-ETRAX_NETWORK_LED_ON_WHEN_LINK
-ETRAX_POWERBUTTON_BIT
-ETRAX_ROOT_DEVICE
-ETRAX_SERIAL_PORT0
-ETRAX_SHUTDOWN_BIT
-ETRAX_SOFT_SHUTDOWN
-EUROTECH_WDT
-EVB_PCI1
-FB_TX3912
-FORWARD_KEYBOARD
-GEN_RTC
-GSC_DINO
-HISAX_FRITZ_PCIPNP
-HWC_CPI
-I2C_ALGO8XX
-I2C_PPC405_ADAP
-I2C_PPC405_ALGO
-I2C_RPXLITE
-IA64_GRANULE_16MB
-IA64_GRANULE_64MB
-IA64_SGI_SN_DEBUG
-IA64_SGI_SN_SIM
-IT8172_REVC
-IT8172_SCR0
-IT8172_SCR1
-IT8172_TUNING
-ITE_I2C_ADAP
-ITE_I2C_ALGO
-LASI_82596
-LP486E
-MAPLE_KEYBOARD
-MAPLE_MOUSE
-MIPS_AU1000_ENET
-MTD_ARM_INTEGRATOR
-PCIBA
-PCI_PERMEDIA
-PCMCIA_XIRCOM
-PFAULT
-PHONE_IXJ_PCMCIA
-PROFILE
-PROFILE_SHIFT
-SA1100_ADSBITSY
-SA1100_CERF_CPLD
-SA1100_EXTENEX1
-SA1100_EXTENEX1_16MB
-SA1100_FIR
-SA1100_FREEBIRD
-SA1100_GRAPHICSMASTER
-SA1100_HUW_WEBPANEL
-SA1100_ITSY
-SA1100_JORNADA720
-SA1100_OMNIMETER
-SA1100_PFS168
-SA1100_PLEB
-SA1100_SHERMAN
-SA1100_SIMPAD
-SA1100_YOPY
-SCSI_DECSII
-SCSI_LASI
-SCSI_QLOGIC_FC_FIRMWARE
-SERIAL_21285_OLD
-SERIAL_SGI_L1_PROTOCOL
-SERIAL_TX3912
-SERIAL_TX3912_CONSOLE
-SGIWD93_SCSI
-SHARED_KERNEL
-SOUND_CMPCI_FM
-SOUND_CMPCI_FMIO
-SOUND_CMPCI_LINE_BASS
-SOUND_CMPCI_LINE_REAR
-SOUND_CMPCI_MIDI
-SOUND_CMPCI_MPUIO
-SOUND_CMPCI_SPDIFINVERSE
-SOUND_VRC5477
-ST40_LMI_MEMORY
-UCODE_PATCH
-USB_STORAGE_DATAFAB
-USB_STORAGE_HP8200e
-USB_STORAGE_JUMPSHOT
-USERIAL
-VETH
-VIA_RHINE_MMIO
-VIDEO_ZORAN_DC10
-VIDEO_ZORAN_LML33
-VLAN_8021Q
+I can see the /dis/advantages:
+a) Seems to hide bugs - it's now not clear whether
+   a code patch is meant to be run through when 'foo'
+   is NULL or not. Whilst I appreciate kfree() checks
+   foo for NULL anyway, and it's going to be hard to
+   turn that into a BUG(), it doesn't mean we should
+   make more of a mess.
 
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+b) I expect kmalloc() calls and kfree() calls to balance,
+   and so would any kmalloc/kfree leak debugger.
 
-Gun Control: The theory that a woman found dead in an alley, raped and
-strangled with her panty hose, is somehow morally superior to a
-woman explaining to police how her attacker got that fatal bullet wound.
-	-- L. Neil Smith
+c) When 'foo' was NULL before, there was a fast path
+   where no kfree() function call would be made, and no
+   write 'foo=NULL;' would subsequently be performed.
+   Whilst I appreciate not all these are on a critical
+   path, is there any reason why we now want to do a
+   function call and a write when previously we avoided
+   it?
+
+If what you are worried about is performance loss through
+checking the argument to kfree() against NULL twice, wouldn't
+we be better doing something like this:
+
+--- linux.clean/kernel/slab.c     Sat Jan 27 20:05:11 2001
++++ linux/kernel/slab.c      Sat Dec  1 17:31:38 2001
+@@ -1577,7 +1577,7 @@
+        kmem_cache_t *c;
+        unsigned long flags;
+
+-       if (!objp)
++       if (unlikely(!objp))
+                return;
+        local_irq_save(flags);
+        CHECK_PAGE(virt_to_page(objp));
+
+And then go through all the ones in your patch, and
+rather than deleting them, inserting likely() / unlikely()
+as appropriate in the ones that have any chance of actually
+affecting performance.
+
+Or even better, add in slab.h
+
+static inline void kfree(const void * objp)
+{
+	if (likely(objp)) __kfree(objp);
+	/* perhaps it should 'else BUG() here' but
+	 * can't do that today
+	 */
+}
+
+&
+
+--- linux.clean/kernel/slab.c     Sat Jan 27 20:05:11 2001
++++ linux/kernel/slab.c      Sat Dec  1 17:35:35 2001
+@@ -1572,13 +1572,11 @@
+  * Don't free memory not originally allocated by kmalloc()
+  * or you will run into trouble.
+  */
+-void kfree (const void *objp)
++void __kfree (const void *objp)
+ {
+        kmem_cache_t *c;
+        unsigned long flags;
+
+-       if (!objp)
+-               return;
+        local_irq_save(flags);
+        CHECK_PAGE(virt_to_page(objp));
+        c = GET_PAGE_CACHE(virt_to_page(objp));
+
+And on a good day gcc may optimize out all the double tests
+anyhow.
+
+--
+Alex Bligh

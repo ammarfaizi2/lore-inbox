@@ -1,54 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVBHAj0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbVBHAjb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbVBHAj0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 19:39:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVBHAjZ
+	id S261352AbVBHAjb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 19:39:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVBHAja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 19:39:25 -0500
-Received: from mail.kroah.org ([69.55.234.183]:1701 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261346AbVBHAjU (ORCPT
+	Mon, 7 Feb 2005 19:39:30 -0500
+Received: from mail.kroah.org ([69.55.234.183]:4261 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261352AbVBHAjX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 19:39:20 -0500
-Date: Mon, 7 Feb 2005 16:20:22 -0800
+	Mon, 7 Feb 2005 19:39:23 -0500
+Date: Mon, 7 Feb 2005 16:19:54 -0800
 From: Greg KH <greg@kroah.com>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org
-Subject: Re: [PATCH] pci_raw_ops should use unsigned args
-Message-ID: <20050208002022.GC28803@kroah.com>
-References: <1107457685.12618.23.camel@eeyore>
+To: MUNEDA Takahiro <muneda.takahiro@jp.fujitsu.com>
+Cc: John Rose <johnrose@austin.ibm.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       linux-pci <linux-pci@atrey.karlin.mff.cuni.cz>
+Subject: Re: [PATCH] PCI: fix pci_remove_legacy_files() crash
+Message-ID: <20050208001954.GA28803@kroah.com>
+References: <87zmyl2ecb.wl%muneda.takahiro@jp.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1107457685.12618.23.camel@eeyore>
+In-Reply-To: <87zmyl2ecb.wl%muneda.takahiro@jp.fujitsu.com>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 03, 2005 at 12:08:05PM -0700, Bjorn Helgaas wrote:
-> Convert pci_raw_ops to use unsigned segment (aka domain),
-> bus, and devfn.  With the previous code, various ia64 config
-> accesses fail due to segment sign-extension problems.
+On Fri, Feb 04, 2005 at 12:28:36PM +0900, MUNEDA Takahiro wrote:
+> Hi,
 > 
-> ia64:
->     - With a signed seg >= 0x8, unwanted sign-extension occurs when
->       "seg << 28" is cast to u64 in PCI_SAL_EXT_ADDRESS()
->     - PCI_SAL_EXT_ADDRESS(): cast to u64 *before* shifting; otherwise
->       "seg << 28" is evaluated as unsigned int (32 bits) and gets
->       truncated when seg > 0xf
->     - pci_sal_read(): validate "value" ptr as other arches do
->     - pci_sal_{read,write}(): return -EINVAL rather than SAL error status
+> The legacy_io which is the member of pci_bus struct might be
+> NULL. It should be checked.
 > 
->  arch/i386/pci/direct.c     |   12 ++++++----
->  arch/i386/pci/mmconfig.c   |    6 +++--
->  arch/i386/pci/numa.c       |    6 +++--
->  arch/i386/pci/pcbios.c     |    6 +++--
->  arch/ia64/pci/pci.c        |   53 ++++++++++++++++++---------------------------
->  arch/x86_64/pci/mmconfig.c |    8 ++++--
->  include/linux/pci.h        |    6 +++--
->  7 files changed, 51 insertions(+), 46 deletions(-)
+> This patch checks 'b->legacy_io', NULL or not.
 > 
-> Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+> Signed-off-by: MUNEDA Takahiro <muneda.takahiro@jp.fujitsu.com>
 
 Applied, thanks.
 

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbTDYVyD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 17:54:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263428AbTDYVyC
+	id S263428AbTDYVyR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 17:54:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263890AbTDYVyR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 17:54:02 -0400
-Received: from holomorphy.com ([66.224.33.161]:25525 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262406AbTDYVyC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 17:54:02 -0400
-Date: Fri, 25 Apr 2003 15:06:08 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andi Kleen <ak@muc.de>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
-Subject: Re: TASK_UNMAPPED_BASE & stack location
-Message-ID: <20030425220608.GT8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andi Kleen <ak@muc.de>, "Martin J. Bligh" <mbligh@aracnet.com>,
-	linux-kernel@vger.kernel.org
-References: <20030425204012$4424@gated-at.bofh.it> <m3sms644zz.fsf@averell.firstfloor.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3sms644zz.fsf@averell.firstfloor.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Fri, 25 Apr 2003 17:54:17 -0400
+Received: from watch.techsource.com ([209.208.48.130]:32959 "EHLO
+	techsource.com") by vger.kernel.org with ESMTP id S263428AbTDYVyP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 17:54:15 -0400
+Message-ID: <3EA9B189.4020208@techsource.com>
+Date: Fri, 25 Apr 2003 18:07:05 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jamie Lokier <jamie@shareable.org>
+CC: jlnance@unity.ncsu.edu, linux-kernel@vger.kernel.org
+Subject: Re: ia32 kernel on amd64 box?
+References: <20030425214500.GA20221@ncsu.edu> <20030425174941.A21747@devserv.devel.redhat.com> <20030425215654.GB2132@mail.jlokier.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> writes:
->> Is there any good reason we can't remove TASK_UNMAPPED_BASE, and just shove
->> libraries directly above the program text? Red Hat seems to have patches to
->> dynamically tune it on a per-processes basis anyway ...
-
-On Fri, Apr 25, 2003 at 11:54:56PM +0200, Andi Kleen wrote:
-> Yes. You won't get a continuous sbrk/brk heap then anymore. Not sure it is a 
-> big problem though.
-> But apparently Solaris/x86 is doing that.
-> It's probably worth a sysctl at least.
-
-How about a personality? It is a very slightly different ABI.
 
 
--- wli
+Jamie Lokier wrote:
+
+>Bill Nottingham wrote:
+>  
+>
+>>Red Hat 7.2 may or may not work, I'm not sure we've tried back that far.
+>>    
+>>
+>
+>Why - is there anything at all missing from the AMD64's x86
+>compatibility, prior to activating 64 bit mode?
+>
+>Or is it just that it should work, but you haven't tested it?
+>
+>
+>  
+>
+How about peripheral compatibility?
+
+

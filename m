@@ -1,43 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288050AbSAHOBR>; Tue, 8 Jan 2002 09:01:17 -0500
+	id <S288051AbSAHOF6>; Tue, 8 Jan 2002 09:05:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288051AbSAHOBH>; Tue, 8 Jan 2002 09:01:07 -0500
-Received: from codepoet.org ([166.70.14.212]:60422 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S288050AbSAHOAz>;
-	Tue, 8 Jan 2002 09:00:55 -0500
-Date: Tue, 8 Jan 2002 07:00:45 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Hardware Inventory [was: Re: ISA slot detection on PCI systems?]
-Message-ID: <20020108140044.GA26621@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0201072017200.16327-100000@Appserv.suse.de> <E16Nwnb-0006UH-00@the-village.bc.nu>
+	id <S288052AbSAHOFr>; Tue, 8 Jan 2002 09:05:47 -0500
+Received: from 24-163-106-43.he2.cox.rr.com ([24.163.106.43]:27033 "EHLO
+	asd.ppp0.com") by vger.kernel.org with ESMTP id <S288051AbSAHOFi>;
+	Tue, 8 Jan 2002 09:05:38 -0500
+In-Reply-To: <20020107224525.8a899969dbcd@remtk.solucorp.qc.ca>
+            <BD98BECA-0407-11D6-804A-00039355CFA6@suespammers.org>
+            <20020108122225.B11855@xs4all.nl>
+In-Reply-To: <20020108122225.B11855@xs4all.nl> 
+From: "Anthony DeRobertis" <asd@suespammers.org>
+To: jtv <jtv@xs4all.nl>
+Cc: Anthony DeRobertis <asd@suespammers.org>,
+        Jacques Gelinas <jack@solucorp.qc.ca>, linux-kernel@vger.kernel.org
+Subject: Re: Whizzy New Feature: Paged segmented memory
+Date: Tue, 08 Jan 2002 14:05:09 GMT
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16Nwnb-0006UH-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.24i
-X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16NwsH-0005Ud-00@asd.ppp0.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue Jan 08, 2002 at 02:00:19PM +0000, Alan Cox wrote:
-> > That's not half a bad idea. If we want a _maintained_ libc for the kernel,
-> > having it maintained by kernel folks may make sense. There's nothing
-> > stopping us borrowing bits from dietlibc and friends after all.
+jtv writes: 
+
+> On Tue, Jan 08, 2002 at 02:17:14AM -0500, Anthony DeRobertis wrote:
+>> 
+>> A nice thing about two stacks is that it can be a completely 
+>> userspace thing. No need to involve the kernel at all; just gcc 
+>> and friends.
 > 
-> Why not _work_ with the dietlibc people instead of creating the fifth or
-> sixth small libc project ?
+> Doesn't it have ABI implications as well?
 
-And/or the uClibc people....
+On every architecture I'm familiar with. But that's a userland issue. I 
+don't believe the kernel cares how userland uses its stacks. 
 
- -Erik
+Change gcc. Recompile world. All should work, assuming your gcc changes are 
+bug-free, no one made assumptions about stack layout, no one wrote assembly 
+code, etc. [In other words, after 4 months of debugging you might get X 
+running again...] 
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+> 
+> If so, why not go all the way and have stacks grow upwards?  :-)
+
+Some architectures have hardware assistance for downward growing stacks. One 
+example is 68K. I think x86 does too. OTOH, I don't think PPC does, though I 
+haven't read the Green Book recently. 
+
+Actually, if I were to be implementing split-stack, I'd probably have one 
+grow upward. Probably the data stack, because some architectures (68K, at 
+least) force the address stack to grow downwards. 
+
+Put an unmapped page between the two stacks, and all should be fine. 
+
+>  
+> 
+> Jeroen 
+> 
+ 

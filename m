@@ -1,83 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbUDOUP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 16:15:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbUDOUP4
+	id S262106AbUDOUTr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 16:19:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbUDOUTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 16:15:56 -0400
-Received: from misav02.sasknet.sk.ca ([142.165.20.163]:23308 "EHLO
-	misav02.sasknet.sk.ca") by vger.kernel.org with ESMTP
-	id S261179AbUDOUPx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 16:15:53 -0400
-Date: Thu, 15 Apr 2004 14:15:45 -0600
-From: Dusty Phillips <dusty@buchuki.com>
-Subject: Mouse button not recognized
-To: linux-kernel@vger.kernel.org
-Message-id: <407EED71.90604@buchuki.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040303)
+	Thu, 15 Apr 2004 16:19:47 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:28054 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S262106AbUDOUTo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 16:19:44 -0400
+Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH]
+	for idle=C1halt, 2.6.5
+From: Len Brown <len.brown@intel.com>
+To: ross@datscreative.com.au
+Cc: christian.kroener@tu-harburg.de, linux-kernel@vger.kernel.org,
+       "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+       Jamie Lokier <jamie@shareable.org>,
+       "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
+       Craig Bradney <cbradney@zip.com.au>, Daniel Drake <dan@reactivated.net>,
+       Ian Kumlien <pomac@vapor.com>, Jesse Allen <the3dfxdude@hotmail.com>,
+       a.verweij@student.tudelft.nl, Allen Martin <AMartin@nvidia.com>
+In-Reply-To: <200404160110.37573.ross@datscreative.com.au>
+References: <200404131117.31306.ross@datscreative.com.au>
+	 <200404131703.09572.ross@datscreative.com.au>
+	 <1081893978.2251.653.camel@dhcppc4>
+	 <200404160110.37573.ross@datscreative.com.au>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1082060255.24425.180.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 15 Apr 2004 16:17:35 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm running kernel 2.6.5 on Arch Linux distribution.  I think this
-problem is kernel related as opposed to XFree86 related, but I am not
-certain.  It may be related to the following bugs, but again, I am not
-certain:
+On Thu, 2004-04-15 at 11:10, Ross Dickson wrote:
+> On Wednesday 14 April 2004 11:02, Len Brown wrote:
+> > Re: IRQ0 XT-PIC timer issue
+> > 
+> > Since the hardware is connected to APIC pin0, it is a BIOS bug
+> > that an ACPI interrupt source override from pin2 to IRQ0 exists.
+> > 
+> > With this simple 2.6.5 patch you can specify "acpi_skip_timer_override"
+> > to ignore that bogus BIOS directive.  The result is with your
+> > ACPI-enabled APIC-enabled kernel, you'll get IRQ0 IO-APIC-edge timer.
+> > 
+> > Probably there is a more clever way to trigger this workaround
+> > automatcially instead of via boot parameter.
 
-http://bugzilla.kernel.org/show_bug.cgi?id=1034
-http://bugzilla.kernel.org/show_bug.cgi?id=2063
-http://bugzilla.kernel.org/show_bug.cgi?id=2287
-http://bugzilla.kernel.org/show_bug.cgi?id=1255
+> Hi Len, I have updated my nforce2 patches for 2.6.5 to work with your patch.
+> I have tested them only on one nforce2 board Epox 8Rga+ but as little has
+> changed in core functionality from past releases I think all will be OK....
+> Hopefully no clock skew. I saw none on my system but thats no guarantee.
 
-I have a Logitech Cordless Trackman; a four-button trackball. I've been
-running it on PS/2, but recently switched to USB (it had a USB-to-PS/2
-converter) to see if it resolved this problem.
+While I don't want to get into the business of maintaining
+a dmi_scan entry for every system with this issue, I think
+it might be a good idea to add a couple of example entries
+for high volume systems for which there is no BIOS fix available.
 
-The driver appears to be recognizing all button 4 clicks as button 2
-clicks. I've checked this in xev using several protocols in XFree86, and
-also noticed that the output when running cat </dev/input/mouse0 is the
-same for both buttons.  I have not found any workaround.
+Got any opinions on which system to use as the example?
+I'll need the output from dmidecode for them.
+ 
+> I tried your above patch with the timer_ack on as is default in 2.6.5 and
+> nmi_watchdog=1 failed as expected. I still think Maciej's 8259 ack patch 
+> is more complete solution to the ack issue but this one gets watchdog going for
+> nforce2. I cannot see anyone using your above patch without an integrated
+> apic and tsc so I cannot see a problem triggering it off your kern arg.
 
-I first noticed the problem when I tried kernel 2.6.0-test9. It was not
-resolved when I tried 2.6.1, nor now on 2.6.5. It works fine for all
-versions of kernel 2.4 that I have tried (several since about 2.4.19). I
-understand that the pointer device handling has changed substantially in
-2.6.
+"acpi_skip_timer_override" is specific to IOAPIC mode,
+since that is the only place that the bogus interrupt
+source override is used.
 
-Bug 1255 hints at something called kvm and psmouse.proto options. This
-sounds promising, but I'm not certain what is being referred to!
+I'm not clued-in on the nmi_watchdog and 8259 ack issues.
+My focus is primarily the ACPI issues involved in getting
+these systems up and running in IOAPIC mode.
 
-For additional information, I use the fourth button to enable the
-"EmulateWheel" functionality provided by XFree86 4.3 +.  While holding
-button 4 down, I can scroll by moving the trackball back and fourth.  I
-can work around the issue by making button 2 my "EmulateWheelButton",
-but this disables button 2 for other activities, such as pasting
-selected text. With this configuration, both button 2 and button 4 have
-the same behaviour (scrolling).
+> The second patch is the C1halt update I suggested in another posting.
+> http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-04/1707.html
 
-One of the bugs requested the contents of /proc/bus/input/devices. On my
-system, the mouse-related information is:
+Clearly this hang issue is more important than the timer issue.
+I'm impressed that you built such a sophisticated patch without
+any support from the vendors.  But it would be a "really good thing"
+if we got some input from the vendors before considering putting
+a workaround into the upstream kernel -- for they may have
+guidance which would either simplify it, or make it unnecessary.
+Perhaps Allen Martin at nVidia can comment?
 
-I: Bus=0003 Vendor=046d Product=c501 Version=0910
-N: Name="Logitech USB Receiver"
-P: Phys=usb-0000:00:11.2-1/input0
-H: Handlers=mouse0
-B: EV=2000f
-B: KEY=1f0000 0 0 0 0 0 0 0 0
-B: REL=103
-B: ABS=100 0
-B: LED=fc00
+-Len
 
-I am not subscribed to the kernel mailing list, so please CC any
-responses to me. I will subscribe if anybody thinks there is something
-more I can do or information I can provide.
 
-I was not certain whether to post this as a question, a new bug report,
-or an addendum to one of the bugs mentioned. Please advise.
-
-Thank you,
-Dusty Phillips
 

@@ -1,68 +1,142 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264494AbTEPQp4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 12:45:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264495AbTEPQp4
+	id S264495AbTEPQy2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 12:54:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264496AbTEPQy2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 12:45:56 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:22916 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S264494AbTEPQpz (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 12:45:55 -0400
-Message-Id: <200305161658.h4GGwicx008647@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.69-mm6 
-In-Reply-To: Your message of "Fri, 16 May 2003 16:37:43 BST."
-             <1053099462.5599.1.camel@dhcp22.swansea.linux.org.uk> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030516015407.2768b570.akpm@digeo.com> <20030516100432.GA21627@outpost.ds9a.nl>
-            <1053099462.5599.1.camel@dhcp22.swansea.linux.org.uk>
+	Fri, 16 May 2003 12:54:28 -0400
+Received: from cable98.usuarios.retecal.es ([212.22.32.98]:30093 "EHLO
+	hell.lnx.es") by vger.kernel.org with ESMTP id S264495AbTEPQy0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 12:54:26 -0400
+Date: Fri, 16 May 2003 19:07:05 +0200
+From: Manuel Estrada Sainz <ranty@debian.org>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Simon Kelley <simon@thekelleys.org.uk>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Downing, Thomas" <Thomas.Downing@ipc.com>, Greg KH <greg@kroah.com>,
+       jt@hpl.hp.com, Pavel Roskin <proski@gnu.org>
+Subject: Re: request_firmware() hotplug interface, third round.
+Message-ID: <20030516170705.GA18732@ranty.ddts.net>
+Reply-To: ranty@debian.org
+References: <20030515200324.GB12949@ranty.ddts.net> <20030516151352.D626@nightmaster.csn.tu-chemnitz.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-739122368P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 16 May 2003 12:58:43 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030516151352.D626@nightmaster.csn.tu-chemnitz.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-739122368P
-Content-Type: text/plain; charset=us-ascii
+On Fri, May 16, 2003 at 03:13:52PM +0200, Ingo Oeser wrote:
+> Hi all,
+> 
+> On Thu, May 15, 2003 at 10:03:24PM +0200, Manuel Estrada Sainz wrote:
+> > 	
+> > 	- echo 1 > /sysfs/class/firmware/dev_name/loading
+> > 	- cat whatever_fw > /sysfs/class/firmware/dev_name/data
+> > 	- echo 0 > /sysfs/class/firmware/dev_name/loading
+>  
+> Why not doing that in open and require firmware data to contain
+> size information? Good firmware formats contain already size,
+> checksum and version information.
 
-On Fri, 16 May 2003 16:37:43 BST, Alan Cox said:
-> All of this stuff should be disablable and far more. It probably all
-> wants hiding under a single "Shrink feature set" type option most people
-> can skip over as they do with kernel debugging.
+ The reason for such an interface is to be able to do it on top of sysfs
+ and so that drivers can implement the same interface on themselfs.
 
-No, this sort of thing should be in the .config file, but NOT accessible
-via the point-and-drool interface.  Make them vi it and do it the hard way...
+ They just need to export the device's firmware memory as 'data' via a
+ class_device of class firmware_class.
 
-The difference being that if you turn on kernel debugging, there's less chance
-of random program XYZ you download from someplace throwing an ENOSYS because
-some syscall is missing/broken, with the ensuing hilarity of debugging (since
-the actual problem might be in some library rather than in the code you
-downloaded).
+ They also need to know when the load starts to set it up and when the
+ load finishes to get the device going again with the new firmware, for
+ that is 'loading' when they get a '1' they have to get ready for the
+ load and when they get a '0' they have to get the device back working.
 
-Of course, I may just be jaded - I've gotten too many reports from bozos with
-firewalls that read "ntp-1.vt.edu is portscanning from port 123, please stop it
-right now or I'm calling the FBI".  But although most people that build their
-own kernels can reason through "maybe my FooBar2003 would work better if I
-included the driver for it",  but figuring that Frobozz isn't working because
-libgronk is broken because somebody removed futexes because they thought they
-sounded futile.....
+ Doing that, they would get the hotplug event and compatible hotplug
+ support for free. Coping the firmware image in the appropriate
+ directory would be the only userspace setup needed.
 
+ Feedback on the interface (data/loading) would also be welcomed, I am
+ probably biased by the hardware I have at hand.
 
---==_Exmh_-739122368P
-Content-Type: application/pgp-signature
+ It is currently not possible, but the interface means to allow it.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+> Bad firmware can be wrapped to get these. It should be made a
+> requirement to contain at least a size and a checksum.
 
-iD8DBQE+xRjDcC3lWbTT17ARAgBuAJ0f880Emm//ZDhJAy7PNYXc9FJknQCeP3y3
-rgcA4BAy/iJh35mEe2sMI3M=
-=he8o
------END PGP SIGNATURE-----
+ That could be done, but I am not sure the complexity is worth it. If a
+ privileged user wants to shoot on his foot, he can do so may other
+ ways already.
 
---==_Exmh_-739122368P--
+> To handle the big varieties of firmware formats, I would suggest
+> to either wrap all in user space or define 3 functions per
+> firmware format like the seq_file support. The thing is very
+> similiar, except that we read from user space instead of writing.
+> 
+> fw_begin_firmware_store()
+> fw_next_firmware_bytes()
+> fw_end_firmware_store()
+> 
+> fw_begin_firmware_store() gets at most a page of data and should
+>    evaluate from this data, how much bytes it still needs from
+>    user space. It will also setup a context and store it.
+> 
+> fw_next_firmware_bytes() will get passed more firmware bytes and
+>    tells us again how much it still need. It will get passed the
+>    context setup by fw_begin_firmware_store(). 
+>    
+>    This function can also abort a download by returning "no bytes
+>    needed anymore" and marking the firmware "invalid" in the
+>    context, which fw_end_firmware_store() will use to return
+>    "discard this firmware" to the firmware fs.
+> 
+>    Also this function is not really necessary, if we set the
+>    filesize of the firmware (truncate()) in firmware fs after
+>    fw_begin_firmware_store() and let the VFS do its magic.
+> 
+> fw_end_firmware_store() will be called, after user space closed
+>    the file descriptor (Note: This will handle SIGKILL also). It
+>    must decide, whether the downloaded firmware is valid and will
+>    be stored and can be used or will be discarded. It gets passed
+>    the context setup by fw_begin_firmware_store() and will free
+>    it's resources, if not needed anymore.
+> 
+> After fw_end_firmware_store(), the firmware can be downloaded to
+> the device (not before!).
+> 
+> This is much simpler, then it sounds. The only problems are:
+>    1.  getting the size of the firmware to be downloaded
+>       a) firmware has always the same size, so this is a constant
+>       b) firmware has size encoded -> use this 
+>       c) firmware size is file size -> need to wrap this to be like 1.b)
+> 
+>    2. decide, whether the firmware is valid
+>       a) checksum
+>       b) versions
+>       c) none -> trust or wrap to match 2.a) and/or 2.b)
+> 
+> What do you think?
+
+ I think that this is an overkill, the most I can see reasonable is
+ forcing an standard header on all firmware images with size/checksum.
+ And still I am not sure it is worth it.
+
+> The current idea (special file sytem) is great, but the interface
+> to the driver is not really perfect.
+
+ In which way is it not perfect?
+ 
+ Detailed criticism gives me the chance to try to get things better :)
+
+ Have a nice day
+
+ 	Manuel
+
+-- 
+--- Manuel Estrada Sainz <ranty@debian.org>
+                         <ranty@bigfoot.com>
+			 <ranty@users.sourceforge.net>
+------------------------ <manuel.estrada@hispalinux.es> -------------------
+Let us have the serenity to accept the things we cannot change, courage to
+change the things we can, and wisdom to know the difference.

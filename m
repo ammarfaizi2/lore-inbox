@@ -1,41 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269788AbUJGKtz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269789AbUJGKt7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269788AbUJGKtz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 06:49:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269790AbUJGKty
+	id S269789AbUJGKt7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 06:49:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269790AbUJGKt7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 06:49:54 -0400
-Received: from smtp07.web.de ([217.72.192.225]:58815 "EHLO smtp07.web.de")
-	by vger.kernel.org with ESMTP id S269788AbUJGKtJ (ORCPT
+	Thu, 7 Oct 2004 06:49:59 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:31975 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269789AbUJGKtp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 06:49:09 -0400
-Date: Thu, 7 Oct 2004 12:58:30 +0200
-From: Hanno Meyer-Thurow <h.mth@web.de>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc3-mm3
-Message-Id: <20041007125830.7c07ec03.h.mth@web.de>
-In-Reply-To: <20041007125610.0019eb3d@mango.fruits.de>
-References: <20041007015139.6f5b833b.akpm@osdl.org>
-	<200410071041.20723.sandersn@btinternet.com>
-	<20041007025007.77ec1a44.akpm@osdl.org>
-	<20041007121048.7953314f@phoebee>
-	<20041007124450.19b8a74b.h.mth@web.de>
-	<20041007125610.0019eb3d@mango.fruits.de>
-X-Mailer: Sylpheed version 0.9.12-gtk2-20040918 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Thu, 7 Oct 2004 06:49:45 -0400
+Date: Thu, 7 Oct 2004 16:33:23 +0530
+From: Dinakar Guniguntala <dino@in.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] ps shows wrong ppid
+Message-ID: <20041007110323.GA4503@in.ibm.com>
+Reply-To: dino@in.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="ZGiS0Q5IWpPtfppv"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Oct 2004 12:56:10 +0200
-Florian Schmidt <mista.tapas@gmx.net> wrote:
 
-> hi, 
-> 
-> is the patch for the nvidia installer publically available?
+--ZGiS0Q5IWpPtfppv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-i use gentoo and latest available that works great. some tried to 'startx' with root that does _not_ work just as user... who knows why?! ;)
+Hi,
 
-for anyone that needs the patches: http://geki.ath.cx/nvidia-kernel.tar.bz2
+/proc shows the wrong PID as parent in the following case
+
+Process A creates Threads 1 & 2 (using pthread_create)
+Thread 2 then forks and execs process B
+getppid() for Process B shows Process A (rightly) as parent,
+however /proc/B/status shows Thread 3 as PPid (incorrect)
+
+Following patch has been tested and it works ok
+
+Regards,
+
+Dinakar
+
+Signed-off-by: Dinakar Guniguntala <dino@in.ibm.com>
+
+
+--ZGiS0Q5IWpPtfppv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="ps.patch"
+
+diff -Naurp linux-2.6.9-rc1-orig/fs/proc/array.c linux-2.6.9-rc1/fs/proc/array.c
+--- linux-2.6.9-rc1-orig/fs/proc/array.c	2004-08-24 12:32:58.000000000 +0530
++++ linux-2.6.9-rc1/fs/proc/array.c	2004-10-07 15:33:05.465755672 +0530
+@@ -169,7 +169,7 @@ static inline char * task_state(struct t
+ 		get_task_state(p),
+ 		(p->sleep_avg/1024)*100/(1020000000/1024),
+ 	       	p->tgid,
+-		p->pid, p->pid ? p->real_parent->pid : 0,
++		p->pid, p->pid ? p->group_leader->real_parent->tgid : 0,
+ 		p->pid && p->ptrace ? p->parent->pid : 0,
+ 		p->uid, p->euid, p->suid, p->fsuid,
+ 		p->gid, p->egid, p->sgid, p->fsgid);
+
+--ZGiS0Q5IWpPtfppv--

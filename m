@@ -1,81 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261308AbTD3IAg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 04:00:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbTD3IAg
+	id S262124AbTD3H4v (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 03:56:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbTD3H4v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 04:00:36 -0400
-Received: from moutng.kundenserver.de ([212.227.126.188]:48846 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261308AbTD3IAe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 04:00:34 -0400
-From: Christian =?iso-8859-1?q?Borntr=E4ger?= <linux@borntraeger.net>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: [BUG 2.5.67 (and probably earlier)] /proc/dev/net doesnt show all net devices
-Date: Wed, 30 Apr 2003 10:12:39 +0200
-User-Agent: KMail/1.5.1
-Cc: acme@conectiva.com.br, linux-kernel@vger.kernel.org
-References: <200304291434.18272.linux@borntraeger.net> <20030429092857.4ebffcc9.rddunlap@osdl.org> <20030429130742.2c38b5f3.rddunlap@osdl.org>
-In-Reply-To: <20030429130742.2c38b5f3.rddunlap@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Apr 2003 03:56:51 -0400
+Received: from pc-80-195-84-110-du.blueyonder.co.uk ([80.195.84.110]:47745
+	"EHLO skymoo.dyndns.org") by vger.kernel.org with ESMTP
+	id S262124AbTD3H4u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 03:56:50 -0400
+Date: Wed, 30 Apr 2003 09:09:10 +0100
+From: Adam Mercer <r.a.mercer@blueyonder.co.uk>
+To: linux-kernel@vger.kernel.org
+Cc: marcelo@conectiva.com.br
+Subject: [PATCH 2.4.21-rc1] vesafb with large memory
+Message-ID: <20030430080910.GA5011@skymoo.dyndns.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="6TrnltStXW4iwmi0"
 Content-Disposition: inline
-Message-Id: <200304301012.39121.linux@borntraeger.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 April 2003 22:07, Randy.Dunlap wrote:
-> Oh well, I don't think that works.
 
-Well, it fails differently. Now i get all devices but several times.
+--6TrnltStXW4iwmi0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-[root@tel22fe root]# cat /proc/net/dev
-Inter-|   Receive                                                |  Transmit
- face |bytes    packets errs drop fifo frame compressed multicast|bytes    
-packets errs drop fifo colls carrier compressed
-    lo:     784      10    0    0    0     0          0         0      784      
-dummy0:       0       0    0    0    0     0          0         0        0       
- tunl0:       0       0    0    0    0     0          0         0        0       
-  gre0:       0       0    0    0    0     0          0         0        0       
-  sit0:       0       0    0    0    0     0          0         0        0       
-  eth0:   13356     148    0    0    0     0          0         0    27388     
-  eth1:     805       3    0    0    0     0          0         0      264       
-dummy0:       0       0    0    0    0     0          0         0        0       
- tunl0:       0       0    0    0    0     0          0         0        0       
-  gre0:       0       0    0    0    0     0          0         0        0       
-  sit0:       0       0    0    0    0     0          0         0        0       
-  eth0:   13356     148    0    0    0     0          0         0    27388     
-  eth1:     805       3    0    0    0     0          0         0      264       
-  eth2:       0       0    0    0    0     0          0         0      264       
-  hsi0:       0       0    0    0    0     0          0         0      264       
- tunl0:       0       0    0    0    0     0          0         0        0       
-  gre0:       0       0    0    0    0     0          0         0        0       
-  sit0:       0       0    0    0    0     0          0         0        0       
-  eth0:   13356     148    0    0    0     0          0         0    27388     
-  eth1:     805       3    0    0    0     0          0         0      264       
-  eth2:       0       0    0    0    0     0          0         0      264       
-  hsi0:       0       0    0    0    0     0          0         0      264       
-  gre0:       0       0    0    0    0     0          0         0        0       
-  sit0:       0       0    0    0    0     0          0         0        0       
-  eth0:   13356     148    0    0    0     0          0         0    28544     
-  eth1:     805       3    0    0    0     0          0         0      264       
-  eth2:       0       0    0    0    0     0          0         0      264       
-  hsi0:       0       0    0    0    0     0          0         0      264       
-  sit0:       0       0    0    0    0     0          0         0        0       
-  eth0:   13356     148    0    0    0     0          0         0    28544     
-  eth1:     805       3    0    0    0     0          0         0      264       
-  eth2:       0       0    0    0    0     0          0         0      264       
-  hsi0:       0       0    0    0    0     0          0         0      264       
-  eth0:   13356     148    0    0    0     0          0         0    29700     
-  eth1:     805       3    0    0    0     0          0         0      264       
-  eth2:       0       0    0    0    0     0          0         0      264       
-  hsi0:       0       0    0    0    0     0          0         0      264       
-  eth1:     805       3    0    0    0     0          0         0      264       
-  eth2:       0       0    0    0    0     0          0         0      264       
-  hsi0:       0       0    0    0    0     0          0         0      264       
-  eth2:       0       0    0    0    0     0          0         0      264       
-  hsi0:       0       0    0    0    0     0          0         0      264       
-  hsi0:       0       0    0    0    0     0          0         0      264       
+Hi
 
+I've recently been having a problem with the vesafb refusing to boot on
+my system, after investigation the problem further I found that it had
+been mentioned on the 27 March 2003, in this thread
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=104878364823195&w=2
+
+In the thread Walt H, waltabbyh <at> comcast <dot> net, provides a fix.
+After just downloading 2.4.21-rc1 I noticed that this fix was not
+present. So heres a patch against 2.4.21-rc1 to fix this probelm.
+
+Please CC me with any responses as I'm not on the list.
+
+Cheers
+
+Adam
+
+diff -urN linux-2.4.21-rc1-orig/drivers/video/vesafb.c linux-2.4.21-rc1/drivers/video/vesafb.c
+--- linux-2.4.21-rc1-orig/drivers/video/vesafb.c  2002-11-28 23:53:15.000000000 +0000
++++ linux-2.4.21-rc1/drivers/video/vesafb.c 2003-04-30 08:32:02.000000000 +0100
+@@ -520,7 +520,7 @@
+	video_width         = screen_info.lfb_width;
+	video_height        = screen_info.lfb_height;
+	video_linelength    = screen_info.lfb_linelength;
+-	video_size          = screen_info.lfb_size * 65536;
++	video_size          = screen_info.lfb_width *	screen_info.lfb_height * video_bpp;
+	video_visual = (video_bpp == 8) ?
+		FB_VISUAL_PSEUDOCOLOR : FB_VISUAL_TRUECOLOR;						
+
+--6TrnltStXW4iwmi0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="2.4.21-rc1-vesafb-highmem.patch"
+
+diff -urN linux-2.4.21-rc1-orig/drivers/video/vesafb.c linux-2.4.21-rc1/drivers/video/vesafb.c
+--- linux-2.4.21-rc1-orig/drivers/video/vesafb.c	2002-11-28 23:53:15.000000000 +0000
++++ linux-2.4.21-rc1/drivers/video/vesafb.c	2003-04-30 08:32:02.000000000 +0100
+@@ -520,7 +520,7 @@
+ 	video_width         = screen_info.lfb_width;
+ 	video_height        = screen_info.lfb_height;
+ 	video_linelength    = screen_info.lfb_linelength;
+-	video_size          = screen_info.lfb_size * 65536;
++	video_size          = screen_info.lfb_width * screen_info.lfb_height * video_bpp;
+ 	video_visual = (video_bpp == 8) ?
+ 		FB_VISUAL_PSEUDOCOLOR : FB_VISUAL_TRUECOLOR;
+ 
+
+--6TrnltStXW4iwmi0--

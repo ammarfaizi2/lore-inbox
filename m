@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267286AbTA0TqS>; Mon, 27 Jan 2003 14:46:18 -0500
+	id <S267289AbTA0TzJ>; Mon, 27 Jan 2003 14:55:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267287AbTA0TqS>; Mon, 27 Jan 2003 14:46:18 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:28421 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S267286AbTA0TqR>;
-	Mon, 27 Jan 2003 14:46:17 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301271956.h0RJu9Ij001336@darkstar.example.net>
-Subject: Re: Hard Disk Failure
-To: rtilley@vt.edu (rtilley)
-Date: Mon, 27 Jan 2003 19:56:09 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3E3B3FF0@zathras> from "rtilley" at Jan 26, 2003 09:33:11 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S267299AbTA0TzJ>; Mon, 27 Jan 2003 14:55:09 -0500
+Received: from twinlark.arctic.org ([208.44.199.239]:2272 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP
+	id <S267289AbTA0TzI>; Mon, 27 Jan 2003 14:55:08 -0500
+Date: Mon, 27 Jan 2003 12:04:26 -0800 (PST)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Dave Jones <davej@codemonkey.org.uk>
+cc: Balbir Singh <balbir_soni@yahoo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Patches have a license
+In-Reply-To: <20030127104705.GC25913@codemonkey.org.uk>
+Message-ID: <Pine.LNX.4.53.0301271153560.2745@twinlark.arctic.org>
+References: <20030127095840.25042.qmail@web13601.mail.yahoo.com>
+ <20030127104705.GC25913@codemonkey.org.uk>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > no.  e2fsprogs might cause data loss, but not
-> > physical damage.
-> 
-> This reminds me of something I read once.
-> 
-> In his book, Takedown, Tsutomu Shimomura (forgive me if that's
-> spelled wrong) wrote a few short paragraphs about how he was able to
-> move the head-arm of a magnetic disk drive back and forth with
-> software commands. He could tell the head-arm to go to any cylinder
-> on the drive, he wondered what would happen if he tried to send it
-> to a cylinder that was outside the physical limits of the drive. He
-> told the drive (a 200 cylinder drive) to goto cylinder 4000. The
-> drive actually tried to go to that cylinder and caused a hardware
-> failure in the process.
+On Mon, 27 Jan 2003, Dave Jones wrote:
 
-It's actually possible to make some old mainframe hard disks 'walk'
-across the floor, by doing various seeks across the disk :-).
+> On Mon, Jan 27, 2003 at 01:58:40AM -0800, Balbir Singh wrote:
+>  > I would request everyone to post their patches with
+>  > a license, failing which it should be assumed that
+>  > the license is GPL.
+>
+> Surely the license of the diff matches the license of the
+> code it is patching ?
 
-> Is it still possible for software to damage hardware in this fashion
-> or is hardware smarter now? Do drives know not to try and access a
-> cylinder that is outside their physical limits?
+no... actually the diff poster retains their own copyright on the diff
+unless they specify otherwise.  so not only would folks using them in
+proprietary code would have to ask your permission to use the patch, but
+so should linus request you to release it under GPL.
 
-Since modern hard disks are not accessed by their physical
-geometries', I would imagine that it would be rare to be able to cause
-physical damage to a disk by sending a reference to an out of range
-sector.  The disk has to translate the sector you send to it in to
-it's real geometry anyway, so there should be no way to translate an
-invalid sector in to an invalid physical geometry location, which it
-could then not seek to.
+although it's somewhat tongue in cheek, check the url i include on all
+messages i send -- <http://arctic.org/~dean/legal>.
 
-John
+i'm not sure if they still do it, but when IBM started contributing to the
+apache project, every patch they posted included a disclaimer and release
+under the apache license.
+
+also FSF requires a release form on file from you to accept any patch.
+(i've also got a form on file with the ASF which i think formalises this
+copyright issue for core group members.)
+
+in the end i'm sure you could argue your intent was clear and implicit,
+but some folks prefer to be explicit.
+
+-dean

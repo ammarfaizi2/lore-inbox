@@ -1,36 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264547AbUD1AbS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264531AbUD1ArL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264547AbUD1AbS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 20:31:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264551AbUD1AbS
+	id S264531AbUD1ArL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 20:47:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264534AbUD1ArL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 20:31:18 -0400
-Received: from mail.kroah.org ([65.200.24.183]:55008 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264547AbUD1AaF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 20:30:05 -0400
-Date: Tue, 27 Apr 2004 17:29:15 -0700
-From: Greg KH <greg@kroah.com>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: linux-parport@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.6-rc1] Add class support to drivers/char/ppdev.c
-Message-ID: <20040428002915.GI10548@kroah.com>
-References: <12810000.1083106348@dyn318071bld.beaverton.ibm.com>
-Mime-Version: 1.0
+	Tue, 27 Apr 2004 20:47:11 -0400
+Received: from web12824.mail.yahoo.com ([216.136.174.205]:20319 "HELO
+	web12824.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264531AbUD1ArJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 20:47:09 -0400
+Message-ID: <20040428004707.89142.qmail@web12824.mail.yahoo.com>
+Date: Tue, 27 Apr 2004 17:47:07 -0700 (PDT)
+From: Shantanu Goel <sgoel01@yahoo.com>
+Subject: Re: 2.6.6-rc{1,2} bad VM/NFS interaction in case of dirty page writeback
+To: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Andrew Morton <akpm@osdl.org>
+Cc: sgoel01@yahoo.com, linux-kernel@vger.kernel.org
+In-Reply-To: <1083080207.2616.31.camel@lade.trondhjem.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <12810000.1083106348@dyn318071bld.beaverton.ibm.com>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 27, 2004 at 03:52:28PM -0700, Hanna Linder wrote:
-> 
-> Here is a patch to add class support to drivers/char/ppdev.c. I have verified
-> it compiles and works on my system. 
-> 
-> Please test or consider for inclusion.
+Andrew/Trond,
 
-Sorry, but I already have a pending patch for this :(
+Any consensus as to what the right approach is here?
 
-greg k-h
+One cheap though perhaps hack'ish solution would be to
+introduce yet another special error code like
+WRITEPAGE_ACTIVATE which instead of moving the page to
+the head of the active list instead moves it to the
+head of the inactive list.  In this case, would it
+also make sense for balance_pgdat() to
+wakeup_bdflush() before blk_congestion_wait()? 
+Otherwise, kswapd() would keep looping over the same
+pages at least until kupdate kicks in or a process
+stalls in try_to_free_pages()?
+
+Thanks,
+Shantanu
+
+
+
+	
+		
+__________________________________
+Do you Yahoo!?
+Win a $20,000 Career Makeover at Yahoo! HotJobs  
+http://hotjobs.sweepstakes.yahoo.com/careermakeover 

@@ -1,295 +1,151 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265780AbUACAnS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 19:43:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265783AbUACAnS
+	id S265806AbUACAtp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 19:49:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265814AbUACAtp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 19:43:18 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:55938 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S265780AbUACAnD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 19:43:03 -0500
-Date: Fri, 02 Jan 2004 16:42:26 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: lse-tech <lse-tech@lists.sourceforge.net>
-Subject: 2.6.1-rc1-mjb1
-Message-ID: <4690000.1073090546@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Fri, 2 Jan 2004 19:49:45 -0500
+Received: from moutng.kundenserver.de ([212.227.126.185]:13262 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S265806AbUACAtg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 19:49:36 -0500
+From: Christian Trefzer <ctrefzer@web.de>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] IMQ port to 2.6.0
+Date: Sat, 3 Jan 2004 01:48:37 +0100
+User-Agent: KMail/1.5.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <200401030148.17358.ctrefzer@web.de>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_mFh9/8xiqLuyqZo"
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:09e594b18ddbe36227f84519c7cfcca7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patchset contains ... oh hell, anything I feel like putting in it.  
-It's meant to be pretty stable - performance should be better than mainline,
-particularly on larger machines.
 
-I'd be very interested in feedback from anyone willing to test on any 
-platform, however large or small.
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.6.1-rc1/patch-2.6.1-rc1-mjb1.bz2
-
-Since 2.6.0-mjb2 (~ = changed, + = added, - = dropped)
-
-Notes:  
-
-Now includes kexec and the new kgdb-over-ethernet code ... please test!
-Sound under xmms, and other code that uses OSS emulation interfaces to
-ALSA drivers should sound a whole load better than mainline with this release.
-
------------------------------------------------------------------------
-
-Now in Linus' tree:
-
-- vm86_sysenter_fix				Brian Gerst
-	Re-enable sysenter after task switch
-
-- readahead_fixes				Ram Pai
-	Fix performance bugs in readahead
-
-- readahead_simplfiy				Ram Pai
-	Simplify the readahead code
-
-- slab_reclaim_accounting			Manfred Spraul
-	Fix slab reclaim accounting
-
-Dropped:
-
-New:
-
-+ smp_boot_id					Martin J. Bligh
-	Fix panic if boot cpu's phys apicid doesn't match expected.
-
-+ sysfs_backing_store1				Maneesh Soni
-	Provide a backing store for sysfs out of permanent KVA space.
-
-+ sysfs_backing_store2				Maneesh Soni
-	Provide a backing store for sysfs out of permanent KVA space.
-
-+ sysfs_backing_store3				Maneesh Soni
-	Provide a backing store for sysfs out of permanent KVA space.
-
-+ sysfs_backing_store4				Maneesh Soni
-	Provide a backing store for sysfs out of permanent KVA space.
-
-+ sysfs_backing_store5				Maneesh Soni
-	Provide a backing store for sysfs out of permanent KVA space.
-
-+ gcov warning fix				Martin J. Bligh
-	remove "export-objs" from gcov.
-
-Pending:
-config_numasched
-list_of_lists
-Hyperthreaded scheduler (Ingo Molnar)
-Child runs first (akpm)
-pidmaps_nodepages (Dave Hansen)
-Netdump
-Netconsole
-
-Present in this patch:
-
-netdrvr_2.6.1_rc1_exp1				Jeff Garzik
-	Net driver kit, including the netpoll infrastructure.
-
-kgdb						Various
-	Stolen from akpm's 2.6.0-mm1, includes fixes
-
-kgdboe_netpoll					Matt Mackall et al.
-	Kgdb over ethernet support that works with the netpoll infrastructure
-
-ppc64_bar_0_fix					Anton Blanchard
-	PPC 64 fixups
-
-ppc64_reloc_hide				Anton Blanchard / Paul Mackerras
-	PPC 64 fixups
-
-ppc64_sched_clock_fix				Anton Blanchard / Paul Mackerras
-	PPC 64 fixups
-
-ppc64_use_statfs64				Anton Blanchard
-	PPC 64 fixups
-
-ppc64_compat_clock				Olaf Hering
-	PPC 64 fixups
-
-ppc64_numa_sign_extn				Anton Blanchard
-	PPC 64 fixups
-
-ppc64_IRQ_INPROGRESS_fix			Anton Blanchard
-	PPC 64 fixups
-
-spinlock_inlining				Andrew Morton & Martin J. Bligh
-	Inline spinlocks for profiling. Made into a ugly config option by me.
-
-lockmeter					John Hawkes / Hanna Linder
-	Locking stats.
-
-
-oops_dump_preceding_code			Andrew Morton
-	dump opcodes preceding and after the offending EIP.
-
-4g4g						Ingo Molnar
-	Provide a 4G/4G user/kernel split for 32 bit memory lushes.
-
-lotsa_sds					Badari
-	Enable lots of scsi disks
-
-x86-64						Andi Kleen et al.
-	x86_64 patch kit, 2.6.0-1
-
-early_printk					Dave Hansen / Keith Mannthey
-	Allow printk before console_init
-
-confighz					Andrew Morton / Dave Hansen
-	Make HZ a config option of 100 Hz or 1000 Hz
-
-config_page_offset				Dave Hansen / Andrea
-	Make PAGE_OFFSET a config option
-
-numameminfo					Martin Bligh / Keith Mannthey
-	Expose NUMA meminfo information under /proc/meminfo.numa
-
-sched_tunables					Robert Love
-	Provide tunable parameters for the scheduler (+ NUMA scheduler)
-
-partial_objrmap					Dave McCracken
-	Object based rmap for filebacked pages.
-
-local_balance_exec				Martin J. Bligh
-	Modify balance_exec to use node-local queues when idle
-
-tcp_speedup					Martin J. Bligh
-	Speedup TCP (avoid double copy) as suggested by Linus
-
-disable preempt					Martin J. Bligh
-	I broke preempt somehow, temporarily disable it to stop accidents
-
-aiofix2						Mingming Cao
-	fixed a bug in ioctx_alloc()
-
-config_irqbal					Keith Mannthey
-	Make irqbalance a config option
-
-percpu_real_loadavg				Dave Hansen / Martin J. Bligh
-	Tell me what the real load average is, and tell me per cpu.
-
-per_node_rss					Matt Dobson
-	Track which nodes tasks mem is on, so sched can be sensible.
-
-pfn_to_nid					Martin J. Bligh
-	Dance around the twisted rats nest of crap in i386 include.
-
-gfp_node_strict					Dave Hansen
-	Add a node strict binding as a gfp mask option
-
-irqbal_fast					Adam Litke
-	Balance IRQs more readily
-
-kcg						Adam Litke
-	Acylic call graphs from the kernel. Wheeeeeeeeeeeee!
-
-numa_mem_equals 				Dave Hansen
-	mem= command line parameter NUMA awareness.
-
-schedstat					Rick Lindsley
-	Provide lotsa scheduler statistics
-
-schedstat_arches				Rick Lindsley
-	Make schedstats support PPC, PPC64, x86_64 as well as ia32
-
-autoswap					Con Kolivas
-	Auto-tune swapiness
-
-mbind_part1					Matt Dobson
-	Bind some memory for NUMA.
-
-mbind_part2					Matt Dobson
-	Bind some more memory for NUMA.
-
-emulex driver					Emulex
-	Driver for emulex fiberchannel cards
-
-qlogic						Qlogic / Mike Anderson
-	Now qla2xxx-8.00.00b8-1
-
-protocol254					Paul Mackerras / Omkhar 
-	Allow protocol 254
-
-slabtune					Dave McCracken
-	Take slab in bigger bites on larger machines
-
-less_bouncy					Martin J. Bligh
-	Stop bouncing warm tasks cross node
-
-topdown						Bill Irwin
-	Turn userspace upside down for fun & profit
-
-sysfs_vs_dcache					Maneesh Soni
-	Fix race.
-
-pci_topology					Matt Dobson
-	Expose PCI NUMA topology to userspace
-
-stacktrace					Adam Litke
-	Stack backtracing via frame pointers
-
-implicit_huge_pages 				Adam Litke / wli / Brian T.
-	Implicit huge pages for mmap and shmem
-
-user_text_replication				Dave Hansen
-        Replicate read-only user text.
-
-fasync_lock_rcu					Manfred Spraul
-	Use RCU for fasync_lock
-
-lockmeter_ia64					Ray Bryant
-	Add a config option for lockmeter on ia64
-
-4g4g_sep_fix					Ingo Molnar
-	Fix SEP on 4g/4g split
-
-4g4g_sysenter_test_fix				Arjan
-	Fix sysenter detection
-
-4g4g_locked_copy				Dave McCracken
-	Locked copy to userspace
-
-kexec						Eric Biederman et al.
-	Exec a kernel for breakfast today.
-
-alsa_100rc2					ALSA project
-	New code drop of sound infrastructure - fixes various bugs.
-
-force_wholefrag					Martin J. Bligh et al.
-	OSS emulation sounds like crap without wholefrag. Revert that change.
-
-lockmeter_notsc					Martin J. Bligh
-	Lockmeter does not require CONFIG_X86_TSC.
-
-smp_boot_id					Martin J. Bligh
-	Fix panic if boot cpu's phys apicid doesn't match expected.
-
-sysfs_backing_store1				Maneesh Soni
-	Provide a backing store for sysfs out of permanent KVA space.
-
-sysfs_backing_store2				Maneesh Soni
-	Provide a backing store for sysfs out of permanent KVA space.
-
-sysfs_backing_store3				Maneesh Soni
-	Provide a backing store for sysfs out of permanent KVA space.
-
-sysfs_backing_store4				Maneesh Soni
-	Provide a backing store for sysfs out of permanent KVA space.
-
-sysfs_backing_store5				Maneesh Soni
-	Provide a backing store for sysfs out of permanent KVA space.
-
--mjb						Martin J. Bligh
-	Add a tag to the makefile
-
-
+--Boundary-00=_mFh9/8xiqLuyqZo
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+
+OK folks, hit me -- I tried to port the Intermediate Queueing Device driver 
+(IMQ) to the 2.6.x kernel series. It's my first submission / patch / whatever 
+to the linux kernel, so any hint will be appreciated.
+
+The diff was made against vanilla 2.6.0, but can be applied without a hitch to 
+2.6.1-rc1 as well. The further one compiles with two warnings in imq.c which 
+is actually left unchanged, as it seemed to be written somewhat clean, as far 
+as the 2.6 driver issues are concerned.
+Runtime testing will follow tomorrow, for both 2.6.0 and 2.6.1-rc1. But just 
+in case someone wants to break his/her box while I'm asleep, here goes the 
+diff. The true credits are due to someone else, of course...
+
+imq.c reads:
+Authors:	Patrick McHardy, <kaber@trash.net>
+		The first version was written by Martin Devera, <devik@cdi.cz>
+Credits:	Jan Rafaj <imq2t@cedric.vabo.cz>
+		 - Update patch to 2.4.21
+		Sebastian Strollo <sstrollo@nortelnetworks.com>
+		 - Fix "Dead-loop on netdevice imq"-issue
+
+Have fun, and blame (but please don't sue) me for any mess contained herein...
+
+
+
+--Boundary-00=_mFh9/8xiqLuyqZo
+Content-Type: application/x-gzip;
+  name="linux-2.6.0-imq-1.diff.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="linux-2.6.0-imq-1.diff.gz"
+
+H4sICNUD9j8CA2xpbnV4LTIuNi4wLWltcS0xLmRpZmYAtTtrV9tKkp/tX9Hh7hC/3zjBTjIhYIj3
+giFA7szZ2Tk6QmpjXcuSogePm+G/b1V16y0bh2RziC2pS9XV9eqq6rJuzOesGbgzZhpW8NDstYat
+TvNOtQzTVNtHthasuOWrvmFbbWP1TXFUX1sY1m3Lf/BTr8DgM+DlZrP5gllK3f03nWanC3+s0x11
+OvDX6oT/WL3T7XTK9Xr9B6kp9TqdAaHtM8A5GIwG/Rzajx9Zs9OAu25jv8c+fizXL2zXZ/acTS2f
+uyuuG6rP2ZeABxzwsiN+Z2ic6a5xx102d+1VRNWg1esiWc1uSweel+vl+oHjmAbXEYR7bLjPmuxt
+n/m2fN9rW9xv/67Z1ty4LddL4oJNz74w1dLZ3DZN+x5mTaJKvgmTtTSmGy7XfPNRUEMcyM7NunvZ
+Wc/UJZ8bJodp7Zs/m/9VOTyfHU9PFJi8yurvGeK2k3gMSzMDnbdpuTT14rmpPd8NNJ9Zc8Ww5jZS
+kEbiLW+C+bxF71xwS4eljgDE8A3VNP4iqaIkJBpvqSA4ADD5osa0hWrd4kzGrWXMDU21gJpRuW5Y
+sK7MezUV2Kkp8G4lsPAFWhSMG3/xBl7czh1lpXrLarnuLzhr19gV91ngMBtuXSADNaHWZh6sGUlb
+qB5DDfcWXC/XUZN6nV5jyOr41e2QNrHSOjQ4BrQ0P5jcYu9ZZxw90EwbaRPP6r8Zc6aDqOBRSkb/
++U/4mCWeK2fnR19PJ7CEukCGVjE31VsvxCcehzJ5z2ZfT09pHhTAPCJCV31ViUnD56pvrwxgIPcr
+uwQTeKBNDdatEkBChvPAIhaREECOGjCa9PDONnSUnrLgqs5dlHWFntWcBluu+ErRVG3BFZ/V6KIB
+GPAfY5HIgDm3jFYEi7Rsuge2Oi73wBWgdpCDYJ4duBp/JQUz2CfB7PUjwQBfgX9Msm42uVauDj9P
+jiIG+BpwSOcPoWxC/mwhkF8rjyfivuRjxEDdtR1l7qq3puH5layqA0RVyCS0Rd8eFZgEYiJ1K8LQ
+YBmrQE72998iJwed4TacPKyEbKz+Gh4eViIGVsfigWRdNcm0hLqCy6nsVnCh3gLh8LIq9Nvl82q1
+wO6642LexRLQbOdRifU4xz2L3zcAyPL8rPeq2aYuWTkYdImV2ykloEwpJeCJ738Nc2mKiL/vaYbo
+dhxBSIaLcXmT11jJvJHw+Z705dnta4EGizceWLuOn8ott8AzaC0thQWGtSVsiS7LmNHm9y/5SjUs
+D/eeG840U3VhmyCRshUHqaYZDvwo172FHZg6u7fdZQNe0lRwc8xfGB6TIz5snQx3iDvVDGBff/34
+mgFdr1evadsmN39vwEs3sLsGluQ54Ap8NmXqit276MMAirfYuWU+ll8qsltgpkek6NyDvVhn4AUD
+0/da7PNq1Wq1kAWfYFoVQjmuen6DgD0fNVGzVw4EAB6DoI3fgaf3YXm3iwbQeMt9siF2eMj+dfZv
+lhMbRAa5QGTU3x+xf6iuVbSNr4BnHnNsA6MqES7gJXruewMnBhqZBhQWIR68+SWIy/rGUDgfWWXj
+zRzE2oA3B/niGDePKQpre6zbG/W7o97bTWFtv9cl39KugUBrLPnvwuOBbjfDYBZ0GLXDSAa+3zDw
+Be3CqLeFCHJIrtEyHNe+dUGz4XLuctAwe+7fg38ds0c7APZboJg6bFSuAUYAU/hoKW3bzWFb2SCk
+RwRAwxEEITkeOg+8OZl9ZSdo4arJLoIbEzzyKdBmeTyHC8IzByEwPmM3j/T6MVJ3JaljxzbMQno0
+Ztyg8AyZTZFLBlkvJEDO1kCTr4BdwQJdZjuIpAqremSm6sd4Yp4dBKCNrjcixqvACXBnZ9pn1dUf
+G+zdUr3h7kffVb1FC0T9IXqtFLGZs7nhwoYiMbN7WN+9a/g+mC6s7kx1ffCFkKAAbwAjymz5UdON
+lvZXjO4Q5eALKv4bxHKpztU/2TvQrJ7/UeM6Os479cYOX0rxANKXr46OakGhPjpRkfbkIK/4DZic
+ARNc+S6mMeyd54mrjxYkWNyERaKH9VrghgpnOjYe2M4RbK9N07YheCY3LxQRk5OdpuF5AQm9jb7q
+N5lasHcit1hy1+Jma/EhPwQ6Fpi8cEhkYIVDYbJSMBQRVjjq+jAOl8vCUWOuqK6zDi1kaKBMm0cV
+w7kbSJD8LnLxx7A4V4CBeCPZiHwokMvdPbcA3MVT9KGrcpa+QlsyjcGmKoIniBYWtr2cWyhCRd6N
+EwBxyogjiu14BAmeH3Y2j5YKsc93CMe+U6TcoM8nzBMSGPH24liZQgCFlzO4vFAuLifK5fnX6+ns
+JPlwqpwdzE5OJ6zOQI+ftiCG/wJazq+ui4k5Pbi6Dsl4uTy35ubwx1YwjIgdFvJz+JMM/Rlyilg6
+zPA0zg8kRalKgBWswI4xM+sR1YKdysXB5VlFjjXYjrGDOUNiTDmaXB0mAOAKnDnuF0C13Du9nWoR
+I7ivSJdWwxUiApl7rANUcMAT4BCmidtKAT74BkVAZrrcD1yLVdbiqsJt84MDYQBMTsF7uwabtmly
+naICR9WWHACXuLe/Rl6xb7Cbax7GlY6pwvJkccNfgMvnloga0DEnkyYkmVJXLiix3TV56/c4Uw3z
+4prMjpPJMnGqBDZSofyPFCe6hRTBEiwolUpwoTiBnxoYp6EhUFwDLkcInjhQCdPN0pNkV1Tk8JkU
+o/KwMvzipHqjrNbKSHy9XyvFWpUlpViSCasHOeKDcvPog4jqkn0mt8apYSnfel1wtLBOIatCkeji
+SgVORVND9GJ5SI3rw+ifEGwbHNW5BPJyuWH9yTW/IliQkCIY+bFycHg4ubgmnkpt7YyLeQtvkXZt
+5m1Sa0QNSVSZMOtfx2kSw/hZGYyLyyi9BEPk8Be0EVb7ho9SfiZM4dOM3sXUDpzW8dnB1e/4DoIC
+NwCw2U3qOr78IXRWVYbLk0wjOCkP9j7URZA8C6sEhOJVheQlxLvLpsfHyteLqjSgYunnZVgku6Tw
+0DiEXpgQCiruQ0onJCUZpYpJ6An2jOWtuAtLVTj9yfGFcnB9fjY9jC35lXAfpQw/nsq5IlvsPp6z
+q4x3DK3GlUZVbFNu2qbIGB3DUkxbA5VZVHYJJekxPaMlfAMqxHPUm1BW35ofpD+VzIkfUFEL9gCq
+aDXYt5gRotoFGY5OY/LNAhPOu2TCIfwclcrx/XHI00gbniRbaTJcmeHRQmBCsTZ0f2JpJBDgKgS6
+FBBC6F0J/Sk3MW2DNeGKFTewohFCGlibGBarUK8a+WaiGSn9O8qFjRgNC2ipFPCV8S1p44wjjfQ5
+AcUeuXJezUF1xPkha0lV/FKbO245z0KJnSYEwzkrNQyWqzlnV5VODBlQIRKqSaPdZcKXTGZfvk6+
+TqoJ0wSDpWcplkRWHDIm5XYVBWsuMnIEsSIjPCrbh1QAEHfdWCYVuANdIZ9xC2k/5BFCdhAe6CZ3
+K2FAnHLpItyrCo25tSG7BDTd8XqcJKPdbH6QQdDbCgFf+35//DOB+A+xY7gFPwY/yo9hBsHeD/Ij
++/4wEUaX0vt16Wc4hahHIlgIrOeWNCb4vTx8MV8l/GAT/qQGJJaIGrAlWQM5TW9LsiR4dxRzUVhR
+0jdR3KIo/EFaYGDR3Anr25aybVe+Lek/YRTbyngLkofbkjxMSvVpvYvD4J3OJTfG6bQfwQ6ri3iX
+wv3S+1T0P47i4keHl2Dw4PLi8+WR8sf59CgaW/kBDnX3Op0Y/kGuAIIKGOvHI+TdER5Dttk5IIyG
+MD4Ba16u6JS7gofa9nxdUFMV8dPvk8vZ5LQaOoQEHhHLJveN5mR2fjY5Q9gVX+EZcATeYJ0Ge2bC
+akRolLSWJL+iB6ktqVNkByF7A+t5CYlULSKyOt4oddrYMFZOWtb6FIEChXi/exVWDkD1w8sPtAef
+HfxTOZr8cSVDMKDE8pcVZLwyubykWgFBYy+BOKO64f49B9Pp0mHS34L/tXbCiAD/pZCOUwKazv44
+OJUBryyZyHLGc1pRZTUW1S8KNONViGuzRoRQGxUiMZeMy9o1do+HUpg3anZg+dhoo/rsL+7aVEQo
+SfhmU7yANYmKgcFog6UznTEz2Lv3IX64q9cJpF6XAriaXEs/pJz/Yza5jAJOFLbmPAqFsdQVx0rP
+6tvf9B0xTM9JXVg8H6lNPCzUMjEsHgiiiZGRixIlY5qdvWMdkbWEW2y0IYfZS8ImaMuIAEYhN2Cp
+8NdsEqKEK5TzNJvhOmUFI5RnIuMGBTpfZ3SayVUrcHIWEtrBGlNJSkZEC7HoCkS1hnghP8HFPPnP
+GbWo9m8Trqb9gAx7UhtzIbQIh6thlpVjV8pKJR5hoUlvMJ0dn5PGhb1lpq3qXG+B+Vefd4yJACGc
+u2DdcfggLLuIUkIt3hXbYIaRCCOHccpKfspEdfR0ejiZXU0qOycXp7iM7Q9gZVPcxuPQsHFum0NY
+CYuHp/1mt9fsvmWd/mhvv+jw9Llj2ASu6CB2D490+93Cg9jhHrZ5wGdvgCexeKR3bYfH76KzQMoc
+NgGVCS42mAaS8jg7o0aBEZ09iiHCcA9LpJYGUaa9san1qlVmKL+4kRDE7LuG6DnbwcbCSv54F91t
+6Ju9wHFs19+h3dqBaMnDkzcIn46np9eTS3gM3F5w04EvuBHnknGZu+JV8Qw48IAkPH7F2vDCNnV5
+vPzFvkpMCTm/4VBrZItQTYAFj7LYzDiSCWBt0K07BKejaQe3CW1JJ8qweNF/iO0cCxd7FwiNn6KI
+3SP7mOG/9sLCtN7WubjALRfBVd/HbjNdlLVbcmGwENw27z06xEZQl6vk4/DkMizs4zo1U/U8vIQd
+Oz7mJjQ38Oze0P0FU1e2WMaqxaaOr95g70XILMDuOVzDs2+5FiDc0Ba4EsIjZoMEcY6HzI2oJu+7
+6h03qdEDoKZzovVeBRfnZ3QsoVysAg5Ms3UuJ9FU6lUpYdHB465PFQ9ajctX9h0eA2BjBbLKDSzs
+w2DifBW5a+GJczRttUF4PPVRaq5Eo+rsHfabjtJNu8ubwDB1eSTrYdvuhxbplFT1el7Vo87UMpN6
+Pvny9eB0+j+gniyh7ZMvp6wCqzFUUzTBokcFeZiqpcEKErrOMroOsRU4rqsfcFdhN+1GvxG13G7j
+sELgrMd6O+r/uMdKIku4rG5nNCh2WV3qY4XPN+SxUh3CEwDqUI8wx6t2Znj6z5NPooP44fYmO/jp
+fHY0nZ3QuHRZEN9taEBmZfYb/OHqlsx20ZEYK5Qaajiq1zNCKupaznKqAGatiApgX9zaU4Qr09zT
+G3WGG3vWqbUHMnHsMmPUHPYZ7kX6Hd3HT5LZQ6k7zA6Fpw+lzsObeXZIFhNh7G2HXqRcGtukxTwY
+qv+IMMKGimf4EjWJbyeSEDxvN3tvXiCVJLrEjwl6gyJ0ZDndPpkOfHXpBwWowaLqAFtzuy3zHNyg
+ZL/8C3v/MiekieIGTAJXySnKmbI1ta1CuErd6eBtscHxHjsi8eDaY6vA89HhUr9RC+XKMkdepZrF
+HyCxoRUP3oCbqHf3+tJb4DkDtSYrfgm/vH+hyl39/kk5vjw4ufr3uMye4H+52a7VkCe1WpmxWvZQ
+rck8myIBvOMugXzEWUdsBp/yMe5T2AEthh2X343YBXwaduBlQagRvD+gRvBBJyQWz3tlr3tD3Gpe
+sAL64jM7baG6pRIk0Kqp6HPZkx5V28O3qHtY3mD7C5Z95K3hKIATgi7Bsd6e+JnA3r5s/M30/X66
+nB6dTJQ46mIJYd+4hn7LSeYghfB+HGnZS/VJ1hfSWkUzZNQrnAktP25UFpSSrhQQ8Hl6cTGtEk+x
+de37M44C9yzNdnk7+qFH1kpzEGvdQw4ynwMU+Ngiz1CIKeEUusPRXqfQKfSGuJPWxRfK+3vOoljN
+okJN9BMIWbFZRvYqnjfihnyyIVl/omNgeYk6Fx7s0Ik0uiDpyg8rD1VmNT9Ex88PRGBfeC386g4K
+NDLuRM/09LO4owbczg1k7lbseOinSy91b5lO/3Sj/zpXJ34sRTS6AccSFNKY+uWKlfrdCoIic6vC
+MvtD+nVD/82w0e0/w4dUQ34p15D//8eZ59r0N3bpb+JchlGIJcmqJ1Ck5+22oBG/0JKKGvY32XAB
+fH6P7wy2tuQ1+Lay536HtKQTK8m6XlG2sRs0N4qFFtkx+WuVZm3X5mZDSjd14oacITvX68mIQfu4
+vdb334TeBJsP4hP9ouN8RkDCg1GzgBj1fNtxYE1YvsQCW7MkoURtUAF+VRO8wgpHTH8e9uVGVxIV
++N1d9qqSaZHJn7ZH56PyrWrE4DSBIjqgfjOxXGqboKMN7HERNVsmY4jwhCZz6hSD4rFNB5n0f4f3
+BsTzOwAA
+
+--Boundary-00=_mFh9/8xiqLuyqZo--
 

@@ -1,89 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267579AbUGWKAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263159AbUGWKEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267579AbUGWKAs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 06:00:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267590AbUGWKA2
+	id S263159AbUGWKEr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 06:04:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267590AbUGWKEA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 06:00:28 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:15023 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S267582AbUGWJzl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 05:55:41 -0400
-Date: Fri, 23 Jul 2004 18:56:59 +0900
-From: Takao Indoh <indou.takao@soft.fujitsu.com>
-Subject: [PATCH 4/5][Diskdump] IPF(IA64) support
-In-reply-to: <14C4709A99D341indou.takao@soft.fujitsu.com>
-To: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Message-id: <18C4709B6526CDindou.takao@soft.fujitsu.com>
-MIME-version: 1.0
-X-Mailer: TuruKame 3.63
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-References: <14C4709A99D341indou.takao@soft.fujitsu.com>
+	Fri, 23 Jul 2004 06:04:00 -0400
+Received: from mail4.bluewin.ch ([195.186.4.74]:20373 "EHLO mail4.bluewin.ch")
+	by vger.kernel.org with ESMTP id S267594AbUGWKC3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 06:02:29 -0400
+Date: Fri, 23 Jul 2004 12:01:01 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: zanussi@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, karim@opersys.com, richardj_moore@uk.ibm.com,
+       bob@watson.ibm.com, michel.dagenais@polymtl.ca
+Subject: Re: LTT user input
+Message-ID: <20040723100101.GA22440@k3.hellgate.ch>
+Mail-Followup-To: zanussi@us.ibm.com, linux-kernel@vger.kernel.org,
+	karim@opersys.com, richardj_moore@uk.ibm.com, bob@watson.ibm.com,
+	michel.dagenais@polymtl.ca
+References: <16640.10183.983546.626298@tut.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16640.10183.983546.626298@tut.ibm.com>
+X-Operating-System: Linux 2.6.8-rc2-bk1 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a patch for aic79xx driver.
+On Thu, 22 Jul 2004 15:47:03 -0500, zanussi@us.ibm.com wrote:
+> One of the things people mentioned wanting to see during Karim's LTT
+> talk at the Kernel Summit was cases where LTT had been useful to real
+> users.  Here are some examples culled from the ltt/ltt-dev mailing
+> lists:
+[...]
+> Another thing that came up was the impression that the overhead of
+> tracing is too high.  I'm not sure where the number mentioned (5%)
 
+The examples you mentioned confirm what Andrew mentioned recently:
+What little public evidence there is comes from developers trying
+to understand the kernel or debugging their own applications.
 
-diff -Nur linux-2.6.7.org/drivers/scsi/aic7xxx/aic79xx_osm.c linux-2.6.7/drivers/scsi/aic7xxx/aic79xx_osm.c
---- linux-2.6.7.org/drivers/scsi/aic7xxx/aic79xx_osm.c	2004-06-22 10:27:49.000000000 +0900
-+++ linux-2.6.7/drivers/scsi/aic7xxx/aic79xx_osm.c	2004-07-23 15:10:53.129007384 +0900
-@@ -786,6 +786,8 @@
- static int	   ahd_linux_bus_reset(Scsi_Cmnd *);
- static int	   ahd_linux_dev_reset(Scsi_Cmnd *);
- static int	   ahd_linux_abort(Scsi_Cmnd *);
-+static int	   ahd_linux_sanity_check(struct scsi_device *);
-+static void	   ahd_linux_poll(struct scsi_device *);
- 
- /*
-  * Calculate a safe value for AHD_NSEG (as expressed through ahd_linux_nseg).
-@@ -1684,6 +1686,8 @@
- 	.slave_alloc		= ahd_linux_slave_alloc,
- 	.slave_configure	= ahd_linux_slave_configure,
- 	.slave_destroy		= ahd_linux_slave_destroy,
-+	.dump_sanity_check	= ahd_linux_sanity_check,
-+	.dump_poll		= ahd_linux_poll,
- };
- 
- /**************************** Tasklet Handler *********************************/
-@@ -4191,6 +4195,39 @@
- 	return IRQ_RETVAL(ours);
- }
- 
-+static int
-+ahd_linux_sanity_check(struct scsi_device *device)
-+{
-+	struct ahd_softc *ahd;
-+	struct ahd_linux_device *dev;
-+
-+	ahd = *(struct ahd_softc **)device->host->hostdata;
-+	dev = ahd_linux_get_device(ahd, device->channel,
-+				   device->id, device->lun,
-+				   /*alloc*/FALSE);
-+
-+	if (dev == NULL)
-+		return -ENXIO;
-+	if (ahd->platform_data->qfrozen || dev->qfrozen)
-+		return -EBUSY;
-+	if (spin_is_locked(&ahd->platform_data->spin_lock))
-+		return -EBUSY;
-+	return 0;
-+}
-+
-+static void
-+ahd_linux_poll(struct scsi_device *device)
-+{
-+	struct ahd_softc *ahd;
-+	int ours;
-+
-+	ahd = *(struct ahd_softc **)device->host->hostdata;
-+	ours = ahd_intr(ahd);
-+	if (ahd_linux_next_device_to_run(ahd) != NULL)
-+		ahd_schedule_runq(ahd);
-+	ahd_linux_run_complete_queue(ahd);
-+}
-+
- void
- ahd_platform_flushwork(struct ahd_softc *ahd)
- {
+I'd be interested to see examples of how these tools help regular sys
+admins or technically inclined users (no Aunt Tillie compatibility
+required) -- IMO that would go a long way to make a case for inclusion [1].
+
+Another concern raised at the summit (and what I am personally most
+concerned about) is the overlap in all the frameworks that add logging
+hooks for all kinds of purposes: auditing, performance, user level
+debugging, etc.
+
+Out of mainline examples that have been around for a while include:
+
+- systrace http://niels.xtdnet.nl/systrace/
+- syscalltrack http://syscalltrack.sourceforge.net/
+- LTT http://www.opersys.com/LTT/
+
+I wonder if a basic framework that can serve more than one purpose
+makes sense.
+
+When considering which tracing functionlity should be in mainline,
+performance measurments for user-space come in pretty much at the
+bottom of my list: Questions like "which process is overwriting this
+config file behind my back" seem a lot more common and more likely to
+be asked by people not willing or capable of compiling a patched kernel
+for that purpose. And tools that are useful for kernel developers (while
+unpopular with the powers that be) are nice to have in mainline because
+as a kernel hacker, you often _have_ to debug the latest kernel for
+which your favorite debug tool is not working yet. An argument for
+adding security auditing to mainline is that it helps convince the
+conservative and cautious security folks that the functionality is
+accepted and here to stay.
+
+None of these arguments apply for LTT as it presents itself: If you
+are debugging or tuning a multi-threaded user space app or trying to
+understand the kernel, patching some kernel supported by the respective
+tool should hardly be a problem.
+
+Please note that I just compared the relative merits of merging various
+kinds of tracing functionality into mainline. I did not argue in favor
+or against the inclusion of LTT-type functionality.
+
+My point is that the best bet for tools that seem to aim at user-space
+performance debugging is to demonstrate how they can be useful for a
+wider audience, or to hitch a ride with a framework that does appeal
+to a wider audience.
+
+Roger
+
+[1] You could take a page from how DTrace was introduced:
+    http://www.sun.com/bigadmin/content/dtrace/
+    Or take a look at:
+    http://syscalltrack.sourceforge.net/when.html
+    http://syscalltrack.sourceforge.net/examples.html

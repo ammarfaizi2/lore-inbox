@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312269AbSCRJj6>; Mon, 18 Mar 2002 04:39:58 -0500
+	id <S312270AbSCRJka>; Mon, 18 Mar 2002 04:40:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312270AbSCRJjs>; Mon, 18 Mar 2002 04:39:48 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:61196 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S312269AbSCRJjf>;
-	Mon, 18 Mar 2002 04:39:35 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
-Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-        Andreas Dilger <adilger@clusterfs.com>,
-        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Cleanup port 0x80 use (was: Re: IO delay ...) 
-In-Reply-To: Your message of "Mon, 18 Mar 2002 10:18:06 BST."
-             <Pine.LNX.4.33.0203180938060.9609-100000@biker.pdb.fsc.net> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 18 Mar 2002 20:39:18 +1100
-Message-ID: <4463.1016444358@ocs3.intra.ocs.com.au>
+	id <S312271AbSCRJkT>; Mon, 18 Mar 2002 04:40:19 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:27154 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S312270AbSCRJkL>; Mon, 18 Mar 2002 04:40:11 -0500
+Message-Id: <200203180938.g2I9c1q27846@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: linux-kernel@vger.kernel.org, Dave Jones <davej@suse.de>
+Subject: [-ENOCOMPILE] ataraid as module in linux-2.5.7-pre2
+Date: Mon, 18 Mar 2002 11:37:33 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Martin Dalecki <martin@dalecki.de>, Vojtech Pavlik <vojtech@suse.cz>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Mar 2002 10:18:06 +0100 (CET), 
-Martin Wilck <Martin.Wilck@fujitsu-siemens.com> wrote:
->On Sun, 17 Mar 2002, Jamie Lokier wrote:
->
->> As long as __SLOW_DOWN_IO_PORT is a simple constant, you can just use
->> this instead:
->>
->>     #define __SLOW_DOWN_IO_ASM	"\noutb %%al,$" #__SLOW_DOWN_IO_PORT
->
->What cpp are you guys using? Mine does stringification (#s) only with
->arguments of function-like macros. However
+gcc -D__KERNEL__ -I/.share/usr/src/linux-2.5.7-pre2/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
+-march=i386 -DMODULE -DMODVERSIONS -include 
+/.share/usr/src/linux-2.5.7-pre2/include/linux/modversions.h  
+-DKBUILD_BASENAME=ataraid  -DEXPORT_SYMTAB -c ataraid.c
 
-Recent 2.4 and 2.5 kernels have include/linux/stringify.h.  This should
-work.
-
-#define __SLOW_DOWN_IO_ASM	"\noutb %%al,$" __stringify(__SLOW_DOWN_IO_PORT)
-
+ataraid.c: In function `ataraid_make_request':
+ataraid.c:105: structure has no member named `b_rdev'
+ataraid.c:103: warning: `minor' might be used uninitialized in this function
+ataraid.c: In function `ataraid_split_request':
+ataraid.c:182: structure has no member named `b_rsector'
+ataraid.c:193: warning: passing arg 1 of `generic_make_request_Rsmp_dd2e0d32' 
+makes pointer from integer without a cast
+ataraid.c:193: too many arguments to function 
+`generic_make_request_Rsmp_dd2e0d32'
+ataraid.c:194: warning: passing arg 1 of `generic_make_request_Rsmp_dd2e0d32' 
+makes pointer from integer without a cast
+ataraid.c:194: too many arguments to function 
+`generic_make_request_Rsmp_dd2e0d32'
+ataraid.c: In function `ataraid_init':
+ataraid.c:249: `hardsect_size' undeclared (first use in this function)
+ataraid.c:249: (Each undeclared identifier is reported only once
+ataraid.c:249: for each function it appears in.)
+ataraid.c:280: warning: passing arg 2 of 
+`blk_queue_make_request_Rsmp_e6d39e8a' from incompatible pointer 
+typeataraid.c: In function `ataraid_exit':
+ataraid.c:289: `hardsect_size' undeclared (first use in this function)
+make[2]: *** [ataraid.o] Error 1
+make[2]: Leaving directory `/.share/usr/src/linux-2.5.7-pre2/drivers/ide'
+make[1]: *** [_modsubdir_ide] Error 2
+make[1]: Leaving directory `/.share/usr/src/linux-2.5.7-pre2/drivers'
+make: *** [_mod_drivers] Error 2

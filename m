@@ -1,81 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270345AbTHGTkR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 15:40:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270469AbTHGTkR
+	id S270471AbTHGTnb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 15:43:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270479AbTHGTnb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 15:40:17 -0400
-Received: from host81-136-142-241.in-addr.btopenworld.com ([81.136.142.241]:9963
-	"EHLO mx.homelinux.com") by vger.kernel.org with ESMTP
-	id S270345AbTHGTkH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 15:40:07 -0400
-Date: Thu, 7 Aug 2003 20:40:02 +0100 (BST)
-From: Mitch@0Bits.COM
-X-X-Sender: mitch@mx.homelinux.com
-Reply-To: Mitch@0Bits.COM
-To: Fridtjof Busse <fbusse@gmx.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.22-rc1
-Message-ID: <Pine.LNX.4.53.0308072035300.25633@mx.homelinux.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Hits: -0.1
+	Thu, 7 Aug 2003 15:43:31 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:11760 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S270471AbTHGTn3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 15:43:29 -0400
+Subject: RE: [APM]  CPU idle calls causing problem with ASUS P4PE MoBo
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Kathy Frazier <kfrazier@mdc-dayton.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <PMEMILJKPKGMMELCJCIGAEADCEAA.kfrazier@mdc-dayton.com>
+References: <PMEMILJKPKGMMELCJCIGAEADCEAA.kfrazier@mdc-dayton.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-J3+SmlJd3tghLDqtJO3+"
+Organization: Red Hat, Inc.
+Message-Id: <1060285402.24858.0.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-2) 
+Date: Thu, 07 Aug 2003 21:43:23 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well, I only see this with 2.4.22-pre/rc, so this is definitly not a
-> hardware-problem, it runs just fine with 2.4.21 at 9950 kB/s.
 
-Sounds exactly like the problem i was having. However the logical
-thought behind it was that it must be either 1) a hardware specific
-problem, or 2) a generic usb driver problem. Since only a handful
-of people seen the problem, then this logically leads one to the
-conclusion that our usb<->ide devices have some marginal timing
-issues that are being triggered with the new code.
+--=-J3+SmlJd3tghLDqtJO3+
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> And running my backup on USB 1.1 is not an option, way to slow.
+On Thu, 2003-08-07 at 21:46, Kathy Frazier wrote:
+> >if you can mail the top part of the dmidecode output (the part that has
+> >the bios idents) the machine can trivially be added to the apm idle
+> >blacklist.
+>=20
+> Is this in the message file?  I didn't see anything with "DMI" in it.  Is
+> this what you are looking for?  If not, please let me know.
 
-Well in my case i opted for the slow backup rather than the no backup
-if i wanted to move forward with the new kernels.
+dmidecode is an application that comes in the kernel-utils rpm that
+dumps a bunch of BIOS information
 
-Cheers
-Mitch
+--=-J3+SmlJd3tghLDqtJO3+
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
--------- Original Message --------
-Subject: Re: Linux 2.4.22-rc1
-Date: Thu, 7 Aug 2003 17:45:06 +0200
-From: Fridtjof Busse <fbusse@gmx.de>
-To: linux-kernel@vger.kernel.org
-CC: Mitch@0Bits.COM
-References: <Pine.LNX.4.53.0308071119200.27424@mx.homelinux.com>
-<15050.1060270543@www56.gmx.net>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-* <Mitch@0Bits.COM>:
-> Not enough info.
->
-> What usb controller do you have ? Which usb driver ?
-> ohci ? uhci ? ehci ? usb 2.0 ?
+iD8DBQA/MqvaxULwo51rQBIRAm18AKCZyqIxdk3p6qShiaDffuOnnlhJlACgjUZP
+u5HTmkis0CnBrmpadv5lOPg=
+=GytV
+-----END PGP SIGNATURE-----
 
-nforce2 with the ehci-driver.
-
-> I reported this a long time ago on the usb lists, but
-> never got down to the bottom of the problem (my fault for
-> not following thru).
-
-I also reported this problem there, but didn't get a reply at all.
-
-> However if i disable the usb 2.0
-> driver (i.e. not loading the ehci driver) which my external
-> storage is connected to, then everything works fine - albeit
-> it much more slowly. Appears to be a timing issue on some
-> usb <-> ide controller chips since not everyone is seeing this.
-
-Well, I only see this with 2.4.22-pre/rc, so this is definitly not a
-hardware-problem, it runs just fine with 2.4.21 at 9950 kB/s.
-And running my backup on USB 1.1 is not an option, way to slow.
-
--- 
-Fridtjof Busse
-panic("Lucy in the sky....");
-	2.2.16 /usr/src/linux/arch/sparc64/kernel/starfire.c
-
+--=-J3+SmlJd3tghLDqtJO3+--

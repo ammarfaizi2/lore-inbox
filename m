@@ -1,51 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318028AbSHLOHS>; Mon, 12 Aug 2002 10:07:18 -0400
+	id <S318022AbSHLONs>; Mon, 12 Aug 2002 10:13:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318033AbSHLOHS>; Mon, 12 Aug 2002 10:07:18 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35853 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318028AbSHLOHR>;
-	Mon, 12 Aug 2002 10:07:17 -0400
-Message-ID: <3D57C1F4.1040303@mandrakesoft.com>
-Date: Mon, 12 Aug 2002 10:11:00 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 6/12] hold atomic kmaps across generic_file_read
-References: <200208120018.g7C0IFN185157@saturn.cs.uml.edu>
-X-Enigmail-Version: 0.65.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S318034AbSHLONs>; Mon, 12 Aug 2002 10:13:48 -0400
+Received: from ppp-217-133-217-5.dialup.tiscali.it ([217.133.217.5]:42961 "EHLO
+	home.ldb.ods.org") by vger.kernel.org with ESMTP id <S318022AbSHLONr>;
+	Mon, 12 Aug 2002 10:13:47 -0400
+Subject: Re: [patch] tls-2.5.31-C3
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux-Kernel ML <linux-kernel@vger.kernel.org>,
+       Alexandre Julliard <julliard@winehq.com>
+In-Reply-To: <Pine.LNX.4.44.0208121754250.20225-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0208121754250.20225-100000@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-DKgRlDKkN0ZQGc3RkdcT"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 12 Aug 2002 16:17:30 +0200
+Message-Id: <1029161850.4258.64.camel@ldb>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert D. Cahalan wrote:
-> Jeff Garzik writes:
->>I sure would like an O_STREAMING flag, though...  let a user app hint to 
->>the system that the pages it is reading or writing are perhaps less 
->>likely to be reused, or access randomly....  A copy-file syscall would 
->>be nice, too, but that's just laziness talking....
+
+--=-DKgRlDKkN0ZQGc3RkdcT
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Mon, 2002-08-12 at 17:57, Ingo Molnar wrote:
 > 
+> On 12 Aug 2002, Luca Barbieri wrote:
 > 
-> You have a laptop computer with a USB-connected Ethernet.
-> You mount a NetApp or similar box via the SMB/CIFS protocol.
-> You see a multi-gigabyte file. You make a copy... ouch!!!
-> For each gigabyte, you hog the network for an hour.
+> > > > Numbers:
+> > > > unconditional copy of 2 tls descs: 5 cycles
+> > > > this patch with 1 tls desc: 26 cycles
+> > > > this patch with 8 tls descs: 52 cycles
+> > > 
+> > > [ 0 tls descs: 2 cycles. ]
+> > Yes but common multithreaded applications will have at least 1 for
+> > pthreads.
+> 
+> i would not say 'common' and 'multithreaded' in the same sentence. It
+> might be so in the future, but it isnt today.
+Most modern servers (e.g. Apache2, MySQL) are multithreaded and so are
+large desktop applications (e.g. Evolution, Galeon, Nautilus).
+ 
+> > > how did you calculate this?
+> > ((26 - 5) / 2000) * 100 ~= 1
+> > Benchmarks done in kernel mode (2.4.18) with interrupts disabled on a
+> > Pentium3 running the rdtsc timed benchmark in a loop 1 million times
+> > with 8 unbenchmarked iterations to warm up caches and with the time to
+> > execute an empty benchmark subtracted.
+> 
+> old libpthreads or new one?
+What are you asking about? (benchmarks are in kernel mode and context
+switch is from forked processes)
 
-> Now let's say this file is for a MacOS app. You have to
-> preserve the creator, file type, resource fork, etc.
+> > > glibc multithreaded applications can avoid the
+> > > lldt via using the TLS, and thus it's a net win.
+> > Surely, this patch is better than the old LDT method but much worse than
+> > the 2-TLS one.
+> 
+> people asked for a 3rd TLS already.
+It would be interesting to know what they would use it for.
 
-/bin/cp has these problems regardless of whether or not it uses a 
-copy-file syscall.
 
-	Jeff
+--=-DKgRlDKkN0ZQGc3RkdcT
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
+iD8DBQA9V8N6djkty3ft5+cRAg7IAJ9zR0iKZrAwOO4JgjW4+hQuKoxXzgCdEykI
+hNo6wWuI4PwTbPJahs/bzqU=
+=/fa2
+-----END PGP SIGNATURE-----
 
+--=-DKgRlDKkN0ZQGc3RkdcT--

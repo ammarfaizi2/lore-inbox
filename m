@@ -1,59 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267409AbUJOACF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267263AbUJOAGV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267409AbUJOACF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 20:02:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268074AbUJOAB4
+	id S267263AbUJOAGV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 20:06:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268035AbUJOAC3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 20:01:56 -0400
-Received: from opersys.com ([64.40.108.71]:44302 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S267411AbUJNX7U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 19:59:20 -0400
-Message-ID: <416F14B4.8070002@opersys.com>
-Date: Thu, 14 Oct 2004 20:07:16 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Thomas Zanussi <trz@us.ibm.com>,
-       Robert Wisniewski <bob@watson.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U0
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <416F0071.3040304@opersys.com> <20041014234603.GA22964@elte.hu>
-In-Reply-To: <20041014234603.GA22964@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Oct 2004 20:02:29 -0400
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:34705 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S268120AbUJNX60 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 19:58:26 -0400
+Date: Fri, 15 Oct 2004 01:58:45 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: per-process shared information
+Message-ID: <20041014235845.GL17849@dualathlon.random>
+References: <20041013231042.GQ17849@dualathlon.random> <20041014214711.GF6899@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041014214711.GF6899@logos.cnet>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 14, 2004 at 06:47:11PM -0300, Marcelo Tosatti wrote:
+> 
+> Hi Andrea!
+> 
+> No useful comments on the statm reporting issue.
+> 
+> > Ps. if somebody like Hugh volunteers implementing it, you're very
+> > welcome, just let me know (I'll eventually want to work on the oom
+> > handling too, which is pretty screwed right now, 
+> 
+> Yes, we've got reports of bad OOM killing behaviour (is that what you're
+> talking about?) 
+> 
+> One thing is the removal of "if (nr_swap_pages > 0) goto out" from oom_kill() 
+> causes problems (spurious oom kill). 
+> 
+> We need to throttle more, on page reclaiming progress I think.
+> 
+> Take a look at 
+> 
+> http://marc.theaimsgroup.com/?l=linux-mm&m=109587921204602&w=2
+> 
+> What else you're seeing?
+> 
+> > I've plenty of bugs
+> > open on that area and the lowmem zone protection needs a rewrite too to
+> > be set to a sane default value no matter the pages_lows etc..).
+> 
+> Nick has been working on that lately I think. What is the problem?
 
-Ingo Molnar wrote:
-> i just added something ad-hoc.
+things went worse with the switch from 2.6.8 to 2.6.9-rc, so that's not
+the nr_swap_pages > 0, likely the latest changes introduced regressions
+instead of fixing them.
 
-Yes, I understood as much. I'm suggesting it because a lot of
-people who need such ad-hoc functionality could easily be
-using relayfs.
-
-> I wanted it to be accurate across
-> interrupt entries. I have not looked at the relayfs locking but how does
-> it solve that?
-
-cmpxchg (basically: try reserve; if fail retry; else write),
-with per-cpu buffers.
-
-> Also, cli/sti makes it obviously SMP-safe and is pretty
-> cheap on all x86 CPUs. (Also, i didnt want to use preempt_disable/enable
-> because the tracer interacts with that code quite heavily.)
-
-No preempt_disable/enable found in the lockless logging in relayfs.
-
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
-
+I'm seeing both hard deadlocks and suprious oom kills, and that all
+makes sense, I can see the bugs, it's just I need to fix them, my plan
+is to forward port some code from 2.4 which works fine, objrmap will make
+it even better.

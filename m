@@ -1,46 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130849AbQL1TL1>; Thu, 28 Dec 2000 14:11:27 -0500
+	id <S130592AbQL1TRj>; Thu, 28 Dec 2000 14:17:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130756AbQL1TLR>; Thu, 28 Dec 2000 14:11:17 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:56584 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S130592AbQL1TLM>;
-	Thu, 28 Dec 2000 14:11:12 -0500
-Message-ID: <3A4B8895.CEDA8311@innominate.de>
-Date: Thu, 28 Dec 2000 19:38:13 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
+	id <S130155AbQL1TR2>; Thu, 28 Dec 2000 14:17:28 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:26377 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130592AbQL1TRS>; Thu, 28 Dec 2000 14:17:18 -0500
+Date: Thu, 28 Dec 2000 10:46:47 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrew Morton <andrewm@uow.edu.au>
+cc: Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [prepatch] 2.4 waitqueues
+In-Reply-To: <3A4937D2.B7FE7C28@uow.edu.au>
+Message-ID: <Pine.LNX.4.10.10012281031520.12260-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Re: innd mmap bug in 2.4.0-test12
-In-Reply-To: <Pine.LNX.4.21.0012271717230.14052-100000@duckman.distro.conectiva> <87d7eded2d.fsf@atlas.iskon.hr> <3A4A758F.98EBC605@innominate.de> <3A4B4E62.237DC3C5@innominate.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[in vmscan.c]
-> Between line 573 and 594 the page can have 1 user and be unlocked, so it
-> can be removed by invalidate_inode_pages, and the mapping will be
-> cleared here:
-> http://innominate.org/~graichen/projects/lxr/source/mm/filemap.c?v=v2.3#L98
 
-This seems like the obvious thing to do:
 
---- 2.4.0-test13.clean/mm/filemap.c	Fri Dec 29 03:14:58 2000
-+++ 2.4.0-test13/mm/filemap.c	Fri Dec 29 03:16:21 2000
-@@ -96,6 +96,7 @@
- 	remove_page_from_inode_queue(page);
- 	remove_page_from_hash_queue(page);
- 	page->mapping = NULL;
-+	ClearPageDirty(page);
- }
- 
- void remove_inode_page(struct page *page)
+On Wed, 27 Dec 2000, Andrew Morton wrote:
+> 
+> - Introduces a kernel-wide macro `SMP_KERNEL'.  This is designed to
+>   be used as a `compiled ifdef' in place of `#ifdef CONFIG_SMP'.  There
+>   are a few examples in __wake_up_common().
+
+Please don't do this, it screws up the config option autodetection in
+"make checkconfig", and also while gcc is reasonably good at deleting dead
+code, gcc has absolutely no clue at all about deleting dead variables, and
+will leave the stack slots around giving bigger stack usage and worse
+cache behaviour.
+
+(The gcc stack slot problem is a generic gcc problem - your approach just
+tends to make it worse).
+
+If you want to do this locally somewhere, that's ok, but keep it local.
+
+> - SLEEP_ON_VAR, SLEEP_ON_HEAD and SLEEP_ON_TAIL have been changed.  I
+>   see no valid reason why these functions were, effectively, doing
+>   this:
+> 
+> 	spin_lock_irqsave(lock, flags);
+> 	spin_unlock(lock);
+> 	schedule();
+> 	spin_lock(lock);
+> 	spin_unlock_irqrestore(lock, flags);
+> 
+>   What's the point in saving the interrupt status in `flags'? If the
+>   caller _wants_ interrupt status preserved then the caller is buggy,
+>   because schedule() enables interrupts.  2.2 does the same thing.
+> 
+>   So this has been changed to:
+> 
+> 	spin_lock_irq(lock);
+> 	spin_unlock(lock);
+> 	schedule();
+> 	spin_lock(lock);
+> 	spin_unlock_irq(lock);
+> 
+>   Or did I miss something?
+
+I'm a bit nervous about changing the old compatibility cruft, but the
+above is probably ok.
+
+Anyway, I'd like you to get rid of the global SMP_KERNEL thing (turning it
+into a local one if you want to for this case), _and_ I'd like to see this
+patch with the wait-queue spinlock _outside_ the __common_wakeup() path.
+
+Why? Those semaphores will eventually want to re-use the wait-queue
+spinlock as a per-semaphore spinlock, and they would need to call
+__common_wakeup() with the spinlock held to do so. So let's get the
+infrastructure in place.
+
+		Linus
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,63 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291834AbSBTNJx>; Wed, 20 Feb 2002 08:09:53 -0500
+	id <S291836AbSBTNLx>; Wed, 20 Feb 2002 08:11:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291835AbSBTNJn>; Wed, 20 Feb 2002 08:09:43 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:56081 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S291834AbSBTNJc>; Wed, 20 Feb 2002 08:09:32 -0500
-Date: Wed, 20 Feb 2002 14:09:29 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5.5] ALSA + YMFPCI compile fixes.
-Message-ID: <20020220130929.GD8539@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+	id <S291841AbSBTNLo>; Wed, 20 Feb 2002 08:11:44 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:14054 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S291836AbSBTNL2>;
+	Wed, 20 Feb 2002 08:11:28 -0500
+Date: Wed, 20 Feb 2002 08:11:26 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Chris Mason <mason@suse.com>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sb_read problem in hpfs
+In-Reply-To: <143960000.1014210030@tiny>
+Message-ID: <Pine.GSO.4.21.0202200809030.12139-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch is necessary to compile ALSA with YMFPCI support
-on 2.5.5, at least in the following configuration:
-	CONFIG_SOUND=m
-	CONFIG_SND=m
-	CONFIG_SND_SEQUENCER=m
-	CONFIG_SND_OSSEMUL=y
-	CONFIG_SND_MIXER_OSS=m
-	CONFIG_SND_PCM_OSS=m
-	CONFIG_SND_SEQUENCER_OSS=m
-	CONFIG_SND_YMFPCI=m
 
-Even if my soundcard appears to work properly (using oss emulation), ALSA 
-people will probably want to double-check this fix however... 
 
-Stelian.
+On Wed, 20 Feb 2002, Chris Mason wrote:
 
-===== sound/core/seq/Makefile 1.1 vs edited =====
---- 1.1/sound/core/seq/Makefile	Wed Feb 13 20:32:02 2002
-+++ edited/sound/core/seq/Makefile	Wed Feb 20 12:18:36 2002
-@@ -76,7 +76,7 @@
- obj-$(CONFIG_SND_CS46XX) += snd-seq-midi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o
- obj-$(CONFIG_SND_EMU10K1) += snd-seq-midi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi-emul.o snd-seq-virmidi.o
- obj-$(CONFIG_SND_TRIDENT) += snd-seq-midi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi-emul.o snd-seq-instr.o
--obj-$(CONFIG_SND_YMFPCI) += snd-seq-midi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o
-+obj-$(CONFIG_SND_YMFPCI) += snd-seq-midi.o snd-seq.o snd-seq-device.o snd-seq-midi-event.o snd-seq-midi-emul.o snd-seq-instr.o
+> 
+> Hi guys,
+> 
+> hpfs_read_super triggers calls to sb_bread (through hpfs_map_sector) 
+> before setting s_blocksize.  This leads to a BUG() in grow_buffers.
+
+Fsck.  Merge problems when backporting to 2.4 - thanks for spotting.
+Yes, patch is correct.  I'll look through the rest of thing and see
+what else is missing.
  
- include $(TOPDIR)/Rules.make
- 
-===== sound/core/seq/instr/Makefile 1.1 vs edited =====
---- 1.1/sound/core/seq/instr/Makefile	Wed Feb 13 20:32:02 2002
-+++ edited/sound/core/seq/instr/Makefile	Wed Feb 20 12:22:24 2002
-@@ -44,6 +44,7 @@
- obj-$(CONFIG_SND_FM801) += snd-ainstr-fm.o
- obj-$(CONFIG_SND_SONICVIBES) += snd-ainstr-fm.o
- obj-$(CONFIG_SND_TRIDENT) += snd-ainstr-simple.o
-+obj-$(CONFIG_SND_YMFPCI) += snd-ainstr-fm.o
- 
- include $(TOPDIR)/Rules.make
- 
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+> This patch was tested lightly, hpfs_read_super completes
+> properly when an hpfs FS is not present.
+> 
+> -chris
+> 
+> --- suse.4/fs/hpfs/super.c Tue, 19 Feb 2002 08:55:47 -0500 
+> +++ suse.4(w)/fs/hpfs/super.c Tue, 19 Feb 2002 22:28:37 -0500 
+> @@ -410,6 +410,8 @@
+>  	/*s->s_hpfs_mounting = 1;*/
+>  	dev = s->s_dev;
+>  	set_blocksize(dev, 512);
+> +	s->s_blocksize = 512;
+> +	s->s_blocksize_bits = 9;
+>  	s->s_hpfs_fs_size = -1;
+>  	if (!(bootblock = hpfs_map_sector(s, 0, &bh0, 0))) goto bail1;
+>  	if (!(superblock = hpfs_map_sector(s, 16, &bh1, 1))) goto bail2;
+> @@ -436,8 +438,6 @@
+>  
+>  	/* Fill superblock stuff */
+>  	s->s_magic = HPFS_SUPER_MAGIC;
+> -	s->s_blocksize = 512;
+> -	s->s_blocksize_bits = 9;
+>  	s->s_op = &hpfs_sops;
+>  
+>  	s->s_hpfs_root = superblock->root;
+> 
+> 
+

@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261994AbSIZBvk>; Wed, 25 Sep 2002 21:51:40 -0400
+	id <S262143AbSIZC2P>; Wed, 25 Sep 2002 22:28:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262138AbSIZBvk>; Wed, 25 Sep 2002 21:51:40 -0400
-Received: from blowme.phunnypharm.org ([65.207.35.140]:20490 "EHLO
-	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S261994AbSIZBvj>; Wed, 25 Sep 2002 21:51:39 -0400
-Date: Wed, 25 Sep 2002 21:56:45 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Shanti Katta <katta@csee.wvu.edu>
-Cc: sparc-linux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Reg Sparc memory addresses
-Message-ID: <20020926015645.GE28289@phunnypharm.org>
-References: <1033005676.2723.5.camel@indus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1033005676.2723.5.camel@indus>
-User-Agent: Mutt/1.4i
+	id <S262144AbSIZC2P>; Wed, 25 Sep 2002 22:28:15 -0400
+Received: from pacific.moreton.com.au ([203.143.238.4]:37075 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id <S262143AbSIZC2O>; Wed, 25 Sep 2002 22:28:14 -0400
+Message-ID: <3D927278.6040205@snapgear.com>
+Date: Thu, 26 Sep 2002 12:35:36 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthew Wilcox <willy@debian.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: 2.5.38uc1 (MMU-less support)
+References: <20020925151943.B25721@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 25, 2002 at 10:01:15PM -0400, Shanti Katta wrote:
-> Hi,
-> I compiled user-mode-linux kernel on Ultrasparc with load address set to
-> 00000000e0000000. But, when I try to debug the kernel, it just says
-> cannot access memory at address 0xa00020b0.
-> This error message remains the same no matter what I change the load
-> address to. Can anyone guide me on valid memory addresses for userspace
-> on Sparc? and how much different is that from x86 architecture?
+Hi Matthew,
 
-You compiled it on ultrasparc, but I hope you compiled it as a "sparc"
-target and not "sparc64".
+Some more comments on the ethernet driver.
 
-I'm not familiar with how UML runs in user space, but I suspect it needs
-to think it is sparc and not sparc64 for it to run in 32bit sparc
-userspace (which is what ultrasparc runs at for most cases).
+BTW, the original this came from is in the kernel tree
+at arch/ppc/8xx_io/fec.c.
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+Matthew Wilcox wrote:
+> Motorola 5272 ethernet driver:
+> * In Config.in, let's conditionalise it on CONFIG_PPC or something
+> * Can you use module_init() so it doesn't need an entry in Space.c?
+
+I don't think this will work. This is not a device that can be
+determined to be present like a PCI device. It is more like an
+ISA device, it needs to be probed to figure out if it is really
+there. I can't see any way not to use Space.c for non-auto-detectable
+type devices... (Offcourse I could be missing something :-)
+
+
+> * You're defining CONFIG_* variables in the .c file.  I don't know whether
+>   this is something we're still trying to avoid doing ... Greg, you seem
+>   to be CodingStyle enforcer, what's the word?
+
+I missed this the first time through :-)
+I am not sure what you mean, CodingStyle enforcer?
+Can you elaborate for me?
+
+Regards
+Greg
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
+825 Stanley St,                                  FAX:    +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+

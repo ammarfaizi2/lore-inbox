@@ -1,67 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbUKGUNl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbUKGUTC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261593AbUKGUNl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 15:13:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbUKGUNl
+	id S261601AbUKGUTC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 15:19:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbUKGUTC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 15:13:41 -0500
-Received: from mail.murom.net ([213.177.124.17]:61578 "EHLO mail.murom.net")
-	by vger.kernel.org with ESMTP id S261593AbUKGUNi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 15:13:38 -0500
-Date: Sun, 7 Nov 2004 23:13:19 +0300
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Jason Baron <jbaron@redhat.com>
-Cc: Krzysztof Taraszka <dzimi@pld-linux.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] Add back lost call to tty->driver.set_termios
-Message-ID: <20041107201319.GC2345@sirius.home>
-References: <200410311053.34927.dzimi@pld-linux.org> <Pine.LNX.4.44.0411020958460.8117-100000@dhcp83-105.boston.redhat.com> <20041107200601.GA2345@sirius.home>
+	Sun, 7 Nov 2004 15:19:02 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:44040 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261601AbUKGUS5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 15:18:57 -0500
+Date: Sun, 7 Nov 2004 21:18:21 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: mpt_linux_developer@lsil.com
+Cc: linux-kernel@vger.kernel.org
+Subject: RFC: 2.6: unused code under drivers/message/fusion/
+Message-ID: <20041107201821.GT14308@stusta.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vEao7xgI/oilGqZ+"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041107200601.GA2345@sirius.home>
-X-yoursite-MailScanner-Information: Please contact the ISP for more information
-X-yoursite-MailScanner: Found to be clean
-X-yoursite-MailScanner-SpamCheck: not spam, SpamAssassin (score=-1.067,
-	required 6, autolearn=not spam, AWL 0.46, BAYES_01 -1.52)
-X-MailScanner-From: vsu@altlinux.ru
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I know this patch is wrong, but I'd like to note that it actually 
+changes nothing since all code removed or made static currently has no 
+in-kernel users (there seems to be a mptstm.c missing?).
 
---vEao7xgI/oilGqZ+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Please comment on how to correctly handle this.
 
-The call to tty->driver.set_termios in change_termios() has been lost;
-after termios locking changes it can be put back safely.
 
---- kernel-source-2.4.27/drivers/char/tty_ioctl.c.set_termios	2004-11-07 18=
-:28:12 +0300
-+++ kernel-source-2.4.27/drivers/char/tty_ioctl.c	2004-11-07 21:44:36 +0300
-@@ -138,6 +138,9 @@ static void change_termios(struct tty_st
- 		}
- 	}
-=20
-+	if (tty->driver.set_termios)
-+		(*tty->driver.set_termios)(tty, &old_termios);
-+
- 	ld =3D tty_ldisc_ref(tty);
- 	if (ld !=3D NULL) {
- 		if (ld->set_termios)
+diffstat output:
+ drivers/message/fusion/mptbase.c  |    7 ++-----
+ drivers/message/fusion/mptbase.h  |    2 --
+ drivers/message/fusion/mptscsih.c |    2 +-
+ 3 files changed, 3 insertions(+), 8 deletions(-)
 
---vEao7xgI/oilGqZ+
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-iD8DBQFBjoHfW82GfkQfsqIRArurAJ9tNC3r8vy90Xevj9MW7fJOewHwzACfdN/i
-8piZZrslrt9u/xuZyxnPA2I=
-=wxDK
------END PGP SIGNATURE-----
+--- linux-2.6.10-rc1-mm3-full/drivers/message/fusion/mptscsih.c.old	2004-11-07 20:56:13.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/message/fusion/mptscsih.c	2004-11-07 20:56:48.000000000 +0100
+@@ -98,7 +98,7 @@
+ 
+ /* Set string for command line args from insmod */
+ #ifdef MODULE
+-char *mptscsih = NULL;
++static char *mptscsih = NULL;
+ module_param(mptscsih, charp, 0);
+ #endif
+ 
+--- linux-2.6.10-rc1-mm3-full/drivers/message/fusion/mptbase.h.old	2004-11-07 20:57:21.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/message/fusion/mptbase.h	2004-11-07 20:57:37.000000000 +0100
+@@ -984,10 +984,8 @@
+  *  Public data decl's...
+  */
+ extern struct list_head	  ioc_list;
+-extern struct proc_dir_entry	*mpt_proc_root_dir;
+ 
+ extern int		  mpt_lan_index;	/* needed by mptlan.c */
+-extern int		  mpt_stm_index;	/* needed by mptstm.c */
+ 
+ /*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+ #endif		/* } __KERNEL__ */
+--- linux-2.6.10-rc1-mm3-full/drivers/message/fusion/mptbase.c.old	2004-11-07 20:57:46.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/message/fusion/mptbase.c	2004-11-07 20:58:54.000000000 +0100
+@@ -133,9 +133,8 @@
+  *  Public data...
+  */
+ int mpt_lan_index = -1;
+-int mpt_stm_index = -1;
+ 
+-struct proc_dir_entry *mpt_proc_root_dir;
++static struct proc_dir_entry *mpt_proc_root_dir;
+ 
+ #define WHOINIT_UNKNOWN		0xAA
+ 
+@@ -355,7 +354,7 @@
+ 			dmfprintk((MYIOC_s_INFO_FMT "Got TURBO reply req_idx=%08x\n", ioc->name, pa));
+ 			type = (pa >> MPI_CONTEXT_REPLY_TYPE_SHIFT);
+ 			if (type == MPI_CONTEXT_REPLY_TYPE_SCSI_TARGET) {
+-				cb_idx = mpt_stm_index;
++				cb_idx = -1;
+ 				mf = NULL;
+ 				mr = (MPT_FRAME_HDR *) CAST_U32_TO_PTR(pa);
+ 			} else if (type == MPI_CONTEXT_REPLY_TYPE_LAN) {
+@@ -5868,7 +5867,6 @@
+ 
+ /*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+ EXPORT_SYMBOL(ioc_list);
+-EXPORT_SYMBOL(mpt_proc_root_dir);
+ EXPORT_SYMBOL(mpt_register);
+ EXPORT_SYMBOL(mpt_deregister);
+ EXPORT_SYMBOL(mpt_event_register);
+@@ -5886,7 +5884,6 @@
+ EXPORT_SYMBOL(mpt_GetIocState);
+ EXPORT_SYMBOL(mpt_print_ioc_summary);
+ EXPORT_SYMBOL(mpt_lan_index);
+-EXPORT_SYMBOL(mpt_stm_index);
+ EXPORT_SYMBOL(mpt_HardResetHandler);
+ EXPORT_SYMBOL(mpt_config);
+ EXPORT_SYMBOL(mpt_toolbox);
 
---vEao7xgI/oilGqZ+--
+
+

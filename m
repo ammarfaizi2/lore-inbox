@@ -1,64 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268858AbRHKVmO>; Sat, 11 Aug 2001 17:42:14 -0400
+	id <S268864AbRHKVoY>; Sat, 11 Aug 2001 17:44:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268860AbRHKVly>; Sat, 11 Aug 2001 17:41:54 -0400
-Received: from lanm-pc.com ([64.81.97.118]:14071 "EHLO golux.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S268858AbRHKVlo>;
-	Sat, 11 Aug 2001 17:41:44 -0400
-Date: Sat, 11 Aug 2001 16:32:31 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Tyan K7 thunder hang -- possible light at end of tunnel
-Message-ID: <20010811163231.A13806@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
+	id <S268862AbRHKVoP>; Sat, 11 Aug 2001 17:44:15 -0400
+Received: from mail.zmailer.org ([194.252.70.162]:60175 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S268860AbRHKVoD>;
+	Sat, 11 Aug 2001 17:44:03 -0400
+Date: Sun, 12 Aug 2001 00:44:05 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
+Cc: Ben LaHaise <bcrl@redhat.com>, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, mike@bigstorage.com,
+        kevin@bigstorage.com
+Subject: Re: [PATCH] 64 bit scsi read/write
+Message-ID: <20010812004405.W11046@mea-ext.zmailer.org>
+In-Reply-To: <20010703065312.J4841@vestdata.no> <Pine.LNX.4.33.0107032211120.30968-100000@toomuch.toronto.redhat.com> <20010726041821.C19238@vestdata.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20010726041821.C19238@vestdata.no>; from kernel@ragnark.vestdata.no on Thu, Jul 26, 2001 at 04:18:21AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We got a lot of helpful responses -- thanks, everybody.  People seem 
-to find this an interesting problem, so I'm posting an update.
+On Thu, Jul 26, 2001 at 04:18:21AM +0200, Ragnar Kjørstad wrote:
+> On Tue, Jul 03, 2001 at 10:19:36PM -0400, Ben LaHaise wrote:
+> > Here's the [completely untested] generic scsi fixup, but I'm told that
+> > some controllers will break with it.  Give it a whirl and let me know how
+> > many pieces you're left holding. =)  Please note that msdos partitions do
+> > *not* work on devices larger than 2TB, so you'll have to use the scsi disk
+> > directly.  This patch applies on top of v2.4.6-pre8-largeblock4.diff.
+> 
+> I just trid this, but when I can't load the md modules becuase of
+> missing symbols for __divdi3 and __umoddi3. 
 
-We've seen the hang three times under the uniprocessor kernel now.  'Tain't
-the SMP code, apparently.  We also know it's not the Radeon 64, because
-we saw the hang after yanking it and falling back to the on-board Rage
-ATI XL.  
+   This should, most likely, be linux-kernel FAQ item -- it might even be
+   there..
 
-That sort of simplifies things.  It strongly suggests a hardware-level
-problem, either a bad board or transient thermal failures.  But we now
-have a third guess which I want to plausibility-check with the experts.
+   You need to develop an additional patch to the MD module code so
+   that it won't do careless arbitrary divisions of  long64 / int32  kind.
+   It will be more efficient to do that with suitable shifts, after all.
 
-Gary moved the sound card (SB Live!) up one slot and dropped in one of
-the two IBM UltraStar 36Z15s we were really supposed to be using in
-this box (just 4.2msec seek time -- yum!).  We've since done a successful
-RH workstation install, copied the X tree over, and successfully done
-a `make clean' and `make World' (both were previously reliable ways to produce
-the hang).
+/Matti Aarnio
 
-Can the kind of random lockups I previously reported be caused by a PCI IRQ
-conflict?  Gary says he's solved box hangs like this before by moving the
-sound card.  That might turn out to be the solution this time.  Another
-possibility is that having the SB Live! sound module loaded helps produce
-the problem.  Yet another possibility is that the drive we were previously
-using was bad (and no, I don't see how a bad SCSI drive could plausibly
-lock up the machine either).
-
-We've captured dmesg's output, and moved the card back to its original slot.
-We're going to dump dmesg, compare it with the  first capture, and test for
-the hang by cleaning and building the X tree again.
-
-Nineteen hours and counting...
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-"Guard with jealous attention the public liberty.  Suspect every one
-who approaches that jewel.  Unfortunately, nothing will preserve it
-but downright force.  Whenever you give up that force, you are
-inevitably ruined."	-- Patrick Henry, speech of June 5 1788
+> /lib/modules/2.4.6-pre8/kernel/drivers/md/linear.o
+> depmod: 	__udivdi3
+> depmod: 	__umoddi3
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.6-pre8/kernel/drivers/md/lvm-mod.o
+> depmod: 	__udivdi3
+> depmod: 	__umoddi3
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.6-pre8/kernel/drivers/md/md.o
+> depmod: 	__udivdi3
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.6-pre8/kernel/drivers/md/raid0.o
+> depmod: 	__udivdi3
+> depmod: 	__umoddi3
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.6-pre8/kernel/drivers/md/raid5.o
+> depmod: 	__udivdi3
+> depmod: 	__umoddi3
+> 
+> 
+> Did you forget something in your patch, or was it not supposed to work
+> on ia32?
+> 
+> This is kind of urgent, because I will temporarely be without testing
+> equipment pretty soon. Tips are appreciated!
+> 
+> 
+> 
+> -- 
+> Ragnar Kjorstad
+> Big Storage
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,64 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262060AbUL1EBh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262063AbUL1EJK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262060AbUL1EBh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 23:01:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbUL1EBh
+	id S262063AbUL1EJK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 23:09:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbUL1EJJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 23:01:37 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:16803 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262060AbUL1EBd convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 23:01:33 -0500
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="GB2312"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: the patch of restore-pci-config-space-on-resume break S1 onASUS2400 NE
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Date: Tue, 28 Dec 2004 12:01:04 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F8406A730C0@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: the patch of restore-pci-config-space-on-resume break S1 onASUS2400 NE
-Thread-Index: AcTsIzDXacrPzOwoQSS/9LuVEbrFtAAbbNNw
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Brown, Len" <len.brown@intel.com>
-Cc: "Arjan van de Ven" <arjanv@redhat.com>, "Pavel Machek" <pavel@ucw.cz>,
-       "Li, Shaohua" <shaohua.li@intel.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       <acpi-devel@lists.sourceforge.net>,
-       "Fu, Michael" <michael.fu@intel.com>
-X-OriginalArrivalTime: 28 Dec 2004 04:01:04.0929 (UTC) FILETIME=[DA408110:01C4EC91]
+	Mon, 27 Dec 2004 23:09:09 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:12455
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262063AbUL1EJI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 23:09:08 -0500
+Date: Mon, 27 Dec 2004 20:04:24 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] net/ipv4/: misc possible cleanups
+Message-Id: <20041227200424.557a5902.davem@davemloft.net>
+In-Reply-To: <20041228033617.GI5345@stusta.de>
+References: <20041215005139.GJ23151@stusta.de>
+	<20041227191535.5edce690.davem@davemloft.net>
+	<20041228033617.GI5345@stusta.de>
+X-Mailer: Sylpheed version 1.0.0rc (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the idea in post
-http://sourceforge.net/mailarchive/message.php?msg_id=9091508
-cure S1 resume hang for my ASUS2400NE.
+On Tue, 28 Dec 2004 04:36:17 +0100
+Adrian Bunk <bunk@stusta.de> wrote:
 
-I guess Len will accept it.
+> tcp_done doesn't call tcp_clear_xmit_timer, it calls 
+> tcp_clear_xmit_timers (note the s) which is not an inline but an 
+> EXPORT_SYMBOL'ed function in tcp_timer.c.
 
-Does it imply IDE DMA  could be started too early in the original resume code?
-
-Thanks,
-Luming
-
------Original Message-----
-From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk] 
-Sent: 2004Äê12ÔÂ27ÈÕ 21:45
-To: Yu, Luming
-Cc: Arjan van de Ven; Pavel Machek; Brown, Len; Li, Shaohua; Pallipadi, Venkatesh; Linux Kernel Mailing List; acpi-devel@lists.sourceforge.net; Fu, Michael
-Subject: RE: the patch of restore-pci-config-space-on-resume break S1 onASUS2400 NE
-
-On Llu, 2004-12-27 at 10:14, Yu, Luming wrote:
->  Actually, the kernel (after removing restore-pci-config-space-on-resume patch) with option "ide=nodma" 
-> can work with S1 suspend/resume without any hang so far.
->   So my suggestion for IDE driver is to disable DMA before entering S1, and enable
-> DMA after resuming from S1 if DMA was enabled.  I need help from IDE guys to confirm it.
-
-The IDE layer has no problem doing this, although it raises interesting
-questions about why it would be neccessary. 
-
+My bad, I'll re-review your patch and apply it unless
+I find some problem.

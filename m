@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbUERBEL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbUERBEZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261862AbUERBEL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 21:04:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbUERBEL
+	id S261900AbUERBEZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 21:04:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbUERBEZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 21:04:11 -0400
-Received: from fw.osdl.org ([65.172.181.6]:12196 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261862AbUERBEI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 21:04:08 -0400
-Date: Mon, 17 May 2004 18:03:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: stock@stokkie.net, linux-kernel@vger.kernel.org
-Subject: Re: ramdisk driver in 2.6.6 has a severe bug
-Message-Id: <20040517180312.4560e6da.akpm@osdl.org>
-In-Reply-To: <20040518005042.GW17014@parcelfarce.linux.theplanet.co.uk>
-References: <20040517161943.37d826a3.akpm@osdl.org>
-	<Pine.LNX.4.44.0405180132240.21480-100000@hubble.stokkie.net>
-	<20040517170433.0311c2e9.akpm@osdl.org>
-	<20040518005042.GW17014@parcelfarce.linux.theplanet.co.uk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 17 May 2004 21:04:25 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56253 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261900AbUERBEX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 21:04:23 -0400
+Date: Tue, 18 May 2004 02:04:19 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Norman Diamond <ndiamond@despammed.com>
+Cc: Roland Dreier <roland@topspin.com>, Adrian Bunk <bunk@fs.tum.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] kill off PC9800
+Message-ID: <20040518010419.GX17014@parcelfarce.linux.theplanet.co.uk>
+References: <5265auu3i1.fsf@topspin.com> <05af01c43c5a$786e6340$b7ee4ca5@DIAMONDLX60>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <05af01c43c5a$786e6340$b7ee4ca5@DIAMONDLX60>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-viro@parcelfarce.linux.theplanet.co.uk wrote:
->
-> > Well in that case perhaps something else broke.  I've seen no such reports
->  > of recent regressions in the ramdisk driver.
->  > 
->  > The two problems of which I am aware are:
->  > 
->  > a) It loses its brains across umount.  Seems that it's very rare that
->  >    anyone actually cares about this, which is why it has not been fixed in
->  >    well over a year.
-> 
->  Details, please.  The only case I'm aware of is when you have fs-set
->  block size different from the one we had before mount(2).  And in that
->  case it would lose its brains when the blocksize had been flipped in
->  the first place.  Which would tend to fail mount(2) anyway.
+On Tue, May 18, 2004 at 06:59:49AM +0900, Norman Diamond wrote:
+ 
+> Do you realize that Apple's market share is still less than NEC's?  And if
+> you want to go back 10 years, NEC had about 90% of the PC market and they
+> were all 9800 series.
 
-Oh, it's nothing to do with that.  Problem is that files backed by ramdisks
-are marked "memory backed" so the writeback code doesn't write them to the
-ramdisk inode.  So it's presently functioning as ramfs with ext2 metadata
-in the blockdev inode.
+So are you volunteering to maintain the port?  Maintainers are MIA; the
+damn thing doesn't compile; all patches it gets are basically blind
+ones ("we have that API change, this ought to take care of those drivers
+and let's hope that possible mistakes will be caught by testers").
+Considering the lack of testers (kinda hard to test something that
+refuses to build), the above actually spells in one word: "bitrot".
 
-I'll fix it up.
+Either somebody shows up and takes over the damn thing, or it's just a
+dead weight that could as well be left in linux-2.6.6.tar.bz2 on
+kernel.org and not propagated any further.  If at some later point
+somebody will decide to resurrected, they can always pick it from
+said tarball.

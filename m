@@ -1,28 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129837AbRB0UWe>; Tue, 27 Feb 2001 15:22:34 -0500
+	id <S129495AbRB0UZX>; Tue, 27 Feb 2001 15:25:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129839AbRB0UWX>; Tue, 27 Feb 2001 15:22:23 -0500
-Received: from [64.64.109.142] ([64.64.109.142]:23301 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S129837AbRB0UWN>; Tue, 27 Feb 2001 15:22:13 -0500
-Message-ID: <3A9C0C54.88A6988C@didntduck.org>
-Date: Tue, 27 Feb 2001 15:21:40 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.73 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S129841AbRB0UZO>; Tue, 27 Feb 2001 15:25:14 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:64899 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129495AbRB0UZE>; Tue, 27 Feb 2001 15:25:04 -0500
+Date: Tue, 27 Feb 2001 15:24:39 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
 To: Rob <rob@hereintown.net>
-CC: linux-kernel@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Compilation problems
 In-Reply-To: <Pine.LNX.4.30.0102271442010.967-100000@robsdigs.hereintown.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <Pine.LNX.3.95.1010227151536.21059A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob wrote:
-> 
+On Tue, 27 Feb 2001, Rob wrote:
+
 > Hi, I've encountered a problem compiling the 2.4.2 kernel.
 > 
 > I downloaded the source, did a make menuconfig, make dep, make bzImage;
@@ -35,13 +33,22 @@ Rob wrote:
 > `__buggy_fxsr_alignment'
 > make: ***[vmlinux] Error 1
 > 
-> I've even tried removing the source tree and re extracting from the tar
-> ball again but it always stops at the same place now.  If you have any
-> ideas, please let me know.  I'm not a member of the list so a cc would
-> really be great.
 
-GCC version?
+You need to upgrade your binutils or 'C' compiler. This is a forced error
+caused by task struct member, 'thread.i387.fxsave' not being aligned on a
+16-byte boundary.  In the meantime, you could actually create a global
+function in main.c and see if the machine runs.
 
---
+__buggy_fxsr_alignment(){}
 
-				Brian Gerst
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+

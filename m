@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262768AbUGLU11@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262756AbUGLUbc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262768AbUGLU11 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 16:27:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262772AbUGLUYY
+	id S262756AbUGLUbc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 16:31:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262873AbUGLUba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 16:24:24 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:51919 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S262547AbUGLUVf (ORCPT
+	Mon, 12 Jul 2004 16:31:30 -0400
+Received: from mail1.WPI.EDU ([130.215.36.102]:51144 "EHLO mail1.WPI.EDU")
+	by vger.kernel.org with ESMTP id S262756AbUGLUbC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 16:21:35 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Mon, 12 Jul 2004 16:31:02 -0400
+Date: Mon, 12 Jul 2004 16:30:56 -0400
+From: "Charles R. Anderson" <cra@WPI.EDU>
+To: linux-kernel@vger.kernel.org
+Subject: v2.6 IGMPv3 implementation
+Message-ID: <20040712203056.GI7822@angus.ind.WPI.EDU>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16626.62155.711114.734967@napali.hpl.hp.com>
-Date: Mon, 12 Jul 2004 13:21:31 -0700
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ingo Molnar <mingo@redhat.com>, Jakub Jelinek <jakub@redhat.com>,
-       davidm@hpl.hp.com, suresh.b.siddha@intel.com, jun.nakajima@intel.com,
-       Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: serious performance regression due to NX patch
-In-Reply-To: <Pine.LNX.4.58.0407121315170.1764@ppc970.osdl.org>
-References: <200407100528.i6A5SF8h020094@napali.hpl.hp.com>
-	<Pine.LNX.4.58.0407110437310.26065@devserv.devel.redhat.com>
-	<Pine.LNX.4.58.0407110536130.2248@devserv.devel.redhat.com>
-	<Pine.LNX.4.58.0407110550340.4229@devserv.devel.redhat.com>
-	<20040711123803.GD21264@devserv.devel.redhat.com>
-	<Pine.LNX.4.58.0407121402160.2451@devserv.devel.redhat.com>
-	<Pine.LNX.4.58.0407121315170.1764@ppc970.osdl.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Mon, 12 Jul 2004 13:17:20 -0700 (PDT), Linus Torvalds <torvalds@osdl.org> said:
+Please Cc any replies directly to my address, since I am not
+subscribed.  Thanks.
 
-  Linus> On Mon, 12 Jul 2004, Ingo Molnar wrote:
-  >>  so ... this should be #ifndef ia64?
+I'm taking a look at the IGMPv3 implementation that was integrated
+into the 2.6 kernel (2.6.7 specifically).  In the past there have been
+patches floating around that implemented the IGMPv3 stack, and these
+provided some new IOCTLs:
 
-  Linus> No. Make it a CONFIG_DEFAULT_NOEXEC and make the relevant
-  Linus> architectures do a
+/* Multicast source filter calls */
+#define SIOCSIPMSFILTER        0x89a0          /* set mcast src filter (ipv4) */
+#define SIOCGIPMSFILTER 0x89a1         /* get mcast src filter (ipv4) */
+#define SIOCSMSFILTER  0x89a2          /* set mcast src filter (proto indep) */
+#define SIOCGMSFILTER  0x89a3          /* get mcast src filter (proto indep) */
 
-  Linus> 	define_bool DEFAULT_NOEXEC y
+These do not appear in the Linus kernel, though.  Does anyone know the
+status of these ioctls and the IGMPv3 implementation in general?  I'm
+trying to get the proper bits stuffed into glibc to make IGMPv3/SSM
+usable, and I'm not sure what to do about these ioctls.  Should 4 new
+ioctl numbers be reserved for these in case an implementation is
+integrated, or should I just leave them out of glibc headers entirely?
 
-  Linus> in their Kconfig files.
+Thanks.
 
-Would it be better to reverse the sense (i.e., make it DEFAULT_EXEC),
-since the latter new platforms by default almost certainly do NOT want
-DEFAULT_EXEC?
-
-	--david

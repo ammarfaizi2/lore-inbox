@@ -1,95 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264929AbUF1MsV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264933AbUF1NBm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264929AbUF1MsV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 08:48:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264933AbUF1MsV
+	id S264933AbUF1NBm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 09:01:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264934AbUF1NBl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 08:48:21 -0400
-Received: from moutng.kundenserver.de ([212.227.126.184]:34766 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S264929AbUF1MsR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 08:48:17 -0400
-From: Patrick Dreker <patrick@dreker.de>
-To: linux-kernel@vger.kernel.org
-Subject: IDE Timeout problem on Intel PIIX3 (Triton 2) chipset
-Date: Mon, 28 Jun 2004 14:48:15 +0200
-User-Agent: KMail/1.6.2
+	Mon, 28 Jun 2004 09:01:41 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:27344 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S264933AbUF1NBg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 09:01:36 -0400
+Date: Mon, 28 Jun 2004 14:01:29 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Brian <bmg300@yahoo.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel VM bug?
+In-Reply-To: <20040628025832.GM21066@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0406281342480.13228-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406281448.15725.patrick@dreker.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:55d40479e9cc6e4ab087ddd2b9b4bce4
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello...
+On Sun, 27 Jun 2004, William Lee Irwin III wrote:
+> 
+> Strict non-overcommit is also good to have in order for orderly
+> application shutdown or otherwise application self-regulation of
+> resource demands to occur at the time of hardware resource exhaustion.
+> This is by necessity enabled by default and has to be disabled at
+> runtime. You shouldn't have to do anything to enable it, but to
+> doublecheck that strict non-overcommit hasn't been disabled by e.g.
+> initscripts, please check that /proc/sys/vm/overcommit_memory stays 0.
 
-Any kernel above and including 2.4.21 (including 2.6.5 and 2.6.7, others not 
-tested) produces the following errors quite often (once or twice per minute, 
-with the corresponding delay) and the harddisk drops out of DMA.
+I'm not sure if I'm niggling over terminology, or pointing out a
+significant misunderstanding: but /proc/sys/vm/overcommit_memory 0
+(indeed the default) is not what I call strict non-overcommit: that's 2.
 
--------------------------------------------------
-hda: dma_timer_expiry: dma status == 0x20
-hda: timeout waiting for DMA
-hda: timeout waiting for DMA
-hda: (__ide_dma_test_irq) called while not waiting
-hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+All settings (0, 1, 2) maintain the Committed_AS count shown in
+/proc/meminfo; but only /proc/sys/vm/overcommit_memory 2 totals and
+limits reservations using it.  1 imposes no limit.  0 checks that the
+particular "reservation" could plausibly be made available now, but
+without considering the total: so allows any number of concurrent
+maximum reservations - traditional relaxed Linux behaviour, not strict.
 
-hda: drive not ready for command
------------------------------------------------
+(2 came along much later, yes the naming and numbering are both horrid.)
 
-I have checked that the drive and cable are OK (tested in another machine) and 
-no matter what drive I connect to the IDE controller, they *all* produce the 
-above error and drop DMA after some seconds.
+Hugh
 
-Currently I am stuck at kernel version 2.4.20, as any later kernel severely 
-degrades the performance of the machine (Pentium Pro 200).
-
-At http://www.uwsg.iu.edu/hypermail/linux/kernel/0304.1/0332.html I found a 
-thread which hints that IRQ sharing maybe the culprit, but /proc/interrupts 
-shows that the ide interrupt is not shared...
-
-lspci and /proc/interrupts are included at the end of this mail.
-
-What can I do to debug this problem?
-
-Thanks,
-Patrick
-
-lspci:
------------------------
-0000:00:00.0 Host bridge: Intel Corp. 440FX - 82441FX PMC [Natoma] (rev 02)
-0000:00:07.0 ISA bridge: Intel Corp. 82371SB PIIX3 ISA [Natoma/Triton II] (rev 
-01)
-0000:00:07.1 IDE interface: Intel Corp. 82371SB PIIX3 IDE [Natoma/Triton II]
-0000:00:0a.0 VGA compatible controller: Texas Instruments TVP4020 [Permedia 2] 
-(rev 01)
-0000:00:0c.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
-RTL-8139/8139C/8139C+ (rev 10)
-0000:00:0d.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
---------------------------
-
-/proc/interrupts:
--------------------------
-           CPU0
-  0:   55623224    IO-APIC-edge  timer
-  1:          2    IO-APIC-edge  keyboard
-  2:          0          XT-PIC  cascade
-  8:          4    IO-APIC-edge  rtc
- 10:   59404185   IO-APIC-level  eth1
- 11:   64467911   IO-APIC-level  eth0
- 14:    9031698    IO-APIC-edge  ide0
-NMI:          0
-LOC:   55623074
-ERR:          0
-MIS:      13142
-----------------------------
-
--- 
-Patrick Dreker
-
-GPG KeyID  : 0xFCC2F7A7 (Patrick Dreker)
-Fingerprint: 7A21 FC7F 707A C498 F370  1008 7044 66DA FCC2 F7A7
-Key available from keyservers

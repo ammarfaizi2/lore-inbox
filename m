@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131512AbRAIQw6>; Tue, 9 Jan 2001 11:52:58 -0500
+	id <S129431AbRAIQyS>; Tue, 9 Jan 2001 11:54:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131224AbRAIQws>; Tue, 9 Jan 2001 11:52:48 -0500
-Received: from tux.rsn.hk-r.se ([194.47.143.135]:36992 "EHLO tux.rsn.hk-r.se")
-	by vger.kernel.org with ESMTP id <S130431AbRAIQwg>;
-	Tue, 9 Jan 2001 11:52:36 -0500
-Date: Tue, 9 Jan 2001 17:52:34 +0100 (CET)
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Tim Sailer <sailer@bnl.gov>
-cc: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>, Andrew Morton <andrewm@uow.edu.au>,
-        linux-kernel@vger.kernel.org, jfung@bnl.gov
+	id <S129759AbRAIQyI>; Tue, 9 Jan 2001 11:54:08 -0500
+Received: from smtpgw.bnl.gov ([130.199.3.16]:10509 "EHLO smtpgw.sec.bnl.local")
+	by vger.kernel.org with ESMTP id <S129431AbRAIQxu>;
+	Tue, 9 Jan 2001 11:53:50 -0500
+Date: Tue, 9 Jan 2001 11:53:02 -0500
+From: Tim Sailer <sailer@bnl.gov>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Network Performance?
-In-Reply-To: <20010109085555.A28548@bnl.gov>
-Message-ID: <Pine.LNX.4.21.0101091748270.952-100000@tux.rsn.hk-r.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010109115302.A32135@bnl.gov>
+In-Reply-To: <20010104013340.A20552@bnl.gov>, <20010104013340.A20552@bnl.gov>; <20010105140021.A2016@bnl.gov> <3A56FD6C.93D09ABB@uow.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <3A56FD6C.93D09ABB@uow.edu.au>; from andrewm@uow.edu.au on Sat, Jan 06, 2001 at 10:11:40PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Jan 2001, Tim Sailer wrote:
+Here is some more data:
 
-> On Mon, Jan 08, 2001 at 07:07:18PM +0100, Erik Mouw wrote:
-> > I had similar problems two weeks ago. Turned out the connection between
-> > two switches: one of them was hard wired to 100Mbit/s full duplex, the
-> > other one to 100Mbit/s half duplex. Just to rule out the obvious...
-> 
-> We check that as the first thing. Both are set the same. No collisions
-> out of the ordinary.
+        Inbound = 99.66 kB/s
+        Outbound= 151 kB/s
 
-Are you using netfilter? And if so, does netfilter support window-scaling
-without the tcp-window-tracking patch?
 
-/Martin
+--------------------------------------------
+ports:/home/ftp# sysctl -a | fgrep net/core
+net/core/optmem_max = 10240
+net/core/message_burst = 50
+net/core/message_cost = 5
+net/core/netdev_max_backlog = 300
+net/core/rmem_default = 32767
+net/core/wmem_default = 32767
+net/core/rmem_max = 2097152
+net/core/wmem_max = 2097152
+--------------------------------------------
 
+
+Tim
+
+-- 
+Tim Sailer <sailer@bnl.gov> Cyber Security Operations
+Brookhaven National Laboratory  (631) 344-3001
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,15 +1,15 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318438AbSGSDSb>; Thu, 18 Jul 2002 23:18:31 -0400
+	id <S318454AbSGSDX4>; Thu, 18 Jul 2002 23:23:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318439AbSGSDSb>; Thu, 18 Jul 2002 23:18:31 -0400
-Received: from web9203.mail.yahoo.com ([216.136.129.26]:55950 "HELO
-	web9203.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S318438AbSGSDSa>; Thu, 18 Jul 2002 23:18:30 -0400
-Message-ID: <20020719032132.99401.qmail@web9203.mail.yahoo.com>
-Date: Thu, 18 Jul 2002 20:21:32 -0700 (PDT)
+	id <S318456AbSGSDX4>; Thu, 18 Jul 2002 23:23:56 -0400
+Received: from web9207.mail.yahoo.com ([216.136.129.40]:64271 "HELO
+	web9207.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S318454AbSGSDXx>; Thu, 18 Jul 2002 23:23:53 -0400
+Message-ID: <20020719032653.96817.qmail@web9207.mail.yahoo.com>
+Date: Thu, 18 Jul 2002 20:26:53 -0700 (PDT)
 From: Alex Davis <alex14641@yahoo.com>
-Subject: Re:inux-2.4.19-rc2aa1 (RH7.2 kgcc: Internal compiler error in function add_pending_init)
+Subject: Re:linux-2.4.19-rc2aa1 (RH7.2 kgcc: Internal compiler error in function add_pending_init)
 To: linux-kernel@vger.kernel.org
 Cc: s_sokolov@avtodor.gorny.ru
 MIME-Version: 1.0

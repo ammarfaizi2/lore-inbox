@@ -1,75 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280773AbRKSXob>; Mon, 19 Nov 2001 18:44:31 -0500
+	id <S280774AbRKSXqb>; Mon, 19 Nov 2001 18:46:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280774AbRKSXoN>; Mon, 19 Nov 2001 18:44:13 -0500
-Received: from dorf.wh.uni-dortmund.de ([129.217.255.136]:65286 "HELO
-	mail.dorf.wh.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S280773AbRKSXnx>; Mon, 19 Nov 2001 18:43:53 -0500
-Date: Tue, 20 Nov 2001 00:43:50 +0100
-From: Patrick Mau <mau@oscar.prima.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Kernel 2.4.15-pre6 / EXT3 / ls shows '.journal' on root-fs.
-Message-ID: <20011120004350.A9631@oscar.dorf.de>
-Reply-To: Patrick Mau <mau@oscar.prima.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+	id <S280777AbRKSXqY>; Mon, 19 Nov 2001 18:46:24 -0500
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:58008 "EHLO
+	localhost") by vger.kernel.org with ESMTP id <S280774AbRKSXpd>;
+	Mon, 19 Nov 2001 18:45:33 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ryan Cumming <bodnar42@phalynx.dhs.org>
+To: Rock Gordon <rockgordon@yahoo.com>
+Subject: Re: Executing binaries on new filesystem
+Date: Mon, 19 Nov 2001 15:45:20 -0800
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20011119163455.11507.qmail@web14804.mail.yahoo.com>
+In-Reply-To: <20011119163455.11507.qmail@web14804.mail.yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E165y6K-00012D-00@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo all,
+On November 19, 2001 08:34, Rock Gordon wrote:
+> I don't think mmap is the problem; you don't need it
+> in order to run binaries ...
 
-I'm using kernel 2.4.15-pre6 and I can see my journal file
-on '/'. Should I worry ?
+Er... and what brings you to that assertion? Try cat'ing /proc/<pid>/maps on 
+any program, and you'll see the program's binary in the maps list multiple 
+times, including one executable map of the .code section. To use my current 
+mail client as an example:
 
-
-[root@tony] dmesg
+bodnar42:~$ pidof kmail
+3905
+bodnar42:~$ cat /proc/3905/maps
+08048000-081b0000 r-xp 00000000 03:05 1209118    /usr/bin/kmail
+081b0000-081bb000 rw-p 00167000 03:05 1209118    /usr/bin/kmail
+081bb000-0863a000 rwxp 00000000 00:00 0
+40000000-40014000 r-xp 00000000 03:05 1154       /lib/ld-2.2.4.so
+40014000-40015000 rw-p 00013000 03:05 1154       /lib/ld-2.2.4.so
+40015000-40016000 rwxp 00000000 00:00 0
+40016000-4001c000 rw-p 00000000 00:00 0
+4001d000-4001e000 rw-p 00007000 00:00 0
+40022000-40203000 r-xp 00000000 03:05 442168     /usr/lib/libkhtml.so.3.0.0
+40203000-40235000 rw-p 001e0000 03:05 442168     /usr/lib/libkhtml.so.3.0.0
 ...
-ip_tables: (c)2000 Netfilter core team
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs: mounted filesystem with ordered data mode.
-VFS: Mounted root (ext3 filesystem) readonly.
-...
 
+Any sane ELF loader will use mmap() to both execute binaries and load shared 
+libraries, and Linux's ELF loader is certainly no exception. I remember users 
+not being able to run binaries (both Win32 and Linux/ELF) off of NTFS 
+partitions, because the Linux NTFS driver did not implement mmap(). You'll 
+probably have much better luck once you implement it on yours.
 
-[root@tony] ls -ali /
-total 65720
-   2 drwxr-xr-x   24 root     root         4096 Nov 20 00:26 .
-   2 drwxr-xr-x   24 root     root         4096 Nov 20 00:26 ..
-2930 -rw-------    1 root     root     67108864 Nov 18 19:56 .journal
-					^^^^^^^ created as -J size=64
-
-
-[root@tony] tune2fs -l /dev/sda1
-tune2fs 1.25 (20-Sep-2001)
-Filesystem volume name:   /
-Last mounted on:          <not available>
-Filesystem UUID:          b909b36d-8f16-4be1-9614-5049bad90e96
-Filesystem magic number:  0xEF53
-Filesystem revision #:    1 (dynamic)
-Filesystem features:      has_journal filetype needs_recovery sparse_super
-                                               ^^^^^^^^^^^^^^ 
-					       ??????????????
-
-Journal inode:            2930    <--- like 'ls' said
-Journal device:           0x0000
-
-
-[root@tony] mount
-/dev/sda1 on / type ext3 (rw)
-
-
-lilo.conf sniplet:
-	image   = /boot/vmlinuz-2.4.15-6
-	label   = linux
-	append  = "video=matrox:vesa:261,fv:80,font:VGA8x16 rootfstype=ext3"
-
-
-Could someone please comment on this ?
-I'm feeling kind of worried.
-
-thanks,
-Patrick
+-Ryan

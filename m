@@ -1,39 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbUCVSXe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 13:23:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbUCVSXe
+	id S262190AbUCVSZM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 13:25:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbUCVSZM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 13:23:34 -0500
-Received: from ns2.uk.superh.com ([193.128.105.170]:31963 "EHLO
-	smtp.uk.superh.com") by vger.kernel.org with ESMTP id S262176AbUCVSXa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 13:23:30 -0500
-Date: Mon, 22 Mar 2004 18:23:28 +0000
-From: Richard Curnow <Richard.Curnow@superh.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: can device drivers return non-ram via vm_ops->nopage?
-Message-ID: <20040322182328.GH17627@malvern.uk.w2k.superh.com>
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
-References: <20040320150621.GO9009@dualathlon.random> <20040320154419.A6726@flint.arm.linux.org.uk> <Pine.LNX.4.58.0403201651520.1816@pnote.perex-int.cz> <20040320160911.B6726@flint.arm.linux.org.uk> <Pine.LNX.4.58.0403202038530.1816@pnote.perex-int.cz> <20040320222341.J6726@flint.arm.linux.org.uk> <20040320224518.GQ2045@holomorphy.com> <20040320235445.B24744@flint.arm.linux.org.uk> <Pine.LNX.4.58.0403201920560.28447@montezuma.fsmlabs.com> <1079930812.900.180.camel@gaston>
+	Mon, 22 Mar 2004 13:25:12 -0500
+Received: from ns.suse.de ([195.135.220.2]:21461 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262190AbUCVSZE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 13:25:04 -0500
+Subject: Re: 2.6.5-rc1-mm2 and direct_read_under and wb
+From: Chris Mason <mason@suse.com>
+To: Daniel McNeil <daniel@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>
+In-Reply-To: <1079979800.11055.514.camel@watt.suse.com>
+References: <20040314172809.31bd72f7.akpm@osdl.org>
+	 <1079461971.23783.5.camel@ibm-c.pdx.osdl.net>
+	 <1079474312.4186.927.camel@watt.suse.com>
+	 <20040316152106.22053934.akpm@osdl.org>
+	 <20040316152843.667a623d.akpm@osdl.org>
+	 <20040316153900.1e845ba2.akpm@osdl.org>
+	 <1079485055.4181.1115.camel@watt.suse.com>
+	 <1079487710.3100.22.camel@ibm-c.pdx.osdl.net>
+	 <20040316180043.441e8150.akpm@osdl.org>
+	 <1079554288.4183.1938.camel@watt.suse.com>
+	 <20040317123324.46411197.akpm@osdl.org>
+	 <1079563568.4185.1947.camel@watt.suse.com>
+	 <20040317150909.7fd121bd.akpm@osdl.org>
+	 <1079566076.4186.1959.camel@watt.suse.com>
+	 <20040317155111.49d09a87.akpm@osdl.org>
+	 <1079568387.4186.1964.camel@watt.suse.com>
+	 <20040317161338.28b21c35.akpm@osdl.org>
+	 <1079569870.4186.1967.camel@watt.suse.com>
+	 <20040317163332.0385d665.akpm@osdl.org>
+	 <1079572511.6930.5.camel@ibm-c.pdx.osdl.net>
+	 <1079632431.6930.30.camel@ibm-c.pdx.osdl.net>
+	 <1079635678.4185.2100.camel@watt.suse.com>
+	 <1079637004.6930.42.camel@ibm-c.pdx.osdl.net>
+	 <1079714990.6930.49.camel@ibm-c.pdx.osdl.net>
+	 <1079715901.6930.52.camel@ibm-c.pdx.osdl.net>
+	 <1079879799.11062.348.camel@watt.suse.com>
+	 <1079979016.6930.62.camel@ibm-c.pdx.osdl.net>
+	 <1079979800.11055.514.camel@watt.suse.com>
+Content-Type: text/plain
+Message-Id: <1079980049.11061.519.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1079930812.900.180.camel@gaston>
-User-Agent: Mutt/1.5.6i
-X-OriginalArrivalTime: 22 Mar 2004 18:25:07.0968 (UTC) FILETIME=[0108B800:01C4103B]
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 22 Mar 2004 13:27:29 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Benjamin Herrenschmidt <benh@kernel.crashing.org> [2004-03-22]:
-> DRI suffers from similar issue when using PCI GART, but then, it also
-> doesn't use the consistent alloc routines, it gets pages with GFP,
-> mmap those into userland, and does pci_map_single in the kernel on
-> each individual page to obtain the bus addresses. This will not be
-> pretty on non-coherent architectures though.
+On Mon, 2004-03-22 at 13:23, Chris Mason wrote:
+> On Mon, 2004-03-22 at 13:10, Daniel McNeil wrote:
+> > Andrew and Chris,
+> > 
+> > I re-ran the direct_read_under tests over the weekend on ext3 with
+> > the attached wb_rwsema patch and ran without errors.
+> > 
+> > It looks like the same thing as before -- async writebacks are causing
+> > the sync writebacks to miss pages.
+> > 
+> > Thoughts?
+> 
+> It does seem clear that's what is happening, but the part I don't
+> understand is exactly where they are racing.
 
-... or on platforms where PCI bounce-buffers are being used.
+Wait, maybe I do see it.
 
--- 
-Richard \\\ SH-4/SH-5 Core & Debug Architect
-Curnow  \\\         SuperH (UK) Ltd, Bristol
+In __block_write_full_page, if the buffers are locked by ll_rw_block and
+under io, they are clean.  The page is only redirtied in this case
+because the buffers are clean.
+
+So we set_page_writeback and nr_underway == 0.  Then, in the if
+(nr_underway == 0) code, we clear page writeback even though the buffers
+are still locked and under io.
+
+-chris
+
+

@@ -1,26 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266341AbUHBHq6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266344AbUHBHvo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266341AbUHBHq6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 03:46:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266344AbUHBHq6
+	id S266344AbUHBHvo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 03:51:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266347AbUHBHvo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 03:46:58 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:9102 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S266341AbUHBHqs (ORCPT
+	Mon, 2 Aug 2004 03:51:44 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:19600 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S266344AbUHBHvm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 03:46:48 -0400
-Date: Mon, 2 Aug 2004 09:47:40 +0200
+	Mon, 2 Aug 2004 03:51:42 -0400
+Date: Mon, 2 Aug 2004 09:52:25 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: lkml@lpbproduction.scom, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-O2
-Message-ID: <20040802074740.GC8332@elte.hu>
-References: <20040713143947.GG21066@holomorphy.com> <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu> <200408011644.06537.lkml@lpbproductions.com> <1091427964.1827.3.camel@teapot.felipe-alfaro.com>
+To: Helge Hafting <helge.hafting@hist.no>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-O2 didn't link
+Message-ID: <20040802075225.GD8332@elte.hu>
+References: <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu> <410DE6B3.2040405@hist.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1091427964.1827.3.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <410DE6B3.2040405@hist.no>
 User-Agent: Mutt/1.4.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -33,18 +33,21 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
+* Helge Hafting <helge.hafting@hist.no> wrote:
 
-> > kernel/hardirq.c:51: error: conflicting types for 'generic_handle_IRQ_event'
-> > include/linux/irq.h:78: error: previous declaration of 
-> > 'generic_handle_IRQ_event' was here
+> >here's the latest version of the voluntary-preempt patch:
+> > 
+> > http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-O2
+> > 
+> >
+> This didn't link:
 
-> Try removing the "asmlinkage" from the definition of
-> "generic_handle_IRQ_event" in file "kernel/hardirq.c".
+>  LD      .tmp_vmlinux1
+> init/built-in.o(.text+0x1be): In function `init':
+> init/main.c:708: undefined reference to `spawn_irq_threads'
+> make: *** [.tmp_vmlinux1] Error 1
 
-i solved it by adding asmlinkage to irq.h - i've updated the -O2 patch
-to include this fix. It needs to stay asmlinkage because e.g. the 4K
-stacks code calls it from within an assembly section which assumes the
-function follows the normal calling convention (and not e.g. regparm).
+hm, the -O2 patch doesnt have any spawn_irq_threads() function. Are you
+sure your build is correct?
 
 	Ingo

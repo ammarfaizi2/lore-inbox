@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261646AbUKITqH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261644AbUKITr5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261646AbUKITqH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 14:46:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbUKITqH
+	id S261644AbUKITr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 14:47:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbUKITq1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 14:46:07 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:16371 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261657AbUKITpn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 14:45:43 -0500
-Message-ID: <41911E43.1090607@nortelnetworks.com>
-Date: Tue, 09 Nov 2004 13:45:07 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: davids@webmaster.com
-CC: alan@lxorguk.ukuu.org.uk, Dmitry Torokhov <dtor_core@ameritech.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       =?ISO-8859-1?Q?Rapha=EBl_Rigo_LKML?= <lkml@twilight-hall.net>
-Subject: Re: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox +code
-References: <MDEHLPKNGKAHNMBLJOLKAEKLPKAA.davids@webmaster.com>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKAEKLPKAA.davids@webmaster.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 9 Nov 2004 14:46:27 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:11514 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261652AbUKITpE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 14:45:04 -0500
+Subject: Re: Externalize SLIT table
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+To: Andi Kleen <ak@suse.de>
+Cc: Erich Focht <efocht@hpce.nec.com>, Jack Steiner <steiner@sgi.com>,
+       Takayoshi Kochi <t-kochi@bq.jp.nec.com>, linux-ia64@vger.kernel.org,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041104170435.GA19687@wotan.suse.de>
+References: <20041103205655.GA5084@sgi.com>
+	 <20041104.105908.18574694.t-kochi@bq.jp.nec.com>
+	 <20041104141337.GA18445@sgi.com> <200411041631.42627.efocht@hpce.nec.com>
+	 <20041104170435.GA19687@wotan.suse.de>
+Content-Type: text/plain
+Organization: IBM LTC
+Message-Id: <1100029500.3980.15.camel@arrakis>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 09 Nov 2004 11:45:00 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Schwartz wrote:
+On Thu, 2004-11-04 at 09:04, Andi Kleen wrote:
+> On Thu, Nov 04, 2004 at 04:31:42PM +0100, Erich Focht wrote:
+> > On Thursday 04 November 2004 15:13, Jack Steiner wrote:
+> > > I think it would also be useful to have a similar cpu-to-cpu distance
+> > > metric:
+> > > ????????% cat /sys/devices/system/cpu/cpu0/distance
+> > > ????????10 20 40 60 
+> > > 
+> > > This gives the same information but is cpu-centric rather than
+> > > node centric.
+> > 
+> > I don't see the use of that once you have some way to find the logical
+> > CPU to node number mapping. The "node distances" are meant to be
+> 
+> I think he wants it just to have a more convenient interface,
+> which is not necessarily a bad thing.  But then one could put the 
+> convenience into libnuma anyways.
+> 
+> -Andi
 
-> 	They don't stop you, they just restrict you.
+Using libnuma sounds fine to me.  On a 512 CPU system, with 4 CPUs/node,
+we'd have 128 nodes.  Re-exporting ALL the same data, those huge strings
+of node-to-node distances, 512 *additional* times in the per-CPU sysfs
+directories seems like a waste.
 
-They restrict you from getting new updates, they don't restrict you from 
-distributing.
+-Matt
 
-The GPL says, "You may not impose any further restrictions on the recipients' 
-exercise of the rights granted herein."   Note the "granted herein" part.  They 
-can put all kinds of other restrictions on anything else, as long as they don't 
-keep you from excercising your rights to modify and/or redistribute the code 
-released under the GPL.
-
-> 	Look, this really is simple. When the GPL talks about "additional
-> restrictions", it doesn't mean the restrictions found in the GPL. It means
-> restrictions found elsewhere, such as in private contracts. (Where else
-> would the restrictions be?!)
-
-I believe you have misunderstood the GPL.  They only disallow further 
-restrictions on the rights that the GPL grants.  They don't say anything about 
-other contracts or obligations.
-
-Chris

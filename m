@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319279AbSHGTe1>; Wed, 7 Aug 2002 15:34:27 -0400
+	id <S319308AbSHGTsX>; Wed, 7 Aug 2002 15:48:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319280AbSHGTe1>; Wed, 7 Aug 2002 15:34:27 -0400
-Received: from pat.uio.no ([129.240.130.16]:19678 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S319279AbSHGTe0>;
-	Wed, 7 Aug 2002 15:34:26 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S319309AbSHGTsX>; Wed, 7 Aug 2002 15:48:23 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:33276 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319308AbSHGTsV>; Wed, 7 Aug 2002 15:48:21 -0400
+Subject: Re: [PATCH] pdc20265 problem.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Thunder from the hill <thunder@ngforever.de>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org,
+       thunger@ngforever.de, vandrove@vc.cvut.cz
+In-Reply-To: <Pine.LNX.4.44.0208071331410.10270-100000@hawkeye.luckynet.adm>
+References: <Pine.LNX.4.44.0208071331410.10270-100000@hawkeye.luckynet.adm>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <15697.30489.765404.126474@charged.uio.no>
-Date: Wed, 7 Aug 2002 21:38:01 +0200
-To: Gregory Giguashvili <Gregoryg@ParadigmGeo.com>
-Cc: "'trond.myklebust@fys.uio.no'" <trond.myklebust@fys.uio.no>,
-       "Linux Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: RE: O_SYNC option doesn't work (2.4.18-3)
-In-Reply-To: <EE83E551E08D1D43AD52D50B9F511092E114E3@ntserver2>
-References: <EE83E551E08D1D43AD52D50B9F511092E114E3@ntserver2>
-X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 07 Aug 2002 22:11:02 +0100
+Message-Id: <1028754662.18156.336.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Gregory Giguashvili <Gregoryg@ParadigmGeo.com> writes:
+On Wed, 2002-08-07 at 20:33, Thunder from the hill wrote:
+>
+> Not exactly. Somebody who releases Linux distributions should be able to 
+> release it with a kernel that can have a boot parameter or such about it 
+> which is configured via mouse click...
+> 
+> That still doesn't make it any harder to achieve.
 
-     > File locking, meaning lockd? There are so many problems with
-     > file locking in heterogeneous environments that we were moving
-     > towards dropping its usage.  Instead, we planned to use some
-     > home grown TCP based lock server mechanism.
+You know where to send the patches
 
-     > I understand that locking file flushes NFS cache, isn't it? Why
-     > can't it be flushed by O_SYNC and "sync" options presence? This
-     > would make the life much easier for programmers...
-
-Tough. The above is not part of the O_SYNC spec on any platform and I
-have no intention of implementing it.
-
-The sort of thing you would like to do will be possible with O_DIRECT
-(which is a design to allow user programs to manage their own
-caches). That has yet to be integrated into the standard kernel
-though.
-
-Cheers,
-  Trond

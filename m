@@ -1,79 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315255AbSELXar>; Sun, 12 May 2002 19:30:47 -0400
+	id <S315452AbSELXdO>; Sun, 12 May 2002 19:33:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315452AbSELXar>; Sun, 12 May 2002 19:30:47 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:54204 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S315255AbSELXaq>;
-	Sun, 12 May 2002 19:30:46 -0400
-From: Paul Mackerras <paulus@samba.org>
+	id <S315454AbSELXdN>; Sun, 12 May 2002 19:33:13 -0400
+Received: from air-2.osdl.org ([65.201.151.6]:6149 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S315452AbSELXdM>;
+	Sun, 12 May 2002 19:33:12 -0400
+Date: Sun, 12 May 2002 16:32:00 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Pawel Kot <pkot@linuxnews.pl>
+cc: John Weber <john.weber@linuxhq.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Unofficial but Supported Kernel Patches
+In-Reply-To: <Pine.LNX.4.33.0205121858570.493-100000@urtica.linuxnews.pl>
+Message-ID: <Pine.LNX.4.33L2.0205121625210.18473-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15582.64211.376045.489317@argo.ozlabs.ibm.com>
-Date: Mon, 13 May 2002 09:29:23 +1000 (EST)
-To: linux-kernel@vger.kernel.org
-Subject: ext3 deadlock?
-X-Mailer: VM 6.75 under Emacs 20.7.2
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm having a problem with 2.5.15 on an old slow powerbook 3400.  It
-gets stuck during boot at the point where it starts syslogd.  At that
-point show_state() reveals that kjournald and one of the two syslogd
-processes are stuck in D state.  The stack trace for kjournald is:
+On Sun, 12 May 2002, Pawel Kot wrote:
 
-schedule
-__wait_on_buffer
-journal_commit_transaction
-kjournald
+| On Sun, 12 May 2002, John Weber wrote:
+|
+| > I am trying to put a list together of all the unofficial kernel patches.
+| >   I am speaking of systems like Rik's RMAP VM, and others like it.
+| >
+| > I want to put up a page on linuxhq.com with all of these patches.  If
+| > you would like to have your maintained patches (or trees) listed, please
+| > shoot me an email with a description of your tree (or patch) and what is
+| > so special about it :).  Also include URLs, emails, or anything else
+| > you'd like published.
+|
+| What about http://kernelnewbies.org/patches/ ?
 
-The stack trace on the syslogd process looks like this:
+That's nice.
 
-schedule
-sleep_on
-log_wait_commit
-journal_stop
-journal_force_commit
-ext3_force_commit
-ext3_sync_file
-sys_fsync
+What I would like is for someone to maintain a set of
+"required" patches to each new kernel --
+"required" here meaning "these patches are needed for kernel
+x.y.z to build or boot cleanly."
 
-The machine will boot up quite happily with a 2.4.19-pre7 kernel.
-If I boot with the ext3 filesystems dirty (i.e. stuff in the journal)
-it will usually hang while recovering the journal for the /data
-filesystem (I have two partitions, root and /data).
+The patchsets would contain only compile/link fixes and
+critical logic fixes to release and pre-release kernels.
 
-I have just tried booting again (with clean filesystems) and this time
-I have two rc.sysinit processes stuck in D state, and kjournald is
-also stuck in D state.  The stack trace for kjournald is as above,
-and the stack trace for both rc.sysinit processes is:
+This wouldn't be for me necessarily, as I already keep a
+"fixes" email file, but I think that this could help
+cut down on repeated emails on lkml about <2.5.19 has errors>
+or "mounting a CD with ide-scsi crashes 2.5.11."
 
-schedule
-sleep_on
-sleep_on_buffer
-do_get_write_access
-journal_get_write_access
-ext3_reserve_inode_write
-ext3_mark_inode_dirty
-ext3_dirty_inode
-__mark_inode_dirty
-update_atime
-do_generic_file_read
-generic_file_read
-kernel_read
-prepare_binprm
-do_execve
-sys_execve
+It could help developers, users, and testers get going
+quickly.
 
-I don't see this problem on any of my other powermac systems, but that
-could be because this powerbook still has an old LinuxPPC/2000
-userland installed on it whereas all my other boxes are running Debian
-sid.  I have upgraded mount to 2.11r and e2fsprogs to 1.25 on this box
-though.
+-- 
+~Randy
 
-Can anyone suggest where I could start looking to work out why
-kjournald is getting stuck in __wait_on_buffer?  Where in the code
-does the corresponding wakeup happen?
-
-Paul.

@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129591AbQKPVps>; Thu, 16 Nov 2000 16:45:48 -0500
+	id <S129205AbQKPVvs>; Thu, 16 Nov 2000 16:51:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130551AbQKPVpi>; Thu, 16 Nov 2000 16:45:38 -0500
-Received: from gull.prod.itd.earthlink.net ([207.217.121.85]:42200 "EHLO
-	gull.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S129591AbQKPVpY>; Thu, 16 Nov 2000 16:45:24 -0500
-To: Frederic LESPEZ <frederic.lespez@wanadoo.fr>
+	id <S129178AbQKPVvj>; Thu, 16 Nov 2000 16:51:39 -0500
+Received: from cx518206-b.irvn1.occa.home.com ([24.21.107.123]:55814 "EHLO
+	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with ESMTP
+	id <S129272AbQKPVv3>; Thu, 16 Nov 2000 16:51:29 -0500
+From: "Barry K. Nathan" <barryn@cx518206-b.irvn1.occa.home.com>
+Message-Id: <200011162121.NAA15305@cx518206-b.irvn1.occa.home.com>
+Subject: Re: APM oops with Dell 5000e laptop
+To: johnkim@aslab.com
+Date: Thu, 16 Nov 2000 13:21:21 -0800 (PST)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Bad PCI detection of a sound card
-In-Reply-To: <200011162058.eAGKwmg05992@kaboum.unstable.org>
-From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
-Date: 16 Nov 2000 13:15:19 -0800
-In-Reply-To: <200011162058.eAGKwmg05992@kaboum.unstable.org>
-Message-ID: <m3zoiz62l4.fsf@matrix.mandrakesoft.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+Reply-To: barryn@pobox.com
+In-Reply-To: <Pine.LNX.4.04.10011161254110.2078-100000@mail.aslab.com> from "John D. Kim" at Nov 16, 2000 01:04:41 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frederic LESPEZ <frederic.lespez@wanadoo.fr> writes:
+John D. Kim wrote:
 
-> I think the problem is due to a bad PCI detection but i let you judge.
-> Here is a description of the problem :
-> I'm under X (Xfree 4.0.1).
-> I switch to a VT (virtual terminal).
-> I load my sound module (modprobe emu10k1).
+> Well, there will be a great number of these laptops sold, not just through
+> dell, but other brands that buy from compal.  But most of them will be
+> running Windows, and Windows seem to work fine with it.  So these
+[snip]
 
-could you try with the alsa module it should be included with your mdk7.2.
+FWIW, Windows uses ACPI on these machines, not APM.
 
--- 
-MandrakeSoft Inc                     http://www.chmouel.org
-                      --Chmouel
+-Barry K. Nathan <barryn@pobox.com>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

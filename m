@@ -1,95 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263796AbUA0PKf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 10:10:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264290AbUA0PKf
+	id S264285AbUA0POy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 10:14:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264290AbUA0POy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 10:10:35 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:58847 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263796AbUA0PKd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 10:10:33 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Glenn Wurster <gwurster@scs.carleton.ca>
-Subject: Re: [PATCH] ide-dma.c, ide.c, ide.h, kernel 2.4.24
-Date: Tue, 27 Jan 2004 16:14:40 +0100
-User-Agent: KMail/1.5.3
-Cc: Alan Cox <alan@redhat.com>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, andre@linux-ide.org
-References: <20040123183245.GB853@desktop> <200401240045.56966.bzolnier@elka.pw.edu.pl> <20040127055206.GA690@electric.ath.cx>
-In-Reply-To: <20040127055206.GA690@electric.ath.cx>
+	Tue, 27 Jan 2004 10:14:54 -0500
+Received: from citrine.spiritone.com ([216.99.193.133]:36284 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S264285AbUA0POt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 10:14:49 -0500
+Date: Tue, 27 Jan 2004 07:14:40 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: jaba@mikrobitti.fi
+Subject: [Bug 1959] New: cs46xx driver mmap_valid 0-->1 in	kernel 2.6.x? 
+Message-ID: <365550000.1075216480@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200401271614.40542.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 27 of January 2004 06:52, Glenn Wurster wrote:
-> > Glenn, your patch hides potential problems - these functions shouldn't be
-> > called if host doesn't support DMA.  However there is one place when
-> > ->ide_dma_host_off() shouldn't be called unconditionally, here is a
-> > patch. It is not pretty but at least consistent - we check
-> > hwif->ide_dma_check to see if DMA is supported in other places too.  Does
-> > it fix the problem?
->
-> Not quite.  If we go forward with a patch like that, then it must be
-> updated to include at least two other places that I know of
+http://bugme.osdl.org/show_bug.cgi?id=1959
 
-Doh.  I overlooked one place.
-IMO this check needs to be added only to two places.
+           Summary: cs46xx driver mmap_valid 0-->1 in kernel 2.6.x?
+    Kernel Version: 2.6.x
+            Status: NEW
+          Severity: normal
+             Owner: drivers_sound@kernel-bugs.osdl.org
+         Submitter: jaba@mikrobitti.fi
 
-> immediately.  The updated patch would be something similar to the one
-> at the bottom of this e-mail.
 
-Did you test this patch?
+Distribution: Gentoo Linux
+Hardware Environment: Asus A7V133, AMD Athlon
+Software Environment: Gentoo Linux 1.4, default-x86-1.4, gcc-3.3.2,
+glibc-2.3.3_pre20040117-r0, 2.6.2-rc1-mm2
+Problem Description: This problem has been bothering me all over the kernel
+2.6.x. I don't know if any other applications are affected by this bug, but a
+game called Enemy Territory surely is.
 
-> On a further note, how should hdparm -d behave on my controller, the
-> relivant lines from dmesg are:
->
-> SIS5513: IDE controller at PCI slot 00:01.1
-> SIS5513: chipset revision 8
-> SIS5513: not 100% native mode: will probe irqs later
-> SIS5513: SiS551x ATA 16 controller
->     ide0: BM-DMA at 0xf870-0xf877, BIOS settings: hda:pio, hdb:pio
-> SIS5513: simplex device: DMA disabled
-> ide1: SIS5513 Bus-Master DMA disabled (BIOS)
-> hda: WDC AC21000H, ATA DISK drive
-> hdc: Maxtor 6Y080L0, ATA DISK drive
->
-> "hdparm -d 1 /dev/hdc" returns an operation not permitted, but "hdparm
-> -d 1 /dev/hda" is successful and results in future calls to "hdparm -d
-> 1 /dev/hdc" seemingly locking the computer.
+With the default kernel 2.6 cs46xx driver (with "new DSP support" enabled) the
+sound in Enemy Territory doesn't work at all, complaining "unable to mmap
+/dev/dsp" during the ET startup. But if I do the patch below to cs46xx.c, sound
+starts to work.
 
-I suspect that this is caused by unfinished handling of simplex devices
-in setup-pci.c (simplex host - one DMA engine but two channels).
+The patch I've used:
+---
+--- cs46xx_old.c        2004-01-27 14:09:46.625277768 +0200
++++ cs46xx.c    2004-01-27 12:32:28.000000000 +0200
+@@ -54 +54 @@
+-static int mmap_valid[SNDRV_CARDS] = {[0 ... (SNDRV_CARDS - 1)] = 0};
++static int mmap_valid[SNDRV_CARDS] = {[0 ... (SNDRV_CARDS - 1)] = 1};
+---
 
-> @@ -980,10 +981,13 @@
->  	drive->id->dma_1word &= ~0x0F00;
->
->  #if defined(CONFIG_BLK_DEV_IDEDMA) && !defined(CONFIG_DMA_NONPCI)
-> -	if (speed >= XFER_SW_DMA_0)
-> -		hwif->ide_dma_host_on(drive);
-> -	else
-> -		hwif->ide_dma_off_quietly(drive);
-> +	if (speed >= XFER_SW_DMA_0) {
-> +		if (hwif->ide_dma_check) /* Check if host supports DMA */
-> +			hwif->ide_dma_host_on(drive);
+Is there a reason to keep mmap_valid=0 in cs46xx driver or is this a real bug? I
+haven't seen any new bugs with this patch applied, all the multimedia
+applications (mplayer, xine, xmms, noatun) keeps on working.
 
-I've seen this and decided that it is not needed.
-
-If we try to program drives to DMA on non-DMA host
-something is going wrong and it is better to just OOPS.
-
-> +	} else {
-> +		if (hwif->ide_dma_check) /* Check if host supports DMA */
-> +			hwif->ide_dma_off_quietly(drive);
-> +	}
-
-Yep, I've missed this one.
-
-Thanks,
---bart
 

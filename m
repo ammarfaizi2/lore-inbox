@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272818AbRKMP0n>; Tue, 13 Nov 2001 10:26:43 -0500
+	id <S274813AbRKMPhc>; Tue, 13 Nov 2001 10:37:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273213AbRKMP0d>; Tue, 13 Nov 2001 10:26:33 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:18440 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S272818AbRKMP0S>;
-	Tue, 13 Nov 2001 10:26:18 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200111131525.SAA29471@ms2.inr.ac.ru>
-Subject: Re: Fw: Networking: repeatable oops in 2.4.15-pre2
-To: rusty@rustcorp.com.au (Rusty Russell)
-Date: Tue, 13 Nov 2001 18:25:45 +0300 (MSK)
-Cc: davem@redhat.com, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
-        netfilter-devel@lists.samba.org
-In-Reply-To: <E163ZiI-0001CR-00@wagner> from "Rusty Russell" at Nov 13, 1 08:18:38 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S273305AbRKMPhV>; Tue, 13 Nov 2001 10:37:21 -0500
+Received: from mamona.cetuc.puc-rio.br ([139.82.74.4]:28579 "EHLO
+	mamona.cetuc.puc-rio.br") by vger.kernel.org with ESMTP
+	id <S273213AbRKMPhO>; Tue, 13 Nov 2001 10:37:14 -0500
+Message-ID: <1353.139.82.28.36.1005665947.squirrel@mamona.cetuc.puc-rio.br>
+Date: Tue, 13 Nov 2001 13:39:07 -0200 (BRST)
+Subject: Re: /proc/<pidnumber>/stat hangs reading process
+From: "Marcelo Roberto Jimenez" <mroberto@cetuc.puc-rio.br>
+To: linux-kernel@vger.kernel.org, myrjola@lut.fi
+X-Mailer: SquirrelMail (version 1.0.6)
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Mika,
 
-> The NAT code is special: it will always mangle packet the same way, so
-> it doesn't *REALLY* matter if we mangle the original packet for local
-> output (if we change IP headers in different ways for retransmission
-> of the same packet, we would have much bigger problems).
+> Hello,
+> basically this posting is about the same problem as one I posted in 
+> September:
+> 
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/0109.0/0764.html
+> 
+> It's essentially the same situation: I was running mozilla and it stopped
+> responding to any input. I tried to kill it with control-c, kill and
+> finally with kill -9, but none helped. When I tried to look at the output
+> of top and ps, the exactly same symptons appeared; those processes didn't
+> finish and can't be killed either. When I do strace ps the output ends 
+> at:
+> 
+> stat64("/proc/16515", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+> open("/proc/16515/stat", O_RDONLY)      = 7
+> read(7,
 
-No, this does not matter at all if you change only headers.
-Netfilter is first who sees output packets and it may rewrite them
-mostly arbitraririly: packet sockets, devices see only rewritten copy.
+I'm having this problem too, for a long time. It's usually associated with big loads ( for my machine, of course, a PII-233 ). It has happened while opening lot's of pages with opera, but has also happened while compiling 3 kernels at the same time and playing a video with xine or aviplay.
 
-When retransmitting tcp prepares new headers and, hence, checks
-for clonin itself, if someone holds the packet it prepares copy.
+The behavior is the same: ps blocks, gtop blocks, killall blocks, anything that tries to get the process information blocks too.
 
-But if a hook changes _data_ (f.e. ftp packets), it can break original
-packet sitting in tcp queue and this is fatal. So, when mangling
-data, packet must be always copied. When mangling header, no copy
-is required.
+The machine can be used as long as a program does not try to call the problematic function, whitch I wasn't able to trace down. 
+
+I haven't had this problem for a while, basically because I try not to stress these ``hanging'' applications anymore, so that I can work, but I'll try to see if I can reproduce the bug with the new VM.
+
+The problem is: what can we do, to investigate the problem, once ps starts to block? 
+
+Regards,
+
+Marcelo.
 
 
-> Does this work for everyone?  Particularly while running tcpdump?
-
-It does, but I cannot say "for everyone", it will work with current
-protocol suite, but probably will break with out-of-tree stacks.
-
-Anyway, if it will not work, it will be problem not of netfilter,
-but of the guy who did not prepare right ownership. :-)
-
-Alexey

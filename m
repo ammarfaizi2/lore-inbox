@@ -1,63 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262038AbVCNWS7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262042AbVCNWUF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262038AbVCNWS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 17:18:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbVCNWPn
+	id S262042AbVCNWUF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 17:20:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262039AbVCNWT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 17:15:43 -0500
-Received: from fire.osdl.org ([65.172.181.4]:32957 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262004AbVCNWLt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 17:11:49 -0500
-Date: Mon, 14 Mar 2005 14:11:28 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: inode cache, dentry cache, buffer heads usage
-Message-Id: <20050314141128.7da95c34.akpm@osdl.org>
-In-Reply-To: <1110835692.24286.288.camel@dyn318077bld.beaverton.ibm.com>
-References: <1110394558.24286.203.camel@dyn318077bld.beaverton.ibm.com>
-	<20050310174751.522c5420.akpm@osdl.org>
-	<1110835692.24286.288.camel@dyn318077bld.beaverton.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 14 Mar 2005 17:19:28 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:57021 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262035AbVCNWSy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 17:18:54 -0500
+Subject: Re: [PATCH 0/4] sparsemem intro patches
+From: Dave Hansen <haveblue@us.ibm.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andy Whitcroft <apw@shadowen.org>
+In-Reply-To: <20050314135021.639d1533.davem@davemloft.net>
+References: <1110834883.19340.47.camel@localhost>
+	 <20050314135021.639d1533.davem@davemloft.net>
+Content-Type: text/plain
+Date: Mon, 14 Mar 2005 14:18:31 -0800
+Message-Id: <1110838711.19340.58.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty <pbadari@us.ibm.com> wrote:
->
-> On Thu, 2005-03-10 at 17:47, Andrew Morton wrote:
-> > Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> > >
-> > > So, why is these slab cache are not getting purged/shrinked even
-> > >  under memory pressure ? (I have seen lowmem as low as 6MB). What
-> > >  can I do to keep the machine healthy ?
-> > 
-> > Tried increasing /proc/sys/vm/vfs_cache_pressure?  (That might not be in
-> > 2.6.8 though).
-> > 
-> > 
+On Mon, 2005-03-14 at 13:50 -0800, David S. Miller wrote:
+> On Mon, 14 Mar 2005 13:14:43 -0800
+> Dave Hansen <haveblue@us.ibm.com> wrote:
 > 
-> Yep. This helped shrink the slabs, but we end up eating up lots of
-> the lowmem in Buffers. Is there a way to shrink buffers ?
-
-It would require some patchwork.  Why is it a problem?  That memory is
-reclaimable.
-
-> $ cat /proc/meminfo
-> MemTotal:     16377076 kB
-> MemFree:       7495824 kB
-> Buffers:       1081708 kB
-> Cached:        4162492 kB
-> SwapCached:          0 kB
-> Active:        3660756 kB
-> Inactive:      4473476 kB
-> HighTotal:    14548952 kB
-> HighFree:      7489600 kB
-> LowTotal:      1828124 kB
-> LowFree:          6224 kB
+> > Three of these are i386-only, but one of them reorganizes the macros
+> > used to manage the space in page->flags, and will affect all platforms.
+> > There are analogous patches to the i386 ones for ppc64, ia64, and
+> > x86_64, but those will be submitted by the normal arch maintainers.
 > 
+> Sparc64 uses some of the upper page->flags bits to store D-cache
+> flushing state.
+> 
+> Specifically, PG_arch_1 is used to set whether the page is scheduled
+> for delayed D-cache flushing, and bits 24 and up say which CPU the
+> CPU stores occurred on (and thus which CPU will get the cross-CPU
+> message to flush it's D-cache should the deferred flush actually
+> occur).
+> 
+> I imagine that since we don't support the domain stuff (yet) on sparc64,
+> your patches won't break things, but it is something to be aware of.
 
-How'd you get 1.8gig of lowmem?
+Those bits are used today for page_zone() and page_to_nid().  I assume
+that you don't support NUMA, but how do you get around the page_zone()
+definition?  (a quick grep in asm-sparc64 didn't show anything obvious)
+
+        static inline struct zone *page_zone(struct page *page)
+        {
+                return zone_table[page->flags >> NODEZONE_SHIFT];
+        }
+        
+BTW, in theory, the new patch should allow page->flags to be better
+managed by a variety of users, including special arch users.  An
+architecture should be able to relatively easily add the necessary
+pieces to reserve them.  We could even have a ARCH_RESERVED_BITS macro
+or something.  
+
+-- Dave
+

@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263151AbSJGQFa>; Mon, 7 Oct 2002 12:05:30 -0400
+	id <S263107AbSJGPvc>; Mon, 7 Oct 2002 11:51:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263160AbSJGQFa>; Mon, 7 Oct 2002 12:05:30 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:48368 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263151AbSJGQF2>; Mon, 7 Oct 2002 12:05:28 -0400
-Subject: Re: 2.5.40: more fun with intel se7500wv2
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jure Pecar <Jure.Pecar@select-tech.si>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200210071603.g97G3c226136@stsrv.select-tech.si>
-References: <200210071603.g97G3c226136@stsrv.select-tech.si>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 07 Oct 2002 17:20:46 +0100
-Message-Id: <1034007646.25101.32.camel@irongate.swansea.linux.org.uk>
+	id <S263111AbSJGPvb>; Mon, 7 Oct 2002 11:51:31 -0400
+Received: from fed1mtao01.cox.net ([68.6.19.244]:63154 "EHLO
+	fed1mtao01.cox.net") by vger.kernel.org with ESMTP
+	id <S263107AbSJGPva>; Mon, 7 Oct 2002 11:51:30 -0400
+Date: Mon, 7 Oct 2002 09:22:12 -0700
+From: Matt Porter <porter@cox.net>
+To: "David S. Miller" <davem@redhat.com>
+Cc: giduru@yahoo.com, andre@linux-ide.org, linux-kernel@vger.kernel.org
+Subject: Re: The end of embedded Linux?
+Message-ID: <20021007092212.B18610@home.com>
+References: <Pine.LNX.4.10.10210051252130.21833-100000@master.linux-ide.org> <20021005205238.47023.qmail@web13201.mail.yahoo.com> <20021005.212832.102579077.davem@redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021005.212832.102579077.davem@redhat.com>; from davem@redhat.com on Sat, Oct 05, 2002 at 09:28:32PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-10-07 at 17:03, Jure Pecar wrote:
-> On Mon, 7 Oct 2002 17:40:49 +0200
-> Jure Pecar <jure.pecar@select-tech.si> wrote:
-> 
-> > All dmesgs stop at scsi, which is already
-> > being looked at. 
-> 
-> Ok, Justin Gibbs just told me that this is an interrupt routing problem
-> and not a driver problem. Who can i ask more about that?
-> I'm really eager to have this box running properly with 2.5 kernel.
+On Sat, Oct 05, 2002 at 09:28:32PM -0700, David S. Miller wrote:
+> Embedded applications tend to have issues which are entirely specific
+> to that embedded project.  As such, those are things that do not
+> belong in a general purpose OS.
 
-You might want to try changing the ACPI settings and using ACPI for your
-IRQ routing.
+Exactly, every application wants some of the finer details of
+kernel operation tuned to their task.
 
+> The common areas, like smaller hashtables or whatever, sure put a
+> CONFIG_SMALL_KERNEL option in there and start submitting the
+> one-liners here and there that do it.
+
+Ahhh, but you just defeated the ideal of being able to customize
+to task.  This is where the hallowed "the user is dumb" theory
+bites us in the ass.  A single option to control all these sizing
+issues reduces flexibility and that is what the embedded system
+designer is looking for.  The ideal situation is if as we work
+on all these areas where we can reduce size, we provide fine
+grained options to tweak them (with a default desktop/server value
+and a default "tiny" value).  You can have this CONFIG_TINY or
+whatever, but then we should also provide the ability to tweak
+the values exactly how we want in a specific application.  The
+tweaking options can be buried under advanced kernel options
+with the appropriate disclaimers about shooting yourself in
+the foot.
+
+Regards,
+-- 
+Matt Porter
+porter@cox.net
+This is Linux Country. On a quiet night, you can hear Windows reboot.

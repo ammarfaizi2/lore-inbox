@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262221AbVBKIa0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262222AbVBKIfb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262221AbVBKIa0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 03:30:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbVBKIa0
+	id S262222AbVBKIfb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 03:35:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262223AbVBKIfb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 03:30:26 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:38275 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262221AbVBKIaW (ORCPT
+	Fri, 11 Feb 2005 03:35:31 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:49618 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S262222AbVBKIf0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 03:30:22 -0500
-Date: Fri, 11 Feb 2005 09:28:41 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Sven Dietrich <sdietrich@mvista.com>
-Cc: george@mvista.com, "'William Weston'" <weston@lysdexia.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
-Message-ID: <20050211082841.GA3349@elte.hu>
-References: <420BC23F.6030308@mvista.com> <000701c50fcd$f42dc600$bc0a000a@mvista.com>
+	Fri, 11 Feb 2005 03:35:26 -0500
+Date: Fri, 11 Feb 2005 09:37:05 +0100
+From: Stelian Pop <stelian@popies.net>
+To: dtor_core@ameritech.net
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 0/5] sonypi driver update
+Message-ID: <20050211083705.GA3263@crusoe.alcove-fr>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	dtor_core@ameritech.net,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+References: <20050210154420.GE3493@crusoe.alcove-fr> <d120d500050210112417751633@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <000701c50fcd$f42dc600$bc0a000a@mvista.com>
+In-Reply-To: <d120d500050210112417751633@mail.gmail.com>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Feb 10, 2005 at 02:24:58PM -0500, Dmitry Torokhov wrote:
 
-* Sven Dietrich <sdietrich@mvista.com> wrote:
+> On Thu, 10 Feb 2005 16:44:21 +0100, Stelian Pop <stelian@popies.net> wrote:
+> > Hi,
+> > 
+> > Over the last few weeks I've collected a few patches in my tree
+> > coming from others and it's time to merge them upstream:
+> > 
+> >        1/5: sonypi: replace schedule_timeout() with msleep()
+> >        2/5: sonypi: add another HELP button event
+> >        3/5: sonypi: use MISC_DYNAMIC_MINOR in miscdevice.minor assignment.
+> >        4/5: sonypi: fold the contents of sonypi.h into sonypi.c
+> >        5/5: sonypi: add fan and temperature status/control
+> 
+> Any chance that last one could be done via sysfs attributes instead of
+> new IOCTLs? This way you can control fan from the command line.
 
-> This patch adds a config option to allow you to select whether timer
-> IRQ runs in thread or not.
+Good suggestion, but I'd rather not mix ioctls and sysfs attrs. In
+some future version (development branch ? ahem) I'll switch to sysfs
+for all the controls and implement backward compatibility in the
+userspace tool.
 
-this patch only changes xtime_lock back and forth - it does in no way
-impact the 'threadedness' of the timer IRQ. (it does not move the timer
-IRQ into an interrupt thread.)
-
-nor do we really want to make it configurable - it's non-threaded right
-now and we'll see what effect this has on the worst-case latencies. 
-
-	Ingo
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>

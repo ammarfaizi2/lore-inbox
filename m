@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264399AbTGAFdj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 01:33:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265976AbTGAFdj
+	id S265989AbTGAFlt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 01:41:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265979AbTGAFlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 01:33:39 -0400
-Received: from mail.cpt.sahara.co.za ([196.41.29.142]:4598 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id S264399AbTGAFco (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 01:32:44 -0400
-Subject: Re: [PATCH] remove IO APIC newline
-From: Martin Schlemmer <azarah@gentoo.org>
-To: Diego Calleja =?ISO-8859-1?Q?Garc=EDa?= <diegocg@teleline.es>
-Cc: Jeff Garzik <jgarzik@pobox.com>, KML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030627205742.48f107c2.diegocg@teleline.es>
-References: <200306271836.h5RIakGD026159@hera.kernel.org>
-	 <20030627184111.GB4333@gtf.org>
-	 <20030627205742.48f107c2.diegocg@teleline.es>
-Content-Type: text/plain; charset=ISO-8859-1
-Organization: 
-Message-Id: <1057039383.5499.46.camel@workshop.saharacpt.lan>
+	Tue, 1 Jul 2003 01:41:49 -0400
+Received: from dsl-62-3-122-161.zen.co.uk ([62.3.122.161]:3725 "EHLO
+	lenin.trudheim.org") by vger.kernel.org with ESMTP id S266001AbTGAFjc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 01:39:32 -0400
+Subject: Re: Dell vs. GPL
+From: Anders Karlsson <anders@trudheim.com>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10306301346540.5840-100000@master.linux-ide.org>
+References: <Pine.LNX.4.10.10306301346540.5840-100000@master.linux-ide.org>
+Content-Type: text/plain
+Organization: Trudheim Technology Limited
+Message-Id: <1057038825.7180.8.camel@lenin.trudheim.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 01 Jul 2003 08:03:04 +0200
-Content-Transfer-Encoding: 8bit
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 01 Jul 2003 06:53:45 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-06-27 at 20:57, Diego Calleja García wrote:
-
-> I did a patch wich makes dmesg output of SMP machines better. Well, it doesn't
-> adds or removes any line; but it says "CPUX:". The patch ugly, basically
-> it adds smp_processor_id() output in every printk i found. I did it because
-> IMHO messages like "Intel machine check architecture supported" in a SMP machine
-> are ugly. I'd found it specially nice for big SMP boxes because this does dmesg
-> easily grep'able.
+On Mon, 2003-06-30 at 21:48, Andre Hedrick wrote:
+> The best solution is to forget what you see and know, is how the game is
+> played.  When things are sent to me outside of the scope of NDA's and they
+> effect my contributions is where I can free move.
 > 
-> 
-> -Initializing CPU#0
-> +CPU0: Initializing
-> [...]
-> -Calibrating delay loop... 1602.35 BogoMIPS
-> +CPU0: Calibrating delay loop... 1602.35 BogoMIPS
-> [...]
+> Anything under NDA stays there regardless.
 
-Wont it be more consistant to rather use CPU#0, CPU#1, etc ?
+Andre,
 
+I can see where you are coming from on this, but nevertheless, the NDA
+is not enforcable if illegal activities are taking place. Ask your legal
+council and they should be able to confirm this. If what you are fearing
+is economical retaliation from the companies that made you sign an NDA
+to ensure your silence, the legal system of US should protect you from
+that.
 
-Regards,
+All I can say, if US law require you to cover up illegal/criminal
+activity because you signed an NDA, get the f*ck out of US jurisdiction
+as fast as you can.
 
--- 
-Martin Schlemmer
+I am living in the UK at the moment, and I can not thoroughly recommend
+that as an alternative to living in the US. There are countries with
+better legal systems in the EU than what UK has.
+
+Just my two pennies worth.
+
+/A
+
 
 

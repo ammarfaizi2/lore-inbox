@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317865AbSFSMH0>; Wed, 19 Jun 2002 08:07:26 -0400
+	id <S317862AbSFSMG6>; Wed, 19 Jun 2002 08:06:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317866AbSFSMHZ>; Wed, 19 Jun 2002 08:07:25 -0400
-Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:28807 "EHLO
-	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id <S317865AbSFSMHV>; Wed, 19 Jun 2002 08:07:21 -0400
-Date: Wed, 19 Jun 2002 13:43:04 +0200
-From: Richard Zidlicky 
-	<Richard.Zidlicky@stud.informatik.uni-erlangen.de>
-To: george anzinger <george@mvista.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Replace timer_bh with tasklet
-Message-ID: <20020619134303.A1664@linux-m68k.org>
-References: <Pine.LNX.4.44.0206172104450.1164-100000@home.transmeta.com> <3D0F76E4.AC6EA257@mvista.com> <20020619004652.D2079@linux-m68k.org> <3D0FBF99.C0A8AD5B@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3D0FBF99.C0A8AD5B@mvista.com>; from george@mvista.com on Tue, Jun 18, 2002 at 04:17:45PM -0700
+	id <S317865AbSFSMG5>; Wed, 19 Jun 2002 08:06:57 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:41141 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S317862AbSFSMGx>;
+	Wed, 19 Jun 2002 08:06:53 -0400
+Date: Wed, 19 Jun 2002 14:04:25 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Robert Love <rml@tech9.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: Question about sched_yield()
+In-Reply-To: <Pine.LNX.3.96.1020619065011.1119B-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.44.0206191356350.11797-100000@e2>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 18, 2002 at 04:17:45PM -0700, george anzinger wrote:
-> Richard Zidlicky wrote:
-> > 
-> > On Tue, Jun 18, 2002 at 11:07:32AM -0700, george anzinger wrote:
-> > 
-> > >
-> > > I reasoned that the timers, unlike most other I/O, directly drive the system.
-> > > For example, the time slice is counted down by the timer BH.  By pushing the
-> > > timer out to ksoftirqd, running at nice 19, you open the door to a compute
-> > > bound task running over its time slice (admittedly this should be caught on
-> > > the next interrupt).
-> > 
-> > I have had some problems with timers delayed up to 0.06s in 2.4 kernels,
-> > could that be this problem?
-> > 
-> It could be.  Depends on what was going on at the time.  
 
-I have generated high load to test how accurately my genrtc driver will 
-work - it turned out that timers added with add_timer occassionally
-get delayed by several jiffies. Results were much worse on IO bound 
-load, especially IDE drives, CPU intensive userspace apps didn't appear 
-to matter.
+On Wed, 19 Jun 2002, Bill Davidsen wrote:
 
-Using schedule_task() to poll the event seems to work without any 
-problems.
+> Consider the case where a threaded application and a CPU hog are
+> running. In sum the threaded process is also a hog, although any one
+> thread is not.
 
-> In most cases, however,
-> the next interrupt should cause a call to softirq and thus run the timer list.  This
-> would seem to indicate at 20ms delay at most (first call busys softirq thru a 10ms tick
-> followed by recovery at the next tick).
+it is a mistake to assume that sched_yield() == 'threaded applications'.
 
-this was also my impression after looking at the lowlevel interrupt
-handling so I am really puzzled.
+sched_yield() is a horrible interface to base userspace spinlocks on, it's
+not in any way cheaper than real blocking, even in the best-case situation
+when there is no 'useless' yielding back and forth. In the worst-case
+situation it can be a few orders more expensive (!) than blocking-based
+solutions. LinuxThread's use of sched_yield() was and remains a hack. I'm 
+actually surprised that it works for real applications.
 
-Richard
+We are trying to improve things as much as possible on the kernel
+scheduler side, but since there is absolutely no object/contention
+information available for kernel space (why it wants to schedule away,
+which other processes are using the blocked object, etc.), it's impossible
+to do a perfect job - in fact it's not even possible to do a 'good' job.
+
+IMO people interested in high-performance threading should concentrate on
+the lightweight, kernel-backed userspace semaphores patch(es) that have
+been presented a few weeks ago, and merge those concepts into LinuxThreads
+(or into their own threading/spinlock solutions). Those patches do it
+properly, and the scheduler will be able to give all the help it can.
+
+	Ingo
+

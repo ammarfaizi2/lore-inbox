@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266069AbTBLC4D>; Tue, 11 Feb 2003 21:56:03 -0500
+	id <S265523AbTBLC5e>; Tue, 11 Feb 2003 21:57:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266384AbTBLC4C>; Tue, 11 Feb 2003 21:56:02 -0500
-Received: from covert.black-ring.iadfw.net ([209.196.123.142]:9737 "EHLO
+	id <S266041AbTBLC4m>; Tue, 11 Feb 2003 21:56:42 -0500
+Received: from covert.brown-ring.iadfw.net ([209.196.123.142]:14601 "EHLO
 	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
-	id <S266069AbTBLCzo>; Tue, 11 Feb 2003 21:55:44 -0500
-Date: Tue, 11 Feb 2003 20:41:27 -0600
+	id <S266347AbTBLCz7>; Tue, 11 Feb 2003 21:55:59 -0500
+Date: Tue, 11 Feb 2003 21:03:16 -0600
 From: Art Haas <ahaas@airmail.net>
-To: Neil Brown <neilb@cse.unsw.edu.au>, nfs@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Convert fs/nfsctl.c to use C99 named initiailzers
-Message-ID: <20030212024127.GA914@debian>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] C99 initializer for arch/i386/kernel/setup.c
+Message-ID: <20030212030316.GI914@debian>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,60 +21,154 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi.
 
-The following patch converts the file to use C99 named initializers.
-These change make the file compile with fewer warnings if '-W' is added
-to the compile flags, and may enhance code readability. Let me know if
-you think this should be sent to Linus.
+This patch converts the file to use C99 initializers to remove warnings
+if '-W' is used and to aid readability.
 
 Art Haas
 
-===== fs/nfsctl.c 1.5 vs edited =====
---- 1.5/fs/nfsctl.c	Sun Jan  5 17:19:30 2003
-+++ edited/fs/nfsctl.c	Tue Feb 11 09:38:42 2003
-@@ -54,13 +54,36 @@
- static struct {
- 	char *name; int wsize; int rsize;
- } map[] = {
--	[NFSCTL_SVC]={".svc", sizeof(struct nfsctl_svc)},
--	[NFSCTL_ADDCLIENT]={".add", sizeof(struct nfsctl_client)},
--	[NFSCTL_DELCLIENT]={".del", sizeof(struct nfsctl_client)},
--	[NFSCTL_EXPORT]={".export", sizeof(struct nfsctl_export)},
--	[NFSCTL_UNEXPORT]={".unexport", sizeof(struct nfsctl_export)},
--	[NFSCTL_GETFD]={".getfd", sizeof(struct nfsctl_fdparm), NFS_FHSIZE},
--	[NFSCTL_GETFS]={".getfs", sizeof(struct nfsctl_fsparm), sizeof(struct knfsd_fh)},
-+	[NFSCTL_SVC] = {
-+		.name	= ".svc",
-+		.wsize	= sizeof(struct nfsctl_svc)
+===== arch/i386/kernel/setup.c 1.67 vs edited =====
+--- 1.67/arch/i386/kernel/setup.c	Wed Feb  5 18:01:50 2003
++++ edited/arch/i386/kernel/setup.c	Tue Feb 11 09:38:59 2003
+@@ -51,9 +51,17 @@
+ 
+ char ignore_irq13;		/* set if exception 16 works */
+ /* cpu data as detected by the assembly code in head.S */
+-struct cpuinfo_x86 new_cpu_data __initdata = { 0, 0, 0, 0, -1, 1, 0, 0, -1 };
++struct cpuinfo_x86 new_cpu_data __initdata = {
++	.wp_works_ok	= -1,
++	.hlt_works_ok	= 1,
++	.cpuid_level	= -1
++};
+ /* common cpu data for all cpus */
+-struct cpuinfo_x86 boot_cpu_data = { 0, 0, 0, 0, -1, 1, 0, 0, -1 };
++struct cpuinfo_x86 boot_cpu_data = {
++	.wp_works_ok	= -1,
++	.hlt_works_ok	= 1,
++	.cpuid_level	= -1
++};
+ 
+ unsigned long mmu_cr4_features;
+ 
+@@ -104,31 +112,104 @@
+        char saved_command_line[COMMAND_LINE_SIZE];
+ 
+ struct resource standard_io_resources[] = {
+-	{ "dma1", 0x00, 0x1f, IORESOURCE_BUSY },
+-	{ "pic1", 0x20, 0x3f, IORESOURCE_BUSY },
+-	{ "timer", 0x40, 0x5f, IORESOURCE_BUSY },
+-	{ "keyboard", 0x60, 0x6f, IORESOURCE_BUSY },
+-	{ "dma page reg", 0x80, 0x8f, IORESOURCE_BUSY },
+-	{ "pic2", 0xa0, 0xbf, IORESOURCE_BUSY },
+-	{ "dma2", 0xc0, 0xdf, IORESOURCE_BUSY },
+-	{ "fpu", 0xf0, 0xff, IORESOURCE_BUSY }
++	{ 
++		.name	= "dma1",
++		.start	= 0x00,
++		.end	= 0x1f,
++		.flags	= IORESOURCE_BUSY
 +	},
-+	[NFSCTL_ADDCLIENT] = {
-+		.name	= ".add",
-+		.wsize	= sizeof(struct nfsctl_client)
++	{
++		.name	= "pic1",
++		.start	= 0x20,
++		.end	= 0x3f,
++		.flags	= IORESOURCE_BUSY
 +	},
-+	[NFSCTL_DELCLIENT] = {
-+		.name	= ".del",
-+		.wsize	= sizeof(struct nfsctl_client)
++	{
++		.name	= "timer",
++		.start	= 0x40,
++		.end	= 0x5f,
++		.flags	= IORESOURCE_BUSY
 +	},
-+	[NFSCTL_EXPORT] = {
-+		.name	= ".export",
-+		.wsize	= sizeof(struct nfsctl_export)
++	{
++		.name	= "keyboard",
++		.start	= 0x60,
++		.end	= 0x6f,
++		.flags	= IORESOURCE_BUSY
 +	},
-+	[NFSCTL_UNEXPORT] = {
-+		.name	= ".unexport",
-+		.wsize	= sizeof(struct nfsctl_export)
++	{
++		.name	= "dma page reg",
++		.start	= 0x80,
++		.end	= 0x8f,
++		.flags	= IORESOURCE_BUSY
 +	},
-+	[NFSCTL_GETFD] = {
-+		.name	= ".getfd",
-+		.wsize	= sizeof(struct nfsctl_fdparm),
-+		.rsize	= NFS_FHSIZE
++	{
++		.name	= "pic2",
++		.start	= 0xa0,
++		.end	= 0xbf,
++		.flags	= IORESOURCE_BUSY
 +	},
-+	[NFSCTL_GETFS] = {
-+		.name	= ".getfs",
-+		.wsize	= sizeof(struct nfsctl_fsparm),
-+		.rsize	= sizeof(struct knfsd_fh)
++	{
++		.name	= "dma2",
++		.start	= 0xc0,
++		.end	= 0xdf,
++		.flags	= IORESOURCE_BUSY
 +	},
++	{
++		.name	= "fpu",
++		.start	= 0xf0,
++		.end	= 0xff,
++		.flags	= IORESOURCE_BUSY
++	}
+ };
+ #ifdef CONFIG_MELAN
+-standard_io_resources[1] = { "pic1", 0x20, 0x21, IORESOURCE_BUSY };
+-standard_io_resources[5] = { "pic2", 0xa0, 0xa1, IORESOURCE_BUSY };
++standard_io_resources[1] = {
++	.name	= "pic1",
++	.start	= 0x20,
++	.end	= 0x21,
++	.flags	= IORESOURCE_BUSY
++};
++standard_io_resources[5] = {
++	.name	= "pic2",
++	.start	= 0xa0,
++	.end	= 0xa1,
++	.flags	= IORESOURCE_BUSY
++};
+ #endif
+ 
+ #define STANDARD_IO_RESOURCES (sizeof(standard_io_resources)/sizeof(struct resource))
+ 
+-static struct resource code_resource = { "Kernel code", 0x100000, 0 };
+-static struct resource data_resource = { "Kernel data", 0, 0 };
+-static struct resource vram_resource = { "Video RAM area", 0xa0000, 0xbffff, IORESOURCE_BUSY };
++static struct resource code_resource = {
++	.name	= "Kernel code",
++	.start	= 0x100000,
++	.end	= 0
++};
++static struct resource data_resource = {
++	.name	= "Kernel data",
++	.start	= 0,
++	.end	= 0
++};
++static struct resource vram_resource = {
++	.name	= "Video RAM area",
++	.start	= 0xa0000,
++	.end	= 0xbffff,
++	.flags	= IORESOURCE_BUSY
++};
+ 
+ /* System ROM resources */
+ #define MAXROMS 6
+ static struct resource rom_resources[MAXROMS] = {
+-	{ "System ROM", 0xF0000, 0xFFFFF, IORESOURCE_BUSY },
+-	{ "Video ROM", 0xc0000, 0xc7fff, IORESOURCE_BUSY }
++	{
++		.name	= "System ROM",
++		.start	= 0xF0000,
++		.end	= 0xFFFFF,
++		.flags	= IORESOURCE_BUSY
++	},
++	{
++		.name	= "Video ROM",
++		.start	= 0xc0000,
++		.end	= 0xc7fff,
++		.flags	= IORESOURCE_BUSY
++	}
  };
  
- long
+ #define romsignature(x) (*(unsigned short *)(x) == 0xaa55)
 -- 
 They that can give up essential liberty to obtain a little temporary safety
 deserve neither liberty nor safety.

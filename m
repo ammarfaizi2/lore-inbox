@@ -1,93 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129426AbQKBXbG>; Thu, 2 Nov 2000 18:31:06 -0500
+	id <S129148AbQKBXob>; Thu, 2 Nov 2000 18:44:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129440AbQKBXaz>; Thu, 2 Nov 2000 18:30:55 -0500
-Received: from mercury.eng.emc.com ([168.159.40.77]:4881 "EHLO
-	mercury.lss.emc.com") by vger.kernel.org with ESMTP
-	id <S129426AbQKBXar>; Thu, 2 Nov 2000 18:30:47 -0500
-Message-ID: <276737EB1EC5D311AB950090273BEFDD979DF7@elway.lss.emc.com>
-From: "chen, xiangping" <chen_xiangping@emc.com>
-To: "'Elizabeth Morris-Baker'" <eamb@liu.fafner.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: scsi init problem in 2.4.0-test10?
-Date: Thu, 2 Nov 2000 18:24:52 -0500 
+	id <S129304AbQKBXoV>; Thu, 2 Nov 2000 18:44:21 -0500
+Received: from c100.clearway.com ([199.103.231.100]:56586 "EHLO
+	mercury.clearway.com") by vger.kernel.org with ESMTP
+	id <S129148AbQKBXoO>; Thu, 2 Nov 2000 18:44:14 -0500
+From: Paul Marquis <pmarquis@iname.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-ID: <3A01FC44.8A43FE8B@iname.com>
+Date: Thu, 02 Nov 2000 18:44:05 -0500
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.15pre3 ppc)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Subject: Re: select() bug
+In-Reply-To: <E13rTfB-00023L-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Okay, I see your point, thanks.  A couple of comments/questions:
 
-Thanks for replying. What bothers me is that it works
-in another pc with the same setup to the external disk,
-but different internal scsi adaptor. So I did not think
-it was the kernel software caused the problem. Any other
-guess?
+- Does this make sense with devices with small kernel buffers?  From
+my experimentation, pipes on Linux have a 4K buffer and tend to be
+read and written very quickly.
 
-Thanks,
+- If I'm correct that pipes have a 4K kernel buffer, then writing 1
+byte shouldn't cause this situation, as the buffer is well more than
+half empty.  Is this still a bug?
 
-Xiangping
+Semantic issues aside, since Apache does the test I mentionned earlier
+to determine child status and since it could be misled, should this
+feature be turned off?
 
+Thanks for your input.
 
-
-
------Original Message-----
-From: Elizabeth Morris-Baker [mailto:eamb@liu.fafner.com]
-Sent: Thursday, November 02, 2000 4:58 PM
-To: chen_xiangping@emc.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: scsi init problem in 2.4.0-test10?
-
-
+Alan Cox wrote:
+> > I'm not exactly sure what you mean by this statement.  Would you mind
+> > explaining further?
 > 
-> Hello,
+> Well take a socket with 64K of buffering. You don't want to wake processes
+> waiting in select or in write every time you can scribble another 1460 bytes
+> to the buffer. Instead you wait until there is 32K of room then wake the
+> user. That means that there is one wakeup/trip through userspace every 32K
+> rather than potentially every time a byte is read the other end
 
-	Yes, I encountered the same problem, and have a fix, but
-	want to test it. If the author of scsi_scan.c would like
-	to correct it, then that would be fine.
+-- 
+Paul Marquis
+pmarquis@iname.com
 
-	Basically the problem is in scan_scsis_single.
-	Some scsi devices are notoriously brain dead
-	about answering inquiries without having 
-	recived a TUR and then spinning up.
-	The problem seems to be the disk, not the controller,
-	if this is the same problem.
-
-	The problem appeared in the test kernels because
-	the TUR *used* to be there, now it is not.
-
-	Hope this helps.
-
-	Just curious, what kind of scsi disk do you have??
-	lemme guess... Compaq Atlas?? :>
-
-	cheers, 
-
-	Elizabeth
-
-> 
-> I met a problem when trying to upgrade my Linux kernel to 2.4.0-test10.
-> The machine is Compay AP550, dual processor, mem 512 MB, and 863 MHZ freq.
-> It has two scsi host adaptors. one is AIC-7892 ultra 160/m connected to 
-> internal hard disk, and the other is AHA-3944 ultra scsi connected to 
-> an attached disk. The boot process stops after detection of the first
-> scsi host, error info is:
-> 	scsi: aborting command due to time out: pid0, scsci1, channel 0, 
-> 	id 0, lun 0, Inquiry 00 00 00 ff 00
-> 
-> Previous OS on this machine was RedHat 6.2 kernel version 2.2.14
-> 
-> looking forward to your help!
-> 
-> Xiangping
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+If it's tourist season, why can't we shoot them?
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

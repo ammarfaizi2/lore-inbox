@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264705AbTBYANC>; Mon, 24 Feb 2003 19:13:02 -0500
+	id <S264788AbTBYAQG>; Mon, 24 Feb 2003 19:16:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264739AbTBYANC>; Mon, 24 Feb 2003 19:13:02 -0500
-Received: from bitmover.com ([192.132.92.2]:54508 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S264705AbTBYANB>;
-	Mon, 24 Feb 2003 19:13:01 -0500
-Date: Mon, 24 Feb 2003 16:23:09 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Larry McVoy <lm@bitmover.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030225002309.GA12146@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-References: <20030222195642.GI1407@work.bitmover.com> <2080000.1045947731@[10.10.2.4]> <20030222231552.GA31268@work.bitmover.com> <3610000.1045957443@[10.10.2.4]> <20030224045616.GB4215@work.bitmover.com> <48940000.1046063797@[10.10.2.4]> <20030224065826.GA5665@work.bitmover.com> <20030224075142.GA10396@holomorphy.com> <20030224154725.GB5665@work.bitmover.com> <20030224233638.GS10411@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030224233638.GS10411@holomorphy.com>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+	id <S264790AbTBYAQF>; Mon, 24 Feb 2003 19:16:05 -0500
+Received: from imo-d08.mx.aol.com ([205.188.157.40]:55479 "EHLO
+	imo-d08.mx.aol.com") by vger.kernel.org with ESMTP
+	id <S264788AbTBYAQE>; Mon, 24 Feb 2003 19:16:04 -0500
+Message-ID: <3E5AB69B.5020907@netscape.net>
+Date: Mon, 24 Feb 2003 21:19:39 -0300
+From: Fernando R Secco <TByteP@netscape.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en, ja, pt-br
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: kernel -2.4.18
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Mailer: Unknown (No Version)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The changes are getting measured. By and large if it's slower on UP
-> it's rejected. 
+mmap
+forget_pte: old mapping existed!
+------------[ cut here ]------------
+kernel BUG at memory.c:314!
+invalid operand: 0000
+driver_myrinet nls_iso8859-1 cmpci soundcore ide-cd cdrom agpgart nvidia 
+autof
+CPU:    0
+EIP:    0010:[<c012ac4c>]    Tainted: P
+EFLAGS: 00010282
 
-Suppose I have an application which has a working set which just exactly
-fits in the I+D caches, including the related OS stuff.
+EIP is at remap_page_range [kernel] 0x1ec (2.4.18-14)
+eax: 00000021   ebx: c4678458   ecx: de04e000   edx: de04ff7c
+esi: dec7c09c   edi: 09aa2067   ebp: 00027000   esp: d2249eec
+ds: 0018   es: 0018   ss: 0018
+Process pcimap_test (pid: 24867, stackpage=d2249000)
+Stack: c0255f20 00214000 f9013000 00214000 f8fec000 00014000 cc047400 
+dffd1540
+       40214000 cc047400 ffffffea dffd1540 00001000 d2249f40 e1be72e9 
+40014000
+       b8fec000 00200000 00000027 dffd1540 00000000 ddeb1f40 c012c3d6 
+ddeb1f40
+Call Trace: [<e1be72e9>] yardriver_mmap [driver_myrinet] 0x3f (0xd2249f24))
+[<c012c3d6>] do_mmap_pgoff [kernel] 0x2f6 (0xd2249f44))
+[<c010e457>] sys_mmap2 [kernel] 0x77 (0xd2249f94))
+[<c01090ff>] system_call [kernel] 0x33 (0xd2249fc0))
 
-Someone makes some change to the OS and the benchmark for that change is
-smaller than the I+D caches but the change increased the I+D cache space
-needed. 
 
-The benchmark will not show any slowdown, correct?
-My application no longer fits and will suffer, correct?
+Code: 0f 0b 3a 01 62 5a 25 c0 e9 56 ff ff ff 90 8d b6 00 00 00 00
+ 
 
-The point is that if you are putting SMP changes into the system, you
-have to be held to a higher standard for measurement given the past
-track record of SMP changes increasing code length and cache footprints.
-So "measuring" doesn't mean "it's not slower on XYZ microbenchmark".
-It means "under the following work loads the cache misses went down or
-stayed the same for before and after tests".
-
-And if you said that all changes should be held to this standard, not
-just scaling changes, I'd agree with you.  But scaling changes are the
-"bad guy" in my mind, they are not to be trusted, so they should be held
-to this standard first.  If we can get everyone to step up to this bat,
-that's all to the good.
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Fernando R Secco
+Computer Science Bachelor Student 
+
+Universidade Federal de Santa Catarina
+http://www.ufsc.br
+
+SNOW - Parallel Programming Environment for Clustes of Workstations 
+http://snow.lisha.ufsc.br
+
+Personal website 
+http:// www.lisha.ufsc.br/~secco
+
+nerd things
+icq: 30051897
+aim: TByteP
+
+

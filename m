@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261930AbUCaV6z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 16:58:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262608AbUCaVrA
+	id S261400AbUCaVt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 16:49:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbUCaVtG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 16:47:00 -0500
-Received: from mesa.unizar.es ([155.210.11.66]:53679 "EHLO relay.unizar.es")
-	by vger.kernel.org with ESMTP id S262612AbUCaVqC (ORCPT
+	Wed, 31 Mar 2004 16:49:06 -0500
+Received: from fw.osdl.org ([65.172.181.6]:22988 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262632AbUCaVp1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 16:46:02 -0500
-In-Reply-To: <1080689525.2557.91.camel@lade.trondhjem.org>
-References: <7617358E-82A1-11D8-82F0-000A9585C204@able.es> <1080689525.2557.91.camel@lade.trondhjem.org>
-Mime-Version: 1.0 (Apple Message framework v613)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <C9212863-835C-11D8-A4F8-000A9585C204@able.es>
+	Wed, 31 Mar 2004 16:45:27 -0500
+Date: Wed, 31 Mar 2004 13:42:15 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "Casey Allen Shobe" <cshobe@osss.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: mem=options changed in 2.6.x?
+Message-Id: <20040331134215.21350e55.rddunlap@osdl.org>
+In-Reply-To: <44574.64.25.5.177.1080768515.squirrel@webmail.thebrittinggroup.com>
+References: <44574.64.25.5.177.1080768515.squirrel@webmail.thebrittinggroup.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: NFS sloow on 2.4
-Date: Wed, 31 Mar 2004 23:45:54 +0200
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 31 Mar 2004 16:28:35 -0500 (EST) Casey Allen Shobe wrote:
 
-On 31 mar 2004, at 01:32, Trond Myklebust wrote:
+| I have a Compaq Proliant 5000 with 320Mb RAM.
+| 
+| If I boot up either linux 2.4.22 or 2.6.4, it only identifies 12Mb of memory.
+| 
+| With 2.4.22, the kernel parameters "mem=exactmap mem=640k@0M mem=319M@1M"
+| worked to make the kernel identify all of the memory.
+| 
+| I have tried the same with linux 2.6.4, but with the above flags the
+| kernel will not boot.  With "mem=320M", the system boots, but it still
+| thinks it has only 12Mb RAM.
+| 
+| Something I'm missing or did this change between releases?
 
-> On Tue, 2004-03-30 at 18:24, J.A. Magallon wrote:
->> mount:
->> 192.168.1.1:/home on /home type nfs
->> (rw,nfsvers=3,tcp,rsize=8192,wsize=8192,noac,addr=192.168.1.1)
->
-> Turn off "noac": That forces slooooow synchronous writes as per
-> Solaris...
->
+See file: Documentation/kernel-parameters.txt
 
-Thanks, that made it:
-
-annwn:~> bpsh 6 time -p dd if=/dev/zero of=tst bs=8192 count=8192
-8192+0 records in
-8192+0 records out
-real 2.35
-user 0.00
-sys 0.33
-
-64Mb in 2.35 secs = about 27Mb/s
-
-Nice...
+Basically, you need to change "mem=" to "memmap=" in all 3 places
+above.
 
 --
-J.A. Magallon <jamagallon()able!es>   \          Software is like sex:
-werewolf!able!es                       \    It's better when it's free
-MacOS X 10.3.3, Build 7F44, Darwin Kernel Version 7.3.0
-
+~Randy
+"You can't do anything without having to do something else first."
+-- Belefant's Law

@@ -1,176 +1,499 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261748AbSJZXrG>; Sat, 26 Oct 2002 19:47:06 -0400
+	id <S261766AbSJZXvQ>; Sat, 26 Oct 2002 19:51:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261766AbSJZXrG>; Sat, 26 Oct 2002 19:47:06 -0400
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:45205 "EHLO
-	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
-	id <S261748AbSJZXrD>; Sat, 26 Oct 2002 19:47:03 -0400
-Date: Sat, 26 Oct 2002 16:53:15 -0700
-From: "H. J. Lu" <hjl@lucon.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: Support PCI device sorting (Re: PCI device order problem)
-Message-ID: <20021026165315.A15269@lucon.org>
-References: <20021025202600.A3293@lucon.org> <3DBB0553.5070805@pobox.com> <20021026142704.A13207@lucon.org> <3DBB0A81.6060909@pobox.com> <20021026144441.A13479@lucon.org> <3DBB1150.2030800@pobox.com> <20021026152043.A13850@lucon.org> <3DBB1743.6060309@pobox.com> <20021026155342.A14378@lucon.org> <3DBB1E29.5020402@pobox.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="AqsLC8rIMeq19msA"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DBB1E29.5020402@pobox.com>; from jgarzik@pobox.com on Sat, Oct 26, 2002 at 06:58:49PM -0400
+	id <S261806AbSJZXvQ>; Sat, 26 Oct 2002 19:51:16 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:33208 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261766AbSJZXvK>; Sat, 26 Oct 2002 19:51:10 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200210262357.g9QNvMP00380@devserv.devel.redhat.com>
+Subject: Linux 2.5.44-ac4
+To: linux-kernel@vger.kernel.org
+Date: Sat, 26 Oct 2002 19:57:22 -0400 (EDT)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+** I strongly recommend saying N to IDE TCQ options otherwise this
+   should hopefully build and run happily.
 
---AqsLC8rIMeq19msA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Most stuff is now back running at least as well as in 2.5.42-ac (u14f being
+the exception). This fixes a load more small things and resynchronizes the
+mmuless Linux stuff. That is now pretty close (IMHO) to mergable.
 
-On Sat, Oct 26, 2002 at 06:58:49PM -0400, Jeff Garzik wrote:
-> H. J. Lu wrote:
-> 
-> >>The basic point is "let's proceed with caution, and test test test 
-> >>before applying this patch."
-> >>    
-> >>
-> >
-> >Please state clearly what you have in mind. First you were
-> >saying you didn't like pci_sort_by_bus_slot_func defined when
-> >CONFIG_PCI_SORT_BY_BUS_SLOT_FUNC wass not set. Now you were
-> >saying my patch was dangerous. Please make up your mind.
-> >  
-> >
-> 
-> In my first reply, I clearly separated implementation issues from 
-> commentary on the overall idea.  Aside from that, I don't see much value 
-> in further repeating what I've already said.
-> 
+Linux 2.5.44-ac4
+o	Add 2.4.20-ac style /proc for ht info		(Robert Love)
+o	Fix bd_blocksize setting case			(Hugh Dickins)
+o	PCI bus setup now __devinit for hotplug		(Ivan Kokshaysky)
+o	make xconfig should work again			(Alex Riesen)
+o	Merge uclinux resync. This is now way cleaner	(Christoph Hellwig)
+o	Update znet driver				(Marc Zyngier)
+o	More i2o_scsi tidying				(Christoph Hellwig)
+o	Fix a leak in the device mapper			(Joe Thornber)
+o	Fix missed section name change			(Peter Chubb)
+o	Fix a bug in the APM update, add comments	(me)
+o	Merge block layer changes			(Jens Axboe)
+	| Should fix eject panic
+o	Fix warnings in baycom_epp			(me)
+o	Fix warnings in fmvj18x, and timer_sync bug	(me)
+o	Fix sim710 warnings				(me)
+o	Fix pas16/t128 warnings				(me)
+o	Allow both mmio and pio g_NCR5380 builds at once(me)
+o	Remove unused code from axnet_cs		(me)
+o	Fix warning in pc300 driver			(me)
+o	Clean up qlogicfas drivers somewhat		(me)
+o	Fix megaraid build for pci bios changes		(me)
+o	Fix cpu count weird reporting 			(Dave Jones)
+o	Clean up capabilities printing			(Dave Jones)
+o	Silence mtrr debugging printk			(Dave Jones)
+o	Split machine check per processor		(Dave Jones)
+o	Update mpt fusion for new slave_attach handling	(Peter Chubb)
+o       Initial speedstep testing for VIA chipset boards(Bob Renwick)
 
-Here is an alternative patch, which won't define pci_sort_by_bus_slot_func
-if CONFIG_PCI_SORT_BY_BUS_SLOT_FUNC is not set.
+Linux 2.5.44-ac3
+o	Update the cciss driver				(Stephen Cameron)
+o	Fix seagate st02 unload				(me)
+o	Fix missing \n in i810 driver			(me)
+o	Update Ninja SCSI PCMCIA driver			(Yokota Hiroshi)
+o	Clean up and kill off scsi_merge		(Christoph Hellwig)
+o	Remove niceness magic numbers			(Randy Dunlap)
+o	Update EDD support				(Matt Domsch)
+o	Update voyager support for IRQ stacks		(James Bottomley)
+-	Revert do_mounts change
+o	Better fix for raw.c headers			(Bjoern Zeeb)
+o	Fix ehci enumeration breakage			(David Brownell)
+o	Update adv7175 to new style i2c			(Frank Davis)
+o	PnP updates					(Adam Belay)
+o	PnP conversion of CS423x to new code		(Adam Belay)
+o	Fix APM BUG() on SMP boxes, port forward 2.4	(me)
+	changes
+o	Update other Digi URLS				(me)
+
+Linux 2.5.44-ac2
+o	Merge interrupt stack support for x86		(David Hansen,
+							 Ben LaHaise)
+o	Update ACPI to the latest released patch	(Andrew Grover,
+	| Should fix the compaq problems	Ducrot Bruno, Pavel Machek)
+o	Kill old STATIC define in do_mounts		(Frank Davis)
+o	Port NCR5380 to the latest kernel changes	(me)
+o	Update Digi EPCA maintainer info		(Scott Kilau)
+o	Update LVM2 device mapper	(Joe Thornber, Christoph Hellwig)
+o	EATA updates					(Dario Ballabio)
+o	Fix remaining depca ioctl bug			(Peter Denison)
+o	Make cifs error invalid addresses nicely	(Zwane Mwaikambo)
+o	Fix cifs oops on kmalloc failure		(Zwane Mwaikambo)
+o	Propogate return value on cifs connect		(Zwane Mwaikambo)
+o	cifs locking changes				(Zwane Mwaikambo)
+o	Fix cifs oops with invalid unc			(Zwane Mwaikambo)
+o	Resync voyager architecture support		(James Bottomley)
+o	Spot synaptics touchpad so we dont confuse it	(David Woodhouse)
+o	Quieten bttv debugging a bit			(Bongani)
+o	Rip out lots of the left over pcibios_ stuff	(Greg Kroah-Hartmann)
+o	Fix reiserfs build				(Steven Cole)
+o	Further cpia driver updates			(Duncan Haldane)
+o	Kill tqueue.h in various other files		(Martin Waitz)
+o	Update IRDA maintainer data			(Pawel Kot)
+o	Add in missing read_barrier_depends for sparc	(Dipankar Sarma)
+o	Make afs compile with older gcc			(Jan Marek)
+o	2.5.44 UML updates				(Jeff Dike)
+o	Fix kmap bugs in fs/exec.c for upgrowing	(Marcus Alanen)
+	stack
+o	Add ethtool support to ewrk3			(Adam Kropelin)
+o	Fix up cli/sti use in ewrk3			(Denis Vlasenko)
+o	ewrk3 ioctl fixes				(Adam Kropelin)
+o	Cleanup ewrk3 signature code			(Adam Kropelin)
+o	Fix task state reporting			(Daniel Jacobowitz)
+o	Handle casio fiva weirdness with APM extents	(Hiroshi Miura)
+o	Add Geode target that defines OOSTORE		(Hiroshi Miura, me)
+o	Remove dodgy_tsc handling code			(Hiroshi Miura)
+o	Update problem PIT handling on 5510/5520	(Hiroshi Miura)
+	Cyrix devices, re-enable TSC on it
+o	Use outb_p on CTC load up			(Hiroshi Miura)
+o	Mark ide floppies as removable devices		(Paul Bristow)
+o	Fix sym53c416 IRQ release problem		(me)
+o	Update sym53c416 to new EH code			(me)
+o	Fix subtractive decoding bridge handling	(Ivan Kokshaysky)
+o	Fix wan driver build problems			(Krzysztof Halasa)
+o	Allow for >32 signals on some platforms		(Matthew Wilcox)
+
+Linux 2.5.44-ac1
+-	Resync with Linus 2.5.43/44
+o	Fix net/ipv4/raw.c build problem		(me)
+o	Fix bluetooth pcmcia builds			(me)
+o	Fix dm includes					(me)
+	| I've not merged any of the DM updates yet
+o	Fix 3c515, fealnx printk type warnings		(me)
+o	Fix multi-line string literal in olympic driver	(me)
+o	Fix printk type warnings in tulip		(me)
+o	Document core naming sysctl			(Randy Dunlap)
+o	Fix hd_struct size/offset bugs			(Mark Lord)
+o	Further sym53c416 updates			(Bjoern Zeeb)
+o	Fix ramdisk cache flush 			(Paul Mundt)
+o	Fix pnp config.in for make Xconfig		(Roman Zippel)
+o	Correct ncpfs marking of executables		(Petr Vandrovec)
+o	Small matroxfb fixes				(Petr Vandrovec)
+o	Small cleanups for i2o_block so Al can clean	(Al Viro)
+	up the core block code
+o	Fix hang at shutdown with offlined disk		(Mike Anderson)
+o	Fix error reporting on scsi offline		(Mike Anderson)
+o	Fix hang on power off with scsi			(Mike Anderson)
+o	Fix typo in pnp.h				(Martin Dahl)
+o	Remove tqueue.h from cycx_main			(Adrian Bunk)
+o	Fix vlsi irda compile				(Adrian Bunk)
+o	Fix hamradio makefile breakage			(Adrian Bunk)
+o	Fix inia100 build				(John Fort)
+o	Fix AX.25 build for ip_proc			(Dave Miller)
+o	Fix aic7xxx Makefile				(Inaky Perez-Gonzalez)
+o	Fix vga16fb					(Ben Pfaff)
+o	Optimise spinlock to Intel recommendation	(Manfred Spraul)
+o	Fix pipe wakeup bug				(Manfred Spraul)
+o	Fix semop 32bit pid handling			(Manfred Spraul)
+o	Fix qlogic1280 build				(Jens Axboe)
+o	Merge BeOS fs (already in 2.4)			(Will Dyson,
+							 Sergey Kostyliov)
+o	Clean up wan ioctl structures			(Krzysztof Halasa)
+o	Some trident audio takes a long time to		(Kenneth Sumrall)
+	come up (Hitachi webpad)
+o	Add DVB api and core				(Holger Waechtler)
+o	Add one DVB driver so people can see how it	(Holger Waechtler)
+	all fits together
+	| This wants further review. There are known things to do yet
+	| but its important to get the stuff in since Digital TV is 
+	| becoming the norm in western europe.
+o	Print something clueful if menuconfig explodes	(Russell King)
+o	Move BUG() into asm/bug.h			(Russell King)
+o	Report errors unzipping ramdisks		(Russell King)
+o	Support extra weird numeric key on ARM boxes	(Russell King)
+o	Fix missing devexit_p in tulip			(Andrey Panin)
+o	Kill sr_host 					(Patrick Mansfield)
+o	S/390 Makefile and Config updates		(Martin Scwidefsky)
+o	S/390 user access fixes				(Martin Scwidefsky)
+o	31bit emulation fixes for S/390			(Martin Scwidefsky)
+o	Make S/390 possible cpu map volatile		(Martin Scwidefsky)
+o	Update dasd drivers for S/390 series		(Martin Scwidefsky)
+o	Update ver_linux				(Steven Cole)
+o	Fix blk ioctls on aacraid			(Mark Haverkamp)
+o	Fix SiS IDE build without procfs		(Lionel Bouton)
+o	i386 verify write fixes				(Brian Gerst)
+o	iphase ATM updates				(Francois Romieu)
+o	Update i810-tco to C99 initializers		(Wim Van Sebroeck)
+o	IDE updates for ARM platform			(Russell King)
+o	Fix megaraid build				(Mike Anderson)
+	| This may change the device order for some folks but it works
+	| at least
+o	Fix in2000 to handle scsi host list change	(me)
+o	Fix ncr53c8xx build				(me)
+o	Fix atp870u build				(me)
+o	Fix nsp32 build					(me)
+o	Fix firewire prototypes				(me)
+
+Linux 2.5.42-ac1
+	Merge with Linus 2.5.42
+o	Merge the LVM2 device mapper			(Joe Thornber)
+-	Drop uid16 S/390 bits pending resolution	(me)
+*	Fix iphase build				(Adrian Bunk)
+*	Fix UML build					(Kai Germaschewski)
+*	Fix cpufreq compile				(Adrian Bunk)
+o	Move dead verify_area code from sh port		(Brian Gerst)
+*	Fix missing AIO symbols				(Ben LaHaise)
+o	Fix ATM makefile				(Sam Ravnborg)
+*	Fix esp build					(Andres Salmon)
+*	Fix cifs/jfs symbol name collision		(Steve F)
+*	Update CPIA to match 2.4 tree			(Duncan Haldane)
+*	Fix cifs 64bit and cifs scsi name collision	(Steve F)
+*	Fix a compile of missing sysrq updates		(James Simmons)
+*	Fix sparc timer build				(Pete Zaitcev)
+*	Fix comile without networking			(Miles Bader)
+*	Remove some left over _ret functions		(SL Baur)
+*	Update syncppp code				(Paul Fulghum)
+*	Fix n_hdlc leak					(Paul Fulghum)
+*	Make synclink_cs build again			(Paul Fulghum)
+*	Make synclinkmp build again			(Paul Fulghum)
+*	Make synclink build again			(Paul Fulghum)
+o	Fix NFS symbols for NFS as a module		(Olaf Dietsche)
+*	Fix problem with scsidriver docbook		(Joaquim Fellmann)
+*	Kill dead suspend code in IDE			(Pavel Machek)
+*	Kill unreferenced workqueue define		(Pavel Machek)
+*	Fix swsuspend with discontiguous memory bits	(Pavel Machek)
+*	Fix cpqfc ioctl sense buffer handling		(Francis Wiran)
+*	Sym53c416 from cli to real locking		(Bjoern Zeeb)
+*	Fix a case where sd uses freed memory		(Patrick Mansfield)
+o	Fix p4-clockmod on HT processors		(Dominic Brodowski)
+o	CPUfreq interface update			(Dominic Brodowski)
+*	Fix eicon build					(me)
+*	Restore disconnect field in devices for		(me)
+	driver use
+
+Linux 2.5.41-ac2
+*	Fix jffs/jffs2 properly this time (bpbb)	(me)
+*	Fix jffs2 for workqueues			(me)
+*	Next set of i2o_scsi update work		(me)
+*	Do the 2.5 checkup pass on the 3c501 driver	(me)
+o	Add missing exports for file system modules	(Nikita Danilov)
+	on UML
+*	Fix ipx proc permission bogosity	(Arnaldo Carvalho de Melo)
+*	Switch appletalk spinlocks to rwlocks	(Arnaldo Carvalho de Melo)
+*	Correct sys_getpid docs				(Robert Love)
+*	SubmittingPatches indent fix			(John Levon)
+*	cciss, cpqarray. rd. hd fixes			(Al Viro)
+*	Fix cpia with gcc 3.2				(Randy Dunlap)
+*	Use C99 structure initializers in IDE		(Art Haas)
+*	Use C99 structure initializers in HFS		(Art Haas)
+*	Update DMI scanner				(Jean Delvare)
+*	Fix bogus types in ide-cd.h			(Skip Ford)
+*	ns83820 updates					(Ben LaHaise)
+*	AIO updates					(Ben LaHaise)
+*	Beeping and sysrq on m68k			(Vojtech Pavlik)
+*	Improve hid naming				(Vojtech Pavlik)
+*	LSM docs					(Greg Kroah-Hartmann)
+*	Merge UML updates				(Jeff Dike)
+*	Final superblock union cleanup			(Brian Gerst)
+-	Fix atm build/makefile breakage			(Adrian Bunk)
+*	Brlock optimisation				(Robert Love)
+*	Miscellaneous USB updates			(Greg Kroah-Hartmann)
+*	MPT Fusion update				(Pam Delaney)
+-	Back out sched.c change - seem,s to cause hangs	(me)
+*	Serial compile fix				(Russell King)
+*	S/390 compile fixes				(Martin Schwidefsky)
+*	S/390 workqueue updates				(Martin Schwidefsky)
+*	Switch 3215/3270 from work queue to tasklet	(Martin Schwidefsky)
+*	Update S/390 link scripts			(Martin Schwidefsky)
+*	Remove duplicate S/390 memset			(Martin Schwidefsky)
+*	Fix S/390 syscall tracing			(Martin Schwidefsky)
+*	Multiple 3270 fixes				(Martin Schwidefsky)
+*	Configurable core names				(Jes Rahbek Klinke)
+X	Clean up s/390x 16bit uid calls			(Martin Schwidefsky)
+*	Fix EH locking on NCR5380			(me)
+	| Should now work on SMP boxes (badly admittedly)
+*	Indent wd7000 (no code changes)			(me)
+*	First pass at the in2000 scsi driver		(me)
+	| New locking, new_eh, address conversion
+
+Linux 2.5.41-ac1
+-	Merge with Linus 2.5.41
+	- Drop S/390 drivers subtree for Linus
+	- Drop task queue fixes for schedule_work
+	- TODO: merge two sets of conflicting UML changes
+	- TODO: double check bluetooth merge
+*	Fix aacraid makefile				(Mark Haverkamp)
+*	Fix ips compile					(Paul Larson)
+*	Fix aha152x compile				(Michel Eyckmans)
+*	Fix orinoco_cs compile		(Wichert Akkerman, Martin Waitz)
+*	Fix i2o_core compiler				(Gregoire Favre)
+*	Fix missing exports for netfilter
+*	Fix compile failure in jffs			(me)
+*	Fix compile failure in jffs2			(me)
+*	Fix Divas_Mod compile				(me)
+*	Fix hisax compile				(me)
+*	Fix ipacx compile				(me)
+*	Fix pcbit compile				(me)
+*	Fix tpam compile				(me)
+*	Fix i2o_lan build				(me)
+*	Fix i2o_proc build				(me)
+*	Fix ppa compile					(me)
+*	Fix imm compile					(me)
+*	Fix ipv6 compile				(me)
 
 
-H.J.
 
---AqsLC8rIMeq19msA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="linux-2.4.18-pci-order-2.patch"
+Linux 2.5.40-ac6
+*	Cadet_wake can be static			(me)
+*	Bluetooth configuration cleanups		(Marcel Holtmann)
+o	Hardwired empty bar handling fix take two	(Ivan Kokshaysky)
+*	Use kernel crc32 lib for bluetooth		(Marcel Holtmann)
+*	Make scsi cdrom honour passed timeouts		(Peter Osterlund)
+*	Make aironet4500_cs compile			(me)
+*	Fix bugs where ibmtr unmapped the wrong address	(me)
+*	Fix crash problem in oss dmabuf.c		(me)
+	| Its still very broken but ALSA should replace it
+*	Fix opl3sa2 warnings				(me)
+*	Make tcic compile again				(me)
+*	Make i82365 also use del_timer_sync		(me)
+*	Fix warnings in fpu emulator			(me)
+*	Fix t128 for NCR5380 changes			(me)
+*	Fix pas16 for NCR5380 changes			(me)
+*	Fix dmx3191 for NCR538 changes			(me)
+*	First pass seagate st02 cleanups		(me)
+*	Clean up de600 driver. Switch to spinlocks	(me)
+	remove crud, formatting junk etc
+	| Still needs rewriting to use parport
+o	Remove extra unlock in wd7000			(Matthew Wilcox)
+*	First basic pass at qlogicgas			(me)
+*	Clean up the fdomain isa scsi			(me)
+*	Clean up max_thread setting limits		(Matthew Wilcox)
+*	Ricoh cardbus performance fix			(KOMURO)
+*	Switch appletalk to seq_file /proc	(Arnaldo Carvalho de Melo)
+*	Switch X.25 to seq_file			(Arnaldo Carvalho de Melo)
+*	Fix bugs in the above			(Arnaldo Carvalho de Melo)
 
---- linux/arch/i386/config.in.order	Thu Oct 24 21:09:20 2002
-+++ linux/arch/i386/config.in	Fri Oct 25 16:34:13 2002
-@@ -257,6 +257,7 @@ else
-       if [ "$CONFIG_PCI_GODIRECT" = "y" -o "$CONFIG_PCI_GOANY" = "y" ]; then
-          define_bool CONFIG_PCI_DIRECT y
-       fi
-+      bool '  Sort device by bus, slot, function' CONFIG_PCI_SORT_BY_BUS_SLOT_FUNC
-    fi
- fi
- 
---- linux/arch/i386/kernel/pci-i386.h.order	Sun Nov 11 10:09:32 2001
-+++ linux/arch/i386/kernel/pci-i386.h	Fri Oct 25 19:26:51 2002
-@@ -21,6 +21,7 @@
- #define PCI_ASSIGN_ROMS		0x1000
- #define PCI_BIOS_IRQ_SCAN	0x2000
- #define PCI_ASSIGN_ALL_BUSSES	0x4000
-+#define PCI_BUS_SORT		0x8000
- 
- extern unsigned int pci_probe;
- 
---- linux/arch/i386/kernel/pci-pc.c.order	Thu Oct 24 21:09:20 2002
-+++ linux/arch/i386/kernel/pci-pc.c	Sat Oct 26 16:14:00 2002
-@@ -19,7 +19,11 @@
- 
- #include "pci-i386.h"
- 
-+#ifdef CONFIG_PCI_SORT_BY_BUS_SLOT_FUNC
-+unsigned int pci_probe = PCI_PROBE_BIOS | PCI_BUS_SORT | PCI_PROBE_CONF1 | PCI_PROBE_CONF2;
-+#else
- unsigned int pci_probe = PCI_PROBE_BIOS | PCI_PROBE_CONF1 | PCI_PROBE_CONF2;
-+#endif
- 
- int pcibios_last_bus = -1;
- struct pci_bus *pci_root_bus = NULL;
-@@ -871,6 +875,55 @@ static struct pci_ops * __devinit pci_fi
- 	return NULL;
- }
- 
-+#ifdef CONFIG_PCI_SORT_BY_BUS_SLOT_FUNC
-+static void __devinit pci_sort_by_bus_slot_func(void)
-+{
-+	LIST_HEAD(sorted_devices);
-+	struct list_head *ln;
-+	struct pci_dev *dev, *d;
-+	int n;
-+	int s, slot;
-+	int f, func;
-+
-+	printk(KERN_INFO "PCI: Sorting device list by bus, slot, function...\n");
-+
-+	/* Starting from bus 0, ...  */
-+	for (n=0; n <= pcibios_last_bus; n++) {
-+		if (!pci_bus_exists(&pci_root_buses, n))
-+			continue;
-+
-+		while (!list_empty(&pci_devices)) {
-+			/* Find the lowest remaining PCI slot/function.  */
-+			slot = INT_MAX;
-+			func = INT_MAX;
-+			dev = NULL;
-+			for (ln=pci_devices.next; ln != &pci_devices; ln=ln->next) {
-+				d = pci_dev_g(ln);
-+				s = PCI_SLOT(d->devfn);
-+				f = PCI_FUNC(d->devfn);
-+				if (d->bus->number == n
-+				    && (s < slot || (s == slot && f < func))) {
-+					slot = s;
-+					func = f;
-+					dev = d;
-+				}
-+			}
-+
-+			if (dev) {
-+				list_del(&dev->global_list);
-+				list_add_tail(&dev->global_list, &sorted_devices);
-+			}
-+			else {
-+				/* Stop if we don't find any devices on
-+				   this bus.  */
-+				break;
-+			}
-+		}
-+	}
-+	list_splice(&sorted_devices, &pci_devices);
-+}
-+#endif
-+
- /*
-  * Sort the device list according to PCI BIOS. Nasty hack, but since some
-  * fool forgot to define the `correct' device order in the PCI BIOS specs
-@@ -1392,6 +1445,11 @@ void __init pcibios_init(void)
- 
- 	pcibios_resource_survey();
- 
-+#ifdef CONFIG_PCI_SORT_BY_BUS_SLOT_FUNC
-+	if ((pci_probe & PCI_BUS_SORT) && !(pci_probe & PCI_NO_SORT))
-+		pci_sort_by_bus_slot_func();
-+	else
-+#endif
- #ifdef CONFIG_PCI_BIOS
- 	if ((pci_probe & PCI_BIOS_SORT) && !(pci_probe & PCI_NO_SORT))
- 		pcibios_sort();
-@@ -1404,6 +1462,12 @@ char * __devinit  pcibios_setup(char *st
- 		pci_probe = 0;
- 		return NULL;
- 	}
-+#ifdef CONFIG_PCI_SORT_BY_BUS_SLOT_FUNC
-+	else if (!strcmp(str, "nobussort")) {
-+		pci_probe &= ~PCI_BUS_SORT;
-+		return NULL;
-+	}
-+#endif
- #ifdef CONFIG_PCI_BIOS
- 	else if (!strcmp(str, "bios")) {
- 		pci_probe = PCI_PROBE_BIOS;
+Linux 2.5.40-ac5
+*	Rework S/390 driver init sequences		(Martin Schwidefsky)
+*	Swap immediate_bh for tasklets for s/390 3215	(Martin Schwidefsky)
+*	UML updates - crash fixes, driver cleanup	(Jeff Dike)
+	pcap transport
+*	Switch fmi radio card to sleeping waits		(me)
+*	Fixing missing printk \n in fmi radio		(me)
+o	Update to newer uclinux patch			(Greg Ungerer)
+	| Unresolved now:
+	| fs/exec.c kernel/fork.c procfs sysctl
+	| can nommu be folded in (Hch)
+*	Remove surplus irq_disable from mpt fusion	(Carlos Gorges)
+*	Export gdt for APM				(Carlos Gorges)
+	| Marked as _GPL because its deep internals stuff
+*	Merge the add/put disk gendisk changes for i2o	(Al Viro)
+*	Switch NCR5380/g_NCR5380 to new_eh		(me)
+*	Fix cs89x0 netdevice init as module		(me)
+*	Change some of the wd7000 code to use
+	udelay and do other cleanups
+*	Switch wd7000 to new_eh				(me)
+*	Serial driver updates				(Russell King)
+*	Sync bluetooth with 2.4, fix SMP, hotplug	(Maksim Krasnyanskiy)
+	support L2CAP, BNEP, HCI filter etc
+*	Move firmwareloading to hotplug for bluetooth	(Maksim Krasnyanskiy)
+*	Pull hpfs out of shared struct superblock	(Brian Gerst)
+X	Fix sleep with pre-empt disabled in 		(Manfred Spraul)
+	set_cpus_allowed
 
---AqsLC8rIMeq19msA--
+Linux 2.5.40-ac4
+*	Make ibm partition code compile again		(Martin Schwidefsky)
+*	Remove unneeded config options on S/390		(Martin Schwidefsky)
+*	Update DASD drivers				(Martin Schwidefsky)
+*	Update S/390 xpram driver			(Martin Schwidefsky)
+*	Replace S/390 BH code by tasklets		(Martin Schwidefsky)
+*	Fix S/390 bitops bugs				(Martin Schwidefsky)
+*	S/390x 31bit emulation fixes			(Martin Schwidefsky)
+*	Update S/390 link scripts			(Martin Schwidefsky)
+*	Add S/390 pre-empt support			(Martin Schwidefsky)
+*	Inline some S/390 old compilers couldnt handle	(Martin Schwidefsky)
+*	Use diag 44 for S/390x spinlocks		(Martin Schwidefsky)
+*	Better S/390 timer handling			(Martin Schwidefsky)
+*	S/390 code cleanups				(Martin Schwidefsky)
+*	Clean up S/390 fpu load/stores			(Martin Schwidefsky)
+*	DECnet updates for testing			(Steve Whitehouse)
+*	Add console shutdown handling to S/390		(Martin Schwidefsky)
+*	Remove some bogus S/390 sanity checks		(Martin Schwidefsky)
+*	Clean up S/390 process irq			(Martin Schwidefsky)
+*	Fix/simplify chpids handling on S/390		(Martin Schwidefsky)
+*	No /proc/interrupts on S/390			(Martin Schwidefsky)
+*	Remove now unneeded S/390 hack in init/main.c	(Martin Schwidefsky)
+*	Clean up all the S/390 ptrace handling		(Martin Schwidefsky)
+o	Fix build with local apic enabled		(James Bottomley)
+*	Initial i2o_block merge of 2.4/2.5 code		(me)
+	| Not yet functional
+*	Initial i2o_scsi merge of 2.4/2.5 code		(me)
+	| Needs dma mapping, 64bit, be and new_eh
+-	Revert Ivan's pci change (breaks serverworks)
+*	PCI serial oops fix				(William Irwin)
+*	Remove dead wood from unistd.h			(Brian Gerst)
+o	Fix bug in capget 				(Chris Wright)
+*	Switch qnxfs to new style initializers		(Art Haas)
+o	Recongize qnx v6 file systems			(Anders Larsen)
+*	Kill off remaining pcibios_ users   (Greg "Ninja Turtle" Kroah-Hartmann)
+*	Fix scsi debug for scsi scan changes		(Mike Anderson)
+*	Fix some bugs in scsi error handling		(Mike Andersen)
+*	Forward port RMK's 2.4 scsi fixes		(Mike Andersen)
+*	Allow longer settle times for scsi reset	(Mike Andersen)
+*	Hopefully improve error policies a bit		(Mike Andersen)
+
+Linux 2.5.40-ac3
+*	Resync telephony drivers with 2.4		(me)
+	| Forward port security and other minor fixes
+*	Fix aironet4500 build for tq changes		(me)
+*	Fix keyspan USB warnings with gcc 3		(me)
+*	Switch to the newer 2.4 depca driver		(me)
+*	Re-merge depca fixes from 2.5.0->2.5.40]
+*	Fix depca spinning waiting for irq probe	(me)
+*	Fix depca copy with interrupts off		(me)
+*	Fix depca clash with other ALIGN macros		(me)
+*	Initial port of NCR5380/g_NCR5380 to new locks	(me)
+	| This still needs new_eh, further clean up
+	| and possibly making NCR5380_main a thread
+*	Initial locking rework for the wd7000 scsi	(me)
+	| Still needs new_eh
+*	Update jffs to the dequeue_signal changes	(me)
+*	Update jffs2 to the dequeue_signal changes	(me)
+*	Fix shpnt misuse in NCR53c406a, wrong free_irq	(me)
+*	Update NCR53c406a to new style sglist		(me)
+	| Still needs new_eh
+*	Architecture updates for S/390			(Martin Schwidefsky)
+*	Include updates for S/390			(Martin Schwidefsky)
+*	Base S/390 driver updates			(Martin Schwidefsky)
+*	Add the new syscalls to S/390			(Martin Schwidefsky)
+*	Fix sleeping with locks in sound_core		(Jaroslav Kysela)
+*	Fix oops on shutdown of cs4281			(Suresh Siddha)
+*	Fix cdrom paths in devfs			(Jordan Breeding)
+*	Fix missing cache tag entry in intel cpu table	(Jean Delvare)
+*	Remove old 2.2 compatibility pci functions	(Greg Kroah-Hartmann)
+*	Clean up some dead devfs bits			(Greg Kroah-Hartmann)
+*	Fix an oops in the hugetblpage stuff		(Andrew Morton)
+	| Its still a stupid idea but now it doesnt oops
+o	Handle read only BARs with type bits set	(Ivan Kokshaysky)
+
+Linux 2.5.40-ac2
+*	Fix a cut and paste error in the amd rng docs	(Troels Hansen)
+*	Forward port OSS maestro3 fixes for toughbook
+o	Forward port ramdisk cache coherency
+*	RTL8150 USB updates				(Petko Manalov)
+*	Fix corega USB ident				(Petko Manalov)
+*	USB keyboard driver fix				(Dave Miller)
+*	USB prototype fix				(Luc Vanoostenryck)
+*	USB string fixes		(cip307@cip.physik.uni-wuerzburg.de)
+*	USB test driver					(David Brownell)
+*	Speedtouch USB driver fixes			(Greg Kroah-Hartmann)
+*	Clean environment for hotplug			(Greg Kroah-Hartmann)
+*	Fix mprotect oops				(Hugh Dickins)
+o	NUMA-Q cleanups					(Martin Dobson)
+*	Split timers into one x86 timer type per file	(John Stultz)
+*	Cyclone timer support for x440 etc		(John Stultz)
+*	Fix sleeping from illegal context for ioperm	(Andrew Morton)
+*	Fix imm compile				(bonganilinux@mweb.co.za)
+*	Fix irda for tq changes				(Carlos Gorges)
+*	Fix xjack telephony build			(Carlos Gorges)
+*	Fix ppa compile					(Carlos Gorges)
+*	Fix aha152x compile for tq changes		(Carlos Gorges)
+*	Fix hamradio drivers for tq changes		(Carlos Gorges)
+*	Fix plip driver for tq changes			(Carlos Gorges)
+*	Fix mpt fusion for tq changes			(Carlos Gorges)
+*	Fix isdn for tq changes				(Carlos Gorges)
+*	Fix ieee1394 for tq changes			(Carlos Gorges)
+*	Fix new timer code to build with cpufreq on	(me)
+*	Fix capi build for new tq_ code			(me)
+	| ISDN still needs moving to real locks
+	| this just cleans up one item
+*	Fix missing header in mtdblock_ro		(Carlos Gorges)
+*	Fix a typo and other header			(me)
+*	Fix up ixj_pcmcia for 2.5			(me)
+	| Note for janitors - it looks like a lot of the pcmcia release
+	| code people "fixed" should be using del_timer_sync not del_timer
+*	Fix missing header in longhaul cpu speed driver	(me)
+*	Pipe read/write cleanup				(Manfred Spraul)
+*	Make IDE PCI config text clearer	(Andrzej Krzysztofowicz)
+
+Linux 2.5.40-ac1
+*	Initial port of aacraid driver to 2.5		(me)
+*	vfat corruption fix				(Petr Vandrovec)
+*	Clean up firestream warnings			(Francois Romieu)
++	Voyager support					(James Bottomley)
+*	Fix split_vma					(Hugh Dickins)
++	Fix config in video subdirectory		(John Levon)
+*	Update olympic driver to 2.5			(Mike Phillips)
+*	Fix sg init error				(Mike Anderson)
+*	Fix Rules.make
+o	Merge most of ucLinux stuff			(Greg Ungerer)
+	| It needs putting somewhere so we can pick over the
+	| hard bits left
+	| Q: Wouldn't drivers/char/mem-nommu.c be better
+	| Q: How to do the procfs stuff tidily
+	| Q: Wouldn't it be nicer to move all mm or mmnommu specific ksyms
+	|    int the relevant mm/*.c file area instead of kernel/ksyms
+	| Q: Why ifdef out overcommit -  its even easier to account on 
+	|    MMUless and useful info
+*	Stick tulip back under 10/100 ethernet		(me)
+*	Correct docs for IBM touchpad back to how	(me)
+	they were before
+o	Fix abuse of set_bit in winbond-840		(me)
+*	Fix abuse of set_bit in atp			(me)

@@ -1,124 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263781AbUFBSA7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263795AbUFBSEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263781AbUFBSA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 14:00:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263788AbUFBR6r
+	id S263795AbUFBSEP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 14:04:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263788AbUFBSBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 13:58:47 -0400
-Received: from whitehorse.blackwire.com ([199.247.156.30]:42368 "HELO
-	whitehorse.blackwire.com") by vger.kernel.org with SMTP
-	id S263784AbUFBRyV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 13:54:21 -0400
-From: pjordan@whitehorse.blackwire.com
-Date: Wed, 2 Jun 2004 10:53:22 -0700
-To: linux-kernel@vger.kernel.org
-Subject: kernel_unaligned_trap_fault -> undefined - sparc64
-Message-ID: <20040602175322.GA21878@panama>
+	Wed, 2 Jun 2004 14:01:39 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:55005 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263795AbUFBR7D (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 13:59:03 -0400
+Message-Id: <200406021759.i52Hx00N022255@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: FabF <fabian.frederick@skynet.be>
+Cc: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: why swap at all? 
+In-Reply-To: Your message of "Wed, 02 Jun 2004 07:38:41 +0200."
+             <1086154721.2275.2.camel@localhost.localdomain> 
+From: Valdis.Kletnieks@vt.edu
+References: <E1BVIVG-0003wL-00@calista.eckenfels.6bone.ka-ip.net>
+            <1086154721.2275.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: multipart/signed; boundary="==_Exmh_1356624104P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 02 Jun 2004 13:59:00 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  LD      .tmp_vmlinux1
-arch/sparc64/kernel/built-in.o(__ex_table+0x3c4): undefined reference to `kernel_unaligned_trap_fault'
-arch/sparc64/kernel/built-in.o(__ex_table+0x3cc): undefined reference to `kernel_unaligned_trap_fault'
-arch/sparc64/kernel/built-in.o(__ex_table+0x3d4): undefined reference to `kernel_unaligned_trap_fault'
-arch/sparc64/kernel/built-in.o(__ex_table+0x3dc): undefined reference to `kernel_unaligned_trap_fault'
-arch/sparc64/kernel/built-in.o(__ex_table+0x3e4): undefined reference to `kernel_unaligned_trap_fault'
-arch/sparc64/kernel/built-in.o(__ex_table+0x3ec): more undefined references to `kernel_unaligned_trap_fault' follow
-make: *** [.tmp_vmlinux1] Error 1
+--==_Exmh_1356624104P
+Content-Type: text/plain; charset=us-ascii
 
+On Wed, 02 Jun 2004 07:38:41 +0200, FabF said:
 
+> > Yes but: your wm is so  often used/activated it will not get swaped  out. 
+> > But if your mouse passes over mozilla and tries to focus it, then you will
+> > feel the pain of a swapped-out x program.
+> > 
+> Exactly !
+> Does autoregulated VM swap. patch could help here ?
 
-I am using Dan Kegel's "crosstools" to build this kernel using 
- "make ARCH=sparc64 CC=/opt/crosstool/sparc64-unknown-linux-gnu/gcc-3.4.0-glibc-2.3.2/bin/sparc64-unknown-linux-gnu-gcc"
-  to build it.
+Con's auto-adjusting swappiness patch did in fact help that quite a bit,
+especially for the case of heavy file I/O causing process images to be swapped
+out.  I need to do some comparisons of that to Nick's MM work...
 
-Oh yeah, I also had to comment out line 449 of include/asm/unistd.h to get it
-to compile:
+--==_Exmh_1356624104P
+Content-Type: application/pgp-signature
 
-/* static __inline__ _syscall1(int,_exit,int,exitcode) */
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFAvhVkcC3lWbTT17ARAqWZAJ0Sgzjs5eI+DL2G+1ElpUDteEaSSACfdKqY
+vC9QfWNp7tb0COBUva4b8E8=
+=xbt4
+-----END PGP SIGNATURE-----
 
-Looking at arch/sparc64/kernel/unaligned.c lines 408 - 451, if I simply comment
-out the 'kernel_unaligned_trap_fault' I can get the thing to build,
-and it even boots on an E4500. (ultrasparc/sun4u)
-[ s/kernel_unaligned_trap_fault)/)/ is sufficient for a build :) ]
-
-unaligned.c 408-451:
-===================
-
-asmlinkage void kernel_unaligned_trap(struct pt_regs *regs, unsigned int insn, unsigned long sfar, unsigned long sfsr)
-{
-        enum direction dir = decode_direction(insn);
-        int size = decode_access_size(insn);
-
-        if (!ok_for_kernel(insn) || dir == both) {
-                printk("Unsupported unaligned load/store trap for kernel at <%016lx>.\n",
-                       regs->tpc);
-                unaligned_panic("Kernel does fpu/atomic unaligned load/store.", regs);
-                __asm__ __volatile__ ( "\n"
-"kernel_unaligned_trap_fault:\n\t"
-                "mov    %0, %%o0\n\t"
-                "call   kernel_mna_trap_fault\n\t"
-                " mov   %1, %%o1\n\t"
-                :
-                : "r" (regs), "r" (insn)
-                : "o0", "o1", "o2", "o3", "o4", "o5", "o7",
-                  "g1", "g2", "g3", "g4", "g5", "g7", "cc");
-        } else {
-                unsigned long addr = compute_effective_address(regs, insn, ((insn >> 25) & 0x1f));
-
-#ifdef DEBUG_MNA
-                printk("KMNA: pc=%016lx [dir=%s addr=%016lx size=%d] retpc[%016lx]\n",
-                       regs->tpc, dirstrings[dir], addr, size, regs->u_regs[UREG_RETPC]);
-#endif
-                switch (dir) {
-                case load:
-                        do_integer_load(fetch_reg_addr(((insn>>25)&0x1f), regs),
-                                        size, (unsigned long *) addr,
-                                        decode_signedness(insn), decode_asi(insn, regs),
-                                        kernel_unaligned_trap_fault);
-                        break;
-
-                case store:
-                        do_integer_store(((insn>>25)&0x1f), size,
-                                         (unsigned long *) addr, regs,
-                                         decode_asi(insn, regs),
-                                         kernel_unaligned_trap_fault);
-                        break;
-#if 0 /* unsupported */
-                case both:
-                        do_atomic(fetch_reg_addr(((insn>>25)&0x1f), regs),
-                                  (unsigned long *) addr,
-                                          kernel_unaligned_trap_fault);
-                        break;
-#endif
-                default:
-                        panic("Impossible kernel unaligned trap.");
-                        /* Not reached... */
-                }
-                advance(regs);
-        }
-}
-
-
-
-===============
-
-/opt/crosstool/sparc64-unknown-linux-gnu/gcc-3.4.0-glibc-2.3.2/bin/sparc64-unknown-linux-gnu-gcc --version
-sparc64-unknown-linux-gnu-gcc (GCC) 3.4.0
-
-  Straight out of "crosstools".  Running on a freshly installed debian sid
-with 2.6.6 on ix86.
-
-I have another problem now as well with NULL pointer dereference
-in drivers/char/vt.c line 2891.
-
-"Badness in poke_blanked_console" - is that an unrelated issue?
-
-Thanks,
-
-Peter
+--==_Exmh_1356624104P--

@@ -1,82 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289201AbSANLf1>; Mon, 14 Jan 2002 06:35:27 -0500
+	id <S289200AbSANLd1>; Mon, 14 Jan 2002 06:33:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288638AbSANLfP>; Mon, 14 Jan 2002 06:35:15 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:28693 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S288696AbSANLee>; Mon, 14 Jan 2002 06:34:34 -0500
-Date: Mon, 14 Jan 2002 12:34:25 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: J Sloan <jjs@pobox.com>
-Cc: Andrew Morton <akpm@zip.com.au>, Ed Sweetman <ed.sweetman@wmich.edu>,
-        yodaiken@fsmlabs.com, jogi@planetzork.ping.de,
-        Robert Love <rml@tech9.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        nigel@nrg.org, Rob Landley <landley@trommello.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020114123425.B10227@athlon.random>
-In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu> <1010781207.819.27.camel@phantasy> <20020112121315.B1482@inspiron.school.suse.de> <20020112160714.A10847@planetzork.spacenet> <20020112095209.A5735@hq.fsmlabs.com> <20020112180016.T1482@inspiron.school.suse.de> <005301c19b9b$6acc61e0$0501a8c0@psuedogod> <3C409B2D.DB95D659@zip.com.au> <3C40A6BB.1090100@pobox.com>
-Mime-Version: 1.0
+	id <S289199AbSANLdU>; Mon, 14 Jan 2002 06:33:20 -0500
+Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:54549 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S289200AbSANLdH>; Mon, 14 Jan 2002 06:33:07 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200201141133.g0EBX7r22754@devserv.devel.redhat.com>
+Subject: Linux 2.4.18pre3-ac2
+To: linux-kernel@vger.kernel.org
+Date: Mon, 14 Jan 2002 06:33:07 -0500 (EST)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <3C40A6BB.1090100@pobox.com>; from jjs@pobox.com on Sat, Jan 12, 2002 at 01:12:27PM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 12, 2002 at 01:12:27PM -0800, J Sloan wrote:
-> 
->    Ah - if it stands a chance of going into 2.4,
->    I'll test the heck out of it!
->    I'll give it the Q3A test, the RtCW test, the
->    xine/xmms/dbench tests, and more - glad
->    to be of service.
->    jjs
->    Andrew Morton wrote:
-> 
-> Ed Sweetman wrote:
-> 
-> If you want to test the preempt kernel you're going to need something that
-> can find the mean latancy or "time to action" for a particular program or
-> all programs being run at the time and then run multiple programs that you
-> would find on various peoples' systems.   That is the "feel" people talk
-> about when they praise the preempt patch.
-> 
-> Right.  And that is precisely why I created the "mini-ll" patch.  To
-> give the improved "feel" in a way which is acceptable for merging into
-> the 2.4 kernel.
-> And guess what?   Nobody has tested the damn thing, so it's going
-> nowhere.
-> Here it is again:
-> --- linux-2.4.18-pre3/fs/buffer.c       Fri Dec 21 11:19:14 2001
-> +++ linux-akpm/fs/buffer.c      Sat Jan 12 12:22:29 2002
-> @@ -249,12 +249,19 @@ static int wait_for_buffers(kdev_t dev, 
->         struct buffer_head * next;
->         int nr;
->  
-> -       next = lru_list[index];
->         nr = nr_buffers_type[index];
-> +repeat:
-> +       next = lru_list[index];
->         while (next && --nr >= 0) {
->                 struct buffer_head *bh = next;
->                 next = bh->b_next_free;
->  
-> +               if (dev == NODEV && current->need_resched) {
-> +                       spin_unlock(&lru_list_lock);
-> +                       conditional_schedule();
-> +                       spin_lock(&lru_list_lock);
-> +                       goto repeat;
-> +               }
->                 if (!buffer_locke
-> d(bh)) {
+[+ indicates stuff that went to Marcelo, o stuff that has not]
 
-this introduces possibility of looping indefinitely, this is why I
-rejected it while I merged the mini-ll other points into -aa, if you
-want to do anything like that at the very least you should roll the head
-of the list as well or something like that.
+Linux 2.4.18pre3-ac2
 
-Andrea
+o	Re-merge the IDE patches			(Andre Hedrick and co)
+o	Fix check/request region in ali_ircc and lowcomx(Steven Walter)
+	com90xx, sealevel, sb1000
++	Remove unused message from 6pack driver		(Adrian Bunk)
++	Fix unused variable warning in i60scsi		(Adrian Bunk)
++	Fix off by one floppy oops			(Keith Owens)
+o	Fix i2o_config use of undefined C		(Andreas Dilger)
++	Fix fdomain scsi oopses				(Per Larsson)
++	Fix sf16fmi hang on boot			(me)
+o	Add bridge resources to the resource tree	(Ivan Kokshaysky)
++	Fix iphase ATM oops on close in on case	   (Till Immanuel Patzschke)
++	Enable OOSTORE on winchip processors		(Dave Jones, me)
+	| Worth about 10-20% performance 
++	Code Page 1250 support				(Petr Titera)
++	Fix sdla and hpfs doc typos			(Sven Vermeulen)
+o	Document /proc/stat				(Sven Heinicke)
++	Update cs4281 drivers				(Tom Woller)
+	| Fixes xmms stutter, remove wrapper code
+	| handle tosh boxes, allow record device change
+	| trigger wakeups on ioctl triggered changes
+o	Fix locking of file struct stuff found by ibm	(Dipankar Sarma)
+	audit
+o	Use spin_lock_init in serial.c			(Dave Miller)
+o	Fix AF_UNIX shutdown bug			(Dave Miller)
+
+Linux 2.4.18pre3-ac1
+
+o	32bit uid quota
+o	rmap-11b VM					(Rik van Riel,
+							 William Irwin etc)
+o	Make scsi printer visible			(Stefan Wieseckel)
++	Report Hercules Fortissimo card			(Minya Sorakinu)
++	Fix O_NDELAY close mishandling on the following	(me)
+	sound cards: cmpci, cs46xx, es1370, es1371,
+	esssolo1, sonicvibes
+o	tdfx pixclock handling fix			(Jurriaan)
+o	Fix mishandling of file system size limiting	(Andrea Arcangeli)
+o	generic_serial cleanups				(Rasmus Andersen)
+o	serial.c locking fixes for SMP - move from cli	(Kees)
+	too
+o	Truncate fixes from old -ac tree		(Andrew Morton)
+o	Hopefully fix the i2o oops			(me)
+	| Not the right fix but it'll do till I rewrite this
++	Fix non blocking tty blocking bug		(Peter Benie)
+o	IRQ routing workaround for problem HP laptops	(Cory Bell)
++	Fix the rcpci driver				(Pete Popov)
++	Fix documentation of aedsp location		(Adrian Bunk)
+o	Fix the worst of the APM ate my cpu problems	(Andreas Steinmetz)
+o	Correct icmp documentation			(Pierre Lombard)
++	Multiple mxser crash on boot fix	(Stephan von Krawczynski)
+o	ldm header fix					(Anton Altaparmakov)
++	Fix unchecked kmalloc in i2c_proc	(Ragnar Hojland Espinosa)
++	Fix unchecked kmalloc in airo_cs	(Ragnar Hojland Espinosa)
++	Fix unchecked kmalloc in btaudio	(Ragnar Hojland Espinosa)
++	Fix unchecked kmalloc in qnx4/inode.c	(Ragnar Hojland Espinosa)
++	Disable DRM4.1 GMX2000 driver (4.0 required)	(me)
++	Fix sb16 lower speed limit bug			(Jori Liesenborgs)
+o	Fix compilation of orinoco driver		(Ben Herrenschmidt)
+o	ISAPnP init fix					(Chris Rankin)
+o	Export release_console_sem			(Andrew Morton)
+o	Output nat crash fix				(Rusty Russell)
+o	Fix PLIP					(Niels Jensen)
+o	Natsemi driver hang fix				(Manfred Spraul)
++	Add mono/stereo reporting to gemtek pci radio	(Jonathan Hudson)

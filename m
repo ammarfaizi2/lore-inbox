@@ -1,63 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264881AbUHSJ6k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264923AbUHSKDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264881AbUHSJ6k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 05:58:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264919AbUHSJ6j
+	id S264923AbUHSKDY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 06:03:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264919AbUHSKDX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 05:58:39 -0400
-Received: from stacja.kursor.pl ([80.55.191.138]:63921 "EHLO stacja.kursor.pl")
-	by vger.kernel.org with ESMTP id S264881AbUHSJ50 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 05:57:26 -0400
-Date: Thu, 19 Aug 2004 11:57:12 +0200 (CEST)
-From: Janusz Dziemidowicz <rraptorr@kursor.pl>
-To: Diego Calleja <diegocg@teleline.es>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] ext3 documentation (lack of)
-In-Reply-To: <20040818184249.5b266538.diegocg@teleline.es>
-Message-ID: <Pine.LNX.4.61.0408191144170.14966@stacja.kursor.pl>
-References: <20040818025951.63c4134e.diegocg@teleline.es>
- <200408172301.09350.ryan@spitfire.gotdns.org> <20040818133818.7b0582f3.diegocg@teleline.es>
- <Pine.LNX.4.61.0408181414450.18542@stacja.kursor.pl>
- <20040818184249.5b266538.diegocg@teleline.es>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 19 Aug 2004 06:03:23 -0400
+Received: from smtp809.mail.sc5.yahoo.com ([66.163.168.188]:61072 "HELO
+	smtp809.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264915AbUHSKAA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 06:00:00 -0400
+Subject: Re: [PATCH] bio_uncopy_user mem leak
+From: Greg Afinogenov <antisthenes@inbox.ru>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1092909598.8364.5.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 19 Aug 2004 04:59:58 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Aug 2004, Diego Calleja wrote:
+I'd just like to point out that this patch does not, as may be expected,
+result in functional audio CDs.  It merely results in a successful burn
+process and a CD full of noise.
 
-> Thanks. I've recollected those, explained it a bit (except the barrier bits,
-> I don't really mean what barriers are), and updated ext2 documentation with
-> some of them, and deleted a small comentary about ext3 not being available.
+Perhaps this should be tested/fixed?
 
-> +user_xattr		(*)	Enables POSIX Extended Attributes. It's enabled by
-> +				default, however you need to confifure its support
-> +				(CONFIG_EXT2_FS_XATTR). This is neccesary if you want
-> +				to use POSIX Acces Control Lists support. You can visit
-> +				http://acl.bestbits.at to know more about POSIX Extended
-> +				attributes.
-> +
-> +nouser_xattr			Disables POSIX Extended Attributes.
-> +
-> +acl			(*)	Enables POSIX Access Control Lists support. This is
-> +				enabled by default, however you need to configure
-> +				its support (CONFIG_EXT2_FS_POSIX_ACL). If you want
-> +				to know more about ACLs visit http://acl.bestbits.at
-> +
-> +noacl				This option disables POSIX Access Control List support.
+Greg
 
-Hmmm, after a quick look on source code one more clarification. Since 
-2.4.20 one can set default mount options in ext2/ext3 superblock using 
-tune2fs. If user_xattr or acl is there, then they are enabled by default 
-while mounting such filesystem. However default mount options field in 
-superblock is by default empty, so user_xattr and acl are not enabled by 
-default for most users. Please correct me if I'm wrong.
+(I'm not subscribed to this list; please CC me any responses; thanks!)
 
-Another thing is that a quick grep for reservation and resize options 
-shows nothing in latest kernel. Are you sure that these options exist? For 
-sure reiserfs has resize option.
+ 
 
---
-Janusz Dziemidowicz
-rraptorr@kursor.pl

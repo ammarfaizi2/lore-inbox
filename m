@@ -1,51 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269056AbUJQF2L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269057AbUJQFe7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269056AbUJQF2L (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 01:28:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269057AbUJQF2K
+	id S269057AbUJQFe7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 01:34:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269060AbUJQFe7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 01:28:10 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:47060 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S269056AbUJQF2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 01:28:06 -0400
-Subject: Re: High pitched noise from laptop: processor.c in linux 2.6
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: alan@lxorguk.ukuu.org.uk
-Content-Type: text/plain
-Organization: 
-Message-Id: <1097990475.2673.14262.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 17 Oct 2004 01:21:15 -0400
+	Sun, 17 Oct 2004 01:34:59 -0400
+Received: from relay.pair.com ([209.68.1.20]:34059 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S269057AbUJQFe5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 01:34:57 -0400
+X-pair-Authenticated: 24.126.73.164
+Message-ID: <4171F741.2070209@kegel.com>
+Date: Sat, 16 Oct 2004 21:38:25 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en, de-de
+MIME-Version: 1.0
+To: Albert Cahalan <albert@users.sf.net>
+CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>, sam@ravnborg.org
+Subject: Re: Building on case-insensitive systems
+References: <1097989574.2674.14246.camel@cube>
+In-Reply-To: <1097989574.2674.14246.camel@cube>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
-> On Sad, 2004-10-16 at 20:52, Lee Revell wrote:
->> [Pavel Machek]
+Albert Cahalan wrote:
+>>There are today ~1400 files named *.S in the tree, but none named *.s.
+>>So my idea was to do it like:
+>>*.S => *.asm => *.o
+> 
+> The logic is sound, but... yuck!
 
->>> What benefits? HZ=1000 takes 1W more on my system.
->>
->> Better timer resolution?
->
-> And heavily reduced accuracy on a lot of laptops
-> where 1000Hz is enough to make the clock slide
-> every time the battery state is queried or an SMM
-> event triggers.
+Yes, but worth it, I think.  Maybe some configure magic could
+pick .asm as the suffix only when building on case-insensitive
+filesystems, if that's the only way to make this palatable
+to those devoted to the .s/.S idiom.
 
-How low is low enough for nearly all of these laptops?
-Some decent choices:
+>>Btw. this is not about "case-challenged" filesystems in general.
+>>This is about making the kernel usefull out-of-the-box for the
+>>increasing embedded market. Less work-around patces needed the
+>>better. And these people are oftenb ound to Windoze boxes - for
+>>different reasons. And the individual developer may not be able
+>>to change this.
+> 
+> The difficulty in building on a case-insensitive filesystem may
+> be the only hope these developers have for escaping Windows.
+> You turn "we must have Linux build systems to build our product"
+> into the less effective "we want Linux".       
+> 
+> For the sake of these suffering developers, it would be better
+> to make sure that building Linux on Windows is a lost cause.
+> We could name a file "con" or "a:foo" for example.
 
-wrongness_%   HZ_diff   PIT_#   HZ     actual_HZ
--0.00083809  -0.003051   3278   364   363.996949  
--0.00016762  -0.000483   4143   288   287.999517
--0.00016762  -0.000724   2762   432   431.999276
--0.00016762  -0.001448   1381   864   863.998552
-+0.00008381  +0.000304   3287   363   363.000304  
-+0.00008381  +0.000435   2299   519   519.000435  
-+0.00008381  +0.000525   1903   627   627.000525  
+You are betting that you can force developers to switch away
+from Windows and MacOSX workstations.  That's like
+trying to get someone to stop smoking.  Yes, they should stop,
+but nagging them will just annoy them.  In particular,
+they'll simply apply the patch that makes the pain go away.
+We may as well be nice and apply the patch in the mainline.
+- Dan
 
-
+-- 
+Trying to get a job as a c++ developer?  See http://kegel.com/academy/getting-hired.html

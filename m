@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265163AbTLaPHW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 10:07:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265164AbTLaPHV
+	id S265158AbTLaPXM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 10:23:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265172AbTLaPXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 10:07:21 -0500
-Received: from holomorphy.com ([199.26.172.102]:54725 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265163AbTLaPGT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 10:06:19 -0500
-Date: Wed, 31 Dec 2003 07:06:07 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Paolo Ornati <ornati@lycos.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1-rc1 [resend]
-Message-ID: <20031231150607.GQ27687@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Paolo Ornati <ornati@lycos.it>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0312310033110.30995@home.osdl.org> <200312311434.17036.ornati@lycos.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200312311434.17036.ornati@lycos.it>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Wed, 31 Dec 2003 10:23:12 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:60546 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265158AbTLaPWq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 10:22:46 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 31 Dec 2003 07:22:42 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Danny Cox <Danny.Cox@ECWeb.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-mm2 Surprises
+In-Reply-To: <1072880245.1146.11.camel@vom>
+Message-ID: <Pine.LNX.4.44.0312310717360.2312-100000@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 31, 2003 at 04:00:07PM +0100, Paolo Ornati wrote:
-> With 2.6.1-rc1 I have noticed a strange IDE performance change.
-> Results of "hdparm -t /dev/hda" with 2.6.0 kernel:
-> (readahead = 256):		~26.31 MB/s
-> (readahead = 128):		~31.82 MB/s
-> PS = readahead is set to 256 by default on my system, 128 seems to be the 
-> best value
-> Results of "hdparm -t /dev/hda" with 2.6.1-rc1 kernel:
-> (readahead = 256):		~26.41 MB/s
-> (readahead = 128):		~26.27 MB/s
-> Setting readahead to 128 doesn't have the same effect with the new kernel...
+On Wed, 31 Dec 2003, Danny Cox wrote:
 
-What io scheduler are you using? Or, could you post /var/log/dmesg?
+> I've found some surprises in my testing of 2.6.0-mm2 on my RH 9 box.
+> 
+> First, 'make menuconfig' doesn't work.  It paints the top 8 or so lines,
+> and freezes.  gnome-terminal begins using as much CPU as it's allowed. 
+> This is similar to bug 959 in bugme.osdl.org, but changing CHILD_PENALTY
+> from 90 to 130 didn't fix the problem.
+> 
+> Second, simply resizing gnome-terminal results in the same behavior. 
+> Certainly, this may be a gnome thing.
+
+Same here, I did not spent time investigating though.
 
 
--- wli
+> Third, 'rpm' cannot install packages.  It always exists with:
+
+export LD_ASSUME_KERNEL=2.4
+
+
+
+- Davide
+
+

@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290823AbSBRR6K>; Mon, 18 Feb 2002 12:58:10 -0500
+	id <S287493AbSBRSOV>; Mon, 18 Feb 2002 13:14:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290882AbSBRRyG>; Mon, 18 Feb 2002 12:54:06 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59471 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S290815AbSBRRkg>; Mon, 18 Feb 2002 12:40:36 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: dalecki@evision-ventures.com (Martin Dalecki),
-        jgarzik@mandrakesoft.com (Jeff Garzik),
-        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-Subject: Re: PATCH 2.5.4 i810_audio, bttv, working at all.
-In-Reply-To: <E16azBG-0005DM-00@the-village.bc.nu>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 18 Feb 2002 10:36:01 -0700
-In-Reply-To: <E16azBG-0005DM-00@the-village.bc.nu>
-Message-ID: <m1r8ni4rr2.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S290812AbSBRSIY>; Mon, 18 Feb 2002 13:08:24 -0500
+Received: from [195.163.186.27] ([195.163.186.27]:63119 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S284300AbSBRSEn>;
+	Mon, 18 Feb 2002 13:04:43 -0500
+Date: Mon, 18 Feb 2002 20:04:41 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Isaac Connor <iconnor@directionsolutions.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: VGER is again speking to the network (Re: test)
+Message-ID: <20020218200441.T628@mea-ext.zmailer.org>
+In-Reply-To: <20020217222802Z291192-890+1002@vger.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020217222802Z291192-890+1002@vger.kernel.org>; from iconnor@directionsolutions.com on Sun, Feb 17, 2002 at 05:07:01PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+  VGER had a locally caused network constipation problem
+  from  Sat/Sun  evening, until less than an hour ago.
 
-> > But please just show me a non x86 architecture which is using the 
-> > i810_audio driver! 
+  This was _not_ the predicted machine movement, although
+  this relates to the case.
+
+/Matti Aarnio
+
+
+On Sun, Feb 17, 2002 at 05:07:01PM -0500, Isaac Connor wrote:
+> Content-Type:	text/plain; charset=US-ASCII
+> From:	Isaac Connor <iconnor@directionsolutions.com>
+> To:	linux-kernel@vger.kernel.org
+> Subject: test
+> Date:	Sun, 17 Feb 2002 17:07:01 -0500
 > 
-> To start with the i810 audio code is the same code as is used for the AMD768
-> southbridge which can be used with an Alpha processor + AMD762
-
-Or equally fun I won't be surprised if the i870 chipset for the next
-generation ia64 itanium processor (mckinley) could use this code.
-
-Eric
+> test

@@ -1,106 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312938AbSEAO7F>; Wed, 1 May 2002 10:59:05 -0400
+	id <S313057AbSEAPDQ>; Wed, 1 May 2002 11:03:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313057AbSEAO7F>; Wed, 1 May 2002 10:59:05 -0400
-Received: from philmont.ecn.purdue.edu ([128.46.154.160]:31699 "EHLO
-	philmont.ecn.purdue.edu") by vger.kernel.org with ESMTP
-	id <S312938AbSEAO7E>; Wed, 1 May 2002 10:59:04 -0400
-Message-Id: <200205011458.g41EwwD6027915@philmont.ecn.purdue.edu>
-To: linux-kernel@vger.kernel.org
-cc: torvalds@penguin.transmeta.com
-Subject: 2.5.1[012] compile fix under drivers/usb/storage
-Date: Wed, 01 May 2002 09:58:57 -0500
-From: Andrew T Sydelko <sydelko@ecn.purdue.edu>
-X-Virus-Scanned-ECN: by AMaVIS version 11 (http://amavis.org/)
+	id <S313070AbSEAPDP>; Wed, 1 May 2002 11:03:15 -0400
+Received: from avscan1.sentex.ca ([199.212.134.11]:61164 "EHLO
+	avscan1.sentex.ca") by vger.kernel.org with ESMTP
+	id <S313057AbSEAPDO>; Wed, 1 May 2002 11:03:14 -0400
+Message-ID: <00f501c1f121$6b7614c0$294b82ce@connecttech.com>
+From: "Stuart MacDonald" <stuartm@connecttech.com>
+To: "David Dyck" <dcd@tc.fluke.com>, "Alan Modra" <alan@linuxcare.com>,
+        "Kiyokazu SUTO" <suto@ks-and-ks.ne.jp>,
+        "Andrew Morton" <andrewm@uow.edu.au>,
+        "Arnaldo Carvalho de Melo" <acme@conectiva.com.br>,
+        "Kanoj Sarcar" <kanoj@sgi.com>,
+        "Christer Weinigel" <wingel@hog.ctrl-c.liu.se>,
+        "Robert Schwebel" <robert@schwebel.de>,
+        "Juergen Beisert" <jbeisert@eurodsn.de>,
+        "Theodore Ts'o" <tytso@mit.edu>, "Sapan Bhatia" <sapan@corewars.org>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0204301451300.2964-100000@dd.tc.fluke.com>
+Subject: Re: changes between 2.2.20 and 2.4.x 'broke' select() from detecting input characters in my serial /dev/ttyS0 program
+Date: Wed, 1 May 2002 11:03:57 -0400
+Organization: Connect Tech Inc.
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: "David Dyck" <dcd@tc.fluke.com>
+> It turns out also that the O_WRONLY channel had CREAD turned off,
+> which I would expect was appropriate for an output channel, and
+> in 2.2 kernels, it didn't affect the O_RDONLY channel.  If I enable
+> the CREAD bit in termios c_cflag register for the O_WRONLY channel also
+> then the select on the O_RDONLY channel reports characters available.
+>
+> I suspect that there is a different level of information sharing
+> between the 2 channels that are open, but which is the correct behaviour,
+> and why?
 
-The following patch fixes compilation problems due to structure changes.
-The patch applies against 2.5.1[012].
+CREAD handling was changed to be correct; recently, but I don't know
+exactly when. The 2.4 vs 2.2 difference sounds about right though.
+Previously CREAD had been incorrectly handled by the driver and hadn't
+been changed because some apps would break. Now data is correctly
+ignored on receive when CREAD is off.
 
-drivers/usb/storage/datafab.c
-drivers/usb/storage/jumpshot.c
+When you talk about the "O_WRONLY channel" and the "O_RDONLY channel"
+you're not actually referring to separate things. Each serial port is
+represented in the kernel as one entity that may be opened different
+ways, possibly multiple times.
 
---andy.
+When you turn off CREAD in your write side, you turn off CREAD for the
+whole port, including the read only side. This is not a bug in the
+driver.
 
-diff -uNr linux-2.5.11-clean/drivers/usb/storage/datafab.c linux-2.5.11/drivers/usb/storage/datafab.c
---- linux-2.5.11-clean/drivers/usb/storage/datafab.c    Sun Apr 28 22:13:26 2002
-+++ linux-2.5.11/drivers/usb/storage/datafab.c  Tue Apr 30 14:25:22 2002
-@@ -256,7 +256,7 @@
-                        while (sg_idx < use_sg && transferred < len) {
-                                if (len - transferred >= sg[sg_idx].length - current_sg_offset) {
-                                        US_DEBUGP("datafab_read_data:  adding %d bytes to %d byte sg buffer\n", sg[sg_idx].length - current_sg_offset, sg[sg_idx].length);
--                                       memcpy(sg[sg_idx].address + current_sg_offset,
-+                                       memcpy(page_address(sg[sg_idx].page) + current_sg_offset,
-                                               buffer + transferred,
-                                               sg[sg_idx].length - current_sg_offset);
-                                        transferred += sg[sg_idx].length - current_sg_offset;
-@@ -265,7 +265,7 @@
-                                        ++sg_idx;
-                                } else {
-                                        US_DEBUGP("datafab_read_data:  adding %d bytes to %d byte sg buffer\n", len - transferred, sg[sg_idx].length);
--                                       memcpy(sg[sg_idx].address + current_sg_offset,
-+                                       memcpy(page_address(sg[sg_idx].page) + current_sg_offset,
-                                               buffer + transferred,
-                                               len - transferred);
-                                        current_sg_offset += len - transferred;
-@@ -347,7 +347,7 @@
-                                if (len - transferred >= sg[sg_idx].length - current_sg_offset) {
-                                        US_DEBUGP("datafab_write_data:  getting %d bytes from %d byte sg buffer\n", sg[sg_idx].length - current_sg_offset, sg[sg_idx].length);
-                                        memcpy(ptr + transferred,
--                                              sg[sg_idx].address + current_sg_offset,
-+                                              page_address(sg[sg_idx].page) + current_sg_offset,
-                                               sg[sg_idx].length - current_sg_offset);
-                                        transferred += sg[sg_idx].length - current_sg_offset;
-                                        current_sg_offset = 0;
-@@ -356,7 +356,7 @@
-                                } else {
-                                        US_DEBUGP("datafab_write_data:  getting %d bytes from %d byte sg buffer\n", len - transferred, sg[sg_idx].length);
-                                        memcpy(ptr + transferred,
--                                              sg[sg_idx].address + current_sg_offset,
-+                                              page_address(sg[sg_idx].page) + current_sg_offset,
-                                               len - transferred);
-                                        current_sg_offset += len - transferred;
-                                        // we only copied part of this sg buffer
-diff -uNr linux-2.5.11-clean/drivers/usb/storage/jumpshot.c linux-2.5.11/drivers/usb/storage/jumpshot.c
---- linux-2.5.11-clean/drivers/usb/storage/jumpshot.c   Sun Apr 28 22:11:24 2002
-+++ linux-2.5.11/drivers/usb/storage/jumpshot.c Tue Apr 30 14:25:22 2002
-@@ -331,7 +331,7 @@
-                         while (sg_idx < use_sg && transferred < len) {
-                                 if (len - transferred >= sg[sg_idx].length - current_sg_offset) {
-                                         US_DEBUGP("jumpshot_read_data:  adding %d bytes to %d byte sg buffer\n", sg[sg_idx].length - current_sg_offset, sg[sg_idx].length);
--                                        memcpy(sg[sg_idx].address + current_sg_offset,
-+                                        memcpy(page_address(sg[sg_idx].page) + current_sg_offset,
-                                                buffer + transferred,
-                                                sg[sg_idx].length - current_sg_offset);
-                                         transferred += sg[sg_idx].length - current_sg_offset;
-@@ -340,7 +340,7 @@
-                                         ++sg_idx;
-                                 } else {
-                                         US_DEBUGP("jumpshot_read_data:  adding %d bytes to %d byte sg buffer\n", len - transferred, sg[sg_idx].length);
--                                        memcpy(sg[sg_idx].address + current_sg_offset,
-+                                        memcpy(page_address(sg[sg_idx].page) + current_sg_offset,
-                                                buffer + transferred,
-                                                len - transferred);
-                                         current_sg_offset += len - transferred;
-@@ -413,7 +413,7 @@
-                                 if (len - transferred >= sg[sg_idx].length - current_sg_offset) {
-                                         US_DEBUGP("jumpshot_write_data:  getting %d bytes from %d byte sg buffer\n", sg[sg_idx].length - current_sg_offset, sg[sg_idx].length);
-                                         memcpy(ptr + transferred,
--                                               sg[sg_idx].address + current_sg_offset,
-+                                               page_address(sg[sg_idx].page) + current_sg_offset,
-                                                sg[sg_idx].length - current_sg_offset);
-                                         transferred += sg[sg_idx].length - current_sg_offset;
-                                         current_sg_offset = 0;
-@@ -422,7 +422,7 @@
-                                 } else {
-                                         US_DEBUGP("jumpshot_write_data:  getting %d bytes from %d byte sg buffer\n", len - transferred, sg[sg_idx].length);
-                                         memcpy(ptr + transferred,
--                                               sg[sg_idx].address + current_sg_offset,
-+                                               page_address(sg[sg_idx].page) + current_sg_offset,
-                                                len - transferred);
-                                         current_sg_offset += len - transferred;
-                                         // we only copied part of this sg buffer
+..Stu
+
 

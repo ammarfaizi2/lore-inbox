@@ -1,73 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269706AbUJMOFD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269717AbUJMOPd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269706AbUJMOFD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 10:05:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269710AbUJMOFD
+	id S269717AbUJMOPd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 10:15:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269719AbUJMOPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 10:05:03 -0400
-Received: from ts2-075.twistspace.com ([217.71.122.75]:63112 "EHLO entmoot.nl")
-	by vger.kernel.org with ESMTP id S269706AbUJMOE6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 10:04:58 -0400
-Message-ID: <02af01c4b135$fc496cf0$161b14ac@boromir>
-From: "Martijn Sipkema" <martijn@entmoot.nl>
-To: "La Monte H.P. Yarroll" <piggy@timesys.com>
-Cc: "Sven Dietrich" <sdietrich@mvista.com>,
-       "Bill Huey \(hui\)" <bhuey@lnxw.com>,
-       "Thomas Gleixner" <tglx@linutronix.de>, <dwalker@mvista.com>,
-       "Ingo Molnar" <mingo@elte.hu>, "Andrew Morton" <akpm@osdl.org>,
-       <amakarov@ru.mvista.com>, <ext-rt-dev@mvista.com>,
-       "LKML" <linux-kernel@vger.kernel.org>
-References: <20041012211201.GA28590@nietzsche.lynx.com> <EOEGJOIIAIGENMKBPIAEGEJGDKAA.sdietrich@mvista.com> <20041012225706.GC30966@nietzsche.lynx.com> <027e01c4b12a$188fda40$161b14ac@boromir> <416D2D08.3060709@timesys.com>
-Subject: Re: [Ext-rt-dev] Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
-Date: Wed, 13 Oct 2004 16:04:48 +0100
+	Wed, 13 Oct 2004 10:15:33 -0400
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:20398 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S269717AbUJMONt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 10:13:49 -0400
+Message-ID: <416D380E.4080202@t-online.de>
+Date: Wed, 13 Oct 2004 16:13:34 +0200
+From: "Harald Dunkel" <harald.dunkel@t-online.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Mathieu Segaud <matt@minas-morgul.org>
+CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: udev: what's up with old /dev ?
+References: <1097446129l.5815l.0l@werewolf.able.es>	<20041012001901.GA23831@kroah.com> <416B91C4.7050905@t-online.de>	<20041012165809.GA11635@kroah.com> <416C26B4.6040408@t-online.de>	<20041012185733.GA31222@kroah.com> <416C3BB6.4040200@t-online.de>	<20041012203022.GB32139@kroah.com> <416C4E15.9000503@t-online.de> <87vfde3gvs.fsf@barad-dur.crans.org>
+In-Reply-To: <87vfde3gvs.fsf@barad-dur.crans.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
+X-ID: bRcQwqZSre4uP933hJH56s2ynvMuSyGQQlcaXcvKm+YrWgSqWTdSsn
+X-TOI-MSGID: 63f4bdcf-4866-4c0c-a4ad-fb815965b75f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "La Monte H.P. Yarroll" <piggy@timesys.com>
-> Martijn Sipkema wrote:
+Mathieu Segaud wrote:
 > 
-> >[...]
-> >  
-> >
-> >>>It was intended to promote discussion, and that seems to be working.
-> >>>      
-> >>>
-> >>Yeah, for me a bit of freak out Saturday that is still
-> >>kind of happening since this has been a personal project
-> >>of mine for a long time. :) I interpreted it as a visibility
-> >>move on your company's part, which I hate to say is a bit
-> >>unnerving to know that another group was doing the same
-> >>work. TimeSys's Scott Wood and friends are doing something
-> >>like this as well. I'm only being fair by mentioning them. :)
-> >>    
-> >>
-> >
-> >As you are mentioning TimeSys; they are distributing a modified kernel
-> >with added realtime features, but do they also make the source available?
-> >  
-> >
-> Yes we do.  We're releasing all of our 2.6.x work.  Is there anything 
-> you're having difficulty finding?
+> huh, well initrd is / that is mounted over the so-called _rootfs_
+> initramfs is here to _be_ that rootfs. So no pivot_root needed and the run-it
+> program included in klibc tarballs takes care of wiping-out everything that
+> could waste memory into the initramfs before mounting the real /. 
+> If it was to compiled out of the kernel, it would just be an initrd....
+> 
+> rootfs is _needed_ for mounting the real root, so is initramfs.
+> 
 
-The source code for the module adding realtime functionality to Linux 2.4; at
-least at the time I downloaded it, that source was not available.
+So the kernel boots, activates the initramfs somehow to
+become the first /, and then starts /sbin/init (e.g. kinit
+from the klibc package).
 
-> >I know that they used to extend the kernel using a proprietary kernel
-> >module; a clear violation of the GPL.
+And then?
 
-You did not comment on this.. why?
+The sources of kinit show that its job is parse the kernel
+command line arguments, configure the NIC, mount the root
+filesystem via NFS, etc. Other configurations might require
+a different init to start hotplug and udev, or to handle the
+LVM and crypto magic, for example. My point is that if there
+is no one-for-all init process to handle _every_ possible
+startup procedure, then it might be necessary to rebuild the
+initramfs. This would be easier (and easier to test) if
+initramfs is not compiled into the kernel, but a separate
+image to be loaded at boot time "somehow".
+
+Or did I miss something?
 
 
---ms
+Regards
 
+Harri

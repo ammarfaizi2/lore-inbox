@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263930AbRFWM5u>; Sat, 23 Jun 2001 08:57:50 -0400
+	id <S261881AbRFWNWh>; Sat, 23 Jun 2001 09:22:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263931AbRFWM5k>; Sat, 23 Jun 2001 08:57:40 -0400
-Received: from cc1033417-a.etntwn1.nj.home.com ([24.180.28.169]:38640 "EHLO
-	serve.riede.org") by vger.kernel.org with ESMTP id <S263930AbRFWM5Z>;
-	Sat, 23 Jun 2001 08:57:25 -0400
-Message-ID: <3B3491F3.A7CB9955@riede.org>
-Date: Sat, 23 Jun 2001 08:56:19 -0400
-From: Willem Riede <osst@riede.org>
-X-Mailer: Mozilla 4.7 [en] (X11; U; Linux 2.2.15 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Anil B. Somayaji" <soma@cs.unm.edu>
-CC: linux-kernel@vger.kernel.org, Andre Hedrick <andre@linux-ide.org>
-Subject: Re: osst & ide-2.2.19 conflict?
-In-Reply-To: <ut2lmmjek1t.fsf@lydia.adaptive.net>
+	id <S263931AbRFWNW1>; Sat, 23 Jun 2001 09:22:27 -0400
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:33854
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S261881AbRFWNWL>; Sat, 23 Jun 2001 09:22:11 -0400
+Date: Sat, 23 Jun 2001 15:22:02 +0200
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: dhinds@zen.stanford.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] add kmalloc check in drviers/pcmcia/rsrc_mgr.c (245-ac16)
+Message-ID: <20010623152202.B840@jaquet.dk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Anil B. Somayaji" wrote:
-> 
-> In the ide.2.2.19.05042001 patch, there is the following bit of code
-> in ide-scsi.c, which prevents the ide-scsi driver from allowing access
-> to an OnStream DI-30 tape drive.  This is strange, since this same
-> drive can be used with the included ide-scsi + osst drivers in the
-> stock 2.2.19 kernel.  If you delete this bit, however, ide-scsi
-> recognizes the drive, and the osst driver seems to work fine.
-> 
-> Here's the offending code:
-> 
->   #ifndef CONFIG_BLK_DEV_IDETAPE
->    /*
->     * The Onstream DI-30 does not handle clean emulation, yet.
->     */
->    if (strstr(drive->id->model, "OnStream DI-30")) {
->            printk("ide-tape: ide-scsi emulation is not supported for %s.\n", drive->id->model);
->            continue;
->    }
->   #endif /* CONFIG_BLK_DEV_IDETAPE */
-> 
-> Any reason for this to stay in the ide patch, or is it now obsolete?
-> 
-It is obsolete, and can safely be removed.
+Hi.
 
-Success. Willem Riede.
+The patch below adds a kmalloc check to drivers/pcmcmia/rsrc_mgr.c.
+Against 245-ac16 but aplies to 256p6 also. Reported a while back 
+by the stanford team.
+
+
+--- linux-245-ac16-clean/drivers/pcmcia/rsrc_mgr.c	Sat May 19 20:59:21 2001
++++ linux-245-ac16/drivers/pcmcia/rsrc_mgr.c	Sat Jun 23 15:06:54 2001
+@@ -189,6 +189,11 @@
+     
+     /* First, what does a floating port look like? */
+     b = kmalloc(256, GFP_KERNEL);
++    if (!b) {
++	printk(" -- aborting.\n");
++	printk(KERN_ERR "Out of memory.");
++	return;
++    }
+     memset(b, 0, 256);
+     for (i = base, most = 0; i < base+num; i += 8) {
+ 	if (check_io_resource(i, 8))
+-- 
+Regards,
+        Rasmus(rasmus@jaquet.dk)
+
+"The obvious mathematical breakthrough would be development of an easy way
+to factor large prime numbers." 
+  -- Bill Gates, The Road Ahead, Viking Penguin (1995)

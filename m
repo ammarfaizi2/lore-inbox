@@ -1,286 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286382AbRL0RjI>; Thu, 27 Dec 2001 12:39:08 -0500
+	id <S286383AbRL0RhS>; Thu, 27 Dec 2001 12:37:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286386AbRL0Riu>; Thu, 27 Dec 2001 12:38:50 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:13830 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S286382AbRL0Rin>; Thu, 27 Dec 2001 12:38:43 -0500
-Date: Thu, 27 Dec 2001 09:41:33 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Victor Yodaiken <yodaiken@fsmlabs.com>
-cc: Mike Kravetz <kravetz@us.ibm.com>, Momchil Velikov <velco@fadata.bg>,
-        george anzinger <george@mvista.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Scheduler issue 1, RT tasks ...
-In-Reply-To: <20011226200124.A566@hq2>
-Message-ID: <Pine.LNX.4.40.0112270931520.1558-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286382AbRL0Rg6>; Thu, 27 Dec 2001 12:36:58 -0500
+Received: from noodles.codemonkey.org.uk ([62.49.180.5]:37317 "EHLO
+	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id <S286379AbRL0Rgt>; Thu, 27 Dec 2001 12:36:49 -0500
+Date: Thu, 27 Dec 2001 17:37:55 +0000
+From: Dave Jones <davej@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5.1-dj6
+Message-ID: <20011227173755.A25445@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Dec 2001, Victor Yodaiken wrote:
+-ENOMORETURKEY, so here goes with more resyncing, more backlogged fixes,
+and some pending experimental bits that should end up Linuswards soon.
+This is a fairly big merge, so it may take another release or two to
+shake out any merge errors.
 
-> On Mon, Dec 24, 2001 at 10:52:46AM -0800, Davide Libenzi wrote:
-> > I know what you're saying but my goal now is to fix the scheduler not the
-> > overall RT latency ( at least not the one that does not depend on the
->
-> my bias is to fix the cause of the problem, but go ahead.
->
->
-> > scheduler ). Just take for example your 17us for your 800MHz machine, in
-> > my dual PIII 733 MHz with an rqlen of 4 the scheduler latency ( with that
-> > std scheduler ) is about 0.9us ( real one, not lat_ctx ). That means the
-> > the scheduler responsibility in your 17us is about 5%, and the remaining
-> > 95% is due "external" kernel paths. With an rqlen of 16 ( std scheduler )
->
-> No: we've measured. The time in our system, which does not follow any
-> Linux kernel paths, is dominated by motherboard bus delays.
+Patch against 2.5.1 vanilla is available from:
+http://www.codemonkey.org.uk/patches/2.5/patch-2.5.1-dj6.diff.bz2
 
-17us of bus delay ?!
-UP or SMP ?
-Under which kind of bus load ?
+Some of the fixes still haven't found their way back to Marcelo yet
+but should show up in 2.4.18pre1 with any luck.
 
+Enjoy,
+  -- Davej.
 
-> > the latency peaks up to ~2.4us going to ~14-15% of scheduler responsibility.
-> > I've coded this simple app :
-> >
-> > http://www.xmailserver.org/linux-patches/lnxsched.html#RtLats
-> >
-> > and i use it with the cpuhog ( hi-tech software that is available inside
-> > the same link ) to load the run queue. I'm going to plot the measured
-> > latency versus the runqueue length. Thanks to OSDLAB i'll have an 8 way
-> > machine to make some test on these big SMPs. I'll code even the simple
-> > app you're proposing but the real problem is how to load the system. The
-> > cpuhog load is a runqueue load and is "neutral", that means that is the
-> > same on all the systems. Loading the system with other kind of loads can
-> > introduce a device-driver/hw dependency on the measure ( much or less run
-> > time with irq disabled for example ).
->
-> Try
-> 	ping -f  localhost&
-> 	ping -f  onsamelocalnet &
-> 	dd if=/dev/hda1 of=/dev/null &
-> 	make clean; make bzImage;
->
->
-> as a simple start
-
-Below is dumped the skeleton of a test app but i need an high res timer
-patch to sleep 2-5ms
+2.5.1-dj6
+o   Merge 2.5.2pre2
+    | Includes updated for 2.5 SCSI debug driver.	(Douglas Gilbert)
+o   Merge 2.4.18pre1
+o   Missing include in sunrpc sched.c			(David S. Miller)
+o   Remove incorrect devinit's from bttv & USB.		(Andrew Morton)
+o   Remove redundant EISA_bus__is_a_macro macro.	(Me)
+o   Split visws support to setup-visws.c		(Me)
+    | Can someone with one of these beasts test this, and maybe
+    | even *gulp* maintain it ?
+o   pc110pad spinlock thinko				(Peter T. Breuer)
+o   Fix reiserfs + highmem possible oops.		(Oleg Drokin)
+o   Fix reiserfs fsx breakage.				(Oleg Drokin)
+o   Make IPV6 accept timestamps in response to SYNs.	(Alexey Kuznetsov)
+o   NCR5380_timer_fn needs to be static.		(Rasmus Andersen)
+o   CONFIG_SERIAL_ACPI is IA64 only.			(Me)
 
 
+2.5.1-dj5
+o   Sync up to 2.5.2pre1
+o   Merge 2.4.17final.
+o   Gravis ultrasound PnP update		(Andrey Panin)
 
 
-- Davide
+2.5.1-dj4
+o   Merge with 2.4.17-rc2
+    | Most was already here, more or less just fixes for
+    | reiserfs & netfilter, and some VM changes.
 
 
+2.5.1-dj3
+o   Drop Manfreds multithread coredump changes		(Me)
+    | They caused ltp waitpid05 regression on 2.5
+    | (Same patch is fine for 2.4)
+o   Intermezzo compile fix.				(Chris Wright)
+o   Fix ymfpci & hisax merge errors.			(Me)
+o   Drop ad1848 sound driver changes in favour of 2.5	(Me)
+o   Make hpfs work again.				(Al Viro)
+o   Alpha Jensen compile fixes.				(Ronald Lembcke)
+o   Make NCR5380 compile non modularly.			(Erik Andersen)
 
 
-
-/*
- *  rtttest  by Davide Libenzi ( linux kernel scheduler rt latency sampler )
- *  Version 0.16 - Copyright (C) 2001  Davide Libenzi
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- *  Davide Libenzi <davidel@xmailserver.org>
- *
- *
- *  The purpose of this tool is to measure the scheduler latency for
- *  real time tasks using the "latsched" kernel patch.
- *  Build:
- *
- *  gcc -o rtttest rtttest.c -lrt
- *
- *  Use:
- *
- *  rtttest [--test-stime s] [--sleep-mstime ms] [--pause-mstime ms] [--priority p]
- *          [--sched-fifo] [--sched-rr] [-- cmdpath [arg] ...]
- *
- *  --test-stime   = Set the test time in seconds
- *  --sleep-mstime = Set the sleep time in milliseconds
- *  --pause-mstime = Set the pause time in milliseconds
- *  --priority     = Set the real time task priority ( 1..99 )
- *  --sched-fifo   = Set the real time task policy to FIFO
- *  --sched-rr     = Set the real time task policy to RR
- *  --             = Separate the optional command to be executed during the test time
- *  cmdpath        = Command to be executed
- *  arg            = Command argouments
- *
- */
+2.5.1-dj2
+o   bio fixes for qlogicfas.			(brett@bad-sports.com)
+o   Correct x86 CPU helptext.			(Me)
+o   Fix serial.c __ISAPNP__ usage.		(Andrey Panin)
+o   Use better ide-floppy fixes.		(Jens Axboe)
+o   Make NFS 'fsx' proof.			(Trond Mykelbust)
+    | 2 races & 4 bugs, hopefully this is all.
+o   devfs update				(Richard Gooch)
+o   Backout early CPU init, needs more work.	(Me)
+    | This should fix several strange reports.
+o   drop new POSIX kill semantics for now	(Me)
 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <signal.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <time.h>
-#include <signal.h>
-#include <sched.h>
-#include <sys/ioctl.h>
-#include <sys/mman.h>
-#include <linux/timex.h>
+2.5.1-dj1
+o   Resync with 2.5.1
+    | drop reiserfs changes. 2.4's look to be more complete.
+o   Fix potential sysvfs oops.				(Christoph Hellwig)
+o   Loopback driver deadlock fix.			(Andrea Arcangeli)
+o   __devexit cleanups in drivers/net/			(Daniel Chen,
+    synclink, wdt_pci & via82cxxx_audio 		 John Tapsell)
+o   Configure.help updates				(Eric S. Raymond)
+o   Make reiserfs compile again.				(Me)
+o   bio changes for ide floppy					(Me)
+    | handle with care, compiles, but is unfinished.
+o   Make x86 identify_cpu() happen earlier			(Me)
+    | PPro errata workaround & APIC setup got a little
+    | cleaner as a result.
+o   Blink keyboard LEDs on panic				(From 2.4.13-ac)
+o   Change current->state frobbing to set_current_state()	(From 2.4.13-ac)
+o   Add MODULE_LICENSE tags for acpi,md.c,fmvj18x,		(From 2.4.13-ac)
+    atyfb & fbmem.
 
 
-#define STD_SLEEP_TIME	4
-#define PAUSE_SLEEP_TIME	200
-#define STD_TEST_TIME	8
-
-
-static volatile int stop_test = 0;
-
-
-void sig_int(int sig)
-{
-	++stop_test;
-	signal(sig, sig_int);
-}
-
-
-int main(int argc, char *argv[]) {
-	int ii, icmd, pausetime = PAUSE_SLEEP_TIME, testtime = STD_TEST_TIME,
-		policy = SCHED_FIFO, priority = 1, sleeptime = STD_SLEEP_TIME, numsamples;
-	pid_t expid = -1;
-	cycles_t cys, cye, cylat = 0, mscycles;
-	cycles_t *samples;
-	struct sched_param sp;
-	struct timespec ts1, ts2;
-
-	for (ii = 1; ii < argc; ii++) {
-		if (strcmp(argv[ii], "--test-stime") == 0) {
-			if (++ii < argc)
-				testtime = atoi(argv[ii]);
-			continue;
-		}
-		if (strcmp(argv[ii], "--sleep-mstime") == 0) {
-			if (++ii < argc)
-				sleeptime = atoi(argv[ii]);
-			continue;
-		}
-		if (strcmp(argv[ii], "--pause-mstime") == 0) {
-			if (++ii < argc)
-				pausetime = atoi(argv[ii]);
-			continue;
-		}
-		if (strcmp(argv[ii], "--priority") == 0) {
-			if (++ii < argc)
-				priority = atoi(argv[ii]);
-			continue;
-		}
-		if (strcmp(argv[ii], "--sched-fifo") == 0) {
-			policy = SCHED_FIFO;
-			continue;
-		}
-		if (strcmp(argv[ii], "--sched-rr") == 0) {
-			policy = SCHED_RR;
-			continue;
-		}
-		if (strcmp(argv[ii], "--") == 0) {
-			icmd = ++ii;
-			break;
-		}
-	}
-
-	numsamples = (testtime * 1000) / pausetime + 1;
-	if (!(samples = (cycles_t *) malloc(numsamples * sizeof(cycles_t)))) {
-		perror("malloc");
-		return 1;
-	}
-
-	if (icmd > 0 && icmd < argc) {
-		expid = fork();
-		if (expid == -1) {
-			perror("fork");
-			return 5;
-		} else if (expid == 0) {
-			setpgid(0, getpid());
-			execv(argv[icmd], &argv[icmd]);
-			exit(0);
-		}
-	}
-
-	memset(&sp, 0, sizeof(sp));
-	sp.sched_priority = priority;
-
-	if (sched_setscheduler(0, policy, &sp)) {
-		perror("sched_setscheduler");
-		if (expid > 0 && kill(-expid, SIGKILL))
-			perror("SIGKILL");
-		return 4;
-	}
-
-	signal(SIGINT, sig_int);
-
-	clock_getres(CLOCK_REALTIME, &ts1);
-	fprintf(stderr, "timeres=%ld\n", ts1.tv_nsec / 1000);
-
-	clock_gettime(CLOCK_REALTIME, &ts1);
-	cys = get_cycles();
-	sleep(1);
-	clock_gettime(CLOCK_REALTIME, &ts2);
-	cye = get_cycles();
-	mscycles = (cye - cys) / ((ts2.tv_sec - ts1.tv_sec) * 1000 + (ts2.tv_nsec - ts1.tv_nsec) / 1000000);
-
-	for (ii = 0; ii < numsamples && !stop_test; ii++) {
-		ts1.tv_sec = 0;
-		ts1.tv_nsec = sleeptime * 1000000;
-
-		cys = get_cycles();
-		clock_nanosleep(CLOCK_REALTIME, 0, &ts1, &ts2);
-		cye = get_cycles();
-
-		samples[ii] = (cye - cys) / mscycles;
-		if (samples[ii] > cylat)
-			cylat = samples[ii];
-
-		usleep(pausetime * 1000);
-	}
-
-	numsamples = ii;
-
-	memset(&sp, 0, sizeof(sp));
-	sp.sched_priority = 0;
-
-	if (sched_setscheduler(0, SCHED_OTHER, &sp)) {
-		perror("sched_setscheduler");
-		if (expid > 0 && kill(-expid, SIGKILL))
-			perror("SIGKILL");
-		return 6;
-	}
-
-	if (expid > 0 && kill(-expid, SIGKILL))
-		perror("SIGKILL");
-
-	for (ii = 0; ii < numsamples; ii++) {
-
-	}
-
-	fprintf(stdout, "maxlat=%llu\n", cylat);
-
-	return 0;
-
-}
-
-
-
-
-
+-- 
+Dave Jones.                    http://www.codemonkey.org.uk
+SuSE Labs.

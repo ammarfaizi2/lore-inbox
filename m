@@ -1,90 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271305AbTGQAy4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 20:54:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271308AbTGQAyz
+	id S271309AbTGQA7M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 20:59:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271310AbTGQA7M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 20:54:55 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:32401
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S271305AbTGQAyw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 20:54:52 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Davide Libenzi <davidel@xmailserver.org>
-Subject: Re: [PATCH] O6int for interactivity
-Date: Thu, 17 Jul 2003 11:12:26 +1000
-User-Agent: KMail/1.5.2
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>
-References: <200307170030.25934.kernel@kolivas.org> <1058402012.3f15eedcc06f2@kolivas.org> <Pine.LNX.4.55.0307161732270.4787@bigblue.dev.mcafeelabs.com>
-In-Reply-To: <Pine.LNX.4.55.0307161732270.4787@bigblue.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 16 Jul 2003 20:59:12 -0400
+Received: from smtp.netcabo.pt ([212.113.174.9]:35238 "EHLO smtp.netcabo.pt")
+	by vger.kernel.org with ESMTP id S271309AbTGQA7E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 20:59:04 -0400
+Date: Thu, 17 Jul 2003 02:10:02 +0100
+From: backblue <backblue@netcabo.pt>
+To: Pedro Ribeiro <deadheart@netcabo.pt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Not showing ac2
+Message-Id: <20030717021002.2f12f7db.backblue@netcabo.pt>
+In-Reply-To: <3F16539F.9070503@netcabo.pt>
+References: <3F16539F.9070503@netcabo.pt>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307171112.26095.kernel@kolivas.org>
+X-OriginalArrivalTime: 17 Jul 2003 01:09:06.0273 (UTC) FILETIME=[04EB0D10:01C34C00]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jul 2003 10:35, Davide Libenzi wrote:
-> On Thu, 17 Jul 2003, Con Kolivas wrote:
-> > > > +			p->sleep_avg = (p->sleep_avg * MAX_BONUS / runtime + 1)
-> >
-> > * runtime /
-> >
-> > > MAX_BONUS;
-> > >
-> > > I don't have the full code so I cannot see what "runtime" is, but if
-> > > "runtime" is the time the task ran, this is :
-> > >
-> > > p->sleep_avg ~= p->sleep_avg + runtime / MAX_BONUS;
-> > >
-> > > (in any case a non-decreasing function of "runtime" )
-> > > Are you sure you want to reward tasks that actually ran more ?
-> >
-> > That was the bug. Runtime was supposed to be limited to MAX_SLEEP_AVG.
-> > Fix will be posted very soon.
->
-> Con, it is not the limit. You're making sleep_avg a non-decreasing
-> function of "runtime". Basically you are rewarding tasks that did burn
-> more CPU (if runtime is what the name suggests). Are you sure this is what
-> you want ?
+hy Pedro,
 
-It's not cpu runtime; it is time since starting the process.
+Just check if the source was really patched, maybe the source does not patch de Makefile and did not changed the EXTRAVERSION var that is where it should be changed, maybe the -ac2 patch it's for 2.6.0-test1 original, and nor for 
+2.6.0-test1-ac1, that's it, just edit the Makefile, and change the EXTRAVERSION to -ac2 and recompile everything and, your are done, you have uname -a, like you want.
 
->
-> > > Con, you cannot follow the XMMS thingy otherwise you'll end up bolting
-> > > in the XMMS sleep->burn pattern and you'll probably break the
-> > > make-j+RealPlay for example. MultiMedia players are really tricky since
-> > > they require strict timings and forces you to create a special
-> > > super-interactive treatment inside the code. Interactivity in my box
-> > > running moderate high loads is very good for my desktop use. Maybe
-> > > audio will skip here (didn't try) but I believe that following the
-> > > fix-XMMS thingy is really bad. I believe we should try to make the
-> > > desktop to feel interactive with human tollerances and not with strict
-> > > timings like MM apps. If the audio skips when dragging like crazy a X
-> > > window using the filled mode on a slow CPU, we shouldn't be much
-> > > worried about it for example. If audio skip when hitting the refresh
-> > > button of Mozilla, then yes it should be fixed. And the more you add
-> > > super interactive patterns, the more the scheduler will be exploitable.
-> > > I recommend you after doing changes to get this :
-> > >
-> > > http://www.xmailserver.org/linux-patches/irman2.c
-> > >
-> > > and run it with different -n (number of tasks) and -b (CPU burn ms
-> > > time). At the same time try to build a kernel for example. Then you
-> > > will realize that interactivity is not the bigger problem that the
-> > > scheduler has right now.
-> >
-> > Please don't assume I'm writing an xmms scheduler. I've done a lot more
-> > testing than xmms.
->
-> Ok, I'm feeling better already ;)
 
-Me too :)
+On Thu, 17 Jul 2003 08:43:27 +0100
+Pedro Ribeiro <deadheart@netcabo.pt> wrote:
 
-Con
-
+> I've just installed the ac2 patch from a clean 2.6.0-test1 tree and when 
+> I do uname -a it says 2.6.0-test1-ac1. Is that normal? The modules dir 
+> (in /lib/modules) also says ac1.
+> 
+> PR
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

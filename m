@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289972AbSA3QWR>; Wed, 30 Jan 2002 11:22:17 -0500
+	id <S290033AbSA3QhK>; Wed, 30 Jan 2002 11:37:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289918AbSA3QVW>; Wed, 30 Jan 2002 11:21:22 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:51901 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S289968AbSA3QT6>; Wed, 30 Jan 2002 11:19:58 -0500
-Date: Wed, 30 Jan 2002 18:14:53 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: TCP/IP Speed
-In-Reply-To: <Pine.LNX.3.95.1020130110350.15189A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.44.0201301813310.5518-100000@netfinity.realnet.co.sz>
+	id <S290015AbSA3Qfr>; Wed, 30 Jan 2002 11:35:47 -0500
+Received: from mail.scram.de ([195.226.127.117]:62921 "EHLO mail.scram.de")
+	by vger.kernel.org with ESMTP id <S290025AbSA3Qew>;
+	Wed, 30 Jan 2002 11:34:52 -0500
+Date: Wed, 30 Jan 2002 17:34:12 +0100 (CET)
+From: Jochen Friedrich <jochen@scram.de>
+To: Larry McVoy <lm@bitmover.com>
+cc: Roman Zippel <zippel@linux-m68k.org>, Jeff Garzik <garzik@havoc.gtf.org>,
+        Rob Landley <landley@trommello.org>,
+        Miles Lane <miles@megapathdsl.net>, Chris Ricker <kaboom@gatech.edu>,
+        World Domination Now! <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <20020130080642.E18381@work.bitmover.com>
+Message-ID: <Pine.NEB.4.33.0201301731530.16245-100000@www2.scram.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jan 2002, Richard B. Johnson wrote:
+Hi Larry,
 
-> 
-> When I ping two linux machines on a private link, I get 0.1 ms delay.
-> When I send large TCP/IP stream data between them, I get almost
-> 10 megabytes per second on a 100-base link. Wonderful.
-> 
-> However, if I send 64 bytes from one machine and send it back, simple
-> TCP/IP strean connection, it takes 1 millisecond to get it back? There
-> seems to be some artifical delay somewhere.  How do I turn this OFF?
+> with the difference being that BK has an optional way of wrapping
+> them up in uuencode (or whatever) so that mailers don't stomp on them.
 
-I would say its all in the TCP connection initiation (socket(), create() 
-etc...)
+isn't that just the same as sending them as attchment? And isn't that
+discouraged?
 
 Cheers,
-	Zwane Mwaikambo
-
+--jochen
 

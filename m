@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261840AbSJEByE>; Fri, 4 Oct 2002 21:54:04 -0400
+	id <S261841AbSJECCw>; Fri, 4 Oct 2002 22:02:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261841AbSJEByE>; Fri, 4 Oct 2002 21:54:04 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38924 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261840AbSJEByD>; Fri, 4 Oct 2002 21:54:03 -0400
-Date: Fri, 4 Oct 2002 19:00:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: viro@math.psu.edu, <linux-kernel@vger.kernel.org>
+	id <S261851AbSJECCr>; Fri, 4 Oct 2002 22:02:47 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:43747 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261841AbSJECCq>;
+	Fri, 4 Oct 2002 22:02:46 -0400
+Date: Fri, 04 Oct 2002 19:00:53 -0700 (PDT)
+Message-Id: <20021004.190053.69975722.davem@redhat.com>
+To: torvalds@transmeta.com
+Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
 Subject: Re: oops in bk pull (oct 03)
+From: "David S. Miller" <davem@redhat.com>
 In-Reply-To: <Pine.LNX.4.44.0210041839430.13749-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0210041851410.1253-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: <20021004.181311.31550114.davem@redhat.com>
+	<Pine.LNX.4.44.0210041839430.13749-100000@home.transmeta.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Linus Torvalds <torvalds@transmeta.com>
+   Date: Fri, 4 Oct 2002 18:41:25 -0700 (PDT)
+   
+   On Fri, 4 Oct 2002, David S. Miller wrote:
+   > Another theory is that some device just dislikes being given
+   > a 0 in one of it's base registers, but somehow ~0 is ok :-)
+   
+   I think that is the real issue. We're mapping something - probably a host
+   bridge - at address 0, and then accessing RAM (which is also is mapped at 
+   PCI address 0) and the host bridge is unhappy.
 
-On Fri, 4 Oct 2002, Linus Torvalds wrote:
-> 
-> I think that is the real issue. We're mapping something - probably a host
-> bridge - at address 0, and then accessing RAM (which is also is mapped at 
-> PCI address 0) and the host bridge is unhappy.
-> 
-> So excluding the change is probably the right thing to do - it's just 
-> fundamentally buggy to blindly put a base register at zero.
+We're current blindly putting ~0 in there, how can that be any
+better? :-)
+   
+   So excluding the change is probably the right thing to do - it's just 
+   fundamentally buggy to blindly put a base register at zero.
+   
+And putting ~0 there is ok?
 
-The more I think about this, the more convinced I am this is the case. We
-just _mustn't_ set up a live PCI window at address 0, and expect it to not
-cause confusion.
-
-Also, we've seen before that we must not blindly disable a PCI window
-either, since that will kill the system when the host bridge is disabled
-and there is any pending DMA, for example (*). We saw that earlier in the
-2.4.x tree - some host bridges will just ignore the disable (which means
-that then we'd trigger the zero-base bug), and others will honour the
-disable (which in turn will cause the DMA and other random problems).
-
-This is all probably dependently on host bridge / MCH behaviour, so it
-probably works fine on 90%+ of all machines, but clearly breaks enough to
-not be a viable approach in general.
-
-Ergo, the patch that looked so simple at first glance was really broken
-for a number of really subtle reasons. 
-
-		Linus
-
-(*) And pending DMA is actually _normal_ on PC's at early bootup when we 
-enumerate the PCI system - it's how USB keyboard and mouse emulation is 
-done, together with SMI support in the BIOS.
-
+>From what you're saying, that whole routine is fundamentally broken.

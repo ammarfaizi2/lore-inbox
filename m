@@ -1,59 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268345AbTANCLX>; Mon, 13 Jan 2003 21:11:23 -0500
+	id <S268507AbTANCPy>; Mon, 13 Jan 2003 21:15:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268508AbTANCLX>; Mon, 13 Jan 2003 21:11:23 -0500
-Received: from topic-gw2.topic.com.au ([203.37.31.2]:36859 "EHLO
-	mailhost.topic.com.au") by vger.kernel.org with ESMTP
-	id <S268345AbTANCLV>; Mon, 13 Jan 2003 21:11:21 -0500
-Date: Tue, 14 Jan 2003 13:20:03 +1100
-From: Jason Thomas <jason@topic.com.au>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ide-scsi bug hard locks machine
-Message-ID: <20030114022003.GA599@topic.com.au>
-References: <20030113030749.GC626@topic.com.au> <1042470172.18624.14.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S268508AbTANCPy>; Mon, 13 Jan 2003 21:15:54 -0500
+Received: from dp.samba.org ([66.70.73.150]:20352 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S268507AbTANCPx>;
+	Mon, 13 Jan 2003 21:15:53 -0500
+From: Paul Mackerras <paulus@au1.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1042470172.18624.14.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15907.29749.496146.362762@argo.ozlabs.ibm.com>
+Date: Tue, 14 Jan 2003 13:21:41 +1100
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Make prof_counter use per-cpu areas patch 2/4 -- ppc arch
+In-Reply-To: <20030113123323.GD2714@in.ibm.com>
+References: <20030113122835.GC2714@in.ibm.com>
+	<20030113123323.GD2714@in.ibm.com>
+X-Mailer: VM 7.07 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some more info for those interested, it seems to have started in 2.5.53
-with the implementation of the mid level api.
+Ravikiran G Thirumalai writes:
 
-heres a trace from 2.5.53 maybe this will make it easier to find.
+> This one's for ppc.
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000030
- printing eip:
-c0252ba3
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0060:[<c0252ba3>]    Not tainted
-EFLAGS: 00010086
-EIP is at idescsi_abort+0x73/0x110
-eax: 00000002   ebx: 00000086   ecx: d7cc5200   edx: 00000000
-esi: d7c3e000   edi: d7c3e000   ebp: 00000007   esp: d7c3ff60
-ds: 0068   es: 0068   ss: 0068
-Process scsi_eh_0 (pid: 9, threadinfo=d7c3e000 task=d7d1a680)
-Stack: c030dee0 00000002 d7c3e000 d7c8c980 c040e1ec d7c3e000 00000202 d7c3e000
-       00000000 c024c7a2 d7cc5200 d7cc5200 d7cdf180 d7c3e000 c024c8c8 d7cc5200
-       d7cdf180 d7cdf180 d7c3ffd4 c024d165 d7cc5200 d7cdf180 c0109d97 d7cc5200
-Call Trace:
- [<c024c7a2>] scsi_try_to_abort_cmd+0x62/0x80
- [<c024c8c8>] scsi_eh_abort_cmd+0x38/0x70
- [<c024d165>] scsi_unjam_host+0xa5/0xf0
- [<c0109d97>] __down_failed_interruptible+0x7/0xc
- [<c024d289>] scsi_error_handler+0xd9/0x110
- [<c024d1b0>] scsi_error_handler+0x0/0x110
- [<c0108bfd>] kernel_thread_helper+0x5/0x18
+[snip]
 
-Code: 39 42 30 74 67 8b 44 24 10 83 c0 10 89 04 24 e8 69 55 fc ff
- <6>note: scsi_eh_0[9] exited with preempt_count 2
+> -unsigned int prof_counter[NR_CPUS] = { [1 ... NR_CPUS-1] = 1 };
+> +DEFINE_PER_CPU(unsigned int, prof_counter) = 1;
 
+I had already done something similar locally which I'll push to Linus
+shortly.
 
-On Mon, Jan 13, 2003 at 03:02:53PM +0000, Alan Cox wrote:
-> Someone broke ide-scsi in 2.5. I've not had time to investigate why yet. If you 
-> need ide-scsi use 2.4.
+Thanks,
+Paul.

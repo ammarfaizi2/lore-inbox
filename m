@@ -1,25 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbULSTny@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbULSTtD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261332AbULSTny (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Dec 2004 14:43:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbULSTnx
+	id S261333AbULSTtD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Dec 2004 14:49:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbULSTtD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Dec 2004 14:43:53 -0500
-Received: from gprs215-234.eurotel.cz ([160.218.215.234]:50561 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261332AbULSTnw (ORCPT
+	Sun, 19 Dec 2004 14:49:03 -0500
+Received: from gprs215-234.eurotel.cz ([160.218.215.234]:51585 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261333AbULSTtA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Dec 2004 14:43:52 -0500
-Date: Sun, 19 Dec 2004 20:43:37 +0100
+	Sun, 19 Dec 2004 14:49:00 -0500
+Date: Sun, 19 Dec 2004 20:48:44 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Todor Todorov <ttodorov@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SWSUSP in 2.6.9 and 2.6.9-ac16 screws up the swap
-Message-ID: <20041219194337.GA1432@elf.ucw.cz>
-References: <41C498F2.7070603@web.de>
+To: Kylene Hall <kjhall@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com, sailer@watson.ibm.com,
+       leendert@watson.ibm.com, emilyr@us.ibm.com, toml@us.ibm.com,
+       tpmdd-devel@lists.sourceforge.net
+Subject: Re: [PATCH 1/1] driver: Tpm hardware enablement --updated version
+Message-ID: <20041219194844.GB1432@elf.ucw.cz>
+References: <Pine.LNX.4.58.0412081546470.24510@jo.austin.ibm.com> <Pine.LNX.4.58.0412161632200.4219@jo.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41C498F2.7070603@web.de>
+In-Reply-To: <Pine.LNX.4.58.0412161632200.4219@jo.austin.ibm.com>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,20 +29,16 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> I have a Toshiba Satelite M30X laptop for which suspend-to-disk is 
-> reported to work. I tested with kernel 2.6.9 vanilla and -ac16 and 
-> suspending seemed to work ok, at least the computer shut down. On 
-> resuming I appended "resume=/dev/hda3" (my swap partition) to the boot 
-> options but saw no message about resuming form suspend image ot 
-> anything, it seems to be a normal boot. Later on when adding swap I got 
-> the error "Unable to find swap-space signature", `cat /proc/swaps` 
-> didn't show anything. I had to recreate the swap.
-> 
-> Could anyone please look into this? I would provide any additional 
-> information requested. Please Cc: me when you answer. Thanks in advance.
+> This patch is a device driver to enable new hardware.  The new hardware is
+> the TPM chip as described by specifications at trustedcomputinggroup.org.
+> The TPM chip will enable you to use hardware to securely store and protect
+> your keys and personal data.  To use the chip according to the 
+> specification, you will need the Trusted Software Stack (TSS) of which an 
+> implementation for Linux is available at: 
+> http://sourceforge.net/projects/trousers.
 
-Read documentation/power/swsusp.txt; you are probably doing something
-wrong. If not add printks into resume code and find out what is wrong.
+Could we get some [short] description of what this chip does and
+userland intereface into Documentation/?
 
 								Pavel
 -- 

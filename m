@@ -1,92 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288165AbSAHQfn>; Tue, 8 Jan 2002 11:35:43 -0500
+	id <S288158AbSAHQjd>; Tue, 8 Jan 2002 11:39:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288158AbSAHQfd>; Tue, 8 Jan 2002 11:35:33 -0500
-Received: from mail0.epfl.ch ([128.178.50.57]:33287 "HELO mail0.epfl.ch")
-	by vger.kernel.org with SMTP id <S288159AbSAHQfR>;
-	Tue, 8 Jan 2002 11:35:17 -0500
-Message-ID: <3C3B1FC2.6050103@epfl.ch>
-Date: Tue, 08 Jan 2002 17:35:14 +0100
-From: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
-Organization: LTS-DE-EPFL
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH]Fix for macro in agp.h
-Content-Type: multipart/mixed;
- boundary="------------060906040400080908010807"
+	id <S288166AbSAHQjY>; Tue, 8 Jan 2002 11:39:24 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:27178 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S288158AbSAHQjN>; Tue, 8 Jan 2002 11:39:13 -0500
+Date: Tue, 8 Jan 2002 17:38:09 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Anton Blanchard <anton@samba.org>, Luigi Genoni <kernel@Expansa.sns.it>,
+        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@zip.com.au>, Robert Love <rml@tech9.net>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-ID: <20020108173809.H1894@inspiron.school.suse.de>
+In-Reply-To: <20020108030420Z287595-13997+1799@vger.kernel.org> <E16Nxjg-00009W-00@starship.berlin> <20020108162930.E1894@inspiron.school.suse.de> <E16Nyaf-0000A5-00@starship.berlin>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <E16Nyaf-0000A5-00@starship.berlin>; from phillips@bonn-fries.net on Tue, Jan 08, 2002 at 04:54:58PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060906040400080908010807
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, Jan 08, 2002 at 04:54:58PM +0100, Daniel Phillips wrote:
+> On January 8, 2002 04:29 pm, Andrea Arcangeli wrote:
+> > > The preemptible approach is much less of a maintainance headache, since 
+> > > people don't have to be constantly doing audits to see if something changed, 
+> > > and going in to fiddle with scheduling points.
+> > 
+> > this yes, it requires less maintainance, but still you should keep in
+> > mind the details about the spinlocks, things like the checks the VM does
+> > in shrink_cache are needed also with preemptive kernel.
+> 
+> Yes of course, the spinlock regions still have to be analyzed and both
+> patches have to be maintained for that.  Long duration spinlocks are bad
+> by any measure, and have to be dealt with anyway.
+> 
+> > > Finally, with preemption, rescheduling can be forced with essentially zero 
+> > > latency in response to an arbitrary interrupt such as IO completion, whereas 
+> > > the non-preemptive kernel will have to 'coast to a stop'.  In other words, 
+> > > the non-preemptive kernel will have little lags between successive IOs, 
+> > > whereas the preemptive kernel can submit the next IO immediately.  So there 
+> > > are bound to be loads where the preemptive kernel turns in better latency 
+> > > *and throughput* than the scheduling point hack.
+> > 
+> > The I/O pipeline is big enough that a few msec before or later in a
+> > submit_bh shouldn't make a difference, the batch logic in the
+> > ll_rw_block layer also try to reduce the reschedule, and last but not
+> > the least if the task is I/O bound preemptive kernel or not won't make
+> > any difference in the submit_bh latency because no task is eating cpu
+> > and latency will be the one of pure schedule call.
+> 
+> That's not correct.  For one thing, you don't know that no task is eating
+> CPU, or that nobody is hogging the kernel.  Look at the above, and consider
+> the part about the little lags between IOs.
 
-Hello
+We agree. Actually "if the task is I/O bound", I meant "if nobody is
+hogging CPU", I exactly wanted to make the example of no task hogging
+CPU in general. 
 
-Here is a $0.02 patch that fixes the dirty 'A_IDX*' macros in agp.h. 
-These were referring to a variable 'i' that is local to the routine 
-where these macros are called (namely 'agp_generic_create_gatt_table' in 
-'agpgart_be.c').
-The patch is against 2.4.17
-Thanks Phil Brown for pointing this one...
+> > > Mind you, I'm not devaluing Andrew's work, it's good and valuable.  However 
+> > > it's good to be aware of why that approach can't equal the latency-busting 
+> > > performance of the preemptive approach.
+> > 
+> > I also don't want to devaluate the preemptive kernel approch (the mean
+> > latency it can reach is lower than the one of the lowlat kernel, however
+> > I personally care only about worst case latency and this is why I don't
+> > feel the need of -preempt),
+> 
+> This is exactly the case that -preempt handles well.  On the other hand,
+> trying to show that scheduling hacks satisfy any given latency bound is
+> equivalent to solving the halting problem.
+> 
+> I thought you had done some real time work?
+> 
+> > but I just wanted to make clear that the
+> > idea that is floating around that preemptive kernel is all goodness is
+> > very far from reality, you get very low mean latency but at a price.
+> 
+> A price lots of people are willing to pay.
 
-Best regards
--- 
-Nicolas Aspert      Signal Processing Laboratory (LTS)
-Swiss Federal Institute of Technology (EPFL)
+I'm not convinced that all those people knows exactly what they're
+buying then 8).
 
---------------060906040400080908010807
-Content-Type: text/plain;
- name="patch-fix_A_IDX-2.4.17"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-fix_A_IDX-2.4.17"
+> 
+> By the way, have you measured the cost of -preempt in practice?
 
-diff -Nru -x CVS -x tcp_diag.c linux-2.4.17.clean/drivers/char/agp/agp.h linux-2.4.17.dirty/drivers/char/agp/agp.h
---- linux-2.4.17.clean/drivers/char/agp/agp.h	Wed Dec 19 12:57:53 2001
-+++ linux-2.4.17.dirty/drivers/char/agp/agp.h	Tue Jan  8 17:20:18 2002
-@@ -143,11 +143,11 @@
- #define A_SIZE_32(x)	((aper_size_info_32 *) x)
- #define A_SIZE_LVL2(x)  ((aper_size_info_lvl2 *) x)
- #define A_SIZE_FIX(x)	((aper_size_info_fixed *) x)
--#define A_IDX8()	(A_SIZE_8(agp_bridge.aperture_sizes) + i)
--#define A_IDX16()	(A_SIZE_16(agp_bridge.aperture_sizes) + i)
--#define A_IDX32()	(A_SIZE_32(agp_bridge.aperture_sizes) + i)
--#define A_IDXLVL2()	(A_SIZE_LVL2(agp_bridge.aperture_sizes) + i)
--#define A_IDXFIX()	(A_SIZE_FIX(agp_bridge.aperture_sizes) + i)
-+#define A_IDX8(idx)	(A_SIZE_8(agp_bridge.aperture_sizes) + (idx))
-+#define A_IDX16(idx)	(A_SIZE_16(agp_bridge.aperture_sizes) + (idx))
-+#define A_IDX32(idx)	(A_SIZE_32(agp_bridge.aperture_sizes) + (idx))
-+#define A_IDXLVL2(idx)	(A_SIZE_LVL2(agp_bridge.aperture_sizes) + (idx))
-+#define A_IDXFIX(idx)	(A_SIZE_FIX(agp_bridge.aperture_sizes) + (idx))
- #define MAXKEY		(4096 * 32)
- 
- #define AGPGART_MODULE_NAME	"agpgart"
-diff -Nru -x CVS -x tcp_diag.c linux-2.4.17.clean/drivers/char/agp/agpgart_be.c linux-2.4.17.dirty/drivers/char/agp/agpgart_be.c
---- linux-2.4.17.clean/drivers/char/agp/agpgart_be.c	Mon Jan  7 08:10:27 2002
-+++ linux-2.4.17.dirty/drivers/char/agp/agpgart_be.c	Tue Jan  8 17:16:37 2002
-@@ -586,13 +586,13 @@
- 				i++;
- 				switch (agp_bridge.size_type) {
- 				case U8_APER_SIZE:
--					agp_bridge.current_size = A_IDX8();
-+					agp_bridge.current_size = A_IDX8(i);
- 					break;
- 				case U16_APER_SIZE:
--					agp_bridge.current_size = A_IDX16();
-+					agp_bridge.current_size = A_IDX16(i);
- 					break;
- 				case U32_APER_SIZE:
--					agp_bridge.current_size = A_IDX32();
-+					agp_bridge.current_size = A_IDX32(i);
- 					break;
- 					/* This case will never really 
- 					 * happen. 
+dropping the lock in spin_unlock made a difference in the numbers, so
+the overhead must be definitely visible, by simply loading the system
+with threaded kernel computation (like webserving etc..etc..).
 
---------------060906040400080908010807--
-
+Andrea

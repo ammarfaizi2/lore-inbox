@@ -1,108 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbVCIPkT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261530AbVCIPs2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbVCIPkT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 10:40:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbVCIPkT
+	id S261530AbVCIPs2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 10:48:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVCIPs1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 10:40:19 -0500
-Received: from cimice4.lam.cz ([212.71.168.94]:9869 "EHLO vagabond.light.src")
-	by vger.kernel.org with ESMTP id S261631AbVCIPj6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 10:39:58 -0500
-Date: Wed, 9 Mar 2005 16:36:23 +0100
-From: Jan Hudec <bulb@ucw.cz>
-To: Weber Matthias <weber@faps.uni-erlangen.de>
-Cc: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
-Subject: Re: Writing data > PAGESIZE into kernel with proc fs
-Message-ID: <20050309153620.GA30232@vagabond>
-References: <09766A6E64A068419B362367800D50C0B58A58@moritz.faps.uni-erlangen.de>
+	Wed, 9 Mar 2005 10:48:27 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:49289 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261556AbVCIPrj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 10:47:39 -0500
+Subject: Re: [PATCH] resync ATI PCI idents into base kernel
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050308223353.GA19278@infradead.org>
+References: <200503072216.j27MGxtP024504@hera.kernel.org>
+	 <20050308053941.GA16450@kroah.com>
+	 <1110276929.28860.93.camel@localhost.localdomain>
+	 <20050308223353.GA19278@infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1110383142.28860.184.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+HP7ph2BbKc20aGI"
-Content-Disposition: inline
-In-Reply-To: <09766A6E64A068419B362367800D50C0B58A58@moritz.faps.uni-erlangen.de>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 09 Mar 2005 15:45:43 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Maw, 2005-03-08 at 22:33, Christoph Hellwig wrote:
+> > Really - so does it go to the PCI maintainer, the IDE maintainer or the
+> > DRI maintainer or someone else, or all of them, or in bits to different
+> > ones remembering there are dependancies and I don't use bitcreeper ?
+> 
+> If you don't know send it to Andrew.  
 
---+HP7ph2BbKc20aGI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+You are completely missing the point.
 
-On Wed, Mar 09, 2005 at 11:26:30 +0100, Weber Matthias wrote:
-> On Tue, Mar 08, 2005 at 20:05:42 +0100, Weber Matthias wrote:
-> >> is there any chance to signal an EOF when writing data to kernel via p=
-roc fs? >> Actually if the length of data is N*PAGE_SIZE it seems not to be=
- detectable.=20
-> >> I followed up the "struct file" but haven't found anything that helped=
-=2E..
->=20
-> > End-of-file is signified by closing the file. As usual.
->=20
-> Having only this struct describing an proc entry, i have no idea on how t=
-o detect when the file is closed. For this i expect to register a callback =
-function but where and how?
->=20
-> struct proc_dir_entry {
-> 	unsigned int low_ino;
-> 	unsigned short namelen;
-> 	const char *name;
-> 	mode_t mode;
-> 	nlink_t nlink;
-> 	uid_t uid;
-> 	gid_t gid;
-> 	unsigned long size;
-> 	struct inode_operations * proc_iops;
-> 	struct file_operations * proc_fops;
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-When it comes to that, you can always prepare your won file operations
-instead of the default ones (that use read_proc and write_proc) below
-and turn the proc entry into whatever you want.
-
-> 	get_info_t *get_info;
-> 	struct module *owner;
-> 	struct proc_dir_entry *next, *parent, *subdir;
-> 	void *data;
-> 	read_proc_t *read_proc;
-> 	write_proc_t *write_proc;
-> 	atomic_t count;		/* use count */
-> 	int deleted;		/* delete flag */
-> };
-
-The simple way of working with proc files is to have userland just fill
-in the buffer and process that buffer when you need to, not when the
-userland sends the data. So you just take the "data" buffer when you
-need it.
-
-When you need something more fancy, you simply create your own
-proc_fops. That has read and write functions, where you need to take
-care of the offset yourself, but you can treat each open separately
-(open is called when userland process opens your proc entry and IIRC
-fput or release or something like that when it closes it (you do NOT
-want "close" -- that might be called more than once for one open)), turn
-it into character-device-alike, implement ioctl, implement select/poll
-on your entry and other fancy stuff.
-
-Of course, you can copy the default proc_fops and only implement the
-ones you actualy need different.
-
----------------------------------------------------------------------------=
-----
-						 Jan 'Bulb' Hudec <bulb@ucw.cz>
-
---+HP7ph2BbKc20aGI
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCLxf0Rel1vVwhjGURAvxiAKDfwa2FLfKKWK0LvZ/J8ofSr64btgCfZcvr
-8LTCjOYhh+J/ZV0EDhMu4Uk=
-=I8rr
------END PGP SIGNATURE-----
-
---+HP7ph2BbKc20aGI--

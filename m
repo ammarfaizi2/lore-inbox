@@ -1,49 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277064AbRJKXef>; Thu, 11 Oct 2001 19:34:35 -0400
+	id <S277065AbRJKXj0>; Thu, 11 Oct 2001 19:39:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277065AbRJKXeO>; Thu, 11 Oct 2001 19:34:14 -0400
-Received: from ns.ithnet.com ([217.64.64.10]:34830 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S277064AbRJKXeJ>;
-	Thu, 11 Oct 2001 19:34:09 -0400
-Date: Fri, 12 Oct 2001 01:34:21 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Partitioning problems in 2.4.11
-Message-Id: <20011012013421.5ede2ab1.skraw@ithnet.com>
-In-Reply-To: <Pine.GSO.4.21.0110111854080.24742-100000@weyl.math.psu.edu>
-In-Reply-To: <20011012003148.B435@christian.chrullrich.de>
-	<Pine.GSO.4.21.0110111854080.24742-100000@weyl.math.psu.edu>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S277072AbRJKXjR>; Thu, 11 Oct 2001 19:39:17 -0400
+Received: from host217-34-70-63.in-addr.btopenworld.com ([217.34.70.63]:3077
+	"EHLO focuscomputers.net") by vger.kernel.org with ESMTP
+	id <S277065AbRJKXjG>; Thu, 11 Oct 2001 19:39:06 -0400
+Date: Fri, 12 Oct 2001 00:47:11 +0000
+From: mail@maketopmoney.com
+To: Caring@vger.kernel.org, Parents@vger.kernel.org
+Subject: Too good to refuse
+Message-Id: <20011011233911Z277065-760+24286@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Oct 2001 18:59:03 -0400 (EDT) Alexander Viro <viro@math.psu.edu>
-wrote:
+Hi There
 
-> 
-> 
-> On Fri, 12 Oct 2001, Christian Ullrich wrote:
-> 
-> > a) -10-ac11, -10-ac12 and -12 with your patch all behave like -11.
-> 
-> _Ouch_.  So even bread()-based variant fails to read extended partition
-> table in some cases.
-> 
-> Hmm... Just in case - what processor are you using?
 
-Hi Alexander,
+Do you have any kids going to college or university?
+====================================================
 
-just a short comment: I got a host with PIII-500 and the same problem. A
-partition on primary IDE (single partition for whole drive) vanished during use
-of 2.4.10(SuSE 7.3)/11. System works flawlessly otherwise. It is booting from
-SCSI, ide was only data :-). It has 384 MB RAM.
 
-Regards,
-Stephan
+How would you like to help their education?
+
+You know they need their own Laptop computer nowadays.
+
+Yes I know, a couple of grand is a lot to come up with.
+
+But how about £200 ?
+
+Don't you think they are worth a small investment to give 
+them a chance.?
+
+Here is your opportunity to MAKE THEIR DAY and give them 
+a fair start in life.
+
+             -----------------
+
+I recently bought a large quantity of ex-lease laptop
+computers from a major bank'
+
+Because of the price, I can see them as being suitable 
+for students, looking for a budget computer. Being Compaq, 
+I am also happy to sell them because of the quality.
+
+Details are as below..
+----------------------------------------------
+Compaq Lite 5280 Laptop Computer          £149
+Pentium 120, 810mb HDD, 32mb ram
+loaded with Win95 and Office 97
+
+Optional extras.. 56k fax/modem     £25
+External CD ROM drive               £69
+Shoulder bag                        £12
+Jamcam Digital Camera ic s/w+cable  £45
+Carriage                            £12
+
+
+all prices exc VAT.
+
+Delivery to UK mainland, 3 working days.
+
+Warranty - 3 months.
+-----------------------------------------------
+
+Make someones life a little easier (not just mine!)
+
+Regards
+
+
+Steve Kirkby
+
+Full details on...
+http://www.wekum2u.com/compaq/compaq.html
+
+Or ring me on 02380 252955
+or write to me at
+wekum2u.com, 131 Park Road, Chandlers Ford, Hants SO53 1HT
+or email me on
+steve@focuscomputers.net
+
+
+
+PS Limited quantity only, so if interested, contact me to secure your order.
+
+
+
+
+***************************************************
+to remove from any possible other mailings, reply with
+the word REMOVE in the subject line.
+***************************************************
+
+
+
+
+
+
+
 

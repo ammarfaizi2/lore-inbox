@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263179AbTEINyz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 09:54:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263253AbTEINyz
+	id S263235AbTEIN6n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 09:58:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263253AbTEIN6n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 09:54:55 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:41704 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263179AbTEINyy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 09:54:54 -0400
-Date: Fri, 9 May 2003 19:40:12 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.69-mm3
-Message-ID: <20030509141012.GD2059@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20030508013958.157b27b7.akpm@digeo.com>
+	Fri, 9 May 2003 09:58:43 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:41225 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S263235AbTEIN6m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 09:58:42 -0400
+Date: Fri, 9 May 2003 16:11:06 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: willy@w.ods.org, gibbs@scsiguy.com, marcelo@conectiva.com.br,
+       linux-kernel@vger.kernel.org
+Subject: Re: Undo aic7xxx changes
+Message-Id: <20030509161106.4d464c6b.skraw@ithnet.com>
+In-Reply-To: <20030509132757.GA16649@alpha.home.local>
+References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
+	<2804790000.1052441142@aslan.scsiguy.com>
+	<20030509120648.1e0af0c8.skraw@ithnet.com>
+	<20030509120659.GA15754@alpha.home.local>
+	<20030509150207.3ff9cd64.skraw@ithnet.com>
+	<20030509132757.GA16649@alpha.home.local>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030508013958.157b27b7.akpm@digeo.com>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 08, 2003 at 08:41:12AM +0000, Andrew Morton wrote:
-> http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.69-mm3.gz
-> 
->   Will appear sometime at
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.69/2.5.69-mm3/
-> 
-> 
-> Small things.  Mainly a resync for various people...
-> 
-> rcu-stats.patch
->   RCU statistics reporting
+On Fri, 9 May 2003 15:27:57 +0200
+Willy Tarreau <willy@w.ods.org> wrote:
 
-I am wondering what we should do with this patch. The RCU stats display
-the #s of RCU requests and actual updates on each CPU. On a normal system
-they don't mean much to a sysadmin, so I am not sure if it is the right
-thing to include this feature. OTOH, it is extremely useful to detect
-potential memory leaks happening due to, say a CPU looping in
-kernel (and RCU not happening consequently). Will a CONFIG_RCU_DEBUG
-make it more palatable for mainline ?
+> Well, would you at least agree to retest current version from the above URL ?
+> I find it a bit of a shame that the driver goes back in -rc stage.
 
-Thanks
-Dipankar
+Ok, I can tell you at least this: it boots. Just did it. I can tell tomorrow
+how it behaves with my specific problem.
+
+This is a setup with 2.4.21-rc2 and aic79xx-linux-2.4-20030502-tar.gz.
+
+-- 
+Regards,
+Stephan

@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284929AbRLUSDp>; Fri, 21 Dec 2001 13:03:45 -0500
+	id <S284948AbRLUSQZ>; Fri, 21 Dec 2001 13:16:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284934AbRLUSDZ>; Fri, 21 Dec 2001 13:03:25 -0500
-Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:25984 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S284929AbRLUSDT>; Fri, 21 Dec 2001 13:03:19 -0500
-Date: Fri, 21 Dec 2001 13:03:36 -0500 (EST)
-From: Mark Hahn <hahn@physics.mcmaster.ca>
-X-X-Sender: <hahn@coffee.psychology.mcmaster.ca>
-To: Grega Fajdiga <Gregor.Fajdiga@telemach.net>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problems with ATA hard disk(s)
-In-Reply-To: <20011221173533.C66C87A102@isis.telemach.net>
-Message-ID: <Pine.LNX.4.33.0112211259570.1091-100000@coffee.psychology.mcmaster.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284950AbRLUSQF>; Fri, 21 Dec 2001 13:16:05 -0500
+Received: from f104.law4.hotmail.com ([216.33.149.104]:8456 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S284948AbRLUSP7>;
+	Fri, 21 Dec 2001 13:15:59 -0500
+X-Originating-IP: [205.231.90.227]
+From: "victor1 torres" <camel_3@hotmail.com>
+To: camel_3@hotmail.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Concerning a driver rewrite (NOT THE KERNEL)
+Date: Fri, 21 Dec 2001 18:15:53 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F104E3w7oWRcmQ6hTr500001d21@hotmail.com>
+X-OriginalArrivalTime: 21 Dec 2001 18:15:53.0853 (UTC) FILETIME=[8732FAD0:01C18A4B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am a beginner when it comes to Linux, so please bear with me.
+No this isn´t a driver rewrite for the kernel I need help on rewriting some 
+code that I have to be only working with 2.4x kernel´s do you think you 
+could help. I would appericate it.
 
-please read the FAQ.
+INFO:
+I´m working on a Modem driver that run´s with kernel 2.4x I have got the 
+code running on a 2.2x system with no trouble. The driver is for a Ac´97 
+Modem (WINMODEM). The driver can find the modem and print out output but I 
+can´t seem to include DevFs, I would also like to implement Interrupt 
+Handling.
+Here is the driver location:
+DRIVER LOCATION IS
+http://www.geocities.com/camel_10.geo/linux/ac97_modem20011221.tar.gz
+Please
+Thank you in advance
 
-> When I look at the HDD settings after boot, I see that almost everything is 
-> turned off:
-
-I'm guessing you've failed to set the relevant ide-related CONFIG_
-settings.  you definitely want the piix driver, and almost certainly
-also all the yes-really-use-dma-by-default ones.
-
-> messages:Dec 21 16:21:27 tm-68-65 kernel: hda: dma_intr: error=0x84 { 
-> DriveStatusError BadCRC }
-
-http://www.tux.org/lkml/#s13-3
+_________________________________________________________________
+MSN Photos is the easiest way to share and print your photos: 
+http://photos.msn.com/support/worldwide.aspx
 

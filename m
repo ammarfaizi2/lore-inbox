@@ -1,86 +1,198 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264352AbTE3Vm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 17:42:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264358AbTE3Vm1
+	id S264051AbTE3VxE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 17:53:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264071AbTE3VxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 17:42:27 -0400
-Received: from ihemail1.lucent.com ([192.11.222.161]:36494 "EHLO
-	ihemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id S264352AbTE3VmZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 17:42:25 -0400
-MIME-Version: 1.0
+	Fri, 30 May 2003 17:53:04 -0400
+Received: from adsl-66-120-100-11.dsl.sndg02.pacbell.net ([66.120.100.11]:64520
+	"HELO glacier.arctrix.com") by vger.kernel.org with SMTP
+	id S264051AbTE3Vw7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 17:52:59 -0400
+Date: Fri, 30 May 2003 15:09:24 -0700
+From: Neil Schemenauer <nas@python.ca>
+To: linux-kernel@vger.kernel.org
+Cc: conman@kolivas.net, Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Matt <matt@lpbproductions.com>
+Subject: [PATCH][CFT] new IO scheduler for 2.4.20
+Message-ID: <20030530220923.GA404@glacier.arctrix.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16087.50544.283105.222031@gargle.gargle.HOWL>
-Date: Fri, 30 May 2003 16:56:16 -0400
-From: "John Stoffel" <stoffel@lucent.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.70-mm2
-In-Reply-To: <20030530133015.4f305808.akpm@digeo.com>
-References: <20030529012914.2c315dad.akpm@digeo.com>
-	<20030529042333.3dd62255.akpm@digeo.com>
-	<16087.47491.603116.892709@gargle.gargle.HOWL>
-	<20030530133015.4f305808.akpm@digeo.com>
-X-Mailer: VM 7.14 under Emacs 20.6.1
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Any hint on when -mm3 will be out,
+The major benefit of this patch is that read latency is much lower while
+lots of writes are occuring.  On my machine, running:
 
-Andrew> About ten hours hence, probably.
+ while :; do dd if=/dev/zero of=foo bs=1M count=1000 conv=notrunc; done
 
-Great, I'll take a look for it tomorrow morning if I'm lucky.
+makes 2.4.20 unusable.  With this patch the "write bomb" causes no
+particular problems.
 
->> and if it will include the RAID1 patches?
+With this version of the patch I've improved the bulk read performance
+of the elevator.  The bonnie++ results are now:
 
-Andrew> I have a raid0 patch from Neil, but no raid1 patch.  I saw one
-Andrew> drift past, from Zwane (I think), but wasn't sure that it
-Andrew> worked.  If someone has a raid1 fix, please send it.
+                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block--
+               Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP
+2.4.20           1G 13001  97 34939  18 13034   7 12175  92 34112  14
+2.4.20-nas       1G 12923  98 36471  17 13340   8 10809  83 35569  13
 
-Hmmm... I could have sworn that Neil sent a RAID1 patch out as well,
-which was just adding an 'else' after a block.  Here it is:
+Note that the "rewrite" and "per-char read" stats are slightly bogus for
+2.4.20-nas.  Reads get a boost in priority over writes.  When the
+"per-char read" test has started there is still some writing happening
+from the rewrite test.  I think the net effect is that the "rewrite"
+number is too high and the "per-char read" number is too low.
 
- ----------- Diffstat output ------------
- ./drivers/md/raid1.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+I would be very pleased if someone could run some tests on using bonnie,
+contest, or their other favorite benchmarks and post the results.
 
-diff ./drivers/md/raid1.c~current~ ./drivers/md/raid1.c
---- ./drivers/md/raid1.c~current~	2003-05-29 11:05:03.000000000 +1000
-+++ ./drivers/md/raid1.c	2003-05-29 11:05:08.000000000 +1000
-@@ -137,7 +137,7 @@ static void put_all_bios(conf_t *conf, r
+  Neil
+
+
+diff -u -ur linux-2.4.20/Makefile linux-iosched-2/Makefile
+--- linux-2.4.20/Makefile	2003-04-14 14:47:20.000000000 -0400
++++ linux-iosched-2/Makefile	2003-05-30 17:27:16.000000000 -0400
+@@ -1,7 +1,7 @@
+ VERSION = 2
+ PATCHLEVEL = 4
+ SUBLEVEL = 20
+-EXTRAVERSION =
++EXTRAVERSION = -nas
+ 
+ KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
+ 
+diff -u -ur linux-2.4.20/drivers/block/elevator.c linux-iosched-2/drivers/block/elevator.c
+--- linux-2.4.20/drivers/block/elevator.c	2003-04-14 14:47:22.000000000 -0400
++++ linux-iosched-2/drivers/block/elevator.c	2003-05-30 17:28:57.000000000 -0400
+@@ -74,6 +74,81 @@
+ 	return 0;
+ }
+ 
++int elevator_neil_merge(request_queue_t *q, struct request **req,
++			 struct list_head * head,
++			 struct buffer_head *bh, int rw,
++			 int max_sectors)
++{
++	struct list_head *entry = &q->queue_head;
++	struct request *__rq;
++	unsigned int count = bh->b_size >> 9, ret = ELEVATOR_NO_MERGE;
++	unsigned int reads = 0, writes = 0;
++	/* XXX make tunable? */
++	unsigned int expire_time = jiffies - 1*HZ;
++
++	if (list_empty(&q->queue_head))
++		goto out;
++
++	/* try to merge requests, fall back to ordering them by sector */
++	while ((entry = entry->prev) != head) {
++		__rq = blkdev_entry_to_request(entry);
++
++		if (__rq->elevator_sequence <= 0)
++			break;
++		if (__rq->cmd == READ)
++			++reads;
++		else
++			++writes;
++		if (__rq->rq_dev != bh->b_rdev)
++			continue;
++		if (__rq->waiting)
++			continue;
++		if (__rq->cmd != rw)
++			continue;
++		if (time_before(__rq->start_time, expire_time))
++			break;
++		if (bh->b_rsector > __rq->sector)
++			*req = __rq;
++		if (__rq->nr_sectors + count > max_sectors)
++			continue;
++		if (__rq->sector + __rq->nr_sectors == bh->b_rsector) {
++			ret = ELEVATOR_BACK_MERGE;
++			*req = __rq;
++			goto out;
++		} else if (__rq->sector - count == bh->b_rsector) {
++			ret = ELEVATOR_FRONT_MERGE;
++			*req = __rq;
++			goto out;
++		}
++	}
++	if (!*req && rw == READ) {
++		int extra_writes = writes - reads;
++		/*
++		 * If there are more writes than reads in the queue then put
++		 * read requests ahead of the extra writes.  This prevents
++		 * writes from starving reads.
++		 */
++		entry = q->queue_head.prev;
++		while (extra_writes > 0 && entry != head) {
++			__rq = blkdev_entry_to_request(entry);
++			if (__rq->cmd == WRITE)
++				--extra_writes;
++			else if (time_before(__rq->start_time, expire_time))
++				break;
++			entry = entry->prev;
++		}
++		*req = blkdev_entry_to_request(entry);
++	}
++out:
++	return ret;
++}
++
++void elevator_neil_merge_req(struct request *req, struct request *next)
++{
++	if (time_before(next->start_time, req->start_time))
++		req->start_time = next->start_time;
++}
++
+ 
+ int elevator_linus_merge(request_queue_t *q, struct request **req,
+ 			 struct list_head * head,
+diff -u -ur linux-2.4.20/drivers/block/ll_rw_blk.c linux-iosched-2/drivers/block/ll_rw_blk.c
+--- linux-2.4.20/drivers/block/ll_rw_blk.c	2003-04-14 14:47:22.000000000 -0400
++++ linux-iosched-2/drivers/block/ll_rw_blk.c	2003-05-30 17:27:16.000000000 -0400
+@@ -480,7 +480,7 @@
+ void blk_init_queue(request_queue_t * q, request_fn_proc * rfn)
+ {
+ 	INIT_LIST_HEAD(&q->queue_head);
+-	elevator_init(&q->elevator, ELEVATOR_LINUS);
++	elevator_init(&q->elevator, ELEVATOR_NEIL);
+ 	blk_init_free_list(q);
+ 	q->request_fn     	= rfn;
+ 	q->back_merge_fn       	= ll_back_merge_fn;
+@@ -922,7 +922,8 @@
+ 			rw = READ;	/* drop into READ */
+ 		case READ:
+ 		case WRITE:
+-			latency = elevator_request_latency(elevator, rw);
++			/* latency = elevator_request_latency(elevator, rw); */
++			latency = 1;
+ 			break;
+ 		default:
  			BUG();
- 		bio_put(r1_bio->read_bio);
- 		r1_bio->read_bio = NULL;
--	}
-+	} else
- 	for (i = 0; i < conf->raid_disks; i++) {
- 		struct bio **bio = r1_bio->write_bios + i;
- 		if (*bio) {
-
-Andrew> Welll ext3 has been a bit bumpy of course.  It's getting
-Andrew> better, but I haven't yet been able to give it a 12-hour bash
-Andrew> on the 4-way.  Last time I tried a circuit breaker conked; it
-Andrew> lasted three hours but even ext3 needs electricity.  But three
-Andrew> hours is very positive - it was hard testing.
-
-I've got a dual PIII 550 with 8 disks on it, so I'll see about beating
-on it if I get a change.  I need to take a backup anyway this
-weekend... 
-
-Andrew> I'm not testing RAID at present, partly because I'm too
-Andrew> stoopid to understand mdadm and partly because the
-Andrew> box-with-18-disks heats the room up too much.  This needs to
-Andrew> change, because of possible interaction between the IO
-Andrew> scheduler work and software RAID.
-
-The mdadm is alot better than the old raid stuff for sure.  
-
-Once I get 2.5.70* up and running, I'll try out my hacks to the
-Cyclades driver (and we need a patch for the Kconfig entry as well,
-it's wrong in it's description) under ISA to see if I can get it
-working.  I'll bounce those to you and Linus if they fly. 
-
-Thanks,
-John
+diff -u -ur linux-2.4.20/include/linux/elevator.h linux-iosched-2/include/linux/elevator.h
+--- linux-2.4.20/include/linux/elevator.h	2003-04-14 14:47:24.000000000 -0400
++++ linux-iosched-2/include/linux/elevator.h	2003-05-30 17:27:16.000000000 -0400
+@@ -31,6 +31,9 @@
+ void elevator_linus_merge_cleanup(request_queue_t *, struct request *, int);
+ void elevator_linus_merge_req(struct request *, struct request *);
+ 
++int elevator_neil_merge(request_queue_t *, struct request **, struct list_head *, struct buffer_head *, int, int);
++void elevator_neil_merge_req(struct request *, struct request *);
++
+ typedef struct blkelv_ioctl_arg_s {
+ 	int queue_ID;
+ 	int read_latency;
+@@ -101,3 +104,12 @@
+ 	})
+ 
+ #endif
++
++#define ELEVATOR_NEIL							\
++((elevator_t) {								\
++	0,				/* read_latency */		\
++	0,				/* write_latency */		\
++									\
++	elevator_neil_merge,		/* elevator_merge_fn */		\
++	elevator_neil_merge_req,	/* elevator_merge_req_fn */	\
++	})

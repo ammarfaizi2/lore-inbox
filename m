@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264325AbTKZVYS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 16:24:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264326AbTKZVYS
+	id S264334AbTKZVfB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 16:35:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264337AbTKZVfA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 16:24:18 -0500
-Received: from mail.jlokier.co.uk ([81.29.64.88]:23681 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S264325AbTKZVYR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 16:24:17 -0500
-Date: Wed, 26 Nov 2003 21:24:06 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: Fire Engine??
-Message-ID: <20031126212406.GL14383@mail.shareable.org>
-References: <BAY1-DAV15JU71pROHD000040e2@hotmail.com.suse.lists.linux.kernel> <20031125183035.1c17185a.davem@redhat.com.suse.lists.linux.kernel> <p73fzgbzca6.fsf@verdi.suse.de> <20031126113040.3b774360.davem@redhat.com> <20031126202216.GA13116@thunk.org> <20031126130254.010440e5.davem@redhat.com>
+	Wed, 26 Nov 2003 16:35:00 -0500
+Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:60312 "HELO
+	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S264334AbTKZVe6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 16:34:58 -0500
+Date: Wed, 26 Nov 2003 22:34:55 +0100
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocglinux@yahoo.es>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: wli@holomorphy.com, gene.heskett@verizon.net, linux-kernel@vger.kernel.org
+Subject: Re: amanda vs 2.6
+Message-Id: <20031126223455.33c9105b.diegocglinux@yahoo.es>
+In-Reply-To: <Pine.LNX.4.58.0311261202050.1524@home.osdl.org>
+References: <200311261212.10166.gene.heskett@verizon.net>
+	<200311261415.52304.gene.heskett@verizon.net>
+	<20031126193059.GS8039@holomorphy.com>
+	<200311261443.43695.gene.heskett@verizon.net>
+	<20031126195049.GT8039@holomorphy.com>
+	<Pine.LNX.4.58.0311261202050.1524@home.osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031126130254.010440e5.davem@redhat.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> > that are currently requesting timestamps, then we can dispense with
-> > taking the timestamp.
+El Wed, 26 Nov 2003 12:04:56 -0800 (PST) Linus Torvalds <torvalds@osdl.org> escribió:
+
+> I've seen this before, and I'll bet you 5c (yeah, I'm cheap) that it's
+> trying to log to syslogd.
 > 
-> You can predict what the arguments will be for the user's
-> recvmsg() system call at the time of packet reception?  Wow,
-> show me how :)
+> And syslogd is stopped for some reason - either a bug, a mistaken SIGSTOP,
+> or simply because the console has been stopped with a simple ^S.
+> 
+> That won't stop "su" working immediately - programs can still log to
+> syslogd until the logging socket buffer fills up. Which can be _damn_
+> frsutrating to find (I haven't seen this behaviour lately, but I remember
+> being perplexed like hell a long time ago).
 
-recvmsg() doesn't return timestamps until they are requested
-using setsockopt(...SO_TIMESTAMP...).
+I've seen this too. I could fix it with "sysrq + s". I always though
+it was a bug in syslogd. I haven't seen it in a while...
 
-See sock_recv_timestamp() in include/net/sock.h.
-
--- Jamie
+Diego Calleja

@@ -1,85 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266150AbRGTGIW>; Fri, 20 Jul 2001 02:08:22 -0400
+	id <S266647AbRGTGSm>; Fri, 20 Jul 2001 02:18:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266330AbRGTGIM>; Fri, 20 Jul 2001 02:08:12 -0400
-Received: from 194.38.82.urbanet.ch ([194.38.82.193]:45068 "EHLO
-	internet.dapsys.com") by vger.kernel.org with ESMTP
-	id <S266150AbRGTGIC> convert rfc822-to-8bit; Fri, 20 Jul 2001 02:08:02 -0400
-From: Edouard Soriano <e_soriano@dapsys.com>
-Date: Fri, 20 Jul 2001 06:05:50 GMT
-Message-ID: <20010720.6055000@dap21.dapsys.ch>
-Subject: 1GB system working with 64MB - Solved
+	id <S266629AbRGTGSX>; Fri, 20 Jul 2001 02:18:23 -0400
+Received: from point41.gts.donpac.ru ([213.59.116.41]:30221 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S266620AbRGTGST>;
+	Fri, 20 Jul 2001 02:18:19 -0400
+Date: Fri, 20 Jul 2001 10:18:21 +0400
+From: Andrey Panin <pazke@orbita1.ru>
 To: linux-kernel@vger.kernel.org
-X-Mailer: Mozilla/3.0 (compatible; StarOffice/5.2;Linux)
-X-Priority: 3 (Normal)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Subject: [PATCH] PnP BIOS: io range length bugfix
+Message-ID: <20010720101821.A23419@orbita1.ru>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="v9Ux+11Zm5mwPlX6"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Uptime: 10:03am  up 3 days, 39 min,  1 user,  load average: 0.15, 0.05, 0.01
+X-Uname: Linux orbita1.ru 2.2.20pre2-acl 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Problem solved.
-This is one top output:
- 5:47pm  up 21 min,  2 users,  load average: 0.99, 0.70, 0.48
-110 processes: 109 sleeping, 1 running, 0 zombie, 0 stopped
-CPU0 states:  0.1% user,  2.4% system,  0.0% nice, 96.4% idle
-CPU1 states:  0.1% user,  5.4% system,  0.0% nice, 93.5% idle
-Mem:   906424K av,  904296K used,    2128K free,   19808K shrd,   20956K 
-buff
-Swap:  514040K av,   17176K used,  496864K free                  710672K 
-cached
 
-The system is using now 906MB rather than 1024, but at this time of the
-day I am quite happy comapred with the 64MB used before.
-Next step will be to go on 2.4.x
-Thanks
+--v9Ux+11Zm5mwPlX6
+Content-Type: multipart/mixed; boundary="a8Wt8u1KmwUX3Y2C"
+Content-Disposition: inline
 
 
-Hello Folks,
+--a8Wt8u1KmwUX3Y2C
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Environment: linux 2.2.16smp
-RedHat 7.0
+Hi all,
 
-I am setting up a system with 1GB RAM recongized by the
-BIOS during power-on procedure.
+this patch fixes bug in pnpbios_rawdata_2_pci_dev() - miscalculated length =
+of
+ioport range. This function uses word at offset 6 in I/O Port Descriptor,=
+=20
+but according to ISA PnP specification ioport range length is a byte at off=
+set 7
+and byte 6 is base alignment.
 
-This system having troubles, I set a top command and
-with surprise I got this  status:
+BTW will it usefull to implement PnP device naming function ?
 
-  4:33pm  up  4:42,  3 users,  load average: 4.18, 2.01, 1.09
-125 processes: 123 sleeping, 2 running, 0 zombie, 0 stopped
-CPU0 states:  9.1% user,  9.0% system,  8.0% nice, 80.1% idle
-CPU1 states: 20.0% user,  6.1% system, 20.1% nice, 72.0% idle
-Mem:    63892K av,   62480K used,    1412K free,   15076K shrd,    5192K 
-buff
-Swap:  514040K av,  260556K used,  253484K free                   11804K 
-cached
+Best regards.
 
-My problem are the 63892K
+--=20
+Andrey Panin            | Embedded systems software engineer
+pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
+.asc
+--a8Wt8u1KmwUX3Y2C
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-pnpBIOS-2
 
-I remember there is a solution to turn around this problem
-forcing LILO to configure 1GB saying, I think but not 
-sure:
+diff -urN -X /usr/dontdiff /linux.vanilla/drivers/pnp/pnp_bios.c /linux/drivers/pnp/pnp_bios.c
+--- /linux.vanilla/drivers/pnp/pnp_bios.c	Tue Jul 17 23:11:14 2001
++++ /linux/drivers/pnp/pnp_bios.c	Sat Jul 21 00:08:38 2001
+@@ -669,7 +669,7 @@
+                         break;
+                 case 0x08: // io
+ 			io= p[2] + p[3] *256;
+-			len= p[6] + p[7] *256;
++			len = p[7];
+ 			i=0;
+                         while(pci_dev->resource[i].start && i<DEVICE_COUNT_RESOURCE)
+                                 i++;
 
-append='memory=1024'
+--a8Wt8u1KmwUX3Y2C--
 
-I searched in the lilo doc for memory parameter definition, but
-as being coverd by append parameter I found nothing.
+--v9Ux+11Zm5mwPlX6
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Question 1:
-Do you have an idea about the reason Linux is using 64MB ?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Question 2:
-Is this append command correct to turn out this problem ?
+iD8DBQE7V80tBm4rlNOo3YgRAiYsAJ9z8GNT5YFRoWH+q2J+luZ9wEVJ7gCeI9sZ
+L8glTQ0hhQn8cALyAifq1hQ=
+=Rs1I
+-----END PGP SIGNATURE-----
 
-Question 3:
-Where can I found informations about append variables wich
-are related in fact with modules parameters ?
-How to find on source code which module will read the 
-memory parameter ?
-
-Thanks in advance.
-
-Bye
+--v9Ux+11Zm5mwPlX6--

@@ -1,357 +1,195 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264857AbSKUWAy>; Thu, 21 Nov 2002 17:00:54 -0500
+	id <S264963AbSKUWJh>; Thu, 21 Nov 2002 17:09:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264907AbSKUWAx>; Thu, 21 Nov 2002 17:00:53 -0500
-Received: from fmr03.intel.com ([143.183.121.5]:37342 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP
-	id <S264857AbSKUWAt>; Thu, 21 Nov 2002 17:00:49 -0500
-Message-ID: <3DDD58C1.9020503@unix-os.sc.intel.com>
-Date: Thu, 21 Nov 2002 14:05:53 -0800
-From: Rohit Seth <rseth@unix-os.sc.intel.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-mm@kvack.org, linux-kernel@vger.kernel.org, akpm@digeo.com,
-       torvalds@transmeta.com, rohit.seth@intel.com
-Subject: hugetlb page patch for 2.5.48-bug fixes
-Content-Type: multipart/mixed;
- boundary="------------080100060507020703050208"
+	id <S264968AbSKUWJg>; Thu, 21 Nov 2002 17:09:36 -0500
+Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:64690 "EHLO
+	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S264963AbSKUWJd>; Thu, 21 Nov 2002 17:09:33 -0500
+Subject: [PATCH] quirks.c and a (not so) FAQ, was:  aic7xxx problem.  (PCI
+	related ?)
+From: Emmanuel Fuste <e.fuste@wanadoo.fr>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1037918015.882.94.camel@rafale.worldnet.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 21 Nov 2002 23:33:37 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080100060507020703050208
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, 2002-11-06 at 10:57, Emmanuel FUSTE wrote:
+> > Which hardware is connected to your SCSI adapter? (hint: cat /proc/scsi/scsi)
+> > 
+> > I've found out that some IBM hard disks give the above error when too
+> > many tagged commands are queued (firmware bug probably). I definitely
+> > have a DDRS-39130D drive which shows this behavior. The old SCSI
+> > driver (5.x) was not as bold as the 6.x driver which is in 2.4 with
+> > regards to queueing: the 6.x driver use 253 tagged command openings by
+> > default.
+> > 
+> > For me, passing `aic7xxx=tag_info:{{,,,8}}' to the kernel solved the
+> > problems. The above tells the aic7xxx driver to limit tagged queuing
+> > depth to 8 for the drive at ID 3 on the first aic7xxx adapter, but
+> > YMMV.
+> > 
+> > Phil.
+> 
+> Thanks Phil, unfortunately, this doesnt solve my problem.
+> The 5.x driver never worked for me on the 2940u2w, it lock the computer.
+> 
+> I could even trigger the kernel message with no devices attached to the scsi bus.
+> With the two adapters in the computer, when I issue a scsiadd -s 1, I've got the
+> errors but whithout  the hard lock.
+> 
+> For reference:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=99295558926036&w=2
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=100852862320948&w=2
+> 
+> Is someone knew something about my pblm with the pci latency timer set to 0 ?
+> 
+Now I know, no such thing on a PIIX3 and not configurable on my PCNET32.
+> Emmanuel.
 
-Linus, Andrew,
+Ok,
 
-Attached is the hugetlbpage patch for 2.5.48 containing following main 
-changes:
+Since I've got no solutions, I took Intel specs and start some hacks.
 
-1) Bug fixes (mainly in the unsuccessful attempts of hugepages).
-2) Removal of Radix Tree field in key structure (as it is not needed).
-3) Include the IPC_LOCK for permission to use hugepages.
-4) Increment the key_counts during forks.
+I found many problems in my bios:
 
-thanks,
-rohit
+First there is an options about DRam comfig which should not normally be
+accessible in your bios : Turbo Read Leadoff.
+If you have this option in your bios on a 439HX mother board, YOU SHOULD
+DISABLE IT!
+It is only valid to enable it with L2 cache disable.... Otherwise you
+machine go crazy like mine.
+Now performance are ... well ... like jumping from a 8086 to a 386...
+
+Second problem: my bios is buggy in regards to the DRam ECC config.
+Before I upgrade my computer with more ram, I've got only ECC ram.
+I replace all with non ECC EDO Ram without modifying my bios config.
+At boot, the bios detect non ECC ram and switch to integrity check mode.
+But in that case not all the chipset config bits gets rigth....
+Switching the conf in the bios solve that.
+
+Now, my machine is fast, pci errors are more difficult to trigger but
+still here.
+The errors occurred more frequently when there is some dma stress on the
+isa bus (old isa awe32 with full duplex operations with alsa and
+gnomemeeting or linphone). So I started to check the PIIX3 pci conf
+bits.
+First, according to Intel errata, the dma hang bug is not present on B0
+stepping of the chip. So the first part of the patch test this.
+Next, to be in full PCI 2.1 compliant mode:
+ - passive release and delayed transactions should be enable on PIIX3.
+ - NBRE bit could now be enable.
+ - So we could turn on extended pci signaling in the host bridge
+All is now PCI 2.1 compliant.
+This is the second part of the patch.
+
+Ok, now if you look at it, you will see that delayed transaction is
+unconditionally enable with all stepping of the chip, which should
+trigger the Isa dma bug on previous revisions. But looking at the
+workaround, it seems that linux use another strategy to work around the
+bug and not need to have the delayed transaction disable.
+
+So, after some tests with good results (no more pci errors), I swap my
+2940uw with my long awaited 2940u2w.
+
+00:00.0 Host bridge: Intel Corp. 430HX - 82439HX TXC [Triton II] (rev 03)
+00:01.0 ISA bridge: Intel Corp. 82371SB PIIX3 ISA [Natoma/Triton II] (rev 01)
+00:01.1 IDE interface: Intel Corp. 82371SB PIIX3 IDE [Natoma/Triton II]
+00:01.2 USB Controller: Intel Corp. 82371SB PIIX3 USB [Natoma/Triton II] (rev 01)
+00:09.0 SCSI storage controller: Adaptec AHA-2940U2/U2W
+00:0b.0 VGA compatible controller: Matrox Graphics, Inc. MGA 2164W [Millennium II]
+00:0c.0 VGA compatible controller: Matrox Graphics, Inc. MGA G200 (rev 01)
+00:0d.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 [PCnet LANCE] (rev 02)
+
+Yes, now all work like a charm !!!
+
+My apologies to Justin to have suspected his driver !
+
+Could this patch be applied to 2.4.x (generated against 2.4.20-rc1)and
+2.5 ?
+In my case, this is not PCI performance tweak, my machine wont boot with
+a 2940u2w without it.
+
+Emmanuel.
+
+Ps: I remove a duplicate line too.
 
 
-
---------------080100060507020703050208
-Content-Type: text/plain;
- name="patch2548.1121"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch2548.1121"
-
---- linux-2.5.48/include/linux/hugetlb.h	Sun Nov 17 20:29:45 2002
-+++ linux-2.5.48.work//include/linux/hugetlb.h	Thu Nov 21 11:49:57 2002
-@@ -4,7 +4,17 @@
- #ifdef CONFIG_HUGETLB_PAGE
- 
- struct ctl_table;
--struct hugetlb_key;
-+struct hugetlb_key {
-+	struct page *root;
-+	loff_t size;
-+	atomic_t count;
-+	spinlock_t lock;
-+	int key;
-+	int busy;
-+	uid_t uid;
-+	gid_t gid;
-+	umode_t mode;
-+};
- 
- static inline int is_vm_hugetlb_page(struct vm_area_struct *vma)
+--- linux-2.4.20-rc1/drivers/pci/quirks.c	2002-11-21 23:06:15.000000000 +0100
++++ linux-2.4.20-rc1-manu/drivers/pci/quirks.c	2002-11-21 22:55:45.000000000 +0100
+@@ -52,12 +52,50 @@
+     
+ static void __init quirk_isa_dma_hangs(struct pci_dev *dev)
  {
---- linux-2.5.48/arch/i386/mm/hugetlbpage.c	Sun Nov 17 20:29:55 2002
-+++ linux-2.5.48.work/arch/i386/mm/hugetlbpage.c	Thu Nov 21 12:12:18 2002
-@@ -19,6 +19,8 @@
- #include <asm/tlb.h>
- #include <asm/tlbflush.h>
- 
-+#include <linux/sysctl.h>
-+
- static long    htlbpagemem;
- int     htlbpage_max;
- static long    htlbzone_pages;
-@@ -29,18 +31,6 @@
- 
- #define MAX_ID 	32
- 
--struct hugetlb_key {
--	struct radix_tree_root tree;
--	atomic_t count;
--	spinlock_t lock;
--	int key;
--	int busy;
--	uid_t uid;
--	gid_t gid;
--	umode_t mode;
--	loff_t size;
--};
--
- static struct hugetlb_key htlbpagek[MAX_ID];
- 
- static void mark_key_busy(struct hugetlb_key *hugetlb_key)
-@@ -81,7 +71,7 @@
- 		spin_lock(&htlbpage_lock);
- 		hugetlb_key = find_key(key);
- 		if (!hugetlb_key) {
--			if (!capable(CAP_SYS_ADMIN) || !in_group_p(0))
-+			if (!capable(CAP_SYS_ADMIN) && !capable(CAP_IPC_LOCK) && !in_group_p(0))
- 				hugetlb_key = ERR_PTR(-EPERM);
- 			else if (!(flag & IPC_CREAT))
- 				hugetlb_key = ERR_PTR(-ENOENT);
-@@ -96,7 +86,7 @@
- 					hugetlb_key = &htlbpagek[i];
- 					mark_key_busy(hugetlb_key);
- 					hugetlb_key->key = key;
--					INIT_RADIX_TREE(&hugetlb_key->tree, GFP_ATOMIC);
-+					hugetlb_key->root = NULL;
- 					hugetlb_key->uid = current->fsuid;
- 					hugetlb_key->gid = current->fsgid;
- 					hugetlb_key->mode = prot;
-@@ -107,7 +97,6 @@
- 			hugetlb_key = ERR_PTR(-EAGAIN);
- 			spin_unlock(&htlbpage_lock);
- 		} else if (check_size_prot(hugetlb_key, len, prot, flag) < 0) {
--			hugetlb_key->key = 0;
- 			hugetlb_key = ERR_PTR(-EINVAL);
- 		} 
- 	} while (hugetlb_key == ERR_PTR(-EAGAIN));
-@@ -120,7 +109,10 @@
- {
- 	unsigned long index;
- 	unsigned long max_idx;
-+	struct page *page, *prev;
- 
-+	if (key == NULL)
-+		return;
- 	if (!atomic_dec_and_test(&key->count)) {
- 		spin_lock(&htlbpage_lock);
- 		clear_key_busy(key);
-@@ -129,16 +121,19 @@
- 	}
- 
- 	max_idx = (key->size >> HPAGE_SHIFT);
-+	page = key->root;
- 	for (index = 0; index < max_idx; ++index) {
--		struct page *page = radix_tree_lookup(&key->tree, index);
- 		if (!page)
- 			continue;
--		huge_page_release(page);
-+		prev = page;
-+		page = (struct page *)page->private;
-+		prev->private = 0UL;
-+		huge_page_release(prev);
- 	}
- 	spin_lock(&htlbpage_lock);
- 	key->key = 0;
- 	clear_key_busy(key);
--	INIT_RADIX_TREE(&key->tree, GFP_ATOMIC);
-+	key->root = NULL;
- 	spin_unlock(&htlbpage_lock);
- }
- 
-@@ -247,7 +242,7 @@
- 		vma->vm_end = end;
- 	}
- 	spin_unlock(&mm->page_table_lock);
--      out_error1:
-+out_error1:
- 	return -1;
- }
- 
-@@ -259,7 +254,10 @@
- 	struct page *ptepage;
- 	unsigned long addr = vma->vm_start;
- 	unsigned long end = vma->vm_end;
-+	struct hugetlb_key *key = vma->vm_private_data;
- 
-+	if ( key )
-+		atomic_inc(&key->count);
- 	while (addr < end) {
- 		dst_pte = huge_pte_alloc(dst, addr);
- 		if (!dst_pte)
-@@ -352,6 +350,8 @@
- 	spin_unlock(&htlbpage_lock);
- 	for (address = start; address < end; address += HPAGE_SIZE) {
- 		pte = huge_pte_offset(mm, address);
-+		if (pte_none(*pte))
-+			continue;
- 		page = pte_page(*pte);
- 		huge_page_release(page);
- 		pte_clear(pte);
-@@ -381,25 +381,10 @@
- 	return 0;
- }
- 
--struct page *key_find_page(struct hugetlb_key *key, unsigned long index)
--{
--	struct page *page = radix_tree_lookup(&key->tree, index);
--	if (page)
--		get_page(page);
--	return page;
--}
--
--int key_add_page(struct page *page, struct hugetlb_key *key, unsigned long index)
--{
--	int error = radix_tree_insert(&key->tree, index, page);
--	if (!error)
--		get_page(page);
--	return error;
--}
--
--static int prefault_key(struct hugetlb_key *key, struct vm_area_struct *vma)
-+static int prefault_key(struct hugetlb_key *key, struct vm_area_struct *vma, unsigned long *temp)
- {
- 	struct mm_struct *mm = current->mm;
-+	struct page *page, *prev;
- 	unsigned long addr;
- 	int ret = 0;
- 
-@@ -408,21 +393,18 @@
- 
- 	spin_lock(&mm->page_table_lock);
- 	spin_lock(&key->lock);
-+	prev = page = key->root;
- 	for (addr = vma->vm_start; addr < vma->vm_end; addr += HPAGE_SIZE) {
--		unsigned long idx;
- 		pte_t *pte = huge_pte_alloc(mm, addr);
--		struct page *page;
- 
- 		if (!pte) {
-+			spin_unlock(&key->lock);
- 			ret = -ENOMEM;
- 			goto out;
- 		}
- 		if (!pte_none(*pte))
- 			continue;
- 
--		idx = ((addr - vma->vm_start) >> HPAGE_SHIFT)
--			+ (vma->vm_pgoff >> (HPAGE_SHIFT - PAGE_SHIFT));
--		page = key_find_page(key, idx);
- 		if (!page) {
- 			page = alloc_hugetlb_page();
- 			if (!page) {
-@@ -430,13 +412,20 @@
- 				ret = -ENOMEM;
- 				goto out;
- 			}
--			key_add_page(page, key, idx);
-+			if (key->root == NULL)
-+				key->root = page;
-+			else
-+				prev->private = (unsigned long)page;
- 		}
-+		get_page(page);
- 		set_huge_pte(mm, vma, page, pte, vma->vm_flags & VM_WRITE);
-+		prev = page;
-+		page = (struct page *)page->private;
- 	}
- 	spin_unlock(&key->lock);
- out:
- 	spin_unlock(&mm->page_table_lock);
-+	*temp = addr;
- 	return ret;
- }
- 
-@@ -446,6 +435,7 @@
- 	struct vm_area_struct *vma;
- 	struct hugetlb_key *hugetlb_key;
- 	int retval = -ENOMEM;
-+	unsigned long temp;
- 
- 	hugetlb_key = alloc_key(key, len, prot, flag );
- 	spin_unlock(&htlbpage_lock);
-@@ -455,17 +445,18 @@
- 	addr = do_mmap_pgoff(NULL, addr, len, (unsigned long) prot,
- 			MAP_NORESERVE|MAP_FIXED|MAP_PRIVATE|MAP_ANONYMOUS, 0);
- 	if (IS_ERR((void *) addr))
--		goto out_release;
-+		goto out;
- 
- 	vma = find_vma(mm, addr);
- 	if (!vma) {
- 		retval = -EINVAL;
--		goto out_release;
-+		goto out;
- 	}
- 
--	retval = prefault_key(hugetlb_key, vma);
-+	retval = prefault_key(hugetlb_key, vma, &temp);
-+	addr = temp;
- 	if (retval)
--		goto out;
-+		goto out_release;
- 
- 	vma->vm_flags |= (VM_HUGETLB | VM_RESERVED);
- 	vma->vm_ops = &hugetlb_vm_ops;
-@@ -474,7 +465,7 @@
- 	clear_key_busy(hugetlb_key);
- 	spin_unlock(&htlbpage_lock);
- 	return retval;
--out:
-+out_release:
- 	if (addr > vma->vm_start) {
- 		unsigned long raddr;
- 		raddr = vma->vm_end;
-@@ -482,10 +473,8 @@
- 		zap_hugepage_range(vma, vma->vm_start, vma->vm_end - vma->vm_start);
- 		vma->vm_end = raddr;
- 	}
--	spin_lock(&mm->page_table_lock);
- 	do_munmap(mm, vma->vm_start, len);
--	spin_unlock(&mm->page_table_lock);
--out_release:
-+out:
- 	hugetlb_release_key(hugetlb_key);
- 	return retval;
- }
-@@ -533,10 +522,8 @@
- 
- static int alloc_private_hugetlb_pages(int key, unsigned long addr, unsigned long len, int prot, int flag)
- {
--	if (!capable(CAP_SYS_ADMIN)) {
--		if (!in_group_p(0))
--			return -EPERM;
--	}
-+	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_IPC_LOCK) && !in_group_p(0))
-+		return -EPERM;
- 	addr = do_mmap_pgoff(NULL, addr, len, prot,
- 			MAP_NORESERVE|MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, 0);
- 	if (IS_ERR((void *) addr))
---- linux-2.5.48/arch/i386/kernel/sys_i386.c	Sun Nov 17 20:29:56 2002
-+++ linux-2.5.48.work/arch/i386/kernel/sys_i386.c	Thu Nov 21 12:01:08 2002
-@@ -294,17 +294,17 @@
- {
- 	struct mm_struct *mm = current->mm;
- 	struct vm_area_struct *vma;
--	struct hugetlb_key *key;
- 	int retval;
- 
--	vma = find_vma(current->mm, addr);
--	if (!vma || !(vma->vm_flags & VM_HUGETLB) || vma->vm_start != addr)
--		return -EINVAL;
- 	down_write(&mm->mmap_sem);
--	key = (struct hugetlb_key *)vma->vm_private_data;
-+	vma = find_vma(current->mm, addr);
-+	if (!vma || !(vma->vm_flags & VM_HUGETLB) || vma->vm_start != addr) {
-+		retval =  -EINVAL;
-+		goto out;
++	u8 rev;
++	
++	if ((dev->vendor==PCI_VENDOR_ID_INTEL)
++	    && (dev->device==PCI_DEVICE_ID_INTEL_82371SB_0)) {
++		pci_read_config_byte(dev, PCI_REVISION_ID, &rev);
++		if (rev == 0x01) {
++			printk(KERN_INFO "Good PIIX3 revision: ISA DMA hang workarounds not need.\n");
++			return;
++		}
 +	}
- 	retval = do_munmap(vma->vm_mm, addr, vma->vm_end - addr);
-+out:
- 	up_write(&mm->mmap_sem);
--	hugetlb_release_key(key);
- 	return retval;
++
+ 	if (!isa_dma_bridge_buggy) {
+ 		isa_dma_bridge_buggy=1;
+ 		printk(KERN_INFO "Activating ISA DMA hang workarounds.\n");
+ 	}
  }
- #else
+ 
++/*  Somme BIOS seems to not turn on all PCI v2.1 compliant options on 82439HX/PIIX3.
++ *  PCI data corruption appear under ISA DMA load and somme PCI devices like AHA-2940U2/W
++ *  are completely unuseable.
++ */
++
++static void __init quirk_txc_pci(struct pci_dev *dev)
++{
++	struct pci_dev *p;
++	u8 val;
++
++	p=pci_find_device(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82371SB_0, NULL);
++	if (p != NULL) {
++		pci_read_config_byte(p, 0x82, &val);
++		val |= 0x07;
++		pci_write_config_byte(p, 0x82, val);
++		printk(KERN_INFO "PIIX3: Enabling ISA and USB passive release and delayed transaction.\n");
++		pci_read_config_byte(p, 0x6a, &val);
++		val |= 0x80;
++		pci_write_config_byte(p, 0x6a, val);
++		printk(KERN_INFO "PIIX3: Enabling north bridge retry enable bit.\n");
++		pci_read_config_byte(dev, 0x4f, &val);
++		val |= 0x80;
++		pci_write_config_byte(dev, 0x4f, val);
++		printk(KERN_INFO "82439HX: Enabling north bridge delayed transaction.\n");
++	}
++}
++
+ int pci_pci_problems;
+ 
+ /*
+@@ -501,7 +539,6 @@
+ static struct pci_fixup pci_fixups[] __initdata = {
+ 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_DUNORD,	PCI_DEVICE_ID_DUNORD_I3000,	quirk_dunord },
+ 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82441,	quirk_passive_release },
+-	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82441,	quirk_passive_release },
+ 	/*
+ 	 * Its not totally clear which chipsets are the problematic ones
+ 	 * We know 82C586 and 82C596 variants are affected.
+@@ -514,6 +551,7 @@
+ 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_INTEL, 	PCI_DEVICE_ID_INTEL_82437, 	quirk_triton }, 
+ 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_INTEL, 	PCI_DEVICE_ID_INTEL_82437VX, 	quirk_triton }, 
+ 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_INTEL, 	PCI_DEVICE_ID_INTEL_82439, 	quirk_triton }, 
++	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_INTEL, 	PCI_DEVICE_ID_INTEL_82439, 	quirk_txc_pci }, 
+ 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_INTEL, 	PCI_DEVICE_ID_INTEL_82439TX, 	quirk_triton }, 
+ 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_INTEL, 	PCI_DEVICE_ID_INTEL_82441, 	quirk_natoma }, 
+ 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_INTEL, 	PCI_DEVICE_ID_INTEL_82443LX_0, 	quirk_natoma }, 
 
---------------080100060507020703050208--
+
 

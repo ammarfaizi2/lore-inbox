@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265379AbTFUVsk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 17:48:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265390AbTFUVsj
+	id S265375AbTFUVsh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 17:48:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265379AbTFUVsh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 17:48:39 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:63758 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265379AbTFUVsi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 17:48:38 -0400
-Date: Sat, 21 Jun 2003 23:02:37 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Jan Rychter <jan@rychter.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Troll Tech
-Message-ID: <20030621230237.D28984@flint.arm.linux.org.uk>
-Mail-Followup-To: Jan Rychter <jan@rychter.com>,
-	linux-kernel@vger.kernel.org
-References: <03061908145500.25179@tabby> <20030619141443.GR29247@fs.tum.de> <bcsolt$37m$2@news.cistron.nl> <20030619165916.GA14404@work.bitmover.com> <20030620001217.G6248@almesberger.net> <20030620120910.3f2cb001.skraw@ithnet.com> <20030620142436.GB14404@work.bitmover.com> <20030620162719.GA4368@hh.idb.hist.no> <bd12o3$5t5$2@tangens.hometree.net> <m21xxnxfr7.fsf_-_@tnuctip.rychter.com>
+	Sat, 21 Jun 2003 17:48:37 -0400
+Received: from pa90.banino.sdi.tpnet.pl ([213.76.211.90]:6664 "EHLO
+	alf.amelek.gda.pl") by vger.kernel.org with ESMTP id S265375AbTFUVsg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 17:48:36 -0400
+Date: Sun, 22 Jun 2003 00:01:44 +0200
+To: marcelo@conectiva.com.br
+Cc: twaugh@redhat.com, linux-kernel@vger.kernel.org, linux-parport@torque.net
+Subject: [patch] 2.4.21 parport_serial link order fix, NetMos support
+Message-ID: <20030621220144.GA528@alf.amelek.gda.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <m21xxnxfr7.fsf_-_@tnuctip.rychter.com>; from jan@rychter.com on Sat, Jun 21, 2003 at 02:49:48PM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+User-Agent: Mutt/1.4i
+From: Marek Michalkiewicz <marekm@amelek.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 21, 2003 at 02:49:48PM -0700, Jan Rychter wrote:
-> And I know that I won't be able to use 2.4 much longer -- very soon
-> support for new hardware will be in 2.5/2.6 only. See cpufreq for an
-> example.
+Hi,
 
-Picking up on this specific point...
+that's me again, trying to submit this since 2.4.19 or so, with no
+success so far.  Please consider for 2.4.22 if it ever happens...
 
-It may be worth discussing this issue a little more and finding out
-whether Marcelo would be willing to take it (maybe for .22 or .23?)
+I've been successfully using a few low cost PCI multi-IO cards (only
+"made in China" on the PCB, "STLab" on the box) based on the NetMos
+NM9835 chip (1 parallel port, 2 serial ports), for a few months now.
+Patches (now updated for 2.4.21) are available here:
 
-It has been in the 2.4-ac trees for some time without much problem,
-and it can be configured out.
+http://www.amelek.gda.pl/linux-patches/2.4.21/00_parport_serial
+http://www.amelek.gda.pl/linux-patches/2.4.21/01_netmos
 
-The only real sting in the tale is that it won't have the sysfs
-interfaces, because there's probably no way in hell that sysfs would
-appear in 2.4.  Since it is in 2.4-ac, this problem has already been
-solved.
+00_parport_serial fixes a link order bug (parport_serial didn't work
+at all when compiled into the kernel, only as a module).  The patch
+file is big, but most of it just moves drivers/parport/parport_serial.c
+to drivers/char/ without changing a single line.  This way the driver
+is initialised after serial, but still before any other drivers which
+need the parport subsystem, such as: lp, paride, plip, ...
 
-Personally, I'd like to see cpufreq go into 2.4 since its a requirement
-for some ARM platforms.
+01_netmos (must be applied after 00_parport_serial) adds support for
+the NetMos PCI parallel port and multi-IO chips.  This is based on an
+old (2001) patch by Tim Waugh, without significant changes.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Apparently, some people had system lockups with NetMos cards when
+trying to use the parport IRQ.  This patch does not do this -
+polling mode works, and is better than nothing.  Anyway, I've also
+added a config option (CONFIG_PARPORT_PC_NETMOS, conditional on
+CONFIG_EXPERIMENTAL), with Documentation/Configure.help description.
+Hopefully this will help to get the patch accepted into the kernel.
+
+Thanks,
+Marek
 

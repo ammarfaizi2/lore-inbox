@@ -1,49 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264229AbUGSV2s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264266AbUGSWYx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264229AbUGSV2s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jul 2004 17:28:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265544AbUGSV2s
+	id S264266AbUGSWYx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jul 2004 18:24:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263943AbUGSWYx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jul 2004 17:28:48 -0400
-Received: from mailer.nec-labs.com ([138.15.108.3]:51826 "EHLO
-	mailer.nec-labs.com") by vger.kernel.org with ESMTP id S264229AbUGSV2j convert rfc822-to-8bit
+	Mon, 19 Jul 2004 18:24:53 -0400
+Received: from avarice.ph.ed.ac.uk ([129.215.73.46]:49352 "EHLO
+	avarice.ph.ed.ac.uk") by vger.kernel.org with ESMTP id S264266AbUGSWYm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jul 2004 17:28:39 -0400
-content-class: urn:content-classes:message
+	Mon, 19 Jul 2004 18:24:42 -0400
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.7 kernel
+From: Philip Clark <P.J.Clark@ed.ac.uk>
+Date: Mon, 19 Jul 2004 23:24:40 +0100
+Message-ID: <x02macxvskif.fsf@maverick.ph.ed.ac.uk>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: Ramdisk encryption
-Date: Mon, 19 Jul 2004 17:28:38 -0400
-Message-ID: <951A499AA688EF47A898B45F25BD8EE80126D4CB@mailer.nec-labs.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Ramdisk encryption
-Thread-Index: AcRt0fkDesJ9FDIoRjmHh7HySOUIcgABTChQ
-From: "Lei Yang" <leiyang@nec-labs.com>
-To: "Andreas Jellinghaus" <aj@dungeon.inka.de>
-Cc: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks a lot! I'll try and let you know the result.
-I also think it should work on ramdisk, just want to know how it really works internally to help better understand. Any recommended readings or materials?
 
-Lei
+Hi,
 
------Original Message-----
-From: Andreas Jellinghaus [mailto:aj@dungeon.inka.de]
-Sent: Monday, July 19, 2004 4:44 PM
-To: Lei Yang
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Ramdisk encryption
+I have been using the 2.6 kernel with my DELL latitude CPiA 366XT now
+for sometime and it works great, but there are some quirks which would
+be worth trying to get fixed, most are related to apm.
 
+It used to be that when the battery power became low the machine would
+automatically suspend to disk. This seems to be disable now and the
+machine just crashes. 
 
-I never tried it, but I see no reason, why dm-crypt shouldn't work
-on top of a ramdisk too. If you have any trouble with it, there
-is a dm-crypt mailing list, and the author is very responsive.
+fn + D used to blank the screen in 2.4 and in 2.6 it only blanks it
+momentarily. 
 
-Andreas
+If I suspend with my pcmcia wireless card in place and disconnect the ac
+cord when suspended then it always crashes. 
 
+There are quite a few things like this I would help to try to debug. 
 
+Here are my config settings, I've tried the "display blank" to no
+avail. 
+
+Anyone have any ideas?
+
+Thanks for any help
+
+-Phil
+
+CONFIG_PM=y
+# CONFIG_SOFTWARE_SUSPEND is not set
+# CONFIG_PM_DISK is not set
+
+#
+# ACPI (Advanced Configuration and Power Interface) Support
+#
+# CONFIG_ACPI is not set
+CONFIG_ACPI_BOOT=y
+
+#
+# APM (Advanced Power Management) BIOS Support
+#
+CONFIG_APM=y
+# CONFIG_APM_IGNORE_USER_SUSPEND is not set
+CONFIG_APM_DO_ENABLE=y
+# CONFIG_APM_CPU_IDLE is not set
+# CONFIG_APM_DISPLAY_BLANK is not set
+CONFIG_APM_RTC_IS_GMT=y
+# CONFIG_APM_ALLOW_INTS is not set
+# CONFIG_APM_REAL_MODE_POWER_OFF is not set
+
+#

@@ -1,42 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261650AbSJYXP5>; Fri, 25 Oct 2002 19:15:57 -0400
+	id <S261665AbSJYXSl>; Fri, 25 Oct 2002 19:18:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261661AbSJYXP5>; Fri, 25 Oct 2002 19:15:57 -0400
-Received: from oak.sktc.net ([208.46.69.4]:38104 "EHLO oak.sktc.net")
-	by vger.kernel.org with ESMTP id <S261650AbSJYXP5>;
-	Fri, 25 Oct 2002 19:15:57 -0400
-Message-ID: <3DB9D1FE.5010607@sktc.net>
-Date: Fri, 25 Oct 2002 18:21:34 -0500
-From: "David D. Hagood" <wowbagger@sktc.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021012
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S261677AbSJYXSl>; Fri, 25 Oct 2002 19:18:41 -0400
+Received: from petasus.ch.intel.com ([143.182.124.5]:31663 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id <S261665AbSJYXSk>; Fri, 25 Oct 2002 19:18:40 -0400
+Message-ID: <F2DBA543B89AD51184B600508B68D4000ECE70AE@fmsmsx103.fm.intel.com>
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
 To: Jeff Garzik <jgarzik@pobox.com>
-CC: "Nakajima, Jun" <jun.nakajima@intel.com>, Robert Love <rml@tech9.net>,
-       Daniel Phillips <phillips@arcor.de>,
+Cc: Robert Love <rml@tech9.net>, Daniel Phillips <phillips@arcor.de>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        "'Dave Jones'" <davej@codemonkey.org.uk>,
        "'akpm@digeo.com'" <akpm@digeo.com>,
        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
        "'chrisl@vmware.com'" <chrisl@vmware.com>,
        "'Martin J. Bligh'" <mbligh@aracnet.com>
-Subject: Re: [PATCH] hyper-threading information in /proc/cpuinfo
-References: <F2DBA543B89AD51184B600508B68D4000ECE7086@fmsmsx103.fm.intel.com> <3DB9CC5D.7000600@pobox.com>
-In-Reply-To: <F2DBA543B89AD51184B600508B68D4000ECE7086@fmsmsx103.fm.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: RE: [PATCH] hyper-threading information in /proc/cpuinfo
+Date: Fri, 25 Oct 2002 16:24:45 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+No, the notion of "sibling" is not clear. The other day a person pointed out
+"the number of the siblings does not include yourself" when she saw the
+variable smp_num_siblings. So with HT enabled, for a cpu the number of the
+siblings should be 1, instead of 2, from an English language perspective.
+But we want to mean the number H/W threads in a processor package. 
 
->
-> "sibling" makes a lot more sense from an English language perspective.
->
-Might I suggest "subcore", since that's really what it is - a sub-core 
-in the main chip.
+And with multi-core, "sibling" is not clear enough to distiguish "core" in a
+processor package and "thread" in a "core".
 
-My siblings are distinct entities from me, my sub-parts aren't.
-(now, were I part of a cojoined twin....)
+Jun
+-----Original Message-----
+From: Jeff Garzik [mailto:jgarzik@pobox.com]
+Sent: Friday, October 25, 2002 3:58 PM
+To: Nakajima, Jun
+Cc: Robert Love; Daniel Phillips; Alan Cox; 'Dave Jones';
+'akpm@digeo.com'; 'linux-kernel@vger.kernel.org'; 'chrisl@vmware.com';
+'Martin J. Bligh'
+Subject: Re: [PATCH] hyper-threading information in /proc/cpuinfo
+
+
+Nakajima, Jun wrote:
+
+>The notion of "SMT (Simultaneous Multi-Threaded)" architecture has been
+>there for a while (at least 8 years, as far as I know). You would get tons
+>of info if you search it in Internet. 
+>  
+>
+
+
+Certainly.   That however does not imply that Robert's patch should read 
+"number of threads" instead of "number of siblings."  The lone word 
+"thread" does not automatically imply "active thread running on this 
+virtual processor" or anything close to that.
+
+"sibling" makes a lot more sense from an English language perspective.
+
+    Jeff
+
+
 

@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262090AbUCQVuk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 16:50:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbUCQVuk
+	id S262114AbUCQWDO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 17:03:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbUCQWDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 16:50:40 -0500
-Received: from web60509.mail.yahoo.com ([216.109.116.130]:20651 "HELO
-	web60509.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262090AbUCQVuh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 16:50:37 -0500
-Message-ID: <20040317215037.54724.qmail@web60509.mail.yahoo.com>
-Date: Wed, 17 Mar 2004 13:50:37 -0800 (PST)
-From: Carl Spalletta <ioanamitu@yahoo.com>
-Subject: status of Documentation/devices.txt
+	Wed, 17 Mar 2004 17:03:13 -0500
+Received: from [218.79.217.162] ([218.79.217.162]:16644 "HELO 67.72.78.212")
+	by vger.kernel.org with SMTP id S262114AbUCQWDK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 17:03:10 -0500
+Message-ID: <cvq7ozjo-66o962$$-$ol-vx5--7@gwt.d79c4>
+From: "" <chexnow12@uymail.com>
 To: linux-kernel@vger.kernel.org
+Subject: ELECTRONIC CHECK PROCESSING
+Date: Thu, 18 Mar 04 05:19:11 GMT
+X-Mailer: Internet Mail Service (5.5.2650.21)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/alternative;
+	boundary="7.8A0890F_6"
+X-Priority: 1
+X-MSMail-Priority: High
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The preamble to devices.txt states:
+This is a multi-part message in MIME format.
 
- "THE DEVICE REGISTRY IS OFFICIALLY FROZEN FOR LINUS TORVALDS' KERNEL
- TREE.  At Linus' request, no more allocations will be made official
- for Linus' kernel tree; the 3 June 2001 version of this list is the
- official final version of this registry.  At Alan Cox' request,
- however, the registry will continue to be maintained for the -ac
- series of kernels, and registrations will be accepted."
+--7.8A0890F_6
+Content-Type: text/plain;
+Content-Transfer-Encoding: quoted-printable
 
-  However, a series of additions to devices.txt has just been made 
-by ChangeSet 1.1769.
+Dear Friend,
 
-1) Should the statement quoted above regarding a "freeze"
-   therefore be amended, eliminated or left in place?
+Discover how you can set-up to debit your customers checking/savings accou=
+nts electronically
+for the payment of your goods and services and never need to wait for a pa=
+per check again.
 
-2) What is the current mechanism for obtaining an assignment?
+***New world class*** web based software system allows you to perform EFT =
+(Electronic Funds Transfer)
+transactions on your customers checking accounts and get paid immediately =
+for your goods and services.
 
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail - More reliable, more storage, less spam
-http://mail.yahoo.com
+To learn more about this exciting program please visit:
+
+
+                                 http://61.251.176.11/chexandach2go
+
+
+
+
+ 
+To be removed from further mailings:
+
+Please visit: http://mayaswell.biz/shebyt/p/r/
+
+--7.8A0890F_6--
+

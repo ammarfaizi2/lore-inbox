@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269816AbRHIQD7>; Thu, 9 Aug 2001 12:03:59 -0400
+	id <S269848AbRHIQI3>; Thu, 9 Aug 2001 12:08:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269844AbRHIQDt>; Thu, 9 Aug 2001 12:03:49 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:26688 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S269816AbRHIQDo>; Thu, 9 Aug 2001 12:03:44 -0400
-Date: Thu, 9 Aug 2001 18:03:44 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Bjorn Wesen <bjorn@sparta.lu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: alloc_area_pte: page already exists
-Message-ID: <20010809180344.J4895@athlon.random>
-In-Reply-To: <Pine.LNX.3.96.1010809152133.5473B-100000@medusa.sparta.lu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1010809152133.5473B-100000@medusa.sparta.lu.se>; from bjorn@sparta.lu.se on Thu, Aug 09, 2001 at 03:32:44PM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S269844AbRHIQIT>; Thu, 9 Aug 2001 12:08:19 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:13737 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S269852AbRHIQID>; Thu, 9 Aug 2001 12:08:03 -0400
+Importance: Normal
+Subject: [PATCH] IBM Lanstreamer Token Ring
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF4339F22D.56C8E5E0-ON85256AA3.00585353@raleigh.ibm.com>
+From: "Kent E Yoder" <yoder1@us.ibm.com>
+Date: Thu, 9 Aug 2001 11:07:49 -0500
+X-MIMETrack: Serialize by Router on D04NM109/04/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 08/09/2001 12:07:50 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 09, 2001 at 03:32:44PM +0200, Bjorn Wesen wrote:
-> I'm trying to track down a problem which seems to be a race condition
-> vmalloc page table delayed PTE copying", or "you must never
-> call free_kiovec in an interrupt context" etc..)
 
-The latter is certainly the case. The former could be the case, however
-if you know you're running any free_kiovec from irqs remove it and try
-again first.
+Available at:
 
-BTW, you should also avoid all the kiobuf allocation in all the fast
-paths, try to pre-allocate it in a slow path to deliver higher
-performance. (shortly we'll split the bh/blocks array out of the kiobuf
-in a data structure called kiobuf_io so the non-IO usage will avoid the
-overhead of the bh/blocks arrays and it will become lighter but still
-it won't be that light)
+http://oss.software.ibm.com/developer/opensource/linux/patches/tr/lanstreamer-2.4.7-ac3.patch.gz
 
-Andrea
+
+Patch fixes hanging problem encountered by many:
+     - rearracnged calls to netif_*_queue
+     - made sure interrupts are re-enabled before exiting interrupt code
+     - added ioctl functionality for debugging
+
+Thanks go to Mike Sullivan and Mike Phillips for their help,
+Kent
+
+________________________________
+Kent Yoder <yoder1@us.ibm.com>
+

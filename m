@@ -1,68 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135655AbRDSNEE>; Thu, 19 Apr 2001 09:04:04 -0400
+	id <S135660AbRDSNJo>; Thu, 19 Apr 2001 09:09:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135656AbRDSNDx>; Thu, 19 Apr 2001 09:03:53 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:45318 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S135655AbRDSNDj>;
-	Thu, 19 Apr 2001 09:03:39 -0400
-Date: Thu, 19 Apr 2001 15:03:32 +0200
-From: Jens Axboe <axboe@suse.de>
-To: stefan@jaschke-net.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems with Toshiba SD-W2002 DVD-RAM drive (IDE)
-Message-ID: <20010419150332.B22159@suse.de>
-In-Reply-To: <01041714250400.01376@antares> <01041914131100.01232@antares> <20010419141538.S16822@suse.de> <01041914440701.01232@antares>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <01041914440701.01232@antares>; from s-jaschke@t-online.de on Thu, Apr 19, 2001 at 02:44:07PM +0200
+	id <S135658AbRDSNJe>; Thu, 19 Apr 2001 09:09:34 -0400
+Received: from oboe.it.uc3m.es ([163.117.139.101]:22799 "EHLO oboe.it.uc3m.es")
+	by vger.kernel.org with ESMTP id <S135662AbRDSNJR>;
+	Thu, 19 Apr 2001 09:09:17 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200104191309.f3JD93V24427@oboe.it.uc3m.es>
+Subject: Re: block devices don't work without plugging in 2.4.3
+In-Reply-To: <20010419144025.T16822@suse.de> from "Jens Axboe" at "Apr 19, 2001
+ 02:40:25 pm"
+To: "Jens Axboe" <axboe@suse.de>
+Date: Thu, 19 Apr 2001 15:09:03 +0200 (MET DST)
+CC: "linux kernel" <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 19 2001, Stefan Jaschke wrote:
-> On Thursday 19 April 2001 14:15, Jens Axboe wrote:
-> > This is really strange, are you sure your drive is ok? Does mounting
-> > dvd-rom and cd-rom's work fine?
-> 
-> OK. I'll check again with 2.4.4-pre4+patches:
-> (1) Mounting the SuSE DVD-ROM (-t iso9660) from /dev/hdc on /dvd and 
->     reading from /dvd works. Same for CD-ROMs. I don't have a formatted
->     DVD-RAM.
-> (2) Reading with "dd if=/dev/hdc ..." 
->    (2.1) works with CD-ROM inserted
->    (2.2) fails with DVD-ROM inserted
+"Jens Axboe wrote:"
+> Examine _why_ you don't want plugging. In 2.2, you would have to edit
+> the kernel manually to disable it for your device.
 
-dd fails with DVD-ROM inserted??? In the same way? Is this the SuSE DVD,
-and not a movie DVD? Also, check dmesg for errors.
+True. Except that I borrowed a major which already got that special
+treatment.
 
->    (2.3) fails with DVD-RAM inserted
-> (3) Writing with "dd of=/dev/hdc ..." works (with DVD-RAM inserted).
-> (4) "mke2fs -b 2048 /dev/hdc" fails (with DVD-RAM inserted).
+>                                            For 2.4, as long as
+> there has been blk_queue_pluggable, there has also been the
+> disable-merge function mentioned. Why are you disabling plugging??
 
-Side note -- use as big a block size as you can for a DVD-RAM hosted fs,
-4kB is better than 2kB.
+Fundamentally, to disable merging, as you suggest. I had merging
+working fine in 2.0.*. Then I never could figure out what had to be
+done in 2.2.*, so I disabled it. In 2.4, things work nicely - I don't
+have to do anything and it all happens magically.
 
-> As if the drive gives the driver wrong information (like size=0)?
+Nevertheless, I am left with baggage that I have to maintain -
+certainly the driver has to work in 2.2 as well as in 2.4. Removing
+the blah_plugging function now in 2.4 after having started off 2.4 
+with it around gives me one more #ifdef kernel_version in my code.
 
-Could be, try
+I don't think that's good for my code, and in general I don't think one
+should remove this function half way through a stable series. Leave it
+there, mark it as deprecated in big letters, and make it do nothing,
+but leave it there, no?
 
-cat /proc/ide/hdc/capacity
-
-and see what that says.
-
-But at least it looks like your drive is just fine.
-
-> If nothing helps, I have to plug the drive into a Windows machine
-> to make sure it really works with Toshiba's own drivers. This would
-> be a major hassle, though. No place for Windows on my own machine.
-
-Lets not go that far yet :)
-
-> Hence some amount of screwing... :-(
-
-And lets stick to hardware for now, ok? :-)
-
--- 
-Jens Axboe
-
+Peter

@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318235AbSGWVQy>; Tue, 23 Jul 2002 17:16:54 -0400
+	id <S318224AbSGWVO3>; Tue, 23 Jul 2002 17:14:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318236AbSGWVQy>; Tue, 23 Jul 2002 17:16:54 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:38644 "EHLO
+	id <S318225AbSGWVO3>; Tue, 23 Jul 2002 17:14:29 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:37108 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318235AbSGWVQx>; Tue, 23 Jul 2002 17:16:53 -0400
-Subject: Re: [PATCH] VM accounting 1/3 trivial
+	id <S318224AbSGWVO2>; Tue, 23 Jul 2002 17:14:28 -0400
+Subject: Re: Handling NMI in a kernel module
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Robert Love <rml@tech9.net>, David Mosberger <davidm@hpl.hp.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0207231823470.10982-100000@localhost.localdomain>
-References: <Pine.LNX.4.21.0207231823470.10982-100000@localhost.localdomain>
+To: "Isabelle, Francois" <Francois.Isabelle@ca.kontron.com>
+Cc: "Linux-Ha (E-mail)" <linux-ha@muc.de>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <5009AD9521A8D41198EE00805F85F18F219A7E@sembo111.teknor.com>
+References: <5009AD9521A8D41198EE00805F85F18F219A7E@sembo111.teknor.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 23 Jul 2002 23:33:04 +0100
-Message-Id: <1027463584.31782.148.camel@irongate.swansea.linux.org.uk>
+Date: 23 Jul 2002 23:30:30 +0100
+Message-Id: <1027463430.32299.145.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-07-23 at 18:27, Hugh Dickins wrote:
-> First of three patches against 2.4.19-rc3-ac3 fixing some VM accounting.
-> Could be split further, but this one too trivial to need much thought.
-> 
-> 1. do_munmap doesn't need an extra acct arg (and rc3-ac3 still leaves
->    arch files without it): just clear VM_ACCOUNT in mremap's move_vma.
+On Tue, 2002-07-23 at 18:37, Isabelle, Francois wrote:
+> I'ld like my driver to register a callback there, what about maintaining a
+> list of user callback functions which could be registered via:
+>  
+> request_nmi(int option, void (*hander)(void *dev_id, struct pt_regs *regs),
+> unsigned long flags, const char *dev_name, void *dev_id)
 
-Are you sure that is correct. I started off on that basis but never got
-it to work reliably when mremap changes multiple vmas ?
+Doesnt seen unreasonable
+;
+> Is there any standard mecanism to implement such features( dual stage
+> watchdog ) ?
 
-Can you split out items #2, #4 first of all and submit those alone, then
-I can review each item on its own and run vm_validate tests
+We have a watchdog API but not yet dual stage stuff. Its becoming a must
+have for HA stuff so the API needs extending
 

@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266484AbUHILKQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266476AbUHILWI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266484AbUHILKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 07:10:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266486AbUHILKQ
+	id S266476AbUHILWI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 07:22:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266481AbUHILWI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 07:10:16 -0400
-Received: from mail015.syd.optusnet.com.au ([211.29.132.161]:61338 "EHLO
-	mail015.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S266484AbUHILKI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 07:10:08 -0400
-Message-ID: <41175B6E.7060308@kolivas.org>
-Date: Mon, 09 Aug 2004 21:09:34 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: axboe@suse.de, James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-References: <200408091013.i79ADQK0008995@burner.fokus.fraunhofer.de>
-In-Reply-To: <200408091013.i79ADQK0008995@burner.fokus.fraunhofer.de>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigAF6DF5F36577672C4BA68734"
+	Mon, 9 Aug 2004 07:22:08 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:15269 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S266476AbUHILWF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 07:22:05 -0400
+Date: Mon, 9 Aug 2004 12:45:33 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
+Subject: Re: [patch] inode-lock-break.patch, 2.6.8-rc3-mm2
+Message-ID: <20040809104533.GA13710@elte.hu>
+References: <20040809102125.GA12391@elte.hu> <20040809032523.40250fe8.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040809032523.40250fe8.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigAF6DF5F36577672C4BA68734
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Joerg Schilling wrote:
->>From axboe@suse.de  Fri Aug  6 17:10:35 2004
->>We try, when they make sense...
+* Andrew Morton <akpm@osdl.org> wrote:
+
+> > tested on x86, the patch solves these particular latencies.
 > 
-> 
-> You should learn what "make sense" means, Linux-2.6 is a clear move away from 
-> the demands of a Linux user who likes to write CDs/DVDs.
+> On uniprocessor only.  What are we going to do about SMP?
 
-Could have fooled me. I'm a linux user who writes lots of cds and I had 
-heaps of trouble scanning busses and trains and automobiles on the atapi 
-interface till I could do a simple
+i believe we should 'ignore' SMP spinlock starvation for now: it will be
+fixed in a natural way with the most-spinlocks-are-mutexes solution,
+with that approach all preemption wishes of other CPUs are properly
+expressed in terms of need_resched().
 
-dev=/dev/hdd
+alternatively the 'release the lock every 128 iterations and do a
+cpu_relax()' hack could be used - but i think that doesnt solve the SMP
+issues in a sufficiant way.
 
-Seems they listened to this user.
-
-Cheers,
-Con
-
---------------enigAF6DF5F36577672C4BA68734
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBF1txZUg7+tp6mRURAlGxAJ970bDDP89DfKXjYuJM21yeTJlvugCcCqLo
-bWJUyESBrwYdKXAc3s6UVD0=
-=+Z5L
------END PGP SIGNATURE-----
-
---------------enigAF6DF5F36577672C4BA68734--
+	Ingo

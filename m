@@ -1,77 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263421AbTCNQMJ>; Fri, 14 Mar 2003 11:12:09 -0500
+	id <S263382AbTCNQBl>; Fri, 14 Mar 2003 11:01:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263422AbTCNQMJ>; Fri, 14 Mar 2003 11:12:09 -0500
-Received: from mark.mielke.cc ([216.209.85.42]:16133 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S263421AbTCNQMG>;
-	Fri, 14 Mar 2003 11:12:06 -0500
-Date: Fri, 14 Mar 2003 11:30:44 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Larry McVoy <lm@work.bitmover.com>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Never ever use word BitKeeper if Larry does not like you
-Message-ID: <20030314163044.GD1671@mark.mielke.cc>
-References: <20030314105132.GB14270@atrey.karlin.mff.cuni.cz> <20030314120604.GE3020@merlin.emma.line.org> <20030314160040.GB1671@mark.mielke.cc> <20030314160314.GD8937@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030314160314.GD8937@work.bitmover.com>
-User-Agent: Mutt/1.4i
+	id <S263383AbTCNQBl>; Fri, 14 Mar 2003 11:01:41 -0500
+Received: from adsl-67-113-154-34.dsl.sntc01.pacbell.net ([67.113.154.34]:46583
+	"EHLO postbox.aslab.com") by vger.kernel.org with ESMTP
+	id <S263382AbTCNQBi>; Fri, 14 Mar 2003 11:01:38 -0500
+Message-ID: <3E7200D1.3030207@aslab.com>
+Date: Fri, 14 Mar 2003 08:18:25 -0800
+From: Michael Madore <mmadore@aslab.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+CC: Terry Barnaby <terry@beam.ltd.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Reproducible SCSI Error with Adaptec 7902
+References: <3E71B629.60204@beam.ltd.uk> <1999490000.1047653585@aslan.scsiguy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 14, 2003 at 08:03:14AM -0800, Larry McVoy wrote:
-> > It is just how things work. The suggested that Red Hat could be used
-> > as the basis for a different product, and the Red Hat lawyers would
-> > have a field day, is moot as well, since companies like Mandrake have
-> > already done this. "Look at us, we're Red Hat with PGCC-compiled
-> > packages, a new install interface, and a few driver modules. Buy our
-> > product instead."
-> I'd suggest you hit
-> http://www.mandrakesoft.com/search?query=Red+Hat&l=english and
-> you'll see all of 9 instances of the term Red Hat on their web site
-> and I can't find a single one where they are saying what you say
-> they are saying.
+Also, what version of firmware do your drives have?  Our original 
+problems stemmed from buggy firmware.  Seagate have updated firmware 
+which you can request from their technical support.
 
-Since I don't use Mandrake, I don't normally look at their web page. As I
-recall, Mandrake began using the sales strategy that I mention above. Since
-then (a few years later), they have branched into their own product. I would
-expect any clone to do the same. Eventually people realize that "Hey, I don't
-have to have the exact same interface, I can tweak this, and make it better
-than the original" and other such things. This is where I put Mandrake now.
+Mike
 
-> I'm not sure why you think what you do but it's simply incorrect.  Brand name
-> is a well established business asset and businesses are absolutely allowed,
-> and as someone else mentioned (thanks), obligated to protect.
+Justin T. Gibbs wrote:
 
-You are allowed to defend your trademark, and out of necessity, you
-are effectively obligated to protect your own trademark, however, the
-question as to whether a judge would agree with you on a specific
-defense claim is always up for grabs.
+>>Our system is:
+>>System: Dual Xeon 2.4GHz system using SuperMicro X5DA8 Motherboard.
+>>SCSI: Adaptec 7902 onboard dual channel SCSI controller
+>>Disks: 2 off Quantum Atlas 10K2 18G (160LW), 1 of Quantum 9G (80LW)
+>>Disks: 1 off Seagate ST336607LW 36G (320LW)
+>>System: RedHat 7.3 with updates to 18/02/03
+>>Kernel: 2.4.18-24.7.xsmp
+>>Aic79xx Driver: versions 1.0.0 and 1.1.0
+>>    
+>>
+>
+>Is there some reason why you are using such old versions of the aic79xx
+>driver?  You can obtain the latest version of the driver from here:
+>
+>http://people.FreeBSD.org/~gibbs/linux/RPM/aic79xx/
+>http://people.FreeBSD.org/~gibbs/linux/DUD/aic79xx/
+>
+>or in source form for a 2.4.X or 2.5.X kernel from here:
+>
+>http://people.freebsd.org/~gibbs/linux/SRC/
+>
+>--
+>Justin
+>  
+>
 
-I suggest the non-BitKeeper supporters choose a different name, however, if
-they choose to use a similar name, it is your obligation to defend your name,
-and if you win, it will cost you money, and if you lose, it will fortify
-the non-BitKeeper supporters' position. This is all normal business.
 
-My position: It sucks to be you Larry. You've put in all this work,
-you can't continue to pay your employees if you give your product away
-for free, and since you don't give it away for free, people want to
-re-invent your product so they can give it away for free. I don't think
-the US laws cover your situation. They work a lot better for products such
-as the automobile, or fridges, than for you. Sorry.
-
-mark
-
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
 

@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131881AbQLRPz5>; Mon, 18 Dec 2000 10:55:57 -0500
+	id <S131976AbQLRP4h>; Mon, 18 Dec 2000 10:56:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131909AbQLRPzk>; Mon, 18 Dec 2000 10:55:40 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:37004 "EHLO
+	id <S131974AbQLRP4W>; Mon, 18 Dec 2000 10:56:22 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:18829 "EHLO
 	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S131881AbQLRPzV>; Mon, 18 Dec 2000 10:55:21 -0500
+	id <S131909AbQLRP4J>; Mon, 18 Dec 2000 10:56:09 -0500
 From: Christoph Rohland <cr@sap.com>
-To: Roderich Schupp <rsch@ExperTeam.de>
-Cc: linux-kernel@vger.kernel.org, rgooch@atnf.csiro.au,
-        "H. Peter Anvin" <hpa@transmeta.com>
-Subject: Re: [PATCH] Make devfs create /dev/shm (was: Re: Trashing ext2 with hdparm) )
-In-Reply-To: <200012080852.JAA19341@www1.ExperTeam.de>
+To: Rolf Fokkens <FokkensR@vertis.nl>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: problem with shmat () and > 1GB memory in kernel 2.2.17
+In-Reply-To: <938F7F15145BD311AECE00508B7152DB034C3A27@vts007.vertis.nl>
 Organisation: SAP LinuxLab
-Date: 18 Dec 2000 16:23:26 +0100
-In-Reply-To: Roderich Schupp's message of "Fri, 08 Dec 2000 09:46:09 +0100"
-Message-ID: <qwwr935da8h.fsf@sap.com>
+Date: 18 Dec 2000 16:25:05 +0100
+In-Reply-To: Rolf Fokkens's message of "Wed, 8 Nov 2000 22:38:47 +0100"
+Message-ID: <qwwn1dtda5q.fsf@sap.com>
 User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Roderich,
+Hi Rolf,
 
-On Fri, 08 Dec 2000, Roderich Schupp wrote:
->> And I'll ask again...  If this is now the recommend mount point,
->> can we have devfs create this directory for us?
-> 
-> C'mon guys, this is just to easy:
+On Wed, 8 Nov 2000, Rolf Fokkens wrote:
+>> Recently we installed extra memory in our Oracle-on-Linux database
+>> server, it now has 1.25 GB. I installed a 2.2.17 kernel with the
+>> 2GB option enabled. I rebooted the machine (a Compaq Proliant 5500
+>> dual PII 450MHz) and noticed that one of the databases wasn't able
+>> to start. After installing a 2.2.17 kernel without the 2GB option
+>> averything worked fine.
 
-Included in 2.4.0-test13-pre3...
+You should not use the 2GB option. Use the bigmem patch and you will
+have 3GB userspace with 4GB main memory instead of 2GB user space with
+2GB memory.
 
 Greetings
 		Christoph

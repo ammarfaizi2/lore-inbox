@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263051AbTCSQYB>; Wed, 19 Mar 2003 11:24:01 -0500
+	id <S263069AbTCSQ02>; Wed, 19 Mar 2003 11:26:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263050AbTCSQYB>; Wed, 19 Mar 2003 11:24:01 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:43268 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S263051AbTCSQYA>; Wed, 19 Mar 2003 11:24:00 -0500
-Date: Wed, 19 Mar 2003 19:34:04 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: David Brownell <david-b@pacbell.net>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
-       usb-devel <linux-usb-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 2.5.65] ehci-hcd, don't use PCI MWI
-Message-ID: <20030319193404.A1025@jurassic.park.msu.ru>
-References: <3E788B06.4090302@pacbell.net> <20030319153421.GA26181@gtf.org> <3E78927F.4060600@pacbell.net>
+	id <S263071AbTCSQ02>; Wed, 19 Mar 2003 11:26:28 -0500
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:45074
+	"EHLO gw.goop.org") by vger.kernel.org with ESMTP
+	id <S263069AbTCSQ0W>; Wed, 19 Mar 2003 11:26:22 -0500
+Subject: Re: [patch] sched-2.5.64-D3, more interactivity changes
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Andrew Morton <akpm@digeo.com>, Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <5.2.0.9.2.20030319091819.00ca4bf0@pop.gmx.net>
+References: <20030318215228.417e0a58.akpm@digeo.com>
+	 <Pine.LNX.4.44.0303171114310.19107-100000@localhost.localdomain>
+	 <20030318215228.417e0a58.akpm@digeo.com>
+	 <5.2.0.9.2.20030319091819.00ca4bf0@pop.gmx.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1048091837.1209.20.camel@ixodes.goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3E78927F.4060600@pacbell.net>; from david-b@pacbell.net on Wed, Mar 19, 2003 at 07:53:35AM -0800
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 19 Mar 2003 08:37:18 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 19, 2003 at 07:53:35AM -0800, David Brownell wrote:
-> Jeff Garzik wrote:
-> > Please don't -- Ivan has a patch for this, let's get that in instead.
-> 
-> I'd be happy with that, except on the 2.4 trees where we haven't
-> seen such a patch yet.  (So Greg -- please hold off on this
-> for 2.5 unless/until it becomes clear Ivan's patch won't happen.)
+On Wed, 2003-03-19 at 00:21, Mike Galbraith wrote:
+> I'm hot on the trail (woof) of this.  If I get it working "right", are you 
+> willing to test a patch? 
 
-Hopefully I'll post the updated patch tomorrow.
-Right now I'm chasing down weird problem - 2.5.65 broke networking
-on one of my boxes. So far I figured out that reverting serial/core
-changes fixes that. Incredibly...
+Sure.
 
-Ivan.
+	J
+

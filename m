@@ -1,52 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285352AbSA2WtN>; Tue, 29 Jan 2002 17:49:13 -0500
+	id <S285666AbSA2WtD>; Tue, 29 Jan 2002 17:49:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285516AbSA2WtD>; Tue, 29 Jan 2002 17:49:03 -0500
-Received: from dsl-213-023-043-145.arcor-ip.net ([213.23.43.145]:51080 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S285352AbSA2Ws5>;
-	Tue, 29 Jan 2002 17:48:57 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Oliver Xymoron <oxymoron@waste.org>
-Subject: Re: Note describing poor dcache utilization under high memory pressure
-Date: Tue, 29 Jan 2002 23:53:04 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Josh MacDonald <jmacd@CS.Berkeley.EDU>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        <reiserfs-list@namesys.com>, <reiserfs-dev@namesys.com>
-In-Reply-To: <Pine.LNX.4.33.0201291326340.1334-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0201291326340.1334-100000@penguin.transmeta.com>
-MIME-Version: 1.0
+	id <S285516AbSA2Wsx>; Tue, 29 Jan 2002 17:48:53 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:36626 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S285352AbSA2Wsp>;
+	Tue, 29 Jan 2002 17:48:45 -0500
+Message-Id: <200201292247.XAA10273@webserver.ithnet.com>
+Cc: Jeff Chua <jeffchua@silk.corp.fedex.com>, jdthood@mail.com,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>, sfr@canb.auug.org.au
+Date: Tue, 29 Jan 2002 23:47:55 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+In-Reply-To: <104D80077517@vcnet.vc.cvut.cz>
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Vh7h-0000AX-00@starship.berlin>
+Subject: Re: 2.4.18-pre7 slow ... apm problem
+To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+User-Agent: IMHO/0.97.1 (Webmail for Roxen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 29, 2002 10:50 pm, Linus Torvalds wrote:
-> On Tue, 29 Jan 2002, Oliver Xymoron wrote:
-> >
-> > I don't think read-only for the tables is sufficient if the pages
-> > themselves are writable.
-> 
-> At least on x86, the WRITE bit in the page directory entries will override
-> any bits int he PTE. In other words, it doesn't make the page directory
-> entries thmselves unwritable - it makes the final pages unwritable.
-
-Ah, didn't know that.
-
-> Which are exactly the semantics we want.
-
-Yes.  This feature might be useful to grab back a few cycles at the expense 
-of some extra complexity.  It is not however, a fundamental change to my 
-algorithm, just a decoration of it.  It's also possible that the cost of the 
-resulting extra fault will wipe out the (small) saving of setting pte entries 
-RO in the average case.
-
-It's likely there are architectures where this won't work, and just not doing 
-this optimization is the correct approach.
-
--- 
-Daniel
+> On 29 Jan 02 at 20:36, Jeff Chua wrote:                             
+> > On Mon, 28 Jan 2002, Thomas Hood wrote:                           
+> >                                                                   
+> > > Suggestion: Try setting the idle_threshold to a higher value,   
+> > > e.g., 98.  (The default value is 95.)                           
+> >                                                                   
+> > With 98, "ping localhost" on "guest" os showed 2 responses, then  
+pause for                                                             
+> > few seconds, then response, ...                                   
+> >                                                                   
+> > With 95, I got the 1st response, then nothing. 98 seems better,   
+but still                                                             
+> > slow...                                                           
+> >                                                                   
+> > With 100, it's perfect.                                           
+>                                                                     
+> I've got an idea - if you were saying that ping host->guest is fine,
+> but other way around it does not work. Can you apply                
+> ftp://platan.vc.cvut.cz/pub/vmware/vmware-ws-1455-update5.tar.gz    
+> to your VMware 3.x? Stock vmware-3.x modules use netif_rx() instead 
+> of netif_rx_ni(), and so network bottom half was not run under some 
+> conditions.                                                         
+>                                                                     
+> Patch also allows you to run VMware on 2.5.3-pre5, BTW.             
+                                                                      
+We are completely OT here, but anyway it may be common interest:      
+                                                                      
+Applying this patch makes some of my problems go. dos-box does no     
+longer hang the whole guest system, but succeeds in 4 of 5 runs. If it
+does not output anything inside the dos-window and I hit the          
+fullscreen (ALT-ENTER) everything is normal, ALT-ENTER again shows the
+correct win desktop with dos-box and correct output there.            
+It is almost ok, it does not hang, only a minor quirk left.           
+                                                                      
+Thanks,                                                               
+Stephan                                                               
+                                                                      
+                                                                      

@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262180AbSJAQsu>; Tue, 1 Oct 2002 12:48:50 -0400
+	id <S262194AbSJAQ7D>; Tue, 1 Oct 2002 12:59:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262175AbSJAQrZ>; Tue, 1 Oct 2002 12:47:25 -0400
-Received: from gate.perex.cz ([194.212.165.105]:34311 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id <S262171AbSJAQqN>;
-	Tue, 1 Oct 2002 12:46:13 -0400
-Date: Tue, 1 Oct 2002 18:47:55 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: <perex@pnote.perex-int.cz>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2nd ALSA update [5/12] - 2002/08/15
-Message-ID: <Pine.LNX.4.33.0210011846170.20016-100000@pnote.perex-int.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262141AbSJAQ5w>; Tue, 1 Oct 2002 12:57:52 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:45556 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262130AbSJAQ51>;
+	Tue, 1 Oct 2002 12:57:27 -0400
+Date: Tue, 1 Oct 2002 10:02:46 -0700
+From: Greg KH <gregkh@us.ibm.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB OOPS in 2.5.40 ?
+Message-ID: <20021001170246.GA15890@us.ibm.com>
+References: <200210011654.g91GsaU29508@eng2.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200210011654.g91GsaU29508@eng2.beaverton.ibm.com>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.5.39 (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Oct 01, 2002 at 09:54:36AM -0700, Badari Pulavarty wrote:
+> Hi,
+> 
+> I get following Debug Stack while rebooting the machine. (8x P-III).
+> Is this USB related ? It is not causing me any trouble, just an
+> FYI.
 
-A big one. Please, download it here:
-ftp://ftp.alsa-project.org/pub/kernel-patches/set#2/5.patch
+Hm, thought this was fixed (it's a pci_pool issue, not a usb issue).
+I'll look into it.
 
-						Jaroslav
+And it's not a oops, just a "warning" :)
 
-ChangeSet@1.648, 2002-10-01 10:16:17+02:00, perex@suse.cz
-  ALSA update 2002/08/15 :
-    - C99 structure initializers - second set of changes
-    - USB MIDI driver
-      - more device info for Roland/EDIROL devices
+thanks,
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project  http://www.alsa-project.org
-SuSE Linux    http://www.suse.com
-
+greg k-h

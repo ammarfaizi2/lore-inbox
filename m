@@ -1,79 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312562AbSDATea>; Mon, 1 Apr 2002 14:34:30 -0500
+	id <S312570AbSDATnl>; Mon, 1 Apr 2002 14:43:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312563AbSDATeU>; Mon, 1 Apr 2002 14:34:20 -0500
-Received: from khazad-dum.debian.net ([200.196.10.6]:55196 "EHLO
-	khazad-dum.debian.net") by vger.kernel.org with ESMTP
-	id <S312562AbSDATeM>; Mon, 1 Apr 2002 14:34:12 -0500
-Date: Mon, 1 Apr 2002 16:34:09 -0300
-To: Mark Cooke <mpc@star.sr.bham.ac.uk>
-Cc: =?iso-8859-1?Q?David_H=E4rdeman?= <david@2gen.com>,
-        LinuxKernel <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.4.17 with VT8367 [KT266] crashes on heavy ide load togeter
-Message-ID: <20020401163409.F22174@khazad-dum>
-In-Reply-To: <3CA88BC0.2000603@2gen.com> <Pine.LNX.4.44.0204011810380.16203-300000@pc24.sr.bham.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-X-GPG-Fingerprint-1: 1024D/128D36EE 50AC 661A 7963 0BBA 8155  43D5 6EF7 F36B 128D 36EE
-X-GPG-Fingerprint-2: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
-From: hmh@debian.org (Henrique de Moraes Holschuh)
+	id <S312573AbSDATnc>; Mon, 1 Apr 2002 14:43:32 -0500
+Received: from port-213-20-224-66.reverse.qdsl-home.de ([213.20.224.66]:14597
+	"EHLO el-zoido.localnet") by vger.kernel.org with ESMTP
+	id <S312570AbSDATnQ>; Mon, 1 Apr 2002 14:43:16 -0500
+Date: Mon, 1 Apr 2002 21:43:03 +0200 (CEST)
+From: Patrick McHardy <kaber@trash.net>
+To: Alexey Kuznetsov <kuznet2@ms2.inr.ac.ru>
+cc: linux-kernel@vger.kernel.org
+Subject: bug in sch_generic.c:pfifo_fast_enqueue
+Message-ID: <Pine.LNX.4.44.0204012131330.13230-200000@el-zoido.localnet>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811840-707478154-1017690183=:13230"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 01 Apr 2002, Mark Cooke wrote:
-> On Mon, 1 Apr 2002, David Härdeman wrote:
-> > Date: Mon, 01 Apr 2002 18:33:04 +0200
-> > From: David Härdeman <david@2gen.com>
-> > To: Mark Cooke <mpc@star.sr.bham.ac.uk>
-> > Cc: LinuxKernel <linux-kernel@vger.kernel.org>
-> > Subject: Re: Kernel 2.4.17 with VT8367 [KT266] crashes on heavy ide load
-> >     togeter
-> > 
-> > Mark Cooke wrote:
-> > > If I run a simultaneous one on hdc and hde, the combined rate tops 
-> > > out at 50MB again.  Hence, the limitation isn't the raid card.  Or at 
-> > > least I'd be exceedingly surprised.
-> > 
-> > The bugs that exist in VIA chipsets and Barracuda drives have already 
-> > exceedingly surprised me many, many times :-)
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Yes. For the VIA side, I have this in my rc.S stuff:
+---1463811840-707478154-1017690183=:13230
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-#!/bin/sh
-PATH=/sbin:/bin:/usr/sbin:/usr/bin
-export PATH
+Hi Alexey.
+I found a small bug in pfifo_fast_enqueue, instead of
 
-echo -n "Optimizing hardware configuration: "
+if (list->qlen <= skb->dev->tx_queue_len)
 
-if command -v setpci >/dev/null 2>&1; then
-    echo -n "PCI"
-    #
-    # Optimize PCI latency for IDE controllers
-    #
-    setpci -d 1106:0571 latency_timer=60  >/dev/null 2>&1
-    setpci -d 105a:*	latency_timer=60  >/dev/null 2>&1
-    echo "."
-else
-    echo '(lspci/setpci not available!)'
-fi
+it should be
 
-Normal latency set by the BIOS is 32, which is too damn small for IDE.
+if (list->qlen <= qdisc->dev->tx_queue_len)
 
-You may have to tweak the PCI ids a bit. You want all storage controllers
-(both chipset, Promise and any extra cards). The IDs up there are for my VIA
-kt133, and Promise PDC20265.
+i guess. the attached patch fixes it.
+Bye,
+Patrick
 
-Oh, some of the PCI 'optimizations' in BIOS must be enabled for that to
-actually help a bit. Stuff like the PCI caches.
 
-VIA PCI is utter crap. I am not buying anything of theirs ever again :(
+---1463811840-707478154-1017690183=:13230
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="sch_generic.diff"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0204012143030.13230@el-zoido.localnet>
+Content-Description: 
+Content-Disposition: attachment; filename="sch_generic.diff"
 
--- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+ZGlmZiAtdXJOIGxpbnV4LTIuNC4xOC1jbGVhbi9uZXQvc2NoZWQvc2NoX2dl
+bmVyaWMuYyBsaW51eC0yLjQuMTgtc2NoZWRfZml4ZWQvbmV0L3NjaGVkL3Nj
+aF9nZW5lcmljLmMNCi0tLSBsaW51eC0yLjQuMTgtY2xlYW4vbmV0L3NjaGVk
+L3NjaF9nZW5lcmljLmMJRnJpIEF1ZyAxOCAxOToyNjoyNSAyMDAwDQorKysg
+bGludXgtMi40LjE4LXNjaGVkX2ZpeGVkL25ldC9zY2hlZC9zY2hfZ2VuZXJp
+Yy5jCVNhdCBNYXIgMzAgMTE6NDU6NTYgMjAwMg0KQEAgLTI4MCw3ICsyODAs
+NyBAQA0KIAlsaXN0ID0gKChzdHJ1Y3Qgc2tfYnVmZl9oZWFkKilxZGlzYy0+
+ZGF0YSkgKw0KIAkJcHJpbzJiYW5kW3NrYi0+cHJpb3JpdHkmVENfUFJJT19N
+QVhdOw0KIA0KLQlpZiAobGlzdC0+cWxlbiA8PSBza2ItPmRldi0+dHhfcXVl
+dWVfbGVuKSB7DQorCWlmIChsaXN0LT5xbGVuIDw9IHFkaXNjLT5kZXYtPnR4
+X3F1ZXVlX2xlbikgew0KIAkJX19za2JfcXVldWVfdGFpbChsaXN0LCBza2Ip
+Ow0KIAkJcWRpc2MtPnEucWxlbisrOw0KIAkJcmV0dXJuIDA7DQo=
+---1463811840-707478154-1017690183=:13230--

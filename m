@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264685AbSJOQRZ>; Tue, 15 Oct 2002 12:17:25 -0400
+	id <S264730AbSJOQ1g>; Tue, 15 Oct 2002 12:27:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264686AbSJOQRZ>; Tue, 15 Oct 2002 12:17:25 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:49810 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S264685AbSJOQRY>;
-	Tue, 15 Oct 2002 12:17:24 -0400
-Subject: Re: [PATCH] 2.5.41: lkcd (8/8): dump driver and build files
-From: Mark Haverkamp <markh@osdl.org>
-To: "Matt D. Robinson" <yakker@aparity.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0210101345430.29122-101000@nakedeye.aparity.com>
-References: <Pine.LNX.4.44.0210101345430.29122-101000@nakedeye.aparity.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 15 Oct 2002 09:24:17 -0700
-Message-Id: <1034699059.23807.4.camel@markh1.pdx.osdl.net>
+	id <S264733AbSJOQ1g>; Tue, 15 Oct 2002 12:27:36 -0400
+Received: from ip008.siteplanet.com.br ([200.245.54.8]:36368 "EHLO
+	plutao.siteplanet.com.br") by vger.kernel.org with ESMTP
+	id <S264730AbSJOQ1e> convert rfc822-to-8bit; Tue, 15 Oct 2002 12:27:34 -0400
+Subject: [PATCH 2.0] Fixed kernel stuff
+From: Fernando Alencar =?ISO-8859-1?Q?Mar=F3stica?= <famarost@unimep.br>
+To: David Weinehall <tao@acc.umu.se>
+Cc: fadel@ferasoft.com.br, linux-kernel@vger.kernel.org
+In-Reply-To: <20021014220527.GU26715@khan.acc.umu.se>
+References: <1034548634.543.1.camel@nitrogenium> 
+	<20021014220527.GU26715@khan.acc.umu.se>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 15 Oct 2002 13:37:25 -0200
+Message-Id: <1034696247.823.118.camel@nitrogenium>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-10 at 13:48, Matt D. Robinson wrote:
-> This is the complete set of dump drivers for creating crash dumps
-> during panic/exception situations in the Linux kernel.  It can be
-> built as a module or as a built-in with the kernel.
-> 
->  drivers/Makefile             |    1
->  drivers/dump/Makefile        |   30
->  drivers/dump/dump_base.c     | 1867 +++++++++++++++++++++++++++++++++++++++++++ drivers/dump/dump_blockdev.c |  411 +++++++++
->  drivers/dump/dump_gzip.c     |  129 ++
->  drivers/dump/dump_i386.c     |  315 +++++++
->  drivers/dump/dump_rle.c      |  176 ++++
->  include/asm-i386/dump.h      |   94 ++
->  include/linux/dump.h         |  440 ++++++++++
->  9 files changed, 3463 insertions(+)
-> 
-> This is included as a gzip'd attachment, as the size is too
-> big for vger, apparently.
-> 
-> --Matt
+Hello all, specially David 
+
+I think this patch is trivial enough to be accepted, but...
+
+This patch fixed some stuff:
+	* Fixed warning in script/lxdialog/menubox.c
+	* Fixed warning in script/lxdialog/textbox.c
+	* Small VM updates ...
+
+Please apply.
 
 
-Shouldn't the module exit functions in dump_base.c be marked with __exit
-rather than __init?
+best regards,
+
+-- 
+Fernando Alencar Maróstica
+Graduate Student, Computer Science
+Linux Register User Id #281457
+
+University Methodist of Piracicaba
+Departament of Computer Science
+home: http://www.unimep.br/~famarost
+
 

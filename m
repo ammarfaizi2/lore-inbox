@@ -1,100 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261295AbUCAO2z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 09:28:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbUCAO2z
+	id S261294AbUCAOc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 09:32:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbUCAOc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 09:28:55 -0500
-Received: from x.box.net.pl ([81.210.72.13]:5262 "HELO box.net.pl")
-	by vger.kernel.org with SMTP id S261295AbUCAO2v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 09:28:51 -0500
-Message-ID: <40434852.1000102@mat.uni.torun.pl>
-Date: Mon, 01 Mar 2004 15:27:30 +0100
-From: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Mon, 1 Mar 2004 09:32:27 -0500
+Received: from mail.timesys.com ([65.117.135.102]:33023 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S261294AbUCAOcZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 09:32:25 -0500
+Message-ID: <4043496B.4080308@timesys.com>
+Date: Mon, 01 Mar 2004 09:32:11 -0500
+From: "Steven J. Hill" <Steve.Hill@timesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: bert hubert <ahu@ds9a.nl>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       wrona@mat.uni.torun.pl
-Subject: Re: posix message queues, was Re: 2.6.4-rc1-mm1
-References: <20040229140617.64645e80.akpm@osdl.org> <20040301112631.GA28526@outpost.ds9a.nl>
-In-Reply-To: <20040301112631.GA28526@outpost.ds9a.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.4] Make linux/swap.h usable by userspace code.
+Content-Type: multipart/mixed;
+ boundary="------------030808050909060306080304"
+X-OriginalArrivalTime: 01 Mar 2004 14:24:41.0750 (UTC) FILETIME=[EFA9CB60:01C3FF98]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bert hubert wrote:
+This is a multi-part message in MIME format.
+--------------030808050909060306080304
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
->On Sun, Feb 29, 2004 at 02:06:17PM -0800, Andrew Morton wrote:
->
->  
->
->>- Added the POSIX message queue implementation.  We're still stitching
->>  together a decent description of all of this.  Reference information is at
->>	http://www.mat.uni.torun.pl/~wrona/posix_ipc/
->> and
->>	http://www.opengroup.org/onlinepubs/007904975/basedefs/mqueue.h.html
->>    
->>
->
->I can confirm that basic functionality is there. Both blocking and
->nonblocking operations work as advertised. Queue properly blocks when full
->or empty.
->
->mq_timedsend does not wait, it immediately returns ETIMEOUT with the queue
->is full:
->
->         struct timespec ts;
->         ts.tv_sec=1;
->    	 ts.tv_nsec=0;
->         sprintf(msgptr,"%05d %s",c,stime);
->	 
->         if ( mq_timedsend(mqd,msgptr,msglen,msg_prio, &ts) )
->	 {
->	    perror("mq_send()");
->	      break;
->	 }
->
->results in:
->
->$ ./mqreceive /Q32x128
->1: priority 0  len 64 text 00001 Mon Mar  1 12:20:11 2004  
->$ ./mqreceive /Q32x128
->1: priority 0  len 64 text 00001 Mon Mar  1 12:20:11 2004  
->$ ./mqsend  /Q32x128
->$ ./mqsend  /Q32x128
->$ ./mqsend  /Q32x128
->mq_send(): Connection timed out  <- immediately
->  
->
-It _should_ return immediately. mq_timedsend timeout must be given as 
-absolute value, so if you want to have one second timeout from now,
-you must do:
+Greetings.
 
-	ts.tv_sec = time(NULL) + 1;
-    	ts.tv_nsec = 0;
+This patch allows 'swap.h' to be included by userspace code. AFAIK the
+LTP suite is the only code that does this so far.
 
-And I don't have idea why POSIX defines timeout as absolute not relative 
-;-).
+-Steve
 
->I would very much advise Michal and Krzysztof to add some basic examples to
->their page. I had to scour the internet to find some working code.
->  
->
-Thats right. The above problem also shows that such examples can be 
-usefull. We are just now updating man pages for the library (there are 
-some obsolete informations) and I will prepare some well commented programs.
+--------------030808050909060306080304
+Content-Type: text/x-patch;
+ name="linux-2.4-swap.h.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-2.4-swap.h.patch"
 
->Mounting the queuefs works but the fs, confusingly, is called mqueue and not
->mqueuefs.
->  
->
-As proc or msdos. Of course it can be changed if more people will want 
-'fs' suffix. Menuconfig help gives proper name.
+--- linux/include/linux/swap.h	Fri Jan 23 08:30:29 2004
++++ linux-new/include/linux/swap.h	Mon Mar  1 09:10:44 2004
+@@ -1,6 +1,12 @@
+ #ifndef _LINUX_SWAP_H
+ #define _LINUX_SWAP_H
+ 
++#include <linux/config.h>
++
++#define MAX_SWAPFILES 32
++
++#ifdef __KERNEL__
++
+ #include <linux/spinlock.h>
+ #include <asm/page.h>
+ 
+@@ -8,8 +14,6 @@
+ #define SWAP_FLAG_PRIO_MASK	0x7fff
+ #define SWAP_FLAG_PRIO_SHIFT	0
+ 
+-#define MAX_SWAPFILES 32
+-
+ /*
+  * Magic header for a swap area. The first part of the union is
+  * what the swap magic looks like for the old (limited to 128MB)
+@@ -38,8 +42,6 @@
+ 		unsigned int badpages[1];
+ 	} info;
+ };
+-
+-#ifdef __KERNEL__
+ 
+ /*
+  * Max bad pages in the new format..
 
-Regards,
-Krzysiek
-
+--------------030808050909060306080304--

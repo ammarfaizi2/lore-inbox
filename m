@@ -1,45 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313419AbSHBNZq>; Fri, 2 Aug 2002 09:25:46 -0400
+	id <S314083AbSHBNoy>; Fri, 2 Aug 2002 09:44:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313477AbSHBNZq>; Fri, 2 Aug 2002 09:25:46 -0400
-Received: from smtprelay7.dc2.adelphia.net ([64.8.50.39]:49819 "EHLO
-	smtprelay7.dc2.adelphia.net") by vger.kernel.org with ESMTP
-	id <S313419AbSHBNZp>; Fri, 2 Aug 2002 09:25:45 -0400
-Message-ID: <008701c23a28$958ca300$6a01a8c0@wa1hco>
-From: "jeff millar" <wa1hco@adelphia.net>
-To: <linux-kernel@vger.kernel.org>
-References: <15690.6005.624237.902152@napali.hpl.hp.com><20020801.222053.20302294.davem@redhat.com><15690.9727.831144.67179@napali.hpl.hp.com> <20020802.012040.105531210.davem@redhat.com>
-Subject: What does this error mean? "local symbols in discarded section .text.exit"
-Date: Fri, 2 Aug 2002 09:29:09 -0400
+	id <S314085AbSHBNox>; Fri, 2 Aug 2002 09:44:53 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:6031 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S314083AbSHBNop>; Fri, 2 Aug 2002 09:44:45 -0400
+Date: Fri, 2 Aug 2002 15:47:57 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Jens Axboe <axboe@suse.de>
+cc: <martin@dalecki.de>, Stephen Lord <lord@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: A new ide warning message
+In-Reply-To: <20020802115940.GF1055@suse.de>
+Message-ID: <Pine.SOL.4.30.0208021513490.3612-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I need some help debugging this kernel build problem.
 
-Here's the tail of my kernel build.
+On Fri, 2 Aug 2002, Jens Axboe wrote:
 
-  ld -m elf_i386  -r -o init.o main.o version.o do_mounts.o
-make[1]: Leaving directory `/usr/src/v2.5.30/init'
-  ld -m elf_i386 -T arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o
-arch/i386/kernel/init
-_task.o init/init.o --start-group arch/i386/kernel/kernel.o
-arch/i386/mm/mm.o kernel/kernel.o mm
-/mm.o fs/fs.o ipc/ipc.o security/built-in.o
-/usr/src/v2.5.30/arch/i386/lib/lib.a lib/lib.a /usr/
-src/v2.5.30/arch/i386/lib/lib.a drivers/built-in.o sound/sound.o
-arch/i386/pci/pci.o net/network
-.o --end-group -o vmlinux
-drivers/built-in.o(.data+0x80f4): undefined reference to `local symbols in
-discarded section .te
-xt.exit'
-make: *** [vmlinux] Error 1
+> On Fri, Aug 02 2002, Jens Axboe wrote:
+> > On Fri, Aug 02 2002, Marcin Dalecki wrote:
+> > > U?ytkownik Stephen Lord napisa?:
+> > > >In 2.5.30 I started getting these warning messages out ide during
+> > > >the mount of an XFS filesystem:
+> > > >
+> > > >ide-dma: received 1 phys segments, build 2
+> > > >
+> > > >Can anyone translate that into English please.
+> > >
+> > > It can be found in pcidma.c.
+> > > It is repoting that we have one physical segment needed by
+> > > the request in question but the sctter gather list allocation
+> > > needed to break it up for mapping in two.
+> >
+> > You don't seem to realise that this is a BUG (somewhere, could even be
+> > in the generic mapping functions)! blk_rq_map_sg() must never map a
+> > request to more entries that rq->nr_segments, that's just very wrong.
+> >
+> > That's why I'm suspecting the recent pcidma changes. Just a feeling, I
+> > have not looked at them.
+>
+> I'll take that back. Having looked at Adam's changes there are perfectly
+> fine. I'm now putting my money on IDE breakage somewhere instead. It
+
+Look again Jens. Adam's changes made IDE queue handling inconsistent.
+hint: 2 * 127 != 255
+
+But noticed warning deals with design of ll_rw_blk.c. ;-)
+(right now max_segment_size have to be max bv->bv_len aligned)
+
+Jens, please look at segment checking/counting code, it does it on
+bv->bv_len (4kb most likely) not sector granuality...
+
+So for not 4kb aligned max_segment_size we will get new segment...
+
+Best fix will be to make block layer count sectors not bv->bv_len...
+
+
+btw. I like Adam's patch but it was draft not to include in mainline (?).
+--
+Bartlomiej
+
+> would be interesting to dump request state when this happens. Stephen,
+> can you reproduce this at will?
+>
+> --
+> Jens Axboe
+
 

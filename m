@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266529AbUBGC4y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 21:56:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266533AbUBGC4y
+	id S266533AbUBGDDq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 22:03:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266546AbUBGDDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 21:56:54 -0500
-Received: from ns.suse.de ([195.135.220.2]:21905 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266529AbUBGC4w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 21:56:52 -0500
-Date: Sat, 7 Feb 2004 03:50:18 +0100
-From: Andi Kleen <ak@suse.de>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: akpm@osdl.org, ktech@wanadoo.es, david+challenge-response@blue-labs.org,
-       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       a.verweij@student.tudelft.nl
-Subject: Re: [ACPI] acpi problem with nforce motherboards and ethernet
-Message-Id: <20040207035018.33ce01dc.ak@suse.de>
-In-Reply-To: <Pine.LNX.4.55.0402070021210.12260@jurand.ds.pg.gda.pl>
-References: <402298C7.5050405@wanadoo.es>
-	<40229D2C.20701@blue-labs.org>
-	<4022B55B.1090309@wanadoo.es>
-	<20040205154059.6649dd74.akpm@osdl.org>
-	<Pine.LNX.4.55.0402070021210.12260@jurand.ds.pg.gda.pl>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 6 Feb 2004 22:03:46 -0500
+Received: from pirx.hexapodia.org ([65.103.12.242]:15279 "EHLO
+	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S266533AbUBGDDo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 22:03:44 -0500
+Date: Fri, 6 Feb 2004 21:03:43 -0600
+From: Andy Isaacson <adi@hexapodia.org>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: avoiding dirty code pages with fixups
+Message-ID: <20040207030343.GB21565@hexapodia.org>
+References: <20040203225453.GB18320@hexapodia.org> <20040207001317.GE12503@mail.shareable.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040207001317.GE12503@mail.shareable.org>
+User-Agent: Mutt/1.4.1i
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Feb 2004 00:33:04 +0100 (CET)
-"Maciej W. Rozycki" <macro@ds2.pg.gda.pl> wrote:
+On Sat, Feb 07, 2004 at 12:13:17AM +0000, Jamie Lokier wrote:
+> > The downside is the additional computation on page-in.
+> 
+> > It is a function of how many fixups there are per page, and of how
+> > much work ld.so does to satisfy a fixup.  I don't have a good feel
+> > for how expensive ld.so's fixup mechanism is... any comments?
+> 
+> The other downside of your idea is that every instance of a program
+> has more dirty pages.  While it is true that the pages do not require
+> disk I/O, they still take up RAM that could be used for other page
+> cache things.
 
+Well, in the case I describe, currently they're done with MAP_PRIVATE
+mappings, so it's no net loss.
 
->  That's not the right fix.  There's a bug in Linux's ACPI IRQ setup as
-> I've discovered by comparing the code to the spec.  Here's a patch I sent
-> in December both to the LKML and the ACPI maintainer.  The feedback from
-> the list was positive, but the maintainer didn't bother to comment.
-
-Thanks. I added the patch to the x86-64 sources and it indeed seems to fix
-the Nforce3.
-
--Andi
+-andy

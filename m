@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268373AbTBSQg3>; Wed, 19 Feb 2003 11:36:29 -0500
+	id <S261286AbTBSQuC>; Wed, 19 Feb 2003 11:50:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268467AbTBSQg3>; Wed, 19 Feb 2003 11:36:29 -0500
-Received: from 212-170-21-172.uc.nombres.ttd.es ([212.170.21.172]:39344 "EHLO
-	omega.resa.es") by vger.kernel.org with ESMTP id <S268373AbTBSQg2>;
-	Wed, 19 Feb 2003 11:36:28 -0500
-Date: Wed, 19 Feb 2003 17:46:19 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PROBLEM] PDC20269 on smp and up
-Message-ID: <20030219164619.GA22643@omega.resa.es>
-Mail-Followup-To: piotr, linux-kernel@vger.kernel.org
-References: <20030219135545.GA5328@omega.resa.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030219135545.GA5328@omega.resa.es>
-User-Agent: Mutt/1.3.28i
-From: Pedro Larroy <piotr@omega.resa.es>
+	id <S261354AbTBSQuB>; Wed, 19 Feb 2003 11:50:01 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60686 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261286AbTBSQuB>; Wed, 19 Feb 2003 11:50:01 -0500
+Date: Wed, 19 Feb 2003 08:56:37 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Russell King <rmk@arm.linux.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: clean up the IDE iops, add ones for a dead iface
+In-Reply-To: <1045647562.12533.1.camel@zion.wanadoo.fr>
+Message-ID: <Pine.LNX.4.44.0302190853180.18995-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The old PDC driver works well on UP with two 20269 cards. 
-The old PDC driver hangs even with one card on SMP box.
-The new PDC driver hangs on UP with two cards, when accessing a lot of the
-disks at once.
-The new PDC driver hangs on SMP with two cards.
 
-Those are all my observations.
+On 19 Feb 2003, Benjamin Herrenschmidt wrote:
+> 
+> Hrm... I tend to agree with Russell here... 0x7f is the "safe" value
+> for IDE. IDE controllers with nothing wired shall have a pull down
+> on D7. The reason is simple: busy loops in the IDE code waiting for
+> BSY to go down.
 
-Ragards.
+But that's a BUG.
 
--- 
-O   _____________________________________________________________   O
-|  /-| Pedro Larroy Tovar. PiotR | http://omega.resa.es/piotr  |-\  |
-| /--|            No MS-Office attachments please.             |--\ |
-o-|--|              e-mail: piotr@omega.resa.es                |--|-o 
-   \-|   finger piotr@omega.resa.es for public key and info    |-/  
-    -------------------------------------------------------------
+We've seen that before: try unplugging a PCMCIA IDE card unexpectedly. 
+
+Guess what? It will start returning 0xff. And the machine dies, because 
+the PCMCIA interrupt happened due to the removal event will also be shared 
+by the IDE driver, so the IDE driver will react badly even before anybody 
+has had a chance to tell it that the hardware no longer exists.
+
+So if you have code that doesn't work with 0xff, then that code is already 
+a-priori buggy. And getting it fixed would be a damn good idea.
+
+		Linus
+

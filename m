@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129763AbQLSUFD>; Tue, 19 Dec 2000 15:05:03 -0500
+	id <S129742AbQLSUPh>; Tue, 19 Dec 2000 15:15:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129744AbQLSUEw>; Tue, 19 Dec 2000 15:04:52 -0500
-Received: from [213.8.185.127] ([213.8.185.127]:58898 "EHLO callisto.yi.org")
-	by vger.kernel.org with ESMTP id <S129742AbQLSUEr>;
-	Tue, 19 Dec 2000 15:04:47 -0500
-Date: Tue, 19 Dec 2000 21:31:42 +0200 (IST)
-From: Dan Aloni <karrde@callisto.yi.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: success with test13-pre3
-Message-ID: <Pine.LNX.4.21.0012192126290.21582-100000@callisto.yi.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129744AbQLSUPR>; Tue, 19 Dec 2000 15:15:17 -0500
+Received: from mail.valinux.com ([198.186.202.175]:10247 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S129742AbQLSUPI>;
+	Tue, 19 Dec 2000 15:15:08 -0500
+Date: Tue, 19 Dec 2000 11:46:14 -0800
+From: David Hinds <dhinds@valinux.com>
+To: Miles Lane <miles@megapathdsl.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PCMCIA modem (v.90 X2) not working with 2.4.0-test12 PCMCIA services
+Message-ID: <20001219114614.A12948@valinux.com>
+In-Reply-To: <007101c067cc$0500c620$0b31a3ce@g1e7m6> <20001218154033.C11728@valinux.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.6i
+In-Reply-To: <20001218154033.C11728@valinux.com>; from David Hinds on Mon, Dec 18, 2000 at 03:40:33PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Dec 16, 2000 at 05:52:30PM -0800, Miles Lane wrote:
+> 
+> Socket 1:
+>     product info: "PCMCIA", "V.90 Communications Device ", "", ""
+>     manfid: 0x018a, 0x0001
 
-I'm glad to report that 2.4.0-test13-pre3 fixes the lockup (and
-odd Oops messages) problems I had from test12 til test13-pre2. I've been
-running it on both of my computers for a day and a half and everything is
-OK.
+Now I have another report of this card not working, under 2.2.
+Perhaps it is a Winmodem?
 
-At first, we thought it had something to do with the modules I was
-using, but I was unable to confirm that, so I suspected it was something
-to do with the kernel itself, I'm glad it was fixed.
-
--- 
-Dan Aloni 
-dax@karrde.org
-
+-- Dave
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

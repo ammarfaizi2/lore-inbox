@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284578AbRLETEQ>; Wed, 5 Dec 2001 14:04:16 -0500
+	id <S284601AbRLETHJ>; Wed, 5 Dec 2001 14:07:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284574AbRLETEH>; Wed, 5 Dec 2001 14:04:07 -0500
-Received: from z.thunderworx.net ([217.27.32.64]:27921 "EHLO francoudi.com")
-	by vger.kernel.org with ESMTP id <S284594AbRLETDq>;
-	Wed, 5 Dec 2001 14:03:46 -0500
-Message-ID: <3C0E6F8B.A6C85AB6@francoudi.com>
-Date: Wed, 05 Dec 2001 21:03:40 +0200
-From: Vladimir Ivaschenko <hazard@francoudi.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S284599AbRLETG6>; Wed, 5 Dec 2001 14:06:58 -0500
+Received: from alageremail1.agere.com ([192.19.192.106]:22728 "EHLO
+	alageremail1.agere.com") by vger.kernel.org with ESMTP
+	id <S284587AbRLETFc>; Wed, 5 Dec 2001 14:05:32 -0500
+Message-ID: <C093F2B9DDFD544283D02A8BB12588430445344F@pai820excuag02.ags.agere.com>
+From: "Zimmermann, Christopher (Chris)" <cbzimmermann@agere.com>
 To: linux-kernel@vger.kernel.org
-Subject: sendmsg() leaves Identification field in IP header empty
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Subject: System Freeze in 2.4.2-2 (RedHat 7.1)
+Date: Wed, 5 Dec 2001 14:05:24 -0500 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+I'm experiencing a system freeze (no oops message) in RedHat Linux 7.1 when
+calling the function devinet_ioctl() with the SIOCSIFADDR command from
+within a kernel module.  The function is called within the scope of
+userspace addressing in the following manner.
 
-I've been struggling to understand why an application which worked fine
-on 2.2.X stopped working on 2.4.7 (RH72) and found out that sendmsg()
-always leaves Identification field in IP header set to 0 (at least for
-UDP sockets). This confuses Cisco devices when you're doing
-WCCP negotiations with them. The application is "Oops!" proxy server -
-http://zipper.paco.net/~igor/oops.eng/
+int devinet_ioctl_wrapper(unsigned int cmd, struct ifreq *arg)
+{
+	int res;
+	
+	mm_segment_t oldfs = get_fs();
+	set_fs(get_ds());
+	res = devinet_ioctl(cmd,arg);
+	set_fs(oldfs);
+	
+	return res;
+}
 
-Sorry if I'm wrong but I think this is a kernel problem because
-sendmsg() is a system call. On RH6.2 with 2.2.19 this doesn't happen,
-and Identification field in IP header is set to non-zero values. Let me
-know if you need any other information, as I do not have any experience
-in debugging these sort of problems.
+This is how ipconfig.c illustrates how to use this function from within a
+kernel module, see ic_dev_ioctl() function in the source file.
 
-Please CC your replies, if any, to my e-mail as I'm not subscribed to
-the list.
+When running in the scope of a kgdb patched kernel, an assertion is flagged
+the first (and only first) time this function is called from within my
+kernel module for skb_alloc being called non-atomically with interrupts
+enabled.  But, allowing the kernel to continue from this point, there is no
+system freeze and everything appears to operate according to design.
 
---
-Best Regards
-Vladimir Ivaschenko
-Certified Linux Engineer (RHCE)
+Is there anything I am supposed to do before calling this function?  
 
 
-
+Thanks,
+Chris

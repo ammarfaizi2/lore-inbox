@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129116AbRBFUHi>; Tue, 6 Feb 2001 15:07:38 -0500
+	id <S129124AbRBFUUC>; Tue, 6 Feb 2001 15:20:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129184AbRBFUHS>; Tue, 6 Feb 2001 15:07:18 -0500
-Received: from server1.neuronet.pitt.edu ([150.232.128.42]:40970 "EHLO
-	server1.neuronet.pitt.edu") by vger.kernel.org with ESMTP
-	id <S129116AbRBFUHN>; Tue, 6 Feb 2001 15:07:13 -0500
-Message-ID: <3A8058A5.5A1363EA@neuronet.pitt.edu>
-Date: Tue, 06 Feb 2001 15:03:49 -0500
-From: "Rafael E. Herrera" <raffo@neuronet.pitt.edu>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16 i686)
-X-Accept-Language: en
+	id <S129219AbRBFUTv>; Tue, 6 Feb 2001 15:19:51 -0500
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:1451 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S129124AbRBFUTo>; Tue, 6 Feb 2001 15:19:44 -0500
+Date: Tue, 6 Feb 2001 15:16:44 -0500 (EST)
+From: Ben LaHaise <bcrl@redhat.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        <kiobuf-io-devel@lists.sourceforge.net>,
+        Ingo Molnar <mingo@redhat.com>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+In-Reply-To: <Pine.LNX.4.30.0102062045350.8926-100000@elte.hu>
+Message-ID: <Pine.LNX.4.30.0102061450590.15204-100000@today.toronto.redhat.com>
 MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Matrox G450 problems with 2.4.0 and xfree
-In-Reply-To: <Pine.LNX.4.33.0102061413230.6540-100000@asdf.capslock.lan>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Mike A. Harris" wrote:
-> 
-> If anyone has open source g450 patches against stock 4.0.2 that
-> get the thing to work at all, _please_ send me unified diffs, and
-> I will put them into my next build.  I've yet to have my g450 do
-> anything but turn off my monitor, although a handful of people
-> claim they get it working to various degrees...  I don't have
-> g450 specs either so..
+On Tue, 6 Feb 2001, Ingo Molnar wrote:
 
-In my machine I have SuSE 7.0, XF86 4.0.2, a G450, and Matrox's monster
-mga driver for XF86 4.0.1. Miraculously, it works in dual head mode. But
-as has been mentioned before the sources for the HAL library are not
-available.
+>
+> On Tue, 6 Feb 2001, Ben LaHaise wrote:
+>
+> > > > You mentioned non-spindle base io devices in your last message.  Take
+> > > > something like a big RAM disk. Now compare kiobuf base io to buffer
+> > > > head based io. Tell me which one is going to perform better.
+> > >
+> > > roughly equal performance when using 4K bhs. And a hell of a lot more
+> > > complex and volatile code in the kiobuf case.
+> >
+> > I'm willing to benchmark you on this.
+>
+> sure. Could you specify the actual workload, and desired test-setups?
 
--- 
-     Rafael
+Sure.  General parameters will be as follows (since I think we both have
+access to these machines):
+
+	- 4xXeon, 4GB memory, 3GB to be used for the ramdisk (enough for a
+	  base install plus data files.
+	- data to/from the ram block device must be copied within the ram
+	  block driver.
+	- the filesystem used must be ext2.  optimisations to ext2 for
+	  tweaks to the interface are permitted & encouraged.
+
+The main item I'm interested in is read (page cache cold)/synchronous
+write performance for blocks from 256 bytes to 16MB in powers of two, much
+like what I've done in testing the aio patches that shows where
+improvement in latency is needed.  Including a few other items on disk
+like the timings of find/make -s dep/bonnie/dbench is probably to show
+changes in throughput.  Sound fair?
+
+		-ben
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,78 +1,112 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <971131-1169>; Wed, 4 Mar 1998 19:07:03 -0500
-Received: from cygnus.com ([205.180.230.20]:4652 "EHLO cygint.cygnus.com" ident: "NO-IDENT-SERVICE") by vger.rutgers.edu with ESMTP id <971376-1169>; Wed, 4 Mar 1998 18:13:29 -0500
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-cc: linux-kernel@vger.rutgers.edu
+Received: by vger.rutgers.edu id <970937-11449>; Mon, 9 Mar 1998 00:03:24 -0500
+Received: from cygnus.com ([205.180.230.20]:1525 "EHLO cygint.cygnus.com" ident: "NO-IDENT-SERVICE") by vger.rutgers.edu with ESMTP id <970961-11449>; Mon, 9 Mar 1998 00:02:03 -0500
+To: Christof Petig <christof.petig@wtal.de>
+cc: linux-kernel@vger.rutgers.edu, egcs@cygnus.com, torvalds@transmeta.com, paubert@iram.es
 Subject: Re: egcs 1.0.1 miscompiles Linux 2.0.33 
 Reply-To: law@cygnus.com
-In-reply-to: Your message of Wed, 04 Mar 1998 19:21:01 MST. <199803050021.TAA10868@saturn.cs.uml.edu> 
-Date: Wed, 04 Mar 1998 17:34:31 -0700
-Message-ID: <3451.889058071@hurl.cygnus.com>
+In-reply-to: Your message of Thu, 05 Mar 1998 10:17:42 MST. <34FE6DB6.4D2CCA22@wtal.de> 
+Date: Sun, 08 Mar 1998 23:27:06 -0700
+Message-ID: <11753.889424826@hurl.cygnus.com>
 From: Jeffrey A Law <law@hurl.cygnus.com>
 Sender: owner-linux-kernel@vger.rutgers.edu
 
 
-  In message <199803050021.TAA10868@saturn.cs.uml.edu>you write:
-  > > Any asm which sets up a case where a clobber must match an input
-  > > is wrong.  Plain and simple, it is wrong.
-  > 
-  > OK, this is a user interface issue. It seems most people want to
-  > specify clobbered inputs. Why not support it? Just detect the case
-  > and convert it to the way gcc wants to do things internally.
-Doing this directly violates the GCC asm documentation.  Supporting
-this also makes it much more difficult to fix a particular bug in
-asm support that shows up on the x86.
+
+  In message <34FE6DB6.4D2CCA22@wtal.de>you write:
+  > Could you please explain the syntax of an earlyclobber (I never heard of it).
+  > I would undergo the task of patching Linux-Kernel's asms, since I'd like to
+  > stop the debate about an EGCS/Kernel mismatch. EGCS is a valuable project a nd
+  > compiling a kernel should not delay using it.
+It's pretty simple.
+
+For example strstr would look something like this:
+
+extern inline char * strstr(const char * cs,const char * ct)
+{
+int __dummy1;
+int __dummy2;
+register char * __res;
+__asm__ __volatile__(
+        "cld\n\t"       "movl %6,%%edi\n\t"
+
+        "repne\n\t"
+        "scasb\n\t"
+        "notl %%ecx\n\t"
+        "decl %%ecx\n\t"
+        "movl %%ecx,%%edx\n"
+        "1:\tmovl %6,%%edi\n\t"
+        "movl %%esi,%%eax\n\t"
+        "movl %%edx,%%ecx\n\t"
+        "repe\n\t"
+        "cmpsb\n\t"
+        "je 2f\n\t"
+        "xchgl %%eax,%%esi\n\t"
+        "incl %%esi\n\t"
+        "cmpb $0,-1(%%eax)\n\t"
+        "jne 1b\n\t"
+        "xorl %%eax,%%eax\n\t"
+        "2:"
+        :"=a" (__res), "=&c" (__dummy1), "=&S" (__dummy2) :"0" (0), "1" (0xfffff
+fff), "2" (cs),"g" (ct)
+        :"dx","di");
+return __res;
+}
+
+Notice how cx and si are no longer in the clobber list.  Instead there's
+a dummy output operand for each with is marked as an earlyclobber (=&)
+of the register class which contains cx and si.
+
+The inputs which must be allocated to cx and si are forced to match
+the outputs via the "1" and "2" constraints respectively.
 
 
-  > if is_input and is_clobber then ...
-  > 
-  > > By claiming its a dummy output the compiler will not
-  > > try to use that register to hold any other values across
-  > > the asm statement.
-  > 
-  > Dummy outputs are a way to hack around the problem.
-  > Think about it. Doesn't it look gross to you?
-Marginally gross, but it describes the situation in such a way
-as to make it possible for the compiler to do the right thing.
+Note that even with that fix, this asm is still has the potential to
+cause problems, especially when compiling with -fno-strength-reduce.
 
-It also more closely models how machine descriptions are written
-which will improve the reliability of your asm constructs.  In
-fact this is *exactly* how similar situations are described in
-the machine descriptions.
+The problem is ax, cx, si, dx and di are explicitly used by the insn.
+This leaves just bx for reloading.
 
-It also will allow for more compile-time checks of your asm statements
-instead of letting the compiler silently generate incorrect code
-(which is exactly what got this whole discussion started).
+The general operand "g" (ct) may require 2 reload regs since it might
+used an indexed address.  Unfortunately only one reload register is
+considered available (bx).
 
-It also gives you the capability of allowing the compiler to select
-a register which will allow the compiler to generate more efficient
-code (assuming of course the asm statements are capable of using
-varying registers).
+This is a problem with the asm, not gcc.  Basically when compiling
+with -fno-strength-reduce there may not enough registers to handle
+this asm, depending on address of "ct".
 
-It's also a tiny step in the right direction if we were to ever turn
-off the SMALL_REGISTER_CLASSES hack/pessimization that is needed on
-the x86 port.
+Changing the constraint for "ct" to be a register will not help since
+the compiler would still need to reload the value of ct into the
+register to satisfy the register constraint, which still may require
+2 reload registers.
 
-Using a matching constraint and early clobber will work on more
-than just the x86 port.  The hack currently used on x86 Linux
-isn't likely to work on any port other than the x86.
+You must either rewrite the asm to use one less register or not
+compile with -fno-strength-reduce (note -fno-strength-reduce should
+not be necessary for gcc-2.8 or egcs).
 
-In fact, in a private message Linus even said using earlyclobbers
-with matching constraints was cleaner than showing the same reg
-as an input and clobber.
+In fact, its this exact situation that started this whole discussion;
+right now the compiler may silently generate incorrect code if it
+runs out of registers for an x86 asm that explicitly clobbers registers.
 
+I've got a change which will cause the compiler to issue a fatal error
+anytime a clobber overlaps with an input operand or the address of
+any operand.  This change is likely to expose various problems in
+x86 asm statements for Linux since overlapping inputs and outputs
+is relatively common.
 
-  > > The need for the mechanism is obvious, the mechanism currently
-  > > used by Linux is wrong.
-  > 
-  > Is it legal for any other purpose? If not, then nothing will break
-  > when gcc does what most developers seem to expect.
-No, the mechanism currently used by Linux is not valid in any
-context.  You've been able to get away with it over the years, but
-that doesn't make it correct or valid.
+I've hesitated installing this change because it's going to cause
+so many compile time failures for code which currently exists in the
+Linux sources.
 
+One possibility would be to make the behavior conditional on a switch;
+the default behavior right now would be to mimic the old behavior.
+Once y'all have had time to fix the problems we could make the more
+strict asm checking the default behavior.
 
+Thoughts?
 jeff
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

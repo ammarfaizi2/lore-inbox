@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262199AbREQWmO>; Thu, 17 May 2001 18:42:14 -0400
+	id <S262203AbREQWmY>; Thu, 17 May 2001 18:42:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262204AbREQWmE>; Thu, 17 May 2001 18:42:04 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:21009 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262200AbREQWly>; Thu, 17 May 2001 18:41:54 -0400
-Date: 17 May 2001 22:33:00 +0200
+	id <S262200AbREQWmO>; Thu, 17 May 2001 18:42:14 -0400
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:4872 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262201AbREQWl6>; Thu, 17 May 2001 18:41:58 -0400
+Date: 17 May 2001 23:06:00 +0200
 From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-Message-ID: <811oo7Xmw-B@khms.westfalen.de>
-In-Reply-To: <Pine.LNX.4.21.0105151328160.2470-100000@penguin.transmeta.com>
+Message-ID: <811oowp1w-B@khms.westfalen.de>
+In-Reply-To: <200105162054.f4GKsaF10834@vindaloo.ras.ucalgary.ca>
 Subject: Re: LANANA: To Pending Device Number Registrants
 X-Mailer: CrossPoint v3.12d.kh6 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <Pine.GSO.4.21.0105151607100.21081-100000@weyl.math.psu.edu> <Pine.LNX.4.21.0105151328160.2470-100000@penguin.transmeta.com>
+In-Reply-To: <3B02DD79.7B840A5B@transmeta.com> <3B02D6AB.E381D317@transmeta.com> <200105162001.f4GK18X10128@vindaloo.ras.ucalgary.ca> <3B02DD79.7B840A5B@transmeta.com> <200105162054.f4GKsaF10834@vindaloo.ras.ucalgary.ca>
 X-No-Junk-Mail: I do not want to get *any* junk mail.
 Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
 X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-torvalds@transmeta.com (Linus Torvalds)  wrote on 15.05.01 in <Pine.LNX.4.21.0105151328160.2470-100000@penguin.transmeta.com>:
+rgooch@ras.ucalgary.ca (Richard Gooch)  wrote on 16.05.01 in <200105162054.f4GKsaF10834@vindaloo.ras.ucalgary.ca>:
 
-> They might also be exactly the same channel, except with certain magic
-> bits set. The example peter gave was fine: tty devices could very usefully
-> be opened with something like
+> H. Peter Anvin writes:
+> > Richard Gooch wrote:
+> > >
+> > > H. Peter Anvin writes:
+> > > > Richard Gooch wrote:
+> > > > > Argh! What I wrote in text is what I meant to say. The code didn't
+> > > > > match. No wonder people seemed to be missing the point. So the line
+> > > > > of code I actually meant was:
+> > > > >         if (strcmp (buffer + len - 3, "/cd") != 0) {
+> > > >
+> > > > This is still a really bad idea.  You don't want to tie this kind of
+> > > > things to the name.
+> > >
+> > > Why do you think it's a bad idea?
+> >
+> > Because you are now, once again, tying two things that are
+> > completely and utterly unrelated: device classification and device
+> > name.  It breaks every time someone comes out with a new device
+> > which is "kind of like an old device, but not really," like
+> > CD-writers (which was kind-of-like WORM, kind-of-like CD-ROM) and
+> > DVD (kind-of-like CD)...
 >
-> 	fd = open("/dev/tty00/nonblock,9600,n8", O_RDWR);
->
-> where we actually open up exactly the same channel as if we opened up
-> /dev/cua00, we just set the speed etc at the same time. Which makes things
-> a hell of a lot more readable, AND they are again easily done from
-> scripts. The above is exactly the kind of thing that UNIX has not done
-> well, and some others have done better (let's face it, even _DOS_ did it
-> better, for chrissake! Those callout devices and those ioctl's are a pain
-> in the ass, for no really good reason).
+> But all devices which export a CD-ROM interface will do so. So the
+> device node that is associated with the CD-ROM driver will export
+> CD-ROM semantics, and the trailing name will be "/cd".
 
-Umm ... where to begin.
+Uh, how do they have the filename end in more than one device type suffix  
+at the same time?
 
-1. No, DOS didn't do it better - DOS devices were mostly a bad copy of  
-Xenix devices.
-
-2. DOS definitely didn't do it better for serial ports. Serial ports are  
-the single most broken devices that DOS supports by default, so much so  
-that literally *no* serious program that needed the serial ports used the  
-built-in driver. Only toy programs did that. Because those drivers weren't  
-anything but toys themselves.
-
-I know this the hard way. I used serial ports under DOS for something like  
-ten years.
+That was the point, remember. You're trying to find out about a device on  
+the end of your file handle, and that device *does* match more than one of  
+these.
 
 MfG Kai

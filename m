@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268389AbTBSS0P>; Wed, 19 Feb 2003 13:26:15 -0500
+	id <S264001AbTBSSbP>; Wed, 19 Feb 2003 13:31:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268950AbTBSS0P>; Wed, 19 Feb 2003 13:26:15 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:44005 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S268389AbTBSS0O>;
-	Wed, 19 Feb 2003 13:26:14 -0500
-Message-Id: <200302191836.h1JIa5e27255@mail.osdl.org>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: akpm@diego.com
-cc: linux-kernel@vger.kernel.org
-Subject: 2.5.62-mm1 + qlogic + highmem DBT3 results
-Mime-Version: 1.0
+	id <S268962AbTBSSbP>; Wed, 19 Feb 2003 13:31:15 -0500
+Received: from hank-fep7-0.inet.fi ([194.251.242.202]:63121 "EHLO
+	fep07.tmt.tele.fi") by vger.kernel.org with ESMTP
+	id <S264001AbTBSSbN>; Wed, 19 Feb 2003 13:31:13 -0500
+Message-ID: <3E53CFD3.A97DCD20@pp.inet.fi>
+Date: Wed, 19 Feb 2003 20:41:23 +0200
+From: Jari Ruusu <jari.ruusu@pp.inet.fi>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.2.20aa1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: desrt <desrt@desrt.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: linux 2.5: crypto core + block devices + ???
+References: <1045625825.2879.8.camel@nothing.desrt.ca>
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 19 Feb 2003 10:36:05 -0800
-From: Cliff White <cliffw@osdl.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One more test of 2.5.62-mm1 on a big memory system w/qlogic FC
-controller. 
+desrt wrote:
+> I've recently been poking around the 2.5 source tree.  I've noticed that
+> we now have crypto built into the stock kernel distribution (good).  The
+> loopback driver doesn't appear to support using the crypto API though.
+> (bad)
+[snip]
+> If there are no deeper motives here and the intention is to continue
+> supporting encrypted filesystems via the loopback interface, is there
+> anyone working on the project?  It seems a little bit slow (or
+> uncertain) with respects to the 2.5 kernels.  If somebody is needed to
+> write some code, I'd be willing to write a loopback transfer function to
+> interact with the crypto core.  (I'd have no idea where to start for the
+> generic block device crypto ramblings mentioned above...)
 
-JennyZ has run OSDL's dbt3 workload on an 8-CPU system CONFIG_HIGHMEM4G=y
-(she's out today, so i'm Mr.Hands) 
+Loop crypto for 2.5 kernels (updated for 2.5.62) is here:
 
-Dbt3 is a decision support workload.
+http://loop-aes.sourceforge.net/loop-AES-v1.7b.tar.bz2
+http://loop-aes.sourceforge.net/updates/2003-02-19/loop-AES/Makefile.bz2
+http://loop-aes.sourceforge.net/updates/2003-02-19/loop-AES/loop.c-2.5.patched.bz2
 
-"DBT3 power
-load has some disk write and the beginning and end of
-the run, most disk activity is read. I did not see any
-problem during the run.
-
-The file calc_power.out records the mesurement.  The
-higher the power, the better the performance. "
-
-Results for 2.5.62-mm1 at  (vmstat data in file vmstat.out) 
-
-http://www.osdl.org/archive/jenny/2.5.62-mm1
-
-Run of same test on 2.4.18-rh kernel
-http://www.osdl.org/archive/jenny/2.4.18-redhat
-
-cliffw
-
+Regards,
+Jari Ruusu <jari.ruusu@pp.inet.fi>
 

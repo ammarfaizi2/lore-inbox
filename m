@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316070AbSEJRIj>; Fri, 10 May 2002 13:08:39 -0400
+	id <S316071AbSEJRNy>; Fri, 10 May 2002 13:13:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316071AbSEJRIj>; Fri, 10 May 2002 13:08:39 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:42689 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316070AbSEJRIi>;
-	Fri, 10 May 2002 13:08:38 -0400
-Date: Fri, 10 May 2002 09:56:00 -0700 (PDT)
-Message-Id: <20020510.095600.90795538.davem@redhat.com>
-To: macro@ds2.pg.gda.pl
-Cc: dizzy@roedu.net, linux-kernel@vger.kernel.org
-Subject: Re: mmap, SIGBUS, and handling it
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.GSO.3.96.1020510183538.13449A-100000@delta.ds2.pg.gda.pl>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S316072AbSEJRNy>; Fri, 10 May 2002 13:13:54 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:3726 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S316071AbSEJRNx>;
+	Fri, 10 May 2002 13:13:53 -0400
+Message-ID: <3CDBFFCD.94589E4F@colorfullife.com>
+Date: Fri, 10 May 2002 19:13:49 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19-pre5 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Mark Gross <mgross@unix-os.sc.intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] multithreaded coredumps for elf exeecutables for O(1) 
+ scheduler
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-   Date: Fri, 10 May 2002 19:03:19 +0200 (MET DST)
+Have you checked that your patch doesn't deadlock on ia64?
 
-   On Fri, 10 May 2002, David S. Miller wrote:
-   
-   > If we reexecute the instruction it will take the signal endlessly,
-   > forever.  That makes no sense.
-   
-    It depends on an application.  It certainly shouldn't be the default, but
-   a user may choose such an option for some reason.  E.g. for debugging a
-   system with an ICE or a similar tool.
-   
-He's talking about how SIG_IGN should behave.
+> +       /* First pause all related threaded processes */
+> +       if (dump_threads)       {
+> +               suspend_threads();
+> +       }
+> +       
+> +       /* now stop all vm operations */
+> +       down_write(&current->mm->mmap_sem);
+> +       segs = current->mm->map_count;
+> +
+Stopping all vm operations means that copy_{to,from}_user can cause
+deadlocks.
+ia64 needs copy_to_user in their stack unwind handler, IIRC called by
+ELF_CORE_COPY_REGS.
 
-If you want non-default behavior, specify a signal handler instead
-of SIG_IGN.
-   
-   > So my original point I was trying to make, which still stands, is that
-   > what is being requested is totally rediculious behavior, trying to
-   > ignore a page fault that can't be serviced.
-   
-    Why should we enforce policy on a user?  If one wants to ignore such
-   signals for whatever reason, let him do that. 
-   
-We don't specify any policy other than the behavior of SIG_IGN which
-is to kill off the process for SIGBUS.
+Afaics you don't handle that. You must dump all thread state before
+down_write(mmap_sem). And I don't see how you protect against 2 threads
+of one process calling suspend_threads() simultaneously.
 
-If you specify a handler you can have SIGBUS do whatever you want it
-to.  There are no enforced limitations, only a specified behavior
-for SIG_IGN when used for SIGBUS.
-
-The original poster has solved his problem, yet you continue to argue
-one and on and on.
+--
+	Manfred

@@ -1,52 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262387AbUKVUmj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262354AbUKVUmk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262387AbUKVUmj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 15:42:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbUKVUlb
+	id S262354AbUKVUmk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 15:42:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262366AbUKVUlT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 15:41:31 -0500
-Received: from fw.osdl.org ([65.172.181.6]:2976 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262376AbUKVUhf (ORCPT
+	Mon, 22 Nov 2004 15:41:19 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:42656 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S262354AbUKVUjT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 15:37:35 -0500
-Date: Mon, 22 Nov 2004 12:36:58 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Len Brown <len.brown@intel.com>
-cc: Chris Wright <chrisw@osdl.org>, Adrian Bunk <bunk@stusta.de>,
+	Mon, 22 Nov 2004 15:39:19 -0500
+Subject: Re: 2.6.10-rc2 doesn't boot (if no floppy device)
+From: Len Brown <len.brown@intel.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Adrian Bunk <bunk@stusta.de>, Chris Wright <chrisw@osdl.org>,
        Bjorn Helgaas <bjorn.helgaas@hp.com>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.10-rc2 doesn't boot (if no floppy device)
-In-Reply-To: <Pine.LNX.4.58.0411221226310.20993@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0411221234170.20993@ppc970.osdl.org>
-References: <20041115152721.U14339@build.pdx.osdl.net>  <1100819685.987.120.camel@d845pe>
- <20041118230948.W2357@build.pdx.osdl.net>  <1100941324.987.238.camel@d845pe>
-  <Pine.LNX.4.58.0411200831560.20993@ppc970.osdl.org>  <1101150469.20006.46.camel@d845pe>
-  <Pine.LNX.4.58.0411221116480.20993@ppc970.osdl.org> <1101155077.20006.110.camel@d845pe>
- <Pine.LNX.4.58.0411221226310.20993@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <Pine.LNX.4.58.0411221137200.20993@ppc970.osdl.org>
+References: <20041115152721.U14339@build.pdx.osdl.net>
+	 <1100819685.987.120.camel@d845pe> <20041118230948.W2357@build.pdx.osdl.net>
+	 <1100941324.987.238.camel@d845pe> <20041120124001.GA2829@stusta.de>
+	 <Pine.LNX.4.58.0411200940410.20993@ppc970.osdl.org>
+	 <1101151780.20006.69.camel@d845pe>
+	 <Pine.LNX.4.58.0411221137200.20993@ppc970.osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1101155893.20007.125.camel@d845pe>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 22 Nov 2004 15:38:14 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 22 Nov 2004, Linus Torvalds wrote:
+On Mon, 2004-11-22 at 15:02, Linus Torvalds wrote:
 > 
-> And that's exactly why I think the "minimally disruptive" fix is to not
-> disable them at all, but just fix up ELCR for anything that was already
-> enabled. Since that _is_ what "disable + re-enable" ends up actually
-> doing.
+> On Mon, 22 Nov 2004, Len Brown wrote:
+> >
+> > When we enable a link, we must set the ELCR.
+> > When we disable a link, we must clear the ELCR.
+> > We need to be able to enable and disable all links in the system.
+> >
+> > The bug was that while we were were setting the ELCR
+> > when we enabled a link, we were not clearing it when we disabled
+> one.
+> 
+> Fair enough. ...
 
-Oh, and I think one alternative at this point is obviously to just go back
-to the "re-enable all interrupts early in the boot" code. Clearly we need
-to do _something_ for 2.6.10, and I want it to be something that is pretty
-much equivalent to what we _do_ have testing coverage of. Just to keep
-safe.
+> But feel free to send me a patch that doesn't just clear ELCR totally,
+> but clears the bits we are disabling. I just don't believe in the
+> "let's just clear everything" approach.
 
-I actually _like_ the "enable links only when needed" thing, which is why 
-I'd prefer to look for alternatives. But I like even more not having to 
-worry about strange hw setups, so "minimal fixing" really is pretty 
-important.
+Will do.
 
-		Linus
+> 
+> > But if you're more comfortable with disabling the associated ELCR
+> bit> only when we disable links directed at that entry, we can do that
+> too.
+> > The complication with that approach is that links are many to one,
+> so
+> > clearing the bit without disabling all links directed to that entry
+> > would result in a failure.  Also, the SCI uses the ELCR too, and it
+> > isn't described by links at all.
+> 
+> Wouldn't it be nicer to take the _reverse_ approach: let's assume that
+> any PCI interrupts that we have already enabled are fine and should
+> not be disabled? Mark them in the ELCR, and _report_ when the ELCR
+> seems to be incorrect (let's make a wild guess here, and realize that
+> the screaming VIA interrupts you talk about are exactly because the
+> ELCR was wrong).
+
+I think the VIA case is more complicated than that, but I'll take
+another look at it.
+
+
+thanks,
+-Len
+
+

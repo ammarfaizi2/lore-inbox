@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261640AbSLUPyx>; Sat, 21 Dec 2002 10:54:53 -0500
+	id <S261599AbSLUPxU>; Sat, 21 Dec 2002 10:53:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261644AbSLUPyx>; Sat, 21 Dec 2002 10:54:53 -0500
-Received: from mnh-1-28.mv.com ([207.22.10.60]:33284 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S261640AbSLUPyw>;
-	Sat, 21 Dec 2002 10:54:52 -0500
-Message-Id: <200212211607.LAA01515@ccure.karaya.com>
+	id <S261640AbSLUPxU>; Sat, 21 Dec 2002 10:53:20 -0500
+Received: from mnh-1-28.mv.com ([207.22.10.60]:32004 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S261599AbSLUPxU>;
+	Sat, 21 Dec 2002 10:53:20 -0500
+Message-Id: <200212211605.LAA01502@ccure.karaya.com>
 X-Mailer: exmh version 2.0.2
-To: John Reiser <jreiser@BitWagon.com>
-Cc: linux-kernel@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>,
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: John Reiser <jreiser@BitWagon.com>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
        Julian Seward <jseward@acm.org>
 Subject: Re: Valgrind meets UML 
-In-Reply-To: Your message of "Sat, 21 Dec 2002 06:40:44 PST."
-             <3E047D6C.1030702@BitWagon.com> 
+In-Reply-To: Your message of "20 Dec 2002 23:32:21 PST."
+             <1040455941.1841.123.camel@ixodes.goop.org> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 21 Dec 2002 11:07:02 -0500
+Date: Sat, 21 Dec 2002 11:05:25 -0500
 From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jreiser@BitWagon.com said:
-> In order to prevent races between valgrind for UML and kernel
-> allocators which valgrind does not "know", then the VALGRIND_*
-> declarations being added to kernel allocators should allow for
-> expressing the concept "atomically change state in both allocator and
-> valgrind".
+jeremy@goop.org said:
+> The main problem will be that newly allocated memory will still be
+> considered initialized by its previous owner.  Also, if UML allocates
+> memory using mmap, all memory will be considered to be initialized.
 
-What are you talking about?
+What I was doing was having kfree and free_pages set the freed object to
+noaccess.  Presumably, that tells valgrind to consider the memory 
+uninitialized.
 
-There are no atomicity problems between UML and valgrind.
+Presumably, that will also cause errors from inside the allocator if it
+touches that memory at all before it's allocated again.
 
 				Jeff
 

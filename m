@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268107AbUHKQdp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268106AbUHKQdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268107AbUHKQdp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 12:33:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268105AbUHKQdo
+	id S268106AbUHKQdj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 12:33:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268105AbUHKQdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 12:33:44 -0400
-Received: from fw.osdl.org ([65.172.181.6]:39596 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268107AbUHKQbU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 12:31:20 -0400
-Date: Wed, 11 Aug 2004 09:30:43 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: James Ketrenos <jketreno@linux.intel.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Pavel Machek <pavel@suse.cz>,
-       Jeff Chua <jeffchua@silk.corp.fedex.com>,
-       Tomas Szepe <szepe@pinerecords.com>, netdev@oss.sgi.com,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ipw2100 wireless driver
-Message-Id: <20040811093043.522cc5a0@dell_ss3.pdx.osdl.net>
-In-Reply-To: <411A478E.1080101@linux.intel.com>
-References: <20040714114135.GA25175@elf.ucw.cz>
-	<Pine.LNX.4.60.0407141947270.27995@boston.corp.fedex.com>
-	<20040714115523.GC2269@elf.ucw.cz>
-	<20040809201556.GB9677@louise.pinerecords.com>
-	<Pine.LNX.4.61.0408101258130.1290@boston.corp.fedex.com>
-	<20040810075558.A14154@infradead.org>
-	<20040810101640.GF9034@atrey.karlin.mff.cuni.cz>
-	<4119F203.1070009@linux.intel.com>
-	<20040811114437.A27439@infradead.org>
-	<411A478E.1080101@linux.intel.com>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+	Wed, 11 Aug 2004 12:33:39 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:35988 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S268106AbUHKQbS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 12:31:18 -0400
+Message-Id: <200408102350.i7ANoCnQ021376@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
+To: Alan Jenkins <sourcejedi@phonecoop.coop>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cd burning: kernel / userspace? 
+In-Reply-To: Your message of "Tue, 10 Aug 2004 10:51:30 BST."
+             <41189AA2.3010908@phonecoop.coop> 
+From: Valdis.Kletnieks@vt.edu
+References: <41189AA2.3010908@phonecoop.coop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_1867280476P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 10 Aug 2004 19:50:12 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1867280476P
+Content-Type: text/plain; charset="us-ascii"
+Content-Id: <22412.1092181802.1@turing-police.cc.vt.edu>
 
-> The driver supports (and defaults to) using firmware_class for loading the 
-> firmware.  The driver also supports a legacy loading approach for folks that 
-> have problems with using hotplug to load the firmware (which represents a fair 
-> number of users).
-> 
+On Tue, 10 Aug 2004 10:51:30 BST, Alan Jenkins said:
 
-When and if you submit it into mainline, please remove the legacy loading
-approach. Let's get to the cause of the problem and fix it, not bandaid
-around it.
+> Why can't a similar method be used for DAO writing?  Packet writing and 
+> Mount Rainer support belongs in the kernel - why not normal cd burning?  
+> On modern "burnproof" hardware, it should be possible to use dd to write 
+> your disk image to the cdrecorder device.  I'm guessing that this just 
+> isn't as interesting, especially with userspace programs available to do 
+> the job.
+
+Even less "interesting", but what *I*'d like to be able to do is:
+
+# dump -0 -B 700000 -f /dev/hdb -u -z3 /home
+
+and then just swap to the next CD/RW after -B blocks...
+
+Dumping to a 700M temp file and then cdrecord'ing the temp file really gets old
+after 15 or 20 CD's (and even playing double-buffering games using -F to switch
+around isn't all it's cracked up to be..)
+
+--==_Exmh_1867280476P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBGV80cC3lWbTT17ARAkaIAKC6NTGkyc8iRNSdxMwFnjG1Lp36nACePkRf
+op7GMfpdyxZov2Qpsvpjh0E=
+=bSyc
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1867280476P--

@@ -1,52 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbVDEKGA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261683AbVDEKKs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261682AbVDEKGA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 06:06:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbVDEKCV
+	id S261683AbVDEKKs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 06:10:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbVDEKHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 06:02:21 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:46369 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261683AbVDEJ6X (ORCPT
+	Tue, 5 Apr 2005 06:07:30 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:49564 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261683AbVDEKCp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 05:58:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=iE4TteRBA9qprDQBRNekGWk88uZm49pDCWw18vEKKPgbqByiKOTqP1I0SJu6nmW4UV2Ghu33e83VI5VY9NDv+PgHPcu5iC8P/Pi+A9xVMrpyfh4YVDiU09nKc2SLhuIleS2eZTT9gftAmcr/2TD/PkdutVZzdOS4GQx3gBHFuh8=
-Message-ID: <21d7e99705040502584229ae8d@mail.gmail.com>
-Date: Tue, 5 Apr 2005 19:58:19 +1000
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Christoph Hellwig <hch@infradead.org>, Paul Mackerras <paulus@samba.org>,
-       Dave Airlie <airlied@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc2-mm1
-In-Reply-To: <20050405095445.GA29246@infradead.org>
+	Tue, 5 Apr 2005 06:02:45 -0400
+Date: Tue, 5 Apr 2005 12:02:23 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: power/video.txt: update documentation with more systems
+Message-ID: <20050405100223.GA1393@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <20050405000524.592fc125.akpm@osdl.org>
-	 <20050405074405.GE26208@infradead.org>
-	 <21d7e99705040502073dfa5e5@mail.gmail.com>
-	 <16978.22617.338768.775203@cargo.ozlabs.ibm.com>
-	 <20050405093020.GA28620@infradead.org>
-	 <16978.24070.786761.641930@cargo.ozlabs.ibm.com>
-	 <20050405094535.GA29095@infradead.org>
-	 <16978.24509.527688.799274@cargo.ozlabs.ibm.com>
-	 <20050405095445.GA29246@infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> E.g. on my ia64 box CONFIG_COMPAT is set because I have support compiled
-> in for running i386 apps.  But I don't want dri to hand out 32bit handles
-> everywhere just because of that, because I most certainly won't be running
-> i386 OpenGL apps.
-> 
+Hi!
 
-It doesn't actually matter what size the handles are from what I
-understand of this... as long as they are hashed properly.. I've been
-thinking of changing the handle from something with meaning to a hash
-just to find out some more bugs.. even on plain 32-bit systems..
+This updates video.txt documentation with information about few more
+systems. Please apply,
+								Pavel
 
-Dave.
+--- clean/Documentation/power/video.txt	2005-04-05 10:54:28.000000000 +0200
++++ linux/Documentation/power/video.txt	2005-04-05 10:56:04.000000000 +0200
+@@ -32,9 +32,9 @@
+   acpi_sleep=s3_bios,s3_mode is needed.
+ 
+ (5) radeon systems, where X can soft-boot your video card. You'll need
+-  new enough X, and plain text console (no vesafb or radeonfb), see
+-  http://www.doesi.gmxhome.de/linux/tm800s3/s3.html. Actually you
+-  should probably use vbetool (6) instead.
++  a new enough X, and a plain text console (no vesafb or radeonfb). See
++  http://www.doesi.gmxhome.de/linux/tm800s3/s3.html for more information.
++  Alternatively, you should use vbetool (6) instead.
+ 
+ (6) other radeon systems, where vbetool is enough to bring system back
+   to life. It needs text console to be working. Do vbetool vbestate
+@@ -74,8 +74,9 @@
+ Acer TM 803LCi			vga=normal, vbetool (6)
+ Arima W730a			vbetool needed (6)
+ Asus L2400D                     s3_mode (3)(***) (S1 also works OK)
++Asus L3350M (SiS 740)           (6)
+ Asus L3800C (Radeon M7)		s3_bios (2) (S1 also works OK)
+-Asus M6NE			??? (*)
++Asus M6887Ne			vga=normal, s3_bios (2), use radeon driver instead of fglrx in x.org
+ Athlon64 desktop prototype	s3_bios (2)
+ Compal CL-50			??? (*)
+ Compaq Armada E500 - P3-700     none (1) (S1 also works OK)
+@@ -99,16 +100,16 @@
+ IBM TP R32 / Type 2658-MMG      none (1)
+ IBM TP R40 2722B3G		??? (*)
+ IBM TP R50p / Type 1832-22U     s3_bios (2)
+-IBM TP R51			??? (*)
++IBM TP R51			none (1)
+ IBM TP T30	236681A		??? (*)
+ IBM TP T40 / Type 2373-MU4      none (1)
+ IBM TP T40p			none (1)
+ IBM TP R40p			s3_bios (2)
+ IBM TP T41p			s3_bios (2), switch to X after resume
+-IBM TP T42			??? (*)
++IBM TP T42			s3_bios (2)
+ IBM ThinkPad T42p (2373-GTG)	s3_bios (2)
+ IBM TP X20			??? (*)
+-IBM TP X30			??? (*)
++IBM TP X30			s3_bios (2)
+ IBM TP X31 / Type 2672-XXH      none (1), use radeontool (http://fdd.com/software/radeon/) to turn off backlight.
+ IBM Thinkpad X40 Type 2371-7JG  s3_bios,s3_mode (4)
+ Medion MD4220			??? (*)
+
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

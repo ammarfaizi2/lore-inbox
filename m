@@ -1,92 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263806AbUHGRhg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263815AbUHGRiP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263806AbUHGRhg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 13:37:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263815AbUHGRhg
+	id S263815AbUHGRiP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 13:38:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263818AbUHGRiP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 13:37:36 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:19462 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S263806AbUHGRhc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 13:37:32 -0400
-Date: Sat, 7 Aug 2004 19:39:17 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Pawe? Sikora <pluto@pld-linux.org>
-Cc: Alexander Stohr <Alexander.Stohr@gmx.de>, sam@ravnborg.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: confirmed: kernel build for 2.6.8-rc3 is broken for at least i386
-Message-ID: <20040807173917.GA14733@mars.ravnborg.org>
-Mail-Followup-To: Pawe? Sikora <pluto@pld-linux.org>,
-	Alexander Stohr <Alexander.Stohr@gmx.de>, sam@ravnborg.org,
-	linux-kernel@vger.kernel.org
-References: <2695.1091715476@www33.gmx.net> <20040805203317.GA22342@mars.ravnborg.org> <200408071821.08530.pluto@pld-linux.org>
+	Sat, 7 Aug 2004 13:38:15 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:22181 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S263815AbUHGRiL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 13:38:11 -0400
+Date: Sat, 7 Aug 2004 10:37:39 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: rl@hellgate.ch, wli@holomorphy.com, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [proc.txt] Fix /proc/pid/statm documentation
+Message-Id: <20040807103739.7846bf6d.pj@sgi.com>
+In-Reply-To: <1091800948.1231.2454.camel@cube>
+References: <1091754711.1231.2388.camel@cube>
+	<20040806094037.GB11358@k3.hellgate.ch>
+	<20040806104630.GA17188@holomorphy.com>
+	<20040806120123.GA23081@k3.hellgate.ch>
+	<1091800948.1231.2454.camel@cube>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="SUOF0GtieIMvvwua"
-Content-Disposition: inline
-In-Reply-To: <200408071821.08530.pluto@pld-linux.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Albert wrote:
+> Somebody can research ... IRIX.
 
---SUOF0GtieIMvvwua
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The Irix /proc documentation can be found at:
 
-On Sat, Aug 07, 2004 at 06:21:07PM +0200, Pawe? Sikora wrote:
-> -	$(Q)if [ ! -z $$LC_ALL ]; then          \
-> -		export LANG=$$LC_ALL;           \
-> -		export LC_ALL= ;                \
-> -	fi;                                     \
-> -	export LC_COLLATE=C; export LC_CTYPE=C; \
-> +	$(Q) \
-> 
-> ^^^ works for me.
-Thanks!
+  http://www.mcsr.olemiss.edu/cgi-bin/man-cgi?proc+4
+  UNIX man pages : proc (4)
 
-I need to track this a bit more.
-Could you please provide me with information of what
-you are running.
+Based on a quick scan, this is the same page, or close to, as on my late
+model Irix box.
 
-make version (make --version)
-shell & version of shell
-distribution
-
-Could you also try if the attached two Makefiles exhibit the same problem.
-Just copy them to an empty directory and execute make.
-
-A good run looks like:
-Makefile2:1: lds=-P
-Hi
-
-A bad run does not have any -P after the '='.
-
-Needless to say my make does not exhibit this issue.
-
-	Sam
-
---SUOF0GtieIMvvwua
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=Makefile
-
-Q=@
-all:
-	$(Q)if [ ! -z $$LC_ALL ]; then          \
-		export LANG=$$LC_ALL;           \
-		export LC_ALL= ;                \
-	fi;                                     \
-	export LC_COLLATE=C; export LC_CTYPE=C; \
-	$(MAKE) -f Makefile2 obj=xxx
-
-export CFLAGS_vmlinux.lds.o := -P
-
---SUOF0GtieIMvvwua
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=Makefile2
-
-$(warning lds=$(CFLAGS_vmlinux.lds.o))
-
-all:
-	@echo Hi
-
---SUOF0GtieIMvvwua--
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

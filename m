@@ -1,56 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292681AbSBUSA1>; Thu, 21 Feb 2002 13:00:27 -0500
+	id <S292684AbSBUSBR>; Thu, 21 Feb 2002 13:01:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292683AbSBUSAT>; Thu, 21 Feb 2002 13:00:19 -0500
-Received: from www.wen-online.de ([212.223.88.39]:60428 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S292681AbSBUSAF>;
-	Thu, 21 Feb 2002 13:00:05 -0500
-Date: Thu, 21 Feb 2002 19:11:14 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Joe Wong <joewong@tkodog.no-ip.com>, linux-kernel@vger.kernel.org
-Subject: Re: detect memory leak tools?
-In-Reply-To: <Pine.LNX.3.95.1020221104124.20988A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.10.10202211902290.842-100000@mikeg.wen-online.de>
+	id <S292683AbSBUSBI>; Thu, 21 Feb 2002 13:01:08 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4616 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292685AbSBUSAs>; Thu, 21 Feb 2002 13:00:48 -0500
+Subject: Re: [PATCH] 2.5.5 IDE cleanup 11
+To: dalecki@evision-ventures.com (Martin Dalecki)
+Date: Thu, 21 Feb 2002 18:14:49 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        jgarzik@mandrakesoft.com (Jeff Garzik),
+        torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <3C75351D.4030200@evision-ventures.com> from "Martin Dalecki" at Feb 21, 2002 06:57:49 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16dxk1-0007kN-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Feb 2002, Richard B. Johnson wrote:
-
-> On Thu, 21 Feb 2002, Joe Wong wrote:
+> > So you didnt test or consider the upcoming things like hotplug. 
 > 
-> > Hi,
-> > 
-> >   Is there any tools that can detect memory leak in kernel loadable 
-> > module?
-> > 
-> > TIA.
-> > 
-> > - Joe
-> 
-> How would it know? If you can answer that question, you have made
-> the tool. It would be specific to your module. FYI, in designing
-> such a tool, you often the find the leak, which means you don't
-> need the tool anymore.
-> 
-> I would start by temporarily putting a wrapper around whatever you
-> use for memory allocation and deallocation. The wrapper code keeps
-> track of pointer values and outstanding allocations. If the outstanding
-> allocations grow or if the pointers to whatever_free() are different
-> than the pointers to whatever_alloc(), you have a leak. You can read
-> the results from a private ioctl().
+> I did plugging and unplugging a CardBus IDE contoller in and out on
+> a hot system.
 
-Close to how memleak works.  Wrap all allocators, and maintain a 1/32
-scale model of memory consisting of tags showing who allocated that
-ram-clod when.  Read allocation array via proc.
+IDE hotplug is device level (hence you want ->present)
 
-For most leaks, you're right.. the tool is too much horsepower for
-the problem.  Memleak has found some very non-trivial leaks though.
-It found one that was irritating Ingo quite a bit, and he designed
-memleak :)
+> using the struct device_driver infrastructure and not by reduplicating 
+> it's fuctionality inside ide.c. Agreed? Before one could even thing
 
-	-Mike
-
+Not agreed - its a layer lower I'm talking about

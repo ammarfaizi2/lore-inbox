@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261840AbTEQU6V (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 May 2003 16:58:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbTEQU6V
+	id S261843AbTEQU64 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 May 2003 16:58:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbTEQU6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 May 2003 16:58:21 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:37054 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S261840AbTEQU6T (ORCPT
+	Sat, 17 May 2003 16:58:52 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:48574 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S261843AbTEQU6s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 May 2003 16:58:19 -0400
-Date: Sat, 17 May 2003 10:58:50 +0200
+	Sat, 17 May 2003 16:58:48 -0400
+Date: Sat, 17 May 2003 14:30:44 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6 must-fix list, v2
-Message-ID: <20030517085850.GD686@zaurus.ucw.cz>
-References: <20030512155417.67a9fdec.akpm@digeo.com> <20030512155511.21fb1652.akpm@digeo.com> <1052834227.432.30.camel@dhcp22.swansea.linux.org.uk> <20030513163854.A27407@infradead.org>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
+Subject: Re: [PATCH] in-core AFS multiplexor and PAG support
+Message-ID: <20030517123044.GG686@zaurus.ucw.cz>
+References: <8812.1052841957@warthog.warthog> <Pine.LNX.4.44.0305130929340.1678-100000@home.transmeta.com> <20030513172029.GB25295@delft.aura.cs.cmu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030513163854.A27407@infradead.org>
+In-Reply-To: <20030513172029.GB25295@delft.aura.cs.cmu.edu>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> That brings up another issue:  what ports do regularly work with 2.5
-> mainline?  I've been working with David to get all those core changes ia64
-> needs (and there's still a lot) sorted out so maybe 2.6 will work out of
-> the box.  I guess some other arches (parisc, mips?) will need similar
-> work.
+> > The advantage of associating the PAG with the real uid rather than make it
+> > per-process is that it's a lot easier to administer that way, I think. You
+> > don't need to log out or anything like that to have changes take effect
+> > for your session, and it is very natural to say "this user now gets key
+> > X". Which is what I think you really want when you do something like enter
+> > a key to an encrypted filesystem, for example.
+> 
+> The local user id is not a 'trusted' identity for a distributed filesystem.
+> Any user still have to prove his identity by obtaining tokens. 
+> 
+> If someone obtains my user id on in any way (i.e. weak password/
+> bufferoverflow/ root exploit), he should not be allowed to use or access
+> my tokens as he hasn't proven his identity. In this case he would either
 
-x86-64 does usually work out of the box or after
-few lines of fixes.
+? If he has same uid as you *and* you
+have >=1 process running, what prevents
+him from gdb attach <that process>,
+and force it to do whatever he needs
+by forcing syscall?
 				Pavel
 -- 
 				Pavel

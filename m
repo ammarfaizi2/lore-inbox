@@ -1,82 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269779AbRHIMP1>; Thu, 9 Aug 2001 08:15:27 -0400
+	id <S269781AbRHIMU5>; Thu, 9 Aug 2001 08:20:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269780AbRHIMPS>; Thu, 9 Aug 2001 08:15:18 -0400
-Received: from pc40.e18.physik.tu-muenchen.de ([129.187.154.153]:57612 "EHLO
-	pc40.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id <S269779AbRHIMPJ>; Thu, 9 Aug 2001 08:15:09 -0400
-Date: Thu, 9 Aug 2001 14:15:15 +0200 (CEST)
-From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
-To: <linux-net@vger.kernel.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: ARP misbehaviour
-Message-ID: <Pine.LNX.4.31.0108091335210.25815-100000@pc40.e18.physik.tu-muenchen.de>
+	id <S269785AbRHIMUs>; Thu, 9 Aug 2001 08:20:48 -0400
+Received: from willow.commerce.uk.net ([213.219.35.202]:21000 "EHLO
+	willow.commerce.uk.net") by vger.kernel.org with ESMTP
+	id <S269781AbRHIMUf>; Thu, 9 Aug 2001 08:20:35 -0400
+Date: Thu, 9 Aug 2001 13:18:51 +0100 (BST)
+From: Corin Hartland-Swann <cdhs@commerce.uk.net>
+To: linux-kernel@vger.kernel.org
+Subject: Setting up MTRRs for 4096MB RAM
+Message-ID: <Pine.LNX.4.21.0108091306550.18150-100000@willow.commerce.uk.net>
+Organization: Commerce Internet Ltd
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-My question is about ARP behaviour: Why does my machine answer ARP
-requests for eth1 on eth0, even if the address on eth1 has scope link and
-arp_filter is on? What do I have to do to prevent this?
+Hi there,
 
-I am aware that this issue was already discussed, but I could not find a
-solution to the problem even in the long threads. The recommendation
-seems to be to turn on arp_filter, but that doesn't help a bit.
+I am trying to set up a machine using the Tyan Tiger LE motherboard, and
+ServerWorks III LE chipset to use 4096MB RAM. I'm using kernel 2.4.7 with
+CONFIG_HIGHMEM4G.
 
-This is my setup (output beautified a bit):
+I know that I have to set the MTRR's up to extend the cacheable memory
+area, but can't work out how to set it up.
 
-======================================================================
-[root@paco00 all]# ip addr show
+I tried the following:
 
-1: lo: <LOOPBACK,UP> mtu 16436 qdisc noqueue
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    inet 127.0.0.1/8 brd 127.255.255.255 scope host lo
-2: eth0: <BROADCAST,MULTICAST,PROMISC,UP> mtu 1500 qdisc pfifo_fast qlen
-100
-    link/ether 00:01:02:b9:18:8b brd ff:ff:ff:ff:ff:ff
-    inet 129.187.154.217/24 brd 129.187.154.255 scope global eth0
-    inet 129.187.154.218/24 brd 129.187.154.255 scope global secondary
-eth0:0
-    inet 129.187.154.219/24 brd 129.187.154.255 scope global secondary
-eth0:1
-3: eth1: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast qlen 100
-    link/ether 00:60:08:f5:ec:0e brd ff:ff:ff:ff:ff:ff
-    inet 10.187.185.12/24 brd 10.187.185.255 scope link eth1:0
-    inet 192.168.1.254/24 brd 192.168.1.255 scope link eth1
+  # echo "disable=1" >| /proc/mtrr
+  # echo "disable=0" >| /proc/mtrr
+  # echo "base=0x0 size=0xFFFFFFFF type=write-back" >| /proc/mtrr
+  mtrr: size and base must be multiples of 4 kiB
+  mtrr: size: 0xffffffff  base: 0x0
 
-[root@paco00 all]# ip route show
+Which doesn't make any sense. So I tried for 3G RAM:
 
-10.187.185.11    dev eth1                scope link
-129.187.154.0/24 dev eth0  proto kernel  scope link  src 129.187.154.217
-192.168.1.0/24   dev eth1  proto kernel  scope link  src 192.168.1.254
-10.187.185.0/24  dev eth1  proto kernel  scope link  src 10.187.185.12
-127.0.0.0/8      dev lo                  scope link
-default via 129.187.154.254 dev eth0
+  # echo "base=0x0 size=0xC0000000 type=write-back" >| /proc/mtrr
+  mtrr: base(0x0000) is not aligned on a size(0xc0000000) boundary
 
-[root@paco00 all]# cat /proc/sys/net/ipv4/conf/{all,eth0,eth1}/arp_filter
+And then for 2G RAM:
 
-1
-1
-1
-======================================================================
+  # echo "base=0x0 size=0x80000000 type=write-back" >| /proc/mtrr
 
-This shows the problem:
+Which works perfectly. What gives?
 
-======================================================================
-root@pc40:/ > arping 192.168.1.254
-ARPING 192.168.1.254 from 129.187.154.153 eth0
-Unicast reply from 192.168.1.254 [00:01:02:B9:18:8B]  0.837ms
-======================================================================
+Also: the instructions in Documentation/mtrr.txt says to use ">|" instead
+of ">" (under bash, at least) - what does this accomplish?
 
-I'm using kernel 2.4.6 from Linus, machine is a dual PIII450, 512MB RAM
-eth0: 3Com PCI 3c905C Tornado, PROMISC because of arpwatch running
-eth1: 3Com 3C985 Gigabit Ethernet
+Thanks,
 
-Ciao,
-					Roland
+Corin
 
+/------------------------+-------------------------------------\
+| Corin Hartland-Swann   |    Tel: +44 (0) 20 7491 2000        |
+| Commerce Internet Ltd  |    Fax: +44 (0) 20 7491 2010        |
+| 22 Cavendish Buildings | Mobile: +44 (0) 79 5854 0027        | 
+| Gilbert Street         |                                     |
+| Mayfair                |    Web: http://www.commerce.uk.net/ |
+| London W1K 5HJ         | E-Mail: cdhs@commerce.uk.net        |
+\------------------------+-------------------------------------/
 

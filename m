@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266663AbUHSQbb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266519AbUHSQhy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266663AbUHSQbb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 12:31:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266679AbUHSQbb
+	id S266519AbUHSQhy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 12:37:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266679AbUHSQhy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 12:31:31 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:44561 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S266663AbUHSQbZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 12:31:25 -0400
-Date: Thu, 19 Aug 2004 17:31:24 +0100
-From: John Levon <levon@movementarian.org>
-To: Corey Minyard <minyard@acm.org>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Patch to 2.6.8.1-mm2 to allow multiple NMI handlers to be registered
-Message-ID: <20040819163124.GA81535@compsoc.man.ac.uk>
-References: <4124BACB.30100@acm.org> <16676.51035.924323.992044@alkaid.it.uu.se> <4124D25C.20703@acm.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 19 Aug 2004 12:37:54 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:8686 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S266519AbUHSQhx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 12:37:53 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: davidm@hpl.hp.com
+Subject: Re: kernbench on 512p
+Date: Thu, 19 Aug 2004 12:37:16 -0400
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <200408191216.33667.jbarnes@engr.sgi.com> <16676.54657.220755.148837@napali.hpl.hp.com>
+In-Reply-To: <16676.54657.220755.148837@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <4124D25C.20703@acm.org>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: King of Woolworths - L'Illustration Musicale
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1Bxpoy-000Q0X-KI*dKf90qHqSdo*
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408191237.16959.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 19, 2004 at 11:16:28AM -0500, Corey Minyard wrote:
+On Thursday, August 19, 2004 12:29 pm, David Mosberger wrote:
+> >>>>> On Thu, 19 Aug 2004 12:16:33 -0400, Jesse Barnes
+> >>>>> <jbarnes@engr.sgi.com> said:
+>
+>   Jesse> It would be nice if the patch to show which lock is contended
+>   Jesse> got included.
+>
+> Why not use q-syscollect?  It will show you the caller of
+> ia64_spinlock_contention, which is often just as good (or better ;-).
 
-> >Please use rdpmc() instead of rdmsr() when reading counter registers.
-> >Ditto in the other places.
-> >(I know oprofile doesn't, but that's no excuse.)
+Because it requires guile and guile SLIB, which I've never been able to setup 
+properly on a RHEL3 based distro.  Care to rewrite the tools in C or 
+something? ;)
 
-I actually have no idea why we don't use rdpmc().
-
-john
+Jesse

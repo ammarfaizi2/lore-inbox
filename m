@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263187AbUKTVUi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263186AbUKTVWn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263187AbUKTVUi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 16:20:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263184AbUKTVTc
+	id S263186AbUKTVWn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 16:22:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbUKTVWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 16:19:32 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:30984 "HELO
+	Sat, 20 Nov 2004 16:22:18 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:34312 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261718AbUKTVSY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 16:18:24 -0500
-Date: Sat, 20 Nov 2004 22:18:21 +0100
+	id S263177AbUKTVSm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 16:18:42 -0500
+Date: Sat, 20 Nov 2004 22:18:40 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] small ftape cleanups (fwd)
-Message-ID: <20041120211821.GE2829@stusta.de>
+To: James.Bottomley@SteelEye.com
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] kill scsi_syms.c
+Message-ID: <20041120211840.GF2829@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,619 +22,592 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-The patch forwarded below still applies and compiles against 
-2.6.10-rc2-mm2.
-
-Please apply.
-
-
------ Forwarded message from Adrian Bunk <bunk@stusta.de> -----
-
-Date:	Sat, 6 Nov 2004 23:24:32 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] small ftape cleanups
-
-The patch below does cleanups under drivers/char/rio/ including the 
-following:
-- remove some completely unused code
-- make some needlessly global code static
+The patch below removes scsi_syms.c and moves the EXPORT_SYMBOL's to the 
+files where the actual functions are.
 
 
 diffstat output:
- drivers/char/ftape/compressor/zftape-compress.c |    4 
- drivers/char/ftape/lowlevel/fc-10.c             |    4 
- drivers/char/ftape/lowlevel/fdc-io.c            |   67 ++--------------
- drivers/char/ftape/lowlevel/fdc-io.h            |    5 -
- drivers/char/ftape/lowlevel/ftape-bsm.c         |    8 +
- drivers/char/ftape/lowlevel/ftape-bsm.h         |    1 
- drivers/char/ftape/lowlevel/ftape-ctl.c         |   15 +--
- drivers/char/ftape/lowlevel/ftape-ctl.h         |    1 
- drivers/char/ftape/lowlevel/ftape-init.c        |    6 -
- drivers/char/ftape/lowlevel/ftape-io.c          |   24 -----
- drivers/char/ftape/lowlevel/ftape-io.h          |    4 
- drivers/char/ftape/lowlevel/ftape-proc.c        |    4 
- drivers/char/ftape/lowlevel/ftape-rw.c          |    2 
- drivers/char/ftape/lowlevel/ftape-rw.h          |    1 
- drivers/char/ftape/zftape/zftape-buffers.c      |    7 -
- drivers/char/ftape/zftape/zftape-buffers.h      |    1 
- drivers/char/ftape/zftape/zftape-init.c         |   13 ---
- drivers/char/ftape/zftape/zftape-init.h         |    1 
- drivers/char/ftape/zftape/zftape-rw.c           |    1 
- drivers/char/ftape/zftape/zftape-rw.h           |    1 
- drivers/char/ftape/zftape/zftape-vtbl.c         |    4 
- drivers/char/ftape/zftape/zftape-vtbl.h         |    1 
- drivers/char/ftape/zftape/zftape_syms.c         |    1 
- 23 files changed, 31 insertions(+), 145 deletions(-)
+ Documentation/scsi/scsi_mid_low_api.txt |    4 
+ drivers/scsi/Makefile                   |    2 
+ drivers/scsi/constants.c                |    9 ++
+ drivers/scsi/hosts.c                    |    8 +
+ drivers/scsi/scsi.c                     |   11 ++
+ drivers/scsi/scsi_error.c               |    6 +
+ drivers/scsi/scsi_ioctl.c               |    3 
+ drivers/scsi/scsi_lib.c                 |   10 ++
+ drivers/scsi/scsi_scan.c                |    5 +
+ drivers/scsi/scsi_syms.c                |   97 ------------------------
+ drivers/scsi/scsi_sysfs.c               |    3 
+ drivers/scsi/scsicam.c                  |    3 
+ 12 files changed, 60 insertions(+), 101 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/compressor/zftape-compress.c.old	2004-11-06 21:35:54.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/compressor/zftape-compress.c	2004-11-06 21:36:04.000000000 +0100
-@@ -27,10 +27,6 @@
-  *     changed * appropriately. See below.
-  */
+--- linux-2.6.10-rc2-mm2-full/Documentation/scsi/scsi_mid_low_api.txt.old	2004-11-20 21:25:38.000000000 +0100
++++ linux-2.6.10-rc2-mm2-full/Documentation/scsi/scsi_mid_low_api.txt	2004-11-20 21:25:56.000000000 +0100
+@@ -363,8 +363,8 @@
+ Mid level supplied functions
+ ============================
+ These functions are supplied by the SCSI mid level for use by LLDs.
+-The names (i.e. entry points) of these functions are exported (mainly in 
+-scsi_syms.c) so an LLD that is a module can access them. The kernel will
++The names (i.e. entry points) of these functions are exported 
++so an LLD that is a module can access them. The kernel will
+ arrange for the SCSI mid level to be loaded and initialized before any LLD
+ is initialized. The functions below are listed alphabetically and their
+ names all start with "scsi_".
+--- linux-2.6.10-rc2-mm2-full/drivers/scsi/Makefile.old	2004-11-20 21:26:08.000000000 +0100
++++ linux-2.6.10-rc2-mm2-full/drivers/scsi/Makefile	2004-11-20 21:26:17.000000000 +0100
+@@ -143,7 +143,7 @@
  
-- char zftc_src[] ="$Source: /homes/cvs/ftape-stacked/ftape/compressor/zftape-compress.c,v $";
-- char zftc_rev[] = "$Revision: 1.1.6.1 $";
-- char zftc_dat[] = "$Date: 1997/11/16 15:15:56 $";
--
- #include <linux/version.h>
- #include <linux/errno.h>
- #include <linux/mm.h>
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/fc-10.c.old	2004-11-06 21:36:15.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/fc-10.c	2004-11-06 21:36:30.000000000 +0100
-@@ -56,13 +56,13 @@
- #include "../lowlevel/fdc-io.h"
- #include "../lowlevel/fc-10.h"
- 
--__u16 inbs_magic[] = {
-+static __u16 inbs_magic[] = {
- 	0x3, 0x3, 0x0, 0x4, 0x7, 0x2, 0x5, 0x3, 0x1, 0x4,
- 	0x3, 0x5, 0x2, 0x0, 0x3, 0x7, 0x4, 0x2,
- 	0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7
- };
- 
--__u16 fc10_ports[] = {
-+static __u16 fc10_ports[] = {
- 	0x180, 0x210, 0x2A0, 0x300, 0x330, 0x340, 0x370
- };
- 
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/fdc-io.h.old	2004-11-06 21:39:01.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/fdc-io.h	2004-11-06 21:42:09.000000000 +0100
-@@ -210,7 +210,6 @@
- extern volatile fdc_mode_enum fdc_mode;
- extern int fdc_setup_error;	/* outdated ??? */
- extern wait_queue_head_t ftape_wait_intr;
--extern int ftape_motor;		/* fdc motor line state */
- extern volatile int ftape_current_cylinder; /* track nr FDC thinks we're on */
- extern volatile __u8 fdc_head;	/* FDC head */
- extern volatile __u8 fdc_cyl;	/* FDC track */
-@@ -231,15 +230,11 @@
- extern int fdc_ready_wait(unsigned int timeout);
- extern int fdc_command(const __u8 * cmd_data, int cmd_len);
- extern int fdc_result(__u8 * res_data, int res_len);
--extern int fdc_issue_command(const __u8 * out_data, int out_count,
--			     __u8 * in_data, int in_count);
- extern int fdc_interrupt_wait(unsigned int time);
--extern int fdc_set_seek_rate(int seek_rate);
- extern int fdc_seek(int track);
- extern int fdc_sense_drive_status(int *st3);
- extern void fdc_motor(int motor);
- extern void fdc_reset(void);
--extern int fdc_recalibrate(void);
- extern void fdc_disable(void);
- extern int fdc_fifo_threshold(__u8 threshold,
- 			      int *fifo_state, int *lock_state, int *fifo_thr);
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/fdc-io.c.old	2004-11-06 21:42:21.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/fdc-io.c	2004-11-06 22:02:43.000000000 +0100
-@@ -50,7 +50,7 @@
- 
- /*      Global vars.
-  */
--int ftape_motor;
-+static int ftape_motor;
- volatile int ftape_current_cylinder = -1;
- volatile fdc_mode_enum fdc_mode = fdc_idle;
- fdc_config_info fdc;
-@@ -86,6 +86,8 @@
- 
- static char ftape_id[] = "ftape";  /* used by request irq and free irq */
- 
-+static int fdc_set_seek_rate(int seek_rate);
-+
- void fdc_catch_stray_interrupts(int count)
- {
- 	unsigned long flags;
-@@ -103,7 +105,7 @@
-  *  If usecs == 0 then just test status, else wait at least for usecs.
-  *  Returns -ETIME on timeout. Function must be calibrated first !
-  */
--int fdc_wait(unsigned int usecs, __u8 mask, __u8 state)
-+static int fdc_wait(unsigned int usecs, __u8 mask, __u8 state)
- {
- 	int count_1 = (fdc_calibr_count * usecs +
-                        fdc_calibr_count - 1) / fdc_calibr_time;
-@@ -129,18 +131,12 @@
- 	fdc_wait(usecs, 0, 1);	/* will always timeout ! */
+ scsi_mod-y			+= scsi.o hosts.o scsi_ioctl.o constants.o \
+ 				   scsicam.o scsi_error.o scsi_lib.o \
+-				   scsi_scan.o scsi_syms.o scsi_sysfs.o \
++				   scsi_scan.o scsi_sysfs.o \
+ 				   scsi_devinfo.o
+ scsi_mod-$(CONFIG_SYSCTL)	+= scsi_sysctl.o
+ scsi_mod-$(CONFIG_SCSI_PROC_FS)	+= scsi_proc.o
+--- linux-2.6.10-rc2-mm2-full/drivers/scsi/scsi_sysfs.c.old	2004-11-20 21:27:17.000000000 +0100
++++ linux-2.6.10-rc2-mm2-full/drivers/scsi/scsi_sysfs.c	2004-11-20 21:44:12.000000000 +0100
+@@ -611,6 +611,7 @@
+ out:
+ 	up(&shost->scan_mutex);
  }
++EXPORT_SYMBOL(scsi_remove_device);
  
--int fdc_ready_out_wait(unsigned int usecs)
-+static int fdc_ready_out_wait(unsigned int usecs)
+ int scsi_register_driver(struct device_driver *drv)
  {
- 	fdc_usec_wait(FT_RQM_DELAY);	/* wait for valid RQM status */
- 	return fdc_wait(usecs, FDC_DATA_OUT_READY, FDC_DATA_OUT_READY);
+@@ -618,6 +619,7 @@
+ 
+ 	return driver_register(drv);
  }
++EXPORT_SYMBOL(scsi_register_driver);
  
--int fdc_ready_in_wait(unsigned int usecs)
--{
--	fdc_usec_wait(FT_RQM_DELAY);	/* wait for valid RQM status */
--	return fdc_wait(usecs, FDC_DATA_OUT_READY, FDC_DATA_IN_READY);
--}
--
- void fdc_wait_calibrate(void)
+ int scsi_register_interface(struct class_interface *intf)
  {
- 	ftape_calibrate("fdc_wait",
-@@ -341,7 +337,7 @@
- /*      Handle command and result phases for
-  *      commands without data phase.
-  */
--int fdc_issue_command(const __u8 * out_data, int out_count,
-+static int fdc_issue_command(const __u8 * out_data, int out_count,
- 		      __u8 * in_data, int in_count)
- {
- 	TRACE_FUN(ft_t_any);
-@@ -497,7 +493,7 @@
+@@ -625,6 +627,7 @@
  
- /*  Reprogram the 82078 registers to use Data Rate Table 1 on all drives.
-  */
--void fdc_set_drive_specs(void)
-+static void fdc_set_drive_specs(void)
- {
- 	__u8 cmd[] = { FDC_DRIVE_SPEC, 0x00, 0x00, 0x00, 0x00, 0xc0};
- 	int result;
-@@ -705,7 +701,7 @@
- 
- /*      Specify FDC seek-rate (milliseconds)
-  */
--int fdc_set_seek_rate(int seek_rate)
-+static int fdc_set_seek_rate(int seek_rate)
- {
- 	/* set step rate, dma mode, and minimal head load and unload times
- 	 */
-@@ -803,49 +799,6 @@
- 	TRACE_EXIT 0;
+ 	return class_interface_register(intf);
  }
++EXPORT_SYMBOL(scsi_register_interface);
  
--/*      Recalibrate and wait until home.
-- */
--int fdc_recalibrate(void)
--{
--	__u8 out[2];
--	int st0;
--	int pcn;
--	int retry;
--	int old_seek_rate = fdc_seek_rate;
--	TRACE_FUN(ft_t_any);
--
--	TRACE_CATCH(fdc_set_seek_rate(6),);
--	out[0] = FDC_RECAL;
--	out[1] = ft_drive_sel;
--	ft_seek_completed = 0;
--	TRACE_CATCH(fdc_command(out, 2),);
--	/*    Handle interrupts until ft_seek_completed or timeout.
--	 */
--	for (retry = 0;; ++retry) {
--		TRACE_CATCH(fdc_interrupt_wait(2 * FT_SECOND),);
--		if (ft_seek_completed) {
--			TRACE_CATCH(fdc_sense_interrupt_status(&st0, &pcn),);
--			if ((st0 & ST0_SEEK_END) == 0) {
--				if (retry < 1) {
--					continue; /* some drives/fdc's
--						   * give an extra interrupt
--						   */
--				} else {
--					TRACE_ABORT(-EIO, ft_t_err,
--				    "no seek-end after seek completion !??");
--				}
--			}
--			break;
--		}
--	}
--	ftape_current_cylinder = pcn;
--	if (pcn != 0) {
--		TRACE(ft_t_err, "failed: resulting track = %d", pcn);
--	}
--	TRACE_CATCH(fdc_set_seek_rate(old_seek_rate),);
--	TRACE_EXIT 0;
--}
--
- static int perpend_mode; /* set if fdc is in perpendicular mode */
  
- static int perpend_off(void)
-@@ -1079,7 +1032,7 @@
-  */
- static __u8 fdc_save_state[2];
- 
--int fdc_probe(void)
-+static int fdc_probe(void)
- {
- 	__u8 cmd[1];
- 	__u8 stat[16]; /* must be able to hold dumpregs & save results */
-@@ -1308,7 +1261,7 @@
- 	TRACE_EXIT IRQ_RETVAL(handled);
+ static struct class_device_attribute *class_attr_overridden(
+--- linux-2.6.10-rc2-mm2-full/drivers/scsi/hosts.c.old	2004-11-20 21:27:57.000000000 +0100
++++ linux-2.6.10-rc2-mm2-full/drivers/scsi/hosts.c	2004-11-20 21:30:51.000000000 +0100
+@@ -88,6 +88,7 @@
+ 		class_device_unregister(&shost->transport_classdev);
+ 	device_del(&shost->shost_gendev);
  }
++EXPORT_SYMBOL(scsi_remove_host);
  
--int fdc_grab_irq_and_dma(void)
-+static int fdc_grab_irq_and_dma(void)
+ /**
+  * scsi_add_host - add a scsi host
+@@ -152,6 +153,7 @@
+  out:
+ 	return error;
+ }
++EXPORT_SYMBOL(scsi_add_host);
+ 
+ static void scsi_host_dev_release(struct device *dev)
  {
- 	TRACE_FUN(ft_t_any);
+@@ -308,6 +310,7 @@
+ 	kfree(shost);
+ 	return NULL;
+ }
++EXPORT_SYMBOL(scsi_host_alloc);
  
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-bsm.h.old	2004-11-06 21:44:51.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-bsm.h	2004-11-06 21:44:58.000000000 +0100
-@@ -60,7 +60,6 @@
- extern void update_bad_sector_map(__u8 * buffer);
- extern void ftape_extract_bad_sector_map(__u8 * buffer);
- extern SectorMap ftape_get_bad_sector_entry(int segment_id);
--extern void      ftape_put_bad_sector_entry(int segment_id, SectorMap mask);
- extern __u8 *ftape_find_end_of_bsm_list(__u8 * address);
- extern void ftape_init_bsm(void);
+ struct Scsi_Host *scsi_register(struct scsi_host_template *sht, int privsize)
+ {
+@@ -323,12 +326,14 @@
+ 		list_add_tail(&shost->sht_legacy_list, &sht->legacy_hosts);
+ 	return shost;
+ }
++EXPORT_SYMBOL(scsi_register);
  
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-bsm.c.old	2004-11-06 21:45:16.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-bsm.c	2004-11-06 22:01:52.000000000 +0100
-@@ -47,6 +47,10 @@
- } mode_type;
+ void scsi_unregister(struct Scsi_Host *shost)
+ {
+ 	list_del(&shost->sht_legacy_list);
+ 	scsi_host_put(shost);
+ }
++EXPORT_SYMBOL(scsi_unregister);
  
- #if 0
-+static void ftape_put_bad_sector_entry(int segment_id, SectorMap new_map);
-+#endif
-+
-+#if 0
- /*  fix_tape converts a normal QIC-80 tape into a 'wide' tape.
-  *  For testing purposes only !
-  */
-@@ -375,7 +379,8 @@
+ /**
+  * scsi_host_lookup - get a reference to a Scsi_Host by host no
+@@ -356,6 +361,7 @@
+ 
+ 	return shost;
+ }
++EXPORT_SYMBOL(scsi_host_lookup);
+ 
+ /**
+  * scsi_host_get - inc a Scsi_Host ref count
+@@ -368,6 +374,7 @@
+ 		return NULL;
+ 	return shost;
+ }
++EXPORT_SYMBOL(scsi_host_get);
+ 
+ /**
+  * scsi_host_put - dec a Scsi_Host ref count
+@@ -377,6 +384,7 @@
+ {
+ 	put_device(&shost->shost_gendev);
+ }
++EXPORT_SYMBOL(scsi_host_put);
+ 
+ int scsi_init_hosts(void)
+ {
+--- linux-2.6.10-rc2-mm2-full/drivers/scsi/scsi_scan.c.old	2004-11-20 21:28:44.000000000 +0100
++++ linux-2.6.10-rc2-mm2-full/drivers/scsi/scsi_scan.c	2004-11-20 21:43:37.000000000 +0100
+@@ -1096,6 +1096,7 @@
+ 
+ 	return sdev;
+ }
++EXPORT_SYMBOL(__scsi_add_device);
+ 
+ void scsi_rescan_device(struct device *dev)
+ {
+@@ -1239,6 +1240,7 @@
+ 	scsi_scan_host_selected(shost, SCAN_WILD_CARD, SCAN_WILD_CARD,
+ 				SCAN_WILD_CARD, 0);
+ }
++EXPORT_SYMBOL(scsi_scan_host);
+ 
+ void scsi_forget_host(struct Scsi_Host *shost)
+ {
+@@ -1293,6 +1295,7 @@
  	}
+ 	return sdev;
  }
++EXPORT_SYMBOL(scsi_get_host_dev);
  
--void ftape_put_bad_sector_entry(int segment_id, SectorMap new_map)
-+#if 0
-+static void ftape_put_bad_sector_entry(int segment_id, SectorMap new_map)
- {
- 	SectorCount *ptr = (SectorCount *)bad_sector_map;
- 	int count;
-@@ -438,6 +443,7 @@
+ /*
+  * Function:    scsi_free_host_dev()
+@@ -1317,3 +1320,5 @@
+ 		sdev->host->transportt->device_destroy(sdev);
+ 	put_device(&sdev->sdev_gendev);
+ }
++EXPORT_SYMBOL(scsi_free_host_dev);
++
+--- linux-2.6.10-rc2-mm2-full/drivers/scsi/scsicam.c.old	2004-11-20 21:31:09.000000000 +0100
++++ linux-2.6.10-rc2-mm2-full/drivers/scsi/scsicam.c	2004-11-20 21:31:54.000000000 +0100
+@@ -41,6 +41,7 @@
  	}
- 	TRACE_EXIT;
+ 	return res;
  }
-+#endif  /*  0  */
++EXPORT_SYMBOL(scsi_bios_ptable);
  
- SectorMap ftape_get_bad_sector_entry(int segment_id)
- {
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-ctl.h.old	2004-11-06 21:47:35.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-ctl.h	2004-11-06 21:48:11.000000000 +0100
-@@ -158,6 +158,5 @@
- 				 unsigned int data_rate,
- 				 unsigned int tape_len);
- extern int  ftape_calibrate_data_rate(unsigned int qic_std);
--extern int  ftape_init_drive(void);
- extern const ftape_info *ftape_get_status(void);
- #endif
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-ctl.c.old	2004-11-06 21:48:20.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-ctl.c	2004-11-06 21:49:27.000000000 +0100
-@@ -113,11 +113,6 @@
- #endif
+ /*
+  * Function : int scsicam_bios_param (struct block_device *bdev, ector_t capacity, int *ip)
+@@ -94,6 +95,7 @@
+ 
+ 	return 0;
  }
++EXPORT_SYMBOL(scsicam_bios_param);
  
--void ftape_set_status(const ftape_info *status)
--{
--	ftape_status = *status;
--}
--
- static int ftape_not_operational(int status)
- {
- 	/* return true if status indicates tape can not be used.
-@@ -210,7 +205,7 @@
- 	return i;
+ /*
+  * Function : static int scsi_partsize(unsigned char *buf, unsigned long 
+@@ -175,6 +177,7 @@
+ 	}
+ 	return -1;
  }
++EXPORT_SYMBOL(scsi_partsize);
  
--void ftape_detach_drive(void)
-+static void ftape_detach_drive(void)
- {
- 	TRACE_FUN(ft_t_any);
- 
-@@ -241,7 +236,7 @@
- 		ft_history.rewinds = 0;
+ /*
+  * Function : static int setsize(unsigned long capacity,unsigned int *cyls,
+--- linux-2.6.10-rc2-mm2-full/drivers/scsi/scsi_ioctl.c.old	2004-11-20 21:32:20.000000000 +0100
++++ linux-2.6.10-rc2-mm2-full/drivers/scsi/scsi_ioctl.c	2004-11-20 21:36:32.000000000 +0100
+@@ -173,6 +173,7 @@
+ 		sdev->locked = (state == SCSI_REMOVAL_PREVENT);
+ 	return ret;
  }
++EXPORT_SYMBOL(scsi_set_medium_removal);
  
--int ftape_activate_drive(vendor_struct * drive_type)
-+static int ftape_activate_drive(vendor_struct * drive_type)
- {
- 	int result = 0;
- 	TRACE_FUN(ft_t_flow);
-@@ -301,7 +296,7 @@
- 	TRACE_EXIT result;
- }
- 
--int ftape_get_drive_status(void)
-+static int ftape_get_drive_status(void)
- {
- 	int result;
- 	int status;
-@@ -374,7 +369,7 @@
- 	TRACE_EXIT 0;
- }
- 
--void ftape_log_vendor_id(void)
-+static void ftape_log_vendor_id(void)
- {
- 	int vendor_index;
- 	TRACE_FUN(ft_t_flow);
-@@ -580,7 +575,7 @@
- 	TRACE_EXIT 0;
- }
- 
--int ftape_init_drive(void)
-+static int ftape_init_drive(void)
- {
- 	int status;
- 	qic_model model;
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-init.c.old	2004-11-06 21:50:37.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-init.c	2004-11-06 21:50:58.000000000 +0100
-@@ -48,12 +48,6 @@
- #include "../lowlevel/ftape-proc.h"
- #include "../lowlevel/ftape-tracing.h"
- 
--/*      Global vars.
-- */
--char ft_src[] __initdata = "$Source: /homes/cvs/ftape-stacked/ftape/lowlevel/ftape-init.c,v $";
--char ft_rev[] __initdata = "$Revision: 1.8 $";
--char ft_dat[] __initdata = "$Date: 1997/11/06 00:38:08 $";
--
- 
- #if defined(MODULE) && !defined(CONFIG_FT_NO_TRACE_AT_ALL)
- static int ft_tracing = -1;
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-io.h.old	2004-11-06 21:51:28.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-io.h	2004-11-06 21:51:48.000000000 +0100
-@@ -65,9 +65,6 @@
- 			       unsigned int timeout,
- 			       int *status);
- extern int  ftape_parameter(unsigned int parameter);
--extern int  ftape_parameter_wait(unsigned int parameter,
--				 unsigned int timeout,
--				 int *status);
- extern int ftape_report_operation(int *status,
- 				  qic117_cmd_t  command,
- 				  int result_length);
-@@ -80,7 +77,6 @@
- extern int ftape_report_status(int *status);
- extern int ftape_ready_wait(unsigned int timeout, int *status);
- extern int ftape_seek_head_to_track(unsigned int track);
--extern int ftape_in_error_state(int status);
- extern int ftape_set_data_rate(unsigned int new_rate, unsigned int qic_std);
- extern int ftape_report_error(unsigned int *error,
- 			      qic117_cmd_t *command,
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-io.c.old	2004-11-06 21:51:57.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-io.c	2004-11-06 21:52:34.000000000 +0100
-@@ -350,7 +350,7 @@
+ /*
+  * This interface is deprecated - users should use the scsi generic (sg)
+@@ -354,6 +355,7 @@
+ 	kfree(buf);
  	return result;
  }
++EXPORT_SYMBOL(scsi_ioctl_send_command);
  
--int ftape_parameter_wait(unsigned int parm, unsigned int timeout, int *status)
-+static int ftape_parameter_wait(unsigned int parm, unsigned int timeout, int *status)
- {
- 	int result;
- 
-@@ -503,16 +503,6 @@
- 	TRACE_EXIT 0;
- }
- 
--int ftape_in_error_state(int status)
--{
--	TRACE_FUN(ft_t_any);
--
--	if ((status & QIC_STATUS_READY) && (status & QIC_STATUS_ERROR)) {
--		TRACE_ABORT(1, ft_t_warn, "warning: error status set!");
--	}
--	TRACE_EXIT 0;
--}
--
- int ftape_report_configuration(qic_model *model,
- 			       unsigned int *rate,
- 			       int *qic_std,
-@@ -617,7 +607,7 @@
- 	TRACE_EXIT (result < 0) ? -EIO : 0;
- }
- 
--int ftape_report_rom_version(int *version)
-+static int ftape_report_rom_version(int *version)
- {
- 
- 	if (ftape_report_operation(version, QIC_REPORT_ROM_VERSION, 8) < 0) {
-@@ -627,16 +617,6 @@
+ /*
+  * The scsi_ioctl_get_pci() function places into arg the value
+@@ -463,6 +465,7 @@
  	}
+ 	return -EINVAL;
  }
++EXPORT_SYMBOL(scsi_ioctl);
  
--int ftape_report_signature(int *signature)
--{
--	int result;
--
--	result = ftape_command(28);
--	result = ftape_report_operation(signature, 9, 8);
--	result = ftape_command(30);
--	return (result < 0) ? -EIO : 0;
--}
--
- void ftape_report_vendor_id(unsigned int *id)
+ /*
+  * the scsi_nonblock_ioctl() function is designed for ioctls which may
+--- linux-2.6.10-rc2-mm2-full/drivers/scsi/constants.c.old	2004-11-20 21:33:13.000000000 +0100
++++ linux-2.6.10-rc2-mm2-full/drivers/scsi/constants.c	2004-11-20 21:35:16.000000000 +0100
+@@ -352,6 +352,7 @@
+ 		printk(" %02x", command[k]);
+ 	printk("\n");
+ }
++EXPORT_SYMBOL(__scsi_print_command);
+ 
+ /* This function (perhaps with the addition of peripheral device type)
+  * is more approriate than __scsi_print_command(). Perhaps that static
+@@ -403,6 +404,7 @@
+ 	printk(KERN_INFO "0x%0x", scsi_status);
+ #endif
+ }
++EXPORT_SYMBOL(scsi_print_status);
+ 
+ #ifdef CONFIG_SCSI_CONSTANTS
+ 
+@@ -1106,6 +1108,7 @@
+ #endif
+ 	return NULL;
+ }
++EXPORT_SYMBOL(scsi_sense_key_string);
+ 
+ /*
+  * Get additional sense code string or NULL if not available.
+@@ -1128,6 +1131,7 @@
+ #endif
+ 	return NULL;
+ }
++EXPORT_SYMBOL(scsi_extd_sense_format);
+ 
+ /* Print extended sense information; no leadin, no linefeed */
+ static void
+@@ -1256,12 +1260,14 @@
+ 	print_sense_internal(devclass, cmd->sense_buffer,
+ 			     SCSI_SENSE_BUFFERSIZE, cmd->request);
+ }
++EXPORT_SYMBOL(scsi_print_sense);
+ 
+ void scsi_print_req_sense(const char *devclass, struct scsi_request *sreq)
  {
- 	int result;
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-proc.c.old	2004-11-06 21:52:50.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-proc.c	2004-11-06 21:53:22.000000000 +0100
-@@ -174,8 +174,8 @@
+ 	print_sense_internal(devclass, sreq->sr_sense_buffer,
+ 			     SCSI_SENSE_BUFFERSIZE, sreq->sr_request);
+ }
++EXPORT_SYMBOL(scsi_print_req_sense);
+ 
+ #ifdef CONFIG_SCSI_CONSTANTS
+ static const char *one_byte_msgs[] = {
+@@ -1340,6 +1346,7 @@
+ 		printk("reserved");
  	return len;
  }
++EXPORT_SYMBOL(scsi_print_msg);
  
--int ftape_read_proc(char *page, char **start, off_t off,
--		    int count, int *eof, void *data)
-+static int ftape_read_proc(char *page, char **start, off_t off,
-+			   int count, int *eof, void *data)
- {
- 	char *ptr = page;
- 	size_t len;
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-rw.h.old	2004-11-06 21:53:40.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-rw.h	2004-11-06 21:53:51.000000000 +0100
-@@ -101,7 +101,6 @@
- extern buffer_struct *ftape_get_buffer  (ft_buffer_queue_t pos);
- extern int            ftape_buffer_id   (ft_buffer_queue_t pos);
- extern void           ftape_reset_buffer(void);
--extern int  ftape_read_id(void);
- extern void ftape_tape_parameters(__u8 drive_configuration);
- extern int  ftape_wait_segment(buffer_state_enum state);
- extern int  ftape_dumb_stop(void);
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-rw.c.old	2004-11-06 21:54:04.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/lowlevel/ftape-rw.c	2004-11-06 21:54:14.000000000 +0100
-@@ -301,7 +301,7 @@
+ #else  /* ifndef CONFIG_SCSI_CONSTANTS */
  
- /*      Read Id of first sector passing tape head.
-  */
--int ftape_read_id(void)
-+static int ftape_read_id(void)
- {
- 	int status;
- 	__u8 out[2];
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-buffers.h.old	2004-11-06 21:54:29.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-buffers.h	2004-11-06 21:54:48.000000000 +0100
-@@ -37,7 +37,6 @@
- extern int   zft_vmalloc_once(void *new, size_t size);
- extern int   zft_vcalloc_once(void *new, size_t size);
- extern int   zft_vmalloc_always(void *new, size_t size);
--extern int   zft_vcalloc_always(void *new, size_t size);
- extern void  zft_vfree(void *old, size_t size);
- extern void *zft_kmalloc(size_t size);
- extern void  zft_kfree(void *old, size_t size);
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-buffers.c.old	2004-11-06 21:54:57.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-buffers.c	2004-11-06 21:55:09.000000000 +0100
-@@ -87,13 +87,6 @@
- 	TRACE_ABORT(0, ft_t_noise,
- 		    "allocated buffer @ %p, %d bytes", *(void **)new, size);
+@@ -1367,6 +1374,7 @@
+ 		printk("%02x ", msg[0]);
+ 	return len;
  }
--int zft_vcalloc_always(void *new, size_t size)
--{
--	TRACE_FUN(ft_t_flow);
--
--	zft_vfree(new, size);
--	TRACE_EXIT zft_vcalloc_once(new, size);
--}
- int zft_vmalloc_always(void *new, size_t size)
- {
- 	TRACE_FUN(ft_t_flow);
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape_syms.c.old	2004-11-06 21:55:50.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape_syms.c	2004-11-06 21:56:00.000000000 +0100
-@@ -35,7 +35,6 @@
++EXPORT_SYMBOL(scsi_print_msg);
+ #endif /* ! CONFIG_SCSI_CONSTANTS */
  
- /* zftape-init.c */
- EXPORT_SYMBOL(zft_cmpr_register);
--EXPORT_SYMBOL(zft_cmpr_unregister);
- /* zftape-read.c */
- EXPORT_SYMBOL(zft_fetch_segment_fraction);
- /* zftape-buffers.c */
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-init.h.old	2004-11-06 21:56:21.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-init.h	2004-11-06 21:57:26.000000000 +0100
-@@ -70,7 +70,6 @@
- /* zftape-init.c defined global functions.
-  */
- extern int                  zft_cmpr_register(struct zft_cmpr_ops *new_ops);
--extern struct zft_cmpr_ops *zft_cmpr_unregister(void);
- extern int                  zft_cmpr_lock(int try_to_load);
+ void scsi_print_command(struct scsi_cmnd *cmd)
+@@ -1379,6 +1387,7 @@
+ 	printk(KERN_INFO "        command: ");
+ 	scsi_print_cdb(cmd->cmnd, cmd->cmd_len, 0);
+ }
++EXPORT_SYMBOL(scsi_print_command);
  
- #endif
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-init.c.old	2004-11-06 21:57:33.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-init.c	2004-11-06 21:58:02.000000000 +0100
-@@ -46,10 +46,6 @@
- #include "../zftape/zftape-ctl.h"
- #include "../zftape/zftape-buffers.h"
+ #ifdef CONFIG_SCSI_CONSTANTS
  
--char zft_src[] __initdata = "$Source: /homes/cvs/ftape-stacked/ftape/zftape/zftape-init.c,v $";
--char zft_rev[] __initdata = "$Revision: 1.8 $";
--char zft_dat[] __initdata = "$Date: 1997/11/06 00:48:56 $";
--
- MODULE_AUTHOR("(c) 1996, 1997 Claus-Justus Heine "
- 	      "(claus@momo.math.rwth-aachen.de)");
- MODULE_DESCRIPTION(ZFTAPE_VERSION " - "
-@@ -278,15 +274,6 @@
+--- linux-2.6.10-rc2-mm2-full/drivers/scsi/scsi_error.c.old	2004-11-20 21:35:32.000000000 +0100
++++ linux-2.6.10-rc2-mm2-full/drivers/scsi/scsi_error.c	2004-11-20 21:46:48.000000000 +0100
+@@ -125,6 +125,7 @@
+ 
+ 	add_timer(&scmd->eh_timeout);
+ }
++EXPORT_SYMBOL(scsi_add_timer);
+ 
+ /**
+  * scsi_delete_timer - Delete/cancel timer for a given function.
+@@ -152,6 +153,7 @@
+ 
+ 	return rtn;
+ }
++EXPORT_SYMBOL(scsi_delete_timer);
+ 
+ /**
+  * scsi_times_out - Timeout function for normal scsi commands.
+@@ -214,6 +216,7 @@
+ 
+ 	return online;
+ }
++EXPORT_SYMBOL(scsi_block_when_processing_errors);
+ 
+ #ifdef CONFIG_SCSI_LOGGING
+ /**
+@@ -1752,6 +1755,7 @@
+ 		}
  	}
  }
++EXPORT_SYMBOL(scsi_report_bus_reset);
  
--struct zft_cmpr_ops *zft_cmpr_unregister(void)
--{
--	struct zft_cmpr_ops *old_ops = zft_cmpr_ops;
--	TRACE_FUN(ft_t_flow);
--
--	zft_cmpr_ops = NULL;
--	TRACE_EXIT old_ops;
--}
--
- /*  lock the zft-compressor() module.
+ /*
+  * Function:    scsi_report_device_reset()
+@@ -1787,6 +1791,7 @@
+ 		}
+ 	}
+ }
++EXPORT_SYMBOL(scsi_report_device_reset);
+ 
+ static void
+ scsi_reset_provider_done_command(struct scsi_cmnd *scmd)
+@@ -1866,6 +1871,7 @@
+ 	scsi_next_command(scmd);
+ 	return rtn;
+ }
++EXPORT_SYMBOL(scsi_reset_provider);
+ 
+ /**
+  * scsi_normalize_sense - normalize main elements from either fixed or
+--- linux-2.6.10-rc2-mm2-full/drivers/scsi/scsi.c.old	2004-11-20 21:36:54.000000000 +0100
++++ linux-2.6.10-rc2-mm2-full/drivers/scsi/scsi.c	2004-11-20 21:46:12.000000000 +0100
+@@ -98,6 +98,9 @@
+  * After the system is up, you may enable logging via the /proc interface.
   */
- int zft_cmpr_lock(int try_to_load)
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-rw.h.old	2004-11-06 21:58:16.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-rw.h	2004-11-06 21:58:29.000000000 +0100
-@@ -79,7 +79,6 @@
- extern int zft_deblock_segment;
- extern zft_status_enum zft_io_state;
- extern int zft_header_changed;
--extern int zft_bad_sector_map_changed;
- extern int zft_qic113; /* conform to old specs. and old zftape */
- extern int zft_use_compression;
- extern unsigned int zft_blk_sz;
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-rw.c.old	2004-11-06 21:58:36.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-rw.c	2004-11-06 21:58:44.000000000 +0100
-@@ -45,7 +45,6 @@
- int zft_deblock_segment = -1;
- zft_status_enum zft_io_state = zft_idle;
- int zft_header_changed;
--int zft_bad_sector_map_changed;
- int zft_qic113; /* conform to old specs. and old zftape */
- int zft_use_compression;
- zft_position zft_pos = {
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-vtbl.h.old	2004-11-06 21:59:14.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-vtbl.h	2004-11-06 21:59:20.000000000 +0100
-@@ -152,7 +152,6 @@
- /* exported functions */
- extern void  zft_init_vtbl             (void);
- extern void  zft_free_vtbl             (void);
--extern void  zft_new_vtbl_entry        (void);
- extern int   zft_extract_volume_headers(__u8 *buffer);
- extern int   zft_update_volume_table   (unsigned int segment);
- extern int   zft_open_volume           (zft_position *pos,
---- linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-vtbl.c.old	2004-11-06 21:59:29.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/ftape/zftape/zftape-vtbl.c	2004-11-06 21:59:59.000000000 +0100
-@@ -62,7 +62,7 @@
- static zft_volinfo  eot_vtbl;
- static zft_volinfo *cur_vtbl;
+ unsigned int scsi_logging_level;
++#if defined(CONFIG_SCSI_LOGGING)
++EXPORT_SYMBOL(scsi_logging_level);
++#endif
  
--inline void zft_new_vtbl_entry(void)
-+static inline void zft_new_vtbl_entry(void)
+ const char *const scsi_device_types[MAX_SCSI_DEVICE_CODE] = {
+ 	"Direct-Access    ",
+@@ -115,6 +118,7 @@
+ 	"RAID             ",
+ 	"Enclosure        ",
+ };
++EXPORT_SYMBOL(scsi_device_types);
+ 
+ /*
+  * Function:    scsi_allocate_request
+@@ -147,6 +151,7 @@
+ 
+ 	return sreq;
+ }
++EXPORT_SYMBOL(scsi_allocate_request);
+ 
+ void __scsi_release_request(struct scsi_request *sreq)
  {
- 	struct list_head *tmp = &zft_last_vtbl->node;
- 	zft_volinfo *new = zft_kmalloc(sizeof(zft_volinfo));
-@@ -248,7 +248,7 @@
-  * that buffer already contains the old volume-table, so that vtbl
-  * entries without the zft_volume flag set can savely be ignored.
-  */
--void zft_create_volume_headers(__u8 *buffer)
-+static void zft_create_volume_headers(__u8 *buffer)
- {   
- 	__u8 *entry;
- 	struct list_head *tmp;
-
+@@ -187,6 +192,7 @@
+ 	__scsi_release_request(sreq);
+ 	kfree(sreq);
+ }
++EXPORT_SYMBOL(scsi_release_request);
+ 
+ struct scsi_host_cmd_pool {
+ 	kmem_cache_t	*slab;
+@@ -269,6 +275,7 @@
+ 
+ 	return cmd;
+ }				
++EXPORT_SYMBOL(scsi_get_command);
+ 
+ /*
+  * Function:	scsi_put_command()
+@@ -305,6 +312,7 @@
+ 
+ 	put_device(&sdev->sdev_gendev);
+ }
++EXPORT_SYMBOL(scsi_put_command);
+ 
+ /*
+  * Function:	scsi_setup_command_freelist()
+@@ -961,6 +969,7 @@
+ 	spin_unlock(sdev->request_queue->queue_lock);
+ 	spin_unlock_irqrestore(&device_request_lock, flags);
+ }
++EXPORT_SYMBOL(scsi_adjust_queue_depth);
+ 
+ /*
+  * Function:	scsi_track_queue_full()
+@@ -1011,6 +1020,7 @@
+ 		scsi_adjust_queue_depth(sdev, MSG_SIMPLE_TAG, depth);
+ 	return depth;
+ }
++EXPORT_SYMBOL(scsi_track_queue_full);
+ 
+ /**
+  * scsi_device_get  -  get an addition reference to a scsi_device
+@@ -1176,6 +1186,7 @@
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL(scsi_device_cancel);
+ 
+ #ifdef CONFIG_HOTPLUG_CPU
+ static int scsi_cpu_notify(struct notifier_block *self,
+--- linux-2.6.10-rc2-mm2-full/drivers/scsi/scsi_lib.c.old	2004-11-20 21:38:11.000000000 +0100
++++ linux-2.6.10-rc2-mm2-full/drivers/scsi/scsi_lib.c	2004-11-20 21:46:26.000000000 +0100
+@@ -233,7 +233,8 @@
+ 	 */
+ 	scsi_insert_special_req(sreq, 1);
+ }
+- 
++EXPORT_SYMBOL(scsi_do_req);
++
+ static void scsi_wait_done(struct scsi_cmnd *cmd)
+ {
+ 	struct request *req = cmd->request;
+@@ -267,6 +268,7 @@
+ 
+ 	__scsi_release_request(sreq);
+ }
++EXPORT_SYMBOL(scsi_wait_req);
+ 
+ /*
+  * Function:    scsi_init_cmd_errh()
+@@ -885,6 +887,7 @@
+ 		cmd = scsi_end_request(cmd, 0, block_bytes, 1);
+ 	}
+ }
++EXPORT_SYMBOL(scsi_io_completion);
+ 
+ /*
+  * Function:    scsi_init_io()
+@@ -1345,6 +1348,7 @@
+ 
+ 	return bounce_limit;
+ }
++EXPORT_SYMBOL(scsi_calculate_bounce_limit);
+ 
+ struct request_queue *scsi_alloc_queue(struct scsi_device *sdev)
+ {
+@@ -1394,6 +1398,7 @@
+ {
+ 	shost->host_self_blocked = 1;
+ }
++EXPORT_SYMBOL(scsi_block_requests);
+ 
+ /*
+  * Function:    scsi_unblock_requests()
+@@ -1420,6 +1425,7 @@
+ 	shost->host_self_blocked = 0;
+ 	scsi_run_host_queues(shost);
+ }
++EXPORT_SYMBOL(scsi_unblock_requests);
+ 
+ int __init scsi_init_queue(void)
+ {
+@@ -1554,6 +1560,7 @@
+ 
+ 	return sreq->sr_result;
+ }
++EXPORT_SYMBOL(__scsi_mode_sense);
+ 
+ /**
+  *	scsi_mode_sense - issue a mode sense, falling back from 10 to 
+@@ -1588,6 +1595,7 @@
+ 
+ 	return ret;
+ }
++EXPORT_SYMBOL(scsi_mode_sense);
+ 
+ int
+ scsi_test_unit_ready(struct scsi_device *sdev, int timeout, int retries)
+--- linux-2.6.10-rc2-mm2-full/drivers/scsi/scsi_syms.c	2004-10-18 23:54:08.000000000 +0200
++++ /dev/null	2004-08-23 02:01:39.000000000 +0200
+@@ -1,97 +0,0 @@
+-/*
+- * We should not even be trying to compile this if we are not doing
+- * a module.
+- */
+-#include <linux/config.h>
+-#include <linux/module.h>
 -
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
+-#include <scsi/scsi.h>
+-#include <scsi/scsi_dbg.h>
+-#include <scsi/scsi_device.h>
+-#include <scsi/scsi_driver.h>
+-#include <scsi/scsi_eh.h>
+-#include <scsi/scsi_host.h>
+-#include <scsi/scsi_ioctl.h>
+-#include <scsi/scsi_request.h>
+-#include <scsi/scsicam.h>
+-
+-#include "scsi_logging.h"
+-
+-
+-/*
+- * This source file contains the symbol table used by scsi loadable
+- * modules.
+- */
+-EXPORT_SYMBOL(scsi_register_driver);
+-EXPORT_SYMBOL(scsi_register_interface);
+-EXPORT_SYMBOL(scsi_host_alloc);
+-EXPORT_SYMBOL(scsi_add_host);
+-EXPORT_SYMBOL(scsi_scan_host);
+-EXPORT_SYMBOL(scsi_remove_host);
+-EXPORT_SYMBOL(scsi_host_get);
+-EXPORT_SYMBOL(scsi_host_put);
+-EXPORT_SYMBOL(scsi_host_lookup);
+-EXPORT_SYMBOL(scsi_register);
+-EXPORT_SYMBOL(scsi_unregister);
+-EXPORT_SYMBOL(scsicam_bios_param);
+-EXPORT_SYMBOL(scsi_partsize);
+-EXPORT_SYMBOL(scsi_bios_ptable);
+-EXPORT_SYMBOL(scsi_ioctl);
+-EXPORT_SYMBOL(scsi_print_command);
+-EXPORT_SYMBOL(__scsi_print_command);
+-EXPORT_SYMBOL(scsi_print_sense);
+-EXPORT_SYMBOL(scsi_print_req_sense);
+-EXPORT_SYMBOL(scsi_print_msg);
+-EXPORT_SYMBOL(scsi_print_status);
+-EXPORT_SYMBOL(scsi_sense_key_string);
+-EXPORT_SYMBOL(scsi_extd_sense_format);
+-EXPORT_SYMBOL(scsi_block_when_processing_errors);
+-EXPORT_SYMBOL(scsi_ioctl_send_command);
+-EXPORT_SYMBOL(scsi_set_medium_removal);
+-#if defined(CONFIG_SCSI_LOGGING)	/* { */
+-EXPORT_SYMBOL(scsi_logging_level);
+-#endif
+-
+-EXPORT_SYMBOL(scsi_allocate_request);
+-EXPORT_SYMBOL(scsi_release_request);
+-EXPORT_SYMBOL(scsi_wait_req);
+-EXPORT_SYMBOL(scsi_do_req);
+-EXPORT_SYMBOL(scsi_get_command);
+-EXPORT_SYMBOL(scsi_put_command);
+-
+-EXPORT_SYMBOL(scsi_report_bus_reset);
+-EXPORT_SYMBOL(scsi_report_device_reset);
+-EXPORT_SYMBOL(scsi_block_requests);
+-EXPORT_SYMBOL(scsi_unblock_requests);
+-EXPORT_SYMBOL(scsi_adjust_queue_depth);
+-EXPORT_SYMBOL(scsi_track_queue_full);
+-
+-EXPORT_SYMBOL(scsi_get_host_dev);
+-EXPORT_SYMBOL(scsi_free_host_dev);
+-
+-EXPORT_SYMBOL(scsi_io_completion);
+-
+-EXPORT_SYMBOL(__scsi_add_device);
+-EXPORT_SYMBOL(scsi_remove_device);
+-EXPORT_SYMBOL(scsi_device_cancel);
+-
+-EXPORT_SYMBOL(__scsi_mode_sense);
+-EXPORT_SYMBOL(scsi_mode_sense);
+-
+-/*
+- * This symbol is for the highlevel drivers (e.g. sg) only.
+- */
+-EXPORT_SYMBOL(scsi_reset_provider);
+-
+-EXPORT_SYMBOL(scsi_device_types);
+-
+-/*
+- * This is for st to find the bounce limit
+- */
+-EXPORT_SYMBOL(scsi_calculate_bounce_limit);
+-
+-/*
+- * Externalize timers so that HBAs can safely start/restart commands.
+- */
+-EXPORT_SYMBOL(scsi_add_timer);
+-EXPORT_SYMBOL(scsi_delete_timer);
 

@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263561AbUDEW0x (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 18:26:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263281AbUDEVl5
+	id S262044AbUDEWdK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 18:33:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbUDEW3w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 17:41:57 -0400
-Received: from linux-bt.org ([217.160.111.169]:49074 "EHLO mail.holtmann.net")
-	by vger.kernel.org with ESMTP id S263315AbUDEVkQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 17:40:16 -0400
-Subject: Re: regression: oops with usb bcm203x bluetooth dongle 2.6.5
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Soeren Sonnenburg <kernel@nn7.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1081200442.3591.38.camel@localhost>
-References: <1081196482.3591.5.camel@localhost>
-	 <1081199370.2843.20.camel@pegasus>  <1081200442.3591.38.camel@localhost>
-Content-Type: text/plain
-Message-Id: <1081201227.2843.27.camel@pegasus>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 05 Apr 2004 23:40:27 +0200
+	Mon, 5 Apr 2004 18:29:52 -0400
+Received: from host213-123-250-229.in-addr.btopenworld.com ([213.123.250.229]:4648
+	"EHLO 2003SERVER.sbs2003.local") by vger.kernel.org with ESMTP
+	id S263571AbUDEW2U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 18:28:20 -0400
+thread-index: AcQbXZ4w+Rv1y4kjT/qsushoQ5kOJw==
+X-Sieve: Server Sieve 2.2
+From: "Hollis Blanchard" <hollisb@us.ibm.com>
+To: <Administrator@vger.kernel.org>
+Subject: Re: 2.6.5-pre* does not boot on my PReP PPC
+Date: Mon, 5 Apr 2004 23:30:37 +0100
+Message-ID: <000001c41b5d$9e333100$d100000a@sbs2003.local>
+User-Agent: KMail/1.5.3
+Cc: "Sven Hartge" <hartge@ds9.gnuu.de>, <linux-kernel@vger.kernel.org>,
+       "linuxppc-dev list" <linuxppc-dev@lists.linuxppc.org>
+References: <20040329151515.GD2895@smtp.west.cox.net> <20040405155022.GL31152@smtp.west.cox.net> <4071CD50.2000402@g-house.de>
+In-Reply-To: <4071CD50.2000402@g-house.de>
+MIME-Version: 1.0
+X-Mailer: Microsoft CDO for Exchange 2000
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+X-Mailing-List: <linuxppc-dev@lists.linuxppc.org>
+X-Loop: linuxppc-dev@lists.linuxppc.org
+Content-Class: urn:content-classes:message
+Importance: normal
+Envelope-to: paul@sumlocktest.fsnet.co.uk
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
+X-OriginalArrivalTime: 05 Apr 2004 22:30:37.0406 (UTC) FILETIME=[9E3F17E0:01C41B5D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Soeren,
 
-> Bluetooth: Broadcom Blutonium firmware driver ver 1.0
-> bcm203x_probe: Mini driver request failed
-> bcm203x: probe of 1-1:1.0 failed with error -5
-> usb 1-1: bulk timeout on ep1in
-> usbfs: USBDEVFS_BULK failed dev 3 ep 0x81 len 10 ret -110
+On Monday 05 April 2004 16:19, Christian Kujau wrote:
+> um, yes. but the target "common_defconfig" was disabled somewhere in
+> 2.5, so my shini script broke. i wanted to do common_defconfig first,
+> then always keep my .config and do "oldconfig" after patching, but
+> somehow my script broke, so i went with "allnoconfig"...but ok, i'll try
+> again.
 
-these are two different errors. The first is from bcm203x while the
-request of the firmware file through request_firmware() fails and the
-second is form the bluefw program. Maybe hotplug get's into to trouble
-and tries to load the bcm203x and bluefw at the same time while it also
-has to handle requesting of the firmware file with firmware.agent. Does
-it work for you if you uninstall bluefw.
+FWIW, I use ibmchrp_config and then enable a couple PReP-specific things. It's
+pretty bare...
 
-Regards
+--
+Hollis Blanchard
+IBM Linux Technology Center
 
-Marcel
+
+** Sent via the linuxppc-dev mail list. See http://lists.linuxppc.org/
 
 

@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267713AbUBRR7P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 12:59:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267678AbUBRR5a
+	id S267980AbUBRTsL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 14:48:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267981AbUBRTsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 12:57:30 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:32714
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S267676AbUBRR5W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 12:57:22 -0500
-Date: Wed, 18 Feb 2004 18:57:15 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: module unload deadlock
-Message-ID: <20040218175715.GG4478@dualathlon.random>
-References: <20040217172646.GT4478@dualathlon.random> <20040218041527.052222C510@lists.samba.org> <20040218043555.GY8858@parcelfarce.linux.theplanet.co.uk> <20040218154040.GZ4478@dualathlon.random> <20040218164659.GA31035@parcelfarce.linux.theplanet.co.uk> <20040218172446.GD4478@dualathlon.random> <20040218173740.GB31035@parcelfarce.linux.theplanet.co.uk>
+	Wed, 18 Feb 2004 14:48:11 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:35456 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S267980AbUBRTsI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 14:48:08 -0500
+Date: Wed, 18 Feb 2004 20:47:44 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: UTF-8 practically vs. theoretically in the VFS API
+Message-ID: <20040218194744.GB1537@louise.pinerecords.com>
+References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca> <200402161948.i1GJmJi5000299@81-2-122-30.bradfords.org.uk> <Pine.LNX.4.58.0402161141140.30742@home.osdl.org> <20040216202142.GA5834@outpost.ds9a.nl> <c0ukd2$3uk$1@terminus.zytor.com> <Pine.LNX.4.58.0402171910550.2686@home.osdl.org> <4032DA76.8070505@zytor.com> <Pine.LNX.4.58.0402171927520.2686@home.osdl.org> <4032F861.3080304@zytor.com> <Pine.LNX.4.58.0402180716180.2686@home.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040218173740.GB31035@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+In-Reply-To: <Pine.LNX.4.58.0402180716180.2686@home.osdl.org>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 18, 2004 at 05:37:41PM +0000, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Wed, Feb 18, 2004 at 06:24:46PM +0100, Andrea Arcangeli wrote:
-> > The one you propose (of parport_pc keeping track of the ports by itself)
-> > is a different model, currently it's the highlevel that keeps track of
-> > the ports and each lowlevel registers the lowlevel ports in the
-> > highlevel list of ports. It doesn't mean the current model is wrong. You
-> > may not like it and you may find it less efficient, or less clean, or
-> > whatever, but the current model is definitely legitimate (the parport
-> > code has the troubles you found in the sharing code locking, but this
-> > registration model you're complaining about now is legitimate instead).
+On Feb-18 2004, Wed, 07:35 -0800
+Linus Torvalds <torvalds@osdl.org> wrote:
+
+> But it makes perfect sense to use a policy of:
+>  - escape valid UTF-8 characters as '\u7777'
+>  - escape _invalid_ UTF-8 characters as their hex byte sequence (ie 
+>    '\xC0\x80\x80', whatever)
+>  - (and, obviously, escape the valid UTF-8 character '\' as '\\').
 > 
-> RTFS.  And realize that parport_enumerate() exports the damn list with no
-> protection whatsoever.  It is broken and it always had been broken.
+> Don't you agree? It clearly allows all the cases, and you can re-generate 
+> the _exact_ original stream of bytes from the above (ie it is nicely 
+> reversible, which in my opinion is a requirement).
 
-it has not always had been broken, it was was serialized by the BKL when
-I worked on that code the last time ;) (so it wasn't broken in 2.2, just nobody
-fixed the locking when the kernel kept evolving)
+I really really hope this is _exactly_ what we're going to see in practice.
 
-the smp safety is broken, but the model is not obviously broken as you
-claim. the locking of the list could be fixed simply with a
-parport_lock spinlock or semaphore or whatever like that, you may prefer
-to fix it differently keeping the list local in the lowlevel and
-protected it to a private lock to parport_pc instead of making it
-visible and exporting hte lock too, I'm just saying that part of the
-code was legitimate at least in 2.2.
+-- 
+Tomas Szepe <szepe@pinerecords.com>

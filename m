@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281983AbRKZSDl>; Mon, 26 Nov 2001 13:03:41 -0500
+	id <S281981AbRKZSEb>; Mon, 26 Nov 2001 13:04:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281963AbRKZSDc>; Mon, 26 Nov 2001 13:03:32 -0500
-Received: from smtp012.mail.yahoo.com ([216.136.173.32]:14342 "HELO
-	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S281983AbRKZSDZ>; Mon, 26 Nov 2001 13:03:25 -0500
-Subject: ext3 / andrewm's web pages
-From: Sujal Shah <sujalnet@yahoo.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 26 Nov 2001 13:03:42 -0500
-Message-Id: <1006797823.1300.4.camel@pcsshah>
+	id <S281987AbRKZSEM>; Mon, 26 Nov 2001 13:04:12 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:17280 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S281963AbRKZSEA>;
+	Mon, 26 Nov 2001 13:04:00 -0500
+Date: Mon, 26 Nov 2001 10:02:17 -0800 (PST)
+Message-Id: <20011126.100217.112611573.davem@redhat.com>
+To: mingo@elte.hu
+Cc: velco@fadata.bg, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Scalable page cache
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0111261753480.10763-100000@localhost.localdomain>
+In-Reply-To: <87elml4ssx.fsf@fadata.bg>
+	<Pine.LNX.4.33.0111261753480.10763-100000@localhost.localdomain>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Ingo Molnar <mingo@elte.hu>
+   Date: Mon, 26 Nov 2001 18:22:25 +0100 (CET)
+   
+   The problem with the tree is that if we have a big, eg. 16 GB pagecache,
+   then even assuming a perfectly balanced tree, it takes more than 20
+   iterations to find the page in the tree.
 
-Did they move?  Can't find them anywhere.
+His tree is per-inode, so you'd need a fully in ram 16GB _FILE_ to get
+the bad tree search properties you describe.
 
-I'm getting 403 Forbiddens from the www.uow.edu.au site.
-
-Sujal
-
--- 
----- Sujal Shah --- sujal@sujal.net ---
-
-        http://www.sujal.net
-
-Now Playing: Ministry Of Sound - Power Of Love / Frankie Goes T
-
-
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
-
+I like his patch, a lot.

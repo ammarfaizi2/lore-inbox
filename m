@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263574AbUC3Jgt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 04:36:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263578AbUC3Jgt
+	id S263577AbUC3Jjh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 04:39:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbUC3Jjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 04:36:49 -0500
-Received: from ns.suse.de ([195.135.220.2]:3470 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263574AbUC3Jg0 (ORCPT
+	Tue, 30 Mar 2004 04:39:37 -0500
+Received: from zero.aec.at ([193.170.194.10]:6153 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S263577AbUC3Jje (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 04:36:26 -0500
-Date: Tue, 30 Mar 2004 11:36:18 +0200
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: nickpiggin@yahoo.com.au, jun.nakajima@intel.com, ricklind@us.ibm.com,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, kernel@kolivas.org,
-       rusty@rustcorp.com.au, anton@samba.org, lse-tech@lists.sourceforge.net,
-       mbligh@aracnet.com
+	Tue, 30 Mar 2004 04:39:34 -0500
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: efocht@hpce.nec.com, linux-kernel@vger.kernel.org, andrea@suse.de
 Subject: Re: [Lse-tech] [patch] sched-domain cleanups,
  sched-2.6.5-rc2-mm2-A3
-Message-Id: <20040330113618.42869473.ak@suse.de>
-In-Reply-To: <20040330081840.GA22733@elte.hu>
-References: <4068066C.507@yahoo.com.au>
-	<20040329080150.4b8fd8ef.ak@suse.de>
-	<20040329114635.GA30093@elte.hu>
-	<20040329221434.4602e062.ak@suse.de>
-	<4068B692.9020307@yahoo.com.au>
-	<20040330083450.368eafc6.ak@suse.de>
-	<20040330064015.GA19036@elte.hu>
-	<20040330090716.67d2a493.ak@suse.de>
-	<20040330071519.GA20227@elte.hu>
-	<20040330094811.622af0f4.ak@suse.de>
-	<20040330081840.GA22733@elte.hu>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <1DF7H-22Y-11@gated-at.bofh.it> <1DL3x-7iG-7@gated-at.bofh.it>
+	<1DLGd-7TS-17@gated-at.bofh.it> <1FmNz-72J-73@gated-at.bofh.it>
+	<1FnzJ-7IW-15@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Tue, 30 Mar 2004 11:39:21 +0200
+In-Reply-To: <1FnzJ-7IW-15@gated-at.bofh.it> (Nick Piggin's message of "Tue,
+ 30 Mar 2004 11:20:11 +0200")
+Message-ID: <m34qs665di.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Mar 2004 10:18:40 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
+Nick Piggin <nickpiggin@yahoo.com.au> writes:
 
-> 
-> * Andi Kleen <ak@suse.de> wrote:
-> 
-> > > ok, could you try min_interval,max_interval and busy_factor all with a
-> > > value as 4, in sched.h's SD_NODE_INIT template? (again, only for testing
-> > > purposes.)
-> > 
-> > I kept the old patch and made these changes. The results are much more
-> > consistent now 3+x CPU. I still get varyations of ~2GB/s, but I had
-> > this with older kernels too.
-> 
-> great.
-> 
-> now, could you try the following patch, against vanilla -mm5:
-> 
-> 	redhat.com/~mingo/scheduler-patches/sched2.patch
-> 
-> this includes 'context balancing' and doesnt touch the NUMA async
-> balancing tunables. Do you get better performance than with stock -mm5?
+> I'm with Martin here, we are just about to merge all this
+> sched-domains stuff. So we should at least wait until after
+> that. And of course, *nothing* gets changed without at least
+> one benchmark that shows it improves something. So far
+> nobody has come up to the plate with that.
 
-I get better performance (roughly 2.1x CPU), but only about half the optimum.
+Hmm? I post numbers all the time.
+
+> There are other things, like java, ervers, etc that use threads.
+> The point is that we have never had this before, and nobody
+> (until now) has been asking for it. And there are as yet no
+> convincing benchmarks that even show best case improvements. And
+
+I don't have hard numbers anymore (Andrea, do you remember the
+details?), but I think we had actually better benchmark results
+in some java benchmarks with an aggressively balancing scheduler
+in 2.4-aa on non NUMA machines.
 
 -Andi
 

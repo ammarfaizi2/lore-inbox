@@ -1,64 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273065AbRJaVlp>; Wed, 31 Oct 2001 16:41:45 -0500
+	id <S273261AbRJaVdn>; Wed, 31 Oct 2001 16:33:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273213AbRJaVlf>; Wed, 31 Oct 2001 16:41:35 -0500
-Received: from [63.231.122.81] ([63.231.122.81]:34161 "EHLO lynx.adilger.int")
-	by vger.kernel.org with ESMTP id <S273065AbRJaVl2>;
-	Wed, 31 Oct 2001 16:41:28 -0500
-Date: Wed, 31 Oct 2001 14:39:02 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-Cc: Gerhard Mack <gmack@innerfire.net>,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
-        vda <vda@port.imtp.ilyichevsk.odessa.ua>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Re: Nasty suprise with uptime
-Message-ID: <20011031143902.Q16554@lynx.no>
-Mail-Followup-To: Tim Schmielau <tim@physik3.uni-rostock.de>,
-	Gerhard Mack <gmack@innerfire.net>,
-	"Richard B. Johnson" <root@chaos.analogic.com>,
-	vda <vda@port.imtp.ilyichevsk.odessa.ua>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011031135215.O16554@lynx.no> <Pine.LNX.4.30.0110312157060.30141-100000@gans.physik3.uni-rostock.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <Pine.LNX.4.30.0110312157060.30141-100000@gans.physik3.uni-rostock.de>; from tim@physik3.uni-rostock.de on Wed, Oct 31, 2001 at 10:05:17PM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S273255AbRJaVdd>; Wed, 31 Oct 2001 16:33:33 -0500
+Received: from fmfdns02.fm.intel.com ([132.233.247.11]:57083 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S273213AbRJaVd0>; Wed, 31 Oct 2001 16:33:26 -0500
+Message-ID: <59885C5E3098D511AD690002A5072D3C42D6DC@orsmsx111.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Alex Bligh - linux-kernel'" <linux-kernel@alex.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: RE: 2xQ: Is PM + ACPI but /no/ APM a valid configuration? Interru
+		pts enabled in APM set power state?
+Date: Wed, 31 Oct 2001 13:33:51 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 31, 2001  22:05 +0100, Tim Schmielau wrote:
-> > This means you need to call something that _checks_ the uptime
-> > (or needs the 64-bit jiffies value) at least once every 1.3 years.
-> > If you don't do it at least that often, you probably don't care
-> > about the uptime anyways.
-> >
-> > This only impacts anything that really needs a 64-bit jiffies count,
-> > and has zero impact everywhere else.
+Not enabling the busmgr and EC is a not particularly useful config at this
+point, but the option is available for debugging reasons, and also it
+enables us to determine acpi's core interpreter size more easily.
+
+If you are willing to try acpi, I'd recommend everything on for now.
+
+Regards -- Andy
+
+> -----Original Message-----
+> From: Alex Bligh - linux-kernel [mailto:linux-kernel@alex.org.uk]
+> Sent: Wednesday, October 31, 2001 1:02 PM
+> To: Alex Bligh - linux-kernel; Grover, Andrew;
+> linux-kernel@vger.kernel.org
+> Cc: Alex Bligh - linux-kernel
+> Subject: RE: 2xQ: Is PM + ACPI but /no/ APM a valid configuration?
+> Interru pts enabled in APM set power state?
+> Importance: High
 > 
-> I initially thought of that too. My objection was that boxes with long
-> uptimes typically get forgotten in a corner until years later someone
-> checks uptime again.
 > 
-> However, I fully agree with your importance argument and believe this
-> proposal to be the best one.
-
-Note that there are several tools that check the uptime, not just the
-"uptime" command.  For example "top" and "w" also display the uptime
-value (reading /proc/uptime).  But yes, if people don't check on their
-boxes in a year, then this method will lose full multiples of 1.3 years
-between checks.  Probably not a big deal - we can assume such a system
-is an "appliance" at that point, regardless of what kind of real system
-it is.  If someone wants to ensure their uptime is correct, they can
-always put "[ -r /proc/uptime ] && cat /proc/uptime > /dev/null" in their
-cron.monthly directory.
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+> > For the hard of understanding, such as myself, do you mean the
+> > ACPI bus manager (CONFIG_ACPI_BUSMGR)? I had that unset, on
+> > the basis of least change, but can try it, or did you mean
+> > something else?
+> 
+> This was a stupid question derived from being up too many
+> hours. Andrew obviously meant 'embedded controller', the config
+> option for which depends on bus manager being selected
+> too. Apols.
+> 
+> Is selecting ACPI without these an invalid config? Or just
+> on my laptop?
+> 
+> --
+> Alex Bligh
+> 

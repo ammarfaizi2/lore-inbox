@@ -1,34 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264004AbSJTTXW>; Sun, 20 Oct 2002 15:23:22 -0400
+	id <S264627AbSJTTao>; Sun, 20 Oct 2002 15:30:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264625AbSJTTXV>; Sun, 20 Oct 2002 15:23:21 -0400
-Received: from news.cistron.nl ([62.216.30.38]:52999 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id <S264004AbSJTTXV>;
-	Sun, 20 Oct 2002 15:23:21 -0400
-From: Rene Blokland <reneb@orac.aais.org>
-Subject: Re: Re2: loadlin with 2.5.?? kernels
-Date: Sun, 20 Oct 2002 21:26:56 +0200
-Organization: Cistron
-Message-ID: <slrnar60rv.8ud.reneb@orac.aais.org>
-References: <1c6.531124.2ae44a91@aol.com> <5.1.0.14.2.20021020202108.00b890f8@pop.gmx.net>
-Reply-To: reneb@cistron.nl
-X-Trace: ncc1701.cistron.net 1035142132 15957 195.64.94.30 (20 Oct 2002 19:28:52 GMT)
-X-Complaints-To: abuse@cistron.nl
+	id <S264628AbSJTTao>; Sun, 20 Oct 2002 15:30:44 -0400
+Received: from zork.zork.net ([66.92.188.166]:60131 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id <S264627AbSJTTan>;
+	Sun, 20 Oct 2002 15:30:43 -0400
 To: linux-kernel@vger.kernel.org
+Subject: Re: Error in get_swap_page? (2.5.44)
+References: <20021020213217.A17457@jaquet.dk>
+From: Sean Neakums <sneakums@zork.net>
+X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
+X-Message-Flag: Message text advisory: DRUGS/ALCOHOL, NON-SEQUITUR
+X-Mailer: Norman
+X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
+X-Alameda: : WHY DOESN'T ANYONE KNOW ABOUT ALAMEDA?  IT'S RIGHT NEXT TO
+ OAKLAND!!!
+Organization: The Emadonics Institute
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Sun, 20 Oct 2002 20:36:46 +0100
+In-Reply-To: <20021020213217.A17457@jaquet.dk> (Rasmus Andersen's message of
+ "Sun, 20 Oct 2002 21:32:17 +0200")
+Message-ID: <6ud6q4x5pt.fsf@zork.zork.net>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
+ (i386-debian-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <5.1.0.14.2.20021020202108.00b890f8@pop.gmx.net>, Mike Galbraith wrote:
+commence  Rasmus Andersen quotation:
 
-> What was the last version that booted for you no problem?  (other than size)
-> 
->          -Mike
+> Unless I am mistaken, we return stuff (entry) from the local 
+> stack in swapfile.c::get_swap_page. Am I mistaken?
 
-In my case x.38 that is the last, I don't no anymore why not .39 (did it
-compile?)
-But sure .40 didn't boot with loadlin and an image dd'd to a floppy
+Wouldn't this only be a problem if a *pointer* to it was being
+returned?
+
+> Code in question:
+>
+> swp_entry_t get_swap_page(void)
+> {
+>         struct swap_info_struct * p;
+>         unsigned long offset;
+>         swp_entry_t entry;
+>         int type, wrapped = 0;
+>
+>         entry.val = 0;  /* Out of memory */
+> [...]
+>
+> out:
+>         swap_list_unlock();
+>         return entry;
+> }
 
 -- 
-Groeten / Regards, Rene J. Blokland
-
+ /                          |
+[|] Sean Neakums            |  Questions are a burden to others;
+[|] <sneakums@zork.net>     |      answers a prison for oneself.
+ \                          |

@@ -1,100 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318266AbSIOVl7>; Sun, 15 Sep 2002 17:41:59 -0400
+	id <S318268AbSIOVst>; Sun, 15 Sep 2002 17:48:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318268AbSIOVl6>; Sun, 15 Sep 2002 17:41:58 -0400
-Received: from p0254.as-l042.contactel.cz ([194.108.237.254]:4224 "EHLO
-	ppc.vc.cvut.cz") by vger.kernel.org with ESMTP id <S318266AbSIOVl5>;
-	Sun, 15 Sep 2002 17:41:57 -0400
-Date: Sun, 15 Sep 2002 23:37:33 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: axboe@suse.de
-Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH?] 2.5.34-bk: ide interfaces sharing same irq broken...
-Message-ID: <20020915213733.GA13938@ppc.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S318269AbSIOVst>; Sun, 15 Sep 2002 17:48:49 -0400
+Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:2751 "EHLO
+	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S318268AbSIOVss>; Sun, 15 Sep 2002 17:48:48 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Duncan Sands <duncan.sands@wanadoo.fr>
+To: Greg KH <greg@kroah.com>
+Subject: Re: 2.5.26 hotplug failure
+Date: Sun, 15 Sep 2002 23:53:41 +0200
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+References: <200207180950.42312.duncan.sands@wanadoo.fr> <20020718183617.GI15529@kroah.com>
+In-Reply-To: <20020718183617.GI15529@kroah.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209152353.41285.duncan.sands@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jens,
-  can you look at attached patch? Without this patch my machine dies while
-probing IDE with endless stream of 'unexpected irq'.
+On Thursday 18 July 2002 20:36, Greg KH wrote:
+> On Thu, Jul 18, 2002 at 09:50:42AM +0200, Duncan Sands wrote:
+> > I just gave 2.5.26 a whirl.  The first thing I noticed was
+> > that the hotplug system didn't run the script for my usb
+> > modem...
+> >
+> > kernel: usb.c: USB disconnect on device 2
+> > kernel: hub.c: new USB device 00:0b.0-2, assigned address 4
+> > kernel: usb.c: USB device 4 (vend/prod 0x6b9/0x4061) is not claimed by
+> > any active driver. /etc/hotplug/usb.agent: ... no modules for USB product
+> > 6b9/4061/0
+> >
+> > however this works just fine with 2.4.19-rc1 and 2.5.24 (i.e. only
+> > difference is the change in kernel)...
+>
+> But that message is from the hotplug agent, right?
+>
+> What kind of script used to get run, and how was it run (i.e. on network
+> interface registration, etc.)
+>
+> thanks,
+>
+> greg k-h
 
-  Problem is both primary and secondary channels of my PDC20265 use irq 10. 
-When we probe first interface, everything is fine, as irq 10 is disabled, 
-and so irq assertion is silently ignored (but it would die if I'll start 
-using USB which also wants irq 10...). But when secondary channel was 
-probed, irq 10 was asserted, and things went really wrong... So I made 
-disable_irq() unconditional: I see no reason why it should depend on 
-ack_intr. Any code which will cause IRQ assertion, and does not install 
-either IRQ handler, or which does not disable that IRQ, is buggy.
+OK, I've worked out what was wrong (patch below): /proc/bus/usb was
+being unmounted by the hotplug/usb.rc script.  After loading a HCD, usb.rc
+executes the following lines:
 
-  Another problem I noticed is that actual probe code in probe_hwif between
-disable_irq() and enable_irq() could change hwif->irq, and so we could
-enable irq we did not disable (it happened to me after I removed ack_intr
-test: irq is 0 on entry when probing onboard VIA, but on exit it is 14... 
-so we enabled irq 14 source without previously disabling it, and it caused 
-bad things to happen).
+    if [ -d /proc/bus/usb ]; then
+        # If we see there are no busses, we "failed" and
+        # can report so even if we're partially nonmodular.
+        COUNT=`ls /proc/bus/usb | wc -l`
+        if [ $COUNT -le 2 ]; then
+            umount /proc/bus/usb
+            rmmod usbcore >/dev/null 2>&1
+            return 1
+        fi
 
-  This patch makes disabling IRQ during probe unconditional, and makes sure
-that we enable same irq we disabled.
+In the 2.4 kernels, /proc/bus/usb contains at least
 
-  Of course that moving init_irq call before probe would be nicer, and
-it would solve also pending edge-triggered IRQ, but unfortunately as
-code is currently written, we do not know IRQ until after probe, and
-at this point we already asserted IRQ, even on PCI devices which can
-share IRQ with someone else.
+001  devices  drivers
 
-  After this patch, and after commenting out "ide_intr: unexpected interrupt"
-printk in ide.c:ide_intr system works finally fine.
-						Thanks,
-							Petr Vandrovec
-							vandrove@vc.cvut.cz
+i.e. at least three entries.  However sometime during
+the 2.5 kernel series the drivers file went away.  So
+now there are only two entries and usb.rc unmounts
+/proc/bus/usb.
 
-P.S.: I set 'Cc' list to my best knowledge. If you feel that you
-are missing (Andre & Alan, I believe that you both work on 2.4 only),
-add yourself to the "IDE DRIVER [GENERAL]" entry in MAINTAINERS. There
-is still Martin listed there.
+A simple fix is to change the test to [ $COUNT -lt 2 ];
 
-diff -urdN linux/drivers/ide/ide-probe.c linux/drivers/ide/ide-probe.c
---- linux/drivers/ide/ide-probe.c	2002-09-15 20:31:55.000000000 +0200
-+++ linux/drivers/ide/ide-probe.c	2002-09-15 22:55:41.000000000 +0200
-@@ -592,6 +592,7 @@
- {
- 	unsigned int unit;
- 	unsigned long flags;
-+	unsigned int irqd;
- 
- 	if (hwif->noprobe)
- 		return;
-@@ -623,8 +624,14 @@
- 		return;	
- 	}
- 
--	if (hwif->hw.ack_intr && hwif->irq)
-+	/* We must always disable IRQ, as probe_for_drive will assert IRQ, but
-+	   we'll install our IRQ driver much later... */
-+	if ((1 || hwif->hw.ack_intr) && hwif->irq) {
- 		disable_irq(hwif->irq);
-+		irqd = hwif->irq;
-+	} else {
-+		irqd = 0;	/* Use 0... IDE does not support using irq=0 at all... */
-+	}
- 
- 	local_irq_set(flags);
- 	/*
-@@ -659,8 +666,9 @@
- 
- 	}
- 	local_irq_restore(flags);
--	if (hwif->hw.ack_intr && hwif->irq)
--		enable_irq(hwif->irq);
-+	/* Use cached IRQ number. It might be (and is...) changed by probe code above */
-+	if (irqd)
-+		enable_irq(irqd);
- 
- 	for (unit = 0; unit < MAX_DRIVES; ++unit) {
- 		ide_drive_t *drive = &hwif->drives[unit];
+Duncan.
+
+--- hotplug/usb.rc.orig	2002-09-15 23:29:14.000000000 +0200
++++ hotplug/usb.rc	2002-09-15 23:29:39.000000000 +0200
+@@ -149,7 +149,7 @@
+ 	# If we see there are no busses, we "failed" and
+ 	# can report so even if we're partially nonmodular.
+ 	COUNT=`ls /proc/bus/usb | wc -l`
+-	if [ $COUNT -le 2 ]; then
++	if [ $COUNT -lt 2 ]; then
+ 	    umount /proc/bus/usb
+ 	    rmmod usbcore >/dev/null 2>&1
+ 	    return 1

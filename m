@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265247AbSJWWi2>; Wed, 23 Oct 2002 18:38:28 -0400
+	id <S265286AbSJWWfn>; Wed, 23 Oct 2002 18:35:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265211AbSJWWi2>; Wed, 23 Oct 2002 18:38:28 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:60833 "EHLO
+	id <S265290AbSJWWfn>; Wed, 23 Oct 2002 18:35:43 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:59297 "EHLO
 	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S265247AbSJWWiX>; Wed, 23 Oct 2002 18:38:23 -0400
+	id <S265286AbSJWWfi>; Wed, 23 Oct 2002 18:35:38 -0400
 X-AuthUser: davidel@xmailserver.org
-Date: Wed, 23 Oct 2002 15:53:31 -0700 (PDT)
+Date: Wed, 23 Oct 2002 15:50:43 -0700 (PDT)
 From: Davide Libenzi <davidel@xmailserver.org>
 X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Davide Libenzi <davidel@xmailserver.org>
+To: John Gardiner Myers <jgmyers@netscape.com>
 cc: linux-aio <linux-aio@kvack.org>,
        linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: async poll
-In-Reply-To: <Pine.LNX.4.44.0210231528580.1581-100000@blue1.dev.mcafeelabs.com>
-Message-ID: <Pine.LNX.4.44.0210231551230.1581-100000@blue1.dev.mcafeelabs.com>
+In-Reply-To: <3DB722DC.3090306@netscape.com>
+Message-ID: <Pine.LNX.4.44.0210231543290.1581-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Oct 2002, Davide Libenzi wrote:
+On Wed, 23 Oct 2002, John Gardiner Myers wrote:
 
-> It'll take 2 minutes to do such a thing. Actually the pollfd struct
-> contains the "events" field that is wasted when returning events and it
-> could be used for something more useful.
+> Again, it comes down to whether or not one has the luxury of being able
+> to (re)write one's application and supporting libraries from scratch.
+>  If one can ensure that the code for handling an event will never block
+> for any significant amount of time, then single-threaded process-per-CPU
+> will most likely perform best.  If, on the other hand, the code for
+> handling an event can occasionally block, then one needs a thread pool
+> in order to have reasonable latency.
+>
+> A thread pool based server that is released will trivially outperform a
+> single threaded server that needs a few more years development to
+> convert all the blocking calls to use the event subsystem.
 
-Also, I was just wondering if this might be usefull :
-
-asmlinkage int sys_epoll_wait(int epfd, int minevents, struct pollfd **events, int timeout);
-
-Where "minevents" rapresent the minimum number of events returned by
-sys_epoll ...
+I beg you pardon but where an application is possibly waiting for ?
+Couldn't it be waiting to something somehow identifiable as a file ? So,
+supposing that an interface like sys_epoll ( or AIO, or whatever )
+delivers you events for all your file descriptors your application is
+waiting for, why would you need threads ? In fact, I personally find that
+coroutines make threaded->single-task transaction very easy. Your virtual
+threads shares everything by default w/out having a single lock inside
+your application.
 
 
 
 - Davide
+
 
 

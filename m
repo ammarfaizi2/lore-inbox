@@ -1,113 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262451AbVCSLkv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262449AbVCSM2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262451AbVCSLkv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 06:40:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262452AbVCSLkv
+	id S262449AbVCSM2j (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 07:28:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbVCSM2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 06:40:51 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:25520 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262451AbVCSLkg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 06:40:36 -0500
-Date: Sat, 19 Mar 2005 12:40:21 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: swsusp: small updates
-Message-ID: <20050319114021.GA1594@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 19 Mar 2005 07:28:39 -0500
+Received: from host-81-191-114-177.bluecom.no ([81.191.114.177]:10625 "EHLO
+	lille-hjelper") by vger.kernel.org with ESMTP id S262449AbVCSM2b
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Mar 2005 07:28:31 -0500
+Message-ID: <423C1AEC.1050500@procaptura.com>
+Date: Sat, 19 Mar 2005 13:28:28 +0100
+From: Toralf Lund <toralf@procaptura.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: insmod segfault in pci_find_subsys()
+References: <423A9B65.1020103@procaptura.com> <20050318170709.GD14952@kroah.com>
+In-Reply-To: <20050318170709.GD14952@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Greg KH wrote:
 
-This kills unused macro and write-only variable, and adds messages
-where something goes wrong with suspending devices. Please apply,
+>On Fri, Mar 18, 2005 at 10:12:05AM +0100, Toralf Lund wrote:
+>  
+>
+>>Am I seeing an issue with the PCI functions here, or is it just that I 
+>>fail to spot an obvious mistake in the module itself?
+>>    
+>>
+>
+>I think it's a problem in your code.  I built and ran the following
+>example module just fine (based on your example, which wasn't the
+>smallest or cleanest...), with no oops.  Does this code work for you?
+>  
+>
+I'm not able to test that right now (not on the right system), but did 
+you try the exact code I submitted? It would be *very* helpful if 
+someone could verify that it leads to a crash, before I go any further.
 
-							Pavel
+I also have this feeling that an arbitrary change to the code might make 
+the module work without really resolving the problem.
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+>Oh, and the pci_find* functions are depreciated, do not use them, they
+>are going away in the near future.  Please use the pci_get* functions
+>instead.
+>  
+>
+I think pci_find* are used because the code is supposed to be compatible 
+with Linux 2.4 as well. Or did pci_get* exist there, too?
 
+Like I said, most of the code was actually written by someone else...
 
---- clean/include/linux/suspend.h	2005-03-19 00:32:25.000000000 +0100
-+++ linux/include/linux/suspend.h	2005-03-19 00:48:46.000000000 +0100
-@@ -34,8 +34,6 @@
- #define SWAP_FILENAME_MAXLENGTH	32
- 
- 
--#define SUSPEND_PD_PAGES(x)     (((x)*sizeof(struct pbe))/PAGE_SIZE+1)
--
- extern dev_t swsusp_resume_device;
-    
- /* mm/vmscan.c */
---- clean/kernel/power/main.c	2005-03-19 00:32:32.000000000 +0100
-+++ linux/kernel/power/main.c	2005-03-19 00:35:27.000000000 +0100
-@@ -65,8 +65,10 @@
- 			goto Thaw;
- 	}
- 
--	if ((error = device_suspend(PMSG_SUSPEND)))
-+	if ((error = device_suspend(PMSG_SUSPEND))) {
-+		printk(KERN_ERR "Some devices failed to suspend\n");
- 		goto Finish;
-+	}
- 	return 0;
-  Finish:
- 	if (pm_ops->finish)
-@@ -85,8 +87,10 @@
- 
- 	local_irq_save(flags);
- 
--	if ((error = device_power_down(PMSG_SUSPEND)))
-+	if ((error = device_power_down(PMSG_SUSPEND))) {
-+		printk(KERN_ERR "Some devices failed to power down\n");		
- 		goto Done;
-+	}
- 	error = pm_ops->enter(state);
- 	device_power_up();
-  Done:
---- clean/kernel/power/swsusp.c	2005-03-19 00:32:32.000000000 +0100
-+++ linux/kernel/power/swsusp.c	2005-03-19 00:52:45.000000000 +0100
-@@ -98,7 +98,6 @@
-  */
- suspend_pagedir_t *pagedir_nosave __nosavedata = NULL;
- static suspend_pagedir_t *pagedir_save;
--static int pagedir_order __nosavedata = 0;
- 
- #define SWSUSP_SIG	"S1SUSPEND"
- 
-@@ -920,7 +919,8 @@
- {
- 	int error;
- 	local_irq_disable();
--	device_power_down(PMSG_FREEZE);
-+	if (device_power_down(PMSG_FREEZE))
-+		printk(KERN_ERR "Some devices failed to power down, very bad\n");
- 	/* We'll ignore saved state, but this gets preempt count (etc) right */
- 	save_processor_state();
- 	error = swsusp_arch_resume();
-@@ -1219,7 +1219,6 @@
- 		return -EPERM;
- 	}
- 	nr_copy_pages = swsusp_info.image_pages;
--	pagedir_order = get_bitmask_order(SUSPEND_PD_PAGES(nr_copy_pages));
- 	return error;
- }
- 
-@@ -1238,7 +1237,7 @@
- 		 */
- 		error = bio_write_page(0, &swsusp_header);
- 	} else { 
--		pr_debug(KERN_ERR "swsusp: Suspend partition has wrong signature?\n");
-+		printk(KERN_ERR "swsusp: Suspend partition has wrong signature?\n");
- 		return -EINVAL;
- 	}
- 	if (!error)
+- T
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

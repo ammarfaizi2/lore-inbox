@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263567AbTEIWxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 18:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbTEIWxB
+	id S263568AbTEIW7o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 18:59:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263570AbTEIW7o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 18:53:01 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:45704 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263567AbTEIWws (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 18:52:48 -0400
-Date: Fri, 9 May 2003 16:05:26 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Corey Minyard <minyard@mvista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5.69] IPMI warning removal
-Message-Id: <20030509160526.4b5d6a60.shemminger@osdl.org>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 9 May 2003 18:59:44 -0400
+Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:52116 "EHLO
+	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
+	id S263568AbTEIW7n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 18:59:43 -0400
+Message-Id: <200305092310.h49NAnGi011053@locutus.cmf.nrl.navy.mil>
+To: Patrick McHardy <kaber@trash.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix kfree(skb) in iphase driver 
+In-reply-to: Your message of "Thu, 08 May 2003 23:58:09 +0200."
+             <3EBAD2F1.9090802@trash.net> 
+X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
+X-mailer: nmh 1.0
+Date: Fri, 09 May 2003 19:10:49 -0400
+From: chas williams <chas@locutus.cmf.nrl.navy.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-IPMI driver has warnings because it is putting interrupt mask into int
-when it should be using a unsigned long.
+In message <3EBAD2F1.9090802@trash.net>,Patrick McHardy writes:
+>This patch fixes a kfree(skb) in the iphase driver.
 
-diff -Nru a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
---- a/drivers/char/ipmi/ipmi_msghandler.c	Fri May  9 15:54:51 2003
-+++ b/drivers/char/ipmi/ipmi_msghandler.c	Fri May  9 15:54:51 2003
-@@ -174,7 +174,7 @@
- int
- ipmi_register_all_cmd_rcvr(ipmi_user_t user)
- {
--	int flags;
-+	unsigned long flags;
- 	int rv = -EBUSY;
- 
- 	write_lock_irqsave(&(user->intf->users_lock), flags);
-@@ -193,7 +193,7 @@
- int
- ipmi_unregister_all_cmd_rcvr(ipmi_user_t user)
- {
--	int flags;
-+	unsigned long flags;
- 	int rv = -EINVAL;
- 
- 	write_lock_irqsave(&(user->intf->users_lock), flags);
-@@ -1023,7 +1023,7 @@
- 	int              rv;
- 	ipmi_smi_t       new_intf;
- 	struct list_head *entry;
--	unsigned int     flags;
-+	unsigned long    flags;
- 
- 
- 	/* Make sure the driver is actually initialized, this handles
+what release is this against?
+
+>diff -Nru a/drivers/atm/iphase.c b/drivers/atm/iphase.c
+>--- a/drivers/atm/iphase.c	Thu May  8 23:56:27 2003
+>+++ b/drivers/atm/iphase.c	Thu May  8 23:56:27 2003
+>@@ -2965,7 +2965,7 @@
+> 	                 dev_kfree_skb_any(skb);
+> 	           return 0;
+> 	   }
+>-	   kfree(skb);
+>+	   dev_kfree_skb_any(skb);
+> 	   skb = newskb;
+>         }       
+> 	/* Get a descriptor number from our free descriptor queue  
+>

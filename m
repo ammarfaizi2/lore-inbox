@@ -1,31 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261405AbSJHQ0d>; Tue, 8 Oct 2002 12:26:33 -0400
+	id <S261453AbSJHQbY>; Tue, 8 Oct 2002 12:31:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261406AbSJHQ0d>; Tue, 8 Oct 2002 12:26:33 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:34034 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261405AbSJHQ0d>;
-	Tue, 8 Oct 2002 12:26:33 -0400
-Message-ID: <3DA3087B.5080704@us.ibm.com>
-Date: Tue, 08 Oct 2002 09:31:55 -0700
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
-X-Accept-Language: en-us, en
+	id <S261457AbSJHQbY>; Tue, 8 Oct 2002 12:31:24 -0400
+Received: from warden3-p.diginsite.com ([208.147.64.186]:62443 "HELO
+	warden3.diginsite.com") by vger.kernel.org with SMTP
+	id <S261453AbSJHQbW>; Tue, 8 Oct 2002 12:31:22 -0400
+Date: Tue, 8 Oct 2002 09:27:40 -0700 (PDT)
+From: David Lang <dlang@diginsite.com>
+To: Hell.Surfers@cwctv.net
+cc: simon@baydel.com, <alan@lxorguk.ukuu.org.uk>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE:Re: The end of embedded Linux?
+In-Reply-To: <03be754301608a2DTVMAIL5@smtp.cwctv.net>
+Message-ID: <Pine.LNX.4.44.0210080924570.3159-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-To: netdev@oss.sgi.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Attempt to release TCP socket errors in 2.5.41
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-ID: <Pine.LNX.4.44.0210080924572.3159@dlang.diginsite.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been running a certain large webserver benchmark on an 8-way 
-Profusion-based PIII Xeon.  I'm using Apache2.  These errors have 
-cropped up pretty recently, definitely since 2.5.34:
-Attempt to release TCP socket in state 1 f1e3f440
+correct, also nobody said it would be accepted in the kernel even they GPL
+it, but the in message I responded to Simon commented that he didn't see
+how it was possible to make a module that wasn't GPL, and therefor he was
+looking at having to use a different OS becouse he didn't want to GPL his
+modules. I was just pointing out that modules that don't use the GPL-only
+symbols don't have to be GPL (much as we would like them to be)
 
--- 
-Dave Hansen
-haveblue@us.ibm.com
+David Lang
 
+On Tue, 8 Oct 2002 Hell.Surfers@cwctv.net wrote:
+
+> Date: Tue, 8 Oct 2002 17:32:25 +0100
+> From: Hell.Surfers@cwctv.net
+> To: david.lang@digitalinsight.com, simon@baydel.com, alan@lxorguk.ukuu.org.uk,
+>      linux-kernel@vger.kernel.org
+> Subject: RE:Re: The end of embedded Linux?
+>
+> Nobody said if you GPL it they would have to put it in the kernel...
+>
+> Cheers, Dean.
+>
+> On 	Tue, 8 Oct 2002 08:52:49 -0700 (PDT) 	David Lang <david.lang@digitalinsight.com> wrote:
+>
+>

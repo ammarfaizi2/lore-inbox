@@ -1,68 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265007AbTGBN7Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 09:59:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265008AbTGBN7Z
+	id S263921AbTGBN5d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 09:57:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265002AbTGBN5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 09:59:25 -0400
-Received: from 24-216-225-11.charter.com ([24.216.225.11]:4997 "EHLO
-	wally.rdlg.net") by vger.kernel.org with ESMTP id S265007AbTGBN7W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 09:59:22 -0400
-Date: Wed, 2 Jul 2003 10:13:45 -0400
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: gcc 2.95.4 vs gcc 3.3 ?
-Message-ID: <20030702141345.GD13653@rdlg.net>
-Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IDYEmSnFhs3mNXr+"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Wed, 2 Jul 2003 09:57:33 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:25754 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S263921AbTGBN5c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 09:57:32 -0400
+Message-ID: <3F02E829.9040407@nortelnetworks.com>
+Date: Wed, 02 Jul 2003 10:11:53 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Faye Pearson <faye@zippysoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pppd pppoatm multilink?
+References: <20030702121820.GA21592@clara.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Faye Pearson wrote:
+> My ISP is about to trial multilink ADSL for use with routers like the
+> Cisco 1600, but I was wondering if it could be done 'on the cheap' (well
+> relatively anyway) with a linux box and a couple of PCI ADSL modems.
 
---IDYEmSnFhs3mNXr+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+You may want to repost this on the linux-atm and linux-net mailing lists 
+(linux-atm-general@lists.sourceforge.net and netdev@oss.sgi.com, 
+respectively).
 
-
-
-  I'm trying to compile the 2.4.21-ac3 kernel for some work machines.
-One of the users is insisting on gcc 3.3 to compile.  Reading the
-web page on www.kernel.org this is recomended against.
-
-  Perchance is this old news, is the 3.3 compiled kernel going to kill
-something or anything that should be related to users or any bosses?
-
-Robert
+Chris
 
 
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | GPG Key ID: E344DA3B
-                                         @ x-hkp://pgp.mit.edu=20
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 
-Diagnosis: witzelsucht  =09
-
-IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
-IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
-
---IDYEmSnFhs3mNXr+
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/AuiZ8+1vMONE2jsRAmDwAJwNAF1yUo3i9P8OUpX3cfal3illdQCfdaeK
-WVHY3/95CmrTwAE2MUMiMqM=
-=Wyre
------END PGP SIGNATURE-----
-
---IDYEmSnFhs3mNXr+--

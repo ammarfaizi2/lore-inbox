@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270828AbTGNURu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 16:17:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266118AbTGNUQc
+	id S270764AbTGNUXX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 16:23:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270774AbTGNUOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 16:16:32 -0400
-Received: from CPE-65-29-18-15.mn.rr.com ([65.29.18.15]:42181 "EHLO
-	www.enodev.com") by vger.kernel.org with ESMTP id S270824AbTGNUPY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 16:15:24 -0400
+	Mon, 14 Jul 2003 16:14:10 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:7108
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S270808AbTGNULB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 16:11:01 -0400
 Subject: Re: Alan Shih: "TCP IP Offloading Interface"
-From: Shawn <core@enodev.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: David griego <dagriego@hotmail.com>, jgarzik@pobox.com,
-       alan@storlinksemi.com,
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: David griego <dagriego@hotmail.com>, alan@storlinksemi.com,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1058213152.561.129.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <3F130C75.3010603@pobox.com>
 References: <Sea2-F4kWkKEsEXlwM9000178d9@hotmail.com>
-	 <1058213152.561.129.camel@dhcp22.swansea.linux.org.uk>
+	 <3F130C75.3010603@pobox.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1058214639.24180.120.camel@localhost>
+Organization: 
+Message-Id: <1058214188.606.139.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 14 Jul 2003 15:30:39 -0500
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 14 Jul 2003 21:23:09 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don't push him... he'll do it! We're talking "floor sweepings" frames!
-"Too rank for sausage" frames!
+On Llu, 2003-07-14 at 21:03, Jeff Garzik wrote:
+> If the host CPU is a bottleneck after large-send and checksums have been 
+> offloaded, then logically you aren't getting any work done _anyway_. 
+> You have to interface with the net stack at some point, in which case 
+> you incur a fixed cost, for socket handling, TCP exception handling, etc.
+> 
+> Maybe somebody needs to be looking into AMP (asymmetric 
+> multiprocessing), too.
 
-On Mon, 2003-07-14 at 15:05, Alan Cox wrote:
-> Also if its 1MHz per 1Mbit worse case and your ToE engine isnt entirely
-> hardware paths capable of sustaining 10Gbit/sec, what happens when I hit
-> you with 10Gbit of carefully chosen non optimal frames ?
+There isnt currently any evidence it buy you anything, although HT may
+change that equation a bit. Its still the same RAM bandwidth and you've
+not really gotten rid of most of the socket handling/event/wakeup
+overhead either.
 

@@ -1,44 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261752AbTJ1WmP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 17:42:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbTJ1WmP
+	id S261791AbTJ1Wrm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 17:47:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbTJ1Wrm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 17:42:15 -0500
-Received: from main.gmane.org ([80.91.224.249]:40633 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261752AbTJ1WmO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 17:42:14 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: Floppy in 2.6
-Date: Tue, 28 Oct 2003 23:42:12 +0100
-Message-ID: <yw1xekwxx9vf.fsf@kth.se>
-References: <20031028232054.1d452baa.news.receive@zoznam.sk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:3pfvIXZJvkT0VNAEe3QO3HL5Ssk=
+	Tue, 28 Oct 2003 17:47:42 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:34543 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261791AbTJ1Wrj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 17:47:39 -0500
+Message-ID: <3F9EF206.1040105@mvista.com>
+Date: Tue, 28 Oct 2003 14:47:34 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Jim Houston <jim.houston@ccur.com>, linux-kernel@vger.kernel.org
+Subject: Re: Is there a kgdb for Opteron for linux-2.6?
+References: <1066678923.1007.164.camel@new.localdomain> <20031024135112.GE2286@wotan.suse.de>
+In-Reply-To: <20031024135112.GE2286@wotan.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jakub Krajcovic <news.receive@zoznam.sk> writes:
+Andi Kleen wrote:
+> On Mon, Oct 20, 2003 at 03:42:03PM -0400, Jim Houston wrote:
+> 
+>>Hi Andi,
+>>
+>>I found your kgdb for x86_64 for linux-2.4.20 and I'm wondering if 
+>>there is a version for the 2.6 tree?
+>>
+>>If it doesn't exist, I'm thinking of merging your changes with the
+>>current i386 kgdb from Andrew Morton's tree.
+> 
+> 
+> There is no 2.6 version of kgdb currently. The 2.4 version also has some
+> problems that makes it better to not use it at all.
+> 
+> My plan was to do a fresh port from the code in -mm* and get rid of 
+> many of the ugly hacks in 2.4. Doing this properly requires adding
+> dwarf2 annotation to entry.S and other assembly files. This would
+> allow to get rid of the "interrupt threads" hack in 2.4 because gdb
+> could directly backtrace through exception/interrupts.
 
-> In 2.4 there was the option for "normal floppy support" and I have the
-> /dev/fd0 device for my floppy when I boot the old 2.4.22 kernel. So my
-> question is: does the 2.6 kernel support normal floppy disks or not?
-> And if it does, how do I enable this support in order to use my floppy
-> drive.
+I see that Andrew has not picked up my latest kgdb.  In the latest version I 
+have the dwarf2 stuff working in entry.S.  Just ask, off list.
 
-It's there.  In menuconfig it's "Device Drivers" -> "Block devices" ->
-"Normal floppy disk support".
-
-Who uses floppy disks nowadays, anyway?
+-g
+> 
+> -Andi
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 -- 
-Måns Rullgård
-mru@kth.se
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267620AbTGOMHD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 08:07:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267595AbTGOMHB
+	id S267381AbTGOMIn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 08:08:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267341AbTGOMIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 08:07:01 -0400
-Received: from mail.convergence.de ([212.84.236.4]:31904 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S267314AbTGOMGF convert rfc822-to-8bit
+	Tue, 15 Jul 2003 08:08:20 -0400
+Received: from mail.convergence.de ([212.84.236.4]:33184 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S267381AbTGOMGG convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 08:06:05 -0400
-Subject: [PATCH 1/17] Update the saa7146 driver core
-In-Reply-To: 
+	Tue, 15 Jul 2003 08:06:06 -0400
+Subject: [PATCH 3/17] Major dvb net code cleanup, many fixes
+In-Reply-To: <10582716533707@convergence.de>
 X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Tue, 15 Jul 2003 14:20:53 +0200
-Message-Id: <1058271653486@convergence.de>
+Date: Tue, 15 Jul 2003 14:20:54 +0200
+Message-Id: <10582716541717@convergence.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: torvalds@osdl.org, linux-kernel@vger.kernel.org
@@ -23,327 +23,686 @@ From: Michael Hunold (LinuxTV.org CVS maintainer)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[DVB] - fix WRITE_RPS0 and WRITE_RPS1 inlines, fix usage in mxb and budget drivers
-[DVB] - export "saa7146_start_preview" and "saa7146_stop_preview" to allow  drivers to start and stop video overlay (necessary for analog module support in the av7110 driver)
-[DVB] - fix i2c implementation: some frontend drivers transfer a huge amount of firmware data (> 30kB), speed up the transmission by busy waiting  between byte transfers for bigger transmissions
-[DVB] - change ioctl function in various driver to accept a saa7146 filehandle instead of a saa714 device structure
-diff -uNrwB --new-file linux-2.5.73.bk/drivers/media/common/saa7146_hlp.c linux-2.5.73.work/drivers/media/common/saa7146_hlp.c
---- linux-2.5.73.bk/drivers/media/common/saa7146_hlp.c	2003-06-25 09:46:54.000000000 +0200
-+++ linux-2.5.73.work/drivers/media/common/saa7146_hlp.c	2003-06-18 14:42:12.000000000 +0200
-@@ -935,6 +935,7 @@
- static void program_capture_engine(struct saa7146_dev *dev, int planar)
- {
- 	struct saa7146_vv *vv = dev->vv_data;
-+	int count = 0;
+[DVB] - code review and fix the old race condition in dev->set_multicast_list
+[DVB] - use tq_schedule instead of tq_immediate
+[DVB] - remove card_num and dev_num from struct dvb_net (now obsolete)
+[DVB] - prevent interface from being removed while it is in use
+[DVB] - allow add/remove only for the superuser
+[DVB] - set check-CRC flag on section filter to drop broken packets
+[DVB] - some more debug printfs in filter handling code
+[DVB] - cleaned up and commented packet reception handler
+[DVB] - fix formatting
+diff -uNrwB --new-file linux-2.5.73.bk/drivers/media/dvb/dvb-core/dvb_net.c linux-2.5.73.work/drivers/media/dvb/dvb-core/dvb_net.c
+--- linux-2.5.73.bk/drivers/media/dvb/dvb-core/dvb_net.c	2003-06-25 09:46:54.000000000 +0200
++++ linux-2.5.73.work/drivers/media/dvb/dvb-core/dvb_net.c	2003-06-25 09:50:42.000000000 +0200
+@@ -24,22 +24,25 @@
+  * 
+  */
  
- 	unsigned long e_wait = vv->current_hps_sync == SAA7146_HPS_SYNC_PORT_A ? CMD_E_FID_A : CMD_E_FID_B;
- 	unsigned long o_wait = vv->current_hps_sync == SAA7146_HPS_SYNC_PORT_A ? CMD_O_FID_A : CMD_O_FID_B;
-diff -uNrwB --new-file linux-2.5.73.bk/drivers/media/common/saa7146_vbi.c linux-2.5.73.work/drivers/media/common/saa7146_vbi.c
---- linux-2.5.73.bk/drivers/media/common/saa7146_vbi.c	2003-06-25 09:46:54.000000000 +0200
-+++ linux-2.5.73.work/drivers/media/common/saa7146_vbi.c	2003-06-18 14:44:17.000000000 +0200
-@@ -9,6 +9,7 @@
-         u32          *cpu;
-         dma_addr_t   dma_addr;
+-#include <linux/errno.h>
+-#include <linux/kernel.h>
+-#include <linux/string.h>
+-#include <linux/ioctl.h>
+-#include <linux/slab.h>
+-#include <asm/uaccess.h>
+-
+ #include <linux/dvb/net.h>
++#include <asm/uaccess.h>
+ 
+ #include "dvb_demux.h"
+ #include "dvb_net.h"
+ #include "dvb_functions.h"
+ 
++
++#if 1
++#define dprintk(x...) printk(x)
++#else
++#define dprintk(x...)
++#endif
++
++
+ #define DVB_NET_MULTICAST_MAX 10
+ 
+ struct dvb_net_priv {
++	int in_use;
+         struct net_device_stats stats;
+         char name[6];
+ 	u16 pid;
+@@ -49,10 +52,16 @@
+ 	int multi_num;
+ 	struct dmx_section_filter *multi_secfilter[DVB_NET_MULTICAST_MAX];
+ 	unsigned char multi_macs[DVB_NET_MULTICAST_MAX][6];
+-	int mode;
++	int rx_mode;
++#define RX_MODE_UNI 0
++#define RX_MODE_MULTI 1
++#define RX_MODE_ALL_MULTI 2
++#define RX_MODE_PROMISC 3
++	struct work_struct wq;
+ };
+ 
+-/*
++
++/**
+  *	Determine the packet's protocol ID. The rule here is that we 
+  *	assume 802.3 if the type field is short enough to be a length.
+  *	This is normal practice and works for any 'now in use' protocol.
+@@ -60,8 +69,8 @@
+  *  stolen from eth.c out of the linux kernel, hacked for dvb-device
+  *  by Michael Holzt <kju@debian.org>
+  */
+- 
+-unsigned short my_eth_type_trans(struct sk_buff *skb, struct net_device *dev)
++static unsigned short dvb_net_eth_type_trans(struct sk_buff *skb,
++				      struct net_device *dev)
+ {
+ 	struct ethhdr *eth;
+ 	unsigned char *rawp;
+@@ -70,8 +79,7 @@
+ 	skb_pull(skb,dev->hard_header_len);
+ 	eth= skb->mac.ethernet;
  	
-+	int count = 0;
+-	if(*eth->h_dest&1)
+-	{
++	if (*eth->h_dest & 1) {
+ 		if(memcmp(eth->h_dest,dev->broadcast, ETH_ALEN)==0)
+ 			skb->pkt_type=PACKET_BROADCAST;
+ 		else
+@@ -83,7 +91,7 @@
+ 		
+ 	rawp = skb->data;
+ 	
+-	/*
++	/**
+ 	 *	This is a magic hack to spot IPX packets. Older Novell breaks
+ 	 *	the protocol design and runs IPX over 802.3 without an 802.2 LLC
+ 	 *	layer. We look for FFFF which isn't a used 802.2 SSAP/DSAP. This
+@@ -92,31 +100,60 @@
+ 	if (*(unsigned short *)rawp == 0xFFFF)
+ 		return htons(ETH_P_802_3);
+ 		
+-	/*
++	/**
+ 	 *	Real 802.2 LLC
+ 	 */
+ 	return htons(ETH_P_802_2);
+ }
+ 
+-static void dvb_net_sec(struct net_device *dev, const u8 *pkt, int pkt_len)
++
++static void dvb_net_sec(struct net_device *dev, u8 *pkt, int pkt_len)
+ {
+         u8 *eth;
+         struct sk_buff *skb;
+ 
+-        if (pkt_len<13) {
+-                printk("%s: IP/MPE packet length = %d too small.\n", dev->name, pkt_len);
++	/* note: pkt_len includes a 32bit checksum */
++	if (pkt_len < 16) {
++		printk("%s: IP/MPE packet length = %d too small.\n",
++			dev->name, pkt_len);
++		((struct dvb_net_priv *) dev->priv)->stats.rx_errors++;
++		((struct dvb_net_priv *) dev->priv)->stats.rx_length_errors++;
++		return;
++	}
++	if ((pkt[5] & 0xfd) != 0xc1) {
++		/* drop scrambled or broken packets */
++		((struct dvb_net_priv *) dev->priv)->stats.rx_errors++;
++		((struct dvb_net_priv *) dev->priv)->stats.rx_crc_errors++;
+ 		return;
+ 	}
+-        skb = dev_alloc_skb(pkt_len+2);
+-        if (skb == NULL) {
+-                printk(KERN_NOTICE "%s: Memory squeeze, dropping packet.\n",
+-                       dev->name);
++	if (pkt[5] & 0x02) {
++		//FIXME: handle LLC/SNAP
+                 ((struct dvb_net_priv *)dev->priv)->stats.rx_dropped++;
+                 return;
+         }
+-        eth=(u8 *) skb_put(skb, pkt_len+2);
+-        memcpy(eth+14, (void*)pkt+12, pkt_len-12);
++	if (pkt[7]) {
++		/* FIXME: assemble datagram from multiple sections */
++		((struct dvb_net_priv *) dev->priv)->stats.rx_errors++;
++		((struct dvb_net_priv *) dev->priv)->stats.rx_frame_errors++;
++		return;
++	}
++
++	/* we have 14 byte ethernet header (ip header follows);
++	 * 12 byte MPE header; 4 byte checksum; + 2 byte alignment
++	 */
++	if (!(skb = dev_alloc_skb(pkt_len - 4 - 12 + 14 + 2))) {
++		//printk(KERN_NOTICE "%s: Memory squeeze, dropping packet.\n", dev->name);
++		((struct dvb_net_priv *) dev->priv)->stats.rx_dropped++;
++		return;
++	}
++	skb_reserve(skb, 2);    /* longword align L3 header */
++	skb->dev = dev;
++
++	/* copy L3 payload */
++	eth = (u8 *) skb_put(skb, pkt_len - 12 - 4 + 14);
++	memcpy(eth + 14, pkt + 12, pkt_len - 12 - 4);
+ 
++	/* create ethernet header: */
+         eth[0]=pkt[0x0b];
+         eth[1]=pkt[0x0a];
+         eth[2]=pkt[0x09];
+@@ -123,11 +160,13 @@
+         eth[3]=pkt[0x08];
+         eth[4]=pkt[0x04];
+         eth[5]=pkt[0x03];
++
+         eth[6]=eth[7]=eth[8]=eth[9]=eth[10]=eth[11]=0;
+-        eth[12]=0x08; eth[13]=0x00;
+ 
+-	skb->protocol=my_eth_type_trans(skb,dev);
+-        skb->dev=dev;
++	eth[12] = 0x08;	/* ETH_P_IP */
++	eth[13] = 0x00;
++
++	skb->protocol = dvb_net_eth_type_trans(skb, dev);
+         
+         ((struct dvb_net_priv *)dev->priv)->stats.rx_packets++;
+         ((struct dvb_net_priv *)dev->priv)->stats.rx_bytes+=skb->len;
+@@ -141,9 +180,11 @@
+ {
+         struct net_device *dev=(struct net_device *) filter->priv;
+ 
+-	/* FIXME: this only works if exactly one complete section is
+-	          delivered in buffer1 only */
+-	dvb_net_sec(dev, buffer1, buffer1_len);
++	/**
++	 * we rely on the DVB API definition where exactly one complete
++	 * section is delivered in buffer1
++	 */
++	dvb_net_sec (dev, (u8*) buffer1, buffer1_len);
+ 	return 0;
+ }
+ 
+@@ -178,24 +223,27 @@
+ 	memset((*secfilter)->filter_mode,  0xff, DMX_MAX_FILTER_SIZE);
+ 
+ 	(*secfilter)->filter_value[0]=0x3e;
+-	(*secfilter)->filter_mask[0]=0xff;
+-
+ 	(*secfilter)->filter_value[3]=mac[5];
+-	(*secfilter)->filter_mask[3]=mac_mask[5];
+ 	(*secfilter)->filter_value[4]=mac[4];
+-	(*secfilter)->filter_mask[4]=mac_mask[4];
+ 	(*secfilter)->filter_value[8]=mac[3];
+-	(*secfilter)->filter_mask[8]=mac_mask[3];
+ 	(*secfilter)->filter_value[9]=mac[2];
+-	(*secfilter)->filter_mask[9]=mac_mask[2];
+-
+ 	(*secfilter)->filter_value[10]=mac[1];
+-	(*secfilter)->filter_mask[10]=mac_mask[1];
+ 	(*secfilter)->filter_value[11]=mac[0];
++
++	(*secfilter)->filter_mask[0] = 0xff;
++	(*secfilter)->filter_mask[3] = mac_mask[5];
++	(*secfilter)->filter_mask[4] = mac_mask[4];
++	(*secfilter)->filter_mask[8] = mac_mask[3];
++	(*secfilter)->filter_mask[9] = mac_mask[2];
++	(*secfilter)->filter_mask[10] = mac_mask[1];
+ 	(*secfilter)->filter_mask[11]=mac_mask[0];
+ 
+-	printk("%s: filter mac=%02x %02x %02x %02x %02x %02x\n", 
++	dprintk("%s: filter mac=%02x %02x %02x %02x %02x %02x\n",
+ 	       dev->name, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
++	dprintk("%s: filter mask=%02x %02x %02x %02x %02x %02x\n",
++	       dev->name, mac_mask[0], mac_mask[1], mac_mask[2],
++	       mac_mask[3], mac_mask[4], mac_mask[5]);
++
+ 	return 0;
+ }
+ 
+@@ -206,46 +254,57 @@
+         struct dmx_demux *demux = priv->demux;
+         unsigned char *mac = (unsigned char *) dev->dev_addr;
+ 		
++	dprintk("%s: rx_mode %i\n", __FUNCTION__, priv->rx_mode);
++	if (priv->secfeed || priv->secfilter || priv->multi_secfilter[0])
++		printk("%s: BUG %d\n", __FUNCTION__, __LINE__);
++
+ 	priv->secfeed=0;
+ 	priv->secfilter=0;
+ 
++	dprintk("%s: alloc secfeed\n", __FUNCTION__);
+ 	ret=demux->allocate_section_feed(demux, &priv->secfeed, 
+ 					 dvb_net_callback);
+ 	if (ret<0) {
+-		printk("%s: could not get section feed\n", dev->name);
++		printk("%s: could not allocate section feed\n", dev->name);
+ 		return ret;
+ 	}
+ 
+-	ret=priv->secfeed->set(priv->secfeed, priv->pid, 32768, 0, 0);
++	ret = priv->secfeed->set(priv->secfeed, priv->pid, 32768, 0, 1);
++
+ 	if (ret<0) {
+ 		printk("%s: could not set section feed\n", dev->name);
+-		priv->demux->
+-		        release_section_feed(priv->demux, priv->secfeed);
++		priv->demux->release_section_feed(priv->demux, priv->secfeed);
+ 		priv->secfeed=0;
+ 		return ret;
+ 	}
+-	/* fixme: is this correct? */
+-	try_module_get(THIS_MODULE);
+ 
+-	if (priv->mode<3) 
++	if (priv->rx_mode != RX_MODE_PROMISC) {
++		dprintk("%s: set secfilter\n", __FUNCTION__);
+ 		dvb_net_filter_set(dev, &priv->secfilter, mac, mask_normal);
++	}
+ 
+-	switch (priv->mode) {
+-	case 1:
+-		for (i=0; i<priv->multi_num; i++) 
++	switch (priv->rx_mode) {
++	case RX_MODE_MULTI:
++		for (i = 0; i < priv->multi_num; i++) {
++			dprintk("%s: set multi_secfilter[%d]\n", __FUNCTION__, i);
+ 			dvb_net_filter_set(dev, &priv->multi_secfilter[i],
+ 					   priv->multi_macs[i], mask_normal);
++		}
+ 		break;
+-	case 2:
++	case RX_MODE_ALL_MULTI:
+ 		priv->multi_num=1;
+-		dvb_net_filter_set(dev, &priv->multi_secfilter[0], mac_allmulti, mask_allmulti);
++		dprintk("%s: set multi_secfilter[0]\n", __FUNCTION__);
++		dvb_net_filter_set(dev, &priv->multi_secfilter[0],
++				   mac_allmulti, mask_allmulti);
+ 		break;
+-	case 3:
++	case RX_MODE_PROMISC:
+ 		priv->multi_num=0;
++		dprintk("%s: set secfilter\n", __FUNCTION__);
+ 		dvb_net_filter_set(dev, &priv->secfilter, mac, mask_promisc);
+ 		break;
+ 	}
+ 	
++	dprintk("%s: start filtering\n", __FUNCTION__);
+ 	priv->secfeed->start_filtering(priv->secfeed);
+ 	return 0;
+ }
+@@ -255,89 +315,93 @@
+ 	struct dvb_net_priv *priv = (struct dvb_net_priv*) dev->priv;
  	int i;
  
- 	DECLARE_WAITQUEUE(wait, current);
-diff -uNrwB --new-file linux-2.5.73.bk/drivers/media/dvb/ttpci/budget-patch.c linux-2.5.73.work/drivers/media/dvb/ttpci/budget-patch.c
---- linux-2.5.73.bk/drivers/media/dvb/ttpci/budget-patch.c	2003-06-25 09:46:54.000000000 +0200
-+++ linux-2.5.73.work/drivers/media/dvb/ttpci/budget-patch.c	2003-06-19 11:33:02.000000000 +0200
-@@ -165,6 +165,7 @@
- {
-         struct budget_patch *budget;
-         int err;
-+	int count = 0;
++	dprintk("%s\n", __FUNCTION__);
+         if (priv->secfeed) {
+-	        if (priv->secfeed->is_filtering)
++		if (priv->secfeed->is_filtering) {
++			dprintk("%s: stop secfeed\n", __FUNCTION__);
+ 		        priv->secfeed->stop_filtering(priv->secfeed);
+-	        if (priv->secfilter)
+-		        priv->secfeed->
+-			        release_filter(priv->secfeed, 
++		}
++
++		if (priv->secfilter) {
++			dprintk("%s: release secfilter\n", __FUNCTION__);
++			priv->secfeed->release_filter(priv->secfeed,
+ 					       priv->secfilter);
+ 		priv->secfilter=0;
++		}
  
-         if (!(budget = kmalloc (sizeof(struct budget_patch), GFP_KERNEL)))
-                 return -ENOMEM;
-diff -uNrwB --new-file linux-2.5.73.bk/drivers/media/common/saa7146_i2c.c linux-2.5.73.work/drivers/media/common/saa7146_i2c.c
---- linux-2.5.73.bk/drivers/media/common/saa7146_i2c.c	2003-06-25 09:46:54.000000000 +0200
-+++ linux-2.5.73.work/drivers/media/common/saa7146_i2c.c	2003-06-18 13:52:23.000000000 +0200
-@@ -181,9 +181,10 @@
- /* this functions writes out the data-byte 'dword' to the i2c-device.
-    it returns 0 if ok, -1 if the transfer failed, -2 if the transfer
-    failed badly (e.g. address error) */
--static int saa7146_i2c_writeout(struct saa7146_dev *dev, u32* dword)
-+static int saa7146_i2c_writeout(struct saa7146_dev *dev, u32* dword, int short_delay)
- {
- 	u32 status = 0, mc2 = 0;
-+	int trial = 0;
- 	int timeout;
- 
- 	/* write out i2c-command */
-@@ -224,10 +225,13 @@
- 		/* wait until we get a transfer done or error */
- 		timeout = jiffies + HZ/100 + 1; /* 10ms */
- 		while(1) {
-+			/**
-+			 *  first read usually delivers bogus results...
-+			 */
-+			saa7146_i2c_status(dev);
- 			status = saa7146_i2c_status(dev);
--			if( (0x3 == (status & 0x3)) || (0 == (status & 0x1)) ) {
-+			if ((status & 0x3) != 1)
- 				break;
--			}
- 			if (jiffies > timeout) {
- 				/* this is normal when probing the bus
- 				 * (no answer from nonexisistant device...)
-@@ -235,6 +239,9 @@
- 				DEB_I2C(("saa7146_i2c_writeout: timed out waiting for end of xfer\n"));
- 				return -EIO;
- 			}
-+			if ((++trial < 20) && short_delay)
-+				udelay(10);
-+			else
- 			my_wait(dev,1);
+ 		for (i=0; i<priv->multi_num; i++) {
+-			if (priv->multi_secfilter[i])
+-				priv->secfeed->
+-					release_filter(priv->secfeed, 
++			if (priv->multi_secfilter[i]) {
++				dprintk("%s: release multi_filter[%d]\n", __FUNCTION__, i);
++				priv->secfeed->release_filter(priv->secfeed,
+ 						       priv->multi_secfilter[i]);
+ 			priv->multi_secfilter[i]=0;
  		}
- 	}
-@@ -277,6 +284,7 @@
- 	u32* buffer = dev->d_i2c.cpu_addr;
- 	int err = 0;
-         int address_err = 0;
-+        int short_delay = 0;
- 	
- 	if (down_interruptible (&dev->i2c_lock))
- 		return -ERESTARTSYS;
-@@ -292,6 +300,8 @@
- 		goto out;
- 	}
- 
-+        if (count > 3) short_delay = 1;
-+  
- 	do {
- 		/* reset the i2c-device if necessary */
- 		err = saa7146_i2c_reset(dev);
-@@ -302,7 +312,7 @@
- 
- 		/* write out the u32s one after another */
- 		for(i = 0; i < count; i++) {
--			err = saa7146_i2c_writeout(dev, &buffer[i] );
-+			err = saa7146_i2c_writeout(dev, &buffer[i], short_delay);
- 			if ( 0 != err) {
- 				/* this one is unsatisfying: some i2c slaves on some
- 				   dvb cards don't acknowledge correctly, so the saa7146
-@@ -357,7 +367,7 @@
- 	if( 0 == dev->revision ) {
- 		u32 zero = 0;
- 		saa7146_i2c_reset(dev);
--		if( 0 != saa7146_i2c_writeout(dev, &zero)) {
-+		if( 0 != saa7146_i2c_writeout(dev, &zero, short_delay)) {
- 			INFO(("revision 0 error. this should never happen.\n"));
- 		}
- 	}
-diff -uNrwB --new-file linux-2.5.73.bk/drivers/media/common/saa7146_video.c linux-2.5.73.work/drivers/media/common/saa7146_video.c
---- linux-2.5.73.bk/drivers/media/common/saa7146_video.c	2003-06-25 09:46:54.000000000 +0200
-+++ linux-2.5.73.work/drivers/media/common/saa7146_video.c	2003-06-18 13:57:02.000000000 +0200
-@@ -220,7 +220,7 @@
- 	}
+-		priv->demux->
+-		        release_section_feed(priv->demux, priv->secfeed);
++		}
++
++		priv->demux->release_section_feed(priv->demux, priv->secfeed);
+ 		priv->secfeed=0;
+-		/* fixme: is this correct? */
+-		module_put(THIS_MODULE);
+ 	} else
+ 		printk("%s: no feed to stop\n", dev->name);
  }
  
--static int start_preview(struct saa7146_fh *fh)
-+int saa7146_start_preview(struct saa7146_fh *fh)
+-static int dvb_add_mc_filter(struct net_device *dev, struct dev_mc_list *mc)
++
++static int dvb_set_mc_filter (struct net_device *dev, struct dev_mc_list *mc)
  {
- 	struct saa7146_dev *dev = fh->dev;
- 	struct saa7146_vv *vv = dev->vv_data;
-@@ -266,12 +266,12 @@
+ 	struct dvb_net_priv *priv = (struct dvb_net_priv*) dev->priv;
+-	int ret;
+ 
+-	if (priv->multi_num >= DVB_NET_MULTICAST_MAX)
++	if (priv->multi_num == DVB_NET_MULTICAST_MAX)
+ 		return -ENOMEM;
+ 
+-	ret = memcmp(priv->multi_macs[priv->multi_num], mc->dmi_addr, 6);
+ 	memcpy(priv->multi_macs[priv->multi_num], mc->dmi_addr, 6);
+ 
+ 	priv->multi_num++;
+-
+-	return ret;
++	return 0;
+ }
+ 
+-static void dvb_net_set_multi(struct net_device *dev)
++
++static void tq_set_multicast_list (void *data)
+ {
++	struct net_device *dev = data;
+ 	struct dvb_net_priv *priv = (struct dvb_net_priv*) dev->priv;
+-	struct dev_mc_list *mc;
+-	int mci;
+-	int update = 0;
++
++	dvb_net_feed_stop(dev);
++
++	priv->rx_mode = RX_MODE_UNI;
+ 	
+ 	if(dev->flags & IFF_PROMISC) {
+-//	printk("%s: promiscuous mode\n", dev->name);
+-		if(priv->mode != 3)
+-			update = 1;
+-		priv->mode = 3;
+-	} else if(dev->flags & IFF_ALLMULTI) {
+-//	printk("%s: allmulti mode\n", dev->name);
+-		if(priv->mode != 2)
+-			update = 1;
+-		priv->mode = 2;
+-	} else if(dev->mc_count > 0) {
+-//	printk("%s: set_mc_list, %d entries\n", 
+-//	       dev->name, dev->mc_count);
+-		if(priv->mode != 1)
+-			update = 1;
+-		priv->mode = 1;
++		dprintk("%s: promiscuous mode\n", dev->name);
++		priv->rx_mode = RX_MODE_PROMISC;
++	} else if ((dev->flags & IFF_ALLMULTI)) {
++		dprintk("%s: allmulti mode\n", dev->name);
++		priv->rx_mode = RX_MODE_ALL_MULTI;
++	} else if (dev->mc_count) {
++		int mci;
++		struct dev_mc_list *mc;
++
++		dprintk("%s: set_mc_list, %d entries\n",
++			dev->name, dev->mc_count);
++
++		priv->rx_mode = RX_MODE_MULTI;
+ 		priv->multi_num = 0;
++
+ 		for (mci = 0, mc=dev->mc_list; 
+ 		     mci < dev->mc_count;
+-		     mc=mc->next, mci++)
+-			if(dvb_add_mc_filter(dev, mc) != 0)
+-				update = 1;
+-	} else {
+-		if(priv->mode != 0)
+-			update = 1;
+-		priv->mode = 0;
++		     mc = mc->next, mci++) {
++			dvb_set_mc_filter(dev, mc);
++		}
+ 	}
+ 
+-	if(netif_running(dev) != 0 && update > 0)
+-	{
+-		dvb_net_feed_stop(dev);
+ 		dvb_net_feed_start(dev);
+ 	}
++
++
++static void dvb_net_set_multicast_list (struct net_device *dev)
++{
++	struct dvb_net_priv *priv = (struct dvb_net_priv*) dev->priv;
++	schedule_work(&priv->wq);
+ }
+ 
++
+ static int dvb_net_set_config(struct net_device *dev, struct ifmap *map)
+ {
+ 	if (netif_running(dev))
+@@ -348,11 +413,10 @@
+ static int dvb_net_set_mac(struct net_device *dev, void *p)
+ {
+ 	struct sockaddr *addr=p;
+-	int update;
+ 
+-	update = memcmp(dev->dev_addr, addr->sa_data, dev->addr_len);
+ 	memcpy(dev->dev_addr, addr->sa_data, dev->addr_len);
+-	if (netif_running(dev) != 0 && update > 0) {
++
++	if (netif_running(dev)) {
+ 		dvb_net_feed_stop(dev);
+ 		dvb_net_feed_start(dev);
+ 	}
+@@ -362,6 +427,9 @@
+ 
+ static int dvb_net_open(struct net_device *dev)
+ {
++	struct dvb_net_priv *priv = (struct dvb_net_priv*) dev->priv;
++
++	priv->in_use++;
+ 	dvb_net_feed_start(dev);
+ 	return 0;
+ }
+@@ -366,8 +434,12 @@
  	return 0;
  }
  
--static int stop_preview(struct saa7146_fh *fh)
-+int saa7146_stop_preview(struct saa7146_fh *fh)
++
+ static int dvb_net_stop(struct net_device *dev)
  {
- 	struct saa7146_dev *dev = fh->dev;
- 	struct saa7146_vv *vv = dev->vv_data;
++	struct dvb_net_priv *priv = (struct dvb_net_priv*) dev->priv;
++
++	priv->in_use--;
+         dvb_net_feed_stop(dev);
+ 	return 0;
+ }
+@@ -386,16 +459,14 @@
+ 	dev->stop		= dvb_net_stop;
+ 	dev->hard_start_xmit	= dvb_net_tx;
+ 	dev->get_stats		= dvb_net_get_stats;
+-	dev->set_multicast_list = dvb_net_set_multi;
++	dev->set_multicast_list = dvb_net_set_multicast_list;
+ 	dev->set_config         = dvb_net_set_config;
+ 	dev->set_mac_address    = dvb_net_set_mac;
+ 	dev->mtu		= 4096;
+ 	dev->mc_count           = 0;
+-
+-	dev->flags             |= IFF_NOARP;
+ 	dev->hard_header_cache  = NULL;
  
--	DEB_EE(("saa7146.o: stop_preview()\n"));
-+	DEB_EE(("saa7146.o: saa7146_stop_preview()\n"));
- 
- 	/* check if overlay is running */
- 	if( 0 == vv->ov_data ) {
-@@ -333,8 +333,8 @@
- 		if( vv->ov_data != NULL ) {
- 			if( fh == vv->ov_data->fh) {
- 				spin_lock_irqsave(&dev->slock,flags);
--				stop_preview(fh);
--				start_preview(fh);
-+				saa7146_stop_preview(fh);
-+				saa7146_start_preview(fh);
- 				spin_unlock_irqrestore(&dev->slock,flags);
- 			}
- 		}
-@@ -522,8 +522,8 @@
- 		if( 0 != vv->ov_data ) {
- 			if( fh == vv->ov_data->fh ) {
- 				spin_lock_irqsave(&dev->slock,flags);
--				stop_preview(fh);
--				start_preview(fh);
-+				saa7146_stop_preview(fh);
-+				saa7146_start_preview(fh);
- 				spin_unlock_irqrestore(&dev->slock,flags);
- 			}
- 		}
-@@ -747,12 +747,12 @@
+-	//SET_MODULE_OWNER(dev);
++	dev->flags |= IFF_NOARP;
  	
- 	if( 0 != (dev->ext->ext_vv_data->ioctls[ee].flags & SAA7146_EXCLUSIVE) ) {
- 		DEB_D(("extension handles ioctl exclusive.\n"));
--		result = dev->ext->ext_vv_data->ioctl(dev, cmd, arg);
-+		result = dev->ext->ext_vv_data->ioctl(fh, cmd, arg);
+ 	return 0;
+ }
+@@ -404,11 +476,13 @@
+ {
+ 	int i;
+ 
+-	for (i=0; i<dvbnet->dev_num; i++) 
++	for (i=0; i<DVB_NET_DEVICES_MAX; i++)
+ 		if (!dvbnet->state[i])
+ 			break;
+-	if (i==dvbnet->dev_num)
++
++	if (i == DVB_NET_DEVICES_MAX)
+ 		return -1;
++
+ 	dvbnet->state[i]=1;
+ 	return i;
+ }
+@@ -414,8 +488,7 @@
+ }
+ 
+ 
+-int 
+-dvb_net_add_if(struct dvb_net *dvbnet, u16 pid)
++static int dvb_net_add_if(struct dvb_net *dvbnet, u16 pid)
+ {
+         struct net_device *net;
+ 	struct dmx_demux *demux;
+@@ -423,8 +496,7 @@
+ 	int result;
+ 	int if_num;
+  
+-	if_num=get_if(dvbnet);
+-	if (if_num<0)
++	if ((if_num = get_if(dvbnet)) < 0)
+ 		return -EINVAL;
+ 
+ 	net=&dvbnet->device[if_num];
+@@ -435,47 +507,52 @@
+ 	net->dma       = 0;
+ 	net->mem_start = 0;
+         memcpy(net->name, "dvb0_0", 7);
+-        net->name[3]=dvbnet->card_num+0x30;
+-        net->name[5]=if_num+0x30;
++	net->name[3]   = dvbnet->dvbdev->adapter->num + '0';
++	net->name[5]   = if_num + '0';
++	net->addr_len  = 6;
++	memcpy(net->dev_addr, dvbnet->dvbdev->adapter->proposed_mac, 6);
+         net->next      = NULL;
+         net->init      = dvb_net_init_dev;
+-        net->priv      = kmalloc(sizeof(struct dvb_net_priv), GFP_KERNEL);
+-	if (net->priv == NULL)
++
++	if (!(net->priv = kmalloc(sizeof(struct dvb_net_priv), GFP_KERNEL)))
+ 			return -ENOMEM;
+ 
+ 	priv = net->priv;
+ 	memset(priv, 0, sizeof(struct dvb_net_priv));
+         priv->demux = demux;
+         priv->pid = pid;
+-	priv->mode = 0;
++	priv->rx_mode = RX_MODE_UNI;
++
++	INIT_WORK(&priv->wq, tq_set_multicast_list, net);
+ 
+         net->base_addr = pid;
+                 
+ 	if ((result = register_netdev(net)) < 0) {
  		return result;
  	}
- 	if( 0 != (dev->ext->ext_vv_data->ioctls[ee].flags & SAA7146_BEFORE) ) {
- 		DEB_D(("extension handles ioctl before.\n"));
--		result = dev->ext->ext_vv_data->ioctl(dev, cmd, arg);
-+		result = dev->ext->ext_vv_data->ioctl(fh, cmd, arg);
- 		if( -EAGAIN != result ) {
- 			return result;
- 		}
-@@ -968,7 +968,7 @@
+-	/* fixme: is this correct? */
+-	try_module_get(THIS_MODULE);
  
- 		if( vv->ov_data != NULL ) {
- 			ov_fh = vv->ov_data->fh;
--			stop_preview(ov_fh);
-+			saa7146_stop_preview(ov_fh);
- 			restart_overlay = 1;
- 		}
- 
-@@ -983,7 +983,7 @@
- 		}
- 
- 		if( 0 != restart_overlay ) {
--			start_preview(ov_fh);
-+			saa7146_start_preview(ov_fh);
- 		}
- 		up(&dev->lock);
- 
-@@ -1013,7 +1013,7 @@
- 				}
- 			}
- 			spin_lock_irqsave(&dev->slock,flags);
--			err = start_preview(fh);
-+			err = saa7146_start_preview(fh);
- 			spin_unlock_irqrestore(&dev->slock,flags);
- 		} else {
- 			if( vv->ov_data != NULL ) {
-@@ -1022,7 +1022,7 @@
- 				}
- 			}
- 			spin_lock_irqsave(&dev->slock,flags);
--			err = stop_preview(fh);
-+			err = saa7146_stop_preview(fh);
- 			spin_unlock_irqrestore(&dev->slock,flags);
- 		}
- 		return err;
-@@ -1287,7 +1287,7 @@
- 	if( 0 != vv->ov_data ) {
- 		if( fh == vv->ov_data->fh ) {
- 			spin_lock_irqsave(&dev->slock,flags);
--			stop_preview(fh);
-+			saa7146_stop_preview(fh);
- 			spin_unlock_irqrestore(&dev->slock,flags);
- 		}
- 	}
-@@ -1331,7 +1331,7 @@
- 
- 	if( vv->ov_data != NULL ) {
- 		ov_fh = vv->ov_data->fh;
--		stop_preview(ov_fh);
-+		saa7146_stop_preview(ov_fh);
- 		restart_overlay = 1;
- 	}
- 
-@@ -1343,7 +1343,7 @@
- 
- 	/* restart overlay if it was active before */
- 	if( 0 != restart_overlay ) {
--		start_preview(ov_fh);
-+		saa7146_start_preview(ov_fh);
- 	}
- 	
- 	return ret;
-@@ -1360,3 +1360,6 @@
- };
- 
- EXPORT_SYMBOL_GPL(saa7146_video_uops);
-+
-+EXPORT_SYMBOL_GPL(saa7146_start_preview);
-+EXPORT_SYMBOL_GPL(saa7146_stop_preview);
-diff -uNrwB --new-file linux-2.5.73.bk/include/media/saa7146_vv.h linux-2.5.73.work/include/media/saa7146_vv.h
---- linux-2.5.73.bk/include/media/saa7146_vv.h	2003-06-25 09:46:55.000000000 +0200
-+++ linux-2.5.73.work/include/media/saa7146_vv.h	2003-06-18 14:43:38.000000000 +0200
-@@ -10,12 +10,10 @@
- #define BUFFER_TIMEOUT     (HZ/2)  /* 0.5 seconds */
- 
- #define WRITE_RPS0(x) do { \
--	static int count = 0;	\
- 	dev->d_rps0.cpu_addr[ count++ ] = cpu_to_le32(x); \
- 	} while (0);
- 
- #define WRITE_RPS1(x) do { \
--	static int count = 0;	\
- 	dev->d_rps1.cpu_addr[ count++ ] = cpu_to_le32(x); \
- 	} while (0);
- 
-@@ -166,7 +164,7 @@
- 	int (*std_callback)(struct saa7146_dev*, struct saa7146_standard *);
- 		
- 	struct saa7146_extension_ioctls *ioctls;
--	int (*ioctl)(struct saa7146_dev*, unsigned int cmd, void *arg);
-+	int (*ioctl)(struct saa7146_fh*, unsigned int cmd, void *arg);
- };
- 
- struct saa7146_use_ops  {
-@@ -201,6 +199,8 @@
- 
- /* from saa7146_video.c */
- extern struct saa7146_use_ops saa7146_video_uops;
-+int saa7146_start_preview(struct saa7146_fh *fh);
-+int saa7146_stop_preview(struct saa7146_fh *fh);
- 
- /* from saa7146_vbi.c */
- extern struct saa7146_use_ops saa7146_vbi_uops;
-diff -uNrwB --new-file linux-2.5.73.bk/drivers/media/dvb/ttpci/budget-av.c linux-2.5.73.work/drivers/media/dvb/ttpci/budget-av.c
---- linux-2.5.73.bk/drivers/media/dvb/ttpci/budget-av.c	2003-06-25 09:46:54.000000000 +0200
-+++ linux-2.5.73.work/drivers/media/dvb/ttpci/budget-av.c	2003-06-18 14:06:00.000000000 +0200
-@@ -256,8 +256,9 @@
- };
- 
- 
--static int av_ioctl(struct saa7146_dev *dev, unsigned int cmd, void *arg) 
-+static int av_ioctl(struct saa7146_fh *fh, unsigned int cmd, void *arg) 
- {
-+	struct saa7146_dev *dev = fh->dev;
- 	struct budget_av *budget_av = (struct budget_av*) dev->ext_priv;
- /*
- 	struct saa7146_vv *vv = dev->vv_data; 
-diff -uNrwB --new-file linux-2.5.73.bk/drivers/media/video/dpc7146.c linux-2.5.73.work/drivers/media/video/dpc7146.c
---- linux-2.5.73.bk/drivers/media/video/dpc7146.c	2003-06-25 09:46:54.000000000 +0200
-+++ linux-2.5.73.work/drivers/media/video/dpc7146.c	2003-06-25 12:16:54.000000000 +0200
-@@ -246,8 +246,9 @@
+         return if_num;
  }
- #endif
  
--static int dpc_ioctl(struct saa7146_dev *dev, unsigned int cmd, void *arg) 
-+static int dpc_ioctl(struct saa7146_fh *fh, unsigned int cmd, void *arg) 
+-int 
+-dvb_net_remove_if(struct dvb_net *dvbnet, int num)
++
++static int dvb_net_remove_if(struct dvb_net *dvbnet, int num)
  {
-+	struct saa7146_dev *dev = fh->dev;
- 	struct dpc* dpc = (struct dpc*)dev->ext_priv;
- /*
- 	struct saa7146_vv *vv = dev->vv_data; 
-diff -uNrwB --new-file linux-2.5.73.bk/drivers/media/video/mxb.c linux-2.5.73.work/drivers/media/video/mxb.c
---- linux-2.5.73.bk/drivers/media/video/mxb.c	2003-06-25 09:46:54.000000000 +0200
-+++ linux-2.5.73.work/drivers/media/video/mxb.c	2003-06-25 12:16:38.000000000 +0200
-@@ -566,8 +566,9 @@
++	struct dvb_net_priv *priv = dvbnet->device[num].priv;
++
+ 	if (!dvbnet->state[num])
+ 		return -EINVAL;
++	if (priv->in_use)
++		return -EBUSY;
++
+ 	dvb_net_stop(&dvbnet->device[num]);
+-        kfree(dvbnet->device[num].priv);
++	kfree(priv);
+         unregister_netdev(&dvbnet->device[num]);
+ 	dvbnet->state[num]=0;
+-	/* fixme: is this correct? */
+-	module_put(THIS_MODULE);
+-
  	return 0;
  }
  
--static int mxb_ioctl(struct saa7146_dev *dev, unsigned int cmd, void *arg) 
-+static int mxb_ioctl(struct saa7146_fh *fh, unsigned int cmd, void *arg) 
+-int dvb_net_do_ioctl(struct inode *inode, struct file *file, 
++
++static int dvb_net_do_ioctl(struct inode *inode, struct file *file,
+ 		  unsigned int cmd, void *parg)
  {
-+	struct saa7146_dev *dev = fh->dev;
- 	struct mxb* mxb = (struct mxb*)dev->ext_priv;
- 	struct saa7146_vv *vv = dev->vv_data; 
- 	
+ 	struct dvb_device *dvbdev = (struct dvb_device *) file->private_data;
+@@ -490,6 +567,8 @@
+ 		struct dvb_net_if *dvbnetif=(struct dvb_net_if *)parg;
+ 		int result;
+ 		
++		if (!capable(CAP_SYS_ADMIN))
++			return -EPERM;
+ 		result=dvb_net_add_if(dvbnet, dvbnetif->pid);
+ 		if (result<0)
+ 			return result;
+@@ -502,7 +581,7 @@
+ 		struct dvb_net_priv *priv_data;
+ 		struct dvb_net_if *dvbnetif=(struct dvb_net_if *)parg;
+ 
+-		if (dvbnetif->if_num >= dvbnet->dev_num ||
++		if (dvbnetif->if_num >= DVB_NET_DEVICES_MAX ||
+ 		    !dvbnet->state[dvbnetif->if_num])
+ 			return -EFAULT;
+ 
+@@ -512,7 +591,9 @@
+ 		break;
+ 	}
+ 	case NET_REMOVE_IF:
+-		return dvb_net_remove_if(dvbnet, (long) parg);
++		if (!capable(CAP_SYS_ADMIN))
++			return -EPERM;
++		return dvb_net_remove_if(dvbnet, (int) parg);
+ 	default:
+ 		return -EINVAL;
+ 	}
+@@ -542,28 +627,29 @@
+         .fops = &dvb_net_fops,
+ };
+ 
+-void
+-dvb_net_release(struct dvb_net *dvbnet)
++
++void dvb_net_release (struct dvb_net *dvbnet)
+ {
+ 	int i;
+ 
+ 	dvb_unregister_device(dvbnet->dvbdev);
+-	for (i=0; i<dvbnet->dev_num; i++) {
++
++	for (i=0; i<DVB_NET_DEVICES_MAX; i++) {
+ 		if (!dvbnet->state[i])
+ 			continue;
+ 		dvb_net_remove_if(dvbnet, i);
+ 	}
+ }
+ 
+-int
+-dvb_net_init(struct dvb_adapter *adap, struct dvb_net *dvbnet, struct dmx_demux *dmx)
++
++int dvb_net_init (struct dvb_adapter *adap, struct dvb_net *dvbnet,
++		  struct dmx_demux *dmx)
+ {
+ 	int i;
+ 		
+ 	dvbnet->demux = dmx;
+-	dvbnet->dev_num = DVB_NET_DEVICES_MAX;
+ 
+-	for (i=0; i<dvbnet->dev_num; i++) 
++	for (i=0; i<DVB_NET_DEVICES_MAX; i++)
+ 		dvbnet->state[i] = 0;
+ 
+ 	dvb_register_device (adap, &dvbnet->dvbdev, &dvbdev_net,
+diff -uNrwB --new-file linux-2.5.73.bk/drivers/media/dvb/dvb-core/dvb_net.h linux-2.5.73.work/drivers/media/dvb/dvb-core/dvb_net.h
+--- linux-2.5.73.bk/drivers/media/dvb/dvb-core/dvb_net.h	2003-06-25 09:46:54.000000000 +0200
++++ linux-2.5.73.work/drivers/media/dvb/dvb-core/dvb_net.h	2003-06-23 12:40:49.000000000 +0200
+@@ -35,8 +35,6 @@
+ 
+ struct dvb_net {
+ 	struct dvb_device *dvbdev;
+-	int card_num;
+-	int dev_num;
+ 	struct net_device device[DVB_NET_DEVICES_MAX];
+ 	int state[DVB_NET_DEVICES_MAX];
+ 	struct dmx_demux *demux;
 

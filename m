@@ -1,48 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317849AbSHEKKG>; Mon, 5 Aug 2002 06:10:06 -0400
+	id <S318356AbSHEKKX>; Mon, 5 Aug 2002 06:10:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318356AbSHEKKG>; Mon, 5 Aug 2002 06:10:06 -0400
-Received: from mail1.commerzbank.com ([212.149.48.99]:49073 "EHLO
-	mail1.commerzbank.com") by vger.kernel.org with ESMTP
-	id <S317849AbSHEKKF>; Mon, 5 Aug 2002 06:10:05 -0400
-Message-ID: <A1081E14241CD4119D2B00508BCF80410843F2A6@SV021558>
-From: "Zeuner, Axel" <Axel.Zeuner@partner.commerzbank.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: AW: Thread group exit
-Date: Mon, 5 Aug 2002 12:10:56 +0200 
+	id <S318359AbSHEKKV>; Mon, 5 Aug 2002 06:10:21 -0400
+Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:62373 "EHLO
+	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
+	id <S318356AbSHEKKS>; Mon, 5 Aug 2002 06:10:18 -0400
+Date: Mon, 5 Aug 2002 15:43:39 +0530 (IST)
+From: Manik Raina <manik@cisco.com>
+To: linux-alpha@vger.kernel.org, <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH]: 2.5.30 : __builtin_expect() cleanups in alpha code (rwsem.h)
+Message-ID: <Pine.GSO.4.44.0208051542170.21895-100000@cbin2-view1.cisco.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 2002-08-05 at 09:58, Zeuner, Axel wrote:
-> > I would expect, that changes of the parent of one member of 
-> the thread group
-> > do not affect the interactions between the members of the group. 
-> > Corrections are welcome.
-> 
-> I agree with your diagnosis I'm not convinced by your change. 
-> The thread
-> groups are only used by NGPT not by glibc pthreads while the 
-> problem is
-> true across both.
-> 
-> Possibly the right fix is to remove the reparent to init increment of
-> self_exec_id and instead explicitly check process 1 in the 
-> signal paths.
-> 
-> Opinions ?
-The idea not to change the self_exec_id seems to be the more general 
-solution: less work in the loop in the forget_original_parent function 
-and only changes in do_notify_parent kernel/signal.c are required:
-One could check for tsk->p_pptr/parent == child_reaper and force a SIGCHLD
-in this case. Changes in the self_exec_id because of exec's are 
-catched by the code in exit_notify already.
-The difference between self_exec_id and parent_exec_id would become 
-a real exec counter.
+Resending with diffs inline ... please apply ..
+diffs are straightforward. Should patch with "patch -p1"
 
-Axel
+
+
+--- linux-2.5.30/include/asm-alpha/rwsem.h~	Fri Aug  2 02:46:35 2002
++++ linux-2.5.30/include/asm-alpha/rwsem.h	Mon Aug  5 15:34:59 2002
+@@ -80,13 +80,13 @@
+ 	".subsection 2\n"
+ 	"2:	br	1b\n"
+ 	".previous"
+ 	:"=&r" (oldcount), "=m" (sem->count), "=&r" (temp)
+ 	:"Ir" (RWSEM_ACTIVE_READ_BIAS), "m" (sem->count) : "memory");
+ #endif
+-	if (__builtin_expect(oldcount < 0, 0))
++	if (unlikely(oldcount < 0))
+ 		rwsem_down_read_failed(sem);
+ }
+
+ static inline void __down_write(struct rw_semaphore *sem)
+ {
+ 	long oldcount;
+@@ -104,13 +104,13 @@
+ 	".subsection 2\n"
+ 	"2:	br	1b\n"
+ 	".previous"
+ 	:"=&r" (oldcount), "=m" (sem->count), "=&r" (temp)
+ 	:"Ir" (RWSEM_ACTIVE_WRITE_BIAS), "m" (sem->count) : "memory");
+ #endif
+-	if (__builtin_expect(oldcount, 0))
++	if (unlikely(oldcount))
+ 		rwsem_down_write_failed(sem);
+ }
+
+ static inline void __up_read(struct rw_semaphore *sem)
+ {
+ 	long oldcount;
+@@ -128,13 +128,13 @@
+ 	".subsection 2\n"
+ 	"2:	br	1b\n"
+ 	".previous"
+ 	:"=&r" (oldcount), "=m" (sem->count), "=&r" (temp)
+ 	:"Ir" (RWSEM_ACTIVE_READ_BIAS), "m" (sem->count) : "memory");
+ #endif
+-	if (__builtin_expect(oldcount < 0, 0))
++	if (unlikely(oldcount < 0))
+ 		if ((int)oldcount - RWSEM_ACTIVE_READ_BIAS == 0)
+ 			rwsem_wake(sem);
+ }
+
+ static inline void __up_write(struct rw_semaphore *sem)
+ {
+@@ -154,13 +154,13 @@
+ 	".subsection 2\n"
+ 	"2:	br	1b\n"
+ 	".previous"
+ 	:"=&r" (count), "=m" (sem->count), "=&r" (temp)
+ 	:"Ir" (RWSEM_ACTIVE_WRITE_BIAS), "m" (sem->count) : "memory");
+ #endif
+-	if (__builtin_expect(count, 0))
++	if (unlikely(count))
+ 		if ((int)count == 0)
+ 			rwsem_wake(sem);
+ }
+
+ static inline void rwsem_atomic_add(long val, struct rw_semaphore *sem)
+ {
+

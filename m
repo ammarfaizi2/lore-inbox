@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266683AbUINSzL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269387AbUINS7L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266683AbUINSzL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 14:55:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269199AbUINSxV
+	id S269387AbUINS7L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 14:59:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269362AbUINS5e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 14:53:21 -0400
-Received: from holomorphy.com ([207.189.100.168]:45461 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269387AbUINSwY (ORCPT
+	Tue, 14 Sep 2004 14:57:34 -0400
+Received: from mail2.bluewin.ch ([195.186.4.73]:45242 "EHLO mail2.bluewin.ch")
+	by vger.kernel.org with ESMTP id S269330AbUINS41 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 14:52:24 -0400
-Date: Tue, 14 Sep 2004 11:52:12 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Robert Love <rml@ximian.com>
-Cc: Andrea Arcangeli <andrea@novell.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
-Message-ID: <20040914185212.GY9106@holomorphy.com>
-References: <20040914110611.GA32077@elte.hu> <20040914112847.GA2804@elte.hu> <20040914114228.GD2804@elte.hu> <4146EA3E.4010804@yahoo.com.au> <20040914132225.GA9310@elte.hu> <4146F33C.9030504@yahoo.com.au> <20040914140905.GM4180@dualathlon.random> <41470021.1030205@yahoo.com.au> <20040914150316.GN4180@dualathlon.random> <1095185103.23385.1.camel@betsy.boston.ximian.com>
+	Tue, 14 Sep 2004 14:56:27 -0400
+Date: Tue, 14 Sep 2004 20:55:25 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Chris Wright <chrisw@osdl.org>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       Stephen Smalley <sds@epoch.ncsc.mil>,
+       Andrew Morton OSDL <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Paul Jackson <pj@sgi.com>, James Morris <jmorris@redhat.com>
+Subject: Re: [1/1][PATCH] nproc v2: netlink access to /proc information
+Message-ID: <20040914185524.GB2655@k3.hellgate.ch>
+Mail-Followup-To: Chris Wright <chrisw@osdl.org>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Albert Cahalan <albert@users.sourceforge.net>,
+	Stephen Smalley <sds@epoch.ncsc.mil>,
+	Andrew Morton OSDL <akpm@osdl.org>,
+	lkml <linux-kernel@vger.kernel.org>, Paul Jackson <pj@sgi.com>,
+	James Morris <jmorris@redhat.com>
+References: <1094942212.1174.20.camel@cube> <20040914064403.GB20929@k3.hellgate.ch> <20040914071058.GH9106@holomorphy.com> <20040914075508.GA10880@k3.hellgate.ch> <20040914080132.GJ9106@holomorphy.com> <20040914092748.GA11238@k3.hellgate.ch> <20040914153758.GO9106@holomorphy.com> <20040914160150.GB13978@k3.hellgate.ch> <20040914163712.GT9106@holomorphy.com> <20040914113736.H1924@build.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1095185103.23385.1.camel@betsy.boston.ximian.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20040914113736.H1924@build.pdx.osdl.net>
+X-Operating-System: Linux 2.6.8 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-09-14 at 17:03 +0200, Andrea Arcangeli wrote:
->> we simply need a cond_resched_bkl() for that, no? Very few places are
->> still serialized with the BKL, so I don't think it would be a big issue
->> to convert those few places to use cond_resched_bkl.
+On Tue, 14 Sep 2004 11:37:36 -0700, Chris Wright wrote:
+> * William Lee Irwin III (wli@holomorphy.com) wrote:
+> > On Tue, 14 Sep 2004 08:37:58 -0700, William Lee Irwin III wrote:
+> > >> No, in general races of the form "permissions were altered after I
+> > >> checked them" can happen.
+> > 
+> > On Tue, Sep 14, 2004 at 06:01:50PM +0200, Roger Luethi wrote:
+> > > Can you make an example? Some scenario where this would be important?
+> > 
+> > Not particularly. It largely means poorly-coded apps may report gibberish.
+> 
+> Canonical example is access(2) followed by open(2), not really relevant
+> in this case.  However, exec setuid root app...when do you check, and
+> when to you fill in data to send back to user?  For /proc, this type of
+> check happens often (see things like may_ptrace_attach and
+> task_dumpable in fs/proc/base.c).
 
-On Tue, Sep 14, 2004 at 02:05:03PM -0400, Robert Love wrote:
-> Yes, this is all we need to do.
-> cond_resched() goes away under PREEMPT.
-> cond_resched_bkl() does not.
-> I did this a looong time ago, but did not get much interest.
-> Explicitly marking places that use BKL's "I can always call schedule()"
-> assumption help make it easier to phase out that assumption, too.  Or at
-> least better mark it.
+For nproc, the procedure looks like this: A tool send(2)s a request,
+credentials are attached to skb. Based on said credentials, the kernel
+is free to provide (netlink_unicast to originating socket) or withhold
+information. In this regard, nproc works like other netlink interfaces.
 
-I'd vaguely prefer to clean up the BKL (ab)users... of course, this
-involves working with some of the dirtiest code in the kernel that's
-already discouraged most/all of those who work on reducing/eliminating
-BKL use from touching it... maybe the latency trend is the final nail
-in the coffin of resistance to cleaning that up, though I agree with
-Alan that we have to be very careful about it, particularly since all
-prior attempts failed to be sufficiently so.
-
-
--- wli
+Roger

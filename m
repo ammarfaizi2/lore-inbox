@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265337AbTGIGou (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 02:44:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265332AbTGIGou
+	id S265074AbTGIGyK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 02:54:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265403AbTGIGyK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 02:44:50 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:3844 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S265337AbTGIGot (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 02:44:49 -0400
-Date: Wed, 9 Jul 2003 02:48:11 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	<arvidjaar@mail.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: printk in atomic context
-In-Reply-To: <E19a8Hi-0004GN-00.arvidjaar-mail-ru@f22.mail.ru>
-Message-ID: <Pine.LNX.4.53.0307090247470.5414@montezuma.mastecende.com>
-References: <E19a8Hi-0004GN-00.arvidjaar-mail-ru@f22.mail.ru>
+	Wed, 9 Jul 2003 02:54:10 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:35766 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S265074AbTGIGyI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 02:54:08 -0400
+Date: Wed, 9 Jul 2003 09:08:37 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+Subject: Re: [announce, patch] 4G/4G split on x86, 64 GB RAM (and more)
+ support
+In-Reply-To: <Pine.LNX.4.44.0307082332450.17252-100000@localhost.localdomain>
+Message-ID: <Pine.GSO.4.21.0307090907140.18825-100000@vervain.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Jul 2003, [koi8-r] "Andrey Borzenkov[koi8-r] "  wrote:
-
+On Wed, 9 Jul 2003, Ingo Molnar wrote:
+> i'm pleased to announce the first public release of the "4GB/4GB VM split"
+> patch, for the 2.5.74 Linux kernel:
 > 
-> Is it possible (safe) to use printk in atomic context, i.e. under
-> spinlock or inside of preemption-disabled region?
+>    http://redhat.com/~mingo/4g-patches/4g-2.5.74-F8
 > 
-> The same question about 2.4 (here I guess only spinlock?)
+> The 4G/4G split feature is primarily intended for large-RAM x86 systems,
+> which want to (or have to) get more kernel/user VM, at the expense of
+> per-syscall TLB-flush overhead.
 
-Yes you can, it's rather robust.
+Great! Another enterprise feature stolen from SCO? :-)
 
--- 
-function.linuxpower.ca
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

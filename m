@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281161AbRKOXMO>; Thu, 15 Nov 2001 18:12:14 -0500
+	id <S281170AbRKOXSb>; Thu, 15 Nov 2001 18:18:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281162AbRKOXMC>; Thu, 15 Nov 2001 18:12:02 -0500
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:56412 "EHLO
-	lazy.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S281161AbRKOXLv>; Thu, 15 Nov 2001 18:11:51 -0500
-Date: Thu, 15 Nov 2001 17:01:20 -0600 (CST)
-From: Manoj Iyer <manjo@austin.ibm.com>
-X-X-Sender: <manjo@lazy>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.15.pre4 compile breaks on ppc
-Message-ID: <Pine.LNX.4.33.0111151656460.21602-100000@lazy>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281166AbRKOXSL>; Thu, 15 Nov 2001 18:18:11 -0500
+Received: from erasmus.off.net ([64.39.30.25]:3336 "HELO erasmus.off.net")
+	by vger.kernel.org with SMTP id <S281162AbRKOXSA>;
+	Thu, 15 Nov 2001 18:18:00 -0500
+Date: Thu, 15 Nov 2001 18:18:01 -0500
+From: Zach Brown <zab@zabbo.net>
+To: J Sloan <jjs@toyota.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Thomas Hood <jdthood@mail.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: CS423x audio driver updates for testing
+Message-ID: <20011115181801.N6462@erasmus.off.net>
+In-Reply-To: <E164QJM-0000y2-00@the-village.bc.nu> <3BF40D3C.8D3F0369@lexus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BF40D3C.8D3F0369@lexus.com>; from jjs@toyota.com on Thu, Nov 15, 2001 at 10:45:16AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I seem to remember, folks intererested in gaming and
+> mulitmedia apps had done some latency profiling and
+> found that the alsa drivers were a source of really bad
+> latency - am I imagining all this or does it ring a bell
+> with someone?
 
-I am building Linux power pc kernel 2.4.15.pre4 and I see the following
-error...
+Thats the sort of thing that can be fixed as ALSA is merged, I would
+hope.
 
-ld  -r -o x.o start.o xmon.o ppc-dis.o ppc-opc.o subr_prf.o setjmp.o
-make[2]: Leaving directory `/usr/src/linux.2.4.15.pre4/arch/ppc/xmon'
-make[1]: Leaving directory `/usr/src/linux.2.4.15.pre4/arch/ppc/xmon'
-ld -T arch/ppc/vmlinux.lds -Ttext 0xc0000000 -Bstatic
-arch/ppc/kernel/head.o init/main.o init/version.o \
-        --start-group \
-        arch/ppc/kernel/kernel.o arch/ppc/mm/mm.o arch/ppc/lib/lib.o
-kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o arch/ppc/xmon/x.o \
-         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o
-drivers/net/net.o drivers/media/media.o drivers/net/fc/fc.o
-drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o
-drivers/pci/driver.o drivers/net/wireless/wireless_net.o
-drivers/macintosh/macintosh.o drivers/video/video.o drivers/usb/usbdrv.o
-drivers/input/inputdrv.o drivers/md/mddev.o \
-        net/network.o \
-        /usr/src/linux.2.4.15.pre4/lib/lib.a \
-        --end-group \
-        -o vmlinux
-fs/fs.o: In function `cpuinfo_open':
-fs/fs.o(.text+0x2b06e): undefined reference to `cpuinfo_op'
-fs/fs.o(.text+0x2b072): undefined reference to `cpuinfo_op'
-make: *** [vmlinux] Error 1
-root@acura:/usr/src/linux.2.4.15.pre4 >
+ALSA is much, much, closer to a nice kernel sound driver setup than the
+current OSS code base.  It has problems, yes, but a good attack during
+2.5 should iron out the worst of it.  There just needs to be an
+understanding up front that the ALSA as initially merged may see
+significant changes to get rid of some of the 'non-kernel friendly'
+code.  (in-kernel mixing, some interesting naming, over-abstraction in
+places, gratuitious wrapping of kernel functions.. all should be
+candidates for early removal, IMHO)
 
-Kindly copy manjo@austin.rr.com to your reply, I dont subscribe to this
-list.
+but, really, I spend next to 0 time on sound stuff these tdays, so take
+all of this with about 7 tons of salt.
 
-I really appreciate any help.
-
-Thanks
-Manoj Iyer
-
+- z

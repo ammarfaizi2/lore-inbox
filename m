@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265694AbUBBRCS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 12:02:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265710AbUBBRCS
+	id S265698AbUBBQ5Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 11:57:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265701AbUBBQ5Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 12:02:18 -0500
-Received: from marcoport.ecogen.unibo.it ([137.204.175.100]:10385 "EHLO
-	crono.olimpo.ddts.net") by vger.kernel.org with ESMTP
-	id S265694AbUBBRCR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 12:02:17 -0500
-Date: Mon, 2 Feb 2004 18:01:25 +0100
-From: Marco Giordani <marco@bononia.it>
-To: Hugang <hugang@soulinfo.com>
-Cc: swsusp-devel <swsusp-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: swsusp2 on ppc [Re: Software Suspend 2.0]
-Message-ID: <20040202170125.GA5245@cs.unibo.it>
-Mail-Followup-To: Hugang <hugang@soulinfo.com>,
-	swsusp-devel <swsusp-devel@lists.sourceforge.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Mon, 2 Feb 2004 11:57:24 -0500
+Received: from users.linvision.com ([62.58.92.114]:3818 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S265698AbUBBQ5X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 11:57:23 -0500
+Date: Mon, 2 Feb 2004 17:57:21 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: george young <gry@ll.mit.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: /proc/config.z disappeared in 2.4.24
+Message-ID: <20040202165721.GE1078@bitwizard.nl>
+References: <20040202115224.64063795.gry@ll.mit.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040201150827.2858bf9b@localhost>
-X-Operating-System: Debian GNU/Linux unstable
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20040202115224.64063795.gry@ll.mit.edu>
+User-Agent: Mutt/1.3.28i
+Organization: Harddisk-recovery.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 01, 2004 at 03:08:27PM +0800, Hugang wrote:
-> Here is the ppc swsusp2 update patch for 2.6.1 + rc6 + 2.0, please
-> apply.
+On Mon, Feb 02, 2004 at 11:52:24AM -0500, george young wrote:
+> [SuSE x86 linux 8.2, 2.4.24 kernel building]
 
-It doesn't work for me. During "write cache" phase, at 75% of the
-progress bar, my powerbook powers off the LCD backlight and it seems
-locked... at this point I can only power off the system...  Any idea?
+[...]
 
-BTW, I cannot compile your patch with highmem support. It will be very
-useful for me...
+> The /proc/config.z file seems to have disappeared! Is there some
+> config parameter that enables this? Or has it gone away between 2.4.20
+> and 2.4.24?
 
-I've also tried the benh's pmdisk patch and it works fine but it lacks
-highmem support too.
+It didn't disappear, it has never been there. Both RedHat and SuSE have
+a patch that include the kernel .config in the image itself, but that
+feature is not in the official 2.4 kernel (it is however in 2.6).
 
-TIA,
-Marco
+
+Erik
 
 -- 
-  Marco Giordani <giordani@cs.unibo.it> - GnuPGid 0x229B1BE8/1024
-  Key fingerprint = F1C8 CD45 210D 6C19 A5FD  A864 FA01 3E5C 229B 1BE8
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

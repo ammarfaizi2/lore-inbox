@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261345AbSJCWjj>; Thu, 3 Oct 2002 18:39:39 -0400
+	id <S261306AbSJCWkT>; Thu, 3 Oct 2002 18:40:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261335AbSJCWjh>; Thu, 3 Oct 2002 18:39:37 -0400
-Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:5116 "EHLO
-	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id <S261319AbSJCWjW>; Thu, 3 Oct 2002 18:39:22 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
+	id <S261319AbSJCWjp>; Thu, 3 Oct 2002 18:39:45 -0400
+Received: from mg01.austin.ibm.com ([192.35.232.18]:58558 "EHLO
+	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S261413AbSJCWjD>; Thu, 3 Oct 2002 18:39:03 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Kevin Corry <corryk@us.ibm.com>
+Organization: IBM
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] EVMS core 1/4: evms.c
+Date: Thu, 3 Oct 2002 17:11:52 -0500
+X-Mailer: KMail [version 1.2]
+References: <02100307355501.05904@boiler>
+In-Reply-To: <02100307355501.05904@boiler>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15772.51284.271547.70818@wombat.chubb.wattle.id.au>
-Date: Fri, 4 Oct 2002 08:44:36 +1000
-To: Russell King <rmk@arm.linux.org.uk>
-Subject: Re: [PATCH] Large Block Device patch part 5/4
-CC: linux-kernel@vger.kernel.org
-In-Reply-To: <453386441@toto.iv>
-X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
+Message-Id: <02100317115209.05904@boiler>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Russell" == Russell King <rmk@arm.linux.org.uk> writes:
+I have tried twice to send the first part of this patch, but it does not seem 
+to have gone through. I'm guessing it's stuck on a mail filter somewhere. For 
+the time being, please see:
 
-Russell> On Thu, Oct 03, 2002 at 03:49:33PM +1000,
-Russell> peterc@gelato.unsw.edu.au wrote:
->> +#ifdef CONFIG_LBD extern u64 __udivdi3(u64, u64); extern u64
->> __umoddi3(u64, u64); +EXPORT_SYMBOL(__udivdi3);
->> +EXPORT_SYMBOL(__umoddi3); +#endif EXPORT_SYMBOL(md_size);
->> EXPORT_SYMBOL(register_md_personality);
->> EXPORT_SYMBOL(unregister_md_personality); @@ -3493,6 +3497,4 @@
->> EXPORT_SYMBOL(md_wakeup_thread); EXPORT_SYMBOL(md_print_devices);
->> EXPORT_SYMBOL(md_interrupt_thread); -EXPORT_SYMBOL(__udivdi3);
->> -EXPORT_SYMBOL(__umoddi3); MODULE_LICENSE("GPL");
+http://marc.theaimsgroup.com/?l=evms-devel&m=103365150530085&w=2
 
-Russell> These exports should be performed by the architecture not by
-Russell> generic drivers.
+for the contents of evms.c.
 
-
-1.  CONFIG_LBD is defined only for IA32 and PPC32.
-2.  The exports are temporary until other stuff in the RAID code is
-cleaned up.
-3.  They're only used by the RAID code, and would be the same for all
-architectures that use gcc, assuming that CONFIG_LBD were to be turned
-on for those architectures.
-
-Russell> Please move them into all architectures.
-
-I'd rather remove them entirely, and am working on that.  In the
-meantime, they'll stay (probably until Neil Brown gets back from
-holiday next week and can help with my RAID problems)
-
-Peter C
+On Thursday 03 October 2002 07:35, Kevin Corry wrote:
+> Greetings,
+>
+> Here is part 1 of the EVMS core. This provides the plugin framework and
+> common services.
+>
+> Kevin Corry
+> corryk@us.ibm.com
+> http://evms.sourceforge.net/

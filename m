@@ -1,91 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271736AbTHHRrq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 13:47:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271737AbTHHRrp
+	id S271737AbTHHSCd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 14:02:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271738AbTHHSCd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 13:47:45 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:29160 "HELO
+	Fri, 8 Aug 2003 14:02:33 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:40679 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S271736AbTHHRrn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 13:47:43 -0400
-Date: Fri, 8 Aug 2003 19:47:36 +0200
+	id S271737AbTHHSCc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 14:02:32 -0400
+Date: Fri, 8 Aug 2003 20:02:24 +0200
 From: Adrian Bunk <bunk@fs.tum.de>
-To: Roman Zippel <zippel@linux-m68k.org>
+To: Ian Hoffman <no99goal@yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 bug: kconfig implementation doesn't match the spec
-Message-ID: <20030808174736.GA16091@fs.tum.de>
-References: <20030808145107.GY16091@fs.tum.de> <Pine.LNX.4.44.0308081714160.714-100000@serv>
+Subject: Re: 2.6.0-test2 won't compile
+Message-ID: <20030808180224.GB16091@fs.tum.de>
+References: <20030808164337.35815.qmail@web13305.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308081714160.714-100000@serv>
+In-Reply-To: <20030808164337.35815.qmail@web13305.mail.yahoo.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 08, 2003 at 05:16:09PM +0200, Roman Zippel wrote:
-> Hi,
-> 
-> On Fri, 8 Aug 2003, Adrian Bunk wrote:
-> 
-> > An example:
-> > 
-> > config FOO
-> >         tristate
-> >         default m
-> > 
-> > config BAR
-> >         tristate
-> >         default y if !FOO
-> >         default n
-> > 
-> > 
-> > According to the kconfig spec BAR should be y, but the implementation in
-> > 2.6.0-mm5 sets BAR to n.
-> 
-> You probably forgot to set MODULES, tristate behaves like bool in this 
-> case and FOO becomes 'y' and '!FOO' is 'n'.
+On Fri, Aug 08, 2003 at 09:43:37AM -0700, Ian Hoffman wrote:
+>...
+>   AS      usr/initramfs_data.o
+> /tmp/ccdNnIMg.s: Assembler messages:
+> /tmp/ccdNnIMg.s:7: Error: Unknown pseudo-op: 
+> `.incbin'
+> make[1]: *** [usr/initramfs_data.o] Error 1
+> make: *** [usr] Error 2
+>...
+> binutils               2.11.90.0.8
+>...
 
-No, this is with CONFIG_MODULES=y.
-
-Let me give another example where the kconfig implementation is 
-completely broken (BTW: again with CONFIG_MODULES=y):
-
-According to your language definition,
-  m && !m
-evaluates to "m" (it sounds a bit strange but follows directly from
-rules (5) and (7) together with the interpretation of "m" as 1 as 
-explained in the section "Menu dependencies" of
-Documentation/kbuild/kconfig-language.txt).
-
-Let's take the following Kconfig snippet:
-
-config MOD
-        tristate
-        default m
-
-config TEST8
-        tristate
-        default MOD && !MOD
-
-config TEST9
-        tristate
-        default m && !m
-
-With the explations above it's obvious both TEST8 and TEST9 should be 
-"m", but the current 2.6 kconfig implementation says:
-
-# CONFIG_TEST8 is not set
-CONFIG_TEST9=y
-
-
-That's not only different from the expected result directly derived from 
-the language definition, it also gives two completely different results 
-for the same expression!
-
-
-> bye, Roman
+You need binutils >= 2.12 (this is also stated in 
+Documentation/Changes).
 
 cu
 Adrian

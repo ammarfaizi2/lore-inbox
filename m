@@ -1,50 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267556AbSKQTNF>; Sun, 17 Nov 2002 14:13:05 -0500
+	id <S267555AbSKQTMO>; Sun, 17 Nov 2002 14:12:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267558AbSKQTNE>; Sun, 17 Nov 2002 14:13:04 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:384 "EHLO
-	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
-	id <S267556AbSKQTND>; Sun, 17 Nov 2002 14:13:03 -0500
-From: "Folkert van Heusden" <folkert@vanheusden.com>
-To: "'Marc-Christian Petersen'" <m.c.p@wolk-project.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: 2.[45] fixes for design locking bug in wait_on_page/wait_on_buffer/get_request_wait
-Date: Sun, 17 Nov 2002 20:19:53 +0100
-Message-ID: <007f01c28e6e$4f1072e0$3640a8c0@boemboem>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <200211171832.12855.m.c.p@wolk-project.de>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S267556AbSKQTMO>; Sun, 17 Nov 2002 14:12:14 -0500
+Received: from 2-023.ctame701-2.telepar.net.br ([200.181.170.23]:28943 "EHLO
+	brinquendo.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S267555AbSKQTMN>; Sun, 17 Nov 2002 14:12:13 -0500
+Date: Sun, 17 Nov 2002 17:18:58 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Kernel Janitors Project 
+	<kernel-janitor-discuss@lists.sourceforge.net>
+Subject: [PATCH] xd: fixup after header files cleanups: add include <linux/interrupt.h>
+Message-ID: <20021117191858.GO28227@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linux Kernel Janitors Project <kernel-janitor-discuss@lists.sourceforge.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Andrea, this makes a difference! The pausings are much less than before,
-> but still occur. Situation below.
-MP> So, after some time in trying to exchange 2.4.20-rc2 files with the
-following
-MP> files from 2.4.18 (and compile successfully)
-MP> drivers/block/ll_rw_blk.c
-MP> drivers/block/elevator.c
-MP> include/linux/elevator.h
-MP> those "pauses/stopps" are _GONE_!
+Linus,
 
-What is really strange, is that while I run the following in the
-boodscripts:
+	Please pull from:
 
-echo "90 500 0 0 600000 600000 95 20 0" > /proc/sys/vm/bdflush
-elvtune /dev/hda1 -r 2048 -w 131072
+master.kernel.org:/home/acme/BK/includes-2.5
 
-I never experience those stalls at all!
-And that was surely I was expecting (clean buffers at 90% and do that
-synchronouse at 95% gives little room for the first to complete before new
-buffers get dirty. also that elevator-fiddling should force large bursts
-(why am I doing this anyway? I wanted to configure the kernel et al so that
-as minimal as possible disk-reads/writes occur))
+	This is the only outstanding changeset there now.
 
+- Arnaldo
+
+You can import this changeset into BK by piping this whole message to:
+'| bk receive [path to repository]' or apply the patch as usual.
+
+===================================================================
+
+
+ChangeSet@1.855, 2002-11-17 17:09:57-02:00, acme@conectiva.com.br
+  o xd: fixup after header files cleanups: add include <linux/interrupt.h>
+  
+  request_irq/free_irq are now in linux/interrupt.h
+
+
+ xd.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
+
+
+diff -Nru a/drivers/block/xd.c b/drivers/block/xd.c
+--- a/drivers/block/xd.c	Sun Nov 17 17:10:19 2002
++++ b/drivers/block/xd.c	Sun Nov 17 17:10:19 2002
+@@ -35,7 +35,7 @@
+ 
+ #include <linux/module.h>
+ #include <linux/errno.h>
+-#include <linux/sched.h>
++#include <linux/interrupt.h>
+ #include <linux/mm.h>
+ #include <linux/fs.h>
+ #include <linux/kernel.h>
+@@ -44,6 +44,7 @@
+ #include <linux/hdreg.h>
+ #include <linux/ioport.h>
+ #include <linux/init.h>
++#include <linux/wait.h>
+ #include <linux/devfs_fs_kernel.h>
+ 
+ #include <asm/system.h>
+
+===================================================================
+
+
+This BitKeeper patch contains the following changesets:
+1.855
+## Wrapped with gzip_uu ##
+
+
+begin 664 bkpatch22873
+M'XL(`)OIUST``]V4T6K;,!2&KZ.G.)#+85N2Y=@R2\G:CJUTL)#1JS&&(BFS
+MJ6VELIRDX(>?XFW9:-*6E5W-$I;P.?IUI/_#8[AIM<U'0M8:C>&]:5T^DJ;1
+MTI4;$4I3ATOK`PMC?"`J3*VC\^NH;&35*=T&-$R0#\^%DP5LM&WS$0GCPQ=W
+MO];Y:/'VW<V'-PN$IE.X*$3S37_2#J93Y(S=B$JU,^&*RC2ALZ)I:^V&C?M#
+M:D\QIKXE)(UQ,NG)!+.TET01(AC1"E.631C:GV'VL/8'*H20U#?,6(\YCC&Z
+M!!)F20*81H1$)`62YICG21I@FF,,)T7A%8$`HW/XMP>X0!(,[%0.JW+7K4&L
+MG+90:*'\L"HKW8*LM&BZ=9N#4`I^V@"OJ[+I=MX5GV^[M0N+,R_EN]5WG6[=
+MU]+>12NK]7X"PFIHS-:OAJ-UZ!JRF%`T_VT4"O[R00@+C,Z>N1QERSTOT;(R
+M\C;:J5#^<4L,8]:3C&>L%Y2D*J8BB8F:8'[:D,?4!KLYYDG<$Q[C;$#P./=Y
+M%E]8+=J4ULQJ+QFNVR[4JOO\:Y\OC]:,*?=`<,8])Y.,#XBR](C0^&E"*03D
+M/R7TAY4?(;#;H7ODYB=<?0&XEW$&!%T-[_%3M5^QR8F4K2B'Z.'_)PLM;]NN
+1GK*8+S--,_0=,EQS<7$%````
+`
+end

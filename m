@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263784AbTLEBnH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 20:43:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263788AbTLEBnH
+	id S263645AbTLEBr4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 20:47:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263788AbTLEBr4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 20:43:07 -0500
-Received: from fep07-0.kolumbus.fi ([193.229.0.51]:60863 "EHLO
-	fep07-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S263784AbTLEBnF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 20:43:05 -0500
-Date: Fri, 5 Dec 2003 01:42:13 +0200 (MET DST)
-From: Szakacsits Szabolcs <szaka@sienet.hu>
-X-X-Sender: szaka@ua178d119.elisa.omakaista.fi
-To: Andy Isaacson <adi@hexapodia.org>
-cc: Rob Landley <rob@landley.net>, linux-kernel@vger.kernel.org
-Subject: Re: Is there a "make hole" (truncate in middle) syscall?
-In-Reply-To: <20031204172348.A14054@hexapodia.org>
-Message-ID: <Pine.LNX.4.58.0312050130130.2330@ua178d119.elisa.omakaista.fi>
-References: <200312041432.23907.rob@landley.net> <20031204172348.A14054@hexapodia.org>
+	Thu, 4 Dec 2003 20:47:56 -0500
+Received: from fw.osdl.org ([65.172.181.6]:58577 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263645AbTLEBrz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 20:47:55 -0500
+Date: Thu, 4 Dec 2003 17:47:48 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Paul Adams <padamsdev@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+In-Reply-To: <20031204235055.62846.qmail@web21503.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.58.0312041743530.6638@home.osdl.org>
+References: <20031204235055.62846.qmail@web21503.mail.yahoo.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 4 Dec 2003, Andy Isaacson wrote:
 
-> I'm curious -- does NTFS implement sparse files?  
+On Thu, 4 Dec 2003, Paul Adams wrote:
+>
+> A work that is inspired by Linux is no more a derivative work than
+> a programmatic musical composition inspired by a novel.  Having
+> Linux in mind cannot be enough to constitute infringement.
 
-Since Win2000 (NTFS 3.0+). Also many recently discussed features like
-file/directory/volume level compression/encryption, undelete, power of 2
-block sizes between 512-64kB, etc.
+But it does - you have to include the Linux header files in order to be
+able to make any nontrivial module.
 
-> Does the Win32 API provide any way to manipulate them?  
+I'm not claiming that "thinking about Linux makes you tainted". It's not
+about inspiration. But it's a bit like getting somebody pregnant: you have
+to do a lot more than just think about it to actually make it happen, or
+every high school in the world would be crawling with babies.
 
-More than what Linux provides in general, e.g. "make hole" is also
-possible.
+In other words: feel free to be inspired by Linux all you want. But if you
+release a binary module that loads and works, you've been doing more than
+just feeling inspired. And then you need to be _careful_.
 
-	Szaka
+		Linus

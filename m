@@ -1,106 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262219AbVBKIP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262217AbVBKIXa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262219AbVBKIP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 03:15:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262218AbVBKIP2
+	id S262217AbVBKIXa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 03:23:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262218AbVBKIXa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 03:15:28 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:12525 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262217AbVBKIOu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 03:14:50 -0500
-Date: Fri, 11 Feb 2005 09:14:22 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Chris Wright <chrisw@osdl.org>, "Jack O'Quin" <jack.oquin@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       linux-kernel@vger.kernel.org, Paul Davis <paul@linuxaudiosystems.com>,
+	Fri, 11 Feb 2005 03:23:30 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:52883 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262217AbVBKIWl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 03:22:41 -0500
+Date: Fri, 11 Feb 2005 08:22:14 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Matt Mackall <mpm@selenic.com>, Chris Wright <chrisw@osdl.org>,
+       "Jack O'Quin" <jack.oquin@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       Paul Davis <paul@linuxaudiosystems.com>,
        Con Kolivas <kernel@kolivas.org>, rlrevell@joe-job.com
 Subject: Re: 2.6.11-rc3-mm2
-Message-ID: <20050211081422.GB2287@elte.hu>
-References: <a075431a050210125145d51e8c@mail.gmail.com> <20050211000425.GC2474@waste.org> <20050210164727.M24171@build.pdx.osdl.net> <20050211020956.GC15058@waste.org>
+Message-ID: <20050211082214.GA30420@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ingo Molnar <mingo@elte.hu>, Matt Mackall <mpm@selenic.com>,
+	Chris Wright <chrisw@osdl.org>, Jack O'Quin <jack.oquin@gmail.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Paul Davis <paul@linuxaudiosystems.com>,
+	Con Kolivas <kernel@kolivas.org>, rlrevell@joe-job.com
+References: <a075431a050210125145d51e8c@mail.gmail.com> <20050211000425.GC2474@waste.org> <20050210164727.M24171@build.pdx.osdl.net> <20050211020956.GC15058@waste.org> <20050211081422.GB2287@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050211020956.GC15058@waste.org>
+In-Reply-To: <20050211081422.GB2287@elte.hu>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Feb 11, 2005 at 09:14:22AM +0100, Ingo Molnar wrote:
+> an "RT priorities rlimit" is still not adequate as a desktop solution,
+> because it still allows the box to be locked up. Also, if it turns out
+> to be a mistake then it's already codified into the ABI, while RT-LSM is
+> much less 'persistent' and could be replaced much easier. RT-LSM is also
+> more flexible and more practical. (an rlimit needs changes across a
+> number of userspace components, delaying its adoptation.)
 
-* Matt Mackall <mpm@selenic.com> wrote:
+Putting it into the tree means a gurantee we'll keep it going.  It'd
+probably much better if Jack just keepts it separatly.  Especially as
+his lack of even making it generic shows that he's unwilling to invest
+work into it that doesn't benfit him personally.
 
-> > > What happened to the RT rlimit code from Chris?
-> > 
-> > I still have it, but I had the impression Ingo didn't like it as a long
-> > term solution/hack (albeit small) to the scheduler.  Whereas the rt-lsm
-> > patch is wholly self-contained.
-> 
-> I think it's important to recognize that we're trying to address an
-> issue that has a much wider potential audience than pro audio users,
-> and not very far off - what is high end audio performance today will
-> be expected desktop performance next year.
-
-i disagree that desktop performance tomorrow will necessarily have to
-utilize SCHED_FIFO. Today's desktop audio applications perform quite
-good at SCHED_NORMAL priorities [with the 2.6.11 kernel that has more
-interactivity/latency fixes such as PREEMPT_BKL].
-
-I agree (and hope) that tomorrow's "stock" desktop will be based on
-today's pro audio architectures, but tomorrows CPUs will be much faster
-and tomorrows desktop apps dont want to spend 30%+ CPU time on creating
-audio.
-
-the pro applications will always want to have a 100% guarantee (it
-really sucks to generate a nasty audio click during a live performance)
-and want to utilize as much CPU time for audio as needed. They are also
-clearly the most complex creators of audio so they go far above the
-normal (and reasonable) CPU-use/latency expectations and tradeoffs of
-the stock scheduler.
-
-> So I think it's critical that we find solution that's appropriate for
-> _every single box_, because realistically vendors are going to ship
-> with this "wholly self-contained" feature turned on by default next
-> year, at which point the "containment" will be nil and whatever warts
-> it has will be with us forever.
-
-an "RT priorities rlimit" is still not adequate as a desktop solution,
-because it still allows the box to be locked up. Also, if it turns out
-to be a mistake then it's already codified into the ABI, while RT-LSM is
-much less 'persistent' and could be replaced much easier. RT-LSM is also
-more flexible and more practical. (an rlimit needs changes across a
-number of userspace components, delaying its adoptation.)
-
-> The rlimit stuff is not perfect, but it's a much better fit for the
-> UNIX model generally, which is a fairly big win. [...]
-
-a 'locked up box' is as far away from the UNIX model as it gets.
-
-perhaps, if the need arises, we can add the RT-throttling sysctl (which
-still wont give RT priorities to unprivileged users and would serve as a
-way to throttle privileged RT tasks), which could thus make the RT-LSM
-solution pretty safe. Right now Jack has its own watchdog thread which
-should solve most of the lockup situations.  Lets not overdesign the
-solution, especially when we dont yet know how the problem really looks
-like.
-
-or an even simpler solution for the lockup problem would be a
-kernel-based RT watchdog. In fact 2.6.11-rc3-mm2 already includes such a
-watchdog (written by yours truly):
-
- http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc3/2.6.11-rc3-mm2/broken-out/detect-soft-lockups.patch
-
-right now softlockup-detect runs at SCHED_FIFO prio 99 and only prints a
-warning - but it could easily run at SCHED_FIFO prio 1 [to detect
-lockups generated by all RT tasks] and it could actively try to renice
-(or kill) tasks that run for too long. So very likely there will be an
-easy upstream mechanism for any problem that could arise out of RT-LSM.
-
-	Ingo

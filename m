@@ -1,57 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbVAMTvL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbVAMT6f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261473AbVAMTvL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 14:51:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbVAMTrS
+	id S261442AbVAMT6f (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 14:58:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbVAMTz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 14:47:18 -0500
-Received: from fw.osdl.org ([65.172.181.6]:60339 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261473AbVAMTqg (ORCPT
+	Thu, 13 Jan 2005 14:55:56 -0500
+Received: from smtp.sys.beep.pl ([195.245.198.13]:29968 "EHLO smtp.sys.beep.pl")
+	by vger.kernel.org with ESMTP id S261442AbVAMTvd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 14:46:36 -0500
-Date: Thu, 13 Jan 2005 11:46:10 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: John Richard Moser <nigelenki@comcast.net>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Hellwig <hch@infradead.org>,
-       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       marcelo.tosatti@cyclades.com, Greg KH <greg@kroah.com>, chrisw@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues
-In-Reply-To: <41E6C507.5050302@comcast.net>
-Message-ID: <Pine.LNX.4.58.0501131142500.2310@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> 
- <20050112185133.GA10687@kroah.com>  <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>
-  <20050112161227.GF32024@logos.cnet>  <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org>
-  <20050112205350.GM24518@redhat.com>  <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org>
-  <20050112182838.2aa7eec2.akpm@osdl.org> <20050113033542.GC1212@redhat.com>
-  <Pine.LNX.4.58.0501122025140.2310@ppc970.osdl.org>  <20050113082320.GB18685@infradead.org>
-  <Pine.LNX.4.58.0501130822280.2310@ppc970.osdl.org>
- <1105632757.4624.59.camel@localhost.localdomain> <Pine.LNX.4.58.0501130926260.2310@ppc970.osdl.org>
- <41E6C507.5050302@comcast.net>
+	Thu, 13 Jan 2005 14:51:33 -0500
+From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Organization: SelfOrganizing
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH]: add Ever UPS vendor/product id to ftdi_sio driver
+Date: Thu, 13 Jan 2005 20:49:29 +0100
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+References: <200501132014.34558.arekm@pld-linux.org> <200501132030.33996.arekm@pld-linux.org> <20050113193403.GA29645@kroah.com>
+In-Reply-To: <20050113193403.GA29645@kroah.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_JDt5BTnyXH6MNeK"
+Message-Id: <200501132049.29969.arekm@pld-linux.org>
+X-Authenticated-Id: arekm 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Boundary-00=_JDt5BTnyXH6MNeK
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
+On Thursday 13 of January 2005 20:34, Greg KH wrote:
 
-On Thu, 13 Jan 2005, John Richard Moser wrote:
-> 
-> > So all security issues are about balancing cost vs gain. I'm convinced
-> > that the gain from openness is higher than the cost. Others will disagree.  
-> 
-> Yes.  Nobody code audits your binaries.  You need source code to do
-> source code auditing.  :)
+> But you lost the description of the patch and the Signed-off-by: line :(
+> Third time's a charm.
+Copy from first mail?
 
-Oh, it's very clear that some exploits have definitely been written by
-looking at the source code with automated tools or by instrumenting
-things, and that the exploits would likely have never been found without
-source code. That's fine. We just have higher requirements in the open
-source community.
+Ok, here it goes once again with description everywhere.
 
-And I do think that the same is true for being open about security
-advisories: I think that to offset an open security list, we'd have to
-then have more "best practices" than a vendor-sec-type closed security
-list might need. I think it would be worth it.
+This patch allows to use ftdi_sio driver with Ever ECO Pro CDS UPS.
+Patch was tested on pre-2.6.10 kernel.
 
-			Linus
+Signed-Off: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+
+> greg k-h
+
+Thanks,
+=2D-=20
+Arkadiusz Mi=B6kiewicz                    PLD/Linux Team
+http://www.t17.ds.pwr.wroc.pl/~misiek/  http://ftp.pld-linux.org/
+
+--Boundary-00=_JDt5BTnyXH6MNeK
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="ftdi_sio-ever.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="ftdi_sio-ever.patch"
+
+;
+; This patch allows to use ftdi_sio driver with Ever ECO Pro CDS UPS.
+; Patch was tested on pre-2.6.10 kernel.
+;
+; Signed-Off: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+;
+--- drivers/usb/serial/ftdi_sio.h.org	2005-01-13 16:32:21.000000000 +0100
++++ drivers/usb/serial/ftdi_sio.h	2005-01-13 16:37:33.000000000 +0100
+@@ -240,6 +240,12 @@
+ #define FTDI_RM_VID		0x0403	/* Vendor  Id */
+ #define FTDI_RMCANVIEW_PID	0xfd60	/* Product Id */
+ 
++/*
++ * EVER Eco Pro UPS (http://www.ever.com.pl/)
++ */
++
++#define	EVER_ECO_PRO_CDS	0xe520	/* RS-232 converter */
++
+ /* Commands */
+ #define FTDI_SIO_RESET 		0 /* Reset the port */
+ #define FTDI_SIO_MODEM_CTRL 	1 /* Set the modem control register */
+--- drivers/usb/serial/ftdi_sio.c.org	2005-01-13 16:32:26.000000000 +0100
++++ drivers/usb/serial/ftdi_sio.c	2005-01-13 17:04:12.000000000 +0100
+@@ -372,6 +372,7 @@
+ 	{ USB_DEVICE_VER(BANDB_VID, BANDB_USOTL4_PID, 0, 0x3ff) },
+ 	{ USB_DEVICE_VER(BANDB_VID, BANDB_USTL4_PID, 0, 0x3ff) },
+ 	{ USB_DEVICE_VER(BANDB_VID, BANDB_USO9ML2_PID, 0, 0x3ff) },
++	{ USB_DEVICE_VER(FTDI_VID, EVER_ECO_PRO_CDS, 0, 0x3ff) },
+ 	{ }						/* Terminating entry */
+ };
+ 
+@@ -486,6 +487,7 @@
+ 	{ USB_DEVICE_VER(BANDB_VID, BANDB_USOTL4_PID, 0x400, 0xffff) },
+ 	{ USB_DEVICE_VER(BANDB_VID, BANDB_USTL4_PID, 0x400, 0xffff) },
+ 	{ USB_DEVICE_VER(BANDB_VID, BANDB_USO9ML2_PID, 0x400, 0xffff) },
++	{ USB_DEVICE_VER(FTDI_VID, EVER_ECO_PRO_CDS, 0x400, 0xffff) },
+ 	{ }						/* Terminating entry */
+ };
+ 
+@@ -608,6 +610,7 @@
+ 	{ USB_DEVICE(BANDB_VID, BANDB_USOTL4_PID) },
+ 	{ USB_DEVICE(BANDB_VID, BANDB_USTL4_PID) },
+ 	{ USB_DEVICE(BANDB_VID, BANDB_USO9ML2_PID) },
++	{ USB_DEVICE(FTDI_VID, EVER_ECO_PRO_CDS) },
+ 	{ }						/* Terminating entry */
+ };
+ 
+
+--Boundary-00=_JDt5BTnyXH6MNeK--

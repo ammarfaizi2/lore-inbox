@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262420AbTH0WRy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 18:17:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbTH0WRy
+	id S262425AbTH0WSY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 18:18:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262426AbTH0WSY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 18:17:54 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:43169 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262420AbTH0WRv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 18:17:51 -0400
-Subject: Re: binary kernel drivers re. hpt370 and redhat
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: joe briggs <jbriggs@briggsmedia.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030827145755.7e1ce956.shemminger@osdl.org>
-References: <200308271840.30368.jbriggs@briggsmedia.com>
-	 <20030827145755.7e1ce956.shemminger@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1062022619.23531.38.camel@dhcp23.swansea.linux.org.uk>
+	Wed, 27 Aug 2003 18:18:24 -0400
+Received: from mta03-svc.ntlworld.com ([62.253.162.43]:19707 "EHLO
+	mta03-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S262425AbTH0WSR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 18:18:17 -0400
+Date: Wed, 27 Aug 2003 23:09:50 +0100
+From: Dave Bentham <dave.bentham@ntlworld.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: kernel 2.4.22 IDE/SCSI CDRW crashing still
+Message-Id: <20030827230950.7b7c0ca0.dave@telekon>
+In-Reply-To: <200306162148.h5GLmXsN002578@telekon.davesnet>
+References: <200306162148.h5GLmXsN002578@telekon.davesnet>
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 27 Aug 2003 23:17:00 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-08-27 at 22:57, Stephen Hemminger wrote:
-> On Wed, 27 Aug 2003 18:40:30 -0400
-> joe briggs <jbriggs@briggsmedia.com> wrote:
+I am still getting the kernel panic when mounting my CD-RW
+drive (ide-scsi) with 2.4.22. This is the one that appeared with 2.4.21.
+I'm not an expert on these things but I got the impression this was
+being addressed but I have been off the list since reporting it with
+2.4.21. Am I mistaken? Or has my 2.4.22 build perhaps gone awry?
+
+Dave
+
+
+On Mon, 16 Jun 2003 22:48:33 +0100
+dave.bentham@ntlworld.com wrote:
+
+> Hello
 > 
-> > I have a client who has a raid controller currently supported under windows, 
-> > and now wants to support linux as a bootable device.  Currently, some of 
-> > their trade secrets are contained in the driver as opposed to the controller
+> I upgraded my kernel on a Mandrake 9.0 base from 2.4.20 to the new
+> 2.4.21 tonight - built from source patches as I always do; followed by
+> reinstalling the NVidia drivers and ALSA.
+> 
+> But there seems to be a major failure when the computer just stops
+> with no warning. Two scenarios that seem to repeat it include starting
+> Loki's Heretic2 off, and mounting the CDRW drive via WindowMaker dock
+> app. I cannot do anything when this happens; can't hotkey out of X,
+> can't telnet to it from my other networked PC. I have to power down
+> and back up.
+> 
+> It seems to be a few seconds after the trigger that the lock up
+> occurs, and also it starts flashing the keyboard Caps Lock and Scroll
+> Lock LEDs in step at about 1 Hz. I'm sure its trying to tell me
+> something...
+> 
+> Thanks in advance
+> 
+> Dave
+> 
 
-Standard practice - its not IMHO so much trade secrets as "improving the
-barrier to vendor change" 8). Pretty much all of the older PATA
-controllers don't actually do hardware raid but bios/driver raid - ie
-its the equivalent (or roughly so) of the md layer but locks you into
-the vendor. The notable exception here is the 3ware card (there are a 
-couple of others too - Promise Supertrak100, SX6000)
 
-We know some of these formats (eg see the hptraid driver in 2.4.2x)
-
-> The problem is more in the bootloader (LILO or GRUB) would not no how
-> to do raid. The /boot partition would have to be on a non-raid partition.
-> Same problem if driver is statically linked in the kernel.
-
-Plus little issues like the GPL 8)
-
+-- 
+A computer without Microsoft is like chocolate cake without mustard.
 

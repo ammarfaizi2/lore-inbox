@@ -1,80 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267516AbSLLW4Y>; Thu, 12 Dec 2002 17:56:24 -0500
+	id <S267530AbSLLW5f>; Thu, 12 Dec 2002 17:57:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267526AbSLLW4Y>; Thu, 12 Dec 2002 17:56:24 -0500
-Received: from smtp.comcast.net ([24.153.64.2]:6610 "EHLO smtp.comcast.net")
-	by vger.kernel.org with ESMTP id <S267516AbSLLWzu>;
-	Thu, 12 Dec 2002 17:55:50 -0500
-X-URL: genehack.org
-Date: Thu, 12 Dec 2002 18:03:36 -0500
-From: jacobs@genehack.org (John S. J. Anderson)
-Subject: crash when calling madvise( MADV_WILLNEED )
+	id <S267526AbSLLW5e>; Thu, 12 Dec 2002 17:57:34 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:29450 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S267525AbSLLW41>;
+	Thu, 12 Dec 2002 17:56:27 -0500
+Date: Thu, 12 Dec 2002 18:04:10 -0500 (EST)
+Message-Id: <200212122304.gBCN4AH158836@saturn.cs.uml.edu>
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
 To: linux-kernel@vger.kernel.org
-Message-id: <87d6o64z7b.fsf@mendel.genehack.org>
-Organization: genehackCorps
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_E6wweEjzjUI0hlnPwQEnYA)"
-User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.2 (i386-pc-linux-gnu)
-X-Attribution: john
+Cc: acahalan@cs.uml.edu
+Subject: [ANNOUNCE] procps 3.1.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary_(ID_E6wweEjzjUI0hlnPwQEnYA)
-Content-type: TEXT/PLAIN
-Content-transfer-encoding: 7BIT
+This release includes user selection in top, the sysctl -e
+option needed to support the Red Hat 8.0 boot scripts, and
+the use of /proc/*/wchan on recent 2.5.xx kernels.
 
+For those of you still upgrading from procps 2.0.xx releases,
+you can expect:
 
-  A developer that I support has discovered that the attached code is
-  capable of crashing many late series 2.4.x kernels, including
-  2.4.20. The easiest way to reproduce this crash is to compile the
-  attached code, and call it via 'madvise_test 3 FILE', where FILE is
-  a data file of at least 1.5 GB. The contents of FILE don't seem to
-  matter. The crash may happen more quickly if multiple copies of the
-  program are started. Sometimes the process locks up the terminal it
-  is running in; sometimes the kernel throws an OPPS and the whole
-  machine goes down. There doesn't seem to be a pattern as to which
-  event happens when. 
+* top can sort by any column (old sort keys available too)
+* top can select a single user to display
+* top can be put in multi-window mode and/or color mode
+* vmstat has the -s option, as found on UNIX and BSD systems
+* vmstat has the -f option, as found on UNIX and BSD systems
+* watch doesn't eat the first blank line by mistake
+* vmstat uses a fast O(1) algorithm on 2.5.xx kernels
+* pmap command is SunOS-compatible
+* vmstat shows IO-wait time
+* pgrep and pkill can find the oldest matching process
+* sysctl handles the Linux 2.5.xx VLAN interfaces
+* top shows IO-wait time if-and-only-if your kernel computes it
+* most programs 30% to 300% faster (tested on a 450 MHz MPC7400)
+* ps has a new "-F" format (very nice, like DYNIX/ptx has)
+* ps with proper BSD process selection
+* better handling of very long uptimes
 
-  This has been observed on both a Dell 8450 (8 CPU, 8 gig RAM) and a
-  Dell 1650 (2 CPU, 2 gig RAM). I've also included an oops that we
-  captured.
+There's a procps-feedback@lists.sf.net mailing list you can
+use for feature requests, bug reports, and so on. Use it!
+Feedback makes things happen.
 
-  Thanks for any help. 
+http://procps.sf.net/
+http://procps.sf.net/procps-3.1.3.tar.gz
 
+------------- recent changes -------------
 
---Boundary_(ID_E6wweEjzjUI0hlnPwQEnYA)
-Content-type: message/external-body; access-type=local-file;
- name*=us-ascii''~%2ftmp%2fmadvise_test.c
+procps-3.1.2 --> procps-3.1.3
 
-Content-Type: text/x-csrc
-Content-ID: <87bs3q4z7b.fsf@mendel.genehack.org>
-Content-Transfer-Encoding: binary
+uses /proc/*/wchan files when available
+top: user selection
+sysctl: add -e for Red Hat 8.0 boot scripts  
+sysctl: the obvious --help, -V, and --version
+sysctl: some command line error checking
+w: stdout, not stderr -- thanks to Sander van Malssen
 
+procps-3.1.1 --> procps-3.1.2
 
+better RPM generation
+use C99 features
+some seLinux fixes
+now count Inact_laundry as needed  #172163
+ps: fewer globals
+ps: hardware-enforced buffer protection
+ps: 1 kB smaller
+top: B command added (for bold on/off)
+top: handle old (and future) config files
+top: man page tweak
+top: old sort keys     #167249
+top: out-of-bounds RT as "RT"
+top: several times faster
+top: t command fixed
+vmstat: -f
+vmstat: -s
+w: much faster
+watch: don't drop empty lines   #171005
+watch: re-indented
 
---Boundary_(ID_E6wweEjzjUI0hlnPwQEnYA)
-Content-type: message/external-body; access-type=local-file;
- name*=us-ascii''~%2ftmp%2fopps
+procps-3.1.0 --> procps-3.1.1
 
-Content-Type: text/plain
-Content-ID: <87adja4z7b.fsf@mendel.genehack.org>
-Content-Transfer-Encoding: binary
-
-
-
---Boundary_(ID_E6wweEjzjUI0hlnPwQEnYA)
-Content-type: TEXT/PLAIN
-Content-transfer-encoding: 7BIT
-
-
-
-john.
--- 
-"[L]iberty of the press is the right of the lonely pamphleteer who
-uses carbon paper or a mimeograph just as much as of the large
-metropolitan publisher who utilizes the latest photocomposition
-methods."- judge's decision in Branzburg v. Hayes
-
---Boundary_(ID_E6wweEjzjUI0hlnPwQEnYA)--
+vmstat faster on 2.5.xx kernels
+vmstat header fixed
+vmstat -a re-fixed

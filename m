@@ -1,50 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316903AbSFVVYV>; Sat, 22 Jun 2002 17:24:21 -0400
+	id <S316915AbSFVV4b>; Sat, 22 Jun 2002 17:56:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316906AbSFVVYU>; Sat, 22 Jun 2002 17:24:20 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:57067 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S316903AbSFVVYT>; Sat, 22 Jun 2002 17:24:19 -0400
-Date: Sat, 22 Jun 2002 16:24:13 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Riley Williams <rhw@InfraDead.Org>
-cc: Henning Makholm <henning@makholm.net>,
-        "Adam J. Richter" <adam@yggdrasil.com>, <bug-make@gnu.org>,
-        Linux Ham Radio <linux-hams@vger.kernel.org>,
-        Linux Kernel <linux-kernel@vger.kernel.org>, <sailer@ife.ee.ethz.ch>
+	id <S316919AbSFVV4a>; Sat, 22 Jun 2002 17:56:30 -0400
+Received: from h-64-105-35-162.SNVACAID.covad.net ([64.105.35.162]:19636 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S316915AbSFVV43>; Sat, 22 Jun 2002 17:56:29 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sat, 22 Jun 2002 14:56:23 -0700
+Message-Id: <200206222156.OAA00651@baldur.yggdrasil.com>
+To: henning@makholm.net
 Subject: Re: make-3.79.1 bug breaks linux-2.5.24/drivers/net/hamradio/soundmodem
-In-Reply-To: <Pine.LNX.4.21.0206222052540.15173-100000@Consulate.UFP.CX>
-Message-ID: <Pine.LNX.4.44.0206221611430.7338-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: bug-make@gnu.org, linux-hams@vger.kernel.org, linux-kernel@vger.kernel.org,
+        sailer@ife.ee.ethz.ch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 22 Jun 2002, Riley Williams wrote:
+enning Makholm wrote:
+>Scripsit "Adam J. Richter" <adam@yggdrasil.com>
+>> 	Until the make bug is fixed, I have worked around the problem
+>> by replacing the rule with:
 
-> >> $(obj)/sm_tbl_%: $(obj)/gentbl
-> >>         PATH=$(obj):$$PATH $<
-> 
-> > That looks like an excessively complicated workaround. Why not just
-> >
-> > $(obj)/sm_tbl_%: $(obj)/gentbl
-> > 	$(obj)/gentbl
-> >
-> > instead ?
+>> $(obj)/sm_tbl_%: $(obj)/gentbl
+>>         PATH=$(obj):$$PATH $<
 
-I think I like the latter better as well. Anyway, $(obj) is just "."
-currently, so it doesn't have a space in it. For $(src), I'll always use
-relative paths, so there won't be any spaces in them either. I think it's
-a sensible restriction for separate src/obj trees to disallow spaces in
-the obj tree path, I fear it'd cause problems at a huge number of places.
-At least it's certainly acceptable to do "no space" first and then see
-what needs to be done in order to remove that restriction.
+>That looks like an excessively complicated workaround. Why not just
 
-(I also think the two are functionally equivalent even if $(obj) contains 
-a space, but I haven't tried at all)
+>$(obj)/sm_tbl_%: $(obj)/gentbl
+>	$(obj)/gentbl
 
---Kai
+	Thanks.  That is a cleaner workaround.
 
 
+
+>I'm not sure this is really a bug either. It is a Good Thing that make
+>tries to normalize the names of targets and dependencies internally,
+>lest the build may be incomplete or redundant if make does not realize
+>that foo.bar and ./foo.bar is the same file. It is quite reasonable
+>for $< to unfold to the *canonical* name of the file in question, I
+>think.
+
+	That just makes the behavior of make less predictable.
+Whatever make does with the file names internally is its own business.
+Rewriting the file names passed to commands unnecessarily is
+potentially a big problem.  Suppose, for example, that this was a
+command that wanted to chop up the directory prefix and that the
+bottom level directory was a symbolic link (for example, maybe I have
+/usr/netscape/bin as a symlink to /usr/local/bin, but I want the
+installation command to record the path name as /usr/netscape/bin).
+
+
+
+>If one absolutely wants the command to use the exact form of the
+>dependency that's used in the dependency list, it's easy to simply
+>reproduce that form, replacing the % by $*
+
+	Sorry, I do not understand what you mean.  If you want to
+explain it to me, you may have to write the rule out.
+
+	Thanks for the better workaround and the advice.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

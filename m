@@ -1,89 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135298AbRAQQId>; Wed, 17 Jan 2001 11:08:33 -0500
+	id <S135362AbRAQQTk>; Wed, 17 Jan 2001 11:19:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135311AbRAQQIY>; Wed, 17 Jan 2001 11:08:24 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:16138 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S135298AbRAQQIG>;
-	Wed, 17 Jan 2001 11:08:06 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Urban Widmark <urban@teststation.com>
-Date: Wed, 17 Jan 2001 17:07:08 MET-1
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Killing process with SIGKILL and ncpfs
-CC: <linux-kernel@vger.kernel.org>, <marteen.deboer@iua.upf.es>
-X-mailer: Pegasus Mail v3.40
-Message-ID: <12D8176C233E@vcnet.vc.cvut.cz>
+	id <S135340AbRAQQTb>; Wed, 17 Jan 2001 11:19:31 -0500
+Received: from [64.109.89.110] ([64.109.89.110]:48216 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S135311AbRAQQTW>; Wed, 17 Jan 2001 11:19:22 -0500
+Message-Id: <200101171616.LAA01194@localhost.localdomain>
+X-Mailer: exmh version 2.1.1 10/15/1999
+To: Mike Porter <mike@UDel.Edu>
+cc: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>,
+        Venkatesh Ramamurthy <Venkateshr@ami.com>,
+        "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Linux not adhering to BIOS Drive boot order? 
+In-Reply-To: Message from Mike Porter <mike@UDel.Edu> 
+   of "Wed, 17 Jan 2001 10:33:06 EST." <Pine.SOL.4.31.0101171029270.12-100000@copland.udel.edu> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 17 Jan 2001 11:16:58 -0500
+From: James Bottomley <J.E.J.Bottomley@HansenPartnership.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Jan 01 at 13:41, Urban Widmark wrote:
-> SIGKILL or SIGSTOP can be already pending, or perhaps received while
-> waiting in socket->ops->recvmsg(). recvmsg will then return -ERESTARTSYS
-> because signal_pending() is true and the smbfs code treats that as a
-> network problem (causing unnecessary reconnects and sometimes complete
-> failures requiring umount/mount).
+OK, what about a compromise.
 
-Yes. I was going to rewrite this code sometime around 2.3.40, when
-I wrote independent NCP socket layer for some other project. Unfortunately,
-I found that returning -ERESTARTSYS from some procedures (read_inode)
-is converted to bad_inode, instead of just dropping/reverting all
-changes which were done :-( So I left it as is.
+The fundamental problem that we all agree on is that SCSI devices are detected 
+in the order that the mid-layer hosts.c file calls their detect routines.  
+Further, for multiple cards of the same type, the detection order is up to the 
+individual driver.  A different problem is that SCSI targets and LUNs are 
+mapped sequentially to /dev/sd[a-z][a-d] so if you lose a device from the 
+middle the ordering shifts.
 
-> Running strace on a multithreaded program causes problems for smbfs.
-> Someone was nice enough to post a small testprogram for this (you may want
-> to try it on ncpfs, if you want it I'll find it for you).
-> 
-> These problems go away if all signals are blocked. Of course the smbfs
-> code would need to be changed to not block on recv, else you may end up
-> with a program waiting for network input that can't be killed ... (?)
+I think that devfs does a very good job of addressing the latter problem, 
+since you can now use it's naming scheme to find the exact target/lun you were 
+looking for.
 
-I'm going to use:
+The former problem is really something that affects all adapter cards in the 
+linux system (you have a similar problem for multiple ethernet cards, etc.)
 
-if (current->flags & PF_EXITING)
-  mask = 0;
-else
-  mask = sigmask(SIGKILL);
+One of the ways this could be solved would be to impose bus ordering on the 
+detection sequence.  Since every computer bus (except the ancient ISA) has a 
+way of getting its logical slot numbering (which is not necessarily related to 
+physical slot numbering), you can easily impose this type of ordering on all 
+card detection.  Doing this would necessitate some surgery in the way device 
+detection is done, probably major enough to make it a 2.5 feature.
 
-It causes following:
-(1) you can still kill bad task locked in ncpfs with SIGKILL
-(2) except when connectivity problem happens during exit(). In that
-    case timeout should take a care. No way around, except more
-    complicated code:
-    
-       if (current->flags & PF_EXITING) {
-         lock(...)
-         rm_sig_from_queue(SIGKILL, &current->pending);
-         unlock(...)
-       }
-       mask = sigmask(SIGKILL);
-       
-    which allows you to 'kill -9' exiting task again...
-    But I cannot convice myself that SIGKILL is correctly delivered
-    to PF_EXITING tasks... And rm_sig_from_queue is signal.c internal
-    function.
-(3) attaching/detaching debugger causes no longer problems, as SIGSTOP 
-    is ignored by ncpfs - I have no idea why original code included
-    SIGSTOP... Now it just stops task after NCP request is done, so
-    only problem is that you cannot immediately stop program which
-    waits for server reply. But I think that waiting few milliseconds
-    is better than killing connection for whole server
-(4) so you can happilly debug programs from ncpfs volumes
+The up side would be that, as long as you maintain your cards in the same 
+slot, the SCSI ordering would remain the same (you could even change the card 
+and still have the same order).
 
-If it will not cause too much troubles for you, can you find multithreaded
-test program for me? Current solution, which uses only SIGKILL, and only
-when task does not exit, looks good for me, and works for my testcases.
-There are some corner cases, such as when SIGKILL is already pending when 
-ncpfs is entered, but I'm not sure whether it is worth of adding check 
-of signal_pending() before call to do_ncp_*rpc_call(), as it is not four 
-line patch then.
-                                        Best regards,
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
-                                            
+The compromise over UUID detection is that if you change the slot, all bets 
+are off.
+
+If there is sufficient interest in this, I could look at putting together a 
+patch to 2.4.x which would implement the scheme.
+
+James Bottomley
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

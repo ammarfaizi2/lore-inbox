@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132818AbRA0LBK>; Sat, 27 Jan 2001 06:01:10 -0500
+	id <S132613AbRA0LDU>; Sat, 27 Jan 2001 06:03:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132890AbRA0LBB>; Sat, 27 Jan 2001 06:01:01 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:38916 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S132818AbRA0LA1>;
-	Sat, 27 Jan 2001 06:00:27 -0500
-Message-ID: <20010126184137.C260@bug.ucw.cz>
-Date: Fri, 26 Jan 2001 18:41:37 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Arkadiusz Miskiewicz <misiek@pld.ORG.PL>
-Cc: linux-kernel@vger.kernel.org, chaffee@cs.berkeley.edu
-Subject: Re: vfat <-> vfat copying of ~700MB file, so slow!
-In-Reply-To: <20010124131431.A19957@ikar.t17.ds.pwr.wroc.pl> <200101242053.f0OKrps154856@saturn.cs.uml.edu>
-Mime-Version: 1.0
+	id <S131977AbRA0LDL>; Sat, 27 Jan 2001 06:03:11 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:23817 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S131436AbRA0LDG>; Sat, 27 Jan 2001 06:03:06 -0500
+From: Chris Rankin <rankinc@zip.com.au>
+Message-Id: <200101271102.f0RB2we19159@wellhouse.underworld>
+Subject: Re: [PATCH](s): Use spinlocks instead of STI/CLI in SoundBlaster
+To: pavel@suse.cz (Pavel Machek)
+Date: Sat, 27 Jan 2001 22:02:57 +1100 (EST)
+Cc: linux-kernel@vger.kernel.org, linux-sound@vger.kernel.org
+In-Reply-To: <20010127112629.B163@bug.ucw.cz> from "Pavel Machek" at Jan 27, 2001 11:26:29 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <200101242053.f0OKrps154856@saturn.cs.uml.edu>; from Albert D. Cahalan on Wed, Jan 24, 2001 at 03:53:51PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> > --- linux-2.4.0/drivers/sound/sb.h.orig	Fri Jan 26 13:57:40 2001
+> > +++ linux-2.4.0/drivers/sound/sb.h	Fri Jan 26 13:58:42 2001
+> > @@ -137,6 +137,8 @@
+> >  	   void (*midi_input_intr) (int dev, unsigned char data);
+> >  	   void *midi_irq_cookie;		/* IRQ cookie for the midi */
+> >  
+> > +	   spinlock_t lock;
+> > +
 
-> > Copying between vfat <-> vfat partitions is so slow. It seems
-> > that it's vfat/msdos kernel driver problem because I tried to copy
-> 
-> I reported this years ago, with a 700 kB file on a floppy and
-> a 4 MB file on a Zip disk. In both cases mcopy was several times
-> faster than the kernel code.
+I do; that declaration is just a typedef for the device struct. The
+spinlock is explicitly initialised in the sb_dsp_detect() function.
 
-Perhaps linear scan of FAT?
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+Chris
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,40 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311936AbSDSJTE>; Fri, 19 Apr 2002 05:19:04 -0400
+	id <S311871AbSDSJXj>; Fri, 19 Apr 2002 05:23:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311960AbSDSJTD>; Fri, 19 Apr 2002 05:19:03 -0400
-Received: from mons.uio.no ([129.240.130.14]:62860 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S311936AbSDSJTC>;
-	Fri, 19 Apr 2002 05:19:02 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Organization: Dept. of Physics, University of Oslo
-To: Hirokazu Takahashi <taka@valinux.co.jp>
-Subject: Re: [PATCH] zerocopy NFS updated
-Date: Fri, 19 Apr 2002 11:18:54 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020416034120.R18116@unthought.net> <shspu0x2xro.fsf@charged.uio.no> <20020419.122142.85422229.taka@valinux.co.jp>
+	id <S311948AbSDSJXj>; Fri, 19 Apr 2002 05:23:39 -0400
+Received: from vivi.uptime.at ([62.116.87.11]:13988 "EHLO vivi.uptime.at")
+	by vger.kernel.org with ESMTP id <S311871AbSDSJXi>;
+	Fri, 19 Apr 2002 05:23:38 -0400
+Reply-To: <o.pitzeier@uptime.at>
+From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
+To: "'Alexander Viro'" <viro@math.psu.edu>,
+        "'Linus Torvalds'" <torvalds@transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] (5/6) alpha fixes
+Date: Fri, 19 Apr 2002 11:23:06 +0200
+Organization: =?us-ascii?Q?UPtime_Systemlosungen?=
+Message-ID: <017c01c1e783$d3cd1750$010b10ac@sbp.uptime.at>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16yUXe-0004qj-00@charged.uio.no>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+In-Reply-To: <Pine.GSO.4.21.0204190047140.20383-100000@weyl.math.psu.edu>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 19. April 2002 05:21, Hirokazu Takahashi wrote:
+Are those changes (all Patches) for alpha already in some
+kernel? Or do I have to do it on my own? For what kernel
+is this?
 
-> And it seems to be more important on UDP sendfile().
-> processes or threads sharing the same UDP socket would affect each other,
-> while processes or threads on TCP sockets don't care about it as TCP
-> connection is peer to peer.
+Best Regards,
+  Oliver
 
-No. It is not the lack of peer-to-peer connections that gives rise to the 
-bottleneck, but the idea of several threads multiplexing sendfile() through a 
-single socket. Given a bad program design, it can be done over TCP too.
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org 
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
+> Alexander Viro
+> Sent: Friday, April 19, 2002 6:47 AM
+> To: Linus Torvalds
+> Cc: linux-kernel@vger.kernel.org
+> Subject: [PATCH] (5/6) alpha fixes
+> 
+> 
+> 
+> diff -urN C8-cpu_idle/arch/alpha/mm/init.c 
+> C8-max_pfn/arch/alpha/mm/init.c
+> --- C8-cpu_idle/arch/alpha/mm/init.c	Fri Mar  8 02:09:42 2002
+> +++ C8-max_pfn/arch/alpha/mm/init.c	Thu Apr 18 23:28:48 2002
+> @@ -283,7 +283,7 @@
+>  	unsigned long dma_pfn, high_pfn;
+>  
+>  	dma_pfn = virt_to_phys((char *)MAX_DMA_ADDRESS) >> PAGE_SHIFT;
+> -	high_pfn = max_low_pfn;
+> +	high_pfn = max_pfn = max_low_pfn;
+>  
+>  	if (dma_pfn >= high_pfn)
+>  		zones_size[ZONE_DMA] = high_pfn;
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in the body of a message to 
+> majordomo@vger.kernel.org More majordomo info at  
+http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
-The conclusion is that the programmer really ought to choose a different 
-design. For multimedia streaming, for instance, it makes sense to use 1 UDP 
-socket per thread rather than to multiplex the output through one socket.
 
-Cheers,
-   Trond

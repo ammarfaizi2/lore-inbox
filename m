@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284776AbSAGSq2>; Mon, 7 Jan 2002 13:46:28 -0500
+	id <S285093AbSAGSst>; Mon, 7 Jan 2002 13:48:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285048AbSAGSqS>; Mon, 7 Jan 2002 13:46:18 -0500
-Received: from [194.234.65.222] ([194.234.65.222]:54744 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S284776AbSAGSqA>; Mon, 7 Jan 2002 13:46:00 -0500
-Date: Mon, 7 Jan 2002 19:45:57 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: [BUG] Error reading multiple large files
-Message-ID: <Pine.LNX.4.30.0201071941100.13561-100000@mustard.heime.net>
+	id <S285118AbSAGSsj>; Mon, 7 Jan 2002 13:48:39 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63500 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S285093AbSAGSsd> convert rfc822-to-8bit; Mon, 7 Jan 2002 13:48:33 -0500
+Date: Mon, 7 Jan 2002 10:47:05 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Abramo Bagnara <abramo@alsa-project.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Hellwig <hch@ns.caldera.de>,
+        Jaroslav Kysela <perex@suse.cz>, <sound-hackers@zabbo.net>,
+        <linux-sound@vger.rutgers.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: [s-h] Re: ALSA patch for 2.5.2pre9 kernel
+In-Reply-To: <3C39EB68.BC8C804@alsa-project.org>
+Message-ID: <Pine.LNX.4.33.0201071044260.6694-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id g07Im1S01640
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
 
-I've sent this before, but as far as I can see, nothing's changed.
+On Mon, 7 Jan 2002, Abramo Bagnara wrote:
+>
+> Just to resume, you think that the way to go is:
+>
+> 1) to have sound/ with *all* sound related stuff inside
+> 2) to leave drivers/net/ and net/ like they are now (because although
+> it's suboptimal, to change it is a mess we don't want to face now)
 
-I'm having problems reading multiple large files at once. Reading 100 1GB
-files at once.
+This is my current feeling.
 
-What happens is, when the buffer cache gets filled up, it all stalls, and
-transfer speed drops from 40-50 MB/s to a mere 2MB/s.
+However, la donna é mobile, and I'm a primus donna, fer shure. So don't
+take it _too_ seriously, continue to argue the merits of other approaches.
 
-This has been tested on all versions from 2.4.16-2.4.18-pre1.
-
-I've been testing Tux, Khttpd, apache 1.3.22, Apache 2, thttpd, cp and
-dd to verify the bug.
-
-Please help!
-
-roy
-
---
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-
-Computers are like air conditioners.
-They stop working when you open Windows.
+		Linus
 

@@ -1,78 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261479AbUCUXpm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 18:45:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbUCUXpl
+	id S261497AbUCUXsv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 18:48:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbUCUXsv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 18:45:41 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29714 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261479AbUCUXpb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 18:45:31 -0500
-Date: Sun, 21 Mar 2004 23:45:15 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, David Woodhouse <dwmw2@infradead.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: can device drivers return non-ram via vm_ops->nopage?
-Message-ID: <20040321234515.G26708@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Christoph Hellwig <hch@infradead.org>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-	linux-kernel@vger.kernel.org
-References: <20040320222639.K6726@flint.arm.linux.org.uk> <20040320224500.GP2045@holomorphy.com> <1079901914.17681.317.camel@imladris.demon.co.uk> <20040321204931.A11519@infradead.org> <1079902670.17681.324.camel@imladris.demon.co.uk> <Pine.LNX.4.58.0403211349340.1106@ppc970.osdl.org> <20040321222327.D26708@flint.arm.linux.org.uk> <405E1859.5030906@pobox.com> <20040321225117.F26708@flint.arm.linux.org.uk> <Pine.LNX.4.58.0403211504550.1106@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 21 Mar 2004 18:48:51 -0500
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:37132 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261497AbUCUXss (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 18:48:48 -0500
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Richard Browning <richard@redline.org.uk>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>
+Subject: Re: ANYONE? Re: SMP + Hyperthreading / Asus PCDL Deluxe / Kernel 2.4.x 2.6.x / Crash/Freeze
+Date: Mon, 22 Mar 2004 01:33:21 +0200
+User-Agent: KMail/1.5.4
+Cc: Len Brown <len.brown@intel.com>, Zwane Mwaikambo <zwane@linuxpower.ca>,
+       linux-kernel@vger.kernel.org,
+       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+References: <200403210333.i2L3XQiw024997@eeyore.valparaiso.cl> <200403212032.28474.richard@redline.org.uk>
+In-Reply-To: <200403212032.28474.richard@redline.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.58.0403211504550.1106@ppc970.osdl.org>; from torvalds@osdl.org on Sun, Mar 21, 2004 at 03:11:58PM -0800
+Message-Id: <200403220133.21659.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 21, 2004 at 03:11:58PM -0800, Linus Torvalds wrote:
-> On Sun, 21 Mar 2004, Russell King wrote:
-> > Remember that we're fond of telling driver writers to use scatter gather
-> > lists rather than grabbing one large contiguous memory chunk...  So
-> > they did exactly as we told them.  Using pci_alloc_consistent and/or
-> > dma_alloc_coherent and built their own scatter lists.
-> 
-> I do think that we should introduce a "map_dma_coherent()" thing, which 
-> basically takes a list of pages that have been allocated by 
-> dma_alloc_coherent(), and remaps them into user space. How hard can that 
-> be?
-> 
-> In fact, on a lot of architectures (well, at least x86, and likely
-> anything else that doesn't use any IOTLB and just allocates a chunk of
-> physical memory), I think the "map_dma_coherent()" thing should basically
-> just become a "remap_page_range()". Ie something like
-> 
-> 	#define map_dma_coherent(vma, vaddr, len) \
-> 		remap_page_range(vma, vma->vm_start, __pa(vaddr), len, vma->vm_page_prot)
-> 
-> for the simple case.
+On Sunday 21 March 2004 22:32, Richard Browning wrote:
+> On Sunday 21 March 2004 03:33, Horst von Brand wrote:
+> > In my experience, when Linux crashes, Windows works fine it is flaky
+> > hardware. Has variously been overclocking, bad fans (CPU overheating),
+> > bad RAM. You have to rule all that out first. Might need a BIOS update...
+>
+> Done all that. Changed motherboards, changed CPUs, changed RAM. Haven't
+> changed graphics card, though. I don't know where else to get a
+> Radeon9800Pro from on loan! I don't overclock either. I'm confident it's
+> not the hardware.
 
-Ok, splitting hairs, for the coherent contiguous case, what about:
+But it must be SOMETHING, right?
 
-int dma_coherent_map(struct vm_area_struct *vma, void *cpu_addr,
-		     dma_addr_t dma_addr, size_t size);
+Kernel compile is too broad. Can you try to narrow it down?
+Does burnCPU trigger it? Several burnCPUs?
+dd if=/dev/hda of=/dev/null?
+dd if=/dev/zero of=file bs=1M count=128?
+network flood? (/me uses netcat and UDP)
+Combination of above?
 
-and x86 would be:
+Then, you will be able to call for testing.
+You can post your kernel version and .config
+and ask folks who has identical hardware to try
+to duplicate.
+--
+vda
 
-#define dma_coherent_map(vma,cpu_addr,dma_addr,size)	\
-	remap_page_range(vma, vma->vm_start, __pa(cpu_addr), \
-			 size, vma->vm_page_prot)
-
-This then leaves the PCI BAR case and the DMA coherent SG buffer case,
-though neither of those fall within my personal problem space at present.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core

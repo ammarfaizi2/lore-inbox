@@ -1,69 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264980AbUIZXY1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265044AbUIZXkx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264980AbUIZXY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 19:24:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264984AbUIZXY1
+	id S265044AbUIZXkx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 19:40:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265051AbUIZXkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 19:24:27 -0400
-Received: from bianca.affordablehost.com ([216.46.192.8]:33999 "EHLO
-	bianca.affordablehost.com") by vger.kernel.org with ESMTP
-	id S264980AbUIZXYZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 19:24:25 -0400
-Date: Sun, 26 Sep 2004 16:22:28 -0700
-From: "Randy.Dunlap" <rddunlap@xenotime.net>
-To: "Roberts-Thomson, James" <James.Roberts-Thomson@NBNZ.CO.NZ>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Help Requested with patching "drivers/pci/quirks.c"
-Message-Id: <20040926162228.02a85a63.rddunlap@xenotime.net>
-In-Reply-To: <40BC5D4C2DD333449FBDE8AE961E0C33017E3C3F@psexc03.nbnz.co.nz>
-References: <40BC5D4C2DD333449FBDE8AE961E0C33017E3C3F@psexc03.nbnz.co.nz>
-Organization: YPO4
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - bianca.affordablehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Sun, 26 Sep 2004 19:40:52 -0400
+Received: from 84-120-113-240.onocable.ono.com ([84.120.113.240]:12303 "HELO
+	ridley.on.ca") by vger.kernel.org with SMTP id S265044AbUIZXkv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Sep 2004 19:40:51 -0400
+Message-ID: <548a01c4a422$094eb1f8$d0d6906c@ridley.on.ca>
+From: "Darcy C. Townsend" <d.townsend_in@narviknett.no>
+To: linux-kernel@vger.kernel.org
+Subject: Get  =?ISO-8859-1?Q?=20v=ECagra?= for a great price.
+Date: Mon, 27 Sep 2004 07:40:36 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Sep 2004 11:06:15 +1200 Roberts-Thomson, James wrote:
+Hi,
 
-| Looking at the quirks.c code, I can see functions like
-| "asus_hides_smbus_hostbridge" and "asus_hides_smbus_lpc", which use a lookup
-| table to determine whether or not to set the appropriate flag and toggle the
-| PCI bits to enable the SMbus.  Obviously, I need to include the appropriate
-| checks (and associated entries in the pci_fixups struct) to get this applied
-| to my machine at kernel load time (I've seen some patches on the lkml
-| recently that seem to do exactly this - quite happy to try and add this
-| functionality).  For example, here is an extract from a similar patch:
-| 
-| +        if ((dev->device == PCI_DEVICE_ID_INTEL_82865_HB) &&
-| +            (dev->subsystem_device == 0x12bc)) /* HP D330L */
-| +                asus_hides_smbus = 1;
-| 
-| My problem is that I don't understand how the "dev->device" and
-| "dev->subsystem_device" values are obtained.  Where/How do I read the actual
-| values from my machine so that I can add them into the code tables?
+We have a new offer for you. Buy cheap Vìagra through our online store.
+- Private online ordering 
+- No prescription required
+- World wide shipping
 
-Try "lspci -n".
+Order your drugs offshore and save over 70%!
 
-| Any help would be appreciated; as would "cc"ing replies directly to me (I
-| don't subscribe to lkml, and may miss replies when searching via MARC).
-| 
-| 
-| This communication is confidential and may contain privileged material.
-| If you are not the intended recipient you must not use, disclose, copy or retain it.
-| If you have received it in error please immediately notify me by return email
-| and delete the emails.
+Click here: http://888-luvu.com/meds/
 
-N.B.:  I may have received this non-confidential email in error.
+Best regards,
+Donald Cunfingham
 
---
-~Randy
+
+
+No thanks: http://888-luvu.com/rm.html
+

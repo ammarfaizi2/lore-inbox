@@ -1,99 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263534AbSJHT47>; Tue, 8 Oct 2002 15:56:59 -0400
+	id <S261434AbSJHULb>; Tue, 8 Oct 2002 16:11:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262676AbSJHTwS>; Tue, 8 Oct 2002 15:52:18 -0400
-Received: from web21401.mail.yahoo.com ([216.136.232.71]:50531 "HELO
-	web21401.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S261763AbSJHTwH>; Tue, 8 Oct 2002 15:52:07 -0400
-Message-ID: <20021008195746.52445.qmail@web21401.mail.yahoo.com>
-Date: Tue, 8 Oct 2002 12:57:46 -0700 (PDT)
-From: Ankit <ankitsl@yahoo.com>
-Subject: Re: PATCH: fix imm compile
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <E17yzdM-0004u9-00@the-village.bc.nu>
-MIME-Version: 1.0
+	id <S261438AbSJHTMU>; Tue, 8 Oct 2002 15:12:20 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:15876 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S263207AbSJHTG1>;
+	Tue, 8 Oct 2002 15:06:27 -0400
+Date: Tue, 8 Oct 2002 13:20:34 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Brian Litzinger <brian@top.worldcontrol.com>, linux-kernel@vger.kernel.org
+Subject: Re: swsusp 2.4.18 vs 2.5.40
+Message-ID: <20021008132033.B35@toy.ucw.cz>
+References: <20021002034825.GA1892@top.worldcontrol.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20021002034825.GA1892@top.worldcontrol.com>; from brian@worldcontrol.com on Tue, Oct 01, 2002 at 08:48:25PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-iam using this driver to fetch me some memory in
-my user space application by calling mmap with the
-file descriptor got by opening the device file for
-this driver.
-mmap(0, length, flags, flags, fd, offset)
+HI!
 
-and the mmap entry point in the driver is implemented
-as below:
+> >Yep, swsusp is not really meant to work in 2.4.X. Get latest 2.5.X...  
+> >and add IDE patches so it does not eat your disk...                    
+> 
+> Ok, I've compiled and tried 2.5.40.
+> 
+> Zip. Nada. swsusp doesn't show up at all.  If I compile with SMP
+> turned on I get a message about swsusp being incompatible with
+> SMP.  Running UP it doesn't show up in the boot log, though it
+> looks to be compiled.
+> 
+> It also doesn't show in the SysRq help list.
+> 
+> echo'ing things to /proc/acpi/sleep does nothing.
 
-In the implementation, it tries to write an index into
-the first four bytes, which i use to store in my
-internal structures( to later reference it through the
-index), before zeroing out the buffer. But the index
-is always -1.
+Bad test in acpi/sleep.c; then IDE fix is needed and andrew's mm patch
+to really free memory.
+								Pavel
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 
-I dont understand the part where its getting the
-physical address to map.
-whats the high_memory and whats the PAGE_OFFSET.
-Can you help me in understanding what exactly is the
-mmap() doing here and
-if its doing it right.
-
-
-himem_buf_allocated = 0;
-
-int xxx_mmap(struct file *filp,
-		  struct vm_area_struct *vma)
-{
-  unsigned long size;
-  char * virt_addr;
-  int		index;
-
-  size = vma->vm_end - vma->vm_start;
-  if ((size % PAGE_SIZE) != 0){
-    size = (size / PAGE_SIZE) * PAGE_SIZE + PAGE_SIZE;
-  }
-
-  /* himem_buf_size is 0x80000000 */
-  if (size + himem_buf_allocated >= himem_buf_size){
-    
-    return -ENOMEM;
-  }
-  
-  /* himem_buf is calculated as high_memory -
-PAGE_OFFSET */
-  umem_addr = himem_buf + himem_buf_allocated;
-  if (umem_addr == 0){
-    return -ENOMEM;
-  }
-  himem_buf_allocated += size;
-  
-
-  virt_addr = ioremap((unsigned long)umem_addr,
-PAGE_SIZE);  
-  if (virt_addr == 0){
-    return -ENOMEM;
-  }
-  /* write the index into the first 4 bytes */
-  writel(index, (uint32_t *)virt_addr);
-
-    /* the values of index and *(virt_addr) do not 
-       match.   *(virt_addr) is always -1 .
-       Is something wrong here    */
-    dbg_printf(0,"index is %d, *(virt_addr) is %d\n",
-index,(int)readl(virt_addr));
-  iounmap(virt_addr);
-
-   
-
-  remap_page_range(vma->vm_start, (ulong)umem_addr, 
-		   vma->vm_end - vma->vm_start, vma->vm_page_prot);
-
-  return 0;
-}
-
-
-__________________________________________________
-Do you Yahoo!?
-Faith Hill - Exclusive Performances, Videos & More
-http://faith.yahoo.com

@@ -1,100 +1,144 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318173AbSGWRER>; Tue, 23 Jul 2002 13:04:17 -0400
+	id <S318174AbSGWRE0>; Tue, 23 Jul 2002 13:04:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318174AbSGWREQ>; Tue, 23 Jul 2002 13:04:16 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:33300 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S318173AbSGWREP>; Tue, 23 Jul 2002 13:04:15 -0400
-Date: Tue, 23 Jul 2002 19:08:07 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Daniel McNeil <daniel@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19rc2aa1 i_size atomic access
-Message-ID: <20020723170807.GW1116@dualathlon.random>
-References: <1026949132.20314.0.camel@joe2.pdx.osdl.net> <1026951041.2412.38.camel@IBM-C> <20020718103511.GG994@dualathlon.random> <1027037361.2424.73.camel@IBM-C> <20020719112305.A15517@oldwotan.suse.de> <1027119396.2629.16.camel@IBM-C>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1027119396.2629.16.camel@IBM-C>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S318176AbSGWREZ>; Tue, 23 Jul 2002 13:04:25 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:18639 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318174AbSGWREW>;
+	Tue, 23 Jul 2002 13:04:22 -0400
+Subject: kernel BUG at page_alloc.c:92! & page allocation failure. order:0, mode:0x0
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OFA7B7DCC3.8F04308C-ON85256BFF.005DA646@pok.ibm.com>
+From: "David F Barrera" <dbarrera@us.ibm.com>
+Date: Tue, 23 Jul 2002 12:07:22 -0500
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.10 SPR# MIAS5B3GZN |June
+ 28, 2002) at 07/23/2002 01:07:25 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 19, 2002 at 03:56:36PM -0700, Daniel McNeil wrote:
-> +	short v1;
-> +	short v2;
-> +	loff_t i_size;
-> +
-> +	/*
-> +	 * retry if i_size was possibly modified while sampling.
-> +	 */
-> +	do {
-> +		v1 = inode->i_attr_version1;
-> +		v2 = inode->i_attr_version2;
-> +		rmb();
-> +		i_size = inode->i_size;
-> +		rmb();
-> +	} while (v1 != v2 ||
-> +		 v1 != inode->i_attr_version1 ||
-> +		 v1 != inode->i_attr_version2);
-> +	return i_size;
-[..]
->  #elif BITS_PER_LONG==64
->  	return inode->i_size;
->  #endif
-> @@ -548,8 +566,12 @@
->  static inline void i_size_write(struct inode * inode, loff_t i_size)
->  {
->  #if BITS_PER_LONG==32
-> -	set_64bit((unsigned long long *) &inode->i_size,
-> -		  (unsigned long long) i_size);
-> +	inode->i_attr_version1++;       /* changing i_size */
-> +	wmb();
-> +	inode->i_size = i_size;
-> +	wmb();
-> +	inode->i_attr_version2++;       /* done with change */
-> +	wmb();
->  #elif BITS_PER_LONG==64
->  	inode->i_size = i_size;
->  #endif
+I should have stated that the problem is occurring on the 2.5.26 kernel,
+NOT 2.4.26.  My mistake.  Also, the hardware is an IBM eServer  8-way x370
+with 12GB or RAM, SCSI drives, 2GB swap.  My observation was that not all
+memory was being used at the time of the oops and error messages.
 
-btw, looking at the implementation the read side was buggy. First it's
-pointless to read both version1 and version2 before reading the isize,
-secondly if you increase version1 first (in the writer), the reader has
-to read version2 before i_size and version1 after i_size. While you're
-doing the opposite, you compare v1 (version1) read before i_size with
-version2 after i_size.
-
-So while merging it I rewrote it this way (I also change the type of the
-sequence number to int, 2^16 can overflow quite fast in a multighz cpu,
-mostly for paranoid of course, and to go safe with the atomic granularty
-provided by archs, int certainly has to be atomic-granular).
-
-	loff_t i_size;
-	int v1, v2;
-
-	/* Retry if i_size was possibly modified while sampling. */
-	do {
-		v1 = inode->i_size_version1;
-		rmb();
-		i_size = inode->i_size;
-		rmb();
-		v2 = inode->i_size_version2;
-	} while (v1 != v2);
-
-	return i_size;
+I have experienced the following errors while running a test suite (LTP
+test suite)  on the 2.5.26 kernel.  Has anybody seen this problem, and, if
+so, is there a patch for it?  Please reply directly as I am not yet
+subscribed to the mailing list.  Thanks.
 
 
-and the new writer side:
+kernel BUG at page_alloc.c:92!
+invalid operand: 0000
+CPU:    7
+EIP:    0010:[<c0132fae>]    Not tainted
+EFLAGS: 00010202
+eax: 00000020   ebx: 00000009   ecx: c7fd0208   edx: c7fd0208
+esi: fe0029fa   edi: 00000000   ebp: ddeff009   esp: f6793eb4
+ds: 0018   es: 0018   ss: 0018
+Process top (pid: 4648, threadinfo=f6792000 task=f7320ce0)
+Stack: c7fd0208 00000000 00000009 ddeff000 ddeff000 c011e137 f7320ce0
+f5f4d8a0
+       bffff9f1 00000009 fe0029fa 00000000 ddeff009 c011e0fe f6792000
+ddeff000
+       f5f4d8a0 c7fd0208 f5ba83c0 00000000 f5f4d8a0 ddeff000 ddeff000
+c015cca3
+Call Trace: [<c011e137>] [<c011e0fe>] [<c015cca3>] [<c015d016>]
+[<c013c9e8>]
+   [<c013cb9a>] [<c010700b>]
 
-	inode->i_size_version2++;
-	wmb();
-	inode->i_size = i_size;
-	wmb();
-	inode->i_size_version1++;
-	wmb(); /* make it visible ASAP */
+Code: 0f 0b 5c 00 99 49 2d c0 8b 14 24 8b 42 14 83 e0 40 74 08 0f
 
-Andrea
+mremap01: page allocation failure. order:0, mode:0x0
+pdflush: page allocation failure. order:0, mode:0x0
+mremap01: page allocation failure. order:0, mode:0x0
+mremap01: page allocation failure. order:0, mode:0x0
+pdflush: page allocation failure. order:0, mode:0x0
+pdflush: page allocation failure. order:0, mode:0x0
+mremap01: page allocation failure. order:0, mode:0x0
+pdflush: page allocation failure. order:0, mode:0x0
+pdflush: page allocation failure. order:0, mode:0x0
+pdflush: page allocation failure. order:0, mode:0x0
+pdflush: page allocation failure. order:0, mode:0x0
+pdflush: page allocation failure. order:0, mode:0x0
+----------------------------------------------------------------------------------------------------------------------------
+Ksymoops output:
+
+ksymoops 2.4.1 on i686 2.5.26.  Options used
+     -v /boot/vmlinux-2.5.26 (specified)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.5.26/ (default)
+     -m /boot/System.map-2.5.26 (specified)
+
+No modules in ksyms, skipping objects
+Warning (read_lsmod): no symbols in lsmod, is /proc/modules a valid lsmod
+file?
+Warning (compare_maps): ksyms_base symbol
+__wake_up_sync_R__ver___wake_up_sync not found in vmlinux.  Ignoring
+ksyms_base entry
+Warning (compare_maps): ksyms_base symbol idle_cpu_R__ver_idle_cpu not
+found in vmlinux.  Ignoring ksyms_base entry
+Warning (compare_maps): ksyms_base symbol
+set_cpus_allowed_R__ver_set_cpus_allowed not found in vmlinux.  Ignoring
+ksyms_base entry
+kernel BUG at page_alloc.c:92!
+invalid operand: 0000
+CPU:    7
+EIP:    0010:[<c0132fae>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010202
+eax: 00000020   ebx: 00000009   ecx: c7fd0208   edx: c7fd0208
+esi: fe0029fa   edi: 00000000   ebp: ddeff009   esp: f6793eb4
+ds: 0018   es: 0018   ss: 0018
+Stack: c7fd0208 00000000 00000009 ddeff000 ddeff000 c011e137 f7320ce0
+f5f4d8a0
+       bffff9f1 00000009 fe0029fa 00000000 ddeff009 c011e0fe f6792000
+ddeff000
+       f5f4d8a0 c7fd0208 f5ba83c0 00000000 f5f4d8a0 ddeff000 ddeff000
+c015cca3
+Call Trace: [<c011e137>] [<c011e0fe>] [<c015cca3>] [<c015d016>]
+[<c013c9e8>]
+   [<c013cb9a>] [<c010700b>]
+Code: 0f 0b 5c 00 99 49 2d c0 8b 14 24 8b 42 14 83 e0 40 74 08 0f
+
+>>EIP; c0132fae <__free_pages_ok+4e/2e0>   <=====
+Trace; c011e137 <access_process_vm+177/1c0>
+Trace; c011e0fe <access_process_vm+13e/1c0>
+Trace; c015cca3 <proc_pid_cmdline+63/f0>
+Trace; c015d016 <proc_info_read+46/100>
+Trace; c013c9e8 <vfs_read+98/110>
+Trace; c013cb9a <sys_read+2a/40>
+Trace; c010700b <syscall_call+7/b>
+Code;  c0132fae <__free_pages_ok+4e/2e0>
+00000000 <_EIP>:
+Code;  c0132fae <__free_pages_ok+4e/2e0>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c0132fb0 <__free_pages_ok+50/2e0>
+   2:   5c                        pop    %esp
+Code;  c0132fb1 <__free_pages_ok+51/2e0>
+   3:   00 99 49 2d c0 8b         add    %bl,0x8bc02d49(%ecx)
+Code;  c0132fb7 <__free_pages_ok+57/2e0>
+   9:   14 24                     adc    $0x24,%al
+Code;  c0132fb9 <__free_pages_ok+59/2e0>
+   b:   8b 42 14                  mov    0x14(%edx),%eax
+Code;  c0132fbc <__free_pages_ok+5c/2e0>
+   e:   83 e0 40                  and    $0x40,%eax
+Code;  c0132fbf <__free_pages_ok+5f/2e0>
+  11:   74 08                     je     1b <_EIP+0x1b> c0132fc9
+<__free_pages_ok+69/2e0>
+Code;  c0132fc1 <__free_pages_ok+61/2e0>
+  13:   0f 00 00                  sldtl  (%eax)
+
+
+4 warnings issued.  Results may not be reliable.
+
+
+David F Barrera
+dbarrera@us.ibm.com
+
+
+
+

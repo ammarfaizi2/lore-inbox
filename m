@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267725AbUJVUue@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267745AbUJVUyp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267725AbUJVUue (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 16:50:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267737AbUJVUsk
+	id S267745AbUJVUyp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 16:54:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267746AbUJVUyc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 16:48:40 -0400
-Received: from out014pub.verizon.net ([206.46.170.46]:19877 "EHLO
-	out014.verizon.net") by vger.kernel.org with ESMTP id S267725AbUJVUqH
+	Fri, 22 Oct 2004 16:54:32 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55237 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267745AbUJVUwJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 16:46:07 -0400
-Message-ID: <4179718A.9000607@verizon.net>
-Date: Fri, 22 Oct 2004 16:46:02 -0400
-From: Jim Nelson <james4765@verizon.net>
+	Fri, 22 Oct 2004 16:52:09 -0400
+Message-ID: <417972EC.9020003@pobox.com>
+Date: Fri, 22 Oct 2004 16:51:56 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Karel Kulhavy <clock@twibright.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Official and unofficial documentation
-References: <20041022180933.GA21618@beton.cybernet.src>
-In-Reply-To: <20041022180933.GA21618@beton.cybernet.src>
+To: Timothy Miller <miller@techsource.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jon Smirl <jonsmirl@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+References: <4176E08B.2050706@techsource.com> <4177DF15.8010007@techsource.com> <4177E50F.9030702@sover.net> <200410220238.13071.jk-lkml@sci.fi> <41793C94.3050909@techsource.com> <417955D3.5020206@pobox.com> <41795DEA.8050309@techsource.com> <41796083.9060301@pobox.com> <417965E7.8010408@techsource.com>
+In-Reply-To: <417965E7.8010408@techsource.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [209.158.211.53] at Fri, 22 Oct 2004 15:46:03 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karel Kulhavy wrote:
-> Hello
-> 
-> http://www.kernel.org contains some pointer to online documentation on various
-> web sites and also sometimes URL's are being mentioned in Documentation/ files
-> and <Help> in make menuconfig.
-> 
-> Which of this documentation is official and which is unofficial?
-> 
-> Cl<
-> -
+Timothy Miller wrote:
+> Ok, let me say this:  I will not change something I don't have to 
+> change, but I'm not going to be held back (and hold everyone else back) 
+> by some mistake I made in the past.
 
-Since this is a community-developed kernel, there is no "official" 
-documentation per se; anyone is welcome to write whatever documentation 
-they care to, and if it's good enough, others will recommend it.
+Oh, I do agree w/ this.
 
-The only true authority is the source code, but not everyone has the 
-skill to grok kernel code quickly.
+But if the OS<->hardware interface is kept simple (e.g. simple DMA ring 
+of items to execute, or just xfer to video RAM, and perhaps another 
+response msg ring) then the impact of any design changes you -do- make 
+are mitigated, and the OS driver is kept small and simple as well.
 
-If you are interested, I am starting to review and update the 
-Documentation directory - any help would be greatly appreciated.
+	Jeff
 
-Jim
+

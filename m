@@ -1,63 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268379AbTAMWbY>; Mon, 13 Jan 2003 17:31:24 -0500
+	id <S267971AbTAMWkV>; Mon, 13 Jan 2003 17:40:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268371AbTAMWbX>; Mon, 13 Jan 2003 17:31:23 -0500
-Received: from [213.171.53.133] ([213.171.53.133]:57358 "EHLO gulipin.miee.ru")
-	by vger.kernel.org with ESMTP id <S268379AbTAMWaI>;
-	Mon, 13 Jan 2003 17:30:08 -0500
-Date: Tue, 14 Jan 2003 01:38:38 +0300 (MSK)
-From: "Ruslan U. Zakirov" <cubic@miee.ru>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: vojtech@suse.cz, Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.57
-In-Reply-To: <Pine.LNX.4.44.0301131039050.13791-100000@penguin.transmeta.com>
-Message-ID: <Pine.BSF.4.05.10301140123440.36033-100000@wildrose.miee.ru>
+	id <S268392AbTAMWkU>; Mon, 13 Jan 2003 17:40:20 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:31576
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S267971AbTAMWji>; Mon, 13 Jan 2003 17:39:38 -0500
+Date: Mon, 13 Jan 2003 17:49:12 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Jens Axboe <axboe@suse.de>
+cc: Terje Eggestad <terje.eggestad@scali.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: any chance of 2.6.0-test*?
+In-Reply-To: <20030113184831.GC14017@suse.de>
+Message-ID: <Pine.LNX.4.44.0301131748010.2102-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Jan 2003, Linus Torvalds wrote:
+On Mon, 13 Jan 2003, Jens Axboe wrote:
 
+> > It uses NMI's to break into the debugger, so it would also work with 
+> > interrupts disabled and spinning on a lock, the same is also true for 
+> > kgdb.
 > 
-> Ok, Alan worked on fixing the network packet padding thing (small changes
-> to a _lot_ of network drivers), and merged some more of his IDE work.  
-> And latency fixes and some VM updates from Andrew Morton.
-> 
-> Ppc, ppc64, ISDN and sparc updates. NFSd and sysfs updates.
-> 
-> And special mention for Brian Gerst, who figured out and fixed a x86 page
-> table initialization fix that would leave old machines unable to boot
-> 2.5.x. That might explain a number of the "I can't run 2.5.x" that weren't
-> seen by developers (most developers tend to have hardware studly enough
-> that they'd never see the problem).
-> 
-> 			Linus
-Hello All.
-Patch fix wrong order of array(amd_ide_chips) that cause BUG() in 436 line
-with any conditions, because we use wrong amd_config.
+> But still requiring up-apic, or smp with apic, right?
 
---- drivers/ide/pci/amd74xx.c~	2003-01-14 01:08:06.000000000 +0300
-+++ drivers/ide/pci/amd74xx.c	2003-01-14 00:58:27.000000000 +0300
-@@ -54,11 +54,11 @@
- 	unsigned long base;
- 	unsigned char flags;
- } amd_ide_chips[] = {
--	{ PCI_DEVICE_ID_AMD_8111_IDE,  0x00, 0x40, AMD_UDMA_100 },			/* AMD-8111 */
--	{ PCI_DEVICE_ID_AMD_OPUS_7441, 0x00, 0x40, AMD_UDMA_100 },			/* AMD-768 Opus */
--	{ PCI_DEVICE_ID_AMD_VIPER_7411, 0x00, 0x40, AMD_UDMA_100 | AMD_BAD_FIFO },	/* AMD-766 Viper */
--	{ PCI_DEVICE_ID_AMD_VIPER_7409, 0x00, 0x40, AMD_UDMA_66 | AMD_CHECK_SWDMA },	/* AMD-756 Viper */
- 	{ PCI_DEVICE_ID_AMD_COBRA_7401, 0x00, 0x40, AMD_UDMA_33 | AMD_BAD_SWDMA },	/* AMD-755 Cobra */
-+	{ PCI_DEVICE_ID_AMD_VIPER_7409, 0x00, 0x40, AMD_UDMA_66 | AMD_CHECK_SWDMA },	/* AMD-756 Viper */
-+	{ PCI_DEVICE_ID_AMD_VIPER_7411, 0x00, 0x40, AMD_UDMA_100 | AMD_BAD_FIFO },	/* AMD-766 Viper */
-+	{ PCI_DEVICE_ID_AMD_OPUS_7441, 0x00, 0x40, AMD_UDMA_100 },			/* AMD-768 Opus */
-+	{ PCI_DEVICE_ID_AMD_8111_IDE,  0x00, 0x40, AMD_UDMA_100 },			/* AMD-8111 */
-         { PCI_DEVICE_ID_NVIDIA_NFORCE_IDE, 0x00, 0x50, AMD_UDMA_100 },                  /* nVidia nForce */
- 
- 	{ 0 }
+Well UP with Local APIC will suffice. So that works on a lot of i686 
+machines.
 
-------------
-Best regards.
-Thanks, Ruslan.
+	Zwane
+-- 
+function.linuxpower.ca
 

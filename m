@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262855AbVDASd3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262789AbVDASgq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262855AbVDASd3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 13:33:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262854AbVDASdB
+	id S262789AbVDASgq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 13:36:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262851AbVDASdv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 13:33:01 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:57730 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262844AbVDASaq (ORCPT
+	Fri, 1 Apr 2005 13:33:51 -0500
+Received: from fire.osdl.org ([65.172.181.4]:49327 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262844AbVDASdC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 13:30:46 -0500
-Date: Fri, 1 Apr 2005 20:29:55 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.43-00
-Message-ID: <20050401182955.GA12379@elte.hu>
-References: <20050325145908.GA7146@elte.hu> <20050331085541.GA21306@elte.hu> <20050401104724.GA31971@elte.hu> <200504011231.55717.gene.heskett@verizon.net> <424D927F.2020601@cybsft.com>
+	Fri, 1 Apr 2005 13:33:02 -0500
+Date: Fri, 1 Apr 2005 10:32:35 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: oleg@tv-sign.ru, linux-kernel@vger.kernel.org, mingo@elte.hu,
+       christoph@lameter.com, kenneth.w.chen@intel.com
+Subject: Re: [RFC][PATCH] timers fixes/improvements
+Message-Id: <20050401103235.1fcea9f0.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0504010807570.4774@ppc970.osdl.org>
+References: <424D373F.1BCBF2AC@tv-sign.ru>
+	<Pine.LNX.4.58.0504010807570.4774@ppc970.osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <424D927F.2020601@cybsft.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds <torvalds@osdl.org> wrote:
+>
+> 
+> 
+> On Fri, 1 Apr 2005, Oleg Nesterov wrote:
+> >
+> > This patch replaces and updates 6 timer patches which are currently
+> > in -mm tree. This version does not play games with __TIMER_PENDING
+> > bit, so incremental patch is not suitable. It is against 2.6.12-rc1.
+> > Please comment. I am sending pseudo code in a separate message for
+> > easier review.
+> 
+> Looks ok by me. Andrew, should we let it cook in -mm, or what?
+> 
 
-* K.R. Foley <kr@cybsft.com> wrote:
-
-> >This one didn't go in cleanly Ingo.  From my build-src scripts output:
-> >-------------------
-> >Applying patch realtime-preempt-2.6.12-rc1-V0.7.43-04
-
-> Adding the attached patch on top of the above should resolve the 
-> failures, at least in the patching. Still working on building it.
-
-i fixed these things up in -43-05 ... i hope :-|
-
-	Ingo
+Sure.  Christoph and (I think) Ken have been seeing mysterious misbehaviour
+which _might_ be due to Oleg's first round of timer patches.  I assume C&K
+will test this new patch?

@@ -1,67 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310501AbSCZKr4>; Tue, 26 Mar 2002 05:47:56 -0500
+	id <S310515AbSCZKzs>; Tue, 26 Mar 2002 05:55:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293632AbSCZKrt>; Tue, 26 Mar 2002 05:47:49 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:48336 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S310501AbSCZKrd> convert rfc822-to-8bit; Tue, 26 Mar 2002 05:47:33 -0500
-Message-Id: <200203261017.g2QAHJEI024182@codeman.linux-systeme.org>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Marc-Christian Petersen <mcp@linux-systeme.de>
-Reply-To: mcp@linux-systeme.de
-Organization: Linux-Systeme GmbH
-To: Samuel Maftoul <maftoul@esrf.fr>
-Subject: Re: [ANNOUNCE] Kernel 2.4.18-WOLK3.1
-Date: Tue, 26 Mar 2002 11:16:50 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <200203251821.g2PIL7oA005522@codeman.linux-systeme.org> <20020326102557.B25079@pcmaftoul.esrf.fr>
-Cc: lkml <linux-kernel@vger.kernel.org>
+	id <S310864AbSCZKzi>; Tue, 26 Mar 2002 05:55:38 -0500
+Received: from ns.suse.de ([213.95.15.193]:22801 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S310515AbSCZKzc>;
+	Tue, 26 Mar 2002 05:55:32 -0500
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com
+Subject: Re: Problems with Tigon v0.97
+In-Reply-To: <ho1ye7tyqx.fsf@gee.suse.de>
+	<20020326.024210.55219079.davem@redhat.com>
+From: Andreas Jaeger <aj@suse.de>
+Date: Tue, 26 Mar 2002 11:55:30 +0100
+Message-ID: <hosn6nsin1.fsf@gee.suse.de>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.4 (Artificial
+ Intelligence, i386-suse-linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 March 2002 10:25, you wrote:
+"David S. Miller" <davem@redhat.com> writes:
 
-Hi Samuel,
+> It's an amd756 chipset bug.  bcm5700 chooses to work around it in
+> their driver, when it really belongs as a generic PCI fixup in
+> the kernel.
 
-> First of all, I'm happy to see such a Patchset, Thanks.
-:-) Thanks that you are using it :)
+What needs to be done for this?  Can you point me to the PCI
+workaround in the bcm driver?  
 
-> you're version name is WOLK in uppercase.
-> I would like to ask if there is a naming convention for kernel trees:
-> make-kpkg, which is the kernel source/image packager of the debian,
-> doesn't support release names in uppercases:
-> ---------------------------------------------------------------------
-> Lion:/usr/src/linux# make-kpkg
-> debian/rules:966: *** Error. The version number 2.4.18-WOLK3.1 is not
-> all lowercase. Since the version ends up in the package name of the
-> kernel image package, this is a Debian policy violation, and the
-> packaging system shall refuse to package the image. . Stop.
-> ---------------------------------------------------------------------
-> Could you rename your EXTRAVERSION with wolk ? or is it a Debian
-> limitation ?
-Yes, i know of that limitation of make-kpkg, but i have forgotton to rename 
-it for WOLK 3.1. You can do so easily for yourself my editing the patched 
-kernel/full wolk kernel File Makefile and look for EXTRAVERSION = -WOLK3.1 
-and rename it to -wolk3.1. Its in the 4th line of that File, or, if you 
-haven't patched the vanilla at all or want to change it permanently for the 
-patchset, edit 99_VERSION, look for +EXTRAVERSION = -WOLK3.1 and rename it 
-too.
+I only found via grep in the sources a workaround for the AMD 762
+northbridge but nothing directly for the 756.
 
-You want to support Debian Kernel Package of WOLK? I appreciate it :)
-
+Thanks,
+Andreas
 -- 
-Kind regards
-	Marc-Christian Petersen
-
-Linux-Systeme GmbH
-Tenderweg 11 45141 Essen
-Tel.: +49 201 - 85 85 130 / Mobil: +49 173 - 541 68 09
-http://www.linux-systeme.de - http://sourceforge.net/projects/wolk
-
-PGP/GnuPG Key: 1024D/408B2D54947750EC
-Fingerprint: 8602 69E0 A9C2 A509 8661  2B0B 408B 2D54 9477 50EC
-Key available at wwwkeys.pgp.net.   Encrypted e-mail preferred.
+ Andreas Jaeger
+  SuSE Labs aj@suse.de
+   private aj@arthur.inka.de
+    http://www.suse.de/~aj

@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262000AbVCLTEI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbVCLTLa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262000AbVCLTEI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 14:04:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbVCLTEH
+	id S262006AbVCLTLa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 14:11:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbVCLTL3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 14:04:07 -0500
-Received: from 166.Red-80-36-134.pooles.rima-tde.net ([80.36.134.166]:53802
-	"EHLO 166.Red-80-36-134.pooles.rima-tde.net") by vger.kernel.org
-	with ESMTP id S262000AbVCLTEB (ORCPT
+	Sat, 12 Mar 2005 14:11:29 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:37068 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262001AbVCLTLW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 14:04:01 -0500
-Date: Sat, 12 Mar 2005 20:03:58 +0100
-From: "Juan M. de la Torre" <jmtorre@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6.11 does not handle IRQ #0 on IXP4xx ARM platforms
-Message-ID: <20050312190358.GA14440@mobile>
+	Sat, 12 Mar 2005 14:11:22 -0500
+Date: Sat, 12 Mar 2005 20:11:07 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>, linux-net@vger.kernel.org
+Subject: Re: Fix suspend/resume on via-velocity
+Message-ID: <20050312191107.GC12070@elf.ucw.cz>
+References: <20050311141132.GA1539@elf.ucw.cz> <4231F281.8060202@pobox.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="Q68bSM7Ycu6FN28Q"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <4231F281.8060202@pobox.com>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This fixes suspend-resume on via-velocity. It was confused
+w.r.t. pointers... Now uses netdev_priv(). [Well, someone should run
+sed over that driver, there are many more dev->priv]. Please apply,
+
+Signed-off-by: Pavel Machek <pavel@suse.cz>
+							Pavel
 
 
- The original get_irqnr_and_bse macro leave Z flag set when the IRQ
- being handled is #0, but the correct behaviour is to clear the flag
- when there is at least one IRQ to handle.
+--- clean/drivers/net/via-velocity.c	2005-01-22 21:24:52.000000000 +0100
++++ linux/drivers/net/via-velocity.c	2005-03-12 20:07:29.000000000 +0100
+@@ -3210,9 +3210,10 @@
+ 	return 0;
+ }
  
-PS: Please CC me in the reply because i'm not subscribed to the list
+ static int velocity_suspend(struct pci_dev *pdev, pm_message_t state)
+ {
+-	struct velocity_info *vptr = pci_get_drvdata(pdev);
++	struct net_device *dev = pci_get_drvdata(pdev);
++	struct velocity_info *vptr = netdev_priv(dev);
+ 	unsigned long flags;
+ 
+ 	if(!netif_running(vptr->dev))
+@@ -3245,7 +3246,8 @@
+ 
+ static int velocity_resume(struct pci_dev *pdev)
+ {
+-	struct velocity_info *vptr = pci_get_drvdata(pdev);
++	struct net_device *dev = pci_get_drvdata(pdev);
++	struct velocity_info *vptr = netdev_priv(dev);
+ 	unsigned long flags;
+ 	int i;
+ 
 
 -- 
-/jm
-
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ixp4xx-irq0.patch"
-
---- linux-2.6.11/include/asm-arm/arch-ixp4xx/entry-macro.S	2005-03-12 19:53:03.000000000 +0100
-+++ linux-2.6.11-new/include/asm-arm/arch-ixp4xx/entry-macro.S	2005-03-12 19:54:18.000000000 +0100
-@@ -18,7 +18,7 @@
- 		beq	1001f
- 		clz     \irqnr, \irqstat
- 		mov     \base, #31
--		subs    \irqnr, \base, \irqnr
-+		sub     \irqnr, \base, \irqnr
- 
- 1001:
- 		/*
-
---Q68bSM7Ycu6FN28Q--
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,62 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263929AbTCWVlA>; Sun, 23 Mar 2003 16:41:00 -0500
+	id <S263931AbTCWVmM>; Sun, 23 Mar 2003 16:42:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263930AbTCWVlA>; Sun, 23 Mar 2003 16:41:00 -0500
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:19709 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S263929AbTCWVkz>; Sun, 23 Mar 2003 16:40:55 -0500
-Message-ID: <3E7E2C69.5080401@quark.didntduck.org>
-Date: Sun, 23 Mar 2003 16:51:37 -0500
-From: Brian Gerst <bgerst@quark.didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Manfred Spraul <manfred@colorfullife.com>
-CC: Brian Gerst <bgerst@didntduck.org>, Anton Blanchard <anton@samba.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] slab.c cleanup
-References: <3E7E204C.2040700@colorfullife.com> <3E7E2219.5090501@quark.didntduck.org> <3E7E252A.2030902@colorfullife.com>
-In-Reply-To: <3E7E252A.2030902@colorfullife.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S263933AbTCWVmL>; Sun, 23 Mar 2003 16:42:11 -0500
+Received: from h-64-105-35-106.SNVACAID.covad.net ([64.105.35.106]:56984 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S263931AbTCWVly>; Sun, 23 Mar 2003 16:41:54 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sun, 23 Mar 2003 13:52:43 -0800
+Message-Id: <200303232152.NAA01475@adam.yggdrasil.com>
+To: hch@infraded.org, linux-kernel@vger.kernel.org
+Subject: Re: i2c-via686a driver
+Cc: dominik@kubla.de, j.dittmer@portrix.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
-> Brian Gerst wrote:
-> 
->>
->> Perhaps, but it currently is already allocating 128 bytes for smaller 
->> caches, because the cache is created with SLAB_HWCACHE_ALIGN.  So we 
->> ended up with redundantly sized caches.
->>
-> 
-> linux/mm/slab.c:
-> 
->>     if (flags & SLAB_HWCACHE_ALIGN) {
->>         /* Need to adjust size so that objs are cache aligned. */
->>         /* Small obj size, can get at least two per cache line. */
->>         while (size < align/2)
->>             align /= 2;
->>         size = (size+align-1)&(~(align-1));
->>     }
->>  
->>
-> HWALIGN is just a hint, the implementation ignores it if it results in 
-> unreasonable wasting of memory.
+On 2003-03-23, Christoph Hellwig wrote:
+>Because there's a strong preference for traditional C style in the kernel.
+>typedefs are also a valid C feature and we try to avoid them.
 
-I think I see what was causing be to believe it was always rounding up 
-to the cache size.  The while test should be while (size <= align/2). 
-On my machine (athlon, 64 byte cache), the size-32 cache was rounded up 
-to 64 bytes because of this.
+	It's not so simple.  I think trade-offs of maintainability
+versus other benefits determine these preferences on a
+feature-by-feature basis.
 
-size-128            1416   1470    128   49   49    1 :  248  124
-size-64              351    413     64    7    7    1 :  248  124
-size-32              649    649     64   11   11    1 :  248  124
-                                    ^^^^
+	GNU features, such as inline routines, asm, __section__, and
+variable sized arrays on the stack are used because the performance
+benefits or other capabilities that they enable are generally
+perceived to outweigh the loss in portability (although I think
+__section__ is only used in macros).
 
---
-				Brian Gerst
+	Function prototypes are used consistently throughout the
+kernel and are a newer feature than typedefs, presumably because the
+benefits of the type checking are greater than the benefits of
+compatability with old K&R compilers.  Indeed, the benefits of such
+compatability are apparently perceived as small enough, that they're
+not even worth the readability costs of using macros to support
+compilers with and without function prototypes.
 
+	The kernel frequently uses typedefs for sizing integer fields,
+presumably because the benefits of easing cross-platform portability
+and occasional changes to these fields' sizes are perceived to
+outweigh the fact you have to look up or remember the definitions
+types if you want to know their exact values from the source code.
 
+	On the other hand, it is true that typedefs seem to be avoided
+in certain cases.  The kernel usually does not use typedefs for
+structs and enums.  Those features provide their own name spaces, and
+the readability benefits of seeing "struct" or "enum" in front of the
+relevant type names is believed to outweigh the readability benefits
+of having one less word to look at (but not immediately knowing if you
+are looking at a struct, enum or other type).
+
+	There is also some interest in trying to be relatively
+standard when the costs of doing so are small enough.  For example,
+most of the named initializers for struct fields have now been
+converted from GNU style to C99 style.
+
+	In the case of the traditional C versus C++ style comments,
+using one comment type throughout the kernel may have some slight
+readability benefits.  Also, partly because we have inline routines
+that usually eliminate the performance cost of breaking up routines
+into smaller carefully named routines for documentation purposes,
+"chapter 5" of Documentation/CodingStyle says, "try to avoid putting
+comments in a function body", a style for which the more
+block-oriented "/*...*/" syntax is perhaps better suited.
+
+	On the other hand '//' appears in 1805 .c and .h files in
+linux-2.5.65-bk4, so, while I would prefer sticking with C style
+comments, it does not appear to be a requirement for integration into
+the stock kernel.  Given that your use of this feature seems to be for
+a comment block, I would still encourage you to use traditional C
+style comments, although it's certainly not my call.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271002AbUJUVqT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271007AbUJUVqQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271002AbUJUVqT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 17:46:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271004AbUJUVnM
+	id S271007AbUJUVqQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 17:46:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271003AbUJUVnF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 17:43:12 -0400
-Received: from rproxy.gmail.com ([64.233.170.203]:20642 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S270840AbUJUVj2 (ORCPT
+	Thu, 21 Oct 2004 17:43:05 -0400
+Received: from fw.osdl.org ([65.172.181.6]:48533 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270836AbUJUVli (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 17:39:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Cu6CwEcDLBQlLrk+G/J6L+Uulz1mCEw98rKWAQQg4uoS7RT7y3qA+AQ2IcS2Fy2aZ7M2yUE7zZsT+/zM2qTSHzcfYN1RUVj59Otge9Rih+BDe0Bm03kbsepDOwcQHtCEBSWtrSW6maEt015R/zPS5HtgijC+u/bl2tiDjTxBzsE=
-Message-ID: <35fb2e5904102114394a34f954@mail.gmail.com>
-Date: Thu, 21 Oct 2004 22:39:28 +0100
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: High pitched noise from laptop: processor.c in linux 2.6
-Cc: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@mru.ath.cx>,
-       Pavel Machek <pavel@ucw.cz>, "Yu, Luming" <luming.yu@intel.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1098390727.3705.24.camel@krustophenia.net>
+	Thu, 21 Oct 2004 17:41:38 -0400
+Date: Thu, 21 Oct 2004 14:45:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+Cc: andrea@novell.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] zap_pte_range should not mark non-uptodate pages dirty
+Message-Id: <20041021144531.22dd0d54.akpm@osdl.org>
+In-Reply-To: <1098393346.7157.112.camel@localhost>
+References: <1098393346.7157.112.camel@localhost>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <3ACA40606221794F80A5670F0AF15F8405D3BF5B@pdsmsx403>
-	 <20041018114109.GC4400@openzaurus.ucw.cz>
-	 <yw1xekjt4fa8.fsf@mru.ath.cx> <20041020154718.GD26439@elf.ucw.cz>
-	 <yw1x65554a7d.fsf@mru.ath.cx>
-	 <1098291205.1429.76.camel@krustophenia.net>
-	 <yw1xwtxl2tzo.fsf@mru.ath.cx>
-	 <1098390727.3705.24.camel@krustophenia.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Oct 2004 16:32:08 -0400, Lee Revell <rlrevell@joe-job.com> wrote:
+Dave Kleikamp <shaggy@austin.ibm.com> wrote:
+>
+> Doing O_DIRECT writes to an mmapped file caused pages in the page cache to
+> be marked dirty but not uptodate.  This led to a bug in mpage_writepage.
+> 
 
-> I am beginning to suspect the only known good laptop for pro audio use
-> is a Powerbook :-/.  x86 laptops are just too cheaply made.
+Methinks this merely reduces the probability of the BUG.
 
-Google suggests the Powerbook has also seen issues with singing
-capacitors but I have to say that I have not experienced this with
-mine - who wants an Intel POS laptop anyway ;-)
+> diff -urp linux-2.6.9/mm/memory.c linux/mm/memory.c
+> --- linux-2.6.9/mm/memory.c	2004-10-21 10:49:26.598031488 -0500
+> +++ linux/mm/memory.c	2004-10-21 16:01:44.902376232 -0500
+> @@ -414,7 +414,15 @@ static void zap_pte_range(struct mmu_gat
+>  			    && linear_page_index(details->nonlinear_vma,
+>  					address+offset) != page->index)
+>  				set_pte(ptep, pgoff_to_pte(page->index));
+> -			if (pte_dirty(pte))
+> +			/*
+> +			 * PG_uptodate can be cleared by
+> +			 * invalidate_inode_pages2, so we must not try to write
+> +			 * not uptodate pages.  Otherwise we risk invalidating
+> +			 * underlying O_DIRECT writes, and secondly because
+> +			 * pdflush would BUG().  Coherency of mmaps against
+> +			 * O_DIRECT still cannot be guaranteed though.
+> +			 */
+> +			if (pte_dirty(pte) && PageUptodate(page))
 
-Jon.
+	invalidate_inode_pages2 runs ClearPageUptodate() here
+
+>  				set_page_dirty(page);
+>  			if (pte_young(pte) && !PageAnon(page))
+>  				mark_page_accessed(page);
+
+Maybe we should revisit invalidate_inode_pages2().  It used to be an
+invariant that "pages which are mapped into process address space are
+always uptodate".  We broke that (good) invariant and we're now seeing
+some fallout.  There may be more.

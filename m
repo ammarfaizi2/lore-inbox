@@ -1,72 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317562AbSFMJXq>; Thu, 13 Jun 2002 05:23:46 -0400
+	id <S317563AbSFMJZ4>; Thu, 13 Jun 2002 05:25:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317563AbSFMJXp>; Thu, 13 Jun 2002 05:23:45 -0400
-Received: from skunk.directfb.org ([212.84.236.169]:27265 "EHLO
-	skunk.directfb.org") by vger.kernel.org with ESMTP
-	id <S317562AbSFMJXo>; Thu, 13 Jun 2002 05:23:44 -0400
-Date: Thu, 13 Jun 2002 11:23:23 +0200
-From: Denis Oliver Kropp <dok@directfb.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Denis Oliver Kropp <dok@directfb.org>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [2.5.21] CyberPro 32bit support and other fixes
-Message-ID: <20020613092323.GA2384@skunk.convergence.de>
-Reply-To: Denis Oliver Kropp <dok@directfb.org>
-In-Reply-To: <20020613083243.GA32352@skunk.convergence.de> <20020613100924.A24154@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S317564AbSFMJZz>; Thu, 13 Jun 2002 05:25:55 -0400
+Received: from gusi.leathercollection.ph ([202.163.192.10]:3279 "EHLO
+	gusi.leathercollection.ph") by vger.kernel.org with ESMTP
+	id <S317563AbSFMJZx>; Thu, 13 Jun 2002 05:25:53 -0400
+Date: Thu, 13 Jun 2002 17:25:44 +0800 (PHT)
+From: Federico Sevilla III <jijo@free.net.ph>
+X-X-Sender: jijo@kalabaw
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: rlimits and non overcommit
+In-Reply-To: <2660.1023948685@kao2.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.44.0206131723060.3677-100000@kalabaw>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Russell King (rmk@arm.linux.org.uk):
-> On Thu, Jun 13, 2002 at 10:32:43AM +0200, Denis Oliver Kropp wrote:
-> > - * Integraphics CyberPro 2000, 2010 and 5000 frame buffer device
-> > + * Intergraphics CyberPro 2000, 2010 and 5000 frame buffer device
-> 
-> This isn't actually a spelling mistake.  The chips I have are quite
-> clearly marked "Integraphics" not "Intergraphics".
+On Thu, 13 Jun 2002 at 16:11, Keith Owens wrote:
+> On Thu, 13 Jun 2002 13:57:33 +0800 (PHT),
+> Federico Sevilla III <jijo@free.net.ph> wrote:
+> >On Thu, 13 Jun 2002 at 06:39, Alan Cox wrote:
+> >> > check to prevent such large sizes from crashing X and/or the X Font
+> >> > Server, I'm alarmed by (1) the way the X font server allows itself to
+> >> > be crashed like this, and (2) the way the entire Linux kernel seems to
+> >> > have been unable to handle the situation. While having a central
+> >> > company or
+> >>
+> >> So turn on the features to conrol it. Set rlimits on the xfs server and
+> >> enable non overcommit (-ac kernel)
+> >
+> >I am using SGI's XFS, and I think they follow Marcelo's kernels for the
+>
+> SGI's XFS != xfs server.  SGI XFS == journalling filesystem.
+> xfs server == font server for the X windowing system.
 
-Ok, I'm sorry for that, seemed obvious.
+Argh. And we get hit by similarly-named projects. :(
 
-> > @@ -355,7 +367,9 @@
-> >  
-> >  			if (regno < 16)
-> >  				((u16 *)cfb->fb.pseudo_palette)[regno] =
-> > -					regno | regno << 5 | regno << 11;
-> > +					((red   << 8) & 0xf800) |
-> > +					((green << 3) & 0x07e0) |
-> > +					((blue  >> 3));
-> >  			break;
-> >  		}
-> >  #endif
-> 
-> This seems wrong.  We're setting up the DAC palette to map pixel color
-> component 'regno' to 'read', 'green' and 'blue' respectively.
-> 
-> This means that the pseudopalette should be a 1:1 mapping of desired
-> colour value (ie, the 16 VGA colors) to the DAC palette entries -
-> the pseudopalette contains the pixel values to insert into the frame
-> buffer for each of the 16 VGA colors.
+To clarify: I wanted to know if there were plans of getting non overcommit
+from the AC tree into Marcelo's mainline 2.4 tree, because I use SGI's XFS
+(journalling filesystem), and thus use the -xfs kernel tree, which follows
+-marcelo and not -ac.
 
-The palette is being bypassed anyway by setting bit 4 in palette_ctrl.
-Besides that I tested the rgb modes on a CyberPro 5000 with and without
-this fix. The text was dark gray (as expected) in 16bit and hardly
-visible in 24bit.
+Apologies.
 
-Why is the pseudo palette used anyway? There's no speed benefit and
-applications running in true/direct color would look wrong.
+ --> Jijo
 
 -- 
-Best regards,
-  Denis Oliver Kropp
+Federico Sevilla III   :  <http://jijo.free.net.ph/>
+Network Administrator  :  The Leather Collection, Inc.
+GnuPG Key ID           :  0x93B746BE
 
-.------------------------------------------.
-| DirectFB - Hardware accelerated graphics |
-| http://www.directfb.org/                 |
-"------------------------------------------"
-
-                            Convergence GmbH

@@ -1,73 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129097AbQJaVC7>; Tue, 31 Oct 2000 16:02:59 -0500
+	id <S130559AbQJaVF7>; Tue, 31 Oct 2000 16:05:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130517AbQJaVCu>; Tue, 31 Oct 2000 16:02:50 -0500
-Received: from otter.mbay.net ([206.40.79.2]:52754 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S129097AbQJaVCn> convert rfc822-to-8bit;
-	Tue, 31 Oct 2000 16:02:43 -0500
-From: jalvo@mbay.net (John Alvord)
-To: Peter Samuelson <peter@cadcamlab.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Keith Owens <kaos@ocs.com.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test10-pre7
-Date: Tue, 31 Oct 2000 21:01:04 GMT
-Message-ID: <3a013178.6803918@mail.mbay.net>
-In-Reply-To: <11462.972947019@ocs3.ocs-net> <Pine.LNX.4.10.10010301508360.1085-100000@penguin.transmeta.com> <20001031055959.A1041@wire.cadcamlab.org>
-In-Reply-To: <20001031055959.A1041@wire.cadcamlab.org>
-X-Mailer: Forte Agent 1.5/32.451
+	id <S130572AbQJaVFt>; Tue, 31 Oct 2000 16:05:49 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:3581 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S130559AbQJaVFi>; Tue, 31 Oct 2000 16:05:38 -0500
+Date: Tue, 31 Oct 2000 19:05:10 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Reto Baettig <baettig@scs.ch>
+cc: "Jeff V. Merkey" <jmerkey@timpanogas.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18Pre Lan Performance Rocks!
+In-Reply-To: <39FEE9A4.3959CFF8@scs.ch>
+Message-ID: <Pine.LNX.4.21.0010311904110.1190-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Oct 2000 05:59:59 -0600, Peter Samuelson
-<peter@cadcamlab.org> wrote:
+On Tue, 31 Oct 2000, Reto Baettig wrote:
+> Rik van Riel wrote:
+> > Ummm, last I looked Linux held the Specweb99 record;
+> > by a wide margin...
+> 
+> ...does that remove any memory copies???
 
->
->[Linus]
->> In short, we should _remove_ all traces of stuff like
->> 
->> 	O_OBJS = $(filter-out $(export-objs), $(obj-y))
->> 
->> It's wrong.
->> 
->> We should just have
->> 
->> 	O_OBJS = $(obj-y)
->> 
->> which is always right.
->
->This part I agree with..
->
->> And it should make all this FIRST/LAST object file mockery a total
->> non-issue, because the whole concept turns out to be completely
->> unnecessary.
->> 
->> Is there anything that makes this more complex than what I've
->> outlined above?
->
->One thing.  The main benefit of $(sort), which I haven't heard you
->address yet, is to remove duplicate files.  Think about 8390.o, and how
->many net drivers require it.  There are two ways to handle this:
->
->  obj-$(CONFIG_WD80x3) += wd.o 8390.o
->  obj-$(CONFIG_EL2) += 3c503.o 8390.o
->  obj-$(CONFIG_NE2000) += ne.o 8390.o
->  obj-$(CONFIG_NE2_MCA) += ne2.o 8390.o
->  obj-$(CONFIG_HPLAN) += hp.o 8390.o
->
-You can avoid duplicates with
-  obj-$(CONFIG_WD80x3) += wd.o
-  ifneq (,$(findstring 8390.o,obj-$(CONFIG_WD80x3))
-     obj-$(CONFIG_WD80x3) += 8390.o
-  endif
- 
-Which is wordy but accomplishes the objective of avoiding duplicates.
+> I don't want to make linux bad or stand on anybodys toes.
 
-john alvord
+Good to know, your previous message might have fooled some
+people when it comes to these intentions ;)
+
+--------------
+On Tue, 31 Oct 2000, Reto Baettig wrote:
+
+> When I'm following this thread, you guys seem to forget the
+> _basics_: The Linux networking stack sucks!
+--------------
+
+cheers,
+
+Rik
+--
+"What you're running that piece of shit Gnome?!?!"
+       -- Miguel de Icaza, UKUUG 2000
+
+http://www.conectiva.com/		http://www.surriel.com/
+
+
+Rik
+--
+"What you're running that piece of shit Gnome?!?!"
+       -- Miguel de Icaza, UKUUG 2000
+
+http://www.conectiva.com/		http://www.surriel.com/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262951AbUCPBLS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 20:11:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262949AbUCPAD1
+	id S262945AbUCPBS1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 20:18:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262946AbUCPBSG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 19:03:27 -0500
-Received: from mail.kroah.org ([65.200.24.183]:2223 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262872AbUCPABz convert rfc822-to-8bit
+	Mon, 15 Mar 2004 20:18:06 -0500
+Received: from mail.kroah.org ([65.200.24.183]:56495 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262945AbUCPADV convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 19:01:55 -0500
+	Mon, 15 Mar 2004 19:03:21 -0500
 Subject: Re: [PATCH] i2c driver fixes for 2.6.4
-In-Reply-To: <1079391393850@kroah.com>
+In-Reply-To: <1079391393684@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 15 Mar 2004 14:56:33 -0800
-Message-Id: <10793913931516@kroah.com>
+Date: Mon, 15 Mar 2004 14:56:34 -0800
+Message-Id: <10793913943831@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
@@ -22,83 +22,75 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1597.1.13, 2004/03/03 15:31:01-08:00, greg@kroah.com
+ChangeSet 1.1608.74.7, 2004/03/09 15:29:46-08:00, khali@linux-fr.org
 
-[PATCH] I2C: keep i2c-dev numbers in sync with i2c adapter numbers
+[PATCH] I2c: Kconfig for non-sensors i2c chip drivers
 
-This makes userspace tools easier to figure out which i2c-dev device is
-assigned to which i2c adapter.
+Quoting myself:
 
-Yes, we can overflow the i2c dev array right now, but that would take a
-lot of i2c adapter modprobe/rmmod cycles.  That will be fixed up soon.
+> I think that it would make sense to have a specific menu entry for
+> these, separate from the sensors stuff. Looks like an easy thing to
+> do.
 
-
- drivers/i2c/i2c-dev.c |   29 ++++++++++++-----------------
- 1 files changed, 12 insertions(+), 17 deletions(-)
+Here is a proposed patch that does this. Comments welcome.
 
 
-diff -Nru a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
---- a/drivers/i2c/i2c-dev.c	Mon Mar 15 14:35:25 2004
-+++ b/drivers/i2c/i2c-dev.c	Mon Mar 15 14:35:25 2004
-@@ -72,24 +72,18 @@
- struct i2c_dev *i2c_dev_get_by_adapter(struct i2c_adapter *adap)
- {
- 	struct i2c_dev *i2c_dev = NULL;
--	int i;
+ drivers/i2c/chips/Kconfig |   31 ++++++++++++++++++-------------
+ 1 files changed, 18 insertions(+), 13 deletions(-)
+
+
+diff -Nru a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
+--- a/drivers/i2c/chips/Kconfig	Mon Mar 15 14:34:43 2004
++++ b/drivers/i2c/chips/Kconfig	Mon Mar 15 14:34:43 2004
+@@ -2,7 +2,7 @@
+ # I2C Sensor device configuration
+ #
  
- 	spin_lock(&i2c_dev_array_lock);
--	for (i = 0; i < I2C_MINORS; ++i) {
--		if ((i2c_dev_array[i]) &&
--		    (i2c_dev_array[i]->adap == adap)) {
--			i2c_dev = i2c_dev_array[i];
--			break;
--		}
--	}
-+	if ((i2c_dev_array[adap->nr]) &&
-+	    (i2c_dev_array[adap->nr]->adap == adap))
-+		i2c_dev = i2c_dev_array[adap->nr];
- 	spin_unlock(&i2c_dev_array_lock);
- 	return i2c_dev;
- }
+-menu "I2C Hardware Sensors Chip support"
++menu "Hardware Sensors Chip support"
+ 	depends on I2C
  
--static struct i2c_dev *get_free_i2c_dev(void)
-+static struct i2c_dev *get_free_i2c_dev(struct i2c_adapter *adap)
- {
- 	struct i2c_dev *i2c_dev;
--	unsigned int i;
+ config I2C_SENSOR
+@@ -33,18 +33,6 @@
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called asb100.
  
- 	i2c_dev = kmalloc(sizeof(*i2c_dev), GFP_KERNEL);
- 	if (!i2c_dev)
-@@ -97,15 +91,16 @@
- 	memset(i2c_dev, 0x00, sizeof(*i2c_dev));
+-config SENSORS_EEPROM
+-	tristate "EEPROM (DIMM) reader"
+-	depends on I2C && EXPERIMENTAL
+-	select I2C_SENSOR
+-	help
+-	  If you say yes here you get read-only access to the EEPROM data
+-	  available on modern memory DIMMs, and which could theoretically
+-	  also be available on other devices.
+-
+-	  This driver can also be built as a module.  If so, the module
+-	  will be called eeprom.
+-
+ config SENSORS_FSCHER
+ 	tristate "FSC Hermes"
+ 	depends on I2C && EXPERIMENTAL
+@@ -192,5 +180,22 @@
  
- 	spin_lock(&i2c_dev_array_lock);
--	for (i = 0; i < I2C_MINORS; ++i) {
--		if (i2c_dev_array[i])
--			continue;
--		i2c_dev->minor = i;
--		i2c_dev_array[i] = i2c_dev;
-+	if (i2c_dev_array[adap->nr]) {
- 		spin_unlock(&i2c_dev_array_lock);
--		return i2c_dev;
-+		dev_err(&adap->dev, "i2c-dev already has a device assigned to this adapter\n");
-+		goto error;
- 	}
-+	i2c_dev->minor = adap->nr;
-+	i2c_dev_array[adap->nr] = i2c_dev;
- 	spin_unlock(&i2c_dev_array_lock);
-+	return i2c_dev;
-+error:
- 	kfree(i2c_dev);
- 	return ERR_PTR(-ENODEV);
- }
-@@ -446,7 +441,7 @@
- 	struct i2c_dev *i2c_dev;
- 	int retval;
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called w83627hf.
++
++endmenu
++
++menu "Other I2C Chip support"
++	depends on I2C
++
++config SENSORS_EEPROM
++	tristate "EEPROM reader"
++	depends on I2C && EXPERIMENTAL
++	select I2C_SENSOR
++	help
++	  If you say yes here you get read-only access to the EEPROM data
++	  available on modern memory DIMMs and Sony Vaio laptops.  Such
++	  EEPROMs could theoretically be available on other devices as well.
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called eeprom.
  
--	i2c_dev = get_free_i2c_dev();
-+	i2c_dev = get_free_i2c_dev(adap);
- 	if (IS_ERR(i2c_dev))
- 		return PTR_ERR(i2c_dev);
- 
+ endmenu
 

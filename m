@@ -1,64 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262567AbVCPM6q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262569AbVCPNIK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262567AbVCPM6q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 07:58:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262562AbVCPM6p
+	id S262569AbVCPNIK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 08:08:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262573AbVCPNIK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 07:58:45 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:47489 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S262561AbVCPM62
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 07:58:28 -0500
-Message-ID: <42382D5C.1030104@bull.net>
-Date: Wed, 16 Mar 2005 13:58:04 +0100
-From: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en, fr, hu
-MIME-Version: 1.0
-To: "Seth, Rohit" <rohit.seth@intel.com>
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       davidm@hpl.hp.com
-Subject: Re: Mprotect needs arch hook for updated PTE settings
-References: <01EF044AAEE12F4BAAD955CB75064943032C6020@scsmsx401.amr.corp.intel.com>
-In-Reply-To: <01EF044AAEE12F4BAAD955CB75064943032C6020@scsmsx401.amr.corp.intel.com>
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 16/03/2005 14:07:41,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 16/03/2005 14:07:44,
-	Serialize complete at 16/03/2005 14:07:44
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 16 Mar 2005 08:08:10 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27372 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262569AbVCPNIA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 08:08:00 -0500
+Date: Wed, 16 Mar 2005 13:07:59 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Matthew Wilcox <matthew@wil.cx>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CON_BOOT
+Message-ID: <20050316130759.GL21986@parcelfarce.linux.theplanet.co.uk>
+References: <20050315222706.GI21986@parcelfarce.linux.theplanet.co.uk> <20050315143711.4ae21d88.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050315143711.4ae21d88.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-An application should not change the protection of its _own_ text region
-without knowing well the requirements of the given architecture.
-I do not think we should add anything into the kernel for this case.
+On Tue, Mar 15, 2005 at 02:37:11PM -0800, Andrew Morton wrote:
+> Matthew Wilcox <matthew@wil.cx> wrote:
+> >
+> > +	if (console_drivers && (console_drivers->flags & CON_BOOT)) {
+> > +		unregister_console(console_drivers);
+> > +		console->flags &= ~CON_PRINTBUFFER;
+> > +	}
+> > +
+> 
+> Should we support more than a single CON_BOOT-labelled driver?
 
-I did see /lib/ld-linux-ia64.so.* changing the protection of the text
-segment of the _victim_ application, when it linked the library references.
-ld-linux-ia64.so.* changes the protection for the whole text segment
-(otherwise, as the protection is per VMA, it would result in a VMA
-fragmentation).
-The text segment can be huge. There is no reason to flush all the text
-segment every time when ld-linux-ia64.so.* patches an instruction and
-changes the protection.
+I want to say yes.  But there's a can o' worms lurking under the surface.
+Our goal is to get output from as early as possible, then have the real
+console driver take over from the (boot|early) console in a completely
+transparent way.
 
-I think the solution should consist of these two measures:
+With just one console, this is straightforward.  The BOOT console gets
+unregistered, the replacement console gets its PRINTBUFFER flag cleared,
+everybody's happy.
 
-1. Let's say that if an VMA is "executable", then it remains "executable"
-   for ever, i.e. the mprotect() keeps the PROT_EXEC bit.
-   As a result, if a page is faulted in for this VMA in the mean time, the
-   old good mechanism makes sure that the I-caches are flushed.
+With two (or more) consoles, it's a bit more tricky.  If there's only one
+BOOT console and the corresponding real console gets registered first,
+its PRINTBUFFER flag is cleared and it continues, then the second console
+kicks in and doesn't get its PRINTBUFFER flag cleared.  Everything looks
+pretty, we're all happy.  If the wrong console gets registered first,
+we miss the start of the log on it, and the BOOT console gets the start
+of the log printed twice.
 
-2. Let's modify ld-linux-<arch>.so.*: having patched an instruction, it
-   should take the appropriate, architecture dependent measure, e.g. for
-   ia64, it should issue an "fc" instruction.
+If we allow two BOOT consoles, we guarantee that one of the consoles
+will get double-printing, but neither will miss the start of the log.
 
-   (Who cares for a debugger ? It should know what it does ;-).)
+To handle this properly, we'd have to be able to see which BOOT console
+corresponds to the real console and deregister it.  I think it's doable
+if we do something like:
 
-I think there is no need for any extra flushes.
+ - Add an int (*takeover)(struct console *); to struct console
+ - Replace the hunk above with:
 
-Thanks,
+	for (existing = console_drivers; existing; existing = existing->next) {
+		if (existing->takeover && existing->takeover(console)) {
+			unregister_console(existing);
+			console->flags &= ~CON_PRINTBUFFER;
+		}
+	}
 
-Zoltan Menyhart
+That puts the onus on the early console to be able to figure out
+whether a registering console is its replacement or not; for the x86_64
+early_printk, that'd be as simple as comparing the ->name against "ttyS"
+or "tty".  It'll be a bit more tricky for PA-RISC, but would solve some
+messiness that we could potentially have.  I think that's doable; want
+me to try it?
+
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

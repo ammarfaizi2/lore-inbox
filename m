@@ -1,138 +1,192 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261909AbVAHIio@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261908AbVAHIin@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261909AbVAHIio (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 03:38:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbVAHIg5
+	id S261908AbVAHIin (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 03:38:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbVAHIg0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 03:36:57 -0500
-Received: from mail.kroah.org ([69.55.234.183]:3206 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261906AbVAHFsh convert rfc822-to-8bit
+	Sat, 8 Jan 2005 03:36:26 -0500
+Received: from mail.kroah.org ([69.55.234.183]:3974 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261907AbVAHFsi convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 00:48:37 -0500
-Subject: Re: [PATCH] I2C patches for 2.6.10
-In-Reply-To: <11051627753411@kroah.com>
+	Sat, 8 Jan 2005 00:48:38 -0500
+Subject: Re: [PATCH] USB and Driver Core patches for 2.6.10
+In-Reply-To: <11051632652829@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 7 Jan 2005 21:39:35 -0800
-Message-Id: <11051627751088@kroah.com>
+Date: Fri, 7 Jan 2005 21:47:45 -0800
+Message-Id: <1105163265230@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7BIT
 From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1938.445.4, 2004/12/15 11:37:45-08:00, khali@linux-fr.org
+ChangeSet 1.1938.446.13, 2004/12/15 16:31:49-08:00, david-b@pacbell.net
 
-[PATCH] I2C: i2c-algo-bit should support I2C_FUNC_I2C
+[PATCH] USB: usb_dev->ep[] not usb_dev->epmaxpacket (1/15)
 
-> Very few drivers seem to support the I2C_FUNC_I2C functionality, is
-> there a reason for that?
+This starts updating the usbcore interface to use endpoints in places it
+previously used pipes or other representations of the endpoint.
 
-Yes, most bus drivers are for SMBus, not I2C, masters. SMBus is a subset
-of I2C. These SMBus master are fully I2C-capable, although in most cases
-it doesn't matter. Most chip drivers are for SMBus clients as well.
-Almost all hardware monitoring chips are SMBus devices. So it's not
-surprising not to see I2C_FUNC_I2C widely used.
+    - add new arrays of "struct usb_host_endpoint" pointers, matching
+      current config and altsetting
 
-> I have an I2C bus on my platform constructed from a couple of GPIO lines
-> using the i2c-algo-bit driver. The device on the bus is a DS1307 I2C RTC
-> and the driver for that currently checks for
-> 	I2C_FUNC_SMBUS_WORD_DATA | I2C_FUNC_SMBUS_WRITE_BYTE
-> however the datasheet suggests it is a simple i2c device with none of
-> this smbus stuff, Russell King queried this here
-> http://www.arm.linux.org.uk/developer/patches/viewpatch.php?id=2021/1
+    - get rid of the two epmaxpacket[] arrays; they duplicate information
+      that's now readily accessible from the usb_host_endpoint.
 
-First, note that all SMBus commands are valid I2C transfers. In fact,
-the SMBus specification doesn't do much except put names on specific I2C
-transfers, and sometimes give meanings to the data being transfered. As
-a result, "I2C" clients, although not specifically SMBus-compatible, may
-enjoy SMBus commands such as SMBUS_READ_BYTE, SMBUS_READ_BYTE_DATA and
-SMBUS_WRITE_BYTE_DATA. One typical example of that are EEPROMs and the
-eeprom driver. It relies on i2c_smbus_write_byte and i2c_smbus_read_byte
-(BTW I just noticed that it doesn't properly check for these
-functionalities... have to fix that) because it's so much easier to call
-these standard functions than rewrite I2C code manually. Also, this let
-us access the EEPROMs on SMBus (non-I2C) busses.
+    - resolve a FIXME by removing a function that only existed because
+      the usb_host_endpoint wasn't readily accessible.
 
-Now, note that Russell is not quite correct in is assertion: "Do we
-really require SMBUS functionality, or is i2c functionality sufficient?"
-It's actually the other way around. SMBus puts restrictions on what a
-valid I2C transfer is. "Do we need the full I2C functionality or is the
-SMBus subset sufficient?" would make more sense.
+It also removes most of an old rant about pipes, trimming it down so
+only the important bits remain.
 
-As for the exact functionality you need to check, let's just see how you
-access the bus. As far as I can see (providing that the code below
-Russell's comments is still valid), you rely on:
- * i2c_smbus_write_byte_data
- * i2c_smbus_read_byte_data
- * i2c_transfer
-
-So yo *need* to check for the availability of I2C_FUNC_SMBUS_BYTE_DATA
-on the adapter (which is part of I2C_FUNC_SMBUS_EMUL so any bus driver
-using that, including any relying on i2c-algo-bit, will work with your
-client driver) for the first two. And you also need to check for
-I2C_FUNC_I2C for the third one.
-
-Of course, any adapter with I2C_FUNC_I2C will be able to do SMBus byte
-data transfers, but since you do not use i2c_transfer to do them, you
-need to check the functionality separately (I think).
-
-Also, I think that what you do with i2c_transfer is similar to
-I2C_FUNC_SMBUS_READ_I2C_BLOCK, which is supported by some SMBus
-(non-I2C) masters. If you convert your code to use
-i2c_smbus_read_i2c_block_data, then you don't rely on the full I2C
-capatbilities of the bus, which means that your chip driver will be
-useable on more plateforms. That said, note that this feature is
-unimplemented on most SMBus master drivers as of now, and broken on a
-number of others (but I guess we would start paying more attention to
-them if there were more users for this function).
-
-> If I change it to a check for I2C_FUNC_I2C and change the algo-bit
-> driver to declare I2C_FUNC_I2C then the driver continues to work fine.
-
-You are right that i2c-algo-bit should declare itself I2C_FUNC_I2C
-capable. I even think that every bus being I2C_FUNC_SMBUS_EMUL capable
-is very likely to be I2C_FUNC_I2C capable. This means that other
-algorithms (ite, pcf, maybe pca) could most probably be declared
-I2C_FUNC_I2C capable as well. Can anyone confirm?
-
-> Given the above, is the following patch appropriate, or is there
-> something about the relationship between i2c and smbus that I don't
-> understand.
-
-I admit that the relationship between I2C and SMBus is somewhat tricky,
-it took me some time to get it and even then I am sometimes not sure to
-understand exactly what implies what ;) So we cannot blame you for not
-getting it at first. I hope I helped make things a little clearer. If
-not I welcome questions.
-
-Whether or not you change your code to use SMBus only in your driver to
-make it more widely useable, your patch to i2c-algo-bit is valid, I am
-signing it too and will apply it to the 2.4 version of the driver as
-well.
-
-Signed-off-by: Ian Campbell <icampbell@arcom.com>
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/i2c/algos/i2c-algo-bit.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ include/linux/usb.h |   73 ++++++++++++++++++++++++++--------------------------
+ 1 files changed, 37 insertions(+), 36 deletions(-)
 
 
-diff -Nru a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-algo-bit.c
---- a/drivers/i2c/algos/i2c-algo-bit.c	2005-01-07 14:55:58 -08:00
-+++ b/drivers/i2c/algos/i2c-algo-bit.c	2005-01-07 14:55:58 -08:00
-@@ -511,8 +511,8 @@
+diff -Nru a/include/linux/usb.h b/include/linux/usb.h
+--- a/include/linux/usb.h	2005-01-07 15:49:52 -08:00
++++ b/include/linux/usb.h	2005-01-07 15:49:52 -08:00
+@@ -224,11 +224,6 @@
+ 	int extralen;
+ };
  
- static u32 bit_func(struct i2c_adapter *adap)
- {
--	return I2C_FUNC_SMBUS_EMUL | I2C_FUNC_10BIT_ADDR | 
--	       I2C_FUNC_PROTOCOL_MANGLING;
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | 
-+	       I2C_FUNC_10BIT_ADDR | I2C_FUNC_PROTOCOL_MANGLING;
- }
+-// FIXME remove; exported only for drivers/usb/misc/auserwald.c
+-// prefer usb_device->epnum[0..31]
+-extern struct usb_endpoint_descriptor *
+-	usb_epnum_to_ep_desc(struct usb_device *dev, unsigned epnum);
+-
+ int __usb_get_extra_descriptor(char *buffer, unsigned size,
+ 	unsigned char type, void **ptr);
+ #define usb_get_extra_descriptor(ifpoint,type,ptr)\
+@@ -311,17 +306,19 @@
+ 	struct semaphore serialize;
  
+ 	unsigned int toggle[2];		/* one bit for each endpoint ([0] = IN, [1] = OUT) */
+-	int epmaxpacketin[16];		/* INput endpoint specific maximums */
+-	int epmaxpacketout[16];		/* OUTput endpoint specific maximums */
+ 
+ 	struct usb_device *parent;	/* our hub, unless we're the root */
+ 	struct usb_bus *bus;		/* Bus we're part of */
++	struct usb_host_endpoint ep0;
+ 
+ 	struct device dev;		/* Generic device interface */
+ 
+ 	struct usb_device_descriptor descriptor;/* Descriptor */
+ 	struct usb_host_config *config;	/* All of the configs */
++
+ 	struct usb_host_config *actconfig;/* the active configuration */
++	struct usb_host_endpoint *ep_in[16];
++	struct usb_host_endpoint *ep_out[16];
+ 
+ 	char **rawdescriptors;		/* Raw descriptors for each config */
+ 
+@@ -360,6 +357,8 @@
+ 
+ extern struct usb_device *usb_find_device(u16 vendor_id, u16 product_id);
+ 
++/*-------------------------------------------------------------------------*/
++
+ /* for drivers using iso endpoints */
+ extern int usb_get_current_frame_number (struct usb_device *usb_dev);
+ 
+@@ -1040,55 +1039,35 @@
+ /* -------------------------------------------------------------------------- */
+ 
+ /*
+- * Calling this entity a "pipe" is glorifying it. A USB pipe
+- * is something embarrassingly simple: it basically consists
+- * of the following information:
+- *  - device number (7 bits)
+- *  - endpoint number (4 bits)
+- *  - current Data0/1 state (1 bit) [Historical; now gone]
+- *  - direction (1 bit)
+- *  - speed (1 bit) [Historical and specific to USB 1.1; now gone.]
+- *  - max packet size (2 bits: 8, 16, 32 or 64) [Historical; now gone.]
+- *  - pipe type (2 bits: control, interrupt, bulk, isochronous)
+- *
+- * That's 18 bits. Really. Nothing more. And the USB people have
+- * documented these eighteen bits as some kind of glorious
+- * virtual data structure.
++ * For various legacy reasons, Linux has a small cookie that's paired with
++ * a struct usb_device to identify an endpoint queue.  Queue characteristics
++ * are defined by the endpoint's descriptor.  This cookie is called a "pipe",
++ * an unsigned int encoded as:
+  *
+- * Let's not fall in that trap. We'll just encode it as a simple
+- * unsigned int. The encoding is:
+- *
+- *  - max size:		bits 0-1	[Historical; now gone.]
+  *  - direction:	bit 7		(0 = Host-to-Device [Out],
+  *					 1 = Device-to-Host [In] ...
+  *					like endpoint bEndpointAddress)
+- *  - device:		bits 8-14       ... bit positions known to uhci-hcd
++ *  - device address:	bits 8-14       ... bit positions known to uhci-hcd
+  *  - endpoint:		bits 15-18      ... bit positions known to uhci-hcd
+- *  - Data0/1:		bit 19		[Historical; now gone. ]
+- *  - lowspeed:		bit 26		[Historical; now gone. ]
+  *  - pipe type:	bits 30-31	(00 = isochronous, 01 = interrupt,
+  *					 10 = control, 11 = bulk)
+  *
+- * Why? Because it's arbitrary, and whatever encoding we select is really
+- * up to us. This one happens to share a lot of bit positions with the UHCI
+- * specification, so that much of the uhci driver can just mask the bits
+- * appropriately.
++ * Given the device address and endpoint descriptor, pipes are redundant.
+  */
+ 
+ /* NOTE:  these are not the standard USB_ENDPOINT_XFER_* values!! */
++/* (yet ... they're the values used by usbfs) */
+ #define PIPE_ISOCHRONOUS		0
+ #define PIPE_INTERRUPT			1
+ #define PIPE_CONTROL			2
+ #define PIPE_BULK			3
+ 
+-#define usb_maxpacket(dev, pipe, out)	(out \
+-				? (dev)->epmaxpacketout[usb_pipeendpoint(pipe)] \
+-				: (dev)->epmaxpacketin [usb_pipeendpoint(pipe)] )
+-
+ #define usb_pipein(pipe)	((pipe) & USB_DIR_IN)
+ #define usb_pipeout(pipe)	(!usb_pipein(pipe))
++
+ #define usb_pipedevice(pipe)	(((pipe) >> 8) & 0x7f)
+ #define usb_pipeendpoint(pipe)	(((pipe) >> 15) & 0xf)
++
+ #define usb_pipetype(pipe)	(((pipe) >> 30) & 3)
+ #define usb_pipeisoc(pipe)	(usb_pipetype((pipe)) == PIPE_ISOCHRONOUS)
+ #define usb_pipeint(pipe)	(usb_pipetype((pipe)) == PIPE_INTERRUPT)
+@@ -1115,6 +1094,28 @@
+ #define usb_rcvbulkpipe(dev,endpoint)	((PIPE_BULK << 30) | __create_pipe(dev,endpoint) | USB_DIR_IN)
+ #define usb_sndintpipe(dev,endpoint)	((PIPE_INTERRUPT << 30) | __create_pipe(dev,endpoint))
+ #define usb_rcvintpipe(dev,endpoint)	((PIPE_INTERRUPT << 30) | __create_pipe(dev,endpoint) | USB_DIR_IN)
++
++/*-------------------------------------------------------------------------*/
++
++static inline __u16
++usb_maxpacket(struct usb_device *udev, int pipe, int is_out)
++{
++	struct usb_host_endpoint	*ep;
++	unsigned			epnum = usb_pipeendpoint(pipe);
++
++	if (is_out) {
++		WARN_ON(usb_pipein(pipe));
++		ep = udev->ep_out[epnum];
++	} else {
++		WARN_ON(usb_pipeout(pipe));
++		ep = udev->ep_in[epnum];
++	}
++	if (!ep)
++		return 0;
++
++	/* NOTE:  only 0x07ff bits are for packet size... */
++	return ep->desc.wMaxPacketSize;
++}
+ 
+ /* -------------------------------------------------------------------------- */
  
 

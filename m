@@ -1,79 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbUKWPEk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbUKWPGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261275AbUKWPEk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 10:04:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbUKWPEj
+	id S261298AbUKWPGS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 10:06:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbUKWPGR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 10:04:39 -0500
-Received: from smtp.cs.aau.dk ([130.225.194.6]:46220 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S261275AbUKWPE1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 10:04:27 -0500
-From: Kristian =?iso-8859-1?q?S=F8rensen?= <ks@cs.aau.dk>
-Organization: Aalborg University
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: Umbrella-0.5.1 stable released
-Date: Tue, 23 Nov 2004 16:04:25 +0100
-User-Agent: KMail/1.7.1
-Cc: umbrella-announce@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <200411231544.09701.ks@cs.aau.dk> <20041123144812.GB13174@suse.de>
-In-Reply-To: <20041123144812.GB13174@suse.de>
+	Tue, 23 Nov 2004 10:06:17 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:48503 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261298AbUKWPEw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 10:04:52 -0500
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+X-Message-Flag: Warning: May contain useful information
+References: <20041122714.nKCPmH9LMhT0X7WE@topspin.com>
+	<20041122714.9zlcKGKvXlpga8EP@topspin.com>
+	<20041122225033.GD15634@kroah.com> <52oehpbi2j.fsf@topspin.com>
+	<20041123074551.GC23194@kroah.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Tue, 23 Nov 2004 07:04:44 -0800
+In-Reply-To: <20041123074551.GC23194@kroah.com> (Greg KH's message of "Mon,
+ 22 Nov 2004 23:45:51 -0800")
+Message-ID: <527joc8v3n.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200411231604.25522.ks@cs.aau.dk>
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: Re: [PATCH][RFC/v1][9/12] Add InfiniBand userspace MAD support
+Content-Type: text/plain; charset=us-ascii
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 23 Nov 2004 15:04:51.0105 (UTC) FILETIME=[C80B7110:01C4D16D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 23 November 2004 15:48, Jens Axboe wrote:
-> On Tue, Nov 23 2004, Kristian Sørensen wrote:
-> > Hi all!
-> >
-> > We are pleased to inform you that Umbrella 0.5.1 is now released. This is
-> > a very stable release, which has been tested on our workstations for 6+
-> > days continously.
-> >
-> > Get the release here:
-> > http://prdownloads.sourceforge.net/umbrella/umbrella-0.5.1.tar.bz2?downlo
-> >ad
-> >
-> > The strategy of the further development of Umbrella is to have
-> > * STABLE and well tested Umbrella as patches
-> > * UNSTABLE bleeding edge technology in the CVS module umbrella-devel
-> >
-> >
-> > We have lots of new stuff and optimizations in the CVS, which slowley
-> > will be applied and tested before getting realeased as patches. Currently
-> > we have these in the CVS:
-> > * New, small and efficient bit vector
-> > * New datastructure for storing restrictions
-> >    See this thread for details:
-> >   
-> > http://sourceforge.net/mailarchive/forum.php?thread_id=5886152&forum_id=4
-> >2079 * Restrictions on process signaling
-> > * Authentication of binaries (still under development for the 0.6
-> > release)
->
-> And umbrella is?
-Undskyld - vi plejer at tilføje en beskrivelse... her kommer den:
+    Greg> Do you have other ioctls planned for this same interface for
+    Greg> stage 2 and future stages of ib implementation for Linux?
 
-Umbrella is a security mechanism which implements a combination of 
-process-based Mandatory Access Control (MAC) and authentication of files 
-through Digital Signed Binaries (DSB) for Linux based consumer electronics 
-devices ranging from mobile phones to settop boxes.
+Not that I know of.
 
-Umbrella is implemented on top of the Linux Security Modules (LSM) framework. 
-The MAC scheme is enforced by a set of restrictions on each process. This 
-policy is distributed with a binary in form of execute restrictions (in the 
-file signature) and within the program, where the developer has the 
-opportunity of making a "restricted fork" for setting restrictions for new 
-children.
-
--- 
-Kristian Sørensen
-- The Umbrella Project  --  Security for Consumer Electronics
-    http://umbrella.sourceforge.net
-
-E-mail: ipqw@users.sf.net, Phone: +45 29723816
+ - Roland

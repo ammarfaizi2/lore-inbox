@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262866AbSJGFKT>; Mon, 7 Oct 2002 01:10:19 -0400
+	id <S262865AbSJGFJz>; Mon, 7 Oct 2002 01:09:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262867AbSJGFKS>; Mon, 7 Oct 2002 01:10:18 -0400
-Received: from [203.117.131.12] ([203.117.131.12]:28612 "EHLO
-	gort.metaparadigm.com") by vger.kernel.org with ESMTP
-	id <S262866AbSJGFKR>; Mon, 7 Oct 2002 01:10:17 -0400
-Message-ID: <3DA11884.7050004@metaparadigm.com>
-Date: Mon, 07 Oct 2002 13:15:48 +0800
-From: Michael Clark <michael@metaparadigm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+	id <S262866AbSJGFJz>; Mon, 7 Oct 2002 01:09:55 -0400
+Received: from 62-190-219-246.pdu.pipex.net ([62.190.219.246]:1028 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S262865AbSJGFJy>; Mon, 7 Oct 2002 01:09:54 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200210070524.g975O0D4000181@darkstar.example.net>
+Subject: Re: New BK License Problem?
+To: lm@bitmover.com (Larry McVoy)
+Date: Mon, 7 Oct 2002 06:24:00 +0100 (BST)
+Cc: riel@conectiva.com.br, linux-kernel@vger.kernel.org
+In-Reply-To: <20021006143330.S29486@work.bitmover.com> from "Larry McVoy" at Oct 06, 2002 02:33:30 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: GrandMasterLee <masterlee@digitalroadkill.net>
-Cc: jbradford@dial.pipex.com, linux-kernel@vger.kernel.org
-Subject: Re: QLogic Linux failover/Load Balancing ER0000000020860
-References: <200210061103.g96B3mlO001484@darkstar.example.net>	 <3DA02BF2.2040506@metaparadigm.com>  <1033933235.2436.1.camel@localhost>	 <1033946058.2436.13.camel@localhost> <1033966448.1512.2.camel@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On 10/07/02 12:54, GrandMasterLee wrote:
-> On Sun, 2002-10-06 at 18:14, GrandMasterLee wrote:
+> > > If we decided to GPL it, I don't see how it would make sense for us
+> > > to do so for any reasonable price.
+> > 
+> > Not only that, but GPLing bitkeeper while you still have a large
+> > TODO list seems like a bad thing for the software.
 > 
-> 
->>I just reassigned all my LUNs to be a part of the same host
->>configuration on the storage(polling by HBAs and host, versus splitting
->>LUNs by HBA). I do get more than 1 LUN now, but only EVEN luns. I'll see
->>if I can identify why that is. 
-> 
-> 
-> After defining LSI in drivers/scsi/scsi_scan.c I can get half my luns,
-> but still not all. I'm not sure what else I need to do. I now can see
-> LUNs 0,2,4,6,8, etc but not 1,3,5,7,etc. I'm not sure what else to do,
-> but maybe now that I've done this, I can get information from QLogic
-> about what should be happening. Or does this still seem like a kernel
-> config issue? 
+> *Exactly*.  And don't forget the followon stuff like integrated bug tracking.
+> That's not done yet either.  I wasn't pulling that $12M number out of thin
+> air, it's very real.
 
-So sparse lun scanning is working then - sounds like your missing luns
-is a problem with your array configuration as the kernel is probing them
-(if it is was creating the even ones) - means the qlogic driver must
-not be able to see these luns. Not familiar with your array so can't
-help any more - your array vendor would probably be the most help.
+I can quite believe that.  I wasn't thinking it was a practical suggestion straight away, but there are obviously people on this list who won't be happy until, either we stop using BK or it is GPLed, (OK, or put under another free license).
 
-~mc
+I am staying out of that argument, but if you're not entirely against the idea of, in a few years, trying to get a few large corporations to sponsor the opening of the source, that might satisfy a few people, and _maybe_, just _maybe_, put an end to this huge thread.  :-)
+
+John.
 

@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266777AbRGFR4d>; Fri, 6 Jul 2001 13:56:33 -0400
+	id <S266781AbRGFSUV>; Fri, 6 Jul 2001 14:20:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266776AbRGFR4O>; Fri, 6 Jul 2001 13:56:14 -0400
-Received: from ucu-105-116.ucu.uu.nl ([131.211.105.116]:54092 "EHLO
-	ronald.bitfreak.net") by vger.kernel.org with ESMTP
-	id <S266774AbRGFR4G>; Fri, 6 Jul 2001 13:56:06 -0400
-Subject: Re: >128 MB RAM stability problems (again)
-From: Ronald Bultje <rbultje@ronald.bitfreak.net>
-To: Peter "A." Castro <doctor@fruitbat.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0107051219080.4734-100000@gremlin.fruitbat.org>
-In-Reply-To: <Pine.LNX.4.21.0107051219080.4734-100000@gremlin.fruitbat.org>
-Content-Type: text/plain
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 06 Jul 2001 19:55:50 +0200
-Message-Id: <994442162.1047.0.camel@tux>
-Mime-Version: 1.0
+	id <S266782AbRGFSUL>; Fri, 6 Jul 2001 14:20:11 -0400
+Received: from latin2002.umich.mx ([148.216.6.188]:22721 "EHLO
+	garota.fismat.umich.mx") by vger.kernel.org with ESMTP
+	id <S266781AbRGFSUD>; Fri, 6 Jul 2001 14:20:03 -0400
+Date: Fri, 6 Jul 2001 13:21:43 -0500 (CDT)
+From: Ariel Molina Rueda <amolina@fismat.umich.mx>
+To: Adrian Cox <adrian@humboldt.co.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Via82cxxx Codec rate locked at 48Khz
+In-Reply-To: <3B45FB4A.9010807@humboldt.co.uk>
+Message-ID: <Pine.LNX.4.33.0107061318080.2331-100000@garota.fismat.umich.mx>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-On 05 Jul 2001 13:45:23 -0700, Peter A. Castro wrote:
-> Each OS allocates the physical memory differently.  MS-Windows typically
-> allocates physical memory sequentually.  Linux tends to uses both ends of
-> the memory pool.  For a proper test, you need to load enough programs so
-> that all of physical memory will be utilized.  Win2k may be "stable"
-> because you aren't loading enough of the system to touch the second bank
-> of memory.  Please try running several large programs and exercise them
-> all together for several minutes.  You can use the task manager to find
-> the total memory used on the system. 
+The Kernel is 2.4.2-2 ,  the kernel that comes in the Redhat 7.1 Distro.
 
-Pheew (this is sarcastic)
-You're fully correct, after toying a bit on win2k, I crashed it a few
-times with weird errors and I must say, these blue screens in win2k look
-a *lot* better than the ones I used to see in win98 ;-). They still
-don't match that wonderful "kernel panic", though.
+Do you think its a good idea to update my kernel...?
+May that solve my problem...?
 
-So, basically, my bios must have loaded the wrong options for my memory
-which must run above it's limits which causes data corruption... Then,
-my stupid question, why doesn't memtest86 detect that?
+i've heard that updating it's useless to fix this...
+BTW where can i found the latest STABLE Kernel?
 
-Anyway, I'll go look at the bios settings of the computers, look at the
-CAS/RAS/clock timing settings like two people suggested (thanks :-) )
-and hope to be happy and have a stable machine after that.
 
-Thanks for this half-solution :-)
+On Fri, 6 Jul 2001, Adrian Cox wrote:
 
---
-Ronald Bultje
+> Ariel Molina Rueda wrote:
+>
+>
+> > When i used Redhat 7 and kernel 2.2.x y was happy with my souncard, now I
+> > use RedHat 7.1 and Kernel 2.4.x, but sndconfig doesn't configure my
+> > Via82c686 soundcard at all. At the ending it says
+> >
+> > via82cxxx codec rate locked at 48khz
+>
+>
+> Is this with 2.4.6 or an earlier version? 2.4.6 contained new code for
+> talking to the codec.
+>
+>
+
+-- 
+_____________________________
+Ariel Molina Rueda
+
+amolina@fismat.umich.mx
+-----------------------------
 

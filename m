@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbUHRGmc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbUHRGqI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbUHRGmc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 02:42:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbUHRGmc
+	id S261500AbUHRGqI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 02:46:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUHRGqI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 02:42:32 -0400
-Received: from cantor.suse.de ([195.135.220.2]:47522 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261159AbUHRGma (ORCPT
+	Wed, 18 Aug 2004 02:46:08 -0400
+Received: from fw.osdl.org ([65.172.181.6]:12481 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261500AbUHRGqD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 02:42:30 -0400
-Date: Wed, 18 Aug 2004 08:42:29 +0200
-From: Olaf Hering <olh@suse.de>
-To: ismail =?utf-8?Q?d=C3=B6nmez?= <ismail.donmez@gmail.com>
-Cc: Paul Fulghum <paulkf@microgate.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.8.1-mm1 Tty problems?
-Message-ID: <20040818064229.GD22332@suse.de>
-References: <2a4f155d040817070854931025@mail.gmail.com> <412247FF.5040301@microgate.com> <2a4f155d0408171116688a87f1@mail.gmail.com> <4122501B.7000106@microgate.com> <2a4f155d04081712005fdcdd9b@mail.gmail.com> <41225D16.2050702@microgate.com> <2a4f155d040817124335766947@mail.gmail.com> <41226512.9000405@microgate.com> <20040818062210.GB22332@suse.de> <2a4f155d040817233463d2b78d@mail.gmail.com>
+	Wed, 18 Aug 2004 02:46:03 -0400
+Date: Tue, 17 Aug 2004 23:44:09 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Roland McGrath <roland@redhat.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] notify_parent cleanup
+Message-Id: <20040817234409.45009377.akpm@osdl.org>
+In-Reply-To: <200408180040.i7I0eM4l011117@magilla.sf.frob.com>
+References: <200408180040.i7I0eM4l011117@magilla.sf.frob.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <2a4f155d040817233463d2b78d@mail.gmail.com>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Wed, Aug 18, ismail dönmez wrote:
+Roland McGrath <roland@redhat.com> wrote:
+>
+>  I don't know why notify_parent is an exported symbol at all.
 
-> On Wed, 18 Aug 2004 08:22:10 +0200, Olaf Hering <olh@suse.de> wrote: 
-> > /dev/tty is supposed to be char c 5 0, /class/tty/tty/dev will tell udev
-> > how to create it, see man 4 tty.
-> > No idea who came up with the bright idea to put legacy bsd devices in a
-> > subdir. Documentation/devices.txt shows that my patch is ok, it handles
-> > up to 256 device nodes.
-> > If you are using udev, file a bugreport for your distros package. In the
-> > meantime, remove the offending line from your udev.rules file.
-> 
-> I don't think you understood me. /dev/tty is created as a char device
-> in 2.6.8.1 kernel. So I am sure udev is fine but it shows up as a
-> directory in 2.6.8.1-mm1 kernel and if I backup bk-driver-core.patch
-> its all normal again.
+Some leftover, I guess.
 
-Works fine here.
-Check you udev.rules file if some rule matches the pattern ptyp0.
+>  My inclination would be to remove it as an exported symbol,
 
--- 
-USB is for mice, FireWire is for men!
+I'll unexport it.
 
-sUse lINUX ag, nÜRNBERG
+> ...
+>  Also, why is ptrace_notify exported?
+
+binfmt_aout.c uses it.

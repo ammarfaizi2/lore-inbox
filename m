@@ -1,59 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129991AbRANDk2>; Sat, 13 Jan 2001 22:40:28 -0500
+	id <S130008AbRANDpt>; Sat, 13 Jan 2001 22:45:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130008AbRANDkT>; Sat, 13 Jan 2001 22:40:19 -0500
-Received: from SMTP-OUT003.ONEMAIN.COM ([63.208.208.73]:56408 "HELO
-	smtp01.mail.onemain.com") by vger.kernel.org with SMTP
-	id <S129991AbRANDkJ>; Sat, 13 Jan 2001 22:40:09 -0500
-Message-ID: <3A611FCC.931D8CA0@mcn.net>
-Date: Sat, 13 Jan 2001 20:41:00 -0700
-From: TimO <hairballmt@mcn.net>
-Organization: Don't you mean Disorganization!?
-X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.4.1-pre2 i686)
-X-Accept-Language: en
+	id <S130667AbRANDpj>; Sat, 13 Jan 2001 22:45:39 -0500
+Received: from d131.as5200.mesatop.com ([208.164.122.131]:60551 "HELO
+	localhost.localdomain") by vger.kernel.org with SMTP
+	id <S130572AbRANDp2>; Sat, 13 Jan 2001 22:45:28 -0500
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+Date: Sat, 13 Jan 2001 20:47:34 -0700
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="us-ascii"
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+To: Karsten Hopp <Karsten.Hopp@redhat.de>
+In-Reply-To: <01011318404000.18233@localhost.localdomain> <20010114040550.A13315@bochum.redhat.de>
+In-Reply-To: <20010114040550.A13315@bochum.redhat.de>
+Subject: Re: Linux 2.4.0-ac9
 MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ide.2.4.1-p3.01112001.patch
-In-Reply-To: <20010112212427.A2829@suse.cz> <Pine.LNX.4.10.10101121604080.8097-100000@penguin.transmeta.com> <20010113150046.E1155@suse.cz>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01011320473400.00928@localhost.localdomain>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> 
-> Ok, here goes the patch.
-> 
-> Note that with this patch, all VIA users will get IDE transferrates
-> about 3 MB/sec as opposed to about 20 MB/sec without it (and with
-> UDMA66).
-> 
-> This patch disables automatic DMA on all VIA chipsets, including the
-> ancient 82c561 for 486's, and up to the 686a UDMA66 chipset.
-> 
-> Also note that enabling the DMA later with hdparm -X66 -d1 or similar
-> command is not safe, and usually works by pure luck on VIA chipsets.
-> This however, would need some non-minor changes to the generic code to
-> fix.
-> 
-> But perhaps it's still worth ...
-> 
-> --
-> Vojtech Pavlik
-> SuSE Labs
-> 
+On Saturday 13 January 2001 20:05, Karsten Hopp wrote:
+> You need to enable CONFIG_SWAPFS.
+> Those functions are enclosed by #ifdef CONFIG_SWAPFS and #endif, but
+> the references to them aren't.
 >
+>   Karsten
+>
+> On Sat, Jan 13, 2001 at 06:40:40PM -0700, Steven Cole wrote:
+> > I got the following error while building 2.4.0-ac9:
+> >
+> > shmem.c:971: `shmem_readlink' undeclared here (not in a function)
+> > shmem.c:971: initializer element is not constant
+> > shmem.c:971: (near initialization for
+> > `shmem_symlink_inode_operations.readlink')
+> > shmem.c:972: `shmem_follow_link' undeclared here (not in a function)
+> > shmem.c:972: initializer element is not constant
+> > shmem.c:972: (near initialization for
+> > `shmem_symlink_inode_operations.follow_link')
+> > shmem.c:973: initializer element is not constant
+> > shmem.c:973: (near initialization for `shmem_symlink_inode_operations')
+> > shmem.c:973: initializer element is not constant
+> > shmem.c:973: (near initialization for `shmem_symlink_inode_operations')
+> > make[2]: *** [shmem.o] Error 1
+> >
 
-_ouch_  Will -X66 -d1c1m16 be as stable with this patch as version 2.1e
-has been for me??  It has always (auto)set transfer speeds properly and
-I have never seen corruption with my 686a -- 'cept when patching from
-test11-pre7 to test12-pre1, and I'm pretty sure that was from other
-factors.
+Yes, enabling CONFIG_SWAPFS works just fine:
 
-===============
--- Tim
+[scole@localhost scole]$ uname -a
+Linux localhost.localdomain 2.4.0-ac9 #2 Sat Jan 13 20:23:00 MST 2001 i686 
+unknown
+
+Here is a little patch which also fixes the symptoms of the build problem, and
+makes a kernel 1510 bytes smaller (without CONFIG_SWAPFS).  Someone more 
+knowlegable than I will have to verify its correctness.  
+
+This patch is against 2.4.0-ac9.
+
+--- linux/mm/shmem.c.orig       Sat Jan 13 20:23:36 2001
++++ linux/mm/shmem.c    Sat Jan 13 20:27:32 2001
+@@ -968,8 +968,10 @@
+ 
+ static struct inode_operations shmem_symlink_inode_operations = {
+        truncate:       shmem_truncate,
++#ifdef CONFIG_SWAPFS
+        readlink:       shmem_readlink,
+        follow_link:    shmem_follow_link,
++#endif
+ };
+ 
+ static struct file_operations shmem_dir_operations = {
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,81 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267374AbTBDVOt>; Tue, 4 Feb 2003 16:14:49 -0500
+	id <S267390AbTBDVYb>; Tue, 4 Feb 2003 16:24:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267383AbTBDVOt>; Tue, 4 Feb 2003 16:14:49 -0500
-Received: from smtp1.utdallas.edu ([129.110.10.12]:42971 "EHLO
-	smtp1.utdallas.edu") by vger.kernel.org with ESMTP
-	id <S267374AbTBDVOs>; Tue, 4 Feb 2003 16:14:48 -0500
-Message-ID: <4280608.1044393822565.JavaMail.jelucas@utdallas.edu>
-Date: Tue, 4 Feb 2003 15:23:42 -0600 (CST)
-From: James E Lucas <jelucas@utdallas.edu>
-To: linux-kernel@vger.kernel.org
-Subject: natsemi.c: Oversized(?) ethernet frame message w/ card hang
+	id <S267392AbTBDVYb>; Tue, 4 Feb 2003 16:24:31 -0500
+Received: from hunnerberg.nijmegen.internl.net ([217.149.192.32]:3026 "EHLO
+	hunnerberg.nijmegen.internl.net") by vger.kernel.org with ESMTP
+	id <S267390AbTBDVYa>; Tue, 4 Feb 2003 16:24:30 -0500
+Date: Tue, 4 Feb 2003 22:28:12 +0100
+From: Frank van Maarseveen <F.vanMaarseveen@inter.NL.net>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: isofs hardlink bug (inode numbers different)
+Message-ID: <20030204212812.GA32465@iapetus.localdomain>
+References: <20030126235556.GA5560@paradise.net.nz> <b1nd5m$rhp$1@cesium.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b1nd5m$rhp$1@cesium.transmeta.com>
+User-Agent: Mutt/1.4i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, this is my first post to the list, so please go easy on me ;)  I've 
-been having problems off and on with the natsemi driver for a good 
-number of kernel versions.  I've wrestled with the problem off and on, 
-but I've finally decided that it's out of my league, so I'm going to 
-ask people smarter than I.
+On Mon, Feb 03, 2003 at 07:48:06PM -0800, H. Peter Anvin wrote:
+> 
+> There are inode numbers stored in RockRidge attributes, but using them
+> comes with some humongous caveats:
+> 
+> First: You have absolutely no guarantee that they are actually
+> unique.  Broken software could easily have written them with all
+> zeroes.
+> 
+> Second: If there are files on the CD-ROM *without* RockRidge
+> attributes, you can get collisions with the synthesized inode numbers
+> for non-RR files.
 
-The card works fine most of the time, but under heavy load (and even 
-occasionally seemingly at random) the card simply locks up.  ifconfig 
-eth0 down; ifconfig eth0 up brings it back into a working state, but 
-this is understandably still a problem.  ifconfig output after a few 
-errors and resets looks like this:
+Suppose that the root of a iso9660 has entries such as '/', '.' and '..'
+all with inode 2 and maybe that there are  some other indications that
+the creator applied UNIX style inode numbering, wouldn't it be reasonable
+to assume that inode numbers should be trusted?
 
-eth0      Link encap:Ethernet  HWaddr 00:02:E3:04:D5:0B
-          inet addr:192.168.0.3  Bcast:192.168.0.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:19883349 errors:1 dropped:778 overruns:3930 frame:4
-          TX packets:288019 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:100
-          RX bytes:3507882433 (3345.3 Mb)  TX bytes:336382589 (320.7 Mb)
-          Interrupt:11 Base address:0xd000
+In which case any wrong inode should be declared a bug in the program
+that created the image?
 
-And, my kernel ring buffer (dmesg) is showing messages like this:
+A mount option to handle this could be useful as well.
 
-eth0: Oversized(?) Ethernet frame spanned multiple buffers, entry 
-0x00ba8b status 0xe0000bd5.
+> 
+> Third: If you actually rely on inode numbers to be able to find your
+> files, like most versions of Unix including old (but not current)
+> versions of Linux, then they are completely meaningless.
+
+No need to change that part, well, except maybe for knfsd if we cannot
+safely export a CD-ROM but that's something I don't know.
 
 
-kernel messagelog and syslog are both clear (no apparently related 
-messages).  You may note the extremely high number of received packets 
-on the ifconfig.  I wrote a program (for Windows) that hurls massive 
-numbers of large UDP packets at the card to reproduce the breakage.  If 
-anyone's interested in it I could post it up somewhere, though it's not 
-very pretty ;)
+It is annoying that wonderful zisofs backups need fixup scripts for the
+hard links after a restore.
 
-A perusal of the source of natsemi.c along with the spec for the chip 
-from National Semiconductor *seems* to indicate to me that this message 
-results from a packet spanning multiple descriptors in the hardware.  
-This *is* legal for the chip according to National's docs, but I can't 
-find anything in the driver that seems to acknowledge this beyond the 
-warning message.  My current working theory is that this doesn't happen 
-very often, but when it does, the driver's not handling it properly.  
-What I'm not so sure on is why that hangs the card.  Perhaps it's 
-throwing the driver into an infinite loop or something.  Not really 
-sure... I don't have the facilities needed to run debugging on kernel 
-drivers.
-
-At any rate, any input would be appreciated.  I've never coded hardware 
-driver stuff before, so I may be misinterpreting things.
-
-Additional info:
-Kernel version: 2.4.19 (stock, no patches)
-CPU: AMD K6-2 400
-Motherboard: FIC (can't remember model number offhand)
-Chipset is Via MVP3
-128 megs of RAM
-
-The card in question is a Netgear FA-311
-
-Again, any help would be most appreciated.
-
-Sincerely,
-Jim Lucas
+-- 
+Frank

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289679AbSBERcT>; Tue, 5 Feb 2002 12:32:19 -0500
+	id <S289667AbSBERcB>; Tue, 5 Feb 2002 12:32:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289686AbSBERcD>; Tue, 5 Feb 2002 12:32:03 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:63237 "HELO
+	id <S289671AbSBERbx>; Tue, 5 Feb 2002 12:31:53 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:58629 "HELO
 	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S289685AbSBERbp>; Tue, 5 Feb 2002 12:31:45 -0500
+	id <S289679AbSBERbn>; Tue, 5 Feb 2002 12:31:43 -0500
 Date: Tue, 5 Feb 2002 20:31:38 +0300
 From: Oleg Drokin on behalf of Hans Reiser <reiser@namesys.com>
 To: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
         reiserfs-dev@namesys.com
-Subject: [PATCH] reiserfs patchset, patch 6 of 9 06-return_braindamage_removal.diff
-Message-ID: <20020205203138.A9915@namesys.com>
+Subject: [PATCH] reiserfs patchset, patch 2 of 9 02-prealloc_list_init.diff
+Message-ID: <20020205203138.A9878@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -26,8 +26,8 @@ This set of patches of which this is one will update ReiserFS in 2.5.3
 with latest bugfixes. Also it cleanups the code a bit and adds more helpful
 messages in some places.
 
-06-return_braindamage_removal.diff
-    Kill stupid code like 'goto label ; return 1;'
+02-prealloc_list_init.diff
+    prealloc list was forgotten to be initialised.
 
 
 The other patches in this set are:
@@ -66,40 +66,22 @@ The other patches in this set are:
     Bitopts arguments must be long, not int.
 
 
---- linux-2.5.3/fs/reiserfs/fix_node.c.orig	Thu Jan 31 09:25:23 2002
-+++ linux-2.5.3/fs/reiserfs/fix_node.c	Tue Feb  5 16:48:52 2002
-@@ -2356,7 +2356,6 @@
-     for ( n_h = 0; n_h < MAX_HEIGHT && p_s_tb->insert_size[n_h]; n_h++ ) { 
- 	if ( (n_ret_value = get_direct_parent(p_s_tb, n_h)) != CARRY_ON ) {
- 	    goto repeat;
--	    return n_ret_value;
- 	}
+--- linux-2.5.3/fs/reiserfs/inode.c.orig	Thu Jan 31 19:28:57 2002
++++ linux-2.5.3/fs/reiserfs/inode.c	Thu Jan 31 19:31:01 2002
+@@ -888,6 +888,8 @@
+     copy_key (INODE_PKEY (inode), &(ih->ih_key));
+     inode->i_blksize = PAGE_SIZE;
  
- 	if ( (n_ret_value = check_balance (n_op_mode, p_s_tb, n_h, n_item_num,
-@@ -2365,7 +2364,6 @@
- 		/* No balancing for higher levels needed. */
- 		if ( (n_ret_value = get_neighbors(p_s_tb, n_h)) != CARRY_ON ) {
- 		    goto repeat;
--		    return n_ret_value;
- 		}
- 		if ( n_h != MAX_HEIGHT - 1 )  
- 		    p_s_tb->insert_size[n_h + 1] = 0;
-@@ -2373,17 +2371,14 @@
- 		break;
- 	    }
- 	    goto repeat;
--	    return n_ret_value;
- 	}
++    INIT_LIST_HEAD(&(REISERFS_I(inode)->i_prealloc_list ));
++
+     if (stat_data_v1 (ih)) {
+ 	struct stat_data_v1 * sd = (struct stat_data_v1 *)B_I_PITEM (bh, ih);
+ 	unsigned long blocks;
+@@ -1532,6 +1534,7 @@
+     REISERFS_I(inode)->i_first_direct_byte = S_ISLNK(mode) ? 1 : 
+       U32_MAX/*NO_BYTES_IN_DIRECT_ITEM*/;
  
- 	if ( (n_ret_value = get_neighbors(p_s_tb, n_h)) != CARRY_ON ) {
- 	    goto repeat;
--	    return n_ret_value;
- 	}
- 
- 	if ( (n_ret_value = get_empty_nodes(p_s_tb, n_h)) != CARRY_ON ) {
--	    goto repeat;
--	    return n_ret_value; /* No disk space, or schedule occurred and
-+	    goto repeat;        /* No disk space, or schedule occurred and
- 				   analysis may be invalid and needs to be redone. */
- 	}
-     
++    INIT_LIST_HEAD(&(REISERFS_I(inode)->i_prealloc_list ));
+     REISERFS_I(inode)->i_flags = 0;
+     REISERFS_I(inode)->i_prealloc_block = 0;
+     REISERFS_I(inode)->i_prealloc_count = 0;

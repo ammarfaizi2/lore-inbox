@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264738AbTFFIDm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 04:03:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264774AbTFFIDm
+	id S264709AbTFFILC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 04:11:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264774AbTFFILC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 04:03:42 -0400
-Received: from angband.namesys.com ([212.16.7.85]:9104 "EHLO
-	angband.namesys.com") by vger.kernel.org with ESMTP id S264738AbTFFIDk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 04:03:40 -0400
-Date: Fri, 6 Jun 2003 12:17:12 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>, gibbs@scsiguy.com,
-       marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
-Message-ID: <20030606081712.GA27663@namesys.com>
-References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva> <2804790000.1052441142@aslan.scsiguy.com> <20030509120648.1e0af0c8.skraw@ithnet.com> <20030509120659.GA15754@alpha.home.local> <20030509150207.3ff9cd64.skraw@ithnet.com> <20030524111608.GA4599@alpha.home.local> <20030605170551.3d61b0d4.skraw@ithnet.com> <20030605181423.GA17277@alpha.home.local>
+	Fri, 6 Jun 2003 04:11:02 -0400
+Received: from ns.suse.de ([213.95.15.193]:50699 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264709AbTFFILC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 04:11:02 -0400
+Date: Fri, 6 Jun 2003 10:24:34 +0200
+From: Andi Kleen <ak@suse.de>
+To: Warren Togami <warren@togami.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.21-rc7 AMD64 dpt_i2o fails compile
+Message-ID: <20030606082434.GD14382@wotan.suse.de>
+References: <1054789161.3699.67.camel@laptop.suse.lists.linux.kernel> <20030605010841.A29837@devserv.devel.redhat.com.suse.lists.linux.kernel> <1054799692.3699.77.camel@laptop.suse.lists.linux.kernel> <1054808477.15276.0.camel@dhcp22.swansea.linux.org.uk.suse.lists.linux.kernel> <p73wug067qb.fsf@oldwotan.suse.de> <1054842344.15457.43.camel@dhcp22.swansea.linux.org.uk> <1054877581.3699.113.camel@laptop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030605181423.GA17277@alpha.home.local>
-User-Agent: Mutt/1.4i
+In-Reply-To: <1054877581.3699.113.camel@laptop>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+> Adaptec SCSI RAID 2110S claims to be a "64-bit/66MHz PCI-to-SCSI RAID
+> card".  The physical card is longer than normal 32-bit PCI cards with
+> more pins that fit into a "64-bit PCI slot".  Are Adaptec's claims of
+> 64-bit hardware false?
 
-On Thu, Jun 05, 2003 at 08:14:23PM +0200, Willy Tarreau wrote:
-> > It took some days to produce output for my freezing problem. This one is rc7+aic20030603:
-> Good !
-> It seems that it crashed in the reiserfs code rather than in aic7xxx ! perhaps
-> you hit 2 different bugs, or perhaps there's a race that only newer code can
-> trigger, or there's a leak somewhere. You may want to forward the oops to the
-> reiserfs team too.
+They are refering to 64bit PCI. That is not the same as support for 64bit
+operating systems.  An 64bit OS can also support non 64bit hardware, but it
+needs proper support in the driver which the current linux driver doesn't 
+have.
 
-No, it did crashed in allocation code (you skipped one trace line):
-Jun  5 16:53:55 admin kernel: Call Trace:    [__kmem_cache_alloc+107/304] [kmem_cache_grow+508/624] [__kmem_cache_alloc+125/304]
-+[get_mem_for_virtual_node+87/224] [fix_nodes+198/1008]
+You will have to wait until somebody fixes the driver.
 
-And the EIP is in kmem_cache_alloc_batch, sounds like it tripped on bad pointer or something like this.
-So something is corrupting slab lists it seems.
-
-Bye,
-    Oleg
+-Andi

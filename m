@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262674AbTJCTXL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 15:23:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262675AbTJCTXL
+	id S262676AbTJCTeS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 15:34:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262681AbTJCTeS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 15:23:11 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40145 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262674AbTJCTXJ
+	Fri, 3 Oct 2003 15:34:18 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:17826 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262676AbTJCTeQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 15:23:09 -0400
-Message-ID: <3F7DCC84.9040909@pobox.com>
-Date: Fri, 03 Oct 2003 15:22:44 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Fri, 3 Oct 2003 15:34:16 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH][IDE] small cleanup for AMD/nVidia IDE driver
+Date: Fri, 3 Oct 2003 21:36:46 +0200
+User-Agent: KMail/1.5.4
+References: <200310032034.01122.bzolnier@elka.pw.edu.pl> <20031003190445.GB748@ucw.cz>
+In-Reply-To: <20031003190445.GB748@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Hugo Mills <hugo-lkml@carfax.org.uk>
-CC: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: libata support for Adaptec 1205SA?
-References: <3F7D9C83.4050200@backtobasicsmgmt.com> <20031003174018.GA6628@carfax.org.uk>
-In-Reply-To: <20031003174018.GA6628@carfax.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310032136.46777.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 03 of October 2003 21:04, you wrote:
+> On Fri, Oct 03, 2003 at 08:34:01PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > Almost identical to VIA's patch.
+>
+> Both look fine. I'll be sending you an update for AMD-8111 @UDMA133 and
+> for nForce3 soon, too.
 
-Hugo Mills wrote:
->    I don't know for certain, *but* the AAR-1210SA definitely uses the
-> SiI3112 chip (slightly mangled), and I'd be surprised if Adaptec used
-> a different chip for the 1205SA. There's a picture of the 1210SA card
+Cool, I'll push these two patches to Linus.
 
-that's my suspicion too.
+I've seen 2.4.x patches from Allen Martin@nVidia on lkml.
+In UDMA133 patch he mentioned that UDMA should be programmed by mode,
+not UDMA cycle timing on nVidia chipsets (probably the same applies to AMD).
+Can you comment on this?
 
+Also please don't add new SATA chipsets to drivers/ide.
+They should be handled by jgarzik's libata.
 
->>Does anyone here know, and more importantly, is libata ready to 
->>support it? I want to build a 6-drive SATA RAID using software RAID 5 
->>(can't just the expense of a 3ware card for this application), so I 
->>need to add four ports to the two already present on an ICH5 on the 
->>motherboard.
-> 
-> 
->    AFAIK, libata doesn't support SiI3112 yet. Jeff has promised it at
-> some point -- possibly as the next SATA chip to support.
-
-The driver is posted in the latest snapshot, but it's only for developer 
-use right now...  need to acknowledge a few more interrupt events :)
-
-	Jeff
-
-
+Thanks,
+--bartlomiej
 

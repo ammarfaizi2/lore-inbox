@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbVCNDmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261917AbVCNDsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261499AbVCNDmp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 22:42:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbVCNDmp
+	id S261917AbVCNDsO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 22:48:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbVCNDsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 22:42:45 -0500
-Received: from rproxy.gmail.com ([64.233.170.200]:57439 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261499AbVCNDmm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 22:42:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=ZA2MrWNNfiaNWpb4Rql0RlC3KQWThQo6UeBgWAFfXJT5EZA+Urch4TEU/MH8mYr84FPAdk8HbbnKJ1PtY8UnDTRrRcVv2Z6IG1QGNAfwmwP+3JPdsnp9xbK1ToD3W/NTMBCuNfS87QTeClZbL5nWFAojk15iYSo4qCNwXiaEUY4=
-Message-ID: <9e4733910503131755509a9364@mail.gmail.com>
-Date: Sun, 13 Mar 2005 20:55:10 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Subject: Re: User mode drivers: part 1, interrupt handling (patch for 2.6.11)
-Cc: Peter Chubb <peterc@gelato.unsw.edu.au>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <Pine.LNX.4.61.0503121009130.2166@montezuma.fsmlabs.com>
+	Sun, 13 Mar 2005 22:48:14 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:158 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261917AbVCNDsK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 22:48:10 -0500
+Subject: Re: [PATCH][RFC] Make /proc/<pid> chmod'able
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel@vger.kernel.org
+Cc: rene.scharfe@lsrfire.ath.cx, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk, pj@engr.sgi.com, 7eggert@gmx.de
+Content-Type: text/plain
+Date: Sun, 13 Mar 2005 22:34:11 -0500
+Message-Id: <1110771251.1967.84.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-References: <16945.4650.250558.707666@berry.gelato.unsw.EDU.AU>
-	 <9e473391050312075548fb0f29@mail.gmail.com>
-	 <Pine.LNX.4.61.0503121009130.2166@montezuma.fsmlabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 Mar 2005 10:11:18 -0700 (MST), Zwane Mwaikambo
-<zwane@arm.linux.org.uk> wrote:
-> Alan's proposal sounds very plausible and additionally if we find that
-> we have an irq line screaming we could use the same supplied information
-> to disable userspace interrupt handled devices first.
+> OK, folks, another try to enhance privacy by hiding
+> process details from other users.  Why not simply use
+> chmod to set the permissions of /proc/<pid> directories?
+> This patch implements it.
+>
+> Children processes inherit their parents' proc
+> permissions on fork.  You can only set (and remove)
+> read and execute permissions, the bits for write,
+> suid etc. are not changable.  A user would add
+>
+>         chmod 500 /proc/$$
+>
+> or something similar to his .profile to cloak his processes.
+>
+> What do you think about that one?
 
-I like it too and it would help Xen. Now we just need to modify 800
-device drivers to use it.
+This is a bad idea. Users should not be allowed to
+make this decision. This is rightly a decision for
+the admin to make.
 
->         Zwane
-> 
+Note: I'm the procps (ps, top, w, etc.) maintainer.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Probably I'd have to make /bin/ps run setuid root
+to deal with this. (minor changes needed) The same
+goes for /usr/bin/top, which I know is currently
+unsafe and difficult to fix.
+
+Let's not go there, OK?
+
+If you restricted this new ability to root, then I'd
+have much less of an objection. (not that I'd like it)
+
+
+

@@ -1,67 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267777AbUHTIfI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264917AbUHTIfJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267777AbUHTIfI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 04:35:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267791AbUHTIdc
+	id S264917AbUHTIfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 04:35:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267786AbUHTIdR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 04:33:32 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:47776 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S267827AbUHTIcO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 04:32:14 -0400
-Subject: Re: HCI USB on USB 2.0: hci_usb_intr_rx_submit (works with USB 1.1)
-From: Marcel Holtmann <marcel@holtmann.org>
-To: "Raf D'Halleweyn (list)" <list@noduck.net>
-Cc: Max Krasnyansky <maxk@qualcomm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1092966777.5230.4.camel@alto.dhalleweyn.com>
-References: <1091581193.15561.3.camel@alto.dhalleweyn.com>
-	 <1092049263.21815.18.camel@pegasus>
-	 <1092966777.5230.4.camel@alto.dhalleweyn.com>
-Content-Type: text/plain
-Message-Id: <1092990717.18082.60.camel@pegasus>
+	Fri, 20 Aug 2004 04:33:17 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:34020 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267777AbUHTIbs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 04:31:48 -0400
+Date: Fri, 20 Aug 2004 10:33:22 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, Nathan Lynch <nathanl@austin.ibm.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Srivatsa Vaddagiri <vatsa@in.ibm.com>
+Subject: Re: 2.6.8.1-mm2
+Message-ID: <20040820083322.GA8392@elte.hu>
+References: <20040819014204.2d412e9b.akpm@osdl.org> <1092964083.4946.7.camel@biclops.private.network> <20040819181603.700a9a0e.akpm@osdl.org> <1092987650.28849.349.camel@bach>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 20 Aug 2004 10:31:57 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092987650.28849.349.camel@bach>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ralf,
 
-> This was under 2.6.7, using ehci for USB 2.0 and uhci for 1.1.
-> 
-> Under 2.6.8.1 I get with USB 1.1:
-> usb 4-1.3: new full speed USB device using address 3
-> bcm203x_probe: Mini driver request failed
-> bcm203x: probe of 4-1.3:1.0 failed with error -5
-> usb 4-1.3: USB disconnect, address 3
-> usb 4-1.3: new full speed USB device using address 4
-> 
-> but USB 2.0 gives:
-> usb 1-3.4: new full speed USB device using address 6
-> ehci_hcd 0000:00:1d.7: qh f7d2d200 (#0) state 1
-> bcm203x_probe: Mini driver request failed
-> bcm203x: probe of 1-3.4:1.0 failed with error -5
-> usb 1-3.4: bulk timeout on ep1in
-> usb 1-3.4: usbfs: USBDEVFS_BULK failed ep 0x81 len 10 ret -110
-> usb 1-3.4: USB disconnect, address 6
-> usb 1-3.4: new full speed USB device using address 7
-> ehci_hcd 0000:00:1d.7: qh f7d2d280 (#0) state 1
-> hci_usb_intr_rx_submit: hci0 intr rx submit failed urb c1ad1994 err -28
-> 
-> If I try to do 'hciconfig hci0 up' when connected to USB 2.0 I also get
-> a 'hci_usb_intr_rx_submit: hci0 intr rx submit failed urb f7e22814 err
-> -28'.
+* Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-your dongle looks like a Broadcom based dongle. Please include the part
-from /proc/bus/usb/devices matching your device. The main problem is
-that the mini driver and the firmware for the Broadcom dongle can't be
-loaded throught request_firmware() by the bcm203x driver. Check the
-BlueZ webpage for more details and put these files in the correct place.
+> Nathan, can you revert that, and apply this?  This actually fixes the
+> might_sleep problem, and should fix at least the problem Vatsa saw. 
+> If it doesn't solve your problem, we need to look again.
 
-Regards
+i've attached a much simpler replacement: dont allow CPU hotplug during
+self-reap.
 
-Marcel
+	Ingo
 
+DESC
 
+disable preemption in the self-reap codepath, as such tasks may not be
+on the tasklist anymore and CPU-hotplug relies on the tasklist to
+migrate tasks.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+--- linux/kernel/exit.c.orig	
++++ linux/kernel/exit.c	
+@@ -25,6 +25,7 @@
+ #include <linux/proc_fs.h>
+ #include <linux/mempolicy.h>
+ #include <linux/perfctr.h>
++#include <linux/cpu.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
+@@ -780,8 +781,14 @@ static void exit_notify(struct task_stru
+ 
+ 	/* If the process is dead, release it - nobody will wait for it */
+ 	if (state == TASK_DEAD) {
++		lock_cpu_hotplug();
+ 		release_task(tsk);
+ 		write_lock_irq(&tasklist_lock);
++		/*
++		 * No preemption may happen from this point on,
++		 * or CPU hotplug (and task exit) breaks:
++		 */
++		unlock_cpu_hotplug();
+ 		tsk->state = state;
+ 		_raw_write_unlock(&tasklist_lock);
+ 		local_irq_enable();

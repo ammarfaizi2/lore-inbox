@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262045AbSJNRXo>; Mon, 14 Oct 2002 13:23:44 -0400
+	id <S261972AbSJNRbT>; Mon, 14 Oct 2002 13:31:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262046AbSJNRXo>; Mon, 14 Oct 2002 13:23:44 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:59401 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S262045AbSJNRXn>; Mon, 14 Oct 2002 13:23:43 -0400
-Date: Mon, 14 Oct 2002 18:29:29 +0100
-From: John Levon <levon@movementarian.org>
-To: James Courtier-Dutton <jcdutton@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org, mikpe@csd.uu.se
-Subject: Re: kernel api for application profiling
-Message-ID: <20021014172929.GA41820@compsoc.man.ac.uk>
-References: <200210132217.AAA07121@harpo.it.uu.se> <20021013222636.GA2289@compsoc.man.ac.uk> <3DAA2FE1.7040308@users.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DAA2FE1.7040308@users.sourceforge.net>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan *181921-000MKj-00*xDC0.F9XkWg* (Manchester Computing, University of Manchester)
+	id <S262007AbSJNRbT>; Mon, 14 Oct 2002 13:31:19 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:10951 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261972AbSJNRbS>;
+	Mon, 14 Oct 2002 13:31:18 -0400
+Subject: Re: Linux v2.5.42
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF8EE253F8.C354E34A-ON85256C52.005B9938@pok.ibm.com>
+From: "Ben Rafanello" <benr@us.ibm.com>
+Date: Mon, 14 Oct 2002 12:37:04 -0500
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11  |July 29, 2002) at
+ 10/14/2002 01:37:05 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 14, 2002 at 12:45:53PM +1000, James Courtier-Dutton wrote:
 
-> >oprofile running). In fact, for now, I think the simple exclusive CONFIG
-> > 
-> >
-> Speaking as the potential user of these tools, having to run a different 
-> kernel (My translation of exclusive CONFIG) to swich these features on 
+On Sun, 13 Oct 2002, Rik van Riel wrote:
 
-Perhaps you didn't see the "for now" part of my post.
+>All you need is:
+>
+>1) a kernel level driver that can map devices, ie. a device mapper
+>
+>2) user space tools that can parse the volume metadata and tell the
+>   kernel how to map each chunk at initialisation or mount time
 
-regards
-john
+This works well for the simple cases where the volume metadata is
+static.  However, it does not handle cases where the volume
+metadata must be updated dynamically, the most obvious cases
+being striping with parity, mirroring (esp. the more advanced
+forms/features such as smart resync, partial mirrors, remote
+mirroring, etc), snapshots, and bad block relocation.
 
--- 
-"That's just kitten-eating wrong."
-	- Richard Henderson
+Regards,
+
+Ben Rafanello
+EVMS Team Lead
+IBM Linux Technology Center
+(512) 838-4762
+benr@us.ibm.com
+
+

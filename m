@@ -1,70 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262659AbUJ1AO6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262651AbUJ1ARX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262659AbUJ1AO6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 20:14:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbUJ1AON
+	id S262651AbUJ1ARX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 20:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262691AbUJ1ANc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 20:14:13 -0400
-Received: from fw.osdl.org ([65.172.181.6]:49844 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262699AbUJ1ALk (ORCPT
+	Wed, 27 Oct 2004 20:13:32 -0400
+Received: from dvhart.tempdomainname.com ([128.121.61.168]:6159 "HELO
+	mindlib.com") by vger.kernel.org with SMTP id S262740AbUJ1ADY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 20:11:40 -0400
-Date: Wed, 27 Oct 2004 17:11:37 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Zachary Amsden <zach@vmware.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove some divide instructions
-In-Reply-To: <41801DE1.6000007@vmware.com>
-Message-ID: <Pine.LNX.4.58.0410271704520.28839@ppc970.osdl.org>
-References: <417FC982.7070602@vmware.com> <Pine.LNX.4.58.0410270926240.28839@ppc970.osdl.org>
- <41801DE1.6000007@vmware.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 27 Oct 2004 20:03:24 -0400
+Subject: Re: [PATCH] active_load_balance() fixlet
+To: Matt Dobson <colpatch@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1098921429.20183.27.camel@arrakis>
+References: <1098921429.20183.27.camel@arrakis>
+Content-Type: text/plain
+Date: Wed, 27 Oct 2004 17:03:13 -0700
+Message-Id: <1098921793.17741.8.camel@farah.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
+From: Darren Hart <darren@dvhart.com>
+X-Delivery-Agent: TMDA/0.89 (Chateaugay)
+X-Primary-Address: darren@dvhart.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 27 Oct 2004, Zachary Amsden wrote:
+On Wed, 2004-10-27 at 16:57 -0700, Matthew Dobson wrote:
+> Darren, Andrew, and scheduler folks,
 > 
-> Backed out everything but i386 and generic.  For the generic version, I 
-> compiled and tested this code outside of the kernel.  Actually, I found 
-> that at least for my tool chain, the generic version
-> 
-> +# define do_div(n,base) ({                                             \
-> +       uint32_t __rem;                                                 \
-> +       if (__builtin_constant_p(base) && !((base) & ((base)-1))) {     \
-> +               __rem = ((uint64_t)(n)) % (base);                       \
-> +               (n) = ((uint64_t)(n)) / (base);                         \
-> +       } else {                                                        \
-> +               uint32_t __base = (base);                               \
-> +               __rem = ((uint64_t)(n)) % __base;                       \
-> +               (n) = ((uint64_t)(n)) / __base;                         \
-> +       }                                                               \
-> +       __rem;          
-> 
-> Does indeed generate different code for the constant case - without it, 
-> due to the assignment to __base, the shift / mask optimization does not 
-> take place.
+> There is a small problem with the active_load_balance() patch that
+> Darren sent out last week.
 
-Oh, damn. That's a separate issue, apparently, and there you just use 
-"__builtin_constant_p()" as a way to check that there are no side effects 
-on "base".
+This cleans up some awkward tests in my patch as well.  Looks good to
+me.
 
-Might as well drop the check for the value, since it doesn't matter.
-
-Alternatively, we could just document the fact that neither "base" nor "n"
-are normal arguments to a function. After all, we already _do_ change "n", 
-and the strange calling convention is already documented as nothing but a 
-sick hack to make architectures able to use inline assembly efficiently.
-
-I could add a sparse check for "no side effects", if anybody cares (so 
-that you could do
-
-	__builtin_warning(
-		!__builtin_nosideeffects(base),
-		"expression has side effects");
-
-in macros like these.. Sparse already has the logic internally..
-
-		Linus
+-- 
+Darren Hart <darren@dvhart.com>

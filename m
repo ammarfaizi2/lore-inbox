@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284652AbRLEUVT>; Wed, 5 Dec 2001 15:21:19 -0500
+	id <S284656AbRLEUYg>; Wed, 5 Dec 2001 15:24:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284645AbRLEUTx>; Wed, 5 Dec 2001 15:19:53 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:56335 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S284646AbRLEUTl>;
-	Wed, 5 Dec 2001 15:19:41 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Mike Fedyk <mfedyk@matchmail.com>
-Date: Wed, 5 Dec 2001 21:19:28 MET-1
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Removing an executable while it runs
-CC: Cyrille Beraud <cyrille.beraud@savoirfairelinux.com>,
-        linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <B26DFE70816@vcnet.vc.cvut.cz>
+	id <S284665AbRLEUYV>; Wed, 5 Dec 2001 15:24:21 -0500
+Received: from z.thunderworx.net ([217.27.32.64]:25874 "EHLO francoudi.com")
+	by vger.kernel.org with ESMTP id <S284656AbRLEUWt>;
+	Wed, 5 Dec 2001 15:22:49 -0500
+Date: Wed, 5 Dec 2001 22:22:35 +0200
+From: Vladimir Ivaschenko <hazard@francoudi.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sendmsg() leaves Identification field in IP header empty
+Message-ID: <20011205222235.A7572@francoudi.com>
+In-Reply-To: <3C0E6F8B.A6C85AB6@francoudi.com.suse.lists.linux.kernel> <p73d71t8md0.fsf@amdsim2.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <p73d71t8md0.fsf@amdsim2.suse.de>; from ak@suse.de on Wed, Dec 05, 2001 at 09:04:27PM +0100
+X-Operating-System: Linux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  5 Dec 01 at 11:32, Mike Fedyk wrote:
-> > No. Some will refuse to unlink running app (or another opened file).
-> > Some will unlink it immediately, and app then dies when it needs
-> > page-in something. Some works as POSIX mandates.
-> > 
-> 
-> POSIX behaviour would be in ext[23], reiserfs, xfs, (and probably ffs,
-> ntfs).  Can someone verify which FSes have what behaviour?
-> 
-> I'd guess that vfat (fat16/28--err, 32), nfs, and hfs would delete
-> immediately.
+Andi Kleen wrote about "Re: sendmsg() leaves Identification field in IP header empty":
 
-ncpfs (and afaik smbfs) will refuse to delete file. For local filesystems
-there is no excuse to not support POSIX semantic on unlink if they do not
-store data together with filename.
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                
+> 
+> In theory the hack from TCP could be ported to UDP too, but I'm not sure if it is
+> worth it for WCCP (to be honest I don't know what WCCP is so I cannot assess if 
+> it's important enough to add a workaround for it) 
+
+Andi, thanks a lot for the insight, I will try your suggestions.  
+WCCP is a Web Cache Communication Protocol; it is used by Cisco
+routers to forward traffic to proxies. What is confusing is that
+send() generates an ID for packets with DF set, at least when
+used in a way like Squid uses it. I briefly checked Squid source
+code and didn't find any places where it would disable MTU Path
+discovery.
+
+> > Sorry if I'm wrong but I think this is a kernel problem because
+> > sendmsg() is a system call. On RH6.2 with 2.2.19 this doesn't happen,
+> 
+> It's strictly not a bug because the RFCs don't require an IPID for !DF.
+
+Ok, an intercompatibility issue. :-)
+
+-- 
+Best Regards
+Vladimir Ivaschenko
+Certified Linux Engineer (RHCE)

@@ -1,64 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbUKVCpQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbUKVCsY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261900AbUKVCpQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 21:45:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbUKVCpQ
+	id S261846AbUKVCsY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 21:48:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbUKVCsY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 21:45:16 -0500
-Received: from gate.crashing.org ([63.228.1.57]:63140 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261900AbUKVCpH (ORCPT
+	Sun, 21 Nov 2004 21:48:24 -0500
+Received: from koto.vergenet.net ([210.128.90.7]:31421 "HELO koto.vergenet.net")
+	by vger.kernel.org with SMTP id S261846AbUKVCsT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 21:45:07 -0500
-Subject: [PATCH] del_timer() vs. mod_timer() SMP race
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Mon, 22 Nov 2004 13:44:05 +1100
-Message-Id: <1101091445.13612.31.camel@gaston>
+	Sun, 21 Nov 2004 21:48:19 -0500
+Date: Mon, 22 Nov 2004 11:48:05 +0900
+From: Horms <horms@verge.net.au>
+To: Nishanth Aravamudan <nacc@us.ibm.com>
+Cc: janitor@sternwelten.at, netdev@oss.sgi.com, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
+Subject: Re: [PATCH] Add ssleep_interruptible()
+Message-ID: <20041122024804.GD4146@verge.net.au>
+Mail-Followup-To: Nishanth Aravamudan <nacc@us.ibm.com>,
+	janitor@sternwelten.at, netdev@oss.sgi.com, jgarzik@pobox.com,
+	linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
+References: <E1CO1vc-00022t-N2@sputnik> <20041101200749.GF1730@us.ibm.com> <20041117013059.GA4218@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041117013059.GA4218@us.ibm.com>
+X-Cluestick: seven
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Tue, Nov 16, 2004 at 05:30:59PM -0800, Nishanth Aravamudan wrote:
+> On Mon, Nov 01, 2004 at 12:07:49PM -0800, Nishanth Aravamudan wrote:
+> > Description: Adds ssleep_interruptible() to allow longer delays to occur
+> > in TASK_INTERRUPTIBLE, similarly to ssleep(). To be consistent with
+> > msleep_interruptible(), ssleep_interruptible() returns the remaining time
+> > left in the delay in terms of seconds. This required dividing the return
+> > value of msleep_interruptible() by 1000, thus a cast to (unsigned long)
+> > to prevent any floating point issues.
+> > 
+> > Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+> > 
+> > --- 2.6.10-rc1-vanilla/include/linux/delay.h	2004-10-30 
+> > 15:34:03.000000000 -0700
+> > +++ 2.6.10-rc1/include/linux/delay.h	2004-11-01 12:06:11.000000000 -0800
+> > @@ -46,4 +46,9 @@ static inline void ssleep(unsigned int s
+> > 	msleep(seconds * 1000);
+> > }
+> > 
+> > +static inline unsigned long ssleep_interruptible(unsigned int seconds)
+> > +{
+> > +	return (unsigned long)(msleep_interruptible(seconds * 1000) / 1000);
+> > +}
+> > +
+> > #endif /* defined(_LINUX_DELAY_H) */
+> 
+> After a discussion on IRC, I believe it is pretty clear that this
+> function has serious issues. Mainly, that if I request a delay of 1
+> second, but msleep_interruptible() returns after 1 millisecond, then
+> ssleep_interruptible() will return 0, claiming the entire delay was
+> used (due to rounding).
+> 
+> Perhaps we should just be satisfied with milliseconds being the grossest
+> (in contrast to fine) measure of time, at least in terms of
+> interruptible delays. ssleep() is unaffected by this problem, of course.
+> 
+> Please revert this patch, if applied, as well as any of the other
+> patches I sent using ssleep_interruptible() [only a handful].
 
-We just spent some days fighting a rare race in one of the distro's who backported
-some of timer.c from 2.6 to 2.4 (though they missed a bit).
+Would making sure that the time slept was always rounded up to
+the nearest second resolve this problem. I believe that rounding
+up is a common approach to resolving this type of problem when
+changing clock resolution.
 
-The actual race we found didn't happen in 2.6 _but_ code inspection showed that a
-similar race is still present in 2.6, explanation below:
+I am thinking of something like this.
 
-Code removing a timer from a list (run_timers or del_timer) takes that CPU list
-lock, does list_del, then timer->base = NULL.
-
-It is mandatory that this timer->base = NULL is visible to other CPUs only after
-the list_del() is complete. If not, then mod timer could see it NULL, thus take it's
-own CPU list lock and not the one for the CPU the timer was beeing removed from the
-list, and thus the list_add in mod_timer() could race with the list_del() from
-run_timers() or del_timer().
-
-Our race happened with run_timers(), which _DOES_ contain a proper smp_wmb() in the
-right spot in 2.6, but didn't in the "backport" we were fighting with.
-
-However, del_timer() doesn't have such a barrier, and thus is subject to this race in
-2.6 as well. This patch fixes it.
-
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-
-Index: linux-work/kernel/timer.c
-===================================================================
---- linux-work.orig/kernel/timer.c	2004-11-22 11:50:59.000000000 +1100
-+++ linux-work/kernel/timer.c	2004-11-22 13:35:38.928448032 +1100
-@@ -308,6 +308,7 @@
- 		goto repeat;
- 	}
- 	list_del(&timer->entry);
-+	smp_wmb();
- 	timer->base = NULL;
- 	spin_unlock_irqrestore(&base->lock, flags);
+===== include/linux/delay.h 1.6 vs edited =====
+--- 1.6/include/linux/delay.h	2004-09-03 18:08:32 +09:00
++++ edited/include/linux/delay.h	2004-11-22 11:47:03 +09:00
+@@ -46,4 +46,10 @@ static inline void ssleep(unsigned int s
+ 	msleep(seconds * 1000);
+ }
  
++static inline unsigned long ssleep_interruptible(unsigned int seconds)
++{
++	return (unsigned long)((msleep_interruptible(seconds * 1000) + 999) / 
++			1000);
++}
++
+ #endif /* defined(_LINUX_DELAY_H) */
 
-
+-- 
+Horms

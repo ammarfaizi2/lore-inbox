@@ -1,46 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261657AbUBVC6d (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 21:58:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbUBVC6d
+	id S261654AbUBVC6S (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 21:58:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbUBVC6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 21:58:33 -0500
-Received: from fw.osdl.org ([65.172.181.6]:38617 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261657AbUBVC6a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 21:58:30 -0500
-Date: Sat, 21 Feb 2004 19:03:50 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Large slab cache in 2.6.1
-In-Reply-To: <20040222023638.GA13840@dingdong.cryptoapps.com>
-Message-ID: <Pine.LNX.4.58.0402211901520.3301@ppc970.osdl.org>
-References: <4037FCDA.4060501@matchmail.com> <20040222023638.GA13840@dingdong.cryptoapps.com>
+	Sat, 21 Feb 2004 21:58:17 -0500
+Received: from mail-01.iinet.net.au ([203.59.3.33]:8382 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261654AbUBVC6N
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Feb 2004 21:58:13 -0500
+Message-ID: <40381AC2.2020607@cyberone.com.au>
+Date: Sun, 22 Feb 2004 13:58:10 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Mike Fedyk <mfedyk@matchmail.com>
+CC: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: Large slab cache in 2.6.1
+References: <4037FCDA.4060501@matchmail.com> <4038014E.5070600@matchmail.com> <20040222012033.GC703@holomorphy.com> <40380DE2.4030702@matchmail.com> <20040222021710.GD703@holomorphy.com> <4038168C.1000404@matchmail.com>
+In-Reply-To: <4038168C.1000404@matchmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sat, 21 Feb 2004, Chris Wedgwood wrote:
-> 
-> Forcing paging will push this down to acceptable levels but it's a
-> really irritating solution --- I'm still trying to think of a better
-> way to stop the dentries from using such a disproportionate amount of
-> memory.
+Mike Fedyk wrote:
 
-Why?
+> William Lee Irwin III wrote:
+>
+>> William Lee Irwin III wrote:
+>>
+>>>> Similar issue here; I ran out of filp's/whatever shortly after 
+>>>> booting.
+>>>
+>>
+>>
+>> On Sat, Feb 21, 2004 at 06:03:14PM -0800, Mike Fedyk wrote:
+>>
+>>> So Nick Piggin's VM patches won't help with this?
+>>
+>>
+>>
+>> I think they're in -mm, and I'd call the vfs slab cache shrinking stuff
+>> a vfs issue anyway because there's no actual VM content to it, apart
+>> from the code in question being driven by the VM.
+>
+>
+> Hmm, that's news to me.  Maybe that's a newer patch.  I haven't been 
+> reading the list much for the last month or so...
+>
+> Nick had a patch that was supposed to help 2.6 with low memory 
+> situations to bring it on a par with 2.4 in that respect.  ISTR 
+> "active recycling" being mentioned about it...
+>
 
-It's quite likely that especially on a fairly idle machine, the dentry 
-cache really _should_ be the biggest single memory user.
+Just an aside, it is hard to get 2.6 "on par" with 2.4 because 2.6 is
+often much fairer (although it can still be badly unfair - if we ever
+want to fix that we'd probably need per process mm).
 
-Why? Because an idle machine tends to largely be dominated by things like 
-"updatedb" and friends running. If there isn't any other real activity, 
-there's no reason for a big page cache, nor is there anything that would 
-put memory pressure on the dentries, so they grow as much as they can.
+There are quite a lot sorts of low memory situations you can get into.
+My (and Nikita's) patches don't help the one you're probably in. They
+don't put more pressure on slab.
 
-Do you see any actual bad behaviour from this?
-
-		Linus

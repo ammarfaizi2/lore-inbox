@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268054AbUIBJpf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268095AbUIBJqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268054AbUIBJpf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 05:45:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268056AbUIBJpf
+	id S268095AbUIBJqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 05:46:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268067AbUIBJpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 05:45:35 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:38642 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S268054AbUIBJpd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 05:45:33 -0400
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Thu, 02 Sep 2004 11:44:21 +0200
-To: electronerd@monolith3d.com, christer@weinigel.se
-Cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org,
-       der.eremit@email.de, axboe@suse.de
-Subject: Re: (was: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices)
-Message-ID: <4136EB75.nailB22112H09@burner>
-References: <2ptdY-42Y-55@gated-at.bofh.it>
- <2uPdM-380-11@gated-at.bofh.it> <2uUwL-6VP-11@gated-at.bofh.it>
- <2uWfh-8jo-29@gated-at.bofh.it> <2uXl0-Gt-27@gated-at.bofh.it>
- <2vge2-63k-15@gated-at.bofh.it> <2vgQF-6Ai-39@gated-at.bofh.it>
- <2vipq-7O8-15@gated-at.bofh.it> <2vj2b-8md-9@gated-at.bofh.it>
- <2vDtS-bq-19@gated-at.bofh.it> <E1ByXMd-00007M-4A@localhost>
- <412770EA.nail9DO11D18Y@burner> <412889FC.nail9MX1X3XW5@burner>
- <Pine.LNX.4.58.0408221450540.297@neptune.local>
- <m37jrr40zi.fsf@zoo.weinigel.se> <4134FA0B.6030404@monolith3d.com>
-In-Reply-To: <4134FA0B.6030404@monolith3d.com>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Thu, 2 Sep 2004 05:45:52 -0400
+Received: from rproxy.gmail.com ([64.233.170.202]:23388 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268056AbUIBJpp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 05:45:45 -0400
+Message-ID: <4699bb7b0409020245250922f9@mail.gmail.com>
+Date: Thu, 2 Sep 2004 21:45:44 +1200
+From: Oliver Hunt <oliverhunt@gmail.com>
+Reply-To: Oliver Hunt <oliverhunt@gmail.com>
+To: Helge Hafting <helge.hafting@hist.no>
+Subject: Re: The argument for fs assistance in handling archives
+Cc: Hans Reiser <reiser@namesys.com>, Linus Torvalds <torvalds@osdl.org>,
+       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <4136E756.8020105@hist.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <20040902002431.GN31934@mail.shareable.org> <413694E6.7010606@slaphack.com> <Pine.LNX.4.58.0409012037300.2295@ppc970.osdl.org> <4136A14E.9010303@slaphack.com> <Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org> <4136C876.5010806@namesys.com> <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org> <4136E0B6.4000705@namesys.com> <4699bb7b04090202121119a57b@mail.gmail.com> <4136E756.8020105@hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Myers <electronerd@monolith3d.com> wrote:
+> Depends on how the forks eventually get implemented.
+> With the file-as-directory concept, all you need is to
+> look at the file's directory part to see what is there.  (The forks,
+> implemented as files in a subdirectory.)  It is done the same way
+> as for an ordinary directory, so nothing "new".
+> 
+This still doesn't solve the problem of how we distinguish between a
+multi-fork file
+and a directory, for those old programs(ie. almost all that currently
+exist), to be able to access meaningful data we would need to either
+return just the primary fork, a serialized version of all forks in the
+file, or make the file look more or less identical to a directory.
 
-> I hope this is not a stupid idea:
->
-> I propose a finer-grained approach to suid-root binaries. Perhaps, 
-> instead of having a single flag giving the binary all the rights and 
-> responsibilities of its owner, there could be a table/list/something of 
-> capabilities which we want to grant to the binary. This, of course, 
-> would be a privileged operation (perhaps a new capability?).
->
-> For example, we might want to grant cdrecord CAP_SYS_RAWIO. This way, we 
-> don't have to worry about cdrecord running as root and not dropping all 
-> the capabilities it doesn't need, by accident or by malice.
+The first option could cause problems when transfering files between
+different filesystems,
+the second results in programs getting metadata they can't handle, and
+the third option results in few of the advantages over, well,
+directories...  And even those applications that could handle the fork
+information nicely would need to fs type to find out whether they were
+handling a directory or a multi-forked file...
 
-cdrecord neither does drop the privileges by accident nor by malice.
-What I however see is that a completely unneeded incompatible interface change 
-has been applied to a _stable_ Kernel.
+As I say I like the idea, but I can't see anyway of implementing it in
+a way that is useful without first putting considerable effort into at
+least the VFS if not all the actual fs drivers.
 
-On a cleanly designed OS with fine grained permissions, a program like cdrecord
-does not need to worry about the permissions as it gets exactly the needed 
-permissions granted by the execution environment.
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily
+--Oliver Hunt

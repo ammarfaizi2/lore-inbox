@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287816AbSA0GtY>; Sun, 27 Jan 2002 01:49:24 -0500
+	id <S287865AbSA0Gst>; Sun, 27 Jan 2002 01:48:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287866AbSA0GtK>; Sun, 27 Jan 2002 01:49:10 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:13329 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S287816AbSA0GtA>; Sun, 27 Jan 2002 01:49:00 -0500
-Message-ID: <3C53A116.81432588@zip.com.au>
-Date: Sat, 26 Jan 2002 22:41:26 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
-X-Accept-Language: en
+	id <S287866AbSA0Gsi>; Sun, 27 Jan 2002 01:48:38 -0500
+Received: from mx7.sac.fedex.com ([199.81.194.38]:30724 "EHLO
+	mx7.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S287865AbSA0Gsc>; Sun, 27 Jan 2002 01:48:32 -0500
+Date: Sun, 27 Jan 2002 14:49:06 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.18-pre7 slow
+Message-ID: <Pine.LNX.4.44.0201271446001.681-100000@boston.corp.fedex.com>
 MIME-Version: 1.0
-To: "Kevin P. Fleming" <kevin@labsysgrp.com>,
-        lkml <linux-kernel@vger.kernel.org>, Grant <gcoady@bendigo.net.au>
-Subject: Re: [CFT] Bus mastering support for IDE CDROM audio
-In-Reply-To: <3C5119E0.6E5C45B6@zip.com.au> <000701c1a5d5$812ef580$6caaa8c0@kevin> <3C53711B.F8D89811@zip.com.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/27/2002
+ 02:48:29 PM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/27/2002
+ 02:48:31 PM,
+	Serialize complete at 01/27/2002 02:48:31 PM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> 
-> "Kevin P. Fleming" wrote:
-> >
-> > When reading from the N drive, get lots of "cdrom_pc_intr: read too
-> > little data 0 < 2352",
-> 
-> OK, thanks Kevin (Dan, Kristian, Grant..)
-> 
-> Seems that some devices simply terminate their DMA in a normal
-> manner, report no errors and don't tell us how much data they
-> transferred.  From my reading of the ATA spec, they're allowed
-> to do that - they only need to report the transfer byte count
-> in PIO mode.
-> 
 
-There's an updated patch at
 
-	http://www.zip.com.au/~akpm/linux/2.4/2.4.18-pre7/ide-akpm.patch
+1) keyboard rate is a bit slow on 2.4.18-pre7 compared to 2.4.18-pre6.
 
-It now supports multi-frame transfers and should fix the problem
-which you observed.
+2) On vmware 3.0, ping localhost is very slow. 2.4.18-pre6 has not such
+problem.
 
--
+
+Thanks,
+Jeff
+[ jchua@fedex.com ]
+

@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261832AbTCaU3a>; Mon, 31 Mar 2003 15:29:30 -0500
+	id <S261841AbTCaUip>; Mon, 31 Mar 2003 15:38:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261833AbTCaU3a>; Mon, 31 Mar 2003 15:29:30 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:17419 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S261832AbTCaU3a>;
-	Mon, 31 Mar 2003 15:29:30 -0500
-Date: Mon, 31 Mar 2003 22:40:51 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Michael Buesch <freesoftwaredeveloper@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: make menuconfig error
-Message-ID: <20030331204051.GA1673@mars.ravnborg.org>
-Mail-Followup-To: Michael Buesch <freesoftwaredeveloper@web.de>,
-	linux-kernel@vger.kernel.org
-References: <200303312134.38818.freesoftwaredeveloper@web.de>
+	id <S261842AbTCaUio>; Mon, 31 Mar 2003 15:38:44 -0500
+Received: from CPE0080c8c9b431-CM014280010574.cpe.net.cable.rogers.com ([24.114.72.97]:2314
+	"EHLO stargate.coplanar.net") by vger.kernel.org with ESMTP
+	id <S261841AbTCaUin>; Mon, 31 Mar 2003 15:38:43 -0500
+Subject: Re: hdparm and removable IDE?
+From: Jeremy Jackson <jerj@coplanar.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Ron House <house@usq.edu.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.96.1030331140112.32749A-100000@gatekeeper.tmr.com>
+References: <Pine.LNX.3.96.1030331140112.32749A-100000@gatekeeper.tmr.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049143734.1258.46.camel@contact.skynet.coplanar.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200303312134.38818.freesoftwaredeveloper@web.de>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 31 Mar 2003 15:48:54 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 31, 2003 at 09:34:38PM +0200, Michael Buesch wrote:
->$ make menuconfig
-> #
-> # using defaults found in .config
-> #
-Ok, it reads configuration from your old .config
+On Mon, 2003-03-31 at 14:14, Bill Davidsen wrote:
+> > IDE bus to disconnect/*reconnect*?) But hot swap will always affect both
+> > cables.
+> 
+> Boy I hope that's a typo... I hope you meant both devices on a cable and
+> not really both cables on a controller.
 
-> .config:763: trying to assign nonexistent symbol INTEL_RNG
+Yep, sorry.  The IDE controller must tri-state off an entire cable...
+both devices.  I guess you could have 2 devices, and swap one but leave
+the other, you just have to halt all IO durring the swap, perhaps reset
+both devices when the cable is switched back on.
 
-Your old configuration assigned a value to INTEL_RNG, that symbol
-seems to have disappered in the later kernels.
-So actually no bug, just a report about an inconsistency in your
-old configuration.
+Interesting to note, Intel's PIIX (forget what version) had a feature
+that would split the primary cable (from the OS point of view - think
+dos here) so the master was on the primary cable, and the slave was on
+the secondary cable.  each device (ie swap bay in a laptop) could be
+tristated separately.  of course you loose the secondary channel.
+-- 
+Jeremy Jackson <jerj@coplanar.net>
 
-	Sam

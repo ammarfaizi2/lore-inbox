@@ -1,71 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262232AbULMLmH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262229AbULMLsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262232AbULMLmH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 06:42:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262233AbULMLmH
+	id S262229AbULMLsS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 06:48:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262234AbULMLsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 06:42:07 -0500
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:57527 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S262232AbULMLmC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 06:42:02 -0500
-Date: Mon, 13 Dec 2004 12:39:54 +0100
+	Mon, 13 Dec 2004 06:48:17 -0500
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:10424 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S262229AbULMLrr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 06:47:47 -0500
+Date: Mon, 13 Dec 2004 12:47:37 +0100
 From: Andrea Arcangeli <andrea@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Hans Kristian Rosbach <hk@isphuset.no>, Andrew Morton <akpm@osdl.org>,
-       Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: kernel@kolivas.org, pavel@suse.cz, linux-kernel@vger.kernel.org
 Subject: Re: dynamic-hz
-Message-ID: <20041213113954.GU16322@dualathlon.random>
-References: <20041211142317.GF16322@dualathlon.random> <20041212163547.GB6286@elf.ucw.cz> <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org> <20041213030237.5b6f6178.akpm@osdl.org> <1102936790.17227.24.camel@linux.local> <20041213112229.GS6272@elf.ucw.cz>
+Message-ID: <20041213114737.GV16322@dualathlon.random>
+References: <20041211142317.GF16322@dualathlon.random> <20041212163547.GB6286@elf.ucw.cz> <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org> <20041213030237.5b6f6178.akpm@osdl.org> <20041213111741.GR16322@dualathlon.random> <20041213032521.702efe2f.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041213112229.GS6272@elf.ucw.cz>
+In-Reply-To: <20041213032521.702efe2f.akpm@osdl.org>
 X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
 X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 13, 2004 at 12:22:29PM +0100, Pavel Machek wrote:
-> I tried defining HZ to 10 once, and there are some #if arrays in the
-> kernel that prevented me from doing that.
+On Mon, Dec 13, 2004 at 03:25:21AM -0800, Andrew Morton wrote:
+> We still have 1000-odd places which do things like
+> 
+> 	schedule_timeout(HZ/10);
+> 
+> which will now involve a runtime divide.  The propagation of msleep() and
+> ssleep() will reduce that a bit, but not much.
 
-I guess you're right and the minimum is HZ=12. I'm pretty sure I could
-go down to 25, perhaps the absolute minium was 12 and not 10.
+The above is by far the least cpu-hungry piece, it's going to sleep for
+100msec, so any order-of-nanoseconds computation in such path will be by
+defininition not measurable.
 
-There's also some side effect like this by setting strange HZ:
+msleep and ssleep as well will obviously be non measurable for the same
+reason (their only point is to wait and "waste" cpu). I mean,
+msleep/ssleep are the only places in the kernel that we don't really
+need to optimize ;). 
 
---- x-ref/net/sched/estimator.c	2003-03-15 03:25:19.000000000 +0100
-+++ x/net/sched/estimator.c	2004-05-31 15:51:42.778909936 +0200
-@@ -71,10 +71,6 @@
-      at user level painlessly.
-  */
- 
--#if (HZ%4) != 0
--#error Bad HZ value.
--#endif
--
- #define EST_MAX_INTERVAL	5
- 
- struct qdisc_estimator
-@@ -136,6 +132,9 @@ int qdisc_new_estimator(struct tc_stats 
- 	struct qdisc_estimator *est;
- 	struct tc_estimator *parm = RTA_DATA(opt);
- 
-+	if (unlikely(HZ % 4))
-+		return -EINVAL;
-+
- 	if (RTA_PAYLOAD(opt) < sizeof(*parm))
- 		return -EINVAL;
- 
+Most other fast paths can't execute the division or multiplication at
+compile time anyway, so they'd only save 1 cacheline (at the expense of
+a bit larger icache).
 
+> It's so simple to turn all those into compile-time divides that we may as
+> well do it.
 
-If you boot with an HZ not divisible by 4 you get -EINVAL at runtime
-(instead of a compile failure since we can't check it at compile time
-anymore ;).
+I'm not against leaving a compile time option, it's absolutely trivial
+to add it, but I just don't think it'll provide any measurable benefit
+in practice, while the ability to switch HZ provides tantible benefits
+(even to be able to set HZ to higher frequencies than 1khz, so that
+people can post a nanosleep call that will return in 0.1msec instead of
+1msec).
 
-Anyway the major point of the patch is to get HZ switchable from 100 to
-1000, those two values are really the only supported ones. The rest is a
-bonus, and I'm sure at least 50 and 2000 will work flawlessy too.
+Perhaps __HZ could hurt a bit on a NUMA box where the icache may be
+spread on the local nodes and the __HZ not, but then the __HZ could be
+made a __per_cpu variable conditionally to NUMA and they would get
+dynamic settable hz too, which I believe is significant for a numa box
+since if they're doing just userspace computing they don't need a fast
+HZ and they can get back 1% of their cpu power from every cpu in the
+system (on a 512-way system that's quite a lot more than what you will
+ever get back from HZ set at compile time ;). 

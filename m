@@ -1,96 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317882AbSGVXBI>; Mon, 22 Jul 2002 19:01:08 -0400
+	id <S317896AbSGVXCb>; Mon, 22 Jul 2002 19:02:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317888AbSGVXBI>; Mon, 22 Jul 2002 19:01:08 -0400
-Received: from mta3.snet.net ([204.60.203.69]:24195 "EHLO mta3.snet.net")
-	by vger.kernel.org with ESMTP id <S317882AbSGVXBH>;
-	Mon, 22 Jul 2002 19:01:07 -0400
-Date: Mon, 22 Jul 2002 19:04:01 -0400 (EDT)
-From: "T.Raykoff" <traykoff@snet.net>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18 IDE channels block each other under load?
-In-Reply-To: <Pine.LNX.4.33.0207221750210.22553-100000@coffee.psychology.mcmaster.ca>
-Message-ID: <Pine.LNX.4.44.0207221859070.18179-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317898AbSGVXCb>; Mon, 22 Jul 2002 19:02:31 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:19954 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317896AbSGVXCa>; Mon, 22 Jul 2002 19:02:30 -0400
+Subject: Re: [OOPS] 2.5.27 - __free_pages_ok()
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Paul Larson <plars@austin.ibm.com>
+Cc: Rik van Riel <riel@conectiva.com.br>, lkml <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org, haveblue@us.ibm.com
+In-Reply-To: <1027377273.5170.37.camel@plars.austin.ibm.com>
+References: <Pine.LNX.4.44L.0207221704120.3086-100000@imladris.surriel.com>
+	 <1027377273.5170.37.camel@plars.austin.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 23 Jul 2002 01:18:10 +0100
+Message-Id: <1027383490.32299.94.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Jul 2002, Mark Hahn wrote:
+> and it still hung on boot, but kgcc is egcs-2.91.66 19990314/Linux
+> (egcs-1.1.2 release).  If it would be helpful, I'll try compiling my
+> kernel on a debian box tomorrow and booting with that.
 
-> > I guess what does happen is that the IDE driver in the kernel doesnt
-> > distribute commands in a "fair" manner between drive 0 & drive 1. If it
-> 
-> but this is between hda and hdc, which are on different IDE channels.
-> 
-> I'm guessing this is straighforward memory thrashing - the dd is 
-> abusing the system, and getting anything else done is hard.
-> for instance, what happens if bs is reasonable instead?
-> what happens if the load is read, rather than write?
+egcs-1.1.2 does have real problems with 2.5
 
-Not sure about the bs dependency, but I seem to remember that it had 
-little effect.
-
-This lockup only happens under write load.  Heavy reads don't cause the 
-prob.  Hmmmm.
-
-Not sure that it really is memory thrashing.  The box is unloaded and 
-really has about 1GB free, to use for buffer as it sees fit.  No I/O to 
-the swap file going on, cause there is no mounted swap.
-
-Check this out:
-
-dd if=/dev/zero of=/dev/hda bs=1024
-
-then:
-
-fdisk /dev/hdc
-
-"q"
-
-fdisk blocks in the close() call.... for well over 15 minutes!
-
-As soon as dd ends cause /dev/hda is at EOF, fisk::close() returns in a 
-moment.
-
-Doesn't sounds like simple system abuse to me.
-
-Taavo.
-
-
-
-> 
-> 
-> > Taavo Raykoff wrote:
-> > > 
-> > > Can someone tell me what is going on here?
-> > > 
-> > > dd if=/dev/zero of=/dev/hda bs=1024 count=1000000
-> > > 
-> > > then in another vt:
-> > > fdisk /dev/hdc, then immediately press "q".
-> > > 
-> > > fdisk "hangs" for a long, long time.
-> > > ps -aux says state of dd and fdisk are both "D"
-> > > strace says fdisk is hanging on the close()
-> > > /proc/interrupts tell me that ide1 (/dev/hdc) is getting no
-> > >  int activity for a long, long time. ide0 is very busy.
-> > > 
-> > > It is not just dd/fdisk.  Any intensive writes on one IDE
-> > > channel (direct to the hd? device) seem to block any IO on
-> > > the other device.
-> > > 
-> > > Intel SAI2 MB, ServerWorks IDE chipset, 2.4.18, two IDE
-> > > hard drives /dev/hda and /dev/hdc, 1024MB RAM, RH73 kernel
-> > > build.
-> > > 
-> > > Also seen on Promise PDCx IDE controllers hanging off the PCI.
-> > > 
-> > > hdparm settings appear to have no influence on this behavior.
-> > > 
-> > > Thanks,
-> > > TR.
-> 
+7.1 errata/7.2/7.3 gcc 2.96 appear quite happy
 

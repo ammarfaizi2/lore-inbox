@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131611AbRBQCJp>; Fri, 16 Feb 2001 21:09:45 -0500
+	id <S131567AbRBQCVA>; Fri, 16 Feb 2001 21:21:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131610AbRBQCJf>; Fri, 16 Feb 2001 21:09:35 -0500
-Received: from filesrv1.baby-dragons.com ([199.33.245.55]:29708 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S131373AbRBQCJa>; Fri, 16 Feb 2001 21:09:30 -0500
-Date: Fri, 16 Feb 2001 18:09:26 -0800 (PST)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: <jbwan@home.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: too long mac address for --mac-source netfilter option
-In-Reply-To: <20010217014042.CDAY585.mail2.rdc2.bc.home.com@nonesuch.localdomain>
-Message-ID: <Pine.LNX.4.32.0102161803580.18153-100000@filesrv1.baby-dragons.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131606AbRBQCUu>; Fri, 16 Feb 2001 21:20:50 -0500
+Received: from host55.osagesoftware.com ([209.142.225.55]:34567 "EHLO
+	nic.osagesoftware.com") by vger.kernel.org with ESMTP
+	id <S131567AbRBQCUk>; Fri, 16 Feb 2001 21:20:40 -0500
+Message-Id: <4.3.2.7.2.20010216211931.00c6d360@mail.osagesoftware.com>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Fri, 16 Feb 2001 21:20:34 -0500
+To: <linux-kernel@vger.kernel.org>
+From: David Relson <relson@osagesoftware.com>
+Subject: re:  XOR  [ was: Linux stifles innovation... ]
+In-Reply-To: <Pine.LNX.4.30.0102161748370.14013-100000@anime.net>
+In-Reply-To: <20010216194121.B26627@alcove.wittsend.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-	Hello Jack & All ,  Might this be an atm interface ?
-	If it is not then am I to assume that an atm interface
-	with its erroneous mac-address is going to have the same
-	difficulties .  That is of course as soon as the atm interface
-	actually put a valid ESI/mac-address into the interface table .
-		Tia ,  JimL
+At 08:52 PM 2/16/01, you wrote:
+ > On Fri, 16 Feb 2001, Michael H. Warfield wrote:
+ > > > You know XOR is patented (yes, the logical bit operation XOR).
+ > > 	But wasn't that Xerox that had that?
+ >
+ > US Patent #4,197,590 held by NuGraphics, Inc.
 
-On Fri, 16 Feb 2001, Jack Bowling wrote:
->> I am trying to use the --mac-source option in the netfilter code to
->better refine access to my linux box. However, I have run up against
->something. The router through which my private subnet work box passes
->sends a 14-group "invalid" mac address, presumably as an attempt to
->conceal the real hextile mac address. However, the code for the
->--mac-source netfilter option is looking for a valid hextile mac address
->and complains loudly as such (numerals converted to x's):
-> iptables v1.1.1: Bad mac address `xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx'
-> to the respective iptable line:
->> $IPT -A INPUT -p tcp -s xxx.xxx.xxx.xxx -d $NET -m mac --mac-source
->xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx --dport 5900:5901 -j ACCEPT
->> The idea here is to allow VNC access to my home box with the access
->filtered by both IP and mac address.
->> Is there a resolution to this other than a rewrite and recompile of the
->relevant sections of the iptable code? Or am I stuck? I know this option
->is tagged by Rusty as experimental still so I would assume that the code
->is open for feedback ;) The question could be rephrased as: is there any
->chance of allowing "invalid" mac addresses to be recognized by the
->--mac-source option of the netfilter code? Running Redhat v7/kernel
->2.4.1-ac15.
+The patent was for using the technique of using XOR for dragging/moving 
+parts of a graphics image without erasing other parts.  Also, since the 
+patent was granted in 1980, the inventors have had their 17 years of patent 
+protection, and we're all free to use the technique - legally!
 
-       +----------------------------------------------------------------+
-       | James   W.   Laferriere | System  Techniques | Give me VMS     |
-       | Network        Engineer | 25416      22nd So |  Give me Linux  |
-       | babydr@baby-dragons.com | DesMoines WA 98198 |   only  on  AXP |
-       +----------------------------------------------------------------+
+David
+
+P.S.  Given that XOR is a basic boolean operation, I don't think the USPTO 
+would ever be so dumb as to grant a patent on it.  But, then the PTO has 
+shown a creative ability to grant patents to questionable ideas, so who can 
+say what they would/could/will do?
 

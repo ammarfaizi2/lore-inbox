@@ -1,82 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265778AbUFORY1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265781AbUFORcP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265778AbUFORY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 13:24:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265780AbUFORY1
+	id S265781AbUFORcP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 13:32:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265783AbUFORcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 13:24:27 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:51081 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S265778AbUFORYU (ORCPT
+	Tue, 15 Jun 2004 13:32:15 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:42462 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S265781AbUFORcL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 13:24:20 -0400
-Date: Tue, 15 Jun 2004 10:01:58 -0700
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [3/12] remove irda usage of isa_virt_to_bus()
-Message-ID: <20040615170158.GE11105@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20040615014344.GA17657@bougret.hpl.hp.com> <20040615091219.GR1444@holomorphy.com>
+	Tue, 15 Jun 2004 13:32:11 -0400
+Date: Tue, 15 Jun 2004 19:32:10 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Helge Hafting vs. make menuconfig help
+Message-ID: <20040615173210.GM20632@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040615140206.A6153@beton.cybernet.src> <20040615141039.GF20632@lug-owl.de> <20040615142040.B6241@beton.cybernet.src> <20040615144127.GG20632@lug-owl.de> <20040615172129.F6843@beton.cybernet.src>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tlWXjsxnRAhnxm2X"
 Content-Disposition: inline
-In-Reply-To: <20040615091219.GR1444@holomorphy.com>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+In-Reply-To: <20040615172129.F6843@beton.cybernet.src>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 15, 2004 at 02:12:19AM -0700, William Lee Irwin III wrote:
-> On Mon, Jun 14, 2004 at 06:43:44PM -0700, Jean Tourrilhes wrote:
-> > 	Could you please send this directly to me. I hate scrubbing
-> > large patches from the mailing list archive.
-> > 	Note that before even thinking of pushing this patch in the
-> > kernel, we need to perform testing with the hardware on i386 and
-> > potentially on ARM. The author only tried with irtty that doesn't use
-> > this function, so that's not a valid test at all. Finding people test
-> > those changes is going to be tough, as usual.
-> > 	I'm also wondering about the validity of those changes, but
-> > that's another matter I need to go through. During 2.5.X, some people
-> > assured me that using isa_virt_to_bus was safe on all platform with an
-> > ISA bus...
-> 
-> Okay, well, I myself didn't produce this, and I couldn't tell offhand
-> if it was bogus or not.
 
-	I can't either, that's why we need to check it.
+--tlWXjsxnRAhnxm2X
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> I presumed bugreporter made happy and spraying
-> it across the debian userbase was enough to verify it at runtime. From
-> what you're telling me, this is not the case.
+On Tue, 2004-06-15 17:21:29 +0000, Karel Kulhav=FD <clock@twibright.com>
+wrote in message <20040615172129.F6843@beton.cybernet.src>:
+> > >=20
+> > > Is it correct what <Help> for CONFIG_INPUT in 2.4.25 says or no?
+> >=20
+> > At least, it's not really wrong. You need CONFIG_INPUT to be able to do
+> > something with the HID stuff. However, to have an uniform interface, you
+>=20
+> Does HID means always USB?
 
-	IrDA is a special case because there are few users and most
-are still using 2.4.X.
+No, but USB HID devices (mouse, keyboard, ...) always implies HID.
 
-> Can you recommend people to do this kind of testing?
+> However when disabling CONFIG_INPUT, the keyboard still works. Is a keybo=
+ard
+> considered a HID or nor?
 
-	Me. I'll also post the patch to the linux-irda mailing list.
+In 2.4.x, the transition from "old-style" input drivers to new-style
+(Input API) was never finished. Instead, Input API was introduced, and
+HID devices reported their input to Input API, while old drivers still
+used all their old ways to deliver their input.
 
-> Apparently people aren't entirely happy with "dump it on lkml and wait
-> for an ack or nak", which I've noted for future reference, but probably
-> won't have a need to consider again (it's very rare that I have to deal
-> with changes I didn't write myself or are otherwise in areas I don't
-> have much knowledge about).
+This is why a keyboard still works without CONFIG_INPUT in 2.4.x, but it
+won't any longer work in 2.6.x, because the old path for submitting
+input was thrown away.
 
-	I'm not a full time Linux hacker, I follow lkml from the
-archive. No big deal.
+> > may also use the CONFIG_INPUT stuff to access your "normal" (AT / PS/2
+> > style) keyboard.
+> >=20
+> > In 2.6.x, that's cleaned up a bit. (Nearly?) all keyboards now push
+> > their key strokes into the CONFIG_INPUT API, so you really want to have
+> > CONFIG_INPUT (as long as this isn't some kind of embedded system).
+>=20
+> Isn't there some graphical chart (preferrably made in sodipodi ;-) ) that
+> describes how data are flowing inside the kernel? I have problems visuali=
+zing
+> this.
 
-> OTOH, it was easier to find than buried in
-> a distro BTS and/or cvs, not that that makes it ideal.
+2.4.x:
+	- USB keyboards/mice/... are "HID" devices, using the USB HID
+	  protocol, delivering their data to the Input APU
+	  (CONFIG_INPUT).
+	- Legacy drivers (PS/2 keyboard and the like) had their own data
+	  path and directly put their input into the virtual console
+	  subsystem.
 
-	Debian is usually very good sending me bug reports (especiall
-on wireless tools), so I'm a bit surprised that it did not work this
-time. But I've seen a recent trend by Debian to do more Debian
-specific stuff for system level config, which I find disturbing.
+2.6.x:
+	- USB keyboards/mice/... are "HID" devices, using the USB HID
+	  protocol, delivering their data to the Input APU
+	  (CONFIG_INPUT).
+	- All legacy drivers are converted to also use the new Input API
+	  subsystem; direct delivery of input was removed from the code
+	  base.
 
-> -- wli
+So in 2.4.x, you've got two APIs for drivers to dispatch their input
+(new drivers using the USB HID protocol already stuff their data into
+Input API, old drivers still each use a direct way). In 2.6.x, the
+direct ways were thrown away, and only the Input API is remaining.
 
-	Thanks !
+MfG, JBG
 
-	Jean
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
+
+--tlWXjsxnRAhnxm2X
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAzzKaHb1edYOZ4bsRAoQmAJ9n7x+CkJl/8y9EW5U18gLD2Y8GvQCeLfFW
+hDJL976mjJ0ehWezC8J/hO8=
+=+ivc
+-----END PGP SIGNATURE-----
+
+--tlWXjsxnRAhnxm2X--

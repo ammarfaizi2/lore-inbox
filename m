@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317369AbSFCLIh>; Mon, 3 Jun 2002 07:08:37 -0400
+	id <S317372AbSFCLJt>; Mon, 3 Jun 2002 07:09:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317370AbSFCLIg>; Mon, 3 Jun 2002 07:08:36 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:37062 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S317369AbSFCLIe>;
-	Mon, 3 Jun 2002 07:08:34 -0400
-Date: Mon, 3 Jun 2002 13:08:16 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: suspend.c: This is broken, fixme
-Message-ID: <20020603110816.GI820@suse.de>
-In-Reply-To: <20020603095507.GA3030@elf.ucw.cz>
+	id <S317370AbSFCLIj>; Mon, 3 Jun 2002 07:08:39 -0400
+Received: from holomorphy.com ([66.224.33.161]:28544 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S317372AbSFCLIg>;
+	Mon, 3 Jun 2002 07:08:36 -0400
+Date: Mon, 3 Jun 2002 04:07:42 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: hugh@veritas.com, linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: Re: remove mixture of non-atomic operations with page->flags which requires atomic operations to access
+Message-ID: <20020603110742.GC912@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"David S. Miller" <davem@redhat.com>, hugh@veritas.com,
+	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+In-Reply-To: <20020603102809.GA912@holomorphy.com> <20020603.022739.102772773.davem@redhat.com> <20020603110055.GB912@holomorphy.com> <20020603.030048.15263428.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
 Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 03 2002, Pavel Machek wrote:
-> Hi!
+>    From: William Lee Irwin III <wli@holomorphy.com>
+>    Date: Mon, 3 Jun 2002 04:00:55 -0700
 > 
-> I found this in 2.5.20...
+>     	if (PageWriteback(page))
+>     		BUG();
+>    -	ClearPageDirty(page);
+>    -	page->flags &= ~(1<<PG_referenced);
+>    +
+>    +	page->flags &= ~((1UL << PG_referenced) | (1UL << PG_dirty));
 > 
-> --- a/kernel/suspend.c  Sun Jun  2 18:44:56 2002
-> +++ b/kernel/suspend.c  Sun Jun  2 18:44:56 2002
-> @@ -64,6 +64,7 @@
->  #include <asm/mmu_context.h>
->  #include <asm/pgtable.h>
->  #include <asm/io.h>
-> +#include <linux/swapops.h>
-> 
->  unsigned char software_suspend_enabled = 0;
-> 
-> @@ -300,7 +301,8 @@
->  static void do_suspend_sync(void)
->  {
->         while (1) {
-> -               run_task_queue(&tq_disk);
-> +               blk_run_queues();
-> +#error this is broken, FIXME
->                 if (!TQ_ACTIVE(tq_disk))
->                         break;
-> 
-> . Why is it broken?
+> Umm, nevermind.  Look at ClearPageDirty, it does
+> "other stuff" so you can't remove it wholesale.
+> In the end, the code is as it should be right now.
 
-Hey, I even cc'ed you on the patch when it went to Linus... Lets look at
-what happened before: run tq_disk, then check if it is active. What
-prevents tq_disk from being active right after you issue the TQ_ACTIVE
-check? Nothing. And I'm not sure exactly what semantics you think
-running tq_disk has. I suspect you are looking for a 'start any pending
-i/o and return when it has completed', which is far from what happens.
-Running tq_disk will _try_ to start _some_ I/O, and eventually, in time,
-the currently pending requests will have completed. In the mean time,
-more I/O could have been added though.
+Ugh, even if it isn't I don't care to deal with it, rusty, chuck this one.
 
--- 
-Jens Axboe
 
+Cheers,
+Bill

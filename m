@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266983AbRGTOli>; Fri, 20 Jul 2001 10:41:38 -0400
+	id <S266999AbRGTPQS>; Fri, 20 Jul 2001 11:16:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266991AbRGTOl2>; Fri, 20 Jul 2001 10:41:28 -0400
-Received: from ulima.unil.ch ([130.223.144.143]:18313 "EHLO ulima.unil.ch")
-	by vger.kernel.org with ESMTP id <S266983AbRGTOlT>;
-	Fri, 20 Jul 2001 10:41:19 -0400
-Date: Fri, 20 Jul 2001 16:43:06 +0200
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.6-ac5: Filesize limit exceeded
-Message-ID: <20010720164306.A4977@ulima.unil.ch>
+	id <S267001AbRGTPQI>; Fri, 20 Jul 2001 11:16:08 -0400
+Received: from smtp01.fields.gol.com ([203.216.5.131]:33540 "EHLO
+	smtp01.fields.gol.com") by vger.kernel.org with ESMTP
+	id <S266999AbRGTPQC>; Fri, 20 Jul 2001 11:16:02 -0400
+Date: Sat, 21 Jul 2001 00:15:42 +0900
+From: Masaru Kawashima <masaruk@gol.com>
+To: Rasmus Hansen <moffe@amagerkollegiet.dk>
+Cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com,
+        alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] Re: [MINOR PROBLEM] RTL8139C: transmit timed out
+In-Reply-To: <Pine.LNX.4.33.0107201102340.1200-100000@grignard.amagerkollegiet.dk>
+In-Reply-To: <E15L7Zp-0006k9-00@smtp01.fields.gol.com>
+	<Pine.LNX.4.33.0107201102340.1200-100000@grignard.amagerkollegiet.dk>
+X-Mailer: Sylpheed version 0.5.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.19i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15Nc0X-0002dN-00@smtp01.fields.gol.com>
+X-Abuse-Complaints: abuse@gol.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+Hi, Rasmus!
 
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Fri, 20 Jul 2001 11:03:38 +0200 (CEST)
+Rasmus Hansen <moffe@amagerkollegiet.dk> wrote:
 
-Hello,
+> Now the box has been running for nearly a week without any trace of 
+> problems, so the patch seems to be fine.
 
-I have just turned to 2.4.6-ac5, and I can't create tar bigger than
-40Mb, I got Filesize limit exceeded...
+Thank you for your reporting.
+The patch has been included in linux-2.4.6-ac3 and above, and also
+in linux-2.4.7-pre7 and above.
 
-Both on ext2 and reiserfs partitions.
+# Thank you Alan Cox, you've been included my patch for 8139too.c
+# in your -ac series.
 
-Any idea why?
-
-Thanks,
-
-	Greg
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
-
---Q68bSM7Ycu6FN28Q
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.5 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7WEN6FDWhsRXSKa0RAu82AKDNu2B9ytUEWvdnyYYNm3sfo63a8gCeOl/5
-Lu6lumx/aG49UD2sgF16z34=
-=eovb
------END PGP SIGNATURE-----
-
---Q68bSM7Ycu6FN28Q--
+--
+Masaru Kawashima <masaruk@gol.com>

@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263137AbTJQSVP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 14:21:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263366AbTJQSVP
+	id S263496AbTJQSX2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 14:23:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263498AbTJQSX2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 14:21:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:60042 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263137AbTJQSVO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 14:21:14 -0400
-Date: Fri, 17 Oct 2003 11:19:55 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: mingo@redhat.com, linux-mm@kvack.org
-Subject: 2.6.0-test7-mm1 4G/4G hanging at boot
-Message-Id: <20031017111955.439d01c8.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Fri, 17 Oct 2003 14:23:28 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:52743 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S263496AbTJQSXZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 14:23:25 -0400
+Date: Fri, 17 Oct 2003 11:23:21 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Transparent compression in the FS
+Message-ID: <20031017182321.GB145@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <1066163449.4286.4.camel@Borogove> <20031015133305.GF24799@bitwizard.nl> <3F8D6417.8050409@pobox.com> <20031016162926.GF1663@velociraptor.random> <20031016172930.GA5653@work.bitmover.com> <20031016174927.GB25836@speare5-1-14> <20031016230448.GA29279@pegasys.ws> <20031017094443.GA7738@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031017094443.GA7738@elf.ucw.cz>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: Unauthorised duplication and storage of this email is a violation of international copyright law and is subject to prosecution.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Oct 17, 2003 at 11:44:44AM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > Several months ago we encountered the hash collision problem
+> > with rsync.  This brought about a fair amount of discussion
+> 
+> So you found collision in something like md5 or sha1?
 
-I'm seeing this at boot:
+Each block was done with md4 truncated to 16 bits and
+adler32.  The file as a whole is double checked with the
+full 128 bit md4 and adler32.
 
-Checking if this processor honours the WP bit even in supervisor mode...
+The changes made were to improve block sizing to reduce the
+number of blocks, and to scale the hash truncation according
+to block count and size on a per-file basis.
 
-then I wait for 1-2 minutes and hit the power button.
-This is on an IBM dual-proc P4 (non-HT) with 1 GB of RAM.
+The probability of false positives in rsync are orders of
+magnitude smaller than they would be in a block hashing
+filesystem.  Yet we were seeing it happen (with truncated
+hash) at measurable rates on files as small as a few hundred
+megabytes.  It was almost commonplace on iso images.
 
-Has anyone else seen this?  Suggestions or fixes?
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-Thanks,
---
-~Randy
+		Remember Cernan and Schmitt

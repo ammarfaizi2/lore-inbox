@@ -1,73 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262674AbVAFAdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262678AbVAFAhN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262674AbVAFAdo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 19:33:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262676AbVAFAdo
+	id S262678AbVAFAhN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 19:37:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262676AbVAFAhN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 19:33:44 -0500
-Received: from mail.dif.dk ([193.138.115.101]:23239 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262674AbVAFAdl (ORCPT
+	Wed, 5 Jan 2005 19:37:13 -0500
+Received: from sv1.valinux.co.jp ([210.128.90.2]:28637 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S262678AbVAFAhC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 19:33:41 -0500
-Date: Thu, 6 Jan 2005 01:45:04 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Bill Metzenthen <billm@suburbia.net>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [rfc] i386/math-emu: __copy_to_user (and missing semicolon?) 
- [possible patch included]
-Message-ID: <Pine.LNX.4.61.0501060132480.3491@dragon.hygekrogen.localhost>
+	Wed, 5 Jan 2005 19:37:02 -0500
+Date: Thu, 06 Jan 2005 09:37:01 +0900
+From: Itsuro Oda <oda@valinux.co.jp>
+To: mkdump-devel@lists.sourceforge.net
+Subject: mkdump updated
+Cc: linux-kernel@vger.kernel.org, fastboot@osdl.org
+Message-Id: <20050106092456.6C32.ODA@valinux.co.jp>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.10.04 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
 Hi,
 
-building a few 'make randconfig's I noticed this : 
+A Happy new year.
 
-  CC      arch/i386/math-emu/fpu_entry.o
-include/asm/uaccess.h: In function `save_i387_soft':
-arch/i386/math-emu/fpu_entry.c:745: warning: ignoring return value of `__copy_to_user', declared with attribute warn_unused_result
- 
-When I took a look I saw what looked like a missing semicolon and indeed 
-the return value of __copy_to_user was being ignored (but a few lines from 
-there another instance /was/ being tested).
-That seems wrong.
+We released the Beta-3 version of mkdump end of last year.
 
-I'll admit that I'm not familliar with the code in fpu_entry.c and I've 
-only done a very cursory investigation to see if the patch below is 
-actually correct (all I can really say is that it now compiles without 
-warnings with the patch below).
+We checked the code from crash occur to the mini kernel start carefully and
+eliminate the possibility of the deadlock/hang condition. (We hope :-))
 
-Would something like this patch make sense? or am I missing something 
-somewhere? Any comments are welcome.
+Please check it.
 
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
-diff -up linux-2.6.10-bk8-orig/arch/i386/math-emu/fpu_entry.c  linux-2.6.10-bk8/arch/i386/math-emu/fpu_entry.c
---- linux-2.6.10-bk8-orig/arch/i386/math-emu/fpu_entry.c	2004-12-24 22:35:25.000000000 +0100
-+++ linux-2.6.10-bk8/arch/i386/math-emu/fpu_entry.c	2005-01-06 01:28:28.000000000 +0100
-@@ -742,7 +742,8 @@ int save_i387_soft(void *s387, struct _f
-   S387->fcs &= ~0xf8000000;
-   S387->fos |= 0xffff0000;
- #endif /* PECULIAR_486 */
--  __copy_to_user(d, &S387->cwd, 7*4);
-+  if (__copy_to_user(d, &S387->cwd, 7*4))
-+    return -1;
-   RE_ENTRANT_CHECK_ON;
- 
-   d += 7*4;
-@@ -753,7 +754,7 @@ int save_i387_soft(void *s387, struct _f
-     return -1;
-   if ( offset )
-     if (__copy_to_user(d+other, (u_char *)&S387->st_space, offset))
--      return -1
-+      return -1;
-   RE_ENTRANT_CHECK_ON;
- 
-   return 1;
-
-
+http://mkdump.sourceforge.net/
+-- 
+Itsuro ODA <oda@valinux.co.jp>
 

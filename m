@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313016AbSEXX2k>; Fri, 24 May 2002 19:28:40 -0400
+	id <S312681AbSEXXkl>; Fri, 24 May 2002 19:40:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313038AbSEXX2j>; Fri, 24 May 2002 19:28:39 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36357 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S313016AbSEXX2j>; Fri, 24 May 2002 19:28:39 -0400
-Date: Fri, 24 May 2002 16:27:24 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Karim Yaghmour <karim@opersys.com>
-cc: Andrea Arcangeli <andrea@e-mind.com>, Dan Kegel <dank@kegel.com>,
-        Andrew Morton <akpm@zip.com.au>, Hugh Dickins <hugh@veritas.com>,
-        Christoph Rohland <cr@sap.com>, Jens Axboe <axboe@suse.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-In-Reply-To: <3CEEC729.74625C2B@opersys.com>
-Message-ID: <Pine.LNX.4.44.0205241619590.28735-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313038AbSEXXkk>; Fri, 24 May 2002 19:40:40 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:28677 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S312681AbSEXXkj>; Fri, 24 May 2002 19:40:39 -0400
+Date: Fri, 24 May 2002 16:40:33 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: RFC - named loop devices...
+Message-ID: <20020524164033.B9600@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020521015517.609d5516.spyro@armlinux.org> <200205211409.g4LE9HY31513@Port.imtp.ilyichevsk.odessa.ua> <20020523180105.141af04b.spyro@armlinux.org> <20020523180453.E29960@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, May 23, 2002 at 06:04:53PM +0100, Russell King wrote:
+> On Thu, May 23, 2002 at 06:01:05PM +0100, Ian Molton wrote:
+> > On Tue, 21 May 2002 17:11:34 -0200
+> > Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
+> > 
+> > > > I was wondering if a solution to this would be to introduce 'named'
+> > > > loopback devices.
+> > 
+> > > Have no time to think about this now, but will test any patches -
+> > > I want /etc/mtab -> /proc/mounts to become standard practice
+> > 
+> > me too. :-)
+> 
+> /proc/mounts and /etc/mtab contain different information.  /etc/mtab can
+> contain what ever information a user space app needs.  /proc/mount can't.
+> See the following as a perfect example, specifically the automount and
+> NFS entries.
+> 
+> Also, remember that mount uses /etc/mtab to perform synchronisation
+> between two concurrent mount requests for the same device/resource.
+> 
+[snip]
 
+It is clear to me that what really needs to happen is to
+retire /etc/mtab.  It seems to be the last file in /etc that
+needs to be written.  Mount, df and others need to look
+elsewhere and we might need a syscall (if it doesn't exist)
+to support umount and root pivoting when not even proc is
+mounted.  It might be a pain to coordinate but should be
+worth it.
 
-On Fri, 24 May 2002, Karim Yaghmour wrote:
->
-> This matter remained unchanged until the FSF came out later and
-> declared publicly that the patent was violating the GPL.
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-Side note: they did this, apparently while Caldera was in the process of
-suing FSMlabs over the fact that they didn't want to pay for their
-OpenUnix usage... Hmm..
-
-> I could have understood that this was indeed genuine, but here we
-> have Eben Moglen, a respected lawyer,
-
-I would be a _lot_ happier with Moglen if he didn't have so many ties to
-the FSF, and being biased. These days you can apparently buy a "gpl
-compliance certification" from the FSF for $20k. Those kinds of ties do
-_not_ make me any happier about the FSF's status as an independent entity.
-
-The RT part of an app under RTLinux has to be a kernel module anyway, and
-as I personally consider the GPL to be the only kind of module I care
-about, I think that is good.
-
-Whatever non-RT tools used to visualize the RT data equally clearly aren't
-covered by _that_ particular patent, so I think the whole thing is a
-complete and utter red herring.
-
-		Linus
-
-
+		Remember Cernan and Schmitt

@@ -1,68 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267860AbUJOOF1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267923AbUJOOJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267860AbUJOOF1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 10:05:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267798AbUJOOEG
+	id S267923AbUJOOJk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 10:09:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267777AbUJOOIT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 10:04:06 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:25819 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S267903AbUJOOBx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 10:01:53 -0400
-Subject: Re: Fw: signed kernel modules?
-From: David Woodhouse <dwmw2@infradead.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: David Howells <dhowells@redhat.com>,
-       "Rusty Russell (IBM)" <rusty@au1.ibm.com>, Greg KH <greg@kroah.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0410151253360.7182@scrub.home>
-References: <27277.1097702318@redhat.com>
-	 <1097626296.4013.34.camel@localhost.localdomain>
-	 <1096544201.8043.816.camel@localhost.localdomain>
-	 <1096411448.3230.22.camel@localhost.localdomain>
-	 <1092403984.29463.11.camel@bach> <1092369784.25194.225.camel@bach>
-	 <20040812092029.GA30255@devserv.devel.redhat.com>
-	 <20040811211719.GD21894@kroah.com>
-	 <OF4B7132F5.8BE9D947-ON87256EEB.007192D0-86256EEB.00740B23@us.ibm.com>
-	 <1092097278.20335.51.camel@bach> <20040810002741.GA7764@kroah.com>
-	 <1092189167.22236.67.camel@bach> <19388.1092301990@redhat.com>
-	 <30797.1092308768@redhat.com>
-	 <20040812111853.GB25950@devserv.devel.redhat.com>
-	 <20040812200917.GD2952@kroah.com> <26280.1092388799@redhat.com>
-	 <27175.1095936746@redhat.com> <30591.1096451074@redhat.com>
-	 <10345.1097507482@redhat.com>
-	 <1097507755.318.332.camel@hades.cambridge.redhat.com>
-	 <1097534090.16153.7.camel@localhost.localdomain>
-	 <1097570159.5788.1089.camel@baythorne.infradead.org>
-	 <23446.1097777340@redhat.com> <Pine.LNX.4.61.0410151253360.7182@scrub.home>
-Content-Type: text/plain
-Message-Id: <1097848897.13633.134.camel@hades.cambridge.redhat.com>
+	Fri, 15 Oct 2004 10:08:19 -0400
+Received: from gprs212-94.eurotel.cz ([160.218.212.94]:30595 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S267852AbUJOOA3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 10:00:29 -0400
+Date: Fri, 15 Oct 2004 15:59:55 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Pavel Machek <pavel@ucw.cz>, Paul Mackerras <paulus@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, David Brownell <david-b@pacbell.net>
+Subject: Re: Totally broken PCI PM calls
+Message-ID: <20041015135955.GD2015@elf.ucw.cz>
+References: <1097455528.25489.9.camel@gaston> <Pine.LNX.4.58.0410101937100.3897@ppc970.osdl.org> <16746.299.189583.506818@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0410102115410.3897@ppc970.osdl.org> <20041011101824.GC26677@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.58.0410110857180.3897@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Fri, 15 Oct 2004 15:01:37 +0100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0410110857180.3897@ppc970.osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-15 at 13:12 +0200, Roman Zippel wrote:
-> > I've uploaded an updated module signing patch with Rusty's suggested
-> > additions:
+Hi!
+
+> > Does sparse now have typechecking on enums?
 > 
-> Can someone please put this patch into some context, where it's not 
-> completely pointless? As is it does not make anything more secure.
-> Why is the kernel more trustable than a kernel module?
+> You can mark an enum "bitwise" (by making all of it's values be
+> "bitwise"), and it will be considered a type of its own, yes. But then you
+> also cannot do arithmetic on it (which _usually_ is what you want, but not
+> necessarily always).
+> 
+> (You'd also need to pass in the "-Wbitwise" flag to sparse, to get the
+> checks).
+> 
+> By the time you mark something "bitwise", you don't even need to use an
+> enum, btw. You can just do a regular integer typedef and mark the typedef 
+> to be "bitwise" - that generates a unique type right there. That's what 
+> the endianness checking does.
 
-Because it's not that hard to put the kernel onto read-only media or in
-a flash chip to which you physically cut the Vpen line.
+I'm trying to learn how to work with bitwise on obsolete stuff, but
+checking there is good, too, right?
 
-One solution is just to disallow modules altogether -- but that isn't
-really ideal in a number of cases. Allowing only certain _known_ modules
-is a more functional solution.
+Is this right way to do it?
 
++typedef enum pm_request __bitwise {
++       __bitwise PM_SUSPEND, /* enter D1-D3 */
++       __bitwise PM_RESUME,  /* enter D0 */
++} pm_request_t;
++
++/*
++ * Device types... these are passed to pm_register
++ */
++typedef enum pm_dev_type __bitwise {
++       __bitwise PM_UNKNOWN_DEV = 0, /* generic */
++       __bitwise PM_SYS_DEV,       /* system device (fan, KB
+controller, ...) */
++       __bitwise PM_PCI_DEV,       /* PCI device */
++       __bitwise PM_USB_DEV,       /* USB device */
++       __bitwise PM_SCSI_DEV,      /* SCSI device */
++       __bitwise PM_ISA_DEV,       /* ISA device */
++       __bitwise PM_MTD_DEV,       /* Memory Technology Device */
++} pm_dev_t;
+
+Having __bitwise at every line in enum looks quite ugly to my
+eyes. [Where to get sparse? I tried to google for it but "sparse" is
+very common word (as in sparse matrix). And theres no
+kernel/people/linus on kernel.org...]
+							Pavel
 -- 
-dwmw2
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,69 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130781AbQKIOYO>; Thu, 9 Nov 2000 09:24:14 -0500
+	id <S131018AbQKIO0Y>; Thu, 9 Nov 2000 09:26:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130286AbQKIOYE>; Thu, 9 Nov 2000 09:24:04 -0500
-Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:27024 "HELO tsx-prime.MIT.EDU")
-	by vger.kernel.org with SMTP id <S130781AbQKIOXt>;
-	Thu, 9 Nov 2000 09:23:49 -0500
-Date: Thu, 9 Nov 2000 09:23:42 -0500
-Message-Id: <200011091423.JAA21926@tsx-prime.MIT.EDU>
-From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
-To: Michael Rothwell <rothwell@holly-springs.nc.us>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Lars Marowsky-Bree <lmb@suse.de>,
-        Christoph Rohland <cr@sap.com>, richardj_moore@uk.ibm.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: Michael Rothwell's message of Thu, 09 Nov 2000 08:43:14 -0500,
-	<3A0AA9F2.9F76DF1@holly-springs.nc.us>
+	id <S130286AbQKIO0O>; Thu, 9 Nov 2000 09:26:14 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18514 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131020AbQKIO0G>; Thu, 9 Nov 2000 09:26:06 -0500
 Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
-Phone: (781) 391-3464
+To: tytso@MIT.EDU (Theodore Y. Ts'o)
+Date: Thu, 9 Nov 2000 14:26:33 +0000 (GMT)
+Cc: paulj@itg.ie (Paul Jakma), rothwell@holly-springs.nc.us (Michael Rothwell),
+        cr@sap.com (Christoph Rohland), richardj_moore@uk.ibm.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <200011091414.JAA21924@tsx-prime.MIT.EDU> from "Theodore Y. Ts'o" at Nov 09, 2000 09:14:26 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13tsex-0001Cs-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: 	Thu, 09 Nov 2000 08:43:14 -0500
-   From: Michael Rothwell <rothwell@holly-springs.nc.us>
+> Actually, he's been quite specific.  It's ok to have binary modules as
+> long as they conform to the interface defined in /proc/ksyms.  
 
-   And how would a hypothetical Advanced Linux Kernel Project be different?
-   Set aside the GKHI and the issue of binary-only hook modules; how would
-   an "enterprise" fork be any different than RT or UC? It'll go off,
-   change and add some things, and then perhaps be merged back in later. In
-   the meantime, developers who want to add "enterpriseness" to Linux will
-   have an outlet and won't have to simply gripe on this list anymore. And
-   users who want an "enterprise" kernel can get one.
+What is completely unclear is if he has the authority to say that given that
+there is code from other people including the FSF merged into the tree.
 
-Well, there are three possibilities about how it can end up.
+I've taken to telling folks who ask about binary modules to talk to their legal
+department. The whole question is simply to complicated for anyone else to
+work on.
 
-1)  It will be loaded with so much crap that in fact it ends up being
-less performant than the mainline Linux.  No problem, we can ignore it.
+Alan
 
-2)  It will be a thing of perfect beauty, in which every single change
-is thoughtfully well-considered, and scales well to both the low end and
-the high end.  No problem, it's easy to merge stuff back.
-
-3) It will be a mixture, of some stuff which is good, and some such
-which is crap, and it will be very difficult hard to merge back some of
-the good stuff, since it has dependencies on the crap.  In the meantime,
-mainline Linux will have continued moving forward, and it will be even
-harder to merge the advanced features of Linux back into the forked
-version of the kernel.
-
-
-One of the big reasons why many of the big companies have been looking
-at Linux is because Unix OS engineering is viewed as a cost center, not
-as a profit center.  The moment you fork and make an "Advanced Linux
-Kernel Project", a lot of the costs involved with maintaining such a
-beast come back.  And sure, you can try to solve this problem by working
-in a consoritum-like fashion with other Companies ---- just like OSF/1
-and Monterrey tried to do.  
-
-So there are some real costs associated with forking.  At the same time,
-if these companies need to get product out the door quickly, short-term
-forks can be good things.  But nothing in life is free, and it's in
-*everybody's* best interest to resolve forks as soon as possible.
-Otherwise, you end up losing a lot of the advantages of the Open Source
-development model.
-
-						- Ted
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,37 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293531AbSCLLXU>; Tue, 12 Mar 2002 06:23:20 -0500
+	id <S310553AbSCLLYk>; Tue, 12 Mar 2002 06:24:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310284AbSCLLXK>; Tue, 12 Mar 2002 06:23:10 -0500
-Received: from dsl-213-023-043-170.arcor-ip.net ([213.23.43.170]:34452 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S293531AbSCLLW7>;
-	Tue, 12 Mar 2002 06:22:59 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [CFT] delayed allocation and multipage I/O patches for 2.5.6.
-Date: Tue, 12 Mar 2002 12:18:01 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <3C8D9999.83F991DB@zip.com.au>
-In-Reply-To: <3C8D9999.83F991DB@zip.com.au>
+	id <S310552AbSCLLYV>; Tue, 12 Mar 2002 06:24:21 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:56583 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S310284AbSCLLYJ>; Tue, 12 Mar 2002 06:24:09 -0500
+Message-ID: <3C8DE4CC.9060302@evision-ventures.com>
+Date: Tue, 12 Mar 2002 12:21:48 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16kkID-0001qr-00@starship>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: Linus Torvalds <torvalds@transmeta.com>, andersen@codepoet.org,
+        Bill Davidsen <davidsen@tmr.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] My AMD IDE driver, v2.7
+In-Reply-To: <Pine.LNX.4.33.0203111810220.8121-100000@home.transmeta.com> <3C8D692B.7070508@mandrakesoft.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On March 12, 2002 07:00 am, Andrew Morton wrote:
->   Identifies readahead thrashing.
+Jeff Garzik wrote:
+> Linus Torvalds wrote:
 > 
->     Currently, it just performs a shrink on the readahead window when thrashing
->     occurs.  This greatly reduces the amount of pointless I/O which we perform,
->     and will reduce the CPU load.  The idea is that the readahead window
->     dynamically adjusts to a sustainable size.  It improves things, but not
->     hugely, experimentally.
+>>
+>> On Mon, 11 Mar 2002, Jeff Garzik wrote:
+>>
+>>> You have convinced me that unconditional filtering is bad.  But I still
+>>> think people should be provided the option to filter if they so desire.
+>>>
+>>
+>> Hey, choice is always good, except if it adds complexity.
+>>
+>> The problem with conditional filtering is that either it is a boot (or
+>> compile time) option, or it is a dynamic filter.
+>>
+> heh, I couldn't have given a better argument against a dynamic filter.
+> 
+> I was actually assuming the filter would be a compile-time option, for 
+> security's sake.  Boot-time option works too.
+> 
+> So, it sounds like you could be sold on an fixed-at-compile-time filter 
+> that can be disabled at boot :)  I know you don't like 
+> fixed-at-compile-time as you mentioned, but it's my argument there is a 
+> class of users that definitely do.  MandrakeSoft would likely enable the 
+> filter in the "secure" kernel and disable it in the "normal" kernel, for 
+> example.
 
-The question is, does it wipe out a nasty corner case?  If so then the improvement
-for the averge case is just a nice fringe benefit.  A carefully constructed test
-that triggers the corner case would be most interesting.
+Mandrake Soft should disable the whole sidestepping
+ioctl - even the generic one - in a secure kernel.
+Filtering them all to -EINVAL is the bast one can do for *security*.
+The stuff which is not should be implemented with generic ioctl
+with a proper sementics.
 
--- 
-Daniel
+Rings a bell?
+
+No matter how you turn it it turns out that the taskfile stuff as it
+is is just useless - formal verification inside the kernel can
+be done at coding time. Formal verification for vendor specific
+stuff can be done in user land. Formal verification for security
+stuff doens't make sense, becouse the whole interface doesn't
+make sense for security concerns. Formal verification of the
+commands for political reasons is just plain naive...
+

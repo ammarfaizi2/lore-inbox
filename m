@@ -1,53 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131644AbRCZPuw>; Mon, 26 Mar 2001 10:50:52 -0500
+	id <S131829AbRCZPmc>; Mon, 26 Mar 2001 10:42:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131889AbRCZPuc>; Mon, 26 Mar 2001 10:50:32 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:834 "EHLO
-	amsmta02-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S131644AbRCZPuW>; Mon, 26 Mar 2001 10:50:22 -0500
-Message-Id: <5.0.2.1.2.20010326175151.01eef100@pop.wanadoo.nl>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Mon, 26 Mar 2001 18:00:36 +0200
+	id <S131845AbRCZPmX>; Mon, 26 Mar 2001 10:42:23 -0500
+Received: from mail4.one.net ([206.112.192.132]:7036 "EHLO mail4.one.net")
+	by vger.kernel.org with ESMTP id <S131829AbRCZPmM>;
+	Mon, 26 Mar 2001 10:42:12 -0500
+Date: Mon, 26 Mar 2001 10:40:19 -0500
 To: linux-kernel@vger.kernel.org
-From: Theodoor Scholte <tscholte@wanadoo.nl>
-Subject: Compiling problem kernel 2.4.2
+Subject: ext2 corruption in 2.4.2, scsi only system
+Message-ID: <20010326104019.A30975@clifton-labs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+From: Dale E Martin <dmartin@cliftonlabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hello.  I've got a dual PPro machine running 2.4.2, and Debian (stable + a
+little bit of "testing".)  This machine is heavily loaded about 3/4 of the
+time, doing a daily regression test on a project we're working on.
+Bascially, the machine runs g++ about 18 hours a day on machine generated
+code.
 
-I have a problem with compiling kernel-2.4.2. When I want to make a bzImage 
-on a RedHat Linux 5.2 box,
-then I get this error-message:
+With 2.2.17 the machine would have process hangs after a couple of days -
+this was repeatable.  (specifically g++ would start hanging, even compiling
+"hello world".) 
 
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -02
--fomit-frame-pointer -fno-strict-aliasing -pipe -march=i486  -c -o init/main.o
-init/main.c
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -02
-fomit-frame-pointer -fno-strict-aliasing -pipe  -march=i486
--DUTS_MACHINE='"i386"' -c -o init/version.o init/version.c
-cpp: /usr/src/linux/include/linux/compile.h: Input/output error
-init/version.c:20: `UTS_VERSION' undeclared here (not in a function)
-init/version.c:20: initializer element for `system_utsname.version' is not
-constant
-init/version.c:25: parse error before `LINUX_COMPILE_BY'
-make: *** [init/version.o] Error 1
+I had had good luck with 2.4.x on other boxes, so I put it on this machine
+as well.  Several times now I've seen ext2 corruption with no other
+noteworthy logs.  
 
-I have installed these software revisions:
-GNU C  egcs-2.91.66
-GNU make  3.78.1
-binutils  2.9.5.0.22-6
-util-linux  2.10f
-modutils  2.4.2
-e2fsprogs  1.19
 
-What is the solution for this problem? On a Slackware 7.1-box with the same 
-software-revisions I have no problems with compiling kernel 2.4.2.
+The last time we saw this after no other kernel messages:
+Mar 23 18:40:02 woodlawn kernel: EXT2-fs error (device sd(8,6)):
+ext2_free_blocks: Freeing blocks in system zones - Block = 655552, count = 1
+Mar 23 19:18:33 woodlawn kernel: EXT2-fs error (device sd(8,6)):
+ext2_new_block: Allocating block in system zone - block = 655552
+Mar 24 18:40:04 woodlawn kernel: EXT2-fs error (device sd(8,6)):
+ext2_free_blocks: Freeing blocks in system zones - Block = 655552, count = 1
+Mar 24 19:07:22 woodlawn kernel: EXT2-fs error (device sd(8,6)):
+ext2_new_block: Allocating block in system zone - block = 655552
+Mar 25 16:45:01 woodlawn kernel: EXT2-fs error (device sd(8,1)):
+ext2_free_blocks: bit already cleared for block 460146
+Mar 25 16:45:01 woodlawn kernel: Remounting filesystem read-only
+Mar 25 18:40:03 woodlawn kernel: EXT2-fs error (device sd(8,6)):
+ext2_free_blocks: Freeing blocks in system zones - Block = 655552, count = 1
 
-Thanks in advance,
+On the boot prior, we saw this:
+Mar  8 11:34:08 woodlawn kernel: EXT2-fs error (device sd(8,6)):ext2_free_blocks: Freeing blocks in system zones - Block = 720946, count = 1
+Mar  8 13:10:53 woodlawn kernel: EXT2-fs error (device sd(8,6)):ext2_new_block:
+ Allocating block in system zone - block = 720946
+Mar  8 13:13:49 woodlawn kernel: EXT2-fs error (device sd(8,6)): ext2_free_block
+s: Freeing blocks in system zones - Block = 720946, count = 1
+Mar  8 15:32:52 woodlawn kernel: EXT2-fs error (device sd(8,6)): ext2_new_block:
+ Allocating block in system zone - block = 720946
+Mar  8 15:35:20 woodlawn kernel: EXT2-fs error (device sd(8,6)): ext2_free_block
+s: Freeing blocks in system zones - Block = 720946, count = 1
+Mar  9 06:26:07 woodlawn kernel: init_special_inode: bogus imode (52171)
+Mar  9 06:26:07 woodlawn kernel: init_special_inode: bogus imode (30564)
+Mar  9 06:26:07 woodlawn kernel: init_special_inode: bogus imode (51522)
+Mar  9 06:26:07 woodlawn kernel: init_special_inode: bogus imode (71400)
+Mar  9 06:26:07 woodlawn kernel: init_special_inode: bogus imode (70072)
+Mar  9 06:26:07 woodlawn kernel: init_special_inode: bogus imode (72163)
+Mar  9 06:26:07 woodlawn kernel: init_special_inode: bogus imode (57522)
+Mar  9 06:26:07 woodlawn kernel: init_special_inode: bogus imode (30062)
+Mar  9 06:26:07 woodlawn kernel: init_special_inode: bogus imode (31137)
+Mar  9 06:26:07 woodlawn kernel: init_special_inode: bogus imode (30532)
+Mar  9 06:26:07 woodlawn kernel: init_special_inode: bogus imode (0)
+Mar  9 06:26:07 woodlawn kernel: init_special_inode: bogus imode (0)
+Mar  9 06:26:07 woodlawn kernel: init_special_inode: bogus imode (71563)
 
-Theodoor Scholte
+At that point, there were some large and not easily removed files that
+appeared on the filesystem in question.
 
+The machine is a dual PPro, it has a Buslogic BT958 with a single 9G
+scsi/wide drive in it.  There aren't any logs related to physical disk
+problems.  If the machine starts doing this again, I'll take a look in
+/proc/scsi/Buslogic and see if it's showing any errors in there.
+
+Thanks for any help, and please let me know if I need to supply any other
+info.  I guess the only other thing I can think of is the kernel is
+compiled with gcc 2.95.2, which I realize is considered "slightly risky" or
+so....
+
+Thanks,
+	Dale
+-- 
+Dale E. Martin, Clifton Labs, Inc.
+Senior Computer Engineer
+dmartin@cliftonlabs.com
+http://www.cliftonlabs.com
+pgp key available

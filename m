@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129401AbRAXHER>; Wed, 24 Jan 2001 02:04:17 -0500
+	id <S129431AbRAXHE4>; Wed, 24 Jan 2001 02:04:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129431AbRAXHEH>; Wed, 24 Jan 2001 02:04:07 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:34824 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129401AbRAXHDw>;
-	Wed, 24 Jan 2001 02:03:52 -0500
-Mail-Copies-To: never
-To: John Kacur <jkacur@home.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sigcontext on Linux-ppc in user space
-In-Reply-To: <3A6E282E.89053126@home.com>
-From: Andreas Jaeger <aj@suse.de>
-Date: 24 Jan 2001 08:02:23 +0100
-In-Reply-To: <3A6E282E.89053126@home.com> (John Kacur's message of "Tue, 23 Jan 2001 19:56:14 -0500")
-Message-ID: <u8puhdmo00.fsf@gromit.rhein-neckar.de>
-User-Agent: Gnus/5.090001 (Oort Gnus v0.01) XEmacs/21.1 (Channel Islands)
+	id <S129764AbRAXHEr>; Wed, 24 Jan 2001 02:04:47 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:5125 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S129431AbRAXHEl>;
+	Wed, 24 Jan 2001 02:04:41 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200101240701.f0O71OE110437@saturn.cs.uml.edu>
+Subject: Re: Bug in ppp_async.c
+To: paulus@linuxcare.com.au
+Date: Wed, 24 Jan 2001 02:01:24 -0500 (EST)
+Cc: l_indien@magic.fr, jma@netgem.com, callahan@maths.ox.ac.uk,
+        jfree@sovereign.org, linux-kernel@vger.kernel.org
+In-Reply-To: <14958.25201.508164.388346@diego.linuxcare.com.au> from "Paul Mackerras" at Jan 24, 2001 04:04:49 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Kacur <jkacur@home.com> writes:
+Paul Mackerras writes:
+> Jo l'Indien writes:
 
-> Does anyone know how to get at the struct sigcontext in a signal handler
-> on Linux for powerpc? sigaction of course lets you create a signal
-> handler as a function with the prototype void(*)(int, siginfo_t *, void
-> *)
-> where the last argument, a pointer to void, is the sigcontext. I believe
-> that the last argument is NOT defined by POSIX and so is implementation
-> dependent.
-> 
-> On Intel it seems sufficient to use #include <asm/sigcontext.h>
-> to get the definition of struct sigcontext, and then get the values
-> you'd like out of the signal handler. But on Linux for powerpc, the same
-> thing doesn't work. Does anyone know what the trick is here to
-> accomplish this?
+>> I found a bug in the 2.4.1-pre10 version of ppp_async.c
+>>
+>> In fact, a lot of ioctl are not supported any more,
+>> whih make the pppd start fail.
+>
+> I'll bet you're using an old pppd.  You need version 2.4.0 of pppd,
+> available from ftp://linuxcare.com.au/pub/ppp/, as documented in the
+> Documentation/Changes file.
 
-You should never include kernel headers in user space.
+Even Red Hat 7 only has the 2.3.11 version.
 
-If you have a glibc 2.1 (or newer) based system, just include
-<signal.h> which will include <bits/sigcontext.h> with the struct
-(this works on all architectures).
-
-Andreas
--- 
- Andreas Jaeger
-  SuSE Labs aj@suse.de
-   private aj@arthur.inka.de
-    http://www.suse.de/~aj
+The 2.4.xx series is supposed to be stable. If there is any way
+you could add a compatibility hack, please do so.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

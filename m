@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266535AbTAZBDw>; Sat, 25 Jan 2003 20:03:52 -0500
+	id <S266514AbTAZBDY>; Sat, 25 Jan 2003 20:03:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266552AbTAZBDp>; Sat, 25 Jan 2003 20:03:45 -0500
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:53376 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S266527AbTAZBC2>;
-	Sat, 25 Jan 2003 20:02:28 -0500
-Date: Sat, 25 Jan 2003 20:15:28 +0000
+	id <S266552AbTAZBDY>; Sat, 25 Jan 2003 20:03:24 -0500
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:52608 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S266514AbTAZBCY>;
+	Sat, 25 Jan 2003 20:02:24 -0500
+Date: Sat, 25 Jan 2003 20:15:26 +0000
 From: Adam Belay <ambx1@neo.rr.com>
 To: greg@kroah.com
-Cc: linux-kernel@vger.kernel.org, Jeff Muizelaar <muizelaar@rogers.com>
-Subject: [PATCH] NE PnP Update from Jeff Muizelaar (5/6)
-Message-ID: <20030125201528.GA12845@neo.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] sc1200wdt PnP Update (4/6)
+Message-ID: <20030125201526.GA12818@neo.rr.com>
 Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, greg@kroah.com,
-	linux-kernel@vger.kernel.org, Jeff Muizelaar <muizelaar@rogers.com>
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,227 +21,183 @@ User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- linux-2.5.59/drivers/net/ne.c	2003-01-16 21:22:06.000000000 -0500
-+++ linux-2.5.59-patched/drivers/net/ne.c	2003-01-20 15:39:25.000000000 -0500
-@@ -29,6 +29,7 @@
-     last in cleanup_modue()
-     Richard Guenther    : Added support for ISAPnP cards
-     Paul Gortmaker	: Discontinued PCI support - use ne2k-pci.c instead.
-+    Jeff Muizelaar	: moved over to generic PnP api
+This patch converts this watchdog driver.  Only tested for compilation.
 
- */
+-Adam
 
-@@ -37,13 +38,13 @@
- static const char version1[] =
- "ne.c:v1.10 9/23/94 Donald Becker (becker@scyld.com)\n";
- static const char version2[] =
--"Last modified Nov 1, 2000 by Paul Gortmaker\n";
-+"Last modified January 20, 2003 by Jeff Muizelaar\n";
+
+--- a/drivers/char/watchdog/sc1200wdt.c	Thu Jan 16 21:53:51 2003
++++ b/drivers/char/watchdog/sc1200wdt.c	Thu Jan 16 21:55:45 2003
+@@ -23,6 +23,7 @@
+  *					Add WDIOC_GETBOOTSTATUS and WDIOC_SETOPTIONS ioctls
+  *					Fix CONFIG_WATCHDOG_NOWAYOUT
+  *	20020530 Joel Becker		Add Matt Domsch's nowayout module option
++ *	20030116 Adam Belay		Updated to the latest pnp code
+  *
+  */
  
- 
- #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/errno.h>
+@@ -35,7 +36,7 @@
+ #include <linux/notifier.h>
+ #include <linux/reboot.h>
+ #include <linux/init.h>
 -#include <linux/isapnp.h>
 +#include <linux/pnp.h>
- #include <linux/init.h>
- #include <linux/interrupt.h>
- #include <linux/delay.h>
-@@ -76,20 +77,18 @@
- };
- #endif
-
--static struct isapnp_device_id isapnp_clone_list[] __initdata = {
--	{	ISAPNP_CARD_ID('A','X','E',0x2011),
--		ISAPNP_VENDOR('A','X','E'), ISAPNP_FUNCTION(0x2011),
--		(long) "NetGear EA201" },
--	{	ISAPNP_ANY_ID, ISAPNP_ANY_ID,
--		ISAPNP_VENDOR('E','D','I'), ISAPNP_FUNCTION(0x0216),
--		(long) "NN NE2000" },
--	{	ISAPNP_ANY_ID, ISAPNP_ANY_ID,
--		ISAPNP_VENDOR('P','N','P'), ISAPNP_FUNCTION(0x80d6),
--		(long) "Generic PNP" },
--	{ }	/* terminate list */
-+#ifdef CONFIG_PNP
-+static const struct pnp_device_id ne_pnp_table[] = {
-+	/* NetGear EA201 */
-+	{.id = "AXE2011", .driver_data = 0},
-+	/* NN NE2000 */
-+	{.id = "EDI0216", .driver_data = 0},
-+	/* NE2000 Compatible */
-+	{.id = "PNP80d6", .driver_data = 0},
- };
+ #include <linux/pci.h>
  
--MODULE_DEVICE_TABLE(isapnp, isapnp_clone_list);
-+MODULE_DEVICE_TABLE(pnp, ne_pnp_table);
-+#endif
+ #include <asm/semaphore.h>
+@@ -75,9 +76,9 @@
+ static char expect_close;
+ spinlock_t sc1200wdt_lock;	/* io port access serialisation */
  
- #ifdef SUPPORT_NE_BAD_CLONES
- /* A list of bad clones that we none-the-less recognize. */
-@@ -126,9 +125,20 @@
- #define NESM_START_PG	0x40	/* First page of TX buffer */
- #define NESM_STOP_PG	0x80	/* Last page +1 of RX ring */
+-#if defined CONFIG_ISAPNP || defined CONFIG_ISAPNP_MODULE
++#if defined CONFIG_PNP
+ static int isapnp = 1;
+-static struct pci_dev *wdt_dev;
++static struct pnp_dev *wdt_dev;
  
-+#ifdef CONFIG_PNP
-+static int ne_pnp_probe(struct pnp_dev *dev, const struct pnp_device_id *dev_id);
-+static void ne_pnp_remove(struct pnp_dev *dev);
-+
-+static struct pnp_driver ne_pnp_driver = {
-+	.name		= "ne",
-+	.id_table 	= ne_pnp_table,
-+	.probe		= ne_pnp_probe,
-+	.remove		= ne_pnp_remove,
-+};
-+#endif
-+
- int ne_probe(struct net_device *dev);
- static int ne_probe1(struct net_device *dev, int ioaddr);
--static int ne_probe_isapnp(struct net_device *dev);
- 
- static int ne_open(struct net_device *dev);
- static int ne_close(struct net_device *dev);
-@@ -175,10 +185,6 @@
- 	else if (base_addr != 0)	/* Don't probe at all. */
- 		return -ENXIO;
- 
--	/* Then look for any installed ISAPnP clones */
--	if (isapnp_present() && (ne_probe_isapnp(dev) == 0))
--		return 0;
--
- #ifndef MODULE
- 	/* Last resort. The semi-risky ISA auto-probe. */
- 	for (base_addr = 0; netcard_portlist[base_addr] != 0; base_addr++) {
-@@ -191,50 +197,58 @@
- 	return -ENODEV;
+ MODULE_PARM(isapnp, "i");
+ MODULE_PARM_DESC(isapnp, "When set to 0 driver ISA PnP support will be disabled");
+@@ -328,40 +329,49 @@
  }
  
--static int __init ne_probe_isapnp(struct net_device *dev)
-+#ifdef CONFIG_PNP
-+static int ne_pnp_probe(struct pnp_dev *idev, const struct pnp_device_id *dev_id)
- {
--	int i;
--
--	for (i = 0; isapnp_clone_list[i].vendor != 0; i++) {
--		struct pnp_dev *idev = NULL;
-+	struct net_device *dev;
-+	int err;
-+	
-+	if ( !(dev = alloc_etherdev(0)) ){
-+		err = -ENOMEM;
-+		goto alloc_fail;
-+	}
-+	
-+	dev->base_addr = pnp_port_start(idev, 0);
-+	dev->irq = pnp_irq(idev, 0);
-+	printk(KERN_INFO "ne.c: PnP reports %s at i/o %#lx, irq %d\n",
-+			idev->name, dev->base_addr, dev->irq);
-+	
-+	SET_MODULE_OWNER(dev);
-+	
-+	if (ne_probe1(dev, dev->base_addr) != 0) {	/* Shouldn't happen. */
-+		printk(KERN_ERR "ne.c: Probe of PnP card at %#lx failed\n", dev->base_addr);
-+		err = -ENXIO;
-+		goto probe_fail;
-+	}
-+	
-+	if ( (err = register_netdev(dev)) != 0)
-+		goto register_fail;
  
--		while ((idev = pnp_find_dev(NULL,
--					    isapnp_clone_list[i].vendor,
--					    isapnp_clone_list[i].function,
--					    idev))) {
--			/* Avoid already found cards from previous calls */
--			if (pnp_device_attach(idev) < 0)
--				continue;
--			if (pnp_activate_dev(idev, NULL) < 0) {
--			      	pnp_device_detach(idev);
--			      	continue;
--			}
--			/* if no io and irq, search for next */
--			if (!pnp_port_valid(idev, 0) || !pnp_irq_valid(idev, 0)) {
--				pnp_device_detach(idev);
--				continue;
--			}
--			/* found it */
--			dev->base_addr = pnp_port_start(idev, 0);
--			dev->irq = pnp_irq(idev, 0);
--			printk(KERN_INFO "ne.c: ISAPnP reports %s at i/o %#lx, irq %d.\n",
--				(char *) isapnp_clone_list[i].driver_data,
--				dev->base_addr, dev->irq);
--			if (ne_probe1(dev, dev->base_addr) != 0) {	/* Shouldn't happen. */
--				printk(KERN_ERR "ne.c: Probe of ISAPnP card at %#lx failed.\n", dev->base_addr);
--				pnp_device_detach(idev);
--				return -ENXIO;
--			}
--			ei_status.priv = (unsigned long)idev;
--			break;
--		}
--		if (!idev)
--			continue;
--		return 0;
-+	pnp_set_drvdata(idev, dev);
-+	
-+	return 0;
-+	
-+register_fail:
-+		kfree(dev->priv);
-+		release_region(dev->base_addr, NE_IO_EXTENT);
-+probe_fail:
-+		kfree(dev);
-+alloc_fail:
-+		return err;
+-#if defined CONFIG_ISAPNP || defined CONFIG_ISAPNP_MODULE
++#if defined CONFIG_PNP
+ 
+-static int __init sc1200wdt_isapnp_probe(void)
++struct pnp_device_id scl200wdt_pnp_devices[] = {
++	/* National Semiconductor PC87307/PC97307 watchdog component */
++	{.id = "NSC0800", .driver_data = 0},
++	{.id = ""}
++};
++
++static int scl200wdt_pnp_probe(struct pnp_dev * dev, const struct pnp_device_id *dev_id)
+ {
+-	int ret;
++	/* this driver only supports one card at a time */
++	if (wdt_dev || !isapnp)
++		return -EBUSY;
+ 
+-	/* The WDT is logical device 8 on the main device */
+-	wdt_dev = isapnp_find_dev(NULL, ISAPNP_VENDOR('N','S','C'), ISAPNP_FUNCTION(0x08), NULL);
+-	if (!wdt_dev)
+-		return -ENODEV;
+-	
+-	if (wdt_dev->prepare(wdt_dev) < 0) {
+-		printk(KERN_ERR PFX "ISA PnP found device that could not be autoconfigured\n");
+-		return -EAGAIN;
+-	}
++	wdt_dev = dev;
++	io = pnp_port_start(wdt_dev, 0);
++	io_len = pnp_port_len(wdt_dev, 0);
+ 
+-	if (!(pci_resource_flags(wdt_dev, 0) & IORESOURCE_IO)) {
+-		printk(KERN_ERR PFX "ISA PnP could not find io ports\n");
+-		return -ENODEV;
++	if (!request_region(io, io_len, SC1200_MODULE_NAME)) {
++		printk(KERN_ERR PFX "Unable to register IO port %#x\n", io);
++		return -EBUSY;
+ 	}
+ 
+-	ret = wdt_dev->activate(wdt_dev);
+-	if (ret && (ret != -EBUSY))
+-		return -ENOMEM;
+-
+-	/* io port resource overriding support? */
+-	io = pci_resource_start(wdt_dev, 0);
+-	io_len = pci_resource_len(wdt_dev, 0);
+-
+-	printk(KERN_DEBUG PFX "ISA PnP found device at io port %#x/%d\n", io, io_len);
++	printk(KERN_INFO "scl200wdt: PnP device found at io port %#x/%d\n", io, io_len);
+ 	return 0;
+ }
+ 
+-#endif /* CONFIG_ISAPNP */
++static void scl200wdt_pnp_remove(struct pnp_dev * dev)
++{
++	if (wdt_dev){
++		release_region(io, io_len);
++		wdt_dev = NULL;
++	}
 +}
 +
-+static void ne_pnp_remove(struct pnp_dev *idev)
-+{
-+	struct net_device *dev = pnp_get_drvdata(idev);	
-+	if (dev) {
-+		free_irq(dev->irq, dev);
-+		release_region(dev->base_addr, NE_IO_EXTENT);
-+		unregister_netdev(dev);
-+		kfree(dev->priv);
-+		kfree(dev);
++static struct pnp_driver scl200wdt_pnp_driver = {
++	.name		= "scl200wdt",
++	.id_table	= scl200wdt_pnp_devices,
++	.probe		= scl200wdt_pnp_probe,
++	.remove		= scl200wdt_pnp_remove,
++};
++
++#endif /* CONFIG_PNP */
+ 
+ 
+ static int __init sc1200wdt_init(void)
+@@ -373,9 +383,9 @@
+ 	spin_lock_init(&sc1200wdt_lock);
+ 	sema_init(&open_sem, 1);
+ 
+-#if defined CONFIG_ISAPNP || defined CONFIG_ISAPNP_MODULE
++#if defined CONFIG_PNP
+ 	if (isapnp) {
+-		ret = sc1200wdt_isapnp_probe();
++		ret = pnp_register_driver(&scl200wdt_pnp_driver);
+ 		if (ret)
+ 			goto out_clean;
+ 	}
+@@ -387,12 +397,17 @@
+ 		goto out_clean;
+ 	}
+ 
++	/* now that the user has specified an IO port and we haven't detected
++	 * any devices, disable pnp support */
++	isapnp = 0;
++	pnp_unregister_driver(&scl200wdt_pnp_driver);
++
+ 	if (!request_region(io, io_len, SC1200_MODULE_NAME)) {
+ 		printk(KERN_ERR PFX "Unable to register IO port %#x\n", io);
+ 		ret = -EBUSY;
+-		goto out_pnp;
++		goto out_clean;
  	}
 -
--	return -ENODEV;
++	
+ 	ret = sc1200wdt_probe();
+ 	if (ret)
+ 		goto out_io;
+@@ -420,11 +435,6 @@
+ out_io:
+ 	release_region(io, io_len);
+ 
+-out_pnp:
+-#if defined CONFIG_ISAPNP || defined CONFIG_ISAPNP_MODULE
+-	if (isapnp && wdt_dev)
+-		wdt_dev->deactivate(wdt_dev);
+-#endif
+ 	goto out_clean;
+ }	
+ 
+@@ -434,11 +444,11 @@
+ 	misc_deregister(&sc1200wdt_miscdev);
+ 	unregister_reboot_notifier(&sc1200wdt_notifier);
+ 
+-#if defined CONFIG_ISAPNP || defined CONFIG_ISAPNP_MODULE
+-	if(isapnp && wdt_dev)
+-		wdt_dev->deactivate(wdt_dev);
++#if defined CONFIG_PNP
++	if(isapnp)
++		pnp_unregister_driver(&scl200wdt_pnp_driver);
++	else
+ #endif
+-
+ 	release_region(io, io_len);
  }
-+#endif
  
- static int __init ne_probe1(struct net_device *dev, int ioaddr)
- {
-@@ -757,6 +771,13 @@
- {
- 	int this_dev, found = 0;
+@@ -455,7 +465,7 @@
+ 		if (ints[0] > 1)
+ 			timeout = ints[2];
  
-+#ifdef CONFIG_PNP	
-+	found = pnp_register_driver(&ne_pnp_driver);
-+	if (found < 0) {
-+		return found;
-+	}
-+#endif
-+
- 	for (this_dev = 0; this_dev < MAX_NE_CARDS; this_dev++) {
- 		struct net_device *dev = &dev_ne[this_dev];
- 		dev->irq = irq[this_dev];
-@@ -774,6 +795,9 @@
- 			printk(KERN_WARNING "ne.c: No NE*000 card found at i/o = %#x\n", io[this_dev]);
- 		else
- 			printk(KERN_NOTICE "ne.c: You must supply \"io=0xNNN\" value(s) for ISA cards.\n");
-+#ifdef CONFIG_PNP
-+		pnp_unregister_driver(&ne_pnp_driver);
-+#endif
- 		return -ENXIO;
- 	}
- 	return 0;
-@@ -783,6 +807,9 @@
- {
- 	int this_dev;
- 
-+#ifdef CONFIG_PNP	
-+	pnp_unregister_driver(&ne_pnp_driver);
-+#endif
- 	for (this_dev = 0; this_dev < MAX_NE_CARDS; this_dev++) {
- 		struct net_device *dev = &dev_ne[this_dev];
- 		if (dev->priv != NULL) {
-
+-#if defined CONFIG_ISAPNP || defined CONFIG_ISAPNP_MODULE
++#if defined CONFIG_PNP
+ 		if (ints[0] > 2)
+ 			isapnp = ints[3];
+ #endif

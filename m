@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266938AbUBGPJH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 10:09:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266929AbUBGPJH
+	id S266962AbUBGPS0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 10:18:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266961AbUBGPRl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 10:09:07 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:9319 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S266938AbUBGPJF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 10:09:05 -0500
-Date: Sat, 7 Feb 2004 10:08:27 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Michael Frank <mhf@linuxmail.org>
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, <axboe@suse.de>,
-       <rddunlap@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.25-rc1: Add user friendliness to highmem= option
-In-Reply-To: <200402071950.53386.mhf@linuxmail.org>
-Message-ID: <Pine.LNX.4.44.0402071007510.28464-100000@chimarrao.boston.redhat.com>
+	Sat, 7 Feb 2004 10:17:41 -0500
+Received: from 194.149.109.108.adsl.nextra.cz ([194.149.109.108]:16079 "EHLO
+	gate2.perex.cz") by vger.kernel.org with ESMTP id S266958AbUBGPRj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 10:17:39 -0500
+Date: Sat, 7 Feb 2004 17:17:27 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@pnote.perex-int.cz
+To: jjluza <jjluza@free.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BUG: 2.6.3-rc1: No sound with nforce2 sound system
+In-Reply-To: <200402071610.04856.jjluza@free.fr>
+Message-ID: <Pine.LNX.4.58.0402071716200.2460@pnote.perex-int.cz>
+References: <200402071357.35566.jjluza@free.fr> <Pine.LNX.4.58.0402071602580.2460@pnote.perex-int.cz>
+ <200402071610.04856.jjluza@free.fr>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=iso8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Feb 2004, Michael Frank wrote:
+On Sat, 7 Feb 2004, jjluza wrote:
 
-> Enclosed is a patch for x86 to make highmem= option easier to use.
+> Le Saturday 07 February 2004 16:06, vous avez écrit :
+> > We know about this bug. It's related to VRA detection which is failing for
+> > multichannel codecs in some cases. You may try to force your game to
+> > 48000Hz/16-bit/stereo audio parameters until we can fix this bug - or look
+> > to Documentation/sound/alsa/OSS-Emulation.txt for hints to make quake
+> > working. Unfortunately no primary ALSA developer has access to this
+> > type of hardware so debugging is quite slow using e-mails.
 > 
-> - Automates alignment of highmem zone
-> - Fixes invalid highmem settings whether too small or to large
-> - Adds entry in kernel-parameters.txt
+> ok, in fact I thought that it's strange because I've never get this type of 
+> problem before
+> I'll try what you said and hope that it will work
+> thanks
+> 
+> PS: maybe I can help to debug the problem with devel by mail ? do you know who 
+> I should contact to help ?
 
-This is awesome!  Thanks.
+See http://www.mail-archive.com/alsa-devel@lists.sourceforge.net/
+'intel8x0 has stopped working' thread (last e-mails).
 
-Marcelo, could you please apply this ? ;)
+						Jaroslav
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
-
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SuSE Labs

@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313182AbSEIOec>; Thu, 9 May 2002 10:34:32 -0400
+	id <S313181AbSEIOdo>; Thu, 9 May 2002 10:33:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313183AbSEIOeb>; Thu, 9 May 2002 10:34:31 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:45841 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S313182AbSEIOe1>; Thu, 9 May 2002 10:34:27 -0400
-Date: Thu, 9 May 2002 10:30:23 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] IO wait accounting
-In-Reply-To: <Pine.LNX.4.44L.0205082153010.32261-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.3.96.1020509095715.7914B-100000@gatekeeper.tmr.com>
+	id <S313182AbSEIOdn>; Thu, 9 May 2002 10:33:43 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:55826 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S313181AbSEIOdm>; Thu, 9 May 2002 10:33:42 -0400
+Message-ID: <3CDA7A03.3000202@evision-ventures.com>
+Date: Thu, 09 May 2002 15:30:43 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andries.Brouwer@cwi.nl
+CC: hch@infradead.org, linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] hdreg.h
+In-Reply-To: <UTC200205091406.g49E6W018636.aeb@smtp.cwi.nl>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 May 2002, Rik van Riel wrote:
-
-> the following patch implements simple IO wait accounting, with the
-> following two oddities:
+U¿ytkownik Andries.Brouwer@cwi.nl napisa³:
+>     On Thu, May 09, 2002 at 03:48:32PM +0200, Andries.Brouwer@cwi.nl wrote:
+>     > No, fdisk, cfdisk, sfdisk do not use HDIO_GETGEO_BIG.
+>     > And indeed, the ioctl is completely meaningless.
 > 
-> 1) only page fault IO is currently counted
-> 2) while idle, a tick can be counted as both system time
->    and iowait time, hence IO wait time is not substracted
->    from idle time (also to ensure backwards compatability
->    with procps)
+>     In many current distributions (e.g. from Red Hat, Mandrake and Caldera)
+>     they do.
 > 
-> I'm doubting whether or not to change these two issues and if
-> they should be changed, how should they behave instead ?
+> Yes, distributions are known to introduce buggy patches.
+> 
+> Moreover, distributions are known to copy each others bugs.
+> Sometimes I tell one distribution that a patch is buggy,
+> and they revert their patch, but some months later they
+> have it again, copied from some other distribution.
+> Even bad "segmentation fault" bugs are copied.
+> 
+> But for 2.5 this is not important. Distributions have time
+> to fix stuff before 2.6.
 
-I'm delighted that someone else is looking at this as well. I've been
-trying to do a similar thing to determine how well tuning disks, using the
-vm of the moment, and various RAID configs perform.
+And developement kernels are known to require updated:
 
-I have been simply counting WaitIO ticks when there is (a) no runable
-process in the system, and (b) at least one process blocked for disk i/o,
-either page or program. And instead of presenting it properly I just
-stuffed it in a variable and read it from kmem.
+util-linux,
+modutils
+mounts
+net-utils
 
-While I don't defend my data presentation (I didn't want to break any
-/proc-reading tools) what I was trying to measure is how often would the
-system run faster if it had faster disk. And unfortunately the answer was
-that with my typical load disk is not a problem if the system has enough
-memory. There is always something which wants the CPU. However, disk speed
-does make a big change in responsiveness, even though the CPU stays busy. 
+and so on :-).
 
-I think what is useful is both what I measured, idle time due to disk, and
-also some responsiveness value, which would be the sum of wait time for
-all processes waiting i/o (ticks times processes waiting). You can
-consider if two processes waiting for 50ms is more or less desirable than
-one waiting 100ms, of course.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+As long as long an installed system doesn't break utterly
+there is no reaons IMHO why cleanups shouldn't be done.
 

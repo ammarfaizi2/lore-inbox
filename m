@@ -1,82 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261844AbTH3RPQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 13:15:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261934AbTH3RPQ
+	id S261815AbTH3RL4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 13:11:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbTH3RLV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 13:15:16 -0400
-Received: from daffy.hulpsystems.net ([64.246.21.252]:59343 "EHLO
-	daffy.hulpsystems.net") by vger.kernel.org with ESMTP
-	id S261844AbTH3RPD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 13:15:03 -0400
-Subject: Re: Linux 2.4.22-ac1
-From: Martin List-Petersen <martin@list-petersen.se>
-To: andersen@codepoet.org
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030829213136.GC3150@codepoet.org>
-References: <200308291258.h7TCwmU24496@devserv.devel.redhat.com>
-	 <3F4F5401.1070401@basmevissen.nl>  <20030829213136.GC3150@codepoet.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-G3cRS7ZAsPfPweaVq+hq"
-Message-Id: <1062263687.9747.14.camel@loke>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 30 Aug 2003 19:14:48 +0200
+	Sat, 30 Aug 2003 13:11:21 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:48830 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S261815AbTH3RLO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 13:11:14 -0400
+Date: Sat, 30 Aug 2003 14:06:55 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Dave Bentham <dave.bentham@ntlworld.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.23-pre2
+Message-ID: <Pine.LNX.4.55L.0308301401560.31588@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-G3cRS7ZAsPfPweaVq+hq
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Last Wednesday I posted here that when mounting /dev/scd0 CDROM
+> (hdd=ide-scsi) the new kernel 2.4.22 panicked as 2.4.21 did before that.
+> 2.4.20 is fine in this regard. If I remove the 'hdd=ide-scsi' appendage
+> then my CD is fine.
 
-On Fri, 2003-08-29 at 23:31, Erik Andersen wrote:
-> On Fri Aug 29, 2003 at 03:24:17PM +0200, Bas Mevissen wrote:
-> > How do you feel about adding things like Alsa
->=20
-> I made a patch adding alsa to 2.4.x a while back...  You just
-> need to apply these three patches. =20
->=20
->     http://codepoet.org/kernel/080-proc_dir_entry.bz2
->     http://codepoet.org/kernel/081-export-rtc.bz2
->     http://codepoet.org/kernel/082_alsa-0.9.2.bz2
->=20
-> I've not updated it since 2.4.22-rc2, but it should patch into
-> 2.4.22 without any problem...  It works for me anyways. =20
+Can you please show us all the boot messages before panic?
 
-Got problems with those patched. I applied them to 2.4.22-ac1 (didn't
-complain much), however soundcore fails loading:
+> Someone has also reported his SCSI Megaraid killed the 2.4.22 too,
+> looking a similar, if not the same, issue.
 
-# depmod-ae
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.22-20030830-marlow/kernel/sound/soundcore.o
-depmod:         snd_compat_devfs_remove
+I've seen the report but havent looked into it in detail. Will do so now.
 
-I've seen something like that in
-http://www.geocrawler.com/archives/3/12349/2002/11/0/10252380/ on the
-alsa-devel list.=20
+> So far there's been no response.
 
-Is your stuff pulled before that ?
-Or is it just the fact, that i'm not automounting devfs ?
+> It looked to me (a layman as far as the kernel software is concerned)
+> that email's after the 2.4.21 SCSI problem were posted and that the
+> issue was being looked at and even perhaps fixed. Is it believed to have
+> been fixed in 2.4.22 (i.e. I've not built my kernel properly) or is it
+> still a known problem?
 
-Regards,
-Martin List-Petersen
-martin at list-petersen dot se
---
-It is a hard matter, my fellow citizens, to argue with the belly,
-since it has no ears.
--- Marcus Porcius Cato
-
---=-G3cRS7ZAsPfPweaVq+hq
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/UNuHzAGaxP8W1ugRAro+AKDUuM/CJ/Hx+rWGIU08WKd2VTuFrgCfScQp
-WZqgMgQKP7Jag3c4A8WlnMY=
-=NH/N
------END PGP SIGNATURE-----
-
---=-G3cRS7ZAsPfPweaVq+hq--
-
+I didnt knew of this problem. Please show the boot messages before panic.
+Also identifying which 2.4.21-pre started the problems is helpful.

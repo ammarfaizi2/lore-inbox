@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262074AbRETQSy>; Sun, 20 May 2001 12:18:54 -0400
+	id <S262076AbRETQZY>; Sun, 20 May 2001 12:25:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262075AbRETQSp>; Sun, 20 May 2001 12:18:45 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:49681 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S262074AbRETQSi>; Sun, 20 May 2001 12:18:38 -0400
-Date: Sun, 20 May 2001 18:18:03 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
-Subject: Re: alpha iommu fixes
-Message-ID: <20010520181803.I18119@athlon.random>
-In-Reply-To: <20010518214617.A701@jurassic.park.msu.ru> <20010519155502.A16482@athlon.random> <20010519231131.A2840@jurassic.park.msu.ru>, <20010519231131.A2840@jurassic.park.msu.ru>; <20010520044013.A18119@athlon.random> <3B07AF49.5A85205F@uow.edu.au> <20010520154958.E18119@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010520154958.E18119@athlon.random>; from andrea@suse.de on Sun, May 20, 2001 at 03:49:58PM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S262077AbRETQZO>; Sun, 20 May 2001 12:25:14 -0400
+Received: from admin.csn.ul.ie ([136.201.105.1]:48390 "HELO admin.csn.ul.ie")
+	by vger.kernel.org with SMTP id <S262076AbRETQY4>;
+	Sun, 20 May 2001 12:24:56 -0400
+Date: Sun, 20 May 2001 17:24:48 +0100 (IST)
+From: Dave Airlie <airlied@skynet.ie>
+X-X-Sender: <airlied@skynet>
+To: <linux-vax@mithra.physics.montana.edu>, <linux-kernel@vger.kernel.org>
+Subject: start_thread question...
+Message-ID: <Pine.LNX.4.32.0105201717100.29656-100000@skynet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 20, 2001 at 03:49:58PM +0200, Andrea Arcangeli wrote:
-> they returned zero. You either have to drop the skb or to try again later
-> if they returns zero.
 
-BTW, pci_map_single is not a nice interface, it cannot return bus
-address 0, so once we start the fixage it is probably better to change
-the interface as well to get either the error or the bus address via a
-pointer passed to the function.
+I'm implementing start_thread for the VAX port and am wondering does
+start_thread have to return to load_elf_binary? I'm working on the init
+thread and what is happening is it is returning the whole way back to the
+execve caller .. which I know shouldn't happen.....
 
-Andrea
+so I suppose what I'm looking for is the point where the user space code
+gets control... is it when the registers are set in the start_thread? if
+so how does start_thread return....
+
+On the VAX we have to call a return from interrupt to get to user space
+and I'm trying to figure out where this should happen...
+
+Dave.
+
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied@skynet.ie
+pam_smb / Linux DecStation / Linux VAX / ILUG person
+
+

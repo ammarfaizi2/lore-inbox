@@ -1,57 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292379AbSCBE5P>; Fri, 1 Mar 2002 23:57:15 -0500
+	id <S293476AbSCBFMI>; Sat, 2 Mar 2002 00:12:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293476AbSCBE5G>; Fri, 1 Mar 2002 23:57:06 -0500
-Received: from penguin.linuxhardware.org ([63.173.68.170]:52148 "EHLO
-	penguin.linuxhardware.org") by vger.kernel.org with ESMTP
-	id <S292379AbSCBE47>; Fri, 1 Mar 2002 23:56:59 -0500
-Date: Fri, 1 Mar 2002 23:47:58 -0500 (EST)
-From: Kristopher Kersey <augustus@linuxhardware.org>
-To: Andre Hedrick <andre@linuxdiskcert.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Panics on IDE Initialization
-In-Reply-To: <Pine.LNX.4.10.10203011615070.2811-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.33.0203012346001.24643-100000@penguin.linuxhardware.org>
+	id <S310316AbSCBFL6>; Sat, 2 Mar 2002 00:11:58 -0500
+Received: from mx2out.umbc.edu ([130.85.253.52]:17892 "EHLO mx2out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S293476AbSCBFLq>;
+	Sat, 2 Mar 2002 00:11:46 -0500
+Date: Sat, 2 Mar 2002 00:11:45 -0500
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: dell inspiron and 2.4.18?
+Message-ID: <Pine.SGI.4.31L.02.0203020004440.5865235-100000@irix2.gl.umbc.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have verified that it is indeed the HighPoint IDE that it's getting hung
-up on.  I simply disabled it in the BIOS and it booted just fine.  Any
-ideas on a fix though would still be appreciated.  I will test this out on
-the ABIT board also since it has a HighPoint on board also.
 
-thanks,
-Kris
+I have a Dell Inspiron 3700 running Redhat 7.2 with the latest updates,
+and I just upgraded to kernel 2.4.18. On random intervals, usually within
+about 10 minutes of usage, it hangs completely solid.
 
-On Fri, 1 Mar 2002, Andre Hedrick wrote:
+Enabling sysrq, recompiling 2.4.18 with kdb, and going to tinker with APIC
+tomorrow. Results, kernel .config, lspci -v, and so forth will be posted
+when I'm more awake.
 
->
-> Oh I already have the skinny and working on it.
-> I still have the touch!
->
-> Also I have a sponsor for the 374 code so now to find somebody for the 372
-> and the variations it shows up in :-/
->
-> Cheers,
->
->
-> On Fri, 1 Mar 2002, Alan Cox wrote:
->
-> > > I have word that it's the HighPoint controller's fault.  I will verify
-> > > this myself and let you know.
-> >
-> > Ok
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
->
-> Andre Hedrick
-> Linux Disk Certification Project                Linux ATA Development
->
+Anyway, the short form: anyone else have any problems, or have I gone
+crazy again?
+
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
 

@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263285AbTC0Qt2>; Thu, 27 Mar 2003 11:49:28 -0500
+	id <S263295AbTC0Qv5>; Thu, 27 Mar 2003 11:51:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263297AbTC0Qt1>; Thu, 27 Mar 2003 11:49:27 -0500
-Received: from tapu.f00f.org ([202.49.232.129]:60891 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S263285AbTC0Qt0>;
-	Thu, 27 Mar 2003 11:49:26 -0500
-Date: Thu, 27 Mar 2003 09:00:39 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: ECC error in 2.5.64 + some patches
-Message-ID: <20030327170039.GA26452@f00f.org>
-References: <20030324212813.GA6310@osiris.silug.org> <20030324180107.A14746@vger.timpanogas.org> <20030324234410.GB10520@work.bitmover.com> <20030324182508.A15039@vger.timpanogas.org> <20030327160220.GA29195@work.bitmover.com>
+	id <S263297AbTC0Qv5>; Thu, 27 Mar 2003 11:51:57 -0500
+Received: from [81.2.110.254] ([81.2.110.254]:53494 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id <S263295AbTC0Qv4>;
+	Thu, 27 Mar 2003 11:51:56 -0500
+Subject: Re: Kernel Itself Reports Bug, Continuous OOPS's, and Phantom NIC
+	Card
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adam Voigt <adam@cryptocomm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1048776183.1873.2.camel@beowulf.cryptocomm.com>
+References: <1048776183.1873.2.camel@beowulf.cryptocomm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1048784675.3228.7.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030327160220.GA29195@work.bitmover.com>
-User-Agent: Mutt/1.3.28i
-X-No-Archive: Yes
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 27 Mar 2003 17:04:37 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 27, 2003 at 08:02:20AM -0800, Larry McVoy wrote:
+On Thu, 2003-03-27 at 14:42, Adam Voigt wrote:
+> Behavior with the OOPS's, is sporatic, I can turn the machine
+> on, wait ten minutes, and log in, and do a "ls" and it will
+> OOPS, other times it will be hours before I see them.
 
-> My guess is that this means there was a memory error and ECC fixed
-> it.
+Does it pass things like memtest86
 
-Nope.
+> One other problem, probably unrelated, the BIOS and the Kernel
+> both report seeing a "Realtek 8139" NIC on the computer, though
+> no such card exists and it is not built onto the mobo, only a
+> 3COM 3c59x (PCI Card).
 
-There is an ecc driver for RAM and you'll be able to detect these
-using that.  RAM ECC errors in my experience don't cause MCEs, usually
-the CPU never notices.
+If its seen it will be there somewhere. It may just be integrated
+into something and not actually used by the vendor.
 
-> The only problem is that I'm reasonably sure that there isn't ECC on
-> these DIMMs.
-
-Dump the SPD and you can check...  usually the BIOS will tell you too.
-
-> Does anyone have the table of error codes to explanations?  Google
-> didn't find anything for this one.
-
-as someone else pointed our, parsemce is what you want
-
-> Message from syslogd@slovax at Thu Mar 27 05:53:49 2003 ...
-> slovax kernel: Bank 1: 9000000000000151
-
-Status: (9000000000000151) Restart IP valid.
-
-*Exactly* what this means I don't know --- but I'm guessing the CPU is
-overheating.  Check fans, air-flow, etc. and see if that helps.  So
-far whenever I've seen the above problem it's *ALWAYS* been related to
-the CPU getting too hot.
-
-
-  --cw

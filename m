@@ -1,19 +1,21 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286864AbRL1MWo>; Fri, 28 Dec 2001 07:22:44 -0500
+	id <S286871AbRL1MaO>; Fri, 28 Dec 2001 07:30:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286866AbRL1MWe>; Fri, 28 Dec 2001 07:22:34 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:18692 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S286864AbRL1MWd>;
-	Fri, 28 Dec 2001 07:22:33 -0500
-Date: Fri, 28 Dec 2001 10:22:15 -0200 (BRST)
+	id <S286868AbRL1M3y>; Fri, 28 Dec 2001 07:29:54 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:51972 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S286871AbRL1M3p>;
+	Fri, 28 Dec 2001 07:29:45 -0500
+Date: Fri, 28 Dec 2001 10:29:37 -0200 (BRST)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: <riel@imladris.surriel.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Shaya Potter <spotter@cs.columbia.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: replacing the page replacement algo.
-In-Reply-To: <E16JsIX-00009S-00@starship.berlin>
-Message-ID: <Pine.LNX.4.33L.0112281020170.24031-100000@imladris.surriel.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Andre Hedrick <andre@linux-ide.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Daniel Stodden <stodden@in.tum.de>, <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+In-Reply-To: <20011228115956.E2973@suse.de>
+Message-ID: <Pine.LNX.4.33L.0112281028070.24031-100000@imladris.surriel.com>
 X-spambait: aardvark@kernelnewbies.org
 X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
@@ -21,27 +23,22 @@ Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Dec 2001, Daniel Phillips wrote:
-> On November 19, 2001 03:51 am, Shaya Potter wrote:
-> > ok, but if what I'm interested in playing with right now is playing
-> > around with which pages get swapped out, and not with the actual
-> > reclamation procedure, is it ok to just play with swap_out and having it
-> > do the thing it does, and let the rest of the kernel behave as is, or
-> > will this cause problems?
+On Fri, 28 Dec 2001, Jens Axboe wrote:
+> On Thu, Dec 27 2001, Andre Hedrick wrote:
+
+> > BUZZIT on your total lack of documention the the changes to the
+> > request_struct, otherwise I could follow your mindset and it would not be
+> > a pissing contest.
 >
-> No, it's quite a bit more complex than you imagine.  I'll do a *very
-> quick* trip through it.
+> Tried reading the source?
 
-[snip complex interaction in standard kernel]
+As usual, without documentation you only know what the code
+does, not what it's supposed to do or why it does it.
 
-Shaya, if you want a VM where you can easily change the page
-replacement algorithm, you probably want to work on top of my
-'rmap' patch. The VM in that patch uses reverse mappings to
-determine which process uses a page, so you could put normal
-clock, lru, ... algorithms on top of it.
-
-Things like swap_out() are completely gone in my patch, it's
-just one selection based on physical page.
+Documentation is an essential ingredient when hunting for
+bugs in the code, because without the docs you have to guess
+whether something is a bug or not, while with docs it's much
+easier to identify inconsistencies.
 
 regards,
 

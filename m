@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263183AbTECRqs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 13:46:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263358AbTECRqs
+	id S263369AbTECSCe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 14:02:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbTECSCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 13:46:48 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:60812 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S263183AbTECRqr
+	Sat, 3 May 2003 14:02:34 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:32735 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP id S263369AbTECSCd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 13:46:47 -0400
-Date: Sat, 3 May 2003 10:59:13 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: DECNET in latest BK
-Message-ID: <20030503175913.GA13595@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	Sat, 3 May 2003 14:02:33 -0400
+From: john stultz <johnstul@us.ibm.com>
+Subject: Re: IBM x440 problems on 2.4.20 to 2.4.20-rc1-ac3
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, jfv@bluesong.net,
+       linux-kernel@vger.kernel.org
+Date: Sat, 03 May 2003 11:14:18 -0700
+References: <fa.g8lvrtk.1ljcjgg@ifi.uio.no> <fa.n5c25ld.cl09r3@ifi.uio.no>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
-	DATE_IN_PAST_06_12)
+Content-Transfer-Encoding: 7Bit
+Message-Id: <S263369AbTECSCd/20030503180233Z+2415@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doesn't build, I didn't config it out by mistake.  Dunno if anyone uses
-decnet.
+Alan Cox wrote:
 
-net/decnet/dn_route.c: In function `dn_route_output_slow':
-net/decnet/dn_route.c:1058: `flp' undeclared (first use in this function)
-net/decnet/dn_route.c:1058: (Each undeclared identifier is reported only once
-net/decnet/dn_route.c:1058: for each function it appears in.)
-net/decnet/dn_route.c: In function `dn_route_input_slow':
-net/decnet/dn_route.c:1183: structure has no member named `fwmark'
-make[2]: *** [net/decnet/dn_route.o] Error 1
-make[1]: *** [net/decnet] Error 2
-make: *** [net] Error 2
+> On Mer, 2003-04-30 at 19:36, Jack F. Vogel wrote:
+>> I has nothing to do with gcc, Alan mentioned the magic (or cursed is
+>> probably the better choice :) word, ACPI. The kernel in SLES 8 has
+>> the x440 blacklisted so ACPI gets turned off automagically :)
+> 
+> Perhaps someone could submit the x440 blacklist entry to the base kernel
+> ?
 
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Acatually, the blacklist is only needed on the SuSE kernel because they are
+using a backport of the 2.5 ACPI code.  However a tiny bit of code used to
+ID and enable the summit bits sliped through and the quick solution was to
+blacklist it until the proper fix is included. 
+
+Right now there are no x440 specific patches pending for Vanilla 2.4 or
+Vanilla 2.5. As issues are found and resolved, patches will be submitted
+first thing for inclusion into mainline.
+
+thanks
+-john
+
+

@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129652AbRCCSdY>; Sat, 3 Mar 2001 13:33:24 -0500
+	id <S129657AbRCCSpH>; Sat, 3 Mar 2001 13:45:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129657AbRCCSdO>; Sat, 3 Mar 2001 13:33:14 -0500
-Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:54535 "EHLO
-	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S129652AbRCCSdC>; Sat, 3 Mar 2001 13:33:02 -0500
-Message-ID: <3AA138A1.72E99C7C@jonmasters.org>
-Date: Sat, 03 Mar 2001 18:32:01 +0000
-From: Jon Masters <jonathan@jonmasters.org>
-Organization: World Organisation of Broken Dreams
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
+	id <S129660AbRCCSo5>; Sat, 3 Mar 2001 13:44:57 -0500
+Received: from webmailstation.com ([208.231.7.196]:23320 "HELO
+	mx.webmailstation.com") by vger.kernel.org with SMTP
+	id <S129657AbRCCSoo>; Sat, 3 Mar 2001 13:44:44 -0500
+Date: Sat, 3 Mar 2001 13:37:42 -0500 (EST)
+From: Denis Perchine <dyp@perchine.com>
+To: linux-kernel@vger.kernel.org
+Subject: Q: How to get physical memory size from user space without proc fs
+Message-ID: <Pine.LNX.4.10.10103031332480.11778-100000@mx.webmailstation.com>
 MIME-Version: 1.0
-To: Jeremy Jackson <jerj@coplanar.net>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Forwarding broadcast traffic
-In-Reply-To: <200103031054.KAA29868@localhost.localdomain> <3AA12CD8.7F948E0D@coplanar.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeremy Jackson wrote:
+Hello,
 
-> try bridging instead if ip forwarding.  use netfilter too if you want
+actually the question is in subj.
+Problem is that there is a program which needs to know physical memory
+size. This information is used to justify memory consumption as after some
+swapping performance is drops dramatically, and it is better to finish.
 
-I mentioned bridging before - I don't want some kind of transparent
-bridge, really so what I would need is for the router to be contactable
-in the same way as before and for regular traffic to pass normally but
-with a special arrangement for certain broadcast traffic.
+I know that this is not the best idea, but it is assumed that this program
+is the only one running on the machine.
 
-Is it possible to selectively bridge broadcast traffic in the way I have
-described?
+I do not want to use proc as some people can just do not mount it.
 
-Normally of course I'd have the router either being a standard router or
-a bridge but in this case some kind of hybrid arrangement would be
-preferable.
+Any comments, suggestions?
 
-Thanks for your help,
-			--jcm
+Thanks in advance.
+
+Denis Perchine.
+
+
+

@@ -1,254 +1,218 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263244AbRFRAtp>; Sun, 17 Jun 2001 20:49:45 -0400
+	id <S263246AbRFRAy0>; Sun, 17 Jun 2001 20:54:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263246AbRFRAtg>; Sun, 17 Jun 2001 20:49:36 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:12738 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S263244AbRFRAtU>;
-	Sun, 17 Jun 2001 20:49:20 -0400
-Date: Mon, 18 Jun 2001 02:49:17 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200106180049.CAA314369.aeb@vlet.cwi.nl>
+	id <S263288AbRFRAyR>; Sun, 17 Jun 2001 20:54:17 -0400
+Received: from ugw.utcc.utoronto.ca ([128.100.100.3]:55793 "HELO
+	ugw.utcc.utoronto.ca") by vger.kernel.org with SMTP
+	id <S263257AbRFRAyH>; Sun, 17 Jun 2001 20:54:07 -0400
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] sd_init
+Subject: [PATCH] allow getdents64() to return 64-bit d_off values
+Date: Sun, 17 Jun 2001 20:53:42 -0400
+From: Chris Siebenmann <cks@utcc.utoronto.ca>
+Message-Id: <01Jun17.205350edt.230371@ugw.utcc.utoronto.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Moving the "partition shift"
-	block += partition_start;
-from the bowels of SCSI and IDE drivers to ll_rw_blk.c
-(something that must wait for 2.5) I changed sd_init a bit
-and noticed that the present version is buggy:
+ Currently getdents64() returns d_off values that have been truncated
+to 32 bits and then sign extended for all but the last directory entry
+it returns. This is because the filldir functions have been typedef'd
+and declared as taking an 'off_t offset' instead of a 'loff_t offset'.
 
-static struct gendisk sd_gendisk = {
-	SCSI_DISK0_MAJOR,       /* Major number */
-	...
-};
-static struct gendisk *sd_gendisks = &sd_gendisk;
-...
-static int sd_init() {
-	...
-	if (N_USED_SD_MAJORS > 1)
-		sd_gendisks = kmalloc(N_USED_SD_MAJORS * sizeof(struct gendisk), GFP_ATOMIC);
-	...
-		sd_gendisks[i].de_arr = kmalloc(...);
-		if (!sd_gendisks[i].de_arr)
-			goto cleanup_gendisks_de_arr;
-	...
-cleanup_gendisks_de_arr:
-	...
-	kfree(sd_gendisks);
+ This patch fixes the main code. It is relative to 2.4.5, but applies
+cleanly to 2.4.5-ac13. The resulting kernel boots and works fine on 
+an x86 machine, and I've checked that it introduces no new compile
+time warning messages.
 
+ Remaining work: several architectures have their own filldir routines
+used to implement system call compatability layers. I have not included
+patches for them because I am not sure how I should handle it: include
+all of the architectures in this patch? Make separate patches for
+each architecture and send them to each maintainer? Just notify each
+maintainer?
 
-That is, we may free sd_gendisk that was never allocated.
-The easiest fix is to delete the condition "if (N_USED_SD_MAJORS > 1)".
+ The spots I have been able to find that have this are:
+- arch/alpha/kernel/osf_sys.c:	osf_filldir()
+- arch/sparc/kernel/sys_sunos.c:	sunos_filldir() sunos_filldirentry()
+- arch/mips/kernel/sysirix.c:	irix_filldir32() irix_filldir64()
+- arch/sparc64/kernel/sys_sparc32.c:	fillonedir() filldir()
+- arch/sparc64/kernel/sys_sunos32.c:	sunos_filldir() sunos_filldirentry()
+- arch/ia64/ia32/sys_ia32.c:	filldir32() fillonedir32()
+- arch/s390x/kernel/linux32.c:	fillonedir() filldir()
+- arch/parisc/hpux/fs.c:	filldir()
 
-Andries
+ The changes are all obvious: change 'off_t' to 'loff_t'. I believe
+any missed places should provoke compile-time warnings.
 
-
-(I was allocating some more stuff there, and following the local style
-gave too ugly code. Present version of this one-line fix follows.)
-
-diff -u --recursive --new-file ../linux-2.4.6-pre3/linux/drivers/scsi/sd.c ./linux/drivers/scsi/sd.c
---- ../linux-2.4.6-pre3/linux/drivers/scsi/sd.c	Wed Jun 13 09:21:03 2001
-+++ ./linux/drivers/scsi/sd.c	Mon Jun 18 00:52:18 2001
-@@ -55,9 +55,6 @@
- 
- #include <linux/genhd.h>
- 
--/*
-- *  static const char RCSid[] = "$Header:";
-- */
- 
- #define SD_MAJOR(i) (!(i) ? SCSI_DISK0_MAJOR : SCSI_DISK1_MAJOR-1+(i))
- 
-@@ -66,8 +63,7 @@
- #define SD_MINOR_NUMBER(i)	((i) & 255)
- #define MKDEV_SD_PARTITION(i)	MKDEV(SD_MAJOR_NUMBER(i), (i) & 255)
- #define MKDEV_SD(index)		MKDEV_SD_PARTITION((index) << 4)
--#define N_USED_SCSI_DISKS  (sd_template.dev_max + SCSI_DISKS_PER_MAJOR - 1)
--#define N_USED_SD_MAJORS   (N_USED_SCSI_DISKS / SCSI_DISKS_PER_MAJOR)
-+#define N_USED_SD_MAJORS	(1 + ((sd_template.dev_max - 1) >> 4))
- 
- #define MAX_RETRIES 5
- 
-@@ -90,7 +86,6 @@
- 
- static int sd_init_onedisk(int);
- 
--
- static int sd_init(void);
- static void sd_finish(void);
- static int sd_attach(Scsi_Device *);
-@@ -1020,7 +1015,7 @@
- 
- static int sd_init()
+diff -u -N -r linux-2.4.5/fs/fat/dir.c linux-2.4.5-patched/fs/fat/dir.c
+--- linux-2.4.5/fs/fat/dir.c	Wed Apr 18 14:49:12 2001
++++ linux-2.4.5-patched/fs/fat/dir.c	Sun Jun 17 20:13:43 2001
+@@ -590,7 +590,7 @@
+ 	void * buf,
+ 	const char * name,
+ 	int name_len,
+-	off_t offset,
++	loff_t offset,
+ 	ino_t ino,
+ 	unsigned int d_type)
  {
--	int i;
-+	int i, maxparts;
+diff -u -N -r linux-2.4.5/fs/nfsd/nfs3xdr.c linux-2.4.5-patched/fs/nfsd/nfs3xdr.c
+--- linux-2.4.5/fs/nfsd/nfs3xdr.c	Sat May 19 21:02:45 2001
++++ linux-2.4.5-patched/fs/nfsd/nfs3xdr.c	Mon Jun 11 02:36:56 2001
+@@ -661,7 +661,7 @@
+ #define NFS3_ENTRYPLUS_BAGGAGE	(1 + 21 + 1 + (NFS3_FHSIZE >> 2))
+ static int
+ encode_entry(struct readdir_cd *cd, const char *name,
+-	     int namlen, off_t offset, ino_t ino, unsigned int d_type, int plus)
++	     int namlen, loff_t offset, ino_t ino, unsigned int d_type, int plus)
+ {
+ 	u32		*p = cd->buffer;
+ 	int		buflen, slen, elen;
+@@ -737,14 +737,14 @@
  
- 	if (sd_template.dev_noticed == 0)
- 		return 0;
-@@ -1031,37 +1026,44 @@
- 	if (sd_template.dev_max > N_SD_MAJORS * SCSI_DISKS_PER_MAJOR)
- 		sd_template.dev_max = N_SD_MAJORS * SCSI_DISKS_PER_MAJOR;
+ int
+ nfs3svc_encode_entry(struct readdir_cd *cd, const char *name,
+-		     int namlen, off_t offset, ino_t ino, unsigned int d_type)
++		     int namlen, loff_t offset, ino_t ino, unsigned int d_type)
+ {
+ 	return encode_entry(cd, name, namlen, offset, ino, d_type, 0);
+ }
  
-+	/* At most 16 partitions on each scsi disk. */
-+	maxparts = (sd_template.dev_max << 4);
-+	if (maxparts == 0)
-+		return 0;
-+
- 	if (!sd_registered) {
- 		for (i = 0; i < N_USED_SD_MAJORS; i++) {
- 			if (devfs_register_blkdev(SD_MAJOR(i), "sd", &sd_fops)) {
--				printk("Unable to get major %d for SCSI disk\n", SD_MAJOR(i));
-+				printk("Unable to get major %d for SCSI disk\n",
-+				       SD_MAJOR(i));
- 				return 1;
- 			}
- 		}
- 		sd_registered++;
- 	}
-+
- 	/* We do not support attaching loadable devices yet. */
- 	if (rscsi_disks)
- 		return 0;
+ int
+ nfs3svc_encode_entry_plus(struct readdir_cd *cd, const char *name,
+-			  int namlen, off_t offset, ino_t ino, unsigned int d_type)
++			  int namlen, loff_t offset, ino_t ino, unsigned int d_type)
+ {
+ 	return encode_entry(cd, name, namlen, offset, ino, d_type, 1);
+ }
+diff -u -N -r linux-2.4.5/fs/nfsd/nfsfh.c linux-2.4.5-patched/fs/nfsd/nfsfh.c
+--- linux-2.4.5/fs/nfsd/nfsfh.c	Sat May 19 20:47:55 2001
++++ linux-2.4.5-patched/fs/nfsd/nfsfh.c	Mon Jun 11 01:41:57 2001
+@@ -41,7 +41,7 @@
+  * the name matching the specified inode number.
+  */
+ static int filldir_one(void * __buf, const char * name, int len,
+-			off_t pos, ino_t ino, unsigned int d_type)
++			loff_t pos, ino_t ino, unsigned int d_type)
+ {
+ 	struct nfsd_getdents_callback *buf = __buf;
+ 	struct qstr *qs = buf->name;
+diff -u -N -r linux-2.4.5/fs/nfsd/nfsxdr.c linux-2.4.5-patched/fs/nfsd/nfsxdr.c
+--- linux-2.4.5/fs/nfsd/nfsxdr.c	Thu Feb  8 22:38:38 2001
++++ linux-2.4.5-patched/fs/nfsd/nfsxdr.c	Mon Jun 11 02:37:39 2001
+@@ -395,7 +395,7 @@
  
--	rscsi_disks = kmalloc(sd_template.dev_max * sizeof(Scsi_Disk), GFP_ATOMIC);
--	if (!rscsi_disks)
--		goto cleanup_devfs;
--	memset(rscsi_disks, 0, sd_template.dev_max * sizeof(Scsi_Disk));
--
--	/* for every (necessary) major: */
--	sd_sizes = kmalloc((sd_template.dev_max << 4) * sizeof(int), GFP_ATOMIC);
--	if (!sd_sizes)
--		goto cleanup_disks;
--	memset(sd_sizes, 0, (sd_template.dev_max << 4) * sizeof(int));
--
--	sd_blocksizes = kmalloc((sd_template.dev_max << 4) * sizeof(int), GFP_ATOMIC);
--	if (!sd_blocksizes)
--		goto cleanup_sizes;
--	
--	sd_hardsizes = kmalloc((sd_template.dev_max << 4) * sizeof(int), GFP_ATOMIC);
--	if (!sd_hardsizes)
--		goto cleanup_blocksizes;
-+	/* Allocate memory */
-+#define init_mem_lth(x,n)	x = kmalloc((n) * sizeof(*x), GFP_ATOMIC)
-+#define zero_mem_lth(x,n)	memset(x, 0, (n) * sizeof(*x))
-+
-+	init_mem_lth(rscsi_disks, sd_template.dev_max);
-+	init_mem_lth(sd_sizes, maxparts);
-+	init_mem_lth(sd_blocksizes, maxparts);
-+	init_mem_lth(sd_hardsizes, maxparts);
-+	init_mem_lth(sd, maxparts);
-+	init_mem_lth(sd_gendisks, N_USED_SD_MAJORS);
-+
-+	if (!rscsi_disks || !sd_sizes || !sd_blocksizes ||
-+	    !sd_hardsizes || !sd || !sd_gendisks)
-+		goto cleanup_mem;
-+
-+	zero_mem_lth(rscsi_disks, sd_template.dev_max);
-+	zero_mem_lth(sd_sizes, maxparts);
-+	zero_mem_lth(sd, maxparts);
+ int
+ nfssvc_encode_entry(struct readdir_cd *cd, const char *name,
+-		    int namlen, off_t offset, ino_t ino, unsigned int d_type)
++		    int namlen, loff_t offset, ino_t ino, unsigned int d_type)
+ {
+ 	u32	*p = cd->buffer;
+ 	int	buflen, slen;
+diff -u -N -r linux-2.4.5/fs/readdir.c linux-2.4.5-patched/fs/readdir.c
+--- linux-2.4.5/fs/readdir.c	Mon Dec 11 16:45:42 2000
++++ linux-2.4.5-patched/fs/readdir.c	Mon Jun 11 01:42:28 2001
+@@ -122,7 +122,7 @@
+ 	int count;
+ };
  
- 	for (i = 0; i < sd_template.dev_max << 4; i++) {
- 		sd_blocksizes[i] = 1024;
-@@ -1069,68 +1071,59 @@
- 	}
+-static int fillonedir(void * __buf, const char * name, int namlen, off_t offset,
++static int fillonedir(void * __buf, const char * name, int namlen, loff_t offset,
+ 		      ino_t ino, unsigned int d_type)
+ {
+ 	struct readdir_callback * buf = (struct readdir_callback *) __buf;
+@@ -183,7 +183,7 @@
+ 	int error;
+ };
  
- 	for (i = 0; i < N_USED_SD_MAJORS; i++) {
--		blksize_size[SD_MAJOR(i)] = sd_blocksizes + i * (SCSI_DISKS_PER_MAJOR << 4);
--		hardsect_size[SD_MAJOR(i)] = sd_hardsizes + i * (SCSI_DISKS_PER_MAJOR << 4);
-+		int parts_per_major = (SCSI_DISKS_PER_MAJOR << 4);
-+
-+		blksize_size[SD_MAJOR(i)] =
-+			sd_blocksizes + i * parts_per_major;
-+		hardsect_size[SD_MAJOR(i)] =
-+			sd_hardsizes + i * parts_per_major;
- 	}
--	sd = kmalloc((sd_template.dev_max << 4) *
--					  sizeof(struct hd_struct),
--					  GFP_ATOMIC);
--	if (!sd)
--		goto cleanup_sd;
--	memset(sd, 0, (sd_template.dev_max << 4) * sizeof(struct hd_struct));
--
--	if (N_USED_SD_MAJORS > 1)
--		sd_gendisks = kmalloc(N_USED_SD_MAJORS * sizeof(struct gendisk), GFP_ATOMIC);
--		if (!sd_gendisks)
--			goto cleanup_sd_gendisks;
-+
- 	for (i = 0; i < N_USED_SD_MAJORS; i++) {
-+		int N = SCSI_DISKS_PER_MAJOR;
-+
- 		sd_gendisks[i] = sd_gendisk;
--		sd_gendisks[i].de_arr = kmalloc (SCSI_DISKS_PER_MAJOR * sizeof *sd_gendisks[i].de_arr,
--                                                 GFP_ATOMIC);
--		if (!sd_gendisks[i].de_arr)
--			goto cleanup_gendisks_de_arr;
--                memset (sd_gendisks[i].de_arr, 0,
--                        SCSI_DISKS_PER_MAJOR * sizeof *sd_gendisks[i].de_arr);
--		sd_gendisks[i].flags = kmalloc (SCSI_DISKS_PER_MAJOR * sizeof *sd_gendisks[i].flags,
--                                                GFP_ATOMIC);
--		if (!sd_gendisks[i].flags)
--			goto cleanup_gendisks_flags;
--                memset (sd_gendisks[i].flags, 0,
--                        SCSI_DISKS_PER_MAJOR * sizeof *sd_gendisks[i].flags);
-+
-+		init_mem_lth(sd_gendisks[i].de_arr, N);
-+		init_mem_lth(sd_gendisks[i].flags, N);
-+
-+		if (!sd_gendisks[i].de_arr || !sd_gendisks[i].flags)
-+			goto cleanup_gendisks;
-+
-+		zero_mem_lth(sd_gendisks[i].de_arr, N);
-+		zero_mem_lth(sd_gendisks[i].flags, N);
-+
- 		sd_gendisks[i].major = SD_MAJOR(i);
- 		sd_gendisks[i].major_name = "sd";
- 		sd_gendisks[i].minor_shift = 4;
- 		sd_gendisks[i].max_p = 1 << 4;
--		sd_gendisks[i].part = sd + (i * SCSI_DISKS_PER_MAJOR << 4);
--		sd_gendisks[i].sizes = sd_sizes + (i * SCSI_DISKS_PER_MAJOR << 4);
-+		sd_gendisks[i].part = sd + i * (N << 4);
-+		sd_gendisks[i].sizes = sd_sizes + i * (N << 4);
- 		sd_gendisks[i].nr_real = 0;
- 		sd_gendisks[i].next = sd_gendisks + i + 1;
--		sd_gendisks[i].real_devices =
--		    (void *) (rscsi_disks + i * SCSI_DISKS_PER_MAJOR);
-+		sd_gendisks[i].real_devices = (void *) (rscsi_disks + i * N);
- 	}
-+#undef init_mem_lth
-+#undef zero_mem_lth
+-static int filldir(void * __buf, const char * name, int namlen, off_t offset,
++static int filldir(void * __buf, const char * name, int namlen, loff_t offset,
+ 		   ino_t ino, unsigned int d_type)
+ {
+ 	struct linux_dirent * dirent;
+@@ -261,7 +261,7 @@
+ 	int error;
+ };
  
- 	LAST_SD_GENDISK.next = NULL;
- 	return 0;
+-static int filldir64(void * __buf, const char * name, int namlen, off_t offset,
++static int filldir64(void * __buf, const char * name, int namlen, loff_t offset,
+ 		     ino_t ino, unsigned int d_type)
+ {
+ 	struct linux_dirent64 * dirent, d;
+diff -u -N -r linux-2.4.5/fs/umsdos/dir.c linux-2.4.5-patched/fs/umsdos/dir.c
+--- linux-2.4.5/fs/umsdos/dir.c	Fri Feb  9 14:29:44 2001
++++ linux-2.4.5-patched/fs/umsdos/dir.c	Mon Jun 11 03:02:29 2001
+@@ -67,7 +67,7 @@
+ static int umsdos_dir_once (	void *buf,
+ 				const char *name,
+ 				int len,
+-				off_t offset,
++				loff_t offset,
+ 				ino_t ino,
+ 				unsigned type)
+ {
+diff -u -N -r linux-2.4.5/fs/umsdos/rdir.c linux-2.4.5-patched/fs/umsdos/rdir.c
+--- linux-2.4.5/fs/umsdos/rdir.c	Fri Feb  9 14:29:44 2001
++++ linux-2.4.5-patched/fs/umsdos/rdir.c	Mon Jun 11 03:04:15 2001
+@@ -32,7 +32,7 @@
+ static int rdir_filldir (	void *buf,
+ 				const char *name,
+ 				int name_len,
+-				off_t offset,
++				loff_t offset,
+ 				ino_t ino,
+ 				unsigned int d_type)
+ {
+diff -u -N -r linux-2.4.5/include/linux/fs.h linux-2.4.5-patched/include/linux/fs.h
+--- linux-2.4.5/include/linux/fs.h	Fri May 25 21:01:28 2001
++++ linux-2.4.5-patched/include/linux/fs.h	Sun Jun 17 20:13:43 2001
+@@ -753,7 +753,7 @@
+  * This allows the kernel to read directories into kernel space or
+  * to have different dirent layouts depending on the binary type.
+  */
+-typedef int (*filldir_t)(void *, const char *, int, off_t, ino_t, unsigned);
++typedef int (*filldir_t)(void *, const char *, int, loff_t, ino_t, unsigned);
  
--cleanup_gendisks_flags:
--	kfree(sd_gendisks[i].de_arr);
--cleanup_gendisks_de_arr:
--	while (--i >= 0 ) {
-+cleanup_gendisks:
-+	/* kfree can handle NULL, so no test is required here */
-+	for (i = 0; i < N_USED_SD_MAJORS; i++) {
- 		kfree(sd_gendisks[i].de_arr);
- 		kfree(sd_gendisks[i].flags);
- 	}
- 	kfree(sd_gendisks);
--cleanup_sd_gendisks:
-+cleanup_mem:
-+	/* kfree can handle NULL, so no test is required here */
- 	kfree(sd);
--cleanup_sd:
- 	kfree(sd_hardsizes);
--cleanup_blocksizes:
- 	kfree(sd_blocksizes);
--cleanup_sizes:
- 	kfree(sd_sizes);
--cleanup_disks:
- 	kfree(rscsi_disks);
--cleanup_devfs:
-+
- 	for (i = 0; i < N_USED_SD_MAJORS; i++) {
- 		devfs_unregister_blkdev(SD_MAJOR(i), "sd");
- 	}
+ struct block_device_operations {
+ 	int (*open) (struct inode *, struct file *);
+diff -u -N -r linux-2.4.5/include/linux/nfsd/nfsd.h linux-2.4.5-patched/include/linux/nfsd/nfsd.h
+--- linux-2.4.5/include/linux/nfsd/nfsd.h	Fri May 25 21:02:17 2001
++++ linux-2.4.5-patched/include/linux/nfsd/nfsd.h	Mon Jun 11 16:18:56 2001
+@@ -57,7 +57,7 @@
+ 	char			dotonly;
+ };
+ typedef int		(*encode_dent_fn)(struct readdir_cd *, const char *,
+-						int, off_t, ino_t, unsigned int);
++						int, loff_t, ino_t, unsigned int);
+ typedef int (*nfsd_dirop_t)(struct inode *, struct dentry *, int, int);
+ 
+ /*
+diff -u -N -r linux-2.4.5/include/linux/nfsd/xdr.h linux-2.4.5-patched/include/linux/nfsd/xdr.h
+--- linux-2.4.5/include/linux/nfsd/xdr.h	Fri May 25 21:02:40 2001
++++ linux-2.4.5-patched/include/linux/nfsd/xdr.h	Mon Jun 11 16:19:44 2001
+@@ -151,7 +151,7 @@
+ int nfssvc_encode_readdirres(struct svc_rqst *, u32 *, struct nfsd_readdirres *);
+ 
+ int nfssvc_encode_entry(struct readdir_cd *, const char *name,
+-				int namlen, off_t offset, ino_t ino, unsigned int);
++				int namlen, loff_t offset, ino_t ino, unsigned int);
+ 
+ int nfssvc_release_fhandle(struct svc_rqst *, u32 *, struct nfsd_fhandle *);
+ 
+diff -u -N -r linux-2.4.5/include/linux/nfsd/xdr3.h linux-2.4.5-patched/include/linux/nfsd/xdr3.h
+--- linux-2.4.5/include/linux/nfsd/xdr3.h	Fri May 25 21:02:42 2001
++++ linux-2.4.5-patched/include/linux/nfsd/xdr3.h	Mon Jun 11 16:19:48 2001
+@@ -292,10 +292,10 @@
+ int nfs3svc_release_fhandle2(struct svc_rqst *, u32 *,
+ 				struct nfsd3_fhandle_pair *);
+ int nfs3svc_encode_entry(struct readdir_cd *, const char *name,
+-				int namlen, off_t offset, ino_t ino,
++				int namlen, loff_t offset, ino_t ino,
+ 				unsigned int);
+ int nfs3svc_encode_entry_plus(struct readdir_cd *, const char *name,
+-				int namlen, off_t offset, ino_t ino,
++				int namlen, loff_t offset, ino_t ino,
+ 				unsigned int);
+ 
+ 
+	- cks

@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132435AbRBEMtu>; Mon, 5 Feb 2001 07:49:50 -0500
+	id <S129738AbRBEMxU>; Mon, 5 Feb 2001 07:53:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132597AbRBEMtk>; Mon, 5 Feb 2001 07:49:40 -0500
-Received: from passion.cambridge.redhat.com ([172.16.18.67]:2944 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S132435AbRBEMt3>; Mon, 5 Feb 2001 07:49:29 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20010205133837.A485@pc8.inup.com> 
-In-Reply-To: <20010205133837.A485@pc8.inup.com>  <20010205131154.I31876@pc8.inup.com> 
-To: christophe barbe <christophe.barbe@inup.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IRQ and sleep_on 
-Mime-Version: 1.0
+	id <S129888AbRBEMxM>; Mon, 5 Feb 2001 07:53:12 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:531 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129738AbRBEMw7>; Mon, 5 Feb 2001 07:52:59 -0500
+Subject: Re: [reiserfs-list] ReiserFS Oops (2.4.1, deterministic, symlink
+To: reiser@namesys.com (Hans Reiser)
+Date: Mon, 5 Feb 2001 12:52:52 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        acahalan@cs.uml.edu (Albert D. Cahalan),
+        ahzz@terrabox.com (Brian Wolfe),
+        ionut@moisil.cs.columbia.edu (Ion Badulescu),
+        linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
+        kas@informatics.muni.cz (Jan Kasprzak)
+In-Reply-To: <3A7E998A.9CB7A4B3@namesys.com> from "Hans Reiser" at Feb 05, 2001 03:16:10 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 05 Feb 2001 12:48:39 +0000
-Message-ID: <7066.981377319@redhat.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14Pl8Z-0003Hj-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > I was thinking boot time.
+> and if reiserfs is the root partition?  You really want to make them reboot to
+> the old kernel and recompile rather than making them just recompile?
 
-christophe.barbe@inup.com said:
->  It seems to be ok. I've no more bad sleeps or more exactly rarely and
-> that why I submit this to you. Is my way to do it correct ? I've
-> joined at the end of this mail the modified function. 
+I want to make sure they get a sane clear message telling them where to
+find the correct compiler and that they didnt read the docs
 
-You can't restore flags in a different function to the one you saved them 
-in. It'll break.
+> Stop trying to blame something other than the compiler, it is ridiculous.
 
-You should probably be using the wait_event() macro instead, which does
-something similar - actually it performs the check after setting up the wait
-queue, rather than releasing the lock. 
+WTF does it have to dow with blaming something other than the compiler ?
 
---
-dwmw2
+Its going to print something like
+
+Linux 2.4.2-ac3 blah blah
+Error: This kernel was built with a buggy gcc. Please go to 
+	http://.... and upgrade
 
 
 -

@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262109AbREPWVr>; Wed, 16 May 2001 18:21:47 -0400
+	id <S262111AbREPWWr>; Wed, 16 May 2001 18:22:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262113AbREPWVh>; Wed, 16 May 2001 18:21:37 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:32273 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262109AbREPWVa>; Wed, 16 May 2001 18:21:30 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] rootfs (part 1)
-Date: 16 May 2001 15:21:21 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9duuh1$mes$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.4.21.0105161010200.4738-100000@penguin.transmeta.com> <Pine.GSO.4.21.0105161434420.26191-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+	id <S262113AbREPWWa>; Wed, 16 May 2001 18:22:30 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:18956 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S262111AbREPWWS>;
+	Wed, 16 May 2001 18:22:18 -0400
+Date: Thu, 17 May 2001 00:21:18 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+Cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        viro@math.psu.edu
+Subject: Re: LANANA: To Pending Device Number Registrants
+Message-ID: <20010517002118.B20976@suse.de>
+In-Reply-To: <200105152141.f4FLff300686@vindaloo.ras.ucalgary.ca> <Pine.LNX.4.05.10105160921220.23225-100000@callisto.of.borg> <200105161822.f4GIMo509185@vindaloo.ras.ucalgary.ca> <3B02D6AB.E381D317@transmeta.com> <200105162001.f4GK18X10128@vindaloo.ras.ucalgary.ca> <3B02DD79.7B840A5B@transmeta.com> <200105162054.f4GKsaF10834@vindaloo.ras.ucalgary.ca> <3B02F2EC.F189923@transmeta.com> <20010517001155.H806@nightmaster.csn.tu-chemnitz.de> <3B02FBA6.86969BDE@transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3B02FBA6.86969BDE@transmeta.com>; from hpa@transmeta.com on Wed, May 16, 2001 at 03:13:58PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.GSO.4.21.0105161434420.26191-100000@weyl.math.psu.edu>
-By author:    Alexander Viro <viro@math.psu.edu>
-In newsgroup: linux.dev.kernel
+On Wed, May 16 2001, H. Peter Anvin wrote:
+> Ingo Oeser wrote:
+> > 
+> > We do this already with ide-scsi. A device is visible as /dev/hda
+> > and /dev/sda at the same time. Or think IDE-CDRW: /dev/hda,
+> > /dev/sr0 and /dev/sg0.
+> > 
+> > All at the same time.
+> > 
 > 
-> Well, since all I actually use in the full variant of patch is sys_mknod(),
-> sys_chdir() and sys_mkdir()... IMO tmpfs is an overkill here. Maybe we
-> really need minimal rootfs in the kernel (no regular files) and let
-> ramfs, tmpfs, whatever-device-fs use it as a library.
-> 
+> ... and if you don't know about this funny aliasing, you get screwed. 
+> This is BAD DESIGN, once again.
 
-One thing that I thought was really spiffy was someone who had done
-patches to populate a ramfs from a tarball loaded via the initrd
-bootloader protocol... call it "initial ramfs."  It allowed a whole
-lot of cleanup -- the "initrd" isn't magic anymore (instead use
-pivot_root), and it gets rid of the rd stuff.  At the same time it
-does allow the full flexibility of a fullblown filesystem that can be
-populated with arbitrary contents.
-
-	-hpa
+And he's wrong too, we don't do this all the time. If /dev/hda is ide-cd
+controlled, then it can't be accessed through /dev/sr0 -- and vice
+versa. sg vs sr is different, one is a char the other a block device.
 
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Jens Axboe
+

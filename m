@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318290AbSIFJ0z>; Fri, 6 Sep 2002 05:26:55 -0400
+	id <S318295AbSIFJ3i>; Fri, 6 Sep 2002 05:29:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318291AbSIFJ0z>; Fri, 6 Sep 2002 05:26:55 -0400
-Received: from sproxy.gmx.de ([213.165.64.20]:43298 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S318290AbSIFJ0y>;
-	Fri, 6 Sep 2002 05:26:54 -0400
-Date: Fri, 6 Sep 2002 12:28:29 +0300
-From: Dan Aloni <da-x@gmx.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, akpm@zip.com.au
-Subject: Re: [TRIVIAL PATCH] Remove list_t infection.
-Message-ID: <20020906092829.GA32379@callisto.yi.org>
-References: <20020902003318.7CB682C092@lists.samba.org>
+	id <S318428AbSIFJ3i>; Fri, 6 Sep 2002 05:29:38 -0400
+Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:29146 "EHLO
+	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S318295AbSIFJ3g>; Fri, 6 Sep 2002 05:29:36 -0400
+Date: Fri, 6 Sep 2002 10:49:22 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Greg Stark <gsstark@mit.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Need a URL for PPPoE by Michal Ostrowski
+Message-ID: <20020906104922.Q781@nightmaster.csn.tu-chemnitz.de>
+References: <87vg5kmad2.fsf@stark.dyndns.tv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020902003318.7CB682C092@lists.samba.org>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2i
+In-Reply-To: <87vg5kmad2.fsf@stark.dyndns.tv>; from gsstark@mit.edu on Thu, Sep 05, 2002 at 04:48:09PM -0400
+X-Spam-Score: -3.4 (---)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *17nFVG-0000U1-00*iybbKuM3vZQ*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 02, 2002 at 03:23:02PM +1000, Rusty Russell wrote:
-> This week, it spread to SCTP.
+On Thu, Sep 05, 2002 at 04:48:09PM -0400, Greg Stark wrote:
+> In June someone inquired about the Ostrowski's pppoe patch for pppd and was
+> pointed to the ppp cvs archive at samba. However it seems the cvs archive
+> there only has a roaring-penguin pppoe module, not the native kernel
+> implementation.
 > 
-> "struct list_head" isn't a great name, but having two names for
-> everything is yet another bar to reading kernel source.
-> 
-[...]
-> 
-> D: This removes list_t, which is a gratuitous typedef for a "struct
-> D: list_head".  Unless there is good reason, the kernel doesn't usually
-> D: typedef, as typedefs cannot be predeclared unlike structs.
-> 
+> What happened to the cleaner kernel implementation that didn't require extra
+> user-space packet filters?
 
-Good, I see it was actually a *good* thing that I've done a 
-'s/struct list_head/list_t' in list.h, back when I was adding list_move_*(). 
+The roaring-penguin solution can use the in-kernel module, if
+requested.
 
-Otherwise, we wouldn't have noticed much the appearance of list_t, and it 
-might have spread throughout the kernel by the time we reach 2.6.0.
+Mr. Ostrowski isn't maintaining his patch anymore, it seems.
 
-task_t, anyone?
+The pppd got the plugin-architecture, as requested but didn't
+adapt the pppoe module from Mr. Ostrowksi.
 
+Maybe he himself or the PPP maintainer could elaborate, if they
+read the message.
+
+Regards
+
+Ingo Oeser
 -- 
-Dan Aloni
-da-x@gmx.net
+Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

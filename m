@@ -1,46 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267967AbTAMSkD>; Mon, 13 Jan 2003 13:40:03 -0500
+	id <S267892AbTAMSuW>; Mon, 13 Jan 2003 13:50:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267985AbTAMSkD>; Mon, 13 Jan 2003 13:40:03 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:7095 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S267967AbTAMSkB>;
-	Mon, 13 Jan 2003 13:40:01 -0500
-Date: Mon, 13 Jan 2003 19:48:31 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Cc: Terje Eggestad <terje.eggestad@scali.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: any chance of 2.6.0-test*?
-Message-ID: <20030113184831.GC14017@suse.de>
-References: <20030113164305.GZ14017@suse.de> <Pine.LNX.4.44.0301131158510.13513-100000@montezuma.mastecende.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301131158510.13513-100000@montezuma.mastecende.com>
+	id <S267972AbTAMSuW>; Mon, 13 Jan 2003 13:50:22 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:52763 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267892AbTAMSuV>; Mon, 13 Jan 2003 13:50:21 -0500
+Date: Mon, 13 Jan 2003 13:59:09 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200301131859.h0DIx9s10713@devserv.devel.redhat.com>
+To: Greg KH <greg@kroah.com>, torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
+Subject: Re: Problems with USB
+In-Reply-To: <mailman.1042437481.27105.linux-kernel2news@redhat.com>
+References: <OF5C27F452.AC6AECA2-ONC1256CAC.0070FAA4@vgd.cz> <mailman.1042437481.27105.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 13 2003, Zwane Mwaikambo wrote:
-> On Mon, 13 Jan 2003, Jens Axboe wrote:
+> On Sun, Jan 12, 2003 at 09:44:42PM +0100, Petr.Titera@whitesoft.cz wrote:
+>>      I have problems with USB in recent kernels (tested on 2.5.56) and
+>> RedHat 8.0. Right after end of script  '/etc/rc.d/rc.sysinit' and before
+>> script '/etc/rc.d/rc' which runs after USB  daemon khubd gets some signal
+>> and ends.
+
+> greg k-h
 > 
-> > On Mon, Jan 13 2003, Terje Eggestad wrote:
-> > > > > I have the console on a serial port, and a terminal server. With kdb,
-> > > > > you can enter the kernel i kdb even when deadlocked.
-> > > > 
-> > > > Even if spinning with interrupt disabled?
-> > > 
-> > > Haven't painted myself into that corner yet. Doubt it, very much.
-> > 
-> > These are the nasty hangs, total lockup and no info at all if it wasn't
-> > for the nmi watchdog triggering. That alone is reason enough for me :-)
+> # USB: Fix from Jeff and Pete to keep khubd from being able to be killed
+> #      by a signal
 > 
-> It uses NMI's to break into the debugger, so it would also work with 
-> interrupts disabled and spinning on a lock, the same is also true for 
-> kgdb.
+> diff -Nru a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+> --- a/drivers/usb/core/hub.c	Sun Jan 12 22:03:13 2003
+> +++ b/drivers/usb/core/hub.c	Sun Jan 12 22:03:13 2003
+> @@ -1085,6 +1085,12 @@
+>  
+>  	daemonize();
+>  
+> +	/* keep others from killing us */
+> +	spin_lock_irq(&current->sig->siglock);
+> +	sigemptyset(&current->blocked);
+> +	recalc_sigpending();
+> +	spin_unlock_irq(&current->sig->siglock);
+> +
+>  	/* Setup a nice name */
+>  	strcpy(current->comm, "khubd");
+>  
 
-But still requiring up-apic, or smp with apic, right?
+For the record, I disagree with this strongly.
 
--- 
-Jens Axboe
+In khubd case, the existing code did it righ. It ran
+daemonize(), which should have divorced it from the session
+and process group. If daemonize is buggy, it is the place
+to fix it. Ingo has the fix for 2.5, in fact, I think he
+may have sent it to Linus already (it's __set_special_pids()).
 
+My version of the patch above never was intended as anything
+but a stop-gap solution which allowed us to ship a beta on
+schedule, while I was investigating the cause.
+
+Jeff told me on IRC that "every bit in 8139too.c thread was
+added as a response to a particular problem", but he did not
+remember what particular problem this kludge fixed there.
+
+I stole the stop-gap from Stephen's kjournald. Note, that
+I do not have any idea why he put it in there. Very likely,
+for entirely different reason than working around bugs in
+daemonize().
+
+-- Pete
+
+[P.S. Greg, if Jeff's P.O.V. prevails in the court of Linus,
+change that sigemptyset() to siginitsetinv(...., sigmask(SIGKILL)).
+Otherwise the whole signal checking path in khubd becomes utterly
+meaningless.]
+
+[P.P.S And take my name from the bk message. Yes, I wrote
+the patch, but I do not want to endorse it, however indirectly]

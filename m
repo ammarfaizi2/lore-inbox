@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275765AbRJFWdx>; Sat, 6 Oct 2001 18:33:53 -0400
+	id <S275778AbRJFWgn>; Sat, 6 Oct 2001 18:36:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275767AbRJFWdo>; Sat, 6 Oct 2001 18:33:44 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:20997 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S275765AbRJFWdj>; Sat, 6 Oct 2001 18:33:39 -0400
-Date: Sun, 7 Oct 2001 00:34:05 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: %u-order allocation failed
-In-Reply-To: <20011006201303.20370@smtp.wanadoo.fr>
-Message-ID: <Pine.LNX.3.96.1011007003227.18004B-100000@artax.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275805AbRJFWge>; Sat, 6 Oct 2001 18:36:34 -0400
+Received: from smtp6.mindspring.com ([207.69.200.110]:21794 "EHLO
+	smtp6.mindspring.com") by vger.kernel.org with ESMTP
+	id <S275778AbRJFWgS>; Sat, 6 Oct 2001 18:36:18 -0400
+Subject: Re: low-latency patches
+From: Robert Love <rml@tech9.net>
+To: Bob McElrath <mcelrath+linux@draal.physics.wisc.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011006010519.A749@draal.physics.wisc.edu>
+In-Reply-To: <20011006010519.A749@draal.physics.wisc.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15.99+cvs.2001.10.05.08.08 (Preview Release)
+Date: 06 Oct 2001 18:36:49 -0400
+Message-Id: <1002407812.1915.21.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >OK, but my patch uses vmalloc only as a fallback when buddy fails. The
-> >probability that buddy fails is small. It is slower but with very small
-> >probability.
-> >
-> >It is perfectly OK to have a bit slower access to task_struct with
-> >probability 1/1000000.
-> >
-> >But it is ***BAD*BUG*** if allocation of task_struct fails with
-> >probability 1/1000000.
-> 
-> I missed the beginning of the thread, sorry if that question was
-> already answered,
-> 
-> What about all the code that still consider kmalloc'ed memory is
-> safe for use with virt_to_bus and friends and is contiguous
-> physically for DMA ? In some cases (non-PCI devices, embedded
-> platforms, etc...), the pci_consistent API is not an option.
-> That means that __GFP_VMALLOC can't be part of GFP_KERNEL or
-> many driver will break in horrible ways (random memory corruption).
+On Sat, 2001-10-06 at 02:05, Bob McElrath wrote:
+> [...]
+> Correct me if I'm wrong, but the former uses spinlocks to know when it can
+> preempt the kernel, and the latter just tries to reduce latency by adding
+> (un)conditional_schedule and placing it at key places in the kernel?
 
-You are right. Code that allocates more than page and expects it to be
-physicaly contignuous is broken by design. Even rewrite the driver or
-allocate memory on boot. It will be very hard to audit all drivers for it.
+Correct.  The low-latency patch does some other work to try to break up
+huge routines, too.
+ 
+> My questions are:
+> 1) Which of these two projects has better latency performance?  Has anyone
+>     benchmarked them against each other?
 
-Mikulas
+I suspect you will find a lower average latency with the preemption
+patch.  However, I suspect with the low-latency patch you may see a
+lower maximum since it works on some of the terribly long-held lock
+situations.
+
+In truth, a combination of the two could prove useful.  I have been
+working on finding the worst-case non-preemption regions (longest held
+lock regions) in the kernel.
+
+> 2) Will either of these ever be merged into Linus' kernel (2.5?)
+
+I hope :)
+
+> 3) Is there a possibility that either of these will make it to non-x86
+>     platforms?  (for me: alpha)  The second patch looks like it would
+>     straightforwardly work on any arch, but the config.in for it is only in
+>     arch/i386.  Robert Love's patches would need some arch-specific asm...
+
+Andrew's patch should work fine on all platforms, although I think the
+configure statement is in the processor section so you will need to move
+it to arch/alpha/config.in
+
+The preemption patch has a small amount of arch-independent code but we
+are working on supporting all architectures.  2.5...
+
+
+	Robert Love
 

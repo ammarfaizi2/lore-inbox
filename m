@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270843AbRHNVCn>; Tue, 14 Aug 2001 17:02:43 -0400
+	id <S270858AbRHNVBd>; Tue, 14 Aug 2001 17:01:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270841AbRHNVC1>; Tue, 14 Aug 2001 17:02:27 -0400
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:55817 "EHLO
-	mailout02.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S270843AbRHNVCI>; Tue, 14 Aug 2001 17:02:08 -0400
-Message-ID: <3B795B82.195CA42B@t-online.de>
-Date: Tue, 14 Aug 2001 19:10:26 +0200
-From: Gunther.Mayer@t-online.de (Gunther Mayer)
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.6-ac5 i686)
+	id <S270843AbRHNVBY>; Tue, 14 Aug 2001 17:01:24 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:5644 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S270841AbRHNVBQ>; Tue, 14 Aug 2001 17:01:16 -0400
+Message-ID: <3B79919F.131ACAE6@zip.com.au>
+Date: Tue, 14 Aug 2001 14:01:19 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8-ac4 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Andries.Brouwer@cwi.nl
-Subject: Re: [PATCH] make psaux reconnect adjustable
-In-Reply-To: <200108141112.LAA99888@vlet.cwi.nl>
+To: J Troy Piper <jtp@dok.org>
+CC: linux-kernel@vger.kernel.org, ext3-users@redhat.com
+Subject: Re: [BUG] linux-2.4.7-ac7 Assertion failure in journal_revoke() at 
+ revoke.c:307
+In-Reply-To: <20010814153255.A1377@dok.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
+J Troy Piper wrote:
 > 
->     From garloff@garloff.de Tue Aug 14 11:57:23 2001
+> Greetings all,
 > 
->     I can confirm what you suggest:
->         My mouse (Logitech wheel USB/PS2) sends indeed AA 00.
->     So, I extended my patch:
->     psmouse_reconnect = 0: Do nothing (just pass all to userspace)
->     psmouse_reconnect = 1: Flush Q & ping mouse on AA 00 (default)
->     psmouse_reconnect = 2: Flush Q & ping mouse on AA (old behaviour)
+> I have hit a kernel BUG in revoke.c in kernel 2.4.7-ac7 twice today while
+> attempting to perform the same operation (patching stock 2.4.8 kernel src
+> with "patch -p1 <  patch-2.4.8-ac4").  Syslog entries follow.  Please
+> email me if you want/need my kernel config or any other information.
 > 
->     With reconnect 1 or 2: After reconnecting, mouse behaves strange
->         (jumping around the screen)
 
-This is a serious bug in many user-space drivers. PS/2 mouse protocol
-was designed to easily re-synchronize (think about transmission errors/
-lost bytes).
+If possible, could you please use kernel 2.4.8 with the patch
+http://www.zip.com.au/~akpm/ext3-2.4-0.9.6-248.gz applied?
 
->     With reconnect 0:      Mouse is dead
+Enable buffer tracing in config.  If it happens again, we'll
+get lots of nice info which will tell us what happened.
 
-This is a bug in all user-space drivers (understandable as the
-kernel tried to be too clever). They must send the proper ps2-enabling
-sequence after they see "aa 00".
+Also, please run `e2fsck -f' against the affected filesystem - if
+it's already in an incorrect state ext3 perhaps could have become
+confused.
 
-> 
->     In both cases restarting gpm gets the mouse back to work again.
->     It seems the imps2 driver does some initialization to the mouse.
-> 
->     If I use the plain ps2 driver, then finally, I see the benefit of the
->     reconnect code in the kernel:
->     With reconnect = 1 or 2: It works after replugging
->     With reconnect = 0:      Mouse is dead after replugging
-> 
->     In the latter case restarting gpm helps.
-...
-
-Add an "ioctl(PS2_TRANSPARENT)", to disable the current kernel policy.
-So new drivers which understand about "aa 00" sequences can act properly.
-Don't break existing apps.
+Thanks.

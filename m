@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267433AbUIWV2c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267364AbUIWVNZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267433AbUIWV2c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 17:28:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267431AbUIWV06
+	id S267364AbUIWVNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 17:13:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267382AbUIWVM7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 17:26:58 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:38069 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S267397AbUIWVWp
+	Thu, 23 Sep 2004 17:12:59 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:46258 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S267364AbUIWVIc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 17:22:45 -0400
-Subject: [patch 3/3]  replace dprintk with pr_debug 	in microcode.c
+	Thu, 23 Sep 2004 17:08:32 -0400
+Subject: [patch 05/20]  dvb/alps_tdmb7: replace 	schedule_timeout() with msleep()
 To: akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, domen@coderock.org
+Cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org,
+       janitor@sternwelten.at, nacc@us.ibm.com
 From: janitor@sternwelten.at
-Date: Thu, 23 Sep 2004 23:22:46 +0200
-Message-ID: <E1CAb38-0005vD-A6@sputnik>
+Date: Thu, 23 Sep 2004 23:08:31 +0200
+Message-ID: <E1CAapL-0003SY-CM@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -24,93 +25,42 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Hi.
+I would appreciate any comments from the janitor@sternweltens list.
 
-Replaced dprintk with pr_debug from kernel.h
-Compile tested.
+Thanks,
+Nish
 
-Signed-off-by: Domen Puncer <domen@coderock.org>
+
+
+Description: Replace dvb_delay() with msleep() to guarantee the
+task delays the desired time.
+
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 
 ---
 
- linux-2.6.9-rc2-bk7-max/arch/i386/kernel/microcode.c |   31 +++++++------------
- 1 files changed, 13 insertions(+), 18 deletions(-)
+ linux-2.6.9-rc2-bk7-max/drivers/media/dvb/frontends/alps_tdmb7.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
 
-diff -puN arch/i386/kernel/microcode.c~pr_debug-i386_kernel_microcode arch/i386/kernel/microcode.c
---- linux-2.6.9-rc2-bk7/arch/i386/kernel/microcode.c~pr_debug-i386_kernel_microcode	2004-09-21 20:51:35.000000000 +0200
-+++ linux-2.6.9-rc2-bk7-max/arch/i386/kernel/microcode.c	2004-09-21 20:51:35.000000000 +0200
-@@ -69,7 +69,8 @@
-  *		Thanks to Stuart Swales for pointing out this bug.
-  */
- 
--
-+//#define DEBUG /* pr_debug */
-+#include <linux/kernel.h>
- #include <linux/init.h>
- #include <linux/sched.h>
+diff -puN drivers/media/dvb/frontends/alps_tdmb7.c~msleep-drivers_media_dvb_frontends_alps_tdmb7 drivers/media/dvb/frontends/alps_tdmb7.c
+--- linux-2.6.9-rc2-bk7/drivers/media/dvb/frontends/alps_tdmb7.c~msleep-drivers_media_dvb_frontends_alps_tdmb7	2004-09-21 20:50:11.000000000 +0200
++++ linux-2.6.9-rc2-bk7-max/drivers/media/dvb/frontends/alps_tdmb7.c	2004-09-21 20:50:11.000000000 +0200
+@@ -25,6 +25,7 @@
  #include <linux/module.h>
-@@ -88,12 +89,6 @@ MODULE_AUTHOR("Tigran Aivazian <tigran@v
- MODULE_LICENSE("GPL");
+ #include <linux/string.h>
+ #include <linux/slab.h>
++#include <linux/delay.h>
  
- #define MICROCODE_VERSION 	"1.14"
--#define MICRO_DEBUG 		0
--#if MICRO_DEBUG
--#define dprintk(x...) printk(KERN_INFO x)
--#else
--#define dprintk(x...)
--#endif
+ #include "dvb_frontend.h"
+ #include "dvb_functions.h"
+@@ -159,7 +160,7 @@ static int cx22700_init (struct dvb_i2c_
+ 	cx22700_writereg (i2c, 0x00, 0x02);   /*  soft reset */
+ 	cx22700_writereg (i2c, 0x00, 0x00);
  
- #define DEFAULT_UCODE_DATASIZE 	(2000) 	  /* 2000 bytes */
- #define MC_HEADER_SIZE		(sizeof (microcode_header_t))  	  /* 48 bytes */
-@@ -172,7 +167,7 @@ static void collect_cpu_info (void *unus
- 	__asm__ __volatile__ ("cpuid" : : : "ax", "bx", "cx", "dx");
- 	/* get the current revision from MSR 0x8B */
- 	rdmsr(MSR_IA32_UCODE_REV, val[0], uci->rev);
--	dprintk("microcode: collect_cpu_info : sig=0x%x, pf=0x%x, rev=0x%x\n", 
-+	pr_debug("microcode: collect_cpu_info : sig=0x%x, pf=0x%x, rev=0x%x\n",
- 			uci->sig, uci->pf, uci->rev);
- }
- 
-@@ -180,22 +175,22 @@ static inline void mark_microcode_update
- {
- 	struct ucode_cpu_info *uci = ucode_cpu_info + cpu_num;
- 
--	dprintk("Microcode Found.\n");
--	dprintk("   Header Revision 0x%x\n", mc_header->hdrver);
--	dprintk("   Loader Revision 0x%x\n", mc_header->ldrver);
--	dprintk("   Revision 0x%x \n", mc_header->rev);
--	dprintk("   Date %x/%x/%x\n",
-+	pr_debug("Microcode Found.\n");
-+	pr_debug("   Header Revision 0x%x\n", mc_header->hdrver);
-+	pr_debug("   Loader Revision 0x%x\n", mc_header->ldrver);
-+	pr_debug("   Revision 0x%x \n", mc_header->rev);
-+	pr_debug("   Date %x/%x/%x\n",
- 		((mc_header->date >> 24 ) & 0xff),
- 		((mc_header->date >> 16 ) & 0xff),
- 		(mc_header->date & 0xFFFF));
--	dprintk("   Signature 0x%x\n", sig);
--	dprintk("   Type 0x%x Family 0x%x Model 0x%x Stepping 0x%x\n",
-+	pr_debug("   Signature 0x%x\n", sig);
-+	pr_debug("   Type 0x%x Family 0x%x Model 0x%x Stepping 0x%x\n",
- 		((sig >> 12) & 0x3),
- 		((sig >> 8) & 0xf),
- 		((sig >> 4) & 0xf),
- 		((sig & 0xf)));
--	dprintk("   Processor Flags 0x%x\n", pf);
--	dprintk("   Checksum 0x%x\n", cksum);
-+	pr_debug("   Processor Flags 0x%x\n", pf);
-+	pr_debug("   Checksum 0x%x\n", cksum);
- 
- 	if (mc_header->rev < uci->rev) {
- 		printk(KERN_ERR "microcode: CPU%d not 'upgrading' to earlier revision"
-@@ -209,7 +204,7 @@ static inline void mark_microcode_update
- 		goto out;
- 	}
- 
--	dprintk("microcode: CPU%d found a matching microcode update with "
-+	pr_debug("microcode: CPU%d found a matching microcode update with "
- 		" revision 0x%x (current=0x%x)\n", cpu_num, mc_header->rev, uci->rev);
- 	uci->cksum = cksum;
- 	uci->pf = pf; /* keep the original mc pf for cksum calculation */
+-	dvb_delay(10);
++	msleep(10);
+ 	
+ 	for (i=0; i<sizeof(init_tab); i+=2)
+ 		cx22700_writereg (i2c, init_tab[i], init_tab[i+1]);
 _

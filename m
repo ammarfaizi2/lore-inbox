@@ -1,66 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264750AbUGZBBY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264767AbUGZBBq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264750AbUGZBBY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 21:01:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264767AbUGZBBY
+	id S264767AbUGZBBq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 21:01:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264763AbUGZBBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 21:01:24 -0400
-Received: from fw.osdl.org ([65.172.181.6]:19855 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264750AbUGZBBR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 21:01:17 -0400
-Date: Sun, 25 Jul 2004 17:59:45 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Harald Welte <laforge@netfilter.org>
-Cc: sebest@ovibes.net, linux-kernel@vger.kernel.org,
-       netfilter-devel@lists.netfilter.org, netdev@oss.sgi.com
-Subject: Re: kernel 2.6.7 -> page allocation failure. order:1, mode:0x20
- (netfilter?)
-Message-Id: <20040725175945.15999990.akpm@osdl.org>
-In-Reply-To: <20040720024741.GF27487@obroa-skai.de.gnumonks.org>
-References: <40FB93FE.90308@ovibes.net>
-	<20040720024741.GF27487@obroa-skai.de.gnumonks.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 25 Jul 2004 21:01:46 -0400
+Received: from mail001.syd.optusnet.com.au ([211.29.132.142]:33486 "EHLO
+	mail001.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264767AbUGZBBl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jul 2004 21:01:41 -0400
+References: <cone.1090801520.852584.20693.502@pc.kolivas.org> <20040725173652.274dcac6.akpm@osdl.org> <cone.1090802581.972906.20693.502@pc.kolivas.org> <20040725174849.75f2ecf6.akpm@osdl.org>
+Message-ID: <cone.1090803691.689003.20693.502@pc.kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Autotune swappiness01
+Date: Mon, 26 Jul 2004 11:01:31 +1000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Harald Welte <laforge@netfilter.org> wrote:
->
-> what's worrying me is the part above... how would skb_checksum_help
->  directly end up in copy_from_user()?
+Andrew Morton writes:
 
-That'll be leftover gunk on the stack.  Enabling frame pointers makes that
-go away.
-
->  > swapper: page allocation failure. order:1, mode:0x20
->  > [<c013d770>] __alloc_pages+0x2da/0x34a
->  > [<c013d805>] __get_free_pages+0x25/0x3f
->  > [<c0140e28>] kmem_getpages+0x2b/0xdc
->  > [<c0141bfc>] kfree_skbmem+0x24/0x2c
->  > [<c0141c5d>] cache_grow+0xe5/0x2a4
->  > [<c0141f8a>] cache_grow+0x146/0x2a4
->  > [<c0295917>] cache_alloc_refill+0x1cf/0x29f
->  > [<c014262a>] __kmalloc+0x85/0x8c
->  > [<c02681f1>] tcp_transmit_skb+0x411/0x68a
->  > [<c0296621>] alloc_skb+0x47/0xe0
->  > [<c026875e>] tcp_write_xmit+0x16d/0x2d6
->  > [<c01da1ac>] skb_copy+0x33/0xde
->  > [<c026ca5b>] copy_from_user+0x42/0x6e
+>> > But decreasing /proc/sys/vm/swappiness does that too?
+>> 
+>> Low memory boxes and ones that are heavily laden with applications find that 
+>> ends up making things slow down trying to keep all applications in physical 
+>> ram.
 > 
->  Does anybody have a clue what's going on?
+> Doesn't that mean that swappiness was decreased by too much?
 
-Networking tried to do an atomic 1-order allocation and there were no
-1-order pages available in the free page pools.  It's pretty much
-unavoidable, and the caller simply needs to handle it - presumably by
-dropping the packet.
+Sure does. But the desired effect when it's not applications is that of 
+swappiness being excruciatingly low so people end up doing that. Then they 
+find themselves dropping it at nighttime and increasing it during the day.
 
-Its frequency can be reduced by increasing /proc/sys/vm/min_free_kbytes.
+>> >> It has no measurable effect on any known benchmarks.
+>> > 
+>> > So how are we to evaluate the desirability of the patch???
+>> 
+>> Get desktop users to report back their experiences which is what I have 
+>> currently. Sorry we're in the realm of subjectivity again.
+> 
+> Seriously, we've seen placebo effects before...
 
-It can be eliminated by using GFP_KERNEL.  It can be hugely reduced by
-sticking to 0-order allocations.
+I am in full agreement there... It's easy to see that applications do not 
+swap out overnight; but i'm having difficulty trying to find a way to 
+demonstrate the other part. I guess timing the "linking the kernel with full 
+debug" on a low memory box is measurable.
 
-I wouldn't worry about this unless someone is seeing a lot of them (a
-significant number of packets are getting dropped)
+>> > Shouldn't mapped_bias be local to refill_inactive_zone()?
+>> 
+>> That is so a followup patch can use it elsewhere...
+> 
+> erk.  I guess it's OK because the thing is derived from global state which
+> changes slowly over time.
+> 
+>> > Why is `swappiness' getting squared?  AFAICT this will simply make the
+>> > swappiness control behave nonlinearly, which seems undesirable?
+>> 
+>> To parallel the nonlinear nature of the mapped bias effect. 
+> 
+> That doesn't really answer my question?  What goes wrong if swappiness is
+> not squared?
+
+Oh sorry, perhaps I should have said - that keeps people's current settings 
+meaningful, but that can happily be broken. That would make the default 
+setting something like 34 instead of 60.
+
+Cheers,
+Con
+

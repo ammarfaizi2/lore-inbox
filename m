@@ -1,33 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267267AbTBDOHV>; Tue, 4 Feb 2003 09:07:21 -0500
+	id <S267284AbTBDOLr>; Tue, 4 Feb 2003 09:11:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267271AbTBDOHV>; Tue, 4 Feb 2003 09:07:21 -0500
-Received: from mario.gams.at ([194.42.96.10]:27944 "EHLO mario.gams.at")
-	by vger.kernel.org with ESMTP id <S267267AbTBDOHU>;
-	Tue, 4 Feb 2003 09:07:20 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Axel Kittenberger <Axel.Kittenberger@maxxio.com>
-Organization: Maxxio Technologies
-To: Jesse Pollard <pollard@admin.navo.hpc.mil>, linux-kernel@vger.kernel.org
-Subject: Re: Patch: oom_kill
-Date: Tue, 4 Feb 2003 15:13:29 +0100
-User-Agent: KMail/1.4.1
-Cc: riel@nl.linux.org
-References: <200302041332.05096.Axel.Kittenberger@maxxio.com> <200302040807.03214.pollard@admin.navo.hpc.mil>
-In-Reply-To: <200302040807.03214.pollard@admin.navo.hpc.mil>
+	id <S267285AbTBDOLr>; Tue, 4 Feb 2003 09:11:47 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:26887 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267284AbTBDOLr>;
+	Tue, 4 Feb 2003 09:11:47 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200302041420.h14EK0o0001706@darkstar.example.net>
+Subject: Re: gcc 2.95 vs 3.21 performance
+To: root@chaos.analogic.com
+Date: Tue, 4 Feb 2003 14:20:00 +0000 (GMT)
+Cc: jamagallon@able.es, mbligh@aracnet.com, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net
+In-Reply-To: <Pine.LNX.3.95.1030204083627.10035B-100000@chaos.analogic.com> from "Richard B. Johnson" at Feb 04, 2003 08:42:18 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200302041513.29093.Axel.Kittenberger@maxxio.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And what about processes that get reparented to init? These could be
-> causing the OOM. I didn't think that the p_ptr was null when reparenting
-> happens.
+There is some discussion about compiler optimisations in this Linux
+Journal article:
 
-Okay good, should we use the "original parent" instead?
+http://www.linuxjournal.com/article.php?sid=4885
 
-Yes, I'm not absolutly not sure if the != NULL expression is necessary, Don't 
-know enough about the task structering for this. I tried without and the 
-machine at least didn't crash, but just wanted to be safe.
+John.

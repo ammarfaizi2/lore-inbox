@@ -1,85 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264976AbUEYRIy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264977AbUEYRIJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264976AbUEYRIy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 13:08:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264990AbUEYRIa
+	id S264977AbUEYRIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 13:08:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264980AbUEYRII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 13:08:30 -0400
-Received: from mail.kroah.org ([65.200.24.183]:16550 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264984AbUEYRGb (ORCPT
+	Tue, 25 May 2004 13:08:08 -0400
+Received: from Mail.MNSU.EDU ([134.29.1.12]:58542 "EHLO mail.mnsu.edu")
+	by vger.kernel.org with ESMTP id S264977AbUEYRHY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 13:06:31 -0400
-Date: Tue, 25 May 2004 10:05:28 -0700
-From: Greg KH <greg@kroah.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Matthew Wilcox <willy@debian.org>, Arjan van de Ven <arjanv@redhat.com>,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [BK PATCH] PCI Express patches for 2.4.27-pre3
-Message-ID: <20040525170527.GA9495@kroah.com>
-References: <20040524210146.GA5532@kroah.com> <1085468008.2783.1.camel@laptop.fenrus.com> <20040525080006.GA1047@kroah.com> <20040525113231.GB29154@parcelfarce.linux.theplanet.co.uk> <20040525125452.GC3118@logos.cnet> <20040525144055.GA7252@kroah.com> <20040525165904.GF3385@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040525165904.GF3385@logos.cnet>
-User-Agent: Mutt/1.5.6i
+	Tue, 25 May 2004 13:07:24 -0400
+Message-ID: <40B37D4A.9000304@mnsu.edu>
+Date: Tue, 25 May 2004 12:07:22 -0500
+From: "Jeffrey E. Hundstad" <jeffrey.hundstad@mnsu.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040514
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "A. op de Weegh" <aopdeweegh@rockopnh.nl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Granting some root permissions to certain users
+References: <jbm.20040525185001.f766d1ea@TOSHIBA>
+In-Reply-To: <jbm.20040525185001.f766d1ea@TOSHIBA>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 25, 2004 at 01:59:04PM -0300, Marcelo Tosatti wrote:
-> On Tue, May 25, 2004 at 07:40:56AM -0700, Greg KH wrote:
-> > On Tue, May 25, 2004 at 09:54:53AM -0300, Marcelo Tosatti wrote:
-> > > 
-> > > Hi kernel fellows,
-> > > 
-> > > On Tue, May 25, 2004 at 12:32:31PM +0100, Matthew Wilcox wrote:
-> > > > On Tue, May 25, 2004 at 01:00:06AM -0700, Greg KH wrote:
-> > > > > > how does this mesh with the "2.4 is now feature frozen"?
-> > > > > 
-> > > > > As the major chunk of ACPI support just got added to the tree, and the
-> > > > > only reason that went in was for this patch, I assumed that it was
-> > > > > acceptable.
-> > > 
-> > > major? the MMConfig support is minimal as I can see? 
-> > 
-> > It isn't that big of a patch, but it is make to core PCI code.
-> > 
-> > > > > Marcelo, feel free to tell me otherwise if you do not want
-> > > > > this in the 2.4 tree. 
-> > > 
-> > > Is this code necessary for PCI-Express devices/busses to work properly?
-> > 
-> > Not that I can tell, the main point is accessing the extended config
-> > space, and speeding up the access to the device to its natural speed.
-> > 
-> > > > I assume it was added because Len tries to keep ACPI in 2.4 and 2.6 as
-> > > > close to identical as possible.  It certainly doesn't hurt anyone to add
-> > > > the ACPI functionality without the MMConfig support.
-> > > 
-> > > I've humbly asked Len to stop doing big updates whenever possible on the 
-> > > v2.4 ACPI code, and do bugfixes only instead. Is that a pain in the ass for you, Len?    
-> > > 
-> > > I asked that because it is common to see new bugs introduced by an ACPI update, 
-> > > and you know that more than I do.
-> > 
-> > Yes, I know that quite well :)
-> > 
-> > So, because of this, you are saying that we should not apply these
-> > patches at this time? 
+A. o de Weegh,
+
+We use a kernel patch called trustees to do just what you're talking 
+about.  Unfortunately the patch hasn't really been kept up-to-date.  I 
+wish something *like* this could be included in the standard kernel, but 
+I guess I understand why it's not also.
+
+Here's a link to trustees: http://trustees.sourceforge.net/
+
+You could also use ACLs to give your teachers permissions, but that 
+tends to take a lot of work imho, but it's what were looking at to 
+replace trustees when I can no longer get it to patch into kernels.
+
+Here's a link to Linux ACL: http://acl.bestbits.at/
+
+-- 
+jeffrey hundstad
+
+
+A. op de Weegh wrote:
+
+>Hi all,
+>At our school, we have a installed Fedora Core 1 on a machine which acts as a 
+>server. Our students may store reports and other products, that they have 
+>created for their lessons, on this machine. Also the teachers have an 
+>account.
 > 
-> Yeap, I would prefer not to apply them at this time. For one, Arjan told
-> me privately it can break XFree86 which accesses the PCI config space directly.
-> Right?
-
-Um, not that I know of.  2.6 has had this code for a while now with no
-reported problems.
-
-Arjan, is there something I need to know about?  :)
-
-> > If so, that's fine with me, as now any distro that wants to add this to
-> > their 2.4 kernel can, as the patches are public.
+>I would like the teachers to have list access on ALL directories. Just as the 
+>root user has. I wouldn't like the teachers to have all root permissions, but 
+>they should only be able to list ALL directories available. Viewing only, no 
+>writing.
 > 
-> Yeap. 
-
-Ok, no problem, thanks for looking at it.
-
-greg k-h
+>Any idea how I can achieve this?
+> 
+>Thanx,
+>Alex
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>

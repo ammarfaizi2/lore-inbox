@@ -1,65 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265863AbUAQAvA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 19:51:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265866AbUAQAvA
+	id S265862AbUAQBEj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 20:04:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265866AbUAQBEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 19:51:00 -0500
-Received: from main.gmane.org ([80.91.224.249]:4003 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265863AbUAQAu6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 19:50:58 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: [PATCH] add sysfs class support for ALSA sound devices [08/10]
-Date: Sat, 17 Jan 2004 01:50:55 +0100
-Message-ID: <yw1xektz75zk.fsf@kth.se>
-References: <20040115204048.GA22199@kroah.com> <20040115204111.GB22199@kroah.com>
- <20040115204125.GC22199@kroah.com> <20040115204138.GD22199@kroah.com>
- <20040115204153.GE22199@kroah.com> <20040115204209.GF22199@kroah.com>
- <20040115204241.GG22199@kroah.com> <20040115204259.GH22199@kroah.com>
- <20040115204311.GI22199@kroah.com> <yw1xu12v7d5t.fsf@kth.se>
- <20040117001009.GB3698@kroah.com>
+	Fri, 16 Jan 2004 20:04:37 -0500
+Received: from cmsrelay01.mx.net ([165.212.11.110]:725 "HELO cmsrelay01.mx.net")
+	by vger.kernel.org with SMTP id S265862AbUAQBEf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 20:04:35 -0500
+X-USANET-Auth: 165.212.8.7     AUTO bradtilley@usa.net uwdvg007.cms.usa.net
+Date: Fri, 16 Jan 2004 20:04:28 -0500
+From: Brad Tilley <bradtilley@usa.net>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Brad Tilley <bradtilley@usa.net>
+Subject: Re: [Re: Possible Bug in 2.4.24???]
+CC: <linux-kernel@vger.kernel.org>, Oleg Drokin <green@linuxhacker.ru>
+X-Mailer: USANET web-mailer (CM.0402.7.03)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:TskTvJmWmZcc40/erKzfKACpcwQ=
-Cc: linux-hotplug-devel@lists.sourceforge.net
+Message-ID: <514iaqBeC5488S07.1074301468@uwdvg007.cms.usa.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> writes:
 
-> On Fri, Jan 16, 2004 at 11:15:58PM +0100, Måns Rullgård wrote:
->> Greg KH <greg@kroah.com> writes:
->> 
->> > This patch adds support for all ALSA sound devices.  The previous OSS
->> > sound patch is required for this one to work properly.
->> 
->> This doesn't apply cleanly to the latest ALSA (1.0.1).  It's no
->> problem to do it manually, though.
->> 
->> > diff -Nru a/sound/pci/intel8x0.c b/sound/pci/intel8x0.c
->> > --- a/sound/pci/intel8x0.c	Thu Jan 15 11:05:58 2004
->> > +++ b/sound/pci/intel8x0.c	Thu Jan 15 11:05:58 2004
->> > @@ -2591,6 +2591,7 @@
->> >  			break;
->> >  		}
->> >  	}
->> > +	card->dev = &pci->dev;
->> 
->> Does this need to be done for all drivers?
->
-> Yes.  I just did it for one driver to test it out, and show how to do it
-> properly for others.  I figured after this patch went into the kernel
-> tree, we could fix the other drivers up.
 
-Well, it seems to work with my intel8x0 and ALSA 1.0.1.
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
 
--- 
-Måns Rullgård
-mru@kth.se
+> 
+> 
+> On Fri, 16 Jan 2004, Brad Tilley wrote:
+> 
+> > While running a script that recursively changes permissions on a ftp
+> > directory, I received an error to the term window where the script was
+> > running. I then checked out /var/log/messages and saw the below kernel
+errors.
+> > The machine was generally unresponsive and had to be physically rebooted
+at
+> > the power switch. It worked fine upon reboot an fsck ran w/o producing
+any
+> > error... the script ran fine too. This is a HP XW4100 with a P4, 1.5GB DDR
+RAM
+> > and two very fast (15,000 RPM), very large (140GB) SCSI HDDs. It had been
+up
+> > for 9 days (since compiling and installing 2.4.24) and has worked fine
+until
+> > this point. Could someone tell me if this is or isn't a kernel bug?
+> >
+> >
+> > Jan 16 11:50:43 athop1 kernel: SCSI disk error : host 0 channel 0 id 1 lun
+0
+> > return code = 8000002
+> > Jan 16 11:50:43 athop1 kernel: Info fld=0x2cd1bd9, Current sd08:15: sense
+key
+> > Hardware Error
+> > Jan 16 11:50:43 athop1 kernel: Additional sense indicates Internal target
+> > failure
+> > Jan 16 11:50:43 athop1 kernel:  I/O error: dev 08:15, sector 54128
+> > Jan 16 11:50:43 athop1 kernel: journal-601, buffer write failed
+> > Jan 16 11:50:43 athop1 kernel:  (device sd(8,21))
+> > Jan 16 11:50:43 athop1 kernel: kernel BUG at prints.c:341!
+> > Jan 16 11:50:43 athop1 kernel: invalid operand: 0000
+> > Jan 16 11:50:43 athop1 kernel: CPU:    0
+> > Jan 16 11:50:43 athop1 kernel: EIP:    0010:[<c0189878>]    Tainted: P
+> 
+> Brad,
+> 
+> A device error happened (you see the "SCSI disk error : " message and
+> "Additional sense indicates Internal target failure") which reiserfs
+> could not handle.
+> 
+> kernel BUG at prints.c:341 == reiserfs_panic().
+
+Thanks for the reply Marcelo,
+
+Does this mean that there is a physical or mechanical problem with the drive
+itself? I do use 
+reiserfs as it's the best fs available for my purposes. Could the drive
+attempt to write 
+outside its physical bounds? Move the arm right when it was instructed to go
+left? I don't 
+understand how the drive could have an error w/o affecting the filesystem.
+
+
 

@@ -1,98 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262204AbSIZGa6>; Thu, 26 Sep 2002 02:30:58 -0400
+	id <S262203AbSIZGaW>; Thu, 26 Sep 2002 02:30:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262205AbSIZGa6>; Thu, 26 Sep 2002 02:30:58 -0400
-Received: from angband.namesys.com ([212.16.7.85]:41859 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S262204AbSIZGaz>; Thu, 26 Sep 2002 02:30:55 -0400
-Date: Thu, 26 Sep 2002 10:36:11 +0400
-From: Oleg Drokin <green@namesys.com>
-To: adam@skullslayer.rod.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: UML compile error
-Message-ID: <20020926103611.A5474@namesys.com>
-References: <20020925105604.2777.qmail@unibar>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20020925105604.2777.qmail@unibar>
-User-Agent: Mutt/1.3.22.1i
+	id <S262204AbSIZGaW>; Thu, 26 Sep 2002 02:30:22 -0400
+Received: from pD9E23892.dip.t-dialin.net ([217.226.56.146]:45796 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S262203AbSIZGaV>; Thu, 26 Sep 2002 02:30:21 -0400
+Date: Thu, 26 Sep 2002 00:36:07 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Lightweight Patch Manager <patch@luckynet.dynu.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Tomas Szepe <szepe@pinerecords.com>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH][2.5] Single linked lists for Linux,v2
+In-Reply-To: <Pine.LNX.4.44L.0209252107110.22735-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.44.0209260033420.7827-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi,
 
-On Wed, Sep 25, 2002 at 08:56:04PM +1000, adam@skullslayer.rod.org wrote:
-> I tried to test UML, and tried 2.5.36 through to 38, but have been
-> unable to comile it. I tried using the default config, as well as
-> my own config, but both 37 and 38 give the following error.
->   gcc -Wp,-MD,./.sched.o.d -D__KERNEL__ -I/usr/src/linux-2.5.38/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2  -fno-strict-aliasing -fno-common -g  -U__i386__ -Ui386 -D__arch_um__ -DSUBARCH=\"i386\" -D_LARGEFILE64_SOURCE -I/usr/src/linux-2.5.38/arch/um/include -Derrno=kernel_errno -nostdinc -iwithprefix include    -fno-omit-frame-pointer -DKBUILD_BASENAME=sched   -c -o sched.o sched.c
-> In file included from /usr/src/linux-2.5.38/include/asm/irq.h:9,
->                  from /usr/src/linux-2.5.38/include/linux/nmi.h:7,
->                  from sched.c:20:
-> /usr/src/linux-2.5.38/include/asm/arch/irq.h:16:25: irq_vectors.h: No such file or directory
-> make[1]: *** [sched.o] Error 1
-> make[1]: Leaving directory `/usr/src/linux-2.5.38/kernel'
-> make: *** [kernel] Error 2
+On Wed, 25 Sep 2002, Rik van Riel wrote:
+> > +#define INIT_SLIST_HEAD(name)			\
+> > +	(name->next = name)
+> > +
+> > +#define SLIST_HEAD(type,name)			\
+> > +	typeof(type) name = INIT_SLIST_HEAD(name)
+> 
+> Fun, so the list head points to itself ...
+> 
+> > +#define slist_for_each(pos, head)				\
+> > +	for (pos = head; pos && ({ prefetch(pos->next); 1; });	\
+> > +	    pos = pos->next)
+> 
+> ... imagine what that would do in combination with this macro.
 
-You need to apply a uml-patch-2.5.38-1.bz2 available from somewhere at
-http://user-mode-linux.sf.net
+I'm aware of that possibility. What would you initialize it to, if not the 
+list itself? (And BTW, anyone have a solution for slist_add()?)
 
-Also you need below patch to fix makefiles.
+We could set it to NULL, but where would we end?
 
-Bye,
-    Oleg
+#define INIT_SLIST_HEAD(name)				\
+	(name->next = NULL)
 
-===== arch/um/Makefile 1.3 vs edited =====
---- 1.3/arch/um/Makefile	Tue Sep 24 15:37:03 2002
-+++ edited/arch/um/Makefile	Tue Sep 24 16:12:46 2002
-@@ -30,15 +30,10 @@
- LINK_PROFILE = $(PROFILE) -Wl,--wrap,__monstartup
- endif
- 
--ARCH_SUBDIRS = $(ARCH_DIR)/drivers $(ARCH_DIR)/kernel \
--	$(ARCH_DIR)/sys-$(SUBARCH) $(ARCH_DIR)/os-$(OS)
--
--SUBDIRS += $(ARCH_SUBDIRS)
--
- core-y			+= $(ARCH_DIR)/kernel/		 \
--			+= $(ARCH_DIR)/drivers/          \
--			+= $(ARCH_DIR)/sys-$(SUBARCH)/	 \
--			+= $(ARCH_DIR)/os-$(OS)/
-+			   $(ARCH_DIR)/drivers/          \
-+			   $(ARCH_DIR)/sys-$(SUBARCH)/	 \
-+			   $(ARCH_DIR)/os-$(OS)/
- 
- libs-$(CONFIG_PT_PROXY)	+= $(ARCH_DIR)/ptproxy/
- 
-@@ -63,7 +58,9 @@
- 	-DELF_ARCH=$(ELF_ARCH) -DELF_FORMAT=\"$(ELF_FORMAT)\"
- 
- LD_vmlinux = $(CC) 
--LDFLAGS_vmlinux = $(LINK_PROFILE) $(LINK_WRAPS) -static $(ARCH_DIR)/main.o 
-+LDFLAGS_vmlinux = $(LINK_PROFILE) $(LINK_WRAPS) -static $(ARCH_DIR)/main.o -L/usr/lib
-+
-+LIBS += -lutil
- 
- SYMLINK_HEADERS = include/asm-um/archparam.h include/asm-um/system.h \
- 	include/asm-um/sigcontext.h include/asm-um/processor.h \
-===== arch/um/Makefile-os-Linux 1.1 vs edited =====
---- 1.1/arch/um/Makefile-os-Linux	Fri Sep  6 21:29:28 2002
-+++ edited/arch/um/Makefile-os-Linux	Tue Sep 24 15:56:31 2002
-@@ -4,4 +4,3 @@
- #
- 
- SUBDIRS += $(ARCH_DIR)/os-$(OS)/drivers
--LIBS += $(ARCH_DIR)/os-$(OS)/drivers/drivers.o
-===== arch/um/kernel/Makefile 1.2 vs edited =====
---- 1.2/arch/um/kernel/Makefile	Mon Sep 23 03:40:07 2002
-+++ edited/arch/um/kernel/Makefile	Tue Sep 24 15:49:48 2002
-@@ -10,7 +10,6 @@
- 	umid.o user_util.o
- 
- obj-$(CONFIG_BLK_DEV_INITRD) += initrd_kern.o initrd_user.o
--endif
- 
- # user_syms.o not included here because Rules.make has its own ideas about
- # building anything in export-objs
+#define SLIST_HEAD_INIT(name)	name
+
+			Thunder
+-- 
+assert(typeof((fool)->next) == typeof(fool));	/* wrong */
+

@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261795AbUCGKXw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 05:23:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbUCGKXw
+	id S261797AbUCGK3v (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 05:29:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbUCGK3v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 05:23:52 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:35085 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S261795AbUCGKXv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 05:23:51 -0500
-Date: Sun, 7 Mar 2004 11:10:23 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Christoph Hellwig <hch@infradead.org>,
-       Steve Longerbeam <stevel@mvista.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: new special filesystem for consideration in 2.6/2.7
-Message-ID: <20040307101023.GB20915@alpha.home.local>
-References: <40462AA1.7010807@mvista.com> <20040307094942.A14787@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040307094942.A14787@infradead.org>
-User-Agent: Mutt/1.4i
+	Sun, 7 Mar 2004 05:29:51 -0500
+Received: from mail-04.iinet.net.au ([203.59.3.36]:40910 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261797AbUCGK3t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 05:29:49 -0500
+Message-ID: <404AF991.9040709@cyberone.com.au>
+Date: Sun, 07 Mar 2004 21:29:37 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Andrea Arcangeli <andrea@suse.de>, Peter Zaitsev <peter@mysql.com>,
+       Andrew Morton <akpm@osdl.org>, riel@redhat.com, mbligh@aracnet.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high
+ end)
+References: <20040229014357.GW8834@dualathlon.random> <1078370073.3403.759.camel@abyss.local> <20040303193343.52226603.akpm@osdl.org> <1078371876.3403.810.camel@abyss.local> <20040305103308.GA5092@elte.hu> <20040305141504.GY4922@dualathlon.random> <20040305143210.GA11897@elte.hu> <20040305145837.GZ4922@dualathlon.random> <20040305152622.GA14375@elte.hu> <20040305155317.GC4922@dualathlon.random> <20040307084120.GB17629@elte.hu>
+In-Reply-To: <20040307084120.GB17629@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 07, 2004 at 09:49:42AM +0000, Christoph Hellwig wrote:
-> On Wed, Mar 03, 2004 at 10:57:37AM -0800, Steve Longerbeam wrote:
-> > An intro to PRAMFS along with a technical specification
-> > is at the SourceForge project web page at
-> > http://pramfs.sourceforge.net/. A patch for 2.6.3 has
-> > been released at the SF project site.
-> 
-> What about posting that patch here instead of hiding it behind
-> half a dozend indirections?
 
-Because he said it's 2900 lines. Seems fair enough to save vger's bandwidth.
 
-Willy
+Ingo Molnar wrote:
+
+>* Andrea Arcangeli <andrea@suse.de> wrote:
+>
+>
+>>[...] but I'm quite confortable to say that up to 16G (included) 4:4
+>>is worthless unless you've to deal with the rmap waste IMHO. [...]
+>>
+>
+>i've seen workloads on 8G RAM systems that easily filled up the ~800 MB
+>lowmem zone. (it had to do with many files and having them as a big
+>dentry cache, so yes, it's unfixable unless you start putting inodes
+>into highmem which is crazy. And yes, performance broke down unless most
+>of the dentries/inodes were cached in lowmem.)
+>
+>
+
+If you still have any of these workloads around, they would be
+good to test on the memory management changes in Andrew's mm tree
+which should correctly balance slab on highmem systems. Linus'
+tree has a few problems here.
+
+But if you really have a lot more than 800MB of active dentries,
+then maybe 4:4 would be a win?
 

@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264793AbTIDH1r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 03:27:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264787AbTIDH1i
+	id S264769AbTIDHgj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 03:36:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264833AbTIDHfx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 03:27:38 -0400
-Received: from rth.ninka.net ([216.101.162.244]:63688 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S264784AbTIDHZt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 03:25:49 -0400
-Date: Thu, 4 Sep 2003 00:25:41 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Christoph Hellwig <hch@lst.de>
-Cc: paulus@samba.org, hch@lst.de, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix ppc ioremap prototype
-Message-Id: <20030904002541.12ae4fa5.davem@redhat.com>
-In-Reply-To: <20030904071334.GA14426@lst.de>
-References: <20030903203231.GA8772@lst.de>
-	<16214.34933.827653.37614@nanango.paulus.ozlabs.org>
-	<20030904071334.GA14426@lst.de>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 4 Sep 2003 03:35:53 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:7942 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S264832AbTIDHda
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 03:33:30 -0400
+Message-ID: <3F56ECAE.20800@aitel.hist.no>
+Date: Thu, 04 Sep 2003 09:41:34 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: linux-kernel@vger.kernel.org
+Subject: [OT] Re: SPAM
+References: <Pine.LNX.4.53.0309030835180.7233@chaos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Sep 2003 09:13:34 +0200
-Christoph Hellwig <hch@lst.de> wrote:
-
-> On Thu, Sep 04, 2003 at 10:33:57AM +1000, Paul Mackerras wrote:
-> > I don't see why this is a problem.  The change is compatible with the
-> > existing uses.  We need to be able to map 36-bit physical addresses on
-> > 44x.  What we really need now is 64-bit start/end values in struct
-> > resource.
+Richard B. Johnson wrote:
+> Hello list,
+> Everybody who has an account on yahoo probably knows that
+> they sell their lists of email users to spammers. This is
+> the condition upon which users get "free" service. However,
+> they also send destination addresses to spammers also! This
+> means that if you have a yahoo email address and send your
+> wife or girlfriend a message using yahoo, she will immediately
+> be deluged with spam advertising penis extenders, etc.
+> Be forewarned.
 > 
-> Then add the phys_addr_t to all places where we deal with physical
-> addresses, even if it's typedef'ed to unsigned long on all other
-> arches and sane ppcs.
 
-Or do what I do on sparc32, stick the >32bit part in the unused
-bits of the resource flags.  It works perfectly fine.
+Interesting.  Probably a good reason to use yahoo
+whenever I send mail to abuse@somewhere . . .
+
+Helge Hafting
+

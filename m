@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317400AbSG1XWB>; Sun, 28 Jul 2002 19:22:01 -0400
+	id <S317436AbSG1X3d>; Sun, 28 Jul 2002 19:29:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317401AbSG1XWB>; Sun, 28 Jul 2002 19:22:01 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3078 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317400AbSG1XWA>; Sun, 28 Jul 2002 19:22:00 -0400
-Date: Sun, 28 Jul 2002 16:26:49 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Anton Altaparmakov <aia21@cantab.net>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Andrew Morton <akpm@zip.com.au>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH 2.5] Introduce 64-bit versions of   PAGE_{CACHE_,}{MASK,ALIGN}
-In-Reply-To: <5.1.0.14.2.20020728193528.04336a80@pop.cus.cam.ac.uk>
-Message-ID: <Pine.LNX.4.44.0207281622350.8208-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317440AbSG1X3d>; Sun, 28 Jul 2002 19:29:33 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:7811 "EHLO
+	opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S317436AbSG1X3c>; Sun, 28 Jul 2002 19:29:32 -0400
+Date: Sun, 28 Jul 2002 16:32:42 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Greg Banks <gnb@alphalink.com.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [MOAN] CONFIG_SERIAL_CONSOLE
+Message-ID: <20020728233242.GB9873@opus.bloom.county>
+References: <3D43D3ED.32D803BB@alphalink.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D43D3ED.32D803BB@alphalink.com.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jul 28, 2002 at 09:22:21PM +1000, Greg Banks wrote:
 
+> Thanks to Russell for pointing out a problem I had not been aware of.
+[snip]
+>     CONFIG_BUSMOUSE
+>     	drivers/char/Config.in:116
+>     	arch/ppc/config.in:384
+[snip]
+>     CONFIG_CD_NO_IDESCSI
+>     	arch/ppc/config.in:469
+>     	arch/ppc/config.in:506
+[snip]
+>     CONFIG_FB
+>     	drivers/video/Config.in:8
+>     	arch/ppc/config.in:382
 
-On Sun, 28 Jul 2002, Anton Altaparmakov wrote:
->
-> Why should I need to bother with index/offset? It is much more natural to
-> work with bytes.
+Fixed (or rather, fixing right now..).
 
-Two major reasons:
- - the page cache works with index/offset, and that should be your first
-   priority, since the page cache is all that matters from a performance
-   standpoint.
- - gcc is known to be broken with 64-bit stuff on 32-bit platforms, and
-   minimizing the use of "long long" minimizes the risk of hitting bugs.
+Hopefully Paul will push these to Linus next time he syncs up.
 
-> Also the page cache limit of 32-bit index is IMO not good and needs to be
-> removed.
-
-Dream on. It's good, and it's not getting removed. The "struct page" is
-size-critical, and also correctness-critical (see above on gcc issues).
-
-We're not moving to a 64-bit index for the next few years. We're a lot
-more likely to make PAGE_SIZE bigger, and generally praying that AMD's
-x86-64 succeeds in the market, forcing Intel to make Yamhill their
-standard platform. At which point we _could_ make things truly 64 bits
-(the size pressure on "struct page" is largely due to HIGHMEM, and gcc
-does fine on 64-bit platforms).
-
-But that's certainly years away.
-
-			Linus
-
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

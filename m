@@ -1,79 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265431AbTLHOHq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 09:07:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265433AbTLHOHq
+	id S265412AbTLHN5m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 08:57:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265418AbTLHN5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 09:07:46 -0500
-Received: from pentafluge.infradead.org ([213.86.99.235]:36014 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S265431AbTLHOHj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 09:07:39 -0500
-Subject: Re: partially encrypted filesystem
-From: David Woodhouse <dwmw2@infradead.org>
-To: phillip@lougher.demon.co.uk
-Cc: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       kbiswas@neoscale.com, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <E1ATLgF-0003XX-0V@anchor-post-31.mail.demon.net>
-References: <E1ATLgF-0003XX-0V@anchor-post-31.mail.demon.net>
-Content-Type: text/plain
-Message-Id: <1070892449.31993.97.camel@hades.cambridge.redhat.com>
+	Mon, 8 Dec 2003 08:57:42 -0500
+Received: from holomorphy.com ([199.26.172.102]:19675 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265412AbTLHN5j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 08:57:39 -0500
+Date: Mon, 8 Dec 2003 05:57:37 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test11-wli-1
+Message-ID: <20031208135737.GG8039@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+References: <20031204200120.GL19856@holomorphy.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8.dwmw2.1) 
-Date: Mon, 08 Dec 2003 14:07:33 +0000
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Mail-From: dwmw2@infradead.org
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
-X-Pentafluge-Mail-From: <dwmw2@infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031204200120.GL19856@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-12-08 at 13:44 +0000, phillip@lougher.demon.co.uk wrote:
-> dwmw2@infradead.org wrote:
-> > On Sat, 2003-12-06 at 00:50 +0000, Phillip Lougher wrote:
-> > > Of course, all this is at the logical file level, and ignores the 
-> > > physical blocks on disk.  All filesystems assume physical data blocks 
-> > > can be updated in place.  With compression it is possible a new physical 
-> > > block has to be found, especially if blocks are highly packed and not 
-> > > aligned to block boundaries.  I expect this is at least partially why 
-> > > JFFS2 is a log structured filesystem.
-> > 
-> > Not really. JFFS2 is a log structured file system because it's designed
-> > to work on _flash_, not on block devices. You have an eraseblock size of
-> > typically 64KiB, you can clear bits in that 'block' all you like till
-> > they're all gone or you're bored, then you have to erase it back to all
-> > 0xFF again and start over.
-> 
-> Curiously, I am aware of how flash and log structured filesystems work.
+On Thu, Dec 04, 2003 at 12:01:20PM -0800, William Lee Irwin III wrote:
+> Successfully tested on a Thinkpad T21. Any feedback regarding
+> performance would be very helpful. Desktop users should notice top(1)
+> is faster, kernel hackers that kernel compiles are faster, and highmem
+> users should see much less per-process lowmem overhead.
 
-This I assumed. The explanation was more for the benefit of the peanut
-gallery than yourself.
+Woops, I missed the target by a few bytes. Probably a bit overwrought:
 
-> > JFFS2 was designed to avoid that inefficient extra layer, and work
-> > directly on the flash. Since overwriting stuff in-place is so difficult,
-> > or requires a whole new translation layer to map 'logical' addresses to
-> > physical addresses, it was decided just to ditch the idea that physical
-> > locality actually means _anything_.
-> 
-> Maybe okay for a flash filesystem which is slow anyway, but many
-> filesystem designers *are* concerned about physical locality of
-> blocks, for example video filesystems.
 
-Oh, absolutely. 
+-- wli
 
-> Or maybe 'not in(to)-place' :-)
 
-:)
-
->  I don't think I was saying compression is difficult, it is not
-> difficult if you've designed the filesystem correctly.
-
-My point was that it's trivial in JFFS2 not because I designed the file
-system 'correctly', but mostly because of other factors which just
-happened to lead to a design which, by coincidence, made compression
-trivial.
-
--- 
-dwmw2
-
+diff -prauN wli-2.6.0-test11-36/include/asm-i386/processor.h wli-2.6.0-test11-37/include/asm-i386/processor.h
+--- wli-2.6.0-test11-36/include/asm-i386/processor.h	2003-12-03 19:40:24.000000000 -0800
++++ wli-2.6.0-test11-37/include/asm-i386/processor.h	2003-12-07 06:36:51.000000000 -0800
+@@ -497,11 +497,19 @@ void show_trace(struct task_struct *task
+ unsigned long get_wchan(struct task_struct *task);
+ 
+ #define THREAD_SIZE_LONGS	(THREAD_SIZE/sizeof(unsigned long))
++#define KSTK_TOP(info)							\
++({									\
++	unsigned long *__ptr = (unsigned long *)(info);			\
++	(unsigned long)(&__ptr[THREAD_SIZE_LONGS]);			\
++})
++
+ #define task_pt_regs(task)						\
+ ({									\
+-	unsigned long *__ptr = (unsigned long *)(task)->thread_info;	\
+-	(struct pt_regs *)(&__ptr[THREAD_SIZE_LONGS-1]);		\
++	struct pt_regs *__regs__;					\
++	__regs__ = (struct pt_regs *)KSTK_TOP((task)->thread_info);	\
++	__regs__ - 1;							\
+ })
++
+ #define KSTK_EIP(task)	(task_pt_regs(task)->eip)
+ #define KSTK_ESP(task)	(task_pt_regs(task)->esp)
+ 

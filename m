@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270500AbRHHOtg>; Wed, 8 Aug 2001 10:49:36 -0400
+	id <S270502AbRHHPJe>; Wed, 8 Aug 2001 11:09:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270499AbRHHOt1>; Wed, 8 Aug 2001 10:49:27 -0400
-Received: from chunnel.redhat.com ([199.183.24.220]:55542 "EHLO
-	dukat.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S270500AbRHHOtR>; Wed, 8 Aug 2001 10:49:17 -0400
-Date: Wed, 8 Aug 2001 15:49:15 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Anton Altaparmakov <aia21@cam.ac.uk>, Chris Mason <mason@suse.com>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC] using writepage to start io
-Message-ID: <20010808154915.V4036@redhat.com>
-In-Reply-To: <01080623182601.01864@starship> <01080715292606.02365@starship> <20010807152318.H4036@redhat.com> <01080717512607.02365@starship>
+	id <S270503AbRHHPJN>; Wed, 8 Aug 2001 11:09:13 -0400
+Received: from acmey.gatech.edu ([130.207.165.23]:720 "EHLO acmey.gatech.edu")
+	by vger.kernel.org with ESMTP id <S270502AbRHHPJJ>;
+	Wed, 8 Aug 2001 11:09:09 -0400
+Message-Id: <5.1.0.14.2.20010808111228.00a83720@pop.prism.gatech.edu>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 08 Aug 2001 11:17:36 -0400
+To: linux-kernel@vger.kernel.org
+From: David Maynor <david.maynor@oit.gatech.edu>
+Subject: encrypted swap(beating a dead horse)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01080717512607.02365@starship>; from phillips@bonn-fries.net on Tue, Aug 07, 2001 at 05:51:26PM +0200
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Tue, Aug 07, 2001 at 05:51:26PM +0200, Daniel Phillips wrote:
-> On Tuesday 07 August 2001 16:23, Stephen C. Tweedie wrote:
-> > On Tue, Aug 07, 2001 at 03:29:26PM +0200, Daniel Phillips wrote:
-> > >   Ext3 has its own writeback daemon
-> >
-> > Ext3 has a daemon to schedule commits to the journal, but it uses the
-> > normal IO scheduler for unforced writebacks.
- 
-> Yes.  The currently favored journalling mode uses a writeback journal,
-> no?
+>>
+>>2.  anyone stealing a disk to get data out of it sure as hell isn't going
+>>to boot it up and run your init scripts.
 
-It's lazy commit, but that's not really writeback --- when you're
-journaling, you write once to the journal, then after commit you write
-again to primary storage.  The commit is lazy, sure, but it's not
-doing the writeback.
+This is true, so the best thing for this, in my opinion, instead of 
+throwing the crypto blanket over everything, scrub the swap when a process 
+is terminated so when the machine is shut down, you won't have to clean the 
+entire swap.
 
-Cheers,
- Stephen
+
+
+
+

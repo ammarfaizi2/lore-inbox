@@ -1,40 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265978AbUIIPtA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266009AbUIIPs7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265978AbUIIPtA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 11:49:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265973AbUIIPsN
+	id S266009AbUIIPs7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 11:48:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265999AbUIIPsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 11:48:13 -0400
-Received: from ozlabs.org ([203.10.76.45]:53180 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S265999AbUIIPpj (ORCPT
+	Thu, 9 Sep 2004 11:48:20 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:29057 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S266009AbUIIPqC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 11:45:39 -0400
-Date: Fri, 10 Sep 2004 01:43:00 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Paul Mackerras <paulus@samba.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Matt Mackall <mpm@selenic.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: Re: [PATCH][5/8] Arch agnostic completely out of line locks / ppc64
-Message-ID: <20040909154259.GE11358@krispykreme>
-References: <Pine.LNX.4.58.0409021231570.4481@montezuma.fsmlabs.com> <16703.60725.153052.169532@cargo.ozlabs.ibm.com> <Pine.LNX.4.53.0409090810550.15087@montezuma.fsmlabs.com>
+	Thu, 9 Sep 2004 11:46:02 -0400
+Date: Thu, 9 Sep 2004 17:44:53 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [patch][9/9] block: remove bio walking
+Message-ID: <20040909154453.GG1737@suse.de>
+References: <200409082127.04331.bzolnier@elka.pw.edu.pl> <200409091553.13918.bzolnier@elka.pw.edu.pl> <20040909150444.C6434@flint.arm.linux.org.uk> <200409091628.25304.bzolnier@elka.pw.edu.pl> <20040909155420.D6434@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0409090810550.15087@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.5.6+20040818i
+In-Reply-To: <20040909155420.D6434@flint.arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Sep 09 2004, Russell King wrote:
+> Essentially, kernel PIO writes data into the page cache, and that action
+> may leave data in the CPU's caches.  Since the kernels mappings may not
+> be coherent with mappings in userspace, data written to the kernel
+> mappings may remain in the data cache, and stale data would be visible
+> to user space.
+> 
+> There has been talk about using flush_dcache_page() to resolve
+> this issue, but I'm not sure what the outcome was.  Certainly
+> flush_dcache_page() is supposed to be used before the data in the
+> kernels page cache is read or written.
+
+Have you ever tested bouncing on arm? It seems to be lacking a
+flush_dcache_page() indeed, how does this look?
+
+===== mm/highmem.c 1.51 vs edited =====
+--- 1.51/mm/highmem.c	2004-07-29 06:58:32 +02:00
++++ edited/mm/highmem.c	2004-09-09 17:44:14 +02:00
+@@ -301,6 +301,7 @@
+ 		vfrom = page_address(fromvec->bv_page) + tovec->bv_offset;
  
-> I think that bit is actually intentional since __preempt_spin_lock is also 
-> marked __sched so that it'll get charged as a scheduling function.
+ 		bounce_copy_vec(tovec, vfrom);
++		flush_dcache_page(tovec->bv_page);
+ 	}
+ }
+ 
 
-Yeah, its a bit unfortunate. In profiles with preempt on we end up with
-almost all our ticks inside __preempt_spin_lock and never get to use the
-nice profile_pc code. I ended up turning preempt off again.
+-- 
+Jens Axboe
 
-Anton

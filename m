@@ -1,79 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264432AbRGWXRE>; Mon, 23 Jul 2001 19:17:04 -0400
+	id <S264797AbRGWXZZ>; Mon, 23 Jul 2001 19:25:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264461AbRGWXQy>; Mon, 23 Jul 2001 19:16:54 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:42717 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S264432AbRGWXQq>;
-	Mon, 23 Jul 2001 19:16:46 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S264754AbRGWXZQ>; Mon, 23 Jul 2001 19:25:16 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:44299 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S264669AbRGWXZG>; Mon, 23 Jul 2001 19:25:06 -0400
+Date: Mon, 23 Jul 2001 20:25:07 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: <feedback@linuxda.com>
+Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+        <linux-kernel@vger.kernel.org>
+Subject: source code & licensing of LinuxDA
+Message-ID: <Pine.LNX.4.33L.0107232017540.20326-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15196.45004.237634.928656@pizda.ninka.net>
-Date: Mon, 23 Jul 2001 16:14:20 -0700 (PDT)
-To: Chris Evans <chris@scary.beasts.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Minor net/core/sock.c security issue?
-In-Reply-To: <Pine.LNX.4.33.0107232321120.19755-100000@ferret.lmh.ox.ac.uk>
-In-Reply-To: <Pine.LNX.4.33.0107232321120.19755-100000@ferret.lmh.ox.ac.uk>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+Hi,
 
-Chris Evans writes:
- >     int val;
- > ...
- >     case SO_SNDBUF:
- >       if (val > sysctl_wmem_max)
- >         val = sysctl_wmem_max;
- >       sk->sndbuf = max(val*2,2048);
- > 
- > If val is negative, then sk->sndbuf ends up negative. This is because the
- > arguments to max are passed as _unsigned_ ints. SO_RCVBUF has similar
- > issues. Maybe a nasty local user could use this to chew up memory?
+I saw on http://www.linuxda.com/download/index.html
+that you are shipping binary images of Linux, but
+without the source code.  This is in violation of
+the GPL, a matter which won't be taken lightly by
+the hundreds of copyright holders involved.
 
-Indeed, you have only hit the tip of the iceberg on the larger
-problems lurking in this area.
 
-In short, min/max usage is pretty broken.  And it is broken for
-several reasons:
+Also http://www.linuxda.com/licensing/index.html
+and http://www.linuxda.com/legal.html seem to have
+licensing terms which are incompatible with the
+GPL, meaning that you either have to change the
+license or stop shipping Linux ...
 
-1) Signedness, what you have discovered.
+In particular the paragraphs "SINGLE COPY LICENSE",
+"OWNERSHIP OF MATERIALS" and "TERMINATION OF THIS
+LICENSE" are a gross violation of the GPL.
 
-2) Arg evaluation.
 
-3) Multiple definitions
+You acquired Linux from me and hundreds of other
+copyright holders under the conditions of the
+General Public License (GPL).
 
-#3 is what really makes this look gross.  Watch this:
+Since I guess you'll want us to comply with any
+licensing you want to impose on the parts of the
+technology which are yours, I guess it's only fair
+that we expect you to abide by the GPL.
 
-include/net/sock.h declares two inline functions, min and
-max
 
-net/core/sock.c defines "min" as a macro, overriding the
-function in sock.h
+Please open up your source code and change your
+licensing to something compatible with the GPL.
 
-egrep "define max" include/linux/*.h shows at least three
-other headers which want to define their own max macro.
+thank you,
 
-There is even commentary about this in include/linux/netfilter.h along
-with Rusty's attempt to make reasonable macros.  I personally disagree
-with keeping them as macros because of the arg multiple evaluation
-issues.
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
 
-I think the way to fix this is to either:
 
-1) have standard inline functions with names that suggest the
-   signedness, much like Rusty's netfilter macros.
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 
-2) Just open code all instances of min/max, there will be no
-   mistaking what the code does in such a case.
-
-In both cases, min/max simply die and nobody can therefore misuse them
-anymore.
-
-Later,
-David S. Miller
-davem@redhat.com

@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266471AbUBRBf4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 20:35:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266494AbUBRBf4
+	id S265691AbUBRBlT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 20:41:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266721AbUBRBlT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 20:35:56 -0500
-Received: from hibernia.jakma.org ([212.17.55.49]:9095 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S266471AbUBRBfy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 20:35:54 -0500
-Date: Wed, 18 Feb 2004 01:33:44 +0000 (GMT)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Hasso Tepper <hasso@estpak.ee>
-Subject: raw sockets and blocking
-Message-ID: <Pine.LNX.4.58.0402180106150.1071@fogarty.jakma.org>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 17 Feb 2004 20:41:19 -0500
+Received: from fw.osdl.org ([65.172.181.6]:59810 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265691AbUBRBlS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 20:41:18 -0500
+Date: Tue, 17 Feb 2004 17:43:00 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Daniel McNeil <daniel@osdl.org>
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.3-rc2-mm1] address_space_serialize_writeback patch
+Message-Id: <20040217174300.4b94981e.akpm@osdl.org>
+In-Reply-To: <1077066147.1956.136.camel@ibm-c.pdx.osdl.net>
+References: <20040212015710.3b0dee67.akpm@osdl.org>
+	<1076707830.1956.46.camel@ibm-c.pdx.osdl.net>
+	<20040213143836.0a5fdabb.akpm@osdl.org>
+	<1076715039.1956.104.camel@ibm-c.pdx.osdl.net>
+	<20040213154815.42e74cb5.akpm@osdl.org>
+	<1077066147.1956.136.camel@ibm-c.pdx.osdl.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Daniel McNeil <daniel@osdl.org> wrote:
+>
+> Here is the patch that does what you suggested.  It adds a rwsema to
+> the address_space and do_writepages() uses it serialize writebacks.
 
-I'm curious, is it good for raw sockets to block for writes because a 
-cable of one interface has been pulled? 
+OK, but we're only holding the rwsem across filemap_fdatawrite().  What
+happens after we've dropped the rwsem and we are running
+filemap_fdatawait()?  Cannot kupdate come in and start moving pages onto
+the wrong address_space lists while filemap_fdatawait() is trying to wait
+on them?
 
-We're seeing a problem with ospfd (www.zebra.org/www.quagga.net) 
-which uses a single raw, AF_INET/OSPF socket and manages it's own IP 
-headers, to send/receive OSPF packets to/from a number of interfaces.
+I think so.  Possibly your test just doesn't cover this case.
 
-The problem we see is that:
+If so then we need to hold the rwsem for writing across the entire
+write-and-wait.  And that is going to rather suck if and when we bring back
+the sync_page_range() patch, which permitted concurrent fsync() against
+different fd's which cover different parts of the file.
 
-- a cable is pulled from an interface
-- the application tests the file descriptor to see if it ready for 
-  writing, and finds it is.
-- the application constructs a packet to send out that interface
-  and sends it with sendmsg(), no error is posted.
-- the file descriptor never becomes available for writing again
-- hence, all OSPF adjacencies are lost, because we can no longer 
-write out packets to the file descriptor.
-
-we havnt yet tested if it becomes writeable again if we put cable
-back in, however if we detect absence of IFF_RUNNING and hence
-manually avoid constructing packets to be sent via link-down
-interfaces, we avoid this problem. However, this leaves us with a
-race.
-
-Is this proper behaviour? I'm guessing the driver or network layer is 
-blocking the socket because it is waiting for the link to come back, 
-however would it not be better to discard the packet, especially a 
-raw packet?
-
-(if it is "proper" behaviour that's fine, we can work with that, we 
-were just surprised sendmsg() is trying to be /that/ reliable :) .)
-
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-	warning: do not ever send email to spam@dishone.st
-Fortune:
-How much net work could a network work, if a network could net work?
+We need to check that we're bypassing all this stuff for access to
+blockdevs too - we have no security issues to worry about there.

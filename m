@@ -1,58 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272562AbRHaAOV>; Thu, 30 Aug 2001 20:14:21 -0400
+	id <S272565AbRHaAWl>; Thu, 30 Aug 2001 20:22:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272561AbRHaAOL>; Thu, 30 Aug 2001 20:14:11 -0400
-Received: from dfw-smtpout3.email.verio.net ([129.250.36.43]:25051 "EHLO
-	dfw-smtpout3.email.verio.net") by vger.kernel.org with ESMTP
-	id <S272562AbRHaAOB>; Thu, 30 Aug 2001 20:14:01 -0400
-Message-ID: <3B8ED6D7.CE237CE2@bigfoot.com>
-Date: Thu, 30 Aug 2001 17:14:15 -0700
-From: Tim Moore <timothymoore@bigfoot.com>
-Organization: Yoyodyne Propulsion Systems, Inc.
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.20p9ai i686)
-X-Accept-Language: en
+	id <S272564AbRHaAWc>; Thu, 30 Aug 2001 20:22:32 -0400
+Received: from msgbas1x.cos.agilent.com ([192.25.240.36]:41665 "HELO
+	msgbas1.cos.agilent.com") by vger.kernel.org with SMTP
+	id <S272561AbRHaAWW>; Thu, 30 Aug 2001 20:22:22 -0400
+Message-ID: <FEEBE78C8360D411ACFD00D0B7477971880B4C@xsj02.sjs.agilent.com>
+From: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
+To: "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: panic : problem in retrying the scsi command in case of CHECK_CON
+	DITION with UNIT_ATTENTION and device reset
+Date: Thu, 30 Aug 2001 18:22:38 -0600
 MIME-Version: 1.0
-To: Pascal Schmidt <pleasure.and.pain@web.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: System crashes with via82cxxx ide driver
-In-Reply-To: <Pine.LNX.4.33.0108310035530.2970-100000@neptune.sol.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 2.2.20p9, ide.2.2.19.05042001.patch.bz2, e2fsck v1.19.
-> How did you get both the 2.2.20 pre-patch and the ide patch to apply? I
-> get a couple of rejects.
+Hi All,
 
-1. Do the pre patch first.
-2. The rejects didn't make any difference.  init/main.c.rej was SCSI
-hd[m-t] addresses which were easy to drop in by hand,
-drivers/block/ide.c.rej was comments & spacing, and the others were in
-Configure.help or Makefile EXTRAVERSION conflicts.  These don't matter
-in most cases where the ide patch makes sense.
+I believe that this is a bug in the scsi layer (scsi_io_completion() in
+scsi_lib.c).
 
-> > 00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev
-> > 10)
-> The IDE part of my chipset is only revision 06, so perhaps this is a bug
-> fixed in your revision.
+If you look at the routine scsi_io_completion(), if the device returned
+check condition with bus reset and no data is transferred, then good_sectors
+will
+be 0.  scsi_io_completion tries to do retry by calling
+scsi_queue_next_request().
+But before that, it sets the request_buffer and buffer pointers to NULL. 
+so, when the ll-driver gets the Scsi_Cmnd, this pointers are NULL which are
+used to either access the buffer itself or the scatter-gather list and
+if the low-level driver tries to access the scatter-gather list
+it panics the system.
 
-I've another machine that uses the same kernel+ide:
+The following is the code that I am talking about :
 
-00:00.0 Host bridge: VIA Technologies, Inc. VT82C585VP [Apollo VP1/VPX]
-(rev 10)
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C586/A/B PCI-to-ISA
-[Apollo VP] (rev 02)
-00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev
-02)
-00:08.0 VGA compatible unclassified device: 3DLabs Permedia II 2D+3D
-(rev 01)
-00:09.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev
-20)
-00:0a.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev
-20)
+	/*
+	 * Zero these out.  They now point to freed memory, and it is
+	 * dangerous to hang onto the pointers.
+	 */
+	SCpnt->buffer  = NULL;
+	SCpnt->bufflen = 0;
+	SCpnt->request_buffer = NULL;    ----> here it zeroes out the
+request_buffer.
+	SCpnt->request_bufflen = 0;
 
-rgds,
-tim.
---
+      ............
+
+
+
+      	if ((SCpnt->sense_buffer[0] & 0x7f) == 0x70
+		    && (SCpnt->sense_buffer[2] & 0xf) == UNIT_ATTENTION) {
+			if (SCpnt->device->removable) {
+				/* detected disc change.  set a bit and
+quietly refuse
+				 * further access.
+				 */
+				SCpnt->device->changed = 1;
+				SCpnt = scsi_end_request(SCpnt, 0,
+this_count);
+				return;
+			} else {
+				/*
+				 * Must have been a power glitch, or a
+				 * bus reset.  Could not have been a
+				 * media change, so we just retry the
+				 * request and see what happens.  
+				 */
+				scsi_queue_next_request(q, SCpnt);  --> here
+we try to do retry.
+				return;
+			}
+		}
+
+Has this been fixed  in later versions of the kernel ? 
+any comment on the above code ?
+
+Thanks and regards,
+-hiren

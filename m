@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266483AbRGTCa0>; Thu, 19 Jul 2001 22:30:26 -0400
+	id <S266488AbRGTCm0>; Thu, 19 Jul 2001 22:42:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266488AbRGTCaP>; Thu, 19 Jul 2001 22:30:15 -0400
-Received: from gull.mail.pas.earthlink.net ([207.217.121.85]:962 "EHLO
-	gull.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S266483AbRGTCaC>; Thu, 19 Jul 2001 22:30:02 -0400
-Date: Thu, 19 Jul 2001 22:29:59 -0400
-Message-Id: <200107200229.f6K2Txb08719@moisil.badula.org>
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Anton Altaparmakov <aia21@cus.cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Minor cleanup and export three functions
+	id <S266490AbRGTCmQ>; Thu, 19 Jul 2001 22:42:16 -0400
+Received: from intranet.resilience.com ([209.245.157.33]:24567 "EHLO
+	intranet.resilience.com") by vger.kernel.org with ESMTP
+	id <S266488AbRGTCmK>; Thu, 19 Jul 2001 22:42:10 -0400
+Mime-Version: 1.0
+Message-Id: <p05100308b77d4a3035ae@[10.128.7.49]>
 In-Reply-To: <Pine.SOL.3.96.1010720025939.20818B-100000@virgo.cus.cam.ac.uk>
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.2.19 (i586))
+In-Reply-To: <Pine.SOL.3.96.1010720025939.20818B-100000@virgo.cus.cam.ac.uk>
+Date: Thu, 19 Jul 2001 19:41:12 -0700
+To: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: [PATCH] Minor cleanup and export three functions
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Fri, 20 Jul 2001 03:03:58 +0100 (BST), Anton Altaparmakov <aia21@cus.cam.ac.uk> wrote:
+At 3:03 AM +0100 2001-07-20, Anton Altaparmakov wrote:
+>I do appologize. I didn't realize pine would do this. In pine I can just
+>read the attachment as text and in Eudora it just appears as inlined
+>text without any indication of it being a separate attachment, so I just
+>assumed that it was sent clear text. Obviously not. <Stupid mailers. Grr.>
 
-> I will repost as soon as I manage to convince pine of it's wrong ways...
+Eudora does leave you one little clue:
 
-You can't, so don't bother. Just inline it, ctrl-r should do the trick. However
-be careful, newer pine's like to strip trailing spaces even from inlined files
--- I've fixed mine but most distributions have the broken one.
-
-Ion
+At 2:19 AM +0100 2001-07-20, Anton Altaparmakov wrote:
+>MIME-Version: 1.0
+>Content-Type: MULTIPART/MIXED; 
+>BOUNDARY="-559023410-1804928587-995591940=:20239"
 
 -- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+/Jonathan Lundell.

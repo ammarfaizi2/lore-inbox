@@ -1,44 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263598AbTLXMr1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 07:47:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263600AbTLXMr1
+	id S263605AbTLXNLR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 08:11:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263622AbTLXNLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 07:47:27 -0500
-Received: from [24.35.117.106] ([24.35.117.106]:29072 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S263598AbTLXMr0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 07:47:26 -0500
-Date: Wed, 24 Dec 2003 07:47:19 -0500 (EST)
-From: Thomas Molina <tmolina@cablespeed.com>
-X-X-Sender: tmolina@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-mm1
-In-Reply-To: <20031224033200.0763f2a2.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0312240742490.31297@localhost.localdomain>
-References: <20031224095921.GA8147@lsc.hu> <20031224033200.0763f2a2.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 24 Dec 2003 08:11:17 -0500
+Received: from dsl-hkigw3l52.dial.inet.fi ([80.222.43.82]:36026 "EHLO
+	uworld.dyndns.org") by vger.kernel.org with ESMTP id S263605AbTLXNLJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Dec 2003 08:11:09 -0500
+Subject: Re: SCO's infringing files list
+From: Jussi Laako <jussi@sonarnerd.net>
+To: Norman Diamond <ndiamond@wta.att.ne.jp>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <123a01c3ca18$346117b0$43ee4ca5@DIAMONDLX60>
+References: <123a01c3ca18$346117b0$43ee4ca5@DIAMONDLX60>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1072271492.7160.27.camel@vaarlahti.uworld>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 24 Dec 2003 15:11:32 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2003-12-24 at 14:19, Norman Diamond wrote:
 
-
-On Wed, 24 Dec 2003, Andrew Morton wrote:
-
-> > - I have a synaptics touchpad, which is detected correctly, but only
-> >   works if I set psmouse_noext=1. Under vanilla 2.6.0 it still works this
-> >   way, but with 2.6.0-mm1 it works only on the console, but not under
-> >   XFree86. Strange, as gpm interprets the input and pipes thru gpmdata
-> >   to XFree86 4.3.0. Any idea what broke this configuration?
+> > > /* This is a list of all known signal numbers.  */
+> > >
+> > > CONST char *CONST _sys_errlist[] = {
+> >
+> > I wonder if there are any UNIX sources which have a similar typo.
 > 
-> Peter or Dmitry may be able to tell us.
+> That kind of error (typo, thinko, etc.) was more common than you think.  The
+> related file /usr/include/errno.h was source code readable by everyone.  If
+> anyone has a copy of errno.h from BSD days (when BSD wasn't completely free
+> yet), it would be worth checking.  If this comment was copied from BSD then
+> the next question is whether this comment originated at BSD or was copied
+> from ATT.
 
-On the other hand, the synaptics touchpad on my laptop works under 
-2.6.0-mm1 without the need to use the above parameter.  I don't get the 
-jitter I reported for vanilla 2.6.0 synaptics support, but I do get an 
-occasional small mouse jump.  
+At least the 4.2 (file dated 7/29/83) or the 4.3reno (file dated
+6/28/90) doesn't contain such comment. There's no copyright statement in
+4.2, but there is in 4.3reno.
 
-Other than that, 2.6.0-mm1 appears to be working well on my Presario 
-12XL325 laptop.
+
+4.2 (& 4.3):
+--- 8< ---
+/*
+ * Error codes
+ */
+--- 8< ---
+#define ENOTTY          25              /* Not a typewriter */
+--- 8< ---
+
+
+4.3reno:
+--- 8< ---
+#define ENOTTY          25              /* Inappropriate ioctl for
+device */
+--- 8< ---
+
+
+-- 
+Jussi Laako <jussi@sonarnerd.net>
+

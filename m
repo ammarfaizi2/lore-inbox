@@ -1,74 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261415AbSKDRE0>; Mon, 4 Nov 2002 12:04:26 -0500
+	id <S262006AbSKDRRX>; Mon, 4 Nov 2002 12:17:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261563AbSKDRE0>; Mon, 4 Nov 2002 12:04:26 -0500
-Received: from louise.pinerecords.com ([212.71.160.16]:62468 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S261415AbSKDREZ>; Mon, 4 Nov 2002 12:04:25 -0500
-Date: Mon, 4 Nov 2002 18:10:55 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Nikita Danilov <Nikita@Namesys.COM>
-Cc: Alexander Zarochentcev <zam@Namesys.COM>, Hans Reiser <reiser@Namesys.COM>,
-       lkml <linux-kernel@vger.kernel.org>, Oleg Drokin <green@Namesys.COM>,
-       umka <umka@Namesys.COM>
-Subject: Re: [BK][PATCH] Reiser4, will double Linux FS performance, pleaseapply
-Message-ID: <20021104171055.GD8606@louise.pinerecords.com>
-References: <200210312334.18146.Dieter.Nuetzel@hamburg.de> <3DC1B2FA.8010809@namesys.com> <3DC1D63A.CCAD78EF@digeo.com> <3DC1D885.6030902@namesys.com> <3DC1D9D0.684326AC@digeo.com> <3DC1DF02.7060307@namesys.com> <20021101102327.GA26306@louise.pinerecords.com> <15810.46998.714820.519167@crimson.namesys.com> <20021102133824.GL28803@louise.pinerecords.com> <15814.25070.118410.47102@laputa.namesys.com>
-Mime-Version: 1.0
+	id <S262181AbSKDRRW>; Mon, 4 Nov 2002 12:17:22 -0500
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:16267 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262006AbSKDRRV>; Mon, 4 Nov 2002 12:17:21 -0500
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <wirges@purdue.edu>
+References: <Pine.LNX.4.44.0211041138060.16432-100000@ibm-ps850.purdueriots.com>
+From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+To: Patrick Finnegan <pat@purdueriots.com>
+Subject: Re: Filesystem Capabilities in 2.6?
+Date: Mon, 04 Nov 2002 18:23:28 +0100
+In-Reply-To: <Pine.LNX.4.44.0211041138060.16432-100000@ibm-ps850.purdueriots.com> (Patrick
+ Finnegan's message of "Mon, 4 Nov 2002 11:53:56 -0500 (EST)")
+Message-ID: <87ela1fdv3.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15814.25070.118410.47102@laputa.namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  > Hi,
->  > 
->  > Another one: trying to build 2.5.45 off a reiser4 mountpoint, I get:
->  > 
->  > reiser4[pdflush(7)]: flush_scan_extent (fs/reiser4/flush.c:3127)[nikita-2732]:
->  > WARNING: Flush raced against extent->tail
->  > reiser4[pdflush(7)]: jnode_flush (fs/reiser4/flush.c:1024)[jmacd-16739]:
->  > WARNING: flush failed: -11
->  > jnode_flush failed with err = -11
-> 
-> Can you please try the following patch to the fs/reiser4/flush.c:
-> ----------------------------------------------------------------------
-> --- /tmp/flush.c	Mon Nov  4 14:32:21 2002
-> +++ flush.c	Mon Nov  4 14:32:32 2002
-> @@ -3149,7 +3149,8 @@ flush_scan_extent(flush_scan * scan, int
->  				   only. Will be removed. */
->  				warning("nikita-2732", 
->  					"Flush raced against extent->tail");
-> -				ret = -EAGAIN;
-> +				scan->stop = 1;
-> +				ret = 0;
->  				goto exit;
->  			}
->  			assert("jmacd-1230", item_is_extent(&scan->parent_coord));
+Patrick Finnegan <pat@purdueriots.com> writes:
 
-Seems to fix the flush errors, however, I can still see the race warnings.
-Worse though, at one point I stumbled upon the following:
+> On Mon, 4 Nov 2002, Olaf Dietsche wrote:
+>
+>> Take a look at <http://atrey.karlin.mff.cuni.cz/~pavel/elfcap.html>.
+>> Maybe this is what you had in mind?
+>
+> Similar, but not exactly the same:
+>
+> 1) Capabilities should be enabled explicitly not dropped explicitly -
+>    it's a 'more secure' way to do it.
+>
+> 2) Capabilities shouldn't be preserved across an execve except for once,
 
-$ df /ap
-Filesystem           1k-blocks      Used Available Use% Mounted on
-/dev/sda2              1490332 -73786976294838198272   1498808 101% /ap
+For this you need to clear the permitted and inheritable set.
 
-This was right after I hit the reset button while compiling the kernel
-off a reiser4 mountpoint, went on to finish the build after reboot and
-then "rm -rf"'d the whole source tree (i.e. there was nothing on the
-filesystem again).
+>    as needed by wrapper scripts/binaries. This way even if someone figures
+>    out how to exploit the code to do an exec, they're left with no caps at
+>    all.  If desired, a new binfmt "cap_wrap" could be created that can be
+>    used as a capabilities wrapper for executables, which the kernel looks
+>    at to determine 1) what caps to use and 2) what binary to run.  The
+>    wrapper will need to be suid root in order to gain caps still.
 
-reiser4.o is 20021031 plus the rmdir leak fix from this thread plus
-your patch above.
+Here you will find capabilities with a new binfmt type:
+<http://groups.google.com/groups?selm=linux.kernel.20020317121118.A18548%40glacier.arctrix.com>
 
->  > ... after which r4 crashes completely --
->  > Starts to hog all cpu time and umount() never goes through.
-> 
-> Try to wait a bit more and check whether any more "WARNING: Too many
-> iterations" appear, OK?
+Elfcap and capwrap both allow to have capabilities.
 
-Jup, now all I get is the race warnings.
-
--- 
-tomas szepe <szepe@pinerecords.com>
+Regards, Olaf.

@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbUBUS6H (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 13:58:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbUBUS6H
+	id S261608AbUBUTBT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 14:01:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbUBUTBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 13:58:07 -0500
-Received: from fw.osdl.org ([65.172.181.6]:37026 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261603AbUBUS6F (ORCPT
+	Sat, 21 Feb 2004 14:01:19 -0500
+Received: from quechua.inka.de ([193.197.184.2]:52952 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S261608AbUBUTBS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 13:58:05 -0500
-Date: Sat, 21 Feb 2004 11:03:17 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Pavel Machek <pavel@suse.cz>, Stephen Hemminger <shemminger@osdl.org>,
-       ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: kernel/microcode.c error from new 64bit code
-In-Reply-To: <m18yiwl1pd.fsf@ebiederm.dsl.xmission.com>
-Message-ID: <Pine.LNX.4.58.0402211102360.3301@ppc970.osdl.org>
-References: <20040218145218.6bae77b5@dell_ss3.pdx.osdl.net>
- <Pine.LNX.4.58.0402181502260.18038@home.osdl.org> <20040221141608.GB310@elf.ucw.cz>
- <Pine.LNX.4.58.0402210914530.3301@ppc970.osdl.org> <20040221173449.GA277@elf.ucw.cz>
- <Pine.LNX.4.58.0402210944050.3301@ppc970.osdl.org> <m18yiwl1pd.fsf@ebiederm.dsl.xmission.com>
+	Sat, 21 Feb 2004 14:01:18 -0500
+From: Andreas Jellinghaus <aj@dungeon.inka.de>
+Subject: Re: dm-crypt, new IV and standards
+Date: Sat, 21 Feb 2004 20:01:22 +0100
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity. (Debian GNU/Linux))
+Message-Id: <pan.2004.02.21.19.01.20.781478@dungeon.inka.de>
+References: <20040220172237.GA9918@certainkey.com> <Xine.LNX.4.44.0402201624030.7335-100000@thoron.boston.redhat.com> <20040221164821.GA14723@certainkey.com>
+To: linux-kernel@vger.kernel.org, Jean-Luc Cooke <jlcooke@certainkey.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sorry, I know next to nothing about dm-crypt or crypt loop so far.
 
+But I wonder: will it be possible to store some generic data in that place?
+Password+Hash mechanism+Salt seemt to be pretty tied to passwords.
 
-On Sat, 21 Feb 2004, Eric W. Biederman wrote:
-> 
-> What is wrong with the original?
-> 
-> -       wrmsr(MSR_IA32_UCODE_WRITE, (unsigned int)(uci->mc->bits), 0);
-> 
-> I don't see how anything else could be correct.
+I would like it very much, if some rsa encrypted data could be stored instead,
+so I can use a smart card with an rsa key to decrypt it.
 
-Did you miss the fact that we now support x86-64, and that if compiled 
-that way the address is 64-bit?
+Regards, Andreas
 
-		Linus

@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132765AbRDIPC6>; Mon, 9 Apr 2001 11:02:58 -0400
+	id <S132764AbRDIOzS>; Mon, 9 Apr 2001 10:55:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132767AbRDIPCs>; Mon, 9 Apr 2001 11:02:48 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:40970 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S132765AbRDIPCg>;
-	Mon, 9 Apr 2001 11:02:36 -0400
-Date: Mon, 9 Apr 2001 17:02:27 +0200
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Miquel van Smoorenburg <miquels@cistron-office.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: build -->/usr/src/linux
-Message-ID: <20010409170227.B17914@pcep-jamie.cern.ch>
-In-Reply-To: <3AD079EA.50DA97F3@rcn.com> <3AD0A029.C17C3EFC@rcn.com> <9aqmci$gn2$1@ncc1701.cistron.net> <20010409010103.A16562@pcep-jamie.cern.ch> <9as6fl$gmq$1@ncc1701.cistron.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <9as6fl$gmq$1@ncc1701.cistron.net>; from miquels@cistron-office.nl on Mon, Apr 09, 2001 at 11:29:57AM +0000
+	id <S132765AbRDIOzJ>; Mon, 9 Apr 2001 10:55:09 -0400
+Received: from CRUSH.REM.CMU.EDU ([128.2.81.185]:27046 "EHLO crush.hunch.net")
+	by vger.kernel.org with ESMTP id <S132764AbRDIOyx>;
+	Mon, 9 Apr 2001 10:54:53 -0400
+Date: Mon, 9 Apr 2001 09:59:02 -0400 (EDT)
+From: John Langford <l_k_account@crush.hunch.net>
+To: linux-kernel@vger.kernel.org
+Subject: New loopback bug
+Message-ID: <Pine.LNX.4.21.0104090943220.23713-100000@crush.hunch.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miquel van Smoorenburg wrote:
-> >There is a way though I'd not call it clean.  Here is an extract from
-> 
-> Do you think something like this is the correct approach? If it
-> was part of the official kernel you could write a Makefile like this:
->
-> [code to creake /lib/modules/`uname -r`/config.mak
+I've encountered a loopback bug on kernel-2.4.3+international_patch.  I
+haven't been able to pin down what the bug is exactly, but these are the
+conditions under which it manifests:
 
-I agree with that idea in principle, although for quite a while
-something else is required, to deal with older kernels.  You'll notice
-that my fragment greps for SMP from the kernel's Makefile: that is to
-deal with 2.2 kernels and isn't required for 2.4 kernels.  This is not
-an issue if you only care about future-compatibility.
+1. connect file to loopback device
+2. build fs on loopback device
+3. mount fs and use it
+4. read the file
+5. lockup, about 1 out 5 times.
 
-Fortunately, the file $(KERNEL_SOURCE)/arc/$(ARCH)/Makefile provides
-most of the variables like CFLAGS et al.
+The lockup occurs randomly and seems to have random effects.  Sometimes
+user-space scheduling is lost and sometimes there is a total lockup.  This
+is all I could extract from /var/log/messages in several crashes:
 
-Unfortunately, determining ARCH is rather ugly.  I copied the expression
-from the kernel's top level Makefile.
+Apr  9 04:04:48 gs176 kernel: kernel BUG at dcache.c:658!
+Apr  9 04:04:48 gs176 kernel: invalid operand: 0000
+Apr  9 04:04:48 gs176 kernel: CPU:    0
 
-One more thing: some systems do not have a /lib/modules directory.  On
-those systems it's good to hunt in /usr/src/linux.
+-John
 
-> -modules: include/config/MARKER $(patsubst %, _mod_%, $(SUBDIRS))  
-> +modules: include/config/MARKER $(patsubst %, _mod_%, $(SUBDIRS))  \
-> +		include/linux/config.mak
+Stats:
+Linux version 2.4.3 + patch-int-2.4.3.1
+compiler - redhat's hacked 2.96 (I'll try gcc->kgcc next.)
+Also appeared with 2.4.2 + patch-2.4.3-pre4 + patch-int-2.4.0.3
+compiler egcs-1.1.2
 
-The file needs to be created even if you don't do `make modules'.  Some
-kernels will support third party modules, but don't actually have any
-modules of their own.
-
-> +include/linux/config.mak: ./Makefile
-
-This must depend on the configuration somehow.  If the kernel's
-reconfigured, a new file needs to be created.  For 2.2 kernels it must
-depend on whether SMP is defined too.
-
--- Jamie

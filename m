@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263066AbTHVIul (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 04:50:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263060AbTHVIul
+	id S263086AbTHVIzb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 04:55:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263106AbTHVIzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 04:50:41 -0400
-Received: from AMarseille-201-1-4-31.w217-128.abo.wanadoo.fr ([217.128.74.31]:55079
-	"EHLO gaston") by vger.kernel.org with ESMTP id S263066AbTHVIG3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 04:06:29 -0400
-Subject: Re: [power] Improve suspend functions.
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200308212310.h7LNATLo005881@hera.kernel.org>
-References: <200308212310.h7LNATLo005881@hera.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1061539577.18044.41.camel@gaston>
+	Fri, 22 Aug 2003 04:55:31 -0400
+Received: from mail4.bluewin.ch ([195.186.4.74]:34953 "EHLO mail4.bluewin.ch")
+	by vger.kernel.org with ESMTP id S263086AbTHVIz0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 04:55:26 -0400
+Date: Fri, 22 Aug 2003 10:55:08 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [CFT][PATCH] new scheduler policy
+Message-ID: <20030822085508.GA10215@k3.hellgate.ch>
+Mail-Followup-To: Nick Piggin <piggin@cyberone.com.au>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <3F4182FD.3040900@cyberone.com.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 22 Aug 2003 10:06:17 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F4182FD.3040900@cyberone.com.au>
+X-Operating-System: Linux 2.6.0-test3 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	
-> 	- Allocate a console and stop processes from common code before entering
-> 	  state.
+On Tue, 19 Aug 2003 11:53:01 +1000, Nick Piggin wrote:
+> I haven't run many tests on it - my mind blanked when I tried to
+> remember the scores of scheduler "exploits" thrown around. So if
+> anyone would like to suggest some, or better still, run some,
+> please do so. And be nice, this isn't my type of scheduler :P
 
-Here we need something... We still want (at least I do) to emulate /dev/apm_bios
-suspend/resume userland notification (XFree among others uses them, though the
-suspend console switch makes that less necessary, it's still something widely
-used by existing userland code).
+I timed a pathological benchmark from hell I've been playing with lately.
+Three consecutive runs following a fresh boot. Time is in seconds:
 
-On pmac, I'm doing that from my "old style" notifiers that I call around
-the new style ones (my old semantics are a bit different, I have NOTIFY
-and SUSPEND, what I do is NOTIFY old stuff, suspend new stuff, then
-SUSPEND old stuff, the APM emulation acts on NOTIFY old stuff and my
-old stuff having explicit ordering, userland is suspended almost first,
-just after the ADB in fact).
+2.4.21			821	21	25
+2.6.0-test3-mm1		724	946	896
+2.6.0-test3-mm1-nick	905	987	997
 
-I may need a few more hooks in that generic code, I'll let you know once
-I have something implemented using it.
+Runtime with ideal scheduling: < 2 seconds (we're thrashing).
 
-Ben.
+If anybody has thrashing test cases closer to the real world, I'd be very
+interested to learn about them.
 
+Roger

@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261754AbTE2AQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 20:16:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbTE2AQ2
+	id S261752AbTE2ALx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 20:11:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbTE2ALx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 20:16:28 -0400
-Received: from kaneda.boo.net ([216.200.67.189]:40601 "EHLO kaneda.boo.net")
-	by vger.kernel.org with ESMTP id S261754AbTE2AQ2 (ORCPT
+	Wed, 28 May 2003 20:11:53 -0400
+Received: from fep02-mail.bloor.is.net.cable.rogers.com ([66.185.86.72]:64361
+	"EHLO fep02-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id S261752AbTE2ALw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 20:16:28 -0400
-Message-Id: <5.2.1.1.2.20030528203353.02367ec0@boo.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Wed, 28 May 2003 20:35:48 -0400
-To: linux-kernel@vger.kernel.org
-From: Jason Papadopoulos <jasonp@boo.net>
-Subject: Re: Linux 2.4.21-rc3 : IDE pb on Alpha
-In-Reply-To: <3ED42909.9040909@pobox.com>
-References: <5.2.1.1.2.20030527211552.00a47190@boo.net>
- <20030527123152.GA24849@alpha.home.local>
- <5.2.1.1.2.20030526232835.00a468e0@boo.net>
- <20030527045302.GA545@alpha.home.local>
- <20030527134017.B3408@jurassic.park.msu.ru>
- <20030527123152.GA24849@alpha.home.local>
- <5.2.1.1.2.20030527211552.00a47190@boo.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Wed, 28 May 2003 20:11:52 -0400
+Message-ID: <3ED55380.7010306@infidigm.net>
+Date: Wed, 28 May 2003 20:25:36 -0400
+From: Jeff Muizelaar <kernel@infidigm.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jeff Muizelaar <muizelaar@rogers.com>
+CC: "Randy.Dunlap" <rddunlap@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cleanup up seq file usage in resource.c
+References: <3ED54ECD.1050005@rogers.com>
+In-Reply-To: <3ED54ECD.1050005@rogers.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep02-mail.bloor.is.net.cable.rogers.com from [24.43.126.4] using ID <muizelaar@rogers.com> at Wed, 28 May 2003 20:25:09 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 11:12 PM 5/27/03 -0400, Jeff Garzik wrote:
- >
- >FWIW, udma2 is the best you can do without accurate cable detection and
- >an 80-conductor cable.
- >
+The extra 'up' does not belong in the subject.
 
-Well, even with a drive capable of ATA66, an 80-pin cable, and a kernel
-configured to force assumption of higher UDMA modes, the best I've ever
-done with this stupid ALI controller is udma2. I think it's deliberately
-crippled.
-
-jasonp
+-Jeff
 

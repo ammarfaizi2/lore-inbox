@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130643AbQLaELD>; Sat, 30 Dec 2000 23:11:03 -0500
+	id <S135849AbQLaETc>; Sat, 30 Dec 2000 23:19:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129572AbQLaEKm>; Sat, 30 Dec 2000 23:10:42 -0500
-Received: from mail11.verio.de ([213.198.0.60]:22625 "HELO mail11.verio.de")
-	by vger.kernel.org with SMTP id <S129436AbQLaEKl>;
-	Sat, 30 Dec 2000 23:10:41 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Michael Meding <Michael@Meding.net>
-Reply-To: Michael@Meding.net
-To: linux-kernel@vger.kernel.org
-Subject: is there something odd in the aic7xxx driver ?
-Date: Sun, 31 Dec 2000 04:32:10 +0100
-X-Mailer: KMail [version 1.2]
+	id <S129572AbQLaETW>; Sat, 30 Dec 2000 23:19:22 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:6670 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S129436AbQLaETM>;
+	Sat, 30 Dec 2000 23:19:12 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200012310348.eBV3mVA159133@saturn.cs.uml.edu>
+Subject: Re: PROBLEM: multiple mount of devices possible 2.4.0-test1 -
+To: viro@math.psu.edu (Alexander Viro)
+Date: Sat, 30 Dec 2000 22:48:31 -0500 (EST)
+Cc: linux-kernel@ton.iguana.be (Ton Hospel), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0012301829190.4082-100000@weyl.math.psu.edu> from "Alexander Viro" at Dec 30, 2000 06:57:43 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Message-Id: <00123104321002.00349@Hal>
-Content-Transfer-Encoding: 7BIT
-X-Loop-Detect: 1
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Alexander Viro writes:
 
-I am experiencing problem with the latest test kernels and my adaptec 2940uw 
-and one ibm hdd.
+> [...] Not allowing multiple mounts of the same
+> fs was an artifact of original namei() implementation. At some point
+> (late 80s) it had been fixed by Bell Labs folks in their branch. In Linux
+> it had been fixed during the last spring. That's it. You were never promised
+> that multiple mounts will not work. Moreover, in special cases they did work
 
-Thing is that during times the machine simply reboots without apparent 
-reasons. Nothing shows up, to my knowledge in /var/log or other places. This 
-is with the kernel compiled with gcc 2.95.2 on debian woody.
+Heh. :-)
 
-Using Gibbs respectively the adaptec driver I haven't had this behaviour in 
-weeks, or better to say, not once.
-
-The machine is up 24/7 but not under very high load. The times it failed have 
-mostly been under more or less heavy i/o like compiling several kernels at a 
-time.
-
-Are others experiencing similar behaviours ?
-
-Greetings
-
-Michael Meding
-
-
-
-System is kt-133 with mga g400, duron800 adaptec 2940uw with latest bios. 
-Further information upon request.
+1. go to http://www.linuxcertification.com/resources/quizzes/
+2. take the "System Administration" quiz
+3. try answering question 6 correctly
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

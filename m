@@ -1,75 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265385AbSKFAOa>; Tue, 5 Nov 2002 19:14:30 -0500
+	id <S265414AbSKFAJy>; Tue, 5 Nov 2002 19:09:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265400AbSKFAO3>; Tue, 5 Nov 2002 19:14:29 -0500
-Received: from web13806.mail.yahoo.com ([216.136.175.16]:8841 "HELO
-	web13806.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S265385AbSKFAOT>; Tue, 5 Nov 2002 19:14:19 -0500
-Message-ID: <20021106002053.7411.qmail@web13806.mail.yahoo.com>
-Date: Tue, 5 Nov 2002 16:20:53 -0800 (PST)
-From: Padraig O Mathuna <padraigo@yahoo.com>
-Subject: MIPS32 VM/ioremap question mapping 32 bit virtual address to 36 bit physical
-To: linux-kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265419AbSKFAJy>; Tue, 5 Nov 2002 19:09:54 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:20238 "HELO mx.in-addr.de")
+	by vger.kernel.org with SMTP id <S265414AbSKFAJw>;
+	Tue, 5 Nov 2002 19:09:52 -0500
+Date: Wed, 6 Nov 2002 01:16:07 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Kevin Corry <corryk@us.ibm.com>, evms-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Evms-announce] EVMS announcement
+Message-ID: <20021106001607.GJ27832@marowsky-bree.de>
+References: <02110516191004.07074@boiler>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <02110516191004.07074@boiler>
+User-Agent: Mutt/1.4i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-I'm still having issues trying to get the AU1000's 32
-bit MIPS to access 36 bit physical address space. 
-After reading the code and docs, I wrote a simple
-clone for ioremap, ioremap_ext, which remap the usage
-of _PAGE_R4KBUG (which I don't see to be present in
-the AU1000 core) to indicate a mapping of 32bit VA
-0xXXXX_XXXX to the 36bit phy addr 0xD_XXXX_XXXX.  I
-then edited the update_mmu_cache routine in mips32.c
-to look for this indicator and alter the mmu load to
-load a PTE value or'ed with 0xD00000000 as opposed to
-the straight 32 bit address into the TLB.  I then
-wrote a test program to call the new ioremap and map
-and area of memory into the extended 36 bit range and
-then access it.  This seems like it would work except
-I never see the update_mmu_cache being called for a
-PTE with the _PAGE_R4KBUG indicator set. What am I
-missing here in regards to the operation of VM,
-ioremap or update_mmu_cache?   
-thanks,
-Padraig
+On 2002-11-05T16:19:10,
+   Kevin Corry <corryk@us.ibm.com> said:
 
-> I'm developing some drivers for the AU1000 under
-> Mountain Vista's 2.4.17 sherman release. The AU1000
-is
-> a MIPS based SOC with a 36 bit internal address bus
-> and a 32 bit MIPS cpu. According to the
-documentation
-> the MIPS' TLB is able to map 32 bit virtual
-addresses
-> to 36 bit physical addresses, however I cannot
-figure
-> out how to get Linux to set this up. I've looked at
-> ioremap which only takes unsigned long (32bits) as
-an
-> argument to assign a virtual address. Is there
-> another way?
+Kevin,
 
- You should probably look at how CONFIG_HIGHMEM and
-CONFIG_64BIT_PHYS_ADDR
-support is implemented and add an option like
-CONFIG_36BIT_PHYS_ADDR (or
-just use CONFIG_HIGHMEM for that) plus a few necessary
-bits to the mm code
-so that ioremap() can make use of the additional bits.
-It doesn't seem
-too difficult to develop, but you may want to work on
-a current snapshot
-from the CVS.
+this must have been a very painful decision. I publically applaud you for
+making it.
+
+The great benefit from EVMS is the unified toolset for the administrator. It
+is impressive that you are willing to rework this on top of a "Not Invented
+Here" framework. I'm not sure whether my ego would have allowed the same
+decision ;-)
+
+The Device-Mapper seems to appeal more to the kernel community (and I'll agree
+it is quite impressively neat code), and the EVMS management aspect appeals to
+users. I hope that merging these will appeal to all. (It certainly does to
+me).
+
+I'm most certainly looking forward to seeing the clustering support comeing
+;-)
+
+Now, an interesting question is whether the md modules etc will simply be
+continued to be used or whether they'll make use of the DM engine too? Can
+they be made "plugins" to DM or the EVMS framework? Or even, could EVMS (in
+theory) parse the meta-data from a legacy md device and just setup a DM
+mapping for it? That would appeal to me quite a bit. I really need to start
+reading up on it...
 
 
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
-
-__________________________________________________
-Do you Yahoo!?
-HotJobs - Search new jobs daily now
-http://hotjobs.yahoo.com/
+-- 
+Principal Squirrel 
+SuSE Labs - Research & Development, SuSE Linux AG
+  
+"If anything can go wrong, it will." "Chance favors the prepared (mind)."
+  -- Capt. Edward A. Murphy            -- Louis Pasteur

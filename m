@@ -1,109 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261801AbVDEQ23@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbVDEQe2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261801AbVDEQ23 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 12:28:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbVDEQ23
+	id S261471AbVDEQe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 12:34:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbVDEQe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 12:28:29 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:24809 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261471AbVDEQ0e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 12:26:34 -0400
-Message-ID: <4252BC37.8030306@grupopie.com>
-Date: Tue, 05 Apr 2005 17:26:31 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: RFC: turn kmalloc+memset(,0,) into kcalloc
-Content-Type: multipart/mixed;
- boundary="------------040302060109030507000302"
+	Tue, 5 Apr 2005 12:34:28 -0400
+Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:38785 "EHLO
+	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S261471AbVDEQeS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 12:34:18 -0400
+Subject: [BUG mm] "fixed" i386 memcpy inlining buggy
+From: Christophe Saout <christophe@saout.de>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: Andrew Morton <akpm@osdl.org>, Jan Hubicka <hubicka@ucw.cz>,
+       Gerold Jury <gerold.ml@inode.at>, jakub@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       gcc@gcc.gnu.org
+In-Reply-To: <200504021526.53990.vda@ilport.com.ua>
+References: <200503291542.j2TFg4ER027715@earth.phy.uc.edu>
+	 <20050401214322.GA7175@atrey.karlin.mff.cuni.cz>
+	 <200504021518.49479.vda@ilport.com.ua>
+	 <200504021526.53990.vda@ilport.com.ua>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-7IFbw1W0hM5tE/mBhjYS"
+Date: Tue, 05 Apr 2005 18:34:04 +0200
+Message-Id: <1112718844.22591.15.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040302060109030507000302
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+
+--=-7IFbw1W0hM5tE/mBhjYS
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Hi Denis,
+
+the new i386 memcpy macro is a ticking timebomb.
+
+I've been debugging a new mISDN crash, just to find out that a memcpy
+was not inlined correctly.
+
+Andrew, you should drop the fix-i386-memcpy.patch (or have it fixed).
+
+This source code:
+
+        mISDN_pid_t     pid;
+	[...]
+        memcpy(&st->mgr->pid, &pid, sizeof(mISDN_pid_t));
+
+was compiled as:
+
+        lea    0xffffffa4(%ebp),%esi    <---- %esi is loaded
+(       add    $0x10,%ebx                      )
+(       mov    %ebx,%eax                       ) something else
+(       call   1613 <test_stack_protocol+0x83> ) %esi preserved
+        mov    0xffffffa0(%ebp),%edx
+        mov    0x74(%edx),%edi          <---- %edi is loaded
+        add    $0x20,%edi                     offset in structure added
+!       mov    $0x14,%esi        !!!!!! <---- %esi overwritten!
+        mov    %esi,%ecx                <---- %ecx loaded
+        repz movsl %ds:(%esi),%es:(%edi)
+
+Apparently the compiled decided that the value 0x14 could be reused
+afterwards (which it does for an inlined memset of the same size some
+instructions below) and clobbers %esi.
+
+Looking at the macro:
+
+                __asm__ __volatile__(
+                        ""
+                        : "=3D&D" (edi), "=3D&S" (esi)
+                        : "0" ((long) to),"1" ((long) from)
+                        : "memory"
+                );
+        }
+        if (n >=3D 5*4) {
+                /* large block: use rep prefix */
+                int ecx;
+                __asm__ __volatile__(
+                        "rep ; movsl"
+                        : "=3D&c" (ecx)
+
+it seems obvious that the compiled assumes it can reuse %esi and %edi
+for something else between the two __asm__ sections. These should
+probably be merged.
 
 
-Hi,
+--=-7IFbw1W0hM5tE/mBhjYS
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-I noticed there are a number of places in the kernel that do:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-	ptr = kmalloc(n * size, ...)
-	if (!ptr)
-		goto out;
-	memset(ptr, 0, n * size);
+iD8DBQBCUr38ZCYBcts5dM0RAjopAJ4sKskZyfDgfTRCLCgHUXm9xCe9TwCcDuyk
+ot1+pcosdlePcnCT0WGg3qI=
+=bZg/
+-----END PGP SIGNATURE-----
 
-It seems that these could be replaced by:
+--=-7IFbw1W0hM5tE/mBhjYS--
 
-	ptr = kcalloc(n, size, ...)
-	if (!ptr)
-		goto out;
-
-saving a few bytes.
-
-Most of the times the size isn't something "n * size", but simply "n". 
-These could be replaced by kcalloc(n, 1, ...) or we could create a 
-special "kmalloc_zero" function to do this without the need for the 
-extra "1" parameter.
-
-A quick (and lame) grep through the tree shows about 1200 of these 
-cases. This means that about one quarter of all the kmallocs in the 
-kernel are actually zeroed right after allocation.
-
-I could send patches to slowly clean this up, like Adrian Bunk did for 
-the static functions and Jesper Juhl for the kfree NULL checks.
-
-There are pros and cons to doing this:
-
-pros:
-   - smaller kernel image size
-   - smaller (and more readable) source code
-   - explicit interface to request zeroed data. If in the future we have 
-a good way of providing some zeroed-cachehot-super-duper-slabs, we can 
-allocate space from there and avoid the memset altogether
-
-cons:
-   - the NULL test is done twice
-   - memset will not be optimized for constant sizes
-
-The disadvantages don't seem to matter much for non-critical paths. For 
-really fast paths we should probably keep the kmalloc + memset.
-
-Attached is a sample of what one of those patches would look like.
-
-Would this be a good thing to clean up, or isn't it worth the effort at all?
-
--- 
-Paulo Marques - www.grupopie.com
-
-All that is necessary for the triumph of evil is that good men do nothing.
-Edmund Burke (1729 - 1797)
-
---------------040302060109030507000302
-Content-Type: text/plain;
- name="patchsample"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patchsample"
-
---- ./lib/kobject_uevent.c.orig	2005-04-05 16:39:09.000000000 +0100
-+++ ./lib/kobject_uevent.c	2005-04-05 17:01:26.000000000 +0100
-@@ -234,10 +234,9 @@ void kobject_hotplug(struct kobject *kob
- 	if (!action_string)
- 		return;
- 
--	envp = kmalloc(NUM_ENVP * sizeof (char *), GFP_KERNEL);
-+	envp = kmalloc_zero(NUM_ENVP * sizeof (char *), GFP_KERNEL);
- 	if (!envp)
- 		return;
--	memset (envp, 0x00, NUM_ENVP * sizeof (char *));
- 
- 	buffer = kmalloc(BUFFER_SIZE, GFP_KERNEL);
- 	if (!buffer)
-
---------------040302060109030507000302--

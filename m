@@ -1,64 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265998AbTAFEk6>; Sun, 5 Jan 2003 23:40:58 -0500
+	id <S265995AbTAFEh5>; Sun, 5 Jan 2003 23:37:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266010AbTAFEk6>; Sun, 5 Jan 2003 23:40:58 -0500
-Received: from [209.195.52.121] ([209.195.52.121]:3038 "HELO
-	warden2b.diginsite.com") by vger.kernel.org with SMTP
-	id <S265998AbTAFEk4>; Sun, 5 Jan 2003 23:40:56 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: Paul Rolland <rol@witbe.net>, linux-kernel@vger.kernel.org
-Date: Sun, 5 Jan 2003 20:36:53 -0800 (PST)
-Subject: Re: [2.5.54] Oops IDE-SCSI and failure AIC7xxx
-In-Reply-To: <459240000.1041823747@aslan.scsiguy.com>
-Message-ID: <Pine.LNX.4.44.0301052032430.25482-100000@dlang.diginsite.com>
+	id <S265998AbTAFEh4>; Sun, 5 Jan 2003 23:37:56 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58636 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265995AbTAFEh4>; Sun, 5 Jan 2003 23:37:56 -0500
+Date: Sun, 5 Jan 2003 20:14:53 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+cc: Paul Mackerras <paulus@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, <davidm@hpl.hp.com>,
+       <grundler@cup.hp.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2.5] PCI: allow alternative methods for probing the BARs
+In-Reply-To: <20030105153735.A8532@jurassic.park.msu.ru>
+Message-ID: <Pine.LNX.4.44.0301052009050.3087-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-other then the memmap error (in my case device 0:10:0 I get the first
-three lines of the driver init and then nothing. the machine
-completely locks up (driver version on .54 is 6.2.25 but I've
-had this same problem since .50)
 
-here is what I get on 2.4.18, the only difference on the first three lines
-between this and 2.5.54 is the driver version number
-
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.4
-        <Adaptec 2940 SCSI adapter>
-        aic7870: Single Channel A, SCSI Id=7, 16/253 SCBs
-
-  Vendor: SEAGATE   Model: ST32430N          Rev: 0510
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-(scsi0:A:0): 8.064MB/s transfers (8.064MHz, offset 15)
-  Vendor: RICOH     Model: CD-R/RW MP7040S   Rev: 1.10
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-scsi0:A:0:0: Tagged Queuing enabled.  Depth 15
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-SCSI device sda: 4197405 512-byte hdwr sectors (2149 MB)
- /dev/scsi/host0/bus0/target0/lun0: p1 p2
-Attached scsi CD-ROM sr0 at scsi0, channel 0, id 3, lun 0
-sr0: scsi3-mmc drive: 20x/20x writer cd/rw xa/form2 cdda tray
-
-David Lang
-
-
-On Sun, 5 Jan 2003, Justin T. Gibbs wrote:
-
-> Date: Sun, 05 Jan 2003 20:29:07 -0700
-> From: Justin T. Gibbs <gibbs@scsiguy.com>
-> To: David Lang <david.lang@digitalinsight.com>
-> Cc: Paul Rolland <rol@witbe.net>, linux-kernel@vger.kernel.org
-> Subject: Re: [2.5.54] Oops IDE-SCSI and failure AIC7xxx
+On Sun, 5 Jan 2003, Ivan Kokshaysky wrote:
 >
-> > Ok, but it's the only error message I get and the AIX7xxx driver then
-> > fails to initialize.
->
-> Can you be just a bit more specific?  Actual driver messages are
-> usually a big help.
->
-> --
-> Justin
->
+> Hopefully this patch should solve most problems with probing the BARs.
+> The changes are quite minimal as everything still is done in one pass.
+
+Can you do the same with a multi-pass thing? 
+
+I really think the single-pass approach is broken, because it means that
+we _cannot_ have a fixup for device that runs _before_ the fixup for the 
+bridge that bridges to the device.
+
+As such, the "PCI_FIXUP_EARLY" is not _nearly_ early enough, since it's
+way too late for the actual problem that started this whole thread (ie in
+order to turn off a bridge, we have to make sure that everything behind
+the bridge is turned off _first_).
+
+In other words, we really should be able to do all the bus number setup
+_first_. That isn't dependent ont eh BAR's or anything else. The actual 
+_sizing_ of the bus is clearly somethign we cannot do early, but we can 
+(and should) enumerate the devices first in phase #1.
+
+Alternatively, we could even have a very limited phase #1 that only 
+enumerates _reachable_ devices (ie it doesn't even try to create bus 
+numbers, it only enumerates devices and buses that have already been set 
+up by the firmware, and ignores bridges that aren't set up yet). A pure 
+discovery phase, without any configuration at all.
+
+Hmm?
+
+		Linus
+

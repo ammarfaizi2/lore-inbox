@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267744AbTATBww>; Sun, 19 Jan 2003 20:52:52 -0500
+	id <S267748AbTATCI0>; Sun, 19 Jan 2003 21:08:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267748AbTATBww>; Sun, 19 Jan 2003 20:52:52 -0500
-Received: from pat.uio.no ([129.240.130.16]:62089 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S267744AbTATBwv>;
-	Sun, 19 Jan 2003 20:52:51 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15915.22671.867328.281811@charged.uio.no>
-Date: Mon, 20 Jan 2003 03:01:51 +0100
-To: Martin Josefsson <gandalf@wlug.westbo.se>
-Cc: linux-kernel@vger.kernel.org
+	id <S267749AbTATCI0>; Sun, 19 Jan 2003 21:08:26 -0500
+Received: from tux.rsn.bth.se ([194.47.143.135]:26496 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id <S267748AbTATCIZ>;
+	Sun, 19 Jan 2003 21:08:25 -0500
 Subject: Re: problems with nfs-server in 2.5 bk as of 030115
-In-Reply-To: <1043027422.668.4.camel@tux.rsn.bth.se>
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: trond.myklebust@fys.uio.no
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <15915.22671.867328.281811@charged.uio.no>
 References: <1043012373.7986.94.camel@tux.rsn.bth.se>
-	<15915.21051.365166.964932@charged.uio.no>
-	<1043027422.668.4.camel@tux.rsn.bth.se>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+	 <15915.21051.365166.964932@charged.uio.no>
+	 <1043027422.668.4.camel@tux.rsn.bth.se>
+	 <15915.22671.867328.281811@charged.uio.no>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1043029046.668.6.camel@tux.rsn.bth.se>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 20 Jan 2003 03:17:26 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Martin Josefsson <gandalf@wlug.westbo.se> writes:
+On Mon, 2003-01-20 at 03:01, Trond Myklebust wrote:
+> >>>>> " " == Martin Josefsson <gandalf@wlug.westbo.se> writes:
+> 
+>      > # ls portmap/clnteb2bbc7c -l
+>      > ls: portmap/clnteb2bbc7c/info: No such file or directory total
+>      > 0
+> 
+> OK. Try this...
 
-     > # ls portmap/clnteb2bbc7c -l
-     > ls: portmap/clnteb2bbc7c/info: No such file or directory total
-     > 0
+Ohh, now it works, or at least it starts. It doesn't complain about
+anything now.
 
-OK. Try this...
+And it actually works, I tried mounting an exported directory on another
+machine and it works!
 
-Cheers,
-  Trond
+This is with all 5 patches you sent, I just applied them as I got them.
+If you want I can try with just a few of them, just tell me which you
+want me to test.
 
---- linux-2.5.59-00-fix/net/sunrpc/rpc_pipe.c.orig	2003-01-14 16:29:23.000000000 +0100
-+++ linux-2.5.59-00-fix/net/sunrpc/rpc_pipe.c	2003-01-20 02:58:08.000000000 +0100
-@@ -569,6 +569,7 @@
- {
- 	int error;
- 
-+	shrink_dcache_parent(dentry);
- 	rpc_inode_setowner(dentry->d_inode, NULL);
- 	if ((error = simple_rmdir(dir, dentry)) != 0)
- 		return error;
+Thank you _very_ much for the rapid help.
+
+-- 
+/Martin
+
+Never argue with an idiot. They drag you down to their level, then beat you with experience.

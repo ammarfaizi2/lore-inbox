@@ -1,62 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135367AbRDLWXr>; Thu, 12 Apr 2001 18:23:47 -0400
+	id <S135372AbRDLWkb>; Thu, 12 Apr 2001 18:40:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135366AbRDLWXi>; Thu, 12 Apr 2001 18:23:38 -0400
-Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:31432 "EHLO
-	snipe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S135367AbRDLWXe>; Thu, 12 Apr 2001 18:23:34 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Unable to use ethernet after suspend and smbmount (laptop)
-From: burton@relativity.yi.org (Kevin A. Burton)
-Date: 12 Apr 2001 14:53:26 -0700
-Message-ID: <m3bsq1dbu1.fsf@relativity.yi.org>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+	id <S135374AbRDLWkW>; Thu, 12 Apr 2001 18:40:22 -0400
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:12294
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S135372AbRDLWkN>; Thu, 12 Apr 2001 18:40:13 -0400
+Date: Thu, 12 Apr 2001 15:34:14 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Stephen Woodbridge <woodbri@mediaone.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Help with Fasttrack/100 Raid on Linux
+In-Reply-To: <3AD62556.7A35DF69@mediaone.net>
+Message-ID: <Pine.LNX.4.10.10104121528230.4564-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
+Stephen,
 
-OK.
+Sorry but that is a closed source driver and you have to goto Promise, LOL.
+Last time I talked to them they sent me an email virus that choked a drive.
+Scan your mail first and then count your fingers if you have to shake
+hands with somebody their....
 
-This is Kernel 2.4.3.
+Andre Hedrick
+Linux ATA Development
 
-If I smbmount an exported filesystem from another GNU/Linux machine and then
-suspend my laptop, after I resume I am unable to use the network at all.
+On Thu, 12 Apr 2001, Stephen Woodbridge wrote:
 
-I really think this is a bug raised by another bug.  The xirc2ps_cs Ethernet Cardbus
-driver has a bug where after a suspend I have to eject the card and then insert
-it again and then run 'ifup eth0'.  I think it actually may be a bug in my
-cardbus but I don't know.
-
-Anyway Linux won't unload (rmmod xirc2ps_cs) because the smbfs is using it.  :(
-If force smbfs to unmount maybe this could be resolved but as we all know an
-'umount -f /mnt/MOUNT' doesn't really force :(
-
-Anyway.  If anyone has any suggestions I would appreciate it.  If I unmount
-*before* I suspend then everything works fine.  The problem is that sometimes I
-forget! :(
-
-Kevin
-
-- -- 
-Kevin A. Burton ( burton@apache.org, burton@openprivacy.org, burtonator@acm.org )
-        Cell: 408-910-6145 URL: http://relativity.yi.org ICQ: 73488596 
-
-You may say I'm a dreamer, but I'm not the only one. - John Lennon
-
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Get my public key at: http://relativity.yi.org/pgpkey.txt
-
-iD8DBQE61iPWAwM6xb2dfE0RAvXwAJ9/NdkCXuX5jXPUpPAp/9iGOtrvMgCgzMho
-DmYqTqZmZnk3YrXuwqnPwWE=
-=4vhk
------END PGP SIGNATURE-----
+> Andre,
+> 
+> I have searched everywhere for some help getting my Promise
+> FrastTrack/100 Raid controller working. I finally found the ft.o driver
+> on the Promise website and have gotten it installed correctly (I think),
+> but I can NOT get fdisk to recognize the drive. Any help would be
+> greatly appreciated.
+> 
+> Best regards,
+>   -Stephen Woodbridge
+> 
+> Here is what I have done so far:
+> 
+> RedHat 6.2
+> Linux 2.2.18
+> (No other scsi devices in system)
+> 
+> I added to /etc/conf.modules
+>   alias block-major-8 ft
+> and copied the ft.o to /lib/modules/2.2.18/scsi
+> and did the depmod -a
+> and rebooted
+> 
+>   (after boot) ...
+> [root@linus /root]# lsmod
+> Module                  Size  Used by
+> lockd                  44688   0  (autoclean) (unused)
+> sunrpc                 58820   0  (autoclean) [lockd]
+> 3c509                   5996   1  (autoclean)
+> tulip                  31888   1  (autoclean)
+> es1371                 25920   0
+> soundcore               2596   4  [es1371]
+> 
+> [root@linus /root]# fdisk /dev/sda    # tried repeatedly
+> 
+> Unable to open /dev/sda
+> 
+> [root@linus /root]# lsmod
+> Module                  Size  Used by
+> ft                     71048   0  (autoclean) (unused)
+> scsi_mod               38372   1  (autoclean) [ft]
+> lockd                  44688   0  (autoclean) (unused)
+> sunrpc                 58820   0  (autoclean) [lockd]
+> 3c509                   5996   1  (autoclean)
+> tulip                  31888   1  (autoclean)
+> es1371                 25920   0
+> soundcore               2596   4  [es1371]
+> [root@linus /root]#
+> 
+> When fdisk tried to access /dev/sda the module was loaded and the
+> following banner shows up on the console:
+> 
+> TastTrack Driver v1.10 build 3 (06.OCT.2000)
+> scsi0 : FASTTRACK
+> scsi : 1 host
+>   Vendor: Promise Model: 1x2 Mirror/RAID1 Rev 1.10
+>   Type:   Direct-Access                   ANSI SCSI revision: 02
+>   Vendor: Promise Model: 1x2 Mirror/RAID1 Rev 1.10
+>   Type:   Direct-Access                   ANSI SCSI revision: 02
+>   Vendor: Promise Model: 1x2 Mirror/RAID1 Rev 1.10
+>   Type:   Direct-Access                   ANSI SCSI revision: 02
+>   Vendor: Promise Model: 1x2 Mirror/RAID1 Rev 1.10
+>   Type:   Direct-Access                   ANSI SCSI revision: 02
+> 
 

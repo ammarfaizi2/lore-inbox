@@ -1,33 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312107AbSCQUGn>; Sun, 17 Mar 2002 15:06:43 -0500
+	id <S312106AbSCQUTY>; Sun, 17 Mar 2002 15:19:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312106AbSCQUGe>; Sun, 17 Mar 2002 15:06:34 -0500
-Received: from front1.mail.megapathdsl.net ([66.80.60.31]:36619 "EHLO
-	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S312104AbSCQUGV>; Sun, 17 Mar 2002 15:06:21 -0500
-Message-ID: <3C94F6FB.8090207@megapathdsl.net>
-Date: Sun, 17 Mar 2002 12:05:15 -0800
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020212
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.7-pre2 -- Error seeking in /dev/kmem
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S312109AbSCQUTQ>; Sun, 17 Mar 2002 15:19:16 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:46545 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S312108AbSCQUTC>; Sun, 17 Mar 2002 15:19:02 -0500
+Date: Sun, 17 Mar 2002 13:18:50 -0700
+Message-Id: <200203172018.g2HKIoB12081@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: fadvise syscall?
+In-Reply-To: <3C945D7D.8040703@mandrakesoft.com>
+In-Reply-To: <3C945635.4050101@mandrakesoft.com>
+	<3C945A5A.9673053F@zip.com.au>
+	<3C945D7D.8040703@mandrakesoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is anyone else seeing this?  I have been getting these errors
-throughout much of the 2.5 development cycle.  I am not sure
-when the problem started, since I have had a lot of trouble
-getting most of the 2.5 series kernels to build.
+Jeff Garzik writes:
+> Andrew Morton wrote:
+> 
+> >Jeff Garzik wrote:
+> >>So... we have madvise, why not fadvise?  I would love the capability for
+> >>applications to provide hints to the OS like madvise, but for file
+> >>descriptors...
+> >>
+> >
+> >The one hint which I can think of which would be beneficial would
+> >be an equivalent to MADV_SEQUENTIAL.  Something which says "this
+> >is a big streaming read/write - don't go and evict other stuff because
+> >of it".  O_STREAMING perhaps.  Or working dropbehind heuristics,
+> >although I suspect that explicit controls will always do better.
+> >
+> >For MADV_RANDOM, readahead window scaling should get that right.
+> >
+> >What else were you thinking of?
+> >
+> 
+> Hints for,
+> * sequential read
+> * sequential write
+> * sequential write, where the application considers the data it's 
+> writing to be unlikely to be read again any time soon (hopefully 
+> implying to the page cache that these pages have low value as cacheable 
+> objects)
+> * some sort of streaming hints, implying that the application cares a 
+> lot about maintaining some minimum i/o rate.  note I said hint, not 
+> requirement.  -not- guaranteed-rate-IO.
+> 
+> I might even go so far as to advocate identifying common usage
+> patterns, and creating hint constants for them, even if we don't
+> support them in the kernel immediately (if ever).  Makes the
+> interface much more future-proof, at the expense of a few integers
+> in a 32-bit numberspace, and a few more bytes in the C compiler's
+> symbol table.
 
-Mar 17 11:15:02 turbulence kernel: Loaded 22474 symbols from 
-/boot/System.map-2.5.7-pre2.
-Mar 17 11:15:02 turbulence kernel: Symbols match kernel version 2.5.7.
-Mar 17 11:15:02 turbulence kernel: Error seeking in /dev/kmem
-Mar 17 11:15:02 turbulence kernel: Symbol #af_packet, value d98dd000
-Mar 17 11:15:02 turbulence kernel: Error adding kernel module table entry.
+Here's one that I'd like (came up recently with these 21600x21600x3
+images from NASA:-): MADV_REVERSE_SEQUENTIAL. When converting images
+from stupid formats which have the origin in the top-left, to formats
+which have the origin in the bottom-left (the way god intended), you
+can avoid a massive malloc(3) if you read the input file backwards
+(basically through llseek(2) steps).
 
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265439AbRF0WUv>; Wed, 27 Jun 2001 18:20:51 -0400
+	id <S265437AbRF0Wh0>; Wed, 27 Jun 2001 18:37:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265437AbRF0WUl>; Wed, 27 Jun 2001 18:20:41 -0400
-Received: from h24-76-51-210.vf.shawcable.net ([24.76.51.210]:55026 "EHLO
-	whiskey.enposte.net") by vger.kernel.org with ESMTP
-	id <S265435AbRF0WUf>; Wed, 27 Jun 2001 18:20:35 -0400
-To: linux-kernel@vger.kernel.org
-Path: whiskey.fireplug.net!not-for-mail
-From: sl@whiskey.fireplug.net (Stuart Lynne)
-Newsgroups: list.linux-kernel
+	id <S265435AbRF0WhR>; Wed, 27 Jun 2001 18:37:17 -0400
+Received: from mail1.qualcomm.com ([129.46.64.223]:63678 "EHLO
+	mail1.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S265441AbRF0WhE>; Wed, 27 Jun 2001 18:37:04 -0400
+Message-Id: <4.3.1.0.20010627153532.036e9320@mail1>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.1
+Date: Wed, 27 Jun 2001 15:36:37 -0700
+To: andrew may <acmay@acmay.homeip.net>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+From: Maksim Krasnyanskiy <maxk@qualcomm.com>
 Subject: Re: What is the best way for multiple net_devices
-Date: 27 Jun 2001 15:19:39 -0700
-Organization: fireplug
-Distribution: local
-Message-ID: <9hdm5r$e9i$1@whiskey.enposte.net>
-In-Reply-To: <993679536.14418@whiskey.enposte.net>
-Reply-To: sl@fireplug.net
-X-Newsreader: trn 4.0-test67 (15 July 1998)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010627151829.B23834@ecam.san.rr.com>
+In-Reply-To: <3B3A5852.AAEF9531@mandrakesoft.com>
+ <20010627145201.A23834@ecam.san.rr.com>
+ <3B3A5852.AAEF9531@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <993679536.14418@whiskey.enposte.net>,
-Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
->andrew may wrote:
->> 
->> Is there a standard way to make multiple copies of a network device?
->> 
->> For things like the bonding/ipip/ip_gre and others they seem to expect
->> insmod -o copy1 module.o
->> insmod -o copy2 module.o
->
->The network driver should provide the capability to add new devices.
->
->Most drivers currently have the capability to do N devices, where N is
->some constant set at compile time.  Typically you use ifconfig, a
->special-purpose userland program, or sometimes even sysctls to configure
->additional net devices.
 
-Ioctls require modifications to other parts of the kernel and a supporting
-user land program.
+>Any examples of drivers and apps that do this cleanly. The ones I have seen are not.
+TUN/TAP driver and tuncfg utility
+http://vtun.sf.net/tun
+  
+Max
 
-Passing the number to create via insmod seems to be a reasonable compromise.
+Maksim Krasnyanskiy	
+Senior Kernel Engineer
+Qualcomm Incorporated
 
->It's certainly possible to modify the driver to create additional
->network interfaces on the fly, but a lot of drivers are not coded to do
->that at present.
+maxk@qualcomm.com
+http://bluez.sf.net
+http://vtun.sf.net
 
--- 
-                                            __O 
-Lineo - For Embedded Linux Solutions      _-\<,_ 
-PGP Fingerprint: 28 E2 A0 15 99 62 9A 00 (_)/ (_) 88 EC A3 EE 2D 1C 15 68
-Stuart Lynne <sl@fireplug.net>       www.fireplug.net        604-461-7532

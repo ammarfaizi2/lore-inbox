@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130008AbRB1A1L>; Tue, 27 Feb 2001 19:27:11 -0500
+	id <S130004AbRB1A1C>; Tue, 27 Feb 2001 19:27:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130016AbRB1A1C>; Tue, 27 Feb 2001 19:27:02 -0500
-Received: from raven.toyota.com ([63.87.74.200]:38667 "EHLO raven.toyota.com")
-	by vger.kernel.org with ESMTP id <S130008AbRB1A0l>;
-	Tue, 27 Feb 2001 19:26:41 -0500
-Message-ID: <3A9C45BE.B17DEEA6@toyota.com>
-Date: Tue, 27 Feb 2001 16:26:38 -0800
-From: J Sloan <jjs@toyota.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Manfred H. Winter" <mahowi@gmx.net>
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.2-ac5] X (4.0.1) crashes
-In-Reply-To: <20010227150830.A739@marvin.mahowi.de>
+	id <S130016AbRB1A0v>; Tue, 27 Feb 2001 19:26:51 -0500
+Received: from [199.183.24.200] ([199.183.24.200]:55921 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S130004AbRB1A0j>; Tue, 27 Feb 2001 19:26:39 -0500
+Date: Tue, 27 Feb 2001 19:26:32 -0500
+From: Peter Zaitcev <zaitcev@redhat.com>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Patchlet for drivers/usb/hub.c
+Message-ID: <20010227192632.A2143@devserv.devel.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Manfred H. Winter" wrote:
-
-> I'm going back to vanilla 2.4.2 for now. Is there another way to get
-> loop to work?
-
-Working fine here:
-
-2.4.2 + Axboe's loop patch + Morton's low latency patch
-
-jjs
-
+--- linux-2.4.2-ac5/drivers/usb/hub.c	Tue Feb 27 15:52:05 2001
++++ linux-2.4.2-ac5-p3/drivers/usb/hub.c	Tue Feb 27 16:21:32 2001
+@@ -150,14 +150,14 @@
+ 	unsigned int pipe;
+ 	int i, maxp, ret;
+ 
+-	hub->descriptor = kmalloc(sizeof(hub->descriptor), GFP_KERNEL);
++	hub->descriptor = kmalloc(sizeof(*hub->descriptor), GFP_KERNEL);
+ 	if (!hub->descriptor) {
+-		err("Unable to kmalloc %d bytes for hub descriptor", sizeof(hub->descriptor));
++		err("Unable to kmalloc %d bytes for hub descriptor", sizeof(*hub->descriptor));
+ 		return -1;
+ 	}
+ 
+ 	/* Request the entire hub descriptor. */
+-	ret = usb_get_hub_descriptor(dev, hub->descriptor, sizeof(hub->descriptor));
++	ret = usb_get_hub_descriptor(dev, hub->descriptor, sizeof(*hub->descriptor));
+ 		/* <hub->descriptor> is large enough for a hub with 127 ports;
+ 		 * the hub can/will return fewer bytes here. */
+ 	if (ret < 0) {

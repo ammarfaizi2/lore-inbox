@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316686AbSEQWIS>; Fri, 17 May 2002 18:08:18 -0400
+	id <S316711AbSEQWJY>; Fri, 17 May 2002 18:09:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316711AbSEQWIS>; Fri, 17 May 2002 18:08:18 -0400
-Received: from cairu.terra.com.br ([200.176.3.19]:58021 "EHLO
-	cairu.terra.com.br") by vger.kernel.org with ESMTP
-	id <S316686AbSEQWIR> convert rfc822-to-8bit; Fri, 17 May 2002 18:08:17 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Christian Burger <idt116803@terra.com.br>
-Reply-To: christian_burger@terra.com.br
-Organization: Ericsson Wireless Communications Inc.
-To: linux-kernel@vger.kernel.org
-Subject: how to reverse engineer a comm protocol to LPT0x
-Date: Fri, 17 May 2002 19:08:56 -0300
-X-Mailer: KMail [version 1.4]
-Cc: rlievin@free.fr
+	id <S316712AbSEQWJX>; Fri, 17 May 2002 18:09:23 -0400
+Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:16811
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S316711AbSEQWJW>; Fri, 17 May 2002 18:09:22 -0400
+Date: Fri, 17 May 2002 18:09:20 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Wayne.Brown@altec.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
+In-Reply-To: <86256BBC.0072F8A9.00@smtpnotes.altec.com>
+Message-ID: <Pine.LNX.4.44.0205171807110.4117-100000@xanadu.home>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200205171909.05141.idt116803@terra.com.br>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, 17 May 2002 Wayne.Brown@altec.com wrote:
 
-Can anyone help on this?
-I'm trying to reverse engineer a protocol for the DLINK digital mp3 player.
-Does anyone know how to log the messages while transferring data/commands in 
-windows? Is it necessary? Is there a more intelligent way to do it.
-Any help will be very much appreciated.
-Rgds, 
-	
-	Christian Burger
+> I'm not sure I understand what you're saying here.  Yes, the build system is
+> mostly the same across all these versions -- that's my point.  I want it to STAY
+> the same as long as possible.  What's the relationship between kbuild and the
+> size of the kernel source?  Are you saying a new build system would make the
+> kernel smaller?  Or do you mean that it would be faster, or would require
+> recompiling smaller portions of the kernel after patching?  That wouldn't help
+> me, because I'll never trust *any* build system -- even good ol' "make" itself
+> -- to make the right determination of what to recompile after applying one of
+> Linus's or Alan's patch sets.  I *always* "make mrproper" and recompile
+> *everything* after patching.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+But even if you recompile *everything* _everytime_, kbuild 2.5 is "faster".
 
-iD8DBQE85X9/lq2HnqhsDCoRAp8VAJ4tBPopSWw+ZhX+jh+Ezn9AsXHG4gCgkeYi
-mnEm4PGDbwVwIkmZXBh4YsA=
-=8mqA
------END PGP SIGNATURE-----
+What do you have against that?
+
+
+Nicolas
 

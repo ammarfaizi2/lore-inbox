@@ -1,32 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292857AbSBVNKz>; Fri, 22 Feb 2002 08:10:55 -0500
+	id <S292859AbSBVNLp>; Fri, 22 Feb 2002 08:11:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292859AbSBVNKp>; Fri, 22 Feb 2002 08:10:45 -0500
-Received: from www.ms-itti.com.pl ([217.8.167.50]:528 "HELO
-	smtp.ms-itti.com.pl") by vger.kernel.org with SMTP
-	id <S292857AbSBVNKh>; Fri, 22 Feb 2002 08:10:37 -0500
+	id <S292860AbSBVNLg>; Fri, 22 Feb 2002 08:11:36 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:50181 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S292859AbSBVNLR>;
+	Fri, 22 Feb 2002 08:11:17 -0500
+Date: Fri, 22 Feb 2002 14:11:01 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Adam Lackorzynski <adam@os.inf.tu-dresden.de>
+Cc: fernando@quatro.com.br, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18-rcx: Dual P3 + VIA + APIC
+Message-Id: <20020222141101.0cc342e1.skraw@ithnet.com>
+In-Reply-To: <20020222130246.GD13774@os.inf.tu-dresden.de>
+In-Reply-To: <20020220104129.GP13774@os.inf.tu-dresden.de>
+	<051a01c1bb01$70634580$c50016ac@spps.com.br>
+	<20020221211142.0cf0efa4.skraw@ithnet.com>
+	<20020222130246.GD13774@os.inf.tu-dresden.de>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Marcin Gogolewski <marcing@ms-itti.com.pl>
-Organization: Mobile Solutions -ITTI
-To: linux-kernel@vger.kernel.org
-Subject: ps command lock
-Date: Fri, 22 Feb 2002 14:10:48 +0100
-X-Mailer: KMail [version 1.3.2]
-X-Sun-Data-Name: text
-X-Sun-Data-Description: text
-X-Sun-Data-Type: postscript-file
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020222131042Z292857-889+5078@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 22 Feb 2002 14:02:46 +0100
+Adam Lackorzynski <adam@os.inf.tu-dresden.de> wrote:
+
+> On Thu Feb 21, 2002 at 21:11:42 +0100, Stephan von Krawczynski wrote:
+> > Hm, interestingly there seem to be more people with via+SMP+somewhat
+> > problems. Interestingly, because I cannot confirm these troubles,
+> > using such a setup myself. Just have a look:
+> 
+> > (This is Asus CUV4X-D, dual PIII, and a damn lot of stuff inside :-)
+> 
+> Same MB here, the lspci output is also the same (for the onboard stuff ;).
+
+Ok, this is fine and makes the comparison at least possible to some extent.
+
+> > I compile my kernel (2.4.18-rc2) with the attached config. Please try
+> > it and tell your results. I can assure you that this machine runs rock
+> > solid over here for months.
+> 
+> No luck here. Hangs during boot (tried with 2.4.18-rc2-ac2).
+
+Please start from a setup as close to mine as possible. That is 2.4.18-rc2.
+In setup switch MPS 1.4 support to disable and Power Management to disable.
+
+> I even updated the BIOS from 1010 to 1014 as well (just in case). What
+> BIOS version are you running? And at how many MHz are the CPUs?
+
+I use BIOS 1010, 2 x P3 1 GHz and tried RAM from 512MB to 2GB. Currently installed are 2GB being 2 x 1GB registered DIMM.
+
+Regards,
+Stephan
 
 
-I have STL2 mainboard with 2 PIII 1GHz. Linux kernel 2.4.17. I've not got 
-Ops'es, but if I write ps, my terminal gets blocked,I tried it as a superuser 
-and normal user several times, after reboot (MagicSysReq only works) 
-everything is OK. I don't know where is a bug (it may be in ps?).
-procps-2.0.7-11. Where and What shold I send?
-					Marcin

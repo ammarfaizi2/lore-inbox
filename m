@@ -1,134 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293680AbSCATmC>; Fri, 1 Mar 2002 14:42:02 -0500
+	id <S293687AbSCATmx>; Fri, 1 Mar 2002 14:42:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293672AbSCATlz>; Fri, 1 Mar 2002 14:41:55 -0500
-Received: from sm10.texas.rr.com ([24.93.35.222]:17336 "EHLO sm10.texas.rr.com")
-	by vger.kernel.org with ESMTP id <S293679AbSCATlo>;
-	Fri, 1 Mar 2002 14:41:44 -0500
-Subject: Re: PUPLinux 1.2.14 Umbilical Snip Version
-From: Joe Barr <warthawg@austin.rr.com>
-To: "Rick A. Hohensee" <rickh@Capaccess.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <fc.0085841200327e340085841200327e34.327e56@Capaccess.org>
-In-Reply-To: <fc.0085841200327e340085841200327e34.327e56@Capaccess.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-0pL7glRzPHDd4ix92gCf"
-X-Mailer: Evolution/1.0.2.99 Preview Release
-Date: 01 Mar 2002 13:41:00 -0600
-Message-Id: <1015011660.1451.5.camel@localhost.localdomain>
+	id <S293679AbSCATmO>; Fri, 1 Mar 2002 14:42:14 -0500
+Received: from pc-62-31-74-76-ed.blueyonder.co.uk ([62.31.74.76]:43906 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S293672AbSCATmF>; Fri, 1 Mar 2002 14:42:05 -0500
+Date: Fri, 1 Mar 2002 19:41:55 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Wayne Whitney <whitney@math.berkeley.edu>
+Cc: LKML <linux-kernel@vger.kernel.org>, ext2-devel@lists.sourceforge.net,
+        Stephen Tweedie <sct@redhat.com>
+Subject: Re: [OOPS 2.5.5-dj2] ext3 BUG in do_get_write_access()
+Message-ID: <20020301194155.H2682@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0202281703130.4893-100000@mf1.private>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0202281703130.4893-100000@mf1.private>; from whitney@math.berkeley.edu on Thu, Feb 28, 2002 at 05:19:44PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-0pL7glRzPHDd4ix92gCf
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Thu, Feb 28, 2002 at 05:19:44PM -0800, Wayne Whitney wrote:
+ 
+> I managed to generate the oops below on 2.5.5-dj2 by doing the following:
+>   cp -ax / /mnt &
+>   <some delay, don't know if it matters>
+>   tune2fs -L root /dev/hdc5 
+
+> tune2fs -L should be safe on a mounted filesystem, non?
+
+Hmmm.
+
+There's a fundamental problem here.  Journaling filesystems expect to
+be in control over when data gets written to the disk.  tune2fs is
+writing to the superblock in the buffer cache directly, and ext3 is
+really, really paranoid about finding unexpected dirty buffers since
+they usually imply that we have just violated the filesystem's write
+ordering expectations.
+
+Clearly in this case something legal has just happened, but it still
+means that the superblock can get flushed to disk before the
+filesystem expects it, and this can result in an inconsistency on
+disk after recovery if we crash just after that flush.
+
+So saying "this is legal" means data corruption, and protecting the fs
+from such interference (eg. by moving the on-disk superblock
+representation into the page cache) will prevent tune2fs from working
+at all: the updated fields will just be overwritten by the
+filesystem's copy.
 
 
-Rick,
+In this particular case, I think I'll just have to relax the assertion
+and cause it to printk instead of BUG()ing, because I don't want to
+lose the protection of this test entirely.  
 
-PUPLinux sounds great!
+I'd really like to be able to detect such direct buffered-io
+"interference" from user-space, though, so that I could preserve the
+BUG() in cases where ext3 is getting this wrong internally.  I'll look
+at that --- I may be able to achieve it through ext3's existing
+metadata flags.
 
-Does it run on Red Hat?
-
-See ya,
-Joe Barr
-
-
-
-
-On Fri, 2002-03-01 at 13:00, Rick A. Hohensee wrote:
-> THIS DOES NOT EXIST. I AM NOT DOING THIS. THIS IS A SUGGESTION.
-> THIS DOES NOT EXIST. I AM NOT DOING THIS. THIS IS A SUGGESTION.
-> THIS DOES NOT EXIST. I AM NOT DOING THIS. THIS IS A SUGGESTION.
->=20
-> I've done some of the harder parts, but I personally am not going to
-> saddle them with a unixoid kernel at this point without severe
-> provocation. YMMV.
->=20
-> <spastic trombone/banjo/kazoo/forking-penguins fanfare>
->=20
->=20
->=20
->                           PUPLinux
->=20
->                 Personable UniProcessor Linux
->=20
->                 1.2.14 umbilical snip version
->=20
-> FEATURISMING...
->=20
->         * based on Linux 1.2.13
->         * ignores POSIX. Aims to further the unix tradition of innovation=
-,
->                 in conjunction with innovations from Forth, Amiga, and
->                 <your name here>.
->         * converted entirely to the osimplay meta-assembler
->                 o Therefor builds, if necessary, with nothing but a
->                         32 bit post-Korn shell. No dd even. Includes one.
->                 o Is also therefor x86-only, and 386-max, at least at
->                         first, but not nearly to the extent that you thin=
-k.
->         * No SMP ever, guaranteed. Not one ASCII byte.
->         * EOL =3D CR,LF
->         * dyndufs, appropriate ls included, shows the du of a dir, not th=
-e
->                         less-than-useless 1970 legacy noise the
->                         innocent user sees now for a dir's "size"
->                 o block sizes from one byte to Sagans in powers of 2
->         * Forth or similar in kernelspace (H3sm and/or Tiny OpenBoot)
->         * hard realtime service on NMI
->         * More stateful vt's; per-vt text modes, fonts, etc.
->         * Dotted Standard File Hierarchy support, DSFH
->         * No modules
->         * probably no threads, but I'm not sure.
->         * Plan-9-style CPU-based "includes" structure, to the extent
->                 that that pertains to a meta-assembler
->         * (back-port?) full UTF-8 support
->         * stdaux, FD 3, secondary input for all executables
->         * latched (level-triggered) interrupts
->         * Forth interpreter syscall(s) on INT 0x81
->=20
-> "Doc, GUIs aren't putting Linux on the desktop."
-> "Of course not. The GUI didn't put Windows on "the client". Try the above=
-,
-> and call me in the warm new glorious light of morning."
->=20
-> Rick Hohensee
-> parts of the above are in
-> ftp://ftp.gwdg.de/pub/cLIeNUX
-> ftp://ftp.gwdg.de/pub/cLIeNUX/interim    read  ./ABOUT
->=20
-> My apologies to the perps if there's a real "PUPLinux" somewhere.
-> You didn't know penguins had umbilical cords, did you? Ain't l-k grand?
->=20
->=20
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
-n
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
---=20
-#####################################################
-| Joe Barr                   warthawg@austin.rr.com |
-| 46DD E7E9 3F65 0ECB CF45 847A 01DF EB92 DDE9 15FE |
-#####################################################
-
---=-0pL7glRzPHDd4ix92gCf
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA8f9lLAd/rkt3pFf4RAj5hAJwK9555GmzGTSki0jsLs6rU6DusEACfX2RF
-67hxNg93TbskW7tzhWnMQ9s=
-=S+l4
------END PGP SIGNATURE-----
-
---=-0pL7glRzPHDd4ix92gCf--
-
+Cheers,
+ Stephen

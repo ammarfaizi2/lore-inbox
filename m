@@ -1,103 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270821AbTHLQu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 12:50:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270847AbTHLQu0
+	id S270519AbTHLQwY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 12:52:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270818AbTHLQwY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 12:50:26 -0400
-Received: from fw1.masirv.com ([65.205.206.2]:60749 "EHLO NEWMAN.masirv.com")
-	by vger.kernel.org with ESMTP id S270821AbTHLQuX (ORCPT
+	Tue, 12 Aug 2003 12:52:24 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:58603 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S270519AbTHLQwV convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 12:50:23 -0400
-Message-ID: <1060653695.5293.65.camel@huykhoi>
-From: Anthony Truong <Anthony.Truong@mascorp.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Christian Mautner <linux@mautner.ca>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4: Allocation of >1GB in one chunk
-Date: Mon, 11 Aug 2003 19:01:35 -0700
+	Tue, 12 Aug 2003 12:52:21 -0400
+Content-Class: urn:content-classes:message
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
-	charset="iso-8859-1"
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: C99 Initialisers
+Date: Tue, 12 Aug 2003 09:52:17 -0700
+Message-ID: <032EB457B9DBC540BFB1B7B519C78B0E0165FCE7@orsmsx404.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: C99 Initialisers
+Thread-Index: AcNgxThWYjpEqN2TRSSFkR0wJDLVLAALG5Rg
+From: "Shureih, Tariq" <tariq.shureih@intel.com>
+To: "Matthew Wilcox" <willy@debian.org>, "Greg KH" <greg@kroah.com>
+Cc: "Robert Love" <rml@tech9.net>, "CaT" <cat@zip.com.au>,
+       <linux-kernel@vger.kernel.org>,
+       <kernel-janitor-discuss@lists.sourceforge.net>
+X-OriginalArrivalTime: 12 Aug 2003 16:52:18.0243 (UTC) FILETIME=[1719E130:01C360F2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-08-12 at 18:00, Geert Uytterhoeven wrote:
+I personally see a difference and an advantage in making it easier to
+read therefore easier to manage and maintain.
 
-On Mon, 11 Aug 2003, Christian Mautner wrote:
-> please forgive me to ask this (perhaps newbie?) question here on
-> l-k, but I'm desperate. This is my problem:
+Sure it's a whole conversion process and may be a bit shocking to
+existing drivers and people used to the struct in this format, but
+that's nothing new to the kernel to yank something we're all so used to
+and replace it with something that we would all benefit from in the long
+term.
+
+
+--
+Tariq Shureih
+ 
+
+*Opinions are my own and don't reflect those of my employer*
+*But my two cents and what's left of my stock options :P*
+
+> -----Original Message-----
+> From: Matthew Wilcox [mailto:willy@debian.org]
+> Sent: Tuesday, August 12, 2003 4:27 AM
+> To: Greg KH
+> Cc: Matthew Wilcox; Robert Love; CaT; linux-kernel@vger.kernel.org;
+> kernel-janitor-discuss@lists.sourceforge.net
+> Subject: Re: C99 Initialisers
 > 
-> I am running various kinds of EDA software on 32-bit Linux, and they
-> need substantial amounts of memory. I am running 2.4.21 with with
-> PAGE_OFFSET at 0xc0000000, so I can run processes just over 3GB. The
-> machine (a dual Xeon) has 4GB memory and 4GB swap.
+> On Mon, Aug 11, 2003 at 10:38:27PM -0700, Greg KH wrote:
+> > On Tue, Aug 12, 2003 at 03:39:36AM +0100, Matthew Wilcox wrote:
+> > > I don't think anyone would appreciate you converting that to:
+> > >
+> > > static struct pci_device_id tg3_pci_tbl[] __devinitdata = {
+> > > 	{
+> > > 		.vendor		= PCI_VENDOR_ID_BROADCOM,
+> > > 		.device		= PCI_DEVICE_ID_TIGON3_5700,
+> > > 		.subvendor	= PCI_ANY_ID,
+> > > 		.subdevice	= PCI_ANY_ID,
+> > > 		.class		= 0,
+> > > 		.class_mask	= 0,
+> > > 		.driver_data	= 0,
+> > > 	},
+> >
+> > I sure would.  Oh, you can drop the .class, .class_mask, and
+> > .driver_data lines, and then it even looks cleaner.
+> >
+> > I would love to see that kind of change made for pci drivers.
 > 
-> But there is this one program now that dies because it's out of
-> memory. No surprise, as this happens frequently with tasks that would
-> need 4GB or more.
+> I really strongly disagree.  For a struct that's as well-known as
+> pci_device_id, the argument of making it clearer doesn't make sense.
+> It's also not subject to change, unlike say file_operations, so the
+> argument of adding new elements without breaking anything is also not
+> relevant.
 > 
-> But this one needs less than 3GB. But what it does need (I strace'ed
-> this), is 1.3GB in one whole chunk.
+> In tg3, the table definition is already 32 lines long with 2 lines per
+> device_id.  In the scheme you favour so much, that becomes 92 lines,
+for
+> no real gain that I can see.
 > 
-> I wrote a test program to mimic this:
-> 
-> The attached program allocates argv[1] MB in 1MB chunks and argv[2] MB
-> in one big chunk. (The original version also touched every page, but
-> this makes no difference here.)
-> 
-> [chm@trex7:~/C] ./foo 2500 500
-> Will allocate 2621440000 bytes in 1MB chunks...
-> Will allocate 524288000 bytes in one chunk...
-> Succeeded.
-> 
-> [chm@trex7:~/C] ./foo 1500 1000
-> Will allocate 1572864000 bytes in 1MB chunks...
-> Will allocate 1048576000 bytes in one chunk...
-> malloc: Cannot allocate memory
-> Out of memory.
-> 
-> The first call allocated 3GB and succeeds, the second one only 2.5GB
-> but fails!
-> 
-> The thing that comes to my mind is memory fragmentation, but how could
-> that be, with virtual memory? 
-
-Virtual memory fixes physical memory fragmentation only. I.e. you can
-`glue'
-multiple physical chunks together into one large virtual chunk.
-
-Biut you're still limited to a 32-bit virtual address space (3 GB in
-user
-space). If this virtual 3 GB gets fragmented, you're still out of luck.
-
-To check this, print all allocated virtual addresses, or look at
-/proc/<pid>/maps, and see why it fails.
-
-Gr{oetje,eeting}s,
-
-                                                Geert
-
-
-Hello,
-There is indeed fragmentation problem even with virtual memory address
-space.  I think in the second foo call, Christian might have run into
-this fragmentation problem.
-
-Regards,
-Anthony Dominic Truong.
-
-
-
-
-Disclaimer: The information contained in this transmission, including any
-attachments, may contain confidential information of Matsushita Avionics
-Systems Corporation.  This transmission is intended only for the use of the
-addressee(s) listed above.  Unauthorized review, dissemination or other use
-of the information contained in this transmission is strictly prohibited.
-If you have received this transmission in error or have reason to believe
-you are not authorized to receive it, please notify the sender by return
-email and promptly delete the transmission.
-
-
+> --
+> "It's not Hollywood.  War is real, war is primarily not about defeat
+or
+> victory, it is about death.  I've seen thousands and thousands of dead
+> bodies.
+> Do you think I want to have an academic debate on this subject?" --
+Robert
+> Fisk
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

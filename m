@@ -1,39 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267958AbUJGVLU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267360AbUJHCwo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267958AbUJGVLU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 17:11:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268029AbUJGVJA
+	id S267360AbUJHCwo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 22:52:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267517AbUJHCsm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 17:09:00 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:33444 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268213AbUJGUpx (ORCPT
+	Thu, 7 Oct 2004 22:48:42 -0400
+Received: from codepoet.org ([166.70.99.138]:29146 "EHLO codepoet.org")
+	by vger.kernel.org with ESMTP id S267360AbUJHCsG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 16:45:53 -0400
-Subject: Re: 2.6.9-rc3-mm3 fails to detect aic7xxx
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-Cc: "K.R. Foley" <kr@cybsft.com>, Andrew Morton <akpm@osdl.org>,
+	Thu, 7 Oct 2004 22:48:06 -0400
+Date: Thu, 7 Oct 2004 20:48:01 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: "Jeff V. Merkey" <jmerkey@drdos.com>
+Cc: Dave Jones <davej@redhat.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       "jmerkey@comcast.net" <jmerkey@comcast.net>, jonathan@jonmasters.org,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <4165A951.3060808@adaptec.com>
-References: <1097178019.24355.39.camel@localhost>
-	 <4165A369.60306@cybsft.com>  <4165A951.3060808@adaptec.com>
-Content-Type: text/plain
-Message-Id: <1097181937.25526.13.camel@localhost>
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
+Message-ID: <20041008024800.GB1542@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: andersen@codepoet.org,
+	"Jeff V. Merkey" <jmerkey@drdos.com>, Dave Jones <davej@redhat.com>,
+	Kyle Moffett <mrmacman_g4@mac.com>,
+	"jmerkey@comcast.net" <jmerkey@comcast.net>, jonathan@jonmasters.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net> <35fb2e590410011509712b7d1@mail.gmail.com> <415DD1ED.6030101@drdos.com> <1096738439.25290.13.camel@localhost.localdomain> <41659748.9090906@drdos.com> <8B592DC4-18A9-11D9-ABEB-000393ACC76E@mac.com> <4165B265.2050506@drdos.com> <20041007221826.GB5302@redhat.com> <4165BA70.5050208@drdos.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 07 Oct 2004 13:45:37 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4165BA70.5050208@drdos.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-07 at 13:38, Luben Tuikov wrote:
-> It is most likely the PCI ID patch which went into those drivers.
-> You can back out only that change (drivers/scsi/aic7xxx) and
-> try it.  (assuming you haven't changed anything else)
+On Thu Oct 07, 2004 at 03:51:44PM -0600, Jeff V. Merkey wrote:
+> We need the core folks whose names appear as the original
+> author in the master header of each file to sign off.
 
-There's a lot of other gunk around there.  Is there a patch just for
-that changeset somewhere?
+You can plan on removing ide-cd.c and cdrom.c from your
+little venture.  :-)
 
--- Dave
+> It's time ALL YOU GUYS got rewarded for your hard work,
 
+Been there, done that.
+
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

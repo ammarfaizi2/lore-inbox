@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129638AbRCWGrg>; Fri, 23 Mar 2001 01:47:36 -0500
+	id <S129624AbRCWGiX>; Fri, 23 Mar 2001 01:38:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129679AbRCWGr0>; Fri, 23 Mar 2001 01:47:26 -0500
-Received: from adsl-63-200-41-38.steelrain.org ([63.200.41.38]:29199 "EHLO
-	thor.sbay.org") by vger.kernel.org with ESMTP id <S129638AbRCWGrO>;
-	Fri, 23 Mar 2001 01:47:14 -0500
-Date: Thu, 22 Mar 2001 22:43:21 -0800 (PST)
-From: Dave Zarzycki <dave@zarzycki.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "Woller, Thomas" <twoller@crystal.cirrus.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Incorrect mdelay() results on Power Managed Machines x86
-In-Reply-To: <E14gCbN-0003Kn-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0103222238001.994-100000@batman.zarzycki.org>
+	id <S129638AbRCWGiO>; Fri, 23 Mar 2001 01:38:14 -0500
+Received: from bacchus.veritas.com ([204.177.156.37]:55747 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S129624AbRCWGiC>; Fri, 23 Mar 2001 01:38:02 -0500
+Message-ID: <3ABAEED2.6020708@muppetlabs.com>
+Date: Thu, 22 Mar 2001 22:36:02 -0800
+From: Amit D Chaudhary <amit@muppetlabs.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; 0.7) Gecko/20010105
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: werner.almesberger@epfl.ch, lermen@fgan.de, linux-kernel@vger.kernel.org
+Subject: /linuxrc query
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Mar 2001, Alan Cox wrote:
+Hi,
 
-> This is commonly done using the speedstep feature on intel cpus. Speedstep
-> can generate events so the OS knows about it but Intel are not telling
-> people about how this works.
-<...snip...>
-> We certainly could recalibrate the clock if we could get events out of
-> ACPI, APM or some other source.
+I have a initrd working, a /linuxrc on it that runs and executes. My question 
+for the commands after pivot_root which works like a charm, thanks to initrd.txt,
 
-Specific events for Speedstep on/off would be nice, but in practice, can
-we re-calibrate when ever there is a change in the power status (on
-battery, charging, etc.)?
+what does redirecting stdin\stdout\stderr to dev/console achieve? I thought 
+since the root is now the "new" root, dev/console will be used automatically? 
+Also, why chroot, why not call init directly?
+#exec chroot . sbin/init 3 <dev/console >dev/console 2>&1
 
-davez
+Since the above never returns, what follows in not freed. Does this mean I have 
+around 4-6 mb of ram being used up unnecessarily? Any solution?
 
--- 
-Dave Zarzycki
-http://thor.sbay.org/~dave/
+#umount /initrd
+#blockdev --flushbufs /dev/ram0    # /dev/rd/0 if using devfs
+
+
+Thanks and Regards
+Amit
 

@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266851AbTBCPfY>; Mon, 3 Feb 2003 10:35:24 -0500
+	id <S266637AbTBCP10>; Mon, 3 Feb 2003 10:27:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266852AbTBCPfY>; Mon, 3 Feb 2003 10:35:24 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:39569
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266851AbTBCPfX>; Mon, 3 Feb 2003 10:35:23 -0500
-Subject: Re: PnP Model
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mochel@osdl.org
-In-Reply-To: <1044286316.1777.30.camel@mulgrave>
-References: <1044286316.1777.30.camel@mulgrave>
+	id <S266765AbTBCP10>; Mon, 3 Feb 2003 10:27:26 -0500
+Received: from pointblue.com.pl ([62.121.131.135]:48135 "EHLO pointblue.com.pl")
+	by vger.kernel.org with ESMTP id <S266637AbTBCP1W>;
+	Mon, 3 Feb 2003 10:27:22 -0500
+Subject: Re: [BUG] vmalloc, kmalloc - 2.4.x
+From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+To: arjanv@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1044285758.2527.8.camel@laptop.fenrus.com>
+References: <1044285222.2396.14.camel@gregs>
+	 <1044285758.2527.8.camel@laptop.fenrus.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1044290479.21009.7.camel@irongate.swansea.linux.org.uk>
+Organization: K4 Labs
+Message-Id: <1044286926.2396.28.camel@gregs>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 03 Feb 2003 16:41:19 +0000
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 03 Feb 2003 15:42:06 +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-02-03 at 15:31, James Bottomley wrote:
-> The last issue is probably that we'd like the ISA probes to be run after
-> all the rest of the busses so that all resources in use in the system
+On Mon, 2003-02-03 at 15:22, Arjan van de Ven wrote:
+> On Mon, 2003-02-03 at 16:13, Grzegorz Jaskiewicz wrote:
 
-They need to run very early on in some ways. We don't want to assign a
-PnP device over something we didnt know exists. We can scan the other
-busses first safely but we can't activate devices or do anything else
-until the ISA unsafe probes run. Those also have some very careful
-ordering especially in networking. NE2000 must run early, other probes
-can make some cards move around so must also be ordered
+> forgot to tell you that
+> 
+>     ttimer.expires = jiffies+(HZ/150.0);
+> 
+> 
+> you CANNOT use floating point in kernel mode! And that for HZ=100 this
+> gives you a timer that expires immediatly.
 
+In real world i am NOT using this timer that way, so please don't even
+bother yourself telling me that this way is wrong, becouse i know it is
+not completly ok.
+
+
+> 
+> and that
+>         printk("<1>%d\n", TimerIntrpt);
+> you shouldn't use <1> in printk strings ever.
+<1>gives me messages on screen on my box, thats why.
+
+the same effect is while using kmalloc, just change vmalloc to kmalloc.
+
+
+-- 
+Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+K4 Labs
 

@@ -1,63 +1,192 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262510AbUKLLuq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262509AbUKLMDi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262510AbUKLLuq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 06:50:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262511AbUKLLuq
+	id S262509AbUKLMDi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 07:03:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262513AbUKLMDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 06:50:46 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:65493 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262510AbUKLLuk (ORCPT
+	Fri, 12 Nov 2004 07:03:38 -0500
+Received: from lucidpixels.com ([66.45.37.187]:45728 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S262509AbUKLMDa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 06:50:40 -0500
-Date: Fri, 12 Nov 2004 12:50:21 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Andries.Brouwer@cwi.nl
-Subject: Re: [PATCH] remove if !PARTITION_ADVANCED condition in defaults
-In-Reply-To: <CB00AF16-344E-11D9-857E-000393ACC76E@mac.com>
-Message-ID: <Pine.GSO.4.61.0411121242340.27077@waterleaf.sonytel.be>
-References: <200411112302.iABN2Pu01711@apps.cwi.nl>
- <Pine.LNX.4.58.0411111507090.2301@ppc970.osdl.org> <CB00AF16-344E-11D9-857E-000393ACC76E@mac.com>
+	Fri, 12 Nov 2004 07:03:30 -0500
+Date: Fri, 12 Nov 2004 07:03:28 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p500
+To: linux-kernel@vger.kernel.org
+Subject: Non-e1000, 2.6.9 page allocation failures with OSS/audio.
+Message-ID: <Pine.LNX.4.61.0411120658490.19273@p500>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Nov 2004, Kyle Moffett wrote:
-> On Nov 11, 2004, at 18:11, Linus Torvalds wrote:
-> > That's really what EMBEDDED means: ask about things that no sane person
-> > would leave out. So how about just changing that "if PARTITION_ADVANCED"
-> > into "if EMBEDDED" on MSDOS?
-> 
-> If you make this specific to x86, that _may_ be OK, but I suspect others who
-> only have only BSD partitioning schemes may object.
+The other page allocation failures were due to the e1000+TSO segmentation 
+offload issue.
 
-Please do at least that! If a (non-ia32) machine doesn't have USB or FireWire,
-it usually doesn't need MS-DOS partitioning. This patch makes it impossible for
-people to leave out some stuff (BTW not limited to MS-DOS partitioning) they
-don't want. I guess Matt will be happy to add the inverse patch to -tiny...
+I use OSS sound drivers with 2.6.9.
 
-Andries wrote:
-> Many people are being bitten by the fact that if they select
-> CONFIG_PARTITION_ADVANCED in order to get some additional support,
-> they suddenly lose support for the MSDOS_PARTITION type.
+Here are the options I use and have been using for quite some time without 
+error:
 
-Are you sure Kconfig won't keep the old setting of MSDOS_PARTITION?
-Ah IC, this is for people who start from a brand new empty config, willing to
-solve the Kernel Quest with the 100000 Kconfig questions(TM) :-)
+1] <*> Open Sound System (DEPRECATED)
+2] <*>   OSS sound modules
+3] [*]     Verbose initialisation
+4] [*]     Persistent DMA buffers
+5] <*>     Crystal CS4232 based (PnP) cards
 
-This looks like yet another fix for yet another PEBKAC problem...  Will (or
-perhaps this has been done already as well) we hardcode IDE to yes (on ia32)?
+My LILO append line as is follows:
+append="cs4232=0x530,5,1,0,388,5 mce video=atyfb:1600x1200-16@60"
 
-Gr{oetje,eeting}s,
+What happened to the page allocation / memory subsystem in 2.6.9?
+I do not recall getting these with 2.6.4, 2.6.5, 2.6.6, 2.6.7, 2.6.8 or 
+2.6.8.1.
 
-						Geert
+gaim: page allocation failure. order:4, mode:0x21
+  [<c0139227>] __alloc_pages+0x247/0x3b0
+  [<c01393a8>] __get_free_pages+0x18/0x40
+  [<c035c7ca>] sound_alloc_dmap+0xaa/0x1b0
+  [<c0364d50>] ad_mute+0x20/0x40
+  [<c035cb9f>] open_dmap+0x1f/0x100
+  [<c035cfe8>] DMAbuf_open+0x178/0x1d0
+  [<c035a98a>] audio_open+0xba/0x280
+  [<c015d8e3>] cdev_get+0x53/0xc0
+  [<c0359b1c>] sound_open+0xac/0x110
+  [<c0358e1e>] soundcore_open+0x1ce/0x300
+  [<c0358c50>] soundcore_open+0x0/0x300
+  [<c015d5a4>] chrdev_open+0x104/0x250
+  [<c015d4a0>] chrdev_open+0x0/0x250
+  [<c0152e02>] dentry_open+0x1d2/0x270
+  [<c0152c1c>] filp_open+0x5c/0x70
+  [<c0152ef5>] get_unused_fd+0x55/0xf0
+  [<c0153059>] sys_open+0x49/0x90
+  [<c010405b>] syscall_call+0x7/0xb
+gaim: page allocation failure. order:3, mode:0x21
+  [<c0139227>] __alloc_pages+0x247/0x3b0
+  [<c01393a8>] __get_free_pages+0x18/0x40
+  [<c035c7ca>] sound_alloc_dmap+0xaa/0x1b0
+  [<c0364d50>] ad_mute+0x20/0x40
+  [<c035cb9f>] open_dmap+0x1f/0x100
+  [<c035cfe8>] DMAbuf_open+0x178/0x1d0
+  [<c035a98a>] audio_open+0xba/0x280
+  [<c015d8e3>] cdev_get+0x53/0xc0
+  [<c0359b1c>] sound_open+0xac/0x110
+  [<c0358e1e>] soundcore_open+0x1ce/0x300
+  [<c0358c50>] soundcore_open+0x0/0x300
+  [<c015d5a4>] chrdev_open+0x104/0x250
+  [<c015d4a0>] chrdev_open+0x0/0x250
+  [<c0152e02>] dentry_open+0x1d2/0x270
+  [<c0152c1c>] filp_open+0x5c/0x70
+  [<c0152ef5>] get_unused_fd+0x55/0xf0
+  [<c0153059>] sys_open+0x49/0x90
+  [<c010405b>] syscall_call+0x7/0xb
+gaim: page allocation failure. order:4, mode:0x21
+  [<c0139227>] __alloc_pages+0x247/0x3b0
+  [<c01393a8>] __get_free_pages+0x18/0x40
+  [<c035c7ca>] sound_alloc_dmap+0xaa/0x1b0
+  [<c0364d50>] ad_mute+0x20/0x40
+  [<c035cb9f>] open_dmap+0x1f/0x100
+  [<c035cf2d>] DMAbuf_open+0xbd/0x1d0
+  [<c035a98a>] audio_open+0xba/0x280
+  [<c015d8e3>] cdev_get+0x53/0xc0
+  [<c0359b1c>] sound_open+0xac/0x110
+  [<c0358e1e>] soundcore_open+0x1ce/0x300
+  [<c0358c50>] soundcore_open+0x0/0x300
+  [<c015d5a4>] chrdev_open+0x104/0x250
+  [<c015d4a0>] chrdev_open+0x0/0x250
+  [<c0152e02>] dentry_open+0x1d2/0x270
+  [<c0152c1c>] filp_open+0x5c/0x70
+  [<c0152ef5>] get_unused_fd+0x55/0xf0
+  [<c0153059>] sys_open+0x49/0x90
+  [<c010405b>] syscall_call+0x7/0xb
+gaim: page allocation failure. order:3, mode:0x21
+  [<c0139227>] __alloc_pages+0x247/0x3b0
+  [<c01393a8>] __get_free_pages+0x18/0x40
+  [<c035c7ca>] sound_alloc_dmap+0xaa/0x1b0
+  [<c0364d50>] ad_mute+0x20/0x40
+  [<c035cb9f>] open_dmap+0x1f/0x100
+  [<c035cf2d>] DMAbuf_open+0xbd/0x1d0
+  [<c035a98a>] audio_open+0xba/0x280
+  [<c015d8e3>] cdev_get+0x53/0xc0
+  [<c0359b1c>] sound_open+0xac/0x110
+  [<c0358e1e>] soundcore_open+0x1ce/0x300
+  [<c0358c50>] soundcore_open+0x0/0x300
+  [<c015d5a4>] chrdev_open+0x104/0x250
+  [<c015d4a0>] chrdev_open+0x0/0x250
+  [<c0152e02>] dentry_open+0x1d2/0x270
+  [<c0152c1c>] filp_open+0x5c/0x70
+  [<c0152ef5>] get_unused_fd+0x55/0xf0
+  [<c0153059>] sys_open+0x49/0x90
+  [<c010405b>] syscall_call+0x7/0xb
+gaim: page allocation failure. order:4, mode:0x21
+  [<c0139227>] __alloc_pages+0x247/0x3b0
+  [<c01393a8>] __get_free_pages+0x18/0x40
+  [<c035c7ca>] sound_alloc_dmap+0xaa/0x1b0
+  [<c0364d50>] ad_mute+0x20/0x40
+  [<c035cb9f>] open_dmap+0x1f/0x100
+  [<c035cfe8>] DMAbuf_open+0x178/0x1d0
+  [<c035a98a>] audio_open+0xba/0x280
+  [<c0359b1c>] sound_open+0xac/0x110
+  [<c0358e1e>] soundcore_open+0x1ce/0x300
+  [<c0358c50>] soundcore_open+0x0/0x300
+  [<c015d5a4>] chrdev_open+0x104/0x250
+  [<c015d4a0>] chrdev_open+0x0/0x250
+  [<c0152e02>] dentry_open+0x1d2/0x270
+  [<c0152c1c>] filp_open+0x5c/0x70
+  [<c0152ef5>] get_unused_fd+0x55/0xf0
+  [<c0153059>] sys_open+0x49/0x90
+  [<c010405b>] syscall_call+0x7/0xb
+gaim: page allocation failure. order:3, mode:0x21
+  [<c0139227>] __alloc_pages+0x247/0x3b0
+  [<c01393a8>] __get_free_pages+0x18/0x40
+  [<c035c7ca>] sound_alloc_dmap+0xaa/0x1b0
+  [<c0364d50>] ad_mute+0x20/0x40
+  [<c035cb9f>] open_dmap+0x1f/0x100
+  [<c035cfe8>] DMAbuf_open+0x178/0x1d0
+  [<c035a98a>] audio_open+0xba/0x280
+  [<c0359b1c>] sound_open+0xac/0x110
+  [<c0358e1e>] soundcore_open+0x1ce/0x300
+  [<c0358c50>] soundcore_open+0x0/0x300
+  [<c015d5a4>] chrdev_open+0x104/0x250
+  [<c015d4a0>] chrdev_open+0x0/0x250
+  [<c0152e02>] dentry_open+0x1d2/0x270
+  [<c0152c1c>] filp_open+0x5c/0x70
+  [<c0152ef5>] get_unused_fd+0x55/0xf0
+  [<c0153059>] sys_open+0x49/0x90
+  [<c010405b>] syscall_call+0x7/0xb
+gaim: page allocation failure. order:4, mode:0x21
+  [<c0139227>] __alloc_pages+0x247/0x3b0
+  [<c01393a8>] __get_free_pages+0x18/0x40
+  [<c035c7ca>] sound_alloc_dmap+0xaa/0x1b0
+  [<c0364d50>] ad_mute+0x20/0x40
+  [<c035cb9f>] open_dmap+0x1f/0x100
+  [<c035cf2d>] DMAbuf_open+0xbd/0x1d0
+  [<c035a98a>] audio_open+0xba/0x280
+  [<c0359b1c>] sound_open+0xac/0x110
+  [<c0358e1e>] soundcore_open+0x1ce/0x300
+  [<c0358c50>] soundcore_open+0x0/0x300
+  [<c015d5a4>] chrdev_open+0x104/0x250
+  [<c015d4a0>] chrdev_open+0x0/0x250
+  [<c0152e02>] dentry_open+0x1d2/0x270
+  [<c0152c1c>] filp_open+0x5c/0x70
+  [<c0152ef5>] get_unused_fd+0x55/0xf0
+  [<c0153059>] sys_open+0x49/0x90
+  [<c010405b>] syscall_call+0x7/0xb
+gaim: page allocation failure. order:3, mode:0x21
+  [<c0139227>] __alloc_pages+0x247/0x3b0
+  [<c01393a8>] __get_free_pages+0x18/0x40
+  [<c035c7ca>] sound_alloc_dmap+0xaa/0x1b0
+  [<c0364d50>] ad_mute+0x20/0x40
+  [<c035cb9f>] open_dmap+0x1f/0x100
+  [<c035cf2d>] DMAbuf_open+0xbd/0x1d0
+  [<c035a98a>] audio_open+0xba/0x280
+  [<c0359b1c>] sound_open+0xac/0x110
+  [<c0358e1e>] soundcore_open+0x1ce/0x300
+  [<c0358c50>] soundcore_open+0x0/0x300
+  [<c015d5a4>] chrdev_open+0x104/0x250
+  [<c015d4a0>] chrdev_open+0x0/0x250
+  [<c0152e02>] dentry_open+0x1d2/0x270
+  [<c0152c1c>] filp_open+0x5c/0x70
+  [<c0152ef5>] get_unused_fd+0x55/0xf0
+  [<c0153059>] sys_open+0x49/0x90
+  [<c010405b>] syscall_call+0x7/0xb
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

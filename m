@@ -1,44 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262530AbTD3W7h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 18:59:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbTD3W7h
+	id S262493AbTD3W6V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 18:58:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262520AbTD3W6V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 18:59:37 -0400
-Received: from pointblue.com.pl ([62.89.73.6]:20493 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S262530AbTD3W7f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 18:59:35 -0400
-Subject: Re: [PATCH] ieee1394.c on - compilation errors
-From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-To: Ben Collins <bcollins@debian.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030430224346.GA372@phunnypharm.org>
-References: <1051743594.5267.7.camel@flat41>
-	 <20030430224346.GA372@phunnypharm.org>
+	Wed, 30 Apr 2003 18:58:21 -0400
+Received: from jstevenson.plus.com ([212.159.71.212]:27073 "EHLO
+	alpha.stev.org") by vger.kernel.org with ESMTP id S262493AbTD3W6U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 18:58:20 -0400
+Subject: Re: 3c59x support
+From: James Stevenson <james@stev.org>
+To: borkdude@cs.utwente.nl
+Cc: linux-kernel@vger.kernel.org, andrewm@uow.edu.au, netdev@oss.sgi.com
+In-Reply-To: <200304290202.02811.borkdude@cs.utwente.nl>
+References: <200304290202.02811.borkdude@cs.utwente.nl>
 Content-Type: text/plain
-Organization: K4 labs
-Message-Id: <1051744400.5274.12.camel@flat41>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 01 May 2003 00:13:20 +0100
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 01 May 2003 00:17:21 +0100
+Message-Id: <1051744645.2308.11.camel@god.stev.org>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-04-30 at 23:43, Ben Collins wrote:
+Hi
 
-> Please inspect the logic before removing things :)
+i also had problems with the card in some 2.4.x releases
+but it seems to work for me on a 2.4.20 kernel.
+
+3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+00:0a.0: 3Com PCI 3c905C Tornado at 0xec00. Vers LK1.1.16
+
+i do still have problems with a card in another machine when rebooting
+from windows into linux it fails to init properly.
+But since the machine boots from nfs i have not been bothered to
+dump the info from this.
+
+
+On Tue, 2003-04-29 at 01:02, Michiel Borkent wrote:
+> Hello,
+> I am trying to make a 2.4.20 kernel with 3c59x support.
+> My card is a:
 > 
-> I already submitted a patch to Linus to fix this. The problem is that
-> class_num was used as an opaque way of determining what sort of device
-> (host/node/unitdir) it was dealing with on the ieee1394 bus. Your patch
-> would likely cause a lot of oopses.
-I wasn't sure about that. maybe i should ask for better way. :)
+> 3Com 3c900 Cyclone 10Mbps TPO 
+> 
+> card and it only works with the 3c59x-scyld module, I found with Debian Woody 
+> with a linux v2.2 kernel.
+> 
+> It does NOT work with the normal 3c59x module and as I am trying to make a 
+> 2.4.20 kernel, it still doesn't work. I chose support for "Vortex/Boomerang" 
+> and normally my card would be supported I think.
+> 
+> Can someone help me with this?
+> 
+> Greetings,
+> Michiel Borkent
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-thanks for response.
 
--- 
-Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-K4 labs
 

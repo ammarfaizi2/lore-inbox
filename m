@@ -1,204 +1,213 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261291AbTIKPqy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 11:46:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261311AbTIKPqy
+	id S261311AbTIKQDd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 12:03:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261288AbTIKQDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 11:46:54 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:15612 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261291AbTIKPqs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 11:46:48 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH][IDE] update dtc2278 driver
-Date: Thu, 11 Sep 2003 17:48:21 +0200
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309111748.21506.bzolnier@elka.pw.edu.pl>
+	Thu, 11 Sep 2003 12:03:33 -0400
+Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:12476 "EHLO
+	wisbech.cl.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S261351AbTIKQBp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 12:01:45 -0400
+X-Mailer: exmh version 2.5+CL 07/13/2001 with nmh-1.0.4
+From: Jon Fairbairn <Jon.Fairbairn@cl.cam.ac.uk>
+X-emacs-edited: yes
+To: Russell King <rmk@arm.linux.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Omnibook PCMCIA slots unusable after suspend. 
+In-reply-to: Your message of "Wed, 10 Sep 2003 23:45:38 BST."
+             <20030910234538.S30046@flint.arm.linux.org.uk> 
+X-Face: H#SM:U1U-/6#NN83s6?Die557~]Dfifz~-|V:wSKGL6T-|!qk{U4/M7+k5Py!-{q=2Q/%0@
+        E29yc_kQC&^
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Date: Thu, 11 Sep 2003 17:01:30 +0100
+Message-ID: <23461.1063296090@cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2003-09-10 at 23:45BST Russell King wrote:
+> On Wed, Sep 10, 2003 at 10:22:32PM +0100, Jon Fairbairn wrote:
+> > In short: I'm using an HP Ombibook 800CT, have started using
+> > a Carbus PCMCIA network card and am losing the card after
+> > suspends.
+> 
+> I'm only interested in the 2.6.0-test5 results.
 
-[IDE] update dtc2278 driver
+OK. Pause for recompilation... 
 
-- common dtc2278_init() for built-in and module
-- touch hwifs only if hwif->chipset == ide_unknown for both ports,
-  so we don't thrash already used hwifs when loading module
-- release hwif only if hwif->chipset == ide_dtc2278
-- mark exit functions with __exit
-- do not use ide_hwifs[] directly
-- minor cleanups
+> Please run lspci -vvb twice - once when you have just booted
+> the machine, and once when you resume.
 
- drivers/ide/ide.c            |    4 -
- drivers/ide/legacy/dtc2278.c |  109 +++++++++++++++++++------------------------
- 2 files changed, 52 insertions(+), 61 deletions(-)
+The following is done without unloading the modules round
+the suspend.
 
-diff -puN drivers/ide/legacy/dtc2278.c~ide-dtc2278-update drivers/ide/legacy/dtc2278.c
---- linux-2.6.0-test5-bk1/drivers/ide/legacy/dtc2278.c~ide-dtc2278-update	2003-09-10 21:43:06.000000000 +0200
-+++ linux-2.6.0-test5-bk1-root/drivers/ide/legacy/dtc2278.c	2003-09-11 17:42:47.337718712 +0200
-@@ -95,9 +95,16 @@ static void tune_dtc2278 (ide_drive_t *d
- 	HWIF(drive)->drives[!drive->select.b.unit].io_32bit = 1;
- }
- 
--void __init probe_dtc2278 (void)
-+static int __init probe_dtc2278(void)
- {
- 	unsigned long flags;
-+	ide_hwif_t *hwif, *mate;
-+
-+	hwif = &ide_hwifs[0];
-+	mate = &ide_hwifs[1];
-+
-+	if (hwif->chipset != ide_unknown || mate->chipset != ide_unknown)
-+		return 1;
- 
- 	local_irq_save(flags);
- 	/*
-@@ -117,76 +124,60 @@ void __init probe_dtc2278 (void)
- #endif
- 	local_irq_restore(flags);
- 
--	ide_hwifs[0].serialized = 1;
--	ide_hwifs[1].serialized = 1;
--	ide_hwifs[0].chipset = ide_dtc2278;
--	ide_hwifs[1].chipset = ide_dtc2278;
--	ide_hwifs[0].tuneproc = &tune_dtc2278;
--	ide_hwifs[0].drives[0].no_unmask = 1;
--	ide_hwifs[0].drives[1].no_unmask = 1;
--	ide_hwifs[1].drives[0].no_unmask = 1;
--	ide_hwifs[1].drives[1].no_unmask = 1;
--	ide_hwifs[0].mate = &ide_hwifs[1];
--	ide_hwifs[1].mate = &ide_hwifs[0];
--	ide_hwifs[1].channel = 1;
-+	hwif->serialized = 1;
-+	hwif->chipset = ide_dtc2278;
-+	hwif->tuneproc = &tune_dtc2278;
-+	hwif->drives[0].no_unmask = 1;
-+	hwif->drives[1].no_unmask = 1;
-+	hwif->mate = mate;
-+
-+	mate->serialized = 1;
-+	mate->chipset = ide_dtc2278;
-+	mate->drives[0].no_unmask = 1;
-+	mate->drives[1].no_unmask = 1;
-+	mate->mate = hwif;
-+	mate->channel = 1;
-+
-+	probe_hwif_init(hwif);
-+	probe_hwif_init(mate);
- 
--	probe_hwif_init(&ide_hwifs[0]);
--	probe_hwif_init(&ide_hwifs[1]);
-+	return 0;
- }
- 
--static void dtc2278_release (void)
-+/* Can be called directly from ide.c. */
-+int __init dtc2278_init(void)
- {
--	if (ide_hwifs[0].chipset != ide_dtc2278 &&
--	    ide_hwifs[1].chipset != ide_dtc2278)
-+	if (probe_dtc2278()) {
-+		printk(KERN_ERR "dtc2278: ide interfaces already in use!\n");
-+		return -EBUSY;
-+	}
-+	return 0;
-+}
-+
-+#ifdef MODULE
-+static void __exit dtc2278_release_hwif(ide_hwif_t *hwif)
-+{
-+	if (hwif->chipset != ide_dtc2278)
- 		return;
- 
--	ide_hwifs[0].serialized = 0;
--	ide_hwifs[1].serialized = 0;
--	ide_hwifs[0].chipset = ide_unknown;
--	ide_hwifs[1].chipset = ide_unknown;
--	ide_hwifs[0].tuneproc = NULL;
--	ide_hwifs[0].drives[0].no_unmask = 0;
--	ide_hwifs[0].drives[1].no_unmask = 0;
--	ide_hwifs[1].drives[0].no_unmask = 0;
--	ide_hwifs[1].drives[1].no_unmask = 0;
--	ide_hwifs[0].mate = NULL;
--	ide_hwifs[1].mate = NULL;
-+	hwif->serialized = 0;
-+	hwif->chipset = ide_unknown;
-+	hwif->tuneproc = NULL;
-+	hwif->drives[0].no_unmask = 0;
-+	hwif->drives[1].no_unmask = 0;
-+	hwif->mate = NULL;
- }
- 
--#ifndef MODULE
--/*
-- * init_dtc2278:
-- *
-- * called by ide.c when parsing command line
-- */
--
--void __init init_dtc2278 (void)
-+static void __exit dtc2278_exit(void)
- {
--	probe_dtc2278();
-+	dtc2278_release_hwif(&ide_hwifs[0]);
-+	dtc2278_release_hwif(&ide_hwifs[1]);
- }
- 
--#else
-+module_init(dtc2278_init);
-+module_exit(dtc2278_exit);
-+#endif
- 
- MODULE_AUTHOR("See Local File");
- MODULE_DESCRIPTION("support of DTC-2278 VLB IDE chipsets");
- MODULE_LICENSE("GPL");
--
--static int __init dtc2278_mod_init(void)
--{
--	probe_dtc2278();
--	if (ide_hwifs[0].chipset != ide_dtc2278 &&
--	    ide_hwifs[1].chipset != ide_dtc2278) {
--		dtc2278_release();
--		return -ENODEV;
--	}
--	return 0;
--}
--module_init(dtc2278_mod_init);
--
--static void __exit dtc2278_mod_exit(void)
--{
--	dtc2278_release();
--}
--module_exit(dtc2278_mod_exit);
--#endif
--
-diff -puN drivers/ide/ide.c~ide-dtc2278-update drivers/ide/ide.c
---- linux-2.6.0-test5-bk1/drivers/ide/ide.c~ide-dtc2278-update	2003-09-11 17:42:47.333719320 +0200
-+++ linux-2.6.0-test5-bk1-root/drivers/ide/ide.c	2003-09-11 17:42:47.339718408 +0200
-@@ -1811,7 +1811,7 @@ extern void init_umc8672(void);
- #endif
- #ifdef CONFIG_BLK_DEV_DTC2278
- static int __initdata probe_dtc2278;
--extern void init_dtc2278(void);
-+extern int dtc2278_init(void);
- #endif
- #ifdef CONFIG_BLK_DEV_HT6560B
- static int __initdata probe_ht6560b;
-@@ -2605,7 +2605,7 @@ int __init ide_init (void)
- #endif
- #ifdef CONFIG_BLK_DEV_DTC2278
- 	if (probe_dtc2278)
--		init_dtc2278();
-+		(void)dtc2278_init();
- #endif
- #ifdef CONFIG_BLK_DEV_HT6560B
- 	if (probe_ht6560b)
+Before:
+------
+00:00.0 Host bridge: VLSI Technology Inc 82C535 (rev 03)
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 0
 
-_
+00:01.0 PCI bridge: VLSI Technology Inc 82C534 [Eagle] (rev 03) (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+	I/O behind bridge: 00004000-00007fff
+	Memory behind bridge: 20000000-2fffffff
+	Prefetchable memory behind bridge: 30000000-3fffffff
+	BridgeCtl: Parity- SERR- NoISA- VGA- MAbort- >Reset+ FastB2B-
+
+00:02.0 Class ff00: VLSI Technology Inc 82C532 (rev 02)
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+
+00:03.0 VGA compatible controller: Neomagic Corporation NM2070 [MagicGraph 128] (rev 01) (prog-if 00 [VGA])
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin A routed to IRQ 0
+	Region 0: Memory at c0000000 (32-bit, prefetchable)
+
+00:04.0 CardBus bridge: Texas Instruments PCI1130 (rev 04)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 168, cache line size 08
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at 000e6000 (32-bit, non-prefetchable)
+	Bus: primary=00, secondary=02, subordinate=05, sec-latency=176
+	Memory window 0: 10000000-103ff000 (prefetchable)
+	Memory window 1: 10400000-107ff000
+	I/O window 0: 00008000-000080ff
+	I/O window 1: 00008400-000084ff
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt- PostWrite+
+	16-bit legacy interface ports at 0001
+
+00:04.1 CardBus bridge: Texas Instruments PCI1130 (rev 04)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 168, cache line size 08
+	Interrupt: pin B routed to IRQ 7
+	Region 0: Memory at 000e7000 (32-bit, non-prefetchable)
+	Bus: primary=00, secondary=06, subordinate=09, sec-latency=176
+	Memory window 0: 10800000-10bff000 (prefetchable)
+	Memory window 1: 10c00000-10fff000
+	I/O window 0: 00008800-000088ff
+	I/O window 1: 00008c00-00008cff
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt+ PostWrite+
+	16-bit legacy interface ports at 0001
+
+00:06.0 IRDA controller: VLSI Technology Inc 82C147 (rev 02)
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin A routed to IRQ 0
+	Region 0: I/O ports at 1000 [disabled]
+
+02:00.0 Ethernet controller: Linksys Fast Ethernet 10/100 (rev 11)
+	Subsystem: Netgear FA511 10/100
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (63750ns min, 63750ns max)
+	Interrupt: pin A routed to IRQ 9
+	Region 0: I/O ports at 8000
+	Region 1: Memory at 10400000 (32-bit, non-prefetchable)
+	Capabilities: [c0] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=100mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+------
+After:
+------
+
+00:00.0 Host bridge: VLSI Technology Inc 82C535 (rev 03)
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 0
+
+00:01.0 PCI bridge: VLSI Technology Inc 82C534 [Eagle] (rev 03) (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+	I/O behind bridge: 00004000-00007fff
+	Memory behind bridge: 20000000-2fffffff
+	Prefetchable memory behind bridge: 30000000-3fffffff
+	BridgeCtl: Parity- SERR- NoISA- VGA- MAbort- >Reset+ FastB2B-
+
+00:02.0 Class ff00: VLSI Technology Inc 82C532 (rev 02)
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+
+00:03.0 VGA compatible controller: Neomagic Corporation NM2070 [MagicGraph 128] (rev 01) (prog-if 00 [VGA])
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin A routed to IRQ 0
+	Region 0: Memory at c0000000 (32-bit, prefetchable)
+
+00:04.0 CardBus bridge: Texas Instruments PCI1130 (rev 04)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 168, cache line size 08
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at 000e6000 (32-bit, non-prefetchable)
+	Bus: primary=00, secondary=02, subordinate=05, sec-latency=176
+	Memory window 0: 10000000-103ff000 (prefetchable)
+	Memory window 1: 10400000-107ff000
+	I/O window 0: 00008000-000080ff
+	I/O window 1: 00008400-000084ff
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt- PostWrite+
+	16-bit legacy interface ports at 0001
+
+00:04.1 CardBus bridge: Texas Instruments PCI1130 (rev 04)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 168, cache line size 08
+	Interrupt: pin B routed to IRQ 7
+	Region 0: Memory at 000e7000 (32-bit, non-prefetchable)
+	Bus: primary=00, secondary=06, subordinate=09, sec-latency=176
+	Memory window 0: 10800000-10bff000 (prefetchable)
+	Memory window 1: 10c00000-10fff000
+	I/O window 0: 00008800-000088ff
+	I/O window 1: 00008c00-00008cff
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt+ PostWrite+
+	16-bit legacy interface ports at 0001
+
+00:06.0 IRDA controller: VLSI Technology Inc 82C147 (rev 02)
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin A routed to IRQ 0
+	Region 0: I/O ports at 1000 [disabled]
+
+02:00.0 Class ffff: Linksys Fast Ethernet 10/100 (rev ff) (prog-if ff)
+	!!! Unknown header type 7f
+
+------
+
+So there's a Reset- v a Reset+ there.
+
+Curiously, the output after a suspend on mains is the same
+(says diff) as the output after a suspend on battery, even
+though the former doesn't stop it working while the latter
+does.
+
+
+> > ...
+> > Sep  6 23:23:55 graffito kernel: Socket status: 2a035c8a
+> 
+> It looks like the cardbus controller configuration wasn't correctly
+> restored.
+
+Indeed, though it always seems to give the same dodgy looking
+status.
+
+> -- 
+> Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+> Linux kernel maintainer of:
+>   2.6 ARM Linux   - http://www.arm.linux.org.uk/
+
+Wish I still had an ARM...
+-- 
+Jón Fairbairn
+
 

@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282499AbRLONE6>; Sat, 15 Dec 2001 08:04:58 -0500
+	id <S282530AbRLONeZ>; Sat, 15 Dec 2001 08:34:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282508AbRLONEi>; Sat, 15 Dec 2001 08:04:38 -0500
-Received: from sproxy.gmx.net ([213.165.64.20]:30997 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S282499AbRLONEa>;
-	Sat, 15 Dec 2001 08:04:30 -0500
-Date: Sat, 15 Dec 2001 14:04:23 +0100
-From: Rene Rebe <rene.rebe@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: kernel hangs on num-lock press
-Message-Id: <20011215140423.0f8ac337.rene.rebe@gmx.net>
-Organization: FreeSourceCommunity ;-)
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S282547AbRLONeP>; Sat, 15 Dec 2001 08:34:15 -0500
+Received: from holomorphy.com ([216.36.33.161]:12675 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S282530AbRLONd6>;
+	Sat, 15 Dec 2001 08:33:58 -0500
+Date: Sat, 15 Dec 2001 05:27:55 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] bootmem for 2.5
+Message-ID: <20011215052755.A1047@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011102140207.V31822@w-wli.des.beaverton.ibm.com> <Pine.LNX.4.33.0112150701180.22884-100000@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <Pine.LNX.4.33.0112150701180.22884-100000@localhost.localdomain>; from mingo@elte.hu on Sat, Dec 15, 2001 at 07:05:45AM +0100
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
+On Fri, 2 Nov 2001, William Irwin wrote:
+>> [...] According to testing, this patch appears to save somewhere
+>> between 8KB and 2MB on i386 PC's versus the bitmap-based bootmem
+>> allocator.
 
-I have usb-only system here: MB: sis735; Keyboard: cherry 3000 USB and
-a Logitech Pilot USB mouse.
+On Sat, Dec 15, 2001 at 07:05:45AM +0100, Ingo Molnar wrote:
+> exactly where do these savings come from? The bootmem allocator frees its
+> bitmaps in free_all_bootmem().
 
-When I press num-lock the first time after boot-up or often after switching
-between X and a VC (Matrox-FB) my system hangs for a second (even sound-
-stops) and I get this message:
+I'm not entirely sure of the reason for the 2MB report, but it is the
+highest of the numbers that came back from #kernelnewbies testers.
 
-Dec 15 14:01:19 jackson kernel: keyboard: Timeout - AT keyboard not present?(ed)
-Dec 15 14:01:19 jackson kernel: keyboard: Timeout - AT keyboard not present?(f4)
+In the common (i386) case, it's microscopic, and it's always a direct
+result of tracking allocations at address granularity as opposed to page
+granularity. The mainline bootmem (which I'm sure you yourself are quite
+familiar with =) tracks allocations at page granularity and maintains
+additional state for the last allocation in order to merge successive
+small allocations. There are other architectures (IA64) where larger
+differences are seen. The small memory savings are a nice side effect,
+but the primary benefit is intended to be less work being needed to
+initialize the allocator.
 
-With my last Asus k7m maiboard and the same hardware (internal and external)
-I got this messages not that often - and I never had such hangs where even
-the sound stops ...
+As a side note, I'm interested in your general opinion regarding the
+code, especially given your prior involvement with this subsystem.
 
-Any idea??
 
-k33p h4ck1n6
-  René
-
--- 
-René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
-
-eMail:    rene.rebe@gmx.net
-          rene@rocklinux.org
-
-Homepage: http://www.tfh-berlin.de/~s712059/index.html
-
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.
+Thanks,
+Bill

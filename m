@@ -1,76 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVCKXK5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbVCKXVH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbVCKXK5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 18:10:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbVCKXHh
+	id S261847AbVCKXVH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 18:21:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbVCKXUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 18:07:37 -0500
-Received: from fire.osdl.org ([65.172.181.4]:7630 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261866AbVCKWzy (ORCPT
+	Fri, 11 Mar 2005 18:20:52 -0500
+Received: from rproxy.gmail.com ([64.233.170.202]:57389 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261726AbVCKXHV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 17:55:54 -0500
-Date: Fri, 11 Mar 2005 14:52:26 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: davej@redhat.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] mm counter operations through macros
-Message-Id: <20050311145226.6ee4a951.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0503111103200.22240@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0503110422150.19280@schroedinger.engr.sgi.com>
-	<20050311182500.GA4185@redhat.com>
-	<Pine.LNX.4.58.0503111103200.22240@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 11 Mar 2005 18:07:21 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=RIZQ9D4TVeiIPcThtgzgGCiymqAbs470EacUiFaxTBk1jCuRz+VYjKN19dnumC72B9ZF9WwzBl4Xy/8l4xFHpbz4d6jKJ4QFq2kZSJ19ykoYVdMeGATvvyro85eIxz9OCYcr5L07eWYCz1W6+PET5ALtF5TEQgKcTpKTgt3+bX0=
+Message-ID: <21d7e99705031115075e4378ed@mail.gmail.com>
+Date: Sat, 12 Mar 2005 10:07:16 +1100
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Brice Goglin <Brice.Goglin@ens-lyon.org>
+Subject: Re: i830 DRM problems
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <422C5A25.3000701@ens-lyon.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <422C5A25.3000701@ens-lyon.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@sgi.com> wrote:
->
-> This patch extracts all the operations on counters protected by the
-> page table lock (currently rss and anon_rss) into definitions in
-> include/linux/sched.h. All rss operations are performed through
-> the following macros:
->
-> get_mm_counter(mm, member)		-> Obtain the value of a counter
-> set_mm_counter(mm, member, value)	-> Set the value of a counter
-> update_mm_counter(mm, member, value)	-> Add to a counter
-> inc_mm_counter(mm, member)		-> Increment a counter
-> dec_mm_counter(mm, member)		-> Decrement a counter
-
-I spose it makes sense, if we'll be making scalability changes in there.
-
 > 
-> +#define set_mm_counter(mm, member, value) (mm)->member = (value)
-> +#define get_mm_counter(mm, member) ((mm)->member)
-> +#define update_mm_counter(mm, member, value) (mm)->member += (value)
-> +#define inc_mm_counter(mm, member) (mm)->member++
-> +#define dec_mm_counter(mm, member) (mm)->member--
-> +#define MM_COUNTER_T unsigned long
-
-Would prefer `mm_counter_t' here.
-
-Why not a typedef?
-
-> @@ -231,9 +237,13 @@ struct mm_struct {
->  	unsigned long start_code, end_code, start_data, end_data;
->  	unsigned long start_brk, brk, start_stack;
->  	unsigned long arg_start, arg_end, env_start, env_end;
-> -	unsigned long rss, anon_rss, total_vm, locked_vm, shared_vm;
-> +	unsigned long total_vm, locked_vm, shared_vm;
->  	unsigned long exec_vm, stack_vm, reserved_vm, def_flags, nr_ptes;
+> I am experiencing problems with DRM on my Dell Optiplex GX260.
+> I am running a Debian Sarge with Vanilla Linux 2.6.11 and XFree 4.3.0.
+> This one appeared while playing crack-attack and lead to a crash
+> of the X server.
 > 
-> +	/* Special counters protected by the page_table_lock */
-> +	MM_COUNTER_T rss;
-> +	MM_COUNTER_T anon_rss;
-> +
 
-Why were only two counters converted?
+a) does it work with 2.6.10?
+b) does it work if you turn off intelfb?
 
-Could I suggest that you rename all these counters, so that code which
-fails to use the macros won't compile?
-
-That renaming can be hidden in the header file: add an underscore to the
-front of all the identifiers, paste that underscore back within the macros.
-
+Dave.

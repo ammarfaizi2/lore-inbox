@@ -1,69 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266208AbUAUXdT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 18:33:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266205AbUAUXbc
+	id S266188AbUAUX2D (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 18:28:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266190AbUAUX2D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 18:31:32 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:254 "EHLO
-	orion.mvista.com") by vger.kernel.org with ESMTP id S266190AbUAUXbE
+	Wed, 21 Jan 2004 18:28:03 -0500
+Received: from smtp.terra.es ([213.4.129.129]:18621 "EHLO tsmtp4.mail.isp")
+	by vger.kernel.org with ESMTP id S266188AbUAUX2A convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 18:31:04 -0500
-Date: Wed, 21 Jan 2004 15:31:02 -0800
-From: Jun Sun <jsun@mvista.com>
-To: linux-kernel@vger.kernel.org
-Cc: jsun@mvista.com
-Subject: [BUG 2.6.1] missing 'console_driver' with CONFIG_VT but no CONFIG_VT_CONSOLE
-Message-ID: <20040121153102.D29705@mvista.com>
+	Wed, 21 Jan 2004 18:28:00 -0500
+Date: Thu, 22 Jan 2004 00:28:05 +0100
+From: Diego Calleja <grundig@teleline.es>
+To: chakkerz@optusnet.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Nvidia drivers and 2.6.x kernel
+Message-Id: <20040122002805.4c359c20.grundig@teleline.es>
+In-Reply-To: <200401221012.17121.chakkerz@optusnet.com.au>
+References: <200401221012.17121.chakkerz@optusnet.com.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="fUYQa+Pmc3FrFX/N"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+El Thu, 22 Jan 2004 10:12:17 +1100 Christian Unger <chakkerz@optusnet.com.au> escribió:
 
---fUYQa+Pmc3FrFX/N
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-See drivers/char/vt.c.
-
-'console_driver' is defined only when CONFIG_VT_CONSOLE is set.
-However it is used by vty_init() which is outside the scope
-of CONFIG_VT_CONSOLE.
-
-I think the fix is to move console_driver definition outside
-CONFIG_VT_CONSOLE.  See the attachment.  Hopefully someone with
-more knowledge on this can validate that.
-
-Jun
-
---fUYQa+Pmc3FrFX/N
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=junk
-
-diff -Nru drivers/char/vt.c.orig drivers/char/vt.c
---- drivers/char/vt.c.orig	Wed Nov  5 14:29:51 2003
-+++ drivers/char/vt.c	Wed Jan 21 15:27:06 2004
-@@ -2086,6 +2086,8 @@
- 	schedule_console_callback();
- }
- 
-+struct tty_driver *console_driver;
-+
- #ifdef CONFIG_VT_CONSOLE
- 
- /*
-@@ -2185,8 +2187,6 @@
- 	clear_bit(0, &printing);
- }
- 
--struct tty_driver *console_driver;
--
- static struct tty_driver *vt_console_device(struct console *c, int *index)
- {
- 	*index = c->index ? c->index-1 : fg_console;
-
---fUYQa+Pmc3FrFX/N--
+Have you tried to contact Nvidia? If lots of people ask them for the
+drivers they'll develop them faster, me thinks...

@@ -1,76 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311749AbSDDWce>; Thu, 4 Apr 2002 17:32:34 -0500
+	id <S311752AbSDDWko>; Thu, 4 Apr 2002 17:40:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311752AbSDDWc1>; Thu, 4 Apr 2002 17:32:27 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:53515 "EHLO
+	id <S311756AbSDDWkf>; Thu, 4 Apr 2002 17:40:35 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:26639 "EHLO
 	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S311749AbSDDWcO>; Thu, 4 Apr 2002 17:32:14 -0500
-Message-ID: <3CACD3FE.1323F721@zip.com.au>
-Date: Thu, 04 Apr 2002 14:30:22 -0800
+	id <S311752AbSDDWkV>; Thu, 4 Apr 2002 17:40:21 -0500
+Message-ID: <3CACD5D3.B2DA02AE@zip.com.au>
+Date: Thu, 04 Apr 2002 14:38:11 -0800
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Alan Cox <alan@redhat.com>
-CC: linux-kernel@vger.kernel.org, Arjan Van de Ven <arjanv@redhat.com>
-Subject: Re: Linux 2.4.19-pre5-ac2
-In-Reply-To: <200204042017.g34KHqv11609@devserv.devel.redhat.com>
+To: Roger Larsson <roger.larsson@norran.net>
+CC: Robert Love <rml@tech9.net>, Linus Torvalds <torvalds@transmeta.com>,
+        Dave Hansen <haveblue@us.ibm.com>,
+        "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
+Subject: Re: Patch: linux-2.5.8-pre1/kernel/exit.c change caused BUG() at boot 
+ time
+In-Reply-To: <Pine.LNX.4.33.0204041113410.12895-100000@penguin.transmeta.com> <1017948383.22303.537.camel@phantasy> <200204042334.04367.roger.larsson@norran.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Roger Larsson wrote:
 > 
 > ...
-> o       Cache more group descriptors on ext2/ext3       (Arjan van de Ven)
+> How about doing:
+> 
+> asmlinkage void preempt_schedule(void)
+> {
+>         unsigned long saved_state;
+> 
+>         if (unlikely(preempt_get_count()))
+>                 return;
+> 
+>         preempt_disable(); /* or use an atomic operation */
+>         saved_state = current->state;
+>         current->state = TASK_RUNNING;
+>         preempt_enable_no_resched(); /* we are scheduling anyway... */
+>         schedule();
 
-[ See below for the rant ]
+Interrupt occurs, puts this task in state TASK_RUNNING.
 
-I'd be interested in knowing what testing was performed, what
-workload this addresses, what improvements were observed, etc.
+>         current->state = saved_state;
 
-Did anyone consider and/or test removal of the cache altogether,
-and adding a touch_buffer() to the backing buffer_head, to allow the
-VM to perform the LRU management instead?
+whoops.  We went back into TASK_UNINTERRUPTIBLE.
 
-Did anyone try leaving the LRU at its current size and seeing if
-a touch_buffer() improves the problematic testcase?
+> }
+> 
 
-If there is indeed a workload which is improved by this patch,
-I would like know what it is, please - I would like to see if allowing
-the VM to manage the LRU also fixes that workload, because that's
-surely better than pinning down 256 kilobytes of memory per mounted
-filesystem.
+We could fix this with changes to schedule(), but that's
+not nice.   Another approach would be:
 
-Thanks.
+preempt_schedule()
+{
+	current->state2 = current->state;
+	current->state = TASK_RUNNING;
+	schedule();
+	current->state = current->state2;
+}
 
+and wake_up() would do:
 
+	tsk->state = TASK_RUNNING;
+	tsk->state2 = TASK_RUNNING;
 
-
-The rant:
-
-Not singling out Arjan; certainly this is not the most egregious
-case lately.  But.  Will people please stop sending kernel
-patches straight to tree owners without copying the appropriate
-mailing list?
-
-There is no benefit in keeping all the other kernel developers
-in the dark.  If a patch is not security-related and is not
-trivially boring, tree-owners should consider just dropping
-the thing if it has not been seen by the other developers.
-
-It's not as if this mailing list is overwhelmed with technical
-content, is it?  If people are shy, or are reluctant to disrupt
-the social and political ambiance of linux-kernel, there are
-other lists, including
-
-	linux-fsdevel@vger.kernel.org
-	linux-mm@kvack.org
-	netdev@oss.sgi.com
-	ext2-devel@lists.sourceforge.net
-
-and of course many others.
+With the appropriate locking, memory barriers and other
+relevant goo I think this would work...
 
 -

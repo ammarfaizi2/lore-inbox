@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274114AbRIXSKh>; Mon, 24 Sep 2001 14:10:37 -0400
+	id <S274125AbRIXSMq>; Mon, 24 Sep 2001 14:12:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274113AbRIXSK0>; Mon, 24 Sep 2001 14:10:26 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:41222 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S274110AbRIXSKP>; Mon, 24 Sep 2001 14:10:15 -0400
-Date: Mon, 24 Sep 2001 19:10:39 +0100
-From: John Levon <moz@compsoc.man.ac.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Tainting kernels for non-GPL or forced modules
-Message-ID: <20010924191038.A76887@compsoc.man.ac.uk>
-In-Reply-To: <27975.1001164529@ocs3.intra.ocs.com.au> <3BAF74B8.6070102@interactivesi.com>
-Mime-Version: 1.0
+	id <S274123AbRIXSMg>; Mon, 24 Sep 2001 14:12:36 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:60123 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S274122AbRIXSM3>;
+	Mon, 24 Sep 2001 14:12:29 -0400
+Message-ID: <3BAF78F9.EC0F67C1@candelatech.com>
+Date: Mon, 24 Sep 2001 11:18:33 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies Inc
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: bill davidsen <davidsen@tmr.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Locked up 2.4.10-pre11 on Tyan 815t motherboard.
+In-Reply-To: <200109241514.f8OFEL005589@deathstar.prodigy.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BAF74B8.6070102@interactivesi.com>
-User-Agent: Mutt/1.3.19i
-X-Url: http://www.movement.uklinux.net/
-X-Record: Truant - Neither Work Nor Leisure
-X-Toppers: N/A
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 24, 2001 at 01:00:24PM -0500, Timur Tabi wrote:
+bill davidsen wrote:
+> 
+> In article <3BA8DF59.B9F536B4@candelatech.com> greearb@candelatech.com wrote:
+> | Andrew Morton wrote:
+> |
+> | > nmi_watchdog will force an oops if the machine locks up
+> | > with interrupts disabled (as I suspect mine did).  But
+> | > it requires an SMP kernel or IO-APIC-on-UP.
+> |
+> | I just built a 2.4.8 kernel with the APIC enabled.  It locked
+> | hard and printed no OOPS.  I had set the boot cmd line as:
+> | nmi_watchdog=1
+> 
+> This only works if you have a lock with no response. If keyboard input
+> is echoed or ping still works, that's not the tight lockup. May I
+> suggest the software watchdog feature as an alternative. It's much
+> better at finding cases where the system is only braindead rather than
+> locked up.
 
-> The reason I ask is because I'm working on a closed-source (unfortunately) 
-> driver for Linux, and I'd really like to make it behave as well as possible.
+The keyboard did not work and ping did not work...
 
-add to your module code :
+alt-sysreq did not work either.
 
-MODULE_LICENSE("TabiPL");
-
-(or whatever it is).
-
-That way the kernel maintainers can ignore any bugs reported with your module
-loaded easily.
-
-regards
-john
+Ben
 
 -- 
-"Khendon's Law: If the same point is made twice by the same person,
- the thread is over."
+Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

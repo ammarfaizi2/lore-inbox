@@ -1,41 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268657AbUJDVsT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268672AbUJDWSz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268657AbUJDVsT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 17:48:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268652AbUJDVrk
+	id S268672AbUJDWSz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 18:18:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268520AbUJDVd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 17:47:40 -0400
-Received: from p508B61D6.dip.t-dialin.net ([80.139.97.214]:45602 "EHLO
-	mail.linux-mips.net") by vger.kernel.org with ESMTP id S268594AbUJDVli
+	Mon, 4 Oct 2004 17:33:59 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:33995 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S268650AbUJDVcK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 17:41:38 -0400
-Date: Mon, 4 Oct 2004 23:41:07 +0200
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org,
-       greg@kroah.com
-Subject: Re: [PATCH 2.6] pci-hplj.c: replace pci_find_device with pci_get_device
-Message-ID: <20041004214107.GA2160@linux-mips.org>
-References: <281940000.1096925207@w-hlinder.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 4 Oct 2004 17:32:10 -0400
+From: David Brownell <david-b@pacbell.net>
+To: linux-kernel@vger.kernel.org
+Subject: PATCH/RFC: ohci wakeup updates (4/4)
+Date: Mon, 4 Oct 2004 14:11:25 -0700
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <281940000.1096925207@w-hlinder.beaverton.ibm.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200410041411.25567.david-b@pacbell.net>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_9xbYBayHnvK19W6"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 04, 2004 at 02:26:47PM -0700, Hanna Linder wrote:
 
-> As pci_find_device is going away I have replaced this call with pci_get_device.
+--Boundary-00=_9xbYBayHnvK19W6
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Looks good ...
+The HCDs that understand about wakeup (OHCI, EHCI) would
+need small tweaks to use the driver model hooks.
 
-> If  someone has access to an RM200 or RM300 and could test this I would appreciate it.
+EHCI needs comparable changes, but I didn't want to spend
+the time splitting them out from other patches unless there
+was some agreement that this was the way the driver model
+should expose wakeup.
 
-Except that piece of code isn't for an RM[23]00 but a HP Laserjet (yes,
-that paper eating thing ;-) and hasn't seen any update or feedback from
-the original submitters since the original submission, so the entire HPLJ
-code is a candidate for removal ...
+--Boundary-00=_9xbYBayHnvK19W6
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="wake-ohci.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="wake-ohci.patch"
 
-   Ralf
+Makes OHCI use the new pmcore wakeup bits, not the old usbcore ones.
+Also includes a slightly better interpretation of the RWC bit.
+
+[ against Greg's 2.6.9-rc3 USB tree, hence 2.6.9-rc3-mm2 ]
+
+
+--- 1.83/drivers/usb/host/ohci-hcd.c	Fri Oct  1 16:23:18 2004
++++ edited/drivers/usb/host/ohci-hcd.c	Sat Oct  2 11:01:41 2004
+@@ -505,10 +505,6 @@
+ 			hcfs2string (ohci->hc_control & OHCI_CTRL_HCFS),
+ 			ohci->hc_control);
+ 
+-	if (ohci->hc_control & OHCI_CTRL_RWC
+-			&& !(ohci->flags & OHCI_QUIRK_AMD756))
+-		ohci->hcd.can_wakeup = 1;
+-
+ 	switch (ohci->hc_control & OHCI_CTRL_HCFS) {
+ 	case OHCI_USB_OPER:
+ 		temp = 0;
+@@ -655,7 +651,7 @@
+ 		usb_set_device_state (udev, USB_STATE_CONFIGURED);
+ 		return 0;
+ 	}
+- 
++
+ 	/* connect the virtual root hub */
+ 	udev = usb_alloc_dev (NULL, bus, 0);
+ 	if (!udev) {
+@@ -664,6 +660,11 @@
+ 		writel (ohci->hc_control, &ohci->regs->control);
+ 		return -ENOMEM;
+ 	}
++	/* RWC doesn't always mean the same thing... */
++	if (device_can_wakeup(bus->controller))
++		device_init_wakeup(bus->controller,
++				ohci->hc_control & OHCI_CTRL_RWC);
++	device_init_wakeup(&udev->dev, !(ohci->flags & OHCI_QUIRK_AMD756));
+ 
+ 	udev->speed = USB_SPEED_FULL;
+ 	if (hcd_register_root (udev, &ohci->hcd) != 0) {
+--- 1.36/drivers/usb/host/ohci-hub.c	Mon Sep 20 10:31:27 2004
++++ edited/drivers/usb/host/ohci-hub.c	Sat Oct  2 11:01:41 2004
+@@ -105,7 +105,7 @@
+ 	writel (ohci_readl (&ohci->regs->intrstatus), &ohci->regs->intrstatus);
+ 
+ 	/* maybe resume can wake root hub */
+-	if (ohci->hcd.remote_wakeup)
++	if (device_may_wakeup(&root->dev))
+ 		ohci->hc_control |= OHCI_CTRL_RWE;
+ 	else
+ 		ohci->hc_control &= ~OHCI_CTRL_RWE;
+@@ -231,7 +231,7 @@
+ 	msleep (3);
+ 
+ 	temp = OHCI_CONTROL_INIT | OHCI_USB_OPER;
+-	if (ohci->hcd.can_wakeup)
++	if (device_can_wakeup(hcd->self.controller));
+ 		temp |= OHCI_CTRL_RWC;
+ 	ohci->hc_control = temp;
+ 	writel (temp, &ohci->regs->control);
+@@ -347,7 +347,8 @@
+ 		 */
+ 		if (!(status & RH_PS_CCS))
+ 			continue;
+-		if ((status & RH_PS_PSS) && ohci->hcd.remote_wakeup)
++		if ((status & RH_PS_PSS)
++				&& device_may_wakeup(&hcd->self.root_hub->dev))
+ 			continue;
+ 		can_suspend = 0;
+ 	}
+
+--Boundary-00=_9xbYBayHnvK19W6--

@@ -1,69 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264415AbUAET15 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 14:27:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265158AbUAET15
+	id S265208AbUAETWN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 14:22:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265158AbUAETWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 14:27:57 -0500
-Received: from madrid10.amenworld.com ([62.193.203.32]:779 "EHLO
-	madrid10.amenworld.com") by vger.kernel.org with ESMTP
-	id S264415AbUAET14 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 14:27:56 -0500
-Date: Mon, 5 Jan 2004 20:24:30 +0100
-From: DervishD <raul@pleyades.net>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Weird problems with printer using USB
-Message-ID: <20040105192430.GA15884@DervishD>
+	Mon, 5 Jan 2004 14:22:13 -0500
+Received: from rth.ninka.net ([216.101.162.244]:26753 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S265130AbUAETWK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 14:22:10 -0500
+Date: Mon, 5 Jan 2004 11:22:02 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       berkley@cs.wustl.edu
+Subject: Re: [BUG] x86_64 pci_map_sg modifies sg list - fails multiple
+ map/unmaps
+Message-Id: <20040105112202.1fe5cacf.davem@redhat.com>
+In-Reply-To: <2938942704.1073325455@aslan.btc.adaptec.com>
+References: <2938942704.1073325455@aslan.btc.adaptec.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi all :)
+On Mon, 05 Jan 2004 10:57:35 -0700
+"Justin T. Gibbs" <gibbs@scsiguy.com> wrote:
 
-    I have a Lexmark E312 laser printer, which comes with both a parallel
-port and an USB port. It interprets PostScript, so when I print I
-simply 'cat' the file to the printer device (together with some
-codes, quite simple). This method works smoothly when using the
-printer through the parallel port, no problem, but when I use the USB
-port, sometimes I get the following:
+> DMA-API.txt doesn't seem to cover this issue.  Should the low-level DMA
+> code restore the S/G list to its original state on unmap or should the
+> SCSI HBA drivers be changed to update "use_sg" with the segment count
+> reported by the pci_map_sg() API?  If the latter, this seems to contradict
+> the mandate in DMA-API that the nseg parameter passed into the unmap call
+> be the same as that passed into the map call.  Most of the kernel assumes
+> that an S/G list can be mapped an unmapped multiple times using the same
+> arguments.  This doesn't seem to me to be an unreasonable expectation.
 
-kernel: host/usb-uhci.c: interrupt, status 2, frame# 682
-kernel: printer.c: usblp0: nonzero read/write bulk status received: -110
-kernel: printer.c: usblp0: error -84 reading printer status
-kernel: printer.c: usblp0: removed
+No, the PCI layer is not required at all to restore the SG to it's original state
+if it does DMA page coalescing as sparc64 and x86_64 do.
 
-    I have shown one of each error messages I get in my system logs.
-Normally I get a couple or three of the first message, a few of the
-last and a good bunch of the another two. Whenever I get the message
-about the 'bulk status', the printer dies and I must turn cycle it.
-
-    I'm using kernel 2.4.21, if this matters...
-
-    Since the parallel port works OK, I know the printer works. So
-the culprit must be:
-
-    - The USB interface of the printer. Not likely, but...
-    - The driver for usblp0
-    - The driver for USB uhci
-    - Me (most likely)
-
-    Is that a symptom of misconfiguration? Must I do anything more
-than a simple cat for printing trhu USB)? Can I tune anything for
-getting better timing or the like (if it is a timing problem, of
-course...)? I thought that the printer was broken, but when I tested
-printing through the parallel port and it worked...
-
-    Thanks in advance, and sorry if this is documented, I haven't
-found any information about this :(
-
-    Raúl Núñez de Arenas Coronado
-
--- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/
+But I don't see what the real problem is, all the PCI layer is doing is setting up
+the DMA address/length pairs in the entries that are needed, then returning
+the number of such slots that exist.  You, in your driver, can remember the original
+total number of physical entries and use that value to pass things back in.

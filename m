@@ -1,56 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317112AbSGHUd1>; Mon, 8 Jul 2002 16:33:27 -0400
+	id <S317114AbSGHUpV>; Mon, 8 Jul 2002 16:45:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317114AbSGHUd0>; Mon, 8 Jul 2002 16:33:26 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:65039 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S317112AbSGHUdZ>;
-	Mon, 8 Jul 2002 16:33:25 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200207082034.g68KYOM263957@saturn.cs.uml.edu>
-Subject: Re: Diff b/w 32bit & 64-bit
-To: lk@tantalophile.demon.co.uk (Jamie Lokier)
-Date: Mon, 8 Jul 2002 16:34:24 -0400 (EDT)
-Cc: thunder@ngforever.de (Thunder from the hill),
-       acahalan@cs.uml.edu (Albert D. Cahalan),
-       mru@users.sourceforge.net (M?ns Rullg?rd),
-       MohamedG@ggn.hcltech.com (Mohamed Ghouse Gurgaon),
-       linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
-In-Reply-To: <20020707222425.A12535@kushida.apsleyroad.org> from "Jamie Lokier" at Jul 07, 2002 10:24:25 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S317115AbSGHUpU>; Mon, 8 Jul 2002 16:45:20 -0400
+Received: from [199.128.236.1] ([199.128.236.1]:26382 "EHLO
+	intranet.reeusda.gov") by vger.kernel.org with ESMTP
+	id <S317114AbSGHUpU>; Mon, 8 Jul 2002 16:45:20 -0400
+Message-ID: <630DA58AD01AD311B13A00C00D00E9BC05D2020A@CSREESSERVER>
+From: "Martinez, Michael - CSREES/ISTM" <MMARTINEZ@intranet.reeusda.gov>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: list of compiled in support
+Date: Mon, 8 Jul 2002 16:48:31 -0400 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier writes:
+How does one tell if a kernel has compiled in support for ipx?
 
->>>> don't cast from "foo *" to "bar *" if sizeof(foo)<sizeof(bar)
-...
-> Oliver Neukum explained that you shouldn't dereference a pointer to a
-> larger type because of alignment issues on some machines.
-> sizeof(foo)<sizeof(bar) captures this rule just fine for the basic data
-> types (char, int etc.).
-
-Yes, that was the intent.
-
-> But for structures, it's actually possible to have a smaller type with a
-> larger alignment requirement, and vice versa:
->
->      struct small { double x; };
->      struct large { char y [11]; };
->
-> Also, it is certainly permitted to cast "char *" to "int *" if you know
-> that the underlying object is an "int" or something compatible with one.
->
-> So, the general rule `don't cast from "foo *" to "bar *" if
-> sizeof(foo)<sizeof(bar)' is wrong, and is routinely not followed.
->
-> An alternative rule might be `never dereference a "bar *" if it might
-> not have the correct alignment for "bar" on any platform'.
-
-Got a shorter way to say that? In less than one line, give
-a rule that will keep x86-centric programmers from getting
-hurt by the alignment restrictions.
+Michael Martinez
+System Administrator (Contractor)
+Information Systems and Technology Management
+CSREES - United States Department of Agriculture
+(202) 720-6223
 

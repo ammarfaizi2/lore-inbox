@@ -1,50 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129806AbRAFKCt>; Sat, 6 Jan 2001 05:02:49 -0500
+	id <S129431AbRAFKQW>; Sat, 6 Jan 2001 05:16:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130407AbRAFKCj>; Sat, 6 Jan 2001 05:02:39 -0500
-Received: from jalon.able.es ([212.97.163.2]:36008 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129806AbRAFKCX>;
-	Sat, 6 Jan 2001 05:02:23 -0500
-Date: Sat, 6 Jan 2001 11:02:15 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: drew@drewb.com
-Cc: evaner@bigfoot.com, linux-kernel@vger.kernel.org
-Subject: Re: The advantage of modules?
-Message-ID: <20010106110215.C4393@werewolf.able.es>
-In-Reply-To: <20010105225020.A1188@evaner.penguinpowered.com> <14934.44472.612519.658729@champ.drew.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <14934.44472.612519.658729@champ.drew.net>; from drew@drewb.com on Sat, Jan 06, 2001 at 06:31:36 +0100
-X-Mailer: Balsa 1.0.1
+	id <S130133AbRAFKQN>; Sat, 6 Jan 2001 05:16:13 -0500
+Received: from finch-post-10.mail.demon.net ([194.217.242.38]:38417 "EHLO
+	finch-post-10.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S129431AbRAFKQB>; Sat, 6 Jan 2001 05:16:01 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Nick.Holloway@pyrites.org.uk (Nick Holloway)
+Newsgroups: list.linux-kernel
+Subject: Re: Change of policy for future 2.2 driver submissions
+Date: 6 Jan 2001 10:15:53 -0000
+Organization: Alfie's Internet Node
+Message-ID: <936r8p$3ns$1@alfie.demon.co.uk>
+In-Reply-To: <862569CB.0070DDEE.00@smtpnotes.altec.com>
+X-Newsreader: NN version 6.5.0 CURRENT #119
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In <862569CB.0070DDEE.00@smtpnotes.altec.com> Wayne.Brown@altec.com writes:
+> Either I'm blind, or especially dense today, or both (quite possible :-) but I
+> don't see any reference in patch-kernel to the extra version information.
+> EXTRAVERSION is defined in the kernel Makefile, and I tried using the script
+> found in the 2.4.0-test1 source like this:
+> 
+> patch-kernel /usr/src/linux /pub/linux/kernel/v2.4/test-kernels
+> 
+> but the test-2 and following patches are not applied.  All I get is "Current
+> kernel version is 2.4.0."  What am I missing?
 
-On 2001.01.06 Drew Bertola wrote:
-> My best reasons are...
-> 
-> Development: You don't have to recompile the kernel a billion times
-> while working on a driver, you just recompile the module.  Also, you
-> can debug, unload, fix, recompile, reload a module to add or fix
-> pieces of it all (hopefully) without rebooting.
-> 
-> Practical usage: When I take my laptop on the road I use ppp, so I
-> load it then.  Most of the time I don't need it, so I don't load it.
-> 
+The distributed version of patch-kernel has only ever known about the
+"standard" progression x.y.z => x.y.z+1.  This all gets horribly broken
+when Linus gets imaginative with his kernel numbering.
 
-Usage: I have seen drivers which require params to work, and you can
-only give params if the driver is built as a module (ie,
-modprobe xxxxxx io=0x300 irq=5, etc...) because your hard is not
-properly autodetected by the module.
+I have said before that I thought this was OK, because the people that
+need to cope with the EXTRAVERSION guff are people on the development
+branch, and should be able to patch the kernel themselves.  The main
+users of patch-kernel are less experienced people.
+
+However, this does conflict with the aim of getting users into testing
+kernels late in the development branch cycle.  It also affects people
+like me who are lazy.
+
+I don't think that getting the kernel version to support the naming scheme
+du-jour will work, as this would require Linus to update patch-kernel
+when he dreams up a new scheme -- and Linus is the one person I'm fairly
+sure does not use it!
+
+For myself, I have a version of patch-kernel that does know how to deal
+with the wacky naming versions (because I'm lazy).  In future I'll make
+this available to anyone that wants to download it for their own use,
+but I won't push to get it included.
+
+A (temporary) location for the current version is:
+
+	http://www.alfie.demon.co.uk/download/patch-kernel
 
 -- 
-J.A. Magallon                                         $> cd pub
-mailto:jamagallon@able.es                             $> more beer
-
-Linux werewolf 2.4.0-ac2 #6 SMP Sat Jan 6 01:38:26 CET 2001 i686
-
+ `O O'  | Nick.Holloway@pyrites.org.uk
+// ^ \\ | http://www.pyrites.org.uk/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

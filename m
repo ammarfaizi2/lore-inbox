@@ -1,57 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbVCVMhg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbVCVMuf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261173AbVCVMhg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 07:37:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbVCVMhd
+	id S261158AbVCVMuf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 07:50:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbVCVMuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 07:37:33 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:25788 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261173AbVCVMh1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 07:37:27 -0500
-Subject: Re: Fusion-MPT much faster as module
-From: Arjan van de Ven <arjan@infradead.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "'Holger Kiehl'" <Holger.Kiehl@dwd.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org,
-       "Moore, Eric  Dean" <emoore@lsil.com>
-In-Reply-To: <20050322122801.GI3982@stusta.de>
-References: <200503221029.j2MATNg12775@unix-os.sc.intel.com>
-	 <1111488742.7096.61.camel@laptopd505.fenrus.org>
-	 <20050322122801.GI3982@stusta.de>
-Content-Type: text/plain
-Date: Tue, 22 Mar 2005 13:37:10 +0100
-Message-Id: <1111495030.7096.71.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 22 Mar 2005 07:50:35 -0500
+Received: from vms044pub.verizon.net ([206.46.252.44]:24300 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261158AbVCVMu0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 07:50:26 -0500
+Date: Tue, 22 Mar 2005 07:50:25 -0500
+From: Hikaru1@verizon.net
+Subject: Re: forkbombing Linux distributions
+In-reply-to: <20050322124812.GB18256@roll>
+To: linux-kernel@vger.kernel.org
+Message-id: <20050322125025.GA9038@roll>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-disposition: inline
+References: <e0716e9f05032019064c7b1cec@mail.gmail.com>
+ <20050322112628.GA18256@roll>
+ <Pine.LNX.4.61.0503221247450.5858@yvahk01.tjqt.qr>
+ <20050322124812.GB18256@roll>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
+On Tue, Mar 22, 2005 at 12:49:58PM +0100, Jan Engelhardt wrote:
+> >
+> >This will prevent it from exceeding the procs limits, but it will *not*
+> >completely stop it.
 > 
-> And there are places where it's actually useful:
-> 
->   #if defined(CONFIG_FOO) || (defined(MODULE) && defined(CONFIG_FOO_MODULE))
-> 
-> is a good way to express that driver bar can use functionality of driver 
-> foo if it's available.
+> What if the few procs that he may spawn also grab so much memory so your 
+> machine disappears in swap-t(h)rashing?
+While I have figured out how it'd be possible in theory to prevent things
+from grabbing so much memory that your computer enters swap death, I haven't
+been able to figure out what reasonable defaults would be for myself or
+others. Soooo, I suggest everyone who is worried about this check the
+manpage for 'limits' which tells you how to do this. My machine runs various
+rediculously large and small programs - I'm not sure a forkbomb could be
+stopped without hindering the usage of some of the games on my desktop
+machine.
 
-a good way? I'd disagree with that :)
+On a server or something with multiple users however, I'm sure you could
+configure each user independently with resource limits. Most servers
+don't have users that play games which take up 90% of the ram. :)
 
+In any case, I was forced by various smarter-than-I people to come up with a
+better solution to our problem as they were able to make forkbombs that did
+a much better job of driving me crazy. :)
 
+If you edit or create /etc/limits and set as the only line
+
+* U250
+
+It'll do the same thing as the sysctl hack, except root will still be able
+to run programs. Programs like ps and kill/killall.
+
+If you've actually implemented the sysctl.conf hack I spoke of previously, I
+suggest setting it back to whatever it used to be before, or deleting the
+line from /etc/sysctl.conf altogether.
+
+/etc/limits does a better job at stopping forkbombs.
+  
+This is an example of a program in C my friends gave me that forkbombs.
+My previous sysctl.conf hack can't stop this, but the /etc/limits solution
+enables the owner of the computer to do something about it as root.
+
+int main() { while(1) { fork(); } }
+
+Hikaru

@@ -1,44 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270713AbTGNRDC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 13:03:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270698AbTGNRBE
+	id S270710AbTGNQ6G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 12:58:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270598AbTGNQ41
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 13:01:04 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:39929 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S270713AbTGNRA2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 13:00:28 -0400
-Subject: Re: 2.5 'what to expect'
-From: Robert Love <rml@tech9.net>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030712003856.GB2904@ip68-4-255-84.oc.oc.cox.net>
-References: <20030711140219.GB16433@suse.de>
-	 <1057933578.20636.17.camel@dhcp22.swansea.linux.org.uk>
-	 <1057944829.6808.5.camel@localhost>
-	 <20030712003856.GB2904@ip68-4-255-84.oc.oc.cox.net>
-Content-Type: text/plain
-Message-Id: <1058203137.21207.0.camel@localhost>
+	Mon, 14 Jul 2003 12:56:27 -0400
+Received: from mail.kroah.org ([65.200.24.183]:10127 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270684AbTGNQxt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 12:53:49 -0400
+Date: Mon, 14 Jul 2003 10:08:17 -0700
+From: Greg KH <greg@kroah.com>
+To: marcelo@conectiva.com.br
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [BK PATCH] USB update for 2.4.22-pre5
+Message-ID: <20030714170817.GA23458@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
-Date: 14 Jul 2003 10:18:57 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-07-11 at 17:38, Barry K. Nathan wrote:
+Hi,
 
-> That's not the 2.5 problem. This one also happens with Red Hat's own
-> 2.4 vendor kernels for Red Hat 9, and according to RPM's maintainer
-> it's a "harmless" message.
+Here are some USB bugfixes and updates against 2.4.22-pre5.  There are a
+number of resyncs here with drivers that are already in 2.5, and a new
+USB host controller driver was added.  Also, the unusual_devs.h list for
+usb-storage devices is now in sync with 2.5 thanks to Alan Stern, which
+should make things a lot easier in the future.
 
-As Jeff said, the other Jeff says there are still problems.
+Please pull from:  bk://kernel.bkbits.net/gregkh/linux/marcelo-2.4
 
-And setting LD_ASSUME_KERNEL=2.2.5 before running rpm prevents the
-errors. So I am not so sure..
+The individual patches will be sent in follow up messages to this email
+to you and the linux-usb-devel mailing list.
 
-	Robert Love
+thanks,
 
+greg k-h
+
+ MAINTAINERS                        |    4 
+ drivers/usb/ax8817x.c              |    4 
+ drivers/usb/host/Config.in         |    6 
+ drivers/usb/host/Makefile          |    1 
+ drivers/usb/host/sl811.c           | 2755 ++++++++++++++++++++++++++++++++++++-
+ drivers/usb/host/sl811.h           |  177 ++
+ drivers/usb/serial/ftdi_sio.c      |    3 
+ drivers/usb/serial/ftdi_sio.h      |    6 
+ drivers/usb/serial/ipaq.c          |    3 
+ drivers/usb/serial/ipaq.h          |    5 
+ drivers/usb/storage/initializers.h |    9 
+ drivers/usb/storage/protocol.c     |   54 
+ drivers/usb/storage/sddr09.c       |    4 
+ drivers/usb/storage/unusual_devs.h |  308 +---
+ drivers/usb/storage/usb.c          |   12 
+ drivers/usb/storage/usb.h          |    2 
+ drivers/usb/usb.c                  |    2 
+ drivers/usb/usbnet.c               |  199 +-
+ 18 files changed, 3265 insertions(+), 289 deletions(-)
+-----
+
+<david:csse.uwa.edu.au>:
+  o USB: Adding DSS-20 SyncStation to ftdi_sio
+
+<yinah:couragetech.com.cn>:
+  o USB: patch for sl811 usb host controller driver
+
+Alan Stern:
+  o USB: Implement US_FL_FIX_CAPACITY for 2.4
+  o USB: Updates for unusual_devs.h
+  o USB: Final reconciliation for unusual_devs.h in 2.4
+  o USB: Reconcile unusual_devs.h for 2.4 and 2.5
+
+David Brownell:
+  o USB: usbnet updates
+  o USB: usb_string(), don't use bogus ids
+
+David T. Hollis:
+  o USB: ax8817x.c - add Intellinet USB 2.0 Ethernet device ids
+
+Ganesh Varadarajan:
+  o USB: more ids for ipaq
+
+Greg Kroah-Hartman:
+  o USB: fix up previous sl811 patch
+  o USB: fix up my USB Bluetooth entry to help prevent confusion in the future
 

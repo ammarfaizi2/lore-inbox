@@ -1,93 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262320AbTFBNc6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 09:32:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbTFBNc6
+	id S262321AbTFBNdo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 09:33:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbTFBNdn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 09:32:58 -0400
-Received: from ik-dynamic-66-102-74-246.kingston.net ([66.102.74.246]:19975
-	"EHLO linux.interlinx.bc.ca") by vger.kernel.org with ESMTP
-	id S262320AbTFBNc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 09:32:56 -0400
-Subject: Re: [PATCH][2.5] Honour dont_enable_local_apic flag
-From: "Brian J. Murrell" <brian@interlinx.bc.ca>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.50.0306011950080.31534-100000@montezuma.mastecende.com>
-References: <200306012308.h51N8K6j001404@harpo.it.uu.se>
-	 <1054511535.6676.85.camel@pc>
-	 <Pine.LNX.4.50.0306011950080.31534-100000@montezuma.mastecende.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-fOp4BSGZ06AOUTWQ3YAA"
-Message-Id: <1054561578.22451.19.camel@pc>
+	Mon, 2 Jun 2003 09:33:43 -0400
+Received: from pop.gmx.net ([213.165.64.20]:34176 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262321AbTFBNdh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 09:33:37 -0400
+Message-Id: <5.2.0.9.2.20030602154624.019f2f98@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Mon, 02 Jun 2003 15:51:29 +0200
+To: Ingo Molnar <mingo@elte.hu>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [Linux-ia64] Re: web page on O(1) scheduler
+Cc: Bill Davidsen <davidsen@tmr.com>, Olivier Galibert <galibert@pobox.com>,
+       <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0306020949520.3375-100000@localhost.localdom
+ ain>
+References: <5.2.0.9.2.20030529062657.01fcaa50@pop.gmx.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.3-1mdk (Preview Release)
-Date: 02 Jun 2003 09:46:18 -0400
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 10:05 AM 6/2/2003 +0200, Ingo Molnar wrote:
 
---=-fOp4BSGZ06AOUTWQ3YAA
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+>On Thu, 29 May 2003, Mike Galbraith wrote:
+>
+> > [...] What makes more sense to me than the current implementation is to
+> > rotate the entire peer queue when a thread expires... ie pull in the
+> > head of the expired queue into the tail of the active queue at the same
+> > time so you always have a player if one exists.  (you'd have to select
+> > queues based on used cpu time to make that work right though)
+>
+>we have tried all sorts of more complex yield() schemes before - they
+>sucked for one or another workload. So in 2.5 i took the following path:
+>make yield() _simple_ and effective, ie. expire the yielding task (push it
+>down the runqueue roughly halfway, statistically) and dont try to be too
+>smart doing it. All the real yield() users (mostly in the kernel) want it
+>to be an efficient way to avoid livelocks. The old 2.4 yield
+>implementation had the problem of enabling a ping-pong between two
+>higher-prio yielding processes, until they use up their full timeslice.
 
-On Mon, 2003-06-02 at 00:50, Zwane Mwaikambo wrote:
-> I agree with doing the clear apic capability flag,
+(yeah, i looked at that in ktracer logs.  cpu hot-potato sucks;)
 
-Indeed.  I sure does seem to be the right way to go.
+>(we could do one more thing that still keeps the thing simple: we could
+>re-set the yielding task's timeslice instead of the current 'keep the
+>previous timeslice' logic.)
 
->  Brian how does this=20
-> fare? This patch alone should fix it.
+(more consistent) 
 
-It looks good and will try it out.  But before I do, should not:
-
-	set_bit(X86_FEATURE_APIC, &disabled_x86_caps);
-
-also be done?
-
->=20
-> Index: linux-2.5/arch/i386/kernel/apic.c
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> RCS file: /home/cvs/linux-2.5/arch/i386/kernel/apic.c,v
-> retrieving revision 1.54
-> diff -u -p -B -r1.54 apic.c
-> --- linux-2.5/arch/i386/kernel/apic.c	31 May 2003 19:01:05 -0000	1.54
-> +++ linux-2.5/arch/i386/kernel/apic.c	2 Jun 2003 03:50:31 -0000
-> @@ -609,7 +609,7 @@ static int __init detect_init_APIC (void
-> =20
->  	/* Disabled by DMI scan or kernel option? */
->  	if (dont_enable_local_apic)
-> -		return -1;
-> +		goto no_apic;
-> =20
->  	/* Workaround for us being called before identify_cpu(). */
->  	get_cpu_vendor(&boot_cpu_data);
-> @@ -665,6 +665,7 @@ static int __init detect_init_APIC (void
->  	return 0;
-> =20
->  no_apic:
-> +	clear_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability);
->  	printk("No local APIC present or hardware disabled\n");
->  	return -1;
->  }
-
-b.
-
---=20
-Brian J. Murrell <brian@interlinx.bc.ca>
-
---=-fOp4BSGZ06AOUTWQ3YAA
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA+21Uql3EQlGLyuXARAr6dAKCXsXhhnjJ/JpCUpniOW0bSlNaiKwCfTUqR
-8eloROxk2UM4smCc2futom0=
-=+lTm
------END PGP SIGNATURE-----
-
---=-fOp4BSGZ06AOUTWQ3YAA--

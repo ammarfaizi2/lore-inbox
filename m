@@ -1,75 +1,73 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316804AbSEVAyM>; Tue, 21 May 2002 20:54:12 -0400
+	id <S316818AbSEVBGX>; Tue, 21 May 2002 21:06:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316805AbSEVAyL>; Tue, 21 May 2002 20:54:11 -0400
-Received: from fep01-mail.bloor.is.net.cable.rogers.com ([66.185.86.71]:32337
-	"EHLO fep01-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id <S316804AbSEVAyK>; Tue, 21 May 2002 20:54:10 -0400
-Message-ID: <004e01c2012b$3f7551f0$0601a8c0@CHERLYN>
-From: =?iso-8859-1?Q?Andr=E9_Bonin?= <bonin@rogers.com>
-To: "Ion Badulescu" <ionut@cs.columbia.edu>,
-        "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Nicholas L. D'Imperio" <dimperio@physics.dyndns.org>,
-        "Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-        "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <E17AHIv-0000HZ-00@the-village.bc.nu>
-Subject: Re: Asus a7m266d stability issues
-Date: Tue, 21 May 2002 20:54:29 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep01-mail.bloor.is.net.cable.rogers.com from [24.112.234.58] using ID <bonin@rogers.com> at Tue, 21 May 2002 20:53:57 -0400
+	id <S316819AbSEVBGW>; Tue, 21 May 2002 21:06:22 -0400
+Received: from [129.46.51.58] ([129.46.51.58]:47359 "EHLO numenor.qualcomm.com")
+	by vger.kernel.org with ESMTP id <S316818AbSEVBGV>;
+	Tue, 21 May 2002 21:06:21 -0400
+Message-Id: <5.1.0.14.2.20020521164157.06b68430@mail1.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 21 May 2002 18:04:21 -0700
+To: Johannes Erdfelt <johannes@erdfelt.com>
+From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
+Subject: Re: What to do with all of the USB UHCI drivers in the kernel ?
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+        linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <20020521165826.H2645@sventech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
------ Original Message -----
-From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-To: "Ion Badulescu" <ionut@cs.columbia.edu>
-Cc: "Nicholas L. D'Imperio" <dimperio@physics.dyndns.org>;
-<linux-kernel@vger.kernel.org>; "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Sent: Tuesday, May 21, 2002 5:36 PM
-Subject: Re: Asus a7m266d stability issues
+>IMO, I think testing with usb-uhci.c and uhci.c is still useful, but
+>testing with the -hcd variants is the most ideal since that will be the
+>final code base.
 
+Ok. Here is feedback on 2.5.17 uhci-hcd and usb-uhci-hcd.
+I did not notice any difference in behavior. Both have the same 
+performance, just like 2.4.19-pre8.
 
-> > I had this exact problem a few weeks ago with a dual Athlon 1U setup. It
-> > turned out that the aluminum heatsinks I had previously used for the
->
-> I have to admit given the heat coming off my dual athlon I'd have called
-> 1U dual athlon "Ambitious"
->
-> > 1.2GHz Athlons weren't good enough for the 1900+, and also that the
-> > chassis fans were circulating enough air. Switching to copper heatsinks
-> > got rid of 95% of the crashes, and adding a chassis fan got rid of the
-> > remaining 5%.
->
-> Given the power usage I'm seeing I'd second that
+One-shot interrupt transfers are broken in *-hcd drivers. core/hcd.c 
+returns EINVAL if urb->interval==0.
+My Broadcom FW loader (uses usbdevfs) needs one-shot interrupts. So in 
+order to test Broadcom devices
+I changed to hcd.c to allow urb->interval==0. With that change uhci-hcd 
+works just fine, I can load fw and
+use the device. But usb-uhci-hcd kills the machine pretty hard (hw reset 
+needed).
 
-As an Asus A7M266-D user myself, I've never had any stability issues of this
-sort.  Though i'me runnign dual 1400+ with Volcano 6cu.  The cpu's run at
-about 45 degrees and i've never had any problems with stability.  Though we
-did have stability issues in the past with Mps 1.4, this seems to have been
-fixed in 2.5.17.
+Here is a patch for hcd.c.
 
-*****************************************************
-André Bonin
-Computer Engineering Technologist
-Ottawa (Ontario)
-Canada
-*****************************************************
+--- hcd.c.orig  Tue May 21 17:50:09 2002
++++ hcd.c       Tue May 21 17:01:44 2002
+@@ -1456,11 +1456,9 @@
+          * supports different values... this uses EHCI/UHCI defaults (and
+          * EHCI can use smaller non-default values).
+          */
+-       switch (temp) {
+-       case PIPE_ISOCHRONOUS:
+-       case PIPE_INTERRUPT:
++       if (urb->interval && (temp == PIPE_ISOCHRONOUS || temp == 
+PIPE_INTERRUPT)) {
+                 /* too small? */
+-               if (urb->interval <= 0)
++               if (urb->interval < 0)
+                         return -EINVAL;
+                 /* too big? */
+                 switch (urb->dev->speed) {
 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+usb-uhci-hcd has to be fixed.
+btw It tries to round interval value even thought it's done by hcd.c
 
+So, Bluetooth USB devices should work fine with either usb-uhci-hcd or 
+uhci-hcd.
+(assuming that above patch is applied and one-shot is fixed in usb-uhci-hcd)
 
+On a side note. Why are URBs still not SLABified ?
+Drivers still have those silly urb pools and stuff. I thought you guys were 
+gonna fix that.
+
+Max
 

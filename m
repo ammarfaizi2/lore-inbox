@@ -1,72 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264946AbUELCod@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264955AbUELCot@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264946AbUELCod (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 22:44:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264952AbUELCoc
+	id S264955AbUELCot (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 22:44:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264952AbUELCot
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 22:44:32 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:22686
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S264946AbUELCo2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 22:44:28 -0400
-Date: Wed, 12 May 2004 04:44:25 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Christoph Hellwig <hch@infradead.org>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>, Andrew Morton <akpm@osdl.org>,
-       cw@f00f.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm1
-Message-ID: <20040512024425.GV3829@dualathlon.random>
-References: <20040510231146.GA5168@taniwha.stupidest.org> <20040510162818.376b4a55.akpm@osdl.org> <20040510233342.GA5614@taniwha.stupidest.org> <20040510165132.5107472e.akpm@osdl.org> <20040510235312.GA9348@taniwha.stupidest.org> <20040510171413.6c1699b8.akpm@osdl.org> <20040511002426.GD1105@ca-server1.us.oracle.com> <20040510181008.1906ea8a.akpm@osdl.org> <20040511015118.GA4589@ca-server1.us.oracle.com> <20040511072329.D12187@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040511072329.D12187@infradead.org>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Tue, 11 May 2004 22:44:49 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:55288 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S264955AbUELCoq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 22:44:46 -0400
+Message-ID: <40A18F94.4000607@mvista.com>
+Date: Tue, 11 May 2004 19:44:36 -0700
+From: Todd Poynor <tpoynor@mvista.com>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: ncunningham@linuxmail.org
+CC: Greg KH <greg@kroah.com>, mochel@digitalimplant.org,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Hotplug events for system suspend/resume
+References: <20040511010015.GA21831@dhcp193.mvista.com> <20040511230001.GA26569@kroah.com> <40A17251.2000500@mvista.com> <200405121216.02787.ncunningham@linuxmail.org>
+In-Reply-To: <200405121216.02787.ncunningham@linuxmail.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 11, 2004 at 07:23:29AM +0100, Christoph Hellwig wrote:
-> On Mon, May 10, 2004 at 06:51:18PM -0700, Wim Coekaerts wrote:
-> > > err, so why did I just merge the hugetlb_shm_group patch?
-> > 
-> > because of what you mentioned. it takes a long time before that goes
-> > out, it's not even tested, and it doesn't apply to those 1000's of
-> > existing systems taht will break on upgrade.   exactly what you said, it
-> > makes it possible to get to a different way smoothly in time. my
-> > comments were not "we can use it today".
-> 
-> So it's a hack for legacy oracle versions.  nice.  and for that we
-> introduce completely alien concepts like magic groups into the kernel..
+Nigel Cunningham wrote:
 
-I don't see why we're trying to complicate the simple things.
+> Unless I'm missing something, this will break all existing implementations of 
+> S3 and S4 because they all freeze userspace processes prior to suspending 
+> drivers. They do this because they assume it is the responsibility of 
+> userspace to handle these actions prior to telling the kernel to suspend.
 
-I posted a disable_cap_mlock patch several weeks ago, that's the only
-needed thing.
+The patch hooks into the power subsystem prior to freezing processes and 
+after unfreezing processes, so I don't think it's a concern (unless 
+something is using the power subsystem rather oddly).  This patch sends 
+a single notification of system suspend and a single notification of 
+system resume, in case there's any confusion with the individual device 
+state change notifiers also recently discussed.  It's been run 
+successfully on one ACPI system and one non-ACPI system.
 
-Even if there's an attacker on the machine with disable_cap_mlock == 1,
-the attacker won't be able to exploit anything, it can only generate a
-DoS. The cap-mlock is clearly not nearly as security-critical as most
-other capabilities.
+> In my mind, this approach is simpler and makes more sense: userspace should 
+> worry about userspace actions related to suspending before calling 
+> kernelspace. Kernel space should then only worry about saving and restoring 
+> driver states and should be transparent to user space. ...
 
-There's no reason to get the "hack" any smarter than the disable_cap_mlock
-approch, any sysctl will be still an hack anyways. The group thing and
-the differentiation between hugetlbfs users and mlock users (like
-SHM_LOCK) is a mere attempt to make it more secure, but if you can
-change the disable_cap_mlock sysctl from 0 to 1 you for sure can also
-change the hugetlb_shm_group from 0 to 500 and the same for the
-mlock_group too.  Plus I can want to give mlock to the whole system at
-the same time, not just to a single group, and for that
-disable_cap_mlock is appropriate.
+Agreed, with the minor reservations listed in a previous email (suspend 
+initiated by drivers must coordinate ad-hoc with userspace, etc.).
 
-I'm quite confortable to say that disable_cap_mlock can be dropped in
-2.8, by that time a replacement solution will be implemented and I don't
-expect any application learning about the disable_cap_mlock name, they
-really shouldn't, only the bootup procedure of the OS will know about it
-and only the login/su will learn about the future replacement.
+I'll let anybody who cares more deeply about this speak up now, 
+otherwise this isn't a battle I'll be fighting on behalf of others any 
+more.  Thanks -- Todd
 
-So I believe the best "hack" is to use the simple disable_cap_mlock and
-to concentrate all the efforts on a more flexible solution involving
-userspace changes. The one suggested by Andrew by simply dropping the
-capabilities in login and su sounded very appealing to me.

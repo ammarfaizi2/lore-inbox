@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264940AbTLRFAq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 00:00:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264943AbTLRFAq
+	id S264934AbTLRFCx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 00:02:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264936AbTLRFCx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 00:00:46 -0500
-Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:7601 "HELO
-	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264940AbTLRFAp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 00:00:45 -0500
-Date: Thu, 18 Dec 2003 02:00:35 -0300
-From: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.0
-Message-Id: <20031218020035.2f49dbb9.vmlinuz386@yahoo.com.ar>
-In-Reply-To: <Pine.LNX.4.58.0312171951030.5789@home.osdl.org>
-References: <Pine.LNX.4.58.0312171951030.5789@home.osdl.org>
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i486-slackware-linux-gnu)
+	Thu, 18 Dec 2003 00:02:53 -0500
+Received: from H143.C231.tor.velocet.net ([216.138.231.143]:23959 "EHLO
+	mjfrazer.org") by vger.kernel.org with ESMTP id S264934AbTLRFCu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 00:02:50 -0500
+Date: Thu, 18 Dec 2003 00:02:49 -0500
+From: Mark Frazer <mark@mjfrazer.org>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Missing up_read after get_user_pages in arch/i386/lib/usercopy.c?
+Message-ID: <20031218000249.A25268@mjfrazer.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Message-Flag: Outlook not so good.
+Organization: Detectable, well, not really
+X-Fry-1: Maybe you can't understand this, but I finally found what I need
+X-Fry-2: to be happy, and it's not friends, it's things.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Dec 2003 20:14:06 -0800 (PST), Linus Torvalds wrote:
->
->				"The beaver is out of detox"
->						- Anon
+Just browsing users of get_user_pages today and noticed what might be a
+bug.
 
-YEEEAAAHH!!!! 
-
-
-pandereta-linux-gnu !! rulz! :)
+===== arch/i386/lib/usercopy.c 1.15 vs edited =====
+--- 1.15/arch/i386/lib/usercopy.c	Thu Aug 21 01:31:58 2003
++++ edited/arch/i386/lib/usercopy.c	Wed Dec 17 23:59:16 2003
+@@ -541,8 +541,10 @@
+ 				goto survive;
+ 			}
+ 
+-			if (retval != 1)
++			if (retval != 1) {
++				up_read(&current->mm->mmap_sem);
+ 		       		break;
++			}
+ 
+ 			maddr = kmap_atomic(pg, KM_USER0);
+ 			memcpy(maddr + offset, from, len);
 
 
 -- 
-Gerardo Exequiel Pozzi ( djgera )
-http://www.vmlinuz.com.ar http://www.djgera.com.ar
-KeyID: 0x1B8C330D
-Key fingerprint = 0CAA D5D4 CD85 4434 A219  76ED 39AB 221B 1B8C 330D
+Like most of life's problems, this one can be solved with bending. - Bender

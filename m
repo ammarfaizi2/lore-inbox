@@ -1,41 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264478AbTLEUeu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 15:34:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264485AbTLEUeu
+	id S264362AbTLEU0r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 15:26:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264368AbTLEU0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 15:34:50 -0500
-Received: from pop.gmx.net ([213.165.64.20]:57740 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264478AbTLEUet (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 15:34:49 -0500
-X-Authenticated: #4512188
-Message-ID: <3FD0EBE6.9080003@gmx.de>
-Date: Fri, 05 Dec 2003 21:34:46 +0100
-From: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031116
-X-Accept-Language: de-de, de, en-us, en
+	Fri, 5 Dec 2003 15:26:47 -0500
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:42835 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S264362AbTLEU0o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 15:26:44 -0500
+Reply-To: <hzhong@cisco.com>
+From: "Hua Zhong" <hzhong@cisco.com>
+To: "'Filip Van Raemdonck'" <filipvr@xs4all.be>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: Linux GPL and binary module exception clause?
+Date: Fri, 5 Dec 2003 12:26:39 -0800
+Organization: Cisco Systems
+Message-ID: <000301c3bb6e$16cf8000$d43147ab@amer.cisco.com>
 MIME-Version: 1.0
-To: cheuche+lkml@free.fr
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Catching NForce2 lockup with NMI watchdog
-References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F877@mail-sc-6.nvidia.com> <20031205201812.GA10538@localnet>
-In-Reply-To: <20031205201812.GA10538@localnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+In-Reply-To: <20031205195609.GA30309@debian>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> through easily. I first thought the box freezed but I realized the
-> software cursor was blinking *very* slowly. In fact 1 second for the
-> kernel took about 12 seconds. Stopping the IO load on ide and
-> everything seems back to normal.
+> I'll rephrase what I wrote and what people have been saying 
+> all the time:
+> 
+> "Once you build a binary module, it contains our (inlined) 
+> code and thus the binary module is a derived work."
 
-Hmm, interesting observation. This makes me remeber something: When my 
-machine freezes doing hdparm, the cursor still blinks, but I can't do 
-anything anymore. Maybe a connection to your observation? I haven't 
-treid to run the NMI watchdog, as you guys haven't had success with it yet.
+Understood and that's what we disagree.
 
-Prakash
+By the way, what's so different between code and data, anyway?
 
+Are inline functions more important than macros and defs?
+
+> > Otherwise, since SCO found a few lines of code copied from 
+> Unix in Linux
+> > source, are we saying the whole million lines of code is 
+> derived from
+> > Unix?
+> 
+> We have yet to see if they actually found code.
+
+We have. Some malloc function as I remember, and has been removed from
+current Linux sources.
+
+> And no; we're not saying all code is a derived work. We're 
+> saying that if there is a few lines of copied code, then the 
+> compiled kernel which contains object code coming from 
+> these lines is a derived work. If. 
+
+You are trying to hide the fact that the kernel "sources" actually
+contained copyrighted code.
+
+Binary modules do not _contain_ copyrighted (GPL'ed) code, they merely
+_include_ it (by #inlucde), but the _compiled_ binary modules contain
+compiled copyrighted (GPL'ed) code.
+
+So you are saying, binary modules contain compiled GPL'ed code, so it's
+derived work of GPL'ed code. But kernel sources contained copyrighted
+(non-GPL'ed) code, but the sources were not derived work of that code,
+only the compiled form was?
+
+> Regards,
+> 
+> Filip
 

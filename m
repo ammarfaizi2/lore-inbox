@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264638AbTFLMWg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 08:22:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264682AbTFLMWg
+	id S264639AbTFLMWi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 08:22:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264682AbTFLMWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 12 Jun 2003 08:22:38 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:11682 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S264639AbTFLMWg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 12 Jun 2003 08:22:36 -0400
-Received: from inconnu.isu.edu ([134.50.8.55]:45725 "EHLO inconnu.isu.edu")
-	by vger.kernel.org with ESMTP id S264638AbTFLMWf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 08:22:35 -0400
-Date: Thu, 12 Jun 2003 06:36:14 -0600 (MDT)
-From: I Am Falling I Am Fading <skuld@anime.net>
-X-X-Sender: skuld@inconnu.isu.edu
-To: Dave Jones <davej@codemonkey.org.uk>
-cc: John Bradford <john@grabjohn.com>, <gregor.essers@web.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Via KT400 and AGP 8x Support
-In-Reply-To: <20030612123056.GA6912@suse.de>
-Message-ID: <Pine.LNX.4.44.0306120633490.14263-100000@inconnu.isu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Date: Thu, 12 Jun 2003 13:36:04 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Yaroslav Rastrigin <yarick@relex.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CPUFreq (SpeedStep) support for Intel PIII (Coppermine) and PIIX4 ?
+Message-ID: <20030612123604.GA7600@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Yaroslav Rastrigin <yarick@relex.ru>, linux-kernel@vger.kernel.org
+References: <200306121430.01664.yarick@relex.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200306121430.01664.yarick@relex.ru>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Jun 2003, Dave Jones wrote:
+On Thu, Jun 12, 2003 at 02:30:01PM +0400, Yaroslav Rastrigin wrote:
 
->  > Tried it already... The pins are too small to get adequate purchase for 
->  > the tape -- the friction just causes it to slide around in the slot and 
->  > gets goo around.
->  > 
->  > Superglue might be a better solution....
->  > ...but I think the solder method is better.
-> 
-> So rather than experiment with backporting the 2.5 code to 2.4,
-> you'd rather risk damaging your hardware ?
-> 
-> I think this way is madness.
+ > Is there any plans to support aforementioned combination ? I've seen remarks 
+ > in driver sources about unavailability of (sufficient) documentation for this 
+ > chipset - does it means SpeedStep for IBM T20/21 series of laptops will not 
+ > be available ? Or, maybe, some progress is already underway ? How could I 
+ > help ? 
 
-Unfortunately even a perfect backport seems to be only a partial solution 
--- the ATI binary only drivers don't seem to know how to talk to the 2.5 
-AGP 3.0 stuff anyway (well, at least they didn't work at all when I tried 
-them under the 2.5 kernel :-/), and as they are lame binary-only drivers 
-there is no way to fix that. 
+There's been some noise about it on the cpufreq list, and an example
+driver that works for some people, but not all. It's getting there, slowly.
+If you want to know more, I suggest you join the list, and volunteer as
+a test bunny.
 
-There are also no other drivers for the R300-series Radeon GPUs. :-(
-
-This absolutely sucks, but turning the card into an AGP 2.0 card seems to 
-be the only surefire way to get it to work properly under Linux. :-(
-
------
-James Sellman -- ISU CoE-CS/ISLUG Linux Lab Admin   |"Lum, did you just see
-----------------------------------------------------| a hentai rabbit flying
-skuld@inconnu.isu.edu      |   // A4000/604e/60 128M| through the air?"
-skuld@anime.net            | \X/  A500/20 3M        |   - Miyake Shinobu
+		Dave
 

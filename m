@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265195AbSJaGSI>; Thu, 31 Oct 2002 01:18:08 -0500
+	id <S265186AbSJaGOx>; Thu, 31 Oct 2002 01:14:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265196AbSJaGSI>; Thu, 31 Oct 2002 01:18:08 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:36410 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S265195AbSJaGSH>; Thu, 31 Oct 2002 01:18:07 -0500
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: boissiere@adiglobal.com, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [STATUS 2.5]  October 30, 2002
-References: <20021030161708.GA8321@suse.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 30 Oct 2002 23:22:12 -0700
-In-Reply-To: <20021030161708.GA8321@suse.de>
-Message-ID: <m1iszjgmaz.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S265191AbSJaGOx>; Thu, 31 Oct 2002 01:14:53 -0500
+Received: from tapu.f00f.org ([66.60.186.129]:58595 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S265186AbSJaGOw>;
+	Thu, 31 Oct 2002 01:14:52 -0500
+Date: Wed, 30 Oct 2002 22:21:18 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: tridge@samba.org
+Cc: torvalds@transmeta.com, rusty@rustcorp.com.au,
+       linux-kernel@vger.kernel.org, geert@linux-m68k.org,
+       rmk@arm.linux.org.uk, peter@chubb.wattle.id.au, tytso@mit.edu
+Subject: Re: What's left over.
+Message-ID: <20021031062118.GA18007@tapu.f00f.org>
+References: <20021031030143.401DA2C150@lists.samba.org> <20021031031954.56C772C156@lists.samba.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021031031954.56C772C156@lists.samba.org>
+User-Agent: Mutt/1.4i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@codemonkey.org.uk> writes:
+On Wed, Oct 30, 2002 at 10:19:54PM -0500, tridge@samba.org wrote:
 
-> Something else I took a look at in the last few days was the ECC
-> drivers. These are also zero impact, and could go in after the freeze
-> (assuming the authors want them merged). They could do with a small
-> amount of cleanup, but otherwise look ok.
+> Eventually I'd like to see a combination of LSM with a new ACL
+> system give the ability to support full NT ACLs on Linux (which is
+> also needed for full nfsv4 support), but that is way too much to do
+> for the 2.6 kernel.
 
-Assuming they work.  No offense to the guys who got the ball rolling, but
-the architecture is lousy, and every driver I have messed with does not
-work correctly, and I wind up reimplementing it before I can use it.
+Add bloat to make windows clients happy?
 
-I actually like the idea of ECC drivers, and routinely make certain
-there is a working ECC driver on the systems I ship.  It is so much
-very easier to catch memory errors with good ECC error reporting.  But
-unless I have slept soundly through a fundamental change, the
-linux-ecc project currently does not ship quality drivers.  The
-infrastructure is bad, and the code is not quite correct. 
+> Extended attributes are also important as they give a place to store
+> all the extra DOS info that has no other logical place in a posix
+> filesystem. For example, we can put the 'read only', 'archive',
+> 'hidden' and 'system' attributes there. If we don't have extended
+> attributes then we need to use a nasty kludge where these map to
+> various unix permission bits, but the mapping is terrible and
+> doesn't give the correct semantics (especially for things like read
+> only on directories).
 
-If you want I can dig up the drivers I am currently using and send
-them to you.
+More bloat that does really solve Linux problems... sounds like nasty
+hacks to make winduhs hacks work better.
 
-I even have a working memory scrub routine.
+Don't get me wrong, I'm not against sane ACLs (POSIX ACLs are not) os
+EAs, but justification of "it makes windows clients easier" is pretty
+horrendous IMO.
 
-Eric
+I'd would at some point like to see decent ACLs, but I don't want to
+see 'windows ACLs' and all the SID nonsense.
+
+
+
+  --cw

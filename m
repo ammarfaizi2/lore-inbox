@@ -1,71 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbVCRDnd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbVCRDpK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261457AbVCRDnd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 22:43:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbVCRDnc
+	id S261450AbVCRDpK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 22:45:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbVCRDop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 22:43:32 -0500
-Received: from smtp3.adl2.internode.on.net ([203.16.214.203]:51212 "EHLO
-	smtp3.adl2.internode.on.net") by vger.kernel.org with ESMTP
-	id S261457AbVCRDmu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 22:42:50 -0500
-From: Michael Ellerman <michael@ellerman.id.au>
-Reply-To: michael@ellerman.id.au
-Organization: IBM LTC
-To: linuxppc64-dev@ozlabs.org
-Subject: Re: Why no bigphysarea in mainline?
-Date: Fri, 18 Mar 2005 14:42:48 +1100
-User-Agent: KMail/1.7.2
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200503172057.06570.michael@ellerman.id.au> <1111070132.19021.31.camel@localhost>
-In-Reply-To: <1111070132.19021.31.camel@localhost>
+	Thu, 17 Mar 2005 22:44:45 -0500
+Received: from ozlabs.org ([203.10.76.45]:62180 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261461AbVCRDnY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 22:43:24 -0500
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1640885.zgvatvuQzy";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200503181442.51830.michael@ellerman.id.au>
+Message-ID: <16954.18811.500766.244979@cargo.ozlabs.ibm.com>
+Date: Fri, 18 Mar 2005 14:22:35 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+Cc: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       linux-kernel@vger.kernel.org, ak@muc.de, Greg KH <greg@kroah.com>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: RE: PCI Error Recovery API Proposal. (WAS:: [PATCH/RFC]
+	PCIErrorRecovery)
+In-Reply-To: <C7AB9DA4D0B1F344BF2489FA165E5024080FDBA3@orsmsx404.amr.corp.intel.com>
+References: <C7AB9DA4D0B1F344BF2489FA165E5024080FDBA3@orsmsx404.amr.corp.intel.com>
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1640885.zgvatvuQzy
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Nguyen, Tom L writes:
 
-On Fri, 18 Mar 2005 01:35, Dave Hansen wrote:
-> Doing mem=3D for drivers isn't just a hack, it's *WRONG*.  It's a ticking
-> time bomb that magically happens to work on some systems.  It will not
-> work consistently on a discontiguous memory system, or a memory hotplug
-> system.
+> Is EEH a PCI-SIG specification? Is EEH specs available in public?
 
-I couldn't agree more. Problem is I've been asked to change the way mem=3DX=
-=20
-works on PPC64 so that this hack will work, which is a horrible thought.
+No and no (not yet anyway).
 
-> Could you give some examples of drivers which are in the kernel that
-> could benefit from this patch?  We don't tend to put things like this
-> in, unless they have actual users.  We don't tend to change code for
-> out-of-tree users, either.
+> It seems that a PCI-PCI bridge per slot is hardware implementation
+> specific. The fact that the PCI-PCI Bridge can isolate the slot is
+> hardware feature specific.
 
-No I can't. I've been approached by several "vendors" asking about using me=
-m=3DX=20
-hacks on PPC64, however I doubt any of them have code in-tree. I'll check=20
-though.
+Well, it's a common feature across all current IBM PPC64 machines.
 
-cheers
+> PCI Express AER driver uses similar concept of determining whether the
+> driver is AER-aware or not except that PCI Express AER is independent
+> from firmware support.
 
---nextPart1640885.zgvatvuQzy
-Content-Type: application/pgp-signature
+Don't worry about the firmware; the driver won't have to interact with
+firmware itself, that's the job of the ppc64-specific platform code.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
+> Where does the platform code reside and where does it log the error?
 
-iD8DBQBCOk47dSjSd0sB4dIRAilNAJ9U6DP0kKOn0TtjgZGETOmBhH9FngCfUtSP
-JXWE7LKWyfinz8WMOqF8Q6w=
-=cNrA
------END PGP SIGNATURE-----
+By platform code I meant the code under the arch directory that knows
+the details of the I/O topology of the machine, how to access the PCI
+host bridges, etc.  How and where it logs the error is a platform
+policy; on IBM ppc64 machines we have an error log daemon for this
+purpose, which can do things like log the error to a file or send it
+to another machine.
 
---nextPart1640885.zgvatvuQzy--
+> In PCI Express if the driver is not AER-aware the fatal error message is
+> reported by its upstream switch, the AER driver obtains comprehensive
+> error information from the upstream switch (like EEH platform code
+> obtains error information from the firmware). Since the driver is not
+> AER-aware, the fatal error is reported to user to make a policy decision
+> since the PCI Express does not have a hot-plug event for the slot like
+> EEH platform. 
+
+If there is a permanent failure of an upstream link, then maybe
+generating unplug events for the devices below it would be a useful
+thing to do.
+
+> So it looks like the hot-plug capability of the driver is being used in
+> lieu of specific callbacks to freeze and thaw IO in the case of a
+> non-aware driver.  If the driver does not support hot-plug then the
+> error is just logged.  Do you leave the slot isolated or perform error
+> recovery anyway?
+
+The choice is really to leave the slot isolated or to panic the
+system.  Leaving the slot isolated risks having the driver loop in an
+interrupt routine or deliver bad data to userspace, so we currently
+panic the system.
+
+> On a fatal error the interface is down.  No matter what the driver
+
+Which interface do you mean here?
+
+> supports (AER aware, EEH aware, unaware) all IO is likely to fail.
+> Resetting a bus in a point-to-point environment like PCI Express or EEH
+> (as you describe) should have little adverse effect.  The risk is the
+> bus reset will cause a card reset and the driver must understand to
+> re-initialize the card.  A link reset in PCI Express will not cause a
+> card reset.  We assume the driver will reset its card if necessary.
+
+How will the driver reset its card?
+
+> In PCI Express the AER driver obtains fatal error information from the
+> upstream switch driver. We can use the same API with message =
+> PCIERR_ERROR_RECOVER to notify the endpoint driver, which is maybe
+> unaware of the fatal error reported by its upstream device. Mostly the
+> driver will respond with PCIERR_RESULT_NEED_RESET.
+
+Sounds fine.
+
+Paul.

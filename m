@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265464AbUA0XjK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 18:39:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265658AbUA0Xg4
+	id S265777AbUA0Xjy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 18:39:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265675AbUA0XjV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 18:36:56 -0500
-Received: from mail.kroah.org ([65.200.24.183]:37055 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265464AbUA0XeR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 18:34:17 -0500
-Subject: Re: [PATCH] i2c driver fixes for 2.6.2-rc2
-In-Reply-To: <1075246453858@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 27 Jan 2004 15:34:13 -0800
-Message-Id: <10752464533223@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Tue, 27 Jan 2004 18:39:21 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:58630 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264925AbUA0Xhj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 18:37:39 -0500
+Date: Tue, 27 Jan 2004 23:37:32 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Kiko Piris <kernel@pirispons.net>
+cc: Xan <DXpublica@telefonica.net>, Zack Winkles <winkie@linuxfromscratch.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.1] fbdev console: can't load vga=791 and yes vga=ask!
+In-Reply-To: <20040127225909.GA5271@sacarino.pirispons.net>
+Message-ID: <Pine.LNX.4.44.0401272331410.19265-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1474.148.3, 2004/01/23 17:14:52-08:00, khali@linux-fr.org
 
-[PATCH] I2C: Fix bus reset in i2c-philips-par
+> > I did _not_ booted fine. I tried if with vga=795 it booted fine as you and the 
+> > same result as 791 obtained: black screen until X window appears. When I 
+> > switch to pty, black screen or color (and deformed) puzzle of X window 
+> > contain.
+> 
+> In 2.6.1 I could use framebuffer through vesafb just with that parameter
+> (vga=795, ie. 1280x10224 16M).
 
-This patch fixes the bus reset in i2c-philips-par when it is loaded with
-type!=0. For now, the reset is always made as is type==0. I guess that
-this driver will be abandoned in a while, but it probably doesn't hurt
-to fix that.
+This is very strange. 
 
+> In 2.6.2-rc* it does not work for me, just blank screen if I try to use
+> vesafb.
 
- drivers/i2c/busses/i2c-philips-par.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+I know this is not my recent patch I sent to linus since I just sent it to 
+him yesterday.
 
+> Zack Winkles pointed me that I could try passing
+> video=vesafb:ywrap,pmipal,mtrr,vga=795 to get vesafb working.
+> 
+> Thanks for it. Right now I'm on travel and I can not try it, I will be
+> able to do so on thursday.
 
-diff -Nru a/drivers/i2c/busses/i2c-philips-par.c b/drivers/i2c/busses/i2c-philips-par.c
---- a/drivers/i2c/busses/i2c-philips-par.c	Tue Jan 27 15:27:08 2004
-+++ b/drivers/i2c/busses/i2c-philips-par.c	Tue Jan 27 15:27:08 2004
-@@ -184,8 +184,8 @@
- 		return;
- 	}
- 	/* reset hardware to sane state */
--	bit_lp_setsda(port, 1);
--	bit_lp_setscl(port, 1);
-+	adapter->bit_lp_data.setsda(port, 1);
-+	adapter->bit_lp_data.setscl(port, 1);
- 	parport_release(adapter->pdev);
- 
- 	if (i2c_bit_add_bus(&adapter->adapter) < 0) {
+Give it a try. If you have problems use my patch at 
+
+http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
+
+> Althoug, I would prefer to use radeonfb instead of vesafb (radeonfb
+> turns off my monitor and vesafb does not).
+> 
+> Anyone with a Radeon 9200 does use radeonfb ? If yes, any special boot
+> parameter?
+
+Try my newest patch. It has a updated radeon driver.
+
 

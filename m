@@ -1,53 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263226AbUDVDvZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263040AbUDVD7J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263226AbUDVDvZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 23:51:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263147AbUDVDvS
+	id S263040AbUDVD7J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 23:59:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUDVD7J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 23:51:18 -0400
-Received: from gate.crashing.org ([63.228.1.57]:22711 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262190AbUDVDvQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 23:51:16 -0400
-Subject: [PATCH] Set ARCH_MIN_TASKALIGN on ppc32
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1082605798.28232.101.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 22 Apr 2004 13:49:59 +1000
-Content-Transfer-Encoding: 7bit
+	Wed, 21 Apr 2004 23:59:09 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:55233 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S263040AbUDVD7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 23:59:07 -0400
+Date: Wed, 21 Apr 2004 23:59:33 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       jgarzik@pobox.com, mpm@selenic.com
+Subject: Re: [PATCH] Kconfig.debug family
+In-Reply-To: <20040421205140.445ae864.rddunlap@osdl.org>
+Message-ID: <Pine.LNX.4.58.0404212356590.3745@montezuma.fsmlabs.com>
+References: <20040421205140.445ae864.rddunlap@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please apply, or the task struct gets unaligned when using SLAB_DEBUG,
-causing random problems with FP and Altivec.
+On Wed, 21 Apr 2004, Randy.Dunlap wrote:
 
-Ben.
+>  lib/Kconfig.debug            |  211 +++++++++++++++++++++++++++++++++++++++++++
+>  42 files changed, 1084 insertions(+), 1717 deletions(-)
+>
+>
+> Like it, kill/drop it, fix (what?) problems, ... ?
 
-
------Forwarded Message-----
-From: David Woodhouse <dwmw2@infradead.org>
-To: benh@kernel.crashing.org
-Subject: [PATCH] Set ARCH_MIN_TASKALIGN on ppc32
-Date: Wed, 21 Apr 2004 22:14:23 -0400
-
-...lest CONFIG_DEBUG_SLAB make it unaligned.
-
---- include/asm-ppc/processor.h~	2004-04-21 16:38:03.000000000 -0400
-+++ include/asm-ppc/processor.h	2004-04-21 21:48:48.000000000 -0400
-@@ -121,6 +121,8 @@
- #endif /* CONFIG_ALTIVEC */
- };
- 
-+#define ARCH_MIN_TASKALIGN 16
-+
- #define INIT_SP		(sizeof(init_stack) + (unsigned long) &init_stack)
- 
- #define INIT_THREAD { \
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
-
+Looks good to me, can we convince a certain someone? ;)

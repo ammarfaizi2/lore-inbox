@@ -1,39 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263494AbTH3L6c (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 07:58:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263529AbTH3L6c
+	id S261332AbTH3MdQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 08:33:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbTH3MdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 07:58:32 -0400
-Received: from host81-134-114-67.in-addr.btopenworld.com ([81.134.114.67]:38666
-	"HELO 192.168.0.238") by vger.kernel.org with SMTP id S263494AbTH3L6b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 07:58:31 -0400
-From: "Robert Seviour" <SFESeminarsLtd@totalise.co.uk>
-To: <linux-kernel@vger.kernel.org>
-Subject: Selling for Engineers Seminar & Closing Techniques Workshop - new US Canada dates.
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Date: Sat, 30 Aug 2003 12:59:44 +0100
-Reply-To: "Robert Seviour" <SFESeminarsLtd@totalise.co.uk>
-Message-Id: <S263494AbTH3L6b/20030830115831Z+207357@vger.kernel.org>
+	Sat, 30 Aug 2003 08:33:16 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:61852 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261332AbTH3MdP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 08:33:15 -0400
+Date: Sat, 30 Aug 2003 14:33:08 +0200 (CEST)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: insecure <insecure@mail.od.ua>
+Cc: "J.A. Magallon" <jamagallon@able.es>,
+       Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4] gcc3 warns about type-punned pointers ?
+In-Reply-To: <200308300537.49700.insecure@mail.od.ua>
+Message-ID: <Pine.LNX.4.44.0308301427320.3338-100000@artax.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good Morning,
+> > A collateral question: why is the reason for this function ?
+> > long long assignments are not atomic in gcc ?
+>
+> Another question: why do we do _double_ store here?
+>
+> static inline void __set_64bit (unsigned long long * ptr,
+>                 unsigned int low, unsigned int high)
+> {
+>         __asm__ __volatile__ (
+>                 "\n1:\t"
+>                 "movl (%0), %%eax\n\t"
+>                 "movl 4(%0), %%edx\n\t"
+>                 "lock cmpxchg8b (%0)\n\t"
+>                 "jnz 1b"
+>                 : /* no outputs */
+>                 :       "D"(ptr),
+>                         "b"(low),
+>                         "c"(high)
+>                 :       "ax","dx","memory");
+> }
+>
+> This will execute expensive locked load-compare-store operation twice
+> almost always (unless previous value was already equal
+> to the value we are about to store)
 
-Specialised Sales-Training for engineering, scientific, technical companies.
+It doesn't double store. cmpxchg8b does:
+compare memory with edx:eax
+	if equal, copy copy ecx:ebx into memory, set zf = 1
+	else copy memory into edx:eax, set zf = 0
 
-We have new dates for events in Boston, Chicago, Dallas, San Jose / Silicon
-Valley, Seattle, Denver, Toronto (please enquire for other locations) - for
-details please reply with 'send info' as the subject.
+> AFAIK we can safely drop that loop (jnz instruction)
 
-Should sales-training not be relevant for your company, if you put the word
-'delete' as the subject, I will take you off my mailing list immediately -
-and I'm sorry to have bothered you.
+No. The only possible optimization would be to move 1: label directly at
+cmpxgch8b. But it won't bring much, because loop is executed only if value
+was changed after read and before cmpxchg.
 
-Regards
+There is another worse problem --- jump instructions are predicted as
+taken when they point backwards, so it gets mispredicted. jnz should
+really point to some other section, that is linked after .text, where
+unconditional jump backwards would be.
 
-Robert Seviour
- 
+Mikulas
+

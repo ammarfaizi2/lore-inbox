@@ -1,71 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262985AbTEMAIO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 20:08:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263011AbTEMAIO
+	id S262977AbTEMAWA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 20:22:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262984AbTEMAWA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 20:08:14 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:40626 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262985AbTEMAIM (ORCPT
+	Mon, 12 May 2003 20:22:00 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:33152 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S262977AbTEMAV4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 20:08:12 -0400
-Date: Mon, 12 May 2003 17:22:40 -0700
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 must-fix list, v2
-Message-ID: <20030513002240.GA4419@kroah.com>
-References: <20030512155417.67a9fdec.akpm@digeo.com>
+	Mon, 12 May 2003 20:21:56 -0400
+Date: Tue, 13 May 2003 02:34:27 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BK FBDEV] String drawing optimizations.
+Message-ID: <20030513003427.GA19121@vana.vc.cvut.cz>
+References: <Pine.LNX.4.44.0305130049520.14641-100000@phoenix.infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030512155417.67a9fdec.akpm@digeo.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.44.0305130049520.14641-100000@phoenix.infradead.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 12, 2003 at 03:54:17PM -0700, Andrew Morton wrote:
+On Tue, May 13, 2003 at 01:02:40AM +0100, James Simmons wrote:
 > 
-> There have been surprisingly few additions.  The original and updated lists
-> are at
-> 
-> 	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/must-fix/
-> 
-> Nothing has been deleted.  This means either that nobody is doing anything
-> or people forgot to tell me.
+> Please test. The pixmap code in the framebuffer layer was designed to 
+> align the font data. For some hardware it is required that each scanline 
+> end on a byte boundary but for some  it was to be 32 bit aligned. So the
+> solution was to take the image data and padded it to what the hardware 
+> needs. At present it does this by coping on byte at a time. This is just 
+> plain awful. So this patch copies data a whole scanline at a time. It is
+> a big performance boost. Please test before I send it to Linus. Thank 
+> you.
 
-People forget to tell you :)
-
-Here's a small patch knocking two things off the list that are now in
-Linus's tree.
-
-thanks,
-
-greg k-h
-
-
---- must-fix-2.txt.original	2003-05-12 17:18:23.782129948 -0700
-+++ must-fix-2.txt	2003-05-12 17:19:36.906235476 -0700
-@@ -175,9 +175,6 @@
- 
- - Per-cpu support inside modules (have patch, in testing).
- 
--- driver class code is getting redone.  I have this now working, and will
--  send it out in a few days.
--
- net/
- ----
- 
-@@ -561,9 +558,6 @@
-   Alternatively, we could re-introduce the fallback to driver ioctl parsing
-   for these if not enough drivers get updated.
- 
--- fixup the usb-serial core and drivers to provide support for this
--  patch.
--
- drivers/net/
- ------------
- 
-
-
+What about getting rid of one-char putc, implementing it in terms of
+putcs? I'm doing it in matroxfb patches, and nobody complained yet, and
+with current length of {fbcon,accel}_putc{s,} I was not able to find
+measurable speed difference between putc and putc through putcs variants.
+						Thanks,
+							Petr Vandrovec
+							vandrove@vc.cvut.cz
 

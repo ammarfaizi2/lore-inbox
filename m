@@ -1,123 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261725AbUCaEnk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 23:43:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbUCaEnk
+	id S261741AbUCaFJy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 00:09:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbUCaFJy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 23:43:40 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:8423 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261725AbUCaEng (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 23:43:36 -0500
-Date: Wed, 31 Mar 2004 10:13:04 +0530
-From: Hariprasad Nellitheertha <hari@in.ibm.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Andrew Morton <akpm@osdl.org>, rddunlap@osdl.org,
-       linux-kernel@vger.kernel.org, apw@shadowen.org, jamesclv@us.ibm.com
-Subject: Re: BUG_ON(!cpus_equal(cpumask, tmp));
-Message-ID: <20040331044304.GA5167@in.ibm.com>
-Reply-To: hari@in.ibm.com
-References: <20040330173620.6fa69482.akpm@osdl.org> <276260000.1080697873@flay>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 31 Mar 2004 00:09:54 -0500
+Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:20198 "EHLO
+	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S261741AbUCaFJx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 00:09:53 -0500
+X-OB-Received: from unknown (205.158.62.182)
+  by wfilter.us4.outblaze.com; 31 Mar 2004 05:08:57 -0000
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <276260000.1080697873@flay>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "dan carpenter" <error27@email.com>
+To: linux-kernel@vger.kernel.org
+Cc: ltp-list@lists.sourceforge.net
+Date: Tue, 30 Mar 2004 23:50:28 -0500
+Subject: file system race condition testing
+X-Originating-Ip: 67.113.20.209
+X-Originating-Server: ws3-6.us4.outblaze.com
+Message-Id: <20040331045028.0B4581CE504@ws3-6.us4.outblaze.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are actually two different problems here, and the BUG_ON is
-hit in both cases.
+Hi,
 
-1) In INIT_MM(), we now do this
+I wrote this script a while back.  It creates 20 files, 0 through 19,
+and then shuffles them around, deletes and recreates them as fast as 
+possible.
 
-        .cpu_vm_mask    = CPU_MASK_ALL,
+It's a good way to test for race conditions.  I always run with 
+preempt turned on so that makes my system more sensitive to race 
+conditions.  Neither JFS or Reiserfs survived a whole night of testing 
+on my system.  It's a pretty grueling test...  
 
-With this, if we enter flush_tlb_others with init_mm, all bits except the one
-corresponding to the current cpu are set. For example, on my UNI machine
-running an SMP kernel with NR_CPUS=8, cpumask is 0xfe. The BUG_ON is hit 
-even if we are doing nothing related to shutdown or cpu-offlining (like
-when we are just loading a new kernel into memory using kexec).
+http://67.113.20.209/racer.tar.gz
 
-2) The issue of a race between taking CPUs offline and the tlbflush code. The
-discussions have been centered around this issue.
+regards,
+dan
 
-The patch I sent across, though, is completely targetted towards issue 1.
-
-Regards, Hari
-
-On Tue, Mar 30, 2004 at 05:51:13PM -0800, Martin J. Bligh wrote:
-> >> I think we're assuming that we don't have to because the problem is fixed 
-> >> by the "cpus_and(tmp, cpumask, cpu_online_map)" in flush_tlb_others so we 
-> >> don't have to. Except it's racy, and doesn't work.
-> > 
-> > And it's a kludge, to work around dangling references to a CPU which has
-> > gone away.
-> 
-> Yes ;-)
->  
-> >> It would seem to me that your suggestion would fix it. But isn't locking
-> >> cpu_online_map both simpler and (most importantly) more generic? I can't 
-> >> imagine that we don't use this elsewhere ... suppose for instance we took 
-> >> a timer interrupt, causing a scheduler rebalance, and moved a process to 
-> >> an offline CPU at that point? Isn't any user of smp_call_function also racy?
-> > 
-> > If we have to add any fastpath locking to cope with CPU removal or reboot
-> > then it's time to make CONFIG_HOTPLUG_CPU dependent upon CONFIG_BROKEN.
-> 
-> Yeah, but as we've proved, it's not just hotplug, it's shutdown. And I don't
-> think we can make that depend on CONFIG_BROKEN ;-) I don't see a *read*
-> side RCU lock as an impostion on the fastpath (for reading cpu_online_map),
-> and I don't care if writing to cpu_online_map is slower. A spinlock would
-> be crappy, yes ...
-> 
-> > yes, cpu_online_map should be viewed as a reference to the going-away CPU
-> > for smp_call_function purposes.  However the CPU takedown code appears to
-> > do the right thing: it removes the cpu from cpu_online_map first, then does
-> > the stop_machine() thing which should ensure that all other CPUs have
-> > completed any cross-CPU call which they were doing, yes?
-> 
-> Andy almost managed to convince me that the smp_call_function stuff is safe,
-> based on call_lock exclusion. Except that we count that cpu stuff outside
-> it ... but that's trivial to fix, we just move it inside the lock (patch
-> below - untested, but trivial).
-> 
-> He also pointed out that we could fairly easily fix the tlb stuff by 
-> taking the tlb lock before taking a cpu offline. Which still doesn't
-> make me desperately comfortable ... but then he's smarter than me ;-)
-> To me it comes down to ... do we want to lock the damned thing, or fix
-> all the callers to be really, really careful? 
-> 
-> diff -purN -X /home/mbligh/.diff.exclude virgin/arch/i386/kernel/smp.c smp_call_function/arch/i386/kernel/smp.c
-> --- virgin/arch/i386/kernel/smp.c	2004-03-11 14:33:36.000000000 -0800
-> +++ smp_call_function/arch/i386/kernel/smp.c	2004-03-30 17:43:34.000000000 -0800
-> @@ -514,10 +514,7 @@ int smp_call_function (void (*func) (voi
->   */
->  {
->  	struct call_data_struct data;
-> -	int cpus = num_online_cpus()-1;
-> -
-> -	if (!cpus)
-> -		return 0;
-> +	int cpus;
->  
->  	data.func = func;
->  	data.info = info;
-> @@ -527,6 +524,10 @@ int smp_call_function (void (*func) (voi
->  		atomic_set(&data.finished, 0);
->  
->  	spin_lock(&call_lock);
-> +	cpus = num_online_cpus()-1;
-> +	if (!cpus)
-> +		return 0;
-> +
->  	call_data = &data;
->  	mb();
->  	
-> 
 
 -- 
-Hariprasad Nellitheertha
-Linux Technology Center
-India Software Labs
-IBM India, Bangalore
+___________________________________________________________
+Sign-up for Ads Free at Mail.com
+http://promo.mail.com/adsfreejump.htm
+

@@ -1,49 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264725AbUEaSjk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264677AbUEaSmR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264725AbUEaSjk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 14:39:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264731AbUEaSjk
+	id S264677AbUEaSmR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 14:42:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264710AbUEaSmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 14:39:40 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:14614 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S264725AbUEaSjj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 14:39:39 -0400
-Date: Mon, 31 May 2004 20:42:18 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Bjorn Wesen <bjorn.wesen@axis.com>
-Cc: Dan Kegel <dank@kegel.com>, Mikael Starvik <mikael.starvik@axis.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Delete cris architecture?
-Message-ID: <20040531184218.GA2101@mars.ravnborg.org>
-Mail-Followup-To: Bjorn Wesen <bjorn.wesen@axis.com>,
-	Dan Kegel <dank@kegel.com>, Mikael Starvik <mikael.starvik@axis.com>,
-	linux-kernel@vger.kernel.org
-References: <40BB3751.6060200@kegel.com> <Pine.LNX.4.33.0405311807550.14955-100000@godzilla.se.axis.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0405311807550.14955-100000@godzilla.se.axis.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 31 May 2004 14:42:17 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:6297 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S264677AbUEaSmO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 14:42:14 -0400
+Message-ID: <40BB7D34.8060200@elegant-software.com>
+Date: Mon, 31 May 2004 14:45:08 -0400
+From: Russell Leighton <russ@elegant-software.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: F_SETSIG broken/changed in 2.6 for UDP and TCP sockets?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 31, 2004 at 06:14:02PM +0200, Bjorn Wesen wrote:
-> The CRIS architecture is stable and supported by Axis Communications 
-> officially in 2.4, but the 2.6 port is work-in-progress, thus you could 
-> expect problems building it from the vanilla kernel source. It works 
-> in-house on 2.6, but perhaps all patches have not trickled out to the 
-> official kernel yet (although they should have I think, so it's good that 
-> you mention stuff like this).
 
-When grepping the source and even doing cross architecture changes it is
-nice to have a ratehr up-to-date version in the main stream kernel.
+I have a program that works fine under stock rh9 (2.4.2-8) but has 
+issues getting signaled under FedoraCore2 (2.6.5-1.358)
+using SETSIG to a Posix RT signal.
 
-It would be nice if Axis could at least drop an update of the tree for
-each kernel release (provided there are any changes).
-This would allow all of us to get a better overview, and in some cases
-we may even introduce new stuff / fix errors.
+The program does the standard:
 
-So please start to feed Andrew (or Linus) regularly with updates.
+  /* hook to process */
+  if ( fcntl(fdcallback->fd, F_SETOWN, mon->handler_q.thread->pid) == -1 ) {
+    aw_log(fdcallback->handler->logger, AW_ERROR_LOG_LEVEL,
+       "cannot set owner on fd (%s)",
+       strerror(errno));
+  }/* end if */
 
-	Sam
+  /* make async */
+  if ( fcntl(fdcallback->fd, F_SETFL, (O_NONBLOCK | O_ASYNC) ) == -1 ) {
+    aw_log(fdcallback->handler->logger, AW_ERROR_LOG_LEVEL,
+       "cannot set async on fd (%s)",
+       strerror(errno));
+  }/* end if */
+
+  /* hook to signal */
+  if ( fcntl(fdcallback->fd, F_SETSIG, AW_SIG_FD) == -1 ) {
+    aw_log(fdcallback->handler->logger, AW_ERROR_LOG_LEVEL,
+       "cannot set signal on fd (%s)",
+       strerror(errno));
+  }/* end if */
+
+Under Fedora things work well for raw sockets (much lower latency than 
+in 2.4!) but are inconsistent with udp or tcp sockets.
+
+In the udp case, I when I listen for multicast packets my app only 
+receives them when I am running a tcpdump (bizarre!).
+
+In the tcp case, I don't get signaled if I do the F_SETSIG on more than 
+1 fd.
+
+Any tips on tracking this down would be much appreciated.
+
+Thx
+
+Russ
+

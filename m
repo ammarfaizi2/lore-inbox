@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267271AbUG1Pvy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267252AbUG1PzS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267271AbUG1Pvy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 11:51:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267250AbUG1Pt6
+	id S267252AbUG1PzS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 11:55:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267253AbUG1PxK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 11:49:58 -0400
-Received: from users.linvision.com ([62.58.92.114]:8119 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S267205AbUG1Prz (ORCPT
+	Wed, 28 Jul 2004 11:53:10 -0400
+Received: from opersys.com ([64.40.108.71]:16654 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S267252AbUG1PwE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 11:47:55 -0400
-Date: Wed, 28 Jul 2004 17:47:49 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: linux-kernel@vger.kernel.org
-Cc: wli@holomorphy.com
-Subject: 2.4.26 doesn't boot on a 386 without "Unsynced TSC support"
-Message-ID: <20040728154748.GB1675@harddisk-recovery.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organization: Harddisk-recovery.com
+	Wed, 28 Jul 2004 11:52:04 -0400
+Message-ID: <4107CA18.4060204@opersys.com>
+Date: Wed, 28 Jul 2004 11:45:28 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: Scott Wood <scott@timesys.com>
+CC: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       "La Monte H.P. Yarroll" <piggy@timesys.com>,
+       Manas Saksena <manas.saksena@timesys.com>,
+       Philippe Gerum <rpm@xenomai.org>
+Subject: Re: [patch] IRQ threads
+References: <20040727225040.GA4370@yoda.timesys>
+In-Reply-To: <20040727225040.GA4370@yoda.timesys>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I tried to boot 2.4.26 on my good old 386 board, but got a kernel
-panic:
+Scott Wood wrote:
+> I have attached a patch for implementing IRQ handlers in threads, for
+> latency-reduction purposes.  It requires that softirqs must be run in
+> threads (or else they could end up running inside the IRQ threads,
+> which will at the very least trigger bugs due to in_irq() being set). 
+> I've tested it with Ingo's voluntary-preempt J7 patch, and it should
+> work with the TimeSys softirq thread patch as well (though you might
+> get a conflict with the PF_IRQHANDLER definition; just merge them
+> into one).
 
-  CPU: 386
-  Kernel panic: Kernel compiled for Pentium+, requires TSC feature!
+My experience with clients who have been using TimeSys' stuff has been
+abysmal. The fact of the of the matter is that most people who used
+this were practically locked-in to TimeSys' services, unable to download
+anything "standard" off the net and using it with their kernel. In one
+example, we had to ditch the kernel the client got from TimeSys because
+we had spent 10+ hours trying to get LTT to work on it without any
+success whatsoever.
 
-The error message comes from the function check_config() in
-include/asm-i386/bugs.h (thanks to wli for figuring out faster than I
-did).
+As I had said on other lists before, I don't see the point of creating
+that much complexity in the kernel in order to try to shave-off a little
+bit more off of the kernel's interrupt response time. The fact of the
+matter is that neither this patch nor most of the other patches suggested
+makes the kernel truely hard-rt. These patches only make the kernel
+respond "faster". If you really need hard-rt, then you should be using
+the Adeos nanokernel. With Adeos, you can even get a hard-rt driver
+without using RTAI or any of the other rt derivatives.
 
-I am sure I selected support for a 80386 CPU, so the error message
-looks wrong to me. CONFIG_M586TSC is not set, but CONFIG_X86_TSC is
-enabled by default. The only way to disable it, is to enable "Unsynced
-TSC support", (CONFIG_X86_TSC_DISABLE).
-
-The help for CONFIG_X86_TSC_DISABLE mentions to use it for "NUMA
-mult-mode boxes, laptops and other systems suffering from unsynced TSCs
-or TSC drift, which can cause gettimeofday to return non-monotonic
-values." A simple 80386 board doesn't belong to these, and I can't
-remember having problmes with gettimeofday() in the past (IIRC the
-board last ran linux-1.2 or 2.0).
-
-My question is: is this a code bug, or a documentation bug? Right now,
-I guess 2.4.26 will not run on anything < Pentium without
-CONFIG_X86_TSC_DISABLE enabled.
-
-
-Erik
-
+Karim
 -- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+

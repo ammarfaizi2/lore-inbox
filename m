@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266587AbUFRTlC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266596AbUFRTsb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266587AbUFRTlC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 15:41:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266599AbUFRTkr
+	id S266596AbUFRTsb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 15:48:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265263AbUFRTpg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 15:40:47 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:13454 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S266587AbUFRTaO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 15:30:14 -0400
-Subject: Re: DMA API issues
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Ian Molton <spyro@f2s.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, greg@kroah.com,
-       tony@atomide.com, david-b@pacbell.net, jamey.hicks@hp.com,
-       joshua@joshuawise.com
-In-Reply-To: <20040618195721.0cf43ec2.spyro@f2s.com>
-References: <1087582845.1752.107.camel@mulgrave>
-	<20040618193544.48b88771.spyro@f2s.com>
-	<1087584769.2134.119.camel@mulgrave> 
-	<20040618195721.0cf43ec2.spyro@f2s.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 18 Jun 2004 14:30:01 -0500
-Message-Id: <1087587004.2078.137.camel@mulgrave>
+	Fri, 18 Jun 2004 15:45:36 -0400
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:13969 "EHLO
+	websrv.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S266712AbUFRTWS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 15:22:18 -0400
+Subject: Re: 2.6.7 Samba OOPS (in smb_readdir)
+From: Christophe Saout <christophe@saout.de>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Brice Goglin <Brice.Goglin@ens-lyon.fr>, linux-kernel@vger.kernel.org
+In-Reply-To: <1087585251.13235.3.camel@leto.cs.pocnet.net>
+References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
+	 <20040618163759.GN1146@ens-lyon.fr> <20040618164125.GO1146@ens-lyon.fr>
+	 <Pine.LNX.4.58.0406181309440.2228@montezuma.fsmlabs.com>
+	 <1087585251.13235.3.camel@leto.cs.pocnet.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-PLTZJ5tZUIcpn9QchnxC"
+Date: Fri, 18 Jun 2004 21:22:12 +0200
+Message-Id: <1087586532.9085.1.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
+X-Mailer: Evolution 1.5.9.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-06-18 at 13:57, Ian Molton wrote:
-> In *theory* the OHCI driver is doing everything right - its asking for DMAable memory and using it. if the DMA api simply understood the device in question, and alocated accordingly, it would just work.
-> 
-> there are two solutions:
-> 
-> 1) Break up the OHCI driver and make it into a chip driver as you describe
-> 2) Make the DMA API do the right thing with these devices
 
-Could you please just describe what the problem actually is.
+--=-PLTZJ5tZUIcpn9QchnxC
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The ohci driver looks to be reasonably modular already, with a chip
-piece and a bus attachment piece.
+Am Fr, den 18.06.2004 um 21:00 Uhr +0200 schrieb Christophe Saout:
 
-Is your problem that you'd like the dma pools it uses to come out of the
-on chip buffer?
+> > 	It's a known issue currently being tracked with the bugzilla entry
+> > at http://bugzilla.kernel.org/show_bug.cgi?id=3D1671
+>=20
+> Hey, nice.
+>=20
+> I've got a nearly 100% reproducability of the problem here (FAM +
+> nautilus + hal.hotplug or something like that, I'm always getting this
+> Oops in nautilus trying to do something with its trash folder when I'm
+> mounting a remote volume). I'll try this patch and tell you if it's
+> working (for me).
 
-James
+Well, it's not. :(
 
+The oops is gone but the processes are still hanging. I'm posting the
+SysRq-T trace on bugzilla. Hope it helps. If you need some help
+debugging the problem, please tell me if I can do something.
+
+
+--=-PLTZJ5tZUIcpn9QchnxC
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBA00DjZCYBcts5dM0RAumSAJ47wAIvFkVXIRqGJywSjIwP7+tipgCdFlKH
++CX4u5r0DppULwYE0ph5IDs=
+=iBaP
+-----END PGP SIGNATURE-----
+
+--=-PLTZJ5tZUIcpn9QchnxC--
 

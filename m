@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129506AbRAaWvU>; Wed, 31 Jan 2001 17:51:20 -0500
+	id <S129576AbRAaW6V>; Wed, 31 Jan 2001 17:58:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129522AbRAaWvK>; Wed, 31 Jan 2001 17:51:10 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41745 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129506AbRAaWvB>;
-	Wed, 31 Jan 2001 17:51:01 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200101311959.f0VJx2n11108@flint.arm.linux.org.uk>
-Subject: Re: Recommended swap for 2.4.x.
-To: riel@conectiva.com.br (Rik van Riel)
-Date: Wed, 31 Jan 2001 19:59:02 +0000 (GMT)
-Cc: matthew@hairy.beasts.org (Matthew Kirkwood),
-        linux-kernel@vger.kernel.org (Kernel Mailing List)
-In-Reply-To: <Pine.LNX.4.21.0101301643190.1321-100000@duckman.distro.conectiva> from "Rik van Riel" at Jan 30, 2001 04:43:40 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+	id <S129581AbRAaW6B>; Wed, 31 Jan 2001 17:58:01 -0500
+Received: from mail08.voicenet.com ([207.103.0.34]:3003 "HELO mail08")
+	by vger.kernel.org with SMTP id <S129578AbRAaW54>;
+	Wed, 31 Jan 2001 17:57:56 -0500
+Message-ID: <3A789869.B05506FB@voicenet.com>
+Date: Wed, 31 Jan 2001 17:57:45 -0500
+From: safemode <safemode@voicenet.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19pre7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Tobias Ringstrom <tori@tellus.mine.nu>,
+        Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
+        David Raufeisen <david@fortyoz.org>, Vojtech Pavlik <vojtech@suse.cz>,
+        linux-kernel@vger.kernel.org
+Subject: Re: VT82C686A corruption with 2.4.x
+In-Reply-To: <E14O60w-0003IO-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel writes:
-> On Tue, 30 Jan 2001, Matthew Kirkwood wrote:
-> > On Tue, 30 Jan 2001, Rik van Riel wrote:
-> > > While reclaiming swap space when you run out is pretty
-> > > trivial to do, Linus doesn't seem to like the idea all
-> > > that much and Disk Space Is Cheap(tm) so it's not very
-> > > high on my list of things to do.
-> > 
-> > 'anybody who says "disk is cheap" deserves to be shot.'
-> > - Linus Torvalds
-> 
-> I wonder if Linus will shoot himself or if he'll just
-> segfault ;)
+Alan Cox wrote:
 
-Depends whether someone compiled oom_kill.c into his brain!
+> > better than i ever got with 2.4 even when only one drive was on a channel.
+> > Right now my k7-2 750 is at 849mhz with a FSB of 114Mhz and PCI at 34Mhz.
+>
+> Hint: people who overclock machines get suprising odd results and bad stuff
+> happens. Please dont waste developers time unless you can reproduce it at
+> the intended speed for the components
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Like i said .. i just did that within the last 5 min   it has nothing to do
+with any problems i've been talking about
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

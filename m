@@ -1,83 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261721AbTILPBO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 11:01:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbTILPBO
+	id S261712AbTILO4N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 10:56:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbTILO4N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 11:01:14 -0400
-Received: from fed1mtao04.cox.net ([68.6.19.241]:43003 "EHLO
-	fed1mtao04.cox.net") by vger.kernel.org with ESMTP id S261721AbTILPBG
+	Fri, 12 Sep 2003 10:56:13 -0400
+Received: from gw1.cosmosbay.com ([62.23.185.226]:37323 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S261712AbTILO4K
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 11:01:06 -0400
-Date: Fri, 12 Sep 2003 08:01:04 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Hal <pshbro@open.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG: missing config options in 2.6.0-test5-bk1 arch PPC
-Message-ID: <20030912150104.GD13672@ip68-0-152-218.tc.ph.cox.net>
-References: <3F5A001F.10509@open.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0OAP2g/MAC+5xKAE"
-Content-Disposition: inline
-In-Reply-To: <3F5A001F.10509@open.org>
-User-Agent: Mutt/1.5.4i
+	Fri, 12 Sep 2003 10:56:10 -0400
+Message-ID: <00db01c3793d$e22aaf40$890010ac@edumazet>
+From: "dada1" <dada1@cosmosbay.com>
+To: <linux-kernel@vger.kernel.org>, "Dan Behman" <dbehman@ca.ibm.com>
+References: <OFACE20891.664CABA8-ON85256D9F.004FBBDE@torolab.ibm.com>
+Subject: Re: Hyperthreading: easiest userland method?
+Date: Fri, 12 Sep 2003 16:55:18 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
---0OAP2g/MAC+5xKAE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Have you checked x86info ? http://www.codemonkey.org.uk/projects/x86info/
 
-On Sat, Sep 06, 2003 at 08:41:19AM -0700, Hal wrote:
-> [1] arch/ppc/platforms/mpc82xx.h: platforms/willow.h not found.
->=20
-> [2]
->=20
-> In arch/ppc/platforms/mpc82xx.h line 33 platforms/willow.h is included.=
-=20
-> This file does not exist.
->=20
-> [3] arch/ppc/kernel/asm-offsets.s include/asm/io.h include/asm/mpc8260.h=
-=20
-> platforms/willow.h
->=20
-> [4] 2.6.0-test5-bk1
->=20
-> [5]
->=20
->  CC      arch/ppc/kernel/asm-offsets.s
->  In file included from include/asm/mpc8260.h:12,
->      from include/asm/io.h:32,
->      from arch/ppc/kernel/asm-offsets.c:21:
->  arch/ppc/platforms/mpc82xx.h:33:30: platforms/willow.h: No such file=20
-> or directory
->  make[1]: *** [arch/ppc/kernel/asm-offsets.s] Error 1
->  make: *** [arch/ppc/kernel/asm-offsets.s] Error 2
->=20
-> [6] make allyesconfig; make
+You may ask Dave Jones to add a single option that could never change, and
+returns TRUE or FALSE, depending on HT enabled CPUS.
 
-The notion of 'allyesconfig' is broken on PPC, IMHO.  If you want to try
-test compiling a number of drivers, do this, followed by whichever
-config target you normally do, and build for a pmac, or whatever
-hardware you actually have.
 
---=20
-Tom Rini
-http://gate.crashing.org/~trini/
+From: "Dan Behman" <dbehman@ca.ibm.com>
+> Hi,
+>
+> I have a need to programmatically determine whether or not hyperthreading
+> is enabled (and in use) for licensing reasons in my application.
+> Currently, I know of two ways to do this:
+>
+> 1) parse /proc/cpuinfo for "processor id"
+> 2) port Intel's documented method (written for Windows) to directly query
+> the CPUs
+>
+> Both methods have drawbacks - 1) relying on specific text that could
+change
+> is a bad idea; 2) this doesn't take into account whether or not Linux
+> and/or the BIOS is making use of the hyperthreading.
+>
+> >From scouring the archives and the net, it doesn't seem like there's any
+> API that currently exists, but perhaps I've missed something.
+> /proc/cpuinfo gathers its information from somewhere - is there a way in
+> userland to bypass /proc/cpuinfo and directly get this data manually?
+>
+> I'm interested in both 2.4 and 2.6 implementations and would like to be
+> personally CC'ed on any repsonses.
+>
+> Thanks in advance!
+>
+> Dan Behman.
+> IBM Canada Ltd.
 
---0OAP2g/MAC+5xKAE
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/Yd+wdZngf2G4WwMRAlFUAJ99jVyrHLENsAcoBhA6xWINBm1yWACeIDE3
-RZkkTiojILtLELFv3phoqV4=
-=Sfw3
------END PGP SIGNATURE-----
-
---0OAP2g/MAC+5xKAE--

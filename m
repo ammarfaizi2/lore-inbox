@@ -1,72 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263301AbUDNQnS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 12:43:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264278AbUDNQnS
+	id S261440AbUDNQmi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 12:42:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264278AbUDNQmh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 12:43:18 -0400
-Received: from out007pub.verizon.net ([206.46.170.107]:15493 "EHLO
-	out007.verizon.net") by vger.kernel.org with ESMTP id S263301AbUDNQnL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 12:43:11 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: walt <wa1ter@myrealbox.com>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.5-bk]  'modules_install' failed to install modules
-Date: Wed, 14 Apr 2004 12:43:09 -0400
-User-Agent: KMail/1.6
-References: <407D5B7F.107@myrealbox.com> <20040414161827.GA2229@mars.ravnborg.org>
-In-Reply-To: <20040414161827.GA2229@mars.ravnborg.org>
+	Wed, 14 Apr 2004 12:42:37 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:52705 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S261440AbUDNQme (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 12:42:34 -0400
+Date: Wed, 14 Apr 2004 09:42:24 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, hugh@veritas.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Benchmarking objrmap under memory pressure
+Message-ID: <25670000.1081960943@[10.10.2.4]>
+In-Reply-To: <20040414162700.GS2150@dualathlon.random>
+References: <1130000.1081841981@[10.10.2.4]> <20040413005111.71c7716d.akpm@osdl.org> <120240000.1081903082@flay> <20040414162700.GS2150@dualathlon.random>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404141243.09740.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [151.205.62.48] at Wed, 14 Apr 2004 11:43:10 -0500
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 14 April 2004 12:18, Sam Ravnborg wrote:
->On Wed, Apr 14, 2004 at 08:40:47AM -0700, walt wrote:
->> I pulled the latest changesets just now and found this weird
->> behavior:
->>
->> 'make' and 'make install' worked as expected, but 'make
->> modules_install' just deleted all the old modules, ran depmod, and
->> then installed no new modules -- nothing.
->>
->> I finally found that doing another 'make' fixed whatever the
->> problem was and allowed modules_install to work properly the
->> second time.
->>
->> This happened on two different machines, so I'm fairly sure it
->> wasn't just me having a brainfart.
->
->This is my second report about this.
->But you gave some new info "work properly the second time".
->This was not the case for the other person.
->
->I will look into it tonight.
->
->	Sam
+> As expected the 6 second difference was nothing compared the the noise,
+> though I'd be curious to see an average number.
 
-WRT 2.6.5-bk1:  So far everything I've checked seems to be working, 
-including loading all the modules on the 1st build and reboot to it.
+Yeah, I don't think either is worse or better - I really want a more stable
+test though, if I can find one.
 
->-
->To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+> the degradation of runtimes is interesting, runtimes should go downs not
+> up after more unused stuff is pushed into swap and so more ram is free
+> at every new start of the workload.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+Yeah, that's odd.
+
+> BTW, I've no idea idea why you used an UP machine for this, (plus if you
+
+Because it's frigging hard to make a 16GB machine swap ;-) 'twas just my
+desktop.
+
+> critical app is using mremap on anonymous COW memory to save ram). You
+> definitely should use your 32-way booted with mem=512m to run this test
+> or there's no way you'll ever botice the additional boost in scalability
+> that anon-vma provides compared to anonmm, and that anonmm will never be
+> able to reach.
+
+Yeah, it's hard to do mem= on NUMA, but I have a patch from someone 
+somehwere. Those machines don't tend to swap heavily anyway, but I suppose
+page reclaim in general will happen.
+
+M.
+

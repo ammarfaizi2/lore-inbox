@@ -1,63 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133113AbRECRJH>; Thu, 3 May 2001 13:09:07 -0400
+	id <S135735AbRECRYV>; Thu, 3 May 2001 13:24:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133116AbRECRI5>; Thu, 3 May 2001 13:08:57 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:2577 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S133113AbRECRIt>; Thu, 3 May 2001 13:08:49 -0400
-Date: Thu, 3 May 2001 10:08:38 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Edward Spidre <beamz_owl@yahoo.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Possible PCI subsystem bug in 2.4
-In-Reply-To: <20010503140318.7583.qmail@web10704.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.21.0105031004410.30346-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135737AbRECRYM>; Thu, 3 May 2001 13:24:12 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:31266 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S135735AbRECRYA>; Thu, 3 May 2001 13:24:00 -0400
+Date: Thu, 3 May 2001 19:23:36 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Cabaniols, Sebastien" <Sebastien.Cabaniols@Compaq.com>
+Cc: "'Andrew Morton'" <andrewm@uow.edu.au>,
+        "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'davem@redhat.com'" <davem@redhat.com>,
+        "'kuznet@ms2.inr.ac.ru'" <kuznet@ms2.inr.ac.ru>
+Subject: Re: [BUG] freeze Alpha ES40 SMP 2.4.4.ac3, another TCP/IP Problem ? ( was 2.4.4 kernel crash , possibly tcp related )
+Message-ID: <20010503192335.U1162@athlon.random>
+In-Reply-To: <1FF17ADDAC64D0119A6E0000F830C9EA04B3CDD1@aeoexc1.aeo.cpqcorp.net> <20010503184610.T1162@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010503184610.T1162@athlon.random>; from andrea@suse.de on Thu, May 03, 2001 at 06:46:10PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, May 03, 2001 at 06:46:10PM +0200, Andrea Arcangeli wrote:
+> as well. The only annoying thing is that UP kernel compiles seems not to
+> boot but I hope that will be fixed soon too.
 
-On Thu, 3 May 2001, Edward Spidre wrote:
-> 
-> Note: a diff between booting with mem and without it
-> yield the same results (the user-defined phys ram map
-> is identical to the bios provided one)
+Ok I spotted and fixed that bug that forbidden my tree to boot with UP
+compiles on alpha. The bug is that the SCHED_YIELD handling was broken
+on alpha UP, this is the fix:
 
-Interesting. Your BIOS-provided memory map is buggy:
+--- 2.4.5pre1aa1/arch/alpha/kernel/entry.S.~1~	Thu May  3 18:22:13 2001
++++ 2.4.5pre1aa1/arch/alpha/kernel/entry.S	Thu May  3 19:18:16 2001
+@@ -709,16 +709,14 @@
+ 	br	restore_all
+ .end entSys
+ 
+-#ifdef CONFIG_SMP
+-        .globl  ret_from_smp_fork
++        .globl  ret_from_fork
+ .align 3
+-.ent ret_from_smp_fork
+-ret_from_smp_fork:
++.ent ret_from_fork
++ret_from_fork:
+ 	lda	$26,ret_from_sys_call
+ 	mov	$17,$16
+ 	jsr	$31,schedule_tail
+-.end ret_from_smp_fork
+-#endif /* CONFIG_SMP */
++.end ret_from_fork
+ 
+ .align 3
+ .ent reschedule
+--- 2.4.5pre1aa1/arch/alpha/kernel/process.c.~1~	Thu May  3 18:22:09 2001
++++ 2.4.5pre1aa1/arch/alpha/kernel/process.c	Thu May  3 19:15:41 2001
+@@ -306,7 +306,7 @@
+ 	    struct task_struct * p, struct pt_regs * regs)
+ {
+ 	extern void ret_from_sys_call(void);
+-	extern void ret_from_smp_fork(void);
++	extern void ret_from_fork(void);
+ 
+ 	struct pt_regs * childregs;
+ 	struct switch_stack * childstack, *stack;
+@@ -325,11 +325,7 @@
+ 	stack = ((struct switch_stack *) regs) - 1;
+ 	childstack = ((struct switch_stack *) childregs) - 1;
+ 	*childstack = *stack;
+-#ifdef CONFIG_SMP
+-	childstack->r26 = (unsigned long) ret_from_smp_fork;
+-#else
+-	childstack->r26 = (unsigned long) ret_from_sys_call;
+-#endif
++	childstack->r26 = (unsigned long) ret_from_fork;
+ 	p->thread.usp = usp;
+ 	p->thread.ksp = (unsigned long) childstack;
+ 	p->thread.pal_flags = 1;	/* set FEN, clear everything else */
 
-> BIOS-provided physical RAM map:
->  BIOS-e820: 000000000009fc00 @ 0000000000000000 (usable)
->  BIOS-e820: 0000000000000400 @ 000000000009fc00 (reserved)
->  BIOS-e820: 000000000000c000 @ 00000000000c0000 (reserved)
->  BIOS-e820: 0000000013eec000 @ 0000000000100000 (usable)
->  BIOS-e820: 0000000000004000 @ 0000000013fec000 (reserved)
->  BIOS-e820: 0000000000200000 @ 00000000ffe00000 (reserved)
 
-Note how it says that you have usable RAM from
+(SCHED_YIELD of the previous task is cleared by __schedule_tail, it
+wasn't cleared so a non running task had a SCHED_YIELD set and it was
+deadlocking, this can explain many malfunction of UP alpha kernels)
+I never noticed so far because I always compiled it SMP.
 
-	0000000000100000 - 0000000013fec000
-
-(the thing is hard to read and the output was changed in later kernels: it
-really says that you have 0000000013eec000 bytes of ram starting at
-0000000000100000, which obviously doing the math means that it goes up to
-0000000013fec000).
-
-Now, it then says that you have reserved memory (ie probably the BIOS has
-reserved 1kB at high memory) from
-
-	0000000013fec000 - 0000000013ff0000
-
-In particular, notice how it does NOT mention the memory region from
-
-	0000000013ff0000 - 0000000014000000
-
-at ALL. Which means that Linux thinks that it is free... And Linux will
-place PCI devices there. Even though there certainly is memory there.
-
-I'll have to work around the BIOS bug some way. Will you be willing to
-try out patches?
-
-		Linus
-
+Andrea

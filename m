@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130329AbQKUOA2>; Tue, 21 Nov 2000 09:00:28 -0500
+	id <S130339AbQKUOMm>; Tue, 21 Nov 2000 09:12:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130463AbQKUOAS>; Tue, 21 Nov 2000 09:00:18 -0500
-Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:20462 "EHLO
-	passion.cygnus") by vger.kernel.org with ESMTP id <S130329AbQKUOAE>;
-	Tue, 21 Nov 2000 09:00:04 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20001121122617.88D1A26@ganymede.cdt.luth.se> 
-In-Reply-To: <20001121122617.88D1A26@ganymede.cdt.luth.se> 
-To: Hakan Lennestal <hakanl@cdt.luth.se>
-Cc: Peter Samuelson <peter@cadcamlab.org>, Andre Hedrick <andre@linux-ide.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0, test10, test11: HPT366 problem 
+	id <S130463AbQKUOMd>; Tue, 21 Nov 2000 09:12:33 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:521 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S130339AbQKUOMR>; Tue, 21 Nov 2000 09:12:17 -0500
+Date: Tue, 21 Nov 2000 07:42:10 -0600
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Tobias Ringstrom <tori@tellus.mine.nu>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [CFT] dmfe.c network driver update for 2.4
+Message-ID: <20001121074210.G2918@wire.cadcamlab.org>
+In-Reply-To: <Pine.LNX.4.21.0011162241450.23936-100000@svea.tellus> <3A145806.FF5F0066@mandrakesoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 21 Nov 2000 13:29:51 +0000
-Message-ID: <27102.974813391@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A145806.FF5F0066@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Thu, Nov 16, 2000 at 04:56:22PM -0500
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-hakanl@cdt.luth.se said:
->  When it comes to the partition detection during bootup, udma4 or
-> udma3 doesn't seem to matter. It passes approx. one out of ten times
-> either way. 
+[Jeff Garzik]
+> Pretty much all ISA and PCI drivers need to be portable and SMP
+> safe...  if not so, it's a bug.  That said, there is certainly more
+> motivation to make a popular PCI driver is SMP safe than an older ISA
+> driver.
 
-How have you made it use udma3 at bootup? Something like the patch below?
+Usually, but you never know...
 
-Index: drivers/ide/hpt366.c
-===================================================================
-RCS file: /inst/cvs/linux/drivers/ide/Attic/hpt366.c,v
-retrieving revision 1.1.2.10
-diff -u -r1.1.2.10 hpt366.c
---- drivers/ide/hpt366.c	2000/11/10 14:56:31	1.1.2.10
-+++ drivers/ide/hpt366.c	2000/11/21 13:27:32
-@@ -55,6 +55,8 @@
- };
- 
- const char *bad_ata66_4[] = {
-+	"IBM-DTLA-307045",
-+	"IBM-DTLA-307030",
- 	"WDC AC310200R",
- 	NULL
- };
+  "o       SMP optimised 3c501"
+		-- 2.1.132ac2 changelog
 
---
-dwmw2
+(:
 
-
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

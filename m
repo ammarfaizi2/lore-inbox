@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131369AbRAITR4>; Tue, 9 Jan 2001 14:17:56 -0500
+	id <S130536AbRAITT4>; Tue, 9 Jan 2001 14:19:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131440AbRAITRq>; Tue, 9 Jan 2001 14:17:46 -0500
-Received: from [216.151.155.116] ([216.151.155.116]:65290 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S131369AbRAITRc>; Tue, 9 Jan 2001 14:17:32 -0500
-To: Mihai Moise <mcartoaj@mat.ulaval.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: adding a system call
-In-Reply-To: <200101091441.JAA12925@taylor.mat>
-From: Doug McNaught <doug@wireboard.com>
-Date: 09 Jan 2001 14:17:26 -0500
-In-Reply-To: Mihai Moise's message of "Tue, 9 Jan 2001 09:41:21 -0500 (EST)"
-Message-ID: <m3snmsbkmx.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
+	id <S130766AbRAITTq>; Tue, 9 Jan 2001 14:19:46 -0500
+Received: from webmail.metabyte.com ([216.218.208.53]:30763 "EHLO
+	webmail.metabyte.com") by vger.kernel.org with ESMTP
+	id <S130536AbRAITTb>; Tue, 9 Jan 2001 14:19:31 -0500
+Message-ID: <3A5B6437.3BC23AD3@metabyte.com>
+Date: Tue, 09 Jan 2001 11:19:19 -0800
+From: Pete Zaitcev <zaitcev@metabyte.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: zaitcev@metabyte.com
+Subject: Re: Linux 2.2.19pre7
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Jan 2001 19:19:29.0480 (UTC) FILETIME=[168FF480:01C07A71]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mihai Moise <mcartoaj@mat.ulaval.ca> writes:
+> o Fix kwhich versus old bash (Pete Zaitcev) 
 
-> My system call idea is to allow a superuser process to request a mmap on
-> behalf of an user process. To see how this would be useful, let us consider
-> svgalib.
+A small clarification may be in order here.
 
-[...]
+First, this patch comes from Miquel Smoorenburg, not from me.
 
-> With my new system call, a superuser process can set the graphics mode in a
-> safe manner and then ask for an mmap of the video array into the application
-> data segment.
+Second, DaveM pointed out that it fixes a non-problem.
+I stepped on a bug with an obscure kernel, I think it
+was 2.2.18-pre3, which called kwhich with several arguments.
+Current kernels call kwhich with one argument at a time,
+so they are not affected.
 
-Ummm, couldn't the the root process open the video device, then pass
-the file descriptor (via AF_UNIX socket) to the user process?  The
-user process would then call mmap() on the open file descriptor. 
-
-I'm not *completely* sure this would work, but it would avoid creating 
-a new system call if so.
-
--Doug
+-- Pete
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

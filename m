@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262287AbVDFTHN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262286AbVDFTJF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262287AbVDFTHN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 15:07:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbVDFTHM
+	id S262286AbVDFTJF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 15:09:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262289AbVDFTJD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 15:07:12 -0400
-Received: from wproxy.gmail.com ([64.233.184.202]:25374 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262287AbVDFTHE (ORCPT
+	Wed, 6 Apr 2005 15:09:03 -0400
+Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:61618 "HELO
+	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262286AbVDFTIn convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 15:07:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=ixKC4odd2yiPtjdeaIvhHI+mAcCDrVKUSIaMT1rX1Gg+1OJmVrHtOfiSqc5ScjStUaJtmNxkcCpWrtVmLmioQgwF8Y9dhu67T9K9PQ0fIWEhEdqoBYI0EHXDeYu3Pay5dqwZaEWRthCHtbEKNaibJMpPk+clNH+CZWg+hRMx8xE=
-Message-ID: <9e4733910504061207538485a6@mail.gmail.com>
-Date: Wed, 6 Apr 2005 15:07:03 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Linus Torvalds <torvalds@osdl.org>, Larry McVoy <lm@bitmover.com>
-Subject: Re: Kernel SCM saga..
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
+	Wed, 6 Apr 2005 15:08:43 -0400
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Renate Meijer <kleuske@xs4all.nl>
+Subject: Re: [08/08] uml: va_copy fix
+Date: Wed, 6 Apr 2005 21:13:59 +0200
+User-Agent: KMail/1.7.2
+Cc: =?iso-8859-1?q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       jdike@karaya.com, linux-kernel@vger.kernel.org, stable@kernel.org,
+       Greg KH <gregkh@suse.de>
+References: <20050405164539.GA17299@kroah.com> <20050406113233.GD7031@wohnheim.fh-wedel.de> <14410feafdb3a83e1ae457b93e593b81@xs4all.nl>
+In-Reply-To: <14410feafdb3a83e1ae457b93e593b81@xs4all.nl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200504062113.59283.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 6, 2005 11:42 AM, Linus Torvalds <torvalds@osdl.org> wrote:
-> So I just wanted to say that I'm personally very happy with BK, and with
-> Larry. It didn't work out, but it sure as hell made a big difference to
-> kernel development. And we'll work out the temporary problem of having to
-> figure out a set of tools to allow us to continue to do the things that BK
-> allowed us to do.
+On Wednesday 06 April 2005 14:04, Renate Meijer wrote:
+> On Apr 6, 2005, at 1:32 PM, Jörn Engel wrote:
+> > On Tue, 5 April 2005 22:18:26 +0200, Renate Meijer wrote:
 
-Larry has stated several time that most of his revenue comes from
-Windows. Has ODSL approached Bitmover about simply buying out the
-source rights for the Linux version? From my experience in the
-industry a fair price would probably be around $2M, but that should be
-within ODSL's capabilities. ODSL could then GPL the code and quiet the
-critics.
+> >
+> > You did read include/linux/compiler.h, didn't you?
 
+> So instead of applying this patch, simply
+>
+> #ifdef VERSION_MINOR < WHATEVER
+> #define va_copy __va_copy
+> #endif
+>
+> in include/linux/compiler_gcc2.h
+>
+> Thus solving the problem without having to invade compiler namespace all
+> over the place, but doing so in *one* place only.
+About this one: thanks for suggesting this and being constructive, I'll do 
+ASAP (if I don't forget) this for the -bk tree. However, I think that Greg KH 
+for the stable tree would prefer a local tested patch rather than a global 
+one with possible side effects, right Greg?
+
+Also, I hope this discussion does not count as a vote for the -stable tree 
+inclusion (since dropping GCC 2 support in the -stable tree is exactly the 
+purpose of this tree, right ;-) ? ).
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
+http://www.user-mode-linux.org/~blaisorblade
+

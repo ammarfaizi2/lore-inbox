@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264857AbSJaL1w>; Thu, 31 Oct 2002 06:27:52 -0500
+	id <S264860AbSJaLhk>; Thu, 31 Oct 2002 06:37:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264860AbSJaL1w>; Thu, 31 Oct 2002 06:27:52 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:645 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264857AbSJaL1w>; Thu, 31 Oct 2002 06:27:52 -0500
-Subject: Re: Kernel bug in 2.4.7-10smp...
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Adriano Galano <adriano@satec.es>
-Cc: "'LKML'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <00dc01c280ca$0ba447e0$6f20a4d5@adriano>
-References: <00dc01c280ca$0ba447e0$6f20a4d5@adriano>
-Content-Type: text/plain
+	id <S264859AbSJaLhk>; Thu, 31 Oct 2002 06:37:40 -0500
+Received: from wildsau.idv.uni.linz.at ([213.157.128.253]:62985 "EHLO
+	wildsau.idv.uni.linz.at") by vger.kernel.org with ESMTP
+	id <S264860AbSJaLhj>; Thu, 31 Oct 2002 06:37:39 -0500
+From: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
+Message-Id: <200210311136.g9VBaKBi013883@wildsau.idv.uni.linz.at>
+Subject: Re: VIA EPIA problem
+In-Reply-To: <20021031100245.GA5207@k3.hellgate.ch> from Roger Luethi at "Oct 31, 2 11:02:45 am"
+To: rl@hellgate.ch (Roger Luethi)
+Date: Thu, 31 Oct 2002 12:36:20 +0100 (MET)
+Cc: kernel@wildsau.idv.uni.linz.at, alan@lxorguk.ukuu.org.uk,
+       sergeyssv@mail.ru, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL37 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 31 Oct 2002 11:54:13 +0000
-Message-Id: <1036065253.8852.57.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-31 at 10:41, Adriano Galano wrote:
-> Hi:
 > 
-> I'm using RH Linux 7.2 (kernel 2.4.7-10smp) in one Compaq Proliant ML570
-> with 4 Xeon procesors at 900MHz and one Compaq Smart Array 5300 Controller
-> with 6x73 GB SCSI disk with ext3 filesystem.
-> 
-> It was working OK, but I have one trouble, description below, and the
-> computer it's stopped. Could someone help me? How could I fix it?
+> My favorite suspect is currently byte 84 bit 3 in the configuration
+> registers. It does not exist in VT86C100A (which would explain why it's not
+> handled in Donald Becker's original code). According to VT6102 specs, it
+> indicates an error condition, according to VT6105 specs, it is reserved and
+> always reads 0.
 
-Well you could try one of the kernel updates that Red Hat put out for
-this release.
+okay, let's reopen the case. you want me to monitor this bit? perhaps
+it will be 1 in case of an error condition. for the via epia board, this
+would contradict with the specs, right? but *maybe* the bit is indeed
+1 in case of an error, so we could possibly fix the problem just in time,
+instead of (ugly) storing some temporary value globally across functions.
+
+
 

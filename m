@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261265AbTEAOCW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 10:02:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbTEAOCW
+	id S261270AbTEAODj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 10:03:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbTEAODj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 10:02:22 -0400
-Received: from mx03.uni-tuebingen.de ([134.2.3.13]:16066 "EHLO
-	mx03.uni-tuebingen.de") by vger.kernel.org with ESMTP
-	id S261265AbTEAOCW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 10:02:22 -0400
-X-Face: "iUeUu$b*W_"w?tV83Y3*r:`rh&dRv}$YnZ3,LVeCZSYVuf[Gpo*5%_=/\_!gc_,SS}[~xZ
- wY77I-M)xHIx:2f56g%/`SOw"Dx%4Xq0&f\Tj~>|QR|vGlU}TBYhiG(K:2<T^
-To: Willy TARREAU <willy@w.ods.org>
-Cc: hugang <hugang@soulinfo.com>, akpm@digeo.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] Faster generic_fls
-References: <200304300446.24330.dphillips@sistina.com>
-	<20030430135512.6519eb53.akpm@digeo.com>
-	<20030501130318.459a4776.hugang@soulinfo.com>
-	<20030430221129.11595e2e.akpm@digeo.com>
-	<20030501133307.158c7e10.hugang@soulinfo.com>
-	<20030501150557.6dc913f7.hugang@soulinfo.com>
-	<20030501135204.GC308@pcw.home.local>
-From: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
-Date: 01 May 2003 16:14:17 +0200
-In-Reply-To: <20030501135204.GC308@pcw.home.local>
-Message-ID: <87fzny3gau.fsf@student.uni-tuebingen.de>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.5 (cabbage)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-AntiVirus: checked by AntiVir Milter 1.0.0.8; AVE 6.19.0.3; VDF 6.19.0.10
+	Thu, 1 May 2003 10:03:39 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:52164 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S261270AbTEAODh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 10:03:37 -0400
+Date: Thu, 01 May 2003 06:09:09 -0700 (PDT)
+Message-Id: <20030501.060909.26990580.davem@redhat.com>
+To: Steve@ChyGwyn.com, steve@gw.chygwyn.com
+Cc: linux-decnet-user@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       kuznet@ms2.inr.ac.ru
+Subject: Re: Remains of seq_file conversion for DECnet, plus fixes
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200305011404.PAA17187@gw.chygwyn.com>
+References: <20030501.054523.98892534.davem@redhat.com>
+	<200305011404.PAA17187@gw.chygwyn.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy TARREAU <willy@w.ods.org> writes:
+   From: Steven Whitehouse <steve@gw.chygwyn.com>
+   Date: Thu, 1 May 2003 15:04:00 +0100 (BST)
 
-> On Thu, May 01, 2003 at 03:05:57PM +0800, hugang wrote:
-> Ok, I recoded the tree myself with if/else, and it's now faster than
-> all others, whatever the compiler.
+   > About update_pmtu().  You are not required to implement this.
+   > All of these places you see dereferencing dst->update_mtu()
+   > know that they have an ipv4/ipv6 route.  Or do you know some
+   > exception to this?
 
-Have you tried with not simply increasing, but random numbers? I guess
-this could make quite a difference here because of branch prediction.
-
--- 
-	Falk
+   I was thinking of that bit of code in ip_gre.c which I sent the fix for
+   recently. Unless I've missed something it calls update_pmtu on the dst
+   which is passed by the encapsulated protocol, although I've not actually
+   tested that.
+   
+   Thats the reason I wasn't sure about the fix which I sent... it deleted the
+   duplicated call only for IPv4 rather than the one which appears to get called
+   for every protocol as I wasn't sure what was intended.
+   
+No, this must be an IPV4 or an IPV6 route.
+Right Alexey?

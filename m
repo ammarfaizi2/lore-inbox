@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263818AbUFNT0c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263804AbUFNTfO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263818AbUFNT0c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 15:26:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263817AbUFNT00
+	id S263804AbUFNTfO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 15:35:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263820AbUFNTfO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 15:26:26 -0400
-Received: from salzburg.nitnet.com.br ([200.157.204.105]:10371 "EHLO
-	nat.cesarb.net") by vger.kernel.org with ESMTP id S263815AbUFNT0Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 15:26:25 -0400
-Date: Mon, 14 Jun 2004 16:25:24 -0300
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       Alexander Viro <viro@math.psu.edu>
-Subject: Re: [PATCH] O_NOATIME support
-Message-ID: <20040614192524.GB1961@flower.home.cesarb.net>
-References: <20040612011129.GD1967@flower.home.cesarb.net> <20040614095529.GA11563@infradead.org> <20040614134652.GA1961@flower.home.cesarb.net> <20040614140356.GA21349@infradead.org>
+	Mon, 14 Jun 2004 15:35:14 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:52459 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S263804AbUFNTfL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 15:35:11 -0400
+Date: Mon, 14 Jun 2004 20:34:15 +0100
+From: Dave Jones <davej@redhat.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, Maneesh Soni <maneesh@in.ibm.com>
+Subject: Re: Can we please keep correct date when doing bk checkins?
+Message-ID: <20040614193415.GA28002@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Dmitry Torokhov <dtor_core@ameritech.net>,
+	linux-kernel@vger.kernel.org, Maneesh Soni <maneesh@in.ibm.com>
+References: <20040614184523.93825.qmail@web81301.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040614140356.GA21349@infradead.org>
-User-Agent: Mutt/1.5.6+20040523i
-From: Cesar Eduardo Barros <cesarb@nitnet.com.br>
+In-Reply-To: <20040614184523.93825.qmail@web81301.mail.yahoo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 14, 2004 at 03:03:56PM +0100, Christoph Hellwig wrote:
-> On Mon, Jun 14, 2004 at 10:46:52AM -0300, Cesar Eduardo Barros wrote:
-> > I don't see why preserving the mtime and ctime would be necessary, since
-> > to move a file away you either don't touch it (using rename) or only
-> > read and unlink it (to write to a tape or other filesystem, and you can
-> > save the atime and mtime while doing it). So O_NOATIME is enough for
-> > both behaviours.
-> 
-> Maybe some day the file needs to come back from the tape ;-)  Or rather
-> in the HSM scenario a part of the file.
+On Mon, Jun 14, 2004 at 11:45:23AM -0700, Dmitry Torokhov wrote:
 
-When it comes back, it can be written to a temporary file, have its
-atime/mtime set with utimes, and atomically renamed to the right place.
+ > I noticed that while the sysfs_rename_dir-cleanup changeset was checked
+ > in on May 14, 2004 dathes on the touched files read 2004/10/06 which is
+ > obviously incorrect.
 
-If you want to play with parts of files, you would need an atime for
-each block of the file ;-)
+What makes you think this is incorrect ?
+It's possible whoever checked in that change did it in their repo
+on May 14th, and then Linus pulled the change into his tree on the
+10th June, which would alter the timestamp.
 
--- 
-Cesar Eduardo Barros
-cesarb@nitnet.com.br
-cesarb@dcc.ufrj.br
+		Dave
+

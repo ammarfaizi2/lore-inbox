@@ -1,71 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262457AbVCHXvc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262413AbVCHXvd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262457AbVCHXvc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 18:51:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262413AbVCHXq7
+	id S262413AbVCHXvd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 18:51:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbVCHXr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 18:46:59 -0500
-Received: from loon.tech9.net ([69.20.54.92]:53991 "EHLO loon.tech9.net")
-	by vger.kernel.org with ESMTP id S262206AbVCHXl0 (ORCPT
+	Tue, 8 Mar 2005 18:47:29 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:50907 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S262249AbVCHXjq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 18:41:26 -0500
-Subject: Re: 2.6.11-mm2
-From: Robert Love <rlove@rlove.org>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1110325018l.6106l.0l@werewolf.able.es>
-References: <20050308033846.0c4f8245.akpm@osdl.org>
-	 <1110325018l.6106l.0l@werewolf.able.es>
-Content-Type: text/plain
-Date: Tue, 08 Mar 2005 18:44:02 -0500
-Message-Id: <1110325442.30255.8.camel@localhost>
+	Tue, 8 Mar 2005 18:39:46 -0500
+Date: Wed, 9 Mar 2005 00:39:39 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       jt@hpl.hp.com, linux-pcmcia@lists.infradead.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: PCMCIA product id strings -> hashes generation at compilation time? [Was: Re: [patch 14/38] pcmcia: id_table for wavelan_cs]
+Message-ID: <20050308233939.GA21112@isilmar.linta.de>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Andrew Morton <akpm@osdl.org>, jt@hpl.hp.com,
+	linux-pcmcia@lists.infradead.org,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Greg KH <greg@kroah.com>
+References: <20050308191138.GA16169@isilmar.linta.de> <20050308123426.249fa934.akpm@osdl.org> <20050227161308.GO7351@dominikbrodowski.de> <20050307225355.GB30371@bougret.hpl.hp.com> <20050307230102.GA29779@isilmar.linta.de> <20050307150957.0456dd75.akpm@osdl.org> <20050307232339.GA30057@isilmar.linta.de> <20050308191138.GA16169@isilmar.linta.de> <Pine.LNX.4.58.0503081438040.13251@ppc970.osdl.org> <20050308231636.GA20658@isilmar.linta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050308231636.GA20658@isilmar.linta.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-08 at 23:36 +0000, J.A. Magallon wrote:
-
-> Can cpu affinity really be changed for a running process ?
-
-Yes.
-
-> Does it need something like io or yielding to take effect ?
-
-No.
-
-> I am playin with Robert Love's taskset (symlinked to runon, it is easier
-> to type and I'm more used to it), because I want to play with hyperthreading
-> and wanted a method to force two threads on the same physical package.
-> It works fine to bound a new process to a cpu set, but I does not change
-> anything for a running process.
+On Wed, Mar 09, 2005 at 12:16:36AM +0100, Dominik Brodowski wrote:
+> > Dominik Brodowski <linux@dominikbrodowski.net> wrote:
+> > >
+> > > Most pcmcia devices are matched to drivers using "product ID strings"
+> > >  embedded in the devices' Card Information Structures, as "manufactor ID /
+> > >  card ID" matches are much less reliable. Unfortunately, these strings cannot
+> > >  be passed to userspace for easy userspace-based loading of appropriate
+> > >  modules (MODNAME -- hotplug), so my suggestion is to also store crc32 hashes
+> > >  of the strings in the MODULE_DEVICE_TABLEs, e.g.:
+> > > 
+> > >  PCMCIA_DEVICE_PROD_ID12("LINKSYS", "E-CARD", 0xf7cb0b07, 0x6701da11),
+> > 
+> > What is the difficulty in passing these strings via /sbin/hotplug arguments?
 > 
-> I try runon -c -p 0 <pid> for my numbercruncher and it does nothing, top
-> shows it is in the same cpus where it started:
-> 
-> werewolf:~# runon -c -p 0 8277
-> pid 8277's current affinity list: 0-3
-> pid 8277's new affinity list: 0
-> werewolf:~# runon -c -p 8277
-> pid 8277's current affinity list: 0
+> The difficulty is that extracting and evaluating them breaks the wonderful 
+> bus-independent MODNAME implementation for hotplug suggested by Roman Kagan
+> ( http://article.gmane.org/gmane.linux.hotplug.devel/7039 ), and that these
+> strings may contain spaces and other "strange" characters. The latter may be 
+> worked around, but the former cannot. /etc/hotplug/pcmcia.agent looks really
+> clean because of this MODNAME implementation:
 
-This looks fine.  As expected.
+In addition: this isn't the problematic part. The product ID string and/or
+the hash can easily be passed from kernelspace to userspace in calls to
+hotplug, and that's not the real reason for the hashing. Instead, it is
+caused by the module.alias generation (even module.pcmciamap, if it existed,
+wouldn't be of help here) at compilation time: the format of such aliases is
 
-Although, you have the syntax wrong.  It should be
+alias [bus_name]:[{one or multiple chars as separators}{NUMBERS!} multiple such blocks] [module_name]
 
-	taskset -c 0 -p 8277
+This means: only (hex) numbers are allowed as _values_ in such a module alias 
+map. The module alias map is generated by file2alias.c, which cannot and
+should not be able to access strings inside modules, because that would mean
+awareness of all sorts of (arch-dependant) relocation. Therefore,
+file2alias.c can't calculate the hashes for us, and as the C preprocessor
+cannot either, only the explicit passing of strings _and_ hashes to struct 
+pcmcia_device_id-generating macros is the only feasible way I currently see 
+to use module.alias for PCMCIA devices.
 
-and
-
-	taskset -p 8277
-
-> The program uses posix threads, 2 in this case. The two threads change from
-> cpu sometimes (not too often), but do not go into the same processor
-> immediately as when I start the program directly with runon/taskset.
-
-You have to bind all of the threads individually.
-
-	Robert Love
-
-
+	Dominik

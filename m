@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318351AbSGRU64>; Thu, 18 Jul 2002 16:58:56 -0400
+	id <S318337AbSGRVFe>; Thu, 18 Jul 2002 17:05:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318352AbSGRU6v>; Thu, 18 Jul 2002 16:58:51 -0400
-Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:15136 "EHLO
-	mailsorter.ma.tmpw.net") by vger.kernel.org with ESMTP
-	id <S318351AbSGRU6r>; Thu, 18 Jul 2002 16:58:47 -0400
-Message-ID: <61DB42B180EAB34E9D28346C11535A783A7CAE@nocmail101.ma.tmpw.net>
-From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-To: "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>, RSinko@island.com,
-       DHubbard@midamerican.com, linux-kernel@vger.kernel.org
+	id <S318338AbSGRVFd>; Thu, 18 Jul 2002 17:05:33 -0400
+Received: from [64.76.155.18] ([64.76.155.18]:6317 "EHLO alumno.inacap.cl")
+	by vger.kernel.org with ESMTP id <S318337AbSGRVFd>;
+	Thu, 18 Jul 2002 17:05:33 -0400
+Date: Thu, 18 Jul 2002 16:59:14 -0400 (CLT)
+From: Robinson Maureira Castillo <rmaureira@alumno.inacap.cl>
+To: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+cc: "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>, <RSinko@island.com>,
+       <DHubbard@midamerican.com>, <linux-kernel@vger.kernel.org>
 Subject: RE: Wrong CPU count
-Date: Thu, 18 Jul 2002 16:01:34 -0500
+In-Reply-To: <61DB42B180EAB34E9D28346C11535A783A7CAE@nocmail101.ma.tmpw.net>
+Message-ID: <Pine.LNX.4.44.0207181657590.28305-100000@alumno.inacap.cl>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
+On Thu, 18 Jul 2002, Holzrichter, Bruce wrote:
 > 
-> > That's interesting.  Can it be disabled?
+> That does raise a question from me, though.  With the ability disabled at
+> the bios level, will the kernel still be able to recognize the cpu's as
+> hyperthreaded, and bypass the bios disabling them? 
 > 
-> It's an option in the BIOS Setup page (press F2 shortly after 
-> power-on) on
-> Dell servers which support disabling it.
 
-That does raise a question from me, though.  With the ability disabled at
-the bios level, will the kernel still be able to recognize the cpu's as
-hyperthreaded, and bypass the bios disabling them? 
+And that arises a question for me too, can we enable/disable HT at boot 
+time? (think in a mobo without the option to enable/disable HT)
 
-Thanks,
-Bruce H.
+Best regards
+-- 
+Robinson Maureira Castillo
+Asesor DAI
+INACAP
+

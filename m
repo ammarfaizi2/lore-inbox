@@ -1,51 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261225AbUL0Jbc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbUL0JhV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261225AbUL0Jbc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 04:31:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbUL0Jbc
+	id S261365AbUL0JhV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 04:37:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbUL0JhV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 04:31:32 -0500
-Received: from ozlabs.org ([203.10.76.45]:51648 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261225AbUL0Jba (ORCPT
+	Mon, 27 Dec 2004 04:37:21 -0500
+Received: from fw.osdl.org ([65.172.181.6]:63956 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261365AbUL0JhE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 04:31:30 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 27 Dec 2004 04:37:04 -0500
+Date: Mon, 27 Dec 2004 01:36:53 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Bernard Blackham <bernard@blackham.com.au>
+Cc: mingo@elte.hu, ncunningham@linuxmail.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sched-fix-scheduling-latencies-in-mttrc reenables
+ interrupts
+Message-Id: <20041227013653.67965d46.akpm@osdl.org>
+In-Reply-To: <20041227062828.GE7415@blackham.com.au>
+References: <20041227062828.GE7415@blackham.com.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16847.21964.789391.93324@cargo.ozlabs.ibm.com>
-Date: Mon, 27 Dec 2004 11:22:36 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041226030957.GA8512@work.bitmover.com>
-References: <200412250121_MC3-1-91AF-7FBB@compuserve.com>
-	<20041226011222.GA1896@work.bitmover.com>
-	<20041226030957.GA8512@work.bitmover.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy writes:
+Bernard Blackham <bernard@blackham.com.au> wrote:
+>
+> The patch sched-fix-scheduling-latencies-in-mttr in recent -mm
+>  kernels has the bad side-effect of re-enabling interrupts even if
+>  they were disabled. This caused bugs in Software Suspend 2 which
+>  reenabled MTRRs whilst interrupts were already disabled.
 
-> Has anyone else been shut down because of lease.openlogging.org being down
-> and if so what version of BK were you running please?
+OK.
 
-Yes, I had bk pull and bk export fail for me yesterday.  If I did a bk
-pull it would sit there for a while and then put up a window saying it
-couldn't get to lease.openlogging.org.  If I clicked OK, after a while
-another window would come up with a similar message (but I didn't read
-it carefully).
+>  Attached is a replacement patch which uses spin_lock_irqsave instead
+>  of spin_lock_irq.
 
-> It is true that both servers are at our offices so if the network had been
-> down you would have been out of luck.
+>  +static unsigned long sal_flags;
+>   
+>   static void prepare_set(void)
+>   {
+>  @@ -240,11 +241,14 @@ static void prepare_set(void)
+>   	/*  Note that this is not ideal, since the cache is only flushed/disabled
+>   	   for this CPU while the MTRRs are changed, but changing this requires
+>   	   more invasive changes to the way the kernel boots  */
+>  -	spin_lock(&set_atomicity_lock);
+>  +	/*
+>  +	 * Since we are disabling the cache dont allow any interrupts - they
+>  +	 * would run extremely slow and would only increase the pain:
+>  +	 */
+>  +	spin_lock_irqsave(&set_atomicity_lock, sal_flags);
 
-I did a traceroute and it looked like a network problem.  From memory
-it stopped after about 10 hops, and it seems to be 17 hops to
-openlogging.org from here now.
+Not OK.  That global `sal_flags' is not protected by the spinlock because
+spin_lock_irqsave() saves the flags before taking the lock.
 
-My setup is possibly a little unusual, and may be causing problems for
-your lease code: I have my BK repos on a firewire-attached disk, which
-I move from machine to machine - specifically, it commutes between home
-and work with me.
+How about this?
 
-Paul.
+
+diff -puN arch/i386/kernel/cpu/mtrr/generic.c~sched-fix-scheduling-latencies-in-mttrc-reenables-interrupts arch/i386/kernel/cpu/mtrr/generic.c
+--- 25/arch/i386/kernel/cpu/mtrr/generic.c~sched-fix-scheduling-latencies-in-mttrc-reenables-interrupts	2004-12-27 01:31:41.718983736 -0800
++++ 25-akpm/arch/i386/kernel/cpu/mtrr/generic.c	2004-12-27 01:34:15.180654016 -0800
+@@ -233,6 +233,13 @@ static unsigned long cr4 = 0;
+ static u32 deftype_lo, deftype_hi;
+ static spinlock_t set_atomicity_lock = SPIN_LOCK_UNLOCKED;
+ 
++/*
++ * Since we are disabling the cache don't allow any interrupts - they
++ * would run extremely slow and would only increase the pain.  The caller must
++ * ensure that local interrupts are disabled and are reenabled after post_set()
++ * has been called.
++ */
++
+ static void prepare_set(void)
+ {
+ 	unsigned long cr0;
+@@ -240,11 +247,8 @@ static void prepare_set(void)
+ 	/*  Note that this is not ideal, since the cache is only flushed/disabled
+ 	   for this CPU while the MTRRs are changed, but changing this requires
+ 	   more invasive changes to the way the kernel boots  */
+-	/*
+-	 * Since we are disabling the cache dont allow any interrupts - they
+-	 * would run extremely slow and would only increase the pain:
+-	 */
+-	spin_lock_irq(&set_atomicity_lock);
++
++	spin_lock(&set_atomicity_lock);
+ 
+ 	/*  Enter the no-fill (CD=1, NW=0) cache mode and flush caches. */
+ 	cr0 = read_cr0() | 0x40000000;	/* set CD flag */
+@@ -281,19 +285,22 @@ static void post_set(void)
+ 	/*  Restore value of CR4  */
+ 	if ( cpu_has_pge )
+ 		write_cr4(cr4);
+-	spin_unlock_irq(&set_atomicity_lock);
++	spin_unlock(&set_atomicity_lock);
+ }
+ 
+ static void generic_set_all(void)
+ {
+ 	unsigned long mask, count;
++	unsigned long flags;
+ 
++	local_irq_save(flags);
+ 	prepare_set();
+ 
+ 	/* Actually set the state */
+ 	mask = set_mtrr_state(deftype_lo,deftype_hi);
+ 
+ 	post_set();
++	local_irq_restore(flags);
+ 
+ 	/*  Use the atomic bitops to update the global mask  */
+ 	for (count = 0; count < sizeof mask * 8; ++count) {
+@@ -316,6 +323,9 @@ static void generic_set_mtrr(unsigned in
+     [RETURNS] Nothing.
+ */
+ {
++	unsigned long flags;
++
++	local_irq_save(flags);
+ 	prepare_set();
+ 
+ 	if (size == 0) {
+@@ -330,6 +340,7 @@ static void generic_set_mtrr(unsigned in
+ 	}
+ 
+ 	post_set();
++	local_irq_restore(flags);
+ }
+ 
+ int generic_validate_add_page(unsigned long base, unsigned long size, unsigned int type)
+_
+

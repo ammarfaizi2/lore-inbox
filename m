@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272510AbRIOVbb>; Sat, 15 Sep 2001 17:31:31 -0400
+	id <S273082AbRIOVdV>; Sat, 15 Sep 2001 17:33:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272508AbRIOVbW>; Sat, 15 Sep 2001 17:31:22 -0400
-Received: from [206.168.99.80] ([206.168.99.80]:31248 "HELO ns1.tcsitalia.it")
-	by vger.kernel.org with SMTP id <S273080AbRIOVbG>;
-	Sat, 15 Sep 2001 17:31:06 -0400
-Message-Id: <5.1.0.14.2.20010915232738.00a90ba0@mail.tcsitalia.it>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sat, 15 Sep 2001 23:39:57 +0200
-To: linux-kernel@vger.kernel.org
-From: Johnny Mnemonic <johnny@themnemonic.org>
-Subject: kernel 2.4.* hangs just after uncompressing image
+	id <S273086AbRIOVdL>; Sat, 15 Sep 2001 17:33:11 -0400
+Received: from [194.213.32.137] ([194.213.32.137]:44548 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S273082AbRIOVdD>;
+	Sat, 15 Sep 2001 17:33:03 -0400
+Message-ID: <20010914230028.A228@bug.ucw.cz>
+Date: Fri, 14 Sep 2001 23:00:28 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [x86-64 patch 11/11] WaveFront timing fix for x86-64
+In-Reply-To: <20010913184541.A2651@suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <20010913184541.A2651@suse.cz>; from Vojtech Pavlik on Thu, Sep 13, 2001 at 06:45:41PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Greetings,
-I'm currently running kernel 2.2.19 fine, and I'd need to upgrade to 2.4 
-shortly, but after a careful configuration when i try to boot it hangs just 
-after the message "Ok, booting kernel .."
+> This patch adds necessary timing support for x86-64 into the wavefront
+> driver.
+> 
+> This is the last patch of the series.
+> 
+> Thanks for your attention.
 
-As far as i know the problem verifies with each version of the 2.4 kernel, 
-and i think that it is an hardware problem.
+Why not current_cpu_data.loops_per_jiffy?
 
-I'm not able to trace the operations because part of the startup code is in 
-assembly.
-The cpu is a Pentium Celeron 166 with 32Mb of RAM.
-If you can address me about what may cause the problem i can be more 
-detailed about that.
+								Pavel
 
-Any hint will be appreciated
+> Vojtech
+> 
+> diff -urN linux-x86_64/drivers/sound/wavfront.c linux/drivers/sound/wavfront.c
+> --- linux-x86_64/drivers/sound/wavfront.c	Thu Sep 13 15:17:33 2001
+> +++ linux/drivers/sound/wavfront.c	Tue Sep 11 09:49:17 2001
+> @@ -101,6 +101,10 @@
+>  #if defined(__i386__)
+>  #define LOOPS_PER_TICK current_cpu_data.loops_per_jiffy
+>  #endif
+> +
+> +#if defined(__x86_64__)
+> +#define LOOPS_PER_TICK	loops_per_jiffy
+> +#endif
+>   
+>  #define _MIDI_SYNTH_C_
+>  #define MIDI_SYNTH_NAME	"WaveFront MIDI"
+> 
 
--John
-
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

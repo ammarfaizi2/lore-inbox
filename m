@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262499AbUCLUS1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 15:18:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbUCLUST
+	id S262527AbUCLUXA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 15:23:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbUCLUSa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 15:18:19 -0500
-Received: from smtp.netcabo.pt ([212.113.174.9]:21113 "EHLO smtp.netcabo.pt")
-	by vger.kernel.org with ESMTP id S262499AbUCLUQy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 15:16:54 -0500
-Date: Fri, 12 Mar 2004 20:00:20 +0000
-From: backblue <backblue@netcabo.pt>
-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: a7n8x-x & i2c
-Message-Id: <20040312200020.1d92f676.backblue@netcabo.pt>
-In-Reply-To: <20040312003135.GA26958@kroah.com>
-References: <20040310185047.454779fc.backblue@netcabo.pt>
-	<20040312003135.GA26958@kroah.com>
-X-Mailer: Sylpheed version 0.9.7claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Mar 2004 20:00:39.0859 (UTC) FILETIME=[B1606030:01C4086C]
+	Fri, 12 Mar 2004 15:18:30 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:38555
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S262497AbUCLUQv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 15:16:51 -0500
+Message-ID: <40521AA6.7070308@redhat.com>
+Date: Fri, 12 Mar 2004 12:16:38 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040310
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: host name length
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No i dont have nothing of that enable! all debug options are disable, should a7n8x-x work with lm_sensors? sensors-detect says that dont founds any chip's in my machine... but it finds nforce2 SMBus.
+POSIX nowadays contains
 
-On Thu, 11 Mar 2004 16:31:35 -0800
-Greg KH <greg@kroah.com> wrote:
+  _POSIX_HOST_NAME_MAX
+and
+  HOST_NAME_MAX
 
-> On Wed, Mar 10, 2004 at 06:50:47PM +0000, backblue wrote:
-> > Hello,
-> > 
-> > I have compiled 2.6.3, with i2c suporte for my chipset "nforce2" to
-> > the board asus a7n8x-x, but, it crashes my box all the time, dont know
-> > why!  But it only crashes after login and a couple of minutes
-> > working...  any one know womething about this?
-> 
-> What is the oops reported?
-> 
-> Do you have any of the CONFIG_I2C_DEBUG_* options enabled?  If so,
-> please do not, as that was causing a few oopses.  All of them are fixed
-> in the latest -mm release.
-> 
-> thanks,
-> 
-> greg k-h
+for programs to use to learn about the maximum host name length which is
+allowed.  _POSIX_HOST_NAME_MAX is the standard-required minimum maximum
+and the value must be 256.
+
+The problem is that HOST_NAME_MAX currently is defined as 64, as defined
+by __NET_UTS_LEN in <linux/utsname.h>.  I.e., we have HOST_NAME_MAX as
+smaller than the minimum maximum which is obviously not POSIX compliant.
+
+Now, we can simply ignore the problem or do something about it and
+introduce a third version of the utsname structure with sufficiently big
+nodename field.
+
+Many OSes used small values before but 256 was chosen as a minimum
+maximum and some OSes were changed since host names longer than 64 chars
+indeed do exist.  I wonder why this never has been brought to the
+attention.  Or were people happy enough with truncated host names?
+
+
+Anyway, is there interest in getting this changed?
+
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

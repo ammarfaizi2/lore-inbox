@@ -1,97 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265809AbUAKJO2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 04:14:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265812AbUAKJO2
+	id S265812AbUAKJWI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 04:22:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265816AbUAKJWI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 04:14:28 -0500
-Received: from real-outmail.cc.huji.ac.il ([132.64.1.21]:52899 "EHLO
-	mail3.cc.huji.ac.il") by vger.kernel.org with ESMTP id S265809AbUAKJOZ
+	Sun, 11 Jan 2004 04:22:08 -0500
+Received: from out007pub.verizon.net ([206.46.170.107]:63654 "EHLO
+	out007.verizon.net") by vger.kernel.org with ESMTP id S265812AbUAKJWD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 04:14:25 -0500
-Message-ID: <400113EE.6060909@mscc.huji.ac.il>
-Date: Sun, 11 Jan 2004 11:14:22 +0200
-From: Voicu Liviu <pacman@mscc.huji.ac.il>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031119
-X-Accept-Language: en-us, en, he
-MIME-Version: 1.0
-To: Bernhard Kuhn <bkuhn@metrowerks.com>
+	Sun, 11 Jan 2004 04:22:03 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None that appears to be detectable by casual observers
+To: "Pablo E. Limon Garcia Viesca" <plimon@intercable.net>
+Subject: Re: GIVEUP [bootup kernel panic 2.6.x] no root partition detected?
+Date: Sun, 11 Jan 2004 04:22:02 -0500
+User-Agent: KMail/1.5.1
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [announcement, patch] real-time interrupts for the Linux kernel
-References: <3FFE078D.20400@metrowerks.com>
-In-Reply-To: <3FFE078D.20400@metrowerks.com>
-X-Enigmail-Version: 0.82.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <40005E9C.3030309@intercable.net> <200401110010.09341.gene.heskett@verizon.net> <4000DE12.7020100@intercable.net>
+In-Reply-To: <4000DE12.7020100@intercable.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401110422.02439.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [151.205.56.190] at Sun, 11 Jan 2004 03:22:01 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sunday 11 January 2004 00:24, Pablo E. Limon Garcia Viesca wrote:
+>-----BEGIN PGP SIGNED MESSAGE-----
+>Hash: SHA1
+>
+>Thanks for your answer, I use LILO but that root is refering to
+>presisely the root partition, in my case it its /dev/hda5...
+>It is well configured in lilo, I can enter with kernel 2.4... but
+> not with 2.6...
+>if you want to know, the exact Kernel error at the begining is:
+>
+>VFS: Cannot open root device "305" or hda5
+>Please append a correct "root=" boot option
+>Kernel panic: VFS: Unable to mount root fs on hda5
+>
+>but I know hda5 is the partition, maybe there has something to be
+> with the fact that the root partition is logical, in the extended
+> partiton... I mean is not a primary partition... could this be
+> true???
 
-Hi,
-Can this be used for a normal desktop?
-Thanks
+Thats an excellent question, unforch I don't know the definitive 
+answer.  But to put that fear to rest, my / partition is on 
+/dev/hda7, and /root is on /dev/hda5.  I would think that if thats a 
+problem, I would have seen it, and I've been setup that way for the 
+last 6 months or so.
 
-Bernhard Kuhn wrote:
+That really shouldn't make any more difference than putting /usr on a 
+seperate drive does, which is no diff, at least here.
 
-|
-| Hi everybody!
-|
-| I hope that i can steal enough of your precious time to get your
-| attention for a new patch that adds hard real time support to the
-| linux kernel (worst case interrupt response time below 5
-| microseconds):
-|
-| The proposed "real time interrupt patch" enables the linux kernel
-| for hard-real-time applications such as data aquisition and control
-| loops by adding priorities to interrupts and spinlocks.
-|
-| The following document will describe the patch in detail and how to
-| install it:
-|
-| http://home.t-online.de/home/Bernhard_Kuhn/rtirq/20040108/README
-|
-|
-| The patch and a demo application can be downloaded from:
-|
-|
-http://home.t-online.de/home/Bernhard_Kuhn/rtirq/20040108/rtirq-20040108.tgz
-|
-|
-|
-|
-| Comments are highly appreciated!
-|
-|
-| best regards
-|
-| Bernhard Kuhn, Senior Software Engineer, Metrowerks
-|
-|
-|
-|
-|
-|
-|
-|
-|
-|
-|
-|
-| - To unsubscribe from this list: send the line "unsubscribe
-| linux-kernel" in the body of a message to majordomo@vger.kernel.org
-|  More majordomo info at  http://vger.kernel.org/majordomo-info.html
-|  Please read the FAQ at  http://www.tux.org/lkml/
+Sorry Pablo, but I'm fresh out of ideas.  But there may be enough 
+clues here that someone else can chime in.
 
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFAARPskj4I0Et8EMgRAhPpAKDY3Eo6cexamFmBiQRnUZ5pJxcnwACgrseV
-0v1V9e72RMQ5wD32UNDK0qc=
-=E0xz
------END PGP SIGNATURE-----
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty: soap,
+ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 

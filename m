@@ -1,107 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267518AbUI1DpZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267527AbUI1D7U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267518AbUI1DpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 23:45:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267528AbUI1DpZ
+	id S267527AbUI1D7U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 23:59:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267528AbUI1D7U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 23:45:25 -0400
-Received: from coriana6.CIS.McMaster.CA ([130.113.128.17]:25576 "EHLO
-	coriana6.cis.mcmaster.ca") by vger.kernel.org with ESMTP
-	id S267518AbUI1DpS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 23:45:18 -0400
-Subject: Re: [RFC][PATCH] inotify 0.10.0
-From: John McCutchan <ttb@tentacle.dhs.org>
-To: Robert Love <rml@novell.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       gamin-list@gnome.org, viro@parcelfarce.linux.theplanet.co.uk,
-       iggy@gentoo.org
-In-Reply-To: <1096337698.5103.145.camel@localhost>
-References: <1096250524.18505.2.camel@vertex>
-	 <20040926211758.5566d48a.akpm@osdl.org>
-	 <1096318369.30503.136.camel@betsy.boston.ximian.com>
-	 <20040927214141.688b2b2c.akpm@osdl.org>
-	 <1096337698.5103.145.camel@localhost>
-Content-Type: text/plain
+	Mon, 27 Sep 2004 23:59:20 -0400
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:41810 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267527AbUI1D7P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 23:59:15 -0400
+Message-ID: <4158DC27.9010603@yahoo.com.au>
+Date: Tue, 28 Sep 2004 13:36:07 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.1) Gecko/20040726 Debian/1.7.1-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ray Bryant <raybry@sgi.com>
+CC: piggin@cyberone.com.au, William Lee Irwin III <wli@holomorphy.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, riel@redhat.com
+Subject: Re: swapping and the value of /proc/sys/vm/swappiness
+References: <cone.1094512172.450816.6110.502@pc.kolivas.org> <20040906162740.54a5d6c9.akpm@osdl.org> <cone.1094513660.210107.6110.502@pc.kolivas.org> <20040907000304.GA8083@logos.cnet> <20040907212051.GC3492@logos.cnet> <413F1518.7050608@sgi.com> <20040908165412.GB4284@logos.cnet> <413F5EE7.6050705@sgi.com> <20040908193036.GH4284@logos.cnet> <413FC8AC.7030707@sgi.com> <20040909030916.GR3106@holomorphy.com> <4158C45B.8090409@sgi.com>
+In-Reply-To: <4158C45B.8090409@sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1096343091.11477.5.camel@vertex>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 27 Sep 2004 23:44:51 -0400
-X-PMX-Version-Mac: 4.7.0.111621, Antispam-Engine: 2.0.0.0, Antispam-Data: 2004.9.27.6
-X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __MIME_VERSION 0, __SANE_MSGID 0'
-X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-09-27 at 22:14, Robert Love wrote:
-> On Mon, 2004-09-27 at 21:41 -0700, Andrew Morton wrote:
-> 
-> > Can you expand on that?  Why do we need such a bitmap?
-> 
-> It is a unique cookie that identifies the exact object being watched
-> (e.g. /home/rml or /etc/fstab).  I suspect John introduced it in lieu of
-> the (device,inode) tuple when Al bitched, which makes sense.  Because we
-> have only a single fd (this is one of the problems with dnotify, the 1:1
-> relation between objects and file descriptors consumed) we need some
-> other object to identify each watched object.
-> 
-> So John introduced watcher descriptors.  This bitmask keeps track of
-> which descriptors are used versus unused.
-> 
-> > Would an idr tree be more appropriate?
-> 
-> Quite possibly.  I was originally thinking that idr's were too heavy,
-> but if we can make the wd <-> inotify_watcher relation then they make
-> perfect sense.
-> 
-> I'll look at making the conversion.
+Ray Bryant wrote:
 
-I only first heard about idr in last weeks LWN, I thought they might be
-useful.
+> Nick,
+>
+> As reported to you elsewhere (and duplicated here to get on this thread),
+> application of the patch you sent (attached) dramatically changes the
+> swappiness behavior of the 2.6.9-rc1 (and presumably the rc2) kernel.
+>
+> Here are the updated results:
+>
+> Previously:
+>
+> Kernel Version 2.6.9-rc1-mm3:
+>         Total I/O   Avg Swap   min    max     pg cache    min    max
+>        ----------- --------- ------- ------  --------- ------- -------
+>    0   274.80 MB/s  10511 MB (  5644, 14492)  13293 MB (  8596, 17156)
+>   20   267.02 MB/s  12624 MB (  5578, 16287)  15298 MB (  8468, 18889)
+>   40   267.66 MB/s  13541 MB (  6619, 17461)  16199 MB (  9393, 20044)
+>   60   233.73 MB/s  18094 MB ( 16550, 19676)  20629 MB ( 19103, 22192)
+>   80   213.64 MB/s  20950 MB ( 15844, 22977)  23450 MB ( 18496, 25440)
+>  100   164.58 MB/s  26004 MB ( 26004, 26004)  28410 MB ( 28327, 28455)
+>
+> With Nick Piggin et al fix:
+>
+> Kernel Version: linux-2.6.9-rc1-mm3-kswapdfix
+>
+>         Total I/O   Avg Swap   min    max     pg cache    min    max
+>        ----------- --------- ------- ------  --------- ------- -------
+>    0   279.97 MB/s     89 MB (    12,   265)   3062 MB (  2947,  3267)
+>   20   283.55 MB/s    161 MB (    15,   372)   3190 MB (  3011,  3427)
+>   40   282.32 MB/s    204 MB (     6,   407)   3187 MB (  2995,  3331)
+>   60   279.42 MB/s     72 MB (    15,   171)   3091 MB (  3027,  3155)
+>   80   283.34 MB/s    920 MB (   144,  3028)   3904 MB (  3106,  5957)
+>  100   160.55 MB/s  26008 MB ( 26007, 26008)  28473 MB ( 28455, 28487)
+>
+> (The drop at swappiness of 60 may just be randomness, not sure it
+> is significant, but these results are all based on 5 trials.)
+>
+> At any rate, this patch appears to fix the problems I was seeing before.
+> (See
+>     http://marc.theaimsgroup.com/?l=linux-kernel&m=109449778320333&w=2
+>
+> for further details of the benchmark and the test environment).
+>
+>
 
-> 
-> > In that case it looks rather 64-bit-unfriendly.  A 32-bit compiler will lay
-> > that structure out differently from a 64-bit compiler.  Or not.  Hard to
-> > say.  Perhaps something more defensive is needed here.
-> 
-> Well, no, since all known architectures are everything-is-32bit or LP64,
-> as far as I know.  And padding would be the same.
-> 
-> And even if not, the only problem would be with 64-bit architectures and
-> a 32-bit user-space.
-> 
-> Nonetheless, we should probably make the three int types be s32 or
-> u32's, eh?  I will submit a patch.
-> 
-> > One other thing: the patch adds 16 bytes to struct inode, for a feature
-> > which many users and most inodes will not use.  Unfortunate.
-> > 
-> > Is it possible to redesign things so that those four new fields are in a
-> > standalone struct which points at the managed inode?  Joined at the hip
-> > like journal_head and buffer_head?
-> 
-> We could probably get away with a single word-sized variable in the
-> inode structure.
-> 
+Thanks Ray. From looking over your old results, it appears that -kswapdfix
+probably has the nicest swappiness ramp, which is probably to be expected,
+as the problem that is being fixed did exist in all other kernels you 
+tested,
+but the later ones just had other aggrivating changes.
 
-Yep, we could toss everything in to a structure and only have a pointer
-to it from the inode.
+The swappiness=60 weirdness might just be some obscure interaction with the
+workload. If that is the case, it is probably not too important, however it
+could be due to a possible oversight in my patch....
 
-> > Bonus marks for not having a backpointer from the inode to the new struct ;)
-> 
-> Don't push your luck. ;-)
-> 
-> In school, I always felt the bonus was just showing off, what with the
-> perfect score on the normal assignment.  But I will investigate.
-> 
-> > (Still wondering what those timers are doing in there, btw)
-> 
-> John?  I see what the timer does, but I am wondering why a timer _has_
-> to do it?
+I'm not in front of the code right now, so I can't give you a new patch to
+try yet... if you're up for modifying it yourself though: we possibly should
+be updating "zone->prev_priority" after each 32 (SWAP_CLUSTER_MAX) pages 
+freed.
+So change the following:
 
-We need a timer to wake up any processes blocking on a read() call. The
-reason it has to be a timer is because the code paths that get run when
-an event is queued are not safe places to wake up blocked processes (But
-I a kernel amateur so I am probably wrong).
+==>    if (total_reclaimed >= 32)
+==>       break;
+    }
+out:
+    for (i = 0; i < pgdat->nr_zones; i++) {
+       ... /* this updates zone->prev_priority */
+    }
+=>  if (!all_zones_ok)
+=>     goto loop_again;
+    return total_reclaimed;
+}
 
-John
+so it looks something like that.
+
+If you could run your tests again on that, it would be great.
+
+Thanks
+Nick

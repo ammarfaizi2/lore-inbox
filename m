@@ -1,35 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289982AbSBKSVS>; Mon, 11 Feb 2002 13:21:18 -0500
+	id <S290009AbSBKSVS>; Mon, 11 Feb 2002 13:21:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289989AbSBKSVJ>; Mon, 11 Feb 2002 13:21:09 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:50182 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S290012AbSBKSU6>; Mon, 11 Feb 2002 13:20:58 -0500
-Date: Mon, 11 Feb 2002 13:20:02 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Steve Snyder <steves@formation.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Why won't my HD do DMA I/O?
-In-Reply-To: <KMEBIOGPEGOACPDOHPEEKEAKCAAA.steves@formation.com>
-Message-ID: <Pine.LNX.3.96.1020211131841.32755E-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289982AbSBKSVI>; Mon, 11 Feb 2002 13:21:08 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:39371 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S290017AbSBKSU6>; Mon, 11 Feb 2002 13:20:58 -0500
+Date: Mon, 11 Feb 2002 11:36:33 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Ookhoi <ookhoi@humilis.net>
+Cc: linux@3ware.com, linux-kernel@vger.kernel.org
+Subject: Re: 3ware: SCSI device sda: 1562951681 512-byte hdwr sectors (-299279 MB)
+Message-ID: <20020211113633.A13212@vger.timpanogas.org>
+In-Reply-To: <20020211140519.B10896@humilis>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020211140519.B10896@humilis>; from ookhoi@humilis.net on Mon, Feb 11, 2002 at 02:05:20PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Feb 2002, Steve Snyder wrote:
 
-> I've got a system on which the hard disk cannot be set to use DMA.  When I
-> attempt to enable DMA ("hdparm -d1 /dev/hda") on this drive, there is a long
-> time-out period, after which displaying the settings shows that DMA is still
-> not set.
+You need revision XX.15 > of the 3ware driver to handle 48 bit LBA.
+I am running at present with 160GB drives on the 7810 and no 
+problem.  There's also a firmware upgrade required of the 
+card to get 48 bit LBA to work properly.  www.3ware.com has
+the latest firmware.
 
-You did build this kernel with DMA support in the kernel, right? For your
-chipset? Vendor kernels have been known to err on the side of safty.
+Jeff
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
 
+On Mon, Feb 11, 2002 at 02:05:20PM +0100, Ookhoi wrote:
+> Hi!
+> 
+> Not sure if this is a 3ware driver 'bug'. This is a 3ware 7810 with 8
+> 100GB disks, configured hw raid0.
+> 
+> part of dmesg:
+> 
+> SCSI subsystem driver Revision: 1.00
+> 3ware Storage Controller device driver for Linux v1.02.00.010.
+> scsi0 : Found a 3ware Storage Controller at 0x1090, IRQ: 5, P-chip: 1.3
+> scsi0 : 3ware Storage Controller
+>   Vendor: 3ware     Model: 3w-xxxx           Rev: 1.0
+>   Type:   Direct-Access                      ANSI SCSI revision: 00
+> Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+> SCSI device sda: 1562951681 512-byte hdwr sectors (-299279 MB)
+>  sda: unknown partition table
+> 
+> 
+> It should say something like 800GB, but says -299279 MB.
+> 
+> This is with the xfs 2.4.17 kernel. The raid works fine, it seemes just
+> cosmetic, but thought I'd better report it anyway.
+> 
+>         Ookhoi
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

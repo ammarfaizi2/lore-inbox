@@ -1,75 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbUASR4X (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 12:56:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbUASR4X
+	id S262131AbUASSIx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 13:08:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbUASSIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 12:56:23 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:24016 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S261190AbUASR4P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 12:56:15 -0500
-Message-ID: <400C1C19.4090502@pacbell.net>
-Date: Mon, 19 Jan 2004 10:04:09 -0800
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
+	Mon, 19 Jan 2004 13:08:53 -0500
+Received: from bgp01038448bgs.sothwt01.mi.comcast.net ([68.43.98.24]:38277
+	"EHLO fire-eyes.dynup.net") by vger.kernel.org with ESMTP
+	id S262131AbUASSIc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 13:08:32 -0500
+Message-ID: <400C1D2F.7020503@fire-eyes.dynup.net>
+Date: Mon, 19 Jan 2004 13:08:47 -0500
+From: fire-eyes <sgtphou@fire-eyes.dynup.net>
+Reply-To: sgtphou@fire-eyes.dynup.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Martin F Krafft <krafft@ailab.ch>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: failing to force-claim USB interface
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.1: atkbd.c errors + mouse errors with a belkin KVM
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am trying to make use of the usbfs USBDEVFS_DISCONNECT ioctl, and
-> I am failing.
+I'm seeing some strange behavior using kernel 2.6.1 and a Belkin KVM. I 
+have talked to two others who have seen the same problem. This did not 
+happen in 2.6.0 or any 2.4 kernel.
 
-Appended, see a snippet of code which worked reliably way back on
-the original 2.4 patch.  Maybe you tripped on the precondition?
-Or maybe this is just broken so far in 2.6.
+When switching ports using the keyboard, that is hitting scroll lock 
+twice and then the port # I want ( 1 - 16), then coming back the same 
+way, I often get the following error:
 
-A fair amount of usbfs code is at least slightly broken in 2.6;
-some usbcore driver model changes are still needed in the area
-of this particular ioctl.  (Which got mangled more than most
-during its evolution.)  Was this with a 2.6.1 kernel?
+kernel: atkbd.c: Unknown key released (translated set 2, code 0x7a on 
+isa0060/serio0).
 
-I'm thinking this kind of thing ought to be generically doable
-with sysfs, maybe with symlink/unlink syscalls between device
-and driver nodes.
+I have also seen this same error while switching from X11 to console, 
+but only once. In that one case, I lost mouse control, and keyboard 
+control, and was unable to regain either. I had to reboot to rectify the 
+situation.
 
-- Dave
+I'm not sure if this happens when pushing the buttons on the front of 
+the kvm.
 
+KVM Information:
 
-     if (ioctl (fd, USBDEVFS_CLAIMINTERFACE, &ifno) < 0) {
-#ifdef  USBDEVFS_DISCONNECT
-         int                             saved_errno = errno;
-         struct usbdevfs_ioctl           command;
-         int                             retval;
+Belkin Omniview Matrix2 , Model F1DM216T
+Maufacturer URL: 
+http://catalog.belkin.com/IWCatProductPage.process?Merchant_Id=1&Product_Id=122933
 
-         /*
-          * maybe we need to boot a kernel driver off before we
-          * can bind to this.  a "polite" unbind might be nice;
-          * for now we expect apps to adopt a reasonble policy,
-          * checking if it's claimed already (when it matters).
-          */
-         if (saved_errno != EBUSY)
-             return -errno;
-         command.ifno = ifno;
-         command.ioctl_code = USBDEVFS_DISCONNECT;
-         command.data = 0;
-         retval = ioctl (fd, USBDEVFS_IOCTL, &command);
-         if (retval < 0)
-             return -saved_errno;
-
-         if (ioctl (fd, USBDEVFS_CLAIMINTERFACE, &ifno) < 0)
-             return -errno;
-#else
-         return -errno;
-#endif
-     }
-     return 0;
-
-
-
+Is there any further information I can submit to help solve this?

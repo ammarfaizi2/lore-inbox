@@ -1,55 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262875AbSLOVrF>; Sun, 15 Dec 2002 16:47:05 -0500
+	id <S262859AbSLOWDr>; Sun, 15 Dec 2002 17:03:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262924AbSLOVrE>; Sun, 15 Dec 2002 16:47:04 -0500
-Received: from smtp-02.inode.at ([62.99.194.4]:6052 "EHLO smtp.inode.at")
-	by vger.kernel.org with ESMTP id <S262875AbSLOVrE> convert rfc822-to-8bit;
-	Sun, 15 Dec 2002 16:47:04 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Patrick Petermair <black666@inode.at>
-Reply-To: black666@inode.at
-To: linux-kernel@vger.kernel.org
-Subject: Re: IDE-CD and VT8235 issue!!!
-Date: Sun, 15 Dec 2002 22:56:25 +0100
-User-Agent: KMail/1.4.3
-References: <3DFB7B21.7040004@tin.it> <3DFBC4F3.2070603@tin.it> <20021215215057.A12689@ucw.cz>
-In-Reply-To: <20021215215057.A12689@ucw.cz>
-Cc: Vojtech Pavlik <vojtech@suse.cz>
+	id <S262871AbSLOWDr>; Sun, 15 Dec 2002 17:03:47 -0500
+Received: from ns.indranet.co.nz ([210.54.239.210]:43496 "EHLO
+	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
+	id <S262859AbSLOWDp>; Sun, 15 Dec 2002 17:03:45 -0500
+Date: Mon, 16 Dec 2002 10:59:10 +1300
+From: Andrew McGregor <andrew@indranet.co.nz>
+To: Rik van Riel <riel@conectiva.com.br>, netdev@oss.sgi.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC:  p&p ipsec without authentication
+Message-ID: <3050000.1039989550@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.50L.0212151745360.2711-100000@imladris.surriel.com>
+References: <Pine.LNX.4.50L.0212151745360.2711-100000@imladris.surriel.com>
+X-Mailer: Mulberry/3.0.0b9 (Linux/x86)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212152256.25266.black666@inode.at>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik:
+It's not crazy at all.  Perfectly practical, now that lots of people have 
+fast enough machines and slow enough connections that it won't drive them 
+mad with the performance issues :-)
 
-> You're not alone with this problem. I suspect some fishy stuff in the
-> vt8235, because the driver programs it exactly the same as vt8233a,
-> but while the vt8233a doesn't seem to have problems with DVDs and
-> CDs, the vt8235 fails for many people.
+Actually, it can be done (fairly) securely against MITM attacks as well. 
+Check out a keying protocol called HIP, most of the resources are linked to 
+from www.hip4inter.net.
 
-Thanks for the info ... like I expected ...
+The basic idea is that each end prove to the other that they know a private 
+key.  The MITM protection is quite hard to describe :-)
 
-> Can you send me 'hdparm -i' of the drive?
+And it can be done (at least on IPv6) with almost zero cost in time for 
+connections that don't support HIP, as well as only one round trip + 
+compute time for those that do.
 
-starbase:/# hdparm -i /dev/hdc
+There are four implementations in progress, two for linux.  It would be 
+very nice to get the necessary hooks into the mainline kernel.
 
-/dev/hdc:
+Cool, eh?
 
- Model=TOSHIBA DVD-ROM SD-M1302, FwRev=1006, SerialNo=X900304741
- Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
- RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
- BuffType=unknown, BuffSize=256kB, MaxMultSect=0
- (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4 
- DMA modes:  sdma0 sdma1 sdma2 mdma0 mdma1 mdma2 
- UDMA modes: udma0 udma1 *udma2 
- AdvancedPM=no
+Andrew
 
-Thanks for all your effort here. It's great to see such a good 
-community.
+--On Sunday, December 15, 2002 18:34:06 -0200 Rik van Riel 
+<riel@conectiva.com.br> wrote:
 
-Patrick
+> Hi,
+>
+> I've got a crazy idea.  I know it's not secure, but I think it'll
+> add some security against certain attacks, while being non-effective
+> against some others.
+>
+> The idea I have is letting the ipsec layer do opportunistic encryption
+> even when there are no ipsec keys known for the destination address,
+> ie. negotiate a key when none is in the configuration or DNS.
+>
+> I know this gives absolutely no protection against man-in-the-middle
+> attacks (except maybe being able to detect them), but it should prevent
+> passive sniffing of network traffic, as done by some governments.
+>
+> If this "random" encryption could be turned on with one argument to
+> ip or ifconfig and millions of hosts would use it, sniffing internet
+> traffic might just become impractical (or too expensive) for large
+> organisations.   Furthermore, even if just 0.1% of the hosts were to
+> use ipsec authentication, the 3-letter agencies would be faced with
+> the additional challenge of identifying which connections could safely
+> be intercepted with man-in-the-middle attacks and which couldn't.
+>
+> Not to mention the fact that the port number on many communications
+> would be invisible, vastly increasing the difficulty of doing any
+> kind of statistical analysis on the traffic that's traversing the
+> network.
+>
+> Is this idea completely crazy or only slightly ?
+>
+> regards,
+>
+> Rik
+> --
+> Bravely reimplemented by the knights who say "NIH".
+> http://www.surriel.com/		http://guru.conectiva.com/
+> Current spamtrap:  <a
+> href=mailto:"october@surriel.com">october@surriel.com</a> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+
 

@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281547AbRLDSqL>; Tue, 4 Dec 2001 13:46:11 -0500
+	id <S283254AbRLDSqV>; Tue, 4 Dec 2001 13:46:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282910AbRLDSpB>; Tue, 4 Dec 2001 13:45:01 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:40643 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S283232AbRLDSnZ>; Tue, 4 Dec 2001 13:43:25 -0500
-Date: Tue, 4 Dec 2001 11:43:08 -0700
-Message-Id: <200112041843.fB4Ih8l09767@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: [PATCH] devfs v199.3 available
+	id <S283282AbRLDSo5>; Tue, 4 Dec 2001 13:44:57 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:10757 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S283269AbRLDSnr>;
+	Tue, 4 Dec 2001 13:43:47 -0500
+Date: Tue, 4 Dec 2001 19:43:19 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "David C. Hansen" <dave@sr71.net>
+Cc: "Udo A. Steinberg" <reality@delusion.de>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OOPS]: Linux-2.5.1-pre5
+Message-ID: <20011204194319.C15152@suse.de>
+In-Reply-To: <3C0BA978.A26EF6C0@delusion.de> <20011204104928.E13391@suse.de> <3C0D0DE8.9000902@sr71.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C0D0DE8.9000902@sr71.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. Version 199.3 of my devfs patch is now available from:
-http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
-The devfs FAQ is also available here.
+On Tue, Dec 04 2001, David C. Hansen wrote:
+> Jens Axboe wrote:
+> 
+> >This should fix it.
+> 
+> So, what was the actual problem?
 
-Patch directly available from:
-ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
+bio_alloc() not waiting on the reserved pool for free entries, even
+though __GFP_WAIT was set. No need for __GFP_IO in that case too.
 
-AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
+There were two hunks with actual code changes in there, did you read the
+patch at all? :-)
 
-This is against 2.4.17-pre2. Highlights of this release:
+-- 
+Jens Axboe
 
-- Use SLAB_ATOMIC in <devfsd_notify_de> from <devfs_d_delete>
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

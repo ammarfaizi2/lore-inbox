@@ -1,63 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270198AbRHGMH2>; Tue, 7 Aug 2001 08:07:28 -0400
+	id <S270196AbRHGMMI>; Tue, 7 Aug 2001 08:12:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270197AbRHGMHS>; Tue, 7 Aug 2001 08:07:18 -0400
-Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:1000 "EHLO
-	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S270196AbRHGMHK>; Tue, 7 Aug 2001 08:07:10 -0400
-Message-Id: <5.1.0.14.2.20010807130325.027f4cf0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 07 Aug 2001 13:07:17 +0100
-To: Ed Tomlinson <tomlins@cam.org>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: [RFC] using writepage to start io
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-In-Reply-To: <20010807113944.D229E7B53@oscar.casa.dyndns.org>
-In-Reply-To: <20010807120234.D4036@redhat.com>
- <755760000.997128720@tiny>
- <01080623182601.01864@starship>
- <20010807120234.D4036@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S270197AbRHGML6>; Tue, 7 Aug 2001 08:11:58 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:42880 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S270196AbRHGMLk>; Tue, 7 Aug 2001 08:11:40 -0400
+Date: Tue, 7 Aug 2001 08:11:32 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Andrey Savochkin <saw@saw.sw.com.sg>
+cc: Colin Walters <walters@cis.ohio-state.edu>, linux-kernel@vger.kernel.org
+Subject: Re: eepro100 (PCI ID 82820) lockups/failure
+In-Reply-To: <20010807032443.A10193@saw.sw.com.sg>
+Message-ID: <Pine.LNX.3.95.1010807080036.4756A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:39 07/08/01, Ed Tomlinson wrote:
->On August 7, 2001 07:02 am, Stephen C. Tweedie wrote:
-> > On Mon, Aug 06, 2001 at 11:18:26PM +0200, Daniel Phillips wrote:
-> > FWIW, we've seen big performance degradations in the past when testing
-> > different ext3 checkpointing modes.  You can't reuse a disk block in
-> > the journal without making sure that the data in it has been flushed
-> > to disk, so ext3 does regular checkpointing to flush journaled blocks
-> > out.  That can interact very badly with normal VM writeback if you're
-> > not careful: having two threads doing the same thing at the same time
-> > can just thrash the disk.
-> >
-> > Parallel sync() calls from multiple processes has shown up the same
-> > behaviour on ext2 in the past.  I'd definitely like to see at most one
-> > thread of writeback per disk to avoid that.
->
->Be carefull here.  I have a system (solaris) at the office that has 96 drives
->on it.  Do we really want 96 writeback threads?  With 96 drives, suspect the
->bus bandwidth would be the limiting factor.
-
-But we have that situation today already. - There is one thread running for 
-each of the md devices in my file server (so I have six threads at moment 
-each with the name raid1d) so if you were using the md driver extensively 
-to say mirror half of your drives onto the other half you would have 48 
-threads running already...
-
-Anton
+On Tue, 7 Aug 2001, Andrey Savochkin wrote:
+[SNIPPED...]
 
 
--- 
-   "Nothing succeeds like success." - Alexandre Dumas
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+> 
+> However, for this particular case I'm interested about a loop like
+> 	while((a = readb(reg)) && --count >= 0);
+> I wonder if there are circumstances in which the repeated read's can return
+> "cached" values or whatever, so that the loop will result in significantly less
+> number of bus cycles than it's supposed?
+> My understanding is that there shouldn't be such.
+> 
+> Best regards
+> 		Andrey
+
+You should have obtained access to the PCI address space by using
+ioremap_nocache(). If so, every read will go to the bus. However,
+what is actually read will be long-words so, if the device assumes
+something else, its broken. FYI, some ISA word-addressed boards
+have been "converted" to PCI by glueing on a PCI interface chip.
+They require some strange hacks to work, like reading a byte register
+by using the lowest long-word-aligned address that will contain that
+byte and shifting the result.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

@@ -1,116 +1,141 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263609AbUBCRha (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 12:37:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265954AbUBCRh3
+	id S266042AbUBCRsF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 12:48:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266049AbUBCRsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 12:37:29 -0500
-Received: from mail.shareable.org ([81.29.64.88]:25294 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S263609AbUBCRhX
+	Tue, 3 Feb 2004 12:48:05 -0500
+Received: from wblv-254-118.telkomadsl.co.za ([165.165.254.118]:8584 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S266042AbUBCRrt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 12:37:23 -0500
-Date: Tue, 3 Feb 2004 17:37:16 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Ulrich Drepper <drepper@redhat.com>, john stultz <johnstul@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
-Message-ID: <20040203173716.GC17895@mail.shareable.org>
-References: <1075344395.1592.87.camel@cog.beaverton.ibm.com> <401894DA.7000609@redhat.com> <20040201012803.GN26076@dualathlon.random> <401F251C.2090300@redhat.com> <20040203085224.GA15738@mail.shareable.org> <20040203162515.GY26076@dualathlon.random>
+	Tue, 3 Feb 2004 12:47:49 -0500
+Subject: Re: module-init-tools/udev and module auto-loading
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Greg KH <greg@kroah.com>, viro@parcelfarce.linux.theplanet.co.uk,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040203010224.4CF742C261@lists.samba.org>
+References: <20040203010224.4CF742C261@lists.samba.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-hkUO1UieWn2T3HiDPFzR"
+Message-Id: <1075830486.7473.32.camel@nosferatu.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040203162515.GY26076@dualathlon.random>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 03 Feb 2004 19:48:06 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> could you please explain what's the point of this randomising thing what
-> this attacker is trying to do?
 
-Most buffer overflow attacks work by overwriting the return address of
-a function to make it jump to a known fixed address.
+--=-hkUO1UieWn2T3HiDPFzR
+Content-Type: multipart/mixed; boundary="=-a7/mUINF4NA+/HxosZqZ"
 
-The simplest form of that is where the stack is at a known address, so
-the attack overwrites a return address to jump to the stack, to
-instructions which are directly controlled by the attacker (part of
-the same buffer overflow).
 
-When the stack is not executable or randomised, more complex attacks
-are used that take advantage of code sequences in the library or
-executable itself.
+--=-a7/mUINF4NA+/HxosZqZ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-To counter that, if everything executable is mapped at a random
-address, there is no fixed address that can be jumped to for this kind
-of attack.  More complex attacks which trick code into behaving
-wrongly are required.
+On Tue, 2004-02-03 at 02:55, Rusty Russell wrote:
+> In message <1075748550.6931.10.camel@nosferatu.lan> you write:
+> > > This does not cover the class of things which are entirely created by
+> > > the driver (eg. dummy devices, socket families), so cannot be
+> > > "detected".  Many of these (eg. socket families) can be handled by
+> > > explicit request_module() in the core and MODULE_ALIAS in the driver.
+> > > Some of them cannot at the moment: the first the kernel knows of them
+> > > is an attempt to open the device.  Some variant of devfs would solve
+> > > this.
+> > >=20
+> >=20
+> > I guess there will be cries of murder if 'somebody' suggested that if
+> > a node in /dev is opened, but not there, the kernel can call
+> > 'modprobe -q /dev/foo' to load whatever alias there might have been?
+>=20
+> I think it's an excellent idea, although ideally we would have this
+> mechanism in userspace as much as possible.  Anything from some
+> special hack to block -ENOENT on directory lookups and notify an fd,
+> to some exotic overlay filesystem.
+>=20
 
-> nothing can be randomized, as far as the vsyscall can be executed it
-> means its address in the address space is known and not random. If the
-> address is random you can't execute it. The whole vsyscall space is
-> readonly, the attacker can do nothing on it, no way to touch it with
-> put_user either.
+Something like attached.  Besides me not knowing if there is a better
+place for it, it have the following issues:
 
-In this context, random means that the process knows the address and
-the (remote) attacker does not.
+1) Its a bit racy - iow, I get this (but only for urandom):
 
-> especially having a fixed address per-kernel makes no sense at all since
-> it's trivial to find out by all other tasks anyways.
+  request_module: runaway loop modprobe /dev/urandom
 
-To put it another way, that protects against some kinds of remote
-attack but it doesn't protect at all against local ones.
+I am not sure if its the kthread patches with the one for
+kthread use in modules that contributes to this (have not
+checked yet).
 
-> the current API was presented around two years ago at UKUUG, and it was
-> developed in the open in the x86-64 mailing list (archives should be
-> online), so if there's really a fundamental problem it would been much
-> better if you would send your complains to those lists at that time,
-> instead of coming out of the blue years later when the code runs in
-> production just fine for years (and it's in glibc for a long time too I
-> think).
+2) Although it does work (load the right module), it seems to do it
+too late.  I have removed the sleep in udev, so it cannot be this.
+I do not know if this might be another kthread contribution (if I
+understand the module/kthread patches correctly).  It does seem from
+the request_module code though that it 'should' wait for modprobe to
+complete ...  Maybe add some sort of locking (this be efficient?)?
 
-> Still I'm struggling to understand what's your point about
-> randomization, your request makes no sense at all to me
+3) Might be nice to keep track of "/dev/foo" 'aliases' that modprobe
+fails for, and not try them again.
 
-I presume you mean Ulrich's request?  I couldn't care less :)
+4) It only works if the whatever opened's name start with "/dev/", but
+I do not think that is an issue, as it should (?) be how most things
+access nodes, and should minimise complexity.
 
-Also you'll notice that randomised executables & libraries is a
-relatively new feature, nobody was doing it 2 years ago.
+I know its very basic, I just thought to get something out of the
+door for discussion and to give direction (or what direction not to
+take ...).
 
-> and I cannot imagine any remote security issue related to the
-> current API of the vsyscalls,
 
-Simple: Attack finds buffer overflow, uses it to overwrite a
-function's return address to make the CPU jump to the vsyscall code.
-There's a good change the function will have popped some registers
-before returning, to values also set by the overflow.  If that
-function isn't quite convenient enough, the overflow could overwrite
-the parent function's registers and return address instead.
+Thanks,
 
-By making the CPU jump to the vsyscall code and with some register
-values settable, the attack can perform a syscall.  This is the remote
-security issue: it allows a buffer overflow to escalate easily to
-making a syscall.
+--=20
+Martin Schlemmer
 
-All systems with non-randomised libc address have this problem at the
-moment, i.e. virtually all systems.  There's just a few that have been
-hardened with the randomised executable and library stuff, and Ulrich
-would like that to be complete, which means the vsyscall page as well.
+--=-a7/mUINF4NA+/HxosZqZ
+Content-Disposition: attachment; filename=mod-autoload.patch
+Content-Type: text/x-patch; name=mod-autoload.patch; charset=UTF-8
+Content-Transfer-Encoding: base64
 
-> furthmore I cannot remotely imagine any difference in terms
-> of security by using a vsyscall table, the only difference to the end
-> user would be that its userspace would be running slower, while right
-> now it's running as fast as the hardware can.
+LS0tIDEvZnMvbmFtZWkuYwkyMDA0LTAyLTAzIDE0OjM1OjE2LjAwMDAwMDAwMCArMDIwMA0KKysr
+IDIvZnMvbmFtZWkuYwkyMDA0LTAyLTAzIDE3OjIwOjIxLjAwMDAwMDAwMCArMDIwMA0KQEAgLTEy
+NDAsNyArMTI0MCw3IEBAIGludCBvcGVuX25hbWVpKGNvbnN0IGNoYXIgKiBwYXRobmFtZSwgaW4N
+CiAJaW50IGFjY19tb2RlLCBlcnJvciA9IDA7DQogCXN0cnVjdCBkZW50cnkgKmRlbnRyeTsNCiAJ
+c3RydWN0IGRlbnRyeSAqZGlyOw0KLQlpbnQgY291bnQgPSAwOw0KKwlpbnQgY291bnQgPSAwLCBy
+ZXRyeSA9IDA7DQogDQogCWFjY19tb2RlID0gQUNDX01PREUoZmxhZyk7DQogDQpAQCAtMTI1Mywx
+MyArMTI1MywxNCBAQCBpbnQgb3Blbl9uYW1laShjb25zdCBjaGFyICogcGF0aG5hbWUsIGluDQog
+CW5kLT5pbnRlbnQub3Blbi5mbGFncyA9IGZsYWc7DQogCW5kLT5pbnRlbnQub3Blbi5jcmVhdGVf
+bW9kZSA9IG1vZGU7DQogDQorcmV0cnlfb3BlbjoNCiAJLyoNCiAJICogVGhlIHNpbXBsZXN0IGNh
+c2UgLSBqdXN0IGEgcGxhaW4gbG9va3VwLg0KIAkgKi8NCiAJaWYgKCEoZmxhZyAmIE9fQ1JFQVQp
+KSB7DQogCQllcnJvciA9IHBhdGhfbG9va3VwKHBhdGhuYW1lLCBsb29rdXBfZmxhZ3MoZmxhZyl8
+TE9PS1VQX09QRU4sIG5kKTsNCiAJCWlmIChlcnJvcikNCi0JCQlyZXR1cm4gZXJyb3I7DQorCQkJ
+Z290byBlcnJvcjsNCiAJCWRlbnRyeSA9IG5kLT5kZW50cnk7DQogCQlnb3RvIG9rOw0KIAl9DQpA
+QCAtMTI2OSw3ICsxMjcwLDcgQEAgaW50IG9wZW5fbmFtZWkoY29uc3QgY2hhciAqIHBhdGhuYW1l
+LCBpbg0KIAkgKi8NCiAJZXJyb3IgPSBwYXRoX2xvb2t1cChwYXRobmFtZSwgTE9PS1VQX1BBUkVO
+VHxMT09LVVBfT1BFTnxMT09LVVBfQ1JFQVRFLCBuZCk7DQogCWlmIChlcnJvcikNCi0JCXJldHVy
+biBlcnJvcjsNCisJCWdvdG8gZXJyb3I7DQogDQogCS8qDQogCSAqIFdlIGhhdmUgdGhlIHBhcmVu
+dCBhbmQgbGFzdCBjb21wb25lbnQuIEZpcnN0IG9mIGFsbCwgY2hlY2sNCkBAIC0xMzQzLDggKzEz
+NDQsMjIgQEAgb2s6DQogZXhpdF9kcHV0Og0KIAlkcHV0KGRlbnRyeSk7DQogZXhpdDoNCisJaWYg
+KGVycm9yICE9IDAgJiYgc3Ryc3RyKHBhdGhuYW1lLCAiL2Rldi8iKSA9PSBwYXRobmFtZSAmJiAh
+cmV0cnkpIHsNCisJCWlmIChyZXF1ZXN0X21vZHVsZShwYXRobmFtZSkgPT0gMCkgew0KKwkJCXJl
+dHJ5ID0gMTsNCisJCQlnb3RvIHJldHJ5X29wZW47DQorCQl9DQorCX0NCiAJcGF0aF9yZWxlYXNl
+KG5kKTsNCiAJcmV0dXJuIGVycm9yOw0KK2Vycm9yOg0KKwlpZiAoZXJyb3IgIT0gMCAmJiBzdHJz
+dHIocGF0aG5hbWUsICIvZGV2LyIpID09IHBhdGhuYW1lICYmICFyZXRyeSkgew0KKwkJaWYgKHJl
+cXVlc3RfbW9kdWxlKHBhdGhuYW1lKSA9PSAwKSB7DQorCQkJcmV0cnkgPSAxOw0KKwkJCWdvdG8g
+cmV0cnlfb3BlbjsNCisJCX0NCisJfQ0KKwlyZXR1cm4gZXJyb3I7DQogDQogZG9fbGluazoNCiAJ
+ZXJyb3IgPSAtRUxPT1A7DQo=
 
-The vsyscall table discussion has nothing to do with security.
+--=-a7/mUINF4NA+/HxosZqZ--
 
-At the moment, Glibc is not running as far as the hardware can on
-i386, but the cost of making it do so which includes some program
-startup time and memory cost is considered not worth the minor speed change.
+--=-hkUO1UieWn2T3HiDPFzR
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-> I would appreciate a more detailed explanation rather than "address must
-> randomized and the api must be changed".
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-If there's something I missed feel free to ask.
+iD8DBQBAH97WqburzKaJYLYRAtowAKCUIOGupoZyf13mi4WrSOsLzUL8wQCeOxAx
+Et6RSr66m1XuwYciyfM6MEo=
+=+uoO
+-----END PGP SIGNATURE-----
 
--- Jamie
+--=-hkUO1UieWn2T3HiDPFzR--
+

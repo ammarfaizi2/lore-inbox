@@ -1,117 +1,85 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315911AbSEGRYR>; Tue, 7 May 2002 13:24:17 -0400
+	id <S315910AbSEGRXj>; Tue, 7 May 2002 13:23:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315912AbSEGRYQ>; Tue, 7 May 2002 13:24:16 -0400
-Received: from mail3.aracnet.com ([216.99.193.38]:8355 "EHLO mail3.aracnet.com")
-	by vger.kernel.org with ESMTP id <S315911AbSEGRYK>;
-	Tue, 7 May 2002 13:24:10 -0400
-Message-Id: <200205071724.g47HO4P26841@tinman.seitzassoc.com>
-X-Mailer: exmh version 2.1.1 10/15/1999
-To: linux-kernel@vger.kernel.org
-Subject: host mastered 64 bit wide transfers to 64 bit PCI slot?
-Mime-Version: 1.0
+	id <S315911AbSEGRXi>; Tue, 7 May 2002 13:23:38 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:52236
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S315910AbSEGRXi>; Tue, 7 May 2002 13:23:38 -0400
+Date: Tue, 7 May 2002 10:21:35 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Dave Jones <davej@suse.de>
+cc: Anton Altaparmakov <aia21@cantab.net>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.14 IDE 57
+In-Reply-To: <20020507160825.S22215@suse.de>
+Message-ID: <Pine.LNX.4.10.10205071020520.22915-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 07 May 2002 10:24:04 -0700
-From: Galen Seitz <galens@seitzassoc.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I have a custom 64 bit wide PCI card installed in a 64 bit slot.  The card has 
-an 8 MB prefetchable memory window available via BAR 0.  Memory accesses work 
-(/dev/mem and mmap), but I'm not seeing 64 bit wide transfers (req64, ack64 
-aren't toggling).  How can I get the host/northbridge to generate 64 bit wide 
-transfers?  
 
-I'm currently trying to do my testing from user space.  Here's a snippet
-of code.  The code leading up to this just reads from /proc/bus/pci/devices
-to get the BAR info.  I run this code while holding a scope probe on /REQ64.
-Note that this is strictly a question about the width of data transfers.
-I'm not doing 64 bit addressing (no DAC cycles).  Host info follows the
-code.
+vaio:~ # hdparm -i /dev/hda
 
-TIA,
-galen
+/dev/hda:
 
+ Model=FUJITSU MHJ2181AT, FwRev=D034, SerialNo=01001697
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
+ BuffType=unknown, BuffSize=512kB, MaxMultSect=16, MultSect=16
+ CurCHS=17475/15/63, CurSects=16513875, LBA=yes, LBAsects=35433216
+ IORDY=yes, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4
+ DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4
+ Drive Supports : ATA-2 ATA-3 ATA-4 ATA-5
+ Kernel Drive Geometry LogicalCHS=2205/255/63 PhysicalCHS=37495/15/63
 
-  if ((memfd = open("/dev/mem", O_RDWR)) < 0)
-    perror("open /dev/mem");
-  
-  function = 0;
-  i = 0;
-  pmem = mmap(0, size[function][i], PROT_READ | PROT_WRITE, MAP_SHARED, memfd,
-       bar[function][i] & PCI_BASE_ADDRESS_MEM_MASK);
-  if (pmem == MAP_FAILED)
-    perror("mmap");
-  else
-    printf("pmem = %08x\n", pmem);
+BS Dave it does parse the difference nicely
 
-  memset(pmem, 0, size[function][i]);
-  if (msync(pmem,  size[function][i], MS_SYNC))
-    perror("msync");
+On Tue, 7 May 2002, Dave Jones wrote:
 
-  for (offset = 0; offset < size[function][i]; offset += 8)
-    {
-      *(unsigned long long *)(pmem + offset) = offset;
-    }
+> On Tue, May 07, 2002 at 02:57:46PM +0100, Anton Altaparmakov wrote:
+>  > How do I get this information with hdparm please?
+>  > 
+>  > [aia21@drop ide]$ cat via
+> 
+> Bartlomiej Zolnierkiewicz moved all this stuff to userspace
+> a long time ago in 'ideinfo'.
+> 
+>  > [aia21@drop hda]$ cat cache
+>  > 1916
+>  > [aia21@drop hda]$ cat capacity
+>  > 80418240
+>  > [aia21@drop hda]$ cat geometry
+>  > physical     79780/16/63
+>  > logical      5005/255/63
+>  > 
+>  > And hdparm never gives you the physical geometry AFAICS.
+> 
+> Why would a normal user ever need to know this info?
+> 
+>  > And as I said, I can understand removing the ability to write values into 
+>  > /proc/ide/*, what I disagree with is the removal of the information 
+>  > provided by read-only access to /proc/ide/*. And that is because I am not 
+>  > aware of any other way to get the same information.
+> 
+> The parsing gunk we have for /proc/ide is fugly, and should have been
+> done with sysctls from day one imo.
+> 
+> -- 
+> | Dave Jones.        http://www.codemonkey.org.uk
+> | SuSE Labs
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-  if (msync(pmem,  size[function][i], MS_SYNC))
-    perror("msync");
-
-  for (offset = 0; offset < size[function][i]; offset += 8)
-    {
-      if (*(unsigned long long *)(pmem + offset) != offset)
-	{
-	  printf("Error at %04x\n", offset);
-	  exit(1);
-	}
-    }
-
-  if (msync(pmem,  size[function][i], MS_SYNC))
-    perror("msync");
-
-  if (munmap(0, size[function][i]))
-    perror("munmap");
-
-  if (close(memfd))
-    perror("close");
-
-
-The host is an ASUS A7M266-D motherboard (AMD 762 chipset) with a single
-800 MHz Duron, and 256 MB DDR.
-
-oz:/home/galens/jobs/45th/sw/pci# cat /proc/version 
-Linux version 2.4.9-13 (bhcompile@stripples.devel.redhat.com) (gcc version 
-2.96 20000731 (Red Hat Linux 7.1 2.96-98)) #1 Tue Oct 30 19:32:27 EST 2001
-
-oz:/home/galens/jobs/45th/sw/pci# /sbin/lspci
-00:00.0 Host bridge: Advanced Micro Devices [AMD]: Unknown device 700c (rev 11)
-00:01.0 PCI bridge: Advanced Micro Devices [AMD]: Unknown device 700d
-00:07.0 ISA bridge: Advanced Micro Devices [AMD]: Unknown device 7440 (rev 04)
-00:07.1 IDE interface: Advanced Micro Devices [AMD]: Unknown device 7441 (rev 
-04)
-00:07.3 Bridge: Advanced Micro Devices [AMD]: Unknown device 7443 (rev 03)
-00:09.0 Memory controller: Galileo Technology Ltd.: Unknown device 6430 (rev 
-10)
-00:09.1 Memory controller: Galileo Technology Ltd.: Unknown device 6430 (rev 
-10)
-00:09.2 Memory controller: Galileo Technology Ltd.: Unknown device 6430 (rev 
-10)
-00:09.3 Memory controller: Galileo Technology Ltd.: Unknown device 6430 (rev 
-10)
-00:09.4 Memory controller: Galileo Technology Ltd.: Unknown device 6430 (rev 
-10)
-00:09.5 Memory controller: Galileo Technology Ltd.: Unknown device 6430 (rev 
-10)
-00:09.6 Memory controller: Galileo Technology Ltd.: Unknown device 6430 (rev 
-10)
-00:09.7 Memory controller: Galileo Technology Ltd.: Unknown device 6430 (rev 
-10)
-00:10.0 PCI bridge: Advanced Micro Devices [AMD]: Unknown device 7448 (rev 04)
-01:05.0 VGA compatible controller: S3 Inc. Trio 64 3D (rev 01)
-02:08.0 Ethernet controller: 3Com Corporation 3c900B-TPO [Etherlink XL TPO] 
-(rev 04)
-
-
+Andre Hedrick
+LAD Storage Consulting Group
 

@@ -1,62 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270806AbTHJWdq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 18:33:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270808AbTHJWdq
+	id S270714AbTHJW2r (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 18:28:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270730AbTHJW2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 18:33:46 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:25869 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S270806AbTHJWdo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 18:33:44 -0400
-Date: Mon, 11 Aug 2003 00:33:43 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Jan Niehusmann <jan@gondor.com>
-Cc: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
-Subject: IDE bug - was: Re: uncorrectable ext2 errors
-Message-ID: <20030811003343.A16918@pclin040.win.tue.nl>
-References: <20030806150335.GA5430@gondor.com> <20030807110641.GA31809@gondor.com> <20030807211236.GA5637@win.tue.nl> <20030810205513.GA6337@gondor.com> <20030810231955.A16852@pclin040.win.tue.nl> <20030810213450.GA7050@gondor.com> <20030810235834.A16865@pclin040.win.tue.nl> <20030810221020.GA7832@gondor.com>
+	Sun, 10 Aug 2003 18:28:47 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:62111 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S270714AbTHJW2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 18:28:45 -0400
+Date: Mon, 11 Aug 2003 00:28:36 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.22-rc2-ac1
+Message-ID: <20030810222836.GD28124@louise.pinerecords.com>
+References: <200308091616.h79GG3C31402@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030810221020.GA7832@gondor.com>; from jan@gondor.com on Mon, Aug 11, 2003 at 12:10:20AM +0200
+In-Reply-To: <200308091616.h79GG3C31402@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 11, 2003 at 12:10:20AM +0200, Jan Niehusmann wrote:
-> On Sun, Aug 10, 2003 at 11:58:34PM +0200, Andries Brouwer wrote:
-> > OK. So, this means that you cannot access past the 2^28 sector boundary.
-> > 
-> > So, you can address at most 137 GB of your disk.
-> > 
-> > Did you say that it was 250 GB?
+> [alan@redhat.com]
 > 
-> Exactly. And it's reported as 250GB, and I can access parts of the disk
-> behind the 137 GB limit without an error message, but it looks like
-> writing to these parts, it silently overwrites content at the beginning
-> of the drive. Like it just discards the upper bits of the address or
-> something like that.
+> Linux 2.4.22-rc2-ac1
+> o	Add hwif->sata to fix cable issues with SI3112	(me)
 
-Yes, that it what it does.
+depmod: *** Unresolved symbols in /var/tmp/.build-8601/install/lib/modules/2.4.22-rc2-ac1/kernel/drivers/ide/ide-core.o
+depmod:         ide_wait_hwif_ready
+depmod:         ide_probe_for_drive
+depmod:         ide_probe_reset
+depmod:         ide_tune_drives
 
-Look at my post from yesterday or so with Subject: [PATCH sketch] More IDE stuff
+(-pre10-ac1 didn't suffer from this problem.)
 
-ide-disk.c: __ide_do_rw_disk() issues read/write requests to the disk.
-It does
+#
+# ATA/IDE/MFM/RLL support
+#
+CONFIG_IDE=m
 
-        if (drive->addressing == 1)             /* 48-bit LBA */
-                return lba_48_rw_disk(drive, rq, (unsigned long long) block);
-        if (drive->select.b.lba)                /* 28-bit LBA */
-                return lba_28_rw_disk(drive, rq, (unsigned long) block);
-        return chs_rw_disk(drive, rq, (unsigned long) block);
+#
+# IDE, ATA and ATAPI Block devices
+#
+CONFIG_BLK_DEV_IDE=m
 
-with checking the size of block.
-And init_idedisk_capacity() does not check addressing.
+#
+# Please see Documentation/ide.txt for help/info on IDE drives
+#
+# CONFIG_BLK_DEV_HD_IDE is not set
+# CONFIG_BLK_DEV_HD is not set
+CONFIG_BLK_DEV_IDEDISK=m
+# CONFIG_IDEDISK_MULTI_MODE is not set
+# CONFIG_IDEDISK_STROKE is not set
+# CONFIG_BLK_DEV_IDECS is not set
+CONFIG_BLK_DEV_IDECD=m
+# CONFIG_BLK_DEV_IDETAPE is not set
+# CONFIG_BLK_DEV_IDEFLOPPY is not set
+CONFIG_BLK_DEV_IDESCSI=m
+# CONFIG_IDE_TASK_IOCTL is not set
 
-In my above post I gave a patch for 2.6.0-test3.
-But the IDE code for 2.4 and 2.6 is very similar, so the patch, once applied
-to 2.6 should also be backported to 2.4.
+#
+# IDE chipset support/bugfixes
+#
+# CONFIG_BLK_DEV_CMD640 is not set
+# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
+# CONFIG_BLK_DEV_ISAPNP is not set
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+# CONFIG_BLK_DEV_OFFBOARD is not set
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+CONFIG_IDEDMA_PCI_AUTO=y
+# CONFIG_IDEDMA_ONLYDISK is not set
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_PCI_WIP is not set
+# CONFIG_BLK_DEV_ADMA100 is not set
+# CONFIG_BLK_DEV_AEC62XX is not set
+# CONFIG_BLK_DEV_ALI15X3 is not set
+# CONFIG_WDC_ALI15X3 is not set
+# CONFIG_BLK_DEV_AMD74XX is not set
+# CONFIG_AMD74XX_OVERRIDE is not set
+# CONFIG_BLK_DEV_CMD64X is not set
+# CONFIG_BLK_DEV_TRIFLEX is not set
+# CONFIG_BLK_DEV_CY82C693 is not set
+# CONFIG_BLK_DEV_CS5530 is not set
+# CONFIG_BLK_DEV_HPT34X is not set
+# CONFIG_HPT34X_AUTODMA is not set
+# CONFIG_BLK_DEV_HPT366 is not set
+CONFIG_BLK_DEV_PIIX=m
+# CONFIG_BLK_DEV_NS87415 is not set
+# CONFIG_BLK_DEV_OPTI621 is not set
+# CONFIG_BLK_DEV_PDC202XX_OLD is not set
+# CONFIG_PDC202XX_BURST is not set
+# CONFIG_BLK_DEV_PDC202XX_NEW is not set
+# CONFIG_BLK_DEV_RZ1000 is not set
+# CONFIG_BLK_DEV_SC1200 is not set
+# CONFIG_BLK_DEV_SVWKS is not set
+# CONFIG_BLK_DEV_SIIMAGE is not set
+# CONFIG_BLK_DEV_SIS5513 is not set
+# CONFIG_BLK_DEV_SLC90E66 is not set
+# CONFIG_BLK_DEV_TRM290 is not set
+# CONFIG_BLK_DEV_VIA82CXXX is not set
+# CONFIG_IDE_CHIPSETS is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_IDEDMA_IVB is not set
+# CONFIG_DMA_NONPCI is not set
+CONFIG_BLK_DEV_IDE_MODES=y
+# CONFIG_BLK_DEV_ATARAID is not set
+# CONFIG_BLK_DEV_ATARAID_PDC is not set
+# CONFIG_BLK_DEV_ATARAID_HPT is not set
+# CONFIG_BLK_DEV_ATARAID_SII is not set
 
-Andries
-
+-- 
+Tomas Szepe <szepe@pinerecords.com>

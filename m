@@ -1,33 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278481AbRJZOan>; Fri, 26 Oct 2001 10:30:43 -0400
+	id <S278493AbRJZOjn>; Fri, 26 Oct 2001 10:39:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278483AbRJZOae>; Fri, 26 Oct 2001 10:30:34 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14858 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S278481AbRJZOaX>; Fri, 26 Oct 2001 10:30:23 -0400
-Subject: Re: SiS/Trident 4DWave sound driver oops
-To: sgy@amc.com.au (Stuart Young)
-Date: Fri, 26 Oct 2001 15:36:45 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, compumike@compumike.com (Michael F. Robbins),
-        rml@tech9.net (Robert Love),
-        tachino@open.nm.fujitsu.co.jp (Tachino Nobuhiro),
-        alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <5.1.0.14.0.20011026125325.024517e0@mail.amc.localnet> from "Stuart Young" at Oct 26, 2001 01:24:48 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S278494AbRJZOje>; Fri, 26 Oct 2001 10:39:34 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:36358 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S278493AbRJZOjY>;
+	Fri, 26 Oct 2001 10:39:24 -0400
+Date: Fri, 26 Oct 2001 16:39:58 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Zlatko Calusic <zlatko.calusic@iskon.hr>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>, linux-mm@kvack.org,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: xmm2 - monitor Linux MM active/inactive lists graphically
+Message-ID: <20011026163958.C3324@suse.de>
+In-Reply-To: <Pine.LNX.4.31.0110250920270.2184-100000@cesium.transmeta.com> <dnr8rqu30x.fsf@magla.zg.iskon.hr>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15x86H-0000GV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <dnr8rqu30x.fsf@magla.zg.iskon.hr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> How can I find out the ac97 codec ID for this chipset (if there is one) so 
-> it can be added to the ac97_codec_ids array? From what I can tell, it's as 
-> though the codec->codec_read(codec, AC97_VENDOR_ID#) isn't returning the 
-> codec value for this system at all.
+On Fri, Oct 26 2001, Zlatko Calusic wrote:
+> Linus Torvalds <torvalds@transmeta.com> writes:
+> 
+> > On 25 Oct 2001, Zlatko Calusic wrote:
+> > >
+> > > Yes, I definitely have DMA turned ON. All parameters are OK. :)
+> > 
+> > I suspect it may just be that "queue_nr_requests"/"batch_count" is
+> > different in -ac: what happens if you tweak them to the same values?
+> > 
+> 
+> Next test:
+> 
+> block: 1024 slots per queue, batch=341
 
-Something is failing to bring up the AC97 codec bus and/or set it up
-properly. Can you find exactly which patch broke that for you (you'll 
-possibly want to keep fixing the codec table as you test older ones)
+That's way too much, batch should just stay around 32, that is fine.
+
+> Still very spiky, and during the write disk is uncapable of doing any
+> reads. IOW, no serious application can be started before writing has
+> finished. Shouldn't we favour reads over writes? Or is it just that
+> the elevator is not doing its job right, so reads suffer?
+
+You are probably just seeing starvation due to the very long queues.
+
+-- 
+Jens Axboe
+

@@ -1,38 +1,24 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261379AbREQJSb>; Thu, 17 May 2001 05:18:31 -0400
+	id <S261377AbREQI7t>; Thu, 17 May 2001 04:59:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261380AbREQJSW>; Thu, 17 May 2001 05:18:22 -0400
-Received: from ns.suse.de ([213.95.15.193]:6666 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S261379AbREQJSI>;
-	Thu, 17 May 2001 05:18:08 -0400
-Date: Thu, 17 May 2001 11:17:45 +0200
-From: Karsten Keil <kkeil@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: patch-2.2.19.gz
-Message-ID: <20010517111745.A11559@pingi.muc.suse.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3B032598.79716F72@mindspring.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <3B032598.79716F72@mindspring.com>; from joeja@mindspring.com on Wed, May 16, 2001 at 09:12:56PM -0400
-Organization: SuSE Muenchen GmbH
-X-Operating-System: Linux 2.2.18-SMP i586
+	id <S261379AbREQI7j>; Thu, 17 May 2001 04:59:39 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:26291 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S261377AbREQI70>;
+	Thu, 17 May 2001 04:59:26 -0400
+Date: Thu, 17 May 2001 10:58:37 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200105170858.KAA33830.aeb@vlet.cwi.nl>
+To: Andries.Brouwer@cwi.nl, mike.anderson@us.ibm.com
+Subject: Re: LANANA: To Pending Device Number Registrants
+Cc: alan@lxorguk.ukuu.org.uk, geert@linux-m68k.org, hpa@transmeta.com,
+        ingo.oeser@informatik.tu-chemnitz.de, jgarzik@mandrakesoft.com,
+        linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au,
+        rgooch@ras.ucalgary.ca, torvalds@transmeta.com, viro@math.psu.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 16, 2001 at 09:12:56PM -0400, Joe wrote:
-> I just patched my 2.2.18 kernel.  After I did a make dep I got the
-> following message.  Any ideas what does this mean?
-> 
-> md5sum: WARNING: 11 of 12 computed checksums did NOT match
-> 
-ignore.
-It's simple that one file with md5sums was not updated in the isdn driver.
+> I disagree that the kernel should apply sequence numbers
 
--- 
-Karsten Keil
-SuSE Labs
-ISDN development
+You did not read my text. I do not propose the kernel should.
+(Quite the contrary, in fact.)

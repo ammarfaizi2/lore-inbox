@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277012AbRKSQZB>; Mon, 19 Nov 2001 11:25:01 -0500
+	id <S279963AbRKSQaw>; Mon, 19 Nov 2001 11:30:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279963AbRKSQYw>; Mon, 19 Nov 2001 11:24:52 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:50955 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S277012AbRKSQYc>; Mon, 19 Nov 2001 11:24:32 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: James A Sutherland <jas88@cam.ac.uk>, linux-kernel@vger.kernel.org
-Subject: Re: x bit for dirs: misfeature?
-Date: Mon, 19 Nov 2001 18:24:11 +0000
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <01111916225301.00817@nemo> <01111916583804.00817@nemo> <E165qq7-0003QD-00@mauve.csi.cam.ac.uk>
-In-Reply-To: <E165qq7-0003QD-00@mauve.csi.cam.ac.uk>
-MIME-Version: 1.0
-Message-Id: <0111191824110B.00817@nemo>
-Content-Transfer-Encoding: 7BIT
+	id <S279983AbRKSQan>; Mon, 19 Nov 2001 11:30:43 -0500
+Received: from ns.suse.de ([213.95.15.193]:19206 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S279963AbRKSQaZ>;
+	Mon, 19 Nov 2001 11:30:25 -0500
+Date: Mon, 19 Nov 2001 17:30:22 +0100
+From: Andi Kleen <ak@suse.de>
+To: Mike Kravetz <kravetz@us.ibm.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>, lse-tech@lists.sourceforge.net,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [Lse-tech] Re: Real Time Runqueue
+Message-ID: <20011119173022.A19740@wotan.suse.de>
+In-Reply-To: <20011116154701.G1152@w-mikek2.des.beaverton.ibm.com> <Pine.LNX.4.40.0111161620050.998-100000@blue1.dev.mcafeelabs.com> <20011116163224.H1152@w-mikek2.des.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <20011116163224.H1152@w-mikek2.des.beaverton.ibm.com>; from kravetz@us.ibm.com on Fri, Nov 16, 2001 at 04:32:24PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 19 November 2001 16:00, you wrote:
-> On Monday 19 November 2001 4:58 pm, vda wrote:
-> > On Monday 19 November 2001 14:36, James A Sutherland wrote:
-> > > $ mkdir test
-> > > $ echo content > test/file
-> > > $ chmod a-r test
-> > > $ ls test
-> > > ls: test: permission denied
-> > > $ cat test/file
-> > > content
-> > > $ chmod a=r test
-> > > $ ls test
-> > > ls: test/file: Permission denied
-> >
-> > Hmm... I do actually tested this and last command succeeds
-> > (shows dir contents). You probably meant cat test/file, not ls...
->
-> Nope, ls.
->
-> [james@dax p2i]$ ls test
-> ls: test/file: Permission denied
-> [james@dax p2i]$ ls -l test
-> ls: test/file: Permission denied
-> total 0
+On Fri, Nov 16, 2001 at 04:32:24PM -0800, Mike Kravetz wrote:
+> The reason I ask is that we went through the pains of a separate
+> realtime RQ in our MQ scheduler.  And yes, it does hurt the common
+> case, not to mention the extra/complex code paths.  I was hoping
+> that someone in the know could enlighten us as to how RT semantics
+> apply to SMP systems.  If the semantics I suggest above are required,
+> then it implies support must be added to any possible future
+> scheduler implementations.
 
-Looks like we have different ls :-). Mine lists 'r only' dir with no problem.
+It seems a lot of applications/APIs do not care about global RT semantics,
+but about RT semantics for groups of threads or processes (e.g. java 
+or ada applications). Linux currently simulates this only for root 
+and with a global runqueue. I don't think it makes too much sense to have
+an global rt queue on a multi processor system, but there should be some 
+way to define "scheduling groups" where rt semantics are followed inside.
+Such a scheduling group could be a clone flag or default to CLONE_VM for
+example for compatibility.  A scheduling group would also make it possible
+to support simple rt semantics for thread groups as non root.  Then one
+could run a rt queue per scheduling group, and simulate global rt run queue
+or per cpu rt run queue as needed by appropiate setup. 
 
-> Anyway, as Al Viro has pointed out, R!=X. It's been like that for a very
-> long time, it's deliberate, not a misfeature, and it's staying like that
-> for the foreseeable future.
+Comments? 
 
-Yes, I see... All I can do is to add workarounds (ok,ok, 'support')
-to chmod and friends:
-
-chmod -R a+R dir  - sets r for files and rx for dirs
-
---
-vda
+-Andi

@@ -1,119 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265737AbUGDQEI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265750AbUGDQEV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265737AbUGDQEI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 12:04:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265750AbUGDQEI
+	id S265750AbUGDQEV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 12:04:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265755AbUGDQEU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 12:04:08 -0400
-Received: from cantor.suse.de ([195.135.220.2]:49298 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265737AbUGDQEA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 12:04:00 -0400
-Date: Sun, 4 Jul 2004 18:03:58 +0200
-From: Olaf Hering <olh@suse.de>
-To: Antonino Daplas <adaplas@pol.net>, linux-kernel@vger.kernel.org
-Cc: linuxppc-dev@lists.linuxppc.org
-Subject: 2.6.7-bk16, mode-switch-in-fbcon_blank.patch breaks X on r128
-Message-ID: <20040704160358.GA20970@suse.de>
+	Sun, 4 Jul 2004 12:04:20 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:4356 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265750AbUGDQEM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 12:04:12 -0400
+Date: Sun, 4 Jul 2004 17:02:59 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B" <yoshfuji@linux-ipv6.org>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: 2.6.6: IPv6 initialisation bug
+Message-ID: <20040704170259.A16596@flint.arm.linux.org.uk>
+Mail-Followup-To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B" <yoshfuji@linux-ipv6.org>,
+	linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+References: <20040628010200.A15067@flint.arm.linux.org.uk> <20040629.020627.76560474.yoshfuji@linux-ipv6.org> <20040628184758.C9214@flint.arm.linux.org.uk> <20040629.095903.58985982.yoshfuji@linux-ipv6.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040629.095903.58985982.yoshfuji@linux-ipv6.org>; from yoshfuji@linux-ipv6.org on Tue, Jun 29, 2004 at 09:59:03AM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jun 29, 2004 at 09:59:03AM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B wrote:
+> In article <20040628184758.C9214@flint.arm.linux.org.uk> (at Mon, 28 Jun 2004 18:47:58 +0100), Russell King <rmk+lkml@arm.linux.org.uk> says:
+> > On Tue, Jun 29, 2004 at 02:06:27AM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B wrote:
+> > > In article <20040628010200.A15067@flint.arm.linux.org.uk> (at Mon, 28 Jun 2004 01:02:01 +0100), Russell King <rmk+lkml@arm.linux.org.uk> says:
+> > > 
+> > > > Ok, I've just tried 2.6.7 out on my root-NFS'd firewall with IPv6 built
+> > > > in, and it doesn't work because of the problem I described below.
+> > > :
+> > > > What's the solution?
+> > > 
+> > > Bring lo up before bring others up.
+> > > What does prevent you from doing this?
+> > > (Do we need some bits to do this automatically?)
+> > 
+> > When you use root-NFS, the kernel itself brings up the interfaces,
+> > and IPv6 immediately comes in and tries to configure itself to them,
+> > trying to create the routes.
+> > 
+> > Unfortunately, the kernel doesn't bring up lo first because it
+> > doesn't know to do that.
+> 
+> Okay, would you try the following patch, please?
 
-This patch, which went into 2.6.7-bk16, breaks X on my ibook with r128
-chipset. X starts just fine, but the screen stays black. I can switch to
-a textconsole and the console login appears.
+This does appear to fix the problem.
 
-I see no errors in dmesg or XFree86.0.log. Its version 4.3.0 from SuSE 8.2.
+> D: Bring loopback device up first
+> 
+> Signed-Off-By: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
+> 
+> ===== net/ipv4/ipconfig.c 1.38 vs edited =====
+> --- 1.38/net/ipv4/ipconfig.c	2004-06-23 09:06:18 +09:00
+> +++ edited/net/ipv4/ipconfig.c	2004-06-29 09:53:36 +09:00
+> @@ -183,7 +183,14 @@
+>  
+>  	last = &ic_first_dev;
+>  	rtnl_shlock();
+> +
+> +	/* bring loopback device up first */
+> +	if (dev_change_flags(&loopback_dev, loopback_dev.flags | IFF_UP) < 0)
+> +		printk(KERN_ERR "IP-Config: Failed to open %s\n", loopback_dev.name);
+> +
+>  	for (dev = dev_base; dev; dev = dev->next) {
+> +		if (dev == &loopback_dev)
+> +			continue;
+>  		if (user_dev_name[0] ? !strcmp(dev->name, user_dev_name) :
+>  		    (!(dev->flags & IFF_LOOPBACK) &&
+>  		     (dev->flags & (IFF_POINTOPOINT|IFF_BROADCAST)) &&
+> 
+> -- 
+> Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+> GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
 
-
-
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-
-As we've discussed in another thread, below is a diff that will do a set_par()
-as late as possible when there is KD_TEXT<->KD_GRAPHICS switch.  The set_par()
-will be forced in fbcon_resize() instead.
-
-Not sure if this has repercussions with the other drivers, but this patch
-fixed the X nv driver hanging when switching to the console.  (I believe the
-crash is actually caused by an early set_par() -- while in fbcon_blank. 
-Removing the set_par in fbcon_blank fixed the hang but caused cursor sprite
-and display corruption).
-
-Signed-off-by: Antonino Daplas <adaplas@pol.net>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- 25-akpm/drivers/video/console/fbcon.c |   21 ++++++++-------------
- 25-akpm/include/linux/fb.h            |    1 +
- 2 files changed, 9 insertions(+), 13 deletions(-)
-
-diff -puN drivers/video/console/fbcon.c~mode-switch-in-fbcon_blank drivers/video/console/fbcon.c
---- 25/drivers/video/console/fbcon.c~mode-switch-in-fbcon_blank	2004-06-29 22:32:49.969619360 -0700
-+++ 25-akpm/drivers/video/console/fbcon.c	2004-06-29 22:32:49.976618296 -0700
-@@ -1663,7 +1663,8 @@ static int fbcon_resize(struct vc_data *
- 	var.yres = height * fh;
- 	x_diff = info->var.xres - var.xres;
- 	y_diff = info->var.yres - var.yres;
--	if (x_diff < 0 || x_diff > fw || (y_diff < 0 || y_diff > fh)) {
-+	if (x_diff < 0 || x_diff > fw || (y_diff < 0 || y_diff > fh) ||
-+	    (info->flags & FBINFO_MISC_MODESWITCH)) {
- 		char mode[40];
- 
- 		DPRINTK("attempting resize %ix%i\n", var.xres, var.yres);
-@@ -1678,9 +1679,12 @@ static int fbcon_resize(struct vc_data *
- 			return -EINVAL;
- 		DPRINTK("resize now %ix%i\n", var.xres, var.yres);
- 		if (CON_IS_VISIBLE(vc)) {
--			var.activate = FB_ACTIVATE_NOW;
-+			var.activate = FB_ACTIVATE_NOW |
-+				(info->flags & FBINFO_MISC_MODESWITCH) ?
-+				FB_ACTIVATE_FORCE : 0;
- 			fb_set_var(info, &var);
- 		}
-+		info->flags &= ~FBINFO_MISC_MODESWITCH;
- 	}
- 	p->vrows = var.yres_virtual/fh;
- 	if (var.yres > (fh * (height + 1)))
-@@ -1788,17 +1792,8 @@ static int fbcon_blank(struct vc_data *v
- 	struct fb_info *info = registered_fb[(int) con2fb_map[vc->vc_num]];
- 	struct display *p = &fb_display[vc->vc_num];
- 
--	if (mode_switch) {
--		struct fb_info *info = registered_fb[(int) con2fb_map[vc->vc_num]];
--		struct fb_var_screeninfo var = info->var;
--
--		if (blank) {
--			fbcon_cursor(vc, CM_ERASE);
--			return 0;
--		}
--		var.activate = FB_ACTIVATE_NOW | FB_ACTIVATE_FORCE;
--		fb_set_var(info, &var);
--	}
-+	if (mode_switch)
-+		info->flags |= FBINFO_MISC_MODESWITCH;
- 
- 	fbcon_cursor(vc, blank ? CM_ERASE : CM_DRAW);
- 
-diff -puN include/linux/fb.h~mode-switch-in-fbcon_blank include/linux/fb.h
---- 25/include/linux/fb.h~mode-switch-in-fbcon_blank	2004-06-29 22:32:49.970619208 -0700
-+++ 25-akpm/include/linux/fb.h	2004-06-29 22:32:49.977618144 -0700
-@@ -532,6 +532,7 @@ struct fb_ops {
- 
- #define FBINFO_MISC_MODECHANGEUSER     0x10000 /* mode change request
- 						  from userspace */
-+#define FBINFO_MISC_MODESWITCH         0x20000 /* mode switch */
- 
- struct fb_info {
- 	int node;
-_
 -- 
-USB is for mice, FireWire is for men!
-
-sUse lINUX ag, nÜRNBERG
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

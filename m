@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277260AbRJDWxl>; Thu, 4 Oct 2001 18:53:41 -0400
+	id <S277264AbRJDW7w>; Thu, 4 Oct 2001 18:59:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277261AbRJDWxb>; Thu, 4 Oct 2001 18:53:31 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:33446 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S277260AbRJDWxM>; Thu, 4 Oct 2001 18:53:12 -0400
-Date: Thu, 4 Oct 2001 18:53:41 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Context switch times
-Message-ID: <20011004185340.D18528@redhat.com>
-In-Reply-To: <E15pFor-0004sC-00@fenrus.demon.nl> <200110042139.f94Ld5r09675@vindaloo.ras.ucalgary.ca> <20011004.145239.62666846.davem@redhat.com> <20011004175526.C18528@redhat.com> <9piokt$8v9$1@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S277261AbRJDW7n>; Thu, 4 Oct 2001 18:59:43 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:6831 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S277257AbRJDW7b>;
+	Thu, 4 Oct 2001 18:59:31 -0400
+Date: Thu, 04 Oct 2001 23:59:56 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Etienne Lorrain <etienne_lorrain@yahoo.fr>, linux-kernel@vger.kernel.org
+Cc: Christopher Friesen <cfriesen@nortelnetworks.com>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: specific optimizations for unaccelerated framebuffers
+Message-ID: <308217942.1002239996@[195.224.237.69]>
+In-Reply-To: <20011004142803.72199.qmail@web11806.mail.yahoo.com>
+In-Reply-To: <20011004142803.72199.qmail@web11806.mail.yahoo.com>
+X-Mailer: Mulberry/2.1.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <9piokt$8v9$1@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Oct 04, 2001 at 10:42:37PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 04, 2001 at 10:42:37PM +0000, Linus Torvalds wrote:
-> Could we try to hit just two? Probably, but it doesn't really matter,
-> though: to make the lmbench scheduler benchmark go at full speed, you
-> want to limit it to _one_ CPU, which is not sensible in real-life
-> situations.  The amount of concurrency in the context switching
-> benchmark is pretty small, and does not make up for bouncing the locks
-> etc between CPU's. 
 
-I don't quite agree with you that it doesn't matter.  A lot of tests 
-(volanomark, other silly things) show that the current scheduler jumps 
-processes from CPU to CPU on SMP boxes far too easily, in addition to the 
-lengthy duration of run queue processing when loaded down.  Yes, these 
-applications are leaving too many runnable processes around, but that's 
-the way some large app server loads behave.  And right now it makes linux 
-look bad compared to other OSes.
 
-Yes, low latency is good, but jumping around cpus adds more latency in 
-cache misses across slow busses than is needed when the working set is 
-already present in the 2MB L2 of your high end server.
+--On Thursday, 04 October, 2001 4:28 PM +0200 Etienne Lorrain 
+<etienne_lorrain@yahoo.fr> wrote:
 
-		-ben
+>> Since anything less than 75Hz gives me headaches, how do you propose to
+>> make this work?
+>
+>   Because there is still memory on the video board, the display stay
+>  at whatever refresh the video board is set up, 80 Hz if you want.
+
+A long time ago (tm) I used this approach successfully. It
+involved using an (onboard) display controller with a limited
+dotclock doing large resolution high bpp displays (but at
+10 to 20 Hz), capturing the digital output in offboard Video
+RAM, and displaying it at 90Hz. You get some slight artefacts
+but in general worked well. And here I was copying the
+whole screen each time. If you only copy changed areas,
+you'd ge much better results.
+
+--
+Alex Bligh

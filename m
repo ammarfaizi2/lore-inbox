@@ -1,65 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265098AbSLIKxR>; Mon, 9 Dec 2002 05:53:17 -0500
+	id <S265099AbSLIKxb>; Mon, 9 Dec 2002 05:53:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265099AbSLIKxR>; Mon, 9 Dec 2002 05:53:17 -0500
-Received: from smtp.laposte.net ([213.30.181.11]:12021 "EHLO smtp.laposte.net")
-	by vger.kernel.org with ESMTP id <S265098AbSLIKxQ>;
-	Mon, 9 Dec 2002 05:53:16 -0500
-Subject: Re: /proc/pci deprecation?
-From: Nicolas Mailhot <Nicolas.Mailhot@laposte.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ob27XeyK9bSmA359scTc"
-Organization: 
-Message-Id: <1039431647.16940.14.camel@ulysse.olympe.o2t>
+	id <S265102AbSLIKxb>; Mon, 9 Dec 2002 05:53:31 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:60680 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S265099AbSLIKxa>; Mon, 9 Dec 2002 05:53:30 -0500
+Date: Mon, 9 Dec 2002 12:01:11 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Ducrot Bruno <poup@poupinou.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [ACPI] Re: [2.5.50, ACPI] link error
+Message-ID: <20021209110111.GA18878@atrey.karlin.mff.cuni.cz>
+References: <20021205224019.GH7396@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.33.0212051632120.974-100000@localhost.localdomain> <20021206000618.GB15784@atrey.karlin.mff.cuni.cz> <20021206185702.GE17595@poup.poupinou.org> <20021208194944.GB19604@atrey.karlin.mff.cuni.cz> <20021209102858.GA14882@poup.poupinou.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 (1.2.0-3) 
-Date: 09 Dec 2002 12:00:47 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021209102858.GA14882@poup.poupinou.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---=-ob27XeyK9bSmA359scTc
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+> > I think that s4bios is nice to have. Its similar to S3 and easier to
+> > set up than swsusp... It would be nice to have it.
+> 
+> for me:
+> pros:
+> -----
+> 1- it is really really more easier to implement than S4;
+> 2- we can even have it with 2.4 kernels (it seems that it work without
+> the need of freezing processes, but I suspect that this statement
+> is 'wrong' by nature).
+> 
+> cons:
+> -----
+> 1- it is much slower (especially at save time) than your swsusp;
+> 2- end users must setup their systems (need to create a suspend partition,
+> or to keep a vfat partition as the really first one (/dev/hda1));
+> 3- we use a bios function.  Actually, everything can happen...
+> 
+> That why I prefer swsusp at this time, or any other implementation of S4 (I
+> think about an implementation of S4 via LKCD).
 
-[Please CC me replies as I'm not on the list ]
+Yes I think swsusp is better (long term), but it might be worth it to
+have S4bios, too. At least it has nice graphical task bars :-). Can
+you push the patch, or is it okay for me to try to get it merged?
 
-Hi
-
-	When I added kt400 agp support recently (just a ID declaration since
-generic via routines work fine on my box), I had to declare the KT400
-pci id in gart. Which was the only thing really needed (or so I thought
-in a sane world).
-
-	Then I did the 2.4 patch. And guess what ? I found I had to declare it
-in dri (two times, ie for each versions supported) and in the pci id
-database. What kind of madness is it ? How many people do you expect to
-update *four* lists with the same info (and btw the last time I checked
-2.4 followups were not merged in 2.5) ?
-
-	And all this time lspci knew my chip. In fact, I *used* lspci info to
-get the right info to put in the kernel. And to this day since not
-everything was merged in 2.5 lspci is more accurate than the kernel.
-
-	So from my very na=EFve point of view /proc/pci wouldn't be mourned,
-quite the contrary.
-
-Regards,
-
---=20
-Nicolas Mailhot
-
---=-ob27XeyK9bSmA359scTc
-Content-Type: application/pgp-signature; name=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA99HffI2bVKDsp8g0RAmMcAKD1u4rrECDOnoGC4rM3UNAMvkjJhgCgh4UB
-sYIm2oLu027MxN0V5RXwlds=
-=b6LE
------END PGP SIGNATURE-----
-
---=-ob27XeyK9bSmA359scTc--
-
+								Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

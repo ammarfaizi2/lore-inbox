@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264230AbTH1U1L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 16:27:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264224AbTH1U1L
+	id S264286AbTH1U1E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 16:27:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264289AbTH1U1D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 16:27:11 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:28583 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264290AbTH1U0b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 16:26:31 -0400
-Subject: RE: KDB in the mainstream 2.4.x kernels?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
-Cc: Andi Kleen <ak@muc.de>, Greg Stark <gsstark@mit.edu>,
-       Martin Pool <mbp@sourcefrog.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <D36CE1FCEFD3524B81CA12C6FE5BCAB002FFE662@fmsmsx406.fm.intel.com>
-References: <D36CE1FCEFD3524B81CA12C6FE5BCAB002FFE662@fmsmsx406.fm.intel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1062102278.24978.52.camel@dhcp23.swansea.linux.org.uk>
+	Thu, 28 Aug 2003 16:27:03 -0400
+Received: from fw.osdl.org ([65.172.181.6]:16826 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264286AbTH1U00 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 16:26:26 -0400
+Date: Thu, 28 Aug 2003 13:10:19 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christopher Swingley <cswingle@iarc.uaf.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test4: Unable to handle kernel NULL pointer dereference
+Message-Id: <20030828131019.69a9f3b9.akpm@osdl.org>
+In-Reply-To: <20030828153448.GA1001@iarc.uaf.edu>
+References: <20030828153448.GA1001@iarc.uaf.edu>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 28 Aug 2003 21:24:39 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2003-08-28 at 18:08, Tolentino, Matthew E wrote:
-> > I've seen workable non forth versions of the proposal yes. It isnt 
-> > actually that hard to do for most video cards 
-> 
-> Interesting.  So did the interpreted forth (or other) program then interact with the VGA BIOS or was it more generic? 
+Christopher Swingley <cswingle@iarc.uaf.edu> wrote:
+>
+> kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
+> ...
+> kernel: EIP is at find_inode_fast+0x1a/0x60
+> ...
+> model name	: AMD Athlon(tm) XP 1800+
+> ...
 
-It consisted simply of a list of in/out values. Thats sufficient for
-most cards it turned out. It expected the X server to dump the sequence
-of values to the kernel.
+You've been bitten by the athlon-prefetch(0)-goes-oops problem.
 
-A BIOS32/ACPI/whatever is currently trendy service to save/restore video
-states would actually be a real help to a lot of things. I guess the
-perfect would API would support something like
+Nobody seems to be working this, so I'll be sending the below in to Linus.
 
-    SaveCurrentMode
-    SetMode (some properties)
-    GetLinearFBDetails()
-    RestoreSavedMode
-    LoadColor() [for 8bit modes]
+--- 25/include/asm-i386/processor.h~disable-athlon-prefetch	2003-08-23 13:48:16.000000000 -0700
++++ 25-akpm/include/asm-i386/processor.h	2003-08-23 13:48:16.000000000 -0700
+@@ -578,6 +578,8 @@ static inline void rep_nop(void)
+ #define ARCH_HAS_PREFETCH
+ extern inline void prefetch(const void *x)
+ {
++	if (cpu_data[0].x86_vendor == X86_VENDOR_AMD)
++		return;
+ 	alternative_input(ASM_NOP4,
+ 			  "prefetchnta (%1)",
+ 			  X86_FEATURE_XMM,
 
-ie roughly what vesa bios provides. Given the cost of executing a
-virtual machine like ACPI its less clear if cards could describe
-basic acceleration this way, at least if it was something like ACPI
-or forth which is hard to compile. A bytecode description that can
-be turned into native code obviously has different properties.
+_
 

@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266078AbSLSSGK>; Thu, 19 Dec 2002 13:06:10 -0500
+	id <S265843AbSLSSAX>; Thu, 19 Dec 2002 13:00:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266091AbSLSSGK>; Thu, 19 Dec 2002 13:06:10 -0500
-Received: from 216-239-45-4.google.com ([216.239.45.4]:32782 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id <S266078AbSLSSGJ>; Thu, 19 Dec 2002 13:06:09 -0500
-Message-ID: <3E020C16.607@google.com>
-Date: Thu, 19 Dec 2002 10:12:38 -0800
-From: Ross Biro <rossb@google.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: vda@port.imtp.ilyichevsk.odessa.ua
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, "D.A.M. Revok" <marvin@synapse.net>,
-       Andre Hedrick <andre@linux-ide.org>,
-       Manish Lachwani <manish@Zambeel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19, don't "hdparm -I /dev/hde" if hde is on a Asus A7V133
-  Promise ctrlr, or...
-References: <Pine.LNX.4.10.10212180241580.8350-100000@master.linux-ide.org> <200212181635.58164.marvin@synapse.net> <1040251122.26501.0.camel@irongate.swansea.linux.org.uk> <200212190951.gBJ9pCs28149@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265828AbSLSSAX>; Thu, 19 Dec 2002 13:00:23 -0500
+Received: from probity.mcc.ac.uk ([130.88.200.94]:50692 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S265843AbSLSSAU>; Thu, 19 Dec 2002 13:00:20 -0500
+Date: Thu, 19 Dec 2002 18:08:20 +0000
+From: John Levon <levon@movementarian.org>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] (4/5) improved notifier callback mechanism - read copy update
+Message-ID: <20021219180820.GA41037@compsoc.man.ac.uk>
+References: <1040249652.14364.192.camel@dell_ss3.pdx.osdl.net> <20021219181929.A5265@in.ibm.com> <1040319430.23567.15.camel@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1040319430.23567.15.camel@dell_ss3.pdx.osdl.net>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18P55p-000PNb-00*HsWCVFONcxs*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko wrote:
+On Thu, Dec 19, 2002 at 09:37:10AM -0800, Stephen Hemminger wrote:
 
->OTOH mere mortals are allowed to make full dump of PCI config ;)
->
->  
->
-Some vendors use index/data registers in the config space, so unless you 
-know of their existance, a PCI config dump doesn't help.
+> Thanks, will look into it in more detail. Perhaps figuring out how to do
+> oprofile without sleeping would be best.
 
+You can try, but I don't think you'll get far ... maintaining the
+necessary "no samples present for exited process" invariant is difficult
+without sleeping.
+
+It would seem better just to force the profiling hooks to use a
+different API
+
+regards
+john
+
+-- 
+"ALL television is children's television."
+	- Richard Adler 

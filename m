@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264601AbUENXrg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264585AbUENXnW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264601AbUENXrg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 19:47:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264609AbUENXrA
+	id S264585AbUENXnW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 19:43:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264569AbUENXmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 19:47:00 -0400
-Received: from mail.kroah.org ([65.200.24.183]:21733 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264601AbUENX3z convert rfc822-to-8bit
+	Fri, 14 May 2004 19:42:17 -0400
+Received: from mail.kroah.org ([65.200.24.183]:32997 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264585AbUENXaI convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 19:29:55 -0400
+	Fri, 14 May 2004 19:30:08 -0400
 Subject: Re: [PATCH] I2C update for 2.6.6
-In-Reply-To: <10845773573133@kroah.com>
+In-Reply-To: <10845773561979@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 14 May 2004 16:29:18 -0700
-Message-Id: <10845773582979@kroah.com>
+Date: Fri, 14 May 2004 16:29:16 -0700
+Message-Id: <10845773561233@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
@@ -22,57 +22,374 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1587.15.13, 2004/05/11 13:44:19-07:00, R.S.Bultje@students.uu.nl
+ChangeSet 1.1587.15.2, 2004/05/01 22:32:34-07:00, greg@kroah.com
 
-[PATCH] I2C: new i2c video decoder calls
-
-Attached patch adds three new calls to the i2c video decoder API.  The changes
-were requested by Michael (CC'ed) and approved by Gerd Knorr (v4l maintainer,
-CC'ed).
-
-Short explanation:
-
-* INIT is a general initialization call with optional initialization data.
-  Reason for this is that several i2c decoders (or general: clients) are being
-  used by several adapters (main drivers), and in some cases, one adapter
-  simply needs different settings than the other, either because the adapter
-  is completely different or because the card was reverse engineered in a way
-  that doesn't allow multiple adapters to run using the same original
-  initialization data.  Michael faces such a problem right now.  Both he and
-  me lack time to properly sit together and work out the exact details or a
-  proper way to merge.
-
-* VBI_BYPASS and GPIO set specific pins on the decoder.  This will be used
-  in the saa7111 driver.  My driver (zr36067, original user of the saa7111
-  driver) doesn't use any of this, but Michael's does.
+I2C: rename i2c-ip4xx.c driver
 
 
- include/linux/video_decoder.h |    7 +++++++
- 1 files changed, 7 insertions(+)
+ drivers/i2c/busses/i2c-ixp42x.c |  176 ----------------------------------------
+ drivers/i2c/busses/i2c-ixp4xx.c |  176 ++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 176 insertions(+), 176 deletions(-)
 
 
-diff -Nru a/include/linux/video_decoder.h b/include/linux/video_decoder.h
---- a/include/linux/video_decoder.h	Fri May 14 16:19:20 2004
-+++ b/include/linux/video_decoder.h	Fri May 14 16:19:20 2004
-@@ -22,6 +22,10 @@
- #define	DECODER_STATUS_NTSC	8	/* auto detected */
- #define	DECODER_STATUS_SECAM	16	/* auto detected */
- 
-+struct video_decoder_init {
-+	unsigned char len;
-+	const unsigned char *data;
+diff -Nru a/drivers/i2c/busses/i2c-ixp42x.c b/drivers/i2c/busses/i2c-ixp42x.c
+--- a/drivers/i2c/busses/i2c-ixp42x.c	Fri May 14 16:21:22 2004
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,176 +0,0 @@
+-/*
+- * drivers/i2c/i2c-adap-ixp42x.c
+- *
+- * Intel's IXP42x XScale NPU chipsets (IXP420, 421, 422, 425) do not have
+- * an on board I2C controller but provide 16 GPIO pins that are often
+- * used to create an I2C bus. This driver provides an i2c_adapter 
+- * interface that plugs in under algo_bit and drives the GPIO pins
+- * as instructed by the alogorithm driver.
+- *
+- * Author: Deepak Saxena <dsaxena@plexity.net>
+- *
+- * Copyright (c) 2003-2004 MontaVista Software Inc.
+- *
+- * This file is licensed under the terms of the GNU General Public 
+- * License version 2. This program is licensed "as is" without any 
+- * warranty of any kind, whether express or implied.
+- *
+- * NOTE: Since different platforms will use different GPIO pins for
+- *       I2C, this driver uses an IXP42x-specific platform_data
+- *       pointer to pass the GPIO numbers to the driver. This 
+- *       allows us to support all the different IXP42x platforms
+- *       w/o having to put #ifdefs in this driver.
+- *
+- *       See arch/arm/mach-ixp42x/ixdp425.c for an example of building a 
+- *       device list and filling in the ixp42x_i2c_pins data structure 
+- *       that is passed as the platform_data to this driver.
+- */
+-
+-#include <linux/config.h>
+-#include <linux/kernel.h>
+-#include <linux/init.h>
+-#include <linux/device.h>
+-#include <linux/module.h>
+-#include <linux/i2c.h>
+-
+-#include <asm/hardware.h>	/* Pick up IXP42x-specific bits */
+-
+-static inline int ixp42x_scl_pin(void *data)
+-{
+-	return ((struct ixp42x_i2c_pins*)data)->scl_pin;
+-}
+-
+-static inline int ixp42x_sda_pin(void *data)
+-{
+-	return ((struct ixp42x_i2c_pins*)data)->sda_pin;
+-}
+-
+-static void ixp42x_bit_setscl(void *data, int val)
+-{
+-	gpio_line_set(ixp42x_scl_pin(data), 0);
+-	gpio_line_config(ixp42x_scl_pin(data),
+-		val ? IXP425_GPIO_IN : IXP425_GPIO_OUT );
+-}
+-
+-static void ixp42x_bit_setsda(void *data, int val)
+-{
+-	gpio_line_set(ixp42x_sda_pin(data), 0);
+-	gpio_line_config(ixp42x_sda_pin(data),
+-		val ? IXP425_GPIO_IN : IXP425_GPIO_OUT );
+-}
+-
+-static int ixp42x_bit_getscl(void *data)
+-{
+-	int scl;
+-
+-	gpio_line_config(ixp42x_scl_pin(data), IXP425_GPIO_IN );
+-	gpio_line_get(ixp42x_scl_pin(data), &scl);
+-
+-	return scl;
+-}	
+-
+-static int ixp42x_bit_getsda(void *data)
+-{
+-	int sda;
+-
+-	gpio_line_config(ixp42x_sda_pin(data), IXP425_GPIO_IN );
+-	gpio_line_get(ixp42x_sda_pin(data), &sda);
+-
+-	return sda;
+-}	
+-
+-struct ixp42x_i2c_data {
+-	struct ixp42x_i2c_pins *gpio_pins;
+-	struct i2c_adapter adapter;
+-	struct i2c_algo_bit_data algo_data;
+-};
+-
+-static int ixp42x_i2c_remove(struct device *dev)
+-{
+-	struct platform_device *plat_dev = to_platform_device(dev);
+-	struct ixp42x_i2c_data *drv_data = dev_get_drvdata(&plat_dev->dev);
+-
+-	dev_set_drvdata(&plat_dev->dev, NULL);
+-
+-	i2c_bit_del_bus(&drv_data->adapter);
+-
+-	kfree(drv_data);
+-
+-	return 0;
+-}
+-
+-static int ixp42x_i2c_probe(struct device *dev)
+-{
+-	int err;
+-	struct platform_device *plat_dev = to_platform_device(dev);
+-	struct ixp42x_i2c_pins *gpio = plat_dev->dev.platform_data;
+-	struct ixp42x_i2c_data *drv_data = 
+-		kmalloc(sizeof(struct ixp42x_i2c_data), GFP_KERNEL);
+-
+-	if(!drv_data)
+-		return -ENOMEM;
+-
+-	memzero(drv_data, sizeof(struct ixp42x_i2c_data));
+-	drv_data->gpio_pins = gpio;
+-
+-	/*
+-	 * We could make a lot of these structures static, but
+-	 * certain platforms may have multiple GPIO-based I2C
+-	 * buses for various device domains, so we need per-device
+-	 * algo_data->data. 
+-	 */
+-	drv_data->algo_data.data = gpio;
+-	drv_data->algo_data.setsda = ixp42x_bit_setsda;
+-	drv_data->algo_data.setscl = ixp42x_bit_setscl;
+-	drv_data->algo_data.getsda = ixp42x_bit_getsda;
+-	drv_data->algo_data.getscl = ixp42x_bit_getscl;
+-	drv_data->algo_data.udelay = 10;
+-	drv_data->algo_data.mdelay = 10;
+-	drv_data->algo_data.timeout = 100;
+-
+-	drv_data->adapter.id = I2C_HW_B_IXP425,
+-	drv_data->adapter.algo_data = &drv_data->algo_data,
+-
+-	drv_data->adapter.dev.parent = &plat_dev->dev;
+-
+-	gpio_line_config(gpio->scl_pin, IXP425_GPIO_IN);
+-	gpio_line_config(gpio->sda_pin, IXP425_GPIO_IN);
+-	gpio_line_set(gpio->scl_pin, 0);
+-	gpio_line_set(gpio->sda_pin, 0);
+-
+-	if ((err = i2c_bit_add_bus(&drv_data->adapter) != 0)) {
+-		printk(KERN_ERR "ERROR: Could not install %s\n", dev->bus_id);
+-
+-		kfree(drv_data);
+-		return err;
+-	}
+-
+-	dev_set_drvdata(&plat_dev->dev, drv_data);
+-
+-	return 0;
+-}
+-
+-static struct device_driver ixp42x_i2c_driver = {
+-	.name		= "IXP42X-I2C",
+-	.bus		= &platform_bus_type,
+-	.probe		= ixp42x_i2c_probe,
+-	.remove		= ixp42x_i2c_remove,
+-};
+-
+-static int __init ixp42x_i2c_init(void)
+-{
+-	return driver_register(&ixp42x_i2c_driver);
+-}
+-
+-static void __exit ixp42x_i2c_exit(void)
+-{
+-	driver_unregister(&ixp42x_i2c_driver);
+-}
+-
+-module_init(ixp42x_i2c_init);
+-module_exit(ixp42x_i2c_exit);
+-
+-MODULE_DESCRIPTION("GPIO-based I2C driver for IXP42x systems");
+-MODULE_LICENSE("GPL");
+-MODULE_AUTHOR("Deepak Saxena <dsaxena@plexity.net>");
+-
+diff -Nru a/drivers/i2c/busses/i2c-ixp4xx.c b/drivers/i2c/busses/i2c-ixp4xx.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/drivers/i2c/busses/i2c-ixp4xx.c	Fri May 14 16:21:22 2004
+@@ -0,0 +1,176 @@
++/*
++ * drivers/i2c/i2c-adap-ixp42x.c
++ *
++ * Intel's IXP42x XScale NPU chipsets (IXP420, 421, 422, 425) do not have
++ * an on board I2C controller but provide 16 GPIO pins that are often
++ * used to create an I2C bus. This driver provides an i2c_adapter 
++ * interface that plugs in under algo_bit and drives the GPIO pins
++ * as instructed by the alogorithm driver.
++ *
++ * Author: Deepak Saxena <dsaxena@plexity.net>
++ *
++ * Copyright (c) 2003-2004 MontaVista Software Inc.
++ *
++ * This file is licensed under the terms of the GNU General Public 
++ * License version 2. This program is licensed "as is" without any 
++ * warranty of any kind, whether express or implied.
++ *
++ * NOTE: Since different platforms will use different GPIO pins for
++ *       I2C, this driver uses an IXP42x-specific platform_data
++ *       pointer to pass the GPIO numbers to the driver. This 
++ *       allows us to support all the different IXP42x platforms
++ *       w/o having to put #ifdefs in this driver.
++ *
++ *       See arch/arm/mach-ixp42x/ixdp425.c for an example of building a 
++ *       device list and filling in the ixp42x_i2c_pins data structure 
++ *       that is passed as the platform_data to this driver.
++ */
++
++#include <linux/config.h>
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/device.h>
++#include <linux/module.h>
++#include <linux/i2c.h>
++
++#include <asm/hardware.h>	/* Pick up IXP42x-specific bits */
++
++static inline int ixp42x_scl_pin(void *data)
++{
++	return ((struct ixp42x_i2c_pins*)data)->scl_pin;
++}
++
++static inline int ixp42x_sda_pin(void *data)
++{
++	return ((struct ixp42x_i2c_pins*)data)->sda_pin;
++}
++
++static void ixp42x_bit_setscl(void *data, int val)
++{
++	gpio_line_set(ixp42x_scl_pin(data), 0);
++	gpio_line_config(ixp42x_scl_pin(data),
++		val ? IXP425_GPIO_IN : IXP425_GPIO_OUT );
++}
++
++static void ixp42x_bit_setsda(void *data, int val)
++{
++	gpio_line_set(ixp42x_sda_pin(data), 0);
++	gpio_line_config(ixp42x_sda_pin(data),
++		val ? IXP425_GPIO_IN : IXP425_GPIO_OUT );
++}
++
++static int ixp42x_bit_getscl(void *data)
++{
++	int scl;
++
++	gpio_line_config(ixp42x_scl_pin(data), IXP425_GPIO_IN );
++	gpio_line_get(ixp42x_scl_pin(data), &scl);
++
++	return scl;
++}	
++
++static int ixp42x_bit_getsda(void *data)
++{
++	int sda;
++
++	gpio_line_config(ixp42x_sda_pin(data), IXP425_GPIO_IN );
++	gpio_line_get(ixp42x_sda_pin(data), &sda);
++
++	return sda;
++}	
++
++struct ixp42x_i2c_data {
++	struct ixp42x_i2c_pins *gpio_pins;
++	struct i2c_adapter adapter;
++	struct i2c_algo_bit_data algo_data;
 +};
- 
- #define	DECODER_GET_CAPABILITIES _IOR('d', 1, struct video_decoder_capability)
- #define	DECODER_GET_STATUS    	_IOR('d', 2, int)
-@@ -30,6 +34,9 @@
- #define	DECODER_SET_OUTPUT	_IOW('d', 5, int)	/* 0 <= output < #outputs */
- #define	DECODER_ENABLE_OUTPUT	_IOW('d', 6, int)	/* boolean output enable control */
- #define	DECODER_SET_PICTURE   	_IOW('d', 7, struct video_picture)
-+#define	DECODER_SET_GPIO	_IOW('d', 8, int)	/* switch general purpose pin */
-+#define	DECODER_INIT		_IOW('d', 9, struct video_decoder_init)	/* init internal registers at once */
-+#define	DECODER_SET_VBI_BYPASS	_IOW('d', 10, int)	/* switch vbi bypass */
- 
- #define	DECODER_DUMP		_IO('d', 192)		/* debug hook */
- 
++
++static int ixp42x_i2c_remove(struct device *dev)
++{
++	struct platform_device *plat_dev = to_platform_device(dev);
++	struct ixp42x_i2c_data *drv_data = dev_get_drvdata(&plat_dev->dev);
++
++	dev_set_drvdata(&plat_dev->dev, NULL);
++
++	i2c_bit_del_bus(&drv_data->adapter);
++
++	kfree(drv_data);
++
++	return 0;
++}
++
++static int ixp42x_i2c_probe(struct device *dev)
++{
++	int err;
++	struct platform_device *plat_dev = to_platform_device(dev);
++	struct ixp42x_i2c_pins *gpio = plat_dev->dev.platform_data;
++	struct ixp42x_i2c_data *drv_data = 
++		kmalloc(sizeof(struct ixp42x_i2c_data), GFP_KERNEL);
++
++	if(!drv_data)
++		return -ENOMEM;
++
++	memzero(drv_data, sizeof(struct ixp42x_i2c_data));
++	drv_data->gpio_pins = gpio;
++
++	/*
++	 * We could make a lot of these structures static, but
++	 * certain platforms may have multiple GPIO-based I2C
++	 * buses for various device domains, so we need per-device
++	 * algo_data->data. 
++	 */
++	drv_data->algo_data.data = gpio;
++	drv_data->algo_data.setsda = ixp42x_bit_setsda;
++	drv_data->algo_data.setscl = ixp42x_bit_setscl;
++	drv_data->algo_data.getsda = ixp42x_bit_getsda;
++	drv_data->algo_data.getscl = ixp42x_bit_getscl;
++	drv_data->algo_data.udelay = 10;
++	drv_data->algo_data.mdelay = 10;
++	drv_data->algo_data.timeout = 100;
++
++	drv_data->adapter.id = I2C_HW_B_IXP425,
++	drv_data->adapter.algo_data = &drv_data->algo_data,
++
++	drv_data->adapter.dev.parent = &plat_dev->dev;
++
++	gpio_line_config(gpio->scl_pin, IXP425_GPIO_IN);
++	gpio_line_config(gpio->sda_pin, IXP425_GPIO_IN);
++	gpio_line_set(gpio->scl_pin, 0);
++	gpio_line_set(gpio->sda_pin, 0);
++
++	if ((err = i2c_bit_add_bus(&drv_data->adapter) != 0)) {
++		printk(KERN_ERR "ERROR: Could not install %s\n", dev->bus_id);
++
++		kfree(drv_data);
++		return err;
++	}
++
++	dev_set_drvdata(&plat_dev->dev, drv_data);
++
++	return 0;
++}
++
++static struct device_driver ixp42x_i2c_driver = {
++	.name		= "IXP42X-I2C",
++	.bus		= &platform_bus_type,
++	.probe		= ixp42x_i2c_probe,
++	.remove		= ixp42x_i2c_remove,
++};
++
++static int __init ixp42x_i2c_init(void)
++{
++	return driver_register(&ixp42x_i2c_driver);
++}
++
++static void __exit ixp42x_i2c_exit(void)
++{
++	driver_unregister(&ixp42x_i2c_driver);
++}
++
++module_init(ixp42x_i2c_init);
++module_exit(ixp42x_i2c_exit);
++
++MODULE_DESCRIPTION("GPIO-based I2C driver for IXP42x systems");
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Deepak Saxena <dsaxena@plexity.net>");
++
 

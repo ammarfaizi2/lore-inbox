@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131436AbRA0SkO>; Sat, 27 Jan 2001 13:40:14 -0500
+	id <S131638AbRA0SmE>; Sat, 27 Jan 2001 13:42:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131638AbRA0SkE>; Sat, 27 Jan 2001 13:40:04 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:20488 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S131436AbRA0Sj5>;
-	Sat, 27 Jan 2001 13:39:57 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200101271839.VAA02790@ms2.inr.ac.ru>
-Subject: Re: [UPDATE] Zerocopy patches, against 2.4.1-pre10
-To: ionut@cs.columbia.edu (Ion Badulescu)
-Date: Sat, 27 Jan 2001 21:39:44 +0300 (MSK)
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0101261648280.20615-100000@age.cs.columbia.edu> from "Ion Badulescu" at Jan 26, 1 04:55:05 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S132094AbRA0Sly>; Sat, 27 Jan 2001 13:41:54 -0500
+Received: from mail.diligo.fr ([194.153.78.251]:16653 "EHLO mail.diligo.fr")
+	by vger.kernel.org with ESMTP id <S131638AbRA0Slm>;
+	Sat, 27 Jan 2001 13:41:42 -0500
+Date: Sat, 27 Jan 2001 19:39:17 +0100
+From: patrick.mourlhon@wanadoo.fr
+To: linux-kernel@vger.kernel.org
+Subject: Re: routing between different subnets on same if.
+Message-ID: <20010127193917.B1166@MourOnLine.dnsalias.org>
+Reply-To: patrick.mourlhon@wanadoo.fr
+In-Reply-To: <Pine.LNX.4.32.0101271742250.15191-100000@rossi.itg.ie>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.32.0101271742250.15191-100000@rossi.itg.ie>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi
 
-> verify this? The only way I can think of is to verify that the checksum
-> field is zero initially, correct?
+I just think you might look at aliasing on the linux box..
 
-It is not zero. It contains checksum of pseudoheader.
+ifconfig eth0:0 ...
 
+this might help you do the think,
 
-> fits the new Linux model a bit better, as it has one descriptor per
-> packet, not one per fragment (like the current implementation).
+regards,
 
-Yes. Absence of such mode with acenic is big pain in ass.
+patrick mourlhon
 
+On Sat, 27 Jan 2001, Paul Jakma wrote:
 
-> tinygrams. A TCP packet whose second fragment is 1-byte long usually goes
-> over the wire with the wrong checksum. If the second fragment is 3-byte
-> long, it is checksummed correctly (so it's not an even/odd problem).
-
-Seems, this is pretty common bug. At least, perfect checksumming
-of chunks with any size and alignment is so big boast of
-alteon people, that it is clearly rather exception than rule. 8)8)
-
-I think you have to check for wrong combination of alignment/size and
-to call skb_checksum_help() and to disable checksumming if combination
-is bad.
-
-Alexey
+> i'm trying to get linux to do routing between 2 different subnets that
+> are on the same physical interface, because windows hosts don't seem
+> to accept the redirects.
+> 
+> how do i do it? how do i get linux to fully route between these
+> subnets on behalf of clients? turn send_redirects off doesn't work,
+> and nothing obvious shows up with 'ip route help'... (and there's no
+> man page for it to tell me).
+> 
+> i'm using the RedHat 2.2.16 kernel.
+> 
+> regards,
+> 
+> --paulj
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131466AbRBJOjc>; Sat, 10 Feb 2001 09:39:32 -0500
+	id <S131468AbRBJOsY>; Sat, 10 Feb 2001 09:48:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131468AbRBJOjW>; Sat, 10 Feb 2001 09:39:22 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:17060 "EHLO
-	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
-	id <S131466AbRBJOjP>; Sat, 10 Feb 2001 09:39:15 -0500
-Message-Id: <l03130317b6aafe7be844@[192.168.239.101]>
-In-Reply-To: <20010210143046.A2164@albireo.ucw.cz>
-In-Reply-To: <20010209173600.A2887@suse.cz>; from vojtech@suse.cz on Fri,
- Feb 09, 2001 at 05:36:00PM +0100 <1500B3C52526@vcnet.vc.cvut.cz>
- <20010209173600.A2887@suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Sat, 10 Feb 2001 14:21:28 +0000
-To: linux-kernel@vger.kernel.org
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: [preview] VIA IDE 4.0 and AMD IDE 2.0 with automatic PC
+	id <S131469AbRBJOsP>; Sat, 10 Feb 2001 09:48:15 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:62985 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131468AbRBJOsE>; Sat, 10 Feb 2001 09:48:04 -0500
+Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
+To: daniel@kabuki.eyep.net (Daniel Stone)
+Date: Sat, 10 Feb 2001 14:47:25 +0000 (GMT)
+Cc: mason@suse.com (Chris Mason), dbr@spoke.nols.com (David Rees),
+        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org),
+        reiserfs-list@namesys.com (reiserfs-list@namesys.com)
+In-Reply-To: <E14QkfM-0004EL-00@piro.kabuki.eyep.net> from "Daniel Stone" at Feb 08, 2001 05:34:44 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14RbJG-0001ds-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Not the case, sorry. An IDE drive is needed. However, it still might be
->> worth to pass the PCI speed to other drivers ...
->
->But beware, the timing should be a per-bus value.
+> I run Reiser on all but /boot, and it seems to enjoy corrupting my
+> mbox'es randomly.
+> Using the old-style Reiser FS format, 2.4.2-pre1, Evolution, on a CMD640
+> chipset with the fixes enabled.
+> This also occurs in some log files, but I put it down to syslogd
+> crashing or something.
 
-Indeed - remember the PowerMac G3 (blue & white) and the "Yikes" G4 have a
-66MHz PCI slot in place of the AGP slot used in later G4s, with the
-remaining 3 PCI slots being 33MHz 64-bit.
-
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
-
-The key to knowledge is not to rely on people to teach you it.
-
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
-
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r- y+
------END GEEK CODE BLOCK-----
-
+Before you put that down to reiserfs can you chek 2.4.2-pre2. It may be
+problems below the reiserfs layer
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

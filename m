@@ -1,64 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271712AbTHDM2O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 08:28:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271713AbTHDM2O
+	id S271713AbTHDMiT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 08:38:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271714AbTHDMiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 08:28:14 -0400
-Received: from [217.157.19.70] ([217.157.19.70]:4103 "EHLO jehova.dsm.dk")
-	by vger.kernel.org with ESMTP id S271712AbTHDM2L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 08:28:11 -0400
-Date: Mon, 4 Aug 2003 14:28:10 +0200 (CEST)
-From: Thomas Horsten <thomas@horsten.com>
-X-X-Sender: thomas@jehova.dsm.dk
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: Jeff Garzik <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] (2.4.2x) Driver for Medley software RAID (Silicon Image
- 3112 SATARaid, CMD680, etc?) for testing
-In-Reply-To: <1059995461.5291.0.camel@laptop.fenrus.com>
-Message-ID: <Pine.LNX.4.40.0308041418070.22732-100000@jehova.dsm.dk>
+	Mon, 4 Aug 2003 08:38:18 -0400
+Received: from [209.88.178.130] ([209.88.178.130]:11283 "EHLO
+	hirame.qlusters.com") by vger.kernel.org with ESMTP id S271713AbTHDMiR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 08:38:17 -0400
+Message-ID: <3F2E51EF.6040208@qlusters.com>
+Date: Mon, 04 Aug 2003 15:30:39 +0300
+From: eliezer <eliezer@qlusters.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030727 Thunderbird/0.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: bert hubert <ahu@ds9a.nl>
+CC: linux-kernel@vger.kernel.org, devik@cdi.cz
+Subject: Re: [PATCH] Allow /dev/{,k}mem to be disabled to prevent kernel from
+ being modified easily
+References: <20030803180950.GA11575@outpost.ds9a.nl> <20030803210821.GA17710@codepoet.org>
+In-Reply-To: <20030803210821.GA17710@codepoet.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4 Aug 2003, Arjan van de Ven wrote:
+Erik Andersen wrote:
 
-> > I was under the impression that silraid.c never worked at all (it
-> > certainly didn't on my system), because the magic number it looks for is
-> > incorrect (actually, part of the drive's serial number), and thus not
-> > present on all systems with this RAID).
+>bert hubert wrote:
+>  
 >
-> well... that's a 1 line fix to silraid.c......
+>>Greetings,
+>>
+>>
+>>It blocks attempts by rootkits, such as devik's SucKIT, to hide themselves.
+>>    
+>>
+>
+>Until the rootkit, already running as root, loads stuff as a
+>kernel module...  Perhaps you should make this enforce that
+>people have CONFIG_MODULES=n,
+>
+>  
+>
+(on a diff thread you talked about doing this dynamically)
+Maybe you should also disable module loading.
+has anyone already done such a thing as disabling module loading after a 
+point in system startup?
 
-Not really, it needs to look up the PCI device ID of the card to do it (of
-course still just a few lines).
-
-But the reason for rewriting the driver was that I wanted to use the
-specification as a guideline instead of the old implementation which was
-really for a different RAID type (with the cutoff handling of the
-differing disk sizes etc).
-
-In hindsight, after the driver is "completed" at least for RAID0, I can
-see that modifying the old driver could have been just as good (although
-I'd still advocate renaming it), but now it is done like this and I think
-the new driver is certainly a better starting point for Medley (e.g. if
-one wanted to add support for the striped modes etc).
-
-Keep in mind that I didn't know anyone had successfully used silraid.c
-since on my system it a) looked in the wrong place for the superblock and
-b) looked for a wrong magic number, and I didn't get any response when I
-provided you with a lot of details about this.
-
-The detection of the arrays is certainly safer, and the make request
-routine is improved in my driver so bottom line I thik it's a better
-driver and will also provide a better starting point for adding stuff like
-RAID1 and RAID0+1 support (although one could argue that the whole ataraid
-method should be regarded as a temporary solution and there would be ways
-to integrate support for these software RAIDs better in the future).
-
-Regards,
-Thomas
-
+Eliezer
 

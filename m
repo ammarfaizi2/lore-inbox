@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266089AbSKFVAg>; Wed, 6 Nov 2002 16:00:36 -0500
+	id <S266100AbSKFVFe>; Wed, 6 Nov 2002 16:05:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266095AbSKFVAg>; Wed, 6 Nov 2002 16:00:36 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:46589 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S266089AbSKFVAf>; Wed, 6 Nov 2002 16:00:35 -0500
-Date: Wed, 6 Nov 2002 22:07:07 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: "Marc A. Volovic" <marc@bard.org.il>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-       Pannaga Bhushan <bhushan@multitech.co.in>, linux-kernel@vger.kernel.org
-Subject: Re: A hole in kernel space!
-Message-ID: <20021106210707.GD19580@fs.tum.de>
-References: <20021106134935.GA24234@glamis.bard.org.il> <Pine.LNX.3.95.1021106085810.3962A-100000@chaos.analogic.com> <20021106160934.GA25325@glamis.bard.org.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021106160934.GA25325@glamis.bard.org.il>
-User-Agent: Mutt/1.4i
+	id <S266103AbSKFVFe>; Wed, 6 Nov 2002 16:05:34 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:8209 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S266100AbSKFVFe>; Wed, 6 Nov 2002 16:05:34 -0500
+Date: Wed, 6 Nov 2002 22:11:17 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Stephen Cameron <steve.cameron@hp.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.46 and make menuconfig weirdness
+In-Reply-To: <20021106145150.A17824@zuul.cca.cpqcorp.net>
+Message-ID: <Pine.LNX.4.44.0211062203320.13258-100000@serv>
+References: <20021106145150.A17824@zuul.cca.cpqcorp.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 06, 2002 at 06:09:34PM +0200, Marc A. Volovic wrote:
+Hi,
+
+On Wed, 6 Nov 2002, Stephen Cameron wrote:
+
+> [root@zuul lx2546]# strace ./scripts/kconfig/mconf arch/i386/Kconfig
 > 
-> I do not alloc/dealloc every time ;-). I allocate at boot and do not
-> bother deallocating at all. The module just uses that allocated memory
-> and maps it into the filesystem namespace.
->...
+> It seems to do TCGETS ioctl on every file it opens and gets ENOTTY,
+> although it doesn't seem that this is necessarily a problem for it.
 
-Read pages 221-223 in
+That's the flex generated scanner, I disabled that check here.
 
-   Alessandro Rubini and Jonathan Corbet.  Linux device drivers.
-   O'Reilly, second edition, 2001.  Online version:
-   http://www.xml.com/ldd/chapter/book/index.html
+> It seems to read all of drivers/block/paride/Kconfig 
+> (8192 + 4959 bytes == whole file) then it just quits?
 
+Have you modified a Kconfig somewhere? Look for open strings, the scanner 
+simply exits when it finds one (that's also fixed here).
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+bye, Roman
 

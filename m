@@ -1,193 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279301AbRJWHMC>; Tue, 23 Oct 2001 03:12:02 -0400
+	id <S279304AbRJWHRm>; Tue, 23 Oct 2001 03:17:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279300AbRJWHLn>; Tue, 23 Oct 2001 03:11:43 -0400
-Received: from mail.nexus.co.sz ([196.28.7.66]:54533 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S279302AbRJWHLg>; Tue, 23 Oct 2001 03:11:36 -0400
-Date: Tue, 23 Oct 2001 09:03:29 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: <zwane@netfinity.realnet.co.sz>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Assembly code cleanups for gcc3.x
-Message-ID: <20011023085941.T69645-100000@netfinity.realnet.co.sz>
+	id <S279303AbRJWHRc>; Tue, 23 Oct 2001 03:17:32 -0400
+Received: from bbmail1-out.unisys.com ([192.63.108.40]:45017 "EHLO
+	bbmail1-out.unisys.com") by vger.kernel.org with ESMTP
+	id <S279304AbRJWHRT> convert rfc822-to-8bit; Tue, 23 Oct 2001 03:17:19 -0400
+Message-ID: <DD0DC14935B1D211981A00105A1B28DB033ED3E2@NL-ASD-EXCH-1>
+From: "Leeuw van der, Tim" <tim.leeuwvander@nl.unisys.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Case where VM of 2.4.13pre2aa falls apart
+Date: Tue, 23 Oct 2001 03:17:41 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trivial patch to remove warnings about string literals from
-include/asm-i386/floppy.h/checksum.h. whilst compiling under gcc
-3.x. Compiled under 2.4.12/-acX
+> On Fri, Oct 19, 2001 at 10:47:21PM +0000, José Luis Domingo López wrote: 
+> > On Friday, 19 October 2001, at 02:39:00 -0500, 
+> > Leeuw van der, Tim wrote: 
+> > 
+> > > Hello, 
+> > > 
+> > > I've observed a case where the VM of 2.4.13pre2aa totally falls apart.
+I 
+> > > know it's not the latest of Andrea's VM tweaks, but I didn't yet get a
 
-Regards,
-	Zwane Mwaikambo
+> > > chance to compile&reboot into a later version. I've noticed a similar 
+> > > breakdown in one of the first pre-release kernels with the Andrea VM,
+btw. 
+> > > [...description of problem apparently related to Mozilla ...] 
+> > > 
+> > Maybe what happens here doesn't have anything in common with what you 
+> > experienced, but a couple of days ago I suffered a full X server crash
+due 
+> > to a _big_ memory leak with Mozilla in one specific web page. 
+> > 
+> > Linux kernel 2.4.12, Mozilla 0.9.5, and X 4.1.0. Open 
+> > www.securityfocus.org with Mozilla. For a couple of minutes, it seems
+that 
+> > all is going on nicely. Afterwards, and without any kind of user 
+> > interaction with Mozilla, both mozilla and X processes start increasing 
+> > their sizes, slowly, but steadily. 
+> 
+> 
+> It certainly makes sense it's the userspace that has a leak and so the 
+> system will start to swap and slowdown compared to the condition when 
+> lots of free memory was available. 
+> 
+> 
 
-diff -ur linux-2.4.12.orig/include/asm-i386/checksum.h linux-2.4.12/include/asm-i386/checksum.h
---- linux-2.4.12.orig/include/asm-i386/checksum.h	Thu Jul 26 22:41:22 2001
-+++ linux-2.4.12/include/asm-i386/checksum.h	Tue Oct 23 06:26:47 2001
-@@ -69,25 +69,25 @@
- 					  unsigned int ihl) {
- 	unsigned int sum;
+It doesn't seem likely to me, as the total size of Mozilla was about 20Mb or
+22Mb then, swap + RSS. I've gotten better performance with Netscape
+exploding to +100Mb.
 
--	__asm__ __volatile__("
--	    movl (%1), %0
--	    subl $4, %2
--	    jbe 2f
--	    addl 4(%1), %0
--	    adcl 8(%1), %0
--	    adcl 12(%1), %0
--1:	    adcl 16(%1), %0
--	    lea 4(%1), %1
--	    decl %2
--	    jne	1b
--	    adcl $0, %0
--	    movl %0, %2
--	    shrl $16, %0
--	    addw %w2, %w0
--	    adcl $0, %0
--	    notl %0
--2:
--	    "
-+	__asm__ __volatile__(
-+	    "movl (%1), %0\n\t"
-+	    "subl $4, %2\n\t"
-+	    "jbe 2f\n\t"
-+	    "addl 4(%1), %0\n\t"
-+	    "adcl 8(%1), %0\n\t"
-+	    "adcl 12(%1), %0\n\t"
-+"1:	     adcl 16(%1), %0\n\t"
-+	    "lea 4(%1), %1\n\t"
-+	    "decl %2\n\t"
-+	    "jne 1b\n\t"
-+	    "adcl $0, %0\n\t"
-+	    "movl %0, %2\n\t"
-+	    "shrl $16, %0\n\t"
-+	    "addw %w2, %w0\n\t"
-+	    "adcl $0, %0\n\t"
-+	    "notl %0\n\t"
-+"2:"
-+
- 	/* Since the input registers which are loaded with iph and ipl
- 	   are modified, we must also specify them as outputs, or gcc
- 	   will assume they contain their original values. */
-@@ -102,10 +102,9 @@
+I've actually observed more weird slowdowns. The 'morning after' syndrome
+I've described previously and lengthily doesn't always occur, there are
+plenty of mornings where it actually picks up with good performance.
+But the other day I upgraded again with apt-get dist-upgrade and dpkg hardly
+managed to make any progress at all, with very low CPU useage for dpkg and
+the system overal and (iirc) spinning disks.
+General overal performance wasn't really hampered and starting up a
+kernel-compile seemed to slightly improve the speed of dpkg.
 
- static inline unsigned int csum_fold(unsigned int sum)
- {
--	__asm__("
--		addl %1, %0
--		adcl $0xffff, %0
--		"
-+	__asm__(
-+		"addl %1, %0\n\t"
-+		"adcl $0xffff, %0"
- 		: "=r" (sum)
- 		: "r" (sum << 16), "0" (sum & 0xffff0000)
- 	);
-@@ -118,12 +117,11 @@
- 						   unsigned short proto,
- 						   unsigned int sum)
- {
--    __asm__("
--	addl %1, %0
--	adcl %2, %0
--	adcl %3, %0
--	adcl $0, %0
--	"
-+    __asm__(
-+	"addl %1, %0\n\t"
-+	"adcl %2, %0\n\t"
-+	"adcl %3, %0\n\t"
-+	"adcl $0, %0"
- 	: "=r" (sum)
- 	: "g" (daddr), "g"(saddr), "g"((ntohs(len)<<16)+proto*256), "0"(sum));
-     return sum;
-@@ -158,19 +156,18 @@
- 						     unsigned short proto,
- 						     unsigned int sum)
- {
--	__asm__("
--		addl 0(%1), %0
--		adcl 4(%1), %0
--		adcl 8(%1), %0
--		adcl 12(%1), %0
--		adcl 0(%2), %0
--		adcl 4(%2), %0
--		adcl 8(%2), %0
--		adcl 12(%2), %0
--		adcl %3, %0
--		adcl %4, %0
--		adcl $0, %0
--		"
-+	__asm__(
-+		"addl 0(%1), %0\n\t"
-+		"adcl 4(%1), %0\n\t"
-+		"adcl 8(%1), %0\n\t"
-+		"adcl 12(%1), %0\n\t"
-+		"adcl 0(%2), %0\n\t"
-+		"adcl 4(%2), %0\n\t"
-+		"adcl 8(%2), %0\n\t"
-+		"adcl 12(%2), %0\n\t"
-+		"adcl %3, %0\n\t"
-+		"adcl %4, %0\n\t"
-+		"adcl $0, %0"
- 		: "=&r" (sum)
- 		: "r" (saddr), "r" (daddr),
- 		  "r"(htonl(len)), "r"(htonl(proto)), "0"(sum));
-diff -ur linux-2.4.12.orig/include/asm-i386/floppy.h linux-2.4.12/include/asm-i386/floppy.h
---- linux-2.4.12.orig/include/asm-i386/floppy.h	Thu Oct 11 08:44:34 2001
-+++ linux-2.4.12/include/asm-i386/floppy.h	Tue Oct 23 06:26:54 2001
-@@ -75,28 +75,28 @@
+Of course, this can all be coincidence, and it probably depends on many
+factors. It could even be something very specific in a coupe of the scripts
+that dpkg was running. However, it was highly uncharacteristic for dpkg and
+apt-get upgrade. (dpkg is quite a memory and CPU hog btw when upgrading
+packages).
 
- #ifndef NO_FLOPPY_ASSEMBLER
- 	__asm__ (
--       "testl %1,%1
--	je 3f
--1:	inb %w4,%b0
--	andb $160,%b0
--	cmpb $160,%b0
--	jne 2f
--	incw %w4
--	testl %3,%3
--	jne 4f
--	inb %w4,%b0
--	movb %0,(%2)
--	jmp 5f
--4:     	movb (%2),%0
--	outb %b0,%w4
--5:	decw %w4
--	outb %0,$0x80
--	decl %1
--	incl %2
--	testl %1,%1
--	jne 1b
--3:	inb %w4,%b0
--2:	"
-+	"testl %1,%1\n\t"
-+	"je 3f\n\t"
-+"1:	inb %w4,%b0\n\t"
-+	"andb $160,%b0\n\t"
-+	"cmpb $160,%b0\n\t"
-+	"jne 2f\n\t"
-+	"incw %w4\n\t"
-+	"testl %3,%3\n\t"
-+	"jne 4f\n\t"
-+	"inb %w4,%b0\n\t"
-+	"movb %0,(%2)\n\t"
-+	"jmp 5f\n\t"
-+"4:    	movb (%2),%0\n\t"
-+	"outb %b0,%w4\n\t"
-+"5:	decw %w4\n\t"
-+	"outb %0,$0x80\n\t"
-+	"decl %1\n\t"
-+	"incl %2\n\t"
-+	"testl %1,%1\n\t"
-+	"jne 1b\n\t"
-+"3:	inb %w4,%b0\n\t"
-+"2:"
-        : "=a" ((char) st),
-        "=c" ((long) virtual_dma_count),
-        "=S" ((long) virtual_dma_addr)
+As if the system sometimes penalizes certain processes, and sometimes picks
+the wrong one. Is there anything in the kernel to penalize processes in some
+way, based on process-behaviour?
+
+This was still running 2.4.13pre2aa btw, I hadn't yet booted into pre3aa.
+Uptime was over 4 days. I don't know if this uptime makes a difference?
+
+I'm sorry for having so many vague descriptions and so little time to
+experiment and collect data!
+
+
+--Tim
+
+
+> Andrea 
+> - 
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+
+> the body of a message to majordomo@vger.kernel.org 
+> More majordomo info at <http://vger.kernel.org/majordomo-info.html> 
+> Please read the FAQ at <http://www.tux.org/lkml/> 
+> 
+> 
+>   _____  
+
 

@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129399AbRBBO4C>; Fri, 2 Feb 2001 09:56:02 -0500
+	id <S129149AbRBBO5C>; Fri, 2 Feb 2001 09:57:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129149AbRBBOzw>; Fri, 2 Feb 2001 09:55:52 -0500
-Received: from 200-221-84-35.dsl-sp.uol.com.br ([200.221.84.35]:16900 "HELO
-	dumont.rtb.ath.cx") by vger.kernel.org with SMTP id <S129399AbRBBOzm>;
-	Fri, 2 Feb 2001 09:55:42 -0500
-Date: Fri, 2 Feb 2001 12:55:35 -0200
-From: Rogerio Brito <rbrito@iname.com>
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: More on the VIA KT133 chipset misbehaving in Linux
-Message-ID: <20010202125535.A6248@iname.com>
-Mail-Followup-To: Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3A75278F.B41B492B@bigfoot.com>
+	id <S129454AbRBBO4m>; Fri, 2 Feb 2001 09:56:42 -0500
+Received: from smtp7.xs4all.nl ([194.109.127.133]:24523 "EHLO smtp7.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S129149AbRBBO4a>;
+	Fri, 2 Feb 2001 09:56:30 -0500
+Date: Fri, 2 Feb 2001 14:55:04 +0000
+From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+To: Frank de Lange <frank@unternet.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: hard crashes 2.4.0/1 with NE2K stuff
+Message-ID: <20010202145504.A607@grobbebol.xs4all.nl>
+In-Reply-To: <20010202145216.C13831@unternet.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <3A75278F.B41B492B@bigfoot.com>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010202145216.C13831@unternet.org>; from frank@unternet.org on Fri, Feb 02, 2001 at 02:52:16PM +0100
+X-OS: Linux grobbebol 2.4.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 29 2001, Dylan Griffiths wrote:
-> The VIA KT133 chipset exhibits the following bugs under Linux 2.2.17 and
-> 2.4.0:
-> 1) PS/2 mouse cursor randomly jumps to upper right hand corner of screen and
-> locks for a bit
-> 2) Detects a maximum of 64mb of ram, unless worked around by the "mem="
-> switch
-> 3) The clock drifts slowly (more so under heavy load than light load),
-> leaking time.
+On Fri, Feb 02, 2001 at 02:52:16PM +0100, Frank de Lange wrote:
+> I'm currently running 2.4.1 with Maciej's patch-2.4.0-io_apic-4. Additionally,
+> I disabled focus_processor in apic.c to get rid of some network delays. Flood
+> pings both from and to this system do not cause any problems, other than making
+> the streaming audio sound a bit choppy...
 
-	I know that I am late here, but I'm also using a via KT133
-	chipset with a Duron 600MHz and I'm using a kernel 2.2.18 here
-	with the IDE patches and I'm not seeing anything of the above
-	problems. Everything just works fine.
+ok, just loaded 2.4.1 again with Maciej's patch. works fine but here too
+-- flood ping kills the ethernet stuff in a few seconds. in fact, within
+approx 800 interrupts. the god news is that teh system stays alive, just
+as with Alan's -ac1 version.
 
-	What are you using? I'm using an Asus A7V, with BIOS 1003 (I
-	didn't upgrade it, since I'm terribly scarred of it going
-	wrong and not being to boot again).
+ok, here is the list
 
-	This is with kernel 2.2.18 (no signs of filesystem corruption
-	also, and I have UDMA/66 enabled, but my system is not exactly
-	stressed).
+2.4.0 stock	floodping received	crash
+2.4.1 stock                             crash
 
-> I think #2 is because e820h memory detection
+2.4.1 + patch	ok, but ethernet dies
+2.4.1-ac1       same
 
-	While I don't have problems with the Duron above, I do have a
-	486 here with 8MB of memory that I intend to use as a router
-	for my local LAN, but 2.4.0 only recognizes 7MB, while 2.2.18
-	recognizes all 8MB. Under 2.4.0 (I haven't tried 2.4.1 yet), I
-	used a mem=8M option and it worked fine, but I don't know if
-	this is indeed safe or not (I'd guess that it would be, since
-	the 2.2 kernels use all memory, but you never know).
-
-
-	[]s, Roger...
 
 -- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  Rogerio Brito - rbrito@iname.com - http://www.ime.usp.br/~rbrito/
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Grobbebol's Home                   |  Don't give in to spammers.   -o)
+http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
+Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

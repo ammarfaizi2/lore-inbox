@@ -1,85 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265426AbSKFAQe>; Tue, 5 Nov 2002 19:16:34 -0500
+	id <S265423AbSKFAQO>; Tue, 5 Nov 2002 19:16:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265421AbSKFAQT>; Tue, 5 Nov 2002 19:16:19 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:21891 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S265400AbSKFAOc>;
-	Tue, 5 Nov 2002 19:14:32 -0500
-Subject: Re: [lkcd-devel] Re: What's left over.
-From: Andy Pfiffer <andyp@osdl.org>
-To: Werner Almesberger <wa@almesberger.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
-In-Reply-To: <20021105161902.I1408@almesberger.net>
-References: <Pine.LNX.4.44.0210310918260.1410-100000@penguin.transmeta.com>
-	<3DC19A4C.40908@pobox.com> <20021031193705.C2599@almesberger.net>
-	<20021105171230.A11443@in.ibm.com> <20021105150048.H1408@almesberger.net>
-	<1036521360.5012.116.camel@irongate.swansea.linux.org.uk> 
-	<20021105161902.I1408@almesberger.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 05 Nov 2002 16:21:44 -0800
-Message-Id: <1036542104.2749.197.camel@andyp>
+	id <S265421AbSKFAQO>; Tue, 5 Nov 2002 19:16:14 -0500
+Received: from jdike.solana.com ([198.99.130.100]:11392 "EHLO karaya.com")
+	by vger.kernel.org with ESMTP id <S265423AbSKFAP7>;
+	Tue, 5 Nov 2002 19:15:59 -0500
+Message-Id: <200211060025.gA60P6V01413@karaya.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.20-rc1 - hang with processes stuck in D
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 05 Nov 2002 19:25:06 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-05 at 11:19, Werner Almesberger wrote:
-> Alan Cox wrote:
-> > Let me ask the same dumb question - what does kexec need that a dumper
-> > doesn't.
-> 
-> kexec needs:
->  - a system call to set it up
->  - a way to silence devices <snip>
-<snip>
->  - a bit of glue <snip>
->  - device drivers that can bring silent devices back to life
-<snip>
+2.4.20-rc1 reliably gets processes stuck in D, eventually wedging the whole
+system.  This is by diffing two kernel pools, one of which has 9 138764288 
+byte core files.
 
-> > In other words given reboot/trap hooks can kexec happily live
-> > as a standalone module ?
+The diff itself is stuck in __wait_on_buffer:
 
-You could probably skip the system call to set it up.  Example: I could
-imagine a bizarre set of pseudo-devices:
+	Trace; c0131608 <__wait_on_buffer+68/90>
+	Trace; c0132258 <getblk+28/60>
+	Trace; c0132269 <getblk+39/60>
+	Trace; c01324d6 <bread+46/70>
+	Trace; c0121918 <handle_mm_fault+58/c0>
+	Trace; c0163b02 <ext2_get_branch+52/c0>
+	Trace; c0163d99 <ext2_get_block+59/320>
+	Trace; c01109fa <do_page_fault+17a/4ab>
+	Trace; c01326b2 <create_buffers+62/f0>
+	Trace; c01326b8 <create_buffers+68/f0>
+	Trace; c0132fec <block_read_full_page+ec/240>
+	Trace; c0123a3d <add_to_page_cache_unique+6d/80>
+	Trace; c0123ad8 <page_cache_read+88/c0>
+	Trace; c0163d40 <ext2_get_block+0/320>
+	Trace; c01240b5 <generic_file_readahead+f5/130>
+	Trace; c012430f <do_generic_file_read+1df/430>
+	Trace; c012487c <generic_file_read+7c/110>
+	Trace; c0124780 <file_read_actor+0/80>
+	Trace; c0130796 <sys_read+96/f0>
+	Trace; c010bafb <sys_mmap2+2b/30>
+	Trace; c0106d8b <system_call+33/38>
 
-	# insmod kexec
-	# cat bzImage > /proc/kexec/next-image
-	# echo "root=805" > /proc/kexec/next-cmndline
-	# echo 1 > /proc/kexec/reboot
+kupdated and bdflush are both stuck in __wait_on_buffer called from timer_bh:
 
-and hide away that dirty little sequence with a nice kexec(3) library
-routine.
+kupdated:
+	Trace; c01a0595 <__get_request_wait+95/d0>
+	Trace; c01a0b6b <__make_request+3db/570>
+	Trace; c011b424 <timer_bh+274/390>
+	Trace; c011817b <bh_action+1b/50>
+	Trace; c0118084 <tasklet_hi_action+44/70>
+	Trace; c01a0e0e <generic_make_request+10e/130>
+	Trace; c010833c <do_IRQ+9c/b0>
+	Trace; c01a0e7b <submit_bh+4b/70>
+	Trace; c0131684 <write_locked_buffers+24/30>
+	Trace; c0131731 <write_some_buffers+a1/f0>
+	Trace; c013455c <sync_old_buffers+1c/40>
+	Trace; c0134824 <kupdate+f4/120>
+	Trace; c0105000 <_stext+0/0>
+	Trace; c0105000 <_stext+0/0>
+	Trace; c01055d6 <kernel_thread+26/30>
+	Trace; c0134730 <kupdate+0/120>
 
-The Two Kernel Monte trick (that rewrote when insmod'ed the kernel's
-function pointers for sys_reboot) was also effective, but that
-apparently isn't an option any longer.
-
-
-> What kexec needs now is more exposure, so that the BIOS
-> compatibility issues get noticed and fixed, it is ported to other
-> architectures, and that more people can start figuring out how to
-> use it, and how to build a boot environment.
-
-I'll 2nd that sentiment, and add another big one: fixing (apparent)
-problems with drivers and chipset-munging code, so that devices can be
-reliably re-probed/re-inited/etc. after the reboot.
-
-Long term, I think it would be advantageous to be able to avoid SCSI and
-other time consuming device probes for the common and simple reboot case
-of 1) the currently running kernel is being rebooted, and 2) no changes
-to the device configuration have occured.  Shouldn't we be able to "save
-away" what is in sysfs, and then re-inject that state after a fast
-reboot?
-
-Andy
-
+bdflush:
+	Trace; c01a0595 <__get_request_wait+95/d0>
+	Trace; c01a0b6b <__make_request+3db/570>
+	Trace; c011b1d7 <timer_bh+27/390>
+	Trace; c011817b <bh_action+1b/50>
+	Trace; c0118084 <tasklet_hi_action+44/70>
+	Trace; c0110e0e <remap_area_pages+7e/1d0>
+	Trace; c010833c <do_IRQ+9c/b0>
+	Trace; c01a0e7b <submit_bh+4b/70>
+	Trace; c0131684 <write_locked_buffers+24/30>
+	Trace; c0131731 <write_some_buffers+a1/f0>
+	Trace; c01346fe <bdflush+9e/d0>
+	Trace; c0105000 <_stext+0/0>
+	Trace; c01055d6 <kernel_thread+26/30>
+	Trace; c0134660 <bdflush+0/d0>
 

@@ -1,99 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269822AbRHIOrf>; Thu, 9 Aug 2001 10:47:35 -0400
+	id <S269829AbRHIO4P>; Thu, 9 Aug 2001 10:56:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269825AbRHIOrZ>; Thu, 9 Aug 2001 10:47:25 -0400
-Received: from willow.commerce.uk.net ([213.219.35.202]:25118 "EHLO
-	willow.commerce.uk.net") by vger.kernel.org with ESMTP
-	id <S269822AbRHIOrQ>; Thu, 9 Aug 2001 10:47:16 -0400
-Date: Thu, 9 Aug 2001 15:45:22 +0100 (BST)
-From: Corin Hartland-Swann <cdhs@commerce.uk.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jason Collins <jcollins@valinux.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Memory Problems - CTCS/memtst
-In-Reply-To: <E15SJqa-0000lu-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0108091529070.18150-100000@willow.commerce.uk.net>
-Organization: Commerce Internet Ltd
+	id <S269831AbRHIO4G>; Thu, 9 Aug 2001 10:56:06 -0400
+Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:43268 "EHLO
+	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id <S269829AbRHIOz5>; Thu, 9 Aug 2001 10:55:57 -0400
+From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: linux-kernel@vger.kernel.org
+Date: Thu, 9 Aug 2001 16:55:46 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: 2.4.4: thread dumping core
+Message-ID: <3B72C08E.3800.1F80245@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
+X-Content-Conformance: HerringScan-0.9/3.47+2.4+2.03.072+02 July 2001+64930@20010809.144439Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Alan/Jason,
+I wonder whether the kernel does the right thing if a thread causes a 
+segmentation violation: Currently it seems the other LWPs just 
+continue. However in practice this means that the application does not 
+work reliable when one thread went away.
 
-To recap...
+I suggest to terminate all LWPs if one receives a fatal signal.
 
-On Thu, 2 Aug 2001, I wrote:
-> > I have been trying to identify the cause of a number of problems we've
-> > been having with a server.
-> > 
-> > The server consists of two Pentium III 1000/133's on a Tyan Tiger LE
-> > motherboard, 4 x 1024MB PC133 ECC DIMMs and two UDMA disk drives. It is
-> > running kernel 2.4.7 (unpatched, but with tailored config). To rule out
-> > problems related to the large amount of memory, I temporarily removed all
-> > but one of the DIMMs, leaving it with 1024MB.
-> > 
-> > I've been getting the usual signs of memory errors:
-> > 
-> >   segmentation faults
-> >   "unable to handle kernel NULL pointer dereference at virtual address"
-> >   kernel compilations failing
-> >   random panics
+I wasn't successful debugging the beast:
 
-On Thu, 2 Aug 2001, Jason Collins wrote:
-> One way to tell whether or not your memory is the problem is by examining your
-> files/coredumps for corruption.  If entire page-sized chunks have been
-> substituted with chunks from other files, pages in RAM, etc, you're likely
-> dealing with a kernel MM bug rather than memory corruption.  (I suppose an MMU
-> bug is possible too.. sigh...)  A few bits swapped here and there points to
-> hardware/faulty memory.  That's one reason why my memory checker displays that
-> nice context information, so those sorts of determinations can be made.
+Program terminated with signal 11, Segmentation fault.
+Reading symbols from /lib/libpthread.so.0...done.
+rw_common (): write: Success.
 
-I came up with a new way to get the problems to show up - I used the
-prandom package in CTCS (generates large amounts of pseudorandom data) to
-create a 2048MB file. I then used cp to copy it repeatedly to a different
-disk, and then used md5sum to compare the files. Any files that differed,
-I used a perl program to compare 4K blocks and indicate the number of
-differing bits for each differing block.
+warning: unable to set global thread event mask
+[New Thread 1024 (LWP 10566)]
+Error while reading shared library symbols:
+attach_thread: No such process.
+Reading symbols from /lib/libc.so.6...done.
+Loaded symbols for /lib/libc.so.6
+Reading symbols from /lib/ld-linux.so.2...done.
+Loaded symbols for /lib/ld-linux.so.2
+#0  0x4005e0a6 in sigsuspend () from /lib/libc.so.6
+(gdb) bt
+#0  0x4005e0a6 in sigsuspend () from /lib/libc.so.6
+#1  0x4002496c in sigwait () from /lib/libpthread.so.0
+#2  0x804da47 in mi_signal_thread ()
+#3  0x40021ba3 in pthread_start_thread () from /lib/libpthread.so.0
 
-The result was that there were differing groups of blocks in the files,
-but these were always multiples of 4K blocks. This means that the problem
-is not related to memory errors, but more likely to the IDE driver or
-(less likely) memory management.
 
-On Thu, 2 Aug 2001, Alan Cox wrote:
-> > The BIOS has an ECC logging feature, and if I understand it correctly,
-> > then there /cannot/ have been any main memory errors or they would have
-> > shown up in the logs. At least not any single or double-bit errors (ECC
-> > corrects single-bit and detects double-bit, doesn't it?)
-> 
-> ALmost certainly it should have been logged. That indicates you may have
-> problems elsewhere (pci bus, drivers, motherboard, processors...) or you
-> might even be triggering a kernel bug.
-> 
-> Try a  2.2.19 kernel just out of curiousity
+Opinions?
 
-The 2.2.19 kernel works without a problem. After trying a large number of
-different kernels, 2.4.7-ac9 also works. I believe that this is because of
-the new serverworks driver (as opposed to osb4).
-
-So, I'm fairly convinced that the osb4 driver causes data corruption - has
-anyone else experienced this?
-
-What is the status of the new serverworks driver in 2.4.7-ac9 - is it due
-to go into the main kernel soon?
-
-Thanks,
-
-Corin
-
-/------------------------+-------------------------------------\
-| Corin Hartland-Swann   |    Tel: +44 (0) 20 7491 2000        |
-| Commerce Internet Ltd  |    Fax: +44 (0) 20 7491 2010        |
-| 22 Cavendish Buildings | Mobile: +44 (0) 79 5854 0027        | 
-| Gilbert Street         |                                     |
-| Mayfair                |    Web: http://www.commerce.uk.net/ |
-| London W1K 5HJ         | E-Mail: cdhs@commerce.uk.net        |
-\------------------------+-------------------------------------/
+Ulrich
 

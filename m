@@ -1,100 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S129478AbRC1H21>; Wed, 28 Mar 2001 02:28:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131736AbRC1H2R>; Wed, 28 Mar 2001 02:28:17 -0500
-Received: from 24.68.61.66.on.wave.home.com ([24.68.61.66]:14346 "HELO sh0n.net") by vger.kernel.org with SMTP id <S129478AbRC1H2J>; Wed, 28 Mar 2001 02:28:09 -0500
-Date: Wed, 28 Mar 2001 02:27:47 -0500 (EST)
-From: Shawn Starr <spstarr@sh0n.net>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Disturbing news..
-In-Reply-To: <20010328101910.D23336@mea-ext.zmailer.org>
-Message-ID: <Pine.LNX.4.30.0103280225460.8046-100000@coredump.sh0n.net>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131742AbRC1Hvx>; Wed, 28 Mar 2001 02:51:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131750AbRC1Hvo>; Wed, 28 Mar 2001 02:51:44 -0500
+Received: from adsl-216-102-214-42.dsl.snfc21.pacbell.net ([216.102.214.42]:12293 "HELO marcus.pants.nu") by vger.kernel.org with SMTP id <S131740AbRC1Hvf>; Wed, 28 Mar 2001 02:51:35 -0500
+Subject: Re: 64-bit block sizes on 32-bit systems
+To: lord@sgi.com (Steve Lord)
+Date: Wed, 28 Mar 2001 00:09:08 -0800 (PST)
+Cc: pollard@tomcat.admin.navo.hpc.mil (Jesse Pollard), jaharkes@cs.cmu.edu, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <200103272356.f2RNuT101368@jen.americas.sgi.com> from "Steve Lord" at Mar 27, 2001 05:56:29 PM
+X-Mailer: ELM [version 2.5 PL0pre8]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20010328080908.9905E2B54A@marcus.pants.nu>
+From: flar@pants.nu (Brad Boyer)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Steve Lord wrote:
+> Just a brief add to the discussion, besides which I have a vested interest
+> in this!
 
-Well, why can't the ELF loader module/kernel detect or have some sort of
-restriction on modifying other/ELF binaries including itself from changing
-the Entry point?
+I'll add my little comments as well, and hopefully not start a flamewar... :)
 
-There has to be a way stop this. WHY would anyone want to modify the entry
-point anyway? (there may be some reasons but I really dont know what).
-Even if it's user level, this cant affect files with root permissions
-(unless root is running them or suid).
+[snip comments about blocksize, etc.]
 
-Any idea?
+Here's a real-life example of something that most of you will probably hate
+me for mentioning:
 
-On Wed, 28 Mar 2001, Matti Aarnio wrote:
+HFS uses variable sized blocks (made up of multiple 512 byte sectors), but
+stores block numbers as a 16 bit value. (I know, everyone will say, "We're
+talking about moving from 32 to 64 bits." Keep listening.) This gave great
+performance on the then current massive storage of a 20M drive. However,
+when it became possible to get the absolutely gigantic hard drive of 1G,
+it became more and more obvious that it was a drawback that was causing
+a huge amount of wasted space. Apple had to design a new filesystem (HFS+)
+that was able to represent blocks with a 32 bit number to overcome the
+effective limitation on how big a filesystem could be. It's getting to
+the point now that it's easily possible to put together a disk array that
+is large enough that even referring to blocks with a 32 bit value requires
+relatively large blocks. I don't know if we have very many filesystems that
+would support this feature, but it will become important a lot sooner than
+anyone may be thinking.
 
-> On Wed, Mar 28, 2001 at 01:16:02AM -0500, Shawn Starr wrote:
-> > Date:	Wed, 28 Mar 2001 01:16:02 -0500 (EST)
-> > From:	Shawn Starr <spstarr@sh0n.net>
-> > To:	<linux-kernel@vger.kernel.org>
-> > Subject: Disturbing news..
-> >
-> > http://news.cnet.com/news/0-1003-200-5329436.html?tag=lh
-> > Isn't it time to change the ELF format to stop this crap?
-> > Shawn.
->
-> 	Why ?   "Double-click on attachment to run it" is typical
-> 		M$ client stupidity -- and the reason why there
-> 		are so many things that can mail themselves around.
->
-> 	Changeing ELF-format would be comparable to what M$ did when
-> 	they met the first Word macro viruses -- they changed the
-> 	script language inside the Word...   What good did that do ?
-> 	Did it harm people ?  You bet...
->
->
-> 	You are downloading binaries off the net, and not compiling
-> 	from the sources ?  (Yes, we all do that.  This is why folks
-> 	these days carry PGP signatures at the RPM packages.)
->
->
-> 	So, the program modifies ELF format executables by rewriting
-> 	some instructions in the beginning (propably to map-in the virus
-> 	code proper with X-bit on), and tags itself (PIC presumably) at
-> 	the end of the file.
->
->
->
-> 	Another issue is "safe conduct" practice of installing binaries
-> 	with minimum privileges (ok, granted that for e.g. RPMs that
-> 	usually means root), and *never* running them with undue levels
-> 	of privileges -- not even as the owner of said executables.
->
->
->
-> 	Ok, granted that we have dangers of getting arbitrary BAD programs
-> 	into our systems, how can we combat that ?   Virus-scanners
-> 	(as much good as they could do..) don't really work in UNIX
-> 	environments where "small things" like intercept of every
-> 	exec(), and open() via privileged program (scanner) is not
-> 	available feature. (I think doing it by passing a AF_UNIX
-> 	message with fd + flags to registered server, expecting answer
-> 	for the open() -- this would happen *after* the file open is
-> 	done with user privileges, but before the call returns.)
-> 	(Trapping open() so that shared-libraries could be scanned.)
->
-> 	There could be, I think, a method for doing such intercepts,
-> 	which could be used by security scanners to implement some
-> 	sense of security in Linux-like systems.
->
-> 	Is it good enough, e.g. when some file is multiply-mapped to
-> 	shared programs, and application rewrites parts of the file ?
-> 	Can it detect that kind of multi-mapped writing-sharing ?
->
-> 	Can such system be made fast ?  (Scanner becomes performance
-> 	bottle-neck.)
->
->
-> 	How about PROPER Orange Book B-level security ?
-> 	E.g. NSA trusted-linux ?
->
->
-> /Matti Aarnio
->
->
+Obviously this case isn't a perfect fit for the situation, since HFS was
+designed to be read by 32 bit machines, and the upgrade to 32 bits didn't
+give a CPU penalty, just a bus bandwidth problem. Also, I'm coming from
+a platform that actually can do a decent job of 64 bit, unlike x86, but
+we shouldn't disallow people from doing bigger and better things. It's
+become very popular lately to position Linux as an enterprise-ready system,
+and this is something that will be expected. People will want to access
+a multi-TB database as a single file, as well as other things that may
+seem crazy to most people now.
+
+I understand people's aversion to the #ifdefs in the code, but if the changes
+are made in a sane way, it can still be clean and easy to maintain. It's
+worth it to add a little complexity (particularly as an option) to add a
+feature that people will be demanding in the relatively near future. It
+might be a good idea to wait for 2.5, tho...
+
+	Brad Boyer
+	flar@pants.nu
+
+P.S.: No, I have no personal reason to need any of this 64 bit filesystem
+stuff. Just trying to point out possibilities. Don't expect me to actually
+be writing this stuff...
 

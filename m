@@ -1,43 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285907AbRLHLMg>; Sat, 8 Dec 2001 06:12:36 -0500
+	id <S285910AbRLHLQU>; Sat, 8 Dec 2001 06:16:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285908AbRLHLM0>; Sat, 8 Dec 2001 06:12:26 -0500
-Received: from crateria.nerim.net ([62.4.16.75]:6916 "HELO crateria.nerim.net")
-	by vger.kernel.org with SMTP id <S285907AbRLHLMH>;
-	Sat, 8 Dec 2001 06:12:07 -0500
-Message-ID: <3C11F585.5090505@free.fr>
-Date: Sat, 08 Dec 2001 12:12:05 +0100
-From: Lionel Bouton <Lionel.Bouton@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011206
-X-Accept-Language: en-us
+	id <S285909AbRLHLQK>; Sat, 8 Dec 2001 06:16:10 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37637 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S285912AbRLHLQD>; Sat, 8 Dec 2001 06:16:03 -0500
+Subject: Re: Linux 2.4.17-pre6
+To: eyal@eyal.emu.id.au (Eyal Lebedinsky)
+Date: Sat, 8 Dec 2001 11:25:06 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (lkml),
+        marcelo@conectiva.com.br (Marcelo Tosatti)
+In-Reply-To: <3C116B1E.9C153277@eyal.emu.id.au> from "Eyal Lebedinsky" at Dec 08, 2001 12:21:34 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: blumpkin@attbi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Where can a Solaris guy learn all about the linux kernel and device drivers?
-In-Reply-To: <MCEFIDEELBLBLNHNDAOOMEAHGJAA.blumpkin@attbi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16CfbO-00017G-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Buddy Lumpkin wrote:
+> /lib/modules/2.4.17-pre6/kernel/drivers/char/drm/sis.o
+> depmod:         sis_malloc_Ra3329ed5
+> depmod:         sis_free_Rced25333
 
->Subject says it all, if I already know a UNIX flavor pretty well, can
->someone point out a good place to learn about how Linux handles Kernel
->Modules and device drivers?
->
-I began with:
-http://kt.zork.net/kernel-traffic/index.html
-Weekly summaries of lklm and good links.
-
-I'm told this is quiet good too:
-http://www.kernelnewbies.org
-
--- 
- Lionel Bouton
-
--
-"I wanted to be free. I opensourced my whole DNA code" Gyver, 1999.
-
-
+Ok I'll look at that one. I think you need to include sis frame buffer
+support. If so thats a dependancy I don't think I can fix in CML1

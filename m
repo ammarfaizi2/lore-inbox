@@ -1,58 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262676AbVCWAxn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262682AbVCWA4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262676AbVCWAxn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 19:53:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262674AbVCWAxm
+	id S262682AbVCWA4z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 19:56:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262678AbVCWAyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 19:53:42 -0500
-Received: from ozlabs.org ([203.10.76.45]:10384 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262675AbVCWAx2 (ORCPT
+	Tue, 22 Mar 2005 19:54:38 -0500
+Received: from zlynx.org ([199.45.143.209]:39946 "EHLO 199.45.143.209")
+	by vger.kernel.org with ESMTP id S262677AbVCWAyJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 19:53:28 -0500
-Date: Wed, 23 Mar 2005 11:53:05 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Daniel McNeil <daniel@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "linuxppc64-dev@ozlabs.org" <linuxppc64-dev@ozlabs.org>,
-       "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>
-Subject: Re: [PATCH 2.6.11] AIO panic on PPC64 caused by is_hugepage_only_range()
-Message-ID: <20050323005305.GB29765@localhost.localdomain>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Daniel McNeil <daniel@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	"linuxppc64-dev@ozlabs.org" <linuxppc64-dev@ozlabs.org>,
-	"linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	"linux-aio@kvack.org" <linux-aio@kvack.org>
-References: <1111108348.31932.43.camel@ibm-c.pdx.osdl.net> <20050321184113.0f5e2f6b.akpm@osdl.org> <1111519474.15956.40.camel@ibm-c.pdx.osdl.net>
+	Tue, 22 Mar 2005 19:54:09 -0500
+Subject: Re: dmesg verbosity [was Re: AGP bogosities]
+From: Zan Lynx <zlynx@acm.org>
+To: Diego Calleja <diegocg@gmail.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050323013729.0f5cd319.diegocg@gmail.com>
+References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com>
+	 <Pine.LNX.4.62.0503140026360.10211@qynat.qvtvafvgr.pbz>
+	 <20050314083717.GA19337@elf.ucw.cz>
+	 <200503140855.18446.jbarnes@engr.sgi.com>
+	 <20050314191230.3eb09c37.diegocg@gmail.com>
+	 <1110827273.14842.3.camel@mindpipe>
+	 <20050323013729.0f5cd319.diegocg@gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-dOHHOvOS1cNfsWjNyCt/"
+Date: Tue, 22 Mar 2005 17:53:56 -0700
+Message-Id: <1111539236.15947.47.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1111519474.15956.40.camel@ibm-c.pdx.osdl.net>
-User-Agent: Mutt/1.5.6+20040523i
+X-Mailer: Evolution 2.2.1.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 22, 2005 at 11:24:34AM -0800, Daniel McNeil wrote:
-> On Mon, 2005-03-21 at 18:41, Andrew Morton wrote:
-> > Did we fix this yet?
-> > 
-> 
-> Here's a patch against 2.6.11 that fixes the problem.
-> It changes is_hugepage_only_range() to take mm as an argument
-> and then changes the places that call it to pass 'mm'.
-> It includes a change for ia64 which has not been compiled.
-> It applies against the latest bk with some offset.
-> 
-> Signed-off-by: Daniel McNeil <daniel@osdl.org>
 
-Looks good to me.
+--=-dOHHOvOS1cNfsWjNyCt/
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Acked-by: David Gibson <dwg@au1.ibm.com>
+On Wed, 2005-03-23 at 01:37 +0100, Diego Calleja wrote:
+> El Mon, 14 Mar 2005 14:07:53 -0500,
+> Lee Revell <rlrevell@joe-job.com> escribi=F3:
+>=20
+> > I'm really not trolling, but I suspect if we made the boot process less
+> > verbose, people would start to wonder more about why Linux takes so muc=
+h
+> > longer than XP to boot.
+>=20
+> By the way, Microsoft seems to be claiming that boot time will be reduced=
+ to the half
+> with Longhorn. While we already know how ms marketing team works, 50% loo=
+ks
+> like a lot. Is there a good place to discuss what could be done in the li=
+nuxland to
+> improve things? It doesn't looks like a couple of optimizations will be e=
+nought...
 
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/people/dgibson
+Make software suspend work 100% of the time and rename "resume" to
+"fastboot".
+--=20
+Zan Lynx <zlynx@acm.org>
+
+--=-dOHHOvOS1cNfsWjNyCt/
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBCQL4kG8fHaOLTWwgRAnILAKCnnhDTTKX8ye1HZNfBngxbg6hDzgCfdOzy
+GBtP+r4OWUs0ZjlyLVBnGZM=
+=ahXJ
+-----END PGP SIGNATURE-----
+
+--=-dOHHOvOS1cNfsWjNyCt/--
+

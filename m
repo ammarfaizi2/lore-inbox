@@ -1,37 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266849AbUHISd0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266836AbUHISeB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266849AbUHISd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 14:33:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266837AbUHISad
+	id S266836AbUHISeB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 14:34:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266855AbUHISdf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 14:30:33 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:36532 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S266849AbUHIS32 (ORCPT
+	Mon, 9 Aug 2004 14:33:35 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:18862 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S266836AbUHISct (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 14:29:28 -0400
-Date: Mon, 9 Aug 2004 20:29:21 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Josh Radel <jraidman-linux@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: elevator abstraction, anticipatory I/O backported to 2.4?
-Message-ID: <20040809182921.GA28302@suse.de>
-References: <20040807000316.85612.qmail@web81706.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 9 Aug 2004 14:32:49 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.8-rc3-mm2
+Date: Mon, 9 Aug 2004 11:32:39 -0700
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+References: <20040808152936.1ce2eab8.akpm@osdl.org> <200408091122.48492.jbarnes@engr.sgi.com> <20040809112550.2ea19dbf.akpm@osdl.org>
+In-Reply-To: <20040809112550.2ea19dbf.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040807000316.85612.qmail@web81706.mail.yahoo.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408091132.39752.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 06 2004, Josh Radel wrote:
-> Are there any existing patches for a backport of the
-> 2.6 elevator abstraction (or a specific patch for
-> anticipatory I/O) to 2.4 kernels?
+On Monday, August 9, 2004 11:25 am, Andrew Morton wrote:
+> I had the same hang on my ia64 test box, once.  But during the
+> binary-search-through-patches process it disappeared.  Try booting again :(
 
-It would be hard to do. In fact it can't be done without hacking the
-drivers to use it as well. So it might be doable just for fun, but not
-as something maintainable.
+I've tried a few times now, 100% failure rate.
 
--- 
-Jens Axboe
+> I'd be suspecting one of the CPU scheduler patches.
 
+Yep, that's what I'm looking at now...
+
+Thanks,
+Jesse

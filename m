@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269188AbTCDFwm>; Tue, 4 Mar 2003 00:52:42 -0500
+	id <S269225AbTCDFzr>; Tue, 4 Mar 2003 00:55:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269221AbTCDFwm>; Tue, 4 Mar 2003 00:52:42 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:1421 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S269188AbTCDFwi>;
-	Tue, 4 Mar 2003 00:52:38 -0500
-Date: Tue, 4 Mar 2003 17:02:58 +1100
+	id <S269245AbTCDFzr>; Tue, 4 Mar 2003 00:55:47 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:8077 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S269225AbTCDFzn>;
+	Tue, 4 Mar 2003 00:55:43 -0500
+Date: Tue, 4 Mar 2003 17:06:02 +1100
 From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: "David S. Miller" <davem@redhat.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [PATCH][COMPAT] compat_sys_fcntl{,64} 3/9 SPARC64 part
-Message-Id: <20030304170258.6d91fc05.sfr@canb.auug.org.au>
+To: Linus <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, ak@muc.de
+Subject: [PATCH][COMPAT] compat_sys_fcntl{,64} 4/9 x86_64 part
+Message-Id: <20030304170602.677c1797.sfr@canb.auug.org.au>
 In-Reply-To: <20030304165812.7141f7c0.sfr@canb.auug.org.au>
 References: <20030304165812.7141f7c0.sfr@canb.auug.org.au>
 X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
@@ -21,22 +21,47 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
+Hi Linus,
 
-Here is the SPARC64 part of the patch.
+Here is the x86_64 part of the patch, since Andi asked me to send these to
+you.
+
 -- 
 Cheers,
 Stephen Rothwell                    sfr@canb.auug.org.au
 http://www.canb.auug.org.au/~sfr/
 
-diff -ruN 2.5.63-32bit.1/arch/sparc64/kernel/sys_sparc32.c 2.5.63-32bit.2/arch/sparc64/kernel/sys_sparc32.c
---- 2.5.63-32bit.1/arch/sparc64/kernel/sys_sparc32.c	2003-02-25 12:59:31.000000000 +1100
-+++ 2.5.63-32bit.2/arch/sparc64/kernel/sys_sparc32.c	2003-02-25 14:35:59.000000000 +1100
-@@ -806,41 +806,6 @@
- 	return err;
+diff -ruN 2.5.63-32bit.1/arch/x86_64/ia32/ia32entry.S 2.5.63-32bit.2/arch/x86_64/ia32/ia32entry.S
+--- 2.5.63-32bit.1/arch/x86_64/ia32/ia32entry.S	2003-02-18 11:46:36.000000000 +1100
++++ 2.5.63-32bit.2/arch/x86_64/ia32/ia32entry.S	2003-02-25 14:35:59.000000000 +1100
+@@ -255,7 +255,7 @@
+ 	.quad sys_umount			/* new_umount */
+ 	.quad ni_syscall			/* old lock syscall holder */
+ 	.quad sys32_ioctl
+-	.quad sys32_fcntl64		/* 55 */
++	.quad compat_sys_fcntl64		/* 55 */
+ 	.quad ni_syscall			/* old mpx syscall holder */
+ 	.quad sys_setpgid
+ 	.quad ni_syscall			/* old ulimit syscall holder */
+@@ -421,7 +421,7 @@
+ 	.quad sys_mincore
+ 	.quad sys_madvise
+ 	.quad sys_getdents64	/* 220 getdents64 */ 
+-	.quad sys32_fcntl64	
++	.quad compat_sys_fcntl64	
+ 	.quad sys_ni_syscall	/* tux */
+ 	.quad sys_ni_syscall    /* security */
+ 	.quad sys_gettid	
+diff -ruN 2.5.63-32bit.1/arch/x86_64/ia32/sys_ia32.c 2.5.63-32bit.2/arch/x86_64/ia32/sys_ia32.c
+--- 2.5.63-32bit.1/arch/x86_64/ia32/sys_ia32.c	2003-02-25 12:59:32.000000000 +1100
++++ 2.5.63-32bit.2/arch/x86_64/ia32/sys_ia32.c	2003-02-25 14:35:59.000000000 +1100
+@@ -1016,102 +1016,6 @@
+ 	return ret;
  }
  
 -extern asmlinkage long sys_fcntl(unsigned int fd, unsigned int cmd, unsigned long arg);
+-asmlinkage long sys32_fcntl64(unsigned int fd, unsigned int cmd, unsigned long arg);
+-
 -
 -asmlinkage long sys32_fcntl(unsigned int fd, unsigned int cmd, unsigned long arg)
 -{
@@ -59,106 +84,144 @@ diff -ruN 2.5.63-32bit.1/arch/sparc64/kernel/sys_sparc32.c 2.5.63-32bit.2/arch/s
 -				return -EFAULT;
 -			return 0;
 -		}
+-	case F_GETLK64: 
+-	case F_SETLK64: 
+-	case F_SETLKW64: 
+-		return sys32_fcntl64(fd,cmd,arg); 
+-
 -	default:
 -		return sys_fcntl(fd, cmd, (unsigned long)arg);
 -	}
 -}
 -
--asmlinkage long sys32_fcntl64(unsigned int fd, unsigned int cmd, unsigned long arg)
+-static inline int get_flock64(struct ia32_flock64 *fl32, struct flock *fl64)
 -{
--	if (cmd >= F_GETLK64 && cmd <= F_SETLKW64)
--		return sys_fcntl(fd, cmd + F_GETLK - F_GETLK64, arg);
--	return sys32_fcntl(fd, cmd, arg);
+-	if (access_ok(fl32, sizeof(struct ia32_flock64), VERIFY_WRITE)) {
+-		int ret = __get_user(fl64->l_type, &fl32->l_type); 
+-		ret |= __get_user(fl64->l_whence, &fl32->l_whence);
+-		ret |= __get_user(fl64->l_start, &fl32->l_start); 
+-		ret |= __get_user(fl64->l_len, &fl32->l_len); 
+-		ret |= __get_user(fl64->l_pid, &fl32->l_pid); 
+-		return ret; 
+-		}
+-	return -EFAULT; 
 -}
 -
- extern asmlinkage long sys_truncate(const char * path, unsigned long length);
- extern asmlinkage long sys_ftruncate(unsigned int fd, unsigned long length);
- 
-diff -ruN 2.5.63-32bit.1/arch/sparc64/kernel/systbls.S 2.5.63-32bit.2/arch/sparc64/kernel/systbls.S
---- 2.5.63-32bit.1/arch/sparc64/kernel/systbls.S	2003-02-25 12:59:31.000000000 +1100
-+++ 2.5.63-32bit.2/arch/sparc64/kernel/systbls.S	2003-02-25 14:35:59.000000000 +1100
-@@ -37,7 +37,7 @@
- 	.word sys_madvise, sys_vhangup, sys32_truncate64, sys_mincore, sys32_getgroups16
- /*80*/	.word sys32_setgroups16, sys_getpgrp, sys_setgroups, compat_sys_setitimer, sys32_ftruncate64
- 	.word sys_swapon, compat_sys_getitimer, sys_setuid, sys_sethostname, sys_setgid
--/*90*/	.word sys_dup2, sys_setfsuid, sys32_fcntl, sys32_select, sys_setfsgid
-+/*90*/	.word sys_dup2, sys_setfsuid, compat_sys_fcntl, sys32_select, sys_setfsgid
- 	.word sys_fsync, sys_setpriority32, sys_nis_syscall, sys_nis_syscall, sys_nis_syscall
- /*100*/ .word sys_getpriority, sys32_rt_sigreturn, sys32_rt_sigaction, sys32_rt_sigprocmask, sys32_rt_sigpending
- 	.word sys32_rt_sigtimedwait, sys32_rt_sigqueueinfo, sys32_rt_sigsuspend, sys_setresuid, sys_getresuid
-@@ -50,7 +50,7 @@
- /*140*/	.word sys32_sendfile64, sys_nis_syscall, compat_sys_futex, sys_gettid, sys32_getrlimit
- 	.word sys32_setrlimit, sys_pivot_root, sys32_prctl, sys32_pciconfig_read, sys32_pciconfig_write
- /*150*/	.word sys_nis_syscall, sys_nis_syscall, sys_nis_syscall, sys_poll, sys_getdents64
--	.word sys32_fcntl64, sys_ni_syscall, compat_sys_statfs, compat_sys_fstatfs, sys_oldumount
-+	.word compat_sys_fcntl64, sys_ni_syscall, compat_sys_statfs, compat_sys_fstatfs, sys_oldumount
- /*160*/	.word sys32_sched_setaffinity, sys32_sched_getaffinity, sys_getdomainname, sys_setdomainname, sys_nis_syscall
- 	.word sys_quotactl, sys_set_tid_address, sys32_mount, sys_ustat, sys_setxattr
- /*170*/	.word sys_lsetxattr, sys_fsetxattr, sys_getxattr, sys_lgetxattr, sys32_getdents
-@@ -172,7 +172,7 @@
- 	.word compat_sys_setitimer, sunos_nosys, sys_swapon
- 	.word compat_sys_getitimer, sys_gethostname, sys_sethostname
- 	.word sunos_getdtablesize, sys_dup2, sunos_nop
--	.word sys32_fcntl, sunos_select, sunos_nop
-+	.word compat_sys_fcntl, sunos_select, sunos_nop
- 	.word sys_fsync, sys_setpriority32, sunos_socket
- 	.word sys_connect, sunos_accept
- /*100*/	.word sys_getpriority, sunos_send, sunos_recv
-diff -ruN 2.5.63-32bit.1/include/asm-sparc64/compat.h 2.5.63-32bit.2/include/asm-sparc64/compat.h
---- 2.5.63-32bit.1/include/asm-sparc64/compat.h	2003-02-11 09:40:00.000000000 +1100
-+++ 2.5.63-32bit.2/include/asm-sparc64/compat.h	2003-02-25 14:35:59.000000000 +1100
-@@ -64,6 +64,19 @@
- 	short		__unused;
+-static inline int put_flock64(struct ia32_flock64 *fl32, struct flock *fl64)
+-{
+-	if (access_ok(fl32, sizeof(struct ia32_flock64), VERIFY_WRITE)) {
+-		int ret = __put_user(fl64->l_type, &fl32->l_type); 
+-		ret |= __put_user(fl64->l_whence, &fl32->l_whence);
+-		ret |= __put_user(fl64->l_start, &fl32->l_start); 
+-		ret |= __put_user(fl64->l_len, &fl32->l_len); 
+-		ret |= __put_user(fl64->l_pid, &fl32->l_pid); 
+-		return ret; 
+-	}
+-	return -EFAULT; 
+-}
+-
+-asmlinkage long sys32_fcntl64(unsigned int fd, unsigned int cmd, unsigned long arg)
+-{
+-	struct flock fl64;  
+-	mm_segment_t oldfs = get_fs(); 
+-	int ret = 0; 
+-	int oldcmd = cmd;
+-	unsigned long oldarg = arg;
+-
+-	switch (cmd) {
+-	case F_GETLK64: 
+-		cmd = F_GETLK; 
+-		goto cnv;
+-	case F_SETLK64: 
+-		cmd = F_SETLK; 
+-		goto cnv; 
+-	case F_SETLKW64:
+-		cmd = F_SETLKW; 
+-	cnv:
+-		ret = get_flock64((struct ia32_flock64 *)arg, &fl64); 
+-		arg = (unsigned long)&fl64; 
+-		set_fs(KERNEL_DS); 
+-		break; 
+-	case F_GETLK:
+-	case F_SETLK:
+-	case F_SETLKW:
+-		return sys32_fcntl(fd,cmd,arg); 
+-	}
+-	if (!ret)
+-		ret = sys_fcntl(fd, cmd, arg);
+-	set_fs(oldfs); 
+-	if (oldcmd == F_GETLK64 && !ret)
+-		ret = put_flock64((struct ia32_flock64 *)oldarg, &fl64); 
+-	return ret; 
+-}
+-
+ int sys32_ni_syscall(int call)
+ { 
+ 	printk(KERN_INFO "IA32 syscall %d from %s not implemented\n", call,
+diff -ruN 2.5.63-32bit.1/include/asm-x86_64/compat.h 2.5.63-32bit.2/include/asm-x86_64/compat.h
+--- 2.5.63-32bit.1/include/asm-x86_64/compat.h	2003-02-11 09:40:00.000000000 +1100
++++ 2.5.63-32bit.2/include/asm-x86_64/compat.h	2003-02-25 14:36:00.000000000 +1100
+@@ -68,6 +68,22 @@
+ 	compat_pid_t	l_pid;
  };
  
-+#define F_GETLK64	12
++#define F_GETLK64	12	/*  using 'struct flock64' */
 +#define F_SETLK64	13
 +#define F_SETLKW64	14
 +
++/*
++ * IA32 uses 4 byte alignment for 64 bit quantities,
++ * so we need to pack this structure.
++ */
 +struct compat_flock64 {
 +	short		l_type;
 +	short		l_whence;
 +	compat_loff_t	l_start;
 +	compat_loff_t	l_len;
 +	compat_pid_t	l_pid;
-+	short		__unused;
-+};
++} __attribute__((packed));
 +
  struct compat_statfs {
  	int		f_type;
  	int		f_bsize;
-@@ -84,4 +97,7 @@
+@@ -88,4 +104,6 @@
  
- typedef u32		compat_sigset_word;
+ typedef u32               compat_sigset_word;
  
 +#define COMPAT_OFF_T_MAX	0x7fffffff
-+#define COMPAT_LOFF_T_MAX	0x7fffffffffffffffL
 +
- #endif /* _ASM_SPARC64_COMPAT_H */
-diff -ruN 2.5.63-32bit.1/include/asm-sparc64/fcntl.h 2.5.63-32bit.2/include/asm-sparc64/fcntl.h
---- 2.5.63-32bit.1/include/asm-sparc64/fcntl.h	2003-01-09 16:24:05.000000000 +1100
-+++ 2.5.63-32bit.2/include/asm-sparc64/fcntl.h	2003-02-25 14:35:59.000000000 +1100
-@@ -36,12 +36,6 @@
- #define F_SETSIG	10	/*  for sockets. */
- #define F_GETSIG	11	/*  for sockets. */
+ #endif /* _ASM_X86_64_COMPAT_H */
+diff -ruN 2.5.63-32bit.1/include/asm-x86_64/fcntl.h 2.5.63-32bit.2/include/asm-x86_64/fcntl.h
+--- 2.5.63-32bit.1/include/asm-x86_64/fcntl.h	2002-02-20 14:13:21.000000000 +1100
++++ 2.5.63-32bit.2/include/asm-x86_64/fcntl.h	2003-02-25 14:36:00.000000000 +1100
+@@ -72,8 +72,4 @@
  
--#ifdef __KERNEL__
--#define F_GETLK64	12
--#define F_SETLK64	13
--#define F_SETLKW64	14
--#endif
--
- /* for F_[GET|SET]FL */
- #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
- 
-@@ -78,9 +72,6 @@
- 	short __unused;
- };
+ #define F_LINUX_SPECIFIC_BASE	1024
  
 -#ifdef __KERNEL__
 -#define flock64	flock
 -#endif
 -
- #define F_LINUX_SPECIFIC_BASE	1024
-+
- #endif /* !(_SPARC64_FCNTL_H) */
+ #endif /* !_X86_64_FCNTL_H */
+diff -ruN 2.5.63-32bit.1/include/asm-x86_64/ia32.h 2.5.63-32bit.2/include/asm-x86_64/ia32.h
+--- 2.5.63-32bit.1/include/asm-x86_64/ia32.h	2003-02-15 23:20:00.000000000 +1100
++++ 2.5.63-32bit.2/include/asm-x86_64/ia32.h	2003-02-25 14:36:00.000000000 +1100
+@@ -11,18 +11,6 @@
+  * 32 bit structures for IA32 support.
+  */
+ 
+-struct ia32_flock64 {
+-	short  l_type;
+-	short  l_whence;
+-	loff_t l_start;  /* unnatural alignment */
+-	loff_t l_len;
+-	pid_t  l_pid;
+-} __attribute__((packed));
+-
+-#define F_GETLK64	12	/*  using 'struct flock64' */
+-#define F_SETLK64	13
+-#define F_SETLKW64	14
+-
+ #include <asm/sigcontext32.h>
+ 
+ /* signal.h */

@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312459AbSDXRvZ>; Wed, 24 Apr 2002 13:51:25 -0400
+	id <S312457AbSDXRth>; Wed, 24 Apr 2002 13:49:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312460AbSDXRvY>; Wed, 24 Apr 2002 13:51:24 -0400
-Received: from holomorphy.com ([66.224.33.161]:23735 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S312459AbSDXRu2>;
-	Wed, 24 Apr 2002 13:50:28 -0400
-Date: Wed, 24 Apr 2002 10:49:18 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4: Any plans for new bootmem and waitq patches?
-Message-ID: <20020424174918.GL21206@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200204240013.53960.Dieter.Nuetzel@hamburg.de> <20020424003222.GK21206@holomorphy.com> <E16zwot-0002N7-00@starship>
+	id <S312458AbSDXRtg>; Wed, 24 Apr 2002 13:49:36 -0400
+Received: from panic.tn.gatech.edu ([130.207.137.62]:35493 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S312457AbSDXRte>;
+	Wed, 24 Apr 2002 13:49:34 -0400
+Date: Wed, 24 Apr 2002 13:49:33 -0400
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Ben Greear <greearb@candelatech.com>
+Cc: "David S. Miller" <davem@redhat.com>, jd@epcnet.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: AW: Re: AW: Re: VLAN and Network Drivers 2.4.x
+Message-ID: <20020424134933.A17852@havoc.gtf.org>
+In-Reply-To: <20020424.093515.82125943.davem@redhat.com> <721506265.avixxmail@nexxnet.epcnet.de> <20020424.095951.43413800.davem@redhat.com> <3CC6EBF1.9060902@candelatech.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 24 April 2002 02:32, William Lee Irwin III wrote:
->> The bootmem patch's benefits are not very visible (if at all) for
->> machines other than simulators and some unusual large systems. I
->> am not pressing for its inclusion in mainline for the basic reason
->> that what it addresses does not affect the systems I'm using anymore,
->> if only because the systems changed. =)
+On Wed, Apr 24, 2002 at 10:31:29AM -0700, Ben Greear wrote:
+> Also, is there any good reason that we can't get at least a compile
+> time change into some of the drivers like tulip where we know we can
+> get at least MOST of the cards supported with a small change?
 
-On Tue, Apr 23, 2002 at 11:42:43AM +0200, Daniel Phillips wrote:
-> What changed exactly?
+The tulip patch is butt-ugly - the oversized allocation isn't needed,
+and it just flat-out turns off large packet protection.  That's really
+not what you want to do, even for the best tulip cards.  If an oversized
+gram (non-VLAN) makes it into a network which such a patched tulip
+driver, you can DoS.  So, I view the current tulip patch as unacceptable
+too -- for security reasons, we should not even take it as a compile
+time patch.  (and I recommend against using that patch on production
+machines, for the same security reasons)
 
-I don't use the affected systems anymore. I moved from one group to
-another within my company just before the beginning of the year.
+The proper tulip patch does not need to change packet allocation size
+at all (it's already plenty big enough), and it needs to copy the RX
+fragment handling code from 8139cp (which is admittedly ugly, slow path)
+or write fresh fragment handling code.  Along with that fragment
+handling code comes a safe way to do VLAN, and non-standard large MTUs
+in general.
 
 
-Cheers,
-Bill
+> The same argument applies to the EEPRO driver (we know a cure, but it's
+> a magic register number, and no one will accept the patch).
+
+I think we have a good chance of making that a less magic-number patch,
+though, given the last discussion.
+
+	Jeff
+
+
+

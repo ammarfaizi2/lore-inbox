@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266884AbUH1VDR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267891AbUH1VIW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266884AbUH1VDR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 17:03:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267864AbUH1VDK
+	id S267891AbUH1VIW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 17:08:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266887AbUH1VIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 17:03:10 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:39574 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S266884AbUH1VCn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 17:02:43 -0400
-Date: Sat, 28 Aug 2004 22:59:34 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Adrian Bunk <bunk@fs.tum.de>, mrmacman_g4@mac.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch][1/3] ipc/ BUG -> BUG_ON conversions
-Message-ID: <20040828205933.GC8716@suse.de>
-References: <20040828151137.GA12772@fs.tum.de> <20040828151544.GB12772@fs.tum.de> <098EB4E1-F90C-11D8-A7C9-000393ACC76E@mac.com> <20040828162633.GG12772@fs.tum.de> <20040828125816.206ef7fa.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040828125816.206ef7fa.akpm@osdl.org>
+	Sat, 28 Aug 2004 17:08:21 -0400
+Received: from science.horizon.com ([192.35.100.1]:48439 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S267891AbUH1VHz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 17:07:55 -0400
+Date: 28 Aug 2004 21:07:51 -0000
+Message-ID: <20040828210751.24380.qmail@science.horizon.com>
+From: linux@horizon.com
+To: linux-kernel@vger.kernel.org, linux-usb-devel@vger.kernel.org
+Subject: Re: Summarizing the PWC driver questions/answers
+Cc: paul@clubi.ie
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 28 2004, Andrew Morton wrote:
-> Adrian Bunk <bunk@fs.tum.de> wrote:
-> >
-> >  > Anything you put in BUG_ON() must *NOT* have side effects.
-> >  >...
-> > 
-> >  I'd have said exactly the same some time ago, but I was convinced by 
-> >  Arjan that if done correctly, a BUG_ON() with side effects is possible  
-> >  with no extra cost even if you want to make BUG configurably do nothing.
-> 
-> Nevertheless, I think I'd prefer that we not move code which has
-> side-effects into BUG_ONs.  For some reason it seems neater that way.
-> 
-> Plus one would like to be able to do
-> 
-> 	BUG_ON(strlen(str) > 22);
-> 
-> and have strlen() not be evaluated if BUG_ON is disabled.
-> 
-> A minor distinction, but one which it would be nice to preserve.
+Paul Jakma wrote:
+> http://linux.slashdot.org/comments.pl?sid=119578&cid=10089410
+>
+> From the LavaRND people. Apparently images produced with the binary 
+> pcwx portion loaded (full-sized frame) had *less* entropy than the 
+> smaller images produced without. Hence they speculate that the 
+> function of the binary pcwx part is actually to interpolate the 
+> 160x120 image to the bigger 640x480 size, and has little to do with 
+> hardware..
 
-Precisely, I fully agree (even though BUG_ON() will never be defined
-away, if you should not do the check kill it completely).
+Actually, it's probably *colour* interpolation.  Digital cameras are
+based on fundamentally black-and-white image sensors, with a filter
+grid superimposed.  (Search on "Bayer filter" for the most common RGGB
+pattern.)  A "640x480" digital camera has 640x480 = 307200 sensor pixels,
+divided among 3 (or sometimes 4) colours.
 
--- 
-Jens Axboe
+Note that this is unlike a "640x480" colour LCD, which will have 640x480x3
+= 921600 active elements.  But it is the standard terminology for the field.
 
+This gives some luminance/chrominance information at each pixel, but to
+assign a 24-bit colour to each pixel requires some interpolation based on
+adjacent picels.  Digital cameras do such interpolation internally, but
+it's also popular to support a "raw" image format to an external program,
+in the hope of better result.  See gPhoto for examples of such algorithms.
+
+Anyway, I can imagine that the camera can do something crude internally
+like downsampling by 2x2 to get colour values for each pixel.  I can also
+imagine that it can export the raw image to a software driver for better
+interpolation that would take more CPU horsepower than it has on board.
+
+Now, the fact that colour is effectively encoded in the high-frequency
+portion of the luminance signal makes it rather tricky to produce a
+"sharp" colour image without introducing artifacts when a high-frequency
+black & white signal is present.  The general techniques are published,
+but digital camera makers put a lot of effort into the subtleties and are
+generally very posessive of the details of their implementation.
+
+This might be what's going on with Philips.
+
+However, given that we already have access to lots of suitable Free
+interpolating software, Linux doesn't need that.  It just needs to know
+how to elicit a raw high-res frame from the camera and what the returned
+bits mean.  The rest can be coped with.

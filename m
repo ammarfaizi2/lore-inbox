@@ -1,75 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269987AbTGXTJj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 15:09:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269994AbTGXTJj
+	id S270003AbTGXTQy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 15:16:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270007AbTGXTQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 15:09:39 -0400
-Received: from 25.mdrx.com ([65.67.58.25]:41397 "EHLO duallie.mdrx.com")
-	by vger.kernel.org with ESMTP id S269987AbTGXTJh (ORCPT
+	Thu, 24 Jul 2003 15:16:54 -0400
+Received: from zeke.inet.com ([199.171.211.198]:4073 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id S270003AbTGXTQx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 15:09:37 -0400
-From: Brian Jackson <brian@brianandsara.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: time for some drivers to be removed?
-Date: Thu, 24 Jul 2003 14:24:40 -0500
-User-Agent: KMail/1.5.2
-References: <200307241443.h6OEh3Qd000249@81-2-122-30.bradfords.org.uk>
-In-Reply-To: <200307241443.h6OEh3Qd000249@81-2-122-30.bradfords.org.uk>
+	Thu, 24 Jul 2003 15:16:53 -0400
+Message-ID: <3F20342C.5030701@inet.com>
+Date: Thu, 24 Jul 2003 14:31:56 -0500
+From: Eli Carter <eli.carter@inet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030708
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+CC: John Bradford <john@grabjohn.com>, diegocg@teleline.es,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ml@basmevissen.nl
+Subject: Re: time for some drivers to be removed?
+References: <200307241829.h6OITjR3000582@81-2-122-30.bradfords.org.uk> <Pine.LNX.4.53.0307241422360.21139@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307241424.40725.brian@brianandsara.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 July 2003 09:43 am, John Bradford wrote:
-<snip>
->
-> Some people might be interested in it.  Maybe somebody would like to
-> fix it, but can't buy the physical hardware for any price.  Maybe
-> everybody who has the hardware can't fix it because other kernel bugs
-> prevent them from using the latest kernels on their machines.  Why
-> remove it when it's doing no harm whatsoever?
+Robert P. J. Day wrote:
+> p.s.  and, yes, i think "make allyesconfig" should just plain work
+> for official release kernels.  so there. :-P
 
-I can think of one reason:
-$ ls -lhGrS /usr/portage/distfiles/linux-2.*
+Why not add "make allworkingconfig"?  Turn on everything that builds; 
+and maintain it so it reflects reality.  Post patches regularly. ;)
 
--rw-r--r--    1      23M Apr 10  2002 
-/usr/portage/distfiles/linux-2.4.18.tar.bz2
--rw-r--r--    1      25M Aug 19  2002 
-/usr/portage/distfiles/linux-2.4.19.tar.bz2
--rw-r--r--    1      26M Feb 22 21:26 
-/usr/portage/distfiles/linux-2.4.20.tar.bz2
--rw-r--r--    1      27M Jun 13 09:52 
-/usr/portage/distfiles/linux-2.4.21.tar.bz2
--rw-r--r--    1      30M Feb 10 13:05 
-/usr/portage/distfiles/linux-2.5.60.tar.bz2
--rw-r--r--    1      30M Feb 24 13:30 
-/usr/portage/distfiles/linux-2.5.63.tar.bz2
--rw-r--r--    1      30M Mar  4 21:47 
-/usr/portage/distfiles/linux-2.5.64.tar.bz2
--rw-r--r--    1      30M Mar 17 16:29 
-/usr/portage/distfiles/linux-2.5.65.tar.bz2
--rw-r--r--    1      30M Apr 19 22:02 
-/usr/portage/distfiles/linux-2.5.68.tar.bz2
--rw-r--r--    1      30M Mar 24 17:23 
-/usr/portage/distfiles/linux-2.5.66.tar.bz2
--rw-r--r--    1      30M Apr 11 12:16 
-/usr/portage/distfiles/linux-2.5.67.tar.bz2
--rw-r--r--    1      32M Jul 10 15:21 
-/usr/portage/distfiles/linux-2.5.75.tar.bz2
-
-2.6 doesn't seem to be swelling that fast, but 2.4 is
-
->
-> John.
-
---Brian Jackson
-
--- 
-OpenGFS -- http://opengfs.sourceforge.net
-Home -- http://www.brianandsara.net
+Eli
+--------------------. "If it ain't broke now,
+Eli Carter           \                  it will be soon." -- crypto-gram
+eli.carter(a)inet.com `-------------------------------------------------
 

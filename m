@@ -1,70 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266684AbUJIKoq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266687AbUJIKvX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266684AbUJIKoq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 06:44:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266687AbUJIKop
+	id S266687AbUJIKvX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 06:51:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266703AbUJIKvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 06:44:45 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:23495 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S266684AbUJIKoc (ORCPT
+	Sat, 9 Oct 2004 06:51:23 -0400
+Received: from main.gmane.org ([80.91.229.2]:57556 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266687AbUJIKvV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 06:44:32 -0400
-Date: Sat, 9 Oct 2004 12:46:00 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Con Kolivas <kernel@kolivas.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "K.R. Foley" <kr@cybsft.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Florian Schmidt <mista.tapas@gmx.net>, Mark_H_Johnson@raytheon.com,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Subject: Re: voluntary-preempt-2.6.9-rc3-mm3-T3
-Message-ID: <20041009104600.GB19062@elte.hu>
-References: <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu> <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu> <20041007105230.GA17411@elte.hu> <1097297824.1442.132.camel@krustophenia.net> <cone.1097298596.537768.1810.502@pc.kolivas.org> <1097299260.1442.142.camel@krustophenia.net>
+	Sat, 9 Oct 2004 06:51:21 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@mru.ath.cx>
+Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
+Date: Sat, 09 Oct 2004 12:51:02 +0200
+Message-ID: <yw1x3c0orwq1.fsf@mru.ath.cx>
+References: <41677E4D.1030403@mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1097299260.1442.142.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 197.80-202-92.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:3PszU6VGpHd6BDUXRGYG5P3HJY0=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sven-Thorsten Dietrich <sdietrich@mvista.com> writes:
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+> +#if defined(CONFIG_SMP) && defined(CONFIG_PREEMPT)
+> +/*
+> + * This could be a long-held lock.  If another CPU holds it for a long time,
+> + * and that CPU is not asked to reschedule then *this* CPU will spin on the
+> + * lock for a long time, even if *this* CPU is asked to reschedule.
+> + *
+> + * So what we do here, in the slow (contended) path is to spin on the lock by
+> + * hand while permitting preemption.
+> + *
+> + * Called inside preempt_disable().
+> + */
+> +
+> +/* these functions are only called from inside spin_lock
+> + * and old_write_lock therefore under spinlock substitution
+> + * they will only be passed old spinlocks or old rwlocks as parameter
+> + * there are no issues with modified mutex behavior here. */
+> +
+> +#endif /* defined(CONFIG_SMP) && defined(CONFIG_PREEMPT) */
 
-> > > With VP and PREEMPT in general, does the scheduler always run the
-> > > highest priority process, or do we only preempt if a SCHED_FIFO process
-> > > is runnable?
-> > 
-> > Always the highest priority runnable.
-> > 
-> 
-> Hmm, interesting.  Would there be any advantage to a mode where only
-> SCHED_FIFO tasks can preempt?  This seems like a much lighter way to
-> solve the realtime problem.
+May I inquire as to the purpose of placing a couple of comments under
+an #ifdef?
 
-it could be done, but i dont think we should do it. It makes RT
-scheduling much more of a special-case. Right now RT scheduling is 99%
-like normal scheduling - with the difference that RT priorities are
-"higher" than the normal priorities and that each RT priority level is
-"exclusive": the scheduler will let such tasks run until they want,
-without applying fairness policies.
+-- 
+Måns Rullgård
+mru@mru.ath.cx
 
-by making RT tasks more of a special case we'd destabilize the whole
-thing: there would be kernel preemptability bugs that only RT tasks
-would hit - resulting in a steady deterioration of PREEMPT support in
-the kernel. (the ratio of RT tasks is perhaps 0.1% of all use, or less.) 
-So applying _any_ RT-only technique besides the bare minimum is asking
-for trouble in the long run.
-
-furthermore, we had hard-to-trigger SMP bugs that the PREEMPT kernel
-triggered much faster - resulting in an indirect stabilization of our
-SMP code. If nothing else then this alone makes PREEMPT very useful.
-
-	Ingo

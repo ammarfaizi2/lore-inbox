@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264828AbTIDHcc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 03:32:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264820AbTIDHal
+	id S264756AbTIDHi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 03:38:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264778AbTIDH1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 03:30:41 -0400
-Received: from pentafluge.infradead.org ([213.86.99.235]:53190 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S264784AbTIDHa2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 03:30:28 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "David S. Miller" <davem@redhat.com>, Adrian Bunk <bunk@fs.tum.de>,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org
-In-Reply-To: <3F5679E1.8090604@pobox.com>
-References: <20030902231812.03fae13f.akpm@osdl.org>
-	 <20030903161200.GC23729@fs.tum.de>  <3F5617A9.4040603@pobox.com>
-	 <1062607559.1785.50.camel@gaston>  <3F5679E1.8090604@pobox.com>
-Message-Id: <1062660583.1780.57.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 04 Sep 2003 09:29:44 +0200
-X-SA-Exim-Mail-From: benh@kernel.crashing.org
-Subject: Re: [PATCH] Re: 2.6.0-test4-mm5
-Content-Type: text/plain
+	Thu, 4 Sep 2003 03:27:51 -0400
+Received: from userbg049.dsl.pipex.com ([62.190.246.49]:33032 "EHLO
+	homer.intra.qzxyz.com") by vger.kernel.org with ESMTP
+	id S264782AbTIDHZn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 03:25:43 -0400
+Message-ID: <3F56E8F5.6020702@qzxyz.com>
+Date: Thu, 04 Sep 2003 08:25:41 +0100
+From: Scott Ashcroft <ashcroft@qzxyz.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: tg3/Broadcom gigabit driver just got worse in 2.4.23-pre3
+References: <3F569AF8.9040507@myrealbox.com>
+In-Reply-To: <3F569AF8.9040507@myrealbox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
-X-SA-Exim-Scanned: Yes
-X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-09-04 at 01:31, Jeff Garzik wrote:
-> Benjamin Herrenschmidt wrote:
-> > BTW. David: Any reason why you wouldn't let me change all occurences
-> > of spin_{lock,unlock}_irq into the ...{save,restore} versions ?
+walt wrote:
+> Hi Jeff et all,
 > 
+> I just tried 2.4.23-pre3 with results that are disastrous, for me at least.
 > 
-> IMO... even though you do lose a tiny bit of performance, I definitely
-> prefer the save/restore versions.
+> As you will remember, I'm the one who has to do an ifconfig down/up cycle
+> on my asus A7V8X mobo with built-in Broadcom chip.  But after the updates
+> in -pre3 the chip no longer will work at all.
+> 
+> In fact, if I try 'ifconfig eth0 down' the command hangs forever and chews
+> up 99.9% of the CPU.  No packets are ever transmitted in spite of a normal
+> 'ifconfig' output after bootup.  The chip is correctly identified in dmesg:
+> 
+> eth0: Tigon3 [partno(BCM95702A20) rev 1002 PHY(5703)] (PCI:33MHz:32-bit)
+> 10/100/1000BaseT Ethernet 00:e0:18:d2:a6:c1
 
-I'm not even sure you actually lose perfs... at least on ppc ;)
+Same here but it's a 5705M in a laptop. Tried backing out just the 
+changes to the tg3 driver but couldn't get it to build correctly.
 
-Ben.
+Cheers,
+Scott
 
 

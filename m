@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310960AbSCHROf>; Fri, 8 Mar 2002 12:14:35 -0500
+	id <S310963AbSCHROp>; Fri, 8 Mar 2002 12:14:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310962AbSCHROc>; Fri, 8 Mar 2002 12:14:32 -0500
-Received: from romulus.cl.urbanweb.net ([209.53.118.29]:62087 "HELO
+	id <S310961AbSCHROe>; Fri, 8 Mar 2002 12:14:34 -0500
+Received: from romulus.cl.urbanweb.net ([209.53.118.29]:62343 "HELO
 	romulus.triluminary.net") by vger.kernel.org with SMTP
-	id <S310961AbSCHROP>; Fri, 8 Mar 2002 12:14:15 -0500
-Date: Mon, 4 Mar 2002 16:44:44 -0800
+	id <S310960AbSCHROP>; Fri, 8 Mar 2002 12:14:15 -0500
+Date: Mon, 4 Mar 2002 18:07:44 -0800
 From: "Timothy M. Totten" <novus@triluminary.net>
 To: linux-kernel@vger.kernel.org
-Subject: Problem with Kernel
-Message-ID: <20020304164444.A263@romulus>
+Subject: Kernel Errors Part 2
+Message-ID: <20020304180744.A339@romulus>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -18,33 +18,47 @@ User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+As a followup to the note I sent you
+about the errors I am getting with the kernel.
+Here is a glimpse of what 2.4.18 is telling me.
+I really have to figure out how to do a dump
+of the kernel panic errors as writing this sucker
+out by hand was a pain in the arse :-)
 
-	I am currently running Kernel 2.4.5 on my machine, and I
-tried to install 2.4.18 and got a kernel panic. So I thought
-I'de just make a new compile of 2.4.5 with only one change,
-I set the High Memory support to 4GB instead of None.
+--- begin error thingy
 
-	Right when the kernel should have been setting up the swap
-space, instead it gave me the following message:
+Unable to handle kernel paging request at virtual address 2c018218
+Printing eip:
+c01ae528
+*pde=00000000
+Oops: 0000
+CPU:  3
+EIP: 0010:[<c01ae528>]  Not tainted
+EFLAGS: 00010282
+eax: c2c38000 ebx: 2c018200 ecx: 00000000 edx: 00000000
+esi: f880c274 edi: f7b5fc00 ebp: f7b5fc00 esp: c2c39c64
+ds: 0018 es: 0018 ss: 0018
+Process swapper (pid:1, stackpage=c2c39000)
+Stack: 00000000 f88c274 f765fc00 00000000 f882900 f882904 00004000 00000000
+f8c0018 00000000 c01ae080 f7b5c00 2c018200 00000001 f7b5fc00 00000000
+c033420e0 00004000 c01b0584 f7b5fc00 f880c29c f7b5fc00 00000400 00000000
+Call Trace: [<c01ae080>] [<c01b0584>] [<c01a3886>] [<c013ab0d>] [<c013ae8d>]
+[<c010504d>] [<c0105082>] [<c01055a4>]
 
-BUG IN DYNAMIC LINKER ld.so: rtld.c: 621: dl_main: Assertion `_dl_rtld_map.l_libname` failed!
-Kernel panic: Attempted to kill init!
+Code: 8b 43 18 85 c0 0f 85 48 03 00 00 83 7b 04 00 0f 84 3e 00
+<0>Kernel panic: Attempted to kill init!
 
-This is a different message than I was getting in 2.4.18
-but happens at the same time in bootup.
+--- end error thingy
 
-The thing is, when I boot the original 2.4.5 it works fine.
+I did the nm on the vmlinux file and while there wasn't
+the c01ae528 listed there were:
 
-They are both the same version from the same directory, and
-only the High Memory support option has changed.
+c01ae4fc  t  flush_commit_list
+c01ae888  t  find_newer_jl_for_cn
 
-I'de like to get it working as having only 890 megs out of
-1.75GB of RAM is kinda sucky since I just bought the RAM.
+Although I have no idea what either of those do :-)
 
-The machine is a Compaq Proliant 6000 "Quad Pentium Pro 200".
+Hope you can help.
 
-Thanks!
-
-Timothy M. Totten
+Tim
 

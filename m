@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266595AbUIVSTu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266133AbUIVS0g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266595AbUIVSTu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 14:19:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266582AbUIVSTu
+	id S266133AbUIVS0g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 14:26:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266574AbUIVS0g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 14:19:50 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:62858 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S266595AbUIVSTm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 14:19:42 -0400
-Subject: Re: The new PCI fixup code ate my IDE controller
-From: David Woodhouse <dwmw2@infradead.org>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040922174929.GP16153@parcelfarce.linux.theplanet.co.uk>
-References: <20040922174929.GP16153@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain
-Message-Id: <1095877177.17821.1535.camel@hades.cambridge.redhat.com>
+	Wed, 22 Sep 2004 14:26:36 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:62647 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S266133AbUIVS0e
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 14:26:34 -0400
+Date: Wed, 22 Sep 2004 20:26:33 +0200
+From: maximilian attems <janitor@sternwelten.at>
+To: Nishanth Aravamudan <nacc@us.ibm.com>
+Cc: Adrian Bunk <bunk@fs.tum.de>, kj <kernel-janitors@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Kernel-janitors] Re: 2.6.9-rc2-kjt1 rio_linux compile error
+Message-ID: <20040922182633.GD20621@stro.at>
+Mail-Followup-To: Nishanth Aravamudan <nacc@us.ibm.com>,
+	Adrian Bunk <bunk@fs.tum.de>, kj <kernel-janitors@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20040921221307.GG4260@stro.at> <20040922112157.GB27364@fs.tum.de> <20040922162218.GB1924@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Wed, 22 Sep 2004 19:19:37 +0100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040922162218.GB1924@us.ibm.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-22 at 18:49 +0100, Matthew Wilcox wrote:
-> The new DECLARE_PCI_FIXUP_HEADER() now makes the order of fixups depend
-> on link order.  This is a bad thing because it's now one more thing that
-> link order is used to determine.  Eventually, we're going to have a knot
-> where you can't move link order to make everything work.
+On Wed, 22 Sep 2004, Nishanth Aravamudan wrote:
+
+> On Wed, Sep 22, 2004 at 01:21:58PM +0200, Adrian Bunk wrote:
+> > On Wed, Sep 22, 2004 at 12:13:07AM +0200, maximilian attems wrote:
+> > >...
+> > > added since 2.6.9-rc1-kjt1
+> > >...
+> > > msleep-drivers_char_rio_linux.patch
+> > >   From: Nishanth Aravamudan <nacc@us.ibm.com>
+> > >   Subject: [Kernel-janitors] [PATCH 2.6.9-rc2 20/33] char/rio_linux: replace 	schedule_timeout() with msleep()/msleep_interruptible()
+> > >...
+> > 
+> > This doesn't compile (obvious typo):
 > 
-> The specific problem here is that quirk_ide_bases() is called before
-> superio_fixup_pci().  This is only a problem on PA-RISC.  I can see
-> a few solutions to this.  First, we can move the whole suckyio driver
-> to arch/parisc, ensuring it gets linked before drivers/pci.  Second,
-> just move the DECLARE_PCI_FIXUP_HEADER to arch/parisc.  Third, link
-> drivers/parisc ahead of drivers/pci (what other fun ordering problems
-> might we have?)  Fourth, move the IDE quirk from drivers/pci/quirks.c
-> to drivers/ide somewhere (which is linked after drivers/parisc so would
-> happen to fix our problem).  Fifth, back out the quirk changes.  Sixth,
-> change the pci fixup stuff to sort the quirks by vendor ID (PCI_ANY_ID
-> sorts after any other ID).
+> Thanks for catching this! Here is the fixed patch:
 > 
-> Suggestions?
 
-Hmm. We already have two passes through the fixup stuff. Add a third?
-
-But sorting PCI_ANY_ID to go last seems like a reasonable first stab at
-an answer, if that's sufficient for your purposes.
-
--- 
-dwmw2
+thanks also fixed in latest kjt.
 

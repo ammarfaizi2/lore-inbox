@@ -1,29 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262780AbSK0OjZ>; Wed, 27 Nov 2002 09:39:25 -0500
+	id <S262779AbSK0OjV>; Wed, 27 Nov 2002 09:39:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262789AbSK0OjY>; Wed, 27 Nov 2002 09:39:24 -0500
-Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:35748 "EHLO
-	mail.kolivas.net") by vger.kernel.org with ESMTP id <S262780AbSK0OjX>;
-	Wed, 27 Nov 2002 09:39:23 -0500
-Message-ID: <1038408400.3de4dad05ddc6@kolivas.net>
-Date: Thu, 28 Nov 2002 01:46:40 +1100
-From: Con Kolivas <conman@kolivas.net>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.49-mm2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
+	id <S262780AbSK0OjV>; Wed, 27 Nov 2002 09:39:21 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:17301 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262779AbSK0OjU>; Wed, 27 Nov 2002 09:39:20 -0500
+Subject: Re: [PATCH] ressurection of VISWS support in 2.5-ac
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrey Panin <pazke@orbita1.ru>
+Cc: linux-visws-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021127133809.GD401@pazke.ipt>
+References: <20021127133809.GD401@pazke.ipt>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 27 Nov 2002 15:17:48 +0000
+Message-Id: <1038410268.6390.42.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2002-11-27 at 13:38, Andrey Panin wrote: 
+> after about month of heavy nightly work :)) ,
+> I'm proud to present updated VISWS support for 2.5.xx kernels.
 
+Ok thats truely demented. Care to port ucLinux to the Amiga 500 next 8)
 
-Compile problem:
+> Alan, can you apply this patch to 2.5.49-ac or it should be splitted to 
+> smaller per-area patches ?
 
-drivers/pci/quirks.c: In function `quirk_ioapic_rmw':
-drivers/pci/quirks.c:354: `sis_apic_bug' undeclared (first use in this function)
+I'll take a look over it - shouldnt be a big problem
 
-Con

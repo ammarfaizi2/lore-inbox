@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312420AbSDXRJV>; Wed, 24 Apr 2002 13:09:21 -0400
+	id <S312393AbSDXRMT>; Wed, 24 Apr 2002 13:12:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312426AbSDXRJU>; Wed, 24 Apr 2002 13:09:20 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:48004 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S312420AbSDXRJU>;
-	Wed, 24 Apr 2002 13:09:20 -0400
-Date: Wed, 24 Apr 2002 09:59:51 -0700 (PDT)
-Message-Id: <20020424.095951.43413800.davem@redhat.com>
-To: jd@epcnet.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: AW: Re: AW: Re: VLAN and Network Drivers 2.4.x
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <721506265.avixxmail@nexxnet.epcnet.de>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S312413AbSDXRMS>; Wed, 24 Apr 2002 13:12:18 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:640 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S312393AbSDXRMR>; Wed, 24 Apr 2002 13:12:17 -0400
+Date: Wed, 24 Apr 2002 13:12:16 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Serial I/O Screwed UP
+Message-ID: <Pine.LNX.3.95.1020424130910.543A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: jd@epcnet.de
-   Date: Wed, 24 Apr 2002 19:03:19 +0200
+Linux Version 2.4.18 fails to open the same device-majors as
+previous versions when attempting to open /dev/ttyS0, and
+/dev/ttyS1.
 
-   Oh. Even in 2.4 ?
+Apparently something is done out-of-order. It's in an  embedded
+system so I can't attempt to open other device-majors in an attempt
+to find where they put the first serial port.
 
-Yes, the "cannot do VLAN" flag is there in 2.4.x
-    
-   That's a good idea. So vconfig could check, if its possible to
-   create a VLAN on top of such a driver - and issue a message if
-   not.
-   
-VLAN layer checks this and fails to bring up VLAN if
-flag is set for the device being configured.  I'm way
-ahead of you.
+Does anybody have a fix?
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+

@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261614AbSJNM5X>; Mon, 14 Oct 2002 08:57:23 -0400
+	id <S261544AbSJNNFH>; Mon, 14 Oct 2002 09:05:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261615AbSJNM5X>; Mon, 14 Oct 2002 08:57:23 -0400
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:11490 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261614AbSJNM5W>;
-	Mon, 14 Oct 2002 08:57:22 -0400
-Date: Mon, 14 Oct 2002 14:04:41 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Rob Radez <rob@osinvestor.com>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Watchdog drivers
-Message-ID: <20021014130441.GA528@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Wim Van Sebroeck <wim@iguana.be>, Rob Radez <rob@osinvestor.com>,
-	"Randy.Dunlap" <rddunlap@osdl.org>,
-	Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-References: <20021013234308.P23142@flint.arm.linux.org.uk> <Pine.LNX.4.33L2.0210131615480.22520-100000@dragon.pdx.osdl.net> <20021013215726.P16698@osinvestor.com> <20021014101209.A18123@medelec.uia.ac.be> <20021014122239.GA29240@suse.de> <20021014144158.A19209@medelec.uia.ac.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021014144158.A19209@medelec.uia.ac.be>
-User-Agent: Mutt/1.4i
+	id <S261552AbSJNNFH>; Mon, 14 Oct 2002 09:05:07 -0400
+Received: from pc132.utati.net ([216.143.22.132]:34467 "HELO
+	merlin.webofficenow.com") by vger.kernel.org with SMTP
+	id <S261544AbSJNNFF>; Mon, 14 Oct 2002 09:05:05 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: DervishD <raul@pleyades.net>, Andreas Steinmetz <ast@domdv.de>
+Subject: Re: Known 'issues' about 2.4.19...
+Date: Sun, 13 Oct 2002 20:15:46 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20021013184052.GC46@DervishD> <3DA9D0C7.60701@domdv.de> <20021013200209.GC106@DervishD>
+In-Reply-To: <20021013200209.GC106@DervishD>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20021014131202.1A4F4635@merlin.webofficenow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 14, 2002 at 02:41:58PM +0200, Wim Van Sebroeck wrote:
- > On Mon, Oct 14, 2002 at 01:22:39PM +0100, Dave Jones wrote:
- > 
- > >  > Now I'm still left with my original question: wouldn't it be easier if we
- > >  > put all watchdog drivers in drivers/char/watchdog/ ?
- > > 
- > > I'd say go for it. drivers/char/ is looking quite cluttered, and this
- > > has the added advantage of decreasing the size of the Config.in and
- > > config.help files too.
- > 
- > I still see two options:
- > 1) drivers/char/watchdog/
- > 2) drivers/watchdog/
- > 
- > Not sure what's best in this case...
+On Sunday 13 October 2002 04:02 pm, DervishD wrote:
+>     Hi Andreas :)
+>
+> > >    Is there any known bug or other issues about 2.4.19 that prevents
+> >
+> > Bonding is broken.
+>
+>     Do you refer to NIC bonding? Anyway, I don't know what 'bonding'
+> is, just I've heard the word related to NIC O:)))
 
-They remain character devices, so drivers/char/watchdog/  gets my vote.
-Any nay-sayers ?
+It lets you use two ethernet cards as a single interface, assuming the switch 
+they're plugged into supports it.  Cheap way to get 200 mbps throughput, 
+especially with a switch that only does gigabit on the uplink port.
 
-		Dave
+See Documentation/networking/bonding.txt in the kernel tarball...
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
+Rob
+

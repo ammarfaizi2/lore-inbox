@@ -1,256 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261413AbUCKPik (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 10:38:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbUCKPik
+	id S261395AbUCKPoO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 10:44:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbUCKPoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 10:38:40 -0500
-Received: from dire.bris.ac.uk ([137.222.10.60]:32235 "EHLO dire.bris.ac.uk")
-	by vger.kernel.org with ESMTP id S261413AbUCKPia (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 10:38:30 -0500
-Date: Thu, 11 Mar 2004 15:39:25 +0000 (GMT)
-From: Bart Oldeman <bartoldeman@users.sourceforge.net>
-X-X-Sender: enbeo@enm-bo-lt.enm.bris.ac.uk
-To: Andi Kleen <ak@muc.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] introduce a mmap MAP_DONTEXPAND flag (fwd)
-Message-ID: <Pine.LNX.4.44.0403111537170.6011-100000@enm-bo-lt.enm.bris.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 11 Mar 2004 10:44:14 -0500
+Received: from kempelen.iit.bme.hu ([152.66.241.120]:32690 "EHLO
+	kempelen.iit.bme.hu") by vger.kernel.org with ESMTP id S261395AbUCKPoM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 10:44:12 -0500
+Date: Thu, 11 Mar 2004 16:44:07 +0100 (MET)
+Message-Id: <200403111544.i2BFi7O06675@kempelen.iit.bme.hu>
+From: Miklos Szeredi <mszeredi@inf.bme.hu>
+To: hallyn@CS.WM.EDU
+CC: linux-kernel@vger.kernel.org
+In-reply-to: <20040311151343.GA943@escher.cs.wm.edu> (hallyn@CS.WM.EDU)
+Subject: Re: unionfs
+References: <200403080952.i289qsU12658@kempelen.iit.bme.hu> <20040311151343.GA943@escher.cs.wm.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[please ignore the previous message, some were still missing]
 
-On Thu, 18 Mar 2004, Andi Kleen wrote:
+> If you get a response from Al, could you let me know?
 
-> Bart Oldeman <bartoldeman@users.sourceforge.net> writes:
->
-> >  			return -EPERM;
-> > --- include/asm-i386/mman.h~	Sat Oct 25 19:42:58 2003
-> > +++ include/asm-i386/mman.h	Thu Mar 11 13:37:33 2004
-> > @@ -22,6 +22,7 @@
-> >  #define MAP_NORESERVE	0x4000		/* don't check for reservations */
-> >  #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
-> >  #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-> > +#define MAP_DONTEXPAND	0x20000		/* do not allow mremap to expand */
->
-> *always* when you change something in asm-i386 check if other architectures
-> need changing too. Your patch would break compilation for everybody !i386
+OK.
 
-that's the reason for my i386 comment and the "RFC". Just asking if people
-do or do not like the idea. Anyway, I've done the whole bunch now.
+> I've been wondering about this myself, and beyond simple
+> coolness/usefullness, we may also need the unionfs for mls
+> polyinstantiation.
+> 
+> If you don't hear from Al, please let me know whether you plan to tackle
+> it yourself or not.
 
---- mm/mmap.c~	Wed Feb 25 19:21:10 2004
-+++ mm/mmap.c	Thu Mar 11 15:18:37 2004
-@@ -511,6 +511,10 @@
- 	vm_flags = calc_vm_prot_bits(prot) | calc_vm_flag_bits(flags) |
- 			mm->def_flags | VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC;
+I'll have to, as this is needed for AVFS.  Not unionfs, but something
+similar, that allows file/directory lookups for special filenames to
+be redirected to another filesystem.
 
-+	if (flags & MAP_DONTEXPAND) {
-+		vm_flags |= VM_DONTEXPAND;
-+	}
-+
- 	if (flags & MAP_LOCKED) {
- 		if (!capable(CAP_IPC_LOCK))
- 			return -EPERM;
-diff -ur include_old/asm-alpha/mman.h include/asm-alpha/mman.h
---- include_old/asm-alpha/mman.h	Sat Oct 25 19:42:47 2003
-+++ include/asm-alpha/mman.h	Thu Mar 11 15:18:37 2004
-@@ -28,6 +28,7 @@
- #define MAP_NORESERVE	0x10000		/* don't check for reservations */
- #define MAP_POPULATE	0x20000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x40000		/* do not block on IO */
-+#define MAP_DONTEXPAND	0x80000		/* do not allow mremap to expand */
+For the time I plan to go along the easy way, and create a filesystem
+specifically for AVFS that doesn't need modifications to the kernel.
+This will be inefficient in a number of ways: doubling the memory use
+by the dentry/inode caches, deeper call chains for all filesystem
+operations (even those, that require no intervention).
 
- #define MS_ASYNC	1		/* sync memory asynchronously */
- #define MS_SYNC		2		/* synchronous memory sync */
-diff -ur include_old/asm-arm/mman.h include/asm-arm/mman.h
---- include_old/asm-arm/mman.h	Sat Oct 25 19:43:19 2003
-+++ include/asm-arm/mman.h	Thu Mar 11 15:18:37 2004
-@@ -22,6 +22,7 @@
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
- #define MAP_POPULATE	0x8000		/* populate (prefault) page tables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_DONTEXPAND	0x20000		/* do not allow mremap to expand */
+The next step will be to try to optimize and generalize it to be
+usable for other filesystems like unionsfs.  I'd really love to have
+some input about this from Al or anybody who has any ideas.
 
- #define MS_ASYNC	1		/* sync memory asynchronously */
- #define MS_INVALIDATE	2		/* invalidate the caches */
-diff -ur include_old/asm-arm26/mman.h include/asm-arm26/mman.h
---- include_old/asm-arm26/mman.h	Sat Oct 25 19:42:49 2003
-+++ include/asm-arm26/mman.h	Thu Mar 11 15:18:37 2004
-@@ -22,6 +22,7 @@
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
- #define MAP_POPULATE    0x8000          /* populate (prefault) page tables */
- #define MAP_NONBLOCK    0x10000         /* do not block on IO */
-+#define MAP_DONTEXPAND	0x20000		/* do not allow mremap to expand */
-
- #define MS_ASYNC	1		/* sync memory asynchronously */
- #define MS_INVALIDATE	2		/* invalidate the caches */
-diff -ur include_old/asm-cris/mman.h include/asm-cris/mman.h
---- include_old/asm-cris/mman.h	Sat Oct 25 19:44:49 2003
-+++ include/asm-cris/mman.h	Thu Mar 11 15:18:37 2004
-@@ -24,6 +24,7 @@
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_DONTEXPAND	0x20000		/* do not allow mremap to expand */
-
- #define MS_ASYNC	1		/* sync memory asynchronously */
- #define MS_INVALIDATE	2		/* invalidate the caches */
-diff -ur include_old/asm-h8300/mman.h include/asm-h8300/mman.h
---- include_old/asm-h8300/mman.h	Sat Oct 25 19:43:51 2003
-+++ include/asm-h8300/mman.h	Thu Mar 11 15:18:37 2004
-@@ -19,6 +19,7 @@
- #define MAP_EXECUTABLE	0x1000		/* mark it as an executable */
- #define MAP_LOCKED	0x2000		/* pages are locked */
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
-+#define MAP_DONTEXPAND	0x8000		/* do not allow mremap to expand */
-
- #define MS_ASYNC	1		/* sync memory asynchronously */
- #define MS_INVALIDATE	2		/* invalidate the caches */
-diff -ur include_old/asm-i386/mman.h include/asm-i386/mman.h
---- include_old/asm-i386/mman.h	Sat Oct 25 19:42:58 2003
-+++ include/asm-i386/mman.h	Thu Mar 11 15:25:55 2004
-@@ -22,6 +22,7 @@
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_DONTEXPAND	0x20000		/* do not allow mremap to expand */
-
- #define MS_ASYNC	1		/* sync memory asynchronously */
- #define MS_INVALIDATE	2		/* invalidate the caches */
-diff -ur include_old/asm-ia64/mman.h include/asm-ia64/mman.h
---- include_old/asm-ia64/mman.h	Wed Feb 25 19:21:01 2004
-+++ include/asm-ia64/mman.h	Thu Mar 11 15:18:37 2004
-@@ -30,6 +30,7 @@
- #define MAP_NORESERVE	0x04000		/* don't check for reservations */
- #define MAP_POPULATE	0x08000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_DONTEXPAND	0x20000		/* do not allow mremap to expand */
-
- #define MS_ASYNC	1		/* sync memory asynchronously */
- #define MS_INVALIDATE	2		/* invalidate the caches */
-diff -ur include_old/asm-m68k/mman.h include/asm-m68k/mman.h
---- include_old/asm-m68k/mman.h	Sat Oct 25 19:43:02 2003
-+++ include/asm-m68k/mman.h	Thu Mar 11 15:18:37 2004
-@@ -22,6 +22,7 @@
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_DONTEXPAND	0x20000		/* do not allow mremap to expand */
-
- #define MS_ASYNC	1		/* sync memory asynchronously */
- #define MS_INVALIDATE	2		/* invalidate the caches */
-diff -ur include_old/asm-mips/mman.h include/asm-mips/mman.h
---- include_old/asm-mips/mman.h	Sat Oct 25 19:43:18 2003
-+++ include/asm-mips/mman.h	Thu Mar 11 15:26:06 2004
-@@ -46,6 +46,7 @@
- #define MAP_LOCKED	0x8000		/* pages are locked */
- #define MAP_POPULATE	0x10000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x20000		/* do not block on IO */
-+#define MAP_DONTEXPAND	0x40000		/* do not allow mremap to expand */
-
- /*
-  * Flags for msync
-diff -ur include_old/asm-parisc/mman.h include/asm-parisc/mman.h
---- include_old/asm-parisc/mman.h	Sat Oct 25 19:43:56 2003
-+++ include/asm-parisc/mman.h	Thu Mar 11 15:27:05 2004
-@@ -22,6 +22,7 @@
- #define MAP_GROWSDOWN	0x8000		/* stack-like segment */
- #define MAP_POPULATE	0x10000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x20000		/* do not block on IO */
-+#define MAP_DONTEXPAND	0x40000		/* do not allow mremap to expand */
-
- #define MS_SYNC		1		/* synchronous memory sync */
- #define MS_ASYNC	2		/* sync memory asynchronously */
-diff -ur include_old/asm-ppc/mman.h include/asm-ppc/mman.h
---- include_old/asm-ppc/mman.h	Sat Oct 25 19:45:07 2003
-+++ include/asm-ppc/mman.h	Thu Mar 11 15:33:58 2004
-@@ -23,6 +23,7 @@
- #define MAP_EXECUTABLE	0x1000		/* mark it as an executable */
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_DONTEXPAND	0x20000		/* do not allow mremap to expand */
-
- #define MS_ASYNC	1		/* sync memory asynchronously */
- #define MS_INVALIDATE	2		/* invalidate the caches */
-diff -ur include_old/asm-ppc64/mman.h include/asm-ppc64/mman.h
---- include_old/asm-ppc64/mman.h	Sat Oct 25 19:43:30 2003
-+++ include/asm-ppc64/mman.h	Thu Mar 11 15:33:31 2004
-@@ -28,6 +28,7 @@
- #define MAP_GROWSDOWN	0x0100		/* stack-like segment */
- #define MAP_DENYWRITE	0x0800		/* ETXTBSY */
- #define MAP_EXECUTABLE	0x1000		/* mark it as an executable */
-+#define MAP_DONTEXPAND	0x2000		/* do not allow mremap to expand */
-
- #define MS_ASYNC	1		/* sync memory asynchronously */
- #define MS_INVALIDATE	2		/* invalidate the caches */
-diff -ur include_old/asm-s390/mman.h include/asm-s390/mman.h
---- include_old/asm-s390/mman.h	Sat Oct 25 19:42:53 2003
-+++ include/asm-s390/mman.h	Thu Mar 11 15:27:31 2004
-@@ -30,6 +30,7 @@
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_DONTEXPAND	0x20000		/* do not allow mremap to expand */
-
- #define MS_ASYNC	1		/* sync memory asynchronously */
- #define MS_INVALIDATE	2		/* invalidate the caches */
-diff -ur include_old/asm-sh/mman.h include/asm-sh/mman.h
---- include_old/asm-sh/mman.h	Sat Oct 25 19:44:35 2003
-+++ include/asm-sh/mman.h	Thu Mar 11 15:18:37 2004
-@@ -22,6 +22,7 @@
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
- #define MAP_POPULATE	0x8000		/* populate (prefault) page tables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_DONTEXPAND	0x20000		/* do not allow mremap to expand */
-
- #define MS_ASYNC	1		/* sync memory asynchronously */
- #define MS_INVALIDATE	2		/* invalidate the caches */
-diff -ur include_old/asm-sparc/mman.h include/asm-sparc/mman.h
---- include_old/asm-sparc/mman.h	Sat Oct 25 19:44:48 2003
-+++ include/asm-sparc/mman.h	Thu Mar 11 15:18:37 2004
-@@ -26,6 +26,7 @@
- #define MAP_GROWSDOWN	0x0200		/* stack-like segment */
- #define MAP_DENYWRITE	0x0800		/* ETXTBSY */
- #define MAP_EXECUTABLE	0x1000		/* mark it as an executable */
-+#define MAP_DONTEXPAND	0x2000		/* do not allow mremap to expand */
-
- #define MS_ASYNC	1		/* sync memory asynchronously */
- #define MS_INVALIDATE	2		/* invalidate the caches */
-diff -ur include_old/asm-sparc64/mman.h include/asm-sparc64/mman.h
---- include_old/asm-sparc64/mman.h	Sat Oct 25 19:43:36 2003
-+++ include/asm-sparc64/mman.h	Thu Mar 11 15:18:37 2004
-@@ -26,6 +26,7 @@
- #define MAP_GROWSDOWN	0x0200		/* stack-like segment */
- #define MAP_DENYWRITE	0x0800		/* ETXTBSY */
- #define MAP_EXECUTABLE	0x1000		/* mark it as an executable */
-+#define MAP_DONTEXPAND	0x2000		/* do not allow mremap to expand */
-
- #define MS_ASYNC	1		/* sync memory asynchronously */
- #define MS_INVALIDATE	2		/* invalidate the caches */
-diff -ur include_old/asm-v850/mman.h include/asm-v850/mman.h
---- include_old/asm-v850/mman.h	Sat Oct 25 19:44:34 2003
-+++ include/asm-v850/mman.h	Thu Mar 11 15:18:37 2004
-@@ -19,6 +19,7 @@
- #define MAP_EXECUTABLE	0x1000		/* mark it as an executable */
- #define MAP_LOCKED	0x2000		/* pages are locked */
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
-+#define MAP_DONTEXPAND	0x8000		/* do not allow mremap to expand */
-
- #define MS_ASYNC	1		/* sync memory asynchronously */
- #define MS_INVALIDATE	2		/* invalidate the caches */
-diff -ur include_old/asm-x86_64/mman.h include/asm-x86_64/mman.h
---- include_old/asm-x86_64/mman.h	Sat Oct 25 19:44:05 2003
-+++ include/asm-x86_64/mman.h	Thu Mar 11 15:18:37 2004
-@@ -23,6 +23,7 @@
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_DONTEXPAND	0x20000		/* do not allow mremap to expand */
-
- #define MS_ASYNC	1		/* sync memory asynchronously */
- #define MS_INVALIDATE	2		/* invalidate the caches */
-
+Miklos

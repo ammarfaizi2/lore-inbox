@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131757AbQLYQzA>; Mon, 25 Dec 2000 11:55:00 -0500
+	id <S131644AbQLYQzk>; Mon, 25 Dec 2000 11:55:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131755AbQLYQyu>; Mon, 25 Dec 2000 11:54:50 -0500
-Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:8684 "EHLO
-	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S131644AbQLYQyh>; Mon, 25 Dec 2000 11:54:37 -0500
-Message-ID: <3A4774A9.A2084310@haque.net>
-Date: Mon, 25 Dec 2000 11:24:09 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test13-pre4 i686)
-X-Accept-Language: en
+	id <S130475AbQLYQzb>; Mon, 25 Dec 2000 11:55:31 -0500
+Received: from avocet.prod.itd.earthlink.net ([207.217.121.50]:53905 "EHLO
+	avocet.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S131755AbQLYQzT>; Mon, 25 Dec 2000 11:55:19 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: dep <dennispowell@earthlink.net>
+To: linux-kernel@vger.kernel.org
+Subject: serial mouse - lockup connection 2.4.0-t12
+Date: Mon, 25 Dec 2000 11:27:39 -0500
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: test13-pre4... udf problem with dvd access vs test12
-In-Reply-To: <3A47212D.F9F119C3@xmission.com> <3A476C7D.1952EDB4@haque.net> <3A477014.CE908BFC@haque.net> <20001225171305.G303@suse.de> <3A477333.1BC64D4C@haque.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <00122511273900.01170@depoffice.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, I meant DriveReady SeekComplete Error
+greetings!
 
-"Mohammad A. Haque" wrote:
-> Fix confirmed. Am i supposed to get some DriveSense errors? I probably
-> am just don't recall.
+the lockup of test12 leaves no droppings i can find, but in the 
+course of a half-dozen lockups in the last few days i've made an 
+observation or two that may be of diagnostic help.
 
+system is a k6-2 on a via chipset mb with onboard everything but 
+video (fic va-503a). kernel built with gcc-2.95.2. glibc is 2.2.
+
+the lockups occur during mouse movement -- mouse is kensington 
+emulating microsoft. the peculiar thing is that the mouse 
+acceleration seems to slow a little in the seconds before the lockup. 
+i don't know that this is a useful datum, but it seemed as if it 
+might be significant.
+
+the lockups are otherwise neither predictable or reproducible.
 -- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+dep
+--
+bipartisanship: an illogical construct not unlike the idea that
+if half the people like red and half the people like blue, the 
+country's favorite color is purple.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,83 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267449AbUIJSJZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267664AbUIJSKc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267449AbUIJSJZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 14:09:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267664AbUIJSJZ
+	id S267664AbUIJSKc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 14:10:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267721AbUIJSKc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 14:09:25 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:60081 "EHLO
+	Fri, 10 Sep 2004 14:10:32 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:62129 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267449AbUIJSJW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 14:09:22 -0400
-Subject: Re: radeon-pre-2
+	id S267664AbUIJSKT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 14:10:19 -0400
+Subject: Re: silent semantic changes in reiser4 (brief attempt to document
+	the idea ofwhat reiser4 wants to do with metafiles and why
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Felix =?ISO-8859-1?Q?K=FChling?= <fxkuehl@gmx.de>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <9e47339104091010221f03ec06@mail.gmail.com>
-References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de>
-	 <DA459966-02B9-11D9-A8D1-000A95F07A7A@fs.ei.tum.de>
-	 <9e47339104090917353554a586@mail.gmail.com>
-	 <Pine.LNX.4.58.0409100209100.32064@skynet>
-	 <9e47339104090919015b5b5a4d@mail.gmail.com>
-	 <20040910153135.4310c13a.felix@trabant>
-	 <9e47339104091008115b821912@mail.gmail.com>
-	 <1094829278.17801.18.camel@localhost.localdomain>
-	 <9e4733910409100937126dc0e7@mail.gmail.com>
-	 <1094832031.17883.1.camel@localhost.localdomain>
-	 <9e47339104091010221f03ec06@mail.gmail.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Paul Jakma <paul@clubi.ie>, "Theodore Ts'o" <tytso@mit.edu>,
+       Robin Rosenberg <robin.rosenberg.lists@dewire.com>,
+       William Stearns <wstearns@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4141E8DD.8050700@namesys.com>
+References: <41323AD8.7040103@namesys.com> <413E170F.9000204@namesys.com>
+	 <Pine.LNX.4.58.0409071658120.2985@sparrow>
+	 <200409080009.52683.robin.rosenberg.lists@dewire.com>
+	 <20040909090342.GA30303@thunk.org> <4140ABB6.6050702@namesys.com>
+	 <Pine.LNX.4.61.0409092136160.23011@fogarty.jakma.org>
+	 <4140FBE7.6020704@namesys.com>
+	 <Pine.LNX.4.61.0409100212080.23011@fogarty.jakma.org>
+	 <414135E6.8050103@namesys.com>
+	 <1094808053.17029.8.camel@localhost.localdomain>
+	 <4141E8DD.8050700@namesys.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1094835846.17932.11.camel@localhost.localdomain>
+Message-Id: <1094836040.17990.15.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 10 Sep 2004 18:04:19 +0100
+Date: Fri, 10 Sep 2004 18:07:22 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-09-10 at 18:22, Jon Smirl wrote:
-> My "personal plan" has been posted for comment to all relevant email
-> lists -- xorg, fbdev, dri, and lkml. All feedback that was received
-> was addressed and incorporated. Various aspects of the plan were
+On Gwe, 2004-09-10 at 18:48, Hans Reiser wrote:
+> Is there a technical basis for your claim that we have trouble with disk 
+> errors?
+> 
+> Do you mean badblocks support or what?
 
-Addressed and eliminated would be closer. The BSD folks don't want GPL
-frame buffer code in there kernel, nobody needs a single nasty splat
-where DRI and fbdev got hammered into one block of code by someone with
-a glue gun.
+I mean probability of gettng your data back after a disk loses data. And
+the technical basis for my claims is twofold - painful experience is
+one, and shooting random blocks of zeros onto a disk and run fsck tools
+is another. 
 
-> Plan as orginally posted to lkml:
-> http://lkml.org/lkml/2004/8/2/111
+> I think it would be reasonable for people to say that our approach 
+> currently has bugs, we should turn metafiles off until we make the bugs 
+> go away.
 
-None of which is about nailing all the code together. You just don't
-need to do that kind of stuff, and it'll make it much harder to
-maintain.
+Well reiserfs4 is a lot more than metafiles and new vfs layer concepts.
+Clearly those parts of the the fs that don't require core fs changes
+belong in the kernel as soon as everyone is happy they are clean enough
+and look correct.
 
-Now, think about what happens if you register a pci handler for
-everything which is "Video" class (or VIDEO/VGA). Your one mini module
-now claims every video object in the kernel with a couple of exceptions
-you can hand list.
-
-vga_class.c now owns all the video devices. It can keep a global list
-and a sorted by vga router list as well as letting frame buffer drivers
-and other code add heads of a device lists.
-
-Add register/unregister functions in the same format to allow DRI and FB
-(and any future layers) to find cards and you don't need to glue stuff
-together at all. You can load dri, you can load fb drivers, you can load
-both. You also require minimal kernel changes to the drivers.
-
-That is what I keep telling you, that is what I've been fiddling with
-but keep getting distracted from by immediate locking and other kernel
-catastrophes.
-
-===
-If the kernel community is going to reject this plan please let me
-know now so that I won't waste a year of my life writing the code for
-it. If Linux wants to stay with a 1980's desktop that's fine; at least
-Microsoft and Apple are innovating.
-
-I see you've been taking lessons from Hans Reiser.
-
-Alan
+Metafiles and openat() are an argument we can all have later.
 

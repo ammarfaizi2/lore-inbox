@@ -1,74 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261822AbUCPXrR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 18:47:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbUCPXrR
+	id S261848AbUCPXul (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 18:50:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbUCPXul
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 18:47:17 -0500
-Received: from alt.aurema.com ([203.217.18.57]:63902 "EHLO smtp.sw.oz.au")
-	by vger.kernel.org with ESMTP id S261822AbUCPXrK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 18:47:10 -0500
-Message-ID: <405791A3.1080904@aurema.com>
-Date: Wed, 17 Mar 2004 10:45:39 +1100
-From: Peter Williams <peterw@aurema.com>
-Organization: Aurema Pty Ltd
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bernd Petrovitsch <bernd@firmix.at>
-CC: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: finding out the value of HZ from userspace
-References: <1zkOe-Uc-17@gated-at.bofh.it> <1zl7M-1eJ-43@gated-at.bofh.it>	<1zn9p-3mW-5@gated-at.bofh.it> <1znj5-3wM-15@gated-at.bofh.it>	<1AaWr-655-7@gated-at.bofh.it> <m3fzc9o7bc.fsf@averell.firstfloor.org>	<40569655.2030802@aurema.com> <1079428604.32739.26.camel@tara.firmix.at>
-In-Reply-To: <1079428604.32739.26.camel@tara.firmix.at>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 16 Mar 2004 18:50:41 -0500
+Received: from delerium.kernelslacker.org ([81.187.208.145]:9876 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S261848AbUCPXuk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 18:50:40 -0500
+Date: Tue, 16 Mar 2004 23:50:10 +0000
+From: Dave Jones <davej@redhat.com>
+To: David Erickson <david.erickson@intransa.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: EXT3 FS Assertion failure in journal_forget_R50b6d8df() at transaction.c:1259
+Message-ID: <20040316235010.GA26872@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	David Erickson <david.erickson@intransa.com>,
+	linux-kernel@vger.kernel.org
+References: <68C08EF22187944DAF11634CB353DB6804DD0C@E2K3-CLUS-01.intransa.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <68C08EF22187944DAF11634CB353DB6804DD0C@E2K3-CLUS-01.intransa.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Petrovitsch wrote:
-> On Die, 2004-03-16 at 06:53, Peter Williams wrote:
-> 
->>Andi Kleen wrote:
->>
->>>Peter Williams <peterw@aurema.com> writes:
-> 
-> [...]
-> 
->>>Already exists for a long time - AT_CLKTCK. glibc has a nice wrapper
->>>for it too (sysconf)
->>
->>So it does and POSIX.1 (_SC_CLK_TCK) compliant as well.  Unfortunately, 
->>the presence of this functionality makes it VERY difficult to understand 
->>why ticks are being converted from HZ==1000 values to HZ=100 values when 
->>they are being exported to user space especially as this conversion 
->>throws away precision.  Can anyone enlighten me?
-> 
-> 
-> 1) Because Linux had long time HZ=100 hardcoded (except on Alphas) and
->    lots of applications probably use that value today (as HZ in their
->    source and not sysconf(...))  - especially since 2.4 (at least most
->    of them) has HZ=100 except for 64bit CPUs).
+On Tue, Mar 16, 2004 at 03:41:10PM -0800, David Erickson wrote:
 
-That is not a valid reason.  The programs should be fixed.
+ > Running Redhat kernel 2.4.22-1.2115.nptl, I see the following for ext3
+ > filesystems (iSCSI) on the initial mount after installing this kernel:
 
-> 2) There are patches which dynamically change the CPU speed. And it
->    probably (IMHO) makes sense to change HZ dynamically too in that
->    situations. And a over-time changing HZ value is useless in
->    user-space.
+1. Wrong place. Red Hat bugs go into http://bugzilla.redhat.com
 
-I can't see why.  Ticks are used internally for process accounting (e.g. 
-utime, stime, cutime and cstime) and if HZ was changing dynamically 
-you'd have to visit every task and modify these values to be consistent 
-with the changed value of HZ.  Even if HZ was allowed to change 
-dynamically the values reported to user space should be in units 
-appropriate to the MAXIMUM possible value of HZ so that precision is not 
-lost.
+2. 2115 is ancient. Get the latest errata kernel.
 
-Peter
--- 
-Dr Peter Williams, Chief Scientist                peterw@aurema.com
-Aurema Pty Limited                                Tel:+61 2 9698 2322
-PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
-79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
+		Dave
 

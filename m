@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282845AbRLVWWR>; Sat, 22 Dec 2001 17:22:17 -0500
+	id <S282860AbRLVW1t>; Sat, 22 Dec 2001 17:27:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282860AbRLVWWH>; Sat, 22 Dec 2001 17:22:07 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:2829 "HELO mail.pha.ha-vel.cz")
-	by vger.kernel.org with SMTP id <S282845AbRLVWVz>;
-	Sat, 22 Dec 2001 17:21:55 -0500
-Date: Sat, 22 Dec 2001 23:21:52 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: mirabilos {Thorsten Glaser} <mirabilos@netcologne.de>
-Cc: Dirk Moerenhout <dirk@staf.planetinternet.be>,
-        Jeff Mcadams <jeffm@iglou.com>, linux-kernel@vger.kernel.org
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.hel p.
-Message-ID: <20011222232152.A11373@suse.cz>
-In-Reply-To: <Pine.LNX.4.33.0112221538560.214-100000@dirk> <011701c18b10$329ef3a0$30d8fea9@ecce>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <011701c18b10$329ef3a0$30d8fea9@ecce>; from mirabilos@netcologne.de on Sat, Dec 22, 2001 at 05:43:41PM -0000
+	id <S282866AbRLVW1i>; Sat, 22 Dec 2001 17:27:38 -0500
+Received: from smtp-out-1.wanadoo.fr ([193.252.19.188]:53175 "EHLO
+	mel-rto1.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S282860AbRLVW1X>; Sat, 22 Dec 2001 17:27:23 -0500
+Message-ID: <3C250835.9010806@wanadoo.fr>
+Date: Sat, 22 Dec 2001 23:24:53 +0100
+From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011126 Netscape6/6.2.1
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: really mason_at_soo_dot_com <lnx-kern@Sophia.soo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.2-pre1 oddness under X
+In-Reply-To: <20011222164602.A20623@Sophia.soo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 22, 2001 at 05:43:41PM -0000, mirabilos {Thorsten Glaser} wrote:
-> > So in general your best bet is to see 1Kb/s as 1.000 bits per second
-> and
-> > 1Mb/s as 1000Kb/s or 1.000.000b/s. As most technologies will stick to
-> > that. Though off course through the ages a lot of things have been
-> altered
-> > it and therefor have added to the confusion.
-> 
-> I'd rather think of 1 kpbs than 1 Kbps...
-> K is Kelvin, and nothing else (IIRC). K is no prefix.
+really mason_at_soo_dot_com wrote:
 
-Some time ago, k was 1000 and K was 1024, b was bits and B was bytes ...
-but then came the mega and giga, and you can't uppercase those ...
+> Running kernel 2.5.2-pre1 compiled with gcc 3.0.3,
+> i get the following error irregularly when starting
+> X or trying to compile sawfish in an xterm:
+> 
+> Inconsistency detected by ld.so: dynamic-link.h: 62: elf_get_dynamic_info: Assertion `! "bad dynamic tag"' failed!
 
-> 
-> My proposal: humans should start using sedecimal as
-> primary numbering system. (And forget about octal
-> as fast as possible - it is referred way too often in UNIX!)
-> 
-> Greetings from snowful Bonn (Rhein)
-> -mirabilos
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 
+I've also seen sawfish seg-faulting at the first try of 2.5.2-pre1.
+
+ 
+> Have no idea what it means, and it doesn't happen
+> under any earlier 2.5.X kernels using the same
+> compiler.
+> 
+> Am also using binutils-2.11.2 and glibc-2.2.4.
+
+
+The same here (but gcc-2.95.3). I re-compiled sawfish, while running 
+2.4.17, with 2.4.17 headers in /usr/include/asm and /usr/include/linux 
+and it works again.
+
+
+Pierre
 -- 
-Vojtech Pavlik
-SuSE Labs
+------------------------------------------------
+  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+------------------------------------------------
+

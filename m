@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262706AbUJ0Uym@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262733AbUJ0VDv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262706AbUJ0Uym (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 16:54:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262701AbUJ0Uwb
+	id S262733AbUJ0VDv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 17:03:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262725AbUJ0VDU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 16:52:31 -0400
-Received: from fw.osdl.org ([65.172.181.6]:56294 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262707AbUJ0Ugn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 16:36:43 -0400
-Date: Wed, 27 Oct 2004 13:34:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: John Cherry <cherry@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc1-mm1 (compile stats)
-Message-Id: <20041027133443.62b1fb29.akpm@osdl.org>
-In-Reply-To: <1098895320.9269.32.camel@cherrybomb.pdx.osdl.net>
-References: <20041026213156.682f35ca.akpm@osdl.org>
-	<1098895320.9269.32.camel@cherrybomb.pdx.osdl.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 27 Oct 2004 17:03:20 -0400
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:43017 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S262752AbUJ0VCX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 17:02:23 -0400
+Date: Wed, 27 Oct 2004 14:01:20 -0700
+To: Bill Huey <bhuey@lnxw.com>
+Cc: Ingo Molnar <mingo@elte.hu>, "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
+Message-ID: <20041027210120.GA24868@nietzsche.lynx.com>
+References: <417D4B5E.4010509@cybsft.com> <20041025203807.GB27865@elte.hu> <417E2CB7.4090608@cybsft.com> <20041027002455.GC31852@elte.hu> <417F16BB.3030300@cybsft.com> <20041027132926.GA7171@elte.hu> <417FB7F0.4070300@cybsft.com> <20041027150548.GA11233@elte.hu> <20041027204935.GA24732@nietzsche.lynx.com> <20041027205445.GB24732@nietzsche.lynx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041027205445.GB24732@nietzsche.lynx.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Cherry <cherry@osdl.org> wrote:
->
->  Build error is still...
-> 
->    LD      vmlinux
->    SYSMAP  System.map
->    SYSMAP  .tmp_System.map
->    AS      arch/i386/boot/bootsect.o
->    AS      arch/i386/boot/compressed/head.o
->    AS      arch/i386/boot/setup.o
->    HOSTCC  arch/i386/boot/tools/build
->    CC      arch/i386/boot/compressed/misc.o
->    LD      arch/i386/boot/bootsect
->    OBJCOPY arch/i386/boot/compressed/vmlinux.bin
->  BFD: Warning: Writing section `.bss' to huge (ie negative) file offset 0xc02e4000.
->  objcopy: arch/i386/boot/compressed/vmlinux.bin: File truncated
+On Wed, Oct 27, 2004 at 01:54:45PM -0700, Bill Huey wrote:
+> It was originally mean to go in between the irq-thread wake attempt and
+> the actual running of the thread body itself. Somehow this is breaking
+> in my effort to integrate this logic into Ingo's (your) stuff. Brain
+> farting severely right now.
 
-I think that means you need a binutils upgrade.  What version are you running?
+Another note, it's not meant to be a high resolution latency stats patch
+as much as giving a general feel of irq latency in the system. That
+information is just useful to have in general, but won't be sufficient
+enough to track down specific problems in the kernel. Extending this code
+to track all wake ups is beyond the original intention of these
+measurements. A method like this only applies to thread of high system
+priority with a near RT scheduling class or similar.
+
+bill
+

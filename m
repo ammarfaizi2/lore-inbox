@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265587AbSKKOqs>; Mon, 11 Nov 2002 09:46:48 -0500
+	id <S265023AbSKKOsN>; Mon, 11 Nov 2002 09:48:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265673AbSKKOqs>; Mon, 11 Nov 2002 09:46:48 -0500
-Received: from ma-northadams1b-126.bur.adelphia.net ([24.52.166.126]:640 "EHLO
-	ma-northadams1b-126.bur.adelphia.net") by vger.kernel.org with ESMTP
-	id <S265587AbSKKOqr>; Mon, 11 Nov 2002 09:46:47 -0500
-Date: Mon, 11 Nov 2002 09:54:34 -0500
-From: Eric Buddington <eric@ma-northadams1b-126.nad.adelphia.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.47: oops/panic in ide_inint_queue
-Message-ID: <20021111095434.A86@ma-northadams1b-126.nad.adelphia.net>
-Reply-To: ebuddington@wesleyan.edu
+	id <S265238AbSKKOsN>; Mon, 11 Nov 2002 09:48:13 -0500
+Received: from sb0-cf9a4971.dsl.impulse.net ([207.154.73.113]:38417 "EHLO
+	madrabbit.org") by vger.kernel.org with ESMTP id <S265023AbSKKOsL>;
+	Mon, 11 Nov 2002 09:48:11 -0500
+Subject: Re: [PATCH] Re: sscanf("-1", "%d", &i) fails, returns 0
+From: Ray Lee <ray-lk@madrabbit.org>
+To: hps@intermeta.de, rddunlap@osdl.org
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 11 Nov 2002 06:54:54 -0800
+Message-Id: <1037026495.22906.36.camel@orca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: ECS Labs
-X-Eric-Conspiracy: there is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-2.5.47, mostly modules
+> > What should it do?
+> I would model this after user space. (Which does strange things: 
 
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 4
-model name      : AMD Athlon(tm) Processor
-stepping        : 2
-cpu MHz         : 945.791
-cache size      : 256 KB
+<snip>
 
-pty: 256 Unix98 ptys configured
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 66MHz system bus speed for PIO modes
-hdc: _NEC CD-RW NR-7800A, ATAPI CD/DVD-ROM drive
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
- printing eip:
-00000000
-*pde = 00000000
-Oops: 0000
- 
-CPU:    0
-EIP:    0060:[<00000000>]    Not tainted
-EFLAGS: 00010282
-eax: c04ba870   ebx: c04ba91c   ecx: 00000000   edx: 00000000
-esi: c04ba92c   edi: c04ba870   ebp: c126c000   esp: c126def4
-ds: 0068   es: 0068   ss: 0068
-Process swapper (pid: 1, threadinfo=c126c000 task=c126a040)
-Stack: c024de5f c04ba91c 00000001 c043b680 c04ba91c c12e6ce4 c024e055 c04ba91c 
-       c0255c20 20000000 c04ba880 c12e6ce4 c024e310 c04ba880 c126c000 00000000 
-       00000296 00000000 00000001 c04ba870 00000000 c04ba880 c024e5e4 c04ba870 
-Call Trace:
- [<c024de5f>] ide_init_queue+0x9f/0xb0
- [<c024e055>] init_irq+0x1e5/0x3d0
- [<c0255c20>] ide_intr+0x0/0x180
- [<c024e310>] alloc_disks+0x70/0xd0
- [<c024e5e4>] hwif_init+0xf4/0x2a0
- [<c024e8ae>] ideprobe_init+0xee/0x100
- [<c010507a>] init+0x3a/0x160
- [<c0105040>] init+0x0/0x160
- [<c010717d>] kernel_thread_helper+0x5/0x18
+It only sounds strange at first. It actually means that scanf is
+consistent with C's rules of assignment between mixed types. For
+example:
 
-Code:  Bad EIP value.
- <0>Kernel panic: Attempted to kill init!
+ray:~$ cat signs.c
+
+#include <stdio.h>
+
+main() {
+	char scan[]="-100";
+	unsigned int u;
+	int i;
+
+	sscanf(scan, "%ud", &u);
+	sscanf(scan, "%d", &i);
+	printf("%s scanned to signed %d and unsigned %u\n", scan, i, u);
+
+	i=-100;
+	u=i;
+	printf("%d assigned to unsigned int gives %u\n", i, u);
+}
+
+ray:~$ ./signs
+-100 scanned to signed -100 and unsigned 4294967196
+-100 assigned to unsigned int gives 4294967196
+
+So, one should think of scanf as having correct knowledge of the types
+it's scanning, and then shoe-horning the result into whatever you asked
+for. Just like C itself.
+
+Ray
+

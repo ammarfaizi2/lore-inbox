@@ -1,32 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281183AbRKLANQ>; Sun, 11 Nov 2001 19:13:16 -0500
+	id <S281193AbRKLAYr>; Sun, 11 Nov 2001 19:24:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281184AbRKLANH>; Sun, 11 Nov 2001 19:13:07 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38409 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281183AbRKLAM4>; Sun, 11 Nov 2001 19:12:56 -0500
-Subject: Re: CS4281 on Dell Inspiron 2100 running Redhat 7.2
-To: dong@ucolick.org (Shawfeng Dong)
-Date: Mon, 12 Nov 2001 00:19:51 +0000 (GMT)
-Cc: twoller@crystal.cirrus.com, linux-kernel@vger.kernel.org
-In-Reply-To: <000701c16a72$699ac050$70167280@usa> from "Shawfeng Dong" at Nov 10, 2001 09:33:04 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S281194AbRKLAY2>; Sun, 11 Nov 2001 19:24:28 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:22912 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S281193AbRKLAYQ>;
+	Sun, 11 Nov 2001 19:24:16 -0500
+Message-ID: <3BEF16A5.A2006F4D@pobox.com>
+Date: Sun, 11 Nov 2001 16:24:05 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.15-pre3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: CaT <cat@zip.com.au>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [OT] Re: [RFC-ONT (on topic)] Modprobe enhancement (was Re:  "Dance of 
+ the Trolls")
+In-Reply-To: <Pine.SOL.3.96.1011111120107.21134C-100000@libra.cus.cam.ac.uk> <004601c16b0b$8b04bb80$f5976dcf@nwfs> <20011112110632.D991@zip.com.au>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E1634pM-00040o-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> into Linux. But there is a weird problem: if I reboot the computer from W2k
-> into Linux, it is unable to load the sound driver.
-> 
-> Do you have any idea what may cause this weird behavior? Or can you send me
-> the latest driver? If you need more detailed information, please let me
-> know.
+CaT wrote:
 
-Windows leaves the hardware shutdown in a state Linux can't get it back.
-The same happens in reverse sometimes too. Basically always cold boot
-when changing OS 
+> On Sun, Nov 11, 2001 at 04:49:46PM -0700, Jeff V. Merkey wrote:
+> > Anton,
+> >
+> > This is a great suggestion.  You should ping Keith Owens (does he own
+> > modutils, I think so) and make it happen.  A much desireable change.
+>
+> Only if you can turn it off (ie a -[Yy] flag) as I don't really want my
+> boot sequence to hang just because I bought a geforce card so that I
+> could play my 3d games nice and fast.
+
+Nothing against nvidia cards, of course -
+
+But I play 3d games nice and fast here
+(quake 3 arena, wolfenstein)
+
+BTW I'm using a voodoo 3 - well supported,
+no 3rd party drivers to download, it always
+just works, right from a fresh Linux install,
+and with all new kernels...
+
+Just a thought....
+
+jjs
+

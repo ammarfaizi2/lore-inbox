@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261278AbVAWKXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVAWKXx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261278AbVAWKXy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 05:23:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbVAWKWf
+	id S261290AbVAWKXx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 05:23:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVAWKXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 05:22:35 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:65287 "HELO
+	Sun, 23 Jan 2005 05:23:11 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:520 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261289AbVAWKRj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 05:17:39 -0500
-Date: Sun, 23 Jan 2005 11:17:37 +0100
+	id S261290AbVAWKRu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 05:17:50 -0500
+Date: Sun, 23 Jan 2005 11:17:43 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fs/adfs/dir_f.c: remove an unused function
-Message-ID: <20050123101737.GL3212@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/char/moxa.c: #if 0 an unused function
+Message-ID: <20050123101743.GM3212@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,42 +22,33 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes an unused function.
+This patch #if 0's an unused global function.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- fs/adfs/dir_f.c |   17 -----------------
- 1 files changed, 17 deletions(-)
-
 This patch was already sent on:
-- 29 Oct 2004
-- 29 Nov 2004
+- 6 Dec 2004
 
---- linux-2.6.10-rc1-mm1-full/fs/adfs/dir_f.c.old	2004-10-28 22:40:09.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/fs/adfs/dir_f.c	2004-10-28 22:40:20.000000000 +0200
-@@ -65,23 +65,6 @@
- 	return buf - old_buf;
+--- linux-2.6.10-rc2-mm4-full/drivers/char/moxa.c.old	2004-12-06 01:30:18.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/drivers/char/moxa.c	2004-12-06 01:30:39.000000000 +0100
+@@ -3090,6 +3090,7 @@
+ 	return (0);
  }
  
--static inline void adfs_writename(char *to, char *from, int maxlen)
--{
--	int i;
--
--	for (i = 0; i < maxlen; i++) {
--		if (from[i] == '\0')
--			break;
--		if (from[i] == '.')
--			to[i] = '/';
--		else
--			to[i] = from[i];
--	}
--
--	for (; i < maxlen; i++)
--		to[i] = '\0';
--}
--
- #define ror13(v) ((v >> 13) | (v << 19))
++#if 0
+ long MoxaPortGetCurBaud(int port)
+ {
  
- #define dir_u8(idx)				\
+@@ -3097,6 +3098,7 @@
+ 		return (0);
+ 	return (moxaCurBaud[port]);
+ }
++#endif  /*  0  */
+ 
+ static void MoxaSetFifo(int port, int enable)
+ {
+
+
+

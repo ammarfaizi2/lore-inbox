@@ -1,79 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132680AbRDQWoe>; Tue, 17 Apr 2001 18:44:34 -0400
+	id <S132707AbRDQWvy>; Tue, 17 Apr 2001 18:51:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132853AbRDQWoZ>; Tue, 17 Apr 2001 18:44:25 -0400
-Received: from linas.org ([207.170.121.1]:44279 "HELO backlot.linas.org")
-	by vger.kernel.org with SMTP id <S132710AbRDQWoN>;
-	Tue, 17 Apr 2001 18:44:13 -0400
-Date: Tue, 17 Apr 2001 17:44:07 -0500
-To: Gunther.Mayer@t-online.de
-Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
-Subject: resending-- Re: mouse problems in 2.4.2 -> lost byte -> Patch(2.4.3)!]
-Message-ID: <20010417174407.L6403@backlot.linas.org>
+	id <S132709AbRDQWvp>; Tue, 17 Apr 2001 18:51:45 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:6490 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S132707AbRDQWvf>; Tue, 17 Apr 2001 18:51:35 -0400
+Date: Wed, 18 Apr 2001 01:06:31 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "D . W . Howells" <dhowells@astarte.free-online.co.uk>
+Cc: linux-kernel@vger.kernel.org, dhowells@redhat.com, torvalds@transmeta.com
+Subject: Re: generic rwsem [Re: Alpha "process table hang"]
+Message-ID: <20010418010631.H31982@athlon.random>
+In-Reply-To: <01041722480200.05613@orion.ddi.co.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CqfQkoYPE/jGoa5Q"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-From: linas@backlot.linas.org (Linas Vepstas)
+In-Reply-To: <01041722480200.05613@orion.ddi.co.uk>; from dhowells@astarte.free-online.co.uk on Tue, Apr 17, 2001 at 10:48:02PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 17, 2001 at 10:48:02PM +0100, D . W . Howells wrote:
+> I disagree... you want such primitives to be as efficient as possible. The 
+> whole point of having asm/xxxx.h files is that you can stuff them full of 
+> dirty tricks specific to certain architectures.
 
---CqfQkoYPE/jGoa5Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Of course you always have the option to override completly and you should
+on x86 (providing an API for total override is the main object of my patch).
 
-resending another lost message
+> I've had a look at your implementation... It seems to hold the spinlocks for 
+> an awfully long time... specifically around the local variable initialisation 
 
------ Forwarded message from Linas Vepstas <linas@linas.org>, linas@linas.o=
-rg -----
+My point for not unlocking is that unlocking and locking back another spinlock
+for the waitqueue and using the wait_even interface for serializing the slow
+path is expensive and generates more cacheline ping pong between cpus.  And
+quite frankly I don't care about the scalability of the slow path so if the
+slow path is simpler and slower I'm happy with it.
 
-Subject: Re: mouse problems in 2.4.2 -> lost byte -> Patch(2.4.3)!
-In-Reply-To: <3AD0C8AD.1A4D7D12@t-online.de> "from Gunther Mayer at Apr 8, =
-2001
-	10:23:09 pm"
-To: Gunther Mayer <Gunther.Mayer@t-online.de>
-Date: Mon, 9 Apr 2001 18:42:51 -0500 (CDT)
-From: Linas Vepstas <linas@linas.org>
-CC: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,=20
-	Vojtech Pavlik <vojtech@suse.cz>, linas@linas.org
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+> Your rw_semaphore structure is also rather large: 46 bytes without debugging 
 
-It's been rumoured that Gunther Mayer said:
-> Losing bytes on psaux is a bug!
- [...]
-> This patch printk's necessary information on the first 2 cases and
+It is 36bytes. and on 64bit archs the difference is going to be less.
 
-I had applied a similar set of printk's several weeks ago; however,=20
-now the problem refuses to recur.  Hmmm ... the last time I had a
-problem that went away when I added printf's  ...
+> stuff (16 bytes apiece for the waitqueues and 12 bytes for the rest). 
 
-Just to be sure, I'm going to try running the kernel without the
-printk's again.   Unfortunately, I upgraded the xserver yesterday,
-and so I fear that may mask further re-occurances ...
+The real waste is the lock of the waitqueue that I don't need, so I should
+probably keep two list_head in the waitqueue instead of using the
+wait_queue_head_t and wake_up_process by hand.
 
---linas
+> Admittedly, though, yours is extremely simple and easy to follow, but I don't 
+> think it's going to be very fast.
 
+The fast path has to be as fast as yours, if not then the only variable that
+can make difference is the fact I'm not inlining the fast path because it's not
+that small, in such a case I should simply inline the fast path, I don't care
+about the scalability of the slow path and I think the slow path may even be
+faster than yours because I don't run additional unlock/lock and memory
+barriers and the other cpus will stop dirtifying my stuff after their first
+trylock until I unlock.
 
------ End forwarded message -----
+If you have time to benchmark I'd be interested to see some number. But anyways
+my implementation was mostly meant to be obviously right and possible to
+ovverride with per-arch algorithms.
 
---=20
-Linas Vepstas   -- linas@linas.org -- http://linas.org/
-
---CqfQkoYPE/jGoa5Q
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE63Mc1ZKmaggEEWTMRAg3hAJ9kzPpwUii5OzFRFI0AdOOUHSODDgCfT7Qa
-vRf4HJpD8EhTPL3Gc71yAWo=
-=TBiH
------END PGP SIGNATURE-----
-
---CqfQkoYPE/jGoa5Q--
+Andrea

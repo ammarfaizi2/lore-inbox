@@ -1,62 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267914AbTAKSEC>; Sat, 11 Jan 2003 13:04:02 -0500
+	id <S267880AbTAKSTE>; Sat, 11 Jan 2003 13:19:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267891AbTAKSEC>; Sat, 11 Jan 2003 13:04:02 -0500
-Received: from packet.digeo.com ([12.110.80.53]:36252 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267836AbTAKSEA> convert rfc822-to-8bit;
-	Sat, 11 Jan 2003 13:04:00 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Andrew Morton <akpm@digeo.com>
-To: Roe Peterson <roe@petcom.com>, linux-laptop@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: dell precision m50 _very_ slow paging/swapping
-Date: Sat, 11 Jan 2003 10:12:55 -0800
-User-Agent: KMail/1.4.3
-References: <3E203A45.B590F101@petcom.com>
-In-Reply-To: <3E203A45.B590F101@petcom.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301111012.55150.akpm@digeo.com>
-X-OriginalArrivalTime: 11 Jan 2003 18:12:41.0062 (UTC) FILETIME=[07BCE860:01C2B99D]
+	id <S267891AbTAKSTE>; Sat, 11 Jan 2003 13:19:04 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:61844
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267880AbTAKSTD>; Sat, 11 Jan 2003 13:19:03 -0500
+Subject: Re: 2.4.21-pre3 (bk from 20030110): Trident sound (ALi M5451)
+	doesn't work
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200301111624.h0BGO9nY003599@eeyore.valparaiso.cl>
+References: <200301111624.h0BGO9nY003599@eeyore.valparaiso.cl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1042312466.2952.2.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 11 Jan 2003 19:14:26 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat January 11 2003 07:37, Roe Peterson wrote:
->
-> Although Dell doesn't consider the precision M50 a laptop (it's a
-> "portable workstation"), this list
-> looks like a good place to start :-)
->
-> I'm having a big problem with a brand-new M50.  The symptoms persist
-> whether I try Redhat 7.3
-> or 8.0.
->
-> Generally, everything is fine, right up to the time the machine starts
-> paging out to disk.  Then, the
-> system essentially grinds to a halt.
->
+On Sat, 2003-01-11 at 16:24, Horst von Brand wrote:
+> Trying to modprobe trident by hand gives:
+> 
+> Jan 11 17:07:56 eeyore kernel: Trident 4DWave/SiS 7018/ALi 5451,Tvia CyberPro 5050 PCI Audio, version 0.14.10h, 15:40:57 Jan 10 2003
+> Jan 11 17:07:56 eeyore kernel: PCI: Found IRQ 11 for device 00:06.0
+> Jan 11 17:07:56 eeyore kernel: trident: ALi Audio Accelerator found at IO 0x1000, IRQ 11
+> Jan 11 17:07:56 eeyore kernel: ALi 5451 did not come out of reset.
+> Jan 11 17:07:56 eeyore kernel: trident_ac97_init: error resetting 5451.
+> Jan 11 17:07:56 eeyore insmod: /lib/modules/2.4.21-pre3/kernel/drivers/sound/trident.o: init_module: No such device
+> Jan 11 17:07:56 eeyore insmod: Hint: insmod errors can be caused by incorrect module parameters, including invalid IO or IRQ parameters.       You may find more information in syslog or the output from dmesg
 
-You'd need to determine whether the CPU is busy or idle when this is
-happening.
-
-If it's busy, profile the kernel:
-
-- boot with "profile=1" on the kernel command line
-
--
-	readprofile -r
-	<do something>
-	readprofile -v -m /boot/System.map | sort -n +2 | tail -40
-
-It it's not busy, then:
-
-while true
-do
-	ps axl | grep ' D '
-	sleep 1
-done &
-<do something>
-
-
+Should work ok in with the change in pre3-ac
 

@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267869AbRGZMNr>; Thu, 26 Jul 2001 08:13:47 -0400
+	id <S267743AbRGZMUh>; Thu, 26 Jul 2001 08:20:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267850AbRGZMNh>; Thu, 26 Jul 2001 08:13:37 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:45577 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S267743AbRGZMNW>; Thu, 26 Jul 2001 08:13:22 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [RFC] Optimization for use-once pages
-Date: Thu, 26 Jul 2001 14:17:58 +0200
-X-Mailer: KMail [version 1.2]
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-        Rik van Riel <riel@conectiva.com.br>, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org, Ben LaHaise <bcrl@redhat.com>,
-        Mike Galbraith <mikeg@wen-online.de>
-In-Reply-To: <Pine.LNX.4.21.0107260736360.3707-100000@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0107260736360.3707-100000@freak.distro.conectiva>
+	id <S267784AbRGZMU1>; Thu, 26 Jul 2001 08:20:27 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:58629 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S267743AbRGZMUH>;
+	Thu, 26 Jul 2001 08:20:07 -0400
+Date: Thu, 26 Jul 2001 14:17:55 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Anton Blanchard <anton@samba.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: kmap() while holding spinlock
+In-Reply-To: <20010726161219.D4963@krispykreme>
+Message-ID: <Pine.LNX.4.33.0107261409110.3796-100000@localhost.localdomain>
 MIME-Version: 1.0
-Message-Id: <0107261417580M.00907@starship>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thursday 26 July 2001 12:38, Marcelo Tosatti wrote:
-> On Thu, 26 Jul 2001, Daniel Phillips wrote:
-> > There does seem to be a dangling thread here though - when a
-> > process page is unmapped and added to swap cache in try_to_swap_out
-> > then later faulted back in, I don't see where we "rescue" the page
-> > from the inactive queue.  Maybe I'm just not looking hard enough.
->
-> do_swap_page()->lookup_swap_cache()->__find_page_nolock()->SetPageRef
->erenced().
->
-> The referenced bit will make page_launder/reclaim_page move the page
-> to the active list.
 
-Yes.  And there I set ->age to a known state (START_AGE), so everything 
-seems to be in order.
+On Thu, 26 Jul 2001, Anton Blanchard wrote:
 
---
-Daniel
+> do_wp_page calls break_cow with the page_table_lock held.
+>
+> Since I dont think we can drop the lock, do we need a kmap_atomic for
+> these?
+
+calling kmap() with a spinlock held is indeed Very Bad, and break_cow()
+uses kmap(). I dont know why this didnt get noticed earlier. Perhaps
+because kmap() schedules very rarely.
+
+the solution is to either use (per-CPU) atomic_kmap(), or to do the
+clearing (and copying) speculatively, after allocating the page but before
+locking the pagetable lock. This might lead to a bit more work in the
+pagefault-race case, but we dont care about that window. It will on the
+other hand reduce pagetable_lock contention (because the clearing/copying
+is done outside the lock), so perhaps this solution is better.
+
+	Ingo
+

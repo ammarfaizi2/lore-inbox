@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261838AbTITLcP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Sep 2003 07:32:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbTITLcP
+	id S261745AbTITL3Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Sep 2003 07:29:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbTITL3Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Sep 2003 07:32:15 -0400
-Received: from [203.145.184.221] ([203.145.184.221]:19718 "EHLO naturesoft.net")
-	by vger.kernel.org with ESMTP id S261838AbTITLcO (ORCPT
+	Sat, 20 Sep 2003 07:29:16 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:46354 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S261745AbTITL3P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Sep 2003 07:32:14 -0400
-From: Shine Mohamed <shinemohamed_j@naturesoft.net>
-Organization: Naturesoft
-To: trivial@rustcorp.com.au
-Subject: [TRIVIAL PATCH] Removed unused symbol from isicom.c
-Date: Sat, 20 Sep 2003 17:03:20 +0530
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sat, 20 Sep 2003 07:29:15 -0400
+Date: Sat, 20 Sep 2003 13:29:12 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: ink@jurassic.park.msu.ru, maz@wild-wind.fr.eu.org, mec@shout.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: linux-2.6.0-test5/drivers/eisa verbose build failure
+Message-ID: <20030920112912.GA996@mars.ravnborg.org>
+Mail-Followup-To: "Adam J. Richter" <adam@yggdrasil.com>,
+	ink@jurassic.park.msu.ru, maz@wild-wind.fr.eu.org, mec@shout.net,
+	linux-kernel@vger.kernel.org
+References: <200309152231.h8FMVph11922@freya.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309201703.20420.shinemohamed_j@naturesoft.net>
+In-Reply-To: <200309152231.h8FMVph11922@freya.yggdrasil.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quick patch to remove unused variables in isicom.c
+On Mon, Sep 15, 2003 at 03:31:51PM -0700, Adam J. Richter wrote:
+> 	linux-2.6.0-test5/drivers/eisa fails to build if KBUILD_VERBOSE=1
+> in the top level Linux Makefile (KBUILD_VERBOSE=1 causes the build
+> process to show the actual commands that are being executed).
+> 
+> 	linux-2.6.0-test5/drivers/eisa/Makefile contains a change
+> that tries to use the Linux KBUILD_VERBOSE system to control
+> echoing of a command that contains some single quotes.  It looks
+> like scripts/Makefile.lib contains some macros designed to put
+> backslashes in front of single quotes as necessary to handle this
+> case, but, somehow, this is not happening. 
 
+Good analysis, thanks.
+The following patch fixes it for me.
+Would you mind trying this and report back.
 
-diff -urN linux-2.6.0-test5.orig/drivers/char/isicom.c 
-linux-2.6.0-test5/drivers/char/isicom.c
---- linux-2.6.0-test5.orig/drivers/char/isicom.c        2003-09-09 
-01:19:51.000000000 +0530
-+++ linux-2.6.0-test5/drivers/char/isicom.c     2003-09-20 15:44:31.000000000 
-+0530
-@@ -958,7 +958,6 @@
-        struct isi_port * port;
-        struct isi_board * card;
-        unsigned int line, board;
--       unsigned long flags;
-        int error;
+	Sam
 
- #ifdef ISICOM_DEBUG
-
-
+===== scripts/Makefile.lib 1.20 vs edited =====
+--- 1.20/scripts/Makefile.lib	Sun Jun  8 20:06:56 2003
++++ edited/scripts/Makefile.lib	Sat Sep 20 09:11:28 2003
+@@ -225,7 +225,7 @@
+ 
+ # If quiet is set, only print short version of command
+ 
+-cmd = @$(if $($(quiet)cmd_$(1)),echo '  $($(quiet)cmd_$(1))' &&) $(cmd_$(1))
++cmd = @$(if $($(quiet)cmd_$(1)),echo '  $(subst ','\'',$($(quiet)cmd_$(1)))' &&) $(cmd_$(1))
+ 
+ #	$(call descend,<dir>,<target>)
+ #	Recursively call a sub-make in <dir> with target <target> 

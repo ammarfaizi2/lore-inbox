@@ -1,37 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267390AbTACBGX>; Thu, 2 Jan 2003 20:06:23 -0500
+	id <S267404AbTACBHY>; Thu, 2 Jan 2003 20:07:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267404AbTACBGX>; Thu, 2 Jan 2003 20:06:23 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:26762
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267390AbTACBGW>; Thu, 2 Jan 2003 20:06:22 -0500
+	id <S267405AbTACBHY>; Thu, 2 Jan 2003 20:07:24 -0500
+Received: from smtp-101.nerim.net ([62.4.16.101]:26384 "EHLO kraid.nerim.net")
+	by vger.kernel.org with ESMTP id <S267404AbTACBHW>;
+	Thu, 2 Jan 2003 20:07:22 -0500
+Message-ID: <3E14E431.4090509@inet6.fr>
+Date: Fri, 03 Jan 2003 02:15:29 +0100
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: UDMA 133 on a 40 pin cable
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Lionel Bouton <Lionel.Bouton@inet6.fr>
-Cc: Teodor Iacob <Teodor.Iacob@astral.kappa.ro>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E14E196.9050004@inet6.fr>
-References: <20030102182932.GA27340@linux.kappa.ro>
-	<1041536269.24901.47.camel@irongate.swansea.linux.org.uk>
-	<3E14B698.8030107@inet6.fr> <3E14BFD4.7000909@google.com>
-	<20030102224246.GA429@linux.kappa.ro>  <3E14E196.9050004@inet6.fr>
-Content-Type: text/plain
+References: <20030102182932.GA27340@linux.kappa.ro>	<1041536269.24901.47.camel@irongate.swansea.linux.org.uk> 	<3E14B698.8030107@inet6.fr> <1041549847.24901.71.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1041549847.24901.71.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 03 Jan 2003 01:57:56 +0000
-Message-Id: <1041559076.24830.116.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-01-03 at 01:04, Lionel Bouton wrote:
-> I don't think ATA66+ controllers can be within spec if they don't detect 
-> 40 vs 80 pin cables.
+Alan Cox wrote:
 
-I wish. Alas not in the real world.
+>On Thu, 2003-01-02 at 22:00, Lionel Bouton wrote:
+>  
+>
+>>#2 Are there any other cable-quality hardware tests done by the chipsets 
+>>? How ?
+>>    
+>>
+>
+>Oh god. Andre described this one as needing a "two beer" explanation.
+>I'd recommend stronger drinks however.
+>  
+>
 
-Alan
+In that case the thing should be within my body specifications :-)
 
+>>#3 Is the above cable electrically able to sustain 66+ UDMA transfers 
+>>(could I hack a driver in order to bypass the 80pin cable detection and 
+>>make it work properly) ?
+>>    
+>>
+>
+>It is possible to do this yes. Other vendors do it as well. Careful
+>cable choice lets you meet the electrical requirements other ways in
+>certain situations.
+>  
+>
 
+Given what I see on sales (various out of spec drives/cables and maybe 
+even controllers) I'm suspecting that some of these vendors might use 
+plain trial and error cable testing...
+This is why I'd prefer to have real electrical specs at hand to make my 
+own checks.
+
+LB.
 

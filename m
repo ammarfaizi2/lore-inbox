@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262180AbUKQDRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262164AbUKQDTr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262180AbUKQDRN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 22:17:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbUKQDPf
+	id S262164AbUKQDTr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 22:19:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbUKQDTq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 22:15:35 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:35016 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262188AbUKQDPY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 22:15:24 -0500
-Subject: Re: [2.6-BK-URL] NTFS 2.1.22 - Bug and race fixes and improved
-	error handling.
-From: Lee Revell <rlrevell@joe-job.com>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
-In-Reply-To: <E1CRsk5-0006JQ-KD@imp.csi.cam.ac.uk>
-References: <E1CRsk5-0006JQ-KD@imp.csi.cam.ac.uk>
-Content-Type: text/plain
-Date: Tue, 16 Nov 2004 17:37:35 -0500
-Message-Id: <1100644656.17573.0.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Tue, 16 Nov 2004 22:19:46 -0500
+Received: from [205.155.154.3] ([205.155.154.3]:12982 "HELO 205.155.154.3")
+	by vger.kernel.org with SMTP id S262164AbUKQDTj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 22:19:39 -0500
+From: "Ted Cobb" <dave@armchair.mb.ca>
+Reply-To: "Ted Cobb" <dave@armchair.mb.ca>
+Message-ID: <2871577433.6453462594@armchair.mb.ca>
+Date: Tue, 16 Nov 2004 22:19:41 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: inside Youngest add beautys
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-11-10 at 13:42 +0000, Anton Altaparmakov wrote:
-> Hi Linus, Hi Andrew, please do a
-> 
-> 	bk pull bk://linux-ntfs.bkbits.net/ntfs-2.6
-> 
+I'm so sorry! :)
 
-New warning with 2.6.10-rc2-mm1:
+Wanna see shocking exclusive young girls ?
 
-  CC [M]  fs/ntfs/super.o
-fs/ntfs/super.c: In function `__get_nr_free_mft_records':
-fs/ntfs/super.c:2105: warning: initialization from incompatible pointer type
+	Children are the keys of paradise.
+http://www.geocities.com/tony_medina_95/?s=lex&m=YbWPM-ZfSWfY.OdfS,ZfSWfY,VSd
 
-Lee
+Really 8-16 y.o many models. their they pink hairless 
+
+	The words of a dead man are modified in the guts of the living.
+
+You have the chance task to see unique new sets
+work with new models many and best old too
+
+We think that we suffer from ingratitude, while in reality we suffer from self-love.Be nice to people on your way up because you'll meet them on your way down.You return and again take the proper course, guided by what? -- By the picture in mind of the place you are headed for...
+
 

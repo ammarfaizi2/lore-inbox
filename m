@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262923AbRFFNMx>; Wed, 6 Jun 2001 09:12:53 -0400
+	id <S262856AbRFFNKn>; Wed, 6 Jun 2001 09:10:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262982AbRFFNMo>; Wed, 6 Jun 2001 09:12:44 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:43563 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S262923AbRFFNMa>; Wed, 6 Jun 2001 09:12:30 -0400
-To: "Jeffrey W. Baker" <jwbaker@acm.org>
-Cc: Derek Glidden <dglidden@illusionary.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Break 2.4 VM in five easy steps
-In-Reply-To: <Pine.LNX.4.33.0106051634540.8311-100000@heat.gghcwest.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 06 Jun 2001 07:08:37 -0600
-In-Reply-To: <Pine.LNX.4.33.0106051634540.8311-100000@heat.gghcwest.com>
-Message-ID: <m17kyp7o2y.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262923AbRFFNKd>; Wed, 6 Jun 2001 09:10:33 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:31196 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S262856AbRFFNKT>;
+	Wed, 6 Jun 2001 09:10:19 -0400
+Date: Wed, 6 Jun 2001 15:10:11 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200106061310.PAA14058@harpo.it.uu.se>
+To: remi@a2zis.com
+Subject: Re: 2.4.5-ac8 hardlocks when going to standby
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jeffrey W. Baker" <jwbaker@acm.org> writes:
+On Tue, 5 Jun 2001 23:15:49 +0200, Remi Turk wrote:
 
-> On Tue, 5 Jun 2001, Derek Glidden wrote:
-> 
-> >
-> > After reading the messages to this list for the last couple of weeks and
-> > playing around on my machine, I'm convinced that the VM system in 2.4 is
-> > still severely broken.
-> >
-> > This isn't trying to test extreme low-memory pressure, just how the
-> > system handles recovering from going somewhat into swap, which is a real
-> > day-to-day problem for me, because I often run a couple of apps that
-> > most of the time live in RAM, but during heavy computation runs, can go
-> > a couple hundred megs into swap for a few minutes at a time.  Whenever
-> > that happens, my machine always starts acting up afterwards, so I
-> > started investigating and found some really strange stuff going on.
-> 
-> I reboot each of my machines every week, to take them offline for
-> intrusion detection.  I use 2.4 because I need advanced features of
-> iptables that ipchains lacks.  Because the 2.4 VM is so broken, and
-> because my machines are frequently deeply swapped, they can sometimes take
-> over 30 minutes to shutdown.  They hang of course when the shutdown rc
-> script turns off the swap.  The first few times this happened I assumed
-> they were dead.
+>On Tue, Jun 05, 2001 at 09:37:52PM +0100, Alan Cox wrote:
+>> > 2.4.5-ac[4678] all lock hard (no sysreq) when pushing my
+>> > power-button (setup from the bios to go to standby) or
+>> > when running apm --standby. (apm version 3.0final, RH6.2)
+>> > apm --suspend works the way it should.
+>> > 
+>> > 2.4.5/2.4.6-pre1 don't hardlock.
+>> 
+>> Are you using the same build options for both
+>> What machine is this - laptop ?
+>
+>It's not a laptop.
+>Tbird 950 + Abit KT7 (KT133)
+>
+>UP APIC is enabled in -ac[4678] and emu10k1 is the in-kernel
 
-Interesting.  Is it constant disk I/O?  Or constant CPU utilization.
-In any case you should be able to comment that line out of your shutdown
-rc script and be in perfectly good shape.
+and later quoted Alan as saying:
 
-Eric
+> On Tue, Jun 05, 2001 at 10:18:07PM +0100, Alan Cox wrote:
+> > Thanks. UP-APIC is a real candidate for this case.
+
+Actually, I suspect apm.c is at fault here. Suspend works,
+which proves that the PM code in apic.c and nmi.c works.
+
+But note how apm.c:send_event() ignores standby events and fails
+to propagate them to PM clients. Thus, Remi's box will have an
+activated local APIC and live NMI watchdog when the APM BIOS
+finally gets to do whatever it does at standby.
+It is fatal to have an active local APIC and NMI watchdog at suspend,
+and I can only assume that this is true for standby as well.
+
+Please try changing apm.c:send_event() to propagate standbys to PM
+clients just like suspends. Does this fix the problem?
+
+(Any why use standby in the first place? Any reason you don't
+want to / can't use suspend?)
+
+/Mikael

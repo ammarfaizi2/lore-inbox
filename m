@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265387AbTF1UT4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 16:19:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265392AbTF1UT4
+	id S265392AbTF1UUn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 16:20:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265393AbTF1UUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 16:19:56 -0400
-Received: from [163.118.102.59] ([163.118.102.59]:53632 "EHLO
-	mail.drunkencodepoets.com") by vger.kernel.org with ESMTP
-	id S265387AbTF1UTz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 16:19:55 -0400
-Date: Sat, 28 Jun 2003 16:26:56 -0400
-From: pat erley <paterley@drunkencodepoets.com>
-To: linux-kernel@vger.kernel.org
-Cc: Con Kolivas <kernel@kolivas.org>
-Subject: Re: patch-O1int-0306281420 for 2.5.73 interactivity
-Message-Id: <20030628162656.06e7e046.paterley@drunkencodepoets.com>
-In-Reply-To: <200306281516.12975.kernel@kolivas.org>
-References: <200306281516.12975.kernel@kolivas.org>
-Organization: drunkencodepoets.com
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 28 Jun 2003 16:20:43 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:56970
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S265392AbTF1UUl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 16:20:41 -0400
+Subject: Re: bkbits.net is down
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+Cc: Larry McVoy <lm@bitmover.com>, Scott McDermott <vaxerdec@frontiernet.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030628193857.GH841@gallifrey>
+References: <Pine.LNX.4.21.0306271228200.17138-100000@ns.snowman.net>
+	 <20030627163720.GF357@zip.com.au>
+	 <1056732854.3172.56.camel@dhcp22.swansea.linux.org.uk>
+	 <20030627235150.GA21243@work.bitmover.com>
+	 <20030627165519.A1887@beaverton.ibm.com>
+	 <20030628001625.GC18676@work.bitmover.com>
+	 <20030627205140.F29149@newbox.localdomain>
+	 <20030628031920.GF18676@work.bitmover.com>
+	 <1056827655.6295.22.camel@dhcp22.swansea.linux.org.uk>
+	 <20030628191847.GB8158@work.bitmover.com>  <20030628193857.GH841@gallifrey>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1056832290.6289.44.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 28 Jun 2003 21:31:30 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I made a small error when I sent Con a piece of magic I wrote up to help the sleep period.  
+On Sad, 2003-06-28 at 20:38, Dr. David Alan Gilbert wrote:
+> Tapes are a pain; but at the type of 40GB range is it worth considering
+> a pile of external USB/Firewire hard drives?
 
-what it says right now:
+I'm testing the USB2 disk idea at the moment. Big problem is performance
+- 5Mbytes/second isnt the best backup rate in the world.
 
-/kernel/sched.c around line 325
-
-
-sleep_period = (sleep_period *
-	17 * sleep_period / ((17 * sleep_period / (5 * tau) + 2) * 5 * tau));
-----------------------------------------------------------^
-
-it should be:
-
-sleep_period = (sleep_period *
-	17 * sleep_period / ((17 * sleep_period / (5 * tau + 2)) * 5 * tau));
---------------------------------------------------------------^
-
-stupid parenthesis.
-
-a little background.  what this essentially is is a taylor approximation of the function ln(66x+1) normalized.  ln(66x+1) happens to do a great job oas a weighting function on the range of 0 to 1, and because the input only happens to range from 0 to 1, only 2 terms were needed to do a 'good enough' job.
-
-Pat
--- 

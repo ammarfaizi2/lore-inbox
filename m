@@ -1,36 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130113AbRBMKyb>; Tue, 13 Feb 2001 05:54:31 -0500
+	id <S129465AbRBMKwv>; Tue, 13 Feb 2001 05:52:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130385AbRBMKyV>; Tue, 13 Feb 2001 05:54:21 -0500
-Received: from tsukuba.m17n.org ([192.47.44.130]:26003 "EHLO tsukuba.m17n.org")
-	by vger.kernel.org with ESMTP id <S130113AbRBMKyM>;
-	Tue, 13 Feb 2001 05:54:12 -0500
-Date: Tue, 13 Feb 2001 19:53:11 +0900 (JST)
-Message-Id: <200102131053.TAA11808@mule.m17n.org>
-From: NIIBE Yutaka <gniibe@m17n.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: marcelo@conectiva.com.br (Marcelo Tosatti),
-        torvalds@transmeta.com (Linus Torvalds),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (lkml)
-Subject: Re: [PATCH] swapin flush cache bug
-In-Reply-To: <200102130950.f1D9ohq01768@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.21.0102122107550.29855-100000@freak.distro.conectiva>
-	<200102130950.f1D9ohq01768@flint.arm.linux.org.uk>
+	id <S130113AbRBMKwm>; Tue, 13 Feb 2001 05:52:42 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:20488 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129465AbRBMKwe>; Tue, 13 Feb 2001 05:52:34 -0500
+Subject: Re: LILO and serial speeds over 9600
+To: hpa@transmeta.com (H. Peter Anvin)
+Date: Tue, 13 Feb 2001 10:51:56 +0000 (GMT)
+Cc: timw@splhi.com, alan@lxorguk.ukuu.org.uk (Alan Cox),
+        Werner.Almesberger@epfl.ch (Werner Almesberger),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3A887E68.CFBF6FC5@transmeta.com> from "H. Peter Anvin" at Feb 12, 2001 04:23:04 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14Sd3v-0001OF-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
- > What was the problem?  The old code seems to behave well on a virtual
- > address indexed virtual address tagged cache.
+> That's the whole crux of the matter.  For something like this, you *will*
+> drop data under certain circumstances.  I suspect it's better to have
+> this done in a controlled manner, rather than stop completely, which is
+> what TCP would do.
 
-My case (SH-4) is: virtual address indexed, physical address tagged cache
-(which has alias issue).
+Why do you plan to drop data ? That seems unneccessary.
 
-Suppose there's I/O to the physical page P asynchronously, and the
-page is placed in the swap cache.  It remains cache entry, say,
-indexed kernel virtual address K.  Then, process maps P at U.  U and K
-(may) indexes differently.  The process will get the data from memory
-(not the one in the cashe), if it's not flushed.
--- 

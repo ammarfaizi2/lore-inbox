@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261838AbTJIAQv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 20:16:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbTJIAQv
+	id S261844AbTJIAbX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 20:31:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbTJIAbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 20:16:51 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:63889 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S261838AbTJIAQr (ORCPT
+	Wed, 8 Oct 2003 20:31:23 -0400
+Received: from fw.osdl.org ([65.172.181.6]:41165 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261844AbTJIAbW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 20:16:47 -0400
-Date: Thu, 9 Oct 2003 02:16:35 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Jai <jai@linknet.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: matroxfb problem
-Message-ID: <20031009001635.GA24323@vana.vc.cvut.cz>
-References: <007701c38df5$7639a8a0$1400a8c0@lan.sky.net.au>
+	Wed, 8 Oct 2003 20:31:22 -0400
+Date: Wed, 8 Oct 2003 17:22:35 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: fastboot@osdl.org
+Subject: kexec update (2.6.0-test7)
+Message-Id: <20031008172235.70d6b794.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <007701c38df5$7639a8a0$1400a8c0@lan.sky.net.au>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 09, 2003 at 09:39:48AM +1000, Jai wrote:
->  Hi all,
-> 
-> I'm running kernel-2.4.20, I have enabled frame buffer support for matrox
-> G550 in the kernel, but get these messages on boot:
-> 
-> matroxset: Matrox G550 detected
-> matroxset: MTRR's turned on
-> matroxfb: cannot set required perameters
-> 
-> and of course /dev/fb0 and fb1 are not available.
-> 
-> I have also tried it with kernel-2.4.22, I believe I have seen this working
-> before but I can't seem remember what it is i havn't done.
-> Has anyone got any light to shed on this.
-> 
-> Thanks for your time. Please CC me with any replies.
 
-Your .config ? I'd say that you disabled support for some color depth, yet
-you asked for this depth with 'video=XXX' parameter.
-							Petr
+Hi,
 
+I've updated the kexec patch for 2.6.0-test7.
+It can be found at
+  http://developer.osdl.org/rddunlap/kexec/2.6.0-test7/kexec-260t7.patch
+
+A slightly different version of it can also be found in the
+-osdl patchset at
+  http://developer.osdl.org/shemminger/patches/2.6/2.6.0-test7/
+
+The userspace tools are at
+  http://www.xmission.com/~ebiederm/files/kexec/
+You'll need to update the kexec-syscall.c file for the correct
+kexec syscall number (274).
+I intend to try to automate this (somehow).
+
+Feedback/patches welcome.
+
+--
+~Randy

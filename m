@@ -1,85 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266075AbUHMPzq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266069AbUHMQAG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266075AbUHMPzq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 11:55:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266117AbUHMPzp
+	id S266069AbUHMQAG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 12:00:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266114AbUHMQAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 11:55:45 -0400
-Received: from commedia.cnds.jhu.edu ([128.220.221.1]:50374 "EHLO
-	commedia.cnds.jhu.edu") by vger.kernel.org with ESMTP
-	id S266075AbUHMPzI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 11:55:08 -0400
-Date: Fri, 13 Aug 2004 11:54:41 -0400
-From: Jonathan Stanton <jonathan@cnds.jhu.edu>
-To: sdake@mvista.com,
-       Discussion of clustering software components including
-	 GFS <linux-cluster@redhat.com>
-Cc: Chris Wright <chrisw@osdl.org>, dcl_discussion@osdl.org,
-       linux-kernel@vger.kernel.org, cgl_discussion@osdl.org
-Subject: Re: [Linux-cluster] Re: [cgl_discussion] Re: [dcl_discussion] Clustersummit materials
-Message-ID: <20040813155441.GA16662@cnds.jhu.edu>
-References: <3689AF909D816446BA505D21F1461AE4C75110@cacexc04.americas.cpqcorp.net> <1092249962.4717.21.camel@persist.az.mvista.com> <20040812095736.GE4096@marowsky-bree.de> <1092332536.7315.1.camel@persist.az.mvista.com> <20040812203738.GK9722@marowsky-bree.de> <1092351549.7315.5.camel@persist.az.mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 13 Aug 2004 12:00:06 -0400
+Received: from omx3-ext.SGI.COM ([192.48.171.20]:17306 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S266069AbUHMQAA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 12:00:00 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: [PATCH] allocate page caches pages in round robin fasion
+Date: Fri, 13 Aug 2004 08:59:24 -0700
+User-Agent: KMail/1.6.2
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, steiner@sgi.com
+References: <200408121646.50740.jbarnes@engr.sgi.com> <84960000.1092408633@[10.10.2.4]>
+In-Reply-To: <84960000.1092408633@[10.10.2.4]>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <1092351549.7315.5.camel@persist.az.mvista.com>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408130859.24637.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Friday, August 13, 2004 7:50 am, Martin J. Bligh wrote:
+> I really don't think this is a good idea - you're assuming there's really
+> no locality of reference, which I don't think is at all true in most cases.
 
-I just joined the linux-cluster list after seeing a few of the messages 
-that were cross-posted to linux-kernel. 
+No, not at all, just that locality of reference matters more for stack and 
+anonymous pages than it does for page cache pages.  I.e. we don't want a node 
+to be filled up with page cache pages causing all other memory references 
+from the process to be off node.
 
-On Thu, Aug 12, 2004 at 03:59:10PM -0700, Steven Dake wrote:
-> Lars
-> 
-> Thanks for posting transis.  I had a look at the examples and API.  The
-> API is of course different then openais and focused on client/server
-> architecture.
+> If we round-robin it ... surely 7/8 of your data (on your 8 node machine)
+> will ALWAYS be off-node ? I thought we discussed this at KS/OLS - what is
+> needed is to punt old pages back off onto another node, rather than
+> swapping them out. That way all your pages are going to be local.
 
-If you havn't looked at it already, you might want to try out the Spread
-group communication system. 
+That gets complicated pretty quickly I think.  We don't want to constantly 
+shuffle pages between nodes with kswapd, and there's also the problem of 
+deciding when to do it.
 
-http://www.spread.org/
+> OK, so it obviously does something ... but is the dd actually faster?
+> I'd think it's slower ...
 
-It is, conceptually although not code-wise, a decendant of the Transis
-work (and the Totem system from UCSB)  and is relatively widely used as a
-production quality group messaging system (Some apache modules use it
-along with a number of large web-clusters, a few commercial clustered
-storage systems, and a lot of custom replication apps). It is not under
-GPL but is open-source under a bsd-style (but not exactly the same)
-license.
+Sure, it's probably a tiny bit slower, but assume that dd actually had some 
+compute work to do after it read in a file (like an encoder or fp app), w/o 
+the patch, most of it's time critical references would be off node.  The 
+important thing is to get the file data in memory, since that'll be way 
+faster than reading from disk, but it doesn't really matter *where* it is in 
+memory.  Especially since we want an app's code and data to be node local.
 
-Like transis it has a client-server architecture (and a simpler API). 
-
-> I tried a performance test by sending a 64k message, and then receiving
-> it 10 times with two nodes.  This operation takes about 5 seconds on my
-> hardware which is 128k/sec.  I was expecting more like 8-10MB/sec.  Is
-> there anything that can be done to improve the performance?
-
-I would expect transis to definitely do better then 128k/s given tests we
-ran a number of years ago, but on upto medium sized lan environments the
-totem/spread protocols are generally faster with less cpu overhead. I know
-Spread could get 80Mb/s a number of years ago. We recently re-ran a clean
-set of benchmarks and wrote them up. You can find them at:
-
-http://www.cnds.jhu.edu/pub/papers/cnds-2004-1.pdf
-
-I admit some bias as I'm one of the lead developers of Spread, and we (the 
-developers) have been building group messaging systems since the early 
-90's -- so I may look at things a bit differently -- so I would be very 
-intersted in your thoughts on how you could use GCS and whether Spread 
-would be useful. 
-
-Cheers,
-
-Jonathan
-
--- 
--------------------------------------------------------
-Jonathan R. Stanton         jonathan@cs.jhu.edu
-Dept. of Computer Science   
-Johns Hopkins University    
--------------------------------------------------------
+Jesse

@@ -1,33 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262996AbSJGMAI>; Mon, 7 Oct 2002 08:00:08 -0400
+	id <S263001AbSJGMDs>; Mon, 7 Oct 2002 08:03:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262997AbSJGMAI>; Mon, 7 Oct 2002 08:00:08 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:28312 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262996AbSJGMAB>;
-	Mon, 7 Oct 2002 08:00:01 -0400
-Date: Mon, 07 Oct 2002 04:58:44 -0700 (PDT)
-Message-Id: <20021007.045844.12156576.davem@redhat.com>
-To: hadi@cyberus.ca
-Cc: greearb@candelatech.com, andre@pyxtechnologies.com,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: Update on e1000 troubles (over-heating!)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.GSO.4.30.0210070749430.1861-100000@shell.cyberus.ca>
-References: <3DA103A2.1060901@candelatech.com>
-	<Pine.GSO.4.30.0210070749430.1861-100000@shell.cyberus.ca>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S263002AbSJGMDo>; Mon, 7 Oct 2002 08:03:44 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:22146 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S263001AbSJGMDm>;
+	Mon, 7 Oct 2002 08:03:42 -0400
+Date: Mon, 7 Oct 2002 14:09:16 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: jbradford@dial.pipex.com
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.X breaks PS/2 mouse
+Message-ID: <20021007140916.A660@ucw.cz>
+References: <20021004224547.A49400@ucw.cz> <200210042225.g94MPhJU012128@darkstar.example.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200210042225.g94MPhJU012128@darkstar.example.net>; from jbradford@dial.pipex.com on Fri, Oct 04, 2002 at 11:25:43PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: jamal <hadi@cyberus.ca>
-   Date: Mon, 7 Oct 2002 07:53:26 -0400 (EDT)
-   
-   Does the problem happen with the tg3?
+On Fri, Oct 04, 2002 at 11:25:43PM +0100, jbradford@dial.pipex.com wrote:
 
-He gets hangs in one box, inoperable PCI config space accesses for the
-cards in another box.
+> Pressing the left button, then the right button, (this is complete, and follows the above immediately):
+> 
+> i8042.c: 01 <- i8042 (interrupt, aux, 12) [230409]
+> i8042.c: 00 <- i8042 (interrupt, aux, 12) [230410]
+> i8042.c: 00 <- i8042 (interrupt, aux, 12) [230411]
+> i8042.c: 00 <- i8042 (interrupt, aux, 12) [230548]
+> i8042.c: 00 <- i8042 (interrupt, aux, 12) [230552]
+> i8042.c: 00 <- i8042 (interrupt, aux, 12) [230554]
+> i8042.c: 02 <- i8042 (interrupt, aux, 12) [231505]
+> i8042.c: 00 <- i8042 (interrupt, aux, 12) [231506]
+> i8042.c: 00 <- i8042 (interrupt, aux, 12) [231507]
+> i8042.c: 00 <- i8042 (interrupt, aux, 12) [231694]
+> i8042.c: 00 <- i8042 (interrupt, aux, 12) [231695]
+> i8042.c: 00 <- i8042 (interrupt, aux, 12) [231696]
+> 
+> So, it definitely seems to be sending data to the port...  Strange...
+
+It must work. I'm really wondering why it doesn't. What happens when you
+load the 'evbug' module?
+
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269530AbTCDUhA>; Tue, 4 Mar 2003 15:37:00 -0500
+	id <S269531AbTCDUmv>; Tue, 4 Mar 2003 15:42:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269531AbTCDUhA>; Tue, 4 Mar 2003 15:37:00 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:48657 "EHLO
+	id <S269532AbTCDUmv>; Tue, 4 Mar 2003 15:42:51 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:49937 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S269530AbTCDUg7> convert rfc822-to-8bit; Tue, 4 Mar 2003 15:36:59 -0500
-Date: Tue, 4 Mar 2003 15:43:35 -0500 (EST)
+	id <S269531AbTCDUmu>; Tue, 4 Mar 2003 15:42:50 -0500
+Date: Tue, 4 Mar 2003 15:48:49 -0500 (EST)
 From: Bill Davidsen <davidsen@tmr.com>
-To: =?ISO-8859-2?Q?Pawe=B3_Go=B3aszewski?= <blues@ds.pg.gda.pl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20 DVD DMA problem
-In-Reply-To: <Pine.LNX.4.50L.0303011032280.17500-100000@piorun.ds.pg.gda.pl>
-Message-ID: <Pine.LNX.3.96.1030304154132.14509A-100000@gatekeeper.tmr.com>
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: Christoph Hellwig <hch@infradead.org>, Andrew Walrond <andrew@walrond.org>,
+       linux-kernel@vger.kernel.org
+Subject: re: 2.5-bk menuconfig format problem
+In-Reply-To: <20030303192245.GH6946@louise.pinerecords.com>
+Message-ID: <Pine.LNX.3.96.1030304154406.14509B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 1 Mar 2003, [ISO-8859-2] Pawe³ Go³aszewski wrote:
+On Mon, 3 Mar 2003, Tomas Szepe wrote:
 
-> On Fri, 28 Feb 2003, Micah Anderson wrote:
-> > In 2.2.20 enabling DMA on a DVD drive with hdparm stopped the lurching
-> > of DVD movies, when doing the same in a 2.4.20 environment (with all the
-> > DMA options compiled into the kernel, see below), the lurching stays.
-> > Thanks for any ideas...
+> > [sam@ravnborg.org]
+> > 
+> > On Mon, Mar 03, 2003 at 06:53:37PM +0000, Christoph Hellwig wrote:
+> > > Ah, okay :)  I newer use either menuconfig nor xconfig so I can't comment
+> > > on it's placements.  If people who actually do use if feel that it's placed
+> > > wrongly feel free to submit a patch to fix it.
+> > 
+> > The following patch moves it to the menu "Processor type & features"
+> > Right before HIMEM.
 > 
-> Try this:  http://www.ans.pl/ide/testing/
-> It's backport of IDE subsystem from 2.4 - works really nice.
+> Please don't do this.  While HIMEM could still be perceived as a processor
+> (architecture) feature, SWAP certainly doesn't qualify.  We already have
+> enough misplaced options.
 
-Did I miss something? Micah said DMA fixed the problem in 2.2 but not in
-2.4, why would he want a backport of the code which has the problem to the
-kernel which works?
+I would think that SWAP would belong with PREEMPT, since they are both
+global characteristics of the o/s. Those who care can argue where that
+should be.
+
+I could believe that SMP would belong in the same place, since it's a
+global option not specific to a single architecture. Any of these could be
+greyed out or undisplayed for the few architechtures which don't support
+them.
+
+There are arguably others.
 
 -- 
 bill davidsen <davidsen@tmr.com>

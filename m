@@ -1,191 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268513AbTCAFtR>; Sat, 1 Mar 2003 00:49:17 -0500
+	id <S268514AbTCAGLn>; Sat, 1 Mar 2003 01:11:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268514AbTCAFtR>; Sat, 1 Mar 2003 00:49:17 -0500
-Received: from holomorphy.com ([66.224.33.161]:18057 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S268513AbTCAFtO>;
-	Sat, 1 Mar 2003 00:49:14 -0500
-Date: Fri, 28 Feb 2003 21:59:22 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Subject: percpu-2.5.63-bkcurr
-Message-ID: <20030301055922.GB1399@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
+	id <S268515AbTCAGLn>; Sat, 1 Mar 2003 01:11:43 -0500
+Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:11908 "EHLO
+	gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id <S268514AbTCAGLm>; Sat, 1 Mar 2003 01:11:42 -0500
+Date: Fri, 28 Feb 2003 22:22:00 -0800
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>,
+       "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
+Subject: Re: kernel BUG at mm/memory.c:757! (2.5.62-mjb2)
+Message-ID: <20030301062200.GA4523@gnuppy.monkey.org>
+References: <4450000.1045526067@flay> <4610000.1045583440@[10.10.2.4]> <20030223034730.GA3136@gnuppy.monkey.org> <20030223035048.GA3223@gnuppy.monkey.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+In-Reply-To: <20030223035048.GA3223@gnuppy.monkey.org>
+User-Agent: Mutt/1.5.3i
+From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shove per-cpu areas into node-local memory for i386 discontigmem,
-or at least NUMA-Q. You'll have to plop down early_cpu_to_node()
-and early_node_to_cpumask() stubs to use it on, say Summit.
+On Sat, Feb 22, 2003 at 07:50:48PM -0800, Bill Huey wrote:
+> > Feb 22 04:02:08 gnuppy kernel:  ------------[ cut here ]------------
+> > Feb 22 04:02:08 gnuppy kernel: kernel BUG at mm/memory.c:757!
+> > Feb 22 04:02:08 gnuppy kernel: invalid operand: 0000
+> > Feb 22 04:02:08 gnuppy kernel: CPU:    0
+> > Feb 22 04:02:08 gnuppy kernel: EIP:    0060:[unmap_all_pages+757/832] Tainted: PF 
+> > Feb 22 04:02:08 gnuppy kernel: EFLAGS: 00210202
+> > Feb 22 04:02:08 gnuppy kernel: EIP is at unmap_all_pages+0x2f5/0x340
+> > Feb 22 04:02:08 gnuppy kernel: eax: 00000001   ebx: 0f7a8067   ecx: d612c360   edx: c039f4a0
+> > Feb 22 04:02:08 gnuppy kernel: esi: c0000000   edi: d1152ffc   ebp: d122ff58   esp: d122fed8
+> > Feb 22 04:02:08 gnuppy kernel: ds: 007b   es: 007b   ss: 0068
+> > Feb 22 04:02:08 gnuppy kernel: Process xchat (pid: 743, threadinfo=d122e000 task=d12512a0)
+> > Feb 22 04:02:08 gnuppy kernel: Stack: d122ff0c 00000000 00000010 d12512a0 c126b240 c0000000 c0000000 c0000000 
+> > Feb 22 04:02:08 gnuppy kernel:        0000000c c12ab4d0 d1971c00 d1971c00 00000000 c1289920 c1274318 c12765a0 
+> > Feb 22 04:02:08 gnuppy kernel:        c12b7190 c1267de8 c1269cb0 c126b9e8 c126a098 c128a320 c126acf0 c126af98 
+> > Feb 22 04:02:08 gnuppy kernel: Call Trace:
+> > Feb 22 04:02:08 gnuppy kernel:  [exit_mmap+24/224] exit_mmap+0x18/0xe0
+> > Feb 22 04:02:08 gnuppy kernel:  [mmput+85/176] mmput+0x55/0xb0
+> > Feb 22 04:02:08 gnuppy kernel:  [do_exit+273/768] do_exit+0x111/0x300
+> > Feb 22 04:02:08 gnuppy kernel:  [do_group_exit+123/192] do_group_exit+0x7b/0xc0
+> > Feb 22 04:02:08 gnuppy kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+> > Feb 22 04:02:08 gnuppy kernel: 
+> > Feb 22 04:02:08 gnuppy kernel: Code: 0f 0b f5 02 9f ab 34 c0 b8 00 e0 ff ff 8b 55 08 21 e0 8b 00 
+> > Feb 22 04:02:11 gnuppy kernel:  ------------[ cut here ]------------
+> 
+> I just found out that it could likely be related to the NVidia driver module
+> from Rik van Riel. Ooops.
 
+Again, correction, I get a tons of these even without the NVidia driver
+module, so that's not the problem.
 
--- wli
+This problem is still pretty live unfortunately. Fixed in the new patchset ?
 
-===== arch/i386/mm/discontig.c 1.9 vs edited =====
---- 1.9/arch/i386/mm/discontig.c	Fri Feb 28 15:08:58 2003
-+++ edited/arch/i386/mm/discontig.c	Fri Feb 28 21:48:54 2003
-@@ -48,8 +48,6 @@
- extern unsigned long totalram_pages;
- extern unsigned long totalhigh_pages;
- 
--#define LARGE_PAGE_BYTES (PTRS_PER_PTE * PAGE_SIZE)
--
- unsigned long node_remap_start_pfn[MAX_NUMNODES];
- unsigned long node_remap_size[MAX_NUMNODES];
- unsigned long node_remap_offset[MAX_NUMNODES];
-@@ -67,6 +65,20 @@
- 		node_end_pfn[nid] = max_pfn;
- }
- 
-+extern char __per_cpu_start[], __per_cpu_end[];
-+unsigned long __per_cpu_offset[NR_CPUS];
-+
-+#define PER_CPU_PAGES	PFN_UP((unsigned long)(__per_cpu_end-__per_cpu_start))
-+#define MEM_MAP_SIZE(n)	PFN_UP((node_end_pfn[n]-node_start_pfn[n]+1)*sizeof(struct page))
-+
-+#ifdef CONFIG_X86_NUMAQ
-+#define early_cpu_to_node(cpu)		((cpu)/4)
-+#define early_node_to_cpumask(node)	(0xFUL << (4*(node)))
-+#else
-+#define early_cpu_to_node(cpu)		cpu_to_node(cpu)
-+#define early_node_to_cpumask(node)	node_to_cpumask(node)
-+#endif
-+
- /* 
-  * Allocate memory for the pg_data_t via a crude pre-bootmem method
-  * We ought to relocate these onto their own node later on during boot.
-@@ -82,6 +94,44 @@
- 	}
- }
- 
-+static void __init allocate_one_cpu_area(int cpu)
-+{
-+	int cpu_in_node, node = early_cpu_to_node(cpu);
-+	unsigned long nodemask = early_node_to_cpumask(node);
-+	unsigned long node_vaddr = (unsigned long)node_remap_start_vaddr[node];
-+
-+	if (!PER_CPU_PAGES)
-+		return;
-+
-+	if (!node) {
-+		__per_cpu_offset[cpu] = min_low_pfn*PAGE_SIZE
-+					+ PAGE_OFFSET
-+					- (unsigned long)__per_cpu_start;
-+		min_low_pfn += PER_CPU_PAGES;
-+		return;
-+	}
-+
-+	cpu_in_node = hweight32(nodemask & ((1UL << cpu) - 1));
-+	__per_cpu_offset[cpu] = node_vaddr + MEM_MAP_SIZE(node)*PAGE_SIZE
-+					+ PFN_UP(sizeof(pg_data_t))*PAGE_SIZE
-+					+ PER_CPU_PAGES*cpu_in_node*PAGE_SIZE
-+					- (unsigned long)__per_cpu_start;
-+}
-+
-+void __init setup_per_cpu_areas(void)
-+{
-+	int node, cpu;
-+	for (node = 0; node < numnodes; ++node) {
-+		for (cpu = 0; cpu < NR_CPUS; ++cpu) {
-+			if (early_cpu_to_node(cpu) == node) {
-+				memcpy(RELOC_HIDE((char *)__per_cpu_start, __per_cpu_offset[cpu]),
-+						__per_cpu_start,
-+						PER_CPU_PAGES*PAGE_SIZE);
-+			}
-+		}
-+	}
-+}
-+
- /*
-  * Register fully available low RAM pages with the bootmem allocator.
-  */
-@@ -144,13 +194,11 @@
- 	unsigned long size, reserve_pages = 0;
- 
- 	for (nid = 1; nid < numnodes; nid++) {
--		/* calculate the size of the mem_map needed in bytes */
--		size = (node_end_pfn[nid] - node_start_pfn[nid] + 1) 
--			* sizeof(struct page) + sizeof(pg_data_t);
--		/* convert size to large (pmd size) pages, rounding up */
--		size = (size + LARGE_PAGE_BYTES - 1) / LARGE_PAGE_BYTES;
--		/* now the roundup is correct, convert to PAGE_SIZE pages */
--		size = size * PTRS_PER_PTE;
-+		/* calculate the size of the mem_map needed in pages */
-+		size = MEM_MAP_SIZE(nid) + PFN_UP(sizeof(pg_data_t))
-+			+ PER_CPU_PAGES*hweight32(early_node_to_cpumask(nid));
-+		/* round up to nearest pmd boundary */
-+		size = (size + PTRS_PER_PTE - 1) & ~(PTRS_PER_PTE - 1);
- 		printk("Reserving %ld pages of KVA for lmem_map of node %d\n",
- 				size, nid);
- 		node_remap_size[nid] = size;
-@@ -196,9 +244,14 @@
- 	printk("Low memory ends at vaddr %08lx\n",
- 			(ulong) pfn_to_kaddr(max_low_pfn));
- 	for (nid = 0; nid < numnodes; nid++) {
-+		int cpu;
- 		node_remap_start_vaddr[nid] = pfn_to_kaddr(
- 			highstart_pfn - node_remap_offset[nid]);
- 		allocate_pgdat(nid);
-+		for (cpu = 0; cpu < NR_CPUS; ++cpu) {
-+			if (early_cpu_to_node(cpu) == nid)
-+				allocate_one_cpu_area(cpu);
-+		}
- 		printk ("node %d will remap to vaddr %08lx - %08lx\n", nid,
- 			(ulong) node_remap_start_vaddr[nid],
- 			(ulong) pfn_to_kaddr(highstart_pfn
-===== include/asm-i386/numaq.h 1.7 vs edited =====
---- 1.7/include/asm-i386/numaq.h	Fri Feb 28 15:03:59 2003
-+++ edited/include/asm-i386/numaq.h	Fri Feb 28 18:37:53 2003
-@@ -169,9 +169,9 @@
-         struct	eachquadmem eq[MAX_NUMNODES];	/* indexed by quad id */
- };
- 
--static inline unsigned long get_zholes_size(int nid)
-+static inline unsigned long *get_zholes_size(int nid)
- {
--	return 0;
-+	return NULL;
- }
- #endif /* CONFIG_X86_NUMAQ */
- #endif /* NUMAQ_H */
-===== include/asm-i386/percpu.h 1.1 vs edited =====
---- 1.1/include/asm-i386/percpu.h	Fri Mar 15 04:55:35 2002
-+++ edited/include/asm-i386/percpu.h	Fri Feb 28 18:31:26 2003
-@@ -1,6 +1,30 @@
- #ifndef __ARCH_I386_PERCPU__
- #define __ARCH_I386_PERCPU__
- 
-+#include <linux/config.h>
-+#include <linux/compiler.h>
-+
-+#ifndef CONFIG_DISCONTIGMEM
- #include <asm-generic/percpu.h>
-+#else /* CONFIG_DISCONTIGMEM */
-+
-+extern unsigned long __per_cpu_offset[NR_CPUS];
-+void setup_per_cpu_areas(void);
-+
-+/* Separate out the type, so (int[3], foo) works. */
-+#ifndef MODULE
-+#define DEFINE_PER_CPU(type, name) \
-+    __attribute__((__section__(".data.percpu"))) __typeof__(type) name##__per_cpu
-+#endif
-+
-+/* var is in discarded region: offset to particular copy we want */
-+#define per_cpu(var, cpu) (*RELOC_HIDE(&var##__per_cpu, __per_cpu_offset[cpu]))
-+#define __get_cpu_var(var) per_cpu(var, smp_processor_id())
-+
-+#define DECLARE_PER_CPU(type, name) extern __typeof__(type) name##__per_cpu
-+#define EXPORT_PER_CPU_SYMBOL(var) EXPORT_SYMBOL(var##__per_cpu)
-+#define EXPORT_PER_CPU_SYMBOL_GPL(var) EXPORT_SYMBOL_GPL(var##__per_cpu)
-+
-+#endif /* CONFIG_DISCONTIGMEM */
- 
- #endif /* __ARCH_I386_PERCPU__ */
+The problem doesn't seems fatal and the machine doesn't crash hard, but it's
+still a bug.
+
+Thanks
+
+bill
+

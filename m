@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316663AbSGXDBR>; Tue, 23 Jul 2002 23:01:17 -0400
+	id <S316683AbSGXDCk>; Tue, 23 Jul 2002 23:02:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316677AbSGXDBR>; Tue, 23 Jul 2002 23:01:17 -0400
-Received: from node-209-133-23-217.caravan.ru ([217.23.133.209]:39438 "EHLO
-	mail.tv-sign.ru") by vger.kernel.org with ESMTP id <S316663AbSGXDBR>;
-	Tue, 23 Jul 2002 23:01:17 -0400
-Message-ID: <3D3E19F6.72806B9D@tv-sign.ru>
-Date: Wed, 24 Jul 2002 07:07:34 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+	id <S316712AbSGXDCj>; Tue, 23 Jul 2002 23:02:39 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62216 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316683AbSGXDCh>;
+	Tue, 23 Jul 2002 23:02:37 -0400
+Message-ID: <3D3E1B66.F17D8B9E@zip.com.au>
+Date: Tue, 23 Jul 2002 20:13:42 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch] big IRQ lock removal, 2.5.27-G0
-References: <Pine.LNX.4.44.0207240137190.3812-100000@localhost.localdomain>
+To: Robert Love <rml@tech9.net>
+CC: Ingo Molnar <mingo@elte.hu>, george anzinger <george@mvista.com>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] irqlock patch -G3. [was Re: odd memory corruption in2.5.27?]
+References: <Pine.LNX.4.44.0207240100150.2732-100000@localhost.localdomain> <1027472897.927.247.camel@sinai>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
-
-> > Then local_bh_enable() has a small preemptible window between
-> > __local_bh_enable() and do_softirq()->local_irq_save(flags).
-> > It is only latency problem.
+Robert Love wrote:
 > 
-> i dont think getting a preemption before softirqs are processed is a big
-> problem. Such type of preemption comes in form of an interrupt, which
-> handles softirqs in irq_exit() anyway, so there's no delay.
+> ...
+> Attached is the patch George mentioned, against 2.5.27.
+> 
 
-Well, no. Not all smp_xxx_interrupt() use irq_enter/exit().
-Reschedule interrupt, for example, do not. But indeed, it is not
-big problem.
+I'd agree with Robert on that.  The idea should be that,
+as much as possible, preempt "just works" as long as the
+programmer sticks with standard SMP programming practices.
 
-Oleg.
+And yet here we have a case where a spin_unlock() will
+go and turn on local interrupts.  Only with CONFIG_PREEMPT,
+and even then, extremely rarely.
+
+
+Plus it would be nice to have an arch-independent way of
+querying whether the current CPU has interrupts enabled.
+I've needed that several times within debug/devel code.
+
+
+Robert and George's patch doesn't seem to be optimal though - if
+we're not going to preempt at spin_unlock() time, we need to
+preempt at local_irq_restore() time.  It'll be untrivial to fix
+all this, but this very subtle change to the locking semantics
+with CONFIG_PREEMPT is quite nasty.
+
+-

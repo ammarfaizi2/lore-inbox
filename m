@@ -1,83 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262951AbUDEQUn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 12:20:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262936AbUDEQUn
+	id S262936AbUDEQcb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 12:32:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262911AbUDEQcb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 12:20:43 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:6447 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262911AbUDEQUg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 12:20:36 -0400
-Message-ID: <40717AA8.9050900@sgi.com>
-Date: Mon, 05 Apr 2004 10:26:32 -0500
-From: Ray Bryant <raybry@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-CC: "'Andy Whitcroft'" <apw@shadowen.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, anton@samba.org, sds@epoch.ncsc.mil,
-       ak@suse.de, lse-tech@lists.sourceforge.net, linux-ia64@vger.kernel.org
-Subject: Re: [Lse-tech] RE: [PATCH] HUGETLB memory commitment
-References: <200404040331.i343VSF02496@unix-os.sc.intel.com>
-In-Reply-To: <200404040331.i343VSF02496@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Apr 2004 12:32:31 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:24723 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262936AbUDEQc3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 12:32:29 -0400
+Date: Mon, 5 Apr 2004 18:32:28 +0200
+From: Jan Kara <jack@suse.cz>
+To: =?iso-8859-2?Q?Vladim=EDr_T=F8ebick=FD?= <druid@mail.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Filesystem strangeness (ext3)
+Message-ID: <20040405163228.GF22380@atrey.karlin.mff.cuni.cz>
+References: <1014938126.20040405120812@xhost.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1014938126.20040405120812@xhost.cz>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ken,
+  Hi,
 
-Chen, Kenneth W wrote:
-
+> yesterday I discovered a bunch of corrupted files. When I try to stat()
+> it, I get "Value too large for defined data type" or "Input/output
+> error" when it is a symlink to those files. These were normal files
+> (some readmes etc.) not accessed by any daemons or any applications at
+> all. Midnight marks them with "?" at beginning and shows something
+> about 3GB size. When I try to unlink() them, I get "Operation not
+> permitted" even though I'm root. Kernel log shows these two kinds of
+> errors:
 > 
-> A simple counter won't work for different file offset mapping.  It has to
-> be some sort of per-inode, per-block reservation tracking.  I think we are
-> steering in the right direction though.
+> Apr  5 11:33:47 master kernel: init_special_inode: bogus imode (113315)
 > 
+> and
 > 
+> Apr  5 11:33:49 master kernel: attempt to access beyond end of device
+> Apr  5 11:33:49 master kernel: 09:01: rw=0, want=587173332, limit=38539776
+  It seems like something trashed part of your disk...
+
+> When I try to e2fsck -nf (I tried only ro test on mounted partition) I
+> get some of these:
 > 
+> Illegal block #10 (2236192626) in inode 523442.  IGNORED.
+  I suggest at least remounting the partition ro and then run the ro-test.
 
-OK, pardon my question about test code, that is trivial enough I guess.
+> and:
+> 
+> Error while iterating over blocks in inode 523442: Illegal triply indirect block found
+> Segmentation fault
+  Bug in e2fsck - you probably want to download latest version of e2fsck. If
+there is still this bug report to e2fsck authors.
 
-Anyway, the only way I can see to make this work with non-zero offset is to 
-hang a list of segment descriptors (offset and size) for each reserved segment 
-off of the inode.  Then when a new mapping comes in, we search the segment 
-list to see if the new offset and size overlaps with any of the existing 
-reserved segments.  If it doesn't, then we make a new reservation (and request 
-file system quota) for the current size, and add the current request to the 
-reserved segment list.  If it does, and it fits entirely in a previously 
-reserved segement, then no change to reservation/quota needs to be made.  If 
-it only partially fits, then we need to make a new reservation/quota request 
-for the number of new huge pages required and update the overlapping segment's 
-length to reflect the new reservation.
+> It confuses me a little bit and I don't know wheter I should try to do
+> rw e2fsck on unmounted partition, especially when e2fsck segfaults. My
+  You should definitely backup the partition before you run fsck on it.
 
-Then in truncate_hugepages() we can search the segment list again, discarding 
-full or partial segments that occur either entirely or partially beyond 
-"lstart", as appropropriate and doing hugetlb_unreserve() and 
-hugetlbfs_put_quota() for the appropriate number of pages.
+> system:
+> 
+> Linux master 2.4.22 #1 Sat Sep 20 14:26:11 CEST 2003 i686 unknown
+> e2fsck 1.27 (8-Mar-2002)
+>         Using EXT2FS Library version 1.27, 8-Mar-2002
+> The device is /dev/md1:
+> 
+> [dev   9,   1] /dev/md1         889E3491.06B38BDD.B6F3803F.BCE40C0E online
+> [dev   3,   7] /dev/hda7        889E3491.06B38BDD.B6F3803F.BCE40C0E good
+> [dev   3,  71] /dev/hdb7        889E3491.06B38BDD.B6F3803F.BCE40C0E good
+> 
+> smartctl shows no errors on those physical disks.
 
-This will be quite a bit of code and complexity.  Do we still think this is 
-all worth it to follow Andrew's suggestion of no API changes for "allocate on
-fault" hugetlbpages?  It would be a lot cleaner just to return SIGBUS if we 
-run out of hugepages and be done with it, in spite of the API change.
-
-Is there a simpler way to do the correct reservation?  (One could allocate the 
-pages at mmap() time, resurrecting hugetlb_prefault(), but zero the pages at 
-fault time, this would solve the original problem we ran into at SGI, but 
-would not solve Andi's requirement to postpone allocation so NUMA API's can 
-control placement.)
-
+								Honza
 -- 
-Best Regards,
-Ray
------------------------------------------------
-                   Ray Bryant
-512-453-9679 (work)         512-507-7807 (cell)
-raybry@sgi.com             raybry@austin.rr.com
-The box said: "Requires Windows 98 or better",
-            so I installed Linux.
------------------------------------------------
-
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

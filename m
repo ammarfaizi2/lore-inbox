@@ -1,68 +1,168 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317031AbSFGRke>; Fri, 7 Jun 2002 13:40:34 -0400
+	id <S317307AbSFGRmZ>; Fri, 7 Jun 2002 13:42:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317307AbSFGRkd>; Fri, 7 Jun 2002 13:40:33 -0400
-Received: from exchange.ignitemedia.com ([207.24.163.39]:35619 "EHLO
-	ignitemedia.com") by vger.kernel.org with ESMTP id <S317031AbSFGRkc> convert rfc822-to-8bit;
-	Fri, 7 Jun 2002 13:40:32 -0400
-Content-Class: urn:content-classes:message
+	id <S317310AbSFGRmY>; Fri, 7 Jun 2002 13:42:24 -0400
+Received: from p50886B5E.dip.t-dialin.net ([80.136.107.94]:3721 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317307AbSFGRmV>; Fri, 7 Jun 2002 13:42:21 -0400
+Date: Fri, 7 Jun 2002 11:42:06 -0600 (MDT)
+From: Lightweight patch manager <patch@luckynet.dynu.com>
+X-X-Sender: patch@hawkeye.luckynet.adm
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Mikael Pettersson <mikpe@csd.uu.se>
+Subject: [PATCH][2.5] tulip: change device names
+Message-ID: <Pine.LNX.4.44.0206071140080.17181-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: kernel meltdown
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-Date: Fri, 7 Jun 2002 12:36:11 -0500
-Message-ID: <D466FBEAA19E7E408BE3FAAC6EEB567601820186@utah.ignitemedia.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: kernel meltdown
-Thread-Index: AcIOSnZa8MKrD+AGREqCmxVVKOtM0A==
-From: "Anna Riley" <ariley@ignitesports.com>
-To: <linux-kernel@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
-	I am hoping someone can help me.  This morning one of our web servers crapped itself and I don't know why.  It's running RedHat 7.2 kernel version 2.4.9-31smp.  I couldn't login from the console so I had to reset it.  When it came back up it was fine.  This is what I am seeing in the messages log:
+This is supposed to fix the misidentified names from 
+drivers/net/tulip/media.c, which previously printk'd "eth%d".
 
+--- linus-2.5/drivers/net/tulip/media.c	Wed Jun  5 10:02:45 2002
++++ thunder-2.5.20/drivers/net/tulip/media.c	Fri Jun  7 11:39:06 2002
+@@ -182,9 +182,9 @@
+ 		switch (mleaf->type) {
+ 		case 0:					/* 21140 non-MII xcvr. */
+ 			if (tulip_debug > 1)
+-				printk(KERN_DEBUG "%s: Using a 21140 non-MII transceiver"
++				printk(KERN_DEBUG "tulip%d: Using a 21140 non-MII transceiver"
+ 					   " with control setting %2.2x.\n",
+-					   dev->name, p[1]);
++					   dev->ifindex, p[1]);
+ 			dev->if_port = p[0];
+ 			if (startup)
+ 				outl(mtable->csr12dir | 0x100, ioaddr + CSR12);
+@@ -205,15 +205,15 @@
+ 				struct medialeaf *rleaf = &mtable->mleaf[mtable->has_reset];
+ 				unsigned char *rst = rleaf->leafdata;
+ 				if (tulip_debug > 1)
+-					printk(KERN_DEBUG "%s: Resetting the transceiver.\n",
+-						   dev->name);
++					printk(KERN_DEBUG "tulip%d: Resetting the transceiver.\n",
++						   dev->ifindex);
+ 				for (i = 0; i < rst[0]; i++)
+ 					outl(get_u16(rst + 1 + (i<<1)) << 16, ioaddr + CSR15);
+ 			}
+ 			if (tulip_debug > 1)
+-				printk(KERN_DEBUG "%s: 21143 non-MII %s transceiver control "
++				printk(KERN_DEBUG "tulip%d: 21143 non-MII %s transceiver control "
+ 					   "%4.4x/%4.4x.\n",
+-					   dev->name, medianame[dev->if_port], setup[0], setup[1]);
++					   dev->ifindex, medianame[dev->if_port], setup[0], setup[1]);
+ 			if (p[0] & 0x40) {	/* SIA (CSR13-15) setup values are provided. */
+ 				csr13val = setup[0];
+ 				csr14val = setup[1];
+@@ -240,8 +240,8 @@
+ 				if (startup) outl(csr13val, ioaddr + CSR13);
+ 			}
+ 			if (tulip_debug > 1)
+-				printk(KERN_DEBUG "%s:  Setting CSR15 to %8.8x/%8.8x.\n",
+-					   dev->name, csr15dir, csr15val);
++				printk(KERN_DEBUG "tulip%d:  Setting CSR15 to %8.8x/%8.8x.\n",
++					   dev->ifindex, csr15dir, csr15val);
+ 			if (mleaf->type == 4)
+ 				new_csr6 = 0x82020000 | ((setup[2] & 0x71) << 18);
+ 			else
+@@ -285,8 +285,8 @@
+ 				if (tp->mii_advertise == 0)
+ 					tp->mii_advertise = tp->advertising[phy_num];
+ 				if (tulip_debug > 1)
+-					printk(KERN_DEBUG "%s:  Advertising %4.4x on MII %d.\n",
+-					       dev->name, tp->mii_advertise, tp->phys[phy_num]);
++					printk(KERN_DEBUG "tulip%d:  Advertising %4.4x on MII %d.\n",
++					       dev->ifindex, tp->mii_advertise, tp->phys[phy_num]);
+ 				tulip_mdio_write(dev, tp->phys[phy_num], 4, tp->mii_advertise);
+ 			}
+ 			break;
+@@ -303,8 +303,8 @@
+ 				struct medialeaf *rleaf = &mtable->mleaf[mtable->has_reset];
+ 				unsigned char *rst = rleaf->leafdata;
+ 				if (tulip_debug > 1)
+-					printk(KERN_DEBUG "%s: Resetting the transceiver.\n",
+-						   dev->name);
++					printk(KERN_DEBUG "tulip%d: Resetting the transceiver.\n",
++						   dev->ifindex);
+ 				for (i = 0; i < rst[0]; i++)
+ 					outl(get_u16(rst + 1 + (i<<1)) << 16, ioaddr + CSR15);
+ 			}
+@@ -312,20 +312,20 @@
+ 			break;
+ 		}
+ 		default:
+-			printk(KERN_DEBUG "%s:  Invalid media table selection %d.\n",
+-					   dev->name, mleaf->type);
++			printk(KERN_DEBUG "tulip%d:  Invalid media table selection %d.\n",
++					   dev->ifindex, mleaf->type);
+ 			new_csr6 = 0x020E0000;
+ 		}
+ 		if (tulip_debug > 1)
+-			printk(KERN_DEBUG "%s: Using media type %s, CSR12 is %2.2x.\n",
+-				   dev->name, medianame[dev->if_port],
++			printk(KERN_DEBUG "tulip%d: Using media type %s, CSR12 is %2.2x.\n",
++				   dev->ifindex, medianame[dev->if_port],
+ 				   inl(ioaddr + CSR12) & 0xff);
+ 	} else if (tp->chip_id == LC82C168) {
+ 		if (startup && ! tp->medialock)
+ 			dev->if_port = tp->mii_cnt ? 11 : 0;
+ 		if (tulip_debug > 1)
+-			printk(KERN_DEBUG "%s: PNIC PHY status is %3.3x, media %s.\n",
+-				   dev->name, inl(ioaddr + 0xB8), medianame[dev->if_port]);
++			printk(KERN_DEBUG "tulip%d: PNIC PHY status is %3.3x, media %s.\n",
++				   dev->ifindex, inl(ioaddr + 0xB8), medianame[dev->if_port]);
+ 		if (tp->mii_cnt) {
+ 			new_csr6 = 0x810C0000;
+ 			outl(0x0001, ioaddr + CSR15);
+@@ -356,9 +356,9 @@
+ 		} else
+ 			new_csr6 = 0x038600000;
+ 		if (tulip_debug > 1)
+-			printk(KERN_DEBUG "%s: No media description table, assuming "
++			printk(KERN_DEBUG "tulip%d: No media description table, assuming "
+ 				   "%s transceiver, CSR12 %2.2x.\n",
+-				   dev->name, medianame[dev->if_port],
++				   dev->ifindex, medianame[dev->if_port],
+ 				   inl(ioaddr + CSR12));
+ 	}
+ 
+@@ -380,16 +380,16 @@
+ 	bmsr = tulip_mdio_read(dev, tp->phys[0], MII_BMSR);
+ 	lpa = tulip_mdio_read(dev, tp->phys[0], MII_LPA);
+ 	if (tulip_debug > 1)
+-		printk(KERN_INFO "%s: MII status %4.4x, Link partner report "
+-			   "%4.4x.\n", dev->name, bmsr, lpa);
++		printk(KERN_INFO "tulip%d: MII status %4.4x, Link partner report "
++			   "%4.4x.\n", dev->ifindex, bmsr, lpa);
+ 	if (bmsr == 0xffff)
+ 		return -2;
+ 	if ((bmsr & BMSR_LSTATUS) == 0) {
+ 		int new_bmsr = tulip_mdio_read(dev, tp->phys[0], MII_BMSR);
+ 		if ((new_bmsr & BMSR_LSTATUS) == 0) {
+ 			if (tulip_debug  > 1)
+-				printk(KERN_INFO "%s: No link beat on the MII interface,"
+-					   " status %4.4x.\n", dev->name, new_bmsr);
++				printk(KERN_INFO "tulip%d: No link beat on the MII interface,"
++					   " status %4.4x.\n", dev->ifindex, new_bmsr);
+ 			return -1;
+ 		}
+ 	}
+@@ -408,9 +408,9 @@
+ 		tulip_restart_rxtx(tp);
+ 
+ 		if (tulip_debug > 0)
+-			printk(KERN_INFO "%s: Setting %s-duplex based on MII"
++			printk(KERN_INFO "tulip%d: Setting %s duplex based on MII"
+ 				   "#%d link partner capability of %4.4x.\n",
+-				   dev->name, tp->full_duplex ? "full" : "half",
++				   dev->ifindex, tp->full_duplex ? "full" : "half",
+ 				   tp->phys[0], lpa);
+ 		return 1;
+ 	}
 
-Jun  7 02:57:43 web02 kernel: kernel BUG at slab.c:1767!
-Jun  7 02:57:43 web02 kernel: invalid operand: 0000
-Jun  7 02:57:43 web02 kernel: Kernel 2.4.9-31smp
-Jun  7 02:57:43 web02 kernel: CPU:    0
-Jun  7 02:57:43 web02 kernel: EIP:    0010:[kmem_cache_reap+504/912]    Not tainted
-Jun  7 02:57:43 web02 kernel: EIP:    0010:[<c0133d08>]    Not tainted
-Jun  7 02:57:43 web02 kernel: EFLAGS: 00010092
-Jun  7 02:57:43 web02 kernel: EIP is at kmem_cache_reap [kernel] 0x1f8 
-Jun  7 02:57:43 web02 kernel: eax: 0000001b   ebx: e2c34000   ecx: c02db9e4   edx: 00003906
-Jun  7 02:57:43 web02 kernel: esi: c1b8f9e8   edi: c1b8f9f8   ebp: 00000000   esp: e3fedf8c
-Jun  7 02:57:43 web02 kernel: ds: 0018   es: 0018   ss: 0018
-Jun  7 02:57:43 web02 kernel: Process kswapd (pid: 5, stackpage=e3fed000)
-Jun  7 02:57:43 web02 kernel: Stack: c024f253 000006e7 00000d80 c1b8f9f8 c1b8f9f0 00000183 e3f9d000 0000000a 
-Jun  7 02:57:43 web02 kernel:        00000000 00000000 00000000 00000183 000000c0 000000c0 0008e000 c0136076 
-Jun  7 02:57:43 web02 kernel:        000000c0 e3fec000 00000006 c01360d5 000000c0 00000000 00010f00 c1d9ffb8 
-Jun  7 02:57:43 web02 kernel: Call Trace: [call_spurious_interrupt+130654/156203] .rodata.str1.1 [kernel] 0x2a8e 
-Jun  7 02:57:43 web02 kernel: Call Trace: [<c024f253>] .rodata.str1.1 [kernel] 0x2a8e 
-Jun  7 02:57:43 web02 kernel: [do_try_to_free_pages+70/80] do_try_to_free_pages [kernel] 0x46 
-Jun  7 02:57:43 web02 kernel: [<c0136076>] do_try_to_free_pages [kernel] 0x46 
-Jun  7 02:57:43 web02 kernel: [kswapd+85/240] kswapd [kernel] 0x55 
-Jun  7 02:57:43 web02 kernel: [<c01360d5>] kswapd [kernel] 0x55 
-Jun  7 02:57:43 web02 kernel: [_stext+0/96] stext [kernel] 0x0 
-Jun  7 02:57:43 web02 kernel: [<c0105000>] stext [kernel] 0x0 
-Jun  7 02:57:43 web02 kernel: [kernel_thread+38/48] kernel_thread [kernel] 0x26 
-Jun  7 02:57:43 web02 kernel: [<c0105866>] kernel_thread [kernel] 0x26 
-Jun  7 02:57:43 web02 kernel: [kswapd+0/240] kswapd [kernel] 0x0 
-Jun  7 02:57:43 web02 kernel: [<c0136080>] kswapd [kernel] 0x0 
-Jun  7 02:57:43 web02 kernel: 
-Jun  7 02:57:43 web02 kernel: 
-Jun  7 02:57:43 web02 kernel: Code: 0f 0b 58 5a 8b 03 45 39 f8 75 dd 8b 4e 2c 89 ea 8b 7e 4c d3 
+-- 
+Lightweight patch manager using pine. If you have any objections, tell me.
 
-
-I have searched on google for some of these messages but I couldn't find anything helpful.  Any help or direction would be apprecaited. 
-
-I am not subscribed to this list so email to me directly would be great.  If I am mailing to the wrong list my apologies.
-
-Thanks so much all!
-
--anna

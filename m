@@ -1,31 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280027AbRLIAwY>; Sat, 8 Dec 2001 19:52:24 -0500
+	id <S280537AbRLIA4E>; Sat, 8 Dec 2001 19:56:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280537AbRLIAwO>; Sat, 8 Dec 2001 19:52:14 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27403 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280251AbRLIAwJ>; Sat, 8 Dec 2001 19:52:09 -0500
-Subject: Re: [PATCH] 2.4.16 kernel/printk.c (per processorinitializationcheck)
-To: davidm@hpl.hp.com
-Date: Sun, 9 Dec 2001 00:55:25 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        marcelo@conectiva.com.br (Marcelo Tosatti),
-        akpm@zip.com.au (Andrew Morton), j-nomura@ce.jp.nec.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <15378.45358.807039.55719@napali.hpl.hp.com> from "David Mosberger" at Dec 08, 2001 04:32:46 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S280495AbRLIAzy>; Sat, 8 Dec 2001 19:55:54 -0500
+Received: from mailrelay.netcologne.de ([194.8.194.96]:1670 "EHLO
+	mailrelay.netcologne.de") by vger.kernel.org with ESMTP
+	id <S280035AbRLIAzn>; Sat, 8 Dec 2001 19:55:43 -0500
+Message-ID: <00a001c1804c$3801dac0$30d8fea9@ecce>
+From: "[MOc]cda*mirabilos" <mirabilos@netcologne.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <200112090039.BAA25399@webserver.ithnet.com> <3C12B354.3060801@zytor.com>
+Subject: Re: Typedefs / gcc / HIGHMEM
+Date: Sun, 9 Dec 2001 00:55:38 -0000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16CsFa-0003KV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't think you can do it early enough.  calibrate_delay() requires
-> irqs to be enabled and the first printk() happens long before irqs are
-> enabled on an AP.
+> int64_t.  See the C99 standard.
 
-So we make sure our initial console code doesnt need udelay(), or set an
-initial safe default like 25MHz
+Do you have an URI for that standard?
+Text or HTML, if possible... it's easier to read raw.
+Thanks
+

@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280126AbRK0O7Z>; Tue, 27 Nov 2001 09:59:25 -0500
+	id <S280161AbRK0PCP>; Tue, 27 Nov 2001 10:02:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280101AbRK0O7P>; Tue, 27 Nov 2001 09:59:15 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:65032 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S280016AbRK0O7C>;
-	Tue, 27 Nov 2001 09:59:02 -0500
-Message-ID: <XFMail.20011127155621.ast@domdv.de>
-X-Mailer: XFMail 1.5.1 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <1793.10.119.8.1.1006872608.squirrel@extranet.jtrix.com>
-Date: Tue, 27 Nov 2001 15:56:21 +0100 (CET)
-Organization: D.O.M. Datenverarbeitung GmbH
-From: Andreas Steinmetz <ast@domdv.de>
-To: "Martin A. Brooks" <martin@jtrix.com>
+	id <S280531AbRK0PB6>; Tue, 27 Nov 2001 10:01:58 -0500
+Received: from pcow024o.blueyonder.co.uk ([195.188.53.126]:32010 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S280671AbRK0PBJ>;
+	Tue, 27 Nov 2001 10:01:09 -0500
+Date: Tue, 27 Nov 2001 15:03:32 +0000
+From: Ian Molton <imolton@clara.net>
+To: linux-kernel@vger.kernel.org
 Subject: Re: 'spurious 8259A interrupt: IRQ7'
-Cc: linux-kernel@vger.kernel.org, lkml@patrickburleson.com
+Message-Id: <20011127150332.0aee221b.imolton@clara.net>
+In-Reply-To: <1576.10.119.8.1.1006871893.squirrel@extranet.jtrix.com>
+In-Reply-To: <XFMail.20011127152007.ast@domdv.de>
+	<1576.10.119.8.1.1006871893.squirrel@extranet.jtrix.com>
+Reply-To: spyro@armlinux.org
+Organization: The dragon roost
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; )
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On a sunny Tue, 27 Nov 2001 14:38:13 -0000 (GMT) Martin A. Brooks gathered
+a sheaf of electrons and etched in their motions the following immortal
+words:
 
-On 27-Nov-2001 Martin A. Brooks wrote:
->> Something I should have added to my post is that I have a Tulip based
->> NIC  from Netgear.  But I believe something is definitely amiss with
->> Athlon based  machines and Tulip cards and compiled in SMP support.
+> > As far as I remember this was talked about earlier. Different mobos,
+> > chipsets, processor brands, but always IRQ 7. /me wonders.
 > 
-> Mine is a UP box.
+> In my research before posting, a common thread seemed to be the presence
+of
+> a tulip card in the machine.  Has anyone seen this on a non-tulip box?
 
-All of my boxes are UP, too. PII, PIII, Athlon TB. Various mobos.
+No, but I have a tulip in my box and I see it :)
 
-> 
-> Martin A. Brooks.
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
+seems to be harmless.

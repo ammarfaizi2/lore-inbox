@@ -1,123 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264108AbUDGGrK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 02:47:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264109AbUDGGrK
+	id S264113AbUDGGue (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 02:50:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264109AbUDGGue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 02:47:10 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:18357 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S264108AbUDGGqi (ORCPT
+	Wed, 7 Apr 2004 02:50:34 -0400
+Received: from main.gmane.org ([80.91.224.249]:26566 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264117AbUDGGuX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 02:46:38 -0400
-Date: Wed, 7 Apr 2004 08:46:37 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch] BME, noatime and nodiratime
-Message-ID: <20040407064637.GB28941@MAIL.13thfloor.at>
-Mail-Followup-To: viro@parcelfarce.linux.theplanet.co.uk,
-	Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20040406145544.GA19553@MAIL.13thfloor.at> <20040406204843.GL31500@parcelfarce.linux.theplanet.co.uk>
+	Wed, 7 Apr 2004 02:50:23 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Daniel Pittman <daniel@rimspace.net>
+Subject: USB/BlueTooth oops in 2.6.5
+Date: Wed, 07 Apr 2004 16:33:58 +1000
+Message-ID: <877jwse1pl.fsf@enki.rimspace.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040406204843.GL31500@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: m029-045.nv.iinet.net.au
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.5 (celeriac, linux)
+Cancel-Lock: sha1:3a5uvosrfIUSWtMNRXVoIhWeKwQ=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 06, 2004 at 09:48:44PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Tue, Apr 06, 2004 at 04:55:44PM +0200, Herbert Poetzl wrote:
-> > 
-> > Hi Andrew!
-> > 
-> > according to todays vfs strategy (hope it hasn't changed
-> > again), here is the first patch, which adds the mount 
-> > flags propagation, fixes the /proc display, and implements
-> > noatime and nodiratime per mountpoint ...
-> > 
-> > please consider for inclusion ...
-> 
-> noatime/nodiratime: OK, but we still have direct modifications of i_atime
-> that need to be taken care of.
+When I try to turn on the BlueTooth interface in my laptop, it turns on
+a USB device.  Doing that with 2.6.5 generates the following error.
 
-okay, will look at it ...
+  Daniel
 
-> massage of ->show(): more or less OK.  However, we don't need to keep
-> MS_NOATIME and MS_NODIRATIME in flags at all - 
-> > +	if (flags & MS_NOATIME)
-> > +		mnt_flags |= MNT_NOATIME;
-> > +	if (flags & MS_NODIRATIME)
-> > +		mnt_flags |= MNT_NODIRATIME;
-> >  	flags &= ~(MS_NOSUID|MS_NOEXEC|MS_NODEV);
-> 
-> should remove them from flags in the last line, same way we do that for
-> nosuid/noexec/nodev, with obvious consequences for ->show().
-> 
-> Note that we don't need to keep MS_NOATIME check in update_atime() - that
-> animal is purely per-mountpoint now.
+usb 3-1: new full speed USB device using address 2
+Unable to handle kernel NULL pointer dereference at virtual address 00000004
+ printing eip:
+c02c43b2
+*pde = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c02c43b2>]    Not tainted
+EFLAGS: 00010296   (2.6.5-enki) 
+EIP is at usb_disable_interface+0x14/0x46
+eax: d24ca780   ebx: 00000000   ecx: 00000282   edx: dff6f100
+esi: 00000002   edi: 00000000   ebp: d4dedc00   esp: dfdafd48
+ds: 007b   es: 007b   ss: 0068
+Process khubd (pid: 5, threadinfo=dfdae000 task=dff0e080)
+Stack: 00000002 0000000b 00000001 00000002 ce3dcdb0 d4dedc00 c02c4608 d4dedc00 
+       d24ca780 0000000b 00000001 00000002 00000001 00000000 00000000 00001388 
+       00000000 d24ca780 00000000 d59f9880 d59f9938 d24cac80 c02f283d d4dedc00 
+Call Trace:
+ [<c02c4608>] usb_set_interface+0xb7/0x173
+ [<c02f283d>] hci_usb_probe+0x22f/0x480
+ [<c015a392>] alloc_inode+0x146/0x14b
+ [<c01715f5>] sysfs_new_inode+0x5d/0xa2
+ [<c02bf03b>] usb_probe_interface+0x61/0x6e
+ [<c024b86d>] bus_match+0x3f/0x6a
+ [<c024b8d9>] device_attach+0x41/0x91
+ [<c024ba98>] bus_add_device+0x5b/0x9f
+ [<c024aad4>] device_add+0xa1/0x120
+ [<c02c4996>] usb_set_configuration+0x1d4/0x25f
+ [<c02bfdc2>] usb_new_device+0x250/0x3c3
+ [<c02c14f1>] hub_port_connect_change+0x177/0x274
+ [<c02c1895>] hub_events+0x2a7/0x2fa
+ [<c02c1915>] hub_thread+0x2d/0xe4
+ [<c0116159>] default_wake_function+0x0/0x12
+ [<c02c18e8>] hub_thread+0x0/0xe4
+ [<c0104d1d>] kernel_thread_helper+0x5/0xb
 
-hmm, wasn't there a reason, for having them per inode
-like for 'special' files, which I do not remember atm?
+Code: 80 7b 04 00 74 24 31 f6 8b 43 0c 83 c7 01 0f b6 44 30 02 83 
 
-> > +	if (MNT_IS_NOATIME(mnt))
-> > +		return;
-> > +	if (S_ISDIR(inode->i_mode) && MNT_IS_NODIRATIME(mnt))
-> > +		return;
-> 
-> Do we need those to be macros?  AFAICS, this is the only place where we
-> do such checks and we shouldn't get new callers.  IOW, keeping them
-> separate doesn't buy us anything and only obfuscates the code.
+-- 
+Glass is, we now know, a 'slow liquid;' and we're slow dust.
+        -- Albert Goldbarth
 
-okay, no problem with that ...
-
-> > -#define MNT_NOSUID	1
-> > -#define MNT_NODEV	2
-> > -#define MNT_NOEXEC	4
-> > +#define MNT_RDONLY	1
-> > +#define MNT_NOSUID	2
-> > +#define MNT_NODEV	4
-> > +#define MNT_NOEXEC	8
-> > +#define MNT_NOATIME	16
-> > +#define MNT_NODIRATIME	32
-> 
-> *ugh*
-> 
-> a) what's the point of reordering them (rdonly shifting the existing ones)?
-
-simple, to match the MS_* counterparts, something which
-actually confused me in the first place (in the code)
-
-> b) since MNT_RDONLY doesn't do anything at that point, why introduce it
-> (and associated confusion) now?  As it is, your /proc/mounts will pretend
-> that per-mountpoint r/o works right now.  Since it doesn't...
-
-no, they won't. the required MNT_RDONLY flag in the proc
-function isn't set, so only MS_RDONLY will be reported
-(from the superblock) which is equivalent to what is 
-reported in the current version.
-
-> > +#define	MNT_IS_RDONLY(m)	((m) && ((m)->mnt_flags & MNT_RDONLY))
-> > +#define	MNT_IS_NOATIME(m)	((m) && ((m)->mnt_flags & MNT_NOATIME))
-> > +#define	MNT_IS_NODIRATIME(m)	((m) && ((m)->mnt_flags & MNT_NODIRATIME))
-> 
-> See above.  Besides, are we ever planning to pass NULL to these guys?
-
-originally there was a 'comment' which said, the
-(m) check can be removed, when we are sure that this
-isn't called with mnt == NULL ...
-
-so maybe a BUGON(!m) might be useful? 
-
-I'll add the 'updates' today ...
-
-best,
-Herbert
-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

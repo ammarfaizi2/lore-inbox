@@ -1,87 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269311AbUJQWog@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269314AbUJQWzA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269311AbUJQWog (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 18:44:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269314AbUJQWoB
+	id S269314AbUJQWzA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 18:55:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269315AbUJQWzA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 18:44:01 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:8400 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S269311AbUJQWn4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 18:43:56 -0400
-Date: Sun, 17 Oct 2004 23:44:10 +0100
-From: Alexander Clouter <alex-kernel@digriz.org.uk>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: venkatesh.pallipadi@intel.com, cpufreq@www.linux.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cpufreq_ondemand
-Message-ID: <20041017224410.GA30611@inskipp.digriz.org.uk>
-References: <20041017222916.GA30841@inskipp.digriz.org.uk> <4172F3C5.8090604@kolivas.org>
+	Sun, 17 Oct 2004 18:55:00 -0400
+Received: from fire.osdl.org ([65.172.181.4]:36311 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S269314AbUJQWy4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 18:54:56 -0400
+Subject: 2.6.9-final (compile stats)
+From: John Cherry <cherry@osdl.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1098053688.3882.1.camel@lightning>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="k1lZvvs/B4yU6o8G"
-Content-Disposition: inline
-In-Reply-To: <4172F3C5.8090604@kolivas.org>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 17 Oct 2004 15:54:49 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linux 2.6 Compile Statistics (gcc 3.2.2)
 
---k1lZvvs/B4yU6o8G
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Web page with links to complete details:
+   http://developer.osdl.org/cherry/compile/
 
-On Oct 18, Con Kolivas wrote:
->=20
-> I'd much prefer it shot up to 100% or else every time the cpu usage went=
-=20
-> up there'd be an obvious lag till the machine ran at it's capable speed.=
-=20
->  I very much doubt the small amount of time it spent at 100% speed with=
-=20
-> the default design would decrease the battery life significantly as well.
->=20
-The issue I found was that if you are running a process that is io bound, f=
-or
-example, then you may never need to run your cpu at 100%, it will speed up
-bit by bit[1] till it gets to a speed that is fast enough to to deal with it
-without max'ing the cpufreq.
+Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
+             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
+-----------  -----------  -------- -------- -------- -------- ---------
+2.6.9-final    0w/0e       0w/0e  1930w/0e   41w/0e  11w/0e   1950w/0e
+2.6.9-rc4      0w/0e       0w/0e  1930w/0e   41w/0e  11w/0e   1950w/0e
+2.6.9-rc3      0w/0e       0w/0e  2752w/17e  41w/0e  11w/0e   2782w/5e
+2.6.9-rc2      0w/0e       0w/0e  3036w/0e   41w/0e  11w/0e   3655w/0e
+2.6.9-rc1      0w/0e       0w/0e    77w/10e   4w/0e   3w/0e     68w/0e
+2.6.8.1        0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
+2.6.8          0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
+2.6.8-rc4      0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
+2.6.8-rc3      0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
+2.6.8-rc2      0w/0e       0w/0e    85w/ 0e   5w/0e   1w/0e     79w/0e
+2.6.8-rc1      0w/0e       0w/0e    87w/ 0e   5w/0e   1w/0e     82w/0e
+2.6.7          0w/0e       0w/0e   108w/ 0e   5w/0e   2w/0e    102w/0e
+2.6.7-rc3      0w/0e       0w/0e   108w/ 0e   5w/0e   2w/0e    104w/0e
+2.6.7-rc2      0w/0e       0w/0e   110w/ 0e   5w/0e   2w/0e    106w/0e
+2.6.7-rc1      0w/0e       0w/0e   111w/ 0e   6w/0e   2w/0e    107w/0e
+2.6.6          0w/0e       0w/0e   123w/ 0e   7w/0e   4w/0e    121w/0e
+2.6.6-rc3      0w/0e       0w/0e   124w/ 0e   7w/0e   5w/0e    121w/0e
+2.6.6-rc2      0w/0e       0w/0e   122w/ 0e   7w/0e   4w/0e    121w/0e
+2.6.6-rc1      0w/0e       0w/0e   125w/ 0e   7w/0e   4w/0e    123w/0e
+2.6.5          0w/0e       0w/0e   134w/ 0e   8w/0e   4w/0e    132w/0e
+2.6.5-rc3      0w/0e       0w/0e   135w/ 0e   8w/0e   4w/0e    132w/0e
+2.6.5-rc2      0w/0e       0w/0e   135w/ 0e   8w/0e   3w/0e    132w/0e
+2.6.5-rc1      0w/0e       0w/0e   138w/ 0e   8w/0e   3w/0e    135w/0e
+2.6.4          1w/0e       0w/0e   145w/ 0e   7w/0e   3w/0e    142w/0e
+2.6.4-rc2      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
+2.6.4-rc1      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
+2.6.3          1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
+2.6.3-rc4      1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
+2.6.3-rc3      1w/0e       0w/0e   145w/ 7e   9w/0e   3w/0e    148w/0e
+2.6.3-rc2      1w/0e       0w/0e   141w/ 0e   9w/0e   3w/0e    144w/0e
+2.6.3-rc1      1w/0e       0w/0e   145w/ 0e   9w/0e   3w/0e    177w/0e
+2.6.2          1w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.2-rc3      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.2-rc2      0w/0e       0w/0e   153w/ 8e  12w/0e   3w/0e    188w/0e
+2.6.2-rc1      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.1          0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
+2.6.1-rc3      0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
+2.6.1-rc2      0w/0e       0w/0e   166w/ 0e  12w/0e   3w/0e    205w/0e
+2.6.1-rc1      0w/0e       0w/0e   167w/ 0e  12w/0e   3w/0e    206w/0e
+2.6.0          0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
 
-This is after all exactly want most (if not all) the userspace daemons try =
-to=20
-do anyway.
+Daily compiles (ia32): 
+   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
+Latest changes in Linus' bitkeeper tree:
+   http://linux.bkbits.net:8080/linux-2.5
 
-Cheers
+John
 
-Alex
 
-[1] also you might find that the task does not last long enough to warrant=
-=20
-	jumping and lurking at 100% speed anyway
 
---=20
- _________________________________________=20
-/ It's always darkest just before it gets \
-\ pitch black.                            /
- -----------------------------------------=20
-        \   ^__^
-         \  (oo)\_______
-            (__)\       )\/\
-                ||----w |
-                ||     ||
 
---k1lZvvs/B4yU6o8G
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBcvW6Nv5Ugh/sRBYRAmHRAJ4/MBihgzwxTRHYQ6m2iGToq2qWlgCgiFzz
-v7vob5jvig48p3dbHFR9+Dk=
-=42EQ
------END PGP SIGNATURE-----
-
---k1lZvvs/B4yU6o8G--

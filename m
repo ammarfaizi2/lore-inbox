@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131242AbQKIVDR>; Thu, 9 Nov 2000 16:03:17 -0500
+	id <S131176AbQKIVD5>; Thu, 9 Nov 2000 16:03:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131273AbQKIVDH>; Thu, 9 Nov 2000 16:03:07 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:17412 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S131242AbQKIVCs>;
-	Thu, 9 Nov 2000 16:02:48 -0500
-Message-ID: <3A0B10F3.32A14DF4@mandrakesoft.com>
-Date: Thu, 09 Nov 2000 16:02:43 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Brian Gerst <bgerst@didntduck.org>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Module open() problems, Linux 2.4.0
-In-Reply-To: <Pine.LNX.3.95.1001109154744.16836A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131342AbQKIVDs>; Thu, 9 Nov 2000 16:03:48 -0500
+Received: from enterprise.cistron.net ([195.64.68.33]:25607 "EHLO
+	enterprise.cistron.net") by vger.kernel.org with ESMTP
+	id <S131176AbQKIVDb>; Thu, 9 Nov 2000 16:03:31 -0500
+From: miquels@cistron.nl (Miquel van Smoorenburg)
+Subject: Re: Used space in bytes
+Date: 9 Nov 2000 21:03:30 GMT
+Organization: Cistron Internet Services B.V.
+Message-ID: <8uf3f2$41d$1@enterprise.cistron.net>
+In-Reply-To: <20001109191843.B11373@atrey.karlin.mff.cuni.cz> <8uf21i$ro7$1@cesium.transmeta.com>
+X-Trace: enterprise.cistron.net 973803810 4141 195.64.65.201 (9 Nov 2000 21:03:30 GMT)
+X-Complaints-To: abuse@cistron.nl
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
-> I suppose. Look at what you just stated! This means that a reported
-> value is now worthless.
-> 
-> To restate, somebody decided that we didn't need this reported value
-> anymore. Therefore, it is okay to make it worthless.
-> 
-> I don't agree. The De-facto standard has been that the module usage
-> count is equal to the open count. This became the standard because
-> of a long established history.
-> 
-> This is one of the tools we use to verify that an entire system
-> is functioning properly. Now, somebody decided that I didn't need
-> this tool.
+In article <8uf21i$ro7$1@cesium.transmeta.com>,
+H. Peter Anvin <hpa@zytor.com> wrote:
+>Report a block size (really allocation unit size) st_blocks == 1?
 
-You assumed the module count == device open count, when that was in fact
-never the case.  The 2.4.x kernel changes merely shattered false
-assumptions you held on your part.
+If you mean st_blksize, well:
 
-The kernel thread example I described in my last e-mail holds true for
-kernel 2.2.x as well, maybe 2.0.x too.
+       The value st_blocks gives the size of the file in 512-byte
+       blocks.  The value st_blksize gives the "preferred" block­
+       size for efficient file system I/O.  (Writing to a file in
+       smaller  chunks  may  cause  an  inefficient  read-modify-
+       rewrite.)
 
-	Jeff
+Telling programs 'please use 1-byte r/w buffers' is probably
+a bad idea.
 
-
+Mike.
 -- 
-Jeff Garzik             |
-Building 1024           | Would you like a Twinkie?
-MandrakeSoft            |
+People get the operating system they deserve.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

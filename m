@@ -1,76 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261409AbULXO4B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbULXPct@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261409AbULXO4B (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Dec 2004 09:56:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbULXO4B
+	id S261157AbULXPct (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Dec 2004 10:32:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbULXPct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Dec 2004 09:56:01 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:11908 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261409AbULXOzx
-	(ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Fri, 24 Dec 2004 09:55:53 -0500
-Subject: Re: [nptl] Re: OSDL Bug 3770
-From: Sebastien Decugis <sebastien.decugis@ext.bull.net>
-To: nptl@bullopensource.org
-Cc: Loic Domaigne <loic-dev@gmx.net>, piggin@cyberone.com.au,
-       Linux-Kernel@Vger.Kernel.ORG
-In-Reply-To: <1103624547.23533.137.camel@decugiss.frec.bull.fr>
-References: <9785.1103562168@www38.gmx.net> <20041221100934.GA31538@elte.hu>
-	 <1103624547.23533.137.camel@decugiss.frec.bull.fr>
-Organization: Bull S.A.
-Date: Fri, 24 Dec 2004 16:00:25 +0100
-Message-Id: <1103900425.3570.8.camel@decugiss.frec.bull.fr>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 24/12/2004 16:03:32,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 24/12/2004 16:03:34,
-	Serialize complete at 24/12/2004 16:03:34
+	Fri, 24 Dec 2004 10:32:49 -0500
+Received: from smtp807.mail.sc5.yahoo.com ([66.163.168.186]:3993 "HELO
+	smtp807.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261157AbULXPcr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Dec 2004 10:32:47 -0500
+From: tabris <tabris@tabris.net>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: kernel BUG at fs/inode.c:1116 with 2.6.10-rc{2-mm4,3-mm1}[repost]
+Date: Fri, 24 Dec 2004 10:31:53 -0500
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org
+References: <200412231923.14444.tabris@tabris.net> <20041224000938.22b9f909.akpm@osdl.org>
+In-Reply-To: <20041224000938.22b9f909.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1526087.iuZgLB6umB";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+Message-Id: <200412241032.02190.tabris@tabris.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > note that my -RT patchset includes scheduler changes that implement
-> > "global RT scheduling" on SMP systems. Give it a go, it's at:
-> > 
-> >    http://redhat.com/~mingo/realtime-preempt/
-> > 
-> > you have to enable CONFIG_PREEMPT_RT to active this feature. 
-> 
-> [...]
-> > 
-> > anyway, the first step would be to try this scheduler and give feedback
-> > of how well it works for you :-)
+--nextPart1526087.iuZgLB6umB
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Well, I finally was able to test it. But... the test case hangs the
-machine with the kernel patch applied :/
+On Friday 24 December 2004 3:09 am, Andrew Morton wrote:
+> tabris <tabris@tabris.net> wrote:
+> > 	Attached are the BUG reports for 2.6.10-rc2-mm4 (multiple BUG
+> > reports) and one from 2.6.10-rc3-mm1, plus dmesg from
+> > 2.6.10-rc3-mm1.
+>
+> Are you using quotas?
+	Yes, I am using quotas.
+>
+> What filesystem types are in use?
+	I'm using reiserFS and XFS mostly, with one ext2 partition (/boot,=20
+mounted -o sync)
 
-No problem applying the patch, nor compiling the kernel.
+=2D-=20
+"The Street finds its own uses for technology."
+=2D- William Gibson
 
-Then, it randomly fails booting the new kernel, hanging on "hardware
-detection" in init process (looks like an issue with the IDE controler
-where only the floppy and dvdrom are plugged) but this may be due to
-rc3, not to your patch.
+--nextPart1526087.iuZgLB6umB
+Content-Type: application/pgp-signature
 
-When the kernel boots, it behaves consistently, but when I run the test
-case it never returns, and even the magic-SysRq does not work anymore.
-I've also tested in single-user mode, the behavior is the same.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Sorry I can't tell more about the reason why it hangs, I don't know how
-to debug the kernel :/ But I can provide you with the test case binary
-in case the compiled source code does not hang for you (as for Nick).
+iD8DBQBBzDZygbFCivvqDfQRAgD/AKCY5iaJMe6nDsSnxL6+ZHzrigCVlwCaAo1S
+F11FQE5yFua4fIzNv3UItY0=
+=NJYs
+-----END PGP SIGNATURE-----
 
-Best regards, and Joyeux Noel!
-Seb.
-
--- 
--------------------------------
-Sebastien DECUGIS
-NPTL Test & Trace Project
-http://nptl.bullopensource.org/
-
-"You may fail if you try.
-You -will- fail if you don't."
-
+--nextPart1526087.iuZgLB6umB--

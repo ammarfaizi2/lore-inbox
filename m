@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319246AbSHUXcC>; Wed, 21 Aug 2002 19:32:02 -0400
+	id <S319253AbSHUXsA>; Wed, 21 Aug 2002 19:48:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319247AbSHUXcC>; Wed, 21 Aug 2002 19:32:02 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:22588 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id <S319246AbSHUXcB>; Wed, 21 Aug 2002 19:32:01 -0400
-Date: Wed, 21 Aug 2002 17:51:26 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: mingming cao <cmm@us.ibm.com>
-cc: torvalds@transmeta.com, <linux-kernel@vger.kernel.org>, <akpm@zip.com.au>
-Subject: Re: [PATCH] Breaking down the global IPC locks - 2.5.31
-In-Reply-To: <3D62817F.B2AA96AD@us.ibm.com>
-Message-ID: <Pine.LNX.4.44.0208211702320.10682-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S319255AbSHUXsA>; Wed, 21 Aug 2002 19:48:00 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:41457 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319253AbSHUXr6>; Wed, 21 Aug 2002 19:47:58 -0400
+Subject: Re: Linux 2.4.20-pre2-ac6
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: andersen@codepoet.org
+Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020821234411.GA26772@codepoet.org>
+References: <200208212025.g7LKPda15450@devserv.devel.redhat.com> 
+	<20020821234411.GA26772@codepoet.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 22 Aug 2002 00:53:14 +0100
+Message-Id: <1029973994.26533.269.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Aug 2002, mingming cao wrote:
-> > 
-> > This patch breaks the three global IPC locks into one lock per IPC ID.
-> > By doing so it could reduce possible lock contention in workloads which
-> > make heavy use of IPC semaphores, message queues and Shared
-> > memories...etc.
+On Thu, 2002-08-22 at 00:44, Erik Andersen wrote:
+> On Wed Aug 21, 2002 at 04:25:39PM -0400, Alan Cox wrote:
+> > IDE status
+> > 	Chasing two reports of strange ide-scsi crashes
+> > 	Still some Promise glitches - need to review merge carefully
 > 
-> Here is the patch again. Fixed a typo. *_^
+> Its doesn't understand that I indeed am using 80 pin cables for
+> the drives connected to my Promise 20267 controller.  Also, it would
+> be nice to clean up the formatting on the "80-pin cable" message to
+> keep it from wrapping.
 
-Looks good to me...
-
-Except last time around I persuaded you that ipc_lockall, ipc_unlockall
-(shm_lockall, shm_unlockall) needed updating; and now I think that they
-were redundant all along and can just be removed completely.  Only used
-by SHM_INFO, I'd expected you to make them read_locks: surprised to find
-write_locks, thought about it some more, realized you would need to use
-write_locks - except that the down(&shm_ids.sem) is already protecting
-against everything that the write_lock would protect against (the values
-reported, concurrent freeing of an entry, concurrent reallocation of the
-entries array).  If you agree, please just delete all ipc_lockall
-ipc_unlockall shm_lockall shm_unlockall lines.  Sorry for not
-noticing that earlier.
-
-You convinced me that it's not worth trying to remove the ipc_ids.sems,
-but I'm still slightly worried that you add another layer of locking.
-There's going to be no contention over those read_locks (the write_lock
-only taken when reallocating entries array), but their cachelines will
-still bounce around.  I don't know if contention or bouncing was the
-more important effect before, but if bouncing then these changes may
-be disappointing in practice.  Performance results (or an experienced
-voice, I've little experience of such tradeoffs) would help dispel doubt.
-Perhaps, if ReadCopyUpdate support is added into the kernel in future,
-RCU could be used here instead of rwlocking?
-
-Nit: I'd prefer "= RW_LOCK_UNLOCKED" instead of "=RW_LOCK_UNLOCKED".
-
-Hugh
+There is a detection logic error somewhere in the promise driver. Its on
+the list to look at if Andre doesnt find it or solve it when he splits
+the promise into two drivers (old and new style). If 2.4.20pre2-ac2
+worked then it won't be too hard to chase out.
 

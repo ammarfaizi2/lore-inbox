@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261512AbTIZQS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 12:18:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbTIZQS7
+	id S261622AbTIZQ0D (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 12:26:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbTIZQ0D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 12:18:59 -0400
-Received: from gaia.cela.pl ([213.134.162.11]:2054 "EHLO gaia.cela.pl")
-	by vger.kernel.org with ESMTP id S261512AbTIZQS5 (ORCPT
+	Fri, 26 Sep 2003 12:26:03 -0400
+Received: from gaia.cela.pl ([213.134.162.11]:3078 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S261622AbTIZQ0B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 12:18:57 -0400
-Date: Fri, 26 Sep 2003 18:18:53 +0200 (CEST)
+	Fri, 26 Sep 2003 12:26:01 -0400
+Date: Fri, 26 Sep 2003 18:25:54 +0200 (CEST)
 From: Maciej Zenczykowski <maze@cela.pl>
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Muli Ben-Yehuda <mulix@mulix.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Syscall security
-In-Reply-To: <Pine.LNX.4.56.0309260746140.1924@bigblue.dev.mdolabs.com>
-Message-ID: <Pine.LNX.4.44.0309261814450.6080-100000@gaia.cela.pl>
+In-Reply-To: <20030926151642.GL729@actcom.co.il>
+Message-ID: <Pine.LNX.4.44.0309261820160.6080-100000@gaia.cela.pl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I beieve that what you're trying to do is a little bit more complicated
-> then simply blocking a few system calls. There are security softwares
-> doing this but they do more then blindly blocking system calls. Parameters
-> of the system call do matter in this scenario. For example you don't want
-> to block every write(), since the application you're trying to control
-> must be able to write on its own installation dir for example. They do
+> syscalltrack can do it, per executable / user / syscall parameters /
+> whatever, but it's per syscall. Writing a perl script or C program to
+> iterate over the supplied syscall list and write the allow/deny rules
+> is pretty simple. Also, syscalltrack is meant for debugging, not
+> security, so if you want something that's 100% tight you'd better go
+> with one of the Linux security modules based on the LSM framework. 
 
-Actually in this case all disk-access (and net-access) is illegal, and 
-we're running in an empty chroot environment anyway. :)  We're not really 
-running aps - they're more along the lines of CPU calculation pipes - data 
-in -> calc in system memory -> data out.
+OK, thx, I'll take a look.
 
-> this by running the given application and "learning" system calls and
-> params to create a per-application policy. Every behaviour that violates
-> the policy trigger an event to the user running it (with a
-> "human readable" description of what is happening) and the user can either
-> accept it (by trainig the policy) or reject it.
+> Since it's a known binary, if you can handle the increased run time,
+> strace is your best shot. syscalltrack and other kernel based
+> solutions are best when you need something that is "system wide". 
 
-I'm afraid this has to run without user-intervention and the policy is 
-trivial - allow mem-management (brk/mmap...) + exit + read stdin + write 
-stdout.
+It's known only in the sense that I have it.  The process is accept 
+submission from outside network (source code).  Compile it (in a security 
+playbox) statically to produce a single binary.  Then run this, time it, 
+verify correctness of outcoming data.  Send the results back out to the 
+outside world.  Iterate for each submission - sometimes one every couple 
+seconds other times one per hour (depends on the current data set etc).
 
-Thx,
+> Previous discussion seemed to conclude that features like these are
+> "not interesting enough to the majority of users". Maybe it's time to
+> revise those discussions (c.f. the inclusion of SELinux, for
+> example). 
+
+This is for an information technology algorithmic programming contest -
+currently being used on a single comp, but likely to be required (in
+time...) by all such online contests (like the one funded by IBM/ACM)  
+which might mean a few hundred maybe thousand worldwide.
+
+Cheers,
 MaZe.
+
 

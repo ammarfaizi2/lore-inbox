@@ -1,84 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266473AbTAFFOy>; Mon, 6 Jan 2003 00:14:54 -0500
+	id <S266010AbTAFFQm>; Mon, 6 Jan 2003 00:16:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266514AbTAFFOy>; Mon, 6 Jan 2003 00:14:54 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:25383 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S266473AbTAFFOx>; Mon, 6 Jan 2003 00:14:53 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Paul Mackerras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>, <davidm@hpl.hp.com>,
-       <grundler@cup.hp.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 2.5] PCI: allow alternative methods for probing the BARs
-References: <Pine.LNX.4.44.0301052009050.3087-100000@home.transmeta.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 05 Jan 2003 22:22:14 -0700
-In-Reply-To: <Pine.LNX.4.44.0301052009050.3087-100000@home.transmeta.com>
-Message-ID: <m1n0mej1ix.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S266064AbTAFFQm>; Mon, 6 Jan 2003 00:16:42 -0500
+Received: from waste.org ([209.173.204.2]:32689 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S266010AbTAFFQk>;
+	Mon, 6 Jan 2003 00:16:40 -0500
+Date: Sun, 5 Jan 2003 23:24:48 -0600
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Andre Hedrick <andre@pyxtechnologies.com>
+Cc: Andrew Morton <akpm@digeo.com>, Rik van Riel <riel@conectiva.com.br>,
+       Richard Stallman <rms@gnu.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set NOW!)
+Message-ID: <20030106052448.GD28100@waste.org>
+References: <20030106030622.GC28100@waste.org> <Pine.LNX.4.10.10301051924140.421-100000@master.linux-ide.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10301051924140.421-100000@master.linux-ide.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
-
-> On Sun, 5 Jan 2003, Ivan Kokshaysky wrote:
-> >
-> > Hopefully this patch should solve most problems with probing the BARs.
-> > The changes are quite minimal as everything still is done in one pass.
+On Sun, Jan 05, 2003 at 07:38:15PM -0800, Andre Hedrick wrote:
+> On Sun, 5 Jan 2003, Oliver Xymoron wrote:
 > 
-> Can you do the same with a multi-pass thing? 
+> > On Sat, Jan 04, 2003 at 06:47:43PM -0800, Andrew Morton wrote:
+> > > Andre Hedrick wrote:
+> > > > 
+> > > > Rik and Richard,
+> > > > 
+> > > > As you see, I in good faith prior to this holy war, had initiated a formal
+> > > > request include a new protocol into the Linux kernel prior to the freeze.
+> > > > The extention was requested to insure the product was of the highest
+> > > > quality and not limited with excessive erratium as the ratification of the
+> > > > IETF modified, postponed, and delayed ; regardless of reason.
+> > > > 
+> > > > Obviously, PyX had (has) on its schedule to product a high quality target
+> > > > which is transport independent on each side of the protocol.  We are not
+> > > > sure of this position because of the uncertain nature of the basic usages
+> > > > of headers and export_symbols.
+> > > > 
+> > > 
+> > > I suggest that if a function happens to be implemented as an inline
+> > > in a header then it should be treated (for licensing purposes) as
+> > > an exported-to-all-modules symbol.  So in Linux, that would be LGPL-ish.
+> > > 
+> > > The fact that a piece of kernel functionality happens to be inlined
+> > > is a pure technical detail of linkage.
+> > > 
+> > > If there really is inlined functionality which we do not wish made
+> > > available to non-GPL modules then it should be either uninlined and
+> > > not exported or it should be wrapped in #ifdef GPL.
+> > 
+> > More pragmatically, who cares? There's already at least one vendor
+> > (Cisco) who ships a perfectly good fully GPLed iSCSI initiator module
+> > that doesn't need to touch any core code. It's already the benchmark
+> > for compatibility at interoperability tests. And it's following the
+> > IETF drafts closely too. Once we actually have an iSCSI RFC, it might
+> > be worth pulling it into the kernel tree. I believe Red Hat is
+> > shipping it some form already.
 > 
-> I really think the single-pass approach is broken, because it means that
-> we _cannot_ have a fixup for device that runs _before_ the fixup for the 
-> bridge that bridges to the device.
-> 
-> As such, the "PCI_FIXUP_EARLY" is not _nearly_ early enough, since it's
-> way too late for the actual problem that started this whole thread (ie in
-> order to turn off a bridge, we have to make sure that everything behind
-> the bridge is turned off _first_).
-> 
-> In other words, we really should be able to do all the bus number setup
-> _first_. That isn't dependent ont eh BAR's or anything else. The actual 
-> _sizing_ of the bus is clearly somethign we cannot do early, but we can 
-> (and should) enumerate the devices first in phase #1.
-> 
-> Alternatively, we could even have a very limited phase #1 that only 
-> enumerates _reachable_ devices (ie it doesn't even try to create bus 
-> numbers, it only enumerates devices and buses that have already been set 
-> up by the firmware, and ignores bridges that aren't set up yet). A pure 
-> discovery phase, without any configuration at all.
-> 
-> Hmm?
+> If you know anything about iSCSI RFC draft and how storage truly works.
+> Cisco gets it wrong, they do not believe in supporting the full RFC.
+> So you get ERL=0, and now they turned of the "Header and Data Digests",
+> this is equal to turning off the iCRC in ATA, or CRC in SCSI between the
+> controller and the device.  For those people who think removing the
+> checksum test for the integrity of the data and command operations, you
+> get what you deserve.
 
-I have done something similar to this in LinuxBIOS, perhaps a
-description of that will spark ideas.  
+CRC code seems to be functional, at least in their most recent drop.
+As for ERL, the state of error handling in the rest of the Linux IO
+layer suggests that's a lower triage priority..
 
-In the enumeration phase I look at the vendor+device id and then hdr
-type to assign methods.  The methods I have are:
-scan_bus,
-read_bases,
-write_bases.
+If and when it becomes a high priority, well, the community is free to do what
+it likes with the source.
 
-Then for all children of a bus that have a scan_bus function I
-recurse.  This fits in very naturally with devices not necessarily
-being pci devices.
+> Next try to support any filesystem regardless of platform.
+> Specifically anything Microsoft does to thwart Linux, I have already
+> covered.
 
-When it comes time to assign pci resources I call the read_bases
-method to get the size and possibly fixed location of the resource.  I
-play with my data structures to get a non conflicting set of resources
-and then I call write_bases on each device to write the resource
-assignments to the actual device.
+I'm having a very hard time making any sense of that statement.
+There's no reason an iSCSI initiator on the MS side should care what
+OS is serving it iSCSI. And the target shouldn't give a damn whether
+it's serving up a filesystem.
 
-The setup works well enough that I don't have to differentiation later
-in the code between pci busses and normal pci devices.
+> The target(erl=0) is what would be the second phase to open source, but I
+> see you and other want to do the hard way and that is fine.
+>
+> In two week I will have NetBSD certified, and 4 weeks later should have
+> Solaris certifed.
 
-I have not had to push beyond the standard pci devices yet, but I
-don't think I have missed anything that would cause me problems.
+Frankly, I think you're the one choosing the hard path. Proprietary
+code is the domain of corporate giants and you're likely to get
+squished - marketing matters more than quality. If you choose to go
+that road, I wish you the best of luck.
 
-Linus is this the kind of thing you are thinking of?
-
-Eric
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

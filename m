@@ -1,37 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262488AbSJ2Xz5>; Tue, 29 Oct 2002 18:55:57 -0500
+	id <S262409AbSJ3AAq>; Tue, 29 Oct 2002 19:00:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262489AbSJ2Xz5>; Tue, 29 Oct 2002 18:55:57 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:58630 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S262488AbSJ2Xz4>; Tue, 29 Oct 2002 18:55:56 -0500
-Date: Tue, 29 Oct 2002 20:38:51 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: arun4linux <arun4linux@indiatimes.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: APPC/SNA socket implementation
-Message-ID: <20021029233851.GB19844@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	arun4linux <arun4linux@indiatimes.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <200210290707.MAA02243@WS0005.indiatimes.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210290707.MAA02243@WS0005.indiatimes.com>
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+	id <S262411AbSJ3AAq>; Tue, 29 Oct 2002 19:00:46 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:42649 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S262409AbSJ3AAo>; Tue, 29 Oct 2002 19:00:44 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 29 Oct 2002 16:16:37 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <lse-tech@lists.sourceforge.net>
+Subject: Re: [PATCH] epoll more scalable than poll
+In-Reply-To: <20021029112045.GA19970@bjl1.asuk.net>
+Message-ID: <Pine.LNX.4.44.0210291609470.1457-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Tue, Oct 29, 2002 at 12:52:33PM +0530, arun4linux escreveu:
->   I need to implement APPC using socket implementation.
->   I'd like to know whether anyone already did that already?
->   Any pointers (source/materials)would be of helpful.
+On Tue, 29 Oct 2002, Jamie Lokier wrote:
 
-www.linux-sna.org
+> Davide Libenzi wrote:
+> > IMHO sys_epoll is going to be a replacement for rt-signals, because it
+> > scales better, it collapses events and does not have the overflowing queue
+> > problem.
+>
+> Scalability is also solved by the signal-per-fd patch, as you know.
+> The main advantage of epoll is that it's lighter weight than rt-signals.
+>
+> (IMHO signal-per-fd really ought to be included in 2.6 _anyway_, regardless
+> of any better mechanism for reading events.)
 
-You may have to think about joining the linux-sna effort tho :-)
+It scales pretty good, yes. You have to be carefull to build your kernel
+with a huge queue to avoid SIGIO, that makes you pay somthing. Also does
+not support pipes.
 
-- Arnaldo
+
+> > The sys_epoll interface was coded to use the existing infrastructure w/out
+> > adding any legacy code added to suite the implementation. Basically,
+> > besides the few lines added to fs/pipe.c to support pipes ( rt-signal did
+> > not support them ), the hook lays inside sk_wake_async().
+>
+> I agree that was the way to do it for 2.4 and earlier - you have to
+> work with a range of kernels, and minimum impact.
+>
+> But now in 2.5 it's appropriate to implement whatever's _right_.
+
+Yes Jamie, you can add sys_epoll support for other devices but IMHO the
+only devices where you're going to have scalability problems due huge
+number of handled fds are 1) sockets 2) pipes. I feel that devices that do
+not go over 100-500 can be easily handled with the fully supportive
+poll(). The fact that you can drop a sys_epoll fd inside a poll() set,
+garanties you 1) scalability due the stocking of sockets+pipes inside the
+sys_epoll fd 2) compatibility with the full set of devices. This w/out
+screwing up much the kernel code. What do you think ?
+
+
+
+- Davide
+
+

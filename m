@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264474AbTK0KyY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 05:54:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264476AbTK0KyY
+	id S264476AbTK0LA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 06:00:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264477AbTK0LA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 05:54:24 -0500
-Received: from webhosting.rdsbv.ro ([213.157.185.164]:57566 "EHLO
-	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S264474AbTK0KyX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 05:54:23 -0500
-Date: Thu, 27 Nov 2003 12:54:10 +0200 (EET)
-From: Catalin BOIE <util@deuroconsult.ro>
-X-X-Sender: util@hosting.rdsbv.ro
-To: SVR Anand <anand@eis.iisc.ernet.in>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel development in kernel
-In-Reply-To: <200311271045.QAA10220@eis.iisc.ernet.in>
-Message-ID: <Pine.LNX.4.58.0311271252550.1341@hosting.rdsbv.ro>
-References: <200311271045.QAA10220@eis.iisc.ernet.in>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 27 Nov 2003 06:00:29 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:45467 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264476AbTK0LA2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Nov 2003 06:00:28 -0500
+Date: Thu, 27 Nov 2003 02:59:21 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: "YOSHIFUJI Hideaki / _$B5HF#1QL@" <yoshfuji@linux-ipv6.org>
+Cc: felipe_alfaro@linuxmail.org, linux-kernel@vger.kernel.org,
+       yoshfuji@linux-ipv6.org, netdev@oss.sgi.com
+Subject: Re: [PATCH 2.6]: IPv6: strcpy -> strlcpy
+Message-Id: <20031127025921.3fed8dd4.davem@redhat.com>
+In-Reply-To: <20031127.173320.19253188.yoshfuji@linux-ipv6.org>
+References: <1069920883.2476.1.camel@teapot.felipe-alfaro.com>
+	<20031127.173320.19253188.yoshfuji@linux-ipv6.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi,
-Hi.
+On Thu, 27 Nov 2003 17:33:20 +0900 (JST)
+YOSHIFUJI Hideaki / _$B5HF#1QL@ <yoshfuji@linux-ipv6.org> wrote:
 
-> I am thinking of developing kernel development environment which provides
-> a pseudo shell, and runtime environment that resides in the kernel itself.
-> The goal of this exercise is to create an environment that simplifies the
-> kernel programming effort by creating a virtual user area that sits above
-> kernel but within the kernel protected region. The runtime environment should
-> provide all that is necesary to build and debug kernel image as if it is a
-> C program.
->
-> My wish is that kernel development should eventually become somewhat like
-> a C development, if not completely, partially, so that the idea takes the
-> lead over spending lots of time in getting a code work in kernel.
->
-> Sure, too much of hand waving without any substance went in my mail. If you
-> can let me know the worthwhileness of the effort itself I will be motivated
-> to slog.
->
-> Thanks for your time.
+> -	strcpy(t->parms.name, dev->name);
+> +	strlcpy(t->parms.name, dev->name, IFNAMSIZ);
+>                                           sizeof(t->parms.name)
+> 
+> or something like that.
 
-I think you describe uml (http://user-mode-linux.sourceforge.net/).
+I agree, using sizeof() is the less error prone way of
+doing things like this.
 
->
-> Anand
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Felipe could you please rewrite your patch like this?
 
----
-Catalin(ux) BOIE
-catab@deuroconsult.ro
+Thank you.
+
+

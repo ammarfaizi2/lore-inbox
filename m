@@ -1,51 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275234AbTHRWzO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 18:55:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275235AbTHRWy5
+	id S275230AbTHRWxY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 18:53:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275232AbTHRWxY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 18:54:57 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:10628 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S275234AbTHRWyv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 18:54:51 -0400
-Date: Mon, 18 Aug 2003 15:48:00 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: kernel@theoesters.com, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
-Subject: Re: [PATCH] Ratelimit SO_BSDCOMPAT warnings
-Message-Id: <20030818154800.21ae818e.davem@redhat.com>
-In-Reply-To: <200308182215.h7IMFecc013449@turing-police.cc.vt.edu>
-References: <20030818150605.A23957@ns1.theoesters.com>
-	<200308182215.h7IMFecc013449@turing-police.cc.vt.edu>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 18 Aug 2003 18:53:24 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:14812 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S275230AbTHRWxW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 18:53:22 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Mike Fedyk" <mfedyk@matchmail.com>
+Cc: "Hank Leininger" <hlein@progressive-comp.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: Dumb question: Why are exceptions such as SIGSEGV not logged
+Date: Mon, 18 Aug 2003 15:53:17 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKCEFNFDAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20030818224409.GJ10320@matchmail.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Aug 2003 18:15:40 -0400
-Valdis.Kletnieks@vt.edu wrote:
 
-> On Mon, 18 Aug 2003 15:06:05 PDT, Phil Oester said:
-> >  static void sock_warn_obsolete_bsdism(const char *name)
-> >  {
-> > -       printk(KERN_WARNING "process `%s' is using obsolete "
-> > -              "%s SO_BSDCOMPAT\n", current->comm, name);
-> > +       static int warned;
-> > +
-> > +       if (!warned) {
-> > +               warned = 1;
-> 
-> Umm.. am I dense, or does this only warn once for *the first program*
-> to do it after the system boots?  And you don't get another warning about
-> any OTHER programs until you reboot in a few weeks (possibly)?
 
-Yes, this patch does suck hard.
+> On Mon, Aug 18, 2003 at 03:39:15PM -0700, David Schwartz wrote:
 
-I see no reason to apply this, just fix your apps and the
-warning will stop.  There's only a handful of programs
-that trigger this at all.
+> > > And why not just catch the ones sent from the kernel?  That's
+> > > the one that
+> > > is killing the program because it crashed, and that's the one the
+> > > origional
+> > > poster wants logged...
+
+> > 	Because sometimes a program wants to terminate. And it is
+> > perfectly legal
+> > for a programmer who needs to terminate his program as quickly
+> > as possible
+> > to do this:
+
+> > char *j=NULL;
+> > signal(SIGSEGV, SIG_DFL);
+> > *j++;
+
+> > 	This is a perfectly sensible thing for a program to do with
+> > well-defined
+> > semantics. If a program wants to create a child every minute
+> > like this and
+> > kill it, that's perfectly fine. We should be able to do that in
+> > the default
+> > configuration without a sysadmin complaining that we're DoSing
+> > his syslogs.
+
+> Are you saying that a signal requested from userspace uses the same code
+> path as the signal sent when a process has overstepped its bounds?
+
+	It depends what you mean by "requested".
+
+> Surely some flag can be set so that we know the kernel is killing
+> it because
+> it did something illegal...
+
+	It depends what you mean by "illegal".
+
+	Dereferencing a NULL pointer deliberately to induce the kernel to kill your
+process is indistinguishable from dereferencing a NULL pointer accidentally
+and forcing the kernel to kill your process.
+
+	These "illegal" operations have well-defined semantics that programmers can
+use and rely on. Logging every such operation changes their semantics and
+breaks programs that currently work -- breaks in the sense that they will
+now DoS logs and result in admin complaints.
+
+	The kernel cannot determine whether a SEGV or ILL was the result of a
+deliberate attempt on the part of the programmer to create such a signal or
+whether it's due to a programming error. Even an uncaught exception can be
+used as a good way to terminate a process immediately (is there another
+portable way to do that?).
+
+	DS
+
 

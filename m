@@ -1,36 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265506AbSK1N1X>; Thu, 28 Nov 2002 08:27:23 -0500
+	id <S265508AbSK1NeF>; Thu, 28 Nov 2002 08:34:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265508AbSK1N1X>; Thu, 28 Nov 2002 08:27:23 -0500
-Received: from mailhost.tue.nl ([131.155.2.5]:53386 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S265506AbSK1N1W>;
-	Thu, 28 Nov 2002 08:27:22 -0500
-Date: Thu, 28 Nov 2002 14:34:39 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Thomas Molina <tmolina@copper.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] README change
-Message-ID: <20021128133439.GA5795@win.tue.nl>
-References: <1038443167.2063.28.camel@lap>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265513AbSK1NeE>; Thu, 28 Nov 2002 08:34:04 -0500
+Received: from 205-158-62-68.outblaze.com ([205.158.62.68]:35340 "HELO
+	spf0.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S265508AbSK1NeE>; Thu, 28 Nov 2002 08:34:04 -0500
+Message-ID: <20021128134118.27580.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <1038443167.2063.28.camel@lap>
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: davidsen@tmr.com
+Cc: linux-kernel@vger.kernel.org
+Date: Thu, 28 Nov 2002 21:41:18 +0800
+Subject: Re: [Benchmark] AIM9 results
+X-Originating-Ip: 194.185.48.246
+X-Originating-Server: ws5-3.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 27, 2002 at 06:26:05PM -0600, Thomas Molina wrote:
+From: Bill Davidsen <davidsen@tmr.com>
 
--   Do NOT use the /usr/src/linux area! This area has a (usually
--   incomplete) set of kernel headers that are used by the library header
--   files.  They should match the library, and not get messed up by
--   whatever the kernel-du-jour happens to be.
-+   Do NOT use /usr/src/linux! This directory should contain the source
-+   and headers of the kernel gcc was compile with.  They should match 
-+   the compiler, and not get messed up by whatever the kernel-du-jour
-+   happens to be.
+> > stream_pipe 10000 2807.4       280740.00 Stream Pipe Messages/second
+> > stream_pipe 10000 2602.3       260230.00 Stream Pipe Messages/second
+> > stream_pipe 10000 2487.1       248710.00 Stream Pipe Messages/second
+> > 
+> > dgram_pipe 10000 2756.9       275690.00 DataGram Pipe Messages/second
+> > dgram_pipe 10000 2460.5       246050.00 DataGram Pipe Messages/second
+> > dgram_pipe 10000 2377.9       237790.00 DataGram Pipe Messages/second
+> > 
+> > pipe_cpy 10000 4164.8       416480.00 Pipe Messages/second
+> > pipe_cpy 10000 3736.4       373640.00 Pipe Messages/second
+> > pipe_cpy 10000 3670.4       367040.00 Pipe Messages/second
+> > 
+> > ram_copy 10000 23801.6    595516032.00 Memory to Memory Copy/second
+> > ram_copy 10000 23583    590046660.00 Memory to Memory Copy/second
+> > ram_copy 10000 23578    589921560.00 Memory to Memory Copy/second
+> 
+> You didn't comment on these, but it clearly looks as if all methods of IPC
+> are getting slower, even shared memory. This has been discussed
+> previously, some of it has known areas of improvement, so I'm surprised
+> that the -mm kernel was slower.
 
-The original text was not bad.
-The new text is completely wrong.
+Yep, you are rigth. Didn't notice it. And really don't know
+why -mm is still slower than 2.4.19 in these tests.
+
+Paolo
+
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with POP3/IMAP access for only US$19.95/yr
+
+Powered by Outblaze

@@ -1,44 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263266AbTHVNWO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 09:22:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263268AbTHVNWO
+	id S263167AbTHVNoa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 09:44:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263180AbTHVNoa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 09:22:14 -0400
-Received: from imap.gmx.net ([213.165.64.20]:49835 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263266AbTHVNWM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 09:22:12 -0400
-Message-ID: <3F4618FF.BDC97C99@gmx.de>
-Date: Fri, 22 Aug 2003 15:22:07 +0200
-From: Edgar Toernig <froese@gmx.de>
+	Fri, 22 Aug 2003 09:44:30 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:61648
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S263167AbTHVNo0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 09:44:26 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Wiktor Wodecki <wodecki@gmx.de>
+Subject: Re: [PATCH]O18int
+Date: Fri, 22 Aug 2003 23:51:16 +1000
+User-Agent: KMail/1.5.3
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200308222231.25059.kernel@kolivas.org> <20030822134136.GA711@gmx.de>
+In-Reply-To: <20030822134136.GA711@gmx.de>
 MIME-Version: 1.0
-To: "Bill J.Xu" <xujz@neusoft.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: "ctrl+c" disabled!
-References: <036601c367e0$01adabc0$2a01010a@avwindows>
-	 <3F457A19.8E8A1F65@gmx.de> <04b901c36852$dccc7660$2a01010a@avwindows>
-	 <3F45830A.5C0F5BCA@gmx.de> <053301c3685c$9ea6fe50$2a01010a@avwindows>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308222351.16691.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Bill J.Xu" wrote:
-> 
-> after run od -tx1, the following is the result
-> ------------------------------------------------
-> bash-2.05# ./od -tx1
-> 0000000
-> ------------------------------------------------
+On Friday 22 August 2003 23:41, Wiktor Wodecki wrote:
+> On Fri, Aug 22, 2003 at 10:31:20PM +1000, Con Kolivas wrote:
+> Content-Description: clearsigned data
+>
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> >
+> > Here is a small patchlet.
+> >
+> > It is possible tasks were getting more sleep_avg credit on requeuing than
+> > they could burn off while running so I've removed the on runqueue bonus
+> > to requeuing task.
+> >
+> > Note this applies onto O16.3 or 2.6.0-test3-mm3 as O17 was dropped.
+> >
+> > This patch is also available here along with a patch against 2.6.0-test3:
+> > http://kernel.kolivas.org/2.5
+> >
+> > Con
+>
+> this patch still makes my xmms skip on light io load (untar kernel
+> source, open lkml mailbox folder) while opening mozilla. Even after
+> mozilla is there xmms is still skipping. Processes take ages to spawn.
+> And no, I'm not in swap. A 'su -'is taking 10 seconds to procceed.
+> Same applies when rm -Rf'ing a kernel tree.
+> Here is some more data for the curious:
 
-Either terminal sends nothing or line-discipline caught ^C correctly
-but sent signal to wrong process or process ignores sigint.
+> note the load of 11. I can even get it to 30 while doing 3 tar xf
+> bla.tar simultanously.
 
-> and I use "killall xxx_appname" to kill the progress after telnet the linux box.
+Complete mystery.
+>
+> I'm going to fetch some fish in the next two weeks in poland, so I will
+> not be able to do any more testing from sunday on. Happy coding (while I
+> stick to O10 *g*)
 
-Check whether "killall -INT xxx_appname" is able to kill the process.
+Thanks for comments. ]
 
-Try killing the process via Ctrl-Z and then "kill %%".
+There it is again; the reference to darn O10. Hrm. One question before your 
+holiday; your O10 kernel is it the same kernel tree or a different/newere 
+one? I'm looking to blame something else here I know but I need to know; this 
+just doesn't hold with any testing here.
 
-Ciao, ET.
+Con
+

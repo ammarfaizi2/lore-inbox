@@ -1,18 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262209AbTCTUka>; Thu, 20 Mar 2003 15:40:30 -0500
+	id <S261558AbTCTUk2>; Thu, 20 Mar 2003 15:40:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262218AbTCTUka>; Thu, 20 Mar 2003 15:40:30 -0500
-Received: from in02-fes1.whowhere.com ([209.202.220.218]:32885 "HELO
-	whowhere.com") by vger.kernel.org with SMTP id <S262209AbTCTUk1>;
+	id <S262218AbTCTUk2>; Thu, 20 Mar 2003 15:40:28 -0500
+Received: from in02-fes1.whowhere.com ([209.202.220.218]:32629 "HELO
+	whowhere.com") by vger.kernel.org with SMTP id <S261558AbTCTUk1>;
 	Thu, 20 Mar 2003 15:40:27 -0500
 To: linux-kernel@vger.kernel.org
-Date: Thu, 20 Mar 2003 20:51:15  0000
+Date: Thu, 20 Mar 2003 20:51:17  0000
 From: "Dean McEwan" <dean.mcewan@eudoramail.com>
-Message-ID: <ONEBIKKLBHBFOBAA@whowhere.com>
+Message-ID: <DIKCPKDGCHBFOBAA@whowhere.com>
 Mime-Version: 1.0
 X-Sent-Mail: off
 Reply-To: dean.mcewan@eudoramail.com
+X-Expiredinmiddle: true
 X-Mailer: MailCity Service
 X-Priority: 3
 Subject: Official apology from my company/me to Andre Hedrick.

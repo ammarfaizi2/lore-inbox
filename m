@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268159AbUIFPpf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268158AbUIFPtd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268159AbUIFPpf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 11:45:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268161AbUIFPpf
+	id S268158AbUIFPtd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 11:49:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268161AbUIFPtd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 11:45:35 -0400
-Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:65296 "EHLO
-	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
-	id S268159AbUIFPpb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 11:45:31 -0400
-Message-ID: <413C8612.4010806@superbug.demon.co.uk>
-Date: Mon, 06 Sep 2004 16:45:22 +0100
-From: James Courtier-Dutton <James@superbug.demon.co.uk>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040812)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Danny ter Haar <dth@ncc1701.cistron.net>, linux-kernel@vger.kernel.org
-Subject: Re: Linux serial console patch
-References: <20040905175037.O58184@cus.org.uk> <413BA35C.8080705@superbug.demon.co.uk> <chhebr$pta$1@news.cistron.nl> <20040906114321.A26906@flint.arm.linux.org.uk>
-In-Reply-To: <20040906114321.A26906@flint.arm.linux.org.uk>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Sep 2004 11:49:33 -0400
+Received: from imag.imag.fr ([129.88.30.1]:39929 "EHLO imag.imag.fr")
+	by vger.kernel.org with ESMTP id S268158AbUIFPtb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 11:49:31 -0400
+Date: Mon, 6 Sep 2004 17:48:39 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: Intel ICH - sound/pci/intel8x0.c
+Message-ID: <20040906154839.GA6672@linux.ensimag.fr>
+Reply-To: 9e47339104090607111e8a6f5d@mail.gmail.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040523i
+From: Matthieu Castet <mat@ensilinx1.imag.fr>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (imag.imag.fr [129.88.30.1]); Mon, 06 Sep 2004 17:49:28 +0200 (CEST)
+X-IMAG-MailScanner: Found to be clean
+X-IMAG-MailScanner-Information: Please contact the ISP for more information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Mon, Sep 06, 2004 at 10:32:27AM +0000, Danny ter Haar wrote:
-> 
->>James Courtier-Dutton  <James@superbug.demon.co.uk> wrote:
->>
->>>>I have read your posts to lkml containing your serial console flow control
->>>>patches firstly for 2.4.x and then for 2.6.x kernels.
->>>
->>>Does this fix junk being output from the serial console?
->>>If one is using Pentium 4 HT, it seems that both CPU cores try to send 
->>>characters to the serial port at the same time, resulting in lost 
->>>characters as one CPU over writes the output from the other.
->>
->>We have multiple P4-HT enabled servers with debian installed & serial
->>console enabled (RPB++ ;-) and _i_ have never seen this behaviour.
-> 
-> 
-> I don't think this is a serial problem as such, but a problem with the
-> kernel console subsystem (printk) itself.  Maybe James can provide an
-> example output to confirm exactly what he's seeing.
-> 
+> Takashi says the code is already gone in the alsa tree so we don't
+> know how they fixed it.
+They ask to use generic modules instead.
 
-http://www.superbug.demon.co.uk/latency/
+look at the cvs log :
 
-There are 2 oops traces there. At about line 176, the corruption starts.
+Summary: remove gameport/MIDI support
 
+snd-intel8x0's gameport/MIDI code has quite a few problems:  the port
+addresses cannot be detected reliably (or not at all with newer LPC
+bridge devices), joystick port address 0x208 isn't supported, the MIDI
+interrupt isn't detected, PnP isn't supported, changing the port
+addresses in the LPC bridge configuration doesn't affect the devices
+in the Super-I/O chip connected to the LPC bus, and registering this
+driver for the LPC bridge PCI device prevents other drivers using the
+LPC's PCI id from loading later.
+
+All these problems can be cured by removing the offending code and
+using the proper modules for these devices (ns558/snd-mpu401) instead.

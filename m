@@ -1,95 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261305AbTDKRZJ (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 13:25:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbTDKRZJ (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 13:25:09 -0400
-Received: from dns.toxicfilms.tv ([150.254.37.24]:1683 "EHLO dns.toxicfilms.tv")
-	by vger.kernel.org with ESMTP id S261305AbTDKRZH (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 13:25:07 -0400
-Date: Fri, 11 Apr 2003 19:36:45 +0200 (CEST)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: linux-kernel@vger.kernel.org
-Cc: netfilter-devel@lists.samba.org
-Subject: [CORRECTED][PATCH] net/ipv6/netfilter warning removal 2.[45]
-Message-ID: <Pine.LNX.4.51.0304111933550.18066@dns.toxicfilms.tv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S261294AbTDKR2o (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 13:28:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbTDKR2o (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 13:28:44 -0400
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:30713 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id S261294AbTDKR2m (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 13:28:42 -0400
+Date: Fri, 11 Apr 2003 11:39:41 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: CaT <cat@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext3 weirdness
+Message-ID: <20030411113941.O26054@schatzie.adilger.int>
+Mail-Followup-To: CaT <cat@zip.com.au>, linux-kernel@vger.kernel.org
+References: <20030411170655.GA10449@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030411170655.GA10449@zip.com.au>; from cat@zip.com.au on Sat, Apr 12, 2003 at 03:06:56AM +1000
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Apr 12, 2003  03:06 +1000, CaT wrote:
+> Why would this:
+> 
+> while true; do dd if=/dev/zero of=foo count=100 bs=10000; rm foo; done
+> 
+> Produce the following result?
+> 
+> ...
+> 100+0 records in
+> 100+0 records out
+> 100+0 records in
+> 100+0 records out
+> dd: writing `foo': No space left on device
+> 70+0 records in
+> 69+0 records out
+> dd: writing `foo': No space left on device
+> 1+0 records in
+> 0+0 records out
+:
+> dd: writing `foo': No space left on device
+> 1+0 records in
+> 0+0 records out
+> 100+0 records in
+> 100+0 records out
+> 100+0 records in
+> 100+0 records out
+> ...
 
-Joe Perches pointed out a mistake in the previous patch, here's a
-corrected version.
-there are simple warning to remove in 4 files there, here are the
-warnings:
-net/ipv6/netfilter/ip6t_rt.c: In function `match':
-net/ipv6/netfilter/ip6t_rt.c:133: warning: assignment from incompatible pointer type
-net/ipv6/netfilter/ip6t_frag.c: In function `match':
-net/ipv6/netfilter/ip6t_frag.c:150: warning: assignment from incompatible pointer type
-net/ipv6/netfilter/ip6t_esp.c: In function `match':
-net/ipv6/netfilter/ip6t_esp.c:126: warning: assignment from incompatible pointer type
-net/ipv6/netfilter/ip6t_ah.c: In function `match':
-net/ipv6/netfilter/ip6t_ah.c:136: warning: assignment from incompatible pointer type
+Because you can't reallocate in-use blocks until the dirty bitmaps have
+been committed to disk in a transaction.
 
-And here is the patch to remove those by using casts.
+What should probably happen is that in ext3_new_block() we should flush
+the journal (once!) if we are going to return -ENOSPC and restart
+the allocation attempt.
 
-It applies both to 2.4.20 and 2.5.67.
+This may be easy (just calling journal_flush()) or it may be more effort,
+depending on how the locking looks.  I think journal_flush() is no good,
+because by the time ext3_new_block() is called we always have a journal
+handle, and I believe journal_flush() will wait for all transactions to
+complete -> deadlock.
 
-Regards,
-Maciej
+Maybe something like (just a guess):
 
-diff -Nru linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_ah.c linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_ah.c
---- linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_ah.c	2003-04-11 18:41:29.000000000 +0200
-+++ linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_ah.c	2003-04-11 18:49:41.000000000 +0200
-@@ -133,7 +133,7 @@
-        		return 0;
-        }
++	int flushed = 0;
 
--       ah=skb->data+ptr;
-+       ah = (struct ahhdr *) (skb->data+ptr);
+	:
+	:
++repeat:
+	/*
+	 * First, test whether the goal block is free.
+	 */
 
-        DEBUGP("IPv6 AH LEN %u %u ", hdrlen, ah->hdrlen);
-        DEBUGP("RES %04X ", ah->reserved);
-Binary files linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_ah.ko and linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_ah.ko differ
-Binary files linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_ah.o and linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_ah.o differ
-diff -Nru linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_esp.c linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_esp.c
---- linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_esp.c	2003-04-11 18:41:29.000000000 +0200
-+++ linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_esp.c	2003-04-11 18:48:24.000000000 +0200
-@@ -123,7 +123,7 @@
-        		return 0;
-        }
+	:
+	:
 
--	esp=skb->data+ptr;
-+	esp = (struct esphdr *) (skb->data+ptr);
+	/* No space left on the device */
++	if (!flushed && journal->j_committing_transaction) {
++		transaction = journal->j_committing_transaction;
++		log_wait_commit(journal, transaction->t_tid);
++		flushed = 1;
++		goto repeat;
++	}
++
+	goto out;
 
- 	DEBUGP("IPv6 ESP SPI %u %08X\n", ntohl(esp->spi), ntohl(esp->spi));
+search_back:
 
-Binary files linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_esp.ko and linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_esp.ko differ
-Binary files linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_esp.o and linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_esp.o differ
-diff -Nru linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_frag.c linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_frag.c
---- linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_frag.c	2003-04-11 18:41:29.000000000 +0200
-+++ linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_frag.c	2003-04-11 18:48:09.000000000 +0200
-@@ -147,7 +147,7 @@
-        		return 0;
-        }
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
--       frag=skb->data+ptr;
-+       frag = (struct fraghdr *) (skb->data+ptr);
-
-        DEBUGP("IPv6 FRAG LEN %u %u ", hdrlen, frag->hdrlen);
-        DEBUGP("INFO %04X ", frag->info);
-Binary files linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_frag.ko and linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_frag.ko differ
-Binary files linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_frag.o and linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_frag.o differ
-diff -Nru linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_rt.c linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_rt.c
---- linux-2.5.67-bk3.orig/net/ipv6/netfilter/ip6t_rt.c	2003-04-11 18:41:29.000000000 +0200
-+++ linux-2.5.67-bk3/net/ipv6/netfilter/ip6t_rt.c	2003-04-11 18:53:36.000000000 +0200
-@@ -130,7 +130,7 @@
-        		return 0;
-        }
-
--       route=skb->data+ptr;
-+       route = (struct ipv6_rt_hdr *) (skb->data+ptr);
-
-        DEBUGP("IPv6 RT LEN %u %u ", hdrlen, route->hdrlen);
-        DEBUGP("TYPE %04X ", route->type);

@@ -1,347 +1,252 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310577AbSCUU1M>; Thu, 21 Mar 2002 15:27:12 -0500
+	id <S312479AbSCUU3m>; Thu, 21 Mar 2002 15:29:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312476AbSCUU1E>; Thu, 21 Mar 2002 15:27:04 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:55826 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S310577AbSCUU04>; Thu, 21 Mar 2002 15:26:56 -0500
-Date: Thu, 21 Mar 2002 21:25:06 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Mark Gross <mgross@unix-os.sc.intel.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Daniel Jacobowitz <dan@debian.org>,
-        "Vamsi Krishna S ." <vamsi@in.ibm.com>, Pavel Machek <pavel@suse.cz>,
-        linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
-        tachino@jp.fujitsu.com, jefreyr@pacbell.net, vamsi_krishna@in.ibm.com,
-        richardj_moore@uk.ibm.com, hanharat@us.ibm.com, bsuparna@in.ibm.com,
-        bharata@in.ibm.com, asit.k.mallick@intel.com, david.p.howell@intel.com,
-        tony.luck@intel.com, sunil.saxena@intel.com
-Subject: Re: [PATCH] multithreaded coredumps for elf exeecutables
-Message-ID: <20020321202506.GB25794@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <E16o5o5-0005gM-00@the-village.bc.nu> <200203211707.g2LH7XW10116@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S312477AbSCUU3Z>; Thu, 21 Mar 2002 15:29:25 -0500
+Received: from port-212-202-185-53.reverse.qdsl-home.de ([212.202.185.53]:23306
+	"EHLO el-zoido.localnet") by vger.kernel.org with ESMTP
+	id <S312479AbSCUU3I>; Thu, 21 Mar 2002 15:29:08 -0500
+Message-ID: <3C9A4270.56C09FCB@trash.net>
+Date: Thu, 21 Mar 2002 21:28:32 +0100
+From: Patrick McHardy <kaber@trash.net>
+X-Mailer: Mozilla 4.75 [de] (X11; U; Linux 2.4.18-ac2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: sliepen@phys.uu.nl
+CC: linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Updated Equalize patch
+Content-Type: multipart/mixed;
+ boundary="------------AA71B4FEC49FAE0692916818"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dies ist eine mehrteilige Nachricht im MIME-Format.
+--------------AA71B4FEC49FAE0692916818
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
 Hi!
 
-> > You need interrupts to handle this, even if you don't wrap it in the top
-> > layer of signals it will be able to use much of the code I agree. The nasty
-> > case is the "currently running on another cpu" one. Especially since you
-> > can't just "trap it" - if you IPI that processor it might have moved by the
-> > time the IPI arrives 8)
-> 
-> This why I grabbed all those locks, and did the two sets of IPI's in the 
-> tcore patch.  Once the runqueue lock is grabbed, even if that process on the 
-> other CPU tries to migrate, it won't get swapped in or looked at by the 
-> scheduler until its cpus_allowed member has been marked.   After cpus_allowed 
-> has been marked it won't run. 
+I've updated the equalize patch to apply on 2.4.18.
+The patch also addresses two race conditions in
+ip_route_input(..) and ip_route_output_key(..).
+The rt_hash_table entry is only read locked although elements
+from the chain can be freed if there is a matching entry with
+RTCF_EQUALIZE set.
 
-BTW it would be very nice to put "task freezing" in some generic
-place. I have my own version of task freezing (with refrigerator), and
-it would be good to be able to share that...
+Bye,
+Patrick
+--------------AA71B4FEC49FAE0692916818
+Content-Type: application/octet-stream;
+ name="equalize_2.4.18.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="equalize_2.4.18.patch"
 
-> The only risk with this type of code is if other code or drivers attempt 
-> similar maneuvers at the same time.  Having a standard mechanism or API for 
-> this in the scheduler would be a "good thing".
+ZGlmZiAtdXJOIGxpbnV4LTIuNC4xOC1jbGVhbi9Eb2N1bWVudGF0aW9uL25ldHdvcmtpbmcv
+bG9hZC1iYWxhbmNpbmcudHh0IGxpbnV4LTIuNC4xOC9Eb2N1bWVudGF0aW9uL25ldHdvcmtp
+bmcvbG9hZC1iYWxhbmNpbmcudHh0Ci0tLSBsaW51eC0yLjQuMTgtY2xlYW4vRG9jdW1lbnRh
+dGlvbi9uZXR3b3JraW5nL2xvYWQtYmFsYW5jaW5nLnR4dAlUaHUgSmFuICAxIDAxOjAwOjAw
+IDE5NzAKKysrIGxpbnV4LTIuNC4xOC9Eb2N1bWVudGF0aW9uL25ldHdvcmtpbmcvbG9hZC1i
+YWxhbmNpbmcudHh0CVRodSBNYXIgMjEgMjA6NDA6MjIgMjAwMgpAQCAtMCwwICsxLDEyNSBA
+QAorTG9hZCBiYWxhbmNpbmcgdXNpbmcgbXVsdGlwYXRocyAocGF0Y2ggdmVyc2lvbjogNSkK
+Kz09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09CisK
+K0NvbnRhY3QgR3V1cyBTbGllcGVuIDxzbGllcGVuQHBoeXMudXUubmw+IGlmIHlvdSBuZWVk
+IGhlbHAsIHdhbnQgdG8ga25vdworbW9yZSwgaGF2ZSByZW1hcmtzIG9yIGZ1cnRoZXIgaWRl
+YSdzIHdpdGggcmVsYXRpb24gdG8gdGhpcy4KKworSW50cm8KKy0tLS0tCisKK0lmIHlvdSBo
+YXZlIG11bHRpcGxlIHBoeXNpY2FsIG5ldHdvcmsgbGlua3MgdG8gYW5vdGhlciBjb21wdXRl
+ciwgYW5kIHlvdSB3YW50Citzb21lIGtpbmQgb2YgbG9hZCBiYWxhbmNpbmcsIHlvdSBjYW4g
+bm93IGRvIHNvLiBQbGVhc2Ugbm90ZSB0aGF0IHRoaXMgb25seQorYXBwbGllcyB0byBJUHY0
+IHRyYWZmaWMsIG5vdCBmb3IgSVBYLCBJUHY2IG9yIGFueSBvdGhlciBwcm90b2NvbCAoeWV0
+KS4KKworTmVlZGVkCistLS0tLQorCisqIExBVEVTVCBpcHJvdXRlIHBhY2thZ2UgZnJvbSBm
+dHA6Ly9mdHAuaW5yLmFjLnJ1L2lwLXJvdXRpbmcvCisqIENPTkZJR19JUF9ST1VURV9NVUxU
+SVBBVEggZW5hYmxlZCBpbiBrZXJuZWwgY29uZmlndXJhdGlvbiAoaXQncyBpbgorICBOZXR3
+b3JraW5nIG9wdGlvbnMsIGJlbG93IHRoZSBBZHZhbmNlZCBSb3V0ZXIgb3B0aW9uIHlvdSds
+bCBoYXZlIHRvIGVuYWJsZQorICB0b28pCisqIE9mY291cnNlIHlvdSBtdXN0IGFsc28gaGF2
+ZSBwYXRjaGVkIHlvdXIga2VybmVsIGFuZCByZWNvbXBpbGVkIGl0IGZvciB0aGlzCisgIGZl
+YXR1cmUgdG8gYmUgZW5hYmxlZC4KKyAgIAorVG8gZG8KKy0tLS0tCisKKyogTWFrZSBzdXJl
+IHRoZSBkZXZpY2VzIHlvdSB3YW50IHRvIGNvbWJpbmUgYXJlIHVwLCB0aGV5IGFsbCBhY2Nl
+cHQgdGhlCisgIHBhY2tldHMgeW91IHdhbnQgdG8gc2VuZCAoaWUsIHRoZXkgbXVzdCBhbGwg
+aGF2ZSB0aGUgc2FtZSBJUCBhZGRyZXNzL25ldG1hc2sKKyAgb3Igc29tZXRoaW5nIGNsZXZl
+ciB0byBnZXQgdGhlIHNhbWUgcmVzdWx0KQorKiBKdXN0IHRvIG1ha2Ugc3VyZSwgcmVtb3Zl
+IGFueSByb3V0ZXMgdmlhIHRob3NlIGRldmljZXMgKHJvdXRlIGRlbCAuLi4pCisqIE5vdyBh
+ZGQgYWxsIHJvdXRlcyB2aWEgb25lIGlwcm91dGUgY29tbWFuZCB1c2luZyB0aGUgJ25leHRo
+b3BzJyBzdGF0ZW1lbnQ6CisKKyAgaXAgcm91dGUgYWRkIDxkZXN0YWRkcmVzcz4vPG5ldG1h
+c2s+IGVxdWFsaXplIFxcCisgICAgIG5leHRob3AgZGV2IDxmaXJzdCBkZXZpY2U+IFxcCisg
+ICAgIG5leHRob3AgZGV2IDxzZWNvbmQgZGV2aWNlPiBcXAorICAgICBuZXh0aG9wIC4uLgor
+ICAgICAKKyogSnVzdCB0byBtYWtlIHN1cmUsIGZsdXNoIHJvdXRlIGNhY2hlOgorCisgIGVj
+aG8gMSA+L3Byb2Mvc3lzL25ldC9pcHY0L3JvdXRlL2ZsdXNoCisgIAorRXhhbXBsZQorLS0t
+LS0tLQorCitUaGlzIGlzIGFuIGV4YW1wbGUgc2hvd2luZyBob3cgdG8gbWFrZSBhIDIwIE1i
+aXQgY29ubmVjdGlvbiBiZXR3ZWVuIHR3bworY29tcHV0ZXJzIHVzaW5nIDIgMTAgTWJpdCBl
+dGhlcm5ldCBjYXJkcyBwZXIgY29tcHV0ZXIuIENvbXB1dGVyIDEgaGFzIElQCisxOTIuMTY4
+LjEuMSBhbmQgY29tcHV0ZXIgMiBoYXMgSVAgMTkyLjE2OC4xLjIuIFdlIHN0YXJ0IGZyb20g
+c2NyYXRjaDoKKworW2NvbXB1dGVyMV1+Lz5pZmNvbmZpZyBldGgwIDE5Mi4xNjguMS4xIG5l
+dG1hc2sgMjU1LjI1NS4yNTUuMAorW2NvbXB1dGVyMV1+Lz5yb3V0ZSBkZWwgLW5ldCAxOTIu
+MTY4LjEuMCBuZXRtYXNrIDI1NS4yNTUuMjU1LjAKK1tjb21wdXRlcjFdfi8+aWZjb25maWcg
+ZXRoMSAxOTIuMTY4LjEuMSBuZXRtYXNrIDI1NS4yNTUuMjU1LjAKK1tjb21wdXRlcjFdfi8+
+cm91dGUgZGVsIC1uZXQgMTkyLjE2OC4xLjAgbmV0bWFzayAyNTUuMjU1LjI1NS4wCitbY29t
+cHV0ZXIxXX4vPmlwIHJvdXRlIGFkZCAxOTIuMTY4LjEuMC8yNCBlcXVhbGl6ZSBuZXh0aG9w
+IGRldiBldGgwIG5leHRob3AgZGV2IGV0aDEKK1tjb21wdXRlcjFdfi8+ZWNobyAxID4vcHJv
+Yy9zeXMvbmV0L2lwdjQvcm91dGUvZmx1c2gKKworW2NvbXB1dGVyMl1+Lz5pZmNvbmZpZyBl
+dGgwIDE5Mi4xNjguMS4yIG5ldG1hc2sgMjU1LjI1NS4yNTUuMAorW2NvbXB1dGVyMl1+Lz5y
+b3V0ZSBkZWwgLW5ldCAxOTIuMTY4LjEuMCBuZXRtYXNrIDI1NS4yNTUuMjU1LjAKK1tjb21w
+dXRlcjJdfi8+aWZjb25maWcgZXRoMSAxOTIuMTY4LjEuMiBuZXRtYXNrIDI1NS4yNTUuMjU1
+LjAKK1tjb21wdXRlcjJdfi8+cm91dGUgZGVsIC1uZXQgMTkyLjE2OC4xLjAgbmV0bWFzayAy
+NTUuMjU1LjI1NS4wCitbY29tcHV0ZXIyXX4vPmlwIHJvdXRlIGFkZCAxOTIuMTY4LjEuMC8y
+NCBlcXVhbGl6ZSBuZXh0aG9wIGRldiBldGgwIG5leHRob3AgZGV2IGV0aDEKK1tjb21wdXRl
+cjJdfi8+ZWNobyAxID4vcHJvYy9zeXMvbmV0L2lwdjQvcm91dGUvZmx1c2gKKworWW91IGNh
+biBldmVuIGFkZCBtb3JlIGNvbXB1dGVycywganVzdCByZXBsYWNlIHRoZSB4IGluIDE5Mi4x
+NjguMS54IHdpdGggdGhlCitudW1iZXIgb2YgeW91ciBjb21wdXRlciwgYW5kIG1ha2Ugc3Vy
+ZSBhbGwgZXRoMCdzIGFyZSBjb25uZWN0ZWQgdG8gZWFjaCBvdGhlcgorYW5kIGFsbCBldGgx
+J3MuIFlvdSBjYW4gYWxzbyB1c2UgbW9yZSBkZXZpY2VzLCBqdXN0IGlmY29uZmlnIHRoZW0g
+YWxsIGFuZAorcmVtb3ZlIHRoZSBkZWZhdWx0IHJvdXRlcyB0aGF0IGFyZSBnZW5lcmF0ZWQs
+IGFuZCBhZGQgZXh0cmEgbmV4dGhvcHMuCisKK05vdGVzCistLS0tLQorCitJZiB5b3Ugd2Fu
+dCB0byBhZGQgYSBnYXRld2F5IGVudHJ5IGluIHlvdXIgcm91dGluZyB0YWJsZSwgYW5kIHdh
+bnQgaXQgdG8gYmUKK2JhbGFuY2VkIHRvbywgeW91IGZpcnN0IGhhdmUgdG8gbWFrZSBzaW5n
+bGVwYXRoIGVudHJpZXMgZm9yIGV2ZXJ5IG5ldHdvcmsKK2ludGVyZmFjZSB5b3Ugd2FudCB0
+byB1c2UsIGFmdGVyIHRoYXQgYWRkIHRoZSBnYXRld2F5IHdpdGggYWxsIHRoZSBuZXh0aG9w
+cworZmlsbGVkIGluLCB0aGVuIGRlbGV0ZSB0aGUgc2luZ2xlcGF0aCByb3V0ZXMgYW5kIHRo
+ZW4gYWRkIHRoZSBub3JtYWwKK211bHRpcGF0aCByb3V0ZS4KKworT2xkZXIgcGF0Y2ggdmVy
+c2lvbnMgdXNlZCBhIC9wcm9jIGVudHJ5IHRvIGNvbnRyb2wgbG9hZC1iYWxhbmNpbmcuIFRo
+aXMgZG9lcworbm90IHdvcmsgYW55bW9yZS4gWW91IHNob3VsZCB1c2UgdGhlICdlcXVhbGl6
+ZScgZmxhZyBpbnN0ZWFkIHdoaWxlIGFkZGluZyBuZXcKK3JvdXRlcy4gWW91IG5lZWQgYSBm
+cmVzaCB2ZXJzaW9uIG9mIGlwcm91dGUgZm9yIHRoYXQuCisKK1N0YXR1cworLS0tLS0tCisK
+K1BhY2tldCB0eXBlOgkJQmFsYW5jZWQ/CU5vdGUKKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KK0FSUAkJ
+CW5vCQlCdXQgd2UgZG9uJ3Qgd2FudCB0aGVtIHRvIDspCitJQ01QCQkJeWVzCitDb25uZWN0
+aW9ubGVzcyBVRFAJeWVzCitDb25uZWN0ZWQgVURQCQl5ZXMKK0Jyb2FkY2FzdCBVRFAJCW5v
+CQlXb3VsZCBiZSBuaWNlIGlmIGl0IHdvdWxkLAorCQkJCQlidXQgdGhpcyBpcyByYXJlbHkg
+dXNlZCBmb3IKKwkJCQkJaGlnaCBiYW5kd2l0aCBkYXRhIHRyYW5zZmVycy4KK1RDUAkJCXll
+cwkJQXQgbGVhc3QgYWxsIGRhdGEgcGFja2V0cyBhcmUsCisJCQkJCW1heWJlIHNvbWUgY29u
+dHJvbCBwYWNrZXRzIGFyZQorCQkJCQlub3QuCisKKyhLbm93bikgQnVncworLS0tLS0tLS0t
+LS0tCisKK0R1ZSB0byB0aGUgbmF0dXJlIG9mIHRoZSBwYXRjaCwgZXZlcnkgcGFja2V0IHRo
+YXQgZm9sbG93cyBhIG11bHRpcGF0aCB1c2VzCithIGxpdHRsZSBtZW1vcnkgdGhhdCBpcyBu
+b3QgaW5zdGFudGx5IGNsZWFuZWQgdXAsIGJ1dCBhZnRlciBhIHNob3J0IHBlcmlvZC4KK1Ro
+aXMgbWVhbnMgdGhhdCBpZiB5b3VyIGxvYWQgZ2V0cyBoaWdoZXIsIG1lbW9yeSB1c2VhZ2Ug
+aXMgaGlnaGVyLiBTaW5jZQordGhlcmUgaXMgYSBsaW1pdCB0byB0aGUgbWVtb3J5IHRoYXQg
+Y2FuIGJlIGFsbG9jYXRlZCBmb3IgdGhlIHBhY2tldHMsIHRoZXJlCitpcyBhbHNvIGEgbG9h
+ZCBsaW1pdC4gSSBjYW5ub3QgZ2l2ZSBleGFjdCBudW1iZXJzLCBob3dldmVyIHRoaXMgcGF0
+Y2ggZG9lcword29yayB3aXRoIGEgbG9hZCBvZiAyMCBNYml0L3Mgd2l0aG91dCBwcm9ibGVt
+cyBvbiBhIDQ4NiBkeDIgNjYsIGJ1dCBub3QKK3dpdGggYSBsb2FkIG9mIDQwMCBNYml0L3Mg
+b24gYSBib3ggd2l0aCBtdWx0aXBsZSA0MDAgTWh6IFhlb24gcHJvY2Vzc29ycy4KK0lmIHRo
+ZSBsb2FkIGdldHMgdG9vIGhpZ2gsIG5vIG1lbW9yeSBpcyBsZWZ0IGZvciBuZXR3b3JrIElP
+LCB3aGljaCBzdG9wcworZm9yIGEgd2hpbGUgaWYgdGhhdCBoYXBwZW5zLiBUaGUga2VybmVs
+IHNob3VsZCBub3QgY3Jhc2ggaWYgdGhpcyBoYXBwZW5zLgorCitUZWNobmljYWxseQorLS0t
+LS0tLS0tLS0KKworTG9hZCBiYWxhbmNpbmcgbmVlZGVkIGEgc2xpZ2h0IGFkanVzdG1lbnQg
+dG8gdGhlIHVucGF0Y2hlZCBsaW51eCBrZXJuZWwsCitiZWNhdXNlIG9mIHRoZSByb3V0ZSBj
+YWNoZS4gTXVsdGlwYXRoIGlzIGFuIG9wdGlvbiBhbHJlYWR5IGZvdW5kIGluIHRoZSBvbGQK
+KzIuMS54IGtlcm5lbHMuIEhvd2V2ZXIsIG9uY2UgYSBwYWNrZXQgYXJyaXZlcywgYW5kIGl0
+IG1hdGNoZXMgYSBtdWx0aXBhdGgKK3JvdXRlLCBhIChxdWFzaSByYW5kb20pIGRldmljZSBv
+dXQgb2YgdGhlIGxpc3Qgb2YgbmV4dGhvcHMgaXMgdGFrZW4gZm9yIGl0cworZGVzdGluYXRp
+b24uIFRoYXQncyBva2F5LCBidXQgYWZ0ZXIgdGhhdCB0aGUga2VybmVsIHB1dHMgZXZlcnl0
+aGluZyBpbnRvIGEKK2hhc2ggdGFibGUsIGFuZCB0aGUgbmV4dCB0aW1lIGEgcGFja2V0IHdp
+dGggdGhlIHNhbWUgc291cmNlL2Rlc3QvdG9zIGFycml2ZXMsCitpdCBmaW5kcyBpdCBpcyBp
+biB0aGUgaGFzaCB0YWJsZSwgYW5kIHJvdXRlcyBpdCB2aWEgdGhlIHNhbWUgZGV2aWNlIGFz
+IGxhc3QKK3RpbWUuIFRoZSBhZGp1c3RtZW50IEkgbWFkZSBpcyBhcyBmb2xsb3dzOiBJZiB0
+aGUga2VybmVsIHNlZXMgdGhhdCB0aGUgcm91dGUKK3RvIGJlIHRha2VuIGhhcyBnb3QgdGhl
+ICdlcXVhbGl6ZScgZmxhZyBzZXQsIGl0IG5vdCBvbmx5IHNlbGVjdHMgdGhlIHJhbmRvbQor
+ZGV2aWNlLCBidXQgYWxzbyB0YWdzIHRoZSBwYWNrZXQgd2l0aCB0aGUgUlRDRl9FUVVBTEla
+RSBmbGFnLiBJZiBhbm90aGVyCitwYWNrZXQgb2YgdGhlIHNhbWUga2luZCBhcnJpdmVzLCBp
+dCBpcyBsb29rZWQgdXAgaW4gdGhlIGhhc2ggdGFibGUuIEl0IHRoZW4KK2NoZWNrcyBpZiBv
+dXIgZmxhZyBpcyBzZXQsIGFuZCBpZiBzbywgaXQgZGVsZXRlcyB0aGUgZW50cnkgaW4gdGhl
+IGNhY2hlIGFuZAoraGFzIHRvIHJlY2FsY3VsYXRlIHRoZSBkZXN0aW5hdGlvbiBhZ2Fpbi4K
+ZGlmZiAtdXJOIGxpbnV4LTIuNC4xOC1jbGVhbi9pbmNsdWRlL2xpbnV4L2luX3JvdXRlLmgg
+bGludXgtMi40LjE4L2luY2x1ZGUvbGludXgvaW5fcm91dGUuaAotLS0gbGludXgtMi40LjE4
+LWNsZWFuL2luY2x1ZGUvbGludXgvaW5fcm91dGUuaAlGcmkgSnVuIDEyIDA3OjUyOjMzIDE5
+OTgKKysrIGxpbnV4LTIuNC4xOC9pbmNsdWRlL2xpbnV4L2luX3JvdXRlLmgJVGh1IE1hciAy
+MSAyMDo0MDoyMiAyMDAyCkBAIC0xOCw2ICsxOCw3IEBACiAjZGVmaW5lIFJUQ0ZfTUFTUQkw
+eDAwNDAwMDAwCiAjZGVmaW5lIFJUQ0ZfU05BVAkweDAwODAwMDAwCiAjZGVmaW5lIFJUQ0Zf
+RE9SRURJUkVDVCAweDAxMDAwMDAwCisjZGVmaW5lIFJUQ0ZfRVFVQUxJWkUJMHgwMjAwMDAw
+MAogI2RlZmluZSBSVENGX0RJUkVDVFNSQwkweDA0MDAwMDAwCiAjZGVmaW5lIFJUQ0ZfRE5B
+VAkweDA4MDAwMDAwCiAjZGVmaW5lIFJUQ0ZfQlJPQURDQVNUCTB4MTAwMDAwMDAKZGlmZiAt
+dXJOIGxpbnV4LTIuNC4xOC1jbGVhbi9uZXQvaXB2NC9maWJfc2VtYW50aWNzLmMgbGludXgt
+Mi40LjE4L25ldC9pcHY0L2ZpYl9zZW1hbnRpY3MuYwotLS0gbGludXgtMi40LjE4LWNsZWFu
+L25ldC9pcHY0L2ZpYl9zZW1hbnRpY3MuYwlNb24gRmViIDI1IDIwOjM4OjE0IDIwMDIKKysr
+IGxpbnV4LTIuNC4xOC9uZXQvaXB2NC9maWJfc2VtYW50aWNzLmMJVGh1IE1hciAyMSAyMDo0
+MDoyMiAyMDAyCkBAIC0xMDEsNiArMTAxLDEwIEBACiB9OwogCiAKKyNpZmRlZiBDT05GSUdf
+SVBfUk9VVEVfTVVMVElQQVRICit1bnNpZ25lZCBpbnQgbXBfY291bnRlcj0wOworI2VuZGlm
+CisKIC8qIFJlbGVhc2UgYSBuZXh0aG9wIGluZm8gcmVjb3JkICovCiAKIHZvaWQgZnJlZV9m
+aWJfaW5mbyhzdHJ1Y3QgZmliX2luZm8gKmZpKQpAQCAtOTU1LDcgKzk1OSw3IEBACiAJICAg
+aXQgaXMgcHJldHR5IGJhZCBhcHByb3hpbWF0aW9uLgogCSAqLwogCi0JdyA9IGppZmZpZXMg
+JSBmaS0+ZmliX3Bvd2VyOworCXcgPSBtcF9jb3VudGVyKysgJSBmaS0+ZmliX3Bvd2VyOwog
+CiAJY2hhbmdlX25leHRob3BzKGZpKSB7CiAJCWlmICghKG5oLT5uaF9mbGFncyZSVE5IX0Zf
+REVBRCkgJiYgbmgtPm5oX3Bvd2VyKSB7CmRpZmYgLXVyTiBsaW51eC0yLjQuMTgtY2xlYW4v
+bmV0L2lwdjQvaXBfb3V0cHV0LmMgbGludXgtMi40LjE4L25ldC9pcHY0L2lwX291dHB1dC5j
+Ci0tLSBsaW51eC0yLjQuMTgtY2xlYW4vbmV0L2lwdjQvaXBfb3V0cHV0LmMJV2VkIE9jdCAx
+NyAyMzoxNjozOSAyMDAxCisrKyBsaW51eC0yLjQuMTgvbmV0L2lwdjQvaXBfb3V0cHV0LmMJ
+VGh1IE1hciAyMSAyMDo0MDoyMiAyMDAyCkBAIC0zNTQsNyArMzU0LDcgQEAKIAogCS8qIE1h
+a2Ugc3VyZSB3ZSBjYW4gcm91dGUgdGhpcyBwYWNrZXQuICovCiAJcnQgPSAoc3RydWN0IHJ0
+YWJsZSAqKV9fc2tfZHN0X2NoZWNrKHNrLCAwKTsKLQlpZiAocnQgPT0gTlVMTCkgeworCWlm
+IChydCA9PSBOVUxMIHx8IHJ0LT51LmRzdC5vYnNvbGV0ZSB8fCBydC0+cnRfZmxhZ3MmUlRD
+Rl9FUVVBTElaRSkgewogCQl1MzIgZGFkZHI7CiAKIAkJLyogVXNlIGNvcnJlY3QgZGVzdGlu
+YXRpb24gYWRkcmVzcyBpZiB3ZSBoYXZlIG9wdGlvbnMuICovCmRpZmYgLXVyTiBsaW51eC0y
+LjQuMTgtY2xlYW4vbmV0L2lwdjQvcm91dGUuYyBsaW51eC0yLjQuMTgvbmV0L2lwdjQvcm91
+dGUuYwotLS0gbGludXgtMi40LjE4LWNsZWFuL25ldC9pcHY0L3JvdXRlLmMJTW9uIEZlYiAy
+NSAyMDozODoxNCAyMDAyCisrKyBsaW51eC0yLjQuMTgvbmV0L2lwdjQvcm91dGUuYwlUaHUg
+TWFyIDIxIDIwOjQ2OjQyIDIwMDIKQEAgLTE0MTksOCArMTQxOSwxMSBAQAogCQlnb3RvIG1h
+cnRpYW5fZGVzdGluYXRpb247CiAKICNpZmRlZiBDT05GSUdfSVBfUk9VVEVfTVVMVElQQVRI
+Ci0JaWYgKHJlcy5maS0+ZmliX25ocyA+IDEgJiYga2V5Lm9pZiA9PSAwKQorCWlmIChyZXMu
+ZmktPmZpYl9uaHMgPiAxICYmIGtleS5vaWYgPT0gMCkgewogCQlmaWJfc2VsZWN0X211bHRp
+cGF0aCgma2V5LCAmcmVzKTsKKwkJaWYgKHJlcy5maS0+ZmliX2ZsYWdzJlJUTV9GX0VRVUFM
+SVpFKQorCQkJZmxhZ3MgfD0gUlRDRl9FUVVBTElaRTsKKwl9CiAjZW5kaWYKIAlvdXRfZGV2
+ID0gaW5fZGV2X2dldChGSUJfUkVTX0RFVihyZXMpKTsKIAlpZiAob3V0X2RldiA9PSBOVUxM
+KSB7CkBAIC0xNjIyLDE1ICsxNjI1LDE1IEBACiBpbnQgaXBfcm91dGVfaW5wdXQoc3RydWN0
+IHNrX2J1ZmYgKnNrYiwgdTMyIGRhZGRyLCB1MzIgc2FkZHIsCiAJCSAgIHU4IHRvcywgc3Ry
+dWN0IG5ldF9kZXZpY2UgKmRldikKIHsKLQlzdHJ1Y3QgcnRhYmxlICogcnRoOworCXN0cnVj
+dCBydGFibGUgKiBydGgsICoqcnRocDsKIAl1bnNpZ25lZAloYXNoOwogCWludCBpaWYgPSBk
+ZXYtPmlmaW5kZXg7CiAKIAl0b3MgJj0gSVBUT1NfUlRfTUFTSzsKIAloYXNoID0gcnRfaGFz
+aF9jb2RlKGRhZGRyLCBzYWRkciBeIChpaWYgPDwgNSksIHRvcyk7CiAKLQlyZWFkX2xvY2so
+JnJ0X2hhc2hfdGFibGVbaGFzaF0ubG9jayk7Ci0JZm9yIChydGggPSBydF9oYXNoX3RhYmxl
+W2hhc2hdLmNoYWluOyBydGg7IHJ0aCA9IHJ0aC0+dS5ydF9uZXh0KSB7CisJd3JpdGVfbG9j
+aygmcnRfaGFzaF90YWJsZVtoYXNoXS5sb2NrKTsKKwlmb3IgKHJ0aHA9JnJ0X2hhc2hfdGFi
+bGVbaGFzaF0uY2hhaW47IChydGg9KnJ0aHApOyBydGhwPSZydGgtPnUucnRfbmV4dCkgewog
+CQlpZiAocnRoLT5rZXkuZHN0ID09IGRhZGRyICYmCiAJCSAgICBydGgtPmtleS5zcmMgPT0g
+c2FkZHIgJiYKIAkJICAgIHJ0aC0+a2V5LmlpZiA9PSBpaWYgJiYKQEAgLTE2MzksNiArMTY0
+MiwxMiBAQAogCQkgICAgcnRoLT5rZXkuZndtYXJrID09IHNrYi0+bmZtYXJrICYmCiAjZW5k
+aWYKIAkJICAgIHJ0aC0+a2V5LnRvcyA9PSB0b3MpIHsKKwkJCWlmIChydGgtPnJ0X2ZsYWdz
+JlJUQ0ZfRVFVQUxJWkUpIHsKKwkJCQkqcnRocCA9IHJ0aC0+dS5ydF9uZXh0OworCQkJCXJ0
+aC0+dS5ydF9uZXh0ID0gTlVMTDsKKwkJCQlydF9mcmVlKHJ0aCk7CisJCQkJYnJlYWs7CisJ
+CQl9CiAJCQlydGgtPnUuZHN0Lmxhc3R1c2UgPSBqaWZmaWVzOwogCQkJZHN0X2hvbGQoJnJ0
+aC0+dS5kc3QpOwogCQkJcnRoLT51LmRzdC5fX3VzZSsrOwpAQCAtMTY0OCw3ICsxNjU3LDcg
+QEAKIAkJCXJldHVybiAwOwogCQl9CiAJfQotCXJlYWRfdW5sb2NrKCZydF9oYXNoX3RhYmxl
+W2hhc2hdLmxvY2spOworCXdyaXRlX3VubG9jaygmcnRfaGFzaF90YWJsZVtoYXNoXS5sb2Nr
+KTsKIAogCS8qIE11bHRpY2FzdCByZWNvZ25pdGlvbiBsb2dpYyBpcyBtb3ZlZCBmcm9tIHJv
+dXRlIGNhY2hlIHRvIGhlcmUuCiAJICAgVGhlIHByb2JsZW0gd2FzIHRoYXQgdG9vIG1hbnkg
+RXRoZXJuZXQgY2FyZHMgaGF2ZSBicm9rZW4vbWlzc2luZwpAQCAtMTg1Miw4ICsxODYxLDEx
+IEBACiAJfQogCiAjaWZkZWYgQ09ORklHX0lQX1JPVVRFX01VTFRJUEFUSAotCWlmIChyZXMu
+ZmktPmZpYl9uaHMgPiAxICYmIGtleS5vaWYgPT0gMCkKKwlpZiAocmVzLmZpLT5maWJfbmhz
+ID4gMSAmJiBrZXkub2lmID09IDApIHsKIAkJZmliX3NlbGVjdF9tdWx0aXBhdGgoJmtleSwg
+JnJlcyk7CisJCWlmIChyZXMuZmktPmZpYl9mbGFncyZSVE1fRl9FUVVBTElaRSkKKwkJCWZs
+YWdzIHw9IFJUQ0ZfRVFVQUxJWkU7CisJfQogCWVsc2UKICNlbmRpZgogCWlmICghcmVzLnBy
+ZWZpeGxlbiAmJiByZXMudHlwZSA9PSBSVE5fVU5JQ0FTVCAmJiAha2V5Lm9pZikKQEAgLTE5
+ODQsMTIgKzE5OTYsMTIgQEAKIGludCBpcF9yb3V0ZV9vdXRwdXRfa2V5KHN0cnVjdCBydGFi
+bGUgKipycCwgY29uc3Qgc3RydWN0IHJ0X2tleSAqa2V5KQogewogCXVuc2lnbmVkIGhhc2g7
+Ci0Jc3RydWN0IHJ0YWJsZSAqcnRoOworCXN0cnVjdCBydGFibGUgKnJ0aCwgKipydGhwOwog
+CiAJaGFzaCA9IHJ0X2hhc2hfY29kZShrZXktPmRzdCwga2V5LT5zcmMgXiAoa2V5LT5vaWYg
+PDwgNSksIGtleS0+dG9zKTsKIAotCXJlYWRfbG9ja19iaCgmcnRfaGFzaF90YWJsZVtoYXNo
+XS5sb2NrKTsKLQlmb3IgKHJ0aCA9IHJ0X2hhc2hfdGFibGVbaGFzaF0uY2hhaW47IHJ0aDsg
+cnRoID0gcnRoLT51LnJ0X25leHQpIHsKKwl3cml0ZV9sb2NrX2JoKCZydF9oYXNoX3RhYmxl
+W2hhc2hdLmxvY2spOworCWZvciAocnRocD0mcnRfaGFzaF90YWJsZVtoYXNoXS5jaGFpbjsg
+KHJ0aD0qcnRocCk7IHJ0aHA9JnJ0aC0+dS5ydF9uZXh0KSB7CiAJCWlmIChydGgtPmtleS5k
+c3QgPT0ga2V5LT5kc3QgJiYKIAkJICAgIHJ0aC0+a2V5LnNyYyA9PSBrZXktPnNyYyAmJgog
+CQkgICAgcnRoLT5rZXkuaWlmID09IDAgJiYKQEAgLTE5OTksNiArMjAxMSwxMiBAQAogI2Vu
+ZGlmCiAJCSAgICAhKChydGgtPmtleS50b3MgXiBrZXktPnRvcykgJgogCQkJICAgIChJUFRP
+U19SVF9NQVNLIHwgUlRPX09OTElOSykpKSB7CisJCQlpZiAocnRoLT5ydF9mbGFncyZSVENG
+X0VRVUFMSVpFKSB7CisJCQkJKnJ0aHAgPSBydGgtPnUucnRfbmV4dDsKKwkJCQlydGgtPnUu
+cnRfbmV4dCA9IE5VTEw7CisJCQkJcnRfZnJlZShydGgpOworCQkJCWJyZWFrOworCQkJfQog
+CQkJcnRoLT51LmRzdC5sYXN0dXNlID0gamlmZmllczsKIAkJCWRzdF9ob2xkKCZydGgtPnUu
+ZHN0KTsKIAkJCXJ0aC0+dS5kc3QuX191c2UrKzsKQEAgLTIwMDgsNyArMjAyNiw3IEBACiAJ
+CQlyZXR1cm4gMDsKIAkJfQogCX0KLQlyZWFkX3VubG9ja19iaCgmcnRfaGFzaF90YWJsZVto
+YXNoXS5sb2NrKTsKKwl3cml0ZV91bmxvY2tfYmgoJnJ0X2hhc2hfdGFibGVbaGFzaF0ubG9j
+ayk7CiAKIAlyZXR1cm4gaXBfcm91dGVfb3V0cHV0X3Nsb3cocnAsIGtleSk7CiB9CQpkaWZm
+IC11ck4gbGludXgtMi40LjE4LWNsZWFuL25ldC9pcHY0L3VkcC5jIGxpbnV4LTIuNC4xOC9u
+ZXQvaXB2NC91ZHAuYwotLS0gbGludXgtMi40LjE4LWNsZWFuL25ldC9pcHY0L3VkcC5jCU1v
+biBGZWIgMjUgMjA6Mzg6MTQgMjAwMgorKysgbGludXgtMi40LjE4L25ldC9pcHY0L3VkcC5j
+CVRodSBNYXIgMjEgMjA6NDg6MDcgMjAwMgpAQCAtNzQwLDYgKzc0MCwxNCBAQAogCXNrLT5z
+dGF0ZSA9IFRDUF9FU1RBQkxJU0hFRDsKIAlzay0+cHJvdGluZm8uYWZfaW5ldC5pZCA9IGpp
+ZmZpZXM7CiAKKyAjaWZkZWYgQ09ORklHX0lQX1JPVVRFX01VTFRJUEFUSAorCWlmKHJ0LT5y
+dF9mbGFncyZSVENGX0VRVUFMSVpFKSB7CisJCWlwX3J0X3B1dChydCk7CisJCXNrLT5kc3Rf
+Y2FjaGU9TlVMTDsKKwl9CisJZWxzZQorICNlbmRpZgorCQogCXNrX2RzdF9zZXQoc2ssICZy
+dC0+dS5kc3QpOwogCXJldHVybigwKTsKIH0K
+--------------AA71B4FEC49FAE0692916818--
 
-Ahha, so you know it, too.
-
-> I've just started considering how to do this with the 2.5 O(1) scheduler, and 
-> I'm not sure yet how I can accomplish this process "pausing" behavior just 
-> yet.
-
-I'm doing this in my freezer, and it should be safe even on
-2.5.X. Most interesting is the part in suspend.c...
-								Pavel
-
---- clean.2.4/arch/i386/kernel/apm.c	Thu Feb 28 11:18:05 2002
-+++ linux-swsusp.24/arch/i386/kernel/apm.c	Fri Mar  1 12:44:18 2002
-@@ -1664,6 +1664,7 @@
- 	daemonize();
- 
- 	strcpy(current->comm, "kapmd");
-+	current->flags |= PF_IOTHREAD;
- 	sigfillset(&current->blocked);
- 
- 	if (apm_info.connection_version == 0) {
---- clean.2.4/arch/i386/kernel/signal.c	Thu Feb 28 11:18:05 2002
-+++ linux-swsusp.24/arch/i386/kernel/signal.c	Thu Mar  7 23:17:18 2002
-@@ -20,6 +20,7 @@
- #include <linux/stddef.h>
- #include <linux/tty.h>
- #include <linux/personality.h>
-+#include <linux/suspend.h>
- #include <asm/ucontext.h>
- #include <asm/uaccess.h>
- #include <asm/i387.h>
-@@ -595,6 +596,11 @@
- 	if ((regs->xcs & 3) != 3)
- 		return 1;
- 
-+	if (current->flags & PF_FREEZE) {
-+		refrigerator(0);
-+		goto no_signal;
-+	}
-+
- 	if (!oldset)
- 		oldset = &current->blocked;
- 
-@@ -705,6 +711,7 @@
- 		return 1;
- 	}
- 
-+ no_signal:
- 	/* Did we come from a system call? */
- 	if (regs->orig_eax >= 0) {
- 		/* Restart the system call - no handlers present */
---- clean.2.4/drivers/usb/storage/usb.c	Thu Feb 28 11:18:20 2002
-+++ linux-swsusp.24/drivers/usb/storage/usb.c	Fri Mar  1 12:43:11 2002
-@@ -316,6 +316,7 @@
- 	 */
- 	exit_files(current);
- 	current->files = init_task.files;
-+	current->flags |= PF_IOTHREAD;
- 	atomic_inc(&current->files->count);
- 	daemonize();
- 
---- clean.2.4/fs/buffer.c	Thu Feb 28 11:18:21 2002
-+++ linux-swsusp.24/fs/buffer.c	Thu Mar  7 22:51:11 2002
-@@ -129,6 +129,8 @@
- 		wake_up(&bh->b_wait);
- }
- 
-+DECLARE_TASK_QUEUE(tq_bdflush);
-+
- /*
-  * Rewrote the wait-routines to use the "new" wait-queue functionality,
-  * and getting rid of the cli-sti pairs. The wait-queue routines still
-@@ -2981,12 +2986,14 @@
- 	spin_unlock_irq(&tsk->sigmask_lock);
- 
- 	complete((struct completion *)startup);
--
-+	current->flags |= PF_KERNTHREAD;
- 	for (;;) {
- 		wait_for_some_buffers(NODEV);
- 
- 		/* update interval */
- 		interval = bdf_prm.b_un.interval;
-+		if (current->flags & PF_FREEZE)
-+			refrigerator(PF_IOTHREAD);
- 		if (interval) {
- 			tsk->state = TASK_INTERRUPTIBLE;
- 			schedule_timeout(interval);
---- clean.2.4/fs/jbd/journal.c	Thu Feb 28 11:18:22 2002
-+++ linux-swsusp.24/fs/jbd/journal.c	Thu Mar  7 23:13:25 2002
-@@ -34,6 +34,7 @@
- #include <linux/init.h>
- #include <linux/mm.h>
- #include <linux/slab.h>
-+#include <linux/suspend.h>
- #include <asm/uaccess.h>
- #include <linux/proc_fs.h>
- 
-@@ -226,6 +227,7 @@
- 			journal->j_commit_interval / HZ);
- 	list_add(&journal->j_all_journals, &all_journals);
- 
-+	current->flags |= PF_KERNTHREAD;
- 	/* And now, wait forever for commit wakeup events. */
- 	while (1) {
- 		if (journal->j_flags & JFS_UNMOUNT)
-@@ -246,7 +248,15 @@
- 		}
- 
- 		wake_up(&journal->j_wait_done_commit);
--		interruptible_sleep_on(&journal->j_wait_commit);
-+		if (current->flags & PF_FREEZE) { /* The simpler the better. Flushing journal isn't a
-+						     good idea, because that depends on threads that
-+						     may be already stopped. */
-+			jbd_debug(1, "Now suspending kjournald\n");
-+			refrigerator(PF_IOTHREAD);
-+			jbd_debug(1, "Resuming kjournald\n");						
-+		} else		/* we assume on resume that commits are already there,
-+				   so we don't sleep */
-+			interruptible_sleep_on(&journal->j_wait_commit);
- 
- 		jbd_debug(1, "kjournald wakes\n");
- 
---- clean.2.4/include/linux/sched.h	Tue Dec 25 22:39:30 2001
-+++ linux-swsusp.24/include/linux/sched.h	Thu Mar  7 23:09:25 2002
-@@ -427,6 +427,10 @@
- #define PF_MEMDIE	0x00001000	/* Killed for out-of-memory */
- #define PF_FREE_PAGES	0x00002000	/* per process page freeing */
- #define PF_NOIO		0x00004000	/* avoid generating further I/O */
-+#define PF_FROZEN	0x00008000	/* frozen for system suspend */
-+#define PF_FREEZE	0x00010000	/* this task should be frozen for suspend */
-+#define PF_IOTHREAD	0x00020000	/* this thread is needed for doing I/O to swap */
-+#define PF_KERNTHREAD	0x00040000	/* this thread is a kernel thread that cannot be sent signals to */
- 
- #define PF_USEDFPU	0x00100000	/* task used FPU this quantum (SMP) */
- 
---- clean.2.4/kernel/context.c	Thu Oct 11 20:17:22 2001
-+++ linux-swsusp.24/kernel/context.c	Tue Feb 19 20:33:23 2002
-@@ -72,6 +72,7 @@
- 
- 	daemonize();
- 	strcpy(curtask->comm, "keventd");
-+	current->flags |= PF_IOTHREAD;
- 	keventd_running = 1;
- 	keventd_task = curtask;
- 
---- clean.2.4/kernel/signal.c	Wed Dec  5 23:46:07 2001
-+++ linux-swsusp.24/kernel/signal.c	Tue Feb 19 20:33:23 2002
-@@ -463,7 +463,7 @@
-  * No need to set need_resched since signal event passing
-  * goes through ->blocked
-  */
--static inline void signal_wake_up(struct task_struct *t)
-+inline void signal_wake_up(struct task_struct *t)
- {
- 	t->sigpending = 1;
- 
---- clean.2.4/kernel/softirq.c	Wed Oct 31 19:26:02 2001
-+++ linux-swsusp.24/kernel/softirq.c	Tue Feb 19 20:33:23 2002
-@@ -366,6 +366,7 @@
- 
- 	daemonize();
- 	current->nice = 19;
-+	current->flags |= PF_IOTHREAD;
- 	sigfillset(&current->blocked);
- 
- 	/* Migrate to the right CPU */
---- clean.2.4/kernel/suspend.c	Sun Nov 11 20:26:28 2001
-+++ linux-swsusp.24/kernel/suspend.c	Tue Mar 19 13:22:14 2002
-@@ -0,0 +1,1373 @@
-...
-+/*
-+ * Refrigerator and related stuff
-+ */
-+
-+#define INTERESTING(p) \
-+			/* We don't want to touch kernel_threads..*/ \
-+			if (p->flags & PF_IOTHREAD) \
-+				continue; \
-+			if (p == current) \
-+				continue; \
-+			if (p->state == TASK_ZOMBIE) \
-+				continue;
-+
-+/* Refrigerator is place where frozen processes are stored :-). */
-+void refrigerator(unsigned long flag)
-+{
-+	/* You need correct to work with real-time processes.
-+	   OTOH, this way one process may see (via /proc/) some other
-+	   process in stopped state (and thereby discovered we were
-+	   suspended. We probably do not care. 
-+	 */
-+	long save;
-+	save = current->state;
-+	current->state = TASK_STOPPED;
-+//	PRINTK("%s entered refrigerator\n", current->comm);
-+	printk(":");
-+	current->flags &= ~PF_FREEZE;
-+	if (flag)
-+		flush_signals(current); /* We have signaled a kernel thread, which isn't normal behaviour
-+					   and that may lead to 100%CPU sucking because those threads
-+					   just don't manage signals. */
-+	current->flags |= PF_FROZEN;
-+	while (current->flags & PF_FROZEN)
-+		schedule();
-+//	PRINTK("%s left refrigerator\n", current->comm);
-+	printk(":");
-+	current->state = save;
-+}
-+
-+/* 0 = success, else # of processes that we failed to stop */
-+static int freeze_processes(void)
-+{
-+	int todo, start_time;
-+	struct task_struct *p;
-+	
-+	PRINTS( "Waiting for tasks to stop... " );
-+	
-+	start_time = jiffies;
-+	do {
-+		todo = 0;
-+		read_lock(&tasklist_lock);
-+		for_each_task(p) {
-+			unsigned long flags;
-+			INTERESTING(p);
-+			if (p->flags & PF_FROZEN)
-+				continue;
-+
-+			/* FIXME: smp problem here: we may not access other process' flags
-+			   without locking */
-+			p->flags |= PF_FREEZE;
-+			spin_lock_irqsave(&p->sigmask_lock, flags);
-+			signal_wake_up(p);
-+			spin_unlock_irqrestore(&p->sigmask_lock, flags);
-+			todo++;
-+		}
-+		read_unlock(&tasklist_lock);
-+		sys_sched_yield();
-+		schedule();
-+		if (time_after(jiffies, start_time + TIMEOUT)) {
-+			PRINTK( "\n" );
-+			printk(KERN_ERR " stopping tasks failed (%d tasks remaining)\n", todo );
-+			return todo;
-+		}
-+	} while(todo);
-+	
-+	PRINTK( " ok\n" );
-+	return 0;
-+}
-+
-+static void thaw_processes(void)
-+{
-+	struct task_struct *p;
-+
-+	PRINTR( "Restarting tasks..." );
-+	read_lock(&tasklist_lock);
-+	for_each_task(p) {
-+		INTERESTING(p);
-+		
-+		if (p->flags & PF_FROZEN) p->flags &= ~PF_FROZEN;
-+		else
-+			printk(KERN_INFO " Strange, %s not stopped\n", p->comm );
-+		wake_up_process(p);
-+	}
-+	read_unlock(&tasklist_lock);
-+	PRINTK( " done\n" );
-+	MDELAY(500);
-+}
---- clean.2.4/mm/vmscan.c	Thu Feb 28 11:18:26 2002
-+++ linux-swsusp.24/mm/vmscan.c	Thu Mar  7 22:55:49 2002
-@@ -723,18 +723,22 @@
- 	 * us from recursively trying to free more memory as we're
- 	 * trying to free the first piece of memory in the first place).
- 	 */
--	tsk->flags |= PF_MEMALLOC;
-+	tsk->flags |= PF_MEMALLOC | PF_KERNTHREAD;
- 
- 	/*
- 	 * Kswapd main loop.
- 	 */
- 	for (;;) {
-+		if (current->flags & PF_FREEZE)
-+			refrigerator(PF_IOTHREAD);
- 		__set_current_state(TASK_INTERRUPTIBLE);
- 		add_wait_queue(&kswapd_wait, &wait);
- 
- 		mb();
--		if (kswapd_can_sleep())
-+		if (kswapd_can_sleep()) {
- 			schedule();
-+		}
-+		
- 
- 		__set_current_state(TASK_RUNNING);
- 		remove_wait_queue(&kswapd_wait, &wait);
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.

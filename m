@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292891AbSBVP0j>; Fri, 22 Feb 2002 10:26:39 -0500
+	id <S292896AbSBVP1j>; Fri, 22 Feb 2002 10:27:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292901AbSBVP03>; Fri, 22 Feb 2002 10:26:29 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61707 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292891AbSBVP0X>;
-	Fri, 22 Feb 2002 10:26:23 -0500
-Message-ID: <3C76631C.E685815D@mandrakesoft.com>
-Date: Fri, 22 Feb 2002 10:26:20 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.5 i686)
-X-Accept-Language: en
+	id <S292902AbSBVP1d>; Fri, 22 Feb 2002 10:27:33 -0500
+Received: from 216-42-72-168.ppp.netsville.net ([216.42.72.168]:26252 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S292896AbSBVP1T>; Fri, 22 Feb 2002 10:27:19 -0500
+Date: Fri, 22 Feb 2002 10:26:38 -0500
+From: Chris Mason <mason@suse.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3)
+Message-ID: <919450000.1014391598@tiny>
+In-Reply-To: <20020222141915.F2424@redhat.com>
+In-Reply-To: <799880000.1014334220@tiny> <20020222141915.F2424@redhat.com>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-To: Jes Sorensen <jes@trained-monkey.org>
-CC: Anton Altaparmakov <aia21@cam.ac.uk>, Troy Benjegerdes <hozer@drgw.net>,
-        wli@holomorphy.com, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bring sanity to div64.h and do_div usage
-In-Reply-To: <5.1.0.14.2.20020208113710.04ecedf0@pop.cus.cam.ac.uk>
-		<20020207234555.N17426@altus.drgw.net>
-		<5.1.0.14.2.20020208181656.03862ec0@pop.cus.cam.ac.uk>
-		<d37kp5v9y5.fsf@lxplus050.cern.ch>
-		<3C7660F5.FC238A7E@mandrakesoft.com> <15478.25001.512565.628500@trained-monkey.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jes Sorensen wrote:
-> 
-> >>>>> "Jeff" == Jeff Garzik <jgarzik@mandrakesoft.com> writes:
-> 
-> Jeff> Jes Sorensen wrote:
-> >> __mc68000__ is the correct define, I don't know who put in
-> >> CONFIG_M68K but it doesn't belong there.
-> 
-> Jeff> I disagree -- look at arch/*/config.in.
-> 
-> Jeff> Each arch needs to define a CONFIG_$ARCH.
-> 
-> Why? CONFIG_$ARCH only makes sense if you can enable two architectures
-> in the same build. What does CONFIG_M68K give you that __mc68000__
-> doesn't provide?
 
-1) it is a Linux kernel standard.  all arches save two define
-CONFIG_$arch.
 
-2) you have two tests, "ARCH==m68k" in config.in and "__mc68000__" in C
-code.  CONFIG_M68K means you only test one symbol, the same symbol, in
-all code.
+On Friday, February 22, 2002 02:19:15 PM +0000 "Stephen C. Tweedie" <sct@redhat.com> wrote:
 
-3) as this thread shows, due to #1, users -expect- that CONFIG_M68K will
-exist
+>> There might be additional spots in ext3 where ordering needs to be 
+>> enforced, I've included the ext3 code below in hopes of getting 
+>> some comments.
+> 
+> No.  However, there is another optimisation which we can make.
+> 
+> Most ext3 commits, in practice, are lazy, asynchronous commits, and we
+> only nedd BH_Ordered_Tag for that, not *_Flush.  It would be easy
+> enough to track whether a given transaction has any synchronous
+> waiters, and if not, to use the async *_Tag request for the commit
+> block instead of forcing a flush.
 
--- 
-Jeff Garzik      | "UNIX enhancements aren't."
-Building 1024    |           -- says /usr/games/fortune
-MandrakeSoft     |
+Just a note, the scsi code doesn't implement flush at all, flush
+either gets ignored or failed (if BH_Ordered_Hard is set), the
+assumption being that scsi devices don't write back by default, so
+wait_on_buffer() is enough.
+
+The reiserfs code tries to be smart with _Tag, in pratice I haven't
+found a device that gains from it, so I didn't want to make the larger
+changes to ext3 until I was sure it was worthwhile ;-)
+
+It seems the scsi drives don't do tag ordering as nicely as we'd 
+hoped, I'm hoping someone with a big raid controller can help 
+benchmark the ordered tag mode on scsi.  Also, check the barrier
+threads from last week on how write errors might break the 
+ordering with the current scsi code.
+
+-chris
+

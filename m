@@ -1,54 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263648AbUDFHYi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 03:24:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263653AbUDFHYi
+	id S262744AbUDFHeQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 03:34:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263651AbUDFHeQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 03:24:38 -0400
-Received: from ozlabs.org ([203.10.76.45]:50088 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S263648AbUDFHYg (ORCPT
+	Tue, 6 Apr 2004 03:34:16 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:6539 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262744AbUDFHeO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 03:24:36 -0400
-Subject: Re: [PATCH] mask ADT: new mask.h file [2/22]
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Paul Jackson <pj@sgi.com>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       mbligh@aracnet.com, Andrew Morton <akpm@osdl.org>, wli@holomorphy.com,
+	Tue, 6 Apr 2004 03:34:14 -0400
+Date: Tue, 6 Apr 2004 00:33:18 -0700
+From: Paul Jackson <pj@sgi.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: nickpiggin@yahoo.com.au, rusty@rustcorp.com.au,
+       linux-kernel@vger.kernel.org, mbligh@aracnet.com, akpm@osdl.org,
        colpatch@us.ibm.com
-In-Reply-To: <20040405234552.23f810cd.pj@sgi.com>
+Subject: Re: [PATCH] mask ADT: new mask.h file [2/22]
+Message-Id: <20040406003318.5ff58e68.pj@sgi.com>
+In-Reply-To: <20040406070342.GG791@holomorphy.com>
 References: <20040329041253.5cd281a5.pj@sgi.com>
-	 <1081128401.18831.6.camel@bach> <20040405000528.513a4af8.pj@sgi.com>
-	 <1081150967.20543.23.camel@bach> <20040405010839.65bf8f1c.pj@sgi.com>
-	 <1081227547.15274.153.camel@bach> <20040405230601.62c0b84c.pj@sgi.com>
-	 <1081233543.15274.190.camel@bach>  <20040405234552.23f810cd.pj@sgi.com>
-Content-Type: text/plain
-Message-Id: <1081235999.28514.9.camel@bach>
+	<1081128401.18831.6.camel@bach>
+	<20040405000528.513a4af8.pj@sgi.com>
+	<1081150967.20543.23.camel@bach>
+	<20040405010839.65bf8f1c.pj@sgi.com>
+	<1081227547.15274.153.camel@bach>
+	<20040405230601.62c0b84c.pj@sgi.com>
+	<40724CF4.5090705@yahoo.com.au>
+	<20040405233415.2c7c3a96.pj@sgi.com>
+	<20040406070342.GG791@holomorphy.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 06 Apr 2004 17:24:22 +1000
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-04-06 at 16:45, Paul Jackson wrote:
-> > That'd be a noop, I think.
-> 
-> Huh?
+Don't worry, Bill.  It doesn't look like anyone wants to change
+cpumask_t to struct cpumask.  I just wasn't objecting to it - shouldn't
+even have mentioned it.
 
-You passed the structs by value: you wanted to pass the address.
+> so please run things by arch maintainers
 
-Linus dislikes typedefs for various reasons: if it's actually a struct
-on some archs and not on others, he likes it.  Otherwise he historically
-prefers the struct.  However, Linus is not the most reliable barometer.
+I'll be doing that.  And I'm sure Andrew wouldn't consider it otherwise.
 
-Ingo added task_t because it make some lines fit in the sched.c code,
-for example.  We removed list_t in 2.5.34.
+> for the love of $DEITY, **NOT** "struct cpumask_struct".
 
-I dislike typedefs because you have an extra name for something, and can
-predeclare structs, which saves gratuitous header file inclusion.
+I think we can all heartily agree to that advice.
 
-Hope that clarifies,
-Rusty.
+> You should also bear in mind that the current implementations of these
+> operations use a macro calling convention, thereby altering their output
+> operands as a side-effect without call-by-reference. 
+
+Ah - I think you just explained to me Rusty's 'That'd be a noop', to which
+I had responded 'Huh?'.  Thanks.
+
+And the added ampersands that Rusty added a couple of messages before that.
+
+Duh ... smacking forehead.
+
+Output operands need to be passed by pointer (which fact may or may not
+be hidden in a macro ...).
+
+At the risk of embarrassing myself again in public, how about this:
+
+    typedef struct { DECLARE_BITMAP(bits, NR_CPUS); } cpumask_t;
+
+    #define cpus_or(d,s1,s2) _cpus_or(&d, &s1, &s2)
+
+    static inline void _cpus_or(cpumask_t *d, const cpumask_t *s1, const cpumask_t *s2)
+    {
+	bitmap_or(d->bits, s1->bits, s2->bits, NR_CPUS);
+    }
+
+It would be used exactly as it is today:
+
+    cpumask_t x, y, z;
+    cpus_or(x, y, z);
+
+
+
 -- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
-
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,86 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264975AbUEYQ5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264971AbUEYQ6i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264975AbUEYQ5y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 12:57:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264973AbUEYQ5x
+	id S264971AbUEYQ6i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 12:58:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264973AbUEYQ6i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 12:57:53 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26834 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264971AbUEYQ5k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 12:57:40 -0400
-Date: Tue, 25 May 2004 13:59:04 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Greg KH <greg@kroah.com>
-Cc: Matthew Wilcox <willy@debian.org>, Arjan van de Ven <arjanv@redhat.com>,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [BK PATCH] PCI Express patches for 2.4.27-pre3
-Message-ID: <20040525165904.GF3385@logos.cnet>
-References: <20040524210146.GA5532@kroah.com> <1085468008.2783.1.camel@laptop.fenrus.com> <20040525080006.GA1047@kroah.com> <20040525113231.GB29154@parcelfarce.linux.theplanet.co.uk> <20040525125452.GC3118@logos.cnet> <20040525144055.GA7252@kroah.com>
+	Tue, 25 May 2004 12:58:38 -0400
+Received: from moraine.clusterfs.com ([66.246.132.190]:55787 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S264971AbUEYQ63 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 12:58:29 -0400
+Date: Tue, 25 May 2004 10:58:28 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, ext2-devel@lists.sourceforge.net
+Cc: Adam Cassar <adam.cassar@netregistry.com.au>
+Subject: Re: [Ext2-devel] Re: problems with ext3 fs, kernels up to 2.6.6-rc2
+Message-ID: <20040525165828.GC2603@schnapps.adilger.int>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, ext2-devel@lists.sourceforge.net,
+	Adam Cassar <adam.cassar@netregistry.com.au>
+References: <20040519104152.GM19183@stingr.net> <20040519170604.GS18086@schnapps.adilger.int> <20040520064051.GP19183@stingr.net> <20040520092245.GE24219@schnapps.adilger.int>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040525144055.GA7252@kroah.com>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20040520092245.GE24219@schnapps.adilger.int>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 25, 2004 at 07:40:56AM -0700, Greg KH wrote:
-> On Tue, May 25, 2004 at 09:54:53AM -0300, Marcelo Tosatti wrote:
-> > 
-> > Hi kernel fellows,
-> > 
-> > On Tue, May 25, 2004 at 12:32:31PM +0100, Matthew Wilcox wrote:
-> > > On Tue, May 25, 2004 at 01:00:06AM -0700, Greg KH wrote:
-> > > > > how does this mesh with the "2.4 is now feature frozen"?
-> > > > 
-> > > > As the major chunk of ACPI support just got added to the tree, and the
-> > > > only reason that went in was for this patch, I assumed that it was
-> > > > acceptable.
-> > 
-> > major? the MMConfig support is minimal as I can see? 
+On May 20, 2004  03:22 -0600, Andreas Dilger wrote:
+> This seems to fix the majority of the problems, although there are still
+> some rare failures in the rename test.
 > 
-> It isn't that big of a patch, but it is make to core PCI code.
-> 
-> > > > Marcelo, feel free to tell me otherwise if you do not want
-> > > > this in the 2.4 tree. 
-> > 
-> > Is this code necessary for PCI-Express devices/busses to work properly?
-> 
-> Not that I can tell, the main point is accessing the extended config
-> space, and speeding up the access to the device to its natural speed.
-> 
-> > > I assume it was added because Len tries to keep ACPI in 2.4 and 2.6 as
-> > > close to identical as possible.  It certainly doesn't hurt anyone to add
-> > > the ACPI functionality without the MMConfig support.
-> > 
-> > I've humbly asked Len to stop doing big updates whenever possible on the 
-> > v2.4 ACPI code, and do bugfixes only instead. Is that a pain in the ass for you, Len?    
-> > 
-> > I asked that because it is common to see new bugs introduced by an ACPI update, 
-> > and you know that more than I do.
-> 
-> Yes, I know that quite well :)
-> 
-> So, because of this, you are saying that we should not apply these
-> patches at this time? 
+> ===== fs/ext3/namei.c 1.52 vs edited =====
+> --- 1.52/fs/ext3/namei.c	Mon May 10 05:25:34 2004
+> +++ edited/fs/ext3/namei.c	Thu May 20 03:16:43 2004
+> @@ -2264,8 +2264,9 @@
+>  	/*
+>  	 * ok, that's it
+>  	 */
+> -	retval = ext3_delete_entry(handle, old_dir, old_de, old_bh);
+> -	if (retval == -ENOENT) {
+> +	if (le32_to_cpu(old_de->inode) != old_inode->i_ino ||
+> +	    (retval = ext3_delete_entry(handle, old_dir,
+> +					old_de, old_bh)) ==  -ENOENT) {
+>  		/*
+>  		 * old_de could have moved out from under us.
+>  		 */
 
-Yeap, I would prefer not to apply them at this time. For one, Arjan told
-me privately it can break XFree86 which accesses the PCI config space directly.
-Right?
+I isolated the source of the remaining problems.  In very rare cases
+even with the above patch we could still do the wrong thing.  If old_de
+is pointing to the newly-added entry (i_ino is the same) we end up
+deleting the new entry instead of the old one.  It looks as if the
+rename never happened.  We need to verify that the name we are unlinking
+is what we expect.
 
-> If so, that's fine with me, as now any distro that wants to add this to
-> their 2.4 kernel can, as the patches are public.
+If is also possible that old_de is pointing to the now-unused space
+at the end of a newly-split leaf block, so we still need to try
+ext3_delete_entry() (which will skip the stale entry and return ENOENT)
+instead of just relying on the inum + name check.
 
-Yeap. 
+===== fs/ext3/namei.c 1.52 vs edited =====
+--- 1.52/fs/ext3/namei.c	Mon May 10 05:25:34 2004
++++ edited/fs/ext3/namei.c	Thu May 20 19:57:10 2004
+@@ -2264,11 +2264,15 @@
+ 	/*
+ 	 * ok, that's it
+ 	 */
+-	retval = ext3_delete_entry(handle, old_dir, old_de, old_bh);
+-	if (retval == -ENOENT) {
+-		/*
+-		 * old_de could have moved out from under us.
+-		 */
++	if (le32_to_cpu(old_de->inode) != old_inode->i_ino ||
++	    old_de->name_len != old_dentry->d_name.len ||
++	    strncmp(old_de->name, old_dentry->d_name.name, old_de->name_len) ||
++	    (retval = ext3_delete_entry(handle, old_dir,
++					old_de, old_bh)) == -ENOENT) {
++		/* old_de could have moved from under us during htree split, so
++		 * make sure that we are deleting the right entry.  We might
++		 * also be pointing to a stale entry in the unused part of
++		 * old_bh so just checking inum and the name isn't enough. */
+ 		struct buffer_head *old_bh2;
+ 		struct ext3_dir_entry_2 *old_de2;
+ 
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
-> > PS: Greg, about the PCI-Express hotplug drivers, I assume they are independant 
-> > on any of this?
-> 
-> Yes, that is independant of these changes (that is required as there is
-> no other way to control the pci hotplug controller of those systems,
-> except with the driver I had submitted in the past to you.).
-> 
-> thanks,
-> 
-> greg k-h

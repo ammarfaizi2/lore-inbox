@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbUKGHxY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbUKGHzd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261554AbUKGHxY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 02:53:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbUKGHxX
+	id S261556AbUKGHzd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 02:55:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbUKGHzc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 02:53:23 -0500
-Received: from potato.cts.ucla.edu ([149.142.36.49]:8349 "EHLO
-	potato.cts.ucla.edu") by vger.kernel.org with ESMTP id S261554AbUKGHxU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 02:53:20 -0500
-Date: Sat, 6 Nov 2004 23:53:09 -0800 (PST)
-From: Chris Stromsoe <cbs@cts.ucla.edu>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: deadlock with 2.6.9
-In-Reply-To: <Pine.LNX.4.61.0411062342400.29373@potato.cts.ucla.edu>
-Message-ID: <Pine.LNX.4.61.0411062350350.29373@potato.cts.ucla.edu>
-References: <200411070058_MC3-1-8E27-AAEF@compuserve.com>
- <Pine.LNX.4.61.0411062342400.29373@potato.cts.ucla.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sun, 7 Nov 2004 02:55:32 -0500
+Received: from main.gmane.org ([80.91.229.2]:44748 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261556AbUKGHz1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 02:55:27 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Subject: Re: Missing SCSI command in the allowed list?
+Date: Sun, 07 Nov 2004 12:56:25 +0500
+Message-ID: <cmkkd8$dm8$1@sea.gmane.org>
+References: <cmikie$vif$1@sea.gmane.org> <200411061624.57918.dsd@gentoo.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: inet.ycc.ru
+User-Agent: KNode/0.8.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 6 Nov 2004, Chris Stromsoe wrote:
+Daniel Drake wrote:
 
-> On Sun, 7 Nov 2004, Chuck Ebbert wrote:
->
->> Chris Stromsoe wrote:
->> 
->>> I had a third lockup, this time not related to burning a dvd.  As 
->>> before, the bulk of the processes that were hung were cron
->> 
->> Why so many cron processes?  Is this normal on your system, or does it 
->> look like cron keeps spawning processes because it gets no response on 
->> the sockets?
->
-> I'm guessing so many processes because every time one gets started, it 
-> ends up getting stuck in schedule_timeout(), until the system stops 
-> spawning new processes.  There are many of them because the system was 
-> running for a day or so before it became unresponsive.
+> Hi,
+> 
+> On Saturday 06 November 2004 13:47, Alexander E. Patrakov wrote:
+>> While cloning an audio CD using cdrdao 1.1.9 with vanilla linux-2.6.9 as
+>> a user, I see the following "errors":
+>>
+>> ERROR: Read buffer capacity failed.
+> 
+> I submitted a patch for this a few days ago. It has been merged into
+> Linus's tree.
 
-That wasn't very clear.  The high number of cron jobs is extremely 
-abnormal.  There are generally never more than a handful running at any 
-one time, and very rarely more than only the parent cron process.  The 
-most frequent cronjob on the system runs every 5 minutes.
+Yes, I see the patch, thanks:
 
+http://www.kernel.org/pub/linux/kernel/v2.6/testing/cset/cset-axboe%40suse.de[torvalds]
+ChangeSet|20041104154725|45958.txt
 
--Chris
+But the question remains: what should the users of not 100% MMC-compatible
+CR-RW drives (i.e. those which have a separate cdrado or cdrecord driver,
+not generic-mmc/generic-mmc-raw) do? Is the support for writing as non-root
+on such drives just dropped without any plans to "fix" it?
+
+-- 
+Alexander E. Patrakov
+

@@ -1,72 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279808AbRKFRhe>; Tue, 6 Nov 2001 12:37:34 -0500
+	id <S279853AbRKFRso>; Tue, 6 Nov 2001 12:48:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279805AbRKFRhY>; Tue, 6 Nov 2001 12:37:24 -0500
-Received: from hq2.fsmlabs.com ([209.155.42.199]:17164 "HELO hq2.fsmlabs.com")
-	by vger.kernel.org with SMTP id <S279808AbRKFRhP>;
-	Tue, 6 Nov 2001 12:37:15 -0500
-Date: Tue, 6 Nov 2001 10:31:21 -0700
-From: Michael Barabanov <baraban@fsmlabs.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Robert Love <rml@tech9.net>, manfred@colorfullife.com,
-        linux-kernel@vger.kernel.org, hpa@zytor.com,
-        Victor Yodaiken <yodaiken@fsmlabs.com>
-Subject: Re: Using %cr2 to reference "current"
-Message-ID: <20011106103121.A26976@hq2>
-In-Reply-To: <1005033690.808.2.camel@phantasy> <E1613t5-00005M-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S279845AbRKFRse>; Tue, 6 Nov 2001 12:48:34 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:53254 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S279842AbRKFRs0>;
+	Tue, 6 Nov 2001 12:48:26 -0500
+Message-ID: <3BE820A8.8B93A497@osdl.org>
+Date: Tue, 06 Nov 2001 09:40:56 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: robert@schwebel.de
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ioport range of 8259 aka pic1
+In-Reply-To: <Pine.LNX.4.33.0111061001351.12441-100000@callisto.local>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1613t5-00005M-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.23i
-Organization: FSMLabs
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's my version of hard cpu id (RTLinux version):
+Robert Schwebel wrote:
+> 
+> is there a reason why the kernel (tested with 2.4.13) picks up the io port
+> region from 0020-003f for pic1? All I could find on the net lets me assume
+> that only 0020-0021 are used by the interrupt controllers (may be wrong
+> here - hints for literature are welcome). Same problem with pic2.
+> 
+> I'm currently working with an AMD Elan SC410 (x86 embedded system on chip)
+> which has it's private registers at 0022 and following, which makes it
+> impossible to write "correct" drivers that request_region() their ports
+> before using them.
 
-extern inline int rtl_getcpuid(void)
-{
-        unsigned cpu;
-        __asm__ (
-                        "str %%ax\n\t"
-                        "shr $5, %%eax\n\t"
-                        "sub $3, %%eax\n\t"
-                        : "=a"(cpu));
-        return cpu;
-}
+The Intel chipset specs say that PIC1 uses:
+  (all hex:) 20-21, 24-25, 28-29, 2c-2d, 30-31, 34-35, 38-39, 3c-3d.
 
-No cr2 involved; extremely fast. This takes advantage of the fact that
-TSS-CPU mapping is 1-1 in 2.4.
+Some of the older chipset specs say that all of these other than
+20-21 are just aliases of 20-21 (like the 440MX spec).
+Later specs don't say this (as in all of the 800-model ICH0/ICH2
+specs).
 
-Michael.
+In either case, port 0x22 should be available for you.  What
+do you mean by "and following"?  What register range does it use?
+What fixed IO addresses does the Elan require (consume)?
 
-Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
-> > I too am confused.  More so, the difference between hard_get_current and
-> > get_current is confusing.  I further question things because I suspect
-> 
-> hard_get_current always works
-> get_current assumes %cr2 is loaded correctly
-> 
-> > do_page_fault, cpu_init" but all these functions call other functions
-> > that may very well use get_current.  How is this going to work?
-> 
-> do_page_fault and cpu_init load %cr2
-> 
-> > Further, the preemptible kernel patch oopses with this patch (IOW, don't
-> > use 2.4.13-ac8 + preempt-kernel, unless you remove all these bits like I
-> > did :>).  I think it may be because of:
-> 
-> You must ensure that you don't pre-empt until %cr2 is loaded. Obviously this
-> isnt a problem with the traditional low latency patch but if you pre-empty
-> very early in page fault handling then I suspect you might get the odd
-> suprise.
-> 
-> The reasoning behind all this is to fix the cache pessimal nature of the x86
-> stack layout - we had all task structs on the same cache colour and all 
-> stacks aligned within pages (so every apache thread waiting at the same
-> point is on the same colour too and each wait queue entry on their stacks
-> is linked to entries all the same colour)
-> 
-> Alan
+So in linux/arch/i386/kernel/setup.c, you could modify the
+"standard IO resources" table to match your target system's
+requirements.
+
+Current table:
+struct resource standard_io_resources[] = {
+	{ "dma1", 0x00, 0x1f, IORESOURCE_BUSY },
+	{ "pic1", 0x20, 0x3f, IORESOURCE_BUSY },
+	{ "timer", 0x40, 0x5f, IORESOURCE_BUSY },
+	{ "keyboard", 0x60, 0x6f, IORESOURCE_BUSY },
+	{ "dma page reg", 0x80, 0x8f, IORESOURCE_BUSY },
+	{ "pic2", 0xa0, 0xbf, IORESOURCE_BUSY },
+	{ "dma2", 0xc0, 0xdf, IORESOURCE_BUSY },
+	{ "fpu", 0xf0, 0xff, IORESOURCE_BUSY }
+};
+
+Just modify the "pic1" and "pic2" entries to be multiple shorter
+entries.
+
+~Randy

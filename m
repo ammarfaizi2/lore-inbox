@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264912AbUGVG5M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266819AbUGVHGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264912AbUGVG5M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 02:57:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266560AbUGVG5M
+	id S266819AbUGVHGS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 03:06:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266821AbUGVHGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 02:57:12 -0400
-Received: from fw.osdl.org ([65.172.181.6]:49599 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264912AbUGVG5L (ORCPT
+	Thu, 22 Jul 2004 03:06:18 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:43204 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S266819AbUGVHGQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 02:57:11 -0400
-Date: Thu, 22 Jul 2004 02:55:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: corbet@lwn.net, bgerst@didntduck.org, linux-kernel@vger.kernel.org
-Subject: Re: New dev model (was [PATCH] delete devfs)
-Message-Id: <20040722025539.5d35c4cb.akpm@osdl.org>
-In-Reply-To: <20040721235228.GZ14733@fs.tum.de>
-References: <40FEEEBC.7080104@quark.didntduck.org>
-	<20040721231123.13423.qmail@lwn.net>
-	<20040721235228.GZ14733@fs.tum.de>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 22 Jul 2004 03:06:16 -0400
+Date: Thu, 22 Jul 2004 09:07:44 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
+       linux-audio-dev@music.columbia.edu, arjanv@redhat.com,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "La Monte H.P. Yarroll" <piggy@timesys.com>
+Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel Preemption Patch
+Message-ID: <20040722070743.GA7553@elte.hu>
+References: <20040719102954.GA5491@elte.hu> <1090380467.1212.3.camel@mindpipe> <20040721000348.39dd3716.akpm@osdl.org> <20040721053007.GA8376@elte.hu> <1090389791.901.31.camel@mindpipe> <20040721082218.GA19013@elte.hu> <20040721085246.GA19393@elte.hu> <40FE545E.3050300@yahoo.com.au> <20040721154428.GA24374@elte.hu> <40FF48F9.1020004@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40FF48F9.1020004@yahoo.com.au>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@fs.tum.de> wrote:
+
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+
+> Given that we're looking for something acceptable for 2.6, how about
+> adding
 >
-> Changes that remove functionally like Greg's patch are hopefully 
-> still 2.7 stuff - 2.6 is a stable kernel series and smooth upgrades 
-> inside a stable kernel series are a must for many users.
+> if (rt_task(current))
+> 	kick ksoftirqd instead
+> 
+> Otherwise, what is the performance penalty of doing all softirq
+> processing from ksoftirqd?
 
-I don't necessarily agree that such changes in the userspace interface
-should be tied to the kernel version number, really.  That's a three or
-four year warning period, which is unreasonably long.  Six to twelve months
-should be long enough for udev-based replacements to stabilise and
-propagate out into distributions.
+this is insufficient too. An RT task might be _waiting to run_ and
+spending our time in a non-RT context (including the idle task) doing
+softirq processing might delay it indefinitely.
 
-That being said, mid-2005 would be an appropriate time to remove devfs.  If
-that schedule pushes things along faster than they would otherwise have
-progressed, well, good.
+what we could do is to add a rq->nr_running_rt and do the deferred
+softirq processing unconditionally if (rq->nr_running_rt). I'd still add
+a sysctl to make it unconditional for user processes too - if someone
+really cares about latency and doesnt want to make all his tasks RT. 
+I'll code this up for the next version of the patch.
 
-
-Nothing is cast in stone here btw - we're pushing the envelope, trying new
-things, keeping that which works well and reexamining things which perhaps
-don't work so well.  Feel free to disagree - we're listening.
+	Ingo

@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262775AbTCQHyi>; Mon, 17 Mar 2003 02:54:38 -0500
+	id <S262833AbTCQIJ1>; Mon, 17 Mar 2003 03:09:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262779AbTCQHyi>; Mon, 17 Mar 2003 02:54:38 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:57568 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S262775AbTCQHyh>;
-	Mon, 17 Mar 2003 02:54:37 -0500
-Date: Mon, 17 Mar 2003 09:05:22 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: 2.5.64-mm6: oops in elv_remove_request
-Message-ID: <20030317080522.GE791@suse.de>
-References: <20030313190247.GQ836@suse.de> <1047633884.1147.3.camel@ixodes.goop.org> <20030314104219.GA791@suse.de> <1047637870.1147.27.camel@ixodes.goop.org> <20030314113732.GC791@suse.de> <1047664774.25536.47.camel@ixodes.goop.org> <20030314180716.GZ791@suse.de> <1047680345.1508.2.camel@ixodes.goop.org> <20030315081558.GK791@suse.de> <1047783292.1209.3.camel@ixodes.goop.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1047783292.1209.3.camel@ixodes.goop.org>
+	id <S262834AbTCQIJ1>; Mon, 17 Mar 2003 03:09:27 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:48680
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S262833AbTCQIJ1>; Mon, 17 Mar 2003 03:09:27 -0500
+Date: Mon, 17 Mar 2003 03:15:48 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       LSE <lse-tech@lists.sourceforge.net>, Mark Haverkamp <markh@osdl.org>
+Subject: Re: [Lse-tech] [PATCH][ANNOUNCE] 32way/8quad NUMAQ booting with 16
+ IOAPICs, 223 IRQs
+In-Reply-To: <20030317074149.GO5891@holomorphy.com>
+Message-ID: <Pine.LNX.4.50.0303170311130.2229-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.50.0303071148150.18716-100000@montezuma.mastecende.com>
+ <20030317055415.GM5891@holomorphy.com> <Pine.LNX.4.50.0303170107560.2229-100000@montezuma.mastecende.com>
+ <20030317062838.GN5891@holomorphy.com> <Pine.LNX.4.50.0303170226180.2229-100000@montezuma.mastecende.com>
+ <20030317074149.GO5891@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 15 2003, Jeremy Fitzhardinge wrote:
-> On Sat, 2003-03-15 at 00:15, Jens Axboe wrote:
-> > I can reliably crash the box with SG_IO -> ide-cd here, so I'm hoping
-> > there's a connection. Need to move it to a box where nmi watchdog
-> > actually works...
+On Sun, 16 Mar 2003, William Lee Irwin III wrote:
+
+> On Mon, Mar 17, 2003 at 02:28:26AM -0500, Zwane Mwaikambo wrote:
+> > I'd have to rob a couple more poor souls to get 16 quads ;)
 > 
-> And wouldn't you know it - with -mm7 it seems to be working fine...
-                                       ^^
-What is 'it'?
+> Getting them together in one place involves extreme pain/hassles.
+
+I managed to get some ethernet cards going note eth3/irq211 and 
+eth2/irq163 these are on nodes 4 and 3 respectively.
+
+http://www.osdl.org/projects/numaqhwspprt/results/interrupts
+
+requesting vector for node4/irq211
+returning new allocation node4/irq211 -> vector0xc1
+irq_setup: node4/bus9/ioapic8/vector0xc1 - irq211 c010b6bc
+09:0b.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
+
+requesting vector for node3/irq163
+returning new allocation node3/irq163 -> vector0xc1
+irq_setup: node3/bus7/ioapic6/vector0xc1 - irq163 c010b588
+07:0b.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
+
 
 -- 
-Jens Axboe
-
+function.linuxpower.ca

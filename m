@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263674AbRFIDow>; Fri, 8 Jun 2001 23:44:52 -0400
+	id <S263257AbRFIDwl>; Fri, 8 Jun 2001 23:52:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263257AbRFIDom>; Fri, 8 Jun 2001 23:44:42 -0400
-Received: from www.wen-online.de ([212.223.88.39]:9742 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S263674AbRFIDod>;
-	Fri, 8 Jun 2001 23:44:33 -0400
-Date: Sat, 9 Jun 2001 05:43:03 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Jonathan Morton <chromi@cyberspace.org>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        John Stoffel <stoffel@casc.com>,
-        Tobias Ringstrom <tori@unhappy.mine.nu>, Shane Nay <shane@minirl.com>,
-        "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>,
-        Sean Hunter <sean@dev.sportingbet.com>,
-        Xavier Bestel <xavier.bestel@free.fr>,
-        lkml <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: VM Report was:Re: Break 2.4 VM in five easy steps
-In-Reply-To: <l0313032bb7471092da13@[192.168.239.105]>
-Message-ID: <Pine.LNX.4.33.0106090541370.480-100000@mikeg.weiden.de>
+	id <S263746AbRFIDwb>; Fri, 8 Jun 2001 23:52:31 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:41490 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S263257AbRFIDwO>;
+	Fri, 8 Jun 2001 23:52:14 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200106090352.f593q7M491225@saturn.cs.uml.edu>
+Subject: Re: temperature standard - global config option?
+To: jcwren@jcwren.com
+Date: Fri, 8 Jun 2001 23:52:07 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <NDBBKBJHGFJMEMHPOPEGMEOOCIAA.jcwren@jcwren.com> from "John Chris Wren" at Jun 08, 2001 07:53:06 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Jun 2001, Jonathan Morton wrote:
+John Chris Wren writes:
 
-> On the subject of Mike Galbraith's kernel compilation test, how much
-> physical RAM does he have for his machine, what type of CPU is it, and what
-> (approximate) type of device does he use for swap?  I'll see if I can
-> partially duplicate his results at this end.  So far all my tests have been
-> done with a fast CPU - perhaps I should try the P166/MMX or even try
-> loading linux-pmac onto my 8100.
+> coupling to the CPU that is about as bad as it can get.  You've got an epoxy
+> housing of an inconsistent shape in contact with ceramic.  The actual
+> contact point is miniscule.  There's no thermal paste, and often, I've seen
+> the sensors not quite raised high enough to contact the chip (you should be
+> able to rack a business card across the empty socket and feel a slight
+> "bump" as you touch the sensor.  If not, you need to bend it up slightly, to
+> give better physical contact to the CPU).
+> 
+> But in spite of all this, you're not really measure the critical
+> temperature, which is junction tempature.  Yes, case tempature has *some*
 
-It's a PIII/500 with one ide disk.
+There are processors with temperature measurement built right
+into the silicon.
 
-	-Mike
+> For the record, in the course of a normal day, I see my temperatures
+> fluctuate from 48C with the house A/C set to 73, to 56C when I open the
+> doors, and let it get up to 76 in the house.  That's 8C (14.4F) over a 3F
+> change in ambient.
+
+This makes sense. Heat increases resistance, which generates heat.
+At some point, a tiny increase will cause thermal run-away.
 

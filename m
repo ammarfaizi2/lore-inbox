@@ -1,60 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288748AbSCLXIa>; Tue, 12 Mar 2002 18:08:30 -0500
+	id <S288071AbSCLXIk>; Tue, 12 Mar 2002 18:08:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288557AbSCLXIU>; Tue, 12 Mar 2002 18:08:20 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:52749 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S287862AbSCLXIH>;
-	Tue, 12 Mar 2002 18:08:07 -0500
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
+	id <S287862AbSCLXIb>; Tue, 12 Mar 2002 18:08:31 -0500
+Received: from smtp4.vol.cz ([195.250.128.43]:4616 "EHLO majordomo.vol.cz")
+	by vger.kernel.org with ESMTP id <S288377AbSCLXIV>;
+	Tue, 12 Mar 2002 18:08:21 -0500
+Date: Tue, 12 Mar 2002 00:28:17 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.6 IDE 19
+Message-ID: <20020312002816.A37@toy.ucw.cz>
+In-Reply-To: <3C8CA5D8.50203@evision-ventures.com> <E16kRZp-0000or-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15502.31292.521114.650008@argo.ozlabs.ibm.com>
-Date: Wed, 13 Mar 2002 08:59:24 +1100 (EST)
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, mostrows@speakeasy.net,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-pre3
-In-Reply-To: <200203112255.XAA02708@webserver.ithnet.com>
-In-Reply-To: <Pine.LNX.4.21.0203111805480.2492-100000@freak.distro.conectiva>
-	<200203112255.XAA02708@webserver.ithnet.com>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <E16kRZp-0000or-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Mar 11, 2002 at 03:19:05PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephan von Krawczynski writes:
+Hi!
 
-> gcc -D__KERNEL__ -I/usr/src/linux-2.4.19-pre3/include -Wall           
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer           
-> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2   
-> -march=i686 -DMODULE  -DKBUILD_BASENAME=pppoe  -c -o pppoe.o pppoe.c  
-> pppoe.c: In function `pppoe_flush_dev':                               
-> pppoe.c:282: `PPPOX_ZOMBIE' undeclared (first use in this function)   
+> > the WB
+> >    caches of IDE devices are not caches in the sense of a MESI cache, 
+> > they are
+> >    more like buffer caches and should therefore flush them self after s 
+> > short
+> >    period of inactivity without the application of any special flush 
+> > command.
+> 
+> You now have an absolute vote of *NO CONFIDENCE* on my part. I'm simply
+> not going to consider running your code. "It probably wont eat your disk"
+> and handwaving is not how you write a block layer.
 
-Blast, I missed the patch to include/linux/if_pppox.h.  Here it is.
-Marcelo, could you include this in the next -pre?
+This is S3/S4 support. Not used during normal operation. S3/S4 without this
+is as dangerous as "oops, we've written wrong data to wrong place, without
+even knowing that". With this, the problem is "maybe your hdd is not initialized
+properly, so you lost ability to talk to it".
 
-Paul.
+> How is anyone supposed to debug file system code in 2.5 when its known
+> that it will trash data on some disks anyway ? I'd like to see you cite
 
-diff -urN linux-2.4.19-pre3/include/linux/if_pppox.h pmac/include/linux/if_pppox.h
---- linux-2.4.19-pre3/include/linux/if_pppox.h	Sat Jul 21 09:51:58 2001
-+++ pmac/include/linux/if_pppox.h	Fri Mar  8 12:39:32 2002
-@@ -126,13 +126,14 @@
- extern int pppox_channel_ioctl(struct ppp_channel *pc, unsigned int cmd,
- 			       unsigned long arg);
- 
--/* PPPoE socket states */
-+/* PPPoX socket states */
- enum {
-     PPPOX_NONE		= 0,  /* initial state */
-     PPPOX_CONNECTED	= 1,  /* connection established ==TCP_ESTABLISHED */
-     PPPOX_BOUND		= 2,  /* bound to ppp device */
-     PPPOX_RELAY		= 4,  /* forwarding is enabled */
--    PPPOX_DEAD		= 8
-+    PPPOX_ZOMBIE	= 8,  /* dead, but still bound to ppp device */
-+    PPPOX_DEAD		= 16  /* dead, useless, please clean me up!*/
- };
- 
- extern struct ppp_channel_ops pppoe_chan_ops;
+It will not. This is only used when ACPI suspend-to-disk/suspend-to-ram
+is used (and at that time, you have worse problems than IDE driver).
+									Pavel
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+

@@ -1,38 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312344AbSCVN2u>; Fri, 22 Mar 2002 08:28:50 -0500
+	id <S312461AbSCVNqI>; Fri, 22 Mar 2002 08:46:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312461AbSCVN2l>; Fri, 22 Mar 2002 08:28:41 -0500
-Received: from mail.loewe-komp.de ([62.156.155.230]:47108 "EHLO
-	mail.loewe-komp.de") by vger.kernel.org with ESMTP
-	id <S312349AbSCVN20>; Fri, 22 Mar 2002 08:28:26 -0500
-Message-ID: <3C9B3169.2030803@loewe-komp.de>
-Date: Fri, 22 Mar 2002 14:28:09 +0100
-From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010923
-X-Accept-Language: de, en
+	id <S312354AbSCVNp7>; Fri, 22 Mar 2002 08:45:59 -0500
+Received: from gold.muskoka.com ([216.123.107.5]:52228 "EHLO gold.muskoka.com")
+	by vger.kernel.org with ESMTP id <S312461AbSCVNps>;
+	Fri, 22 Mar 2002 08:45:48 -0500
+Message-ID: <3C9B2E98.2FE4B4A5@yahoo.com>
+Date: Fri, 22 Mar 2002 08:16:08 -0500
+From: Paul Gortmaker <p_gortmaker@yahoo.com>
 MIME-Version: 1.0
-To: Vinolin <vinolin@nodeinfotech.com>
+To: Rolf Eike Beer <eike@bilbo.math.uni-mannheim.de>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: KDE crash handler ( X windows )
-In-Reply-To: <02032214490100.00900@Vinolin> <20020322.014730.10280927.davem@redhat.com> <02032215524803.00900@Vinolin>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] 2.5.7 Documentation/00-INDEX
+In-Reply-To: <200203210835.51213@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vinolin wrote:
-
->>   Can anyone help me to findout the bug ....?
->>
->>Please report this to the KDE people, it is not a kernel
->>bug.
->>
+Rolf Eike Beer wrote:
 > 
-> A request again... 
-> Can you please give me the mail id of  KDE bug hanling people ?
+> This patch updates Documentation/00-INDEX. It removes some lines describing
+> files that have been removed/moved to subdirectories. Also it adds some lines
+> on new files/directories.
 > 
+> Eike
 
+Hey, thanks.  In case you haven't automated this check already, see my $0.02
+script attached below that I try to run over 00-INDEX every now and again.
 
-look at http://bugs.kde.org
+> +driver.txt
+> +       - info about Linux driver modell.
+
+Should be driver-model.txt IIRC, and  s/ll/l/ too.
+
+Paul.
+--
+
+#!/bin/sh
+# For keeping an eye on 00-INDEX files in the linux/Documentation/ dir.
+
+echo Checking for unreferenced files...
+for i in * 
+do 
+	grep -q $i 00-INDEX 
+	if [ $? = 1 ];then 
+		echo $i is not in 00-INDEX 
+	fi
+done
+
+echo -------------------------------------------
+
+echo Checking for orphaned entries...
+
+for i in `awk '/^\t- / {print FNR-1}' 00-INDEX`
+do
+	FNAME=`awk FNR==$i 00-INDEX`
+	if [ ! -e "$FNAME" ];then
+		echo $FNAME is in 00-INDEX but does not exist
+	fi
+done
+
+echo Done.
+
 

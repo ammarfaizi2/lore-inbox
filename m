@@ -1,84 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130579AbRAWSoV>; Tue, 23 Jan 2001 13:44:21 -0500
+	id <S129532AbRAWSsW>; Tue, 23 Jan 2001 13:48:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131388AbRAWSoL>; Tue, 23 Jan 2001 13:44:11 -0500
-Received: from site3.talontech.com ([208.179.68.88]:12881 "EHLO
-	site3.talontech.com") by vger.kernel.org with ESMTP
-	id <S130579AbRAWSoB>; Tue, 23 Jan 2001 13:44:01 -0500
-Message-ID: <3A6D602B.E0A3BD22@talontech.com>
-Date: Tue, 23 Jan 2001 02:42:51 -0800
-From: Ben Ford <bford@talontech.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en
+	id <S131240AbRAWSsM>; Tue, 23 Jan 2001 13:48:12 -0500
+Received: from clueserver.org ([206.163.47.224]:50706 "HELO clueserver.org")
+	by vger.kernel.org with SMTP id <S129532AbRAWSsA>;
+	Tue, 23 Jan 2001 13:48:00 -0500
+Date: Tue, 23 Jan 2001 10:58:39 -0800 (PST)
+From: Alan Olsen <alan@clueserver.org>
+To: Helge Hafting <helgehaf@idb.hist.no>
+Cc: Stephen Satchell <satch@fluent-access.com>, linux-kernel@vger.kernel.org
+Subject: Re: [OT?] Coding Style
+In-Reply-To: <3A6D42D5.ED8552D0@idb.hist.no>
+Message-ID: <Pine.LNX.4.10.10101231057510.5928-100000@clueserver.org>
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: David Ford <david@linux.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.1-test10
-In-Reply-To: <Pine.LNX.4.10.10101221711560.1309-100000@penguin.transmeta.com> <3A6CF5B7.57DEDA11@linux.com> <3A6D2D54.619AFA7E@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Tue, 23 Jan 2001, Helge Hafting wrote:
 
-> David Ford wrote:
-> >
-> > Linus Torvalds wrote:
-> >
-> > > The ChangeLog may not be 100% complete. The physically big things are the
-> > > PPC and ACPI updates, even if most people won't notice.
-> > >
-> > >                 Linus
-> > >
-> > > ----
-> > >
-> > > pre10:
-> > >  - got a few too-new R128 #defines in the Radeon merge. Fix.
-> > >  - tulip driver update from Jeff Garzik
-> > >  - more cpq and DAC elevator fixes from Jens. Looks good.
-> > >  - Petr Vandrovec: nicer ncpfs behaviour
-> > >  - Andy Grover: APCI update
-> > >  - Cort Dougan: PPC update
-> > >  - David Miller: sparc updates
-> > >  - David Miller: networking updates
-> > >  - Neil Brown: RAID5 fixes
-> >
-> > Do the tulip driver updates address the increasingly common NETDEV timeout
-> > repots?
->
-> In general you can answer this yourself by reading
-> drivers/net/tulip/ChangeLog.
->
-> I don't see increasingly common timeout reports.. with which hardware?
-> They are likely on the newer LinkSys 4.1 cards, and there are still
-> problesm with PNIC.  Outside of that, other cards should be ok.
->
+> Stephen Satchell wrote:
+> 
+> [lots of good advice deleted]
+> > One goal of language designers is to REMOVE the need for comments.  With a
+> > good fourth-generation or fifth-generation language, the need for comments
+> > diminishes to a detailed description of the data sets and any highly
+> > unusual operations or transforms on the data.
+> 
+> This is but a dream.  You can't "design out" the need for comments by
+> approaching natural language.  Try reading a law book and realize that
+> natural language too may be twisted to the extent that it needs
+> extensive comments.  The same goes for any computer language powerful
+> enough to do useful work.
 
-I have this problem also.
+Actually using natural language and other such constructs may INCREASE the
+need for comments.
 
-I have several machines that are almost unuseable due to the network device.  I
-need to do an ifconfig down/up to get connectivity back again.  That doesn't
-work so handy for a headless router . . . .
+For more examples, see Perl.
 
-My desktop machine (2.3.9x - present) has dropped the network 4 or 5 times a day
-for months.
-
--b
-
-
->
->         Jeff
->
-> --
-> Jeff Garzik       | "You see, in this world there's two kinds of
-> Building 1024     |  people, my friend: Those with loaded guns
-> MandrakeSoft      |  and those who dig. You dig."  --Blondie
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
+Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
+    "In the future, everything will have its 15 minutes of blame."
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,73 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267283AbUI0TqX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267285AbUI0Ttq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267283AbUI0TqX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 15:46:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267285AbUI0TqX
+	id S267285AbUI0Ttq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 15:49:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267287AbUI0Ttq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 15:46:23 -0400
-Received: from 104.engsoc.carleton.ca ([134.117.69.104]:57285 "EHLO
-	certainkey.com") by vger.kernel.org with ESMTP id S267283AbUI0TqV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 15:46:21 -0400
-Date: Mon, 27 Sep 2004 15:45:02 -0400
-From: Jean-Luc Cooke <jlcooke@certainkey.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PROPOSAL/PATCH] Fortuna PRNG in /dev/random
-Message-ID: <20040927194502.GO28317@certainkey.com>
-References: <415861C4.4030604@colorfullife.com>
+	Mon, 27 Sep 2004 15:49:46 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:43729 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S267285AbUI0Tto (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 15:49:44 -0400
+Date: Mon, 27 Sep 2004 12:48:36 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Robert Love <rml@novell.com>
+Cc: ttb@tentacle.dhs.org, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [RFC][PATCH] inotify 0.10.0
+Message-Id: <20040927124836.2983ff9b.pj@sgi.com>
+In-Reply-To: <1096305177.30503.65.camel@betsy.boston.ximian.com>
+References: <1096250524.18505.2.camel@vertex>
+	<1096305177.30503.65.camel@betsy.boston.ximian.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <415861C4.4030604@colorfullife.com>
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 27, 2004 at 08:53:56PM +0200, Manfred Spraul wrote:
-> On Mon, Sep 27, 2004 at 10:55:55AM -0400, Theodore Ts'o wrote:
-> >
-> >While you're at it, please re-read RFC 793 and RFC 1185.  You still
-> >don't have TCP sequence generation done right.
-> 
-> Actually trying to replace the partial MD4 might be worth an attempt: 
-> I'm certain that the partial MD4 is not the best/fastest way to generate 
-> sequence numbers.
+> 	unsigned long		bitmask[MAX_INOTIFY_DEV_WATCHERS/BITS_PER_LONG];
 
-It infact uses two full SHA1 hashs for tcp sequence numbers (endian and
-padding issues aside).  my patch aims to do this in 1 AES256 Encrypt or 2
-AES256 encrypts for ipv6.
+This assumes that MAX_INOTIFY_DEV_WATCHERS is an integral multiple
+of BITS_PER_LONG, otherwise, the last word will be missing.
 
-> >The only real way to settle this would be to ask Jamal and some of the
-> >other networking hackers to repeat their benchmarks and see if the AES
-> >encryption for every TCP SYN is a problem or not.
-> >
-> It would be unfair: The proposed implementation is not optimized - e.g. 
-> the sequence number generation runs under a global spinlock. On large 
-> SMP systems this will kill the performance, regardless of the internal 
-> implementation.
+Perhaps this would this better be written as:
 
-This would be nice to have in both RNG implementations.
+	DECLARE_BITMAP(bitmask, MAX_INOTIFY_DEV_WATCHERS);
 
-> For the Linux-variant of RFC 1948, the sequence number generation can be 
-> described as:
-> A hash function that generates 24 bit output from 96 bit input. Some of 
-> the input bits can be chosen by the attacker, all of these bits are 
-> known to the attacker. The attacker can query the output of the hash for 
-> some inputs - realistically less than 2^16 to 2^20 inputs. A successful 
-> attack means guessing the output of the hash function for one of the 
-> inputs that the attacker can't query.
-> 
-> Current implementation:
-> Set the MD4 initialization vector to the 96 bit input plus 32 secret, 
-> random bits.
-> Perform an MD4 hash over 256 secret, random bits.
-> Take the lowest 24 bits from one of the MD4 state words.
-> Every 5 minutes the secret bits are reset.
-> 
-> For IPV6, the requirements are similiar, except that the input is 288 
-> bits long.
-> 
-> --
->    Manfred
+and the clearing of it in the original patch:
+
+> +	memset(dev->bitmask, 0,
+> +	  sizeof(unsigned long) * MAX_INOTIFY_DEV_WATCHERS / BITS_PER_LONG);
+
+might better be written as:
+
+	CLEAR_BITMAP(dev->bitmask, MAX_INOTIFY_DEV_WATCHERS);
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,119 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbUB1Lme (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 06:42:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbUB1Lme
+	id S261386AbUB1LwU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 06:52:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbUB1LwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 06:42:34 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15760 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261710AbUB1Lm1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 06:42:27 -0500
-Date: Sat, 28 Feb 2004 11:42:25 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Maurice van der Stee <stee@planet.nl>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: 2.6.4-rc1 oops on HPFS filesystem file rename
-Message-ID: <20040228114225.GC16357@parcelfarce.linux.theplanet.co.uk>
-References: <20040228110403.GC557@maurice.stee.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040228110403.GC557@maurice.stee.nl>
-User-Agent: Mutt/1.4.1i
+	Sat, 28 Feb 2004 06:52:20 -0500
+Received: from freedom.icomedias.com ([62.99.232.79]:10507 "EHLO
+	freedom.grz.icomedias.com") by vger.kernel.org with ESMTP
+	id S261386AbUB1LwS convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Feb 2004 06:52:18 -0500
+Subject: Re: Network error with Intel E1000 Adapter on update 2.4.25 ==> 2.6.3
+Date: Sat, 28 Feb 2004 12:52:17 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <FA095C015271B64E99B197937712FD020B01BD@freedom.grz.icomedias.com>
+X-MS-Has-Attach: 
+Content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+X-MS-TNEF-Correlator: 
+Thread-Topic: Network error with Intel E1000 Adapter on update 2.4.25 ==> 2.6.3
+Thread-Index: AcP9U0fqhpAdnwOLQviDu+fAro6esQAiQlXw
+From: "Martin Bene" <martin.bene@icomedias.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 28, 2004 at 12:04:03PM +0100, Maurice van der Stee wrote:
-> When saving an edited file residing on a HPFS filesystem I get the  
-> following
-> oops.
-> Kernel is 2.6.4-rc1, compiled with gcc 3.3.2. After this any access to  
-> the
-> filesystem hangs the session. Kernel 2.6.3 has the same behavior. Don't  
-> know
-> about earlier ones.
+>> When trying to update the kernel from 2.4.25 to 2.6.3 I run 
+>> into a probelm:
+>> While the driver for the onboard Intel E1000 network adapter 
+>> loads OK, it
+>> doesn't seem to find an interrupt for the interface - ifconfig shows:
+>> eth0      Link encap:Ethernet  HWaddr 00:0E:A6:2D:7A:64
+>>           BROADCAST MULTICAST  MTU:1500  Metric:1
+>>           RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+>>           TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+>>           collisions:0 txqueuelen:1000
+>>           RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
+>>           Base address:0x9000 Memory:fc000000-fc020000
+>> Board is an Asus PC-DL, Intel 875P Chipset, one Xeon 2.8Ghz 
+>> CPU, Onboard
+>> e1000 Network interface. Any idea how I can get the onboard 
+>> NIC to work?
 
-<stares at the code>
-<blinks>
-<wonders whereTF do we assign hpfs1_i and hpfs2_i if both inodes are non-NULL>
-<finds the patch in question>
-<stares at jgarzik>
+>full output of /var/log/dmesg || dmesg after bootup might help.
 
-Fix follows.  That, BTW, means that *nobody* had ever tried to use hpfs
-r/w since 2.5.3-pre3.
+Some more information: 
 
-diff -urN RC4-rc1/fs/hpfs/buffer.c RC4-rc1-current/fs/hpfs/buffer.c
---- RC4-rc1/fs/hpfs/buffer.c	Mon Oct  7 15:58:24 2002
-+++ RC4-rc1-current/fs/hpfs/buffer.c	Sat Feb 28 06:33:29 2004
-@@ -62,56 +62,28 @@
- 
- void hpfs_lock_2inodes(struct inode *i1, struct inode *i2)
- {
--	struct hpfs_inode_info *hpfs_i1 = NULL, *hpfs_i2 = NULL;
--
--	if (!i1) {
--		if (i2) {
--			hpfs_i2 = hpfs_i(i2);
-+	if (!i2 || i1 == i2) {
-+		hpfs_lock_inode(i1);
-+	} else if (!i1) {
-+		hpfs_lock_inode(i2);
-+	} else {
-+		struct hpfs_inode_info *hpfs_i1 = hpfs_i(i1);
-+		struct hpfs_inode_info *hpfs_i2 = hpfs_i(i2);
-+		if (i1->i_ino < i2->i_ino) {
-+			down(&hpfs_i1->i_sem);
-+			down(&hpfs_i2->i_sem);
-+		} else {
- 			down(&hpfs_i2->i_sem);
--		}
--		return;
--	}
--	if (!i2) {
--		if (i1) {
--			hpfs_i1 = hpfs_i(i1);
- 			down(&hpfs_i1->i_sem);
- 		}
--		return;
- 	}
--	if (i1->i_ino < i2->i_ino) {
--		down(&hpfs_i1->i_sem);
--		down(&hpfs_i2->i_sem);
--	} else if (i1->i_ino > i2->i_ino) {
--		down(&hpfs_i2->i_sem);
--		down(&hpfs_i1->i_sem);
--	} else down(&hpfs_i1->i_sem);
- }
- 
- void hpfs_unlock_2inodes(struct inode *i1, struct inode *i2)
- {
--	struct hpfs_inode_info *hpfs_i1 = NULL, *hpfs_i2 = NULL;
--
--	if (!i1) {
--		if (i2) {
--			hpfs_i2 = hpfs_i(i2);
--			up(&hpfs_i2->i_sem);
--		}
--		return;
--	}
--	if (!i2) {
--		if (i1) {
--			hpfs_i1 = hpfs_i(i1);
--			up(&hpfs_i1->i_sem);
--		}
--		return;
--	}
--	if (i1->i_ino < i2->i_ino) {
--		up(&hpfs_i2->i_sem);
--		up(&hpfs_i1->i_sem);
--	} else if (i1->i_ino > i2->i_ino) {
--		up(&hpfs_i1->i_sem);
--		up(&hpfs_i2->i_sem);
--	} else up(&hpfs_i1->i_sem);
-+	/* order of up() doesn't matter here */
-+	hpfs_unlock_inode(i1);
-+	hpfs_unlock_inode(i2);
- }
- 
- void hpfs_lock_3inodes(struct inode *i1, struct inode *i2, struct inode *i3)
+* Update to 2.6.4-rc1 doesn't help, same situation as before.
+* 2.4.25 finds/uses int 18
+* Binary search shows that the problem first appears with 2.6.2-bk1; 2.6.2 works OK.
+
+Further search shows that it's the e1000 driver update from 5.2.20 to 5.2.30.1 that breaks things for me. copying the older driver into a newer kernel works.
+
+Hmm, changelog states what looks like a possible candidate: 
+
+*   o Use pdev->irq rather than netdev->irq in preparation for MSI support.
+
+Final information:
+
+Backing out the pdev->irq <-> netdev->irq changes gives me ifconfig output with the correct interrupt listed; unfortunately, 
+	ifconfig eth0 up 
+still locks the machine, so that doesn't seem to be the only problem.
+
+Bye, Martin

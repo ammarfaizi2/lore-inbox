@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265872AbUFDRC0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265883AbUFDRDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265872AbUFDRC0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 13:02:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265877AbUFDRC0
+	id S265883AbUFDRDy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 13:03:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265877AbUFDRDx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 13:02:26 -0400
-Received: from mail.kroah.org ([65.200.24.183]:31127 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265872AbUFDRCY (ORCPT
+	Fri, 4 Jun 2004 13:03:53 -0400
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:18595 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S265845AbUFDRDo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 13:02:24 -0400
-Date: Fri, 4 Jun 2004 09:26:43 -0700
-From: Greg KH <greg@kroah.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Driver Core fixes for 2.6.7-rc1
-Message-ID: <20040604162643.GB9342@kroah.com>
-References: <10857795552653@kroah.com> <10857795552130@kroah.com> <20040604122518.GB11950@elf.ucw.cz>
+	Fri, 4 Jun 2004 13:03:44 -0400
+Date: Fri, 4 Jun 2004 10:08:34 -0700
+From: Paul Jackson <pj@sgi.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: kaos@sgi.com, linux-kernel@vger.kernel.org, akpm@osdl.org, ak@muc.de,
+       ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
+       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
+       mikpe@csd.uu.se, nickpiggin@yahoo.com.au, rusty@rustcorp.com.au,
+       Simon.Derr@bull.net
+Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based
+ implementation
+Message-Id: <20040604100834.7edbfa72.pj@sgi.com>
+In-Reply-To: <20040604095403.GW21007@holomorphy.com>
+References: <20040604081906.GR21007@holomorphy.com>
+	<17995.1086338623@kao2.melbourne.sgi.com>
+	<20040604095403.GW21007@holomorphy.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040604122518.GB11950@elf.ucw.cz>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 04, 2004 at 02:25:18PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > [PATCH] Report which device failed to suspend
-> > 
-> > Based on a patch from Nickolai Zeldovich <kolya@MIT.EDU> but put into the
-> > proper place by me.
-> 
-> Seems good.
-> 
-> I'm seeing lots of problems with drivers & swsusp these days. Perhaps
-> even printing names of devices as they are suspended is good idea?
+> I'd rather just do it.
 
-You mean like the current kernel tree does if you enable
-CONFIG_DEBUG_DRIVER?  :)
+Nice.  Thanks, Bill.
 
-greg k-h
+The patch will collide with 'linus.patch', in Andrew's 2.6.7-rc2-mm2,
+which changes the arch/sparc64/kernel/irq.c line:
+
+- static unsigned int parse_hex_value (const char *buffer,
++ static unsigned int parse_hex_value (const char __user *buffer,
+
+Otherwise, it passes my cursory inspection.
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

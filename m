@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270644AbRHNSlD>; Tue, 14 Aug 2001 14:41:03 -0400
+	id <S270631AbRHNSjZ>; Tue, 14 Aug 2001 14:39:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270632AbRHNSky>; Tue, 14 Aug 2001 14:40:54 -0400
-Received: from www.casdn.neu.edu ([155.33.251.101]:4370 "EHLO
-	www.casdn.neu.edu") by vger.kernel.org with ESMTP
-	id <S270644AbRHNSka>; Tue, 14 Aug 2001 14:40:30 -0400
-From: "Andrew Scott" <A.J.Scott@casdn.neu.edu>
-Organization: Northeastern University
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Date: Tue, 14 Aug 2001 09:58:32 -0400
+	id <S270632AbRHNSjO>; Tue, 14 Aug 2001 14:39:14 -0400
+Received: from cardinal0.Stanford.EDU ([171.64.15.238]:51869 "EHLO
+	cardinal0.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S270631AbRHNSjD>; Tue, 14 Aug 2001 14:39:03 -0400
+Date: Tue, 14 Aug 2001 09:28:13 -0700 (PDT)
+From: Ted Unangst <tedu@stanford.edu>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: Ignacio Vazquez-Abrams <ignacio@openservices.net>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: memory compress tech...
+In-Reply-To: <fa.j58merv.u5aqqi@ifi.uio.no>
+Message-ID: <Pine.GSO.4.31.0108140924260.3860-100000@cardinal0.Stanford.EDU>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Are we going too fast?
-Reply-to: A.J.Scott@casdn.neu.edu
-Message-ID: <3B78F648.14074.58721CD@localhost>
-In-Reply-To: <3B776EA5000338FD@mta3n.bluewin.ch> (added by postmaster@bluewin.ch)
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Aug 2001, at 20:46, Per Jessen wrote:
+On Mon, 13 Aug 2001, Martin Dalecki wrote:
 
-> >On Mon, 13 Aug 2001 14:11:32 +0100 (BST), Alan Cox wrote:
+> Ignacio Vazquez-Abrams wrote:
 > >
-> >If you want maximum stability you want to be running 2.2 or even 2.0. Newer
-> >less tested code is always less table. 2.4 wont be as stable as 2.2 for a
-> >year yet.
-> 
-> Couldn't have put that any better. On mission-critical systems, this is
-> exactly what people do. Personally, my experience is from the big-iron
-> world of S390 -  if you're a bleeding-edge organisation, you'll be out
-> there applying the latest PTFs, you'll be running the latest OS/390 etc. 
-> If you're conservative, you're at least 2, maybe 3 releases (in todays 
-> OS390 this means about 18-24 months) behind. If you're ultra-conservative,
-> you'll wait for the point where you can no longer avoid an upgrade.
+> > I think he said it best. There may be uses for memory-compression technology,
+> > but does that make the slow-down worthwhile?
+>
+> Please read the corresponding research papers by IBM on this
+> topic. It's all NOT ABOUT RAM size. It is all bout BUS BADWIDTH!
+> At least if you do it properly - namely in hardware... ;-)
 
-We've only just now moved from 2.0.36 to 2.2.18, and cautiously at 
-that. We've started to run into applications that won't run on the 
-older kernel/lib combinatons that we need.
+maybe for compressing swap?  you have to read less data off the disk,
+which is faster.  and the processor is probably idling anyway, waiting on
+disk.
 
 
-                      _
-                     / \   / ascott@casdn.neu.edu
-                    / \ \ /
-                   /   \_/
+
+
+
+
+--
+"The brave men who died in Vietnam, more than 100% of which were
+black, were the ultimate sacrifice."
+      - M. Barry, Mayor of Washington, DC
+

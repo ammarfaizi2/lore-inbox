@@ -1,41 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315420AbSEBVAR>; Thu, 2 May 2002 17:00:17 -0400
+	id <S315421AbSEBVGq>; Thu, 2 May 2002 17:06:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315421AbSEBVAQ>; Thu, 2 May 2002 17:00:16 -0400
-Received: from ns.suse.de ([213.95.15.193]:3592 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S315420AbSEBVAP>;
-	Thu, 2 May 2002 17:00:15 -0400
-Date: Thu, 2 May 2002 23:00:14 +0200
-From: Dave Jones <davej@suse.de>
-To: Mark Orr <markorr@intersurf.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.12-dj1:  IDE trouble - RZ1000 still won't finish booting
-Message-ID: <20020502230014.U16935@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Mark Orr <markorr@intersurf.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020502154425.45437b42.markorr@intersurf.com>
-Mime-Version: 1.0
+	id <S315422AbSEBVGp>; Thu, 2 May 2002 17:06:45 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54544 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S315421AbSEBVGp>; Thu, 2 May 2002 17:06:45 -0400
+Subject: Re: 2.4.19pres and IDE DMA
+To: sflory@rackable.com (Samuel Flory)
+Date: Thu, 2 May 2002 22:25:45 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <3CD1A469.9040605@rackable.com> from "Samuel Flory" at May 02, 2002 01:41:13 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E173O5B-0004tW-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 02, 2002 at 03:44:25PM -0500, Mark Orr wrote:
+>   I'm having issues with a Tyan 2720 and post 2.4.18 boards with a 
+> Maxtor 4G120J6.  Under 2.4.18 I can turn on dma via "hdparm -d 1". 
+>  Under 2.4.19pre7 I get "HDIO_SET_DMA fail ed: Operation not permitted". 
 
- > hda: task_mulout_intr: error=0x04  { DriveStatusError }
- > 
- > then several of these:
- > 
- >    { task_mulout_intr }
- > hda:  ide_set_handler: handler not null  old=<some hex> new=<some other hex>
- > bug: kernel timer added twice
+The BIOS fails to assign the resources
 
-Yup, I saw the same problem with my dual P5 a few nights ago, shortly
-before it ate the filesystem.  It's a known problem, and several people
-claim they have a handle on it, but no-one seems in a hurry to fix it.
+> PS-There is also some issue with a resource conflict that occurs under 
+> every kernel I've tried.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Yep. Your BIOS didnt assign them.

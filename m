@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270293AbTGSP5M (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 11:57:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270377AbTGSP5M
+	id S270273AbTGSQCj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 12:02:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270403AbTGSQCi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 11:57:12 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:61199 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S270293AbTGSP5I (ORCPT
+	Sat, 19 Jul 2003 12:02:38 -0400
+Received: from adedition.com ([216.209.85.42]:51208 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id S270273AbTGSQCh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 11:57:08 -0400
-Date: Sat, 19 Jul 2003 18:12:05 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: junkio@cox.net
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] 2.6.0-test1 JAP_86 disappeared from atkbd.c
-Message-ID: <20030719181205.A3543@pclin040.win.tue.nl>
-References: <7vy8yudcec.fsf@assigned-by-dhcp.cox.net>
+	Sat, 19 Jul 2003 12:02:37 -0400
+Date: Sat, 19 Jul 2003 12:17:25 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: John Bradford <john@grabjohn.com>
+Cc: ebiederm@xmission.com, linux-kernel@vger.kernel.org
+Subject: Re: Bitkeeper
+Message-ID: <20030719161725.GD17587@mark.mielke.cc>
+References: <200307191600.h6JG0OZd002669@81-2-122-30.bradfords.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <7vy8yudcec.fsf@assigned-by-dhcp.cox.net>; from junkio@cox.net on Sat, Jul 19, 2003 at 03:44:11AM -0700
+In-Reply-To: <200307191600.h6JG0OZd002669@81-2-122-30.bradfords.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 19, 2003 at 03:44:11AM -0700, junkio@cox.net wrote:
-> In 2.4, Japanese 86/106 keyboards used to be able to generate
-> backslash and pipe characters (around ll. 367 in
-> linux-2.4.21/drivers/char/pc_keyb.c), but the rewritten AT
-> keyboard driver linux-2.6.0-test1/drivers/input/keyboard/atkbd.c
-> does not seem to have corresponding support for that key.  As a
-> result, the key seems to be dead and I cannot type '|' on such a
-> keyboard from Linux console (it works OK in X Window but that is
-> expected).
-> 
-> For your reference, here is some comments in the 2.4 PC keyboard
-> driver that I think is relevant.
-> 
->         ...
-> 	} else if (scancode >= SC_LIM) {
-> 	    /* This happens with the FOCUS 9000 keyboard
-> 	       Its keys PF1..PF12 are reported to generate
-> 	       55 73 77 78 79 7a 7b 7c 74 7e 6d 6f
-> 	       Moreover, unless repeated, they do not generate
-> 	       key-down events, so we have to zero up_flag below */
-> 	    /* Also, Japanese 86/106 keyboards are reported to
-> 	       generate 0x73 and 0x7d for \ - and \ | respectively. */
-> 	    /* Also, some Brazilian keyboard is reported to produce
-> 	       0x73 and 0x7e for \ ? and KP-dot, respectively. */
-> 
-> 	  *keycode = high_keys[scancode - SC_LIM];
-> 
->        ...
+On Sat, Jul 19, 2003 at 05:00:24PM +0100, John Bradford wrote:
+> > Any investment into writing a new source management
+> > system would be better served by improving the linux source code.
+> What happens if somebody develops a really good versioned filesystem
+> for Linux, would it not get merged, because the linux kernel would
+> then contain SCM-like functionality?
 
-Ha - really long ago I wrote that..
+One day, when it happens, we'll see what ripple effects it has.
 
-Yes, for 2.5 things are much more involved, but I suppose that
-all will be well if you add the line
+In most cases, however, I suspect that a versioned file system will never
+be a replacement for a good source management system. The lines could become
+blurred, but the 'good versioned file system' might take the form a kernel
+module that allowed SCM systems to plug into it, at which point, Bit Keeper
+might plug into it, and everybody would be happy. I doubt you want to put
+merge manager functionality into the kernel, or many of the other components
+of a good source management system. The storage and access is one of the
+lesser concerns. Bit Keeper uses similar storage and access methods as
+SCCS, does it not?
 
-keycode 183 = backslash bar
+mark
 
-to your keymap.
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
-Andries
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
 

@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316258AbSGLNES>; Fri, 12 Jul 2002 09:04:18 -0400
+	id <S316106AbSGLNNR>; Fri, 12 Jul 2002 09:13:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316309AbSGLNER>; Fri, 12 Jul 2002 09:04:17 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:43535 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S316258AbSGLNEQ>; Fri, 12 Jul 2002 09:04:16 -0400
-Date: Fri, 12 Jul 2002 15:07:02 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
-Message-ID: <20020712130702.GL29993@louise.pinerecords.com>
-References: <3D2EC778.7000203@evision-ventures.com> <E17T0NL-0002z3-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E17T0NL-0002z3-00@the-village.bc.nu>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
-X-Uptime: 38 days, 1:09
+	id <S316309AbSGLNNQ>; Fri, 12 Jul 2002 09:13:16 -0400
+Received: from web13107.mail.yahoo.com ([216.136.174.152]:11 "HELO
+	web13107.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S316106AbSGLNNQ>; Fri, 12 Jul 2002 09:13:16 -0400
+Message-ID: <20020712131604.37505.qmail@web13107.mail.yahoo.com>
+Date: Fri, 12 Jul 2002 15:16:04 +0200 (CEST)
+From: =?iso-8859-1?q?szonyi=20calin?= <caszonyi@yahoo.com>
+Subject: Re: no msg when linux-kernel boot.
+To: louie miranda <louie@chikka.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <035401c22969$3c39a1b0$6b48becb@noc2>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > In favour of the scrap:
-> > 
-> > 1. HPA.
-> > 2. Adam J. Richter.
-> > 3. Marcin Dalecki (basically due to give up on the idea
-> > of gradual unification).
+ --- louie miranda <louie@chikka.com> a écrit : > Hi,
 > 
-> In other words nobody who understands IDE is for and everyone who 
-> understands you can't actually get rid of ide-floppy, tape, cdrom internal
-> support and knows about IDE is..
+> I saw this server twice. When she boots, it does not
+> show extra kernel
+> "echo, requests" (Initializations)
 > 
-> > Against:
-> > 1. Bart=B3omiej =AFo=B3nierkiewcz.
-> > 
+> ex:
 > 
-> against..
+> 
+> LILO: linux...
+> Booting the kernel
+> 
+> and after that it pauses for a little while
+> 
+> and just shows the login prompt
+> 
+> 
+> Linux
+> 
+> Login:
+> 
+
+He could be ashamed so he hides himself :-)
+You can play with linux and make him really quiet :-)
+It's actually a feature :-)
 
 
-Very well put.
 
-By the way, where's the promised IDE 98?
+=====
+--
+The UNIX Hierarchy - Beginner
+- insecure with the concept of a terminal 
+- has yet to learn the basics of "vi" 
+- has not figured out how to get a directory 
+- still has trouble with typing <RETURN> after each line of input
 
-
-T.
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Mail : http://fr.mail.yahoo.com

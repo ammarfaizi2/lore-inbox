@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287011AbRL1UnK>; Fri, 28 Dec 2001 15:43:10 -0500
+	id <S287017AbRL1Usa>; Fri, 28 Dec 2001 15:48:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287008AbRL1UnB>; Fri, 28 Dec 2001 15:43:01 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:36022 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S287016AbRL1Umx>;
-	Fri, 28 Dec 2001 15:42:53 -0500
-Date: Fri, 28 Dec 2001 15:39:39 -0500
-From: Legacy Fishtank <garzik@havoc.gtf.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Dave Jones <davej@suse.de>, "Eric S. Raymond" <esr@snark.thyrsus.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: State of the new config & build system
-Message-ID: <20011228153939.A27313@havoc.gtf.org>
-In-Reply-To: <20011228042648.A7943@havoc.gtf.org> <Pine.LNX.4.33.0112280948450.23339-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0112280948450.23339-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Dec 28, 2001 at 10:02:01AM -0800
+	id <S287016AbRL1UsU>; Fri, 28 Dec 2001 15:48:20 -0500
+Received: from pcow029o.blueyonder.co.uk ([195.188.53.123]:49938 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S287017AbRL1UsR>;
+	Fri, 28 Dec 2001 15:48:17 -0500
+Message-ID: <T581b9e8935ac1785e72b2@pcow029o.blueyonder.co.uk>
+Content-Type: text/plain; charset=US-ASCII
+From: James A Sutherland <james@sutherland.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, rhw@MemAlpha.cx
+Subject: Re: [RFC][PATCH] unchecked request_region's in drivers/net
+Date: Fri, 28 Dec 2001 20:48:52 +0000
+X-Mailer: KMail [version 1.3.1]
+Cc: adilger@turbolabs.com (Andreas Dilger),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <E16K23q-0001OG-00@the-village.bc.nu>
+In-Reply-To: <E16K23q-0001OG-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 28, 2001 at 10:02:01AM -0800, Linus Torvalds wrote:
-> [ Btw, Jeff, any reason why you changed your name to "Legacy Fishtank"? It
->   took a few mails before I noticed that it also said "garzik" in the
->   fine print;]
+On Friday 28 December 2001 6:48 pm, Alan Cox wrote:
+> > currently is, but add a PATCHES-TO file in each subdirectory that
+> > states how to handle patches relating to that directory, and have
+> > these files follow a strict format, possibly...
+>
+> Add the patches to to the maintainers as another field. If the patches
+> go to someone who isnt claiming to be a maintainer something is wrong
 
-Away-from-home account and a long story :)
+Except it seems maintainers is, er, unmaintained... Dave's/my solution looks 
+good from this point of view, allowing others to "subscribe" to track patches 
+to subsystems they care about. As well as allowing Al to remain a "closet 
+maintainer", rather than putting him in maintainers :)
 
-	Jeff
 
-
+James.

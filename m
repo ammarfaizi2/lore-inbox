@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272877AbTG3NGI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 09:06:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272878AbTG3NGH
+	id S272864AbTG3NAW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 09:00:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272871AbTG3NAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 09:06:07 -0400
-Received: from dsl2.external.hp.com ([192.25.206.7]:59143 "EHLO
-	dsl2.external.hp.com") by vger.kernel.org with ESMTP
-	id S272877AbTG3NGG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 09:06:06 -0400
-Date: Wed, 30 Jul 2003 07:06:05 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Grant Grundler <grundler@parisc-linux.org>, ak@suse.de,
-       alan@lxorguk.ukuu.org.uk, James.Bottomley@SteelEye.com, axboe@suse.de,
-       suparna@in.ibm.com, linux-kernel@vger.kernel.org,
-       alex_williamson@hp.com, bjorn_helgaas@hp.com
-Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode II
-Message-ID: <20030730130605.GA13333@dsl2.external.hp.com>
-References: <20030708213427.39de0195.ak@suse.de> <20030708.150433.104048841.davem@redhat.com> <20030708222545.GC6787@dsl2.external.hp.com> <20030708.152314.115928676.davem@redhat.com> <20030723114006.GA28688@dsl2.external.hp.com> <20030728131513.5d4b1bd3.ak@suse.de> <20030730044256.GA1974@dsl2.external.hp.com> <20030729215118.13a5ac18.davem@redhat.com>
+	Wed, 30 Jul 2003 09:00:22 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:9733 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S272864AbTG3NAS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 09:00:18 -0400
+Date: Wed, 30 Jul 2003 15:00:15 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: CaT <cat@zip.com.au>
+Cc: Philip Graham Willoughby <pgw99@doc.ic.ac.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH : LEDs - possibly the most pointless kernel subsystem ever
+Message-ID: <20030730130015.GA2507@win.tue.nl>
+References: <20030729151701.GA6795@bodmin.doc.ic.ac.uk> <20030730063657.GH1395@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030729215118.13a5ac18.davem@redhat.com>
-User-Agent: Mutt/1.3.28i
-X-Home-Page: http://www.parisc-linux.org/
+In-Reply-To: <20030730063657.GH1395@zip.com.au>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 29, 2003 at 09:51:18PM -0700, David S. Miller wrote:
-> Make an ext2 filesystem with 16K blocks :-)
+On Wed, Jul 30, 2003 at 04:36:57PM +1000, CaT wrote:
 
-heh - right. I thought you were going to tell me I needed to
-install DIMMs that support 4k pages :^)
+> Would this (now or in the future) by any chance let one use the keyboard
+> leds for stuff without activating their num lock, caps lock and scroll
+> lock functionality? I'd like to use one of them (at least) as a network
+> traffic indicator but so far I get the sideffects of the functionality
+> being on also. Most annoying when typing. :/
 
-grant
+The use of LEDs as random lights instead of as keyboard status indicators
+has been possible since very early times. See the kernel code, or setleds(1).
+

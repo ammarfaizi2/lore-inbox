@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264122AbTEaDPV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 23:15:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264125AbTEaDPV
+	id S264127AbTEaDY7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 23:24:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264129AbTEaDY7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 23:15:21 -0400
-Received: from main.gmane.org ([80.91.224.249]:6051 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264122AbTEaDPS (ORCPT
+	Fri, 30 May 2003 23:24:59 -0400
+Received: from main.gmane.org ([80.91.224.249]:59812 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264127AbTEaDY6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 23:15:18 -0400
+	Fri, 30 May 2003 23:24:58 -0400
 X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
 From: "Brian J. Murrell" <brian@interlinx.bc.ca>
-Subject: Re: [PATCH][2.5-AC] Forced enable/disable local APIC
-Date: Fri, 30 May 2003 23:28:35 -0400
-Message-ID: <pan.2003.05.31.03.28.35.443354@interlinx.bc.ca>
-References: <Pine.GSO.3.96.1021108131625.3217B-100000@delta.ds2.pg.gda.pl> <Pine.LNX.4.44.0211080804280.27141-100000@montezuma.mastecende.com> <15819.47795.543312.435264@kim.it.uu.se>
+Subject: Re: local apic timer ints not working with vmware: nolocalapic
+Date: Fri, 30 May 2003 23:38:16 -0400
+Message-ID: <pan.2003.05.31.03.38.16.701826@interlinx.bc.ca>
+References: <2C8EEAE5E5C@vcnet.vc.cvut.cz> <20030528173432.GA21379@linux.interlinx.bc.ca> <Pine.LNX.4.50.0305281341160.1982-100000@montezuma.mastecende.com> <pan.2003.05.30.22.14.35.511205@interlinx.bc.ca> <Pine.LNX.4.50.0305301907230.29718-100000@montezuma.mastecende.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -24,49 +24,67 @@ User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 08 Nov 2002 14:22:59 +0100, Mikael Pettersson wrote:
+On Fri, 30 May 2003 19:23:33 -0400, Zwane Mwaikambo wrote:
 > 
-> People with broken boxes should send their DMI data to me so I can add
-> their boxes to the local APIC blacklist in dmi_scan.c.
+> Considering the dalay, i'll resend and give it another go, but generally 
+> it means it's not going anywhere.
 
-That was the approach I wanted to use in the first place to deal with the
-broken local apic in vmware 2.0.4.  See the thread (which is unfortunately
-broken -- the followup must not have included a References: header back to
-the my original message):
+That sucks.
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0305.3/0907.html
+> 
+>> The unfortunate thing is that even this sort of fix will not help my
+>> situation.  The reason being (which I only discovered by accident when I
+>> set "dont_enable_local_apic = 1" rather than "dont_use_local_apic_timer"
+>> and it didn't correct the booting problem) is that it seems that even if
+>> the local apic is set disabled by setting dont_enable_local_apic = 1 in
+>> arch/i386/kernel/apic.c, setup_APIC_clocks() is still called.
+> 
+> How did you determine that?
 
-The thread can be picked up again in this message: 
+Well, originally it was a mistake in setting the wrong flag to 1
+(dont_enable_local_apic rather than dont_use_local_apic_timer) and finding
+that it did not cure the problem, when I went back to my change to figure
+out why, I noticed that I had set the wrong flag.
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0305.3/0995.html
+> Was this with my patch applied?
 
-> "nolapic" is
-> simply a workaround for the absence of this DMI data.
+I did not try your patch since I did pretty much the same thing with my
+"mistake" described above.
 
-Unfortunately, VMware 2.0.4 does not have any DMI data to identify it by. 
-the search for _DMI_ between 0xF0000 and 0xFFFFF finds nothing.  I dunno
-if this is valid for proving or disproving the presence of DMI data, but:
+> I 
+> originally did this patch for the exact same problem (buggy local APIC 
+> implimentation).
 
-# dmidecode
-# dmidecode 1.8
-BIOS32 Service Directory present.
-        Calling Interface Address: 0x000FD8C0
-PNP 1.0 present.
-        Event Notification: Not Supported
-        Real Mode Code Address: F000:AEA5
-        Real Mode Data Address: 0040:0000
-        Protected Mode Code Address: 0x000FAEC3
-        Protected Mode Data Address: 0x00000400
-PCI Interrupt Routing 1.0 present.
-        Table Size: 0 bytes
-        Router ID: ff:1f.7
-        Exclusive IRQs: None
+I know nothing about the APIC stuff, but it seems strange that even though
+it's disabled (dont_enable_local_apic = 1) setup_APIC_clocks() is still
+called.  Maybe the latter is not dependent on the former, so there should
+not be a dependence on dont_enable_local_apic == 0 for setup_APIC_clocks()
+to still be used.
 
-> Notice how silent the Inspiron 8k users are now that the DMI black
-> list is implemented...
+> Linux version 2.5.70-mm1 (zwane@montezuma.mastecende.com) (gcc version 
+> Kernel command line: nolapic nmi_watchdog=2 ro root=/dev/hda1 profile=2 
+> debug console=tty0 cons0
+> kernel profiling enabled
+> Initializing CPU#0
+> CPU0: Intel Celeron (Mendocino) stepping 05
+> per-CPU timeslice cutoff: 365.65 usecs.
+> task migration cache decay timeout: 1 msecs.
+> SMP motherboard not detected.
+> Local APIC not detected. Using dummy APIC emulation.
+> Starting migration thread for cpu 0
 
-:-)  I like the approach, it just doesn't always apply, thus the need for
-kernel commandline args.
+Yes, it's further along in the boot where my system runs into trouble,
+right here:
+
+Using local APIC timer interrupts.
+calibrating APIC timer ...
+..... CPU clock speed is 1658.7651 MHz.
+..... host bus clock speed is 0.0000 MHz.
+cpu: 0, clocks: 0, slice: 0
+
+I will take another stab at all of this tomorrow to double-verify what I
+am saying here regarding the use of local APIC timer interrupts even if
+the local apic usage flag is set to disable (dont_enable_local_apic = 1).
 
 b.
 

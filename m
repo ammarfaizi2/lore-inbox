@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129255AbQLJEuQ>; Sat, 9 Dec 2000 23:50:16 -0500
+	id <S129480AbQLJFaD>; Sun, 10 Dec 2000 00:30:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129324AbQLJEuG>; Sat, 9 Dec 2000 23:50:06 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:31758 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129255AbQLJEt4>;
-	Sat, 9 Dec 2000 23:49:56 -0500
-Date: Sun, 10 Dec 2000 05:19:23 +0100
-From: Andi Kleen <ak@suse.de>
-To: Gerard Paul Java <gerardj@cebu.mozcom.com>
+	id <S129521AbQLJF3y>; Sun, 10 Dec 2000 00:29:54 -0500
+Received: from otter.mbay.net ([206.40.79.2]:27396 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S129480AbQLJF3h> convert rfc822-to-8bit;
+	Sun, 10 Dec 2000 00:29:37 -0500
+From: jalvo@mbay.net (John Alvord)
+To: David Feuer <David_Feuer@brown.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PF_PACKET and Token Ring
-Message-ID: <20001210051923.A14451@gruyere.muc.suse.de>
-In-Reply-To: <Pine.LNX.4.03.10011291143490.10359-100000@cebu.mozcom.com>
-Mime-Version: 1.0
+Subject: Re: [Fwd: NTFS repair tools]
+Date: Sun, 10 Dec 2000 05:00:53 GMT
+Message-ID: <3a330d39.53732447@mail.mbay.net>
+In-Reply-To: <E144O4d-0003vd-00@the-village.bc.nu> <3A3066EC.3B657570@timpanogas.org> <E144O4d-0003vd-00@the-village.bc.nu> <4.3.2.7.2.20001209213353.00b8bef0@postoffice.brown.edu>
+In-Reply-To: <4.3.2.7.2.20001209213353.00b8bef0@postoffice.brown.edu>
+X-Mailer: Forte Agent 1.5/32.451
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.03.10011291143490.10359-100000@cebu.mozcom.com>; from gerardj@cebu.mozcom.com on Wed, Nov 29, 2000 at 11:47:08AM +0800
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 29, 2000 at 11:47:08AM +0800, Gerard Paul Java wrote:
-> 
-> Hi,
-> 
-> I'm trying to capture IP packets over a Token Ring network through a
-> (PF_PACKET, SOCK_RAW) socket, but for some
-> reason the sll_protocol field in the sockaddr_ll structure doesn't
-> contain ETH_P_IP for IP packets but rather contains 0x100 (of course, in
-> network byte order).
-> 
-> Is this a bug, or is it expected behavior?
+On Sat, 09 Dec 2000 21:34:59 -0500, David Feuer
+<David_Feuer@brown.edu> wrote:
 
-0x100 is ETH_P_802_3. This happens because some token ring packets
-with an 802.3 header pass twice through the tap -- once to go to the
-SNAP handler and then again afterwards to the final protocol. For IP
-and ARP it should not happen though, because these take shortcuts and
-only go once. You're probably seeing some other packet.
+>At 08:12 PM 12/9/2000 -0600, Rene wrote:
+>>I think part of the problem is that there are other things labeled
+>>DANGEROUS that actually do work fairly reliably (offhand, I'm thinking
+>>off the IDE config stuff..). Perhaps it needs to explicitely say
+>>'This is broken and is gauranteed to destroy your data. Do not use it'
+>>
+>>The 'DANGEROUS' label seems to suggest that it -may- destroy data, which
+>>leads to the 'it won't happen to me' mentality.
+>
+>For what it's worth, I absolutely agree with this.  I have the same 
+>impression when I just see the word "dangerous".
 
-On the one hand it smells like a bug, on the other hand it is probably
-not worth fixing because it is similar to the loopback or the tunnel devices 
-showing you packets multiple times.
+If this was a business, and we were knowingly distributing software
+that was known to be dangerous, we would probably be risking legal
+action.
 
+Why are we distributing such severely broken software? Heck, we seem
+reluctant to include reiserfs, a pretty high quality, supported file
+system. And we continue to distribute this !@#$%... There must be some
+strange agenda going on to limit the use of Linux.
 
--Andi
+john alvord
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

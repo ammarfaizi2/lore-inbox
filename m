@@ -1,48 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266469AbUHaEES@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266477AbUHaEIN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266469AbUHaEES (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 00:04:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266477AbUHaEES
+	id S266477AbUHaEIN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 00:08:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266479AbUHaEIN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 00:04:18 -0400
-Received: from lakermmtao03.cox.net ([68.230.240.36]:52143 "EHLO
-	lakermmtao03.cox.net") by vger.kernel.org with ESMTP
-	id S266469AbUHaEEQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 00:04:16 -0400
-In-Reply-To: <1093910317.1348.22.camel@krustophenia.net>
-References: <413217A3.4020906@colannino.org> <20040829182333.GP19844@mea-ext.zmailer.org> <Pine.LNX.4.61.0408291433210.32154@twin.uoregon.edu> <20040830181821.GQ19844@mea-ext.zmailer.org> <1093910317.1348.22.camel@krustophenia.net>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <C5E0B3B6-FB02-11D8-9B58-000393ACC76E@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: Joel Jaeggli <joelja@darkwing.uoregon.edu>,
-       Matti Aarnio <matti.aarnio@zmailer.org>,
-       James Colannino <lkml@colannino.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: submitting kernel patch for 3w-9xxx in 2.4
-Date: Tue, 31 Aug 2004 00:03:53 -0400
-To: Lee Revell <rlrevell@joe-job.com>
-X-Mailer: Apple Mail (2.619)
+	Tue, 31 Aug 2004 00:08:13 -0400
+Received: from fw.osdl.org ([65.172.181.6]:3981 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266477AbUHaEIJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 00:08:09 -0400
+Date: Mon, 30 Aug 2004 21:08:07 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Tom Vier <tmv@comcast.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: silent semantic changes with reiser4
+In-Reply-To: <20040831033950.GA32404@zero>
+Message-ID: <Pine.LNX.4.58.0408302055270.2295@ppc970.osdl.org>
+References: <20040825163225.4441cfdd.akpm@osdl.org> <20040825233739.GP10907@legion.cup.hp.com>
+ <20040825234629.GF2612@wiggy.net> <1093480940.2748.35.camel@entropy>
+ <20040826044425.GL5414@waste.org> <1093496948.2748.69.camel@entropy>
+ <20040826053200.GU31237@waste.org> <20040826075348.GT1284@nysv.org>
+ <20040826163234.GA9047@delft.aura.cs.cmu.edu> <Pine.LNX.4.58.0408260936550.2304@ppc970.osdl.org>
+ <20040831033950.GA32404@zero>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Despite the fact that this entire thread contains frequent instances of 
-3w-9xxx,
-none of the properly configured spam filters across my various mailboxes
-think it's spam.  Stupid spam filters are no reason to use a mashed-up 
-naming
-scheme for kernel files :-D.
-
-Cheers,
-Kyle Moffett
-
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
 
 
+On Mon, 30 Aug 2004, Tom Vier wrote:
+
+> On Thu, Aug 26, 2004 at 09:48:04AM -0700, Linus Torvalds wrote:
+> >  - safely synchronize globally visible data structures
+> > That's quite fundamental. 99% of what a kernel does is exactly that. TCP
+> > would be in user space too, if it wasn't for _exactly_ this issue. A lot
+> 
+> What about microkernels? They do tcp in userspace.
+
+No they don't. They do TCP in a separate address space from user space, 
+that just also happens to be separate from the "microkernel address 
+space".
+
+So a microkernel will have _more_ address spaces, and they won't be "user
+space". They'll be "server deamon space" or something. Now, that's also
+why they tend to have performance problems - because you need to copy the
+data between different address spaces, and switch the CPU context etc
+around.
+
+Not user space. They may be "ring 3" from a CPU standpoint, but they 
+aren't user space from a _user_ standpoint - it's still very much a 
+separate address space, with domain protection.
+
+> So did winsock, iirc.
+
+Now that is a different case. Things like the PalmOS TCP stack (and, I
+believe, Winsock) are true "user space" TCP stacks, in that they really
+do live as libraries in the same address space as the user app.
+
+It sucks. Exactly because now the data structures are _not_ protected, and
+they are _not_ shared. So your library basically ends up being a "single
+client" library, with no protection between clients (or no sharing: you
+can have "protected" single-stream TCP, but then you won't share the TCP
+state that needs to be shared like listen queues etc).
+
+This works in an environment like Palm or Win-3.0, which are really just
+single-client _anyway_, without any protection. But notice how Windows
+started doing TCP in the kernel, and notice how you can actually use it as
+a server these days?
+
+In short: you _need_ to have a separate address space (either kernel, or
+"TCP server" or whatever) if you want to have reliable, secure and
+generally usable TCP.
+
+
+> As long as a trusted process keeps data such as free ports, what's the
+> problem?
+
+None - because it's not user space any more. 
+
+Well, performance might still suck, of course. And it does. 
+
+		Linus

@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262038AbTH3SWH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 14:22:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbTH3SWH
+	id S261987AbTH3SkP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 14:40:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbTH3SkP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 14:22:07 -0400
-Received: from postoffice9.mail.cornell.edu ([132.236.56.39]:43736 "EHLO
-	postoffice9.mail.cornell.edu") by vger.kernel.org with ESMTP
-	id S262038AbTH3SWF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 14:22:05 -0400
-Message-ID: <3F50EC29.4020805@cornell.edu>
-Date: Sat, 30 Aug 2003 14:25:45 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030829 Thunderbird/0.2a
-X-Accept-Language: en-us, en
+	Sat, 30 Aug 2003 14:40:15 -0400
+Received: from [66.241.84.54] ([66.241.84.54]:21888 "EHLO bigred.russwhit.org")
+	by vger.kernel.org with ESMTP id S261987AbTH3SkL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 14:40:11 -0400
+Date: Sat, 30 Aug 2003 11:33:57 -0700 (PDT)
+From: Russell Whitaker <russ@ashlandhome.net>
+X-X-Sender: russ@bigred.russwhit.org
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0: module char_10_135
+In-Reply-To: <20030830100823.GM7038@fs.tum.de>
+Message-ID: <Pine.LNX.4.53.0308301123170.468@bigred.russwhit.org>
+References: <Pine.LNX.4.53.0308201736040.178@bigred.russwhit.org>
+ <20030830100823.GM7038@fs.tum.de>
 MIME-Version: 1.0
-To: Gaston Gransis <give54sh2@yahoo.com.ar>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Via 8235 rear sound
-References: <20030830011658.37500.qmail@web20705.mail.yahoo.com>
-In-Reply-To: <20030830011658.37500.qmail@web20705.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gaston Gransis wrote:
-> any ideas?
-
-Argh. Ignore confirmation of bug
-Problem were some config settings and my ignorance.
-5.1 seems to work with xine playing dvds - now have to figure out how to 
-balance it correctly :)
 
 
+On Sat, 30 Aug 2003, Adrian Bunk wrote:
 
+> On Wed, Aug 20, 2003 at 05:54:15PM -0700, Russell Whitaker wrote:
+> >
+> > During boot-up, and just after the setting the clock line, noticed the
+> > following line:
+> >
+> > modeprobe: FATAL: module char_10_135 not found
+> >
+> > First noticed this a few revisions ago. The contents of directory
+> > /lib/modules/2.6.0-test3-bk8/kernel/drivers/char:
+> >
+> > agp/  genrtc.ko  hw_random.ko  lp.ko  rtc.ko
+> >
+> > hmm, long shot, but perhaps this bug is related to not auto-loading
+> > module lp?
+>
+> Minor 135 is rtc.
+>
+> Do you have module-init-tools installed?
+>
+module-init-tools 0.9.13-pre 2
 
+That was the latest version I could find on Aug 3rd. Please let me know
+if there is a later version I should try.
+
+Thanks,
+  Russ

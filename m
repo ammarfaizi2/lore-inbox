@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136771AbRECMba>; Thu, 3 May 2001 08:31:30 -0400
+	id <S136774AbRECMcU>; Thu, 3 May 2001 08:32:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136774AbRECMbU>; Thu, 3 May 2001 08:31:20 -0400
-Received: from enst.enst.fr ([137.194.2.16]:13562 "HELO enst.enst.fr")
-	by vger.kernel.org with SMTP id <S136771AbRECMbR>;
-	Thu, 3 May 2001 08:31:17 -0400
-Date: Thu, 03 May 2001 14:30:29 +0200
-From: Fabrice Gautier <gautier@email.enst.fr>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Subject: Re: serial console problems with 2.4.4
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <m166fiq260.fsf@frodo.biederman.org>
-In-Reply-To: <20010502201026.CB69.GAUTIER@email.enst.fr> <m166fiq260.fsf@frodo.biederman.org>
-Message-Id: <20010503142212.7529.GAUTIER@email.enst.fr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+	id <S136782AbRECMcK>; Thu, 3 May 2001 08:32:10 -0400
+Received: from [195.6.125.97] ([195.6.125.97]:26640 "EHLO looping.sycomore.fr")
+	by vger.kernel.org with ESMTP id <S136774AbRECMb4>;
+	Thu, 3 May 2001 08:31:56 -0400
+Date: Thu, 3 May 2001 14:29:29 +0200
+From: =?ISO-8859-1?Q?s=E9bastien?= person <sebastien.person@sycomore.fr>
+To: liste noyau linux <linux-kernel@vger.kernel.org>,
+        liste dev network device <netdev@oss.sgi.com>
+Subject: NEWBEE "reverse ioctl" or someting like
+Message-Id: <20010503142929.773147bf.sebastien.person@sycomore.fr>
+X-Mailer: Sylpheed version 0.4.64 (GTK+ 1.2.6; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.00.01
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi,
 
-On 03 May 2001 02:15:03 -0600
-ebiederm@xmission.com (Eric W. Biederman) wrote:
+I've made a network driver wich is attached to the serial port.
+The network hardware is able to return information to the pc. theses
+informations are belong to the configuration of the hardware. I 
+succeed on receive information in the driver but I've no idea to alert
+higher process (like configuration app ...) that I've received something
+(wich is not network data like TCP or ARP etc ...).
 
-> 
-> I get the impression that something in 2.4.3 fixed CREAD handling, and we
-> started noticing the buggy user space.
+I think that use of pipe isn't preconised because I must fork process
+to use pipe, I search something like ioctl but in the other way : 
 
-That's my impression too...
+ kernel process ---> user process
 
-> > > I wish I knew where the breakage actually occured.
-> > 
-> > Just look at this diff on serial.c between 2.4.2 and 2.4.3:
-> 
-> If it was a real diff between 2.4.2 and 2.4.3 I would agree, however it looks
-> like your attempt to fix 2.4.3. 
+Is somebody know the best and easy way ??
 
-Err... Yes sorry, in fact this was a workaround proposed by Kanoj, the 
-maintener of serial.c (I think)...
+thank (I hope this is the right place to ask)
 
-Regards.
-
--- 
-Fabrice Gautier <gautier@email.enstfr>
-
+sebastien person

@@ -1,64 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129259AbRCBPia>; Fri, 2 Mar 2001 10:38:30 -0500
+	id <S129250AbRCBPld>; Fri, 2 Mar 2001 10:41:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129257AbRCBPiL>; Fri, 2 Mar 2001 10:38:11 -0500
-Received: from [212.6.145.2] ([212.6.145.2]:29961 "HELO heaven.astaro.de")
-	by vger.kernel.org with SMTP id <S129250AbRCBPiH>;
-	Fri, 2 Mar 2001 10:38:07 -0500
-Date: Thu, 1 Mar 2001 18:41:59 -0800
-From: Daniel Stutz <dstutz@astaro.de>
-To: linux-kernel@vger.kernel.org
-Subject: Broken APM Support since 2.4.1-ac1
-Message-ID: <20010301184159.A663@mukmin.astaro.de>
-Reply-To: Daniel.Stutz@astaro.de
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Astaro AG
+	id <S129268AbRCBPlZ>; Fri, 2 Mar 2001 10:41:25 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:11392 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129250AbRCBPk5>; Fri, 2 Mar 2001 10:40:57 -0500
+Date: Fri, 2 Mar 2001 10:40:33 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Christopher Friesen <cfriesen@nortelnetworks.com>
+cc: John Being <olonho@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: strange nonmonotonic behavior of gettimeoftheday -- seen similar          problem on PPC
+In-Reply-To: <3A9FB760.15E6321F@nortelnetworks.com>
+Message-ID: <Pine.LNX.3.95.1010302103506.1920A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2 Mar 2001, Christopher Friesen wrote:
 
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> John Being wrote:
+> 
+> > gives following result on box in question
+> > root@******:# ./clo
+> > Leap found: -1687 msec
+> > and prints nothing on all other  my boxes.
+> > This gives me bunch of troubles with occasional hang ups and I found nothing
+> > in kernel archives at
+> > http://www.uwsg.indiana.edu/hypermail/linux/kernel/index.html
+> > just some notes about smth like this for SMP boxes with ntp. Is this issue
+> > known, and how can I fix it?
+> 
+> I've run into non-monotonic gettimeofday() on a PPC system with 2.2.17, but it
+> always seemed to be almost exactly a jiffy out, as though it was getting
+> hundredths of a second from the old tick, and microseconds from the new tick. 
+> Your leap seems to be more unusual, and the first one I've seen on an x86 box.
+> 
+> Have you considered storing the results to see what happens on the next call? 
+> Does it make up the difference, or do you just lose that time?
+> 
+> Chris
 
-Hello,
+I think it's a math problem in the test code. Try this:
 
-APM support for Lifebook C 6185 is broken since 2.4.1-ac1.
-While trying to go in suspend mode the system hangs.
+#include <stdio.h>
+#include <sys/time.h>
 
-It works fine in 2.4.1, so I think it's not the fault of the bios.
+#define DEB(f)
 
-The last version I tried is 2.4.2-ac5
+int main()
+{
+    struct timeval t;
+    double start_us;
+    double stop_us;
+    for(;;)
+    {
+        gettimeofday(&t, NULL);
+        start_us  = (double) t.tv_sec * 1e6;
+        start_us += (double) t.tv_usec;
+        gettimeofday(&t, NULL);
+        stop_us  = (double) t.tv_sec * 1e6;
+        stop_us += (double) t.tv_usec;
+        if(stop_us <= start_us)
+            break;
+        DEB(fprintf(stdout, "Start = %f, Stop = %f\n", start_us, stop_us));
+    }
+    fprintf(stderr, "Start = %f, Stop = %f\n", start_us, stop_us);
+    return 0;
+}
 
-Daniel
+Note that two subsequent calls to gettimeofday() must not return the
+same time even if your CPU runs infinitely fast. I haven't seen any
+kernel in the past few years that fails this test. 
 
---=20
---
-In God we Trust, all others please submit signed PGP/X.509 key
-Daniel Stutz <Daniel.Stutz@astaro.de>    | Product Development
-Astaro AG | http://www.astaro.de  | +49-721-490069-0 | Fax -55
 
---BXVAT5kNtrzKuDFl
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Cheers,
+Dick Johnson
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1e-SuSE (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-iQEXAwUBOp8Id0vYZOFi63MrFAPzLQP+NfH21an44ZhVWPm94cQ/pTwex07TjnO1
-jnYq7EpSUy5ISZJw1FpP7zjuOrA1TRbLA4dxzHRWdPIwPRuXwO/qJfMLbXuaSJOQ
-rBIx+T8ptSm62Yyn9lCwC8X76RXlxw10c2VZ4IOvej76LKFuYyqZAc+FZvdn1f03
-TC3TGFal+psEAKd4HC4vtmCL7DHBOFOu4Qzcf2PL+MADEi+jnOU1FfV3pzdc0rRc
-643ZQEmpWf3fctnUn54tD9NmZKHRGXPpcu0eZEOZ5RwOB3A9YG0a+r9TbpLOtvZA
-jbsm/Cbfx+F+HVnSRiu4/jHcxtujFavdVYkpow7O4nr4ktCpw98mmL1l
-=kzT7
------END PGP SIGNATURE-----
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
---BXVAT5kNtrzKuDFl--
+

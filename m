@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310429AbSCBTu2>; Sat, 2 Mar 2002 14:50:28 -0500
+	id <S310431AbSCBTxF>; Sat, 2 Mar 2002 14:53:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310430AbSCBTuT>; Sat, 2 Mar 2002 14:50:19 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:9770 "EHLO
+	id <S310430AbSCBTw4>; Sat, 2 Mar 2002 14:52:56 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:13610 "EHLO
 	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S310429AbSCBTuK>; Sat, 2 Mar 2002 14:50:10 -0500
-Date: Sat, 2 Mar 2002 20:49:16 +0100
+	id <S310431AbSCBTwl>; Sat, 2 Mar 2002 14:52:41 -0500
+Date: Sat, 2 Mar 2002 20:52:08 +0100
 From: Andrea Arcangeli <andrea@suse.de>
-To: Robert Love <rml@tech9.net>, h@dualathlon.random
+To: Robert Love <rml@tech9.net>
 Cc: Chris Rankin <cj.rankin@ntlworld.com>, rgooch@vindaloo.ras.ucalgary.ca,
         linux-kernel@vger.kernel.org
 Subject: Re: NOW have 'D-state' processes in 2.4.17 !!!
-Message-ID: <20020302204916.D27020@dualathlon.random>
+Message-ID: <20020302205208.A20606@dualathlon.random>
 In-Reply-To: <200203021818.g22IIo27021932@twopit.underworld> <1015093468.14000.1.camel@phantasy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii

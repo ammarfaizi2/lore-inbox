@@ -1,63 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264788AbTBEVl5>; Wed, 5 Feb 2003 16:41:57 -0500
+	id <S264931AbTBEVqh>; Wed, 5 Feb 2003 16:46:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264931AbTBEVl5>; Wed, 5 Feb 2003 16:41:57 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:61419 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S264788AbTBEVl4>;
-	Wed, 5 Feb 2003 16:41:56 -0500
-Subject: Re: [PATCH][2.5.59-bk]Sysfs interface for ZT5550 Redundant Host
-	Controller
-From: Rusty Lynch <rusty@linux.co.intel.com>
-To: Scott Murray <scottm@somanetworks.com>
-Cc: Patrick Mochel <mochel@osdl.org>, Greg KH <greg@kroah.com>,
-       Stanley Wang <stanley.wang@linux.co.intel.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0302051606530.29820-100000@rancor.yyz.somanetworks.com>
-References: <Pine.LNX.4.44.0302051606530.29820-100000@rancor.yyz.somanetworks.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Feb 2003 13:40:36 -0800
-Message-Id: <1044481237.2134.26.camel@vmhack>
-Mime-Version: 1.0
+	id <S264943AbTBEVqh>; Wed, 5 Feb 2003 16:46:37 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:28474 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S264931AbTBEVqg>; Wed, 5 Feb 2003 16:46:36 -0500
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: b_adlakha@softhome.net, linux-kernel@vger.kernel.org
+Subject: Re: HYPERTHREADING on older P4???
+References: <courier.3E410B73.000041C3@softhome.net>
+	<20030205130707.GA616@codemonkey.org.uk>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 05 Feb 2003 14:55:55 -0700
+In-Reply-To: <20030205130707.GA616@codemonkey.org.uk>
+Message-ID: <m1n0laz91w.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-02-05 at 13:14, Scott Murray wrote:
-> On 5 Feb 2003, Rusty Lynch wrote:
-> 
-> > Here is a second version of the zt5550 reduncant host controller sysfs
-> > interface patch.  I have first of all removed several of the more advanced
-> > (and therefore more dangerous) chip features, and also moved the root
-> > of these files to the 'zt5550_hc' directory that was already being created
-> > in bus/pci/drivers/ so that the directory view now looks like:
-> 
-> I'll likely poke around a bit more, but I can probably live with something 
-> along these lines.  My objection to exposing stuff like the HCC, ISOC, and 
-> ARBC registers is that my gut feel is that it would be a pain to handle 
-> them getting changed arbitrarily from userspace inside the driver,
-> especially if someone does the work to make it RSS capable.
-> 
-> Scott
-> 
-> PS: Are you still interested in changes to handle the ZT5550C versus 
->     ZT5550D issues, or are things working to your satisfaction at the 
->     moment?
-> 
+Dave Jones <davej@codemonkey.org.uk> writes:
 
-Since Stanley is seeing his ZT5550C work correctly with your latest
-patches, I am assuming that I probably have some early engineering
-version of the ZT5550C, and it isn't worth worrying about.
-
-    --rustyl  
-
+> On Wed, Feb 05, 2003 at 06:02:43AM -0700, b_adlakha@softhome.net wrote:
+>  > hi,
+>  > /proc/cpuinfo reports "ht" in the supported options...I have a p4 2 ghz 
+>  > stepping 4, and when I boot with an SMP kernel, it shows another thing :
+>  > siblings 1 
+>  > 
+>  > I think HT is there in all p4s, so can it be enabled in older P4s? Like 
+>  > mine? What does "siblings = 1" mean? 
+>  
+> It means there is one 'thread'. Ergo, you do not have the possibility
+> of running this as you would a true HT P4.  There are a limited number
+> of Northwood P4's out there which do support HT and have >1 sibling,
+> but asides from those, you'll need a Xeon to take advantage of it.
 > 
-> -- 
-> Scott Murray
-> SOMA Networks, Inc.
-> Toronto, Ontario
-> e-mail: scottm@somanetworks.com
-> 
+> There are countless rumours of being able to enable extra siblings
+> by poking MSRs, but not one person has to my knowledge achieved this.
+> Some folks have also allegedly found that snipping pins or wiring extra
+> bits to them have enabled the 'extra sibling'. Whether this is true or
+> not, and whether it is 100% equivalent to a real HT part is again,
+> questionable.
 
+I have had some limited experience with an older HT capable Xeon,
+that reported 1 sibling.  Essentially the result was that sending a
+wakeup ipi to the next sibling was a good way to lockup the machine.
+I was actually looking for the apic id of the other Xeon in the box
+and was sending to the sibling by accident.
 
+>From what I can tell from various micro-benchmarks and other strange
+experiences intel has had to work fairly hard to get additional
+sibling CPUs to perform correctly and well.  And the development
+versions that are present but disabled in older dies are not likely
+to be useful.
+
+Eric

@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261844AbSIXXSd>; Tue, 24 Sep 2002 19:18:33 -0400
+	id <S261858AbSIXXnH>; Tue, 24 Sep 2002 19:43:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261845AbSIXXSd>; Tue, 24 Sep 2002 19:18:33 -0400
-Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:37035 "EHLO
-	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S261844AbSIXXSc>; Tue, 24 Sep 2002 19:18:32 -0400
-Date: Tue, 24 Sep 2002 20:23:20 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Peter Waechtler <pwaechtler@mac.com>
-cc: David Schwartz <davids@webmaster.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-In-Reply-To: <B9100B20-D013-11D6-8873-00039387C942@mac.com>
-Message-ID: <Pine.LNX.4.44L.0209242022410.22735-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261859AbSIXXnH>; Tue, 24 Sep 2002 19:43:07 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:6828 "EHLO
+	Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
+	id <S261858AbSIXXnH>; Tue, 24 Sep 2002 19:43:07 -0400
+Date: Tue, 24 Sep 2002 16:48:15 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Meelis Roos <mroos@linux.ee>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PPC: unresolved module symbols in 2.4.20-pre7+bk
+Message-ID: <20020924234815.GE788@opus.bloom.county>
+References: <Pine.GSO.4.44.0209242216450.17647-100000@math.ut.ee>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.44.0209242216450.17647-100000@math.ut.ee>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Sep 2002, Peter Waechtler wrote:
+On Tue, Sep 24, 2002 at 10:18:21PM +0300, Meelis Roos wrote:
 
-> With Scheduler Activations this could also be avoided. The thread
-> scheduler could get an upcall - but this will stay theory for a long
-> time on Linux. But this is a somewhat far fetched example (for arguing
-> for 1:1), isn't it?
+> depmod: *** Unresolved symbols in /lib/modules/2.4.20-pre7/kernel/drivers/macintosh/nvram.o
+> depmod: 	pmac_get_partition
+> depmod: 	nvram_write_byte_R9ce3f83f
+> depmod: 	nvram_read_byte_R0f28cb91
+> depmod: *** Unresolved symbols in /lib/modules/2.4.20-pre7/kernel/drivers/media/video/tda7432.o
+> depmod: 	__fixdfsi
+> depmod: 	__floatsidf
+> depmod: 	__divdf3
+> depmod: 	__muldf3
+> depmod: 	__subdf3
+> depmod: *** Unresolved symbols in /lib/modules/2.4.20-pre7/kernel/drivers/sound/dmasound/dmasound_pmac.o
+> depmod: 	pmac_xpram_read
+> depmod: *** Unresolved symbols in /lib/modules/2.4.20-pre7/kernel/drivers/usb/storage/usb-storage.o
+> depmod: 	ppc_generic_ide_fix_driveid
 
-Actually, the upcalls in a N:M scheme with scheduler activations
-seem like a pretty good argument for 1:1 to me ;)
+What compiler did you use, and when was the last time you did a
+'mrproper' or 'distclean' in your tree or changed CONFIG_MODVERSIONS?
+Two of the errors have modversions-type bits on them.
 
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
-
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,87 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293653AbSB1S1p>; Thu, 28 Feb 2002 13:27:45 -0500
+	id <S293637AbSB1SPj>; Thu, 28 Feb 2002 13:15:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293647AbSB1SYq>; Thu, 28 Feb 2002 13:24:46 -0500
-Received: from taifun.devconsult.de ([212.15.193.29]:16399 "EHLO
-	taifun.devconsult.de") by vger.kernel.org with ESMTP
-	id <S293646AbSB1SXe>; Thu, 28 Feb 2002 13:23:34 -0500
-Date: Thu, 28 Feb 2002 16:05:52 +0100
-From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Subject: Re: ext3 and undeletion
-Message-ID: <20020228160552.C23019@devcon.net>
-In-Reply-To: <20020226171634.GL4393@matchmail.com> <Pine.LNX.3.95.1020226130051.4315A-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.3.95.1020226130051.4315A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Tue, Feb 26, 2002 at 01:34:27PM -0500
-Organization: dev/consulting GmbH
-X-NCC-RegID: de.devcon
+	id <S293641AbSB1SMl>; Thu, 28 Feb 2002 13:12:41 -0500
+Received: from gw-nl4.philips.com ([212.153.190.6]:18961 "EHLO
+	gw-nl4.philips.com") by vger.kernel.org with ESMTP
+	id <S293654AbSB1SIv>; Thu, 28 Feb 2002 13:08:51 -0500
+From: fabrizio.gennari@philips.com
+To: Ed Vance <EdV@macrolink.com>
+Cc: linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
+Subject: RE: Oxford Semiconductor's OXCB950 UART not recognized by serial.	c
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF473EC31B.7B4D4C9D-ONC1256B6E.00620423@diamond.philips.com>
+Date: Thu, 28 Feb 2002 19:07:54 +0100
+X-MIMETrack: Serialize by Router on hbg001soh/H/SERVER/PHILIPS(Release 5.0.5 |September
+ 22, 2000) at 28/02/2002 19:27:23,
+	Serialize complete at 28/02/2002 19:27:23
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 26, 2002 at 01:34:27PM -0500, Richard B. Johnson wrote:
+Ed, you are right, the card matches the entry before the last one in 
+serial_pci_tbl[], the one with PCI_ANY_ID for both vendor and device. So I 
+would like to add an entry in serial_pci_tbl[] for the vendor 
+PCI_VENDOR_ID_OXSEMI and device 950b. However I do not know what to put in 
+the field driver_data. Probably pbn_b0_1_115200 would be fine, but this is 
+the default, so serial_init_one would try to call serial_pci_guess_board, 
+but this fails...
 
-> All the deleted files, with the correct path(s), are now in the
-> top directory file the file-system ../lost+found directory. They
-> are still owned by the original user, still subject to the same
-> quota.
-
-And what about:
-
-- Luser rm's "foo.c"
-- Luser starts working on new version of "foo.c"
-- Luser recognizes, that the old version was better
-- Luser rm's new "foo.c"
-- Luser tries to unrm the old "foo.c" -> *bang*
-
-Trust me, there /will/ be a luser who tries to do it this way. If
-teaching lusers were enough, you'd have no need for an unrm at all.
-Everyone would be using version control for important data, and
-everything would be fine.
-
-> The disk space can't run out because you have simply moved
-> files that didn't exceed the disk space before they were moved.
-
-But a user will end up unable to /free/ any diskspace. User tries
-something, generates a /huge/ error log filling up the quota/disk,
-oops, has to call sysadmin before work can go on... Five minutes
-later, the fix just tried didn't work, oops, has to call admin again,
-and so on. Do you /really/ want this?
-
-And how do you want to handle temp files? If you don't exclude them
-from undeletion, they will fill up your diskspace soon. For the moment
-I can't think of any mechanism that identifies temp files reliably
-(without API changes).
-
-> All one needs is a compile-time switch to enable the following:
-
-And a system wide configurable switch, and a user configurable switch
-and so on.
-
-Undeletion has /many/ implications, did you think through all of them?
+Fabrizio Gennari
+Philips Research Monza
+via G.Casati 23, 20052 Monza (MI), Italy
+tel. +39 039 2037816, fax +39 039 2037800
 
 
 
-Just as a personal note: personally I would simply /refuse/ to work on
-a system where I end up unable to delete even files I /own/, or at
-least I would end up implementing my own way of deleting files which
-circumvents undeletion (there will /always/ be a way to do it).
 
-If your employer didn't expressively forbid you to keep private data
-on your work account, you are allowed to do so, at least here in
-germany, and you can sue your employer if he takes actions to look
-into your private data without informing you /before/ doing it (taken
-strictly, if you are allowed to keep private data on your work
-account, you even have to be informed explicitly that the data may be
-backuped and recovered later from backup tapes). So in the end,
-undeletion is also a matter of privacy, and the ability to undelete
-may even pose legal problems on a company.
+Ed Vance <EdV@macrolink.com>
+21/02/2002 01.05
 
-Andreas
--- 
-       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
-     ---------------------------------------------------------
-         +49 521 1365800 - af@devcon.net - www.devcon.net
+ 
+        To:     Fabrizio Gennari/MOZ/RESEARCH/PHILIPS@EMEA1
+        cc:     rmk@arm.linux.org.uk
+linux-kernel@vger.kernel.org
+        Subject:        RE: Oxford Semiconductor's OXCB950 UART not recognized by serial.       c
+        Classification: 
+
+
+
+fabrizio.gennari@philips.com wrote:
+> 
+> We have 32-bit CardBus cards with OXCB950 CardBus (PCI ID 1415:950b) 
+UART 
+> chips on them (OXCB950 is the CardBus version of 16C950) . The module 
+> serial_cb in the pcmcia-cs package recognizes them correctly. But, when 
+> not using serial_cb, the function serial_pci_guess_board in serial.c 
+> doesn't (kernel 2.4.17 tested). The problem is that the card advertises 
+3 
+> i/o memory regions and 2 ports. If one replaces the line
+> 
+> if (num_iomem <= 1 && num_port == 1) {
+> 
+> with
+> 
+> if (num_port >= 1) {
+> 
+> in the function serial_pci_guess_board(), the card is detected and works 
+
+> perfectly. Only, when inserting it, the kernel displays the message:
+> 
+> Redundant entry in serial pci_table.  Please send the output of
+> lspci -vv, this message (1415,950b,1415,0001)
+> and the manufacturer and name of serial board or modem board
+> to serial-pci-info@lists.sourceforge.net. 
+
+The "Redundant entry" message comes out of serial.c when a card is found 
+in
+the PCI ID board list, but which function serial_pci_guess_board() also
+detects as a generic single UART card (and overwrites the card's
+board->flags field in the pci_boards[] array). 
+
+Does anybody think this is a feature? Did I misunderstand?
+
+I suspect that the thought was to detect and eventually remove 
+pci_boards[]
+entries for generic single-port cards that could also be detected by the
+serial_pci_guess_board() function. Can anybody confirm or deny? 
+
+Shouldn't the detection process be considered done when the PCI IDs match?
+Why should the "guess" function even be called when the card has already
+been found in the PCI board table?
+
+---------------------------------------------------------------- 
+Ed Vance              edv@macrolink.com
+Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
+----------------------------------------------------------------
+
+
+

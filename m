@@ -1,31 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262775AbVCWSH3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262000AbVCWSRD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262775AbVCWSH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 13:07:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262784AbVCWSH2
+	id S262000AbVCWSRD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 13:17:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbVCWSRD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 13:07:28 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:58841 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262775AbVCWSHO (ORCPT
+	Wed, 23 Mar 2005 13:17:03 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:17885 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262000AbVCWSRB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 13:07:14 -0500
-Date: Wed, 23 Mar 2005 10:05:43 -0800
+	Wed, 23 Mar 2005 13:17:01 -0500
+Date: Wed, 23 Mar 2005 10:15:48 -0800
 From: Paul Jackson <pj@engr.sgi.com>
-To: aq <aquynh@gmail.com>
-Cc: mlists@tanael.org, Hikaru1@verizon.net, linux-kernel@vger.kernel.org
-Subject: Re: forkbombing Linux distributions
-Message-Id: <20050323100543.04e582e9.pj@engr.sgi.com>
-In-Reply-To: <9cde8bff05032309056c9643a7@mail.gmail.com>
-References: <e0716e9f05032019064c7b1cec@mail.gmail.com>
-	<20050322112628.GA18256@roll>
-	<Pine.LNX.4.61.0503221247450.5858@yvahk01.tjqt.qr>
-	<20050322124812.GB18256@roll>
-	<20050322125025.GA9038@roll>
-	<9cde8bff050323025663637241@mail.gmail.com>
-	<1111581459.27969.36.camel@nc>
-	<9cde8bff05032305044f55acf3@mail.gmail.com>
-	<1111586058.27969.72.camel@nc>
-	<9cde8bff05032309056c9643a7@mail.gmail.com>
+To: linux lover <linux_lover2004@yahoo.com>
+Cc: jengelh@linux01.gwdg.de, linux-kernel@vger.kernel.org
+Subject: Re: Accessing data structure from kernel space
+Message-Id: <20050323101548.3e2879a4.pj@engr.sgi.com>
+In-Reply-To: <20050323164139.49885.qmail@web52209.mail.yahoo.com>
+References: <20050323164139.49885.qmail@web52209.mail.yahoo.com>
 Organization: SGI
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -34,15 +25,16 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> int main() { while(1) { fork(); fork(); exit(); } }
-> ...
-> the above forkbomb will stop quickly
+>     Whats that [relayfs]?
 
-Yep.
+Try http://www.google.com
 
-Try this forkbomb:
+> Can you please elaborate to me as i
+> am newbie to those words. Pleaseeee.
 
-  int main() { while(1) { if (!fork()) continue; if (!fork()) continue; exit(); } }
+Try http://kernelnewbies.org/
+
+Thank-you.
 
 -- 
                   I won't rest till it's the best ...

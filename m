@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbVDDEKl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262005AbVDDEZM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261534AbVDDEKl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 00:10:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbVDDEKl
+	id S262005AbVDDEZM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 00:25:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbVDDEZM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 00:10:41 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:27606 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262003AbVDDEK3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 00:10:29 -0400
-Date: Mon, 4 Apr 2005 00:10:22 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Dave Airlie <airlied@gmail.com>
-cc: Stephen Smalley <sds@tycho.nsa.gov>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, Dave Jones <davej@redhat.com>,
-       Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: [PATCH][SELINUX] Add name_connect permission check
-In-Reply-To: <21d7e99705040301366b1064b6@mail.gmail.com>
-Message-ID: <Xine.LNX.4.44.0504040004350.3965-100000@thoron.boston.redhat.com>
+	Mon, 4 Apr 2005 00:25:12 -0400
+Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:41372 "EHLO
+	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
+	id S262005AbVDDEZH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 00:25:07 -0400
+Message-ID: <4250C19F.9070801@myrealbox.com>
+Date: Sun, 03 Apr 2005 21:25:03 -0700
+From: Andy Lutomirski <luto@myrealbox.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Paul Jackson <pj@engr.sgi.com>
+CC: kenneth.w.chen@intel.com, torvalds@osdl.org, nickpiggin@yahoo.com.au,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched: auto-tune migration costs [was: Re: Industry db
+   benchmark result on recent 2.6 kernels]
+References: <200504020100.j3210fg04870@unix-os.sc.intel.com>	<20050402145351.GA11601@elte.hu>	<20050402215332.79ff56cc.pj@engr.sgi.com>	<20050403070415.GA18893@elte.hu> <20050403043420.212290a8.pj@engr.sgi.com>
+In-Reply-To: <20050403043420.212290a8.pj@engr.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Apr 2005, Dave Airlie wrote:
+Paul Jackson wrote:
+> Ok - that flies, or at least walks.  It took 53 seconds to
+> compute this cost matrix.
 
-> On a standard FC3 with selinux enabled, booting the latest -bk breaks
-> all my outgoing TCP connections at a guess due to this patch.. this
-> probably isn't something that people really want to happen.. or maybe
-> Fedora can release an updated policy to deal with it?
+Not that I really know what I'm talking about here, but this sounds 
+highly parallelizable.  It seems like you could do N/2 measurements at a 
+time, so this should be O(N) to compute the matrix (ignoring issues of 
+how long it takes to write the data to memory, but that should be 
+insignificant).
 
-You need an updated policy, which you can grab from rawhide for FC3 or via 
-CVS at http://selinux.sourceforge.net/
+Even if you can't parallelize it all the way, it ought to at least help.
 
-
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
-
+--Andy

@@ -1,58 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265947AbSLSR7q>; Thu, 19 Dec 2002 12:59:46 -0500
+	id <S266078AbSLSSGK>; Thu, 19 Dec 2002 13:06:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265960AbSLSR7q>; Thu, 19 Dec 2002 12:59:46 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:63689 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S265947AbSLSR7o>;
-	Thu, 19 Dec 2002 12:59:44 -0500
-Date: Thu, 19 Dec 2002 10:02:28 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Joseph Fannin <jhf@rivenstone.net>
-cc: Larry McVoy <lm@bitmover.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Notification hooks
-In-Reply-To: <20021219063445.GA30990@zion.rivenstone.net>
-Message-ID: <Pine.LNX.4.33L2.0212191000440.30841-100000@dragon.pdx.osdl.net>
+	id <S266091AbSLSSGK>; Thu, 19 Dec 2002 13:06:10 -0500
+Received: from 216-239-45-4.google.com ([216.239.45.4]:32782 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id <S266078AbSLSSGJ>; Thu, 19 Dec 2002 13:06:09 -0500
+Message-ID: <3E020C16.607@google.com>
+Date: Thu, 19 Dec 2002 10:12:38 -0800
+From: Ross Biro <rossb@google.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: vda@port.imtp.ilyichevsk.odessa.ua
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, "D.A.M. Revok" <marvin@synapse.net>,
+       Andre Hedrick <andre@linux-ide.org>,
+       Manish Lachwani <manish@Zambeel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19, don't "hdparm -I /dev/hde" if hde is on a Asus A7V133
+  Promise ctrlr, or...
+References: <Pine.LNX.4.10.10212180241580.8350-100000@master.linux-ide.org> <200212181635.58164.marvin@synapse.net> <1040251122.26501.0.camel@irongate.swansea.linux.org.uk> <200212190951.gBJ9pCs28149@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Dec 2002, Joseph Fannin wrote:
+Denis Vlasenko wrote:
 
-| On Mon, Dec 16, 2002 at 09:24:15AM -0800, Larry McVoy wrote:
-| >
-| > Just for linux.bkbits.net or for the openlogging tree?  To remind people,
-| > linux.bkbits.net has Linus/Marcelo trees but openlogging.org has the
-| > union of all trees anywhere in the world.  And openlogging doesn't have
-| > contents, it just has comments.
-|
-|     Sorry to hijack this thread like this, but I can't find a better
-| forum for it.
-|
-|     Several times I have browsed linux source trees at bkbits.net and
-| found a changeset I have wanted to have as a patch.  I can search for
-| the changeset, and read the commit messages, and even read the patch
-| on the screen, but there is no good way to download that patch as a
-| file (viewing the page source doesn't help because the patch has html
-| markup interspersed with it).
-|
-|     The only way to get the patch is to either 'scrape' the screen
-| with copy and paste and try to fix the broken whitespace or to use bk
-| to clone the entire tree and extract the patch via bk export.  It's a
-| real pain, and for no good reason I can see.
-|
-|     Would it be possible to add a link to the bkbits.net pages to an
-| un-marked up changeset patch?  It would be great to have this for
-| trees other than linux.bkbits.net too -- like Dave Jones'
-| agpgart.bkbits.net for example.
-
-Have you looked at the (text-mode) csets at
-  http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/
-
-Who generates these?
-
--- 
-~Randy
+>OTOH mere mortals are allowed to make full dump of PCI config ;)
+>
+>  
+>
+Some vendors use index/data registers in the config space, so unless you 
+know of their existance, a PCI config dump doesn't help.
 

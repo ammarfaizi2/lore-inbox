@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288896AbSBMUei>; Wed, 13 Feb 2002 15:34:38 -0500
+	id <S288897AbSBMUjS>; Wed, 13 Feb 2002 15:39:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288897AbSBMUed>; Wed, 13 Feb 2002 15:34:33 -0500
-Received: from gatekeeper-WAN.credit.com ([209.155.225.68]:56803 "EHLO
-	gatekeeper") by vger.kernel.org with ESMTP id <S288896AbSBMUeW>;
-	Wed, 13 Feb 2002 15:34:22 -0500
-Date: Wed, 13 Feb 2002 12:33:37 -0800 (PST)
-From: Eugene Chupkin <ace@credit.com>
-To: Andreas Dilger <adilger@turbolabs.com>
-cc: linux-kernel@vger.kernel.org, tmeagher@credit.com
-Subject: Re: 2.4.x ram issues?
-In-Reply-To: <20020213122159.A16078@lynx.turbolabs.com>
-Message-ID: <Pine.LNX.4.10.10202131229480.683-100000@mail.credit.com>
+	id <S288914AbSBMUjI>; Wed, 13 Feb 2002 15:39:08 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:6931 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S288897AbSBMUiv>;
+	Wed, 13 Feb 2002 15:38:51 -0500
+Date: Wed, 13 Feb 2002 18:38:37 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Andre Hedrick <andre@linuxdiskcert.org>
+Cc: Jens Axboe <axboe@suse.de>, Vojtech Pavlik <vojtech@suse.cz>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Pavel Machek <pavel@suse.cz>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: another IDE cleanup: kill duplicated code
+In-Reply-To: <Pine.LNX.4.10.10202122339330.668-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.33L.0202131837390.12554-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 12 Feb 2002, Andre Hedrick wrote:
+> On Wed, 13 Feb 2002, Jens Axboe wrote:
 
+> > I don't consider the copy an interim fix at all. But please show your
+> > working handler and we can discuss it, it's pointless to debate what fix
+> > is the better one you are sitting on yours.
+>
+> Yep but this time you get a clean solution that works.
 
-On Wed, 13 Feb 2002, Andreas Dilger wrote:
+I must have missed the patch.
 
-> On Feb 13, 2002  11:05 -0800, Eugene Chupkin wrote:
-> > On Tue, 12 Feb 2002, Andreas Dilger wrote:
-> > > The other possibility with that much RAM is that the page tables are taking
-> > > up all of the low RAM.  Andrea has a patch to put the page tables into
-> > > higmem in the recent -aa kernels.
-> > 
-> > I got it, the 2.4.18pre2aa2/pte-highmem-5 but I can't seem to figure out
-> > what to patch this on, I tried patching it on to 2.2.17, 2.2.18-pre1,
-> > and 2.2.18-pre2. On all those I get a Hunk failed. Any feedback is
-> > appreciated.
-> 
-> You may need to use a whole bunch of -aa patches to get it to apply.  In
-> general, the -aa tree is tuned for large machines such as yours, so you
-> are probably better off getting the whole thing.
-> 
+Arguing that your code is better is a lost cause if
+you don't show your code, or at least part of it ;)
 
-Whola!!! This fixed my problem. CONFIG_HIGHIO did it. So my kernel is lets
-see here... 2.4.18pre2aa2+pte-highmem-5. I hope this will be included in
-the 2.4.18 final. Thanks for all your help.
+cheers,
 
--E
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

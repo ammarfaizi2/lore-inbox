@@ -1,95 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262907AbUB0OxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 09:53:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbUB0OxY
+	id S262914AbUB0O4J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 09:56:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262916AbUB0O4J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 09:53:24 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:35715 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S262907AbUB0Owc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 09:52:32 -0500
-Subject: Re: Mobile Intel Pentium(R) 4 - M CPU 2.60GHz - kernel 2.6.3
-From: Len Brown <len.brown@intel.com>
-To: Bob Dobbs <bob_dobbs@linuxmail.org>
-Cc: linux-kernel@vger.kernel.org,
-       "cpufreq@www.linux.org.uk" <cpufreq@www.linux.org.uk>
-In-Reply-To: <1077893211.22404.184.camel@dhcppc4>
-References: <A6974D8E5F98D511BB910002A50A6647615F3C81@hdsmsx402.hd.intel.com>
-	 <1077893211.22404.184.camel@dhcppc4>
+	Fri, 27 Feb 2004 09:56:09 -0500
+Received: from stat1.steeleye.com ([65.114.3.130]:7639 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262914AbUB0Oz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 09:55:59 -0500
+Subject: Re: [PATCH] move consistent_dma_mask to the generic device
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Jeremy Higdon <jeremy@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, willy@debian.org,
+       Jes Sorensen <jes@wildopensource.com>,
+       Grant Grundler <grundler@parisc-linux.org>, alex.williamson@hp.com,
+       jbarnes@sgi.com, ak@muc.de, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040227065702.GB561561@sgi.com>
+References: <1077814394.2662.86.camel@mulgrave> 
+	<20040227065702.GB561561@sgi.com>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1077893513.22392.188.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 27 Feb 2004 09:51:54 -0500
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 27 Feb 2004 08:55:30 -0600
+Message-Id: <1077893732.1806.2.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-caffine needed...
-
-the fact that MHz goes down under heavy load means the BIOS must be
-throttling your CPU to keep it cool.  If you can't disable this BIOS
-policy in SETUP, then running Linux with ACPI enabled and the processor
-driver loaded should do it.
-
-cheers,
--Len
-
-On Fri, 2004-02-27 at 09:46, Len Brown wrote:
-> Perhaps with ACPI disabled you've left CPU frequency control in the
-> hands of SMM (the BIOS)?  That would be consistent with Linux having no
-> visibility or conrol over what is going on.  There may be some BIOS
-> SETUP options to turn it off.
+On Fri, 2004-02-27 at 00:57, Jeremy Higdon wrote:
+> I haven't had a chance to try it yet, but it looks good.
 > 
-> cheers,
-> -Len
-> 
-> Thu, 2004-02-26 at 19:46, Bob Dobbs wrote:
-> > Hello,
-> > 
-> > I am currently running kernel 2.6.3 on my Dell Inspiron 8500 laptop.
-> > I disabled all the ACPI and APM options in the kernel.
-> >
-> > I have upgraded my bios
-> > I have tried from kernel 2.4.23 up to mm and love-sources and my
-> > current kernel 2.6.3.
-> > 
-> > What happens is during heavy loads my cpu drops from 2.60GHz down to
-> > 1.20GHz, this happens for a few minutes, say 5 - 10 at the most. But
-> > performance while running a game, puts the game into slow motion.
-> > (Which  is weird because 1.20GHz should be more than enough to run all
-> > of the  games I currently have). I have read up on the documentation
-> > in /usr/src/linux/Documentation, under the "power" and "cpu-freq" but
-> > after disabling ACPI and such, those options do not seem to work
-> > anymore.
-> > 
-> > I have also tried running a program called "cpufreqd" which launches
-> > at boot time, but once again without ACPI enabled in the kernel this
-> > seems  not to work either. Also /sys/devices/system/cpu/cpu0/cpufreq/
-> > has the following files.
-> > 
-> > cpuinfo_min_freq
-> > cpuinfo_max_freq
-> > scaling_min_freq
-> > scaling_max_freq
-> > 
-> > I even tried to echo the options at bootup:
-> > 
-> > echo 2600000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq &
-> > echo 2000000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq &
-> > 
-> > I tried to make those files set at: 2.00GHz min and 2.60GHz max, but
-> > something changes them right back to 1.20GHZ no matter what I do.
-> > 
-> > I am sure I am missing something, but atm I am totally lost.. and I
-> > could surely be doing everything wrong to begin with... that is why I
-> > am asking for help.
-> > 
-> > Is there a patch or anything to force the cpu to run at 2.60GHz all
-> > the time?
-> > 
-> > Thank you
-> 
+> If you're going to get rid of pci_dev.consistent_dma_mask in favor
+> of pci_dev.dev.coherent_dma_mask, would you want to do the same
+> with pci_dev.dma_mask?
+
+It's probably about time that was done, yes.
+
+> Which brings to mind a second question; why is device.dma_mask
+> a u64 * instead of u64?  Does it typically point to pci_dev.dma_mask?
+
+That's a bad design decision that will forever haunt me.  When I first
+proposed moving from the PCI DMA model to the generic device DMA model,
+the dma_mask was in the wrong place.  Quite a few drivers touched it
+themselves outside of the accessor functions, so actually moving it in
+to struct device became quite involved, so I took the easy way out and
+simply made the entry in struct device a pointer to the real one so that
+anything that updated the mask outside of the accessors would still
+work.
+
+I suppose I should really do the work as pennance, plus write out a
+hundred times "never sacrifice design integrity for expediency", sigh.
+
+James
+
 

@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269600AbUINTnO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269755AbUINTsA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269600AbUINTnO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 15:43:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269439AbUINTm1
+	id S269755AbUINTsA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 15:48:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269628AbUINTph
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 15:42:27 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:41384 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S269367AbUINTkd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 15:40:33 -0400
-Message-ID: <41474926.8050808@nortelnetworks.com>
-Date: Tue, 14 Sep 2004 13:40:22 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Tue, 14 Sep 2004 15:45:37 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:46860 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S269494AbUINToG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 15:44:06 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: root@chaos.analogic.com, Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: Kernel stack overflow on 2.6.9-rc2
+Date: Tue, 14 Sep 2004 22:43:55 +0300
+User-Agent: KMail/1.5.4
+Cc: Linux kernel <linux-kernel@vger.kernel.org>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>, netdev@oss.sgi.com
+References: <200409141723.35009.vda@port.imtp.ilyichevsk.odessa.ua> <20040914163347.GE3197@schnapps.adilger.int> <Pine.LNX.4.53.0409141340540.4262@chaos>
+In-Reply-To: <Pine.LNX.4.53.0409141340540.4262@chaos>
 MIME-Version: 1.0
-To: "Giacomo A. Catenazzi" <cate@debian.org>
-CC: linux-kernel@vger.kernel.org, greg@kroah.com,
-       Tigran Aivazian <tigran@veritas.com>
-Subject: Re: udev is too slow creating devices
-References: <41473972.8010104@debian.org>
-In-Reply-To: <41473972.8010104@debian.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409142243.55949.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giacomo A. Catenazzi wrote:
+On Tuesday 14 September 2004 20:55, Richard B. Johnson wrote:
+> Has anybody ever explained why there is an attempt to
+> minimize the size of the kernel stack? Temporary data
+> allocation on the stack is FREE! The compiler just
+> adjusts offsets for data. Even dynamic data-allocation
+> takes only one instruction, (subl %reg, %esp).
 
-> udev + modular microcode:
-> $ modprobe -r microcode
-> $ modprobe microcode ; microcode_ctl -u
-> => microcode_ctl does NOT find the device
+IIRC it is done in order to be able to support large number
+of threads on 32-bit machines and to avoid needing to do
+a order-1 allocation at fork().
+--
+vda
 
-The loading of the module triggers udev to run.  There is no guarantee that udev 
-runs before microcode_ctl.
-
-One workaround would be to have microcode_ctl use dnotify to get woken up 
-whenever /dev changes.
-
-There may be other ways to do this as well, but Greg would be the guy for that.
-
-Chris

@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269503AbUJFVce@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269467AbUJFVha@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269503AbUJFVce (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 17:32:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269501AbUJFV2x
+	id S269467AbUJFVha (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 17:37:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269508AbUJFVdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 17:28:53 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:27308 "EHLO
+	Wed, 6 Oct 2004 17:33:20 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:30124 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269467AbUJFV14 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 17:27:56 -0400
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+	id S269467AbUJFVcZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 17:32:25 -0400
+Subject: Re: [PATCH] Console: fall back to /dev/null when no console is
+	availlable
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Martijn Sipkema <martijn@entmoot.nl>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Joris van Rantwijk <joris@eljakim.nl>,
+To: Greg KH <greg@kroah.com>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       J?rn Engel <joern@wohnheim.fh-wedel.de>, Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <00f201c4abf1$0444c3e0$161b14ac@boromir>
-References: <Pine.LNX.4.58.0410061616420.22221@eljakim.netsystem.nl>
-	 <1097080873.29204.57.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0410061955230.7057@eljakim.netsystem.nl>
-	 <20041006193053.GC4523@pclin040.win.tue.nl>
-	 <1097090625.29707.9.camel@localhost.localdomain>
-	 <00f201c4abf1$0444c3e0$161b14ac@boromir>
+In-Reply-To: <20041006205417.GA25437@kroah.com>
+References: <20041005185214.GA3691@wohnheim.fh-wedel.de>
+	 <20041005212712.I6910@flint.arm.linux.org.uk>
+	 <20041005210659.GA5276@kroah.com>
+	 <20041005221333.L6910@flint.arm.linux.org.uk>
+	 <1097074822.29251.51.camel@localhost.localdomain>
+	 <20041006174108.GA26797@kroah.com>
+	 <1097090333.29706.4.camel@localhost.localdomain>
+	 <20041006205417.GA25437@kroah.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1097094326.29871.9.camel@localhost.localdomain>
+Message-Id: <1097094582.29866.15.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 06 Oct 2004 21:25:28 +0100
+Date: Wed, 06 Oct 2004 21:29:44 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-10-06 at 23:08, Martijn Sipkema wrote:
-> > Nor does anything else in that case. I guess we need a POSIX_ME_HARDER
-> > socket option.
-> 
-> The default should be a POSIX compliant socket IMHO; a POSIX_ME_NOT
-> option could provide better performance.
+On Mer, 2004-10-06 at 21:54, Greg KH wrote:
+> Ok, then anyone with some serious bash-foo care to send me a patch for
+> the existing /sbin/hotplug file that causes it to handle this properly?
 
-The current setup has so far been found to break one app, after what
-three years. It can almost double performance. In this case it is very
-much POSIX_ME_HARDER, and perhaps longer term suggests the posix/sus
-people should revisit their API design.
+Something like
+
+#!/bin/sh
+(
+Everything you had before
+) <>/dev/console 2>&1
 
 

@@ -1,63 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261419AbVBGOLN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbVBGOM2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261419AbVBGOLN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 09:11:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbVBGOLN
+	id S261424AbVBGOM2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 09:12:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbVBGOM2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 09:11:13 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:54153 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261419AbVBGOLG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 09:11:06 -0500
-Message-ID: <42077724.1060606@sgi.com>
-Date: Mon, 07 Feb 2005 06:11:48 -0800
-From: Jay Lan <jlan@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: zh-tw, en-us, en, zh-cn, zh-hk
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Christoph Lameter <clameter@sgi.com>, torvalds@osdl.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: move-accounting-function-calls-out-of-critical-vm-code-paths.patch
-References: <20050110184617.3ca8d414.akpm@osdl.org>	<Pine.LNX.4.58.0502031319440.25268@schroedinger.engr.sgi.com>	<20050203140904.7c67a144.akpm@osdl.org>	<Pine.LNX.4.58.0502031436460.26183@schroedinger.engr.sgi.com> <20050203150551.4d88f210.akpm@osdl.org>
-In-Reply-To: <20050203150551.4d88f210.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Feb 2005 09:12:28 -0500
+Received: from gprs215-44.eurotel.cz ([160.218.215.44]:51647 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261424AbVBGOMP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 09:12:15 -0500
+Date: Mon, 7 Feb 2005 15:09:37 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jon Smirl <jonsmirl@gmail.com>,
+       ncunningham@linuxmail.org,
+       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
+       ACPI List <acpi-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [ACPI] Re: [RFC] Reliable video POSTing on resume (was: Re: [ACPI] Samsung P35, S3, black screen (radeon))
+Message-ID: <20050207140937.GA8040@elf.ucw.cz>
+References: <20050203225410.GB1110@elf.ucw.cz> <1107474198.5727.9.camel@desktop.cunninghams> <4202DF7B.2000506@gmx.net> <1107485504.5727.35.camel@desktop.cunninghams> <9e4733910502032318460f2c0c@mail.gmail.com> <20050204074454.GB1086@elf.ucw.cz> <9e473391050204093837bc50d3@mail.gmail.com> <20050205093550.GC1158@elf.ucw.cz> <1107695583.14847.167.camel@localhost.localdomain> <1107782696.8575.72.camel@tyrosine>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1107782696.8575.72.camel@tyrosine>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Christoph Lameter <clameter@sgi.com> wrote:
+Hi!
+
+> > Some systems (intel notably) appear to expect you to use the bios
+> > save/restore video state not re-POST.
 > 
->>I hope that Roland's changes for higher resolution of cputime would
->>make that possible. But this is Jay's thing not mine. I just want to make
->>sure that the CSA patches does not get in the way of our attempts to
->>improve the performance of the page fault handler. In the discussions on
->>linux-mm there was also some concern about adding these calls.
-> 
-> 
-> Well your patch certainly cleans things up in there and would be a good
-> thing to have as long as we can be sure that it doesn't break the
-> accounting in some subtle way.
-> 
-> Which implies that we need to see some additional accounting code, so we
-> can verify that the base accumulation infrastructure is doing the expected
-> thing.  As well as an ack from the interested parties.  Does anyone know
-> what's happening with all the new accounting initiatives?  I'm seeing no
-> activity at all.
+> This works well in many cases, but there are some machines that freeze
+> if you attempt to make a VBE state save call. Sadly, I don't have any
+> access to an affected machine, so it's a bit awkward working out what
+> the problem is.
 
-Sorry guys! I have been away for three weeks on short term disability.:(
+Where do I find code to do VBE save state? I might get you some
+testing...
 
-I have tested Christoph's patch before the leave. It did work for CSA
-and showed performance improvement on certain configuration.
-
-CSA is currently implemented as a loadable module. I think ELSA is the
-same, right? The use of the enhanced accounting data collection
-code is not in the kernel tree. That was why Andrew did not see usage of 
-the accounting patches. Should i propose to include the CSA module in
-the kernel then, Andrew? :)
-
-Cheers,
-  - jay
-
-
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

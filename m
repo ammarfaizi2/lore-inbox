@@ -1,325 +1,222 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271703AbTHMIvu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 04:51:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271707AbTHMIvu
+	id S271720AbTHMI4J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 04:56:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271721AbTHMI4J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 04:51:50 -0400
-Received: from smtp011.mail.yahoo.com ([216.136.173.31]:14865 "HELO
-	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S271703AbTHMIvm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 04:51:42 -0400
-Date: Wed, 13 Aug 2003 05:47:47 -0300
-From: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.4.22-rc2 fix warnings deprecated in fs/ntfs
-Message-Id: <20030813054747.1dde3a87.vmlinuz386@yahoo.com.ar>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i486-slackware-linux-gnu)
-Mime-Version: 1.0
+	Wed, 13 Aug 2003 04:56:09 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:59091 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S271720AbTHMIzy convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 04:55:54 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: [BK PATCH] ACPI Updates for 2.4
+Date: Wed, 13 Aug 2003 16:55:49 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F8401720ADC@pdsmsx403.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [BK PATCH] ACPI Updates for 2.4
+Thread-Index: AcNhIh6tqhDB9ALlQL+3mq2ndINPFQAVV8vQ
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: <acpi-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
+       "Marcelo Tosatti" <marcelo@conectiva.com.br>
+X-OriginalArrivalTime: 13 Aug 2003 08:55:50.0100 (UTC) FILETIME=[B1A73140:01C36178]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+Andy,
+Do you plan to accept below patch, H,J,L need this patch to get  current 2.4 kernel boot on bigsur.
+I think it also shuld be applied to 2.6 kernel.
 
-I created a patch that fix these warnings in gcc 3.2, please apply it.
+Thanks,
+Luming
 
-
-fs/ntfs/dir.c
-fs/ntfs/inode.c
-fs/ntfs/super.c
-
-
-inode.c: In function `ntfs_alloc_mft_record':
-inode.c:1720: warning: concatenation of string literals with
-__FUNCTION__ is dep recated
-inode.c:2002: warning: concatenation of string literals with
-__FUNCTION__ is deprecated
-inode.c:2010: warning: concatenation of string literals with
-__FUNCTION__ is deprecated
-inode.c:2030: warning: concatenation of string literals with
-__FUNCTION__ is deprecated
-inode.c:2052: warning: concatenation of string literals with
-__FUNCTION__ is deprecated
-inode.c:2072: warning: concatenation of string literals with
-__FUNCTION__ is deprecated
-inode.c:2094: warning: concatenation of string literals with
-__FUNCTION__ is deprecated
-inode.c:2117: warning: concatenation of string literals with
-__FUNCTION__ is deprecated
-inode.c: In function `ntfs_alloc_inode':
-inode.c:2259: warning: concatenation of string literals with
-__FUNCTION__ is deprecated
-
-dir.c: In function `ntfs_getdir_unsorted':
-dir.c:805: warning: concatenation of string literals with __FUNCTION__
-is deprecated
-dir.c:811: warning: concatenation of string literals with __FUNCTION__
-is deprecated
-dir.c:855: warning: concatenation of string literals with __FUNCTION__
-is deprecated
-dir.c:909: warning: concatenation of string literals with __FUNCTION__
-is deprecated
-dir.c:941: warning: concatenation of string literals with __FUNCTION__
-is deprecated
-dir.c:972: warning: concatenation of string literals with __FUNCTION__
-is deprecated
-
-super.c: In function `ntfs_allocate_clusters':
-super.c:975: warning: concatenation of string literals with __FUNCTION__
-is deprecated
-super.c:1235: warning: concatenation of string literals with
-__FUNCTION__ is deprecated
-super.c:1253: warning: concatenation of string literals with
-__FUNCTION__ is deprecated
-super.c:1301: warning: concatenation of string literals with
-__FUNCTION__ is deprecated
-
-
-
-diff -ru linux-2.4.21-vanilla/fs/ntfs/dir.c linux-2.4.21/fs/ntfs/dir.c
---- linux-2.4.21-vanilla/fs/ntfs/dir.c	2001-11-03 21:35:46.000000000 -0300
-+++ linux-2.4.21/fs/ntfs/dir.c	2003-08-13 05:08:34.000000000 -0300
-@@ -802,13 +802,13 @@
- 	u8 ibs_bits;
+===== drivers/acpi/osl.c 1.27 vs edited =====
+--- 1.27/drivers/acpi/osl.c	Thu Jul 10 04:20:31 2003
++++ edited/drivers/acpi/osl.c	Wed Aug  6 16:16:38 2003
+@@ -251,7 +251,12 @@
+ 	irq = acpi_fadt.sci_int;
  
- 	if (!ino) {
--		ntfs_error(__FUNCTION__ "(): No inode! Returning -EINVAL.\n");
-+		ntfs_error("%s(): No inode! Returning -EINVAL.\n",__FUNCTION__);
- 		return -EINVAL;
- 	}
- 	vol = ino->vol;
- 	if (!vol) {
--		ntfs_error(__FUNCTION__ "(): Inode 0x%lx has no volume. "
--				"Returning -EINVAL.\n", ino->i_number);
-+		ntfs_error("%s(): Inode 0x%lx has no volume. Returning "
-+			    "-EINVAL.\n", __FUNCTION__, ino->i_number);
- 		return -EINVAL;
- 	}
- 	ntfs_debug(DEBUG_DIR3, __FUNCTION__ "(): Unsorted 1: Entering
-for "@@ -850,9 +850,9 @@
- 		if (err || io.size != ibs)
- 			goto read_err_ret;
- 		if (!ntfs_check_index_record(ino, buf)) {
--			ntfs_error(__FUNCTION__ "(): Index block 0x%x is not "
--					"an index record. Returning "
--					"-ENOTDIR.\n", *p_high - 1);
-+			ntfs_error("%s(): Index block 0x%x is not an index "
-+					"record. Returning -ENOTDIR.\n",
-+					__FUNCTION__, *p_high - 1);
- 			ntfs_free(buf);
- 			return -ENOTDIR;
- 		}
-@@ -905,8 +905,8 @@
- 	}
- 	max_size = attr->size;
- 	if (max_size > 0x7fff >> 3) {
--		ntfs_error(__FUNCTION__ "(): Directory too large. Visible "
--				"length is truncated.\n");
-+		ntfs_error("%s(): Directory too large. Visible "
-+				"length is truncated.\n", __FUNCTION__);
- 		max_size = 0x7fff >> 3;
- 	}
- 	buf = ntfs_malloc(max_size);
-@@ -934,12 +934,12 @@
- 	max_size <<= 3;
- 	while (1) {
- 		if (++*p_high >= 0x7fff) {
--			ntfs_error(__FUNCTION__ "(): Unsorted 10: Directory "
-+			ntfs_error("%s(): Unsorted 10: Directory "
- 					"inode 0x%lx overflowed the maximum "
- 					"number of index allocation buffers "
- 					"the driver can cope with. Pretending "
- 					"to be at end of directory.\n",
--					ino->i_number);
-+					__FUNCTION__, ino->i_number);
- 			goto fake_eod;
- 		}
- 		if (*p_high > max_size || (s64)*p_high << ibs_bits >
-@@ -969,8 +969,8 @@
- read_err_ret:
- 	if (!err)
- 		err = -EIO;
--	ntfs_error(__FUNCTION__ "(): Read failed. Returning error code %i.\n",
--			err);
-+	ntfs_error("%s(): Read failed. Returning error code %i.\n",
-+			__FUNCTION__, err);
- 	ntfs_free(buf);
- 	return err;
- }
-diff -ru linux-2.4.21-vanilla/fs/ntfs/inode.c
-linux-2.4.21/fs/ntfs/inode.c--- linux-2.4.21-vanilla/fs/ntfs/inode.c
-2001-12-21 14:42:03.000000000 -0300+++ linux-2.4.21/fs/ntfs/inode.c	2003-08-13 04:57:27.000000000
--0300@@ -1713,11 +1713,12 @@
- 					if (count > 0) {
- rl2_dealloc_err_out:				if (ntfs_deallocate_clusters(
- 							vol, rl2, r2len))
--							ntfs_error(__FUNCTION__
--							"(): Cluster "
-+							ntfs_error("%s(): "
-+							"Cluster "
- 							"deallocation in error "
- 							"code path failed! You "
--							"should run chkdsk.\n");
-+							"should run chkdsk.\n",
-+							__FUNCTION__);
- 					}
- 					ntfs_vfree(rl2);
- 					if (!err)
-@@ -1998,16 +1999,16 @@
- 	free_page((unsigned long)buf);
- 	ntfs_debug(DEBUG_OTHER, __FUNCTION__ "(): Syncing inode
-$MFT.\n"); 	if (ntfs_update_inode(vol->mft_ino))
--		ntfs_error(__FUNCTION__ "(): Failed to sync inode $MFT. "
--				"Continuing anyway.\n");
-+		ntfs_error("%s(): Failed to sync inode $MFT. "
-+				"Continuing anyway.\n",__FUNCTION__);
- 	if (!err) {
- 		ntfs_debug(DEBUG_FILE3, __FUNCTION__ "(): Done. Allocated mft "
- 				"record number *result = 0x%lx.\n", *result);
- 		return 0;
- 	}
- 	if (err != -ENOSPC)
--		ntfs_error(__FUNCTION__ "(): Failed to allocate an mft "
--				"record. Returning error code %i.\n", -err);
-+		ntfs_error("%s(): Failed to allocate an mft record. Returning "
-+				"error code %i.\n", __FUNCTION__, -err);
- 	else
- 		ntfs_debug(DEBUG_FILE3, __FUNCTION__ "(): Failed to allocate "
- 				"an mft record due to lack of free space.\n");
-@@ -2026,8 +2027,8 @@
- 			"undo_partial_data_alloc_err_ret.\n");
- 	/* Deallocate the clusters. */
- 	if (ntfs_deallocate_clusters(vol, rl2, r2len))
--		ntfs_error(__FUNCTION__ "(): Error deallocating clusters in "
--				"error code path. You should run chkdsk.\n");
-+		ntfs_error("%s(): Error deallocating clusters in error code "
-+			"path. You should run chkdsk.\n", __FUNCTION__);
- 	ntfs_vfree(rl2);
- 	/* Revert the run list back to what it was before. */
- 	r2len = data->d.r.len;
-@@ -2047,9 +2048,9 @@
- 			ntfs_vfree(data->d.r.runlist);
- 			data->d.r.runlist = rl2;
- 		} else
--			ntfs_error(__FUNCTION__ "(): Error reallocating "
-+			ntfs_error("%s(): Error reallocating "
- 					"memory in error code path. This "
--					"should be harmless.\n");
-+					"should be harmless.\n", __FUNCTION__);
- 	}	
- undo_mftbmp_alloc_err_ret:
- 	ntfs_debug(DEBUG_OTHER, __FUNCTION__ "(): At "
-@@ -2068,8 +2069,8 @@
- 	if (err || io.size != 1) {
- 		if (!err)
- 			err = -EIO;
--		ntfs_error(__FUNCTION__ "(): Error deallocating mft record in "
--				"error code path. You should run chkdsk.\n");
-+		ntfs_error("%s(): Error deallocating mft record in error code "
-+			"path. You should run chkdsk.\n", __FUNCTION__);
- 	}
- shrink_mftbmp_err_ret:
- 	ntfs_debug(DEBUG_OTHER, __FUNCTION__ "(): At
-shrink_mftbmp_err_ret.\n");@@ -2090,8 +2091,8 @@
- 	/* Deallocate the allocated cluster. */
- 	bmp->allocated -= (__s64)vol->cluster_size;
- 	if (ntfs_deallocate_cluster_run(vol, lcn, (ntfs_cluster_t)1))
--		ntfs_error(__FUNCTION__ "(): Error deallocating cluster in "
--				"error code path. You should run chkdsk.\n");
-+		ntfs_error("%s(): Error deallocating cluster in error code "
-+			"path. You should run chkdsk.\n", __FUNCTION__);
- 	switch (have_allocated_mftbmp & 3) {
- 	case 1:
- 		/* Delete the last lcn from the last run of mftbmp. */
-@@ -2111,10 +2112,10 @@
- 				ntfs_vfree(rl);
- 				bmp->d.r.runlist = rl = rlt;
- 			} else
--				ntfs_error(__FUNCTION__ "(): Error "
-+				ntfs_error("%s(): Error "
- 						"reallocating memory in error "
- 						"code path. This should be "
--						"harmless.\n");
-+						"harmless.\n", __FUNCTION__);
- 		}
- 		bmp->d.r.runlist[bmp->d.r.len].lcn = (ntfs_cluster_t)-1;
- 		bmp->d.r.runlist[bmp->d.r.len].len = (ntfs_cluster_t)0;
-@@ -2256,7 +2257,7 @@
- 	err = ntfs_alloc_mft_record(vol, &(result->i_number));
- 	if (err) {
- 		if (err == -ENOSPC)
--			ntfs_error(__FUNCTION__ "(): No free inodes.\n");
-+			ntfs_error("%s(): No free inodes.\n", __FUNCTION__);
- 		return err;
- 	}
- 	/* Get the sequence number. */
-diff -ru linux-2.4.21-vanilla/fs/ntfs/super.c
-linux-2.4.21/fs/ntfs/super.c--- linux-2.4.21-vanilla/fs/ntfs/super.c
-2001-09-08 16:24:40.000000000 -0300+++ linux-2.4.21/fs/ntfs/super.c	2003-08-13 05:15:25.000000000
--0300@@ -969,10 +969,10 @@
- 			err = ntfs_readwrite_attr(vol->bitmap, data,
- 					last_read_pos, &io);
- 			if (err) {
--				ntfs_error(__FUNCTION__ "(): Bitmap writeback "
--						"failed in read next buffer "
--						"code path with error code "
--						"%i.\n", -err);
-+				ntfs_error("%s(): Bitmap writeback failed "
-+						"in read next buffer code "
-+						"path with error code %i.\n",
-+						__FUNCTION__, -err);
- 				goto err_ret;
- 			}
- 		}
-@@ -1230,9 +1230,9 @@
- 		err = ntfs_readwrite_attr(vol->bitmap, data, last_read_pos,
- 				&io);
- 		if (err) {
--			ntfs_error(__FUNCTION__ "(): Bitmap writeback failed "
--					"in done code path with error code "
--					"%i.\n", -err);
-+			ntfs_error("%s(): Bitmap writeback failed in done "
-+					"code path with error code %i.\n",
-+					__FUNCTION__, -err);
- 			goto err_ret;
- 		}
- 		ntfs_debug(DEBUG_OTHER, __FUNCTION__ "(): Wrote 0x%Lx
-bytes.\n",@@ -1249,8 +1249,8 @@
- 				-err);
- 	ntfs_debug(DEBUG_OTHER, __FUNCTION__ "(): Syncing $Bitmap
-inode.\n"); 	if (ntfs_update_inode(vol->bitmap))
--		ntfs_error(__FUNCTION__ "(): Failed to sync inode $Bitmap. "
--				"Continuing anyway.\n");
-+		ntfs_error("%s(): Failed to sync inode $Bitmap. "
-+				"Continuing anyway.\n", __FUNCTION__);
- 	ntfs_debug(DEBUG_OTHER, __FUNCTION__ "(): Returning with code
-%i.\n", 			err);
- 	return err;
-@@ -1296,9 +1296,9 @@
- 		__err = ntfs_readwrite_attr(vol->bitmap, data, last_read_pos,
- 				&io);
- 		if (__err)
--			ntfs_error(__FUNCTION__ "(): Bitmap writeback failed "
--					"in error code path with error code "
--					"%i.\n", -__err);
-+			ntfs_error("%s(): Bitmap writeback failed in error "
-+					"code path with error code %i.\n",
-+					__FUNCTION__, -__err);
- 		need_writeback = 0;
- 	}
- err_ret:
+ #ifdef CONFIG_IA64
+-	irq = gsi_to_vector(irq);
++	irq = acpi_irq_to_vector(irq);
++	if (irq < 0) {
++		printk(KERN_ERR PREFIX "SCI (ACPI interrupt %d) not
+registerd\n",
++		       acpi_fadt.sci_int);
++		return AE_OK;
++	}
+ #endif
+ 	acpi_irq_irq = irq;
+ 	acpi_irq_handler = handler;
+@@ -269,7 +274,7 @@
+ {
+ 	if (acpi_irq_handler) {
+ #ifdef CONFIG_IA64
+-		irq = gsi_to_vector(irq);
++		irq = acpi_irq_to_vector(irq);
+ #endif
+ 		free_irq(irq, acpi_irq);
+ 		acpi_irq_handler = NULL;
+
+-----Original Message-----
+From: Grover, Andrew 
+Sent: 2003?8?13? 6:36
+To: Marcelo Tosatti
+Cc: acpi-devel@lists.sourceforge.net; linux-kernel@vger.kernel.org
+Subject: [BK PATCH] ACPI Updates for 2.4
 
 
+Hi Marcelo, here's a bunch of ACPI updates.
 
-ciao,
- djgera
+bk pull http://linux-acpi.bkbits.net/linux-acpi-2.4
+
+This includes a rework of the ACPI config and cmdline options. It now
+supports DMI-based blacklisting, and cmdline options have been
+simplified to "acpi=off", "acpi=ht" (use ACPI for CPU enum only) and
+"acpi=force" (to override the blacklist.)
+
+It also includes some PCI IRQ routing changes, that seem to help some
+people's systems work better.
+
+Please apply.
+
+Thanks -- Regards -- Andy
+
+This will update the following files:
+
+ arch/i386/kernel/acpitable.c        |  553 ------------------------
+ arch/i386/kernel/acpitable.h        |  260 -----------
+ Documentation/Configure.help        |   41 -
+ Documentation/kernel-parameters.txt |   18 
+ Makefile                            |    2 
+ arch/i386/kernel/Makefile           |    1 
+ arch/i386/kernel/acpi.c             |   50 +-
+ arch/i386/kernel/dmi_scan.c         |  394 ++++++++++++++---
+ arch/i386/kernel/io_apic.c          |   14 
+ arch/i386/kernel/mpparse.c          |   37 +
+ arch/i386/kernel/setup.c            |   99 ++--
+ arch/i386/kernel/smpboot.c          |    2 
+ drivers/Makefile                    |    2 
+ drivers/acpi/Config.in              |   68 +-
+ drivers/acpi/Makefile               |    7 
+ drivers/acpi/bus.c                  |    2 
+ drivers/acpi/executer/exutils.c     |    2 
+ drivers/acpi/hardware/hwregs.c      |   21 
+ drivers/acpi/osl.c                  |   26 -
+ drivers/acpi/pci_irq.c              |   15 
+ drivers/acpi/pci_link.c             |  100 ++--
+ drivers/acpi/processor.c            |    1 
+ drivers/acpi/tables.c               |  120 ++---
+ drivers/acpi/tables/tbconvrt.c      |    6 
+ drivers/acpi/tables/tbget.c         |    4 
+ drivers/acpi/tables/tbinstal.c      |   42 +
+ drivers/acpi/tables/tbrsdt.c        |    2 
+ drivers/acpi/tables/tbxfroot.c      |    6 
+ drivers/acpi/toshiba_acpi.c         |    3 
+ drivers/acpi/utilities/utglobal.c   |    6 
+ include/acpi/acconfig.h             |    2 
+ include/acpi/acpi_drivers.h         |    2 
+ include/acpi/platform/acenv.h       |    6 
+ include/asm-i386/acpi.h             |   26 -
+ include/asm-i386/io_apic.h          |    2 
+ init/do_mounts.c                    |   12 
+ 36 files changed, 779 insertions(+), 1175 deletions(-)
+
+through these ChangeSets:
+
+<agrover@groveronline.com> (03/07/29 1.1027)
+   ACPI: Allow irqs > 15 to use interrupt semantics other than PCI's
+standard
+   active-low, level trigger. Make other changes as required for this.
+(Andrew de
+   Quincey)
+
+<agrover@groveronline.com> (03/07/29 1.1026)
+   ACPI: Trivial changes that don't deserve their own changeset
+
+<agrover@groveronline.com> (03/07/29 1.1025)
+   ACPI: If notify handler fails to be removed properly, don't just
+return, but
+   clean up other resources too (Daniele Bellucci)
+
+<len.brown@intel.com> (03/07/29 1.1018.1.3)
+   minor cleanup of previous cset
+
+<len.brown@intel.com> (03/07/29 1.1018.1.1)
+   rename CONFIG_ACPI_BOOT to CONFIG_ACPI_HT; "acpi=boot" to "acpi=ht"
+   Allow acpi=ht, or CONFIG_ACPI_HT to enable HT on systems w/o an MPS
+table.
+   
+
+<agrover@groveronline.com> (03/07/28 1.1022)
+   ACPI: toshiba_acpi update (John Belmonte)
+
+<agrover@groveronline.com> (03/07/28 1.1021)
+   ACPI: Better blacklist messages (Jasper Spaans)
+
+<lenb@dhcppc3.> (03/07/23 1.1016.1.1)
+   ACPI: update acpi=boot code post testing
+
+<lenb@dhcppc3.> (03/07/22 1.1003.38.2)
+   CONFIG_ACPI_BOOT is now a sub-set of CONFIG_ACPI.  It enables just
+boot-time config via ACPI --
+   useful for enabling HT w/o loading the AML interpreter.
+   
+   When full CONFIG_ACPI is selected, cmdline "acpi=boot" runs the same
+sub-set.
+   deleted acpitable.c, deleted broken "noht" cmdline option.
+
+<agrover@groveronline.com> (03/07/17 1.1015)
+   ACPI: fix intr enable for IA64 (davidm)
+
+<agrover@groveronline.com> (03/07/17 1.1014)
+   ACPI: Fix spinlock warnings (Bjorn Helgaas)
+
+<lenb@dhcppc3.> (03/07/15 1.1002.2.3)
+   ACPI: DMI blacklist from UnitedLinux, plus "acpi=oldboot" scheme,
+re-named "acpi=cpu"
+
+<agrover@groveronline.com> (03/07/14 1.1003.32.6)
+   ACPI: Dynamically allocate SDT list (suggested by Andi Kleen)
+
+<agrover@groveronline.com> (03/07/13 1.1003.32.5)
+   ACPI: Parse SSDTs in order discovered, as opposed to reverse order
+(Hrvoje Habjanic)
+
+<agrover@groveronline.com> (03/07/13 1.1003.32.4)
+   ACPI: Fixes from FreeBSD and NetBSD. (Frank van der Linden, Thomas
+Klausner,
+   Nate Lawson)
+
+<agrover@groveronline.com> (03/07/13 1.1003.32.3)
+   ACPI: DTRT regarding the watchdog during long stalls (Andrew Morton)
+
+<agrover@groveronline.com> (03/07/13 1.1002.7.2)
+   ACPI: Make things compile on gcc 3.3
+
+<agrover@groveronline.com> (03/07/13 1.1002.7.1)
+   ACPI: Make mp_bus_id_to_pci_bus initialization moderately more
+correct
+
+<lenb@dhcppc6.> (03/06/26 1.1002.2.2)
+   update kernel-parameters.txt with current acpi and acpismp
+parameters.
 
 
--- 
-Gerardo Exequiel Pozzi ( djgera )
-http://www.vmlinuz.com.ar http://www.djgera.com.ar
-KeyID: 0x1B8C330D
-Key fingerprint = 0CAA D5D4 CD85 4434 A219  76ED 39AB 221B 1B8C 330D
+-----------------------------
+Andrew Grover
+Intel Labs / Mobile Architecture
+andrew.grover@intel.com
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,65 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277894AbRJISkj>; Tue, 9 Oct 2001 14:40:39 -0400
+	id <S277893AbRJISkS>; Tue, 9 Oct 2001 14:40:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277895AbRJISk3>; Tue, 9 Oct 2001 14:40:29 -0400
-Received: from yoda.planetinternet.be ([195.95.30.146]:42002 "EHLO
-	yoda.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S277894AbRJISkZ>; Tue, 9 Oct 2001 14:40:25 -0400
-Date: Tue, 9 Oct 2001 20:40:39 +0200
-From: Kurt Roeckx <Q@ping.be>
-To: Jose_Jorge@teklynx.fr
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kapmidled and AMD K6-2
-Message-ID: <20011009204038.A6727@ping.be>
-In-Reply-To: <OFD647EAB7.926A3491-ONC1256AE0.00534E9E@bradycorp.com>
+	id <S277894AbRJISkI>; Tue, 9 Oct 2001 14:40:08 -0400
+Received: from smtp011.mail.yahoo.com ([216.136.173.31]:36615 "HELO
+	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S277893AbRJISjy>; Tue, 9 Oct 2001 14:39:54 -0400
+X-Apparently-From: <trever?adams@yahoo.com>
+Subject: Re: iptables in 2.4.10, 2.4.11pre6 problems
+From: "Trever L. Adams" <trever_adams@yahoo.com>
+To: "Jeffrey W. Baker" <jwbaker@acm.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0110091129190.209-100000@desktop>
+In-Reply-To: <Pine.LNX.4.33.0110091129190.209-100000@desktop>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15.99+cvs.2001.10.05.08.08 (Preview Release)
+Date: 09 Oct 2001 14:40:40 -0400
+Message-Id: <1002652844.3356.1.camel@aurora>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <OFD647EAB7.926A3491-ONC1256AE0.00534E9E@bradycorp.com>; from Jose_Jorge@teklynx.fr on Tue, Oct 09, 2001 at 04:15:20PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 09, 2001 at 04:15:20PM +0100, Jose_Jorge@teklynx.fr wrote:
-> Hi,
+On Tue, 2001-10-09 at 14:31, Jeffrey W. Baker wrote:
+> I mean connections originating from userland processes running on the
+> machine with iptables configured.  This machine does not act as a NAT or
+> router for any other machine.
 > 
-> I have read all recent mails about this misunderstooded change in 2.4
-> series. But as no one reports heating, I do :
+> We make about 200000 outbound connections to web sites in a day.  Of these
+> connections, a few thousand get fucked up by iptables (iptables suddenly
+> decides to drop packets on this connection).
 > 
-> for the AMD K6-2 on a DFI motherboard AT/ATX, using the AT power supply,
-> this option is buggy. I mean the cycles kapmidled works doesn't cool the
-> processor, they hot him.
-> 
-> This stops as soon as I uncheck the option "Send Halt command on idle" in
-> the APM settings of the kernel.
+> -jwb
 
-I have a K6-2 too.  When I'm using 100% of the CPU, the temp of
-the CPU is around 42 - 44 °C.  When I don't use any CPU at all it
-will lower with about 10 °C.
+Mine does NAT.  So it appears this is not NAT related (though it may be
+further aggravated by NAT).  My connection rate is FAR lower than
+yours.  Our total connections may be 100,000 on a high rate day (just a
+guess... I really do not know).
 
->From my .config:
+Interesting.
 
-CONFIG_PM=y
-# CONFIG_ACPI is not set
-CONFIG_APM=y
-# CONFIG_APM_IGNORE_USER_SUSPEND is not set
-# CONFIG_APM_DO_ENABLE is not set
-# CONFIG_APM_CPU_IDLE is not set
-# CONFIG_APM_DISPLAY_BLANK is not set
-# CONFIG_APM_RTC_IS_GMT is not set
-# CONFIG_APM_ALLOW_INTS is not set
-# CONFIG_APM_REAL_MODE_POWER_OFF is not set
-
-The only reason I enable APM is because then I can do a
-powerdown.
-
-I'm willing to test if the temp goes up when I enable
-CONFIG_APM_CPU_IDLE, and it's idle otherwise.
-CONFIG_APM_CPU_IDLE is shown as "Make CPU Idle calls when idle",
-I don't see a "Send Halt command on idle".
+Trever Adams
 
 
-Kurt
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 

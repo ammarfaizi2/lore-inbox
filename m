@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267640AbTAXMFz>; Fri, 24 Jan 2003 07:05:55 -0500
+	id <S267641AbTAXMM0>; Fri, 24 Jan 2003 07:12:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267641AbTAXMFz>; Fri, 24 Jan 2003 07:05:55 -0500
-Received: from comtv.ru ([217.10.32.4]:60640 "EHLO comtv.ru")
-	by vger.kernel.org with ESMTP id <S267640AbTAXMFy>;
-	Fri, 24 Jan 2003 07:05:54 -0500
-X-Comment-To: Andrew Morton
-To: Andrew Morton <akpm@digeo.com>
-Cc: Alex Tomas <bzzz@tmi.comex.ru>, linux-kernel@alex.org.uk,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.59-mm5
-References: <20030123195044.47c51d39.akpm@digeo.com>
-	<946253340.1043406208@[192.168.100.5]>
-	<20030124031632.7e28055f.akpm@digeo.com>
-	<m3d6mmvlip.fsf@lexa.home.net>
-	<20030124035017.6276002f.akpm@digeo.com>
-From: Alex Tomas <bzzz@tmi.comex.ru>
-Organization: HOME
-Date: 24 Jan 2003 15:05:00 +0300
-In-Reply-To: <20030124035017.6276002f.akpm@digeo.com>
-Message-ID: <m3lm1au51v.fsf@lexa.home.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S267642AbTAXMM0>; Fri, 24 Jan 2003 07:12:26 -0500
+Received: from robur.slu.se ([130.238.98.12]:10502 "EHLO robur.slu.se")
+	by vger.kernel.org with ESMTP id <S267641AbTAXMMZ>;
+	Fri, 24 Jan 2003 07:12:25 -0500
+From: Robert Olsson <Robert.Olsson@data.slu.se>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15921.12235.466188.987454@robur.slu.se>
+Date: Fri, 24 Jan 2003 13:21:31 +0100
+To: Ben Greear <greearb@candelatech.com>
+Cc: Robert Olsson <Robert.Olsson@data.slu.se>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ksoftirqd_CPU0 spinning in 2.4.21-pre3
+In-Reply-To: <3E30352F.1080100@candelatech.com>
+References: <3E2EF490.20402@candelatech.com>
+	<15920.796.897388.111085@robur.slu.se>
+	<3E30352F.1080100@candelatech.com>
+X-Mailer: VM 6.92 under Emacs 19.34.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Andrew Morton (AM) writes:
 
- AM> That's correct.  Reads are usually synchronous and writes are
- AM> rarely synchronous.
+Ben Greear writes:
 
- AM> The most common place where the kernel forces a user process to
- AM> wait on completion of a write is actually in unlink (truncate,
- AM> really).  Because truncate must wait for in-progress I/O to
- AM> complete before allowing the filesystem to free (and potentially
- AM> reuse) the affected blocks.
+ > There was zero network load on the box.  I think there must be a bug in
+ > my napi-ization of the tulip driver.  Since I coppied it almost verbatim
+ > from your stuff, you might want to check too :)
 
-looks like I miss something here.
+ If there are no interrupts and ksoftirqd is spinning it smells like  
+ dev->poll never calls netif_rx_complete() --> pure polling.
 
-why do wait for write completion in truncate? 
-
-getblk (blockmap);
-getblk (bitmap);
-set 0 in blockmap->b_data[N];
-mark_buffer_dirty (blockmap);
-clear_bit (N, &bitmap);
-mark_buffer_dirty (bitmap);
-
-isn't that enough?
-
+ Cheers.
+						--ro
+ 

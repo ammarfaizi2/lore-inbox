@@ -1,64 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264435AbUD2M4B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264439AbUD2NAM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264435AbUD2M4B (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 08:56:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264388AbUD2Mzm
+	id S264439AbUD2NAM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 09:00:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264442AbUD2NAL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 08:55:42 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44804 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264435AbUD2MyN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 08:54:13 -0400
-Date: Thu, 29 Apr 2004 13:54:08 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Ian Campbell <icampbell@arcom.com>
-Cc: stefan.eletzhofer@eletztrick.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] 2.6 I2C epson 8564 RTC chip
-Message-ID: <20040429135408.G16407@flint.arm.linux.org.uk>
-Mail-Followup-To: Ian Campbell <icampbell@arcom.com>,
-	stefan.eletzhofer@eletztrick.de,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
-References: <20040429120250.GD10867@gonzo.local> <1083242482.26762.30.camel@icampbell-debian>
+	Thu, 29 Apr 2004 09:00:11 -0400
+Received: from adsl-67-65-14-122.dsl.austtx.swbell.net ([67.65.14.122]:28370
+	"EHLO laptop.michaels-house.net") by vger.kernel.org with ESMTP
+	id S264439AbUD2M73 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 08:59:29 -0400
+Subject: Re: [PATCH 2.4] add SMBIOS information to /proc/smbios/
+From: Michael Brown <mebrown@michaels-house.net>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
+In-Reply-To: <20040429055028.GH17014@parcelfarce.linux.theplanet.co.uk>
+References: <1083217173.1198.2876.camel@debian>
+	 <20040429055028.GH17014@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Message-Id: <1083243496.1202.2902.camel@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1083242482.26762.30.camel@icampbell-debian>; from icampbell@arcom.com on Thu, Apr 29, 2004 at 01:41:23PM +0100
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 29 Apr 2004 07:58:16 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 29, 2004 at 01:41:23PM +0100, Ian Campbell wrote:
-> Hi Stefan,
+On Thu, 2004-04-29 at 00:50, viro@parcelfarce.linux.theplanet.co.uk
+wrote:
+> On Thu, Apr 29, 2004 at 12:39:33AM -0500, Michael Brown wrote:
+> > +smbios_read_table_entry_point(char *page, char **start,
+> > +				off_t off, int count,
+> > +				int *eof, void *data)
+> > +{
+> > +	unsigned int max_off = sizeof(the_smbios_device.table_eps);
+> > +	MOD_INC_USE_COUNT;
+> > +
+> > +	memcpy(page, &the_smbios_device.table_eps, max_off);
+> > +
+> > +	MOD_DEC_USE_COUNT;
+> > +	return max_off;
+> > +}
 > 
-> > This driver only does the low-level I2C stuff, the rtc misc device
-> > driver is a separate driver module which I will send a patch for soon.
+> *LART*
 > 
-> I have a patch (attached, it could do with cleaning up) for the Dallas
-> DS1307 I2C RTC which I ported from the 2.4 rmk patch, originally written
-> by Intrinsyc. Currently it includes both the I2C and the RTC bits in the
-> same driver.
+> Use ->owner instead of (racy) messing with MOD_{INC,DEC}_USE_COUNT.
 
-Have a look at drivers/acorn/char/{i2c,pcf8583}.[ch]
+First, thanks for the feedback Al. I really appreciate it.
 
-> Do you think it is realistic/possible to have the same generic RTC
-> driver speak to multiple I2C devices, from what I can see in your driver
-> the two chips seem pretty similar and the differences could probably be
-> abstracted away. Perhaps that is your intention from the start?
+I had set ->owner in my module init function. 
+
+  in smbios_init():
++       smbios_dir->owner = THIS_MODULE;
+  and a bit further down...
++       table_eps_file->owner = THIS_MODULE;
+
+Documentation/DocBook/procfs_example.c is what I used as my example
+along with the "Linux Device Drivers" book. The in-tree docs have
+MOD_{INC,DEC}_USE_COUNT, so that is what I did. If these are not
+necessary, I will remove them. 
+
+Also note that one of my standard tests that I do before submission is a
+"while true; insmod smbios; rmmod smbios; done &"
+"while true; hexdump -C /proc/smbios/*; done" 
+
+and let it run for a few hours. This code had all passed that test. 
+
 > 
-> I guess I will wait until you post the RTC misc driver and try and make
-> the DS1307 one work with that before I submit it.
+> > +/* Use the more flexible procfs style. We tell the core that we can handle
+> > + * >4k transactions by setting *start. When doing this we also have to handle
+> > + * our own *eof and make sure not to overrun the page or count given.
+> > + */
+> > +static ssize_t
+> > +smbios_read_table(char *page, char **start,
+> > +		off_t offset, int count,
+> > +		int *eof, void *data)
+> > +{
+> > +	u8 *buf;
+> > +	int i = 0;
+> > +	int max_off = the_smbios_device.smbios_table_real_length;
+> > +	MOD_INC_USE_COUNT;
+> > +
+> > +	if (offset > max_off)
+> > +		return 0;
+> > +
+> > +	if (count > (max_off - offset))
+> > +		count = max_off - offset;
+> > +
+> > +	buf = ioremap(the_smbios_device.table_eps.table_address, max_off);
+> > +	if (buf == NULL)
+> > +		return -ENXIO;
+> > +
+> > +	/* memcpy( buffer, buf+pos, count ); */
+> > +	for (i = 0; i < count; ++i) {
+> > +		page[i] = readb( buf+offset+i );
+> > +	}
+> > +
+> > +	iounmap(buf);
+> > +
+> > +	*start = page; /* tells procfs that we handle >1 page */
+> > +	MOD_DEC_USE_COUNT;
+> > +	return count;
+> > +}
+> 
+> ... and the reason why you need to go through procfs default ->read()
+> instead of providing an obvious one of your own would be...?  Note that
+> it would be smaller and simpler than your callback above.
 
-If you look at the last 2.6-rmk patch, you'll notice that it contains
-an abstracted RTC driver - I got peed off with writing the same code
-to support the user interfaces to the variety of RTCs over and over
-again.  (Ones which are simple 32-bit second counters with alarms
-through to ones which return D/M/Y H:M:S.C format.)
+You will have to excuse my ignorace here. I used the in tree
+Documentation/, google, and fs/proc/proc_misc.c as reference. I assume
+you mean something like this:
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+
+        table_file = create_proc_read_entry( "table",
+                                               0444, smbios_dir,
+                                               smbios_read_table,
+                                               NULL);
+	if(table_file)
+		table_file->fops.read = &smbios_read_table;
+
+Correct? 
+
+And then in my smbios_read_table, do a normal read-like method where I
+put_user().
+
+Comparing the code above to proc_misc.c, it looks like almost the same
+amount of code, but it is probably easier to understand than the above
+magic (which, admittedly took a while of googling to figure out), but I
+thought that was just normal proc/ style and I was just unfamiliar with
+it.
+
+I will make these two changes and resubmit later today.
+
+Thanks,
+Michael
+
+
+
+
+
+

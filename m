@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263918AbRGRWyy>; Wed, 18 Jul 2001 18:54:54 -0400
+	id <S263960AbRGRXAy>; Wed, 18 Jul 2001 19:00:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263927AbRGRWyo>; Wed, 18 Jul 2001 18:54:44 -0400
-Received: from t2.redhat.com ([199.183.24.243]:32765 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S263918AbRGRWyg>; Wed, 18 Jul 2001 18:54:36 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: bitops.h ifdef __KERNEL__ cleanup.
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 18 Jul 2001 23:54:36 +0100
-Message-ID: <27472.995496876@redhat.com>
+	id <S264096AbRGRXAo>; Wed, 18 Jul 2001 19:00:44 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:25613 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263960AbRGRXAf>; Wed, 18 Jul 2001 19:00:35 -0400
+Date: Wed, 18 Jul 2001 15:59:30 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Rik van Riel <riel@conectiva.com.br>
+Subject: Re: Inclusion of zoned inactive/free shortage patch
+In-Reply-To: <0107190057100H.12129@starship>
+Message-ID: <Pine.LNX.4.33.0107181555181.1237-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not all architectures put clear_bit et al in asm/bitops.h in a form which 
-is usable from userspace. Yet because it happens to work on a PeeCee, 
-people do it anyway. 
 
-There's a simple way to fix that :)
+On Thu, 19 Jul 2001, Daniel Phillips wrote:
+>
+> I don't really see much use for inactive_shortage_total() by itself,
+> except maybe deciding when to scan vs sitting idle.
 
-Index: include/asm-i386/bitops.h
-===================================================================
-RCS file: /inst/cvs/linux/include/asm-i386/bitops.h,v
-retrieving revision 1.2.2.7
-diff -u -r1.2.2.7 bitops.h
---- include/asm-i386/bitops.h	2001/06/02 16:27:54	1.2.2.7
-+++ include/asm-i386/bitops.h	2001/07/18 22:52:11
-@@ -7,6 +7,8 @@
- 
- #include <linux/config.h>
- 
-+#ifdef __KERNEL__
-+
- /*
-  * These have to be done with inline assembly: that way the bit-setting
-  * is guaranteed to be atomic. All bit operations return 0 if the bit
-@@ -329,8 +331,6 @@
- 		:"r" (~word));
- 	return word;
- }
--
--#ifdef __KERNEL__
- 
- /**
-  * ffs - find first bit set
+Absolutely. But that's an important decision in itself. Getting that
+decision wrong means that we either scan too little (and which point the
+question of per-zone shortages becomes moot, because by the time we start
+scanning we're too deep in trouble to be able to do a good gradual job
+anyway). Or we scan too much, and then the per-zone shortage just means
+that we'll always have so much inactive stuff in all the zones that we'll
+continue scanning forever - because none of the zones (correctly) feel
+that they have any reason to actually free anything.
 
---
-dwmw2
+So the global inactive_shortage() decision is certainly an important one:
+it should trigger early enough to matter, but not so early that we trigger
+it even when most local zones are really totally saturated and we really
+shouldn't be scanning at all.
 
+		Linus
 

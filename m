@@ -1,68 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264596AbSIVXEy>; Sun, 22 Sep 2002 19:04:54 -0400
+	id <S264610AbSIVXGR>; Sun, 22 Sep 2002 19:06:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264609AbSIVXEy>; Sun, 22 Sep 2002 19:04:54 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:65042 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S264596AbSIVXEx>; Sun, 22 Sep 2002 19:04:53 -0400
-Date: Mon, 23 Sep 2002 01:07:36 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Sam Ravnborg <sam@ravnborg.org>,
+	id <S264609AbSIVXGQ>; Sun, 22 Sep 2002 19:06:16 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:18387 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S264610AbSIVXGP>;
+	Sun, 22 Sep 2002 19:06:15 -0400
+Date: Mon, 23 Sep 2002 01:19:04 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: bob <bob@watson.ibm.com>
+Cc: Karim Yaghmour <karim@opersys.com>, <okrieg@us.ibm.com>, <trz@us.ibm.com>,
        linux-kernel <linux-kernel@vger.kernel.org>,
-       kbuild-devel <kbuild-devel@lists.sourceforge.net>
-Subject: Re: [kbuild-devel] linux kernel conf 0.6
-In-Reply-To: <Pine.LNX.4.44.0209221744150.11808-100000@chaos.physics.uiowa.edu>
-Message-ID: <Pine.LNX.4.44.0209230102170.8911-100000@serv>
+       LTT-Dev <ltt-dev@shafik.org>, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [ltt-dev] Re: [PATCH] LTT for 2.5.38 1/9: Core infrastructure
+In-Reply-To: <15758.19140.200081.346286@k42.watson.ibm.com>
+Message-ID: <Pine.LNX.4.44.0209230115270.3792-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Sun, 22 Sep 2002, Kai Germaschewski wrote:
+On Sun, 22 Sep 2002, bob wrote:
 
-> > One cosmetic thing I mentioned to Roman, Config.new needs to be changed
-> > to something better, like conf.in or build.conf or somesuch.
->
-> I agree. (But I'm not particularly good at coming up with names ;)
-> build.conf is maybe not too bad considering that there may be a day where
-> it is extended to support "<driver>.conf" as well.
+> However, for sake of argument, the above is still not true.  A global
+> lock has a different (worse) performance problem then the lock-free
+> atomic operation even given a global queue.  The difference is 1) the
+> Linux global lock is very expensive [... and interacts with potential
+> other processes, [...]
 
-Maybe it should start with a capital letter like Makefile/Config.in, so
-it's at the top of a directory listing.
+huh? what is 'the Linux global lock'?
 
-> I intentionally only printed a message and errored out in this case, and I
-> think that's more useful, particularly for people doing
->
-> make all 2>&1 > make.log
->
-> which now may take forever waiting for input.
+> [...] and 2) you have to hold the lock for the entire duration of
+> logging the event; with the atomic operation you are finished once
+> you've reserved you space. [...]
 
-You should have tried this first :) :
+you dont have to hold the lock for the duration of saving the event, the
+lock could as well protect a 'current entry' index. (Not that those 2-3
+cycles saving off the event into a single cacheline counts that much ...)
 
-$ make | cat
-make[1]: Entering directory `/home/roman/src/linux-lkc/scripts'
-make[1]: Leaving directory `/home/roman/src/linux-lkc/scripts'
-make[1]: Entering directory `/home/roman/src/lc'
-make[1]: `conf' is up to date.
-make[1]: Leaving directory `/home/roman/src/lc'
-./scripts/lkc/conf -s arch/i386/config.new
-#
-# using defaults found in .config
-#
-*
-* Restart config...
-*
-Enable loadable module support (MODULES) [Y/n/?] y
-  Set version information on all module symbols (MODVERSIONS) [N/y/?] (NEW) aborted!
+the tail-atomic method is precisely equivalent to a global spinlock. The
+tail of a global event buffer acts precisely as a global spinlock: if one
+CPU writes to it in a stream then it performs okay, if two CPUs trace in
+parallel then it causes cachelines to bounce like crazy.
 
-Console input/output is redirected. Run 'make oldconfig' to update configuration.
+> [...] If you didn't use the expensive Linux global lock and just a
+> global lock, you could be interrupted in the middle of holding the lock
+> and performance would fall off the map.
 
-make: *** [include/linux/autoconf.h] Error 1
+again, what 'expensive Linux global lock' are you talking about?
 
-bye, Roman
+	Ingo
 

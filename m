@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262388AbUBXT00 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 14:26:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbUBXT0Z
+	id S262401AbUBXT3g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 14:29:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbUBXT3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 14:26:25 -0500
-Received: from linux-bt.org ([217.160.111.169]:34970 "EHLO mail.holtmann.net")
-	by vger.kernel.org with ESMTP id S262388AbUBXT0Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 14:26:24 -0500
-Subject: Re: Please back out the bluetooth sysfs support
-From: Marcel Holtmann <marcel@holtmann.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040224100325.761f48eb.davem@redhat.com>
-References: <20040223103613.GA5865@lst.de>
-	 <20040223101231.71be5da2.davem@redhat.com>
-	 <1077560544.2791.63.camel@pegasus> <20040223184525.GA12656@lst.de>
-	 <1077582336.2880.12.camel@pegasus>
-	 <20040224004151.GF31035@parcelfarce.linux.theplanet.co.uk>
-	 <20040223232149.5dd3a132.davem@redhat.com>
-	 <1077621601.2880.27.camel@pegasus>
-	 <20040224100325.761f48eb.davem@redhat.com>
-Content-Type: text/plain
-Message-Id: <1077650761.2919.42.camel@pegasus>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 24 Feb 2004 20:26:02 +0100
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Feb 2004 14:29:36 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:63137 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S262401AbUBXT3f convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 14:29:35 -0500
+Content-Class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: PATCH - InfiniBand Access Layer (IBAL)
+Date: Tue, 24 Feb 2004 11:29:04 -0800
+Message-ID: <F595A0622682C44DBBE0BBA91E56A5ED1C36C7@orsmsx410.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: PATCH - InfiniBand Access Layer (IBAL)
+Thread-Index: AcP7DHdWfbgaUnMKRqOT2/tN2A87Kg==
+From: "Woodruff, Robert J" <woody@co.intel.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Greg KH" <greg@kroah.com>, "Hefty, Sean" <sean.hefty@intel.com>,
+       "Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
+       "Davis, Arlin R" <arlin.r.davis@intel.com>,
+       "Woodruff, Robert J" <woody@co.intel.com>,
+       <marcelo.tosatti@cyclades.com>, <torvalds@osdl.org>
+X-OriginalArrivalTime: 24 Feb 2004 19:29:06.0284 (UTC) FILETIME=[77B202C0:01C3FB0C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
 
-> > > > > -		skb->dev = (void *) &bfusb->hdev;
-> > > > > +		skb->dev = (void *) bfusb->hdev;
-> > > > 
-> > > > Wait a bloody minute.  skb->dev is supposed to be net_device; what's going
-> > > > on here?
-> > > 
-> > > Oh yeah, this is busted.
-> > > I'm surprised this doesn't explode.
-> > 
-> > we used this from the beginning and I don't see where this can explode,
-> > because the SKB's are only used inside the Bluetooth subsystem.
-> 
-> Ok, if that is %100 true, then it's OK.
+Since it is rather big,
+I have posted a patch for the InfiniBand Access Layer (IBAL) 
+for the linux-2.6.3 kernel on sourceforge in the file releases
+area. 
+http://sourceforge.net/projects/infiniband
 
-I went through the code to check it and we only use skb->dev between the
-HCI driver and the HCI core layer. All layers above are clean.
+We have already received some comments from Greg and others(such as 
+not liking the Component library (Complib) abstraction layer)
+and we are starting to make those changes. Greg suggested that
+we submit the code to the larger Linux community for review, 
+so here it is. 
 
-Regards
-
-Marcel
-
-
+Please let us know what other changes might be needed so that it is
+acceptable for inclusion into the 2.6 base. 

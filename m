@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132866AbRDIWej>; Mon, 9 Apr 2001 18:34:39 -0400
+	id <S132865AbRDIWfJ>; Mon, 9 Apr 2001 18:35:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132868AbRDIWeT>; Mon, 9 Apr 2001 18:34:19 -0400
-Received: from www.teaparty.net ([216.235.253.180]:49670 "EHLO
-	www.teaparty.net") by vger.kernel.org with ESMTP id <S132865AbRDIWeJ>;
-	Mon, 9 Apr 2001 18:34:09 -0400
-Date: Mon, 9 Apr 2001 23:33:29 +0100 (BST)
-From: Vivek Dasmohapatra <vivek@etla.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Jim Studt <jim@federated.com>, linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx and 2.4.3 failures
-In-Reply-To: <E14mi85-0002pu-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10104092331350.30837-100000@www.teaparty.net>
+	id <S132868AbRDIWe7>; Mon, 9 Apr 2001 18:34:59 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:15890 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132865AbRDIWeo>; Mon, 9 Apr 2001 18:34:44 -0400
+Subject: Re: No 100 HZ timer !
+To: mikulas@artax.karlin.mff.cuni.cz (Mikulas Patocka)
+Date: Mon, 9 Apr 2001 23:35:44 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), mbs@mc.com (Mark Salisbury),
+        jdike@karaya.com (Jeff Dike), schwidefsky@de.ibm.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.96.1010410002852.4212A-100000@artax.karlin.mff.cuni.cz> from "Mikulas Patocka" at Apr 10, 2001 12:31:08 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14mkGA-000341-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Apr 2001, Alan Cox wrote:
-
-> > A typical startup with 6.1.9 proceeds like this...  (6.1.10 hangs silently
-> > after emitting the scsi0 and scsi1 adapter summaries, maybe it is
-> > going through the same gyrations silently.) 
+> > Its worth doing even on the ancient x86 boards with the PIT.
 > 
-> Try saying N to the AIC7xxx driver and Y to AIC7XXX_OLD and see if that works.
+> Note that programming the PIT is sloooooooow and doing it on every timer
+> add_timer/del_timer would be a pain.
 
-I had similar problems w. 2.4.3 on an SMP aic7xx PII, box: new driver
-never managed to mount the root partition - always panicked first. Old
-driver worked fine. 
+You only have to do it occasionally.
 
--- 
-"Aren't you ashamed of yourself?"
-"No, I have people to do that for me."
+When you add a timer newer than the current one 
+	(arguably newer by at least 1/2*HZ sec)
+When you finish running the timers at an interval and the new interval is
+significantly larger than the current one.
+
+Remember each tick we poke the PIT anyway
 

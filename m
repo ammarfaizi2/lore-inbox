@@ -1,67 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268367AbUIBOsb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268383AbUIBOts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268367AbUIBOsb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 10:48:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268360AbUIBOsb
+	id S268383AbUIBOts (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 10:49:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUIBOts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 10:48:31 -0400
-Received: from mailrelay.tu-graz.ac.at ([129.27.3.7]:31264 "EHLO
-	mailrelay02.tugraz.at") by vger.kernel.org with ESMTP
-	id S268392AbUIBOkI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 10:40:08 -0400
-From: Christian Mayrhuber <christian.mayrhuber@gmx.net>
-To: reiserfs-list@namesys.com, Spam <spam@tnonline.net>
-Subject: Re: The argument for fs assistance in handling archives
-Date: Thu, 2 Sep 2004 16:38:30 +0200
-User-Agent: KMail/1.7
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20040826150202.GE5733@mail.shareable.org> <4699bb7b0409020245250922f9@mail.gmail.com> <812032218.20040902120259@tnonline.net>
-In-Reply-To: <812032218.20040902120259@tnonline.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Sep 2004 10:49:48 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:5558 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S268401AbUIBOlr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 10:41:47 -0400
+Date: Thu, 2 Sep 2004 16:43:01 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: "K.R. Foley" <kr@cybsft.com>, Lee Revell <rlrevell@joe-job.com>,
+       Thomas Charbonnel <thomas@undata.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q7
+Message-ID: <20040902144301.GA11224@elte.hu>
+References: <OF3E3C1690.FD6E285E-ON86256F03.004CDD15-86256F03.004CDD4F@raytheon.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200409021638.31161.christian.mayrhuber@gmx.net>
+In-Reply-To: <OF3E3C1690.FD6E285E-ON86256F03.004CDD15-86256F03.004CDD4F@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 02 September 2004 12:02, Spam wrote:
-> > As I say I like the idea, but I can't see anyway of implementing it in
-> > a way that is useful without first putting considerable effort into at
-> > least the VFS if not all the actual fs drivers.
+
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
+
+> The test just completed. Over 100 traces (>500 usec) in 25 minutes
+> of test runs.
 > 
->   Indeed. It is important that something like this gets implemented as
->   a transparent way as possible. If it could be done in a general way
->   so other filesystems like ext3/4 can eventually support it then that
->   would be wonderful. I do not, however, think that we should block it
->   in reiser4 because no other filesystems support it.
+> To recap - this kernel has:
+> 
+> Downloaded linux-2.6.8.1 from
+>   http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.1.tar.bz2
+> Downloaded patches from
+> http://redhat.com/~mingo/voluntary-preempt/diff-bk-040828-2.6.8.1.bz2
+> http://people.redhat.com/mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-Q7
+> ... email saved into mark-offset-tsc-mcount.patch ...
+> ... email saved into ens001.patch ...
 
-What about extending the namespace with leading ".." and "...".
+thanks for the data. There are dozens of traces that show a big latency
+for no algorithmic reason, in completely unlocked codepaths. In these
+places the CPU seems to have an inexplicable inability to run simple
+sequential code that has no looping potential at all.
 
-In Unix names starting with a  "." already have the meaning of being a 
-hidden/config entry.
+the NMI samples show that just about any kernel code can be delayed by
+this phenomenon - the kernel functions that have critical sections show
+up by their likely frequency of use. There doesnt seem to be anything
+common to the functions that show these delays, other than that they
+have a critical section and that they are running in your workload.
 
-A name starting ".." means streams/metainformation, etc. something belonging 
-to the file/directory that should get backed up, copied, etc.
-There could be a "..streams", "..metas" or a "..acl" entry.
+so the remaining theories are:
 
-If it starts with "..." it means some system specific information, like the
-name of the hash algorithm used for the current directory. It's basically 
-information that is not portable and not required by applications, like
-"...fsplugins".
+ - DMA starvation. I've never seen anything on this scale but it's
+   pretty much the only thing interacting with a CPU's ability to
+   execute code - besides the other CPU running in the system.
 
-There is still the big problem of how to copy files with their associated 
-streams or meta information onto a standard unix filesystem as the 
-file/directory duality cannot be expressed. (It's forbidden to have
-a directory + file with the same name in the same directory)
-Maybe copy could create something like a ".#filename" directory for this kind
-of information if the advanced features are not supported on the target 
-filesystem. This is neither nice nor clean, but at least you don't loose 
-information. I do not suggest that the kernel should simulate the advanced 
-features with  ".#filename" directories, it's more a backup/restore thing 
-that could work if it's written down properly.
+   i'd not be surprised if some audio cards tried tricks to do as 
+   agressive DMA as physically possible, even violating hw
+   specifications - for the purpose of producing skip-free audio output. 
+   Do you have another soundcard for testing by any chance? Another 
+   option would be to try latencytest driven not by the soundcard IRQ 
+   but by /dev/rtc.
 
--- 
-lg, Chris
+ - some sort of SMM handler that is triggered on I/O ops or something. 
+   But a number of functions in the traces dont do any I/O ops (port
+   instructions like IN or OUT) so it's hard to imagine this to be the 
+   case. An externally triggered SMM is possible too, perhaps some
+   independent timer triggers a watchdog SMM?
 
+it is nearly impossible for these traces to be caused by the kernel. It
+really has to be some hardware effect, based on the data we have so far.
+
+	Ingo

@@ -1,54 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131740AbRCXSKC>; Sat, 24 Mar 2001 13:10:02 -0500
+	id <S131742AbRCXSPN>; Sat, 24 Mar 2001 13:15:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131741AbRCXSJx>; Sat, 24 Mar 2001 13:09:53 -0500
-Received: from front6.grolier.fr ([194.158.96.56]:45973 "EHLO
-	front6.grolier.fr") by vger.kernel.org with ESMTP
-	id <S131740AbRCXSJj> convert rfc822-to-8bit; Sat, 24 Mar 2001 13:09:39 -0500
-Date: Sat, 24 Mar 2001 16:58:14 +0100 (CET)
-From: Gérard Roudier <groudier@club-internet.fr>
-To: LA Walsh <law@sgi.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: NCR53c8xx driver and multiple controllers...(not new prob)
-In-Reply-To: <3ABCD0B2.21465AC1@sgi.com>
-Message-ID: <Pine.LNX.4.10.10103241647530.601-100000@linux.local>
+	id <S131743AbRCXSPE>; Sat, 24 Mar 2001 13:15:04 -0500
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:26596 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S131742AbRCXSOs>; Sat, 24 Mar 2001 13:14:48 -0500
+Message-ID: <3ABCE547.DD5E78B9@redhat.com>
+Date: Sat, 24 Mar 2001 13:19:51 -0500
+From: Doug Ledford <dledford@redhat.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Prevent OOM from killing init
+In-Reply-To: <Pine.LNX.4.33.0103241039590.2310-100000@mikeg.weiden.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 24 Mar 2001, LA Walsh wrote:
-
-> I have a machine with 3 of these controllers (a 4 CPU server).  The
-> 3 controllers are:
-> ncr53c810a-0: rev=0x23, base=0xfa101000, io_port=0x2000, irq=58
-> ncr53c810a-0: ID 7, Fast-10, Parity Checking
-> ncr53c896-1: rev=0x01, base=0xfe004000, io_port=0x3000, irq=57
-> ncr53c896-1: ID 7, Fast-40, Parity Checking
-> ncr53c896-2: rev=0x01, base=0xfe004400, io_port=0x3400, irq=56
-> ncr53c896-2: ID 7, Fast-40, Parity Checking
-> ncr53c896-2: on-chip RAM at 0xfe002000
+Mike Galbraith wrote:
 > 
-> I'd like to be able to make a kernel with the driver compiled in and
-> no loadable module support.  It don't see how to do this from the
-> documentation -- it seems to require a separate module loaded for
-> each controller.  When I compile it in, it only see the 1st controller
-> and the boot partition I think is on the 3rd.  Any ideas?
+> On Sat, 24 Mar 2001, Doug Ledford wrote:
+> > To those people that would suggest I send in code I only have this to say.
+> > Fine, I'll send in a patch to fix this bug.  It will make the oom killer call
+> > the cache reclaim functions and never kill anything.  That would at least fix
+> > the bug you see above.
+> 
+> That won't fix the problem, but merely paper it over.  The problem is
+> in the balancing code that lets swap be exausted while at the same time
+> allowing cache to become obscenely obese in the first place.  I can't
+> trigger that behavior here, but it obviously exists for some workloads.
 
-The driver tries to detect all controllers it supports. Since the
-ncr53c8xx supports both the 810a and the 896, all your controllers should
-have been detected. When loaded as a module, the driver must be loaded
-once (btw, a seconf load should fail).
+I would be more than happy to fix the problem properly if I knew the first
+thing about the vm subsystem, but I don't.
 
-> This problem is present in the 2.2.x series as well as 2.4.x (x up to 2).
+> General thread comment:
+> To those who are griping, and obviously rightfully so, Rik has twice
+> stated on this list that he could use some help with VM auto-balancing.
+> The responses (visible on this list at least) was rather underwhelming.
+> I noted no public exchange of ideas.. nada in fact.
 
-What hardware are you using (CPU, Core Logic and tutti quanti) ?
-Is the 896 on PCI BUS #0 or on some sort of secondary PCI BUS ?
-Does the sym53c8xx driver show same behaviour ?
+While my post didn't give an exact formula, I was quite clear on the fact that
+the system is allowing the caches to overrun memory and cause oom problems. 
+I'm more than happy to test patches, and I would even be willing to suggest
+some algorithms that might help, but I don't know where to stick them in the
+code.  Most of the people who have been griping are in a similar position.
 
-  Gérard.
+> Get off your lazy butts and do something about it.  Don't work on the
+> oom-killer though.. that's only a symptom.  Work on the problem instead.
+> 
+>         -Mike  (who doesn't give a rats ass if he gets flamed;-)
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
+-- 
+
+ Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+      Please check my web site for aic7xxx updates/answers before
+                      e-mailing me about problems

@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261384AbTIYQkQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 12:40:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbTIYQkQ
+	id S261361AbTIYQp2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 12:45:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbTIYQp2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 12:40:16 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:3810 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261384AbTIYQkN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 12:40:13 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Thu, 25 Sep 2003 18:43:50 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Ronald Bultje <rbultje@ronald.bitfreak.net>
-Cc: Pauline Middelink <middelink@polyware.nl>, linux-kernel@vger.kernel.org
-Subject: Re: zr36120 2.6.x port (was: Re: [Mjpeg-users] DC30+ can't capture size greater than 224x168)
-Message-ID: <20030925164350.GA9663@bytesex.org>
-References: <BAY7-F62oStVwgTlLlJ0001924a@hotmail.com> <1064478814.2220.326.camel@shrek.bitfreak.net> <20030925084932.GA22441@polyware.nl> <1064484678.2227.465.camel@shrek.bitfreak.net> <20030925102635.GA25634@polyware.nl> <1064505583.2228.716.camel@shrek.bitfreak.net>
+	Thu, 25 Sep 2003 12:45:28 -0400
+Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:6650 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id S261361AbTIYQpZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 12:45:25 -0400
+Date: Thu, 25 Sep 2003 10:45:08 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: "Norris, Brent" <bnorris@Edmonson.k12.ky.us>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: 128G Limit in Reiserfs? Or the Kernel? Or something else?
+Message-ID: <20030925104508.J2094@schatzie.adilger.int>
+Mail-Followup-To: "Norris, Brent" <bnorris@Edmonson.k12.ky.us>,
+	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+References: <9A8F8D67DC8ED311BF3E0008C7B9A0ADBAA86E@E151000N0>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1064505583.2228.716.camel@shrek.bitfreak.net>
-User-Agent: Mutt/1.5.3i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <9A8F8D67DC8ED311BF3E0008C7B9A0ADBAA86E@E151000N0>; from bnorris@Edmonson.k12.ky.us on Thu, Sep 25, 2003 at 08:08:16AM -0500
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> * implement a zoran_vdev_release() function to free memory after it's no
-> longer in use (this is a hack imo, but it's the suggested way of doing
-> it... There was an article somewhere about it and it's also been
-> discussed on the v4l mailinglist... Can't find a link, though)
+On Sep 25, 2003  08:08 -0500, Norris, Brent wrote:
+> I seem to have hit an odd limit, that I didn't think existed.  I have a 250G
+> WD IDE hard drive that I have just installed.  Since I couldn't put a Ext3
+> filesystem on it (mount wouldn't recognize it) I decided to put a ReiserFS
+> filesystem on it.
 
-If you just kfree() there you don't need your own bur can simply use
-video_device_release() ...
+Just FYI, we have lots of ext3 filesystems that are 2TB in size, so I don't
+think it is an ext3 problem.  What could be happening though is that when
+you mke2fs the filesystem with your IDE problem it wraps writes over 128GB
+back to zero and overwrites the superblock so mount doesn't see the ext3
+superblock anymore.
 
-> Things left to do (for you ;) ): v4l2 (sounds like a good thing, though
-> it'll take some time), multiple opens (if you want), and (IIRC, Gerd?)
-> videodev + vbidev fops should be the same. This wasn't the case in
-> 2.4.x, but it's the case in 2.6.x, I think.
-
-That's a v4l vs. v4l2 API thing.  The v4l2 API allows applications to
-switch a device handle into vbi mode via S_FMT, thus you don't need
-separate devices any more.  For v4l1 backward comparibility this is
-still needed through.  For v4l2 drivers /dev/video and /dev/vbi almost
-the same, /dev/vbi has just some other default settings after opening
-the device.
-
-  Gerd
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

@@ -1,59 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277823AbRJZHFx>; Fri, 26 Oct 2001 03:05:53 -0400
+	id <S278004AbRJZHvv>; Fri, 26 Oct 2001 03:51:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277866AbRJZHFo>; Fri, 26 Oct 2001 03:05:44 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:9093 "EHLO
-	mailout04.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S277823AbRJZHFb>; Fri, 26 Oct 2001 03:05:31 -0400
-Message-ID: <XFMail.20011026090540.R.Oehler@GDImbH.com>
-X-Mailer: XFMail 1.5.0 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S278017AbRJZHvl>; Fri, 26 Oct 2001 03:51:41 -0400
+Received: from cx879306-a.pv1.ca.home.com ([24.5.157.48]:46579 "EHLO
+	siamese.dhis.twinsun.com") by vger.kernel.org with ESMTP
+	id <S278004AbRJZHv1>; Fri, 26 Oct 2001 03:51:27 -0400
+From: junio@siamese.dhis.twinsun.com
+To: Tim Waugh <twaugh@redhat.com>
+cc: <daveg@firsdown.demon.co.uk>
+Cc: bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.12 / linux-2.4.13 parallel port problem
+In-Reply-To: <20011024230917.H7544@redhat.com>
+	<ioWB7.5038$rR5.921319585@newssvr17.news.prodigy.com>
+	<20011025165226.T7544@redhat.com>
+Date: 26 Oct 2001 00:51:48 -0700
+In-Reply-To: <20011025165226.T7544@redhat.com>
+Message-ID: <7vofmuu9d7.fsf@siamese.dhis.twinsun.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-In-Reply-To: <3BD84A80.BB08EBD8@zip.com.au>
-Date: Fri, 26 Oct 2001 09:05:40 +0200 (MEST)
-Reply-To: R.Oehler@GDImbH.com
-From: R.Oehler@GDImbH.com
-To: Andrew Morton <akpm@zip.com.au>
-Subject: Re: Linux 2.4.10: printk() deadlocks
-Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "TW" == Tim Waugh <twaugh@redhat.com> writes:
 
-On 25-Oct-2001 Andrew Morton wrote:
-> Sorry, but I think you must be doing something strange to make this
-> happen - can you please diagnose a little further?  Investigate
-> further with kdb?  Can you send me the wherewithals to reproduce
-> it?  Are you running SMP?
-No, just out of sleep.
+>> Question: is this intended behaviour? I would think that you would
+>> normally want to just say irq=auto and let the driver find the io
+>> address just as it does normally.
 
+TW> It is intended behaviour.  'irq=auto' in this case didn't help because
+TW> the ECP chipset would not tell us what IRQ it was assigned (it just
+TW> said "it's set by jumpers, or alternatively I'm not telling you".
 
-Sorry, folks
+This part I do not quite understand.  I have an old laptop that
+was working with parport=auto up to 2.4.10 and then stopped
+working, just like the original poster's problem description.
 
-printk() does not deadlock.
-I just put a funny little typo at the wrong place in my code
-which resulted in a very fast eternal loop. So the system
-froze and lloked like deadlocked. The CPU was nearly always in 
-printk().
+>From the original poster's description, 2.4.10 claimed to have
+detected both address and irq for parport0, while 2.4.12,
+according to the your response, could not tell that IRQ=7.  Do
+you mean that the logic which made 2.4.10 to claime to have
+detected IRQ=7 was faulty and the logic in 2.4.12 is being
+careful not to misdetect?
 
-Thanks andrew for opening my eyes and sorry again for the 
-inconveniance.
+    Message-ID: <3BD6BF43.D347719B@firsdown.demon.co.uk>
+    Date: 	Wed, 24 Oct 2001 14:16:51 +0100
+    From: Dave Garry <daveg@firsdown.demon.co.uk>
+    Subject: linux-2.4.12 / linux-2.4.13 parallel port problem
 
-        Ralf
+    With kernel 2.4.12 and 2.4.13 the parallel port on
+    my machine looks like this according to dmesg:
 
- -----------------------------------------------------------------
-|  Ralf Oehler
-|  GDI - Gesellschaft fuer Digitale Informationstechnik mbH
-|
-|  E-Mail:      R.Oehler@GDImbH.com
-|  Tel.:        +49 6182-9271-23 
-|  Fax.:        +49 6182-25035           
-|  Mail:        GDI, Bensbruchstraﬂe 11, D-63533 Mainhausen
-|  HTTP:        www.GDImbH.com
- -----------------------------------------------------------------
+    parport0: PC-style at 0x378 [PCSPP,TRISTATE]
+    parport0: cpp_daisy: aa5500ff(98)
+    parport0: assign_addrs: aa5500ff(98)
+    parport0: faking semi-colon
+    parport0: Printer, Hewlett-Packard HP LaserJet 1100
 
-time is a funny concept
+    Under 2.4.10 is looks like this:
+
+    ...
+    parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE,COMPAT,ECP]
+    parport0: irq 7 detected
+    ...
 

@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285093AbRL0GLu>; Thu, 27 Dec 2001 01:11:50 -0500
+	id <S285055AbRL0GPU>; Thu, 27 Dec 2001 01:15:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285055AbRL0GLk>; Thu, 27 Dec 2001 01:11:40 -0500
-Received: from dsl-213-023-038-250.arcor-ip.net ([213.23.38.250]:17416 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S285286AbRL0GLd>;
-	Thu, 27 Dec 2001 01:11:33 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Anton Blanchard <anton@samba.org>, Momchil Velikov <velco@fadata.bg>
-Subject: Re: [PATCH] Scalable page cache - take two
-Date: Thu, 27 Dec 2001 07:15:01 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <87bsgp7fcq.fsf@fadata.bg> <20011224005258.GB15536@krispykreme>
-In-Reply-To: <20011224005258.GB15536@krispykreme>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16JTok-0000cu-00@starship.berlin>
+	id <S285169AbRL0GPL>; Thu, 27 Dec 2001 01:15:11 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:16400 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S285055AbRL0GOx>;
+	Thu, 27 Dec 2001 01:14:53 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Niels Kristian Bech Jensen <nkbj@image.dk>
+Cc: "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.18-pre1 
+In-Reply-To: Your message of "Thu, 27 Dec 2001 07:05:06 BST."
+             <Pine.LNX.4.33.0112270704240.14041-100000@helium.nkbj.dk> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 27 Dec 2001 17:14:39 +1100
+Message-ID: <12760.1009433679@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 24, 2001 01:52 am, Anton Blanchard wrote:
-> This is the still 12 way ppc64, the results are similar to the last
-> test. It confirms that the current pagecache locking is a bottleneck
-> for larger SMP machines.
-> 
-> We quickly hit the following spinlocks with the pagecache lock out of
-> the way:
-> 
-> ext2_get_block: BKL
-> refile_buffer: lru_list_lock
-> remove_from_queues: lru_list_lock
-> try_to_free_buffers: lru_list_lock
-> d_lookup: dcache_lock
-> ext2_discard_prealloc: BKL
-> 
-> Is someone working on removing the BKL from ext2 in 2.5?
+On Thu, 27 Dec 2001 07:05:06 +0100 (CET), 
+Niels Kristian Bech Jensen <nkbj@image.dk> wrote:
+>On Thu, 27 Dec 2001, Keith Owens wrote:
+>> You have to select CONFIG_FB_SIS as well.  This is a deficency in CML1
+>> that is difficult to fix, there are cross directory dependencies.
+>> 
+>This workaround seems to work (I know it's ugly):
+>
+>--- linux-2.4.18-pre1/drivers/char/drm/Config.in	Sat Dec 22 07:20:44 2001
+>+++ linux/drivers/char/drm/Config.in	Thu Dec 27 06:51:19 2001
+>@@ -14,4 +14,7 @@
+>     dep_tristate '  Intel I810' CONFIG_DRM_I810 $CONFIG_AGP
+>     dep_tristate '  Matrox g200/g400' CONFIG_DRM_MGA $CONFIG_AGP
+>     dep_tristate '  SiS' CONFIG_DRM_SIS $CONFIG_AGP
+>+    if [ "$CONFIG_DRM_SIS" != "n" ]; then
+>+        define_bool CONFIG_FB_SIS y
+>+    fi
+> fi
+>--- linux-2.4.18-pre1/drivers/video/Config.in	Fri Nov 23 07:41:27 2001
+>+++ linux/drivers/video/Config.in	Thu Dec 27 06:30:32 2001
+>@@ -139,6 +139,9 @@
+>  	 tristate '  ATI Radeon display support (EXPERIMENTAL)' CONFIG_FB_RADEON
+> 	 tristate '  ATI Rage128 display support (EXPERIMENTAL)' CONFIG_FB_ATY128
+> 	 tristate '  SIS acceleration (EXPERIMENTAL)' CONFIG_FB_SIS
+>+	 if [ "$CONFIG_DRM_SIS" != "n" -a "$CONFIG_FB_SIS" != "y" ]; then
+>+	    define_bool CONFIG_FB_SIS y
+>+	 fi
+> 	 if [ "$CONFIG_FB_SIS" != "n" ]; then
+> 	    bool '    SIS 630/540/730 support' CONFIG_FB_SIS_300
+> 	    bool '    SIS 315H/315 support' CONFIG_FB_SIS_315
 
-Al has already done most of the work, it won't take much to complete it.  It 
-wasn't a priority before 2.5 (stability was).
+Breaks with CONFIG_FB=n.  You are setting CONFIG_FB_SIS=y when the
+overall FB system may be disabled, that will not work.
 
-It's nice to see somebody still cares about the speed of Ext2 ;)
+The problem is that DRM_SIS should only be visible when FB=y,
+EXPERIMENTAL=y, PCI=y and FB_SIS=y.  But the FB stuff is in
+drivers/video which is read after drivers/char.  Easy to do in CML2,
+almost impossible in CML1.
 
---
-Daniel

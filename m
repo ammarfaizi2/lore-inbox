@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265112AbTFEUgB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 16:36:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265116AbTFEUgB
+	id S265122AbTFEUjW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 16:39:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265127AbTFEUjW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 16:36:01 -0400
-Received: from 198.216-123-194-0.interbaun.com ([216.123.194.198]:61313 "EHLO
-	mail.harddata.com") by vger.kernel.org with ESMTP id S265112AbTFEUgA
+	Thu, 5 Jun 2003 16:39:22 -0400
+Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:63037 "EHLO
+	mx.rackable.com") by vger.kernel.org with ESMTP id S265122AbTFEUjT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 16:36:00 -0400
-Date: Thu, 5 Jun 2003 14:49:25 -0600
-From: Michal Jaegermann <michal@harddata.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: /proc/bus/pci
-Message-ID: <20030605144925.A5993@mail.harddata.com>
-References: <20030605125013$41ac@gated-at.bofh.it> <20030605160017$10e1@gated-at.bofh.it> <frodoid.frodo.873cioa34p.fsf@usenet.frodoid.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <frodoid.frodo.873cioa34p.fsf@usenet.frodoid.org>; from lkml@mf.frodoid.org on Thu, Jun 05, 2003 at 06:41:10PM +0200
+	Thu, 5 Jun 2003 16:39:19 -0400
+Message-ID: <3EDFAC88.4040609@rackable.com>
+Date: Thu, 05 Jun 2003 13:48:08 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hugo Mills <hugo-lkml@carfax.org.uk>
+CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       andre@linux-ide.org, alan@redhat.com
+Subject: Re: SiI3112 (Adaptec 1210SA): no devices
+References: <20030605193514.GB1542@carfax.org.uk>
+In-Reply-To: <20030605193514.GB1542@carfax.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 05 Jun 2003 20:52:51.0067 (UTC) FILETIME=[6DA50CB0:01C32BA4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 05, 2003 at 06:41:10PM +0200, Julien Oster wrote:
-> Linus Torvalds <torvalds@transmeta.com> writes:
-> 
-> > A "phb" just makes me go "Whaa?"
-> 
-> But people doing computer stuff *love* abbrevations. Ask any
-> non-kernel-developer (or non-kernel-interested) about ACPI, MSI, MSWR,
-> MTRR, APIC, IO-APIC, TSC, PTE or XT-PIC-IRQ and he will not only go
-> "Whaa?" but "WHAAAAHELP!" :-)
+Hugo Mills wrote:
 
-In a message from 2nd of July, here on lkml, Andre Hedrick wrote
+>   I've just taken delivery of a shiny new Adaptec 1210SA Serial-ATA
+>adapter and a 120Gb Seagate Barracuda native SATA drive. Problem is,
+>the kernel driver doesn't seem to notice this device on boot --
+>nothing at all appears relating to this device in the boot messages.
+>Can you help me?
+>
+>   I'm not a kernel hacker, I'm afraid, but I can apply patches and
+>test stuff for this card+drive as much as you like...
+>
+>   (The card is configured in its on-board BIOS with a single disk as
+>JBOD).
+>
+>  
+>
 
-<quote>
-I need to sit down with JG, AC, BZ, JA and work out a TF <> FIS lib
-for First Party DMA.
-    
-I need to rip the SATA 1.0 out of drivers/ide/* ...
-....
-    
-Obviously TCQ in FPDMA via direct FIS will map to SCSI with less
-pain.
-    
-I have FPDMA cores.
-</quote>
+  The card is a serial ata controller with what adaptec refers to as 
+"hostraid".  (Meaning the raid is done in the driver.)  There are binary 
+drivers for it on adptec's site, but no open source drivers.  The binary 
+drivers are fairly good, but they are binary drivers.  (Which brings the 
+headaches that binary drivers entail.)
 
-In the first moment I started to wonder if this is a spoof; but
-after a while I decided that likely it is not.  Still a translator
-could be handy or it is time to update V.E.R.A. :-)
+-- 
+There is no such thing as obsolete hardware.
+Merely hardware that other people don't want.
+(The Second Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
 
-  Michal
+

@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129939AbRAEP4z>; Fri, 5 Jan 2001 10:56:55 -0500
+	id <S129744AbRAEP5p>; Fri, 5 Jan 2001 10:57:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132113AbRAEP4f>; Fri, 5 Jan 2001 10:56:35 -0500
-Received: from ferret.lmh.ox.ac.uk ([163.1.138.204]:61455 "HELO
-	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
-	id <S129744AbRAEP4Y>; Fri, 5 Jan 2001 10:56:24 -0500
-Date: Fri, 5 Jan 2001 15:56:23 +0000 (GMT)
-From: Chris Evans <chris@scary.beasts.org>
-To: Chris Mason <mason@suse.com>
-cc: <reiserfs-list@namesys.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: reiserfs patch for 2.4.0-final
-In-Reply-To: <502300000.978702454@tiny>
-Message-ID: <Pine.LNX.4.30.0101051555240.28552-100000@ferret.lmh.ox.ac.uk>
+	id <S132291AbRAEP5f>; Fri, 5 Jan 2001 10:57:35 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:4536 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S129744AbRAEP5Z>; Fri, 5 Jan 2001 10:57:25 -0500
+Message-ID: <3A55F047.1F41A6FC@uow.edu.au>
+Date: Sat, 06 Jan 2001 03:03:19 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: I Lee Hetherington <ilh@sls.lcs.mit.edu>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Dell Precision 330 (Pentium 4, i850 chipset, 3c905c)
+In-Reply-To: <3A54E717.11A43B42@sls.lcs.mit.edu> <3A557D12.A5383794@uow.edu.au> <3A55E15B.F39D6B87@sls.lcs.mit.edu> <3A55EF19.1BD5EE39@uow.edu.au> <3A55EE56.8C1DCDD0@sls.lcs.mit.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 5 Jan 2001, Chris Mason wrote:
-
-> > Could someone create one single patch for the 2.4.0 ?
+I Lee Hetherington wrote:
+> 
+> Andrew Morton wrote:
+> 
+> > Could you please test this 2.2 driver?
 > >
-> I put all the code into CVS, and Yura is making the official patch now.
+> >         http://www.uow.edu.au/~andrewm/linux/3c59x.c-2.2.19-pre2-2.gz
+> 
+> Bingo!  This driver works fine.  Thanks.
 
-Since 2.4.0 final should fix a few i/o performance issues (particuarly
-under heavy write loads), a quick few ext2 vs. reiserfs benchmarks would
-make very interesting reading ;-)
+And /proc/interrupts?
 
-Cheers
-Chris
+> (Why do hardware people keep tweaking things for seemingly unnecessary reasons?)
 
+They hate software people.
+
+-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262498AbTFBPkh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 11:40:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbTFBPkh
+	id S262490AbTFBPi7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 11:38:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbTFBPi7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 11:40:37 -0400
-Received: from holomorphy.com ([66.224.33.161]:58527 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262498AbTFBPkf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 11:40:35 -0400
-Date: Mon, 2 Jun 2003 08:53:45 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Tom Sightler <ttsig@tuxyturvy.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Mike Galbraith <efault@gmx.de>,
-       Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Strange load issues with 2.5.69/70 in both -mm and -bk trees.
-Message-ID: <20030602155345.GR8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Tom Sightler <ttsig@tuxyturvy.com>, Ingo Molnar <mingo@elte.hu>,
-	Mike Galbraith <efault@gmx.de>, Andrew Morton <akpm@digeo.com>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0306020937250.2970-100000@localhost.localdomain> <1054564236.4190.15.camel@iso-8590-lx.zeusinc.com> <1054567498.3545.18.camel@iso-8590-lx.zeusinc.com> <1054568875.3545.34.camel@iso-8590-lx.zeusinc.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1054568875.3545.34.camel@iso-8590-lx.zeusinc.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Mon, 2 Jun 2003 11:38:59 -0400
+Received: from windsormachine.com ([206.48.122.28]:32273 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id S262483AbTFBPi4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 11:38:56 -0400
+Date: Mon, 2 Jun 2003 11:52:20 -0400 (EDT)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: <linux-kernel@vger.kernel.org>
+cc: <linux-smp@vger.kernel.org>
+Subject: Re: Hyper-threading
+In-Reply-To: <Pine.LNX.4.53.0306021124570.16188@chaos>
+Message-ID: <Pine.LNX.4.33.0306021147460.31561-100000@router.windsormachine.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 02, 2003 at 11:47:56AM -0400, Tom Sightler wrote:
-> In trying to figure out why this might be worse under 2.5 I took some
-> simple vmstat numbers under 2.4 and 2.5, this biggest difference is the
-> number of context switches.  Under 2.4, with the page loaded, but
-> otherwise idle, the system averages around 700/sec, and when I mouse
-> around the page I get 2000-3000/sec.
-> However, under 2.5, as I reported previously, I get 2000/sec all the
-> time, and 3000-4000 as I mouse around the page.
-> Would this be expected behavior?  Does 2.5 do something that would cause
-> more context switches that 2.4?  I have no idea if this would have any
-> impact at all, but it was the only difference I could observe in my
-> fairly simple testing of the two kernels.
+On Mon, 2 Jun 2003, Richard B. Johnson wrote:
 
-A quick patch to register profile hit counts for codepaths calling
-schedule() and/or yield() appears to be in order for such occasions.
+> Well it is supposed to. It's a pentium 4 Xeon. If it doesn't
+> support it, ether the CPU or the motherboard are broken.
+> I'll bet on the motherboard.
+> Look further up the dmesg output and you'll see XEON(tm) and
+> 2 CPUs total.
 
+Indeed, I saw that.  On the P4 2.66ghz that you have, the "second" cpu is
+disabled by intel, as they sell hyperthreading only on the newer Xeon P4
+(which you don't have), and the new 800FSB (4x200) units, which again
+you don't have.
 
--- wli
+..... CPU clock speed is 2672.7802 MHz.
+..... host bus clock speed is 133.6388 MHz.
+
+There is a Xeon 2.66 part, however it has 603 pins, and would not fit on
+your IC7-G board, which is a P4 board, not a P4 Xeon board,
+
+CPU0: Intel(R) Pentium(R) 4 CPU 2.66GHz stepping 07 is correct.
+
+OT:  Are your two 100mbit cards PCI or something?  I noticed the onboard
+gigabit adapter isn't detected.
+
+Mike
+

@@ -1,36 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289139AbSBMXeu>; Wed, 13 Feb 2002 18:34:50 -0500
+	id <S289140AbSBMXfx>; Wed, 13 Feb 2002 18:35:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289166AbSBMXek>; Wed, 13 Feb 2002 18:34:40 -0500
-Received: from ool-182d14cd.dyn.optonline.net ([24.45.20.205]:52485 "HELO
-	osinvestor.com") by vger.kernel.org with SMTP id <S289139AbSBMXec>;
-	Wed, 13 Feb 2002 18:34:32 -0500
-Date: Wed, 13 Feb 2002 18:34:25 -0500 (EST)
-From: Rob Radez <rob@osinvestor.com>
-X-X-Sender: <rob@pita.lan>
-To: <Wayne.Brown@altec.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        <torvalds@transmeta.com>, <hpa@transmeta.com>
-Subject: Re: linux-2.5.5-pre1
-In-Reply-To: <86256B5F.0080E1BC.00@smtpnotes.altec.com>
-Message-ID: <Pine.LNX.4.33.0202131833080.26027-100000@pita.lan>
+	id <S289161AbSBMXfa>; Wed, 13 Feb 2002 18:35:30 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38158 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289140AbSBMXfT>; Wed, 13 Feb 2002 18:35:19 -0500
+Subject: Re: Promise SuperTrak100 Oops/Kernel Panic
+To: rlake@colabnet.com (Rob Lake)
+Date: Wed, 13 Feb 2002 23:49:11 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C6AF523.9070703@colabnet.com> from "Rob Lake" at Feb 13, 2002 07:52:11 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16b99D-0006p4-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> linux-2.4.13-ac8 (patched from linux-2.4.13 with ac8 patch, if it 
+> matters).  Each time I load the i2o_block module, there is a a kernel 
+> panic.  Running the output through ksymoops produced the what's below - 
+> hopefully the ???? are supposed to be there.  At first I tried with i2o 
+> compiled into kernel; It had detected the raid card, but panic'd soon after.
 
-On Wed, 13 Feb 2002 Wayne.Brown@altec.com wrote:
-
->
->
-> So where is it?  I haven't been able to find it at kernel.org yet.
-
-In a different (wrong?) directory: /pub/linux/kernel/testing/ instead of
-/pub/linux/kernel/v2.5/testing which is also why hpa's scripts haven't
-picked up on it yet.
-
-Regards,
-Rob Radez
-
+Use either 2.4.9 Red Hat kernel trees or 2.4.18-rc1 and all should be well.

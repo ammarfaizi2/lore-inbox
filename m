@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270317AbTGNLdx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 07:33:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270364AbTGNLdx
+	id S265531AbTGNL2q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 07:28:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbTGNL2q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 07:33:53 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:24076 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S270317AbTGNLdu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 07:33:50 -0400
-Date: Mon, 14 Jul 2003 13:48:35 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Elsner@zrz.TU-Berlin.DE, <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-2.6.0-test1] make xconfig fails
-In-Reply-To: <E19c0nd-0006L9-4m@bronto.zrz.TU-Berlin.DE>
-Message-ID: <Pine.LNX.4.44.0307141325170.717-100000@serv>
-References: <E19c0nd-0006L9-4m@bronto.zrz.TU-Berlin.DE>
+	Mon, 14 Jul 2003 07:28:46 -0400
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:35595 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id S270096AbTGNL1S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 07:27:18 -0400
+From: "" <simon@baydel.com>
+To: linux-kernel@vger.kernel.org
+Date: Mon, 14 Jul 2003 12:27:37 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: PPC 440 System
+Message-ID: <3F12A1B9.3086.614B56@localhost>
+X-mailer: Pegasus Mail for Windows (v4.11)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I have an IBM ebony development board which has a PPC 440 
+processor. I am trying to build a development system for it. It 
+currently loads a cross compiled kernel and kicks out messages via 
+the first serial port, no vga. It mounts the root fs via nfs and tries to 
+exec /sbin/init. At this point the system appears to hang. 
 
-On Mon, 14 Jul 2003, Frank Elsner wrote:
+If I remove /sbin/init from the nfs root the kernel panics as expected, 
+so I assume root is mounted ok. I have tried to build a minimum root 
+filesystem which contains /dev/console, /dev/ttyS0 and a statically 
+linked /sbin/init. The init just does a printf but I do not see this 
+message. Does anyone know it this should work ? 
 
-> RHL 7.3, gcc-2.95.3, copied .config from 2.4.21 source tree 
->                                       to linux-2.6.0-test1 source tree.
-> make oldconfig went ok.
-> 
-> Later make xconfig failed:
+Initially I tried to build a root filesystem from files on a Mac Clone 
+running Yellow Dog Linux. I believe this has a PPC 604e processor. 
+Should this systems binaries/libraries run on the 440GP ?
 
-It's most likely a mismatch between QT and g++.
-Older RedHat systems have that problem, although most of the time it 
-already fails at linking.
+Can I expect a statically linked executable, made on the Mac, to run
+on the 440GP?
 
-> /usr/lib/qt3-gcc2.96/bin/moc -i scripts/kconfig/qconf.h -o scripts/kconfig/qconf
 
-Which version is the g++ compiler?
+Many Thanks
 
-bye, Roman
+Simon. 
+__________________________
+
+Simon Haynes - Baydel 
+Phone : 44 (0) 1372 378811
+Email : simon@baydel.com
+__________________________
 

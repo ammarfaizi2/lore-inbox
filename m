@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263190AbTIATEM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 15:04:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263196AbTIATEM
+	id S263213AbTIATM5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 15:12:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263215AbTIATM5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 15:04:12 -0400
-Received: from fw.osdl.org ([65.172.181.6]:24961 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263190AbTIATEJ (ORCPT
+	Mon, 1 Sep 2003 15:12:57 -0400
+Received: from mx2.mail.ru ([194.67.23.22]:5644 "EHLO mx2.mail.ru")
+	by vger.kernel.org with ESMTP id S263213AbTIATMy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 15:04:09 -0400
-Date: Mon, 1 Sep 2003 12:04:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Dale E Martin" <dmartin@cliftonlabs.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: repeatable, hard lockup on boot in linux-2.6.0-test4 (more
- details)
-Message-Id: <20030901120412.2047eeff.akpm@osdl.org>
-In-Reply-To: <20030901182359.GA871@cliftonlabs.com>
-References: <20030901153305.GA1429@cliftonlabs.com>
-	<20030901182359.GA871@cliftonlabs.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 1 Sep 2003 15:12:54 -0400
+Date: Mon, 1 Sep 2003 21:09:57 +0200 (CEST)
+From: Guennadi Liakhovetski <lyakh@mail.ru>
+Reply-To: Guennadi Liakhovetski <g.liakhovetski@web.de>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: linux-kernel@vger.kernel.org, Jamie Lokier <jamie@shareable.org>,
+       "Paul J.Y. Lahaie" <pjlahaie@steamballoon.com>
+Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
+In-Reply-To: <20030901155150.B22682@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0309012107220.5752-100000@poirot.grange>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam: Not detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Dale E Martin" <dmartin@cliftonlabs.com> wrote:
->
-> I just removed TCQ from my IDE setup, and I still lock up during boot.  The
-> last message displayed is:
-> mice: PS/2 mouse device common for all mice
-> 
-> The numlock comes on, and then I'm locked up hard, for instance, I cannot
-> turn off the numlock at this point.
-> 
-> One thing that I would note is that I don't have anything plugged into my
-> PS2/2 port since I have a USB mouse.  (A Kensington Model# MOSUU B, that
-> works fine in 2.4.x, FWIW.)  Please advise if there is more debugging that
-> I can try.
+On
 
-Are you able to plug any PS/2 devices into the machine, see if that makes a
-difference?
+Processor       : Intel XScale-PXA250 rev 3 (v5l)
+BogoMIPS        : 397.31
+Features        : swp half thumb fastmult edsp
+CPU implementor : 0x69
+CPU architecture: 5TE
+CPU variant     : 0x0
+CPU part        : 0x290
+CPU revision    : 3
+Cache type      : undefined 5
+Cache clean     : undefined 5
+Cache lockdown  : undefined 5
+Cache unified   : Harvard
+I size          : 32768
+I assoc         : 32
+I line length   : 32
+I sets          : 32
+D size          : 32768
+D assoc         : 32
+D line length   : 32
+D sets          : 32
 
-Also it would be useful to add the option "initcall_debug" to the kernel
-boot command line.  Then you will see a bunch of messages of the form
+and
 
-	calling initcall 0xNNNNNNNN
+Processor       : StrongARM-1100 rev 9 (v4l)
+BogoMIPS        : 127.38
+Features        : swp half 26bit fastmult
 
-Please look up the final address in the System.map file from the 2.6 build.
-This will give us an idea of what the machine was trying to do when it
-died.
+version 3 of the test consistently reports "Too slow".
+
+Guennadi
+---
+Guennadi Liakhovetski
 
 
 

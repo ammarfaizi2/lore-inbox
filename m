@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264579AbUENXZO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264584AbUENX2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264579AbUENXZO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 19:25:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264561AbUENXWN
+	id S264584AbUENX2U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 19:28:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264561AbUENXZf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 19:22:13 -0400
-Received: from fw.osdl.org ([65.172.181.6]:59835 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264579AbUENXTH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 19:19:07 -0400
-Date: Fri, 14 May 2004 16:19:04 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Chris Wright <chrisw@osdl.org>, joern@wohnheim.fh-wedel.de,
-       arjanv@redhat.com, benh@kernel.crashing.org, kronos@kronoz.cjb.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [4KSTACK][2.6.6] Stack overflow in radeonfb
-Message-ID: <20040514161904.C21045@build.pdx.osdl.net>
-References: <20040513145640.GA3430@dreamland.darkstar.lan> <1084488901.3021.116.camel@gaston> <20040513182153.1feb488b.akpm@osdl.org> <20040514094923.GB29106@devserv.devel.redhat.com> <20040514114746.GB23863@wohnheim.fh-wedel.de> <20040514151520.65b31f62.akpm@osdl.org> <20040514155643.G22989@build.pdx.osdl.net> <20040514161814.3e1f690e.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040514161814.3e1f690e.akpm@osdl.org>; from akpm@osdl.org on Fri, May 14, 2004 at 04:18:14PM -0700
+	Fri, 14 May 2004 19:25:35 -0400
+Received: from [209.195.52.120] ([209.195.52.120]:54706 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id S264543AbUENXYv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 19:24:51 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: linux-kernel@vger.kernel.org
+Date: Fri, 14 May 2004 16:24:43 -0700 (PDT)
+X-X-Sender: dlang@dlang.diginsite.com
+Subject: zombies with AMD64 and 32 bit userspace with 2.6
+In-Reply-To: <1084576043923@kroah.com>
+Message-ID: <Pine.LNX.4.58.0405141615220.27007@dlang.diginsite.com>
+References: <1084576043923@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrew Morton (akpm@osdl.org) wrote:
-> Well find .  -name '*.o' -a -not -name '*.mod.o' would fix that up but the
-> dupes are coming from the intermediate .o files which the build system
-> prepares.  sound/core/snd.o contains sound/core/snd-pcm.o contains
-> sound/core/pcm_native.o.
+I have a box I am testing in my lab which is a dual opteron with a
+complete 32 bit userspace (debian based) with a 64 bit kernel. when
+running a stress test with a highly forking workload I am running into a
+situation where it generates a lot of zombies
 
-i wonder if limiting to vmlinux and .ko's would be clean?
+the test is a simple forking proxy that receives connections from one
+machine (running apache benchmark) and forwards them to anothr machine
+(running apache). for <~30,000 requests the machine keeps up with no
+problem (apache is the bottlneck here at ~3500 requests/sec), but if I try
+to do a test with more then about 30,000 requests in it the box starts to
+generate zombie processes (eventually running into the max processes limit
+and stopping)
 
-thanks,
--chris
+the smaller tests leave no zombies at all and can be run multiple times
+without a problem (although I have not run them back to back, so there is
+a substantial bit of time between tests)
+
+I have been able to duplicate this with the 2.6.4 and 2.6.6 kernels.
+
+running the exact same test (same binaries except for the kernel) on a
+dual athlon box has no problems (the dual athlon box becomes the
+bottleneck at ~2500 connections/sec) and has survived 10,000,000
+connection tests.
+
+David Lang
+
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

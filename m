@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261282AbSKBP6K>; Sat, 2 Nov 2002 10:58:10 -0500
+	id <S261284AbSKBQAn>; Sat, 2 Nov 2002 11:00:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261284AbSKBP6K>; Sat, 2 Nov 2002 10:58:10 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:10937 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S261282AbSKBP6J>;
-	Sat, 2 Nov 2002 10:58:09 -0500
-Date: Sat, 2 Nov 2002 16:04:33 +0000
+	id <S261287AbSKBQAn>; Sat, 2 Nov 2002 11:00:43 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:11705 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S261286AbSKBQAn>;
+	Sat, 2 Nov 2002 11:00:43 -0500
+Date: Sat, 2 Nov 2002 16:07:08 +0000
 From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [half-joke] Help - someone turned my machine into xt emulating 386 using bochs...
-Message-ID: <20021102160433.GD4402@bjl1.asuk.net>
-References: <20021101224514.GA126@elf.ucw.cz>
+To: William Lovaton <walovaton@yahoo.com.mx>
+Cc: davej@codemonkey.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: NGTP Patches in 2.5.x
+Message-ID: <20021102160708.GE4402@bjl1.asuk.net>
+References: <20021102141516.56540.qmail@web20805.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021101224514.GA126@elf.ucw.cz>
+In-Reply-To: <20021102141516.56540.qmail@web20805.mail.yahoo.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Strange thing happened: My machine appeared to lock up. I tried to
-> switch consoles, and nothing happened.... Up to now. Now I see
-> consoles redrawing on vesab, at speed around 5 characters per
-> second. [Yes, I can see letters being erased].
+William Lovaton wrote:
+> But, where is the Next Generation Thread Posix
+> (NGTP)?? I think this was made by Ingo Molnar and some
+> others.
 
-Hey, that's faster than the time I connected an ethernet traffic
-generator to a PII :-)  What fun it was to see "l".."o".."g".."i".."n"..":"!
+Don't confuse NGPT with NPTL :-)
+
+But yes, Ingo did great things with threads whichever user space is
+using it.  And yes it's in the new kernel.
 
 -- Jamie

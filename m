@@ -1,82 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVB1Ts4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbVB1T4L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261598AbVB1Ts4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 14:48:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbVB1Tsz
+	id S261672AbVB1T4L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 14:56:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbVB1T4L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 14:48:55 -0500
-Received: from h80ad25cd.async.vt.edu ([128.173.37.205]:523 "EHLO
-	h80ad25cd.async.vt.edu") by vger.kernel.org with ESMTP
-	id S261598AbVB1Ts1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 14:48:27 -0500
-Message-Id: <200502281948.j1SJmKdV006528@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.11-rc4-mm1 - pcmcia weirdness/breakage
-From: Valdis.Kletnieks@vt.edu
+	Mon, 28 Feb 2005 14:56:11 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:12088
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S261672AbVB1Tz5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 14:55:57 -0500
+Date: Mon, 28 Feb 2005 20:55:56 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: two pipe bugfixes
+Message-ID: <20050228195556.GL8880@opteron.random>
+References: <20050228042544.GA8742@opteron.random> <Pine.LNX.4.58.0502272143500.25732@ppc970.osdl.org> <20050228190437.GI8880@opteron.random> <Pine.LNX.4.58.0502281113380.25732@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1109620099_3594P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 28 Feb 2005 14:48:20 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0502281113380.25732@ppc970.osdl.org>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1109620099_3594P
-Content-Type: text/plain; charset=us-ascii
+On Mon, Feb 28, 2005 at 11:22:18AM -0800, Linus Torvalds wrote:
+> I wonder. It migth just be a latent bug in python-twisted, rather than any 
+> "designed behaviour".
 
-Symptoms:  Running '/etc/init.d/pcmcia start' bombs - cardmgr goes into
-a loop spewing repeated 'Common memory region at 0x0: Generic or SRAM'
-messages.  In the dmesg, we find:
+Twisted is doing this for the process writer doRead operation:
 
-[4294764.989000]  <6>cs: IO port probe 0xc00-0xcff: clean.
-[4294859.195000] cs: IO port probe 0xc00-0xcff: clean.
-[4294859.195000] cs: IO port probe 0xc00-0xcff: clean.
-[4294859.199000] cs: IO port probe 0x100-0x4ff: excluding 0x170-0x177 0x370-0x37f
-[4294859.202000] cs: IO port probe 0x100-0x4ff: excluding 0x170-0x177 0x370-0x37f
-[4294859.205000] cs: IO port probe 0x100-0x4ff: excluding 0x170-0x177 0x370-0x37f
-[4294859.207000] cs: IO port probe 0xa00-0xaff: clean.
-[4294859.208000] cs: IO port probe 0xa00-0xaff: clean.
-[4294859.209000] cs: IO port probe 0xa00-0xaff: clean.
-[4294859.369000] cs: unable to map card memory!
-[4294859.369000] cs: unable to map card memory!
+    def doRead(self):
+        """The only way this pipe can become readable is at EOF, because the
+        child has closed it.
+        """
+        fd = self.fd
+        r, w, x = select.select([fd], [fd], [], 0)
+        if r and w:
+            return CONNECTION_LOST
 
-Now the odd part:
+This apparently means it consider the connection lost when
+POLLIN|POLLOUT are set at the same time (which will never happen anymore
+with my patch and that was happening all the time with the new
+optimizations). It could happen with 2.6.8 too infact, if the write
+buffer was empty.
 
-2.6.11-rc4 works, doesn't show the last 2 'unable to map' messages.
-2.6.11-rc4 + linus.patch from -rc4-mm1 works as well - so it's a -mm patch doing it.
+But it should never try to read a writeable fd as you said, so I'm not
+so convinced that what broke twisted is really related to the above code
+or something else, perhaps the above is an hack for some other OS.
 
-A full -rc4-mm1 fails, *as does* a -rc4-mm1 with all the following patches -R'ed:
+The reactor never listens to writeable fds of course:
 
-broken-out/fix-u32-vs-pm_message_t-confusion-in-pcmcia.patch
-broken-out/pcmcia-add-pcmcia-devices-autonomously.patch
-broken-out/pcmcia-bridge-resource-management-fix.patch
-broken-out/pcmcia-determine-some-useful-information-about-devices.patch
-broken-out/pcmcia-mark-resource-setup-as-done.patch
-broken-out/pcmcia-pcmcia_device_add.patch
-broken-out/pcmcia-pcmcia_device_probe.patch
-broken-out/pcmcia-pcmcia_device_remove.patch
-broken-out/pcmcia-pd6729-convert-to-pci_register_driver.patch
-broken-out/pcmcia-per-device-sysfs-output.patch
-broken-out/pcmcia-rsrc_nonstatic-sysfs-input.patch
-broken-out/pcmcia-rsrc_nonstatic-sysfs-output.patch
-broken-out/pcmcia-update-vrc4171_card.patch
-broken-out/pcmcia-use-bus_rescan_devices.patch
-broken-out/pcmcia-yenta_socket-ti4150-support.patch
+        mask = 0
+        if reads.has_key(fd): mask = mask | select.POLLIN
+        if writes.has_key(fd): mask = mask | select.POLLOUT
+        if mask != 0:
+            poller.register(fd, mask)
+        else:
+            if selectables.has_key(fd): del selectables[fd]
 
-So the breakage is in *some other* -rc4-mm1 patch.  Any hints to speed up
-the binary search?
+So if there's a breakage, that could be just the process protocol, and
+not everything else (the process protocol is a protocol implementation
+based on popen but it's asynchronous with poll and it works the same as
+the networking protocols that uses sockets).
 
---==_Exmh_1109620099_3594P
-Content-Type: application/pgp-signature
+I will ask to the proper lists, this is getting offtopic for l-k.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+> Equally arguably, POLLERR should _always_ be set if you select a
+> write-only pipe for reading, and guess what? That would cause "select()"
+> to return readable. It's true too: select returns whether a read() would
+> return immediately, and it _would_ - with an error code.
+> 
+> The basic fact is that an application that asks whether the pipe that it
+> opened for writing is readable is doing something stupid, and the old
+> behaviour was at most surprising, but I'd argue it isn't really
+> necessarily a _bug_.
 
-iD8DBQFCI3WDcC3lWbTT17ARAqhPAJ9LEbJjKh/J/CQ3mGdy0e9hKqlE+QCfX5ll
-8m2Viht8DyIlBPhM4o2Q1tk=
-=wiFv
------END PGP SIGNATURE-----
+My point is that if we're allowed to return "undefined" then we'd better
+return -EINVAL instead ;)
 
---==_Exmh_1109620099_3594P--
+> Of course, "surprising" is bad, even if it's not necessarily a bug. So 
+> making the return value be "unsurprising" can in any case be considered an 
+> improvement.
+
+Agreed.
+
+> I ended up editing it a bit more: the other bits (POLLHUP and POLLERR)  
+> also really only make sense for only one side of the reader/writer
+> schenario, so logically they should be grouped the same way.
+>
+> Of course, in those cases, you can't get the "wrong" answer anyway, since
+> those only trigger if there are no readers or no writers (and if you're
+> open as a reader, that in itself obviously guarantees that there _are_
+> readers, and POLLERR cannot happen according to either the old or the new
+> rules).
+> 
+> Anyway, I think I made the code look more logical while there.
+
+Thanks, I'll check it in the next bk snapshot.

@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317440AbSFMEAc>; Thu, 13 Jun 2002 00:00:32 -0400
+	id <S317444AbSFMEJs>; Thu, 13 Jun 2002 00:09:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317441AbSFMEAb>; Thu, 13 Jun 2002 00:00:31 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:56581 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S317440AbSFMEAb>; Thu, 13 Jun 2002 00:00:31 -0400
-Date: Thu, 13 Jun 2002 06:00:29 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
+	id <S317445AbSFMEJr>; Thu, 13 Jun 2002 00:09:47 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:38563 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S317444AbSFMEJr>;
+	Thu, 13 Jun 2002 00:09:47 -0400
+Date: Thu, 13 Jun 2002 00:09:47 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
 To: Francois Gouget <fgouget@free.fr>
-Cc: linux-kernel@vger.kernel.org
+cc: Stevie O <stevie@qrpff.net>, lkml <linux-kernel@vger.kernel.org>
 Subject: Re: vfat patch for shortcut display as symlinks for 2.4.18
-Message-ID: <20020613040029.GA18894@louise.pinerecords.com>
-In-Reply-To: <Pine.LNX.4.43.0206110712290.7449-100000@amboise.dolphin>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
-X-Uptime: 8 days, 19:15
+In-Reply-To: <Pine.LNX.4.43.0206122004420.18826-100000@amboise.dolphin>
+Message-ID: <Pine.GSO.4.21.0206130008390.18281-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    - for VFAT one could use the UMSDOS filesystem to do the same thing,
->      and get many other features at the same time (at least while in
->      Linux)
 
-AFAIK, umsdos doesn't work on top of fat32, which makes it practically
-unusable in 2002.
 
-T.
+On Wed, 12 Jun 2002, Francois Gouget wrote:
+
+> On Wed, 12 Jun 2002, Stevie O wrote:
+> [...]
+> > With it came a brand new type of symlink.  Instead of relying on some
+> > special bitflag in the inode (as it appears on disk, anyway) to mark
+> > these symlinks as such, they are instead regular files that are marked
+> > as symlinks by the last four characters in the filename being ".lnk".
+> >
+> > This new method of storing symlinks is extremely useful -- it allows
+> > one to create symlinks on a number of filesystems that you couldn't
+> > before, because those filesystems have nowhere to store a 'S_IFLNK'
+> > flag.
+> [...]
+> > Now comes my argument for putting it into the VFS.
+> 
+> Yes, this would be much more useful. Mainly because it would make it
+> usable on more filesystems: VFAT, NTFS, ISO9660, etc.
+
+Vetoed.  Consider what happens if you rename such file, for one thing.
+

@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313572AbSDURAZ>; Sun, 21 Apr 2002 13:00:25 -0400
+	id <S313606AbSDURDy>; Sun, 21 Apr 2002 13:03:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313596AbSDURAZ>; Sun, 21 Apr 2002 13:00:25 -0400
-Received: from bitmover.com ([192.132.92.2]:63130 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S313572AbSDURAX>;
-	Sun, 21 Apr 2002 13:00:23 -0400
-Date: Sun, 21 Apr 2002 10:00:22 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Jochen Friedrich <jochen@scram.de>
-Cc: Anton Altaparmakov <aia21@cantab.net>, Larry McVoy <lm@bitmover.com>,
-        Roman Zippel <zippel@linux-m68k.org>,
-        Jeff Garzik <garzik@havoc.gtf.org>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Message-ID: <20020421100022.B10525@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Jochen Friedrich <jochen@scram.de>,
-	Anton Altaparmakov <aia21@cantab.net>,
-	Larry McVoy <lm@bitmover.com>, Roman Zippel <zippel@linux-m68k.org>,
-	Jeff Garzik <garzik@havoc.gtf.org>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20020421120820.040107b0@pop.cus.cam.ac.uk> <Pine.LNX.4.44.0204211844260.18496-100000@alpha.bocc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S313610AbSDURDx>; Sun, 21 Apr 2002 13:03:53 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:12051 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S313606AbSDURDx>; Sun, 21 Apr 2002 13:03:53 -0400
+Message-Id: <200204211701.g3LH1DX09067@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Subject: Re: /proc/stat weirdness
+Date: Sun, 21 Apr 2002 20:04:23 -0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.33.0204211103060.21092-100000@coffee.psychology.mcmaster.ca>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 21, 2002 at 06:46:07PM +0200, Jochen Friedrich wrote:
-> > >Wrong. Many corporate firewalls allow email and http (both via proxy) and
-> > >reject any other traffic. CVS and BK are both unusable in this
-> > >environment.
-> > 
-> > Not wrong. BK works fine over http protocol. CVS is another matter which I 
-> > cannot comment on...
-> 
-> Ok, but there are other scenarios where only email is available (often via 
-> mail gateways like softswitch on os/390)...
+On 21 April 2002 13:04, Mark Hahn wrote:
+> > I was curious about top showing unwieldy numbers for idle%
+> > (start top, hold down [space] and you'll see).
+>
+> you need to be more explicit.  unweildy?  do you mean
+> very large?
 
-BK works with email as its only transport and has for a long time.
+Yes, stuff like 1231687123,23%
 
-	bk help send
-	bk help receive
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+> > top reads /proc/stat in order to get these percents.
+> > A little script which cats /proc/stat continually
+> > and greps for 'cpu  ' yield:
+> > cpu  39778 0 46829 337191
+> > cpu  39778 0 46831 337192
+> > cpu  39778 0 46833 337193
+> > cpu  39778 0 46834 337194
+> > cpu  39778 0 46835 337195
+> > cpu  39778 0 46836 337196
+> > cpu  39778 0 46838 337197 <<<
+> > cpu  39778 0 46840 337196 <<<
+>
+> your clock jumped back; do you have a via-based computer?
+
+Nope. It's a HP Vectra, a loyal Intel based box.
+Right now I ssh'ed to my NFS server, ran top and held [space] down.
+I saw it there too. What do you see on your box?
+
+I modified top to show 'raw' counter difference too:
+0000001b 00000014 00000000 000001cb   5.3% user,  3.9% system,  0.0% nice, 90.7% idle
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+and it's easy to notice that last number turns into ffffffff sometimes.
+--
+vda

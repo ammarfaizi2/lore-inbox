@@ -1,29 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268473AbTANBoZ>; Mon, 13 Jan 2003 20:44:25 -0500
+	id <S268494AbTANBtv>; Mon, 13 Jan 2003 20:49:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268484AbTANBoZ>; Mon, 13 Jan 2003 20:44:25 -0500
-Received: from paiol.terra.com.br ([200.176.3.18]:17363 "EHLO
-	paiol.terra.com.br") by vger.kernel.org with ESMTP
-	id <S268473AbTANBoZ>; Mon, 13 Jan 2003 20:44:25 -0500
-Subject: kernel 2.5.57
-From: Rodrigo Martins Vieira Fonseca <rodrigof@2xr.com.br>
-To: Lista kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 2xr
-Message-Id: <1042508693.737.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-1) 
-Date: 13 Jan 2003 23:52:57 -0200
+	id <S268495AbTANBtv>; Mon, 13 Jan 2003 20:49:51 -0500
+Received: from pacific.moreton.com.au ([203.143.238.4]:22791 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id <S268494AbTANBtu>; Mon, 13 Jan 2003 20:49:50 -0500
+Message-ID: <3E236EC3.6030306@snapgear.com>
+Date: Tue, 14 Jan 2003 11:58:27 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]: linux-2.5.57-uc0 (MMU-less fix ups)
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I compile the 2.5.57 and have that menssage QM_MODULE : function not
-implemented , and can load any modules, how i fix that, or what i need
-to do? Now i, use redhat 8.0
-Thanks 
--- 
-Rodrigo Martins Vieira Fonseca <rodrigof@2xr.com.br>
-2xr
+Hi All,
+
+An update of the uClinux (MMU-less) fixups against 2.5.57.
+Nothing new, just patched against 2.5.57.
+
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.57-uc0.patch.gz
+
+
+Also updated:
+
+. Motorola 68328 framebuffer driver
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.57-uc0-68328fb.patch.gz
+
+. Hitachi H8300 achitecture support
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.57-uc0-h8300.patch.gz
+
+Regards
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+
 

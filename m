@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293589AbSCKDPy>; Sun, 10 Mar 2002 22:15:54 -0500
+	id <S293465AbSCKDXY>; Sun, 10 Mar 2002 22:23:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293590AbSCKDPp>; Sun, 10 Mar 2002 22:15:45 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:55942 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S293589AbSCKDPf>; Sun, 10 Mar 2002 22:15:35 -0500
-Date: Sun, 10 Mar 2002 22:15:30 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: whitney@math.berkeley.edu, rgooch@ras.ucalgary.ca,
-        linux-kernel@vger.kernel.org
-Subject: Re: Broadcom 5700/5701 Gigabit Ethernet Adapters
-Message-ID: <20020310221530.A28821@redhat.com>
-In-Reply-To: <200203110205.g2B25Ar05044@adsl-209-76-109-63.dsl.snfc21.pacbell.net> <20020310.180456.91344522.davem@redhat.com> <20020310212210.A27870@redhat.com> <20020310.183033.67792009.davem@redhat.com>
-Mime-Version: 1.0
+	id <S293592AbSCKDXP>; Sun, 10 Mar 2002 22:23:15 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:25146 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S293465AbSCKDW4>; Sun, 10 Mar 2002 22:22:56 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: davej@suse.de (Dave Jones), gone@us.ibm.com (Patricia Gaughen),
+        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: [RFC] modularization of i386 setup_arch and mem_init in 2.4.18
+In-Reply-To: <E16k33p-0006Ra-00@the-village.bc.nu>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 10 Mar 2002 20:17:19 -0700
+In-Reply-To: <E16k33p-0006Ra-00@the-village.bc.nu>
+Message-ID: <m1u1rnztc0.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020310.183033.67792009.davem@redhat.com>; from davem@redhat.com on Sun, Mar 10, 2002 at 06:30:33PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 10, 2002 at 06:30:33PM -0800, David S. Miller wrote:
-> Syskonnect sk98 with jumbo frames gets ~107MB/sec TCP bandwidth
-> without NAPI, there is no reason other cards cannot go full speed as
-> well.
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+
+> > I will tenatively vote in favor of this kind of action.  There
+> > are a couple of directions to consider.  This is a two dimensional
+> > problem.
 > 
-> NAPI is really only going to help with high packet rates not with
-> thinks like raw bandwidth tests.
+> That should not be suprising 
+> 
+> > Dimension 1.  Different basic hardware architectures. 
+> >   (pc,numaq,visws,voyager)
+> (and others upcoming)
+> 
+> > Dimension 2.  Different firmware implementations.  
+> >   (pcbios,linuxbios,openfirmware,acpi?)
+> 
+> i386-pc-pcbios
+> 
+> Maybe autoconf got the concept right. You don't neccessarily want to think
+> of it as a grid though. A lot of the stuff is i386-*-pcbios and i386-pc-*
 
-Well, the thing that hurts the 83820 is that its interrupt 
-mitigation capabilities are rather limited.  This is where napi 
-helps: by turning off the rx interrupt for the duration of packet 
-processing, cpu cycles aren't wasted on excess rx irqs.
+Agreed, there is a lot of potential for sharing.
 
-As to the lack of bandwidth, it stems from far too much interrupt 
-overhead and the currently braindead attempt at irq mitigation.  
-Since the last time I worked on it, a number of potential techniques 
-have come up that should bring it into the 100MB realm (assuming it 
-doesn't get trampled on by ksoftirqd).
+Eric
 
-		-ben
--- 
-"A man with a bass just walked in,
- and he's putting it down
- on the floor."
+
+

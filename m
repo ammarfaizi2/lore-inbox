@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143401AbREKVGl>; Fri, 11 May 2001 17:06:41 -0400
+	id <S143399AbREKVGv>; Fri, 11 May 2001 17:06:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143400AbREKVGb>; Fri, 11 May 2001 17:06:31 -0400
-Received: from oss.sgi.com ([216.32.174.190]:59148 "EHLO oss.sgi.com")
-	by vger.kernel.org with ESMTP id <S143399AbREKVGR>;
-	Fri, 11 May 2001 17:06:17 -0400
-Date: Fri, 11 May 2001 12:11:46 -0300
+	id <S143400AbREKVGm>; Fri, 11 May 2001 17:06:42 -0400
+Received: from oss.sgi.com ([216.32.174.190]:7437 "EHLO oss.sgi.com")
+	by vger.kernel.org with ESMTP id <S143399AbREKVGf>;
+	Fri, 11 May 2001 17:06:35 -0400
+Date: Fri, 11 May 2001 01:02:53 -0300
 From: Ralf Baechle <ralf@uni-koblenz.de>
-To: mirabilos <eccesys@topmail.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bandwidth
-Message-ID: <20010511121146.A3224@bacchus.dhis.org>
-In-Reply-To: <00da01c0d251$240894e0$de00a8c0@homeip.net> <20010501175312.A1057@werewolf.able.es> <001e01c0d2eb$2cc17f80$de00a8c0@homeip.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org
+Subject: Re: Athlon possible fixes
+Message-ID: <20010511010253.A1257@bacchus.dhis.org>
+In-Reply-To: <20010506142346.C31269@metastasis.f00f.org> <E14wO16-00023N-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <001e01c0d2eb$2cc17f80$de00a8c0@homeip.net>; from eccesys@topmail.de on Wed, May 02, 2001 at 09:35:05AM -0000
+In-Reply-To: <E14wO16-00023N-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, May 06, 2001 at 01:51:59PM +0100
 X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 02, 2001 at 09:35:05AM -0000, mirabilos wrote:
+On Sun, May 06, 2001 at 01:51:59PM +0100, Alan Cox wrote:
 
-> > What you have todo is to learn how to configure your mailer to display
-> > headers you want.
+> > There really needs to be a hardware fix... this doesn't stop some
+> > application having it's owne optimised code from breaking on some
+> > hardware (think games and similation software perhaps).
 > 
-> Not the displaying annoys me, it's the traffic. The headers usually are
-> less than multiple quoted sigs, though.
+> prefetch is virtually addresses. An application would need access to /dev/mem
+> or similar. So the only folks I think it might actually bite are the Xserver
+> people.
 
-Headers serve a technical purpose.  So for example adding Received: headers
-is a MUST according to RFC 2822, 3.8.2:
-
-3.8.2 Received Lines in Gatewaying
-
-   When forwarding a message into or out of the Internet environment, a
-   gateway MUST prepend a Received: line, but it MUST NOT alter in any
-   way a Received: line that is already in the header.
-
-Similar for the other headers; basically all of them cannot be removed
-without loosing functionality or putting the reliability of the mail
-system at stake.  Let me just say mail loops ...
+Prefetch bugs in hardware have biten Linux/68k as early as '94; a GVP SCSI
+HBA on the Amiga may touch areas beyond the last valid RAM address when
+doing DMA to the last page.  Being a burned child from that time Linux/MIPS
+didn't use the last RAM page just to be on the safe side.
 
   Ralf

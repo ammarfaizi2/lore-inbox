@@ -1,54 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265260AbUFHRsI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265266AbUFHSCB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265260AbUFHRsI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 13:48:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265263AbUFHRsI
+	id S265266AbUFHSCB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 14:02:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265274AbUFHSCB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 13:48:08 -0400
-Received: from mail.tmr.com ([216.238.38.203]:56843 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S265260AbUFHRsE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 13:48:04 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: APM realy sucks on 2.6.x
-Date: Tue, 08 Jun 2004 13:48:40 -0400
-Organization: TMR Associates, Inc
-Message-ID: <ca4tt4$p5t$2@gatekeeper.tmr.com>
-References: <40C0E91D.9070900@scienion.de> <20040607123839.GC11860@elf.ucw.cz> <40C46F7F.7060703@scienion.de> <20040607140511.GA1467@elf.ucw.cz> <40C47B94.6040408@scienion.de> <20040607144841.GD1467@elf.ucw.cz> <40C53D80.2080603@tequila.co.jp> <20040608085814.GA1269@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1086716644 25789 192.168.12.100 (8 Jun 2004 17:44:04 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+	Tue, 8 Jun 2004 14:02:01 -0400
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:38577 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S265266AbUFHSB5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 14:01:57 -0400
+Message-ID: <40C5FF1B.1050805@blue-labs.org>
+Date: Tue, 08 Jun 2004 14:02:03 -0400
+From: David Ford <david+challenge-response@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a2) Gecko/20040607
 X-Accept-Language: en-us, en
-In-Reply-To: <20040608085814.GA1269@elf.ucw.cz>
+MIME-Version: 1.0
+To: Bill Davidsen <davidsen@tmr.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.7-rc2
+References: <Pine.LNX.4.58.0405292349110.1632@ppc970.osdl.org> <1086187044.6179.8.camel@hostmaster.org> <200406041706.27716.vda@port.imtp.ilyichevsk.odessa.ua> <ca4r6t$p16$1@gatekeeper.tmr.com>
+In-Reply-To: <ca4r6t$p16$1@gatekeeper.tmr.com>
+Content-Type: multipart/mixed;
+ boundary="------------070201040102070509060404"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
-> 
-> 
->>| PCMCIA... well, that's another obsolete technology. Too bad.
+This is a multi-part message in MIME format.
+--------------070201040102070509060404
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+It would also help if there was a preliminary auto-detect option/feature 
+in the main window that could get a quick idea of what can/should be 
+enabled.
+
+David
+
+Bill Davidsen wrote:
+
+> Denis Vlasenko wrote:
+>
+>> On Wednesday 02 June 2004 17:37, Thomas Zehetbauer wrote:
 >>
->>PCMCIA is obsolete? Did I miss something, or was this a joke?
-> 
-> 
-> Obsoleted by cardbus, I believe. (cardbus cards look like PCMCIA
-> cards, but electrical protocol is different) Plus, as someone else
-> noted, stuff moves into mainboard. USB also replacs part of what
-> PCMCIA was for.
+>>> http://bugzilla.kernel.org/show_bug.cgi?id=2819
+>>>
+>>> Make oldconfig silently disabled support for my CONFIG_TIGON3 NIC.
+>>>
+>>> It seems that it depends on CONFIG_NET_GIGE which in turn depends on
+>>> CONFIG_NET_ETHERNET which was not required in 2.6.6 kernel.
+>>>
+>>> Tom
+>>
+>>
+>>
+>> Many days ago I read on lkml that separating 10,100 and 1000 Mbit
+>> ethernet is not really justified. There are devices which have
+>> 100 and 1000 variants.
+>>
+>> Just keeping all ethernet devices in one menu sounds sane to me.
+>
+>
+> There are other issues with the build process, when a driver supports 
+> a chipset used in several products there's no reasonable way to find 
+> out which driver should be used, and as you say the split of speed 
+> makes less and less sense, and will just get worse when 10Ge is more 
+> common.
+>
+> The solution may be an external table, program, or whatever, since the 
+> situation changes as drivers are modified to support new models, 
+> chipsets move to new vendors, etc. But it would be *really nice* to 
+> find the 3c940 with 3COM drivers, instead of grepping driver source 
+> and looking at spec sheets to find out that the driver is called 
+> something like sk98lin, it's in an unobvious place and has a name 
+> unrelated to 3COM.
+>
+> Here's a suggestion if someone wants to do something about this, like 
+> LDP. Produce a CSV list of vendor name, like 3c940, name used for 
+> config in the menu, module name and symbol in the .config file. Would 
+> let users find things a lot faster, and could be used with grep as 
+> well as some spreadsheet tool.
+>
 
-Cardbus maybe, USB not. USB is very nice, but it's not typically SMALL. 
-A PCMCIA NIC card is a credit card size, a USB NIC is a box plus a 
-cable. Before you tell me I don't need it please name the affordable 
-laptop which has 2 NICs.
+--------------070201040102070509060404
+Content-Type: text/x-vcard; charset=utf-8;
+ name="david+challenge-response.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="david+challenge-response.vcf"
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+begin:vcard
+fn:David Ford
+n:Ford;David
+email;internet:david@blue-labs.org
+title:Industrial Geek
+tel;home:Ask please
+tel;cell:(203) 650-3611
+x-mozilla-html:TRUE
+version:2.1
+end:vcard
+
+
+--------------070201040102070509060404--

@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265797AbRGCAyg>; Mon, 2 Jul 2001 20:54:36 -0400
+	id <S266070AbRGCBPb>; Mon, 2 Jul 2001 21:15:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265926AbRGCAy1>; Mon, 2 Jul 2001 20:54:27 -0400
-Received: from stm.lbl.gov ([131.243.16.51]:12301 "EHLO stm.lbl.gov")
-	by vger.kernel.org with ESMTP id <S265797AbRGCAyR>;
-	Mon, 2 Jul 2001 20:54:17 -0400
-Date: Mon, 2 Jul 2001 17:54:12 -0700
-From: David Schleef <ds@schleef.org>
-To: David T Eger <eger@cc.gatech.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: readl() / writel() on PowerPC
-Message-ID: <20010702175412.A15774@stm.lbl.gov>
-Reply-To: David Schleef <ds@schleef.org>
-In-Reply-To: <Pine.SOL.4.21.0106180852480.16027-100000@oscar.cc.gatech.edu> <Pine.SOL.4.21.0107022017370.23357-100000@oscar.cc.gatech.edu>
+	id <S266080AbRGCBPV>; Mon, 2 Jul 2001 21:15:21 -0400
+Received: from operamail.com ([199.29.68.126]:14348 "EHLO operamail.com")
+	by vger.kernel.org with ESMTP id <S266070AbRGCBPL>;
+	Mon, 2 Jul 2001 21:15:11 -0400
+X-WM-Posted-At: operamail.com; Mon, 2 Jul 01 21:14:37 -0400
+X-WebMail-UserID: mrsamjooky
+Date: Mon, 2 Jul 2001 21:14:37 -0400
+From: mr sam jooky <mrsamjooky@operamail.com>
+To: linux-kernel@vger.kernel.org
+X-EXP32-SerialNo: 00000000
+Subject: re: pcmcia lockup inserting or removing cards in 2.4.5-ac{13,22}
+Message-ID: <3B448CA1@operamail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.SOL.4.21.0107022017370.23357-100000@oscar.cc.gatech.edu>; from eger@cc.gatech.edu on Mon, Jul 02, 2001 at 08:22:55PM -0400
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Mailer: InterChange (Hydra) SMTP v3.61.08
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 02, 2001 at 08:22:55PM -0400, David T Eger wrote:
-> 
-> I have been working on a driver for a PowerPC PCI card/framebuffer device,
-> and noticed that the standard readl() and writel() for this platform to
-> byte swapping, since PowerPC runs big-endian.  However, at least for my
-> hardware it's *really* not needed, and should just do a regular load
-> store, as is done for CONFIG_APUS.  Looking at another driver
-> (drivers/char/bttv.h) I notice that Mr. Metzler redefines his read and
-> write routines for PowerPC as well to do simple loads and stores to IO
-> regions.
+>Somewhere between 2.4.2 and 2.4.5-ac13, PCMCIA card insertion and
+>removal appears to have broken on my Toshiba Libretto. On 2.4.2 all was
+>fine. On both 2.4.5-ac13 and ac22 it's broken. The whole machine
+>freezes
+>solid, no SAK-s, SAK-u, SAK-b, no Ctrl-Alt-Fn to switch VC's. No
+>messages
+>are issued. Problem occurs when inserting/removing any of YE-Data
+>PCMCIA
+>floppy, TDK Smartmedia adapter (ide_cs), or 3c589 ethernet card.
 
-
-I believe you are looking for __raw_readl(), __raw_writel().
-
-
-
-dave...
+On my IBM Thinkpad 390E my PCMCIA works fine with 2.4.5, on very rare 
+occasions
+the mouse will drift diagonaly to the lower right corner. I read in the kernel
+sources that this happens normaly due to probing of the PCMCIA which screws up
+the mouse device. It happens so rarely I have not yet taken the time to try to
+debug it.
 

@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261735AbUC0Nw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 08:52:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbUC0Nw4
+	id S261717AbUC0NtU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 08:49:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbUC0NtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 08:52:56 -0500
-Received: from mail.shareable.org ([81.29.64.88]:19602 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261735AbUC0Nwz
+	Sat, 27 Mar 2004 08:49:20 -0500
+Received: from mail.shareable.org ([81.29.64.88]:18578 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261717AbUC0NtT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 08:52:55 -0500
-Date: Sat, 27 Mar 2004 13:52:45 +0000
+	Sat, 27 Mar 2004 08:49:19 -0500
+Date: Sat, 27 Mar 2004 13:49:02 +0000
 From: Jamie Lokier <jamie@shareable.org>
 To: Matt Mackall <mpm@selenic.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 21/22] /dev/random: kill batching of entropy mixing
-Message-ID: <20040327135245.GD21884@mail.shareable.org>
-References: <21.524465763@selenic.com> <22.524465763@selenic.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 15/22] /dev/random: kill unrolled SHA code
+Message-ID: <20040327134902.GC21884@mail.shareable.org>
+References: <16.524465763@selenic.com> <40638AB1.7080201@pobox.com> <20040326035905.GE8366@waste.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <22.524465763@selenic.com>
+In-Reply-To: <20040326035905.GE8366@waste.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Matt Mackall wrote:
-> Rather than batching up entropy samples, resulting in longer lock hold
-> times when we actually process the samples, mix in samples
-> immediately. The trickle code should eliminate almost all the
-> additional interrupt-time overhead this would otherwise incur, with or
-> without locking.
+> > So we go from "fast" to "I hope it gets faster in the future"?
+> 
+> No, we go from "moderately fast and dead code duplicated in /crypto"
+> to "same speed and one step closer to merging with /crypto". This bit
+> can be dropped for now, I've got the other bits deeper in my queue.
 
-What do you mean by "the trickle code"?  I didn't see anything in your
-patch set which makes the interrupt-time overhead faster.
+I suggest applying this patch.  All it does is delete unused code.
 
 -- Jamie

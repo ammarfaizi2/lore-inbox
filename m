@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286342AbRL0Qbm>; Thu, 27 Dec 2001 11:31:42 -0500
+	id <S286351AbRL0Qcw>; Thu, 27 Dec 2001 11:32:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286345AbRL0Qbd>; Thu, 27 Dec 2001 11:31:33 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:25611 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S286342AbRL0QbQ>; Thu, 27 Dec 2001 11:31:16 -0500
-Date: Thu, 27 Dec 2001 14:30:53 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Dana Lacoste <dana.lacoste@peregrine.com>,
-        "'Eyal Sohya'" <linuz_kernel_q@hotmail.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: The direction linux is taking
-In-Reply-To: <E16JdTa-0005zm-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33L.0112271429580.12225-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S286348AbRL0Qcd>; Thu, 27 Dec 2001 11:32:33 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28946 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S286346AbRL0QcW>; Thu, 27 Dec 2001 11:32:22 -0500
+Subject: Re: hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+To: axboe@suse.de (Jens Axboe)
+Date: Thu, 27 Dec 2001 16:42:04 +0000 (GMT)
+Cc: andre@linux-ide.org (Andre Hedrick), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        stodden@in.tum.de (Daniel Stodden), linux-kernel@vger.kernel.org
+In-Reply-To: <20011227155403.A1730@suse.de> from "Jens Axboe" at Dec 27, 2001 03:54:03 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16JdbY-00061d-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Dec 2001, Alan Cox wrote:
+> retries belong at the low level, once you pass up info of failure to the
+> upper layers it's fatal. time for FS to shut down.
 
-> > All in all, if such a system is ever going to exist, it
-> > needs to _reduce_ the amount of work the kernel maintainers
-> > need to do, otherwise it'll never get used.
->
-> Tridge wrote the system you describe, several years ago. Its called
-> jitterbug but it doesnt help because Linus wont use it
+Thats definitely not the case. Just because your file system is too dumb to
+use the information please don't assume everyone elses isnt - in fact one
+of the side properties of Daniel Phillips stuff is that it should be able
+to sanely handle a bad block problem.
 
-I don't care about Linus, he drops so many bugfixes
-his kernel have done nothing but suck rocks since the
-2.1 era.
+EVMS, MD, multipath all need to know about and do their own bad block 
+handling. If the block driver knows how to recover stuff then great it
+can recover it, but we should ensure its possible for the fs internals
+to recover and work around a bad block. 
 
-This system could be useful for people who _are_ maintainers,
-however.
+> Irk, software managed bad block remapping is horrible.
 
-regards,
+IBM have it working, so however horrible doesn't matter that much, someone
+has done the work for you.
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Alan

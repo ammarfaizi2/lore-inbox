@@ -1,82 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVBAS7g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261908AbVBATCM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbVBAS7g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 13:59:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbVBAS7g
+	id S261908AbVBATCM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 14:02:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbVBATCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 13:59:36 -0500
-Received: from mail.kroah.org ([69.55.234.183]:32721 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261426AbVBAS73 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 13:59:29 -0500
-Date: Tue, 1 Feb 2005 10:58:59 -0800
-From: Greg KH <greg@kroah.com>
+	Tue, 1 Feb 2005 14:02:12 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:43136 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261908AbVBATBk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 14:01:40 -0500
+Message-ID: <41FFD20D.4030105@us.ibm.com>
+Date: Tue, 01 Feb 2005 13:01:33 -0600
+From: Brian King <brking@us.ibm.com>
+Reply-To: brking@us.ibm.com
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Matthew Wilcox <matthew@wil.cx>
-Cc: Brian King <brking@us.ibm.com>,
+CC: Greg KH <greg@kroah.com>,
        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
        Andi Kleen <ak@muc.de>, Paul Mackerras <paulus@samba.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-pci@atrey.karlin.mff.cuni.cz
 Subject: Re: [PATCH 1/1] pci: Block config access during BIST (resend)
-Message-ID: <20050201185859.GA7174@kroah.com>
-References: <20050113202354.GA67143@muc.de> <41ED27CD.7010207@us.ibm.com> <1106161249.3341.9.camel@localhost.localdomain> <41F7C6A1.9070102@us.ibm.com> <1106777405.5235.78.camel@gaston> <1106841228.14787.23.camel@localhost.localdomain> <41FA4DC2.4010305@us.ibm.com> <20050201072746.GA21236@kroah.com> <41FF9C78.2040100@us.ibm.com> <20050201154400.GC10088@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050201154400.GC10088@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.5.6i
+References: <41ED27CD.7010207@us.ibm.com> <1106161249.3341.9.camel@localhost.localdomain> <41F7C6A1.9070102@us.ibm.com> <1106777405.5235.78.camel@gaston> <1106841228.14787.23.camel@localhost.localdomain> <41FA4DC2.4010305@us.ibm.com> <20050201072746.GA21236@kroah.com> <41FF9C78.2040100@us.ibm.com> <20050201154400.GC10088@parcelfarce.linux.theplanet.co.uk> <41FFBDC9.2010206@us.ibm.com> <20050201174758.GE10088@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20050201174758.GE10088@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 01, 2005 at 03:44:00PM +0000, Matthew Wilcox wrote:
-> On Tue, Feb 01, 2005 at 09:12:56AM -0600, Brian King wrote:
-> > Greg KH wrote:
-> > >On Fri, Jan 28, 2005 at 08:35:46AM -0600, Brian King wrote:
-> > >>+void pci_block_user_cfg_access(struct pci_dev *dev)
-> > >>+{
-> > >>+	unsigned long flags;
-> > >>+
-> > >>+	pci_save_state(dev);
-> > >>+	spin_lock_irqsave(&pci_lock, flags);
-> > >>+	dev->block_ucfg_access = 1;
-> > >>+	spin_unlock_irqrestore(&pci_lock, flags);
-> > >>+}
-> > >>+EXPORT_SYMBOL(pci_block_user_cfg_access);
-> > >
-> > >
-> > >EXPORT_SYMBOL_GPL() please?
-> > 
-> > Ok.
+Matthew Wilcox wrote:
+> On Tue, Feb 01, 2005 at 11:35:05AM -0600, Brian King wrote:
 > 
-> I'm not entirely convinced these should be GPL-only exports.  Basically,
-> this is saying that any driver for a device that has this problem must be
-> GPLd.  I think that's a firmer stance than Linus had in mind originally.
-
-"originally"?  These are new functions added to the PCI core.  I think
-that any driver that wants to use this functionality had better be
-released under the GPL as what they are wanting to do is a "new" thing.
-
-That's why I prefer all new exports to be marked _GPL.
-
-thanks,
-
-greg k-h
-> > +void pci_unblock_user_cfg_access(struct pci_dev *dev)
-> > +{
-> > +	unsigned long flags;
-> > +
-> > +	spin_lock_irqsave(&pci_lock, flags);
-> > +	dev->block_ucfg_access = 0;
-> > +	spin_unlock_irqrestore(&pci_lock, flags);
-> > +}
+>>>If we've done a write to config space while the adapter was blocked,
+>>>shouldn't we replay those accesses at this point?
+>>
+>>I did not think that was necessary.
 > 
-> If we've done a write to config space while the adapter was blocked,
-> shouldn't we replay those accesses at this point?
+> 
+> We have to do *something*.  We can't just throw away writes.
+> 
+> I see a few options:
+> 
+>  - Log all pending writes to config space and replay the log when the
+>    device is unblocked.
 
-This has been discussed a lot already.  I think we might as well let the
-thing fail in random and odd ways, as it's some pretty broken hardware
-anyway that wants this functionality :)
+This would need to be dynamic in size, as a device could be blocked for 
+a long time. In the scenario that this is used for power management and 
+the device could be blocked for a long time, its unclear that we would 
+still want all the writes accumulated to be written out when the device 
+becomes unblocked.
 
-thanks,
+>  - Fail writes to config space while the device is blocked.
 
-greg k-h
+This would be nice and simple. I know Alan had some issue with returning 
+failures on reads when blocked.
+
+Alan - do you have the same issue on writes?
+
+>  - Write to the saved config space and then blat the saved config space
+>    back to the device upon unblocking.
+
+Would also be pretty simple to do and seems a little safer than 
+potentially assaulting the recently unblocked device with who knows what 
+values. The only problem I see with this is that we could end up 
+returning strange values on cached reads if the writes update the cache. 
+If userspace wrote to a read only register, we would end up returning 
+that value on the read, which may not be the right thing to do.
+
+> Any other ideas?
+
+We could go back to Alan's idea of putting userspace reads/writes to 
+sleep when the device is blocked, although this has additional 
+complications as well...
+
+> BTW, you know things like XFree86 go completely around the kernel's PCI
+> accessors and poke at config space directly?
+
+The purpose of this API is to provide a way for the kernel to stop 
+userspace from accessing PCI devices when the results of doing so would 
+be catastrophic, such as a PCI bus error. The only users of this API so 
+far are device drivers running BIST on an adapter (which shouldn't 
+happen on a video card AFAIK) and for PPC power management (Ben - will 
+this be an issue for you?)
+
+-- 
+Brian King
+eServer Storage I/O
+IBM Linux Technology Center

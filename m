@@ -1,38 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135211AbRDVEcx>; Sun, 22 Apr 2001 00:32:53 -0400
+	id <S135215AbRDVFMf>; Sun, 22 Apr 2001 01:12:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135212AbRDVEcm>; Sun, 22 Apr 2001 00:32:42 -0400
-Received: from [24.219.123.215] ([24.219.123.215]:9476 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S135211AbRDVEc2>; Sun, 22 Apr 2001 00:32:28 -0400
-Date: Sat, 21 Apr 2001 21:32:31 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: linux-kernel@vger.kernel.org
-Subject: Dead Mail (bugs/andre@linux-ide.org)
-Message-ID: <Pine.LNX.4.10.10104212129210.627-100000@master.linux-ide.org>
+	id <S135214AbRDVFM0>; Sun, 22 Apr 2001 01:12:26 -0400
+Received: from 222.dsl7833.rcsis.com ([63.78.33.222]:14860 "HELO hacklab.net")
+	by vger.kernel.org with SMTP id <S135215AbRDVFMO>;
+	Sun, 22 Apr 2001 01:12:14 -0400
+Message-ID: <3AE2680F.BED4CCFF@hacklab.net>
+Date: Sat, 21 Apr 2001 22:11:43 -0700
+From: PhiloVivero <pvspam-dntrepl@hacklab.net>
+Reply-To: phiviv@hacklab.net
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-3mdk i686)
+X-Accept-Language: en, zh-TW
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: sebastien.godard@wanadoo.fr, timb@claire.org, axboe@suse.de,
+        phiviv@hacklab.net
+Subject: Device Major max and Disk Max in 2.4.x kernel
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have a problem. Trying to write an iostat for Linux (or use an existing
+one):
 
-If anyone has sent me mail in the past few days since 4-18-2001,
-please resend the mail.  I was offlined by PacBell/NorthPoint DSL
-unannounced.
+>From the kernel source:
 
-We are now backup
+[/usr/src/linux-2.4.2/include/linux] :) grep DK_MAX *.h
+kernel_stat.h:#define DK_MAX_MAJOR 16
+kernel_stat.h:#define DK_MAX_DISK 16
 
-Name:    linux-ide.org
-Address:  24.219.123.215
+What to notice: MAJOR and DISK max are 16.
 
-Cheers,
+Again, from the kernel source:
 
-Andre Hedrick
-Linux ATA Development
-ASL Kernel Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
+[/usr/src/linux-2.4.2/fs/proc] :) grep -15 DK_MAX proc_misc.c
+<snip>
+    for (major = 0; major < DK_MAX_MAJOR; major++) {
+            for (disk = 0; disk < DK_MAX_DISK; disk++) {
+                    int active = kstat.dk_drive[major][disk] +
+                            kstat.dk_drive_rblk[major][disk] +
+                            kstat.dk_drive_wblk[major][disk];
+                    if (active)
+                            len += sprintf(page + len,
+                                    "(%u,%u):(%u,%u,%u,%u,%u) ",
+                                    major, disk,
+                                    kstat.dk_drive[major][disk],
+                                    kstat.dk_drive_rio[major][disk],
+                                    kstat.dk_drive_rblk[major][disk],
+                                    kstat.dk_drive_wio[major][disk],
+                                    kstat.dk_drive_wblk[major][disk]
+                    );
+            }
+    }
+
+What to notice: We are looping up to the DK_MAX_MAJOR and DK_MAX_DISK. What
+this means is, any major >16 or disk >16 won't be listed in /proc/stat under
+the "disk_io" section.
+
+Problem. On my system, which I figure is not too uncommon, I have several
+partitions on two hard drives and a CDROM. They are configured thusly:
+
+# cat /proc/partitions
+major minor  #blocks  name
+   3     0   20094480 hda
+   3     1    6313513 hda1
+   3     2     401625 hda2
+   3     3   13374112 hda3
+   3    64    4497152 hdb
+  56     0   45034920 hdi
+  56     1   22490968 hdi1
+  56     2   22539195 hdi2
+
+What to notice: I have a drive on /dev/hdi (never mind why, it actually works)
+that is block major 56. Not only that, my cdrom device on /dev/hdb is block
+major 3, but minor number 64. I am assuming for disks, minor == disk. Sorry if
+this is an incorrect assumption.
+
+No stats for /dev/hdi nor /dev/hdb ever show up in /proc/stat. Only for
+/dev/hda. On my other 2.4.2 system, with multiple hard drives under 16/16,
+I get multiple devices under /proc/stat.
+
+The patch seems relatively easy. Change linux/include/linux/kernel_stat.h to
+allow block major up to 56 (in my case... 64 in general???) and disks up to 64
+(in my case).
+
+But we might need more than 64 disks on a block major (there are MANY snips in
+this so-called cut 'n' paste, because I figure you don't want to see them
+all):
+
+# l /dev/hd* | sort -n
+brw-rw----    1 root     disk       3,  79 Feb 22 08:57 /dev/hdb15
+brw-rw----    1 root     disk       3,  80 Feb 22 08:57 /dev/hdb16
+brw-rw----    1 root     disk      22,  79 Feb 22 08:57 /dev/hdd15
+brw-rw----    1 root     disk      22,  80 Feb 22 08:57 /dev/hdd16
+brw-rw----    1 root     disk      33,  79 Feb 22 08:57 /dev/hdf15
+brw-rw----    1 root     disk      33,  80 Feb 22 08:57 /dev/hdf16
+brw-rw----    1 root     disk      34,  79 Feb 22 08:57 /dev/hdh15
+brw-rw----    1 root     disk      34,  80 Feb 22 08:57 /dev/hdh16
+brw-rw----    1 root     disk      56, 126 Mar 25 17:14 /dev/hdj62
+brw-rw----    1 root     disk      56, 127 Mar 25 17:14 /dev/hdj63
+
+What to notice: We have disks up to 127. I never see any block major over 64
+on my system. The /dev/hdj device isn't used on my system. /dev/hdi and
+/dev/hdj belong to a Promise RAID controller on a new-ish
+ASUS AMD motherboard.
+
+Let me know if I can be of further service. I must bashfully admit that I'm
+not enough of a guru to recompile my kernel anymore, or I'd tweak the
+kernel_stat.h file and recompile myself to test this.
+
+This is just hazy recollection, but I think the 2.2.x kernels have the same
+problem.
+
+--
+PhiloVivero
+ps -- I'm not subscribed to this list, so if you want me to see replies...
+please send to email!
+
 

@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267635AbRHARWt>; Wed, 1 Aug 2001 13:22:49 -0400
+	id <S267642AbRHAR3J>; Wed, 1 Aug 2001 13:29:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267641AbRHARWj>; Wed, 1 Aug 2001 13:22:39 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:7932 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S267635AbRHARWd>; Wed, 1 Aug 2001 13:22:33 -0400
-Message-ID: <3B683AC4.E0F2BF9E@mvista.com>
-Date: Wed, 01 Aug 2001 10:22:12 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S267651AbRHAR3A>; Wed, 1 Aug 2001 13:29:00 -0400
+Received: from lightning.hereintown.net ([207.196.96.3]:18614 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id <S267642AbRHAR2m>; Wed, 1 Aug 2001 13:28:42 -0400
+Date: Wed, 1 Aug 2001 13:43:23 -0400 (EDT)
+From: Chris Meadors <clubneon@hereintown.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Disk quotas not staying in sync?
+Message-ID: <Pine.LNX.4.31.0108011322470.4569-100000@rc.priv.hereintown.net>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: No 100 HZ timer !
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have just posted a patch on sourceforge:
- http://sourceforge.net/projects/high-res-timers
+Maybe I'm missing something silly, but I can't seem to put my finger on
+whats happening here.
 
-to the 2.4.7 kernel with both ticked and tick less options, switch able
-at any time via a /proc interface.  The system is instrumented with
-Andrew Mortons time pegs with a couple of enhancements so you can easily
-see your clock/ timer overhead (thanks Andrew).
+I have a sever that holds the e-mail and webpages for our dial-up
+customers.  Each user (for the most part) gets 20MB of space to hold their
+files.
 
-Please take a look at this system and let me know if a tick less system
-is worth further effort.  
+So people, for what ever reason, get so much e-mail they run up to their
+quota.  They have trouble downloading 20MB of mail across a dial-up link,
+and really don't want all the messages (picutues) anyway.  So one of the
+techs here will just wipe out the messages.
 
-The testing I have done seems to indicate a lower overhead on a lightly
-loaded system, about the same overhead with some load, and much more
-overhead with a heavy load.  To me this seems like the wrong thing to
-do.  We would like as nearly a flat overhead to load curve as we can get
-and the ticked system seems to be much better in this regard.  Still
-there may be applications where this works.
+We are using the Maildir format to store the mail, so each message is in a
+seperate file.
 
-comments?  RESULTS?
+The problem is sometimes after all the messages have been deleted they
+still can't get any new mail.  Looking at their quota usage the machine
+still thinks that they have their quota full, but `du` says otherwise.
+Running `quotacheck` fixes things up.
 
-George
+I've tried to reproduce this with a test account.  Just creating a bunch
+of files to run up to the quota and then deleting them.  But no matter
+what I tried the system followed the test account's disk usage exactly.
+
+This doesn't just happen when someone runs up to their quota.  I have also
+seen their quota usage not correctly reflect what is on disk, but as the
+usage goes up and down, both the actual disk usage and the what quota says
+change by the same amount.
+
+Any ideas?  This machine is pretty much standard.  ext2 file systems on
+all partitions.  /home is the only one with user disk quotas.  Running
+2.4.7 kernel (but I've seen it in all 2.4 kernels, I was running
+2.4.0-prerelease on the machine when I first put it up, so I don't know
+how 2.2 works).  To access the disks I'm using a sym53c8xx controller that
+is talking to a hardware RAID controller that has the disks behind it.
+
+Thanks,
+Chris
+-- 
+Two penguins were walking on an iceberg.  The first penguin said to the
+second, "you look like you are wearing a tuxedo."  The second penguin
+said, "I might be..."                         --David Lynch, Twin Peaks
+
+

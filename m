@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262982AbSJBGGs>; Wed, 2 Oct 2002 02:06:48 -0400
+	id <S262980AbSJBGPK>; Wed, 2 Oct 2002 02:15:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262983AbSJBGGs>; Wed, 2 Oct 2002 02:06:48 -0400
-Received: from packet.digeo.com ([12.110.80.53]:48121 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262982AbSJBGGr>;
-	Wed, 2 Oct 2002 02:06:47 -0400
-Message-ID: <3D9A8E34.7BC5E91A@digeo.com>
-Date: Tue, 01 Oct 2002 23:12:04 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.38 i686)
-X-Accept-Language: en
+	id <S262981AbSJBGPK>; Wed, 2 Oct 2002 02:15:10 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:62712 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262980AbSJBGPJ>; Wed, 2 Oct 2002 02:15:09 -0400
+Message-ID: <3D9A9015.2090503@us.ibm.com>
+Date: Tue, 01 Oct 2002 23:20:05 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: input layer strangeness
-References: <3D9A74CF.8C8585E7@digeo.com> <20021002080952.B17477@ucw.cz>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Oct 2002 06:12:05.0937 (UTC) FILETIME=[A1DFA210:01C269DA]
+To: =?ISO-8859-1?Q?Dennis_Bj=F6rklund?= <db@zigo.dhs.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: input layer - activate keyboard
+References: <Pine.LNX.4.44.0210020734480.10497-100000@zigo.dhs.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> 
-> On Tue, Oct 01, 2002 at 09:23:43PM -0700, Andrew Morton wrote:
-> >
-> > It's been doing this ever since the input layer changes:
-> >
-> > - open a few xterms
-> > - press the spacebar, leave pressed
-> > - start waggling the mouse about
-> > - stop pressing spacebar, keep waggling the mouse about,
-> >   across the xterms
-> >
-> > The keystrokes *never* stop coming.  Just the continuous mouse
-> > activity causes a stream of keyboard input, at seemingly the normal
-> > autorepeat rate. I can keep them coming for 30 seconds, just by
-> > moving the mouse.
-> 
-> Do they stop coming when you stop moving the mouse or they don't stop at
-> all? The first would be quite interesting, the second would probably be
-> a missed key release event due to keyboard controller overload by the
-> mouse.
+Dennis Björklund wrote:
+> I have an IBM Rapid Access keyboard that needs to be sent an activation
+> code to activate the multimedia keys at startup. Is there support for
+> this? I would not be surprised if there where other input devices who also
+> needs commands sent to them.
 
-They stop immediately if I stop moving the mouse.
+I have an "IBM Rapidaccess II" keyboard with a few miscellaneous keys 
+in the top and center, with a few more CD-player type controls in the 
+upper left.  You don't need an "activation code", just something to 
+handle its funny scancodes.  I use hotkeys to manage it.  There's a 
+Debian package for it:
+http://packages.debian.org/unstable/x11/hotkeys.html
 
-> > In practice, it's irritating because it's quite easy to get a
-> > stream of erroneous input dumped into the wrong windows.
-> >
-> > It's a vanilla dual pentium with an AT keyboard and a PS/2
-> > mouse.
-> 
-> Can you check if it happens also on UP? Just want to know if it might be
-> a SMP issue ...
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 
-Will do.

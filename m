@@ -1,37 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262266AbVBLAX4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262360AbVBLAYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262266AbVBLAX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 19:23:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262371AbVBLAX4
+	id S262360AbVBLAYl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 19:24:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262366AbVBLAYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 19:23:56 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:4769 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S262266AbVBLAXe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 19:23:34 -0500
-Date: Sat, 12 Feb 2005 01:23:19 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Narayan Desai <desai@mcs.anl.gov>
-Cc: John M Flinchbaugh <john@hjsoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc3: intel8x0 alsa outputs no sound
-Message-ID: <20050212002319.GA12498@louise.pinerecords.com>
-References: <20050204213337.GA12347@butterfly.hjsoft.com> <874qgqu0ej.fsf@topaz.mcs.anl.gov>
+	Fri, 11 Feb 2005 19:24:41 -0500
+Received: from waste.org ([216.27.176.166]:12489 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262360AbVBLAYf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 19:24:35 -0500
+Date: Fri, 11 Feb 2005 16:24:02 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Fruhwirth Clemens <clemens@endorphin.org>
+Cc: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       linux-kernel@vger.kernel.org, michal@logix.cz, davem@davemloft.net,
+       adam@yggdrasil.com
+Subject: Re: [PATCH 01/04] Adding cipher mode context information to crypto_tfm
+Message-ID: <20050212002402.GD2474@waste.org>
+References: <Xine.LNX.4.44.0502091859540.6222-100000@thoron.boston.redhat.com> <1107997358.7645.24.camel@ghanima> <20050209171943.05e9816e.akpm@osdl.org> <1108028923.14335.44.camel@ghanima> <20050210023344.390fb358.akpm@osdl.org> <1108034244.14335.59.camel@ghanima>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <874qgqu0ej.fsf@topaz.mcs.anl.gov>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <1108034244.14335.59.camel@ghanima>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb-05 2005, Sat, 16:06 -0600
-Narayan Desai <desai@mcs.anl.gov> wrote:
+On Thu, Feb 10, 2005 at 12:17:24PM +0100, Fruhwirth Clemens wrote:
+> On Thu, 2005-02-10 at 02:33 -0800, Andrew Morton wrote:
+> > Fruhwirth Clemens <clemens@endorphin.org> wrote:
+> > >
+> > > On Wed, 2005-02-09 at 17:19 -0800, Andrew Morton wrote:
+> > > > Fruhwirth Clemens <clemens@endorphin.org> wrote:
+> > > > Adding a few more fixmap slots wouldn't hurt anyone.  But if you want an
+> > > > arbitrarily large number of them then no, we cannot do that.
+> > > 
+> > > What magnitude is "few more"? 2, 10, 100?
+> > 
+> > Not 100.  10 would seem excessive.
+> 
+> Out of curiosity: Where does this limitation even come from? What
+> prevents kmap_atomic from adding slots dynamically?
 
-> Try muting the headphone jack sense control with alsamixer. I had the
-> same problem with rc2 on my t41p, and that solved it.
+There's a single page of PTEs for mapping high memory and the atomic
+slots are a small subset of that. They're fixed in number for
+complexity reasons - we don't want to have an allocator here:
 
-This doesn't help on a T40p, I'm afraid.
-No sound in 2.6.11-rc3 with snd-intel8x0.ko, worked all ok in 2.6.10.
+/*
+ * kmap_atomic/kunmap_atomic is significantly faster than kmap/kunmap because
+ * no global lock is needed and because the kmap code must perform a global TLB
+ * invalidation when the kmap pool wraps.
+ *
 
 -- 
-Tomas Szepe <szepe@pinerecords.com>
+Mathematics is the supreme nostalgia of our time.

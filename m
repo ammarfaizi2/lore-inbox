@@ -1,45 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286412AbRL0SAs>; Thu, 27 Dec 2001 13:00:48 -0500
+	id <S286422AbRL0SDS>; Thu, 27 Dec 2001 13:03:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286407AbRL0SAj>; Thu, 27 Dec 2001 13:00:39 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:60664 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S286401AbRL0SA3>;
-	Thu, 27 Dec 2001 13:00:29 -0500
-Date: Thu, 27 Dec 2001 11:00:09 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: snpe <snpe@snpe.co.yu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext2/ext3  question ?
-Message-ID: <20011227110009.C12868@lynx.no>
-Mail-Followup-To: snpe <snpe@snpe.co.yu>, linux-kernel@vger.kernel.org
-In-Reply-To: <200112272249.fBRMmWm01937@spnew.snpe.co.yu>
-Mime-Version: 1.0
+	id <S286428AbRL0SDE>; Thu, 27 Dec 2001 13:03:04 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:56838
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S286422AbRL0SBw>; Thu, 27 Dec 2001 13:01:52 -0500
+Date: Thu, 27 Dec 2001 09:59:38 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Rik van Riel <riel@conectiva.com.br>,
+        Dana Lacoste <dana.lacoste@peregrine.com>,
+        "'Eyal Sohya'" <linuz_kernel_q@hotmail.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: The direction linux is taking
+In-Reply-To: <20011227165752.A19618@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10112270955570.24428-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <200112272249.fBRMmWm01937@spnew.snpe.co.yu>; from snpe@snpe.co.yu on Thu, Dec 27, 2001 at 11:48:31PM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 27, 2001  23:48 +0100, snpe wrote:
-> Hello,
->    I set S flag with chattr for any file.
->    Is file really async write (without buffer cache) ?
 
-No, see chattr man page: S = synchronous updates.  It doesn't say anything
-about not using the buffer cache.  You need to use O_DIRECT for that.
+I agree with Russell, because we now have a pile of shit known as 2.5.X.
+Noting that 2.4.X is just a little less stinky, but still a rat-hole of
+bug infested crap that fixes for are being ignored out of total
+ignorrance.
 
->    Is it same raw devices and if not, what is different ?
+I just wish I could spell.
 
-Totally unrelated.  It means that each I/O is waited on by the kernel
-before it returns to user space.
+Andre Hedrick
+CEO/President, LAD Storage Consulting Group
+Linux ATA Development
+Linux Disk Certification Project
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+On Thu, 27 Dec 2001, Russell King wrote:
+
+> On Thu, Dec 27, 2001 at 04:33:50PM +0000, Alan Cox wrote:
+> > Tridge wrote the system you describe, several years ago. Its called
+> > jitterbug but it doesnt help because Linus wont use it
+> 
+> Speaking as someone who _does_ use a system for tracking patches, I
+> believe that patch management systems are a right pain in the arse.
+> 
+> If the quality of patches aren't good, then it throws you into a problem.
+> You have to provide people with a reason why you discarded their patch,
+> which provides people with the perfect opportunity to immediately start
+> bugging you about exactly how to make it better.  If you get lots of
+> such patches, eventually you've got a mailbox of people wanting to know
+> how to make their patches better.
+> 
+> I envy Alan, Linus, and Marcelo for having the ability to silently drop
+> patches and wait for resends.  I personally don't believe a patch tracking
+> system makes life any easier.  Yes, it means you can't loose patches, but
+> it means you can't accidentally loose them on purpose.  This, imho, makes
+> life very much harder.
+> 
+> I hope this makes some sort of sense 8)
+> 
+> -- 
+> Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+>              http://www.arm.linux.org.uk/personal/aboutme.html
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,39 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266824AbUHCUae@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266827AbUHCUlv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266824AbUHCUae (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 16:30:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266770AbUHCUae
+	id S266827AbUHCUlv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 16:41:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266770AbUHCUlv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 16:30:34 -0400
-Received: from gate.crashing.org ([63.228.1.57]:40864 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S266825AbUHCUaa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 16:30:30 -0400
-Subject: Re: [PATCH] [2/3] PCI quirks -- PPC.
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Greg KH <greg@kroah.com>, Linux Kernel list <linux-kernel@vger.kernel.org>,
-       ralf@linux-mips.org
-In-Reply-To: <1091554599.4383.1619.camel@hades.cambridge.redhat.com>
-References: <1091554419.4383.1611.camel@hades.cambridge.redhat.com>
-	 <1091554599.4383.1619.camel@hades.cambridge.redhat.com>
-Content-Type: text/plain
-Message-Id: <1091564918.1922.9.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 04 Aug 2004 06:28:39 +1000
+	Tue, 3 Aug 2004 16:41:51 -0400
+Received: from s124.mittwaldmedien.de ([62.216.178.24]:44758 "EHLO
+	s124.mittwaldmedien.de") by vger.kernel.org with ESMTP
+	id S266833AbUHCUlu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 16:41:50 -0400
+Message-ID: <410FF899.1070007@vcd-berlin.de>
+Date: Tue, 03 Aug 2004 22:42:01 +0200
+From: Elmar Hinz <elmar.hinz@vcd-berlin.de>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: Add support for IT8212 IDE controllers
+References: <2obsK-5Ni-13@gated-at.bofh.it> <410F7407.8070903@vcd-berlin.de> <1091530208.3573.5.camel@localhost.localdomain> <410F828E.3090808@vcd-berlin.de>
+In-Reply-To: <410F828E.3090808@vcd-berlin.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-08-04 at 03:36, David Woodhouse wrote:
-> Remove up the PPC pcibios_fixups[] array. Remove the ifdefs on
-> CONFIG_PPC_PMAC in the kernel PPC code, moving that stuff into
-> pmac-specific files where it lives. Add a quirk for the CardBus
-> controller on WindRiver SBC8260.
+>> Not your fault - I missed out an include file update when I posted it -
+>> PCI_DEVICE_ID_ITE_8212 is 0x8212..
+>>
 
-Ah nice ! I didn't notice we had those DECLARE_PCI_FIXUP_* macros 
-nowdays !
+This seems to mean:
 
-Ben.
+put this
+
+#define PCI_DEVICE_ID_ITE_8212             0x8212
+
+into that
+
+/usr/src/kernel-source-2.x.x/include/linux/pci_ids.h
+
+Regards
+
+Elmar
 

@@ -1,138 +1,250 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264940AbTFYTLd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 15:11:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264943AbTFYTLc
+	id S264948AbTFYTM4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 15:12:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264952AbTFYTM4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 15:11:32 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:51636
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S264940AbTFYTLa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 15:11:30 -0400
-Date: Wed, 25 Jun 2003 21:25:23 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Chris Mason <mason@suse.com>
-Cc: Nick Piggin <piggin@cyberone.com.au>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Georg Nikodym <georgn@somanetworks.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
-Subject: Re: [PATCH] io stalls
-Message-ID: <20030625192523.GB19940@dualathlon.random>
-References: <1055353360.23697.235.camel@tiny.suse.com> <20030611181217.GX26270@dualathlon.random> <1055356032.24111.240.camel@tiny.suse.com> <20030611183503.GY26270@dualathlon.random> <3EE7D1AA.30701@cyberone.com.au> <20030612012951.GG1500@dualathlon.random> <1055384547.24111.322.camel@tiny.suse.com> <3EE7E876.80808@cyberone.com.au> <20030612024608.GE1415@dualathlon.random> <1056567822.10097.133.camel@tiny.suse.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1056567822.10097.133.camel@tiny.suse.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Wed, 25 Jun 2003 15:12:56 -0400
+Received: from atlas.williams.edu ([137.165.4.25]:43886 "EHLO
+	atlas.williams.edu") by vger.kernel.org with ESMTP id S264948AbTFYTMe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 15:12:34 -0400
+Date: Wed, 25 Jun 2003 15:26:44 -0400 (EDT)
+From: Jeremy A Redburn <jredburn@wso.williams.edu>
+Subject: Re: Problem detecting SATA drive in 2.4.21-ac2
+In-reply-to: <20030625190425.GA6701@gtf.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <Pine.LNX.4.21.0306251515410.24753-100000@olga.williams.edu>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 25, 2003 at 03:03:43PM -0400, Chris Mason wrote:
-> Hello all,
+Sorry about my earlier email -- I was rushed and didn't think through
+things before posting.
+
+My problem has slightly changed since my first post and I will explain as
+best I can. In the BIOS (the motherboard is an Abit IS7 using Intel 865PE
+chipset with ICH5) I have the option of setting the SATA device to act as
+IDE3, IDE2, or IDE1 (note: all these numbers count from 1, not 0 as linux
+does -- just subtract 1 for how they are identified in linux).
+
+If I leave the two normal IDE controllers as IDE1 and IDE2 and the SATA as
+IDE3, the system boots and detects the controller card:
+
+ICH5-SATA: chipset revision 2
+ICH5-SATA: 100% native mode on irq 11
+    ide2: BM-DMA at 0xd000-0xd007, BIOS settings: hde:DMA, hdf:DMA
+    ide3: BM-DMA at 0xd008-0xd00f, BIOS settings: hdg:DMA, hdh:pio
+
+And the drive:
+
+hde: WDC WD360GD-00FNA0, ATA DISK drive
+
+A few messages later, I get:
+
+hde: attached ide-disk driver.
+
+At this point the system freezes as far as I can tell and a hard reset is
+required.
+
+*However*, if I set the SATA to take over IDE2, it boots fine and the full
+dmesg output follows:
+
+Linux version 2.4.21-ac2 (root@ender) (gcc version 3.3 (Debian)) #1 Wed Jun 25 14:54:10 EDT 2003
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000001fff0000 (usable)
+ BIOS-e820: 000000001fff0000 - 000000001fff3000 (ACPI NVS)
+ BIOS-e820: 000000001fff3000 - 0000000020000000 (ACPI data)
+ BIOS-e820: 00000000fec00000 - 0000000100000000 (reserved)
+511MB LOWMEM available.
+ACPI: have wakeup address 0xc0001000
+On node 0 totalpages: 131056
+zone(0): 4096 pages.
+zone(1): 126960 pages.
+zone(2): 0 pages.
+ACPI: RSDP (v000 IntelR                     ) @ 0x000f7b90
+ACPI: RSDT (v001 IntelR AWRDACPI 16944.11825) @ 0x1fff3000
+ACPI: FADT (v001 IntelR AWRDACPI 16944.11825) @ 0x1fff3040
+ACPI: MADT (v001 IntelR AWRDACPI 16944.11825) @ 0x1fff7a80
+ACPI: DSDT (v001 INTELR AWRDACPI 00000.04096) @ 0x00000000
+ACPI: BIOS passes blacklist
+Kernel command line: auto BOOT_IMAGE=Linux ro root=301
+Initializing CPU#0
+Detected 2405.512 MHz processor.
+Console: colour VGA+ 80x25
+Calibrating delay loop... 4797.23 BogoMIPS
+Memory: 516304k/524224k available (1122k kernel code, 7532k reserved, 437k data, 80k init, 0k highmem)
+Dentry cache hash table entries: 65536 (order: 7, 524288 bytes)
+Inode cache hash table entries: 32768 (order: 6, 262144 bytes)
+Mount cache hash table entries: 512 (order: 0, 4096 bytes)
+Buffer cache hash table entries: 32768 (order: 5, 131072 bytes)
+Page-cache hash table entries: 131072 (order: 7, 524288 bytes)
+CPU: Trace cache: 12K uops, L1 D cache: 8K
+CPU: L2 cache: 512K
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU:     After generic, caps: bfebfbff 00000000 00000000 00000000
+CPU:             Common caps: bfebfbff 00000000 00000000 00000000
+CPU: Intel(R) Pentium(R) 4 CPU 2.40GHz stepping 09
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+ACPI: Subsystem revision 20030522
+PCI: PCI BIOS revision 2.10 entry at 0xfb730, last bus=2
+PCI: Using configuration type 1
+ACPI: Interpreter enabled
+ACPI: Using PIC for interrupt routing
+ACPI: System [ACPI] (supports S0 S1 S4 S5)
+ACPI: PCI Root Bridge [PCI0] (00:00)
+PCI: Probing PCI hardware (bus 00)
+PCI: Ignoring BAR0-3 of IDE controller 00:1f.2
+Transparent bridge - Intel Corp. 82801BA/CA/DB/EB PCI Bridge
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.HUB0._PRT]
+ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 7 9 *10 11 12 14 15)
+ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 7 *9 10 11 12 14 15)
+ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 7 9 10 *11 12 14 15)
+ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 7 9 10 *11 12 14 15)
+ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 7 9 10 11 12 14 15, disabled)
+ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 5 7 9 10 11 12 14 15, disabled)
+ACPI: PCI Interrupt Link [LNK0] (IRQs 3 4 5 7 9 10 11 12 14 15, disabled)
+ACPI: PCI Interrupt Link [LNK1] (IRQs 3 4 *5 7 9 10 11 12 14 15)
+ACPI: Power Resource [PFAN] (off)
+PCI: Probing PCI hardware
+ACPI: PCI Interrupt Link [LNKE] enabled at IRQ 10
+ACPI: PCI Interrupt Link [LNKF] enabled at IRQ 9
+ACPI: PCI Interrupt Link [LNK0] enabled at IRQ 5
+PCI: Using ACPI for IRQ routing
+PCI: if you experience problems, try using option 'pci=noacpi' or even 'acpi=off'
+Linux NET4.0 for Linux 2.4
+Based upon Swansea University Computer Society NET3.039
+Initializing RT netlink socket
+Starting kswapd
+pty: 256 Unix98 ptys configured
+Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ SERIAL_PCI enabled
+ttyS00 at 0x03f8 (irq = 4) is a 16550A
+ttyS01 at 0x02f8 (irq = 3) is a 16550A
+Linux agpgart interface v0.99 (c) Jeff Hartmann
+agpgart: Maximum main memory to use for agp memory: 439M
+agpgart: Detected Intel(R) 865G chipset
+agpgart: AGP aperture is 128M @ 0xe0000000
+Uniform Multi-Platform E-IDE driver Revision: 7.00beta4-2.4
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+ICH5-SATA: IDE controller at PCI slot 00:1f.2
+ICH5-SATA: chipset revision 2
+ICH5-SATA: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:pio
+hda: Maxtor 96147H8, ATA DISK drive
+hdb: Hewlett-Packard DVD Writer 300, ATAPI CD/DVD-ROM drive
+blk: queue c02c4e40, I/O limit 4095Mb (mask 0xffffffff)
+hdc: WDC WD360GD-00FNA0, ATA DISK drive
+    ACPI-0286: *** Error: No installed handler for fixed event [00000000]
+blk: queue c02c529c, I/O limit 4095Mb (mask 0xffffffff)
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: attached ide-disk driver.
+hda: host protected area => 1
+hda: 120060864 sectors (61471 MB) w/2048KiB Cache, CHS=7473/255/63, UDMA(100)
+hdc: attached ide-disk driver.
+hdc: host protected area => 1
+hdc: 72303840 sectors (37020 MB) w/8192KiB Cache, CHS=4500/255/63, UDMA(100)
+Partition check:
+ hda: hda1 hda2 hda3 hda4 < hda5 hda6 hda7 >
+ hdc: unknown partition table
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP
+IP: routing cache hash table of 4096 buckets, 32Kbytes
+TCP: Hash tables configured (established 32768 bind 65536)
+reiserfs: checking transaction log (device 03:01) ...
+Using r5 hash to sort names
+ReiserFS version 3.6.25
+VFS: Mounted root (reiserfs filesystem) readonly.
+Freeing unused kernel memory: 80k freed
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+Adding Swap: 498004k swap-space (priority -1)
+3C2000: 3Com Gigabit NIC Driver Version A09
+Copyright (C) 2003 3Com Corporation.
+Copyright (C) 2003 Marvell.
+eth0: 3Com Gigabit LOM (3C940)
+      PrefPort:A  RlmtMode:Check Link State
+reiserfs: checking transaction log (device 03:03) ...
+Using r5 hash to sort names
+ReiserFS version 3.6.25
+reiserfs: checking transaction log (device 03:05) ...
+Using r5 hash to sort names
+ReiserFS version 3.6.25
+reiserfs: checking transaction log (device 03:06) ...
+Using r5 hash to sort names
+ReiserFS version 3.6.25
+reiserfs: checking transaction log (device 03:07) ...
+Using r5 hash to sort names
+ReiserFS version 3.6.25
+eth0: network connection up using port A
+    speed:           100
+    autonegotiation: yes
+    duplex mode:     full
+    flowctrl:        symmetric
+    scatter-gather:  enabled
+lirc_dev: IR Remote Control driver registered, at major 61 
+i2c-core.o: i2c core module
+Linux video capture interface: v1.00
+i2c-algo-bit.o: i2c bit algorithm module
+bttv: driver version 0.7.104 loaded
+bttv: using 4 buffers with 2080k (8320k total) for capture
+bttv: Host bridge is Intel Corp. 82865G/PE/P Processor to I/O Controller
+i2c-core.o: driver i2c ir driver registered.
+PCI: Setting latency timer of device 00:1f.5 to 64
+intel8x0: clocking to 48000
+
+And the lspci output from my system:
+
+00:00.0 Host bridge: Intel Corp.: Unknown device 2570 (rev 02)
+00:01.0 PCI bridge: Intel Corp.: Unknown device 2571 (rev 02)
+00:1d.0 USB Controller: Intel Corp.: Unknown device 24d2 (rev 02)
+00:1d.1 USB Controller: Intel Corp.: Unknown device 24d4 (rev 02)
+00:1d.2 USB Controller: Intel Corp.: Unknown device 24d7 (rev 02)
+00:1d.3 USB Controller: Intel Corp.: Unknown device 24de (rev 02)
+00:1d.7 USB Controller: Intel Corp.: Unknown device 24dd (rev 02)
+00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev c2)
+00:1f.0 ISA bridge: Intel Corp.: Unknown device 24d0 (rev 02)
+00:1f.2 IDE interface: Intel Corp.: Unknown device 24d1 (rev 02)
+00:1f.3 SMBus: Intel Corp.: Unknown device 24d3 (rev 02)
+00:1f.5 Multimedia audio controller: Intel Corp.: Unknown device 24d5 (rev 02)
+01:00.0 VGA compatible controller: ATI Technologies Inc Radeon R250 If [Radeon 9000] (rev 01)
+02:01.0 FireWire (IEEE 1394): Texas Instruments TSB43AB23 IEEE-1394a-2000 Controller (PHY/Link)
+02:02.0 Ethernet controller: 3Com Corporation: Unknown device 1700 (rev 12)
+02:07.0 Multimedia video controller: Internext Compression Inc: Unknown device 0016 (rev 01)
+
+Thanks for any help you can provide -- and sorry once again about my
+original message,
+Jeremy Redburn
+
+On Wed, 25 Jun 2003, Jeff Garzik wrote:
+
+> On Wed, Jun 25, 2003 at 02:41:29PM -0400, Jeremy A Redburn wrote:
+> > Hello,
+> > 
+> > I am using the latest 2.4-ac kernel (2.4.21-ac2) and trying to get support
+> > for my WD Raptor SATA drive. The kernel detects the SATA controller just
+> > fine and loads it as ide2 and ide3 -- but there is no detection of the
+> > attached drive (which would presumably be hde). Anyone have any advice for
+> > me?
 > 
-> [ short version, the patch attached should fix io latencies in 2.4.21. 
-> Please review and/or give it a try ]
->  
-> My last set of patches was directed at reducing the latencies in
-> __get_request_wait, which really helped reduce stalls when you had lots
-> of io to one device and balance_dirty() was causing pauses while you
-> tried to do io to other devices.
+> It would help if you actually gave us details about your hardware,
+> beyond what drive it is.  See the file REPORTING-BUGS in the kernel
+> source for examples.  At a minimum, full lspci and dmesg output.
 > 
-> But, a streaming write could still starve reads to the same device,
-> mostly because the read would have to send down any huge merged writes
-> that were before it in the queue.
+> 	Jeff
 > 
-> Andrea's kernel has a fix for this too, he limits the total number of
-> sectors that can be in the request queue at any given time.  But, his
-> patches change blk_finished_io, both in the arguments it takes and the
-> side effects of calling it.  I don't think we can merge his current form
-> without breaking external drivers.
 > 
-> So, I added a can_throttle flag to the queue struct, drivers can enable
-> it if they are going to call the new blk_started_sectors and
-> blk_finished_sectors funcs any time they call blk_{started,finished}_io,
-> and these do all the -aa style sector throttling.
 > 
-> There were a few other small changes to Andrea's patch, he wasn't
-> setting q->full when get_request decided there were too many sectors in
-
-wasn't is really in the past, because I'm doing it in 2.4.21rc8aa1 and
-in my latest status.
-
-> flight.  This resulted in large latencies in __get_request_wait.  He was
-> also unconditionally clearing q->full in blkdev_release_request, my code
-> only clears q->full when all the waiters are gone.
-
-my current code including the older 2.4.21rc8aa1 does that too, merged
-from your previous patches.
-
-> I changed generic_unplug_device to zero the elevator_sequence field of
-> the last request on the queue.  This means there won't be any merges
-> with requests pending once an unplug is done, and helps limit the number
-> of sectors that need to be sent down during the run_task_queue(&tq_disk)
-> in wait_on_buffer.
-
-this sounds like an hack, forbidding merges is pretty bad for
-performance in general, of course most of the merging happens in between
-the unplugs, but during heavy I/O with frequent unplugs from many
-readers this may hurt performance. And as you said this mostly has the
-advantage of limiting the size of the queue, like I enforce in my tree
-with the elevator-lowlatency. I doubt this is right.
-
-> I lowered the -aa default limit on sectors in flight from 4MB to 2MB. 
-
-I got a few complains for performance slowdown, originally it was 2MB,
-so I increased it to 4, from 4M it should be enough for most hardware.
-
-> We probably want an elvtune for it, large arrays with writeback cache
-> should be able to tolerate larger values.
-
-Yes, it largely depends on the speed of the device.
-
-> There's still a little work left to do, this patch enables sector
-> throttling for scsi and IDE.  cciss, DAC960 and cpqarray need
-> modification too (99% done already in -aa).  No sense in doing that
-> until after the bulk of the patch is reviewed though.
 > 
-> As before, most of the code here is from Andrea and Nick, I've just
-> wrapped a lot of duct tape around it and done some tweaking.  The
-> primary pieces are:
-> 
-> fix-pausing (andrea, corner cases where wakeups are missed)
-> elevator-low-latency (andrea, limit sectors in flight)
-> queue_full (Nick, fairness in __get_request_wait)
-> 
-> I've removed my latency stats for __get_request_wait in hopes of making
-> it a better merging candidate.
 
-this is very similar to my status in -aa, exept for the hack that
-forbids merging which I think is wrong and the fact you miss the 
-wake_up_nr that I added to give a meaning to the batching again and that
-you don't avoid the unplugs in get_request_wait_wakeup until the queue
-is empty. I mean this:
 
-+static void get_request_wait_wakeup(request_queue_t *q, int rw)
-+{
-+	/*
-+	 * avoid losing an unplug if a second __get_request_wait did the
-+	 * generic_unplug_device while our __get_request_wait was
-running
-+	 * w/o the queue_lock held and w/ our request out of the queue.
-+	 */
-+	if (q->rq[rw].count == 0 && waitqueue_active(&q->wait_for_requests[rw]))
-+		__generic_unplug_device(q);
-+}
-+
-
-you said last week the above is racy and it even hanged your box, could
-you elaborate? The above is in 2.4.21rc8aa1 and it works fine so far
-(though especially the race in wait_for_request is never been known to
-be reproducible)
-
-thanks,
-
-Andrea

@@ -1,87 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282985AbRK0XkM>; Tue, 27 Nov 2001 18:40:12 -0500
+	id <S282991AbRK0XkX>; Tue, 27 Nov 2001 18:40:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282987AbRK0XkD>; Tue, 27 Nov 2001 18:40:03 -0500
-Received: from outlook.developonline.com ([206.80.205.3]:43282 "EHLO
-	usazdolexch0.developonline.home") by vger.kernel.org with ESMTP
-	id <S282985AbRK0Xjs>; Tue, 27 Nov 2001 18:39:48 -0500
-Subject: Re: Multiplexing filesystem
-From: Blake Barnett <blake.barnett@developonline.com>
-To: Mark Richards <richard@ecf.utoronto.ca>
-Cc: Linux-kernel@vger.kernel.org
-In-Reply-To: <3C030FB4.C3303BE4@ecf.utoronto.ca>
-In-Reply-To: <3C030FB4.C3303BE4@ecf.utoronto.ca>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 27 Nov 2001 16:39:38 -0700
-Message-Id: <1006904378.6664.46.camel@shiva>
-Mime-Version: 1.0
+	id <S282984AbRK0XkN>; Tue, 27 Nov 2001 18:40:13 -0500
+Received: from web12808.mail.yahoo.com ([216.136.174.43]:26127 "HELO
+	web12808.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S282990AbRK0Xj7>; Tue, 27 Nov 2001 18:39:59 -0500
+Message-ID: <20011127233958.33562.qmail@web12808.mail.yahoo.com>
+Date: Tue, 27 Nov 2001 15:39:58 -0800 (PST)
+From: Luben Tuikov <ltuikov@yahoo.com>
+Subject: Oops in 2.4.16, usb/HID stuff
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You may want to look into utilizing CVS for the check-in/check-out
-mechanism and just virtualizing that layer on top of whatever FS is
-being used.... 
+2.4.16, kgcc (gcc version egcs-2.91.66 19990314/Linux
+(egcs-1.1.2 release)), dell dimension 8100, HID(usb) mouse
+and kbd.
 
-This may be a good place to start looking.
-http://sourceforge.net/projects/cvsfs/
+Could it be that hid is invalid in hid-core.c:1231?
 
-If you don't need all the sophistication of CVS perhaps RCS would do.
- 
-The way Coda does it is by "hoarding" files, you specify what files you
-want to hoard, and it refers to those as local only, when you "un-hoard"
-them it syncs them with the server  (I think this is the process, it's
-been a while since I played with it.)
+Here is the relevant info:
+----cut-here-----
+hub.c: USB new device connect on bus1/1, assigned device
+number 2
+hub.c: USB hub found
+hub.c: 3 ports detected
+hub.c: USB new device connect on bus1/2, assigned device
+number 3
+input0: USB HID v1.00 Mouse [Logitech USB-PS/2 Mouse
+M-BA47] on usb1:3.0
+hub.c: USB new device connect on bus1/1/1, assigned device
+number 4
+input1: USB HID v1.00 Keyboard [NMB Dell USB 7HK Keyboard]
+on usb1:4.0
+input2<1>Unable to handle kernel paging request at virtual
+address ffffffff
+ printing eip:
+c02bba40
+*pde = 00001063
+*pte = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c02bba40>]    Not tainted
+EFLAGS: 00010097
+eax: ffffffff   ebx: ffffffff   ecx: ffffffff   edx:
+fffffffe
+esi: c03986d0   edi: ffffffff   ebp: 00000000   esp:
+dfe83e6c
+ds: 0018   es: 0018   ss: 0018
+Process khubd (pid: 10, stackpage=dfe83000)
+Stack: 00000000 dfbd2000 00000246 00000002 c0307354
+00002392 00000246 0000238c 
+       00002392 c01163bb 0000238c 00002392 0000004e
+00000000 c0398abf 0000000a 
+       c0116563 c03986c0 00000400 c0307354 dfe83ee4
+00000000 dfbd2000 ffffffff 
+Call Trace: [<c01163bb>] [<c0116563>] [<c024660b>]
+[<c02387e5>] [<c02388c9>] 
+   [<c023a78c>] [<c023bc60>] [<c023be00>] [<c023bfb5>]
+[<c0105000>] [<c01056a3>] 
 
-I think intermezzo has something similar, but neither does any revision
-control.
+Code: 80 38 00 74 07 40 4a 83 fa ff 75 f4 29 c8 89 c7 f7 c5
+10 00 
+----cut-here-----
+
+-l
 
 
-On Mon, 2001-11-26 at 20:59, Mark Richards wrote:
-> Quick question, which I suspect has a long answer.
-> 
-> I would like to write a multiplexing filesystem.  The idea is as follows:
-> 
-> The filesystem would ideally wrap another filesystem, such as nfs or smbfs or
-> ext2.  Most operations would just be passed to the native fs call.  However, for
-> some files, selectable at run time by some control singal, would actually reside
-> on another file system.  The other filesystem would have to be mounted.
-> 
-> The idea is for a version controlling filesystem.  The server would be a network
-> server (hence the desire to wrap nfs) which presents a 'view' of the source
-> code.  When the user reserves a file for editing, the file is copied to the
-> local disk.  From that point on, the local file is referred to until the user
-> commits the change or unreserves the file.  Ideally, the local copy of the file
-> could be on any file system, not one that is necessarily local.  And this has to
-> be totally transparent to the user, except for the step where the user
-> 'reserves' the file.
-> 
-> I've thought about two ways to do this.  One is to wrap the 'versioning' file
-> system with a multiplexor that checks fs calls to see if they are referring to a
-> file that is on a different fs.  The other approach is to intercept calls to the
-> VFS to do the same trick.
-> 
-> I'm new to the whole filesystem-coding thing, so bear with me if what i've just
-> said makes no sense.  So, my question (I guess it wasn't quick after all) is:
-> Can it be done, and are either of my two approaches feasible?  Any suggestions
-> or tips?
-> 
-> Thanks,
-> Mark Richards
-> 
-> PS please CC me if possible.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Blake Barnett (bdb)  <blake.barnett@developonline.com>
-Sr. Unix Administrator
-DevelopOnline.com                 office: 480-377-6816
 
-"Do, or do not.  There is no try." --Yoda
 
+
+=====
+--
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! GeoCities - quick and easy web site hosting, just $8.95/month.
+http://geocities.yahoo.com/ps/info1

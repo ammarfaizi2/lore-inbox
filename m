@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264115AbTGBSMJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 14:12:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbTGBSMJ
+	id S261985AbTGBSM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 14:12:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264256AbTGBSM5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 14:12:09 -0400
-Received: from bacchus.optics.arizona.edu ([128.196.206.37]:55523 "EHLO
-	bacchus.optics.arizona.edu") by vger.kernel.org with ESMTP
-	id S264115AbTGBSMH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 14:12:07 -0400
-Date: Wed, 2 Jul 2003 11:22:49 -0700
-From: John Lapeyre <lapeyre@physics.arizona.edu>
-To: linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: [PATCH] USB updates for 2.4.21
-Message-ID: <20030702182249.GA11236@bacchus.optics.arizona.edu>
-Reply-To: lapeyre@physics.arizona.edu
+	Wed, 2 Jul 2003 14:12:57 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:10624 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261985AbTGBSMv (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 14:12:51 -0400
+Message-Id: <200307021827.h62IRCp3001341@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.73-mm3 
+In-Reply-To: Your message of "Tue, 01 Jul 2003 20:38:30 PDT."
+             <20030701203830.19ba9328.akpm@digeo.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20030701203830.19ba9328.akpm@digeo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: multipart/signed; boundary="==_Exmh_-1586579328P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 02 Jul 2003 14:27:12 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_-1586579328P
+Content-Type: text/plain; charset=us-ascii
 
-Re: From: Greg KH (greg@kroah.com)
-    Date: Thu Jun 19 2003 - 19:40:35 EST 
+On Tue, 01 Jul 2003 20:38:30 PDT, Andrew Morton <akpm@digeo.com>  said:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.73/2.5.73-mm3/
 
-Broken ehci-hcd things seem to be fixed with this patch. I had
-numerous crashes, hangs, filesystem corruption, etc. with
- 2.4.19,20,21 until I applied this. I am using,
+> . The weird behaviour with time-n-date on SpeedStep machines should be
+>   fixed.  Some of the weird behaviour, at least.
 
- DVD burner in an external USB 2.0  enclosure (same as the one rebranded by Belkin)
- IDE drive in the same model enclosure.
- Epson 3200 scanner.
+The problem I noted with speedstep-ich.c mangling the loops_per_jiffies variable
+is still there.  Looks like I have something to do on the plane tomorrow. ;)
 
- Using them before the patch, particularly simultaneously, caused driver crashes. They
- seem to share the bus nicely now.
+--==_Exmh_-1586579328P
+Content-Type: application/pgp-signature
 
- Please CC me with replies.
-John lapeyre http://physics.arizona.edu/~lapeyre
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/AyQAcC3lWbTT17ARAglgAJwOL6q4f3d1kactDN3RMgNG+/tZjgCcCuVX
+wV8bHEEyPDh1eLWHftdIDzE=
+=nzKV
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1586579328P--

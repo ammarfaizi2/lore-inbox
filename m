@@ -1,66 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262032AbVBJHBo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262030AbVBJHEz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262032AbVBJHBo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 02:01:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbVBJHBn
+	id S262030AbVBJHEz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 02:04:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbVBJHEz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 02:01:43 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:48016 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262032AbVBJHBl (ORCPT
+	Thu, 10 Feb 2005 02:04:55 -0500
+Received: from wproxy.gmail.com ([64.233.184.207]:24353 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262030AbVBJHEx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 02:01:41 -0500
-Message-Id: <200502100544.j1A5ingN009423@laptop11.inf.utfsm.cl>
-To: Nicolas Pitre <nico@cam.org>
-cc: Larry McVoy <lm@bitmover.com>, Alexandre Oliva <aoliva@redhat.com>,
-       Stelian Pop <stelian@popies.net>,
-       Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Linux Kernel Subversion Howto 
-In-Reply-To: Message from Nicolas Pitre <nico@cam.org> 
-   of "Wed, 09 Feb 2005 12:30:54 CDT." <Pine.LNX.4.61.0502091219430.7836@localhost.localdomain> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Thu, 10 Feb 2005 02:44:49 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.4 (inti.inf.utfsm.cl [200.1.21.155]); Thu, 10 Feb 2005 03:22:03 -0300 (CLST)
+	Thu, 10 Feb 2005 02:04:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=WsI7cSXW2wLUMMXE4Yml0T3yPIPEXPIO+7KsVhy+rSpoeQRG0WbAxH89M9daloGA/pBfMTSwjZ1hcEaxb5b0hwiIHtuNeBFYHpEiKrOmZGk4O0hBwMf3KyXPjatw9xXWMgeLKqSNWLQufxj9xkmukaTgPTQrRM1JmR0qfAdYOr0=
+Message-ID: <84144f02050209230413d87904@mail.gmail.com>
+Date: Thu, 10 Feb 2005 09:04:49 +0200
+From: Pekka Enberg <penberg@gmail.com>
+Reply-To: Pekka Enberg <penberg@gmail.com>
+To: Matt Mackall <mpm@selenic.com>
+Subject: Re: [PATCH 9/8] lib/sort: turn off self-test
+Cc: Paul Jackson <pj@sgi.com>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       penberg@cs.helsinki.fi
+In-Reply-To: <20050131170344.GP2891@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050131074400.GL2891@waste.org>
+	 <20050131035742.1434944c.pj@sgi.com> <20050131170344.GP2891@waste.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicolas Pitre <nico@cam.org> said:
-> On Wed, 9 Feb 2005, Larry McVoy wrote:
-> > On Wed, Feb 09, 2005 at 05:06:02AM -0200, Alexandre Oliva wrote:
-> > > So you've somehow managed to trick most kernel developers into
-> > > granting you power over not only the BK history
+On Mon, 31 Jan 2005 09:03:44 -0800, Matt Mackall <mpm@selenic.com> wrote:
+> It's a nice self-contained unit test. It's here because I ran into a
+> strange regparm-related bug when developing the code in userspace and
+> I wanted to be sure that it was easy to diagnose in the field if a
+> similar bug appeared in the future. I actually think that more code
+> ought to have such tests, so long as they don't obscure the code in
+> question.
 
-> > It's exactly the same as a file system.  If you put some files into a
-> > file system does the file system creator owe you the knowledge of how
-> > those files are maintained in the file system?
+Unit tests are nice and your approach is wrong. The test does not
+belong in the implementation for two reasons: it hurts readability of
+the actual code and the _commented out_ test will not be maintained
+(dead code never is).
 
-> No, this is not a good analogy at all.
+I don't know if the maintainers are interested in unit tests but a
+better solution would be to  put your test in a separate file and make
+sure it is always compiled and executed when CONFIG_UNIT_TEST is
+enabled.
 
-It is just fine.
+P.S. If the test fails, it probably should do BUG().
 
-> If I don't want to use a certain filesystem, I mount it and copy the 
-> files over to another filesystem.  What users are interested in are the 
-> files themselves of course, and the efficiency with which the filesystem 
-> handles those files.  BK is the efficient filesystem here, but anyone 
-> should be able to freely copy files over to another filesystem without 
-> any need for the filesystem internals knowledge.  If the target 
-> filesystem is 8.3 without lowercase support then so be it and people 
-> will need to use a separate file to hold the extra details that cannot 
-> berepresented natively in the target filesystem.  But absolutely 0% of 
-> the information is lost.
-
-But what you want is not the files, but the whole history of the filesystem
-(what was written/changed/deleted when).
-
-> Again, the BK value is in the efficiency and reliability it has to 
-> handle a tree like the Linux kernel, not in the Linux kernel tree.  It's 
-> not necessary for you to give away that value in order to provide the 
-> simple information needed to reconstruct the Linux tree structure as 
-> people are asking.
-
-linux-2.6.10.tar.bz2, and you even get the -bk patches!
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+                               Pekka

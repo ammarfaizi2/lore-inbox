@@ -1,84 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbUD1UAQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbUD1UEJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261162AbUD1UAQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 16:00:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbUD1T71
+	id S261380AbUD1UEJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 16:04:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbUD1UDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 15:59:27 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:39462 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261205AbUD1TG3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 15:06:29 -0400
-Date: Wed, 28 Apr 2004 21:08:55 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jari Ruusu <jariruusu@users.sourceforge.net>
-Cc: Sam Ravnborg <sam@ravnborg.org>,
-       Vincent C Jones <vcjones@NetworkingUnlimited.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.6-rc3
-Message-ID: <20040428190855.GA4069@mars.ravnborg.org>
-Mail-Followup-To: Jari Ruusu <jariruusu@users.sourceforge.net>,
-	Sam Ravnborg <sam@ravnborg.org>,
-	Vincent C Jones <vcjones@NetworkingUnlimited.com>,
-	linux-kernel@vger.kernel.org
-References: <1PMQ9-5K6-3@gated-at.bofh.it> <20040428144801.B3708149A6@x23.networkingunlimited.com> <20040428160057.GA2252@mars.ravnborg.org> <408FE8C4.33B3BDB4@users.sourceforge.net>
+	Wed, 28 Apr 2004 16:03:33 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:1921 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261159AbUD1TSb (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 15:18:31 -0400
+Message-Id: <200404281918.i3SJIPPR005391@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Goran Cengic <cengic@s2.chalmers.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Special place for tird-party modules. 
+In-Reply-To: Your message of "Wed, 28 Apr 2004 18:14:24 +0200."
+             <200404281814.24991.cengic@s2.chalmers.se> 
+From: Valdis.Kletnieks@vt.edu
+References: <200404281814.24991.cengic@s2.chalmers.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <408FE8C4.33B3BDB4@users.sourceforge.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; boundary="==_Exmh_1834002709P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 28 Apr 2004 15:18:25 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1834002709P
+Content-Type: text/plain; charset=us-ascii
+
+On Wed, 28 Apr 2004 18:14:24 +0200, Goran Cengic <cengic@s2.chalmers.se>  said:
+
+> I do understand that many developers have several kernel version installed at
+> the same time but is it possible to share between the versions at least the 
+> modules that are not developed as the part of the kernel?
 > 
-> Full package:
-> http://loop-aes.sourceforge.net/loop-AES/loop-AES-v2.0g.tar.bz2
+> If I'm missing something cruical please point it out to me.
 
-Hi Jari.
-I took a look at how you use the build system in the 2.6 kernel.
-Inherited from the 2.4 days you assemble the commands yourself,
-which is plain wrong in a 2.6 kernel.
-The only sane way to build external modules with a 2.6 kernel is
-to utilise the kbuild infrastructure.
+What you're missing is the reason for modversions to exist - the fact that the
+kernel API *does* change between releases, and even within the same source tree
+(UP vs SMP builds, for instance).  If we supported what you're suggesting, then
+the following *will* happen:
 
-For your reference here is a Makefile that I used to compile your
-module (made a symling for loop-patched.c file).
-
-To compile the kernel I used:
-make -C /home/sam/bk/v2.6/ M=$PWD
-[Assumes latest linus kernel - 2.6.6-rc3]
-
-For older kernels append the modules target
-
-This has the added benefit that Module versioning is also supported.
-
-#########################
-# Minimal kbuild Makefile for loop-AES
-
-EXTRA_CFLAGS := $(LOOP_AES_CFLAGS)
-
-obj-m := loop.o
-
-i586-$(CONFIG_M586) := -i586
-i586-$(CONFIG_M686) := -i586
-
-loop-y := loop-patched.o aes$(i586-y).o glue.o md5$(i586-y).o
-
-##########################
-
-I see in the Makefile that you do a lot of tricks to support various
-kernel versions. But they all end up in a few defines for the C compiler,
-which you just needs to supply in the variable LOOP_AES_CFLAGS.
-[And some file massaging whaich is done before starting the build]
-
-What I would recommend you to do is to move all your backward compatibility
-stuff and general rules to a file named 'makefile'.
-Then provide individual Makefiles for each kernel version:
-Makefile.2.4, Makefile.2.6
-Then symlink Makfile to the right one and build the module.
-
-This would clean up your Makefile and give you correct usage in 2.6
-
-	Sam
+1) Binary module for 2.6.N is released that uses an API that takes 5 parameters.
+2) 2.6.N+1 comes out, and said API has another parameter added (see the recent
+tweak-fest for elf_map() for an actual example).
+3) User loads old binary into kernel.
+4) Kernel OOPs when it dereferences the non-existent 6th parameter that wasn't
+passed by the un-updated binary.
 
 
+
+--==_Exmh_1834002709P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAkAOAcC3lWbTT17ARAs3eAKDTt6GjYOdp6xDysfpstnF17bbKggCg/sX5
+s1xV6JdWNwQzuU5RupVMA4Y=
+=mqpZ
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1834002709P--

@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261927AbTELF2t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 01:28:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbTELF2t
+	id S261936AbTELFcI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 01:32:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbTELFcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 01:28:49 -0400
-Received: from stingr.net ([212.193.32.15]:31957 "EHLO hq.stingr.net")
-	by vger.kernel.org with ESMTP id S261927AbTELF2s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 01:28:48 -0400
-Date: Mon, 12 May 2003 09:41:30 +0400
-From: Paul P Komkoff Jr <i@stingr.net>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Two RAID1 mirrors are faster than three
-Message-ID: <20030512054130.GA1318@stingr.net>
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
-References: <200305112212_MC3-1-386B-32BF@compuserve.com> <3EBF24A8.1050100@tequila.co.jp> <1052716203.4100.10.camel@tor.trudheim.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Mon, 12 May 2003 01:32:08 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:62620 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S261936AbTELFcH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 01:32:07 -0400
+Date: Sun, 11 May 2003 20:30:27 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: bug on shutdown from 68-mm4 (machine_power_off returning causes problems)
+Message-ID: <19660000.1052710226@[10.10.2.4]>
+In-Reply-To: <m17k8x72ir.fsf_-_@frodo.biederman.org>
+References: <8570000.1052623548@[10.10.2.4]><20030510224421.3347ea78.akpm@digeo.com><8880000.1052624174@[10.10.2.4]><20030510231120.580243be.akpm@digeo.com><12530000.1052664451@[10.10.2.4]> <m17k8x72ir.fsf_-_@frodo.biederman.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1052716203.4100.10.camel@tor.trudheim.com>
-User-Agent: Agent Darien Fawkes
-X-Mailer: Intel Ultra ATA Storage Driver
-X-RealName: Stingray Greatest Jr
-Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+>> Yup, backing out kexec fixes it.
+> 
+> 
+> Ok.  Thinking it through the differences is that I have machine_power_off
+> call stop_apics (which is roughly equivalent to the old smp_send_stop).
 
-Replying to Anders Karlsson:
-> downtime on it. You then quiesce the database, split off the second copy
-> from the mirror, mount that as a separate filesystem and back that up
-> while the original with its first copy has already stepped back into
-> full use.
+Mmmm. Not sure NUMA-Q will like disconnect_bsp_APIC() much, but I guess
+that's my problem, not yours ;-) I can't do init 6 at the moment, so I'm
+walking on thin ice as is ... if I have to fix a couple of things up for
+NUMA-Q, that's no problem.
 
-Why do not use snapshots for this?
-- -- 
-Paul P 'Stingray' Komkoff Jr // http://stingr.net/key <- my pgp key
- This message represents the official view of the voices in my head
------BEGIN PGP SIGNATURE-----
+> In the kexec patch that does 2 things.
+> 1) It shuts down the secondary cpus, and returns the bootstrap cpu to
+>    virtual wire mode. 
+> 2) It calls set_cpus_allowed to force the reboot to be on the primary
+>    cpu.
+> 
+> After returning from machine_power_off. We run into a problem
+> in flush_tlb_mm.  Because we have a cpu disabled, that is still part
+> of the mm's vm mask.
 
-iD8DBQE+vzQCyMW8naS07KQRAnDBAKC9+yL2chK4eIldN8KiGQRIA5VkEQCfadZH
-GMYbeKYtHmQ7p9rEBqlxmmA=
-=0CCn
------END PGP SIGNATURE-----
+OK ... I presume that's just because you shut down the secondaries then.
+If so ... shouldn't it remove them from the relevant vm mask when it
+offlines them? (probably not your code, but still)
+
+> Does anyone know why machine_halt, and machine_power_off return?
+
+Nope, thats ... odd ;-)
+
+M.
+

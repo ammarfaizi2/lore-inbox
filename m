@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288800AbSAXST5>; Thu, 24 Jan 2002 13:19:57 -0500
+	id <S288867AbSAXSpm>; Thu, 24 Jan 2002 13:45:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288859AbSAXSTr>; Thu, 24 Jan 2002 13:19:47 -0500
-Received: from dsl-213-023-043-085.arcor-ip.net ([213.23.43.85]:27555 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S288830AbSAXSTB>;
-	Thu, 24 Jan 2002 13:19:01 -0500
+	id <S288891AbSAXSpb>; Thu, 24 Jan 2002 13:45:31 -0500
+Received: from femail36.sdc1.sfba.home.com ([24.254.60.26]:56574 "EHLO
+	femail36.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S288867AbSAXSpT>; Thu, 24 Jan 2002 13:45:19 -0500
 Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andrew Morton <akpm@zip.com.au>,
-        Mauricio =?iso-8859-1?q?Nu=F1ez?= <mnunez@maxmedia.cl>
-Subject: Re: Low latency for recent kernels
-Date: Wed, 23 Jan 2002 23:18:13 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020123091643.A182@earthlink.net> <02012318041500.01883@mauricio.chile.com> <3C4F2D18.5DC72FFE@zip.com.au>
-In-Reply-To: <3C4F2D18.5DC72FFE@zip.com.au>
+From: Rob Landley <landley@trommello.org>
+To: Marko Rauhamaa <marko@pacujo.nu>, linux-kernel@vger.kernel.org
+Subject: Re: IRQ routing conflict
+Date: Thu, 24 Jan 2002 05:43:04 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: miles@megapathdsl.net.marko
+In-Reply-To: <m3hepd1ggp.fsf@lumo.pacujo.nu>
+In-Reply-To: <m3hepd1ggp.fsf@lumo.pacujo.nu>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E16ToWU-0002m2-00@starship.berlin>
+Message-Id: <20020124184518.WSKJ21740.femail36.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 23, 2002 10:37 pm, Andrew Morton wrote:
-> Probably, poor interactivity on the desktop is more due to
-> waiting on disk reads - a combination of bad read latency
-> in the presence of write traffic and unfortunate page replacement
-> decisions.
+On Wednesday 23 January 2002 05:58 am, Marko Rauhamaa wrote:
 
-Yep, and half-formed ideas of process scheduling.  The good news is, it's all 
-being worked on by people who know what they're doing (including, obviously, 
-you).
+> My new laptop is mostly working, but I can't get my sound card to
+> produce a sound. I'm suspecting that the sound driver is not receiving
+> interrupts. I can hear the clicking when the driver is loaded -- and I
+> have used aumix to set the volume. Both ALSA and OSS (commercial) fail
+> the same way.
 
---
-Daniel
+I've got a Dell Inspiron 3500 where the sound works fine on the first boot 
+but the IRQ gets lost after an APM suspend, and even unloading/reloading the 
+module doesn't help.  (The I/O addresses are still valid, but it gets no IRQ. 
+ KDE has no sound, from the command line it loops playing the same segment 
+over and over complaining about timeouts...)
 
+It's been doing this for a year.  I've mentioned it here a few times before.  
+I've played around with setpci and such, but haven't been able to fix it.  I 
+just reboot when I want sound.  The bios sets it up right (on a cold boot, 
+not returning from APM).  Linux (even 2.4.17) does not.
+
+Rob

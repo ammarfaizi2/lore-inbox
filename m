@@ -1,60 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbUDXUAc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbUDXUEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261913AbUDXUAc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Apr 2004 16:00:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbUDXUAc
+	id S261752AbUDXUEN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Apr 2004 16:04:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262224AbUDXUEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Apr 2004 16:00:32 -0400
-Received: from smtp.dkm.cz ([62.24.64.34]:63240 "HELO smtp.dkm.cz")
-	by vger.kernel.org with SMTP id S261913AbUDXUA1 (ORCPT
+	Sat, 24 Apr 2004 16:04:13 -0400
+Received: from pop.gmx.net ([213.165.64.20]:43448 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261752AbUDXUEH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Apr 2004 16:00:27 -0400
-From: Michal Semler <cijoml@volny.cz>
-Reply-To: cijoml@volny.cz
-To: linux-kernel@vger.kernel.org
-Subject: Re: standart events for hotkeys?
-Date: Sat, 24 Apr 2004 22:00:22 +0200
-User-Agent: KMail/1.6
-References: <200404200042.24671.cijoml@volny.cz> <200404241918.22817.cijoml@volny.cz> <408AB7D6.4060305@hereintown.net>
-In-Reply-To: <408AB7D6.4060305@hereintown.net>
+	Sat, 24 Apr 2004 16:04:07 -0400
+X-Authenticated: #20450766
+Date: Sat, 24 Apr 2004 22:00:10 +0200 (CEST)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: "Ihar 'Philips' Filipau" <filia@softhome.net>
+cc: Guennadi Liakhovetski <gl@dsa-ac.de>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [somewhat OT] binary modules agaaaain
+In-Reply-To: <408A3B82.5020807@softhome.net>
+Message-ID: <Pine.LNX.4.44.0404242146100.1890-100000@poirot.grange>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404242200.22481.cijoml@volny.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 24 of April 2004 20:54, you wrote:
-> Michal Semler wrote:
-> > and this is what I mean. We should start project collecting this. As PCI
-> > cards list for example.
+On Sat, 24 Apr 2004, Ihar 'Philips' Filipau wrote:
+
+> Guennadi Liakhovetski wrote:
+> > Hello all
+> >
+> > I came across an idea, how Linux could allow binary modules, still having
+> > reasonable control over them.
+> >
+> > I am not advocating for binary modules, nor I am trying to make their life
+> > harder, this is just an idea how it could be done.
+> >
+> > I'll try to make it short, details may be discussed later, if any interest
+> > arises.
+> >
+> > A binary module is "considered good" if
 >
-> There are as many e-mail keys codes as there are e-mail programs.  And
-> I'm sure there is over lap, where one keyboard's e-mail key, generates
-> the same code as another's web browser key.  Also it doesn't really
-> matter what a key is labeled, it could be assigned to anything.
+>    I belive that you forgot to make "The Point."
+
+May be...
+
+>    And "discussion" (good vs. bad isn't discussion, but flames) went in
+> wrong direction.
+
+Very right. Let me try to explain it again. It was just an idea, that
+popped in my mind. I was not sure if it was good or bad, so, I decided to
+dump it to lkml, so, that the people here could evaluate it. And, if it
+can be of any use - use it. I, personally, don't care much (at least at
+the moment) about binary drivers. And I most of all wanted to avoid
+starting a new wave of flames. That's why I tried to avoid answering to
+other posters (sorry, if it was somewhat impolite).
+
+>    Be constructive. For example: Let's aks h/w producers making at least
+> glue layer open source (bsd or something), so people eventually might
+> help to maintain this glue layer.
+>    How it can help? - producer with time may move bigger parts of driver
+> into open source domains.
+>    How it can gets screwed? - producer might just start liking when
+> someone is doing his work for him. Some license a-la GPL to not let glue
+> layer to slip into binary only domain back must be in place.
 >
-> What there should be is a program that is configurable, that says when
-> you see this key event, do this.  And such programs do exist, for
-> example the GNOME desktop has ACME.
+>    This could be a good starting point for h/w producers and linux
+> comunity as a whole.
 >
-> All that has to be done is make sure the kernel passes this codes, and
-> the user space program can gather them.  That seems to be working now.
+>    Saying Good/Bad is just B.S. - helps no-one.
+>    Building bridges between comunity and producers - might improve and
+> deepen relationships. And that's what I hope for.
 
-Hi, 
+Thanks! You seem to have understood the idea pretty close to what I mean,
+and, probably, you are better capable of explaining things, than I:-) But,
+I think, if it is going to be discussed further, let's move it away from
+LKML (you are right, Bart). It can either be discussed in private emails,
+or, maybe someone could create a dedicated mailing list somewhere.
 
-this isn't true, coz when somebody (me) has two keyboards and both returns 
-another scan codes for one labeled key, so you can't use hotkeys or Khotkeys 
-or another one.
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
 
-It is because when you pres e-mail key, in one keyboard it returns one 
-scancode and run for example will run kmail, but when you press it on second 
-keyboard and it returns another scancode, it runs and it will run xterm... :(
 
-So we need wrapper which will translate scancodes from all keyboards to 
-standart scancodes and then it can be used with hotkeys and will work with 
-all keyboards and will start kmail everytime on every of keyboards.
-
-Michal

@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311445AbSDDUNK>; Thu, 4 Apr 2002 15:13:10 -0500
+	id <S311454AbSDDUNk>; Thu, 4 Apr 2002 15:13:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311454AbSDDUNA>; Thu, 4 Apr 2002 15:13:00 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54534 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S311445AbSDDUMs>; Thu, 4 Apr 2002 15:12:48 -0500
-Date: Thu, 4 Apr 2002 12:12:07 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Larry McVoy <lm@bitmover.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.8-pre1
-In-Reply-To: <20020403195445.U17549@work.bitmover.com>
-Message-ID: <Pine.LNX.4.33.0204041203440.14206-100000@penguin.transmeta.com>
+	id <S311463AbSDDUNa>; Thu, 4 Apr 2002 15:13:30 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:2802 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S311454AbSDDUNT>;
+	Thu, 4 Apr 2002 15:13:19 -0500
+Message-ID: <3CACB2E2.D9F4A7FE@mvista.com>
+Date: Thu, 04 Apr 2002 12:09:06 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Robert Love <rml@tech9.net>, Dave Hansen <haveblue@us.ibm.com>,
+        "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
+Subject: Re: Patch: linux-2.5.8-pre1/kernel/exit.c change caused BUG() atboot 
+ time
+In-Reply-To: <Pine.LNX.4.33.0204041139060.12895-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 3 Apr 2002, Larry McVoy wrote:
+Linus Torvalds wrote:
 > 
-> Oh, yeah, this URL is starting to be fun:
+> On 4 Apr 2002, Robert Love wrote:
+> >
+> > Eh, maybe - what about all the code that sets non-running before putting
+> > itself on a wait queue?
 > 
-> http://linux.bkbits.net:8080/linux-2.5/stats
+> In most cases that code will call a schedule itself.
 > 
-> You can click on any name to see what they have been working on, once you
-> drill down through a name, you are looking at things through a "this user
-> only" filter.
+> Of course, we might make just ZOMBIE a special case, but in general I
+> think it's simply absolutely wrong for the preemption to change task
+> internal data structures on its own.
+>
+Amen!
+ 
+>                 Linus
+> 
 
-Side note: this only works partially.
-
-For example, of the 297 changesets in 2.5.8-pre1, 147 were from email
-patches (the 50% ratio seems to have held up pretty well over time:  
-about half of the submissions I get are old-style patches, with half being
-BK merges. Of course, for me the advantage of BK is that the BK merge half
-often required _much_ less than 50% of the time).
-
-Anyway: of the 147 patches, 125 were merges from Dave Jones (only 123 are
-marged as such - two were re-attributed by me by hand by editing the
-emails directly).
-
-And of those 123 changesets marked as coming from Dave, most were
-obviously written by others, and Dave acted as integrator (which is not
-unimportant, of course - 99% of what I do myself is only integration these
-days).
-
-So the statistics get skewed by details like this - if is only a partial
-map of who actually _wrote_ the patch.
-
-(The same is sometimes true of the BK patches themselves, not just the
-email patches I get from integrators liek Dave who still use diffs to
-merge with me. It depends on who and how the original BK changeset was
-created, of course).
-
-		Linus
-
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml

@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268677AbUJTRCo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268776AbUJTR2B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268677AbUJTRCo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 13:02:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268713AbUJTRCb
+	id S268776AbUJTR2B (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 13:28:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268683AbUJTRWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 13:02:31 -0400
-Received: from mail.scitechsoft.com ([63.195.13.67]:22702 "EHLO
-	mail.scitechsoft.com") by vger.kernel.org with ESMTP
-	id S268693AbUJTRBt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 13:01:49 -0400
-From: "Kendall Bennett" <KendallB@scitechsoft.com>
-Organization: SciTech Software, Inc.
-To: Pavel Machek <pavel@ucw.cz>
-Date: Wed, 20 Oct 2004 10:01:27 -0700
+	Wed, 20 Oct 2004 13:22:39 -0400
+Received: from mail.aknet.ru ([217.67.122.194]:35085 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S268762AbUJTRPs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 13:15:48 -0400
+Message-ID: <41769F02.9020003@aknet.ru>
+Date: Wed, 20 Oct 2004 21:23:14 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: ru, en-us, en
 MIME-Version: 1.0
-Subject: Re: [Linux-fbdev-devel] Generic VESA framebuffer driver and Video card BOOT?
-CC: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
-Message-ID: <41763777.26324.1B3B684C@localhost>
-In-reply-to: <20041019214818.GF1142@elf.ucw.cz>
-References: <41740384.5783.12A07B14@localhost>
-X-mailer: Pegasus Mail for Windows (4.21c)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Spam-Flag: NO
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: X does not start. vm86old returns ENOSYS??
+References: <200410201653.33233.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200410201653.33233.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AV-Checked: ClamAV using ClamSMTP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> wrote:
+Hi.
 
-> > Open Firmware may be a 'nicer' solution, but I guarantee that if the 
-> > vendors started supporting that it would be just a bug ridden as any 16-
-> > bit real mode BIOS code. For the Video BIOS the code always works for 
-> > what it is tested for. Some vendors spend more time testing the VBE BIOS 
-> > side of things fully (if they are smart they have licensed our VBETest 
-> > tools for this purpose). Unfortunatley some vendors do not test this 
-> > stuff thoroughly and it has problems. But the same testing issues would 
-> > exist whether the firmware was written as a 16-bit x86 blob or as an Open 
-> > Firmware blob.
-> 
-> Actually that 16-bit x86 blob can access any PC hardware, and that's
-> where the stuff gets hard.
+Denis Vlasenko wrote:
+> How can vm86old from X return ENOSYS??
+I think you can't trust what vm86()/vm86old()
+returns, concerning strace. These 2 syscalls
+returns different non-zero values on *success*,
+which, I think, strace just doesn't get right.
+Of course it can also return the reasonable
+errors, like EFAULT as in your test program -
+its just that copy_from_user() failed when
+you specified NULL.
+I am not sure where exactly the ENOSYS comes
+from. My wild guess is that strace expects
+0 on success and the negative value on error,
+but any positive value is an indication that
+the syscall is not implemented.
+At least I've always seen ENOSYS in an strace
+logs for vm86() - this is normal.
 
-Yes, but there is only a very small set of PC hardware features you need 
-to implement, and most BIOS'es only look at those things for timing 
-purposes. Unfortunately there is no standard for how BIOS'es do internal 
-timing and delay loops, so we emulate them all (8253 timers, speaker 
-ports and CMOS time/date support ;-).
-
-When we come across a new card that doesn't work we figure out why and 
-make new additions to the video boot code. However at this point we think 
-we have covered just about every card out there, as I don't think there 
-are any cards in our labs that don't work at present. If there are, 
-fixing them is just a matter of spending the time to debug it.
-
-Regards,
-
----
-Kendall Bennett
-Chief Executive Officer
-SciTech Software, Inc.
-Phone: (530) 894 8400
-http://www.scitechsoft.com
-
-~ SciTech SNAP - The future of device driver technology! ~
-
+> I have no more ideas how to proceed from here.
+Sorry for not being able to help much.
 

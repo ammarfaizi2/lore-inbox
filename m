@@ -1,67 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268841AbUHLWj1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268846AbUHLW2b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268841AbUHLWj1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 18:39:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268843AbUHLWj1
+	id S268846AbUHLW2b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 18:28:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268837AbUHLW2b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 18:39:27 -0400
-Received: from thunk.org ([140.239.227.29]:55018 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S268841AbUHLWjN (ORCPT
+	Thu, 12 Aug 2004 18:28:31 -0400
+Received: from mail.tpgi.com.au ([203.12.160.61]:16364 "EHLO mail.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S268846AbUHLW0o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 18:39:13 -0400
-Date: Thu, 12 Aug 2004 18:39:07 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Otto Wyss <otto.wyss@orpatec.ch>
-Cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: Re: New concept of ext3 disk checks
-Message-ID: <20040812223907.GA7720@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Otto Wyss <otto.wyss@orpatec.ch>,
-	'linux-kernel' <linux-kernel@vger.kernel.org>
-References: <411BAFCA.92217D16@orpatec.ch>
+	Thu, 12 Aug 2004 18:26:44 -0400
+Subject: Re: suspend2 with smp
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040812215644.GA20021@elf.ucw.cz>
+References: <20040812215644.GA20021@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1092349414.24776.16.camel@laptop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <411BAFCA.92217D16@orpatec.ch>
-User-Agent: Mutt/1.5.6+20040803i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 13 Aug 2004 08:23:35 +1000
+Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 12, 2004 at 07:58:33PM +0200, Otto Wyss wrote:
-> - Instead of checks forced during startup checks are done during runtime
-> (at low priority). It has to be determined if these checks are _only_
-> checks or if they also include possible fixes. Possible solution might
-> distinct between the severity of any discovered problem.
+Hi.
 
-This is something that doesn't require any kernel patches, or any
-other C coding for that matter, so it would be a great first project
-for someone who wanted to learn how to use the device-mapper snapshot
-feature.  Basically, what you do is the following in a shell script
-which is fired off by cron once a week at 3am (or some other
-appropriate time):
+On Fri, 2004-08-13 at 07:56, Pavel Machek wrote:
+> Hi!
+> 
+> At some point I claimed that SMP support in suspend2 is "probably
+> broken". I guess I should post more data:
+> 
+> It is broken in theory.
+> 
+> CPU is basically looping in loop marked by #, while its memory is
+> being overwriten. Now, the code probably works in practice, but it
+> should be really written in assembly so that compiler can not do
+> something stupid.
+> 
+> Compilers are not designed to deal with their stack (etc) randomly
+> overwritten, so compiler may do anything it wants here. I see that -O0
+> may help a lot here, but it simply is not the right thing to do.
+> 
+> At least /* FIXME: should be rewritten to assembly */ should be added there.
 
-1) Create a clean, read-only snapshot of an ext3 filesystem using
-device mapper.
+Ah, okay. So it's not that the code itself broken, but that you don't
+trust the assembler to do the right thing with the code. I'll happily
+include an inline asm routine if you'll code it for me (I don't know x86
+assembly). In case I haven't said it already, feel free to take the
+freezer changes and put them in your code. I'd only be submitting a
+patch to do the same anyway.
 
-2) Run e2fsck -f on the snapshot, and check to see if there are any
-error on the filesystem.  Assuming a non-buggy kernel and properly
-functioning hardware, there should be none.  Afterwards, release the
-read-only snapshot.
+Nigel
+-- 
+Nigel Cunningham
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
-3) If there are any errors, e-mail the output of e2fsck to the system
-administrator.
+Many today claim to be tolerant. But true tolerance can cope with others
+being intolerant.
 
-4) If there were no errors detecting by the fsck run, run the command
-"tune2fs -C 0 -T now /dev/XXX" on the live filesystem.  This sets the
-mount count and last filesystem checked time to the appropriate values
-in the superblock.
-
-Tell you what --- if someone is willing to put the time into
-developing such a script, I'll include it in the contrib section of
-e2fsprogs.  I've put all the hooks to do this in e2fsprogs, and I've
-wanted this for quite some time, but the last time I looked at it, the
-command-line EVMS tools were truly gruesome to behold/use.  I believe
-things have gotten much better since then, so this shouldn't be too
-hard to do now.
-
-					- Ted

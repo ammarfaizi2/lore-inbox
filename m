@@ -1,36 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132042AbRDGWHa>; Sat, 7 Apr 2001 18:07:30 -0400
+	id <S132046AbRDGW33>; Sat, 7 Apr 2001 18:29:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132044AbRDGWHU>; Sat, 7 Apr 2001 18:07:20 -0400
-Received: from cx518206-b.irvn1.occa.home.com ([24.21.107.123]:5504 "EHLO
-	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with ESMTP
-	id <S132042AbRDGWHL>; Sat, 7 Apr 2001 18:07:11 -0400
-From: "Barry K. Nathan" <barryn@cx518206-b.irvn1.occa.home.com>
-Message-Id: <200104072207.PAA03796@cx518206-b.irvn1.occa.home.com>
-Subject: Re: processes stuck in D state
-To: linux4u@wanadoo.es (Pau Aliagas)
-Date: Sat, 7 Apr 2001 15:07:11 -0700 (PDT)
-Cc: linux-kernel@vger.kernel.org (lkml)
-Reply-To: barryn@pobox.com
-In-Reply-To: <Pine.LNX.4.33.0104041744100.1585-100000@pau.intranet.ct> from "Pau Aliagas" at Apr 04, 2001 05:47:20 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S132049AbRDGW3T>; Sat, 7 Apr 2001 18:29:19 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:25783 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S132046AbRDGW3O>;
+	Sat, 7 Apr 2001 18:29:14 -0400
+Message-ID: <3ACF94B9.F576D7EC@mandrakesoft.com>
+Date: Sat, 07 Apr 2001 18:29:13 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Gunther Mayer <Gunther.Mayer@t-online.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH for Broken PCI Multi-IO in 2.4.3 (serial+parport)
+In-Reply-To: <3ACECA8F.FEC9439@eunet.at> <3ACED679.7E334234@mandrakesoft.com> <20010407111419.B530@redhat.com> <3ACF5F9B.AA42F1BD@t-online.de> <20010407200340.C3280@redhat.com> <3ACF6920.465635A1@mandrakesoft.com> <3ACF76B7.44F6279@t-online.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pau Aliagas wrote:
-> Since 2.2.4-ac28 and 2.4.3 I keep on getting processes in D state that I
-> cannot kill, usually mozilla or nautilus which use a large amount of RAM.
+Gunther Mayer wrote:
+> More module interdependencies == More complicated == More clueless users
 
-I don't have time to help debug this, but I'm getting this too, with
-2.4.3 final. The previous kernel I ran was 2.4.3-pre4, and it did not
-have this problem.
+With module autoloading, they don't have to care about module
+interdependencies.  The primary thing people care about is what string
+is passed to modprobe.  When that changes, things break.  As long as
+that doesn't change, you are ok.  Who cares if two or five or ten helper
+modules are automatically pulled in, and who cares if that list of
+helper modules changes...  Functionally speaking, the user is completely
+unaware of the change.
 
-In my case, it's usually mozilla (I'm seeing this with the daily
-snapshots, but not with mozilla-0.8.1, at least not yet), but at least
-once I saw it with freeamp (2.1rc5) too.
 
--Barry K. Nathan <barryn@pobox.com>
+> Many users will be surprised if they must load another module (e.g."pci_multiio")
+> to get their parallel and serial ports working.
+> 
+> Thus _must not_ happen in the stable release.
+
+Agreed.
+
+	Jeff
+
+
+-- 
+Jeff Garzik       | Sam: "Mind if I drive?"
+Building 1024     | Max: "Not if you don't mind me clawing at the dash
+MandrakeSoft      |       and shrieking like a cheerleader."

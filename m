@@ -1,40 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263374AbTDLTAj (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 15:00:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263375AbTDLTAj (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 15:00:39 -0400
-Received: from h-66-166-225-55.CMBRMAOR.covad.net ([66.166.225.55]:15918 "EHLO
-	baradas.org") by vger.kernel.org with ESMTP id S263374AbTDLTAi (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Apr 2003 15:00:38 -0400
-From: Peter Barada <peter@baradas.org>
-To: dank@kegel.com
-Cc: linux-kernel@vger.kernel.org, crossgcc@sources.redhat.com
-In-reply-to: <3E983288.9000000@kegel.com> (message from Dan Kegel on Sat, 12
-	Apr 2003 08:36:40 -0700)
-Subject: Re: gcc-2.95 broken on PPC?
-References: <3E983288.9000000@kegel.com>
-Message-Id: <20030412191222.9654A98990@baradas.org>
-Date: Sat, 12 Apr 2003 15:12:22 -0400 (EDT)
+	id S263380AbTDLTGf (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 15:06:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263381AbTDLTGf (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 15:06:35 -0400
+Received: from vitelus.com ([64.81.243.207]:39946 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id S263380AbTDLTGe (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Apr 2003 15:06:34 -0400
+Date: Sat, 12 Apr 2003 12:16:44 -0700
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: Tim Connors <tconnors@astro.swin.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bytesex.org -> censored (Was Re: 2.4.21-pre7: error compiling aic7(censored)/aicasm/aicasm.c)
+Message-ID: <20030412191644.GC25927@vitelus.com>
+References: <20030406130015$057f@gated-at.bofh.it> <20030410171009$6b00@gated-at.bofh.it> <200304111040.h3BAe1806090@tellurium.ssi.swin.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200304111040.h3BAe1806090@tellurium.ssi.swin.edu.au>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Apr 11, 2003 at 08:40:01PM +1000, Tim Connors wrote:
+> Speaking of s/xxx/censored/, some moron decided at uni to block all
+> domains with sex in them. Any idea how to download v4l drivers of
+> www.bytesex.org? Concidering www.bytesex.org is vhosted, so one can't
+> use its IP address.
 
-> > The down side is that creating cross compilers from gcc 3.x is a lot
-> > harder unless you already have a cross compiled glibc from gcc 2.95.x
-> > in the proper paths.
->
->Yep.  I'm not looking forward to dealing with that.  Shame the gcc
->team keeps making building cross compilers harder.
-
-It isn't that hard to build a cross compiler straight from the 3.x
-sources; just takes an extra pass.  I've had pretty good luck building
-m68k-linux and ppc-linux cross C/C++ compilers from the sources, all I
-needed to do was to build a boostrap C compiler that is used to build
-glibc, and then come back and build a full up C/C++ compiler.  Check
-out the build script from Bill Gatliff's site:
-
-<http://crossgcc.billgatliff.com/build-crossgcc.sh>
-
--- 
-Peter Barada
-peter@baradas.org
+I've noticed that they do stupid stuff like that at .au universities.
+How conservative are they down there?

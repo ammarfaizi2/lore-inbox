@@ -1,85 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267450AbUJNT6R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267464AbUJNULR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267450AbUJNT6R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 15:58:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267378AbUJNT5u
+	id S267464AbUJNULR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 16:11:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267454AbUJNT67
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 15:57:50 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:26600 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267508AbUJNT5M (ORCPT
+	Thu, 14 Oct 2004 15:58:59 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:43696 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267451AbUJNTzB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 15:57:12 -0400
-Date: Thu, 14 Oct 2004 21:57:57 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U1
-Message-ID: <20041014195757.GA19295@elte.hu>
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <1097782921.5310.10.camel@dhcp153.mvista.com>
+	Thu, 14 Oct 2004 15:55:01 -0400
+Subject: [PATCH 1/1] discard ext2 preallocation in last iput
+From: Mingming Cao <cmm@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>, hch@lst.de
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041014114142.GA24727@lst.de>
+References: <20041014114142.GA24727@lst.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 14 Oct 2004 12:55:56 -0700
+Message-Id: <1097783763.7900.531.camel@w-ming2.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1097782921.5310.10.camel@dhcp153.mvista.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Daniel Walker <dwalker@mvista.com> wrote:
-
-> This was during NFS startup in init.
+On Thu, 2004-10-14 at 04:41, Christoph Hellwig wrote:
+> Hi Mingming,
 > 
-> using smp_processor_id() in preemptible [00000001] code:
-> rpc.rquotad/2158
-> caller is ipt_do_table+0x7b/0x3a0
->  [<c011aa15>] smp_processor_id+0x95/0xa0
->  [<c038cbfb>] ipt_do_table+0x7b/0x3a0
+> you'd been reworking ext3 reservations to be dropped in ->clear_inode
+> instead of the previous bogus call in ->put_inode in
+> ext3-lazy-discard-reservation-window-patch.patch in -mm.
+> 
+> Any chance you could submit a similar change (not the full reservations
+> rework) for ext2?
+> 
+Andrew,
 
-ugh, this is a nasty one - if you look at the TABLE_OFFSET trickery in
-ipt_do_table it's basically an open-coded per-CPU variable in essence. 
-(probably predating percpu.h so it's fair.) Could you try the quick hack
-below? (it compiles but is otherwise untested)
+Here is the patch for ext2. The patch is against 2.6.9-rc4. I have done
+basic testing: it passed the fsstress test from LTP on a ext2 partition.
 
-The proper solution would be to change the code to use per-cpu variables
-(and get that patch accepted upstream) and then trivially convert it to
-get_cpu_var_locked().
+Thanks,
+Mingming
 
-	Ingo
+Currently the ext2 preallocation is discarded on every iput()(via ext2_put_inode()). We should only discard the preallocation on the last iput()(via ext3_clear_inode()).
 
---- linux/net/ipv4/netfilter/ip_tables.c.orig
-+++ linux/net/ipv4/netfilter/ip_tables.c
-@@ -287,10 +287,14 @@ ipt_do_table(struct sk_buff **pskb,
- 	 * match it. */
- 	offset = ntohs(ip->frag_off) & IP_OFFSET;
+
+---
+
+ linux-2.6.9-rc4-ming/fs/ext2/ext2.h  |    1 -
+ linux-2.6.9-rc4-ming/fs/ext2/inode.c |   13 -------------
+ linux-2.6.9-rc4-ming/fs/ext2/super.c |   10 ++++------
+ 3 files changed, 4 insertions(+), 20 deletions(-)
+
+diff -puN fs/ext2/inode.c~ext2_discard_prealloc_fix fs/ext2/inode.c
+--- linux-2.6.9-rc4/fs/ext2/inode.c~ext2_discard_prealloc_fix	2004-10-14 18:02:38.458168192 -0700
++++ linux-2.6.9-rc4-ming/fs/ext2/inode.c	2004-10-14 18:12:03.002344432 -0700
+@@ -53,19 +53,6 @@ static inline int ext2_inode_is_fast_sym
+ }
  
-+#ifdef CONFIG_PREEMPT_REALTIME
-+	write_lock_bh(&table->lock);
-+#else
- 	read_lock_bh(&table->lock);
+ /*
+- * Called at each iput().
+- *
+- * The inode may be "bad" if ext2_read_inode() saw an error from
+- * ext2_get_inode(), so we need to check that to avoid freeing random disk
+- * blocks.
+- */
+-void ext2_put_inode(struct inode *inode)
+-{
+-	if (!is_bad_inode(inode))
+-		ext2_discard_prealloc(inode);
+-}
+-
+-/*
+  * Called at the last iput() if i_nlink is zero.
+  */
+ void ext2_delete_inode (struct inode * inode)
+diff -puN fs/ext2/super.c~ext2_discard_prealloc_fix fs/ext2/super.c
+--- linux-2.6.9-rc4/fs/ext2/super.c~ext2_discard_prealloc_fix	2004-10-14 18:06:55.525088080 -0700
++++ linux-2.6.9-rc4-ming/fs/ext2/super.c	2004-10-14 19:05:47.943078920 -0700
+@@ -181,10 +181,9 @@ static void destroy_inodecache(void)
+ 		printk(KERN_INFO "ext2_inode_cache: not all structures were freed\n");
+ }
+ 
+-#ifdef CONFIG_EXT2_FS_POSIX_ACL
+-
+ static void ext2_clear_inode(struct inode *inode)
+ {
++#ifdef CONFIG_EXT2_FS_POSIX_ACL
+ 	struct ext2_inode_info *ei = EXT2_I(inode);
+ 
+ 	if (ei->i_acl && ei->i_acl != EXT2_ACL_NOT_CACHED) {
+@@ -195,18 +194,17 @@ static void ext2_clear_inode(struct inod
+ 		posix_acl_release(ei->i_default_acl);
+ 		ei->i_default_acl = EXT2_ACL_NOT_CACHED;
+ 	}
 +#endif
- 	IP_NF_ASSERT(table->valid_hooks & (1 << hook));
- 	table_base = (void *)table->private->entries
--		+ TABLE_OFFSET(table->private, smp_processor_id());
-+		+ TABLE_OFFSET(table->private, _smp_processor_id());
- 	e = get_entry(table_base, table->private->hook_entry[hook]);
++	if (!is_bad_inode(inode))
++		ext2_discard_prealloc(inode);
+ }
  
- #ifdef CONFIG_NETFILTER_DEBUG
-@@ -397,7 +401,11 @@ ipt_do_table(struct sk_buff **pskb,
- #ifdef CONFIG_NETFILTER_DEBUG
- 	((struct ipt_entry *)table_base)->comefrom = 0xdead57ac;
- #endif
-+#ifdef CONFIG_PREEMPT_REALTIME
-+	write_unlock_bh(&table->lock);
-+#else
- 	read_unlock_bh(&table->lock);
-+#endif
+-#else
+-# define ext2_clear_inode NULL
+-#endif
  
- #ifdef DEBUG_ALLOW_ALL
- 	return NF_ACCEPT;
+ static struct super_operations ext2_sops = {
+ 	.alloc_inode	= ext2_alloc_inode,
+ 	.destroy_inode	= ext2_destroy_inode,
+ 	.read_inode	= ext2_read_inode,
+ 	.write_inode	= ext2_write_inode,
+-	.put_inode	= ext2_put_inode,
+ 	.delete_inode	= ext2_delete_inode,
+ 	.put_super	= ext2_put_super,
+ 	.write_super	= ext2_write_super,
+diff -puN fs/ext2/ext2.h~ext2_discard_prealloc_fix fs/ext2/ext2.h
+--- linux-2.6.9-rc4/fs/ext2/ext2.h~ext2_discard_prealloc_fix	2004-10-14 18:59:22.688646496 -0700
++++ linux-2.6.9-rc4-ming/fs/ext2/ext2.h	2004-10-14 18:59:33.820954128 -0700
+@@ -116,7 +116,6 @@ extern unsigned long ext2_count_free (st
+ /* inode.c */
+ extern void ext2_read_inode (struct inode *);
+ extern int ext2_write_inode (struct inode *, int);
+-extern void ext2_put_inode (struct inode *);
+ extern void ext2_delete_inode (struct inode *);
+ extern int ext2_sync_inode (struct inode *);
+ extern void ext2_discard_prealloc (struct inode *);
+
+_
+

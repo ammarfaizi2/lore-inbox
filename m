@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264396AbUHSJbr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264444AbUHSJfl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264396AbUHSJbr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 05:31:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264346AbUHSJbr
+	id S264444AbUHSJfl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 05:35:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUHSJfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 05:31:47 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:65298 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264444AbUHSJaN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 05:30:13 -0400
-Date: Thu, 19 Aug 2004 10:30:06 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Karel Gardas <kgardas@objectsecurity.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IBM T22/APM suspend does not work with yenta_socket module loaded on 2.6.8.1
-Message-ID: <20040819103006.D546@flint.arm.linux.org.uk>
-Mail-Followup-To: Karel Gardas <kgardas@objectsecurity.com>,
-	linux-kernel@vger.kernel.org
-References: <20040819094702.A546@flint.arm.linux.org.uk> <Pine.LNX.4.43.0408191113180.1006-100000@thinkpad.gardas.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.43.0408191113180.1006-100000@thinkpad.gardas.net>; from kgardas@objectsecurity.com on Thu, Aug 19, 2004 at 11:15:24AM +0200
+	Thu, 19 Aug 2004 05:35:41 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:44763 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S264444AbUHSJf1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 05:35:27 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-ID: <16676.29765.963260.634569@alkaid.it.uu.se>
+Date: Thu, 19 Aug 2004 11:35:01 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: =?ISO-8859-1?Q?Ram=F3n_Rey_Vicente?= <ramon.rey@hispalinux.es>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] Update ftape webpage
+In-Reply-To: <4123F54E.4090900@hispalinux.es>
+References: <4123F54E.4090900@hispalinux.es>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 19, 2004 at 11:15:24AM +0200, Karel Gardas wrote:
-> On Thu, 19 Aug 2004, Russell King wrote:
-> > You could try grabbing the cbdump program from pcmcia.arm.linux.org.uk
-> > and trying to identify whether there's any differences in the register
-> > settings of the Cardbus bridges - between having no yenta module loaded
-> > and having yenta loaded with the sockets suspended using:
-> >
-> > echo 3 > /sys/class/pcmcia_socket/pcmcia_socket0/device/power/state
-> > echo 3 > /sys/class/pcmcia_socket/pcmcia_socket1/device/power/state
-> >
-> > (echo 0 to these files to resume the sockets.)
-> 
-> OK, diff is:
+Ramón Rey Vicente writes:
+ > --- linux-2.6-rrey/MAINTAINERS.orig	2004-08-19 01:57:52.405537120 +0200
+ > +++ linux-2.6-rrey/MAINTAINERS	2004-08-19 02:26:44.012733140 +0200
+ > @@ -849,7 +849,7 @@
+ >  P:	Claus-Justus Heine
+ >  M:	claus@momo.math.rwth-aachen.de
+ >  L:	linux-tape@vger.kernel.org
+ > -W:	http://www-math.math.rwth-aachen.de/~LBFM/claus/ftape/
+ > +W:	http://www.instmath.rwth-aachen.de/~heine/ftape/
+ >  S:	Maintained
 
-Argh, sorry, it didn't take effect.  You need:
+NAK. If anything it should be marked orphaned or something.
+Heine hasn't maintained the in-kernel code for ages, and the
+web page you listed gives 403 errors on download attempts.
 
-echo -e '3\0' > /sys/class/pcmcia_socket/pcmcia_socket0/device/power/state
-echo -e '3\0' > /sys/class/pcmcia_socket/pcmcia_socket1/device/power/state
-
-I forgot that sysfs is fussy when it comes to parsing numbers. ;(
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Don't remove it though. It still mostly works.

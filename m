@@ -1,57 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265939AbUACJHS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 04:07:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265944AbUACJGL
+	id S262784AbUACJAp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 04:00:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262792AbUACJAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 04:06:11 -0500
-Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:11681 "HELO
-	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265941AbUACJE3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 04:04:29 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH 6/7] Kconfig Synaptics help
-Date: Sat, 3 Jan 2004 04:03:02 -0500
-User-Agent: KMail/1.5.4
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <200401030350.43437.dtor_core@ameritech.net> <200401030401.35798.dtor_core@ameritech.net> <200401030402.16745.dtor_core@ameritech.net>
-In-Reply-To: <200401030402.16745.dtor_core@ameritech.net>
+	Sat, 3 Jan 2004 04:00:45 -0500
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:64016 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S262784AbUACJAn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 04:00:43 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Greg KH <greg@kroah.com>
+Subject: Re: removable media revalidation - udev vs. devfs or static /dev
+Date: Sat, 3 Jan 2004 11:51:33 +0300
+User-Agent: KMail/1.5.3
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <200401012333.04930.arvidjaar@mail.ru> <20040103055847.GC5306@kroah.com>
+In-Reply-To: <20040103055847.GC5306@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200401030403.03783.dtor_core@ameritech.net>
+Message-Id: <200401031151.02001.arvidjaar@mail.ru>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-===================================================================
+On Saturday 03 January 2004 08:58, Greg KH wrote:
+> On Thu, Jan 01, 2004 at 11:33:04PM +0300, Andrey Borzenkov wrote:
+> > udev names are created when kernel detects corr. device. Unfortunately
+> > for removable media kernel rescans for partitions only when I try to
+> > access device. Meaning - because kernel does not know partition table it
+> > did not send hotplug event so udev did not create device nodes. But
+> > without device nodes I have no way to access device in Unix :(
+> >
+> > specifically I have now my Jaz and I have no (reasonable) way to access
+> > partition 4 assuming device nodes are managed by udev.
+> >
+> > devfs solved this problem by
+> >
+> > - always exporting at least handle to the whole disk (sda as example)
+>
+> Doesn't the kernel always create the main block device for this device?
 
+yes
 
-ChangeSet@1.1576, 2004-01-03 02:49:55-05:00, dtor_core@ameritech.net
-  Input: Kconfig help section update -
-         Suggest psmouse.proto=imps option to Synaptics users who do not
-         want installing native XFree driver but want tapping work
+> If so, udev will catch that.
 
+yes. So what - how does it help? User needs /dev/sda4. User has /dev/sda only. 
+Any attempt to refer to /dev/sda4 simply returns "No such file or directory"
 
- Kconfig |    2 ++
- 1 files changed, 2 insertions(+)
+> If not, there's no way udev will work for 
+> this kind of device, sorry.
 
+this worked seamlessly using static /dev. This worked seamlessly using devfs. 
+If it won't work with udev - it means regression. And believe me - it is 
+serious regression for end-users (I still remember similar problems we had 
+when transitioning to devfs and users' reaction to this).
 
-===================================================================
+> You could make a script that just creates 
+> the device node in /tmp, runs dd on it, and then cleans it all up to
+> force partition scanning.
+>
 
+You miss the point. When should this script be run? There is no event when you 
+just insert Jaz disk; nor is there any way to trigger revalidation on access 
+to non-existing device like is the case without udev.
 
+what I aim at - udev needs to provide some extension mechanism to allow 
+arbitrarily scripts to be run. Such script could then create all block nodes 
+(hmm ... how can script know the number of possible nodes and their names?)
 
-diff -Nru a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
---- a/drivers/input/mouse/Kconfig	Sat Jan  3 03:10:06 2004
-+++ b/drivers/input/mouse/Kconfig	Sat Jan  3 03:10:06 2004
-@@ -29,6 +29,8 @@
- 	  and a new verion of GPM at:
- 		http://www.geocities.com/dt_or/gpm/gpm.html
- 	  to take advantage of the advanced features of the touchpad.
-+	  If you do not want install specialized drivers but want tapping
-+	  working please use option psmouse.proto=imps.
- 
- 	  If unsure, say Y.
- 
+in hope somebody gets an idea ...
+
+regards
+
+-andrey
+

@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268865AbRHFQns>; Mon, 6 Aug 2001 12:43:48 -0400
+	id <S268864AbRHFQri>; Mon, 6 Aug 2001 12:47:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268864AbRHFQni>; Mon, 6 Aug 2001 12:43:38 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:54286 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S268865AbRHFQn1>; Mon, 6 Aug 2001 12:43:27 -0400
-Date: Mon, 6 Aug 2001 09:43:11 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: =?iso-8859-1?Q?S=F6nke?= Ruempler <ruempler@topconcepts.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: mdacon
-In-Reply-To: <3B6EC51F.1A1200CC@topconcepts.com>
-Message-ID: <Pine.LNX.4.10.10108060939500.2898-100000@transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268871AbRHFQr2>; Mon, 6 Aug 2001 12:47:28 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:30595 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S268864AbRHFQrV>; Mon, 6 Aug 2001 12:47:21 -0400
+Date: Mon, 6 Aug 2001 10:47:16 -0600
+Message-Id: <200108061647.f76GlG521620@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] one of $BIGNUM devfs races
+In-Reply-To: <Pine.GSO.4.21.0108060723110.13716-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0108060723110.13716-100000@weyl.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alexander Viro writes:
+> 	OK, folks - that's it.  By all reasonable standards a year
+> _is_ sufficient time to fix an obvious race.  One in
+> devfs/base.c::create_entry() had been described to Richard more than
+> a year ago.  While I respect the "I'll do it myself, don't spoil the
+> fun" stance, it's clearly over the bleedin' top.  Patch for that one
+> is in the end of posting.  Linus, see if it looks sane for you.
 
-> two questions fpr the mdacon driver:
-> 
-> 1) Can I use 2 mdacon cards with the mdacon driver ?
+Well, funny you send this today, Al, as today was supposed to be the
+day I start work on fixing a pile of races. I've got the most
+important features in before 2.5 is forked, and I've got a free day to
+get started on this.
 
-No. MDA uses a fixed standard register location to program its hardware.
-The two cards would conflict. Unless your MDA cards are pci based or they
-can change their register location your out of luck. Sorry. You can run
-MDA along side VGA. I do it all the time at home.
+I'll look at your patch after breakfast :-)
 
-> 2) mdacon doesnt work in 2.4 - if i echo something to /dev/tty14 -
-> system halts.
+				Regards,
 
-Strange. My system works fine here. I assume you have vgacon as well. What
-do you see printed out on the VGA monitor when you insmod the driver?
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,70 +1,169 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264553AbTDYAAy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 20:00:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264552AbTDXX7o
+	id S264500AbTDXXz6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 19:55:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264504AbTDXXu6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 19:59:44 -0400
-Received: from A17-250-248-87.apple.com ([17.250.248.87]:52677 "EHLO
-	smtpout.mac.com") by vger.kernel.org with ESMTP id S264545AbTDXX6e
+	Thu, 24 Apr 2003 19:50:58 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:49565 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264546AbTDXXpG convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 19:58:34 -0400
-Date: Fri, 25 Apr 2003 10:07:23 +1000
-Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v552)
-Cc: skraw@ithnet.com (Stephan von Krawczynski),
-       linux-kernel@vger.kernel.org (linux-kernel)
-To: John Bradford <john@grabjohn.com>
-From: Stewart Smith <stewartsmith@mac.com>
-In-Reply-To: <200304191622.h3JGMI9L000263@81-2-122-30.bradfords.org.uk>
-Message-Id: <E41731BA-76B1-11D7-BE62-00039346F142@mac.com>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.552)
+	Thu, 24 Apr 2003 19:45:06 -0400
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <10512287462983@kroah.com>
+Subject: Re: [PATCH] i2c driver changes for 2.5.68
+In-Reply-To: <1051228746897@kroah.com>
+From: Greg KH <greg@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Thu, 24 Apr 2003 16:59:06 -0700
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, April 20, 2003, at 02:22  AM, John Bradford wrote:
+ChangeSet 1.1179.3.2, 2003/04/23 11:33:09-07:00, hch@lst.de
 
->> I wonder whether it would be a good idea to give the linux-fs
->> (namely my preferred reiser and ext2 :-) some fault-tolerance.
->
-> Fault tollerance should be done at a lower level than the filesystem.
+[PATCH] i2c: remove dead code from adm1021
 
-I would (partly) disagree. On the FS level, you would still have to 
-deal with the data having gone away (or become corrupted). Simply 
-passing a (known) corrupted block to a FS isn't going to do anything 
-useful. Having the FS know that "this data is known crap" could tell it 
-to
-a) go look at a backup structure (e.g. one of the many superblock 
-copies)
-b) guess (e.g. in disk allocation bitmap, just think of them all as 
-used)
-c) fail with error (e.g. "cannot read directory due to a physical 
-problem with the disk"
-d) try to reconstruct the data (e.g. search around the disk for magic 
-numbers)
+Enough testing :)  This is the last user of some junk in i2c-sensors.h,
+so it should better go away sooner than later..
 
-<snip>
-> The filesystem doesn't know or care what device it is stored on, and
-> therefore shouldn't try to predict likely failiures.
 
-but it should be tolerant of them and able to recover to some extent. 
-Generally, the first sign that a disk is dying (to an end user) is when 
-really-weird-stuff(tm) starts happening. A nice error message from the 
-file system when they try to go into the directory (or whatever) would 
-be a lot nicer.
+ drivers/i2c/chips/adm1021.c |  122 --------------------------------------------
+ 1 files changed, 122 deletions(-)
 
-You could generalize the failure down to an extents type record (i.e. 
-offset and length) which would suit 99.9% of cases (i think :). In the 
-case of post-detection of error, the extra effort is probably worth it.
 
-these kinda issues are coming up in my honors thesis too, so there 
-might even be the (dreaded) code and discussion sometime near the end 
-of the year :)
-------------------------------
-Stewart Smith
-stewartsmith@mac.com
-Ph: +61 4 3884 4332
-ICQ: 6734154
+diff -Nru a/drivers/i2c/chips/adm1021.c b/drivers/i2c/chips/adm1021.c
+--- a/drivers/i2c/chips/adm1021.c	Thu Apr 24 16:47:35 2003
++++ b/drivers/i2c/chips/adm1021.c	Thu Apr 24 16:47:35 2003
+@@ -416,128 +416,6 @@
+ 	up(&data->update_lock);
+ }
+ 
+-
+-/* FIXME, remove these four functions, they are here to verify the sysfs
+- * conversion is correct, or not */
+-__attribute__((unused))
+-static void adm1021_temp(struct i2c_client *client, int operation,
+-			 int ctl_name, int *nrels_mag, long *results)
+-{
+-	struct adm1021_data *data = i2c_get_clientdata(client);
+-
+-	if (operation == SENSORS_PROC_REAL_INFO)
+-		*nrels_mag = 0;
+-	else if (operation == SENSORS_PROC_REAL_READ) {
+-		adm1021_update_client(client);
+-		results[0] = TEMP_FROM_REG(data->temp_max);
+-		results[1] = TEMP_FROM_REG(data->temp_hyst);
+-		results[2] = TEMP_FROM_REG(data->temp_input);
+-		*nrels_mag = 3;
+-	} else if (operation == SENSORS_PROC_REAL_WRITE) {
+-		if (*nrels_mag >= 1) {
+-			data->temp_max = TEMP_TO_REG(results[0]);
+-			adm1021_write_value(client, ADM1021_REG_TOS_W,
+-					    data->temp_max);
+-		}
+-		if (*nrels_mag >= 2) {
+-			data->temp_hyst = TEMP_TO_REG(results[1]);
+-			adm1021_write_value(client, ADM1021_REG_THYST_W,
+-					    data->temp_hyst);
+-		}
+-	}
+-}
+-
+-__attribute__((unused))
+-static void adm1021_remote_temp(struct i2c_client *client, int operation,
+-				int ctl_name, int *nrels_mag, long *results)
+-{
+-	struct adm1021_data *data = i2c_get_clientdata(client);
+-	int prec = 0;
+-
+-	if (operation == SENSORS_PROC_REAL_INFO)
+-		if (data->type == adm1023) { *nrels_mag = 3; }
+-                 else { *nrels_mag = 0; }
+-	else if (operation == SENSORS_PROC_REAL_READ) {
+-		adm1021_update_client(client);
+-		results[0] = TEMP_FROM_REG(data->remote_temp_max);
+-		results[1] = TEMP_FROM_REG(data->remote_temp_hyst);
+-		results[2] = TEMP_FROM_REG(data->remote_temp_input);
+-		if (data->type == adm1023) {
+-			results[0] = results[0]*1000 + ((data->remote_temp_os_prec >> 5) * 125);
+-			results[1] = results[1]*1000 + ((data->remote_temp_hyst_prec >> 5) * 125);
+-			results[2] = (TEMP_FROM_REG(data->remote_temp_offset)*1000) + ((data->remote_temp_offset_prec >> 5) * 125);
+-			results[3] = (TEMP_FROM_REG(data->remote_temp_input)*1000) + ((data->remote_temp_prec >> 5) * 125);
+-			*nrels_mag = 4;
+-		} else {
+- 			*nrels_mag = 3;
+-		}
+-	} else if (operation == SENSORS_PROC_REAL_WRITE) {
+-		if (*nrels_mag >= 1) {
+-			if (data->type == adm1023) {
+-				prec = ((results[0]-((results[0]/1000)*1000))/125)<<5;
+-				adm1021_write_value(client, ADM1021_REG_REM_TOS_PREC, prec);
+-				results[0] = results[0]/1000;
+-				data->remote_temp_os_prec=prec;
+-			}
+-			data->remote_temp_max = TEMP_TO_REG(results[0]);
+-			adm1021_write_value(client, ADM1021_REG_REMOTE_TOS_W, data->remote_temp_max);
+-		}
+-		if (*nrels_mag >= 2) {
+-			if (data->type == adm1023) {
+-				prec = ((results[1]-((results[1]/1000)*1000))/125)<<5;
+-				adm1021_write_value(client, ADM1021_REG_REM_THYST_PREC, prec);
+-				results[1] = results[1]/1000;
+-				data->remote_temp_hyst_prec=prec;
+-			}
+-			data->remote_temp_hyst = TEMP_TO_REG(results[1]);
+-			adm1021_write_value(client, ADM1021_REG_REMOTE_THYST_W, data->remote_temp_hyst);
+-		}
+-		if (*nrels_mag >= 3) {
+-			if (data->type == adm1023) {
+-				prec = ((results[2]-((results[2]/1000)*1000))/125)<<5;
+-				adm1021_write_value(client, ADM1021_REG_REM_OFFSET_PREC, prec);
+-				results[2]=results[2]/1000;
+-				data->remote_temp_offset_prec=prec;
+-				data->remote_temp_offset=results[2];
+-				adm1021_write_value(client, ADM1021_REG_REM_OFFSET, data->remote_temp_offset);
+-			}
+-		}
+-	}
+-}
+-
+-__attribute__((unused))
+-static void adm1021_die_code(struct i2c_client *client, int operation,
+-			     int ctl_name, int *nrels_mag, long *results)
+-{
+-	struct adm1021_data *data = i2c_get_clientdata(client);
+-
+-	if (operation == SENSORS_PROC_REAL_INFO)
+-		*nrels_mag = 0;
+-	else if (operation == SENSORS_PROC_REAL_READ) {
+-		adm1021_update_client(client);
+-		results[0] = data->die_code;
+-		*nrels_mag = 1;
+-	} else if (operation == SENSORS_PROC_REAL_WRITE) {
+-		/* Can't write to it */
+-	}
+-}
+-
+-__attribute__((unused))
+-static void adm1021_alarms(struct i2c_client *client, int operation,
+-			   int ctl_name, int *nrels_mag, long *results)
+-{
+-	struct adm1021_data *data = i2c_get_clientdata(client);
+-	if (operation == SENSORS_PROC_REAL_INFO)
+-		*nrels_mag = 0;
+-	else if (operation == SENSORS_PROC_REAL_READ) {
+-		adm1021_update_client(client);
+-		results[0] = data->alarms;
+-		*nrels_mag = 1;
+-	} else if (operation == SENSORS_PROC_REAL_WRITE) {
+-		/* Can't write to it */
+-	}
+-}
+-
+ static int __init sensors_adm1021_init(void)
+ {
+ 	return i2c_add_driver(&adm1021_driver);
 

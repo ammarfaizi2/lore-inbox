@@ -1,65 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132472AbRCZQgx>; Mon, 26 Mar 2001 11:36:53 -0500
+	id <S132487AbRCZQtn>; Mon, 26 Mar 2001 11:49:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132473AbRCZQgn>; Mon, 26 Mar 2001 11:36:43 -0500
-Received: from hercules.telenet-ops.be ([195.130.132.33]:49576 "HELO
-	smtp1.pandora.be") by vger.kernel.org with SMTP id <S132472AbRCZQg2>;
-	Mon, 26 Mar 2001 11:36:28 -0500
-Date: Mon, 26 Mar 2001 18:56:41 +0200
-From: wing tung Leung <tg@skynet.be>
-To: Manfred Spraul <manfred@colorfullife.com>
+	id <S132466AbRCZQtd>; Mon, 26 Mar 2001 11:49:33 -0500
+Received: from marine.sonic.net ([208.201.224.37]:23667 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S132491AbRCZQtR>;
+	Mon, 26 Mar 2001 11:49:17 -0500
+X-envelope-info: <dhinds@sonic.net>
+Message-ID: <20010326084809.A11493@sonic.net>
+Date: Mon, 26 Mar 2001 08:48:09 -0800
+From: David Hinds <dhinds@sonic.net>
+To: Keith Owens <kaos@ocs.com.au>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: via-rhine driver: wicked 2005 problem
-Message-ID: <20010326185641.A19619@skynet.be>
-In-Reply-To: <3ABEEAFE.81CA76A3@colorfullife.com>
+Subject: Re: 2.2.19 aic7xxx breaks pcmcia
+In-Reply-To: <22779.985590853@ocs3.ocs-net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
-In-Reply-To: <3ABEEAFE.81CA76A3@colorfullife.com>
+X-Mailer: Mutt 0.93i
+In-Reply-To: <22779.985590853@ocs3.ocs-net>; from Keith Owens on Mon, Mar 26, 2001 at 05:14:13PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 26, 2001 at 09:08:46AM +0200, Manfred Spraul wrote:
-> > [Kernel 2.4.2,
-> 
-> the -ac kernels contain a patch that automatically resets the nic if it
-> dies. I've attached my old patch, it applies to 2.4.2.
- 
-Your patch works fine for resetting the NIC. There are some a one or two
-log messages coming up, but the transfer continues after a small delay.
+On Mon, Mar 26, 2001 at 05:14:13PM +1000, Keith Owens wrote:
+> 2.2.19 Documentation/Changes says pcmcia-cs 3.0.14.  I am using 3.1.21
+> and it breaks if you compile the kernel with scsi support then try to
+> compile pcmcia.  clients/apa1480_stub.c in 3.1.21 has
+>   #include <../drivers/scsi/aic7xxx.h>
+> but in 2.2.19 that file is drivers/scsi/aic7xxx/aic7xxx.h.  You need at
+> least pcmcia-cs 3.1.25 for kernel 2.2.19 with scsi support.
 
-It doesn't solve the (less urgent) problem of not being able the use the
-NIC after a warm boot in M$ Windows. As I said, pulling the power cord from
-the ATX power supply and reinserting it, makes it go away.
+Correct.  It is not just the header file that is at issue, though; the
+whole build procedure for the aic7xxx driver changed.
 
-> > I tried the diagnostic utilities from Donald Becker at Scyld.com,
-> > but I don't  know what I should be looking for. The text output
-> > seems ok to me. 
-> >
-> Could you post the output?
-> And a few more lines from your kernel log.
+> In the kernel and associated utilities I want to remove lines like
+>   #include <../drivers/scsi/aic7xxx.h>
+> and replace them with
+>   #include "aic7xxx.h"
+> with the Makefile specifying -I $(TOPDIR)/drivers/scsi (2.2.18) or -I
+> $(TOPDIR)/drivers/scsi/aic7xxx (2.2.19).  Hard coding long path names
+> for #include is bad, especially when they contain '..'.  It stops
+> kernel developers moving code around and makes it difficult to do some
+> of the things I plan for the 2.5 Makefile rewrite.  David, how easy
+> would it be to change pcmcia to this style of include?
 
-It's rather much to post the the mailing list, I think, so I've put it online
-at [http://win-www.uia.ac.be/u/s965817/via-rhine.report/]. If you prefer
-otherwise, just tell me. I can always send a tarball of the logs.
+It would not be too hard to do what you suggest, but would make for
+very long CPPFLAGS.  Which is inconvenient if you like to actually see
+what's going on when you do a build.  I think more of the include
+files at issue should probably be in the kernel include tree, and not
+hidden in the driver tree.  That would make the issue moot.
 
-Some explanation of the logs:
+What are the things you're planning that will cause trouble?  I would
+also think it would be less of an issue with 2.5 if there is some hope
+that in-kernel PCMCIA is going to be the standard.
 
-report: script for creating the device status dumps
-hang/:      about the "timed out" problem receiving much data
-    242/:      using the default module from 2.4.2 release
-         before/:   device status before the lock, while NIC works well
-         after/:    device status after the lock, during timeout messages
-    242patch/: using the patched version
-         before/:   device status before the timeout or wicked messages
-         after/:    device status afterwards (NIC keeps working fine)
-windoze:/   about the warm-boot-after-windoze problem
-    winboot/:  device info booting after warm boot (problem case)
-    coldboot/: device info booting after total cold boot (no problem)
-
-
-Thanks a lot for the patch.
-
-Tung
-
+-- Dave

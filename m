@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbUJ3Ovl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbUJ3PBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbUJ3Ovl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 10:51:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbUJ3OuH
+	id S261222AbUJ3PBN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 11:01:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbUJ3OwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 10:50:07 -0400
-Received: from mail20.syd.optusnet.com.au ([211.29.132.201]:17035 "EHLO
-	mail20.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261194AbUJ3OiT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 10:38:19 -0400
-Message-ID: <4183A74B.7060507@kolivas.org>
-Date: Sun, 31 Oct 2004 00:38:03 +1000
+	Sat, 30 Oct 2004 10:52:11 -0400
+Received: from mail11.syd.optusnet.com.au ([211.29.132.192]:15578 "EHLO
+	mail11.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261220AbUJ3Ol7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 10:41:59 -0400
+Message-ID: <4183A827.70900@kolivas.org>
+Date: Sun, 31 Oct 2004 00:41:43 +1000
 From: Con Kolivas <kernel@kolivas.org>
 User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
 X-Accept-Language: en-us, en
@@ -21,198 +21,126 @@ Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
        William Lee Irwin III <wli@holomorphy.com>,
        Alexander Nyberg <alexn@dsv.su.se>,
        Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: [PATCH][plugsched 8/28] Make conditional reschedule public
+Subject: [PATCH][plugsched 27/28] Make new timekeeping private
 X-Enigmail-Version: 0.86.1.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: multipart/signed; micalg=pgp-sha1;
  protocol="application/pgp-signature";
- boundary="------------enig0E965AAB8D3DD08DF955799E"
+ boundary="------------enigCB5C643439C7630C4E8F958E"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig0E965AAB8D3DD08DF955799E
+--------------enigCB5C643439C7630C4E8F958E
 Content-Type: multipart/mixed;
- boundary="------------010409080103050609090101"
+ boundary="------------080409020101030106060604"
 
 This is a multi-part message in MIME format.
---------------010409080103050609090101
+--------------080409020101030106060604
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Make conditional reschedule public
+Make new timekeeping private
 
 
---------------010409080103050609090101
+--------------080409020101030106060604
 Content-Type: text/x-patch;
- name="publicise_cond_resched.diff"
+ name="privatise_timekeeping.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="publicise_cond_resched.diff"
+ filename="privatise_timekeeping.diff"
 
-Move the conditional reschedule entries into the common code.
+Timekeeping is runqueue design dependant so privatise those functions.
 
 Signed-off-by: Con Kolivas <kernel@kolivas.org>
 
-
+Index: linux-2.6.10-rc1-mm2-plugsched1/include/linux/scheduler.h
+===================================================================
+--- linux-2.6.10-rc1-mm2-plugsched1.orig/include/linux/scheduler.h	2004-10-30 00:20:12.649569607 +1000
++++ linux-2.6.10-rc1-mm2-plugsched1/include/linux/scheduler.h	2004-10-30 00:20:15.476117429 +1000
+@@ -10,6 +10,9 @@
+  */
+ struct sched_drv
+ {
++	void (*account_steal_time)(struct task_struct *, cputime_t);
++	void (*account_system_time)(struct task_struct *, int, cputime_t);
++	void (*account_user_time)(struct task_struct *, cputime_t);
+ 	char cpusched_name[SCHED_NAME_MAX];
+ 	int (*rt_task)(task_t *);
+ 	void (*wait_for_completion)(struct completion *);
 Index: linux-2.6.10-rc1-mm2-plugsched1/kernel/sched.c
 ===================================================================
---- linux-2.6.10-rc1-mm2-plugsched1.orig/kernel/sched.c	2004-10-29 21:46:58.463065654 +1000
-+++ linux-2.6.10-rc1-mm2-plugsched1/kernel/sched.c	2004-10-29 21:47:01.213636390 +1000
-@@ -3162,72 +3162,6 @@ static long ingo_sys_sched_yield(void)
- 	return 0;
- }
+--- linux-2.6.10-rc1-mm2-plugsched1.orig/kernel/sched.c	2004-10-30 00:20:12.651569288 +1000
++++ linux-2.6.10-rc1-mm2-plugsched1/kernel/sched.c	2004-10-30 00:20:15.477117269 +1000
+@@ -2279,7 +2279,7 @@ static void check_rlimit(struct task_str
+  * @hardirq_offset: the offset to subtract from hardirq_count()
+  * @cputime: the cpu time spent in user space since the last update
+  */
+-void account_user_time(struct task_struct *p, cputime_t cputime)
++static void ingo_account_user_time(struct task_struct *p, cputime_t cputime)
+ {
+ 	struct cpu_usage_stat *cpustat = &kstat_this_cpu.cpustat;
+ 	cputime64_t tmp;
+@@ -2306,7 +2306,7 @@ void account_user_time(struct task_struc
+  * @hardirq_offset: the offset to subtract from hardirq_count()
+  * @cputime: the cpu time spent in kernel space since the last update
+  */
+-void account_system_time(struct task_struct *p, int hardirq_offset,
++static void ingo_account_system_time(struct task_struct *p, int hardirq_offset,
+ 			 cputime_t cputime)
+ {
+ 	struct cpu_usage_stat *cpustat = &kstat_this_cpu.cpustat;
+@@ -2339,7 +2339,7 @@ void account_system_time(struct task_str
+  * @p: the process from which the cpu time has been stolen
+  * @steal: the cpu time spent in involuntary wait
+  */
+-void account_steal_time(struct task_struct *p, cputime_t steal)
++static void ingo_account_steal_time(struct task_struct *p, cputime_t steal)
+ {
+ 	struct cpu_usage_stat *cpustat = &kstat_this_cpu.cpustat;
+ 	cputime64_t steal64 = cputime_to_cputime64(steal);
+@@ -4085,6 +4085,9 @@ void destroy_sched_domain_sysctl()
+ #endif
  
--static inline void __cond_resched(void)
--{
--	do {
--		add_preempt_count(PREEMPT_ACTIVE);
--		schedule();
--		sub_preempt_count(PREEMPT_ACTIVE);
--	} while (need_resched());
--}
--
--int __sched cond_resched(void)
--{
--	if (need_resched()) {
--		__cond_resched();
--		return 1;
--	}
--	return 0;
--}
--
--EXPORT_SYMBOL(cond_resched);
--
--/*
-- * cond_resched_lock() - if a reschedule is pending, drop the given lock,
-- * call schedule, and on return reacquire the lock.
-- *
-- * This works OK both with and without CONFIG_PREEMPT.  We do strange low-level
-- * operations here to prevent schedule() from being called twice (once via
-- * spin_unlock(), once by hand).
-- */
--int cond_resched_lock(spinlock_t * lock)
--{
--#if defined(CONFIG_SMP) && defined(CONFIG_PREEMPT)
--	if (lock->break_lock) {
--		lock->break_lock = 0;
--		spin_unlock(lock);
--		cpu_relax();
--		spin_lock(lock);
--	}
--#endif
--	if (need_resched()) {
--		_raw_spin_unlock(lock);
--		preempt_enable_no_resched();
--		__cond_resched();
--		spin_lock(lock);
--		return 1;
--	}
--	return 0;
--}
--
--EXPORT_SYMBOL(cond_resched_lock);
--
--int __sched cond_resched_softirq(void)
--{
--	BUG_ON(!in_softirq());
--
--	if (need_resched()) {
--		__local_bh_enable();
--		__cond_resched();
--		local_bh_disable();
--		return 1;
--	}
--	return 0;
--}
--
--EXPORT_SYMBOL(cond_resched_softirq);
--
--
- /**
-  * yield - yield the current processor to other threads.
-  *
+ struct sched_drv ingo_sched_drv = {
++	.account_steal_time	= ingo_account_steal_time,
++	.account_system_time	= ingo_account_system_time,
++	.account_user_time	= ingo_account_user_time,
+ 	.cpusched_name		= "ingosched",
+ 	.rt_task		= ingo_rt_task,
+ 	.wait_for_completion	= ingo_wait_for_completion,
 Index: linux-2.6.10-rc1-mm2-plugsched1/kernel/scheduler.c
 ===================================================================
---- linux-2.6.10-rc1-mm2-plugsched1.orig/kernel/scheduler.c	2004-10-29 21:46:58.465065342 +1000
-+++ linux-2.6.10-rc1-mm2-plugsched1/kernel/scheduler.c	2004-10-29 21:47:01.214636234 +1000
-@@ -556,6 +556,71 @@ asmlinkage long sys_sched_get_priority_m
- 	return ret;
- }
+--- linux-2.6.10-rc1-mm2-plugsched1.orig/kernel/scheduler.c	2004-10-30 00:20:12.652569128 +1000
++++ linux-2.6.10-rc1-mm2-plugsched1/kernel/scheduler.c	2004-10-30 00:20:15.479116949 +1000
+@@ -993,6 +993,22 @@ static int __init scheduler_setup(char *
  
-+static inline void __cond_resched(void)
-+{
-+	do {
-+		add_preempt_count(PREEMPT_ACTIVE);
-+		schedule();
-+		sub_preempt_count(PREEMPT_ACTIVE);
-+	} while (need_resched());
-+}
-+
-+int __sched cond_resched(void)
-+{
-+	if (need_resched()) {
-+		__cond_resched();
-+		return 1;
-+	}
-+	return 0;
-+}
-+
-+EXPORT_SYMBOL(cond_resched);
-+
-+/*
-+ * cond_resched_lock() - if a reschedule is pending, drop the given lock,
-+ * call schedule, and on return reacquire the lock.
-+ *
-+ * This works OK both with and without CONFIG_PREEMPT.  We do strange low-level
-+ * operations here to prevent schedule() from being called twice (once via
-+ * spin_unlock(), once by hand).
-+ */
-+int cond_resched_lock(spinlock_t * lock)
-+{
-+#if defined(CONFIG_SMP) && defined(CONFIG_PREEMPT)
-+	if (lock->break_lock) {
-+		lock->break_lock = 0;
-+		spin_unlock(lock);
-+		cpu_relax();
-+		spin_lock(lock);
-+	}
-+#endif
-+	if (need_resched()) {
-+		_raw_spin_unlock(lock);
-+		preempt_enable_no_resched();
-+		__cond_resched();
-+		spin_lock(lock);
-+		return 1;
-+	}
-+	return 0;
-+}
-+
-+EXPORT_SYMBOL(cond_resched_lock);
-+
-+int __sched cond_resched_softirq(void)
-+{
-+	BUG_ON(!in_softirq());
-+
-+	if (need_resched()) {
-+		__local_bh_enable();
-+		__cond_resched();
-+		local_bh_disable();
-+		return 1;
-+	}
-+	return 0;
-+}
-+
-+EXPORT_SYMBOL(cond_resched_softirq);
-+
- extern struct sched_drv ingo_sched_drv;
- static const struct sched_drv *scheduler = &ingo_sched_drv;
+ __setup ("cpusched=", scheduler_setup);
  
++void account_steal_time(struct task_struct *p, cputime_t steal)
++{
++	scheduler->account_steal_time(p, steal);
++}
++
++void account_system_time(struct task_struct *p, int hardirq_offset,
++			 cputime_t cputime)
++{
++	scheduler->account_system_time(p, hardirq_offset, cputime);
++}
++
++void account_user_time(struct task_struct *p, cputime_t cputime)
++{
++	scheduler->account_user_time(p, cputime);
++}
++
+ void fastcall __sched wait_for_completion(struct completion *x)
+ {
+ 	scheduler->wait_for_completion(x);
 
 
---------------010409080103050609090101--
+--------------080409020101030106060604--
 
---------------enig0E965AAB8D3DD08DF955799E
+--------------enigCB5C643439C7630C4E8F958E
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -221,9 +149,9 @@ Content-Disposition: attachment; filename="signature.asc"
 Version: GnuPG v1.2.6 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFBg6dLZUg7+tp6mRURAljhAJ9awy3y86CAdMKq2QRLuulxY+iFFgCglO3y
-P3Y8WeFt2zoNWtqHArmXIro=
-=jaOa
+iD8DBQFBg6gnZUg7+tp6mRURAhP9AJ0csgsC3IvaISNUg20gEGmOgRcrTACfUBpy
+6MYhkcj8QgLBe5BCiQo42Kg=
+=xvpP
 -----END PGP SIGNATURE-----
 
---------------enig0E965AAB8D3DD08DF955799E--
+--------------enigCB5C643439C7630C4E8F958E--

@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316075AbSEWPFm>; Thu, 23 May 2002 11:05:42 -0400
+	id <S316383AbSEWPJY>; Thu, 23 May 2002 11:09:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316363AbSEWPFl>; Thu, 23 May 2002 11:05:41 -0400
-Received: from web14201.mail.yahoo.com ([216.136.172.143]:24324 "HELO
-	web14201.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S316075AbSEWPFk>; Thu, 23 May 2002 11:05:40 -0400
-Message-ID: <20020523150539.1059.qmail@web14201.mail.yahoo.com>
-Date: Thu, 23 May 2002 08:05:39 -0700 (PDT)
-From: Erik McKee <camhanaich99@yahoo.com>
-Subject: 2.5.17 Problem
+	id <S316421AbSEWPJX>; Thu, 23 May 2002 11:09:23 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:27065 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S316383AbSEWPJX>; Thu, 23 May 2002 11:09:23 -0400
+Date: Thu, 23 May 2002 16:12:16 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
 To: linux-kernel@vger.kernel.org
+cc: Andrea Arcangeli <andrea@suse.de>, Linus Torvalds <torvalds@transmeta.com>
+Subject: Q: PREFETCH_STRIDE/16
+Message-ID: <Pine.LNX.4.21.0205231554090.1304-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, I am becoming a frequent poster here.  Nothing in the logs on this one
-either.  Left 2.5.17 running overnight on this box which used to be rock solid
-unser 2.4.  kde was running, with a screensaver.  On attempting to use the box,
-mouse mvement did dispell the screensaver.  alt-ctrl-f2 to get to a vc however
-left me with a clean black screen.  Nothing worked....alt-sysrq -s or
-alt-sysrq-u ddin't produce any disk activity.  alt-sys-rq-b did however reboot
-the system.  only issue was unclean raid array afterwards ;)
+Could anyone please shed light on PREFETCH_STRIDE,
+and in particular its sole use:
+		prefetchw(pmd+j+(PREFETCH_STRIDE/16));
+in mm/memory.c: free_one_pgd().
 
-TIA ;)
-Erik
+That looks to me suspiciously like something inserted to suit
+one particular architecture - ia64? is it really suitable for
+others? is 4*L1_CACHE_SIZE really right for PREFETCH_STRIDE
+on anything that prefetches except ia64? what's the "/ 16"?
+shouldn't there be a "/ sizeof(pmd_t)" somewhere (PAE or not)?
+is it right to prefetch each time around that loop? isn't it
+appropriate only to the exit_mm (0 to TASK_SIZE) clearance?
 
+All in all, I'm thinking that line shouldn't be there,
+or not without a substantial comment...
 
-__________________________________________________
-Do You Yahoo!?
-LAUNCH - Your Yahoo! Music Experience
-http://launch.yahoo.com
+Thanks,
+Hugh
+

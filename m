@@ -1,44 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289384AbSAVVbt>; Tue, 22 Jan 2002 16:31:49 -0500
+	id <S289385AbSAVVgU>; Tue, 22 Jan 2002 16:36:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289316AbSAVVbk>; Tue, 22 Jan 2002 16:31:40 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:17422 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S289381AbSAVVb0>;
-	Tue, 22 Jan 2002 16:31:26 -0500
-Date: Tue, 22 Jan 2002 19:31:10 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Shawn Starr <spstarr@sh0n.net>
-Cc: Hans Reiser <reiser@namesys.com>, Chris Mason <mason@suse.com>,
-        Andreas Dilger <adilger@turbolabs.com>, <linux-kernel@vger.kernel.org>,
-        <ext2-devel@lists.sourceforge.net>
-Subject: Re: Possible Idea with filesystem buffering.
-In-Reply-To: <1011734932.271.1.camel@unaropia>
-Message-ID: <Pine.LNX.4.33L.0201221930360.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289381AbSAVVgK>; Tue, 22 Jan 2002 16:36:10 -0500
+Received: from mail209.mail.bellsouth.net ([205.152.58.149]:56970 "EHLO
+	imf09bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S289385AbSAVVf5>; Tue, 22 Jan 2002 16:35:57 -0500
+Subject: Low latency for recent kernels
+From: Louis Garcia <louisg00@bellsouth.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 (1.0.1-2) 
+Date: 22 Jan 2002 16:39:08 -0500
+Message-Id: <1011735548.5201.1.camel@tiger>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Jan 2002, Shawn Starr wrote:
+Where can I get the low latency patch for kernel-2.4.18-pre6?
 
-> I've started on writing a pagebuf daemon (experimenting with ramfs).
-> It will have the VM manage the allocating/freeing of pages. The
-> filesystem should not have to know when a page needs to be freed or
-> allocated. It just need pages. The pagebuf is supposed to age pages
-> not the filesystem.
+--Louis
 
-Last I looked it was try_to_free_pages() which does the aging
-of pages.  What functionality would a pagebuf daemon add in
-this regard ?
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
 
-http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280840AbRKLRGz>; Mon, 12 Nov 2001 12:06:55 -0500
+	id <S280871AbRKLRLP>; Mon, 12 Nov 2001 12:11:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280852AbRKLRGn>; Mon, 12 Nov 2001 12:06:43 -0500
-Received: from olinz-dsl-0250.utaonline.at ([212.152.234.250]:47090 "EHLO
-	falke.mail") by vger.kernel.org with ESMTP id <S280840AbRKLRGP>;
-	Mon, 12 Nov 2001 12:06:15 -0500
-Message-ID: <3BF0000B.6F118A43@falke.mail>
-Date: Mon, 12 Nov 2001 17:59:55 +0100
-From: Thomas Winischhofer <tw@webit.com>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en,en-GB,en-US,de-AT,de-DE,de-CH,sv
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: SiS630 and 5591/5592 AGP
+	id <S280852AbRKLRLF>; Mon, 12 Nov 2001 12:11:05 -0500
+Received: from ns.suse.de ([213.95.15.193]:24582 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S280873AbRKLRK4>;
+	Mon, 12 Nov 2001 12:10:56 -0500
+Date: Mon, 12 Nov 2001 18:10:52 +0100
+From: Thorsten Kukuk <kukuk@suse.de>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: "David S. Miller" <davem@redhat.com>, mathijs@knoware.nl,
+        jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com, kuznet@ms2.inr.ac.ru
+Subject: Re: [PATCH] fix loop with disabled tasklets
+Message-ID: <20011112181052.A23397@suse.de>
+In-Reply-To: <20011110152845.8328F231A4@brand.mmohlmann.demon.nl> <20011110173751.C1381@athlon.random> <20011112021142.O1381@athlon.random> <20011112.000305.45744181.davem@redhat.com> <20011112150452.S1381@athlon.random> <20011112152044.V1381@athlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-MDRemoteIP: 10.0.0.13
-X-Return-Path: tw@webit.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <20011112152044.V1381@athlon.random>; from andrea@suse.de on Mon, Nov 12, 2001 at 03:20:44PM +0100
+Organization: SuSE GmbH, Nuernberg, Germany
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 12, Andrea Arcangeli wrote:
 
-Alright, AFAIK it's like this:
+> On Mon, Nov 12, 2001 at 03:04:52PM +0100, Andrea Arcangeli wrote:
+> > On Mon, Nov 12, 2001 at 12:03:05AM -0800, David S. Miller wrote:
+> > >    From: Andrea Arcangeli <andrea@suse.de>
+> > >    Date: Mon, 12 Nov 2001 02:11:42 +0100
+> > > 
+> > >    I'm just guessing: the scheduler isn't yet functional when
+> > >    spawn_ksoftirqd is called.
+> > > 
+> > > The scheduler is fully functional, this isn't what is going wrong.
+> > 
+> > check ret_from_fork path, sparc32 scheduler is broken and this is why it
+> > deadlocks at boot, it has nothing to do with the softirq code, softirq
+> > code is innocent and it only get bitten by the sparc32 bug.
+> 
+> real fix looks like this (no idea what PSR_PIL means so not sure if this
+> really works on UP but certainly the sched_yield breakage is fixed now
+> and it won't deadlock in the softirq code any longer):
 
-The SiS630 - although only one chip - contains a real bunch of
-components, such as SiS300 (vga), SiS900 (network) etc. In general, all
-the SiS "chips" that list in lspci are actually part of the SiS630.
+A kernel with Andrea patch boots (after renaming all remaining
+ret_from_smpfork to ret_from_fork) on one critical machine from me.
+I will test the other this evening.
 
-The vga component, as said, the SiS300, is capable of using either
-direct vga output (standard vga connector) as well a video bridge, most
-of the cases SiS301.
-
-The SiS301 is responsible for controlling TV-out and LCD panels.
-
-The problem with the current driver for Linux (kernel) and XFree ist,
-that SiS did not release any (up-to-date) data sheets on the SiS301.
-
-Thus nobody knows how to tell the SiS300 how to tell the SiS301 that it
-should enable output on - let's say - a LCD panel.
-
-The current work-around is as Stuart said: We are forced to use VESA (ie
-the BIOS) to set up a display on the LCD panel. Apart from the display
-(mode) setup, the xfree sis_drv.o works perfectly. (The same applies for
-SiS630 on standard CTR on vga connector; this works even without a
-patch)
-
-I've been using Stuart's patch for quite a while now and it works
-flawlessly.
-
-Thomas
+  Thorsten
 
 -- 
-Thomas Winischhofer
-Vienna/Austria                  Check it out:
-mailto:tw@webit.com              http://www.webit.com/tw
-ICQ #63288080
-
+Thorsten Kukuk       http://www.suse.de/~kukuk/        kukuk@suse.de
+SuSE GmbH            Deutschherrenstr. 15-19       D-90429 Nuernberg
+--------------------------------------------------------------------    
+Key fingerprint = A368 676B 5E1B 3E46 CFCE  2D97 F8FD 4E23 56C6 FB4B

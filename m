@@ -1,41 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVBQWXO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261172AbVBQWX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbVBQWXO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 17:23:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVBQWXO
+	id S261172AbVBQWX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 17:23:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVBQWX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 17:23:14 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:17828
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S261165AbVBQWXL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 17:23:11 -0500
-Subject: Re: E-cards for You
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Chuck Harding <charding@llnl.gov>
-Cc: Linux Kernel Discussion List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.62.0502171401190.12367@ghostwheel.llnl.gov>
-References: <07754071.20040720063440@e-cards.com>
-	 <42150AB0.3070503@colannino.org>
-	 <200502171652.27868.gene.heskett@verizon.net>
-	 <Pine.LNX.4.62.0502171401190.12367@ghostwheel.llnl.gov>
-Content-Type: text/plain
-Date: Thu, 17 Feb 2005 23:23:09 +0100
-Message-Id: <1108678990.24721.239.camel@tglx.tec.linutronix.de>
+	Thu, 17 Feb 2005 17:23:26 -0500
+Received: from mail.kroah.org ([69.55.234.183]:34791 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261172AbVBQWXV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 17:23:21 -0500
+Date: Thu, 17 Feb 2005 13:35:31 -0800
+From: Greg KH <greg@kroah.com>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add "bus" symlink to class/block devices
+Message-ID: <20050217213531.GB15836@kroah.com>
+References: <20050215205344.GA1207@vrfy.org> <20050215220406.GA1419@vrfy.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 (2.0.3-2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050215220406.GA1419@vrfy.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-02-17 at 14:03 -0800, Chuck Harding wrote:
-> Why can't the list owners apply spamassassin to the list's *incoming*
-> mail stream so we don't ever see this stuff? Nearly every one of the
-> lists hosted on vger.kernel.org get spammed on a regular basis because
-> there is no spam filtering before the messages get passed to majordomo.
+On Tue, Feb 15, 2005 at 11:04:06PM +0100, Kay Sievers wrote:
+> On Tue, Feb 15, 2005 at 09:53:44PM +0100, Kay Sievers wrote:
+> > Add a "bus" symlink to the class and block devices, just like the "driver"
+> > and "device" links. This may be a huge speed gain for e.g. udev to determine
+> > the bus value of a device, as we currently need to do a brute-force scan in
+> > /sys/bus/* to find this value.
+> 
+> Hmm, while playing around with it, I think we should create the "bus"
+> link on the physical device on not on the class device.
+> 
+> Also the current "driver" link at the class device should be removed,
+> cause class devices don't have a driver. Block devices never had this
+> misleading symlink.
+> 
+> >From the class device we point with the "device" link to the physical
+> device, and only the physical device should have the "driver" and the
+> "bus" link, as it represents the real relationship.
 
-Are we reading different mailing lists ? 
+Applied, thanks,
 
-tglx
-
-
+greg k-h

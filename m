@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280898AbRKTEdh>; Mon, 19 Nov 2001 23:33:37 -0500
+	id <S280900AbRKTEjh>; Mon, 19 Nov 2001 23:39:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280900AbRKTEd2>; Mon, 19 Nov 2001 23:33:28 -0500
-Received: from perax6-089.dialup.optusnet.com.au ([198.142.92.89]:21518 "EHLO
-	bajor.dyndns.org") by vger.kernel.org with ESMTP id <S280898AbRKTEdJ>;
-	Mon, 19 Nov 2001 23:33:09 -0500
-Message-ID: <3662.192.168.1.254.1006230948.squirrel@bajor.dyndns.org>
-Date: Tue, 20 Nov 2001 12:35:48 +0800 (WST)
-Subject: Kernel Panic on a KT133A chip set board and 2.4.14
-From: "Daniel Rowe" <bart@istnet.net.au>
-To: <linux-kernel@vger.kernel.org>
-Reply-To: bart@istnet.net.au
-X-Mailer: SquirrelMail (version 1.2.0 [rc2])
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S280902AbRKTEj2>; Mon, 19 Nov 2001 23:39:28 -0500
+Received: from [200.222.192.60] ([200.222.192.60]:36503 "EHLO
+	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
+	id <S280900AbRKTEjW>; Mon, 19 Nov 2001 23:39:22 -0500
+Date: Tue, 20 Nov 2001 02:39:35 -0200
+From: =?unknown-8bit?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <0@pervalidus.net>
+To: John Ellson <ellson@lucent.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] "make modules_install" breaks with new /bin/cp
+Message-ID: <20011120043935.GP11449@pervalidus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.23.1i
+X-Mailer: Mutt/1.3.23.1i - Linux 2.4.14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+John Ellson wrote:
 
-1000mhz Athlon.KT133A MSI K7T Turbo-R Mainboard.128meg 133mhz SDRAM.
-Kernel 2.4.14 with ext3 patch compiled with i386 option.
-No RAID.
-RedHat 7.2.
-When I boot this kernel it panics and locks hard after IDE chipset init.
-Cant get the output due to the hard lock. The default kernel with RH7.2
-boots  and seems to run fine. "Code: Bad EIP value"
+> Unfortunately 4.1.1 comes after 4.1, so what you suggest is a
+> downgrade.
 
-Any Ideas?
+Don't you know 4.1.1 is a test release from
+ftp://alpha.gnu.org/gnu/fetish/ ?
 
-Thanks
+>From README-alpha:
 
-Daniel
+This is a test release of this package.
 
+It's been too long (too many changes) since the last release.
+Be careful with this one (4.1.1).  I may well have broken
 
+something.
+
+Please send comments and problem reports to jim @ meyering.net.
+
+> If you want to argue with the fileutils maintainers, please
+> go ahead. I'm just giving a heads-up to linux-kernel folks
+> that this problem is coming and offering a work-around.
+
+Why don't you report the "problem" to Jim or ask Red Hat to
+patch their RawHide package.
+
+-- 
+0@pervalidus.{net, {dyndns.}org} Tel: 55-21-2717-2399 (Niterói-RJ BR)

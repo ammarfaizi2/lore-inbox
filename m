@@ -1,82 +1,186 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbVAYOYd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261955AbVAYOYV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261956AbVAYOYd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 09:24:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVAYOYc
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 09:24:32 -0500
-Received: from ozlabs.org ([203.10.76.45]:26605 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261956AbVAYOYV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S261955AbVAYOYV (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 25 Jan 2005 09:24:21 -0500
-Date: Wed, 26 Jan 2005 01:22:10 +1100
-From: Anton Blanchard <anton@samba.org>
-To: akpm@osdl.org, nickpiggin@yahoo.com.au
-Cc: linux-kernel@vger.kernel.org, spyro@f2s.com
-Subject: [PATCH] Use MM_VM_SIZE in exit_mmap
-Message-ID: <20050125142210.GI5920@krispykreme.ozlabs.ibm.com>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVAYOYV
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 25 Jan 2005 09:24:21 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:18332 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261955AbVAYOYA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 09:24:00 -0500
+Date: Tue, 25 Jan 2005 14:23:56 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Andrew Morton <akpm@osdl.org>, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm1
+Message-ID: <20050125142356.GA20206@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+	Andrew Morton <akpm@osdl.org>, greg@kroah.com,
+	linux-kernel@vger.kernel.org
+References: <20050124021516.5d1ee686.akpm@osdl.org> <20050125125323.GA19055@infradead.org> <1106662284.5257.53.camel@uganda>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <1106662284.5257.53.camel@uganda>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > +obj-$(CONFIG_SC_SUPERIO)	+= superio.o
+> > +obj-$(CONFIG_SC_GPIO)		+= sc_gpio.o
+> > +obj-$(CONFIG_SC_ACB)		+= sc_acb.o
+> > +obj-$(CONFIG_SC_PC8736X)	+= pc8736x.o
+> > +obj-$(CONFIG_SC_SCX200)		+= scx200.o
+> > +
+> > +superio-objs		:= sc.o chain.o sc_conn.o
+> > 
+> > please use superio-y += so new conditional objects can be added more easily.
+> 
+> They must be added in the same file and line to allow easy control.
+> It is not directory like char/.
 
-Hi,
+Huh?
 
-The 4 level pagetable code changed the exit_mmap code to rely on
-TASK_SIZE. On some architectures (eg ppc64 and ia64), this is a per task
-property and bad things can happen in certain circumstances when using
-it.
+What I mean is you should write
 
-It is possible for one task to end up "owning" an mm from another - we
-have seen this with the procfs code when process 1 accesses
-/proc/pid/cmdline of process 2 while it is exiting.  Process 2 exits
-but does not tear its mm down. Later on process 1 finishes with the proc
-file and the mm gets torn down at this point.
+superio-y		+= sc.o chain.o sc_conn.o
 
-Now if process 1 was 32bit and process 2 was 64bit then we end up using
-a bad value for TASK_SIZE in exit_mmap. We only tear down part of the
-address space and leave half initialised pagetables and entries in the
-MMU etc.
+this allows adding things like
 
-MM_VM_SIZE() was created for this purpose (and is used in the next line
-for tlb_finish_mmu), so use it. I moved the PGD round up of TASK_SIZE
-into the default MM_VM_SIZE.
+superio-$(CONFIG_FOO)	+= sc_foo.o
 
-As an aside, all architectures except one define FIRST_USER_PGD_NR as 0:
+and is generally the canonical form since 2.6
 
-include/asm-arm26/pgtable.h:#define FIRST_USER_PGD_NR       1
+> > +void chain_free(struct dev_chain *ch)
+> > +{
+> > +	memset(ch, 0, sizeof(struct dev_chain));
+> > +	kfree(ch);
+> > 
+> > The memset completely defeats slab redzoning to catch bugs, don't
+> > do that.
+> 
+> What? Does following code also kills redzoning?
+> 
+> int *a;
+> a = kmalloc();
+> if (a)
+> {
+> 	memset(a, 0, sizeof(*a));
+> 	kfree(a);
+> }
+> 
+> Consider size of the dev_chain structure...
 
-It would be nice to get rid of one more magic constant and just clear
-from 0 ... MM_VM_SIZE(). That would make it consistent with the
-tlb_flush_mmu call below it too.
+Sorry, didn't mean redzoning but poisoning in general, little
+brainfart on my side.  The slab code can set freed objects to
+known patters so use after frees can be debugged easily, and
+by zeroing a structure before freeing we lose that.
 
-Signed-off-by: Anton Blanchard <anton@samba.org>
+> > Also what's the reason you can't simply put the list_head into struct
+> > logical_dev?
+> 
+> Because it is not just list_head, but special structure used for special
+> pointer manipulations,
+> which you are obviously saw in sc.c 
 
-===== include/linux/mm.h 1.212 vs edited =====
---- 1.212/include/linux/mm.h	2005-01-16 07:21:13 +11:00
-+++ edited/include/linux/mm.h	2005-01-26 01:20:12 +11:00
-@@ -38,7 +38,7 @@
- #include <asm/atomic.h>
+No, I didn't see it.  I see that the void pointer ptr in struct dev_chain
+always points to a struct sc_dev *, and I see we never change that
+pointer at run time.  I might have missed something obvious, so maybe
+you could point me to it (or even better add a comment describing it)
+
+> 
+> > +static void pc8736x_fini(void)
+> > +{
+> > +	sc_del_sc_dev(&pc8736x_dev);
+> > +
+> > +	while (atomic_read(&pc8736x_dev.refcnt)) {
+> > +		printk(KERN_INFO "Waiting for %s to became free: refcnt=%d.\n",
+> > +				pc8736x_dev.name, atomic_read(&pc8736x_dev.refcnt));
+> > +		
+> > +		set_current_state(TASK_INTERRUPTIBLE);
+> > +		schedule_timeout(HZ);
+> > +			
+> > +		if (current->flags & PF_FREEZE)
+> > +			refrigerator(PF_FREEZE);
+> > +
+> > +		if (signal_pending(current))
+> > +			flush_signals(current);
+> > +	}
+> > +}
+> > 
+> > And who gurantess this won't deadlock?  Please use a dynamically allocated
+> > driver model device and it's refcounting, thanks.
+> 
+> Sigh.
+> 
+> Christoph, please read the code before doing such comments.
+> I very respect your review and opinion, but only until you respect
+> others.
+
+The code above pretty much means you can keep rmmod stalled forever.
+
+Also it seems to be the only code intree doing refrigerator() on anything
+but kernel thread.  While I can't comment on swsusp internals it surely
+looks buggy to me.
  
- #ifndef MM_VM_SIZE
--#define MM_VM_SIZE(mm)	TASK_SIZE
-+#define MM_VM_SIZE(mm)	((TASK_SIZE + PGDIR_SIZE - 1) & PGDIR_MASK)
- #endif
- 
- #define nth_page(page,n) pfn_to_page(page_to_pfn((page)) + (n))
-===== mm/mmap.c 1.161 vs edited =====
---- 1.161/mm/mmap.c	2005-01-13 03:26:28 +11:00
-+++ edited/mm/mmap.c	2005-01-26 01:18:51 +11:00
-@@ -1995,8 +1995,7 @@
- 					~0UL, &nr_accounted, NULL);
- 	vm_unacct_memory(nr_accounted);
- 	BUG_ON(mm->map_count);	/* This is just debugging */
--	clear_page_range(tlb, FIRST_USER_PGD_NR * PGDIR_SIZE,
--			(TASK_SIZE + PGDIR_SIZE - 1) & PGDIR_MASK);
-+	clear_page_range(tlb, FIRST_USER_PGD_NR * PGDIR_SIZE, MM_VM_SIZE(mm));
- 	
- 	tlb_finish_mmu(tlb, 0, MM_VM_SIZE(mm));
- 
+> > +#ifndef __SCX200_H
+> > +#define __SCX200_H
+> > +
+> > +#define SCx200_GPIO_SIZE 	0x2c
+> > +
+> > +#endif /* __SCX200_H */
+> > 
+> > Yeah, right - a 30 line header for a single define that's used in a
+> > single source file..
+> 
+> Christoph, do you know what SuperIO is?
+> I doubt...
+> 
+> It is a small chip, which can include various number of devices.
+> SuperIO currently supports only GPIO and ACB, so this header only
+> includes
+> one define. I do not have hardware(sc1100 based for example) that
+> "exports"
+> other devices and which can be accessed from the outside of the board, 
+> so I did not add other defines.
+> 
+> But specially for you I can remove this file, will it satisfy you?
+
+I've just told you it looks extremly silly, you need to decide on your
+own whether it's worthwile.
+
+> > Also your locking is broken.  sdev_lock sometimes nests outside
+> > sdev->lock and sometimes inside.  Similarly dev->chain_lock nests
+> > inside dev->lock sometimes and sometimes outside.  You really need
+> > a locking hiearchy document and the lockign should probably be
+> > simplified a lot.
+> 
+> It is almost the same like after hand waving say that there is a wind.
+> 
+> Each lock protect it's own data, sometimes it happens when other data is
+> locked, 
+> sometimes not. Yes, probably interrupt handling can race, it requires
+> more review,
+> I will take a look.
+
+The thing I mention is called lock order reversal, which means a deadlock
+in most cases.  I don't have the time to actual walk through all codepathes
+to tell you whether it can really happen and where, but it's a really
+big warning sign.
+
+> Resume:
+> Cristoph, you rudely try to show that this code is badly broken.
+> It is not.
+> It was tested as opposed to your claims, and works as expected.
+
+I've seen tons of code that "works as expected" but still is buggy.
+That's why code needs to be both tested (with a workload as
+expected and other stress testing that shows it handles loads _not_
+expected) and reviewed for errors that don't happen with a normal
+load or design problems.
+

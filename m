@@ -1,67 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129534AbRAPUD1>; Tue, 16 Jan 2001 15:03:27 -0500
+	id <S131936AbRAPUER>; Tue, 16 Jan 2001 15:04:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129593AbRAPUDR>; Tue, 16 Jan 2001 15:03:17 -0500
-Received: from pop.gmx.net ([194.221.183.20]:24963 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S129534AbRAPUDA>;
-	Tue, 16 Jan 2001 15:03:00 -0500
-Message-ID: <3A64A5D7.5020801@gmx.de>
-Date: Tue, 16 Jan 2001 20:49:43 +0100
-From: Ronny Buchmann <rbla@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17 i686; de-AT; 0.7) Gecko/20010105
-X-Accept-Language: de-de, en
+	id <S131848AbRAPUEI>; Tue, 16 Jan 2001 15:04:08 -0500
+Received: from vela.salleURL.edu ([130.206.42.85]:6665 "EHLO vela.salleURL.edu")
+	by vger.kernel.org with ESMTP id <S131876AbRAPUEE>;
+	Tue, 16 Jan 2001 15:04:04 -0500
+Date: Tue, 16 Jan 2001 21:17:53 +0000 (GMT)
+From: Carles Pina i Estany <is08139@salleURL.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: Name of SCSI Device
+Message-ID: <Pine.LNX.4.30.0101162111550.15252-100000@vela.salleURL.edu>
 MIME-Version: 1.0
-To: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: bug (isdn-subsystem?) in 2.4.0
-In-Reply-To: <Pine.LNX.4.30.0101152306480.2419-100000@vaio>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hi,
 
-Kai Germaschewski wrote:
+When we install a IDE hard disk drive, and configure as Master and connect
+on Primary IDE Interface, this disk WILL BE ALWAYS hda. We can install
+other hard disks (e.g. hdb, hdc...) but the disk that it is connected as
+hda, will not change.
 
-> On Mon, 15 Jan 2001, Ronny Buchmann wrote:
-> 
-> 
->> i have the following problem with kernel 2.4.0 (also with -ac6):
->> 
->> kernel BUG at slab.c:1095!
->> invalid operand: 0000
->> CPU: 0
-> 
-> 
-> I could reproduce the problem, the appended patch fixes it here. Linus,
-> could you please apply this for 2.4.1?
-but a part of the problem remains: i can't get a succesful connection
+If we install a SCSI hard disk drive, with ID3, an nothing on ID1 or ID2,
+will be sda. If we install a new disk on ID1, the drive that before was
+sda now change the name to sdb.
 
-the calling side gets a CONNECT message, but on the called side i only 
-get the RING
-and after some seconds on both lines NO CARRIER
+Or, if we have:
+sda ID1
+sdb ID2
+sdc ID3
+sdd ID4
 
-syslog only shows the RING and no connect
+And we remove sda, then sdb change to sda, sdc to sdb, sdd to sdc.
 
-the same when i'm calling from gsm phone
+Why the name of hard disk drive of SCSI Controller are not fixed?
+ID0=sda
+ID1=sdb
+ID2=sdc
+...
 
-btw, when calling from mobile phone i have to leave S19=197 (with 2.2.17 
-S19=0 is working as described in the isdn faq, has this changed now?)
+Then, it is possible that we must change /etc/fstab
 
->> (if you need the other numbers or anything else, ask me, i can reproduce
->> it easily)
-> 
-> 
-> A decoded oops would be nice the next time, see
-> 
-> 	<your linux kernel source>/REPORTING-BUGS
-> 
-sorry, my fault
+Then, if I have a disk with ID3, I can connect on all computers and ALWAYS
+is sdc, I don't count how many disks are before, etc.
 
-tia
-ronny
+I don't understand why the name change...
+
+There are any reason?
+
+Thank you very much.
+
+----
+Carles Pina i Estany
+   E-Mail: cpina@linuxfan.com || #ICQ: 14446118 || Nick: Pinux
+   URL: http://www.salleurl.edu/~is08139
+   Ley de Murphy: Si algo puede fallar, fall<NO CARRIER>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

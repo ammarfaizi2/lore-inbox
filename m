@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315629AbSFCWb2>; Mon, 3 Jun 2002 18:31:28 -0400
+	id <S315630AbSFCWdF>; Mon, 3 Jun 2002 18:33:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315630AbSFCWb1>; Mon, 3 Jun 2002 18:31:27 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32530 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315629AbSFCWb1>;
-	Mon, 3 Jun 2002 18:31:27 -0400
-Message-ID: <3CFBEDEE.EE74C5B1@zip.com.au>
-Date: Mon, 03 Jun 2002 15:30:09 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
+	id <S315631AbSFCWdE>; Mon, 3 Jun 2002 18:33:04 -0400
+Received: from pD9E23450.dip.t-dialin.net ([217.226.52.80]:8330 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S315630AbSFCWdD>; Mon, 3 Jun 2002 18:33:03 -0400
+Date: Mon, 3 Jun 2002 16:32:58 -0600 (MDT)
+From: Lightweight patch manager <patch@luckynet.dynu.com>
+X-X-Sender: patch@hawkeye.luckynet.adm
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH][2.5] Port opl3sa2 changes from 2.4
+Message-ID: <Pine.LNX.4.44.0206031628050.11309-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Chris Mason <mason@suse.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 12/16] fix race between writeback and unlink
-In-Reply-To: <1023142233.31475.23.camel@tiny> <Pine.LNX.4.44.0206031514110.868-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On 3 Jun 2002, Chris Mason wrote:
-> >
-> > Or am I missing something?
-> 
-> No. I think that in the long run we really would want all of the writeback
-> preallocation should happen in the "struct file", not in "struct inode".
-> And they should be released at file close ("release()"), not at iput()
-> time.
+opl3sa2 didn't accept dma=0 in 2.4 due to isapnp
 
-That would be a lot nicer.
+In a recent thread [1], someone described problems with opl3sa2 on 
+Linux-2.4 when dma 0 was used, since isapnp didn't support dma 0. If it's 
+necessary to patch this in Linux-2.5 either, please apply this one. 
 
-But why does ext2_put_inode() even exist?  We're already throwing
-away the prealloc window in ext2_release_file?  I guess for
-shared mappings over spares files: if all file handles have
-closed off, we still need to make allocations against that
-inode, yes?
+[1] <URL:http://marc.theaimsgroup.com/?l=linux-kernel&m=102310599324992&w=2>
 
--
+--- linus-2.5/sound/oss/opl3sa2.c	Mon Jun  3 06:32:51 2002
++++ thunder-2.5.20/sound/oss/opl3sa2.c	Mon Jun  3 16:26:38 2002
+@@ -874,8 +874,18 @@
+ 		opl3sa2_activated[card] = 1;
+ 	}
+ 	else {
++		/*
++		 * isapnp.c disallows dma=0, but the opl3sa2 card itself
++		 * accepts this value perfectly.
++		 */
++		if (dev->ro) {
++			isapnp_resource_change(&dev->dma_resource[0], 0, 1);
++			isapnp_resource_change(&dev->dma_resource[1], 1, 1);
++		}
++		opl3sa2_state[card].activated = 1;
++
+ 		if(dev->activate(dev) < 0) {
+-			printk(KERN_WARNING "opl3sa2: ISA PnP activate failed\n");
++			printk(KERN_WARNING "opl3sa2: ISA PnP activate failed!\n");
+ 			opl3sa2_activated[card] = 0;
+ 			return -ENODEV;
+ 		}
+-- 
+Lightweight patch manager using pine. If you have any objections, tell me.
+

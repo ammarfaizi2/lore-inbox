@@ -1,88 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314397AbSDRQzc>; Thu, 18 Apr 2002 12:55:32 -0400
+	id <S292130AbSDRQ7l>; Thu, 18 Apr 2002 12:59:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314398AbSDRQzb>; Thu, 18 Apr 2002 12:55:31 -0400
-Received: from borg.org ([208.218.135.231]:35979 "HELO borg.org")
-	by vger.kernel.org with SMTP id <S314397AbSDRQza>;
-	Thu, 18 Apr 2002 12:55:30 -0400
-Date: Thu, 18 Apr 2002 12:55:30 -0400
-From: Kent Borg <kentborg@borg.org>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Versioning File Systems?
-Message-ID: <20020418125530.C16135@borg.org>
-In-Reply-To: <20020418110558.A16135@borg.org> <20020418082025.N2710@work.bitmover.com> <20020418172758.Q4498@marowsky-bree.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S314398AbSDRQ7k>; Thu, 18 Apr 2002 12:59:40 -0400
+Received: from web11801.mail.yahoo.com ([216.136.172.155]:4387 "HELO
+	web11801.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S292130AbSDRQ7j>; Thu, 18 Apr 2002 12:59:39 -0400
+Message-ID: <20020418165939.22502.qmail@web11801.mail.yahoo.com>
+Date: Thu, 18 Apr 2002 18:59:39 +0200 (CEST)
+From: =?iso-8859-1?q?Etienne=20Lorrain?= <etienne_lorrain@yahoo.fr>
+Subject: Re: [PATCH] x86 boot enhancements, Clean up the 32bit entry points 6/11
+To: linux-kernel@vger.kernel.org
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 18, 2002 at 05:27:58PM +0200, Lars Marowsky-Bree wrote:
-> Either that, or heuristics - file not written to / opened for writing in x
-> minutes -> commit.
+ Seems that previous message did not go through, rewrite.
 
-Something like that.  
+ I am sorry I did not check enough your patch.
+ You are speaking of: arch/i386/boot/compressed/head.S
+ I am speaking of:    arch/i386/kernel/head.S
 
-We already have a hierarchy of degrees of saving:
+ Gujin skip completely arch/i386/boot/compressed/* and really
+ boots the file '$$tmppiggy.gz' line 44 of file:
+arch/i386/boot/compressed/Makefile
 
- 1. live state - the state of a program's data, possibly extended by
-    undo/redo features.
+ So you can do whatever you want with the "first" 32 bits entry point,
+ I am just concerned by the "second" kernel 32 bits entry point, in
+ arch/i386/kernel/head.S
 
- 2. file - saved file, possibly extended by features like emacs'
-    "file.c~"
+ I still have a problem to detect the size of your decompressor, and that
+ is my use of the "lss" instruction.
+ This "lss SYMBOL_NAME(stack_start),%esp" gives an access to the symbol
+ 'stack_start', so it is quite easy to find back the GZIP signature
+ of the initial '$$tmppiggy.gz' in what I call my "compatibility" mode,
+ i.e. booting the legacy vmlinuz files - and skipping all of the real mode
+ code and the decompressor code.
 
- 3. revision - revision checked into some revision control system
+ This "lss" line has not always been at the same offset, but is around
+ since maybe even the 0.01 kernel, it is quite easy to find it from its
+ hexadecimal form. (function vmlinuz_header_treat() in vmlinuz.c of
+ Gujin).
 
- 4. checkpoint or tag - revision branded with a symbolic name in a
-    revision control system
+ The loaded high/loaded low stuff is just to know if I have to remove
+ 0x100000 or 0x1000 from this symbol to have the number of bytes
+ to skip on the file.
+ By the way, the bit in the kernel header is set by the bootloader to say
+ where it has loaded the kernel, not by the compiler/linker chain.
 
-I am envisioning a richer version of the file stage.  Just as users
-currently decide when to check in a version and when to checkpoint
-versions, I am imagining that sort of decision would still be made,
-but there would be a lower level of granularity that could be looked
-at if desired.  Big infrequent changes to a file would all be
-recorded, and frequent little changes would be subject to some
-heuristic.  It doesn't make sense to record a file's state so often
-that it isn't even self-consistent.  For example, recording all the
-changes over the course of the save of a big Star Office drawing would
-be silly, most would be intermediate and dependent on the changing
-epheneral internal state of Star Office.  I don't know the details of
-a reasonable heuristic other than obvious things such as when a file
-of flushed or closed or not touched for some significant time.
+ So is it possible to write somewhere how much code to skip or the offset
+ of the kernel GZIP signature?
+ Something like:
+  jmp next
+  lss SYMBOL_NAME(stack_start),%esp
+next:
+ Would make me really happy, but is dirty.
+ Changing the 'tmppiggy.lnk' in the Makefile can be done, but the value
+ (to know the length of the decompressor code) has to be _before_ the code
+ itself in the raw file.
+ Else whatever signature at whatever fixed address with the code+rodata
+ size following would make me happy.
 
-> That would actually be pretty interesting because it might also allow you to
-> back out editor screwups ;-)
+  Sorry again for the confusion,
+  Etienne.
 
-Writing an editor to take advantage of such underlying features would
-be pretty interesting too, it could be integrated into undo/redo
-features.  
-
-Navigating such an historical fabric turns into a really interesting
-user interface problem.
-
-> However, deducing change sets is more difficult.
-
-I think change sets for source code would still be based on versions
-declared by a human to be of some specific interest.  But changes sets
-for a computer's configuration might be implicit in the running of rpm
-or chkconfig, or reboots of the system, or saved edits to
-configuration files.  Etc.
-
-Certainly what I am envisioning would have immediate use in looking at
-changes to specific files, but would require more structure imposed to
-be useful a system configuration management tool or source code
-control system.
-
-
-I do point out that recently Microsoft announced some sort of feature
-to let users backout system changes.  It sounds useful to me and I run
-Linux, but should that have some basic system support and not be
-kludged in?  (For example, such a feature could be added to rpm, but
-it would only be good at capturing things done by rpm.)  Would a
-versioning filesystem be part of doing it the right way?
-
-
--kb
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Mail : http://fr.mail.yahoo.com

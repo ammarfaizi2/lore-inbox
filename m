@@ -1,31 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129033AbRBHINw>; Thu, 8 Feb 2001 03:13:52 -0500
+	id <S129032AbRBHIVN>; Thu, 8 Feb 2001 03:21:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130835AbRBHINm>; Thu, 8 Feb 2001 03:13:42 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:15881 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129033AbRBHINa>; Thu, 8 Feb 2001 03:13:30 -0500
-Subject: Re: aacraid 2.4.0 kernel
-To: axboe@suse.de (Jens Axboe)
-Date: Thu, 8 Feb 2001 08:13:58 +0000 (GMT)
-Cc: Matt_Domsch@Dell.com, jason@heymax.com, linux-kernel@vger.kernel.org,
-        gandalf@winds.org
-In-Reply-To: <20010208041814.I27027@suse.de> from "Jens Axboe" at Feb 08, 2001 04:18:14 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129033AbRBHIVE>; Thu, 8 Feb 2001 03:21:04 -0500
+Received: from astrid2.nic.fr ([192.134.4.2]:7946 "EHLO astrid2.nic.fr")
+	by vger.kernel.org with ESMTP id <S129032AbRBHIUr>;
+	Thu, 8 Feb 2001 03:20:47 -0500
+Date: Thu, 8 Feb 2001 09:18:19 +0000
+From: Francois romieu <romieu@ensta.fr>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: davej@suse.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Remaining net/ pci_enable_device cleanups.
+Message-ID: <20010208091819.A30551@nic.fr>
+Reply-To: Francois romieu <romieu@ensta.fr>
+In-Reply-To: <Pine.LNX.4.31.0102072310240.29253-100000@athlon.local> <3A821701.C7ED5ED2@mandrakesoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14QmDJ-0002pJ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A821701.C7ED5ED2@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Wed, Feb 07, 2001 at 10:48:17PM -0500
+X-Organisation: Marie's fan club - I
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> total request sizes. I would rather fix this limitation then, and
-> would also be interested to know if any of the (older) SCSI drivers
-> have such limitations too.
+The Wed, Feb 07, 2001 at 10:48:17PM -0500, Jeff Garzik wrote :
+[...]
+> > diff -urN --exclude-from=/home/davej/.exclude linux/drivers/net/epic100.c linux-dj/drivers/net/epic100.c
+> > --- linux/drivers/net/epic100.c Wed Feb  7 21:55:56 2001
+> > +++ linux-dj/drivers/net/epic100.c      Wed Feb  7 22:15:22 2001
+> 
+> applied
 
-And some new ones. One of my i2o scsi controllers has that problem. 
+
+@@ -341,7 +341,7 @@
+        static int printed_version;
+        long ioaddr;
+        int chip_idx = (int) ent->driver_data;
+-       const int irq = pdev->irq;
++       int irq;
+        struct net_device *dev;
+        struct epic_private *ep;
+        int i, option = 0, duplex = 0;
+@@ -354,10 +354,11 @@
+                printk (KERN_INFO "%s" KERN_INFO "%s" KERN_INFO "%s",
+                        version, version2, version3);
+
+-       i = pci_enable_device(pdev);
+-       if (i)
++       if (pci_enable_device(pdev))
+                return i;
+
+return i ? Looks bogus to me.
+
+-- 
+Ueimor
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

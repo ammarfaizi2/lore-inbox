@@ -1,206 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267331AbUHDQYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267343AbUHDQ1f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267331AbUHDQYI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 12:24:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267344AbUHDQYI
+	id S267343AbUHDQ1f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 12:27:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267347AbUHDQ1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 12:24:08 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:38067 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S267331AbUHDQXt (ORCPT
+	Wed, 4 Aug 2004 12:27:34 -0400
+Received: from posti6.jyu.fi ([130.234.4.43]:18652 "EHLO posti6.jyu.fi")
+	by vger.kernel.org with ESMTP id S267344AbUHDQ0c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 12:23:49 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+	Wed, 4 Aug 2004 12:26:32 -0400
+Date: Wed, 4 Aug 2004 19:26:03 +0300 (EEST)
+From: Pasi Sjoholm <ptsjohol@cc.jyu.fi>
+X-X-Sender: ptsjohol@silmu.st.jyu.fi
 To: Francois Romieu <romieu@fr.zoreil.com>
-Subject: Re: [PATCH] idt77252.c: add missing pci_enable_device()
-Date: Wed, 4 Aug 2004 10:23:28 -0600
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, ecd@atecom.com, chas@cmf.nrl.navy.mil,
-       linux-atm-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <200408031350.21349.bjorn.helgaas@hp.com> <20040803215744.A11997@electric-eye.fr.zoreil.com>
-In-Reply-To: <20040803215744.A11997@electric-eye.fr.zoreil.com>
+cc: Robert Olsson <Robert.Olsson@data.slu.se>,
+       H?ctor Mart?n <hector@marcansoft.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
+       <netdev@oss.sgi.com>, <brad@brad-x.com>, <shemminger@osdl.org>
+Subject: Re: ksoftirqd uses 99% CPU triggered by network traffic (maybe
+ RLT-8139 related)
+In-Reply-To: <Pine.LNX.4.44.0408032256110.2281-100000@silmu.st.jyu.fi>
+Message-ID: <Pine.LNX.4.44.0408041915510.14609-100000@silmu.st.jyu.fi>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408041023.28922.bjorn.helgaas@hp.com>
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Spam-Checked: by miltrassassin
+	at posti6.jyu.fi; Wed, 04 Aug 2004 19:26:09 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 August 2004 1:57 pm, Francois Romieu wrote:
-> Bjorn Helgaas <bjorn.helgaas@hp.com> :
-> [...]
-> > ===== drivers/atm/idt77252.c 1.24 vs edited =====
-> > --- 1.24/drivers/atm/idt77252.c	2004-07-12 02:01:05 -06:00
-> > +++ edited/drivers/atm/idt77252.c	2004-07-30 13:45:42 -06:00
-> > @@ -3684,6 +3684,11 @@
-> >  	int i;
-> >  
-> >  
-> > +	if (pci_enable_device(pcidev)) {
-> > +		printk("idt77252: can't enable PCI device at %s\n", pci_name(pcidev));
-> > +		return -ENODEV;
-> > +	}
-> > +
-> >  	if (pci_read_config_word(pcidev, PCI_REVISION_ID, &revision)) {
-> >  		printk("idt77252-%d: can't read PCI_REVISION_ID\n", index);
-> >  		return -ENODEV;
-> 
-> It should be balanced by pci_disable_device() on close + error path.
+On Tue, 3 Aug 2004, Pasi Sjoholm wrote:
 
-OK, here's a revised version with the missing pci_disable_device() calls.
-I should note that I don't have this hardware, so this has been compiled
-but not tested.
+> > If you remove the "if (received > 0) {" test in r8139-10.patch and keep
+> > both patches applied, I assume you are back to a crash within 15min (instead
+> > of within 2min as suggested by the log), right ?
+> I removed "if (received > 0) {" and tested it something like 3 hours and 
+> wasn't able to crash the driver. I will test it for couple more hours 
+> tomorrow and if I'm not still able the crash it, we may have find some 
+> sort of a solution.
+> I'm not sure yet if it's a good one because of that earlier crash I had.
+> I guess I will also test if
+> "- read the interruption status word that the driver will ack before the
+>   actual processing is done;" has something to do with it.
+
+Ok, now I have tested it for 6 hours without crashing the driver. The 
+system's load has been something like 5-6 the whole time. I also made some 
+network load with ~90Mbps-incoming and ~90Mbps-outgoing traffic. 
+
+I haven't had time to test anything else but I'm quite sure that there is 
+no need for that anymore because the stability we have reached. 
+
+I'll let you know if there's any problems within next few days but I would 
+recommend that those patches would be included in 2.6.8. (without that "if 
+(received > 0) {").
+
+Many thanks for your help to resolve this problem. 
+
+Hector, have you tested these patches?
+
+--
+Pasi Sjöholm
 
 
-Add pci_enable_device()/pci_disable_device().  In the past, drivers
-often worked without this, but it is now required in order to route
-PCI interrupts correctly.
-
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
-
-===== drivers/atm/idt77252.c 1.24 vs edited =====
---- 1.24/drivers/atm/idt77252.c	2004-07-12 02:01:05 -06:00
-+++ edited/drivers/atm/idt77252.c	2004-08-04 10:15:29 -06:00
-@@ -3681,18 +3681,25 @@
- 	struct idt77252_dev *card;
- 	struct atm_dev *dev;
- 	ushort revision = 0;
--	int i;
-+	int i, err;
- 
- 
-+	if (pci_enable_device(pcidev)) {
-+		printk("idt77252: can't enable PCI device at %s\n", pci_name(pcidev));
-+		return -ENODEV;
-+	}
-+
- 	if (pci_read_config_word(pcidev, PCI_REVISION_ID, &revision)) {
- 		printk("idt77252-%d: can't read PCI_REVISION_ID\n", index);
--		return -ENODEV;
-+		err = -ENODEV;
-+		goto err_out_disable_pdev;
- 	}
- 
- 	card = kmalloc(sizeof(struct idt77252_dev), GFP_KERNEL);
- 	if (!card) {
- 		printk("idt77252-%d: can't allocate private data\n", index);
--		return -ENOMEM;
-+		err = -ENOMEM;
-+		goto err_out_disable_pdev;
- 	}
- 	memset(card, 0, sizeof(struct idt77252_dev));
- 
-@@ -3718,23 +3725,21 @@
- 	card->membase = (unsigned long) ioremap(membase, 1024);
- 	if (!card->membase) {
- 		printk("%s: can't ioremap() membase\n", card->name);
--		kfree(card);
--		return -EIO;
-+		err = -EIO;
-+		goto err_out_free_card;
- 	}
- 
- 	if (idt77252_preset(card)) {
- 		printk("%s: preset failed\n", card->name);
--		iounmap((void *) card->membase);
--		kfree(card);
--		return -EIO;
-+		err = -EIO;
-+		goto err_out_iounmap;
- 	}
- 
- 	dev = atm_dev_register("idt77252", &idt77252_ops, -1, NULL);
- 	if (!dev) {
- 		printk("%s: can't register atm device\n", card->name);
--		iounmap((void *) card->membase);
--		kfree(card);
--		return -EIO;
-+		err = -EIO;
-+		goto err_out_iounmap;
- 	}
- 	dev->dev_data = card;
- 	card->atmdev = dev;
-@@ -3743,9 +3748,8 @@
- 	suni_init(dev);
- 	if (!dev->phy) {
- 		printk("%s: can't init SUNI\n", card->name);
--		deinit_card(card);
--		kfree(card);
--		return -EIO;
-+		err = -EIO;
-+		goto err_out_deinit_card;
- 	}
- #endif	/* CONFIG_ATM_IDT77252_USE_SUNI */
- 
-@@ -3756,9 +3760,8 @@
- 			    ioremap(srambase | 0x200000 | (i << 18), 4);
- 		if (!card->fbq[i]) {
- 			printk("%s: can't ioremap() FBQ%d\n", card->name, i);
--			deinit_card(card);
--			kfree(card);
--			return -EIO;
-+			err = -EIO;
-+			goto err_out_deinit_card;
- 		}
- 	}
- 
-@@ -3769,9 +3772,8 @@
- 
- 	if (init_card(dev)) {
- 		printk("%s: init_card failed\n", card->name);
--		deinit_card(card);
--		kfree(card);
--		return -EIO;
-+		err = -EIO;
-+		goto err_out_deinit_card;
- 	}
- 
- 	dev->ci_range.vpi_bits = card->vpibits;
-@@ -3783,12 +3785,8 @@
- 
- 	if (idt77252_dev_open(card)) {
- 		printk("%s: dev_open failed\n", card->name);
--
--		if (dev->phy->stop)
--			dev->phy->stop(dev);
--		deinit_card(card);
--		kfree(card);
--		return -EIO;
-+		err = -EIO;
-+		goto err_out_stop;
- 	}
- 
- 	*last = card;
-@@ -3796,6 +3794,23 @@
- 	index++;
- 
- 	return 0;
-+
-+err_out_stop:
-+	if (dev->phy->stop)
-+		dev->phy->stop(dev);
-+
-+err_out_deinit_card:
-+	deinit_card(card);
-+
-+err_out_iounmap:
-+	iounmap((void *) card->membase);
-+
-+err_out_free_card:
-+	kfree(card);
-+
-+err_out_disable_pdev:
-+	pci_disable_device(pcidev);
-+	return err;
- }
- 
- static struct pci_device_id idt77252_pci_tbl[] =
-@@ -3848,6 +3863,7 @@
- 		if (dev->phy->stop)
- 			dev->phy->stop(dev);
- 		deinit_card(card);
-+		pci_disable_device(card->pcidev);
- 		kfree(card);
- 	}
- 

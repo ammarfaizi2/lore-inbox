@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270068AbUJHRX0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270070AbUJHR1A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270068AbUJHRX0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 13:23:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270069AbUJHRX0
+	id S270070AbUJHR1A (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 13:27:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270067AbUJHR07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 13:23:26 -0400
-Received: from fw.osdl.org ([65.172.181.6]:36022 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270068AbUJHRVg (ORCPT
+	Fri, 8 Oct 2004 13:26:59 -0400
+Received: from open.hands.com ([195.224.53.39]:29907 "EHLO open.hands.com")
+	by vger.kernel.org with ESMTP id S270071AbUJHR0r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 13:21:36 -0400
-Date: Fri, 8 Oct 2004 10:19:49 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: shobhit@calsoftinc.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] Performance of del_single_shot_timer_sync
-Message-Id: <20041008101949.49cda1a8.akpm@osdl.org>
-In-Reply-To: <1097242659.11717.483.camel@kuber>
-References: <1097242659.11717.483.camel@kuber>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 8 Oct 2004 13:26:47 -0400
+Date: Fri, 8 Oct 2004 18:37:50 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Brice.Goglin@ens-lyon.org, linux-kernel@vger.kernel.org
+Subject: Re: how do you call userspace syscalls (e.g. sys_rename) from inside kernel
+Message-ID: <20041008173750.GP5551@lkcl.net>
+References: <20041008130442.GE5551@lkcl.net> <41669DE0.9050005@didntduck.org> <20041008151837.GI5551@lkcl.net> <4166AFD0.2020905@ens-lyon.fr> <20041008162025.GL5551@lkcl.net> <20041008163701.GV5033@lug-owl.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041008163701.GV5033@lug-owl.de>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-hands-com-MailScanner-SpamScore: s
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-shobhit dayal <shobhit@calsoftinc.com> wrote:
->
-> Andrew Morton wrote:
-> > By how much?  (CPU load, overall runtime, etc)
-> > 
-> > It's a bit odd to have an expired-timer-intensive workload.  Presumably
-> > postgres has some short-lived nanosleep or select-based polling loop in
-> > there which isn't doing much.
+On Fri, Oct 08, 2004 at 06:37:01PM +0200, Jan-Benedict Glaw wrote:
+> On Fri, 2004-10-08 17:20:25 +0100, Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+> wrote in message <20041008162025.GL5551@lkcl.net>:
+> > On Fri, Oct 08, 2004 at 05:18:40PM +0200, Brice Goglin wrote:
 > 
-> I am running this load on a numa hardware so I profile the kernel by logging
-> functions that cause remote node memory access. I generate a final log
-> that shows functions that cause remote memory accesses greater that 0.5%
-> of all remote memory access on the system.
+> > > mm_segment_t old_fs;
+> > > old_fs = get_fs();
+> > > set_fs(KERNEL_DS);
+> > > <do you stuff here>
+> > > set_fs(old_fs);
+> >  
+> >  that's it!  that's what i was looking for.  thank you.
 > 
-> del_timer_sync was responsible for about 2% of all remote memory
-> accesses on the system and came up as part of the top 10 functions who
-> were doing this. On top was schedule(7.52%) followed by
-> default_wake_function(2.79%). Rest every one in the top 10 were
-> around the range of 2%.
-> 
-> After the patch it never came up in the logs again( so less than 0.5% of
-> all faulting eip's).
-> 
+> Most probably, this is not what you were looking for. You just don't
+> know that yet (-:
+ 
+ *grin*.  yeh, like someone else privately responded saying i might want
+ to look at compat_alloc_userspace() instead :)
 
-And what is the overall improvement from the del_timer_sync speedup patch? 
-I mean: overall runtime and CPU time improvements for a
-relatively-real-world benchmark?
+

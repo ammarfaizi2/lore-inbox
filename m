@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262131AbVATOyp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbVATPBq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262131AbVATOyp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 09:54:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262149AbVATOyp
+	id S262119AbVATPBq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 10:01:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262147AbVATPBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 09:54:45 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:4807 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262156AbVATOyh (ORCPT
+	Thu, 20 Jan 2005 10:01:46 -0500
+Received: from upco.es ([130.206.70.227]:38530 "EHLO mail1.upco.es")
+	by vger.kernel.org with ESMTP id S262119AbVATPBo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 09:54:37 -0500
-Date: Thu, 20 Jan 2005 09:54:28 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Kausty <kkumbhalkar@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: crypto/api.c: crypto_alg_available(): flags param not used.
-In-Reply-To: <41ae44840501200448197d18c0@mail.gmail.com>
-Message-ID: <Xine.LNX.4.44.0501200952440.952-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 20 Jan 2005 10:01:44 -0500
+Date: Thu, 20 Jan 2005 16:01:42 +0100
+From: Romano Giannetti <romanol@upco.es>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: petero2@telia.com
+Subject: Re: Linux 2.6.11-rc1
+Message-ID: <20050120150142.GA25480@pern.dea.icai.upco.es>
+Reply-To: romano@dea.icai.upco.es
+Mail-Followup-To: Romano Giannetti <romanol@upco.es>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>, petero2@telia.com
+References: <Pine.LNX.4.58.0501112100250.2373@ppc970.osdl.org> <1106168848.22163.10.camel@athena.fprintf.net> <200501192316.04173.dtor_core@ameritech.net> <1106196553.11875.2.camel@athena.fprintf.net> <Pine.LNX.4.58.0501200813330.26770@telia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0501200813330.26770@telia.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Jan 2005, Kausty wrote:
+On Thu, Jan 20, 2005 at 08:17:38AM +0100, Peter Osterlund wrote:
 
-> hi
-> A small observation. In crypto/api.c in linux-2.6.8.1
+> >
+> > That fixed it, thanks.  I hope this can make it in before 2.6.11 final,
+> > but if it doesn't, I'll just patch it in.
 > 
-> The function:
-> int crypto_alg_available(const char *name, u32 flags)
+> OK, I've got another report in private mail where this patch fixed the
+> ALPS detection, so the score for this patch is now 3 success reports and 0
+> problem reports. I also think the patch should be included before 2.6.11
+> final.
 > 
-> has a flags param which does not seem to be used.
-> 
-> though it does not matter much but has this been fixed in later releases?
-> xfrm functions in ipsec do call this function but always with flags as 0.
-> 
-> Thanks and regards
-> kausty
 
-IIRC, this was to allow future code to specify preferences for the type of
-algorithm driver (e.g. hardware), but has not been used.  This is an
-example of why it's a bad idea to add infrastructure which isn't being
-used at the time.
+You can add another success. Sony Vaio FX701.
+Romano
 
 
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
-
-
+Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
+Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569

@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317665AbSFLIAs>; Wed, 12 Jun 2002 04:00:48 -0400
+	id <S317666AbSFLIC0>; Wed, 12 Jun 2002 04:02:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317666AbSFLIAr>; Wed, 12 Jun 2002 04:00:47 -0400
-Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:53231 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S317665AbSFLIAr>; Wed, 12 Jun 2002 04:00:47 -0400
+	id <S317667AbSFLICZ>; Wed, 12 Jun 2002 04:02:25 -0400
+Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:18310 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S317666AbSFLICX>; Wed, 12 Jun 2002 04:02:23 -0400
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        k-suganuma@mvj.biglobe.ne.jp
+To: Anton Altaparmakov <aia21@cantab.net>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, k-suganuma@mvj.biglobe.ne.jp
 Subject: Re: [PATCH] 2.5.21 Nonlinear CPU support 
-In-Reply-To: Your message of "Wed, 12 Jun 2002 08:57:52 +0100."
-             <E17I30q-00077h-00@the-village.bc.nu> 
-Date: Wed, 12 Jun 2002 18:01:28 +1000
-Message-Id: <E17I34K-0004dp-00@wagner.rustcorp.com.au>
+In-Reply-To: Your message of "Wed, 12 Jun 2002 08:54:01 +0100."
+             <5.1.0.14.2.20020612084157.041970e0@pop.cus.cam.ac.uk> 
+Date: Wed, 12 Jun 2002 18:06:47 +1000
+Message-Id: <E17I39U-00054u-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <E17I30q-00077h-00@the-village.bc.nu> you write:
-> > --- linux-2.5.21.24110/fs/ntfs/compress.c	Sat May 25 14:34:53 2002
-> >  		return -ENOMEM;
-> > -	for (i = 0; i < smp_num_cpus; i++) {
-> > +	for (i = 0; i < NR_CPUS; i++) {
-> >  		ntfs_compression_buffers[i] = (u8*)vmalloc(NTFS_MAX_CB_SIZE);
-> >  		if (!ntfs_compression_buffers[i])
-> >  			break;
+In message <5.1.0.14.2.20020612084157.041970e0@pop.cus.cam.ac.uk> you write:
+> >Now, you *could* only allocate buffers for cpus where cpu_possible(i)
+> >is true, once the rest of the patch goes in.  That would be a valid
+> >optimization.
 > 
-> 2Mbytes !!!!!!
-> 
-> Add a cpu count changed notifier ?
+> Please explain. What is cpu_possible()?
 
-There is one in the next patch, of course.  But with that patch you
-also get cpu_possible():
+>From Hotcpu/hotcpu-boot-i386.patch.gz:
 
-	for (i = 0; i < NR_CPUS; i++) {
-		if (!cpu_possible(i)) {
-			ntfs_compression_buffers[i] = NULL;
-			continue;
-		}
+--- working-2.5.19-pre-hotcpu/include/asm-i386/smp.h	Tue Jun  4 15:37:09 2002
++++ working-2.5.19-hotcpu/include/asm-i386/smp.h	Mon Jun  3 18:00:09 2002
+@@ -93,6 +94,8 @@
+ #define smp_processor_id() (current_thread_info()->cpu)
+ 
+ #define cpu_online(cpu) (cpu_online_map & (1<<(cpu)))
++
++#define cpu_possible(cpu) (phys_cpu_present_map & (1<<(cpu)))
+ 
+ extern inline unsigned int num_online_cpus(void)
+ {
 
-Hope that clarifies,
+ie. "Can this CPU number *ever* exist?", for exactly this kind of
+optimization.  It looks like it was a mistake to leave that to a later
+patch, but I didn't appreciate the 64k-per-cpu buffer for NTFS (what
+is it for, by the way?  per-cpu buffering for a filesystem seems, um,
+wierd).
+
 Rusty.
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

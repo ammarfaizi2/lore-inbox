@@ -1,73 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbTENHlp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 03:41:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbTENHlp
+	id S261183AbTENHji (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 03:39:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbTENHje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 03:41:45 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:52625 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261168AbTENHln (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 03:41:43 -0400
-Date: Wed, 14 May 2003 09:54:07 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org, axel@pearbough.net
-Subject: Re: drivers/scsi/aic7xxx/aic7xxx_osm.c: warning is error
-Message-ID: <20030514075407.GA10685@suse.de>
-References: <20030514004009.GA20914@neon.pearbough.net> <20030514031826.GB29926@holomorphy.com> <493702704.1052892304@aslan.scsiguy.com> <20030514073700.GA3151@beaverton.ibm.com>
+	Wed, 14 May 2003 03:39:34 -0400
+Received: from 12-234-34-139.client.attbi.com ([12.234.34.139]:33268 "EHLO
+	heavens.murgatroid.com") by vger.kernel.org with ESMTP
+	id S262251AbTENHj3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 03:39:29 -0400
+Date: Wed, 14 May 2003 00:52:15 -0700
+From: Christopher Hoover <ch@murgatroid.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, ch@murgatroid.com
+Subject: Re: [PATCH] 2.5.68 FUTEX support should be optional
+Message-ID: <20030514005213.A3325@heavens.murgatroid.com>
+References: <20030513213157.A1063@heavens.murgatroid.com> <20030514071446.A2647@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030514073700.GA3151@beaverton.ibm.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030514071446.A2647@infradead.org>; from hch@infradead.org on Wed, May 14, 2003 at 07:14:46AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 14 2003, Mike Anderson wrote:
-> Justin T. Gibbs [gibbs@scsiguy.com] wrote:
-> > Comments have indicated since the 2.4.X days that Linux will never allocate
-> > segments that cross a 4GB boundary.  If this is truely enforced, then this
-> > code can just be removed.  It was only added out of paranoia (hence the
-> > printf) while adding high address support to the driver.
+On Wed, May 14, 2003 at 07:14:46AM +0100, Christoph Hellwig wrote:
+> On Tue, May 13, 2003 at 09:32:07PM -0700, Christopher Hoover wrote:
+> > Not everyone needs futex support, so it should be optional.  This is
+> > needed for small platforms.
 > 
-> Jens can give the more complete answer on enforcement, and also correct
-> any mis-statements I made.
+> Looks good.  I think you want to disable it unconditionally for !CONFIG_MMU.
 
-This property can be toggled with blk_queue_segment_boundary, and we do
-default to setting a 4GB boundary mask. So you can be sure that a
-request will never straddle a 4GB boundary.
+Good point.  
 
-> Base on the queue values below the aic7xxx driver should see the
-> following characteristics on IO. The IO should be for no more than 8k
-> made up of no more than 128 sg entries with no segment crossing the
-> seg_boundary_mask.
+Here it is again with the config change.  The previous version also had
+had a Makefile typo.  Plus a cond_syscall for compat_sys_futex to make
+it work for CONFIG_COMPAT (untested), as pointed out by akpm.
 
-I suppose you mean for no more than 8k sectors, ie 4MiB of data.
+diff --exclude=drivers --exclude=net --exclude=sound -X dontdiff.txt -Naurp linux-2.5.69.orig/include/linux/futex.h linux-2.5.69/include/linux/futex.h
+--- linux-2.5.69.orig/include/linux/futex.h	2003-05-04 16:53:33.000000000 -0700
++++ linux-2.5.69/include/linux/futex.h	2003-05-14 00:17:25.000000000 -0700
+@@ -8,4 +8,6 @@
+ 
+ extern asmlinkage long sys_futex(u32 *uaddr, int op, int val, struct timespec *utime);
+ 
++long do_futex(unsigned long, int, int, unsigned long);
++
+ #endif
+diff --exclude=drivers --exclude=net --exclude=sound -X dontdiff.txt -Naurp linux-2.5.69.orig/init/Kconfig linux-2.5.69/init/Kconfig
+--- linux-2.5.69.orig/init/Kconfig	2003-05-04 16:53:37.000000000 -0700
++++ linux-2.5.69/init/Kconfig	2003-05-14 00:03:05.000000000 -0700
+@@ -108,8 +108,15 @@ config LOG_BUF_SHIFT
+ 		     13 =>  8 KB
+ 		     12 =>  4 KB
+ 
+-endmenu
+ 
++config FUTEX
++       bool "Futex support"
++       depends on MMU
++       default y
++       ---help---
++       Say Y if you want support for Fast Userspace Mutexes (Futexes).
++
++endmenu
+ 
+ menu "Loadable module support"
+ 
+diff --exclude=drivers --exclude=net --exclude=sound -X dontdiff.txt -Naurp linux-2.5.69.orig/kernel/Makefile linux-2.5.69/kernel/Makefile
+--- linux-2.5.69.orig/kernel/Makefile	2003-05-04 16:53:07.000000000 -0700
++++ linux-2.5.69/kernel/Makefile	2003-05-14 00:02:30.000000000 -0700
+@@ -5,9 +5,10 @@
+ obj-y     = sched.o fork.o exec_domain.o panic.o printk.o profile.o \
+ 	    exit.o itimer.o time.o softirq.o resource.o \
+ 	    sysctl.o capability.o ptrace.o timer.o user.o \
+-	    signal.o sys.o kmod.o workqueue.o futex.o pid.o \
++	    signal.o sys.o kmod.o workqueue.o pid.o \
+ 	    rcupdate.o intermodule.o extable.o params.o posix-timers.o
+ 
++obj-$(CONFIG_FUTEX) += futex.o
+ obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
+ obj-$(CONFIG_SMP) += cpu.o
+ obj-$(CONFIG_UID16) += uid16.o
+diff --exclude=drivers --exclude=net --exclude=sound -X dontdiff.txt -Naurp linux-2.5.69.orig/kernel/compat.c linux-2.5.69/kernel/compat.c
+--- linux-2.5.69.orig/kernel/compat.c	2003-05-04 16:53:29.000000000 -0700
++++ linux-2.5.69/kernel/compat.c	2003-05-14 00:17:32.000000000 -0700
+@@ -211,8 +211,7 @@ asmlinkage long compat_sys_sigprocmask(i
+ 	return ret;
+ }
+ 
+-extern long do_futex(unsigned long, int, int, unsigned long);
+-
++#ifdef CONFIG_FUTEX
+ asmlinkage long compat_sys_futex(u32 *uaddr, int op, int val,
+ 		struct compat_timespec *utime)
+ {
+@@ -226,6 +225,7 @@ asmlinkage long compat_sys_futex(u32 *ua
+ 	}
+ 	return do_futex((unsigned long)uaddr, op, val, timeout);
+ }
++#endif
+ 
+ asmlinkage long sys_setrlimit(unsigned int resource, struct rlimit *rlim);
+ 
+diff --exclude=drivers --exclude=net --exclude=sound -X dontdiff.txt -Naurp linux-2.5.69.orig/kernel/sys.c linux-2.5.69/kernel/sys.c
+--- linux-2.5.69.orig/kernel/sys.c	2003-05-04 16:53:02.000000000 -0700
++++ linux-2.5.69/kernel/sys.c	2003-05-14 00:12:07.000000000 -0700
+@@ -226,6 +226,8 @@ cond_syscall(sys_shutdown)
+ cond_syscall(sys_sendmsg)
+ cond_syscall(sys_recvmsg)
+ cond_syscall(sys_socketcall)
++cond_syscall(sys_futex)
++cond_syscall(compat_sys_futex)
+ 
+ static int set_one_prio(struct task_struct *p, int niceval, int error)
+ {
 
-> Adaptec AIC7xxx driver version: 6.2.33
-> scsi_alloc_queue: queue for aic7xxx
-> bounce_pfn: 0xfffff
-> bounce_gfp: 0x10 (GFP_NOIO)
-> queue_flags: 0x1 (QUEUE_FLAG_QUEUED)
-> max_sectors: 0x2000 (8192)
-> max_phys_segments: 0x80 (128)
-> max_hw_segments: 0x80 (128)
-> hardsect_size: 0x200 (512)
-> max_segment_size: 0x10000 (65536)
-> seg_boundary_mask: 0xffffffff
-
-that is the key here.
-
-> dma_alignment: 0x1ff (511)
-
-So to recap, aic7xxx will never see a request that exceeds one of the
-above values. Total request size will always be equal to or below 4MiB,
-less than or equal to 128 segments, and will never cross a 4GB memory
-boundary. Memory above pfn 0xfffff (4GB) will be bounced, but this could
-be because that's just the amount of memory the box has you dumped this
-info from.
-
--- 
-Jens Axboe
 

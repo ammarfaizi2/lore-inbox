@@ -1,63 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269076AbRG3SdL>; Mon, 30 Jul 2001 14:33:11 -0400
+	id <S269007AbRG3Sbv>; Mon, 30 Jul 2001 14:31:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269075AbRG3SdB>; Mon, 30 Jul 2001 14:33:01 -0400
-Received: from mail.myrio.com ([63.109.146.2]:17655 "HELO smtp1.myrio.com")
-	by vger.kernel.org with SMTP id <S269074AbRG3Scl> convert rfc822-to-8bit;
-	Mon, 30 Jul 2001 14:32:41 -0400
-Message-ID: <D52B19A7284D32459CF20D579C4B0C0211C971@mail0.myrio.com>
-From: Torrey Hoffman <torrey.hoffman@myrio.com>
-To: "'Albert D. Cahalan'" <acahalan@cs.uml.edu>, ignacio@openservices.net
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Test mail
-Date: Mon, 30 Jul 2001 11:32:05 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	id <S269074AbRG3Sbl>; Mon, 30 Jul 2001 14:31:41 -0400
+Received: from mail1.qualcomm.com ([129.46.64.223]:62391 "EHLO
+	mail1.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S269007AbRG3Sba>; Mon, 30 Jul 2001 14:31:30 -0400
+Message-Id: <4.3.1.0.20010730110208.05e62260@mail1>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.1
+Date: Mon, 30 Jul 2001 11:32:11 -0700
+To: kuznet@ms2.inr.ac.ru
+From: Maksim Krasnyanskiy <maxk@qualcomm.com>
+Subject: Re: [PATCH] [IMPORTANT] Re: 2.4.7 softirq incorrectness.
+Cc: andrea@suse.de, linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        mingo@redhat.com, davem@redhat.com (Dave Miller)
+In-Reply-To: <200107281741.VAA12995@ms2.inr.ac.ru>
+In-Reply-To: <4.3.1.0.20010727141716.05651ac0@mail1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
 
-I hate to jump in and extend this mostly off-topic thread, but I would be
-a little annoyed if Outlook was banned from LKML.  I've got two machines
-on my desk here at work - one is Win2K, and is used almost exclusively for 
-Outlook and Word.  It's very difficult to give those up when the rest of
-the company uses them extensively.  The automatic meeting scheduling and
-other MS Exchange features of Outlook are not available in other clients, 
-and why should I switch when Outlook works fine?  
+> > tasklet_schedule calls tasklet_unlock after it schedules tasklet,
+>
+>Hmm... but this opens one more bug: are schedules not lost, when
+>they are made while tasklet is running ?
+Yes it does.
 
-Of course the other computer runs Linux, and is where all my real work
-gets done.  It's convenient to have both environments.
+btw Here is an idea. May be we should reschedule tasklet on the same cpu it's running on.
+It should probably improve cache usage and stuff. 
+I'm thinking about something like this.
 
-Why not just filter all non-text attachments instead?  Patches, log files, 
-output of lspci, and the like should all be inlined anyway.  It's easy
-to configure Outlook to send plain text emails, like this one - I've sent
-kernel patches from Outlook before, and no one has complained.
+static inline void tasklet_schedule(struct tasklet_struct *t)
+{
+         if (test_bit(TASKLET_STATE_RUN, &t->state)) {
+                 set_bit(TASKLET_NEED_RESCHED, &t->state);
+         } else if (!test_and_set_bit(TASKLET_STATE_SCHED, &t->state)) {
+                 int cpu = smp_processor_id();
+                 unsigned long flags;
 
-Torrey
+                 local_irq_save(flags);
+                 t->next = tasklet_vec[cpu].list;
+                 tasklet_vec[cpu].list = t;
+                 cpu_raise_softirq(cpu, TASKLET_SOFTIRQ);
+                 local_irq_restore(flags);
+         }
+}
 
-- - - - -
+static void tasklet_action(struct softirq_action *a)
+{
+         int cpu = smp_processor_id();
+         struct tasklet_struct *list;
 
-Albert D. Cahalan wrote:
-> Ignacio Vazquez-Ab writes:
-> > On Mon, 30 Jul 2001, christophe barbé wrote:
- 
-> >> Would it not be simple and effective to filter out mail produced by
-> >> Outlook?
+         local_irq_disable();
+         list = tasklet_vec[cpu].list;
+         tasklet_vec[cpu].list = NULL;
+         local_irq_enable();
 
-[...] 
+         while (list) {
+                 struct tasklet_struct *t = list;
 
-> > Don't get me wrong. I'm no fan of Outlook or OE, but you
-> > can't just step on people who use them.
+                 list = list->next;
 
-[...]
- 
-> Banning Outlook isn't so bad. Assuming you are stuck with Windows,
-> you still have many choices. Netscape/Mozilla and Eudora would be
-> the obvious choices. 
+                 if (tasklet_trylock(t)) {
+                         if (!atomic_read(&t->count)) {
+                                 if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
+                                         BUG();
+                                 t->func(t->data);
+                                 tasklet_unlock(t);
+                                 if (test_and_clear_bit(TASKLET_NEED_RESCHED, &t->state)
+                                    goto resched;
+                                 continue;
+                         }
+                         tasklet_unlock(t);
+                 }
 
-[...]
+resched:
+                 local_irq_disable();
+                 t->next = tasklet_vec[cpu].list;
+                 tasklet_vec[cpu].list = t;
+                 cpu_raise_softirq(cpu, TASKLET_SOFTIRQ);
+                 local_irq_enable();
+         }
+}
+
+There is small window there but this is just rfc. So if tasklet is already running we set NEED_RESCHED bit and tasklet_action
+reschedules tasklet on the same cpu. (currently we may reschedule it on anther cpu).
+Comments ?
+
+Max
+
+Maksim Krasnyanskiy	
+Senior Kernel Engineer
+Qualcomm Incorporated
+
+maxk@qualcomm.com
+http://bluez.sf.net
+http://vtun.sf.net
+

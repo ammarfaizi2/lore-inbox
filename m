@@ -1,53 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267304AbUJRSmw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267312AbUJRUti@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267304AbUJRSmw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 14:42:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267415AbUJRSlZ
+	id S267312AbUJRUti (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 16:49:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267353AbUJRUtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 14:41:25 -0400
-Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:41600
-	"HELO home.linuxace.com") by vger.kernel.org with SMTP
-	id S267326AbUJRShI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 14:37:08 -0400
-Date: Mon, 18 Oct 2004 11:37:07 -0700
-From: Phil Oester <kernel@linuxace.com>
-To: Andi Kleen <ak@suse.de>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, bevand_m@epita.fr,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: Re: NMI watchdog detected lockup
-Message-ID: <20041018183707.GA11947@linuxace.com>
-References: <4172F91D.8090109@osdl.org> <ckv123$pcs$1@sea.gmane.org> <4173F9A7.2090504@osdl.org> <20041018200017.0098710d.ak@suse.de> <41740430.30604@osdl.org> <20041018201654.58905384.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041018201654.58905384.ak@suse.de>
-User-Agent: Mutt/1.4.1i
+	Mon, 18 Oct 2004 16:49:09 -0400
+Received: from mail.scitechsoft.com ([63.195.13.67]:36779 "EHLO
+	mail.scitechsoft.com") by vger.kernel.org with ESMTP
+	id S267327AbUJRUr6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 16:47:58 -0400
+From: "Kendall Bennett" <KendallB@scitechsoft.com>
+Organization: SciTech Software, Inc.
+To: Richard Smith <rsmith@bitworks.com>
+Date: Mon, 18 Oct 2004 13:47:45 -0700
+MIME-Version: 1.0
+Subject: Re: [Linux-fbdev-devel] Generic VESA framebuffer driver and Video card BOOT?
+CC: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
+Message-ID: <4173C981.13925.11BDE111@localhost>
+In-reply-to: <417428F2.2050402@bitworks.com>
+References: <4173B865.26539.117B09BD@localhost>
+X-mailer: Pegasus Mail for Windows (4.21c)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 18, 2004 at 08:16:54PM +0200, Andi Kleen wrote:
-> On Mon, 18 Oct 2004 10:58:08 -0700
-> "Randy.Dunlap" <rddunlap@osdl.org> wrote:
-> 
-> > > Something on your system creates bogus NMI interrupts. What chipset
-> > > are you using exactly?
-> > > 
-> > > Sometimes chipsets can be programmed to raise NMIs when an PCI bus
-> > > error occurs. 
-> > > 
-> > > 21 is the normal state (PIT timer running, but no errors logged) 
-> > > 
-> > > If you have an AMD 8131 it could be in theory erratum 54, but then
-> > > normally one of the error bits in reason should be set.
-> > 
-> > Yes, it's an AMD-8111 / 8131 / 8151 / K8-northbridge machine.
-> 
-> It's probably one of your IO cards. I would remove them one by one
-> or possibly switch them to different slots (PCI vs PCI-X) 
+Richard Smith <rsmith@bitworks.com> wrote:
 
-Not sure if it's related, but I've noticed this with numerous 440gx
-boxes on 2.6.8.1.  I get reasons 2d and 3d.  If I reboot with
-nmi_watchdog=1 on these boxes, the errors go away.  This was not
-a problem on 2.6.3 interestingly enough...
+> Kendall Bennett wrote:
+> 
+> > I would assume however a serial port console would be fine for embedded 
+> > machines until the framebuffer driver could come up anyway.
+> 
+> This would be an incorrect assumption.  Speaking as a developer of
+> one said embedded system I must have video at boot and be able to
+> dump critical kernel messages to the screen. 
+> 
+> In the field, hooking up a serial cable to see why the unit
+> doesn't boot requires the dispatch of a tech who would have open
+> up the unit to get to the serial port.  This costs the end client
+> lots of $$.  They don't like that. 
+> 
+> By having video on boot the support person can tell the end user
+> to look at the screen and read back any messages and then make the
+> determination if a tech dispatch is needed. 
+> 
+> And its common practice to only have as many serial ports as the
+> system needs during runtime.  During development you can dual
+> purpose them but in the final system their may not be a serial
+> port free (or even installed) to get that console info from. 
 
-Phil
+Good, so my assumption was incorrect which I am happy about. Since it 
+makes the work we did more useful ;-)
+
+Anyway in your case do you need diagnostic messages just from the kernel 
+or from the firmware as well? To get it in the firmware the video boot 
+code would need to be ported there (U-Boot has a version of it already, 
+but it is the only firmware I am aware of that supports this).
+
+Regards,
+
+---
+Kendall Bennett
+Chief Executive Officer
+SciTech Software, Inc.
+Phone: (530) 894 8400
+http://www.scitechsoft.com
+
+~ SciTech SNAP - The future of device driver technology! ~
+
+

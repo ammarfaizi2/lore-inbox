@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312296AbSD0KQQ>; Sat, 27 Apr 2002 06:16:16 -0400
+	id <S312938AbSD0Kxx>; Sat, 27 Apr 2002 06:53:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312302AbSD0KQP>; Sat, 27 Apr 2002 06:16:15 -0400
-Received: from freedom.icomedias.com ([193.154.7.22]:54338 "EHLO
-	freedom.icomedias.com") by vger.kernel.org with ESMTP
-	id <S312296AbSD0KQP> convert rfc822-to-8bit; Sat, 27 Apr 2002 06:16:15 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: AW: 160gb disk showing up as 137gb
-Date: Sat, 27 Apr 2002 12:16:06 +0200
-Message-ID: <D143FBF049570C4BB99D962DC25FC2D2159B3A@freedom.icomedias.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 160gb disk showing up as 137gb
-Thread-Index: AcHt0HOzQP7CAsq7SUyaA+gaWDA5OAAAsaUA
-From: "Martin Bene" <martin.bene@icomedias.com>
-To: "Wakko Warner" <wakko@animx.eu.org>,
-        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, <linux-kernel@vger.kernel.org>
+	id <S313084AbSD0Kxw>; Sat, 27 Apr 2002 06:53:52 -0400
+Received: from ns.suse.de ([213.95.15.193]:15625 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S312938AbSD0Kxw>;
+	Sat, 27 Apr 2002 06:53:52 -0400
+Date: Sat, 27 Apr 2002 12:53:51 +0200
+From: Dave Jones <davej@suse.de>
+To: Bob Tanner <tanner@real-time.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BIOS says MP, kernel says XP was PROBLEM: Dual (2) AMD ATHLON MP 1900+ CPUs gives APIC error on CPU[0]: 00(02)
+Message-ID: <20020427125351.E14743@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Bob Tanner <tanner@real-time.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020426213315.K25965@real-time.com> <20020426223709.A3301@real-time.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Apr 26, 2002 at 10:37:09PM -0500, Bob Tanner wrote:
+ > I just grabbed the box the CPUs came in. It states the CPUs are MP.
+ > How can I tell if the problem is with the BIOS, CPUs or kernel?
 
-> It's not on a raid controller.  The machine has a PIIX3 ide 
-> controller and a
-> AHA-2940UW scsi controller.  Both exibit the same problem.
+ftp://ftp.suse.com/pub/people/davej/x86info/
 
-Actually, no: To fully use 160GB ATA drives, whatever device is on the other end of the ATA bus needs to actively support 48-bit address mode. In for the two cases you tried, that means 
+x86info with no arguments will tell you what it thinks the CPU is
+(it does MP/XP discrimination), and what the CPU reports itself as
+(The processor name string)
 
-IDE: The kernel IDE driver needs to support 48-bit addresseing to support 160GB.
+x86info -f will tell you the CPU capability flags lines,
+which should show an 'mp' bit on MP CPUs.
 
-SCSI: The firmware in your IDE<->SCSI Adapter needs to support 48-bit addressing.
 
-So, while the symptoms are the same in both cases the problem is actually in two completely different places.
+Note btw, grab v1.9. 1.8 had a stupid bug which broke AMD recognition.
+I only just uploaded it so you may have to wait 30 mins for the
+mirror script to kick in.
 
-Most probably, you can't do anything about the IDE<->SCSI adapters firmware; however, you can do something about the linux ATA driver: code is in the 2.4.19-pre tree, it went in with 2.4.19-pre3.
+    Dave.
 
-Bye, Martin
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281648AbRLBRyQ>; Sun, 2 Dec 2001 12:54:16 -0500
+	id <S281735AbRLBSDQ>; Sun, 2 Dec 2001 13:03:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281663AbRLBRyH>; Sun, 2 Dec 2001 12:54:07 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:54524 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S281648AbRLBRxx>; Sun, 2 Dec 2001 12:53:53 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <E16AIZ8-0008Re-00@the-village.bc.nu> 
-In-Reply-To: <E16AIZ8-0008Re-00@the-village.bc.nu> 
+	id <S284265AbRLBSDG>; Sun, 2 Dec 2001 13:03:06 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:62398 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S281678AbRLBSCw>; Sun, 2 Dec 2001 13:02:52 -0500
+Date: Sun, 2 Dec 2001 11:02:44 -0700
+Message-Id: <200112021802.fB2I2iE10476@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: maze@druid.if.uj.edu.pl (Maciej Zenczykowski),
-        linux-kernel@vger.kernel.org
-Subject: Re: [OT] Wrapping memory. 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 02 Dec 2001 17:53:37 +0000
-Message-ID: <12969.1007315617@redhat.com>
+Cc: viro@math.psu.edu (Alexander Viro),
+        pierre.rousselet@wanadoo.fr (Pierre Rousselet),
+        marcelo@conectiva.com.br (Marcelo Tosatti),
+        kaos@ocs.com.au (Keith Owens), linux-kernel@vger.kernel.org
+Subject: Re: 2.5.1-pre5 not easy to boot with devfs
+In-Reply-To: <E16AaCR-0003wy-00@the-village.bc.nu>
+In-Reply-To: <Pine.GSO.4.21.0112021150310.12801-100000@binet.math.psu.edu>
+	<E16AaCR-0003wy-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox writes:
+> > > Here is the final (i hope) verdict of my devfs testbox :
+> > > 
+> > > 2.4.16 with devfsd-1.3.18/1.3.20 : OK
+> > > 2.4.17-pre1         "            : Broken
+> > > 2.5.1-pre1          "            : OK
+> 
+> Sounds like the new devfs code should be backed out of 2.4 until
+> fixed in 2.5
 
-alan@lxorguk.ukuu.org.uk said:
-> > I would like to have a 64 KBarray (of char), that's trivial, however
-> > what I would like is for the last 4 KB [yes thankfully this is exactly
-> > one page... (assume i386)] to reference the same physical memory as the
-> > first four.
+Hey! It's a pre-patch. There's time before 2.4.17-rc is released.
+Having it in a pre-patch is the only way to get decent testing,
+unfortunately. Not enough people bother downloading extra patches.
+All known issues were resolved before the merge.
 
-> mmap will do what you need. Create a 60K object on disk and mmap it at
-> the base address and then 60K further on for 4K.  
+And 2.5 isn't going to get a lot of testing until the breakage caused
+by the bio changes is fixed. At the moment, I can't even test it
+myself.
 
-You said 'assume i386', but just to make it clear - this is likely to break
-horribly on some non-i386 platforms, due to dcache aliasing. You may find
-that the second mmap(MAP_FIXED) fails, or if it succeeds then changes made
-with one virtual address won't be instantly visible through the other
-mapping. About the best case on such hardware is that Linux will just map
-the offending page uncached.
+				Regards,
 
---
-dwmw2
-
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

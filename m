@@ -1,81 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281332AbRKEU5C>; Mon, 5 Nov 2001 15:57:02 -0500
+	id <S281334AbRKEUrm>; Mon, 5 Nov 2001 15:47:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281335AbRKEU4w>; Mon, 5 Nov 2001 15:56:52 -0500
-Received: from postfix2-2.free.fr ([213.228.0.140]:27577 "HELO
-	postfix2-2.free.fr") by vger.kernel.org with SMTP
-	id <S281332AbRKEU4j> convert rfc822-to-8bit; Mon, 5 Nov 2001 15:56:39 -0500
-Date: Mon, 5 Nov 2001 19:11:29 +0100 (CET)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Ben Greear <greearb@candelatech.com>
-Cc: Manfred Spraul <manfred@colorfullife.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, John Fremlin <john@fremlin.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [POLITICAL] Re: ECS k7s5a audio sound SiS 735 - 7012
-In-Reply-To: <3BE6EF7D.40103@candelatech.com>
-Message-ID: <20011105190050.W1870-100000@gerard>
+	id <S281331AbRKEUrW>; Mon, 5 Nov 2001 15:47:22 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:31245 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S281326AbRKEUrV>; Mon, 5 Nov 2001 15:47:21 -0500
+Date: Mon, 5 Nov 2001 17:28:05 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Sven Heinicke <sven@research.nj.nec.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Unwanted Swapping in 2.4.14-pre8, no swapping in 2.4.14-pre6aa1
+In-Reply-To: <15334.61892.392055.542002@abasin.nj.nec.com>
+Message-ID: <Pine.LNX.4.21.0111051719470.9105-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Mon, 5 Nov 2001, Ben Greear wrote:
+On Mon, 5 Nov 2001, Sven Heinicke wrote:
 
-> Gérard Roudier wrote:
->
-> >
-> > On Sun, 4 Nov 2001, Manfred Spraul wrote:
-> >
-> >
-> >>Jeff Garzik wrote:
-> >>
-> >>>Gérard Roudier wrote:
-> >>>
-> >>>>different from Tekram adapters. Btw, my Netgear FA311 board is not handled
-> >>>>by the sis driver of linux-2.2.20 and my little finger tells me that it
-> >>>>could be so given a few code addition.
-> >>>>
-> >>>Unless you have a really strange board I haven't seen, NetGear FA311 are
-> >>>the natsemi DP83815/6 chips, handling by either "natsemi" or "fa311"
-> >>>drivers, not "sis900" driver...
-> >>>
-> >>>
-> >>sis900 and natsemi are similar, probably both could be handled with one
-> >>driver.
-> >>e.g. freebsd has one driver for natsemi and sis900.
-> >>
-> >>But I'm not a big fan of huge drivers that handle multiple 99%
-> >>compatible controllers and always break for one controller if you try to
-> >>fix another controller, so I won't try to merge them.
-> >>
-> >
-> > So you would have preferred, for example, to have dozens of different
-> > drivers for SYM53C8XX chips and probably as many for Adaptec aic7xxx ones.
-> > And, probably, one set of different drivers per O/S. And why not one set
-> > per O/S major version and even per adjacent ones of the same O/S.
-> >
-> > Given all the different brands that use similar or compatibles chips, the
-> > way you want drivers to be developped and maintained looks just
-> > unrealistic to me.
->
->
-> Jeff has intimate knowledge of the Tulip driver, one of the more complex
-> drivers that supports a bazillion different cards.  And also one of the hardest
-> to get (and keep) working on all of the devices it seems....
->
-> I think he has a very valid point....
+> 
+> We have a system with 4G of memory that process streams of information
+> in the order of a Terabyte of information.  We worked hard to make is
+> to we never have more then ~3G of data in memory at any one time, so
+> we would not go into swap.  We tested our code, and the began to swap,
+> I downloaded 2.4.14-pre8, and it still swaps.  But, if I turn off our
+> swap partitions it works well, so swap was not needed.
+> 
+> With the 2.4.14-pre6aa1 kernel, with swap turned on, we have no
+> problem.
+> 
+> In the beginning I though it was the same bug as the google bug, but
+> following and asking stupid questions I realized it wasn't.  The
+> following program, which approximates what our processing does on a
+> small scale, can demonstrate the bug.  You need the chunk files as
+> used in the google bug test code.  The comments of the code show a
+> fast way to make the chunk files.
+> 
+> Any possibility of this being fixed in the stable kernel?  Any way to
+> raise the priority of reclaiming cached memory over swapping out
+> pages? 
 
-Ok. I do understand the point, now.
-Sorry for the misunderstanding. I caught the remark as a too general
-statement.
+Yes. Currently, the kernel "tries" to keep the LRU list of pages with 90%
+of mapped pages and 10% of cache when there is memory pressure.
 
-May thanks for the efforts maintaining tulip drivers.
+By looking at mm/vmscan.c::shrink_cache() you can see:
 
-Regards,
-  Gérard.
+        int max_scan = nr_inactive_pages / priority;
+        int max_mapped = nr_pages << (9 - priority);
+
+"max_scan" is the max. number of pages the kernel will scan on the
+inactive list (the inactive list is usually 1/3 of the total amount of
+pages) each time "shrink_cache()" is called.
+
+"max_mapped" is the (roughly) maximum number of non-cache (anonymous)
+pages the kernel will scan _before_ it tries to search for data to map to
+swap. So basically right now we will scan 
+
+You should try to increase "max_mapped" to "nr_pages << (10 - priority)"
+and so on until you get good tuning for your workload.
+
+> I'd like to try to stay away from development kernels on what
+> are meant to be stable systems, but for now it's aa kernels for me.
 

@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268115AbUJJEwr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268129AbUJJExa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268115AbUJJEwr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 00:52:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268120AbUJJEwr
+	id S268129AbUJJExa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 00:53:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268128AbUJJExa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 00:52:47 -0400
-Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:10613 "HELO
-	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268115AbUJJEwn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 00:52:43 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [OOPS+PATCH 2.6] Fix oops in parkbd
-Date: Sat, 9 Oct 2004 23:52:38 -0500
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>
-MIME-Version: 1.0
+	Sun, 10 Oct 2004 00:53:30 -0400
+Received: from mail.kroah.org ([69.55.234.183]:22235 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S268120AbUJJExA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 00:53:00 -0400
+Date: Sat, 9 Oct 2004 21:29:58 -0700
+From: Greg KH <greg@kroah.com>
+To: Dave Airlie <airlied@linux.ie>
+Cc: Jon Smirl <jonsmirl@gmail.com>, dri-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [patch] drm core internal versioning..
+Message-ID: <20041010042958.GA28025@kroah.com>
+References: <Pine.LNX.4.58.0410100050160.6083@skynet> <9e47339104100917527993026d@mail.gmail.com> <Pine.LNX.4.58.0410100328080.11219@skynet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410092352.39785.dtor_core@ameritech.net>
+In-Reply-To: <Pine.LNX.4.58.0410100328080.11219@skynet>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When converting to dynamic serio allocation I messed up parkbd
-causing it to Oops when registering its serio port.
+On Sun, Oct 10, 2004 at 03:31:26AM +0100, Dave Airlie wrote:
+> 
+> I don't want to re-implement kernel modversions which is what we are close
+> to doing
 
--- 
-Dmitry
+Then why not just rely on the modversion code in the kernel tree to do
+this?  As you say:
 
+> you can't insmod a module built against a different kernel
+> anyways so it doesn't matter, kernel version, preempt, smp, compiler are
+> all checked on insmod in 2.6 if they don't match it doesn't load it is not
+> possible to distrib a binarry kernel independent module..
 
-===================================================================
+Which is a pretty good reason not to try to implement your own
+versioning system, right?
 
+> without at least a portable stub source loader...
 
-ChangeSet@1.1961, 2004-10-09 08:09:54-05:00, dtor_core@ameritech.net
-  Input: parkbd - zero-fill allocated serio structure to
-         prevent Oops when registering port.
-  
-  Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+Are you thinking that someone will try to do this?  If so, they deserve
+what they get :)
 
+thanks,
 
- parkbd.c |    1 +
- 1 files changed, 1 insertion(+)
-
-
-===================================================================
-
-
-
-diff -Nru a/drivers/input/serio/parkbd.c b/drivers/input/serio/parkbd.c
---- a/drivers/input/serio/parkbd.c	2004-10-09 23:49:06 -05:00
-+++ b/drivers/input/serio/parkbd.c	2004-10-09 23:49:06 -05:00
-@@ -160,6 +160,7 @@
- 
- 	serio = kmalloc(sizeof(struct serio), GFP_KERNEL);
- 	if (serio) {
-+		memset(serio, 0, sizeof(struct serio));
- 		serio->type = parkbd_mode;
- 		serio->write = parkbd_write,
- 		strlcpy(serio->name, "PARKBD AT/XT keyboard adapter", sizeof(serio->name));
+greg k-h

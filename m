@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbVAXG4h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261464AbVAXIDL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261476AbVAXG4h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 01:56:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVAXG4g
+	id S261464AbVAXIDL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 03:03:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbVAXIDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 01:56:36 -0500
-Received: from mail.joq.us ([67.65.12.105]:58772 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S261460AbVAXG4K (ORCPT
+	Mon, 24 Jan 2005 03:03:11 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:53724 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261464AbVAXIDI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 01:56:10 -0500
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Paul Davis <paul@linuxaudiosystems.com>,
-       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
-       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
-       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt
- scheduling
-References: <200501201542.j0KFgOwo019109@localhost.localdomain>
-	<87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu>
-	<87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu>
-	<87pszvlvma.fsf@sulphur.joq.us> <41F42BD2.4000709@kolivas.org>
-	<877jm3ljo9.fsf@sulphur.joq.us> <41F44AC2.1080609@kolivas.org>
-	<87hdl7v3ik.fsf@sulphur.joq.us> <87651nv356.fsf@sulphur.joq.us>
-	<87ekgbqr2a.fsf@sulphur.joq.us> <41F49735.5000400@kolivas.org>
-From: "Jack O'Quin" <joq@io.com>
-Date: Mon, 24 Jan 2005 00:57:43 -0600
-In-Reply-To: <41F49735.5000400@kolivas.org> (Con Kolivas's message of "Mon,
- 24 Jan 2005 17:35:33 +1100")
-Message-ID: <873bwrpb4o.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
+	Mon, 24 Jan 2005 03:03:08 -0500
+Date: Mon, 24 Jan 2005 09:02:54 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc2-V0.7.36-00
+Message-ID: <20050124080254.GA7753@elte.hu>
+References: <20041122005411.GA19363@elte.hu> <20050115133454.GA8748@elte.hu> <20050122122915.GA7098@elte.hu> <200501221622.24273.gene.heskett@verizon.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501221622.24273.gene.heskett@verizon.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> writes:
 
-> Jack O'Quin wrote:
->> I'll try building a SCHED_RR version of JACK.  I still don't think it
->> will make any difference.  But my intuition isn't working very well
->> right now, so I need more data.
->
-> Could be that despite what it appears, FIFO behaviour may be desirable
-> to RR. Also the RR in SCHED_ISO is pretty fast at 10ms. However with
-> nothing else really running it just shouldn't matter...
+* Gene Heskett <gene.heskett@verizon.net> wrote:
 
-That's the way I see it, too.
+> On Saturday 22 January 2005 07:29, Ingo Molnar wrote:
+> >i have released the -V0.7.36-00 Real-Time Preemption patch, which
+> > can be downloaded from the usual place:
+> >
+> >  http://redhat.com/~mingo/realtime-preempt/
+> >
+> >this is mainly a merge to 2.6.11-rc2.
+> 
+> Humm, by the time I went after the patch it was up to -02.
+> 
+> And I'm getting a couple of error exits:
+> -------------------
+> net/sched/sch_generic.c: In function `qdisc_restart':
+> net/sched/sch_generic.c:128: error: label `requeue' used but not 
+> defined
 
-> There is some sort of privileged memory handling when jackd is running
-> as root as well, so I don't know how that features here. I can't
-> imagine it's a real issue though.
+indeed - !PREEMPT_RT compilation broke. I've uploaded -03 with the fix
+(and other fixes).
 
-We use mlockall() to avoid page faults in the audio path.  That should
-be happening in all these tests.  The JACK server would complain if
-the request were failing, and it doesn't.
-
-How can I verify that the pages are actually locked?  (Even without
-mlock(), I don't think I would run out of memory.)
--- 
-  joq
+	Ingo

@@ -1,93 +1,244 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316592AbSGGWYA>; Sun, 7 Jul 2002 18:24:00 -0400
+	id <S316595AbSGGWec>; Sun, 7 Jul 2002 18:34:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316594AbSGGWX7>; Sun, 7 Jul 2002 18:23:59 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:47118 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S316592AbSGGWX5>;
-	Sun, 7 Jul 2002 18:23:57 -0400
-Date: Sun, 7 Jul 2002 15:24:17 -0700
-From: Greg KH <greg@kroah.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: kernel-janitor-discuss 
-	<kernel-janitor-discuss@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: BKL removal
-Message-ID: <20020707222417.GC18298@kroah.com>
-References: <Pine.LNX.4.44L.0207061306440.8346-100000@imladris.surriel.com> <3D27390E.5060208@us.ibm.com> <20020707205543.GA18298@kroah.com> <3D28B423.9060903@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D28B423.9060903@us.ibm.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Sun, 09 Jun 2002 19:34:23 -0700
+	id <S316600AbSGGWeb>; Sun, 7 Jul 2002 18:34:31 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:32781 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S316595AbSGGWe0>; Sun, 7 Jul 2002 18:34:26 -0400
+Date: Mon, 8 Jul 2002 00:36:46 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Keith Owens <kaos@ocs.com.au>
+cc: Pavel Machek <pavel@ucw.cz>,
+       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: simple handling of module removals Re: [OKS] Module removal 
+In-Reply-To: <9171.1026053813@ocs3.intra.ocs.com.au>
+Message-ID: <Pine.LNX.4.44.0207072154080.8911-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 07, 2002 at 02:35:31PM -0700, Dave Hansen wrote:
-> 
->  "As long as I comment [and understand] why I am using the BKL." 
-> would be a bit more accurate.  How many places in the kernel have you 
-> seen comments about what the BKL is actually doing?  Could you point 
-> me to some of your comments where _you_ are using the BKL?  Once you 
-> fully understand why it is there, the extra step of removal is usually 
-> very small.
+Hi,
 
-I have never written any kernel code that added usages of the BKL.  The
-fact that I am now maintaining code that uses it should not be confused
-with this.  Yes, some of my filesystems (pcihpfs and usbfs) now use it,
-but that was due to other people pushing it down, out of the VFS.
+On Mon, 8 Jul 2002, Keith Owens wrote:
 
-> >>A lock with a single purpose, guarding relatively small amounts of 
-> >>data is much easier to understand than one such as the BKL.  Would you 
-> >>want a simple VM operation to take 1 second as the TTY layer and ext3 
-> >>take their sweet time with the BKL?
-> >
-> >If ext3 is spinning on the BKL, then try to fix that, as it seems like a
-> >worthwhile task (like the ext2 changes proved.)  If you want to remove
-> >the BKL from the tty layer, be my guest, that will involve rewriting
-> >that whole subsystem :)
-> 
-> All that I'm saying is that there can be unintended consequences.  By 
-> having it in your code, you open the possibility of these strange 
-> interactions and a drop in _your_ code's reliability.
+> With CONFIG_PREEMPT, a process running on another cpu without a lock
+> when freeze_processes() is called should immediately end up in
+> schedule.  I don't see anything in that code path that disables
+> preemption on other cpus.  If I am right, then a second cpu could be in
+> this window when freeze_processes is called
+>
+>   if (xxx->func)
+>     xxx->func()
+>
+> where func is a module function.  There is still a window from loading
+> the function address, through calling the function and up to the point
+> where the function does MOD_INC_USE_COUNT.  Any reschedule in that
+> window opens a race with rmmod.  Without preemption, freeze might be
+> safe, with preemption the race is back again.
 
-Yes, and there can be unintended conequences for just blindly removing
-the BKL as your input layer patch proved.  The input layer was using the
-BKL in a reliable manner, it just wasn't documented.  And by using the
-BKL in my code, it does not decrease reliability in any way (just might
-slow it down under some system loads, but it still works properly.)
+While I agree that the current module interface is broken, but the current
+suggestions are IMHO not any better. They rely on specific knowledge about
+the scheduler. Next time someone wants to change the scheduler or the
+scheduling behaviour, he runs into the risk breaking modules (again).
 
-> I'm staying well away from the TTY layer, it is just a well known 
-> example.
+All we have to do is to make sure that there is no reference to the module
+left. In other words we have to make sure there is no data structure with
+a reference to the module left. Managing data structures is something we
+already have to do anyway, so why don't we just the existing interfaces?
 
-Ah, so it's easier to try to pick on subsystems that don't matter like
-USB and driverfs?  :)
+As an example I have an alternative "fix" (that means it compiles) for the
+bdev layer. First it makes (un)register_blkdev smp/preempt safe, but the
+important change is in unregister_blkdev, which basically does:
 
-> >>I would mind the BKL a lot less if it was as well understood 
-> >>everywhere as it is in VFS.  The funny part is that a lock like the 
-> >>BKL would not last very long if it were well understood or documented 
-> >>everywhere it was used.
-> >
-> >I would mind it a whole lot less if when you try to remove the BKL, you
-> >do it correctly.  So far it seems like you enjoy doing "hit and run"
-> >patches, without even fully understanding or testing your patches out
-> >(the driverfs and input layer patches are proof of that.)  This does
-> >nothing but aggravate the developers who have to go clean up after you.
-> 
-> Like it or not, the only way to get maintainers to pay any attention 
-> at all is to give them code.  Is there more likely to be progress if I 
-> just say, "Hey Greg, why don't you take the BKL out of USB", or if I 
-> send you a crappy patch which has the beginning of a valid approach? 
-> Code gets people thinking.
+	for_all_bdev(bdev) {
+		if (bdev->bd_op == op)
+			return -EBUSY;
+	}
 
-Either way, you get my same response, "Why?"  Again, as someone stated,
-where in the USB code is the BKL used that affects performance in any
-real life situations?
+After that we know that noone can call into the module anymore, now we
+only have to make use of -EBUSY information somehow.
+That means that the module count is not strictly necessary anymore and
+structures don't have to be polluted with module owner fields.
+IMO that's the far cleaner solution and doesn't require messing with the
+scheduler. The module interface has to be fixed anyway and I'd prefer it
+wouldn't require some scheduling magic.
 
-And yes, sending crappy patches does get people jumping, but don't rely
-on that being a good method of doing development.  People only fall for
-that one so many times.
+bye, Roman
 
-greg k-h
+Index: fs/block_dev.c
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.5/fs/block_dev.c,v
+retrieving revision 1.1.1.17
+diff -u -p -r1.1.1.17 block_dev.c
+--- fs/block_dev.c	6 Jul 2002 00:33:38 -0000	1.1.1.17
++++ fs/block_dev.c	7 Jul 2002 22:12:50 -0000
+@@ -417,55 +417,98 @@ int get_blkdev_list(char * p)
+ 	Return the function table of a device.
+ 	Load the driver if needed.
+ */
+-const struct block_device_operations * get_blkfops(unsigned int major)
++const struct block_device_operations *__get_blkfops(unsigned int major)
+ {
+ 	const struct block_device_operations *ret = NULL;
+
+ 	/* major 0 is used for non-device mounts */
+ 	if (major && major < MAX_BLKDEV) {
+ #ifdef CONFIG_KMOD
++		spin_unlock(&bdev_lock);
+ 		if (!blkdevs[major].bdops) {
+ 			char name[20];
+ 			sprintf(name, "block-major-%d", major);
+ 			request_module(name);
+ 		}
++		spin_lock(&bdev_lock);
+ #endif
+ 		ret = blkdevs[major].bdops;
+ 	}
+ 	return ret;
+ }
+
++const struct block_device_operations *get_blkfops(unsigned int major)
++{
++	const struct block_device_operations *bd;
++	spin_lock(&bdev_lock);
++	bd = __get_blkfops(major);
++	spin_unlock(&bdev_lock);
++	return bd;
++}
++
+ int register_blkdev(unsigned int major, const char * name, struct block_device_operations *bdops)
+ {
++	int res = 0;
++
++	spin_lock(&bdev_lock);
+ 	if (major == 0) {
+ 		for (major = MAX_BLKDEV-1; major > 0; major--) {
+ 			if (blkdevs[major].bdops == NULL) {
+ 				blkdevs[major].name = name;
+ 				blkdevs[major].bdops = bdops;
+-				return major;
++				res = major;
++				goto out;
+ 			}
+ 		}
+-		return -EBUSY;
++		res = -EBUSY;
++		goto out;
++	}
++	if (major >= MAX_BLKDEV) {
++		res = -EINVAL;
++		goto out;
++	}
++	if (blkdevs[major].bdops && blkdevs[major].bdops != bdops) {
++		res = -EBUSY;
++		goto out;
+ 	}
+-	if (major >= MAX_BLKDEV)
+-		return -EINVAL;
+-	if (blkdevs[major].bdops && blkdevs[major].bdops != bdops)
+-		return -EBUSY;
+ 	blkdevs[major].name = name;
+ 	blkdevs[major].bdops = bdops;
+-	return 0;
++out:
++	spin_unlock(&bdev_lock);
++	return res;
+ }
+
+ int unregister_blkdev(unsigned int major, const char * name)
+ {
++	struct block_device *bdev;
++	struct list_head *p;
++	int i, res = 0;
++
+ 	if (major >= MAX_BLKDEV)
+ 		return -EINVAL;
+-	if (!blkdevs[major].bdops)
+-		return -EINVAL;
+-	if (strcmp(blkdevs[major].name, name))
+-		return -EINVAL;
++	spin_lock(&bdev_lock);
++	if (!blkdevs[major].bdops) {
++		res = -EINVAL;
++		goto out;
++	}
++	if (strcmp(blkdevs[major].name, name)) {
++		res = -EINVAL;
++		goto out;
++	}
++	for (i = 0; i < HASH_SIZE; i++) {
++		list_for_each(p, &bdev_hashtable[i]) {
++			bdev = list_entry(p, struct block_device, bd_hash);
++			if (bdev->bd_op == blkdevs[major].bdops) {
++				res = -EBUSY;
++				goto out;
++			}
++		}
++	}
++
+ 	blkdevs[major].name = NULL;
+ 	blkdevs[major].bdops = NULL;
++out:
++	spin_unlock(&bdev_lock);
+ 	return 0;
+ }
+
+@@ -481,11 +524,15 @@ int unregister_blkdev(unsigned int major
+ int check_disk_change(kdev_t dev)
+ {
+ 	int i;
++	struct block_device *bdev = bdget(kdev_t_to_nr(dev));
+ 	const struct block_device_operations * bdops = NULL;
+
+ 	i = major(dev);
+-	if (i < MAX_BLKDEV)
+-		bdops = blkdevs[i].bdops;
++	spin_lock(&bdev_lock);
++	if (!bdev->bd_op && i < MAX_BLKDEV)
++		bdev->bd_op = blkdevs[i].bdops;
++	bdops = bdev->bd_op;
++	spin_unlock(&bdev_lock);
+ 	if (bdops == NULL) {
+ 		devfs_handle_t de;
+
+@@ -496,12 +543,12 @@ int check_disk_change(kdev_t dev)
+ 			devfs_put_ops (de); /* We're running in owner module */
+ 		}
+ 	}
+-	if (bdops == NULL)
+-		return 0;
+-	if (bdops->check_media_change == NULL)
+-		return 0;
+-	if (!bdops->check_media_change(dev))
++	if (bdops == NULL ||
++	    bdops->check_media_change == NULL ||
++	    !bdops->check_media_change(dev)) {
++		bdput(bdev);
+ 		return 0;
++	}
+
+ 	printk(KERN_DEBUG "VFS: Disk change detected on device %s\n",
+ 		__bdevname(dev));
+@@ -511,6 +558,7 @@ int check_disk_change(kdev_t dev)
+
+ 	if (bdops->revalidate)
+ 		bdops->revalidate(dev);
++	bdput(bdev);
+ 	return 1;
+ }
+
+@@ -536,7 +584,9 @@ static int do_open(struct block_device *
+ 	down(&bdev->bd_sem);
+ 	lock_kernel();
+ 	if (!bdev->bd_op) {
+-		bdev->bd_op = get_blkfops(major(dev));
++		spin_lock(&bdev_lock);
++		bdev->bd_op = __get_blkfops(major(dev));
++		spin_unlock(&bdev_lock);
+ 		if (!bdev->bd_op)
+ 			goto out;
+ 		owner = bdev->bd_op->owner;
+

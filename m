@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129055AbRBMWej>; Tue, 13 Feb 2001 17:34:39 -0500
+	id <S129051AbRBMWfu>; Tue, 13 Feb 2001 17:35:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129075AbRBMWe3>; Tue, 13 Feb 2001 17:34:29 -0500
-Received: from jump-isi.interactivesi.com ([207.8.4.2]:52463 "HELO
-	dinero.interactivesi.com") by vger.kernel.org with SMTP
-	id <S129055AbRBMWeS>; Tue, 13 Feb 2001 17:34:18 -0500
-Date: Tue, 13 Feb 2001 16:34:16 -0600
-From: Timur Tabi <ttabi@interactivesi.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <auto-000013965666@megapathdsl.net>
-In-Reply-To: <auto-000013960967@megapathdsl.net> <20010213140512.A8339@kochanski.internal.splhi.com> 
-	<20010213140512.A8339@kochanski.internal.splhi.com>
-Subject: Re: Will the IBM OMNI printer driver be making its way into the kernel tree?
-X-Mailer: The Polarbar Mailer; version=1.19a; build=73
-Message-ID: <4xDLsB.A.zkH.oZbi6@dinero.interactivesi.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S129032AbRBMWfk>; Tue, 13 Feb 2001 17:35:40 -0500
+Received: from garlic.amaranth.net ([216.235.243.195]:37647 "EHLO
+	garlic.amaranth.net") by vger.kernel.org with ESMTP
+	id <S129051AbRBMWfa>; Tue, 13 Feb 2001 17:35:30 -0500
+Message-ID: <3A89B693.B0A0ADF9@egenera.com>
+Date: Tue, 13 Feb 2001 17:34:59 -0500
+From: Phil Auld <pauld@egenera.com>
+Organization: Egenera Inc.
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.16-3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Stale super_blocks in 2.2
+In-Reply-To: <E14Snw6-00036v-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-** Reply to message from Miles Lane <miles@megapathdsl.net> on 13 Feb 2001
-14:18:43 -0800
+Alan Cox wrote:
+> 
+> > does not do anything to invalidate the buffers associated with the
+> > unmounted device. We then rely on disk change detection on a
+> > subsequent mount to prevent us from seeing the old super_block.
+> 
+> 2.2 yes, 2.4 no
+
+That can be a problem for fiber channel devices. I saw some issues with
+invalidate_buffers and page caching discussed in 2.4 space. Any reasons 
+come to mind why I shouldn't call invalidate on the the way down instead 
+(or in addition)?
 
 
-> The reason I asked about inclusion is that printing is one of the areas
-> that Linux seems to struggle in terms of usability and I thought perhaps
-> it would make sense to modular print drivers in the kernel tree.
+Thanks,
 
-No, improving printing support is something that the distribution vendors are
-supposed to provide.
-
-I think you're under the assumption that this support were to be placed in the
-kernel, it would then become ubiquitous.  That may be true, but it's irrelevant.
-
-Instead, what is needed is a sort of "standard" that indicates what every Linux
-distribution should have in addition to the kernel.  And that's something that's
-being addressed by organization such as the Linux Standard Base
-(http://www.linuxbase.org/).  You should ask them about it.
-
-
--- 
-Timur Tabi - ttabi@interactivesi.com
-Interactive Silicon - http://www.interactivesi.com
-
-When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
-
+Phil
+ 
+------------------------------------------------------
+Philip R. Auld                         Kernel Engineer
+Egenera Corp.                        pauld@egenera.com
+165 Forest St, Marlboro, MA 01752        (508)786-9444

@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266808AbRHMTe0>; Mon, 13 Aug 2001 15:34:26 -0400
+	id <S266606AbRHMTdQ>; Mon, 13 Aug 2001 15:33:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266586AbRHMTeQ>; Mon, 13 Aug 2001 15:34:16 -0400
-Received: from zeke.inet.com ([199.171.211.198]:35779 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S266970AbRHMTeD>;
-	Mon, 13 Aug 2001 15:34:03 -0400
-Message-ID: <3B782BAB.891D977A@inet.com>
-Date: Mon, 13 Aug 2001 14:34:03 -0500
-From: Eli Carter <eli.carter@inet.com>
-Organization: Inet Technologies, Inc.
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.19-6.2.7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: ptb@it.uc3m.es
-CC: Mircea Ciocan <mirceac@interplus.ro>,
-        linux kernel <linux-kernel@vger.kernel.org>
+	id <S266808AbRHMTdG>; Mon, 13 Aug 2001 15:33:06 -0400
+Received: from ppp30.ts3.Gloucester.visi.net ([206.246.230.158]:752 "EHLO
+	blimpo.internal.net") by vger.kernel.org with ESMTP
+	id <S266606AbRHMTcy>; Mon, 13 Aug 2001 15:32:54 -0400
+Date: Mon, 13 Aug 2001 15:32:58 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Mircea Ciocan <mirceac@interplus.ro>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: Is there something that can be done against this ???
-In-Reply-To: <200108131924.VAA03520@xilofon.it.uc3m.es>
+Message-ID: <20010813153258.X30381@visi.net>
+In-Reply-To: <E15WK98-0007gd-00@the-village.bc.nu> <3B7822E5.9AE35D4A@interplus.ro>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <3B7822E5.9AE35D4A@interplus.ro>; from mirceac@interplus.ro on Mon, Aug 13, 2001 at 09:56:37PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Peter T. Breuer" wrote:
-> 
-> "A month of sundays ago Mircea Ciocan wrote:"
-> > P.S. Please tell me that I'm just being parnoid and that crap didn't
-> > work on your systems with a lookalike configuration.
-> 
-> It doesn't work. It just looks like it does to the viewer!
+On Mon, Aug 13, 2001 at 09:56:37PM +0300, Mircea Ciocan wrote:
+> 	The attached piece of script kiddie shit is the first one that worked
+> flawlessly on my Mandrake box :((( ( kernel 2.4.7ac2, glibc-2.2.3 ),
+> instant root access !!!.
+> 	I was stunned, and it seem that is the beginning of a Linux Code Red
+> lookalike worm :(((( using that exploit, probably this is not the most
+> apropriate place to send this, but I'm not subscribed to the glibc
+> mailing list and I just hope that some glibc hackers are on linux kernel
+> list also and they see that and do something before we join the ranks of
+> M$.
 
-The \x.. constructs in the echos require bash 2.
+Wow, someone tried to pass off this as an exploit? Looks very much like
+Debian's fakeroot package, used to give a false root lookalike shell
+(helps when building things as normal user, when they need to think they
+are root).
 
-C-ya,
+Nice, but not an exploit. Just a cheap old trick.
 
-Eli
---------------------.     Real Users find the one combination of bizarre
-Eli Carter           \ input values that shuts down the system for days.
-eli.carter(a)inet.com `-------------------------------------------------
+-- 
+ .----------=======-=-======-=========-----------=====------------=-=-----.
+/  Ben Collins  --  ...on that fantastic voyage...  --  Debian GNU/Linux   \
+`  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
+ `---=========------=======-------------=-=-----=-===-======-------=--=---'

@@ -1,56 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265939AbUGAPik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265944AbUGAPpr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265939AbUGAPik (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 11:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265944AbUGAPik
+	id S265944AbUGAPpr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 11:45:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265946AbUGAPpr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 11:38:40 -0400
-Received: from mailgate1.siemens.ch ([194.204.64.131]:49984 "EHLO
-	mailgate1.siemens.ch") by vger.kernel.org with ESMTP
-	id S265939AbUGAPij (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 11:38:39 -0400
-From: Marc Waeckerlin <Marc.Waeckerlin@siemens.com>
-Organization: Siemens Schweiz AG
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: Continue: psmouse.c - synaptics touchpad driver sync problem
-Date: Thu, 1 Jul 2004 17:38:04 +0200
-User-Agent: KMail/1.6
-Cc: laflipas@telefonica.net, linux-kernel@vger.kernel.org, t.hirsch@web.de,
-       Vojtech Pavlik <vojtech@suse.cz>
-References: <20040630132305.98864.qmail@web81306.mail.yahoo.com> <200407011434.59340.Marc.Waeckerlin@siemens.com> <200407010804.00438.dtor_core@ameritech.net>
-In-Reply-To: <200407010804.00438.dtor_core@ameritech.net>
-X-Face: 9PH_I\aV;CM))3#)Xntdr:6-OUC=?fH3fC:yieXSa%S_}iv1M{;Mbyt%g$Q0+&K=uD9w$8bsceC[_/u\VYz6sBz[ztAZkg9R\txq_7]J_WO7(cnD?s#c>i60S
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
+	Thu, 1 Jul 2004 11:45:47 -0400
+Received: from [194.243.27.136] ([194.243.27.136]:1038 "HELO
+	venere.pandoraonline.it") by vger.kernel.org with SMTP
+	id S265944AbUGAPpp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 11:45:45 -0400
+X-Qmail-Scanner-Mail-From: devel@integra-sc.it via venere.pandoraonline.it
+X-Qmail-Scanner-Rcpt-To: linux-kernel@vger.kernel.org
+X-Qmail-Scanner: 1.22 (Clear:RC:1(213.140.22.76):. Processed in 0.052621 secs)
+Date: Thu, 1 Jul 2004 17:49:55 +0200
+From: Devel <devel@integra-sc.it>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Fw: bttv error: vmalloc_32(8519680) failed
+Message-Id: <20040701174955.46c63ffe.devel@integra-sc.it>
+In-Reply-To: <20040630183711.GA5064@bytesex>
+References: <20040630102732.04f08d5a.akpm@osdl.org>
+	<20040630183711.GA5064@bytesex>
+Organization: Integra Solutions
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200407011738.04304.Marc.Waeckerlin@siemens.com>
-X-OriginalArrivalTime: 01 Jul 2004 15:38:07.0897 (UTC) FILETIME=[6853F890:01C45F81]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 1. Juli 2004 15.03 schrieb Dmitry Torokhov unter "Re: Continue: 
-psmouse.c - synaptics touchpad driver sync problem":
-> On Thursday 01 July 2004 07:34 am, Marc Waeckerlin wrote:
+Hi,
+Thanks for your reply, i'm tring the 2.4.26 kernel with  patch-2.4.26-kraxel.gz and i haven't error.
+My IEI video grabber have the watchdog also do you think it work with bttv driver?
+Saluti Carlo!
 
-> I usually feel some hesitation in cursor movement under high disk load -
-> do you experience something like that? Although, now that I think about it,
-> it's usually not the cursor itself but KDE is lagging to redraw...
+Il Wed, 30 Jun 2004 20:37:11 +0200
+Gerd Knorr <kraxel@bytesex.org> scrisse:
 
-No, definitely the cursor. And not only if the HD usage is high, sometimes if 
-the CPU load is high, the problem starts, and if CPU and HD usage are low 
-again, the problem is still remaining. I cannot really see a clear 
-correlation between system load and mouse waiting, but there seems to be some 
-sort of weak correlation.
-
-
-> Just out of curiosity, what happens when you pass psmouse.proto=bare to the
-> kernel as a boot option (or put "options psmouse proto=bare" in your
-> /etc/modprobe.conf file if psmouse is compiled as a module)?
-
-I'll try later, but what should habben, what should I look for?
-
-
-Regards
-Marc
+> On Wed, Jun 30, 2004 at 10:27:32AM -0700, Andrew Morton wrote:
+> > 
+> > Begin forwarded message:
+> > 
+> > Date: Wed, 30 Jun 2004 11:51:21 +0200
+> > From: Devel <devel@integra-sc.it>
+> > To: linux-kernel@vger.kernel.org
+> > Subject: bttv error: vmalloc_32(8519680) failed
+> > 
+> > 
+> > Hi all, on my AMD XP+3000 with kernel 2.4.22 and bttv driver ver.
+> > 0.7.107 i have 16 devices video grabber /dev/video0-->/dev/video15. If
+> > i start programs that load images from the device /dev/video14 and
+> > /dev/video15 i receive this error: bttv: vmalloc_32(8519680) failed
+> 
+> Looks like the machine runs out of vmalloc address space when using all
+> devices at the same time ...
+> 
+> with gbuffers + gbufsize insmod options it is possible to adjust the
+> amount of vmalloc memory used per device.
+> 
+> The other option is to use bttv 0.9.x which doesn't use vmalloc any
+> more.  Making that one work with 2.4.22 isn't trivial through, easiest
+> is to use either 2.6 (as-is) or a more recent 2.4.x kernel + patches
+> from http://dl.bytesex.org/patches/
+> 
+>   Gerd
+> 
+> -- 
+> return -ENOSIG;
+> 

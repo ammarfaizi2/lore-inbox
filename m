@@ -1,104 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbULUHta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261585AbULUHyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261573AbULUHta (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 02:49:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbULUHta
+	id S261585AbULUHyM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 02:54:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbULUHyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 02:49:30 -0500
-Received: from smtp3.pp.htv.fi ([213.243.153.36]:48544 "EHLO smtp3.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S261573AbULUHtW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 02:49:22 -0500
-Subject: Re: USB storage (pendrive) problems
-From: Attila BODY <compi@freemail.hu>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <41C75E8B.1020200@osdl.org>
-References: <1103579679.23963.14.camel@localhost>
-	 <200412202325.20064.andrew@walrond.org>  <41C75E8B.1020200@osdl.org>
-Content-Type: text/plain
-Date: Tue, 21 Dec 2004 09:35:03 +0200
-Message-Id: <1103614504.6222.16.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Dec 2004 02:54:12 -0500
+Received: from prosun.first.fraunhofer.de ([194.95.168.2]:61847 "EHLO
+	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S261585AbULUHyH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 02:54:07 -0500
+To: linux-kernel@vger.kernel.org
+Date: Tue, 21 Dec 2004 08:53:41 +0100
+From: Soeren Sonnenburg <kernel@nn7.de>
+Message-ID: <pan.2004.12.21.07.53.37.708238@nn7.de>
+Organization: Local Intranet News
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+References: <1103389648.5967.7.camel@gaston>
+Subject: Re: [BUG] 2.6.10-rc3 snd-powermac crash
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-12-20 at 15:21 -0800, Randy.Dunlap wrote:
-> Andrew Walrond wrote:
-> > On Monday 20 December 2004 21:54, Attila BODY wrote:
-> > 
-> >>Hi,
-> >>
-> >>I have some weird problems with my pendrives recently. I just compile a
-> >>2.6.9 to check if the problem is still exists there.
-> >>
-> >>current kernel is 2.6.10-rc3 and the situation is the following:
-> >>
-> >>If I copy more than few megabytes to the drive, the activity LED keeps
-> >>flashing forever. sync, umount keeps runing forever, normal reboot is
-> >>inpossible (alt+sysreq+b seems to work)
-> >>
-> >>Tested with usb 1.1 and 2.0 pendrives, behaviour is the same.
-> >>
-> > 
-> > 
-> > I'm doing exactly that with 2.6.10-rc3. umount does take a very long time (but 
-> > I had just written 600Mb+ over usb 1.1)
-> > 
-> > Are you sure it doesn't come back if you leave it long enough?
-> > 
-> > Do the throughput sums; you'll be suprised how long it takes to send more than 
-> > a few Mb over usb 1.1 (1.5Mb/s). Eg 600Mb = 7minutes
-> > 
-> > Usb 2 should be much faster; Do you have EHCI loaded?
+On Sat, 18 Dec 2004 17:07:28 +0000, Benjamin Herrenschmidt wrote:
+
+> Hi Takashi !
 > 
-> and which usb driver are you using?
-> ub or usb-storage?  (what's the /dev name that you mount?)
-Hi,
+> I get that regulary with latest kernel when using Alsa. Can't tell if it's new
+> as I used dmasound so far, just wanted to give Alsa a try...
+> 
+> Ben.
+> 
+> Oops: kernel access of bad area, sig: 11 [#1]
+> NIP: 00000000 LR: C278B664 SP: BA901DB0 REGS: ba901d00 TRAP: 0400    Not tainted
+> MSR: 40009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+> TASK = bf4ef2a0[4821] 'gtkpbbuttons' THREAD: ba900000
+> Last syscall: 4
+> GPR00: 00000000 BA901DB0 BF4EF2A0 C2231000 00000FD7 00000000 00000000 C2550000
+> GPR08: C2231000 C2550000 00000001 00000000 00000001 1002317C 100C0000 100A0000
+> GPR16: 00000000 0022E480 00004002 00000000 00000000 00000800 BF384460 BB52A260
+> GPR24: 00000000 00000FD8 00000000 00000000 BAAE36AC BAAE3690 BAAE3620 00000800
+> NIP [00000000] 0x0
+> LR [c278b664] rate_transfer+0x80/0x88 [snd_pcm_oss]
+> Call trace:
+>  [c278b664] rate_transfer+0x80/0x88 [snd_pcm_oss]
+>  [c278853c] snd_pcm_plug_write_transfer+0xd4/0x14c [snd_pcm_oss]
+>  [c2783520] snd_pcm_oss_write2+0xb0/0x128 [snd_pcm_oss]
+>  [c27837b8] snd_pcm_oss_write1+0x220/0x26c [snd_pcm_oss]
+>  [c2785fec] snd_pcm_oss_write+0x64/0xb4 [snd_pcm_oss]
+>  [8005c620] vfs_write+0xdc/0x128
+>  [8005c750] sys_write+0x50/0x94
+>  [800042e0] ret_from_syscall+0x0/0x44
+> benh@gaston:~$
 
-Here is the log snipet when plug the pendrive in, i thin It should be
-clear from this that is uses ehci_hcd, ub, hotplug and udev. For 1.1 it
-uses uhci_hcd
+I also get the very same oops - though very rarely - with pbbuttons and
+kernel 2.6.9 on my 1GHz-pbook 15"
 
-Dec 21 08:58:51 smiley kernel: ehci_hcd 0000:00:10.3: port 6 high speed
-Dec 21 08:58:51 smiley kernel: ehci_hcd 0000:00:10.3: GetStatus port 6
-status 001005 POWER sig=se0  PE CONNECT
-Dec 21 08:58:51 smiley kernel: usb 1-6: new device strings: Mfr=2,
-Product=3, SerialNumber=4
-Dec 21 08:58:51 smiley kernel: usb 1-6: default language 0x0409
-Dec 21 08:58:51 smiley kernel: usb 1-6: Product: Cruzer Mini
-Dec 21 08:58:51 smiley kernel: usb 1-6: Manufacturer: SanDisk
-Corporation
-Dec 21 08:58:51 smiley kernel: usb 1-6: SerialNumber: 00567026
-Dec 21 08:58:51 smiley kernel: usb 1-6: hotplug
-Dec 21 08:58:51 smiley kernel: usb 1-6: adding 1-6:1.0 (config #1,
-interface 0)
-Dec 21 08:58:51 smiley kernel: usb 1-6:1.0: hotplug
-Dec 21 08:58:51 smiley kernel: ub 1-6:1.0: usb_probe_interface
-Dec 21 08:58:51 smiley kernel: ub 1-6:1.0: usb_probe_interface - got id
-Dec 21 08:58:51 smiley usb.agent[6288]:      ub: already loaded
-Dec 21 08:58:52 smiley kernel: uba: device 3 capacity nsec 512000 bsize
-512
-Dec 21 08:58:52 smiley kernel: uba: device 3 capacity nsec 512000 bsize
-512
-Dec 21 08:58:52 smiley kernel: /dev/ub/a: p1
-Dec 21 08:58:52 smiley udev[6328]: creating device node '/dev/uba1'
-Dec 21 08:58:52 smiley udev[6321]: creating device node '/dev/uba'
+However I am not 100% sure whether this is 2.6.9 + alsa from sid or
+vanilla 2.6.9...
 
-The problem is reproducable with 2.6.9. Unfortunately I have no time
-right now to check 2.6.8.1 if the problem already presists there.
-It seems however that the 1.1 device recovers if I wait long enough, but
-I left the 2.0 device here all night and it did not. To make it worse,
-it seems that the whole USB 2.0 system went down, there was no activity
-even if i reconnected the pen, had to reboot to be detected and powered
-on again (normal reboot was not an option again, so I had to use
-alt-sysrq-B).
+Soeren
 
-Hope this helps to track down this problem.
 
-compi
-
-P.S.: Please cc, I'm not subscribed.
 

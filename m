@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272421AbRIFHD4>; Thu, 6 Sep 2001 03:03:56 -0400
+	id <S272420AbRIFHBQ>; Thu, 6 Sep 2001 03:01:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272422AbRIFHDg>; Thu, 6 Sep 2001 03:03:36 -0400
-Received: from [216.6.80.34] ([216.6.80.34]:22796 "EHLO
+	id <S272421AbRIFHBG>; Thu, 6 Sep 2001 03:01:06 -0400
+Received: from [216.6.80.34] ([216.6.80.34]:12811 "EHLO
 	dcmtechdom.dcmtech.co.in") by vger.kernel.org with ESMTP
-	id <S272421AbRIFHDc>; Thu, 6 Sep 2001 03:03:32 -0400
-Message-ID: <7FADCB99FC82D41199F9000629A85D1A01C65201@dcmtechdom.dcmtech.co.in>
+	id <S272420AbRIFHAx>; Thu, 6 Sep 2001 03:00:53 -0400
+Message-ID: <7FADCB99FC82D41199F9000629A85D1A01C651FF@dcmtechdom.dcmtech.co.in>
 From: Nitin Dhingra <nitin.dhingra@dcmtech.co.in>
-To: "'Ben Greear'" <greearb@candelatech.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+To: "'Ben Greear'" <greearb@candelatech.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
 Subject: RE: iSCSI support for Linux??
-Date: Thu, 6 Sep 2001 12:35:18 +0530 
+Date: Thu, 6 Sep 2001 12:32:26 +0530 
 MIME-Version: 1.0
 X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;

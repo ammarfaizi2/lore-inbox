@@ -1,75 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbVBCXXr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263224AbVBCXcB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261157AbVBCXXr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 18:23:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263217AbVBCXWw
+	id S263224AbVBCXcB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 18:32:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbVBCXcA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 18:22:52 -0500
-Received: from fed1rmmtao03.cox.net ([68.230.241.36]:41894 "EHLO
-	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
-	id S261897AbVBCXTe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 18:19:34 -0500
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, mpm@selenic.com,
-       Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/8] lib/sort: Heapsort implementation of sort()
-References: <E1CwI5w-0000mJ-00@gondolin.me.apana.org.au>
-	<1107342847.21040.18.camel@winden.suse.de>
-From: Junio C Hamano <junkio@cox.net>
-Date: Thu, 03 Feb 2005 15:19:31 -0800
-In-Reply-To: <1107342847.21040.18.camel@winden.suse.de> (Andreas
- Gruenbacher's message of "Wed, 02 Feb 2005 12:14:07 +0100")
-Message-ID: <7v1xbxkz98.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 3 Feb 2005 18:32:00 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:21895 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S263224AbVBCXbv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 18:31:51 -0500
+Subject: Re: cpufreq problem wrt suspend/resume on Athlon64
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Pavel Machek <pavel@ucw.cz>, Dominik Brodowski <linux@dominikbrodowski.de>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@codemonkey.org.uk>
+In-Reply-To: <200502040015.22457.rjw@sisk.pl>
+References: <200502021428.12134.rjw@sisk.pl>
+	 <200502031420.37560.rjw@sisk.pl> <20050203142203.GB1402@elf.ucw.cz>
+	 <200502040015.22457.rjw@sisk.pl>
+Content-Type: text/plain
+Message-Id: <1107473644.5727.6.camel@desktop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 04 Feb 2005 10:34:04 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "AG" == Andreas Gruenbacher <agruen@suse.de> writes:
+Hi.
 
-AG> On Wed, 2005-02-02 at 11:50, Herbert Xu wrote:
->> What if a/b aren't aligned?
+On Fri, 2005-02-04 at 10:15, Rafael J. Wysocki wrote:
+> Instead of trying to blow up the battery I used the patch that forces the CPU
+> to 800 MHz and it apparently survives resuming on batteries - at least 3
+> times out of 3 attempts (I'll try some times more tomorrow).
+> 
+> It seems to boot at 1800 MHz, though, every time, according to
+> cpufreq_resume().
 
-AG> If people sort arrays that are unaligned even though the
-AG> element size is a multiple of sizeof(long) (or sizeof(u32)
-AG> as Matt proposes), they are just begging for bad
-AG> performance.
+Sounds like some good work. Is 800 the minimum for your laptop? I'm just
+wondering how you know what speed to choose on other systems.
 
-If the user of your sort routine is dealing with an array of
-this shape:
+Regards,
 
-    struct { char e[8]; } a[]
+Nigel
+-- 
+Nigel Cunningham
+Software Engineer, Canberra, Australia
+http://www.cyclades.com
 
-the alignment for the normal access (e.g. a[ix].e[iy]) would not
-matter and they are not begging for bad performance, are they?
-It is only this swap routine, which is internal to the
-implementation of sort, that is begging for it, methinks.  
-
-Is unaligned access inside of the kernel get fixed up on all
-architectures?  If not, this would not just be a performance
-issue but becomes a correctness issue.
-
-How about something like this to be a bit more defensive:
-
-static inline void swap(void *a, void *b, int size)
-{
-       if (((unsigned long)a | (unsigned long)b | size) % sizeof(long)) {
-	       char t;
-	       do {
-		       t = *(char *)a;
-		       *(char *)a++ = *(char *)b;
-		       *(char *)b++ = t;
-	       } while (--size > 0);
-       } else {
-	       long t;
-	       do {
-		       t = *(long *)a;
-		       *(long *)a = *(long *)b;
-		       *(long *)b = t;
-		       size -= sizeof(long);
-	       } while (size > sizeof(long));
-       }
-}
+Ph: +61 (2) 6292 8028      Mob: +61 (417) 100 574
 

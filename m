@@ -1,57 +1,179 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267641AbTBLVB3>; Wed, 12 Feb 2003 16:01:29 -0500
+	id <S267646AbTBLU7I>; Wed, 12 Feb 2003 15:59:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267652AbTBLVB3>; Wed, 12 Feb 2003 16:01:29 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:38192 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S267641AbTBLVB1>; Wed, 12 Feb 2003 16:01:27 -0500
-Date: Wed, 12 Feb 2003 13:11:09 -0800
-Message-Id: <200302122111.h1CLB9D24412@magilla.sf.frob.com>
-MIME-Version: 1.0
+	id <S267643AbTBLU7I>; Wed, 12 Feb 2003 15:59:08 -0500
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:25593 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S267647AbTBLU6w>; Wed, 12 Feb 2003 15:58:52 -0500
+Date: Wed, 12 Feb 2003 22:07:40 +0100
+From: Dominik Brodowski <linux@brodo.de>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
+Subject: [PATCH 2.5.60] cpufreq: properly initialize memory
+Message-ID: <20030212210740.GA2098@brodo.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-X-Fcc: ~/Mail/linus
-Cc: Ingo Molnar <mingo@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: another subtle signals issue
-In-Reply-To: Linus Torvalds's message of  Wednesday, 12 February 2003 12:12:13 -0800 <Pine.LNX.4.44.0302121138570.8062-100000@penguin.transmeta.com>
-X-Fcc: ~/Mail/linus
-X-Zippy-Says: I'm using my X-RAY VISION to obtain a rare glimpse of the INNER
-   WORKINGS of this POTATO!!
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Btw, Roland, instead of your previous patch I would prefer something that 
-> just makes "sig_ignored()" test the state of the signal better. Ie 
-> something like the appended.
+Properly set memory allocated by x86 cpufreq drivers to zero.
 
-This should be fine (almost).  POSIX leaves it unspecified whether a
-blocked, ignored signal is left pending or not.  The only thing it requires
-is that setting a blocked signal to SIG_IGN clears any pending signal, and
-sigaction already does that.
+ elanfreq.c    |    4 ++--
+ gx-suspmod.c  |    4 ++++
+ longhaul.c    |    5 +++--
+ longrun.c     |    5 +++--
+ p4-clockmod.c |    4 ++--
+ powernow-k6.c |    4 ++--
+ speedstep.c   |    4 ++--
+ 7 files changed, 18 insertions(+), 12 deletions(-)
 
-When I started hacking on this, I only looked at the old new code (i.e.
-Ingo's thread group rewrite) not the old old code (i.e. 2.4).  Everything
-that was not wrong I left as it was, and bailing early on SIG_IGN signals
-without regard to blocking is what that code did when I started with it.
-Bailing early can avoid going through the loop and possibly perturbing the
-load balancing state, so I had assumed Ingo did it intentionally as an
-optimization.
-
-Your patch as is won't fix the ignored-SIG_DFL-interrupts bug in the MT
-case.  That is, in __group_send_sig_info if P blocks the signal but some
-other thread does not, then the that thread will get woken up and be
-subject to all those problems.  So you need another check in or after the
-loop, or to move the sig_ignored use after the loop.  After the loop or in
-the loop exit condition, you can't get there if the signal is blocked on T,
-so for that test you can omit the blocked and ptrace checks that your
-sig_ignored does.
-
-I don't see any other problems with doing this instead of just the checks
-inserted my previous patch.
-
-
-Enjoy,
-Roland
+diff -ruN linux-original/arch/i386/kernel/cpu/cpufreq/elanfreq.c linux/arch/i386/kernel/cpu/cpufreq/elanfreq.c
+--- linux-original/arch/i386/kernel/cpu/cpufreq/elanfreq.c	2003-02-10 20:54:58.000000000 +0100
++++ linux/arch/i386/kernel/cpu/cpufreq/elanfreq.c	2003-02-10 21:26:14.000000000 +0100
+@@ -242,6 +242,8 @@
+ 			 NR_CPUS * sizeof(struct cpufreq_policy), GFP_KERNEL);
+ 	if (!driver)
+ 		return -ENOMEM;
++	memset(driver, 0, sizeof(struct cpufreq_driver) +
++			NR_CPUS * sizeof(struct cpufreq_policy));
+ 
+ 	driver->policy = (struct cpufreq_policy *) (driver + 1);
+ 
+@@ -260,8 +262,6 @@
+ 
+ 	driver->verify        = &elanfreq_verify;
+ 	driver->setpolicy     = &elanfreq_setpolicy;
+-	driver->init = NULL;
+-	driver->exit = NULL;
+ 	strncpy(driver->name, "elanfreq", CPUFREQ_NAME_LEN);
+ 
+ 	driver->policy[0].cpu    = 0;
+diff -ruN linux-original/arch/i386/kernel/cpu/cpufreq/gx-suspmod.c linux/arch/i386/kernel/cpu/cpufreq/gx-suspmod.c
+--- linux-original/arch/i386/kernel/cpu/cpufreq/gx-suspmod.c	2003-02-10 20:54:58.000000000 +0100
++++ linux/arch/i386/kernel/cpu/cpufreq/gx-suspmod.c	2003-02-10 21:26:39.000000000 +0100
+@@ -431,11 +431,15 @@
+ 	driver = kmalloc(sizeof(struct cpufreq_driver) + NR_CPUS * sizeof(struct cpufreq_policy), GFP_KERNEL);
+ 	if (driver == NULL) 
+ 		return -ENOMEM;
++	memset(driver, 0, sizeof(struct cpufreq_driver) +
++			NR_CPUS * sizeof(struct cpufreq_policy));
++
+ 	params = kmalloc(sizeof(struct gxfreq_params), GFP_KERNEL);
+ 	if (params == NULL) {
+ 		kfree(driver);
+ 		return -ENOMEM;
+ 	}
++	memset(params, 0, sizeof(struct gxfreq_params));
+ 
+ 	driver->policy = (struct cpufreq_policy *)(driver + 1);
+ 	params->cs55x0 = gx_pci;
+diff -ruN linux-original/arch/i386/kernel/cpu/cpufreq/longhaul.c linux/arch/i386/kernel/cpu/cpufreq/longhaul.c
+--- linux-original/arch/i386/kernel/cpu/cpufreq/longhaul.c	2003-02-10 20:54:58.000000000 +0100
++++ linux/arch/i386/kernel/cpu/cpufreq/longhaul.c	2003-02-10 21:27:16.000000000 +0100
+@@ -762,6 +762,8 @@
+ 			 NR_CPUS * sizeof(struct cpufreq_policy), GFP_KERNEL);
+ 	if (!driver)
+ 		return -ENOMEM;
++	memset(driver, 0, sizeof(struct cpufreq_driver) +
++			NR_CPUS * sizeof(struct cpufreq_policy));
+ 
+ 	driver->policy = (struct cpufreq_policy *) (driver + 1);
+ 
+@@ -771,8 +773,7 @@
+ 
+ 	driver->verify    = &longhaul_verify;
+ 	driver->setpolicy = &longhaul_setpolicy;
+-	driver->init = NULL;
+-	driver->exit = NULL;
++
+ 	strncpy(driver->name, "longhaul", CPUFREQ_NAME_LEN);
+ 
+ 	driver->policy[0].cpu = 0;
+diff -ruN linux-original/arch/i386/kernel/cpu/cpufreq/longrun.c linux/arch/i386/kernel/cpu/cpufreq/longrun.c
+--- linux-original/arch/i386/kernel/cpu/cpufreq/longrun.c	2003-02-10 20:54:58.000000000 +0100
++++ linux/arch/i386/kernel/cpu/cpufreq/longrun.c	2003-02-10 21:27:28.000000000 +0100
+@@ -241,6 +241,8 @@
+ 			 NR_CPUS * sizeof(struct cpufreq_policy), GFP_KERNEL);
+ 	if (!driver)
+ 		return -ENOMEM;
++	memset(driver, 0, sizeof(struct cpufreq_driver) +
++			NR_CPUS * sizeof(struct cpufreq_policy));
+ 
+ 	driver->policy = (struct cpufreq_policy *) (driver + 1);
+ 
+@@ -251,8 +253,7 @@
+ 	driver->policy[0].cpuinfo.min_freq = longrun_low_freq;
+ 	driver->policy[0].cpuinfo.max_freq = longrun_high_freq;
+ 	driver->policy[0].cpuinfo.transition_latency = CPUFREQ_ETERNAL;
+-	driver->init = NULL;
+-	driver->exit = NULL;
++
+ 	strncpy(driver->name, "longrun", CPUFREQ_NAME_LEN);
+ 
+ 	longrun_get_policy(&driver->policy[0]);
+diff -ruN linux-original/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c linux/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c
+--- linux-original/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c	2003-02-10 20:54:58.000000000 +0100
++++ linux/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c	2003-02-10 21:24:17.000000000 +0100
+@@ -220,6 +220,8 @@
+ 			 NR_CPUS * sizeof(struct cpufreq_policy), GFP_KERNEL);
+ 	if (!driver)
+ 		return -ENOMEM;
++	memset(driver, 0, sizeof(struct cpufreq_driver) +
++			NR_CPUS * sizeof(struct cpufreq_policy));
+ 
+ 	driver->policy = (struct cpufreq_policy *) (driver + 1);
+ 
+@@ -240,8 +242,6 @@
+ 
+ 	driver->verify        = &cpufreq_p4_verify;
+ 	driver->setpolicy     = &cpufreq_p4_setpolicy;
+-	driver->init = NULL;
+-	driver->exit = NULL;
+ 	strncpy(driver->name, "p4-clockmod", CPUFREQ_NAME_LEN);
+ 
+ 	for (i=0;i<NR_CPUS;i++) {
+diff -ruN linux-original/arch/i386/kernel/cpu/cpufreq/powernow-k6.c linux/arch/i386/kernel/cpu/cpufreq/powernow-k6.c
+--- linux-original/arch/i386/kernel/cpu/cpufreq/powernow-k6.c	2003-02-10 20:54:58.000000000 +0100
++++ linux/arch/i386/kernel/cpu/cpufreq/powernow-k6.c	2003-02-10 21:24:38.000000000 +0100
+@@ -172,6 +172,8 @@
+ 		release_region (POWERNOW_IOPORT, 16);
+ 		return -ENOMEM;
+ 	}
++	memset(driver, 0, sizeof(struct cpufreq_driver) +
++			NR_CPUS * sizeof(struct cpufreq_policy));
+ 	driver->policy = (struct cpufreq_policy *) (driver + 1);
+ 
+ 	/* table init */
+@@ -184,8 +186,6 @@
+ 
+ 	driver->verify        = &powernow_k6_verify;
+ 	driver->setpolicy     = &powernow_k6_setpolicy;
+-	driver->init = NULL;
+-	driver->exit = NULL;
+ 	strncpy(driver->name, "powernow-k6", CPUFREQ_NAME_LEN);
+ 
+ 	/* cpuinfo and default policy values */
+diff -ruN linux-original/arch/i386/kernel/cpu/cpufreq/speedstep.c linux/arch/i386/kernel/cpu/cpufreq/speedstep.c
+--- linux-original/arch/i386/kernel/cpu/cpufreq/speedstep.c	2003-02-10 20:54:58.000000000 +0100
++++ linux/arch/i386/kernel/cpu/cpufreq/speedstep.c	2003-02-10 21:24:52.000000000 +0100
+@@ -674,6 +674,8 @@
+ 			 NR_CPUS * sizeof(struct cpufreq_policy), GFP_KERNEL);
+ 	if (!driver)
+ 		return -ENOMEM;
++	memset(driver, 0, sizeof(struct cpufreq_driver) +
++			NR_CPUS * sizeof(struct cpufreq_policy));
+ 
+ 	driver->policy = (struct cpufreq_policy *) (driver + 1);
+ 
+@@ -690,8 +692,6 @@
+ 
+ 	driver->verify      = &speedstep_verify;
+ 	driver->setpolicy   = &speedstep_setpolicy;
+-	driver->init = NULL;
+-	driver->exit = NULL;
+ 	strncpy(driver->name, "speedstep", CPUFREQ_NAME_LEN);
+ 
+ 	driver->policy[0].cpuinfo.transition_latency = CPUFREQ_ETERNAL;

@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262327AbVAUIra@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261391AbVAUIxT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262327AbVAUIra (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 03:47:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbVAUIrS
+	id S261391AbVAUIxT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 03:53:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVAUIxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 03:47:18 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:51081 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262324AbVAUIqI (ORCPT
+	Fri, 21 Jan 2005 03:53:18 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:1163 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262322AbVAUItY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 03:46:08 -0500
-Date: Fri, 21 Jan 2005 09:46:07 +0100
+	Fri, 21 Jan 2005 03:49:24 -0500
+Date: Fri, 21 Jan 2005 09:49:07 +0100
 From: Jens Axboe <axboe@suse.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andries Brouwer <aebr@win.tue.nl>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: oom killer gone nuts
-Message-ID: <20050121084606.GE2763@suse.de>
-References: <20050120123402.GA4782@suse.de> <20050120131556.GC10457@pclin040.win.tue.nl> <20050120171544.GN12647@dualathlon.random> <20050121074203.GH2755@suse.de> <20050121080520.GA7703@dualathlon.random> <20050121080940.GA2763@suse.de> <20050121084111.GB7703@dualathlon.random>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Lennert Van Alboom <lennert.vanalboom@ugent.be>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: possible memleak in 2.6.11-rc1
+Message-ID: <20050121084906.GF2763@suse.de>
+References: <200501191956.48228.lennert.vanalboom@ugent.be> <20050120191943.0ac5bad5.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050121084111.GB7703@dualathlon.random>
+In-Reply-To: <20050120191943.0ac5bad5.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 21 2005, Andrea Arcangeli wrote:
-> On Fri, Jan 21, 2005 at 09:09:41AM +0100, Jens Axboe wrote:
-> > Jan 20 13:22:15 wiggum kernel: oom-killer: gfp_mask=0xd1
+On Thu, Jan 20 2005, Andrew Morton wrote:
+> Lennert Van Alboom <lennert.vanalboom@ugent.be> wrote:
+> >
+> > Possible memleak in 2.6.11-rc1?
 > 
-> This was a GFP_KERNEL|GFP_DMA allocation triggering this. However it
-> didn't look so much out of DMA zone, there's 4M of ram free. Could be
-> the ram was relased by another CPU in the meantime if this was SMP (or
-> even by an interrupt in UP too).
+> Please wait for it to happen again and then send the contents of
+> /proc/meminfo and /proc/slabinfo.
 
-It is/was UP.
+I've seen the same thing btw, after 2 days on 2.6.11-rc1 most of memory
+is gone. There definitely seems to be a leak in 2.6.11-rc1 that wasn't
+there in 2.6.10.
 
-> Could very well be you'll get things fixed by the lowmem_reserve patch,
-> that will reserve part of the dma zone, so with it you're sure it
-> couldn't have gone below 4M due slab allocs like skb.
-> 
-> I recommend trying again with the patches applied, the oom stuff is so
-> buggy right now that it's better you apply the fixes and try again, and
-> if it still happens we know it's a regression.
-
-I've added all 6 of the OOM patches (I didn't notice that thread until
-now).
+I'll try and save the meminfo/slabinfo as well.
 
 -- 
 Jens Axboe

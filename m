@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261430AbUKVOed@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbUKVOgR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261430AbUKVOed (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 09:34:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbUKVOec
+	id S261457AbUKVOgR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 09:36:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbUKVOeg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 09:34:32 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:54457 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262125AbUKVOIU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 09:08:20 -0500
-Date: Mon, 22 Nov 2004 16:10:27 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: Florian Schmidt <mista.tapas@gmx.net>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
-Message-ID: <20041122151027.GA32546@elte.hu>
-References: <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu> <20041122020741.5d69f8bf@mango.fruits.de> <20041122094602.GA6817@elte.hu> <56781.195.245.190.93.1101119801.squirrel@195.245.190.93> <20041122132459.GB19577@elte.hu> <18923.195.245.190.93.1101128215.squirrel@195.245.190.93> <20041122150046.GA30371@elte.hu>
+	Mon, 22 Nov 2004 09:34:36 -0500
+Received: from mail.convergence.de ([212.227.36.84]:3977 "EHLO
+	email.convergence2.de") by vger.kernel.org with ESMTP
+	id S262106AbUKVOMz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 09:12:55 -0500
+Date: Mon, 22 Nov 2004 15:16:07 +0100
+From: Johannes Stezenbach <js@linuxtv.org>
+To: Gerd Knorr <kraxel@suse.de>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Takashi Iwai <tiwai@suse.de>,
+       "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+       linux-kernel@vger.kernel.org
+Subject: Re: modprobe + request_module() deadlock
+Message-ID: <20041122141607.GA21184@linuxtv.org>
+Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
+	Gerd Knorr <kraxel@suse.de>, Rusty Russell <rusty@rustcorp.com.au>,
+	Takashi Iwai <tiwai@suse.de>,
+	"Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041122150046.GA30371@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20041122102502.GF29305@bytesex>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+(someone dropped me off the Cc: list for this thread :-(, which is
+doubly bad because I'm not subscribed to lkml :-(( )
 
-* Ingo Molnar <mingo@elte.hu> wrote:
-
-> >   jackd -R -dalsa -dhw:0 -P20 -r44100 -p64 -n2 -S -P &
-> >   fluidsynth -s -i -a jack -j -o jack.audio.id=fluid1 -o shell.port=9800
-> > ct4mgm.sf2 &
-> >   fluidsynth -s -i -a jack -j -o jack.audio.id=fluid2 -o shell.port=9801
-> > ct4mgm.sf2 &
+Gerd Knorr wrote:
+> > The traditional way to do this has been to have saa7134-empress do its
+> > own probe, and likewise saa7134-dvb.
 > 
-> is this enough to generate the xruns in jackd? Shouldnt fluidsynth be
-> given a MIDI file to play back? (if yes, what is the method i should
-> use - should i give it on the command line?)
+> They can't actually probe themself.  It's _one_ PCI device (driven by
+> the saa7134 module) which can handle (among other v4l-related things)
+> the DMA transfer of mpeg streams.  That can be used in different ways
+> (or not at all) and the different use cases are handled by the
+> sub-modules.
+> 
+> So the way it is intended to work is that saa7134 has the pci table and
+> gets autoloaded by hotplug, it will have a look at the hardware and then
+> load either saa7134-empress or saa7134-dvb or none of them, so you'll
+> get everything nicely autoloaded.
 
-ah, i think i understand: fluidsynth has roughly the same CPU overhead
-when it is 'silent' (it's generating small static noise in that case),
-compared to when it's playing a MIDI file - so i should be able to see
-the xruns if i just run jackd and 8 fluidsynth instances, and then load
-the box - correct?
+The saa7146 driver seems to have a working solution for this
+problem: The PCI ids are registered to the subdrivers (e.g. dvb-ttpci
+or mxb)  so that these are loaded via hotplug. They then register to the
+saa7146 core as an "extension" module, and the core then does the probing.
+Grep for saa7146_register_extension().
 
-	Ingo
+Johannes

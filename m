@@ -1,82 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314208AbSDRALW>; Wed, 17 Apr 2002 20:11:22 -0400
+	id <S314210AbSDRAg0>; Wed, 17 Apr 2002 20:36:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314209AbSDRALV>; Wed, 17 Apr 2002 20:11:21 -0400
-Received: from roc-24-95-199-137.rochester.rr.com ([24.95.199.137]:22519 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S314208AbSDRALT>;
-	Wed, 17 Apr 2002 20:11:19 -0400
-Message-ID: <02e001c1e66d$8e927070$02c8a8c0@kroptech.com>
-From: "Adam Kropelin" <akropel1@rochester.rr.com>
-To: "Jens Axboe" <axboe@suse.de>
-Cc: <linux-kernel@vger.kernel.org>, "Dave Jones" <davej@suse.de>
-Subject: 2.5.8-dj1 with IDE TCQ doesn't survive boot
-Date: Wed, 17 Apr 2002 20:11:15 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S314211AbSDRAgZ>; Wed, 17 Apr 2002 20:36:25 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:40441
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S314210AbSDRAgZ>; Wed, 17 Apr 2002 20:36:25 -0400
+Date: Wed, 17 Apr 2002 17:38:54 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Lincoln Dale <ltd@cisco.com>
+Cc: Baldur Norddahl <bbn-linux-kernel@clansoft.dk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: IDE/raid performance
+Message-ID: <20020418003854.GD574@matchmail.com>
+Mail-Followup-To: Lincoln Dale <ltd@cisco.com>,
+	Baldur Norddahl <bbn-linux-kernel@clansoft.dk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020417125838.GA27648@dark.x.dtu.dk> <5.1.0.14.2.20020418082824.03112008@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens,
+On Thu, Apr 18, 2002 at 08:44:45AM +1000, Lincoln Dale wrote:
+> At 02:58 PM 17/04/2002 +0200, Baldur Norddahl wrote:
+> >It is clear that the 33 MHz PCI bus maxes out at 75 MB/s. Is there a reason
+> >it doesn't reach 132 MB/s?
+> 
+> welcome to the world of PC hardware, real-world performance and theoretical 
+> numbers.
+> 
+> in theory, a 32/33 PCI bus can get 132mbyte/sec.
+> 
+> in reality, the more cards you have on a bus, the more arbitration you 
+> have, the less overall efficiency.
+> 
+> in theory, with neither the initiator or target inserting wait-states, and 
+> with continual bursting, you can achieve maximum throughput.
+> in reality, continual bursting doesn't happen very often and/or many 
+> hardware devices are not designed to either perform i/o without some 
+> wait-states in some conditions or provide continual bursting.
+> 
+> in short: you're working on theoretical numbers.  reality is typically far 
+> far different!
+> 
+> 
+> something you may want to try:
+>   if your motherboard supports it, change the "PCI Burst" settings and see 
+> what effect this has.
+>   you can probably extract another 20-25% performance by changing the PCI 
+> Burst from 32 to 64.
 
-Tried 2.5.8-dj1 here with IDE TCQ and it doesn't make it through bootup. The lockup (no oops) happens at various places, usually
-during a disk-intensive operation like starting PostgreSQL. Disk & chipset detection always goes ok; the lockup is much later in the
-boot cycle. Nothing shows up in the logs.
+This ie a problem with the VIA chipsets.  Intel chipsets burst 4096
+bytes per burst, while the VIA chipsets were sending doing 64 bytes per burst.
 
-A kernel without TCQ boots reliably.
+AMD (like the origional poster later mentioned) chipsets weren't mentioned
+in the comparison article I read, so I don't know if it has the same
+trouble.
 
-Boot drive is hda (IBM-DTTA-351680). System is SMP ppro, no preempt.
-
---Adam
-
-Chipset/disk detection looks like this:
-
-Uniform Multi-Platform E-IDE driver ver.:7.0.0
-ide: system bus speed 33MHz
-Intel Corp. 82371SB PIIX3 IDE [Natoma/Triton II]: IDE controller on PCI slot 001
-Intel Corp. 82371SB PIIX3 IDE [Natoma/Triton II]: chipset revision 0
-Intel Corp. 82371SB PIIX3 IDE [Natoma/Triton II]: not 100% native mode: will prr
-PIIX: Intel Corp. 82371SB PIIX3 IDE [Natoma/Triton II] MWDMA16 controller on pc1
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:DMA
-hda: IBM-DTTA-351680, ATA DISK drive
-hdc: WDC AC21200H, ATA DISK drive
-hdd: CD-ROM CDU311, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-ide: unexpected interrupt
-hda: tagged command queueing enabled, command queue depth 8
-hda: 33022080 sectors (16907 MB) w/462KiB Cache, CHS=34944/15/63, (U)DMA
-ide: unexpected interrupt
-hdc: 2503872 sectors (1282 MB) w/128KiB Cache, CHS=2484/16/63, DMA
-hdd: ATAPI 8X CD-ROM drive, 256kB Cache, DMA
-Uniform CD-ROM driver Revision: 3.12
- hda: [PTBL] [2055/255/63] hda1 hda2 hda3
- hdc: [PTBL] [621/64/63] hdc1
-
-
-Relevant .config entries:
-
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_IDE_TCQ=y
-CONFIG_BLK_DEV_IDE_TCQ_FULL=y
-CONFIG_BLK_DEV_IDE_TCQ_DEFAULT=y
-CONFIG_BLK_DEV_IDE_TCQ_DEPTH=8
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_IDEDMA_AUTO=y
-
-
+Mike

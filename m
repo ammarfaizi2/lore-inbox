@@ -1,407 +1,480 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314483AbSDWXYJ>; Tue, 23 Apr 2002 19:24:09 -0400
+	id <S314485AbSDWX0Y>; Tue, 23 Apr 2002 19:26:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314485AbSDWXYI>; Tue, 23 Apr 2002 19:24:08 -0400
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:12495 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S314483AbSDWXYG>; Tue, 23 Apr 2002 19:24:06 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: "Michael D. Johnson" <mike@C242326-a.attbi.com>
-Reply-To: mikej163@attbi.com
-To: "Problems" <linux-kernel@vger.kernel.org>
-Subject: PROBLEM:  Main.c fails to compile on 2.5.9
-Date: Tue, 23 Apr 2002 16:23:47 -0700
-X-Mailer: KMail [version 1.3.2]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020423232358.8C3AF56A5A@C242326-a.attbi.com>
+	id <S314488AbSDWX0T>; Tue, 23 Apr 2002 19:26:19 -0400
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:26053 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S314485AbSDWX0K>; Tue, 23 Apr 2002 19:26:10 -0400
+Date: Tue, 23 Apr 2002 21:54:19 +0200
+From: Andi Kleen <ak@muc.de>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] x86-64 next sync for 2.5.9
+Message-ID: <20020423215419.A7734@averell>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-[1] Main.c fails to compile on 2.5.9 kernel, during fresh install/rebuild.
-[2] Initial call to bzImage on make dies immediately with exit 1 
-[3] Key Word:  MAIN
-[4] Version: 2.4.8-34.1mdk #1 Mon Nov 19 12:40:39 MST 2001 i686 unknown  
-[Duron 700 Mhz]
-[5] Error reported :  make[1]: Leaving directory 
-`/usr/src/linux-new/linux-2.5.9'
-gcc -D__KERNEL__ -I/usr/src/linux-new/linux-2.5.9/include -Wall 
-- -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
-- -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
-- -march=athlon    -DKBUILD_BASENAME=main -c -o init/main.o init/main.c
-init/main.c:279: redefinition of `setup_per_cpu_areas'
-init/main.c:275: `setup_per_cpu_areas' previously defined here
-make: *** [init/main.o] Error 1
-[6] N/A
-[7] Gnome desktop Mandrake 8.2 updates, kernel as above.
-[7.1] Gnu C                  2.96
-Gnu make               3.79.1
-util-linux             2.11n
-mount                  2.11n
-modutils               2.4.13
-e2fsprogs              1.26
-PPP                    2.4.1
-Linux C Library        2.2.4
-Dynamic linker (ldd)   2.2.4
-Procps                 2.0.7
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               2.0.11
-Modules Loaded         sr_mod r128 agpgart ipchains via82cxxx_audio uart401 
-ac97_codec sound soundcore lp parport_pc parport af_packet keybdev mousedev 
-hid usbmouse input usb-uhci usbcore 8139too eepro100 nls_cp437 nls_iso8859-1 
-nls_cp850 vfat fat ide-scsi scsi_mod rtc
-[7.2] [root@C242326-a linux-2.5.9]# cat /proc/cpuinfo
-processor	: 0
-vendor_id	: AuthenticAMD
-cpu family	: 6
-model		: 3
-model name	: AMD Duron(tm) Processor
-stepping	: 0
-cpu MHz		: 700.040
-cache size	: 64 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 1
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 
-mmx fxsr syscall mmxext 3dnowext 3dnow
-bogomips	: 1395.91
-[7.3]  cat /proc/modules
-sr_mod                 14904   0 (autoclean)
-r128                   86392   0
-agpgart                26752   1 (autoclean)
-ipchains               36168   0
-via82cxxx_audio        17120   0
-uart401                 6336   0 [via82cxxx_audio]
-ac97_codec              9280   0 [via82cxxx_audio]
-sound                  58348   0 [via82cxxx_audio uart401]
-soundcore               4164   5 [via82cxxx_audio sound]
-lp                      5760   0
-parport_pc             19940   1
-parport                24768   1 [lp parport_pc]
-af_packet              12552   1 (autoclean)
-keybdev                 1920   0 (unused)
-mousedev                4192   1
-hid                    18464   0 (unused)
-usbmouse                2048   0 (unused)
-input                   3648   0 [keybdev mousedev hid usbmouse]
-usb-uhci               21252   0 (unused)
-usbcore                50688   1 [hid usbmouse usb-uhci]
-8139too                12672   1 (autoclean)
-eepro100               17104   1 (autoclean)
-nls_cp437               4384   2 (autoclean)
-nls_iso8859-1           2880   3 (autoclean)
-nls_cp850               3616   1 (autoclean)
-vfat                    9980   3 (autoclean)
-fat                    32152   0 (autoclean) [vfat]
-ide-scsi                8096   0
-scsi_mod               91080   2 [sr_mod ide-scsi]
-rtc                     5592   0 (autoclean)
-[7.4]  cat /proc/ioports
-0000-001f : dma1
-0020-003f : pic1
-0040-005f : timer
-0060-006f : keyboard
-0070-007f : rtc
-0080-008f : dma page reg
-00a0-00bf : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : ide0
-02f8-02ff : serial(auto)
-0330-0333 : MPU-401 UART
-0376-0376 : ide1
-0378-037a : parport0
-03c0-03df : vesafb
-03f6-03f6 : ide0
-03f8-03ff : serial(auto)
-0778-077a : parport0
-0cf8-0cff : PCI conf1
-4000-40ff : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
-5000-500f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
-6000-607f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
-9000-9fff : PCI Bus #01
-  9000-90ff : ATI Technologies Inc Rage 128 RF
-a000-a00f : VIA Technologies, Inc. Bus Master IDE
-  a000-a007 : ide0
-  a008-a00f : ide1
-a400-a41f : VIA Technologies, Inc. UHCI USB
-  a400-a41f : usb-uhci
-a800-a81f : VIA Technologies, Inc. UHCI USB (#2)
-  a800-a81f : usb-uhci
-ac00-acff : VIA Technologies, Inc. AC97 Audio Controller
-  ac00-acff : via82cxxx_audio
-b000-b003 : VIA Technologies, Inc. AC97 Audio Controller
-  b000-b003 : via82cxxx_audio
-b400-b403 : VIA Technologies, Inc. AC97 Audio Controller
-  b400-b403 : via82cxxx_audio
-b800-b81f : Intel Corporation 82557 [Ethernet Pro 100]
-  b800-b81f : eepro100
-bc00-bc07 : Lucent Microelectronics 56k WinModem
-c000-c0ff : Lucent Microelectronics 56k WinModem
-c400-c4ff : Realtek Semiconductor Co., Ltd. RTL-8139
-  c400-c4ff : 8139too
-[root@C242326-a linux-2.5.9]# cat /proc/ioports
-0000-001f : dma1
-0020-003f : pic1
-0040-005f : timer
-0060-006f : keyboard
-0070-007f : rtc
-0080-008f : dma page reg
-00a0-00bf : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : ide0
-02f8-02ff : serial(auto)
-0330-0333 : MPU-401 UART
-0376-0376 : ide1
-0378-037a : parport0
-03c0-03df : vesafb
-03f6-03f6 : ide0
-03f8-03ff : serial(auto)
-0778-077a : parport0
-0cf8-0cff : PCI conf1
-4000-40ff : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
-5000-500f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
-6000-607f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
-9000-9fff : PCI Bus #01
-  9000-90ff : ATI Technologies Inc Rage 128 RF
-a000-a00f : VIA Technologies, Inc. Bus Master IDE
-  a000-a007 : ide0
-  a008-a00f : ide1
-a400-a41f : VIA Technologies, Inc. UHCI USB
-  a400-a41f : usb-uhci
-a800-a81f : VIA Technologies, Inc. UHCI USB (#2)
-  a800-a81f : usb-uhci
-ac00-acff : VIA Technologies, Inc. AC97 Audio Controller
-  ac00-acff : via82cxxx_audio
-b000-b003 : VIA Technologies, Inc. AC97 Audio Controller
-  b000-b003 : via82cxxx_audio
-b400-b403 : VIA Technologies, Inc. AC97 Audio Controller
-  b400-b403 : via82cxxx_audio
-b800-b81f : Intel Corporation 82557 [Ethernet Pro 100]
-  b800-b81f : eepro100
-bc00-bc07 : Lucent Microelectronics 56k WinModem
-c000-c0ff : Lucent Microelectronics 56k WinModem
-c400-c4ff : Realtek Semiconductor Co., Ltd. RTL-8139
-  c400-c4ff : 8139too
-[root@C242326-a linux-2.5.9]# cat /proc/iomem
-00000000-0009ffff : System RAM
-000a0000-000bffff : Video RAM area
-000c0000-000c7fff : Video ROM
-000f0000-000fffff : System ROM
-00100000-17feffff : System RAM
-  00100000-0021178f : Kernel code
-  00211790-0027510b : Kernel data
-17ff0000-17ff2fff : ACPI Non-volatile Storage
-17ff3000-17ffffff : ACPI Tables
-d0000000-d3ffffff : VIA Technologies, Inc. VT8363/8365 [KT133/KM133]
-d4000000-d7ffffff : PCI Bus #01
-  d4000000-d7ffffff : ATI Technologies Inc Rage 128 RF
-    d4000000-d5ffffff : vesafb
-d8000000-d9ffffff : PCI Bus #01
-  d9000000-d9003fff : ATI Technologies Inc Rage 128 RF
-db000000-db0fffff : Intel Corporation 82557 [Ethernet Pro 100]
-db100000-db100fff : Intel Corporation 82557 [Ethernet Pro 100]
-  db100000-db100fff : eepro100
-db101000-db1010ff : Lucent Microelectronics 56k WinModem
-db102000-db1020ff : Realtek Semiconductor Co., Ltd. RTL-8139
-  db102000-db1020ff : 8139too
-ffff0000-ffffffff : reserved
-[7.5]  lspci -vvv
-00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 02)
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort+ >SERR- <PERR+
-	Latency: 0
-	Region 0: Memory at d0000000 (32-bit, prefetchable) [size=64M]
-	Capabilities: [a0] AGP version 2.0
-		Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
-		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
-	Capabilities: [c0] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+This patch fixes up some lose ends left over from the last x86-64 jumbo merge. 
 
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP] 
-(prog-if 00 [Normal decode])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort+ >SERR- <PERR-
-	Latency: 0
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
-	I/O behind bridge: 00009000-00009fff
-	Memory behind bridge: d8000000-d9ffffff
-	Prefetchable memory behind bridge: d4000000-d7ffffff
-	BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
-	Capabilities: [80] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+- make it compile again. ia32_ioctl was referencing IDE ioctls that got
+remove in a merge race.
+- implement early_printk properly as an registered console. this requires 
+an addition to init/main.c to disable the early console before the 
+real console is initialized. Also add early serial console support while
+I was at it. 
+- Use the memset/FXRSTOR way to initialize the FPU, as discussed.
+- Fix semctl/shmctl ABI (thanks to Andreas Schwab)
+- Other minor fixes. 
 
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 
-22)
-	Subsystem: VIA Technologies, Inc. VT82C686/A PCI to ISA Bridge
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping+ SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 0
+For 2.5.9. 
 
-00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 10) 
-(prog-if 8a [Master SecP PriP])
-	Subsystem: VIA Technologies, Inc. Bus Master IDE
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 32
-	Region 4: I/O ports at a000 [size=16]
-	Capabilities: [c0] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 10) (prog-if 00 
-[UHCI])
-	Subsystem: Unknown device 0925:1234
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 32, cache line size 08
-	Interrupt: pin D routed to IRQ 11
-	Region 4: I/O ports at a400 [size=32]
-	Capabilities: [80] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:07.3 USB Controller: VIA Technologies, Inc. UHCI USB (rev 10) (prog-if 00 
-[UHCI])
-	Subsystem: Unknown device 0925:1234
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 32, cache line size 08
-	Interrupt: pin D routed to IRQ 11
-	Region 4: I/O ports at a800 [size=32]
-	Capabilities: [80] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:07.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 30)
-	Subsystem: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
-	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Interrupt: pin ? routed to IRQ 11
-	Capabilities: [68] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:07.5 Multimedia audio controller: VIA Technologies, Inc. AC97 Audio 
-Controller (rev 20)
-	Subsystem: VIA Technologies, Inc.: Unknown device 4511
-	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Interrupt: pin C routed to IRQ 12
-	Region 0: I/O ports at ac00 [size=256]
-	Region 1: I/O ports at b000 [size=4]
-	Region 2: I/O ports at b400 [size=4]
-	Capabilities: [c0] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:0b.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 02)
-	Subsystem: Intel Corp. EtherExpress PRO/100B (TX)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 32 (2000ns min, 14000ns max)
-	Interrupt: pin A routed to IRQ 12
-	Region 0: Memory at db100000 (32-bit, prefetchable) [size=4K]
-	Region 1: I/O ports at b800 [size=32]
-	Region 2: Memory at db000000 (32-bit, non-prefetchable) [size=1M]
-	Expansion ROM at <unassigned> [disabled] [size=1M]
-
-00:12.0 Communication controller: Lucent Microelectronics 56k WinModem (rev 
-01)
-	Subsystem: Lucent Microelectronics LT WinModem 56k Data+Fax+Voice+Dsvd
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 0 (63000ns min, 3500ns max)
-	Interrupt: pin A routed to IRQ 9
-	Region 0: Memory at db101000 (32-bit, non-prefetchable) [size=256]
-	Region 1: I/O ports at bc00 [size=8]
-	Region 2: I/O ports at c000 [size=256]
-	Capabilities: [f8] Power Management version 2
-		Flags: PMEClk- DSI+ D1- D2+ AuxCurrent=0mA PME(D0-,D1-,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:14.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
-	Subsystem: Realtek Semiconductor Co., Ltd. RT8139
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 32 (8000ns min, 16000ns max)
-	Interrupt: pin A routed to IRQ 11
-	Region 0: I/O ports at c400 [size=256]
-	Region 1: Memory at db102000 (32-bit, non-prefetchable) [size=256]
-	Expansion ROM at <unassigned> [disabled] [size=64K]
-	Capabilities: [50] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0-,D1+,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-01:00.0 VGA compatible controller: ATI Technologies Inc Rage 128 RF (prog-if 
-00 [VGA])
-	Subsystem: ATI Technologies Inc: Unknown device 0008
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop+ ParErr- 
-Stepping+ SERR- FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 32 (2000ns min), cache line size 08
-	Interrupt: pin A routed to IRQ 5
-	Region 0: Memory at d4000000 (32-bit, prefetchable) [size=64M]
-	Region 1: I/O ports at 9000 [size=256]
-	Region 2: Memory at d9000000 (32-bit, non-prefetchable) [size=16K]
-	Expansion ROM at <unassigned> [disabled] [size=128K]
-	Capabilities: [50] AGP version 2.0
-		Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
-		Command: RQ=0 SBA+ AGP- 64bit- FW- Rate=<none>
-	Capabilities: [5c] Power Management version 1
-		Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-[root@C242326-a linux-2.5.9]# 
-[7.6]  cat /proc/scsi/scsi
-Attached devices: 
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: MATSHITA Model: CD-RW  CW-7586   Rev: 1.01
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-[root@C242326-a linux-2.5.9]# 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8xe0Jod000q4aikwRAiR0AJ4sHjg+/8M3dXkg97r5SobzTS9NMQCfV9MM
-9aVaWCJfimzEdHnhB+FKVnw=
-=Nj60
------END PGP SIGNATURE-----
+diff -x *-o -burpN -X ../../KDIFX ../../v2.5/linux/arch/x86_64/config.in linux-2.5.9/arch/x86_64/config.in
+--- ../../v2.5/linux/arch/x86_64/config.in	Tue Apr 23 21:43:52 2002
++++ linux-2.5.9/arch/x86_64/config.in	Tue Apr 23 01:57:21 2002
+@@ -15,6 +15,8 @@ define_bool CONFIG_RWSEM_GENERIC_SPINLOC
+ define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM n
+ define_bool CONFIG_X86_CMPXCHG y
+ 
++define_bool CONFIG_EARLY_PRINTK y
++
+ source init/Config.in
+ 
+ mainmenu_option next_comment
+@@ -210,12 +212,8 @@ if [ "$CONFIG_DEBUG_KERNEL" != "n" ]; th
+ #   bool '  Memory mapped I/O debugging' CONFIG_DEBUG_IOVIRT
+    bool '  Magic SysRq key' CONFIG_MAGIC_SYSRQ
+    bool '  Spinlock debugging' CONFIG_DEBUG_SPINLOCK
+-   bool '  Early printk' CONFIG_EARLY_PRINTK
+    bool '  Additional run-time checks' CONFIG_CHECKING
+    bool '  Debug __init statements' CONFIG_INIT_DEBUG
+-#if [ "$CONFIG_SERIAL_CONSOLE" = "y" ]; then
+-#  bool 'Early serial console (ttyS0)' CONFIG_EARLY_SERIAL_CONSOLE
+-#fi
+ fi
+ endmenu
+ 
+diff -x *-o -burpN -X ../../KDIFX ../../v2.5/linux/arch/x86_64/defconfig linux-2.5.9/arch/x86_64/defconfig
+--- ../../v2.5/linux/arch/x86_64/defconfig	Tue Apr 23 21:43:52 2002
++++ linux-2.5.9/arch/x86_64/defconfig	Tue Apr 23 21:39:52 2002
+@@ -9,6 +9,7 @@ CONFIG_UID16=y
+ CONFIG_RWSEM_GENERIC_SPINLOCK=y
+ # CONFIG_RWSEM_XCHGADD_ALGORITHM is not set
+ CONFIG_X86_CMPXCHG=y
++CONFIG_EARLY_PRINTK=y
+ 
+ #
+ # Code maturity level options
+@@ -282,7 +283,7 @@ CONFIG_IDEDMA_AUTO=y
+ #
+ # ISDN subsystem
+ #
+-# CONFIG_ISDN is not set
++# CONFIG_ISDN_BOOL is not set
+ 
+ #
+ # Old CD-ROM drivers (not SCSI, not IDE)
+@@ -430,6 +431,7 @@ CONFIG_EXT2_FS=y
+ # CONFIG_NFSD_TCP is not set
+ # CONFIG_SUNRPC is not set
+ # CONFIG_LOCKD is not set
++# CONFIG_EXPORTFS is not set
+ # CONFIG_SMB_FS is not set
+ # CONFIG_NCP_FS is not set
+ # CONFIG_NCPFS_PACKET_SIGNING is not set
+@@ -484,7 +486,6 @@ CONFIG_DEBUG_KERNEL=y
+ # CONFIG_DEBUG_SLAB is not set
+ # CONFIG_MAGIC_SYSRQ is not set
+ # CONFIG_DEBUG_SPINLOCK is not set
+-# CONFIG_EARLY_PRINTK is not set
+ # CONFIG_CHECKING is not set
+ # CONFIG_INIT_DEBUG is not set
+ 
+diff -x *-o -burpN -X ../../KDIFX ../../v2.5/linux/arch/x86_64/ia32/ia32_ioctl.c linux-2.5.9/arch/x86_64/ia32/ia32_ioctl.c
+--- ../../v2.5/linux/arch/x86_64/ia32/ia32_ioctl.c	Tue Apr 23 21:43:52 2002
++++ linux-2.5.9/arch/x86_64/ia32/ia32_ioctl.c	Tue Apr 23 02:29:51 2002
+@@ -3182,7 +3182,6 @@ COMPATIBLE_IOCTL(FIGETBSZ)
+  */
+ COMPATIBLE_IOCTL(HDIO_GET_IDENTITY)
+ COMPATIBLE_IOCTL(HDIO_SET_DMA)
+-COMPATIBLE_IOCTL(HDIO_SET_KEEPSETTINGS)
+ COMPATIBLE_IOCTL(HDIO_SET_UNMASKINTR)
+ COMPATIBLE_IOCTL(HDIO_SET_NOWERR)
+ COMPATIBLE_IOCTL(HDIO_SET_32BIT)
+@@ -3742,7 +3741,6 @@ HANDLE_IOCTL(BLKSECTGET, w_long)
+ HANDLE_IOCTL(BLKPG, blkpg_ioctl_trans)
+ HANDLE_IOCTL(FBIOGETCMAP, fb_ioctl_trans)
+ HANDLE_IOCTL(FBIOPUTCMAP, fb_ioctl_trans)
+-HANDLE_IOCTL(HDIO_GET_KEEPSETTINGS, hdio_ioctl_trans)
+ HANDLE_IOCTL(HDIO_GET_UNMASKINTR, hdio_ioctl_trans)
+ HANDLE_IOCTL(HDIO_GET_DMA, hdio_ioctl_trans)
+ HANDLE_IOCTL(HDIO_GET_32BIT, hdio_ioctl_trans)
+diff -x *-o -burpN -X ../../KDIFX ../../v2.5/linux/arch/x86_64/kernel/early_printk.c linux-2.5.9/arch/x86_64/kernel/early_printk.c
+--- ../../v2.5/linux/arch/x86_64/kernel/early_printk.c	Tue Apr 23 21:43:52 2002
++++ linux-2.5.9/arch/x86_64/kernel/early_printk.c	Tue Apr 23 01:56:50 2002
+@@ -1,34 +1,25 @@
+-#define printk real_printk
++#include <linux/console.h>
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/string.h>
+ #include <asm/io.h>
+-#undef printk
+ 
++/* Simple VGA output */
+ 
+-#define VGABASE		0xffffffff800b8000ul	/* This is "wrong" address to access it, we should access it using 0xffff8000000b8000ul; but 0xffff8000000b8000ul is not available early at boot. */
++#define VGABASE		0xffffffff800b8000UL
+ 
+ #define MAX_YPOS	25
+ #define MAX_XPOS	80
+ 
+-static int current_ypos = 1, current_xpos = 0; /* We want to print before clearing BSS */
++static int current_ypos = 1, current_xpos = 0; 
+ 
+-void
+-early_clear (void)
+-{
+-	int k, i;
+-	for(k = 0; k < MAX_YPOS; k++)
+-		for(i = 0; i < MAX_XPOS; i++)
+-			writew(0, VGABASE + 2*(MAX_XPOS*k + i));
+-	current_ypos = 0;
+-}
+-
+-void
+-early_puts (const char *str)
++static void early_vga_write(struct console *con, const char *str, unsigned n)
+ {
+ 	char c;
+ 	int  i, k, j;
+ 
+-	while ((c = *str++) != '\0') {
++	while ((c = *str++) != '\0' && n-- > 0) {
+ 		if (current_ypos >= MAX_YPOS) {
+-#if 1
+ 			/* scroll 1 line up */
+ 			for(k = 1, j = 0; k < MAX_YPOS; k++, j++) {
+ 				for(i = 0; i < MAX_XPOS; i++) {
+@@ -40,11 +31,6 @@ early_puts (const char *str)
+ 				writew(0x720, VGABASE + 2*(MAX_XPOS*j + i));
+ 			}
+ 			current_ypos = MAX_YPOS-1;
+-#else
+-			/* MUCH faster */
+-			early_clear();
+-			current_ypos = 0;
+-#endif
+ 		}
+ 		if (c == '\n') {
+ 			current_xpos = 0;
+@@ -60,20 +46,144 @@ early_puts (const char *str)
+ 	}
+ }
+ 
+-static char buf[1024];
++static struct console early_vga_console = {
++	name:		"earlyvga",
++	write:		early_vga_write,
++	flags:		CON_PRINTBUFFER,
++	index:		-1,
++};
++
++/* Serial functions losely based on a similar package from Klaus P. Gerlicher */ 
++
++int early_serial_base = 0x3f8;  /* ttyS0 */ 
++
++#define XMTRDY          0x20
++
++#define DLAB		0x80
++
++#define TXR             0       /*  Transmit register (WRITE) */
++#define RXR             0       /*  Receive register  (READ)  */
++#define IER             1       /*  Interrupt Enable          */
++#define IIR             2       /*  Interrupt ID              */
++#define FCR             2       /*  FIFO control              */
++#define LCR             3       /*  Line control              */
++#define MCR             4       /*  Modem control             */
++#define LSR             5       /*  Line Status               */
++#define MSR             6       /*  Modem Status              */
++#define DLL             0       /*  Divisor Latch Low         */
++#define DLH             1       /*  Divisor latch High        */
+ 
+-int printk(const char *fmt, ...) __attribute__((alias("early_printk"))); 
++static int early_serial_putc(unsigned char ch) 
++{ 
++	unsigned timeout = 0xffff; 
++	while ((inb(early_serial_base + LSR) & XMTRDY) == 0 && --timeout) 
++		rep_nop(); 
++	outb(ch, early_serial_base + TXR);
++	return timeout ? 0 : -1;
++} 
++
++static void early_serial_write(struct console *con, const char *s, unsigned n)
++{
++	while (*s && n-- > 0) { 
++		early_serial_putc(*s); 
++		if (*s == '\n') 
++			early_serial_putc('\r'); 
++		s++; 
++	} 
++} 
+ 
+-int early_printk(const char *fmt, ...)
++static __init void early_serial_init(char *opt)
+ {
+-	va_list args;
+-	int i;
++	static int bases[] = { 0x3f8, 0x2f8 };
++	unsigned char c; 
++	unsigned divisor, baud = 38400;
++	char *s, *e;
++
++	s = strsep(&opt, ","); 
++	if (s != NULL) { 
++		unsigned port; 
++		++s; 
++		if (!strncmp(s,"ttyS",4)) 
++			s+=4; 
++		port = simple_strtoul(s, &e, 10); 
++		if (port > 1 || s == e) 
++			port = 0; 
++		early_serial_base = bases[port];
++	}
++
++	c = inb(early_serial_base + LCR); 
++	outb(c & ~DLAB, early_serial_base + LCR); 
++	outb(0, early_serial_base + IER); /* no interrupt */ 
++	outb(0, early_serial_base + FCR); /* no fifo */ 
++	outb(0x3, early_serial_base + LCR); /* 8n1 */
++	outb(0x3, early_serial_base + MCR); /* DTR + RTS */ 
++
++	s = strsep(&opt, ","); 
++	if (s != NULL) { 
++		baud = simple_strtoul(s, &e, 0); 
++		if (baud == 0 || s == e) 
++			baud = 38400;
++	} 
++	
++	divisor = 115200 / baud; 
++	c = inb(early_serial_base + LCR); 
++	outb(c | DLAB, early_serial_base + LCR); 
++	outb(divisor & 0xff, early_serial_base + DLL); 
++	outb((divisor >> 8) & 0xff, early_serial_base + DLH); 
++	outb(c & ~DLAB, early_serial_base + LCR);
++}
+ 
+-	va_start(args, fmt);
+-	i = vsprintf(buf, fmt, args); /* hopefully i < sizeof(buf)-4 */
+-	va_end(args);
++static struct console early_serial_console = {
++	name:		"earlyser",
++	write:		early_serial_write,
++	flags:		CON_PRINTBUFFER,
++	index:		-1,
++};
++
++/* Direct interface for emergencies */
++struct console *early_console = &early_vga_console;
++static int early_console_initialized = 0;
+ 
+-	early_puts(buf);
++void early_printk(const char *fmt, ...)
++{ 
++	char buf[512]; 
++	int n; 
++	va_list ap;
++	va_start(ap,fmt); 
++	n = vsnprintf(buf,512,fmt,ap);
++	early_console->write(early_console,buf,n);
++	va_end(ap); 
++} 
+ 
+-	return i;
++int __init setup_early_printk(char *opt) 
++{  
++	if (early_console_initialized)
++		return;
++	early_console_initialized = 1;
++
++	if (!strncmp(opt, "serial", 6)) { 
++		early_serial_init(opt+7);
++		early_console = &early_serial_console;
++	} else if (!strncmp(opt, "vga", 3))
++		early_console = &early_vga_console; 
++	else
++		return -1; 
++	register_console(early_console);       
++	return 0;
+ }
++
++void __init disable_early_printk(void)
++{ 
++	if (early_console_initialized) {
++		unregister_console(early_console);
++		early_console_initialized = 0;
++	}
++} 
++
++/* syntax: earlyprintk=vga
++           earlyprintk=serial[,ttySn[,baudrate]] 
++   Only vga or serial at a time, not both.
++   Currently only ttyS0 and ttyS1 are supported. 
++   Interaction with the standard serial driver is not very good. 
++   The VGA output is eventually overwritten by the real console. */
++__setup("earlyprintk=", setup_early_printk);  
+diff -x *-o -burpN -X ../../KDIFX ../../v2.5/linux/arch/x86_64/kernel/i387.c linux-2.5.9/arch/x86_64/kernel/i387.c
+--- ../../v2.5/linux/arch/x86_64/kernel/i387.c	Tue Apr 23 21:43:52 2002
++++ linux-2.5.9/arch/x86_64/kernel/i387.c	Tue Apr 23 02:25:35 2002
+@@ -42,40 +42,6 @@ void __init fpu_init(void)
+ 
+ 	write_cr0(oldcr0 & ~((1UL<<3)|(1UL<<2))); /* clear TS and EM */
+ 
+-	asm("fninit"); 
+-	load_mxcsr(0x1f80); 
+-	/* initialize MMX state. normally this will be covered by fninit, but the 
+-	   architecture doesn't guarantee it so do it explicitely. */ 
+-	asm volatile("movq %0,%%mm0\n\t"
+-	    "movq %%mm0,%%mm1\n\t"
+-	    "movq %%mm0,%%mm2\n\t"
+-	    "movq %%mm0,%%mm3\n\t"
+-	    "movq %%mm0,%%mm4\n\t"
+-	    "movq %%mm0,%%mm5\n\t"
+-	    "movq %%mm0,%%mm6\n\t"
+-	    "movq %%mm0,%%mm7\n\t" :: "m" (0ULL));
+-	asm("emms");
+-
+-	/* initialize XMM state */ 
+-	asm("xorpd %xmm0,%xmm0");
+-	asm("xorpd %xmm1,%xmm1");
+-	asm("xorpd %xmm2,%xmm2");
+-	asm("xorpd %xmm3,%xmm3");
+-	asm("xorpd %xmm4,%xmm4");
+-	asm("xorpd %xmm5,%xmm5");
+-	asm("xorpd %xmm6,%xmm6");
+-	asm("xorpd %xmm7,%xmm7");
+-	asm("xorpd %xmm8,%xmm8");
+-	asm("xorpd %xmm9,%xmm9");
+-	asm("xorpd %xmm10,%xmm10");
+-	asm("xorpd %xmm11,%xmm11");
+-	asm("xorpd %xmm12,%xmm12");
+-	asm("xorpd %xmm13,%xmm13");
+-	asm("xorpd %xmm14,%xmm14");
+-	asm("xorpd %xmm15,%xmm15");
+-	load_mxcsr(0x1f80);
+-	asm volatile("fxsave %0" : "=m" (init_fpu_env));
+-
+ 	/* clean state in init */
+ 	stts();
+ 	clear_thread_flag(TIF_USEDFPU);
+@@ -89,13 +55,11 @@ void __init fpu_init(void)
+  */
+ void init_fpu(void)
+ {
+-#if 0
+-	asm("fninit"); 
+-	load_mxcsr(0x1f80);
+-#else
+-	asm volatile("fxrstor %0" :: "m" (init_fpu_env)); 
+-#endif
+-	current->used_math = 1;
++	struct task_struct *me = current;
++	memset(&me->thread.i387.fxsave, 0, sizeof(struct i387_fxsave_struct));
++	me->thread.i387.fxsave.cwd = 0x37f;
++	me->thread.i387.fxsave.mxcsr = 0x1f80;
++	me->used_math = 1;
+ }
+ 
+ /*
+diff -x *-o -burpN -X ../../KDIFX ../../v2.5/linux/arch/x86_64/kernel/sys_x86_64.c linux-2.5.9/arch/x86_64/kernel/sys_x86_64.c
+--- ../../v2.5/linux/arch/x86_64/kernel/sys_x86_64.c	Tue Apr 23 21:43:52 2002
++++ linux-2.5.9/arch/x86_64/kernel/sys_x86_64.c	Tue Apr 23 21:21:55 2002
+@@ -114,19 +114,8 @@ asmlinkage long sys_pause(void)
+ 	return -ERESTARTNOHAND;
+ }
+ 
+-asmlinkage long wrap_sys_shmat(int shmid, char *shmaddr, int shmflg, 
+-			       unsigned long *raddr_user)
++asmlinkage long wrap_sys_shmat(int shmid, char *shmaddr, int shmflg)
+ {
+ 	unsigned long raddr;
+-	return sys_shmat(shmid,shmaddr,shmflg,&raddr) ?: put_user(raddr,raddr_user);
+-} 
+-
+-asmlinkage long wrap_sys_semctl(int semid, int semnum, int cmd, unsigned long *ptr)
+-{	
+-	unsigned long val; 
+-	/* XXX: for cmd==SETVAL the manpage says ptr is the value directly. i386
+-	   seems to always get it via a pointer. Follow i386 here. Check this. */
+-	if (get_user(val, ptr))
+-		return -EFAULT;
+-	return sys_semctl(semid, semnum, cmd, (union semun)(void *)val);
++	return sys_shmat(shmid,shmaddr,shmflg,&raddr) ?: raddr;
+ } 
+diff -x *-o -burpN -X ../../KDIFX ../../v2.5/linux/arch/x86_64/kernel/traps.c linux-2.5.9/arch/x86_64/kernel/traps.c
+--- ../../v2.5/linux/arch/x86_64/kernel/traps.c	Tue Apr 23 21:43:52 2002
++++ linux-2.5.9/arch/x86_64/kernel/traps.c	Tue Apr 23 02:01:14 2002
+@@ -736,11 +736,9 @@ asmlinkage void math_state_restore(void)
+ 	struct task_struct *me = current;
+ 	clts();			/* Allow maths ops (or we recurse) */
+ 
+-	if (me->used_math) {
+-		restore_fpu_checking(&me->thread.i387.fxsave);
+-	} else {
++	if (!me->used_math)
+ 		init_fpu();
+-	}
++	restore_fpu_checking(&me->thread.i387.fxsave);
+ 	set_thread_flag(TIF_USEDFPU); 
+ }
+ 
+diff -x *-o -burpN -X ../../KDIFX ../../v2.5/linux/arch/x86_64/mm/fault.c linux-2.5.9/arch/x86_64/mm/fault.c
+--- ../../v2.5/linux/arch/x86_64/mm/fault.c	Tue Apr 23 21:43:52 2002
++++ linux-2.5.9/arch/x86_64/mm/fault.c	Tue Apr 23 21:44:35 2002
+@@ -85,7 +85,7 @@ void dump_pagetable(unsigned long addres
+ }
+ 
+ int page_fault_trace; 
+-int exception_trace = 1;
++int exception_trace;
+ 
+ /*
+  * This routine handles page faults.  It determines the address,
+diff -x *-o -burpN -X ../../KDIFX ../../v2.5/linux/include/asm-x86_64/unistd.h linux-2.5.9/include/asm-x86_64/unistd.h
+--- ../../v2.5/linux/include/asm-x86_64/unistd.h	Tue Apr 23 21:43:53 2002
++++ linux-2.5.9/include/asm-x86_64/unistd.h	Tue Apr 23 21:21:55 2002
+@@ -153,7 +153,7 @@ __SYSCALL(__NR_semget, sys_semget)
+ #define __NR_semop                              65
+ __SYSCALL(__NR_semop, sys_semop)
+ #define __NR_semctl                             66
+-__SYSCALL(__NR_semctl, wrap_sys_semctl)
++__SYSCALL(__NR_semctl, sys_semctl)
+ #define __NR_shmdt                              67
+ __SYSCALL(__NR_shmdt, sys_shmdt)
+ #define __NR_msgget                             68
+diff -x *-o -burpN -X ../../KDIFX ../../v2.5/linux/init/main.c linux-2.5.9/init/main.c
+--- ../../v2.5/linux/init/main.c	Tue Apr 23 21:43:53 2002
++++ linux-2.5.9/init/main.c	Tue Apr 23 01:56:06 2002
+@@ -260,6 +260,7 @@ static void __init parse_options(char *l
+ 
+ extern void setup_arch(char **);
+ extern void cpu_idle(void);
++extern void disable_early_printk(void);
+ 
+ #ifndef CONFIG_SMP
+ 
+@@ -361,6 +362,9 @@ asmlinkage void __init start_kernel(void
+ 	 * we've done PCI setups etc, and console_init() must be aware of
+ 	 * this. But we do want output early, in case something goes wrong.
+ 	 */
++#ifdef CONFIG_EARLY_PRINTK
++	disable_early_printk();
++#endif
+ 	console_init();
+ #ifdef CONFIG_MODULES
+ 	init_modules();

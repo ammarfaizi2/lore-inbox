@@ -1,60 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289263AbSANOof>; Mon, 14 Jan 2002 09:44:35 -0500
+	id <S289250AbSANOtz>; Mon, 14 Jan 2002 09:49:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289256AbSANOoZ>; Mon, 14 Jan 2002 09:44:25 -0500
-Received: from [211.105.20.1] ([211.105.20.1]:6918 "HELO mail.updkorea.com")
-	by vger.kernel.org with SMTP id <S289254AbSANOoM>;
-	Mon, 14 Jan 2002 09:44:12 -0500
-Message-ID: <B0001980293@mail.updkorea.com>
-From: "E. Adler" <eadler@infovia.com.ar>
-To: "Pueblo Argentino" <eadler@infovia.com.ar>
-Date: Mon, 14 Jan 2002 11:35:11 -0300
-Subject: Luchemos por todos
+	id <S289252AbSANOtq>; Mon, 14 Jan 2002 09:49:46 -0500
+Received: from xsmtp.ethz.ch ([129.132.97.6]:44722 "EHLO xfe3.d.ethz.ch")
+	by vger.kernel.org with ESMTP id <S289250AbSANOtl>;
+	Mon, 14 Jan 2002 09:49:41 -0500
+Message-ID: <3C42EF81.5060607@dplanet.ch>
+Date: Mon, 14 Jan 2002 15:47:29 +0100
+From: Giacomo Catenazzi <cate@dplanet.ch>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: "Michael Lazarou (ETL)" <Michael.Lazarou@etl.ericsson.se>
+CC: "'Giacomo Catenazzi'" <cate@debian.org>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA hardware discovery -- the elegant solution
+In-Reply-To: <F50839283B51D211BC300008C7A4D63F0C1075A2@eukgunt002.uk.eu.ericsson.se>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Jan 2002 14:49:40.0325 (UTC) FILETIME=[B1EA7150:01C19D0A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-POR FAVOR, LE RUEGO QUE TOME CINCO MINUTOS DE SU TIEMPO Y LEA ESTO, Y SI
-ESTA DE ACUERDO, REENVIELO A TODA SU LIBRETA DE DIRECCIONES... NO NOS
-DEJEMOS ROBAR MAS...
 
-Todos se llenaron la boca hablando del descuento del 13% a estatales y
-jubilados. Pero del descuento del 30% a los contratados del estado, quien se
-acuerda?
-los gremios por cierto no, el gobierno ni siquiera nos nombra en los
-discursos que anuncian los descuentos...
-Por favor, tome una calculadora y fijese cuanto es el 30% de su ingreso.
-Como viviria sin esa suma?
-Sabe usted lo que es un contratado?
-Contrato de locacion de servicios, es una modalidad de relacion de
-semi-dependencia introducida por carlos saul menem, muy conveniente para el
-estado. Muy conveniente porque al contratado no se le paga aguinaldo, no se
-le dan vacaciones, no se le brinda obra social, ni salario familiar, no se
-le paga antigüedad ni horas extras, no se le paga indemnizacion por despido
-ya que como los contratos no son siquiera por un año o medio año, sino por
-meses, y se pueden rescindir en cualquier momento sin derecho a replica.
-Si se le exige que cumpla un horario estricto, que no falte ningun dia a su
-trabajo, que tenga pago el monotributo todos los meses ($88.-) que no es
-deducible de su ingreso, y que haga su trabajo y el de los empleados
-permanentes ñoquis a su alrededor, ya que en el caso de que falle el sector, 
-seria muy problematico despedir al permanente noqui por la burocracia que 
-esto implica, por lo tanto, es el contratado quien se arriesga.
-
-Tampoco tiene el beneficio de un importante ingreso a pesar de que sea
-profesional, ya que el ingreso promedio del contratado es de $600/$800...
-pero a cavallo y a duhalde les parece que esto es demasiado lujo, por lo que
-con el 30% de descuento impuesto, esto se reduce a $460/$560...
-Hay algo de justo en esto?
-
-Es por todo esto que llamo a su solidaridad, para que recordemos que somos
-todos argentinos, y en el proximo 17/01 se una a un cacerolazo y se acuerde de 
-los contratados, que de ellos nadie se acuerda...
-
-Muchas gracias por su tiempo.
+Michael Lazarou (ETL) wrote:
 
 
+>>Not a problem. Autoconfiguration is made to help configuring
+>>the kernel, before to compile it. So you need a linux working
+>>machine (actually you can cross-compile).
+>>
+>>Our task is to allow user to compile a kernel, with the
+>>needed drivers, without the non used drivers.
+>>
+> 
+> OK, well I guess I am a little confused.
+> 
+> If I hit an autoconfigurator button then I would expect a kernel that
+> will boot and know everything there is to know about my machine.
+
+
+Actually there is no yet 'autoconfigurator button'.
+I recommend to run a std configuration tool and to check
+the configuration before the kernel build phase.
+
+> Without probing the hardware how will the autoconfigurator cope with 
+> the hardware changing underneath it?
+
+
+We probe the hardware (but in a soft manner).
+Better: we probe nothing, we ask kernel to give us the results
+of already done kernel probes. Thus we never hang, we never crash
+machine, no 10-15 reboots to install a new kernel.
+The good news: this is nearly enought.
+
+Linux is magic: it can do infinite loops in 5 sec, but also
+it can configure automatically a new kernel without real hardware
+probes!.
+
+	giacomo
 

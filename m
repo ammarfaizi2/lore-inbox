@@ -1,137 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266285AbSLTIMf>; Fri, 20 Dec 2002 03:12:35 -0500
+	id <S267750AbSLTI0q>; Fri, 20 Dec 2002 03:26:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267746AbSLTIMf>; Fri, 20 Dec 2002 03:12:35 -0500
-Received: from gorilla.mchh.siemens.de ([194.138.158.18]:21393 "EHLO
-	gorilla.mchh.siemens.de") by vger.kernel.org with ESMTP
-	id <S266285AbSLTIMd>; Fri, 20 Dec 2002 03:12:33 -0500
-Message-ID: <3E02D29A.8070101@siemens.com>
-Date: Fri, 20 Dec 2002 09:19:38 +0100
-From: Steffen Rumler <Steffen.Rumler@siemens.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Steffen.Rumler@siemens.com
-Subject: cramfs over ramdisk broken ?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267751AbSLTI0q>; Fri, 20 Dec 2002 03:26:46 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:3846 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S267750AbSLTI0o>;
+	Fri, 20 Dec 2002 03:26:44 -0500
+Date: Fri, 20 Dec 2002 00:31:50 -0800
+From: Greg KH <greg@kroah.com>
+To: lvm-devel@sistina.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [lvm-devel] [PATCH] add kobject to struct mapped_device
+Message-ID: <20021220083149.GA10484@kroah.com>
+References: <20021218184307.GA32190@kroah.com> <20021219105530.GA2003@reti>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021219105530.GA2003@reti>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Dec 19, 2002 at 10:55:30AM +0000, Joe Thornber wrote:
+> Greg,
+> 
+> This looks like patch 1 of many, since it doesn't actually export any
+> attributes through sysfs yet.
 
-I have tried to use cramfs over a ramdisk.
-It seems not working stable.
-I have tested this for the 2.4.2 and 2.4.20 kernel,
-with the same result:
+Correct.
 
-#  create a file tree
-#
-$ mkdir x
-$ touch x/a
-$ touch x/b
-$ touch x/c
+> Can you please give me more of an idea
+> of what the attributes are that you want to export ?  Are you trying
+> to move the dmfs functionality into sysfs ?
 
-#  make a cramfs image
-#
-$ mkcramfs x x.img
-Super block: 76 bytes
-   a
-   b
-   c
-Directory data: 124 bytes
-Everything: 4 kilobytes
-warning: gids truncated to 8 bits.  (This may be a security concern.)
+Only the parts of dmfs that make sense to :)
 
-#  dump the cramfs image; seems OK
-#
-$ od -x x.img
-0000000 3d45 28cd 0000 0001 0000 0000 0000 0000
-0000020 6f43 706d 6572 7373 6465 5220 4d4f 5346
-0000040 e779 c669 363f 24cf 0b02 65c2 aef3 7fdb
-0000060 6f43 706d 6572 7373 6465 0000 0000 0000
-0000100 41ed 0000 0030 4200 04c0 0000 81a4 0000
-0000120 0000 4200 0001 0000 0061 0000 81a4 0000
-0000140 0000 4200 0001 0000 0062 0000 81a4 0000
-0000160 0000 4200 0001 0000 0063 0000 0000 0000
-0000200 0000 0000 0000 0000 0000 0000 0000 0000
-*
-0010000
+Right now every struct gendisk shows up in sysfs under the block/
+directory, including every struct mapped_device that is created through
+the dm code.  Now every mapped_device that already exists in sysfs,
+exports the major/minor number (in the dev file), and other gendisk
+specific attributes.  Why not just add the mapped_device specific
+attributes of this gendisk object into the same directory (or one lower
+to try to partition things a bit.)  That would mean taking the files
+that were going to be in dmfs, and placing them into this directory
+(like status, suspend, and others).  Some of them might have to be split
+up into multiple files to keep the "one value per file" rule, but that
+shouldn't be very difficult.
 
-#  write cramfs image to ramdisc
-#
-$ dd if=x.img of=/dev/ram15
-8+0 records in
-8+0 records out
+Here's an ascii picture which probably makes more sense:
+/sys/block/
+|-- fd0
+|   |-- dev
+|   |-- range
+|   |-- size
+|   `-- stat
+|-- dm-1
+|   |-- dev
+|   |-- dm
+|   |   |-- device0 -> ../../devices/pci0/00:02.5/ide0/0.0
+|   |   |-- device1 -> ../../devices/pci0/00:02.5/ide1/1.0
+|   |   |-- status
+|   |   |-- suspend
+|   |   `-- table
+|   |-- range
+|   |-- size
+|   `-- stat
 
-#  check the ramdisc; seems OK
-#
-$ od -x /dev/ram15 | head
-0000000 3d45 28cd 0000 0001 0000 0000 0000 0000
-0000020 6f43 706d 6572 7373 6465 5220 4d4f 5346
-0000040 e779 c669 363f 24cf 0b02 65c2 aef3 7fdb
-0000060 6f43 706d 6572 7373 6465 0000 0000 0000
-0000100 41ed 0000 0030 4200 04c0 0000 81a4 0000
-0000120 0000 4200 0001 0000 0061 0000 81a4 0000
-0000140 0000 4200 0001 0000 0062 0000 81a4 0000
-0000160 0000 4200 0001 0000 0063 0000 0000 0000
-0000200 0000 0000 0000 0000 0000 0000 0000 0000
-*
+Look reasonable?
 
-#  mount it (first try)
-#
-$ mkdir mnt
-$ mount -t cramfs /dev/ram15 mnt
-mount: wrong fs type, bad option, bad superblock on /dev/ram15,
-        or too many mounted file systems
+And yes, the deviceX files are symlinks to the struct block_device that
+are controlled by this mapped_device, which I think is a easy visual
+clue as to what is going on.
 
-#  check the ramdisc again; it seems to be demaged :-(
-#
-$ od -x /dev/ram15 | head
-0000000 01fd 0809 0000 0000 8d28 080a 0000 0000
-0000020 01fd 0809 0000 0000 8dc8 080a 0000 0000
-0000040 01fd 0809 0000 0000 0000 0000 0000 0000
-0000060 01fd 0809 0000 0000 e028 0809 0000 0000
-0000100 01fd 0809 0000 0000 0000 0000 0000 0000
-0000120 01fd 0809 0000 0000 e048 0809 0000 0000
-0000140 01fd 0809 0000 0000 8b48 080a 0000 0000
-0000160 01fd 0809 0000 0000 0000 0000 0000 0000
-0000200 01fd 0809 0000 0000 0063 0064 0000 0000
-*
+I know, this doesn't address the issue of creating these mapped_device
+structures in the first place with either an ioctl, or a "special file",
+but let's try to export the values and relationships that we already
+have.  One step at a time...
 
-#  write cramfs image to ram disc (second try)
-#
-$ dd if=x.img of=/dev/ram15
-8+0 records in
-8+0 records out
+> I won't accept this patch on it's own, but am sure what you are trying
+> to do is the right thing, so will probably have no objections when the
+> rest of the patches arrive.
 
-#  mount it (second try); it seems now working now !!!
-#
-$ mount -t cramfs /dev/ram15 mnt
-$ ls mnt/
-a  b  c
+That's fair enough, I'll work on getting the rest of the patches out in
+a fairly timely manner, considering the holiday season...
 
+> On Wed, Dec 18, 2002 at 10:43:07AM -0800, Greg KH wrote:
+> > Oh, and why isn't struct mapped_device declared in dm.h?  If it was,
+> > dm_get and dm_put could be inlined, along with a few other potential
+> > cleanups.
+> 
+> I'm try to keep implementation details out of header files.  dm_get()
+> and dm_put() are not performance critical so I see no need to inline them.
 
-Any idea ?
+Ok.  I can place all of the sysfs specific functions in dm.c, just like
+drivers/block/genhd.c has, or if we place struct mapped_device into
+dm.h, they can live in their own file.  Doesn't bother me either way.
 
+thanks,
 
-Steffen
-
--- 
-
-
---------------------------------------------------------------
-
-Steffen Rumler
-ICN CP D NT SW 7
-Siemens AG
-Hofmannstr. 51                 Email: Steffen.Rumler@siemens.com
-D-81359 Munich                 Phone: +49 89 722-44061
-Germany                        Fax  : +49 89 722-36703
-
---------------------------------------------------------------
-
-
-
+greg k-h

@@ -1,46 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267656AbUH0Uy1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267582AbUH0Uwo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267656AbUH0Uy1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 16:54:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267649AbUH0UxW
+	id S267582AbUH0Uwo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 16:52:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267656AbUH0UsX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 16:53:22 -0400
-Received: from mailrelay.tu-graz.ac.at ([129.27.3.7]:52731 "EHLO
-	mailrelay01.tugraz.at") by vger.kernel.org with ESMTP
-	id S267659AbUH0Uu3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 16:50:29 -0400
-From: Christian Mayrhuber <christian.mayrhuber@gmx.net>
-To: reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Date: Fri, 27 Aug 2004 22:56:07 +0200
-User-Agent: KMail/1.7
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0408271010300.10272-100000@chimarrao.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0408271010300.10272-100000@chimarrao.boston.redhat.com>
+	Fri, 27 Aug 2004 16:48:23 -0400
+Received: from c002781a.fit.bostream.se ([217.215.235.8]:25812 "EHLO
+	mail.tnonline.net") by vger.kernel.org with ESMTP id S267657AbUH0UqU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 16:46:20 -0400
+Date: Fri, 27 Aug 2004 22:48:28 +0200
+From: Spam <spam@tnonline.net>
+Reply-To: Spam <spam@tnonline.net>
+X-Priority: 3 (Normal)
+Message-ID: <227095222.20040827224828@tnonline.net>
+To: Linus Torvalds <torvalds@osdl.org>
+CC: =?ISO-8859-1?B?TWFya3VzIFT2cm5xdmlzdA==?= <mjt@nysv.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@osdl.org>,
+       <hch@lst.de>, <linux-fsdevel@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>, <flx@namesys.com>,
+       <reiserfs-list@namesys.com>
+Subject: Re[2]: silent semantic changes with reiser4
+In-Reply-To: <Pine.LNX.4.58.0408271335421.14196@ppc970.osdl.org>
+References: <412D9FE6.9050307@namesys.com>
+ <200408261812.i7QICW8r002679@localhost.localdomain>
+ <20040827203216.GC1284@nysv.org>
+ <Pine.LNX.4.58.0408271335421.14196@ppc970.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200408272256.07619.christian.mayrhuber@gmx.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 27 August 2004 16:12, Rik van Riel wrote:
 
-> Because not everybody uses tar.  Quite a few people use a
-> network backup system, while others use duplicity, RPM uses
-> cpio internally and big companies tend to use proprietary
-> network backup suites.
-Big backup systems support scripts that can be run prior to
-backup and post restore. You aready have to use star to
-do a metadata backup the acl's/ea into some tgz, which
-can be unpacked after restore.
+> On Fri, 27 Aug 2004, Markus Törnqvist wrote:
+>> 
+>> People will say it when people stop using Linux on servers because
+>> they can integrate metadata easier in other operating systems ;)
 
-> Breaking people's setup is something to worry about.
-Yeah, maybe. But as usual on UN*X  like systems most admins
-are able to come up with a quick shell/perl script to solve their
-particular problem.
+> Heh. Considering that WinFS seems to be delayed yet more, I don't think
+> that's a very strong argument.
 
--- 
-lg, Chris
+> Hell will freeze over before Microsoft does a filesystem right. Besides,
+> WinFS is likely almost in user mode anyway, ie mostly a library, rather
+> like the gnome people are already doing with nome storage.
+
+  Yes, it is mostly in user land. But, It is still integrated with the
+  Windows  API.  This  means that normal programs that use the Windows
+  API  will  be  able to use most of the new features (like displaying
+  thumbnails, filtered views, etc when you do file operations)
+
+  Besides,  NTFS  is  not  that  bad. It does have both encryption and
+  compression  and a big set of ACL features that aren't in most Linux
+  filesystems today.
+
+> So there's really no point in trying to push your agenda by trying to
+> scare people with MS activities. Linux kernel developers do what's right
+> because it is _right_, not because somebody else does it.
+
+  I  agree.  Things  should be done because they are good, not because
+  you are threatened to.
+
+  It  is  a shame really that so many people hate Microsoft (or Apple)
+  so much they fail to see things that actually are good.
+
+>         Linus
+
+

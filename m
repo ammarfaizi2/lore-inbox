@@ -1,82 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262027AbUJYVIp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbUJYVMI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262027AbUJYVIp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 17:08:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbUJYVIX
+	id S262007AbUJYVMI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 17:12:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbUJYVKk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 17:08:23 -0400
-Received: from smtp-101-monday.nerim.net ([62.4.16.101]:39692 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S261963AbUJYUxj
+	Mon, 25 Oct 2004 17:10:40 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:58596 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S262009AbUJYVGg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 16:53:39 -0400
-Date: Mon, 25 Oct 2004 22:54:59 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <sensors@stimpy.netroedge.com>
-Subject: Re: [PATCH] I2C update for 2.6.9
-Message-Id: <20041025225459.5ffc37ba.khali@linux-fr.org>
-In-Reply-To: <417D4621.5010604@tmr.com>
-References: <1098231506642@kroah.com>
-	<10982315063481@kroah.com>
-	<417D4621.5010604@tmr.com>
-Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Oct 2004 17:06:36 -0400
+Message-Id: <200410252103.i9PL3Mq08901@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Christoph Lameter'" <clameter@SGI.com>,
+       "William Lee Irwin III" <wli@holomorphy.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Hugepages demand paging V1 [4/4]: Numa patch
+Date: Mon, 25 Oct 2004 14:05:56 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcS4b6KYBIroaEV4S/mU/jIdbX9V5QCYvIAg
+In-Reply-To: <Pine.LNX.4.58.0410221235300.9549@schroedinger.engr.sgi.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Bill,
+Christoph Lameter wrote on Friday, October 22, 2004 12:37 PM
+> > On Thu, Oct 21, 2004 at 09:58:54PM -0700, Christoph Lameter wrote:
+> > > Changelog
+> > > 	* NUMA enhancements (rough first implementation)
+> > > 	* Do not begin search for huge page memory at the first node
+> > > 	  but start at the current node and then search previous and
+> > > 	  the following nodes for memory.
+> > > Signed-off-by: Christoph Lameter <clameter@sgi.com>
+> >
+> > dequeue_huge_page() seems to want a nodemask, not a vma, though I
+> > suppose it's not particularly pressing.
+>
+> How about this variation following __alloc_page:
+>
+> @@ -32,14 +32,17 @@
+> +	struct zonelist *zonelist = NODE_DATA(nid)->node_zonelists;
+> +	struct zone **zones = zonelist->zones;
+> +	struct zone *z;
+> +	int i;
+> +
+> +	for(i=0; (z = zones[i])!= NULL; i++) {
+> +		nid = z->zone_pgdat->node_id;
+> +		if (list_empty(&hugepage_freelists[node_id]))
+> +			break;
+>  	}
 
-> Greg KH wrote:
+Must be typos in the if statement.  Two fatal errors here:  You don't
+really mean to break out of the for loop if there are no hugetlb page
+on that node, do you?  The variable name to index into the freelist is
+wrong, should be nid, otherwise this code won't compile.  That line
+should be this:
 
-I actually wrote this.
++		if (!list_empty(&hugepage_freelists[nid]))
 
-> > Trip points
-> > ===========
-> > 
-> > Trip points are now numbered (point1, point2, etc...) instead of
-> > named(_off, _min, _max, _full...). This solves the problem of
-> > various chips having a different number of trip points. The
-> > interface is still chip independent in that it doesn't require
-> > chip-specific knowledge to be used by user-space apps.
-> 
-> It would seem that all chips would have off, max, full, etc, but
-> mapping nondescript names into functionality may require some chip
-> info anyway. As you note, with some chips these are not nice linear
-> points on a line, 
->   so it would seem to tell if the top points were "max norm" and "max 
-> safe" vs. "critical" and "shutdown NOW" is still going to need some 
-> information on the chip, both points and operating range.
 
-The interface is actually (almost) self-sufficient. A point is the union
-of a temperature and a fan speed. Most often, point1 will have a speed
-of 0, which means it really is _off. point1 will be fan_min. point(P-1)
-will be _max, point(P) will have a speed of 100% and will be _full. The
-advantage of the numbered approach is that you can have has many points
-as the chip provides. It will also help user-space applications, since
-all points can be handled the exact same way, without having to
-interpret the names, know that some names have predefined fan speeds,
-etc.
+Also this is generic code, we should consider scanning ZONE_HIGHMEM
+zonelist. Otherwise, this will likely screw up x86 numa machine.
 
-The only thing the interface doesn't tell is the shape of the curve
-resulting from the various trip points. This is admittedly chip
-dependent. I think it would be next to impossible to export this through
-sysfs, and I'm not sure it would be worth the pain anyway. The exact
-shape of the curve isn't that important IMHO.
+- Ken
 
-Your objection about "critical", "shutdown NOW" etc if out of the scope
-of this interface. The critical limits are defined by tempN_crit files.
-Actions taken by the chip when the limit is crossed is admittedly
-chip-dependent. Not a big deal either, since in most cases this is
-either not configurable or motherboard-dependent and set by the BIOS for
-us anyway.
 
-I hope I answered your question-which-was-not-really-one. :)
-
--- 
-Jean Delvare
-http://khali.linux-fr.org/

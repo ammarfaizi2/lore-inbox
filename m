@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130000AbQK2LTb>; Wed, 29 Nov 2000 06:19:31 -0500
+        id <S130138AbQK2LVb>; Wed, 29 Nov 2000 06:21:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130138AbQK2LTV>; Wed, 29 Nov 2000 06:19:21 -0500
-Received: from Prins.externet.hu ([212.40.96.161]:22288 "EHLO
-        prins.externet.hu") by vger.kernel.org with ESMTP
-        id <S130000AbQK2LTK>; Wed, 29 Nov 2000 06:19:10 -0500
-Date: Wed, 29 Nov 2000 11:48:21 +0100 (CET)
-From: Boszormenyi Zoltan <zboszor@externet.hu>
-To: Tigran Aivazian <tigran@veritas.com>
+        id <S131092AbQK2LVV>; Wed, 29 Nov 2000 06:21:21 -0500
+Received: from 62-6-231-191.btconnect.com ([62.6.231.191]:19460 "EHLO
+        penguin.homenet") by vger.kernel.org with ESMTP id <S130138AbQK2LVI>;
+        Wed, 29 Nov 2000 06:21:08 -0500
+Date: Wed, 29 Nov 2000 10:52:39 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Alexander Viro <viro@math.psu.edu>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: 36bit mtrrs work! (2.4.0-test12-pre3)
-In-Reply-To: <Pine.LNX.4.21.0011291035290.841-100000@penguin.homenet>
-Message-ID: <Pine.LNX.4.02.10011291141240.23503-100000@prins.externet.hu>
+Subject: Re: corruption
+In-Reply-To: <Pine.GSO.4.21.0011290421060.14112-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.21.0011291047080.841-100000@penguin.homenet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Nov 2000, Tigran Aivazian wrote:
+On Wed, 29 Nov 2000, Alexander Viro wrote:
+> Could you look for duplicates too?
 
-> Hi,
-> 
-> Just to let people know that 2.4.0-test12-pre3 behaves much better than
-> earlier versions on my 6G RAM machine. Not only /proc/mtrr is correctly
-> showing all 6G cached for write-back but also I so far I never had to
-> up/down one of the eepro100 interfaces to get it to work -- something I
-> hda to do in all previous versions. (without david-mtrr.patch)
-> 
-> Regards,
-> Tigran
-> 
-Excellent! :-))))
+will do. One useful finding so far -- trying simultaneous mke2fs /dev/sdX1
+for X = {b,c,d,e,f} deadlocks the machine dead (and without kdb such death
+was in vain). (each disk is 37G, RAM is 6G)
 
-BTW what test12-pre2/3 contains is David Wragg's work, updated
-to HPA's CPUID code that is in test11. Linus incorrectly
-attributed to me the whole patch in test12.log.
+I know this is offtopic for this thread but not for this list.
+
+I am continuing to pursue the corruption. Nothing yet.
 
 Regards,
-Zoltan Boszormenyi
-
+Tigran
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

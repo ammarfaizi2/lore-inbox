@@ -1,75 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262898AbTIGFld (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 01:41:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262893AbTIGFld
+	id S261409AbTIGFdP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 01:33:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262245AbTIGFdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 01:41:33 -0400
-Received: from lpbproductions.com ([68.98.208.147]:52628 "HELO
-	lpbproductions.com") by vger.kernel.org with SMTP id S262898AbTIGFlb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 01:41:31 -0400
-From: Matt Heler <lkml@lpbproductions.com>
-To: Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]O20int
-Date: Sat, 6 Sep 2003 22:41:38 -0700
-User-Agent: KMail/1.5.9
-References: <200309040053.22155.kernel@kolivas.org>
-In-Reply-To: <200309040053.22155.kernel@kolivas.org>
-MIME-Version: 1.0
+	Sun, 7 Sep 2003 01:33:15 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:24083 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S261409AbTIGFdN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 01:33:13 -0400
+Date: Sun, 7 Sep 2003 07:33:09 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, jsimmons@infradead.org,
+       "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6: spurious recompiles
+Message-ID: <20030907053309.GA963@mars.ravnborg.org>
+Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
+	"Randy.Dunlap" <rddunlap@osdl.org>, jsimmons@infradead.org,
+	"Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org
+References: <20030906201417.GI14436@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200309062241.42920.lkml@lpbproductions.com>
+In-Reply-To: <20030906201417.GI14436@fs.tum.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sat, Sep 06, 2003 at 10:14:18PM +0200, Adrian Bunk wrote:
+> When doing a "make" inside an already compiled kernel source there 
+> shouldn't be anything rebuilt. I've identified three places where this 
+> isn't the case in recent 2.6 kernels:
+> 
+> 1. ikconfig
+>   CC      kernel/configs.o
+> even when the .config wasn't changed
 
-Wow.. I tried 2.6.0-test4-mm4 + your 020 init patch on top .. I've noticed 
-consiberable improvements. When I last used your scheduler patches WineX used 
-to pauses in Warcraft3 , now no such pauses exist.. and everything seems 
-smooth and snappy ..  great work
+configs.o included compile.h. Compile.h contains date when kernel was
+compiled, and gets updated each time there is new .o files.
+That is fixed in patch sent to Randy.
 
-Matt
+> 2. pnmtologo
+> The following happens again once, but not when doing a third "make":
+>   ./scripts/pnmtologo -t mono -n logo_linux_mono -o drivers/video/logo/logo_linux_mono.c drivers/video/logo/logo_linux_mono.pbm
+>   CC      drivers/video/logo/logo_linux_mono.o
+>   ./scripts/pnmtologo -t vga16 -n logo_linux_vga16 -o drivers/video/logo/logo_linux_vga16.c drivers/video/logo/logo_linux_vga16.ppm
+>   CC      drivers/video/logo/logo_linux_vga16.o
+>   ./scripts/pnmtologo -t clut224 -n logo_linux_clut224 -o drivers/video/logo/logo_linux_clut224.c drivers/video/logo/logo_linux_clut224.ppm
+>   CC      drivers/video/logo/logo_linux_clut224.o
+>   LD      drivers/video/logo/built-in.o
+>   LD      drivers/video/built-in.o
+
+I have sent a patch to James Simmons some time ago. I will try to dig it
+up and  see if it still applies, and fixes the problem.
 
 
-On Wednesday 03 September 2003 07:53 am, Con Kolivas wrote:
-> D----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> Fine tuning mainly.
->
-> Smaller timeslice granularity for most interactive tasks and larger for
-> less interactive. Smaller for each extra cpu.
->
-> Smaller bounds on interactive credit.
->
-> Idle tasks can gain interactive credits; Idle tasks get more interactivity;
-> Uninterruptible sleep wakers are not seen as idle.
->
-> Kernel threads participate in timeslice granularity requeuing.
->
-> This patch is incremental on top of O19int which is included in
-> 2.6.0-test4-mm4. It will not apply onto mm5 which has all my stuff backed
-> out. This patch and a full patch against 2.6.0-test4 can be found here:
->
-> http://kernel.kolivas.org/2.5
->
-> Con
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.2.2 (GNU/Linux)
->
-> iD8DBQE/VgBaZUg7+tp6mRURAtvgAJoClT078T9wLLlEq8+pct3Yigrq3wCgja4P
-> HjXKw3YJSey4DWpA2I+Tyi4=
-> =nvCB
-> -----END PGP SIGNATURE-----
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+> 3. aic7xxx
+>   drivers/scsi/aic7xxx/aicasm/aicasm -Idrivers/scsi/aic7xxx -r 
+>   drivers/scsi/aic7xxx/aic79xx_reg.h \
+>                       -p drivers/scsi/aic7xxx/aic79xx_reg_print.c -i 
+>   aic79xx_osm.h -o drivers/scsi/aic7xxx/aic79xx_seq.h \
+>                       drivers/scsi/aic7xxx/aic79xx.seq
+>   drivers/scsi/aic7xxx/aicasm/aicasm: 785 instructions used
+>   CC      drivers/scsi/aic7xxx/aic79xx_core.o
 
-iD8DBQE/WsUUleY/n9G/oZ8RAgXcAJ43BQouqQkq1IVz6ujh1P44xnl/dACfTg4J
-6KRKy+GrhNu2FC3rPSruT6M=
-=fwqL
------END PGP SIGNATURE-----
+New to me, I will take a look.
+
+	Sam

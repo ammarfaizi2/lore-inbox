@@ -1,36 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262129AbTHTSGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 14:06:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262146AbTHTSGZ
+	id S262133AbTHTSOr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 14:14:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbTHTSOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 14:06:25 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:778 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S262129AbTHTSGV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 14:06:21 -0400
-Date: Wed, 20 Aug 2003 20:06:19 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NFS regression in 2.6
-Message-ID: <20030820200619.A2961@pclin040.win.tue.nl>
-References: <3F4268C1.9040608@redhat.com> <shszni499e9.fsf@charged.uio.no> <3F43B34D.5020503@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3F43B34D.5020503@redhat.com>; from drepper@redhat.com on Wed, Aug 20, 2003 at 10:43:41AM -0700
+	Wed, 20 Aug 2003 14:14:46 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:30213 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262133AbTHTSOp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 14:14:45 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: DVD ROM on 2.6
+Date: 20 Aug 2003 18:06:31 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bi0db7$err$1@gatekeeper.tmr.com>
+References: <200308192009.11298.admin@kentonet.net>
+X-Trace: gatekeeper.tmr.com 1061402791 15227 192.168.12.62 (20 Aug 2003 18:06:31 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 20, 2003 at 10:43:41AM -0700, Ulrich Drepper wrote:
+In article <200308192009.11298.admin@kentonet.net>,
+Bryan D. Stine <admin@kentonet.net> wrote:
 
-> > There are known bugs in the way we handle readdirplus. That's why it
-> > only hits NFSv3. Does the following patch fix it?
-> 
-> As Andries suspected, no change.  The test still fails.
+| Try passing the -t iso9660 option to mount or (if that doesn't work) you
+|  could go so far as to removing the UDF support from the kernel.
+| 
+| On Tuesday 19 August 2003 07:34 pm, Wakko Warner wrote:
+| > I'm trying out 2.6 on one of my test boxes with an IDE dvd drive.  I'm
+| > using ide-scsi (I prefer scdx as opposed to hdx).  I noticed that any
+| > attempt to mount a DVD movie (lord of the rings comes to mind) it mounts as
+| > UDF.  My laptop mounts this same dvd as iso9660.
+| >
+| > I've also been unable to play DVDs on this machine, but I don't have the
+| > same packages installed as I do on my laptop.
 
-Try to comment out the two lines I quoted.
+If iso9660 looks enough like UDF to confuse the f/s typing logic, would
+the problem go away if the iso9660 were checked first? It seems iso9660
+can be mistaken for UDF, is the converse true?
 
+In any case it can be set explicitly.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

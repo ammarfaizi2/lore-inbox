@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262404AbVCPCFl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262430AbVCPCKu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262404AbVCPCFl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 21:05:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262405AbVCPCFl
+	id S262430AbVCPCKu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 21:10:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbVCPCKu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 21:05:41 -0500
-Received: from yue.linux-ipv6.org ([203.178.140.15]:42513 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S262404AbVCPCFe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 21:05:34 -0500
-Date: Wed, 16 Mar 2005 11:07:18 +0900 (JST)
-Message-Id: <20050316.110718.100703739.yoshfuji@linux-ipv6.org>
-To: linux-kernel@vger.kernel.org
-Subject: BK Snapshots (Re: where did 2.6.11-bkx go?)
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <d179e2$hq0$1@sea.gmane.org>
-References: <d179e2$hq0$1@sea.gmane.org>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	Tue, 15 Mar 2005 21:10:50 -0500
+Received: from colo.lackof.org ([198.49.126.79]:10118 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S262430AbVCPCKm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 21:10:42 -0500
+Date: Tue, 15 Mar 2005 19:12:07 -0700
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Grant Grundler <grundler@parisc-linux.org>
+Cc: "Nguyen, Tom L" <tom.l.nguyen@intel.com>, Greg KH <greg@kroah.com>,
+       long <tlnguyen@snoqualmie.dp.intel.com>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 0/6] PCI Express Advanced Error Reporting Driver
+Message-ID: <20050316021207.GA6608@colo.lackof.org>
+References: <C7AB9DA4D0B1F344BF2489FA165E5024080A4C09@orsmsx404.amr.corp.intel.com> <20050315201139.GA1756@colo.lackof.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050315201139.GA1756@colo.lackof.org>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <d179e2$hq0$1@sea.gmane.org> (at Tue, 15 Mar 2005 13:28:26 -0500), sean <seandarcy2@gmail.com> says:
-
-> pub/mirrors/linux/kernel/linux/kernel/v2.6/snapshots
+On Tue, Mar 15, 2005 at 01:11:39PM -0700, Grant Grundler wrote:
+> Tom,
+> A co-worker made the following observation (I'm paraphrasing):
+> 	...this proposal does not deal with the Error Reporting ECN.
+> 	For example, they do not show the advisory non-fatal bit in
+> 	the correctable error status register.
 > 
-> Now there just the 2.6.11.x snapshots.
+> I believe he is referring to the "Error Clarifications ECN":
 > 
-> For instance where is bk10?
+> 	http://www.pcisig.com/specifications/pciexpress/ECN_-_Error_Clarifications.pdf
 
-Now 2.6.11.3-bk1 has come up...
+Tom,
+Sorry - I got this wrong.
+He was referring to an unpublished draft "Error Reporting ECN".
+You'll have to talk to Intel's PCI-SIG representative to get a copy.
+[ Ugh. And everyone else is SOL - sorry ]
 
-The bk-snap script seems to be scewed up by the v2.6.11.3 tag.
-It'd very nice to see 2.6.11-bk11 instead.
-Current naming is very confusing; e.g. is this patch against 2.6.11.3?
+I'm annoyed he wanted me to raise this in a public forum without
+having a public document to point at. And I'm annoyed at myself
+for being lazy and not verifying that before hand...
 
---yoshfuji
+sorry,
+grant

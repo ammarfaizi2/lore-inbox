@@ -1,64 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262731AbTEBUah (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 16:30:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263146AbTEBUah
+	id S262016AbTEBQRJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 12:17:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTEBQRJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 16:30:37 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:16268 "EHLO doc.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id S262731AbTEBUad (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 16:30:33 -0400
-Date: Fri, 2 May 2003 13:42:57 -0700
-From: Bob Miller <rem@osdl.org>
-To: linux-kernel@vger.kernel.org
-Cc: trivial@rustcorp.com.au
-Subject: [PATCH 2.5.68] Convert octagon-5066 to remove check_region().
-Message-ID: <20030502204257.GC25713@doc.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 2 May 2003 12:17:09 -0400
+Received: from netmail02.services.quay.plus.net ([212.159.14.221]:63950 "HELO
+	netmail02.services.quay.plus.net") by vger.kernel.org with SMTP
+	id S262016AbTEBQRG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 12:17:06 -0400
+From: "Riley Williams" <Riley@Williams.Name>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Jeff Muizelaar" <muizelaar@rogers.com>
+Cc: "Jeff Garzik" <jgarzik@pobox.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH 0/4] NE2000 driver updates
+Date: Fri, 2 May 2003 17:29:37 +0100
+Message-ID: <BKEGKPICNAKILKJKMHCAKEBKCKAA.Riley@Williams.Name>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <1051884070.23249.4.camel@dhcp22.swansea.linux.org.uk>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Moved the request_region() call to replace check_region() and adds
-release_region()'s in the error paths that occure before the old
-call to request_region().
+Hi Alan.
 
--- 
-Bob Miller					Email: rem@osdl.org
-Open Source Development Lab			Phone: 503.626.2455 Ext. 17
+ >> Are we stuck with Space.c forever? Anyone have any plans for
+ >> replacing it with something more driver-model friendly?
+ > 
+ > Is it worth the effort. Why not just let the old ISA stuff live
+ > out its life in peace ? There is certainly no reason we couldn't
+ > make it more driver model like by splitting probe and activity
+ >
+ > i.e. ne2000 probing would do
+ >
+ >	poke around for ISA device
+ >	Found one ?
+ >		Alloc ISA device
+ >		Fill in ports/range/IRQ
+ >		Fill in vendor/product with invented idents
+ >		Announce it
+ >
+ > Then have ne2000 driver model code do the actual setup
 
-diff -Nru a/drivers/mtd/maps/octagon-5066.c b/drivers/mtd/maps/octagon-5066.c
---- a/drivers/mtd/maps/octagon-5066.c	Fri May  2 09:52:22 2003
-+++ b/drivers/mtd/maps/octagon-5066.c	Fri May  2 09:52:22 2003
-@@ -231,7 +231,7 @@
- 	int i;
- 	
- 	// Do an autoprobe sequence
--	if (check_region(PAGE_IO,1) != 0)
-+	if (!request_region(PAGE_IO,1,"Octagon SSD"))
- 		{
- 			printk("5066: Page Register in Use\n");
- 			return -EAGAIN;
-@@ -239,16 +239,16 @@
- 	iomapadr = (unsigned long)ioremap(WINDOW_START, WINDOW_LENGTH);
- 	if (!iomapadr) {
- 		printk("Failed to ioremap memory region\n");
-+		release_region(PAGE_IO,1);
- 		return -EIO;
- 	}
- 	if (OctProbe() != 0)
- 		{
- 			printk("5066: Octagon Probe Failed, is this an Octagon 5066 SBC?\n");
- 			iounmap((void *)iomapadr);
-+			release_region(PAGE_IO,1);
- 			return -EAGAIN;
- 		}
--	
--	request_region(PAGE_IO,1,"Octagon SSD");
- 	
- 	// Print out our little header..
- 	printk("Octagon 5066 SSD IO:0x%x MEM:0x%x-0x%x\n",PAGE_IO,WINDOW_START,
+Is the vendor ID 015A allocated to anything? If not, we could use
+that to indicate ISA devices - it resembles ISA as a number, and
+would thus be easier to identify. We could then use the product
+number to identify the particular product. For example..
+
+	015A:2000	NE 2000 clone card.
+	015A:3509	3COM 3C509
+
+...with other numbers allocated in a similar way. There may be some
+duplication as the above allows 65,536 discrete ISA Bus products,
+but that shouldn't matter providing we allocate unique product ID's
+for each product actually installed on a particular system.
+
+Alternatively, if it's free, we could use 15Ay:xxxx to allow for up
+to 1,048,576 products, with ID's like the following...
+
+	15Ay:2000	NE 2000 clone card.
+	15Ay:3509	3COM 3C509
+
+...with the 'y' digit used to allow up to 16 different products with
+any given product ID, incremented by the kernel as required.
+
+Best wishes from Riley.
+---
+ * Nothing as pretty as a smile, nothing as ugly as a frown.
+
+---
+Outgoing mail is certified Virus Free.
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.476 / Virus Database: 273 - Release Date: 24-Apr-2003
 

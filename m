@@ -1,42 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267404AbUJVUQf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267553AbUJVU0g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267404AbUJVUQf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 16:16:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267549AbUJVUQS
+	id S267553AbUJVU0g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 16:26:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267745AbUJVU0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 16:16:18 -0400
-Received: from main.gmane.org ([80.91.229.2]:25048 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S267404AbUJVUPy (ORCPT
+	Fri, 22 Oct 2004 16:26:10 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:30178 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267553AbUJVUX5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 16:15:54 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Fri, 22 Oct 2004 16:23:57 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
 To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-Date: Fri, 22 Oct 2004 22:15:15 +0200
-Message-ID: <MPG.1be388bde1251704989700@news.gmane.org>
-References: <4176E08B.2050706@techsource.com> <1098442636l.17554l.0l@hh> <MPG.1be33691eb7f6cd59896ff@news.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-15"
+Subject: BUG_ONs in signal.c?
+Date: Fri, 22 Oct 2004 13:23:49 -0700
+User-Agent: KMail/1.7
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ppp-253-128.29-151.libero.it
-User-Agent: MicroPlanet-Gravity/2.70.2067
+Content-Disposition: inline
+Message-Id: <200410221323.49298.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giuseppe Bilotta wrote:
-> Another important market to look into is laptops, IMO. 
-> Especially when memory consumption comes in, if the card can do 
-                  ^^^^^^
-Ahem. Of course this should read "power"
+I recently saw a bug where someone hit the BUG_ON in signal.c after the 
+do_coredump code (in my kernel "kernel BUG at signal.c:1614").  After looking 
+at it a bit, it seems that we drop the sighand lock prior to calling into the 
+core dump routine, which leaves the task vulnerable to having it's group_exit 
+or group_exit_code changed either during the coredump or shortly after, 
+causing one of the BUG_ONs to trip (in this particular case it was the 
+group_exit_code != code check).  Are these BUG_ON checks necessary anymore?  
+Or should we be holding the sighand lock all the way until we call do_exit or 
+do_group_exit?  Or something else?
 
--- 
-Giuseppe "Oblomov" Bilotta
-
-Can't you see
-It all makes perfect sense
-Expressed in dollar and cents
-Pounds shillings and pence
-                  (Roger Waters)
-
+Thanks,
+Jesse

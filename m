@@ -1,154 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262839AbTCKFi6>; Tue, 11 Mar 2003 00:38:58 -0500
+	id <S262834AbTCKGIg>; Tue, 11 Mar 2003 01:08:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262840AbTCKFi6>; Tue, 11 Mar 2003 00:38:58 -0500
-Received: from holomorphy.com ([66.224.33.161]:33976 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262839AbTCKFi4>;
-	Tue, 11 Mar 2003 00:38:56 -0500
-Date: Mon, 10 Mar 2003 21:48:26 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: pgcl-2.5.64-[345]
-Message-ID: <20030311054826.GF20188@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	id <S262840AbTCKGIg>; Tue, 11 Mar 2003 01:08:36 -0500
+Received: from thunk.org ([140.239.227.29]:17077 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S262834AbTCKGIf>;
+	Tue, 11 Mar 2003 01:08:35 -0500
+Date: Tue, 11 Mar 2003 01:19:11 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Martin Schlemmer <azarah@gentoo.org>
+Cc: Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
+Subject: Re: Corruption problem with ext3 and htree
+Message-ID: <20030311061911.GF1965@think.thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Martin Schlemmer <azarah@gentoo.org>,
+	Andreas Dilger <adilger@clusterfs.com>,
 	linux-kernel@vger.kernel.org
-References: <20030311051511.GM465@holomorphy.com>
+References: <20030307063940.6d81780e.azarah@gentoo.org> <20030306234819.Q1373@schatzie.adilger.int> <20030309063345.47046254.azarah@gentoo.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030311051511.GM465@holomorphy.com>
-User-Agent: Mutt/1.3.28i
-Organization: The Domain of Holomorphy
+In-Reply-To: <20030309063345.47046254.azarah@gentoo.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 10, 2003 at 09:15:11PM -0800, William Lee Irwin III wrote:
-> pgcl-2.5.64-3:
-[..]
-> pgcl-2.5.64-4:
-[..]
-> pgcl-2.5.64-5:
-[..]
+Hmm... can you help construct a test case that doesn't rely on the
+presence of the Gentoo distribution?  Is there some way we can
+instrument the python code so we can see the exact filesystem
+operations (renames, deletions, moves, etc.) that is going on?  The
+good news is that you say that you're able to reproduce it every
+single time, which implies it's not a timing related problem.
 
->From a 32x/48GB NUMA-Q running pgcl:
+> And for some reason its only with the Hash::Util* files that it have
+> this problem.  Am assuming it might not be related to the filename
+> itself ?
 
-AIM7 multitasking w/10000 tasks:
---------------------------------
+It could possibly be a hash value dependent problem, which case it
+could be related to the filename.  That's not very likely, but it is
+possible.  If you could send us the result of "dumpe2fs -h /dev/XXXX",
+that would be useful.  In particular the last two lines:
 
-slabinfo:
----------
-pae_pmd                    136400K        137728K      99.04%
-size-8192                   96192K         96672K      99.50%
-pte_chain                   29127K         29741K      97.94%
-task_struct                 18525K         18650K      99.33%
-proc_inode_cache            15378K         15655K      98.23%
-sighand_cache               15423K         15559K      99.13%
-dentry_cache                12253K         12313K      99.52%
-names_cache                  5400K         11552K      46.75%
-vm_area_struct              10655K         10732K      99.29%
-buffer_head                  8084K          8629K      93.67%
-files_cache                  5502K          5544K      99.24%
-mm_struct                    5158K          5192K      99.34%
-size-1024                    2563K          2666K      96.14%
-ext2_inode_cache             2236K          2386K      93.70%
-size-32768                   2176K          2208K      98.55%
-filp                         1263K          1461K      86.43%
-size-2048                    1110K          1320K      84.09%
-size-4096                     700K           992K      70.56%
-signal_cache                  877K           901K      97.34%
-fs_cache                      861K           871K      98.80%
-biovec-BIO_MAX_PAGES          768K           780K      98.46%
-radix_tree_node               687K           749K      91.77%
-size-64                       673K           721K      93.41%
+  Default directory hash:   tea
+  Directory Hash Seed:      407dbbca-8326-4bed-bc7c-bb0453f79049
 
+The most important thing though is to be able to reduce the test case
+to something which is slightly easier for us ext2/3 developers to run.  
 
-meminfo:
---------
-MemTotal:     49205952 kB
-MemFree:      40632224 kB
-Buffers:         97024 kB
-Cached:         538144 kB
-SwapCached:          0 kB
-Active:        6395360 kB
-Inactive:       528576 kB
-HighTotal:    48429056 kB
-HighFree:     40409152 kB
-LowTotal:       776896 kB
-LowFree:        223072 kB
-SwapTotal:           0 kB
-SwapFree:            0 kB
-Dirty:          141312 kB
-Writeback:       26016 kB
-Mapped:        6304768 kB
-Slab:           399840 kB
-Committed_AS:  6537460 kB
-PageTables:    1071296 kB
-ReverseMaps:   2883351
-HugePages_Total:     0
-HugePages_Free:      0
-Hugepagesize:     2048 kB
-
-
-64 simultaneous kernel compiles (-j4) on ramfs (not hardlinked):
-----------------------------------------------------------------
-
-slabtop:
---------
-inode_cache                357972K        358029K      99.98%
-dentry_cache               165646K        168839K      98.11%
-radix_tree_node             18421K         18644K      98.80%
-buffer_head                  1512K         12752K      11.86%
-size-8192                   11352K         12000K      94.60%
-pae_pmd                      7644K          7968K      95.93%
-pte_chain                     993K          4516K      22.00%
-names_cache                  3220K          3552K      90.65%
-proc_inode_cache             1982K          2362K      83.92%
-task_struct                  2038K          2327K      87.57%
-filp                         2110K          2300K      91.71%
-mm_struct                    1014K          2158K      47.02%
-size-1024                    1928K          2077K      92.83%
-sighand_cache                1556K          1660K      93.75%
-vm_area_struct                479K          1593K      30.06%
-ext2_inode_cache             1302K          1350K      96.46%
-size-2048                     934K          1290K      72.40%
-files_cache                  1013K          1071K      94.61%
-size-256                      781K           781K     100.00%
-biovec-BIO_MAX_PAGES          768K           780K      98.46%
-size-64                       310K           721K      43.10%
-sigqueue                      572K           587K      97.46%
-size-512                      502K           535K      93.84%
-
-meminfo:
---------
-MemTotal:     49205952 kB
-MemFree:      14493312 kB
-Buffers:         83936 kB
-Cached:       33435808 kB
-SwapCached:          0 kB
-Active:         765408 kB
-Inactive:     33147104 kB
-HighTotal:    48429056 kB
-HighFree:     14459264 kB
-LowTotal:       776896 kB
-LowFree:         34048 kB
-SwapTotal:           0 kB
-SwapFree:            0 kB
-Dirty:             160 kB
-Writeback:           0 kB
-Mapped:         414688 kB
-Slab:           627424 kB
-Committed_AS:   114544 kB
-PageTables:      26016 kB
-ReverseMaps:     71447
-HugePages_Total:     0
-HugePages_Free:      0
-Hugepagesize:     2048 kB
-
-Now to clean things up so tinyboxen run smooth and tweak performance.
-The antifragmentation bits are a wee bit of work, but no worries; this
-part can be brought over largely directly from hugh's 2.4.x bits. The
-real 2.5-specific challenges (highpte, rmap) are in different areas.
-
-
--- wli
+						- Ted

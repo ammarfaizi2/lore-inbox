@@ -1,41 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266151AbRGDTaz>; Wed, 4 Jul 2001 15:30:55 -0400
+	id <S266154AbRGDTol>; Wed, 4 Jul 2001 15:44:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266149AbRGDTap>; Wed, 4 Jul 2001 15:30:45 -0400
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:35597 "EHLO
-	mailout06.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S266151AbRGDTag>; Wed, 4 Jul 2001 15:30:36 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Hans-Christian Armingeon <linux.johnny@gmx.net>
-To: joe.mathewson@btinternet.com, Joseph Mathewson <joe@mathewson.co.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [OT] Suitable Athlon Motherboard for Linux
-Date: Wed, 4 Jul 2001 21:35:01 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <200107041849.f64InoE12398@ambassador.mathewson.int>
-In-Reply-To: <200107041849.f64InoE12398@ambassador.mathewson.int>
+	id <S266155AbRGDTob>; Wed, 4 Jul 2001 15:44:31 -0400
+Received: from mail3.aracnet.com ([216.99.193.38]:38668 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S266154AbRGDToW>; Wed, 4 Jul 2001 15:44:22 -0400
+Date: Wed, 4 Jul 2001 12:44:04 -0700 (PDT)
+From: mark@mahonia.com
+Reply-To: mark@mahonia.com
+Subject: Re: >128 MB RAM stability problems (again)
+To: Ronald Bultje <rbultje@ronald.bitfreak.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <994279551.1116.0.camel@tux>
 MIME-Version: 1.0
-Message-Id: <01070421350101.00849@gundi>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/plain; CHARSET=US-ASCII
+Message-Id: <E15HsZG-00071x-00@mischief.mahonia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday,  4. July 2001 20:49, Joseph Mathewson wrote:
-> Having heard the various horror stories about the VIA PCI data corruption
-> bugs, and watching one Via based machine destroy itself with a Mandrake 8.0
->  2.4.3, I was just wondering if anyone had a suggestion for an Athlon
-> motherboard that works reliably under Linux (I don't think all the issues
-> have been cleared up in the kernel yet?).  There must be quite a few Linux
-> Athlon users out there - what boards are you using and with what success?
->
-> I can't see much alternative to Via chipsets in the Ahtlon market, other
-> than all-in-one-graphics-sound-network jobbies that, from previous
-> experience (namely the i810), are also best avoided.
->
-> Joe.
->
-I think the SIS chipset based mainboards will be at a very good performance, 
-even faster than VIA. I read it in the german c't magazine.
+Asus K7V here, 800 MHz Athlon oc to 880 MHz, 256 Mb, occasional XFree86
+lockups, otherwise stable with almost any of the v2.4.x series
+including -ac variants and the testing kernels.  Right now 2.4.6-pre5,
+doing fine.
 
-Johnny

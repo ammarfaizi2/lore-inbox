@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130651AbRBJJ3Q>; Sat, 10 Feb 2001 04:29:16 -0500
+	id <S131230AbRBJJ7Z>; Sat, 10 Feb 2001 04:59:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130911AbRBJJ3G>; Sat, 10 Feb 2001 04:29:06 -0500
-Received: from www.wen-online.de ([212.223.88.39]:30469 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S130651AbRBJJ2z>;
-	Sat, 10 Feb 2001 04:28:55 -0500
-Date: Sat, 10 Feb 2001 10:28:29 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.1-ac7
-In-Reply-To: <Pine.LNX.4.21.0102082005400.2378-100000@duckman.distro.conectiva>
-Message-ID: <Pine.Linu.4.10.10102100958090.1007-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131326AbRBJJ7Q>; Sat, 10 Feb 2001 04:59:16 -0500
+Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:58897 "EHLO
+	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S131230AbRBJJ7H>; Sat, 10 Feb 2001 04:59:07 -0500
+Date: Sat, 10 Feb 2001 09:52:33 +0000
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.1ac9
+Message-ID: <20010210095233.B1491@colonel-panic.com>
+Mail-Followup-To: pdh, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3A847252.54AD7579@Hell.WH8.TU-Dresden.De> <E14RMXU-0008DV-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14RMXU-0008DV-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Feb 09, 2001 at 11:01:13PM +0000
+From: Peter Horton <pdh@colonel-panic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Feb 2001, Rik van Riel wrote:
-
-> On Thu, 8 Feb 2001, Alan Cox wrote:
+On Fri, Feb 09, 2001 at 11:01:13PM +0000, Alan Cox wrote:
+> > I've noticed that -ac9 comes with the "Disable PCI-Master-Read-Caching
+> > on VIA" patch that Peter Horton posted a while back. I don't know
+> > whether it was applied in Linus' or your tree first, but is it
+> > actually verified to fix anything?
 > 
-> > 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
-> > 
-> > 2.4.1-ac7
-> > o	Rebalance the 2.4.1 VM				(Rik van Riel)
-> > 	| This should make things feel a lot faster especially
-> > 	| on small boxes .. feedback to Rik
+> Not yet. As the story becomes clear it can either be dropped or pushed
+> on
 > 
-> I'd really like feedback from people when it comes to this
-> change. The change /should/ fix most paging performance bugs
-> because it makes kswapd do the right amount of work in order
-> to solve the free memory shortage every time it is run.
 
-Hi Rik,
+It should be dropped I think ...
 
-This change makes my box swap madly under load.  It appears to be
-keeping more cache around than is really needed, and therefore
-having to resort to swap instead.  The result is MUCH more I/O than
-previous kernels while doing the same exact job.
+Different folks found that changing different settings fixed it for
+them, so it looks like some kind of internal race in the North bridge
+where changing the timings in any way makes it harder to reproduce.
 
-My test load is make -jN bzImage.  Previous kernels kept cache at
-an average of ~20ish mb at a job level N at which level I had nearly
-zero measurable throughput loss compared to single task compile.
+The updated BIOS from Asus definitely fixes it for me, and "PCI Master
+Read Caching" is *enabled*. There are quite a few differences in the
+setup of the North bridge from the previous BIOS to this one, and I
+assume the changes were suggested by VIA.
 
->From that, I surmise that the cachable component of this job must
-fit in that roughly 20ish mb of space.  (for otherwise, I would be
-suffering throughput loss).  With this vm change, cache is nearly
-three times as large as usual.  Where 30 tasks will run with only
-modest throughput loss in ac5, ac8 throughput tapers off rapidly
-at half of that.
+If there are other people out there who still have this problem we can
+probably come up with a patch for the kernel, but isolating which of the
+settings are important would be a long job.
 
-	-Mike
+Shame VIA won't help :-(
 
+P.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

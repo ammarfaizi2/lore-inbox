@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272521AbTHPPKF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 11:10:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272587AbTHPPKF
+	id S273323AbTHPPYB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 11:24:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273345AbTHPPYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 11:10:05 -0400
-Received: from astra.telenet-ops.be ([195.130.132.58]:44457 "EHLO
-	astra.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S272521AbTHPPKB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 11:10:01 -0400
-Date: Sat, 16 Aug 2003 17:09:58 +0200
-From: Kurt Roeckx <Q@ping.be>
-To: James Simmons <jsimmons@infradead.org>
+	Sat, 16 Aug 2003 11:24:00 -0400
+Received: from law14-f58.law14.hotmail.com ([64.4.21.58]:28933 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S273323AbTHPPX7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 11:23:59 -0400
+X-Originating-IP: [194.85.81.178]
+X-Originating-Email: [john_r_newbie@hotmail.com]
+From: "John Newbie" <john_r_newbie@hotmail.com>
+To: filia@softhome.net
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with framebuffer in 2.6.0-test3
-Message-ID: <20030816150958.GA167@ping.be>
-References: <20030815224652.GA335@ping.be> <Pine.LNX.4.44.0308152348071.30952-100000@phoenix.infradead.org>
+Subject: Re: [OT] Re: ide drives performance issues, maybe related with buffer cache.
+Date: Sat, 16 Aug 2003 19:23:58 +0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308152348071.30952-100000@phoenix.infradead.org>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; format=flowed
+Message-ID: <Law14-F58ijb0u3nSfq0005b626@hotmail.com>
+X-OriginalArrivalTime: 16 Aug 2003 15:23:59.0029 (UTC) FILETIME=[6A2CFE50:01C3640A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 15, 2003 at 11:59:11PM +0100, James Simmons wrote:
-> 
-> >   LD      .tmp_vmlinux1
-> > drivers/built-in.o(.text+0x742cb): In function `tdfxfb_imageblit':
-> > : undefined reference to `cfb_imageblit'
-> > make: *** [.tmp_vmlinux1] Error 1
-> 
-> ??? That shouldn't happen.
+>   If you are really newbie in Linux - I can advice you to try FreeBSD.
+>   By default FreeBSD (as of version 3.2) is much less aggressive in 
+>caching and buffering. I never saw Linux greedy caching/buffering working 
+>good - it always has some stupid edge cases when it is easier/faster to 
+>power-off/power-on/fsck system, rather than to get to console and kill 
+>offending process.
+>   But sure - Linux's throughput is much higher that in *BSD.
+>   Benchmarketing.
+>
+1.5+ year of Linux expirience, some app. programming, book by O'Reilly 
+Understanding the Linux Kernel,
+Linux  core kernel comment., simple module programming.
 
-I changed drivers/video/Makefile like this:
+I do not want to switch to any kind of BSD. But behavior i've noticed 
+sometimes is really annoying.
 
--obj-$(CONFIG_FB_3DFX)             += tdfxfb.o
-+obj-$(CONFIG_FB_3DFX)             += tdfxfb.o cfbimgblt.o
+Sorry if you think my posts were spam.
 
-And now it works.
-
-
-Kurt
+_________________________________________________________________
+Protect your PC - get McAfee.com VirusScan Online 
+http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963
 

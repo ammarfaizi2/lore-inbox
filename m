@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318697AbSG0FNf>; Sat, 27 Jul 2002 01:13:35 -0400
+	id <S318698AbSG0FU5>; Sat, 27 Jul 2002 01:20:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318698AbSG0FNf>; Sat, 27 Jul 2002 01:13:35 -0400
-Received: from dsl-64-192-31-41.telocity.com ([64.192.31.41]:10624 "EHLO
-	butterfly.hjsoft.com") by vger.kernel.org with ESMTP
-	id <S318697AbSG0FNe>; Sat, 27 Jul 2002 01:13:34 -0400
-From: glynis@butterfly.hjsoft.com
-Date: Sat, 27 Jul 2002 01:16:49 -0400
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.29: acpi compile error
-Message-ID: <20020727051649.GA11560@butterfly.hjsoft.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="OgqxwSJOaUobr8KG"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S318699AbSG0FU5>; Sat, 27 Jul 2002 01:20:57 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:45264 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S318698AbSG0FU4>;
+	Sat, 27 Jul 2002 01:20:56 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@zip.com.au>
+Subject: Re: [RFC] Scalable statistics counters using kmalloc_percpu 
+Cc: linux-kernel@vger.kernel.org, lse <lse-tech@lists.sourceforge.net>,
+       riel@conectiva.com.br
+In-reply-to: Your message of "Fri, 26 Jul 2002 21:45:07 MST."
+             <3D422553.6B126242@zip.com.au> 
+Date: Sat, 27 Jul 2002 14:59:04 +1000
+Message-Id: <20020727052524.C9A514279@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <3D422553.6B126242@zip.com.au> you write:
+> Good.  And will it be possible to iterate across all CPUs
+> without having to iterate across NR_CPUS?
 
---OgqxwSJOaUobr8KG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hmm, define *all cpus* please?  All online cpus?  All possible CPUs?
 
-drivers/acpi/system.c is missing an #include <linux/interrupt.h>
---=20
-____________________}John Flinchbaugh{______________________
-| glynis@hjsoft.com         http://www.hjsoft.com/~glynis/ |
-~~Powered by Linux: Reboots are for hardware upgrades only~~
+Interface discussed with DaveM was: first_cpu(), next_cpu(cpu), which
+covers online CPUs, and gives a nice interface for things like irq
+balancers which want to snarf the next online cpu.
 
---OgqxwSJOaUobr8KG
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Like it?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+> > Personally, I think that dynamically allocated per-cpu datastructures,
+> > like dynamically-allocated brlocks, are something we might need
+> > eventually, but look at what a certain driver did with the "make it
+> > per-cpu" concept already.  I don't want to rush in that direction.
+> 
+> What driver is that?
 
-iD8DBQE9QizBCGPRljI8080RAmAJAJ9kG3GT93ddGntCMpEtsqWLDL93tACfeFyK
-NINAiJcu0Ukly1Q0bLKrAsg=
-=y70J
------END PGP SIGNATURE-----
+NTFS.
 
---OgqxwSJOaUobr8KG--
+> The is pretty much entirely wasted memory, and it will only get
+> worse. Making NR_CPUS compile-time configurable is a lame solution.
+> Wasting the memory is out of the question.
+> 
+> Dynamic allocation is the only thing left, yes?
+
+Um, no!  Here is the plan:
+
+1) change per-cpu data to only allocate data for cpus where
+   cpu_possible(i) (add cache coloring and NUMA allocation as desired).
+
+2) Convert non-modular cases to use per-cpu data (once the interface
+   changes again, <SIGH>).
+
+We'll end up using *less* memory than before.  We're just doing it in
+easy stages.
+
+Feel better now?
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

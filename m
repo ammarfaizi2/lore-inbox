@@ -1,46 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288169AbSAMV7f>; Sun, 13 Jan 2002 16:59:35 -0500
+	id <S288160AbSAMVyq>; Sun, 13 Jan 2002 16:54:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288166AbSAMV7Z>; Sun, 13 Jan 2002 16:59:25 -0500
-Received: from dsl081-053-223.sfo1.dsl.speakeasy.net ([64.81.53.223]:22657
-	"EHLO starship.berlin") by vger.kernel.org with ESMTP
-	id <S288159AbSAMV7P>; Sun, 13 Jan 2002 16:59:15 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, rml@tech9.net (Robert Love)
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Date: Sun, 13 Jan 2002 23:02:27 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), arjan@fenrus.demon.nl,
-        landley@trommello.org (Rob Landley), linux-kernel@vger.kernel.org
-In-Reply-To: <E16PUeP-00034K-00@the-village.bc.nu>
-In-Reply-To: <E16PUeP-00034K-00@the-village.bc.nu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Pshw-0000F6-00@starship.berlin>
+	id <S288159AbSAMVyf>; Sun, 13 Jan 2002 16:54:35 -0500
+Received: from 12-235-34-22.client.attbi.com ([12.235.34.22]:41215 "EHLO
+	voyager") by vger.kernel.org with ESMTP id <S288160AbSAMVyW>;
+	Sun, 13 Jan 2002 16:54:22 -0500
+Subject: RE: initramfs buffer spec -- third draft
+From: Norbert Kiesel <nkiesel@tbdnetworks.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-9GEMJ19dnS3OnVEuQ1tM"
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 13 Jan 2002 13:42:26 -0800
+Message-Id: <1010958148.8691.0.camel@voyager>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 12, 2002 09:21 pm, Alan Cox wrote:
-> > > I didn't see anywhere you check disable_irq(). Even if you did it doesnt
-> > > help when I mask the irq on the chip rather than using disable_irq() calls.
-> > 
-> > Well, if IRQs are disabled we won't have the timer... would not the
-> > system panic anyhow if schedule() was called while in an interrupt
-> > handler?
-> 
-> You completely misunderstand.
-> 
-> 	disable_irq(n)
-> 
-> I disable a single specific interrupt, I don't disable the timer interrupt.
-> Your code doesn't seem to handle that. Its just one of the examples of where
-> you really need priority handling, and thats a horrible dark and slippery
-> slope
 
-He just needs to disable preemption there, it's just a slight mod to 
-disable/enable_irq.  You probably have a few more of those, though...
+--=-9GEMJ19dnS3OnVEuQ1tM
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
---
-Daniel
+H. Peter Anvin wrote:
+>               initramfs buffer format
+>               -----------------------
+>
+>               Al Viro, H. Peter Anvin
+>              Last revision: 2002-01-13
+>
+>       ** DRAFT ** DRAFT ** DRAFT ** DRAFT ** DRAFT ** DRAFT **
+.....
+>The full format of the initramfs buffer is defined by the following
+>grammar, where:
+>    *    is used to indicate "0 or more occurrences of"
+>    (|)    indicates alternatives
+>    +    indicates concatenation
+>    GZIP()    indicates the gzip(1) of the operand
+>    ALGN(n)    means padding with null bytes to an n-byte boundary
+>
+>    initramfs  :=3D ("\0" | cpio_archive | cpio_gzip_archive)*
+>
+>    cpio_gzip_archive :=3D GZIP(cpio_archive)
+>
+>    cpio_archive :=3D cpio_file* + (<nothing> | cpio_trailer)
+>
+>    cpio_file :=3D ALGN(4) + cpio_header + filename + "\0" + ALGN(4) +
+data
+>
+>    cpio_trailer :=3D ALGN(4) + cpio_header + "TRAILER!!!\0" + ALGN(4)
+
+
+what's the purpose of the "*" behind cpio_file in the cpio_archive
+definition?  There is already repetition in the initramfs and the "*"
+behind cpio_archive would e.g. allow a sequence of cpio_trailers
+without  any cpio_file inbetween.
+
+--nk
+
+--=20
+Key fingerprint =3D 6C58 F18D 4747 3295 F2DB  15C1 3882 4302 F8B4 C11C
+
+--=-9GEMJ19dnS3OnVEuQ1tM
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA8Qf9COIJDAvi0wRwRAqeyAJ45pHlQGxuk+OTHnHs7DZWzFXt5sQCfc50K
+eAFYSh1WnmE84SXGvs9yRSg=
+=jbv/
+-----END PGP SIGNATURE-----
+
+--=-9GEMJ19dnS3OnVEuQ1tM--
+

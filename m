@@ -1,49 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130875AbQLYQj3>; Mon, 25 Dec 2000 11:39:29 -0500
+	id <S131836AbQLYQk3>; Mon, 25 Dec 2000 11:40:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131752AbQLYQjT>; Mon, 25 Dec 2000 11:39:19 -0500
-Received: from mout0.freenet.de ([194.97.50.131]:20683 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id <S131750AbQLYQjI>;
-	Mon, 25 Dec 2000 11:39:08 -0500
-From: Andreas Franck <afranck@gmx.de>
-Date: Mon, 25 Dec 2000 13:29:20 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="US-ASCII"
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.Linu.4.10.10012250531020.560-100000@mikeg.weiden.de>
-In-Reply-To: <Pine.Linu.4.10.10012250531020.560-100000@mikeg.weiden.de>
-Subject: Re: Fatal Oops on boot with 2.4.0testX and recent GCC snapshots
-Cc: Mike Galbraith <mikeg@wen-online.de>
-MIME-Version: 1.0
-Message-Id: <00122513292000.00531@dg1kfa.ampr.org>
-Content-Transfer-Encoding: 8bit
+	id <S131637AbQLYQkL>; Mon, 25 Dec 2000 11:40:11 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:28420 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S131775AbQLYQjt>; Mon, 25 Dec 2000 11:39:49 -0500
+Date: Mon, 25 Dec 2000 17:09:14 +0100
+From: Martin Mares <mj@suse.cz>
+To: Marvin Stodolsky <stodolsk@rcn.com>
+Cc: linux-kernel@vger.kernel.org, Jacques.Goldberg@cern.ch,
+        Mark Spieth <mark@digivation.com.au>, Sean Walbran <sean@walbran.org>
+Subject: Re: BIOS problem, pro Microsoft, anti other OS
+Message-ID: <20001225170914.A15598@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <3A4769AC.F38B372C@rcn.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <3A4769AC.F38B372C@rcn.com>; from stodolsk@rcn.com on Mon, Dec 25, 2000 at 10:37:16AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Mike, hello linux-kernel hackers,
+Hello!
 
-Mike Galbraith wrote:
-> I wouldn't (not going to here;) spend a lot of time on it.  The compiler
-> has problems.  It won't build glibc-2.2, and chokes horribly on ipchains.
+> This alert should probably be forwarded to Others, but appropriate
+> subTask persons in the kernel-source Maintainers list were not obvious.
+> 
+> Briefly, documented below is the fact/complications that some PC BIOS
+> chips are now coming with a default Microsoft setting, which makes them
+> hostile to some functionalities of other OS.  If particular under Linux,
+> a PCI Winmodem did NOT function with the Win98 BIOS setting, but did
+> fine  with BIOS choice "Other OS".  Possible, other PCI devices under
+> Linux OS might be simmilarly afflicated.
+> 
+> This indicates a need for Linux install software to be equipped with a
+> utility to probe the BIOS and report back "Linux hostile" BIOS
+> settings.  Today most Newbies are getting new PC boxes equipped with
+> WinModems.  Hostile BIOS settings will block their capability to get
+> on-line.  Unfortunately, I do not have the technical capablity to
+> directly contribute.  Thus please forward this alert to however may be
+> capable and concerned with dealing with the problem.
 
-Maybe, but after having spent several hours debugging now, I think it was 
-worth it: I am almost sure this is not a gcc bug, but a nasty race condition 
-involving the semaphore handling bdflush_init. 
+Can you check what does Linux 2.4.0-test<latest> behave, please?
 
-I figured out by spilling some printk's around in bdflush_init, which made 
-the bug magically disappear, what wasn't what I intended - but which gave me 
-a clearer impression of what's going on.
+I know of these problems and I hope the new PCI code in 2.4.0 is able
+to assign the missing memory/IO resources without help of the BIOS, but
+unfortunately 2.2 isn't and it's very difficult to back-port the fixes
+as they depend on changes in many other parts of the kernel.
 
-It seems that whyever, the cause for this failure is actually the down(sem) 
-call on a not yet up()'ed semaphore, and this is where it starts to get ugly.
+You probably should make the ltmodem driver check the region base
+registers and interrupts and if they are not set, recommend the user to
+change the OS or PNP settings in their BIOS setup.
 
-
+				Have a nice fortnight
 -- 
-->>>----------------------- Andreas Franck --------<<<-
----<<<---- Andreas.Franck@post.rwth-aachen.de --->>>---
-->>>---- Keep smiling! ----------------------------<<<-
+Martin `MJ' Mares <mj@ucw.cz> <mj@suse.cz> http://atrey.karlin.mff.cuni.cz/~mj/
+First law of socio-genetics: Celibacy is not hereditary.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

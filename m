@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271186AbTHCN6g (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 09:58:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271188AbTHCN6f
+	id S271188AbTHCOFg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 10:05:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271189AbTHCOFf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 09:58:35 -0400
-Received: from mauve.demon.co.uk ([158.152.209.66]:53395 "EHLO
-	mauve.demon.co.uk") by vger.kernel.org with ESMTP id S271186AbTHCN6e
+	Sun, 3 Aug 2003 10:05:35 -0400
+Received: from AMarseille-201-1-2-252.w193-253.abo.wanadoo.fr ([193.253.217.252]:3624
+	"EHLO gaston") by vger.kernel.org with ESMTP id S271188AbTHCOFd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 09:58:34 -0400
-From: root@mauve.demon.co.uk
-Message-Id: <200308031358.OAA09299@mauve.demon.co.uk>
-Subject: Re: 2.6.0-test2 pegasus USB ethernet system lockup.
-To: greg@kroah.com (Greg KH)
-Date: Sun, 3 Aug 2003 14:58:35 +0100 (BST)
-Cc: root@mauve.demon.co.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <20030803041144.GA18501@kroah.com> from "Greg KH" at Aug 02, 2003 09:11:44 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 3 Aug 2003 10:05:33 -0400
+Subject: [PATCH] IDE: Small fix for "hold" flag
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1059919513.3519.124.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 03 Aug 2003 16:05:13 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> On Sun, Aug 03, 2003 at 01:22:07AM +0100, root@mauve.demon.co.uk wrote:
-> > Occasionally I also get 
-> > Aug  1 01:47:37 mauve kernel: Debug: sleeping function called from invalid context at drivers/usb/core/hcd.c:1350
-> 
-> This is fixed in Linus's tree.
-> 
-> > I am unable to say if lights are flashing on the keyboard, as there are 
-> > no lights on the keyboard.
-> 
-> Can you use a serial debug console and/or the nmi watchdog to see if you
-> can capture where things went wrong?
+Hi Marcelo !
 
-Currently trying to get the NMI watchdog working.
+The "hold" flag we added a few weeks ago to IDE to deal with
+some laptop hotswap bays isn't properly kept around in ide_unregister(),
+this fixes it. This fix is necessary for PowerMac media bay to work
+properly (and this is also the only driver using this flag so far)
 
-Is it not possible to get all kernel messages written to the VGA text screen
-so that it's at least as reliable as the serial console?
-The screen is perfectly visible.
+Please apply,
+Ben.
 
-I have plugged a PS/2 connector into the docking station, and can confirm
-that there are no lights flashing.
+diff -urN linux-2.4/drivers/ide/ide.c linuxppc_benh_devel/drivers/ide/ide.c
+--- linux-2.4/drivers/ide/ide.c	2003-07-14 18:31:40.000000000 +0200
++++ linuxppc_benh_devel/drivers/ide/ide.c	2003-08-03 11:17:20.000000000 +0200
+@@ -798,6 +798,7 @@
+ 	hwif->swdma_mask		= old_hwif.swdma_mask;
+ 
+ 	hwif->chipset			= old_hwif.chipset;
++	hwif->hold			= old_hwif.hold;
+ 
+ #ifdef CONFIG_BLK_DEV_IDEPCI
+ 	hwif->pci_dev			= old_hwif.pci_dev;
+@@ -2221,7 +2222,6 @@
+

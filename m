@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264786AbSK0Uoy>; Wed, 27 Nov 2002 15:44:54 -0500
+	id <S264779AbSK0UlI>; Wed, 27 Nov 2002 15:41:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264790AbSK0Uoy>; Wed, 27 Nov 2002 15:44:54 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:12928 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S264786AbSK0Uow>; Wed, 27 Nov 2002 15:44:52 -0500
-Date: Wed, 27 Nov 2002 15:52:48 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux Geek <linux-geek@hornyaksys.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Question about copy_from/copy_to
-In-Reply-To: <3DE52A93.3060404@hornyaksys.com>
-Message-ID: <Pine.LNX.3.95.1021127154031.4051A-100000@chaos.analogic.com>
+	id <S264785AbSK0UlI>; Wed, 27 Nov 2002 15:41:08 -0500
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:25985 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S264779AbSK0UlH>;
+	Wed, 27 Nov 2002 15:41:07 -0500
+Message-ID: <3DE52F8F.3090604@candelatech.com>
+Date: Wed, 27 Nov 2002 12:48:15 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Steven Timm <timm@fnal.gov>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Tyan 2466, 2468 BIOS setting
+References: <Pine.LNX.4.31.0211271302250.5024-100000@boxer.fnal.gov>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Nov 2002, Linux Geek wrote:
-
-> I'm trying to write a device driver (module) for one of my customers and 
-> have the following problem.
+Steven Timm wrote:
+> In a number of boards with Phoenix BIOS including
+> the Tyan S2466 and S2468, there is a setting in the BIOS
+> for "Large Disk Access Mode", the available settings are
+> "DOS" and "Other".  Tyan docs suggest selecting "other".
 > 
-> kernel veraion 2.4.18...
+> These boards use the AMD 760MPX chipset. (dmesg output is below).
+> My question...is anyone aware of (1) does the kernel look
+> at this BIOS option at all, and if so (2) could having
+> it set to DOS instead of Other lead to any
+> data corruption?
 > 
-> Memory is allocated (kmalloc) in the "open" call.
+> Steve Timm
 
-Hmmm. What happens if there are multiple tasks that open the same
-device? Do you end up with multiple allocations? If so, why? And
-How do you keep track of what opened what? Are you using the
-private-data pointer in struct file? 
+These settings definately make a difference, or did 6 months ago
+when I was mucking with a system based on this MB.
+DOS == Crash and/or file system corruption on install.
 
-These are all questions that would have to be answered. The 'best'
-place to allocate memory, if you are going to re-use it for all
-access to the driver, is in init_module(). You free it in
-cleanup_module(). That "solves" a lot of race problems.
+Ben
 
-If you intend to allocate memory every time you call the driver,
-you allocate it when you need it, i.e., in read(), write(), etc.
-You immediately free it when you are done.
-
-Unless you seg-fault the kernel, you should always have control
-after the copy/to/from to release the memory, even if the user
-gave you a bad pointer.
-
-So, I would say that it's not a good idea to allocate memory during
-an open(). If you some political reason, you are forced to do this,
-you need to count the number of open/close operations and only
-deallocate memory after the final close. There are atomic-counter
-macros you can use for this.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-   Bush : The Fourth Reich of America
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
 
 

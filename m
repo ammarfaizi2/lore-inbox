@@ -1,132 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267627AbTAGUkL>; Tue, 7 Jan 2003 15:40:11 -0500
+	id <S267643AbTAGUlY>; Tue, 7 Jan 2003 15:41:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267495AbTAGUbu>; Tue, 7 Jan 2003 15:31:50 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:25549 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267493AbTAGUbQ>; Tue, 7 Jan 2003 15:31:16 -0500
-Date: Tue, 07 Jan 2003 12:24:52 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] (4/7) move one more to subarch, general tidy up
-Message-ID: <597900000.1041971092@titus>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S267499AbTAGUkS>; Tue, 7 Jan 2003 15:40:18 -0500
+Received: from atlrel7.hp.com ([156.153.255.213]:53194 "HELO atlrel7.hp.com")
+	by vger.kernel.org with SMTP id <S267493AbTAGUbw>;
+	Tue, 7 Jan 2003 15:31:52 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Bjorn Helgaas <bjorn_helgaas@hp.com>
+To: Dave Jones <davej@codemonkey.org.uk>
+Subject: [PATCH] AGP 7/7: use pci_find_capability in sworks-agp.c
+Date: Tue, 7 Jan 2003 13:40:32 -0700
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Message-Id: <200301071340.32120.bjorn_helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Moves check_phys_apicid_present() into subarch, and cleans up a
-couple of stupid errors, and some bracketing issues in the macros.
-
-diff -urpN -X /home/fletch/.diff.exclude 03-boot_error/arch/i386/kernel/smpboot.c 04-more_numaq1/arch/i386/kernel/smpboot.c
---- 03-boot_error/arch/i386/kernel/smpboot.c	Tue Jan  7 09:25:53 2003
-+++ 04-more_numaq1/arch/i386/kernel/smpboot.c	Tue Jan  7 09:26:53 2003
-@@ -821,7 +821,7 @@ static int __init do_boot_cpu(int apicid
- 	unsigned long boot_error;
- 	int timeout, cpu;
- 	unsigned long start_eip;
--	unsigned short nmi_high, nmi_low;
-+	unsigned short nmi_high = 0, nmi_low = 0;
-
- 	cpu = ++cpucount;
- 	/*
-@@ -1052,10 +1052,9 @@ static void __init smp_boot_cpus(unsigne
- 	 * CPU too, but we do it for the sake of robustness anyway.
- 	 * Makes no sense to do this check in clustered apic mode, so skip it
- 	 */
--	if (!clustered_apic_mode &&
--	    !test_bit(boot_cpu_physical_apicid, &phys_cpu_present_map)) {
-+	if (!check_phys_apicid_present(boot_cpu_physical_apicid)) {
- 		printk("weird, boot CPU (#%d) not listed by the BIOS.\n",
--							boot_cpu_physical_apicid);
-+				boot_cpu_physical_apicid);
- 		phys_cpu_present_map |= (1 << hard_smp_processor_id());
- 	}
-
-diff -urpN -X /home/fletch/.diff.exclude 03-boot_error/include/asm-i386/mach-default/mach_apic.h 04-more_numaq1/include/asm-i386/mach-default/mach_apic.h
---- 03-boot_error/include/asm-i386/mach-default/mach_apic.h	Tue Jan  7 09:24:35 2003
-+++ 04-more_numaq1/include/asm-i386/mach-default/mach_apic.h	Tue Jan  7 09:26:53 2003
-@@ -84,4 +84,9 @@ static inline void setup_portio_remap(vo
- {
- }
-
-+static inline int check_phys_apicid_present(int boot_cpu_physical_apicid)
-+{
-+	return test_bit(boot_cpu_physical_apicid, &phys_cpu_present_map);
-+}
-+
- #endif /* __ASM_MACH_APIC_H */
-diff -urpN -X /home/fletch/.diff.exclude 03-boot_error/include/asm-i386/mach-numaq/mach_apic.h 04-more_numaq1/include/asm-i386/mach-numaq/mach_apic.h
---- 03-boot_error/include/asm-i386/mach-numaq/mach_apic.h	Tue Jan  7 09:24:35 2003
-+++ 04-more_numaq1/include/asm-i386/mach-numaq/mach_apic.h	Tue Jan  7 09:26:53 2003
-@@ -1,14 +1,14 @@
- #ifndef __ASM_MACH_APIC_H
- #define __ASM_MACH_APIC_H
-
--#define APIC_DFR_VALUE	(APIC_DFR_FLAT)
-+#define APIC_DFR_VALUE	(APIC_DFR_CLUSTER)
-
- #define TARGET_CPUS (0xf)
-
- #define no_balance_irq (1)
-
- #define APIC_BROADCAST_ID      0x0F
--#define check_apicid_used(bitmap, apicid) (bitmap & (1 << apicid))
-+#define check_apicid_used(bitmap, apicid) ((bitmap) & (1 << (apicid)))
-
- static inline int apic_id_registered(void)
- {
-@@ -26,6 +26,10 @@ static inline void clustered_apic_check(
- 		"NUMA-Q", nr_ioapics);
- }
-
-+/*
-+ * Skip adding the timer int on secondary nodes, which causes
-+ * a small but painful rift in the time-space continuum.
-+ */
- static inline int multi_timer_check(int apic, int irq)
- {
- 	return (apic != 0 && irq == 0);
-@@ -80,6 +84,11 @@ static inline void setup_portio_remap(vo
- 	xquad_portio = ioremap (XQUAD_PORTIO_BASE, numnodes*XQUAD_PORTIO_QUAD);
- 	printk("xquad_portio vaddr 0x%08lx, len %08lx\n",
- 		(u_long) xquad_portio, (u_long) numnodes*XQUAD_PORTIO_QUAD);
-+}
-+
-+static inline int check_phys_apicid_present(int boot_cpu_physical_apicid)
-+{
-+	return (1);
- }
-
- #endif /* __ASM_MACH_APIC_H */
-diff -urpN -X /home/fletch/.diff.exclude 03-boot_error/include/asm-i386/mach-summit/mach_apic.h 04-more_numaq1/include/asm-i386/mach-summit/mach_apic.h
---- 03-boot_error/include/asm-i386/mach-summit/mach_apic.h	Tue Jan  7 09:24:35 2003
-+++ 04-more_numaq1/include/asm-i386/mach-summit/mach_apic.h	Tue Jan  7 09:26:53 2003
-@@ -65,4 +65,9 @@ static inline void setup_portio_remap(vo
- {
- }
-
-+static inline int check_phys_apicid_present(int boot_cpu_physical_apicid)
-+{
-+	return (1);
-+}
-+
- #endif /* __ASM_MACH_APIC_H */
-diff -urpN -X /home/fletch/.diff.exclude 03-boot_error/include/asm-i386/smp.h 04-more_numaq1/include/asm-i386/smp.h
---- 03-boot_error/include/asm-i386/smp.h	Thu Jan  2 22:05:15 2003
-+++ 04-more_numaq1/include/asm-i386/smp.h	Tue Jan  7 09:26:53 2003
-@@ -22,7 +22,7 @@
- #endif
- #endif
-
--#ifdef CONFIG_CLUSTERED_APIC
-+#ifdef CONFIG_X86_NUMAQ
-  #define INT_DELIVERY_MODE 0     /* physical delivery on LOCAL quad */
- #else
-  #define INT_DELIVERY_MODE 1     /* logical delivery broadcast to all procs */
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.977   -> 1.978  
+#	drivers/char/agp/sworks-agp.c	1.17    -> 1.18   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/01/07	bjorn_helgaas@hp.com	1.978
+# AGP: sworks - Use pci_find_capability.
+# --------------------------------------------
+#
+diff -Nru a/drivers/char/agp/sworks-agp.c b/drivers/char/agp/sworks-agp.c
+--- a/drivers/char/agp/sworks-agp.c	Tue Jan  7 12:52:58 2003
++++ b/drivers/char/agp/sworks-agp.c	Tue Jan  7 12:52:58 2003
+@@ -229,7 +229,6 @@
+ 	struct aper_size_info_lvl2 *current_size;
+ 	u32 temp;
+ 	u8 enable_reg;
+-	u8 cap_ptr;
+ 	u32 cap_id;
+ 	u16 cap_reg;
+ 
+@@ -257,18 +256,7 @@
+ 			      SVWRKS_AGP_ENABLE, enable_reg);
+ 	agp_bridge.tlb_flush(NULL);
+ 
+-	pci_read_config_byte(serverworks_private.svrwrks_dev, 0x34, &cap_ptr);
+-	if (cap_ptr != 0) {
+-		do {
+-			pci_read_config_dword(serverworks_private.svrwrks_dev,
+-					      cap_ptr, &cap_id);
+-
+-			if ((cap_id & 0xff) != 0x02)
+-				cap_ptr = (cap_id >> 8) & 0xff;
+-		}
+-		while (((cap_id & 0xff) != 0x02) && (cap_ptr != 0));
+-	}
+-	agp_bridge.capndx = cap_ptr;
++	agp_bridge.capndx = pci_find_capability(serverworks_private.svrwrks_dev, PCI_CAP_ID_AGP);
+ 
+ 	/* Fill in the mode register */
+ 	pci_read_config_dword(serverworks_private.svrwrks_dev,
 

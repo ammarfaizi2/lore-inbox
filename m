@@ -1,82 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293218AbSCOToJ>; Fri, 15 Mar 2002 14:44:09 -0500
+	id <S293224AbSCOTp6>; Fri, 15 Mar 2002 14:45:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293217AbSCOTn6>; Fri, 15 Mar 2002 14:43:58 -0500
-Received: from UX3.SP.CS.CMU.EDU ([128.2.198.103]:13348 "HELO
-	ux3.sp.cs.cmu.edu") by vger.kernel.org with SMTP id <S293204AbSCOTnp>;
-	Fri, 15 Mar 2002 14:43:45 -0500
-Subject: Re: Kernel Level DHCP Versus udhcp
-From: Justin Carlson <justincarlson@cmu.edu>
-To: abdij.bhat@kshema.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <001c01c1cc56$b38a3ec0$8134aa88@cam.pace.co.uk>
-In-Reply-To: <001c01c1cc56$b38a3ec0$8134aa88@cam.pace.co.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-t2gF8pyH+8JkhenUgLGW"
-X-Mailer: Evolution/1.0.2 
-Date: 15 Mar 2002 14:42:52 -0500
-Message-Id: <1016221377.7606.5.camel@gs256.sp.cs.cmu.edu>
-Mime-Version: 1.0
+	id <S293204AbSCOTps>; Fri, 15 Mar 2002 14:45:48 -0500
+Received: from whiterose.net ([64.65.220.94]:60433 "HELO whiterose.net")
+	by vger.kernel.org with SMTP id <S293224AbSCOTph>;
+	Fri, 15 Mar 2002 14:45:37 -0500
+Date: Fri, 15 Mar 2002 14:49:38 -0500 (EST)
+From: M Sweger <mikesw@ns1.whiterose.net>
+To: Ville Herva <vherva@niksula.hut.fi>
+Cc: linux-kernel@vger.kernel.org, andre@linux-ide.org
+Subject: Re: linux 2.2.21 pre3, pre4 and rc1 problems. (fwd)
+In-Reply-To: <20020315145844.GK128921@niksula.cs.hut.fi>
+Message-ID: <Pine.BSF.4.21.0203151447230.11909-100000@ns1.whiterose.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-t2gF8pyH+8JkhenUgLGW
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Ok! I downloaded it, and patched the kernel. Although I don't have a
+160gig drive yet (was waiting for backport), the linux 2.2.21rc2 with
+the pre2 ide patch (latest and greatest) booted ok and hasn't crashed.
+I'll need to try it on a new 160 gig drive sometime.
 
-On Fri, 2002-03-15 at 14:22, Abdij Bhat wrote:
-> Hi,
->  I am deploying a Linux Network Stack. I am supposed to use a stable, ful=
-ly
-> featured, RFC compliant, small memory foot-print DHCP client for an embed=
-ded
-> system. We had converged on udhcp for the client. But I have found that
-> there is a DCHP client implemented in the Linux Kernel ( Version 2.2.x or
-> later ). This I believe can be configured by choosing the "Kernel level
-> autoconfiguration".
->  I have however practically no documentation on the Kernel DHCP Client. I=
- do
-> not know how buggy it is, is it a fully featured DHCP client or is it jus=
-t a
-> boot level DHCP client used for remote booting etc.
->  Can some body help me with this. I believe it is used only for the remot=
-e
-> booting, with the documentation currently available to me. How correct am=
- I?
-> Can I replace the udhcp client with this one? How much of a change will I
-> need to do for the replacement?
-
-It sounds like the kernel DHCP client is not what you want.  It's really
-intended for situations where you need to get dynamically assigned IP
-information for a machine before you're far enough in the bootstrap to
-do it in userland.
-
-The most common situation for this that comes to mind is mounting your
-root filesystem over NFS.  At least, that's the only situation for which
-I've needed it.
-
-If, as you imply, you really need a full-featured DHCP client, you
-should be using something in userland.  The kernel-level one doesn't
-(last I checked) handle DHCP details like temporarly IP address leases
-and such; that's not the intention of having that option in the kernel.
-
--Justin
+Hmmm.  Hope consideration is given to back port this patch to 2.2.x.
 
 
---=-t2gF8pyH+8JkhenUgLGW
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
 
-iD8DBQA8kk6847Lg4cGgb74RAg7lAJ9OM2Q4rrcElDK39aLekrCvcbWalQCffPTS
-H7vvvrxEnCyNCLU7neZGEwU=
-=ulCI
------END PGP SIGNATURE-----
+On Fri, 15 Mar 2002, Ville Herva wrote:
 
---=-t2gF8pyH+8JkhenUgLGW--
+> On Fri, Mar 15, 2002 at 02:50:37PM +0000, you [Alan Cox] wrote:
+> > > Hopefully, linux 2.2.x will get the 160gig IDE patch that 2.4.x has.
+> > 
+> > Andre's 2.2 patch has been picked up and maintained (I forget by who). I
+> > don't consider it ever a mainstream 2.2 candidate
+> 
+> I think you mean Krzysztof Oledzki (ole@ans.pl)
+> 
+> From: Krzysztof Oledzki (ole@ans.pl)
+> Subject: ANNOUNCE - 2.4.x ide backport for 2.2.21pre2 kernel 
+> 
+> http://groups.google.com/groups?q=ANNOUNCE+-+2.4.x+ide+backport+for&hl=en&ie=ISO-8859-1&oe=ISO-8859-1&selm=linux.kernel.Pine.LNX.4.33.0201291654480.17318-100000%40dark.pcgames.pl&rnum=1
+> 
+> 
+> BTW: I've heard rumours that some older ide chipsets support 48-bit
+> addressing with a bios upgrade. HPT370 and Via 686B have been mentioned.
+> 
+> Highpoint windows driver readme:
+> 
+>   v2.1  11/15/2001
+>           * Add 48bit LBA (Big Drive) support
+> 
+> But I'm not sure whether this means HPT370 or 372 only.
+> 
+> Is this possible and will it be possible to support that functionality in
+> Linux?
+> 
+> 
+> -- v --
+> 
+> v@iki.fi
+> 
 

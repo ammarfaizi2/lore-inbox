@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271106AbTGPVL6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 17:11:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271148AbTGPVJ5
+	id S271129AbTGPVG0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 17:06:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271126AbTGPVGX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 17:09:57 -0400
-Received: from as6-4-8.rny.s.bonet.se ([217.215.27.171]:3858 "EHLO
-	pc2.dolda2000.com") by vger.kernel.org with ESMTP id S271146AbTGPVIk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 17:08:40 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Fredrik Tolf <fredrik@dolda2000.cjb.net>
+	Wed, 16 Jul 2003 17:06:23 -0400
+Received: from fw.osdl.org ([65.172.181.6]:41088 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271129AbTGPVFn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 17:05:43 -0400
+Date: Wed, 16 Jul 2003 14:13:20 -0700
+From: Andrew Morton <akpm@osdl.org>
 To: Greg KH <greg@kroah.com>
-Subject: Re: Input layer demand loading
-Date: Wed, 16 Jul 2003 23:23:31 +0200
-User-Agent: KMail/1.4.3
 Cc: linux-kernel@vger.kernel.org
-References: <200307131839.49112.fredrik@dolda2000.cjb.net> <200307161457.42862.fredrik@dolda2000.cjb.net> <20030716162639.GB7513@kroah.com>
-In-Reply-To: <20030716162639.GB7513@kroah.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200307162323.31836.fredrik@dolda2000.cjb.net>
+Subject: Re: [PATCH] print_dev_t for 2.6.0-test1-mm
+Message-Id: <20030716141320.5bd2a8b3.akpm@osdl.org>
+In-Reply-To: <20030716210253.GD2279@kroah.com>
+References: <20030716184609.GA1913@kroah.com>
+	<20030716130915.035a13ca.akpm@osdl.org>
+	<20030716210253.GD2279@kroah.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 16 July 2003 18.26, Greg KH wrote:
-> On Wed, Jul 16, 2003 at 02:57:42PM +0200, Fredrik Tolf wrote:
-> > On Wednesday 16 July 2003 06.29, Greg KH wrote:
-> > > On Mon, Jul 14, 2003 at 12:58:24PM +0200, Fredrik Tolf wrote:
-> > > > If the input layer userspace interface code has been compiled as
-> > > > modules, and you have a ordinary (not hotplug) device, eg. a gameport
-> > > > joystick, can really the hotplug interface be used to load joydev.o
-> > > > when /dev/input/js0 is opened?
-> > >
-> > > No, you want to load the joydev.o driver when you plug in the gameport
-> > > joystick.  Which will be before you open the /dev node.
-> >
-> > Not necessarily. When the joystick is plugged in, you want to load the
-> > hardware driver modules. There's really no need for the userspace
-> > interface until someone requests it. At least that's the way I see it.
-> > And in any case, even if you do want to load joydev.o when the joystick
-> > is plugged in, I don't see how that could be done on-demand when the
-> > joystick port isn't hotplug compatible, such as is the case with
-> > gameports, right?
+Greg KH <greg@kroah.com> wrote:
 >
-> True, but then if you try to open the port, you will only get the base
-> joydev.o module loaded, not the gameport driver, which is what you
-> _really_ want to have loaded, right?
+> > So we'll need to come up with some standardised way of presenting a dev_t
+> > to the user.  Presumably that will just be
+> > 
+> > 	sprintf(buf, "%d:%d", major(dev), minor(dev));
+> > 	
+> > But if we do this, will it break your existing stuff?
+> 
+> No, I don't think there are any users of udev right now :)
+> 
+> I wouldn't mind the ':' being there, makes my life a bit easier, but for
+> some reason Al Viro didn't want to do that a long time ago...
+> 
+> If we put the ':' in there, it protects userspace from having to deal
+> with different sized dev_t, so that really makes sense.
 
-Huh? Look at it this way: As it is now, if you have a non-hotplug joystick, 
-then you can't load anything automatically, not even the hardware drivers.
-If you have demand-loading in the input layer, on the other hand, you can have 
-"above" directives in modules.conf (or "install" directives in modprobe.conf) 
-to pull in the hardware drivers along with joydev. So not only does 
-demand-loading permit hardware drivers and userspace interfaces independently 
-of each other, it also provides for loading hardware drivers on demand for 
-non-hotplug hardware.
+OK, I think I'll make it so and hope he doesn't notice ;)
 
-Fredrik Tolf
+The new dev_t encoding is a bit weird because we of course continue to
+support the old 8:8 encoding.  I think the rule is: "if the top 32-bits are
+zero, it is 8:8, otherwise 32:32".  We can express this nicely with
+"%u:%u".
+
+Now I need to go hunt down all those places where I added casts to unsigned
+longs in printks.  hrm.
 

@@ -1,68 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbVAWPtJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbVAWQHC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261320AbVAWPtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 10:49:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVAWPtJ
+	id S261321AbVAWQHC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 11:07:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVAWQHC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 10:49:09 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:10382 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261320AbVAWPtE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 10:49:04 -0500
-Message-ID: <41F3C76E.7000904@acm.org>
-Date: Sun, 23 Jan 2005 09:49:02 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Patch to fix race between the NMI code and the CMOS clock
-References: <41F18A52.9040703@acm.org> <20050123001806.53140e54.akpm@osdl.org>
-In-Reply-To: <20050123001806.53140e54.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 23 Jan 2005 11:07:02 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:17272 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261321AbVAWQG6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 11:06:58 -0500
+Subject: DVD burning still have problems
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: LKML Mailinglist <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Sun, 23 Jan 2005 17:06:54 +0100
+Message-Id: <1106496414.14219.8.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+hello, i followed the last thread, "unable to burn DVD", and there was a
+patch, which was said to work, but it does not.. (i am running
+2.6.11-rc1-bk9)..
 
->Corey Minyard <minyard@acm.org> wrote:
->  
->
->>This patch fixes a race between the CMOS clock setting and the NMI
->> code.  The NMI code indiscriminatly sets index registers and values
->> in the same place the CMOS clock is set.  If you are setting the
->> CMOS clock and an NMI occurs, Bad values could be written to or
->> read from the CMOS RAM, or the NMI operation might not occur
->> correctly.
->>
->> Fixing this requires creating a special lock so the NMI code can
->> know its CPU owns the lock an "do the right thing" in that case.
->>    
->>
->
->hm, tricky patch.  I can't see any holes in it.  The volatile variable is
->awkward but should be OK on x86 and I can see the need for it.
->  
->
-It took some thought and I couldn't think of anything simpler.  I posted 
-in on lkml a little while ago, and some people tried but nobody else 
-found a simpler solution that worked with SMP.
+the problem started around 2.6.9 (or something like it), when i was only
+able to burn 1 dvd, then i had to restart before i could burn another
+(or every second dvd i burn would fail), the error i get is input/output
+error.. my burner is working perfect, since it works on windows, and on
+2.6.9-rcSomething.
 
->There's a preposterous amount of inlining happening in this code.  Hence
->your patch took the size of drivers/char/rtc.o from
->
->   text    data     bss     dec     hex filename
->   3657     540       8    4205    106d drivers/char/rtc.o
->to
->   5419     540       8    5967    174f drivers/char/rtc.o
->
->Do you think you could take a look at uninlining everything sometime?
->  
->
-Certainly.  I'll try to have it sometime today.
+it is not a specific place in the burning process it fails, sometimes at
+10%, and sometimes at 97%
 
-Thanks,
+burning normal cd's works perfectly
 
--Corey
+now on 2.6.10 and 2.6.11-later i cant burn dvd's at all, every time i
+try to burn one, it fails, i have tried different speeds and media, same
+thing, i got a Liteon sohw1213S dvd duallayer burner, allthough im not
+using duallayer media.
+
+here is a log from a burning i just tried:
+/dev/hda: engaging DVD-R DAO upon user request...
+/dev/hda: reserving 2149200 blocks
+/dev/hda: "Current Write Speed" is 4.1x1385KBps.
+  0.02% done, estimate finish Tue Jan 25 13:20:53 2005
+  0.05% done, estimate finish Mon Jan 24 15:13:15 2005
+<snip>
+ 83.66% done, estimate finish Sun Jan 23 16:50:47 2005
+ 83.68% done, estimate finish Sun Jan 23 16:50:47 2005
+ 83.71% done, estimate finish Sun Jan 23 16:50:46 2005
+:-[ WRITE@LBA=1b7460h failed with SK=3h/ASC=0Ch/ACQ=00h]: Input/output
+error
+:-( write failed: Input/output error
+/dev/hda: flushing cache
+
+this is simply what happens :(
+i have tried with and without pktcdvd loaded, same result, i hope
+someone can help me
+
+thanks
+

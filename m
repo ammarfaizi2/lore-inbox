@@ -1,65 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318907AbSHEWb1>; Mon, 5 Aug 2002 18:31:27 -0400
+	id <S318898AbSHEWh2>; Mon, 5 Aug 2002 18:37:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318912AbSHEWb0>; Mon, 5 Aug 2002 18:31:26 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:13955 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S318907AbSHEWbU>; Mon, 5 Aug 2002 18:31:20 -0400
-Date: Tue, 6 Aug 2002 00:34:19 +0200
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: Richard Zidlicky <rz@linux-m68k.org>
-Cc: jdike@karaya.com, alan@redhat.com, mingo@elte.hu,
-       linux-kernel@vger.kernel.org
-Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user mode
-Message-Id: <20020806003419.3457fcb9.us15@os.inf.tu-dresden.de>
-In-Reply-To: <20020805224415.A579@linux-m68k.org>
-References: <200208031233.g73CXUB02612@devserv.devel.redhat.com>
-	<200208031529.KAA01655@ccure.karaya.com>
-	<20020805154607.7c021c56.us15@os.inf.tu-dresden.de>
-	<20020805224415.A579@linux-m68k.org>
-Organization: Disorganized
-X-Mailer: Sylpheed version 0.7.8claws (GTK+ 1.2.10; )
+	id <S318891AbSHEWh1>; Mon, 5 Aug 2002 18:37:27 -0400
+Received: from h53n2fls24o900.telia.com ([217.208.132.53]:49894 "EHLO
+	oden.fish.net") by vger.kernel.org with ESMTP id <S318898AbSHEWh0>;
+	Mon, 5 Aug 2002 18:37:26 -0400
+Date: Tue, 6 Aug 2002 00:40:59 +0200
+From: Voluspa <voluspa@bigfoot.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.19 MAESTRO sound /dev/dsp3 broken (luxury problem)
+Message-Id: <20020806004059.43db99fb.voluspa@bigfoot.com>
+Organization: The Foggy One
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Aug 2002 22:44:15 +0200
-Richard Zidlicky <rz@linux-m68k.org> wrote:
 
-> very interesting, what is the handiest way to do "syscalls" in this model?
-> Ptrace is still basically signal driven so I would expect it has still some 
-> unnecessary overhead?
+The fourth channel, aka /dev/dsp3, of the MAESTRO sound driver is broken (yeah, sob, sob) in 2.4.19 and -ac1. Last working that I've used, compiled as a module, was 2.4.19-pre10-ac1. The "sound" now coming out of that channel is a cry from the wilderness (confirmed with RealOne Player and gqmpeg and xine and...)
 
-Task wants to do a syscall (i.e. int 0x30 in Fiasco), the kernel process tracing
-the task sees the signal in its SIGCHLD handler. It pulls the registers out of the
-task's address space using PTRACE_GETREGS and sets up an interrupt frame on the
-kernel stack. EIP and ESP in the saved signal context are frobbed in a way that
-the signal handler falls right into the correct interrupt gate when it returns.
-iret works the other way round. SIGSEGV handler in the kernel process copies registers
-back to task and restarts the task's process after restoring kernel state.
+First three channels are all A OK.
 
-> > I would also very much like an extension that would allow one process to modify
-> > the MM of another, possibly via an extended ptrace interface or a new syscall.
-> > Also it would be nice if there was an alternate way to get at the cr2 register,
-> > trap number and error code other than from a SIGSEGV handler.
-> 
-> that's what signals are for, too bad they are slow.
+Machine is a Compaq Presario 5640 (PII 400) with 128 meg mem. Builtin sound chip.
 
-As it is now, in order to get at the page fault address one has to invoke a SIGSEGV
-handler in the task, then look at the task's signal context to determine the pagefault
-address, trapno etc. It would be much faster if the kernel could cancel the SIGSEGV signal
-in the task's process and read out the the pagefault info from the TCB via a ptrace
-extension. Saves the cost of a running a signal handler in the task and a bunch of context
-switches.
+>From /etc/modules.conf
+[...]
+alias sound maestro
+options maestro dsps_order=2
+pre-install maestro /sbin/modprobe soundcore
 
-> they are very expensive because of the way ptrace accesses the other process
-> memory, did you try a piece of shared memory ?
+>From /var/log/messages:
+[...]
+Aug  5 23:45:38 loke kernel: PCI: Sharing IRQ 5 with 01:00.0
+Aug  5 23:45:38 loke kernel: maestro: Configuring ESS Maestro 2 found at IO 0x20
+00 IRQ 5
+Aug  5 23:45:38 loke kernel: maestro:  subvendor id: 0xb0b80e11
+Aug  5 23:45:38 loke kernel: maestro: not attempting power management.
+Aug  5 23:45:38 loke kernel: maestro: AC97 Codec detected: v: 0x414b4d00 caps: 0
+x0 pwr: 0xf
+Aug  5 23:45:38 loke kernel: maestro: 4 channels configured.
+Aug  5 23:45:38 loke kernel: maestro: version 0.15 time 21:52:54 Aug  5 2002
 
-Yes, trampoline page is shared between kernel and task. Nevertheless there are
-context switches that wouldn't be necessary if the kernel could tweak the task's
-mm directly.
+loke:loke:~$ cat /proc/pci
+PCI devices found:
+  Bus  0, device   0, function  0:
+    Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 2).
+      Master Capable.  Latency=64.  
+      Prefetchable 32 bit memory at 0x44000000 [0x47ffffff].
+  Bus  0, device   1, function  0:
+    PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 2).
+      Master Capable.  Latency=64.  Min Gnt=140.
+  Bus  0, device   5, function  0:
+    Ethernet controller: Digital Equipment Corporation DECchip 21142/43 (rev 65).
+      IRQ 11.
+      Master Capable.  Latency=96.  Min Gnt=20.Max Lat=40.
+      I/O at 0x2400 [0x247f].
+      Non-prefetchable 32 bit memory at 0x41100000 [0x411003ff].
+  Bus  0, device   6, function  0:
+    Multimedia audio controller: ESS Technology ES1968 Maestro 2 (rev 0).
+      IRQ 5.
+      Master Capable.  Latency=64.  Min Gnt=2.Max Lat=24.
+      I/O at 0x2000 [0x20ff].
+  Bus  0, device  20, function  0:
+    ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 2).
+  Bus  0, device  20, function  1:
+    IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 1).
+      Master Capable.  Latency=64.  
+      I/O at 0x24a0 [0x24af].
+  Bus  0, device  20, function  2:
+    USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 1).
+      IRQ 11.
+      Master Capable.  Latency=64.  
+      I/O at 0x2480 [0x249f].
+  Bus  0, device  20, function  3:
+    Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 2).
+      IRQ 9.
+  Bus  1, device   0, function  0:
+    VGA compatible controller: ATI Technologies Inc 3D Rage LT Pro AGP-133 (rev 220).
+      IRQ 5.
+      Master Capable.  Latency=66.  Min Gnt=8.
+      Non-prefetchable 32 bit memory at 0x40000000 [0x40ffffff].
+      I/O at 0x1000 [0x10ff].
+      Non-prefetchable 32 bit memory at 0x41000000 [0x41000fff].
 
--Udo.
+Regards,
+Mats Johannesson

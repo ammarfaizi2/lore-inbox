@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264998AbTFCNM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 09:12:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264999AbTFCNM2
+	id S265006AbTFCNPt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 09:15:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265005AbTFCNPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 09:12:28 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:27278 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264998AbTFCNM0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 09:12:26 -0400
-Date: Tue, 3 Jun 2003 09:27:40 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: "Henning P. Schmiedehausen" <hps@intermeta.de>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Question about style when converting from K&R to ANSI C.
-In-Reply-To: <bbi77j$mb3$1@tangens.hometree.net>
-Message-ID: <Pine.LNX.4.53.0306030924270.23328@chaos>
-References: <1054446976.19557.23.camel@spc> <20030601132626.GA3012@work.bitmover.com>
- <1054519757.161606@palladium.transmeta.com> <20030603123256.GG1253@admingilde.org>
- <20030603124501.GB13838@suse.de> <bbi77j$mb3$1@tangens.hometree.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 3 Jun 2003 09:15:49 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:13509 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S265004AbTFCNPs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 09:15:48 -0400
+Message-Id: <5.1.0.14.2.20030603152622.00aec8d0@pop.t-online.de>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 03 Jun 2003 15:29:06 +0200
+To: linux-kernel@vger.kernel.org
+From: margitsw@t-online.de (Margit Schubert-While)
+Subject: arch/i386/math-emu/fpu_trig.c
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Seen: false
+X-ID: EquXPwZEwehQq3yx1n-NpQWJhde1za0+8G-cLwWfimy4EwoIUe3+4U@t-dialin.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Jun 2003, Henning P. Schmiedehausen wrote:
-> Dave Jones <davej@codemonkey.org.uk> writes:
-> >On Tue, Jun 03, 2003 at 02:32:56PM +0200, Martin Waitz wrote:
->
-[SNIPPED...]
-> ignore them. I'm grateful that there are programming environments
-> beyond vi. [1] :-)
->
-> 	Regards
-> 		Henning
+Another pedantic issue :-)
+In arch/i386/math-emu/fpu_trig.c line 1061 we have :
+   else if ( (st0_tag == TAG_Empty) | (st1_tag == TAG_Empty) )
 
-(1) ed
+Should be "||" or ?
+
+Margit 
+

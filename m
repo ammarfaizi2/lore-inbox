@@ -1,62 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262056AbVAYSth@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262057AbVAYSuQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262056AbVAYSth (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 13:49:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262057AbVAYSth
+	id S262057AbVAYSuQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 13:50:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262058AbVAYSuQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 13:49:37 -0500
-Received: from gprs213-152.eurotel.cz ([160.218.213.152]:896 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262056AbVAYStf (ORCPT
+	Tue, 25 Jan 2005 13:50:16 -0500
+Received: from colo.lackof.org ([198.49.126.79]:937 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S262057AbVAYSuG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 13:49:35 -0500
-Date: Tue, 25 Jan 2005 19:41:39 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Brice.Goglin@ens-lyon.org
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc2-mm1
-Message-ID: <20050125184139.GA1346@elf.ucw.cz>
-References: <20050124021516.5d1ee686.akpm@osdl.org> <41F59A50.1090203@ens-lyon.fr>
+	Tue, 25 Jan 2005 13:50:06 -0500
+Date: Tue, 25 Jan 2005 11:50:14 -0700
+From: Grant Grundler <grundler@parisc-linux.org>
+To: "Mukker, Atul" <Atulm@lsil.com>
+Cc: "'Andi Kleen'" <ak@muc.de>, "'Steve Lord'" <lord@xfs.org>,
+       "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
+       "'Mel Gorman'" <mel@csn.ul.ie>,
+       "'William Lee Irwin III'" <wli@holomorphy.com>,
+       "'Linux Memory Management List'" <linux-mm@kvack.org>,
+       "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
+       "'Grant Grundler'" <grundler@parisc-linux.org>
+Subject: Re: [PATCH] Avoiding fragmentation through different allocator
+Message-ID: <20050125185014.GA3582@colo.lackof.org>
+References: <0E3FA95632D6D047BA649F95DAB60E5705A70E61@exa-atlanta>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <41F59A50.1090203@ens-lyon.fr>
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E5705A70E61@exa-atlanta>
+X-Home-Page: http://www.parisc-linux.org/
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Jan 25, 2005 at 09:02:34AM -0500, Mukker, Atul wrote:
+> The megaraid driver is open source, do you see anything that driver can do
+> to improve performance. We would greatly appreciate any feedback in this
+> regard and definitely incorporate in the driver. The FW under Linux and
+> windows is same, so I do not see how the megaraid stack should perform
+> differently under Linux and windows?
 
-> Andrew Morton a écrit :
-> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc1/2.6.11-rc1-mm1/
-> >
-> >
-> >- Lots of updates and fixes all over the place.
-> >
-> >- On my test box there is no flashing cursor on the vga console.  Known 
-> >bug,
-> >  please don't report it.
-> >
-> >  Binary searching shows that the bug was introduced by
-> >  cleanup-vc-array-access.patch but that patch is, unfortunately,
-> > huge.
+Just to second what Andy already stated: it's more likely the
+Megaraid firmware could be better at fetching the SG lists.
+This is a difficult problem since the firmware needs to work
+well on so many different platforms/chipsets.
 
-Heh, on my system, I get no cursor, and no letters, either (this is
-vga text console). I *can* see the backgrounds, for example if I run
-aumix I see colored blocks... Framebuffer does not seem to work,
-either.
+If LSI has time to turn more stones, get a PCI bus analyzer and filter
+it to only capture CPU MMIO traffic and DMA traffic to/from some
+"well known" SG lists (ie instrument the driver to print those to
+the console). Then run AIM7 or similar multithreaded workload.
+A perfect PCI trace will show the device pulling the SG list in
+cacheline at time after the CPU MMIO reads/writes from the card
+to indicate a new transaction is ready to go.
 
-Letters are present for a while during boot; not sure what makes them
-go away.
+Another stone LSI could turn is to verify the megaraid controller is
+NOT contending with the CPU for cachelines used to build SG lists.
+This something the driver controls but I only know how to measure
+this on ia64 machines (with pfmon or caliper or similar tool).
+If you want examples, see
+	http://iou.parisc-linux.org/ols2004/pfmon_for_iodorks.pdf
 
-> ACPI does not work anymore on my Compaq Evo N600c
-> (no thermal zone, no fan, no battery, ...).
-> It works great on Linus' 2.6.11-rc2, and (from what I remember)
-> it was working on the last -mm releases I tried.
+In case it's not clear from above, optimal IO flow means the device
+is moving control data and streaming data in cacheline or bigger units.
+If Megaraid is already doing that, then the PCI trace timing info
+should point at where the latencies are.
 
-I'd test on N620c, but it is rather hard without video :-(.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+hth,
+grant

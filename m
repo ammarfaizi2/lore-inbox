@@ -1,60 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311163AbSCHVvT>; Fri, 8 Mar 2002 16:51:19 -0500
+	id <S311160AbSCHVyJ>; Fri, 8 Mar 2002 16:54:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311159AbSCHVvJ>; Fri, 8 Mar 2002 16:51:09 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:14466 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S311151AbSCHVuz>; Fri, 8 Mar 2002 16:50:55 -0500
-Date: Fri, 8 Mar 2002 22:38:12 +0100
-From: "Axel H. Siebenwirth" <axel@hh59.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.6: undefined reference to `idescsi_init'
-Message-ID: <20020308213812.GB13672@neon>
-Mime-Version: 1.0
+	id <S311168AbSCHVyA>; Fri, 8 Mar 2002 16:54:00 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:59825 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S311167AbSCHVx5>; Fri, 8 Mar 2002 16:53:57 -0500
+Date: Fri, 08 Mar 2002 13:50:49 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Samuel Ortiz <sortiz@dbear.engr.sgi.com>
+cc: Andrea Arcangeli <andrea@suse.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] stop null ptr deference in __alloc_pages
+Message-ID: <37610000.1015624249@flay>
+In-Reply-To: <Pine.LNX.4.33.0203081325560.18968-100000@dbear.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.33.0203081325560.18968-100000@dbear.engr.sgi.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-Organization: hh59.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>> I should have also mentioned that:
+>> 
+>> 1) I shouldn't need the SGI patch, though it might help performance.
+>
+> Why shouldn't you need it ? It is NUMA generic, and totally arch
+> independent.
 
-following undefined referenced is encountered when linking the kernel.
+I just mean the kernel shouldn't panic if I don't have it.
 
-drivers/ide/idedriver.o: In function 'ata_module_init':
-drivers/ide/idedriver.o(.text.init+0x941): undefined reference to
-descsi_init'
+> And it actually helps performance. I also allows the kernel to have a
+> single memory allocation path. I think it is cleaner than calling _alloc_pages()
+> from numa.c
+> 
+>> 2) The kernel panics without my fix, and runs fine with it.
+> I hope so  :-)
+> But your fix is at the same time useless and harmless for UMA machines.
 
-I suppose there is some easy way to solve this?!
+Yup, though I suppose we could shave off a couple of nanoseconds by 
+surrounding my little check with #ifdef CONFIG_NUMA.
 
-Thanks,
+> OTOH, the SGI patch doesn't modify __alloc_pages(). I think I'm a little
+> too picky here...
 
-Axel
+With the #ifdef, I won't really do this either (at least for the code generated).
 
-#
-# IDE, ATA and ATAPI Block devices
-#
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDESCSI=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
+The SGI patch is probably a good thing, and I'll pick it up and try it 
+sometime soon. The only real problem is that it's not in the mainline
+already. Until such time as it gets there, the fix I posted is trivial,
+and easily seen to be correct (well, I'm biased ;-) ), and should get
+shoved into the mainline much easier.
 
-#
-# SCSI support
-#
-CONFIG_SCSI=y
-CONFIG_CHR_DEV_SG=y
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_CONSTANTS=y
+M.
 

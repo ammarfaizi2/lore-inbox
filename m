@@ -1,72 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264479AbSIVTFm>; Sun, 22 Sep 2002 15:05:42 -0400
+	id <S264486AbSIVTKr>; Sun, 22 Sep 2002 15:10:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264486AbSIVTFl>; Sun, 22 Sep 2002 15:05:41 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:50438 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S264479AbSIVTFl>; Sun, 22 Sep 2002 15:05:41 -0400
-Date: Sun, 22 Sep 2002 15:02:48 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: Michael Sinz <msinz@wgate.com>, mks@sinz.org, marcelo@conectiva.com.br,
-       Robert Love <rml@tech9.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>, riel@conectiva.com.br,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] kernel 2.4.19 & 2.5.38 - coredump sysctl
-In-Reply-To: <3D8B8CAB.103C6CB8@digeo.com>
-Message-ID: <Pine.LNX.3.96.1020922145444.7597A-100000@gatekeeper.tmr.com>
+	id <S264488AbSIVTKr>; Sun, 22 Sep 2002 15:10:47 -0400
+Received: from nameservices.net ([208.234.25.16]:33512 "EHLO opersys.com")
+	by vger.kernel.org with ESMTP id <S264486AbSIVTKq>;
+	Sun, 22 Sep 2002 15:10:46 -0400
+Message-ID: <3D8E179B.FCD06E7@opersys.com>
+Date: Sun, 22 Sep 2002 15:18:51 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Roman Zippel <zippel@linux-m68k.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LTT-Dev <ltt-dev@shafik.org>
+Subject: Re: [PATCH] LTT for 2.5.38 1/9: Core infrastructure
+References: <Pine.LNX.4.44.0209221130060.1455-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Sep 2002, Andrew Morton wrote:
 
-> That seems a reasonable thing to want to do.
+Linus Torvalds wrote:
+> On Sun, 22 Sep 2002, Roman Zippel wrote:
+> > What about other developers, which only want to develop a simple driver,
+> > without having to understand the whole kernel? Traces still work where
+> > printk() or kgdb don't work. I think it's reasonable to ask an user to
+> > enable tracing and reproduce the problem, which you can't reproduce
+> > yourself.
 > 
-> > ...
-> > The following format options are available in that string:
-> > 
-> >        %P   The Process ID (current->pid)
-> >        %U   The UID of the process (current->uid)
-> >        %N   The command name of the process (current->comm)
-> >        %H   The nodename of the system (system_utsname.nodename)
-> >        %%   A "%"
-> > 
-> > For example, in my clusters, I have an NFS R/W mount at /coredumps
-> > that all nodes have access to. The format string I use is:
-> > 
-> >         sysctl -w "kernel.core_name_format=/coredumps/%H-%N-%P.core"
-> > 
-> 
-> Does it need to be this fancy?  Why not just have:
-> 
->         if (core_name_format is unset)
->                 use "core"
->         else
->                 use core_name_format/nodename-uid-pid-comm.core
+> That makes adding source bloat ok? I've debugged some drivers with
+> dprintk() style tracing, and it often makes the code harder to follow,
+> even if it eds up being compiled away.
 
-Because this way you can do more things with where you put your dumps,
-such as using one element of this flexible method to select a directory,
-where the dump directories for various applications would be on a single
-NFS server, and dumps for another might be on another server, or all dumps
-of a certain kind could share a filename, where only the latest dump would
-be of interest (or take space).
+Source bloat is certainly not desirable, as I said to my reply to Ingo.
+What is desirable, however, is to have a uniform tracing mechanism
+replace the ad-hoc tracing mechanisms already implemented in many drivers
+and subsystems.
 
-The code seems to have very little overhead involved in the parse, and it
-gives a good deal of flexibility to the admin. I like the idea of a sysctl
-for setting the value, you don't want to have to reboot the system when an
-app goes sour and you need to save more than one dump to run it down, or
-need to mvoe the dump target dir somewhere with more space.
+> >From what I've seen from the LTT thing, it's too heavy-weight to be good
+> for many things (taking SMP-global locks for trace events is _not_ a good
+> idea if the trace is for doing things like doing performance tracing,
+> where a tracer that adds synchronization fundamentally _changes_ what is
+> going on in ways that have nothing to do with timing).
 
-If you're worried about size make it a compile option, but if I (as an
-admin) need any control I really want a bunch of control I can set right
-now. I don't think most people will want this option, but it would be
-really useful in some cases.
+Sure, but there are no locks anymore in the tracer with the addition of
+the lockless code which is part of the set of patches I just sent. So yes,
+this was a problem with LTT, but it isn't anymore.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+The lockless scheme is pretty simple, instead of using a spinlock to
+ensure atomic allocation of buffer space, the code does an allocate-and-test
+routine where it tries to allocate space in the buffer and tests if it
+succeeded in doing so. If so, then it goes on to write the data in the
+event buffer, otherwise it tries again. In most cases, it does this loop
+only once and in most worst cases twice.
 
+> I suspect we'll want to have some form of event tracing eventually, but
+> I'm personally pretty convinced that it needs to be a per-CPU thing, and
+> the core mechanism would need to be very lightweight. It's easier to build
+> up complexity on top of a lightweight interface than it is to make a
+> lightweight interface out of a heavy one.
+
+I fully agree with the requirements you list. LTT is already lightweight
+in terms of its performance impact on the system and it doesn't use any
+form of locking anymore. The only remaining issue is the use of per-CPU
+buffers and this is currently being worked on by the team at IBM that
+had already developed the lockless scheme and will be ready shortly.
+However, there clearly is no more lock contention.
+
+Karim
+
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

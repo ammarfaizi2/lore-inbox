@@ -1,157 +1,98 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313925AbSERWMV>; Sat, 18 May 2002 18:12:21 -0400
+	id <S314052AbSERWNY>; Sat, 18 May 2002 18:13:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314051AbSERWMU>; Sat, 18 May 2002 18:12:20 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:61174 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S313925AbSERWMS>; Sat, 18 May 2002 18:12:18 -0400
-Subject: Re: [PATCH] 2.5: user-configurable maximum RT priorities
-From: Robert Love <rml@tech9.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1021667491.920.120.camel@sinai>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 18 May 2002 15:12:18 -0700
-Message-Id: <1021759938.6754.193.camel@sinai>
+	id <S314056AbSERWNX>; Sat, 18 May 2002 18:13:23 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:2055 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S314052AbSERWNV>;
+	Sat, 18 May 2002 18:13:21 -0400
+Date: Sun, 19 May 2002 00:14:34 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Drivers.conf and kbuild-2.5 [Was: kbuild 2.5 is ready ...]
+Message-ID: <20020519001434.A4153@mars.ravnborg.org>
+In-Reply-To: <Pine.LNX.4.44.0205172157540.4117-100000@xanadu.home> <15163.1021688371@ocs3.intra.ocs.com.au>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For 2.5.16, Linus took the main chunk of the user-configurable maximum
-RT priorities patch.  The configure code to export a setting was not
-exported, however.
+On Sat, May 18, 2002 at 12:19:31PM +1000, Keith Owens wrote:
+> 
+>  "Before I send you the kbuild 2.5 patch, how do you want to handle it?".
+>  
+> I am seeking Linus opinion on the next step, not sending the patch yet.
 
-For those interested, this patch creates configure items and associated
-help to allow seamless compile-time setting of both the maximum priority
-and the maximum RT priority exported to user-space.
+Hi Keith & others
 
-The maximum user-space exported RT priority is MAX_USER_RT_PRIO and is
-set via CONFIG_MAX_USER_RT_PRIO.  It defaults to 100 and has a maximum
-of (arbitrarily) 1000.  Anything outside these ranges will be silently
-rounded accordingly.  The default RT prios are 0..99 - thus this will
-allow priorities to go to 0..999 if desired.
+Dunno if you have seen it already, but Linus gave some inputs in:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102170343732408&w=2
 
-The maximum kernel RT priority is MAX_RT_PRIO and is set via
-CONFIG_MAX_RT_PRIO.  It is the absolute maximum priority and is not
-exported to user-space.  The configure setting is actually an offset
-from MAX_USER_RT_PRIO and thus defaults to zero (i.e. they are the
-same).  The maximum allowed is 200.  This would be useful for giving
-kernel threads higher priorities than any existing user task.
+As usual he likes the small steps, and I have seen your replies on this
+before.
 
-This patch is against 2.5.16.  Enjoy,
+I have browsed a little in the last version I have used of kbuild-2.5.
+The core part which I assume is the full engine of kbuild-2.5, touches
+42 files. Most if not all of these are new files, and not modifications.
+This part I agree cannot be splitted up furhter.
 
-	Robert Love
+The common part touches a few existing files related to "make dep"
+functionality [split-include, mkdep etc.]
+Would it make sense to submit them separately to get them understood
+and accepted?
+The rest is a big bunch of new Makefile.in files, translated versions
+of the existing Makefile's.
 
-diff -urN linux-2.5.16/include/asm-i386/bitops.h linux/include/asm-i386/bitops.h
---- linux-2.5.16/include/asm-i386/bitops.h	Sat May 18 00:46:07 2002
-+++ linux/include/asm-i386/bitops.h	Sat May 18 15:03:20 2002
-@@ -422,7 +422,7 @@
-  * unlikely to be set. It's guaranteed that at least one of the 140
-  * bits is cleared.
-  */
--static inline int sched_find_first_bit(unsigned long *b)
-+static inline int _sched_find_first_bit(unsigned long *b)
- {
- 	if (unlikely(b[0]))
- 		return __ffs(b[0]);
-diff -urN linux-2.5.16/include/linux/sched.h linux/include/linux/sched.h
---- linux-2.5.16/include/linux/sched.h	Sat May 18 00:45:57 2002
-+++ linux/include/linux/sched.h	Sat May 18 15:03:21 2002
-@@ -217,13 +217,40 @@
-  * user-space.  This allows kernel threads to set their
-  * priority to a value higher than any user task. Note:
-  * MAX_RT_PRIO must not be smaller than MAX_USER_RT_PRIO.
-+ *
-+ * Both values are configurable at compile-time.
-  */
- 
-+#if CONFIG_MAX_USER_RT_PRIO < 100
- #define MAX_USER_RT_PRIO	100
-+#elif CONFIG_MAX_USER_RT_PRIO > 1000
-+#define MAX_USER_RT_PRIO	1000
-+#else
-+#define MAX_USER_RT_PRIO	CONFIG_MAX_USER_RT_PRIO
-+#endif
-+
-+#if CONFIG_MAX_RT_PRIO < 0
- #define MAX_RT_PRIO		MAX_USER_RT_PRIO
-+#elif CONFIG_MAX_RT_PRIO > 200
-+#define MAX_RT_PRIO		(MAX_USER_RT_PRIO + 200)
-+#else
-+#define MAX_RT_PRIO		(MAX_USER_RT_PRIO + CONFIG_MAX_RT_PRIO)
-+#endif
- 
- #define MAX_PRIO		(MAX_RT_PRIO + 40)
-- 
-+
-+/*
-+ * The maximum RT priority is configurable.  If the resulting
-+ * bitmap is 160-bits , we can use a hand-coded routine which
-+ * is optimal.  Otherwise, we fall back on a generic routine for
-+ * finding the first set bit from an arbitrarily-sized bitmap.
-+ */
-+#if MAX_PRIO < 160 && MAX_PRIO > 127
-+#define sched_find_first_bit(map)	_sched_find_first_bit(map)
-+#else
-+#define sched_find_first_bit(map)	find_first_bit(map, MAX_PRIO)
-+#endif
-+
- /*
-  * Some day this will be a full-fledged user tracking system..
-  */
-diff -urN linux-2.5.16/init/Config.help linux/init/Config.help
---- linux-2.5.16/init/Config.help	Sat May 18 00:45:56 2002
-+++ linux/init/Config.help	Sat May 18 15:03:21 2002
-@@ -80,6 +80,36 @@
-   building a kernel for install/rescue disks or your system is very
-   limited in memory.
- 
-+Maximum User Real-Time Priority
-+  The maximum user real-time priority. Tasks with priorities from
-+  zero through one less than this value are scheduled as real-time.
-+  To the application, a higher priority value implies a higher
-+  priority task.
-+
-+  The minimum allowed value is 100 and the maximum allowed value
-+  is (arbitrary) 1000. Values specified outside this range will
-+  be rounded accordingly during compile-time. The default is 100.
-+  Setting this higher than 100 is safe but will result in slightly
-+  more processing overhead in the scheduler. 
-+
-+  Unless you are doing specialized real-time computing and require
-+  a much larger range than usual, the default is fine.
-+
-+Maximum Kernel Real-Time Priority
-+  The difference between the maximum real-time priority and the
-+  maximum user real-time priority.  Usually this value is zero,
-+  which sets the maximum real-time priority to the same as the
-+  maximum user real-time priority.  Setting this higher,
-+  however, will allow kernel threads to set their priority to a
-+  value higher than any user task. This is safe, but will result
-+  in slightly more processing overhead in the scheduler.
-+
-+  This value can be at most 200.  The default is zero, i.e. the
-+  maximum priority and maximum user priority are the same.
-+
-+  Unless you are doing specialized real-time programming with
-+  kernel threads, the default is fine.
-+
- CONFIG_MODULES
-   Kernel modules are small pieces of compiled code which can be
-   inserted in or removed from the running kernel, using the programs
-diff -urN linux-2.5.16/init/Config.in linux/init/Config.in
---- linux-2.5.16/init/Config.in	Sat May 18 00:45:58 2002
-+++ linux/init/Config.in	Sat May 18 15:03:21 2002
-@@ -9,6 +9,8 @@
- bool 'System V IPC' CONFIG_SYSVIPC
- bool 'BSD Process Accounting' CONFIG_BSD_PROCESS_ACCT
- bool 'Sysctl support' CONFIG_SYSCTL
-+int 'Maximum User Real-Time Priority' CONFIG_MAX_USER_RT_PRIO 100
-+int 'Maximum Kernel Real-time Priority' CONFIG_MAX_RT_PRIO 0
- endmenu
- 
- mainmenu_option next_comment
+The architecture specific part contains a mixture of stuff, but only
+touches/creates 17 files. Some of this is due to the new install method
+introduced.
+Would it make sense to submit that part separately, as it may be used with
+kbuild-2.4 as well as I see it?
+
+What actually triggered this mail was the old drivers.conf idea.
+One way to sell kbuild-2.5 could be to introduce functionality that
+was seen as an improvement for the kernel-hackers, and not persons like me.
+Does it make sense to introduce limited support for the drivers.conf idea
+in kbuild-2.5 already now?
+The first step could be to support it in kbuild, next step could be to support
+it in for example "make config" or even better mconfig from Michael Chastain.
+
+Here it would make sense to take a gradually approach, and only convert a
+single directory as proof of concept. The first version would naturally not
+help text and config.in rules as "make config" does not support it.
+
+Allowing this distributed approach getting rid of the centrally located
+information could be the incentive required to convince Linus and at the
+same time bring Linux one step further in the process of avoiding
+centrally located information.
 
 
+I also considered the possibility to let the two makefile syntaxes co-exist
+to avoid creating ~270 new Makefile.in files, but I could not see this as
+feasible. The new syntax add a great deal of info that cannot be obtained
+by the old format.
+IMHO it would also be plain stupid to put a lot of effort in
+supporting the old makefile syntax, when the files are already converted.
+
+
+PS. I'm one of those people that are hit by the errors in the current system.
+I forget to run make dep, I fiddle with .config manually without running
+make oldconfig etc. etc.
+I am aware that people knowing what they are doing are much less hit by the
+funnies in the current kbuild system.
+
+	Sam
+
+> 
+> --
+> 
+> Those that can, do.  Those that can't, troll on linux-kernel.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,97 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262914AbTKEOHV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 09:07:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262925AbTKEOHV
+	id S262925AbTKEOhV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 09:37:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbTKEOhV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 09:07:21 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:48855 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262914AbTKEOHS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 09:07:18 -0500
-Message-ID: <3FA85B4C.1040900@namesys.com>
-Date: Tue, 04 Nov 2003 18:07:08 -0800
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Oeser <ioe-lkml@rameria.de>
-CC: Nikita Danilov <Nikita@Namesys.COM>, "Theodore Ts'o" <tytso@mit.edu>,
-       Erik Andersen <andersen@codepoet.org>, linux-kernel@vger.kernel.org,
-       Timothy Miller <miller@techsource.com>
-Subject: Re: Things that Longhorn seems to be doing right
-References: <3F9F7F66.9060008@namesys.com> <3FA6891A.3050400@techsource.com> <3FA75F97.3080508@namesys.com> <200311051451.10063.ioe-lkml@rameria.de>
-In-Reply-To: <200311051451.10063.ioe-lkml@rameria.de>
-X-Enigmail-Version: 0.76.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 5 Nov 2003 09:37:21 -0500
+Received: from ns.suse.de ([195.135.220.2]:27273 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262925AbTKEOhN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 09:37:13 -0500
+Date: Wed, 5 Nov 2003 13:36:26 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix rq->flags use in ide-tape.c
+Message-ID: <20031105123625.GM1477@suse.de>
+References: <200311041718.hA4HIBmv027100@hera.kernel.org> <20031105084004.GY1477@suse.de> <200311051300.47039.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200311051300.47039.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser wrote:
+On Wed, Nov 05 2003, Bartlomiej Zolnierkiewicz wrote:
+> On Wednesday 05 of November 2003 09:40, Jens Axboe wrote:
+> > On Tue, Nov 04 2003, Linux Kernel Mailing List wrote:
+> > > ChangeSet 1.1413, 2003/11/04 08:01:30-08:00,
+> > > B.Zolnierkiewicz@elka.pw.edu.pl
+> > >
+> > > 	[PATCH] fix rq->flags use in ide-tape.c
+> > >
+> > > 	Noticed by Stuart_Hayes@Dell.com:
+> >
+> > Guys, this is _way_ ugly. We definitely dont need more crap in ->flags
+> > for private driver use, stuff them somewhere else in the rq. rq->cmd[0]
+> > usage would be a whole lot better. This patch should never have been
+> > merged. If each and every driver needs 5 private bits in ->flags,
+> > well...
+> 
+> Yeah, it is ugly.  Using rq->cmd is also ugly as it hides the problem in
+> ide-tape.c, but if you prefer this way I can clean it up.  I just wanted
+> minimal changes to ide-tape.c to make it working.
 
->On Tuesday 04 November 2003 09:13, Hans Reiser wrote:
->  
->
->>Timothy Miller wrote:
->>    
->>
->>>Nikita Danilov wrote:
->>>      
->>>
->>>>It is called "a directory". :) There is no crime in putting
->>>>
->>>>cc src/*.c
->>>>
->>>>into Makefile. I think that Hans' query-result-object denoting multiple
->>>>objects is more like directory than single regular file.
->>>>        
->>>>
->>>So a file system query that results in multiple files generates a
->>>"virtual directory"?
->>>      
->>>
->>Remember that this code does not exist yet.....;-)
->>
->>Sounds like it might be a good way to do it though.
->>    
->>
->
->Yes and this also solves the "refine feedback" problem: Just return
->sth. useful in the stat->nlink for that directory
->or even create a new stat-like syscall.
->  
->
-I don't understand what you are saying about nlink.  Can you say more?
+Well using ->cmd is acceptable. Adding these 5 bits for ide-tape is, on
+the other hand, completely and utterly unacceptable. So I'd greatly
+prefer it that way :)
 
->Now the issuer can decide on ANY level, whether to refine the search or
->accept the result to present it in a listing.
->
->A proper replacement for nlink is looong overdue.
->
->But even with the crappy one, we have now, it can be decided since a
->list of 65K is too much for a proper selection and cannot be handled by
->a user. Somebody even said that every search pattern revealing more
->than 50 records is not refined enough.
->  
->
-If the user is looking for only one record....
+> > Was this even posted on linux-kernel for review?
+> 
+> Yes.
 
->PS: Hans, we just saved you the funding on this topic.
->
->Regards
->
->Ingo Oeser
->
->
->
->
->  
->
-
+Ok missed it then.
 
 -- 
-Hans
-
+Jens Axboe
 

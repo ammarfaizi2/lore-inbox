@@ -1,80 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbUE1Ize@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262381AbUE1I6a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262356AbUE1Ize (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 04:55:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262381AbUE1Ize
+	id S262381AbUE1I6a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 04:58:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbUE1I6a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 04:55:34 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:64203 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S262356AbUE1IzZ (ORCPT
+	Fri, 28 May 2004 04:58:30 -0400
+Received: from ns1.skjellin.no ([80.239.42.66]:45981 "HELO mail.skjellin.no")
+	by vger.kernel.org with SMTP id S262381AbUE1I6Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 04:55:25 -0400
-Date: Fri, 28 May 2004 10:55:23 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: ftp.kernel.org
-Message-ID: <20040528085523.GP1912@lug-owl.de>
-Mail-Followup-To: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-References: <Pine.GSO.4.33.0405280018250.14297-100000@sweetums.bluetronic.net> <200405280941.38784.m.watts@eris.qinetiq.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1ic3dgwa48mUU+0C"
-Content-Disposition: inline
-In-Reply-To: <200405280941.38784.m.watts@eris.qinetiq.com>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 28 May 2004 04:58:25 -0400
+Message-ID: <40B6FF30.4040308@tomt.net>
+Date: Fri, 28 May 2004 10:58:24 +0200
+From: Andre Tomt <andre@tomt.net>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Mukker, Atul" <Atulm@lsil.com>
+CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+       "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
+       "'Matthew Wilcox'" <willy@debian.org>,
+       "'Arjan van de Ven'" <arjanv@redhat.com>,
+       "'Christoph Hellwig'" <hch@infradead.org>,
+       "'matt_domsch@dell.com'" <matt_domsch@dell.com>,
+       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
+       "'paul@wagland.net'" <paul@wagland.net>,
+       "Doelfel, Hardy" <hdoelfel@lsil.com>,
+       "Bagalkote, Sreenivas" <sreenib@lsil.com>,
+       "Prabhakaran, Rajesh" <rajeshpr@lsil.com>,
+       "Jose, Manoj" <Manojj@lsil.com>
+Subject: Re: [ANNOUNCE]: megaraid driver version 2.20.0.rc2
+References: <0E3FA95632D6D047BA649F95DAB60E57033BC694@exa-atlanta>
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57033BC694@exa-atlanta>
+Content-Type: multipart/mixed;
+ boundary="------------050003090705050805080709"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------050003090705050805080709
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 
---1ic3dgwa48mUU+0C
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Mukker, Atul wrote:
+> The patch for lk 2.6.6 and the driver is available at
+> 
+> ftp://ftp.lsil.com/pub/linux-megaraid/drivers/version-2.20.0.rc2/
 
-On Fri, 2004-05-28 09:41:38 +0100, Mark Watts <m.watts@eris.qinetiq.com>
-wrote in message <200405280941.38784.m.watts@eris.qinetiq.com>:
-> > On Thu, 27 May 2004, Martin J. Bligh wrote:
-> > That would explain it.  The default is to turn it off.
-> > >Why would you mirror via ftp, instead of rsync anyway?
-> > I have more control with mirror.  And I've been using mirror for
-> > *ahem* a decade.  I've been using rsync for mirroring debian, but
-> > it's slow and often fails to complete.  Mirror has never let me
-> > down ('tho it has deleted entire archives before *grin*)
-> Agreed - fmirror is so much more reliable than rsync (imho) that it makes=
-=20
-> rsync into a worst-case option for retrieving files.
+2.6.6 patch is missing vital drivers/scsi/Makefile part.
 
-Disagree! Mirroring with ftp is possibly quite a waste of bandwidth (at
-least in case partial file transfers etc.), and IIRC you can't reliably
-mirror symlinks (IIRC the "ls"/"dir" output is only ment to be
-human-readable), hardlinks and the like.
+-- 
+Cheers,
+André Tomt
 
-If you see aborts, properly set the timeout parameter...
+--------------050003090705050805080709
+Content-Type: text/x-diff;
+ name="31_scsidrv_megaraid-2.20.0.rc2-missing-makefile-bit.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="31_scsidrv_megaraid-2.20.0.rc2-missing-makefile-bit.patch"
 
-MfG, JBG (a happy rsync user)
+diff -Naur linux-2.6.7-rc1-bk4-s1/drivers/scsi/Makefile linux-2.6.7-rc1-bk4-s1-1/drivers/scsi/Makefile
+--- linux-2.6.7-rc1-bk4-s1/drivers/scsi/Makefile	2004-05-28 04:07:43.000000000 +0200
++++ linux-2.6.7-rc1-bk4-s1-1/drivers/scsi/Makefile	2004-05-28 07:57:52.000000000 +0200
+@@ -96,7 +96,8 @@
+ obj-$(CONFIG_SCSI_EATA)		+= eata.o
+ obj-$(CONFIG_SCSI_DC395x)	+= dc395x.o
+ obj-$(CONFIG_SCSI_DC390T)	+= tmscsim.o
+-obj-$(CONFIG_SCSI_MEGARAID)	+= megaraid.o
++obj-$(CONFIG_MEGARAID_LEGACY)	+= megaraid.o
++obj-$(CONFIG_MEGARAID_NEWGEN)	+= megaraid/
+ obj-$(CONFIG_SCSI_ACARD)	+= atp870u.o
+ obj-$(CONFIG_SCSI_SUNESP)	+= esp.o
+ obj-$(CONFIG_SCSI_GDTH)		+= gdth.o
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
-
---1ic3dgwa48mUU+0C
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAtv57Hb1edYOZ4bsRAqHpAKCS2d6tV6rAVy+z8AF5+C/y+u0a9gCcCGEh
-lOYdFkS3nOFHrhFCHWKl7G4=
-=FY4Z
------END PGP SIGNATURE-----
-
---1ic3dgwa48mUU+0C--
+--------------050003090705050805080709--

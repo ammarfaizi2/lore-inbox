@@ -1,38 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282801AbRL0VpN>; Thu, 27 Dec 2001 16:45:13 -0500
+	id <S282687AbRL0Vmd>; Thu, 27 Dec 2001 16:42:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282707AbRL0VpG>; Thu, 27 Dec 2001 16:45:06 -0500
-Received: from odin.allegientsystems.com ([208.251.178.227]:56192 "EHLO
-	lasn-001.allegientsystems.com") by vger.kernel.org with ESMTP
-	id <S282693AbRL0Vor>; Thu, 27 Dec 2001 16:44:47 -0500
-Message-ID: <3C2B9649.7090503@optonline.net>
-Date: Thu, 27 Dec 2001 16:44:41 -0500
-From: Nathan Bryant <nbryant@optonline.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S282655AbRL0VmY>; Thu, 27 Dec 2001 16:42:24 -0500
+Received: from mail3.svr.pol.co.uk ([195.92.193.19]:14196 "EHLO
+	mail3.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S282860AbRL0VmN>; Thu, 27 Dec 2001 16:42:13 -0500
+Posted-Date: Thu, 27 Dec 2001 21:42:04 GMT
+Date: Thu, 27 Dec 2001 21:42:04 +0000 (GMT)
+From: Riley Williams <rhw@MemAlpha.cx>
+Reply-To: Riley Williams <rhw@MemAlpha.cx>
+To: Kai Henningsen <kaih@khms.westfalen.de>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Configure.help editorial policy
+In-Reply-To: <8FeKi-zXw-B@khms.westfalen.de>
+Message-ID: <Pine.LNX.4.21.0112272136210.3044-100000@Consulate.UFP.CX>
 MIME-Version: 1.0
-To: Andris Pavenis <pavenis@latnet.lv>
-CC: Doug Ledford <dledford@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: i810_audio driver version 0.13 still broken
-In-Reply-To: <Pine.A41.4.05.10112081022560.23064-100000@ieva06> <200112080945.fB89jAC00998@hal.astr.lu.lv> <3C15566B.7010803@redhat.com> <200112271110.fBRBA5S00309@hal.astr.lu.lv>
-Content-Type: text/plain; charset=ISO-8859-13; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andris Pavenis wrote:
+Hi Kai.
 
->It still hanged machine after playing KDE startup sound. Didn't tried much 
->more and moved to my modified version of 0.12 which worked
->
-please send me your modified version again. full file would be best, not 
-patch.
+> rhw@MemAlpha.cx (Riley Williams) wrote on 26.12.01...
 
-i can't reproduce any problems here, so far, so i'm stabbing in the 
-dark. if you can give more detailed information to reproduce, that would 
-be nice: hardware versions, version of KDE, kde settings, (mine doesn't 
-play a startup sound and artsd works fine for everything else i try), 
-artsd settings. if i can reproduce, i can analyze on my own machine, if 
-not, outlook is hazy ;-)
+>>			Symbol	Designation	  Number of Bytes
+>>			~~~~~~	~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~
+>>			KiB	Decimal Kilobyte  1,000
+>>			KB	Binary Kilobyte   1,024
+>>
+>>			MiB	Decimal Megabyte  1,000,000
+>>			MB	Binary Megabyte   1,048,576
+>>
+>>			GiB	Decimal Gigabyte  1,000,000,000
+>>			GB	Binary Gigabyte   1,073,741,824
+>>
+>>			TiB	Decimal Terabyte  1,000,000,000,000
+>>			TB	Binary Terabyte   1,099,511,627,776
+
+> Uh, that's all wrong. The "i" versions are *binary*, the non-"i"
+> versions are *decimal*. Completely backward.
+
+No problem. Just swap the relevant labels over in the first column.
+
+As far as the tweak I proposed (and which I've finished creating for
+`make config` and have nearly finished for `make menuconfig` as well),
+the whole entry, along with that for any other "Technical Acronyms"
+(TM) that one wishes to define in the same way, are simple entries at
+the top of Configure.help and can easily be edited by anybody willing
+to apply fingers to keycaps.
+
+The only question I'm really interested in hearing answers to is this:
+
+	What other acronyms used in Configure.help could use
+	defining in this manner for kernel newbies?
+
+Any takers willing to supply both the acronym and a definition thereof?
+
+Best wishes from Riley.
 

@@ -1,57 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132877AbRDPISW>; Mon, 16 Apr 2001 04:18:22 -0400
+	id <S132887AbRDPIXy>; Mon, 16 Apr 2001 04:23:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132876AbRDPISM>; Mon, 16 Apr 2001 04:18:12 -0400
-Received: from wv-morgantown1-213.mgtnwv.adelphia.net ([24.50.80.213]:20989
-	"HELO hestia.localdomain") by vger.kernel.org with SMTP
-	id <S132875AbRDPIR5>; Mon, 16 Apr 2001 04:17:57 -0400
-Date: Mon, 16 Apr 2001 04:17:56 -0400
-From: David Smith <davidsmith@acm.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Athlon runtime problems
-Message-ID: <20010416041756.A813@akira>
-Mail-Followup-To: David Smith <davidsmith@acm.org>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
+	id <S132880AbRDPIWb>; Mon, 16 Apr 2001 04:22:31 -0400
+Received: from 13dyn131.delft.casema.net ([212.64.76.131]:35342 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S132883AbRDPIU5>; Mon, 16 Apr 2001 04:20:57 -0400
+Message-Id: <200104160820.KAA04117@cave.bitwizard.nl>
+Subject: [PATCH] Aligning the CPU capabilities flags. 
+To: hpa@transmeta.com, Linus Torvalds <Torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Date: Mon, 16 Apr 2001 10:20:52 +0200 (MEST)
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Can the folks who are seeing crashes running athlon optimised kernels all
-> mail me
-> - CPU model/stepping
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 4
-model name      : AMD Athlon(tm) Processor
-stepping        : 2
-cpu MHz         : 902.064
 
-thunderbird 900 (200 MHz FSB)
+Human eyes are wonderful things. They do pattern matching given
+the right input. Compare:
 
-> - Chipset
-IWill KK266R, VIA KT133A north, 686B south bridges. IDE RAID is disabled.
+CPU: After vendor init, caps: 0183f9ff c1c7f9ff 00000000 00000000
+CPU: After generic, caps: 0183f9ff c1c7f9ff 00000000 00000000
+CPU: Common caps: 0183f9ff c1c7f9ff 00000000 00000000
 
-> - Amount of RAM
-256 M generic pc100.
+with:
 
-> - /proc/mtrr output
-(while in X, with geforce2 card, and AGP aperature set to 128)
-reg00: base=0x00000000 (   0MB), size= 256MB: write-back, count=1
-reg01: base=0xd8000000 (3456MB), size=  32MB: write-combining, count=1
-reg05: base=0xd0000000 (3328MB), size= 128MB: write-combining, count=1
+CPU: After vendor init, caps: 0183f9ff c1c7f9ff 00000000 00000000
+CPU:     After generic, caps: 0183f9ff c1c7f9ff 00000000 00000000
+CPU:             Common caps: 0183f9ff c1c7f9ff 00000000 00000000
 
-> - compiler used
-gcc version 2.95.4 20010319 (Debian prerelease)
-debian gcc package version 1:2.95.3-7
+In the second case it's immediately obivous nothing changed during
+these steps.
+
+Patch below. 
+
+			Roger. 
 
 
-Is there any other information I can provide?
+diff -ur linux-2.4.3.clean/arch/i386/kernel/setup.c linux-2.4.3.cpuflagsfix/arch/i386/kernel/setup.c
+--- linux-2.4.3.clean/arch/i386/kernel/setup.c	Mon Apr  2 10:02:33 2001
++++ linux-2.4.3.cpuflagsfix/arch/i386/kernel/setup.c	Mon Apr 16 10:14:59 2001
+@@ -2064,7 +2064,7 @@
+ 
+ 	/* Now the feature flags better reflect actual CPU features! */
+ 
+-	printk(KERN_DEBUG "CPU: After generic, caps: %08x %08x %08x %08x\n",
++	printk(KERN_DEBUG "CPU:     After generic, caps: %08x %08x %08x %08x\n",
+ 	       c->x86_capability[0],
+ 	       c->x86_capability[1],
+ 	       c->x86_capability[2],
+@@ -2082,7 +2082,7 @@
+ 			boot_cpu_data.x86_capability[i] &= c->x86_capability[i];
+ 	}
+ 
+-	printk(KERN_DEBUG "CPU: Common caps: %08x %08x %08x %08x\n",
++	printk(KERN_DEBUG "CPU:             Common caps: %08x %08x %08x %08x\n",
+ 	       boot_cpu_data.x86_capability[0],
+ 	       boot_cpu_data.x86_capability[1],
+ 	       boot_cpu_data.x86_capability[2],
 
-I also seem to have a problem running 2.4.3 (official and ac1-6) kernels
-without K7 optimizations, it locks up under I/O using several interrupts (no
-IDE involved). I'll post a message about it when I can keep it up long enough
-to get debugging information.
+
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

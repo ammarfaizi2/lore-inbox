@@ -1,99 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276474AbRJDJtL>; Thu, 4 Oct 2001 05:49:11 -0400
+	id <S276468AbRJDJwl>; Thu, 4 Oct 2001 05:52:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276623AbRJDJtC>; Thu, 4 Oct 2001 05:49:02 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:55768 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S276922AbRJDJss>; Thu, 4 Oct 2001 05:48:48 -0400
-Message-ID: <3BBC30B6.1030203@wipro.com>
-Date: Thu, 04 Oct 2001 15:19:42 +0530
-From: "BALBIR SINGH" <balbir.singh@wipro.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: mingo@elte.hu
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <Pine.LNX.4.33.0110041119060.5309-100000@localhost.localdomain>
-Content-Type: multipart/mixed;
-	boundary="------------InterScan_NT_MIME_Boundary"
+	id <S276480AbRJDJwb>; Thu, 4 Oct 2001 05:52:31 -0400
+Received: from smtp2.cluster.oleane.net ([195.25.12.17]:33806 "EHLO
+	smtp2.cluster.oleane.net") by vger.kernel.org with ESMTP
+	id <S276468AbRJDJwR>; Thu, 4 Oct 2001 05:52:17 -0400
+Date: Thu, 4 Oct 2001 11:52:36 +0200
+From: Nicolas Mailhot <Nicolas.Mailhot@one2team.com>
+To: trond.myklebust@fys.uio.no
+Cc: linux-kernel@vger.kernel.org
+Subject: [BUG] Symlinks broken on 2.4.10-ac[3-4] nfs
+Message-ID: <20011004115236.A9373@ulysse.olympe.o2t>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Balsa 1.2.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-This is a multi-part message in MIME format.
+	I've found out much to my sorrow that the latest
+ac's do not handle symlinks over nfs well.
+For example, I get that kind of results :
 
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+lrwxrwxrwx    1 nim      cvs            92 oct  4 11:47
+release.xml -> ../antbui
+ld/init/release.xml?Q¿*U!±M~?Wè¢?0>Â%Ó?ª¯ô?ºªú]¡Úvä??®?§JO#b±?µøGé\?î1Ä?ü«B?´;??
+ÐHT
+lrwxrwxrwx    1 nim      cvs           387 oct  4 11:47 xml
+-> ../antbuild/init/
+xml£ú¢?ÛÕw?zê$ªEµ¶%Jº4­<?BÃÊY`L?è>=1Íî>Å?¹???§ÇÐ?ñú¸¬»??ÈÚ?¬q]?4ìG??Ã?´??è:»J]»ò
+Ä?7¯ºËxxÍZ&?z³¬{??^¡9Lõ?|m?×©]?4?³iúÜ?NL·[#?|²ÕìcHh;û?r¤?$¤EÜI$íF?y???yíâ­?·??W9
+m?1<FA?v*@KGü?Ü°¹dßl8?ì?íF°,óá&´l¾Ý¬ÈãS?ZÌ?¥M?iUi«b??c«âx.?Ðêýj?Êg?êf.f!ê?®pÊGêÆ
+´??¾QÒAbwV1Û2áä1ÄL?QKè??ª?@¢Òaæà?Õ?±È??µ??,Å?u)ÉuRæ¶&T×Ï
 
-Sorry, if I missed something in the patch, but here is a question.
+after a 
+[nim@ulysse ant]$ln -s ../antbuild/init/*xml .
+[nim@ulysse ant]$ls -l
 
-Shouldn't the interrupt mitigation be on a per CPU basis?
-What I mean is that if a particular CPU is hogged due to some
-interrupt, that interrupt should be mitigated on that particular CPU
-and not on all CPUs in the system. So, unless an interrupt ends up
-taking a lot of time on all CPUs it should still have a chance to
-do something.
+This is over an nfs mounted directory, server and client
+2.4.40-ac4 nfs3, server-side fs : ext2
 
-This could probably help in distributing the interrupts more evenly and
-fairly on an SMP system or vice-versa.
+That's pretty ugly isn't it ?
 
-Balbir
-
-
-
-Ingo Molnar wrote:
-
->On Thu, 4 Oct 2001, BALBIR SINGH wrote:
->
->>Ingo, is it possible to provide an interface (optional interface) to
->>drivers, so that they can decide how many interrupts are too much.
->>
->
->well, it existed, and i can add it back - i dont have any strong feelings
->either.
->
->>Drivers who feel that they should go in for interrupt mitigation have
->>the option of deciding to go for it.
->>
->
->in those cases the 'irq overload' code should not trigger. It's not the
->rate of interrupts that matters, it's the amount of time we spend in irq
->contexts. The code counts the number of times we 'interrupt and interrupt
->context'. Interrupting an irq-context is a sign of irq overload. The code
->goes into 'overload mode' (and disables that particular interrupt source
->for the rest of the current timer tick) only if more than 97% of all
->interrupts from that source 'interrupt and irq context'. (ie. irq load is
->really high.) As any statistical method it has some inaccuracy, but
->'statistically' it gets things right.
->
->	Ingo
->
->
-
-
-
-
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
-
-----------------------------------------------------------------------------------------------------------------------
-Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
-is intended for use only by the individual or entity to which it is
-addressed, and may contain information that is privileged, confidential or
-exempt from disclosure under applicable law. If you are not the intended
-recipient or it appears that this mail has been forwarded to you without
-proper authority, you are notified that any use or dissemination of this
-information in any manner is strictly prohibited. In such cases, please
-notify us immediately at mailto:mailadmin@wipro.com and delete this mail
-from your records.
-----------------------------------------------------------------------------------------------------------------------
-
-
---------------InterScan_NT_MIME_Boundary--
+-- 
+Nicolas Mailhot

@@ -1,43 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263565AbUEGMCJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263573AbUEGMq0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263565AbUEGMCJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 08:02:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263567AbUEGMCJ
+	id S263573AbUEGMq0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 08:46:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbUEGMq0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 08:02:09 -0400
-Received: from sonolo.xs4all.nl ([80.126.206.91]:28676 "EHLO sendmail.metro.cx")
-	by vger.kernel.org with ESMTP id S263565AbUEGMCG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 08:02:06 -0400
-Date: Fri, 7 May 2004 14:02:02 +0200
-From: kernel@metro.cx
+	Fri, 7 May 2004 08:46:26 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:15292 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S263573AbUEGMqZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 08:46:25 -0400
+From: Jan Killius <jkillius@arcor.de>
+Reply-To: jkillius@arcor.de
 To: linux-kernel@vger.kernel.org
-Subject: USB gadgets, small bug
-Message-ID: <20040507120202.GA9221@metro.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Problem with rtc and cpufreq
+Date: Fri, 7 May 2004 14:46:22 +0200
+User-Agent: KMail/1.6.52
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405071446.22771.jkillius@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+Hello,
+There's a problem with the realtime clock and cpufreq. If cpufreq scale down 
+my CPU frequency this message came from the kernel: 
+rtc: lost some interrupts at 1024Hz
 
-I don't know where else to report this, but I found a very very very
-minor bug in the usb gadgets drivers, specifically the file_storage.c
-mass storage driver.
-
-In the function do_request_sense(..) it says:
-
-buf[7] = 18 - 7;                        // Additional sense length
-
-Whereas (according to page 38 of the USB mass storage class, UFI command spec,
-http://www.usb.org/developers/devclass_docs#approved) this clearly neads
-to be equal to 10, not 11.
-
-I checked with the 2.6.5 source, it is still there. Hope someone will find this usefull, although most USB hosts seem to ignore length bits alltogether anyway....
-
-Koen Martens
-
+I'm using 2.6.6-rc3-mm2.
+The cpu is a athlon64 3200+.
+The CPU scales between 2000 Mhz and 800 Mhz.
 -- 
-http://www.sonologic.nl/
+        Jan

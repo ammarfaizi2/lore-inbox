@@ -1,80 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262608AbUKXK47@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262610AbUKXLH0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262608AbUKXK47 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 05:56:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262612AbUKXK47
+	id S262610AbUKXLH0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 06:07:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbUKXLH0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 05:56:59 -0500
-Received: from gprs214-63.eurotel.cz ([160.218.214.63]:55424 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262608AbUKXK44 (ORCPT
+	Wed, 24 Nov 2004 06:07:26 -0500
+Received: from rproxy.gmail.com ([64.233.170.193]:45884 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262610AbUKXLHR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 05:56:56 -0500
-Date: Wed, 24 Nov 2004 11:56:43 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: hugang@soulinfo.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATH] 11-24 swsusp update 1/3
-Message-ID: <20041124105643.GA5374@elf.ucw.cz>
-References: <20041120003010.GG1594@elf.ucw.cz> <20041120081219.GA2866@hugang.soulinfo.com> <20041120224937.GA979@elf.ucw.cz> <20041122072215.GA13874@hugang.soulinfo.com> <20041122102612.GA1063@elf.ucw.cz> <20041122103240.GA11323@hugang.soulinfo.com> <20041122110247.GB1063@elf.ucw.cz> <20041122165823.GA10609@hugang.soulinfo.com> <20041123221430.GF25926@elf.ucw.cz> <20041124080256.GA3455@hugang.soulinfo.com>
+	Wed, 24 Nov 2004 06:07:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Zj4OnwsYkxJCcr6jFlpYqvrtyKVa7/YibkKwZ07YeamVmVsIGYTUec83E1TmE+mwCxTjvvOa2VGVMubPNHkgFX/OytwSwstjjH4PMwq6iPj4beXhIK1sUzA//Bkfv/AV/1KNPaVdRZhQaWCcqwFUsM/6tI878zMlwsfB3g9CvjY=
+Message-ID: <2c59f00304112403076b497bd1@mail.gmail.com>
+Date: Wed, 24 Nov 2004 16:37:16 +0530
+From: Amit Gud <amitgud1@gmail.com>
+Reply-To: Amit Gud <amitgud1@gmail.com>
+To: Helge Hafting <helge.hafting@hist.no>
+Subject: Re: file as a directory
+Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+In-Reply-To: <41A4632D.4060608@hist.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041124080256.GA3455@hugang.soulinfo.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <2c59f00304112205546349e88e@mail.gmail.com>
+	 <41A1FFFC.70507@hist.no> <2c59f003041122222038834d7e@mail.gmail.com>
+	 <41A4632D.4060608@hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Either drop this one or explain why it is good idea. It seems to be
-> > independend on the rest.
-> This code I just copy from old ppc swsusp port, I don't why, :).
-
-So drop the patch...
-
-> > 
-> > > @@ -144,9 +151,13 @@
-> > >  	}
-> > >  
-> > >  	/* Free memory before shutting down devices. */
-> > > -	free_some_memory();
-> > > +	/* free_some_memory(); */
-> > 
-> > Needs to be if (!swsusp_pagecache), right?
-> I think we can drop this one, In write_page_caches has same code, and do
-> the best.
-
-So at least delete it properly; no need to comment it out.
-
->  > +			if (swsusp_pbe_pgdir->orig_address == 0) return;
-> > > +			for (i = 0; i < PAGE_SIZE / (sizeof(unsigned long)); i+=4) {
-> > > +				*(((unsigned long *)(swsusp_pbe_pgdir->orig_address) + i)) = 
-> > > +					*(((unsigned long *)(swsusp_pbe_pgdir->address) + i));
-> > > +				*(((unsigned long *)(swsusp_pbe_pgdir->orig_address) + i+1)) = 
-> > > +					*(((unsigned long *)(swsusp_pbe_pgdir->address) + i+1));
-> > > +				*(((unsigned long *)(swsusp_pbe_pgdir->orig_address) + i+2)) = 
-> > > +					*(((unsigned long *)(swsusp_pbe_pgdir->address) + i+2));
-> > > +				*(((unsigned long *)(swsusp_pbe_pgdir->orig_address) + i+3)) = 
-> > > +					*(((unsigned long *)(swsusp_pbe_pgdir->address) + i+3));
-> > 
-> > Do you really have to do manual loop unrolling? Why can't C code be
-> > same for i386 and ppc?
-> here is stupid code, update in my new patch, I using memcopy in i386, it 
-> create small assemble code.
-
-Warning: memcpy() may uses MMX or SSE or something on some cpus....
-
-> > Please avoid "return (0);". Using "return 0;" will do just fine.
-> fixed.
+On Wed, 24 Nov 2004 11:32:13 +0100, Helge Hafting <helge.hafting@hist.no> wrote:
+> Amit Gud wrote:
 > 
-> here is my patch relative with your big diff, hope can merge. 
+> 
+> 
+> >On Mon, 22 Nov 2004 16:04:28 +0100, Helge Hafting <helge.hafting@hist.no> wrote:
+> >
+> >
+> >
+> >>You won't get .tar or .tar.gz support in the VFS, for a few simple reasons:
+> >>1. .tar and .tar.gz are complicated formats, and are therefore better
+> >>   left to userland.
+> >>
+> >>
+> >
+> >Agreed that .tar.gz is a complicated format, but zlib is already in
+> >the kernel. It _should_ simplify inflate and deflate of files. And as
+> >compared to .gz format, .tar is much simpler, I guess.
+> >
+> >
+> >
+> >>   It is hard to make a guaranteed bug-free decompressor that
+> >>   is efficient and works with a finite amount of memory.  The kernel
+> >>   needs all that - userland doesn't.
+> >>
+> >>
+> >
+> >I think, finite amount of memory is the concern of worry, not the rest
+> >... if we could rely on zlib.
+> >
+> >
+> >
+> >>2. Both .tar and .gz  file formats may improve with time.  Getting a new
+> >>    version of tar og gunzip is easy enough - getting another compression
+> >>    algorithm into the kernel won't be that easy.
+> >>
+> >>
+> >
+> >Doesn't zlib in the kernel gets updated as the formats change? If not,
+> >.tar formats would be worth trying first as proof of concept.
+> >
+> This is not so easy, as you have to audit the new version for
+> correctness.  It is not the end of the world if tar or gzip
+> occationally crashes on some corner case.   The kernel
+> must not do that though.
+> 
 
-I have already too big difference against mainline, so I can only
-merge trivial patches at this point. When 2.6.10 comes out, I'd like
-to merge "no-high-order-allocation" patch, and "pagecache writer"
-sometime after that...
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Yes, thats what I said in my last post...if the archive looks improper
+forget it.
+
+> And then there is the much more complicated issues when
+> writing into such an archive.  You skipped that part, or
+> are you looking for a read-only solution only?
+> 
+
+I'm coming up with something soon, along with the proof of
+concept....to wrap up all scenarios....need some time ;)
+
+AG

@@ -1,51 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264162AbTLUWXt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 17:23:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264163AbTLUWXs
+	id S264144AbTLUWSU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 17:18:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264145AbTLUWSU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 17:23:48 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:11527 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S264162AbTLUWXr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 17:23:47 -0500
-Date: Sun, 21 Dec 2003 23:23:38 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Octave <oles@ovh.net>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org, andrea@suse.de
-Subject: Re: lot of VM problem with 2.4.23
-Message-ID: <20031221222338.GC1323@alpha.home.local>
-References: <20031221001422.GD25043@ovh.net> <1071999003.2156.89.camel@abyss.local> <Pine.LNX.4.58L.0312211235010.6632@logos.cnet> <20031221150312.GJ25043@ovh.net> <20031221154227.GB1323@alpha.home.local> <20031221161324.GN25043@ovh.net> <Pine.LNX.4.58L.0312211643470.6632@logos.cnet> <20031221191431.GP25043@ovh.net> <Pine.LNX.4.58L.0312211832320.6632@logos.cnet> <20031221210917.GB4897@ovh.net>
+	Sun, 21 Dec 2003 17:18:20 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:44434 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S264144AbTLUWST (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 17:18:19 -0500
+Subject: Re: [PATCH] loop.c patches, take two
+From: Christophe Saout <christophe@saout.de>
+To: Mika =?ISO-8859-1?Q?Penttil=E4?= <mika.penttila@kolumbus.fi>
+Cc: Ben Slusky <sluskyb@paranoiacs.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, jariruusu@users.sourceforge.net
+In-Reply-To: <3FE6076B.3090908@kolumbus.fi>
+References: <20031030134137.GD12147@fukurou.paranoiacs.org>
+	 <3FA15506.B9B76A5D@users.sourceforge.net>
+	 <20031030133000.6a04febf.akpm@osdl.org>
+	 <20031031005246.GE12147@fukurou.paranoiacs.org>
+	 <20031031015500.44a94f88.akpm@osdl.org>
+	 <20031101002650.GA7397@fukurou.paranoiacs.org>
+	 <20031102204624.GA5740@fukurou.paranoiacs.org>
+	 <20031221195534.GA4721@fukurou.paranoiacs.org>
+	 <3FE6076B.3090908@kolumbus.fi>
+Content-Type: text/plain; charset=ISO-8859-15
+Message-Id: <1072044101.18969.3.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031221210917.GB4897@ovh.net>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 21 Dec 2003 23:01:41 +0100
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 21, 2003 at 10:09:17PM +0100, Octave wrote:
-> > This is not a kernel panic, its the VM debugging output.
-> > 
-> > Can you please apply the attached patch on top of 2.4.23 and rerun the
-> > test with "echo 1 > /proc/sys/vm_gfp_debug" ?
-> > 
-> > It will printout the number of available swap pages when processes get
-> > killed.
-> 
-> Marcelo,
-> 
-> How about this ?
-> 
-> Dec 21 22:08:44 stock kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
-> Dec 21 22:08:44 stock kernel: OOM: nr_swap_pages=0cd865e6c c012e1e8 c0262e3c 00000000 000001d2 00000000 00000001 cd863c00 
+Am So, den 21.12.2003 schrieb Mika Penttilä um 21:49:
 
-OK, so there's no available swap anymore (nr_swap_pages=0, Marcelo forgot the
-'\n' in the patch). I simply think that with other kernels, you're very short
-of memory, but it runs, while with this one, all memory gets consumed, and
-since there's no smart oom killer, one process has to get killed.
+> Yet another Big Loop Patch... :)
+> 
+> It's not obvious which parts are bug fixes, and which performance 
+> improvements. What exactly breaks loops on journalling filesystems, and 
+> how do you solve it?
 
-Cheers,
-Willy
+What about dropping block device backed support for the loop driver
+altogether? We now have a nice device mapper in the 2.6 kernel. I don't
+like the schizophrenic way the loop driver handles these things (and
+you'll always run into similar trouble when trying to fix or resolve
+this issue). I know this is kind of radical... but everyone loves
+radical ideas. ;)
+
+There also a new device mapper target dm-crypt I've written some time
+ago, which does basically the same cryptoloop is doing (or tries to do,
+whatever ;)) and which seems to work quite well.
+
+I've never had any feedback from the kernel maintainers about including
+it into the main kernel. Andrew?
+
+--
+Christophe Saout <christophe@saout.de>
+Please avoid sending me Word or PowerPoint attachments.
+See http://www.fsf.org/philosophy/no-word-attachments.html
 

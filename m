@@ -1,107 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVBDU3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266693AbVBDU3g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261238AbVBDU3l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 15:29:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264762AbVBDUMd
+	id S266693AbVBDU3g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 15:29:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265196AbVBDUND
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 15:12:33 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:54027 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S264925AbVBDULm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 15:11:42 -0500
-Date: Fri, 4 Feb 2005 21:11:35 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] 2.6.11-rc3-mm1: fix swsusp with gcc 3.4
-Message-ID: <20050204201135.GD19408@stusta.de>
-References: <20050204103350.241a907a.akpm@osdl.org>
+	Fri, 4 Feb 2005 15:13:03 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:39072 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S264150AbVBDUFU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 15:05:20 -0500
+Date: Fri, 4 Feb 2005 21:05:07 +0100
+From: Stelian Pop <stelian@popies.net>
+To: lm@bitmover.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Linux Kernel Subversion Howto
+Message-ID: <20050204200507.GE5028@deep-space-9.dsnet>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>, lm@bitmover.com,
+	linux-kernel@vger.kernel.org
+References: <200502030028.j130SNU9004640@terminus.zytor.com> <20050203033459.GA29409@bitmover.com> <20050203193220.GB29712@sd291.sivit.org> <20050203202049.GC20389@bitmover.com> <20050203220059.GD5028@deep-space-9.dsnet> <20050203222854.GC20914@bitmover.com> <20050204130127.GA3467@crusoe.alcove-fr> <20050204160631.GB26748@bitmover.com> <20050204170306.GB3467@crusoe.alcove-fr> <20050204183922.GC27707@bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050204103350.241a907a.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050204183922.GC27707@bitmover.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 04, 2005 at 10:33:50AM -0800, Andrew Morton wrote:
->...
-> Changes since 2.6.11-rc2-mm2:
->...
-> +swsusp-do-not-use-higher-order-memory-allocations-on-suspend.patch
+On Fri, Feb 04, 2005 at 10:39:22AM -0800, Larry McVoy wrote:
+
+> > > I suppose what we could do is stick the BK changeset key into the 
+> > > delta history so that if you really wanted to get the BK level
+> > > granularity you could.
+> > 
+> > This would be nice indeed and I think it would end up all whinning
+> > since using that, one could be able to get the full history from the
+> > bkcvs repository. But would you do that ?
 > 
->  swsusp fix
->...
+> You get a commitment from the group of BK complainers that that is good 
+> enough and we'll do it.  It may take a while because in the current way
+> that BK stores metadata it would be prohibitively expensive.  But we
+> want to change that anyway so we can prototype it on an internal tree
+> and see how well it works.
+> 
+> If/when we do this we'll reexport the 2.4 and 2.5 histories from scratch
+> so you get the info going backwards in time.
 
-This broke compilation with gcc 3.4:
+If we find enough information in the CVS tree which would allow
+anybody to trace back each change to what was submitted by the author
+of the change (this being a GNU patch and a patch comment), this
+would be perfect for me. I can't speak for the 'group of BK 
+complainers' but I can't see a *technical* reason why they would
+disagree with this.
 
-<--  snip  -->
+> So, do you think you can sign up the usual suspects to being happy with
+> this answer?
 
-...
-  CC      kernel/power/swsusp.o
-kernel/power/swsusp.c: In function `alloc_pagedir':
-kernel/power/swsusp.c:608: sorry, unimplemented: inlining failed in call 
-to 'free_pagedir': function body not available
-kernel/power/swsusp.c:646: sorry, unimplemented: called from here
-make[2]: *** [kernel/power/swsusp.o] Error 1
+I'll let them answer themselves.
 
-<--  snip  -->
+> And do you mind spelling out exactly what it is that you
+> think is being offered so there is no confusion later?
 
+Informaly, exactly what I said before: Be able to find enough information
+in the CVS tree which would allow anybody to trace back each change
+to what was submitted by the author of the change (= patch + comment).
 
-The fix is simple:
+How you can make this happen is another problem. The obvious way to
+implement this is using CVS branches and merges but this could be
+too much work for you.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+You said before that:
+> > I suppose what we could do is stick the BK changeset key into the 
+> > delta history so that if you really wanted to get the BK level
+> > granularity you could.
+(and know I agreed at the moment), but thinking again about this I'm not
+sure anymore how "sticking the BK changeset key into the delta history"
+gives us "BK level granularity". From what I understand (but you are the
+SCM expert not me so I may be missing something) there is exactly 
+one delta per 'trunk' changeset, so if you have a file being modified
+several times on a branch you will end with one single delta which is
+the merge of the separate patches. I'm not sure how, by adding several
+'BK changeset keys' into the log entry of the merged delta you make
+one able to resplit the delta later.
 
----
+What am I missing here ?
 
- kernel/power/swsusp.c |   30 ++++++++++++++----------------
- 1 files changed, 14 insertions(+), 16 deletions(-)
+Thanks,
 
---- linux-2.6.11-rc3-mm1-full/kernel/power/swsusp.c.old	2005-02-04 20:50:16.000000000 +0100
-+++ linux-2.6.11-rc3-mm1-full/kernel/power/swsusp.c	2005-02-04 20:51:18.000000000 +0100
-@@ -605,7 +605,20 @@
- 	return nr_copy;
- }
- 
--static inline void free_pagedir(struct pbe *pblist);
-+/**
-+ *	free_pagedir - free pages allocated with alloc_pagedir()
-+ */
-+
-+static inline void free_pagedir(struct pbe *pblist)
-+{
-+	struct pbe *pbe;
-+
-+	while (pblist) {
-+		pbe = pblist + PB_PAGE_SKIP;
-+		pblist = pbe->next;
-+		free_page((unsigned long)pblist);
-+	}
-+}
- 
- /**
-  *	alloc_pagedir - Allocate the page directory.
-@@ -651,21 +664,6 @@
- }
- 
- /**
-- *	free_pagedir - free pages allocated with alloc_pagedir()
-- */
--
--static inline void free_pagedir(struct pbe *pblist)
--{
--	struct pbe *pbe;
--
--	while (pblist) {
--		pbe = pblist + PB_PAGE_SKIP;
--		pblist = pbe->next;
--		free_page((unsigned long)pblist);
--	}
--}
--
--/**
-  *	free_image_pages - Free pages allocated for snapshot
-  */
- 
-
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>

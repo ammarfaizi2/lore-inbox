@@ -1,77 +1,144 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264315AbTLESnm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 13:43:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264313AbTLESmz
+	id S264347AbTLES4f (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 13:56:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264362AbTLES4e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 13:42:55 -0500
-Received: from mail.scitechsoft.com ([63.195.13.67]:65517 "EHLO
-	mail.scitechsoft.com") by vger.kernel.org with ESMTP
-	id S264315AbTLESmm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 13:42:42 -0500
-From: "Kendall Bennett" <KendallB@scitechsoft.com>
-Organization: SciTech Software, Inc.
-To: "Jason Kingsland" <Jason_Kingsland@hotmail.com>
-Date: Fri, 05 Dec 2003 10:44:03 -0800
+	Fri, 5 Dec 2003 13:56:34 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16061 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264347AbTLESyw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 13:54:52 -0500
+Message-ID: <3FD0D469.3070504@pobox.com>
+Date: Fri, 05 Dec 2003 13:54:33 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Subject: Re: Linux GPL and binary module exception clause?
-CC: <linux-kernel@vger.kernel.org>
-Message-ID: <3FD06173.22096.4801F022@localhost>
-In-reply-to: <BAY7-DAV37GkZcFUjvZ0000328a@hotmail.com>
-X-mailer: Pegasus Mail for Windows (v4.02)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+To: torvalds@osdl.org
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCHES] net driver fixes
+References: <20031205183037.GA8536@gtf.org>
+In-Reply-To: <20031205183037.GA8536@gtf.org>
+Content-Type: multipart/mixed;
+ boundary="------------010807080603020208040805"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jason Kingsland" <Jason_Kingsland@hotmail.com> wrote:
+This is a multi-part message in MIME format.
+--------------010807080603020208040805
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Modules are essentially dynamically linked extensions to the GPL
-> kernel. In some cases they can be shown to be independent, prior
-> works where GPL can reasonably be argued not to apply - which as
-> Linus stated earlier on this thread was the original intention of
-> allowing binary-only modules. 
+Jeff Garzik wrote:
+> Linus, please do a
 > 
-> But in most of the more recent cases the driver/module code is
-> written specifically for Linux, so it seems more appropriate that
-> they would be considered as derived works of the kernel. But those
-> various comments from Linus are being taken out of context to
-> somehow justify permission for the non-release of source code for
-> binary loadable modules. 
+> 	bk pull bk://gkernel.bkbits.net/net-drivers-2.5
+> 
+> This will update the following files:
+> 
+>  drivers/net/pci-skeleton.c |    7 ---
+>  drivers/net/pcnet32.c      |    2 
+>  drivers/net/r8169.c        |    4 -
+>  drivers/net/sis190.c       |    4 -
+>  drivers/net/typhoon.c      |   97 ++++++++++++++++++++++++++++++++++++---------
+>  5 files changed, 78 insertions(+), 36 deletions(-)
 
-I would agree that a module/driver written specifically for Linux would 
-fall under the GPL. By extension however, any user program written 
-specifically for Linux that does *not* run anywhere else would also fall 
-under the GPL. Clearly there are not many programs that fit into this 
-category, as most are portable to other platforms. However there are 
-clear instances of code that is Linux specific such as the installers 
-used by distro vendors to install their version of Linux. By extension if 
-Linux specific modules must be GPL, so too must Linux specific 
-installation programs. 
 
-Which means all the proprietry installers done by many distro vendors 
-that are not GPL would be in violation.
+So following that email... you just wanna truncate this patch -- snip 
+the typhoon portion and apply the rest?
 
-> Linux is not pure GPL, it also has the Linus "user program"
-> preamble in copying.txt - that preamble plus other LKML posts from
-> Linus are commonly used as justifications for non-disclosure of
-> source code to some classes of modules. 
+--------------010807080603020208040805
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
 
-No, Linux is pure GPL. I always thought the same but Linus and others 
-have cleared this up in the last few days within this discussion. The pre-
-amble at the top of the COPYING file is not legalese and not legally 
-binding. It is just Linus' interpretation of the GPL as it applies to 
-user programs, and as such is certainly not legally binding.
 
-Regards,
+This will update the following files:
 
----
-Kendall Bennett
-Chief Executive Officer
-SciTech Software, Inc.
-Phone: (530) 894 8400
-http://www.scitechsoft.com
+ drivers/net/pci-skeleton.c |    7 ---
+ drivers/net/pcnet32.c      |    2 
+ drivers/net/r8169.c        |    4 -
+ drivers/net/sis190.c       |    4 -
 
-~ SciTech SNAP - The future of device driver technology! ~
+through these ChangeSets:
+
+<jgarzik@redhat.com> (03/12/05 1.1499)
+   [netdrvr pcnet32] fix oops on unload
+   
+   Driver was calling pci_unregister_driver for each _device_, and then
+   again at the end of the module unload routine.  Remove the call that's
+   inside the loop, pci_unregister_driver should only be called once.
+   
+   Caught by Don Fry (and many others)
+
+<viro@parcelfarce.linux.theplanet.co.uk> (03/12/03 1.1496.1.9)
+   [netdrvr] remove manual driver poisoning of net_device
+   
+   Such poisoning can cause oopses either because the refcount is not
+   zero when the poisoning occurs, or due to kernel debugging options
+   being enabled.
+
+
+diff -Nru a/drivers/net/pci-skeleton.c b/drivers/net/pci-skeleton.c
+--- a/drivers/net/pci-skeleton.c	Fri Dec  5 13:22:32 2003
++++ b/drivers/net/pci-skeleton.c	Fri Dec  5 13:22:32 2003
+@@ -864,13 +864,6 @@
+ 
+ 	pci_release_regions (pdev);
+ 
+-#ifndef NETDRV_NDEBUG
+-	/* poison memory before freeing */
+-	memset (dev, 0xBC,
+-		sizeof (struct net_device) +
+-		sizeof (struct netdrv_private));
+-#endif /* NETDRV_NDEBUG */
+-
+ 	free_netdev (dev);
+ 
+ 	pci_set_drvdata (pdev, NULL);
+diff -Nru a/drivers/net/pcnet32.c b/drivers/net/pcnet32.c
+--- a/drivers/net/pcnet32.c	Fri Dec  5 13:22:32 2003
++++ b/drivers/net/pcnet32.c	Fri Dec  5 13:22:32 2003
+@@ -1766,8 +1766,6 @@
+ 	next_dev = lp->next;
+ 	unregister_netdev(pcnet32_dev);
+ 	release_region(pcnet32_dev->base_addr, PCNET32_TOTAL_SIZE);
+-	if (lp->pci_dev)
+-	    pci_unregister_driver(&pcnet32_driver);
+ 	pci_free_consistent(lp->pci_dev, sizeof(*lp), lp, lp->dma_addr);
+ 	free_netdev(pcnet32_dev);
+ 	pcnet32_dev = next_dev;
+diff -Nru a/drivers/net/r8169.c b/drivers/net/r8169.c
+--- a/drivers/net/r8169.c	Fri Dec  5 13:22:32 2003
++++ b/drivers/net/r8169.c	Fri Dec  5 13:22:32 2003
+@@ -642,10 +642,6 @@
+ 	iounmap(tp->mmio_addr);
+ 	pci_release_regions(pdev);
+ 
+-	// poison memory before freeing 
+-	memset(dev, 0xBC,
+-	       sizeof (struct net_device) + sizeof (struct rtl8169_private));
+-
+ 	pci_disable_device(pdev);
+ 	free_netdev(dev);
+ 	pci_set_drvdata(pdev, NULL);
+diff -Nru a/drivers/net/sis190.c b/drivers/net/sis190.c
+--- a/drivers/net/sis190.c	Fri Dec  5 13:22:32 2003
++++ b/drivers/net/sis190.c	Fri Dec  5 13:22:32 2003
+@@ -703,10 +703,6 @@
+ 	iounmap(tp->mmio_addr);
+ 	pci_release_regions(pdev);
+ 
+-	// poison memory before freeing 
+-	memset(dev, 0xBC,
+-	       sizeof (struct net_device) + sizeof (struct sis190_private));
+-
+ 	free_netdev(dev);
+ 	pci_set_drvdata(pdev, NULL);
+ }
+
+--------------010807080603020208040805--
 

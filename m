@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278732AbRKHWjd>; Thu, 8 Nov 2001 17:39:33 -0500
+	id <S278694AbRKHWkL>; Thu, 8 Nov 2001 17:40:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278695AbRKHWjW>; Thu, 8 Nov 2001 17:39:22 -0500
-Received: from quark.didntduck.org ([216.43.55.190]:43532 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S278690AbRKHWjO>; Thu, 8 Nov 2001 17:39:14 -0500
-Message-ID: <3BEB0986.BA2D5DFD@didntduck.org>
-Date: Thu, 08 Nov 2001 17:39:02 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Chandler <chandler@grammatech.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Bug Report: Dereferencing a bad pointer
-In-Reply-To: <Pine.LNX.3.95.1011108162912.239A-100000@chaos.analogic.com> <3BEAFFC6.EAC56763@grammatech.com>
+	id <S278690AbRKHWkC>; Thu, 8 Nov 2001 17:40:02 -0500
+Received: from ns.caldera.de ([212.34.180.1]:38081 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S278768AbRKHWjz>;
+	Thu, 8 Nov 2001 17:39:55 -0500
+Date: Thu, 8 Nov 2001 23:39:12 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: Mingming cao <cmm@us.ibm.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] [PATCH]Disk IO statisitics gathering for all disks
+Message-ID: <20011108233912.A5845@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	Mingming cao <cmm@us.ibm.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	lse-tech@lists.sourceforge.net
+In-Reply-To: <3BEB0848.735652EF@us.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BEB0848.735652EF@us.ibm.com>; from cmm@us.ibm.com on Thu, Nov 08, 2001 at 02:33:44PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Chandler wrote:
+On Thu, Nov 08, 2001 at 02:33:44PM -0800, Mingming cao wrote:
+> Hello,
 > 
-> I get a seg fault on both 2.2 and 2.4 kernels by running the following
-> one-line C program:
->         int main() { int k =  (int *)0x0; }
+> Attached is a patch to dynamically allocate the data buffers for the
+> disk statistics, and to extend the gathering of disk statistics to
+> include major numbers greater than 15.
 > 
-> Debugging the offender,
->         int main() { int k =  (int *)0xc0000000; }
-> is not very informative: single-stepping over the sole command just
-> hangs, and you have to press Control-C to interrupt gdb, at which point
-> you can single-step right into the same problem again.
-> 
-> When the program hangs, 'top' says that the CPU is fully utilized and
-> the system is spending 80% of its time in the kernel and 20% in the
-> offending process.
-> 
-> Have you not been able to duplicate it on a 2.4 kernel on x86?  If not,
-> please tell me which 2.4 kernel correctly seg faults.
+> A disk statistics structure is allocated when a new block device 
+> is registered.  A global array (kstat.dkdrive_info[]) is used
+> to hold the address of the statistics structures for all block
+> devices.  The  disk statistics lookup is the same as before: indexed by
+> the major number and the disk number.
 
-How about address 0xc0001000?  I have been unable to reproduce this on a
-PII running 2.4.9, and an Athlon running 2.4.14.
+A very minor nitpick: please use struct dk_stat (or disk_stat) instead of
+dk_stat_t - it is by no means an opaque type.
 
---
+	Christoph
 
-				Brian Gerst
+-- 
+Of course it doesn't work. We've performed a software upgrade.

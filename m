@@ -1,35 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262170AbRFQRui>; Sun, 17 Jun 2001 13:50:38 -0400
+	id <S262600AbRFQR7R>; Sun, 17 Jun 2001 13:59:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262389AbRFQRu2>; Sun, 17 Jun 2001 13:50:28 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:46342
-	"EHLO Opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S262170AbRFQRuM>; Sun, 17 Jun 2001 13:50:12 -0400
-Date: Sun, 17 Jun 2001 10:48:36 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4 VM & swap question
-Message-ID: <20010617104836.B11642@opus.bloom.county>
-Mime-Version: 1.0
+	id <S262076AbRFQR7H>; Sun, 17 Jun 2001 13:59:07 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61200 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262600AbRFQR6z>; Sun, 17 Jun 2001 13:58:55 -0400
+Subject: Re: a memory-related problem?
+To: rbultje@ronald.bitfreak.net (Ronald Bultje)
+Date: Sun, 17 Jun 2001 18:57:48 +0100 (BST)
+Cc: klink@clouddancer.com, linux-kernel@vger.kernel.org
+In-Reply-To: <992806021.2007.0.camel@tux.bitfreak.net> from "Ronald Bultje" at Jun 17, 2001 09:26:50 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.18i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15Bgo0-0002q1-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-'lo all.  I've got a question about swap and RAM requirements in 2.4.  Now,
-when 2.4.0 was kicked out, the fact that you need swap=2xRAM was mentioned.
-But what I'm wondering is what exactly are the limits on this.  Right now
-I've got an x86 box w/ 128ram and currently 256swap.  When I had 128, I'd get
-low on ram/swap after some time in X, and doing this seems to 'fix' it, in
-2.4.4.  However, I've also got 2 PPC boxes, both with 256:256 in 2.4.  One
-of which never has X up, but lots of other activity, and swap usage seems
-to be about the same as 2.2.x (right now 'free' says i'm ~40MB into swap,
-18day+ uptime).  The other box is a laptop and has X up when it's awake and
-that too doesn't seem to have any problem.  So what exactly is the real
-minium swap ammount?
+> I just noticed this: if I supply "linux-2.4.4 mem=255M" instead of
+> "linux-2.4.4 mem=256M" at the lilo prompt, it does work. Is this a bug
+> in the code that handles options given at startup-time? (I only tried
+> this for 2x128 sticks but I suppose this is the same for 2x64+1x128
+> sticks - I guess I'm too lazy to try it out).
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Its common for the BIOS to reserve and use the top 1K or so

@@ -1,45 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267656AbTCFBCa>; Wed, 5 Mar 2003 20:02:30 -0500
+	id <S262871AbTCFBIZ>; Wed, 5 Mar 2003 20:08:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267679AbTCFBCa>; Wed, 5 Mar 2003 20:02:30 -0500
-Received: from www.missl.cs.umd.edu ([128.8.126.38]:57106 "EHLO
-	www.missl.cs.umd.edu") by vger.kernel.org with ESMTP
-	id <S267656AbTCFBC3>; Wed, 5 Mar 2003 20:02:29 -0500
-Date: Wed, 5 Mar 2003 20:35:52 -0500 (EST)
-From: Adam Sulmicki <adam@cfar.umd.edu>
-X-X-Sender: adam@www.missl.cs.umd.edu
-To: Andy Pfiffer <andyp@osdl.org>
-cc: Ro0tSiEgE LKML <lkml@ro0tsiege.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Boot Speedup
-In-Reply-To: <1046911465.29868.46.camel@andyp.pdx.osdl.net>
-Message-ID: <20030305203206.E14397-100000@www.missl.cs.umd.edu>
-X-WEB: http://www.eax.com
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267688AbTCFBIZ>; Wed, 5 Mar 2003 20:08:25 -0500
+Received: from vladimir.pegasys.ws ([64.220.160.58]:17171 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S262871AbTCFBIX>; Wed, 5 Mar 2003 20:08:23 -0500
+Date: Wed, 5 Mar 2003 17:18:50 -0800
+From: jw schultz <jw@pegasys.ws>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: About /etc/mtab and /proc/mounts
+Message-ID: <20030306011850.GA16552@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+References: <buon0kirym1.fsf@mcspd15.ucom.lsi.nec.co.jp> <3E5DCB89.9086582F@daimi.au.dk> <buo65r6ru6h.fsf@mcspd15.ucom.lsi.nec.co.jp> <20030227092121.GG15254@pegasys.ws> <20030302130430.GI45@DervishD> <3E621235.2C0CD785@daimi.au.dk> <20030303010409.GA3206@pegasys.ws> <3E634916.6AE643EB@daimi.au.dk> <20030304020203.GD7329@pegasys.ws> <3E65F454.825890F4@daimi.au.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E65F454.825890F4@daimi.au.dk>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If you want cold-start boot on a PC, you'll probably need to completely
-> skip the BIOS (have a look at LinuxBIOS and/or kexec), skip the probing
-> of devices on reboot, and drastically shorten (or run later) any
-> user-mode scripts that are invoked.
->
-> On the machines that I have measured (p3-800 and p4-1.7Xeon, a
-> well-configured kernel, after subtracting out BIOS time and stupid scsi
-> reprobing, is up and open for business in about 10 seconds after the
-> LILO handoff.  The *system* however, isn't often available for another
-> 30 or 40 seconds, perhaps longer.
+On Wed, Mar 05, 2003 at 01:57:57PM +0100, Kasper Dupont wrote:
+> jw schultz wrote:
+> > Writing to /proc/mtab like we do /etc/mtab means allowing
+> > full file read,write,truncate,seek functionality on a
+> > multi-page tlob just to emulate current behavior and support
+> > a second data source with a disconnect from the kernel.
+> 
+> I certainly don't want that. I'd much rather see something
+> slightly similar to files in /proc/sys/. I only want the
+> write system call to work, and I don't want the write call
+> to make use of any file offset. (Maybe it would require a
+> buffer for cases where a write does not end with a newline,
+> but that is just a minor detail.) Every full line written
+> to /proc/mtab would then be parsed (as simple as finding
+> the spaces and verify that there are exactly five). The
+> relevant fields in the mountpoint listed in field two will
+> then be updated.
 
-Also, when you are using LinuxBIOS then time for the hard disk to spin up
-actually becomes significant. And it is of order of several seconds (and
-up to 30 seconds according to specs for ATA). To counter this problem you
-may want to put kernel and root stuff on Compact Flash and then use
-CF<->IDE adapter to use CF as primary boot device. (As side benefit it
-allows you to easily get around 256KiB limitation of most eerpom (bios)
-sockets on your typical motherboard)
+And umount?  Anything that umounts or remountes a filesystem
+has to modify /etc/mtab to remove or alter the relevant
+line.
+
+I traced a umount and it did the write-to-temp+rename 
+routine.  I wouldn't expect that to work to well in proc.
+And you should have seen the ugly fstat64,_llseek,write
+loop it used.
+
+To put this in kernel means changing how it is updated.
+Once we do that we might as well go all the way.
+
+> > What i would lean towards, assuming that data couldn't list
+> > all options not supported by mountflags would be to add a
+> > char *userdata or useropts argument.  That would be attached
+> > to struct vfsmount.  Userdata would be what /proc/mtab or
+> > whatever reported, either as the option list or the whole
+> > line.
+> > 
+> > To detect the old interface users a NULL userdata or (as
+> > alternatives) a missing MS_USERDATA flag or calling the old
+> > mount syscall would cause a warning that identifies the
+> > offending process.  For the short term either construct a
+> > fake userdata or mtab could fallback to what /proc/mounts
+> > does when it hits NULL.  Long term might be to fail mount(2)
+> > on such an error.
+> 
+> That is another possible solution. And as I think a litle
+> more about it, that is probably a better than the solution I
+> suggested.
+> 
+> There are a few details of the API that needs to be defined
+> before it can be implemented. So I hope people will say how
+> they like it. As I see it there are a few different
+> possibilities:
+> 
+> 1) Make a new mount system call. Finally get rid of the old
+>    magic value in the flag register and add the extra argument
+>    which is then required. Make the old mount system call
+>    obsolete, but keep it for some versions. The old mount
+>    system call should then just behave as if the user data
+>    was the empty string.
+> 
+> 2) Add a new flag for the old mount system call, which
+>    indicates that there is one more argument containing the
+>    user data.
+
+#2 with warnings i like better than keeping a deprecated mount
+syscall until 2038.
 
 -- 
-Adam Sulmicki
-http://www.eax.com 	The Supreme Headquarters of the 32 bit registers
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
+		Remember Cernan and Schmitt

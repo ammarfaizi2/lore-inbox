@@ -1,67 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265879AbUHALy4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265909AbUHAL7D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265879AbUHALy4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 07:54:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265897AbUHALyz
+	id S265909AbUHAL7D (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 07:59:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265897AbUHAL7D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 07:54:55 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:33763 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S265879AbUHALyv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 07:54:51 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: =?ISO-8859-1?Q?Xu=E2n_Baldauf?= 
-	<xuan--2004.08.01--linux-kernel--vger.kernel.org@baldauf.org>
-Date: Sun, 1 Aug 2004 21:54:37 +1000
+	Sun, 1 Aug 2004 07:59:03 -0400
+Received: from mail.dif.dk ([193.138.115.101]:6079 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S265893AbUHAL64 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Aug 2004 07:58:56 -0400
+Date: Sun, 1 Aug 2004 14:02:50 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-scsi@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+       Oliver Neukum <oliver@neukum.name>, Ali Akcaagac <aliakc@web.de>,
+       Jamie Lenehan <lenehan@twibble.org>, Adrian Bunk <bunk@fs.tum.de>
+Subject: [PATCH] fix gcc 3.4 inlining errors in drivers/scsi/dc395x.c
+Message-ID: <Pine.LNX.4.60.0408011355080.2535@dragon.hygekrogen.localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16652.55805.900685.826943@cse.unsw.edu.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Software RAID 5 and crashes
-In-Reply-To: message from  =?ISO-8859-1?Q?=20Xu=E2n?= Baldauf on Sunday August 1
-References: <410CC397.6010509@baldauf.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday August 1, xuan--2004.08.01--linux-kernel--vger.kernel.org@baldauf.org wrote:
-> Hello,
-> 
-> I have been extensively searching for documentation and mailing lists, 
-> but was yet unable to answer this question:
-> 
-> Does Linux software RAID 5 (or RAID 4) do ordered writes? (data stripes 
-> first, then parity stripes)
 
-No, it doesn't impose any ordering between writes of parity and data
-in the same stripe, and it would not have any material effect on any
-outcomes if it did.
+drivers/scsi/dc395x.c fails to build in 2.6.8-rc2-mm1 with gcc 3.4.0 with 
+the following errors :
 
-> 
-> Because if the writes are not ordered, parity stripes could be written 
-> before data stripes. If the system crashes at this time, reconstruction 
-> will  try to reconstruct the parity stripes by using the wrong (old) 
-> data stripes.
-> 
-> If the writes are ordered, crashes after the write of the data stripe 
-> but before the write to the parity stripe do not harm.
+drivers/scsi/dc395x.c: In function `dc395x_handle_interrupt':
+drivers/scsi/dc395x.c:388: sorry, unimplemented: inlining failed in call to 'enable_msgout_abort': function body not available
+drivers/scsi/dc395x.c:1740: sorry, unimplemented: called from here
 
-When the system crashes, the RAID5 manager assume that all data blocks
-are correct and all parity blocks are suspect.  It checks all parity
-blocks against corresponding data and corrects  those that don't
-match.
-If a write is "in progress" - i.e. it has started but not all data and
-parity has been written, then either the "old" data or the "new" data
-are equally correct.  The only thing that needs to be guaranteed after
-a crash, and the only thing that can be guaranteed, is that any data
-that has been reported as "safe-in-storage" really is safe.  That is
-all journalling filesystems, or anything else, assume.
+drivers/scsi/dc395x.c: In function `msgin_set_async':
+drivers/scsi/dc395x.c:394: sorry, unimplemented: inlining failed in call to 'set_xfer_rate': function body not available
+drivers/scsi/dc395x.c:2677: sorry, unimplemented: called from here
 
-Hope that helps.
+The patch below fixes the build by un-inlining the functions (an 
+alternative would be to rework the file so the functions move before their 
+first use). As for 'set_xfer_rate' the function itself was not declared 
+inline, only the prototype.
 
-NeilBrown
+Patch against 2.6.8-rc2-mm1
+
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+
+
+diff -up linux-2.6.8-rc2-mm1-orig/drivers/scsi/dc395x.c linux-2.6.8-rc2-mm1/drivers/scsi/dc395x.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/scsi/dc395x.c	2004-07-31 13:09:46.000000000 +0200
++++ linux-2.6.8-rc2-mm1/drivers/scsi/dc395x.c	2004-07-31 23:22:47.000000000 +0200
+@@ -384,13 +384,13 @@ static void scsi_reset_detect(struct Ada
+ static void pci_unmap_srb(struct AdapterCtlBlk *acb, struct ScsiReqBlk *srb);
+ static void pci_unmap_srb_sense(struct AdapterCtlBlk *acb,
+ 		struct ScsiReqBlk *srb);
+-static inline void enable_msgout_abort(struct AdapterCtlBlk *acb,
++static void enable_msgout_abort(struct AdapterCtlBlk *acb,
+ 		struct ScsiReqBlk *srb);
+ static void srb_done(struct AdapterCtlBlk *acb, struct DeviceCtlBlk *dcb,
+ 		struct ScsiReqBlk *srb);
+ static void request_sense(struct AdapterCtlBlk *acb, struct DeviceCtlBlk *dcb,
+ 		struct ScsiReqBlk *srb);
+-static inline void set_xfer_rate(struct AdapterCtlBlk *acb,
++static void set_xfer_rate(struct AdapterCtlBlk *acb,
+ 		struct DeviceCtlBlk *dcb);
+ static void waiting_timeout(unsigned long ptr);
+ 
+@@ -2604,7 +2604,7 @@ static inline void msgin_reject(struct A
+ 
+ 
+ /* abort command */
+-static inline void enable_msgout_abort(struct AdapterCtlBlk *acb,
++static void enable_msgout_abort(struct AdapterCtlBlk *acb,
+ 		struct ScsiReqBlk *srb)
+ {
+ 	srb->msgout_buf[0] = ABORT;
+
+
+--
+Jesper Juhl <juhl-lkml@dif.dk>
+
 

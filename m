@@ -1,70 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbVC3IA5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbVC3ICn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261810AbVC3IA5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 03:00:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261814AbVC3IA5
+	id S261814AbVC3ICn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 03:02:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbVC3ICn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 03:00:57 -0500
-Received: from zone4.gcu-squad.org ([213.91.10.50]:28389 "EHLO
-	zone4.gcu-squad.org") by vger.kernel.org with ESMTP id S261810AbVC3IAt convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 03:00:49 -0500
-Date: Wed, 30 Mar 2005 09:53:03 +0200 (CEST)
-To: vonbrand@inf.utfsm.cl
-Subject: Re: Do not misuse Coverity please
-X-IlohaMail-Blah: khali@localhost
-X-IlohaMail-Method: mail() [mem]
-X-IlohaMail-Dummy: moo
-X-Mailer: IlohaMail/0.8.14 (On: webmail.gcu.info)
-Message-ID: <OofSaT76.1112169183.7124470.khali@localhost>
-In-Reply-To: <200503300125.j2U1PFQ9005082@laptop11.inf.utfsm.cl>
-From: "Jean Delvare" <khali@linux-fr.org>
-Bounce-To: "Jean Delvare" <khali@linux-fr.org>
-CC: "Andrew Morton" <akpm@osdl.org>, "Adrian Bunk" <bunk@stusta.de>,
-       "LKML" <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 30 Mar 2005 03:02:43 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:10183 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261814AbVC3ICd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 03:02:33 -0500
+Date: Wed, 30 Mar 2005 10:02:24 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: NFS client latencies
+Message-ID: <20050330080224.GB19683@elte.hu>
+References: <1112137487.5386.33.camel@mindpipe> <1112138283.11346.2.camel@lade.trondhjem.org> <1112139155.5386.35.camel@mindpipe> <1112139263.11892.0.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1112139263.11892.0.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Horst,
+* Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
-> > > No, there is a third case: the pointer can be NULL, but the compiler
-> > > happened to move the dereference down to after the check.
->
-> > Wow. Great point. I completely missed that possibility. In fact I didn't
-> > know that the compiler could possibly alter the order of the
-> > instructions. For one thing, I thought it was simply not allowed to. For
-> > another, I didn't know that it had been made so aware that it could
-> > actually figure out how to do this kind of things. What a mess. Let's
-> > just hope that the gcc folks know their business :)
->
-> The compiler is most definitely /not/ allowed to change the results the
-> code gives.
+> ty den 29.03.2005 Klokka 18:32 (-0500) skreiv Lee Revell:
+> > On Tue, 2005-03-29 at 18:18 -0500, Trond Myklebust wrote:
+> > > ty den 29.03.2005 Klokka 18:04 (-0500) skreiv Lee Revell:
+> > > > I am seeing long latencies in the NFS client code.  Attached is a ~1.9
+> > > > ms latency trace.
+> > > 
+> > > What kind of workload are you using to produce these numbers?
+> > > 
+> > 
+> > Just a kernel compile over NFS.
+> 
+> In other words a workload consisting mainly of mmap()ed writes?
 
-I think that Andrew's point was that the compiler could change the order
-of the instructions *when this doesn't change the result*, not just in
-the general case, of course. In our example, The instructions:
+new files created during a kernel compile are done via open()/write().
 
-    v = p->field;
-    if (!p) return;
+looking at the trace it seems that the NFS client code is doing list 
+walks over ~7000 entries (!), in nfs_list_add_request(). Whatever 
+protocol/server-side gain there might be due to the sorting and 
+coalescing, this CPU overhead seems extremely high - more than 1 msec 
+for this single insertion!
 
-can be seen as equivalent to
+the comment suggests that this is optimized for append writes (which is 
+quite common, but by far not the only write workload) - but the 
+worst-case behavior of this code is very bad. How about disabling this 
+sorting altogether and benchmarking the result? Maybe it would get 
+comparable coalescing (higher levels do coalesce after all), but wastly 
+improved CPU utilization on the client side. (Note that the server 
+itself will do sorting of any write IO anyway, if this is to hit any 
+persistent storage - and if not then sorting so agressively on the 
+client side makes little sense.)
 
-    if (!p) return;
-    v = p->field;
+i think normal NFS benchmarks would not show this effect, as writes are 
+typically streamed in benchmarks. But once you have lots of outstanding 
+requests and a write comes out of order, CPU utilization (and latency) 
+skyrockets.
 
-by the compiler, which might actually optimize the first into the second
-(and quite rightly so, as it actually is faster in the null case). The
-fact that doing so prevents an oops is unknown to the compiler, so it
-just wouldn't care.
-
-Now I don't know what gcc actually does or not, but Andrew's point
-makes perfect sense to me in the theory, and effectively voids my own
-argument if gcc performs this kind of optimizations. (The prefered
-approach to fix these bugs is a different issue though.)
-
---
-Jean Delvare
+	Ingo

@@ -1,144 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262871AbSJRDdI>; Thu, 17 Oct 2002 23:33:08 -0400
+	id <S262889AbSJRD37>; Thu, 17 Oct 2002 23:29:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262872AbSJRDdI>; Thu, 17 Oct 2002 23:33:08 -0400
-Received: from mail.cscoms.net ([202.183.255.13]:39438 "EHLO csmail.cscoms.com")
-	by vger.kernel.org with ESMTP id <S262871AbSJRDdG>;
-	Thu, 17 Oct 2002 23:33:06 -0400
-Date: Fri, 18 Oct 2002 10:38:50 +0700
-From: Alain Fauconnet <alain@cscoms.net>
-To: linux-kernel@vger.kernel.org
-Cc: Prachid Tiyapanjanit <prachid@cscoms.net>, boondarig@cscoms.net,
-       keng@cscoms.net, moo@cscoms.net
-Subject: Frequent/consistent panics in 2.4.17/.18 at ip_route_input_slow, in_dev_get(dev) 
-Message-ID: <20021018103849.C28488@cscoms.net>
-Mime-Version: 1.0
+	id <S262892AbSJRD37>; Thu, 17 Oct 2002 23:29:59 -0400
+Received: from packet.digeo.com ([12.110.80.53]:17848 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262889AbSJRD36>;
+	Thu, 17 Oct 2002 23:29:58 -0400
+Message-ID: <3DAF8198.A66E0C82@digeo.com>
+Date: Thu, 17 Oct 2002 20:35:52 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.41 still not testable by end users
+References: <3DAE2691.76F83D1B@digeo.com>
+		<Pine.LNX.4.44.0210171717550.18123-100000@dad.molina>
+		<3DAF3C36.2065CFD1@digeo.com> <m3smz4o415.fsf@averell.firstfloor.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Oct 2002 03:35:52.0419 (UTC) FILETIME=[756E4B30:01C27657]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Andi Kleen wrote:
+> 
+> Andrew Morton <akpm@digeo.com> writes:
+> >
+> > request_irq() needs to take the allocation mode as an argument.
+> > Should always have.  Sigh.  I'll fix it up sometime.
+> 
+> If you change it I would change it to let the caller pass it in. Then
+> it's explicit and most drivers can just slab it somewhere in their
+> private structures without any allocation.
+> 
 
-I've been getting frequent and consistent panics  on  three  different
-boxes running 2.4.17 and 2.4.18 kernels,  always  at  the  same  exact
-instruction,    a    "incl      0x4(%edx)"   at   the   beginning   of
-ip_route_input_slow().
+Well that would require that the drivers become aware of struct irqaction,
+and make assumptions about how the particular arch handles interrupts.
 
-The boxes are very busy PPTP (PoPToP) servers on brand single-CPU (P3,
-P4) SCSI-based hardware (2 x IBM, 1 x Asus MB).
-
-Example for a 2.4.17 kernel:
-
-Unable to handle kernel paging request at virtual address f73cdc48
-Oops = 0002
-EIP = 0010:c0223ff9 not tainted
-
-(gdb) x/10i 0xc0223ff9
-0xc0223ff9 <ip_route_input_slow+33>:    incl   0x4(%edx)
-
-EAX = 0 EBX = 410c0100 ECX = f69a30ac EDX = f73cdc44
-
-The indexed access through EDX is causing the fault
-
-ESI = ccb23fc6 EDI = d71a10ac EBP =  c583b0a0
-ESP = d01d1e6c
-
-DS = 0010 ES = 0018 SS = 0018
-
-Process varies, in this case pptpctrl.
-
-Stack: 410c0100 ccb23fcb d71a10ac c583b0ad 0000003d 
-
-Call trace:
-
-c023f91b <raw_recvmsg+111>
-c022491a <ip_route_input+338>
-c0226834 <ip_rcv_finish+40>
-d88251ae ?
-d8825180 ?
-c0117867 <update_wall_time+11>
-c0117c42 <timer_bh+546>
-...
-
-Sorry,  this partial data was hand-written in haste, I *really* had to
-reboot this production box immediately.
-
-Looking  at  the code in net/ipv4/route.c, I strongly suspect that the
-offending line is:
-
-int ip_route_input_slow(struct sk_buff *skb, u32 daddr, u32 saddr,
-                        u8 tos, struct net_device *dev)
-{
-        struct rt_key   key;
-        struct fib_result res;
-------> struct in_device *in_dev = in_dev_get(dev); <-------
-
-Because that's quite close to the beginning of the function:
-
-0xc0223fd8 <ip_route_input_slow>:       sub    $0x50,%esp
-0xc0223fdb <ip_route_input_slow+3>:     push   %ebp
-0xc0223fdc <ip_route_input_slow+4>:     push   %edi
-0xc0223fdd <ip_route_input_slow+5>:     push   %esi
-0xc0223fde <ip_route_input_slow+6>:     push   %ebx
-0xc0223fdf <ip_route_input_slow+7>:     mov    0x74(%esp,1),%edx
-0xc0223fe3 <ip_route_input_slow+11>:    mov    0x70(%esp,1),%eax
-0xc0223fe7 <ip_route_input_slow+15>:    mov    %al,0x2f(%esp,1)
-0xc0223feb <ip_route_input_slow+19>:    mov    0xac(%edx),%edx
-0xc0223ff1 <ip_route_input_slow+25>:    mov    %edx,0x24(%esp,1)
-0xc0223ff5 <ip_route_input_slow+29>:    test   %edx,%edx
-0xc0223ff7 <ip_route_input_slow+31>:    je     0xc0223ffc <ip_route_input_slow+36>
-0xc0223ff9 <ip_route_input_slow+33>:    incl   0x4(%edx) <----- offending instruction
-
-and in_dev_get() inlines to:
-
-in_dev_get(const struct net_device *dev)
-{
-        struct in_device *in_dev;
-
-        read_lock(&inetdev_lock);
-        in_dev = dev->ip_ptr;
-        if (in_dev)
-                atomic_inc(&in_dev->refcnt); <---- inlines to "lock incl %0"
-        read_unlock(&inetdev_lock);
-        return in_dev;
-}
-
-So  unless  I  am  seriously  misled, we fault when trying to bump the
-in_dev reference count up. What could that mean? This box  is  a  busy
-PPTP  (PoPToP) server usually serving 200-350 sessions at once, with a
-lot of connections/disconnections per  minute.  Could  it  be  a  race
-condition that causes the  in_dev  structure  to  go  away  before  we
-reference it? I'm  not  familiar  with  the  Linux  kernel  enough  to
-investigate further.
-
-I've got up to 4 crashes on these 3 boxes in a single day, all at that
-precise instruction. Nothing has changed lately on the servers, except
-a steadily increasing load. They  had  been  rock  solid  for  several
-months   before   this   started   happening   about   a   week   ago.
-
-They  run  a  quite  simple  configuration,  almost  vanilla  hardened
-Slackware with  ppptp  compiled  from  source  (no  encryption).  Only
-modification to kernel is in ./net/core/dev.c where I have  upped  the
-max   number   of   instances   for  a  device  from  100  to  500  in
-dev_alloc_name(). Algorithm is unchanged yet (yes,  I  have  read  the
-comments). 
-
-One  of  the boxes has been upgraded to 2.4.19 (it broke everything, I
-had to get pppd 2.4.2b1 to fix - don't know if that's to be  expected)
-and has been running stable since then  (only  1  day,  doesn't  prove
-much   yet).   My   next   plan is to implement LKCD on the 2.4.17 box
-(not available for 2.4.19 yet as it  seems)  and  capture  a  complete
-crash dump. Would that help tracking down?
-
-Thanks in advance for any help,
-
-Greets,
-
-_Alain_
-"I've RTFM. It says: `see your system administrator'. But... *I* am  
-the system administrator"
-(DECUS US symposium session title, author unknown, ca. 1990)
-
+But it's a bit academic.  ia32's request_irq() calls proc_mkdir() and
+create_proc_entry().  So there's no point in feeding gfp_flags down
+into request_irq or whatever.  We need to fix IDE still.

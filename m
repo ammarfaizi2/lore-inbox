@@ -1,68 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261785AbULOInw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261804AbULOIvf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261785AbULOInw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 03:43:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbULOInw
+	id S261804AbULOIvf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 03:51:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbULOIvf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 03:43:52 -0500
-Received: from mail.outpost24.com ([212.214.12.146]:56005 "EHLO
-	klippan.outpost24.com") by vger.kernel.org with ESMTP
-	id S261785AbULOInt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 03:43:49 -0500
-Message-ID: <41BFF931.6030205@outpost24.com>
-Date: Wed, 15 Dec 2004 09:43:29 +0100
-From: David Jacoby <dj@outpost24.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (Windows/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Linux kernel IGMP vulnerabilities
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Dec 2004 03:51:35 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:8614 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261804AbULOIvd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 03:51:33 -0500
+Date: Wed, 15 Dec 2004 09:51:15 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Avi Kivity <avi@argo.co.il>
+Cc: Lee Revell <rlrevell@joe-job.com>, Andrea Arcangeli <andrea@suse.de>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       George Anzinger <george@mvista.com>, dipankar@in.ibm.com,
+       ganzinger@mvista.com, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [patch, 2.6.10-rc3] safe_hlt() & NMIs
+Message-ID: <20041215085115.GA13419@elte.hu>
+References: <41BB2108.70606@colorfullife.com> <41BB25B2.90303@mvista.com> <Pine.LNX.4.61.0412111947280.7847@montezuma.fsmlabs.com> <41BC0854.4010503@colorfullife.com> <20041212093714.GL16322@dualathlon.random> <41BC1BF9.70701@colorfullife.com> <20041212121546.GM16322@dualathlon.random> <1103060437.14699.27.camel@krustophenia.net> <20041214222307.GB22043@elte.hu> <41BFD966.4010303@argo.co.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41BFD966.4010303@argo.co.il>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi and Merry Xmas everyone!
 
+* Avi Kivity <avi@argo.co.il> wrote:
 
-I just have a little question, is there a way to turn on IGMP support in 
-the kernel?, I removed
-multicast support but is that enugh?
+> Ingo Molnar wrote:
+> 
+> >+	if (__kernel_text_address(regs->eip) && *(char *)regs->eip == 0xf4)
+> > 
+> >
+> shouldn't that cast be (unsigned char *), otherwise the test will
+> always fail?
 
-They said that you could see if you are vulnerable by looking at these 
-files:
+yes, i fixed this in the second patch. (the compiler warned about it
+too)
 
-/proc/net/igmp
-/proc/net/mcfilter
-
-and if both existed and were non-emptu you were vulnerable.
-
-
-On a defualt installation on Slackware 10 the files mcfilter
-is empty but on other servers with various kernel versions
-both files contains some data.
-
-The slackware machine is running 2.4.24. As i said i removed
-multicast support in the kernel but when i compiled it i saw
-that it created igmp.o anyway.
-
-
-Any advice about how people can patch this security issue?
-
-
-Thnx!
-
-//David
-
-
-
--- 
-Outpost24 AB
-
-David Jacoby
-Research & Development
-
-Office: +46-455-612310
-Mobile: +46-455-612311
-(www.outpost24.com) (dj@outpost24.com) 
-
+	Ingo

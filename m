@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319195AbSIDP6b>; Wed, 4 Sep 2002 11:58:31 -0400
+	id <S319199AbSIDPun>; Wed, 4 Sep 2002 11:50:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319196AbSIDP6b>; Wed, 4 Sep 2002 11:58:31 -0400
-Received: from smtp3.us.dell.com ([143.166.148.134]:58893 "EHLO
-	smtp3.us.dell.com") by vger.kernel.org with ESMTP
-	id <S319195AbSIDP6a>; Wed, 4 Sep 2002 11:58:30 -0400
-Date: Wed, 4 Sep 2002 11:02:44 -0500 (CDT)
-From: Matt Domsch <Matt_Domsch@Dell.com>
-X-X-Sender: mdomsch@humbolt.us.dell.com
-Reply-To: Matt Domsch <Matt_Domsch@Dell.com>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] x86 BIOS Enhanced Disk Device (EDD) polling
-In-Reply-To: <Pine.LNX.4.10.10209032134210.3440-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.44.0209041101060.9928-100000@humbolt.us.dell.com>
-X-GPG-Fingerprint: 17A4 17D0 81F5 4B5F DB1C  AEF8 21AB EEF7 92F0 FC09
-X-GPG-Key: http://domsch.com/mdomsch_pub.asc
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319201AbSIDPun>; Wed, 4 Sep 2002 11:50:43 -0400
+Received: from orion.netbank.com.br.199.203.200.in-addr.arpa ([200.203.199.90]:10245
+	"EHLO orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S319199AbSIDPum>; Wed, 4 Sep 2002 11:50:42 -0400
+Date: Wed, 4 Sep 2002 12:55:11 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: hps@intermeta.de, linux-kernel@vger.kernel.org
+Subject: Re: X.25 Support in Kernel?
+Message-ID: <20020904155511.GB4427@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, hps@intermeta.de,
+	linux-kernel@vger.kernel.org
+References: <al4ihm$h34$1@forge.intermeta.de> <1031136982.2796.9.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1031136982.2796.9.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> WOOHOO!
+Em Wed, Sep 04, 2002 at 11:56:22AM +0100, Alan Cox escreveu:
+> On Wed, 2002-09-04 at 10:08, Henning P. Schmiedehausen wrote:
+> > Basically I need to talk to a Cisco router with X.25 protocol and be
+> > able to terminate an X.25 connection in user space in an
+> > application. As far as I can see, there is the easy way talking XOP
+> > with the router or talking X.25 over LLC2 (which Cisco calls CMNS) for
+> > which support seems to be "not yet completely functional".
+> > 
+> > Considering the possibility of hacking with the x.25 part of the kernel;
+> > which would be the best way to start with LLC2 support? Using the driver
+> > from linux-sna or hacking with net/llc ?
 > 
-> This looks like some serious fun to make it go!
-> Matt, how about a location for a normal patch for those of us who do not
-> believe in BK.
+> The base kernel llc code is junk. Thats been rewritten by the SNA folks
+> and also used by the netbeui for Linux people. That should give you
+> enough to talk X.25/X.29 over LLC pink book style
 
-Sure.  http://domsch.com/linux/edd30/linux-2.5.33-edd-initial-rfc.patch
+Alan, he is talking about net/llc, not net/802.2 8) IOW, he is talking about
+the procom stuff, that is now also being used by the SNA folks.
 
-Thanks,
-Matt
+BTW, the net/802.2 stuff already bit the dust in latest 2.5 (the code from
+the toshiba-europe guy).
 
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-#1 US Linux Server provider for 2001 and Q1-2/2002! (IDC Aug 2002)
-
+- Arnaldo

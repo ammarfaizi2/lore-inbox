@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264930AbTIJISw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 04:18:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264932AbTIJISw
+	id S264740AbTIJILh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 04:11:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264741AbTIJILh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 04:18:52 -0400
-Received: from waste.org ([209.173.204.2]:34741 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S264930AbTIJISt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 04:18:49 -0400
-Date: Wed, 10 Sep 2003 03:18:45 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, rjwalsh@durables.org
-Subject: Re: [PATCH 1/3] netpoll api
-Message-ID: <20030910081845.GF4489@waste.org>
-References: <20030910074030.GC4489@waste.org> <20030910004907.67b90bd1.akpm@osdl.org>
+	Wed, 10 Sep 2003 04:11:37 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:53486 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S264740AbTIJIKY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 04:10:24 -0400
+Subject: Re: softraid + serverraid locking FS
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: elmer@linking.ee
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <2739.195.80.106.123.1063183974.squirrel@mail.linking.ee>
+References: <2739.195.80.106.123.1063183974.squirrel@mail.linking.ee>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-FaNAC3rJm8sG09A/0/Xa"
+Organization: Red Hat, Inc.
+Message-Id: <1063181415.5021.0.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030910004907.67b90bd1.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
+Date: Wed, 10 Sep 2003 10:10:16 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 10, 2003 at 12:49:07AM -0700, Andrew Morton wrote:
-> Matt Mackall <mpm@selenic.com> wrote:
-> >
-> > +	spin_lock_irq(&irq_desc[ndev->irq].lock);
-> >  +	for(a=irq_desc[ndev->irq].action; a; a=a->next) {
-> 
-> Lots of architectures do not use irq_desc[].   You'll need abstracted
-> per-arch primitives for functions such as this.
 
-Hmmm, linux/irq.h seemed pretty generic. Maybe those other, silly
-arches can mend their ways?
+--=-FaNAC3rJm8sG09A/0/Xa
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Ok, looks like m68k, s390, and sparcx are the only ones not using
-irq_desc, and only s390 seems to be far from the irq_desc model. Or I
-could be quite mistaken.
+On Wed, 2003-09-10 at 10:52, elmer@linking.ee wrote:
+>  cp -dpR lotsfiles2GB /testcopy
+>=20
+>                     SMP x335   UP x335
+> serverraid-serverraid  OK          OK
+> softraid-softraid      OK          OK
+> softraid-serverraid    OK          OK
+> serverraid5E-softraid  SLEEPY
+> serverraid1E-softraid                PROBLEM
+>=20
+> it is redhat AS 2.4.9-25 kernel, SMP kernel for both.
 
-I'll be damned if I know what's going on with s390, so I'm not sure
-how to get from here to there in terms of coming up with an API for
-poking around in ISR lists. Unless you're suggesting I simply make
-try_to_find_handler_dev(dev, irq) which seems a little ungainly.
+that kernel is very old and heavily patched; lkml is not the place to
+report problems, your Red Hat support contact is...
 
--- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon
+--=-FaNAC3rJm8sG09A/0/Xa
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/XtxnxULwo51rQBIRAvvTAJwOxXNi9AyMO3OE8uG8ID2xzn4drQCfaSZn
+9ms7X6YapuZU3bH6eCk/H0g=
+=GLM5
+-----END PGP SIGNATURE-----
+
+--=-FaNAC3rJm8sG09A/0/Xa--

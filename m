@@ -1,78 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316768AbSF0JEa>; Thu, 27 Jun 2002 05:04:30 -0400
+	id <S316773AbSF0Jjj>; Thu, 27 Jun 2002 05:39:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316770AbSF0JE3>; Thu, 27 Jun 2002 05:04:29 -0400
-Received: from mail0.epfl.ch ([128.178.50.57]:62479 "HELO mail0.epfl.ch")
-	by vger.kernel.org with SMTP id <S316768AbSF0JE1>;
-	Thu, 27 Jun 2002 05:04:27 -0400
-Message-ID: <3D1AD51D.3050001@epfl.ch>
-Date: Thu, 27 Jun 2002 11:04:29 +0200
-From: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
-Organization: LTS-DE-EPFL
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
-X-Accept-Language: en-us, ja
-MIME-Version: 1.0
-To: Knut J Bjuland <knutjbj@online.no>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Dave Jones <davej@suse.de>, marcelo@conectiva.com.br
-CC: linux-kernel@vger.kernel.org
-Subject: Re: bug in Linux 2.4.19RC1 i815e agpgart module, unable to determineaperturesize.
-References: <fa.ckqb7hv.j48jpn@ifi.uio.no> <fa.soqp29v.17ncoig@ifi.uio.no> <3D1AB9BD.8050303@epfl.ch> <3D1AD0A0.9D053C4E@online.no>
-Content-Type: multipart/mixed;
- boundary="------------070403060407010208080708"
+	id <S316763AbSF0Jji>; Thu, 27 Jun 2002 05:39:38 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:8381 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S316759AbSF0Jji> convert rfc822-to-8bit; Thu, 27 Jun 2002 05:39:38 -0400
+From: David Schwartz <davids@webmaster.com>
+To: <Gregoryg@ParadigmGeo.com>,
+       Linux Kernel (E-mail) <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.61 (1025) - Licensed Version
+Date: Thu, 27 Jun 2002 02:39:37 -0700
+In-Reply-To: <EE83E551E08D1D43AD52D50B9F511092E11409@ntserver2>
+Subject: Re: Multiple profiles
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <20020627093938.AAA4576@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070403060407010208080708
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Knut J Bjuland wrote:
-> Your patch fix my problem with the new i815 code. I run it through a quake3 test and it is as fast as the old
-> code,
-> Agpgart is now able to determine aperture size, I think you nailed  this problem. Thank you for your patch, hope
-> it get in Linux 2.4.19.
-> 
 
-Ok that sounds like one bug killed ;-), so I guess this should go in for 
-2.4.19-rc2 ...
+On Thu, 27 Jun 2002 11:30:03 +0200, Gregory Giguashvili wrote:
 
-Marcelo, please apply (patch is against 2.4.19-rc1). I know that Alan 
-and Dave have also similar parts in their trees and they are likely to 
-suffer the same problem.
-Thanks Knut for pointing the problem (although it was present in 
-2.4.19-pre10-ac2 already for sure...)
+>Hello,
+>
+>I wonder if somebody is familiar with the way to create multiple hardware
+>configurations (profiles) on Linux? This is required, for instance, when
+>booting laptop not connected to the network.
+>
+>Thanks in advance,
+>Giga
 
-Best regards
-Nicolas.
--- 
-Nicolas Aspert      Signal Processing Institute (ITS)
-Swiss Federal Institute of Technology (EPFL)
+	There is no way to create multiple profiles on Linux. But there may be a way 
+on particular distributions or installations. Multiple hardware 
+configurations mostly have to do with:
 
---------------070403060407010208080708
-Content-Type: text/plain;
- name="i815-fetch-size-2.4.19-rc1.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="i815-fetch-size-2.4.19-rc1.diff"
+	1) What kernel gets loaded.
 
-diff -Nru linux-2.4.19-rc1.clean/drivers/char/agp/agpgart_be.c linux-2.4.19-rc1/drivers/char/agp/agpgart_be.c
---- linux-2.4.19-rc1.clean/drivers/char/agp/agpgart_be.c	Thu Jun 27 09:07:04 2002
-+++ linux-2.4.19-rc1/drivers/char/agp/agpgart_be.c	Thu Jun 27 10:53:47 2002
-@@ -1402,6 +1402,12 @@
- 	aper_size_info_8 *values;
- 
- 	pci_read_config_byte(agp_bridge.dev, INTEL_APSIZE, &temp);
-+
-+        /* Intel 815 chipsets have a _weird_ APSIZE register with only
-+         * one non-reserved bit, so mask the others out ... */
-+        if (agp_bridge.type == INTEL_I815) 
-+          temp &= (1 << 3);
-+        
- 	values = A_SIZE_8(agp_bridge.aperture_sizes);
- 
- 	for (i = 0; i < agp_bridge.num_aperture_sizes; i++) {
+	2) What initial root disk is used.
 
---------------070403060407010208080708--
+	3) What modules are loaded.
+
+	4) What configuration scripts are run, how they setup hardware during the 
+bootup process, and so on.
+
+	All of these things are handled by things that vary from Linux machine to 
+Linux machine. How you choose which kernel to boot depends upon your boot 
+manager. How your configuration scripts work depends upon how those scripts 
+are constructed.
+
+	DS
+
 

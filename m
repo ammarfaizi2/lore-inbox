@@ -1,68 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262170AbVBQAoa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262172AbVBQAqc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262170AbVBQAoa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 19:44:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262171AbVBQAoa
+	id S262172AbVBQAqc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 19:46:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262173AbVBQAqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 19:44:30 -0500
-Received: from centaur.culm.net ([83.16.203.166]:16915 "EHLO centaur.culm.net")
-	by vger.kernel.org with ESMTP id S262170AbVBQAoG convert rfc822-to-8bit
+	Wed, 16 Feb 2005 19:46:31 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:10379 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262172AbVBQAq2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 19:44:06 -0500
-From: Witold Krecicki <adasi@kernel.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: sil_blacklist - are all those entries necessary?
-Date: Thu, 17 Feb 2005 01:43:00 +0100
-User-Agent: KMail/1.7
-References: <200502151706.04846.adasi@kernel.pl> <421228B7.2060204@pobox.com> <200502152129.11236.adasi@kernel.pl>
-In-Reply-To: <200502152129.11236.adasi@kernel.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200502170143.00817.adasi@kernel.pl>
-X-Spam-Score: -4.9 (----)
-X-Scan-Signature: 1d5e9107d870566c30eb901dac84ddeb
+	Wed, 16 Feb 2005 19:46:28 -0500
+Subject: Re: ide-scsi is deprecated for cd burning! Use ide-cd and give
+	dev=/dev/hdX as device
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Valdis.Kletnieks@vt.edu
+Cc: "Kiniger, Karl (GE Healthcare)" <karl.kiniger@med.ge.com>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, sergio@sergiomb.no-ip.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200502161736.j1GHa4gX013635@turing-police.cc.vt.edu>
+References: <20050215194813.GA20922@wszip-kinigka.euro.med.ge.com>
+	 <200502152125.j1FLPSvq024249@turing-police.cc.vt.edu>
+	 <20050216094221.GA29408@wszip-kinigka.euro.med.ge.com>
+	 <200502161736.j1GHa4gX013635@turing-police.cc.vt.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1108601093.8377.32.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 17 Feb 2005 00:44:54 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dnia wtorek 15 luty 2005 21:29, napisa³e¶:
-> Dnia wtorek 15 luty 2005 17:52, napisa³e¶:
-> > Witold Krecicki wrote:
-> > > in sata_sil.c there is:
-> > > sil_blacklist [] = {
-> > >         { "ST320012AS",         SIL_QUIRK_MOD15WRITE },
-> > >         { "ST330013AS",         SIL_QUIRK_MOD15WRITE },
-> > >         { "ST340017AS",         SIL_QUIRK_MOD15WRITE },
-> > >         { "ST360015AS",         SIL_QUIRK_MOD15WRITE },
-> > >         { "ST380023AS",         SIL_QUIRK_MOD15WRITE },
-> > >         { "ST3120023AS",        SIL_QUIRK_MOD15WRITE },
-> > >         { "ST3160023AS",        SIL_QUIRK_MOD15WRITE },
-> > >         { "ST3120026AS",        SIL_QUIRK_MOD15WRITE },
-> > >         { "ST340014ASL",        SIL_QUIRK_MOD15WRITE },
-> > >         { "ST360014ASL",        SIL_QUIRK_MOD15WRITE },
-> > >         { "ST380011ASL",        SIL_QUIRK_MOD15WRITE },
-> > >         { "ST3120022ASL",       SIL_QUIRK_MOD15WRITE },
-> > >         { "ST3160021ASL",       SIL_QUIRK_MOD15WRITE },
-> > >         { "Maxtor 4D060H3",     SIL_QUIRK_UDMA5MAX },
-> > >         { }
-> > > };
-> > > I've got ST3120026AS and I've been using it with SIL3112 without this
-> > > hack for a long time - without any negative effects. The same
-> > > impression on ST3200822AS - is there any way to check if it is REALLY
-> > > necessary? 15MB/s is not what I'd expect on SATA...
-> >
-> > It's necessary until we can prove otherwise.  Simply running well
-> > without your drive in the blacklist means nothing -- you just haven't
-> > hit the error condition yet.
->
-> So how can I proove it? Are there any tests? It's been running for over a
-> year, almost 24/7 and nothing...
-Still no response - so again:
-is there ANY way to test if this hack is necessary for specific model of a 
-disk?
--- 
-Witold Krêcicki (adasi) adasi [at] culm.net
-GPG key: 7AE20871
-http://www.culm.net
+On Mer, 2005-02-16 at 17:36, Valdis.Kletnieks@vt.edu wrote:
+> OK, so the problem is that ide-cd is able to *burn* the CD just fine, but it
+> suffers lossage when ide-cd tries to read it back...
+> 
+> Alan - are the sense-byte patches for ide-cd in a shape to push either upstream
+> or to -mm?
+
+I think so. They don't solve all reported problems but they do help with
+some drives we found problematic in Red Hat internal testing.
+

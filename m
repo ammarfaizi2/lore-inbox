@@ -1,39 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263151AbTDFWxA (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 18:53:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbTDFWxA (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 18:53:00 -0400
-Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:45249 "EHLO
-	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id S263151AbTDFWxA (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 18:53:00 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
+	id S263152AbTDFWzW (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 18:55:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263154AbTDFWzV (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 18:55:21 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:51841 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263152AbTDFWzU (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 18:55:20 -0400
+Date: Mon, 7 Apr 2003 00:06:24 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Rik van Riel <riel@surriel.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andrew Morton <akpm@digeo.com>, andrea@suse.de, mingo@elte.hu,
+       hugh@veritas.com, dmccr@us.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org, Bill Irwin <wli@holomorphy.com>
+Subject: Re: subobj-rmap
+Message-ID: <20030406230624.GB25081@mail.jlokier.co.uk>
+References: <Pine.LNX.4.44.0304061737510.2296-100000@chimarrao.boston.redhat.com> <1600000.1049666582@[10.10.2.4]>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16016.45674.743959.682129@wombat.chubb.wattle.id.au>
-Date: Mon, 7 Apr 2003 09:04:10 +1000
-To: John Bradford <john@grabjohn.com>
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), axboe@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] take 48-bit lba a bit further
-In-Reply-To: <175955253@toto.iv>
-X-Mailer: VM 7.07 under 21.4 (patch 10) "Military Intelligence" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Disposition: inline
+In-Reply-To: <1600000.1049666582@[10.10.2.4]>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "John" == John Bradford <john@grabjohn.com> writes:
+Martin J. Bligh wrote:
+> 0-150 -> 150-200 -> 200-300 -> 300-400 -> 400-500 -> 500-999
+>  A          A          A          A          A          A
+>  B          B
+>             C          C          C 
+>                                   D          D          
+>                                   E          E          
+>  F          F          F          F          F          F
 
+I thought of that but decided it is too simple :)
 
-John> So, say you have a choice of either a 256Kb request to a low
-John> block number, which can use the faster 28-bit mode, or a 512Kb
-John> request to the same low block number, which can only be made
-John> using 48-bit LBA, which is the best to use?
+A downside with it is that from time to time you need to split or
+merge subobjects, and that means splitting or merging the list nodes
+linking "rows" in the table above - potentially quite a lot of memory
+allocation and traversal for a single mmap().
 
-Interrupt overhead as measured here is greater than the IO overhead
-(at least on IA64 and alpha machines).  The bigger the transfer for a
-single interrupt, the better.
+> > For VMAs D & E and A & F it's a no-brainer,
+> > but for Oracle shared memory you shouldn't
+> > assume that you have any similar mappings
+> 
+> We can always leave the sys_remap_file_pages stuff using pte_chains,
+> and should certainly do that at first. But doing it for normal stuff
+> should be less controversial, I think.
 
-Peter C
+If you implement the 2d data structure that you illustrated, you have
+a list node for each point in the table.
+
+By the time your subobject regions are 1 page wide, you have a data
+structure that is order-equivalent to pte rmap chains, although the
+exact number of words is likely to be higher.
+
+To me this suggests that the 2d data structure could be designed
+carefully, so that in the extreme case it gracefully _becomes_ rmap
+chains.  For memory efficiency you'd need to pack together multiple
+list nodes into a single cache line - the same tricks used to minimise
+rmap memory consumption.
+
+I'm not convinced this is the best data structure, but it does seem to
+suggest the possibility of a hybrid which gives the best of both
+objrmap and rmap data structures.
+
+-- Jamie

@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277622AbRJHXoY>; Mon, 8 Oct 2001 19:44:24 -0400
+	id <S277630AbRJHXrC>; Mon, 8 Oct 2001 19:47:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277624AbRJHXoE>; Mon, 8 Oct 2001 19:44:04 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:51466 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S277625AbRJHXn7>; Mon, 8 Oct 2001 19:43:59 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: "Oleg A. Yurlov" <kris@spylog.com>
-Date: Tue, 9 Oct 2001 09:26:32 +1000 (EST)
+	id <S277629AbRJHXqy>; Mon, 8 Oct 2001 19:46:54 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:57349 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S277633AbRJHXqm>; Mon, 8 Oct 2001 19:46:42 -0400
+Date: Mon, 8 Oct 2001 16:46:04 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Peter Rival <frival@zk3.dec.com>, <paulus@samba.org>,
+        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
+        <jay.estabrook@compaq.com>, <rth@twiddle.net>
+Subject: Re: [PATCH] change name of rep_nop 
+In-Reply-To: <13962.1002580586@redhat.com>
+Message-ID: <Pine.LNX.4.33.0110081643230.1064-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15298.13864.971940.46509@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RAID sync
-In-Reply-To: message from Oleg A. Yurlov on Monday October 1
-In-Reply-To: <1101445461994.20011001182753@spylog.com>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday October 1, kris@spylog.com wrote:
-> 
->         Kernel 2.4.6.SuSE-4GB-SMP, 2 CPU, 2Gb RAM, 4 HDD SCSI, M/B Intel L440GX.
-> Messages from dmesg:
-snip
-> md: now!
-> md: sdb2's event counter: 0000001c
-> md: sda2's event counter: 0000001d
-snip
-> 
->         Why RAID do not start synchronization ? It is normal ?
 
-Yes.
-A difference of 1 in the event counters isn't considered enough to
-treat on of them as old, and presumably the newest one (sda2) was
-marked clean.
-This could happen if the array was shut down cleanly, the new super
-block (with the dirty bit cleared) was written to sda2, but the new
-superblock was NOT written to sdb2 for some reason.  In this situation
-there is no need to resync the array.
+On Mon, 8 Oct 2001, David Woodhouse wrote:
+>
+> While we're on the subject of stupidly named routines and x86-isms, I'm
+> having trouble reconciling this text in Documentation/cachetlb.txt:
+>
+> 	1) void flush_cache_all(void)
+>
+> 	        The most severe flush of all.  After this interface runs,
+> 	        the entire cpu cache is flushed.
+>
+> ... with this implementation in include/asm-i386/pgtable.h:
+>
+> 	#define flush_cache_all()			do { } while (0)
+>
+> That really doesn't seem to be doing what it says on the tin.
 
-Could this be what happened in your case?
+There's no way we should implement "simon_says".
 
-NeilBrown
+There's a difference between stupiud hardware changing memory from under
+us through mapping tricks, and cache coherency in general.
 
+What you want is the "memory_went_away_from_us()" kind of cache flush,
+which has nothing at all to do with cache coherency. And it should be
+explicitly and clearly named THAT, and you should not blame the fact that
+x86 is always 100% cache coherent and that the normal cache coherency
+routines should _never_ be anything but a nop.
 
-> 
-> --
-> Oleg A. Yurlov aka Kris Werewolf, SysAdmin      OAY100-RIPN
-> mailto:kris@spylog.com                          +7 095 332-03-88
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Also note that wbinvd is known to corrupted the caches and lead to lockups
+on certain x86 cores. You need to be a _lot_ more careful than just doing
+it indiscriminately from a driver.
+
+		Linus
+

@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262937AbSLaPSC>; Tue, 31 Dec 2002 10:18:02 -0500
+	id <S263333AbSLaPcF>; Tue, 31 Dec 2002 10:32:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263143AbSLaPSC>; Tue, 31 Dec 2002 10:18:02 -0500
-Received: from itg-gw.cr008.cwt.esat.net ([193.120.242.226]:2822 "EHLO
+	id <S263342AbSLaPcF>; Tue, 31 Dec 2002 10:32:05 -0500
+Received: from itg-gw.cr008.cwt.esat.net ([193.120.242.226]:7942 "EHLO
 	dunlop.admin.ie.alphyra.com") by vger.kernel.org with ESMTP
-	id <S262937AbSLaPSB>; Tue, 31 Dec 2002 10:18:01 -0500
-Date: Tue, 31 Dec 2002 15:26:10 +0000 (GMT)
+	id <S263333AbSLaPcE>; Tue, 31 Dec 2002 10:32:04 -0500
+Date: Tue, 31 Dec 2002 15:40:24 +0000 (GMT)
 From: Paul Jakma <paulj@alphyra.ie>
 X-X-Sender: paulj@dunlop.admin.ie.alphyra.com
-To: Mark Rutherford <mark@justirc.net>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-In-Reply-To: <3E11A07C.AE33D2E5@justirc.net>
-Message-ID: <Pine.LNX.4.44.0212311524120.12063-100000@dunlop.admin.ie.alphyra.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: analysing crash dumps
+Message-ID: <Pine.LNX.4.44.0212311530580.12063-100000@dunlop.admin.ie.alphyra.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Dec 2002, Mark Rutherford wrote:
+hi,
 
-> the Linux drivers, are in my opinion far more superior than the Window$
-> drivers.
-> After all, you do get the kernel module source code....
+I'd appreciate any advice on how one would go about analysing a core 
+dump of a crashed machine, eg as obtained via netdump.
 
-No you do not.
+I'm trying to pin down some kind of timing problem with a driver,
+which i've determined from NMI handler forced Oops() is getting stuck
+spinning in its interrupt handler. However, i'd like to try see if i 
+can pull any information about its state from the core dump.
 
-You get source to the code that shims a big binary object file into 
-whatever kernel you compile against.
+gdb doesnt seem happy with the stack (kernel is compiled without frame 
+pointers, no?), 'bt' and 'frame' commands dont really do anything 
+useful.
 
-> I dont think we should fault them, at least they give us something,
-> we need to focus on the companies that give us NOTHING.
+so any advice / pointers to good docs on how to analyse a netdump 
+would be much appreciated.
 
-they havnt given us anything.
-
-> end of rant :)
-
-regards,
+thanks,
 -- 
 Paul Jakma	Sys Admin	Alphyra
 	paulj@alphyra.ie

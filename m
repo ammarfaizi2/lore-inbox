@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262100AbTD3Lhu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 07:37:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbTD3Lhu
+	id S262101AbTD3Lzo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 07:55:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbTD3Lzo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 07:37:50 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:4480 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S262100AbTD3Lht (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 07:37:49 -0400
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200304301154.h3UBs0ob000471@81-2-122-30.bradfords.org.uk>
-Subject: Bootable CD idea
-To: linux-kernel@vger.kernel.org
-Date: Wed, 30 Apr 2003 12:54:00 +0100 (BST)
-X-Mailer: ELM [version 2.5 PL6]
+	Wed, 30 Apr 2003 07:55:44 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:17319 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S262101AbTD3Lzn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 07:55:43 -0400
+Date: Wed, 30 Apr 2003 14:07:17 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+cc: Marc Zyngier <mzyngier@freesurf.fr>, rth@twiddle.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Patch] DMA mapping API for Alpha
+In-Reply-To: <20030429150532.A3984@jurassic.park.msu.ru>
+Message-ID: <Pine.GSO.3.96.1030430140450.1016E-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just a random idea that occurred to me...
+On Tue, 29 Apr 2003, Ivan Kokshaysky wrote:
 
-Since the El-Torito bootable CD standard supports multiple floppy
-images on a single CD, it would be possible to write a script that
-takes a .config file, and the source to, say all the -pre and -rc
-versions of a particular kernel, compiles multiple kernels with the
-same .config, and writes a CD with them all on, set to boot from an
-arbitrary disk partition.
+> Since the Jensen is the only non-PCI alpha, I'd really prefer to
+> keep existing pci_* functions as is and make dma_* ones just
+> wrappers.
 
-It would make:
+ Note that's the only non-PCI Alpha we support right now -- there may be
+more such ones in the future. 
 
-> > > Foo doesn't work in -rc2
-> > Did it work in -rc1
-> Not sure
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
-E-Mail exchanges a thing of the past.
-
-Note, that as each floppy image is separate, it's not the same as
-trying to cram multiple kernels on a 2.88 MB floppy image, and is
-therefore actually do-able :-).
-
-John.

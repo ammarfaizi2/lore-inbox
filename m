@@ -1,57 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284917AbRLRUIn>; Tue, 18 Dec 2001 15:08:43 -0500
+	id <S284860AbRLRULN>; Tue, 18 Dec 2001 15:11:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284916AbRLRUI3>; Tue, 18 Dec 2001 15:08:29 -0500
-Received: from ausxc07.us.dell.com ([143.166.227.166]:11046 "EHLO
-	ausxc07.us.dell.com") by vger.kernel.org with ESMTP
-	id <S284917AbRLRUIO>; Tue, 18 Dec 2001 15:08:14 -0500
-Message-ID: <71714C04806CD5119352009027289217022C4115@ausxmrr502.us.dell.com>
-From: Matt_Domsch@Dell.com
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org, nils@kernelconcepts.de,
-        giometti@ascensit.com, pb@nexus.co.uk, chowes@vsol.net, gorgo@itc.hu,
-        info@itc.hu, lethal@chaoticdreams.org, woody@netwinder.org,
-        johnsonm@redhat.com
-Subject: RE: [CFT][PATCH] watchdog nowayout and timeout module parameters
-Date: Tue, 18 Dec 2001 14:08:08 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S285006AbRLRULE>; Tue, 18 Dec 2001 15:11:04 -0500
+Received: from vitelus.com ([64.81.243.207]:5135 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id <S284967AbRLRUKz>;
+	Tue, 18 Dec 2001 15:10:55 -0500
+Date: Tue, 18 Dec 2001 12:10:34 -0800
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: Dave Jones <davej@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andre Hedrick <andre@linux-ide.org>,
+        James Simmons <jsimmons@transvirtual.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] DRM OS
+Message-ID: <20011218121034.B23308@vitelus.com>
+In-Reply-To: <20011218115342.A23308@vitelus.com> <Pine.LNX.4.33.0112182103370.29077-100000@Appserv.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0112182103370.29077-100000@Appserv.suse.de>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Timeout has been moved to an ioctl more by other diffs so Im not sure
-> timeout= is too important
+On Tue, Dec 18, 2001 at 09:05:55PM +0100, Dave Jones wrote:
+> Remember DMCA ? Remember SSSCA ?
 
-Of the seven drivers I added this parm to, six do not offer such a method
-via ioctl:
-eurotechwdt.c provides WDIOC_SETTIMEOUT.
-acquirewdt.c, advantechwdt.c, ib700wdt.c, pcwd.c, wdt.c, wdt_pci.c do not
-provide a set timeout ioctl.
+I watch DVD's with DeCSS. Come and get me.
 
-These already offer a timeout parm, but no set timeout ioctl:
-i810-tco.c, softdog.c, wdt285.o
-
-The other drivers I didn't add timeout parm to anyhow, but they don't have a
-set timeout ioctl either:
-machzwd.c, mixcomwd.c, shwdt.c, wdt977.c
-
-Unless there are strong objections or a push to make it an ioctl everywhere
-instead/also, I'd like to leave it in.
-
-> Rest looks good
-
-Thanks for reviewing and approving.  14 drivers modified, 5 drivers
-approved, one investigating, two email addresses invalid, leaving 6 to hear
-from.
-
--Matt
-
---
-Matt Domsch
-Sr. Software Engineer
-Dell Linux Solutions www.dell.com/linux
-#1 US Linux Server provider with 24.5% (IDC Dec 2001)
-#2 Worldwide Linux Server provider with 18.2% (IDC Dec 2001)
+The reality is that even things such as napster are absurdly termed
+illegal, and that doesn't stop a huge segment of the population from
+"bypassing" such laws. The same would happen if tools were available
+for circumvention of DRM in computer hardware.

@@ -1,58 +1,24 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S155382AbQATW6D>; Thu, 20 Jan 2000 17:58:03 -0500
-Received: by vger.rutgers.edu id <S155623AbQATUn4>; Thu, 20 Jan 2000 15:43:56 -0500
-Received: from mea.tmt.tele.fi ([194.252.70.162]:2923 "EHLO mea.tmt.tele.fi") by vger.rutgers.edu with ESMTP id <S154000AbQATTVj>; Thu, 20 Jan 2000 14:21:39 -0500
-Date: Thu, 20 Jan 2000 21:21:29 +0200
-From: Matti Aarnio <matti.aarnio@sonera.fi>
-To: linux-hams@vger.rutgers.edu, linux-kernel@vger.rutgers.edu, linux-newbie@vger.rutgers.edu, linux-net@vger.rutgers.edu
-Subject: If you have incoming email problems..
-Message-ID: <20000120212129.S722@mea.tmt.tele.fi>
-Reply-To: mea@vger.rutgers.edu
-Mime-Version: 1.0
+Received: by vger.rutgers.edu via listexpand id <S154306AbQAWT1U>; Sun, 23 Jan 2000 14:27:20 -0500
+Received: by vger.rutgers.edu id <S154278AbQAWT0l>; Sun, 23 Jan 2000 14:26:41 -0500
+Received: from storm.ca ([209.87.239.69]:44516 "EHLO mail.storm.ca") by vger.rutgers.edu with ESMTP id <S154150AbQAWT0O>; Sun, 23 Jan 2000 14:26:14 -0500
+Message-ID: <388B8EB7.638B9E81@storm.ca>
+Date: Sun, 23 Jan 2000 18:28:55 -0500
+From: Sandy Harris <sandy@storm.ca>
+X-Mailer: Mozilla 4.7 [en] (Win98; U)
+X-Accept-Language: en,fr
+MIME-Version: 1.0
+To: linux-kernel@vger.rutgers.edu
+Subject: Re: Towards non-recursive makefiles
+References: <200001232258.QAA10867@duracef.shout.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-*many* people have rather spodaric email reachability thru VGER's
-lists, which has nothing to do with recently so volumously spoken
-about DNS based address blocking systems.
+Anyone who hasn't seen it might want to look at the
+"Recursive Make Considered Harmful" Usenix paper:
 
-Listadmins keep kicking people out of lists after getting permanent
-errors (so called '500-series'), which may well be only due to
-temporary traversal thru backup MX server which doesn't like your
-domain..
-
-I suggest all of you do check that the email domain you use does
-have fully functional backup MX servers.
-
-Because doing that test is
-  a)  difficult without accounts at systems outside your backup-MX's
-      local service domain
-  b)  somewhat involved technically
-I have created a CGI utility with which you can do it trivially by
-entering the domain name that you use, and pressing ENTER..
-
-   http://www.zmailer.org/mxverify-cgi.html
-
-
-If you need help at fixing your backups, or DNS, or whatever,
-_I_ am wrong person to ask for help (lack of time), I think
-that   linux-newbie  (primarily) and  linux-net  (for more
-involved questions) are more suitable forums.
-
-There are also heaps of HOWTOs about email and DNS.
-
-
-If you want to install this tool to some system which could do
-this probing too, you are welcome to talk with me.  To compile
-it you need ZMailer sources, but it runs without ZM.
-
-Oh, and natively 6BONE connected WWW server would be nice one
-for running this too :)     If your server can support IPv6
-connections, and any of MX systems have AAAA records, this
-tester will try connection over IPv6 to them too!
-
-/Matti Aarnio <mea@nic.funet.fi>  (and *many* other hats)
+http://www.canb.auug.org.au/~millerp/rmch/recu-make-cons-harm.html
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

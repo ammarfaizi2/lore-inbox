@@ -1,79 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265560AbUABNU2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 08:20:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265561AbUABNU1
+	id S265547AbUABNUc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 08:20:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265539AbUABNUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 08:20:27 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:4045 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265560AbUABNUW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 08:20:22 -0500
-Date: Fri, 2 Jan 2004 18:55:09 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: rusty@au1.ibm.com
-Cc: lhcs-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Module Observations
-Message-ID: <20040102185509.A18154@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
+	Fri, 2 Jan 2004 08:20:32 -0500
+Received: from gprs178-245.eurotel.cz ([160.218.178.245]:33665 "EHLO
+	midnight.ucw.cz") by vger.kernel.org with ESMTP id S265554AbUABNUX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 08:20:23 -0500
+Date: Fri, 2 Jan 2004 14:20:31 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Go Taniguchi <go@turbolinux.co.jp>
+Cc: vojtech@suse.cz, Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.1-rc1 with JP106 keyboard
+Message-ID: <20040102132031.GC395@ucw.cz>
+References: <Pine.LNX.4.58.0312310033110.30995@home.osdl.org> <3FF4F8EA.6090602@turbolinux.co.jp> <3FF5059F.4010007@turbolinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3FF5059F.4010007@turbolinux.co.jp>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-	I was going thr' module code and made some observations:
+On Fri, Jan 02, 2004 at 02:46:07PM +0900, Go Taniguchi wrote:
 
-1. sys_init_module drops the module_mutex semaphore
-   before calling mod->init() function and later
-   reacquires it. After reacquiring, it marks
-   the module state as MODULE_STATE_LIVE.
+> And more....
+> 
+> mae-kouho/henkan (scancode 0x79) 92 -> 184
+> mu-henkan (scancode 0x7b)        94 -> 185
+> 
+> -        85, 86, 90, 91, 92, 93, 14, 94, 95, 79,183, 75, 71,121,  0,123,
+> +         0, 86,193,192,184,  0, 14,185,  0, 79,182, 75, 71,124,  0,  0,
+>                          ^ 0x79      ^ 0x7b
+> These are input method control keys.
 
-   In the window when mod->init() function is running,
-   isn't it possible that sys_delete_module (running
-   on some other CPU and trying to remove the _same_ module)
-   acquires the module_mutex sem and marks the module
-   state as MODULE_STATE_GOING?
+Again, this is per (microsoft [*]) specification. These keys should,
+however, give the very same scancodes to X as they did on 2.4.
 
-   Shouldn't sys_init_module check for
-   that possibility when it reacquires the semaphore after
-   calling mod->init function?
+[*] I used this specification, because that's what the keyboard
+manufacturers seem to follow recently.
 
---- module.c.org        Fri Jan  2 18:37:54 2004
-+++ module.c    Fri Jan  2 18:38:57 2004
-@@ -1750,7 +1750,8 @@
-
-        /* Now it's a first class citizen! */
-        down(&module_mutex);
--       mod->state = MODULE_STATE_LIVE;
-+       if (likely(mod->state != MODULE_STATE_GOING))
-+               mod->state = MODULE_STATE_LIVE;
-        /* Drop initial reference. */
-        module_put(mod);
-        module_free(mod, mod->module_init);
-
-
-  This off-course means that you are trying to insmod and rmmod 
-  the same module simultaneously from different CPUs and hence
-  may not be practical.
-
-2. try_module_get() and module_put()
-
-	try_module_get increments the local cpu's ref count for the module 
-   and module_put decrements it.
-
-   Is it required that the caller call both these functions from the same CPU?
-   Otherwise, the total refcount for the module will be non-zero!
-
-
+> Go Taniguchi wrote:
+> >>
+> >>Vojtech Pavlik:
+> >>  o Fixes for keyboard 2.4 compatibility
+> >>
+> >
+> >Hi,
+> >2.6.1-rc1 with JP106 keybord. keycode was changed....
+> >                                        2.6.0 -> 2.6.1-rc1
+> >lower-right backslash (scancode 0x73)   89    -> 181
+> >upper-right backslash (scancode 0x7d)   183   -> 182
+> >
+> >at atkbd_set2_keycode in drivers/input/keyboard/atkbd.c
+> >
+> >-       122, 89, 40,120, 26, 13,  0,  0, 58, 54, 28, 27,  0, 43,  0,  0,
+> >+         0,181, 40,  0, 26, 13,  0,  0, 58, 54, 28, 27,  0, 43,  0,194,
+> >             ^ scancode 0x73
+> >
+> >-        85, 86, 90, 91, 92, 93, 14, 94, 95, 79,183, 75, 71,121,  0,123,
+> >+         0, 86,193,192,184,  0, 14,185,  0, 79,182, 75, 71,124,  0,  0,
+> >                                                 ^ scancode 0x7d
+> >Is this correct?
+> >2.6.0 is OK, but 2.6.1-rc1 does not get [|/_] keys.
+> 
 
 -- 
-
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017
+Vojtech Pavlik
+SuSE Labs, SuSE CR

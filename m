@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266319AbUFPVl0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266313AbUFPVlJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266319AbUFPVl0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 17:41:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266321AbUFPVlN
+	id S266313AbUFPVlJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 17:41:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266321AbUFPVlJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 17:41:13 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:27322 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266319AbUFPVlI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 17:41:08 -0400
-Date: Wed, 16 Jun 2004 17:40:48 -0400
-From: Alan Cox <alan@redhat.com>
-To: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@redhat.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.orgy
-Subject: Re: PATCH: Further aacraid work
-Message-ID: <20040616214048.GA27169@devserv.devel.redhat.com>
-References: <20040616210455.GA13385@devserv.devel.redhat.com> <20040616213343.GA20488@infradead.org>
-Mime-Version: 1.0
+	Wed, 16 Jun 2004 17:41:09 -0400
+Received: from web60908.mail.yahoo.com ([216.155.196.84]:20106 "HELO
+	web60908.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266313AbUFPVlF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 17:41:05 -0400
+Message-ID: <20040616214104.34614.qmail@web60908.mail.yahoo.com>
+Date: Wed, 16 Jun 2004 14:41:04 -0700 (PDT)
+From: Brian Gao <bgaolinux@yahoo.com>
+Subject: Does Kernel 2.6.6 support more than 32 groups?
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040616213343.GA20488@infradead.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Looks mostly good except for the GART iommu ifdef.  That code is bogus for
-> almost everything but a plain PC and should just be killed.
+We need a Linux kernel to support more than 32 groups.
+The 2.6.6 kernel source file include/linux/limits.h
+contains the line:
 
-There are lots of problems with the PC centric view of the world some
-aacraid hardware has.  At the moment I'm still working on trying to understand
-the rules and I'll need to talk to Mark some more. I've also got a third
-party trace suggesting a request for low DMA memory came in through the
-gart which is above the address in the mask to look at.
+define NGROUPS_MAX    65536  /* supplemental group   
+IDs are available*/
 
-Its something I hope to get rid of eventually. In the meantime the GART
-define is needed to make it work on AMD64.
+I also changed 
 
-> Does this apply ontop of Marc's ioctl patch?
+#define NGROUPS_SMALL  32 
 
-Its against 2.6.7
+to 
 
+#define NGROUPS_SMALL   256
+
+in include/linux/sched.h file.
+ 
+But when I compiled it on Redhat Enterprise Linux 3.0
+(with glibc-2.3.2-95.20) it still gives 32 group
+limitation. What else do I need to change? Do I need
+to modify glibc? If so how?
+
+I'd appreciate your help.
+
+Brian 
+
+
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail Address AutoComplete - You start. We finish.
+http://promotions.yahoo.com/new_mail 

@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262124AbUB2Tim (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 14:38:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbUB2Tim
+	id S262125AbUB2UC4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 15:02:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbUB2UC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 14:38:42 -0500
-Received: from mtiwmhc12.worldnet.att.net ([204.127.131.116]:34974 "EHLO
-	mtiwmhc12.worldnet.att.net") by vger.kernel.org with ESMTP
-	id S262124AbUB2Tij (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 14:38:39 -0500
-Subject: Re: Linux 2.6 Build System and Binary Modules
-From: Larry Reaves <larry@moonshinecomputers.com>
-To: Robbert Haarman <lkml@inglorion.net>
-Cc: Grzegorz Kulewski <kangur@polcom.net>,
-       kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040229192034.GB8057@shire.sytes.net>
-References: <20040229183143.GA8057@shire.sytes.net>
-	 <Pine.LNX.4.58.0402291940110.22146@alpha.polcom.net>
-	 <20040229192034.GB8057@shire.sytes.net>
-Content-Type: text/plain
-Message-Id: <1078083510.3942.23.camel@tux.moonshinecomputers.org>
+	Sun, 29 Feb 2004 15:02:56 -0500
+Received: from mx2.ngi.de ([213.191.74.84]:18644 "EHLO mx2.ngi.de")
+	by vger.kernel.org with ESMTP id S262125AbUB2UCy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Feb 2004 15:02:54 -0500
+Date: Sun, 29 Feb 2004 20:23:20 +0100
+From: Richard Zidlicky <rz@linux-m68k.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Jeff Garzik <jgarzik@pobox.com>, Jens Axboe <axboe@suse.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Worrisome IDE PIO transfers...
+Message-ID: <20040229192320.GA20299@linux-m68k.org>
+References: <4041232C.7030305@pobox.com> <200402290121.30498.bzolnier@elka.pw.edu.pl> <40413927.6010408@pobox.com> <200402290405.19067.bzolnier@elka.pw.edu.pl> <Pine.GSO.4.58.0402290950590.7483@waterleaf.sonytel.be>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Sun, 29 Feb 2004 14:38:30 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.58.0402290950590.7483@waterleaf.sonytel.be>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That's were I'm stuck too...
-On Sun, 2004-02-29 at 14:20, Robbert Haarman wrote:
-> On Sun, Feb 29, 2004 at 07:42:45PM +0100, Grzegorz Kulewski wrote:
-> > > How do I get it to link in the .o file, without making it look for the like-named .c file?
-> > 
-> > I do not know if it will help You, but take a look at how makefile of new 
-> > nvidia driver is built... (patches from minion.de or newest driver from 
-> > nvidia.com)
+On Sun, Feb 29, 2004 at 09:52:08AM +0100, Geert Uytterhoeven wrote:
+> On Sun, 29 Feb 2004, Bartlomiej Zolnierkiewicz wrote:
+> > On Sunday 29 of February 2004 01:58, Jeff Garzik wrote:
+> > > > I like Alan's idea to use loopback instead of "bswap".
+> > >
+> > > Neat but no more zerocopy that way.  I much prefer a swap-as-you-go...
+> >
+> > Okay, better solution:
+> >
+> > - on Atari/Q40:
+> >   if drive->bswap use insw/outsw instead of swapping variants
 > 
-> Thanks, I got it now. Now just to see what I can do about missing __generic_copy_to_user and ..._from_user. :-)
-> 
-> ---
-> "One of the common denominators I have found is that expectations rise above that which is expected."
-> 	-- George W. Bush
--- 
-Larry Reaves <larry@moonshinecomputers.com>
+> Yep, that sounds the most logical. Richard?
 
+looks good. 
+
+However it appears to fix only part of the problem -  we need some
+logic to ensure only disk data is swapped.
+Bswapping WIN_DOWNLOAD_MICROCODE data would not be very
+clever I guess.
+
+Richard

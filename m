@@ -1,78 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262506AbUJ0Q3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262508AbUJ0Qmw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262506AbUJ0Q3O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 12:29:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262487AbUJ0Q2W
+	id S262508AbUJ0Qmw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 12:42:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbUJ0QiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 12:28:22 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:10708 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S262505AbUJ0QRd
+	Wed, 27 Oct 2004 12:38:24 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:959 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262508AbUJ0Qfo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 12:17:33 -0400
-Date: Wed, 27 Oct 2004 18:14:02 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: Grzegorz Kulewski <kangur@polcom.net>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Erik Andersen <andersen@codepoet.org>, uclibc@uclibc.org
-Subject: Re: [OT] Re: The naming wars continue...
-Message-ID: <20041027161402.GC21160@thundrix.ch>
-References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org> <20041026203137.GB10119@thundrix.ch> <417F2251.7010404@zytor.com> <200410271133.25701.vda@port.imtp.ilyichevsk.odessa.ua> <20041027154828.GA21160@thundrix.ch> <Pine.LNX.4.60.0410271803470.614@alpha.polcom.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="R+My9LyyhiUvIEro"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.60.0410271803470.614@alpha.polcom.net>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+	Wed, 27 Oct 2004 12:35:44 -0400
+Message-ID: <417FCE4E.4080605@pobox.com>
+Date: Wed, 27 Oct 2004 12:35:26 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       "Randy.Dunlap" <rddunlap@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>, Jens Axboe <axboe@suse.de>
+Subject: [PATCH] Re: news about IDE PIO HIGHMEM bug (was: Re: 2.6.9-mm1)
+References: <58cb370e041027074676750027@mail.gmail.com> <417FBB6D.90401@pobox.com> <1246230000.1098892359@[10.10.2.4]> <1246750000.1098892883@[10.10.2.4]>
+In-Reply-To: <1246750000.1098892883@[10.10.2.4]>
+Content-Type: multipart/mixed;
+ boundary="------------090508010108060408080403"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------090508010108060408080403
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---R+My9LyyhiUvIEro
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Salut,
-
-On Wed, Oct 27, 2004 at 06:11:43PM +0200, Grzegorz Kulewski wrote:
-> Yes, Linux (or UNIX) directory structure should be changed years ago but=
-=20
-> nobody (except GOBO Linux I think) is going to do it. That will require=
-=20
-> patching realy big amount of code and changing some standards. If somebod=
-y=20
-> has time for it feel free to contact me, and I will tell him (or her) wha=
-t=20
-> should be changed to produce The New Directory Standard That Breaks=20
-> Everything But Is The Best And Most Sane In The World (TM)... :-)
-
-This is not the case, thanks  to autoconf and pkg-config. On one of my
-systems, I have all the  binaries under /Library/..., and all the libs
-under     /Frameworks/...,     and      the     doc     goes     under
-/Library/Documentation/someplace...
-
-It's not a problem any more, thanks to the ongoing modularization.
-
-			    Tonnerre
+Martin J. Bligh wrote:
+> To repeat what I said in IRC ... ;-)
+> 
+> Actually, you could check this with the pfns being the same when >> MAX_ORDER-1.
+> We should be aligned on a MAX_ORDER boundary, I think.
+> 
+> However, pfn_to_page(page_to_pfn(page) + 1) might be safer. If rather slower.
 
 
---R+My9LyyhiUvIEro
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Is this patch acceptable to everyone?  Andrew?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
+It uses the publicly-exported pfn_to_page/page_to_pfn abstraction, which 
+seems to be the only way to accomplish what we want to do in IDE/libata.
 
-iD8DBQFBf8lJ/4bL7ovhw40RAl+0AJwKBGhCg41DKHL3qbM2iFQhHRPoCgCgh2g8
-yIFQgBOzTc1FuOOtkZl7hdU=
-=mGMZ
------END PGP SIGNATURE-----
+	Jeff
 
---R+My9LyyhiUvIEro--
+
+
+--------------090508010108060408080403
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
+
+===== include/linux/mm.h 1.193 vs edited =====
+--- 1.193/include/linux/mm.h	2004-10-20 04:37:06 -04:00
++++ edited/include/linux/mm.h	2004-10-27 12:33:28 -04:00
+@@ -41,6 +41,8 @@
+ #define MM_VM_SIZE(mm)	TASK_SIZE
+ #endif
+ 
++#define nth_page(page,n) pfn_to_page(page_to_pfn((page)) + n)
++
+ /*
+  * Linux kernel virtual memory manager primitives.
+  * The idea being to have a "virtual" mm in the same way
+
+--------------090508010108060408080403--

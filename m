@@ -1,71 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261423AbTH2QM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 12:12:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbTH2QM5
+	id S261236AbTH2QLK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 12:11:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261363AbTH2QLK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 12:12:57 -0400
-Received: from fmr09.intel.com ([192.52.57.35]:47350 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S261423AbTH2QMz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 12:12:55 -0400
-content-class: urn:content-classes:message
+	Fri, 29 Aug 2003 12:11:10 -0400
+Received: from tmi.comex.ru ([217.10.33.92]:18325 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S261236AbTH2QLH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 12:11:07 -0400
+X-Comment-To: Alex Tomas
+Cc: Ed Sweetman <ed.sweetman@wmich.edu>, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [RFC] extents support for EXT3
+From: Alex Tomas <bzzz@tmi.comex.ru>
+To: linux-kernel@vger.kernel.org
+Organization: HOME
+Date: Fri, 29 Aug 2003 20:16:31 +0400
+In-Reply-To: <m3r834phqi.fsf@bzzz.home.net> (Alex Tomas's message of "Fri,
+ 29 Aug 2003 20:10:29 +0400")
+Message-ID: <m3lltcphgg.fsf@bzzz.home.net>
+User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.2 (gnu/linux)
+References: <m33cfm19ar.fsf@bzzz.home.net> <3F4E4605.6040706@wmich.edu>
+	<m3vfshrola.fsf@bzzz.home.net> <3F4F7129.1050506@wmich.edu>
+	<m3vfsgpj8b.fsf@bzzz.home.net> <3F4F76A5.6020000@wmich.edu>
+	<m3r834phqi.fsf@bzzz.home.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: [PATCHSET][2.6-test4][0/6]Support for HPET based timer - Take 2
-Date: Fri, 29 Aug 2003 09:12:52 -0700
-Message-ID: <C8C38546F90ABF408A5961FC01FDBF1902C7D222@fmsmsx405.fm.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCHSET][2.6-test4][0/6]Support for HPET based timer - Take 2
-Thread-Index: AcNt32DxvpwbcwluQO+R+xvVgUyb4wAZqtIg
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "David Mosberger-Tang" <David.Mosberger@acm.org>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 29 Aug 2003 16:12:53.0088 (UTC) FILETIME=[66619E00:01C36E48]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+I forgot the most important thing - I need vmstat output for all runs
+to anylize performing
 
-The part of the patch that does the HPET initialization for timer
-interrupt, and general HPET registers read/write/programming can be
-common across architectures.
-However, different archs diverge, when it comes to gettimeofday-timer
-implementation (tsc, pit, itc, hpet, ) and we may still have to keep
-that part architecture specific. 
+>>>>> Alex Tomas (AT) writes:
 
-Thanks,
-Venkatesh
+ AT> quite interesting result. could you help me to investigate that?
+ AT> it would be great to go through following steps:
+ AT> 1) create fresh ext3 fs
+ AT> 2) mount it w/o extents option
+ AT> 3) run dbench 16 for few times (say, 4)
+ AT>    make sure it performs on that filesystem (cd <mntpoint>; dbench -c ... 16)
+ AT> 4) unmount fs
+ AT> 5) recreate that fs
+ AT> 6) mount it with extents option
+ AT>    'EXT3-fs: file extents enabled' should be printed in logs
+ AT> 7) run dbench 16 for few times
+ AT> 8) unmount that fs and take a look in logs, you should see stats info about
+ AT>    extents usage
 
-> -----Original Message-----
-> From: David Mosberger-Tang [mailto:David.Mosberger@acm.org] 
-> Sent: Thursday, August 28, 2003 8:41 PM
-> To: Pallipadi, Venkatesh
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: [PATCHSET][2.6-test4][0/6]Support for HPET based 
-> timer - Take 2
-> 
-> 
-> >>>>> On Fri, 29 Aug 2003 01:50:09 +0200, "Pallipadi, 
-> Venkatesh" <venkatesh.pallipadi@intel.com> said:
-> 
->   Venkatesh> Resending the patch. A major change from previous version
->   Venkatesh> is elimination of fixmap for HPET. Based on Andrew
->   Venkatesh> Morton's suggestion, we have a new hook in init/main.c
->   Venkatesh> for late_time_init(), at which time we can use ioremap,
->   Venkatesh> in place of fixmap.  Impact on other archs:
->   Venkatesh> Calibrate_delay() (and hence loops_per_jiffy calculation)
->   Venkatesh> has moved down in main.c, from after time_init() to after
->   Venkatesh> kmem_cache_init().
-> 
->   Venkatesh> All comments/feedbacks welcome.
-> 
-> How much is really architecture-specific?  HPET isn't x86-only so
-> sooner or later, we'll have to move it out of arch/i386 anyhow.
-> 
-> 	--david
-> 
+

@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264026AbSIVJu5>; Sun, 22 Sep 2002 05:50:57 -0400
+	id <S262915AbSIVJt5>; Sun, 22 Sep 2002 05:49:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264034AbSIVJu4>; Sun, 22 Sep 2002 05:50:56 -0400
-Received: from 62-190-218-154.pdu.pipex.net ([62.190.218.154]:7684 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S264026AbSIVJuj>; Sun, 22 Sep 2002 05:50:39 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200209221003.g8MA3kGc000201@darkstar.example.net>
-Subject: Re: Kernel Issues
-To: praduddao@hotmail.com (walairat kladmuk)
-Date: Sun, 22 Sep 2002 11:03:46 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <F138D7O5CkJNQNXSqVd00002250@hotmail.com> from "walairat kladmuk" at Sep 22, 2002 09:42:21 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S263723AbSIVJt5>; Sun, 22 Sep 2002 05:49:57 -0400
+Received: from fes4-mail.whowhere.com ([209.202.220.170]:36556 "HELO
+	mailcity.com") by vger.kernel.org with SMTP id <S262915AbSIVJtz>;
+	Sun, 22 Sep 2002 05:49:55 -0400
+To: linux-kernel@vger.kernel.org, svetljo@lycos.com
+Date: Sun, 22 Sep 2002 10:54:43 +0100
+From: "svetljo" <svetljo@lycos.com>
+Message-ID: <FNKIFHLDOJGEJAAA@mailcity.com>
+Mime-Version: 1.0
+X-Sent-Mail: off
+Reply-To: svetljo@lycos.com
+X-Mailer: MailCity Service
+X-Priority: 3
+Subject: Re: make bzImage fails on 2.5.37 2.5.38 (linking) APIC-ver_linux
+X-Sender-Ip: 131.188.24.131
+Organization: Lycos Mail  (http://www.mail.lycos.com:80)
 Content-Type: text/plain; charset=us-ascii
+Content-Language: en
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have a problem installing Mandrake 8.2.
-> 
-> Installation appears to work fine but when I try and boot the system the 
-> following is a copy of the kernel messages as boot fails (last 8 lines)
-> 
-> PCI <something>
-> PCI <something>
-> PCI <something>
-> PCI <something>
-> Isapnp: Scanning for PnP Cards
-> CPU0: Machine Check Exception: 00000000000000000007
-> Bank 3: b40000000000000000000083b at 0000000000000001fc0003b3
-> Kernel Panic: Unable to continue
-> 
-> Having played around with numerous installation techniques (full/min, 
-> various partition configs/types) over the last 4 days I haven't made any 
-> progress.
-> 
-> I even tried Red Hat 7.3 (Valhalla) and the same happened.
+some more info
 
-Try downloading this boot disk image from ftp.slackware.com, (or a mirror):
+linux/scripts/ver_linux
+############################################################
+[root@svetljo scripts]# sh ./ver_linux
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
 
-/pub/slackware/slackware-current/bootdisks/bare.i
+Linux svetljo.st-peter.stw.uni-erlangen.de 2.4.19-pre10-jam3 #10 Tue Jul 9 12:03:25 CEST 2002 i686 unknown unknown GNU/Linux
 
-write it to a disk, and boot from it.
+Gnu C                  gcc-3.2 (GCC) 3.2 (Mandrake Linux 9.0 3.2-1mdk) Copyright (C) 2002 Free Software Foundation, Inc. This is free software; see the source for copying conditions. There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+Gnu make               3.79.1
+util-linux             2.11u
+mount                  2.11u
+modutils               2.4.19
+e2fsprogs              1.27ea
+PPP                    2.4.1
+Linux C Library        2.2.5
+Dynamic linker (ldd)   2.2.5
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               2.0.15
+Modules Loaded         usb-uhci ehci-hcd floppy sr_mod mga agpgart ipt_MASQUERADE iptable_nat ip_conntrack ip_tables matroxfb_crtc2 matroxfb_g450 matroxfb_base matroxfb_Ti3026 matroxfb_DAC1064 matroxfb_accel fbcon-cfb4 g450_pll matroxfb_misc snd-pcm-oss snd-mixer-oss snd-seq-midi snd-emu10k1-synth snd-emux-synth snd-seq-midi-emul snd-seq-virmidi snd-seq-oss snd-seq-midi-event snd-seq snd-via8233 snd-emu10k1 snd-pcm snd-timer snd-hwdep snd-util-mem snd-rawmidi snd-seq-device snd-ac97-codec snd soundcore vmnet parport_pc parport vmmon nfs lockd sunrpc ppp_async ppp_generic slhc af_packet via-rhine 8139too mii ide-scsi scsi_mod tuner tvaudio bttv i2c-algo-bit videodev lm80 eeprom i2c-proc i2c-isa i2c-core usbcore rtc
+##########################################################
 
-Let us know whether it gets to the point where it asks you for the next disk or not.  If the kernel panics before that point, there is definitely something wrong.
 
-If it does panic before asking for the next disk, you could try the lowmem.i boot disk in the same directory, and let us know whether that boots as well.
 
-John.
+_____________________________________________________________
+Play the Elvis® Scratch & Win for your chance to instantly win $10,000 Cash
+- a 2003 Harley Davidson® Sportster® - 1 of 25,000 CD's - and more!
+http://r.lycos.com/r/sagel_mail_scratch_tl/http://win.ipromotions.com/lycos_020801/index.asp?tc=7087 

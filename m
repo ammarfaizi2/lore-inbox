@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130013AbRCAVIY>; Thu, 1 Mar 2001 16:08:24 -0500
+	id <S130037AbRCAVLO>; Thu, 1 Mar 2001 16:11:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130043AbRCAVIN>; Thu, 1 Mar 2001 16:08:13 -0500
-Received: from cr296314-a.pr1.on.wave.home.com ([24.112.97.56]:10502 "EHLO
-	prophit.maincube.net") by vger.kernel.org with ESMTP
-	id <S130013AbRCAVIF>; Thu, 1 Mar 2001 16:08:05 -0500
-Date: Thu, 1 Mar 2001 15:40:28 -0500 (EST)
-From: David Priban <david2@maincube.net>
-To: Andrew Morton <andrewm@uow.edu.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: i2o & Promise SuperTrak100
-In-Reply-To: <3A9D857C.CF9EF272@uow.edu.au>
-Message-ID: <Pine.LNX.4.21.0103011509270.3296-100000@prophit.maincube.net>
+	id <S130016AbRCAVIL>; Thu, 1 Mar 2001 16:08:11 -0500
+Received: from tomts8.bellnexxia.net ([209.226.175.52]:12229 "EHLO
+	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S130020AbRCAVGe>; Thu, 1 Mar 2001 16:06:34 -0500
+Message-ID: <3A9EB8BC.7E5D544D@coplanar.net>
+Date: Thu, 01 Mar 2001 16:01:48 -0500
+From: Jeremy Jackson <jerj@coplanar.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Per Erik Stendahl <PerErik@onedial.se>
+CC: "'Linux Kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: Unmounting and ejecting the root fs on shutdown.
+In-Reply-To: <E44E649C7AA1D311B16D0008C73304460933B6@caspian.prebus.uppsala.se>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Feb 2001, Andrew Morton wrote:
+Per Erik Stendahl wrote:
 
-> This untested patch should fix the scheduling-in-interrupt
-> thing.
-> 
-> 
-> --- kernel/sys.c.orig	Thu Mar  1 10:06:14 2001
-> +++ kernel/sys.c	Thu Mar  1 10:07:43 2001
-> @@ -330,6 +330,12 @@
+>
+> Nah, that looks too easy! ;-)
+>
+> > This might save everyone some pain:
+> > from hdparm(8) man page (mine has some format
+> > bugs, but you get the picture)
+> >
 
-Yes, this fixed the oops. Now it's possible to ctrl-alt-del reboot
-when i2o_block hangs. It still happens four times out of five reboots
-meaning it is intermittent. (Timing as Alan mentioned - goes away when
-DEBUG enabled) I have to put in some better HD's and test stability 
-of the filesystem on this device. Any suggestions what's best way to
-do it to get some meaningful results?
+> Is it true that the root fs is left mounted read-only? What is the
+> rationale behind this? It seems to me that it would be better to
+> completely unmount it and do whatever cleaning up is required (like
+> cdrom_release()?). But I've been known to miss important issues before!
+> :-)
+>
+> BTW, what would be the best way to determine which devices are cdrom
+> devices? Looks like /proc/sys/dev/cdrom/info could be of use but what
+> happens on a computer with more than one cdrom device?
+>
 
-Thanks David
+Read about devfs option in 2.4 kernel.  it puts only devices that exist
+into /dev/cdroms/cdrom0, dev/cdroms/cdrom1, etc.
 
+and if hdparm works (and it must since redhat's installer ejects it's
+cd when rebooting) and you still are looking for a solution, well
+no comment.
 

@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261740AbVAIU1k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbVAIUbt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261740AbVAIU1k (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 15:27:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbVAIU1j
+	id S261745AbVAIUbt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 15:31:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbVAIUbt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 15:27:39 -0500
-Received: from out001pub.verizon.net ([206.46.170.140]:52407 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP id S261740AbVAIU1c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 15:27:32 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None, usuallly detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: printf() overhead
-Date: Sun, 9 Jan 2005 15:27:30 -0500
-User-Agent: KMail/1.7
-Cc: John Richard Moser <nigelenki@comcast.net>
-References: <41E18522.7060004@comcast.net>
-In-Reply-To: <41E18522.7060004@comcast.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 9 Jan 2005 15:31:49 -0500
+Received: from gprs215-59.eurotel.cz ([160.218.215.59]:48266 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261745AbVAIUbr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jan 2005 15:31:47 -0500
+Date: Sun, 9 Jan 2005 21:26:08 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Erik Mouw <erik@harddisk-recovery.com>
+Cc: Miles Bader <miles@gnu.org>, Adrian Bunk <bunk@stusta.de>,
+       Domen Puncer <domen@coderock.org>, lkml <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: [patch] maintainers: remove moderated arm list
+Message-ID: <20050109202608.GA4423@elf.ucw.cz>
+References: <20041225170825.GA31577@nd47.coderock.org> <20041225172155.A26504@flint.arm.linux.org.uk> <20050103175438.GL2980@stusta.de> <buosm5hwn5u.fsf@mctpc71.ucom.lsi.nec.co.jp> <20050104101843.GB26584@harddisk-recovery.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501091527.30977.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.52.185] at Sun, 9 Jan 2005 14:27:32 -0600
+In-Reply-To: <20050104101843.GB26584@harddisk-recovery.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 09 January 2005 14:25, John Richard Moser wrote:
->-----BEGIN PGP SIGNED MESSAGE-----
->Hash: SHA1
->
->using strace to run a program takes aeons.  Redirecting the output
-> to a file can be a hundred times faster sometimes.  This raises
-> question.
->
->I understand that output to the screen is I/O.  What exactly causes
-> it to be slow, and is there a possible way to accelerate the
-> process? - --
+Hi!
 
-As to what causes the slow, well fonts have to be rendered, and the 
-screen has to be scrolled, both of which take finite pieces of time.
-Displaying the file later just shifts the rendering etc time to 
-something thats not nearly so noticeable because you can't read that 
-fast anyway...
+> > Sounds great, but _every single time_ I've ever gotten one of those
+> > "your message is awaiting moderation" messages from such a list, it's
+> > inevitably followed a few hours/days later by a "your message has been
+> > rejected" message.  In every case, the message I sent was definitely a
+> > no-brainer to allow, so I can only guess that either the moderation
+> > system is broken, or the moderators are.
+> 
+> It's not about sanity, it's about abiding the law (the UK Data
+> Protection Act, in this particular case). As Russell King explained in
+> this thread, there are such things as real life and politicians that
+> make privacy laws.
+> 
+> On the linux-arm* lists, we make no difference in intention: if you're
+> not subscribed, it means you didn't agree to your messages being
+> publicly archived (i.e.: you didn't agree to your privacy being
+> violated), and to avoid legal hassles later on, we can't accept your
+> post.
+> 
+> The legal hassles I'm talking about are not a theoretical thing, there
+> have been successful requests from posters to have their messages
+> removed from other mailing lists archives in the past. Yes, I know
+> that's stupid, and yes, I know a mailing list maintainer can't do
+> anything against other people archiving his list, but the law says
+> otherwise.
+
+What about allowing all messages with X-Okay-to-archive: yes header
+even without subscription?
+								Pavel
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.31% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

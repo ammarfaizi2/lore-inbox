@@ -1,30 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318984AbSH1Up5>; Wed, 28 Aug 2002 16:45:57 -0400
+	id <S318954AbSH1Uhb>; Wed, 28 Aug 2002 16:37:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318988AbSH1Up5>; Wed, 28 Aug 2002 16:45:57 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:61141 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S318987AbSH1Up4>; Wed, 28 Aug 2002 16:45:56 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200208282049.g7SKntM06459@devserv.devel.redhat.com>
-Subject: Re: ide-2.4.20-pre4-ac2.patch
-To: szepe@pinerecords.com (Tomas Szepe)
-Date: Wed, 28 Aug 2002 16:49:55 -0400 (EDT)
-Cc: andre@linux-ide.org (Andre Hedrick), linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, alan@redhat.com
-In-Reply-To: <20020828204130.GA16551@louise.pinerecords.com> from "Tomas Szepe" at Aug 28, 2002 10:41:30 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S318957AbSH1Uhb>; Wed, 28 Aug 2002 16:37:31 -0400
+Received: from natwar.webmailer.de ([192.67.198.70]:8930 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S318954AbSH1Uh2>; Wed, 28 Aug 2002 16:37:28 -0400
+Date: Wed, 28 Aug 2002 22:39:39 +0200
+From: Dominik Brodowski <devel@brodo.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>, cpufreq@www.linux.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.5.32] CPU frequency and voltage scaling (0/4)
+Message-ID: <20020828223939.C816@brodo.de>
+References: <Pine.LNX.4.33.0208281246560.4507-100000@penguin.transmeta.com> <1030566353.7290.71.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <1030566353.7290.71.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Wed, Aug 28, 2002 at 09:25:53PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In the end it _was_ the new code that made me feel soooo happy
-> today. So another sorry goes to Alan for blaming 2.4.20-pre4-ac2.
-> What a fine example of hasty reporting I've managed to display. :)
+On Wed, Aug 28, 2002 at 09:25:53PM +0100, Alan Cox wrote:
+> On Wed, 2002-08-28 at 20:49, Linus Torvalds wrote:
+> That argument ultimately boils down to "should the /proc interface to
+> cpufreq" be a seperate module to the core cpu_freq code called by kernel
+> policy engines like ACPI. The answer is obviously "yes" - /proc is just
+> one of the policy engines.
 
-I appreciate all the testing immensely. Now I know to merge just the
-obvious bits of that patch piece by piece as I was thinking I ought to.
+So, what do all of you think of the following implementation?
 
+#1 The "policy modules" (/proc-interface, kernel-based frequency selector,
+...) determine the target CPU frequency.
+
+#2 This is then passed to the cpufreq core. There it is validated, 
+loops_per_jiffy and other values  are adjusted.
+
+#3 Then the cpufreq driver is called to actually set the CPU frequency.
+
+
+#3 is absolutely ready, #2 in parts (the "policy module" interface is
+missing, and the /proc-interface needs to be removed), and #1 is TBD.
+
+Comments?
+
+	Dominik

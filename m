@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263996AbTCWXXa>; Sun, 23 Mar 2003 18:23:30 -0500
+	id <S263997AbTCWX04>; Sun, 23 Mar 2003 18:26:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263995AbTCWXXa>; Sun, 23 Mar 2003 18:23:30 -0500
-Received: from mail134.mail.bellsouth.net ([205.152.58.94]:38789 "EHLO
-	imf46bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S263996AbTCWXX2>; Sun, 23 Mar 2003 18:23:28 -0500
-Subject: USB compile error with latest 2.5-bk
-From: Louis Garcia <louisg00@bellsouth.net>
-To: linux-kernel@vger.kernel.org
+	id <S263999AbTCWX04>; Sun, 23 Mar 2003 18:26:56 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:39335
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263997AbTCWX0z>; Sun, 23 Mar 2003 18:26:55 -0500
+Subject: Re: Query about SIS963 Bridges
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: John M Collins <jmc@xisl.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E7E43C3.2080605@xisl.com>
+References: <3E7E43C3.2080605@xisl.com>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1048462471.1739.1.camel@tiger>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 23 Mar 2003 18:34:31 -0500
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1048467041.10727.100.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 24 Mar 2003 00:50:41 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm running RH phoebe beta
+On Sun, 2003-03-23 at 23:31, John M Collins wrote:
+> I've just got a new machine (2.5 GHz pentium lots of RAM and disk space) 
+> which has one of these SIS963 Southbridge creatures and I get the 
+> message on booting a 2.4.19ish sort of kernel.
 
- gcc -Wp,-MD,drivers/usb/core/.hcd.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--pipe -mpreferred-stack-boundary=2 -march=pentium4
--Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc
--iwithprefix include -DMODULE   -DKBUILD_BASENAME=hcd
--DKBUILD_MODNAME=usbcore -c -o drivers/usb/core/.tmp_hcd.o
-drivers/usb/core/hcd.c
-drivers/usb/core/hcd.c:124: parse error before '>>' token
-drivers/usb/core/hcd.c:124: initializer element is not constant
-drivers/usb/core/hcd.c:124: (near initialization for
-`usb2_rh_dev_descriptor[12]')
-drivers/usb/core/hcd.c:124: parse error before '>>' token
-drivers/usb/core/hcd.c:124: initializer element is not constant
-drivers/usb/core/hcd.c:124: (near initialization for
-`usb2_rh_dev_descriptor[13]')
-drivers/usb/core/hcd.c:147: parse error before '>>' token
-drivers/usb/core/hcd.c:147: initializer element is not constant
-drivers/usb/core/hcd.c:147: (near initialization for
-`usb11_rh_dev_descriptor[12]')
-drivers/usb/core/hcd.c:147: parse error before '>>' token
-drivers/usb/core/hcd.c:147: initializer element is not constant
-drivers/usb/core/hcd.c:147: (near initialization for
-`usb11_rh_dev_descriptor[13]')
-make[4]: *** [drivers/usb/core/hcd.o] Error 1
-make[3]: *** [drivers/usb/core] Error 2
-make[2]: *** [drivers/usb] Error 2
-make[1]: *** [drivers] Error 2
-make: *** [all] Error 2
+The SiS963 is currently a winputer. 
 
+> Alas it's very clear that it isn't transparent and I can't get to half 
+> of the PCI stuff - worst of all the built-in Ethernet and any Ethernet 
+> card I plug in. It would seem that it isn't too transparent as the 
+> reported IRQ and IOMEM assignments for the devices are all scrambled.
+
+One possibility is the system expects ACPI to untangle that mess and set
+up the bridge. You could certainly stuff realistic looking ranges into
+it, set IO/MEM and master and see what happens then
+
+What would be a useful starting point would be to see what 
+lspci -vxx and lspci -vxx -H1 think
 

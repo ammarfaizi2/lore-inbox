@@ -1,75 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268987AbUJUSVR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270796AbUJUSZX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268987AbUJUSVR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 14:21:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270773AbUJUSMv
+	id S270796AbUJUSZX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 14:25:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270785AbUJUSV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 14:12:51 -0400
-Received: from mail.timesys.com ([65.117.135.102]:51497 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S270783AbUJUSLU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 14:11:20 -0400
-Message-ID: <4177FB4F.9030202@timesys.com>
-Date: Thu, 21 Oct 2004 14:09:19 -0400
-From: john cooper <john.cooper@timesys.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Scott Wood <scott@timesys.com>
-CC: "Eugeny S. Mints" <emints@ru.mvista.com>, Esben Nielsen <simlo@phys.au.dk>,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Jens Axboe <axboe@suse.de>, Rui Nuno Capela <rncbc@rncbc.org>,
-       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       john cooper <john.cooper@timesys.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-References: <Pine.OSF.4.05.10410211601500.11909-100000@da410.ifa.au.dk> <4177CD3C.9020201@timesys.com> <4177DA11.4090902@ru.mvista.com> <4177E89A.1090100@timesys.com> <20041021173302.GA26318@yoda.timesys>
-In-Reply-To: <20041021173302.GA26318@yoda.timesys>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 21 Oct 2004 14:21:56 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:8286 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S270746AbUJUSMm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 14:12:42 -0400
+Subject: Re: Linux v2.6.9 (Strange tty problem?)
+From: Paul Fulghum <paulkf@microgate.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Paul <set@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <1098349651.17067.3.camel@localhost.localdomain>
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>
+	 <20041021024132.GB6504@squish.home.loc>
+	 <1098349651.17067.3.camel@localhost.localdomain>
+Content-Type: text/plain
+Message-Id: <1098382360.3288.8.camel@deimos.microgate.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 21 Oct 2004 13:12:41 -0500
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Oct 2004 18:06:16.0515 (UTC) FILETIME=[A89F7130:01C4B798]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Scott Wood wrote:
+On Thu, 2004-10-21 at 04:07, Alan Cox wrote:
+> introduced by the tty changes. I'll try and fix it ASAP if Paul doesn't
+> beat me to it.
 
->On Thu, Oct 21, 2004 at 12:49:30PM -0400, john cooper wrote:
->
->>It would seem a mutex ownership list still needs to be maintained.
->>Doing so in unordered priority will give a small fixed insertion
->>time, but will require an exhaustive search in order to calculate
->>maximum priority. Doing so in priority order will require an
->>average of #mutex_owned / 2 for the insertion, and gives a fixed
->>time for maximum priority calculation. The latter appears to offer
->>a performance benefit to the degree the incoming priorities are
->>random.
->>
->
->If you keep it in priority order, then you're paying the O(n) cost
->every time you acquire a lock.  If you keep it unordered and only
->search it when you need to recalculate a task's priority after a lock
->has been released (or priorities have been changed), you pay the cost
->much less often.
->
-That's true for the case where the current priority is
-somewhere else handy (likely) and we don't need to traverse
-the list for other reasons such as allowing/disallowing
-recursive acquisition of a mutex by a given task.
+I reviewed, patched, and tested ppp_async.c to
+implement ldisc->hangup(). This correctly terminates
+the PPP connection on hangup.
 
->Plus, the number of locks held by any given thread
->should generally be very small.
->
-I agree, it is likely in the noise. The list length and
-manipulation of the mutex waiter list overshadows this.
+Paul Mackerras already did an excellent job of
+ensuring safe shutdown and I/O completion
+in ldisc->close so the change is trivial:
+just add the ldisc->hangup and call the
+existing close routine.
 
--john
-
-
+One question to Alan: what is the return code
+in ldisc->hangup for? The docs don't say.
 
 -- 
-john.cooper@timesys.com
+Paul Fulghum
+paulkf@microgate.com
+
+--- linux-2.6.9-bk4/drivers/net/ppp_async.c	2004-10-18 16:54:40.000000000 -0500
++++ b/drivers/net/ppp_async.c	2004-10-21 12:50:50.000000000 -0500
+@@ -238,6 +238,18 @@ ppp_asynctty_close(struct tty_struct *tt
+ }
+ 
+ /*
++ * Called on tty hangup in process context.
++ *
++ * Wait for I/O to driver to complete and unregister PPP channel.
++ * This is already done by the close routine, so just call that.
++ */
++static int ppp_asynctty_hangup(struct tty_struct *tty)
++{
++	ppp_asynctty_close(tty);
++	return 0;
++}
++
++/*
+  * Read does nothing - no data is ever available this way.
+  * Pppd reads and writes packets via /dev/ppp instead.
+  */
+@@ -380,6 +392,7 @@ static struct tty_ldisc ppp_ldisc = {
+ 	.name	= "ppp",
+ 	.open	= ppp_asynctty_open,
+ 	.close	= ppp_asynctty_close,
++	.hangup	= ppp_asynctty_hangup,
+ 	.read	= ppp_asynctty_read,
+ 	.write	= ppp_asynctty_write,
+ 	.ioctl	= ppp_asynctty_ioctl,
+
 

@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267043AbTBUBnM>; Thu, 20 Feb 2003 20:43:12 -0500
+	id <S267076AbTBUBxj>; Thu, 20 Feb 2003 20:53:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267057AbTBUBnL>; Thu, 20 Feb 2003 20:43:11 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:37599 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267043AbTBUBnL>; Thu, 20 Feb 2003 20:43:11 -0500
-Date: Thu, 20 Feb 2003 17:44:17 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: lse-tech <lse-tech@lists.sourceforge.net>, Andrew Morton <akpm@zip.com.au>
-Subject: Re: Performance of partial object-based rmap
-Message-ID: <278890000.1045791857@flay>
-In-Reply-To: <7490000.1045715152@[10.10.2.4]>
-References: <7490000.1045715152@[10.10.2.4]>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S267078AbTBUBxj>; Thu, 20 Feb 2003 20:53:39 -0500
+Received: from ool-4351594a.dyn.optonline.net ([67.81.89.74]:14602 "EHLO
+	badula.org") by vger.kernel.org with ESMTP id <S267076AbTBUBxi>;
+	Thu, 20 Feb 2003 20:53:38 -0500
+Date: Thu, 20 Feb 2003 21:03:39 -0500 (EST)
+From: Ion Badulescu <ionut@badula.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: UP local APIC is deadly on SMP Athlon
+In-Reply-To: <3E556F00.30201@pobox.com>
+Message-ID: <Pine.LNX.4.44.0302202058140.16982-100000@moisil.badula.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The performance delta between 2.5.62-mjb1 and 2.5.62-mjb2 is caused
-> by the partial object-based rmap patch (written by Dave McCracken).
-> I expect this patch to have an increasing impact on workloads with
-> more processes, and it should give a substantial space saving as 
-> well as a performance increase. Results from 16x NUMA-Q system ... 
+On Thu, 20 Feb 2003, Jeff Garzik wrote:
+
+> Ion Badulescu wrote:
+> > A UP kernel compiled with CONFIG_X86_LOCAL_APIC=y dies a very horrible
+> > death on an SMP Athlon motherboard (Tyan S2462 and S2468), flooding the
+> > console with the following messages:
 > 
-> Profile comparison:
-> 
-> before
-> 	15525 page_remove_rmap
-> 	6415 page_add_rmap
-> 
-> after
-> 	2055 page_add_rmap
-> 	1983 page_remove_rmap
+> IMO just assume this option is just broken, unless you absolutely need it.
 
-Did some space consumption comparisons on make -j 256:
+My only boxes on which this is a problem are the SMP athlons, and only 
+with UP kernels...
 
-before:
-	24116 pte_chain objects in slab cache
-after:
-	716 pte_chain objects in slab cache
+> Red Hat ships UP kernels with this option disabled, because either the 
+> code, the BIOS, or both are typically broken.
 
-The vast majority of anonymous pages (for which we're using the non
-object based method) are singletons, and hence use pte_direct ...
-hence the massive space reduction.
+Only recently, though, and probably because they started receiving
+complaints that the BOOT kernel (most importantly) and the UP kernel were
+not booting up correctly on SMP athlons. At least that's the impression I
+got browsing bugzilla.redhat.com.
 
-M.
+Moreover, it makes a measurable difference in interrupt latency (and
+consequently in the number of UDP packets dropped under stress), so on my
+production machines I run RH kernels with this option re-enabled (among 
+other changes).
+
+Anyway, I'd like to get to the bottom of this, since I've narrowed it down 
+so much. Anyone know who submitted the APIC changes in 2.4.10-pre12? I'd 
+debug it myself, but I know next to nothing about the APIC. If you know 
+where to get some documentation, I'm more than willing to give it a shot.
+
+Thanks,
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 

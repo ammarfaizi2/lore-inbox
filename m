@@ -1,40 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263321AbTBXMc0>; Mon, 24 Feb 2003 07:32:26 -0500
+	id <S264844AbTBXMmh>; Mon, 24 Feb 2003 07:42:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264706AbTBXMc0>; Mon, 24 Feb 2003 07:32:26 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:44726 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S263321AbTBXMcZ>;
-	Mon, 24 Feb 2003 07:32:25 -0500
-Date: Mon, 24 Feb 2003 13:41:08 +0100 (CET)
+	id <S266615AbTBXMmh>; Mon, 24 Feb 2003 07:42:37 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:5817 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S264844AbTBXMmh>;
+	Mon, 24 Feb 2003 07:42:37 -0500
+Date: Mon, 24 Feb 2003 13:52:38 +0100 (CET)
 From: Ingo Molnar <mingo@elte.hu>
 Reply-To: Ingo Molnar <mingo@elte.hu>
-To: procps-list@redhat.com
-Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-       <alexl@redhat.com>, Alexander Viro <viro@math.psu.edu>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: procps-list@redhat.com, <linux-kernel@vger.kernel.org>, <alexl@redhat.com>
 Subject: Re: [patch] procfs/procps threading performance speedup, 2.5.62
 In-Reply-To: <200302241229.h1OCTRF331287@saturn.cs.uml.edu>
-Message-ID: <Pine.LNX.4.44.0302241333140.26508-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0302241348550.26977-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 24 Feb 2003, Albert D. Cahalan wrote:
-
-> It's fine to mix up thread order, but bad to interleave the threads of
-> unrelated processes.
-
-this is very simple to do, and does not necessiate thread-directories.  
-There's a PID and TGid field in /proc/PID/status. Just link the task to
-the TGid-task, and you have instant access to all threads per TGid. In the
-'groupped output' case you have to scan & access all threads anyway. Ok?
-
-(but this is way offtopic. The changes we posted address the normal case
-of process-listing. (no -m option.) If there are tons of threads around
-then any discussed variant of 'ps -m' will be slow.)
+Albert, you, as a contributor to procps, have you ever run a high number
+of (eg. more than 10K) threads and tested procps for that workload? Just
+try it - start up eg. 10,000 threads (which just sleep) under 2.5.62, and
+time all the various procps utilities. Then you'll see it first-hand,
+where all the overhead lies.
 
 	Ingo
 

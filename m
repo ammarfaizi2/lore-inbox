@@ -1,50 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318562AbSIBX1s>; Mon, 2 Sep 2002 19:27:48 -0400
+	id <S318572AbSIBX2D>; Mon, 2 Sep 2002 19:28:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318572AbSIBX1s>; Mon, 2 Sep 2002 19:27:48 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:28367 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S318562AbSIBX1r>;
-	Mon, 2 Sep 2002 19:27:47 -0400
-Date: Mon, 02 Sep 2002 16:25:42 -0700 (PDT)
-Message-Id: <20020902.162542.95902127.davem@redhat.com>
-To: cs@pixelwings.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.33 compile error in ipv6
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0209021304590.2696-100000@lynx.piwi.intern>
-References: <Pine.LNX.4.44.0209021304590.2696-100000@lynx.piwi.intern>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S318591AbSIBX2C>; Mon, 2 Sep 2002 19:28:02 -0400
+Received: from mail.zmailer.org ([62.240.94.4]:39328 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S318572AbSIBX2B>;
+	Mon, 2 Sep 2002 19:28:01 -0400
+Date: Tue, 3 Sep 2002 02:32:30 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Stupid anti-spam testings...
+Message-ID: <20020902233230.GC5834@mea-ext.zmailer.org>
+References: <20020902215019.GB5834@mea-ext.zmailer.org> <20020902222837.GM32468@clusterfs.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020902222837.GM32468@clusterfs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Clemens Schwaighofer <cs@pixelwings.com>
-   Date: Mon, 2 Sep 2002 13:06:13 +0200 (CEST)
-   
-   I saw no patch in ML yet for this ...
+On Mon, Sep 02, 2002 at 04:28:37PM -0600, Andreas Dilger wrote:
+...
+> > Folks,  when you deploy that kind of testers, DO VERIFY THAT THEY
+> > HAVE SANE CACHES!  A positive result shall be cached for at least
+> > two hours, a negative result shall be cached for at least 30 minutes.
+> 
+> Do you know if this is one of the default checks from spamassassin?
 
-Actually, there was, lines 666 and 667 of net/ipv6/af_inet6.c
-should read:
+  No idea.  I have seen these coming from Exim 4.10, Exim-something,
+  some sendmail milter (whatever that is), etc..
 
-                printk(KERN_CRIT "%s: Can't create protocol sock SLAB "
-                       "caches!\n", __FUNCTION__);
+  Apparently the idea (which I have thought of long ago, and rejected
+  as incomplete) has caught, and has multiple implementations...
 
-Here is the patch against 2.5.33 that James Morris posted.
+> I would imagine that a lot of people (including myself) have it
+> installed, so it is possible that it (or some other widely-used tool)
+> now does this sort of check out-of-the-box, and the people who are
+> installing them have no idea about the kind of load it generates on vger.
+> I doubt that there are a large number of people who are independently
+> misconfiguring their mail setup this way
 
-diff -Nru a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
---- a/net/ipv6/af_inet6.c       Mon Sep  2 16:28:13 2002
-+++ b/net/ipv6/af_inet6.c       Mon Sep  2 16:28:13 2002
-@@ -663,8 +663,8 @@
-                                           sizeof(struct raw6_sock), 0,
-                                            SLAB_HWCACHE_ALIGN, 0, 0);
-         if (!tcp6_sk_cachep || !udp6_sk_cachep || !raw6_sk_cachep)
--                printk(KERN_CRIT __FUNCTION__
--                        ": Can't create protocol sock SLAB caches!\n");
-+                printk(KERN_CRIT "%s: Can't create protocol sock SLAB "
-+                      "caches!\n", __FUNCTION__);
+  I can easily reduce the load impact it causes to vger by
+  running the smtp server in "accept everything" mode without
+  analyzing local addresses for existence.  With a bit more
+  work I can throw in local cache..  (which I probably have to do..)
 
-        /* Register the socket-side information for inet6_create.  */
-        for(r = &inetsw6[0]; r < &inetsw6[SOCK_MAX]; ++r)
+> If it is possible to track what tool is causing the problem and fixing
+> the default setup of that tool at the source, it will probably solve
+> 99% of the problems in one go (after the list knows to which version
+> they should upgrade).
+
+  Raise some noise all around, there are multiple implementations
+  of the idea.  Some even with syntactically invalid tester codes
+  (spaces put in place where they don't belong in RFC 821/2821);
+  "works with sendmail" is NOT synonymous to "is syntactically 
+  correct."
+
+  - a mister at blue-labs.org  runs some sendmail-milter which
+    does testing with invalid protocol syntax
+  - usw-sf-list1.sourceforge.net  use probably their own code
+    usw-sf-fw2.sourceforge.net too...  possibly more systems there..
+  - quetz.demon.co.uk tests from  Exim 4.10
+  - somebody.symons.net tests from Exim 3.35
+
+  Right now something like 5-7 different systems are doing it.
+  Try to imagine when all 3500 targets do it...  BRRRRR...
+  (Sure, VGER can handle it, no problem, but it is that much
+   wasted cycles, and network traffic...)
+
+> Cheers, Andreas
+> Andreas Dilger
+
+/Matti Aarnio

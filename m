@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264226AbUEDEOx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264231AbUEDEoy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264226AbUEDEOx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 00:14:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264229AbUEDEOx
+	id S264231AbUEDEoy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 00:44:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264235AbUEDEoy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 00:14:53 -0400
-Received: from fw.osdl.org ([65.172.181.6]:23975 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264226AbUEDEOw (ORCPT
+	Tue, 4 May 2004 00:44:54 -0400
+Received: from gate.crashing.org ([63.228.1.57]:2983 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S264231AbUEDEox (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 00:14:52 -0400
-Date: Mon, 3 May 2004 21:14:48 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Albert Cahalan <albert@users.sourceforge.net>
-cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton OSDL <akpm@osdl.org>
-Subject: Re: errno
-In-Reply-To: <1083634011.952.154.camel@cube>
-Message-ID: <Pine.LNX.4.58.0405032111450.1636@ppc970.osdl.org>
-References: <1083634011.952.154.camel@cube>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 4 May 2004 00:44:53 -0400
+Subject: Re: workqueue and pending
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mixxel@cs.auc.dk, Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040503211540.052848a1.akpm@osdl.org>
+References: <40962F75.8000200@cs.auc.dk>
+	 <20040503162719.54fb7020.akpm@osdl.org> <1083639081.20092.294.camel@gaston>
+	 <20040503201616.6f3b8700.akpm@osdl.org> <1083642950.29596.299.camel@gaston>
+	 <20040503211540.052848a1.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1083645686.20091.301.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 04 May 2004 14:41:26 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 3 May 2004, Albert Cahalan wrote:
+On Tue, 2004-05-04 at 14:15, Andrew Morton wrote:
+> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> >
+> > It's probably still good to precise explicitely in the comments
+> >  that upon return of cancel_delayed_work(), the work queue might
+> >  still be pending and that a flush and whoever called this may
+> >  still need a flush_scheduled_work() or flush_workqueue() (provided
+> >  it's running in a context where that can sleep)
 > 
-> The obvious fix would be to stuff errno into the
-> task_struct, hmmm?
+> That function was originally written by a comment fetishist.
 
-No. "errno" is one of those fundamentally broken things that should not 
-exist. It was wrogn in original UNIX, it's wrong now.
+Heh, I should have looked at the code =P
 
-The kernel usage comes not from the kernel wanting to use it per se (the 
-kernel has always used the "negative error" approach), but from some 
-misguided kernel modules using the user-space interfaces.
+Ben.
 
-The Linux way of returning negative error numbers is much nicer. It's
-inherently thread-safe, and it has no performance downsides. Of course, it
-does depend on having enough of a result domain that you can always
-separate error returns from good returns, but that's true in practice for
-all system calls.
 
-Too bad we can't fix broken calling conventions.
-
-		Linus

@@ -1,42 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267353AbUIFADQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267358AbUIFAGD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267353AbUIFADQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 20:03:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267354AbUIFADQ
+	id S267358AbUIFAGD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 20:06:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267354AbUIFAFt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 20:03:16 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:23199 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267353AbUIFADK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 20:03:10 -0400
-Subject: Re: multi-domain PCI and sysfs
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Matthew Wilcox <willy@debian.org>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <9e473391040905165048798741@mail.gmail.com>
-References: <9e4733910409041300139dabe0@mail.gmail.com>
-	 <200409041527.50136.jbarnes@engr.sgi.com>
-	 <9e47339104090415451c1f454f@mail.gmail.com>
-	 <200409041603.56324.jbarnes@engr.sgi.com>
-	 <20040905230425.GU642@parcelfarce.linux.theplanet.co.uk>
-	 <9e473391040905165048798741@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094425236.2126.4.camel@localhost.localdomain>
+	Sun, 5 Sep 2004 20:05:49 -0400
+Received: from fw.osdl.org ([65.172.181.6]:23465 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267367AbUIFAF0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 20:05:26 -0400
+Date: Sun, 5 Sep 2004 17:05:27 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Nathan <lists@netdigix.com>
+Cc: keepalived-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Kernel panic issues
+Message-Id: <20040905170527.4d2e079c.rddunlap@osdl.org>
+In-Reply-To: <1094411544.413b65185bdba@mail.dreamtoy.net>
+References: <1094411544.413b65185bdba@mail.dreamtoy.net>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 06 Sep 2004 00:00:39 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-09-06 at 00:50, Jon Smirl wrote:
-> So how do multiple root buses work? Since they are all in the same
-> domain it seems like a single IO operation would go to all of the root
-> bridges simultaneously. Then each root bridge matches to the address
-> and decides to send the IO operation on if there is a match.
+On Sun,  5 Sep 2004 12:12:24 -0700 Nathan wrote:
 
-Architecture specific. Even in the PC world it varies.
+| Hi,  I have a server running debian 3.0r1 kernel 2.4.25 and I get these kernel 
+| panic about 5 times this week.  If anyone can tell me what it means it would be 
+| greatly appreciated.  Any additional instructions on how to read kernel panic 
+| dumps would also be appreciated.
 
-Alan
+Denis Vlasenko recently did a "howto find oops location" for 2.6.x,
+but it's probably the best reference for you to look at.
+It's here:
+  http://marc.theaimsgroup.com/?l=linux-kernel&m=109257016020612&w=2
 
+
+| asdasdkernel BUG as slab.c:1263!
+| Invalid operand: 0000
+| CPU:	0
+| EIP:	0010:[<c012609d>] Not tainted
+| EFLAGS: 00010012
+| eax: f31eafff	ebx: c19ad700	ecx: 00000001	edx: 00000001
+| esi: f31ea800	edi: f31eabd3	ebp: c02cfca8	esp: c02cfc8c
+| ds: 0018	es: 0018	ss: 0018
+| Process swapper (pid: 0, stackpage=c02cf000)
+| Stack:	f69657fc c03397e0 00000020 00000800 00012800 f31eabd3 00000246 c02cfcc4
+| 	c01f6b5e 0000065c 00000020 00000008 0000001c f74ec160 c02cfcf f887afe3
+| 	00000620 00000020 00000008 0000001c f74ec160 c01fa090 00000000 f6ebec
+| Call Trace:	[<c01f6b5e>] [<f887afe3>] [<c01fa090>] [<f887ae58>] [<f887ae58>]
+| 	[<c0107ee0>] [<c010806f>] [<c0125f2c>] [<c0231d11>] [<c02320c8>] 
+| [<c0207b60>]
+| 	[<f887b4ef>] [<c010806f>] [<c0207b60>] [<c02010b7>] [<c0207b60>] 
+| [<c02079f5>]
+| 	[<c0207b60>] [<c01fa40b>] [<c01fa4ad>] [<c01fa5bf>] [<c011552b>] 
+| [<c010809d>]
+| 	[<c0105260>] [<c0105260>] [<c0105260>] [<c0105260>] [<c0105286>] 
+| [<c01052f9>]
+| 	[<c0105000>] [<c010502a>]
+| 
+| Code: 0f 0b ef 04 60 33 26 c0 8b 7d f4 f7 c7 00 04 00 00 74 36 b8
+|  <0>Kernel panic: Aiee, Killing interrupt handler!
+| In interrupt handler - not syncing
+
+The stack addresses are useless without associating some of (your)
+kernel symbols with them.  Please read REPORTING-BUGS in the top
+level of the kernel source tree for full bug-reporting info, and see
+Documentation/Changes on where to get 'ksymoops' if you don't
+already have it, then run this panic message text thru ksymoops.
+That should tell the function call chain to get to slab.c.
+
+--
+~Randy

@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291863AbSBXXpn>; Sun, 24 Feb 2002 18:45:43 -0500
+	id <S291875AbSBXXvX>; Sun, 24 Feb 2002 18:51:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291869AbSBXXpf>; Sun, 24 Feb 2002 18:45:35 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:36589 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S291863AbSBXXpR>; Sun, 24 Feb 2002 18:45:17 -0500
-Date: Sun, 24 Feb 2002 16:45:08 -0700
-Message-Id: <200202242345.g1ONj8m29970@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Jes Sorensen <jes@sunsite.dk>
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] C exceptions in kernel
-In-Reply-To: <d3it8nr8tq.fsf@lxplus049.cern.ch>
-In-Reply-To: <927.1014507655@ocs3.intra.ocs.com.au>
-	<d3it8nr8tq.fsf@lxplus049.cern.ch>
+	id <S291876AbSBXXvN>; Sun, 24 Feb 2002 18:51:13 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26119 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S291875AbSBXXvC>; Sun, 24 Feb 2002 18:51:02 -0500
+Date: Sun, 24 Feb 2002 15:48:58 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: <mingo@elte.hu>, Matthew Kirkwood <matthew@hairy.beasts.org>,
+        Benjamin LaHaise <bcrl@redhat.com>, David Axmark <david@mysql.com>,
+        William Lee Irwin III <wli@holomorphy.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Lightweight userspace semaphores... 
+In-Reply-To: <E16f85L-0005QM-00@wagner.rustcorp.com.au>
+Message-ID: <Pine.LNX.4.33.0202241543550.28708-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jes Sorensen writes:
-> Keith Owens <kaos@ocs.com.au> writes:
-> 
-> > So you have arch dependent code which has to be done for all
-> > architectures before any driver can use it and the code has to be kept
-> > up to date by each arch maintainer.  Tell me again why the existing
-> > mechanisms are not working and why we need exceptions?  IOW, what
-> > existing problem justifies all the extra arch work and maintenance?
-> 
-> Sorry, can't tell you why as I agree wholeheartedly with you. My
-> point was that even if it was possible to implement exceptions 'for
-> free' on all architectures, then it's still not what we want in the
-> kernel. It's just too gross and makes people think about the code
-> the wrong way.
 
-This seems worthy of a new FAQ entry: http://www.tux.org/lkml/#s15-5
-And while I was at it, I moved a bunch of these religious questions
-into their own section. Section 1 is a bit of a hodge-podge.
 
-				Regards,
+On Mon, 25 Feb 2002, Rusty Russell wrote:
+> >
+> >   sys_sem_create()
+> >   sys_sem_destroy()
+>
+> There is no create and destroy (init is purely userspace).  There is
+> "this is a semapore: up it".  This is a feature.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+No, that's a bug.
+
+You have to realize that there are architectures that need special
+initialization and page allocation for semaphores: they need special flags
+in the TLB for "careful access", for example (sometimes the careful access
+ends up being non-cached).
+
+You can't just put semaphores anywhere and tell the kernel to try to fix
+up whatever happened.
+
+			Linus
+

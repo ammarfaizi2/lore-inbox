@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274063AbRISNsz>; Wed, 19 Sep 2001 09:48:55 -0400
+	id <S274064AbRISN56>; Wed, 19 Sep 2001 09:57:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274065AbRISNsg>; Wed, 19 Sep 2001 09:48:36 -0400
-Received: from A76d9.pppool.de ([213.6.118.217]:39690 "HELO Nicole.muc.suse.de")
-	by vger.kernel.org with SMTP id <S274063AbRISNsY>;
-	Wed, 19 Sep 2001 09:48:24 -0400
-Subject: Re: the Gimp and pre11
-From: Daniel Egger <egger@suse.de>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010919034412.092EB9CF9@oscar.casa.dyndns.org>
-In-Reply-To: <20010919034412.092EB9CF9@oscar.casa.dyndns.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.13 (Preview Release)
-Date: 19 Sep 2001 15:48:57 +0200
-Message-Id: <1000907347.6897.8.camel@sonja>
-Mime-Version: 1.0
+	id <S274065AbRISN5s>; Wed, 19 Sep 2001 09:57:48 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:9483 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S274064AbRISN5i>;
+	Wed, 19 Sep 2001 09:57:38 -0400
+Date: Wed, 19 Sep 2001 10:57:52 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Andrew Morton <akpm@zip.com.au>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.10-pre11
+In-Reply-To: <20010918230553.G720@athlon.random>
+Message-ID: <Pine.LNX.4.33L.0109191057180.4279-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mit, 2001-09-19 at 05:44, Ed Tomlinson wrote:
+On Tue, 18 Sep 2001, Andrea Arcangeli wrote:
+> On Tue, Sep 18, 2001 at 04:18:34PM -0300, Marcelo Tosatti wrote:
+> > I still can reproduce the alloc pages failures with the following patch.
+>
+> Could you try the very last patch I posted?
 
-> I am editing 6 Megapixel files (2800x2048) and things like rotations seem to 
-> have delays that were not happening with previous kernels.  My box has 320M.
-> Seems that pre11 does not swap out as much as pre10 so Gimp has less to work
-> with.
+Marcelo told you how to reproduce the bug, is there any
+particular reason you're not testing yourself? ;)
 
-Since GIMP uses it's own memory management using a tile approach I
-hardly doubt this is caused by swap usage if you defined the maximum
-amount of memory GIMP should use correctly; though it may be that the
-kernel swaps out tiles that the tilemanager considers to be active (and
-thus in memory) this behaviour should not happen as long as the kernel
-is not to eagerly swapping out memory and considering that the tiles
-are referenced quite often it should not swap them to disc at all IF
-the recently introduced algorithms work correctly.
+Rik
+-- 
+IA64: a worthy successor to i860.
 
-Anyhow, just to make sure, would you please mention much memory you
-assigned to GIMP and what else is running on the system?
+http://www.surriel.com/		http://distro.conectiva.com/
 
---
-Servus,
-       Daniel
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

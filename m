@@ -1,24 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313384AbSDYUQk>; Thu, 25 Apr 2002 16:16:40 -0400
+	id <S313392AbSDYUVM>; Thu, 25 Apr 2002 16:21:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313392AbSDYUQj>; Thu, 25 Apr 2002 16:16:39 -0400
-Received: from pop.gmx.net ([213.165.64.20]:59167 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S313384AbSDYUQj>;
-	Thu, 25 Apr 2002 16:16:39 -0400
-From: "Gerold J. Wucherpfennig" <gjwucherpfennig@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel panic while booting on a P2 with linux-2.5.10
-Date: Thu, 25 Apr 2002 22:15:28 +0200
-User-Agent: KMail/1.4.5
-MIME-Version: 1.0
+	id <S313401AbSDYUVL>; Thu, 25 Apr 2002 16:21:11 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:7767 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S313392AbSDYUVL>; Thu, 25 Apr 2002 16:21:11 -0400
+Date: Thu, 25 Apr 2002 16:21:06 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: nfs@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
+Subject: 1279 mounts
+Message-ID: <20020425162106.A30736@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200204252159.43694.gjwucherpfennig@gmx.net>
-Content-Transfer-Encoding: 8bit
-Content-Type: 
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format.
+I updated my patch that allows to mount unholy numbers of volumes.
+The old version was for 2.4.9 and did not apply anymore.
+I split the unnamed majors patch and the NFS patch.
+Also, CONFIG_ option is gone, because it made the code ugly.
 
+Majors part:
+ http://people.redhat.com/zaitcev/linux/linux-2.4.19-pre7-unmaj.diff
+NFS part:
+ http://people.redhat.com/zaitcev/linux/linux-2.4.19-pre7-nores.diff
+Userland for NFS:
+ http://people.redhat.com/zaitcev/linux/util-linux-2.11q-nores1.diff
 
+Is anyone actually interested? Random people periodically ask
+me for patches, get them and disappear into the void. I hear
+nothing good or bad (well, nothing since Trond reviewed it
+several months ago, and also someone found a conflict with NFS
+server code, since fixed). I am thinking about submitting,
+but if users do not ask, why add extra bloat and negotiate
+with LANANA...
+
+-- Pete

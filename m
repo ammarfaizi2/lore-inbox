@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbVBVVbN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbVBVVei@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261255AbVBVVbN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 16:31:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbVBVVbN
+	id S261259AbVBVVei (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 16:34:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVBVVeh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 16:31:13 -0500
-Received: from fire.osdl.org ([65.172.181.4]:23483 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261255AbVBVVbI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 16:31:08 -0500
-Date: Tue, 22 Feb 2005 13:31:34 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Olof Johansson <olof@austin.ibm.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, jamie@shareable.org,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH/RFC] Futex mmap_sem deadlock
-In-Reply-To: <1109106969.5412.138.camel@gaston>
-Message-ID: <Pine.LNX.4.58.0502221330360.2378@ppc970.osdl.org>
-References: <20050222190646.GA7079@austin.ibm.com> 
- <Pine.LNX.4.58.0502221123540.2378@ppc970.osdl.org> <1109106969.5412.138.camel@gaston>
+	Tue, 22 Feb 2005 16:34:37 -0500
+Received: from vanessarodrigues.com ([192.139.46.150]:47336 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S261259AbVBVVeZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 16:34:25 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: Matthew Wilcox <matthew@wil.cx>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch -mm series] ia64 specific /dev/mem handlers
+References: <16923.193.128608.607599@jaguar.mkp.net>
+	<20050222020309.4289504c.akpm@osdl.org>
+	<yq0ekf8lksf.fsf@jaguar.mkp.net>
+	<20050222175225.GK28741@parcelfarce.linux.theplanet.co.uk>
+	<20050222112513.4162860d.akpm@osdl.org>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 22 Feb 2005 16:34:23 -0500
+In-Reply-To: <20050222112513.4162860d.akpm@osdl.org>
+Message-ID: <yq0acpwl1nk.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Andrew" == Andrew Morton <akpm@osdl.org> writes:
 
+Andrew> Matthew Wilcox <matthew@wil.cx> wrote:
+>> 
+>> On Tue, Feb 22, 2005 at 09:41:04AM -0500, Jes Sorensen wrote:
+>> > >> + if (page->flags & PG_uncached)
+>> > 
+>> > Andrew> dude.  That ain't gonna work ;)
+>> > 
+>> > Pardon my lack of clue, but why not?
 
-On Wed, 23 Feb 2005, Benjamin Herrenschmidt wrote:
-> 
-> Isn't Olof scheme racy ? Can't the stuff get swapped out between the
-> first get_user() and the "real" one ?
+Andrew> 	if (page->flags & (1<<PG_uncached))
 
-Yes. But see my suggested modification (which I still think is "the thing 
-that Olof does", except it's more efficient and avoids the race).
+Andrew> would have been correcter.
 
-If rwsems acted like rwlocks, we wouldn't have this issue at all.
+DOH!
 
-		Linus
+Desperately seeking a bulk supply of those brown paper bags!
+
+>> I think you're supposed to always use test_bit() to check page
+>> flags
+
+Andrew> Yup.  Add PageUncached macros to page-flags.h.
+
+Mmmmm another butt ugly StUdLyCaPs macro coming soon.
+
+Thanks,
+Jes

@@ -1,40 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271757AbRH0PlV>; Mon, 27 Aug 2001 11:41:21 -0400
+	id <S271762AbRH0P5q>; Mon, 27 Aug 2001 11:57:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271762AbRH0PlL>; Mon, 27 Aug 2001 11:41:11 -0400
-Received: from [212.93.134.61] ([212.93.134.61]:13842 "EHLO zebra.sibnet.ro")
-	by vger.kernel.org with ESMTP id <S271757AbRH0PlB>;
-	Mon, 27 Aug 2001 11:41:01 -0400
-Date: Mon, 27 Aug 2001 18:51:49 -0400 (EDT)
-From: <sacx@zebra.sibnet.ro>
-To: <linux-kernel@vger.kernel.org>
-Subject: module
-Message-ID: <Pine.LNX.4.33L2.0108271826510.32587-100000@zebra.sibnet.ro>
+	id <S271761AbRH0P5h>; Mon, 27 Aug 2001 11:57:37 -0400
+Received: from subcentral.mendosus.org ([195.196.16.180]:3848 "EHLO
+	subcentral.mendosus.org") by vger.kernel.org with ESMTP
+	id <S271762AbRH0P51>; Mon, 27 Aug 2001 11:57:27 -0400
+Date: Mon, 27 Aug 2001 16:55:47 +0200 (CEST)
+From: Per Niva <pna@mendosus.org>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+cc: <arjanv@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Added devfs support for i386 msr/cpuid driver
+In-Reply-To: <200108271452.f7REqjT15752@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.LNX.4.33.0108271621410.22199-100000@subcentral.mendosus.org>
+Organization: Mendosus
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 27 Aug 2001, Richard Gooch wrote:
 
-	I'm trying to comunicate some parameters from kernel to a module.
-	I define a new function somwhere in kernel and after rebuilding
-the version of my function is something like :
+> Arjan van de Ven writes:
+> > >
+> > >  int __init msr_init(void)
+> > >  {
+> > > +#ifdef CONFIG_DEVFS_FS
+> > > +    devfs_handle = devfs_register(NULL, "cpu/msr", DEVFS_FL_DEFAULT, 0, 0,
+> > > +                                  S_IFREG | S_IRUGO | S_IWUSR,
+> > > +                                  &msr_fops, NULL);
+> > > +#else
+> > >    if (register_chrdev(MSR_MAJOR, "cpu/msr", &msr_fops)) {
+> > >      printk(KERN_ERR "msr: unable to get major %d for msr\n",
+> > >            MSR_MAJOR);
+> > >      return -EBUSY;
+> > >    }
+> > > +#endif
+> >
+> > this must be wrong as you don't check for devfs_register failures...
+>
+> The reason it's wrong is because he put #ifdef's in there. The
+> functions should just be called unconditionally. The #ifdef's are in
+> the header.
 
-c027b7f0 function_R__ver_function (# cat /proc/ksyms | grep function)
-(somewhere in *.ver files I can see the correct version)
-And if I want to insert my module in kernel I get an error :
-func.o: unresolved symbol function (because of the wrong function version)
+I actually pondered a while on this, and settled on
+the cut'n'paste-from-mtrr.c version. There is no error
+check there, and I just overlooked it.
 
-Something is wrong, but I don't know what ...
+The defence for the #ifdefs is that I didn't see
+register_chrdev() being aware of devfs, and I thought
+we'd be better off just not calling register_chrdev()
+at all if we have devfs.
 
-You can help me ?
+It's not like I personally like #ifdefs, but it seemed
+justified to my inexperienced eyes at that point. And
+there's a #ifdef CONFIG_DEVFS_FS around the call in
+mtrr.c too, and I thought it safe to do like what's
+already in the official tree.
 
-Best Regards
-Adrian Stanila
+In microcode.c however, is the new-style without #ifdef
+(or rather with the #ifdef in the headers instead)
+and with error checking, but microcode_init() doesn't
+use register_chrdev() anyway, even if devfs is not
+supported.
 
-P.S. I'm a newbie in kernel hacking and I don't want to disturb you but
-if you can help me ... please answer to my email :)))
+Please enlighten me!
 
+> 				Regards,
+>
+> 					Richard....
+
+
+Grateful for comments,
+
+
+	Per
+
+
+----------------------------------------------------
+pna@mendosus.org                     +46 705 509 654
+"Beware - the world will never be the same again..."
 

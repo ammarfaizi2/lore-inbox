@@ -1,81 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271808AbRHRLHs>; Sat, 18 Aug 2001 07:07:48 -0400
+	id <S271809AbRHRLV3>; Sat, 18 Aug 2001 07:21:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271809AbRHRLHk>; Sat, 18 Aug 2001 07:07:40 -0400
-Received: from smtp-server1.tampabay.rr.com ([65.32.1.34]:49840 "EHLO
-	smtp-server1.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id <S271808AbRHRLHU>; Sat, 18 Aug 2001 07:07:20 -0400
-Message-ID: <018901c127d5$fadba320$b6562341@cfl.rr.com>
-From: "Mike Black" <mblack@csihq.com>
-To: "Dewet Diener" <linux-kernel@dewet.org>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010818030321.A11649@darkwing.flatlit.net>
-Subject: Re: ext3 partition unmountable
-Date: Sat, 18 Aug 2001 07:07:32 -0400
+	id <S271811AbRHRLVT>; Sat, 18 Aug 2001 07:21:19 -0400
+Received: from adsl-64-175-255-50.dsl.sntc01.pacbell.net ([64.175.255.50]:3775
+	"HELO kobayashi.soze.net") by vger.kernel.org with SMTP
+	id <S271809AbRHRLVG>; Sat, 18 Aug 2001 07:21:06 -0400
+Date: Sat, 18 Aug 2001 03:30:59 -0700 (PDT)
+From: Justin Guyett <justin@soze.net>
+X-X-Sender: <tyme@kobayashi.soze.net>
+To: Jim Roland <jroland@roland.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Aliases
+In-Reply-To: <00df01c127a8$c354ad20$bb1cfa18@JimWS>
+Message-ID: <Pine.LNX.4.33.0108180245070.27721-100000@kobayashi.soze.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2462.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If I'm reading the files right it looks like:
-#define EXT3_FEATURE_INCOMPAT_COMPRESSION  0x0001
+On Sat, 18 Aug 2001, Jim Roland wrote:
 
-Did you compress the file system?
+> Having recently gone from 2.2 to 2.4 what's the device convention now?  I
+> thought it was eth0 (example) and eth0:0 .. eth0:255, but knew kernel 2.4
+> would take it further.
 
-Do a "tune2fs -l /dev/hdc" and see what features are set.
+presuming this isn't an ifconfig limit instead of a kernel limit, trying
+"ifconfig eth0:x" works for x < 10000, anything > 10000 and x becomes
+x%10000.
 
------ Original Message -----
-From: "Dewet Diener" <linux-kernel@dewet.org>
-To: <linux-kernel@vger.kernel.org>
-Sent: Friday, August 17, 2001 9:03 PM
-Subject: ext3 partition unmountable
+However, 2.4 also has multiple addresses of the same type per device;
+unfortunately it's fairly slow.  Adding or deleting addresses seems to
+take ~5 seconds per 255 addresses on my machine, and listing addresses
+takes about 1 second / 300 addresses on the same machine.
+
+Also, listing addresses for another interface isn't any faster, which is
+unfortunate; ip shouldn't need to check addresses of all interfaces just
+to get the ones for the requested interface.
+
+At least listing time seems to increase linearly with the number of
+addresses.  IIRC someone posted a patch a few weeks ago to speed this up
+(no longer sits for a long time before listing addresses).
+
+time ip addr show dev eth1 | wc -l
+  37766
+ip addr show dev eth1  113.17s user 1.82s system 99% cpu 1:55.38 total
+
+Also, ifconfig, which has no idea about any but the first address in an
+address class, also does nothing for the same amount of time before
+listing interfaces.
+
+Anyway, it seems ip and the 2.4 scheme with multiple addresses per
+interface can handle many more addresses than ifconfig and the device
+alias scheme.
 
 
-> Hi all
->
-> After umounting a removable ext3 partition from my work PC, and
-> trying to remount it at home, I've run into the following error
-> trying to mount it as both ext2 and ext3:
->
-> EXT2-fs: ide1(22,65): couldn't mount because of unsupported optional
-features (10000).
-> EXT3-fs: ide1(22,65): couldn't mount because of unsupported optional
-features (10000).
->
-> e2fsck is similarly unhelpful:
-> e2fsck: Filesystem has unsupported feature(s) while trying to open
-/dev/hdd1
->
-> The kernels on both machines have the same ext3 options enabled, and
-> they're both 2.4.8-ac6.
->
-> This is the first time I've tried moving the drive like this - I
-> assumed it would work flawlessly.  However, ext3 doco seems a bit
-> sparse under Documentation/, so I'm not quite sure about the recovery
-> steps needed.
->
-> I'd appreciate your help on this one :)  Please CC me in...
->
-> Regards,
-> Dewet
->
-> --
-> Dewet Diener     dewet@itouchlabs.com     -o)
-> Systems Administrator     iTouch Labs     / \
-> Self-confessed geek and Linux fanatic    _\_v
->
-> SYN! ..... SYN! ACK! ..... ACK!
-> The mating call of the internet
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+justin
 

@@ -1,153 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262590AbVCJAos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbVCIXy5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262590AbVCJAos (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 19:44:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbVCJAfH
+	id S261565AbVCIXy5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 18:54:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbVCIXOJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 19:35:07 -0500
-Received: from ns1.lanforge.com ([66.165.47.210]:8361 "EHLO www.lanforge.com")
-	by vger.kernel.org with ESMTP id S262577AbVCJASg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 19:18:36 -0500
-Message-ID: <422F9259.2010003@candelatech.com>
-Date: Wed, 09 Mar 2005 16:18:33 -0800
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christian Schmid <webmaster@rapidforum.com>
-CC: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: BUG: Slowdown on 3000 socket-machines tracked down
-References: <4229E805.3050105@rapidforum.com> <422BAAC6.6040705@candelatech.com> <422BB548.1020906@rapidforum.com> <422BC303.9060907@candelatech.com> <422BE33D.5080904@yahoo.com.au> <422C1D57.9040708@candelatech.com> <422C1EC0.8050106@yahoo.com.au> <422D468C.7060900@candelatech.com> <422DD5A3.7060202@rapidforum.com> <422F8A8A.8010606@candelatech.com> <422F8C58.4000809@rapidforum.com>
-In-Reply-To: <422F8C58.4000809@rapidforum.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 9 Mar 2005 18:14:09 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:14310 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262525AbVCIWtl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 17:49:41 -0500
+Subject: Re: [PATCH] 2.6.10 -  direct-io async short read bug
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: suparna@in.ibm.com, Daniel McNeil <daniel@osdl.org>,
+       sebastien.dugue@bull.net, "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050309143936.046f163a.akpm@osdl.org>
+References: <1110189607.11938.14.camel@frecb000686>
+	 <20050307223917.1e800784.akpm@osdl.org> <20050308090946.GA4100@in.ibm.com>
+	 <1110302614.24286.61.camel@dyn318077bld.beaverton.ibm.com>
+	 <1110309508.24286.74.camel@dyn318077bld.beaverton.ibm.com>
+	 <1110324434.6521.23.camel@ibm-c.pdx.osdl.net>
+	 <1110326043.24286.134.camel@dyn318077bld.beaverton.ibm.com>
+	 <20050309040757.GY27331@ca-server1.us.oracle.com>
+	 <20050309152047.GA4588@in.ibm.com> <20050309115348.2b86b765.akpm@osdl.org>
+	 <1110403885.24286.216.camel@dyn318077bld.beaverton.ibm.com>
+	 <20050309143936.046f163a.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1110408356.24286.229.camel@dyn318077bld.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 09 Mar 2005 14:45:57 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Schmid wrote:
->> Yes, 2.6.11.  I have tuned max_backlog and some other TCP and networking
->> related settings to give more buffers etc to networking tasks.  I have 
->> not
->> tried any significant disk-IO while doing these tests.
->>
->> I finally got my systems set up so I can run my WAN emulator at full 
->> 1Gbps:
->>
->> I am getting right at 986Mbps throughput with 30ms round-trip latency
->> (15ms in both directions).
->>
->> So, latency does not seem to be the problem either.
->>
->> I think the problem can be narrowed down to:
->>
->> 1)  Non-optimal kernel network tunings on your server.
+On Wed, 2005-03-09 at 14:39, Andrew Morton wrote:
+> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> >
+> > On Wed, 2005-03-09 at 11:53, Andrew Morton wrote:
+> > > Suparna Bhattacharya <suparna@in.ibm.com> wrote:
+> > > >
+> > > >  > 	Solaris, which does forcedirectio as a mount option, actually
+> > > >  > will do buffered I/O on the trailing part.  Consider it like a bounce
+> > > >  > buffer.  That way they don't DMA the trailing data and succeed the I/O.
+> > > >  > The I/O returns actual bytes till EOF, just like read(2) is supposed to.
+> > > >  > 	Either this or a fully DMA'd number 4 is really what we should
+> > > >  > do.  If security can only be solved via a bounce buffer, who cares?  If
+> > > >  > the user created themselves a non-aligned file to open O_DIRECT, that's
+> > > >  > their problem if the last part-sector is negligably slower.
+> > > > 
+> > > >  If writes/truncates take care of zeroing out the rest of the sector
+> > > >  on disk, might we still be OK without having to do the bounce buffer
+> > > >  thing ?
+> > > 
+> > > We can probably rely on the rest of the sector outside i_size being zeroed
+> > > anyway.  Because if it contains non-zero gunk then the fs already has a
+> > > problem, and the user can get at that gunk with an expanding truncate and
+> > > mmap() anyway.
+> > > 
+> > 
+> > Rest of the sector or rest of the block ?
 > 
+> The filesystem-sized block (1<<i_blkbits) which straddles i_size should
+> have zeroes outside i_size.
 > 
-> I used all the default-settings on 2.6.11
-
-Here are my settings.  Hopefully it will be clear what I'm
-talking about..yell if you need details.  Please note that I explicitly
-set the send buffers to 128k and the rcv to 16k in my test so the min and max
-socket queue lengths do not matter here.
-
-my $dflt_tx_queue_len = 2000;   # Ethernet driver transmit-queue length.  Might be worth making
-                                 # it bigger for GigE nics.
-
-my $netdev_max_backlog = 5000; # Maximum number of packets, queued on the INPUT side, when
-                                # the interface receives pkts faster than it can process them.
-
-my $wmem_max = 4096000;  # Write memory buffer.  This is probably fine for any setup,
-                          # and could be smaller (256000) for < 5Mbps connections.
-
-my $wmem_default = 128000;  # Write memory buffer.  This is probably fine for any setup,
-                             # and could be smaller (256000) for < 5Mbps connections.
-
-my $rmem_max = 8096000;  # Receive memory (packet) buffer.  If you are running
-                          # lots of very fast traffic,
-                          # you may want to make this larger if you are running over
-                          # fast, high-latency networks.
-                          # For < 5Mbps of traffic, 512000 should be fine.
-
-my $rmem_default = 128000;  # Receive memory (packet) buffer.
-
-
-# If this is not 1, then the tcp_* settings below will not be applied.
-my $modify_tcp_settings = 1;
-
-# See the kernel documentation: Documentation/networking/ip-sysctl.txt
-my $tcp_rmem_min     = 4096;
-my $tcp_rmem_default = 256000;  # TCP specific receive memory pool size.
-my $tcp_rmem_max     = 30000000;  # TCP specific receive memory pool size.
-
-my $tcp_wmem_min     = 4096;
-my $tcp_wmem_default = 256000;  # TCP specific write memory pool size.
-my $tcp_wmem_max     = 30000000;  # TCP specific write memory pool size.
-
-my $tcp_mem_lo       = 20000000; # Below here there is no memory pressure.
-my $tcp_mem_pressure = 30000000; # Can use up to 30MB for TCP buffers.
-my $tcp_mem_high     = 60000000; # Can use up to 60MB for TCP buffers.
-
-
+> There's one situation where it might not be zeroed out, and that's when the
+> final page is mapped MAP_SHARED and the application modifies that page
+> outside i_size while writeout is actually in flight.  We can't do much about
+> that.
 > 
->> 2)  Disk-IO (my disk is small and slow compared to a 'real' server, 
->> not sure I can
->>      really test this side of things, and I have not tried as of yet.)
+> > Are you implying that, we
+> > already do this, so there is no problem reading beyond EOF to user
+> > buffer ? Or we need to zero out the userbuffer beyond EOF ?
 > 
+> It should be acceptable to assume that the final (1<<i_blkbits) block of
+> the file contains zeroes outside i_size.
 > 
-> This doesnt explain the speed-up when I change lower_zone_protection 
-> from 0 to 1024. It also doesnt explain the slowdown on 2.6.11 compared 
-> to 2.6.10
-
-Disk-IO uses buffers, so a change here could easily starve the rest
-of your system.  I'm just saying I can't reliably test this.  To be honest,
-my machines are already throwing allocation failures in the ethernet drivers
-and I've had the OOM killer kill my main process several times.  So, my machines
-are running right at their memory limit, even w/out any disk IO.
-
->> 3)  Your clients have much more latency and/or don't have enough 
->> bandwidth
->>      to fully load your server.  Since you didn't answer before:  I 
->> assume you
->>      do not have a reliable test bed and are just hoping that enough 
->> clients connect
->>      to do your benchmarking.
-> 
-> 
-> Yes I just wait until they connect. On the graph it only takes about 2 
-> minutes until 3000 sockets are created again.
-
-But, you could get unlucky and have 3000 people on a shitty dialup
-connection connect to you.  That does not make it easy to reliably
-test the system.
+> And if it doesn't contain those zeroes, well, applications are able to read
+> that data already.  Although I wouldn't count that as a security hole: that
+> data is something which an application wrote there while writing the file,
+> rather than being left-over uncontrolled stuff.
 
 
->> 4)  There is something strange with sendfile and/or your application's 
->> coding.
-> 
-> 
-> I am not doing more than calling sendfile. There  is nothing one can do 
-> wrong.
-> 
->> My suggestion would be to eliminate these variables by coming up with 
->> a repeatable
->> test bed, alternative traffic generators, WAN/Network emulators for 
->> latency, etc.
-> 
-> 
-> The problem still is that 1) it speeds up immediately when 
-> lower_zone_protection is raised to 1024. This proves it is NOT a 
-> disk-bottleneck. And second: it got much worse with 2.6.11 and 
-> lower_zone_protection disappeared on 2.6.11
+Well, in that case - the original patch sent out is good enough to fix
+the problem. All the original patch did was after completing the IO,
+truncated the size to filesize. The problem is only with the last
+block in the file. If the file ends in the middle of the block, we
+go ahead and read till the end of the block. I was trying to address
+that issue. But, if the block is already zeroed, just truncating the
+size after the IO is complete should be good enough.
 
-So, maybe a VM problem?  That would be a good place to focus since
-I think we can be fairly certain it isn't a problem in just the
-networking code.  Otherwise, my tests would show lower bandwidth.
 
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
+Thanks,
+Badari
 

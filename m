@@ -1,54 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261699AbTKONXx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 08:23:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbTKONXx
+	id S261775AbTKONXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 08:23:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbTKONXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 08:23:53 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:25616 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261699AbTKONXp
+	Sat, 15 Nov 2003 08:23:16 -0500
+Received: from wblv-224-88.telkomadsl.co.za ([165.165.224.88]:19840 "EHLO
+	nosferatu.lan") by vger.kernel.org with ESMTP id S261775AbTKONXO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 08:23:45 -0500
-Date: Sat, 15 Nov 2003 08:13:04 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Jens Axboe <axboe@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-In-Reply-To: <20031113070627.GU21141@suse.de>
-Message-ID: <Pine.LNX.3.96.1031115080431.2903C-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 15 Nov 2003 08:23:14 -0500
+Subject: [PATCH 2.6] byteorder.h breaks with __STRICT_ANSI__ defined
+	(trivial)
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: azarah@nosferatu.za.org
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031111145805.45206335.davem@redhat.com>
+References: <1068140199.12287.246.camel@nosferatu.lan>
+	 <20031106093746.5cc8066e.davem@redhat.com>
+	 <1068489427.7910.147.camel@nosferatu.lan> <3FAFE1E2.2020000@zytor.com>
+	 <1068589739.19849.2.camel@nosferatu.lan>
+	 <20031111145805.45206335.davem@redhat.com>
+Content-Type: multipart/mixed; boundary="=-flDd7pFZQgvpNNxpey0F"
+Message-Id: <1068902672.5033.24.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 15 Nov 2003 15:24:32 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Nov 2003, Jens Axboe wrote:
 
-> On Wed, Nov 12 2003, bill davidsen wrote:
+--=-flDd7pFZQgvpNNxpey0F
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-> > capability working again. I presume eventually one of the commercial
-> > vendors will fix it, since it's easier than rewriting all the SCSI
-> > applications in the world. oddly there are people writing useful things
-> > using other operating systems, under 2.4 almost all of those work.
-> 
-> It's not about applications, we can fix that differently. You still
-> don't seem to get that moving from ide-scsi is a _good_ thing, from the
-> application point of view. It's about hardware that doesn't work well
-> with atapi drivers yet, for whatever reason. ide-scsi is nice to have to
-> fill those holes.
+Hi Linus
 
-Sorry, as far as I can tell it's just the wrong direction. Devices mounted
-by USB look like... SCSI. And ZIP drives and tapes mounted on parallel
-(ppa) look like... SCSI. If Linux had one fully functional ide-scsi driver
-it would then present a consistant all-SCSI interface to the applications.
-No more ide-floppy, ide-cd, ide-tape, just one driver. And that would
-allow use of applications from BSD, Sun, and SysV.
+This patch fixes include/asm-i386/types.h to define __s64 and __u64
+even with -ansi passed to gcc, else we get breaks for userland that
+may include include/asm-i386/byteorder.h through another header.
 
-Clearly the ide-scsi driver currently available isn't fully capable, and
-as long as Linus doesn't agree that having a single application interface
-is elegant and desirable, I can't see anyone doing the things needed.
+It is with help/comments from David S. Miller and H. Peter Anvin.
+
+
+Thanks,
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Martin Schlemmer
+
+--=-flDd7pFZQgvpNNxpey0F
+Content-Disposition: attachment; filename=2.6.0-test9-asm-types_h-extension.patch
+Content-Type: text/x-patch; name=2.6.0-test9-asm-types_h-extension.patch; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+--- 1/include/asm-i386/types.h	2003-11-15 15:10:09.256721568 +0200
++++ 2/include/asm-i386/types.h	2003-11-15 15:11:07.348890216 +0200
+@@ -19,10 +19,14 @@
+ typedef __signed__ int __s32;
+ typedef unsigned int __u32;
+ 
+-#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+-typedef __signed__ long long __s64;
+-typedef unsigned long long __u64;
++#ifndef __GNUC__
++# ifndef __extension__
++#  define __extension__
++# endif
+ #endif
++  
++__extension__ typedef __signed__ long long __s64;
++__extension__ typedef unsigned long long __u64;
+ 
+ #endif /* __ASSEMBLY__ */
+ 
+
+--=-flDd7pFZQgvpNNxpey0F--
 

@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319298AbSH2Sld>; Thu, 29 Aug 2002 14:41:33 -0400
+	id <S319297AbSH2Sk4>; Thu, 29 Aug 2002 14:40:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319299AbSH2Slc>; Thu, 29 Aug 2002 14:41:32 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:33033 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S319298AbSH2Sl2>; Thu, 29 Aug 2002 14:41:28 -0400
-Message-ID: <3D6E6B64.66203783@zip.com.au>
-Date: Thu, 29 Aug 2002 11:43:48 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Badari Pulavarty <pbadari@us.ibm.com>
-CC: linux-kernel@vger.kernel.org, Gerrit Huizenga <gerrit@us.ibm.com>,
-       Hans-J Tannenberger <hjt@us.ibm.com>,
-       Janet Morgan <janetmor@us.ibm.com>, Mike Anderson <andmike@us.ibm.com>,
-       Martin Bligh <mjbligh@us.ibm.com>
-Subject: Re: 2.5.32 IO performance issues
-References: <200208291820.g7TIKHA19433@eng2.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S319298AbSH2Sk4>; Thu, 29 Aug 2002 14:40:56 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27654 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S319297AbSH2Sk4>; Thu, 29 Aug 2002 14:40:56 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [PATCH][2.5.32] CPU frequency and voltage scaling (0/4)
+Date: Thu, 29 Aug 2002 18:47:39 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <aklq8b$220$1@penguin.transmeta.com>
+References: <Pine.LNX.4.44.0208281649540.27728-100000@home.transmeta.com> <1030618420.7290.112.camel@irongate.swansea.linux.org.uk>
+X-Trace: palladium.transmeta.com 1030646692 6046 127.0.0.1 (29 Aug 2002 18:44:52 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 29 Aug 2002 18:44:52 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty wrote:
-> 
-> Hi,
-> 
-> I am having severe IO performance problems with 2.5.32 (2.5.31 works fine).
-> I was wondering what caused this.
-> 
-> As you can see, IO rate went from
-> 
->                 384MB/sec with 6% CPU utilization on 2.5.31
->                         to
->                 120MB/sec with 19% CPU utilization on 2.5.32
-> 
-> ...
-> 151712 default_idle                             2370.5000
-> 21622 __scsi_end_request                       122.8523
+In article <1030618420.7290.112.camel@irongate.swansea.linux.org.uk>,
+Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
+>>  { min-Hz, max-Hz, policy }
+>> 
+>
+>For a few of the processors "event-hz" or similar would be nice. The
+>Geode supports hardware assisted bursting to full processor speed when
+>doing SMM, I/O and IRQ handling.
 
-block-highmem is bust for scsi. (aic7xxx at least).  Does
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.32/2.5.32-mm2/broken-out/scsi_hack.patch
-fix it?
+Hmm.. I would assume that you'd just use the high frequency for that?
+So, for example, assuming you have a 600/300 Geode, when you do
+
+	{ 0, ~0UL, "power-save" }
+
+that would tell the Geode driver to run at 300MHz normally
+("power-save"), and at 600Mhz when doing critical events. 
+
+In contrast, a
+
+	{ 0, ~0UL, "performance" }
+
+mode would mean that it always runs at 600MHz (modulo heat throttling,
+of course).
+
+And a
+
+	{ 300, 300, "power-save" }
+
+means that you want the chip to always run at 300MHz, even when handling
+critical events.
+
+I don't know the exact details of what kinds of frequencies the Geode
+supports, but it sounds to me like you don't really need another
+frequency value.. 
+
+		Linus

@@ -1,100 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261418AbUDBXpT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 18:45:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbUDBXpT
+	id S261410AbUDBXpa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 18:45:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbUDBXp3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 18:45:19 -0500
-Received: from holomorphy.com ([207.189.100.168]:29621 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261369AbUDBXpF (ORCPT
+	Fri, 2 Apr 2004 18:45:29 -0500
+Received: from fw.osdl.org ([65.172.181.6]:45781 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261410AbUDBXpI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 18:45:05 -0500
-Date: Fri, 2 Apr 2004 15:44:53 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Antony Suter <suterant@users.sourceforge.net>
+	Fri, 2 Apr 2004 18:45:08 -0500
+Date: Fri, 2 Apr 2004 15:47:18 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Timothy Miller <miller@techsource.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc3-as1 patchset, cks5.2, cfq, aa1, and some wli
-Message-ID: <20040402234453.GU791@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Antony Suter <suterant@users.sourceforge.net>,
-	linux-kernel@vger.kernel.org
-References: <1080894085.22675.0.camel@hikaru.lan> <20040402101407.GR791@holomorphy.com> <1080924208.9281.55.camel@hikaru.lan>
+Subject: Re: PROBLEM: Consistently slower 3ware RAID performance under 2.6.4
+Message-Id: <20040402154718.43f16ea9.akpm@osdl.org>
+In-Reply-To: <406D89B8.4090308@techsource.com>
+References: <406D89B8.4090308@techsource.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1080924208.9281.55.camel@hikaru.lan>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 03, 2004 at 02:43:28AM +1000, Antony Suter wrote:
-> Could you add some outlines of your patches #02, #03, #18 and #28
-> please?
+Timothy Miller <miller@techsource.com> wrote:
+>
+> ## Performance with "2.4.25-gentoo":
+> 
+> The read test here takes 21.6 seconds which is about 47MB/sec.  This is 
+> a correct number, because I have measured the maximum read throughput 
+> from each drive to be 47MB/sec.
+> 
+> The write test here takes 2 minutes, 2.5 seconds.  This translates to 
+> 8.35MB/sec.  This is what I'm working with 3ware to correct, but let's 
+> call this the baseline write performance.
+> 
+> 
+> ## Performance with "2.6.4-gentoo-r1":
+> 
+> The read test here takes 33.9 seconds.  That's down to about 30MB/sec.
+> 
+> The write test here takes 2 minutes, 44.2 seconds.  That is down to 
+> 6.2MB/sec.
+> 
 
-#2 rewrote the page allocator to do deferred coalescing, which had the
-additional advantage of making transfers of groups of pages to and from
-the lists protected by zone->lock into expected O(1) operations. It also
-exported the new functionality of O(1) batched page freeing to callers,
-which was utilized by #3.
+You cannot compare 2.4 and 2.6 kernel write performance with `dd', because
+the kernels are tuned differently.  2.6 kernels are tuned to leave less
+dirty pages in memory than a 2.4 kernel.  Hence when your dd has finished,
+40% of memory will be dirty (needing writeout) under 2.6, but this figure
+is 60% on 2.4.
 
-#3 implemented caching of preconstructed leaf pagetable nodes in a manner
-compatible with highpte. This was supposed to conserve cache, and may
-improve performance on load that repetitively fork() and exit().
+So the 2.6 kernel does more writeout during the dd run and less writeout
+after dd has finished.  The 2.4 kernel does less writeout during the dd run
+and more writeout after dd has finished.
 
-#18 just micro-optimized some page allocator logic and enlarged the
-batches so as to take advantage of the operations newly made O(1) by #2
-which would otherwise have been expensive with large batches. It's not
-actually useful without #2 in place.
+To compare IO performance you'll need to set 2.6's /proc/sys/vm/dirty_ratio
+to 60 and /proc/sys/vm/dirty_async_ratio to 30.  Or use write-and-fsync
+from http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz with
+the `-f' option.
 
-#28 put all scheduling primitives into their own ELF sections,
-delimited by new marker symbols, and uses those to improve
-/proc/$PID/wchan reporting so that various scheduling primitives are
-skipped over that aren't now, and scheduling functions don't need to
-be contiguous in the text segment of the kernel. I've resubmitted this
-a few more times, and it seems to be destined for mainline.
-
-
-At some point in the past, I wrote:
->> altered so the parts stressing /proc/ are removed. I also had in the
->> back of my mind the notion that /proc/ performance improvements would
->> be appreciated by end users with limited cpu power to devote to the
->> monitoring of their workloads and machines' performance, which is part
->> of what motivated me to do it "the hard way" instead of modifying the
->> benchmark or replacing the userspace procps utilities with /dev/kmem
->> -diving utilities.
-
-On Sat, Apr 03, 2004 at 02:43:28AM +1000, Antony Suter wrote:
-> How important would improvements to /proc be now we have /sys ?
-
-These were largely performance-oriented, not functionality. A rather
-unfortunate aspect of that benchmark was that it effectively benchmarked
-dozens or hundreds of processes doing ps(1) in parallel. End users may
-find that the overhead of running top(1) is reduced by the patches meant
-to speed up /proc/ for the benchmark, as many of them were single-
-threaded speedups, and not just locking improvements.
-
-The most important of the /proc/ performance patches was actually #5,
-the forward port of bcrl's O(1) proc_pid_statm(). #4, the rbtree-based
-get_tgid_list()/get_tid_list(), may also prove useful, and could use
-some benchmarking on it as a standalone patch done.
-
-
-At some point in the past, I wrote:
->> And finally, even with all this longwinded harangue, congratulations on
->> your tree. There are very definite feelings of importance and
->> satisfaction of having done service from producing releases others rely
->> upon. And these are real, as real users do benefit from what you've
->> assembled. I'm more than happy to help if you have bugreports in any
->> code I maintained or other need to call on me. And whatever precedent I
->> may have provided, you do own this, and this is your own original work.
-
-On Sat, Apr 03, 2004 at 02:43:28AM +1000, Antony Suter wrote:
-> Thanks for your kind words, and detailed notes! Again, any pointers to
-> similar sorts of work would be greatly appreciated. Can you recommend
-> any good tools for patch set management?
-
-I've discovered quilt (based on akpm's patch scripts) is excellent and
-am replacing my old scripts, which confused everyone but me, with it.
-
-
--- wli
+I don't know why the read bandwidth appears to be lower.  Try increasing
+the readahead with `blockdev --setra'?

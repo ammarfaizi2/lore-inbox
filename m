@@ -1,35 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273615AbRIUQdL>; Fri, 21 Sep 2001 12:33:11 -0400
+	id <S273601AbRIUQZl>; Fri, 21 Sep 2001 12:25:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273617AbRIUQdB>; Fri, 21 Sep 2001 12:33:01 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25605 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S273615AbRIUQcv>; Fri, 21 Sep 2001 12:32:51 -0400
-Subject: Re: [PATCH] Preemption Latency Measurement Tool
-To: jussi.laako@kolumbus.fi (Jussi Laako)
-Date: Fri, 21 Sep 2001 17:36:17 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        roger.larsson@norran.net (Roger Larsson),
-        oxymoron@waste.org (Oliver Xymoron),
-        Dieter.Nuetzel@hamburg.de (Dieter =?iso-8859-1?Q?N=FCtzel?=),
-        stefan@space.twc.de (Stefan Westerfeld), rml@tech9.net (Robert Love),
-        andrea@suse.de (Andrea Arcangeli),
-        linux-kernel@vger.kernel.org (linux-kernel),
-        reiserfs-list@namesys.com (ReiserFS List)
-In-Reply-To: <3BAB69CF.A3F9D217@kolumbus.fi> from "Jussi Laako" at Sep 21, 2001 07:24:47 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S273613AbRIUQZd>; Fri, 21 Sep 2001 12:25:33 -0400
+Received: from ip122-15.asiaonline.net ([202.85.122.15]:24450 "EHLO
+	uranus.planet.rcn.com.hk") by vger.kernel.org with ESMTP
+	id <S273601AbRIUQZQ>; Fri, 21 Sep 2001 12:25:16 -0400
+Date: Sat, 22 Sep 2001 00:21:05 +0800 (HKT)
+From: David Chow <davidtl@rcn.com.hk>
+X-X-Sender: <davidtl@uranus.planet.rcn.com.hk>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Oystein Viggen <oysteivi@tihlde.org>, <linux-fsdevel@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Wrapfs a stackable file system
+In-Reply-To: <Pine.GSO.4.21.0109210931250.8014-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0109220014130.11730-100000@uranus.planet.rcn.com.hk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15kTHl-0000Pp-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Only "soundcards", that cheap crap like SoundBlaster. Professional
-> lowlatency soundcards usually have something like 128-512 samples per
-> channel for 24-bit (32-bit data) 96 kHz 8 channels...
+On Fri, 21 Sep 2001, Alexander Viro wrote:
 
-Then the problem space isnt interesting. Many graphics cards will hog the
-PCI bus for longer than that
+>
+>
+> On 21 Sep 2001, Oystein Viggen wrote:
+>
+> > * [	David Chow]
+> >
+> > > The idea is orinigally from FiST, a stackable file system. But the FiST
+> > > owner Erez seems given up to maintain the project. At the time I receive
+> > > the code, it is so buggy, even unusable, lots of segmentation fault
+> > > problems. I have debugging the fs for quite a while. Now it is useful in
+> > > just use as a file system wrapper. It is useful in chroot environments
+> > > and hardlinks aren't available. It wraps a directory and mount to
+> > > another directory on tops of any filesystems.
+> >
+> > Is this not essentially what we already have with mount --bind in 2.4?
+>
+> Bindings can be used to get the same result, but underlying mechanics is
+> different.  Wrapfs is not the most interesting application of FiST, so it's
+> hardly a surprise...
+>
+
+I think you people didn't understand what is wrapfs, if is only a template
+for FiST. The aim is to provide a properly maintained stackable template
+under linux, and so that people can use FiST to develop their own
+filesystem. Currently the wrapfs template is so buggy, I spend weeks to
+fix all the bugs and even rewriting some of the code to make it more
+efficient. This dosn't means --bind, it means it also fix up tons of FS'es
+that is previously produced by using the old buggy FiST template, FiST is
+good for developing new stackable file system, the current problem is that
+the templates are buggy.... you got it??? If you know something is good
+but it is not properly maintained, why not give it a hand and do all the
+people a flavour?
+
+regards,
+
+David
+

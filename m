@@ -1,49 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268162AbUI2IIU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268216AbUI2IOd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268162AbUI2IIU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 04:08:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268255AbUI2IIU
+	id S268216AbUI2IOd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 04:14:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268255AbUI2IOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 04:08:20 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:63163 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S268162AbUI2IIS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 04:08:18 -0400
-Date: Wed, 29 Sep 2004 10:08:11 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Gene Heskett <gene.heskett@verizon.net>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9-rc2-mm4
-In-Reply-To: <200409280701.06932.gene.heskett@verizon.net>
-Message-ID: <Pine.GSO.4.61.0409291007190.18029@waterleaf.sonytel.be>
-References: <20040926181021.2e1b3fe4.akpm@osdl.org> <200409280626.50167.gene.heskett@verizon.net>
- <20040928103324.GA21050@elte.hu> <200409280701.06932.gene.heskett@verizon.net>
+	Wed, 29 Sep 2004 04:14:33 -0400
+Received: from smtp-out2.blueyonder.co.uk ([195.188.213.5]:60241 "EHLO
+	smtp-out2.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S268216AbUI2IOb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 04:14:31 -0400
+Message-ID: <415A6EE6.1090404@blueyonder.co.uk>
+Date: Wed, 29 Sep 2004 09:14:30 +0100
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+Reply-To: sboyce@blueyonder.co.uk
+Organization: blueyonder.co.uk
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040914)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.9-rc2-mm4 and nvidia 1.0-6111
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 Sep 2004 08:14:55.0950 (UTC) FILETIME=[67785EE0:01C4A5FC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Sep 2004, Gene Heskett wrote:
-> On Tuesday 28 September 2004 06:33, Ingo Molnar wrote:
-> >(If such a early-bootup lockup happens in the future then you sure
-> > could temporarily unplug the ups serial connection and use that as
-> > the serial console - for the narrow and temporary purpose of
-> > debugging that boot-time hang.)
-> 
-> That would I assume need a null modem cable, and what do I run on the 
-> firewall?  Minicom?  Or is there something better that can just grab 
-> and log without being interactive?  Its a rh7.3 box with a 2.4.18 era 
-> kernel.  I'd update that, but its not broken. :)
+The usual patches applied that made it work with -mm3.
+Changed all instances of NV_REMAP_PAGE_RANGE to NV_REMAP_PFN_RANGE and 
+nv_remap_page_range to nv_remap_pfn_range in nv.c, nv-linux.h,
+os-agp.c and os-interface.c as redifined in 
+/usr/src/linux-2.6.9-rc2-mm4/include/linux/mm.h.
+The module builds and installs without problems, but on init 5, I get 
+thrown back to vt1, /var/log/XFree86.0.log gives the error:-
+(--) NVIDIA(0): Linear framebuffer at 0xD8000000
+(--) NVIDIA(0): MMIO registers at 0xE1000000
+(II) NVIDIA(0): NVIDIA GPU detected as: GeForce FX 5200
+(--) NVIDIA(0): VideoBIOS: 04.34.20.42.01
+(--) NVIDIA(0): Interlaced video modes are supported on this GPU
+(II) NVIDIA(0): Detected AGP rate: 8X
+(EE) NVIDIA(0): Failed to allocate config DMA context
+(II) UnloadModule: "nvidia"
+(II) UnloadModule: "vgahw"
+(II) Unloading /usr/X11R6/lib/modules/libvgahw.a
+(EE) Screen(s) found, but none have a usable configuration.
 
-I hate minicom. But cu works fine!
+Fatal server error:
+no screens found
+-------------------------------
+Any help appreciated, also posted to nvidia forum.
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Regards
+Sid.
+-- 
+Sid Boyce .... Hamradio G3VBV and keen Flyer
+=====LINUX ONLY USED HERE=====

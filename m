@@ -1,90 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130989AbQL3Cdh>; Fri, 29 Dec 2000 21:33:37 -0500
+	id <S131934AbQL3CyZ>; Fri, 29 Dec 2000 21:54:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131934AbQL3Cd1>; Fri, 29 Dec 2000 21:33:27 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:5130 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S130989AbQL3CdX>; Fri, 29 Dec 2000 21:33:23 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Dave Gilbert <gilbertd@treblig.org>
-Date: Sat, 30 Dec 2000 13:02:44 +1100 (EST)
+	id <S132787AbQL3CyP>; Fri, 29 Dec 2000 21:54:15 -0500
+Received: from paloma13.e0k.nbg-hannover.de ([62.159.219.13]:56272 "HELO
+	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S131934AbQL3CyG>; Fri, 29 Dec 2000 21:54:06 -0500
+From: Dieter Nützel <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Rik van Riel <riel@conectiva.com.br>
+Subject: Re: [PATCH] VM fixes + RSS limits 2.4.0-test13-pre5
+Date: Sat, 30 Dec 2000 03:25:51 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="ISO-8859-1"
+In-Reply-To: <Pine.LNX.4.21.0012291138380.1403-100000@duckman.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0012291138380.1403-100000@duckman.distro.conectiva>
+Cc: "Linux Kernel List" <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14925.16964.875883.863169@notabene.cse.unsw.edu.au>
-Cc: linux-alpha@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel@vger.kernel.org
-Subject: memmove broken on alpha - was Re: NFS oddity (2.4.0test13pre4ac2 server, 2.0.36/2.2.14 clients)
-In-Reply-To: message from Dave Gilbert on Saturday December 30
-In-Reply-To: <14925.12964.995179.63899@notabene.cse.unsw.edu.au>
-	<Pine.LNX.4.10.10012300105100.26235-100000@tardis.home.dave>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Message-Id: <00123003255100.01043@SunWave1>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Freitag, 29. Dezember 2000 14:38 schrieben Sie:
+> On Fri, 29 Dec 2000, Dieter Nützel wrote:
+> > your patch didn't apply clean.
+> > Have you another version?
+>
+> It should apply just fine. What error messages did
+> patch give ?
+>
+Applied #2 against my running 2.4.0-test13-pre5 + ReiserFS 3.6.23 tree and
+a clean test13-pre5 (test12 + test13-pre5). Same for both of them:
 
-[ extra detail included because I have added linux-alpha and lins to
-the cc list] 
+SunWave1>patch -p0 -E -N <patches/2.4.0-test13-pre5-VM-fix
+patching file `linux-2.4.0-test13-pre5/mm/filemap.c'
+Hunk #1 FAILED at 1912.
+Hunk #2 FAILED at 2438.
+Hunk #3 FAILED at 2448.
+Hunk #4 FAILED at 2493.
+4 out of 4 hunks FAILED -- saving rejects to 
+linux-2.4.0-test13-pre5/mm/filemap.c.rej
+patching file `linux-2.4.0-test13-pre5/mm/memory.c'
+Hunk #1 FAILED at 1198.
+1 out of 1 hunk FAILED -- saving rejects to 
+linux-2.4.0-test13-pre5/mm/memory.c.rej
+patching file `linux-2.4.0-test13-pre5/mm/vmscan.c'
+Hunk #1 FAILED at 49.
+Hunk #2 FAILED at 59.
+Hunk #3 FAILED at 92.
+Hunk #4 FAILED at 108.
+Hunk #5 FAILED at 159.
+Hunk #6 FAILED at 200.
+Hunk #7 FAILED at 271.
+Hunk #8 FAILED at 290.
+Hunk #9 FAILED at 310.
+Hunk #10 succeeded at 390 with fuzz 2.
+Hunk #11 FAILED at 430.
+Hunk #12 FAILED at 575.
+Hunk #13 FAILED at 586.
+Hunk #14 FAILED at 618.
+Hunk #15 FAILED at 932.
+Hunk #16 FAILED at 944.
+Hunk #17 FAILED at 953.
+Hunk #18 FAILED at 972.
+Hunk #19 succeeded at 1007 with fuzz 2.
+Hunk #20 succeeded at 1182 with fuzz 2.
+17 out of 20 hunks FAILED -- saving rejects to 
+linux-2.4.0-test13-pre5/mm/vmscan.c.rej
+patching file `linux-2.4.0-test13-pre5/include/linux/mm.h'
+Hunk #1 succeeded at 460 with fuzz 2.
+patching file `linux-2.4.0-test13-pre5/include/linux/swap.h'
 
-It appears that memmove is broken on the alpha architecture.
+filemap.c : offset of 3 lines needed
+memory.c : dito
+vmscan.c : dito
 
-memmove is used by net/sunrpc/xdr.c:xdr_decode_string
-to move a string 4 bytes down in memory.
-memmove(X-4, X, 8) should change
-    
- X:  00 00 00 08  67 69 6c 62 65 72 74 64
-to
- X:  67 69 6c 62  65 72 74 64 65 72 74 64
+Now, I hacked it by 'hand' and got it running.
+I did dbench and saw nearly same results then Daniel Phillips
+But my disk is to small. Some writes failed...:-(
 
-Instead it changes it to
+Test machine: 256 MB, Athlon 550 SlotA, SCSI, ReiserFS 3.6.23, Blocksize=4K
+Test: dbench 48
 
- X:  65 72 74 64  65 72 74 64 65 72 74 64
+Throughput:	10.89 MB/sec
+Elapsed Time:	9 min 47 secs
 
-This is my first time in alpha assembler, but it looks fairly readable
-and the comments help....
+"Guten Rutsch in's neue Jahr!" :-)
 
-Working from 
-  arch/alpha/lib/memmove.S
+-Dieter
+-- 
+Dieter Nützel
+Graduate Student, Computer Science
 
-As the two regions overlap, it doesn't fall back on memcpy,
-As the two regions are not co-aligned so it jumps to $misaligned.
+University of Hamburg
+Department of Computer Science
+Cognitive Systems Group
+Vogt-Kölln-Straße 30
+D-22527 Hamburg, Germany
 
-Now the code in $misaligned, like all the code in memmove.S seems to
-move a block of memory starting at the top, and moving downwards.
-But in this example, we need to start at the bottom and move upwards.
-
-Currently the code falls back on memcpy :
-
- if (dest+n <= src || dest >= src + n)
-
-However if should also fall back on memcpy:
- 
- if (dest <= src)
-
-So the test should be:
-
-  if (dest <= src || dest >= src + n)
-
-which I think translates to the following patch:
-
---- arch/alpha/lib/memmove.S	2000/12/30 01:59:28	1.1
-+++ arch/alpha/lib/memmove.S	2000/12/30 01:59:49
-@@ -17,7 +17,7 @@
- memmove:
- 	addq $16,$18,$4
- 	addq $17,$18,$5
--	cmpule $4,$17,$1		/*  dest + n <= src  */
-+	cmpule $16,$17,$1		/*  dest <= src  */
- 	cmpule $5,$16,$2		/*  dest >= src + n  */
- 
- 	bis $1,$2,$1
-
-
-NeilBrown
+email: nuetzel@kogs.informatik.uni-hamburg.de
+@home: Dieter.Nuetzel@hamburg.de
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

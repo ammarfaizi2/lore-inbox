@@ -1,31 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272442AbRH3Upz>; Thu, 30 Aug 2001 16:45:55 -0400
+	id <S272417AbRH3UsZ>; Thu, 30 Aug 2001 16:48:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272443AbRH3Upp>; Thu, 30 Aug 2001 16:45:45 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:25866 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S272442AbRH3Upd>;
-	Thu, 30 Aug 2001 16:45:33 -0400
-Date: Thu, 30 Aug 2001 13:43:48 -0700
-From: Greg KH <greg@kroah.com>
-To: Michael Rothwell <rothwell@holly-springs.nc.us>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 802.11b usb and linux
-Message-ID: <20010830134348.A18294@kroah.com>
-In-Reply-To: <008701c1318b$3d905990$81d4870a@cartman>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <008701c1318b$3d905990$81d4870a@cartman>; from rothwell@holly-springs.nc.us on Thu, Aug 30, 2001 at 03:37:44PM -0400
-X-Operating-System: Linux 2.2.19 (i586)
+	id <S272444AbRH3UsF>; Thu, 30 Aug 2001 16:48:05 -0400
+Received: from bugs.unl.edu.ar ([168.96.132.208]:50052 "HELO bugs.unl.edu.ar")
+	by vger.kernel.org with SMTP id <S272443AbRH3UsD>;
+	Thu, 30 Aug 2001 16:48:03 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: =?iso-8859-1?q?Mart=EDn=20Marqu=E9s?= <martin@bugs.unl.edu.ar>
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: ipfilter on kernel 2.2
+Date: Thu, 30 Aug 2001 17:47:37 -0300
+X-Mailer: KMail [version 1.3]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20010830204738.67A892AB44@bugs.unl.edu.ar>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 30, 2001 at 03:37:44PM -0400, Michael Rothwell wrote:
-> Is there an 802.11b USB adapter that works with Linux?
+I would like to use ipfilter on a server with kernel 2.2.19, but in the 
+ipfilter documentation it always talks about patches and other stuff for 
+kernel 2.0.31.
+What should I do differnet with a 2.2.19 kernel?
 
-Not yet, but there are a few people working on drivers.  You might have
-better luck asking on the linux-usb-devel mailing list.
+Saludos... :-)
 
-greg k-h
+-- 
+Porqué usar una base de datos relacional cualquiera,
+si podés usar PostgreSQL?
+-----------------------------------------------------------------
+Martín Marqués                  |        mmarques@unl.edu.ar
+Programador, Administrador, DBA |       Centro de Telematica
+                       Universidad Nacional
+                            del Litoral
+-----------------------------------------------------------------

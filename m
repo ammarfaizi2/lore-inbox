@@ -1,110 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263978AbUDFUIH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 16:08:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263988AbUDFUHV
+	id S263985AbUDFUR7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 16:17:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263990AbUDFUR6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 16:07:21 -0400
-Received: from out008pub.verizon.net ([206.46.170.108]:27377 "EHLO
-	out008.verizon.net") by vger.kernel.org with ESMTP id S263978AbUDFUGv
+	Tue, 6 Apr 2004 16:17:58 -0400
+Received: from p01m173.mxlogic.net ([66.179.109.173]:21397 "HELO
+	p01m173.mxlogic.net") by vger.kernel.org with SMTP id S263985AbUDFUR4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 16:06:51 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] 2.6.5-rc3-mm4 breaks xsane, hangs on device scan at launch
-Date: Tue, 6 Apr 2004 16:06:49 -0400
-User-Agent: KMail/1.6
-References: <200404032113.01355.gene.heskett@verizon.net> <200404061334.49888.gene.heskett@verizon.net> <407300D0.4030100@pacbell.net>
-In-Reply-To: <407300D0.4030100@pacbell.net>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+	Tue, 6 Apr 2004 16:17:56 -0400
+Message-ID: <4072C371.CFA9CA1E@amis.com>
+Date: Tue, 06 Apr 2004 08:49:21 -0600
+From: Eric Whiting <ewhiting@amis.com>
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.6.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_Z3wcAu0rwg7wT3m"
-Message-Id: <200404061606.49587.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [151.205.9.226] at Tue, 6 Apr 2004 15:06:50 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrea Arcangeli <andrea@suse.de>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: -mmX 4G patches feedback [numbers: how much performance impact]
+References: <40718B2A.967D9467@amis.com> <20040405174616.GH2234@dualathlon.random> <4071D11B.1FEFD20A@amis.com> <20040405221641.GN2234@dualathlon.random> <20040406115539.GA31465@elte.hu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-MX-Spam: exempt
+X-MX-MAIL-FROM: <ewhiting@amis.com>
+X-MX-SOURCE-IP: [207.141.5.253]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar wrote:
+> 
+> [***] non-PAE 4:4 kernels are being used too - there are a fair number
+>       of users who run simulation code using 4GB of physical RAM and a
+>       pure 4:4 kernel with no highmem features required. For these 4:4
+>       users the overhead on number-crunching is even smaller, only
+>       0.03%.
 
---Boundary-00=_Z3wcAu0rwg7wT3m
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Ingo, 
 
-On Tuesday 06 April 2004 15:11, David Brownell wrote:
->Gene Heskett wrote:
->> Nope, 2.6.5-mm1 hangs xsane just like 2.6.5-rc3-mm4 did...
->
->Ah, I think I see the problem.  This .text.lock.devio entry is more
->like devio::driver_disconnect(), which wouldn't previously have been
->called on that path.
->
->Try this patch.
+What you describe above is a situation that matches our environment. 
 
-Well, if you were a trophy hunter, I'd have to say "Skin that one, 
-take it to the taxidermist and mount it on the wall, Dave" :-)
+We do have servers with more than 4G RAM that need PAE, but we have more
+workstations with 4G (or 3G) of RAM that do not need PAE, but do need the 4:4
+VM. In terms of a large simulation (> 3G of userspace VM) running to completion
+-- a 3G RAM box with 4:4 VM is better than a 32G box with 3:1 VM -- even though
+the box with 3G RAM may swap a little/lot.
 
-2.6.5-mm1 & xsane works again.  I'd assume that 2.6.5-rc3-mm4 would 
-also respond correctly to this patch, but of course I haven't tried 
-it.
+4:4 is not the 'real' long term solution, but it will let us run more jobs on
+32bit hardware until the x86_64 HW/SW support stabilizes a little more.  We
+currently run jobs on solaris when single process VM requirement exceeds 4G. 
 
-Good catch & many thanks.
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
-
---Boundary-00=_Z3wcAu0rwg7wT3m
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="Diff-xsane-hang"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Diff-xsane-hang"
-
-Disable a usbfs disconnect() synchronization hack, which recently
-started deadlocking because this routine is now called in a different 
-context.
-
-It shouldn't be needed any longer now that usbcore shuts down endpoints
-as part of driver unbinding.  (Except maybe on UHCI, which will have
-canceled but not necessarily completed all requests.)
-
-
---- 1.60/drivers/usb/core/devio.c	Tue Mar 30 09:19:53 2004
-+++ edited/drivers/usb/core/devio.c	Tue Apr  6 12:07:06 2004
-@@ -339,18 +339,17 @@
- 	if (!ps)
- 		return;
- 
--	/* this waits till synchronous requests complete */
--	down_write (&ps->devsem);
-+	/* NOTE:  this relies on usbcore having canceled and completed
-+	 * all pending I/O requests; 2.6 does that.
-+	 */
- 
- 	/* prevent new I/O requests */
- 	ps->dev = 0;
--	ps->ifclaimed = 0;
-+	clear_bit(intf->cur_altsetting->desc.bInterfaceNumber, &ps->ifclaimed);
- 	usb_set_intfdata (intf, NULL);
- 
- 	/* force async requests to complete */
- 	destroy_all_async (ps);
--
--	up_write (&ps->devsem);
- }
- 
- struct usb_driver usbdevfs_driver = {
-
---Boundary-00=_Z3wcAu0rwg7wT3m--
+eric

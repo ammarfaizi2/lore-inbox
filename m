@@ -1,43 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129784AbRBPJrJ>; Fri, 16 Feb 2001 04:47:09 -0500
+	id <S130110AbRBPJuJ>; Fri, 16 Feb 2001 04:50:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129887AbRBPJq7>; Fri, 16 Feb 2001 04:46:59 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:1064 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S129784AbRBPJqx>; Fri, 16 Feb 2001 04:46:53 -0500
-Date: Fri, 16 Feb 2001 03:46:44 -0600 (CST)
-From: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 8139 full duplex?
-In-Reply-To: <200102160858.JAA02472@cave.bitwizard.nl>
-Message-ID: <Pine.LNX.3.96.1010216034551.6404E-100000@mandrakesoft.mandrakesoft.com>
+	id <S130074AbRBPJt7>; Fri, 16 Feb 2001 04:49:59 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:60174 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130235AbRBPJtr>; Fri, 16 Feb 2001 04:49:47 -0500
+Subject: Re: mke2fs and kernel VM issues
+To: sflory@valinux.com (Samuel Flory)
+Date: Fri, 16 Feb 2001 09:48:17 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, tytso@valinux.com (tytso@valinux.com)
+In-Reply-To: <3A8C85B9.610D0C06@valinux.com> from "Samuel Flory" at Feb 15, 2001 05:43:21 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14ThUy-0002ed-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Feb 2001, Rogier Wolff wrote:
-> I have a bunch of computers with 8139 cards. When I moved the cables
-> over from my hub to my new switch all the "full duplex" lights came on
-> immediately.
-> 
-> Would this mean that the driver/card already were in full-duplex? That
-> would explain me seeing way too many collisions on that old hub (which
-> obviously doesn't support full-duplex).
-> 
-> (Some machines run 2.2 kernels, others run 2.4 kernels some run the
-> old driver, others run the 8139too driver). 
+> heavily modifed VA kernel based on 2.2.18.  Is there a kernel which is
+> believed to be a known good kernel?  (both 2.2.x and 2.4.x)
 
-Some versions of the driver bork the LED register, which may lead to
-false assumptions.
-
-Grab 2.4.1-ac, which includes the latest 8139too, and see what 'dmesg'
-say about its autonegotiation...
-
-	Jeff
-
-
-
-
+I've not seen the problem on unmodified 2.2.18. The 2.2.17/18 VM does have
+its problems but not these. 2.2.19pre3 and higher have the Andrea VM fixes which
+have worked wonders for everyone so far. 

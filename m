@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262121AbVCaXll@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262116AbVCaXln@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262121AbVCaXll (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 18:41:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbVCaXkx
+	id S262116AbVCaXln (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 18:41:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262110AbVCaXkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 18:40:53 -0500
-Received: from mail.kroah.org ([69.55.234.183]:38880 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262121AbVCaXYM convert rfc822-to-8bit
+	Thu, 31 Mar 2005 18:40:43 -0500
+Received: from mail.kroah.org ([69.55.234.183]:38624 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262116AbVCaXYL convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 18:24:12 -0500
-Cc: frank.beesley@aeroflex.com
-Subject: [PATCH] I2C: Clean up of i2c-elektor.c build
-In-Reply-To: <11123113914006@kroah.com>
+	Thu, 31 Mar 2005 18:24:11 -0500
+Cc: khali@linux-fr.org
+Subject: [PATCH] I2C: Fix Vaio EEPROM detection
+In-Reply-To: <111231139374@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Thu, 31 Mar 2005 15:23:12 -0800
-Message-Id: <11123113922923@kroah.com>
+Date: Thu, 31 Mar 2005 15:23:13 -0800
+Message-Id: <1112311393634@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,32 +24,37 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2333, 2005/03/31 14:08:41-08:00, frank.beesley@aeroflex.com
+ChangeSet 1.2339, 2005/03/31 14:29:23-08:00, khali@linux-fr.org
 
-[PATCH] I2C: Clean up of i2c-elektor.c build
+[PATCH] I2C: Fix Vaio EEPROM detection
 
-This patch changes the flags variable type from long to unsigned long in
-one function. This removes a couple of warnings from the compile
-messages for elektor i2c bus driver.
+This fixes a bug in the eeprom driver, which made all EEPROMs at
+location 0x57 be erroneously treated as Vaio EEPROMs. I have to say I'm
+quite ashamed that I introduced the bug in the first place, as this was
+a really stupid one.
 
-Signed-off-by: Frank Beesley <frank.beesley@aeroflex.com>
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 
- drivers/i2c/busses/i2c-elektor.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/chips/eeprom.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
 
 
-diff -Nru a/drivers/i2c/busses/i2c-elektor.c b/drivers/i2c/busses/i2c-elektor.c
---- a/drivers/i2c/busses/i2c-elektor.c	2005-03-31 15:18:01 -08:00
-+++ b/drivers/i2c/busses/i2c-elektor.c	2005-03-31 15:18:01 -08:00
-@@ -112,7 +112,7 @@
- static void pcf_isa_waitforpin(void) {
- 	DEFINE_WAIT(wait);
- 	int timeout = 2;
--	long flags;
-+	unsigned long flags;
+diff -Nru a/drivers/i2c/chips/eeprom.c b/drivers/i2c/chips/eeprom.c
+--- a/drivers/i2c/chips/eeprom.c	2005-03-31 15:17:18 -08:00
++++ b/drivers/i2c/chips/eeprom.c	2005-03-31 15:17:18 -08:00
+@@ -210,10 +210,11 @@
+ 		if (i2c_smbus_read_byte_data(new_client, 0x80) == 'P'
+ 		 && i2c_smbus_read_byte(new_client) == 'C'
+ 		 && i2c_smbus_read_byte(new_client) == 'G'
+-		 && i2c_smbus_read_byte(new_client) == '-')
++		 && i2c_smbus_read_byte(new_client) == '-') {
+ 			dev_info(&new_client->dev, "Vaio EEPROM detected, "
+ 				"enabling password protection\n");
+ 			data->nature = VAIO;
++		}
+ 	}
  
- 	if (irq > 0) {
- 		spin_lock_irqsave(&lock, flags);
+ 	/* create the sysfs eeprom file */
 

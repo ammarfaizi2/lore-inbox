@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317475AbSFECVQ>; Tue, 4 Jun 2002 22:21:16 -0400
+	id <S317489AbSFECZk>; Tue, 4 Jun 2002 22:25:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317489AbSFECVP>; Tue, 4 Jun 2002 22:21:15 -0400
-Received: from dsl-213-023-043-246.arcor-ip.net ([213.23.43.246]:29366 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317475AbSFECVP>;
-	Tue, 4 Jun 2002 22:21:15 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Oliver Xymoron <oxymoron@waste.org>
-Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
-Date: Wed, 5 Jun 2002 04:20:42 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0206041418460.2614-100000@waste.org>
+	id <S317492AbSFECZk>; Tue, 4 Jun 2002 22:25:40 -0400
+Received: from mail.reutershealth.com ([204.243.9.36]:45303 "EHLO
+	mail.reutershealth.com") by vger.kernel.org with ESMTP
+	id <S317489AbSFECZj>; Tue, 4 Jun 2002 22:25:39 -0400
+Message-Id: <200206050224.WAA00121@mail.reutershealth.com>
+From: John Cowan <jcowan@reutershealth.com>
+Subject: Re: [kbuild-devel] Re: Announce: Kernel Build for 2.5, release 3.0 is available
+To: kaos@ocs.com.au (Keith Owens)
+Date: Tue, 4 Jun 2002 22:25:20 -0400 (EDT)
+Cc: Alexander.Riesen@synopsys.com, kbuild-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <17931.1023231335@ocs3.intra.ocs.com.au> from "Keith Owens" at Jun 05, 2002 08:55:35 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17FQPj-0001Rr-00@starship>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 04 June 2002 21:29, Oliver Xymoron wrote:
-> On Mon, 3 Jun 2002, Daniel Phillips wrote:
-> 
-> > traditional IT.  Not to mention that I can look forward to a sound
-> > system where I can be *sure* my mp3s won't skip.
-> 
-> Not unless you're loading your entire MP3 into memory, mlocking it down,
-> and handing it off to a hard RT process. And then your control of the
-> playback of said song through a non-RT GUI could be arbitrarily coarse,
-> depending on load.
+Keith Owens scripsit:
 
-Thanks for biting :-)
+> In order to do separate source and object correctly, kbuild 2.5
+> enforces the rule that #include "" comes from the local directory,
+> #include <> comes from the include path.  include/linux/zlib.h
+> incorrectly does #include "zconf.h" instead of #include <linux/zconf.h>,
+> breaking the rules.
 
-First, these days it's no big deal to load an entire mp3 into memory.  
-
-Second, and of more interest to broadcasting industry professionals and the 
-like, it's possible to write a real-time filesystem that bypasses all the 
-normal non-realtime facilities of the operating system, and where the latency 
-of every operation is bounded according to the amount of data transferred.  
-Such a filesystem could use its own dedicated disk, or, more practically, the 
-RTOS (or realtime subsystem) could operate the disk's block queue.
-
-If I recall correctly, XFS makes an attempt to provide such realtime 
-guarantees, or at least the Solaris version does.  However, the operating 
-system must be able to provide true realtime guarantees in order for the 
-filesystem to provide them, and I doubt that the combination of XFS and 
-Solaris can do that.
+This is not the standard gcc behavior, however; quoted-includes
+can come from the include path, although the current directory
+is searched first.  The purpose of <>-includes is to suppress
+searching the current directory.
 
 -- 
-Daniel
+John Cowan <jcowan@reutershealth.com>     http://www.reutershealth.com
+I amar prestar aen, han mathon ne nen,    http://www.ccil.org/~cowan
+han mathon ne chae, a han noston ne 'wilith.  --Galadriel, _LOTR:FOTR_

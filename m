@@ -1,86 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278085AbRJZJjL>; Fri, 26 Oct 2001 05:39:11 -0400
+	id <S278081AbRJZJlL>; Fri, 26 Oct 2001 05:41:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278078AbRJZJjC>; Fri, 26 Oct 2001 05:39:02 -0400
-Received: from mail311.mail.bellsouth.net ([205.152.58.171]:4019 "EHLO
-	imf11bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S278081AbRJZJix>; Fri, 26 Oct 2001 05:38:53 -0400
-Message-ID: <3BD92F59.BAD76B6F@mandrakesoft.com>
-Date: Fri, 26 Oct 2001 05:39:37 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, hpa@zytor.com,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: PATCH 2.4.14.2: more inflate_fs build fixes
-Content-Type: multipart/mixed;
- boundary="------------1D646421290B7064987BA594"
+	id <S278084AbRJZJlB>; Fri, 26 Oct 2001 05:41:01 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:19689 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S278081AbRJZJkv>; Fri, 26 Oct 2001 05:40:51 -0400
+Date: Fri, 26 Oct 2001 10:41:25 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: junio@siamese.dhis.twinsun.com
+Cc: bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: [patch] Re: linux-2.4.12 / linux-2.4.13 parallel port problem
+Message-ID: <20011026104125.Z7544@redhat.com>
+In-Reply-To: <20011024230917.H7544@redhat.com> <ioWB7.5038$rR5.921319585@newssvr17.news.prodigy.com> <20011025165226.T7544@redhat.com> <7vofmuu9d7.fsf@siamese.dhis.twinsun.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <7vofmuu9d7.fsf@siamese.dhis.twinsun.com>; from junio@siamese.dhis.twinsun.com on Fri, Oct 26, 2001 at 12:51:48AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------1D646421290B7064987BA594
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Fri, Oct 26, 2001 at 12:51:48AM -0700, junio@siamese.dhis.twinsun.com wrote:
 
-oops.  I forgot to send this part, which is missing also.
+> >From the original poster's description, 2.4.10 claimed to have
+> detected both address and irq for parport0, while 2.4.12,
+> according to the your response, could not tell that IRQ=7.  Do
+> you mean that the logic which made 2.4.10 to claime to have
+> detected IRQ=7 was faulty and the logic in 2.4.12 is being
+> careful not to misdetect?
 
-This is required also, in order to build cramfs or zisofs in
-2.4.14-pre2.
+Oh, I see.  No, this is a regression.  Please try this patch:
 
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
---------------1D646421290B7064987BA594
-Content-Type: text/plain; charset=us-ascii;
- name="inflate-fs-2.4.14.2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="inflate-fs-2.4.14.2.patch"
-
---- /home/jgarzik/tmp/linux-2.4.14-pre2/fs/Config.in	Thu Oct  4 18:13:18 2001
-+++ linux_2_4/fs/Config.in	Fri Oct 26 05:41:53 2001
-@@ -128,6 +128,24 @@
-    define_bool CONFIG_SMB_FS n
- fi
- 
-+#
-+# Do we need the compression support?
-+#
-+if [ "$CONFIG_ZISOFS" = "y" ]; then
-+   define_tristate CONFIG_ZISOFS_FS $CONFIG_ISO9660_FS
-+else
-+   define_tristate CONFIG_ZISOFS_FS n
-+fi
-+if [ "$CONFIG_CRAMFS" = "y" -o "$CONFIG_ZISOFS_FS" = "y" ]; then
-+   define_tristate CONFIG_ZLIB_FS_INFLATE y
-+else
-+  if [ "$CONFIG_CRAMFS" = "m" -o "$CONFIG_ZISOFS_FS" = "m" ]; then
-+     define_tristate CONFIG_ZLIB_FS_INFLATE m
-+  else
-+     define_tristate CONFIG_ZLIB_FS_INFLATE n
-+  fi
-+fi
+--- linux/drivers/parport/ChangeLog.irq	Fri Oct 26 10:11:02 2001
++++ linux/drivers/parport/ChangeLog	Fri Oct 26 10:37:36 2001
+@@ -0,0 +1,8 @@
++2001-10-26  Tim Waugh  <twaugh@redhat.com>
 +
- mainmenu_option next_comment
- comment 'Partition Types'
- source fs/partitions/Config.in
---- /home/jgarzik/tmp/linux-2.4.14-pre2/fs/Makefile	Thu Oct  4 18:13:18 2001
-+++ linux_2_4/fs/Makefile	Fri Oct 26 05:41:53 2001
-@@ -27,6 +27,7 @@
++	* parport_pc.c (parport_irq_probe): When ECR programmable IRQ
++	support fails, generate interrupts using the FIFO even if we don't
++	want to use the FIFO for real data transfers.
++	(parport_pc_probe_port): Display the ECR address if we have an
++	ECR, not just if we will use the FIFO.
++
+--- linux/drivers/parport/parport_pc.c.irq	Fri Oct 26 10:11:06 2001
++++ linux/drivers/parport/parport_pc.c	Fri Oct 26 10:35:49 2001
+@@ -2119,10 +2119,9 @@
  
- # Do not add any filesystems before this line
- subdir-$(CONFIG_EXT2_FS)	+= ext2
-+subdir-$(CONFIG_ZLIB_FS_INFLATE) += inflate_fs
- subdir-$(CONFIG_CRAMFS)		+= cramfs
- subdir-$(CONFIG_RAMFS)		+= ramfs
- subdir-$(CONFIG_CODA_FS)	+= coda
+ 	if (priv->ecr) {
+ 		pb->irq = programmable_irq_support(pb);
+-	}
+ 
+-	if (pb->modes & PARPORT_MODE_ECP) {
+-		pb->irq = irq_probe_ECP(pb);
++		if (pb->irq == PARPORT_IRQ_NONE)
++			pb->irq = irq_probe_ECP(pb);
+ 	}
+ 
+ 	if ((pb->irq == PARPORT_IRQ_NONE) && priv->ecr &&
+@@ -2255,7 +2254,7 @@
+ 	p->private_data = priv;
+ 
+ 	printk(KERN_INFO "%s: PC-style at 0x%lx", p->name, p->base);
+-	if (p->base_hi && (p->modes & PARPORT_MODE_ECP))
++	if (p->base_hi && priv->ecr)
+ 		printk(" (0x%lx)", p->base_hi);
+ 	p->irq = irq;
+ 	p->dma = dma;
 
---------------1D646421290B7064987BA594--
-
-
+Tim.
+*/

@@ -1,84 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263953AbUKZVeZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263962AbUKZV3u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263953AbUKZVeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 16:34:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264060AbUKZVeY
+	id S263962AbUKZV3u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 16:29:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264004AbUKZVWu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 16:34:24 -0500
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:44492 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S264057AbUKZVat (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 16:30:49 -0500
-Date: Fri, 26 Nov 2004 22:33:37 +0100
-From: Florian Engelhardt <flo@dotbox.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.10-rc2-mm3, reiser4 and subversion
-Message-ID: <20041126223337.44e2366a@discovery.hal.lan>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 26 Nov 2004 16:22:50 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:50854 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S264081AbUKZUS6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 15:18:58 -0500
+Subject: Re: Suspend 2 merge
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: hugang@soulinfo.com
+Cc: Pavel Machek <pavel@ucw.cz>, Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+In-Reply-To: <20041126043203.GA2713@hugang.soulinfo.com>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+	 <20041124132839.GA13145@infradead.org>
+	 <1101329104.3425.40.camel@desktop.cunninghams>
+	 <20041125192016.GA1302@elf.ucw.cz>
+	 <1101422088.27250.93.camel@desktop.cunninghams>
+	 <20041125232200.GG2711@elf.ucw.cz>
+	 <1101426416.27250.147.camel@desktop.cunninghams>
+	 <20041126003944.GR2711@elf.ucw.cz>
+	 <20041126043203.GA2713@hugang.soulinfo.com>
+Content-Type: text/plain
+Message-Id: <1101456577.4343.121.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 26 Nov 2004 20:08:40 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi.
 
-i had some serious trouble with stability in the last time. Sometimes my
-box freezes and was not leaving any log messages in /var/log but
-yesterday, when i was trying to commit a few changes to my local
-repository, i got some strange error messages from subversion, followed
-by a complete freezed computer :(
-After i was rebooting, i found this error message in /var/log/kern.log
+On Fri, 2004-11-26 at 15:32, hugang@soulinfo.com wrote:
+> > For swsusp2, you need drivers to stop the DMA, NMI not interfering,
+> > sync may not happen after you have saved LRU, memory may not be
+> > alocated from slab after you have saved LRU. (something else? This
+> > needs to be written down somewhere, and all kernel hackers will need
+> > to be carefull not to break these rules. Do you see why it wories me?)
+> Ok, I got it.  I think making LRU safe must sure 
+>  1: LRU can't change after saved.
+>  2: LRU memory can't change after saved.
+> The first one is done, the second we can't sure in current design, can
+> we using COW do it?
 
-------------[ cut here ]------------
-kernel BUG at fs/reiser4/plugin/file/tail_conversion.c:58!
-invalid operand: 0000 [#1]
-PREEMPT 
-Modules linked in: lirc_serial lirc_dev
-CPU:    0
-EIP:    0060:[<c0212918>]    Tainted: P      VLI
-EFLAGS: 00010282   (2.6.10-rc2-mm3) 
-EIP is at get_nonexclusive_access+0x28/0x40
-eax: f56f5f24   ebx: f5346330   ecx: f716bc40   edx: f53462d8
-esi: f5346300   edi: f53462d8   ebp: f6d0fcd4   esp: f56f5c70
-ds: 007b   es: 007b   ss: 0068
-Process svnadmin (pid: 10782, threadinfo=f56f4000 task=f707c040)
-Stack: c02114d7 f53462d8 f783f800 00000000 00000000 00000000 00000000
-00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-00000000 Call Trace:
-[<c02114d7>] unix_file_filemap_nopage+0x67/0xd0
-[<c0145386>] do_no_page+0xc6/0x390
-[<c0145940>] handle_mm_fault+0x1c0/0x200
-[<c0143c17>] follow_page+0x27/0x30
-[<c0143dbe>] get_user_pages+0x15e/0x3d0
-[<c021099a>] reiser4_get_user_pages+0x9a/0xd0
-[<c0210f96>] read_unix_file+0x266/0x2f0
-[<c01c92a5>] init_context+0x75/0xc0
-[<c01e20df>] reiser4_read+0x8f/0xf0
-[<c0160581>] sys_fstat64+0x31/0x40
-[<c015584a>] vfs_read+0x13a/0x180
-[<c0155c84>] sys_pread64+0x64/0x80
-[<c0103191>] sysenter_past_esp+0x52/0x71
-Code: 00 00 00 b8 00 e0 ff ff 8b 54 24 04 21 e0 8b 00 8b 80 b8 04 00 00
-8b 40 3c 8b 48 08 85 c9 75 0b 89 d0 ff 00 0f 88 5a 12 00 00 c3 <0f> 0b
-3a 00 1c ed 49 c0 eb eb 8d b4 26 00 00 00 00 8d bc 27 00 
+2 is simple: LRU doesn't change because everything that would change it
+is frozen, and the memory pool hooks ensure that scanning of the list
+doesn't happen while suspending either.
 
->From now on, every time i try to do execute "svnadmin recover" (to
-recover the repository) or "svnadmin create", the system freezes. I am
-not able to start any new programms, nor can i save open files to the
-harddisk, but i am able to execute some simple commands like ls and i
-can edit opened files in vi. If i execute "svnadmin create" for the
-second time, the system totaly freezes and i am unable to anything, only
-hit the reboot button.
+I don't see the point to saving LRU pages separately when you're still
+eating all the memory you can. You'll have the same number of pages to
+save, just fewer to copy (and copying takes far less time than saving).
 
-Executing "fsck.reiser4 --check /dev/sda2" (my root partition) just
-tells me that everything is fine.
+> Pagecaches still in, but disable by default, active using sysctl, 
+> I'd like not merge it right now, Hope other chagnes can merge into. :)
 
-Kind regards
+Pavel's going to think you are trying to turn swsusp into suspend2!!
 
-Florian Engelhardt
-
+Nigel 
 -- 
-"I may have invented it, but Bill made it famous"
-David Bradley, who invented the (in)famous ctrl-alt-del key combination
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
+

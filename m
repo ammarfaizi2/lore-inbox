@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316615AbSFKB6X>; Mon, 10 Jun 2002 21:58:23 -0400
+	id <S316650AbSFKCBc>; Mon, 10 Jun 2002 22:01:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316657AbSFKB6W>; Mon, 10 Jun 2002 21:58:22 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:42487 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S316650AbSFKB6V>; Mon, 10 Jun 2002 21:58:21 -0400
-Date: Mon, 10 Jun 2002 21:58:23 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [patch] pci dma patch rediffed for 2.5.21
-Message-ID: <20020610215823.E13225@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S316652AbSFKCBb>; Mon, 10 Jun 2002 22:01:31 -0400
+Received: from th00.opsion.fr ([195.219.20.10]:25862 "HELO th00.opsion.fr")
+	by vger.kernel.org with SMTP id <S316650AbSFKCBb> convert rfc822-to-8bit;
+	Mon, 10 Jun 2002 22:01:31 -0400
+Send-By: 202.181.219.129 with Mozilla/4.78 [en] (Win95; U)
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: mke2fs (and mkreiserfs) core dumps
+From: <cnliou@eurosport.com>
+X-Priority: 3 (normal)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Tue, 11 Jun 2002 02:01:10 GMT
+Message-id: <200206110201.0ab3@th00.opsion.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Hi!
 
-This is the same patch as was posted against 2.4.19-pre10: pci_map_page 
-was missing a cast on x86, which resulted in the high 32 bits of an 
-address being silently discarded.  This patch fixes that by casting 
-the page number before multiplying it out.
+I am exeperiencing the similar problem in kernel
+2.4.18, glibc 2.2.5, and patched gcc 2.95.3
+(http://ricardo.ecn.wfu.edu/glib-linux-archive/0110/0
+007.html).
 
-		-ben
--- 
-"You will be reincarnated as a toad; and you will be much happier."
+Both of the following commands
 
-:r ~/patches/v2.5/v2.5.21-pci.diff
-diff -urN v2.5.21/include/asm-i386/pci.h pci/include/asm-i386/pci.h
---- v2.5.21/include/asm-i386/pci.h	Mon Jun 10 21:41:10 2002
-+++ pci/include/asm-i386/pci.h	Mon Jun 10 21:54:11 2002
-@@ -109,7 +109,7 @@
- 	if (direction == PCI_DMA_NONE)
- 		BUG();
- 
--	return (page - mem_map) * PAGE_SIZE + offset;
-+	return (dma_addr_t)(page - mem_map) * PAGE_SIZE + offset;
- }
- 
- static inline void pci_unmap_page(struct pci_dev *hwdev, dma_addr_t dma_address,
+mke2fs /dev/md0
+mke2fs -j /dev/md0
+
+output
+
+File size limit exceeded
+
+Please help and thank you in advance!
+
+CN
+
+--------------------------------------------------------
+You too can have your own email address from Eurosport.
+http://www.eurosport.com
+
+
+
+
+

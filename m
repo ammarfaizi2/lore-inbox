@@ -1,28 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263752AbSITWay>; Fri, 20 Sep 2002 18:30:54 -0400
+	id <S263814AbSITWdT>; Fri, 20 Sep 2002 18:33:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263811AbSITWay>; Fri, 20 Sep 2002 18:30:54 -0400
-Received: from diver.doc.ic.ac.uk ([146.169.1.47]:29458 "EHLO
-	diver.doc.ic.ac.uk") by vger.kernel.org with ESMTP
-	id <S263752AbSITWay>; Fri, 20 Sep 2002 18:30:54 -0400
-Date: Fri, 20 Sep 2002 23:36:00 +0100 (BST)
-From: Guido Arenstedt <ga200@doc.ic.ac.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Hyperthreading in -ac series
-Message-ID: <Pine.LNX.4.42.0209202323530.23572-100000@faya.doc.ic.ac.uk>
+	id <S263835AbSITWdT>; Fri, 20 Sep 2002 18:33:19 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:42394 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S263814AbSITWdS>;
+	Fri, 20 Sep 2002 18:33:18 -0400
+To: Kevin Curtis <kevin.curtis@farsite.co.uk>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jeff Garzik <jgarzik@mandrakesoft.com>,
+       Francois Romieu <romieu@cogenit.fr>
+Subject: Re: 2.4 + generic HDLC update? Any ideas?
+References: <7C078C66B7752B438B88E11E5E20E72E0EF52B@GENERAL.farsite.co.uk>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 20 Sep 2002 18:40:44 +0200
+In-Reply-To: <7C078C66B7752B438B88E11E5E20E72E0EF52B@GENERAL.farsite.co.uk>
+Message-ID: <m3it10lilv.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Kevin Curtis <kevin.curtis@farsite.co.uk> writes:
 
-Hyperthreading does not seem to work in the -ac series
-it works fine with a stock 2.4.19 kernel
+> 	We are finding that some distro's are now incorporating the patch
+> anyway (Mandrake for example), and some of our customers are getting
+> confused when the patch doesn't install cleanly because it is already there.
+> Especially if the customer doesn't understand patch anyway and is just
+> following install instructions.
 
-during bootup i only get the message:
-WARNING: No sibling found for CPU 0.
-WARNING: No sibling found for CPU 1.
+Looks like I need to check some distro kernels, I wasn't aware of that.
 
-or is this done on purpose?
+> 	What 2.4 version would you aim for?
 
+I expect I need a month for making sure 2.5 interface is the one I want.
+And I would rather start with early pre- versions of a particular 2.4 kernel.
+-- 
+Krzysztof Halasa
+Network Administrator

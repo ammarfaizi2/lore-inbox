@@ -1,27 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVBVSS0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbVBVSW3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbVBVSS0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 13:18:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVBVSS0
+	id S261272AbVBVSW3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 13:22:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbVBVSW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 13:18:26 -0500
-Received: from ca-santaanahub-cuda3-c6c-141.anhmca.adelphia.net ([68.169.253.141]:33290
-	"HELO ca-santaanahub-cuda3-c6c-141.anhmca.adelphia.net")
-	by vger.kernel.org with SMTP id S261252AbVBVSQo (ORCPT
+	Tue, 22 Feb 2005 13:22:29 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:65169 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261272AbVBVSWV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 13:16:44 -0500
-Date: Tue, 22 Feb 2005 12:15:56 +0000
-From: antonyc@ca-santaanahub-cuda3-c6c-141.anhmca.adelphia.net
-Subject: 89.95$ = Microsoft Windows XP Pro + Microsoft Office XP Pro
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-References: <FL2B3IGB5HF9HC93@vger.kernel.org>
-In-Reply-To: <FL2B3IGB5HF9HC93@vger.kernel.org>
-Message-ID: <K1FKAC9EL1I67FIK@ca-santaanahub-cuda3-c6c-141.anhmca.adelphia.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 22 Feb 2005 13:22:21 -0500
+Subject: Re: JFFS2 Extended attributes support & SELinux in handhelds
+From: Josh Boyer <jdub@us.ibm.com>
+To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+Cc: familiar-dev@handhelds.org, selinux@tycho.nsa.gov,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       familiar@handhelds.org, handhelds@handhelds.org,
+       kernel-discuss@handhelds.org, oe@handhelds.org, agruen@suse.de,
+       Russell Coker <rcoker@redhat.com>
+In-Reply-To: <1109089039.4100.114.camel@localhost.localdomain>
+References: <1109089039.4100.114.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Tue, 22 Feb 2005 12:21:42 -0600
+Message-Id: <1109096502.7813.5.camel@windu.rchland.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://89508.ickmkaghk.com/?O1QTQ3iYnmVb4iO20488
+On Tue, 2005-02-22 at 17:17 +0100, Lorenzo Hernández García-Hierro
+wrote:
+> Hi,
+> 
+> I've been working in implementing extended attributes support in the
+> JFFS2 filesystem.
+
+You should send this to the JFFS2 development list.  The xattr support
+is probably a JFFS3 candidate.
+
+> 
+> The current work is just a draft, I've started with the standard Vanilla
+> kernel sources plus mtd JFFS2 sources, used to patch the vanilla ones
+> for latest code (I'm confused on which one has the most updated tree or
+> if there are special differences between mtd's trees and vanilla's), and
+> implemented the skeleton using the reiserfs xattr code base.
+
+The mtd tree is the most current.  Any development would probably get
+the most benefit from being done there.  Especially since JFFS3 doesn't
+exist anywhere else :).
+
+> In addition, having someone experienced with xattr API could be great,
+> as development documentation seems inexistent, among James Morris'
+> merged xattr consolidation code.
+
+There have been some xattr proposals discussed on the MTD and JFFS2
+mailing lists.  They might be a starting place for you.
+
+josh
 

@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281749AbRKULyC>; Wed, 21 Nov 2001 06:54:02 -0500
+	id <S281750AbRKUL4M>; Wed, 21 Nov 2001 06:56:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281746AbRKULxw>; Wed, 21 Nov 2001 06:53:52 -0500
-Received: from ns.caldera.de ([212.34.180.1]:56035 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S281743AbRKULxj>;
-	Wed, 21 Nov 2001 06:53:39 -0500
-Date: Wed, 21 Nov 2001 12:53:27 +0100
-Message-Id: <200111211153.fALBrR130656@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: mailgate@hometree.net ("Henning P. Schmiedehausen")
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: A return to PCI ordering problems...
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <9tg371$ja3$1@forge.intermeta.de>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S281746AbRKUL4C>; Wed, 21 Nov 2001 06:56:02 -0500
+Received: from ns.suse.de ([213.95.15.193]:60934 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S281743AbRKULzt>;
+	Wed, 21 Nov 2001 06:55:49 -0500
+Date: Wed, 21 Nov 2001 12:55:48 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Athlon /proc/cpuinfo anomaly [minor]
+In-Reply-To: <20011121124706.C9978@suse.de>
+Message-ID: <Pine.LNX.4.33.0111211252500.4080-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <9tg371$ja3$1@forge.intermeta.de> you wrote:
-> One could imagine a module to read the MAC address from the eeprom and
-> not from the Interface.. Makes this scenario not impossible but much
-> harder.
+On Wed, 21 Nov 2001, Jens Axboe wrote:
 
-"To use the WizBang Webpublishing software you have to use one of
- the follwoing Network Interface Cards: Intel EEpro (TM) 100,
- 3com 3c590C, SMC Etherpower."
+> [root@bart x86info-1.5]# ./x86info -a | grep "name string"
+> Processor name string: AMD Athlon(tm) MP Processor 1700+
+> Processor name string: AMD Athlon(tm) MP Processor 1700+
+> [root@bart x86info-1.5]# ./x86info -a | grep "name string"
+> Processor name string: AMD Athlon(tm) Processor
+> Processor name string: AMD Athlon(tm) Processor
 
-Sure, looks practicable..
+Thanks. Looks like I was right, your BIOS isn't doing
+the 'right thing' for CPU 2. Cest la vie.
 
-	Christoph
+(The "Sometimes returns different results" bug fixed in CVS,
+ release later today btw)
+
+Dave.
 
 -- 
-Of course it doesn't work. We've performed a software upgrade.
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

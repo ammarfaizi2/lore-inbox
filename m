@@ -1,176 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262116AbUKDHVU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262113AbUKDHeZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbUKDHVU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 02:21:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262124AbUKDHPF
+	id S262113AbUKDHeZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 02:34:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbUKDHdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 02:15:05 -0500
-Received: from [211.58.254.17] ([211.58.254.17]:57506 "EHLO hemosu.com")
-	by vger.kernel.org with ESMTP id S262119AbUKDHDA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 02:03:00 -0500
-Date: Thu, 4 Nov 2004 16:02:58 +0900
-From: Tejun Heo <tj@home-tj.org>
-To: mochel@osdl.org, greg@kroah.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.10-rc1 2/5] driver-model: bus_recan_devices() locking fix
-Message-ID: <20041104070258.GC25567@home-tj.org>
-References: <20041104070134.GA25567@home-tj.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041104070134.GA25567@home-tj.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 4 Nov 2004 02:33:38 -0500
+Received: from mail.convergence.de ([212.227.36.84]:49319 "EHLO
+	email.convergence2.de") by vger.kernel.org with ESMTP
+	id S262119AbUKDH0J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 02:26:09 -0500
+Message-ID: <4189D95C.5000102@linuxtv.org>
+Date: Thu, 04 Nov 2004 08:25:16 +0100
+From: Michael Hunold <hunold@linuxtv.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Gerd Knorr <kraxel@bytesex.org>
+Subject: [PATCH][V4L] keep tvaudio driver away from saa7146
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------010800070407020003040806"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- df_02_bus_rescan_devcies_fix.patch
+This is a multi-part message in MIME format.
+--------------010800070407020003040806
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
- bus_rescan_devices() eventually calls device_attach() and thus
-requires write locking the corresponding bus.  The original code just
-called bus_for_each_dev() which only read locks the bus.  This patch
-separates __bus_for_each_dev() and __bus_for_each_drv(), which don't
-do locking themselves, out from the original functions and call them
-with read lock in the original functions and with write lock in
-bus_rescan_devices().
+Hi all,
+
+the attached patch keeps the tvaudio i2c helper module away from any 
+saa7146 based framegrabber. All saa7146 drivers have their dedicated i2c 
+helper modules and don't work together with tvaudio, so keep it away 
+alltogether. This will make mixed-card configurations work.
+
+The patch was discussed and ack'ed by Gerd Knorr.
+
+Please apply.
+
+Thanks
+Michael.
 
 
-Signed-off-by: Tejun Heo <tj@home-tj.org>
+--------------010800070407020003040806
+Content-Type: text/plain;
+ name="tvaudio.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="tvaudio.diff"
 
+- [V4L] don't attach tvaudio module on saa7146 i2c busses
 
-Index: linux-export/drivers/base/bus.c
-===================================================================
---- linux-export.orig/drivers/base/bus.c	2004-11-04 11:04:13.000000000 +0900
-+++ linux-export/drivers/base/bus.c	2004-11-04 11:04:13.000000000 +0900
-@@ -135,6 +135,54 @@ static struct kobj_type ktype_bus = {
+Signed-off-by: Michael Hunold <hunold@linuxtv.org>
+Acked-by: Gerd Knorr <kraxel@bytesex.org>
+
+diff -ura b/drivers/media/video/tvaudio.c linux-2.6.10-rc1-bk9-debug/drivers/media/video/tvaudio.c
+--- b/drivers/media/video/tvaudio.c	2004-11-01 16:54:04.000000000 +0100
++++ linux-2.6.10-rc1-bk9-debug/drivers/media/video/tvaudio.c	2004-11-01 16:56:09.000000000 +0100
+@@ -1497,6 +1497,10 @@
  
- decl_subsys(bus, &ktype_bus, NULL);
- 
-+static int
-+__bus_for_each_dev(struct bus_type * bus, struct device * start,
-+		   void * data, int (*fn)(struct device *, void *))
-+{
-+	struct device *dev;
-+	struct list_head * head;
-+	int error = 0;
-+
-+	if (!(bus = get_bus(bus)))
-+		return -EINVAL;
-+
-+	head = &bus->devices.list;
-+	dev = list_prepare_entry(start, head, bus_list);
-+	list_for_each_entry_continue(dev, head, bus_list) {
-+		get_device(dev);
-+		error = fn(dev, data);
-+		put_device(dev);
-+		if (error)
-+			break;
-+	}
-+	put_bus(bus);
-+	return error;
-+}
-+
-+static int
-+__bus_for_each_drv(struct bus_type * bus, struct device_driver * start,
-+		   void * data, int (*fn)(struct device_driver *, void *))
-+{
-+	struct list_head * head;
-+	struct device_driver *drv;
-+	int error = 0;
-+
-+	if(!(bus = get_bus(bus)))
-+		return -EINVAL;
-+
-+	head = &bus->drivers.list;
-+	drv = list_prepare_entry(start, head, kobj.entry);
-+	list_for_each_entry_continue(drv, head, kobj.entry) {
-+		get_driver(drv);
-+		error = fn(drv, data);
-+		put_driver(drv);
-+		if(error)
-+			break;
-+	}
-+	put_bus(bus);
-+	return error;
-+}
-+
- /**
-  *	bus_for_each_dev - device iterator.
-  *	@bus:	bus type.
-@@ -154,30 +202,15 @@ decl_subsys(bus, &ktype_bus, NULL);
-  *	to retain this data, it should do, and increment the reference
-  *	count in the supplied callback.
-  */
-+
- int bus_for_each_dev(struct bus_type * bus, struct device * start,
- 		     void * data, int (*fn)(struct device *, void *))
+ static int chip_probe(struct i2c_adapter *adap)
  {
--	struct device *dev;
--	struct list_head * head;
--	int error = 0;
--
--	if (!(bus = get_bus(bus)))
--		return -EINVAL;
--
--	head = &bus->devices.list;
--	dev = list_prepare_entry(start, head, bus_list);
--
-+	int ret;
- 	down_read(&bus->subsys.rwsem);
--	list_for_each_entry_continue(dev, head, bus_list) {
--		get_device(dev);
--		error = fn(dev, data);
--		put_device(dev);
--		if (error)
--			break;
--	}
-+	ret = __bus_for_each_dev(bus, start, data, fn);
- 	up_read(&bus->subsys.rwsem);
--	put_bus(bus);
--	return error;
-+	return ret;
- }
- 
- /**
-@@ -203,27 +236,11 @@ int bus_for_each_dev(struct bus_type * b
- int bus_for_each_drv(struct bus_type * bus, struct device_driver * start,
- 		     void * data, int (*fn)(struct device_driver *, void *))
- {
--	struct list_head * head;
--	struct device_driver *drv;
--	int error = 0;
--
--	if(!(bus = get_bus(bus)))
--		return -EINVAL;
--
--	head = &bus->drivers.list;
--	drv = list_prepare_entry(start, head, kobj.entry);
--
-+	int ret;
- 	down_read(&bus->subsys.rwsem);
--	list_for_each_entry_continue(drv, head, kobj.entry) {
--		get_driver(drv);
--		error = fn(drv, data);
--		put_driver(drv);
--		if(error)
--			break;
--	}
-+	ret = __bus_for_each_drv(bus, start, data, fn);
- 	up_read(&bus->subsys.rwsem);
--	put_bus(bus);
--	return error;
-+	return ret;
- }
- 
- /**
-@@ -601,7 +618,9 @@ int bus_rescan_devices(struct bus_type *
- {
- 	int count = 0;
- 
--	bus_for_each_dev(bus, NULL, &count, bus_rescan_devices_helper);
-+	down_write(&bus->subsys.rwsem);
-+	__bus_for_each_dev(bus, NULL, &count, bus_rescan_devices_helper);
-+	up_write(&bus->subsys.rwsem);
- 
- 	return count;
- }
++	/* don't attach on saa7146 based cards,
++	   because dedicated drivers are used */
++	if ((adap->id & I2C_ALGO_SAA7146))
++		return 0;
+ #ifdef I2C_CLASS_TV_ANALOG
+ 	if (adap->class & I2C_CLASS_TV_ANALOG)
+ 		return i2c_probe(adap, &addr_data, chip_attach);
+
+--------------010800070407020003040806--

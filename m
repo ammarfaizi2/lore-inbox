@@ -1,41 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263847AbTIIAin (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 20:38:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263848AbTIIAin
+	id S263830AbTIIAco (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 20:32:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263832AbTIIAco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 20:38:43 -0400
-Received: from kde.informatik.uni-kl.de ([131.246.103.200]:12723 "EHLO
-	dot.kde.org") by vger.kernel.org with ESMTP id S263847AbTIIAim
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 20:38:42 -0400
-Date: Tue, 9 Sep 2003 02:23:18 +0200 (CEST)
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-X-X-Sender: bero@dot.kde.org
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.23-pre3-pac1
-Message-ID: <Pine.LNX.4.56.0309090211130.3946@dot.kde.org>
-X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
-X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
+	Mon, 8 Sep 2003 20:32:44 -0400
+Received: from www.mail15.com ([194.186.131.96]:10247 "EHLO www.mail15.com")
+	by vger.kernel.org with ESMTP id S263830AbTIIAcm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 20:32:42 -0400
+Message-ID: <3F5D1FBA.6010703@myrealbox.com>
+Date: Mon, 08 Sep 2003 17:32:58 -0700
+From: walt <wa1ter@myrealbox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: Linux 2.6.0-test5
+References: <Pine.LNX.4.44.0309081319380.1666-100000@home.osdl.org> <3F5D0B09.1040802@pobox.com>
+In-Reply-To: <3F5D0B09.1040802@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-$SUBJECT is at
-http://www.arklinux.org/~bero/kernel/patch-2.4.23-pre3-pac1.bz2
+Jeff Garzik wrote:
+> Note that people seeing "ifconfig down ... ifconfig up" problems need to 
+> apply this patch.  (to 2.4.23-pre, too)
+> 
+>     Jeff
+> 
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> diff -Nru a/net/core/dev.c b/net/core/dev.c
+> --- a/net/core/dev.c	Mon Sep  8 18:14:36 2003
+> +++ b/net/core/dev.c	Mon Sep  8 18:14:36 2003
+> @@ -851,7 +851,11 @@
+>  	 * engine, but this requires more changes in devices. */
+>  
+>  	smp_mb__after_clear_bit(); /* Commit netif_running(). */
+> -	netif_poll_disable(dev);
+> +	while (test_bit(__LINK_STATE_RX_SCHED, &dev->state)) {
+> +		/* No hurry. */
+> +		current->state = TASK_INTERRUPTIBLE;
+> +		schedule_timeout(1);
+> +	}
+>  
+>  	/*
+>  	 *	Call the device specific close. This cannot fail.
 
-Changes:
-- Sync with 2.4.23-pre3
-- Sync with 2.4.22-ac1
-- Add ACPI fixes from Andrew de Quincey and Jun Nakajima
+Okay!  I'm at least back where I started.  This patch doen't fix the
+ifconfig down/up problem, but it does reverse the disastrous effects
+of the last tg3 updates in both 2.6 and 2.4
 
-LLaP
-bero
+Is there any reason this patch should not be committed?
 
--- 
-Ark Linux - Linux for the masses
-http://www.arklinux.org/
+Thanks.
 
-Redistribution and processing of this message is subject to
-http://www.arklinux.org/terms.php

@@ -1,53 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266279AbUAGSVH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 13:21:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266278AbUAGSTt
+	id S266332AbUAGSTm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 13:19:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266278AbUAGSTm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 13:19:49 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:39151 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S266279AbUAGSTd
+	Wed, 7 Jan 2004 13:19:42 -0500
+Received: from smtp2.clear.net.nz ([203.97.37.27]:6341 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S266332AbUAGSS2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 13:19:33 -0500
-Date: Wed, 7 Jan 2004 10:19:20 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0 NFS-server low to 0 performance
-Message-ID: <20040107181920.GN1882@matchmail.com>
-Mail-Followup-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-	linux-kernel@vger.kernel.org
-References: <20040107174939.GK1882@matchmail.com> <Pine.LNX.4.44.0401071908320.1840-100000@poirot.grange>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0401071908320.1840-100000@poirot.grange>
-User-Agent: Mutt/1.5.4i
+	Wed, 7 Jan 2004 13:18:28 -0500
+Date: Thu, 08 Jan 2004 06:16:55 +1300
+From: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Subject: Re: udev and devfs - The final word
+In-reply-to: <200401071439.03915.roro.l@dewire.com>
+To: Robin Rosenberg <roro.l@dewire.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Reply-to: ncunningham@users.sourceforge.net
+Message-id: <1073495815.2286.7.camel@laptop-linux>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.4-8mdk
+Content-type: multipart/signed; boundary="=-7tvXol2ML7I+V1DJLKAF";
+ protocol="application/pgp-signature"; micalg=pgp-sha1
+References: <20040103040013.A3100@pclin040.win.tue.nl>
+ <200401051201.58356.roro.l@dewire.com>
+ <1073306368.4181.103.camel@laptop-linux> <200401071439.03915.roro.l@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 07, 2004 at 07:13:46PM +0100, Guennadi Liakhovetski wrote:
-> On Wed, 7 Jan 2004, Mike Fedyk wrote:
-> 
-> > On Tue, Jan 06, 2004 at 01:46:30AM +0100, Guennadi Liakhovetski wrote:
-> > > It is not just a problem of 2.6 with those specific network configurations
-> > > - ftp / http / tftp transfers work fine. E.g. wget of the same file on the
-> > > PXA with 2.6.0 from the PC1 with 2.4.21 over http takes about 2s. So, it
-> > > is 2.6 + NFS.
-> > >
-> > > Is it fixed somewhere (2.6.1-rcx?), or what should I try / what further
-> > > information is required?
+
+--=-7tvXol2ML7I+V1DJLKAF
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Ah. Well if you've unmounted filesystems prior to suspending, I would
+expect you should be fine. The device numbers might change - if they can
+change between mounts - but that won't be any different because of
+suspending. If you're talking about suspending with the file systems
+mounted, that ought to work to (once the appropriate power management
+support is done). If the user fails to reconnect the device before
+resuming, they should expect the same problems that they would encounter
+if they pulled it out without suspending. Of course I'm saying 'should'
+a lot here. Let me use it one more time... in my mind at least, the fact
+that we've suspended should be irrelevant to how things work.
+
+Regards,
+
+Nigel
+
+On Thu, 2004-01-08 at 02:39, Robin Rosenberg wrote:
+> m=E5ndagen den 5 januari 2004 13.39 skrev Nigel Cunningham:
+> > Hi.
 > >
-> > You will probably need to look at some tcpdump output to debug the problem...
-> 
-> Yep, just have done that - well, they differ... First obvious thing that I
-> noticed is that 2.6 is trying to read bigger blocks (32K instead of 8K),
+> > The suspend to disk implementations all assume that devices are not
+> > [dis]appearing under us while we're suspended. If you do go adding and
+> > removing devices while the power is off, you can expect the same
+> > problems you'd get if you removed them without suspending the machine.
+> > It would be roughly equivalent to hot[un]plugging devices.
+>=20
+> Yes. It's very unclear unless you do mind reading, but I had in mind moun=
+ted filesystems
+> such as /home on a USB stick or firewire Reasonable? yes! But such device=
+s have to
+> be rediscovered and allocated in such a way that the user can resume usin=
+g the device
+> as soon as it has been found. And it should not fail miserably if the use=
+r forgets to connect
+> the device before resuming the machine. As you cannot unmount /home (usua=
+lly) the
+> kernel must remember the device somehow or make mounting file systems mor=
+e loosely
+> than today.
+>=20
+> -- robin
+--=20
+My work on Software Suspend is graciously brought to you by
+LinuxFund.org.
 
-You mean it's trying to do 32K nfs block size on the wire?
+--=-7tvXol2ML7I+V1DJLKAF
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-> The bz2 tarball is 50k big, so, not too bad for the list either, but it is
-> not a common practice to send compressed attachments to the list, right?
-> It's 5M uncompressed.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-Just post a few samples of the lines that differ.  Any files should be sent
-off-list.
+iD8DBQA//D8HVfpQGcyBBWkRAnvFAJ9ynWsZjSfXO/ChKSD3jrci33ycGwCfaRUK
+4rJZmRAwlkJt7xIBYKyO8xc=
+=EYF+
+-----END PGP SIGNATURE-----
+
+--=-7tvXol2ML7I+V1DJLKAF--
+

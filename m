@@ -1,66 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265555AbRFVWla>; Fri, 22 Jun 2001 18:41:30 -0400
+	id <S265554AbRFVWlA>; Fri, 22 Jun 2001 18:41:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265556AbRFVWlV>; Fri, 22 Jun 2001 18:41:21 -0400
-Received: from pcow029o.blueyonder.co.uk ([195.188.53.123]:4108 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S265555AbRFVWlH> convert rfc822-to-8bit;
-	Fri, 22 Jun 2001 18:41:07 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Alan Chandler <alan@chandlerfamily.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Microsoft and Xenix.
-Date: Fri, 22 Jun 2001 23:41:01 +0100
-X-Mailer: KMail [version 1.2.3]
-Cc: Rob Landley <landley@webofficenow.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15DZbq-0008D8-00@roo.home>
+	id <S265555AbRFVWkv>; Fri, 22 Jun 2001 18:40:51 -0400
+Received: from femail3.sdc1.sfba.home.com ([24.0.95.83]:27582 "EHLO
+	femail3.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S265554AbRFVWks>; Fri, 22 Jun 2001 18:40:48 -0400
+Date: Fri, 22 Jun 2001 18:40:40 -0400
+From: Tom Vier <tmv5@home.com>
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.5-ac17
+Message-ID: <20010622184040.A765@zero>
+In-Reply-To: <20010621222557.A553@zero> <Pine.LNX.4.33.0106220722450.535-100000@mikeg.weiden.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0106220722450.535-100000@mikeg.weiden.de>; from mikeg@wen-online.de on Fri, Jun 22, 2001 at 09:06:42AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am not subscribed to the list, but I scan the archives and saw the 
-following.  Please cc e-mail me in followups.
+On Fri, Jun 22, 2001 at 09:06:42AM +0200, Mike Galbraith wrote:
+> It's not actually swapping unless you see IO (si/so).  It's allocating
+> swap space, but won't send pages out to disk unless there's demand. One
 
->Rob Landley (landley@webofficenow.com) wrote
-...
->In late '79 early '80, they heard the rumors that IBM was pondering a PC, 
-> and Paul Allen went "any real computer will run Unix", so they got a 
->license from AT&T and ported the sucker, calling it "Xenix". (MS was a 
->porting house, 
+if it's pre-allocation, why does it show up as "used"? "reserved" would be a
+better fit.
 
-I hope the following adds a more direct perspective on this, as I was a user 
-at the time.  
+> benefit of this early allocation is that idle pages will be identified
+> prior to demand, and will be moved out of the way sooner.  Watch as
 
-I was working (and still am) for a UK computer systems integrator called 
-Logica.  One of our departments sold and supported Xenix (as distributor for 
-Microsoft? - all the manuals had Logica on the covers although there was at 
-least some mention of Microsoft inside) in the UK.  At the time it ONLY ran 
-on PDP 11's and I used it to build a configuration management system (on top 
-of SCCS) for the telemetry product that I was responsible for.  I acquired 
-Xenix for my department in 1984
+how long can swap allocation possibly take? certainly no where near as long
+as a write to disk takes. my box has a half gig of ram, pre-allocation is a
+waste of cpu. i never hit swap.
 
-It was more like (can't remember exactly when) 1985/1986 that Xenix got 
-ported to the IBM PC. I remember because we were evaluating software to use 
-for our telemetry workstations (which previously had been using expensive 
-special graphics hardware and we were trying to see if we could use a PC 
-instead) and I was comparing Xenix, GEM (remember that - for a time it looked 
-like it might be ahead of windows) and Microsoft Windows v 1 .  We chose 
-Windows in the end for its graphics capability although by the time we 
-started development it was up to v2 and we were using 286's (this was 
-1987/88).  
-...
-
->Xenix was unloaded on the Santa-Cruz operation almost 
->immediately,
-
-Logica sold out its Xenix operation to Santa-Cruz around 1987 (definately 
-before October 1987) because we couldn't afford the costs of developing the 
-product (which makes me think that we had bought it out from Microsoft - at 
-least in the UK).  By then we had switched our PDP 11s to System V (I also 
-remember BUYING an editor called "emacs" for use on it:-) ).
+> memory demand rises, and you should see these pages migrating to disk
+> and staying there.. buys you more working space.
 
 -- 
-
-  Alan - alan@chandlerfamily.org.uk
-http://www.chandlerfamily.org.uk
+Tom Vier <tmv5@home.com>
+DSA Key id 0x27371A2C

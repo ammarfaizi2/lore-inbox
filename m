@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317117AbSIAPXX>; Sun, 1 Sep 2002 11:23:23 -0400
+	id <S317194AbSIAP1U>; Sun, 1 Sep 2002 11:27:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317181AbSIAPXX>; Sun, 1 Sep 2002 11:23:23 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:15114 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S317117AbSIAPXX>; Sun, 1 Sep 2002 11:23:23 -0400
-Date: Sun, 1 Sep 2002 17:27:44 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: [PATCH] warnkill trivia 2/2 (correction)
-Message-ID: <20020901152744.GF7325@louise.pinerecords.com>
-References: <20020901105643.GH32122@louise.pinerecords.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020901105643.GH32122@louise.pinerecords.com>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
-X-Uptime: 7 days, 4:02
+	id <S317191AbSIAP1U>; Sun, 1 Sep 2002 11:27:20 -0400
+Received: from dsl-213-023-020-041.arcor-ip.net ([213.23.20.41]:54912 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S317181AbSIAP1T>;
+	Sun, 1 Sep 2002 11:27:19 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: trond.myklebust@fys.uio.no, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] Introduce BSD-style user credential [3/3]
+Date: Sun, 1 Sep 2002 17:23:57 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Linux FSdevel <linux-fsdevel@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Dave McCracken <dmccr@us.ibm.com>
+References: <15728.7151.27079.551845@charged.uio.no> <Pine.LNX.4.44.0208302110280.1524-100000@home.transmeta.com> <15728.61204.381468.238609@charged.uio.no>
+In-Reply-To: <15728.61204.381468.238609@charged.uio.no>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17lWZy-0004Zm-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2.4.20-pre5: prevent sparc32's atomic_read() from possibly discarding
-> const qualifiers from pointers passed as its argument.
+On Saturday 31 August 2002 18:30, Trond Myklebust wrote:
+> >>>>> " " == Linus Torvalds <torvalds@transmeta.com> writes:
+> 
+>      > One thing that may be interesting (I certainly think it migth
+>      > be), would be to add a "struct user_struct *" pointer to the
+>      > vfs_cred as well. This is because I'd just _love_ to have that
+>      > "user_struct" fed down to the VFS layer, since I think that is
+>      > where we may some day want to put things like user-supplied
+>      > cryptographic keys etc.
+> 
+>      > The advantage of "struct user_struct" (as opposed to just a
+>      > uid_t) is that it can have information that lives for the whole
+>      > duration of a login, and it's really the only kind of data
+>      > structure in the kernel that can track that kind of
+>      > information.
+> 
+> No problem at all with this. Indeed I agree it makes a lot of sense...
+> 
+> The only thing is if you'd allow me to do it as an incremental patch
+> to the initial one?
+> I don't see 'struct user_struct *' as replacing the existing 'uid'
+> entry, so there should be no need to change the existing API. Instead,
+> we can just add in the necessary call to alloc_uid() to
+> vfscred_create() and/or setfsuid()...
 
-Ok, the only reasonable way to deal with the last reiserfs vs.
-sparc32 compilation warning is apparently to strip the const from
-the wait_buffer_until_released() prototype, as it doesn't make any
-sense there. Marcelo please disregard the atomic_read() patch and
-apply the following instead:
+I really do like Kai's name suggestion 'struct session'.
 
-
-diff -urN linux-2.4.20-pre5/fs/reiserfs/buffer2.c linux-2.4.20-pre5.n/fs/reiserfs/buffer2.c
---- linux-2.4.20-pre5/fs/reiserfs/buffer2.c	2002-09-01 17:19:26.000000000 +0200
-+++ linux-2.4.20-pre5.n/fs/reiserfs/buffer2.c	2002-09-01 17:07:27.000000000 +0200
-@@ -21,7 +21,7 @@
-    hold we did free all buffers in tree balance structure
-    (get_empty_nodes and get_nodes_for_preserving) or in path structure
-    only (get_new_buffer) just before calling this */
--void wait_buffer_until_released (const struct buffer_head * bh)
-+void wait_buffer_until_released (struct buffer_head *bh)
- {
-   int repeat_counter = 0;
- 
-diff -urN linux-2.4.20-pre5/include/linux/reiserfs_fs.h linux-2.4.20-pre5.n/include/linux/reiserfs_fs.h
---- linux-2.4.20-pre5/include/linux/reiserfs_fs.h	2002-09-01 17:19:27.000000000 +0200
-+++ linux-2.4.20-pre5.n/include/linux/reiserfs_fs.h	2002-09-01 17:16:32.000000000 +0200
-@@ -1845,7 +1847,7 @@
- 
- /* buffer2.c */
- struct buffer_head * reiserfs_getblk (kdev_t n_dev, int n_block, int n_size);
--void wait_buffer_until_released (const struct buffer_head * bh);
-+void wait_buffer_until_released (struct buffer_head *bh);
- struct buffer_head * reiserfs_bread (struct super_block *super, int n_block, 
- 				     int n_size);
- 
+-- 
+Daniel

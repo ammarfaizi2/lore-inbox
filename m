@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261619AbVCNBTT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbVCNBl6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261619AbVCNBTT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 20:19:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbVCNBTT
+	id S261611AbVCNBl6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 20:41:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbVCNBl6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 20:19:19 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38373 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261619AbVCNBTP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 20:19:15 -0500
-Date: Sun, 13 Mar 2005 11:06:06 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Subject: [PATCH] Enable gcc warnings for vsprintf/vsnprintf with "format" attribute
-Message-ID: <20050313140606.GA5946@logos.cnet>
-Mime-Version: 1.0
+	Sun, 13 Mar 2005 20:41:58 -0500
+Received: from mail13.syd.optusnet.com.au ([211.29.132.194]:40359 "EHLO
+	mail13.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261611AbVCNBl4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 20:41:56 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16948.60419.257853.470644@wombat.chubb.wattle.id.au>
+Date: Mon, 14 Mar 2005 12:42:27 +1100
+From: Peter Chubb <peterc@gelato.unsw.edu.au>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: User mode drivers: part 1, interrupt handling (patch for 2.6.11)
+In-Reply-To: <9e47339105031317193c28cbcf@mail.gmail.com>
+References: <16945.4650.250558.707666@berry.gelato.unsw.EDU.AU>
+	<9e473391050312075548fb0f29@mail.gmail.com>
+	<16948.56475.116221.135256@wombat.chubb.wattle.id.au>
+	<9e47339105031317193c28cbcf@mail.gmail.com>
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Jon" == Jon Smirl <jonsmirl@gmail.com> writes:
 
-Applied to v2.4 - v2.6 wants the same change.
+>>  The scenario I'm thinking about with these patches are things like
+>> low-latency user-level networking between nodes in a cluster, where
+>> for good performance even with a kernel driver you don't want to
+>> share your interrupt line with anything else.
 
-Against v2.6-BK.
+Jon> The code needs to refuse to install if the IRQ line is shared.
 
-From: Solar Designer <solar@openwall.com>
+It does.  The request_irq() call explicitly does not include SA_SHARED
+in its flags, so if the line is shared, it'll return an error to user
+space when the driver tries to open the file representing the interrupt.
 
-Enables gcc warnings for the case when arguments to vsprintf/vsnprintf
-function don't match the format string.  This helps catch programming
-errors.
+Jon> Also what about SMP, if you shut the IRQ off on one CPU isn't it
+Jon> still enabled on all of the others?
 
---- a/include/linux/kernel.h.orig	2005-03-13 14:42:52.069920616 -0300
-+++ b/include/linux/kernel.h	2005-03-13 14:45:15.192162728 -0300
-@@ -91,10 +91,12 @@
- extern long long simple_strtoll(const char *,char **,unsigned int);
- extern int sprintf(char * buf, const char * fmt, ...)
- 	__attribute__ ((format (printf, 2, 3)));
--extern int vsprintf(char *buf, const char *, va_list);
-+extern int vsprintf(char *buf, const char *, va_list)
-+	__attribute__ ((format (printf, 2, 0)));
- extern int snprintf(char * buf, size_t size, const char * fmt, ...)
- 	__attribute__ ((format (printf, 3, 4)));
--extern int vsnprintf(char *buf, size_t size, const char *fmt, va_list args);
-+extern int vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
-+	__attribute__ ((format (printf, 3, 0)));
- extern int scnprintf(char * buf, size_t size, const char * fmt, ...)
- 	__attribute__ ((format (printf, 3, 4)));
- extern int vscnprintf(char *buf, size_t size, const char *fmt, va_list args);
+Nope.   disable_irq_nosync() talks to the interrupt controller, which
+is common to all the processors.  The main problem is that it's slow,
+because it has to go off-chip.
 
-
-
+-- 
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

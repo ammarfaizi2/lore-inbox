@@ -1,107 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbVC2WCS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261512AbVC2WDg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261467AbVC2WCS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 17:02:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVC2WCS
+	id S261512AbVC2WDg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 17:03:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261520AbVC2WDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 17:02:18 -0500
-Received: from smtp3.wanadoo.fr ([193.252.22.28]:20372 "EHLO smtp3.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S261467AbVC2WCM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 17:02:12 -0500
-X-ME-UUID: 20050329220210807.C53661C00B22@mwinf0302.wanadoo.fr
-Subject: Re: Clock 3x too fast on AMD64 laptop [WAS Re: Various issues
-	after rebooting]
-From: Olivier Fourdan <fourdan@xfce.org>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1112131714.14248.8.camel@shuttle>
-References: <1112039799.6106.16.camel@shuttle>
-	 <20050328192054.GV30052@alpha.home.local> <1112038226.6626.3.camel@shuttle>
-	 <20050328193921.GW30052@alpha.home.local>
-	 <1112131714.14248.8.camel@shuttle>
-Content-Type: text/plain
-Organization: http://www.xfce.org
-Date: Wed, 30 Mar 2005 00:02:11 +0200
-Message-Id: <1112133731.14248.14.camel@shuttle>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 (2.0.3-2) 
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Mar 2005 17:03:36 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:21784 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261512AbVC2WDO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 17:03:14 -0500
+Date: Tue, 29 Mar 2005 23:03:02 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andi Kleen <ak@suse.de>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, akpm@osdl.org, davem@davemloft.net,
+       tony.luck@intel.com, benh@kernel.crashing.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/6] freepgt: free_pgtables use vma list
+In-Reply-To: <20050324122637.GK895@wotan.suse.de>
+Message-ID: <Pine.LNX.4.61.0503292233080.18131@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com> 
+    <Pine.LNX.4.61.0503231710310.15274@goblin.wat.veritas.com> 
+    <20050324122637.GK895@wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 24 Mar 2005, Andi Kleen wrote:
+> On Wed, Mar 23, 2005 at 05:11:34PM +0000, Hugh Dickins wrote:
+> 
+> Sorry for late answer.
 
-A quick look at the source shows that the error is triggered in
-arch/i386/kernel/timers/timer_pm.c by the verify_pmtr_rate() function.
+Ditto!  Sorry, I've been away a few days.
 
-My guess is that the pmtmr timer is right and the pit is wrong in my
-case. That would explain why the clock is wrong when being based on pit
-(like when forced with "clock=pit")
+> Nice approach....
 
-Maybe, if I can prove my guesses, a fix could be to "trust" the pmtmr
-clock when the user has passed a "clock=pmtmr" argument ? Does that make
-any sense ?
+Thanks.
 
-TIA
-Olivier.
+> It will not work as well
+> on large sparse mappings as the bit vectors, but that may be tolerable.
 
+Exactly.  It's simply what what we should be doing first, making use of
+the infrastructure we already have.  If that proves inadequate, add on top.
 
+> > What of x86_64's 32bit vdso page __map_syscall32 maps outside any vma?
+> 
+> Everything. It could be easily changed though, but I was too lazy for 
+> it so far. Do you think it is needed for your patch?
 
-On Tue, 2005-03-29 at 23:28 +0200, Olivier Fourdan wrote:
-> Hi all
-> 
-> Following my own thread, I found the following error in dmesg:
-> 
->     PM-Timer running at invalid rate: 33% of normal - aborting.
-> 
-> I found that interesting because 33% is 1/3 and the clock runs exactly
-> 3x faster than normal...
-> 
-> A bit of search on google gave me several links to posts from other
-> people with the exact same problem on similar hardware (AMD64 laptop)
-> but I couldn't find neither the cause nor the fix of that issue (as I
-> think it might be related to the other issues I observe when the clock
-> goes too fast)
-> 
-> Does that PM-Timer message makes sense to someone knowledgeable?
-> 
-> Thanks in advance,
-> 
-> Cheers,
-> Olivier.
-> 
-> On Mon, 2005-03-28 at 21:39 +0200, Willy Tarreau wrote:
-> > On Mon, Mar 28, 2005 at 09:30:26PM +0200, Olivier Fourdan wrote:
-> > > Hi Willy
-> > > 
-> > > On Mon, 2005-03-28 at 21:20 +0200, Willy Tarreau wrote:
-> > > > Now I have a compaq (nc8000) which does not exhibit such buggy behaviour,
-> > > > but you can try disabling the APIC too just in case it's a similar problem
-> > > > (at least in 32 bits, I don't know if you can disable it in 64 bits mode).
-> > > 
-> > > Thanks for the hint, but unfortunately, it's one of the first things I
-> > > tried, and that makes no difference.
-> > 
-> > Sorry, at first I only noticed ACPI in your mail, but after reading it
-> > again, I also noticed APIC. So now, you can only try not to initialize
-> > some peripherals (IDE, network, display, etc...) by removing their drivers
-> > from the kernel. You may end up with a kernel panic, but that does not
-> > matter is you boot it with "panic=5" so that it automatically reboots
-> > 5 seconds after the panic. You should then finally identify the subsystem
-> > which is responsible for your problems. Perhaps you'll even need to remove
-> > PCI support :-(
-> > 
-> > Regards,
-> > Willy
-> > 
-> > 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+I do.  I'll resend you an earlier mail I wrote about it, I think x86_64
+is liable to leak pagetables or conversely rip pagetables out from under
+the vsyscall page - in the 32-bit emulation case, with my patches, if
+that vsyscall page has been mapped.  That it'll be fine or unnoticed
+most of the time, but really not right.
 
+I'll also resend you Ben's mail on the subject, what he does on ppc64.
 
+Ah, you do SetPageReserved on that page.  That's good, rmap would have
+a problem with it, since it doesn't belong to a file, yet is shared
+between all tasks, so is quite unlike an anonymous page.  I suggest
+you make the vma VM_RESERVED too, but that doesn't really matter yet.
+
+Hugh

@@ -1,89 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264208AbTDWTyr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 15:54:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264227AbTDWTyr
+	id S264232AbTDWTzq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 15:55:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264233AbTDWTzm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 15:54:47 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:910 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264208AbTDWTyo (ORCPT
+	Wed, 23 Apr 2003 15:55:42 -0400
+Received: from zok.sgi.com ([204.94.215.101]:7357 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S264231AbTDWTzi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 15:54:44 -0400
-Date: Wed, 23 Apr 2003 13:05:31 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Andrew Kirilenko <icedank@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Searching for string problems
-Message-Id: <20030423130531.0a7cbcc6.rddunlap@osdl.org>
-In-Reply-To: <200304232248.35985.icedank@gmx.net>
-References: <200304231958.43235.icedank@gmx.net>
-	<200304232200.20028.icedank@gmx.net>
-	<Pine.LNX.4.53.0304231529320.25963@chaos>
-	<200304232248.35985.icedank@gmx.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 23 Apr 2003 15:55:38 -0400
+Date: Wed, 23 Apr 2003 13:07:22 -0700
+From: richard offer <offer@sgi.com>
+To: Christoph Hellwig <hch@infradead.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>
+cc: Linus Torvalds <torvalds@transmeta.com>, "Ted Ts'o" <tytso@mit.edu>,
+       Stephen Tweedie <sct@redhat.com>, lsm <linux-security-module@wirex.com>,
+       Andreas Gruenbacher <a.gruenbacher@computer.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Extended Attributes for Security Modules against 2.5.68
+Message-ID: <1438650000.1051128442@changeling.engr.sgi.com>
+In-Reply-To: <20030423202614.A5890@infradead.org>
+References: <1051120322.14761.95.camel@moss-huskers.epoch.ncsc.mil>
+ <20030423191749.A4244@infradead.org>
+ <20030423112548.B15094@figure1.int.wirex.com>
+ <20030423194501.B5295@infradead.org>
+ <1051125476.14761.146.camel@moss-huskers.epoch.ncsc.mil>
+ <20030423202614.A5890@infradead.org>
+X-Mailer: Mulberry/2.2.0 (Linux/x86)
+X-HomePage: http://www.whitequeen.com/users/richard/
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Apr 2003 22:48:35 +0300 Andrew Kirilenko <icedank@gmx.net> wrote:
-
-| Hello!
-| 
-| Big thanks to all of you. Now I'm starting to understand how it's working. 
-| Here is current version of my code:
-| 
-| -->
-|        jmp         cl_start
-| cl_id_str:      .string "STRING"
-| cl_start:
-|         cld
-|         movw    %cs, %ax
-|         movw    %ax, %ds
-|         movw    $0xe000, %ax
-|         movw    %ax, %es
-|         movb    $0, %al
-|         xor         %bx, %bx  # start of segment
-| cl_compare:
-|         movw    $cl_id_str, %si
-|         movw    $cl_start, %cx
-|         subw    %si, %cx
-|         decw    %cx
-|         movw    %bx, %di
-|         repz    cmpsb
-|         je      cl_compare_done_good
-|         incw    %bx
-|         cmpw    $0xffff, %bx  # are we at the end of segment
-|         je      cl_compare_done
-|         jmp     cl_compare
-| cl_compare_done_good:
-|        movb $1, %al
-| cl_compare_done:
-
-# here the code needs to do something like this,
-# to check the second 64 KB block of memory:
-	movw	%es, %bx
-	cmpw	%bx, $0xe000
-	je	all_done
-	movw	$0xf000, %bx
-	movw	%bx, %es
-	xor	%bx, %bx
-	jmp	cl_compare
 
 
-| <--
-| 
-| And this code won't work as well :(
+* frm hch@infradead.org "04/23/03 20:26:15 +0100" | sed '1,$s/^/* /'
+*
+* 
+* And all these should _not_ happen in the actual tools but in a
+* pluggable security module (something like pam).  
 
-Do you understand x86 real-mode segment registers?
-They can only address a "segment" of 64 KB (roughly).
+I proposed something along those lines back in 2001 at the USENIX security
+conference LSM BOF---I called it PACM. 
 
-| Unfortunately, I can't start DOS and check, cause there is no video and 
-| keyboard controller on that PC.
+But it seemed that no-one else was interested in policy independent
+userland interfaces or applications (X, sendmail) making policy decisions.
 
-oh yes.
 
---
-~Randy
+richard.
+
+-- 
+-----------------------------------------------------------------------
+Richard Offer                     Technical Lead, Trust Technology, SGI
+"Specialization is for insects"
+_______________________________________________________________________
+

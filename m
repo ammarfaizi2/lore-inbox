@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262817AbTKYQsK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 11:48:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262838AbTKYQsK
+	id S262176AbTKYQ6k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 11:58:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262330AbTKYQ6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 11:48:10 -0500
-Received: from wsip-68-14-236-254.ph.ph.cox.net ([68.14.236.254]:20645 "EHLO
-	office.labsysgrp.com") by vger.kernel.org with ESMTP
-	id S262817AbTKYQsI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 11:48:08 -0500
-Message-ID: <3FC387A0.8010600@backtobasicsmgmt.com>
-Date: Tue, 25 Nov 2003 09:47:28 -0700
-From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Organization: Back to Basics Network Management
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
-X-Accept-Language: en-us, en
+	Tue, 25 Nov 2003 11:58:40 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:25178 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S262176AbTKYQ6j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 11:58:39 -0500
+Date: Tue, 25 Nov 2003 11:58:35 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: "Ihar 'Philips' Filipau" <filia@softhome.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2/2.4/2.6 VMs: do malloc() ever return NULL?
+In-Reply-To: <3FC358B5.3000501@softhome.net>
+Message-ID: <Pine.LNX.4.44.0311251158110.2870-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-To: Joe Thornber <thornber@sistina.com>
-CC: Linux Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [Patch 3/5] dm: make v4 of the ioctl interface the default
-References: <20031125162451.GA524@reti> <20031125163313.GD524@reti>
-In-Reply-To: <20031125163313.GD524@reti>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
+Content-ID: <Pine.LNX.4.44.0311251158112.2870@chimarrao.boston.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe Thornber wrote:
+On Tue, 25 Nov 2003, Ihar 'Philips' Filipau wrote:
 
-> Make the version-4 ioctl interface the default kernel configuration option.
-> If you have out of date tools you will need to use the v1 interface.
+>    2.6: the same as 2.4 with oom killer (default conf). I have no test
+> system to check 2.6. w/o oom killer.
 
-Actually, isn't the proper way to say this "if your tools are older than 
-X and/or were _not_ built against recent 2.6 headers you need to use the 
-v1 interface"?
+# echo 2 > /proc/sys/vm/overcommit_memory
 
-Also, if you're going to change the default you should change the help 
-text correspondingly.
+Then try again.
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

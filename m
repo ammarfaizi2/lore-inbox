@@ -1,76 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263173AbUEWRGv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262499AbUEWRL3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263173AbUEWRGv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 13:06:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263182AbUEWRGv
+	id S262499AbUEWRL3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 13:11:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbUEWRL3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 13:06:51 -0400
-Received: from fw.osdl.org ([65.172.181.6]:13535 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263173AbUEWRGt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 13:06:49 -0400
-Date: Sun, 23 May 2004 10:06:37 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFD] Explicitly documenting patch submission 
-In-Reply-To: <200405231633.i4NGXHv18935@pincoya.inf.utfsm.cl>
-Message-ID: <Pine.LNX.4.58.0405230955580.25502@ppc970.osdl.org>
-References: <200405231633.i4NGXHv18935@pincoya.inf.utfsm.cl>
+	Sun, 23 May 2004 13:11:29 -0400
+Received: from pxy4allmi.all.mi.charter.com ([24.247.15.43]:25083 "EHLO
+	proxy4.gha.chartermi.net") by vger.kernel.org with ESMTP
+	id S262499AbUEWRL2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 13:11:28 -0400
+Message-ID: <40B0DB49.3090308@quark.didntduck.org>
+Date: Sun, 23 May 2004 13:11:37 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Willy Tarreau <willy@w.ods.org>
+CC: Arjan van de Ven <arjanv@redhat.com>, Christoph Hellwig <hch@lst.de>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: i486 emu in mainline?
+References: <20040522234059.GA3735@infradead.org> <1085296400.2781.2.camel@laptop.fenrus.com> <20040523084415.GB16071@alpha.home.local>
+In-Reply-To: <20040523084415.GB16071@alpha.home.local>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Charter-MailScanner-Information: 
+X-Charter-MailScanner: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 23 May 2004, Horst von Brand wrote:
+Willy Tarreau wrote:
+> Hi Arjan,
 > 
-> > So, to avoid these kinds of issues ten years from now, I'm suggesting that 
-> > we put in more of a process to explicitly document not only where a patch 
-> > comes from (which we do actually already document pretty well in the 
-> > changelogs), but the path it came through. 
+> On Sun, May 23, 2004 at 09:13:20AM +0200, Arjan van de Ven wrote:
 > 
-> How will the path be preserved? Does BK do it now? Can it be transferred
-> into CVS (for paranoid CVS-won't-screw-us-ever people)?
+>>on first look it seems to be missing a bunch of get_user() calls and
+>>does direct access instead....
+> 
+> 
+> It was intentional for speed purpose. The areas are checked once with
+> verify_area() when we need to access memory, then data is copied directly
+> from/to memory. I don't think there's any risk, but I can be wrong.
 
-It will just be in the changelog comments, so yes, BK will preserve it.
+Which will break with 4G/4G.  You must use at least __get_user().
 
-The path _inside_ BK is different - BK won't update the changelog 
-comments, so basically once it hits BK (or any other SCM, for that 
-matter), it's up to the SCM to save off the path details. BK does this by 
-recording who committed something, and recording merges, so the 
-information still exists, but it's no longer in the same format.
-
-> Does this mean that only the repositories contain the certificates,
-> "final source" doesn't?
-
-Well, if you use some format that doesn't preserve patch boundaries (like
-exporting it to a plain tar-file), then clearly you can't save the patch
-submission details either. So yes, if you use just plain CVS to export it,
-or do a "bk export -tplain", the information will be gone.  I don't see
-how you _could_ save the information at that point - you're literally
-asking to "flatten" the submission tree.
-
-> Just make sure the relevant open source licenses are in Documentation, and
-> so is the Certificate du jour.
-
-Yes, I was planning on adding it to Documentation, and also putting a big 
-pointer to it into Documentation/SubmittingPatches. But this is obviously 
-not something I can do unilaterally, so first we'd all need to agree that 
-it's a good idea to do this process.
-
-BTW - there are later stages that I would like to do, like having
-automated "acknowledgement" emails sent out when a patch hits the main
-repository. The same way that people now have robots that send out the
-full patches to the patch lists when a patch hits the kernel.org
-repository, we can use this thing to have people who have signed up for
-acknowledgement be notified each time a patch that they signed off on hits
-the repository.
-
-Not everybody will necessarily care, but I know some people have asked for
-a positive ack on when their patch finally hits the "official" trees, and
-this sign-off procedure would put all the infrastructure in place for
-automating that kind of service.
-
-		Linus
+--
+				Brian Gerst

@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129169AbRAYVP6>; Thu, 25 Jan 2001 16:15:58 -0500
+	id <S130920AbRAYVT6>; Thu, 25 Jan 2001 16:19:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135465AbRAYVPs>; Thu, 25 Jan 2001 16:15:48 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:41610 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129169AbRAYVPd>;
-	Thu, 25 Jan 2001 16:15:33 -0500
-From: "David S. Miller" <davem@redhat.com>
+	id <S130938AbRAYVTs>; Thu, 25 Jan 2001 16:19:48 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:28430 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130920AbRAYVTj>;
+	Thu, 25 Jan 2001 16:19:39 -0500
+Message-ID: <3A70985F.E5A0AB7F@mandrakesoft.com>
+Date: Thu, 25 Jan 2001 16:19:27 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Micah Gorrell <angelcode@myrealbox.com>
+CC: Tom Sightler <ttsig@tuxyturvy.com>, linux-kernel@vger.kernel.org,
+        saw@saw.sw.com.sg, Alan@redhat.com
+Subject: Re: [PATCH] Re: eepro100 problems in 2.4.0
+In-Reply-To: <006601c08711$4bdfb600$9b2f4189@angelw2k> <3A709504.5599E0F7@mandrakesoft.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <14960.38705.859136.36297@pizda.ninka.net>
-Date: Thu, 25 Jan 2001 13:14:25 -0800 (PST)
-To: Ion Badulescu <ionut@cs.columbia.edu>
-Cc: <kuznet@ms2.inr.ac.ru>, <linux-kernel@vger.kernel.org>,
-        Andrew Morton <andrewm@uow.EDU.AU>
-Subject: Re: [UPDATE] Zerocopy patches, against 2.4.1-pre10
-In-Reply-To: <Pine.LNX.4.30.0101251253300.20615-100000@age.cs.columbia.edu>
-In-Reply-To: <14960.36869.977528.642327@pizda.ninka.net>
-	<Pine.LNX.4.30.0101251253300.20615-100000@age.cs.columbia.edu>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik wrote:
+> 
+> Micah Gorrell wrote:
+> > Because of the problems we where having we are no longer using the machine
+> > with 3 nics.  We are now using a machine with just one and it is going live
+> > next week.  We do need kernel 2.4 because of the process limits in 2.2.
+> > Does the 'Enable Power Management (EXPERIMENTAL)' option fix the no
+> > resources problems?
+> 
+> Does the attached patch, against 2.4.1-pre10, help matters any?
+> diff -u -r1.1.1.9.42.2 eepro100.c
+> --- drivers/net/eepro100.c      2001/01/24 15:56:16     1.1.1.9.42.2
+> +++ drivers/net/eepro100.c      2001/01/25 21:00:48
+> @@ -560,6 +560,9 @@
+>         if (speedo_debug > 0  &&  did_version++ == 0)
+>                 printk(version);
+> 
+> +       if (pci_enable_device(pdev))
+> +               return -EIO;
+> +
 
-Ion Badulescu writes:
- > I'm just wondering, if a card supports sg but *not* TX csum, is it worth
- > it to make use of sg? eepro100 falls into this category..
+Oops, sorry guys.  Thanks to DaveM for correcting me -- my patch has
+nothing to do with the "card reports no resources" problem.  My
+apologies.
 
-No, not worth it for now.  In fact I'm going to mark that combination
-(sg without csum) as illegal in the final zerocopy patch I end up
-sending to Linus.
+	Jeff
 
-Later,
-David S. Miller
-davem@redhat.com
+
+-- 
+Jeff Garzik       | "You see, in this world there's two kinds of
+Building 1024     |  people, my friend: Those with loaded guns
+MandrakeSoft      |  and those who dig. You dig."  --Blondie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

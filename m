@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277010AbRJKWW3>; Thu, 11 Oct 2001 18:22:29 -0400
+	id <S276966AbRJKW0k>; Thu, 11 Oct 2001 18:26:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276997AbRJKWWT>; Thu, 11 Oct 2001 18:22:19 -0400
-Received: from smi-105.smith.uml.edu ([129.63.206.105]:32520 "HELO
-	buick.pennace.org") by vger.kernel.org with SMTP id <S276966AbRJKWWF>;
-	Thu, 11 Oct 2001 18:22:05 -0400
-Date: Thu, 11 Oct 2001 18:19:51 -0400
-From: Alex Pennace <alex@pennace.org>
-To: Christopher Friesen <cfriesen@nortelnetworks.com>
-Cc: James Sutherland <jas88@cam.ac.uk>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: unkillable process in R state?
-Message-ID: <20011011181951.A21719@buick.pennace.org>
-Mail-Followup-To: Christopher Friesen <cfriesen@nortelnetworks.com>,
-	James Sutherland <jas88@cam.ac.uk>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.SOL.4.33.0110111918330.24868-100000@orange.csi.cam.ac.uk> <3BC5F0A0.56F644B7@nortelnetworks.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BC5F0A0.56F644B7@nortelnetworks.com>
-User-Agent: Mutt/1.3.20i
+	id <S276990AbRJKW0a>; Thu, 11 Oct 2001 18:26:30 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:32647 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S276966AbRJKW0T>;
+	Thu, 11 Oct 2001 18:26:19 -0400
+Date: Thu, 11 Oct 2001 18:26:42 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andries.Brouwer@cwi.nl
+cc: adilger@turbolabs.com, arvest@orphansonfire.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.11 loses sda9
+In-Reply-To: <UTC200110112211.WAA33043.aeb@cwi.nl>
+Message-ID: <Pine.GSO.4.21.0110111815520.24742-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 11, 2001 at 03:18:34PM -0400, Christopher Friesen wrote:
-> Okay, I just tried this, and the pertinant results were: 
-> 
-> $ gdb find
-> GNU gdb 4.18
-> Copyright 1998 Free Software Foundation, Inc.
-> GDB is free software, covered by the GNU General Public License, and you are
-> welcome to change it and/or distribute copies of it under certain conditions.
-> Type "show copying" to see the conditions.
-> There is absolutely no warranty for GDB.  Type "show warranty" for details.
-> This GDB was configured as "ppc-yellowdog-linux"...(no debugging symbols
-> found)...
-> (gdb) attach 31075
-> Attaching to program: /usr/bin/find, Pid 31075
-> 
-> 
-> 
-> At this point it hangs and ctrl-C has no effect and I have to kill it from
-> another console.
-> 
-> Attaching to another program worked fine.
-> 
-> Any other ideas?
 
-Look in /proc/31075/fd and see what it has open.
+
+On Thu, 11 Oct 2001 Andries.Brouwer@cwi.nl wrote:
+
+> Not really. I don't know whether you ever tried the experiment
+> and compiled kdev_t as a pointer to a struct with two members
+> namely major and minor, where the struct is allocated by MKDEV().
+> Very few places break, and these places are very easy to fix.
+> Stuff that is used as numbers can be forgotten quickly.
+> It is not difficult at all to get a kernel up and running that has
+> kdev_t a pointer type.
+
+Ugh... When do you free them?
+ 
+> > Moreover, allocation policy for these structures is a tricky beast.
+> 
+> Yes. I entirely agree. All the rest is a mechanical action.
+> (Or, more precisely, removable modules require freeing, and
+> freeing requires refcounting. It is the refcounting that is
+> work, more than the allocation.)
+
+Precisely.  I think that on the block side we are fairly close to
+reasonable one - at least I see how to get there.  Character devices
+are nastier - especially with the lack of common point on ->release()
+path (->f_op reassignment done by various subsystems).  Once we have
+that, the rest will be pretty easy (there will be a separate issue
+with per-disk objects, e.g. for serialization between open() and
+BLKRRPART, but that's almost independent).
+
+However, amount of mechanical work is going to be large - especially
+if ->i_rdev becomes dev_t.  That means changing types of a lot of local
+variables in drivers and I'd rather leave that to 2.5.  It _does_ break
+source compatibility, and that makes it -CURRENT material.
+

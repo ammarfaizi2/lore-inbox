@@ -1,108 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268186AbTALAHX>; Sat, 11 Jan 2003 19:07:23 -0500
+	id <S268188AbTALAbv>; Sat, 11 Jan 2003 19:31:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268188AbTALAHX>; Sat, 11 Jan 2003 19:07:23 -0500
-Received: from very.disjunkt.com ([195.167.192.238]:1233 "EHLO disjunkt.com")
-	by vger.kernel.org with ESMTP id <S268186AbTALAHV> convert rfc822-to-8bit;
-	Sat, 11 Jan 2003 19:07:21 -0500
-Date: Sun, 12 Jan 2003 01:14:03 +0100 (CET)
-From: Jean-Daniel Pauget <jd@disjunkt.com>
-X-X-Sender: jd@mint
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Another holiday, another set of tg3 releases.
-Message-ID: <Pine.LNX.4.51.0301120101210.1290@mint>
+	id <S268189AbTALAbv>; Sat, 11 Jan 2003 19:31:51 -0500
+Received: from smtpgw1.bnl.gov ([130.199.3.28]:28865 "EHLO smtpgw1.bnl.gov")
+	by vger.kernel.org with ESMTP id <S268188AbTALAbu>;
+	Sat, 11 Jan 2003 19:31:50 -0500
+Message-ID: <28A2E0D6A920954ABBF13AF712CEBDB6CF0A81@exchange05.bnl.gov>
+From: "Hall, Luca" <hall@bnl.gov>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: System Call Problem
+Date: Sat, 11 Jan 2003 19:38:11 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Internet Mail Service (5.5.2656.59)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello I have a small problem with a new sys call: 
 
-on 2002-12-30, Jeff Garzik <jgarzik@pobox.com> wrote :
+Slackware 8 , Kernel 2.2.19
+tring to add a system call i did:
 
-> Another holiday, another set of tg3 releases.
+/usr/src/linux/kernel/luca.c
 
-    in my seek for unexpected freeze of my box (not yet figured which
-    hardware is involved exactly) I updated to tg3-1.2a and applied
-    both tg3-1.2a-00_irqsave and tg3-1.2a-01_mask_rewrite.
-    as a result, after working a few seconds the network card freezes, and
-    no ifupdown would permit any recovery.
+#include <linux/luca.h>
+#include <linux/kernel.h>
 
-    on the other hand, with only the first patch tg3-1.2a-00_irqsave, things
-    seems ok and I'm waiting for my machine to freeze... ...or not. (the freeze
-    frequency is ~10hours )...
+asmlinkage int sys_luca(void){
+        printk("my call in the kernel\n");
+        return(555);
 
-    though, on your page you mention a fifth patch concerning mtu, as I'm
-    running with an unusual mtu of 1452 because of internet over internet
-    encapsulation on my DSL, maybe I'm concerned ?
+}
 
-    here-below my /proc/pci
+/usr/src/linux/include/linux/luca.h
 
---
-Quand les plombs pêtent : « Ðïsjüñ£t.¢¤× »
+#ifndef __LINUX_LUCA_H
+#define __LINUX_LUCA_H
 
---
+#include <linux/linkage.h>
+#include <linux/unistd.h>
 
-PCI devices found:
-  Bus  0, device   0, function  0:
-    Host bridge: Intel Corp. 82845G/GL [Brookdale-G] Chipset Host Bridge (rev 2).
-      Prefetchable 32 bit memory at 0xf0000000 [0xf7ffffff].
-  Bus  0, device   1, function  0:
-    PCI bridge: Intel Corp. 82845G/GL [Brookdale-G] Chipset AGP Bridge (rev 2).
-      Master Capable.  Latency=64.  Min Gnt=8.
-  Bus  0, device  29, function  0:
-    USB Controller: Intel Corp. 82801DB USB (Hub #1) (rev 2).
-      IRQ 11.
-      I/O at 0xd800 [0xd81f].
-  Bus  0, device  29, function  1:
-    USB Controller: Intel Corp. 82801DB USB (Hub #2) (rev 2).
-      IRQ 5.
-      I/O at 0xd400 [0xd41f].
-  Bus  0, device  29, function  2:
-    USB Controller: Intel Corp. 82801DB USB (Hub #3) (rev 2).
-      IRQ 9.
-      I/O at 0xd000 [0xd01f].
-  Bus  0, device  29, function  7:
-    USB Controller: Intel Corp. 82801DB USB EHCI Controller (rev 2).
-      Non-prefetchable 32 bit memory at 0xe5800000 [0xe58003ff].
-  Bus  0, device  30, function  0:
-    PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev 130).
-      Master Capable.  No bursts.  Min Gnt=6.
-  Bus  0, device  31, function  0:
-    ISA bridge: Intel Corp. 82801DB ISA Bridge (LPC) (rev 2).
-  Bus  0, device  31, function  1:
-    IDE interface: Intel Corp. 82801DB ICH4 IDE (rev 2).
-      IRQ 9.
-      I/O at 0x0 [0x7].
-      I/O at 0x0 [0x3].
-      I/O at 0x0 [0x7].
-      I/O at 0x0 [0x3].
-      I/O at 0xf000 [0xf00f].
-      Non-prefetchable 32 bit memory at 0x10000000 [0x100003ff].
-  Bus  0, device  31, function  5:
-    Multimedia audio controller: Intel Corp. 82801DB AC'97 Audio (rev 2).
-      I/O at 0xa800 [0xa8ff].
-      I/O at 0xa400 [0xa43f].
-      Non-prefetchable 32 bit memory at 0xe4000000 [0xe40001ff].
-      Non-prefetchable 32 bit memory at 0xe3800000 [0xe38000ff].
-  Bus  1, device   0, function  0:
-    VGA compatible controller: nVidia Corporation NV25 [GeForce4 Ti4200] (rev 163).
-      IRQ 11.
-      Master Capable.  Latency=248.  Min Gnt=5.Max Lat=1.
-      Non-prefetchable 32 bit memory at 0xe6000000 [0xe6ffffff].
-      Prefetchable 32 bit memory at 0xe8000000 [0xefffffff].
-      Prefetchable 32 bit memory at 0xe7800000 [0xe787ffff].
-  Bus  2, device   3, function  0:
-    FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 128).
-      IRQ 5.
-      Master Capable.  Latency=32.  Max Lat=32.
-      Non-prefetchable 32 bit memory at 0xe5000000 [0xe50007ff].
-      I/O at 0xb800 [0xb87f].
-  Bus  2, device   5, function  0:
-    Ethernet controller: Broadcom Corporation NetXtreme BCM5702X Gigabit Ethernet (rev 2).
-      IRQ 10.
-      Master Capable.  Latency=64.  Min Gnt=64.
-      Non-prefetchable 64 bit memory at 0xe4800000 [0xe480ffff].
+_syscall0(int,luca)
+
+#endif
+
+/usr/src/linux/include/asm-i386/unistd.h
+
+added: #define __NR_luca               191
+
+/usr/src/linux/arch/i386/kernel/entry.S
+
+added: .long SYMBOL_NAME(sys_luca)
+changed from 190: .rept NR_syscalls-191
+
+compiled with make dep, make bzImage
+
+The problem is now that when I boot i see the printk messages at the 
+bottom. around 5 - 7 times.
+When I log in I see the printk messages, and dmesg also. I checked many 
+resources and cant seem too find what I'm doing wrong; why is my funct being
+called at boot time and 
+login ?
+
+thanks alot
+luca
 

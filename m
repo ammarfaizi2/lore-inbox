@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263232AbSJJEdB>; Thu, 10 Oct 2002 00:33:01 -0400
+	id <S263218AbSJJEmh>; Thu, 10 Oct 2002 00:42:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263241AbSJJEdB>; Thu, 10 Oct 2002 00:33:01 -0400
-Received: from epic7.Stanford.EDU ([171.64.15.40]:47541 "EHLO
-	epic7.Stanford.EDU") by vger.kernel.org with ESMTP
-	id <S263232AbSJJEdA>; Thu, 10 Oct 2002 00:33:00 -0400
-Date: Wed, 9 Oct 2002 21:38:38 -0700 (PDT)
-From: Vikram <vvikram@stanford.edu>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.41 : ipv6 compile failure?
-Message-ID: <Pine.GSO.4.44.0210092136040.725-100000@epic7.Stanford.EDU>
+	id <S263241AbSJJEmh>; Thu, 10 Oct 2002 00:42:37 -0400
+Received: from relay1.pair.com ([209.68.1.20]:39185 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id <S263218AbSJJEmh>;
+	Thu, 10 Oct 2002 00:42:37 -0400
+X-pair-Authenticated: 68.4.182.82
+Content-Type: text/plain; charset=US-ASCII
+From: Shane Nay <shane@minirl.com>
+To: Alexander Kellett <lypanov@kde.org>, jw schultz <jw@pegasys.ws>,
+       linux-kernel@vger.kernel.org
+Subject: Re: The end of embedded Linux?
+Date: Wed, 9 Oct 2002 21:47:25 -0700
+X-Mailer: KMail [version 1.3.2]
+References: <3DA1CF36.19659.13D4209@localhost> <20021008112719.GC6537@pegasys.ws> <20021009073725.GA22778@groucho.verza.com>
+In-Reply-To: <20021009073725.GA22778@groucho.verza.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20021010044237Z263218-27218+1146@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 09 October 2002 00:37, Alexander Kellett wrote:
+> On Tue, Oct 08, 2002 at 04:27:19AM -0700, jw schultz wrote:
+> <mid-sentence snip>
+>
+> > You might look into something like using the adeos
+> > nano-kernel to host linux and the device controll
+> > software as seperate contexts with a communications
+> > interface between them.
+>
+> <snip>
+>
+> This talk of adeos reminds me of something that i'd
+> "dreamed" of a while back. Whats the feasability of
+> having a 70kb kernel that barely even provides support
+> for user space apps and is basically just an hardware
+> abstraction layer for "applications" that can be
+> written as kernel modules?
 
-tried to compile 2.5.41 with ipv6 support , i get the following build
-failure:
+eCos maybe?, vxworks, nucleus, but the first one is easiest to get 
+ahold of sourcewise.  A redboot type build is nearish 70kB if memory 
+serves.  (I've only played around with it once on a StrongARM chip 
+for kicks)
 
-<snip>
-
- gcc -Wp,-MD,net/ipv6/.addrconf.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include
--DKBUILD_BASENAME=addrconf   -c -o net/ipv6/addrconf.o net/ipv6/addrconf.c
-net/ipv6/addrconf.c: In function `ipv6_addr_type':
-net/ipv6/addrconf.c:155: case label does not reduce to an integer constant
-net/ipv6/addrconf.c:159: case label does not reduce to an integer constant
-net/ipv6/addrconf.c:163: case label does not reduce to an integer constant
-net/ipv6/addrconf.c:156: warning: unreachable code at beginning of switch
-statement
-make[2]: *** [net/ipv6/addrconf.o] Error 1
-make[1]: *** [net/ipv6] Error 2
-make: *** [net] Error 2
-
-</snip>
-
-apologies if this is redundant.
-
-
-
-			Vikram
-
-
+Thanks,
+Shane Nay.

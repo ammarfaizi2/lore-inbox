@@ -1,61 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287007AbSABUo0>; Wed, 2 Jan 2002 15:44:26 -0500
+	id <S287952AbSABUsE>; Wed, 2 Jan 2002 15:48:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287981AbSABUoQ>; Wed, 2 Jan 2002 15:44:16 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:31106
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S287005AbSABUmW>; Wed, 2 Jan 2002 15:42:22 -0500
-Date: Wed, 2 Jan 2002 13:42:21 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Joe Buck <jbuck@synopsys.com>
-Cc: Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org,
-        gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org,
-        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Corey Minyard <minyard@acm.org>
-Subject: Re: [PATCH] C undefined behavior fix
-Message-ID: <20020102204221.GJ1803@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net> <200201022013.MAA20576@atrus.synopsys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200201022013.MAA20576@atrus.synopsys.com>
-User-Agent: Mutt/1.3.24i
+	id <S287948AbSABUrz>; Wed, 2 Jan 2002 15:47:55 -0500
+Received: from hog.ctrl-c.liu.se ([130.236.252.129]:46610 "HELO
+	hog.ctrl-c.liu.se") by vger.kernel.org with SMTP id <S287955AbSABUrn>;
+	Wed, 2 Jan 2002 15:47:43 -0500
+From: Christer Weinigel <wingel@hog.ctrl-c.liu.se>
+To: robert@schwebel.de
+Cc: hpa@zytor.com, linux-kernel@vger.kernel.org, jason@mugwump.taiga.com,
+        anders@alarsen.net, rkaiser@sysgo.de
+In-Reply-To: <Pine.LNX.4.33.0201021457300.3056-100000@callisto.local> (message
+	from Robert Schwebel on Wed, 2 Jan 2002 14:58:48 +0100 (CET))
+Subject: Re: [PATCH][RFC] AMD Elan patch
+Reply-To: wingel@t1.ctrl-c.liu.se
+In-Reply-To: <Pine.LNX.4.33.0201021457300.3056-100000@callisto.local>
+Message-Id: <20020102204741.3268F36F9F@hog.ctrl-c.liu.se>
+Date: Wed,  2 Jan 2002 21:47:41 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 02, 2002 at 12:13:34PM -0800, Joe Buck wrote:
-> 
-> > Okay, here's a summary of all of the options we have:
-> > 1) Change this particular strcpy to a memcpy
-> > 2) Add -ffreestanding to the CFLAGS of arch/ppc/kernel/prom.o (If this
-> > optimization comes back on with this flag later on, it would be a
-> > compiler bug, yes?)
-> > 3) Modify the RELOC() marco in such a way that GCC won't attempt to
-> > optimize anything which touches it [1]. (Franz, again by Jakub)
-> > 4) Introduce a function to do the calculations [2]. (Corey Minyard)
-> > 5) 'Properly' set things up so that we don't need the RELOC() macros
-> > (-mrelocatable or so?), and forget this mess altogether.
-> 
-> 2) will prevent any future gcc from ever assuming it can transform the
-> strcpy into anything but a call to strcpy, or assume anything about the
-> semantics of strcpy.
+Robert Schwebel wrote:
+> True, but does "Family 4, Model 10" always mean "Elan SC410"? An official
+> source from AMD would be great here. Is anybody from AMD on the list or
+> does anybody have the address of a contact person?
 
-If we go with this, it also might make sense to split all of the
-{PTR,UN,}RELOC() macro users into a different file or split up btext.c a
-bit more, just to be safe.
+It seems as if "Family 4, Model 10" isn't enought, but the Users
+Manual describes how to detect an Elan SC4x0 Processor:
 
-> Be careful with 3), as trying to fool the optimizer
-> is likely to be only a temporary solution (meaning that the kernel people
-> will return to flame the gcc people when the optimizer gets changed
-> again).
+3.6 CPU CORE IDENTIFICATION USING THE CPUID INSTRUCTION
 
-Well, it's one of those changes that really should stop gcc, unless
-there's a bug on the gcc side, if I read the patch/comments about it
-right.
+The ElanSC400 and ElanSC410 microcontrollers are the first members of
+a new family of embedded devices. The CPUID instruction can be used to
+identify a processor as belonging to this family.
+
+The Am486 CPU core in the ElanSC400 and ElanSC410 microcontrollers is
+the first CPU AMD has made with a write-back cache and no FPU, so
+these tests should be sufficient to uniquely identify the family.
+
+Using the CPUID instruction the microcontroller can be done with the
+following steps, as shown in the code sample in Section 3.6.3:
+
+    * Make sure the manufacturer name is "AuthenticAMD".
+
+    * Make sure the device is described as a 486 SX1 with a write-back
+      cache.  
+
+If it passes all the tests it must be an ElanSC400 microcontroller or
+derivative.
+
+If it's worth it or not, I don't know, I'm just curious, it has been
+years since I did anything with the Elan processor for real. :-)
+
+  /Christer
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+"Just how much can I get away with and still go to heaven?"

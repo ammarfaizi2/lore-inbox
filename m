@@ -1,75 +1,149 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263190AbTCSWFV>; Wed, 19 Mar 2003 17:05:21 -0500
+	id <S262632AbTCSWPI>; Wed, 19 Mar 2003 17:15:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263195AbTCSWFV>; Wed, 19 Mar 2003 17:05:21 -0500
-Received: from sarge.hbedv.com ([217.11.63.11]:33682 "EHLO sarge.hbedv.com")
-	by vger.kernel.org with ESMTP id <S263190AbTCSWFM>;
-	Wed, 19 Mar 2003 17:05:12 -0500
-Date: Wed, 19 Mar 2003 23:16:08 +0100
-From: Wolfram Schlich <lists@schlich.org>
-To: Linux-Kernel mailinglist <linux-kernel@vger.kernel.org>
-Subject: Hardlocks with 2.4.21-pre5, pdc202xx_new (PDC20269) and shared IRQs
-Message-ID: <20030319221608.ALLYOURBASEAREBELONGTOUS.A29767@bla.fasel.org>
-Mail-Followup-To: Linux-Kernel mailinglist <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-Organization: Axis of Weasel(s)
-X-Accept-Language: de, en, fr
-X-GPG-Key: 0xCD4DF205 (http://wolfram.schlich.org/wschlich.asc, x-hkp://wwwkeys.de.pgp.net)
-X-GPG-Fingerprint: 39EC 98CA 4130 E59A 1041  AD06 D3A1 C51D CD4D F205
-X-Editor: VIM - Vi IMproved 6.1 (2002 Mar 24, compiled Mar 24 2002 15:02:51)
-X-Face: |P()Q^fx-{=,K-3g?5@Id4o|o{Xf_5v:z3WIhR3fOW-$,*=[#[Qq<,@P!OsXbR|i6n=]B<3mzGC++F@K#wvoLEnIZuTR6wPCMQfxq!';9w[TiP3Bhz"r&$7eGFq7us@Z5Qd$3W[3W3:U7biTNZgf"<]LqwS
-X-Operating-System: Linux prometheus 2.4.21-pre5-grsec-1.9.9c #2 SMP Tue Mar 18 02:03:09 CET 2003 i686 unknown
-X-Uptime: 10:55pm up 7 min, 1 user, load average: 1.80, 1.29, 0.62
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.9; AVE: 6.18.0.2; VDF: 6.18.0.15; host: mx.bla.fasel.org)
+	id <S263054AbTCSWPI>; Wed, 19 Mar 2003 17:15:08 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:3311 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S262632AbTCSWPF>;
+	Wed, 19 Mar 2003 17:15:05 -0500
+Message-ID: <3E78EE53.9090604@mvista.com>
+Date: Wed, 19 Mar 2003 14:25:23 -0800
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Andrea Arcangeli <andrea@suse.de>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>
+Subject: Re: [PATCH] Remove defered timer list in favor of moving the list
+ time update
+References: <Pine.LNX.4.33.0303191030540.346-100000@gans.physik3.uni-rostock.de>	<3E78E16E.7090602@mvista.com> <20030319155258.64cbc43d.akpm@digeo.com>
+In-Reply-To: <20030319155258.64cbc43d.akpm@digeo.com>
+Content-Type: multipart/mixed;
+ boundary="------------040601010101030600050109"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I am experiencing system hardlocks under the following conditions:
-- Hardware:
-  - Tyan Thunder K7 w/ 2x Athlon MP 1.2GHz (5x PCI)
-  - 2x Onboard Adaptec 7899P SCSI adapter
-	IRQ 16, IRQ 17
-  - 2x Onboard 3Com 3C982 100Mb 32bit PCI NIC
-  	IRQ 18, IRC 19
-  - 1x National Semiconductor DP83820 1000Mb 64bit PCI NIC
-	IRQ 16
-  - 2x Promise Ultra 133TX2 PDC20269
-    IRQ 16, IRQ 17
-- Software:
-  - Linux 2.4.21-pre5:
-  	CONFIG_IDE=y
-	CONFIG_BLK_DEV_IDEDISK=y
-	CONFIG_BLK_DEV_IDEPCI=y
-	CONFIG_BLK_DEV_GENERIC=y
-	CONFIG_IDEPCI_SHARE_IRQ=y
-	CONFIG_BLK_DEV_IDEDMA_PCI=y
-	CONFIG_IDEDMA_PCI_AUTO=y
-	CONFIG_BLK_DEV_IDEDMA=y
-	CONFIG_BLK_DEV_ADMA=y
-	CONFIG_BLK_DEV_PDC202XX_NEW=y
-	CONFIG_IDEPCI_SHARE_IRQ=y
-	CONFIG_IDEDMA_IVB=y
-	CONFIG_BLK_DEV_PDC202XX=y
-	CONFIG_BLK_DEV_IDE_MODES=y
+This is a multi-part message in MIME format.
+--------------040601010101030600050109
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-When one of the Promise controllers is sharing the same IRQ with one of
-the NICs (don't matter which, I tried all) and data is copied *to* the
-machine over the network, the system deadlocks. When data is copied
-*from* the system over the network, it works all ok. Unfortunately the
-system BIOS doesn't give me any possibility of setting the IRQ
-channels by hand, so all I can do is put the cards into other slots.
+Andrew Morton wrote:
+> george anzinger <george@mvista.com> wrote:
+> 
+>>I found a problem with the last version.  The attached is for 
+>>2.5.65-1.1171 (i.e. after the other post 2.5.65 changes).  The bug is 
+>>fixed, and theAndrew Morton wrote:
+ > george anzinger <george@mvista.com> wrote:
+ >
+ >>I found a problem with the last version.  The attached is for
+ >>2.5.65-1.1171 (i.e. after the other post 2.5.65 changes).  The bug is
+ >>fixed, and the code even simpler here.
+ >
+ >
+ > Thanks, I'll queue that up after Tim's stuff is merged.
 
-Ah, at boot time the kernel spits out this message:
---8<--
-I/O APIC: AMD Errata #22 may be present. In the event of instability try
-        : booting with the "noapic" option.
---8<--
-I've not yet tried that, but will do now.
+And this removes the defered queue in favor of just moving the list 
+time update to just prior to the repeat label.  (Apply after my 
+"bumps" patch.)
+
+Do I have the right Andrea?
+ >
+ >
+
 -- 
-Wolfram Schlich; Friedhofstr. 8, D-88069 Tettnang; +49-(0)178-SCHLICH
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+  code even simpler here.
+> 
+> 
+> Thanks, I'll queue that up after Tim's stuff is merged.
+> 
+> 
+
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+
+--------------040601010101030600050109
+Content-Type: text/plain;
+ name="hrtimers-run-def.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="hrtimers-run-def.patch"
+
+--- linux-2.5.65-1.1171-run/kernel/timer.cX	2003-03-19 13:08:24.000000000 -0800
++++ linux/kernel/timer.c	2003-03-19 14:16:53.000000000 -0800
+@@ -55,7 +55,6 @@
+ 	spinlock_t lock;
+ 	unsigned long timer_jiffies;
+ 	struct timer_list *running_timer;
+-	struct list_head *run_timer_list_running;
+ 	tvec_root_t tv1;
+ 	tvec_t tv2;
+ 	tvec_t tv3;
+@@ -100,12 +99,6 @@
+ 		check_timer_failed(timer);
+ }
+ 
+-/*
+- * If a timer handler re-adds the timer with expires == jiffies, the timer
+- * running code can lock up.  So here we detect that situation and park the
+- * timer onto base->run_timer_list_running.  It will be added to the main timer
+- * structures later, by __run_timers().
+- */
+ 
+ static void internal_add_timer(tvec_base_t *base, struct timer_list *timer)
+ {
+@@ -113,9 +106,7 @@
+ 	unsigned long idx = expires - base->timer_jiffies;
+ 	struct list_head *vec;
+ 
+-	if (base->run_timer_list_running) {
+-		vec = base->run_timer_list_running;
+-	} else if (idx < TVR_SIZE) {
++	if (idx < TVR_SIZE) {
+ 		int i = expires & TVR_MASK;
+ 		vec = base->tv1.vec + i;
+ 	} else if (idx < 1 << (TVR_BITS + TVN_BITS)) {
+@@ -405,7 +396,6 @@
+ 
+ 	spin_lock_irq(&base->lock);
+ 	while (time_after_eq(jiffies, base->timer_jiffies)) {
+-		LIST_HEAD(deferred_timers);
+ 		struct list_head *head;
+  		int index = base->timer_jiffies & TVR_MASK;
+  
+@@ -417,7 +407,7 @@
+ 				(! cascade(base, &base->tv3, INDEX(1))) &&
+ 					! cascade(base, &base->tv4, INDEX(2)))
+ 			cascade(base, &base->tv5, INDEX(3));
+-		base->run_timer_list_running = &deferred_timers;
++		++base->timer_jiffies; 
+ repeat:
+ 		head = base->tv1.vec + index;
+ 		if (!list_empty(head)) {
+@@ -436,14 +426,6 @@
+ 			spin_lock_irq(&base->lock);
+ 			goto repeat;
+ 		}
+-		base->run_timer_list_running = NULL;
+-		++base->timer_jiffies; 
+-		while (!list_empty(&deferred_timers)) {
+-			timer = list_entry(deferred_timers.prev,
+-						struct timer_list, entry);
+-			list_del(&timer->entry);
+-			internal_add_timer(base, timer);
+-		}
+ 	}
+ 	set_running_timer(base, NULL);
+ 	spin_unlock_irq(&base->lock);
+
+
+--------------040601010101030600050109--
+

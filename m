@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264986AbSLBUVe>; Mon, 2 Dec 2002 15:21:34 -0500
+	id <S264975AbSLBUT2>; Mon, 2 Dec 2002 15:19:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264990AbSLBUVe>; Mon, 2 Dec 2002 15:21:34 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:27561 "EHLO
-	flossy.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S264986AbSLBUVd>; Mon, 2 Dec 2002 15:21:33 -0500
-Date: Mon, 2 Dec 2002 15:32:03 -0500
-From: Doug Ledford <dledford@redhat.com>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: Lee Leahu <lee@ricis.com>, linux-kernel@vger.kernel.org
-Subject: Re: vmware + aic7xxx + 2.4.19-4gb-smp = kernel panic
-Message-ID: <20021202203203.GC20362@redhat.com>
-Mail-Followup-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-	Lee Leahu <lee@ricis.com>, linux-kernel@vger.kernel.org
-References: <8BB282713D2@vcnet.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8BB282713D2@vcnet.vc.cvut.cz>
-User-Agent: Mutt/1.4i
+	id <S264976AbSLBUT2>; Mon, 2 Dec 2002 15:19:28 -0500
+Received: from ns.suse.de ([213.95.15.193]:4615 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S264975AbSLBUT1>;
+	Mon, 2 Dec 2002 15:19:27 -0500
+To: "Folkert van Heusden" <folkert@vanheusden.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.20] problem with updating time fields?
+References: <002001c29a40$31ca6f50$3640a8c0@boemboem>
+X-Yow: ..  Once upon a time, four AMPHIBIOUS HOG CALLERS attacked a family
+ of DEFENSELESS, SENSITIVE COIN COLLECTORS and brought DOWN their
+ PROPERTY VALUES!!
+From: Andreas Schwab <schwab@suse.de>
+Date: Mon, 02 Dec 2002 21:26:55 +0100
+In-Reply-To: <002001c29a40$31ca6f50$3640a8c0@boemboem> ("Folkert van
+ Heusden"'s message of "Mon, 2 Dec 2002 21:20:01 +0100")
+Message-ID: <jevg2cb20g.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.3.50 (ia64-suse-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 27, 2002 at 08:19:50PM +0100, Petr Vandrovec wrote:
-> Not that aic7xxx driver should panic due to that, but...
+"Folkert van Heusden" <folkert@vanheusden.com> writes:
 
-I've sent a note under separate cover to Justin about this particular 
-panic.  I've seen it once before and I relayed some more details to him.  
-For example, on my machine, I was using the stock Red Hat kernels.  The 
-i386 BOOT kernel worked fine, the i686 kernel panic'ed just like this.  
-You might try recompiling the kernel as an i386 kernel without a bunch of 
-optimizations and see if that changes things.
+|> Bug? Or am I ignorant?
+
+Check out the timezone.
+
+Andreas.
 
 -- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc. 
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-  
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264877AbTA1Gqr>; Tue, 28 Jan 2003 01:46:47 -0500
+	id <S264883AbTA1Gtm>; Tue, 28 Jan 2003 01:49:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264883AbTA1Gqr>; Tue, 28 Jan 2003 01:46:47 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:22283
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S264877AbTA1Gqq>; Tue, 28 Jan 2003 01:46:46 -0500
-Date: Mon, 27 Jan 2003 22:37:36 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Update PnP IDE (2/6)
-In-Reply-To: <Pine.LNX.3.96.1030127170934.27928I-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.10.10301272224420.9272-100000@master.linux-ide.org>
+	id <S264919AbTA1Gtl>; Tue, 28 Jan 2003 01:49:41 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:16305 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S264883AbTA1Gtl>; Tue, 28 Jan 2003 01:49:41 -0500
+Date: Mon, 27 Jan 2003 22:58:53 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Jason Papadopoulos <jasonp@boo.net>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] page coloring for 2.5.59 kernel, version 1
+Message-ID: <884740000.1043737132@titus>
+In-Reply-To: <3.0.6.32.20030127224726.00806c20@boo.net>
+References: <3.0.6.32.20030127224726.00806c20@boo.net>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Bill,
-
-Can you reproduce or validate my paranoia of the ever increasing channel
-index?
-
-
-
-On Mon, 27 Jan 2003, Bill Davidsen wrote:
-
-> On Sat, 25 Jan 2003, Andre Hedrick wrote:
+> This is yet another holding action, a port of my page coloring patch
+> to the 2.5 kernel. This is a minimal port (x86 only) intended to get
+> some testing done; once again the algorithm used is the same as in 
+> previous patches. There are several cleanups and removed 2.4-isms that
+> make the code somewhat more compact, though.
 > 
-> > 
-> > 
-> > "ide_unregister" is only called if you are physically removing the
-> > controller.  If PNP is going to permit physical removal when the OS is
-> > HOT, it may be justified.  This can make a "hole" in the rest of the
-> > driver an generate an OOPS.  IDE-CS has alway insured the ordering was
-> > last.
-> > 
-> > I need to thinks some more about it first.
+> I'll be experimenting with other coloring schemes later this week.
 > 
-> When I have multiple PCMCIA cards with CompactFlash cards mounted, could
-> this result in a hole if I umount and remove them in the wrong order? I
-> haven't gotten it working with 2.5, but I do mount several with 2.4, and
-> presumably will with 2.5 when I figure it out.
+> www.boo.net/~jasonp/page_color-2.5.59-20030127.patch
 > 
-> -- 
-> bill davidsen <davidsen@tmr.com>
->   CTO, TMR Associates, Inc
-> Doing interesting things with little computers since 1979.
-> 
+> Feedback of any sort welcome.
 
-Andre Hedrick
-LAD Storage Consulting Group
+I took a 16-way NUMA-Q (700MHz P3 Xeon's w/2MB L2 cache) and ran some 
+cpu-intensive benchmarks (kernel compile on warm cache with -j32 and
+-j 256, SDET 1 - 128 users, and numaschedbench with 1 to 64 processes, 
+which is a memory thrasher to test node affinity of memory operations), 
+and compared to virgin 2.5.59 - no measurable difference on any test. 
+Sorry,
+
+M.
 

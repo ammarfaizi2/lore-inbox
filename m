@@ -1,64 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262251AbVAJNqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262263AbVAJNs3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262251AbVAJNqb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 08:46:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbVAJNqb
+	id S262263AbVAJNs3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 08:48:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbVAJNs3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 08:46:31 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:20881
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S262251AbVAJNqK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 08:46:10 -0500
-Subject: Re: [PATCH 2.6.10-mm2] Use the new preemption code [2/3] Resend
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050110110252.GA1605@elte.hu>
-References: <20050110013508.1.patchmail@tglx>
-	 <1105318406.17853.2.camel@tglx.tec.linutronix.de>
-	 <20050110010613.A5825@flint.arm.linux.org.uk>
-	 <1105319915.17853.8.camel@tglx.tec.linutronix.de>
-	 <20050110094624.A24919@flint.arm.linux.org.uk>
-	 <1105351977.3058.2.camel@lap02.tec.linutronix.de>
-	 <20050110110252.GA1605@elte.hu>
-Content-Type: text/plain
-Organization: Linutronix
-Message-Id: <1105364769.3058.11.camel@lap02.tec.linutronix.de>
+	Mon, 10 Jan 2005 08:48:29 -0500
+Received: from ozlabs.org ([203.10.76.45]:28315 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262263AbVAJNqg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 08:46:36 -0500
+Date: Tue, 11 Jan 2005 00:41:20 +1100
+From: Anton Blanchard <anton@samba.org>
+To: akpm@osdl.org
+Cc: paulus@samba.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] ppc64: Remove flush_instruction_cache
+Message-ID: <20050110134120.GU14239@krispykreme.ozlabs.ibm.com>
+References: <20050110133838.GT14239@krispykreme.ozlabs.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 10 Jan 2005 14:46:09 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050110133838.GT14239@krispykreme.ozlabs.ibm.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-01-10 at 12:02, Ingo Molnar wrote:
-> i wouldnt raise this issue if it was the name only, but there's more to
-> preempt_schedule_irq() than its name: it gets called with irqs off and
-> the scheduler returns with irqs off and with a guarantee that there is
-> no (irq-generated) pending preemption request for this task right now. 
-> I.e. the checks for need_resched can be skipped, and interrupts dont
-> have to be disabled to do a safe return-to-usermode (as done on some
-> architectures).
-> 
-> as far as i can see do_preempt_schedule() doesnt have these properties:
-> what it guarantees is that it avoids the preemption recursion via the
-> lowlevel code doing the PREEMPT_ACTIVE setting.
-> 
-> lets agree upon a single, common approach. I went for splitting up
-> preempt_schedule() into two variants: the 'synchronous' one (called
-> preempt_schedule()) is only called from syscall level and has no
-> repeat-preemption and hence stack-recursion worries. The 'asynchronous'
-> one (called preempt_schedule_irq()) is called from asynchronous contexts
-> (hardirq events) and is fully ready to deal with all the reentrancy
-> situations that may occur. It's careful about not re-enabling
-> interrupts, etc.
+ 
+Remove flush_instruction_cache, we cant touch HID bits on LPAR machines.
 
-Sure, I guessed that from your short description that it implies more
-than the seperation I have done. I have no objection against your
-approach at all.
+Signed-off-by: Anton Blanchard <anton@samba.org>
 
-tglx
-
-
+diff -puN arch/ppc64/kernel/misc.S~canttouchhids arch/ppc64/kernel/misc.S
+--- foobar2/arch/ppc64/kernel/misc.S~canttouchhids	2005-01-10 23:30:39.785548541 +1100
++++ foobar2-anton/arch/ppc64/kernel/misc.S	2005-01-10 23:31:43.714281834 +1100
+@@ -167,27 +167,7 @@ _GLOBAL(call_with_mmu_off)
+ 	xori	r0,r0,MSR_IR|MSR_DR
+ 	mtspr	SPRN_SRR1,r0
+ 	rfid
+-	
+-/*
+- * Flush instruction cache.
+- */
+-_GLOBAL(flush_instruction_cache)
+ 
+-/*
+- * This is called by kgdb code
+- * and should probably go away
+- * to be replaced by invalidating
+- * the cache lines that are actually
+- * modified
+- */
+-	/* use invalidate-all bit in HID0
+-	 *  - is this consistent across all 64-bit cpus?  -- paulus */
+-	mfspr	r3,HID0
+-	ori	r3,r3,HID0_ICFI
+-	mtspr	HID0,r3
+-	sync
+-	isync
+-	blr
+ 
+ 	.section	".toc","aw"
+ PPC64_CACHES:
+diff -puN include/asm-ppc64/system.h~canttouchhids include/asm-ppc64/system.h
+--- foobar2/include/asm-ppc64/system.h~canttouchhids	2005-01-10 23:30:39.790548159 +1100
++++ foobar2-anton/include/asm-ppc64/system.h	2005-01-10 23:30:43.792899917 +1100
+@@ -108,7 +108,6 @@ extern void show_regs(struct pt_regs * r
+ extern void low_hash_fault(struct pt_regs *regs, unsigned long address);
+ extern int die(const char *str, struct pt_regs *regs, long err);
+ 
+-extern void flush_instruction_cache(void);
+ extern int _get_PVR(void);
+ extern void giveup_fpu(struct task_struct *);
+ extern void disable_kernel_fp(void);
+diff -puN arch/ppc64/kernel/ppc_ksyms.c~canttouchhids arch/ppc64/kernel/ppc_ksyms.c
+--- foobar2/arch/ppc64/kernel/ppc_ksyms.c~canttouchhids	2005-01-10 23:33:43.020213869 +1100
++++ foobar2-anton/arch/ppc64/kernel/ppc_ksyms.c	2005-01-10 23:33:49.460644370 +1100
+@@ -114,7 +114,6 @@ EXPORT_SYMBOL(iounmap);
+ EXPORT_SYMBOL(start_thread);
+ EXPORT_SYMBOL(kernel_thread);
+ 
+-EXPORT_SYMBOL(flush_instruction_cache);
+ EXPORT_SYMBOL(giveup_fpu);
+ #ifdef CONFIG_ALTIVEC
+ EXPORT_SYMBOL(giveup_altivec);
+_

@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266359AbSLOLJf>; Sun, 15 Dec 2002 06:09:35 -0500
+	id <S266363AbSLOLRM>; Sun, 15 Dec 2002 06:17:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266363AbSLOLJf>; Sun, 15 Dec 2002 06:09:35 -0500
-Received: from gateway.cinet.co.jp ([210.166.75.129]:36414 "EHLO
-	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S266359AbSLOLJe>; Sun, 15 Dec 2002 06:09:34 -0500
-Message-ID: <3DFC6455.89B014CC@cinet.co.jp>
-Date: Sun, 15 Dec 2002 20:15:33 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.50-ac1-pc98smp i686)
-X-Accept-Language: ja
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCHSET] PC-9800 addtional for 2.5.50-ac1 (5/21)
-References: <3DFC50E9.656B96D0@cinet.co.jp>
-Content-Type: multipart/mixed;
- boundary="------------BEA2C77D543A6F1511AC30B2"
+	id <S266368AbSLOLRM>; Sun, 15 Dec 2002 06:17:12 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:52746 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S266363AbSLOLRL>;
+	Sun, 15 Dec 2002 06:17:11 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: abindus@wanadoo.fr
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: compilation failure 
+In-reply-to: Your message of "Wed, 11 Dec 2002 23:22:55 BST."
+             <3DF7BABF.6080008@wanadoo.fr> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Date: Sun, 15 Dec 2002 22:24:50 +1100
+Message-ID: <937.1039951490@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------BEA2C77D543A6F1511AC30B2
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+On Wed, 11 Dec 2002 23:22:55 +0100, 
+abindus@wanadoo.fr wrote:
+>It seems to complain of not founding some libraries
+>After the make dep, make bzImage gives (I'm sorry but it's in french) :
+>/usr/src/linux-2.4.18-18.8.0/include/linux/kernel.h:10:20: stdarg.h: 
+>Aucun fichier ou répertoire de ce type
+>Dans le fichier inclus à partir de 
 
-NEC PC-9800 subarchitecture support patch for 2.5.50-ac1(5/21)
-This is updates for drivers/pci/quirks.c.
-Add entry for PCI to C-Bus bridge Rev.2 and Rev.3.
+Look in Makefile, find a line like this
 
-diffstat:
- drivers/pci/quirks.c |    2 ++
- 1 files changed, 2 insertions(+)
+kbuild_2_4_nostdinc    := -nostdinc $(shell $(CC) -print-search-dirs | sed -ne 's/install: \(.*\)/-I \1include/gp')
 
+Change '$(CC)' to 'LANG=C $(CC)'.
 
-Regards,
-Osamu Tomita
---------------BEA2C77D543A6F1511AC30B2
-Content-Type: text/plain; charset=iso-2022-jp;
- name="pci-quirks-update.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="pci-quirks-update.patch"
-
-diff -Nru linux-2.5.50-ac1/drivers/pci/quirks.c.orig linux-2.5.50-ac1/drivers/pci/quirks.c
---- linux-2.5.50-ac1/drivers/pci/quirks.c.orig	2002-12-12 22:47:27.000000000 +0900
-+++ linux-2.5.50-ac1/drivers/pci/quirks.c	2002-12-14 12:41:28.000000000 +0900
-@@ -530,6 +530,8 @@
- 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C596,	quirk_isa_dma_hangs },
- 	{ PCI_FIXUP_FINAL,      PCI_VENDOR_ID_INTEL,    PCI_DEVICE_ID_INTEL_82371SB_0,  quirk_isa_dma_hangs },
- 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_NEC,	PCI_DEVICE_ID_NEC_CBUS_1,	quirk_isa_dma_hangs },
-+	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_NEC,	PCI_DEVICE_ID_NEC_CBUS_2,	quirk_isa_dma_hangs },
-+	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_NEC,	PCI_DEVICE_ID_NEC_CBUS_3,	quirk_isa_dma_hangs },
- 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_S3,	PCI_DEVICE_ID_S3_868,		quirk_s3_64M },
- 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_S3,	PCI_DEVICE_ID_S3_968,		quirk_s3_64M },
- 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_INTEL, 	PCI_DEVICE_ID_INTEL_82437, 	quirk_triton }, 
-
---------------BEA2C77D543A6F1511AC30B2--
+The standard 2.4.18 kernel does not use -nostdinc but RH have
+backported the patch from 2.4.19.
 

@@ -1,71 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261798AbUK3Hai@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262000AbUK3Hec@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261798AbUK3Hai (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 02:30:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261999AbUK3Hae
+	id S262000AbUK3Hec (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 02:34:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbUK3Hec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 02:30:34 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:61099 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S261798AbUK3Ha0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 02:30:26 -0500
-In-Reply-To: <Pine.LNX.4.61.0411292007080.18143@hibernia.jakma.org>
-Subject: Re: [patch 4/10] s390: network driver.
-To: Paul Jakma <paul@clubi.ie>
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OFAF17275D.316533A1-ONC1256F5C.0026AFAD-C1256F5C.002877C1@de.ibm.com>
-From: Thomas Spatzier <thomas.spatzier@de.ibm.com>
-Date: Tue, 30 Nov 2004 08:22:01 +0100
-X-MIMETrack: Serialize by Router on D12ML061/12/M/IBM(Release 6.0.2CF2HF259 | March 11, 2004) at
- 30/11/2004 08:30:31
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Tue, 30 Nov 2004 02:34:32 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:25362 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262000AbUK3Hea (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 02:34:30 -0500
+Subject: Re: [PATCH] RLIMIT_MEMLOCK accounting of shmctl() SHM_LOCK is
+	broken
+From: Arjan van de Ven <arjan@infradead.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: akpm@osdl.org
+In-Reply-To: <200411292204.iATM4o4C005049@hera.kernel.org>
+References: <200411292204.iATM4o4C005049@hera.kernel.org>
+Content-Type: text/plain
+Message-Id: <1101800060.2640.21.camel@laptop.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Tue, 30 Nov 2004 08:34:20 +0100
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2004-11-29 at 21:38 +0000, Linux Kernel Mailing List wrote:
+> ChangeSet 1.2251, 2004/11/29 13:38:43-08:00, mtk-lkml@gmx.net
+>  
+> -	spin_lock(&shmlock_user_lock);
+> -	locked = size >> PAGE_SHIFT;
+> +	locked = (size + PAGE_SIZE - 1) >> PAGE_SHIFT;
+>  	lock_limit = current->signal->rlim[RLIMIT_MEMLOCK].rlim_cur;
+>  	lock_limit >>= PAGE_SHIFT;
+> +	spin_lock(&shmlock_user_lock);
 
-
-
-
-Paul Jakma <paul@clubi.ie> wrote on 29.11.2004 21:27:57:
-> We do get notified. We get a netlink interface update with
-> unset IFF_RUNNING from the interface flags.
->
-> However, it can take time before zebra gets to read it, and further
-> time before zebra sends its own interface update to protocol daemons,
-> and further time before they might get to read and update their own
-> interface state. By which time those daemons may have sent packets
-> down those interfaces (which packets may become invalid before link
-> becomes back, but which still will be sent and hence which
-> potentially could disrupt routing).
-
-Ok, then some logic could be implemented in userland to take
-appropriate actions. It must be ensured that zebra handles the
-netlink notification fast enough.
-
->
-> Ideally, we should be notified synchronously (EBUFS?) or if thats not
-> possible, packet should be dropped (see my below presumption though).
-
-In the manpages for send/sendto/sendmsg it says that there is a -ENOBUFS
-return value, if a sockets write queue is full. It also says:
-"Normally, this does not occur in Linux. Packets are just silently dropped
-when a device queue overflows."
-So, if packets are 'silently dropped' anyway, the fact that we drop them in
-our driver (and increment the error count in the net_device_stats
-accordingly)
-should not be a problem.
-
-> Surely TCP already was able to take care of retransmits? I'm not
-> familiar with Linux internals, but how did TCP cope with the previous
-> driver behaviour?
-
-I think that both behaviours are similar for TCP. TCP waits for ACKs for
-each packet. If they do not arrive, a retransmit is done. Sooner or later
-the connection will be reset, if no responses from the other side arrive.
-So the result for both driver behaviours should be the same.
-
-Regards,
-Thomas
+after this change... isn't the use to the
+current->signal->rlim[RLIMIT_MEMLOCK] entirely unlocked and thus racey ?
+-- 
 

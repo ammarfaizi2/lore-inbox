@@ -1,104 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262152AbSIZDBC>; Wed, 25 Sep 2002 23:01:02 -0400
+	id <S262151AbSIZC5y>; Wed, 25 Sep 2002 22:57:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262153AbSIZDBC>; Wed, 25 Sep 2002 23:01:02 -0400
-Received: from [213.181.64.18] ([213.181.64.18]:260 "HELO vger.kernel.org")
-	by vger.kernel.org with SMTP id <S262152AbSIZDBB>;
-	Wed, 25 Sep 2002 23:01:01 -0400
-From: "Mr. Alex Dickson." <alexan2@mail.com>
-Date: Wed, 25 Sep 2002 16:05:38
-To: linux-kernel@vger.kernel.org
-Subject: URGENT ASSISTANCE NEEDED
+	id <S262152AbSIZC5y>; Wed, 25 Sep 2002 22:57:54 -0400
+Received: from [217.7.64.198] ([217.7.64.198]:49877 "EHLO mx1.net4u.de")
+	by vger.kernel.org with ESMTP id <S262151AbSIZC5x>;
+	Wed, 25 Sep 2002 22:57:53 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ernst Herzberg <earny@net4u.de>
+Reply-To: earny@net4u.de
+To: Adam Goldstein <Whitewlf@Whitewlf.net>
+Subject: Re: Very High Load, kernel 2.4.18, apache/mysql
+Date: Thu, 26 Sep 2002 05:03:02 +0200
+User-Agent: KMail/1.4.2
+Cc: linux-kernel@vger.kernel.org
+References: <B7E52DA4-D0C3-11D6-8C5C-000502C90EA3@Whitewlf.net>
+In-Reply-To: <B7E52DA4-D0C3-11D6-8C5C-000502C90EA3@Whitewlf.net>
 MIME-Version: 1.0
-Content-Type: text/plain;charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20020926030101Z262152-8740+1301@vger.kernel.org>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209260503.02474.earny@net4u.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Sir,
+On Mittwoch, 25. September 2002 22:16, Adam Goldstein wrote:
 
-Iam a consultant operating in West Africa. I represent
-a client who wishes to invest US$20 million  overseas.
-This money was made by his late father, a politician,
-in his capacity as a member of a  defunct contract
-award commitee of the Ecowas(Economic community of
-west African states) oil  industry.
+> [.....]  It has still
+> reached >25 load when apache processes reached 120 (112 active
+> according to server-status) and page loads come to near dead stop...
+> segfaults still exist, even with fixed mysql connection calls. :(
+> 1-4/min under present  25+ load.
+>
+> [.....]
 
-For this reason he cannot move the money in his name
-through normal banking channels. I think the  only way
-to succeed is to seek help from a foreigner. I have
-enough diplomatic contacts to fly the  money in a
-diplomatic box to europe because the box will be moved
-under diplomatic cover. There will  be no problems
-with customs at the Airport.
+> Server uptime: 2 hours 10 minutes 6 seconds
+> 43 requests currently being processed, 13 idle servers
 
-If you agree to assist me, we would send the box to
-that destination in your name, marked for your 
-collection. A security company will clear the box
-through customs and take it to their office  awaiting
-collection. All you have to do would be to claim the
-box and deposit the money in an  International Bank
-and then instruct the bank to wire the money to your
-account in your country.My  client cannot do this on
-his own as any bank would suspect a Black man of
-owning such huge some of  money.
+> KK_WW_WW_K_KWLWWWKW_KKKK.__K_WWW_WWW_K_WWWWK_WKWW_WKK.W...W....W...W..
 
-YOUR DUTY:
+>>   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+>> 16800 apache    20   0  4732 4260  2988 R    37.7  0.2   0:35 httpd
+>> 21171 apache    16   0  4976 4548  3268 R    36.6  0.2   2:02 httpd
+>>  6949 apache    17   0  4604 4132  2936 R    36.5  0.2   0:53 httpd
+>> 29183 apache    17   0  4900 4468  3192 R    36.0  0.2   6:18 httpd
 
-1.	You shall fly down to the country where the money
-is to be deposited and you shall proceed  with my
-client to the security 	company to collect the money.
+--------------------------------------------------------
 
-2.	You shall pay for your flight ticket to the country
-and also hotel accomodation. My client  will not send
-you any money for this expenditure.
+Looks very bad. Not the '>25 load', don't panic if that reaches more than 50 or more, 
+if at the same time the processors don't reaches the 100%. 
 
-3.	When you collect the box from the security company
-you and my client shall proceed to a  bank, there you
-will deposit the money in your name and ask the bank
-to wire it to your account in your country or
-elsewhere. Note that although this account shall be
-opened in your name, my client will have to be a
-co-signatory to the account, therefore you cannot
-operate this account without his consent.
+First reconfigure your apache, with
 
-4.	You shall assist my client in investing his money.
+MaxClients 256  # absolute minimum, maybe you have to recompile apache
+MinSpareServers 100  # better 150 to 200
+MaxSpareServers 200 # bring it near MaxClients
 
+Make shure, you have enough resources available, su to apache, make shure
+ ulimit -a
+data seg size (kbytes)      unlimited
+file size (blocks)          unlimited
+max locked memory (kbytes)  unlimited
+max memory size (kbytes)    unlimited
+open files                  65536 (!!)
+pipe size (512 bytes)       8
+stack size (kbytes)         unlimited
+cpu time (seconds)          unlimited
+max user processes          4095 (!!)
+virtual memory (kbytes)     unlimited
 
-YOUR COMMISSION:
+cat /proc/sys/fs/file-max
+131072
 
-1.	Your commission shall be a down payment of 10% of
-the total sum ie US$2 million. you shall deduct this
-sum before investing the balance for my client.
+Your machine should handle that. 
 
-2.	For the first two years of the investment you shall
-be entitled to 10% of the after tax  returns on
-investments. Thereafter the terms will be reviewed.
+Reason: Bring the count of forks of apache clients to a minimum. But you have to be careful.
+You need everywhere the needed resources, max client connects to mysql for example. 
 
-We shall commence this transaction immediately we
-receive the following information by my E-mail: 
+And increase the apache-servers in several steps. If you have a bug or bad implementation
+in your php scripts, you can run out of your cpu-resources.
 
-dicksonlk@consultant.com
+If still the cpu-usage is about 100%, redesign your software or buy a bigger machine ;-)
 
-1.	Your banker's name, address. telephone and fax
-numbers.
-
-2.	The account number and name of would be
-beneficiary.
-
-Reply me immediately if you want to handle this
-assignment. We want to round up this business fast  so
-the sooner you reply the better.
-
-I await your positive response.
-
-Regards,
-
-Mr. Alex Dickson.
-
-Reply to: dicksonlk@consultant.com
-
-
-
+<Earny>

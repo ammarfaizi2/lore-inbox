@@ -1,42 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264265AbUESPvP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264269AbUESPvB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264265AbUESPvP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 11:51:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264256AbUESPvO
+	id S264269AbUESPvB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 11:51:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264265AbUESPvA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 11:51:14 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:986 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264246AbUESPu0 (ORCPT
+	Wed, 19 May 2004 11:51:00 -0400
+Received: from fw.osdl.org ([65.172.181.6]:58346 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264256AbUESPtF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 11:50:26 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH] implement TIOCGSERIAL in sn_serial.c
-Date: Wed, 19 May 2004 11:50:08 -0400
-User-Agent: KMail/1.6.2
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, pfg@sgi.com,
-       Erik Jacobson <erikj@sgi.com>
-References: <200405191109.51751.jbarnes@engr.sgi.com> <200405191138.04086.jbarnes@engr.sgi.com> <20040519164156.A27947@infradead.org>
-In-Reply-To: <20040519164156.A27947@infradead.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 19 May 2004 11:49:05 -0400
+Date: Wed, 19 May 2004 08:39:26 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Ricky Beam <jfbeam@bluetronic.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: overlaping printk
+Message-Id: <20040519083926.7ac5d923.rddunlap@osdl.org>
+In-Reply-To: <Pine.GSO.4.33.0405191110380.14297-100000@sweetums.bluetronic.net>
+References: <Pine.GSO.4.33.0405191110380.14297-100000@sweetums.bluetronic.net>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405191150.08967.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, May 19, 2004 11:41 am, Christoph Hellwig wrote:
-> > Pat is working on that and should have a patch ready to post soon (is
-> > that right Pat?).  In the meantime, we need this little bit.
->
-> Huh?  We need this little bit isn't exactly a patch desciption that gets
-> your patch included.
+On Wed, 19 May 2004 11:19:15 -0400 (EDT) Ricky Beam wrote:
 
-Umm... I described the patch in the last mail.  I don't know when Pat will 
-have the conversion to the serial core interface done, but I have a need for 
-this ioctl now.  If you want to wait for the full blown version, then so be 
-it, I just hope it comes soon.
+| Can anyone explain why the kernel does this on a serial console:
+| 
+| C<PU0 >C2P:U M 3a:ch Mianech iCnhee cCk heExckc epEtxcieopnt: i0o0n0: 0000000000
+| 0000000000000040
+| 00C4P
+| U 2C:P UE 3IP:: E cI0P:1 0c10fa108 1fEFa8L AEGSF:L AG00S0:0 00200460
+| 0246    e
+| ax:     e 0ax00: 0000000000 0eb00x:  ebfx7f: a6f070f0a4 0ec00x:  e0c2x:a7 a02bea
+| 7e aebedxe : efdx7f: a6f700f0a4
+| 000     e
+| si      e: sif7: faf76f0a0040 e0d0i e:d ci0: 10c01f107e1f e7be p:eb 0p:00 000000
+| 00000 e00sp e:s fp:7 faf77ffab45
+| fb4*
+| ** **Ba*n kBa 0nk:  00:00 0000000000000000000000000000[00[0000000000000000000000
+| 0000000]00] a at t 00000000000000000000000000000000
+| 
+| ***** * BaBankn k1 1: :0 000000000000000000000000000000g0eneral protection fault
+| : 0000 [#1]
+| ...
+| 
+| That's two MCE's being printed at the exact same time. (CPU2 & 3 are a single
+| P4 Xeon.)  It makes it real damn hard to debug when the errors are printed
+| like that.
+| 
+| The GPF was printed correctly:
+| CPU:    3
+| EIP:    0060:[<c010c0a7>]    Not tainted
+| EFLAGS: 00010282   (2.6.6-SMP-rc3+BK@1.1386)
+| EIP is at intel_machine_check+0x12b/0x364
+| eax: 0000001f   ebx: 00000004   ecx: 00000407   edx: 00006f52
+| esi: 00000407   edi: 00000000   ebp: 00000000   esp: f7fa5f04
+| ds: 007b   es: 007b   ss: 0068
+| Process swapper (pid: 0, threadinfo=f7fa4000 task=f7fa85c0)
+| Stack: c0304002 00000001 00000000 00000000 f7fa5fb4 0000000f c0120adc 00000003
+|        00000001 00000000 00000004 00000001 00000000 f7fa4000 02a7abee f7fa4000
+|        f7fa4000 c0101f7e 00000000 f7fa5fb4 00000246 c0101fa8 00000046 c03cf108
+| Call Trace:
+|  [<c0120adc>] run_timer_softirq+0x110/0x180
+|  [<c0101f7e>] default_idle+0x0/0x2d
+|  [<c0101fa8>] default_idle+0x2a/0x2d
+|  [<c010bf7c>] intel_machine_check+0x0/0x364
+|  [<c01049b5>] error_code+0x2d/0x38
+|  [<c0101f7e>] default_idle+0x0/0x2d
+|  [<c0101fa8>] default_idle+0x2a/0x2d
+|  [<c010201c>] cpu_idle+0x37/0x40
+|  [<c0119558>] printk+0x172/0x1a8
+|  [<c03b2981>] print_cpu_info+0x86/0xd2
+| 
+| Code: 0f 32 81 c3 02 04 00 00 89 44 24 08 89 54 24 04 c7 04 24 f7
+| 
+| I wouldn't trust it as it was on the MCE'ing processor.
+| 
+| Note: The answer to "which kernel" is ALL of them. (even the bastard stepchild
+| redhat 2.4 kernel will do it.)
+| 
+| It goes on to have a fit unblanking a never blanked VT.  Stupid kernel!
 
-Jesse
+
+I've seen it on SMP also (like Tigran).  A patch has been posted
+for this a few times, by David Howells.  The latest one that I
+see is here:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103001834526258&w=2
+
+Don't know how valid it is now.
+
+--
+~Randy

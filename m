@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267284AbSLELJZ>; Thu, 5 Dec 2002 06:09:25 -0500
+	id <S267283AbSLELPd>; Thu, 5 Dec 2002 06:15:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267286AbSLELJZ>; Thu, 5 Dec 2002 06:09:25 -0500
-Received: from holomorphy.com ([66.224.33.161]:12938 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267284AbSLELJY>;
-	Thu, 5 Dec 2002 06:09:24 -0500
-Date: Thu, 5 Dec 2002 03:16:47 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Miles Bader <miles@gnu.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] generic device DMA implementation
-Message-ID: <20021205111647.GI9882@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	James Bottomley <James.Bottomley@SteelEye.com>,
-	Miles Bader <miles@gnu.org>, linux-kernel@vger.kernel.org
-References: <200212042146.gB4Lkw804422@localhost.localdomain> <1039086930.1609.71.camel@zion>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1039086930.1609.71.camel@zion>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S267286AbSLELPd>; Thu, 5 Dec 2002 06:15:33 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:6533 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S267283AbSLELPc>;
+	Thu, 5 Dec 2002 06:15:32 -0500
+Message-Id: <200212050010.gB50A0Ud001301@eeyore.valparaiso.cl>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: #! incompatible -- binfmt_script.c broken? 
+In-Reply-To: Message from Matthias Andree <matthias.andree@gmx.de> 
+   of "Wed, 04 Dec 2002 12:34:19 BST." <20021204113419.GA20282@merlin.emma.line.org> 
+Date: Wed, 04 Dec 2002 21:10:00 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 05, 2002 at 12:15:30PM +0100, Benjamin Herrenschmidt wrote:
-> Actually, the device model defines a bus "type" structure rather than a
-> "bus instance" structure (well, at least it did last I looked a couple
-> of weeks ago). That's a problem I beleive here, as those functions are
-> really a property of a given bus instance. One solution would eventually
-> be to have the set of functions pointers in the generic struct device
-> and by default be copied from parent to child.
+Matthias Andree <matthias.andree@gmx.de> said:
+> I tried some of the Perl magic tricks shown in the perlrun man page with
+> Linux 2.4.19; consider this Perl one-liner. It works on FreeBSD and
+> Solaris, but fails on Linux. Looking at binfmt_script.c, I believe the
+> "pass the rest of the line as the first argument to the interpreter" is
+> the problem with Linux. Haven't yet figured if the other boxes just use
+> the interpreter, ignoring the arguments or if they are doing argument
+> splitting.
+> 
+> ------------------------------------------------------------------------
+> #!/bin/sh -- # -*- perl -*- -T
+> eval 'exec perl -wTS $0 ${1+"$@"}'
+>   if 0; 
+> print "Hello there.\n";
+> ------------------------------------------------------------------------
+> 
 
-On an unrelated note, a "bus instance" structure would seem to be
-required for proper handling of bridges in combination with PCI segments.
+[...]
 
+> SuSE Linux 7.0, 7.3, 8.1 (2.4.19 kernel, binfmt_script.c identical to
+> 2.4.20 BK):
+> $ /tmp/try.pl
+> /bin/sh: -- # -*- perl -*- -T: invalid option
+> Usage:  /bin/sh [GNU long option] [option] ...
+>         /bin/sh [GNU long option] [option] script-file ...
+> [...]
 
-Bill
+RH 8.0 with linux-2.5.50 (some early bk version, last CSET is 1.849) gives
+the same.
+--
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

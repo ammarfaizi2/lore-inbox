@@ -1,82 +1,151 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282232AbRK2BHp>; Wed, 28 Nov 2001 20:07:45 -0500
+	id <S282228AbRK2BH0>; Wed, 28 Nov 2001 20:07:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282242AbRK2BHg>; Wed, 28 Nov 2001 20:07:36 -0500
-Received: from red.csi.cam.ac.uk ([131.111.8.70]:6340 "EHLO red.csi.cam.ac.uk")
-	by vger.kernel.org with ESMTP id <S282232AbRK2BHa>;
-	Wed, 28 Nov 2001 20:07:30 -0500
-Message-Id: <5.1.0.14.2.20011129004931.04945e30@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 29 Nov 2001 01:07:33 +0000
-To: Andreas Dilger <adilger@turbolabs.com>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: 2.5.1-pre2 bio offset by one error in VIA IDE
-Cc: Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20011128165530.L856@lynx.no>
-In-Reply-To: <5.1.0.14.2.20011128232246.00aea8f0@pop.cus.cam.ac.uk>
- <Pine.LNX.4.33.0111271701140.1629-100000@penguin.transmeta.com>
- <15364.3457.368582.994067@gargle.gargle.HOWL>
- <Pine.LNX.4.33.0111271701140.1629-100000@penguin.transmeta.com>
- <20011128132000.T23858@suse.de>
- <5.1.0.14.2.20011128232246.00aea8f0@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S282232AbRK2BHQ>; Wed, 28 Nov 2001 20:07:16 -0500
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:9746 "EHLO
+	lazy.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S282228AbRK2BHI>; Wed, 28 Nov 2001 20:07:08 -0500
+Date: Wed, 28 Nov 2001 18:53:40 -0600 (CST)
+From: Manoj Iyer <manjo@austin.ibm.com>
+X-X-Sender: <manjo@lazy>
+To: ltp <ltp-list@lists.sourceforge.net>,
+        kernelmailinglist <linux-kernel@vger.kernel.org>
+cc: Linda J Scott <lindajs@us.ibm.com>
+Subject: VM test on 2.4.16 (SMP)
+Message-ID: <Pine.LNX.4.33.0111281847350.32156-100000@lazy>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 23:55 28/11/01, Andreas Dilger wrote:
->On Nov 28, 2001  23:31 +0000, Anton Altaparmakov wrote:
-> > I just booted my Athlon VIA KT133 chipset box with 2.5.1-pre2 only to
-> > discover it dropped me into single user mode because /dev/hda2 could 
-> not be
-> > mounted. (Rebooting into 2.5.0+viro patch everything is ok, back into
-> > 2.5.1-pre2 is broken...)
-> >
-> > Looking with hexedit /dev/hda2 when booted into 2.5.1-pre2 the first 
-> sector
-> > contains junk, the second sector contains the real data that I see as the
-> > first sector when booted into 2.5.0+viro fix.
-> >
-> > That suggests to me there is an off by one error in the VIA IDE driver in
-> > the 2.5.10pre2 kernel causing the partition to start one sector earlier
-> > than it should.
->
->It may be an issue with your particular partition table having /dev/hda1
->being an odd number of 512-byte sectors long, but Jens' code only doing
->math on 1kB blocks.  Just speculation of course.  What does "fdisk -ul"
->tell you under the two kernels?
-
-Both exactly the same:
-
-Disk /dev/hda: 255 heads, 63 sectors, 5005 cylinders
-Units = sectors of 1 * 512 bytes
-
-    Device Boot    Start       End    Blocks   Id  System
-/dev/hda1   *        63  31471334  15735636   83  Linux
-/dev/hda2      31471335  35680364   2104515   83  Linux
-/dev/hda3      35680365  39889394   2104515   82  Linux swap
-/dev/hda4      39889395  80405324  20257965    f  Win95 Ext'd (LBA)
-/dev/hda5      39889458  71360729  15735636   83  Linux
-/dev/hda6      71360793  75264524   1951866    7  HPFS/NTFS
-
-So everything always starts on same sector. And yes, hda2 starts on an odd 
-sector.
-
-However, that is not the explanation as the ntfs partition hda6 also starts 
-with an odd sector but that works fine (using NTFS TNG to mount it and also 
-looking at start of partition with hexedit).
-
-Best regards,
-
-         Anton
 
 
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+Kernel:			2.4.16 (SMP)
+Total mem:              9GB
+Total Swap:             5GB
+Total CPU:              2 (Pentium III coppermine)
+Total exec time:        24Hrs
+HIMEM:			4GB
+
+I executed my memory management and NFS tests on linux-2.4.16
+
+The tests can be found on ltp web site, ltp.sf.net, under ../testcases/kernel/
+mem/... and .../testcases/kernel/network/nfs/nfsstress/...
+
+The programs do the following:
+
+   1) mmap a file of size = sizeof(char) * 1000000000; as shared and private
+   mapping. (anonymous memory map)
+
+   3) mmap a file of same size shared.
+
+   4) memory race conditions tests.
+
+   5) spawn 30 threads, each thread mallocs memory in a loop size is either
+   powers of 2,3,or 7 or size = numbers in fibbanoci series.
+
+   6) Also I am generating a lot of disk I/O and compiles (invoking cc) by
+   running my make_tree (NFS client) test over NFS. (details about the test
+   available in the source .../testcases/kernel/network/nfs/nfsstress/
+   make_tree.c.)
+
+The memory tests are executed as separate processes as a normal user "manjo".
+The nfs test is executed as a root process on nfs version 2.
+
+The tests were set to execute for a period of 24 hours. I noticed that the
+network was taken down, my telnet sessions that were displaying out put of
+top command hung. The reboot command hung after the message "shutting down
+Now..." I waited for well over 30 mts and then had to hit the button to
+reboot the machine.
+
+Here are some statics I gathered with sar.
+
+I/O  and transfer rate statistics.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:36:46          tps      rtps      wtps   bread/s   bwrtn/s
+Average:       125.66     77.85     47.81   4841.12  18308.66
+
+paging statistics.
+~~~~~~~~~~~~~~~~~~
+16:36:46     pgpgin/s pgpgout/s  activepg  inadtypg  inaclnpg  inatarpg
+Average:      2420.56   9154.25     42606         0         0         0
+
+process creation activity.
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:36:46       proc/s
+Average:         5.08
+
+activity for each block device
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:36:46          DEV       tps    blks/s
+Average:       dev8-0    125.66  23149.78
+
+network statistics.
+~~~~~~~~~~~~~~~~~~~
+ * statistics from  the  network devices
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:36:46 IFACE   rxpck/s   txpck/s   rxbyt/s   txbyt/s   rxcmp/s   txcmp/s
+rxmcst/s
+Average: eth0     43.08     43.73   7272.78   6252.29      0.00      0.00
+0.00
+
+ * statistics  on  failures (errors) from the  network  devices
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:36:46 IFACE   rxerr/s   txerr/s    coll/s  rxdrop/s  txdrop/s  txcarr/s
+rxfram/s  rxfifo/s  txfifo/s
+Average: eth0      0.00      0.00      0.00      0.00      0.00      0.00
+0.00      0.00      0.00
+
+ * statistics on sockets in use
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:36:46       totsck    tcpsck    udpsck    rawsck   ip-frag
+Average:           48        17        14         1         0
+
+queue length and load averages.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:36:46      runq-sz  plist-sz   ldavg-1   ldavg-5
+Average:           22       114     37.65     37.54
+
+memory  and  swap space utilization statistics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:36:46  kbmemfree kbmemused  %memused kbmemshrd kbbuffers  kbcached kbswpfree
+ kbswpused  %swpused
+Average:  173006    856350     83.19         0      1200    398900    429595
+ 108541     20.17
+
+memory statistics.
+~~~~~~~~~~~~~~~~~~
+16:36:46      frmpg/s   shmpg/s   bufpg/s   campg/s
+Average:         0.04      0.00     -0.00     -0.07
+
+CPU  utilization.
+~~~~~~~~~~~~~~~~~
+16:36:46          CPU     %user     %nice   %system     %idle
+Average:          all      5.89      0.00     64.94     29.17
+Average:            0      5.99      0.00     64.66     29.35
+Average:            1      5.78      0.00     65.23     28.99
+
+status  of  inode,  file  and  other kernel tables
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:36:46  dentunusd   file-sz  %file-sz  inode-sz  super-sz %super-sz  dquot-sz
+ %dquot-sz  rtsig-sz %rtsig-sz
+Average:   17         53       0.63       921         0      0.00         0
+  0.00         1      0.10
+
+system switching activity.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:36:46      cswch/s
+Average:     20611.94
+
+swapping  statistics.
+~~~~~~~~~~~~~~~~~~~~~
+16:36:46     pswpin/s pswpout/s
+Average:         2.37    986.87
+
+--
+Manoj Iyer
+*******************************************************************************
+		The greatest risk is not taking one.
+*******************************************************************************
 

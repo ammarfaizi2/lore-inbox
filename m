@@ -1,270 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263692AbTDYAWh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 20:22:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262423AbTDXXeb
+	id S264524AbTDXXlW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 19:41:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264499AbTDXXiN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 19:34:31 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:16617 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S264446AbTDXXd6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 19:33:58 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10512280533869@kroah.com>
-Subject: Re: [PATCH] More USB fixes for 2.5.68
-In-Reply-To: <10512280532458@kroah.com>
+	Thu, 24 Apr 2003 19:38:13 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:7090 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264497AbTDXXeH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 19:34:07 -0400
+Date: Thu, 24 Apr 2003 16:46:14 -0700
 From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Thu, 24 Apr 2003 16:47:33 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+To: torvalds@transmeta.com
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [BK PATCH] USB changes for 2.5.68
+Message-ID: <20030424234614.GA29734@kroah.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1165.2.15, 2003/04/23 17:48:10-07:00, greg@kroah.com
+Hi,
 
-[PATCH] USB: kobil_sct: add support for new tty tiocmget and tiocmset functions.
+Here are some USB changes and fixes for 2.5.68.  The majority of these
+changes are due to the tty core adding the tiocmset and tiocmget
+functions instead of using the ioctl values.  I've also included a small
+patch to the tty core's tiocmset function that allows TIOCM_LOOP changes
+to be seen by the tty drivers.  Russell King has acked this change.
+
+There are also some small bugfixes and compiler warning removal changes
+in here too.
 
 
- drivers/usb/serial/kobil_sct.c |  200 +++++++++++++++++++++++------------------
- 1 files changed, 116 insertions(+), 84 deletions(-)
+Please pull from:  bk://kernel.bkbits.net/gregkh/linux/linus-2.5
 
 
-diff -Nru a/drivers/usb/serial/kobil_sct.c b/drivers/usb/serial/kobil_sct.c
---- a/drivers/usb/serial/kobil_sct.c	Thu Apr 24 16:21:37 2003
-+++ b/drivers/usb/serial/kobil_sct.c	Thu Apr 24 16:21:37 2003
-@@ -81,6 +81,9 @@
- static int  kobil_write_room(struct usb_serial_port *port);
- static int  kobil_ioctl(struct usb_serial_port *port, struct file *file,
- 			unsigned int cmd, unsigned long arg);
-+static int  kobil_tiocmget(struct usb_serial_port *port, struct file *file);
-+static int  kobil_tiocmset(struct usb_serial_port *port, struct file *file,
-+			   unsigned int set, unsigned int clear);
- static void kobil_read_int_callback( struct urb *urb, struct pt_regs *regs );
- static void kobil_write_callback( struct urb *purb, struct pt_regs *regs );
- 
-@@ -106,6 +109,8 @@
- 	.attach =		kobil_startup,
- 	.shutdown =		kobil_shutdown,
- 	.ioctl =		kobil_ioctl,
-+	.tiocmget =		kobil_tiocmget,
-+	.tiocmset =		kobil_tiocmset,
- 	.open =			kobil_open,
- 	.close =		kobil_close,
- 	.write =		kobil_write,
-@@ -490,11 +495,120 @@
- }
- 
- 
-+static int kobil_tiocmget(struct usb_serial_port *port, struct file *file)
-+{
-+	struct kobil_private * priv;
-+	int result;
-+	unsigned char *transfer_buffer;
-+	int transfer_buffer_length = 8;
-+
-+	priv = usb_get_serial_port_data(port);
-+	if (priv->device_type == KOBIL_USBTWIN_PRODUCT_ID) {
-+		// This device doesn't support ioctl calls
-+		return -EINVAL;
-+	}
-+
-+	// allocate memory for transfer buffer
-+	transfer_buffer = (unsigned char *) kmalloc(transfer_buffer_length, GFP_KERNEL);  
-+	if (!transfer_buffer) {
-+		return -ENOMEM;
-+	}
-+	memset(transfer_buffer, 0, transfer_buffer_length);
-+
-+	result = usb_control_msg( port->serial->dev, 
-+				  usb_rcvctrlpipe(port->serial->dev, 0 ), 
-+				  SUSBCRequest_GetStatusLineState,
-+				  USB_TYPE_VENDOR | USB_RECIP_ENDPOINT | USB_DIR_IN,
-+				  0,
-+				  0,
-+				  transfer_buffer,
-+				  transfer_buffer_length,
-+				  KOBIL_TIMEOUT);
-+
-+	dbg("%s - port %d Send get_status_line_state URB returns: %i. Statusline: %02x", 
-+	    __FUNCTION__, port->number, result, transfer_buffer[0]);
-+
-+	if ((transfer_buffer[0] & SUSBCR_GSL_DSR) != 0) {
-+		priv->line_state |= TIOCM_DSR;
-+	} else {
-+		priv->line_state &= ~TIOCM_DSR; 
-+	}
-+
-+	kfree(transfer_buffer);
-+	return priv->line_state;
-+}
-+
-+static int  kobil_tiocmset(struct usb_serial_port *port, struct file *file,
-+			   unsigned int set, unsigned int clear)
-+{
-+	struct kobil_private * priv;
-+	int result;
-+	int dtr = 0;
-+	int rts = 0;
-+	unsigned char *transfer_buffer;
-+	int transfer_buffer_length = 8;
-+
-+	priv = usb_get_serial_port_data(port);
-+	if (priv->device_type == KOBIL_USBTWIN_PRODUCT_ID) {
-+		// This device doesn't support ioctl calls
-+		return -EINVAL;
-+	}
-+
-+	// allocate memory for transfer buffer
-+	transfer_buffer = (unsigned char *) kmalloc(transfer_buffer_length, GFP_KERNEL);
-+	if (! transfer_buffer) {
-+		return -ENOMEM;
-+	}
-+	memset(transfer_buffer, 0, transfer_buffer_length);
-+
-+	if (set & TIOCM_RTS)
-+		rts = 1;
-+	if (set & TIOCM_DTR)
-+		dtr = 1;
-+	if (clear & TIOCM_RTS)
-+		rts = 0;
-+	if (clear & TIOCM_DTR)
-+		dtr = 0;
-+
-+	if (priv->device_type == KOBIL_ADAPTER_B_PRODUCT_ID) {
-+		if (dtr != 0)
-+			dbg("%s - port %d Setting DTR", __FUNCTION__, port->number);
-+		else
-+			dbg("%s - port %d Clearing DTR", __FUNCTION__, port->number);
-+		result = usb_control_msg( port->serial->dev, 
-+					  usb_rcvctrlpipe(port->serial->dev, 0 ), 
-+					  SUSBCRequest_SetStatusLinesOrQueues,
-+					  USB_TYPE_VENDOR | USB_RECIP_ENDPOINT | USB_DIR_OUT,
-+					  ((dtr != 0) ? SUSBCR_SSL_SETDTR : SUSBCR_SSL_CLRDTR),
-+					  0,
-+					  transfer_buffer,
-+					  0,
-+					  KOBIL_TIMEOUT);
-+	} else {
-+		if (rts != 0)
-+			dbg("%s - port %d Setting RTS", __FUNCTION__, port->number);
-+		else
-+			dbg("%s - port %d Clearing RTS", __FUNCTION__, port->number);
-+		result = usb_control_msg( port->serial->dev, 
-+					  usb_rcvctrlpipe(port->serial->dev, 0 ), 
-+					  SUSBCRequest_SetStatusLinesOrQueues,
-+					  USB_TYPE_VENDOR | USB_RECIP_ENDPOINT | USB_DIR_OUT,
-+					  ((rts != 0) ? SUSBCR_SSL_SETRTS : SUSBCR_SSL_CLRRTS),
-+					  0,
-+					  transfer_buffer,
-+					  0,
-+					  KOBIL_TIMEOUT);
-+	}
-+	dbg("%s - port %d Send set_status_line URB returns: %i", __FUNCTION__, port->number, result);
-+	kfree(transfer_buffer);
-+	return (result < 0) ? result : 0;
-+}
-+
-+
- static int  kobil_ioctl(struct usb_serial_port *port, struct file *file,
- 			unsigned int cmd, unsigned long arg)
- {
- 	struct kobil_private * priv;
--	int mask;
- 	int result;
- 	unsigned short urb_val = 0;
- 	unsigned char *transfer_buffer;
-@@ -605,90 +719,8 @@
- 		kfree(transfer_buffer);
- 		return ((result < 0) ? -EFAULT : 0);
- 
--	case TIOCMGET: // 0x5415
--		// allocate memory for transfer buffer
--		transfer_buffer = (unsigned char *) kmalloc(transfer_buffer_length, GFP_KERNEL);  
--		if (! transfer_buffer) {
--			return -ENOBUFS;
--		} else {
--			memset(transfer_buffer, 0, transfer_buffer_length);
--		}
--
--		result = usb_control_msg( port->serial->dev, 
--					  usb_rcvctrlpipe(port->serial->dev, 0 ), 
--					  SUSBCRequest_GetStatusLineState,
--					  USB_TYPE_VENDOR | USB_RECIP_ENDPOINT | USB_DIR_IN,
--					  0,
--					  0,
--					  transfer_buffer,
--					  transfer_buffer_length,
--					  KOBIL_TIMEOUT
--			);
--
--		dbg("%s - port %d Send get_status_line_state (TIOCMGET) URB returns: %i. Statusline: %02x", 
--		    __FUNCTION__, port->number, result, transfer_buffer[0]);
--
--		if ((transfer_buffer[0] & SUSBCR_GSL_DSR) != 0) {
--			priv->line_state |= TIOCM_DSR;
--		} else {
--			priv->line_state &= ~TIOCM_DSR; 
--		}
--
--		kfree(transfer_buffer);
--		return put_user(priv->line_state, (unsigned long *) arg);
--
--	case TIOCMSET: // 0x5418
--		if (get_user(mask, (unsigned long *) arg)){
--			return -EFAULT;
--		}
--		// allocate memory for transfer buffer
--		transfer_buffer = (unsigned char *) kmalloc(transfer_buffer_length, GFP_KERNEL);
--		if (! transfer_buffer) {
--			return -ENOBUFS;
--		} else {
--			memset(transfer_buffer, 0, transfer_buffer_length);
--		}
--
--		if (priv->device_type == KOBIL_ADAPTER_B_PRODUCT_ID) {
--			if ((mask & TIOCM_DTR) != 0){
--				dbg("%s - port %d Setting DTR", __FUNCTION__, port->number);
--			} else {
--				dbg("%s - port %d Clearing DTR", __FUNCTION__, port->number);
--			} 
--			result = usb_control_msg( port->serial->dev, 
--						  usb_rcvctrlpipe(port->serial->dev, 0 ), 
--						  SUSBCRequest_SetStatusLinesOrQueues,
--						  USB_TYPE_VENDOR | USB_RECIP_ENDPOINT | USB_DIR_OUT,
--						  ( ((mask & TIOCM_DTR) != 0) ? SUSBCR_SSL_SETDTR : SUSBCR_SSL_CLRDTR),
--						  0,
--						  transfer_buffer,
--						  0,
--						  KOBIL_TIMEOUT
--				);
--			
--		} else {
--			if ((mask & TIOCM_RTS) != 0){
--				dbg("%s - port %d Setting RTS", __FUNCTION__, port->number);
--			} else {
--				dbg("%s - port %d Clearing RTS", __FUNCTION__, port->number);
--			}
--			result = usb_control_msg( port->serial->dev, 
--						  usb_rcvctrlpipe(port->serial->dev, 0 ), 
--						  SUSBCRequest_SetStatusLinesOrQueues,
--						  USB_TYPE_VENDOR | USB_RECIP_ENDPOINT | USB_DIR_OUT,
--						  (((mask & TIOCM_RTS) != 0) ? SUSBCR_SSL_SETRTS : SUSBCR_SSL_CLRRTS),
--						  0,
--						  transfer_buffer,
--						  0,
--						  KOBIL_TIMEOUT
--				);
--		}
--		dbg("%s - port %d Send set_status_line (TIOCMSET) URB returns: %i", __FUNCTION__, port->number, result);
--
--		kfree(transfer_buffer);
--		return ((result < 0) ? -EFAULT : 0);
- 	}
--	return 0;
-+	return -ENOIOCTLCMD;
- }
- 
- 
+Patches will be posted to linux-usb-devel as a follow-up thread for
+those who want to see them.
+
+thanks,
+
+greg k-h
+
+ drivers/char/tty_io.c                |    4 
+ drivers/usb/class/cdc-acm.c          |  120 +++++++++++----------
+ drivers/usb/class/usb-midi.c         |    2 
+ drivers/usb/core/hcd-pci.c           |   16 +-
+ drivers/usb/core/hcd.c               |    4 
+ drivers/usb/core/usb.c               |   14 +-
+ drivers/usb/misc/speedtch.c          |   32 +++--
+ drivers/usb/net/kaweth.c             |    2 
+ drivers/usb/net/usbnet.c             |    8 +
+ drivers/usb/serial/belkin_sa.c       |  110 +++++++++++--------
+ drivers/usb/serial/digi_acceleport.c |  124 +++++++++++++--------
+ drivers/usb/serial/ftdi_sio.c        |  193 +++++++++++++++------------------
+ drivers/usb/serial/io_edgeport.c     |   80 +++++---------
+ drivers/usb/serial/io_tables.h       |    8 +
+ drivers/usb/serial/io_ti.c           |   82 +++++---------
+ drivers/usb/serial/keyspan.c         |   68 +++++------
+ drivers/usb/serial/keyspan.h         |   11 +
+ drivers/usb/serial/keyspan_pda.c     |   94 +++++++---------
+ drivers/usb/serial/kl5kusb105.c      |  112 ++++++++++---------
+ drivers/usb/serial/kobil_sct.c       |  200 ++++++++++++++++++++---------------
+ drivers/usb/serial/mct_u232.c        |   82 +++++++-------
+ drivers/usb/serial/pl2303.c          |  142 ++++++++++++++----------
+ drivers/usb/serial/usb-serial.c      |   94 ++++++++++++++++
+ drivers/usb/serial/usb-serial.h      |    2 
+ drivers/usb/serial/whiteheat.c       |  184 +++++++++++++-------------------
+ 25 files changed, 975 insertions(+), 813 deletions(-)
+-----
+
+Andrew Morton <akpm@digeo.com>:
+  o usb: minor usb stuff
+
+David Brownell <david-b@pacbell.net>:
+  o usb: fix (rare?) disconnect
+  o USB: hcd-pci.c catch up to dev_printk changes
+  o USB: fix for deadlock in v2.5.67
+
+Duncan Sands <baldrick@wanadoo.fr>:
+  o USB speedtouch: compile fix
+  o USB speedtouch: crc optimization
+  o USB speedtouch: bump the version number
+
+Greg Kroah-Hartman <greg@kroah.com>:
+  o tty: let tiocmset pass TIOCM_LOOP changes to the tty drivers
+  o USB: add error reporting functionality to the pl2303 driver
+  o USB: whiteheat: add support for new tty tiocmget and tiocmset functions
+  o USB: pl2303: add support for new tty tiocmget and tiocmset functions
+  o USB: mct_u232: add support for new tty tiocmget and tiocmset functions
+  o USB: kobil_sct: add support for new tty tiocmget and tiocmset functions
+  o USB: kl5kusb105: add support for new tty tiocmget and tiocmset functions
+  o USB: keyspan_pda: add support for new tty tiocmget and tiocmset functions
+  o USB: ftdi_sio: add support for new tty tiocmget and tiocmset functions
+  o USB: digi_acceleport: add support for new tty tiocmget and tiocmset functions
+  o USB: belkin_sa: add support for new tty tiocmget and tiocmset functions
+  o USB: usb-serial core: add support for new tty tiocmget and tiocmset functions
+  o USB: cdc-acm: add support for new tty tiocmget and tiocmset functions
 

@@ -1,72 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUFCGxu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbUFCGzr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbUFCGxu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 02:53:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbUFCGxu
+	id S261358AbUFCGzr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 02:55:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbUFCGzq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 02:53:50 -0400
-Received: from fw.osdl.org ([65.172.181.6]:62089 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261252AbUFCGxr (ORCPT
+	Thu, 3 Jun 2004 02:55:46 -0400
+Received: from mail.gurulabs.com ([66.62.77.7]:40118 "EHLO mail.gurulabs.com")
+	by vger.kernel.org with ESMTP id S261358AbUFCGzl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 02:53:47 -0400
-Date: Wed, 2 Jun 2004 23:53:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com, vojtech@suse.cz
-Subject: Re: [RFC] Changing SysRq - show registers handling
-Message-Id: <20040602235306.1e6dd3fb.akpm@osdl.org>
-In-Reply-To: <200406030134.04121.dtor_core@ameritech.net>
-References: <200406030134.04121.dtor_core@ameritech.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 3 Jun 2004 02:55:41 -0400
+Subject: Re: Dell TrueMobile 1150 PCMCIA/Orinoco/Yenta problem w/ 2.6.4/5
+From: Dax Kelson <dax@gurulabs.com>
+To: Aaron Mulder <ammulder@alumni.princeton.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0406022305580.6314@saturn.opentools.org>
+References: <Pine.LNX.4.58.0406022305580.6314@saturn.opentools.org>
+Content-Type: text/plain
+Message-Id: <1086245693.3772.42.camel@mentor.gurulabs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.5.7 (1.5.7-2) 
+Date: Thu, 03 Jun 2004 00:54:53 -0600
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov <dtor_core@ameritech.net> wrote:
->
-> Currently SysRq "show registers" command dumps registers and the call
->  trace from keyboard interrupt context when SysRq-P. For that struct pt_regs *
->  has to be dragged throughout entire input and USB systems. Other than passing
->  this pointer to SysRq handler these systems has no interest in it, it is
->  completely foreign piece of data for them and I would like to get rid of it.
+On Wed, 2004-06-02 at 23:31 -0400, Aaron Mulder wrote:
+> 	I'm working with a Dell Inspiron 8200 laptop, and I've tried SuSE
+> 9.1 Pro (2.6.4-54.5) and Fedora Core 2 (2.6.5-x I think, but I'm on SuSE
+> now).  The laptop has 2 normal PCMCIA slots, and a Dell TrueMobile 1150
+> mini-PCI card, which is apparently implemented as a PCMCIA card in a 3rd
+> PCMCIA slot (handled by the orinoco_cs driver).
 > 
->  I am suggesting slightly changing semantics of SysRq-P handling - instread
->  of dumping registers and call trace immediately it will simply post a request
->  for this information to be dumped. When next HW interrupt arrives and is
->  handled, before running softirqs then current stack trace will be printed.
->  This approach adds small overhead to the HW interrupt handling routine as the
->  condition has to be checked with every interrupt but I expect it to be
->  negligible as it is only check and conditional jump that is almost never
->  taken. The code should be hot in cache so branch prediction should work just
->  fine.
 
-Makes sense I guess.
+The Fedora tracking bug is:
 
-There have been other times when I've needed access to the registers from
-within hard IRQ.  But I forget the reason.
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=121742
 
-It would be more general, although a little slower to do:
+It has currently about a dozen people Cc'ing it.
 
-DEFINE_PER_CPU(global_irq_regs);
+> 	I guess I'm assuming that this is a kernel bug and that it
+> shouldn't matter if the orinoco_cs module is loaded before PCMCIA and/or
+> yenta_socket.  But I guess it could be a distro bug if the module behavior
+> is intentional.
 
-do_IRQ(...)
-{
-	...
-	struct pt_regs **cpu_regs_slot = __get_cpu_var(global_irq_regs);
-	struct pt_regs *save = *cpu_regs_slot;
-	*cpu_regs_slot = &regs;
-	...
-	*cpu_regs_slot = save;
-}
+It would be nice to find out which scenario it is.
 
-And to teach the sysrq code to grab *__get_cpu_var(global_irq_regs).
+Dax Kelson
 
-Note that global_irq_regs is only valid if in_interrupt().  The sysrq
-handler can be called from process context via /proc/sysrq-trigger and
-should bale out if !in_interrupt().
-
-+static inline void sysrq_show_registes(struct pt_regs *pt_regs)
-
-typo.

@@ -1,97 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262772AbTJOLVR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 07:21:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262774AbTJOLVR
+	id S262791AbTJOLmF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 07:42:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262792AbTJOLmF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 07:21:17 -0400
-Received: from [144.132.162.109] ([144.132.162.109]:40954 "EHLO
-	tigers-lfs.local") by vger.kernel.org with ESMTP id S262772AbTJOLVP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 07:21:15 -0400
-Date: Wed, 15 Oct 2003 21:19:47 +1000
-From: Greg Schafer <gschafer@zip.com.au>
+	Wed, 15 Oct 2003 07:42:05 -0400
+Received: from smtp3.pp.htv.fi ([213.243.153.173]:26253 "EHLO smtp3.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S262791AbTJOLmC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 07:42:02 -0400
+Message-ID: <1066218121.3f8d32897f51b@webmail.welho.com>
+Date: Wed, 15 Oct 2003 14:42:01 +0300
+From: tapiov@welho.com
 To: linux-kernel@vger.kernel.org
-Subject: NPTL, the Kernel & GCC version
-Message-ID: <20031015111947.GA297@tigers-lfs.nsw.bigpond.net.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="sm4nu43k4a2Rpi4c"
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Cc: tapiov@welho.com
+Subject: 2.6.0-test7 : S3 Virge (DX) driver, framebuffer 
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
+X-Originating-IP: 207.83.32.85
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---sm4nu43k4a2Rpi4c
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hello,
 
-Hi
+I have an older PC, dating back to 1997, which has a graphic chip integrated on
+the mother board. The chip is (based on) S3 Virge DX2. I have been using a
+2.4.22 kernel from Slackware 9.1 distribution, which has been able to use the
+framebuffer  modes (especially mode vga=773) successfully. 
+So I tried compiling the 2.6.0-test7 kernel and followed the advice given in the
+Framebuffer-HOWTO from TLDP (http://www.tldp.org/HOWTO/Framebuffer-HOWTO-5.html)
+as good as I was able to. I could not find all the items from the xconfig menus
+mentioned in that article  (namely the "advanced low level drivers) so I assumed
+that the article was probably a bit outdated. I successfully turned on all
+framebuffer related switches, fonts and mode selection support. Then compiled
+and installed the new kernel. 
 
-I've been having grief for quite a while when running the NPTL test suite.
-The last report I sent is here:
+Now I found out that I wasn't able to use vga=773 anymore; only some
+lower-resolution modes were available at the lilo prompt. From the mentioned
+article I also read about a patch used earlier for S3 drivers, due to S3 chips
+non-compatibility with VESA 2.0 (them being 1.2 only?).
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=106583848317628&w=2
+Does such a patch exist still for 2.6.0? Or how could I get back to using better
+resolution?
 
-Up until now, I've been compiling the 2.6.0-test kernels with gcc-2.95.4.
-Today I tried compiling the kernel with gcc-3.2.3 and voila! No more
-crashes, oopses or nasty lockups! And the NPTL test suite almost passed!
-(only 1 failure). Joy o joy.
+My apologizes, if this mail is completely off-topic. Please, let me know (email
+me directly) if you have a better source of information than this forum.
 
-Anyway, I thought you guys might find this tidbit interesting. I wouldn't
-know where to start to try and figure out what goes wrong with the older
-gcc, but I'd be happy to pass on info if required.
+Thanks,
 
-Latest oops is attached for the record.
+Tapio Valli
 
-Thanks
-Greg
-(not subscribed)
 
---sm4nu43k4a2Rpi4c
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="oops.txt"
-
-Oct 15 20:25:46 tigers-lfs kernel: Unable to handle kernel paging request at virtual address 40071f40
-Oct 15 20:25:46 tigers-lfs kernel:  printing eip:
-Oct 15 20:25:46 tigers-lfs kernel: 40071f40 
-Oct 15 20:25:46 tigers-lfs kernel: *pde = 0a2fb067
-Oct 15 20:25:46 tigers-lfs kernel: *pte = 00000000
-Oct 15 20:25:46 tigers-lfs kernel: Oops: 0004 [#1]
-Oct 15 20:25:46 tigers-lfs kernel: CPU:    1
-Oct 15 20:25:46 tigers-lfs kernel: EIP:    0073:[<40071f40>]    Not tainted
-Oct 15 20:25:46 tigers-lfs kernel: EFLAGS: 00010246
-Oct 15 20:25:46 tigers-lfs kernel: EIP is at 0x40071f40 
-Oct 15 20:25:46 tigers-lfs kernel: eax: 00000003   ebx: 4294ca7c   ecx: 00000000   edx: 4000fc60
-Oct 15 20:25:46 tigers-lfs kernel: esi: 00000000   edi: 00000000   ebp: 4294cab8   esp: 4294ca68
-Oct 15 20:25:46 tigers-lfs kernel: ds: 007b   es: 007b   ss: 007b
-Oct 15 20:25:46 tigers-lfs kernel: Process ld-linux.so.2 (pid: 11356, threadinfo=e5e78000 task=d14ccc80)
-Oct 15 20:25:46 tigers-lfs kernel:  <1>Unable to handle kernel NULL pointer dereference at virtual address 00000038
-Oct 15 20:25:46 tigers-lfs kernel:  printing eip:
-Oct 15 20:25:46 tigers-lfs kernel: c012116c
-Oct 15 20:25:46 tigers-lfs kernel: *pde = 00000000
-Oct 15 20:25:46 tigers-lfs kernel: Oops: 0000 [#2]
-Oct 15 20:25:46 tigers-lfs kernel: CPU:    1
-Oct 15 20:25:46 tigers-lfs kernel: EIP:    0060:[do_exit+892/976]    Not tainted
-Oct 15 20:25:46 tigers-lfs kernel: EFLAGS: 00010292
-Oct 15 20:25:46 tigers-lfs kernel: EIP is at do_exit+0x37c/0x3d0
-Oct 15 20:25:46 tigers-lfs kernel: eax: 00000000   ebx: e5e78000   ecx: f7fff0c0   edx: d14cd274
-Oct 15 20:25:46 tigers-lfs kernel: esi: 00000000   edi: d14ccc80   ebp: e5e79eec   esp: e5e79ee0
-Oct 15 20:25:46 tigers-lfs kernel: ds: 007b   es: 007b   ss: 0068
-Oct 15 20:25:46 tigers-lfs kernel: Process ld-linux.so.2 (pid: 11356, threadinfo=e5e78000 task=d14ccc80)
-Oct 15 20:25:46 tigers-lfs kernel: Stack: e5e78000 00000004 e5e79fc4 e5e79f04 c010a32d 0000000b 00000000 d14ccc80
-Oct 15 20:25:46 tigers-lfs kernel:        00000071 e5e79fb4 c01181fd c02c4ebe e5e79fc4 00000004 4294ca7c 00000004
-Oct 15 20:25:46 tigers-lfs kernel:        c0117f20 00000238 e5e79f84 c011a4a0 c1a13c00 e5e79f84 00000046 00030001
-Oct 15 20:25:46 tigers-lfs kernel: Call Trace:
-Oct 15 20:25:46 tigers-lfs kernel:  [die+221/224] die+0xdd/0xe0
-Oct 15 20:25:46 tigers-lfs kernel:  [do_page_fault+733/1042] do_page_fault+0x2dd/0x412
-Oct 15 20:25:46 tigers-lfs kernel:  [do_page_fault+0/1042] do_page_fault+0x0/0x412
-Oct 15 20:25:46 tigers-lfs kernel:  [schedule+432/1616] schedule+0x1b0/0x650
-Oct 15 20:25:46 tigers-lfs kernel:  [exit_notify+1659/1712] exit_notify+0x67b/0x6b0
-Oct 15 20:25:46 tigers-lfs kernel:  [do_exit+949/976] do_exit+0x3b5/0x3d0
-Oct 15 20:25:46 tigers-lfs kernel:  [do_group_exit+214/224] do_group_exit+0xd6/0xe0
-Oct 15 20:25:46 tigers-lfs kernel:  [error_code+45/56] error_code+0x2d/0x38
-Oct 15 20:25:46 tigers-lfs kernel:
-Oct 15 20:25:46 tigers-lfs kernel: Code: 83 78 38 00 74 0a 6a 01 e8 97 1f 0d 00 83 c4 04 8b 55 08 89
-
---sm4nu43k4a2Rpi4c--

@@ -1,104 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317905AbSGPR2t>; Tue, 16 Jul 2002 13:28:49 -0400
+	id <S317900AbSGPRbV>; Tue, 16 Jul 2002 13:31:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317906AbSGPR2t>; Tue, 16 Jul 2002 13:28:49 -0400
-Received: from host.greatconnect.com ([209.239.40.135]:64773 "EHLO
-	host.greatconnect.com") by vger.kernel.org with ESMTP
-	id <S317905AbSGPR2r>; Tue, 16 Jul 2002 13:28:47 -0400
-Subject: Re: Problems with Promise PDC 20265 and 2.4.19-rc1
-From: Samuel Flory <sflory@rackable.com>
-To: Ernst Lehmann <lehmann@acheron.franken.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1026818162.1039.19.camel@hadley>
-References: <1026818162.1039.19.camel@hadley>
-Content-Type: text/plain
+	id <S317902AbSGPRbU>; Tue, 16 Jul 2002 13:31:20 -0400
+Received: from [64.246.18.23] ([64.246.18.23]:40171 "EHLO ensim.2hosting.net")
+	by vger.kernel.org with ESMTP id <S317900AbSGPRbU>;
+	Tue, 16 Jul 2002 13:31:20 -0400
+From: "Stephen Lee" <steve@tuxsoft.com>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: RE: Tyan s2466 stability
+Date: Tue, 16 Jul 2002 12:36:42 -0500
+Message-ID: <000501c22cef$634e58c0$0100a8c0@mars>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 16 Jul 2002 10:31:08 -0700
-Message-Id: <1026840669.2294.2723.camel@flory.corp.rackablelabs.com>
-Mime-Version: 1.0
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+In-Reply-To: <1026833327.1687.59.camel@irongate.swansea.linux.org.uk>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Have you tried 2.4.19-rc1-ac(whatever # it is today)?
+I have the A7M266-D with an AOPEN 24x10x32 IDE CDRW and haven't had a
+single failure yet while burning CD-R(W)'s.  By the way, are you still
+using this same motherboard?
 
-On Tue, 2002-07-16 at 04:16, Ernst Lehmann wrote:
-> Hi,
+Steve
+
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Alan Cox
+Sent: Tuesday, July 16, 2002 10:29 AM
+To: Maxwell Spangler
+Cc: SCoTT SMeDLeY; linux-kernel@vger.kernel.org; ss@aao.gov.au
+Subject: Re: Tyan s2466 stability
+
+On Tue, 2002-07-16 at 15:08, Maxwell Spangler wrote:
+> 6) I have only one issue yet to be resolved: SCSI "loss of streaming"
+errors 
+> when trying to burn cd-rs.  I haven't taken the time to figure out
+what the 
+> problem is there but the fact that others aren't reporting it suggests
+
+> configuration or something else specific to my system and not
+indicative of 
+> the MPX chipset or dual Athlon setup, etc.
 > 
-> sorry, if this has been asked before, but I could not find any in the
-> archives.
-> 
-> I have a Gigabyte GA7DXR with a onboard Promise PDC20265 IDE-Controller.
-> 
-> Attached to this Controller are 4 Maxtor 120 GB Disks.
-> 
-> Booting with 2.4.18 works fine. The partitons of the disk are detecded,
-> and I can access them.
-> 
-> Booting with 2.4.19-rc1 hangs on bootup.
-> 
-> The Promise is detected correctly.
-> 
-> But when it comes to the partition-check the systems hangs:
-> 
-> looks like this:
-> 
-> ------snippel-------
-> PDC20265: chipset revision 2
-> PDC20265: not 100% native mode: will probe irqs later
-> PDC20265: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
->     ide2: BM-DMA at 0xc800-0xc807, BIOS settings: hde:pio, hdf:pio
->     ide3: BM-DMA at 0xc808-0xc80f, BIOS settings: hdg:DMA, hdh:DMA
-> hda: IBM-DHEA-36481, ATA DISK drive
-> hde: Maxtor 4G120J6, ATA DISK drive
-> hdf: Maxtor 4G120J6, ATA DISK drive
-> hdg: Maxtor 4G120J6, ATA DISK drive
-> hdh: Maxtor 4G120J6, ATA DISK drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> ide2 at 0xb800-0xb807,0xbc02 on irq 11
-> ide3 at 0xc000-0xc007,0xc402 on irq 11
-> hda: 12692736 sectors (6499 MB) w/472KiB Cache, CHS=790/255/63, UDMA(33)
-> hde: 240121728 sectors (122942 MB) w/2048KiB Cache, CHS=238216/16/63,
-> UDMA(100)
-> hdf: 240121728 sectors (122942 MB) w/2048KiB Cache, CHS=238216/16/63,
-> UDMA(100)
-> hdg: 240121728 sectors (122942 MB) w/2048KiB Cache, CHS=238216/16/63,
-> UDMA(100)
-> hdh: 240121728 sectors (122942 MB) w/2048KiB Cache, CHS=238216/16/63,
-> UDMA(100)
-> Partition check:
->  hda: hda1 hda2 hda3
->  hde:
-> 
-> --------------
-> 
-> And here it hangs
-> 
-> 
-> Because the patch between 2.4.18 and 2.4.19-rc1 is very big, there seem
-> to be a lot of changes.
-> 
-> 
-> Thanks in andvance for any help.....
-> 
-> 
-> 
-> 
-> -- 
-> 
-> Bye
-> 
-> 	Ernst
-> ---------
-> Ernst Lehmann             Email: lehmann@acheron.franken.de
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+
+That one isn a unique report. MPX boards seem to have problems burning
+CD-R's. I have no idea why
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
 

@@ -1,44 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129577AbRBXCnq>; Fri, 23 Feb 2001 21:43:46 -0500
+	id <S131164AbRBXCt0>; Fri, 23 Feb 2001 21:49:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131136AbRBXCni>; Fri, 23 Feb 2001 21:43:38 -0500
-Received: from cx518206-b.irvn1.occa.home.com ([24.21.107.123]:56068 "EHLO
-	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with ESMTP
-	id <S129577AbRBXCn3>; Fri, 23 Feb 2001 21:43:29 -0500
-From: "Barry K. Nathan" <barryn@cx518206-b.irvn1.occa.home.com>
-Message-Id: <200102240244.SAA03481@cx518206-b.irvn1.occa.home.com>
-Subject: Re: loop-6 patch and 2.4.2
-To: sxking@uswest.net
-Date: Fri, 23 Feb 2001 18:44:01 -0800 (PST)
-Cc: mhaque@haque.net ( Mohammad A. Haque), linux-kernel@vger.kernel.org ( )
-Reply-To: barryn@pobox.com
-In-Reply-To: <01022311194600.00869@rigel> from "Steven King" at Feb 23, 2001 11:19:46 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S131173AbRBXCtQ>; Fri, 23 Feb 2001 21:49:16 -0500
+Received: from mail004.syd.optusnet.com.au ([203.2.75.228]:60623 "EHLO
+	mail004.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id <S131166AbRBXCtN>; Fri, 23 Feb 2001 21:49:13 -0500
+From: Michal Gornisiewicz <jedin@iname.com>
+To: mason@suse.com, linux-kernel@vger.kernel.org
+Subject: Re: reiserfs: still problems with tail conversion
+Date: Sat, 24 Feb 2001 10:52:07 +0800
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="us-ascii"
+In-Reply-To: <20010223221856.A24959@arthur.ubicom.tudelft.nl> <730960000.982966246@tiny> <20010223231949.D24959@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20010223231949.D24959@arthur.ubicom.tudelft.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01022410520700.01447@Defiance.Hell>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven King wrote:
-> On Friday 23 February 2001 10:50, 	Mohammad A. Haque wrote:
-> > Is anyone else using 2.4.2 patched with loop-6? Does load goto about 1
-> > and stay there even though mounting things via loop seem to work fine?
-> 
->   Yes, and with 2 mounts the load avg goes ~2; after umounting, it goes back 
-> to normal levels.
+On Saturday 24 February 2001 06:19, Erik Mouw wrote:
+> I'll upgrade to linux-2.4.2 to see if it solves the problem. (was
+> running 2.4.2-pre4 + your patch)
+>
+>
+> Erik
 
-You can observe with ps that each thread for each mounted loop device
-increases the load by 1; here's the output from "ps ax | fgrep loop" on my
-Dell Inspiron 5000e:
+I'm running 2.4.2 and I get similar results using your test program.
+This is on an IBM 390 Laptop. P2-233, 96mb RAM, 3.2gb HDD.
 
-   13 ?        DW<    0:28 [loop1]
-  115 ?        DW<    0:57 [loop0]
-  116 ?        DW<    0:58 [loop2]
- 2816 pts/4    S      0:00 fgrep loop
+See program results below. I can supply more info 
+(.config etc, & do testing) if needed.
 
-Since I have 3 image files mounted, that means my Inspiron 5000e has a load
-of 3 when it's idle... ;)
+MG
 
--Barry K. Nathan <barryn@pobox.com>
+
+
+Creating 8192 files ... done
+Appending to the files ... done
+Checking files for null bytes ...
+  reiser-00107.test contains null bytes
+  reiser-00127.test contains null bytes
+  reiser-00208.test contains null bytes
+  reiser-00234.test contains null bytes
+  reiser-00259.test contains null bytes
+  reiser-00303.test contains null bytes
+  reiser-00324.test contains null bytes
+  reiser-00343.test contains null bytes
+  reiser-00371.test contains null bytes
+  reiser-00388.test contains null bytes
+  reiser-00444.test contains null bytes
+  reiser-00452.test contains null bytes
+  reiser-00459.test contains null bytes
+  reiser-00466.test contains null bytes
+  reiser-00495.test contains null bytes
+  reiser-00502.test contains null bytes
+  reiser-00515.test contains null bytes
+  reiser-00522.test contains null bytes
+  reiser-00535.test contains null bytes
+  reiser-00548.test contains null bytes
+  reiser-00608.test contains null bytes
+  reiser-00614.test contains null bytes
+  reiser-00620.test contains null bytes
+  reiser-00626.test contains null bytes
+  reiser-00637.test contains null bytes
+  reiser-00648.test contains null bytes
+  reiser-00659.test contains null bytes
+  reiser-00669.test contains null bytes
+  reiser-00674.test contains null bytes
+  reiser-00704.test contains null bytes
+  reiser-00744.test contains null bytes
+  reiser-00749.test contains null bytes
+  reiser-00754.test contains null bytes
+  reiser-00759.test contains null bytes
+  reiser-00764.test contains null bytes
+  reiser-00773.test contains null bytes
+  reiser-00778.test contains null bytes
+  reiser-00787.test contains null bytes
+  reiser-00792.test contains null bytes
+  reiser-00801.test contains null bytes
+  reiser-00810.test contains null bytes
+  reiser-00819.test contains null bytes
+  reiser-00847.test contains null bytes
+  reiser-00855.test contains null bytes
+  reiser-00899.test contains null bytes
+  reiser-00947.test contains null bytes
+  reiser-00951.test contains null bytes
+  reiser-00955.test contains null bytes
+  reiser-00959.test contains null bytes
+  reiser-00963.test contains null bytes
+  reiser-00967.test contains null bytes
+  reiser-00971.test contains null bytes
+  reiser-00978.test contains null bytes
+  reiser-00982.test contains null bytes
+  reiser-00986.test contains null bytes
+  reiser-00990.test contains null bytes
+  reiser-00997.test contains null bytes
+  reiser-01001.test contains null bytes
+  reiser-01005.test contains null bytes
+  reiser-01012.test contains null bytes
+  reiser-01016.test contains null bytes
+Checking done

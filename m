@@ -1,67 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261874AbTHBMNO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 08:13:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbTHBMNO
+	id S262254AbTHBMRO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 08:17:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbTHBMRO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 08:13:14 -0400
-Received: from port-212-202-27-44.reverse.qsc.de ([212.202.27.44]:15904 "EHLO
-	camelot.fbunet.de") by vger.kernel.org with ESMTP id S261874AbTHBMNM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 08:13:12 -0400
-From: Fridtjof Busse <fbusse@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.22-pre10
-Date: Sat, 2 Aug 2003 14:13:11 +0200
-Cc: marcelo@conectiva.com.br
-X-OS: Linux on i686
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Sat, 2 Aug 2003 08:17:14 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:60427 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S262254AbTHBMRL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 08:17:11 -0400
+Date: Sat, 2 Aug 2003 14:17:09 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Erik McKee <camhanaich99@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: minixfs question
+Message-ID: <20030802121709.GA3689@win.tue.nl>
+References: <20030802094854.19141.qmail@web14202.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308021413.11130@fbunet.de>
+In-Reply-To: <20030802094854.19141.qmail@web14202.mail.yahoo.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hello,
-> 
-> Here goes -pre10, hopefully the last -pre of 2.4.22. 
-> 
-> It contains a bunch of important fixes, detailed below.
-> 
-> Please help testing.
+On Sat, Aug 02, 2003 at 02:48:54AM -0700, Erik McKee wrote:
 
-Dumping to an USB-harddisk still doesn't work:
+> hoping this fs is a good place to start learning about fs in linux
 
-kernel: hub.c: new USB device 00:02.2-2, assigned address 4
-kernel: scsi1 : SCSI emulation for USB Mass Storage devices
-kernel:   Vendor: Maxtor 6  Model: Y120L0            Rev: 0811
-kernel:   Type:   Direct-Access                   ANSI SCSI revision: 02
-kernel: Attached scsi disk sda at scsi1, channel 0, id 0, lun 0
-kernel: SCSI device sda: 240121728 512-byte hdwr sectors (122942 MB)
-kernel:  /dev/scsi/host1/bus0/target0/lun0: p1
-kernel: WARNING: USB Mass Storage data integrity not assured
-kernel: USB Mass Storage device found at 4
-kernel: usb_control/bulk_msg: timeout
+Since it is small, and was the first, it has been a template
+for many other filesystems. On the other hand, today it is a fossil,
+not used very much, and its code is no longer exemplary.
 
-No start dump:
+You ask about minix_find_first_zero_bit and whether there aren't generic fns.
+There are, but the details differ a bit. The original version was
+little-endian. On other architectures one must choose between
+little-endian and native endian. The choice can be read off in asm*/bitops.h.
 
-last message repeated 2 times
-kernel: usb.c: USB disconnect on device 00:02.2-2 address 4
-kernel: usb-storage: host_reset() requested but not implemented
-kernel: scsi: device set offline - command error recover failed: host 1 
-channel 0 id 0 lun 0
-kernel: 192
-kernel:  I/O error: dev 08:01, sector 81655440
-lots of I/O errors following
+> 224         bh = NULL;
+> 225         *error = -ENOSPC;
+> 226         lock_kernel();
+> 227         for (i = 0; i < sbi->s_imap_blocks; i++) {
+> 228                 bh = sbi->s_imap[i];
+> 229                 if ((j = minix_find_first_zero_bit(bh->b_data, 8192)) < 8192)
+> 230                         break;
+> 231         }
+> 232         if (!bh || j >= 8192) {
 
-I also reported this to usb-devel, but never got a reply.
-Works fine with 2.4.21.
-Please CC me, thanks
-
--- 
-Fridtjof Busse
-printk("Illegal format on cdrom.  Pester manufacturer.\n"); 
-	2.2.16 /usr/src/linux/fs/isofs/inode.c
+You ask about the dereference bh->b_data and the test !bh.
+The intention is that sbi->s_imap_blocks gives the number of
+entries in sbi->s_imap that are nonzero. So, the bh in the
+inner loop should be non-NULL. But after the loop bh can be NULL,
+namely when sbi->s_imap_blocks == 0.
 

@@ -1,109 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315468AbSGJKij>; Wed, 10 Jul 2002 06:38:39 -0400
+	id <S315463AbSGJKfg>; Wed, 10 Jul 2002 06:35:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315479AbSGJKii>; Wed, 10 Jul 2002 06:38:38 -0400
-Received: from ce06d.unt0.torres.ka0.zugschlus.de ([212.126.206.6]:19213 "EHLO
-	torres.ka0.zugschlus.de") by vger.kernel.org with ESMTP
-	id <S315468AbSGJKih>; Wed, 10 Jul 2002 06:38:37 -0400
-Date: Wed, 10 Jul 2002 12:41:20 +0200
-From: Marc Haber <mh+linux-kernel@zugschlus.de>
-To: linux-kernel@vger.kernel.org
-Subject: tulip 21143 based card does not work with 10 Mbit with recent kernel
-Message-ID: <20020710124120.A11310@torres.ka0.zugschlus.de>
+	id <S315468AbSGJKff>; Wed, 10 Jul 2002 06:35:35 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:52430 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S315463AbSGJKff>;
+	Wed, 10 Jul 2002 06:35:35 -0400
+Date: Wed, 10 Jul 2002 12:38:13 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Lionel Bouton <Lionel.Bouton@inet6.fr>, linux-kernel@vger.kernel.org
+Subject: Re: SIS645DX/SIS5513
+Message-ID: <20020710123813.A19806@ucw.cz>
+References: <20020709203746.49198f6a.bdarrow@optonline.net> <20020710120323.A2449@bouton.inet6-interne.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020710120323.A2449@bouton.inet6-interne.fr>; from Lionel.Bouton@inet6.fr on Wed, Jul 10, 2002 at 12:03:23PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Jul 10, 2002 at 12:03:23PM +0200, Lionel Bouton wrote:
+> On mar, jui 09, 2002 at 08:37:46 -0400, Bill Darrow wrote:
+> > I recently aquired a motherboard with a SIS645DX northbridge and a SIS961B southbridge which has an IDE controller in the SIS5513 family...
+> > 
+> >     IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev 208).
+> > 
+> > There appears to be support for the SiS ide controllers in sis5513.c however there only appears to be support for the 645 and not the 645dx.  I can still use my IDE controller but device read timings on ATA133 harddrives show that they can only put out about 3M/sec which isn't acceptable.  Does anyone know of any support for the 645dx/5513 combo (961B)?  Or does anyone know a way I can make a quick hack on sis5513.c so that I can support my controller, even if its not to its fullest potential?
+> > 
+> 
+> You'll have to wait for me to find some time between work, relocation in
+> progress and friends
+> *OR*
+> make sure SiS management understand that not publishing specs in a wide
+> manner only hurt their sales. Save for one-liner patches, I've been the
+> only one able to contribute code to sis5513.c thanks to reverse-engineering
+> and specs/knowhow coming from anonymous sources for the last months.
+> 
+> To summarize current SiS position : if you want specs, you have to sign a
+> NDA.
+> 
+> I wanted to avoid the NDA and tried to explain that it won't be best for
+> Linux and SiS to have specs sent to few individuals and that the better
+> way was to make them available to the whole community.
+> This apparently was not an option and I finally agreed to sign the NDA...
+> to be told that the NDA was to be signed by a company -> no NDA, no official
+> spec for me.
+> 
+> As I am the last contributor to sis5513.c I am currently the only recipient
+> of "don't tell anyone I told you this" informations related to sis5513
+> derivatives.
+> This is a very unfortunate situation as I can't publish these informations
+> even if I don't have time to use them myself.
+> 
+> If someone has time to help me, I'll ask my anonymous sources if I can
+> privately forward you what I have. I would be glad to enter a more
+> cooperative development process but people willing to help must be aware of
+> the issues.
 
-I have a bunch of tulip based network cards with 21143 chipset. These
-Micronet made cards do not seem to work when connected to a 10 Mbit
-hub (as I have in the lab setup) while running with a recent kernel:
-
-Jul 10 11:41:52 orion kernel: Linux Tulip driver version 0.9.15-pre9 (Nov 6, 2001)
-Jul 10 11:41:52 orion kernel: PCI: Found IRQ 5 for device 00:09.0
-Jul 10 11:41:52 orion kernel: PCI: Sharing IRQ 5 with 00:04.2
-Jul 10 11:41:52 orion kernel: tulip0:  EEPROM default media type Autosense.
-Jul 10 11:41:52 orion kernel: tulip0:  Index #0 - Media 10baseT (#0) described by a 21142 Serial PHY (2) block.
-Jul 10 11:41:52 orion kernel: tulip0:  Index #1 - Media 10baseT-FDX (#4) described by a 21142 Serial PHY (2) block.
-Jul 10 11:41:52 orion kernel: tulip0:  Index #2 - Media 100baseTx (#3) described by a 21143 SYM PHY (4) block.
-Jul 10 11:41:52 orion kernel: tulip0:  Index #3 - Media 100baseTx-FDX (#5) described by a 21143 SYM PHY (4) block.
-Jul 10 11:41:52 orion kernel: eth0: Digital DS21143 Tulip rev 65 at 0xb000, 00:C0:CA:30:CD:75, IRQ 5.
-
-The hub shows a link beat after the module has been loaded, but the
-link vanishes once the "ip link set dev eth0 up" was issued. No data
-can be transferred.
-
-|haber@orion[1/76]:~$ sudo mii-diag eth0
-|Basic registers of MII PHY #32:  1000 784c 0000 0000 01e1 0000 0000 0000.
-| Basic mode control register 0x1000: Auto-negotiation enabled.
-| You have link beat, and everything is working OK.
-| Your link partner does not do autonegotiation, and this transceiver type
-|  does not report the sensed link speed.
-|   End of basic transceiver informaion.
-
-Please note that mii-diag claims link beat, which is not true.
-
-|haber@orion[8/83]:~$ sudo mii-tool --force=10baseT-HD
-|haber@orion[9/84]:~$ sudo mii-diag eth0
-|Basic registers of MII PHY #32:  2000 7848 0000 0000 01e1 0000 0000 0000.
-| Basic mode control register 0x2000: Auto-negotiation disabled, with
-| Speed fixed at 100 mbps, half-duplex.
-| Basic mode status register 0x7848 ... 7848.
-|   Link status: not established.
-| Link partner information information is not exchanged when in fixed speed mode.
-|   End of basic transceiver informaion.
-
-Please not that mii-diag report the speed that has just been forced to
-10 mbps half-duplex as 100 mbps.
-
-Using a 10/100 Mbit switch instead of the 10 Mbit hub solves this
-problem.
-
-|haber@orion[4/59]:~$ sudo mii-diag eth0
-|Basic registers of MII PHY #32:  1000 784c 0000 0000 0041 45e1 0000 0000.
-| The autonegotiated capability is 0040.
-|The autonegotiated media type is 10baseT-FD.
-| Basic mode control register 0x1000: Auto-negotiation enabled.
-| You have link beat, and everything is working OK.
-| Your link partner advertised 45e1: Flow-control 100baseTx-FD 100baseTx 10baseT-FD 10baseT, w/ 802.3X flow control.
-|   End of basic transceiver informaion.
-
-However, the switch clearly shows the 100 Mbit light "on", so I have
-to - again - distrust mii-diag here, because the performance clearly
-shows that we are not running 10 Mbit here (10 Mbyte in approx. 2 secs).
-
-When I use an older kernel (2.2.18 from the Linuxcare BBC), the card
-works on the hub:
-
-Jul 10 11:40:06 orion kernel: tulip.c:v0.91g-ppc 7/16/99 becker@cesdis.gsfc.nasa.gov
-Jul 10 11:40:06 orion kernel: eth0: Digital DS21143 Tulip rev 65 at 0xb000, 00:C0:CA:30:CD:75, IRQ 5.
-Jul 10 11:40:06 orion kernel: eth0:  EEPROM default media type Autosense.
-Jul 10 11:40:06 orion kernel: eth0:  Index #0 - Media 10baseT (#0) described by a 21142 Serial PHY (2) block.
-Jul 10 11:40:06 orion kernel: eth0:  Index #1 - Media 10baseT-FD (#4) described by a 21142 Serial PHY (2) block.
-Jul 10 11:40:06 orion kernel: eth0:  Index #2 - Media 100baseTx (#3) described by a 21143 SYM PHY (4) block.
-Jul 10 11:40:06 orion kernel: eth0:  Index #3 - Media 100baseTx-FD (#5) described by a 21143 SYM PHY (4) block.
-
-|haber@orion[3/88]:~$ sudo mii-diag eth0
-|Basic registers of MII PHY #32:  1000 786c 0000 0000 05e1 0000 0000 0000.
-| Basic mode control register 0x1000: Auto-negotiation enabled.
-| You have link beat, and everything is working OK.
-| Your link partner does not do autonegotiation, and this transceiver type
-|  does not report the sensed link speed.
-|   End of basic transceiver informaion.
-
-Is this a known issue with the tulip driver in 2.4.18? Can I help with
-debugging?
-
-Greetings
-Marc
+I do.
 
 -- 
------------------------------------------------------------------------------
-Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
-Karlsruhe, Germany |  lose things."    Winona Ryder | Fon: *49 721 966 32 15
-Nordisch by Nature |  How to make an American Quilt | Fax: *49 721 966 31 29
+Vojtech Pavlik
+SuSE Labs

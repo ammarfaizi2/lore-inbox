@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264796AbUEPTYp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264799AbUEPT3O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264796AbUEPTYp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 15:24:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264799AbUEPTYp
+	id S264799AbUEPT3O (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 15:29:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264801AbUEPT3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 15:24:45 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:37851 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264796AbUEPTYn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 15:24:43 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [RFC][DOC] writing IDE driver guidelines
-Date: Sun, 16 May 2004 21:26:05 +0200
-User-Agent: KMail/1.5.3
-Cc: Marc Singer <elf@buici.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-References: <200405151923.50343.bzolnier@elka.pw.edu.pl> <200405151958.03322.bzolnier@elka.pw.edu.pl> <40A69848.9020304@pobox.com>
-In-Reply-To: <40A69848.9020304@pobox.com>
+	Sun, 16 May 2004 15:29:14 -0400
+Received: from smtp802.mail.sc5.yahoo.com ([66.163.168.181]:38031 "HELO
+	smtp802.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264799AbUEPT3N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 May 2004 15:29:13 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Jan De Luyck <lkml@kcore.org>
+Subject: Re: [2.6.6] Synaptics driver is 'jumpy'
+Date: Sun, 16 May 2004 14:29:10 -0500
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <200405161222.48581.lkml@kcore.org> <200405161218.37521.dtor_core@ameritech.net> <200405162106.29858.lkml@kcore.org>
+In-Reply-To: <200405162106.29858.lkml@kcore.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200405162126.05428.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405161429.10448.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 16 of May 2004 00:23, Jeff Garzik wrote:
-
-> >>>- define ide_default_irq(), ide_init_default_irq()
-> >>>  and ide_default_io_base() to (0)
-> >>
-> >>Maybe provide generic definitions, so that new arches don't even
-> >>have to care about this?
+On Sunday 16 May 2004 02:06 pm, Jan De Luyck wrote:
+> On Sunday 16 May 2004 19:18, Dmitry Torokhov wrote:
+> > Hmm.. there was no changes to PS/2 processing between 2.6.5 and 2.6.6
+> > except for some Logitech tweaking, but it should not affect Synaptics
+> > handling in any way...
 > >
-> > Please explain.
->
-> Your document appears to imply that each new arch should define the
-> above three symbols.
->
-> My suggestion is to devise a method by which new arches don't have to
-> care about those symbols at all, unless required to do so by the
-> underlying hardware.
+> > Could you check if you still have DMA enabled on your disks, check your
+> > time source (TSC, ACPI PM timer, etc) and probably boot with acpi off?
+> >
+> > Thank you.
+> 
+> Dmitry,
+> 
+> Booting with acpi=off fixes the problem, although I'm curious to what the
+> problem actually is.
+> 
+> I've attached the dmesgs from 2.6.6, 2.6.5, and 2.6.6 with acpi=off.
+> 
+> There is a line that says "Invalid control registers" that I wonder where it
+> comes from, but you might see something more here than I do.
+> 
 
-OK will work on this
+It comes from speedstep-centrino module, could you please try booting with ACPI
+but without speedstep-centrino loaded? Also, does it help if you do not compile/
+load ACPI battery module?
 
+-- 
+Dmitry

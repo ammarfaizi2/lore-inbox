@@ -1,160 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261784AbTL1Q56 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 11:57:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbTL1Q56
+	id S261733AbTL1Qze (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 11:55:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbTL1Qze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 11:57:58 -0500
-Received: from [212.28.208.94] ([212.28.208.94]:15628 "HELO dewire.com")
-	by vger.kernel.org with SMTP id S261784AbTL1Q5w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 11:57:52 -0500
-From: Robin Rosenberg <roro.l@dewire.com>
-To: Martin Mares <mj@ucw.cz>
-Subject: Re: 2.6 pci address space collission
-Date: Sun, 28 Dec 2003 17:57:49 +0100
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <200312280222.21712.roro.l@dewire.com> <20031228130847.GA1764@ucw.cz>
-In-Reply-To: <20031228130847.GA1764@ucw.cz>
+	Sun, 28 Dec 2003 11:55:34 -0500
+Received: from simmts7.bellnexxia.net ([206.47.199.165]:48874 "EHLO
+	simmts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S261733AbTL1Qzd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 11:55:33 -0500
+Message-ID: <3FEF0AFD.4040109@yahoo.com>
+Date: Sun, 28 Dec 2003 11:55:25 -0500
+From: Eugene <spamacct11@yahoo.com>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_Nuw7/Bs65BbMKHd"
-Message-Id: <200312281757.49809.roro.l@dewire.com>
+To: linux-kernel@vger.kernel.org
+Subject: best AMD motherboard for Linux
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  Sorry to bother you kernel hackers. I have a simple question.
 
---Boundary-00=_Nuw7/Bs65BbMKHd
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+I am about to buy a new AMD Athlon system and I want to make sure I get 
+ the hardware that works best with Linux. I am wondering whether I 
+should get a nForce 2 or KT600 based motherboard. Specifically, I am 
+looking at
 
-s=F6ndagen den 28 december 2003 14.08 skrev Martin Mares:
-> Hello!
->
-> > What's this Address space collission?
->
-> Could you please send me the output of `lspci -vvxxx'?
+Asus A7N8X-X
+http://usa.asus.com/products/mb/socketa/a7n8x-x/overview.htm
+nForce 2
+Realtek ALC650 sound card
+Realtek 8201BL network card
 
-Sure. I'll even give you two. One from running the 2.4 and one from the 2.6=
-=20
-kernel. The error message appears under 2.6.
+and
 
-=2D- robin
+Gigabyte GA-7VT600-P-L
+http://www.giga-byte.com/MotherBoard/Products/Products_GA-7VT600-P-L.htm
+Northbridge : VIA KT600
+Southbridge : VIA VT8237
+Realtek ALC655 AC97 sound card
+Realtek 8101L NIC
 
---Boundary-00=_Nuw7/Bs65BbMKHd
-Content-Type: application/x-gzip;
-  name="lspci-2.4.out.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="lspci-2.4.out.gz"
 
-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
-f8FA/P8AOAeMPIpGAAA=
+My primary requiremnet is that it must work well with Linux. I can 
+handle downloading & installing drivers. If it works out of the box 
+(without downloading binary drivers) that's even better. I am also 
+planning to get GeForce FX graphics card, if it makes a difference. So 
+which board is more compatibile?
 
---Boundary-00=_Nuw7/Bs65BbMKHd
-Content-Type: application/x-gzip;
-  name="lspci-2.6.out.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="lspci-2.6.out.gz"
+thanks in advance,
 
-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
-zj7cW8Q3GJP/LzrOeFSVRgAA
-
---Boundary-00=_Nuw7/Bs65BbMKHd--
+Eugene
 

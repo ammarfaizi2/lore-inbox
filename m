@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262683AbUA0HT4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 02:19:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbUA0HT4
+	id S261270AbUA0HiE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 02:38:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbUA0HiE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 02:19:56 -0500
-Received: from obsidian.spiritone.com ([216.99.193.137]:8074 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S262683AbUA0HTz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 02:19:55 -0500
-Date: Mon, 26 Jan 2004 23:19:48 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Nick Piggin <piggin@cyberone.com.au>,
-       Rusty Russell <rusty@rustcorp.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: New NUMA scheduler and hotplug CPU
-Message-ID: <361670000.1075187987@[10.10.2.4]>
-In-Reply-To: <4015F9A8.6000801@cyberone.com.au>
-References: <20040127024049.7B90B2C13D@lists.samba.org> <356230000.1075178284@[10.10.2.4]> <4015F9A8.6000801@cyberone.com.au>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Tue, 27 Jan 2004 02:38:04 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:53890 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S261270AbUA0HiC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 02:38:02 -0500
+Date: Tue, 27 Jan 2004 08:38:01 +0100
+From: Sander <sander@humilis.net>
+To: Wakko Warner <wakko@animx.eu.org>
+Cc: Robert Love <rml@ximian.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1 dual xeon
+Message-ID: <20040127073801.GB9708@favonius>
+Reply-To: sander@humilis.net
+References: <20040124203646.A8709@animx.eu.org> <1074995006.5246.1.camel@localhost> <20040125083712.A9318@animx.eu.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20040125083712.A9318@animx.eu.org>
+X-Uptime: 07:25:48 up 31 days, 21:14, 36 users,  load average: 1.16, 1.99, 2.45
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well lets not worry too much about this for now. We could use
-> static arrays and cpu_possible for now until we get a feel
-> for what specific architectures want.
+Wakko Warner wrote (ao):
+> > > I recently aquired a dual xeon system. HT is enabled which shows
+> > > up as 4 cpus. I noticed that all interrupts are on CPU0. Can
+> > > anyone tell me why this is?
+> > 
+> > The APIC needs to be programmed to deliver interrupts to certain
+> > processors.
+> > 
+> > In 2.6, this is done in user-space via a program called irqbalance:
 > 
-> To be honest I haven't seen the hotplug CPU code and I don't
-> know about what architectures want to be doing with it, so
-> this is my preferred direction just out of ignorance.
-> 
-> An easy next step toward a dynamic scheme would be just to
-> re-init the entire sched domain topology (the generic init uses
-> the generic NUMA topology info which will have to be handled
-> by these architectures anyway). Modulo a small locking problem.
-> 
-> There aren't any fundamental design issues (with sched domains)
-> that I can see preventing a more dynamic system so we can keep
-> that in mind.
+> Thanks, working great. (Debian by the way)
 
-Yeah, I talked it over with Rusty some on IRC. I have more of a feeling
-why he's trying to do it that way now. However, one other thought occurs
-to me ... it'd be good to use the same infrastructure (sched domains)
-for the workload management stuff as well (where the domains would be
-defined from userspace). That'd also necessitate them being dynamic,
-if you think that'd work out as a usage model.
+Ehm, IIRC the "all interrupts are on CPU0" is how it is supposed to work
+with a 2.6 kernel? The interrupts should spread if you have _a_lot_ of
+them. This gives better performance than spreading the interrupts. Did I
+read this on the list, or am I completely wrong here?
 
-The cpu_possible stuff might work for a first cut at hotplug I guess.
-I still think it's ugly though ;-)
-
-M.
-
+-- 
+Humilis IT Services and Solutions
+http://www.humilis.net

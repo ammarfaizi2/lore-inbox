@@ -1,54 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263135AbVCDXwT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263178AbVCDXwU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263135AbVCDXwT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 18:52:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbVCDXoQ
+	id S263178AbVCDXwU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 18:52:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263267AbVCDXop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 18:44:16 -0500
-Received: from mail.kroah.org ([69.55.234.183]:2502 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263294AbVCDWI3 (ORCPT
+	Fri, 4 Mar 2005 18:44:45 -0500
+Received: from fire.osdl.org ([65.172.181.4]:39845 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263242AbVCDWIV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 17:08:29 -0500
-Date: Fri, 4 Mar 2005 14:08:17 -0800
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, chrisw@osdl.org, torvalds@osdl.org
-Subject: Re: Linux 2.6.11.1
-Message-ID: <20050304220817.GD1201@kroah.com>
-References: <20050304175302.GA29289@kroah.com> <20050304124431.676fd7cf.akpm@osdl.org> <20050304205842.GA32232@kroah.com> <20050304131537.7039ca10.akpm@osdl.org> <20050304214309.GA898@kroah.com> <20050304135402.268e3865.akpm@osdl.org>
+	Fri, 4 Mar 2005 17:08:21 -0500
+Date: Fri, 4 Mar 2005 14:07:50 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Vincent Vanackere <vincent.vanackere@gmail.com>
+Cc: kernel@kolivas.org, axboe@suse.de, ck@vds.kolivas.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-ck1 (cfq-timeslice)
+Message-Id: <20050304140750.757e9f4a.akpm@osdl.org>
+In-Reply-To: <65258a58050304064710b403d7@mail.gmail.com>
+References: <200503030030.29722.kernel@kolivas.org>
+	<65258a58050304064710b403d7@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050304135402.268e3865.akpm@osdl.org>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 01:54:02PM -0800, Andrew Morton wrote:
-> Greg KH <greg@kroah.com> wrote:
-> >
-> > On Fri, Mar 04, 2005 at 01:15:37PM -0800, Andrew Morton wrote:
-> > > Greg KH <greg@kroah.com> wrote:
-> > > >
-> > > > > Here's the list of things which we might choose to put into 2.6.11.2.  I was
-> > > >  > planning on sending them in for 2.6.12 when that was going to be
-> > > >  > errata-only.
-> > > > 
-> > > >  Ok, care to forward them on?
-> > > 
-> > > Sure.  How do they get to Linus?
-> > 
-> > Hm, either he pulls them from our new 2.6.x.y tree, or they go to him
-> > through you.  Either way, I'd recommend sending them to him for now,
-> 
-> We can do that.  As long as the patches remain unaltered I assume that BK
-> will recognise that the patch is already there, in a different cset?
+Vincent Vanackere <vincent.vanackere@gmail.com> wrote:
+>
+> Speaking of the cfq-timeslice scheduler, is there a version that
+> applies to recent -mm kernels ?
 
-Yes, it can handle such a merge just fine.
+Yes, what happened to that?
 
-> > until we get this whole "procedure" worked out.
-> 
-> Yup.  That's why I'm running this little experiment.  Applying stimuli and
-> seeing how we respond.  Yum, cheese.
+> (I can't live without reiser4 any more...).
 
-/me scampers off into the corner...
+Tell us more?

@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269421AbRHQB4i>; Thu, 16 Aug 2001 21:56:38 -0400
+	id <S269437AbRHQB7q>; Thu, 16 Aug 2001 21:59:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269436AbRHQB41>; Thu, 16 Aug 2001 21:56:27 -0400
-Received: from freya.yggdrasil.com ([209.249.10.20]:58502 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S269413AbRHQB4H>; Thu, 16 Aug 2001 21:56:07 -0400
-Date: Thu, 16 Aug 2001 18:56:18 -0700
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: linux-kernel@vger.kernel.org
-Subject: Patch(?): linux-2.4.9/include/linux/spinlock.h sometimes needs to redefine atomic_dec_and_lock
-Message-ID: <20010816185618.A5159@baldur.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="FL5UXtIhxfXey3p5"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S269413AbRHQB70>; Thu, 16 Aug 2001 21:59:26 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:41487 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S268911AbRHQB7V>; Thu, 16 Aug 2001 21:59:21 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andrew Morton <akpm@zip.com.au>, Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: 2.4.9 does not compile [PATCH]
+Date: Fri, 17 Aug 2001 04:05:46 +0200
+X-Mailer: KMail [version 1.3]
+Cc: Jeff Dike <jdike@karaya.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "David S. Miller" <davem@redhat.com>, tpepper@vato.org,
+        f5ibh@db0bm.ampr.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200108170146.UAA05171@ccure.karaya.com> <5.1.0.14.2.20010817015007.045689b0@pop.cus.cam.ac.uk> <3B7C7846.FD9DEE68@zip.com.au>
+In-Reply-To: <3B7C7846.FD9DEE68@zip.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010817015930Z16546-1232+417@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On August 17, 2001 03:49 am, Andrew Morton wrote:
+> Anton Altaparmakov wrote:
+> > 
+> > #define min(x,y) \
+> >          ({ typeof(x) __x = (x); typeof(y) __y = (y); __x < __y ? __x : 
+__y; })
+> > 
+> > int test(int a, int b, int c)
+> > {
+> >          return min(a, min(b, c));
+> > }
+> 
+> Problems occur if the caller happens to pass in variables whose
+> names confilct with the ones you chose in the above macro:
 
---FL5UXtIhxfXey3p5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I remember the thread in detail.  We must have similar scoping problems in 
+innumerable macros.  I'd a braindead flaw in C's scoping rules, and you know, 
+I don't think it matters.  Don't use local variables with names like __foo.
 
-	The following patch to linux-2.4.9/include/linux/spinlock.h
-defines atomic_dec_and_lock to atomic_dec_and_test on SMP
-architectures that do not have an "atomic_dec_and_lock", such as
-i386.  I am not sure if this is the correct patch because, as I
-mentioned in my previous email to this list a few minutes ago,
-I'm not completely clear on the semantics of these two functions
-and I think the problems with this routine may be the result of
-an incompletely applied patch.  However, I am posting this patch
-in case it is correct or otherwise helpful.  This patch does eliminate
-the problem of atomic_dec_and_lock not being defined in sunrpc.o.
-
--- 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
-
---FL5UXtIhxfXey3p5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="spinlock.diff"
-
---- linux-2.4.9/include/linux/spinlock.h	Wed Aug 15 14:21:11 2001
-+++ linux/include/linux/spinlock.h	Thu Aug 16 18:29:09 2001
-@@ -34,6 +34,11 @@
- #ifdef CONFIG_SMP
- #include <asm/spinlock.h>
- 
-+# ifndef CONFIG_HAVE_DEC_LOCK
-+#  define atomic_dec_and_lock(atomic,lock) atomic_dec_and_test(atomic)
-+# endif
-+
-+
- #elif !defined(spin_lock_init) /* !SMP and spin_lock_init not previously
-                                   defined (e.g. by including asm/spinlock.h */
- 
-
---FL5UXtIhxfXey3p5--
+--
+Daniel

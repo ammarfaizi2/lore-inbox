@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143538AbRA1Qmj>; Sun, 28 Jan 2001 11:42:39 -0500
+	id <S143554AbRA1Qo7>; Sun, 28 Jan 2001 11:44:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143524AbRA1Qma>; Sun, 28 Jan 2001 11:42:30 -0500
-Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:44991 "EHLO
-	smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S143538AbRA1QmK>; Sun, 28 Jan 2001 11:42:10 -0500
-Message-ID: <3A744BD0.332CBBAD@rcn.com>
-Date: Sun, 28 Jan 2001 11:41:52 -0500
-From: mike <lazybrain@rcn.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-21mdksecure i686)
-X-Accept-Language: en
+	id <S143524AbRA1Qot>; Sun, 28 Jan 2001 11:44:49 -0500
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:49069 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S143554AbRA1Qob>; Sun, 28 Jan 2001 11:44:31 -0500
+Date: Sun, 28 Jan 2001 16:44:18 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: Miquel van Smoorenburg <miquels@traveler.cistron-office.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ECN: Clearing the air (fwd)
+In-Reply-To: <951am4$gbf$1@ncc1701.cistron.net>
+Message-ID: <Pine.SOL.4.21.0101281642180.16734-100000@green.csi.cam.ac.uk>
 MIME-Version: 1.0
-To: Linux-Kernel@vger.kernel.org
-Subject: doesn't boot.
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,  im not sure if im emailing the right place but its  a start. I just
-setup kernel 2.4.0 and well it doesnt boot.
+On Sun, 28 Jan 2001, Miquel van Smoorenburg wrote:
 
-it says " ok booting the kernel" then nothing happens on the screen, and
-I hear no activity from the computer. I tried it several times following
-the
-instructions, I did make mrproper, etc, tired putting the source in a
-different dir, etc. I remember to reinstall lilo, all the good stuff. Im
-not sure whats wrong.
+> In article <Pine.SOL.4.21.0101281324210.26837-100000@yellow.csi.cam.ac.uk>,
+> James Sutherland  <jas88@cam.ac.uk> wrote:
+> >On Sun, 28 Jan 2001, jamal wrote:
+> >> The internet is a form of organized chaos, sometimes you gotta make
+> >> these type of decisions to get things done. Imagine the joy _most_
+> >> people would get flogging all firewall admins who block all ICMP.
+> >
+> >Blocking out ICMP doesn't bother me particularly. I know they should be
+> >selective, but it doesn't break anything essential.
+> 
+> It breaks Path MTU Discovery. If you have a link somewhere in your
+> network (not at an endpoint, or TCP MSS will take care of it) that
+> has an MTU < 1500, you cannot reach hotmail and a lot of other sites
+> either currently. It _does_ break essential things. Daily. I would
+> get a lot of joy from flogging all firewall admins who block all ICMP.
+
+Except you can detect and deal with these "PMTU black holes". Just as you
+should detect and deal with ECN black holes. Maybe an ideal Internet
+wouldn't have them, but this one does. If you can find an ideal Internet,
+go code for it: until then, stick with the real one. It's all we've got.
 
 
-My system is 2 466 celerons, abtit bp6 , 128ram, voodoo 3 3000,  maxtor
-hd, all custom built. Anyone have any ideas? thanks in advance.
-
+James.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

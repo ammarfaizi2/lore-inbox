@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292238AbSCDI3r>; Mon, 4 Mar 2002 03:29:47 -0500
+	id <S292239AbSCDIce>; Mon, 4 Mar 2002 03:32:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292239AbSCDI3f>; Mon, 4 Mar 2002 03:29:35 -0500
-Received: from postfix2-2.free.fr ([213.228.0.140]:63411 "EHLO
-	postfix2-2.free.fr") by vger.kernel.org with ESMTP
-	id <S292238AbSCDI3U>; Mon, 4 Mar 2002 03:29:20 -0500
-User-Agent: Microsoft-Entourage/10.0.0.1309
-Date: Mon, 04 Mar 2002 09:29:26 +0100
-Subject: Re: [PATCH] spinlock not locked when unlocking in atm_dev_register
-From: Frode Isaksen <fisaksen@bewan.com>
-To: Robert Love <rml@tech9.net>
-Cc: <mitch@sfgoth.com>, <linux-kernel@vger.kernel.org>
-Message-ID: <B8A8EEF6.E8B%fisaksen@bewan.com>
-In-Reply-To: <1015020950.11295.25.camel@phantasy>
-Mime-version: 1.0
-Content-type: text/plain; charset="US-ASCII"
-Content-transfer-encoding: 7bit
+	id <S292254AbSCDIcY>; Mon, 4 Mar 2002 03:32:24 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:1805 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S292239AbSCDIcJ>; Mon, 4 Mar 2002 03:32:09 -0500
+From: Helge Hafting <helgehaf@idb.hist.no>
+Date: Mon, 4 Mar 2002 09:30:55 +0100
+To: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>,
+        linux-kernel@vger.kernel.org
+Subject: Re: SSSCA: We're in trouble now
+Message-ID: <20020304083055.GB21138@hh.idb.hist.no>
+In-Reply-To: <1015028463.2276.231.camel@thanatos> <87bse7nz8g.fsf@CERT.Uni-Stuttgart.DE>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87bse7nz8g.fsf@CERT.Uni-Stuttgart.DE>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, 2002-03-01 at 12:46, Frode Isaksen wrote:
->> If you compile the kernel with SMP and spinlock debugging, BUG() will be
->> called when registering your atm driver, since the "atm_dev_lock" spinlock is
->> not locked when unlocking it.
-> 
-> I don't have any knowledge of the source in question, but wouldn't a
-> possibility (perhaps even more likely) be that you should _add_ the
-> spin_lock instead of remove the spin_unlocks ?
-The atm_dev_register function is calling functions that are using the same
-spinlock, so you cannot just lock the spinlock when entering the function..
+On Sat, Mar 02, 2002 at 09:35:43AM +0100, Florian Weimer wrote:
+[...] 
+> That's not necessarily true.  Most people cannot circumvent even basic
+> obstacles when it comes to computers, and both industry and
+> legislative might be content with that.
 
-Hilsen,
-Frode
+Don't be too sure about that.  If a "few" knows how to circumvent,
+they'll release circumvention kits that anybody can use.
 
+Few people can use a new buffer overflow exploit, much
+more can use a rootkit.  
+
+Helge Hafting

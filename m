@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290120AbSCSSjp>; Tue, 19 Mar 2002 13:39:45 -0500
+	id <S290713AbSCSSmz>; Tue, 19 Mar 2002 13:42:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290184AbSCSSj0>; Tue, 19 Mar 2002 13:39:26 -0500
-Received: from www.wen-online.de ([212.223.88.39]:43538 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S290120AbSCSSjP>;
-	Tue, 19 Mar 2002 13:39:15 -0500
-Date: Tue, 19 Mar 2002 19:56:27 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: John Jasen <jjasen1@umbc.edu>,
-        Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: reading your email via tcpdump
-In-Reply-To: <20020319181130.GQ2254@matchmail.com>
-Message-ID: <Pine.LNX.4.10.10203191953420.421-100000@mikeg.wen-online.de>
+	id <S290593AbSCSSmp>; Tue, 19 Mar 2002 13:42:45 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:14075 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S290228AbSCSSme>; Tue, 19 Mar 2002 13:42:34 -0500
+Date: Tue, 19 Mar 2002 19:42:27 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19pre3-ac2
+In-Reply-To: <E16nNPD-0008E3-00@the-village.bc.nu>
+Message-ID: <Pine.NEB.4.44.0203191938530.3932-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Mar 2002, Mike Fedyk wrote:
+Hi Alan,
 
-> On Tue, Mar 19, 2002 at 09:20:25AM -0500, John Jasen wrote:
-> > > > 16:42:49.412862 10.0.0.101.netbios-dgm > 10.255.255.255.netbios-dgm:
-> > > > >>> NBT UDP PACKET(138) Res=0x1102 ID=0x54 IP=10.0.0.101 Port=138 Length=193
-> > > > Res2=0x0
-> > > > SourceName=T1H6I3          NameType=0x00 (Workstation)
-> > > > DestName=
-> > > > SMB PACKET: SMBunknown (REQUEST)
-> > > > SMB Command   =  0x43
-> > > > Error class   =  0x46
-> > > > Error code    =  20550
-> > > > Flags1        =  0x45
-> > > > Flags2        =  0x4E
-> > > > Tree ID       =  17990
-> > > > Proc ID       =  18000
-> > > > UID           =  16720
-> > > > MID           =  16707
-> > > > Word Count    =  66
-> > > > SMBError = ERROR: Unknown error (70,20550)
-> > 
-> > This looks like standard SMB garbage. It probably repeats on a regular
-> > basis. From what I remember, I think it is a Windows box browsing
-> > the network trying to discover other SMB boxes, finding a 'master
-> > browser', and other such stuff.
-> > 
-> > I see it all the time when there are Windows machines about, and I'm
-> > running tcpdump.
-> > 
-> > I imagine that someone who knows better, such as the Samba guys, would be
-> > able to tell you exactly whats going on, and maybe some other interesting
-> > tidbits of information.
-> > 
-> > (I hate SMB ... its really chatty ...)
-> 
-> That's not the problem part of the tcpdump output.  The problem is that part
-> of an email previously read on the linux box (with no samba runing. (also,
-> no smbfs MikeG?)) showed up in the tcpdump output...
+it seems one call of do_munmap was forgotten:
 
-Yes.  That's exactly what worried me. (no clue as to security issues)
+<--  snip  -->
 
-	-Mike
+...
+gcc -D__KERNEL__ -I/home/bunk/linux/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6   -DKBUILD_BASENAME=shm  -c -o shm.o shm.c
+shm.c: In function `sys_shmdt':
+shm.c:682: too few arguments to function `do_munmap'
+make[2]: *** [shm.o] Error 1
+make[2]: Leaving directory `/home/bunk/linux/linux/ipc'
+make[1]: *** [first_rule] Error 2
+make[1]: Leaving directory `/home/bunk/linux/linux/ipc'
+make: *** [_dir_ipc] Error 2
+
+<--  snip  -->
+
+cu
+Adrian
+
+
+
 

@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263477AbTDSVqX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 17:46:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263478AbTDSVqX
+	id S263478AbTDSWGi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 18:06:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263479AbTDSWGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 17:46:23 -0400
-Received: from [12.47.58.203] ([12.47.58.203]:30677 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263477AbTDSVqV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 17:46:21 -0400
-Date: Sat, 19 Apr 2003 14:58:23 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "Prasanta Sadhukhan" <prasanta@tataelxsi.co.in>
+	Sat, 19 Apr 2003 18:06:38 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:47099 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S263478AbTDSWGh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 18:06:37 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Sun, 20 Apr 2003 00:18:36 +0200 (MEST)
+Message-Id: <UTC200304192218.h3JMIak17446.aeb@smtp.cwi.nl>
+To: aebr@win.tue.nl, akpm@digeo.com
+Subject: Re: Private namespaces
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: calling context of unregister_netdev
-Message-Id: <20030419145823.4867d595.akpm@digeo.com>
-In-Reply-To: <3EA14DD6.4B5983EA@tataelxsi.co.in>
-References: <3EA14DD6.4B5983EA@tataelxsi.co.in>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Apr 2003 21:58:13.0731 (UTC) FILETIME=[C651D330:01C306BE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Prasanta Sadhukhan" <prasanta@tataelxsi.co.in> wrote:
->
-> So my question is whether we can call unregister_netdev() function from
-> interrupt context(i.e, in ISR process context)
+> How does this look?
 
-No, you cannot.
+Ach - just a moment ago I submitted only that single
+improvement, but you do the whole list.
 
-This is a bug which occurs in multiple places in the pcmcia code.  usually it
-is doing illegal things from within timer handlers.  In your case, within
-hard IRQ context.
+(It is OK, of course. I looked for a second and concluded that
+in all other cases the return value was in fact -ENOMEM, so that
+no change was required. Only in the case of security_task_alloc()
+is a different value, -EPERM, likely.)
 
-Your fix (using schedule_task()) is fine.  It is the preferred way to resolve
-this bug.
+Concerning style - I don't like
 
+	if ((retval = copy_sighand(clone_flags, p)))
+
+very much.
+
+Where there is an if() one expects a boolean condition,
+and in superficial reading one can easily mistake = for ==,
+in spite of the additional parentheses.
+
+Just
+
+	retval = copy_sighand(clone_flags, p);
+	if (retval)
+
+is so much clearer.
+
+Andries

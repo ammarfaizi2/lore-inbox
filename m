@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132894AbRAJWVp>; Wed, 10 Jan 2001 17:21:45 -0500
+	id <S130130AbRAJWZZ>; Wed, 10 Jan 2001 17:25:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132366AbRAJWVf>; Wed, 10 Jan 2001 17:21:35 -0500
-Received: from p3EE3CB90.dip.t-dialin.net ([62.227.203.144]:58897 "HELO
+	id <S130382AbRAJWZP>; Wed, 10 Jan 2001 17:25:15 -0500
+Received: from p3EE3CB90.dip.t-dialin.net ([62.227.203.144]:61713 "HELO
 	emma1.emma.line.org") by vger.kernel.org with SMTP
-	id <S132930AbRAJWV1>; Wed, 10 Jan 2001 17:21:27 -0500
-Date: Wed, 10 Jan 2001 23:21:23 +0100
+	id <S130130AbRAJWZF>; Wed, 10 Jan 2001 17:25:05 -0500
+Date: Wed, 10 Jan 2001 23:25:04 +0100
 From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: antirez <antirez@invece.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: * 4 converted to << 2 for networking code
-Message-ID: <20010110232123.A9585@emma1.emma.line.org>
-Mail-Followup-To: antirez <antirez@invece.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010110174859.R7498@prosa.it>
+To: linux-kernel@vger.kernel.org
+Subject: Re: `rmdir .` doesn't work in 2.4
+Message-ID: <20010110232504.B9585@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <UTC200101082056.VAA147872.aeb@texel.cwi.nl> <20010108223445.V27646@athlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010110174859.R7498@prosa.it>; from antirez@invece.org on Wed, Jan 10, 2001 at 17:48:59 +0100
+In-Reply-To: <20010108223445.V27646@athlon.random>; from andrea@suse.de on Mon, Jan 08, 2001 at 22:34:45 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Jan 2001, antirez wrote:
+On Mon, 08 Jan 2001, Andrea Arcangeli wrote:
 
-> Hi all,
-> 
-> The attached patch converts many occurences of '* 4' in the networking code
-> (often used to convert in bytes the TCP data offset and the IP header len)
-> to the faster '<< 2'. Since this was a quite repetitive work it's better
-> if someone double-check it before to apply the patch.
-> The patch is for linux-2.4.
-> 
-> Please, CC: me for replies since I'm not subscribed to the list.
+> On Mon, Jan 08, 2001 at 09:56:18PM +0100, Andries.Brouwer@cwi.nl wrote:
+> Hardlinks have nothing to do with `rmdir .`. See rmdir . as the equivalent
+> pointed out by Alexander: "rmdir `pwd`".  `pwd` returns the same thing
 
-You'd better be. As Alan Cox pointed out some time ago, this is the
-compiler's duty, to be more precise, it's the peephole (local)
-optimizer's task, if it's actually implemented in the core or the
-backend, I cannot currently tell, and I don't care.
+You can't delete immutable directories such as . and .. Plus, don't ever
+dare to think of interpreting rmdir arguments. Just do what is written.
+rmdir . makes no sense. If someone wants rmdir `pwd` he's free to write
+just that. Of course, it's ugly because getcwd and the like are kludges,
+but you should only delete things you know anyhow.
 
-But see a minimal program 
-main(int argc) {
-        j(argc * 4);
-}
-
-run gcc -O2 -S thissource.c and then -O0 and compare. On an
-amigaos-m68k configured gcc 2.7.2.3, this directly throws asll #2,d0
-(arithmetic shift left by 2 positions, fill with trailing zeroes), -O2
-saves some moving around. (I cannot read 386 assembly language, thus
-m68k ;)
+-- 
+Matthias Andree
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

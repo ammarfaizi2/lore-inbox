@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262129AbTKYJHg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 04:07:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbTKYJHg
+	id S262153AbTKYJMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 04:12:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbTKYJMQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 04:07:36 -0500
-Received: from stroke.of.genius.brain.org ([206.80.113.1]:17647 "EHLO
-	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
-	id S262129AbTKYJHc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 04:07:32 -0500
-Date: Tue, 25 Nov 2003 04:07:27 -0500
-From: "Murray J. Root" <murrayr@brain.org>
+	Tue, 25 Nov 2003 04:12:16 -0500
+Received: from main.gmane.org ([80.91.224.249]:9858 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262153AbTKYJMO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 04:12:14 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
 Subject: Re: Copy protection of the floppies
-Message-ID: <20031125090727.GA1560@Master>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Tue, 25 Nov 2003 10:12:11 +0100
+Message-ID: <yw1xisl87qxg.fsf@kth.se>
 References: <5F0021EEA434D511BE7300D0B7B6AB530CA67677@mail2.ggn.hcltech.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5F0021EEA434D511BE7300D0B7B6AB530CA67677@mail2.ggn.hcltech.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:jdKqhgJO4LwkveGwOxMGKHDMtcc=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 25, 2003 at 11:07:29AM +0530, Pravin Nanaware , Gurgaon wrote:
-> Hi All,
-> 
+"Pravin Nanaware , Gurgaon" <pnanaware@ggn.hcltech.com> writes:
+
 > 1> Could somebody suggest me the way to protect floppy from copying it's
 > contents. 
+
+It's obviously impossible.
+
 > 2> If not possible, will it be possible to make the copied floppy unworkable
 > (The copied floppy shouldn't work).  
+
+Equally impossible.
+
 >    For this I have constraint, I don't want to change the platform, which
 > reads this floppy.
-> 
-> 
-> The contents of the floppy could be anything like text file, exe file or
-> encrypted file.
 
-Encrypt the data. That's the only way that actually works. 
+In that case, you want to do the impossible.
 
 -- 
-Murray J. Root
+Måns Rullgård
+mru@kth.se
 

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317566AbSFIG52>; Sun, 9 Jun 2002 02:57:28 -0400
+	id <S317573AbSFIHJp>; Sun, 9 Jun 2002 03:09:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317571AbSFIG51>; Sun, 9 Jun 2002 02:57:27 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:61446 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S317566AbSFIG51>;
-	Sun, 9 Jun 2002 02:57:27 -0400
+	id <S317574AbSFIHJp>; Sun, 9 Jun 2002 03:09:45 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:3591 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S317573AbSFIHJo>;
+	Sun, 9 Jun 2002 03:09:44 -0400
 From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200206090657.g596vQj403167@saturn.cs.uml.edu>
-Subject: Re: PCI DMA to small buffers on cache-incoherent arch
-To: Oliver.Neukum@lrz.uni-muenchen.de (Oliver Neukum)
-Date: Sun, 9 Jun 2002 02:57:26 -0400 (EDT)
-Cc: davem@redhat.com (David S. Miller), linux-kernel@vger.kernel.org
-In-Reply-To: <200206090644.g596iMX14841@fachschaft.cup.uni-muenchen.de> from "Oliver Neukum" at Jun 09, 2002 08:50:04 AM
+Message-Id: <200206090709.g5979iK439624@saturn.cs.uml.edu>
+Subject: Re: [patch] fat/msdos/vfat crud removal
+To: hirofumi@mail.parknet.co.jp (OGAWA Hirofumi)
+Date: Sun, 9 Jun 2002 03:09:44 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org, chaffee@cs.berkeley.edu
+In-Reply-To: <87r8jhc685.fsf@devron.myhome.or.jp> from "OGAWA Hirofumi" at Jun 09, 2002 03:32:26 PM
 X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -20,20 +20,27 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Neukum writes:
+OGAWA Hirofumi writes:
+> "Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
 
->> For memory --> device DMA:
->>
->> 1. write back all cache lines affected by the DMA
->> 2. start the DMA
->> 3. invalidate the above cache lines
+>> 1. app source code isn't supposed to use raw kernel headers
+>> 2. existing executables are not affected
+>> 3. the 2.5.xx series has already broken much more
+>> 4. it's crud for the kernel; it's crud for user code
+>> 5. the kernel shouldn't contain misc. user app code
 >
-> Why the third step ? That data should still
-> be valid.
+> Why is there __KERNEL__ macro?
 
-I made a mistake, but perhaps it is a good one.
-There is no need to invalidate the cache lines,
-but I'd guess that commonly the data won't be
-used again. Doing the invalidate would free up
-some cache lines, meaning that the CPU would
-have empty slots to use for other stuff.
+Long ago, it was considered OK to use the kernel headers
+in app code. This is the case with Linux 2.0 and libc 5.
+(it used to be OK to symlink /usr/include/linux into an
+unmodified copy of the Linux kernel source)
+
+There has been a weak effort to avoid breaking libc 5.
+
+Using __KERNEL__ might make it easier to provide cleaned
+headers for user code.
+
+There has been talk of removing __KERNEL__ usage from
+some of the header files.
+

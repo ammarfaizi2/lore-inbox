@@ -1,421 +1,662 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265628AbTABCvn>; Wed, 1 Jan 2003 21:51:43 -0500
+	id <S265675AbTABCwz>; Wed, 1 Jan 2003 21:52:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265657AbTABCvm>; Wed, 1 Jan 2003 21:51:42 -0500
-Received: from dp.samba.org ([66.70.73.150]:58551 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S265628AbTABCu4>;
-	Wed, 1 Jan 2003 21:50:56 -0500
+	id <S265854AbTABCwy>; Wed, 1 Jan 2003 21:52:54 -0500
+Received: from dp.samba.org ([66.70.73.150]:62903 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265675AbTABCwQ>;
+	Wed, 1 Jan 2003 21:52:16 -0500
 From: Rusty Russell <rusty@rustcorp.com.au>
 To: torvalds@transmeta.com
 Cc: rth@twiddle.net, linux-kernel@vger.kernel.org,
        Martin Schwidefsky <schwidefsky@de.ibm.com>, ak@suse.de,
        davem@redhat.com, paulus@samba.org, rmk@arm.linux.org.uk
-Subject: [PATCH] Modules 2/3: Use sh_addr instead of sh_offset
-Date: Thu, 02 Jan 2003 13:54:57 +1100
-Message-Id: <20030102025923.672FB2C05E@lists.samba.org>
+Subject: [PATCH] Modules 3/3: Sort sections
+Date: Thu, 02 Jan 2003 14:00:27 +1100
+Message-Id: <20030102030044.D066C2C05E@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Linus, please apply.
 
-Trivial substitution.  Richard points out that we should be using
-sh_addr to hold the address, rather than overloading sh_offset to be a
-pointer.  Fixes archs appropriately.
+RTH's final complaint (so far 8) was that we should sort the module
+sections: archs which use GOT pointers (or equiv) might need those
+sections close by each other.
 
-Name: Use sh_addr instead of overloading sh_offset.
-From: Richard Henderson <rth@twiddle.net>
+The code does this, and simplifies the arch interface: previously an
+arch could specify it wanted extra space, but not where that space
+would be.  The new method (used only by PPC so far) is to allocate an
+empty section (in asm/module.h or by setting LDFLAGS_MODULE to use an
+arch specific linker script), and expand that to the desired size in
+"module_frob_arch_sections()".
+
+x86 and PPC are tested, others are trivial.
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+
+Name: Section Ordering Patch
+Author: Richard Henderson
 Status: Tested on 2.5.53
-Depends: Module/nocommon.patch.gz
+Depends: Module/nocommon.patch.gz Module/sh_addr.patch.gz
 
-D: The original patch used to overload sh_offset to a pointer to the
-D: location of the section.  This uses sh_addr, which is more correct
-D: and less surprising.
+D: Some architectures require some sections to be adjacent, so they
+D: can all be reached by a relative pointer (ie. GOT pointer).  This
+D: implements that reordering, and simplfies the module interface
+D: for architectures as well.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27574-linux-2.5-bk/arch/arm/kernel/module.c .27574-linux-2.5-bk.updated/arch/arm/kernel/module.c
---- .27574-linux-2.5-bk/arch/arm/kernel/module.c	2002-11-25 08:43:47.000000000 +1100
-+++ .27574-linux-2.5-bk.updated/arch/arm/kernel/module.c	2002-12-29 22:07:55.000000000 +1100
-@@ -88,7 +88,7 @@ apply_relocate(Elf32_Shdr *sechdrs, cons
- 	Elf32_Shdr *symsec = sechdrs + symindex;
- 	Elf32_Shdr *relsec = sechdrs + relindex;
- 	Elf32_Shdr *dstsec = sechdrs + relsec->sh_info;
--	Elf32_Rel *rel = (void *)relsec->sh_offset;
-+	Elf32_Rel *rel = (void *)relsec->sh_addr;
- 	unsigned int i;
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .1000-2.5-bk-section-ordering.pre/arch/arm/kernel/module.c .1000-2.5-bk-section-ordering/arch/arm/kernel/module.c
+--- .1000-2.5-bk-section-ordering.pre/arch/arm/kernel/module.c	2003-01-02 11:12:31.000000000 +1100
++++ .1000-2.5-bk-section-ordering/arch/arm/kernel/module.c	2003-01-02 11:12:31.000000000 +1100
+@@ -67,18 +67,12 @@ void module_free(struct module *module, 
+ 	vfree(region);
+ }
  
- 	for (i = 0; i < relsec->sh_size / sizeof(Elf32_Rel); i++, rel++) {
-@@ -103,7 +103,7 @@ apply_relocate(Elf32_Shdr *sechdrs, cons
- 			return -ENOEXEC;
- 		}
- 
--		sym = ((Elf32_Sym *)symsec->sh_offset) + offset;
-+		sym = ((Elf32_Sym *)symsec->sh_addr) + offset;
- 		if (!sym->st_value) {
- 			printk(KERN_WARNING "%s: unknown symbol %s\n",
- 				module->name, strtab + sym->st_name);
-@@ -118,7 +118,7 @@ apply_relocate(Elf32_Shdr *sechdrs, cons
- 			return -ENOEXEC;
- 		}
- 
--		loc = dstsec->sh_offset + rel->r_offset;
-+		loc = dstsec->sh_addr + rel->r_offset;
- 
- 		switch (ELF32_R_TYPE(rel->r_info)) {
- 		case R_ARM_ABS32:
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27574-linux-2.5-bk/arch/i386/kernel/module.c .27574-linux-2.5-bk.updated/arch/i386/kernel/module.c
---- .27574-linux-2.5-bk/arch/i386/kernel/module.c	2002-12-23 11:17:07.000000000 +1100
-+++ .27574-linux-2.5-bk.updated/arch/i386/kernel/module.c	2002-12-29 22:07:55.000000000 +1100
-@@ -68,7 +68,7 @@ int apply_relocate(Elf32_Shdr *sechdrs,
- 		   struct module *me)
+-long
+-module_core_size(const Elf32_Ehdr *hdr, const Elf32_Shdr *sechdrs,
+-		 const char *secstrings, struct module *module)
+-{
+-	return module->core_size;
+-}
+-
+-long
+-module_init_size(const Elf32_Ehdr *hdr, const Elf32_Shdr *sechdrs,
+-		 const char *secstrings, struct module *module)
++int module_frob_arch_sections(const Elf_Ehdr *hdr,
++			      const Elf_Shdr *sechdrs,
++			      const char *secstrings,
++			      struct module *mod)
  {
- 	unsigned int i;
--	Elf32_Rel *rel = (void *)sechdrs[relsec].sh_offset;
-+	Elf32_Rel *rel = (void *)sechdrs[relsec].sh_addr;
- 	Elf32_Sym *sym;
- 	uint32_t *location;
+-	return module->init_size;
++	return 0;
+ }
  
-@@ -76,10 +76,10 @@ int apply_relocate(Elf32_Shdr *sechdrs,
- 	       sechdrs[relsec].sh_info);
- 	for (i = 0; i < sechdrs[relsec].sh_size / sizeof(*rel); i++) {
- 		/* This is where to make the change */
--		location = (void *)sechdrs[sechdrs[relsec].sh_info].sh_offset
-+		location = (void *)sechdrs[sechdrs[relsec].sh_info].sh_addr
- 			+ rel[i].r_offset;
- 		/* This is the symbol it is referring to */
--		sym = (Elf32_Sym *)sechdrs[symindex].sh_offset
-+		sym = (Elf32_Sym *)sechdrs[symindex].sh_addr
- 			+ ELF32_R_SYM(rel[i].r_info);
- 		if (!sym->st_value) {
- 			printk(KERN_WARNING "%s: Unknown symbol %s\n",
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27574-linux-2.5-bk/arch/ppc/kernel/module.c .27574-linux-2.5-bk.updated/arch/ppc/kernel/module.c
---- .27574-linux-2.5-bk/arch/ppc/kernel/module.c	2002-12-10 15:56:47.000000000 +1100
-+++ .27574-linux-2.5-bk.updated/arch/ppc/kernel/module.c	2002-12-29 22:07:55.000000000 +1100
-@@ -176,7 +176,7 @@ int apply_relocate_add(Elf32_Shdr *sechd
- 		       struct module *module)
+ int
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .1000-2.5-bk-section-ordering.pre/arch/i386/kernel/module.c .1000-2.5-bk-section-ordering/arch/i386/kernel/module.c
+--- .1000-2.5-bk-section-ordering.pre/arch/i386/kernel/module.c	2003-01-02 11:12:31.000000000 +1100
++++ .1000-2.5-bk-section-ordering/arch/i386/kernel/module.c	2003-01-02 11:12:31.000000000 +1100
+@@ -45,20 +45,12 @@ void module_free(struct module *mod, voi
+ }
+ 
+ /* We don't need anything special. */
+-long module_core_size(const Elf32_Ehdr *hdr,
+-		      const Elf32_Shdr *sechdrs,
+-		      const char *secstrings,
+-		      struct module *module)
+-{
+-	return module->core_size;
+-}
+-
+-long module_init_size(const Elf32_Ehdr *hdr,
+-		      const Elf32_Shdr *sechdrs,
+-		      const char *secstrings,
+-		      struct module *module)
++int module_frob_arch_sections(const Elf_Ehdr *hdr,
++			      const Elf_Shdr *sechdrs,
++			      const char *secstrings,
++			      struct module *mod)
  {
- 	unsigned int i;
--	Elf32_Rela *rela = (void *)sechdrs[relsec].sh_offset;
-+	Elf32_Rela *rela = (void *)sechdrs[relsec].sh_addr;
- 	Elf32_Sym *sym;
- 	uint32_t *location;
- 	uint32_t value;
-@@ -185,10 +185,10 @@ int apply_relocate_add(Elf32_Shdr *sechd
- 	       sechdrs[relsec].sh_info);
- 	for (i = 0; i < sechdrs[relsec].sh_size / sizeof(*rela); i++) {
- 		/* This is where to make the change */
--		location = (void *)sechdrs[sechdrs[relsec].sh_info].sh_offset
-+		location = (void *)sechdrs[sechdrs[relsec].sh_info].sh_addr
- 			+ rela[i].r_offset;
- 		/* This is the symbol it is referring to */
--		sym = (Elf32_Sym *)sechdrs[symindex].sh_offset
-+		sym = (Elf32_Sym *)sechdrs[symindex].sh_addr
- 			+ ELF32_R_SYM(rela[i].r_info);
- 		if (!sym->st_value) {
- 			printk(KERN_WARNING "%s: Unknown symbol %s\n",
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27574-linux-2.5-bk/arch/s390/kernel/module.c .27574-linux-2.5-bk.updated/arch/s390/kernel/module.c
---- .27574-linux-2.5-bk/arch/s390/kernel/module.c	2002-11-25 08:43:48.000000000 +1100
-+++ .27574-linux-2.5-bk.updated/arch/s390/kernel/module.c	2002-12-29 22:07:55.000000000 +1100
-@@ -78,7 +78,7 @@ int apply_relocate(Elf_Shdr *sechdrs,
- 		   struct module *me)
+-	return module->init_size;
++	return 0;
+ }
+ 
+ int apply_relocate(Elf32_Shdr *sechdrs,
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .1000-2.5-bk-section-ordering.pre/arch/ppc/kernel/module.c .1000-2.5-bk-section-ordering/arch/ppc/kernel/module.c
+--- .1000-2.5-bk-section-ordering.pre/arch/ppc/kernel/module.c	2003-01-02 11:12:31.000000000 +1100
++++ .1000-2.5-bk-section-ordering/arch/ppc/kernel/module.c	2003-01-02 11:12:31.000000000 +1100
+@@ -101,24 +101,31 @@ static unsigned long get_plt_size(const 
+ 	return ret;
+ }
+ 
+-long module_core_size(const Elf32_Ehdr *hdr,
+-		      const Elf32_Shdr *sechdrs,
+-		      const char *secstrings,
+-		      struct module *module)
++int module_frob_arch_sections(Elf32_Ehdr *hdr,
++			      Elf32_Shdr *sechdrs,
++			      const char *secstrings,
++			      struct module *me)
  {
- 	unsigned int i;
--	ElfW(Rel) *rel = (void *)sechdrs[relsec].sh_offset;
-+	ElfW(Rel) *rel = (void *)sechdrs[relsec].sh_addr;
- 	ElfW(Sym) *sym;
- 	ElfW(Addr) *location;
+-	module->arch.core_plt_offset = ALIGN(module->core_size, 4);
+-	return module->arch.core_plt_offset
+-		+ get_plt_size(hdr, sechdrs, secstrings, 0);
+-}
++	unsigned int i;
  
-@@ -86,10 +86,10 @@ int apply_relocate(Elf_Shdr *sechdrs,
- 	       sechdrs[relsec].sh_info);
- 	for (i = 0; i < sechdrs[relsec].sh_size / sizeof(*rel); i++) {
- 		/* This is where to make the change */
--		location = (void *)sechdrs[sechdrs[relsec].sh_info].sh_offset
-+		location = (void *)sechdrs[sechdrs[relsec].sh_info].sh_addr
- 			+ rel[i].r_offset;
- 		/* This is the symbol it is referring to */
--		sym = (ElfW(Sym) *)sechdrs[symindex].sh_offset
-+		sym = (ElfW(Sym) *)sechdrs[symindex].sh_addr
- 			+ ELFW(R_SYM)(rel[i].r_info);
- 		if (!sym->st_value) {
- 			printk(KERN_WARNING "%s: Unknown symbol %s\n",
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27574-linux-2.5-bk/arch/s390x/kernel/module.c .27574-linux-2.5-bk.updated/arch/s390x/kernel/module.c
---- .27574-linux-2.5-bk/arch/s390x/kernel/module.c	2002-11-25 08:43:49.000000000 +1100
-+++ .27574-linux-2.5-bk.updated/arch/s390x/kernel/module.c	2002-12-29 22:07:55.000000000 +1100
-@@ -78,7 +78,7 @@ int apply_relocate(Elf_Shdr *sechdrs,
- 		   struct module *me)
- {
- 	unsigned int i;
--	ElfW(Rel) *rel = (void *)sechdrs[relsec].sh_offset;
-+	ElfW(Rel) *rel = (void *)sechdrs[relsec].sh_addr;
- 	ElfW(Sym) *sym;
- 	ElfW(Addr) *location;
- 
-@@ -86,10 +86,10 @@ int apply_relocate(Elf_Shdr *sechdrs,
- 	       sechdrs[relsec].sh_info);
- 	for (i = 0; i < sechdrs[relsec].sh_size / sizeof(*rel); i++) {
- 		/* This is where to make the change */
--		location = (void *)sechdrs[sechdrs[relsec].sh_info].sh_offset
-+		location = (void *)sechdrs[sechdrs[relsec].sh_info].sh_addr
- 			+ rel[i].r_offset;
- 		/* This is the symbol it is referring to */
--		sym = (ElfW(Sym) *)sechdrs[symindex].sh_offset
-+		sym = (ElfW(Sym) *)sechdrs[symindex].sh_addr
- 			+ ELFW(R_SYM)(rel[i].r_info);
- 		if (!sym->st_value) {
- 			printk(KERN_WARNING "%s: Unknown symbol %s\n",
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27574-linux-2.5-bk/arch/sparc/kernel/module.c .27574-linux-2.5-bk.updated/arch/sparc/kernel/module.c
---- .27574-linux-2.5-bk/arch/sparc/kernel/module.c	2002-11-25 08:43:49.000000000 +1100
-+++ .27574-linux-2.5-bk.updated/arch/sparc/kernel/module.c	2002-12-29 22:07:55.000000000 +1100
-@@ -71,7 +71,7 @@ int apply_relocate_add(Elf32_Shdr *sechd
- 		       struct module *me)
- {
- 	unsigned int i;
--	Elf32_Rela *rel = (void *)sechdrs[relsec].sh_offset;
-+	Elf32_Rela *rel = (void *)sechdrs[relsec].sh_addr;
- 	Elf32_Sym *sym;
- 	u8 *location;
- 	u32 *loc32;
-@@ -80,11 +80,11 @@ int apply_relocate_add(Elf32_Shdr *sechd
- 		Elf32_Addr v;
- 
- 		/* This is where to make the change */
--		location = (u8 *)sechdrs[sechdrs[relsec].sh_info].sh_offset
-+		location = (u8 *)sechdrs[sechdrs[relsec].sh_info].sh_addr
- 			+ rel[i].r_offset;
- 		loc32 = (u32 *) location;
- 		/* This is the symbol it is referring to */
--		sym = (Elf32_Sym *)sechdrs[symindex].sh_offset
-+		sym = (Elf32_Sym *)sechdrs[symindex].sh_addr
- 			+ ELF32_R_SYM(rel[i].r_info);
- 		if (!(v = sym->st_value)) {
- 			printk(KERN_WARNING "%s: Unknown symbol %s\n",
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27574-linux-2.5-bk/arch/sparc64/kernel/module.c .27574-linux-2.5-bk.updated/arch/sparc64/kernel/module.c
---- .27574-linux-2.5-bk/arch/sparc64/kernel/module.c	2002-11-25 08:43:49.000000000 +1100
-+++ .27574-linux-2.5-bk.updated/arch/sparc64/kernel/module.c	2002-12-29 22:07:55.000000000 +1100
-@@ -178,7 +178,7 @@ int apply_relocate_add(Elf64_Shdr *sechd
- 		       struct module *me)
- {
- 	unsigned int i;
--	Elf64_Rela *rel = (void *)sechdrs[relsec].sh_offset;
-+	Elf64_Rela *rel = (void *)sechdrs[relsec].sh_addr;
- 	Elf64_Sym *sym;
- 	u8 *location;
- 	u32 *loc32;
-@@ -187,14 +187,14 @@ int apply_relocate_add(Elf64_Shdr *sechd
- 		Elf64_Addr v;
- 
- 		/* This is where to make the change */
--		location = (u8 *)sechdrs[sechdrs[relsec].sh_info].sh_offset
-+		location = (u8 *)sechdrs[sechdrs[relsec].sh_info].sh_addr
- 			+ rel[i].r_offset;
- 		loc32 = (u32 *) location;
- 
- 		BUG_ON(((u64)location >> (u64)32) != (u64)0);
- 
- 		/* This is the symbol it is referring to */
--		sym = (Elf64_Sym *)sechdrs[symindex].sh_offset
-+		sym = (Elf64_Sym *)sechdrs[symindex].sh_addr
- 			+ ELF64_R_SYM(rel[i].r_info);
- 		if (!(v = sym->st_value)) {
- 			printk(KERN_WARNING "%s: Unknown symbol %s\n",
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27574-linux-2.5-bk/arch/v850/kernel/module.c .27574-linux-2.5-bk.updated/arch/v850/kernel/module.c
---- .27574-linux-2.5-bk/arch/v850/kernel/module.c	2002-11-28 10:20:03.000000000 +1100
-+++ .27574-linux-2.5-bk.updated/arch/v850/kernel/module.c	2002-12-29 22:07:55.000000000 +1100
-@@ -160,7 +160,7 @@ int apply_relocate_add (Elf32_Shdr *sech
- 			struct module *mod)
- {
- 	unsigned int i;
--	Elf32_Rela *rela = (void *)sechdrs[relsec].sh_offset;
-+	Elf32_Rela *rela = (void *)sechdrs[relsec].sh_addr;
- 
- 	DEBUGP ("Applying relocate section %u to %u\n", relsec,
- 		sechdrs[relsec].sh_info);
-@@ -168,11 +168,11 @@ int apply_relocate_add (Elf32_Shdr *sech
- 	for (i = 0; i < sechdrs[relsec].sh_size / sizeof (*rela); i++) {
- 		/* This is where to make the change */
- 		uint32_t *loc
--			= ((void *)sechdrs[sechdrs[relsec].sh_info].sh_offset
-+			= ((void *)sechdrs[sechdrs[relsec].sh_info].sh_addr
- 			   + rela[i].r_offset);
- 		/* This is the symbol it is referring to */
- 		Elf32_Sym *sym
--			= ((Elf32_Sym *)sechdrs[symindex].sh_offset
-+			= ((Elf32_Sym *)sechdrs[symindex].sh_addr
- 			   + ELF32_R_SYM (rela[i].r_info));
- 		uint32_t val = sym->st_value;
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27574-linux-2.5-bk/arch/x86_64/kernel/module.c .27574-linux-2.5-bk.updated/arch/x86_64/kernel/module.c
---- .27574-linux-2.5-bk/arch/x86_64/kernel/module.c	2002-12-26 15:41:04.000000000 +1100
-+++ .27574-linux-2.5-bk.updated/arch/x86_64/kernel/module.c	2002-12-29 22:07:55.000000000 +1100
-@@ -49,7 +49,7 @@ int apply_relocate_add(Elf64_Shdr *sechd
- 		   struct module *me)
- {
- 	unsigned int i;
--	Elf64_Rela *rel = (void *)sechdrs[relsec].sh_offset;
-+	Elf64_Rela *rel = (void *)sechdrs[relsec].sh_addr;
- 	Elf64_Sym *sym;
- 	void *loc;
- 	u64 val; 
-@@ -58,11 +58,11 @@ int apply_relocate_add(Elf64_Shdr *sechd
- 	       sechdrs[relsec].sh_info);
- 	for (i = 0; i < sechdrs[relsec].sh_size / sizeof(*rel); i++) {
- 		/* This is where to make the change */
--		loc = (void *)sechdrs[sechdrs[relsec].sh_info].sh_offset
-+		loc = (void *)sechdrs[sechdrs[relsec].sh_info].sh_addr
- 			+ rel[i].r_offset;
- 
- 		/* This is the symbol it is referring to */
--		sym = (Elf64_Sym *)sechdrs[symindex].sh_offset
-+		sym = (Elf64_Sym *)sechdrs[symindex].sh_addr
- 			+ ELF64_R_SYM(rel[i].r_info);
- 		if (!sym->st_value) {
- 			printk(KERN_WARNING "%s: Unknown symbol %s\n",
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27574-linux-2.5-bk/kernel/module.c .27574-linux-2.5-bk.updated/kernel/module.c
---- .27574-linux-2.5-bk/kernel/module.c	2002-12-29 22:07:29.000000000 +1100
-+++ .27574-linux-2.5-bk.updated/kernel/module.c	2002-12-29 22:11:18.000000000 +1100
-@@ -94,7 +94,7 @@ static unsigned long find_local_symbol(E
- 				       const char *name)
- {
- 	unsigned int i;
--	Elf_Sym *sym = (void *)sechdrs[symindex].sh_offset;
-+	Elf_Sym *sym = (void *)sechdrs[symindex].sh_addr;
- 
- 	/* Search (defined) internal symbols first. */
- 	for (i = 1; i < sechdrs[symindex].sh_size/sizeof(*sym); i++) {
-@@ -793,7 +793,7 @@ static int handle_section(const char *na
- 			  struct module *mod)
- {
- 	int ret;
--	const char *strtab = (char *)sechdrs[strindex].sh_offset;
-+	const char *strtab = (char *)sechdrs[strindex].sh_addr;
- 
- 	switch (sechdrs[i].sh_type) {
- 	case SHT_REL:
-@@ -835,7 +835,7 @@ static int simplify_symbols(Elf_Shdr *se
- 	/* First simplify defined symbols, so if they become the
-            "answer" to undefined symbols, copying their st_value us
-            correct. */
--	for (sym = (void *)sechdrs[symindex].sh_offset, i = 0;
-+	for (sym = (void *)sechdrs[symindex].sh_addr, i = 0;
- 	     i < sechdrs[symindex].sh_size / sizeof(Elf_Sym);
- 	     i++) {
- 		switch (sym[i].st_shndx) {
-@@ -857,20 +857,20 @@ static int simplify_symbols(Elf_Shdr *se
- 		default:
- 			sym[i].st_value 
- 				= (unsigned long)
--				(sechdrs[sym[i].st_shndx].sh_offset
-+				(sechdrs[sym[i].st_shndx].sh_addr
- 				 + sym[i].st_value);
- 		}
- 	}
- 
- 	/* Now try to resolve undefined symbols */
--	for (sym = (void *)sechdrs[symindex].sh_offset, i = 0;
-+	for (sym = (void *)sechdrs[symindex].sh_addr, i = 0;
- 	     i < sechdrs[symindex].sh_size / sizeof(Elf_Sym);
- 	     i++) {
- 		if (sym[i].st_shndx == SHN_UNDEF) {
- 			/* Look for symbol */
- 			struct kernel_symbol_group *ksg = NULL;
- 			const char *strtab 
--				= (char *)sechdrs[strindex].sh_offset;
-+				= (char *)sechdrs[strindex].sh_addr;
- 
- 			sym[i].st_value
- 				= find_symbol_internal(sechdrs,
-@@ -967,6 +967,10 @@ static struct module *load_module(void *
- 
- 	/* Find where important sections are */
- 	for (i = 1; i < hdr->e_shnum; i++) {
-+		/* Mark all sections sh_addr with their address in the
-+		   temporary image. */
-+		sechdrs[i].sh_addr = (size_t)hdr + sechdrs[i].sh_offset;
+-long module_init_size(const Elf32_Ehdr *hdr,
+-		      const Elf32_Shdr *sechdrs,
+-		      const char *secstrings,
+-		      struct module *module)
+-{
+-	module->arch.init_plt_offset = ALIGN(module->init_size, 4);
+-	return module->arch.init_plt_offset
+-		+ get_plt_size(hdr, sechdrs, secstrings, 1);
++	/* Find .plt and .pltinit sections */
++	for (i = 0; i < hdr->e_shnum; i++) {
++		if (strcmp(secstrings + sechdrs[i].sh_name, ".plt.init") == 0)
++			me->arch.init_plt_section = i;
++		else if (strcmp(secstrings + sechdrs[i].sh_name, ".plt") == 0)
++			me->arch.core_plt_section = i;
++	}
++	if (!me->arch.core_plt_section || !me->arch.init_plt_section) {
++		printk("Module doesn't contain .plt or .plt.init sections.\n");
++		return -ENOEXEC;
++	}
 +
- 		if (sechdrs[i].sh_type == SHT_SYMTAB) {
- 			/* Internal symbols */
- 			DEBUGP("Symbol table in section %u\n", i);
-@@ -1019,7 +1023,7 @@ static struct module *load_module(void *
- 		err = -ENOEXEC;
- 		goto free_hdr;
- 	}
--	mod = (void *)hdr + sechdrs[modindex].sh_offset;
-+	mod = (void *)sechdrs[modindex].sh_addr;
++	/* Override their sizes */
++	sechdrs[me->arch.core_plt_section].sh_size
++		= get_plt_size(hdr, sechdrs, secstrings, 0);
++	sechdrs[me->arch.init_plt_section].sh_size
++		= get_plt_size(hdr, sechdrs, secstrings, 1);
++	return 0;
+ }
  
- 	/* Now copy in args */
- 	err = strlen_user(uargs);
-@@ -1079,7 +1083,7 @@ static struct module *load_module(void *
+ int apply_relocate(Elf32_Shdr *sechdrs,
+@@ -141,17 +148,20 @@ static inline int entry_matches(struct p
+ }
+ 
+ /* Set up a trampoline in the PLT to bounce us to the distant function */
+-static uint32_t do_plt_call(void *location, Elf32_Addr val, struct module *mod)
++static uint32_t do_plt_call(void *location,
++			    Elf32_Addr val, 
++			    Elf32_Shdr *sechdrs,
++			    struct module *mod)
+ {
+ 	struct ppc_plt_entry *entry;
+ 
+ 	DEBUGP("Doing plt for call to 0x%x at 0x%x\n", val, (unsigned int)location);
+ 	/* Init, or core PLT? */
+ 	if (location >= mod->module_core
+-	    && location < mod->module_core + mod->arch.core_plt_offset)
+-		entry = mod->module_core + mod->arch.core_plt_offset;
++	    && location < mod->module_core + mod->core_size)
++		entry = (void *)sechdrs[mod->arch.core_plt_section].sh_addr;
+ 	else
+-		entry = mod->module_init + mod->arch.init_plt_offset;
++		entry = (void *)sechdrs[mod->arch.init_plt_section].sh_addr;
+ 
+ 	/* Find this entry, or if that fails, the next avail. entry */
+ 	while (entry->jump[0]) {
+@@ -220,7 +230,8 @@ int apply_relocate_add(Elf32_Shdr *sechd
+ 		case R_PPC_REL24:
+ 			if ((int)(value - (uint32_t)location) < -0x02000000
+ 			    || (int)(value - (uint32_t)location) >= 0x02000000)
+-				value = do_plt_call(location, value, module);
++				value = do_plt_call(location, value,
++						    sechdrs, module);
+ 
+ 			/* Only replace bits 2 through 26 */
+ 			DEBUGP("REL24 value = %08X. location = %08X\n",
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .1000-2.5-bk-section-ordering.pre/arch/s390/kernel/module.c .1000-2.5-bk-section-ordering/arch/s390/kernel/module.c
+--- .1000-2.5-bk-section-ordering.pre/arch/s390/kernel/module.c	2003-01-02 11:12:31.000000000 +1100
++++ .1000-2.5-bk-section-ordering/arch/s390/kernel/module.c	2003-01-02 11:12:31.000000000 +1100
+@@ -51,26 +51,15 @@ void module_free(struct module *mod, voi
+            table entries. */
+ }
+ 
+-/* s390/s390x needs additional memory for GOT/PLT sections. */
+-long module_core_size(const Elf32_Ehdr *hdr,
+-		      const Elf32_Shdr *sechdrs,
+-		      const char *secstrings,
+-		      struct module *module)
++int module_frob_arch_sections(const Elf_Ehdr *hdr,
++			      const Elf_Shdr *sechdrs,
++			      const char *secstrings,
++			      struct module *mod)
+ {
+ 	// FIXME: add space needed for GOT/PLT
+-	return module->core_size;
+-}
+-
+-long module_init_size(const Elf32_Ehdr *hdr,
+-		      const Elf32_Shdr *sechdrs,
+-		      const char *secstrings,
+-		      struct module *module)
+-{
+-	return module->init_size;
++	return 0;
+ }
+ 
+-
+-
+ int apply_relocate(Elf_Shdr *sechdrs,
+ 		   const char *strtab,
+ 		   unsigned int symindex,
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .1000-2.5-bk-section-ordering.pre/arch/s390x/kernel/module.c .1000-2.5-bk-section-ordering/arch/s390x/kernel/module.c
+--- .1000-2.5-bk-section-ordering.pre/arch/s390x/kernel/module.c	2003-01-02 11:12:31.000000000 +1100
++++ .1000-2.5-bk-section-ordering/arch/s390x/kernel/module.c	2003-01-02 11:12:31.000000000 +1100
+@@ -52,25 +52,15 @@ void module_free(struct module *mod, voi
+ }
+ 
+ /* s390/s390x needs additional memory for GOT/PLT sections. */
+-long module_core_size(const Elf32_Ehdr *hdr,
+-		      const Elf32_Shdr *sechdrs,
+-		      const char *secstrings,
+-		      struct module *module)
++int module_frob_arch_sections(const Elf_Ehdr *hdr,
++			      const Elf_Shdr *sechdrs,
++			      const char *secstrings,
++			      struct module *mod)
+ {
+ 	// FIXME: add space needed for GOT/PLT
+-	return module->core_size;
+-}
+-
+-long module_init_size(const Elf32_Ehdr *hdr,
+-		      const Elf32_Shdr *sechdrs,
+-		      const char *secstrings,
+-		      struct module *module)
+-{
+-	return module->init_size;
++	return 0;
+ }
+ 
+-
+-
+ int apply_relocate(Elf_Shdr *sechdrs,
+ 		   const char *strtab,
+ 		   unsigned int symindex,
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .1000-2.5-bk-section-ordering.pre/arch/sparc/kernel/module.c .1000-2.5-bk-section-ordering/arch/sparc/kernel/module.c
+--- .1000-2.5-bk-section-ordering.pre/arch/sparc/kernel/module.c	2003-01-02 11:12:31.000000000 +1100
++++ .1000-2.5-bk-section-ordering/arch/sparc/kernel/module.c	2003-01-02 11:12:31.000000000 +1100
+@@ -37,20 +37,12 @@ void module_free(struct module *mod, voi
+ }
+ 
+ /* We don't need anything special. */
+-long module_core_size(const Elf32_Ehdr *hdr,
+-		      const Elf32_Shdr *sechdrs,
+-		      const char *secstrings,
+-		      struct module *module)
+-{
+-	return module->core_size;
+-}
+-
+-long module_init_size(const Elf32_Ehdr *hdr,
+-		      const Elf32_Shdr *sechdrs,
+-		      const char *secstrings,
+-		      struct module *module)
++int module_frob_arch_sections(const Elf_Ehdr *hdr,
++			      const Elf_Shdr *sechdrs,
++			      const char *secstrings,
++			      struct module *mod)
+ {
+-	return module->init_size;
++	return 0;
+ }
+ 
+ int apply_relocate(Elf32_Shdr *sechdrs,
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .1000-2.5-bk-section-ordering.pre/arch/sparc64/kernel/module.c .1000-2.5-bk-section-ordering/arch/sparc64/kernel/module.c
+--- .1000-2.5-bk-section-ordering.pre/arch/sparc64/kernel/module.c	2003-01-02 11:12:31.000000000 +1100
++++ .1000-2.5-bk-section-ordering/arch/sparc64/kernel/module.c	2003-01-02 11:12:31.000000000 +1100
+@@ -144,20 +144,12 @@ void module_free(struct module *mod, voi
+ }
+ 
+ /* We don't need anything special. */
+-long module_core_size(const Elf64_Ehdr *hdr,
+-		      const Elf64_Shdr *sechdrs,
+-		      const char *secstrings,
+-		      struct module *module)
+-{
+-	return module->core_size;
+-}
+-
+-long module_init_size(const Elf64_Ehdr *hdr,
+-		      const Elf64_Shdr *sechdrs,
+-		      const char *secstrings,
+-		      struct module *module)
++int module_frob_arch_sections(const Elf_Ehdr *hdr,
++			      const Elf_Shdr *sechdrs,
++			      const char *secstrings,
++			      struct module *mod)
+ {
+-	return module->init_size;
++	return 0;
+ }
+ 
+ int apply_relocate(Elf64_Shdr *sechdrs,
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .1000-2.5-bk-section-ordering.pre/arch/x86_64/kernel/module.c .1000-2.5-bk-section-ordering/arch/x86_64/kernel/module.c
+--- .1000-2.5-bk-section-ordering.pre/arch/x86_64/kernel/module.c	2003-01-02 11:12:31.000000000 +1100
++++ .1000-2.5-bk-section-ordering/arch/x86_64/kernel/module.c	2003-01-02 11:12:31.000000000 +1100
+@@ -26,20 +26,12 @@
+ #define DEBUGP(fmt...) 
+  
+ /* We don't need anything special. */
+-long module_core_size(const Elf64_Ehdr *hdr,
+-		      const Elf64_Shdr *sechdrs,
+-		      const char *secstrings,
+-		      struct module *module)
+-{
+-	return module->core_size;
+-}
+-
+-long module_init_size(const Elf64_Ehdr *hdr,
+-		      const Elf64_Shdr *sechdrs,
+-		      const char *secstrings,
+-		      struct module *module)
++int module_frob_arch_sections(const Elf_Ehdr *hdr,
++			      const Elf_Shdr *sechdrs,
++			      const char *secstrings,
++			      struct module *mod)
+ {
+-	return module->init_size;
++	return 0;
+ }
+ 
+ int apply_relocate_add(Elf64_Shdr *sechdrs,
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .1000-2.5-bk-section-ordering.pre/include/asm-ppc/module.h .1000-2.5-bk-section-ordering/include/asm-ppc/module.h
+--- .1000-2.5-bk-section-ordering.pre/include/asm-ppc/module.h	2002-11-25 08:44:17.000000000 +1100
++++ .1000-2.5-bk-section-ordering/include/asm-ppc/module.h	2003-01-02 11:12:31.000000000 +1100
+@@ -18,16 +18,17 @@ struct ppc_plt_entry
+ 
+ struct mod_arch_specific
+ {
+-	/* How much of the core is actually taken up with core (then
+-           we know the rest is for the PLT */
+-	unsigned int core_plt_offset;
+-
+-	/* Same for init */
+-	unsigned int init_plt_offset;
++	/* Indices of PLT sections within module. */
++	unsigned int core_plt_section, init_plt_section;
+ };
+ 
+ #define Elf_Shdr Elf32_Shdr
+ #define Elf_Sym Elf32_Sym
+ #define Elf_Ehdr Elf32_Ehdr
+ 
++/* Make empty sections for module_frob_arch_sections to expand. */
++#ifdef MODULE
++asm(".section .plt,\"aws\",@nobits; .align 3; .previous");
++asm(".section .plt.init,\"aws\",@nobits; .align 3; .previous");
++#endif
+ #endif /* _ASM_PPC_MODULE_H */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .1000-2.5-bk-section-ordering.pre/include/linux/moduleloader.h .1000-2.5-bk-section-ordering/include/linux/moduleloader.h
+--- .1000-2.5-bk-section-ordering.pre/include/linux/moduleloader.h	2002-11-19 09:58:51.000000000 +1100
++++ .1000-2.5-bk-section-ordering/include/linux/moduleloader.h	2003-01-02 11:12:31.000000000 +1100
+@@ -15,20 +15,11 @@ unsigned long find_symbol_internal(Elf_S
+ 
+ /* These must be implemented by the specific architecture */
+ 
+-/* Total size to allocate for the non-releasable code; return len or
+-   -error.  mod->core_size is the current generic tally. */
+-long module_core_size(const Elf_Ehdr *hdr,
+-		      const Elf_Shdr *sechdrs,
+-		      const char *secstrings,
+-		      struct module *mod);
+-
+-/* Total size of (if any) sections to be freed after init.  Return 0
+-   for none, len, or -error. mod->init_size is the current generic
+-   tally. */
+-long module_init_size(const Elf_Ehdr *hdr,
+-		      const Elf_Shdr *sechdrs,
+-		      const char *secstrings,
+-		      struct module *mod);
++/* Adjust arch-specific sections.  Return 0 on success.  */
++int module_frob_arch_sections(const Elf_Ehdr *hdr,
++			      const Elf_Shdr *sechdrs,
++			      const char *secstrings,
++			      struct module *mod);
+ 
+ /* Allocator used for allocating struct module, core sections and init
+    sections.  Returns NULL on failure. */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .1000-2.5-bk-section-ordering.pre/kernel/module.c .1000-2.5-bk-section-ordering/kernel/module.c
+--- .1000-2.5-bk-section-ordering.pre/kernel/module.c	2003-01-02 11:12:31.000000000 +1100
++++ .1000-2.5-bk-section-ordering/kernel/module.c	2003-01-02 11:12:32.000000000 +1100
+@@ -1,4 +1,5 @@
+ /* Rewritten by Rusty Russell, on the backs of many others...
++   Copyright (C) 2002 Richard Henderson
+    Copyright (C) 2001 Rusty Russell, 2002 Rusty Russell IBM.
+ 
+     This program is free software; you can redistribute it and/or modify
+@@ -27,6 +28,8 @@
+ #include <linux/rcupdate.h>
+ #include <linux/cpu.h>
+ #include <linux/moduleparam.h>
++#include <linux/errno.h>
++#include <linux/err.h>
+ #include <asm/uaccess.h>
+ #include <asm/semaphore.h>
+ #include <asm/pgalloc.h>
+@@ -38,6 +41,13 @@
+ #define DEBUGP(fmt , a...)
+ #endif
+ 
++#ifndef ARCH_SHF_SMALL
++#define ARCH_SHF_SMALL 0
++#endif
++
++/* If this is set, the section belongs in the init part of the module */
++#define INIT_OFFSET_MASK (1UL << (BITS_PER_LONG-1))
++
+ #define symbol_is(literal, string)				\
+ 	(strcmp(MODULE_SYMBOL_PREFIX literal, (string)) == 0)
+ 
+@@ -53,13 +63,6 @@ static inline int strong_try_module_get(
+ 	return try_module_get(mod);
+ }
+ 
+-/* Convenient structure for holding init and core sizes */
+-struct sizes
+-{
+-	unsigned long init_size;
+-	unsigned long core_size;
+-};
+-
+ /* Stub function for modules which don't have an initfn */
+ int init_module(void)
+ {
+@@ -764,43 +767,6 @@ void *__symbol_get(const char *symbol)
+ }
+ EXPORT_SYMBOL_GPL(__symbol_get);
+ 
+-/* Transfer one ELF section to the correct (init or core) area. */
+-static void *copy_section(const char *name,
+-			  void *base,
+-			  Elf_Shdr *sechdr,
+-			  struct module *mod,
+-			  struct sizes *used)
+-{
+-	void *dest;
+-	unsigned long *use;
+-	unsigned long max;
+-
+-	/* Only copy to init section if there is one */
+-	if (strstr(name, ".init") && mod->module_init) {
+-		dest = mod->module_init;
+-		use = &used->init_size;
+-		max = mod->init_size;
+-	} else {
+-		dest = mod->module_core;
+-		use = &used->core_size;
+-		max = mod->core_size;
+-	}
+-
+-	/* Align up */
+-	*use = ALIGN(*use, sechdr->sh_addralign);
+-	dest += *use;
+-	*use += sechdr->sh_size;
+-
+-	if (*use > max)
+-		return ERR_PTR(-ENOEXEC);
+-
+-	/* May not actually be in the file (eg. bss). */
+-	if (sechdr->sh_type != SHT_NOBITS)
+-		memcpy(dest, base + sechdr->sh_offset, sechdr->sh_size);
+-
+-	return dest;
+-}
+-
+ /* Deal with the given section */
+ static int handle_section(const char *name,
+ 			  Elf_Shdr *sechdrs,
+@@ -902,33 +868,66 @@ static int simplify_symbols(Elf_Shdr *se
+ 	return 0;
+ }
+ 
+-/* Get the total allocation size of the init and non-init sections */
+-static struct sizes get_sizes(const Elf_Ehdr *hdr,
+-			      const Elf_Shdr *sechdrs,
+-			      const char *secstrings)
++/* Update size with this section: return offset. */
++static long get_offset(unsigned long *size, Elf_Shdr *sechdr)
+ {
+-	struct sizes ret = { 0, 0 };
+-	unsigned i;
++	long ret;
+ 
+-	/* Everything marked ALLOC (this includes the exported
+-           symbols) */
+-	for (i = 1; i < hdr->e_shnum; i++) {
+-		unsigned long *add;
++	ret = ALIGN(*size, sechdr->sh_addralign ?: 1);
++	*size = ret + sechdr->sh_size;
++	return ret;
++}
+ 
+-		/* If it's called *.init*, and we're init, we're interested */
+-		if (strstr(secstrings + sechdrs[i].sh_name, ".init") != 0)
+-			add = &ret.init_size;
+-		else
+-			add = &ret.core_size;
++/* Lay out the SHF_ALLOC sections in a way not dissimilar to how ld
++   might -- code, read-only data, read-write data, small data.  Tally
++   sizes, and place the offsets into sh_link fields: high bit means it
++   belongs in init. */
++static void layout_sections(struct module *mod,
++			    const Elf_Ehdr *hdr,
++			    Elf_Shdr *sechdrs,
++			    const char *secstrings)
++{
++	static unsigned long const masks[][2] = {
++		{ SHF_EXECINSTR | SHF_ALLOC, ARCH_SHF_SMALL },
++		{ SHF_ALLOC, SHF_WRITE | ARCH_SHF_SMALL },
++		{ SHF_WRITE | SHF_ALLOC, ARCH_SHF_SMALL },
++		{ ARCH_SHF_SMALL | SHF_ALLOC, 0 }
++	};
++	unsigned int m, i;
+ 
+-		if (sechdrs[i].sh_flags & SHF_ALLOC) {
+-			/* Pad up to required alignment */
+-			*add = ALIGN(*add, sechdrs[i].sh_addralign ?: 1);
+-			*add += sechdrs[i].sh_size;
++	for (i = 0; i < hdr->e_shnum; i++)
++		sechdrs[i].sh_link = ~0UL;
++
++	DEBUGP("Core section allocation order:\n");
++	for (m = 0; m < ARRAY_SIZE(masks); ++m) {
++		for (i = 0; i < hdr->e_shnum; ++i) {
++			Elf_Shdr *s = &sechdrs[i];
++
++			if ((s->sh_flags & masks[m][0]) != masks[m][0]
++			    || (s->sh_flags & masks[m][1])
++			    || s->sh_link != ~0UL
++			    || strstr(secstrings + s->sh_name, ".init"))
++				continue;
++			s->sh_link = get_offset(&mod->core_size, s);
++			DEBUGP("\t%s\n", name);
+ 		}
+ 	}
+ 
+-	return ret;
++	DEBUGP("Init section allocation order:\n");
++	for (m = 0; m < ARRAY_SIZE(masks); ++m) {
++		for (i = 0; i < hdr->e_shnum; ++i) {
++			Elf_Shdr *s = &sechdrs[i];
++
++			if ((s->sh_flags & masks[m][0]) != masks[m][0]
++			    || (s->sh_flags & masks[m][1])
++			    || s->sh_link != ~0UL
++			    || !strstr(secstrings + s->sh_name, ".init"))
++				continue;
++			s->sh_link = (get_offset(&mod->init_size, s)
++				      | INIT_OFFSET_MASK);
++			DEBUGP("\t%s\n", name);
++		}
++	}
+ }
+ 
+ /* Allocate and load the module */
+@@ -942,7 +941,6 @@ static struct module *load_module(void *
+ 	unsigned int i, symindex, exportindex, strindex, setupindex, exindex,
+ 		modindex, obsparmindex;
+ 	long arglen;
+-	struct sizes sizes, used;
+ 	struct module *mod;
+ 	long err = 0;
+ 	void *ptr = NULL; /* Stops spurious gcc uninitialized warning */
+@@ -1063,23 +1061,15 @@ static struct module *load_module(void *
+ 
+ 	mod->state = MODULE_STATE_COMING;
+ 
+-	/* How much space will we need? */
+-	sizes = get_sizes(hdr, sechdrs, secstrings);
+-
+-	/* Set these up, and allow archs to manipulate them. */
+-	mod->core_size = sizes.core_size;
+-	mod->init_size = sizes.init_size;
+-
+-	/* Allow archs to add to them. */
+-	err = module_init_size(hdr, sechdrs, secstrings, mod);
++	/* Allow arches to frob section contents and sizes.  */
++	err = module_frob_arch_sections(hdr, sechdrs, secstrings, mod);
+ 	if (err < 0)
+ 		goto free_mod;
+-	mod->init_size = err;
+ 
+-	err = module_core_size(hdr, sechdrs, secstrings, mod);
+-	if (err < 0)
+-		goto free_mod;
+-	mod->core_size = err;
++	/* Determine total sizes, and put offsets in sh_link.  For now
++	   this is done generically; there doesn't appear to be any
++	   special cases for the architectures. */
++	layout_sections(mod, hdr, sechdrs, secstrings);
+ 
+ 	/* Do the allocs. */
+ 	ptr = module_alloc(mod->core_size);
+@@ -1098,25 +1088,27 @@ static struct module *load_module(void *
  	memset(ptr, 0, mod->init_size);
  	mod->module_init = ptr;
  
--	/* Transfer each section which requires ALLOC, and set sh_offset
-+	/* Transfer each section which requires ALLOC, and set sh_addr
- 	   fields to absolute addresses. */
- 	used.core_size = 0;
- 	used.init_size = 0;
-@@ -1089,12 +1093,10 @@ static struct module *load_module(void *
- 					   hdr, &sechdrs[i], mod, &used);
- 			if (IS_ERR(ptr))
- 				goto cleanup;
--			sechdrs[i].sh_offset = (unsigned long)ptr;
-+			sechdrs[i].sh_addr = (unsigned long)ptr;
- 			/* Have we just copied __this_module across? */ 
- 			if (i == modindex)
- 				mod = ptr;
--		} else {
--			sechdrs[i].sh_offset += (unsigned long)hdr;
- 		}
+-	/* Transfer each section which requires ALLOC, and set sh_addr
+-	   fields to absolute addresses. */
+-	used.core_size = 0;
+-	used.init_size = 0;
+-	for (i = 1; i < hdr->e_shnum; i++) {
+-		if (sechdrs[i].sh_flags & SHF_ALLOC) {
+-			ptr = copy_section(secstrings + sechdrs[i].sh_name,
+-					   hdr, &sechdrs[i], mod, &used);
+-			if (IS_ERR(ptr))
+-				goto cleanup;
+-			sechdrs[i].sh_addr = (unsigned long)ptr;
+-			/* Have we just copied __this_module across? */ 
+-			if (i == modindex)
+-				mod = ptr;
+-		}
++	/* Transfer each section which specifies SHF_ALLOC */
++	for (i = 0; i < hdr->e_shnum; i++) {
++		void *dest;
++
++		if (!(sechdrs[i].sh_flags & SHF_ALLOC))
++			continue;
++
++		if (sechdrs[i].sh_link & INIT_OFFSET_MASK)
++			dest = mod->module_init
++				+ (sechdrs[i].sh_link & ~INIT_OFFSET_MASK);
++		else
++			dest = mod->module_core + sechdrs[i].sh_link;
++
++		if (sechdrs[i].sh_type != SHT_NOBITS)
++			memcpy(dest, (void *)sechdrs[i].sh_addr,
++			       sechdrs[i].sh_size);
++		/* Update sh_addr to point to copy in image. */
++		sechdrs[i].sh_addr = (unsigned long)dest;
  	}
- 	/* Don't use more than we allocated! */
-@@ -1113,7 +1115,7 @@ static struct module *load_module(void *
- 	if (exportindex) {
- 		mod->symbols.num_syms = (sechdrs[exportindex].sh_size
- 					/ sizeof(*mod->symbols.syms));
--		mod->symbols.syms = (void *)sechdrs[exportindex].sh_offset;
-+		mod->symbols.syms = (void *)sechdrs[exportindex].sh_addr;
- 	}
+-	/* Don't use more than we allocated! */
+-	if (used.init_size > mod->init_size || used.core_size > mod->core_size)
+-		BUG();
++	/* Module has been moved. */
++	mod = (void *)sechdrs[modindex].sh_addr;
  
- 	/* Set up exception table */
-@@ -1122,7 +1124,7 @@ static struct module *load_module(void *
- 		mod->extable.num_entries = (sechdrs[exindex].sh_size
- 					    / sizeof(struct
- 						     exception_table_entry));
--		mod->extable.entry = (void *)sechdrs[exindex].sh_offset;
-+		mod->extable.entry = (void *)sechdrs[exindex].sh_addr;
- 	}
- 
- 	/* Now handle each section. */
-@@ -1134,9 +1136,9 @@ static struct module *load_module(void *
- 	}
- 
- #ifdef CONFIG_KALLSYMS
--	mod->symtab = (void *)sechdrs[symindex].sh_offset;
-+	mod->symtab = (void *)sechdrs[symindex].sh_addr;
- 	mod->num_syms = sechdrs[symindex].sh_size / sizeof(Elf_Sym);
--	mod->strtab = (void *)sechdrs[strindex].sh_offset;
-+	mod->strtab = (void *)sechdrs[strindex].sh_addr;
- #endif
- 	err = module_finalize(hdr, sechdrs, mod);
- 	if (err < 0)
-@@ -1146,16 +1148,16 @@ static struct module *load_module(void *
- 	if (obsparmindex) {
- 		err = obsolete_params(mod->name, mod->args,
- 				      (struct obsolete_modparm *)
--				      sechdrs[obsparmindex].sh_offset,
-+				      sechdrs[obsparmindex].sh_addr,
- 				      sechdrs[obsparmindex].sh_size
- 				      / sizeof(struct obsolete_modparm),
- 				      sechdrs, symindex,
--				      (char *)sechdrs[strindex].sh_offset);
-+				      (char *)sechdrs[strindex].sh_addr);
- 	} else {
- 		/* Size of section 0 is 0, so this works well if no params */
- 		err = parse_args(mod->name, mod->args,
- 				 (struct kernel_param *)
--				 sechdrs[setupindex].sh_offset,
-+				 sechdrs[setupindex].sh_addr,
- 				 sechdrs[setupindex].sh_size
- 				 / sizeof(struct kernel_param),
- 				 NULL);
-
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+ 	/* Now we've moved module, initialize linked lists, etc. */
+ 	module_unload_init(mod);

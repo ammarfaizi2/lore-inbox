@@ -1,105 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269065AbUJERlM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269057AbUJERpS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269065AbUJERlM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 13:41:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269057AbUJERlM
+	id S269057AbUJERpS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 13:45:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269076AbUJERpR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 13:41:12 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:11261 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S269081AbUJERk7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 13:40:59 -0400
-Message-ID: <4162DCAA.50902@namesys.com>
-Date: Tue, 05 Oct 2004 10:40:58 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeffrey Mahoney <jeffm@novell.com>
-CC: Alex Zarochentsev <zam@namesys.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/4] I/O Error Handling for ReiserFS v3
-References: <20041005150819.GA30046@locomotive.unixthugs.org> <4162C156.3030108@namesys.com> <20041005172233.GE28617@backtop.namesys.com>
-In-Reply-To: <20041005172233.GE28617@backtop.namesys.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Oct 2004 13:45:17 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:9423 "EHLO hermes.sc.intel.com")
+	by vger.kernel.org with ESMTP id S269057AbUJERpH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 13:45:07 -0400
+Message-Id: <200410051744.i95Hii627981@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Ingo Molnar'" <mingo@elte.hu>
+Cc: <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
+       "Nick Piggin" <nickpiggin@yahoo.com.au>
+Subject: RE: bug in sched.c:activate_task()
+Date: Tue, 5 Oct 2004 10:44:51 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcSqs+eaeeVK4lKVQXW75lmRZGOjgwATt1Zg
+In-Reply-To: <20041005081923.GA11258@elte.hu>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Zarochentsev wrote:
+* Chen, Kenneth W <kenneth.w.chen@intel.com> wrote:
+> Update p->timestamp to "now" in activate_task() doesn't look right to
+> me at all.  p->timestamp records last time it was running on a cpu.
+> activate_task shouldn't update that variable when it queues a task on
+> the runqueue.
 
->On Tue, Oct 05, 2004 at 08:44:22AM -0700, Hans Reiser wrote:
->  
->
->>These have received design approval from zam (and thus me), but zam, did 
->>they receive stress testing by Elena under your guidance?
->>    
->>
->
->No. We have a long queue of test tasks.  There are fsck.reiser4 testing,
->reiser4/dmapper crashes and the benchmarks in the queue. 
->  
->
-Well, we cannot let our process be a barrier to good patches getting in, 
-so let me ask, Jeff, did you test each of these conditions you 
-improved?  How?  Did anyone else test them?
 
->  
+Ingo Molnar wrote on Tuesday, October 05, 2004 1:19 AM
+> it is being used for multiple purposes: measuring on-CPU time, measuring
+> on-runqueue time (for interactivity) and measuring off-runqueue time
+> (for interactivity). It is also used to measure cache-hotness, by the
+> balancing code.
 >
->>Hans
->>
->>Jeffrey Mahoney wrote:
->>
->>    
->>
->>>Hey all -
->>>
->>>One of the most common complaints I've heard about ReiserFS is how graceless
->>>it is in handling critical I/O errors.
->>>
->>>ext[23] can handle I/O errors anywhere, with the results being up to the
->>>system admin to determine: continue, go read only, or panic.
->>>
->>>ReiserFS doesn't offer the admin any such choice, instead panicking on any
->>>I/O error in the journal.
->>>
->>>The available options are read only or panic, since ReiserFS does not
->>>currently support operations without the journal.
->>>
->>>In the four messages that follow, you'll find: *
->>>reiserfs-cleanup-buffer-heads.diff - Cleans up handling of buffer head
->>>bitfields - uses the kernel supplied FNS_BUFFER macros instead.  *
->>>reiserfs-cleanup-sb-journal.diff - Cleans up accessing of the journal
->>>structure, prefering to create a temporary variable in functions that access
->>>the journal structure non-trivially. Should make 0 difference at compile
->>>time.  * reiserfs-io-error-handling.diff - Allows ReiserFS to gracefully
->>>handle I/O errors in critical code paths. The admin has the option to go
->>>read-only or panic.  Since ReiserFS has no option to ignore the use of the
->>>journal, the "continue" method is not enabled.  * reiserfs-write-lock.diff -
->>>Fixes two missing reiserfs_write_unlock() calls on error paths that are
->>>unrelated to reiserfs-io-error-handling.diff
->>>
->>>These patches have seen a lot of testing in the SuSE Linux Enterprise Server
->>>9 kernel, and are considered ready for mainline.
->>>
->>>They've received approval[1] from the ReiserFS maintainers also.
->>>
->>>Andrew - Apologies for the previous format; Please apply.
->>>
->>>Thanks.
->>>
->>>-Jeff
->>>
->>>[1] http://marc.theaimsgroup.com/?l=reiserfs&m=109587254714180
->>>
->>>-- Jeff Mahoney SuSE Labs
->>>
->>>
->>>      
->>>
+> now, this particular update of p->timestamp:
 >
->  
+> > @@ -888,7 +888,6 @@ static void activate_task(task_t *p, run
 >
+> > -	p->timestamp = now;
+>
+> is important for the interactivity code that runs in schedule() - it
+> wants to know how much time we spent on the runqueue without having run.
+>
+> but you are right that the task_hot() use of p->timestamp is incorrect
+> for freshly woken up tasks - we want the balancer to be able to re-route
+> tasks to another CPU, as long as the task has not hit the runqueue yet
+> (which it hasnt where we consider it in the balancer).
+>
+> the clean solution is to separate the multiple uses of p->timestamp:
+> with the patch below p->timestamp is purely used for the interactivity
+> code, and p->last_ran is for the rebalancer. The patch is ontop of your
+> task_hot() fix-patch. Does this work for your workload?
+
+I will take this for a spin and report back the result.
+
+- Ken
+
 

@@ -1,31 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313790AbSDPRvq>; Tue, 16 Apr 2002 13:51:46 -0400
+	id <S313795AbSDPRwp>; Tue, 16 Apr 2002 13:52:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313795AbSDPRvp>; Tue, 16 Apr 2002 13:51:45 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11783 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S313790AbSDPRvn>; Tue, 16 Apr 2002 13:51:43 -0400
-Subject: Re: [PATCH] fix ips driver compile problems
-To: haveblue@us.ibm.com (Dave Hansen)
-Date: Tue, 16 Apr 2002 19:09:26 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-In-Reply-To: <3CBC4D18.1090005@us.ibm.com> from "Dave Hansen" at Apr 16, 2002 09:11:04 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S313796AbSDPRwo>; Tue, 16 Apr 2002 13:52:44 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:36814 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S313795AbSDPRwa>;
+	Tue, 16 Apr 2002 13:52:30 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16xXOQ-0000VQ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-ID: <15548.25819.487824.338429@napali.hpl.hp.com>
+Date: Tue, 16 Apr 2002 10:52:27 -0700
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: davidm@hpl.hp.com, Linus Torvalds <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Why HZ on i386 is 100 ?
+In-Reply-To: <Pine.LNX.4.44.0204161013050.1460-100000@blue1.dev.mcafeelabs.com>
+X-Mailer: VM 7.03 under Emacs 21.1.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I know that none of the real authors is actively working on fixing this. 
->   Can this be accepted as a band-aid until the maintainers decide to 
-> maintain a 2.5 driver, or are we pushing authors to rewrite drivers 
-> which don't use the new DMA scheme?
+>>>>> On Tue, 16 Apr 2002 10:18:18 -0700 (PDT), Davide Libenzi <davidel@xmailserver.org> said:
 
-Its not a band aid, its a bug. It happens to work by freak chance on x86.
-Its much better it stays visibly broken until its fixed. You never
-know, Jack may find someone else fixed it for him along the way.
+  Davide> i still have pieces of paper on my desk about tests done on
+  Davide> my dual piii where by hacking HZ to 1000 the kernel build
+  Davide> time went from an average of 2min:30sec to an average
+  Davide> 2min:43sec. that is pretty close to 10%
+
+Did you keep the timeslice roughly constant?
+
+	--david

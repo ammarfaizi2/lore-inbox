@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275077AbTHGFtx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 01:49:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275091AbTHGFtx
+	id S275091AbTHGF6J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 01:58:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275105AbTHGF6I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 01:49:53 -0400
-Received: from core.kaist.ac.kr ([143.248.147.118]:25793 "EHLO
-	core.kaist.ac.kr") by vger.kernel.org with ESMTP id S275077AbTHGFtw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 01:49:52 -0400
-Message-ID: <005a01c35ca7$210f71e0$a5a5f88f@core8fyzomwjks>
-From: "Cho, joon-woo" <jwc@core.kaist.ac.kr>
-To: <linux-kernel@vger.kernel.org>
-Subject: [Q] How can I transfer data from hard disk to PCI device's memory
-Date: Thu, 7 Aug 2003 14:45:37 +0900
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	Thu, 7 Aug 2003 01:58:08 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:1174 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S275091AbTHGF6G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 01:58:06 -0400
+Date: Thu, 7 Aug 2003 07:57:54 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: cb-lkml@fish.zetnet.co.uk, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Disk priority dependend on nice level...
+Message-ID: <20030807055754.GP7982@suse.de>
+References: <20030806232810.GA1623@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030806232810.GA1623@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Thu, Aug 07 2003, Pavel Machek wrote:
+> Hi!
+> 
+> I ported `subj` to 2.6.0-test2. I do not yet have idea if it works,
+> but it compiles ;-).
 
-I want to transfer data 'directly' from hard disk to some PCI device which
-has memory
+This wont do much, you might as well forget it. Disk priorities is far
+more work than you appear to think :)
 
-with the helpf of kernel(file system, device driver).
-
-In above sentence 'directly' means that data does not go through main memory
-of host.
-
-
-So I am analyzing kernel code, but I am so confused because of memory system
-
-complexity (page, buffer, ... ).
-
-I find buffer head structure(struct buffer_head) has b_data pointer
-variable.
-
-I think kernel transfer data from HDD to this pointer variable.
-
-Can I map this pointer variable(b_data) to PCI device's memory?
-
-
-I am very confused because this part is highly related with complex memory
-system
-
-(page & buffer).
-
-Please give me some hint. Thanks.
-
+-- 
+Jens Axboe
 

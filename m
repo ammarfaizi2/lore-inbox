@@ -1,52 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283134AbRLDOoa>; Tue, 4 Dec 2001 09:44:30 -0500
+	id <S283433AbRLDOoa>; Tue, 4 Dec 2001 09:44:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283433AbRLDOnE>; Tue, 4 Dec 2001 09:43:04 -0500
-Received: from ns.caldera.de ([212.34.180.1]:55744 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S283415AbRLDNBv>;
-	Tue, 4 Dec 2001 08:01:51 -0500
-Date: Tue, 4 Dec 2001 14:00:50 +0100
-From: Christoph Hellwig <hch@caldera.de>
-To: "Eric S. Raymond" <esr@thyrsus.com>, Keith Owens <kaos@ocs.com.au>,
-        kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-Message-ID: <20011204140050.A10691@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
-	"Eric S. Raymond" <esr@thyrsus.com>, Keith Owens <kaos@ocs.com.au>,
-	kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-	torvalds@transmeta.com
-In-Reply-To: <1861.1007341572@kao2.melbourne.sgi.com> <20011204131136.B6051@caldera.de> <20011204072808.A11867@thyrsus.com> <20011204133932.A8805@caldera.de> <20011204074815.A12231@thyrsus.com>
+	id <S283415AbRLDOnG>; Tue, 4 Dec 2001 09:43:06 -0500
+Received: from noodles.codemonkey.org.uk ([62.49.180.5]:63125 "EHLO
+	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id <S283652AbRLDNeJ>; Tue, 4 Dec 2001 08:34:09 -0500
+Date: Tue, 4 Dec 2001 13:35:20 +0000
+From: Dave Jones <davej@suse.de>
+To: groudier@free.fr
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] make ncr53c8xx work with bio.
+Message-ID: <20011204133520.A3760@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>, groudier@free.fr,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011204074815.A12231@thyrsus.com>; from esr@thyrsus.com on Tue, Dec 04, 2001 at 07:48:15AM -0500
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 04, 2001 at 07:48:15AM -0500, Eric S. Raymond wrote:
-> And, by the way, there is no CML1 :-).  Instead, there are four
-> mutually incompatible dialects and a rulebase that breaks in different
-> ways depending on which interpreter you use.  Well, maybe just three
-> mutual incompatible dialects and one clone -- but it's notoriously
-> hard to verify that two interpreters have the same accept language, so
-> nobody knows for sure.
+Hi folks,
+ Patch below makes ncr53c8xx driver compile again in 2.5.1pre5.
+ Seems to have survived yesterdays torture tests.
 
-There is a CML1 language specification, as written down in a file, namely
-Documentation/kbuild/config-language.txt in the kernel tree.
-There is one tool (mconfig) which has a yacc-parser that implements that
-specification completly, and some horrid ugly scripts in the tree that
-parse them in a more or less working way.  There also are a number of
-other tools I don't know to much about that understand the language as
-well.
+regards,
+Dave.
 
-All of these tools just require the runtime contained in the LSB and no
-funky additional script languages.  Also none needs a binary intermediate
-representation of the config.
-
-	Christoph
+diff -urN --exclude-from=/home/davej/.exclude linux/drivers/scsi/ncr53c8xx.c linux-dj/drivers/scsi/ncr53c8xx.c
+--- linux/drivers/scsi/ncr53c8xx.c	Sun Sep 30 20:26:07 2001
++++ linux-dj/drivers/scsi/ncr53c8xx.c	Mon Dec  3 16:44:11 2001
+@@ -8625,9 +8625,9 @@
+      if (DEBUG_FLAGS & DEBUG_TINY) printk ("]\n");
+ 
+      if (done_list) {
+-          NCR_LOCK_SCSI_DONE(np, flags);
++          NCR_LOCK_SCSI_DONE(done_list->host, flags);
+           ncr_flush_done_cmds(done_list);
+-          NCR_UNLOCK_SCSI_DONE(np, flags);
++          NCR_UNLOCK_SCSI_DONE(done_list->host, flags);
+      }
+ }
+ 
+@@ -8648,9 +8648,9 @@
+      NCR_UNLOCK_NCB(np, flags);
+ 
+      if (done_list) {
+-          NCR_LOCK_SCSI_DONE(np, flags);
++          NCR_LOCK_SCSI_DONE(done_list->host, flags);
+           ncr_flush_done_cmds(done_list);
+-          NCR_UNLOCK_SCSI_DONE(np, flags);
++          NCR_UNLOCK_SCSI_DONE(done_list->host, flags);
+      }
+ }
+ 
+diff -urN --exclude-from=/home/davej/.exclude linux/drivers/scsi/sym53c8xx_comm.h linux-dj/drivers/scsi/sym53c8xx_comm.h
+--- linux/drivers/scsi/sym53c8xx_comm.h	Fri Oct 12 23:35:54 2001
++++ linux-dj/drivers/scsi/sym53c8xx_comm.h	Mon Dec  3 16:43:38 2001
+@@ -438,10 +438,10 @@
+ #define	NCR_LOCK_NCB(np, flags)    spin_lock_irqsave(&np->smp_lock, flags)
+ #define	NCR_UNLOCK_NCB(np, flags)  spin_unlock_irqrestore(&np->smp_lock, flags)
+ 
+-#define	NCR_LOCK_SCSI_DONE(np, flags) \
+-		spin_lock_irqsave(&io_request_lock, flags)
+-#define	NCR_UNLOCK_SCSI_DONE(np, flags) \
+-		spin_unlock_irqrestore(&io_request_lock, flags)
++#define	NCR_LOCK_SCSI_DONE(host, flags) \
++		spin_lock_irqsave(&(host)->host_lock, flags)
++#define	NCR_UNLOCK_SCSI_DONE(host, flags) \
++		spin_unlock_irqrestore(&((host)->host_lock), flags)
+ 
+ #else
+ 
+@@ -452,8 +452,8 @@
+ #define	NCR_LOCK_NCB(np, flags)    do { save_flags(flags); cli(); } while (0)
+ #define	NCR_UNLOCK_NCB(np, flags)  do { restore_flags(flags); } while (0)
+ 
+-#define	NCR_LOCK_SCSI_DONE(np, flags)    do {;} while (0)
+-#define	NCR_UNLOCK_SCSI_DONE(np, flags)  do {;} while (0)
++#define	NCR_LOCK_SCSI_DONE(host, flags)    do {;} while (0)
++#define	NCR_UNLOCK_SCSI_DONE(host, flags)  do {;} while (0)
+ 
+ #endif
+ 
 
 -- 
-Of course it doesn't work. We've performed a software upgrade.
+| Dave Jones.                    http://www.codemonkey.org.uk
+| SuSE Labs .

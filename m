@@ -1,28 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311622AbSCNONE>; Thu, 14 Mar 2002 09:13:04 -0500
+	id <S311623AbSCNOOO>; Thu, 14 Mar 2002 09:14:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311623AbSCNOMy>; Thu, 14 Mar 2002 09:12:54 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17422 "EHLO
+	id <S311625AbSCNOOF>; Thu, 14 Mar 2002 09:14:05 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18446 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S311622AbSCNOMn>; Thu, 14 Mar 2002 09:12:43 -0500
-Subject: Re: libc/1427: gprof does not profile threads <synopsis of the problem
-To: dank@kegel.com
-Date: Thu, 14 Mar 2002 14:28:01 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, drepper@redhat.com (Ulrich Drepper)
-In-Reply-To: <3C902631.3A406D51@kegel.com> from "Dan Kegel" at Mar 13, 2002 08:25:21 PM
+	id <S311623AbSCNONw>; Thu, 14 Mar 2002 09:13:52 -0500
+Subject: Re: Severe IRQ problems on Foster (P4 Xeon) system
+To: rddunlap@osdl.org
+Date: Thu, 14 Mar 2002 14:26:06 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davidsen@tmr.com (Bill Davidsen),
+        mingo@elte.hu (Ingo Molnar),
+        linux-kernel@vger.kernel.org (Linux Kernel mailing list)
+In-Reply-To: <Pine.LNX.4.33.0203132126420.15352-100000@osdlab.pdx.osdl.net> from "rddunlap@osdl.org" at Mar 13, 2002 09:29:22 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16lWD3-0000sj-00@the-village.bc.nu>
+Message-Id: <E16lWBC-0000sJ-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> distribution, and I'm pretty sure my users would like
-> gprof to work.  (In fact, my boss's boss would really
-> like gprof to work.  This problem has a lot of visibility.)
+> They announced at IDF last week (or 2 weeks back) that "UP"
+> P4 next year sometime will include HT.
+> I think this is "Prescott."
 
-So would lots of people. You might find the gprof maintainr would like to
-ship your patch with his package for example 8)
+They obviously don't expect to sell them in the UK then (Prescott is a not
+wonderous UK political figure...). Good to know it will pop up elsewhere
+

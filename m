@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268322AbUIGT30@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268497AbUIGT1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268322AbUIGT30 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 15:29:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268289AbUIGT2k
+	id S268497AbUIGT1U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 15:27:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268503AbUIGTWr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 15:28:40 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:55812 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S268322AbUIGT1P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 15:27:15 -0400
-Date: Tue, 7 Sep 2004 23:27:16 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Andrew Morton <akpm@osdl.org>, ". Sam Ravnborg" <sam@ravnborg.org>,
-       Ian Wienand <ianw@gelato.unsw.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.6.9-rc1-mm4: small LOCALVERSION help text corrections
-Message-ID: <20040907212716.GB6053@mars.ravnborg.org>
-Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
-	Andrew Morton <akpm@osdl.org>, ". Sam Ravnborg" <sam@ravnborg.org>,
-	Ian Wienand <ianw@gelato.unsw.edu.au>, linux-kernel@vger.kernel.org
-References: <20040907020831.62390588.akpm@osdl.org> <20040907184314.GA2454@fs.tum.de>
+	Tue, 7 Sep 2004 15:22:47 -0400
+Received: from fw.osdl.org ([65.172.181.6]:16306 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268504AbUIGTST (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 15:18:19 -0400
+Date: Tue, 7 Sep 2004 12:14:43 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: alan@lxorguk.ukuu.org.uk, hch@lst.de, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mark install_page static
+Message-Id: <20040907121443.68c5c3b8.rddunlap@osdl.org>
+In-Reply-To: <20040907181259.GA12654@lst.de>
+References: <20040907143741.GA8606@lst.de>
+	<1094576968.9599.9.camel@localhost.localdomain>
+	<20040907181259.GA12654@lst.de>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040907184314.GA2454@fs.tum.de>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 07, 2004 at 08:43:14PM +0200, Adrian Bunk wrote:
-> On Tue, Sep 07, 2004 at 02:08:31AM -0700, Andrew Morton wrote:
-> >...
-> >  bk-input.patch
-> >...
-> >  Latest versions of external trees
-> >...
-> 
-> 
-> Minor nitpicks:
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-> 
-> --- linux-2.6.9-rc1-mm4-full/init/Kconfig.old	2004-09-07 20:36:13.000000000 +0200
-> +++ linux-2.6.9-rc1-mm4-full/init/Kconfig	2004-09-07 20:37:15.000000000 +0200
-> @@ -311,13 +311,13 @@
->  config LOCALVERSION
->  	string "Local Version"
->  	help
->  	  Append an extra string to the end of your kernel version.
->  	  This will show up when you type uname, for example.
-> -	  The string you set here will be appended after the contents of=20
-> -	  any files with a filename matching localversion* in your=20
-> -	  object and source tree, in that order.  Your total string can
-> +	  The string you set here will be appended after the contents of
-> +	  any files with a filename matching localversion* in your
-> +	  object and source trees, in that order.  Your total string can
->  	  be a maximum of 64 characters.
+On Tue, 7 Sep 2004 20:12:59 +0200 Christoph Hellwig wrote:
 
-Would it make sense to move this item further up in this menu?
-I would prefer at the top, but at least before "Embedded"
+| On Tue, Sep 07, 2004 at 06:09:29PM +0100, Alan Cox wrote:
+| > On Maw, 2004-09-07 at 15:37, Christoph Hellwig wrote:
+| > > Not used anywhere in modules and it really shouldn't either.
+| > 
+| > Doesn't that happen (conveniently from some viewpoints Im sure) to break
+| > vmware ?
+| 
+| It happens because Arjan & I wrote up some scripts to find dead exports.
 
-	Sam
+Can you put those at kernelnewbies.org or janitor.kernelnewbies.org ?
+
+--
+~Randy

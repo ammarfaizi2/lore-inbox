@@ -1,126 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267164AbUGMWSG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266919AbUGMWRS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267164AbUGMWSG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 18:18:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267168AbUGMWSC
+	id S266919AbUGMWRS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 18:17:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267167AbUGMWRS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 18:18:02 -0400
-Received: from lists.us.dell.com ([143.166.224.162]:65453 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S267164AbUGMWRB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 18:17:01 -0400
-Date: Tue, 13 Jul 2004 17:16:23 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: David Balazic <david.balazic@hermes.si>
-Cc: Dave Jones <davej@redhat.com>, Andries Brouwer <aebr@win.tue.nl>,
-       Jeff Garzik <jgarzik@pobox.com>, Pavel Machek <pavel@suse.cz>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Weird:  30 sec delay during early boot
-Message-ID: <20040713221623.GA10480@lists.us.dell.com>
-References: <600B91D5E4B8D211A58C00902724252C035F1D0C@piramida.hermes.si>
+	Tue, 13 Jul 2004 18:17:18 -0400
+Received: from holomorphy.com ([207.189.100.168]:20888 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266919AbUGMWQ7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 18:16:59 -0400
+Date: Tue, 13 Jul 2004 15:16:54 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Lenar L?hmus <lenar@vision.ee>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: preempt-timing-2.6.8-rc1
+Message-ID: <20040713221654.GJ21066@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Lenar L?hmus <lenar@vision.ee>, linux-kernel@vger.kernel.org
+References: <20040713122805.GZ21066@holomorphy.com> <40F3F0A0.9080100@vision.ee> <20040713143947.GG21066@holomorphy.com> <40F40080.8010801@vision.ee>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="sdtB3X0nJg68CQEu"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <600B91D5E4B8D211A58C00902724252C035F1D0C@piramida.hermes.si>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <40F40080.8010801@vision.ee>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+William Lee Irwin III wrote:
+>> Wild guess is that you took an IRQ in dec_preempt_count() and that threw
+>> your results off. Let me know if the patch below helps at all. My guess
+>> is it'll cause more apparent problems than it solves.
 
---sdtB3X0nJg68CQEu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Tue, Jul 13, 2004 at 06:32:16PM +0300, Lenar L?hmus wrote:
+> Machine in question is XP2500+@1.84GHz (it was overlocked@2.25GHz during 
+> last test, now running at
+> official speed). Is this really slow for 1ms?
 
-David, Jeff, would you mind trying the patch below on your systems
-which exhibit the long delays in the EDD real-mode code?
+It should actually be fast enough. I suspect something else, maybe some
+slow devices. What's /proc/interrupts look like?
 
-This does a few things:
-1) it uses an int13 fn15 "Get Disk Type" command prior to doing the
-fn02 "Read Sectors" command, to try to determine if there is a disk
-present or not before reading its signature.
 
-2) A few registers are more fully zeroed out, in case the BIOS cared
-about things it shouldn't have.
+On Tue, Jul 13, 2004 at 06:32:16PM +0300, Lenar L?hmus wrote:
+> Applied your patch. Booted.
+> With preempt_thresh=1 I still got tons of those violations at schedule().
+> With preempt_thresh=2 I do not get those anymore. Apart from sys_ioctl() 
+> violation, getting now these:
+> 16ms non-preemptible critical section violated 2 ms preempt threshold 
+> starting at exit_notify+0x1d/0x7b0 and ending at schedule+0x291/0x480
+> 7ms non-preemptible critical section violated 2 ms preempt threshold 
+> starting at kmap_atomic+0x13/0x70 and ending at kunmap_atomic+0x5/0x20
+> 6ms non-preemptible critical section violated 2 ms preempt threshold 
+> starting at fget+0x28/0x70 and ending at fget+0x41/0x70
 
-Crossing my fingers that the delays are gone...
--Matt
+exit_notify() isn't a huge surprise unless you're not doing things with
+lots of processes. Actually, it probably is a surprise, since it should
+only hurt when you're doing forkbombs and/or threadbombs.
 
---=20
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+The kmap_atomic() stuff is too consistent. Maybe you're taking an
+interrupt during the copy operation.
 
-=3D=3D=3D=3D=3D arch/i386/boot/edd.S 1.2 vs edited =3D=3D=3D=3D=3D
---- 1.2/arch/i386/boot/edd.S	2004-06-29 09:44:48 -05:00
-+++ edited/arch/i386/boot/edd.S	2004-07-13 16:48:50 -05:00
-@@ -12,13 +12,31 @@
- #include <linux/edd.h>
-=20
- #if defined(CONFIG_EDD) || defined(CONFIG_EDD_MODULE)
--# Read the first sector of each BIOS disk device and store the 4-byte sign=
-ature
- edd_mbr_sig_start:
-+	xor	%ebx, %ebx
-+	xor	%edx, %edx
- 	movb	$0, (EDD_MBR_SIG_NR_BUF)	# zero value at EDD_MBR_SIG_NR_BUF
-+       	movw	$EDD_MBR_SIG_BUF, %bx		# store buffer ptr in bx
- 	movb	$0x80, %dl			# from device 80
--	movw	$EDD_MBR_SIG_BUF, %bx		# store buffer ptr in bx
-+
- edd_mbr_sig_read:
--	movl	$0xFFFFFFFF, %eax
-+# Do int13 fn15 first, as BIOS should know if a disk is present or not.
-+# This avoids long (>30s) delays waiting for the READ_SECTORS to a non-pre=
-sent disk.
-+	xor	%eax, %eax
-+	xor	%ecx, %ecx
-+       	movb	$GETDISKTYPE, %ah		# Function 15
-+	pushw	%dx				# which stomps on dx
-+	stc					# work around buggy BIOSes
-+    	int	$0x13				# make the call
-+	sti					# work around buggy BIOSes
-+	popw	%dx				# so get back dx
-+	jc	edd_mbr_sig_done		# no more BIOS devices
-+	cmpb	$HARDDRIVEPRESENT, %ah		# is hard drive present?
-+	jne	edd_mbr_sig_done		# no more BIOS devices
-+
-+# Read the first sector of each BIOS disk device and store the 4-byte sign=
-ature
-+	xor	%ecx, %ecx
-+    	movl	$0xFFFFFFFF, %eax
- 	movl	%eax, (%bx)			# assume failure
- 	pushw	%bx
- 	movb	$READ_SECTORS, %ah
-=3D=3D=3D=3D=3D include/linux/edd.h 1.11 vs edited =3D=3D=3D=3D=3D
---- 1.11/include/linux/edd.h	2004-06-29 09:44:48 -05:00
-+++ edited/include/linux/edd.h	2004-07-13 16:05:14 -05:00
-@@ -49,6 +49,9 @@
- #define EDD_MBR_SIG_MAX 16        /* max number of signatures to store */
- #define EDD_MBR_SIG_NR_BUF 0x1ea  /* addr of number of MBR signtaures at E=
-DD_MBR_SIG_BUF
- 				     in boot_params - treat this as 1 byte  */
-+#define GETDISKTYPE 0x15          /* int13 AH=3D0x15 is Get Disk Type comm=
-and */
-+#define HARDDRIVEPRESENT 0x03     /* int13 AH=3D15 return code in AH */
-+
- #ifndef __ASSEMBLY__
-=20
- #define EDD_EXT_FIXED_DISK_ACCESS           (1 << 0)
+fget() is mind-bogglingly O(1) and very short. Only plausible guess is
+we're seeing interrupts taken there because it's so frequently called.
 
---sdtB3X0nJg68CQEu
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+On Tue, Jul 13, 2004 at 06:32:16PM +0300, Lenar L?hmus wrote:
+> No apparent side-effects noticed.
+> As before, when running mplayer I'm getting many sys_ioctl() things 
+> coupled with messages:
+> rtc: lost some interrupts at 1024Hz.
+> It happens when madly seeking around in video.
 
-iD8DBQFA9F83Iavu95Lw/AkRAoGDAJ9s1ou11mcrzTSIWRPccHn19I5kmQCdEkgi
-6/XozAR3pjqgTNOIn8nO7HM=
-=vIv7
------END PGP SIGNATURE-----
+Not surprised either. There's probably enough time spent with interrupts
+off the local_irq_save() hurt, and it didn't make your schedule() things
+go away, so my wild guesswork thus far is it made things worse with no
+tangible benefit, so best to drop that local_irq_save() change.
 
---sdtB3X0nJg68CQEu--
+
+-- wli

@@ -1,184 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270748AbRH1Li4>; Tue, 28 Aug 2001 07:38:56 -0400
+	id <S270796AbRH1LoH>; Tue, 28 Aug 2001 07:44:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270787AbRH1Lih>; Tue, 28 Aug 2001 07:38:37 -0400
-Received: from fe170.worldonline.dk ([212.54.64.199]:16659 "HELO
-	fe170.worldonline.dk") by vger.kernel.org with SMTP
-	id <S270748AbRH1Lic>; Tue, 28 Aug 2001 07:38:32 -0400
-Date: Tue, 28 Aug 2001 13:41:41 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Christoph Rohland <cr@sap.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: [patch] zero-bounce block highmem I/O, #13
-Message-ID: <20010828134141.M642@suse.de>
-In-Reply-To: <20010827123700.B1092@suse.de> <m3itf85vlr.fsf@linux.local> <20010828125520.L642@suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="7gGkHNMELEOhSGF6"
-Content-Disposition: inline
-In-Reply-To: <20010828125520.L642@suse.de>
+	id <S270779AbRH1Ln6>; Tue, 28 Aug 2001 07:43:58 -0400
+Received: from femail48.sdc1.sfba.home.com ([24.254.60.42]:5033 "EHLO
+	femail48.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S270784AbRH1Lnt>; Tue, 28 Aug 2001 07:43:49 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nicholas Knight <tegeran@home.com>
+Reply-To: tegeran@home.com
+To: linux-kernel@vger.kernel.org
+Subject: via82cxxx_audio problem.
+Date: Tue, 28 Aug 2001 04:43:24 -0700
+X-Mailer: KMail [version 1.2]
+Cc: adrian@humboldt.co.uk, jgarzik@mandrakesoft.com
+MIME-Version: 1.0
+Message-Id: <01082804432400.03629@c779218-a>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Here's a new one for you:
 
---7gGkHNMELEOhSGF6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This is under 2.4.8-ac9, other kernels have not been tested, but given 
+the nature of the problem, I don't think it's specific to the kernel 
+version.
 
-On Tue, Aug 28 2001, Jens Axboe wrote:
-> On Tue, Aug 28 2001, Christoph Rohland wrote:
-> > Hi Jens,
-> > 
-> > I tested both #11 and #13 on my 8GB machine with sym53c8xx. The
-> > initialization of a SAP DB database takes 20 minutes with 2.4.9 and
-> > with 2.4.9+b13 it took nearly 2.5 hours :-(
-> 
-> DaveM hinted that it's probably the bounce test failing, so it's
-> bouncing all the time. That would explain the much worse performance.
-> Could you try with this incremental patch on top of b13 for 2.4.9? I
-> still want to see the boot detection info, btw.
-> 
-> THanks!
+When XMMS is pointed to /dev/dsp (as per normal on my system) things are, 
+a little odd...
+The first symptom I noticed was that Mozilla started up *very* slowly... 
+it'd sit there starting for a while, then eventualy, after its starting 
+icon disapeared from my KDE taskbar, things would just sit quietly for a 
+minute or so, and then suddenly mozilla started.
+This is infinitely reproducable on my system, and all I have to do to 
+"fix" the problem, is stop XMMS from playing, and Mozilla instantly goes 
+back to normal.
+This doesn't appear to be an XMMS issue, as pointing it to /dev/null 
+(thus also causing it to play absurdly fast...) also "fixes" the problem.
 
-Ok found the bug -- SCSI was accidentally using blk_seg_merge_ok when it
-just wanted to test if we were crossing a 4GB physical address boundary
-or not. Doh! Attached incremental patch should fix the SCSI performance
-issue. I'm testing right now...
+I also noted hdparm -t giving me readings of 3 to 9MB/sec, this is on a 
+7200RPM ATA/100 drive from IBM mind you... IBM-DTLA-307045. UDMA is 
+enabled, it's on a Promise ATA/100 controller anyway so that's set by 
+default. This behavior ceased after I exited XMMS, and I returned to 
+normal 32MB+ numbers. This COULD be unrelated, but the timing is too 
+coincidental for it to seem likely. This is not currently reproducable, 
+will test further when I get some sleep.
 
--- 
-Jens Axboe
+Quake3 seems to exhibit similar behavior, but I do not have time at the 
+moment to test that more thuroughly, I really need some sleep. I cannot 
+test Quake2, as it freezes at sound initialization if XMMS (or anything 
+else) is actively using /dev/dsp (this isn't entirely unexpected, though 
+if it can't get control of the soundcard, it should normaly drop the 
+attempt).
+Konqueror, KDE konsole, and KMail don't seem to exhibit this behavior 
+though, which is possibly attributable to either their far smaller size, 
+or possibly that parts of them remain in memory at all times as a result 
+of my running KDE in its entirety. X-Chat and LICQ also do not exhibit 
+this behavior, further leading me to suspect it has to do with the 
+general size of the process.
+
+I have verified that this doesn't seem to be a problem with the kernel 
+taking buffers or cache out of memory when a process needs that memory by 
+starting up several large processes (Mozilla) to free RAM up manualy 
+before retrying the tests. Why use of /dev/dsp would have any effect 
+whatsoever on RAM allocation, I do not know, but with all the VM/memory 
+concerns in 2.4, I figured I should probably eliminate that as a problem.
+
+I also have a whole 1448KB in swap right now... why the kernel swaps 
+instead of flushing the file cache from RAM, and why it leaves things in 
+swap when there's plenty of RAM free, is a puzzle I leave to the experts.
 
 
---7gGkHNMELEOhSGF6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=block-highmem-all-13-any-2
+hardware information:
 
-diff -ur --exclude-from /home/axboe/exclude /opt/kernel/linux-2.4.9/arch/i386/kernel/setup.c linux/arch/i386/kernel/setup.c
---- /opt/kernel/linux-2.4.9/arch/i386/kernel/setup.c	Wed Jul 11 18:31:44 2001
-+++ linux/arch/i386/kernel/setup.c	Mon Aug 27 15:03:14 2001
-@@ -152,6 +152,8 @@
- static int disable_x86_serial_nr __initdata = 1;
- static int disable_x86_fxsr __initdata = 0;
- 
-+unsigned long max_pfn;
-+
- /*
-  * This is set up by the setup-routine at boot-time
-  */
-@@ -768,7 +770,7 @@
- void __init setup_arch(char **cmdline_p)
- {
- 	unsigned long bootmap_size, low_mem_size;
--	unsigned long start_pfn, max_pfn, max_low_pfn;
-+	unsigned long start_pfn, max_low_pfn;
- 	int i;
- 
- #ifdef CONFIG_VISWS
-diff -ur --exclude-from /home/axboe/exclude /opt/kernel/linux-2.4.9/drivers/block/ll_rw_blk.c linux/drivers/block/ll_rw_blk.c
---- /opt/kernel/linux-2.4.9/drivers/block/ll_rw_blk.c	Tue Aug 28 12:51:56 2001
-+++ linux/drivers/block/ll_rw_blk.c	Tue Aug 28 13:26:33 2001
-@@ -125,7 +125,7 @@
-  */
- static int queue_nr_requests, batch_requests;
- 
--unsigned long blk_max_low_pfn;
-+unsigned long blk_max_low_pfn, blk_max_pfn;
- 
- static inline int get_max_sectors(kdev_t dev)
- {
-@@ -292,8 +292,7 @@
- 	if (!BH_CONTIG(bh, nxt))
- 		return 0;
- 
--	if ((bh_phys(bh) | 0xffffffff) ==
--	    ((bh_phys(nxt) + nxt->b_size - 1) | 0xffffffff))
-+	if (BH_PHYS_4G(bh, nxt))
- 		return 1;
- 
- 	return 0;
-@@ -1207,6 +1206,7 @@
- 	printk("block: %d slots per queue, batch=%d\n", queue_nr_requests, batch_requests);
- 
- 	blk_max_low_pfn = max_low_pfn;
-+	blk_max_pfn = max_pfn;
- 
- #ifdef CONFIG_AMIGA_Z2RAM
- 	z2_init();
-@@ -1328,4 +1328,5 @@
- EXPORT_SYMBOL(generic_unplug_device);
- EXPORT_SYMBOL(blk_queue_bounce_limit);
- EXPORT_SYMBOL(blk_max_low_pfn);
-+EXPORT_SYMBOL(blk_max_pfn);
- EXPORT_SYMBOL(blk_seg_merge_ok);
-diff -ur --exclude-from /home/axboe/exclude /opt/kernel/linux-2.4.9/drivers/scsi/scsi_merge.c linux/drivers/scsi/scsi_merge.c
---- /opt/kernel/linux-2.4.9/drivers/scsi/scsi_merge.c	Tue Aug 28 12:51:56 2001
-+++ linux/drivers/scsi/scsi_merge.c	Tue Aug 28 13:35:07 2001
-@@ -417,7 +417,7 @@
- 
- 	if ((req->nr_sectors + (bh->b_size >> 9)) > SHpnt->max_sectors)
- 		return 0;
--	else if (!blk_seg_merge_ok(q, req->bhtail, bh))
-+	else if (!BH_PHYS_4G(req->bhtail, bh))
- 		return 0;
- 
- 	if (use_clustering) {
-@@ -475,7 +475,7 @@
- 
- 	if ((req->nr_sectors + (bh->b_size >> 9)) > SHpnt->max_sectors)
- 		return 0;
--	else if (!blk_seg_merge_ok(q, bh, req->bh))
-+	else if (!BH_PHYS_4G(bh, req->bh))
- 		return 0;
- 
- 	if (use_clustering) {
-@@ -610,7 +610,7 @@
- 	SDpnt = (Scsi_Device *) q->queuedata;
- 	SHpnt = SDpnt->host;
- 
--	if (!blk_seg_merge_ok(q, req->bhtail, next->bh))
-+	if (!BH_PHYS_4G(req->bhtail, next->bh))
- 		return 0;
- 
- #ifdef DMA_CHUNK_SIZE
-diff -ur --exclude-from /home/axboe/exclude /opt/kernel/linux-2.4.9/include/linux/blkdev.h linux/include/linux/blkdev.h
---- /opt/kernel/linux-2.4.9/include/linux/blkdev.h	Tue Aug 28 12:51:56 2001
-+++ linux/include/linux/blkdev.h	Tue Aug 28 13:27:42 2001
-@@ -126,10 +126,10 @@
- 	wait_queue_head_t	wait_for_request;
- };
- 
--extern unsigned long blk_max_low_pfn;
-+extern unsigned long blk_max_low_pfn, blk_max_pfn;
- 
- #define BLK_BOUNCE_HIGH		(blk_max_low_pfn * PAGE_SIZE)
--#define BLK_BOUNCE_ANY		(~(unsigned long long) 0)
-+#define BLK_BOUNCE_ANY		(blk_max_pfn * PAGE_SIZE)
- 
- extern void blk_queue_bounce_limit(request_queue_t *, dma64_addr_t);
- 
-@@ -150,6 +150,7 @@
- #define bh_phys(bh)		(page_to_phys((bh)->b_page) + bh_offset((bh)))
- 
- #define BH_CONTIG(b1, b2)	(bh_phys((b1)) + (b1)->b_size == bh_phys((b2)))
-+#define BH_PHYS_4G(b1, b2)	((bh_phys((b1)) | 0xffffffff) == ((bh_phys((b2)) + (b2)->b_size - 1) | 0xffffffff))
- 
- struct blk_dev_struct {
- 	/*
-diff -ur --exclude-from /home/axboe/exclude /opt/kernel/linux-2.4.9/include/linux/bootmem.h linux/include/linux/bootmem.h
---- /opt/kernel/linux-2.4.9/include/linux/bootmem.h	Wed Aug 15 23:22:13 2001
-+++ linux/include/linux/bootmem.h	Mon Aug 27 14:53:47 2001
-@@ -18,6 +18,11 @@
- extern unsigned long min_low_pfn;
- 
- /*
-+ * highest page
-+ */
-+extern unsigned long max_pfn;
-+
-+/*
-  * node_bootmem_map is a map pointer - the bits represent all physical 
-  * memory pages (including holes) on the node.
-  */
+ac97_codec: AC97 Audio codec, id: 0x8384:0x7609 (SigmaTel STAC9721/23)
+AMD Athlon 800Mhz
+256MB PC100 RAM
+Soyo K7VIA motherboard, VIA KX133 chipset
 
---7gGkHNMELEOhSGF6--
+Any further information needed is avalible, just be prepared to tell me 
+what you need and how to aquire it, and expect to wait at least 12-14 
+hours so I can get some sleep.
+
+If all of this is something stupid I missed/did, then you all have my 
+explicit permission to thwap me.

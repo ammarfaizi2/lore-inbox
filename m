@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262668AbSJHAby>; Mon, 7 Oct 2002 20:31:54 -0400
+	id <S262687AbSJHAf5>; Mon, 7 Oct 2002 20:35:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262680AbSJHAby>; Mon, 7 Oct 2002 20:31:54 -0400
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:2058 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id <S262668AbSJHAbx>; Mon, 7 Oct 2002 20:31:53 -0400
-Date: Tue, 08 Oct 2002 09:37:21 +0900 (JST)
-Message-Id: <20021008.093721.11469009.yoshfuji@linux-ipv6.org>
-To: davem@redhat.com
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, usagi@linux-ipv6.org
-Subject: Re: [PATCH] IPv6: Fix Prefix Length of Link-local Addresses
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20021007.115530.00078126.davem@redhat.com>
-References: <20021008.000559.17528416.yoshfuji@linux-ipv6.org>
-	<20021007.115530.00078126.davem@redhat.com>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	id <S262690AbSJHAf4>; Mon, 7 Oct 2002 20:35:56 -0400
+Received: from dp.samba.org ([66.70.73.150]:31874 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S262687AbSJHAfB>;
+	Mon, 7 Oct 2002 20:35:01 -0400
+Date: Tue, 8 Oct 2002 10:40:31 +1000
+From: David Gibson <hermes@gibson.dropbear.id.au>
+To: Wichert Akkerman <wichert@wiggy.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.41 orinoco_cs.c compile failure
+Message-ID: <20021008004031.GB32555@zax>
+Mail-Followup-To: David Gibson <hermes@gibson.dropbear.id.au>,
+	Wichert Akkerman <wichert@wiggy.net>, linux-kernel@vger.kernel.org
+References: <20021007210817.GD14953@wiggy.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021007210817.GD14953@wiggy.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20021007.115530.00078126.davem@redhat.com> (at Mon, 07 Oct 2002 11:55:30 -0700 (PDT)), "David S. Miller" <davem@redhat.com> says:
+On Mon, Oct 07, 2002 at 11:08:17PM +0200, Wichert Akkerman wrote:
+> Compile fails since orinoco_cs.c tries to use the no longer existing
+> linux/tqueue.h header. Patch below seems to fix it. 
 
-> BTW, we start to run into conflicts now and most of USAGI patches now
-> I need to apply some parts by hand.  Here is one example, with this
-> patch:
-:
-> It is not such a big deal now, but it may soon become larger as
-> bigger USAGI patches are applied.  We will need to synchronize
-> at some point.
+Appears to be fixed already.
 
-Agreed.
-
-So,... What kind of patches do you prefer, now?
-
- - on top of plain kernel (2.4.19, 2.4.20, 2.4.21-preXX, or whatever)
- - plain kernel + on top of our whole patch?
- - ???
+> +++ drivers/net/wireless/orinoco_cs.c	2002-10-07 23:04:16.000000000 +0200
+> @@ -32,7 +32,7 @@
+>  #include <linux/if_arp.h>
+>  #include <linux/etherdevice.h>
+>  #include <linux/wireless.h>
+> -#include <linux/tqueue.h>
+> +#include <linux/workqueue.h>
+>  
+>  #include <pcmcia/version.h>
+>  #include <pcmcia/cs_types.h>
+> 
 
 -- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+David Gibson			| For every complex problem there is a
+david@gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261666AbSJDNlM>; Fri, 4 Oct 2002 09:41:12 -0400
+	id <S261668AbSJDNlX>; Fri, 4 Oct 2002 09:41:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261668AbSJDNlL>; Fri, 4 Oct 2002 09:41:11 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:16768 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S261666AbSJDNlL>;
-	Fri, 4 Oct 2002 09:41:11 -0400
-Message-ID: <3D9D9BC0.9070801@colorfullife.com>
-Date: Fri, 04 Oct 2002 15:46:40 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
+	id <S261669AbSJDNlX>; Fri, 4 Oct 2002 09:41:23 -0400
+Received: from mta05ps.bigpond.com ([144.135.25.137]:36560 "EHLO
+	mta05ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S261668AbSJDNlW>; Fri, 4 Oct 2002 09:41:22 -0400
+Message-ID: <3D9D9BE4.32421A87@bigpond.com>
+Date: Fri, 04 Oct 2002 23:47:16 +1000
+From: Allan Duncan <allan.d@bigpond.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20-pre9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Alexander.Riesen@synopsys.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pipe bugfix /cleanup
-References: <Pine.LNX.4.44.0210031514230.19230-100000@dbl.q-ag.de> <20021004074008.GB941@riesen-pc.gr05.synopsys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.40 etc and IDE HDisk geometry
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Riesen wrote:
-> 
-> This makes 2.4.19 + Con Kolivas patch behave very bad.
-> The system goes slow, freeze, than wakes up, freeze again, etc.
-> 
-> I did "cat /dev/zero | grep nothing".
-> 
->    procs                      memory    swap          io     system         cpu
->  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
->  0  0  0 124592 292056  60624  70488   0   1    27    19    7     2   5   1   2
-[snip]
->  0  2  1 437440   3168  52796  70132   4 20392     4 20392  493   542   0   5  95
->  0  2  2 437328   3144  52760  70168   0 19976     0 20180  602   341   1   1  98
-> 10  0  6 143432 294816  52384  70168   8 128296     8 128436 2961   502   0   5  95
->  1  0  0 133448 307256  52320  70168 352   0   356    44  225   330   0   1  99
+I've noticed that the system's idea of the IDE disk geometry seems to
+have changed from 2.4.xx.
+In particular, I've got my 40G HD on a Promise PDC20268 PIC, and find
+that the (logical) CHS is different, while the LBA sectors remains constant
+(and correct according to the HD label).
 
-As I wrote, this is a grep problem. I assume that regexp are more 
-efficient over long chunks, but there must be a limit - regexp over 
-swapped out memory are slow ;-)
-
-I'll send a bugreport to the grep maintainers.
-
-> 
-> doesn't apply to 2.4.19
-> 
-
-Yes. likely/unlikely changes, and one additional change log entry.
+2.5.xx does have the right values in that CxHxS = LBA blocks, but fdisk and lilo
+get a bit stroppy about the partition boundaries that were created from the CHS
+that were generated under 2.4.xx, so I will have to patch them up.
 
 
---
-	Manfred
+Question is - what is determining that initial value that becomes the "logical"
+CHS, and does it matter?
 
+The fdisk and friends man pages are a bit vague on this, cfdisk says "picking
+255 heads and 63 sectors/track is always a good idea", but I find 2.4.xx uses
+nn/255/63, while 2.4.xx uses mm/16/63, and as I dual boot with win98, consistent
+partition table behaviour is important to me.
+
+
+Advice anyone?
+
+
+Aside - RedHat has dropped cfdisk from util-linux in their distro versions 7.2 ff.
+Given the bad words said about fdisk, what did cfdisk do to be ostracised?

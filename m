@@ -1,70 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287237AbSASMsS>; Sat, 19 Jan 2002 07:48:18 -0500
+	id <S289212AbSASNTY>; Sat, 19 Jan 2002 08:19:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289211AbSASMr4>; Sat, 19 Jan 2002 07:47:56 -0500
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:2751 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S287237AbSASMrr>; Sat, 19 Jan 2002 07:47:47 -0500
-Message-Id: <5.1.0.14.2.20020119051141.050485d0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sat, 19 Jan 2002 12:48:06 +0000
-To: linux-kernel@vger.kernel.org
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Linux 2.5.3-pre1-aia2
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S289211AbSASNTP>; Sat, 19 Jan 2002 08:19:15 -0500
+Received: from 90dyn204.com21.casema.net ([62.234.21.204]:36747 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S289213AbSASNS5>; Sat, 19 Jan 2002 08:18:57 -0500
+Message-Id: <200201191318.OAA13552@cave.bitwizard.nl>
+Subject: Re: rm-ing files with open file descriptors
+In-Reply-To: <1011444389.25261.5.camel@bip> from Xavier Bestel at "Jan 19, 2002
+ 01:46:29 pm"
+To: Xavier Bestel <xavier.bestel@free.fr>
+Date: Sat, 19 Jan 2002 14:18:52 +0100 (MET)
+CC: Alexander Viro <viro@math.psu.edu>, Matthias Schniedermeyer <ms@citd.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Another IDE core update from Andre. IDE core continues to be fully stable 
-in my tests.
+Xavier Bestel wrote:
+> On Sat, 2002-01-19 at 13:29, Alexander Viro wrote:
+> > 
+> > 
+> > On 19 Jan 2002, Xavier Bestel wrote:
+> > 
+> > > On Sat, 2002-01-19 at 13:16, Matthias Schniedermeyer wrote:
+> > > > > > Well no. new_fd will refer to a completely new, empty file
+> > > > > > which has no relation to the old file at all.
+> > > > > > 
+> > > > > > There is no way to recreate a file with a nlink count of 0,
+> > > > > > well that is until someone adds flink(fd, newpath) to the kernel.
+> > > > > > 
+> > > > > 
+> > > > > This *might* work:
+> > > > > 
+> > > > > link("/proc/self/fd/40", newpath);
+> > > > 
+> > > > cat /proc/<id>/fd/<nr> > whatever
+> > > > actually works.
+> > > 
+> > > Once it's unliked ? I doubt it.
+> > 
+> > Egads...  It certainly works, unlinked or not.  Please learn the basics of
+> > Unix filesystem semantics.
+> 
+> Indeed, it works, but it doesn't with a true symlink. What kind of a
+> link is that /proc/<id>/fd/<nr> entry ? It's not a symlink even if it
+> looks like one.
 
-Patch available from:
+Highly correct!
 
-http://www-stu.christs.cam.ac.uk/~aia21/linux/patch-2.5.3-pre1-aia2
-http://www-stu.christs.cam.ac.uk/~aia21/linux/patch-2.5.3-pre1-aia2.bz2
-http://www-stu.christs.cam.ac.uk/~aia21/linux/patch-2.5.3-pre1-aia2.gz
-
-Linux 2.5.3-pre1-aia2
-
-o       IDE core updates                        (Andre Hedrick)
-o       RAID fixes                              (from 2.4.18-pre4)
-o       Fix compile warnings                    (me)
-
-Linux 2.5.3-pre1-aia1
-
-o       Fix new IDE core                        (Jens Axboe, Andre Hedrick)
-+       Configure help entries for IDE          (Andre Hedrick, Rob Radez, me)
-+       Reduce NTFS vmalloc use (NTFS 1.1.22)   (me)
-o       Compile fixes for dnotify               (me)
-o       Compile fixes for via82cxxx             (me)
-
-Patches marked "+" have been submitted to Linus by me already.
-
-Enjoy,
-
-Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+			Roger. 
 
 -- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268107AbTBMVze>; Thu, 13 Feb 2003 16:55:34 -0500
+	id <S268111AbTBMWA1>; Thu, 13 Feb 2003 17:00:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268109AbTBMVze>; Thu, 13 Feb 2003 16:55:34 -0500
-Received: from bitmover.com ([192.132.92.2]:52611 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S268107AbTBMVzd>;
-	Thu, 13 Feb 2003 16:55:33 -0500
-Date: Thu, 13 Feb 2003 14:05:23 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Larry McVoy <lm@bitmover.com>, Rik van Riel <riel@imladris.surriel.com>,
-       Jamie Lokier <jamie@shareable.org>,
-       Andrea Arcangeli <andrea@e-mind.com>, linux-kernel@vger.kernel.org
-Subject: Re: openbkweb-0.0
-Message-ID: <20030213220522.GA11214@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Adrian Bunk <bunk@fs.tum.de>, Larry McVoy <lm@bitmover.com>,
-	Rik van Riel <riel@imladris.surriel.com>,
-	Jamie Lokier <jamie@shareable.org>,
-	Andrea Arcangeli <andrea@e-mind.com>, linux-kernel@vger.kernel.org
-References: <20030206021029.GW19678@dualathlon.random> <20030213024751.GA14016@bjl1.jlokier.co.uk> <Pine.LNX.4.50L.0302130946541.21354-100000@imladris.surriel.com> <20030213161337.GA9654@work.bitmover.com> <20030213211127.GG20159@fs.tum.de>
-Mime-Version: 1.0
+	id <S268116AbTBMWA1>; Thu, 13 Feb 2003 17:00:27 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:21252 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S268111AbTBMWAZ>;
+	Thu, 13 Feb 2003 17:00:25 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200302132211.h1DMBH6p019271@darkstar.example.net>
+Subject: Re: 2.5.60 cheerleading...
+To: plars@linuxtestproject.org (Paul Larson)
+Date: Thu, 13 Feb 2003 22:11:17 +0000 (GMT)
+Cc: jgarzik@pobox.com, davej@codemonkey.org.uk, edesio@ieee.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1045173477.28494.66.camel@plars> from "Paul Larson" at Feb 13, 2003 03:57:56 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030213211127.GG20159@fs.tum.de>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 13, 2003 at 10:11:27PM +0100, Adrian Bunk wrote:
-> On Thu, Feb 13, 2003 at 08:13:37AM -0800, Larry McVoy wrote:
-> >...
-> > We'd view reverse engineering the protocol as falling under the "you're
-> > working on a competing implementation".  
-> >...
-> 
-> If a clause in a license forbids a licensee to use or decompile the
-> program to gather the information needed for independendly developed
-> programs to interoperate with this program current German copyright law
-> says that this clause is void in Germany.  :-)
+> > Likewise with kernel releases - fewer, larger releases work fine and
+> > mean less effort for developers, unless something breaks, in which
+> > case there is a lot to go through to locate the problem, and people
+> > who can't boot the broken kernel have to wait longer to test other
+> > things that were newly merged in that release.
+> This was exactly what I was getting at.  I suspect that there are a good
+> number of people that try to boot a 2.5 kernel for testing, run into
+> immediate problems, and shelve the idea of 2.5 testing for a couple of
+> months because of an immediate appearance that 2.5 is too unstable to
+> test.  I've seen frequent griping that not enough testing happens, the
+> idea is to get it to a point where more people can test it _without_
+> adding a huge delay or making a huge gap between releases.
 
-Please show me the case law which says we have to give you our technology,
-for free, and we do not have the right to say "no way unless you agree to
-not reverse engineer".
+I can see what you mean, but realistically, I don't see how it's
+practical.
 
-Lots of law says "if you paid for this product, the seller may not impose
-the following restrictions" with reverse engineering being amongst those.
+You can always use 2.5.X-BK1 to get the fixes that we would probably
+have been in 2.5.X if Linus had done more extensive testing on it
+before releasing it.
 
-I do not have any data which says that the same law applies in the case of
-a no charge copy of the software, do you?
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+John.

@@ -1,61 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266048AbUJASgm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265900AbUJASmQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266048AbUJASgm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 14:36:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266136AbUJASgm
+	id S265900AbUJASmQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 14:42:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266009AbUJASmQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 14:36:42 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:5563 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S266048AbUJASgk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 14:36:40 -0400
-Content-Type: text/plain;
-  charset="CP 1252"
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: jmerkey@comcast.net, linux-kernel@vger.kernel.org
-Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
-Date: Fri, 1 Oct 2004 13:23:23 -0500
-X-Mailer: KMail [version 1.2]
-Cc: jmerkey@drdos.com
-References: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net>
-In-Reply-To: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net>
+	Fri, 1 Oct 2004 14:42:16 -0400
+Received: from p5089E467.dip.t-dialin.net ([80.137.228.103]:3844 "EHLO
+	timbaland.dnsalias.org") by vger.kernel.org with ESMTP
+	id S265900AbUJASmK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 14:42:10 -0400
+From: Borislav Petkov <petkov@uni-muenster.de>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: Fw: Re: 2.6.9-rc2-mm4
+Date: Fri, 1 Oct 2004 20:42:00 +0200
+User-Agent: KMail/1.7
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
+       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040929214637.44e5882f.akpm@osdl.org> <200410011234.12462.petkov@uni-muenster.de> <200410011303.31897.petkov@uni-muenster.de>
+In-Reply-To: <200410011303.31897.petkov@uni-muenster.de>
 MIME-Version: 1.0
-Message-Id: <04100113232300.13462@tabby>
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410012042.02628.petkov@uni-muenster.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 01 October 2004 12:40, jmerkey@comcast.net wrote:
-> Who cares about GPL violations in Linux .  What can anyone do about it
-> anyway.  The FSF isn't going to sue anyone unless someone give them the
-> money to do it.  Most of this banter and name calling people do about it is
-> a waste of time.  What punishment will anyone get for it.  A few people
-> writing mean emails and finder pointing -- Yeah -- this will really stop
-> someone from doing it.  If you give your code away GPL, or not you have
-> just done just that.   Tigrian is correct in his statements.
+On Friday 01 October 2004 13:03, Borislav Petkov wrote:
+> On Friday 01 October 2004 12:34, Borislav Petkov wrote:
+> > On Friday 01 October 2004 11:54, Jens Axboe wrote:
+> > > On Fri, Oct 01 2004, Borislav Petkov wrote:
+> > > > On Friday 01 October 2004 11:18, Jens Axboe wrote:
+> > > > > On Fri, Oct 01 2004, Bartlomiej Zolnierkiewicz wrote:
+> > > > > > On Thursday 30 September 2004 23:46, Borislav Petkov wrote:
+> > > > > > > On Thursday 30 September 2004 18:25, Bartlomiej Zolnierkiewicz
+> >
+> > wrote:
+> > > > > > > > On Thursday 30 September 2004 17:32, Borislav Petkov wrote:
+> > > > > > > > > On Thursday 30 September 2004 14:52, Bartlomiej
+> > > > > > > > > Zolnierkiewicz
+> > > >
+> > > > wrote:
+> > > > > > > > > > On Thursday 30 September 2004 06:46, Andrew Morton wrote:
+> > > > > > > > > > > ide broke :(   Maybe Bart's bk tree?
+> > > > > > > > > >
+> > > > > > > > > > no, disk works just fine ;)  If it is my tree I will
+> > > > > > > > > > happilly fix it.
+> > > > > > > > > >
+> > > > > > > > > > Borislav, could you apply only these patches from -mm4
+> > > > > > > > > > and retest?
+> > > > > > > > > >
+> > > > > > > > > > linus.patch
+> > > > > > > > > > bk-ide-dev.patch
+> > > > > > > > > >
+> > > > > > > > > > > Begin forwarded message:
+> > > > > > > > > > >
+> > > > > > > > > > > Date: Wed, 29 Sep 2004 12:43:35 +0200
+> > > > > > > > > > > From: Borislav Petkov <petkov@uni-muenster.de>
+> > > > > > > > > > > To: Andrew Morton <akpm@osdl.org>
+> > > > > > > > > > > Cc: linux-kernel@vger.kernel.org
+> > > > > > > > > > > Subject: Re: 2.6.9-rc2-mm4
+> > > > > > > > > > >
+> > > > > > > > > > >
+> > > > > > > > > > > <snip>
+> > > > > > > > > > >
+> > > > > > > > > > > Hello,
+> > > > > > > > > > >  I've already posted about problems with audio
+> > > > > > > > > > > extraction but it went unnoticed. Here's a recount:
+> > > > > > > > > > > When I attempt to read an audio cd into wavs with
+> > > > > > > > > > > cdda2wav, the process starts but after a while the
+> > > > > > > > > > > completion meter freezes and klogd says "hdc: lost
+> > > > > > > > > > > interrupt" and cdda2wav hangs itself. Disabling DMA
+> > > > > > > > > > > doesn't help as well as the boot option "pci=routeirq"
+> > > > > > > > > > > too. Older kernels like 2.6.7 do not show such behavior
+> > > > > > > > > > > and there audio extraction runs fine. Sysinfo attached.
+> > > > > > > > > > >
+> > > > > > > > > > > Regards,
+> > > > > > > > > > > Boris.
+> > > > > > > > >
+> > > > > > > > > Hi people,
+> > > > > > > > >
+> > > > > > > > >  well, I've applied the above patches but no change - same
+> > > > > > > > > "hdc: lost interrupt" message. 2.6.9-rc3 behaves the same,
+> > > > > > > > > as expected.
+> > > > > > > >
+> > > > > > > > Well, if 2.6.9-rc3 fails then it is not my tree...
+> > > > > > > >
+> > > > > > > > Please find kernel version which introduces this bug.
+> > > > > > >
+> > > > > > > Just compiled 2.6.8.1 and tested audio extraction. The bug is
+> > > > > > > there. After that, reran the test with 2.6.7. Everything went
+> > > > > > > fine. So it must have been between 2.6.7 and 2.6.8.1 when the
+> > > > > > > bug got introduced. Any additional debugging options in the
+> > > > > > > ATA/IDE cd driver i could turn on so that I could get more
+> > > > > > > verbose messages while executing cdda2wav?
+> > > > > >
+> > > > > > I'm not aware of any.  Jens?
+> > > > >
+> > > > > I don't see any changes that could impact this from 2.6.7 to 2.6.8.
+> > > > > We tightened the dma alignment (from 4 to 32 bytes), but should not
+> > > > > cause problems going in that direction. Unless the other path is
+> > > > > buggy, of course.
+> > > > >
+> > > > > Does dma make a difference? Please try 2.6.9-rc3 as well.
+> > > >
+> > > > Sorry guys,
+> > > >
+> > > > still a no go. Tested today 2.6.8.1 and 2.6.9-rc3 both with DMA
+> > > > on/off. same lost interrupt message. How about a hardware problem?
+> > > > Maybe the cd-drive is showing some hidden "features" under certain
+> > > > conditions, although it is highly unlikely since 2.6.7 runs fine.
+> > > > strange...
+> > >
+> > > I can't say, probably you need to look outside of ide changes to locate
+> > > the problem. Have you tried disabling acpi on your box?
+> >
+> > I'm not sure whether adding the boot option acpi=off is enough to disable
+> > ACPI in 2.6, but if this is the case 2.6.9-rc3 is still a no go with acpi
+> > disabled. How about APIC?
 >
-> Even if you review it and make a fuss it does nothing to stop people.  The
-> GPL is flawed since it does not require people to go back to the copyright
-> holders and demand a license for commerical use.  This is the only way you
-> will ever stop these people.  So instead of being whinny babies about it,
-> fix the GPL and add this language.  Then anyone who uses the code in a
-> commerical enterprise will be required to get a license, and you can
-> actually do something about it.
+> After booting with "acpi=off noapic", I found something that might bring us
+> further:
 >
-> Oops.  Too late.  Linux has a huge trail of everyone's code under the GPL
-> so you cannot re-release the code under another license unless the entire
-> code base is re-written.  So anyone can fork it at any point and claim, "we
-> never accepted the license even though we download and use the code.  Guess
-> what, this is legally valid to say and totally circumvents the GPL, they
-> just have to leave your copyright notices in place.
+> <snip>
+> PCI: Probing PCI hardware
+> PCI: Probing PCI hardware (bus 00)
+> PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
+> PCI: Transparent bridge - 0000:00:1e.0 <----
+> PCI: Using IRQ router PIIX/ICH [8086/24c0] at 0000:00:1f.0
+> PCI: IRQ 0 for device 0000:00:1f.1 doesn't match PIRQ mask - try
+> pci=usepirqmask PCI: Found IRQ 5 for device 0000:00:1f.1
+> PCI: Sharing IRQ 5 with 0000:00:1d.2
+> </snip>
 >
-> :-)
+> Well, 0000:00:1f.0 is the IDE controller so later today I'll try the
+> pci=usepirqmask boot option. Comments?
 >
-> Jeff
 
-Anybody that has code in the kernel under GPL is CAN start a lawsuit for
-compliance. But that doesn't mean they HAVE to do so.
+Still no luck with different boot options. Beginning to test the 2.6.8-rc 
+series...
 
-But if they don't know it may be happening, how could they decide?
-
-So "make a fuss". If someone DOES decide to go after them.. fine.
+Boris.

@@ -1,60 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261414AbTEUHvw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 03:51:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbTEUHmz
+	id S261562AbTEUHzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 03:55:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbTEUHm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 03:42:55 -0400
+	Wed, 21 May 2003 03:42:27 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:58838 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261414AbTEUHlZ (ORCPT
+	by vger.kernel.org with ESMTP id S261688AbTEUHl5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 03:41:25 -0400
-Subject: Re: [patch] futex patches, futex-2.5.69-A2
-From: Martin Schlemmer <azarah@gentoo.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Rusty Russell <rusty@rustcorp.com.au>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       KML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030520205512.A5889@infradead.org>
-References: <20030520150826.A18282@infradead.org>
-	 <Pine.LNX.4.44.0305201748020.14480-100000@localhost.localdomain>
-	 <20030520205512.A5889@infradead.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1053493564.9142.1504.camel@workshop.saharact.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 21 May 2003 07:06:57 +0200
-Content-Transfer-Encoding: 7bit
+	Wed, 21 May 2003 03:41:57 -0400
+Message-Id: <200305210538.h4L5cPu08811@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Mel Gorman <mel@csn.ul.ie>,
+       Linux Memory Management List <linux-mm@kvack.org>
+Subject: Re: Finalised 2.4 VM Documentation
+Date: Wed, 21 May 2003 08:44:43 +0300
+X-Mailer: KMail [version 1.3.2]
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.53.0305191329310.24249@skynet>
+In-Reply-To: <Pine.LNX.4.53.0305191329310.24249@skynet>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-05-20 at 21:55, Christoph Hellwig wrote:
-> On Tue, May 20, 2003 at 06:02:07PM +0200, Ingo Molnar wrote:
-> > you havent ever used Ulrich's nptl-enabled glibc, have you? It will boot
-> > on any 2.4.1+ kernel, with and without nptl/tls support. It switches the
-> > threading implementation depending on the kernel features it detects.
-> 
-> I have built a nptl-enabled glibc and no, it's doesn't work on 2.4 at all.
-> 
+On 19 May 2003 15:53, Mel Gorman wrote:
+> I've finalised all the documentation that I'm going to do for the 2.4
+> VM and no further updates will be posted on the web site to this
+> version. At this stage it has been heavily read by a number of people
+> and there hasn't been a complaint or correction in a few weeks now. 
+> I'm happy to say it is now complete (and more importantly correct)
+> and acts as a detailed description of the 2.4 VM, the algorithms that
+> it is based on and comprehensive coverage of the code. People who are
+> only interested in the 2.5.x VMs will still find it much easier to
+> follow when they clearly know how 2.4 is put together.
+>
+> As always, it comes in two parts. The first part is the actual
+> documentation and gives a description of the whole VM. The second is
+> a code commentary which covers a significant percentage of the VM for
+> guiding through the messier parts. They are available in PDF, HTML
+> and plain text formats.
+>
+> Main site: http://www.csn.ul.ie/~mel/projects/vm/
+>
+> Understanding the Linux Virtual Memory Manager
+> PDF:  http://www.csn.ul.ie/~mel/projects/vm/guide/pdf/understand.pdf
+> HTML: http://www.csn.ul.ie/~mel/projects/vm/guide/html/understand/
+> Text: http://www.csn.ul.ie/~mel/projects/vm/guide/text/understand.txt
+>
+> Code Commentary on the Linux Virtual Memory Manager
+> PDF:  http://www.csn.ul.ie/~mel/projects/vm/guide/pdf/code.pdf
+> HTML: http://www.csn.ul.ie/~mel/projects/vm/guide/html/code
+> Text: http://www.csn.ul.ie/~mel/projects/vm/guide/text/code.txt
+>
+> Thanks to all the people who read through it, helped me out and sent
+> encouragement. It's been fun.
 
-It is because you only compiled it with nptl support.
-
-In recent (nptl enabled) Redhat glibc's glibc is build two times.
-1) without nptl
-2) with nptl
-
-The version without nptl support is then installed into the 'default'
-location.  The other is installed into /lib/tls/ and /usr/lib/tls/.
-ld.so is then hacked (maybe in mainline glibc now?) to load the tls
-enabled versions of the libraries only if the kernel/hardware support
-it.
-
-
-Regards,
-
--- 
-Martin Schlemmer
-
-
+Amazing stuff. Thank you.
+--
+vda

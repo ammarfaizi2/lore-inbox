@@ -1,63 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262003AbUDHHTn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 03:19:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbUDHHTn
+	id S263037AbUDHHhd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 03:37:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263145AbUDHHhd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 03:19:43 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:1691 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id S262003AbUDHHTm (ORCPT
+	Thu, 8 Apr 2004 03:37:33 -0400
+Received: from [202.28.93.1] ([202.28.93.1]:4 "EHLO gear.kku.ac.th")
+	by vger.kernel.org with ESMTP id S263037AbUDHHhc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 03:19:42 -0400
-Subject: Re: [PATCH] reiserfs v3 fixes and features
-From: Yury Umanets <umka@namesys.com>
-To: Chris Mason <mason@suse.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <1081344323.30829.534.camel@watt.suse.com>
-References: <1081274618.30828.30.camel@watt.suse.com>
-	 <1081343178.3042.2.camel@firefly>
-	 <1081344323.30829.534.camel@watt.suse.com>
-Content-Type: text/plain
-Organization: NAMESYS
-Message-Id: <1081408913.3030.23.camel@firefly>
+	Thu, 8 Apr 2004 03:37:32 -0400
+Date: Thu, 8 Apr 2004 14:37:30 +0700
+From: Kitt Tientanopajai <kitt@gear.kku.ac.th>
+To: daniel.ritz@gmx.ch
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5 yenta_socket irq 10: nobody cared!
+Message-Id: <20040408143730.09b29b49.kitt@gear.kku.ac.th>
+In-Reply-To: <200404072225.43358.daniel.ritz@gmx.ch>
+References: <200404060227.58325.daniel.ritz@gmx.ch>
+	<200404071741.47624.daniel.ritz@gmx.ch>
+	<20040408022419.52ef7a29.kitt@gear.kku.ac.th>
+	<200404072225.43358.daniel.ritz@gmx.ch>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 08 Apr 2004 10:22:04 +0300
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-04-07 at 16:25, Chris Mason wrote:
-> On Wed, 2004-04-07 at 09:06, Yury Umanets wrote:
+Hi,
+
+> ok, try the attached one...at least it compiles..
 > 
-> > That would be nice to have also improved locking in this
-> > features-improvements-fixes patch set. Ask Oleg, he had intention to
-> > work on and probably has something done already.
-> > 
-> 
-> I'm assuming you mean getting rid of the BKL, which would be really
-> nice. 
-yes
->  I'd like to get the current patchset stabilized and in the
-> kernel, but even moving to a per fs spin lock instead of the bkl would
-> be a welcome change.
-> 
-> -chris
+> rgds
+> -daniel
 
-Last time we have discussed this with Oleg, he said, that there are lots
-of stuff relying on the fact, that bkl can be acquired many times by the
-same process. And simple replacing bkl by per-superblock lock makes life
-just horrible ;)
+Yes, the patch does work :) Now, I can insert card to the slot controlled by o2micro, no freeze :) My orinoco on TI controller works nicely too, no TX error anymore :)
 
-There something like bkl but per-superblock based is needed. Or lots of
-code should be changed, which is not good idea.
-
-But anyway, this should be done one day, and if I have free time
-(probably vacation) and it will not be done until that time, I'd like to
-work on it along with Oleg and you ;)
-
--- 
-umka
--- 
-umka
-
+Thank you very much for your help. 
+kitt

@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273308AbRINGAr>; Fri, 14 Sep 2001 02:00:47 -0400
+	id <S273305AbRINF6s>; Fri, 14 Sep 2001 01:58:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273306AbRINGAh>; Fri, 14 Sep 2001 02:00:37 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:50499 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S273307AbRINGAU>; Fri, 14 Sep 2001 02:00:20 -0400
-To: Chris Vandomelen <chrisv@b0rked.dhs.org>
-Cc: <linux-kernel@vger.kernel.org>, VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Subject: Re: Athlon bug stomping #2
-In-Reply-To: <Pine.LNX.4.31.0109132101210.10262-100000@linux.local>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 13 Sep 2001 23:51:58 -0600
-In-Reply-To: <Pine.LNX.4.31.0109132101210.10262-100000@linux.local>
-Message-ID: <m1d74utj41.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+	id <S273306AbRINF6i>; Fri, 14 Sep 2001 01:58:38 -0400
+Received: from tiku.hut.fi ([130.233.228.86]:12806 "EHLO tiku.hut.fi")
+	by vger.kernel.org with ESMTP id <S273305AbRINF61>;
+	Fri, 14 Sep 2001 01:58:27 -0400
+Date: Fri, 14 Sep 2001 08:58:47 +0300 (EET DST)
+From: =?ISO-8859-1?Q?Janne_P=E4nk=E4l=E4?= <epankala@cc.hut.fi>
+To: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Athlon problems fixed tweaking BIOS memory settings
+In-Reply-To: <Pine.SOL.3.96.1010914012859.21012B-100000@virgo.cus.cam.ac.uk>
+Message-ID: <Pine.OSF.4.10.10109140850460.21200-100000@kosh.hut.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Vandomelen <chrisv@b0rked.dhs.org> writes:
+> above 256MiB which meant it couldn't be the chips at fault (failing tests
+> were 5 and 8 in memtest86 supplied with SuSE 7.2). 
 
-> > On Thu, 13 Sep 2001, VDA wrote:
-> >
-> > > Device 0 Offset 55 - Debug (RW)
-> > > 7-0 Reserved (do not program). default = 0
-> > > *** 3R BIOS: non-zero!?
-> > > *** YH BIOS: zero.
-> > > *** TODO: try to set to 0.
-> >
-> > I tryed sequentially to test the values given. It only worked when I set
-> > offset 0x55 to 0, and then stopped. I don't need to set any other value in
-> > other addresses. This is enough.
-> >
-> > It's weird when your system only works when changing a "do not
-> > program" value. :)
-> 
-> Makes me wonder just a little: my system is perfectly fine with 0x02
-> written to offset 0x55. (Yes, it is an Athlon compiled kernel.. something
-> I've been doing ever since I've been using this machine). It had it's
-> problems when I originally got it
+I have Tyan S1590S (super 7) motherboard and I had this problem with
+memtest too.
 
-So we have two confirmations that setting this register clears the problem.
-Anyone want to generate a kernel patch so this fix can get some wider
-testing?
+It was after I changed 768M of memory to it. (I had AT power supply)
 
-Eric
+when I ran memtest it went fine until it cme to test 5 after that at
+random point errors started to flow in (and didn't stop).
+
+Later it was found out that this was due to the fact that the motherboard
+converted the 5V from AT PSU to 3.3v needed by dimm trough a tyristor (or
+like) and when it was running with a lot of memory and AT supply it heated
+up like hell.
+
+when I changed it to ATX supply and changed one dip on the mobo the
+tyristor was as cool as ever and memtest ran trough just fine.
+
+not sure if this is the problem with some of you know. The fact that it is
+especially test 5 (32-bit moves?) makes me wonder.
+
+Althou all athlon mobos are ATX to begin with *shrug*.
+
+-- 
+Janne  justtrowinghisspooninthesouptomakethisevenmoreconfusing.
+echo peufiuhu@tt.lac.nk | tr acefhiklnptu utpnlkihfeca
+

@@ -1,97 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261547AbTHaB2F (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 21:28:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbTHaB2F
+	id S262328AbTHaBbP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 21:31:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262350AbTHaBbP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 21:28:05 -0400
-Received: from aneto.able.es ([212.97.163.22]:34947 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S261547AbTHaB2B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 21:28:01 -0400
-Date: Sun, 31 Aug 2003 03:27:59 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4] gcc3 warns about type-punned pointers ?
-Message-ID: <20030831012759.GA3276@werewolf.able.es>
-References: <20030828223511.GA23528@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 2.0.14
+	Sat, 30 Aug 2003 21:31:15 -0400
+Received: from 200-55-45-156-tntats2.dial-up.net.ar ([200.55.45.156]:61149
+	"EHLO smtp.bensa.ar") by vger.kernel.org with ESMTP id S262328AbTHaBbN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 21:31:13 -0400
+From: Norberto BENSA <nbensa@gmx.net>
+Organization: BENSA.ar
+To: Marcelo Tosatti <marcelo@parcelfarce.linux.theplanet.co.uk>,
+       "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: [PATCH] check_gcc for i386
+Date: Sat, 30 Aug 2003 20:20:45 -0300
+User-Agent: KMail/1.5.3
+Cc: <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0308301957440.20117-100000@logos.cnet>
+In-Reply-To: <Pine.LNX.4.44.0308301957440.20117-100000@logos.cnet>
+X-PGP-Key: http://pgp.mit.edu:11371/pks/lookup?op=get&search=0x49664BBE
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_NFTU/PcqmPPIzeG";
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200308302020.45564.nbensa@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 08.29, J.A. Magallon wrote:
-> Hi all...
-> 
-> gcc3 gives this warning when using the __set_64bit_var function:
-> 
-> /usr/src/linux/include/asm/system.h:190: warning: dereferencing type-punned pointer will break strict-aliasing rules
-> 
-> Is it a potential problem ?
-> 
-> This seems to cure it:
-> 
-> --- linux-2.4.22-jam1m/include/asm-i386/system.h.orig	2003-08-29 00:26:41.000000000 +0200
-> +++ linux-2.4.22-jam1m/include/asm-i386/system.h	2003-08-29 00:26:55.000000000 +0200
-> @@ -181,8 +181,8 @@
->  {
->  	__set_64bit(ptr,(unsigned int)(value), (unsigned int)((value)>>32ULL));
->  }
-> -#define ll_low(x)	*(((unsigned int*)&(x))+0)
-> -#define ll_high(x)	*(((unsigned int*)&(x))+1)
-> +#define ll_low(x)	*(((unsigned int*)(void*)&(x))+0)
-> +#define ll_high(x)	*(((unsigned int*)(void*)&(x))+1)
->  
+--Boundary-02=_NFTU/PcqmPPIzeG
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: signed data
+Content-Disposition: inline
 
-How about something like this:
+Marcelo Tosatti wrote:
+> On Sun, 31 Aug 2003, J.A. Magallon wrote:
+> > +CFLAGS +=3D $(call check_gcc,-march=3Dpentium4,-march=3Di686)
+> >  endif
+> >
+>
+> OK, I forgot what that does. Can you please explain in detail what
+> check_gcc does.
 
-typedef unsigned long long	u64;
-typedef unsigned long		u32;
-typedef unsigned short		u16;
-typedef unsigned char		u8;
+Hmmm... Parhaps it checks if gcc supports those command line parameters (ju=
+st=20
+a wild guess)? Marcelo, do you need a break? :-)
 
-union u64_split {
-	u64	ll;
-	u32 l[2];
-	u16 w[4];
-	u8  b[8];
-};
+With best regards,
+Norberto
 
-void f()
-{
-	u64 a;
+--Boundary-02=_NFTU/PcqmPPIzeG
+Content-Type: application/pgp-signature
+Content-Description: signature
 
-	int l = ((union u64_split)a).l[0];
-	int h = ((union u64_split)a).l[1];
-}
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-The clean way todo it without pointer arithmetic...
+iD8DBQA/UTFNFXVF50lmS74RAtZuAKCCnXyRpt3RJz1YuWRcoZfJ5QVK+wCeMH1c
+puqEwH/Ml1D7jCjuOopX+74=
+=+80/
+-----END PGP SIGNATURE-----
 
-And with a modern gcc (anonymous structs):
+--Boundary-02=_NFTU/PcqmPPIzeG--
 
-union u64_split {
-	u64	x;
-	struct {
-		u32 	l32,h32;
-	};
-	struct {
-		u16 ll16,lh16,hl16,hh16;
-	};
-};
-
-So you just write:
-
-int l = ((union u64_split)a).l32;
-u16 word = ((union u64_split)a).ll16;
-
-I think it is better with structs, to take care of endianness if needed.
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.22-jam1m (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-1mdk))

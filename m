@@ -1,46 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbUEQTGe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262205AbUEQTJj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262190AbUEQTGe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 15:06:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbUEQTGd
+	id S262205AbUEQTJj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 15:09:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbUEQTJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 15:06:33 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33942 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262190AbUEQTGZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 15:06:25 -0400
-Date: Mon, 17 May 2004 20:06:23 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Steven Cole <scole@lanl.gov>
-Cc: hugh@veritas.com, linux-kernel@vger.kernel.org, support@bitmover.com,
-       Linus Torvalds <torvalds@osdl.org>, Wayne Scott <wscott@bitmover.com>,
-       adi@bitmover.com, Andrew Morton <akpm@osdl.org>, wli@holomorphy.com,
-       lm@bitmover.com, "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: 1352 NUL bytes at the end of a page?
-Message-ID: <20040517190623.GV17014@parcelfarce.linux.theplanet.co.uk>
-References: <200405162136.24441.elenstev@mesatop.com> <Pine.LNX.4.58.0405162152290.25502@ppc970.osdl.org> <20040516231120.405a0d14.akpm@osdl.org> <20040517.085640.30175416.wscott@bitmover.com> <20040517151738.GA4730@thunk.org> <Pine.LNX.4.58.0405170820560.25502@ppc970.osdl.org> <20040517153736.GT17014@parcelfarce.linux.theplanet.co.uk> <E88DCF88-A827-11D8-A7EA-000A95CC3A8A@lanl.gov> <20040517174004.GU17014@parcelfarce.linux.theplanet.co.uk> <1084815598.26340.6.camel@spc0.esa.lanl.gov>
+	Mon, 17 May 2004 15:09:39 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:13290 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262205AbUEQTJg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 15:09:36 -0400
+Date: Mon, 17 May 2004 12:09:25 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Sebastien Chaumat <schaumat@free.fr>
+Cc: linux-usb-devel@lists.sourceforge.net, zaitcev@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: please apply the old patch from Georg Acher in 2.4 tree
+Message-Id: <20040517120925.44ae3af1.zaitcev@redhat.com>
+In-Reply-To: <1083011181.982.6.camel@muetdhiver>
+References: <1083011181.982.6.camel@muetdhiver>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1084815598.26340.6.camel@spc0.esa.lanl.gov>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 17, 2004 at 11:39:58AM -0600, Steven Cole wrote:
-> Yes, seven of the 52 references to mmap in the strace output met
-> the above criteria: 
+On Mon, 26 Apr 2004 22:26:21 +0200
+Sebastien Chaumat <schaumat@free.fr> wrote:
+
+>  I tried the patch from Georg Acher (posted 2001/08). It saved me from a
+> lot of troubles with a brand news USB2 hub that refuses to take an
+> address with  my nforce2 motherboard.
 > 
->   old_mmap(0x4015f000, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x142000) = 0x4015f000
->   old_mmap(0x40170000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x9000) = 0x40170000
->   old_mmap(0x40180000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 4, 0x9000) = 0x40180000
->   old_mmap(0x40191000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 4, 0x10000) = 0x40191000
->   old_mmap(0x4019c000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 4, 0x7000) = 0x4019c000
->   old_mmap(0x401a0000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 4, 0x3000) = 0x401a0000
->   old_mmap(0x401af000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 4, 0xe000) = 0x401af000
+> @@ -2177,18 +2178,31 @@
+>  	dev->epmaxpacketin [0] = 8;
+>  	dev->epmaxpacketout[0] = 8;
+>  
+> -	err = usb_set_address(dev);
+> -	if (err < 0) {
+> -		err("USB device not accepting new address=%d (error=%d)",
+> -			dev->devnum, err);
+> -		clear_bit(dev->devnum, &dev->bus->devmap.devicemap);
+> -		dev->devnum = -1;
+> -		return 1;
+> -	}
+> +	for(m=0;m<2;m++) {
+> +		for(n=0;n<2;n++) {			
+> +			err = usb_set_address(dev);
+> +			if (err>=0)
+> +				break;
+> +			wait_ms(200);
+> +		}
 
-Shared libraries.  And no, those will never lead to any writes, no matter how
-you modify them (MAP_PRIVATE).  Which is the point, since that's where we
-are doing relocations and we definitely do not want that to hit the disk ;-)
+I see this was admitted to 2.6, with nice symbolic constants, too.
+But before taking this, I would like someone to do this:
+ 1. posess a device which flakes like the above
+ 2. take the 2.6 version rediff and test it
+ 3. explain to me why he or she cannot just run 2.6 and be content
 
-IOW, we can remove writes of dirtied mmap'ed pages from consideration.
+If Sebastien is willing to clear these hurdles I erected (and mentions the
+vendor and device number of his hub), I'll think about it. But it would be
+best if someone else came forward.
+
+-- Pete

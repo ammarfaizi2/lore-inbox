@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261858AbVCOUDa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbVCOTy6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261858AbVCOUDa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 15:03:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVCOT7m
+	id S261836AbVCOTy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 14:54:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbVCOTwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 14:59:42 -0500
-Received: from simmts8.bellnexxia.net ([206.47.199.166]:1524 "EHLO
-	simmts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S261853AbVCOT5W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 14:57:22 -0500
-Message-ID: <4350.10.10.10.24.1110916472.squirrel@linux1>
-In-Reply-To: <d120d5000503151134302d741e@mail.gmail.com>
-References: <20050312034222.12a264c4.akpm@osdl.org> 
-    <4236D428.4080403@aitel.hist.no> 
-    <d120d50005031506252c64b5d2@mail.gmail.com> 
-    <20050315110146.4b0c5431.akpm@osdl.org>
-    <d120d5000503151134302d741e@mail.gmail.com>
-Date: Tue, 15 Mar 2005 14:54:32 -0500 (EST)
-Subject: Re: 2.6.11-mm3 mouse oddity
-From: "Sean" <seanlkml@sympatico.ca>
-To: dtor_core@ameritech.net
-Cc: "Andrew Morton" <akpm@osdl.org>, helge.hafting@aitel.hist.no,
-       linux-kernel@vger.kernel.org, vojtech@suse.cz
-User-Agent: SquirrelMail/1.4.4-2
+	Tue, 15 Mar 2005 14:52:12 -0500
+Received: from mail.aknet.ru ([217.67.122.194]:16146 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S261793AbVCOTs0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 14:48:26 -0500
+Message-ID: <42373C14.6010702@aknet.ru>
+Date: Tue, 15 Mar 2005 22:48:36 +0300
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: ru, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+To: Andrew Morton <akpm@osdl.org>
+Cc: alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] x86: fix ESP corruption CPU bug (take 2)
+References: <42348474.7040808@aknet.ru>	<20050313201020.GB8231@elf.ucw.cz>	<4234A8DD.9080305@aknet.ru>	<Pine.LNX.4.58.0503131306450.2822@ppc970.osdl.org>	<4234B96C.9080901@aknet.ru>	<20050314192943.GG18826@devserv.devel.redhat.com>	<4235ED35.1000405@aknet.ru> <20050314193447.47ca6754.akpm@osdl.org>
+In-Reply-To: <20050314193447.47ca6754.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, March 15, 2005 2:34 pm, Dmitry Torokhov said:
+Hello.
 
->> > Vojtech, is it possible to detect whether a keyboard has scroll
->> > wheel(s) by its ID?
->>
->> What sort of keyboard has a scroll wheel??
->
-> Some Microsoft ones IIRC.
->
+Andrew Morton wrote:
+> I added this patch to -mm.
+Many thanks!
 
-Almost all Logitech keyboards have them now (all but 1 I think).
+Alan, sorry for bothering you with that.
 
-Sean
 
+> - If the patch patches something which is in Linus's kernel, prepare a
+>   diff against Linus's latest kernel.
+> - If the patch patches something which is only in -mm, prepare a patch
+>   against -mm.
+> In this case, I merged the patch prior to the kgdb patch and then fixed
+> up the fallout.
+> (If that causes kgdb to break in non-obvious-to-me ways then I might come
+> calling "help".
+Thanks for explanations. That's what I
+tried to find in your "The perfect patch"
+guidelines many times, but it is not there
+in such details.
 

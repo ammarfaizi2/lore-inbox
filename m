@@ -1,57 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281075AbRKGX3c>; Wed, 7 Nov 2001 18:29:32 -0500
+	id <S281093AbRKGXem>; Wed, 7 Nov 2001 18:34:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281084AbRKGX3X>; Wed, 7 Nov 2001 18:29:23 -0500
-Received: from line205.comsat.net.ar ([200.47.131.205]:62876 "HELO
-	line205.comsat.net.ar") by vger.kernel.org with SMTP
-	id <S281075AbRKGX3O>; Wed, 7 Nov 2001 18:29:14 -0500
-Date: Wed, 7 Nov 2001 20:30:07 -0300
-From: martin sepulveda <msepulveda@labase.com.ar>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.14 and athlon
-Message-Id: <20011107203007.09d19857.msepulveda@labase.com.ar>
-X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	id <S281087AbRKGXed>; Wed, 7 Nov 2001 18:34:33 -0500
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:3087 "EHLO
+	localhost") by vger.kernel.org with ESMTP id <S281084AbRKGXeT>;
+	Wed, 7 Nov 2001 18:34:19 -0500
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Ryan Cumming <bodnar42@phalynx.dhs.org>
+To: Andreas Dilger <adilger@turbolabs.com>
+Subject: Re: ext3 vs resiserfs vs xfs
+Date: Wed, 7 Nov 2001 15:33:54 -0800
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <5.1.0.14.2.20011107183639.0285a7e0@pop.cus.cam.ac.uk> <5.1.0.14.2.20011107193045.02b07f78@pop.cus.cam.ac.uk> <20011107132552.J5922@lynx.no>
+In-Reply-To: <20011107132552.J5922@lynx.no>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E161cCh-0003de-00@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+On November 7, 2001 12:25, Andreas Dilger wrote:
+> If both ext2 and ext3 are compiled into the kernel, then ext3 will try
+> first to mount the root fs.  If there is no journal on this fs (check this
+> with tune2fs -l <dev>, and look for "has_journal" feature), then it will be
+> mounted as ext2.  If you are doing strange things with initrd and modules,
 
-i have a athlon 950 MHz (Via 686 chipset) that's acting
-funny on 2.4.2, 2.4.6, 2.4.10 and 2.4.12-ac3 with Rik's VM.
-512 MB memory, 1 GB swap. all partitions are ext2, and the system
-is a RH 7.1.
+Is there any particular reason why the ext3 driver can't handle mounting both 
+ext2 and ext3 filesystems? 
 
-after some time running (apache/mysql/bind, not really heavy
-load for the bos, except for backing up sites), load starts
-to go higher and higher, and eventually (after reaching loads
-of 70 - 90), it only responds pings. since it's in a farming
-facility and this behaviour is not predictable (not cron-related,
-for example) i can't see any console output. this happend about dayly
-on 2.4.6, and about weekly now (2.4.12-ac3 rik vm).
+-Ryan
 
-i guess it's all VM related, since it seems to get better, with
-the kernel upgrades, but i'm not sure anyway.
-
-does anyone have any idea of what might i do? i plan to give 2.4.14
-a try, but don't know what patches or options do you believe will
-be better. (no, i dont have another machine at hand to test, and
-yes, it's our production server).
-
-thanks in advance,
-
-M.
-
--- 
-Talent does what it can, genius what it must.
-I do what I get paid to do.
-
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM dpu s+:- a- C++++ UL++++ P++++ L++++ E--- W- N-- o-- K- w-- 
-O---- M-- V-- PS++ PE- Y++ PGP+++ t+ 5 X R+ !tv b+++ DI++ D+++ 
-G++ e++ h++ r+ y++ 
-------END GEEK CODE BLOCK------

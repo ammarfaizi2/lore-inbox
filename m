@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267106AbRGJTUH>; Tue, 10 Jul 2001 15:20:07 -0400
+	id <S266277AbRGLRF7>; Thu, 12 Jul 2001 13:05:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267108AbRGJTT5>; Tue, 10 Jul 2001 15:19:57 -0400
-Received: from [194.213.32.142] ([194.213.32.142]:8452 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267106AbRGJTTq>;
-	Tue, 10 Jul 2001 15:19:46 -0400
-Message-ID: <20010710004449.B557@bug.ucw.cz>
-Date: Tue, 10 Jul 2001 00:44:49 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: andrew.grover@intel.com, linux-kernel@vger.kernel.org,
-        acpi@phobos.fachschaften.tu-muenchen.de
-Subject: Re: ACPI fundamental locking problems
-In-Reply-To: <3B421AEA.8809D11C@mandrakesoft.com> <E15HW0o-0008FJ-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <E15HW0o-0008FJ-00@the-village.bc.nu>; from Alan Cox on Tue, Jul 03, 2001 at 08:39:06PM +0100
+	id <S266271AbRGLRFj>; Thu, 12 Jul 2001 13:05:39 -0400
+Received: from dialup91.kiss.uni-lj.si ([193.2.98.91]:40196 "EHLO
+	redos-go.redos.si") by vger.kernel.org with ESMTP
+	id <S266269AbRGLRFc>; Thu, 12 Jul 2001 13:05:32 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Sasa Ostrouska <maja.ostrouska@kiss.uni-lj.si>
+Reply-To: info@rcdiostrouska.com
+To: linux-kernel@vger.kernel.org
+Subject: linux-2.4.5 BUG when shutdown
+Date: Sun, 3 Jun 2001 19:42:09 +0200
+X-Mailer: KMail [version 1.2]
+MIME-Version: 1.0
+Message-Id: <01060319420900.01287@redos-go>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi to all !
 
-> > The difference with ACPI is that vendors can write code that is executed
-> > in the kernel's context (instead of what you can consider the BIOS's
-> > context).  That is a whole new can of worms.
-> 
-> For security reasons alone we need to ensure ACPI can be firmly in the off
-> position. Executing US written binary code in the Linux kernel will not be
-> acceptable to european corporations, non US military bodies and most 
-> Governments. They'd hate the US to get prior warning of say protestors
-> walking into their top secret menwith hill base playing the mission impossible
-> theme tune then chaining themselves to things..
-> 
-> And if the NSA wants the US goverment to execute binary only chinese bios code
-> on all their critical systems I am sure people will be happy.
+	I get the following message when I want to shutdown the machine:
 
-...but I still would be happier if there was no AML interpretation...
-								Pavel 
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+------------
+
+journal_begin called without kernel lock held
+kernel BUG at journal.c:423!
+invalid operand: 0000
+CPU:    1
+EIP:    0010:[<c0175420>]
+EFLAGS: 00010286
+
+eax: 0000001d ebx: c12b3f2c ecx: 00000001 edx: 00000001
+esi: c7f41600 edi: c12b3f2c ebp: 0000000a esp: c12b3ec4
+ds: 0018  es: 0018  ss: 0018
+
+Process umount (pid: 2861, stackpage = c12b3000)
+
+Stack: c025416c c0254304 000001a7 c017791e c0255321 c12b3f2c c7f41600 c02996a0
+       c7f41644 3b1a4df9 c12b3f98 00000000 3b1a4df9 00000010 c025532f c0177b4e
+       c12b3f2c c7f41600 0000000a 00000000 c0169d7c c12b3f2c c7f41600 0000000a
+
+Call Trace: [<c017791e>] [<c0177b4e>] [<c0169d7c>] [<c013722c>] [<c013725f>]
+            [<c01365a0>] [<c013c2e8>] [<c0137721>] [<c0137754>] [<c0106c6b>]
+
+Code: 0f 0b 83 c4 0c c3 89 f6 31 c0 c3 90 31 c0 c3 90 56 53 31 db
+
+Unmounting any remaining filesystems...
+
+-------------
+
+I use linux 2.4.5 and glibc-2.2.2
+with reiserfs
+If somebody can help to solve this would be very apreciated.
+
+Best Regards
+Sasa Ostrouska
+

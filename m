@@ -1,51 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291620AbSC0U6T>; Wed, 27 Mar 2002 15:58:19 -0500
+	id <S292130AbSC0VC3>; Wed, 27 Mar 2002 16:02:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291787AbSC0U6K>; Wed, 27 Mar 2002 15:58:10 -0500
-Received: from cambot.suite224.net ([209.176.64.2]:60430 "EHLO suite224.net")
-	by vger.kernel.org with ESMTP id <S291547AbSC0U6C>;
-	Wed, 27 Mar 2002 15:58:02 -0500
-Message-ID: <003e01c1d5d2$b62f82e0$b0d3fea9@pcs686>
-From: "Matthew D. Pitts" <mpitts@suite224.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: (RFC)Supermount 2
-Date: Wed, 27 Mar 2002 16:02:30 -0500
+	id <S292316AbSC0VCJ>; Wed, 27 Mar 2002 16:02:09 -0500
+Received: from orinoco.cisco.com ([64.101.176.25]:56203 "EHLO cisco.com")
+	by vger.kernel.org with ESMTP id <S292130AbSC0VCA>;
+	Wed, 27 Mar 2002 16:02:00 -0500
+Message-ID: <3CA232A1.7040702@cisco.com>
+Date: Wed, 27 Mar 2002 14:59:13 -0600
+From: Stephen Baker <stbaker@cisco.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Linux Kernel Patch; setpriority
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fellow Linux Hackers.
+All,
 
-I am starting to plan a new version of Supermount. I have some things I want
-to try out in it, and I will list them in this message. I am willing to
-accept any and all input on what I am wanting to call Supermount 2.
+This patch will allow a process or thread to changes it's priority 
+dynamically based on it's capabilities.  In our case we wanted to use 
+threads with Linux.  To have true priorities we need root to use 
+SCHED_FIFO or SCHED_RR; in many case root access is not allowed but we 
+still wanted priorities.  So we started using setpriority to change a 
+threads priority.  Now we used nice values from 19 to 0 which did not 
+require root access.  In some cases a thread need to raise it's nice 
+level and this would fail.  I also saw a note man renice(8) that said 
+this bug exists.
+So the following patch address this problem.  It allows any process or 
+thread to raise or lower it's nice value for it's current capability. 
+For example a CAP_SYS_NICE process can use 19 to -20 for it's value and 
+a normal user can use 19 to 0.  By capping normal user to zero then we 
+don't have any problems with conflicts with higher priority programs in 
+the system since zero is the default value.
 
-Planned features of Supermount 2:
+SB
 
-1) Auto-detection of filesystem type.
 
-2) Supermount modules for each filesystem type.
+--- linux-2.4.9-31/kernel/sys.c    Wed Mar 27 13:11:10 2002
++++ linux/kernel/sys.c    Wed Mar 27 13:09:36 2002
+@@ -194,6 +194,12 @@
+    return 0;
+}
 
-3) Built-in support for packet-writing. ( i.e. insert packet-writing
-formatted disk and it loads appropriate kernel modules. )
++/*
++ * Allow the process to adjust it's priority higher or lower.
++ * If the process has CAP_SYS_NICE set then we can use
++ * -20 to 19.  Otherwise we use 0 to 19 as our valid priority
++ * range.
++ */
+asmlinkage long sys_setpriority(int which, int who, int niceval)
+{
+    struct task_struct *p;
+@@ -220,7 +226,8 @@
+        }
+        if (error == -ESRCH)
+            error = 0;
+-        if (niceval < p->nice && !capable(CAP_SYS_NICE))
++        if ((niceval < 0) &&
++            (niceval < p->nice && !capable(CAP_SYS_NICE)))
+            error = -EACCES;
+        else
+            p->nice = niceval;
 
-There may be other features added if there is an interest in them. I will
-need assistance with the packet-writing support. I am only planning to do
-this for the 2.5.x and later kernels, so if anyone else wishes to back-port
-it to an older kerenl series, by all means do so. I have wanted to make some
-kind of contribution to this project for some time and I feel that this is
-something that will be useful.
-
-I am going to be making my prelminary code available to whomever wishes to
-see it once I get my Linux box back up.
-
-Matthew D. Pitts
 

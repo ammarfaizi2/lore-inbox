@@ -1,63 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266018AbUGLNwi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266124AbUGLNww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266018AbUGLNwi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 09:52:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266124AbUGLNwi
+	id S266124AbUGLNww (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 09:52:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266185AbUGLNwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 09:52:38 -0400
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:12501
-	"EHLO voidhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S266018AbUGLNwf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 09:52:35 -0400
-Date: Mon, 12 Jul 2004 14:51:47 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-Message-Id: <200407121351.i6CDplLM031827@voidhawk.shadowen.org>
-To: akpm@osdl.org, apw@shadowen.org, geert@linux-m68k.org, torvalds@osdl.org
-Subject: Re: is_highmem() and WANT_PAGE_VIRTUAL (was: Re: Linux 2.6.8-rc1)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.58.0407121326410.17199@waterleaf.sonytel.be>
+	Mon, 12 Jul 2004 09:52:51 -0400
+Received: from ozlabs.org ([203.10.76.45]:57287 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S266124AbUGLNwu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 09:52:50 -0400
+Date: Mon, 12 Jul 2004 18:57:52 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Shai Fultheim <shai@scalex86.org>
+Cc: "'Andrew Morton'" <akpm@osdl.org>,
+       "'Linux Kernel ML'" <linux-kernel@vger.kernel.org>,
+       "'Jes Sorensen'" <jes@trained-monkey.org>, mort@wildopensource.com
+Subject: Re: [PATCH] PER_CPU [4/4] - PER_CPU-irq_stat
+Message-ID: <20040712085752.GB2324@krispykreme>
+References: <20040712000218.GC30109@krispykreme> <20040712044410.46293162B72@lists.samba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040712044410.46293162B72@lists.samba.org>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Geert wrote:
-> | --- reference/mm/page_alloc.c	2004-07-07 18:08:56.000000000 +0100
-> | +++ current/mm/page_alloc.c	2004-07-07 18:10:15.000000000 +0100
-> | @@ -1421,7 +1421,7 @@ void __init memmap_init_zone(struct page
-> |  		INIT_LIST_HEAD(&page->lru);
-> |  #ifdef WANT_PAGE_VIRTUAL
-> |  		/* The shift won't overflow because ZONE_NORMAL is below 4G. */
-> | -		if (zone != ZONE_HIGHMEM)
-> | +		if (!is_highmem(zone))
-> |  			set_page_address(page, __va(start_pfn << PAGE_SHIFT));
-> |  #endif
-> |  		start_pfn++;
-> 
-> The above change is incorrect, since zone is an unsigned long, while
-> is_highmem() takes a struct zone *.
 
-My bad.  I was stupidly assuming that this was used then ZONE_HIGHMEM was
-not enabled.  This should apply on top of 2.6.8-rc1 and repair the damage.
+> Anyhow, since that also accesses by other CPUs (not a lot...), I think it's
+> better to keep it aligned (the utilization of per-cpu areas is so low now
+> that it doesn't really matter).
 
--apw
+Ive seen the per cpu data area exceed 32kB on ppc64. Considering the L1
+dcache on POWER4 is only 32kB Id prefer not to bloat it any more than
+necessary.
 
-=== 8< ===
-Should be applying is_highmem() to a zone.
-
-Revision: $Rev: 386 $
-
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
-
----
-
-diff -X /home/apw/brief/lib/vdiff.excl -rupN reference/mm/page_alloc.c current/mm/page_alloc.c
---- reference/mm/page_alloc.c	2004-07-12 13:15:57.000000000 +0100
-+++ current/mm/page_alloc.c	2004-07-12 14:37:19.000000000 +0100
-@@ -1402,7 +1402,7 @@ void __init memmap_init_zone(struct page
- 		INIT_LIST_HEAD(&page->lru);
- #ifdef WANT_PAGE_VIRTUAL
- 		/* The shift won't overflow because ZONE_NORMAL is below 4G. */
--		if (!is_highmem(zone))
-+		if (!is_highmem(page_zone(page)))
- 			set_page_address(page, __va(start_pfn << PAGE_SHIFT));
- #endif
- 		start_pfn++;
+Anton

@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269971AbUJHN1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269981AbUJHNWn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269971AbUJHN1r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 09:27:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269957AbUJHN1r
+	id S269981AbUJHNWn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 09:22:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269965AbUJHNVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 09:27:47 -0400
-Received: from iua-mail.upf.es ([193.145.55.10]:37308 "EHLO iua-mail.upf.es")
-	by vger.kernel.org with ESMTP id S269971AbUJHNUt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 09:20:49 -0400
-Date: Fri, 8 Oct 2004 15:20:44 +0200
-From: Maarten de Boer <mdeboer@iua.upf.es>
-To: linux-kernel@vger.kernel.org
-Subject: e100 not working with 2.6.9-rc3-mm3-vp-t3
-Message-Id: <20041008152044.2e92ea80.mdeboer@iua.upf.es>
-Organization: IUA-MTG
-X-Mailer: Sylpheed version 0.9.9-gtk2-20040229 (GTK+ 2.4.9; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 8 Oct 2004 09:21:05 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:14516 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S269968AbUJHNTz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 09:19:55 -0400
+Subject: Re: [PATCH] QStor SATA/RAID driver for 2.6.9-rc3
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Mark Lord <lkml@rtr.ca>, Jeff Garzik <jgarzik@pobox.com>,
+       Mark Lord <lsml@rtr.ca>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <20041007221537.A17712@infradead.org>
+References: <4161A06D.8010601@rtr.ca> <416547B6.5080505@rtr.ca>
+	<20041007150709.B12688@infradead.org> <4165624C.5060405@rtr.ca>
+	<416565DB.4050006@pobox.com> <4165A45D.2090200@rtr.ca>
+	<4165A766.1040104@pobox.com> <4165A85D.7080704@rtr.ca>
+	<4165AB1B.8000204@pobox.com> <4165ACF8.8060208@rtr.ca> 
+	<20041007221537.A17712@infradead.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-MTG-MailScanner: Found to be clean
-X-MTG-MailScanner-SpamCheck: not spam (whitelisted),
-	SpamAssassin (score=-2.599, required 5, autolearn=disabled,
-	BAYES_00 -2.60)
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 08 Oct 2004 08:19:38 -0500
+Message-Id: <1097241583.2412.15.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, 2004-10-07 at 16:15, Christoph Hellwig wrote:
+>  - please use the kernel/kthread.c interface for your kernel thread
 
-(Please Cc: me on reply - I am not on the list)
+Actually, the driver has no need for a thread at all.  Since you're
+simply using it to fire hotplug events, use schedule_work instead.
 
-I still can not get my e100 (Intel Corp. 82562EZ 10/100 Ethernet
-Controller - rev 01) to work with the latest vp-patched kernel.
+I also noticed the following in a lightening review:
 
-I initially tried with a debian style kernel, but now I moved to a
-custom, minimally-configured, kernel, and  have tried several
-configurations (with, without ACPI)
+- Kill these constructs:
++	/* scsi_done expects to be called while locked */
++	if (!in_interrupt())
++		spin_lock_irqsave(uhba->lock, flags);
 
-The module loads correctly, I can configure the interface, but no
-packages are either transmitted or received.
+scsi_done() doesn't require a lock
 
-The e100 works correctly with (debian) kernel 2.6.7. I have not tried
-intermediate or partially patched (as in only rc3, only rc3-mm3)
-kernels.
+- Your emulated commands assume they're non-sg and issued through the
+kernel (i.e. you don't kmap and you don't do SG).  This will blow up on
+the first inquiry submitted via SG_IO for instance.
 
-Any suggestions? I'd really love to play with the voluntary
-preempt patch!
+I'm sure there are others, but I don't have time to do a thorough review
+at the moment.
 
-Maarten
+James
+
 

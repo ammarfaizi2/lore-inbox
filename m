@@ -1,106 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbULTPEY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbULTPHA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261516AbULTPEY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 10:04:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbULTPEY
+	id S261517AbULTPHA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 10:07:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbULTPG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 10:04:24 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19679 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261516AbULTPEP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 10:04:15 -0500
-Date: Mon, 20 Dec 2004 10:46:04 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: James Pearson <james-p@moving-picture.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       andrea@suse.de
-Subject: Re: Reducing inode cache usage on 2.4?
-Message-ID: <20041220124604.GB2529@logos.cnet>
-References: <41C316BC.1020909@moving-picture.com> <20041217151228.GA17650@logos.cnet> <41C37AB6.10906@moving-picture.com> <20041217172104.00da3517.akpm@osdl.org> <20041218110247.GB31040@logos.cnet> <41C6D802.7070901@moving-picture.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41C6D802.7070901@moving-picture.com>
-User-Agent: Mutt/1.5.5.1i
+	Mon, 20 Dec 2004 10:06:59 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:57767 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261517AbULTPGy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 10:06:54 -0500
+Date: Mon, 20 Dec 2004 10:06:36 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: mr@ramendik.ru
+cc: Andrew Morton <akpm@osdl.org>, lista4@comhem.se,
+       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
+       kernel@kolivas.org
+Subject: Re: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
+In-Reply-To: <21322.195.133.60.161.1103533647.squirrel@195.133.60.161>
+Message-ID: <Pine.LNX.4.61.0412201003360.13935@chimarrao.boston.redhat.com>
+References: <1329986.1103525472726.JavaMail.tomcat@pne-ps1-sn1>   
+ <20041219231250.457deb12.akpm@osdl.org> <21322.195.133.60.161.1103533647.squirrel@195.133.60.161>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 20, 2004 at 01:47:46PM +0000, James Pearson wrote:
-> I've tested the patch on my test setup - running a 'find $disk -type f' 
-> and a cat of large files to /dev/null at the same time does indeed 
-> reduce the size of the inode and dentry caches considerably - the first 
-> column numbers for fs_inode, linvfs_icache and dentry_cache in 
-> /proc/slabinfo hover at about 400-600 (over 900000 previously).
-> 
-> However, is this going a bit to far the other way? When I boot the 
-> machine with 4Gb RAM, the inode and dentry caches are squeezed to the 
-> same amounts, but it may be the case that it would be more beneficial to 
-> have more in the inode and dentry caches? i.e. I guess some sort of 
-> tunable factor that limits the minimum size of the inode and dentry 
-> caches in this case?
+On Mon, 20 Dec 2004 mr@ramendik.ru wrote:
 
-One can increase vm_vfs_scan_ratio if required, but hopefully this change
-will benefit all workloads.
+> - Enjoy :) "eatmemory" will slowly eat up more and more RAM (visible in
+> top as RSS); under 2.6.8.1 no screen freezes come, and under 2.6.9 and
+> 2.6.10-rc3 they do come; under 2.6.10-rc3 I also see high CPU periods for
+> kswapd.
 
-Andrew, Andrea, do you think of any workloads which might be hurt by this change?
+The high cpu use for kswapd should be fixed by applying
+the vm-pageout-throttling.patch patch from -mm.
 
-> But saying that, I notice my 'find $disk -type f' (with about 2 million 
-> files) runs a lot faster with the smaller inode/dentry caches - about 1 
-> or 2 minutes with the patched kernel compared with about 5 to 7 minutes 
-> with the unpatched kernel - I guess it was taking longer to search the 
-> inode/dentry cache than reading direct from disk.
+I'll also come up with a patch to not have the swap token
+used when the system is not under a swapin load...
 
-Wonderful.
-
-> 
-> James Pearson
-> 
-> Marcelo Tosatti wrote:
-> >James,
-> >
-> >Can apply Andrew's patch and examine the results?
-> >
-> >I've merged it to mainline because it looks sensible.
-> >
-> >Thanks Andrew!
-> >
-> >On Fri, Dec 17, 2004 at 05:21:04PM -0800, Andrew Morton wrote:
-> >
-> >>James Pearson <james-p@moving-picture.com> wrote:
-> >>
-> >>>It seems the inode cache has priority over cached file data.
-> >>
-> >>It does.  If the machine is full of unmapped clean pagecache pages the
-> >>kernel won't even try to reclaim inodes.  This should help a bit:
-> >>
-> >>--- 24/mm/vmscan.c~a	2004-12-17 17:18:31.660254712 -0800
-> >>+++ 24-akpm/mm/vmscan.c	2004-12-17 17:18:41.821709936 -0800
-> >>@@ -659,13 +659,13 @@ int fastcall try_to_free_pages_zone(zone
-> >>
-> >>		do {
-> >>			nr_pages = shrink_caches(classzone, gfp_mask, 
-> >>			nr_pages, &failed_swapout);
-> >>-			if (nr_pages <= 0)
-> >>-				return 1;
-> >>			shrink_dcache_memory(vm_vfs_scan_ratio, gfp_mask);
-> >>			shrink_icache_memory(vm_vfs_scan_ratio, gfp_mask);
-> >>#ifdef CONFIG_QUOTA
-> >>			shrink_dqcache_memory(vm_vfs_scan_ratio, gfp_mask);
-> >>#endif
-> >>+			if (nr_pages <= 0)
-> >>+				return 1;
-> >>			if (!failed_swapout)
-> >>				failed_swapout = !swap_out(classzone);
-> >>		} while (--tries);
-> >>_
-> >>
-> >>
-> >>
-> >>>What triggers the 'normal ageing round'? Is it possible to trigger this 
-> >>>earlier (at a lower memory usage), or give a higher priority to cached 
-> >>>data?
-> >>
-> >>You could also try lowering /proc/sys/vm/vm_mapped_ratio.  That will cause
-> >>inodes to be reaped more easily, but will also cause more swapout.
-> >
-> >
+-- 
+He did not think of himself as a tourist; he was a traveler. The difference is
+partly one of time, he would explain. Where as the tourist generally hurries
+back home at the end of a few weeks or months, the traveler belonging no more
+to one place than to the next, moves slowly, over periods of years, from one
+part of the earth to another. Indeed, he would have found it difficult to tell,
+among the many places he had lived, precisely where it was he had felt most at
+home.  -- Paul Bowles

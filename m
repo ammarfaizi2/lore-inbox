@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267618AbTACSqG>; Fri, 3 Jan 2003 13:46:06 -0500
+	id <S267634AbTACSzJ>; Fri, 3 Jan 2003 13:55:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267622AbTACSqG>; Fri, 3 Jan 2003 13:46:06 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:20491
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S267618AbTACSqF>; Fri, 3 Jan 2003 13:46:05 -0500
-Subject: Re: odd phenomenon.
-From: Robert Love <rml@tech9.net>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030103113136.GD2567@codemonkey.org.uk>
-References: <20030103103816.GA2567@codemonkey.org.uk>
-	 <20030103104809.GD9704@holomorphy.com>
-	 <20030103110901.GC2567@codemonkey.org.uk>
-	 <20030103111253.GE9704@holomorphy.com>
-	 <20030103113136.GD2567@codemonkey.org.uk>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1041620025.1523.7.camel@phantasy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 03 Jan 2003 13:54:34 -0500
-Content-Transfer-Encoding: 7bit
+	id <S267635AbTACSzJ>; Fri, 3 Jan 2003 13:55:09 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:25607
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S267634AbTACSzI>; Fri, 3 Jan 2003 13:55:08 -0500
+Date: Fri, 3 Jan 2003 11:02:54 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jon Portnoy <portnoy@tellink.net>
+cc: Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+In-Reply-To: <Pine.LNX.4.50.0301031338180.1030-100000@cerberus.localhost>
+Message-ID: <Pine.LNX.4.10.10301031059570.421-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-01-03 at 06:31, Dave Jones wrote:
+On Fri, 3 Jan 2003, Jon Portnoy wrote:
 
-> Galeon 1.2.7, Bitkeeper 3.0 20021011025136
+> You don't understand "free" in this context. You're talking about free as 
+> in price, we're talking about free as in freedom.
 > 
-> I had until today thought that this was a 2.5 only bug, but this
-> box rebooted back into a 2.4 kernel yesterday for the first time
-> in ages. (Running 2.4.20-rc4 currently)
+> Educate yourself, then come back and discuss freedom.
 
-Galeon 1.3.1 CVS here, so maybe its a bit different, but zero problems
-on 2.5 - and I use Galeon constantly :)
+How about understanding "freedom" has a price and that price is not "free".
 
-Anything I can do to try to better reproduce it?
+The price is to do it yourself, or pay someone else to do it.
+Regardless there are associated costs, so the context is correct.
+You choose stop at the idea of "freedom" no the cost of granting the
+"freedom".
 
-	Robert Love
+Regards,
+
+Andre Hedrick
+LAD Storage Consulting Group
 

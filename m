@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314126AbSDLRpC>; Fri, 12 Apr 2002 13:45:02 -0400
+	id <S314125AbSDLRxk>; Fri, 12 Apr 2002 13:53:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314128AbSDLRpB>; Fri, 12 Apr 2002 13:45:01 -0400
-Received: from firewall.oeone.com ([216.191.248.101]:37391 "HELO
-	mail.oeone.com") by vger.kernel.org with SMTP id <S314126AbSDLRpA>;
-	Fri, 12 Apr 2002 13:45:00 -0400
-Message-ID: <3CB71D21.9080005@oeone.com>
-Date: Fri, 12 Apr 2002 13:45:05 -0400
-From: Masoud Sharbiani <masouds@oeone.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020310
-X-Accept-Language: en-us, en
+	id <S314129AbSDLRxj>; Fri, 12 Apr 2002 13:53:39 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:26884 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S314125AbSDLRxj>; Fri, 12 Apr 2002 13:53:39 -0400
+Message-Id: <200204121751.g3CHpBX15117@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Shawn Starr <shawn.starr@datawire.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel panic 2.4.19-pre6 AND 2.4.19-pre5-ac3
+Date: Fri, 12 Apr 2002 20:54:23 -0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <1018560530.356.0.camel@unaropia> <1018618403.224.13.camel@unaropia>
 MIME-Version: 1.0
-To: Vahid Fereydunkolahi <fereydunk@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel threads.
-In-Reply-To: <20020412170709.98207.qmail@web10002.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Context switch happens when one of your running processes (or kernel 
-threads) is running and then makes a request (like reading from a device 
-and it has to wait for result). therefore scheduler selects another 
-runnable process/kthread to run.
-If you think you have a lot of context switches, you might want to 
-redesign your thread so it blocks less (for example, make several 
-requests for reading several blocks, all at the same time, and wait for 
-first to complete where there is higher probability for the rest of 
-blocks to be ready when you check for their readiness).
-regards,
-Masoud
-Vahid Fereydunkolahi wrote:
+On 12 April 2002 11:33, Shawn Starr wrote:
+> The same kernel panic is observed when using 2.4.19-pre6 or
+> 2.4.19-pre5-ac3:
 
->Folks,
-> I have a problem using kernel_thread. The problem is
-> when I use kernel threads I see a lot of context 
->switch. 
-> I monitor the system activity using vmstat.
->
->Regards,
->--vahid
->
->
->__________________________________________________
->Do You Yahoo!?
->Yahoo! Tax Center - online filing with TurboTax
->http://taxes.yahoo.com/
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
+[snip]
 
+> call trace:
+> [<c01b6996>][<c01ae406>][<c01b5a79>][<c013f81a>][<c01b6013>][<c01b65cf>][<c
+>01055000>[<c010506f>][<c0105000>][<c0107316>][<c0105050>]
+>
+> Code: 8b 40 20 c7 40 24 00 00 00 00 a1 a0 3e 2d c0 59 89 15 c4 cf
 
+Run this thru ksymoops
 
+======== Durning boot it stopped at:
+>
+> hdc: ATAPI 48X CD-ROM drive, 128kB Cache, UDMA(33)
+> Uniform CD-ROM driver Revision: 3.12
+> <NEVER GOT TO THIS BELOW>
+> ===========================
+> Partition check:
+>  hda: hda1 hda2 hda3 hda4
+> Floppy drive(s): fd0 is 1.44M
+> FDC 0 is a post-1991 82077
+> ===========================
+
+I gather it used to reach "partition check" before.
+With which kernel?
+--
+vda

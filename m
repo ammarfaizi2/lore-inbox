@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264969AbTAJMdf>; Fri, 10 Jan 2003 07:33:35 -0500
+	id <S264962AbTAJMdR>; Fri, 10 Jan 2003 07:33:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264975AbTAJMdf>; Fri, 10 Jan 2003 07:33:35 -0500
-Received: from oak.sktc.net ([208.46.69.4]:129 "EHLO oak.sktc.net")
-	by vger.kernel.org with ESMTP id <S264969AbTAJMde>;
-	Fri, 10 Jan 2003 07:33:34 -0500
-Message-ID: <3E1EBFA9.3000405@sktc.net>
-Date: Fri, 10 Jan 2003 06:42:17 -0600
-From: "David D. Hagood" <wowbagger@sktc.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021201
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [Asterisk] DTMF noise
-References: <D6889804-2291-11D7-901B-000393950CC2@karlsbakk.net> <3E1BD88A.4080808@users.sf.net> <3E1C1CDE.8090600@sktc.net> <3E1C4872.7080508@gmx.net> <3E1D705E.1030203@sktc.net> <3E1D79CB.5010503@gmx.net> <3E1E06A3.8050607@sktc.net> <20030110065218.GE27709@mea-ext.zmailer.org>
-In-Reply-To: <20030110065218.GE27709@mea-ext.zmailer.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264963AbTAJMdR>; Fri, 10 Jan 2003 07:33:17 -0500
+Received: from holomorphy.com ([66.224.33.161]:49048 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S264962AbTAJMdQ>;
+	Fri, 10 Jan 2003 07:33:16 -0500
+Date: Fri, 10 Jan 2003 04:41:48 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Maciej Soltysiak <solt@dns.toxicfilms.tv>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: spin_locks without smp.
+Message-ID: <20030110124148.GQ23814@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Maciej Soltysiak <solt@dns.toxicfilms.tv>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.51.0301101238560.6124@dns.toxicfilms.tv> <20030110114546.GN23814@holomorphy.com> <1042205036.28469.78.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1042205036.28469.78.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matti Aarnio wrote:
+On Fri, Jan 10, 2003 at 12:42:34PM +0100, Maciej Soltysiak wrote:
+>>> Which version should be practiced? i thought spinlocks are irrelevant
+>>> without SMP so we should use #ifdef to shorten the execution path.
 
-> What does such tape contain ?
->  - DTMF tones buried in various degrees of distortions,
->    which should be decodable ?
->  - DTMF tones buried in varying noises which should not be
->    decodable ?
->  - Other multi-tone signals which should not decode ?
+On Fri, 2003-01-10 at 11:45, William Lee Irwin III wrote:
+>> Buggy on preempt. Remove the #ifdef
 
-All that, plus voice (to detect falsing).
-
-It's about 30 minutes long.
+On Fri, Jan 10, 2003 at 01:23:56PM +0000, Alan Cox wrote:
+> And render the driver unusable. Very clever. How about understanding *why*
+> something was done first 8)
 
 
+It's hard to see offhand (esp. w/o the hw) why increasing the
+preempt_count temporarily would render it unusable. It looks like
+there are deeper issues here from what you're telling me. I'll go
+regroup and attempt to form some intelligent questions from your
+other response.
 
 
+Thanks,
+Bill

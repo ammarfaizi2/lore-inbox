@@ -1,91 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135601AbRDSJJI>; Thu, 19 Apr 2001 05:09:08 -0400
+	id <S135605AbRDSJKi>; Thu, 19 Apr 2001 05:10:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135600AbRDSJI7>; Thu, 19 Apr 2001 05:08:59 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:13759 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S135599AbRDSJIr>;
-	Thu, 19 Apr 2001 05:08:47 -0400
-Date: Thu, 19 Apr 2001 05:08:32 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Abramo Bagnara <abramo@alsa-project.org>
-cc: Alon Ziv <alonz@nolaviz.org>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Mike Kravetz <mkravetz@sequent.com>,
-        Ulrich Drepper <drepper@cygnus.com>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: light weight user level semaphores
-In-Reply-To: <3ADEA746.D3A44511@alsa-project.org>
-Message-ID: <Pine.GSO.4.21.0104190457050.15153-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135604AbRDSJKa>; Thu, 19 Apr 2001 05:10:30 -0400
+Received: from [159.226.41.188] ([159.226.41.188]:24844 "EHLO
+	gatekeeper.ncic.ac.cn") by vger.kernel.org with ESMTP
+	id <S135600AbRDSJJx>; Thu, 19 Apr 2001 05:09:53 -0400
+Date: Thu, 19 Apr 2001 17:10:33 +0800
+From: "Xiong Zhao" <xz@gatekeeper.ncic.ac.cn>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: question about the system limits
+X-mailer: FoxMail 3.11 Release [cn]
+Mime-Version: 1.0
+Content-Type: text/plain; charset="GB2312"
+Content-Transfer-Encoding: 7bit
+Message-ID: <774579F31719.AAA51E8@gatekeeper.ncic.ac.cn>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hello,all.now i'm completely confused with the meaning of 
+some system limits on kernel 2.4.3.there are three main 
+limits that i concern:NR_OPEN,NR_FILE,and OPEN_MAX.i didn't
+find NR_INODE anywhere.is that due to the change of the 
+allocation mechanism of inodes?in limits.h of the source file
+of kernel 2.4.3,NR_OPEN and OPEN_MAX are 1024 and 256 respectively.
+but in fs.h,NR_OPEN is defined to be 1024*1024,and NR_FILE is
+8192.what's the meaning of these limits?which will work on the 
+whole system?which work towards a single user or process?
+besides,what's the relationship between these limits and file
+file-max,threads-max under directory /proc?it is refered in many
+papers that performance can be improved by resetting these values.
+but what's their meaning and how they make effect?can anyone
+give me a clear explaination?
 
+regards
 
-On Thu, 19 Apr 2001, Abramo Bagnara wrote:
-
-> Alon Ziv wrote:
-> > 
-> > Hmm...
-> > I already started (long ago, and abandoned since due to lack of time :-( )
-> > down another path; I'd like to resurrect it...
-> > 
-> > My lightweight-semaphores were actually even simpler in userspace:
-> > * the userspace struct was just a signed count and a file handle.
-> > * Uncontended case is exactly like Linus' version (i.e., down() is decl +
-> > js, up() is incl()).
-> > * The contention syscall was (in my implementation) an ioctl on the FH; the
-> > FH was a special one, from a private syscall (although with the new VFS I'd
-> > have written it as just another specialized FS, or even referred into the
-> > SysVsem FS).
-> > 
-> > So, there is no chance for user corruption of kernel data (as it just ain't
-> > there...); and the contended-case cost is probably equivalent (VFS cost vs.
-> > validation).
-> 
-> This would also permit:
-> - to have poll()
-> - to use mmap() to obtain the userspace area
-> 
-> It would become something very near to sacred Unix dogmas ;-)
-
-I suspect that simple pipe with would be sufficient to handle contention
-case - nothing fancy needed (read when you need to block, write upon up()
-when you have contenders)
-
-Would something along the lines of (inline as needed, etc.)
-
-down:
-	lock decl count
-	js __down_failed
-down_done:
-	ret
-
-up:
-	lock incl count
-	jle __up_waking
-up_done:
-	ret
-
-__down_failed:
-	call down_failed
-	jmp down_done
-__up_waking:
-	call up_waking
-	jmp up_done
-
-down_failed()
-{
-	read(pipe_fd, &dummy, 1);
-}
-
-up_waking()
-{
-	write(pipe_fd, &dummy, 1);
-}
-
-be enough?
-								Al
+james
 

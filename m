@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315884AbSEQMmc>; Fri, 17 May 2002 08:42:32 -0400
+	id <S315852AbSEQMmM>; Fri, 17 May 2002 08:42:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315981AbSEQMmb>; Fri, 17 May 2002 08:42:31 -0400
-Received: from loewe.cosy.sbg.ac.at ([141.201.2.12]:64128 "EHLO
-	loewe.cosy.sbg.ac.at") by vger.kernel.org with ESMTP
-	id <S315884AbSEQMm3>; Fri, 17 May 2002 08:42:29 -0400
-Date: Fri, 17 May 2002 14:41:51 +0200 (MET DST)
-From: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
-To: Halil Demirezen <halild@bilmuh.ege.edu.tr>
-cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Just an offer
-In-Reply-To: <20020517122946.18213.qmail@bilmuh.ege.edu.tr>
-Message-ID: <Pine.GSO.4.05.10205171440170.11141-100000@mausmaki.cosy.sbg.ac.at>
+	id <S315884AbSEQMmL>; Fri, 17 May 2002 08:42:11 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:63242 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S315852AbSEQMmK>; Fri, 17 May 2002 08:42:10 -0400
+Subject: Re: Process priority in 2.4.18 (RedHat 7.3)
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Fri, 17 May 2002 14:01:30 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), akpm@zip.com.au (Andrew Morton),
+        paul@engsoc.org (Paul Faure), linux-kernel@vger.kernel.org
+In-Reply-To: <20020517123902.GA11512@dualathlon.random> from "Andrea Arcangeli" at May 17, 2002 02:39:02 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E178hMQ-0006Sb-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 May 2002, Halil Demirezen wrote:
-
+> On Fri, May 17, 2002 at 01:49:21PM +0100, Alan Cox wrote:
+> > I think its mostly #2. We invoke ksoftirq far far too easily.
 > 
-> I wonder if there is a way of making the kernel decide whether it can boot successfully or not. For example, lets think of that i am compiling an update kernel not on the local machine but on any other pc using telnet or ssh emulators. And eventually it is time to reboot the machine and and run on the new kernel. However there has been an error during the compiling. - such as misconfiguration. Normally the machine will not boot and halt. So, is not there any way to reboot itself from the previous kernel after some time that it realizes it cannot boot properly. Maybe there is such a way. But, if not, this is an imaginary. Because i usually see these kind of problems ;)
+> ksoftirqd + SCHED_FIFO is like no ksoftirqd at all, provided the ne card
+> is irq driven (it is) everything works like it was working in 2.4.0.
 
-
-usually you'll use a hardware watchdog for that purpose. - but you need
-to be sure to instruct your bootloader to boot the old image when the watchdog
-reboots your machine ...
-
-	tm
--- 
-in some way i do, and in some way i don't.
+For a 10Mbit ne2k it ought to be if its done with sched fifo. For serious
+devices its not. The ksoftirqd bounce blows everything out of cache and is
+easily measured
 

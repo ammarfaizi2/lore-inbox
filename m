@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263259AbTHVSCs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 14:02:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263355AbTHVSCr
+	id S263835AbTHVSYa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 14:24:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263842AbTHVSYa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 14:02:47 -0400
-Received: from pat.uio.no ([129.240.130.16]:57514 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S263259AbTHVSCn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 14:02:43 -0400
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>,
-       kuznet@ms2.inr.ac.ru, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Allow either tid or pid in SCM_CREDENTIALS struct ucred
-References: <1061451559.4386.13.camel@localhost.localdomain>
-	<3F464CE4.8040704@redhat.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 22 Aug 2003 11:02:18 -0700
-In-Reply-To: <3F464CE4.8040704@redhat.com>
-Message-ID: <shs4r094llh.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
-MIME-Version: 1.0
+	Fri, 22 Aug 2003 14:24:30 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:43937 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S263835AbTHVSY2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 14:24:28 -0400
+Date: Tue, 12 Aug 2003 14:54:51 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Aaron Lehmann <aaronl@vitelus.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ACPI is shutting down my laptop spontaneously
+Message-ID: <20030812125451.GA9755@openzaurus.ucw.cz>
+References: <20030807221711.GO2712@vitelus.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+Content-Disposition: inline
+In-Reply-To: <20030807221711.GO2712@vitelus.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Ulrich Drepper <drepper@redhat.com> writes:
+Hi!
 
-     > I don't think ->pid should be tested.  Just replace it with
-     > ->tgid.  It's really not intended for the user to have any
-     > contact with the TID (i.e., ->pid).  This is how it's done in
-     > other place.  What this shows is that more searches for ->pid
-     > are needed which need to be replaced with ->tgid.
+> ...Until I upgraded to 2.6.0-test2 and enabled ACPI. At the point
+> where the CPU speed would have been scaled down before, the laptop
+> simply halts, giving no warning except announcing it to every
+> terminal. I don't like the way my laptop 
+What is exact message? Check /proc/acpi/thermal*...
 
-There's one remaining case in the NFS locking code:
-nlmclnt_setlockargs() is using ->pid in order to label the lock owner.
+-- 
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
 
-I have a feeling that for that particular case, we'll just want to
-drop the entire process-crap. The reason is that spec just says
-
-   "The oh field is an opaque object that identifies the host or
-   process that is making the request."
-
-So as long as we're doing the lock accounting correctly on the client,
-the server should be happy with just the hostname.
-AFAIK, the word 'process' in the above sentence was added mainly in
-order to allow userland NFS clients to push the accounting over onto
-the server.
-
-Cheers,
-  Trond

@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261713AbSJDNoq>; Fri, 4 Oct 2002 09:44:46 -0400
+	id <S261723AbSJDNrm>; Fri, 4 Oct 2002 09:47:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261719AbSJDNoq>; Fri, 4 Oct 2002 09:44:46 -0400
-Received: from stingr.net ([212.193.32.15]:33809 "EHLO hq.stingr.net")
-	by vger.kernel.org with ESMTP id <S261713AbSJDNoq>;
-	Fri, 4 Oct 2002 09:44:46 -0400
-Date: Fri, 4 Oct 2002 17:50:16 +0400
-From: Paul P Komkoff Jr <i@stingr.net>
-To: linux-kernel@vger.kernel.org
-Cc: linux.nics@intel.com, Andrey Nekrasov <andy@spylog.ru>
-Subject: Re: NIC on Intel STL2 - bad work with eepro100 & e100
-Message-ID: <20021004135016.GJ6318@stingr.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org, linux.nics@intel.com,
-	Andrey Nekrasov <andy@spylog.ru>
-References: <20021004113128.GA31145@an.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20021004113128.GA31145@an.local>
-X-RealName: Stingray Greatest Jr
-Organization: Department of Fish & Wildlife
+	id <S261729AbSJDNrm>; Fri, 4 Oct 2002 09:47:42 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:43250 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261723AbSJDNrl>;
+	Fri, 4 Oct 2002 09:47:41 -0400
+Importance: Normal
+Sensitivity: 
+Subject: Re: [Evms-devel] Re: [PATCH] EVMS core 2/4: evms.h
+To: Robert Varga <nite@hq.alert.sk>
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OFFB872C80.2A0F42E5-ON85256C48.004BEF31@pok.ibm.com>
+From: "Mark Peloquin" <peloquin@us.ibm.com>
+Date: Fri, 4 Oct 2002 08:59:16 -0500
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11  |July 29, 2002) at
+ 10/04/2002 09:53:03 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replying to Andrey Nekrasov:
-> 			Intel Server Board STL2.
->       Network: onboard NIC "Intel(R) 82559 single chip PCI LAN controller"
 
-I have almost the same behavior here except that eepro100 works
-without freezes. Maybe spylog servers' NIC load is much more higher
-than mine :)
+On 10/04/2002 at 7:28 AM, Robert Varga wrote:
+<snip...>
+> Possibly shortened to:
 
-Intel support guys advised me to test both versions of e100 driver.
+> static inline int list_member(struct list_head *member)
+> {
+>     return member->next && member->prev;
+> }
 
-ftp://aiedownload.intel.com/df-support/2896/eng/e100-2.1.15.tar.gz
-ftp://aiedownload.intel.com/df-support/2896/eng/e100-1.8.38.tar.gz
+> Faster, and (at least to me) it looks more obvious.
 
-Unfortunately, I haven't tested it yet. My investigation shows that
-the following fragment of e100_main.c code fails:
+Yes, this may be shorter. However with this change
+the return type would also need to be changed to
+portable across archs.
 
-<code from="e100_hw_init">
-     if (!e100_wait_exec_cmplx(bdp, 0, SCB_RUC_LOAD_BASE))
-            return false;
-</code>
+Mark
 
-we returning false here.
 
-And I am stalled for now till the end of next week until the ACM ICPC
-Qfinal is over :(
-
--- 
-Paul P 'Stingray' Komkoff 'Greatest' Jr /// (icq)23200764 /// (http)stingr.net
-  When you're invisible, the only one really watching you is you (my keychain)

@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261922AbTCGXqs>; Fri, 7 Mar 2003 18:46:48 -0500
+	id <S261954AbTCGX6L>; Fri, 7 Mar 2003 18:58:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261927AbTCGXqq>; Fri, 7 Mar 2003 18:46:46 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15889 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261922AbTCGXpe>; Fri, 7 Mar 2003 18:45:34 -0500
-Date: Fri, 7 Mar 2003 15:53:44 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
+	id <S261955AbTCGX6K>; Fri, 7 Mar 2003 18:58:10 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:16818
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261954AbTCGX6F>; Fri, 7 Mar 2003 18:58:05 -0500
+Subject: Re: [PATCH] register_blkdev
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: Greg KH <greg@kroah.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] klibc for 2.5.64 - try 2
-In-Reply-To: <20030307233653.GD21315@kroah.com>
-Message-ID: <Pine.LNX.4.44.0303071551410.1496-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Andrew Morton <akpm@digeo.com>, hch@infradead.org, Andries.Brouwer@cwi.nl,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <20030307234541.GG21315@kroah.com>
+References: <UTC200303071932.h27JW1o11962.aeb@smtp.cwi.nl>
+	 <20030307193644.A14196@infradead.org>
+	 <20030307123029.2bc91426.akpm@digeo.com> <20030307221217.GB21315@kroah.com>
+	 <20030307143319.2413d1df.akpm@digeo.com> <20030307234541.GG21315@kroah.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1047086062.24215.14.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 08 Mar 2003 01:14:23 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 7 Mar 2003, Greg KH wrote:
+On Fri, 2003-03-07 at 23:45, Greg KH wrote:
+> I would too.  Andries's patches look like the right thing to do, so far
+> as I've seen.  But there are larger, social issues, that probably need
+> to be answered first (like convincing Linus and others that this is
+> really needed).
 > 
-> I know it's late, sorry.
+> > > But if it is, a lot of character drivers need to be audited...
+> > 
+> > What has to be done there?
+> 
+> I haven't seen a patch yet, to really know what will be necessary.  But
+> for one, a lot of drivers have static arrays where they just "know" that
+> there can't be more than 256 minors under their control.
 
-Not a huge problem, since I don't think klibc itself is a stability issue. 
-However, as you say:
+So we need a maxminors flag in the register for 2.6 I guess ?
 
-> But a lot of code that will need klibc, has not been converted to need
-> it yet, due to it not being there :)
 
-Yes. But that's not an argument that flies with me. I really want to see 
-people actually using it, for real issues (even if they are potentially 
-_small_ real issues).
-
-I feel that people who want to work on early stuff can easily merge it 
-themselves (especially if they use BK), and show it to be useful. I don't 
-have the slightest feeling that work can't be done unless _I_ merge it.
-
-		Linus
 

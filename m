@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S144552AbRA1XZ3>; Sun, 28 Jan 2001 18:25:29 -0500
+	id <S144455AbRA1XkF>; Sun, 28 Jan 2001 18:40:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S144500AbRA1XZU>; Sun, 28 Jan 2001 18:25:20 -0500
-Received: from alcove.wittsend.com ([130.205.0.20]:9232 "EHLO
-	alcove.wittsend.com") by vger.kernel.org with ESMTP
-	id <S144509AbRA1XYn>; Sun, 28 Jan 2001 18:24:43 -0500
-Date: Sun, 28 Jan 2001 18:23:58 -0500
-From: "Michael H. Warfield" <mhw@wittsend.com>
-To: John Jasen <jjasen@datafoundation.com>
-Cc: Mike Pontillo <mike_p@polaris.wox.org>, linux-kernel@vger.kernel.org
-Subject: Re: Support for 802.11 cards?
-Message-ID: <20010128182358.F23716@alcove.wittsend.com>
-Mail-Followup-To: John Jasen <jjasen@datafoundation.com>,
-	Mike Pontillo <mike_p@polaris.wox.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0101281344040.12805-100000@polaris.wox.org> <Pine.LNX.4.30.0101281704050.2343-100000@flash.datafoundation.com>
-Mime-Version: 1.0
+	id <S144472AbRA1Xjp>; Sun, 28 Jan 2001 18:39:45 -0500
+Received: from adsl-216-102-91-127.dsl.snfc21.pacbell.net ([216.102.91.127]:22013
+	"EHLO champ.drew.net") by vger.kernel.org with ESMTP
+	id <S144455AbRA1Xjk>; Sun, 28 Jan 2001 18:39:40 -0500
+From: Drew Bertola <drew@drewb.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.2i
-In-Reply-To: <Pine.LNX.4.30.0101281704050.2343-100000@flash.datafoundation.com>; from jjasen@datafoundation.com on Sun, Jan 28, 2001 at 05:07:33PM -0500
+Content-Transfer-Encoding: 7bit
+Message-ID: <14964.44473.518811.451472@champ.drew.net>
+Date: Sun, 28 Jan 2001 23:39:37 +0000 ()
+To: drew@drewb.com
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Dieter Nützel <Dieter.Nuetzel@hamburg.de>,
+        Andrew Grover <andrew.grover@intel.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.1-pre11
+In-Reply-To: <14964.41681.126496.746739@champ.drew.net>
+In-Reply-To: <Pine.LNX.4.10.10101281346030.4151-100000@penguin.transmeta.com>
+	<3A7494B1.70799C19@mandrakesoft.com>
+	<14964.41681.126496.746739@champ.drew.net>
+X-Mailer: VM 6.75 under Emacs 19.34.1
+Reply-To: drew@drewb.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 28, 2001 at 05:07:33PM -0500, John Jasen wrote:
-> On Sun, 28 Jan 2001, Mike Pontillo wrote:
+Drew Bertola writes:
+> Andrew's latest ACPI fixes (acpica-linux-20000125 patched against
+> 2.4.0) compile fine here and don't hang on my Vaio after loading
+> tables.
+> 
+> That's a start.  I'll play around some more.
 
-> > 	I was wondering what 802.11 PCI cards anyone knows of that run
-> > under Linux-2.4. (or 2.2 for that matter)
+Unfortunately, pcmcia modules fail to load.  I can't understand the
+interaction.  
 
-> I _think_ a good many of the 802.11 wireless ISA and PCI cards are just
-> bus to PCMCIA adapters, so it would be a question of whether or not the
-> PCMCIA card is supported and if the bridge is supported.
+The message displayed on boot when starting the service says:
 
-	Last I knew (straight from the Lucent people), the ISA bridge
-card worked fine and the PCI card did NOT work at all.  I've since
-confirmed that, first hand, myself (I currently have the ISA bridge in
-operation) on the 2.2 kernels.  The ISA bridge also works on the 2.4
-kernels but I have not retested the PCI bridge on 2.4.  The Lucent
-people claim that the Linux pcmcia people are aware of the problem.
+ds: no socket drivers loaded
 
-	Mike
 -- 
- Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
-  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
-  NIC whois:  MHW9      |  An optimist believes we live in the best of all
- PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
+Drew Bertola  | Send a text message to my pager or cell ... 
+              |   http://jpager.com/Drew
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

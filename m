@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279902AbRKDLpe>; Sun, 4 Nov 2001 06:45:34 -0500
+	id <S279904AbRKDMF0>; Sun, 4 Nov 2001 07:05:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279903AbRKDLpY>; Sun, 4 Nov 2001 06:45:24 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:2738 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S279902AbRKDLpI>;
-	Sun, 4 Nov 2001 06:45:08 -0500
-Message-ID: <3BE529E6.6010808@athlon.maya.org>
-Date: Sun, 04 Nov 2001 12:43:34 +0100
-From: Andreas Hartmann <andihartmann@freenet.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: de, en-us
+	id <S279906AbRKDMFQ>; Sun, 4 Nov 2001 07:05:16 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:16065 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S279904AbRKDMFE>;
+	Sun, 4 Nov 2001 07:05:04 -0500
+Date: Sun, 4 Nov 2001 07:05:02 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Mike Black <mblack@csihq.com>
+cc: Simon Kirby <sim@netnation.com>, linux-kernel@vger.kernel.org
+Subject: Re: Something broken in sys_swapon
+In-Reply-To: <00a901c16526$48c64300$1a502341@cfl.rr.com>
+Message-ID: <Pine.GSO.4.21.0111040702440.20848-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: J Sloan <jjs@pobox.com>
-CC: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
-Subject: Re: Unresolved symbols in 2.4.14-pre7
-In-Reply-To: <200111040646.fA46khp00596@athlon.maya.org> <3BE4F64C.A5252A31@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J Sloan wrote:
 
-> Hartmann wrote:
+
+On Sun, 4 Nov 2001, Mike Black wrote:
+
+> I think I see a potential problem (I'm looking at 2.4.10) in fs/namei.c.
 > 
-> 
->>with my standard configuration, I get some unresolved symbols with
->>2.4.14-pre7:
->>
-> 
-> It appears to be fixed in -pre8....
-> 
-> but here's a patch that fixes it in -pre7:
+> If path_init() returns 0 in __user_walk() then err is not set to anything
+> (it defaults to 0)
 
-[...]
-
-Thank you - it's working now!
-
-
-Regards,
-Andreas Hartmann
+path_init() returns 0 only if you are in altroot situation (running with
+personality that has its own /usr/gnuemul/<...>/) _and_ it had succeeded
+doing lookup from the altroot.  Otherwise it returns non-zero and lets
+path_walk() do the right thing.
 

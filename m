@@ -1,60 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268059AbUIFOLv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268055AbUIFORc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268059AbUIFOLv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 10:11:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268060AbUIFOLu
+	id S268055AbUIFORc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 10:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268079AbUIFORb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 10:11:50 -0400
-Received: from rproxy.gmail.com ([64.233.170.195]:62854 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268059AbUIFOLr (ORCPT
+	Mon, 6 Sep 2004 10:17:31 -0400
+Received: from asplinux.ru ([195.133.213.194]:2057 "EHLO relay.asplinux.ru")
+	by vger.kernel.org with ESMTP id S268069AbUIFOP6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 10:11:47 -0400
-Message-ID: <9e47339104090607111e8a6f5d@mail.gmail.com>
-Date: Mon, 6 Sep 2004 10:11:46 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Intel ICH - sound/pci/intel8x0.c
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1094470037.3816.5.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 6 Sep 2004 10:15:58 -0400
+Message-ID: <413C73E1.8050808@sw.ru>
+Date: Mon, 06 Sep 2004 18:27:45 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: Ian Kumlien <pomac@vapor.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [FYI] "kernel BUG at fs/nfs/inode.c:152!"
+References: <1094478972.3318.397.camel@big>
+In-Reply-To: <1094478972.3318.397.camel@big>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <20040906083139.GA1188@linux.ensimag.fr>
-	 <1094470037.3816.5.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The hotplug event of interest is the insertion of the snd_intel8x0
-chip, not the insertion of the LPC bridge. It's hooking to both
-events, it only needs to hook to the snd_intel8x0 event and then
-search for a bridge if there is one.
+Hello Ian,
 
-Takashi says the code is already gone in the alsa tree so we don't
-know how they fixed it.
+This looks very much like the problem in iget() I described today in 
+LKML. Hope I'll post a patch here soon.
 
+Kirill
 
-On Mon, 06 Sep 2004 12:27:19 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Llu, 2004-09-06 at 09:31, Matthieu Castet wrote:
-> > > None of them help because you need to deal with hotplug.
-> > Heu, I don't understant why you need to deal with hotplug ?
-> > PnP modules works like pci modules. You make a list of know id, and then
+> When my networking card died yesterday (sundance based d-link card) i
+> used dhclient to update the route. Unfortunately it caused it to change
+> ip, thus today i had some NFS problems...
 > 
-> ISAPnP has no hotplug functionality. If I have an ICH or 440MX in laptop
-> docking stations the ISAPnP world simply can't report it, while the PCI
-> hotplug layer can.
+> fstab entry:
+> blue:/mnt/large /mnt/large      nfs    
+> user,async,soft,rsize=32768,wsize=32768,tcp     0 0
 > 
+> Anyways, i did a bunch of umount -f's and so on and so forth as i have
+> done a million times before, but when i tried remounting it, nothing
+> happened... A quick ps aux |grep revealed:
 > 
+> root     26793  0.0  0.0  1740  696 ?        D    14:23   0:00
+> /bin/umount /mnt/large
+> root     26800  0.0  0.0  1868  828 ?        D    14:23   0:00
+> /bin/mount /mnt/large
+> root     26805  0.0  0.0  1868  828 ?        D    14:23   0:00
+> /bin/mount /mnt/large
+> root     26807  0.0  0.0  1868  828 ?        D    14:23   0:00
+> /bin/mount /mnt/large
+> root     26809  0.0  0.0  1868  828 ?        D    14:23   0:00
+> /bin/mount /mnt/large
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> And to further my agony a dmesg revealed:
 > 
+> ------------[ cut here ]------------
+> kernel BUG at fs/nfs/inode.c:152!
+> invalid operand: 0000 [#1]
+> Modules linked in: nls_cp437 vfat fat floppy nvidia twofish serpent blowfish sha256 crypto_null ip6table_filter ip6_tables forcedethCPU:    0
+> EIP:    0060:[<c01a8bb0>]    Tainted: P   VLI
+> EFLAGS: 00210286   (2.6.9-rc1-bk7)
+> EIP is at nfs_clear_inode+0x50/0x70
+> eax: ffffffff   ebx: f70595a8   ecx: edc36c60   edx: f710cf60
+> esi: f7059490   edi: 000000ce   ebp: c042792c   esp: c05cbf04
+> ds: 007b   es: 007b   ss: 0068
+> Process umount (pid: 26773, threadinfo=c05ca000 task=df308bb0)
+> Stack: 00000002 f70595a8 c05cbf2c c016058d f70595a8 c01605dc 00000000 c1bff64c
+>        c1bff600 c0160736 c05cbf2c c05cbf2c c1bff600 c1bff64c c042a460 c05ca000
+>        c01506f5 ef95c000 00000015 c042a5a0 08050278 c0150dd9 f7e8cc00 c01ab2dc
+> Call Trace:
+>  [<c016058d>] clear_inode+0x8d/0xa0
+>  [<c01605dc>] dispose_list+0x3c/0x70
+>  [<c0160736>] invalidate_inodes+0x66/0x80
+>  [<c01506f5>] generic_shutdown_super+0x55/0x100
+>  [<c0150dd9>] kill_anon_super+0x9/0x20
+>  [<c01ab2dc>] nfs_kill_super+0xc/0x70
+>  [<c0150623>] deactivate_super+0x43/0x60
+>  [<c0162e4b>] sys_umount+0x3b/0x90
+>  [<c03a693d>] schedule+0x27d/0x450
+>  [<c0103db9>] sysenter_past_esp+0x52/0x71
+> Code: d4 39 43 d4 75 2f 8b 86 b4 00 00 00 85 c0 74 05 e8 f6 f8 1e 00 8b 86 ac 00 00 00 85 c0 75 0c 8b 5c 24 04 8b 74 24 08 83 c4 0c c3 <0f> 0b 98 00 7a 28 3c c0 eb ea 0f 0b 94 00 7a 28 3c c0 eb c7 8d
+> 
+> This is, as stated before, just FYI... Anyone feeling like making nvidia
+> comments can read this and just skip mailing "/me no care".
+> 
+> CC, Since i'm not subbed.
 
-
-
--- 
-Jon Smirl
-jonsmirl@gmail.com

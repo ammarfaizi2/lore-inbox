@@ -1,64 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262185AbTFPNvh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 09:51:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263298AbTFPNv3
+	id S263298AbTFPOEh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 10:04:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263865AbTFPOEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 09:51:29 -0400
-Received: from ida.rowland.org ([192.131.102.52]:2308 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S262185AbTFPNvX (ORCPT
+	Mon, 16 Jun 2003 10:04:37 -0400
+Received: from www.13thfloor.AT ([212.16.59.250]:54657 "EHLO www.13thfloor.at")
+	by vger.kernel.org with ESMTP id S263298AbTFPOEg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 09:51:23 -0400
-Date: Mon, 16 Jun 2003 10:05:14 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-cc: Greg KH <greg@kroah.com>, Patrick Mochel <mochel@osdl.org>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Flaw in the driver-model implementation of attributes
-In-Reply-To: <1055698845.1351.44.camel@ixodes.goop.org>
-Message-ID: <Pine.LNX.4.44L0.0306160958300.737-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 Jun 2003 10:04:36 -0400
+Date: Mon, 16 Jun 2003 16:18:33 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: linux-kernel@vger.kernel.org
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Subject: 2.4.21 Floppy Fallback with NFS root ...
+Message-ID: <20030616141832.GG23590@www.13thfloor.at>
+Reply-To: herbert@13thfloor.at
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Jun 2003, Jeremy Fitzhardinge wrote:
 
-> On Sun, 2003-06-15 at 09:42, Alan Stern wrote:
-> > If you're already aware of this, please forgive the intrusion.
-> > 
-> > There's a general problem in the driver model's implementation of 
-> > attribute files, in connection with loadable kernel modules.  The 
-> > sysfs_ops structure stores function pointers with no means for identifying 
-> > the module that contains the corresponding code.  As a result, it's 
-> > possible to call through one of these pointers even after the module has 
-> > been unloaded, causing an oops.
-> > 
-> > It's not hard to provoke this sort of situation.  A user process can
-> > open a sysfs device file, for instance, and delay trying to read it until 
-> > the module containing the device driver has been removed.  When the read 
-> > does occur, it runs into trouble.
-> 
-> I've seen this oops when a program has its cwd in a /sys directory
-> corresponding to a removed (or replaced) module.  I think active
-> references to a part of the /sys namespace corresponding to a module
-> should just pin the module.  But I haven't looked into it really.
+Hi!
 
-The question of which references should pin a module is a design decision 
-that I prefer to leave to others.  But I would think that a reference the 
-module can quickly and easily revoke probably shouldn't pin it, whereas 
-one the module isn't even aware of probably should.
+I'm curious, is it intentional that, if you select
+NFS support and NFS Root support, that the fact, that
+no nfs is available, or selected via boot options,
+automatically leads to a floppy boot?
 
-That's the difference between the example you gave and the problem I
-cited.  In your example, the fact that your program parked its cwd in a
-sysfs directory would force the reference count of the corresponding
-kobject to be nonzero.  That the module was willing to deallocate the
-kobject and exit even though the reference count was still positive is a
-simple programming error.  But in the situation I described, the design of
-the driver model makes it impossible for a driver to know whether any user
-processes still have references to a device attribute file after
-device_remove_file() has been called.
+I would suggest the following trivial patch, to give
+the kernel compiler a chance to disable this 'feature'.
 
-Alan Stern
+please correct me if I'm talking nonsense ...
+
+best,
+Herbert
+
+
+
+diff -NurbP --minimal linux-2.4.21/fs/Config.in linux-2.4.21-ffb/fs/Config.in
+--- linux-2.4.21/fs/Config.in   Tue Dec 10 03:25:19 2002
++++ linux-2.4.21-ffb/fs/Config.in       Mon Jun 16 15:05:09 2003
+@@ -103,6 +103,7 @@
+    dep_tristate 'NFS file system support' CONFIG_NFS_FS $CONFIG_INET
+    dep_mbool '  Provide NFSv3 client support' CONFIG_NFS_V3 $CONFIG_NFS_FS
+    dep_bool '  Root file system on NFS' CONFIG_ROOT_NFS $CONFIG_NFS_FS $CONFIG_IP_PNP
++   dep_bool '    Floppy Fallback' CONFIG_FLOPPY_FALLBACK $CONFIG_ROOT_NFS
+ 
+    dep_tristate 'NFS server support' CONFIG_NFSD $CONFIG_INET
+    dep_mbool '  Provide NFSv3 server support' CONFIG_NFSD_V3 $CONFIG_NFSD
+diff -NurbP --minimal linux-2.4.21/init/do_mounts.c linux-2.4.21-ffb/init/do_mounts.c
+--- linux-2.4.21/init/do_mounts.c       Fri Jun 13 17:49:28 2003
++++ linux-2.4.21-ffb/init/do_mounts.c   Mon Jun 16 15:00:23 2003
+@@ -754,8 +754,10 @@
+                        printk("VFS: Mounted root (nfs filesystem).\n");
+                        return;
+                }
++# ifdef CONFIG_FLOPPY_FALLBACK         
+                printk(KERN_ERR "VFS: Unable to mount root fs via NFS, trying floppy.\n");
+                ROOT_DEV = MKDEV(FLOPPY_MAJOR, 0);
++# endif
+        }
+ #endif
+        devfs_make_root(root_device_name);
 

@@ -1,45 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264625AbUDVSii@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264619AbUDVShb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264625AbUDVSii (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 14:38:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264627AbUDVSii
+	id S264619AbUDVShb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 14:37:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264625AbUDVShb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 14:38:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:20458 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264625AbUDVSig (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 14:38:36 -0400
-Date: Thu, 22 Apr 2004 11:36:45 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: jmorris@redhat.com, jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: Large inlines in include/linux/skbuff.h
-Message-Id: <20040422113645.19208a70.davem@redhat.com>
-In-Reply-To: <200404221756.46240.vda@port.imtp.ilyichevsk.odessa.ua>
-References: <Xine.LNX.4.44.0404212046490.20483-100000@thoron.boston.redhat.com>
-	<200404221756.46240.vda@port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Thu, 22 Apr 2004 14:37:31 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:49414 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264619AbUDVSha (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 14:37:30 -0400
+Date: Thu, 22 Apr 2004 19:37:21 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jord Tanner <jord@indygecko.com>
+Cc: Paul Wagland <paul@wagland.net>, linux-kernel@vger.kernel.org,
+       Atulm@lsil.com
+Subject: Re: [PATCH 2.6.0] megaraid 64bit fix/cleanup (AMD64)
+Message-ID: <20040422193720.A25117@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jord Tanner <jord@indygecko.com>, Paul Wagland <paul@wagland.net>,
+	linux-kernel@vger.kernel.org, Atulm@lsil.com
+References: <0E3FA95632D6D047BA649F95DAB60E57033BC53C@exa-atlanta.se.lsil.com> <1082143294.11606.81.camel@gecko> <A1E28594-9478-11D8-B5AA-000A95CD704C@wagland.net> <1082658137.22804.1563.camel@gecko>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1082658137.22804.1563.camel@gecko>; from jord@indygecko.com on Thu, Apr 22, 2004 at 11:22:17AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Apr 2004 17:56:46 +0300
-Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
+On Thu, Apr 22, 2004 at 11:22:17AM -0700, Jord Tanner wrote:
+> filled with FF), so I think there may be multiple causes. We were
+> running XFS on LVM2 on linux RAID0 on megaraid RAID1.
 
-> On Thursday 22 April 2004 03:47, James Morris wrote:
-> > On Wed, 21 Apr 2004, Denis Vlasenko wrote:
-> > > What shall be done with this? I'll make patch to move locking functions
-> > > into net/core/skbuff.c unless there is some reason not to do it.
-> >
-> > How will these changes impact performance?  I asked this last time you
-> > posted about inlines and didn't see any response.
-> 
-> Hard to say. We will lose ~2% to extra call/return instructions
-> but will gain 40kb of icache space.
+That looks like eating lots of stack...  So you might aswell have had stack
+overruns.
 
-He's asking you to test and quantify the performance changes that
-occur as a result of this patch, not to figure it out via calculations
-in your head :-)

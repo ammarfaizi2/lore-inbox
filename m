@@ -1,65 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261518AbTIYFSG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 01:18:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbTIYFSG
+	id S261712AbTIYGXp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 02:23:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbTIYGXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 01:18:06 -0400
-Received: from vega.digitel2002.hu ([213.163.0.181]:55424 "HELO lgb.hu")
-	by vger.kernel.org with SMTP id S261518AbTIYFSE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 01:18:04 -0400
-Date: Thu, 25 Sep 2003 07:18:01 +0200
-From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-testX: very slow directory reading?
-Message-ID: <20030925051801.GA1272@vega.digitel2002.hu>
-Reply-To: lgb@lgb.hu
+	Thu, 25 Sep 2003 02:23:45 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:55561 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261712AbTIYGXo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 02:23:44 -0400
+Date: Thu, 25 Sep 2003 07:23:43 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Steven Dake <sdake@mvista.com>
+Cc: linux-kernel@vger.kernel.org, mochel@osdl.org
+Subject: Re: [PATCH} fix defect with kobject memory leaks during del_gendisk
+Message-ID: <20030925072343.A4636@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Steven Dake <sdake@mvista.com>, linux-kernel@vger.kernel.org,
+	mochel@osdl.org
+References: <1064444526.13033.355.camel@persist.az.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-Operating-System: vega Linux 2.6.0-test5 i686
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1064444526.13033.355.camel@persist.az.mvista.com>; from sdake@mvista.com on Wed, Sep 24, 2003 at 04:02:06PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, Sep 24, 2003 at 04:02:06PM -0700, Steven Dake wrote:
+> Unfortunately it appears that del_gendisk uses kobject_del to delete the
+> kobject.  If the kobject has a ktype release function, it is not called
+> in the kobject_del call path, but only in kobject_unregister.
 
-I've several quite large (~10000 mails) Maildirs, and using mutt as MUA.
-Opening such a maildir took some seconds with 2.4.x kernels (while seeing
-"Reading ..." message at the bottom with continously increasing number).
-However with 2.6.0-test3 and test5 the symptom is: reading the Maildir
-("Reading ..." message) takes about the same emount of time as in 2.4. BUT:
-after reaching the last message, mutt waits even several MINUTES to show
-mail index page! While this, according to top, mutt is in 'D' state, and IO
-wait of the system is 100% (and if I try to do anything on other terminal,
-it takes a looooooooooooooooooong time). Is it a mutt or kernel related
-problem? Since I don't know internals of mutt, I can't know what mutt tries
-to do within that time ... Sorry for my mail, if it is not kernel related
-problem. I think it is some kernel related problem, since other applications
-also take quite long time (compared to 2.4.x) to read large directories. I
-don't understand this, because the key feature for me to use 2.6 (with htree
-included by default in the kernel, so no patch is needed) is the htree stuff
-to speed of handling of large directories ...
+That's intentional.  gendisks (like everything using kobjects) are
+reference counted and ->release is unly called after the last reference
+goes away, for gendisks that would be the last put_disk call.
 
-
-It's on ext3 fs with htree feature enabled, there was fsck with -f -D
-switches before.
-
-Filesystem volume name:   <none>
-Last mounted on:          <not available>
-Filesystem UUID:          21e9d65a-9e8c-49ef-a839-2a809df11e3a
-Filesystem magic number:  0xEF53
-Filesystem revision #:    1 (dynamic)
-Filesystem features:      has_journal dir_index filetype needs_recovery sparse_super
-Default mount options:    (none)
-Filesystem state:         clean
-Errors behavior:          Remount read-only
-Filesystem OS type:       Linux
-[...]
-
-Kernel is 2.6.0-test5, but test3 was the same.
-
--- 
-- Gábor (larta'H)
+Unless you miss the put_disk call (which md certainly has) there's
+no memeory leak.

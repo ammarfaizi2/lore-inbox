@@ -1,54 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262958AbUKRT4K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbUKRUAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262958AbUKRT4K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 14:56:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262945AbUKRTyS
+	id S261156AbUKRUAS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 15:00:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262953AbUKRTyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 14:54:18 -0500
-Received: from brown.brainfood.com ([146.82.138.61]:130 "EHLO
-	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
-	id S262948AbUKRTwN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 14:52:13 -0500
-Date: Thu, 18 Nov 2004 13:51:58 -0600 (CST)
-From: Adam Heath <doogie@debian.org>
-X-X-Sender: adam@gradall.private.brainfood.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: Christian Meder <chris@onestepahead.de>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm1-V0.7.28-0
-In-Reply-To: <20041118195830.GA25938@elte.hu>
-Message-ID: <Pine.LNX.4.58.0411181351370.1272@gradall.private.brainfood.com>
-References: <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu>
- <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu>
- <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu>
- <20041117124234.GA25956@elte.hu> <1100773441.3434.4.camel@localhost>
- <20041118161129.GD12483@elte.hu> <1100795964.3699.3.camel@localhost>
- <20041118195830.GA25938@elte.hu>
+	Thu, 18 Nov 2004 14:54:12 -0500
+Received: from msgbas1x.cos.agilent.com ([192.25.240.36]:23544 "EHLO
+	msgbas1x.cos.agilent.com") by vger.kernel.org with ESMTP
+	id S262952AbUKRTwT convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 14:52:19 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH] handle quoted module parameters
+Date: Thu, 18 Nov 2004 12:52:16 -0700
+Message-ID: <08A354A3A9CCA24F9EE9BE13600CFBC50F85F2@wcosmb07.cos.agilent.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] handle quoted module parameters
+Thread-Index: AcTKsIQ0ZCY8BBt7SRqghWyefPYr6QC9x7Bw
+From: <yiding_wang@agilent.com>
+To: <rusty@rustcorp.com.au>, <rddunlap@osdl.org>
+Cc: <yiding_wang@agilent.com>, <arjan@infradead.org>,
+       <linux-kernel@vger.kernel.org>, <akpm@osdl.org>
+X-OriginalArrivalTime: 18 Nov 2004 19:52:17.0031 (UTC) FILETIME=[1B5A2970:01C4CDA8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Nov 2004, Ingo Molnar wrote:
+Hello Rusty,
 
->
-> * Christian Meder <chris@onestepahead.de> wrote:
->
-> > > could you try this with the vanilla 2.6.10-rc2-mm1 kernel too? The crash
-> > > you got is an escallation of a crash within a critical section, but that
-> > > original crash does not seem to be directly related to PREEMPT_RT.
-> >
-> > Ok, tried it now. The output from 2.6.10-rc2-mm1 on removal of the prism
-> > pccard is pretty innocuous and everything works fine:
-> >
-> > Nov 18 17:29:27 localhost kernel: hostap_cs: CS_EVENT_CARD_REMOVAL
-> > Nov 18 17:29:27 localhost kernel: wifi0: card already removed or not
-> > configured during shutdown
-> > Nov 18 17:29:27 localhost kernel: wifi0: Interrupt, but dev not OK
-> > Nov 18 17:29:27 localhost kernel: hostap_cs: Driver unloaded
->
-> ok. Could you please retry with the latest kernel and USE_FRAME_POINTERS
-> enabled? It wasnt completely clear from your previous log precisely
-> which function generated the fault so it would be easier for me to sort
-> it out if you could reproduce it once more.
+The broken part I encountered is from the latest module-init-tools 3.1. Is that possible to restore the allowable parameter length as it for 2.4.x, at least increase it from 1K to 4K?
 
-That's CONFIG_FRAME_POINTER, btw.
+Regards,
+
+Eddie
+
+-----Original Message-----
+From: Rusty Russell [mailto:rusty@rustcorp.com.au]
+Sent: Sunday, November 14, 2004 5:15 PM
+To: Randy.Dunlap
+Cc: yiding_wang@agilent.com; arjan@infradead.org; lkml - Kernel Mailing
+List; Andrew Morton
+Subject: Re: [PATCH] handle quoted module parameters
+
+
+On Thu, 2004-11-11 at 20:16 -0800, Randy.Dunlap wrote: 
+> Here's a patch with better description.
+> 
+> 
+> Fix module parameter quote handling.
+> Module parameter strings (with spaces) are quoted like so:
+> "modprm=this test"
+> and not like this:
+> modprm="this test"
+
+Well, the quote handling in insmod was ripped out after 3.0, exactly
+because it was broken like this.  But modprobe will use the latter form,
+since it will paste it straight from the modprobe.conf file (which needs
+quotes in options lines).
+
+Hope that clarifies,
+Rusty.
+PS. module-init-tools 3.1 just out...
+-- 
+A bad analogy is like a leaky screwdriver -- Richard Braakman
+

@@ -1,65 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269356AbRHLQMd>; Sun, 12 Aug 2001 12:12:33 -0400
+	id <S269385AbRHLQnD>; Sun, 12 Aug 2001 12:43:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269355AbRHLQMX>; Sun, 12 Aug 2001 12:12:23 -0400
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:9351 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S269356AbRHLQMJ>;
-	Sun, 12 Aug 2001 12:12:09 -0400
-Message-ID: <3B76AAD9.702EE37D@pobox.com>
-Date: Sun, 12 Aug 2001 09:12:09 -0700
-From: J Sloan <jjs@pobox.com>
-Organization: J S Concepts
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Max Schattauer <smax@smaximum.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: tun device: File descriptor in bad state(77)
-In-Reply-To: <3B769CA4.11035.A9DFE2@localhost>
+	id <S269386AbRHLQmx>; Sun, 12 Aug 2001 12:42:53 -0400
+Received: from [209.250.53.67] ([209.250.53.67]:25348 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S269385AbRHLQmj>; Sun, 12 Aug 2001 12:42:39 -0400
+Date: Sun, 12 Aug 2001 11:36:07 -0500
+From: Steven Walter <srwalter@yahoo.com>
+To: f5ibh <f5ibh@db0bm.ampr.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: nVidia Riva frame buffers and resolution selection
+Message-ID: <20010812113607.A787@hapablap.dyn.dhs.org>
+Mail-Followup-To: Steven Walter <srwalter@yahoo.com>,
+	f5ibh <f5ibh@db0bm.ampr.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200108121609.SAA05624@db0bm.ampr.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200108121609.SAA05624@db0bm.ampr.org>; from f5ibh@db0bm.ampr.org on Sun, Aug 12, 2001 at 06:09:20PM +0200
+X-Uptime: 11:02am  up 7 min,  0 users,  load average: 1.00, 0.86, 0.43
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some bits changed under vtun at 2.4.6 IIRC.
+On Sun, Aug 12, 2001 at 06:09:20PM +0200, f5ibh wrote:
+> Is there a mean to switch all the VT to the same resolution when the nVidia
+> Riva frame buffer is activated.
+> ------------
+> Regards
+> 		Jean-Luc
 
-I patched vtun for my own use with patches from
-Kevin Fleming, made rpms, and called it 2.4a.
-It's been working fine here -
-
-Perhaps someone else on the vtun team can
-offer more recent information.
-
-cu
-
-jjs
-
-Max Schattauer wrote:
-
-> Hi there!
->
-> I graded up from kernel 2.4.5 to 2.4.8 and now have trouble with
-> vtund 2.5b1 and tun 1.1.
->
-> vtund[532]: Session st_sm[217.230.44.100:1577] opened
-> vtund[532]: Can't allocate tun device. File descriptor in bad state(77)
-> vtund[532]: Session st_sm closed
->
-> Also
->
-> root:~# cat /dev/net/tun
-> cat: /dev/net/tun: File descriptor in bad state
->
-> Tried to recompile both packages and created a new device but
-> without effect.
->
-> Best regards,
->
-> Max
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+fbset -a <resolution>
+-- 
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell

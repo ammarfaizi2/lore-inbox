@@ -1,22 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269466AbUICRHO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269583AbUICRNb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269466AbUICRHO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 13:07:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269533AbUICRHO
+	id S269583AbUICRNb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 13:13:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269486AbUICRLm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 13:07:14 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:62892 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S269466AbUICRF3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 13:05:29 -0400
-Message-ID: <4138A47E.3090909@comcast.net>
-Date: Fri, 03 Sep 2004 13:06:06 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040813)
+	Fri, 3 Sep 2004 13:11:42 -0400
+Received: from mail4.utc.com ([192.249.46.193]:6307 "EHLO mail4.utc.com")
+	by vger.kernel.org with ESMTP id S269583AbUICRLC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 13:11:02 -0400
+Message-ID: <4138A56B.4050006@cybsft.com>
+Date: Fri, 03 Sep 2004 12:10:03 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: isofs switch for ziso?
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>,
+       Mark_H_Johnson@raytheon.com,
+       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R0
+References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com> <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu> <20040902111003.GA4256@elte.hu> <20040902215728.GA28571@elte.hu>
+In-Reply-To: <20040902215728.GA28571@elte.hu>
 X-Enigmail-Version: 0.85.0.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii; format=flowed
@@ -24,23 +32,25 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Ingo Molnar wrote:
+> i've released the -R0 patch:
+> 
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-R0
+>  
+> ontop of:
+> 
+>   http://redhat.com/~mingo/voluntary-preempt/diff-bk-040828-2.6.8.1.bz2
+> 
 
-I find myself needing to extract an ISO image without altering its
-contents' MD5's as in the image.  When I mount an isofs with a zisofs
-file in it, it gets automatically translated to non-compressed data :/
-Is there a switch for this?  Can you make one?
+Managed to hang the system again under heavy load. This time with the 
+above patch:
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+http://www.cybsft.com/testresults/crashes/2.6.9-rc1-bk4-R0.txt
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Last time was with Q7:
 
-iD8DBQFBOKR9hDd4aOud5P8RAuuHAJ9iE/PpPwGXvX2NxOTDtmOxkwJvKACfV89N
-RR0dOYfoqXYRMS7Z1NU9Zhg=
-=MD/2
------END PGP SIGNATURE-----
+http://www.cybsft.com/testresults/crashes/2.6.9-rc1-bk4-Q7.txt
+
+
+kr
+

@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266976AbSLPR22>; Mon, 16 Dec 2002 12:28:28 -0500
+	id <S266978AbSLPR3j>; Mon, 16 Dec 2002 12:29:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266977AbSLPR22>; Mon, 16 Dec 2002 12:28:28 -0500
-Received: from blowme.phunnypharm.org ([65.207.35.140]:55559 "EHLO
-	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S266976AbSLPR20>; Mon, 16 Dec 2002 12:28:26 -0500
-Date: Mon, 16 Dec 2002 12:36:21 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.52
-Message-ID: <20021216173621.GZ504@hopper.phunnypharm.org>
-References: <20021216151639.GQ504@hopper.phunnypharm.org> <Pine.LNX.4.44.0212160920380.2799-100000@home.transmeta.com>
+	id <S266982AbSLPR3i>; Mon, 16 Dec 2002 12:29:38 -0500
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:50159 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP
+	id <S266978AbSLPR3W>; Mon, 16 Dec 2002 12:29:22 -0500
+Subject: Re: Notification hooks
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Ben Collins <bcollins@debian.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       Larry McVoy <lm@bitmover.com>
+In-Reply-To: <20021216171218.GV504@hopper.phunnypharm.org>
+References: <20021216171218.GV504@hopper.phunnypharm.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-zZzeOX/5yJaptawWEyHc"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 16 Dec 2002 18:18:55 +0100
+Message-Id: <1040059138.1438.1.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0212160920380.2799-100000@home.transmeta.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If you think that "maintainer" means that nobody else can touch the tree
-> and that you thus don't need to care, you're WRONG.
 
-I never said that. What I said was that because I can't spend lots of
-time tracking changes, _sometimes_ I miss them. You will see in the SVN
-repo logs a lot of places where I merge in changes from your tree. It's
-a fact that people make mistakes. I've already rectified this one by
-adding in the patch to the linux1394 repo.
+--=-zZzeOX/5yJaptawWEyHc
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I wasn't pushing off blame, just noting that it's not possible to never
-make mistakes. You make them too.
+On Mon, 2002-12-16 at 18:12, Ben Collins wrote:
+> Linus, is there anyway I can request a hook so that anything that
+> changes drivers/ieee1394/ in your repo sends me an email with the diff
+> for just the files in that directory, and the changeset log? Is this
+> something that bkbits can do?
+>=20
+> I'd bet lots of ppl would like similar hooks for their portions of the
+> source.
 
+well there is the bk commits list that has all individual changesets.
+Add procmail and the patchutils program "grepdiff" to the recipe and I
+think we have a winner.....
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+--=-zZzeOX/5yJaptawWEyHc
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9/gr8xULwo51rQBIRAnggAJ97XpoIGsgbEVhcZqSE4BqInQ1Q9gCfUPEF
+eoMQjjtbvezEcVwaQpQU30I=
+=Izxh
+-----END PGP SIGNATURE-----
+
+--=-zZzeOX/5yJaptawWEyHc--

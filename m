@@ -1,46 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262414AbSJ0OnJ>; Sun, 27 Oct 2002 09:43:09 -0500
+	id <S262410AbSJ0O4h>; Sun, 27 Oct 2002 09:56:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262415AbSJ0OnJ>; Sun, 27 Oct 2002 09:43:09 -0500
-Received: from bohnice.netroute.lam.cz ([212.71.169.62]:58095 "EHLO
-	shunka.yo.cz") by vger.kernel.org with ESMTP id <S262414AbSJ0OnJ>;
-	Sun, 27 Oct 2002 09:43:09 -0500
-Message-ID: <000801c27dc8$044f43f0$4500a8c0@cybernet.cz>
-From: "=?iso-8859-2?B?VmxhZGlt7XIgVPhlYmlja/0=?=" <guru@cimice.yo.cz>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Alex Riesen" <fork0@users.sf.net>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       <clock@atrey.karlin.mff.cuni.cz>
-References: <002501c27da9$2524d0f0$4500a8c0@cybernet.cz> <20021027125021.GA1578@riesen-pc.gr05.synopsys.com> <1035724348.30403.15.camel@irongate.swansea.linux.org.uk>
-Subject: Re: Swap doesn't work
-Date: Sun, 27 Oct 2002 15:48:43 +0100
+	id <S262415AbSJ0O4g>; Sun, 27 Oct 2002 09:56:36 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45838 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262410AbSJ0O4g>;
+	Sun, 27 Oct 2002 09:56:36 -0500
+Message-ID: <3DBC0007.8020005@pobox.com>
+Date: Sun, 27 Oct 2002 10:02:31 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
+To: Andreas Haumer <andreas@xss.co.at>
+CC: linux-kernel@vger.kernel.org, willy@w.ods.org
+Subject: Re: rootfs exposure in /proc/mounts
+References: <Pine.GSO.4.21.0210261458460.29768-100000@steklov.math.psu.edu> <3DBAE931.7000409@domdv.de> <3DBAEC79.5050605@pobox.com> <3DBBBE1B.5050809@xss.co.at>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > That's not a badblock. That's an kernel IDE bug. Andre Hedrick and Alan
-> > Cox will love to see this.
->
-> Not on a kernel built with an untrusted hand built tool chain
->
-Well, I don't know what could possibly cause this kind of error except
-kernel.
-No matter what application I use to read or write /dev/hda6. Which part
-of my tool chain do you have in mind?
+symlinks directly to /proc/mounts is fine with me -- just don't expect 
+any sympathy when userspace tools don't handle things like $subject.  :) 
+ The answer will be "fix the userspace tools" not "add special case code 
+to the kernel" :)
 
-Thanks,
+    Jeff
 
-Vladimir Trebicky
 
---
-Vladimir Trebicky
-guru@cimice.yo.cz
+
 

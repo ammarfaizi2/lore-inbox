@@ -1,888 +1,623 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263865AbUDZNrR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263817AbUDZNyC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263865AbUDZNrR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 09:47:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263804AbUDZNph
+	id S263817AbUDZNyC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 09:54:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263804AbUDZNyC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 09:45:37 -0400
-Received: from mail.convergence.de ([212.84.236.4]:37252 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S261998AbUDZNlv
+	Mon, 26 Apr 2004 09:54:02 -0400
+Received: from mail.convergence.de ([212.84.236.4]:47236 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S263817AbUDZNmH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 09:41:51 -0400
+	Mon, 26 Apr 2004 09:42:07 -0400
 To: hunold@linuxtv.org, torvalds@osdl.org, akpm@osdl.org,
        linux-kernel@vger.kernel.org
 From: Michael Hunold <hunold@linuxtv.org>
-Subject: [PATCH 3/9] DVB: Update DVB budget drivers
-In-Reply-To: <10829867363017@convergence.de>
-Message-Id: <10829867862196@convergence.de>
+Subject: [PATCH 6/9] DVB: AV7110 DVB driver updates
+In-Reply-To: <10829868582688@convergence.de>
+Message-Id: <10829868842348@convergence.de>
 X-Mailer: gregkh_patchbomb_levon_offspring_mihu_extended
-Date: Mon, 26 Apr 2004 09:41:51 -0400
+Date: Mon, 26 Apr 2004 09:42:07 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- [DVB] budget-av: patch by Kenneth Aafløy to add support for Typhoon DVB-S budget card
-- [DVB] budget.c: support for Fujitsu-Siemens Activy Card
-- [DVB] budget-ci: add preliminary CI support
-diff -urawBN xx-linux-2.6.5/drivers/media/dvb/ttpci/budget-av.c linux-2.6.5-patched/drivers/media/dvb/ttpci/budget-av.c
---- xx-linux-2.6.5/drivers/media/dvb/ttpci/budget-av.c	2004-03-12 20:31:29.000000000 +0100
-+++ linux-2.6.5-patched/drivers/media/dvb/ttpci/budget-av.c	2004-03-19 18:13:56.000000000 +0100
-@@ -39,6 +39,7 @@
- 	struct budget budget;
- 	struct video_device vd;
- 	int cur_input;
-+	int has_saa7113;
+- [DVB] av7110 update:
+   - speed up firmware loading
+   - follow internal API changes in saa7146 driver
+   - introduced some symbolic constants for a/v dec cmds
+   - change default for hw_sections to 0 to enable crc checks
+diff -urawBN xx-linux-2.6.5/drivers/media/dvb/ttpci/av7110_av.c linux-2.6.5-patched/drivers/media/dvb/ttpci/av7110_av.c
+--- xx-linux-2.6.5/drivers/media/dvb/ttpci/av7110_av.c	2004-02-22 14:48:47.000000000 +0100
++++ linux-2.6.5-patched/drivers/media/dvb/ttpci/av7110_av.c	2004-03-23 18:56:53.000000000 +0100
+@@ -975,7 +975,7 @@
+ 		if (av7110->videostate.stream_source == VIDEO_SOURCE_MEMORY)
+ 			av7110_av_stop(av7110, RP_VIDEO);
+ 		else
+-			vidcom(av7110, 0x000e,
++			vidcom(av7110, VIDEO_CMD_STOP,
+ 			       av7110->videostate.video_blank ? 0 : 1);
+ 		av7110->trickmode = TRICK_NONE;
+ 		break;
+@@ -984,7 +984,7 @@
+ 		av7110->trickmode = TRICK_NONE;
+ 		if (av7110->videostate.play_state == VIDEO_FREEZED) {
+ 			av7110->videostate.play_state = VIDEO_PLAYING;
+-			vidcom(av7110, 0x000d, 0);
++			vidcom(av7110, VIDEO_CMD_PLAY, 0);
+ 		}
+ 
+ 		if (av7110->videostate.stream_source == VIDEO_SOURCE_MEMORY) {
+@@ -993,10 +993,10 @@
+ 				av7110->playing &= ~RP_VIDEO;
+ 			}
+ 			av7110_av_start_play(av7110, RP_VIDEO);
+-			vidcom(av7110, 0x000d, 0);
++			vidcom(av7110, VIDEO_CMD_PLAY, 0);
+ 		} else {
+ 			//av7110_av_stop(av7110, RP_VIDEO);
+-			vidcom(av7110, 0x000d, 0);
++			vidcom(av7110, VIDEO_CMD_PLAY, 0);
+ 		}
+ 		av7110->videostate.play_state = VIDEO_PLAYING;
+ 		break;
+@@ -1006,14 +1006,14 @@
+ 		if (av7110->playing & RP_VIDEO)
+ 			av7110_fw_cmd(av7110, COMTYPE_REC_PLAY, __Pause, 0);
+ 		else
+-			vidcom(av7110, 0x0102, 1);
++			vidcom(av7110, VIDEO_CMD_FREEZE, 1);
+ 		av7110->trickmode = TRICK_FREEZE;
+ 		break;
+ 
+ 	case VIDEO_CONTINUE:
+ 		if (av7110->playing & RP_VIDEO)
+ 			av7110_fw_cmd(av7110, COMTYPE_REC_PLAY, __Continue, 0);
+-		vidcom(av7110, 0x000d, 0);
++		vidcom(av7110, VIDEO_CMD_PLAY, 0);
+ 		av7110->videostate.play_state = VIDEO_PLAYING;
+ 		av7110->trickmode = TRICK_NONE;
+ 		break;
+@@ -1094,7 +1094,7 @@
+ 			av7110_fw_cmd(av7110, COMTYPE_REC_PLAY,
+ 				      __Scan_I, 2, AV_PES, 0);
+ 		else
+-			vidcom(av7110, 0x16, arg);
++			vidcom(av7110, VIDEO_CMD_FFWD, arg);
+ 		av7110->trickmode = TRICK_FAST;
+ 		av7110->videostate.play_state = VIDEO_PLAYING;
+ 		break;
+@@ -1102,11 +1102,11 @@
+ 	case VIDEO_SLOWMOTION:
+ 		if (av7110->playing&RP_VIDEO) {
+ 			av7110_fw_cmd(av7110, COMTYPE_REC_PLAY, __Slow, 2, 0, 0);
+-			vidcom(av7110, 0x22, arg);
++			vidcom(av7110, VIDEO_CMD_SLOW, arg);
+ 		} else {
+-			vidcom(av7110, 0x0d, 0);
+-			vidcom(av7110, 0x0e, 0);
+-			vidcom(av7110, 0x22, arg);
++			vidcom(av7110, VIDEO_CMD_PLAY, 0);
++			vidcom(av7110, VIDEO_CMD_STOP, 0);
++			vidcom(av7110, VIDEO_CMD_SLOW, arg);
+ 		}
+ 		av7110->trickmode = TRICK_SLOW;
+ 		av7110->videostate.play_state = VIDEO_PLAYING;
+@@ -1130,10 +1130,10 @@
+ 			if (av7110->trickmode == TRICK_SLOW) {
+ 				av7110_fw_cmd(av7110, COMTYPE_REC_PLAY,
+ 					      __Slow, 2, 0, 0);
+-				vidcom(av7110, 0x22, arg);
++				vidcom(av7110, VIDEO_CMD_SLOW, arg);
+ 			}
+ 			if (av7110->trickmode == TRICK_FREEZE)
+-				vidcom(av7110, 0x000e, 1);
++				vidcom(av7110, VIDEO_CMD_STOP, 1);
+ 		}
+ 		break;
+ 
+@@ -1167,26 +1167,26 @@
+ 		if (av7110->audiostate.stream_source == AUDIO_SOURCE_MEMORY)
+ 			av7110_av_stop(av7110, RP_AUDIO);
+ 		else
+-			audcom(av7110, 1);
++			audcom(av7110, AUDIO_CMD_MUTE);
+ 		av7110->audiostate.play_state = AUDIO_STOPPED;
+ 		break;
+ 
+ 	case AUDIO_PLAY:
+ 		if (av7110->audiostate.stream_source == AUDIO_SOURCE_MEMORY)
+ 			av7110_av_start_play(av7110, RP_AUDIO);
+-		audcom(av7110, 2);
++		audcom(av7110, AUDIO_CMD_UNMUTE);
+ 		av7110->audiostate.play_state = AUDIO_PLAYING;
+ 		break;
+ 
+ 	case AUDIO_PAUSE:
+-		audcom(av7110, 1);
++		audcom(av7110, AUDIO_CMD_MUTE);
+ 		av7110->audiostate.play_state = AUDIO_PAUSED;
+ 		break;
+ 
+ 	case AUDIO_CONTINUE:
+ 		if (av7110->audiostate.play_state == AUDIO_PAUSED) {
+ 			av7110->audiostate.play_state = AUDIO_PLAYING;
+-			audcom(av7110, 0x12);
++			audcom(av7110, AUDIO_CMD_MUTE | AUDIO_CMD_PCM16);
+ 		}
+ 		break;
+ 
+@@ -1196,14 +1196,14 @@
+ 
+ 	case AUDIO_SET_MUTE:
+ 	{
+-		audcom(av7110, arg ? 1 : 2);
++		audcom(av7110, arg ? AUDIO_CMD_MUTE : AUDIO_CMD_UNMUTE);
+ 		av7110->audiostate.mute_state = (int) arg;
+ 		break;
+ 	}
+ 
+ 	case AUDIO_SET_AV_SYNC:
+ 		av7110->audiostate.AV_sync_state = (int) arg;
+-		audcom(av7110, arg ? 0x0f : 0x0e);
++		audcom(av7110, arg ? AUDIO_CMD_SYNC_ON : AUDIO_CMD_SYNC_OFF);
+ 		break;
+ 
+ 	case AUDIO_SET_BYPASS_MODE:
+@@ -1215,15 +1215,15 @@
+ 
+ 		switch(av7110->audiostate.channel_select) {
+ 		case AUDIO_STEREO:
+-			audcom(av7110, 0x80);
++			audcom(av7110, AUDIO_CMD_STEREO);
+ 			break;
+ 
+ 		case AUDIO_MONO_LEFT:
+-			audcom(av7110, 0x100);
++			audcom(av7110, AUDIO_CMD_MONO_L);
+ 			break;
+ 
+ 		case AUDIO_MONO_RIGHT:
+-			audcom(av7110, 0x200);
++			audcom(av7110, AUDIO_CMD_MONO_R);
+ 			break;
+ 
+ 		default:
+diff -urawBN xx-linux-2.6.5/drivers/media/dvb/ttpci/av7110.c linux-2.6.5-patched/drivers/media/dvb/ttpci/av7110.c
+--- xx-linux-2.6.5/drivers/media/dvb/ttpci/av7110.c	2004-03-12 20:31:29.000000000 +0100
++++ linux-2.6.5-patched/drivers/media/dvb/ttpci/av7110.c	2004-04-23 22:03:29.000000000 +0200
+@@ -30,6 +30,7 @@
+  */
+ 
+ 
++#include <linux/config.h>
+ #include <linux/module.h>
+ #include <linux/kmod.h>
+ #include <linux/delay.h>
+@@ -77,7 +78,7 @@
+ static int vidmode=CVBS_RGB_OUT;
+ static int pids_off;
+ static int adac=DVB_ADAC_TI;
+-static int hw_sections = 1;
++static int hw_sections = 0;
+ static int rgb_on = 0;
+ 
+ int av7110_num = 0;
+@@ -1241,10 +1241,6 @@
+  ****************************************************************************/
+ 
+ 
+-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
+-#define CONFIG_DVB_AV7110_FIRMWARE_FILE
+-#endif
+-
+ static int check_firmware(struct av7110* av7110)
+ {
+ 	u32 crc = 0, len = 0;
+@@ -1358,13 +1354,13 @@
+ 		return ret;
+ 	}
+ 
+-	dvb_register_adapter(&av7110->dvb_adapter, av7110->card_name);
++	dvb_register_adapter(&av7110->dvb_adapter, av7110->card_name, THIS_MODULE);
+ 
+ 	/* the Siemens DVB needs this if you want to have the i2c chips
+ 	   get recognized before the main driver is fully loaded */
+ 	saa7146_write(dev, GPIO_CTRL, 0x500000);
+ 
+-	saa7146_i2c_adapter_prepare(dev, NULL, SAA7146_I2C_BUS_BIT_RATE_120); /* 275 kHz */
++	saa7146_i2c_adapter_prepare(dev, NULL, 0, SAA7146_I2C_BUS_BIT_RATE_120); /* 275 kHz */
+ 
+ 	av7110->i2c_bus = dvb_register_i2c_bus (master_xfer, dev,
+ 						av7110->dvb_adapter, 0);
+@@ -1440,13 +1436,17 @@
+ 		printk ("av7110: Warning, firmware version 0x%04x is too old. "
+ 			"System might be unstable!\n", FW_VERSION(av7110->arm_app));
+ 
+-	kernel_thread(arm_thread, (void *) av7110, 0);
++	if (kernel_thread(arm_thread, (void *) av7110, 0) < 0) {
++		printk(KERN_ERR "av7110(%d): faile to start arm_mon kernel thread\n",
++		       av7110->dvb_adapter->num);
++		goto err2;
++	}
+ 
+ 	/* set internal volume control to maximum */
+ 	av7110->adac_type = DVB_ADAC_TI;
+ 	av7110_set_volume(av7110, 0xff, 0xff);
+ 
+-	VidMode(av7110, vidmode);
++	av7710_set_video_mode(av7110, vidmode);
+ 
+ 	/* handle different card types */
+ 	/* remaining inits according to card and frontend type */
+@@ -1498,32 +1498,35 @@
+ 	ret = av7110_init_v4l(av7110);
+ 	
+ 	if (ret)
+-		goto err;
++		goto err3;
+ 
+ 	printk(KERN_INFO "av7110: found av7110-%d.\n",av7110_num);
+ 	av7110->device_initialized = 1;
+ 	av7110_num++;
+         return 0;
+ 
++err3:
++	av7110->arm_rmmod = 1;
++	wake_up_interruptible(&av7110->arm_wait);
++	while (av7110->arm_thread)
++		dvb_delay(1);
+ err2:
+ 	av7110_ca_exit(av7110);
+ 	av7110_av_exit(av7110);
+ err:
+-	if (NULL != av7110 ) {
+-		kfree(av7110);
+-	}
+-	if (NULL != av7110->debi_virt) {
+-		pci_free_consistent(dev->pci, 8192, av7110->debi_virt, av7110->debi_bus);
+-	}
+-	if (NULL != av7110->iobuf) {
+-		vfree(av7110->iobuf);
+-	}
+-
+ 	dvb_unregister_i2c_bus (master_xfer,av7110->i2c_bus->adapter,
+ 				av7110->i2c_bus->id);
+ 
+ 	dvb_unregister_adapter (av7110->dvb_adapter);
+ 
++	if (NULL != av7110->debi_virt)
++		pci_free_consistent(dev->pci, 8192, av7110->debi_virt, av7110->debi_bus);
++	if (NULL != av7110->iobuf)
++		vfree(av7110->iobuf);
++	if (NULL != av7110 ) {
++		kfree(av7110);
++	}
++
+ 	return ret;
+ }
+ 
+@@ -1648,6 +1651,7 @@
+ {
+ 	int retval;
+ 	retval = saa7146_register_extension(&av7110_extension);
++#if defined(CONFIG_INPUT_EVDEV) || defined(CONFIG_INPUT_EVDEV_MODULE)
+ 	if (retval)
+ 		goto failed_saa7146_register;
+ 	
+@@ -1658,13 +1662,16 @@
+ failed_av7110_ir_init:
+ 	saa7146_unregister_extension(&av7110_extension);
+ failed_saa7146_register:
++#endif
+ 	return retval;
+ }
+ 
+ 
+ static void __exit av7110_exit(void)
+ {
++#if defined(CONFIG_INPUT_EVDEV) || defined(CONFIG_INPUT_EVDEV_MODULE)
+ 	av7110_ir_exit();
++#endif
+ 	saa7146_unregister_extension(&av7110_extension);
+ }
+ 
+diff -urawBN xx-linux-2.6.5/drivers/media/dvb/ttpci/av7110_hw.c linux-2.6.5-patched/drivers/media/dvb/ttpci/av7110_hw.c
+--- xx-linux-2.6.5/drivers/media/dvb/ttpci/av7110_hw.c	2004-03-12 20:31:29.000000000 +0100
++++ linux-2.6.5-patched/drivers/media/dvb/ttpci/av7110_hw.c	2004-04-12 23:10:22.000000000 +0200
+@@ -105,10 +105,8 @@
+ 	IER_DISABLE(av7110->dev, (MASK_19 | MASK_03));
+ 	saa7146_write(av7110->dev, ISR, (MASK_19 | MASK_03));
+ 
+-	//FIXME: are those mdelays really necessary?
+-	mdelay(800);
+ 	saa7146_setgpio(av7110->dev, RESET_LINE, SAA7146_GPIO_OUTHI);
+-	mdelay(800);
++	dvb_delay(30);	/* the firmware needs some time to initialize */
+ 
+ 	ARM_ResetMailBox(av7110);
+ 
+@@ -129,7 +127,7 @@
+ 	for (k = 0; k < 100; k++) {
+ 		if (irdebi(av7110, DEBINOSWAP, adr, 0, 2) == state)
+ 			return 0;
+-		udelay(500);
++		udelay(5);
+ 	}
+ 	return -1;
+ }
+@@ -186,27 +184,24 @@
+ /* we cannot write av7110 DRAM directly, so load a bootloader into
+  * the DPRAM which implements a simple boot protocol */
+ static u8 bootcode[] = {
+-	0xea, 0x00, 0x00, 0x0e, 0xe1, 0xb0, 0xf0, 0x0e, /* 0x0000 */
+-	0xe2, 0x5e, 0xf0, 0x04, 0xe2, 0x5e, 0xf0, 0x04,
+-	0xe2, 0x5e, 0xf0, 0x08, 0xe2, 0x5e, 0xf0, 0x04,
+-	0xe2, 0x5e, 0xf0, 0x04, 0xe2, 0x5e, 0xf0, 0x04,
+-	0x2c, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x0c,
+-	0x00, 0x00, 0x00, 0x00, 0x2c, 0x00, 0x00, 0x34,
+-	0x00, 0x00, 0x00, 0x00, 0xa5, 0xa5, 0x5a, 0x5a,
+-	0x00, 0x1f, 0x15, 0x55, 0x00, 0x00, 0x00, 0x09,
+-	0xe5, 0x9f, 0xd0, 0x5c, 0xe5, 0x9f, 0x40, 0x54, /* 0x0040 */
+-	0xe3, 0xa0, 0x00, 0x00, 0xe5, 0x84, 0x00, 0x00,
+-	0xe5, 0x84, 0x00, 0x04, 0xe1, 0xd4, 0x10, 0xb0,
+-	0xe3, 0x51, 0x00, 0x00, 0x0a, 0xff, 0xff, 0xfc,
+-	0xe1, 0xa0, 0x10, 0x0d, 0xe5, 0x94, 0x30, 0x04,
+-	0xe1, 0xd4, 0x20, 0xb2, 0xe2, 0x82, 0x20, 0x3f,
+-	0xe1, 0xb0, 0x23, 0x22, 0x03, 0xa0, 0x00, 0x02,
+-	0xe1, 0xc4, 0x00, 0xb0, 0x0a, 0xff, 0xff, 0xf4,
+-	0xe8, 0xb1, 0x1f, 0xe0, 0xe8, 0xa3, 0x1f, 0xe0, /* 0x0080 */
+-	0xe8, 0xb1, 0x1f, 0xe0, 0xe8, 0xa3, 0x1f, 0xe0,
+-	0xe2, 0x52, 0x20, 0x01, 0x1a, 0xff, 0xff, 0xf9,
+-	0xe2, 0x2d, 0xdb, 0x05, 0xea, 0xff, 0xff, 0xec,
+-	0x2c, 0x00, 0x03, 0xf8, 0x2c, 0x00, 0x04, 0x00,
++  0xea, 0x00, 0x00, 0x0e, 0xe1, 0xb0, 0xf0, 0x0e, 0xe2, 0x5e, 0xf0, 0x04,
++  0xe2, 0x5e, 0xf0, 0x04, 0xe2, 0x5e, 0xf0, 0x08, 0xe2, 0x5e, 0xf0, 0x04,
++  0xe2, 0x5e, 0xf0, 0x04, 0xe2, 0x5e, 0xf0, 0x04, 0x2c, 0x00, 0x00, 0x24,
++  0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x2c, 0x00, 0x00, 0x34,
++  0x00, 0x00, 0x00, 0x00, 0xa5, 0xa5, 0x5a, 0x5a, 0x00, 0x1f, 0x15, 0x55,
++  0x00, 0x00, 0x00, 0x09, 0xe5, 0x9f, 0xd0, 0x7c, 0xe5, 0x9f, 0x40, 0x74,
++  0xe3, 0xa0, 0x00, 0x00, 0xe5, 0x84, 0x00, 0x00, 0xe5, 0x84, 0x00, 0x04,
++  0xe5, 0x9f, 0x10, 0x70, 0xe5, 0x9f, 0x20, 0x70, 0xe5, 0x9f, 0x30, 0x64,
++  0xe8, 0xb1, 0x1f, 0xe0, 0xe8, 0xa3, 0x1f, 0xe0, 0xe1, 0x51, 0x00, 0x02,
++  0xda, 0xff, 0xff, 0xfb, 0xe5, 0x9f, 0xf0, 0x50, 0xe1, 0xd4, 0x10, 0xb0,
++  0xe3, 0x51, 0x00, 0x00, 0x0a, 0xff, 0xff, 0xfc, 0xe1, 0xa0, 0x10, 0x0d,
++  0xe5, 0x94, 0x30, 0x04, 0xe1, 0xd4, 0x20, 0xb2, 0xe2, 0x82, 0x20, 0x3f,
++  0xe1, 0xb0, 0x23, 0x22, 0x03, 0xa0, 0x00, 0x02, 0xe1, 0xc4, 0x00, 0xb0,
++  0x0a, 0xff, 0xff, 0xf4, 0xe8, 0xb1, 0x1f, 0xe0, 0xe8, 0xa3, 0x1f, 0xe0,
++  0xe8, 0xb1, 0x1f, 0xe0, 0xe8, 0xa3, 0x1f, 0xe0, 0xe2, 0x52, 0x20, 0x01,
++  0x1a, 0xff, 0xff, 0xf9, 0xe2, 0x2d, 0xdb, 0x05, 0xea, 0xff, 0xff, 0xec,
++  0x2c, 0x00, 0x03, 0xf8, 0x2c, 0x00, 0x04, 0x00, 0x9e, 0x00, 0x08, 0x00,
++  0x2c, 0x00, 0x00, 0x74, 0x2c, 0x00, 0x00, 0xc0
  };
  
- /****************************************************************************
-@@ -149,6 +150,9 @@
- {
- 	struct budget *budget = &budget_av->budget;
- 
-+	if ( 1 != budget_av->has_saa7113 )
-+		return -ENODEV;
-+
- 	if (input == 1) {
- 		i2c_writereg(budget->i2c_bus, 0x4a, 0x02, 0xc7);
- 		i2c_writereg(budget->i2c_bus, 0x4a, 0x09, 0x80);
-@@ -170,11 +174,13 @@
- 
- 	DEB_EE(("dev: %p\n",dev));
- 
-+	if ( 1 == budget_av->has_saa7113 ) {
- 	saa7146_setgpio(dev, 0, SAA7146_GPIO_OUTLO);
- 
- 	dvb_delay(200);
- 
- 	saa7146_unregister_device (&budget_av->vd, dev);
-+	}
- 
- 	err = ttpci_budget_deinit (&budget_av->budget);
- 
-@@ -221,11 +227,8 @@
- 	saa7146_setgpio(dev, 0, SAA7146_GPIO_OUTHI);
- 	dvb_delay(500);
- 
--	if ((err = saa7113_init (budget_av))) {
--		/* fixme: proper cleanup here */
--		ERR(("cannot init saa7113.\n"));
--		return err;
--	}
-+	if ( 0 == saa7113_init(budget_av) ) {
-+		budget_av->has_saa7113 = 1;
- 
- 	if ( 0 != saa7146_vv_init(dev,&vv_data)) {
- 		/* fixme: proper cleanup here */
-@@ -246,14 +249,12 @@
- 					SAA7146_HPS_SYNC_PORT_A);
- 
- 	saa7113_setinput (budget_av, 0);
-+	} else {
-+		budget_av->has_saa7113 = 0;
- 
--	/* what is this? since we don't support open()/close()
--	   notifications, we simply put this into the release handler... */
--/*
- 	saa7146_setgpio(dev, 0, SAA7146_GPIO_OUTLO);
+ int av7110_bootarm(struct av7110 *av7110)
+@@ -232,7 +227,7 @@
+ 	iwdebi(av7110, DEBISWAP, DPRAM_BASE, 0x76543210, 4);
+ 	if ((ret=irdebi(av7110, DEBINOSWAP, DPRAM_BASE, 0, 4)) != 0x10325476) {
+ 		printk(KERN_ERR "dvb: debi test in av7110_bootarm() failed: "
+-		       "%08x != %08x (check your BIOS notplug settings)\n",
++		       "%08x != %08x (check your BIOS hotplug settings)\n",
+ 		       ret, 0x10325476);
+ 		return -1;
+ 	}
+@@ -255,9 +250,7 @@
+ 		return -1;
+ 	}
+ 	saa7146_setgpio(dev, RESET_LINE, SAA7146_GPIO_OUTHI);
+-	//FIXME: necessary?
 -	set_current_state(TASK_INTERRUPTIBLE);
--	schedule_timeout (20);
--*/
-+	}
-+
- 	/* fixme: find some sane values here... */
- 	saa7146_write(dev, PCI_BT_V1, 0x1c00101f);
+-	schedule_timeout(HZ);
++	mdelay(1);
  
-@@ -333,13 +334,13 @@
+ 	DEB_D(("av7110_bootarm: load dram code\n"));
+ 	if (load_dram(av7110, (u32 *)av7110->bin_root, av7110->size_root) < 0)
+@@ -275,8 +268,7 @@
+ 		return -1;
+ 	}
+ 	saa7146_setgpio(dev, RESET_LINE, SAA7146_GPIO_OUTHI);
+-	//FIXME: necessary?
+-	mdelay(800);
++	dvb_delay(30);	/* the firmware needs some time to initialize */
+ 
+ 	//ARM_ClearIrq(av7110);
+ 	ARM_ResetMailBox(av7110);
+diff -urawBN xx-linux-2.6.5/drivers/media/dvb/ttpci/av7110_hw.h linux-2.6.5-patched/drivers/media/dvb/ttpci/av7110_hw.h
+--- xx-linux-2.6.5/drivers/media/dvb/ttpci/av7110_hw.h	2004-03-12 20:31:29.000000000 +0100
++++ linux-2.6.5-patched/drivers/media/dvb/ttpci/av7110_hw.h	2004-03-23 18:56:53.000000000 +0100
+@@ -200,6 +200,12 @@
+ 	__Continue
+ };
+ 
++enum av7110_fw_cmd_misc {
++	AV7110_FW_VIDEO_ZOOM = 1,
++	AV7110_FW_VIDEO_COMMAND,
++	AV7110_FW_AUDIO_COMMAND
++};
++
+ enum av7110_command_type {
+ 	COMTYPE_NOCOM,
+ 	COMTYPE_PIDFILTER,
+@@ -218,6 +224,7 @@
+ 	COMTYPE_VIDEO,
+ 	COMTYPE_AUDIO,
+ 	COMTYPE_CI_LL,
++	COMTYPE_MISC = 0x80
+ };
+ 
+ #define VID_NONE_PREF		0x00	/* No aspect ration processing preferred */
+@@ -226,6 +233,23 @@
+ #define VID_VC_AND_PS_PREF	0x03	/* PanScan and vertical Compression if allowed */
+ #define VID_CENTRE_CUT_PREF	0x05	/* PanScan with zero vector */
+ 
++/* MPEG video decoder commands */
++#define VIDEO_CMD_STOP		0x000e
++#define VIDEO_CMD_PLAY		0x000d
++#define VIDEO_CMD_FREEZE	0x0102
++#define VIDEO_CMD_FFWD		0x0016
++#define VIDEO_CMD_SLOW		0x0022
++
++/* MPEG audio decoder commands */
++#define AUDIO_CMD_MUTE		0x0001
++#define AUDIO_CMD_UNMUTE	0x0002
++#define AUDIO_CMD_PCM16		0x0010
++#define AUDIO_CMD_STEREO	0x0080
++#define AUDIO_CMD_MONO_L	0x0100
++#define AUDIO_CMD_MONO_R	0x0200
++#define AUDIO_CMD_SYNC_OFF	0x000e
++#define AUDIO_CMD_SYNC_ON	0x000f
++
+ /* firmware data interface codes */
+ #define DATA_NONE		 0x00
+ #define DATA_FSECTION		 0x01
+@@ -457,21 +481,21 @@
+ 	return av7110_fw_cmd(av7110, COMTYPE_AUDIODAC, AudioDAC, 2, addr, data);
+ }
+ 
+-static inline void VidMode(struct av7110 *av7110, int mode)
++static inline void av7710_set_video_mode(struct av7110 *av7110, int mode)
+ {
+ 	av7110_fw_cmd(av7110, COMTYPE_ENCODER, SetVidMode, 1, mode);
+ }
+ 
+ static int inline vidcom(struct av7110 *av7110, u32 com, u32 arg)
+ {
+-	return av7110_fw_cmd(av7110, 0x80, 0x02, 4,
++	return av7110_fw_cmd(av7110, COMTYPE_MISC, AV7110_FW_VIDEO_COMMAND, 4,
+ 			     (com>>16), (com&0xffff),
+ 			     (arg>>16), (arg&0xffff));
+ }
+ 
+ static int inline audcom(struct av7110 *av7110, u32 com)
+ {
+-	return av7110_fw_cmd(av7110, 0x80, 0x03, 4,
++	return av7110_fw_cmd(av7110, COMTYPE_MISC, AV7110_FW_AUDIO_COMMAND, 4,
+ 			     (com>>16), (com&0xffff));
+ }
+ 
+diff -urawBN xx-linux-2.6.5/drivers/media/dvb/ttpci/av7110_v4l.c linux-2.6.5-patched/drivers/media/dvb/ttpci/av7110_v4l.c
+--- xx-linux-2.6.5/drivers/media/dvb/ttpci/av7110_v4l.c	2004-03-12 20:31:29.000000000 +0100
++++ linux-2.6.5-patched/drivers/media/dvb/ttpci/av7110_v4l.c	2004-03-15 20:38:15.000000000 +0100
+@@ -177,16 +177,17 @@
+ 	struct av7110 *av7110 = (struct av7110*)dev->ext_priv;
+ 	u16 adswitch;
+ 	u8 band = 0;
+-	int source, sync;
+-	struct saa7146_fh *ov_fh = NULL;
+-	int restart_overlay = 0;
++	int source, sync, err;
+ 
+ 	DEB_EE(("av7110: %p\n", av7110));
+ 
+-	if (vv->ov_data != NULL) {
+-		ov_fh = vv->ov_data->fh;
+-		saa7146_stop_preview(ov_fh);
+-		restart_overlay = 1;
++	if ((vv->video_status & STATUS_OVERLAY) != 0) {
++		vv->ov_suspend = vv->video_fh;
++		err = saa7146_stop_preview(vv->video_fh); /* side effect: video_status is now 0, video_fh is NULL */
++		if (err != 0) {
++			DEB_D(("warning: suspending video failed\n"));
++			vv->ov_suspend = NULL;
++		}
+ 	}
+ 
+ 	if (0 != av7110->current_input) {
+@@ -195,7 +196,7 @@
+ 		source = SAA7146_HPS_SOURCE_PORT_B;
+ 		sync = SAA7146_HPS_SYNC_PORT_B;
+ 		memcpy(standard, analog_standard, sizeof(struct saa7146_standard) * 2);
+-		DEB_S(("av7110: switching to analog TV\n"));
++		printk("av7110: switching to analog TV\n");
+ 		msp_writereg(av7110, MSP_WR_DSP, 0x0008, 0x0000); // loudspeaker source
+ 		msp_writereg(av7110, MSP_WR_DSP, 0x0009, 0x0000); // headphone source
+ 		msp_writereg(av7110, MSP_WR_DSP, 0x000a, 0x0000); // SCART 1 source
+@@ -208,7 +209,7 @@
+ 		source = SAA7146_HPS_SOURCE_PORT_A;
+ 		sync = SAA7146_HPS_SYNC_PORT_A;
+ 		memcpy(standard, dvb_standard, sizeof(struct saa7146_standard) * 2);
+-		DEB_S(("av7110: switching DVB mode\n"));
++		printk("av7110: switching DVB mode\n");
+ 		msp_writereg(av7110, MSP_WR_DSP, 0x0008, 0x0220); // loudspeaker source
+ 		msp_writereg(av7110, MSP_WR_DSP, 0x0009, 0x0220); // headphone source
+ 		msp_writereg(av7110, MSP_WR_DSP, 0x000a, 0x0220); // SCART 1 source
+@@ -225,8 +226,10 @@
+ 		printk("setting band in demodulator failed.\n");
+ 	saa7146_set_hps_source_and_sync(dev, source, sync);
+ 
+-	if (restart_overlay)
+-		saa7146_start_preview(ov_fh);
++	if (vv->ov_suspend != NULL) {
++		saa7146_start_preview(vv->ov_suspend);
++		vv->ov_suspend = NULL;
++	}
+ 
+ 	return 0;
+ }
+@@ -263,10 +266,10 @@
+ 
+ 		// FIXME: standard / stereo detection is still broken
+ 		msp_readreg(av7110, MSP_RD_DEM, 0x007e, &stereo_det);
+-		DEB_S(("VIDIOC_G_TUNER: msp3400 TV standard detection: 0x%04x\n", stereo_det));
++printk("VIDIOC_G_TUNER: msp3400 TV standard detection: 0x%04x\n", stereo_det);
+ 
+ 		msp_readreg(av7110, MSP_RD_DSP, 0x0018, &stereo_det);
+-		DEB_S(("VIDIOC_G_TUNER: msp3400 stereo detection: 0x%04x\n", stereo_det));
++		printk("VIDIOC_G_TUNER: msp3400 stereo detection: 0x%04x\n", stereo_det);
+ 		stereo = (s8)(stereo_det >> 8);
+ 		if (stereo > 0x10) {
+ 			/* stereo */
+@@ -624,13 +627,13 @@
  static struct saa7146_standard standard[] = {
  	{
- 		.name	= "PAL", 	.id	= V4L2_STD_PAL,
--		.v_offset	= 0x17,	.v_field 	= 288,	.v_calc		= 576,
--		.h_offset	= 0x14,	.h_pixels 	= 680,	.h_calc		= 680+1,
--		.v_max_out	= 576,	.h_max_out	= 768,
-+		.v_offset	= 0x17,	.v_field 	= 288,
-+		.h_offset	= 0x14,	.h_pixels 	= 680,  	      
-+		.v_max_out	= 576,	.h_max_out	= 768
+ 		.name	= "PAL",	.id		= V4L2_STD_PAL_BG,
+-		.v_offset	= 0x15,	.v_field	= 288,		.v_calc	= 576,
+-		.h_offset	= 0x4a,	.h_pixels	= 708,		.h_calc	= 709,
++		.v_offset	= 0x15,	.v_field	= 288,
++		.h_offset	= 0x48,	.h_pixels	= 708,
+ 		.v_max_out	= 576,	.h_max_out	= 768,
  	}, {
- 		.name	= "NTSC", 	.id	= V4L2_STD_NTSC,
--		.v_offset	= 0x16,	.v_field 	= 240,	.v_calc		= 480,
--		.h_offset	= 0x06,	.h_pixels 	= 708,	.h_calc		= 708+1,
-+		.v_offset	= 0x16,	.v_field 	= 240,
-+		.h_offset	= 0x06,	.h_pixels 	= 708,
+ 		.name	= "NTSC",	.id		= V4L2_STD_NTSC,
+-		.v_offset	= 0x10,	.v_field	= 244,		.v_calc	= 480,
+-		.h_offset	= 0x40,	.h_pixels	= 708,		.h_calc	= 709,
++		.v_offset	= 0x10,	.v_field	= 244,
++		.h_offset	= 0x40,	.h_pixels	= 708,
  		.v_max_out	= 480,	.h_max_out	= 640,
  	}
  };
-diff -urawBN xx-linux-2.6.5/drivers/media/dvb/ttpci/budget.c linux-2.6.5-patched/drivers/media/dvb/ttpci/budget.c
---- xx-linux-2.6.5/drivers/media/dvb/ttpci/budget.c	2003-12-18 03:58:57.000000000 +0100
-+++ linux-2.6.5-patched/drivers/media/dvb/ttpci/budget.c	2004-02-27 14:45:59.000000000 +0100
-@@ -8,6 +8,11 @@
-  * Copyright (C) 1999-2002 Ralph  Metzler 
-  *                       & Marcus Metzler for convergence integrated media GmbH
-  *
-+ * 26feb2004 Support for FS Activy Card (Grundig tuner) by
-+ *           Michael Dreher <michael@5dot1.de>,
-+ *           Oliver Endriss <o.endriss@gmx.de> and
-+ *           Andreas 'randy' Weinberger
-+ * 
-  * This program is free software; you can redistribute it and/or
-  * modify it under the terms of the GNU General Public License
-  * as published by the Free Software Foundation; either version 2
-@@ -142,6 +147,49 @@
- }
- 
- 
-+/*
-+ *   Routines for the Fujitsu Siemens Activy budget card
-+ *   22 kHz tone and DiSEqC are handled by the frontend.
-+ *   Voltage must be set here.
-+ */
-+static int SetVoltage_Activy (struct budget *budget, fe_sec_voltage_t voltage)
-+{
-+	struct saa7146_dev *dev=budget->dev;
-+
-+	DEB_EE(("budget: %p\n",budget));
-+
-+	switch (voltage) {
-+		case SEC_VOLTAGE_13:
-+			saa7146_setgpio(dev, 2, SAA7146_GPIO_OUTLO);
-+			break;
-+		case SEC_VOLTAGE_18:
-+			saa7146_setgpio(dev, 2, SAA7146_GPIO_OUTHI);
-+			break;
-+		default:
-+			return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+
-+static int budget_ioctl_activy (struct dvb_frontend *fe, unsigned int cmd, void *arg)
-+{
-+	struct budget *budget = fe->before_after_data;
-+
-+	DEB_EE(("budget: %p\n",budget));
-+
-+	switch (cmd) {
-+		case FE_SET_VOLTAGE:
-+			return SetVoltage_Activy (budget, (fe_sec_voltage_t) arg);
-+		default:
-+			return -EOPNOTSUPP;
-+	}
-+
-+	return 0;
-+}
-+
-+
- static int budget_attach (struct saa7146_dev* dev, struct saa7146_pci_extension_data *info)
- {
- 	struct budget *budget = NULL;
-@@ -160,6 +208,10 @@
- 		return err;
- 	}
- 
-+	if (budget->card->type == BUDGET_FS_ACTIVY)
-+		dvb_add_frontend_ioctls (budget->dvb_adapter,
-+				 budget_ioctl_activy, NULL, budget);
-+	else
- 	dvb_add_frontend_ioctls (budget->dvb_adapter,
- 				 budget_diseqc_ioctl, NULL, budget);
- 
-@@ -174,6 +226,10 @@
- 	struct budget *budget = (struct budget*) dev->ext_priv;
- 	int err;
- 
-+	if (budget->card->type == BUDGET_FS_ACTIVY)
-+		dvb_remove_frontend_ioctls (budget->dvb_adapter,
-+				    budget_ioctl_activy, NULL);
-+	else
- 	dvb_remove_frontend_ioctls (budget->dvb_adapter,
- 				    budget_diseqc_ioctl, NULL);
- 
-@@ -193,6 +249,7 @@
- MAKE_BUDGET_INFO(ttbc,	"TT-Budget/WinTV-NOVA-C  PCI",	BUDGET_TT);
- MAKE_BUDGET_INFO(ttbt,	"TT-Budget/WinTV-NOVA-T  PCI",	BUDGET_TT);
- MAKE_BUDGET_INFO(satel,	"SATELCO Multimedia PCI",	BUDGET_TT_HW_DISEQC);
-+MAKE_BUDGET_INFO(fsacs, "Fujitsu Siemens Activy Budget-S PCI", BUDGET_FS_ACTIVY);
- /* Uncomment for Budget Patch */
- /*MAKE_BUDGET_INFO(fs_1_3,"Siemens/Technotrend/Hauppauge PCI rev1.3+Budget_Patch", BUDGET_PATCH);*/
- 
-@@ -203,6 +260,7 @@
- 	MAKE_EXTENSION_PCI(ttbc,  0x13c2, 0x1004),
- 	MAKE_EXTENSION_PCI(ttbt,  0x13c2, 0x1005),
- 	MAKE_EXTENSION_PCI(satel, 0x13c2, 0x1013),
-+	MAKE_EXTENSION_PCI(fsacs, 0x1131, 0x4f61),
+@@ -638,13 +641,13 @@
+ static struct saa7146_standard analog_standard[] = {
  	{
- 		.vendor    = 0,
+ 		.name	= "PAL",	.id		= V4L2_STD_PAL_BG,
+-		.v_offset	= 0x1b,	.v_field	= 288,		.v_calc	= 576,
+-		.h_offset	= 0x08,	.h_pixels	= 708,		.h_calc	= 709,
++		.v_offset	= 0x1b,	.v_field	= 288,
++		.h_offset	= 0x08,	.h_pixels	= 708,
+ 		.v_max_out	= 576,	.h_max_out	= 768,
+ 	}, {
+ 		.name	= "NTSC",	.id		= V4L2_STD_NTSC,
+-		.v_offset	= 0x10,	.v_field	= 244,		.v_calc	= 480,
+-		.h_offset	= 0x40,	.h_pixels	= 708,		.h_calc	= 709,
++		.v_offset	= 0x10,	.v_field	= 244,
++		.h_offset	= 0x40,	.h_pixels	= 708,
+ 		.v_max_out	= 480,	.h_max_out	= 640,
  	}
-diff -urawBN xx-linux-2.6.5/drivers/media/dvb/ttpci/budget-ci.c linux-2.6.5-patched/drivers/media/dvb/ttpci/budget-ci.c
---- xx-linux-2.6.5/drivers/media/dvb/ttpci/budget-ci.c	2004-01-16 18:25:17.000000000 +0100
-+++ linux-2.6.5-patched/drivers/media/dvb/ttpci/budget-ci.c	2004-04-21 01:23:32.000000000 +0200
-@@ -6,6 +6,8 @@
-  *     msp430 IR support contributed by Jack Thomasson <jkt@Helius.COM>
-  *     partially based on the Siemens DVB driver by Ralph+Marcus Metzler
-  *
-+ * CI interface support (c) 2004 Andrew de Quincey <adq_dvb@lidskialf.net>
-+ *
-  * This program is free software; you can redistribute it and/or
-  * modify it under the terms of the GNU General Public License
-  * as published by the Free Software Foundation; either version 2
-@@ -34,22 +36,59 @@
- #include <linux/slab.h>
- #include <linux/interrupt.h>
- #include <linux/input.h>
-+#include <linux/spinlock.h>
-+
-+#include "dvb_functions.h"
-+#include "dvb_ca_en50221.h"
-+
-+#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0))
-+#include "input_fake.h"
-+#endif
-+
-+#define DEBIADDR_IR		0x1234
-+#define DEBIADDR_CICONTROL	0x0000
-+#define DEBIADDR_CIVERSION	0x4000
-+#define DEBIADDR_IO		0x1000
-+#define DEBIADDR_ATTR		0x3000
-+
-+#define CICONTROL_RESET		0x01
-+#define CICONTROL_ENABLETS	0x02
-+#define CICONTROL_CAMDETECT	0x08
-+
-+#define DEBICICTL		0x00420000
-+#define DEBICICAM		0x02420000
-+
-+#define SLOTSTATUS_NONE		1
-+#define SLOTSTATUS_PRESENT	2
-+#define SLOTSTATUS_RESET	4
-+#define SLOTSTATUS_READY	8
-+#define SLOTSTATUS_OCCUPIED	(SLOTSTATUS_PRESENT|SLOTSTATUS_RESET|SLOTSTATUS_READY)
- 
- struct budget_ci {
- 	struct budget budget;
- 	struct input_dev input_dev;
- 	struct tasklet_struct msp430_irq_tasklet;
-+	struct tasklet_struct ciintf_irq_tasklet;
-+	spinlock_t debilock;
-+	int slot_status;
-+	struct dvb_ca_en50221 ca;
-+	char ir_dev_name[50];
  };
- 
--static u32 budget_debiread4 (struct saa7146_dev *saa, u32 config, int addr, int count)
-+static u32 budget_debiread (struct budget_ci* budget_ci, u32 config, int addr, int count)
- {
-+	struct saa7146_dev *saa = budget_ci->budget.dev;
- 	u32 result = 0;
- 
- 	if (count > 4 || count <= 0)
- 		return 0;
- 
--	if (saa7146_wait_for_debi_done(saa) < 0)
-+	spin_lock(&budget_ci->debilock);
-+
-+	if (saa7146_wait_for_debi_done(saa) < 0) {
-+		spin_unlock(&budget_ci->debilock);
- 		return 0;
-+	}
- 
- 	saa7146_write (saa, DEBI_COMMAND,
- 		       (count << 17) | 0x10000 | (addr & 0xffff));
-@@ -53,18 +92,47 @@
- 
- 	saa7146_write (saa, DEBI_COMMAND,
- 		       (count << 17) | 0x10000 | (addr & 0xffff));
--
- 	saa7146_write(saa, DEBI_CONFIG, config);
-+	saa7146_write(saa, DEBI_PAGE, 0);
- 	saa7146_write(saa, MC2, (2 << 16) | 2);
- 
- 	saa7146_wait_for_debi_done(saa);
- 
--	result = saa7146_read(saa, DEBI_AD);
-+	result = saa7146_read(saa, 0x88);
- 	result &= (0xffffffffUL >> ((4 - count) * 8));
- 
-+	spin_unlock(&budget_ci->debilock);
- 	return result;
- }
- 
-+static u8 budget_debiwrite (struct budget_ci* budget_ci, u32 config, int addr, int count, u32 value)
-+{
-+	struct saa7146_dev *saa = budget_ci->budget.dev;
-+
-+	if (count > 4 || count <= 0)
-+		return 0;
-+
-+	spin_lock(&budget_ci->debilock);
-+
-+	if (saa7146_wait_for_debi_done(saa) < 0) {
-+		spin_unlock(&budget_ci->debilock);
-+		return 0;
-+	}
-+
-+	saa7146_write (saa, DEBI_COMMAND,
-+		       (count << 17) | 0x00000 | (addr & 0xffff));
-+	saa7146_write(saa, DEBI_CONFIG, config);
-+	saa7146_write(saa, DEBI_PAGE, 0);
-+	saa7146_write(saa, DEBI_AD, value);
-+	saa7146_write(saa, MC2, (2 << 16) | 2);
-+
-+	saa7146_wait_for_debi_done(saa);
-+
-+	spin_unlock(&budget_ci->debilock);
-+	return 0;
-+}
-+
-+
- /* from reading the following remotes:
-    Zenith Universal 7 / TV Mode 807 / VCR Mode 837
-    Hauppauge (from NOVA-CI-s box product)
-@@ -140,9 +208,8 @@
- static void msp430_ir_interrupt (unsigned long data)
- {
- 	struct budget_ci *budget_ci = (struct budget_ci*) data;
--	struct saa7146_dev *saa = budget_ci->budget.dev;
- 	struct input_dev *dev = &budget_ci->input_dev;
--	unsigned int code = budget_debiread4(saa, DEBINOSWAP, 0x1234, 2) >> 8;
-+	unsigned int code = budget_debiread(budget_ci, DEBINOSWAP, DEBIADDR_IR, 2) >> 8;
- 
- 	if (code & 0x40) {
- 	        code &= 0x3f;
-@@ -182,7 +249,8 @@
- 
- 	memset(&budget_ci->input_dev, 0, sizeof(struct input_dev));
- 
--	budget_ci->input_dev.name = saa->name;
-+	sprintf (budget_ci->ir_dev_name, "Budget-CI dvb ir receiver %s", saa->name);
-+	budget_ci->input_dev.name = budget_ci->ir_dev_name;
- 
- 	set_bit(EV_KEY, budget_ci->input_dev.evbit);
- 
-@@ -209,7 +277,6 @@
- 
- 	saa7146_write(saa, IER, saa7146_read(saa, IER) & ~MASK_06);
- 	saa7146_setgpio(saa, 3, SAA7146_GPIO_INPUT);
--	saa7146_setgpio(saa, 2, SAA7146_GPIO_INPUT);
- 
- 	if (del_timer(&dev->timer))
- 		input_event(dev, EV_KEY, key_map[dev->repeat_key], !!0);
-@@ -217,6 +284,209 @@
- 	input_unregister_device(dev);
- }
- 
-+static int ciintf_read_attribute_mem(struct dvb_ca_en50221* ca, int slot, int address) {
-+	struct budget_ci* budget_ci = (struct budget_ci*) ca->data;
-+
-+	if (slot != 0) return -EINVAL;
-+
-+	return budget_debiread(budget_ci, DEBICICAM, DEBIADDR_ATTR | (address & 0xfff), 1);
-+}
-+
-+static int ciintf_write_attribute_mem(struct dvb_ca_en50221* ca, int slot, int address, u8 value) {
-+	struct budget_ci* budget_ci = (struct budget_ci*) ca->data;
-+
-+	if (slot != 0) return -EINVAL;
-+
-+	return budget_debiwrite(budget_ci, DEBICICAM, DEBIADDR_ATTR | (address & 0xfff), 1, value);
-+}
-+
-+static int ciintf_read_cam_control(struct dvb_ca_en50221* ca, int slot, u8 address) {
-+	struct budget_ci* budget_ci = (struct budget_ci*) ca->data;
-+
-+	if (slot != 0) return -EINVAL;
-+
-+	return budget_debiread(budget_ci, DEBICICAM, DEBIADDR_IO | (address & 3), 1);
-+}
-+
-+static int ciintf_write_cam_control(struct dvb_ca_en50221* ca, int slot, u8 address, u8 value) {
-+	struct budget_ci* budget_ci = (struct budget_ci*) ca->data;
-+
-+	if (slot != 0) return -EINVAL;
-+
-+	return budget_debiwrite(budget_ci, DEBICICAM, DEBIADDR_IO | (address & 3), 1, value);
-+}
-+
-+static int ciintf_slot_reset(struct dvb_ca_en50221* ca, int slot) {
-+	struct budget_ci* budget_ci = (struct budget_ci*) ca->data;
-+	struct saa7146_dev *saa = budget_ci->budget.dev;
-+
-+	if (slot != 0) return -EINVAL;
-+
-+	// trigger on RISING edge during reset so we know when READY is re-asserted
-+	saa7146_setgpio(saa, 0, SAA7146_GPIO_IRQHI);
-+	budget_ci->slot_status = SLOTSTATUS_RESET;
-+	budget_debiwrite(budget_ci, DEBICICTL, DEBIADDR_CICONTROL, 1, 0);
-+	dvb_delay(1);
-+	budget_debiwrite(budget_ci, DEBICICTL, DEBIADDR_CICONTROL, 1, CICONTROL_RESET);
-+
-+	saa7146_setgpio(saa, 1, SAA7146_GPIO_OUTHI);
-+   	ttpci_budget_set_video_port(saa, BUDGET_VIDEO_PORTB);
-+	return 0;
-+}
-+
-+static int ciintf_slot_shutdown(struct dvb_ca_en50221* ca, int slot) {
-+   	struct budget_ci* budget_ci = (struct budget_ci*) ca->data;
-+	struct saa7146_dev *saa = budget_ci->budget.dev;
-+
-+	if (slot != 0) return -EINVAL;
-+
-+	saa7146_setgpio(saa, 1, SAA7146_GPIO_OUTHI);
-+	ttpci_budget_set_video_port(saa, BUDGET_VIDEO_PORTB);
-+	return 0;
-+}
-+
-+static int ciintf_slot_ts_enable(struct dvb_ca_en50221* ca, int slot) {
-+	struct budget_ci* budget_ci = (struct budget_ci*) ca->data;
-+	struct saa7146_dev *saa = budget_ci->budget.dev;
-+	int tmp;
-+
-+	if (slot != 0) return -EINVAL;
-+
-+
-+	saa7146_setgpio(saa, 1, SAA7146_GPIO_OUTLO);
-+
-+	tmp = budget_debiread(budget_ci, DEBICICTL, DEBIADDR_CICONTROL, 1);
-+	budget_debiwrite(budget_ci, DEBICICTL, DEBIADDR_CICONTROL, 1, tmp | CICONTROL_ENABLETS);
-+
-+   	ttpci_budget_set_video_port(saa, BUDGET_VIDEO_PORTA);
-+	return 0;
-+}
-+
-+
-+static void ciintf_interrupt (unsigned long data)
-+{
-+	struct budget_ci *budget_ci = (struct budget_ci*) data;
-+	struct saa7146_dev *saa = budget_ci->budget.dev;
-+	unsigned int flags;
-+
-+	// ensure we don't get spurious IRQs during initialisation
-+	if (!budget_ci->budget.ci_present) return;
-+
-+	flags = budget_debiread(budget_ci, DEBICICTL, DEBIADDR_CICONTROL, 1);
-+
-+	// always set the GPIO mode back to "normal", in case the card is
-+	// yanked at an inopportune moment
-+	saa7146_setgpio(saa, 0, SAA7146_GPIO_IRQLO);
-+
-+	if (flags & CICONTROL_CAMDETECT) {
-+
-+		if (budget_ci->slot_status & SLOTSTATUS_NONE) {
-+			// CAM insertion IRQ
-+			budget_ci->slot_status = SLOTSTATUS_PRESENT;
-+			dvb_ca_en50221_camchange_irq(&budget_ci->ca, 0, DVB_CA_EN50221_CAMCHANGE_INSERTED);
-+
-+		} else if (budget_ci->slot_status & SLOTSTATUS_RESET) {
-+			// CAM ready (reset completed)
-+			budget_ci->slot_status = SLOTSTATUS_READY;
-+			dvb_ca_en50221_camready_irq(&budget_ci->ca, 0);
-+
-+		} else if (budget_ci->slot_status & SLOTSTATUS_READY) {
-+			// FR/DA IRQ
-+			dvb_ca_en50221_frda_irq(&budget_ci->ca, 0);
-+		}
-+	} else {
-+		if (budget_ci->slot_status & SLOTSTATUS_OCCUPIED) {
-+			budget_ci->slot_status = SLOTSTATUS_NONE;
-+			dvb_ca_en50221_camchange_irq(&budget_ci->ca, 0, DVB_CA_EN50221_CAMCHANGE_REMOVED);
-+		}
-+	}
-+}
-+
-+static int ciintf_init(struct budget_ci* budget_ci)
-+{
-+	struct saa7146_dev *saa = budget_ci->budget.dev;
-+	int flags;
-+	int result;
-+
-+	memset(&budget_ci->ca, 0, sizeof(struct dvb_ca_en50221));
-+
-+	// enable DEBI pins
-+	saa7146_write(saa, MC1, saa7146_read(saa, MC1) | (0x800 << 16) | 0x800);
-+
-+	// test if it is there
-+	if ((budget_debiread(budget_ci, DEBICICTL, DEBIADDR_CIVERSION, 1) & 0xa0) != 0xa0) {
-+		result = -ENODEV;
-+		goto error;
-+	}
-+
-+	// determine whether a CAM is present or not
-+	flags = budget_debiread(budget_ci, DEBICICTL, DEBIADDR_CICONTROL, 1);
-+	budget_ci->slot_status = SLOTSTATUS_NONE;
-+	if (flags & CICONTROL_CAMDETECT) budget_ci->slot_status = SLOTSTATUS_PRESENT;
-+
-+
-+	// register CI interface
-+	budget_ci->ca.read_attribute_mem = ciintf_read_attribute_mem;
-+	budget_ci->ca.write_attribute_mem = ciintf_write_attribute_mem;
-+	budget_ci->ca.read_cam_control = ciintf_read_cam_control;
-+	budget_ci->ca.write_cam_control = ciintf_write_cam_control;
-+	budget_ci->ca.slot_reset = ciintf_slot_reset;
-+	budget_ci->ca.slot_shutdown = ciintf_slot_shutdown;
-+	budget_ci->ca.slot_ts_enable = ciintf_slot_ts_enable;
-+	budget_ci->ca.data = budget_ci;
-+	if ((result = dvb_ca_en50221_init(budget_ci->budget.dvb_adapter,
-+					  &budget_ci->ca,
-+					  DVB_CA_EN50221_FLAG_IRQ_CAMCHANGE |
-+					  DVB_CA_EN50221_FLAG_IRQ_FR |
-+					  DVB_CA_EN50221_FLAG_IRQ_DA,
-+				  1)) != 0) {
-+		printk("budget_ci: CI interface detected, but initialisation failed.\n");
-+		goto error;
-+	}
-+
-+	// Setup CI slot IRQ
-+	tasklet_init (&budget_ci->ciintf_irq_tasklet, ciintf_interrupt, (unsigned long) budget_ci);
-+	saa7146_setgpio(saa, 0, SAA7146_GPIO_IRQLO);
-+	saa7146_write(saa, IER, saa7146_read(saa, IER) | MASK_03);
-+	budget_debiwrite(budget_ci, DEBICICTL, DEBIADDR_CICONTROL, 1, CICONTROL_RESET);
-+
-+	// success!
-+	printk("budget_ci: CI interface initialised\n");
-+	budget_ci->budget.ci_present = 1;
-+
-+	// forge a fake CI IRQ so the CAM state is setup correctly
-+	flags = DVB_CA_EN50221_CAMCHANGE_REMOVED;
-+	if (budget_ci->slot_status != SLOTSTATUS_NONE) flags = DVB_CA_EN50221_CAMCHANGE_INSERTED;
-+	dvb_ca_en50221_camchange_irq(&budget_ci->ca, 0, flags);
-+
-+	return 0;
-+
-+error:
-+	saa7146_write(saa, MC1, saa7146_read(saa, MC1) | (0x800 << 16));
-+	return result;
-+}
-+
-+static void ciintf_deinit(struct budget_ci* budget_ci)
-+{
-+	struct saa7146_dev *saa = budget_ci->budget.dev;
-+
-+	// disable CI interrupts
-+	saa7146_write(saa, IER, saa7146_read(saa, IER) & ~MASK_03);
-+	saa7146_setgpio(saa, 0, SAA7146_GPIO_INPUT);
-+	tasklet_kill(&budget_ci->ciintf_irq_tasklet);
-+	budget_debiwrite(budget_ci, DEBICICTL, DEBIADDR_CICONTROL, 1, 0);
-+	dvb_delay(1);
-+	budget_debiwrite(budget_ci, DEBICICTL, DEBIADDR_CICONTROL, 1, CICONTROL_RESET);
-+
-+	// disable TS data stream to CI interface
-+	saa7146_setgpio(saa, 1, SAA7146_GPIO_INPUT);
-+
-+	// release the CA device
-+	dvb_ca_en50221_release(&budget_ci->ca);
-+
-+	// disable DEBI pins
-+	saa7146_write(saa, MC1, saa7146_read(saa, MC1) | (0x800 << 16));
-+}
- 
- static void budget_ci_irq (struct saa7146_dev *dev, u32 *isr)
- {
-@@ -229,6 +499,9 @@
- 
-         if (*isr & MASK_10)
- 		ttpci_budget_irq10_handler (dev, isr);
-+
-+	if ((*isr & MASK_03) && (budget_ci->budget.ci_present))
-+		tasklet_schedule (&budget_ci->ciintf_irq_tasklet);
- }
- 
- 
-@@ -244,6 +517,9 @@
- 
- 	DEB_EE(("budget_ci: %p\n", budget_ci));
- 
-+	spin_lock_init(&budget_ci->debilock);
-+	budget_ci->budget.ci_present = 0;
-+
- 	if ((err = ttpci_budget_init (&budget_ci->budget, dev, info))) {
- 		kfree (budget_ci);
- 		return err;
-@@ -256,6 +532,9 @@
- 
- 	msp430_ir_init (budget_ci);
- 
-+	// UNCOMMENT TO TEST CI INTERFACE
-+//	ciintf_init(budget_ci);
-+
- 	return 0;
- }
- 
-@@ -264,14 +543,20 @@
- static int budget_ci_detach (struct saa7146_dev* dev)
- {
- 	struct budget_ci *budget_ci = (struct budget_ci*) dev->ext_priv;
-+	struct saa7146_dev *saa = budget_ci->budget.dev;
- 	int err;
- 
-+	if (budget_ci->budget.ci_present) ciintf_deinit(budget_ci);
-+
- 	err = ttpci_budget_deinit (&budget_ci->budget);
- 
- 	tasklet_kill (&budget_ci->msp430_irq_tasklet);
- 
- 	msp430_ir_deinit (budget_ci);
- 
-+	// disable frontend and CI interface
-+	saa7146_setgpio(saa, 2, SAA7146_GPIO_INPUT);
-+
- 	kfree (budget_ci);
- 
- 	return err;
-@@ -304,7 +589,7 @@
- 	.attach		= budget_ci_attach,
- 	.detach		= budget_ci_detach,
- 
--	.irq_mask	= MASK_06 | MASK_10,
-+	.irq_mask	= MASK_03 | MASK_06 | MASK_10,
- 	.irq_func	= budget_ci_irq,
- };	
- 
-@@ -325,7 +610,7 @@
- module_exit(budget_ci_exit);
- 
- MODULE_LICENSE("GPL");
--MODULE_AUTHOR("Michael Hunold, Jack Thomasson, others");
-+MODULE_AUTHOR("Michael Hunold, Jack Thomasson, Andrew de Quincey, others");
- MODULE_DESCRIPTION("driver for the SAA7146 based so-called "
- 		   "budget PCI DVB cards w/ CI-module produced by "
- 		   "Siemens, Technotrend, Hauppauge");
-diff -urawBN xx-linux-2.6.5/drivers/media/dvb/ttpci/budget-core.c linux-2.6.5-patched/drivers/media/dvb/ttpci/budget-core.c
---- xx-linux-2.6.5/drivers/media/dvb/ttpci/budget-core.c	2003-12-18 03:58:39.000000000 +0100
-+++ linux-2.6.5-patched/drivers/media/dvb/ttpci/budget-core.c	2004-04-21 01:23:32.000000000 +0200
-@@ -1,3 +1,39 @@
-+/*
-+ * budget-core.c: driver for the SAA7146 based Budget DVB cards
-+ *
-+ * Compiled from various sources by Michael Hunold <michael@mihu.de>
-+ *
-+ * Copyright (C) 2002 Ralph Metzler <rjkm@metzlerbros.de>
-+ *
-+ * Copyright (C) 1999-2002 Ralph  Metzler
-+ *			 & Marcus Metzler for convergence integrated media GmbH
-+ *
-+ * 26feb2004 Support for FS Activy Card (Grundig tuner) by
-+ *	     Michael Dreher <michael@5dot1.de>,
-+ *	     Oliver Endriss <o.endriss@gmx.de>,
-+ *	     Andreas 'randy' Weinberger
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version 2
-+ * of the License, or (at your option) any later version.
-+ *
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
-+ * GNU General Public License for more details.
-+ *
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-+ * Or, point your browser to http://www.gnu.org/copyleft/gpl.html
-+ *
-+ *
-+ * the project's page is at http://www.linuxtv.org/dvb/
-+ */
-+
- #include "budget.h"
- #include "ttpci-eeprom.h"
- 
-@@ -38,10 +74,33 @@
- 
-         budget->tsf=0xff;
-         budget->ttbp=0;
-+
-+	/*
-+	 *  Signal path on the Activy:
-+	 *
-+	 *  tuner -> SAA7146 port A -> SAA7146 BRS -> SAA7146 DMA3 -> memory
-+	 *
-+	 *  Since the tuner feeds 204 bytes packets into the SAA7146,
-+	 *  DMA3 is configured to strip the trailing 16 FEC bytes:
-+	 *	Pitch: 188, NumBytes3: 188, NumLines3: 1024
-+	 */
-+
-+	if (budget->card->type == BUDGET_FS_ACTIVY) {
-+		saa7146_write(dev, DD1_INIT, 0x04000000);
-+		saa7146_write(dev, MC2, (MASK_09 | MASK_25));
-+		saa7146_write(dev, BRS_CTRL, 0x00000000);
-+	} else {
-+		if (budget->video_port == BUDGET_VIDEO_PORTA) {
-+			saa7146_write(dev, DD1_INIT, 0x06000200);
-+			saa7146_write(dev, MC2, (MASK_09 | MASK_25 | MASK_10 | MASK_26));
-+			saa7146_write(dev, BRS_CTRL, 0x00000000);
-+		} else {
-         saa7146_write(dev, DD1_INIT, 0x02000600);
-         saa7146_write(dev, MC2, (MASK_09 | MASK_25 | MASK_10 | MASK_26));
--
-         saa7146_write(dev, BRS_CTRL, 0x60000000);	
-+		}
-+	}
-+
-       	saa7146_write(dev, MC2, (MASK_08 | MASK_24));
-         mdelay(10);
- 
-@@ -49,9 +108,15 @@
-         saa7146_write(dev, BASE_EVEN3, 0);
-         saa7146_write(dev, PROT_ADDR3, TS_WIDTH*TS_HEIGHT);	
-         saa7146_write(dev, BASE_PAGE3, budget->pt.dma |ME1|0x90);
--        saa7146_write(dev, PITCH3, TS_WIDTH);
- 
-+	if (budget->card->type == BUDGET_FS_ACTIVY) {
-+		saa7146_write(dev, PITCH3, TS_WIDTH/2);
-+		saa7146_write(dev, NUM_LINE_BYTE3, ((TS_HEIGHT*2)<<16)|(TS_WIDTH/2));
-+	} else {
-+		saa7146_write(dev, PITCH3, TS_WIDTH);
-         saa7146_write(dev, NUM_LINE_BYTE3, (TS_HEIGHT<<16)|TS_WIDTH);
-+	}
-+
-       	saa7146_write(dev, MC2, (MASK_04 | MASK_20));
-      	saa7146_write(dev, MC1, (MASK_04 | MASK_20)); // DMA3 on
- 
-@@ -99,23 +164,31 @@
- {
-         struct dvb_demux *demux = feed->demux;
-         struct budget *budget = (struct budget*) demux->priv;
-+	int status;
- 
- 	DEB_EE(("budget: %p\n",budget));
- 
-         if (!demux->dmx.frontend)
-                 return -EINVAL;
- 
--	return start_ts_capture (budget); 
-+   	spin_lock(&budget->feedlock);   
-+	status = start_ts_capture (budget);
-+   	spin_unlock(&budget->feedlock);
-+	return status;
- }
- 
- static int budget_stop_feed(struct dvb_demux_feed *feed)
- {
-         struct dvb_demux *demux = feed->demux;
-         struct budget *budget = (struct budget *) demux->priv;
-+	int status;
- 
- 	DEB_EE(("budget: %p\n",budget));
- 
--	return stop_ts_capture (budget); 
-+   	spin_lock(&budget->feedlock);
-+	status = stop_ts_capture (budget);
-+   	spin_unlock(&budget->feedlock);
-+	return status;
- }
- 
- 
-@@ -208,18 +281,27 @@
- 	budget->card = bi;
- 	budget->dev = (struct saa7146_dev *) dev;
- 
--	dvb_register_adapter(&budget->dvb_adapter, budget->card->name);
-+	dvb_register_adapter(&budget->dvb_adapter, budget->card->name, THIS_MODULE);
- 
- 	/* set dd1 stream a & b */
-       	saa7146_write(dev, DD1_STREAM_B, 0x00000000);
-+	saa7146_write(dev, MC2, (MASK_09 | MASK_25));
-+	saa7146_write(dev, MC2, (MASK_10 | MASK_26));
- 	saa7146_write(dev, DD1_INIT, 0x02000000);
- 	saa7146_write(dev, MC2, (MASK_09 | MASK_25 | MASK_10 | MASK_26));
- 
-+       	if (bi->type != BUDGET_FS_ACTIVY)
-+		budget->video_port = BUDGET_VIDEO_PORTB;
-+	else
-+		budget->video_port = BUDGET_VIDEO_PORTA;
-+	spin_lock_init(&budget->feedlock);
-+
- 	/* the Siemens DVB needs this if you want to have the i2c chips
-            get recognized before the main driver is loaded */
--        saa7146_write(dev, GPIO_CTRL, 0x500000);
-+	if (bi->type != BUDGET_FS_ACTIVY)
-+		saa7146_write(dev, GPIO_CTRL, 0x500000); /* GPIO 3 = 1 */
- 	
--	saa7146_i2c_adapter_prepare(dev, NULL, SAA7146_I2C_BUS_BIT_RATE_120);
-+	saa7146_i2c_adapter_prepare(dev, NULL, 0, SAA7146_I2C_BUS_BIT_RATE_120);
- 
- 	budget->i2c_bus = dvb_register_i2c_bus (master_xfer, dev,
- 						budget->dvb_adapter, 0);
-@@ -242,7 +324,11 @@
- 
- 	tasklet_init (&budget->vpe_tasklet, vpeirq, (unsigned long) budget);
- 
--	saa7146_setgpio(dev, 2, SAA7146_GPIO_OUTHI); /* frontend power on */
-+	/* frontend power on */
-+	if (bi->type == BUDGET_FS_ACTIVY)
-+		saa7146_setgpio(dev, 1, SAA7146_GPIO_OUTHI);
-+	else
-+		saa7146_setgpio(dev, 2, SAA7146_GPIO_OUTHI);
- 
-         if (budget_register(budget) == 0) {
- 		return 0;
-@@ -292,10 +378,28 @@
- 		tasklet_schedule (&budget->vpe_tasklet);
- }
- 
-+void ttpci_budget_set_video_port(struct saa7146_dev* dev, int video_port)
-+{
-+	struct budget *budget = (struct budget*)dev->ext_priv;
-+
-+	spin_lock(&budget->feedlock);
-+	budget->video_port = video_port;
-+	if (budget->feeding) {
-+		int oldfeeding = budget->feeding;
-+	   	budget->feeding = 1;
-+		stop_ts_capture(budget);
-+		start_ts_capture(budget);
-+	   	budget->feeding = oldfeeding;
-+	}
-+   	spin_unlock(&budget->feedlock);
-+}
-+
-+
- 
- EXPORT_SYMBOL_GPL(ttpci_budget_init);
- EXPORT_SYMBOL_GPL(ttpci_budget_deinit);
- EXPORT_SYMBOL_GPL(ttpci_budget_irq10_handler);
-+EXPORT_SYMBOL_GPL(ttpci_budget_set_video_port);
- EXPORT_SYMBOL_GPL(budget_debug);
- 
- MODULE_PARM(budget_debug,"i");
-diff -urawBN xx-linux-2.6.5/drivers/media/dvb/ttpci/budget.h linux-2.6.5-patched/drivers/media/dvb/ttpci/budget.h
---- xx-linux-2.6.5/drivers/media/dvb/ttpci/budget.h	2004-01-16 18:25:17.000000000 +0100
-+++ linux-2.6.5-patched/drivers/media/dvb/ttpci/budget.h	2004-04-21 01:23:32.000000000 +0200
-@@ -46,10 +46,15 @@
-         int                     fe_synced; 
-         struct semaphore        pid_mutex;
- 
-+	int                     ci_present;
-+        int                     video_port;
-+
-         u8 tsf;
-         u32 ttbp;
-         int feeding;
- 
-+	spinlock_t feedlock;
-+
-         struct dvb_adapter       *dvb_adapter;
- 	void			 *priv;
+@@ -652,13 +655,13 @@
+ static struct saa7146_standard dvb_standard[] = {
+ 	{
+ 		.name	= "PAL",	.id		= V4L2_STD_PAL_BG,
+-		.v_offset	= 0x14,	.v_field	= 288,		.v_calc	= 576,
+-		.h_offset	= 0x4a,	.h_pixels	= 708,		.h_calc	= 709,
++		.v_offset	= 0x14,	.v_field	= 288,
++		.h_offset	= 0x48,	.h_pixels	= 708,
+ 		.v_max_out	= 576,	.h_max_out	= 768,
+ 	}, {
+ 		.name	= "NTSC",	.id		= V4L2_STD_NTSC,
+-		.v_offset	= 0x10,	.v_field	= 244,		.v_calc	= 480,
+-		.h_offset	= 0x40,	.h_pixels	= 708,		.h_calc	= 709,
++		.v_offset	= 0x10,	.v_field	= 244,
++		.h_offset	= 0x40,	.h_pixels	= 708,
+ 		.v_max_out	= 480,	.h_max_out	= 640,
+ 	}
  };
-@@ -73,13 +78,17 @@
- #define BUDGET_TT_HW_DISEQC	   1
- #define BUDGET_KNC1		   2
- #define BUDGET_PATCH		   3
-+#define BUDGET_FS_ACTIVY	   4
- 
-+#define BUDGET_VIDEO_PORTA         0
-+#define BUDGET_VIDEO_PORTB         1
- 
- extern int ttpci_budget_init (struct budget *budget,
- 			      struct saa7146_dev* dev,
- 			      struct saa7146_pci_extension_data *info);
- extern int ttpci_budget_deinit (struct budget *budget);
- extern void ttpci_budget_irq10_handler (struct saa7146_dev* dev, u32 *isr);
-+extern void ttpci_budget_set_video_port(struct saa7146_dev* dev, int video_port);
- 
- #endif
- 
 
 

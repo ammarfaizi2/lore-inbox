@@ -1,48 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVCVMUS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbVCVMVR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261154AbVCVMUS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 07:20:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbVCVMUS
+	id S261155AbVCVMVR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 07:21:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261157AbVCVMVR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 07:20:18 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:59067 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261154AbVCVMUN (ORCPT
+	Tue, 22 Mar 2005 07:21:17 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:42215 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261155AbVCVMVA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 07:20:13 -0500
-Date: Tue, 22 Mar 2005 13:20:04 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Sean Russell <ser@ser1.net>
-cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1[01] freeze on x86_64
-In-Reply-To: <423FC2ED.1090704@ser1.net>
-Message-ID: <Pine.LNX.4.61.0503221317220.10134@yvahk01.tjqt.qr>
-References: <423F5152.2010303@ser1.net> <m13buo3vew.fsf@muc.de>
- <423FC2ED.1090704@ser1.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 22 Mar 2005 07:21:00 -0500
+Date: Tue, 22 Mar 2005 13:20:41 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Li, Shaohua" <shaohua.li@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, rjw@sisk.pl,
+       lkml <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>
+Subject: Re: 2.6.12-rc1-mm1: Kernel BUG at pci:389
+Message-ID: <20050322122041.GA1414@elf.ucw.cz>
+References: <16A54BF5D6E14E4D916CE26C9AD3057501731439@pdsmsx402.ccr.corp.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16A54BF5D6E14E4D916CE26C9AD3057501731439@pdsmsx402.ccr.corp.intel.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >    acpi_thermal-0400 [23] acpi_thermal_get_trip_: Invalid active
->> > threshold [0]
->> 
->> You mean you got this in /var/log/messages?
->
-> Yes, in /var/log/messages.  The lock up occurs without warning, so the only
-> opportunity I have to look for error messages is in the syslogs.
->
->> Can you connect a serial console or netconsole and see if that 
->> 
-> Er... by serial console, I assume you mean via a serial cable and some other
-> device.  If so, then no, I don't have that capability.  I didn't know about
-> netconsole before you mentioned it; I'll do some research and set it up.  I do
-> have a second computer (well, my wife's laptop is also running Linux) that I
-> could use to monitor UDP traffic, if I can figure out what to use as a client
-> to capture the messages.  This may take me a couple of days.
+Hi!
 
-Serial console -- only requires a serial cable, available in the next computer 
-store -- also works with non-Linux, non-x86 and (mostly) systems-w/o-compiler.
+> >> > Yes, but it is needed. There are many drivers, and they look at
+> >> > numerical value of PMSG_*. I'm proceeding in steps. I hopefully
+> killed
+> >> > all direct accesses to the constants, and will switch constants to
+> >> > something else... But that is going to be tommorow (need some
+> sleep).
+> >> The patches are going to acquire correct PCI device sleep state for
+> >> suspend/resume. We discussed the issue several months ago. My plan is
+> we
+> >> first introduce 'platform_pci_set_power_state', then merge the
+> >> 'platform_pci_choose_state' patch after Pavel's pm_message_t
+> conversion
+> >> finished. Maybe Len mislead my comments.
+> >>
+> >> Anyway for the callback, my intend is platform_pci_choose_state
+> accept
+> >> the pm_message_t parameter, and it return an 'int', since platform
+> >> method possibly failed and then pci_choose_state translate the return
+> >> value to pci_power_t.
+> >
+> >You can't just retype around like that. You may want it take
+> >pci_power_t * as an argument, and then return 0/-ENODEV or something
+> >like that. But you can't retype between int and pm_message_t...
+> No, taking pci_power_t as an argument is meaningless. For ACPI, we
+> should know the exact sleep state, pm_message_t will tell us. But I'm ok
+> to let it return a pci_power_t, and the failure case returns
+> -ENODEV.
 
+You can't put -ENODEV into pci_power_t ... but maybe we should create
+PCI_ERROR and pass it in cases like this one?
 
-Jan Engelhardt
+> >> > Could you just revert those two patches? First one is very
+> >> > wrong. Second one might be fixed, but... See comments below.
+> >> I think the platform_pci_set_power_state should be ok, did you see it
+> >> causes oops?
+> >
+> >No its just ugly and uses __force in "creative" way. That one can be
+> >recovered.
+> Do you mean this?
+> 
+> > +	static int state_conv[] = {
+> > +		[0] = 0,
+> > +		[1] = 1,
+> > +		[2] = 2,
+> > +		[3] = 3,
+> > +		[4] = 3
+> > +	};
+> > +	int acpi_state = state_conv[(int __force) state];
+> 
+> The table should be
+> 		[PCI_D0] = 0,
+> 
+> I'm not sure, but then could we use state_conv[state] directly? It seems
+
+I think so. Of course it is wrong, but it is less wrong than forcing
+it to integer than index, without using macros at all.
+
+Or perhaps you should do
+
+switch (state) {
+case PCI_D0: ...
+}
+
+...and handle default case somehow.
+								Pavel
 -- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,59 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265023AbSJWOLP>; Wed, 23 Oct 2002 10:11:15 -0400
+	id <S265011AbSJWOSi>; Wed, 23 Oct 2002 10:18:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265024AbSJWOLP>; Wed, 23 Oct 2002 10:11:15 -0400
-Received: from mta06bw.bigpond.com ([139.134.6.96]:59891 "EHLO
-	mta06bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S265023AbSJWOLN> convert rfc822-to-8bit; Wed, 23 Oct 2002 10:11:13 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Srihari Vijayaraghavan <harisri@bigpond.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: 2.4.20pre11aa1
-Date: Thu, 24 Oct 2002 00:26:36 +1000
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
-References: <20021018145204.GG23930@dualathlon.random> <200210232227.47721.harisri@bigpond.com> <20021023124659.GF30182@dualathlon.random>
-In-Reply-To: <20021023124659.GF30182@dualathlon.random>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210240026.36642.harisri@bigpond.com>
+	id <S265016AbSJWOSi>; Wed, 23 Oct 2002 10:18:38 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:1833 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S265011AbSJWOSh>; Wed, 23 Oct 2002 10:18:37 -0400
+Date: Wed, 23 Oct 2002 16:23:42 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@zip.com.au>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [patch] generic nonlinear mappings, 2.5.44-mm2-D0
+Message-ID: <20021023142342.GC1912@dualathlon.random>
+References: <20021023115026.GB30182@dualathlon.random> <Pine.LNX.4.44.0210231618150.10431-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0210231618150.10431-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrea,
+On Wed, Oct 23, 2002 at 04:20:30PM +0200, Ingo Molnar wrote:
+> 
+> On Wed, 23 Oct 2002, Andrea Arcangeli wrote:
+> 
+> > it's not another vma tree, furthmore another vma tree indexed by the
+> > hole size wouldn't be able to defragment and it would find the best fit
+> > not the first fit on the left.
+> 
+> what i was talking about was a hole-tree indexed by the hole start
 
-On Wednesday 23 October 2002 22:46, Andrea Arcangeli wrote:
-> Ok, please try to backout 2.4.20pre11aa1/00_reduce-module-races-1.
-> I just moved it into the 20 serie. that should fix this bit.
+yes an hole tree.
 
-Yes I did that. I renamed it to _00_reduce-module-races-1, and did the 
-patching again.
+> address, not a vma tree indexed by the hole size. (the later is pretty
 
-But that did not help. Here is the current std_err:
+indexed by the hole start address? then it's still O(N), then your quick
+cache for the first hole would not be much different. I above meant hole
+size, then it would be O(log(N)), but it wouldn't defragment anymore.
 
-exit.c: In function `release_task':
-exit.c:44: warning: implicit declaration of function `sched_exit'
-shmem.c: In function `shmem_getpage_locked':
-shmem.c:560: warning: unused variable `flags'
-{standard input}: Assembler messages:
-{standard input}:1014: Warning: indirect lcall without `*'
-{standard input}:1091: Warning: indirect lcall without `*'
-{standard input}:1176: Warning: indirect lcall without `*'
-{standard input}:1255: Warning: indirect lcall without `*'
-{standard input}:1271: Warning: indirect lcall without `*'
-{standard input}:1281: Warning: indirect lcall without `*'
-{standard input}:1349: Warning: indirect lcall without `*'
-{standard input}:1364: Warning: indirect lcall without `*'
-{standard input}:1375: Warning: indirect lcall without `*'
-{standard input}:1874: Warning: indirect lcall without `*'
-{standard input}:1960: Warning: indirect lcall without `*'
-init_task.c:3:34: linux/sched_runqueue.h: No such file or directory
-make[1]: *** [init_task.o] Error 1
-make: *** [_dir_arch/i386/kernel] Error 2
+> pointless.) And even this solution still has to search the tree linearly
+> for a matching hole.
 
-Thanks.
--- 
-Hari
-harisri@bigpond.com
+exactly, it's still O(N).
 
+The final solution needed isn't a plain tree, it needs modifications to
+the rbtree code to make the data structure more powerful, that will
+provide that info in O(log(N)) without an additional tree and starting
+from the left (i.e. it won't alter the retval of get_unmapped_area, just
+its speed).  the design is just finished for some time, what's left is
+to implement it and it isn't trivial ;).
+
+Anyways this O(log(N)) complexity improvement is needed anyways, old
+applications will be still around in particular when they will find they
+don't need special API to work fast.
+
+Andrea

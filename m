@@ -1,43 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266555AbSLDNzH>; Wed, 4 Dec 2002 08:55:07 -0500
+	id <S261693AbSLDOCc>; Wed, 4 Dec 2002 09:02:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266652AbSLDNzH>; Wed, 4 Dec 2002 08:55:07 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:21669 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266555AbSLDNzG>; Wed, 4 Dec 2002 08:55:06 -0500
-Subject: Re: [patch]back ports ICH3M support into 2.4.20
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: hugang <hugang@soulinfo.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, andrea@suse.de,
-       jamagallon@able.es, marcelo@hera.kernel.org
-In-Reply-To: <20021204210941.47b4db08.hugang@soulinfo.com>
-References: <20021201130427.37a915bf.hugang@soulinfo.com>
-	<1038765805.30381.3.camel@irongate.swansea.linux.org.uk> 
-	<20021204210941.47b4db08.hugang@soulinfo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 04 Dec 2002 14:36:48 +0000
-Message-Id: <1039012608.15353.26.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S261839AbSLDOCc>; Wed, 4 Dec 2002 09:02:32 -0500
+Received: from [195.212.29.4] ([195.212.29.4]:8419 "EHLO
+	d06lmsgate-4.uk.ibm.COM") by vger.kernel.org with ESMTP
+	id <S261693AbSLDOCb> convert rfc822-to-8bit; Wed, 4 Dec 2002 09:02:31 -0500
+From: rasman@uk.ibm.com
+Reply-To: rasman@uk.ibm.com
+Organization: IBM
+To: linux-kernel@vger.kernel.org
+Subject: Re: POSIX specs, code, projects, or tests
+Date: Wed, 4 Dec 2002 14:07:36 +0000
+User-Agent: KMail/1.4.1
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>
+MIME-Version: 1.0
+Message-Id: <200212041407.36119.rasman@uk.ibm.com>
+X-MIMETrack: Itemize by SMTP Server on D06ML023/06/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 04/12/2002 14:09:37,
+	Serialize by Router on D06ML023/06/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 04/12/2002 14:09:43,
+	Serialize complete at 04/12/2002 14:09:43
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-12-04 at 13:09, hugang wrote:
-> > 2.4.20 already has the correct version of the fixes for partially
-> > configured IDE devices. The code you are posting is old and in several
-> > places wrong, hence it was removed.
-> > 
-> > 2.4.20 will try and do a full pci device setup, then fall back to just
-> > configuring BAR4.
-> > 
-> > Alan
-> > 
-> Here is an new patch for it. But I'm not true that , Place the fixup function in pci_init_piix is good way. But it works.
-> Here is it.
+ Randy.Dunlap wrote:
+ 
+ > 
+ > Hi,
+ > 
+ > If you know of any POSIX-related code, specs/docs, projects, or tests
+ > for Linux that are not already merged into a 2.4 or 2.5 kernel and are
+ > _not_ listed at
+ >   http://www.xenotime.net/linux/linux-posix.html
+ > I'd like to hear about them.
+ > 
+ > Thanks,
+ > --
+ > ~Randy
+ > 
+ > -
+ > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+ > the body of a message to majordomo@vger.kernel.org
+ > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ > Please read the FAQ at  http://www.tux.org/lkml/
 
-See what I said before. 2.4.20 already does a pci BAR4 fixup if needed.
-Your change is still wrong.
+ Randy,
+ 
+ we are working on the reference implmentation for the POSIX Event Logging 
+ draft standard. See: http://evlog.sourceforge.net
 
+I didn't see this mentioned on you web-site. 
 
+ Richard
+ 
+ -- 
+ Richard J Moore
+ RAS Team Lead - IBM Linux Technology Centre
+
+`--------------- Forwarded message (end)
+
+-- 
+Richard J Moore
+RAS Team Lead - IBM Linux Technology Centre

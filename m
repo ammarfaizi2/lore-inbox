@@ -1,79 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261932AbSIPL73>; Mon, 16 Sep 2002 07:59:29 -0400
+	id <S261807AbSIPLzc>; Mon, 16 Sep 2002 07:55:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261944AbSIPL73>; Mon, 16 Sep 2002 07:59:29 -0400
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:49597 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261932AbSIPL71>; Mon, 16 Sep 2002 07:59:27 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: WOLK - Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.35-vanilla compile error with NTFS - FIX
-Date: Mon, 16 Sep 2002 14:04:00 +0200
-X-Mailer: KMail [version 1.4]
-MIME-Version: 1.0
-Message-Id: <200209161319.42557.m.c.p@gmx.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_OI5JJ8LGPSG9ERCDKYSZ"
+	id <S261923AbSIPLzb>; Mon, 16 Sep 2002 07:55:31 -0400
+Received: from dp.samba.org ([66.70.73.150]:15049 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261807AbSIPLzY>;
+	Mon, 16 Sep 2002 07:55:24 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Daniel Phillips <phillips@arcor.de>, Roman Zippel <zippel@linux-m68k.org>
+Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Raceless module interface 
+In-reply-to: Your message of "Fri, 13 Sep 2002 15:34:53 +0200."
+             <E17pqaz-000891-00@starship> 
+Date: Mon, 16 Sep 2002 12:17:33 +1000
+Message-Id: <20020916120022.22FFC2C12A@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <E17pqaz-000891-00@starship> you write:
+> On Friday 13 September 2002 08:51, Rusty Russell wrote:
+> > If you split registration interfaces into reserve (can fail) and
+> > use (can't fail), then you do:
+> 
+> Why is that different from:
+> 
+>  	int my_module_init(void)
+>  	{
+>  		int ret;
+>  		ret = reserve_foo();
+>  		if (ret != 0)
+>  			return ret;
+>  		ret = reserve_bar();
+>  		if (ret != 0) {
+>  			unreserve_foo();
+> 	 		return ret;
+> 		}
+>  		use_foo();
+>  		use_bar();
+> 		return 0;
+>  	}
 
---------------Boundary-00=_OI5JJ8LGPSG9ERCDKYSZ
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+As I said:
 
-Hi Linus,
+R> Of course you can simulate a two-stage within a single-stage, of course,
+R> by doing int single_stage(void) { stage_one(); stage_two(); }, so
+R> "need" is a bit strong.
 
-root@codeman:[/usr/src/linux-2.5.35] # make modules_install
-=2E..
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.35; fi
-depmod: *** Unresolved symbols in /lib/modules/2.5.35/kernel/fs/ntfs/ntfs=
-=2Eo
-depmod:         unmap_underlying_metadata
-root@codeman:[/usr/src/linux-2.5.35] #
+> Of course, and you might consider actually reading my [RFC].
 
-This also was true for 2.5.34.
+You weighed into a debate without background, with a longwinded
+"original" suggestion which wasn't, and then you accuse *me* of not
+reading?
 
-=2E..
-CONFIG_NTFS_FS=3Dm
-# CONFIG_NTFS_DEBUG is not set
-CONFIG_NTFS_RW=3Dy
-=2E..
+You divided modules into counting and non-counting.  This is overly
+simplistic.  In fact, *interfaces* are divided into counting and
+non-counting: a module may use both.  A module which only uses
+counting interfaces is trivially safe from unload races.  The
+interesting problem is module which control their own reference
+counts, because they use one or more non-counting interfaces.
 
-The attached patch fixes it. Please apply.
+Your "solution" does not work:
 
+>	unregister_callpoints(...);
+>	magic_wait_for_quiescence();
+>	return cleanup_foo(...);
 
---=20
-Kind regards
-        Marc-Christian Petersen
+In fact, it would look like:
 
-http://sourceforge.net/projects/wolk
+>	unregister_callpoints(...);
+>	synchronize_kernel();
+>	if (atomic_read(&usecount) != 0) {
+>		reregister_callpoints(...);
+>		return -EBUSY;
+>	}
+>	cleanup_foo();
 
-PGP/GnuPG Key: 1024D/569DE2E3DB441A16
-Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
-Key available at www.keyserver.net. Encrypted e-mail preferred.
---------------Boundary-00=_OI5JJ8LGPSG9ERCDKYSZ
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="ntfs-module-build-unresolved-symbols-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="ntfs-module-build-unresolved-symbols-fix.patch"
+Now, think what happens if reregister_callpoints() fails.  So we need
+"unuse_xxx" here then.
 
-diff -ruN linux-2.5.35-vanilla/fs/buffer.c linux-2.5.35-mcp1-fullkernel/fs/buffer.c
---- linux-2.5.35-vanilla/fs/buffer.c		2002-09-16 10:47:01.000000000 +0200
-+++ linux-2.5.35-mcp1-fullkernel/fs/buffer.c	2002-09-16 13:54:24.000000000 +0200
-@@ -1628,6 +1628,7 @@
- 		__brelse(old_bh);
- 	}
- }
-+EXPORT_SYMBOL(unmap_underlying_metadata);
- 
- /*
-  * NOTE! All mapped/uptodate combinations are valid:
+Now, *think* for one moment, from the point of view of the author of
+one of these modules.  Now, how are you going to explain the subtle
+requirements of your "two stage in one" interfaces?  Bear in mind that
+the init races weren't even understood by anyone on linux-kernel until
+two years ago, and you're dealing with a newbie kernel programmer.
 
---------------Boundary-00=_OI5JJ8LGPSG9ERCDKYSZ--
+Now do you see my preference for taking the weight off the shoulders
+of module authors?  It's just not sane to ask them to deal with these
+fairly esoteric races, and expect them to get it right.
 
+We could simply ban modules from using non-counting interfaces.  Or we
+could introduce two-stage registration interfaces and then simply ban
+their unloading.  Or we can make their unloading a kernel hacking
+option.  Or we can provide all the infrastructure, and allow the
+module authors to set their own comfort level.
+
+> Don't forget that the Unix way has traditionally been to use the
+> simplest interface that will do the job; if you propose a fat
+> interface you need to prove that the thin one cannot do the job.
+
+Gee, really?  You're so clever!
+
+You patronising little shit,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288716AbSAVH3A>; Tue, 22 Jan 2002 02:29:00 -0500
+	id <S289186AbSAVHij>; Tue, 22 Jan 2002 02:38:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289182AbSAVH2t>; Tue, 22 Jan 2002 02:28:49 -0500
-Received: from flrtn-4-m1-156.vnnyca.adelphia.net ([24.55.69.156]:50560 "EHLO
-	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S288716AbSAVH2n>;
-	Tue, 22 Jan 2002 02:28:43 -0500
-Message-ID: <3C4D149A.8080703@pobox.com>
-Date: Mon, 21 Jan 2002 23:28:26 -0800
-From: J Sloan <jjs@pobox.com>
-Organization: J S Concepts
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020117
-X-Accept-Language: en-us
+	id <S289188AbSAVHiU>; Tue, 22 Jan 2002 02:38:20 -0500
+Received: from khms.westfalen.de ([62.153.201.243]:59558 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S289186AbSAVHiP>; Tue, 22 Jan 2002 02:38:15 -0500
+Date: 22 Jan 2002 08:29:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8HM4sDkXw-B@khms.westfalen.de>
+In-Reply-To: <E16Snav-0001kl-00@starship.berlin>
+Subject: Re: [kbuild-devel] Re: CML2-2.1.3 is available
+X-Mailer: CrossPoint v3.12d.kh8 R/C435
 MIME-Version: 1.0
-To: Dieter =?ISO-8859-15?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-CC: rwhron@earthlink.net, Robert Love <rml@tech9.net>,
-        Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <20020114165430.421B01ED55@Cantor.suse.de> <20020114182019.E22791@athlon.random> <20020122051248Z288255-13996+9603@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <3C4C4A60.7030700@dplanet.ch> <20020115145324.A5772@thyrsus.com> <E16ShDP-0001ic-00@starship.berlin> <3C4C4A60.7030700@dplanet.ch> <E16Snav-0001kl-00@starship.berlin>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dieter Nützel wrote:
+phillips@bonn-fries.net (Daniel Phillips)  wrote on 22.01.02 in <E16Snav-0001kl-00@starship.berlin>:
 
->But you should bench 2.4.18pre2aa2 + preempt + lock-break or
->2.4.18-pre4 + O(1) J4 + 10_vm-22 (aa2) + preempt + lock-break...
+> On January 21, 2002 06:05 pm, Giacomo Catenazzi wrote:
+> > Daniel Phillips wrote:
+> >
+> > >
+> > > I detect a slight lack of symmetry here, shouldn't it be "make
+> > > autoconfig"? Pardon me if this has been beaten to^W^W discussed above.
+> >
+> >
+> > Yes. It should be "make autoconfig", for symmterty reasons :-)
+> > I called the files and the project autoconfigure, because
+> > 'autoconfig' is already an utility made by GNU. (not related
+> > to kernel)
 >
->That's what I'm doing all night long for Robert...
->
+> This is kernel autoconfig, different namespace, same idea.  I don't think
+> you have a problem.  Besides, last time I checked, autoconfig wasn't
+> copyrighted.
 
-In that case, will you also do plain 2.4.18pre2-aa2?
+Last time I checked, autoconf (not -ig) was GPL. But as long as you don't  
+use code from it, copyright is completely irrelevant anyway: trademark  
+status might be relevant when you're talking about names. (And %@$&$!  
+patent status when talking about algorithms.)
 
-The effects of O(1), preempt etc on -aa2 would of
-course only be meaningful when compared to
-vanilla -aa2 on the same platform.
-
-I will be doing testing here with 2.4.18-pre4-aa1.
-
-Regards,
-
-Joe
-
-
-
+MfG Kai

@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277687AbRJIB21>; Mon, 8 Oct 2001 21:28:27 -0400
+	id <S277684AbRJIBh7>; Mon, 8 Oct 2001 21:37:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277688AbRJIB2R>; Mon, 8 Oct 2001 21:28:17 -0400
-Received: from cx739861-a.dt1.sdca.home.com ([24.5.164.61]:24325 "EHLO
-	gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id <S277687AbRJIB2I>; Mon, 8 Oct 2001 21:28:08 -0400
-Date: Mon, 8 Oct 2001 18:28:20 -0700
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: linux-mm@kvack.org, kernelnewbies@nl.linux.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [CFT][PATCH *] faster cache reclaim
-Message-ID: <20011008182820.A6361@gnuppy>
-In-Reply-To: <Pine.LNX.4.33L.0110082032070.26495-100000@duckman.distro.conectiva>
+	id <S277688AbRJIBht>; Mon, 8 Oct 2001 21:37:49 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:32136 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S277684AbRJIBhg>;
+	Mon, 8 Oct 2001 21:37:36 -0400
+Date: Mon, 08 Oct 2001 18:37:18 -0700 (PDT)
+Message-Id: <20011008.183718.01458450.davem@redhat.com>
+To: pmanolov@Lnxw.COM
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: discontig physical memory
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3BC2467B.C8093B19@lnxw.com>
+In-Reply-To: <3BC23441.1EF944A2@lnxw.com>
+	<20011008.162935.21930065.davem@redhat.com>
+	<3BC2467B.C8093B19@lnxw.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L.0110082032070.26495-100000@duckman.distro.conectiva>
-User-Agent: Mutt/1.3.22i
-From: Bill Huey <billh@gnuppy.monkey.org>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 08, 2001 at 08:38:27PM -0300, Rik van Riel wrote:
-> It also reduces the distance between inactive_shortage and
-> inactive_plenty, so kswapd should spend much less time rolling
-> over pages from zones we're not interested in.
-> 
-> This patch is meant to fix the problems where heavy cache
-> activity flushes out pages from the working set, while still
-> allowing the cache to put some pressure on the working set.
+   From: Petko Manolov <pmanolov@Lnxw.COM>
+   Date: Mon, 08 Oct 2001 17:36:11 -0700
 
-Rik,
+   "David S. Miller" wrote:
+   > Do something like this instead of whatever your bootmem
+   > calls are doing now:
+   > 
+   >         bootmap_size = init_bootmem(0, (32 * 1024 * 1024));
+   >         free_bootmem((4 * 1024 * 1024),
+   >                      ((16 - 4) * 1024 * 1024));
+   
+   This is suppose to tell the kernel about the gap?
+   
+Precisely.  How else did you expect to let the kernel know?
 
-It work well when I pressure it under some intensive IO operations under
-dpkg and made progress when previous VMs basically froze. I did have two
-running programs that have large working sets which created a lot of
-contention and some CPU choppiness, but possibly some per process thrash
-control should allow for both to make progress. ;-)
-
-Good work.
-
-bill
-
+Franks a lot,
+David S. Miller
+davem@redhat.com

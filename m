@@ -1,133 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262261AbTH3X5H (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 19:57:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbTH3X5H
+	id S262287AbTH3X6T (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 19:58:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262317AbTH3X6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 19:57:07 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:21163
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262261AbTH3X5B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 19:57:01 -0400
-Date: Sun, 31 Aug 2003 01:57:14 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marcelo Tosatti <marcelo@parcelfarce.linux.theplanet.co.uk>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Mike Fedyk <mfedyk@matchmail.com>, Antonio Vargas <wind@cocodriloo.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>
-Subject: Re: Andrea VM changes
-Message-ID: <20030830235714.GM24409@dualathlon.random>
-References: <20030830231904.GL24409@dualathlon.random> <Pine.LNX.4.44.0308302026570.20323-100000@logos.cnet>
+	Sat, 30 Aug 2003 19:58:19 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:26124
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S262287AbTH3X6S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 19:58:18 -0400
+Date: Sat, 30 Aug 2003 16:58:19 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: mutt segfault with ext3 & 1k blocks & htree in 2.6
+Message-ID: <20030830235819.GD898@matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030829172451.GA27023@matchmail.com> <20030829180957.GC27023@matchmail.com> <20030830131421.M15623@schatzie.adilger.int>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308302026570.20323-100000@logos.cnet>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+In-Reply-To: <20030830131421.M15623@schatzie.adilger.int>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 30, 2003 at 08:30:36PM -0300, Marcelo Tosatti wrote:
+On Sat, Aug 30, 2003 at 01:14:21PM -0600, Andreas Dilger wrote:
+> On Aug 29, 2003  11:09 -0700, Mike Fedyk wrote:
+> > On Fri, Aug 29, 2003 at 10:24:51AM -0700, Mike Fedyk wrote:
+> >  o Find out that a directory is using htree?
 > 
+> "lsattr <dir>" will show it.  Note that it will only ever be set on
+> directories that are larger than a single disk block.
 > 
-> On Sun, 31 Aug 2003, Andrea Arcangeli wrote:
+> # lsattr -d d1
+> ----------I-- d1
 > 
-> > On Sat, Aug 30, 2003 at 04:21:02PM -0300, Marcelo Tosatti wrote:
-> > > y
-> > > 
-> > > On Sat, 30 Aug 2003, Marcelo Tosatti wrote:
-> > > 
-> > > > >
-> > > > > Indeed, you are right.
-> > > > >
-> > > > > I'll start looking at them Monday. I'll keep you in touch. Thanks.
-> > > >
-> > > > Andrea,
-> > > >
-> > > > Would you mind to explain me 05_vm_06_swap_out-3 ?
-> > > >
-> > > > I see you change shrink_cache, try_to_free_pages_zone, etc.
-> > > >
-> > > > Can you please give me a detailed explanation of the changes there?
-> > > >
-> > > > I appreciate very much.
-> > > >
-> > > > I'll keep looking at other patches for now.
-> > > 
-> > > 05_vm_09_misc_junk-3 removes the PF_MEMDIE and you also seem to remove the
-> > > OOM killer. Is that right? Why?
-> > 
-> > because the oom killer is a DoS on servers, on a database setup, with 2G
-> > free, with say all tasks 2.7G large, it'll start killing all the
-> > thousand database tasks instead of the 2g netscape task that hit an
-> > userspace bug and it started allocating ram in a loop, and that will
-> > make no progress since no physical ram will be released. There's no need
-> > of oom killer to keep the system stable, with my vm, and the current
-> > probabilistic oom killer in the page fault hander 
+
+Ok, now I only have htree enabled on one of my maildir folders.
+
+> >  o Disable htree on my /?  (tune2fs -O ^dir_index), but then how do I get
+> >    my directories back to non-htree without running fsck from a rescue CD?
 > 
-> So tasks get killed in case of page allocation failure? 
+> That's the great thing about htree - you don't need to do anything to turn
+> it off.  The on-disk format is exactly the same as without htree, and the
+> first time you modify the directory it will clear the per-directory htree
+> flag.
 
-yes.
+I'll do more testing to see if it fails only on that folder now.
 
-When alloc_pages returns NULL during the page fault handling we just
-call do_exit. With 2.2-aa we were even smarter, we also checked if the
-task had iopl privilegies (something that at the moment we can do only
-in the page fault handler btw), so we could trust the task and just send
-a SIGTERM a few times, instead of doing immediatly a do_exit(SIGKILL).
-So we wouldn't screwup the graphics card for example (killing an iopl
-task isn't always safe). But I never forward ported this very nice
-feature to 2.4.
-
-If alloc_pages returns null in all other cases, it's up to the caller to
-return -ENOMEM to userspace as a retval of the syscall.
-
-> > kills the right task most of the time (unlike the stock oom killers that
-> > works well only for the desktops or developer machines). So it does a
-> > much better job and it doesn't risk to DoS the box due oom.
-> 
-> Mind to explain me in more detail the OOM killing mechanism? 
-
-the current logic depends on alloc_pages to return NULL.
-
-And alloc_pages will return null depending on the
-swapping/cache-shrinking.
-
-The current code in mainline instead is even OOM deadlock prone in the
-VM, for example not only the oom killer can do a DoSable wrong selection
-of the task on servers, but it can even fail to detect an oom condition.
-Another other thing that can easily fool the current oom killer, is the
-mlocked ram: the current oom killer will be fooled by the fact there's
-still some swap free and it'll never kick in and the box will deadlock.
-This can't happen with my tree since I don't trust the unreliable
-statistical information we have from the kernel: we simply have no way
-to (efficiently) calculate the number of freeable pages at any given
-time, and as such the only reasonable thing we can do is to try to
-swap/shrink a number of times and to giveup eventually (that is like
-counting inefficiently the number of freeable pages a few times).
-
-> > Another DoS generated by the oom killer is that it'll try forever to
-> > kill a UNINTERRUPTIBLE task hanging in a nfs server that is down, so it
-> > hangs the whole box for an unlimited time.
-> > 
-> > I've an algorithm that will work, and that will provide very good
-> > guarantees to kill the "best" task to make the machine usable again,
-> > with the needed protection against the security DoSes, but it's in
-> > no-way similar to the current oom killer.
-> 
-> My concern is about how this oom killer works. 
-
-This oom killer on desktops may do a worse selections of the task to
-kill (the usual ssh now has a chance to be killed), but it fixes the oom
-deadlocks and it won't do stupid things on servers shall a netscape or
-whatever else app hit an userspace bug. So I've to prefer it, until I
-will write a reliable algorithm for the oom killing that won't fall into
-dosable corner cases so easily (mlock/nfs/database as the three most
-common examples of where current mainline can fail, btw the lowmem
-shortage is another very common DoS that the oom killer will never
-notice, my tree doesn't deadlock [or at least not technically, in
-practice it may look like a kernel deadlock despite syscalls returns
--ENOMEM ;) ] during lowmem shortage on the 64G boxes).
-
-Andrea
+But how do I re-enable htree on the directories (besides an fsck -D) in a
+live system?

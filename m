@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266841AbSLPRNk>; Mon, 16 Dec 2002 12:13:40 -0500
+	id <S266876AbSLPRPi>; Mon, 16 Dec 2002 12:15:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266844AbSLPRNk>; Mon, 16 Dec 2002 12:13:40 -0500
-Received: from bitmover.com ([192.132.92.2]:8853 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S266841AbSLPRNj>;
-	Mon, 16 Dec 2002 12:13:39 -0500
-Date: Mon, 16 Dec 2002 09:21:29 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Ben Collins <bcollins@debian.org>, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org, Larry McVoy <lm@bitmover.com>
+	id <S266886AbSLPRPi>; Mon, 16 Dec 2002 12:15:38 -0500
+Received: from blowme.phunnypharm.org ([65.207.35.140]:38151 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S266876AbSLPRPh>; Mon, 16 Dec 2002 12:15:37 -0500
+Date: Mon, 16 Dec 2002 12:23:30 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       Larry McVoy <lm@bitmover.com>
 Subject: Re: Notification hooks
-Message-ID: <20021216092129.D432@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Arjan van de Ven <arjanv@redhat.com>,
-	Ben Collins <bcollins@debian.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org, Larry McVoy <lm@bitmover.com>
-References: <20021216171218.GV504@hopper.phunnypharm.org> <1040059138.1438.1.camel@laptop.fenrus.com>
+Message-ID: <20021216172330.GW504@hopper.phunnypharm.org>
+References: <20021216171218.GV504@hopper.phunnypharm.org> <20021216171925.GC15256@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1040059138.1438.1.camel@laptop.fenrus.com>; from arjanv@redhat.com on Mon, Dec 16, 2002 at 06:18:55PM +0100
-X-MailScanner: Found to be clean
+In-Reply-To: <20021216171925.GC15256@suse.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 16, 2002 at 06:18:55PM +0100, Arjan van de Ven wrote:
-> On Mon, 2002-12-16 at 18:12, Ben Collins wrote:
-> > Linus, is there anyway I can request a hook so that anything that
-> > changes drivers/ieee1394/ in your repo sends me an email with the diff
-> > for just the files in that directory, and the changeset log? Is this
-> > something that bkbits can do?
-> > 
-> > I'd bet lots of ppl would like similar hooks for their portions of the
-> > source.
+On Mon, Dec 16, 2002 at 05:19:25PM +0000, Dave Jones wrote:
+> On Mon, Dec 16, 2002 at 12:12:18PM -0500, Ben Collins wrote:
+>  > Linus, is there anyway I can request a hook so that anything that
+>  > changes drivers/ieee1394/ in your repo sends me an email with the diff
+>  > for just the files in that directory, and the changeset log? Is this
+>  > something that bkbits can do?
+>  > 
+>  > I'd bet lots of ppl would like similar hooks for their portions of the
+>  > source.
 > 
-> well there is the bk commits list that has all individual changesets.
-> Add procmail and the patchutils program "grepdiff" to the recipe and I
-> think we have a winner.....
+> It'd be nice if the bkbits webpage had a "notify me" interface for files
+> in Linus' repository. This way not just the maintainers, but folks
+> interested in changes in that area can also see the changes.
+> 
+> As well as opening this up for more people, it'd also take the load
+> of Linus having to do it.
 
-I suspect you want to look at all the files in the cset.  I think what
-you want is a script which is given a list of files and sends a patch
-for each new changeset which touches any of those files.  Because if 
-a changeset touched drivers/ieee1394/ and include/something then you
-probably want both.
+True. But if the load is too much for bkbits to handle, I'd like Linus
+to consider it just for maintainers.
 
-bk help triggers.
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

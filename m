@@ -1,31 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275752AbRJKJWJ>; Thu, 11 Oct 2001 05:22:09 -0400
+	id <S275485AbRJKJ0J>; Thu, 11 Oct 2001 05:26:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275485AbRJKJWA>; Thu, 11 Oct 2001 05:22:00 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50705 "EHLO
+	id <S275843AbRJKJZ7>; Thu, 11 Oct 2001 05:25:59 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:51217 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S275752AbRJKJVp>; Thu, 11 Oct 2001 05:21:45 -0400
-Subject: Re: Tainted Modules Help Notices
-To: aferber@techfak.uni-bielefeld.de (Andreas Ferber)
-Date: Thu, 11 Oct 2001 10:25:28 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        tkhoadfdsaf@hotmail.com (Concerned Programmer),
-        dwmw2@infradead.org (David Woodhouse),
-        viro@math.psu.edu (Alexander Viro), kaos@ocs.com.au (Keith Owens),
-        sirmorcant@morcant.org (Morgan Collins [Ax0n]),
+	id <S275485AbRJKJZt>; Thu, 11 Oct 2001 05:25:49 -0400
+Subject: Re: -ac10,-ac11 no boot on SMP PentiumII box
+To: cshihpin@dso.org.sg (Richard Shih-Ping Chan)
+Date: Thu, 11 Oct 2001 10:31:54 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), cshihpin@dso.org.sg (Richard Chan),
         linux-kernel@vger.kernel.org
-In-Reply-To: <20011011105016.C28145@devcon.net> from "Andreas Ferber" at Oct 11, 2001 10:50:16 AM
+In-Reply-To: <20011011165636.B1174@cshihpin.dso.org.sg> from "Richard Shih-Ping Chan" at Oct 11, 2001 04:56:36 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15rc5o-0002cH-00@the-village.bc.nu>
+Message-Id: <E15rcC2-0002cu-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What about simply adding "BSD (included in kernel)" as a possible
-> "untainted" MODULE_LICENSE()?
+> I've narrowed it down to the change between 2.4.10-ac8 and 
+> -ac9. Maybe it has something to do with CONFIG_X86_PPRO_FENCE?
 
-Sounds sane to me
+That is the obvious candidate. I changed spin_unlock for the ppro to cover
+an errata. It seems to work for me with gcc 2.96 but its asm so its possible
+I've done something some compiler version didnt like.
+
+Switch the include/asm-i386/spinlock,h to the one in Linus tree and see
+what happens

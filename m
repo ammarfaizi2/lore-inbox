@@ -1,130 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262225AbTJXNRh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 09:17:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262236AbTJXNRh
+	id S262188AbTJXNdl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 09:33:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbTJXNdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 09:17:37 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:51095 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262225AbTJXNRd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 09:17:33 -0400
-Message-ID: <3F992520.1080008@us.ibm.com>
-Date: Fri, 24 Oct 2003 09:12:00 -0400
-From: Stacy Woods <stacyw@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-2 i686; en-US; 0.7) Gecko/20010316
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Bugs sitting in the RESOLVED state for more than 28 days
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 24 Oct 2003 09:33:41 -0400
+Received: from sojef.skynet.be ([195.238.2.127]:17028 "EHLO sojef.skynet.be")
+	by vger.kernel.org with ESMTP id S262188AbTJXNdj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 09:33:39 -0400
+Subject: Re: problems with Seagate 120 GB drives when mutlwrite = 16
+From: kris <kris.buggenhout@skynet.be>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200310191908.14369.bzolnier@elka.pw.edu.pl>
+References: <1066578892.3091.11.camel@borg-cube.lan>
+	 <200310191908.14369.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain
+Message-Id: <1067002420.3015.7.camel@borg-cube.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 24 Oct 2003 15:33:41 +0200
 Content-Transfer-Encoding: 7bit
+X-RAVMilter-Version: 8.4.3(snapshot 20030212) (sojef.skynet.be)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These bugs have been sitting in RESOLVED state for more than 28 days,
-ie, they have fixes, but aren't back in the mainline tree (when they
-should move to CLOSED state). If the fixes are back in mainline
-already, could the owner close them out? Otherwise, perhaps we
-can get those fixes back in?  If the patch has not fixed the problem
-then the bug needs to be moved back into the NEW or ASSIGNED state.
+On Sun, 2003-10-19 at 19:08, Bartlomiej Zolnierkiewicz wrote: 
+> On Sunday 19 of October 2003 17:54, kris wrote:
+> > Hi,
+> 
+> Hi,
+> 
+> > I have noticed some problems with recent large drives, connected to a
+> > variety of controllers.
+> >
+> > I tested with nforce ide controller, a CMD649 based controller and an
+> > Intel 870 cghipset. all have same or similar symptoms.
+> >
+> > Linux 2.4.22 kernel : (Linux borg-cube 2.4.22-xfs #2 SMP Tue Oct 7
+> > 20:53:04 CEST 2003 i686 unknown)
+> >
+> > Oct  6 15:52:12 borg-cube kernel: hdg: dma_timer_expiry: dma status ==
+> > 0x21
+> > Oct  6 15:52:22 borg-cube kernel: hdg: timeout waiting for DMA
+> > Oct  6 15:52:22 borg-cube kernel: hdg: timeout waiting for DMA
+> > Oct  6 15:52:22 borg-cube kernel: hdg: status error: status=0x58 {
+> > DriveReady SeekComplete DataRequest }
+> > Oct  6 15:52:22 borg-cube kernel:
+> > Oct  6 15:52:22 borg-cube kernel: hdg: drive not ready for command
+> > Oct  6 15:52:22 borg-cube kernel: hdg: status timeout: status=0xd0 {
+> > Busy }
+> > Oct  6 15:52:22 borg-cube kernel:
+> > Oct  6 15:52:22 borg-cube kernel: hdg: no DRQ after issuing WRITE
+> > Oct  6 15:52:22 borg-cube kernel: ide3: reset: success
+> >
+> > same in 2.4.20 ( kernel from Suse)
+> >
+> > 2.6.0-test6 :
+> >
+> > Oct  9 09:43:09 borg-cube kernel: hdg: dma_timer_expiry: dma status ==
+> > 0x21
+> > Oct  9 09:43:18 borg-cube kernel:
+> > Oct  9 09:43:19 borg-cube kernel: hdg: DMA timeout error
+> > Oct  9 09:43:19 borg-cube kernel: hdg: dma timeout error: status=0x58 {
+> > DriveReady SeekComplete DataRequest }
+> > Oct  9 09:43:19 borg-cube kernel:
+> > Oct  9 09:43:19 borg-cube kernel: hdg: status timeout: status=0xd0 {
+> > Busy }
+> > Oct  9 09:43:19 borg-cube kernel:
+> > Oct  9 09:43:19 borg-cube kernel: hdg: no DRQ after issuing MULTWRITE
+> > Oct  9 09:43:20 borg-cube kernel: ide3: reset: success
+> >
+> > same in 2.6.0-test8
+> >
+> > so behaviour is consistent.
+> >
+> > I can avoid this with either turning off dma access or disabling the
+> > multwrite ( hdparm -m0 /dev/hdg)
+> >
+> > is this a known bug, or should I file one ?
+> 
+> Error message is known, but fact that disabling PIO multiwrite cures
+> it is new, so please fill bugzilla entry.
 
-Kernel Bug Tracker: http://bugme.osdl.org
+I have to come back on this... i did not test it enough apparently...
+when i was transferring cd-images from one system to the other... the
+dreaded ide reset occurred again...
 
-  10  Power Ma   ACPI       len.brown@intel.com
-USB HCs may have improper interrupt configuration with ACPI in IOAPIC mode
+so disabling multiwrite is not involved.
 
-  85  Drivers    Network    jgarzik@pobox.com
-ham radio stuff still using cli etc
+The 60GB disk (with the OS) is working fine on my nforce ide controller.
+but the 120GB disks are not... I verified, it is not a cabling issue...
+used different cables, different lengths, at the moment they are
+connected with shielded rounded cables. 
 
-206  Drivers    Console/   jsimmons@infradead.org
-broken colors on framebuffer console
+Is there a fix for this ( not the workaround ... disabling dma) or are
+these 120Gb disks just plain bad choice.... ;(
 
-257  Drivers    Network    jgarzik@pobox.com
-Broadcom b44 driver won't work
+I do not notice any problems when i use the disk in windoows, but then
+again, windows tends to hide these things...;)
 
-322  Drivers    Other      jeffpc@optonline.net
-double logical operator drivers/char/sx.c
-
-367  Platform   Alpha      rth@twiddle.net
-modules fail to resolve illegal Unhandled relocation of type 10 for .text
-
-372  Platform   UML        jdike@karaya.com
-uml doesn't not compile
-
-493  Drivers    USB        mdharm-usb@one-eyed-alien.net
-Support for Sony DSC-P72 not available
-
-600  File Sys   Other      willy@debian.org
-File locking memory leak
-
-653  Platform   i386       mbligh@aracnet.com
-i386 NUMA does not work on non x440/Summit
-
-678  Power Ma   ACPI       len.brown@intel.com
-ACPI VIA KT400, VT6102 interrupt assignment issue
-
-719  Process    Schedule   rml@tech9.net
-[perf][kernbench] lower performance with HT enabled on low loads
-
-737  Platform   SPARC64    bugme-janitors@lists.osdl.org
-compiler version requirements mismatch/uncertainty for sparc
-
-753  Drivers    ISDN       bugme-janitors@lists.osdl.org
-hisax needs unresolved symbol kstat__per_cpu
-
-774  Power Ma   ACPI       len.brown@intel.com
-ACPI SCI interrupt storm on Tyan Tiger MB in APIC mode
-
-807  Drivers    PCMCIA     bugme-janitors@lists.osdl.org
-gprs pcmcia card not works in linux
-
-817  Drivers    Network    jgarzik@pobox.com
-Receiving "Bus master arbitration failure, status ffff" error
-
-820  Drivers    Sound      bugme-janitors@lists.osdl.org
-ALSA emu10k doesn't load in 2.5.7[12]
-
-858  Timers     Interval   bugme-janitors@lists.osdl.org
-itimer resolution and rounding vs posix
-
-907  File Sys   NFS        neilb@cse.unsw.edu.au
-Kernel oops with nfs3svc_decode_symlinkargs
-
-911  Drivers    PCI        ak@suse.de
-[x86_64] Badness in pci_find_subsys at drivers/pci/search.c:132
-
-923  Drivers    Network    jgarzik@pobox.com
-sis900 causes Badness in pci_find_subsys at drivers/pci/search.c:132
-
-928  Other      Configur   bugme-janitors@lists.osdl.org
-cryptoloop has unresolved symbols (includes fix)
-
-954  Platform   PPC-32     bugme-janitors@lists.osdl.org
-link failure for arch/ppc/mm/built-in.o, function mem_pieces_find
-
-1053  Drivers    USB        greg@kroah.com
-Creative ov511 USB camera not working in 2.6
-
-1057  Alternat   mm         akpm@digeo.com
-oops performing AIO write with O_DIRECT to block device
-
-1080  Drivers    Sound      francesco@unipg.it
-alsa driver snd-powermac doesn't work with tumbler on iBook2
-
-1108  Drivers    Serial     rmk@arm.linux.org.uk
-dz.c compile error: Uses BH functions which have been removed from 
-include/linux
-1161  Alternat   mm         akpm@digeo.com
-Hdparm segmentation fault
-
-1227  Drivers    USB        greg@kroah.com
-Oops with SynCE and Compaq iPAQ 3600
-
-1234  Other      Configur   zippel@linux-m68k.org
-scripts/mkconfigs uses deprecated 'head -1' syntax
-
-1249  File Sys   Other      bugme-janitors@lists.osdl.org
-use O_DIRECT open file, when read will hang.
+kind regards,Kris
 
 

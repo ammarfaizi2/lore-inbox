@@ -1,32 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286308AbRLJRBr>; Mon, 10 Dec 2001 12:01:47 -0500
+	id <S286311AbRLJRE5>; Mon, 10 Dec 2001 12:04:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286313AbRLJRB2>; Mon, 10 Dec 2001 12:01:28 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49673 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286311AbRLJRBV>; Mon, 10 Dec 2001 12:01:21 -0500
-Subject: Re: Linux/Pro  -- clusters
-To: viro@math.psu.edu (Alexander Viro)
-Date: Mon, 10 Dec 2001 17:09:43 +0000 (GMT)
-Cc: Andries.Brouwer@cwi.nl, torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0112101136490.14238-100000@binet.math.psu.edu> from "Alexander Viro" at Dec 10, 2001 11:49:36 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S286313AbRLJREr>; Mon, 10 Dec 2001 12:04:47 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:39941 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S286311AbRLJREg>;
+	Mon, 10 Dec 2001 12:04:36 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200112101704.UAA16642@ms2.inr.ac.ru>
+Subject: Re: CBQ and all other qdiscs now REALLY completely documented
+To: hadi@cyberus.ca (jamal)
+Date: Mon, 10 Dec 2001 20:04:16 +0300 (MSK)
+Cc: ahu@ds9a.nl, lartc@mailman.ds9a.nl, linux-kernel@vger.kernel.org,
+        netdev@oss.sgi.com
+In-Reply-To: <Pine.GSO.4.30.0112091642480.6079-100000@shell.cyberus.ca> from "jamal" at Dec 9, 1 04:45:01 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16DTvz-0002dr-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's _way_ easier than trying to fix leaks and dangling pointers in
-> the fuzzy code we'd get with your approach.  Just look at the fun
-> Richard has with devfs right now.
+Hello!
 
-And it means we can get proper refcounting. Which as the maintainer of
-two block drivers that support dynamic volume create/destroy is remarkably
-good news.
+> So priority limits the size of skb->priority to be from 0..6; this wont
+> work with that check in cbq.
 
-Alan
+No, it does not. Values different of "low prio" defaults (0..6)
+are not allowed to user without privileges by evident reasons.
+User with correspoding capability may direct traffic to any class.
+
+Alexey

@@ -1,98 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318294AbSIBPWk>; Mon, 2 Sep 2002 11:22:40 -0400
+	id <S318290AbSIBPq4>; Mon, 2 Sep 2002 11:46:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318310AbSIBPWk>; Mon, 2 Sep 2002 11:22:40 -0400
-Received: from mta.sara.nl ([145.100.16.144]:23032 "EHLO mta.sara.nl")
-	by vger.kernel.org with ESMTP id <S318294AbSIBPWj>;
-	Mon, 2 Sep 2002 11:22:39 -0400
-Date: Mon, 2 Sep 2002 17:26:55 +0200
-Mime-Version: 1.0 (Apple Message framework v482)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Subject: another compile error 2.5.33
-From: Remco Post <r.post@sara.nl>
-To: linux-kernel@vger.kernel.org
+	id <S318310AbSIBPq4>; Mon, 2 Sep 2002 11:46:56 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:56592 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S318290AbSIBPq4>; Mon, 2 Sep 2002 11:46:56 -0400
+Date: Mon, 02 Sep 2002 09:50:11 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: CAMTP guest <camtp.guest@uni-mb.si>, linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx sets CDR offline, how to reset?
+Message-ID: <1231170000.1030981811@aslan.scsiguy.com>
+In-Reply-To: <15731.22574.493121.798425@proizd.camtp.uni-mb.si>
+References: <15731.22574.493121.798425@proizd.camtp.uni-mb.si>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <69A76D8C-BE88-11D6-9030-000393911DE2@sara.nl>
-X-Pgp-Agent: GPGMail 0.5.3 (v20)
-X-Mailer: Apple Mail (2.482)
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> I'm running 2.4.19, using AIC7XXX 6.2.8.
+> SCSI devices are 0:0:0 hard disk and 0:6:0 CDR.
+> During CD burning, errors sometimes occur and aic7xxx driver
+> sets the CDR offline. Is there a way to reset the device and
+> set it online again _without_rebooting_ ?
 
-Hi,
+I don't know that any mechanism currently exists.  It shouldn't be
+too hard to create on though.  Just modify the proc handler in 
+drivers/scsi/scsi.c.
 
-again gcc 2.95.4 binutils 2.13 on powerpc (woody):
+While your looking at that, I would like to better understand why the
+device is being set offline.  The message listing you've provided is
+not complete.  If you send me all of the messages output by the driver
+from boot through failure I will try to diagnose your problem.
 
-   gcc -Wp,-MD,./.irq.o.d -D__KERNEL__ -I/usr/src/linux-2.5.33/include 
-- -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
-- -fno-strict-aliasing -fno-common -I/usr/src/linux-2.5.33/arch/ppc 
-- -fsigned-char -msoft-float -pipe -ffixed-r2 -Wno-uninitialized 
-- -mmultiple -mstring -nostdinc -iwithprefix include    
-- -DKBUILD_BASENAME=irq   -c -o irq.o irq.c
-In file included from irq.c:33:
-/usr/src/linux-2.5.33/include/linux/ptrace.h:28: warning: `struct 
-task_struct' declared inside parameter list
-/usr/src/linux-2.5.33/include/linux/ptrace.h:28: warning: its scope is 
-only this definition or declaration, which is probably not what you want.
-/usr/src/linux-2.5.33/include/linux/ptrace.h:29: warning: `struct 
-task_struct' declared inside parameter list
-/usr/src/linux-2.5.33/include/linux/ptrace.h:30: warning: `struct 
-task_struct' declared inside parameter list
-/usr/src/linux-2.5.33/include/linux/ptrace.h:31: warning: `struct 
-task_struct' declared inside parameter list
-/usr/src/linux-2.5.33/include/linux/ptrace.h:32: warning: `struct 
-task_struct' declared inside parameter list
-/usr/src/linux-2.5.33/include/linux/ptrace.h:33: warning: `struct 
-task_struct' declared inside parameter list
-/usr/src/linux-2.5.33/include/linux/ptrace.h:35: warning: `struct 
-task_struct' declared inside parameter list
-/usr/src/linux-2.5.33/include/linux/ptrace.h:36: warning: `struct 
-task_struct' declared inside parameter list
-/usr/src/linux-2.5.33/include/linux/ptrace.h:39: warning: `struct 
-task_struct' declared inside parameter list
-/usr/src/linux-2.5.33/include/linux/ptrace.h: In function `ptrace_link':
-/usr/src/linux-2.5.33/include/linux/ptrace.h:41: dereferencing pointer 
-to incomplete type
-/usr/src/linux-2.5.33/include/linux/ptrace.h:42: warning: passing arg 1 
-of `__ptrace_link' from incompatible pointer type
-/usr/src/linux-2.5.33/include/linux/ptrace.h:42: warning: passing arg 2 
-of `__ptrace_link' from incompatible pointer type
-/usr/src/linux-2.5.33/include/linux/ptrace.h: At top level:
-/usr/src/linux-2.5.33/include/linux/ptrace.h:44: warning: `struct 
-task_struct' declared inside parameter list
-/usr/src/linux-2.5.33/include/linux/ptrace.h: In function 
-`ptrace_unlink':
-/usr/src/linux-2.5.33/include/linux/ptrace.h:46: dereferencing pointer 
-to incomplete type
-/usr/src/linux-2.5.33/include/linux/ptrace.h:47: warning: passing arg 1 
-of `__ptrace_unlink' from incompatible pointer type
-make[1]: *** [irq.o] Error 1
-make[1]: Leaving directory `/usr/src/linux-2.5.33/arch/ppc/kernel'
-make: *** [arch/ppc/kernel] Error 2
-
-- ---
-Met vriendelijke groeten,
-
-Remco Post
-
-SARA - Stichting Academisch Rekencentrum Amsterdam    http://www.sara.nl
-High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
-PGP keys at http://home.sara.nl/~remco/keys.asc
-
-"I really didn't foresee the Internet. But then, neither did the computer
-industry. Not that that tells us very much of course - the computer 
-industry
-didn't even foresee that the century was going to end." -- Douglas Adams
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (Darwin)
-
-iD8DBQE9c4NKBIoCv9yTlOwRAnqpAKCEWH6Gq+vjSopArALXNF4WeDI8AACeLzyK
-k6pcKrvIllqrg7Mk8xFR0Xg=
-=69/A
------END PGP SIGNATURE-----
-
+--
+Justin

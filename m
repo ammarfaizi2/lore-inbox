@@ -1,62 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265800AbUFORwR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265795AbUFORzT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265800AbUFORwR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 13:52:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265795AbUFORwR
+	id S265795AbUFORzT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 13:55:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265801AbUFORzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 13:52:17 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:54656 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265800AbUFORt4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 13:49:56 -0400
-Subject: Re: calling kthread_create() from interrupt thread
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Dean Nelson <dcn@sgi.com>
-Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-In-Reply-To: <40CF350B.mailxD2X1NPFBC@aqua.americas.sgi.com>
-References: <40CF350B.mailxD2X1NPFBC@aqua.americas.sgi.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-3C3G67iXdXkfWrFNpJi8"
-Organization: Red Hat UK
-Message-Id: <1087321777.2710.43.camel@laptop.fenrus.com>
+	Tue, 15 Jun 2004 13:55:19 -0400
+Received: from fed1rmmtao07.cox.net ([68.230.241.32]:43169 "EHLO
+	fed1rmmtao07.cox.net") by vger.kernel.org with ESMTP
+	id S265795AbUFORyy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 13:54:54 -0400
+Date: Tue, 15 Jun 2004 10:54:53 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 0/5] kbuild
+Message-ID: <20040615175453.GD14528@smtp.west.cox.net>
+References: <20040614204029.GA15243@mars.ravnborg.org> <20040615154136.GD11113@smtp.west.cox.net> <20040615174929.GB2310@mars.ravnborg.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 15 Jun 2004 19:49:37 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040615174929.GB2310@mars.ravnborg.org>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jun 15, 2004 at 07:49:29PM +0200, Sam Ravnborg wrote:
 
---=-3C3G67iXdXkfWrFNpJi8
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> On Tue, Jun 15, 2004 at 08:41:36AM -0700, Tom Rini wrote:
+> > On Mon, Jun 14, 2004 at 10:40:29PM +0200, Sam Ravnborg wrote:
+> > 
+> > > Hi Andrew. Here follows a number of kbuild patches.
+> > > 
+> > > The first replaces kbuild-specify-default-target-during-configuration.patch
+> > > 
+> > > They have seen ligiht testing here, but on the other hand the do not touch
+> > > any critical part of kbuild.
+> > > 
+> > > Patches:
+> > > 
+> > > default kernel image:		Specify default target at config
+> > > 				time rather then hardcode it.
+> > > 				Only enabled for i386 for now.
+> > 
+> > While I'd guess this is better than the patch it's replacing, given that
+> > most i386 kernels are 'bzImage', what's wrong with the current logic
+> > that picks out what to do for the all target now?
+> 
+> Compared to the original behaviour where the all: target picked the default
+> target for a given architecture, this patch adds the following:
+> 
+> - One has to select the default kernel image only once
+>   when configuring the kernel.
 
-On Tue, 2004-06-15 at 19:42, Dean Nelson wrote:
-> I'm working on a driver that needs to create threads that can sleep/block
-> for an indefinite period of time.
->=20
->     . Can kthread_create() be called from an interrupt handler?
+in the case where 'all' wasn't correct to start with.  And i386 isn't
+the convincing case here.
 
-no
+> - There exist a possibility to add more than half a line of text
+>   describing individual targets. All relevant information can be
+>   specified in the help section in the Kconfig file
 
->=20
->     . Is the cost of a kthread's creation/demise low enough so that one
->       can, as often as needed, create a kthread that performs a simple
->       function and exits?  Or is the cost too high for this?
+Honestly, I'm indifferent to this.  This problem is equally, if not
+better solved by documenting in the board-specific help "and use 'make
+fooImage for foo firmware"
 
-for that we have keventd in 2.4, work queues in 2.6
+> - Other programs now have access to what kernel image has been built.
+>   This is needed when creating kernel packages like rpm.
 
+I suppose this can clean up some of the globbing that might otherwise be
+done, but I know for a fact that there's been kernel rpms before this :)
 
---=-3C3G67iXdXkfWrFNpJi8
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+> Where I see this really pay off is for architectures like MIPS with
+> at least four different targets, depending on selected config.
+> When one has selected to build a certain kernel, including a specific
+> bootloader only the make command is needed.
+> No need to remember the 'make rom.bin' or whatever target.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+This is where I see it blowing up, quite badly.  As Russell noted,
+you're going to have a horrible, unmaintainable list of boards and
+firmware supported, or not, on each.  Even on PPC32 where we really only
+have "needs vmlinux, raw", "needs vmlinux, for U-Boot" and "can use
+arch/ppc/boot/", it'll still get ugly noting which boards can use
+U-Boot, which can use arch/ppc/boot/ and which can use both.
 
-iD8DBQBAzzaxxULwo51rQBIRAp7cAJ9xIYAJf696o18kTdDjjskCRpmeKQCeNosB
-SQkid6v+Eh7wAG6LC76wPcQ=
-=yQQN
------END PGP SIGNATURE-----
+> But this trigger the discussion how much should actually be
+> part of the kernel.
 
---=-3C3G67iXdXkfWrFNpJi8--
+Yes, there's that another discussion, which at least I'm not talking
+about right now.  What I, and I think Russell as well, are noting is
+that doing this is will make what we have in the kernel much uglier /
+less maintainable.
 
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262226AbUDKFEO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Apr 2004 01:04:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262235AbUDKFEO
+	id S262235AbUDKF2o (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Apr 2004 01:28:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262248AbUDKF2n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Apr 2004 01:04:14 -0400
-Received: from smtp9.wanadoo.fr ([193.252.22.22]:32391 "EHLO
-	mwinf0902.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S262226AbUDKFEM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Apr 2004 01:04:12 -0400
-Date: Sun, 11 Apr 2004 07:09:30 +0000
-From: Philippe Elie <phil.el@wanadoo.fr>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       John Levon <levon@movementarian.org>
-Subject: Re: [PATCH][2.6] Oprofile, ARM/XScale PMU driver
-Message-ID: <20040411070930.GA389@zaniah>
-References: <Pine.LNX.4.58.0404072203350.16677@montezuma.fsmlabs.com>
+	Sun, 11 Apr 2004 01:28:43 -0400
+Received: from gate.crashing.org ([63.228.1.57]:60877 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262235AbUDKF2m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Apr 2004 01:28:42 -0400
+Subject: Re: want to clarify powerpc assembly conventions in head.S
+	and	entry.S
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <4078D42C.1020608@nortelnetworks.com>
+References: <4077A542.8030108@nortelnetworks.com>
+	 <1081591559.25144.174.camel@gaston>  <4078D42C.1020608@nortelnetworks.com>
+Content-Type: text/plain
+Message-Id: <1081661150.1380.183.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0404072203350.16677@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 11 Apr 2004 15:25:51 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 07 Apr 2004 at 22:16 +0000, Zwane Mwaikambo wrote:
 
-> The following patch adds support for the XScale performance monitoring
-> unit to OProfile. It uses not only the performance monitoring counters,
-> but also the clock cycle counter (CCNT) allowing for upto 5 usable
-> counters.
-> 
-> The code has been developed and tested on an IOP331 (hardware courtesy of
-> Intel) therefore i haven't been able to test it on XScale PMU1 systems.
-> Testing on said systems would be appreciated, and if done, please uncomment the
-> #define DEBUG line at the top of op_model_xscale.c
-> 
-> OProfile userspace support has already been committed and should be
-> available via CVS.
-> 
-> Dave, Mohit, i'll send you a tarball of what i have against the -iop tree
-> in a seperate email.
-> 
-> Andrew, please consider for inclusion.
+> You knew this was coming...  What's special about syscalls?  There's the 
+> r3 thing, but other than that...
 
-Andrew, I missed this mail, the patch is ok.
+The whole codepath is a bit different, there's the syscall trace,
+we can avoid saving much more registers are syscalls are function
+calls and so can clobber the non volatiles, etc...
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=108139073518002&q=raw
+> Thanks for your help with this stuff.  As I've been slowly wrapping my 
+> head around it I've been continuously wishing for some kind of design 
+> rules document describing the various paths through the assembly code, 
+> along with register conventions and such.  I eventually did find the 
+> conventions linked off the penguinppc website, but it was not obvious 
+> from just reading the code or the ppc stuff in the Documentation directory.
+> 
+> Chris
+-- 
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-regards,
-Phil

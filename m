@@ -1,250 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274806AbRJNQpy>; Sun, 14 Oct 2001 12:45:54 -0400
+	id <S275784AbRJNQz5>; Sun, 14 Oct 2001 12:55:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274991AbRJNQpp>; Sun, 14 Oct 2001 12:45:45 -0400
-Received: from nycsmtp3fa.rdc-nyc.rr.com ([24.29.99.79]:37382 "EHLO si.rr.com")
-	by vger.kernel.org with ESMTP id <S274806AbRJNQpc>;
-	Sun, 14 Oct 2001 12:45:32 -0400
-Message-ID: <3BC9C18C.6060808@si.rr.com>
-Date: Sun, 14 Oct 2001 12:47:08 -0400
-From: Frank Davis <fdavis@si.rr.com>
-Reply-To: fdavis@si.rr.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
-X-Accept-Language: en-us
+	id <S275778AbRJNQzs>; Sun, 14 Oct 2001 12:55:48 -0400
+Received: from cs181088.pp.htv.fi ([213.243.181.88]:18304 "EHLO
+	cs181088.pp.htv.fi") by vger.kernel.org with ESMTP
+	id <S274991AbRJNQzo>; Sun, 14 Oct 2001 12:55:44 -0400
+Message-ID: <3BC9C38F.5CD9C5FD@welho.com>
+Date: Sun, 14 Oct 2001 19:55:43 +0300
+From: Mika Liljeberg <Mika.Liljeberg@welho.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-ac10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] 2.4.12-ac1: a few more net MODULE_LICENSE patches
-Content-Type: multipart/mixed;
- boundary="------------060905040203080407090705"
+To: Andi Kleen <ak@muc.de>
+CC: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+        kuznet@ms2.inr.ac.ru
+Subject: Re: TCP acking too fast
+In-Reply-To: <3BC94F3A.7F842182@welho.com> <20011014.020326.18308527.davem@redhat.com> <k2zo6uiney.fsf@zero.aec.at> <20011014.023948.95894368.davem@redhat.com> <20011014133004.34133@colin.muc.de> <3BC97BC5.9F341ACE@welho.com> <20011014160511.53642@colin.muc.de> <3BC9A0AD.598BB4F5@welho.com> <20011014181235.63397@colin.muc.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060905040203080407090705
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Andi Kleen wrote:
+> 
+> On Sun, Oct 14, 2001 at 04:26:53PM +0200, Mika Liljeberg wrote:
+> > My solution to this would be to recalculate rcv_mss once per window.
+> > I.e., start new_rcv_mss from 0, keep increasing it for one window width,
+> > and then copy it to rcv_mss. No funny heuristics, and it would adjust to
+> > a shrunken MSS within one transmission window.
+> 
+> Sounds complicated. How would you implement it?
 
-Hello,
-   I've attached a few more MODULE_LICENSE patches against 2.4.12-ac1 . 
-A few more net MODULE_LICENSE patches to follow soon. Please review.
+Not very hard at all. It could be done easily with a couple of extra
+state variables. The following is a rough pseudo code (ignores
+initialization of state variables):
+
+if (seg.len > rcv.new_mss)
+	rcv.new_mss = seg.len;
+if (rcv.nxt >= rcv.mss_seq || rcv.new_mss > rcv.mss) {
+	rcv.mss = max(rcv.new_mss, TCP_MIN_MSS);
+	rcv.new_mss = 0;
+	rcv.mss_seq = rcv.nxt + measurement_window;
+}
+
+The basic property is that you can balance the time required to detect a
+decreased receive MSS against the reliability of the estimate by tuning
+the measurement window. Increased receive MSS would be detected
+immediately. Of course, I'm not claiming that there might not be a
+better algorithim somewhere that doesn't require the two state
+variables.
+
+> > Actually, I think it would be better to simply to always ack every other
+> > segment (except in quickack and fast recovery modes) and only use the
+> > receive window estimation for window updates. This would guarantee
+> > self-clocking in all cases.
+> 
+> The original "ack after 2*mss" had been carefully tuned to work with well
+> slow PPP links in all case; after some bad experiences. It came
+> together with the variable length delayed ack.
+> 
+> The rcv_mss stuff was added later to fix some performance problems
+> on very big MTU links like HIPPI (where you have a MSS of 64k, but
+> often stacks send smaller packets like 48k; the ack after 2*mss check
+> only triggered every third packet, causing bad peroformance)
+> 
+> Now if nobody used slow PPP links anymore it would be probably ok
+> to go back to the simpler "ack every other packet" rule; but I'm afraid
+> that's not the case yet.
+
+Why would PPP links perform badly with ack-every-other? That isn't the
+case in my experience, at least.
+
+> -Andi
+
 Regards,
-Frank
 
---------------060905040203080407090705
-Content-Type: text/plain;
- name="A2065"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="A2065"
-
---- drivers/net/a2065.c.old	Thu Apr 12 15:15:25 2001
-+++ drivers/net/a2065.c	Sun Oct 14 11:51:13 2001
-@@ -837,3 +837,4 @@
- 
- module_init(a2065_probe);
- module_exit(a2065_cleanup);
-+MODULE_LICENSE("GPL");
-
---------------060905040203080407090705
-Content-Type: text/plain;
- name="ACENIC"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ACENIC"
-
---- drivers/net/acenic.c.old	Fri Oct 12 18:42:54 2001
-+++ drivers/net/acenic.c	Sun Oct 14 11:56:31 2001
-@@ -145,10 +145,6 @@
- #endif
- 
- 
--#ifndef MODULE_LICENSE
--#define MODULE_LICENSE(a)
--#endif
--
- #ifndef wmb
- #define wmb()	mb()
- #endif
-
---------------060905040203080407090705
-Content-Type: text/plain;
- name="ATARIB1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ATARIB1"
-
---- drivers/net/atari_bionet.c.old	Wed Jun 20 14:10:53 2001
-+++ drivers/net/atari_bionet.c	Sun Oct 14 11:59:49 2001
-@@ -128,6 +128,7 @@
- unsigned int bionet_debug = NET_DEBUG;
- MODULE_PARM(bionet_debug, "i");
- MODULE_PARM_DESC(bionet_debug, "bionet debug level (0-2)");
-+MODULE_LICENSE("GPL");
- 
- static unsigned int bionet_min_poll_time = 2;
- 
-
---------------060905040203080407090705
-Content-Type: text/plain;
- name="ATARIL1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ATARIL1"
-
---- drivers/net/atarilance.c.old	Wed Jun 20 14:10:53 2001
-+++ drivers/net/atarilance.c	Sun Oct 14 12:03:10 2001
-@@ -84,6 +84,7 @@
- #endif
- MODULE_PARM(lance_debug, "i");
- MODULE_PARM_DESC(lance_debug, "atarilance debug level (0-3)");
-+MODULE_LICENSE("GPL");
- 
- /* Print debug messages on probing? */
- #undef LANCE_DEBUG_PROBE
-
---------------060905040203080407090705
-Content-Type: text/plain;
- name="ATARIP1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ATARIP1"
-
---- drivers/net/atari_pamsnet.c.old	Wed Jun 20 14:10:53 2001
-+++ drivers/net/atari_pamsnet.c	Sun Oct 14 12:01:29 2001
-@@ -124,6 +124,7 @@
- unsigned int pamsnet_debug = NET_DEBUG;
- MODULE_PARM(pamsnet_debug, "i");
- MODULE_PARM_DESC(pamsnet_debug, "pamsnet debug enable (0-1)");
-+MODULE_LICENSE("GPL");
- 
- static unsigned int pamsnet_min_poll_time = 2;
- 
-
---------------060905040203080407090705
-Content-Type: text/plain;
- name="BAGETLAN"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="BAGETLAN"
-
---- drivers/net/bagetlance.c.old	Wed Jun 20 14:10:53 2001
-+++ drivers/net/bagetlance.c	Sun Oct 14 12:07:26 2001
-@@ -60,6 +60,7 @@
- #endif
- MODULE_PARM(lance_debug, "i");
- MODULE_PARM_DESC(lance_debug, "Lance debug level (0-3)");
-+MODULE_LICENSE("GPL");
- 
- /* Print debug messages on probing? */
- #undef LANCE_DEBUG_PROBE
-
---------------060905040203080407090705
-Content-Type: text/plain;
- name="BMAC"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="BMAC"
-
---- drivers/net/bmac.c.old	Sun Sep 30 20:38:57 2001
-+++ drivers/net/bmac.c	Sun Oct 14 12:06:20 2001
-@@ -1658,6 +1658,7 @@
- 
- MODULE_AUTHOR("Randy Gobbel/Paul Mackerras");
- MODULE_DESCRIPTION("PowerMac BMAC ethernet driver.");
-+MODULE_LICENSE("GPL");
- 
- 
- static void __exit bmac_cleanup (void)
-
---------------060905040203080407090705
-Content-Type: text/plain;
- name="FEALNX"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="FEALNX"
-
---- drivers/net/fealnx.c.old	Sun Sep 30 20:38:59 2001
-+++ drivers/net/fealnx.c	Sun Oct 14 12:10:12 2001
-@@ -109,6 +109,7 @@
- 
- MODULE_AUTHOR("Myson or whoever");
- MODULE_DESCRIPTION("Myson MTD-8xx 100/10M Ethernet PCI Adapter Driver");
-+MODULE_LICENSE("GPL");
- MODULE_PARM(max_interrupt_work, "i");
- //MODULE_PARM(min_pci_latency, "i");
- MODULE_PARM(debug, "i");
-
---------------060905040203080407090705
-Content-Type: text/plain;
- name="FMV18X"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="FMV18X"
-
---- drivers/net/fmv18x.c.old	Tue Jul 17 21:53:55 2001
-+++ drivers/net/fmv18x.c	Sun Oct 14 12:11:31 2001
-@@ -632,6 +632,7 @@
- MODULE_PARM_DESC(io, "FMV-18X I/O address");
- MODULE_PARM_DESC(irq, "FMV-18X IRQ number");
- MODULE_PARM_DESC(net_debug, "FMV-18X debug level (0-1,5-6)");
-+MODULE_LICENSE("GPL");
- 
- int init_module(void)
- {
-
---------------060905040203080407090705
-Content-Type: text/plain;
- name="GT96100E"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="GT96100E"
-
---- drivers/net/gt96100eth.c.old	Sun Sep 30 20:39:00 2001
-+++ drivers/net/gt96100eth.c	Sun Oct 14 12:14:39 2001
-@@ -1250,3 +1250,5 @@
- }
- 
- module_init(gt96100_probe);
-+// shouldn't there be a module_exit ? 
-+MODULE_LICENSE("GPL");
-
---------------060905040203080407090705
-Content-Type: text/plain;
- name="GMAC"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="GMAC"
-
---- drivers/net/gmac.c.old	Sun Sep 30 20:38:59 2001
-+++ drivers/net/gmac.c	Sun Oct 14 12:12:40 2001
-@@ -1676,6 +1676,7 @@
- 
- MODULE_AUTHOR("Paul Mackerras/Ben Herrenschmidt");
- MODULE_DESCRIPTION("PowerMac GMAC driver.");
-+MODULE_LICENSE("GPL");
- 
- static void __exit gmac_cleanup_module(void)
- {
-
---------------060905040203080407090705
-Content-Type: text/plain;
- name="HPLANCE"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="HPLANCE"
-
---- drivers/net/hplance.c.old	Thu Apr 12 15:15:25 2001
-+++ drivers/net/hplance.c	Sun Oct 14 12:17:08 2001
-@@ -226,6 +226,7 @@
- }
- 
- #ifdef MODULE
-+MODULE_LICENSE("GPL");
- int init_module(void)
- {
-         root_lance_dev = NULL;
-
---------------060905040203080407090705--
-
+	MikaL

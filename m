@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261830AbUFNEOA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261851AbUFNEPQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261830AbUFNEOA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 00:14:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbUFNEOA
+	id S261851AbUFNEPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 00:15:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbUFNEPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 00:14:00 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:28179 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S261830AbUFNEN7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 00:13:59 -0400
-Date: Mon, 14 Jun 2004 06:10:59 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org,
-       Ryan Underwood <nemesis-lists@icequake.net>, twaugh@redhat.com
-Subject: Re: Request: Netmos support in parport_serial for 2.4.27
-Message-ID: <20040614041059.GA11739@alpha.home.local>
-References: <20040613111949.GB6564@dbz.icequake.net> <20040613123950.GA3332@logos.cnet> <Pine.LNX.4.56.0406132225020.5930@jjulnx.backbone.dif.dk> <20040613220727.GB4771@logos.cnet>
+	Mon, 14 Jun 2004 00:15:16 -0400
+Received: from fw.osdl.org ([65.172.181.6]:58498 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261851AbUFNEPG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 00:15:06 -0400
+Date: Sun, 13 Jun 2004 21:14:16 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [1/12] don't dereference netdev->name before register_netdev()
+Message-Id: <20040613211416.6b2503c9.akpm@osdl.org>
+In-Reply-To: <20040614003331.GP1444@holomorphy.com>
+References: <20040614003148.GO1444@holomorphy.com>
+	<20040614003331.GP1444@holomorphy.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040613220727.GB4771@logos.cnet>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>
+>  * Removed dev->name lookups before register_netdev
+>  This fixes Debian BTS #234817.
+>  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=234817
+> 
+>  	From: Shaul Karl <shaulk@actcom.net.il>
+>  	To: submit@bugs.debian.org
+>  	Subject: Reports about eth%%d at boot
+>  	Message-ID: <20040225225611.GA3532@rakefet>
+> 
+>    The problem is that most reports at boot time about the eth modules
+>  use %%d instead of the interface number. For example,
+> 
+>      eth%%d: NE2000 found at 0x280, using IRQ 5.
+>      NE*000 ethercard probe at 0x240: 00 c0 f0 10 eb 56
 
-On Sun, Jun 13, 2004 at 07:07:27PM -0300, Marcelo Tosatti wrote:
- 
-> And two, do we really need to move parport_serial.c to drivers/char in v2.4 ? 
+This generates a storm of rejects against Jeff's current tree.  This patch
+fixes more than Jeff's tree does, but in some places does it slightly
+differently.
 
-I believe that moving a file in the stable kernel is a bad thing when it
-implies moving the module, especially for people in the embedded world,
-because we can imagine some of them may have a particular update mechanism
-or a pre-configured modules.dep or anything like that which will need to be
-changed again for this update, while it seems there is no particular reason.
-
-But if 2.6 has it in the same directory, this could be the occasion to move
-it definitely.
-
-Just my opinion anyway ;-)
-
-Cheers,
-Willy
-
+It needs to be split up and generally chewed through.

@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316601AbSILQnT>; Thu, 12 Sep 2002 12:43:19 -0400
+	id <S319551AbSILQpq>; Thu, 12 Sep 2002 12:45:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316608AbSILQnT>; Thu, 12 Sep 2002 12:43:19 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:64426 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S316601AbSILQnT>; Thu, 12 Sep 2002 12:43:19 -0400
-Date: Thu, 12 Sep 2002 09:45:55 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, mzielinski@wp-sa.pl
-cc: linux-kernel@vger.kernel.org
-Subject: Re: unexpected IO-APIC on IBM xSeries 440
-Message-ID: <572796648.1031823954@[10.10.2.3]>
-In-Reply-To: <1031846309.2838.96.camel@irongate.swansea.linux.org.uk>
-References: <1031846309.2838.96.camel@irongate.swansea.linux.org.uk>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S319555AbSILQpp>; Thu, 12 Sep 2002 12:45:45 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:33526
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319551AbSILQpp> convert rfc822-to-8bit; Thu, 12 Sep 2002 12:45:45 -0400
+Subject: Re: sched.h changes in 2.4.19rc5aa1 / Digi's cpci driver doesn't
+	compile
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pasi =?ISO-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0209121923320.17322-100000@edu.joroinen.fi>
+References: <Pine.LNX.4.44.0209121923320.17322-100000@edu.joroinen.fi>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
+Date: 12 Sep 2002 17:50:53 +0100
+Message-Id: <1031849453.2902.98.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't know what state 2.5 is on Summit numa but 2.4.19-ac and
-> 2.4.20pre6 plus one patch (I can bounce you the diff if you want) should
-> work nicely on summit chipsets with any distro
+On Thu, 2002-09-12 at 17:30, Pasi Kärkkäinen wrote 
+> The code goes like this (cpci.c line 3847):
+> 
+> 	current->state = TASK_INTERRUPTIBLE;
+> 	current->counter = 0;   /* make us low-priority */
+> 
+> current is task_struct.
 
-2.5 has some problems with interrupts and ACPI that were being
-worked around ... the right people here will send you some stuff.
-
-M.
+Its assuming old old scheduler bits. I suspect just removing the
+current->counter junk will make it happy
 

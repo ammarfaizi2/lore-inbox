@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264584AbTLML5j (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 06:57:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264947AbTLML5g
+	id S264453AbTLMLxS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 06:53:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264563AbTLMLxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 06:57:36 -0500
-Received: from web9505.mail.yahoo.com ([216.136.129.135]:28938 "HELO
-	web9505.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264584AbTLML5e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 06:57:34 -0500
-Message-ID: <20031213115733.79739.qmail@web9505.mail.yahoo.com>
-Date: Sat, 13 Dec 2003 03:57:33 -0800 (PST)
-From: neel vanan <neelvanan@yahoo.com>
-Subject: acpi related error.....
-To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20031206054720.GN8039@holomorphy.com>
+	Sat, 13 Dec 2003 06:53:18 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:30179 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S264453AbTLMLxQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Dec 2003 06:53:16 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
+Date: Sat, 13 Dec 2003 12:52:52 +0100
+User-Agent: KMail/1.5.1
+Cc: David Brownell <david-b@pacbell.net>, Duncan Sands <baldrick@free.fr>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+References: <Pine.LNX.4.44L0.0312122001460.16010-100000@netrider.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0312122001460.16010-100000@netrider.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312131252.52252.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi list,
-Currently i am working on RedHat9.0 kernel 2.4.20-8, i
-am compiling kernel 2.6.0-test11 with NUMA and SMP
-enabled. I had selected summit though i am having
-non-summit box. When i am trying to make bzImage in
-the last i get this message:
-drivers/built-in.o(.init.text+0x30cf): In function
-`acpi_parse_slit':
-: undefined reference to `acpi_numa_slit_init'
-drivers/built-in.o(.init.text+0x30f0): In function
-`acpi_parse_processor_affinity':
-: undefined reference to
-`acpi_numa_processor_affinity_init'
-drivers/built-in.o(.init.text+0x3110): In function
-`acpi_parse_memory_affinity':
-: undefined reference to
-`acpi_numa_memory_affinity_init'
-drivers/built-in.o(.init.text+0x3199): In function
-`acpi_numa_init':
-: undefined reference to `acpi_numa_arch_fixup'
-make: *** [.tmp_vmlinux1] Error 1
-How can i compile this without commenting these lines.
+ 
+> The API has an admitted weak spot when more than one driver is bound to 
+> the device.  No one has settled on a definite policy for how to handle 
+> that situation.
 
-Thanks.
+Right. You have to disconnect all but the driver requesting the reset.
+
+> > IMHO you should do the code paths for late errors and the device morphed
+> > case in another thread, but what's the benefit for success?
+> 
+> In the success case there are no errors, the device hasn't morphed, and 
+> there's no need to do anything in another thread.  The existing driver(s) 
+> can remain bound, usb_reset_device returns 0, and nothing more has to be 
+> done.
+
+OK, we agree.
+There is one pathological case. We could have a device with several
+interfaces of the same kind. In this case we would reenter probe, if
+the reset was requested from within probe().
+Could we avoid any complication if we move the rebinding to another
+thread always?
+
+	Regards
+		Oliver
 
 
-__________________________________
-Do you Yahoo!?
-New Yahoo! Photos - easier uploading and sharing.
-http://photos.yahoo.com/

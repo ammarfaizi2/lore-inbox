@@ -1,37 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268741AbRGZXwz>; Thu, 26 Jul 2001 19:52:55 -0400
+	id <S268739AbRGZXxP>; Thu, 26 Jul 2001 19:53:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268739AbRGZXwq>; Thu, 26 Jul 2001 19:52:46 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:40464 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S268736AbRGZXwb>;
-	Thu, 26 Jul 2001 19:52:31 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200107262352.f6QNqbf488387@saturn.cs.uml.edu>
-Subject: Re: [PATCH] 2.4.7 Add support for Dynamic Disks
-To: aia21@cus.cam.ac.uk (Anton Altaparmakov)
-Date: Thu, 26 Jul 2001 19:52:36 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <E15Pu2w-0005bt-00@libra.cus.cam.ac.uk> from "Anton Altaparmakov" at Jul 26, 2001 11:55:58 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S268737AbRGZXxG>; Thu, 26 Jul 2001 19:53:06 -0400
+Received: from stm.lbl.gov ([131.243.16.51]:64264 "EHLO stm.lbl.gov")
+	by vger.kernel.org with ESMTP id <S268736AbRGZXwv>;
+	Thu, 26 Jul 2001 19:52:51 -0400
+Date: Thu, 26 Jul 2001 16:52:55 -0700
+From: David Schleef <ds@schleef.org>
+To: linux-kernel@vger.kernel.org
+Subject: ANNOUNCE: Comedi-0.7.60
+Message-ID: <20010726165254.A3696@stm.lbl.gov>
+Reply-To: David Schleef <ds@schleef.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> - Patch adds support for Dynamic Disks which are introduced by Windows
-> 2000 and are also used by Windows XP, thus allowing people with dual-boot
-> configurations access to their Windows dynamic disk partitions from Linux.
-...
-> Note that we just do it for all partitions in order. We perform no special
-> treatment when partitions are part of raid arrays, etc, we just create
-> each member partition as one device (hdb5, etc), handling raid arrays is
-> up to future extensions / user space tools / the users to deal with.
 
-Linux has long held an interoperability advantage over UNIX and BSD
-due to the use of normal PC disk partitions.
+    COMEDI
+    The Linux Control and Measurement Device Interface
+    David Schleef <ds@schleef.org>
 
-Now a new standard is here. We must swallow our pride and accept it,
-tossing out our old LVM format. It's time to embrace and extend.
+
+* Comedi-0.7.60:
+
+The latest version of Comedi, 0.7.60, is now available at
+ftp://stm.lbl.gov/pub/comedi/.
+
+* About Comedi:
+
+Comedi is a collection of drivers for data acquisition hardware.
+These drivers work with Linux, and also with Linux combined with
+the real-time extensions RTAI and RTLinux.  The Comedi core, which
+ties all the driver together, allows applications to be written
+that are completely hardware independent.
+
+Comedi supports a variety of data acquisition hardware; an
+incomplete list can be found in Documentation/comedi/drivers.txt.
+
+This distribution contains just the Comedi kernel modules.  You will
+almost certainly also want to download Comedilib, which is a user
+space library, a few utilities, and some example programs.
+
+* More Information:
+
+Comedi also has a web page, at http://stm.lbl.gov/comedi.  New versions
+of comedi can be found on the ftp site ftp://stm.lbl.gov/pub/comedi.
+
+Often bugfixes and new features that are not in the current release
+can be found in the CVS repository.  Instructions for anonymous CVS
+access to the Comedi and Comedilib repositories are found at
+http://oss.lineo.com/cvs_anon.html.
+
+Comedi may be freely distibuted and modified in accordance with the
+GNU General Public License.
+
+The person behind all this misspelled humor is David Schleef
+<ds@schleef.org>.
+

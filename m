@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129563AbQLERa4>; Tue, 5 Dec 2000 12:30:56 -0500
+	id <S129663AbQLERdg>; Tue, 5 Dec 2000 12:33:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129552AbQLERaq>; Tue, 5 Dec 2000 12:30:46 -0500
-Received: from enterprise.cistron.net ([195.64.68.33]:56842 "EHLO
-	enterprise.cistron.net") by vger.kernel.org with ESMTP
-	id <S129210AbQLERae>; Tue, 5 Dec 2000 12:30:34 -0500
-From: miquels@cistron.nl (Miquel van Smoorenburg)
-Subject: Re: Serial Console
-Date: 5 Dec 2000 17:00:06 GMT
-Organization: Cistron Internet Services B.V.
-Message-ID: <90j6um$cji$1@enterprise.cistron.net>
-In-Reply-To: <Pine.LNX.4.30.0012051506030.31704-100000@rossi.itg.ie> <200012051625.RAA02860@cave.bitwizard.nl>
-X-Trace: enterprise.cistron.net 976035606 12914 195.64.65.201 (5 Dec 2000 17:00:06 GMT)
-X-Complaints-To: abuse@cistron.nl
-To: linux-kernel@vger.kernel.org
+	id <S129895AbQLERd0>; Tue, 5 Dec 2000 12:33:26 -0500
+Received: from [216.161.55.93] ([216.161.55.93]:4339 "EHLO blue.int.wirex.com")
+	by vger.kernel.org with ESMTP id <S129881AbQLERdI>;
+	Tue, 5 Dec 2000 12:33:08 -0500
+Date: Tue, 5 Dec 2000 09:02:39 -0800
+From: Greg KH <greg@wirex.com>
+To: "J. Nick Koston" <lists@bdraco.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Nightly usb oops
+Message-ID: <20001205090239.A20542@wirex.com>
+Mail-Followup-To: Greg KH <greg@wirex.com>,
+	"J. Nick Koston" <lists@bdraco.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDDD2@orsmsx31.jf.intel.com> <20001205041218.A11997@bdraco.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001205041218.A11997@bdraco.org>; from lists@bdraco.org on Tue, Dec 05, 2000 at 04:12:18AM -0500
+X-Operating-System: Linux 2.2.17-immunix (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200012051625.RAA02860@cave.bitwizard.nl>,
-Rogier Wolff <R.E.Wolff@BitWizard.nl> wrote:
->Paul Jakma wrote:
->> perhaps linux-mips is just different? or i386 serial-console is
->> incorrect?
->
->No. serial console on i386 doesn't and should not block. 
->We're constantly using serial consoles here, so I really think I've 
->seen this work... .
+On Tue, Dec 05, 2000 at 04:12:18AM -0500, J. Nick Koston wrote:
+> hub.c: already running port 3 disabled by hub (EMI?), re-enabling...
+> usb.c: USB disconnect on device 6
+> hub.c: USB new device connect on bus1/2/3, assigned device number 11
+> printer.c: usblp1: USB Bidirectional printer dev 11 if 0 alt 1
+> usb.c: USB disconnect on device 11
 
-It can block.
+<disconnect and reconnect repeating snipped>
 
-Funny, no message on this list has been quite right ;)
+Ouch!  Unplug that printer!  Either the printer connection is bad, or
+your hub that the printer is plugged into is bad.  My guess is on the
+hub.  Is this hub powered from an external power supply?
 
-/dev/console can block
-/dev/ttyS0   can block
-printk()     never blocks
+You also might want to try a different port on that hub to see if that
+is any better.
 
-init(8) reads the tty settings from /etc/ioctl.save at startup.
-After it leaves single user mode it writes that file again. So
-mods made in single user mode are saved to /etc/ioctl.save.
-Every time init executes a program, it restores the console
-settings to those from /etc/ioctl.save.
-[Perhaps I should rip that stuff out]
+greg k-h
 
-However a getty on /dev/ttyS0 which you usually have running in
-runlevels [12345789] can change the tty settings and they will
-take effect immidiately. So if you run a getty that turns on
-hardware handshaking (like mgetty) - you're fscked.
-
-The only things in which /dev/console is special are:
-
-- it's an alias for the current console
-- it's always opened with O_NOCTTY
-
-Mike.
+-- 
+greg@(kroah|wirex).com
+http://immunix.org/~greg
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

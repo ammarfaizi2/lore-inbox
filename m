@@ -1,48 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290650AbSARKHG>; Fri, 18 Jan 2002 05:07:06 -0500
+	id <S290648AbSARKH1>; Fri, 18 Jan 2002 05:07:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290649AbSARKG5>; Fri, 18 Jan 2002 05:06:57 -0500
-Received: from mail011.syd.optusnet.com.au ([203.2.75.173]:23778 "EHLO
-	mail011.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id <S290648AbSARKGk>; Fri, 18 Jan 2002 05:06:40 -0500
-Message-ID: <3C47F38C.5070402@dingoblue.net.au>
-Date: Fri, 18 Jan 2002 21:06:04 +1100
-From: Nero <neroz@dingoblue.net.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i386; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
+	id <S290649AbSARKHS>; Fri, 18 Jan 2002 05:07:18 -0500
+Received: from mustard.heime.net ([194.234.65.222]:28647 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S290648AbSARKHD>; Fri, 18 Jan 2002 05:07:03 -0500
+Date: Fri, 18 Jan 2002 11:06:45 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: Adam Kropelin <akropel1@rochester.rr.com>
+cc: Rik van Riel <riel@conectiva.com.br>, <linux-mm@kvack.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH *] rmap VM 11c
+In-Reply-To: <012d01c19fb7$ba1cb680$02c8a8c0@kroptech.com>
+Message-ID: <Pine.LNX.4.30.0201181106230.10588-100000@mustard.heime.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: o(1) to the rescue
-In-Reply-To: <20020118030630.AA34757D57@oscar.casa.dyndns.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Tomlinson wrote:
+This looks a little like my problem...
 
->Try this with and without the o(1) scheduler (J0).
+See http://karlsbakk.net/dev/kernel/vm-fsckup.txt
+
+On Thu, 17 Jan 2002, Adam Kropelin wrote:
+
+> Rik van Riel <riel@conectiva.com.br>:
+> > For this release, IO tests are very much welcome ...
 >
->Create a dir full of 1 meg or so jpegs.  Fire up kde.  Try using the Tools/Create image gallery.  
->With the standard scheduler linux is unusable - it stalls for most of the processing time for 
->each image.   With o(1) its just a little jerky - still usable though (a gallery is building as I 
->type this).  
+> Results from a run of my large FTP transfer test on this new release are...
+> interesting.
 >
->Xmms playing to a arts server running with real time priority experienced no dropouts during 
->the process.
+> Overall time shows an improvement (6:28), though not enough of one to take the
+> lead over 2.4.13-ac7.
 >
->This is on 2.4.17 no preempt or low latency patches applied.
+> More interesting, perhaps, is the vmstat output, which shows this at first:
 >
->Real improvement - nice work,
+>    procs                      memory    swap          io     system         cpu
+>  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+>  0  0  0      0  47816   2992  84236   0   0    10     0 4462   174   1  33  66
+>  1  0  0      0  41704   3004  89320   0   0    10     0 4322   167   0  33  67
+>  0  1  0      0  36004   3012  94064   0   0     9   877 4030   163   1  30  69
+>  0  1  1      0  33536   3016  96112   0   0     4  1616 1724    62   0  18  82
+>  0  1  2      0  31068   3020  98160   0   0     4  2048 1729    52   1  15  83
+>  0  1  1      0  28608   3024 100208   0   0     4  2064 1735    56   1  16  82
+>  0  1  1      0  26144   3028 102256   0   0     4  2048 1735    50   0  16  84
+>  0  1  1      0  23684   3032 104304   0   0     5  2048 1713    45   1  15  84
+>  0  1  1      0  21216   3036 106352   0   0     3  2064 1723    52   1  14  85
+>  1  0  2      0  18728   3040 108420   0   0     5  2048 1750    59   0  17  82
+>  0  1  1      0  16292   3044 110448   0   0     3  2064 1722    60   0  15  84
+>  1  0  1      0  13824   3048 112572   0   0     5  2032 1800    61   0  17  83
+>  1  0  1      0  11696   3052 114548   0   0     4  2528 1658    47   0  14  86
+>  1  0  1      0   9232   3056 116596   0   0     4  2048 1735    51   1  13  86
+>  0  1  2      0   6808   3060 118640   0   0     3  1584 1729    84   0  16  84
 >
->Ed Tomlinson
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+> (i.e., nice steady writeout reminiscent of -ac)
+>
+> ...but after about 20 seconds, behavior degrades again:
+>
+>    procs                      memory    swap          io     system         cpu
+>  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+>  0  1  1      0   1500   3124 123268   0   0     0  3788  534    20   0   8  92
+>  0  1  1      0   1500   3124 123268   0   0     0     0  107    12   0   0 100
+>  0  1  1      0   1500   3124 123268   0   0     0     0  123    10   0   0 100
+>  0  1  1      0   1500   3124 123268   0   0     0  3666  123    12   0   2  97
+>  0  1  1      0   1500   3124 123268   0   0     1   259  109    12   0   8  92
+>  1  0  0      0   1404   3124 123360   0   0     2     0 1078    28   0   7  92
+>  1  0  0      0   1404   3136 123444   0   0    11     0 4560   178   0  39  61
+>  1  0  0      0   1404   3148 123448   0   0    10     0 4620   175   1  34  64
+>  0  0  0      0   1312   3156 123568   0   0    11     0 4276   181   0  36  64
+>  0  0  0      0   1404   3168 123492   0   0    10     0 4330   185   1  30  68
+>  0  1  1      0   1404   3172 123488   0   0     4  6864 1742    69   0  17  83
+>  0  1  1      0   1408   3172 123488   0   0     0     0  111    12   0   0  99
+>  0  1  1      0   1408   3172 123488   0   0     0     0  126     8   0   0 100
+>  0  1  1      0   1404   3172 123480   0   0     0  7456  518    18   0  10  90
+>  0  1  1      0   1404   3172 123480   0   0     0     0  112    10   0   0 100
+>  0  1  1      0   1404   3172 123480   0   0     0     0  123     9   0   0 100
+>  0  1  1      0   1404   3172 123476   0   0     1  7222  120    16   0   5  95
+>  0  1  1      0   1404   3172 123476   0   0     0     0  106     8   0   0 100
+>  0  1  1      0   1524   3172 123352   0   0     0  3790  519    18   0   8  92
+>  0  1  1      0   1524   3172 123352   0   0     0     0  113     8   0   0 100
+>  0  1  1      0   1524   3172 123352   0   0     0     0  125     8   0   0 100
+>
+> Previous tests showed fluctuating bo values from the start; this is the first
+> time I've seen them steady, so something in the patch definitely is showing
+> through here.
+>
+> I've a couple more tests to run, such as combining -rmap11c with cpqarray and
+> eepro driver updates from -ac. I'll keep you posted.
+>
+> --Adam
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 >
 
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
 
+Computers are like air conditioners.
+They stop working when you open Windows.
 

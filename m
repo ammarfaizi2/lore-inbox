@@ -1,76 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314154AbSDVNPM>; Mon, 22 Apr 2002 09:15:12 -0400
+	id <S314188AbSDVNXi>; Mon, 22 Apr 2002 09:23:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314187AbSDVNPL>; Mon, 22 Apr 2002 09:15:11 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:8 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S314154AbSDVNPK>; Mon, 22 Apr 2002 09:15:10 -0400
-Message-Id: <200204221312.g3MDCCX11604@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: linux-kernel@vger.kernel.org
-Subject: user/system/nice accounting (SMP): need help understanding the code
-Date: Mon, 22 Apr 2002 16:15:23 -0200
-X-Mailer: KMail [version 1.3.2]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S314190AbSDVNXh>; Mon, 22 Apr 2002 09:23:37 -0400
+Received: from mail-01.med.umich.edu ([141.214.93.149]:57811 "EHLO
+	mail-01.med.umich.edu") by vger.kernel.org with ESMTP
+	id <S314188AbSDVNXh> convert rfc822-to-8bit; Mon, 22 Apr 2002 09:23:37 -0400
+Message-Id: <scc3ce39.036@mail-01.med.umich.edu>
+X-Mailer: Novell GroupWise Internet Agent 6.0.1
+Date: Mon, 22 Apr 2002 09:23:11 -0400
+From: "Nicholas Berry" <nikberry@med.umich.edu>
+To: <jordan.breeding@attbi.com>, <kwijibo@zianet.com>
+Cc: <jbglaw@lug-owl.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: Trouble rebooting Tyan Thunder K7 (S2462UNG)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As you see below, in SMP case update_one_process() is not called
-in do_timer().
-OTOH, global grep over entire tree (*.[chsS]) for 'per_cpu_utime'
-and 'per_cpu_user' did not turn out SMP accounting code.
-Or maybe I am stupid.
+I've had the original problem with a Tyan Tiger MP board. Linux can't reboot it, Windoze 2000 can, but in my case the font is screwed up. I agree with Steve, it's a BIOS problem - the BIOS on my board is a POS.
 
-Anybody with cluebat?
+Nik
 
-kernel/timer.c:
-===============
-void update_one_process(struct task_struct *p, unsigned long user,
-                        unsigned long system, int cpu)
-{
-        p->per_cpu_utime[cpu] += user;
-        p->per_cpu_stime[cpu] += system;
-        do_process_times(p, user, system);
-        do_it_virt(p, user);
-        do_it_prof(p);
-}
-...
-void update_process_times(int user_tick)
-{
-        struct task_struct *p = current;
-        int cpu = smp_processor_id(), system = user_tick ^ 1;
 
-        update_one_process(p, user_tick, system, cpu);
-        if (p->pid) {
-                if (--p->counter <= 0) {
-                        p->counter = 0;
-                        p->need_resched = 1;
-                }
-                if (p->nice > 0)
-                        kstat.per_cpu_nice[cpu] += user_tick;
-                else
-                        kstat.per_cpu_user[cpu] += user_tick;
-                kstat.per_cpu_system[cpu] += system;
-        } else if (local_bh_count(cpu) || local_irq_count(cpu) > 1)
-                kstat.per_cpu_system[cpu] += system;
-}
-...
-void do_timer(struct pt_regs *regs)
-{
-        (*(unsigned long *)&jiffies)++;
-#ifndef CONFIG_SMP
-        /* SMP process accounting uses the local APIC timer */
+>>> <kwijibo@zianet.com> 04/21/02 05:12PM >>>
+<snip>
 
-        update_process_times(user_mode(regs));
-#endif
-        mark_bh(TIMER_BH);
-        if (TQ_ACTIVE(tq_timer))
-                mark_bh(TQUEUE_BH);
-}
---
-vda
+>  I have chalked this up to a BIOS problem though
+> and not a Linux one cause the BIOS should be smart enough
+> to pull it's head out of it's ass and reset any bad states that
+> may have been left behind. I would bitch to Tyan if I were you,
+> I have thought about it but never got up the energy.
+
+> Steve
+

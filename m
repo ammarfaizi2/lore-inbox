@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbTLWQcv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 11:32:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbTLWQcr
+	id S261825AbTLWQZY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 11:25:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbTLWQZY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 11:32:47 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:59024 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261784AbTLWQcq (ORCPT
+	Tue, 23 Dec 2003 11:25:24 -0500
+Received: from users.linvision.com ([62.58.92.114]:43155 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S261825AbTLWQZR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 11:32:46 -0500
-Date: Tue, 23 Dec 2003 17:32:45 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Pascal Schmidt <der.eremit@email.de>, Andrew Morton <akpm@osdl.org>
+	Tue, 23 Dec 2003 11:25:17 -0500
+Date: Tue, 23 Dec 2003 17:25:15 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Ben Srour <srour@cs.wisc.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-mm1
-Message-ID: <20031223163245.GA23184@suse.de>
-References: <15N7L-7y2-3@gated-at.bofh.it> <E1AYofU-0000QA-00@neptune.local>
+Subject: Re: compiling modules after 2.4.* --> 2.6.0 upgrade
+Message-ID: <20031223162515.GD26750@bitwizard.nl>
+References: <200312230757.40960.andrew@walrond.org> <Pine.LNX.4.44.0312230211500.28609-100000@data.upl.cs.wisc.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1AYofU-0000QA-00@neptune.local>
-X-OS: Linux 2.4.23aa1-axboe i686
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <Pine.LNX.4.44.0312230211500.28609-100000@data.upl.cs.wisc.edu>
+User-Agent: Mutt/1.3.28i
+Organization: Harddisk-recovery.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 23 2003, Pascal Schmidt wrote:
-> On Tue, 23 Dec 2003 06:20:14 +0100, you wrote in linux.kernel:
+On Tue, Dec 23, 2003 at 02:20:06AM -0600, Ben Srour wrote:
+> I'm attempting to port a module I wrote for the 2.4 series to 2.6 but I
+> get the following error when I try and insmod:
 > 
-> > +atapi-mo-support.patch
-> > 
-> >  Fix support for ATAPI MO drives (needs updating to reflect the changes in
-> >  mt-ranier-support.patch).
-> > 
-> > +mt-ranier-support.patch
-> > 
-> >  Mt Ranier support in the CDROM uniform layer.
-> 
-> Since the atapi-mo patch is mine, is there something I need to do?
+> 	root@dimension# /usr/sbin/insmod gpstest.o
+> 	insmod: error inserting 'gpstest.o': -1 Invalid module format
+> 	root@dimension#
 
-Nah don't worry about it, Andrew and I just agreed that I'd merge the
-remaining changes once 2.6.0-mm1 was up. Basically, MO needs to set
-_RAM capability so we can kill the various MO checks.
+You want the .ko file, not the .o file. See also:
 
-Jens
+- http://www.linux.org.uk/~davej/docs/post-halloween-2.6.txt
+- http://lwn.net/Articles/driver-porting/
 
+
+Erik
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

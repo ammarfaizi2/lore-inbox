@@ -1,91 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318152AbSIAWwS>; Sun, 1 Sep 2002 18:52:18 -0400
+	id <S318153AbSIAXAp>; Sun, 1 Sep 2002 19:00:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318153AbSIAWwS>; Sun, 1 Sep 2002 18:52:18 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1040 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318152AbSIAWwR>;
-	Sun, 1 Sep 2002 18:52:17 -0400
-Message-ID: <3D729DD3.AE3681C9@zip.com.au>
-Date: Sun, 01 Sep 2002 16:08:03 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
-X-Accept-Language: en
+	id <S318158AbSIAXAp>; Sun, 1 Sep 2002 19:00:45 -0400
+Received: from web14002.mail.yahoo.com ([216.136.175.93]:10903 "HELO
+	web14002.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S318153AbSIAXAo>; Sun, 1 Sep 2002 19:00:44 -0400
+Message-ID: <20020901230513.68661.qmail@web14002.mail.yahoo.com>
+Date: Sun, 1 Sep 2002 16:05:13 -0700 (PDT)
+From: Tony Spinillo <tspinillo@yahoo.com>
+Subject: Re: Linux 2.4.20-pre5-ac1
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1030753981.1249.5.camel@irongate.swansea.linux.org.uk>
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@arcor.de>
-CC: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] Include LRU in page count
-References: <3D644C70.6D100EA5@zip.com.au> <20020901212943Z16578-4014+1360@humbolt.nl.linux.org> <3D729020.4DFDAC2B@zip.com.au> <E17ld5N-0004cg-00@starship>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
+Alan,
+--- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> Its on the list of deep weirdnesses but fairly low down right now
 > 
-> On Monday 02 September 2002 00:09, Andrew Morton wrote:
-> > Daniel Phillips wrote:
-> > >
-> > > ...
-> > > I'm looking at your spinlock_irq now and thinking the _irq part could
-> > > possibly be avoided.  Can you please remind me of the motivation for this -
-> > > was it originally intended to address the same race we've been working on
-> > > here?
-> >
-> > scalability, mainly.  If the CPU holding the lock takes an interrupt,
-> > all the other CPUs get to spin until the handler completes.  I measured
-> > a 30% reducton in contention from this.
-> >
-> > Not a generally justifiable trick, but this is a heavily-used lock.
-> > All the new games in refill_inactive() are there to minimise the
-> > interrupt-off time.
-> 
-> Ick.  I hope you really chopped the lock hold time into itty-bitty pieces.
+I gave up on that for now ;) 
 
-Max hold is around 7,000 cycles.
+I received a couple of  emails from others who had problems
+with the 845G which I did not have.
 
-> Note that I changed the spin_lock in page_cache_release to a trylock, maybe
-> it's worth checking out the effect on contention.  With a little head
-> scratching we might be able to get rid of the spin_lock in lru_cache_add as
-> well.  That leaves (I think) just the two big scan loops.  I've always felt
-> it's silly to run more than one of either at the same time anyway.
+So, I put together another machine with a spare Intel 845GBVL 
+motherboard, which also has the 845G chipset.
+IDE and DMA seem to work when running 2420pre5ac1, but
+no DMA in 2420pre5.
 
-No way.  Take a look at http://samba.org/~anton/linux/2.5.30/
+Now on the other hand the Gigabyte (845G chipset) works with
+2420pre5 (DMA, ide-scsi) but no success with 2420pre5ac1.
 
-That's 8-way power4, the workload is "dd from 7 disks
-dd if=/dev/sd* of=/dev/null bs=1024k".
+In looking at the lspci's of both boards, I noticed a difference. I
+put excerpts
+below along with links to full dmesg/lspci.
 
-The CPU load in this situation was dominated by the VM.  The LRU list and page
-reclaim.  Spending more CPU in lru_cache_add() than in copy_to_user() is
-pretty gross.
+Bizarre and wierdness sums it up. Which is the real 845G?
+Which machine do I dropkick? ;)
 
-I think it's under control now - I expect we're OK up to eight or sixteen
-CPUs per node, but I'm still not happy with the level of testing.  Most people
-who have enough hardware to test this tend to have so much RAM that their
-tests don't hit page reclaim.
+Tony
 
-slablru will probably change the picture too.  There's a weird effect with
-the traditional try_to_free_pages() code.  The first thing it does is to run
-kmem_cache_shrink().  Which takes a sempahore, fruitlessly fiddles with the
-slab and then runs page reclaim.
 
-On the 4-way I measured 25% contention on the spinlock inside that semaphore.
-What is happening is that the combination of the sleeping lock and the slab
-operations effectively serialises entry into page reclaim.
+****Intel board:
+00:1f.1 IDE interface: Intel Corp.: Unknown device 24cb (rev 01)
+(prog-if 8a [Master SecP PriP])
+	Subsystem: Intel Corp.: Unknown device 5247
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin A routed to IRQ 5
+	Region 0: I/O ports at <unassigned> [size=8]
+	Region 1: I/O ports at <unassigned> [size=4]
+	Region 2: I/O ports at <unassigned> [size=8]
+	Region 3: I/O ports at <unassigned> [size=4]
+	Region 4: I/O ports at ffa0 [size=16]
+	Region 5: Memory at 20000000 (32-bit, non-prefetchable) [disabled]
+[size=1K]
+****Gigabyte board (Award BIOS):
+00:1f.1 IDE interface: Intel Corp.: Unknown device 24cb (rev 01)
+(prog-if 8a [Master SecP PriP])
+	Subsystem: Intel Corp.: Unknown device 24c2
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin A routed to IRQ 16
+	Region 0: I/O ports at bc00 [size=8]
+	Region 1: I/O ports at c000 [size=4]
+	Region 2: I/O ports at c400 [size=8]
+	Region 3: I/O ports at c800 [size=4]
+	Region 4: I/O ports at cc00 [size=16]
+	Region 5: Memory at 40000000 (32-bit, non-prefetchable) [size=1K]
 
-slablru removes that little turnstile on entry to try_to_free_pages(), and we
-will now see a lot more concurrency in shrink_foo().
+Gigabyte 845 links
+http://ac.marywood.edu/tspin/www/dmesg2420pre5gb.txt
+http://ac.marywood.edu/tspin/www/dmesg2420pre5ac1gb.txt
+http://ac.marywood.edu/tspin/www/lspcigb.txt
+Intel 845G links
+http://ac.marywood.edu/tspin/www/dmesg2420pre5ac1.txt
+http://ac.marywood.edu/tspin/www/dmesg2420pre5.txt
+http://ac.marywood.edu/tspin/www/lspci.txt
 
-My approach was to keep the existing design and warm it up, rather than to
-redesign.  Is it "good enough" now?   Dunno - nobody has run the tests
-with slablru.  But it's probably too late for a redesign (such as per-cpu LRU,
-per-mapping lru, etc).
 
-It would be great to make presence on the LRU contribute to page->count, because
-that would permit the removal of a ton of page_cache_get/release operations inside
-the LRU lock, perhaps doubling throughput in there.   Guess I should get off my
-lazy butt and see what you've done (will you for heaven's sake go and buy an IDE
-disk and compile up a 2.5 kernel? :))
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Finance - Get real-time stock quotes
+http://finance.yahoo.com

@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130006AbQJ0UDV>; Fri, 27 Oct 2000 16:03:21 -0400
+	id <S129757AbQJ0US6>; Fri, 27 Oct 2000 16:18:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130173AbQJ0UDM>; Fri, 27 Oct 2000 16:03:12 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:4367 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130006AbQJ0UDB>; Fri, 27 Oct 2000 16:03:01 -0400
-Message-ID: <39F9DF5F.F5E6E4B8@transmeta.com>
-Date: Fri, 27 Oct 2000 13:02:39 -0700
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10-pre3 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S129609AbQJ0USi>; Fri, 27 Oct 2000 16:18:38 -0400
+Received: from balin.ap.univie.ac.at ([131.130.11.50]:10500 "EHLO
+	balin.ap.univie.ac.at") by vger.kernel.org with ESMTP
+	id <S129536AbQJ0US3>; Fri, 27 Oct 2000 16:18:29 -0400
+Date: Fri, 27 Oct 2000 22:18:27 +0200 (MET DST)
+From: Ulrich Kiermayr <uk@ap.univie.ac.at>
+To: linux-kernel@vger.kernel.org
+Subject: netscape and 2.2.18pre1[67] alpha
+Message-ID: <Pine.OSF.4.21.0010272213410.25459-100000@balin.ap.univie.ac.at>
 MIME-Version: 1.0
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cpu detection fixes for test10-pre4
-In-Reply-To: <200010271946.e9RJk6K01211@pincoya.inf.utfsm.cl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
-> 
-> "H. Peter Anvin" <hpa@transmeta.com>said:
-> > Alan Cox wrote:
-> 
-> [...]
-> 
-> > > > We should never have used anything but "i386" as the utsname... sigh.
-> 
-> > > Its questionable if we should include the 'i'
-> 
-> > True enough, personally I prefer "x86".
-> 
-> ia32 is the official name. OTOH, i[3-6]86 _are_ different beasts...
-> 
+Hello!
 
-IA32 is a retcon, and is used only by Intel anyway.  There are
-differences between the i686 lines that are significantly bigger than
-between the i486 and i586, and that doesn't even begin to count non-Intel
-chips.
+I have a problem with netscape 4.75 under RH6.2 with a  2.2.18pre1[67].
 
-However, changing it to "i386" consistently would still work with
-existing software.  Using "x86" or "ia32" or "ix86pc" (what Solaris calls
-it) would break stuff.
+running it as root wirks fine, running it as ordinary user hangs very
+fast.
 
-	-hpa
+The logs show several 
 
+Oct 27 21:29:25 guinevere kernel: <sc 0(84,c8,11ffffa78)><sc
+53(8,c8,11ffffa78)><sc 0(17,336,11ffffa78)><sc
+53(8,336,11ffffa78)>set_program_attributes(12000000 d98000 14000000
+457440)
+
+messages
+
+I have tried this on 2 different Alpha-Types (Avanti, SX164) with several
+tifferent compiling-options, bon without success.
+
+Any suggestions how I can make netscape and maybe other Tru64 Binaries
+work properly, since the alphas are in a cluster  with some Tru64 servers?
+
+LL&P UK
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+===============================================================================
+Ulrich Kiermayr                    | Internet eMail:
+Zentraler Informatikdienst der     |      ulrich.kiermayr@ap.univie.ac.at
+Universitaet Wien                  |      ulrich.kiermayr@univie.ac.at
+                                   | ------------------------------------------
+   Abteilung Dezentrale Systeme    | eMail Hotline-Service:
+   Aussenstelle Physik             |      hotline@ap.univie.ac.at
+                                   | ------------------------------------------
+Boltzmanngasse 5, A-1090 Vienna    | Tel: +43-1-4277 /14104,    Hotline: /14100
+Austria, Europe                    | Fax: +43-1-4277 /9141
+===============================================================================
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

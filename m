@@ -1,79 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261522AbUARNEv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 08:04:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbUARNEv
+	id S261193AbUARM7g (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 07:59:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbUARM7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 08:04:51 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:20137 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261522AbUARNEt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 08:04:49 -0500
-Message-ID: <400A846A.6000003@colorfullife.com>
-Date: Sun, 18 Jan 2004 14:04:42 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sendfile calls lock_verify_area with wrong parameters
-References: <400A7DF5.4060704@colorfullife.com>
-In-Reply-To: <400A7DF5.4060704@colorfullife.com>
-Content-Type: multipart/mixed;
- boundary="------------040506030808040505000805"
+	Sun, 18 Jan 2004 07:59:36 -0500
+Received: from smtp6.wanadoo.fr ([193.252.22.25]:6613 "EHLO
+	mwinf0603.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S261193AbUARM7f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jan 2004 07:59:35 -0500
+Date: Sun, 18 Jan 2004 13:59:32 +0100
+From: Romain Lievin <romain@rlievin.dyndns.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: True story: "gconfig" removed root folder...
+Message-ID: <20040118125932.GA785@rlievin.dyndns.org>
+References: <1074177405.3131.10.camel@oebilgen> <Pine.LNX.4.58.0401151558590.27223@serv> <20040115212304.GA25296@rlievin.dyndns.org> <Pine.LNX.4.58.0401152245030.27223@serv> <20040116074341.GA26419@rlievin.dyndns.org> <Pine.LNX.4.58.0401162241440.2530@serv>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0401162241440.2530@serv>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040506030808040505000805
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi,
 
-Manfred Spraul wrote:
+On Fri, Jan 16, 2004 at 10:44:55PM +0100, Roman Zippel wrote:
+> > I mean "destroyed" because my 'root' directory did not exist anymore. When I do
+> > a 'ls', I just see a 'root' file with config within.
+> > Well, "destroyed" may not be the best word. I can tell that it vanished somewhere.
+> > Anyways, I don't have any '*.old' file or directory after that.
+> 
+> It would be nice if you could try to find out, what exactly happens with
+> the directory, the save routine does only a rename...
 
->+	if (!ppos)
->+		ppos = &in_file->f_pos;
->  
->
-Too early - in_file not yet initialized.
+You're right ! The save routine does on ly a rename. My 'root' directory is simply moved to 'root.old'.
 
-An updated (and tested with 2.6.1-mm4) patch is attached - sorry for the 
-noise.
+Given that all stuffs are clear now, I'm preparing a patch for this.
 
---
-    Manfred
+> 
+> bye, Roman
 
---------------040506030808040505000805
-Content-Type: text/plain;
- name="patch-locks-sendfile"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-locks-sendfile"
+Thanks, Romain.
+-- 
+Romain Li�vin (roms):         <roms@tilp.info>
+Web site:                     http://tilp.info
+"Linux, y'a moins bien mais c'est plus cher !"
 
---- 2.6/fs/read_write.c	2004-01-17 12:19:38.000000000 +0100
-+++ build-2.6/fs/read_write.c	2004-01-18 13:42:11.000000000 +0100
-@@ -559,7 +559,9 @@
- 		goto fput_in;
- 	if (!in_file->f_op || !in_file->f_op->sendfile)
- 		goto fput_in;
--	retval = locks_verify_area(FLOCK_VERIFY_READ, in_inode, in_file, in_file->f_pos, count);
-+	if (!ppos)
-+		ppos = &in_file->f_pos;
-+	retval = locks_verify_area(FLOCK_VERIFY_READ, in_inode, in_file, *ppos, count);
- 	if (retval)
- 		goto fput_in;
- 
-@@ -588,9 +590,6 @@
- 	if (retval)
- 		goto fput_out;
- 
--	if (!ppos)
--		ppos = &in_file->f_pos;
--
- 	if (!max)
- 		max = min(in_inode->i_sb->s_maxbytes, out_inode->i_sb->s_maxbytes);
- 
 
---------------040506030808040505000805--
+
+
+
 

@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267256AbTAGAGU>; Mon, 6 Jan 2003 19:06:20 -0500
+	id <S267190AbTAGAHk>; Mon, 6 Jan 2003 19:07:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267260AbTAGAGT>; Mon, 6 Jan 2003 19:06:19 -0500
-Received: from palrel11.hp.com ([156.153.255.246]:60042 "HELO palrel11.hp.com")
-	by vger.kernel.org with SMTP id <S267256AbTAGAGS>;
-	Mon, 6 Jan 2003 19:06:18 -0500
-Date: Mon, 6 Jan 2003 16:13:32 -0800
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Paul Mackerras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, davidm@hpl.hp.com,
+	id <S267207AbTAGAHk>; Mon, 6 Jan 2003 19:07:40 -0500
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:43790 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S267190AbTAGAHi>; Mon, 6 Jan 2003 19:07:38 -0500
+Message-ID: <3E19B401.7A9E47D5@linux-m68k.org>
+Date: Mon, 06 Jan 2003 17:51:13 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andre Hedrick <andre@pyxtechnologies.com>
+CC: Oliver Xymoron <oxymoron@waste.org>, Andrew Morton <akpm@digeo.com>,
+       Rik van Riel <riel@conectiva.com.br>, Richard Stallman <rms@gnu.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: [patch 2.5] PCI: allow alternative methods for probing the BARs
-Message-ID: <20030107001332.GJ26790@cup.hp.com>
-References: <20030106215210.GE26790@cup.hp.com> <Pine.LNX.4.44.0301061515530.10086-100000@home.transmeta.com>
-Mime-Version: 1.0
+Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set NOW!)
+References: <Pine.LNX.4.10.10301051924140.421-100000@master.linux-ide.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301061515530.10086-100000@home.transmeta.com>
-User-Agent: Mutt/1.4i
-From: grundler@cup.hp.com (Grant Grundler)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 06, 2003 at 03:19:09PM -0800, Linus Torvalds wrote:
-> In particular, we can make the first phase disable DMA on the devices we 
-> find, which means that we know they won't be generating PCI traffic during 
-> the second phase - so now the second phase (which does the BAR sizing) can 
-> do sizing and be safe in the knowledge that there should be no random PCI 
-> activity ongoing at the same time.
+Hi,
 
-Did you expect the PCI_COMMAND_MASTER disabled in the USB Controller
-or something else in the controller turned off?
+> If you know anything about iSCSI RFC draft and how storage truly works.
+> Cisco gets it wrong, they do not believe in supporting the full RFC.
+> So you get ERL=0, and now they turned of the "Header and Data Digests",
+> this is equal to turning off the iCRC in ATA, or CRC in SCSI between the
+> controller and the device.  For those people who think removing the
+> checksum test for the integrity of the data and command operations, you
+> get what you deserve.
 
-Turning off MASTER will also disable the controller from responding
-to MMIO ...ie USB subsystem can't touch the USB controller until
-it's re-enabled (no USB interrupts). That's ok if PCI will re-enable
-USB controller in a later PCI setup phase. In general I expect a driver
-to call pci_enable_device() but I don't know anything about USB intialization
-when it's part of the "console" (HID).
+Ever heard of TCP checksums? Ever heard of ethernet checksums? Which
+transport doesn't use checksums nowadays? The digest makes only sense if
+you can generate it for free in hardware or for debugging, otherwise
+it's only a waste of cpu time. This makes the complete ERL 1 irrelevant
+for a software implementation. With block devices you can even get away
+with just ERL 0 to implement transparent recovery.
 
-BTW, I wasn't thinking of USB.  I'm just trying to understand if the "fix"
-is exclusively in the PCI code or will require changes to other subsystems.
+bye, Roman
 
-> It's fine to temporarily disable memory on the northbridge, as long as
-> nothign else tries to _access_ that memory at the same time.
-
-The implemention to enforce that is what I meant with "arch specific code".
-
-I still have no idea which bridge implementations (vendor/model)
-have this problem and thus no idea what the i386 code would need 
-to look like. I was hoping Ivan (or someone) might know.
-
-thanks,
-grant

@@ -1,40 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287827AbSATAtp>; Sat, 19 Jan 2002 19:49:45 -0500
+	id <S287332AbSATAzZ>; Sat, 19 Jan 2002 19:55:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287828AbSATAtg>; Sat, 19 Jan 2002 19:49:36 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45574 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S287827AbSATAtV>; Sat, 19 Jan 2002 19:49:21 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Would anyone be willing to host a second kernel.org site?
-Date: 19 Jan 2002 16:49:16 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a2d46c$9c2$1@cesium.transmeta.com>
+	id <S287417AbSATAzP>; Sat, 19 Jan 2002 19:55:15 -0500
+Received: from rzfoobar.is-asp.com ([217.11.194.155]:17576 "HELO mail.isg.de")
+	by vger.kernel.org with SMTP id <S287332AbSATAy7>;
+	Sat, 19 Jan 2002 19:54:59 -0500
+Message-ID: <3C4A1492.DC48A17F@isg.de>
+Date: Sun, 20 Jan 2002 01:51:30 +0100
+From: Stefan Rompf <srompf@isg.de>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17test i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Interface operative status detection
+In-Reply-To: <3C498CC9.6FAED2AF@isg.de.suse.lists.linux.kernel> <p73g0525je4.fsf@oldwotan.suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The recent troubles we've had at kernel.org pretty much highlight the
-issues with having an offsite system with no easy physical access.
-This begs the question if we could establish another primary
-kernel.org site; this would not only reduce the load on any one site
-but deal with any one failure in a much more graceful way.
+Andi Kleen wrote:
 
-Anyone have any ideas of some organization who would be willing to
-host a second kernel.org server?  Such an organization should expect
-around 25 Mbit/s sustained traffic, and up to 40-100 Mbit/s peak
-traffic (this one can be adjusted to fit the available resources.)
+> It's only when you assume that the link beat is a "serious" sign for
+> link healthiness. Unfortunately there are many error cases where a link
+> can fail, but the link beat is still there - for example the software
+> on the other machine crashing but the NIC still working fine. These
+> seem to be the majority of the cases in fact except for demo situations
+> where people pull cables on purpose.
 
-If so, please contact me...
+I disagree. There are two very real situations that come to my mind
+spontaneously:
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+-Many telecom providers loop back a synchronous serial line whenever the
+connection fails somewhere on the WAN. While this actually isn't a link
+beat, it can be detected as an interface failure instantly
+(!IFF_RUNNING) and is therefore much faster than any (even highly tuned)
+routing protocol.
+
+-You have two redundant routers pointing into an ethernet segment, and
+if the NIC of one router starts failing, the switch might decide to turn
+off the port in question because of excessive errors (many switches do).
+Or the switch may simply lose power. Without link beat detection, the
+router in question cannot see these situations and will happily continue
+advertising the connected network, making the automated backup
+mechanism fail. ARP probing is no solution as it can only detect a host
+on the network going down, not the interface.
+
+
+Of course, link beat detection is not the magic lantern making all
+networking problems vanish, but from my networking experience it is
+important enough to support it.
+
+Stefan
+

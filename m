@@ -1,44 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267826AbUJDIjs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267841AbUJDIoL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267826AbUJDIjs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 04:39:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267851AbUJDIjr
+	id S267841AbUJDIoL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 04:44:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267852AbUJDIoL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 04:39:47 -0400
-Received: from mta07-svc.ntlworld.com ([62.253.162.47]:34690 "EHLO
-	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S267826AbUJDIjj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 04:39:39 -0400
-Message-ID: <41610C0B.6090305@smallworld.cx>
-Date: Mon, 04 Oct 2004 09:38:35 +0100
-From: Ian Leonard <ian@smallworld.cx>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Problems with Highpoint driver
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 4 Oct 2004 04:44:11 -0400
+Received: from fw.osdl.org ([65.172.181.6]:15751 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267841AbUJDIoH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 04:44:07 -0400
+Date: Mon, 4 Oct 2004 01:41:47 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: shobhit@calsoftinc.com
+Cc: linux-kernel@vger.kernel.org, geoff@linux.intel.com, mingo@elte.hu
+Subject: Re: [RFC] [PATCH] Performance of del_single_shot_timer_sync
+Message-Id: <20041004014147.776e4ecf.akpm@osdl.org>
+In-Reply-To: <1096874675.11717.33.camel@kuber>
+References: <1096874675.11717.33.camel@kuber>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+shobhit dayal <shobhit@calsoftinc.com> wrote:
+>
+> I tried Geoff's patch and it does seem to improve performance.
 
-I have an Itox G4C600 motherboard with on board Highpoint HPT366/370 ide
-controller. I am trying to use the 4 available IDE channels separately
-(i.e. not as raid). The hpt366 driver sees drives on the 1st channel but 
-not on the 2nd. The Highpoint bios sees all drives.
+By how much?  (CPU load, overall runtime, etc)
 
-I tried Highpoint's driver and it sees all drives work (although they 
-used the scsi interface which is not good for me).
-
-I had also tried a different board (same model) and this had the odd 
-problem of seeing different combinations of the disks depending on how
-the SATA was configured in the BIOS.
-
-Kernel is 2.4.28-pre3. Ideas welcome. Thanks.
-
-
--- 
-Ian Leonard
-
-Please ignore spelling and punctuation - I did.
+It's a bit odd to have an expired-timer-intensive workload.  Presumably
+postgres has some short-lived nanosleep or select-based polling loop in
+there which isn't doing much.

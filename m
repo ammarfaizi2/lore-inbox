@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbVBNAXV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbVBNAZi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261324AbVBNAXV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Feb 2005 19:23:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbVBNAXV
+	id S261320AbVBNAZi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Feb 2005 19:25:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbVBNAZi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Feb 2005 19:23:21 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:26527 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261324AbVBNAXR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Feb 2005 19:23:17 -0500
-Message-ID: <420FEF73.30908@sgi.com>
-Date: Sun, 13 Feb 2005 18:23:15 -0600
-From: Josh Aas <josha@sgi.com>
-Reply-To: josha@sgi.com
-Organization: Silicon Graphics, Inc.
-User-Agent: Mozilla Thunderbird 1.0 (Macintosh/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sun, 13 Feb 2005 19:25:38 -0500
+Received: from smtpout3.compass.net.nz ([203.97.97.135]:13999 "EHLO
+	smtpout1.compass.net.nz") by vger.kernel.org with ESMTP
+	id S261320AbVBNAZd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Feb 2005 19:25:33 -0500
+Date: Mon, 14 Feb 2005 13:24:59 +1300 (NZDT)
+From: steve@perfectpc.co.nz
+X-X-Sender: sk@kieu
+Reply-To: steve@perfectpc.co.nz
 To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6.8.1 CPU Scheduler Documentation
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: 2.6.10 parport_pc: Ignoring new-style parameters in presence of
+ obsolete ones
+Message-ID: <Pine.LNX.4.60.0502141322120.2596@kieu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I have written an introduction to the Linux 2.6.8.1 CPU scheduler 
-implementation. It should help people to understand what is going on in 
-the scheduler code faster than they would be able to by just reading 
-through the code. The paper can be downloaded in PDF or LyX form from here:
+Hi,
 
-http://josh.trancesoftware.com/linux/
+When I run
 
-This paper will never be "done," as I'd like to keep improving it over 
-time, and updating it to newer versions of the kernel as time allows. If 
-you have comments, suggestions, or corrections you'd like to make, 
-please email me. Technical corrections in particular would be 
-appreciated. Hopefully this can be as accurate and helpful as possible, 
-and will inspire more people to look into the Linux scheduler.
+modprobe parport_pc io=0x378 irq=7
 
-My employer, SGI, did not ask me to write this paper - it was done as 
-part of a school project last semester. While SGI owns the copyright to 
-the paper, they have allowed me to release it under the GNU FDL.
+and found 
+parport_pc: Ignoring new-style parameters in presence of obsolete ones
+in dmesg output and of course my paralel port does not use irq.
 
--- 
-Josh Aas
-Linux System Software
-Silicon Graphics, Inc. (SGI)
+Have no way to tell parport_pc to use IRQ? With 2.6.8 the above command is fine.
+Search the parport.txt in the Documentation dir and found nothing changes.
 
+Please help me to set IRQ for my parport. Thanks.
+
+
+Steve Kieu
+PerfectPC Ltd. Technical Division.
+Web: http://www.perfectpc.co.nz/

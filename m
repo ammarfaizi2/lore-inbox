@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263162AbTDGAHY (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 20:07:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263164AbTDGAHY (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 20:07:24 -0400
-Received: from [12.47.58.55] ([12.47.58.55]:55249 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S263162AbTDGAHW (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 20:07:22 -0400
-Date: Sun, 6 Apr 2003 17:18:55 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: felipe_alfaro@linuxmail.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.5: NFS troubles
-Message-Id: <20030406171855.6bd3552d.akpm@digeo.com>
-In-Reply-To: <shsbrzjn5of.fsf@charged.uio.no>
-References: <1049630768.592.24.camel@teapot.felipe-alfaro.com>
-	<shsbrzjn5of.fsf@charged.uio.no>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id S263161AbTDGAHL (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 20:07:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263162AbTDGAHL (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 20:07:11 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:14474 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S263161AbTDGAHK (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 20:07:10 -0400
+Date: Mon, 7 Apr 2003 02:18:38 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Fredrik Jagenheim <fredde@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: Maestro sound module locks up the computer
+Message-ID: <20030407001838.GB14501@vana.vc.cvut.cz>
+References: <20030406193707.GG917@pobox.com> <1049663795.1600.50.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Apr 2003 00:18:50.0401 (UTC) FILETIME=[4398C110:01C2FC9B]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1049663795.1600.50.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
->
-> >>>>> " " == Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> writes:
+On Sun, Apr 06, 2003 at 10:16:36PM +0100, Alan Cox wrote:
+> On Sul, 2003-04-06 at 20:37, Fredrik Jagenheim wrote:
+> > 8 seconds; e.g. say the clock is '16:40:10'. After 6 seconds the clock is, not
+> > surprisingly, '16:40:16'; but after 8 seconds it's '16:40:10' again. I'm not
+> > sure it's exactly 8 seconds though, as I've only had the chance of verifying
+> > this once.
 > 
->      > Hello, I'm testing 2.5.66-bk11 on my NFS server running
->      > RH9. When I run the "find" command on the NFS share from my
->      > client computer, it hangs forever after a while, but it always
->      > hangs *exactly* at the same place every time. However, if I
->      > boot into NFS with RH9's standard kernel (2.4.20), the "find"
->      > command works as expected and is able to complete with any
->      > hangs or delays.
-> 
->      > My NFS server (hostname glass) has a whole ext3 partition -
->      > mounted under /data - formatted as ext3.
-> 
-> The 2.5.66 ext3 code still has some issues with respect to NFS readdir
-> cookies.
+> That kind of weirdness is useful info
 
-It might do.  I have Ted's htree/NFS fixes in there though.
+I seen that on one computer too, with 2.5.59. For some strange reason IRQ0 from 
+timer was stopped, and thus system reported jiffies + tsc / <host_cpu_freq> as 
+current time, taking only 32bit tsc into account. After I disabled irqbalance, 
+problem never reappered (it was two cpus PIII from Dell, with serverworks chipset 
+& 8GB memory; I do not remember model number).
 
-Felipe, please do 
-
-	dumpe2fs /dev/hdXX | grep features
-
-if it shows dir_index then it might be an ext3 problem.  If not then it is
-probably an NFS problem.
-
-If it does have dir_index set then please run
-
-	tune2fs -O ^dir_index /dev/hdXX
-
-and reboot and retest.
-
+System worked in that state for several minutes, until it lost some NFS reply, which
+it never retried due to stopped timer...
+						Best regards,
+							Petr Vandrovec
+							vandrove@vc.cvut.cz
+ 

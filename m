@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbULFAvh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbULFAyG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261439AbULFAvh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 19:51:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbULFAuH
+	id S261446AbULFAyG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 19:54:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbULFAvw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 19:50:07 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:57611 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261439AbULFAse (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 19:48:34 -0500
-Date: Mon, 6 Dec 2004 01:48:31 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: James Morris <jmorris@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
-       selinux@tycho.nsa.gov
-Subject: Re: [2.6 patch] selinux: possible cleanups
-Message-ID: <20041206004831.GM2953@stusta.de>
-References: <20041128190139.GD4390@stusta.de> <1102089296.29971.110.camel@moss-spartans.epoch.ncsc.mil>
+	Sun, 5 Dec 2004 19:51:52 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:17874 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S261444AbULFAre (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 19:47:34 -0500
+Date: Mon, 6 Dec 2004 11:47:22 +1100
+From: Martin Pool <mbp@sourcefrog.net>
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: rescan partitions returns EIO since 2.6.8
+Message-ID: <20041206004722.GD26060@hp.com>
+Mail-Followup-To: Martin Pool <mbp@sourcefrog.net>,
+	Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+References: <200412051403.iB5E3EJ01749@apps.cwi.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1102089296.29971.110.camel@moss-spartans.epoch.ncsc.mil>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <200412051403.iB5E3EJ01749@apps.cwi.nl>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 03, 2004 at 10:54:56AM -0500, Stephen Smalley wrote:
->...
-> - Did you mean to make avtab_insert static (you only removed the
-> function prototype for it)?
->...
+On  5 Dec 2004, Andries.Brouwer@cwi.nl wrote:
+> Martin Pool changed the behaviour of the BLKRRPART ioctl in 2.6.8.
+> The effect is that one now gets an I/O error when first
+> partitioning an empty disk:
 
-Yes, thanks for this corrections.
+> # sfdisk /dev/sda
+> Checking that no-one is using this disk right now ...
+> BLKRRPART: Input/output error
 
-cu
-Adrian
+To me it seems more correct that a request to read the partition table
+should fail if the partition table can't be read.  I had some code
+that did care to know the difference, but if you really want to roll
+it back I won't object.
+
+fdisk, cfdisk and parted all just give a warning in this case.  You
+can tell sfdisk to ignore the error with --no-reread.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Martin 

@@ -1,71 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264826AbUGMKl0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264781AbUGMKqA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264826AbUGMKl0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 06:41:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbUGMKlW
+	id S264781AbUGMKqA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 06:46:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264857AbUGMKqA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 06:41:22 -0400
-Received: from holomorphy.com ([207.189.100.168]:27540 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264826AbUGMKlE (ORCPT
+	Tue, 13 Jul 2004 06:46:00 -0400
+Received: from mail.eris.qinetiq.com ([128.98.1.1]:7450 "HELO
+	mail.eris.qinetiq.com") by vger.kernel.org with SMTP
+	id S264781AbUGMKp6 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 06:41:04 -0400
-Date: Tue, 13 Jul 2004 03:40:59 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>,
-       devenyga@mcmaster.ca, ck@vds.kolivas.org, linux-kernel@vger.kernel.org
-Subject: Re: Preempt Threshold Measurements
-Message-ID: <20040713104059.GW21066@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>,
-	devenyga@mcmaster.ca, ck@vds.kolivas.org,
-	linux-kernel@vger.kernel.org
-References: <200407121943.25196.devenyga@mcmaster.ca> <20040713024051.GQ21066@holomorphy.com> <200407122248.50377.devenyga@mcmaster.ca> <cone.1089687290.911943.12958.502@pc.kolivas.org> <20040712210107.1945ac34.akpm@osdl.org> <20040713100815.GU21066@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 13 Jul 2004 06:45:58 -0400
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: linux-kernel@vger.kernel.org
+Subject: Re: HDIO_SET_DMA failed on a Dell Latitude C400 Laptop
+Date: Tue, 13 Jul 2004 11:41:21 +0100
+User-Agent: KMail/1.6.1
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+References: <200407121407.14428.m.watts@eris.qinetiq.com> <200407121422.00841.m.watts@eris.qinetiq.com> <200407121737.34189.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200407121737.34189.bzolnier@elka.pw.edu.pl>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040713100815.GU21066@holomorphy.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200407131141.21973.m.watts@eris.qinetiq.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 12, 2004 at 09:01:07PM -0700, Andrew Morton wrote:
->> This is a false positive.  Nothing is setting need_resched(), so
->> unmap_vmas() doesn't bother dropping the lock.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Tue, Jul 13, 2004 at 03:08:15AM -0700, William Lee Irwin III wrote:
-> I guess I sent too many updates and the whole thing got dropped. The false
-> positives were fixed in this way:
 
-> -			if (!atomic && need_resched()) {
-> +			zap_bytes = ZAP_BLOCK_SIZE;
-> +			if (!atomic)
-> +				continue;
-> +			touch_preempt_timing();
-> +			if (need_resched()) {
+> Make sure that you have the driver for your IDE chipset compiled-in or
+> (if you are using IDE as module) that you load it and not ide-generic.
 
-That's not quite right. Amazing it didn't catch might_sleep() warnings.
+Fixed - thanks.
 
-Index: mm7-2.6.7/mm/memory.c
-===================================================================
---- mm7-2.6.7.orig/mm/memory.c	2004-07-13 03:06:12.784491200 -0700
-+++ mm7-2.6.7/mm/memory.c	2004-07-13 03:39:45.843459720 -0700
-@@ -568,16 +568,16 @@
- 			if ((long)zap_bytes > 0)
- 				continue;
- 			zap_bytes = ZAP_BLOCK_SIZE;
--			if (!atomic)
-+			if (atomic)
- 				continue;
--			touch_preempt_timing();
- 			if (need_resched()) {
- 				int fullmm = tlb_is_full_mm(*tlbp);
- 				tlb_finish_mmu(*tlbp, tlb_start, start);
- 				cond_resched_lock(&mm->page_table_lock);
- 				*tlbp = tlb_gather_mmu(mm, fullmm);
- 				tlb_start_valid = 0;
--			}
-+			} else
-+				touch_preempt_timing();
- 		}
- 	}
- 	return ret;
+Mark.
+
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ Trusted Information Management
+Trusted Solutions and Services group
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA87xRBn4EFUVUIO0RAtzHAJkBflHLY/ZwYPaBUanexrmOxJlF5gCg61cD
+SlpyH+LHjozE6FUGZNSRjrI=
+=wh7k
+-----END PGP SIGNATURE-----

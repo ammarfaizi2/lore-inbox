@@ -1,40 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316912AbSFQSJe>; Mon, 17 Jun 2002 14:09:34 -0400
+	id <S316916AbSFQSX5>; Mon, 17 Jun 2002 14:23:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316915AbSFQSJd>; Mon, 17 Jun 2002 14:09:33 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:46801 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S316912AbSFQSJc>; Mon, 17 Jun 2002 14:09:32 -0400
-Date: Mon, 17 Jun 2002 13:09:30 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Toby Inkster <tobyink@goddamn.co.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: .i2c-old.ver.d: No such file or directory
-In-Reply-To: <20020617190026.0c0f60b2.tobyink@goddamn.co.uk>
-Message-ID: <Pine.LNX.4.44.0206171307100.22308-100000@chaos.physics.uiowa.edu>
+	id <S316919AbSFQSX4>; Mon, 17 Jun 2002 14:23:56 -0400
+Received: from faraday.ee.utt.ro ([193.226.10.1]:23564 "EHLO faraday.ee.utt.ro")
+	by vger.kernel.org with ESMTP id <S316916AbSFQSXz>;
+	Mon, 17 Jun 2002 14:23:55 -0400
+Date: Mon, 17 Jun 2002 21:23:45 +0300 (EEST)
+From: Sebastian Szonyi <sony@faraday.ee.utt.ro>
+To: kk maddowx <kk_maddox2000@yahoo.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.18 kernel panics before and after boot
+In-Reply-To: <20020617165244.44049.qmail@web21001.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.33.0206172106160.5396-100000@faraday.ee.utt.ro>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Jun 2002, Toby Inkster wrote:
-
-> Below are the last few lines of output before the errors start. I can send my .config if anyone thinks it might help.
-> 
->   	mkdir -p /usr/src/linux-2.5.22/include/linux/modules/drivers/media/video/; gcc -E -Wp,-MD,/usr/src/linux-2.5.22/include/linux/modules/drivers/media/video/.i2c-old.ver.d -D__KERNEL__ -I/usr/src/linux-2.5.22/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -nostdinc -iwithprefix include    -DKBUILD_BASENAME=i2c_old   i2c-old.c | /sbin/genksyms  -k 2.5.22 > /usr/src/linux-2.5.22/include/linux/modules/drivers/media/video/i2c-old.ver.tmp; if [ ! -r /usr/src/linux-2.5.22/include/linux/modules/drivers/media/video/i2c-old.ver ] || cmp -s /usr/src/linux-2.5.22/include/linux/modules/drivers/media/video/i2c-old.ver /usr/src/linux-2.5.22/include/linux/modules/drivers/media/video/i2c-old.ver.tmp; then touch /usr/src/linux-2.5.22/include/linux/modversions.h; fi; mv -f /usr/src/linux-2.5.22/include/linux/modules/drivers/media/video/i2c-old.ver.tmp /usr/src/linux-2.5.22/include/linu!
-x/m
->  odules/drivers/media/video/i2c-old.ver
-> i2c-old.c:17:27: linux/i2c-old.h: No such file or directory
-
-The problem is that the i2c code is currently broken, it includes 
-linux/i2c-old.h which doesn't exist. You'll see the error much more 
-clearly if you run "make KBUILD_VERBOSE= dep" ;)
-
-For now, you should disable I2C in your .config.
-
---Kai
 
 
+On Mon, 17 Jun 2002, kk maddowx wrote:
+
+> Date: Mon, 17 Jun 2002 09:52:44 -0700 (PDT)
+> From: kk maddowx <kk_maddox2000@yahoo.com>
+> To: Kristian Peters <kristian.peters@korseby.net>
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: 2.4.18 kernel panics before and after boot
+>
+> Unfortunately I could not get memtest to work. I added
+> the lines:
+>
+> label=memtest
+> image=/boot/memtest
+>
+> to lilo.conf and ran lilo.
+
+try swapping the lines
+
+> I can see the selection for memtest but it wont accept
+> it as a bootable image. I did swap the memory out and
+> still recieve kernel panics with known working memory.
+>
+> However if I boot from my old 2.2.20 kernel I will
+> never see a panic or experience a panic after boot
+> making me think the memory is ok. Here is the dmesg
+> from a successful 2.4 boot if that helps:
+>
+>
+>
+> LILO
+> Loading 2.4..................
+> Linux version 2.4.18a (root@birdbrain) (gcc version
+> 2.96 20000731 (Red Hat Linux
+>  7.0)) #1 Thu Jun 13 01:54:35 EDT 2002
+
+Linux 2.4.18a ?
+Never heard about it :-)
+
+gcc 2.96 ?
+use 2.95.3 or 2.95.4
+
+See $(kernel_root)/Documentation/Changes to find out what you need
+for compiling this kernel (where $(kernel_root) is where
+your kernel tree is located for example /usr/src/linux )
+
+
+
+>
+> I have noticed that if the kernel does decide to panic
+> on boot it will happen after the "Freeing unused
+> memory" message is printed. Do you have any ideas what
+> might be casuing this? TIA
+>
+>
+
+An unsupported filesystem in your  kernel (i.e. your
+filesystem is xfs for example and you don't have xfs
+support in kernel)
+
+Could be many things.
+
+> --- Kristian Peters <kristian.peters@korseby.net>
+> wrote:
+> > Hello.
+> >
+> > I suspect bad ram. Could you verify with memtest86
+> > that your ram is ok ?
+> >
+> > *Kristian
+> >
+> > kk maddowx <kk_maddox2000@yahoo.com> wrote:
+> > > >>EIP; 00000400 Before first symbol   <=====
+> > > Trace; c0127b63 <shrink_cache+2b3/2f0>
+> > > Trace; c0127cd6 <shrink_caches+56/90>
+> > > Trace; c0127d40 <try_to_free_pages+30/50>
+> > > Trace; c0127dd4 <kswapd_balance_pgdat+44/90>
+> > > Trace; c0127e36 <kswapd_balance+16/30>
+> > > Trace; c0127f51 <kswapd+a1/c0>
+> > > Trace; c0127eb0 <kswapd+0/c0>
+> > > Trace; c010552b <kernel_thread+2b/40>
+> >
+> >   :... [snd.science] ...:
+> >  ::                             _o)
+> >  :: http://www.korseby.net      /\\
+> >  :: http://gsmp.sf.net         _\_V
+> >   :.........................:
+>
+>
+> __________________________________________________
+> Do You Yahoo!?
+> Yahoo! - Official partner of 2002 FIFA World Cup
+> http://fifaworldcup.yahoo.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

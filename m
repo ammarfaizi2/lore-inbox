@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129583AbRBGUey>; Wed, 7 Feb 2001 15:34:54 -0500
+	id <S130015AbRBGUge>; Wed, 7 Feb 2001 15:36:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130015AbRBGUeo>; Wed, 7 Feb 2001 15:34:44 -0500
-Received: from colorfullife.com ([216.156.138.34]:2827 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129583AbRBGUed>;
-	Wed, 7 Feb 2001 15:34:33 -0500
-Message-ID: <3A81B169.B4539406@colorfullife.com>
-Date: Wed, 07 Feb 2001 21:34:49 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: davej@suse.de, Alan Cox <alan@redhat.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
-In-Reply-To: <Pine.LNX.4.31.0102071951060.17788-100000@athlon.local> <3A81A89C.DFD09434@mandrakesoft.com>
+	id <S130337AbRBGUgO>; Wed, 7 Feb 2001 15:36:14 -0500
+Received: from mailhost.tue.nl ([131.155.2.5]:53277 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S130015AbRBGUgH>;
+	Wed, 7 Feb 2001 15:36:07 -0500
+Message-ID: <20010207213604.A21989@win.tue.nl>
+Date: Wed, 7 Feb 2001 21:36:04 +0100
+From: Guest section DW <dwguest@win.tue.nl>
+To: Lourenco <andyrock50@yahoo.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: IDE PROBLEM 2.4.0 and 2.4.1 ...
+In-Reply-To: <20010207191207.50272.qmail@web12008.mail.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.93i
+In-Reply-To: <20010207191207.50272.qmail@web12008.mail.yahoo.com>; from Lourenco on Wed, Feb 07, 2001 at 11:12:07AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Wed, Feb 07, 2001 at 11:12:07AM -0800, Lourenco wrote:
+
+> i am getting an error every time i try to copy a big
+> file from my cdrom to one of my harddrives...
 > 
-> +       SET_MODULE_OWNER(dev);
+> PS : It works FINE with 2.2.* and other OS's...
 > 
->         irq = pdev->irq;
->
+> ...
+> VFS: Disk change detected on device ide1(22,0)
+> ISO 9660 Extensions: Microsoft Joliet Level 3
+> ISOFS: changing to secondary root
+> isofs_read_level3_size: More than 100 file sections
+> ?!?, aborting...
+> isofs_read_level3_size: inode=45152 ino=53408
+> isofs_read_level3_size: More than 100 file sections
+> ?!?, aborting...
+> isofs_read_level3_size: inode=45232 ino=53488
+> hdc: command error: status=0x51 { DriveReady
+> SeekComplete Error }
+> hdc: command error: error=0x51
+> end_request: I/O error, dev 16:00 (hdc), sector 18356
+> hdc: command error: status=0x51 { DriveReady
+> SeekComplete Error }
 
-One question:
-The code copies 'pdev->irq' into 'dev->irq'.
+You describe two entirely different things:
+(i) the kernel complains that the data on the CD is bad
+(ii) the kernel complains that it has problems reading the CD.
 
-Is that required, who need 'dev->irq'?
-
-> retval = request_irq(dev->irq, &intr_handler, SA_SHIRQ, dev->name, dev);
-
-Can't the driver use?
- retval = request_irq(np->pci_dev->irq)
-
---
-	Manfred
+The code that generates the message "More than 100 ..."
+is almost identical in 2.2 and 2.4 - if you didnt get that
+message in 2.2 then perhaps (i) was caused by (ii): there
+are problems reading the thing.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

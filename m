@@ -1,73 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbVDDNOV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbVDDN1G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261164AbVDDNOV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 09:14:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbVDDNOV
+	id S261178AbVDDN1G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 09:27:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVDDN1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 09:14:21 -0400
-Received: from sophia.inria.fr ([138.96.64.20]:57759 "EHLO sophia.inria.fr")
-	by vger.kernel.org with ESMTP id S261164AbVDDNOP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 09:14:15 -0400
-Message-ID: <42513D9A.80001@yahoo.fr>
-Date: Mon, 04 Apr 2005 15:14:02 +0200
-From: Guillaume Chazarain <guichaz@yahoo.fr>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
-X-Accept-Language: en-us, en
+	Mon, 4 Apr 2005 09:27:06 -0400
+Received: from sanosuke.troilus.org ([66.92.173.88]:54995 "EHLO
+	sanosuke.troilus.org") by vger.kernel.org with ESMTP
+	id S261178AbVDDN1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 09:27:03 -0400
+To: Sven Luther <sven.luther@wanadoo.fr>
+Cc: debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear
+ copyright notice.
+From: Michael Poole <mdpoole@troilus.org>
+Date: Mon, 04 Apr 2005 09:26:58 -0400
+In-Reply-To: <20050404100929.GA23921@pegasos> (Sven Luther's message of
+ "Mon, 4 Apr 2005 12:09:29 +0200")
+Message-ID: <87ekdq1xlp.fsf@sanosuke.troilus.org>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+References: <20050404100929.GA23921@pegasos>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: dd hangs with SIGINT
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (sophia.inria.fr [138.96.64.20]); Mon, 04 Apr 2005 15:14:03 +0200 (MEST)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Sven Luther writes:
 
-With recent linux distributions (using NPTL), I noticed that dd can hang
-waiting on a futex when being killed. The problem sould be reproduceable
-with the following script :
+> Hello,
+>
+> <quick sumary>
+> Current linux kernel source hold undistributable non-free firmware blobs, and
+> to consider them as mere agregation, a clear licence statement from the
+> copyright holders of said non-free firmware blobls is needed, read below for
+> details.
+> </quick sumary>
+>
+> Please keep everyone in the CC, as not everyone reads debian-legal or LKML.
 
--------$<-------$<-------$<-------$<-------$<-------$<-------$<--------
+This question comes up every four or five months.  You might have even
+been the last one to raise this question on one or more of the mailing
+lists you cc'ed.  Please, go check the list archives for the previous
+(lengthy and multiple) discussions about this topic.
 
-#!/bin/sh
-
-echo 'When you only see "dd frozen" in a loop the problem is present'
-
-while : ; do
-    dd if=/dev/zero of=/dev/null bs=1000 count=200 &> /dev/null
-    echo -n "."
-done &
-
-# Don't leave useless dd processes
-CHILD=$!
-trap "kill $CHILD; killall dd" EXIT
-
-while : ; do
-    killall -INT dd &> /dev/null
-    usleep 10000
-    PIDOF_DD1=$(pidof dd)
-    usleep 10000
-    PIDOF_DD2=$(pidof dd)
-    if [ -n "$PIDOF_DD1" ] && [ "$PIDOF_DD1" = "$PIDOF_DD2" ]; then
-        echo "dd frozen"
-    else
-        echo -n "+"
-    fi
-done
-
--------$<-------$<-------$<-------$<-------$<-------$<-------$<--------
-
-I can reproduce it on Fedora Core [1-3] on x86, even with recent kernels
-like 2.6.12-rc1-bk3,,but it goes away with LD_ASSUME_KERNEL=2.4. It
-seems to exploit a race condition somewhere, so the problem may need
-some time (or some load) before triggering.
-
-
-Hopefully someone can reproduce and look into it.
-Kind regards.
-
--- 
-Guillaume
-
+Michael Poole

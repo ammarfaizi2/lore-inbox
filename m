@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbUAWPFt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 10:05:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266571AbUAWPFt
+	id S266583AbUAWPSQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 10:18:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266584AbUAWPSQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 10:05:49 -0500
-Received: from mail.aei.ca ([206.123.6.14]:55241 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S262598AbUAWPFs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 10:05:48 -0500
-From: Ed Tomlinson <edt@aei.ca>
-Organization: me
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: vts have stopped working here
-Date: Fri, 23 Jan 2004 10:05:35 -0500
-User-Agent: KMail/1.5.93
-Cc: Vojtech Pavlik <vojtech@suse.cz>
-References: <224300000.1074839500@[10.10.2.4]> <200401230743.38488.edt@aei.ca> <20040123130535.GA4046@ucw.cz>
-In-Reply-To: <20040123130535.GA4046@ucw.cz>
-MIME-Version: 1.0
+	Fri, 23 Jan 2004 10:18:16 -0500
+Received: from poup.poupinou.org ([195.101.94.96]:43527 "EHLO
+	poup.poupinou.org") by vger.kernel.org with ESMTP id S266583AbUAWPSI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 10:18:08 -0500
+Date: Fri, 23 Jan 2004 16:17:58 +0100
+To: Matt Domsch <Matt_Domsch@dell.com>
+Cc: davej@redhat.com, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       akpm@osdl.org
+Subject: Re: DMI updates from 2.4
+Message-ID: <20040123151758.GC29844@poupinou.org>
+References: <E1Ajuub-0000x4-00@hardwired> <20040123073250.A21294@lists.us.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200401231005.35610.edt@aei.ca>
+In-Reply-To: <20040123073250.A21294@lists.us.dell.com>
+User-Agent: Mutt/1.5.4i
+From: Ducrot Bruno <poup@poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 23, 2004 08:05 am, Vojtech Pavlik wrote:
-> On Fri, Jan 23, 2004 at 07:43:38AM -0500, Ed Tomlinson wrote:
-> > Is anyone else having problems with vt(s)?  I can switch between X and vt
-> > 1 without problems.  Trying to use any of the other vt(s) fails.
-> >
-> > A+C+F1 flips from X to vt1
-> > A+F2 flips to vt7 (x)
-> > A+C+F2 from X does nothing
-> >
-> > In my logs there are messages about init spawing too fast.  Suspect that
-> > these are the processes for the Vt(s) started with:
-> >
-> > 2:23:respawn:/sbin/getty 38400 tty2
->
-> Interesting. The vt's don't exist until something writes to them. So
-> most likely X is running on vt2 in your case. As to why the processes
-> keep dying - no idea.
+On Fri, Jan 23, 2004 at 07:32:50AM -0600, Matt Domsch wrote:
+> For Dell desktops/notebooks, if someone can provide me with details
+> regarding BIOS crashes (more than "it's horked", but how it's horked,
+> and if it's clearly like an ACPI table that's wrong and can be shown
+> how), I've got the ears of the BIOS guys (being held in jars on
+> my desk).  They're getting tired of hearing on the discussion boards
+> "Dell BIOSses are broken".
+> 
+> Of course, I take reports of server and workstation BIOS problems too.
+> 
 
-No.  X is running on vt7.  Selecting F2,F3,F4,F5,F6 all get you to the X
-screen, and these are the ids init complains about in the log.  Interestingly 
-this happens on two boxes (K6-III 400 via, P3-1.4G Intel).
+That fine.  I searched someone from Dell for this kind of issues (note
+that I can only report ACPI related problems in general, not APM).
 
-Ed
+
+-- 
+Ducrot Bruno
+
+--  Which is worse:  ignorance or apathy?
+--  Don't know.  Don't care.

@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261397AbSJCUli>; Thu, 3 Oct 2002 16:41:38 -0400
+	id <S261396AbSJCUkm>; Thu, 3 Oct 2002 16:40:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261406AbSJCUli>; Thu, 3 Oct 2002 16:41:38 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:43767 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S261397AbSJCUlJ>; Thu, 3 Oct 2002 16:41:09 -0400
-Date: Thu, 3 Oct 2002 16:46:41 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: george anzinger <george@mvista.com>
-Cc: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Dual PPro timer stopping problem
-Message-ID: <20021003164641.F16875@redhat.com>
-References: <14632.1033653828@warthog.cambridge.redhat.com> <3D9C7E7E.7B2BFB52@mvista.com>
+	id <S261397AbSJCUkl>; Thu, 3 Oct 2002 16:40:41 -0400
+Received: from jdike.solana.com ([198.99.130.100]:17025 "EHLO karaya.com")
+	by vger.kernel.org with ESMTP id <S261396AbSJCUkk>;
+	Thu, 3 Oct 2002 16:40:40 -0400
+Message-Id: <200210032048.g93Kmaw06087@karaya.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: uml-patch-2.5.40-1
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D9C7E7E.7B2BFB52@mvista.com>; from george@mvista.com on Thu, Oct 03, 2002 at 10:29:34AM -0700
+Date: Thu, 03 Oct 2002 16:48:36 -0400
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 03, 2002 at 10:29:34AM -0700, george anzinger wrote:
-> The keyboard is, or at least depends on polling which is
-> controled by a timer, thus, no timer, => no keyboard.
+UML has been updated to 2.5.40.
 
-Eh?  Sure, by a timer internal to the keyboard itself.  At least x86 
-hardware has an interrupt wired to its keyboard controller that is used 
-to signal when a keystroke is available, and if you look into the driver, 
-you'd see that no timers are used at all.
+All of the new stuff in 2.5.19-7 and -8 are in this patch, including
+	the pcap network transport
+	lots of network driver cleanups
+	several crashes fixed
+	lots of smaller bugs fixed
+	
+The patch is available at
+	http://uml-pub.ists.dartmouth.edu/uml/uml-patch-2.5.40-1.bz2
 
-		-ben
+For the other UML mirrors and other downloads, see 
+	http://user-mode-linux.sourceforge.net/dl-sf.html
+
+Other links of interest:
+
+	The UML project home page : http://user-mode-linux.sourceforge.net
+	The UML Community site : http://usermodelinux.org
+
+				Jeff
+
+

@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271647AbRIGJdc>; Fri, 7 Sep 2001 05:33:32 -0400
+	id <S271655AbRIGJfC>; Fri, 7 Sep 2001 05:35:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271649AbRIGJdW>; Fri, 7 Sep 2001 05:33:22 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:14004 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S271647AbRIGJdP>;
-	Fri, 7 Sep 2001 05:33:15 -0400
-Date: Fri, 07 Sep 2001 10:28:02 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        Daniel Phillips <phillips@bonn-fries.net>, riel@conectiva.com.br,
-        linux-kernel@vger.kernel.org
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: [RFC] Defragmentation proposal: preventative maintenance and cleanup [LONG]
-Message-ID: <1428582639.999858481@[169.254.198.40]>
-In-Reply-To: <1427827800.999857726@[169.254.198.40]>
-In-Reply-To: <1427827800.999857726@[169.254.198.40]>
-X-Mailer: Mulberry/2.1.0 (Win32)
+	id <S271649AbRIGJep>; Fri, 7 Sep 2001 05:34:45 -0400
+Received: from ns.suse.de ([213.95.15.193]:65297 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S271648AbRIGJeX>;
+	Fri, 7 Sep 2001 05:34:23 -0400
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Defragmentation proposal: preventative maintenance and  cleanup [LONG]
+In-Reply-To: <20010907062851Z16136-26184+30@humbolt.nl.linux.org.suse.lists.linux.kernel> <1426827386.999856726@[169.254.198.40].suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 07 Sep 2001 11:34:41 +0200
+In-Reply-To: Alex Bligh - linux-kernel's message of "7 Sep 2001 11:13:45 +0200"
+Message-ID: <oupwv3buyxa.fsf@pigdrop.muc.suse.de>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Blush
+Alex Bligh - linux-kernel <linux-kernel@alex.org.uk> writes:
 
->   N = a (K ^ (2^-o)); (for a>0, K>1, o=order)
+> I'd be especially interested to know how we'd solve this for the
+> network stuff, which currently relies on physically contiguous packets
+> in memory. This is a *HUGE* change I think (larger than any we'd
+> make to the VM system).
 
-    N = a (K ^ -(2^o)); (for a>0, K>1, o=order)
+It's already fixed in the network stack for at least the most important
+protocols. The 2.4 stack supports iovecs of pages in skbs and also linked
+lists of skbs for a single packet. The biggest killer used to be 
+defragmentation; that will just pass around a linked list now. There are
+cases where defragmentation-into-a-big-buffer is still needed (e.g. for 
+most of netfilter), but fixing that is just small incremental change.
 
-
---
-Alex Bligh
+-Andi

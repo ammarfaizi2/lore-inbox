@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132152AbRCaDrG>; Fri, 30 Mar 2001 22:47:06 -0500
+	id <S132146AbRCaDmQ>; Fri, 30 Mar 2001 22:42:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132167AbRCaDq4>; Fri, 30 Mar 2001 22:46:56 -0500
-Received: from hawk.prod.itd.earthlink.net ([207.217.120.22]:9441 "EHLO
-	hawk.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S132152AbRCaDqp>; Fri, 30 Mar 2001 22:46:45 -0500
-Date: Fri, 30 Mar 2001 19:47:05 -0800 (PST)
-From: James Simmons <jsimmons@linux-fbdev.org>
-X-X-Sender: <jsimmons@linux.local>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-   Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [Linux-fbdev-devel] Re: fbcon slowness [was NTP on 2.4.2?]
-Message-ID: <Pine.LNX.4.31.0103301945490.743-100000@linux.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132152AbRCaDmH>; Fri, 30 Mar 2001 22:42:07 -0500
+Received: from 200-191-139-24-as.acessonet.com.br ([200.191.139.24]:12160 "EHLO
+	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
+	id <S132146AbRCaDlw>; Fri, 30 Mar 2001 22:41:52 -0500
+Date: Sat, 31 Mar 2001 00:41:32 -0300
+From: =?iso-8859-1?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <0@pervalidus.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: VIA IDE driver status ?
+Message-ID: <20010331004132.D111@pervalidus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.16i
+X-Mailer: Mutt/1.3.16i - Linux 2.4.3
+X-URL: http://www.pervalidus.net/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi. I really can't get UDMA66 with the VIA driver. I tried
+everything, also a new motherboard (ASUS A7Pro) with a
+ATA100/ATA66 cable (using both ends...)!
 
-> > You have same toshiba satellite as me, right?
->
-> Yes
+All I get are the usual CRC error messages.
 
-Is this the NeoMagic chipset?
+So, there's no UDMA66 for any vt82c686a ? I'm using 2.4.3.
 
-MS: (n) 1. A debilitating and surprisingly widespread affliction that
-renders the sufferer barely able to perform the simplest task. 2. A disease.
+If there's no UDMA66, what are the advantages using this
+driver ?
 
-James Simmons  [jsimmons@linux-fbdev.org]               ____/|
-fbdev/console/gfx developer                             \ o.O|
-http://www.linux-fbdev.org                               =(_)=
-http://linuxgfx.sourceforge.net                            U
-http://linuxconsole.sourceforge.net
+TIA.
 
+-- 
+0@pervalidus.{net, {dyndns.}org} Tel: 55-21-717-2399 (Niterói-RJ BR)

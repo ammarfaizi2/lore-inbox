@@ -1,59 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317638AbSGPPBQ>; Tue, 16 Jul 2002 11:01:16 -0400
+	id <S317770AbSGPPIZ>; Tue, 16 Jul 2002 11:08:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317770AbSGPPBQ>; Tue, 16 Jul 2002 11:01:16 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:13317 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S317638AbSGPPBP>;
-	Tue, 16 Jul 2002 11:01:15 -0400
-Date: Tue, 16 Jul 2002 16:17:18 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Joerg Schilling <schilling@fokus.gmd.de>, James.Bottomley@steeleye.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
-Message-ID: <20020716141718.GF18432@marowsky-bree.de>
-References: <200207161406.g6GE6tYh021918@burner.fokus.gmd.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200207161406.g6GE6tYh021918@burner.fokus.gmd.de>
-User-Agent: Mutt/1.4i
-X-Ctuhulu: HASTUR
+	id <S317857AbSGPPIY>; Tue, 16 Jul 2002 11:08:24 -0400
+Received: from h209-71-227-55.gtconnect.net ([209.71.227.55]:27155 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S317770AbSGPPIY>;
+	Tue, 16 Jul 2002 11:08:24 -0400
+Date: Tue, 16 Jul 2002 11:11:20 -0400 (EDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Stelian Pop <stelian.pop@fr.alcove.com>
+cc: Mathieu Chouquet-Stringer <mathieu@newview.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+In-Reply-To: <20020716124956.GK7955@tahoe.alcove-fr>
+Message-ID: <Pine.LNX.4.44.0207161107550.17919-100000@innerfire.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-07-16T16:06:55,
-   Joerg Schilling <schilling@fokus.gmd.de> said:
+On Tue, 16 Jul 2002, Stelian Pop wrote:
 
-> Just a hint: the block layer is for caching blocks from disk type deveices.
-> 
-> -	Block device access is always going directly into the block cache.  So
-> the I/O is always kernel I/O. In addition, it is async I/O - the block layer
-> fires it up and may wait for it later after sending out other requests.
-> 
-> -	Character device access is synchronous access and may be either kernel
-> or user space DMA access. In most cases, it is user space DMA access.
-> 
-> How try to ask your question again...
+> Date: Tue, 16 Jul 2002 14:49:56 +0200
+> From: Stelian Pop <stelian.pop@fr.alcove.com>
+> To: Gerhard Mack <gmack@innerfire.net>
+> Cc: Mathieu Chouquet-Stringer <mathieu@newview.com>,
+>      linux-kernel@vger.kernel.org
+> Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+>
+> On Tue, Jul 16, 2002 at 08:22:53AM -0400, Gerhard Mack wrote:
+>
+> > > This needs to be "according to Linus, dump is deprecated". Given the
+> > > interest Linus has manifested for backups, I wouldn't really rely on
+> > > his statement :-)
+> >
+> > Either way dump is not likely to give you a reliable backup when used
+> > with a 2.4.x kernel.
+>
+> Since you are so well informed, maybe you could share your knowledge
+> with us.
+>
+> I'm the dump maintainer, so I'll be very interested in knowing how
+> comes that dump works for me and many other users... :-)
+>
 
-Right, and you can build one on top of the other in this fashion. I don't see
-the problem.
+I'll save myself the trouble when Linus said it better than I could:
 
-> >That is not true. Late IDE also has this, and systems like drbd - which
-> >currently uses a quite clever heuristic to deduce barriers - could also
-> >utilize this input.
-> How is it implemented?
+     Note that dump simply won't work reliably at all even in
+     2.4.x: the buffer cache and the page cache (where all the
+     actual data is) are not coherent. This is only going to
+     get even worse in 2.5.x, when the directories are moved
+     into the page cache as well.
 
-drbd does an analysis of the write-patterns, look at
-http://www.complang.tuwien.ac.at/reisner/drbd/publications/index.html, Philipp
-has written a diploma thesis on it.
+     So anybody who depends on "dump" getting backups right is
+     already playing russian rulette with their backups.  It's
+     not at all guaranteed to get the right results - you may
+     end up having stale data in the buffer cache that ends up
+     being "backed up".
 
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
+In other words you have a backup system that works some of the time or
+even most of the time... brilliant!
 
--- 
-Immortality is an adequate definition of high availability for me.
-	--- Gregory F. Pfister
+	Gerhard
+
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
 

@@ -1,210 +1,199 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261993AbVANXPg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261965AbVANXMq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261993AbVANXPg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 18:15:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbVANXOQ
+	id S261965AbVANXMq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 18:12:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbVANXHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 18:14:16 -0500
-Received: from opersys.com ([64.40.108.71]:15112 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261953AbVANXB5 (ORCPT
+	Fri, 14 Jan 2005 18:07:42 -0500
+Received: from fw.osdl.org ([65.172.181.6]:3227 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261573AbVANXEV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 18:01:57 -0500
-Message-ID: <41E85123.7080005@opersys.com>
-Date: Fri, 14 Jan 2005 18:09:23 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: tglx@linutronix.de
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.11-rc1-mm1
-References: <20050114002352.5a038710.akpm@osdl.org> <1105740276.8604.83.camel@tglx.tec.linutronix.de>
-In-Reply-To: <1105740276.8604.83.camel@tglx.tec.linutronix.de>
+	Fri, 14 Jan 2005 18:04:21 -0500
+Date: Fri, 14 Jan 2005 15:04:18 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Paul Davis <paul@linuxaudiosystems.com>, nickpiggin@yahoo.com.au,
+       lkml@s2y4n2c.de, rlrevell@joe-job.com, arjanv@redhat.com, joq@io.com,
+       hch@infradead.org, mingo@elte.hu, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org, kernel@kolivas.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050114150418.S24171@build.pdx.osdl.net>
+References: <1105669451.5402.38.camel@npiggin-nld.site> <200501140240.j0E2esKG026962@localhost.localdomain> <20050113191237.25b3962a.akpm@osdl.org> <20050114065701.GG2940@waste.org> <20050114121021.O24171@build.pdx.osdl.net> <20050114205512.GD3823@waste.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050114205512.GD3823@waste.org>; from mpm@selenic.com on Fri, Jan 14, 2005 at 12:55:12PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Matt Mackall (mpm@selenic.com) wrote:
+> On Fri, Jan 14, 2005 at 12:10:21PM -0800, Chris Wright wrote:
+> > The basic issue on the rlimit value is how to sanely encode nice values,
+> > realtime prioroties and scheduler policies into a number.  The first
+> > incarnation was the clumsiest, and tried to pack it all into a number
+> > in range of [0,139].  This, as many agree, too closely reflects kernel
+> > internal values.  This one gives 0-39 (nice values 19,-20) to RLIMIT_NICE,
+> > and 0-99 (rt priorities) to RLIMIT_RTPRIO.  There's no distinction in rt
+> > policy, and the traditional override (CAP_SYS_NICE) is still in place.
+> > The defaults for both rlimits are 0, and behaviour should be backwards
+> > compatible.  I tested this one a bit, and it worked as expected.  I've
+> > got a patch to pam_limits as well, although it's untested.
+> 
+> This is looking pretty good.
+> 
+> > +#define NICE_TO_RLIMIT_NICE(nice)	(19 - nice)
+> ...
+> > +unsigned long nice_to_rlimit_nice(const int nice)
+> > +{
+> > +	return NICE_TO_RLIMIT_NICE(nice);
+> > +}
+> 
+> This is a bit silly.
 
-[repost. first reply had wrong lkml CC.]
+Heh, I wondered what comment that would get ;-)  It's gone.
 
-Hello Thomas,
+> > -	if (niceval < task_nice(p) && !capable(CAP_SYS_NICE)) {
+> > +	if (niceval < task_nice(p) &&
+> > +		nice_to_rlimit_nice(niceval) >
+> > +		p->signal->rlim[RLIMIT_NICE].rlim_cur &&
+> > +		!capable(CAP_SYS_NICE)) {
+> 
+> Perhaps we want another helper function to do the rlim and
+> CAP_SYS_NICE check together.
 
-First, thanks for the feedback, it's greatly appreciated.
+Sure.
+-chris
+-- 
 
-Lots of stuff in here. I don't mean to drop any of your arguments, but
-I'm going to reply to this in a way that makes this reply and further
-responses as useful as possible to outsiders. Let me know if you
-think I've dropped something important.
+===== include/asm-i386/resource.h 1.5 vs edited =====
+--- 1.5/include/asm-i386/resource.h	2004-08-23 01:15:26 -07:00
++++ edited/include/asm-i386/resource.h	2005-01-14 13:48:53 -08:00
+@@ -18,8 +18,11 @@
+ #define RLIMIT_LOCKS	10		/* maximum file locks held */
+ #define RLIMIT_SIGPENDING 11		/* max number of pending signals */
+ #define RLIMIT_MSGQUEUE 12		/* maximum bytes in POSIX mqueues */
++#define RLIMIT_NICE	13		/* max nice prio allowed to raise to
++					   0-39 for nice level 19 .. -20 */
++#define RLIMIT_RTPRIO	14		/* maximum realtime priority */
+ 
+-#define RLIM_NLIMITS	13
++#define RLIM_NLIMITS	15
+ 
+ 
+ /*
+@@ -45,6 +48,8 @@
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
+ 	{ MQ_BYTES_MAX, MQ_BYTES_MAX },			\
++	{            0,	             0 },		\
++	{            0,	             0 },		\
+ }
+ 
+ #endif /* __KERNEL__ */
+===== include/asm-x86_64/resource.h 1.5 vs edited =====
+--- 1.5/include/asm-x86_64/resource.h	2004-08-23 01:15:26 -07:00
++++ edited/include/asm-x86_64/resource.h	2005-01-14 14:17:38 -08:00
+@@ -18,8 +18,11 @@
+ #define RLIMIT_LOCKS	10		/* maximum file locks held */
+ #define RLIMIT_SIGPENDING 11		/* max number of pending signals */
+ #define RLIMIT_MSGQUEUE 12		/* maximum bytes in POSIX mqueues */
++#define RLIMIT_NICE	13		/* max nice prio allowed to raise to
++					   0-39 for nice level 19 .. -20 */
++#define RLIMIT_RTPRIO	14		/* maximum realtime priority */
+ 
+-#define RLIM_NLIMITS	13
++#define RLIM_NLIMITS	15
+ 
+ /*
+  * SuS says limits have to be unsigned.
+@@ -44,6 +47,8 @@
+ 	{ RLIM_INFINITY, RLIM_INFINITY },		\
+ 	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
+ 	{ MQ_BYTES_MAX, MQ_BYTES_MAX },			\
++	{             0,             0 },		\
++	{             0,             0 },		\
+ }
+ 
+ #endif /* __KERNEL__ */
+===== include/linux/sched.h 1.291 vs edited =====
+--- 1.291/include/linux/sched.h	2005-01-11 16:42:57 -08:00
++++ edited/include/linux/sched.h	2005-01-14 13:58:32 -08:00
+@@ -767,6 +767,7 @@ extern void sched_idle_next(void);
+ extern void set_user_nice(task_t *p, long nice);
+ extern int task_prio(const task_t *p);
+ extern int task_nice(const task_t *p);
++extern int can_nice(const task_t *p, const int nice);
+ extern int task_curr(const task_t *p);
+ extern int idle_cpu(int cpu);
+ extern int sched_setscheduler(struct task_struct *, int, struct sched_param *);
+===== kernel/sched.c 1.407 vs edited =====
+--- 1.407/kernel/sched.c	2005-01-11 16:42:35 -08:00
++++ edited/kernel/sched.c	2005-01-14 15:03:44 -08:00
+@@ -3121,6 +3121,19 @@ out_unlock:
+ 
+ EXPORT_SYMBOL(set_user_nice);
+ 
++/**
++ * can_nice - check if a task can reduce its nice value
++   @p: task
++ * @nice: nice value
++ */
++int can_nice(const task_t *p, const int nice)
++{
++	/* convert nice value [19,-20] to rlimit style value [0,39] */
++	int nice_rlim = 19 - nice;
++	return (nice_rlim <= p->signal->rlim[RLIMIT_NICE].rlim_cur || 
++		capable(CAP_SYS_NICE));
++}
++
+ #ifdef __ARCH_WANT_SYS_NICE
+ 
+ /*
+@@ -3140,12 +3153,8 @@ asmlinkage long sys_nice(int increment)
+ 	 * We don't have to worry. Conceptually one call occurs first
+ 	 * and we have a single winner.
+ 	 */
+-	if (increment < 0) {
+-		if (!capable(CAP_SYS_NICE))
+-			return -EPERM;
+-		if (increment < -40)
+-			increment = -40;
+-	}
++	if (increment < -40)
++		increment = -40;
+ 	if (increment > 40)
+ 		increment = 40;
+ 
+@@ -3155,6 +3164,9 @@ asmlinkage long sys_nice(int increment)
+ 	if (nice > 19)
+ 		nice = 19;
+ 
++	if (increment < 0 && !can_nice(current, nice))
++		return -EPERM;
++
+ 	retval = security_task_setnice(current, nice);
+ 	if (retval)
+ 		return retval;
+@@ -3252,6 +3264,7 @@ recheck:
+ 		return -EINVAL;
+ 
+ 	if ((policy == SCHED_FIFO || policy == SCHED_RR) &&
++	    param->sched_priority > p->signal->rlim[RLIMIT_RTPRIO].rlim_cur && 
+ 	    !capable(CAP_SYS_NICE))
+ 		return -EPERM;
+ 	if ((current->euid != p->euid) && (current->euid != p->uid) &&
+===== kernel/sys.c 1.104 vs edited =====
+--- 1.104/kernel/sys.c	2005-01-11 16:42:35 -08:00
++++ edited/kernel/sys.c	2005-01-14 14:10:11 -08:00
+@@ -225,7 +225,7 @@ static int set_one_prio(struct task_stru
+ 		error = -EPERM;
+ 		goto out;
+ 	}
+-	if (niceval < task_nice(p) && !capable(CAP_SYS_NICE)) {
++	if (niceval < task_nice(p) && !can_nice(p, niceval)) {
+ 		error = -EACCES;
+ 		goto out;
+ 	}
 
-Thomas Gleixner wrote:
-
->> The "non-locking" claim is nice, but a do { } while loop in the slot
->> reservation for every event including a do { } while loop in the slow
->> path is just a replacement of locking without actually using a lock. I
->> don't care whether this is likely or unlikely to happen, it's just bogus
->> to add a non constant time path for debugging/tracing purposes.
-
-
-relayfs implements two schemes: lockless and locking. The later uses
-standard linear locking mechanisms. If you need stringent constant
-time, you know what to do.
-
-
->> Default timestamp measuring with do_gettimeofday is also contrary to the
->> non locking argument. There is
->> a) a lock in there
->> b) it might loop because it's a sequential lock.
-
-
-That's true, but that's not a limitation of relayfs per se. We'd gladly
-use any timing facility available to us. We already use the TSC when
-available.
-
-
->> If you have no TSC you can do at least a jiffies + event-number based,
->> not so finegrained tracing which gives you at least the timeline of the
->> events.
-
-
-Interesting. I've added this to the to-do list.
-
-
->> There is also no need to do time diff calculations / conversions, this
->> can be done in userspace postprocessing.
-
-
-Ah yes, that's the kind of thing that you learn by getting bitten by it.
-The problem is the size of the data stream. Diffs are an easy and a
-rather inexpensive way of reducing trace sizes. Logging 2 or 4 more bytes
-per event when you've got tens of thousands of events occuring per second
-does have a noticeable impact. If this is really a sticking point, we
-could provide a way for writing full time-stamps.
-
-
->> you do. In space constraint systems relayfs is even worse as it needs
->> more memory than the plain ringbuffer.
-
-
-Don't get us wrong, we can strip this down to make this a stupid ring-
-buffer. But the fact of the matter is that in trying to use such a thing,
-you will find yourself reimplementing the exact things we did for the
-same purposes.
-
-
->> The ringbuffer has a nice advantage. In case the system crashes you can
->> retrieve the last and therefor most interesting information from the
->> ringbuffer without any hassle via BDI or in the worstcase via a serial
->> dump. You can even copy the tail of the buffer into a permanent storage
->> like buffered SRAM so it can be retrieved after reboot.
-
-
-And there's a reason why you can't do that with relayfs? We've looked at
-this and interfacing between relayfs and crashdump is trivial.
-
-
->> Splitting the trace into different paths is nice to have but I don't see
->> a single point which cannot be done by a userspace (hostside)
->> postprocessing tool. It adds another non time constant component to the
->> trace path. Even the per CPU ringbuffers can be nicely synchronized by a
->> userspace postprocessing tool without adding complex synchronization
->> functions.
-
-
-Again life is a merciless teacher. LTT did initially start with a single
-eat-your-breakfeast-dinner-and-supper-in-one-place buffer. But that just
-doesn't scale. If you're doing flight-recording, for example, you need
-to have a separate channel which contains process creation/exit,
-otherwise you have a hard time interepreting the data.
-
-
->> In case of time related tracing it's just overkill. The printk
->> information is mostly a string, which can be replaced by the address on
->> which the printk is happening. The maybe available arguments can be
->> dumped in binary form. All this information can be converted into human
->> readable form by postprocessing.
-
-
-I'm sorry, I don't understand your argument here.
-
-
->> I wonder whether the various formatting options of the trace are really
->> of any value. I need neither strings, HEX strings nor XML formatted
->> information from the kernel. Max. 8192 Byte of user information makes me
->> frown. Tracing is not a copy to userspace function or am I missing
->> something ?
-
-
-Dynamically created custom events and events directed by the likes of
-DProbes need something to write to, and user-space utilities must have
-a way of determining what format this data was written in. That's all
-there is to see here.
-
-
->> All tracepoints are unconditionally compiled into the kernel, whether
->> they are enabled or not. Why is it neccecary to check the enabled bit
->> for information I'm not interested in ? Why can't I compile this away by
->> not enabling the tracepoint at all.
-
-
-But you can. Have a look at include/linux/ltt-events.h:
-#else /* defined(CONFIG_LTT) */
-#define ltt_ev(ID, DATA)
-#define ltt_ev_trap_entry(ID, EIP)
-#define ltt_ev_trap_exit()
-#define ltt_ev_irq_entry(ID, KERNEL)
-#define ltt_ev_irq_exit()
-#define ltt_ev_schedchange(OUT, IN)
-#define ltt_ev_soft_irq(ID, DATA)
-#define ltt_ev_process(ID, DATA1, DATA2)
-#define ltt_ev_process_exit(DATA1, DATA2)
-#define ltt_ev_file_system(ID, DATA1, DATA2, FILE_NAME)
-#define ltt_ev_timer(ID, SDATA, DATA1, DATA2)
-#define ltt_ev_memory(ID, DATA)
-#define ltt_ev_socket(ID, DATA1, DATA2)
-#define ltt_ev_ipc(ID, DATA1, DATA2)
-#define ltt_ev_network(ID, DATA)
-#define ltt_ev_heartbeat()
-#endif /* defined(CONFIG_LTT) */
-
-
->> I don't need to point out the various coding style issues again, but I
->> question if
->> 	atomic_set(&var), atomic_read(&var) | bit);
->> which can be found on several places is really doing what it's suggests
->> to do.
-
-
-If there are actual code snippets you think are broken, we'll gladly
-fix them.
-
-
->> I did a short test on a 300MHz PIII box and the maximum time spent in
->> the log path (interrupts disabled during measurement) is about 30us.
->> Extrapolated to a 74MHz ARM SoC it will sum up to ~ 90-120us, what makes
->> it purely useless.
-
-
-Granted tracing is not free, but please avoid spreading FUD without
-actually carrying out proper testing. We've done quite a large number
-of tests and we've demonstrated over and over that LTT, and ltt-over-
-relayfs, is actually very efficient. If you're interested in actual
-test data, then you may want to check out the following:
-http://www.opersys.com/ftp/pub/LTT/Documentation/ltt-usenix.ps.gz
-http://lwn.net/Articles/13870/
-
-We are aware of the cost of the various tracing components, as you
-can see by my earlier posting about early-checking to minimize the
-cost of the tracing hooks for kernel compiled with them, and are
-open for any optimization. If you have any concrete suggestions, save
-the scrap-everything-I-know-better (which is really unproductive as
-you would anyway have to go down the same path we have), we are more
-than willing to entertain them.
-
-Karim
---
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546

@@ -1,102 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262037AbTFFQyG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 12:54:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbTFFQyG
+	id S262095AbTFFRCS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 13:02:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbTFFRCS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 12:54:06 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:48802 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S262037AbTFFQyD
-	(ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Fri, 6 Jun 2003 12:54:03 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
+	Fri, 6 Jun 2003 13:02:18 -0400
+Received: from wmail.atlantic.net ([209.208.0.84]:23206 "HELO
+	wmail.atlantic.net") by vger.kernel.org with SMTP id S262095AbTFFRCO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 13:02:14 -0400
+Message-ID: <3EE0CF07.2070908@techsource.com>
+Date: Fri, 06 Jun 2003 13:27:35 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Kernel printk format string compression: C syntax problem
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16096.51799.485147.930465@laputa.namesys.com>
-Date: Fri, 6 Jun 2003 21:07:35 +0400
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
-Cc: Oleg Drokin <Green@Namesys.COM>, Jeff Dike <jdike@karaya.com>
-Subject: [PATCH]: fix kobject initialization in drivers/char/tty_io.c
-X-Mailer: ed | telnet under Fuzzball OS, emulated on Emacs 21.5  (beta14) "cassava" XEmacs Lucid
-X-Uboat-Death-Message: ATTACKED BY SMALL GNATS. SINKING. U-898.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Some of you may recall that I've been working on a way to compress 
+kernel printk format strings so as to shrink the kernel memory image a 
+bit.  My results so far are that given the amount of space required for 
+all kernel strings, I can compress them to half their original size. 
+Given something the size of an allyesconfig kernel, that's not much 
+compression over-all, but it's still interesting.  Additionally, the 
+means to compress the kernel messages are a compile-time issue and 
+completely transparent to the coder.
 
-in 2.5.70, UML fails to boot with
+I am, however, encountering a problem, and I was hoping some people who 
+know C syntax better than both myself and the C syntax spec I found at 
+"http://eic.sourceforge.net/iso_c.html" could help me solve it.
 
-Initializing stdio console driver
-Badness in kobject_get at lib/kobject.c:351
+Here's an example of the problem:
 
-it seems that problem is that drivers/char/tty_io.c:tty_init() is now
-called after arch/um/stdio_console.c:stdio_init(), and when the latter
-calls tty_register_driver(), neither tty_kobj, nor tty_cdev are yet
-initialized. Below is a work around.
+This line from process.c starts out as:
 
-Nikita.
-===== drivers/char/tty_io.c 1.105 vs edited =====
---- 1.105/drivers/char/tty_io.c	Fri Jun  6 02:19:36 2003
-+++ edited/drivers/char/tty_io.c	Fri Jun  6 20:27:05 2003
-@@ -2233,6 +2233,19 @@
- EXPORT_SYMBOL(tty_unregister_device);
- 
- static struct kobject tty_kobj = {.name = "tty"};
-+static struct cdev tty_cdev, console_cdev;
-+static int kobj_bootstraped = 0;
-+static void kobj_bootstrap(void)
-+{
-+	if (!kobj_bootstraped) {
-+		kobj_bootstraped = 1;
-+		strcpy(tty_cdev.kobj.name, "dev.tty");
-+		cdev_init(&tty_cdev, &tty_fops);
-+		tty_kobj.kset = tty_cdev.kobj.kset;
-+		kobject_register(&tty_kobj);
-+	}
-+}
-+
- /*
-  * Called by a tty driver to register itself.
-  */
-@@ -2261,6 +2274,8 @@
- 	if (error < 0)
- 		return error;
- 
-+	kobj_bootstrap();
-+
- 	driver->cdev.kobj.parent = &tty_kobj;
- 	strcpy(driver->cdev.kobj.name, driver->name);
- 	for (s = strchr(driver->cdev.kobj.name, '/'); s; s = strchr(s, '/'))
-@@ -2372,7 +2387,6 @@
- 
- postcore_initcall(tty_class_init);
-  
--static struct cdev tty_cdev, console_cdev;
- #ifdef CONFIG_UNIX98_PTYS
- static struct cdev ptmx_cdev;
- #endif
-@@ -2386,8 +2400,7 @@
-  */
- void __init tty_init(void)
- {
--	strcpy(tty_cdev.kobj.name, "dev.tty");
--	cdev_init(&tty_cdev, &tty_fops);
-+	kobj_bootstrap();
- 	if (cdev_add(&tty_cdev, MKDEV(TTYAUX_MAJOR, 0), 1) ||
- 	    register_chrdev_region(MKDEV(TTYAUX_MAJOR, 0), 1, "/dev/tty") < 0)
- 		panic("Couldn't register /dev/tty driver\n");
-@@ -2401,9 +2414,6 @@
- 		panic("Couldn't register /dev/console driver\n");
- 	devfs_mk_cdev(MKDEV(TTYAUX_MAJOR, 1), S_IFCHR|S_IRUSR|S_IWUSR, "console");
- 	tty_add_class_device ("console", MKDEV(TTYAUX_MAJOR, 1), NULL);
--
--	tty_kobj.kset = tty_cdev.kobj.kset;
--	kobject_register(&tty_kobj);
- 
- #ifdef CONFIG_UNIX98_PTYS
- 	strcpy(ptmx_cdev.kobj.name, "dev.ptmx");
+printk("EIP: %04x:[<%08lx>] CPU: %d\n",0xffff & regs->xcs,regs->eip, 
+(current_thread_info()->cpu));
+
+And is replaced by:
+
+printk( "EIP\200\3164x:[<\3168lx>] CPU\200%d\n" ,0xffff & 
+regs->xcs,regs->eip, (current_thread_info()->cpu));
+
+GCC 3.0.4 makes the following complaint:
+
+arch/i386/kernel/process.c:173: warning: too many arguments for format
+
+What I believe is happening is that where I have the escape code "\316" 
+concatenated with the literal "8", the compiler is seeing it as "\3168" 
+and doesn't want to take it.  Now, it's just a warning, and it MAY be 
+doing the right thing, but what I want to know is the PROPER UNAMBIGUOUS 
+way to specify at 3-digit octal escape code which is followed 
+immediately by a literal digit.
+
+Any suggestions?
+
+Thank you.
 

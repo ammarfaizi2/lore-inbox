@@ -1,46 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262714AbREOJte>; Tue, 15 May 2001 05:49:34 -0400
+	id <S262710AbREOJpw>; Tue, 15 May 2001 05:45:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262718AbREOJtX>; Tue, 15 May 2001 05:49:23 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:50408 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262714AbREOJtK>;
-	Tue, 15 May 2001 05:49:10 -0400
-Date: Tue, 15 May 2001 05:49:08 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <E14zb68-0002Fq-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.21.0105150532150.21081-100000@weyl.math.psu.edu>
+	id <S262713AbREOJpm>; Tue, 15 May 2001 05:45:42 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:46606 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262712AbREOJpf>; Tue, 15 May 2001 05:45:35 -0400
+Subject: Re: mmap
+To: mdaljeet@in.ibm.com
+Date: Tue, 15 May 2001 10:42:07 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <CA256A4D.00256728.00@d73mta05.au.ibm.com> from "mdaljeet@in.ibm.com" at May 15, 2001 12:17:46 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14zbLD-0002H9-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> now the problem is that i want to remap the address range pointed by the
+> user space pointer to the memory region allocated by the
+> 'pci_alloc_consistent' inside the module. I think this is possible..need
+> some hints....
 
-
-On Tue, 15 May 2001, Alan Cox wrote:
-
-> to
-> 
-> 	/* Use scsi if possible [scsi, ide-scsi, usb-scsi, ...] */
-> 	if(HAS_FEATURE_SET(fd, "scsi-tape"))
-> 		...
-> 	else if(HAS_FEATURE_SET(fd, "floppy-tape"))
-> 		..
-
-Alan, if we are doing that we might as well use saner interface than
-ioctl(2). In case you've mentioned we don't want "make device SYS$FOO17
-do special action OP$LOUD$BARF4269". We want "make device rewind the tape".
-Or "tell us geometry". Or "eject the media". Application doesn't
-_care_ whether it is ejecting floppy on Sun or IDE CD, or SCSI
-CD or ZIP disk sitting on parallel port. The fact that currently it
-has to know is a Bad Thing(tm).
-
-At the very least we need ioctls sorted by function, not by device.
+Wrong way around. Ask the device to create its mapping and reply with the size
+mmap the object
 

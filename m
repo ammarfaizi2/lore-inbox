@@ -1,42 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269188AbRGaGNn>; Tue, 31 Jul 2001 02:13:43 -0400
+	id <S269187AbRGaGVY>; Tue, 31 Jul 2001 02:21:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269189AbRGaGNd>; Tue, 31 Jul 2001 02:13:33 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:19361 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S269186AbRGaGNW>;
-	Tue, 31 Jul 2001 02:13:22 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
+	id <S269193AbRGaGVP>; Tue, 31 Jul 2001 02:21:15 -0400
+Received: from zok.sgi.com ([204.94.215.101]:25003 "EHLO zok.corp.sgi.com")
+	by vger.kernel.org with ESMTP id <S269187AbRGaGVG>;
+	Tue, 31 Jul 2001 02:21:06 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.8-pre3 drivers/usb/storage/scsiglue.c 
+In-Reply-To: Your message of "Mon, 30 Jul 2001 22:50:51 MST."
+             <20010730225051.B14078@one-eyed-alien.net> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15206.19567.477213.727922@pizda.ninka.net>
-Date: Mon, 30 Jul 2001 23:13:03 -0700 (PDT)
-To: Sridhar Samudrala <samudrala@us.ibm.com>
-Cc: jamal <hadi@cyberus.ca>, diffserv-general@lists.sourceforge.net,
-        kuznet@ms2.inr.ac.ru, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-        rusty@rustcorp.com.au, thiemo@sics.se,
-        Renu Tewari <tewarir@us.ibm.com>, dmfreim@us.ibm.com
-Subject: Re: [Linux Diffserv] Re: [PATCH] Inbound Connection Control mechanism:
- Prioritized Accept Queue
-In-Reply-To: <Pine.LNX.4.21.0107301359350.23307-100000@w-sridhar2.des.sequent.com>
-In-Reply-To: <Pine.GSO.4.30.0107301515090.7013-100000@shell.cyberus.ca>
-	<Pine.LNX.4.21.0107301359350.23307-100000@w-sridhar2.des.sequent.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Date: Tue, 31 Jul 2001 16:21:04 +1000
+Message-ID: <2852.996560464@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+On Mon, 30 Jul 2001 22:50:51 -0700, 
+Matthew Dharm <mdharm-kernel@one-eyed-alien.net> wrote:
+>Or does the const keywork refer only to the struct, not to the pointer?  If
+>that's the case, then the keyword should be there....
 
-Sridhar Samudrala writes:
- > oss.software.ibm.com is running linux 2.2.19. I guess linux should by
- > default ignore ECN bits if it is not enabled. Do you think this ECN problem 
- > has something to do with the server or some router on the way the server?
+const refers to the structure, not the pointer to the structure.
 
-As Jamal and Jeff have mentioned, it's not a Linux problem.  Rather
-it's the buggy firewall products IBM is using.
-
-Later,
-David S. Miller
-davem@redhat.com

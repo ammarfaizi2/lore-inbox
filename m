@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265504AbTGCXFy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 19:05:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265518AbTGCXFy
+	id S265465AbTGCXEm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 19:04:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265582AbTGCXEl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 19:05:54 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44245 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265498AbTGCXFk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 19:05:40 -0400
-Message-ID: <3F04BA16.7050301@pobox.com>
-Date: Thu, 03 Jul 2003 19:19:50 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Justin Pryzby <justinpryzby@users.sf.net>
-CC: linux-kernel@vger.kernel.org, kernel-janitor-discuss@lists.sourceforge.net
-Subject: Re: "Will be removed in 2.4"
-References: <20030703200134.GA18459@andromeda>
-In-Reply-To: <20030703200134.GA18459@andromeda>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Jul 2003 19:04:41 -0400
+Received: from holomorphy.com ([66.224.33.161]:33476 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S265465AbTGCXCH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 19:02:07 -0400
+Date: Thu, 3 Jul 2003 16:16:23 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Boszormenyi Zoltan <zboszor@freemail.hu>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.74-mm1
+Message-ID: <20030703231623.GU26348@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Boszormenyi Zoltan <zboszor@freemail.hu>,
+	linux-kernel@vger.kernel.org
+References: <3F0407D1.8060506@freemail.hu> <3F042AEE.2000202@freemail.hu> <20030703122243.51a6d581.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030703122243.51a6d581.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin Pryzby wrote:
-> Linux 2.4.21, include/asm/io.h:51 says "Will be removed in 2.4".  Its
-> there in 2.5.74 as well.
-> 
-> I can understand why it would be in 2.5; the comment should say 2.6,
-> though.
+Boszormenyi Zoltan <zboszor@freemail.hu> wrote:
+>> I actually tried it. It seems that although I compiled an SMP kernel, it 
+>> does not use both CPUs.
+
+On Thu, Jul 03, 2003 at 12:22:43PM -0700, Andrew Morton wrote:
+> You're right.  The kernel sort-of saw the second CPU but it appears to have
+> not come up.
+> Have you used any other 2.5 kernels?  Are you able to pinpoint and
+> particular kernel version at which this started to happen?
+> If not then I'd appreciate it if you could test stock 2.4.74.
+
+Boszormenyi, can you try with APIC_DEBUG defined to 1 in
+include/asm-i386/acpidef.h and reproduce with ACPI off in your .config?
 
 
-Actually there is a larger issue too:
-
-I would love it if someone (kernel janitors?) went through the kernel 
-code and dug out all the comments like this.  "should be gone by 1.3" :) 
-  "should be removed in 2.5".  etc.  This should be a pretty easy, but 
-time consuming job that even newbies could sink their teeth into.
-
-Then we can go through the list and kill the issues, or the comments.
-
-	Jeff
-
-
-
+-- wli

@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267256AbTAUWZJ>; Tue, 21 Jan 2003 17:25:09 -0500
+	id <S267247AbTAUWWe>; Tue, 21 Jan 2003 17:22:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267257AbTAUWZJ>; Tue, 21 Jan 2003 17:25:09 -0500
-Received: from dhcp34.trinity.linux.conf.au ([130.95.169.34]:4480 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id <S267256AbTAUWZI>; Tue, 21 Jan 2003 17:25:08 -0500
-Subject: Re: 32bit dev_t
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Steven Dake <sdake@mvista.com>
-Cc: Joel Becker <Joel.Becker@oracle.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E2DBBAD.80206@mvista.com>
-References: <20030121195041.GE20972@ca-server1.us.oracle.com>
-	 <3E2DBBAD.80206@mvista.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1043188385.1384.1.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 21 Jan 2003 22:33:05 +0000
+	id <S267255AbTAUWWe>; Tue, 21 Jan 2003 17:22:34 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:8912 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S267247AbTAUWWd>;
+	Tue, 21 Jan 2003 17:22:33 -0500
+Message-ID: <F760B14C9561B941B89469F59BA3A847137F99@orsmsx401.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: Andrew Walrond <andrew@walrond.org>
+Cc: linux-kernel@vger.kernel.org, acpi-devel@sourceforge.net
+Subject: RE: [PATCH] SMP parsing rewrite, phase 1
+Date: Tue, 21 Jan 2003 14:31:22 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+content-class: urn:content-classes:message
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-01-21 at 21:29, Steven Dake wrote:
-> Joel,
+> From: Andrew Walrond [mailto:andrew@walrond.org] 
+> Results from a an Asus PR-DLS Dual Xeon HT
 > 
-> Linux doesn't really need a 32 bit kdev_t structure to support 1000 
-> disks.  There is plenty of device space available to support over 1500 
-> disks by modifying the linux scsi layer.
+> Don't know if this is useful, but I'll try anything that might bring 
+> back my e1000 ;) No joy though - doesn't find all the PCI 
+> buses (14 and 
+> 18 missing - see below)
 
-You run out of assigned major/minor numbers. There is a sick hack that
-steals other device idents but thats not usable in a production environment.
-32bit dev_t IMHO is essential to 2.6. Essential enough that if its not in
-the base 2.6 all the vendors have to get together and issue a Linus 
-incompatible but common 32bit dev_t interface.
+Well, this patch shouldn't actually *improve* anything yet w.r.t. ACPI.
+I just wanted to see if it made anything worse, before proceeding
+further.
 
+Looks like your machine didn't fail to boot, so great. :)
 
+Regards -- Andy

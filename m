@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263664AbUGFLiW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263778AbUGFLnn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263664AbUGFLiW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 07:38:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263778AbUGFLiW
+	id S263778AbUGFLnn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 07:43:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263784AbUGFLnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 07:38:22 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24738 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263664AbUGFLiU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 07:38:20 -0400
-Date: Tue, 6 Jul 2004 08:04:36 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-Cc: FabF <fabian.frederick@skynet.be>, linux-kernel@vger.kernel.org
-Subject: Re: question about /proc/<PID>/mem in 2.4
-Message-ID: <20040706110436.GA11441@logos.cnet>
-References: <1089037523.2129.15.camel@localhost.localdomain> <Pine.LNX.4.44.0407061210190.20027-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Jul 2004 07:43:43 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:57775 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S263778AbUGFLnm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 07:43:42 -0400
+From: "R. J. Wysocki" <rjwysocki@sisk.pl>
+Organization: SiSK
+To: Andi Kleen <ak@muc.de>
+Subject: Re: x86-64 documentation
+Date: Tue, 6 Jul 2004 13:52:48 +0200
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200407042046.20124.rjwysocki@sisk.pl> <200407061206.01734.rjwysocki@sisk.pl> <20040706113148.GA3050@muc.de>
+In-Reply-To: <20040706113148.GA3050@muc.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0407061210190.20027-100000@localhost.localdomain>
-User-Agent: Mutt/1.5.5.1i
+Message-Id: <200407061352.48108.rjwysocki@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 06, 2004 at 12:14:04PM +0100, Tigran Aivazian wrote:
-> On Mon, 5 Jul 2004, FabF wrote:
-> > > Surely, the super user (i.e. CAP_SYS_PTRACE in this context) should be 
-> > > allowed to read any process' memory without having to do the 
-> > > PTRACE_ATTACH/PTRACE_PEEKUSER kind of thing which strace(8) is doing?
-> > 
-> > FYI may_ptrace_attach plugged somewhere between 2.4.21 & 22.This one get
-> > used as is (ie without MAY_PTRACE) in proc_pid_environ but dunno about
-> > reason why CAP_SYS_PTRACE isn't authoritative elsewhere.
-> 
-> Ok, but still nobody seems to know why the super user is not allowed to
-> access /proc/<PID>/mem of any task. Any code which nobody in the world
-> knows the reason for, is broken and should be removed.
-> 
-> I will wait a few weeks to see if someone does come up with the reason for
-> that "extra secure" check in mem_read() and if nobody has objections I'll
-> send Linus a patch to relax the check to a more reasonable one, namely to
-> allow CAP_SYS_PTRACE process to bypass any other conditions imposed.
+On Tuesday 06 of July 2004 13:31, Andi Kleen wrote:
+> On Tue, Jul 06, 2004 at 12:06:01PM +0200, R. J. Wysocki wrote:
+> > On Sunday 04 of July 2004 21:46, Andi Kleen wrote:
+> > > On Sun, Jul 04, 2004 at 08:46:20PM +0200, R. J. Wysocki wrote:
+> > > > I've just read the Documentation/x86_64/mm.txt.  Is it up to date?
+> > >
+> > > Mostly yes.
+> >
+> > How about kernel stacks?  Are they still 16k or they are 8k now?
+>
+> They were always 8k
 
-Hi Tigran, 
+Hm.  Does this mean that one register is reserved for the task_struct pointer 
+etc. (as stated in mm.txt) or is it done in a different way?
 
-This code was added to stop the ptrace/kmod vulnerabilities. I do not 
-fully understand the issues around tsk->is_dumpable and the fix itself,
-but I agree on that the checks here could be relaxed for the super user.
+rjw
 
-However changing it to 
-
-        if (!is_dumpable(task) && !capable(CAP_SYS_PTRACE))
-                goto out;
-
-Seems wrong because this will stop always honoring the tsk->is_dumpable flag. (?)
-
-Alan for sure can make the picture clear - he wrote this thing.
-                                                                                                                                                                                   
-
+-- 
+Rafael J. Wysocki
+----------------------------
+For a successful technology, reality must take precedence over public 
+relations, for nature cannot be fooled.
+					-- Richard P. Feynman

@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286343AbSBGJAX>; Thu, 7 Feb 2002 04:00:23 -0500
+	id <S286413AbSBGJBx>; Thu, 7 Feb 2002 04:01:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286411AbSBGJAN>; Thu, 7 Feb 2002 04:00:13 -0500
-Received: from angband.namesys.com ([212.16.7.85]:15488 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S286343AbSBGJAD>; Thu, 7 Feb 2002 04:00:03 -0500
-Date: Thu, 7 Feb 2002 12:00:02 +0300
-From: Oleg Drokin <green@namesys.com>
-To: peter <peter.zijlstra@chello.nl>
-Cc: reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: [reiserfs-dev] Kernel(>2.4.16) BUG with reiserfs.
-Message-ID: <20020207120002.A18107@namesys.com>
-In-Reply-To: <1013071308.474.39.camel@twins.localnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1013071308.474.39.camel@twins.localnet>
-User-Agent: Mutt/1.3.22.1i
+	id <S286411AbSBGJBn>; Thu, 7 Feb 2002 04:01:43 -0500
+Received: from balu.sch.bme.hu ([152.66.208.40]:56540 "EHLO balu.sch.bme.hu")
+	by vger.kernel.org with ESMTP id <S286413AbSBGJBa>;
+	Thu, 7 Feb 2002 04:01:30 -0500
+Date: Thu, 7 Feb 2002 10:01:05 +0100 (MET)
+From: Pozsar Balazs <pozsy@sch.bme.hu>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Problems with iso9660 as initrd
+In-Reply-To: <a3te3d$7f2$1@cesium.transmeta.com>
+Message-ID: <Pine.GSO.4.30.0202071000170.12660-100000@balu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+> Followup to:  <m3n0yl90xb.fsf@borg.borderworlds.dk>
+> By author:    Christian Laursen <xi@borderworlds.dk>
+> In newsgroup: linux.dev.kernel
+> > >
+> > > Also, you don't have CONFIG_ZISOFS set...
+> >
+> > Sorry for not being precise enough. It is not a zisofs, just compressed
+> > with gzip as usual for an initrd image.
+> >
+>
+> Still unusual, though.  Why iso9660?  It's not particularly well
+> suited for an initrd, especially because of all the redundant data
+> structures and extra blocking.
 
-On Thu, Feb 07, 2002 at 09:41:48AM +0100, peter wrote:
+But even if it was zisofs, the kernel shouldn't give oops, should it?
 
-> With all kernels newer than 2.4.16 (eg. that's that last that works for
-> me), I get a kernel BUG when remounting my rootfs (which is a reiserfs)
-> for rw access. After the init scripts complete I can log into my machine
-> but anything calling sync will freeze it hard.
-Thanks a lot for your report. We were waiting for somebody to get fs in this
-state (because we cannot reproduce problem locally).
-How big your root partition is?
 
-> anybody any ideas?
-Can you please send us image of your root partition, if it is not big,
-or at least the metadata snapshot.
-(you can get metadata snapshot by running 
-debugreiserfs  -p  /dev/xxx  |gzip -c >metadata.gz)
-You need to make this with filesystem unmounted.
+-- 
+pozsy
 
-Thank you.
-
-Bye,
-    Oleg

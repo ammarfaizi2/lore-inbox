@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272830AbRIMXSH>; Thu, 13 Sep 2001 19:18:07 -0400
+	id <S272797AbRIMXS1>; Thu, 13 Sep 2001 19:18:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272798AbRIMXRw>; Thu, 13 Sep 2001 19:17:52 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:44540 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S272797AbRIMXR3>;
-	Thu, 13 Sep 2001 19:17:29 -0400
-Date: Thu, 13 Sep 2001 16:17:48 -0700
+	id <S272798AbRIMXSU>; Thu, 13 Sep 2001 19:18:20 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:3582 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S272797AbRIMXSG>;
+	Thu, 13 Sep 2001 19:18:06 -0400
+Date: Thu, 13 Sep 2001 16:18:25 -0700
 To: Linus Torvalds <torvalds@transmeta.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>, Dag Brattli <dag@brattli.net>,
         Linux kernel mailing list <linux-kernel@vger.kernel.org>,
         linux-irda@pasta.cs.uit.no
-Subject: [IrDA patch] ir248_sk_free_2.diff
-Message-ID: <20010913161748.B7470@bougret.hpl.hp.com>
+Subject: [IrDA patch] ir247_ias_fix_max.diff
+Message-ID: <20010913161825.C7470@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,271 +25,265 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir248_sk_free_2.diff :
---------------------
-	o [CORRECT] Fix socket memory leak (leak struct sock on each socket)
-	o [CORRECT] Cleanup init/destroy socket code
-		- (kfree -> sk_free, skb_queue_purge, ...)
-	o [FEATURE] Cleanup comments & debugging code
+ir247_ias_fix_max.diff :
+----------------------
+	o [CRITICA] Check overflow in string duplicate code in IAS/IAP
+		- It was only done (more or less) if DEBUG was enabled
+	o [CORRECT] Fix deadlock on legal large OCT_SEQ IAP replies
+	o [CORRECT] Increase max IAS attribute size for IrDA compliance
 
-diff -u -p linux/net/irda/af_irda.d8.c linux/net/irda/af_irda.c
---- linux/net/irda/af_irda.d8.c	Thu Sep 13 11:23:51 2001
-+++ linux/net/irda/af_irda.c	Thu Sep 13 11:24:28 2001
-@@ -98,6 +98,8 @@ static int irda_data_indication(void *in
- 	struct sock *sk;
- 	int err;
+diff -u -p linux/include/linux/irda.d8.h linux/include/linux/irda.h
+--- linux/include/linux/irda.d8.h	Thu Sep 13 11:35:56 2001
++++ linux/include/linux/irda.h	Thu Sep 13 11:38:31 2001
+@@ -92,10 +92,15 @@ enum {
  
-+	IRDA_DEBUG(3, __FUNCTION__ "()\n");
-+
- 	self = (struct irda_sock *) instance;
- 	ASSERT(self != NULL, return -1;);
+ #define IRTTP_MAX_SDU_SIZE IRLMP_MAX_SDU_SIZE /* Compatibility */
  
-@@ -128,10 +130,10 @@ static void irda_disconnect_indication(v
- 	struct irda_sock *self;
- 	struct sock *sk;
+-#define IAS_MAX_STRING         256
+-#define IAS_MAX_OCTET_STRING  1024
+-#define IAS_MAX_CLASSNAME       64
+-#define IAS_MAX_ATTRIBNAME     256
++#define IAS_MAX_STRING         256	/* See IrLMP 1.1, 4.3.3.2 */
++#define IAS_MAX_OCTET_STRING  1024	/* See IrLMP 1.1, 4.3.3.2 */
++#define IAS_MAX_CLASSNAME       60	/* See IrLMP 1.1, 4.3.1 */
++#define IAS_MAX_ATTRIBNAME      60	/* See IrLMP 1.1, 4.3.3.1 */
++#define IAS_MAX_ATTRIBNUMBER   256	/* See IrLMP 1.1, 4.3.3.1 */
++/* For user space backward compatibility - may be fixed in kernel 2.5.X
++ * Note : need 60+1 ('\0'), make it 64 for alignement - Jean II */
++#define IAS_EXPORT_CLASSNAME       64
++#define IAS_EXPORT_ATTRIBNAME     256
  
--	IRDA_DEBUG(2, __FUNCTION__ "()\n");
--
- 	self = (struct irda_sock *) instance;
+ /* Attribute type needed for struct irda_ias_set */
+ #define IAS_MISSING 0
+@@ -126,8 +131,8 @@ struct irda_device_list {
+ };
  
-+	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
-+
- 	sk = self->sk;
- 	if (sk == NULL)
- 		return;
-@@ -155,8 +157,10 @@ static void irda_disconnect_indication(v
- 	 * Note : all socket function do check sk->state, so we are safe...
- 	 * Jean II
- 	 */
--	irttp_close_tsap(self->tsap);
--	self->tsap = NULL;
-+	if (self->tsap) {
-+		irttp_close_tsap(self->tsap);
-+		self->tsap = NULL;
-+	}
+ struct irda_ias_set {
+-	char irda_class_name[IAS_MAX_CLASSNAME];
+-	char irda_attrib_name[IAS_MAX_ATTRIBNAME];
++	char irda_class_name[IAS_EXPORT_CLASSNAME];
++	char irda_attrib_name[IAS_EXPORT_ATTRIBNAME];
+ 	unsigned int irda_attrib_type;
+ 	union {
+ 		unsigned int irda_attrib_int;
+diff -u -p linux/include/net/irda/irias_object.d8.h linux/include/net/irda/irias_object.h
+--- linux/include/net/irda/irias_object.d8.h	Thu Sep 13 11:36:24 2001
++++ linux/include/net/irda/irias_object.h	Thu Sep 13 11:38:31 2001
+@@ -78,7 +78,7 @@ struct ias_attrib {
+ 	struct ias_value *value; /* Attribute value */
+ };
  
- 	/* Note : once we are there, there is not much you want to do
- 	 * with the socket anymore, apart from closing it.
-@@ -180,10 +184,10 @@ static void irda_connect_confirm(void *i
- 	struct irda_sock *self;
- 	struct sock *sk;
+-char *strdup(char *str);
++char *strndup(char *str, int max);
  
--	IRDA_DEBUG(2, __FUNCTION__ "()\n");
--
- 	self = (struct irda_sock *) instance;
+ struct ias_object *irias_new_object(char *name, int id);
+ void irias_insert_object(struct ias_object *obj);
+diff -u -p linux/net/irda/irias_object.d8.c linux/net/irda/irias_object.c
+--- linux/net/irda/irias_object.d8.c	Thu Sep 13 11:36:46 2001
++++ linux/net/irda/irias_object.c	Thu Sep 13 11:38:31 2001
+@@ -37,25 +37,35 @@ hashbin_t *objects = NULL;
+ struct ias_value missing = { IAS_MISSING, 0, 0, 0, {0}};
  
-+	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
-+
- 	sk = self->sk;
- 	if (sk == NULL)
- 		return;
-@@ -238,10 +242,10 @@ static void irda_connect_indication(void
- 	struct irda_sock *self;
- 	struct sock *sk;
- 
--	IRDA_DEBUG(2, __FUNCTION__ "()\n");
--
-  	self = (struct irda_sock *) instance;
- 
-+	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
-+
- 	sk = self->sk;
- 	if (sk == NULL)
- 		return;
-@@ -358,14 +362,14 @@ static void irda_getvalue_confirm(int re
- {
- 	struct irda_sock *self;
- 	
--	IRDA_DEBUG(2, __FUNCTION__ "()\n");
--
- 	self = (struct irda_sock *) priv;
- 	if (!self) {
- 		WARNING(__FUNCTION__ "(), lost myself!\n");
- 		return;
- 	}
- 
-+	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
-+
- 	/* We probably don't need to make any more queries */
- 	iriap_close(self->iriap);
- 	self->iriap = NULL;
-@@ -539,7 +543,7 @@ static int irda_open_lsap(struct irda_so
+ /*
+- * Function strdup (str)
++ * Function strndup (str, max)
+  *
+- *    My own kernel version of strdup!
++ *    My own kernel version of strndup!
+  *
++ * Faster, check boundary... Jean II
   */
- static int irda_find_lsap_sel(struct irda_sock *self, char *name)
+-char *strdup(char *str)
++char *strndup(char *str, int max)
  {
--	IRDA_DEBUG(2, __FUNCTION__ "(), name=%s\n", name);
-+	IRDA_DEBUG(2, __FUNCTION__ "(%p, %s)\n", self, name);
- 
- 	ASSERT(self != NULL, return -1;);
- 
-@@ -550,6 +554,8 @@ static int irda_find_lsap_sel(struct ird
- 
- 	self->iriap = iriap_open(LSAP_ANY, IAS_CLIENT, self,
- 				 irda_getvalue_confirm);
-+	if(self->iriap == NULL)
-+		return -ENOMEM;
- 
- 	/* Treat unexpected signals as disconnect */
- 	self->errno = -EHOSTUNREACH;
-@@ -777,11 +783,11 @@ static int irda_bind(struct socket *sock
- 	struct irda_sock *self;
- 	int err;
- 
--	IRDA_DEBUG(2, __FUNCTION__ "()\n");
--
- 	self = sk->protinfo.irda;
- 	ASSERT(self != NULL, return -1;);
- 
-+	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
-+
- 	if (addr_len != sizeof(struct sockaddr_irda))
- 		return -EINVAL;
- 
-@@ -942,10 +948,10 @@ static int irda_connect(struct socket *s
- 	struct irda_sock *self;
- 	int err;
- 
--	IRDA_DEBUG(2, __FUNCTION__ "()\n");
--
- 	self = sk->protinfo.irda;
+ 	char *new_str;
++	int len;
  	
-+	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
-+
- 	/* Don't allow connect for Ultra sockets */
- 	if ((sk->type == SOCK_DGRAM) && (sk->protocol == IRDAPROTO_ULTRA))
- 		return -ESOCKTNOSUPPORT;
-@@ -1063,22 +1069,29 @@ static int irda_create(struct socket *so
- 		return -ESOCKTNOSUPPORT;
- 	}
- 
--	/* Allocate socket */
-+	/* Allocate networking socket */
- 	if ((sk = sk_alloc(PF_IRDA, GFP_ATOMIC, 1)) == NULL)
- 		return -ENOMEM;
++	/* Check string */
+ 	if (str == NULL)
+ 		return NULL;
+-
+-	ASSERT(strlen( str) < 64, return NULL;);
 -	
+-        new_str = kmalloc(strlen(str)+1, GFP_ATOMIC);
+-        if (new_str == NULL)
++	/* Check length, truncate */
++	len = strlen(str);
++	if(len > max)
++		len = max;
 +
-+	/* Allocate IrDA socket */
- 	self = kmalloc(sizeof(struct irda_sock), GFP_ATOMIC);
- 	if (self == NULL) {
--		kfree (sk);
-+		sk_free(sk);
- 		return -ENOMEM;
- 	}
- 	memset(self, 0, sizeof(struct irda_sock));
- 
-+	IRDA_DEBUG(2, __FUNCTION__ "() : self is %p\n", self);
++	/* Allocate new string */
++        new_str = kmalloc(len + 1, GFP_ATOMIC);
++        if (new_str == NULL) {
++		WARNING(__FUNCTION__"(), Unable to kmalloc!\n");
+ 		return NULL;
+-	
+-	strcpy(new_str, str);
++	}
 +
- 	init_waitqueue_head(&self->query_wait);
- 
--	self->sk = sk;
-+	/* Initialise networking socket struct */ 
-+	sock_init_data(sock, sk);	/* Note : set sk->refcnt to 1 */
-+	sk->family = PF_IRDA;
-+	sk->protocol = protocol;
-+	/* Link networking socket and IrDA socket structs together */
- 	sk->protinfo.irda = self;
--	sock_init_data(sock, sk);
-+	self->sk = sk;
- 
- 	switch (sock->type) {
- 	case SOCK_STREAM:
-@@ -1110,8 +1123,6 @@ static int irda_create(struct socket *so
- 		return -ESOCKTNOSUPPORT;
- 	}		
- 
--	sk->protocol = protocol;
--
- 	/* Register as a client with IrLMP */
- 	self->ckey = irlmp_register_client(0, NULL, NULL, NULL);
- 	self->mask = 0xffff;
-@@ -1133,7 +1144,7 @@ static int irda_create(struct socket *so
-  */
- void irda_destroy_socket(struct irda_sock *self)
- {
--	IRDA_DEBUG(2, __FUNCTION__ "()\n");
-+	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
- 
- 	ASSERT(self != NULL, return;);
- 
-@@ -1187,12 +1198,47 @@ static int irda_release(struct socket *s
- 	sk->state       = TCP_CLOSE;
- 	sk->shutdown   |= SEND_SHUTDOWN;
- 	sk->state_change(sk);
--	sk->dead        = 1;
- 
-+	/* Destroy IrDA socket */
- 	irda_destroy_socket(sk->protinfo.irda);
-+	/* Prevent sock_def_destruct() to create havoc */
-+	sk->protinfo.irda = NULL;
- 
-+	sock_orphan(sk);
-         sock->sk   = NULL;      
--        sk->socket = NULL;      /* Not used, but we should do this. */
-+
-+	/* Purge queues (see sock_init_data()) */
-+	skb_queue_purge(&sk->receive_queue);
-+
-+	/* Destroy networking socket if we are the last reference on it,
-+	 * i.e. if(sk->refcnt == 0) -> sk_free(sk) */
-+	sock_put(sk);
-+
-+	/* Notes on socket locking and deallocation... - Jean II
-+	 * In theory we should put pairs of sock_hold() / sock_put() to
-+	 * prevent the socket to be destroyed whenever there is an
-+	 * outstanding request or outstanding incomming packet or event.
-+	 *
-+	 * 1) This may include IAS request, both in connect and getsockopt.
-+	 * Unfortunately, the situation is a bit more messy than it looks,
-+	 * because we close iriap and kfree(self) above.
-+	 * 
-+	 * 2) This may include selective discovery in getsockopt.
-+	 * Same stuff as above, irlmp registration and self are gone.
-+	 *
-+	 * Probably 1 and 2 may not matter, because it's all triggered
-+	 * by a process and the socket layer already prevent the
-+	 * socket to go away while a process is holding it, through
-+	 * sockfd_put() and fput()...
-+	 *
-+	 * 3) This may include deferred TSAP closure. In particular,
-+	 * we may receive a late irda_disconnect_indication()
-+	 * Fortunately, (tsap_cb *)->close_pend should protect us
-+	 * from that.
-+	 *
-+	 * I did some testing on SMP, and it looks solid. And the socket
-+	 * memory leak is now gone... - Jean II
-+	 */
- 
-         return 0;
++	/* Copy and truncate */
++	memcpy(new_str, str, len);
++	new_str[len] = '\0';
+ 	
+ 	return new_str;
  }
-@@ -1585,11 +1631,11 @@ static int irda_shutdown(struct socket *
- 	struct irda_sock *self;
- 	struct sock *sk = sock->sk;
+@@ -81,7 +91,7 @@ struct ias_object *irias_new_object( cha
+ 	memset(obj, 0, sizeof( struct ias_object));
  
--	IRDA_DEBUG(0, __FUNCTION__ "()\n");
+ 	obj->magic = IAS_OBJECT_MAGIC;
+-	obj->name = strdup( name);
++	obj->name = strndup(name, IAS_MAX_CLASSNAME);
+ 	obj->id = id;
+ 
+ 	obj->attribs = hashbin_new(HB_LOCAL);
+@@ -315,7 +325,7 @@ void irias_add_integer_attrib(struct ias
+ 	memset(attrib, 0, sizeof( struct ias_attrib));
+ 
+ 	attrib->magic = IAS_ATTRIB_MAGIC;
+-	attrib->name = strdup(name);
++	attrib->name = strndup(name, IAS_MAX_ATTRIBNAME);
+ 
+ 	/* Insert value */
+ 	attrib->value = irias_new_integer_value(value);
+@@ -351,7 +361,7 @@ void irias_add_octseq_attrib(struct ias_
+ 	memset(attrib, 0, sizeof( struct ias_attrib));
+ 	
+ 	attrib->magic = IAS_ATTRIB_MAGIC;
+-	attrib->name = strdup( name);
++	attrib->name = strndup(name, IAS_MAX_ATTRIBNAME);
+ 	
+ 	attrib->value = irias_new_octseq_value( octets, len);
+ 	
+@@ -384,7 +394,7 @@ void irias_add_string_attrib(struct ias_
+ 	memset(attrib, 0, sizeof( struct ias_attrib));
+ 
+ 	attrib->magic = IAS_ATTRIB_MAGIC;
+-	attrib->name = strdup(name);
++	attrib->name = strndup(name, IAS_MAX_ATTRIBNAME);
+ 
+ 	attrib->value = irias_new_string_value(value);
+ 
+@@ -420,10 +430,13 @@ struct ias_value *irias_new_integer_valu
+  *
+  *    Create new IAS string value
+  *
++ * Per IrLMP 1.1, 4.3.3.2, strings are up to 256 chars - Jean II
+  */
+ struct ias_value *irias_new_string_value(char *string)
+ {
+ 	struct ias_value *value;
++	int len;
++	char *new_str;
+ 
+ 	value = kmalloc(sizeof(struct ias_value), GFP_ATOMIC);
+ 	if (value == NULL) {
+@@ -434,8 +447,8 @@ struct ias_value *irias_new_string_value
+ 
+ 	value->type = IAS_STRING;
+ 	value->charset = CS_ASCII;
+-	value->len = strlen(string);
+-	value->t.string = strdup(string);
++	value->t.string = strndup(string, IAS_MAX_STRING);
++	value->len = strlen(value->t.string);
+ 
+ 	return value;
+ }
+@@ -446,6 +459,7 @@ struct ias_value *irias_new_string_value
+  *
+  *    Create new IAS octet-sequence value
+  *
++ * Per IrLMP 1.1, 4.3.3.2, octet-sequence are up to 1024 bytes - Jean II
+  */
+ struct ias_value *irias_new_octseq_value(__u8 *octseq , int len)
+ {
+@@ -459,11 +473,15 @@ struct ias_value *irias_new_octseq_value
+ 	memset(value, 0, sizeof(struct ias_value));
+ 
+ 	value->type = IAS_OCT_SEQ;
++	/* Check length */
++	if(len > IAS_MAX_OCTET_STRING)
++		len = IAS_MAX_OCTET_STRING;
+ 	value->len = len;
+ 
+ 	value->t.oct_seq = kmalloc(len, GFP_ATOMIC);
+ 	if (value->t.oct_seq == NULL){
+ 		WARNING(__FUNCTION__"(), Unable to kmalloc!\n");
++		kfree(value);
+ 		return NULL;
+ 	}
+ 	memcpy(value->t.oct_seq, octseq , len);
+diff -u -p linux/net/irda/iriap.d8.c linux/net/irda/iriap.c
+--- linux/net/irda/iriap.d8.c	Thu Sep 13 11:37:13 2001
++++ linux/net/irda/iriap.c	Thu Sep 13 11:38:31 2001
+@@ -379,7 +379,7 @@ int iriap_getvaluebyclass_request(struct
+ 				  char *name, char *attr)
+ {
+ 	struct sk_buff *skb;
+-	int name_len, attr_len;
++	int name_len, attr_len, skb_len;
+ 	__u8 *frame;
+ 
+ 	ASSERT(self != NULL, return -1;);
+@@ -400,13 +400,14 @@ int iriap_getvaluebyclass_request(struct
+ 	/* Give ourselves 10 secs to finish this operation */
+ 	iriap_start_watchdog_timer(self, 10*HZ);
+ 	
+-	skb = dev_alloc_skb(64);
++	name_len = strlen(name);	/* Up to IAS_MAX_CLASSNAME = 60 */
++	attr_len = strlen(attr);	/* Up to IAS_MAX_ATTRIBNAME = 60 */
++
++	skb_len = self->max_header_size+2+name_len+1+attr_len+4;
++	skb = dev_alloc_skb(skb_len);
+ 	if (!skb)
+ 		return -ENOMEM;
+ 
+-	name_len = strlen(name);
+-	attr_len = strlen(attr);
 -
- 	self = sk->protinfo.irda;
- 	ASSERT(self != NULL, return -1;);
- 
-+	IRDA_DEBUG(1, __FUNCTION__ "(%p)\n", self);
-+
- 	sk->state       = TCP_CLOSE;
- 	sk->shutdown   |= SEND_SHUTDOWN;
- 	sk->state_change(sk);
-@@ -1763,6 +1809,8 @@ static int irda_setsockopt(struct socket
- 	self = sk->protinfo.irda;
- 	ASSERT(self != NULL, return -1;);
- 
-+	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
-+
- 	if (level != SOL_IRLMP)
- 		return -ENOPROTOOPT;
+ 	/* Reserve space for MUX and LAP header */
+  	skb_reserve(skb, self->max_header_size);
+ 	skb_put(skb, 3+name_len+attr_len);
+@@ -500,20 +501,19 @@ void iriap_getvaluebyclass_confirm(struc
+ 		}
+ 		value_len = fp[n++];
+ 		IRDA_DEBUG(4, __FUNCTION__ "(), strlen=%d\n", value_len);
+-		ASSERT(value_len < 64, return;);
  		
-@@ -2028,6 +2076,8 @@ static int irda_getsockopt(struct socket
- 	int offset, total;
- 
- 	self = sk->protinfo.irda;
+ 		/* Make sure the string is null-terminated */
+ 		fp[n+value_len] = 0x00;
+-		
+ 		IRDA_DEBUG(4, "Got string %s\n", fp+n);
 +
-+	IRDA_DEBUG(2, __FUNCTION__ "(%p)\n", self);
++		/* Will truncate to IAS_MAX_STRING bytes */
+ 		value = irias_new_string_value(fp+n);
+ 		break;
+ 	case IAS_OCT_SEQ:
+ 		value_len = be16_to_cpu(get_unaligned((__u16 *)(fp+n)));
+ 		n += 2;
+ 		
+-		ASSERT(value_len <= 55, return;);      
+-		
++		/* Will truncate to IAS_MAX_OCTET_STRING bytes */
+ 		value = irias_new_octseq_value(fp+n, value_len);
+ 		break;
+ 	default:
+@@ -635,8 +635,8 @@ void iriap_getvaluebyclass_indication(st
+ 	struct ias_attrib *attrib;
+ 	int name_len;
+ 	int attr_len;
+-	char name[64];
+-	char attr[64];
++	char name[IAS_MAX_CLASSNAME + 1];	/* 60 bytes */
++	char attr[IAS_MAX_ATTRIBNAME + 1];	/* 60 bytes */
+ 	__u8 *fp;
+ 	int n;
  
- 	if (level != SOL_IRLMP)
- 		return -ENOPROTOOPT;
+@@ -1013,7 +1013,7 @@ int irias_proc_read(char *buf, char **st
+ 					       attrib->value->t.string);
+ 				break;
+ 			case IAS_OCT_SEQ:
+-				len += sprintf(buf+len, "octet sequence\n");
++				len += sprintf(buf+len, "octet sequence (%d bytes)\n", attrib->value->len);
+ 				break;
+ 			case IAS_MISSING:
+ 				len += sprintf(buf+len, "missing\n");

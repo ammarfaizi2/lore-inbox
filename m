@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267499AbTALUSL>; Sun, 12 Jan 2003 15:18:11 -0500
+	id <S267496AbTALUUp>; Sun, 12 Jan 2003 15:20:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267500AbTALUSK>; Sun, 12 Jan 2003 15:18:10 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:20747
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S267499AbTALUSJ>; Sun, 12 Jan 2003 15:18:09 -0500
-Subject: Re: [PATCH] add explicit Pentium II support
-From: Robert Love <rml@tech9.net>
-To: Luuk van der Duim <l.a.van.der.duim@student.rug.nl>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@digeo.com>,
+	id <S267505AbTALUUH>; Sun, 12 Jan 2003 15:20:07 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:29329 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S267503AbTALUS7>;
+	Sun, 12 Jan 2003 15:18:59 -0500
+Date: Sun, 12 Jan 2003 13:23:48 -0700
+From: yodaiken@fsmlabs.com
+To: Valdis.Kletnieks@vt.edu
+Cc: robw@optonline.net,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1042406417.8427.9.camel@cc75757-a.groni1.gr.home.nl>
-References: <Pine.LNX.4.44.0301121125370.14031-100000@home.transmeta.com>
-	 <1042402432.834.70.camel@phantasy>
-	 <1042406417.8427.9.camel@cc75757-a.groni1.gr.home.nl>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1042403214.834.82.camel@phantasy>
+Subject: Re: any chance of 2.6.0-test*?
+Message-ID: <20030112132348.A11893@hq.fsmlabs.com>
+References: <Pine.LNX.4.44.0301121134340.14031-100000@home.transmeta.com> <1042401596.1209.51.camel@RobsPC.RobertWilkens.com> <200301122018.h0CKIcWN004203@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 12 Jan 2003 15:26:55 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200301122018.h0CKIcWN004203@turing-police.cc.vt.edu>; from Valdis.Kletnieks@vt.edu on Sun, Jan 12, 2003 at 03:18:38PM -0500
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-01-12 at 16:20, Luuk van der Duim wrote:
+On Sun, Jan 12, 2003 at 03:18:38PM -0500, Valdis.Kletnieks@vt.edu wrote:
+> On Sun, 12 Jan 2003 14:59:57 EST, Rob Wilkens said:
+> 
+> > In general, if you can structure your code properly, you should never
+> > need a goto, and if you don't need a goto you shouldn't use it.  It's
+> > just "common sense" as I've always been taught.  Unless you're
+> > intentionally trying to write code that's harder for others to read.
+> 
+> Now, it's provable you never *NEED* a goto.  On the other hand, *judicious*
+> use of goto can prevent code that is so cluttered with stuff of the form:
+> 
+>         if(...) {
+> 		...
+> 		die_flag = 1;
+> 		if (!die _flag) {...
+> 		
+> Pretty soon, you have die_1_flag, die_2_flag, die_3_flag and so on,
+> rather than 3 or 4 "goto bail_now;".
+> 
+> The real problem is that C doesn't have a good multi-level "break" construct.
 
-> Aren't those called Willamette based Celerons?
+longjump. Used with good effect in the plan9 code.
 
-The current ones are, but future ones will surely be based on future
-cores (i.e. I suspect we will see Northwood-based Celerons, soon) and
-this option will be applicable to those, too.
+Probably takes more coordination than is possible in Linux and has marginal
+benefit, but it looks nice.
 
-More importantly, the consumer name is just "Celeron" i.e. the box does
-not mention the core or anything.  The best I think we can offer is
-"P4-based Celeron" which is a nice blanket name.
 
-	Robert Love
+
+
+
+
+-- 
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+www.fsmlabs.com  www.rtlinux.com
+1+ 505 838 9109
 

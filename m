@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261187AbSJPTdd>; Wed, 16 Oct 2002 15:33:33 -0400
+	id <S261350AbSJPTlc>; Wed, 16 Oct 2002 15:41:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261289AbSJPTdd>; Wed, 16 Oct 2002 15:33:33 -0400
-Received: from mail.3ware.com ([205.253.146.92]:31762 "EHLO
-	siamese.engr.3ware.com") by vger.kernel.org with ESMTP
-	id <S261187AbSJPTdc>; Wed, 16 Oct 2002 15:33:32 -0400
-Message-ID: <A1964EDB64C8094DA12D2271C04B812672C79B@tabby>
-From: Adam Radford <aradford@3WARE.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Cc: "'torvalds@transmeta.com'" <torvalds@transmeta.com>
-Subject: 2.5.43 aic7xxx segfault sd_synchronize_cache() called after SHT->
-	release()
-Date: Wed, 16 Oct 2002 12:41:14 -0700
+	id <S261351AbSJPTlc>; Wed, 16 Oct 2002 15:41:32 -0400
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:18581 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
+	id <S261350AbSJPTlc>; Wed, 16 Oct 2002 15:41:32 -0400
+Message-ID: <3DADC516.1050704@kegel.com>
+Date: Wed, 16 Oct 2002 12:59:18 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: de-de, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: John Gardiner Myers <jgmyers@netscape.com>
+CC: Davide Libenzi <davidel@xmailserver.org>,
+       Benjamin LaHaise <bcrl@redhat.com>,
+       Shailabh Nagar <nagar@watson.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
+       David Miller <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Stephen Tweedie <sct@redhat.com>
+Subject: Re: [PATCH] async poll for 2.5
+References: <Pine.LNX.4.44.0210151521090.1554-100000@blue1.dev.mcafeelabs.com> <3DAC9859.5060005@netscape.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think sd_synchronize_cache() is getting called after SHT->release()
-function,
-which couldn't possibly be right.  This causes adaptec, 3ware, etc, to
-segfault
-on rmmod.
+John Gardiner Myers wrote:
+> Nonetheless, the requirement for user space to test the condition after 
+> the registration, not before, is subtle.  A program which does these in 
+> the wrong order is still likely to pass QA and will fail in production 
+> in a way that will be difficult to diagnose.  There is no rational 
+> reason for the kernel to not test the condition upon registration.
 
-See below for adaptec segfault output:
+As long as we agree that the kernel may provide spurious readiness
+notifications on occasion, I agree.  Then /dev/epoll can easily fulfill
+this by signaling readiness on everything at registration; more
+accurate notifications could be added later as an optimization.
 
-aic7xxx
-CPU:    1
-EIP:    0060:[<c025918b>]    Not tainted
-EFLAGS: 00010202
-EIP is at put_device+0x7b/0xa0
-eax: 00000000   ebx: c8997028   ecx: 00000001   edx: c0465470
-esi: c12f4174   edi: c8997000   ebp: 00000000   esp: c5b81ee4
-ds: 0068   es: 0068   ss: 0068
-Process rmmod (pid: 1085, threadinfo=c5b80000 task=c5d4a800)
-Stack: c8997028 c0481e20 c02d0f3a c8997028 c8997028 c0481f3c c8997028
-c0481f4c
-       00000000 c66fe1e8 00000286 c798aa00 c0481e20 c12f4000 c13b5000
-c02be9aa
-       c12f4000 c5b81f30 00000002 00030002 00000002 08072009 c042399f
-08071fff
-Call Trace:
- [<c02d0f3a>] sg_detach+0x20a/0x240
- [<c02be9aa>] scsi_unregister_host+0x26a/0x5f0
- [<c01418d8>] __alloc_pages+0x88/0x270
- [<c892f12a>] exit_this_scsi_driver+0xa/0xc [aic7xxx]
- [<c893a740>] driver_template+0x0/0x70 [aic7xxx]
- [<c012029e>] free_module+0x1e/0x140
- [<c011f3db>] sys_delete_module+0x1db/0x4c0
- [<c010787f>] syscall_call+0x7/0xb
+- Dan
 
-Code: 0f 0b 0d 01 86 69 3d c0 8b 83 d4 00 00 00 85 c0 74 04 53 ff
- Segmentation fault
-[root@localhost boot]#
-
---
-Adam Radford
-Software Engineer
-3ware, Inc.

@@ -1,56 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265506AbUEZLzZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265509AbUEZL5j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265506AbUEZLzZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 07:55:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265509AbUEZLzZ
+	id S265509AbUEZL5j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 07:57:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265512AbUEZL5j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 07:55:25 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:49345 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S265506AbUEZLzV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 07:55:21 -0400
-Date: Wed, 26 May 2004 13:44:54 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.7-rc1-bk: SMT scheduler bug / crashes on kernel boot
-Message-ID: <20040526114454.GA10614@elte.hu>
-References: <1085568719.2666.53.camel@imp.csi.cam.ac.uk> <1085569838.2666.60.camel@imp.csi.cam.ac.uk> <40B47F47.20504@yahoo.com.au> <1085571285.2666.75.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1085571285.2666.75.camel@imp.csi.cam.ac.uk>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 26 May 2004 07:57:39 -0400
+Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:15037 "HELO
+	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265509AbUEZL5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 07:57:25 -0400
+Message-ID: <40B48620.6000309@yahoo.com.au>
+Date: Wed, 26 May 2004 21:57:20 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Buddy Lumpkin <b.lumpkin@comcast.net>
+CC: "'John Bradford'" <john@grabjohn.com>,
+       "'William Lee Irwin III'" <wli@holomorphy.com>, orders@nodivisions.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: why swap at all?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Buddy Lumpkin wrote:
+>>>That's true, but it's not a magical property of swap space
+>>>- extra physical
+>>>RAM would do more or less the same thing.
+>>>
+> 
+> 
+>>Well it is a magical property of swap space, because extra RAM
+>>doesn't allow you to replace unused memory with often used memory.
+> 
+> 
+>>The theory holds true no matter how much RAM you have. Swap can
+>>improve performance. It can be trivially demonstrated.
+> 
+> 
+> I bet you have demonstrated this. It strikes me of an observation that could
+> be made in a lab environment. But your failing to realize that:
+> 
+> 1) you will fill physical memory with pages eventually or your not doing
+> work.
+> 
+> 2) pages do not just silently move to the swap device. They move as a result
+> of a memory shortfall
+> 
+> 3) once physical memory is full, file system I/O will only benefit from
+> reads that incur a minor fault. All other file system operations are bound
+> by the rate you can reclaim pages from physical memory.
+> 
 
-* Anton Altaparmakov <aia21@cam.ac.uk> wrote:
+No, typically we can reclaim memory very quickly and the operations
+are bound by the speed of the block device.
 
-> WARNING: 1 siblings found for CPU0, should be 2
+> 4) non-filesystem backed pages are still effected the same way, nothing has
+> changed. When you run your next filesystem related operation, those pages
+> will be faulted into physical memory, and something will be evicted to it's
+> backing store (remember, memory is full).
+> 
 
-does the patch below fix it?
-
-	Ingo
-
---- linux/arch/i386/kernel/smpboot.c.orig	
-+++ linux/arch/i386/kernel/smpboot.c	
-@@ -1110,8 +1110,10 @@ static void __init smp_boot_cpus(unsigne
- 			cpu_set(cpu, cpu_sibling_map[cpu]);
- 		}
- 
--		if (siblings != smp_num_siblings)
-+		if (siblings != smp_num_siblings) {
- 			printk(KERN_WARNING "WARNING: %d siblings found for CPU%d, should be %d\n", siblings, cpu, smp_num_siblings);
-+			smp_num_siblings = siblings;
-+		}
- 	}
- 
- 	if (nmi_watchdog == NMI_LOCAL_APIC)
+I haven't failed to realise 1, 2 or 4 and I don't know what you are
+arguing about. All I said was basically "no matter how much ram you
+have, swap can increase performance by allowing unused anonymous
+memory to be paged out, thereby increasing your maximum effective RAM".

@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289069AbSANVNw>; Mon, 14 Jan 2002 16:13:52 -0500
+	id <S289058AbSANVQc>; Mon, 14 Jan 2002 16:16:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289067AbSANVNc>; Mon, 14 Jan 2002 16:13:32 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:26364 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S289069AbSANVMV>;
-	Mon, 14 Jan 2002 16:12:21 -0500
-Date: Mon, 14 Jan 2002 14:12:09 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: dylang+kernel@thock.com
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4 NFS bug (annoying sylmlinx breakage)
-Message-ID: <20020114141209.W26688@lynx.adilger.int>
-Mail-Followup-To: dylang+kernel@thock.com,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C43447D.9000504@thock.com>
+	id <S289084AbSANVP7>; Mon, 14 Jan 2002 16:15:59 -0500
+Received: from duteinh.et.tudelft.nl ([130.161.42.1]:38155 "EHLO
+	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S289070AbSANVOW>; Mon, 14 Jan 2002 16:14:22 -0500
+Date: Mon, 14 Jan 2002 22:14:08 +0100
+From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+To: "SATHISH.J" <sathish.j@tatainfotech.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+        linux india programming 
+	<linux-india-programmers@lists.sourceforge.net>
+Subject: Re: How to take a crash dump
+Message-ID: <20020114211408.GB21480@arthur.ubicom.tudelft.nl>
+In-Reply-To: <Pine.LNX.4.10.10201041427001.2221-100000@blrmail>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C43447D.9000504@thock.com>; from dylang@thock.com on Mon, Jan 14, 2002 at 02:50:05PM -0600
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <Pine.LNX.4.10.10201041427001.2221-100000@blrmail>
+User-Agent: Mutt/1.3.25i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 14, 2002  14:50 -0600, Dylan Griffiths wrote:
-> I've noticed this bug before.  Between two hosts on a 100Mbps switched lan, 
-> symlinks are trashed into garbage.  Based on the output. I'm guessing a 
-> string loses its null somewhere.
-> 
-> Client is 2.4.14.  Server is 2.4.10.  Server has RAID 5 IDE softraid and 
-> an hpt370 driver patch provided by Tim Hockin to fix the deadlocks and 
-> oopsies of the hpt366 driver on my hpt370.
+On Fri, Jan 04, 2002 at 02:30:20PM +0530, SATHISH.J wrote:
+> I have "lcrash" installed on my system. I have 2.4.8 kernel. I would like
+> to know how to make a linux system panic so that I can take a crash dump
+> and analyse using "lcrash". Is there any command to make the system panis
+> as we have on other unices(SVR4 and unixware)?
 
-Upgrade your kernel before reporting such bugs.  I'm pretty sure it has
-already been fixed.  Something about the NFSv3 calling an inappropriate
-(but similarly named) function in the symlink path.
+I wrote a toy module that does exactly what you want:
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+  http://www.lart.tudelft.nl/lartware/port/lart.c
 
+I still have to get the module into Linus' tree so Christoph Hellwig
+will drive to .nl to buy me a beer :)
+
+
+Erik
+
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
+of Information Technology and Systems, Delft University of Technology,
+PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
+Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

@@ -1,43 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315458AbSH0KUN>; Tue, 27 Aug 2002 06:20:13 -0400
+	id <S315503AbSH0KnX>; Tue, 27 Aug 2002 06:43:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315483AbSH0KUN>; Tue, 27 Aug 2002 06:20:13 -0400
-Received: from mail.cyberus.ca ([216.191.240.111]:46255 "EHLO cyberus.ca")
-	by vger.kernel.org with ESMTP id <S315458AbSH0KUM>;
-	Tue, 27 Aug 2002 06:20:12 -0400
-Date: Tue, 27 Aug 2002 06:17:42 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: Mala Anand <manand@us.ibm.com>
-cc: <davem@redhat.com>, <netdev@oss.sgi.com>,
-       Robert Olsson <Robert.Olsson@data.slu.se>,
-       Bill Hartner <bhartner@us.ibm.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [Lse-tech] Re: (RFC): SKB Initialization
-In-Reply-To: <OFFFA46B92.252E5659-ON87256C21.000BB73B@boulder.ibm.com>
-Message-ID: <Pine.GSO.4.30.0208270605480.6895-100000@shell.cyberus.ca>
+	id <S315540AbSH0KnX>; Tue, 27 Aug 2002 06:43:23 -0400
+Received: from radio-112-20.poa.terraempresas.com.br ([200.176.112.20]:49674
+	"EHLO rush.interage.com.br") by vger.kernel.org with ESMTP
+	id <S315503AbSH0KnW>; Tue, 27 Aug 2002 06:43:22 -0400
+Message-ID: <3D6B58DC.2020002@interage.com.br>
+Date: Tue, 27 Aug 2002 07:47:56 -0300
+From: Mauricio Pretto <pretto@interage.com.br>
+Organization: Interage Integradora
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
+X-Accept-Language: en-us, pt-br
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-pre4-ac2 does not compile
+References: <3D6B30E4.EE502613@wanadoo.fr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
+Alan send this patch for that problem.
+
+--- drivers/ide/Makefile~       2002-08-26 13:06:26.000000000 +0100
++++ drivers/ide/Makefile        2002-08-26 13:06:26.000000000 +0100
+@@ -19,6 +19,9 @@
+  obj-m          :=
+  ide-obj-y      :=
+
++subdir-$(CONFIG_BLK_DEV_IDEPCI)        += pci
++subdir-$(CONFIG_BLK_DEV_IDE) += legacy ppc arm raid
++
+  obj-$(CONFIG_BLK_DEV_IDE)              += ide-probe.o ide-geometry.o 
+ide-iops.o ide-taskfile.o ide.o ide-lib.o
+  obj-$(CONFIG_BLK_DEV_IDEDISK)          += ide-disk.o
+  obj-$(CONFIG_BLK_DEV_IDECD)            += ide-cd.o
 
 
-On Mon, 26 Aug 2002, Mala Anand wrote:
+Jean-Luc Coulon wrote:
 
-> Troy Wilson (who works with me) posted SPECweb99 results using my
-> skbinit patch to lkml on Friday:
->  http://www.uwsg.iu.edu/hypermail/linux/kernel/0208.2/1470.html
-> I know you don't subscribe to lkml. Have you seen these results?
-> On Numa machine it showed around 3% improvement using SPECweb99.
->
+> Hi !
+> 
+> ld -m elf_i386  -r -o idedriver.o ide-probe.o ide-geometry.o ide-iops.o
+> ide-taskfile.o ide.o ide-lib.o ide-disk.o ide-dma.o ide-proc.o
+> setup-pci.o pci/idedriver-pci.o legacy/idedriver-legacy.o
+> ppc/idedriver-ppc.o arm/idedriver-arm.o raid/idedriver-raid.o
+> ld: cannot open pci/idedriver-pci.o: No such file or directory
+> make[4]: *** [idedriver.o] Erreur 1
+> make[4]: Leaving directory `/usr/src/linux/drivers/ide'
+> make[3]: *** [first_rule] Erreur 2
+> make[3]: Leaving directory `/usr/src/linux/drivers/ide'
+> make[2]: *** [_subdir_ide] Erreur 2
+> make[2]: Leaving directory `/usr/src/linux/drivers'
+> make[1]: *** [_dir_drivers] Erreur 2
+> make[1]: Leaving directory `/usr/src/linux'
+> make: *** [stamp-build] Erreur 2
+> 
+> --------
+> Regards
+> 	Jean-Luc
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+> 
 
-The posting you pointed to says 1% - not that it matters. It becomes more
-insignificant when skb recycling comes in play mostly because the alloc
-and freeing of skbs doesnt really show up as hotlist item within
-the profile.
-I am not saying it is totaly useless -- anything that will save a few
-cycles is good;
 
-cheers,
-jamal
+-- 
+Mauricio Pretto
+Gerente de Produtos
+Interage Integradora
+http://www.interage.com.br
+
+Técnico Certificado Conectiva Linux
+
 

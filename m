@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276457AbRI2Hzk>; Sat, 29 Sep 2001 03:55:40 -0400
+	id <S276453AbRI2HzK>; Sat, 29 Sep 2001 03:55:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276458AbRI2HzV>; Sat, 29 Sep 2001 03:55:21 -0400
-Received: from mailg.telia.com ([194.22.194.26]:15828 "EHLO mailg.telia.com")
-	by vger.kernel.org with ESMTP id <S276457AbRI2HzQ>;
-	Sat, 29 Sep 2001 03:55:16 -0400
-Message-ID: <3BB57E77.4CDFF5D0@energymech.net>
-Date: Sat, 29 Sep 2001 09:55:35 +0200
-From: proton <proton@energymech.net>
-X-Mailer: Mozilla 4.08 [en] (X11; I; Linux 2.2.19 i686)
+	id <S276457AbRI2HzA>; Sat, 29 Sep 2001 03:55:00 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:50706 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S276453AbRI2Hyu>;
+	Sat, 29 Sep 2001 03:54:50 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200109290755.f8T7t7R443599@saturn.cs.uml.edu>
+Subject: Re: swsusp: move resume before mounting root [diff against vanilla 2.4.9]
+To: pavel@suse.cz (Pavel Machek)
+Date: Sat, 29 Sep 2001 03:55:07 -0400 (EDT)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
+        linux-kernel@vger.kernel.org (kernel list)
+In-Reply-To: <20010928224001.B1100@bug.ucw.cz> from "Pavel Machek" at Sep 28, 2001 10:40:01 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Makefile gcc -o /dev/null: the dissapearing of /dev/null
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I noticed this a long time ago in the Linux kernel
-makefiles, I thought someone would have figured it
-out by now tho.
+Pavel Machek writes:
+> [Albert Cahalan]
+>> [Pavel Machek]
 
-The `gcc -o /dev/null' is a really neat way of
-testing if gcc works or not.
+>>> I can't do that: open deleted files.
+>>
+>> Tough luck. Either use the same hack as NFS, or have such files
+>> return -EIO for all operations and give SIGBUS for mappings.
+>> Maybe just refuse to suspend when there are open deleted files.
+>> Oh, just create a name in the filesystem root and use that.
+>> Something like ".8fe4a979.swsusp" would be fine. Whatever!
+>
+> ...and break locking and similar stuff. NFS is not as good as local
+> filesystem.
 
-Unfortunatly it doesnt work that well if you're root.
+Oh well. Network connections die and real-time apps fail too.
+It is important to have safe and useful behavior in the presence
+of arbitrary filesystem modifications. It is very nice to be able
+to use suspend/resume to alternate between two running kernels.
 
-You see, gcc uses unlink(). /dev/null doesnt take
-kindly to that kind of treatment...
-
-Ofcourse, you cant unlink /dev/null unless you are root.
-
-In any case, the `gcc -o /dev/null' test cases probably
-need to go away.
-
-I've seen this in linux/arch/i386/Makefile for 2.4.10,
-it probably exists in all previous versions as well as
-in other Makefiles.
-
-Happy kernel hacking!
-
-/proton
-ps. any replies [read: flames] would do well being CC'd
-to me since I dont subscribe to linux-kernel :)
-[ http://www.energymech.net/users/proton/ ]
+I wouldn't worry about locking. Write/discard all data on suspend,
+then examine the inode on resume. As long as the inode doesn't
+change by more than the atime, the lock can survive.

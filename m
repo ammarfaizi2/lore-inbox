@@ -1,30 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267248AbSLROKy>; Wed, 18 Dec 2002 09:10:54 -0500
+	id <S267253AbSLRO3Y>; Wed, 18 Dec 2002 09:29:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267253AbSLROKy>; Wed, 18 Dec 2002 09:10:54 -0500
-Received: from h-64-105-34-78.SNVACAID.covad.net ([64.105.34.78]:41657 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S267248AbSLROKx>; Wed, 18 Dec 2002 09:10:53 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Wed, 18 Dec 2002 06:18:14 -0800
-Message-Id: <200212181418.GAA02729@adam.yggdrasil.com>
-To: alan@lxorguk.ukuu.org.uk
-Subject: Re: 2.5.51 ide module problem
-Cc: andre@linux-ide.org, axboe@suse.de, linux-kernel@vger.kernel.org
+	id <S267254AbSLRO3Y>; Wed, 18 Dec 2002 09:29:24 -0500
+Received: from bozon.softax.pl ([62.89.75.130]:24539 "EHLO bozon.softax.com.pl")
+	by vger.kernel.org with ESMTP id <S267253AbSLRO3Y>;
+	Wed, 18 Dec 2002 09:29:24 -0500
+Subject: heavy kupdated still observed in 2.4.18
+From: Marcin Kasperski <Marcin.Kasperski@softax.com.pl>
+To: linux-kernel@vger.kernel.org
+Cc: Marcin.Kasperski@softax.com.pl
+Content-Type: text/plain
+Organization: Softax
+Message-Id: <1040222242.7694.17.camel@cauchy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 18 Dec 2002 15:37:22 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+{ I am not subscribed to linux-kernel, so be so kind to cc the replies
+to me - although I will review the archives. I send this mail to report
+that some problem still exists although it is considered to be solved }
 
-	I forgot to mention one thing in my the message that I sent
-a minute ago: I understand that the cmd640_vlb kernel command line
-argument needs to be settable via a module parameters for cmd640 to
-be fully functional as a kernel module.  I will take care of that
-if making cmd640 a module would work in the scenario that I described
-(userland is careful not to set 32-bit IO or IRQ unmasking until the
-cmd640 module can be loaded).
+I repeatably observe the effect of 'heavy kupdated' (kupdated taking
+almost 100% CPU, computer not reacting - for a few seconds, happening 
+from time to time). In the archives I found that this problem is
+considered to be removed in 2.4.15per7
+(http://hypermail.idiosynkrasia.net/linux-kernel/archived/2001/week48/0147.html). I use 2.4.18 and I still observe it.
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+Some (probably important) details:
+
+- the effect happens in the particular case: when I perform large
+copying over the local network (in fact it was sth like
+    scp -r remote:/some/directory/tree ./ 
+)
+- I have a lot of RAM and there is a lot of free memory when the problem
+is being observed
+- I do not use any swap
+- I use LVM (applied from lvm_1.0.5 as distributed by Sistina) and the
+drive to which the copying occurs belongs to LVM volume group.
+
+
+
+

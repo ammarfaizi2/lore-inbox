@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313687AbSGULiC>; Sun, 21 Jul 2002 07:38:02 -0400
+	id <S313087AbSGULhM>; Sun, 21 Jul 2002 07:37:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313867AbSGULiC>; Sun, 21 Jul 2002 07:38:02 -0400
-Received: from verein.lst.de ([212.34.181.86]:46093 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id <S313687AbSGULh5>;
-	Sun, 21 Jul 2002 07:37:57 -0400
-Date: Sun, 21 Jul 2002 13:41:00 +0200
+	id <S313687AbSGULhM>; Sun, 21 Jul 2002 07:37:12 -0400
+Received: from verein.lst.de ([212.34.181.86]:45069 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id <S313087AbSGULhL>;
+	Sun, 21 Jul 2002 07:37:11 -0400
+Date: Sun, 21 Jul 2002 13:40:16 +0200
 From: Christoph Hellwig <hch@lst.de>
-To: marcelo@conectiva.com.br
+To: marcelo@contectiva.com.br
 Cc: linux-kernel@vger.kernel.org
 Subject: [PATCH] fix drivers/net/Config.in in 2.4.19-rc3
-Message-ID: <20020721134100.A5212@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>, marcelo@conectiva.com.br,
+Message-ID: <20020721134016.A5146@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>, marcelo@contectiva.com.br,
 	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii

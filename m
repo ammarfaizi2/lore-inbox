@@ -1,59 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131663AbRCUR0F>; Wed, 21 Mar 2001 12:26:05 -0500
+	id <S131713AbRCURp4>; Wed, 21 Mar 2001 12:45:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131718AbRCURZ4>; Wed, 21 Mar 2001 12:25:56 -0500
-Received: from ip164-145.fli-ykh.psinet.ne.jp ([210.129.164.145]:26819 "EHLO
-	standard.erephon") by vger.kernel.org with ESMTP id <S131663AbRCURZp>;
-	Wed, 21 Mar 2001 12:25:45 -0500
-Message-ID: <3AB8E3E8.F3204180@yk.rim.or.jp>
-Date: Thu, 22 Mar 2001 02:24:56 +0900
-From: Ishikawa <ishikawa@yk.rim.or.jp>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: ja, en
+	id <S131715AbRCURpq>; Wed, 21 Mar 2001 12:45:46 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:57576 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S131713AbRCURpd>;
+	Wed, 21 Mar 2001 12:45:33 -0500
+Date: Wed, 21 Mar 2001 11:42:08 -0600 (CST)
+From: Josh Grebe <squash@primary.net>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: <jaharkes@cs.cmu.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: Question about memory usage in 2.4 vs 2.2
+In-Reply-To: <001401c0b1ef$cb22f5e0$5517fea9@local>
+Message-ID: <Pine.LNX.4.32.0103211127510.2260-100000@scarface.primary.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Interesting post from the MC project to linux-kernel. :block while 
- spinlock held... 
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is what I'm afraid of, in my case we have millions of files that are
+dealt with in no real order, and if cache fragmentation will keep the
+memory from being freed, we're in for problems. This reading was taken
+with the machine having been up for only 5 days. Currently, I show:
 
-I suppose that many SCSI maintainers do read the linux-kernel
-mailing list. However, just in case, I am quoting one of the
-very interesting postings that come from people at Stanford.
-They seem to be doing mechanical verification / checking of
-linux source code to hunt for potentical bugs. In the last week or so,
-many potential bugs were identified and fixed.
+inode_cache       194565 234696    480 29337 29337    1 :  124   62
+dentry_cache      207257 327300    128 10910 10910    1 :  252  126
 
-Here is one that might be of interest to SCSI developers.
-The checkers are known to produce false positives. So beware.
+However, memory usage is still at 44% according to /proc/meminfo.
 
---- begin quote ---
-> enclosed are 163 potential bugs in 2.4.1 where blocking functions are
-> called with either interrupts disabled or a spin lock held. The
-> checker works by:
+I've had to put my SMTP box back to 2.2 as it was up to 90% memory used,
+where the others were around 18%. I'm keeping the pop/imap server at 2.4
+as 44% is standable, while not exactly desirable. I'm
 
-Here's the file manifest. Apologies.
+---
+Josh Grebe
+Senior Unix Systems Administrator
+Primary Network, an MPower Company
+http://www.primary.net
 
-drivers/atm/idt77105.c
-drivers/atm/iphase.c
-drivers/atm/uPD98402.c
-drivers/block/cciss.c
-drivers/block/cpqarray.c
-drivers/char/applicom.c
-    ...
-drivers/scsi/aha1542.c            <--- some scsi files
-drivers/scsi/atp870u.c             <----
-drivers/scsi/psi240i.c               <----
-drivers/scsi/sym53c416.c        <----
-drivers/scsi/tmscsim.c              <----
-    ...
-[the rest omiitted]
+On Wed, 21 Mar 2001, Manfred Spraul wrote:
 
---- end quote ---
+> > inode_cache 189974 243512 480 30439 30439 1 : 124 62
+> > dentry_cache 201179 341940 128 11398 11398 1 : 252 126
+>
+> 1) number of used objects
+> 2) number of allocated objects
+> 3) size of each object
+> 4) number of slabs that are at least partially in use
+> 5) number of slabs that are allocated for the cache
+> i.e. 5)-4) are the number of freeable slabs in the cache
+> 6) size in pages for a slab
+> :
+> 7) length of the per-cpu list. Each cpu some objects in a local list it
+> can use without acquiring a spinlock
+> 8) batch count. If the per-cpu list overflows multiple objects are
+> freed/allocated in one block.
+>
+> 7 and 8 are only present if your kernel is compiled for SMP, root can
+> tune them with
+>
+> #echo "<slab name> <length> <batchcount>" > /proc/slabinfo
+>
+> It seems that the dentry cache is severely fragmented, nearly 20 MB (or
+> 30%) are
+> unfreeable due to fragmentation.
+>
+> --
+>     Manfred
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+
 
 

@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132309AbQK3CwB>; Wed, 29 Nov 2000 21:52:01 -0500
+        id <S131506AbQK3CwD>; Wed, 29 Nov 2000 21:52:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131375AbQK3Cvw>; Wed, 29 Nov 2000 21:51:52 -0500
+        id <S130805AbQK3Cvx>; Wed, 29 Nov 2000 21:51:53 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:25107 "EHLO zeus.kernel.org")
-        by vger.kernel.org with ESMTP id <S130372AbQK3Cvq>;
-        Wed, 29 Nov 2000 21:51:46 -0500
-From: Rusty Russell <rusty@linuxcare.com.au>
-To: Andries.Brouwer@cwi.nl
+        by vger.kernel.org with ESMTP id <S130132AbQK3Cvp>;
+        Wed, 29 Nov 2000 21:51:45 -0500
+Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDDA8@orsmsx31.jf.intel.com>
+From: "Dunlap, Randy" <randy.dunlap@intel.com>
+To: "'Alexander Viro'" <viro@math.psu.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: another problem disappeared 
-In-Reply-To: Your message of "Thu, 30 Nov 2000 01:28:13 BST."
-             <UTC200011300028.BAA150956.aeb@aak.cwi.nl> 
-Date: Thu, 30 Nov 2000 12:45:11 +1100
-Message-Id: <20001130014521.862D78120@halfway.linuxcare.com.au>
+Subject: RE: usbdevfs mount 2x, umount 1x
+Date: Wed, 29 Nov 2000 17:40:48 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+        charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <UTC200011300028.BAA150956.aeb@aak.cwi.nl> you write:
-> Recently I muttered a bit about the fact that
-> with 2.4.0test11 masquerading, the first packet
-> that was to be forwarded crashes the kernel. Always.
+> > > So umount it twice.
+> > I don't see a way to umount it twice or I would have done that.
+> > Is there a way?
+> 
+> Erm... Say umount one more time? If _that_ doesn't work - we've got a
+> bug, either in umount(2) or in umount(8). Strace would be welcome.
 
-Yes, I was on the plane when I read your report, but I can't reproduce
-this.  I use masquerading every day (my laptop lives in its own
-masqueraded subnet), currently test10:
+Or I'm using an old version of umount (from RH 5.2) ?
+I'll check on that and the strace.
 
-Linux penicillin 2.4.0-test10 #1 SMP Fri Nov 10 12:31:21 EST 2000 i686 unknown  
-> (I am still a bit curious: did other people see this?
-> Did someone fix a known problem with net(filter) or say /proc?
-> It would be a pity if this disappeared by coincidence
-> and appears again next month.)
+~Randy
 
-I've no other reports, and people are using this in production.
-That's why it was so puzzling...
-
-Cheers,
-Rusty.
---
-Hacking time.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

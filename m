@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262875AbTIGIfO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 04:35:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262918AbTIGIfN
+	id S262915AbTIGJDS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 05:03:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262943AbTIGJDS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 04:35:13 -0400
-Received: from law10-oe38.law10.hotmail.com ([64.4.14.95]:64517 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S262875AbTIGIfK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 04:35:10 -0400
-X-Originating-IP: [208.48.228.132]
-X-Originating-Email: [jyau_kernel_dev@hotmail.com]
-From: "John Yau" <jyau_kernel_dev@hotmail.com>
-To: "Nick Piggin" <piggin@cyberone.com.au>
-Cc: <linux-kernel@vger.kernel.org>
-References: <000201c374c8$1124ee20$f40a0a0a@Aria> <3F5ABE90.2040003@cyberone.com.au> <Law10-OE296cRyiOYbp00008b23@hotmail.com> <3F5AE7ED.7010501@cyberone.com.au>
-Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
-Date: Sun, 7 Sep 2003 04:35:01 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Message-ID: <LAW10-OE38NfztQ7LS000009f64@hotmail.com>
-X-OriginalArrivalTime: 07 Sep 2003 08:35:09.0205 (UTC) FILETIME=[F2596450:01C3751A]
+	Sun, 7 Sep 2003 05:03:18 -0400
+Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:24313 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id S262915AbTIGJDR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 05:03:17 -0400
+Date: Sun, 7 Sep 2003 03:02:24 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Aaron Dewell <acd@woods.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: partition recovery question resolution
+Message-ID: <20030907030224.B18482@schatzie.adilger.int>
+Mail-Followup-To: Aaron Dewell <acd@woods.net>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0309062335230.20670-100000@dragon.woods.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0309062335230.20670-100000@dragon.woods.net>; from acd@woods.net on Sat, Sep 06, 2003 at 11:43:17PM -0600
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> Even if context switches don't cost anything, you still want to have
-> priorities so cpu hogs can be preempted by other tasks in order to
-> quickly respond to IO events. You want interactive tasks to be able
-> to sometimes get more cpu than cpu hogs, etc. Scheduling latency is
-> only a part of it.
->
+On Sep 06, 2003  23:43 -0600, Aaron Dewell wrote:
+> Doing a dd back to the disk with a short file shouldn't
+> affect anything past the end of the file, right?  Therefore, there would have
+> had to have been some kind of condition whereby the file got truncated while a
+> dd was going on, and for some reason, it started writing zeros instead of
+> stopping.
 
-Of course priorities are still necessary =)  However assuming that
-interactive tasks will always finish much much earlier than hogs, it's not
-really worth it to give interactive tasks any special treatment when you
-have very fine timeslices.
+That's a common pitfall of dd.  It will truncate regular output files unless
+you use "conv=notrunc".  If you are writing to a block device it obviously
+can't truncate the device so you don't notice it unless you are trying to
+dd over an existing file.
 
-For example you have x that will use 100 ms and y that will use 5 ms, both
-of the same priority.  Assuming that x entered into the queue first and y
-immediately after, at 20 ms timeslice, it will be 25 ms before y finishes.
-However, at 1 ms timeslice, y finishes in 10 ms.
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
-
-John Yau

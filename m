@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265438AbSJSBAQ>; Fri, 18 Oct 2002 21:00:16 -0400
+	id <S265432AbSJSA43>; Fri, 18 Oct 2002 20:56:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265437AbSJSBAO>; Fri, 18 Oct 2002 21:00:14 -0400
-Received: from nycsmtp2out.rdc-nyc.rr.com ([24.29.99.227]:32154 "EHLO
-	nycsmtp2out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S265436AbSJSBAM>; Fri, 18 Oct 2002 21:00:12 -0400
-Date: Fri, 18 Oct 2002 20:58:38 -0400 (EDT)
-From: Frank Davis <fdavis@si.rr.com>
-X-X-Sender: fdavis@localhost.localdomain
-To: linux-kernel@vger.kernel.org
-cc: fdavis@si.rr.com, <torvalds@transmeta.com>
-Subject: [PATCH] 2.5.43 : drivers/block/xd.c
-Message-ID: <Pine.LNX.4.44.0210182055450.15417-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265434AbSJSA43>; Fri, 18 Oct 2002 20:56:29 -0400
+Received: from ns.suse.de ([213.95.15.193]:18195 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S265432AbSJSA42>;
+	Fri, 18 Oct 2002 20:56:28 -0400
+Date: Sat, 19 Oct 2002 03:02:29 +0200
+From: Andi Kleen <ak@suse.de>
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+Cc: Andi Kleen <ak@suse.de>, "David S. Miller" <davem@redhat.com>,
+       torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>
+Subject: Re: [PATCH] fixes for building kernel using Intel compiler
+Message-ID: <20021019030229.A31702@wotan.suse.de>
+References: <F2DBA543B89AD51184B600508B68D4000E6ADE6B@fmsmsx103.fm.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <F2DBA543B89AD51184B600508B68D4000E6ADE6B@fmsmsx103.fm.intel.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
- The following fixes a 'used but not declared' compile error.  Please review 
-for inclusion.
+On Fri, Oct 18, 2002 at 05:45:08PM -0700, Nakajima, Jun wrote:
+> No, it removes most of such cases. It happens only for a general boolean
+> controlling expression, and this is the only spot as far as we tested. But
 
-Regards,
-Frank
+	So it would be optimized away if changed to 
 
---- linux/drivers/block/xd.c.old	Fri Oct 18 20:51:44 2002
-+++ linux/drivers/block/xd.c	Fri Oct 18 20:54:02 2002
-@@ -150,6 +150,7 @@
- static int __init xd_init(void)
- {
- 	u_char i,controller;
-+	u_char count = 0;
- 	unsigned int address;
- 	int err;
- 
- 
+	if ((offsetof(struct task_struct, thread.i387.fxsave) & 15) != 0) {
 
+	?
+
+> our argument is that the checking code is not required because
+> thread.i387.fxsave is __attribute__ ((aligned (16))). If __attribute__
+> ((aligned (...))) is broken, we should see more problems.
+
+I think it would be better to keep the check, even with attribute aligned. These bugs
+are nasty to debug when they happen.
+
+-Andi

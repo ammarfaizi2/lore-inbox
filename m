@@ -1,30 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281556AbRKUJTd>; Wed, 21 Nov 2001 04:19:33 -0500
+	id <S281543AbRKUJXC>; Wed, 21 Nov 2001 04:23:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281543AbRKUJTM>; Wed, 21 Nov 2001 04:19:12 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:13 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281441AbRKUJTH>; Wed, 21 Nov 2001 04:19:07 -0500
-Subject: Re: A return to PCI ordering problems...
-To: jas88@cam.ac.uk (James A Sutherland)
-Date: Wed, 21 Nov 2001 09:20:21 +0000 (GMT)
-Cc: dwmw2@infradead.org (David Woodhouse), amon@vnl.com (Dale Amon),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <E166TCM-0004VH-00@lilac.csi.cam.ac.uk> from "James A Sutherland" at Nov 21, 2001 08:57:47 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S281506AbRKUJWm>; Wed, 21 Nov 2001 04:22:42 -0500
+Received: from t2.redhat.com ([199.183.24.243]:36091 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S281441AbRKUJWh>; Wed, 21 Nov 2001 04:22:37 -0500
+Message-ID: <3BFB725C.7468088A@redhat.com>
+Date: Wed, 21 Nov 2001 09:22:36 +0000
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Momchil Velikov <velco@fadata.bg>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: slab: avoid linear search in kmalloc? (GCC Guru wanted :)
+In-Reply-To: <20011121024525.A18750@lina.inka.de> <873d38wkmo.fsf@fadata.bg>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E166TYL-0004Sv-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > If you really care about the names, there's an ioctl you can use to change
-> > them. You can call them 'fred' and 'sheila' if you so desire.
+Momchil Velikov wrote:
 > 
-> So you can you swap them, so eth1 becomes eth0? If so, that should solve his 
-> problem...
+> >>>>> "Bernd" == Bernd Eckenfels <ecki@lina.inka.de> writes:
+> 
+> Bernd> Hello,
+> Bernd> I noticed that kmalloc and kmem_find_general_cachep are doing a linear
+> Bernd> search in the cache_sizes array. Isnt it better to speed that up by doing a
+> Bernd> binary search or a b-tree if like the following patch?
+> 
+> Here is a patch using a gcc extension. gcc generates binary search for the case.
 
-You can do yes
+the big "case" statement makes you wonder if ffz(~size) would do the
+same ;)

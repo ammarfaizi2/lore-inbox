@@ -1,27 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278582AbRJSScE>; Fri, 19 Oct 2001 14:32:04 -0400
+	id <S278583AbRJSSdY>; Fri, 19 Oct 2001 14:33:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278583AbRJSSby>; Fri, 19 Oct 2001 14:31:54 -0400
-Received: from msgbas1tx.cos.agilent.com ([192.25.240.37]:21214 "HELO
-	msgbas2.cos.agilent.com") by vger.kernel.org with SMTP
-	id <S278582AbRJSSbr>; Fri, 19 Oct 2001 14:31:47 -0400
-Message-ID: <01A7DAF31F93D511AEE300D0B706ED9208E4A1@axcs13.cos.agilent.com>
-From: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: pci_alloc_consistent question
-Date: Fri, 19 Oct 2001 12:32:19 -0600
+	id <S278585AbRJSSdH>; Fri, 19 Oct 2001 14:33:07 -0400
+Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:21519 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S278583AbRJSScn>;
+	Fri, 19 Oct 2001 14:32:43 -0400
+Date: Fri, 19 Oct 2001 11:35:15 -0700 (PDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: J Sloan <jjs@lexus.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.12 breaks fdisk (ignore all reports)
+In-Reply-To: <3BD07066.182DA478@lexus.com>
+Message-ID: <Pine.LNX.4.10.10110191132321.10415-100000@innerfire.net>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi List,
+AARGH just saw it..
 
-Is there any limitation on the amount of contiguous dmaable memory that
-can be allocated using a single call to pci_alloc_consistent() ?
+I mistyped the drive in the last paste. :/
 
-Regards,
--hiren
+sda not hda *sigh*
+
+false alarm.
+
+	Gerhard
+
+
+
+
+On Fri, 19 Oct 2001, J Sloan wrote:
+
+> I have seen this on some systems -
+> 
+> IFAIK it is a BIOS problem, not a
+> kernel problem -
+> 
+> cu
+> 
+> jjs
+> 
+> Gerhard Mack wrote:
+> 
+> > Somone break something?  I can only seem to access new partitions after a
+> > reboot.
+> >
+> > Calling ioctl() to re-read partition table.
+> > rotyla:~# mkreiserfs /dev/hda4
+> >
+> > <-------------mkreiserfs, 2001------------->
+> > reiserfsprogs 3.x.0j
+> >
+> > count_blocks: open failed (No such device or address)
+> >
+> > rotyla:~# mke2fs /dev/hda4
+> > mke2fs 1.25 (20-Sep-2001)
+> > mke2fs: No such device or address while trying to determine filesystem
+> > size
+> >
+> > --
+> > Gerhard Mack
+> >
+> > gmack@innerfire.net
+> >
+> > <>< As a computer I find your faith in technology amusing.
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
+

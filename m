@@ -1,66 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291630AbSBHQJy>; Fri, 8 Feb 2002 11:09:54 -0500
+	id <S291626AbSBHQKo>; Fri, 8 Feb 2002 11:10:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291628AbSBHQJo>; Fri, 8 Feb 2002 11:09:44 -0500
-Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:10238 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S291625AbSBHQJc>; Fri, 8 Feb 2002 11:09:32 -0500
-Date: Fri, 8 Feb 2002 11:09:30 -0500
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Tigran Aivazian <tigran@veritas.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org,
-        Rik van Riel <riel@conectiva.com.br>
-Subject: Re: [patch] larger kernel stack (8k->16k) per task
-Message-ID: <20020208110930.C1429@devserv.devel.redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0202081559240.1359-100000@einstein.homenet>
+	id <S291625AbSBHQKi>; Fri, 8 Feb 2002 11:10:38 -0500
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:11218 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S291627AbSBHQKV>; Fri, 8 Feb 2002 11:10:21 -0500
+Message-Id: <5.1.0.14.2.20020208160020.027998a0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 08 Feb 2002 16:12:57 +0000
+To: M.Bakker@research-int.com
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Guest section DW: "Re: [PATCH] Fix floppy io ports
+  reservation
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1DD095B27B5AD511A0950002557C77E03C4CA4@rinlxch01.nl.resear
+ ch-int.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33.0202081559240.1359-100000@einstein.homenet>; from tigran@veritas.com on Fri, Feb 08, 2002 at 04:06:35PM +0000
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 08, 2002 at 04:06:35PM +0000, Tigran Aivazian wrote:
-> Hi Arjan,
-> 
-> > Also it's the wrong approach. The right approach (as done by Manfred and
-> > David) is
-> > to put "current" no longer on this stack just a pointer to current.
-> 
+At 15:43 08/02/02, M.Bakker@research-int.com wrote:
+>*       Reply: Guest section DW: "Re: [PATCH] Fix floppy io ports
+>reservation" <1110.html>
+>Hmmmm... and how do I tell those 12 faithfull  ps/2's (yep the real ones
+>:model 31) still running everyday doing their job.....
+>I'm afraid I haven't got the heart.......
 
-> You are saying that the right approach is to move "current" off the stack.
-> The right approach to what? Surely not to saving kernel stack because
-> "current" (being merely a struct task_struct) is not a major eater of the
-> stack.
+Even if yours are affected you are unlikely to be wanting to enable PNPBIOS 
+support in the kernel for them. And as long as you don't do that everything 
+will continue to work as before my patch. The work around for this would be 
+for the PNPBIOS driver in the kernel not to reserve ports 0x3f0 and 0x3f1 
+on systems without a PNPBIOS. Thus on all recent systems PNPBIOS would take 
+over 0x3f0 and 0x3f1 and  the floppy won't care and on really old systems 
+PNPBIOS would not do that and hence the floppy will be happy, too, even 
+though we don't reserve them. Having said that I am not convinced this is 
+worth the effort as on such an old system PNPBIOS won't be doing anything, 
+even if you compile it in, except for perhaps reserving ports, as there 
+won't be anything supporting PNP in the system anyway...
 
-1.5Kb... that's quite a lot on 8Kb
+I would tend to leave is as is (including my patch) until someone steps 
+forward and actually shows a case where it breaks. From the comments so far 
+I think we will never encounter such a case.
 
-> Those functions which declare 5-6k of local variables are (if
-> there are still any left).
+Anton
 
-There are none. And if there are they are very easy to find and fix.
+> >> ports 0x3f0 and 0x3f1 are used on certain PS/2 systems
+> >> and on some very old AT clones
+> >
+> > [PS/2] Can you point me to the code for the PS/2 systems in question?
+> > [AT] And we care because?
+>You need not worry - these systems have been dead for over fifteen years.
 
 
-> Speaking of which, I will also answer Rik --
-> the offenders (that "VERY VERY sick code" Arjan refers to) we found were
-> in LKCD so it's been fixed ages ago.
-
-LKCD is not part of the normal kernel, and in some parts could fall under
-"VER VERY sick"; esp if they indeed use 6Kb stack.
-
-> So, moving struct task_struct is irrelevant, really. Unless you meant
-> something completely different and if so I look forward to your
-
-Apparently you see stackoverflows with some code. Well, 1.5Kb (approx)
-is some win there (although most of that is reserved for stack coloring).
-
-If you need even more in your code (I assume you do otherwise you wouldn't
-have done the work) then I really suggest you take a long hard look and fix
-the obvious bugs or the design....
-
-Greetings,
-   Arjan van de Ven
-
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

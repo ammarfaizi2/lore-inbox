@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261399AbTEHNEO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 09:04:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbTEHNEO
+	id S261392AbTEHNCh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 09:02:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbTEHNCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 09:04:14 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:28300 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261399AbTEHNEN
+	Thu, 8 May 2003 09:02:37 -0400
+Received: from navigator.sw.com.sg ([213.247.162.11]:25478 "EHLO
+	navigator.sw.com.sg") by vger.kernel.org with ESMTP id S261392AbTEHNCg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 09:04:13 -0400
-Date: Thu, 8 May 2003 15:16:14 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Jens Axboe <axboe@suse.de>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5 ide 48-bit usage
-In-Reply-To: <20030508123617.GX823@suse.de>
-Message-ID: <Pine.SOL.4.30.0305081502430.12362-100000@mion.elka.pw.edu.pl>
+	Thu, 8 May 2003 09:02:36 -0400
+From: Vladimir Serov <vserov@infratel.com>
+To: trond.myklebust@fys.uio.no
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <3EBA585A.7080704@infratel.com>
+Date: Thu, 08 May 2003 17:15:06 +0400
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [BUG] nfs client stuck in D state in linux 2.4.17 - 2.4.21-pre5
+References: <20030318155731.1f60a55a.skraw@ithnet.com>	<3E79EAA8.4000907@infratel.com>	<15993.60520.439204.267818@charged.uio.no>	<3E7ADBFD.4060202@infratel.com>	<shsof45nf58.fsf@charged.uio.no>	<3E7B0051.8060603@infratel.com>	<15995.578.341176.325238@charged.uio.no>	<3E7B10DF.5070005@infratel.com>	<15995.5996.446164.746224@charged.uio.no>	<3E7B1DF9.2090401@infratel.com>	<15995.10797.983569.410234@charged.uio.no>	<3EB91B6F.9020204@infratel.com> <16057.8409.117109.345706@charged.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Trond,
 
-On Thu, 8 May 2003, Jens Axboe wrote:
-
-> n Thu, May 08 2003, Bartlomiej Zolnierkiewicz wrote:
-> > 	if (!hwif->rqsize)
-> > 		hwif->rqsize = hwif->addressing ? 65536 : 256;
+>     > when things are OK. Also the rpc client in this request is
+>     > c0d75060 which is mentioned in rpc queue status:
 >
-> btw, you didn't get this right this time either :-)
+>     > -pid- proc flgs status -client- -prog- --rqstp- -timeout
+>     > -rpcwait -action- --exit--
+>     > 09150 0001 0000 000000 c0d75060 100003 c8f99074 00000000
+>     > <NULL> c00f17b8 0
+>
+>
+>Looks like there is a hanging GETATTR call from another process that
+>is blocking your process.
+>
+>Which procedure does c00f17b8 correspond to? 
+>
+from the System.map :
 
-It is right.
-hwif->addressing means hwif supports 48-bit
-hwif->rqsize means max rq size for _hwif_
+c00f17b8 t call_status
 
-> drive->addressing == 1, 48-bit is ok
-> hwif->addressing == 1, 48-bit is _not_ ok
-
-And?
-Even if !drive->addressing, hwif->addressing can be 1,
-so hwif->rqsize can be 65536.
-
-> below patch covers the lat change as well, boots and works on my router.
-
-Patch still misses pdx202xx_old.c changes :-).
-Two new ones:
-- rq_lba48(rq) should check for rq->hard_* values
-- after some thought, drop _all_ changes to ide_dump_status()
-  (we may hit error when rq->nr_sectors is already < 256)
-
---
-Bartlomiej
-
+Regards, Vladimir.

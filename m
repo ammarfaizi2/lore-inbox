@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264508AbUAMPfY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 10:35:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264586AbUAMPfY
+	id S264290AbUAMP2t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 10:28:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264331AbUAMP2t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 10:35:24 -0500
-Received: from virt-216-40-198-21.ev1servers.net ([216.40.198.21]:27143 "EHLO
-	virt-216-40-198-21.ev1servers.net") by vger.kernel.org with ESMTP
-	id S264508AbUAMPfS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 10:35:18 -0500
-Date: Tue, 13 Jan 2004 09:35:07 -0600
-From: Chuck Campbell <campbell@accelinc.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Jamie Lokier <jamie@shareable.org>, Arjan van de Ven <arjanv@redhat.com>,
-       Lennert Buytenhek <buytenh@gnu.org>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] use of patented algorithms in the kernel ok or not?
-Message-ID: <20040113153507.GG14044@helium.inexs.com>
-Reply-To: campbell@accelinc.com
-Mail-Followup-To: Chuck Campbell <campbell@accelinc.com>,
-	Pavel Machek <pavel@ucw.cz>, Jamie Lokier <jamie@shareable.org>,
-	Arjan van de Ven <arjanv@redhat.com>,
-	Lennert Buytenhek <buytenh@gnu.org>, linux-kernel@vger.kernel.org
-References: <20031218231137.GA13652@gnu.org> <1071823624.5223.1.camel@laptop.fenrus.com> <20031221103308.GB3438@mail.shareable.org> <20031221165755.GB12866@openzaurus.ucw.cz>
+	Tue, 13 Jan 2004 10:28:49 -0500
+Received: from atlrel7.hp.com ([156.153.255.213]:63669 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S264290AbUAMP2s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 10:28:48 -0500
+Subject: RE: [ACPI] [PATCH] 2.4/2.6 use xdsdt to print table header
+From: Alex Williamson <alex.williamson@hp.com>
+To: "Yu, Luming" <luming.yu@intel.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       acpi-devel@lists.sourceforge.net, "Brown, Len" <len.brown@intel.com>
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F8401720CC2@PDSMSX403.ccr.corp.intel.com>
+References: <3ACA40606221794F80A5670F0AF15F8401720CC2@PDSMSX403.ccr.corp.intel.com>
+Content-Type: text/plain
+Message-Id: <1074007725.6494.11.camel@patsy.fc.hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031221165755.GB12866@openzaurus.ucw.cz>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 13 Jan 2004 08:28:46 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 21, 2003 at 11:57:55AM -0500, Pavel Machek wrote:
-> Hi!
+On Tue, 2004-01-13 at 00:38, Yu, Luming wrote:
+> >    I'm resending this patch to get it into the main ACPI source.  This
+> > fixes a problem where the DSDT pointer in the FADT is NULL because it
+> > uses the 64bit XDSDT instead.  The current code is happy to map a NULL
+> > address and return success to the caller.  This can crash the 
+> > system or
+> > printout garbage headers to the console.  It's a simple 
+> > matter to check
+> > table revision and use the XDSDT in favor of the DSDT.  This has been
+> > living happily in both the 2.4 and 2.6 ia64 tree for some 
+> > time.  Please
+> > accept.  Thanks,
 > 
-> > I know that equivalent code, which is covered by most if not all of
-> > the patents, is sold by some software companies to product developers
-> > _in the USA_ without prelicensed patents.  The problem of acquiring
-> > suitable patent licenses is left to the purchasers.
-> > 
-> > Rationally I would expect that if someone is able to sell code and
-> > leave the problem of patent licensing to the purchaser, then one
-> > should be able to _give away_ code and leave the problem of patent
-> > licensing to the recipient.
-> 
-> As far as I can see, it is okay to ignore patents *if
-> you are doing research*. So you should be able to offer
-> it to US people for research purposes.
+> I just checked with http://lia64.bkbits.net:8080/linux-ia64-2.4 .
+> The patch has been merged. Please take a look at
 
+   Right, it's in the ia64 trees, but understandably the ia64 arch
+maintainers don't want to carry this non-ia64 specific patch
+indefinitely.  This is a generic ACPI issue for an system that chooses
+to use the xdsdt in place of the dsdt.  It should be included in the
+ACPI tree and pushed up from there.  Thanks,
 
-Pavel,
+	Alex
 
-According to recently passed legislation, this may no longer be true.  It 
-remains to be tested, but my understanding is that this "research" shield
-is now gone.
-
--chuck
 -- 
+Alex Williamson                             HP Linux & Open Source Lab
+

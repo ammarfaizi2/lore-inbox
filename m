@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265532AbSK1OMg>; Thu, 28 Nov 2002 09:12:36 -0500
+	id <S265523AbSK1OKS>; Thu, 28 Nov 2002 09:10:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265541AbSK1OMg>; Thu, 28 Nov 2002 09:12:36 -0500
-Received: from mx2.mail.ru ([194.67.57.12]:26372 "EHLO mx2.mail.ru")
-	by vger.kernel.org with ESMTP id <S265532AbSK1OMf>;
-	Thu, 28 Nov 2002 09:12:35 -0500
-From: "Samium Gromoff" <_deepfire@mail.ru>
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: DAC960 at 2.5.50
+	id <S265532AbSK1OKS>; Thu, 28 Nov 2002 09:10:18 -0500
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:1240 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S265523AbSK1OKS>; Thu, 28 Nov 2002 09:10:18 -0500
+Message-Id: <4.3.2.7.2.20021128151157.00b522c0@pop.t-online.de>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Thu, 28 Nov 2002 15:17:53 +0100
+To: linux-kernel@vger.kernel.org
+From: margitsw@t-online.de (Margit Schubert-While)
+Subject: 2.4.19/20, 2.5 missing P4 ifdef ?
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: 194.226.0.89 via proxy [213.171.53.132]
-Date: Thu, 28 Nov 2002 17:19:55 +0300
-Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E18HPWF-000Nze-00@f11.mail.ru>
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> <alan@lxorguk.ukuu.org.uk>
->         [PATCH] update to OSDL DAC960 driver
->
->         Its not perfect but it works
-   is it supposed to blow my data, or is it relatively safe to use?
+Just noticed this in "include/asm-i386/processor.h" :
 
----
-regards,
-   Samium Gromoff
-___________________________
-___________________________________
+--- snip ---
+/* Prefetch instructions for Pentium III and AMD Athlon */
+#ifdef  CONFIG_MPENTIUMIII
+#define ARCH_HAS_PREFETCH
+extern inline void prefetch(const void *x)
+{
+         __asm__ __volatile__ ("prefetchnta (%0)" : : "r"(x));
+}
+#elif CONFIG_X86_USE_3DNOW
+--- end snip ---
+
+The P4 has SSE and prefetch or no ?
+
+Margit 
+

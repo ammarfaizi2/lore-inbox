@@ -1,64 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262472AbULOUAD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262476AbULOUJF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262472AbULOUAD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 15:00:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbULOUAC
+	id S262476AbULOUJF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 15:09:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262486AbULOUJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 15:00:02 -0500
-Received: from alog0285.analogic.com ([208.224.222.61]:3200 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262472AbULOT76
+	Wed, 15 Dec 2004 15:09:04 -0500
+Received: from alog0285.analogic.com ([208.224.222.61]:5248 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262476AbULOUI6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 14:59:58 -0500
-Date: Wed, 15 Dec 2004 14:54:09 -0500 (EST)
+	Wed, 15 Dec 2004 15:08:58 -0500
+Date: Wed, 15 Dec 2004 15:06:18 -0500 (EST)
 From: linux-os <linux-os@chaos.analogic.com>
 Reply-To: linux-os@analogic.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Eric St-Laurent <ericstl34@sympatico.ca>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Stefan Seyfried <seife@suse.de>, Con Kolivas <kernel@kolivas.org>,
-       Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrea Arcangeli <andrea@suse.de>
-Subject: Re: dynamic-hz
-In-Reply-To: <1103133841.3180.1.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0412151448580.4365@chaos.analogic.com>
-References: <20041211142317.GF16322@dualathlon.random>  <20041212163547.GB6286@elf.ucw.cz>
-  <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org> 
- <41BD483B.1000704@suse.de>  <20041213135820.A24748@flint.arm.linux.org.uk>
-  <1102949565.2687.2.camel@localhost.localdomain>  <1102983378.9865.11.camel@orbiter>
- <1103133841.3180.1.camel@localhost.localdomain>
+To: Adam Denenberg <adam@dberg.org>
+cc: Jan Harkes <jaharkes@cs.cmu.edu>, Kyle Moffett <mrmacman_g4@mac.com>,
+       linux-kernel@vger.kernel.org, Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: bind() udp behavior 2.6.8.1
+In-Reply-To: <1103138573.6825.11.camel@sucka>
+Message-ID: <Pine.LNX.4.61.0412151459150.4365@chaos.analogic.com>
+References: <1103038728.10965.12.camel@sucka>  <Pine.LNX.4.61.0412141700430.24308@yvahk01.tjqt.qr>
+  <1103042538.10965.27.camel@sucka>  <Pine.LNX.4.61.0412141742590.22148@yvahk01.tjqt.qr>
+  <1103043716.10965.40.camel@sucka>  <8AF1BC56-4E1C-11D9-B94B-000393ACC76E@mac.com>
+  <57782EC8-4E40-11D9-B971-003065B11AE8@dberg.org>  <20F668EE-4E48-11D9-B94B-000393ACC76E@mac.com>
+  <1103120162.5517.14.camel@sucka>  <20041215190725.GA24635@delft.aura.cs.cmu.edu>
+ <1103138573.6825.11.camel@sucka>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Dec 2004, Alan Cox wrote:
+On Wed, 15 Dec 2004, Adam Denenberg wrote:
 
-> On Maw, 2004-12-14 at 00:16, Eric St-Laurent wrote:
->> Alan,
->>
->> On a related subject, a few months ago you posted a patch which added a
->> nice add_timeout()/timeout_pending() API and converted many (if not
->> most) drivers to use it.
->>
->> If I remember correctly it did not generate much comments and the work
->> was not pushed into mainline.
->>
->> I think it's a nice cleanup, IMHO the time_(before|after)(jiffies, ...)
->> construct is horrible.
->>
->> Any chance to resurrect this work ?
+> almost yes.  The firewall never passes the retransmit onto the DNS
+> server since it has the same DNS ID, source port and source ip.  What is
+> happening is the following
 >
-> I plan to ressurect it when I have a little time but with some small
-> additions from the original work. Several people said "it should be mS
-> not HZ" and someone at OLS proposed that the API also includes an
-> accuracy guide so that systems using programmed wakeups can aggregate
-> timers when accuracy doesn't matter.
+> request 1
+> --------------------
+> linux box.32789 (id 001) ->  FW -> DNS SERVER.53
+> DNS SERVER.53 (id 001) -> FW -> linux box.32789
+>
+> request 2
+> -------------------
+> linux box.32789 (id 002) -> FW -> DNS SERVER.53
+> DNS SERVER (id 002).53 -> FW -> linux box.32789
+>
+> request 3
+> -----------------------
+> linux box (id 002).32789 -> FW -> NEVER GETS HERE, B/C ITS DROPPED
+>
+> the time between request 2 and request 3 is under 60ms.  The firewall is
+> in the midst of clearing its table for the dns request with ID 002
+> already so it thinks its a duplicate and drops it.  So my question is,
+> why is the kernel not incrementing the DNS ID in this case? It does it
+> for almost all other tests that i can find, and the firewall does not
+> drop any traffic.  Only when the DNS ID does not increment does this
+> problem occur.  This does not seem to always be the default behavior.  I
+> wrote a small C program to just put a gethostbyname_r() in a for loop
+> and each DNS ID is incremented all 40 times.  But there are times when
+> this doesnt happen, and this seems to be what is causing the issue.  The
+> firewall needs some sort of identifier to know which dns request is
+> associated with which dns reply (source ip, source port, ID).
+>
+> this is the behavior I am trying to debug.
+>
+> thanks
+> adam
 
-I sure hope it isn't mS. Transconductance or its reciprocal doesn't
-work very well for timing unless you supply the capacitor ;^)
-
-FYI, mS means milli-Siemens. Seconds is lower-case --always.
+The ID portion of the IP header, offset 32, is 16 bits of unique
+identification that is supposed to be unique for the entire time
+that any message should be in the system. That's what firewalls
+and routers use to determine if it's a duplicate packet. You
+never before stated that Linux was duplicating the ID portion,
+and if it is, it's a bug. But, I'll bet that it isn't. Nothing
+would work if it was. All TCP/IP messages are composed of
+Datagrams. If these basic elements were mucked up, this would
+have been discovered long before now, and if not discovered,
+you wouldn't receive this message. Also UCP is connectionless
+and stateless. If you have some box that handles it differently,
+its broken.
 
 
 Cheers,

@@ -1,642 +1,1537 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264399AbTCYX7o>; Tue, 25 Mar 2003 18:59:44 -0500
+	id <S264406AbTCZAHj>; Tue, 25 Mar 2003 19:07:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264424AbTCYX7o>; Tue, 25 Mar 2003 18:59:44 -0500
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:25485 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S264399AbTCYX7c>;
-	Tue, 25 Mar 2003 18:59:32 -0500
-Date: Tue, 25 Mar 2003 19:12:51 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: Joe Rayhawk <bung@omgwallhack.org>
-Cc: linux-kernel@vger.kernel.org, shaheed <srhaque@iee.org>
-Subject: Re: [PROBLEM] SB16 fails to compile: ISA PNP issues
-Message-ID: <20030325191251.GA1083@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Joe Rayhawk <bung@omgwallhack.org>, linux-kernel@vger.kernel.org,
-	shaheed <srhaque@iee.org>
-References: <200303091038.00948.srhaque@iee.org> <200303252221.59910.srhaque@iee.org>
+	id <S264445AbTCZAHj>; Tue, 25 Mar 2003 19:07:39 -0500
+Received: from ames-1pc1-research.ucsd.edu ([132.239.20.81]:63504 "EHLO
+	ames-1pc1-research.ucsd.edu") by vger.kernel.org with ESMTP
+	id <S264406AbTCZAHN>; Tue, 25 Mar 2003 19:07:13 -0500
+Date: Tue, 25 Mar 2003 16:24:32 -0800
+From: "Juan F. Camino" <camino@ucsd.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Compiling kernel2.4.21-pre5 with L1 L2 cache
+Message-ID: <20030326002432.GA14235@ucsd.edu>
+Reply-To: camino@ucsd.edu
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200303252221.59910.srhaque@iee.org>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 25, 2003 at 10:21:59PM +0000, shaheed wrote:
-> Joe,
-> 
-> Adam Belay (cc'd) has a compiled-but-not-tested fix for this, and several 
-> other cards: sadly the hardware with my SB16 died before I could do the 
-> testing.
-> 
-> Your offer of testing is probably *just* what he needs...
->
+Hello,
 
-Thanks for bringing this to my attention.  Yes, the sb code needs testors.
-Below is the latest patch.  Please note that the legacy detection code
-could be cleaned up some more.
+I have compiled kernel 2.4.20 (patch-2.4.21-pre5) but it does not
+detect L1 and L2 Cache for my Celeron. Would that be a bug? Or am I missing
+something on my configuration? I am quite sure Celeron has L2 =128k and
+L1 = 8kb
+Thanks.
+Juan
 
-Thanks,
-Adam
+dmesg 
+CPU: Trace cache: 12K uops, L1 D cache: 8K
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU:     After generic, caps: bfebfbff 00000000 00000000 00000000
+CPU:             Common caps: bfebfbff 00000000 00000000 00000000
+CPU: Intel(R) Celeron(R) CPU 2.10GHz stepping 07
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
 
---- a/sound/isa/sb/sb16.c	Mon Mar 24 22:01:16 2003
-+++ b/sound/isa/sb/sb16.c	Mon Mar 24 20:33:11 2003
-@@ -23,11 +23,7 @@
- #include <asm/dma.h>
- #include <linux/init.h>
- #include <linux/slab.h>
--#ifndef LINUX_ISAPNP_H
--#include <linux/isapnp.h>
--#define isapnp_card pci_bus
--#define isapnp_dev pci_dev
--#endif
-+#include <linux/pnp.h>
- #include <sound/core.h>
- #include <sound/sb.h>
- #include <sound/sb16_csp.h>
-@@ -77,7 +73,7 @@
- static int index[SNDRV_CARDS] = SNDRV_DEFAULT_IDX;	/* Index 0-MAX */
- static char *id[SNDRV_CARDS] = SNDRV_DEFAULT_STR;	/* ID for this card */
- static int enable[SNDRV_CARDS] = SNDRV_DEFAULT_ENABLE_ISAPNP; /* Enable this card */
--#ifdef __ISAPNP__
-+#ifdef CONFIG_PNP
- static int isapnp[SNDRV_CARDS] = {[0 ... (SNDRV_CARDS - 1)] = 1};
- #endif
- static long port[SNDRV_CARDS] = SNDRV_DEFAULT_PORT;	/* 0x220,0x240,0x260,0x280 */
-@@ -106,10 +102,10 @@
- MODULE_PARM(enable, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
- MODULE_PARM_DESC(enable, "Enable SoundBlaster 16 soundcard.");
- MODULE_PARM_SYNTAX(enable, SNDRV_ENABLE_DESC);
--#ifdef __ISAPNP__
--MODULE_PARM(isapnp, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
--MODULE_PARM_DESC(isapnp, "ISA PnP detection for specified soundcard.");
--MODULE_PARM_SYNTAX(isapnp, SNDRV_ISAPNP_DESC);
-+#ifdef CONFIG_PNP
-+MODULE_PARM(pnp, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
-+MODULE_PARM_DESC(pnp, "PnP detection for specified soundcard.");
-+MODULE_PARM_SYNTAX(pnp, SNDRV_ISAPNP_DESC);
- #endif
- MODULE_PARM(port, "1-" __MODULE_STRING(SNDRV_CARDS) "l");
- MODULE_PARM_DESC(port, "Port # for SB16 driver.");
-@@ -148,231 +144,211 @@
- MODULE_PARM_SYNTAX(seq_ports, SNDRV_ENABLED ",allows:{{0,8}},skill:advanced");
- #endif
+cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 2
+model name      : Intel(R) Celeron(R) CPU 2.10GHz
+stepping        : 7
+cpu MHz         : 2100.116
+cache size      : 8 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips        : 4194.30
 
--struct snd_sb16 {
-+struct snd_card_sb16 {
- 	struct resource *fm_res;	/* used to block FM i/o region for legacy cards */
--#ifdef __ISAPNP__
--	struct isapnp_dev *dev;
-+#ifdef CONFIG_PNP
-+	int dev_no;
-+	struct pnp_dev *dev;
- #ifdef SNDRV_SBAWE_EMU8000
--	struct isapnp_dev *devwt;
-+	struct pnp_dev *devwt;
- #endif
- #endif
- };
- 
--static snd_card_t *snd_sb16_cards[SNDRV_CARDS] = SNDRV_DEFAULT_PTR;
--
--#ifdef __ISAPNP__
--
--static struct isapnp_card *snd_sb16_isapnp_cards[SNDRV_CARDS] = SNDRV_DEFAULT_PTR;
--static const struct isapnp_card_id *snd_sb16_isapnp_id[SNDRV_CARDS] = SNDRV_DEFAULT_PTR;
--
--#define ISAPNP_SB16(_va, _vb, _vc, _device, _audio) \
--	{ \
--		ISAPNP_CARD_ID(_va, _vb, _vc, _device), \
--		.devs = { ISAPNP_DEVICE_ID(_va, _vb, _vc, _audio), } \
--	}
--#define ISAPNP_SBAWE(_va, _vb, _vc, _device, _audio, _awe) \
--	{ \
--		ISAPNP_CARD_ID(_va, _vb, _vc, _device), \
--		.devs = { ISAPNP_DEVICE_ID(_va, _vb, _vc, _audio), \
--			 ISAPNP_DEVICE_ID(_va, _vb, _vc, _awe), } \
--	}
-+static snd_card_t *snd_sb16_legacy[SNDRV_CARDS] = SNDRV_DEFAULT_PTR;
- 
--static struct isapnp_card_id snd_sb16_pnpids[] __devinitdata = {
-+static struct pnp_card_id snd_sb16_pnpids[] __devinitdata = {
- #ifndef SNDRV_SBAWE
- 	/* Sound Blaster 16 PnP */
--	ISAPNP_SB16('C','T','L',0x0024,0x0031),
-+	{ .id = "CTL0024", .devs = { { "CTL0031" } } },
- 	/* Sound Blaster 16 PnP */
--	ISAPNP_SB16('C','T','L',0x0025,0x0031),
-+	{ .id = "CTL0025", .devs = { { "CTL0031" } } },
- 	/* Sound Blaster 16 PnP */
--	ISAPNP_SB16('C','T','L',0x0026,0x0031),
-+	{ .id = "CTL0026", .devs = { { "CTL0031" } } },
- 	/* Sound Blaster 16 PnP */
--	ISAPNP_SB16('C','T','L',0x0027,0x0031),
-+	{ .id = "CTL0027", .devs = { { "CTL0031" } } },
- 	/* Sound Blaster 16 PnP */
--	ISAPNP_SB16('C','T','L',0x0028,0x0031),
-+	{ .id = "CTL0028", .devs = { { "CTL0031" } } },
- 	/* Sound Blaster 16 PnP */
--	ISAPNP_SB16('C','T','L',0x0029,0x0031),
-+	{ .id = "CTL0029", .devs = { { "CTL0031" } } },
- 	/* Sound Blaster 16 PnP */
--	ISAPNP_SB16('C','T','L',0x002a,0x0031),
-+	{ .id = "CTL002a", .devs = { { "CTL0031" } } },
- 	/* Sound Blaster 16 PnP */
- 	/* Note: This card has also a CTL0051:StereoEnhance device!!! */
--	ISAPNP_SB16('C','T','L',0x002b,0x0031),
-+	{ .id = "CTL002b", .devs = { { "CTL0031" } } },
- 	/* Sound Blaster 16 PnP */
--	ISAPNP_SB16('C','T','L',0x002c,0x0031),	
-+	{ .id = "CTL002c", .devs = { { "CTL0031" } } },
- 	/* Sound Blaster Vibra16S */
--	ISAPNP_SB16('C','T','L',0x0051,0x0001),
-+	{ .id = "CTL0051", .devs = { { "CTL0001" } } },
- 	/* Sound Blaster Vibra16C */
--	ISAPNP_SB16('C','T','L',0x0070,0x0001),
-+	{ .id = "CTL0070", .devs = { { "CTL0001" } } },
- 	/* Sound Blaster Vibra16CL - added by ctm@ardi.com */
--	ISAPNP_SB16('C','T','L',0x0080,0x0041),
-+	{ .id = "CTL0080", .devs = { { "CTL0041" } } },
- 	/* Sound Blaster 16 'value' PnP. It says model ct4130 on the pcb, */
- 	/* but ct4131 on a sticker on the board.. */
--	ISAPNP_SB16('C','T','L',0x0086,0x0041),
-+	{ .id = "CTL0086", .devs = { { "CTL0041" } } },
- 	/* Sound Blaster Vibra16X */
--	ISAPNP_SB16('C','T','L',0x00f0,0x0043),
-+	{ .id = "CTL00f0", .devs = { { "CTL0043" } } },
- #else  /* SNDRV_SBAWE defined */
- 	/* Sound Blaster AWE 32 PnP */
--	ISAPNP_SBAWE('C','T','L',0x0035,0x0031,0x0021),
-+	{ .id = "CTL0035", .devs = { { "CTL0031" }, { "CTL0021" } } },
- 	/* Sound Blaster AWE 32 PnP */
--	ISAPNP_SBAWE('C','T','L',0x0039,0x0031,0x0021),
-+	{ .id = "CTL0039", .devs = { { "CTL0031" }, { "CTL0021" } } },
- 	/* Sound Blaster AWE 32 PnP */
--	ISAPNP_SBAWE('C','T','L',0x0042,0x0031,0x0021),
-+	{ .id = "CTL0042", .devs = { { "CTL0031" }, { "CTL0021" } } },
- 	/* Sound Blaster AWE 32 PnP */
--	ISAPNP_SBAWE('C','T','L',0x0043,0x0031,0x0021),
-+	{ .id = "CTL0043", .devs = { { "CTL0031" }, { "CTL0021" } } },
- 	/* Sound Blaster AWE 32 PnP */
- 	/* Note: This card has also a CTL0051:StereoEnhance device!!! */
--	ISAPNP_SBAWE('C','T','L',0x0044,0x0031,0x0021),
-+	{ .id = "CTL0044", .devs = { { "CTL0031" }, { "CTL0021" } } },
- 	/* Sound Blaster AWE 32 PnP */
- 	/* Note: This card has also a CTL0051:StereoEnhance device!!! */
--	ISAPNP_SBAWE('C','T','L',0x0045,0x0031,0x0021),
-+	{ .id = "CTL0045", .devs = { { "CTL0031" }, { "CTL0021" } } },
- 	/* Sound Blaster AWE 32 PnP */
--	ISAPNP_SBAWE('C','T','L',0x0046,0x0031,0x0021),
-+	{ .id = "CTL0046", .devs = { { "CTL0031" }, { "CTL0021" } } },
- 	/* Sound Blaster AWE 32 PnP */
--	ISAPNP_SBAWE('C','T','L',0x0047,0x0031,0x0021),
-+	{ .id = "CTL0047", .devs = { { "CTL0031" }, { "CTL0021" } } },
- 	/* Sound Blaster AWE 32 PnP */
--	ISAPNP_SBAWE('C','T','L',0x0048,0x0031,0x0021),
-+	{ .id = "CTL0048", .devs = { { "CTL0031" }, { "CTL0021" } } },
- 	/* Sound Blaster AWE 32 PnP */
--	ISAPNP_SBAWE('C','T','L',0x0054,0x0031,0x0021),
-+	{ .id = "CTL0054", .devs = { { "CTL0031" }, { "CTL0021" } } },
- 	/* Sound Blaster AWE 32 PnP */
--	ISAPNP_SBAWE('C','T','L',0x009a,0x0041,0x0021),
-+	{ .id = "CTL009a", .devs = { { "CTL0041" }, { "CTL0021" } } },
- 	/* Sound Blaster AWE 32 PnP */
--	ISAPNP_SBAWE('C','T','L',0x009c,0x0041,0x0021),
-+	{ .id = "CTL009c", .devs = { { "CTL0041" }, { "CTL0021" } } },
- 	/* Sound Blaster 32 PnP */
--	ISAPNP_SBAWE('C','T','L',0x009f,0x0041,0x0021),
-+	{ .id = "CTL009f", .devs = { { "CTL0041" }, { "CTL0021" } } },
- 	/* Sound Blaster AWE 64 PnP */
--	ISAPNP_SBAWE('C','T','L',0x009d,0x0042,0x0022),
-+	{ .id = "CTL009d", .devs = { { "CTL0042" }, { "CTL0022" } } },
- 	/* Sound Blaster AWE 64 PnP Gold */
--	ISAPNP_SBAWE('C','T','L',0x009e,0x0044,0x0023),
-+	{ .id = "CTL009e", .devs = { { "CTL0044" }, { "CTL0023" } } },
- 	/* Sound Blaster AWE 64 PnP Gold */
--	ISAPNP_SBAWE('C','T','L',0x00b2,0x0044,0x0023),
-+	{ .id = "CTL00b2", .devs = { { "CTL0044" }, { "CTL0023" } } },
- 	/* Sound Blaster AWE 64 PnP */
--	ISAPNP_SBAWE('C','T','L',0x00c1,0x0042,0x0022),
-+	{ .id = "CTL00c1", .devs = { { "CTL0042" }, { "CTL0022" } } },
- 	/* Sound Blaster AWE 64 PnP */
--	ISAPNP_SBAWE('C','T','L',0x00c3,0x0045,0x0022),
-+	{ .id = "CTL00c3", .devs = { { "CTL0045" }, { "CTL0022" } } },
- 	/* Sound Blaster AWE 64 PnP */
--	ISAPNP_SBAWE('C','T','L',0x00c5,0x0045,0x0022),
-+	{ .id = "CTL00c5", .devs = { { "CTL0045" }, { "CTL0022" } } },
- 	/* Sound Blaster AWE 64 PnP */
--	ISAPNP_SBAWE('C','T','L',0x00c7,0x0045,0x0022),
-+	{ .id = "CTL00c7", .devs = { { "CTL0045" }, { "CTL0022" } } },
- 	/* Sound Blaster AWE 64 PnP */
--	ISAPNP_SBAWE('C','T','L',0x00e4,0x0045,0x0022),
-+	{ .id = "CTL00e4", .devs = { { "CTL0045" }, { "CTL0022" } } },
- 	/* Sound Blaster AWE 64 PnP */
--	ISAPNP_SBAWE('C','T','L',0x00e9,0x0045,0x0022),
-+	{ .id = "CTL00e9", .devs = { { "CTL0045" }, { "CTL0022" } } },
- 	/* Sound Blaster 16 PnP (AWE) */
--	ISAPNP_SBAWE('C','T','L',0x00ed,0x0041,0x0070),
-+	{ .id = "CTL00ed", .devs = { { "CTL0041" }, { "CTL0070" } } },
- 	/* Generic entries */
--	ISAPNP_SBAWE('C','T','L',ISAPNP_ANY_ID,0x0031,0x0021),
--	ISAPNP_SBAWE('C','T','L',ISAPNP_ANY_ID,0x0041,0x0021),
--	ISAPNP_SBAWE('C','T','L',ISAPNP_ANY_ID,0x0042,0x0022),
--	ISAPNP_SBAWE('C','T','L',ISAPNP_ANY_ID,0x0044,0x0023),
--	ISAPNP_SBAWE('C','T','L',ISAPNP_ANY_ID,0x0045,0x0022),
-+	{ .id = "CTLXXXX" , .devs = { { "CTL0031" }, { "CTL0021" } } },
-+	{ .id = "CTLXXXX" , .devs = { { "CTL0041" }, { "CTL0021" } } },
-+	{ .id = "CTLXXXX" , .devs = { { "CTL0042" }, { "CTL0022" } } },
-+	{ .id = "CTLXXXX" , .devs = { { "CTL0044" }, { "CTL0023" } } },
-+	{ .id = "CTLXXXX" , .devs = { { "CTL0045" }, { "CTL0022" } } },
- #endif /* SNDRV_SBAWE */
--	{ ISAPNP_CARD_END, }
-+	{ .id = "", }
- };
- 
--ISAPNP_CARD_TABLE(snd_sb16_pnpids);
-+MODULE_DEVICE_TABLE(pnp_card, snd_sb16_pnpids);
- 
--static int __init snd_sb16_isapnp(int dev, struct snd_sb16 *acard)
-+#ifdef SNDRV_SBAWE_EMU8000
-+#define DRIVER_NAME	"snd-card-sbawe"
-+#else
-+#define DRIVER_NAME	"snd-card-sb16"
-+#endif
-+
-+static int __devinit snd_card_sb16_pnp(int dev, struct snd_card_sb16 *acard,
-+				       struct pnp_card_link *card,
-+				       const struct pnp_card_id *id)
- {
--	const struct isapnp_card_id *id = snd_sb16_isapnp_id[dev];
--	struct isapnp_card *card = snd_sb16_isapnp_cards[dev];
--	struct isapnp_dev *pdev;
--
--	acard->dev = isapnp_find_dev(card, id->devs[0].vendor, id->devs[0].function, NULL);
--	if (acard->dev->active) {
--		acard->dev = NULL;
--		return -EBUSY;
--	}
--#ifdef SNDRV_SBAWE_EMU8000
--	acard->devwt = isapnp_find_dev(card, id->devs[1].vendor, id->devs[1].function, NULL);
--	if (acard->devwt->active) {
--		acard->dev = acard->devwt = NULL;
--		return -EBUSY;
--	}
--#endif	
-+	struct pnp_dev *pdev;
-+	struct pnp_resource_table * cfg = kmalloc(GFP_ATOMIC, sizeof(struct pnp_resource_table));
-+	int err;
-+
-+	if (!cfg) 
-+		return -ENOMEM; 
-+	acard->dev = pnp_request_card_device(card, id->devs[0].id, NULL);
-+	if (acard->dev == NULL) { 
-+		kfree(cfg); 
-+		return -ENODEV; 
-+	} 
-+#ifdef SNDRV_SBAWE_EMU8000
-+	acard->devwt = pnp_request_card_device(card, id->devs[1].id, acard->dev);
-+#endif
- 	/* Audio initialization */
- 	pdev = acard->dev;
--	if (pdev->prepare(pdev) < 0)
--		return -EAGAIN;
-+
-+	pnp_init_resource_table(cfg); 
-+	 
-+	/* override resources */ 
-+
- 	if (port[dev] != SNDRV_AUTO_PORT)
--		isapnp_resource_change(&pdev->resource[0], port[dev], 16);
-+		pnp_resource_change(&cfg->port_resource[0], port[dev], 16);
- 	if (mpu_port[dev] != SNDRV_AUTO_PORT)
--		isapnp_resource_change(&pdev->resource[1], mpu_port[dev], 2);
-+		pnp_resource_change(&cfg->port_resource[1], mpu_port[dev], 2);
- 	if (fm_port[dev] != SNDRV_AUTO_PORT)
--		isapnp_resource_change(&pdev->resource[2], fm_port[dev], 4);
-+		pnp_resource_change(&cfg->port_resource[2], fm_port[dev], 4);
- 	if (dma8[dev] != SNDRV_AUTO_DMA)
--		isapnp_resource_change(&pdev->dma_resource[0], dma8[dev], 1);
-+		pnp_resource_change(&cfg->dma_resource[0], dma8[dev], 1);
- 	if (dma16[dev] != SNDRV_AUTO_DMA)
--		isapnp_resource_change(&pdev->dma_resource[1], dma16[dev], 1);
-+		pnp_resource_change(&cfg->dma_resource[1], dma16[dev], 1);
- 	if (irq[dev] != SNDRV_AUTO_IRQ)
--		isapnp_resource_change(&pdev->irq_resource[0], irq[dev], 1);
--	if (pdev->activate(pdev) < 0) {
--		printk(KERN_ERR PFX "isapnp configure failure (out of resources?)\n");
--		return -EBUSY;
--	}
--	port[dev] = pdev->resource[0].start;
--	mpu_port[dev] = pdev->resource[1].start;
--	fm_port[dev] = pdev->resource[2].start;
--	dma8[dev] = pdev->dma_resource[0].start;
--	dma16[dev] = pdev->dma_resource[1].start;
--	irq[dev] = pdev->irq_resource[0].start;
--	snd_printdd("isapnp SB16: port=0x%lx, mpu port=0x%lx, fm port=0x%lx\n",
-+		pnp_resource_change(&cfg->irq_resource[0], irq[dev], 1);
-+	if ((pnp_manual_config_dev(pdev, cfg, 0)) < 0) 
-+		printk(KERN_ERR PFX "AUDIO the requested resources are invalid, using auto config\n"); 
-+	err = pnp_activate_dev(pdev); 
-+	if (err < 0) { 
-+		printk(KERN_ERR PFX "AUDIO pnp configure failure\n"); 
-+		kfree(cfg);
-+		return err; 
-+	} 
-+	port[dev] = pnp_port_start(pdev, 0);
-+	mpu_port[dev] = pnp_port_start(pdev, 1);
-+	fm_port[dev] = pnp_port_start(pdev, 2);
-+	dma8[dev] = pnp_dma(pdev, 0);
-+	dma16[dev] = pnp_dma(pdev, 1);
-+	irq[dev] = pnp_irq(pdev, 0);
-+	snd_printdd("pnp SB16: port=0x%lx, mpu port=0x%lx, fm port=0x%lx\n",
- 			port[dev], mpu_port[dev], fm_port[dev]);
--	snd_printdd("isapnp SB16: dma1=%i, dma2=%i, irq=%i\n",
-+	snd_printdd("pnp SB16: dma1=%i, dma2=%i, irq=%i\n",
- 			dma8[dev], dma16[dev], irq[dev]);
- #ifdef SNDRV_SBAWE_EMU8000
- 	/* WaveTable initialization */
- 	pdev = acard->devwt;
--	if (pdev->prepare(pdev)<0) {
--		acard->dev->deactivate(acard->dev);
--		return -EAGAIN;
--	}
--	if (awe_port[dev] != SNDRV_AUTO_PORT) {
--		isapnp_resource_change(&pdev->resource[0], awe_port[dev], 4);
--		isapnp_resource_change(&pdev->resource[1], awe_port[dev] + 0x400, 4);
--		isapnp_resource_change(&pdev->resource[2], awe_port[dev] + 0x800, 4);
--	}
--	if (pdev->activate(pdev)<0) {
--		printk(KERN_ERR PFX "WaveTable isapnp configure failure (out of resources?)\n");
--		acard->dev->deactivate(acard->dev);		
--		return -EBUSY;
--	}
--	awe_port[dev] = pdev->resource[0].start;
--	snd_printdd("isapnp SB16: wavetable port=0x%lx\n", pdev->resource[0].start);
--#endif
--	return 0;
--}
--
--static void snd_sb16_deactivate(struct snd_sb16 *acard)
--{
--	if (acard->dev) {
--		acard->dev->deactivate(acard->dev);
--		acard->dev = NULL;
--	}
--#ifdef SNDRV_SBAWE_EMU8000
--	if (acard->devwt) {
--		acard->devwt->deactivate(acard->devwt);
-+	if (pdev != NULL) {
-+		pnp_init_resource_table(cfg); 
-+	 
-+		/* override resources */ 
-+
-+		if (awe_port[dev] != SNDRV_AUTO_PORT) {
-+			pnp_resource_change(&cfg->port_resource[0], awe_port[dev], 4);
-+			pnp_resource_change(&cfg->port_resource[1], awe_port[dev] + 0x400, 4);
-+			pnp_resource_change(&cfg->port_resource[2], awe_port[dev] + 0x800, 4);
-+		}
-+		if ((pnp_manual_config_dev(pdev, cfg, 0)) < 0) 
-+			printk(KERN_ERR PFX "WaveTable the requested resources are invalid, using auto config\n"); 
-+		err = pnp_activate_dev(pdev); 
-+		if (err < 0) { 
-+			goto __wt_error; 
-+		} 
-+		awe_port[dev] = pnp_port_start(pdev, 0);
-+		snd_printdd("pnp SB16: wavetable port=0x%lx\n", pdev->resource[0].start);
-+	} else {
-+__wt_error:
-+		if (pdev) {
-+			pnp_release_card_device(pdev);
-+			printk(KERN_ERR PFX "WaveTable pnp configure failure\n");
-+		}
- 		acard->devwt = NULL;
-+		awe_port[dev] = -1;
- 	}
- #endif
-+	kfree(cfg);
-+	return 0;
- }
- 
--#endif /* __ISAPNP__ */
--
--static void snd_sb16_free(snd_card_t *card)
--{
--	struct snd_sb16 *acard = (struct snd_sb16 *)card->private_data;
--
--	if (acard == NULL)
--		return;
--	if (acard->fm_res) {
--		release_resource(acard->fm_res);
--		kfree_nocheck(acard->fm_res);
--	}
--#ifdef __ISAPNP__
--	snd_sb16_deactivate(acard);
--#endif
--}
--
--static int __init snd_sb16_probe(int dev)
-+static int __init snd_sb16_probe(int dev,
-+				 struct pnp_card_link *pcard,
-+				 const struct pnp_card_id *pid)
- {
- 	static int possible_irqs[] = {5, 9, 10, 7, -1};
- 	static int possible_dmas8[] = {1, 3, 0, -1};
-@@ -380,7 +356,7 @@
- 	int xirq, xdma8, xdma16;
- 	sb_t *chip;
- 	snd_card_t *card;
--	struct snd_sb16 *acard;
-+	struct snd_card_sb16 *acard;
- 	opl3_t *opl3;
- 	snd_hwdep_t *synth = NULL;
- #ifdef CONFIG_SND_SB16_CSP
-@@ -390,22 +366,21 @@
- 	int err;
- 
- 	card = snd_card_new(index[dev], id[dev], THIS_MODULE,
--			    sizeof(struct snd_sb16));
-+			    sizeof(struct snd_card_sb16));
- 	if (card == NULL)
- 		return -ENOMEM;
--	acard = (struct snd_sb16 *) card->private_data;
--	card->private_free = snd_sb16_free;
--#ifdef __ISAPNP__
--	if (isapnp[dev] && snd_sb16_isapnp(dev, acard) < 0) {
--		snd_card_free(card);
--		return -EBUSY;
-+	acard = (struct snd_card_sb16 *) card->private_data;
-+	if (isapnp[dev]) {
-+		if ((err = snd_card_sb16_pnp(dev, acard, pcard, pid))) {
-+			snd_card_free(card);
-+			return err;
-+		}
- 	}
--#endif
- 
- 	xirq = irq[dev];
- 	xdma8 = dma8[dev];
- 	xdma16 = dma16[dev];
--#ifdef __ISAPNP__
-+#ifdef CONFIG_PNP
- 	if (!isapnp[dev]) {
- #endif
- 	if (xirq == SNDRV_AUTO_IRQ) {
-@@ -437,7 +412,7 @@
- 	/* non-PnP AWE port address is hardwired with base port address */
- 	awe_port[dev] = port[dev] + 0x400;
- #endif
--#ifdef __ISAPNP__
-+#ifdef CONFIG_PNP
- 	}
- #endif
- 
-@@ -458,7 +433,7 @@
- 		return -ENODEV;
- 	}
- 	chip->mpu_port = mpu_port[dev];
--#ifdef __ISAPNP__
-+#ifdef CONFIG_PNP
- 	if (!isapnp[dev] && (err = snd_sb16dsp_configure(chip)) < 0) {
- #else
- 	if ((err = snd_sb16dsp_configure(chip)) < 0) {
-@@ -554,7 +529,10 @@
- 		snd_card_free(card);
- 		return err;
- 	}
--	snd_sb16_cards[dev] = card;
-+	if (pcard)
-+		pnp_set_card_drvdata(pcard, card);
-+	else
-+		snd_sb16_legacy[dev] = card;
- 	return 0;
- }
- 
-@@ -566,12 +544,12 @@
- 	for ( ; dev < SNDRV_CARDS; dev++) {
- 		if (!enable[dev] || port[dev] != SNDRV_AUTO_PORT)
- 			continue;
--#ifdef __ISAPNP__
-+#ifdef CONFIG_PNP
- 		if (isapnp[dev])
- 			continue;
- #endif
- 		port[dev] = xport;
--		res = snd_sb16_probe(dev);
-+		res = snd_sb16_probe(dev, NULL, NULL);
- 		if (res < 0)
- 			port[dev] = SNDRV_AUTO_PORT;
- 		return res;
-@@ -579,10 +557,10 @@
- 	return -ENODEV;
- }
- 
--#ifdef __ISAPNP__
-+#ifdef CONFIG_PNP
- 
--static int __init snd_sb16_isapnp_detect(struct isapnp_card *card,
--					 const struct isapnp_card_id *id)
-+static int __devinit snd_sb16_pnp_detect(struct pnp_card_link *card,
-+					 const struct pnp_card_id *id)
- {
- 	static int dev;
- 	int res;
-@@ -590,9 +568,7 @@
- 	for ( ; dev < SNDRV_CARDS; dev++) {
- 		if (!enable[dev] || !isapnp[dev])
- 			continue;
--		snd_sb16_isapnp_cards[dev] = card;
--		snd_sb16_isapnp_id[dev] = id;
--		res = snd_sb16_probe(dev);
-+		res = snd_sb16_probe(dev, card, id);
- 		if (res < 0)
- 			return res;
- 		dev++;
-@@ -602,7 +578,23 @@
- 	return -ENODEV;
- }
- 
--#endif /* __ISAPNP__ */
-+#endif
-+
-+static void __devexit snd_sb16_pnp_remove(struct pnp_card_link * pcard)
-+{
-+	snd_card_t *card = (snd_card_t *) pnp_get_card_drvdata(pcard);
-+
-+	snd_card_disconnect(card);
-+	snd_card_free_in_thread(card);
-+}
-+
-+static struct pnp_card_driver sb16_pnpc_driver = {
-+	.flags = PNP_DRIVER_RES_DISABLE,
-+	.name = "sb16",
-+	.id_table = snd_sb16_pnpids,
-+	.probe = snd_sb16_pnp_detect,
-+	.remove = __devexit_p(snd_sb16_pnp_remove),
-+};
- 
- static int __init alsa_card_sb16_init(void)
- {
-@@ -613,23 +605,23 @@
- 	for (dev = 0; dev < SNDRV_CARDS; dev++) {
- 		if (!enable[dev] || port[dev] == SNDRV_AUTO_PORT)
- 			continue;
--#ifdef __ISAPNP__
-+#ifdef CONFIG_PNP
- 		if (isapnp[dev])
- 			continue;
- #endif
--		if (!snd_sb16_probe(dev)) {
-+		if (!snd_sb16_probe(dev, NULL, NULL)) {
- 			cards++;
- 			continue;
- 		}
- #ifdef MODULE
- 		printk(KERN_ERR "Sound Blaster 16+ soundcard #%i not found at 0x%lx or device busy\n", dev, port[dev]);
--#endif			
-+#endif
- 	}
- 	/* legacy auto configured cards */
- 	cards += snd_legacy_auto_probe(possible_ports, snd_sb16_probe_legacy_port);
--#ifdef __ISAPNP__
--	/* ISA PnP cards at last */
--	cards += isapnp_probe_cards(snd_sb16_pnpids, snd_sb16_isapnp_detect);
-+#ifdef CONFIG_PNP
-+	/* PnP cards at last */
-+	cards += pnp_register_card_driver(&sb16_pnpc_driver);
- #endif
- 
- 	if (!cards) {
-@@ -650,8 +642,12 @@
- {
- 	int dev;
- 
-+#ifdef CONFIG_PNP
-+	/* PnP cards first */
-+	pnp_unregister_card_driver(&sb16_pnpc_driver);
-+#endif
- 	for (dev = 0; dev < SNDRV_CARDS; dev++)
--		snd_card_free(snd_sb16_cards[dev]);
-+		snd_card_free(snd_sb16_legacy[dev]);
- }
- 
- module_init(alsa_card_sb16_init)
-@@ -659,7 +655,7 @@
- 
- #ifndef MODULE
- 
--/* format is: snd-sb16=enable,index,id,isapnp,
-+/* format is: snd-sb16=enable,index,id,pnp,
- 		       port,mpu_port,fm_port,
- 		       irq,dma8,dma16,
- 		       mic_agc,csp,
-@@ -694,7 +690,7 @@
- 	       get_option(&str,&seq_ports[nr_dev]) == 2
- #endif
- 	       );
--#ifdef __ISAPNP__
-+#ifdef CONFIG_PNP
- 	if (pnp != INT_MAX)
- 		isapnp[nr_dev] = pnp;
- #endif
+
+
+
+# Automatically generated make config: don't edit
+#
+CONFIG_X86=y
+# CONFIG_SBUS is not set
+CONFIG_UID16=y
+
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+
+#
+# Processor type and features
+#
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+# CONFIG_M686 is not set
+CONFIG_MPENTIUMIII=y
+# CONFIG_MPENTIUM4 is not set
+# CONFIG_MK6 is not set
+# CONFIG_MK7 is not set
+# CONFIG_MK8 is not set
+# CONFIG_MELAN is not set
+# CONFIG_MCRUSOE is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+# CONFIG_MCYRIXIII is not set
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_HAS_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_F00F_WORKS_OK=y
+CONFIG_X86_MCE=y
+# CONFIG_TOSHIBA is not set
+# CONFIG_I8K is not set
+CONFIG_MICROCODE=y
+CONFIG_X86_MSR=y
+CONFIG_X86_CPUID=y
+# CONFIG_NOHIGHMEM is not set
+CONFIG_HIGHMEM4G=y
+# CONFIG_HIGHMEM64G is not set
+CONFIG_HIGHMEM=y
+CONFIG_HIGHIO=y
+CONFIG_MATH_EMULATION=y
+CONFIG_MTRR=y
+# CONFIG_SMP is not set
+# CONFIG_X86_UP_APIC is not set
+# CONFIG_X86_TSC_DISABLE is not set
+CONFIG_X86_TSC=y
+
+#
+# General setup
+#
+CONFIG_NET=y
+CONFIG_PCI=y
+# CONFIG_PCI_GOBIOS is not set
+# CONFIG_PCI_GODIRECT is not set
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_ISA=y
+CONFIG_PCI_NAMES=y
+CONFIG_EISA=y
+# CONFIG_MCA is not set
+CONFIG_HOTPLUG=y
+
+#
+# PCMCIA/CardBus support
+#
+CONFIG_PCMCIA=m
+# CONFIG_CARDBUS is not set
+# CONFIG_TCIC is not set
+# CONFIG_I82092 is not set
+# CONFIG_I82365 is not set
+
+#
+# PCI Hotplug Support
+#
+# CONFIG_HOTPLUG_PCI is not set
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+# CONFIG_KCORE_AOUT is not set
+CONFIG_BINFMT_AOUT=m
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+CONFIG_PM=y
+# CONFIG_ACPI is not set
+CONFIG_APM=y
+# CONFIG_APM_IGNORE_USER_SUSPEND is not set
+# CONFIG_APM_DO_ENABLE is not set
+CONFIG_APM_CPU_IDLE=y
+# CONFIG_APM_DISPLAY_BLANK is not set
+CONFIG_APM_RTC_IS_GMT=y
+# CONFIG_APM_ALLOW_INTS is not set
+# CONFIG_APM_REAL_MODE_POWER_OFF is not set
+
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
+
+#
+# Parallel port support
+#
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_SERIAL=m
+# CONFIG_PARPORT_PC_FIFO is not set
+# CONFIG_PARPORT_PC_SUPERIO is not set
+CONFIG_PARPORT_PC_PCMCIA=m
+# CONFIG_PARPORT_AMIGA is not set
+# CONFIG_PARPORT_MFC3 is not set
+# CONFIG_PARPORT_ATARI is not set
+# CONFIG_PARPORT_GSC is not set
+# CONFIG_PARPORT_SUNBPP is not set
+# CONFIG_PARPORT_OTHER is not set
+CONFIG_PARPORT_1284=y
+
+#
+# Plug and Play configuration
+#
+CONFIG_PNP=y
+CONFIG_ISAPNP=y
+
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_XD=m
+CONFIG_PARIDE=m
+CONFIG_PARIDE_PARPORT=m
+
+#
+# Parallel IDE high-level drivers
+#
+CONFIG_PARIDE_PD=m
+CONFIG_PARIDE_PCD=m
+CONFIG_PARIDE_PF=m
+CONFIG_PARIDE_PT=m
+CONFIG_PARIDE_PG=m
+
+#
+# Parallel IDE protocol modules
+#
+CONFIG_PARIDE_ATEN=m
+CONFIG_PARIDE_BPCK=m
+CONFIG_PARIDE_BPCK6=m
+CONFIG_PARIDE_COMM=m
+CONFIG_PARIDE_DSTR=m
+CONFIG_PARIDE_FIT2=m
+CONFIG_PARIDE_FIT3=m
+CONFIG_PARIDE_EPAT=m
+# CONFIG_PARIDE_EPATC8 is not set
+CONFIG_PARIDE_EPIA=m
+CONFIG_PARIDE_FRIQ=m
+CONFIG_PARIDE_FRPW=m
+CONFIG_PARIDE_KBIC=m
+CONFIG_PARIDE_KTTI=m
+CONFIG_PARIDE_ON20=m
+CONFIG_PARIDE_ON26=m
+CONFIG_BLK_CPQ_DA=m
+CONFIG_BLK_CPQ_CISS_DA=m
+CONFIG_CISS_SCSI_TAPE=y
+CONFIG_BLK_DEV_DAC960=m
+# CONFIG_BLK_DEV_UMEM is not set
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_NBD=m
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_BLK_DEV_INITRD=y
+# CONFIG_BLK_STATS is not set
+
+#
+# Multi-device support (RAID and LVM)
+#
+# CONFIG_MD is not set
+
+#
+# Networking options
+#
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_NETLINK_DEV=y
+CONFIG_NETFILTER=y
+# CONFIG_NETFILTER_DEBUG is not set
+CONFIG_FILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_IP_MULTIPLE_TABLES=y
+CONFIG_IP_ROUTE_FWMARK=y
+CONFIG_IP_ROUTE_NAT=y
+CONFIG_IP_ROUTE_MULTIPATH=y
+CONFIG_IP_ROUTE_TOS=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_IP_ROUTE_LARGE_TABLES=y
+# CONFIG_IP_PNP is not set
+CONFIG_NET_IPIP=m
+CONFIG_NET_IPGRE=m
+CONFIG_NET_IPGRE_BROADCAST=y
+CONFIG_IP_MROUTE=y
+CONFIG_IP_PIMSM_V1=y
+CONFIG_IP_PIMSM_V2=y
+# CONFIG_ARPD is not set
+# CONFIG_INET_ECN is not set
+CONFIG_SYN_COOKIES=y
+
+#
+#   IP: Netfilter Configuration
+#
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IRC=m
+CONFIG_IP_NF_QUEUE=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_MAC=m
+# CONFIG_IP_NF_MATCH_PKTTYPE is not set
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+# CONFIG_IP_NF_MATCH_ECN is not set
+# CONFIG_IP_NF_MATCH_DSCP is not set
+CONFIG_IP_NF_MATCH_AH_ESP=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+# CONFIG_IP_NF_MATCH_HELPER is not set
+CONFIG_IP_NF_MATCH_STATE=m
+# CONFIG_IP_NF_MATCH_CONNTRACK is not set
+CONFIG_IP_NF_MATCH_UNCLEAN=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_MIRROR=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_NAT_LOCAL=m
+CONFIG_IP_NF_NAT_SNMP_BASIC=m
+CONFIG_IP_NF_NAT_IRC=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+# CONFIG_IP_NF_TARGET_ECN is not set
+# CONFIG_IP_NF_TARGET_DSCP is not set
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_ULOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IP_NF_ARPTABLES=m
+CONFIG_IP_NF_ARPFILTER=m
+CONFIG_IP_NF_COMPAT_IPCHAINS=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_COMPAT_IPFWADM=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IPV6=m
+
+#
+#   IPv6: Netfilter Configuration
+#
+# CONFIG_IP6_NF_QUEUE is not set
+CONFIG_IP6_NF_IPTABLES=m
+CONFIG_IP6_NF_MATCH_LIMIT=m
+CONFIG_IP6_NF_MATCH_MAC=m
+CONFIG_IP6_NF_MATCH_MULTIPORT=m
+CONFIG_IP6_NF_MATCH_OWNER=m
+CONFIG_IP6_NF_MATCH_MARK=m
+# CONFIG_IP6_NF_MATCH_LENGTH is not set
+# CONFIG_IP6_NF_MATCH_EUI64 is not set
+CONFIG_IP6_NF_FILTER=m
+CONFIG_IP6_NF_TARGET_LOG=m
+CONFIG_IP6_NF_MANGLE=m
+CONFIG_IP6_NF_TARGET_MARK=m
+# CONFIG_KHTTPD is not set
+CONFIG_ATM=y
+CONFIG_ATM_CLIP=y
+# CONFIG_ATM_CLIP_NO_ICMP is not set
+CONFIG_ATM_LANE=m
+CONFIG_ATM_MPOA=m
+CONFIG_ATM_BR2684=m
+CONFIG_ATM_BR2684_IPFILTER=y
+CONFIG_VLAN_8021Q=m
+
+#
+#  
+#
+CONFIG_IPX=m
+# CONFIG_IPX_INTERN is not set
+CONFIG_ATALK=m
+
+#
+# Appletalk devices
+#
+# CONFIG_DEV_APPLETALK is not set
+CONFIG_DECNET=m
+CONFIG_DECNET_SIOCGIFCONF=y
+CONFIG_DECNET_ROUTER=y
+CONFIG_DECNET_ROUTE_FWMARK=y
+CONFIG_BRIDGE=m
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_LLC is not set
+CONFIG_NET_DIVERT=y
+# CONFIG_ECONET is not set
+CONFIG_WAN_ROUTER=m
+# CONFIG_NET_FASTROUTE is not set
+# CONFIG_NET_HW_FLOWCONTROL is not set
+
+#
+# QoS and/or fair queueing
+#
+# CONFIG_NET_SCHED is not set
+
+#
+# Network testing
+#
+# CONFIG_NET_PKTGEN is not set
+
+#
+# Telephony Support
+#
+# CONFIG_PHONE is not set
+
+#
+# ATA/IDE/MFM/RLL support
+#
+CONFIG_IDE=y
+
+#
+# IDE, ATA and ATAPI Block devices
+#
+CONFIG_BLK_DEV_IDE=y
+
+#
+# Please see Documentation/ide.txt for help/info on IDE drives
+#
+# CONFIG_BLK_DEV_HD_IDE is not set
+# CONFIG_BLK_DEV_HD is not set
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+# CONFIG_IDEDISK_STROKE is not set
+CONFIG_BLK_DEV_IDECS=m
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDETAPE=m
+CONFIG_BLK_DEV_IDEFLOPPY=y
+CONFIG_BLK_DEV_IDESCSI=m
+# CONFIG_IDE_TASK_IOCTL is not set
+
+#
+# IDE chipset support/bugfixes
+#
+CONFIG_BLK_DEV_CMD640=y
+# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
+CONFIG_BLK_DEV_ISAPNP=y
+CONFIG_BLK_DEV_IDEPCI=y
+# CONFIG_BLK_DEV_GENERIC is not set
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+# CONFIG_BLK_DEV_OFFBOARD is not set
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+CONFIG_IDEDMA_PCI_AUTO=y
+# CONFIG_IDEDMA_ONLYDISK is not set
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_PCI_WIP is not set
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_AEC62XX=y
+CONFIG_BLK_DEV_ALI15X3=y
+# CONFIG_WDC_ALI15X3 is not set
+CONFIG_BLK_DEV_AMD74XX=y
+# CONFIG_AMD74XX_OVERRIDE is not set
+CONFIG_BLK_DEV_CMD64X=y
+# CONFIG_BLK_DEV_TRIFLEX is not set
+CONFIG_BLK_DEV_CY82C693=y
+CONFIG_BLK_DEV_CS5530=y
+CONFIG_BLK_DEV_HPT34X=y
+CONFIG_BLK_DEV_HPT366=y
+CONFIG_BLK_DEV_PIIX=y
+# CONFIG_BLK_DEV_NFORCE is not set
+# CONFIG_BLK_DEV_NS87415 is not set
+# CONFIG_BLK_DEV_OPTI621 is not set
+# CONFIG_BLK_DEV_PDC202XX_OLD is not set
+# CONFIG_BLK_DEV_PDC202XX_NEW is not set
+CONFIG_BLK_DEV_RZ1000=y
+# CONFIG_BLK_DEV_SC1200 is not set
+CONFIG_BLK_DEV_SVWKS=y
+# CONFIG_BLK_DEV_SIIMAGE is not set
+CONFIG_BLK_DEV_SIS5513=y
+CONFIG_BLK_DEV_SLC90E66=y
+# CONFIG_BLK_DEV_TRM290 is not set
+CONFIG_BLK_DEV_VIA82CXXX=y
+# CONFIG_IDE_CHIPSETS is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_IDEDMA_IVB is not set
+# CONFIG_DMA_NONPCI is not set
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_BLK_DEV_ATARAID=m
+CONFIG_BLK_DEV_ATARAID_PDC=m
+CONFIG_BLK_DEV_ATARAID_HPT=m
+# CONFIG_BLK_DEV_ATARAID_SII is not set
+
+#
+# SCSI support
+#
+CONFIG_SCSI=m
+
+#
+# SCSI support type (disk, tape, CD-ROM)
+#
+CONFIG_BLK_DEV_SD=m
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_CHR_DEV_ST=m
+CONFIG_CHR_DEV_OSST=m
+CONFIG_BLK_DEV_SR=m
+CONFIG_BLK_DEV_SR_VENDOR=y
+CONFIG_SR_EXTRA_DEVS=4
+CONFIG_CHR_DEV_SG=m
+
+#
+# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
+#
+# CONFIG_SCSI_DEBUG_QUEUES is not set
+# CONFIG_SCSI_MULTI_LUN is not set
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+
+#
+# SCSI low-level drivers
+#
+CONFIG_BLK_DEV_3W_XXXX_RAID=m
+CONFIG_SCSI_7000FASST=m
+CONFIG_SCSI_ACARD=m
+CONFIG_SCSI_AHA152X=m
+CONFIG_SCSI_AHA1542=m
+CONFIG_SCSI_AHA1740=m
+CONFIG_SCSI_AACRAID=m
+CONFIG_SCSI_AIC7XXX=m
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
+CONFIG_AIC7XXX_RESET_DELAY_MS=15000
+# CONFIG_AIC7XXX_PROBE_EISA_VL is not set
+# CONFIG_AIC7XXX_BUILD_FIRMWARE is not set
+CONFIG_SCSI_AIC7XXX_OLD=m
+CONFIG_AIC7XXX_OLD_TCQ_ON_BY_DEFAULT=y
+CONFIG_AIC7XXX_OLD_CMDS_PER_DEVICE=32
+CONFIG_AIC7XXX_OLD_PROC_STATS=y
+CONFIG_SCSI_DPT_I2O=m
+CONFIG_SCSI_ADVANSYS=m
+CONFIG_SCSI_IN2000=m
+CONFIG_SCSI_AM53C974=m
+CONFIG_SCSI_MEGARAID=m
+CONFIG_SCSI_BUSLOGIC=m
+# CONFIG_SCSI_OMIT_FLASHPOINT is not set
+CONFIG_SCSI_CPQFCTS=m
+CONFIG_SCSI_DMX3191D=m
+CONFIG_SCSI_DTC3280=m
+CONFIG_SCSI_EATA=m
+CONFIG_SCSI_EATA_TAGGED_QUEUE=y
+# CONFIG_SCSI_EATA_LINKED_COMMANDS is not set
+CONFIG_SCSI_EATA_MAX_TAGS=16
+CONFIG_SCSI_EATA_DMA=m
+CONFIG_SCSI_EATA_PIO=m
+CONFIG_SCSI_FUTURE_DOMAIN=m
+CONFIG_SCSI_GDTH=m
+CONFIG_SCSI_GENERIC_NCR5380=m
+# CONFIG_SCSI_GENERIC_NCR53C400 is not set
+CONFIG_SCSI_G_NCR5380_PORT=y
+# CONFIG_SCSI_G_NCR5380_MEM is not set
+CONFIG_SCSI_IPS=m
+CONFIG_SCSI_INITIO=m
+CONFIG_SCSI_INIA100=m
+CONFIG_SCSI_PPA=m
+CONFIG_SCSI_IMM=m
+# CONFIG_SCSI_IZIP_EPP16 is not set
+# CONFIG_SCSI_IZIP_SLOW_CTR is not set
+CONFIG_SCSI_NCR53C406A=m
+CONFIG_SCSI_NCR53C7xx=m
+# CONFIG_SCSI_NCR53C7xx_sync is not set
+CONFIG_SCSI_NCR53C7xx_FAST=y
+CONFIG_SCSI_NCR53C7xx_DISCONNECT=y
+CONFIG_SCSI_SYM53C8XX_2=m
+CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=1
+CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
+CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
+# CONFIG_SCSI_SYM53C8XX_IOMAPPED is not set
+CONFIG_SCSI_NCR53C8XX=m
+CONFIG_SCSI_SYM53C8XX=m
+CONFIG_SCSI_NCR53C8XX_DEFAULT_TAGS=8
+CONFIG_SCSI_NCR53C8XX_MAX_TAGS=32
+CONFIG_SCSI_NCR53C8XX_SYNC=40
+# CONFIG_SCSI_NCR53C8XX_PROFILE is not set
+# CONFIG_SCSI_NCR53C8XX_IOMAPPED is not set
+# CONFIG_SCSI_NCR53C8XX_PQS_PDS is not set
+# CONFIG_SCSI_NCR53C8XX_SYMBIOS_COMPAT is not set
+CONFIG_SCSI_PAS16=m
+CONFIG_SCSI_PCI2000=m
+CONFIG_SCSI_PCI2220I=m
+CONFIG_SCSI_PSI240I=m
+CONFIG_SCSI_QLOGIC_FAS=m
+CONFIG_SCSI_QLOGIC_ISP=m
+CONFIG_SCSI_QLOGIC_FC=m
+# CONFIG_SCSI_QLOGIC_FC_FIRMWARE is not set
+CONFIG_SCSI_QLOGIC_1280=m
+CONFIG_SCSI_SEAGATE=m
+CONFIG_SCSI_SIM710=m
+CONFIG_SCSI_SYM53C416=m
+CONFIG_SCSI_DC390T=m
+# CONFIG_SCSI_DC390T_NOGENSUPP is not set
+CONFIG_SCSI_T128=m
+CONFIG_SCSI_U14_34F=m
+# CONFIG_SCSI_U14_34F_LINKED_COMMANDS is not set
+CONFIG_SCSI_U14_34F_MAX_TAGS=8
+CONFIG_SCSI_ULTRASTOR=m
+# CONFIG_SCSI_NSP32 is not set
+CONFIG_SCSI_DEBUG=m
+
+#
+# PCMCIA SCSI adapter support
+#
+CONFIG_SCSI_PCMCIA=y
+CONFIG_PCMCIA_AHA152X=m
+CONFIG_PCMCIA_FDOMAIN=m
+CONFIG_PCMCIA_NINJA_SCSI=m
+CONFIG_PCMCIA_QLOGIC=m
+
+#
+# Fusion MPT device support
+#
+CONFIG_FUSION=m
+# CONFIG_FUSION_BOOT is not set
+CONFIG_FUSION_MAX_SGE=40
+# CONFIG_FUSION_ISENSE is not set
+CONFIG_FUSION_CTL=m
+CONFIG_FUSION_LAN=m
+CONFIG_NET_FC=y
+
+#
+# IEEE 1394 (FireWire) support (EXPERIMENTAL)
+#
+# CONFIG_IEEE1394 is not set
+
+#
+# I2O device support
+#
+CONFIG_I2O=m
+CONFIG_I2O_PCI=m
+CONFIG_I2O_BLOCK=m
+CONFIG_I2O_LAN=m
+CONFIG_I2O_SCSI=m
+CONFIG_I2O_PROC=m
+
+#
+# Network device support
+#
+CONFIG_NETDEVICES=y
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+CONFIG_DUMMY=m
+CONFIG_BONDING=m
+CONFIG_EQUALIZER=m
+CONFIG_TUN=m
+CONFIG_ETHERTAP=m
+CONFIG_NET_SB1000=m
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+CONFIG_HAPPYMEAL=m
+CONFIG_SUNGEM=m
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_EL1=m
+CONFIG_EL2=m
+CONFIG_ELPLUS=m
+CONFIG_EL16=m
+CONFIG_EL3=m
+CONFIG_3C515=m
+CONFIG_VORTEX=m
+# CONFIG_TYPHOON is not set
+CONFIG_LANCE=m
+CONFIG_NET_VENDOR_SMC=y
+CONFIG_WD80x3=m
+CONFIG_ULTRA=m
+CONFIG_ULTRA32=m
+CONFIG_SMC9194=m
+CONFIG_NET_VENDOR_RACAL=y
+CONFIG_NI5010=m
+CONFIG_NI52=m
+CONFIG_NI65=m
+CONFIG_AT1700=m
+CONFIG_DEPCA=m
+CONFIG_HP100=m
+CONFIG_NET_ISA=y
+CONFIG_E2100=m
+CONFIG_EWRK3=m
+CONFIG_EEXPRESS=m
+CONFIG_EEXPRESS_PRO=m
+CONFIG_HPLAN_PLUS=m
+CONFIG_HPLAN=m
+CONFIG_LP486E=m
+CONFIG_ETH16I=m
+CONFIG_NE2000=m
+CONFIG_NET_PCI=y
+CONFIG_PCNET32=m
+# CONFIG_AMD8111_ETH is not set
+CONFIG_ADAPTEC_STARFIRE=m
+CONFIG_AC3200=m
+CONFIG_APRICOT=m
+CONFIG_CS89x0=m
+CONFIG_TULIP=m
+# CONFIG_TULIP_MWI is not set
+CONFIG_TULIP_MMIO=m
+CONFIG_DE4X5=m
+CONFIG_DGRS=m
+CONFIG_DM9102=m
+CONFIG_EEPRO100=m
+# CONFIG_E100 is not set
+CONFIG_LNE390=m
+CONFIG_FEALNX=m
+CONFIG_NATSEMI=m
+CONFIG_NE2K_PCI=m
+CONFIG_NE3210=m
+CONFIG_ES3210=m
+CONFIG_8139CP=m
+CONFIG_8139TOO=m
+# CONFIG_8139TOO_PIO is not set
+# CONFIG_8139TOO_TUNE_TWISTER is not set
+CONFIG_8139TOO_8129=y
+# CONFIG_8139_OLD_RX_RESET is not set
+CONFIG_SIS900=m
+CONFIG_EPIC100=m
+CONFIG_SUNDANCE=m
+# CONFIG_SUNDANCE_MMIO is not set
+CONFIG_TLAN=m
+CONFIG_TC35815=m
+CONFIG_VIA_RHINE=m
+# CONFIG_VIA_RHINE_MMIO is not set
+CONFIG_WINBOND_840=m
+CONFIG_NET_POCKET=y
+CONFIG_ATP=m
+CONFIG_DE600=m
+CONFIG_DE620=m
+
+#
+# Ethernet (1000 Mbit)
+#
+CONFIG_ACENIC=m
+# CONFIG_ACENIC_OMIT_TIGON_I is not set
+CONFIG_DL2K=m
+# CONFIG_E1000 is not set
+CONFIG_NS83820=m
+CONFIG_HAMACHI=m
+CONFIG_YELLOWFIN=m
+# CONFIG_R8169 is not set
+CONFIG_SK98LIN=m
+CONFIG_TIGON3=m
+CONFIG_FDDI=y
+CONFIG_DEFXX=m
+CONFIG_SKFP=m
+# CONFIG_HIPPI is not set
+CONFIG_PLIP=m
+CONFIG_PPP=m
+CONFIG_PPP_MULTILINK=y
+CONFIG_PPP_FILTER=y
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_SYNC_TTY=m
+CONFIG_PPP_DEFLATE=m
+# CONFIG_PPP_BSDCOMP is not set
+# CONFIG_PPPOE is not set
+CONFIG_PPPOATM=m
+CONFIG_SLIP=m
+CONFIG_SLIP_COMPRESSED=y
+CONFIG_SLIP_SMART=y
+CONFIG_SLIP_MODE_SLIP6=y
+
+#
+# Wireless LAN (non-hamradio)
+#
+# CONFIG_NET_RADIO is not set
+
+#
+# Token Ring devices
+#
+# CONFIG_TR is not set
+CONFIG_NET_FC=y
+CONFIG_IPHASE5526=m
+CONFIG_RCPCI=m
+CONFIG_SHAPER=m
+
+#
+# Wan interfaces
+#
+# CONFIG_WAN is not set
+
+#
+# PCMCIA network device support
+#
+CONFIG_NET_PCMCIA=y
+CONFIG_PCMCIA_3C589=m
+CONFIG_PCMCIA_3C574=m
+CONFIG_PCMCIA_FMVJ18X=m
+CONFIG_PCMCIA_PCNET=m
+CONFIG_PCMCIA_AXNET=m
+CONFIG_PCMCIA_NMCLAN=m
+CONFIG_PCMCIA_SMC91C92=m
+CONFIG_PCMCIA_XIRC2PS=m
+CONFIG_NET_PCMCIA_RADIO=y
+CONFIG_PCMCIA_RAYCS=m
+CONFIG_PCMCIA_NETWAVE=m
+CONFIG_PCMCIA_WAVELAN=m
+
+#
+# ATM drivers
+#
+# CONFIG_ATM_TCP is not set
+# CONFIG_ATM_LANAI is not set
+# CONFIG_ATM_ENI is not set
+CONFIG_ATM_FIRESTREAM=m
+CONFIG_ATM_ZATM=m
+# CONFIG_ATM_ZATM_DEBUG is not set
+CONFIG_ATM_ZATM_EXACT_TS=y
+CONFIG_ATM_NICSTAR=m
+CONFIG_ATM_NICSTAR_USE_SUNI=y
+CONFIG_ATM_NICSTAR_USE_IDT77105=y
+CONFIG_ATM_IDT77252=m
+# CONFIG_ATM_IDT77252_DEBUG is not set
+# CONFIG_ATM_IDT77252_RCV_ALL is not set
+CONFIG_ATM_IDT77252_USE_SUNI=y
+CONFIG_ATM_AMBASSADOR=m
+# CONFIG_ATM_AMBASSADOR_DEBUG is not set
+CONFIG_ATM_HORIZON=m
+# CONFIG_ATM_HORIZON_DEBUG is not set
+CONFIG_ATM_IA=m
+# CONFIG_ATM_IA_DEBUG is not set
+CONFIG_ATM_FORE200E_MAYBE=m
+CONFIG_ATM_FORE200E_PCA=y
+CONFIG_ATM_FORE200E_PCA_DEFAULT_FW=y
+CONFIG_ATM_FORE200E_TX_RETRY=16
+CONFIG_ATM_FORE200E_DEBUG=0
+CONFIG_ATM_FORE200E=m
+
+#
+# Amateur Radio support
+#
+# CONFIG_HAMRADIO is not set
+
+#
+# IrDA (infrared) support
+#
+# CONFIG_IRDA is not set
+
+#
+# ISDN subsystem
+#
+# CONFIG_ISDN is not set
+
+#
+# Old CD-ROM drivers (not SCSI, not IDE)
+#
+# CONFIG_CD_NO_IDESCSI is not set
+
+#
+# Input core support
+#
+CONFIG_INPUT=m
+CONFIG_INPUT_KEYBDEV=m
+CONFIG_INPUT_MOUSEDEV=m
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_JOYDEV=m
+CONFIG_INPUT_EVDEV=m
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+CONFIG_SERIAL_CONSOLE=y
+CONFIG_SERIAL_EXTENDED=y
+CONFIG_SERIAL_MANY_PORTS=y
+CONFIG_SERIAL_SHARE_IRQ=y
+# CONFIG_SERIAL_DETECT_IRQ is not set
+CONFIG_SERIAL_MULTIPORT=y
+# CONFIG_HUB6 is not set
+CONFIG_SERIAL_NONSTANDARD=y
+CONFIG_COMPUTONE=m
+CONFIG_ROCKETPORT=m
+CONFIG_CYCLADES=m
+# CONFIG_CYZ_INTR is not set
+CONFIG_DIGIEPCA=m
+CONFIG_ESPSERIAL=m
+CONFIG_MOXA_INTELLIO=m
+CONFIG_MOXA_SMARTIO=m
+CONFIG_ISI=m
+CONFIG_SYNCLINK=m
+# CONFIG_SYNCLINKMP is not set
+CONFIG_N_HDLC=m
+CONFIG_RISCOM8=m
+CONFIG_SPECIALIX=m
+CONFIG_SPECIALIX_RTSCTS=y
+CONFIG_SX=m
+# CONFIG_RIO is not set
+CONFIG_STALDRV=y
+CONFIG_STALLION=m
+CONFIG_ISTALLION=m
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=2048
+CONFIG_PRINTER=m
+CONFIG_LP_CONSOLE=y
+CONFIG_PPDEV=m
+# CONFIG_TIPAR is not set
+# CONFIG_HVC_CONSOLE is not set
+
+#
+# I2C support
+#
+CONFIG_I2C=m
+CONFIG_I2C_ALGOBIT=m
+CONFIG_I2C_PHILIPSPAR=m
+CONFIG_I2C_ELV=m
+CONFIG_I2C_VELLEMAN=m
+# CONFIG_SCx200_I2C is not set
+# CONFIG_SCx200_ACB is not set
+CONFIG_I2C_ALGOPCF=m
+CONFIG_I2C_ELEKTOR=m
+CONFIG_I2C_CHARDEV=m
+CONFIG_I2C_PROC=m
+
+#
+# Mice
+#
+CONFIG_BUSMOUSE=m
+CONFIG_ATIXL_BUSMOUSE=m
+CONFIG_LOGIBUSMOUSE=m
+CONFIG_MS_BUSMOUSE=m
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+CONFIG_82C710_MOUSE=m
+CONFIG_PC110_PAD=m
+CONFIG_MK712_MOUSE=m
+
+#
+# Joysticks
+#
+CONFIG_INPUT_GAMEPORT=m
+CONFIG_INPUT_NS558=m
+CONFIG_INPUT_LIGHTNING=m
+CONFIG_INPUT_PCIGAME=m
+CONFIG_INPUT_CS461X=m
+CONFIG_INPUT_EMU10K1=m
+CONFIG_INPUT_SERIO=m
+CONFIG_INPUT_SERPORT=m
+
+#
+# Joysticks
+#
+CONFIG_INPUT_ANALOG=m
+CONFIG_INPUT_A3D=m
+CONFIG_INPUT_ADI=m
+CONFIG_INPUT_COBRA=m
+CONFIG_INPUT_GF2K=m
+CONFIG_INPUT_GRIP=m
+CONFIG_INPUT_INTERACT=m
+CONFIG_INPUT_TMDC=m
+CONFIG_INPUT_SIDEWINDER=m
+CONFIG_INPUT_IFORCE_USB=m
+CONFIG_INPUT_IFORCE_232=m
+CONFIG_INPUT_WARRIOR=m
+CONFIG_INPUT_MAGELLAN=m
+CONFIG_INPUT_SPACEORB=m
+CONFIG_INPUT_SPACEBALL=m
+CONFIG_INPUT_STINGER=m
+CONFIG_INPUT_DB9=m
+CONFIG_INPUT_GAMECON=m
+CONFIG_INPUT_TURBOGRAFX=m
+# CONFIG_QIC02_TAPE is not set
+# CONFIG_IPMI_HANDLER is not set
+
+#
+# Watchdog Cards
+#
+CONFIG_WATCHDOG=y
+# CONFIG_WATCHDOG_NOWAYOUT is not set
+CONFIG_ACQUIRE_WDT=m
+CONFIG_ADVANTECH_WDT=m
+CONFIG_ALIM7101_WDT=m
+CONFIG_SC520_WDT=m
+CONFIG_PCWATCHDOG=m
+CONFIG_EUROTECH_WDT=m
+CONFIG_IB700_WDT=m
+CONFIG_WAFER_WDT=m
+CONFIG_I810_TCO=m
+# CONFIG_MIXCOMWD is not set
+# CONFIG_60XX_WDT is not set
+CONFIG_SC1200_WDT=m
+# CONFIG_SCx200_WDT is not set
+CONFIG_SOFT_WATCHDOG=m
+CONFIG_W83877F_WDT=m
+CONFIG_WDT=m
+CONFIG_WDTPCI=m
+# CONFIG_WDT_501 is not set
+CONFIG_MACHZ_WDT=m
+CONFIG_AMD7XX_TCO=m
+# CONFIG_SCx200_GPIO is not set
+CONFIG_AMD_RNG=m
+CONFIG_INTEL_RNG=m
+CONFIG_AMD_PM768=m
+CONFIG_NVRAM=m
+CONFIG_RTC=y
+CONFIG_DTLK=m
+CONFIG_R3964=m
+# CONFIG_APPLICOM is not set
+CONFIG_SONYPI=m
+
+#
+# Ftape, the floppy tape device driver
+#
+CONFIG_FTAPE=m
+CONFIG_ZFTAPE=m
+CONFIG_ZFT_DFLT_BLK_SZ=10240
+
+#
+#   The compressor will be built as a module only!
+#
+CONFIG_ZFT_COMPRESSOR=m
+CONFIG_FT_NR_BUFFERS=3
+# CONFIG_FT_PROC_FS is not set
+CONFIG_FT_NORMAL_DEBUG=y
+# CONFIG_FT_FULL_DEBUG is not set
+# CONFIG_FT_NO_TRACE is not set
+# CONFIG_FT_NO_TRACE_AT_ALL is not set
+
+#
+# Hardware configuration
+#
+CONFIG_FT_STD_FDC=y
+# CONFIG_FT_MACH2 is not set
+# CONFIG_FT_PROBE_FC10 is not set
+# CONFIG_FT_ALT_FDC is not set
+CONFIG_FT_FDC_THR=8
+CONFIG_FT_FDC_MAX_RATE=2000
+CONFIG_FT_ALPHA_CLOCK=0
+CONFIG_AGP=m
+CONFIG_AGP_INTEL=y
+CONFIG_AGP_I810=y
+CONFIG_AGP_VIA=y
+CONFIG_AGP_AMD=y
+# CONFIG_AGP_AMD_8151 is not set
+CONFIG_AGP_SIS=y
+CONFIG_AGP_ALI=y
+CONFIG_AGP_SWORKS=y
+CONFIG_DRM=y
+# CONFIG_DRM_OLD is not set
+
+#
+# DRM 4.1 drivers
+#
+CONFIG_DRM_NEW=y
+CONFIG_DRM_TDFX=m
+CONFIG_DRM_R128=m
+CONFIG_DRM_RADEON=m
+CONFIG_DRM_I810=m
+CONFIG_DRM_I810_XFREE_41=y
+CONFIG_DRM_I830=m
+CONFIG_DRM_MGA=m
+CONFIG_DRM_SIS=m
+
+#
+# PCMCIA character devices
+#
+CONFIG_PCMCIA_SERIAL_CS=m
+CONFIG_SYNCLINK_CS=m
+CONFIG_MWAVE=m
+
+#
+# Multimedia devices
+#
+CONFIG_VIDEO_DEV=m
+
+#
+# Video For Linux
+#
+CONFIG_VIDEO_PROC_FS=y
+CONFIG_I2C_PARPORT=m
+
+#
+# Video Adapters
+#
+CONFIG_VIDEO_BT848=m
+CONFIG_VIDEO_PMS=m
+CONFIG_VIDEO_BWQCAM=m
+CONFIG_VIDEO_CQCAM=m
+CONFIG_VIDEO_W9966=m
+CONFIG_VIDEO_CPIA=m
+CONFIG_VIDEO_CPIA_PP=m
+CONFIG_VIDEO_CPIA_USB=m
+CONFIG_VIDEO_SAA5249=m
+CONFIG_TUNER_3036=m
+CONFIG_VIDEO_STRADIS=m
+CONFIG_VIDEO_ZORAN=m
+CONFIG_VIDEO_ZORAN_BUZ=m
+CONFIG_VIDEO_ZORAN_DC10=m
+CONFIG_VIDEO_ZORAN_LML33=m
+CONFIG_VIDEO_ZR36120=m
+CONFIG_VIDEO_MEYE=m
+
+#
+# Radio Adapters
+#
+# CONFIG_RADIO_CADET is not set
+# CONFIG_RADIO_RTRACK is not set
+# CONFIG_RADIO_RTRACK2 is not set
+# CONFIG_RADIO_AZTECH is not set
+# CONFIG_RADIO_GEMTEK is not set
+# CONFIG_RADIO_GEMTEK_PCI is not set
+# CONFIG_RADIO_MAXIRADIO is not set
+# CONFIG_RADIO_MAESTRO is not set
+# CONFIG_RADIO_MIROPCM20 is not set
+# CONFIG_RADIO_SF16FMI is not set
+# CONFIG_RADIO_SF16FMR2 is not set
+# CONFIG_RADIO_TERRATEC is not set
+# CONFIG_RADIO_TRUST is not set
+# CONFIG_RADIO_TYPHOON is not set
+# CONFIG_RADIO_ZOLTRIX is not set
+
+#
+# File systems
+#
+CONFIG_QUOTA=y
+CONFIG_AUTOFS_FS=m
+CONFIG_AUTOFS4_FS=m
+CONFIG_REISERFS_FS=m
+# CONFIG_REISERFS_CHECK is not set
+CONFIG_REISERFS_PROC_INFO=y
+# CONFIG_ADFS_FS is not set
+# CONFIG_AFFS_FS is not set
+CONFIG_HFS_FS=m
+CONFIG_BEFS_FS=m
+# CONFIG_BEFS_DEBUG is not set
+CONFIG_BFS_FS=m
+CONFIG_EXT3_FS=m
+CONFIG_JBD=m
+# CONFIG_JBD_DEBUG is not set
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_UMSDOS_FS=m
+CONFIG_VFAT_FS=m
+# CONFIG_EFS_FS is not set
+CONFIG_CRAMFS=m
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_JFS_FS=m
+CONFIG_JFS_DEBUG=y
+# CONFIG_JFS_STATISTICS is not set
+CONFIG_MINIX_FS=m
+CONFIG_VXFS_FS=m
+CONFIG_NTFS_FS=m
+# CONFIG_NTFS_RW is not set
+# CONFIG_HPFS_FS is not set
+CONFIG_PROC_FS=y
+# CONFIG_DEVFS_FS is not set
+CONFIG_DEVPTS_FS=y
+# CONFIG_QNX4FS_FS is not set
+CONFIG_ROMFS_FS=m
+CONFIG_EXT2_FS=y
+CONFIG_SYSV_FS=m
+CONFIG_UDF_FS=m
+CONFIG_UDF_RW=y
+CONFIG_UFS_FS=m
+# CONFIG_UFS_FS_WRITE is not set
+
+#
+# Network File Systems
+#
+CONFIG_CODA_FS=m
+CONFIG_INTERMEZZO_FS=m
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+CONFIG_NFSD=m
+CONFIG_NFSD_V3=y
+# CONFIG_NFSD_TCP is not set
+CONFIG_SUNRPC=m
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_SMB_FS=m
+# CONFIG_SMB_NLS_DEFAULT is not set
+CONFIG_NCP_FS=m
+CONFIG_NCPFS_PACKET_SIGNING=y
+CONFIG_NCPFS_IOCTL_LOCKING=y
+CONFIG_NCPFS_STRONG=y
+CONFIG_NCPFS_NFS_NS=y
+CONFIG_NCPFS_OS2_NS=y
+CONFIG_NCPFS_SMALLDOS=y
+CONFIG_NCPFS_NLS=y
+CONFIG_NCPFS_EXTRAS=y
+CONFIG_ZISOFS_FS=y
+
+#
+# Partition Types
+#
+CONFIG_PARTITION_ADVANCED=y
+# CONFIG_ACORN_PARTITION is not set
+CONFIG_OSF_PARTITION=y
+# CONFIG_AMIGA_PARTITION is not set
+# CONFIG_ATARI_PARTITION is not set
+CONFIG_MAC_PARTITION=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_BSD_DISKLABEL=y
+CONFIG_MINIX_SUBPARTITION=y
+CONFIG_SOLARIS_X86_PARTITION=y
+CONFIG_UNIXWARE_DISKLABEL=y
+# CONFIG_LDM_PARTITION is not set
+CONFIG_SGI_PARTITION=y
+# CONFIG_ULTRIX_PARTITION is not set
+CONFIG_SUN_PARTITION=y
+# CONFIG_EFI_PARTITION is not set
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+
+#
+# Native Language Support
+#
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_CODEPAGE_737=m
+CONFIG_NLS_CODEPAGE_775=m
+CONFIG_NLS_CODEPAGE_850=m
+CONFIG_NLS_CODEPAGE_852=m
+CONFIG_NLS_CODEPAGE_855=m
+CONFIG_NLS_CODEPAGE_857=m
+CONFIG_NLS_CODEPAGE_860=m
+CONFIG_NLS_CODEPAGE_861=m
+CONFIG_NLS_CODEPAGE_862=m
+CONFIG_NLS_CODEPAGE_863=m
+CONFIG_NLS_CODEPAGE_864=m
+CONFIG_NLS_CODEPAGE_865=m
+CONFIG_NLS_CODEPAGE_866=m
+CONFIG_NLS_CODEPAGE_869=m
+CONFIG_NLS_CODEPAGE_936=m
+CONFIG_NLS_CODEPAGE_950=m
+CONFIG_NLS_CODEPAGE_932=m
+CONFIG_NLS_CODEPAGE_949=m
+CONFIG_NLS_CODEPAGE_874=m
+CONFIG_NLS_ISO8859_8=m
+CONFIG_NLS_CODEPAGE_1250=m
+CONFIG_NLS_CODEPAGE_1251=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_NLS_ISO8859_2=m
+CONFIG_NLS_ISO8859_3=m
+CONFIG_NLS_ISO8859_4=m
+CONFIG_NLS_ISO8859_5=m
+CONFIG_NLS_ISO8859_6=m
+CONFIG_NLS_ISO8859_7=m
+CONFIG_NLS_ISO8859_9=m
+CONFIG_NLS_ISO8859_13=m
+CONFIG_NLS_ISO8859_14=m
+CONFIG_NLS_ISO8859_15=m
+CONFIG_NLS_KOI8_R=m
+CONFIG_NLS_KOI8_U=m
+CONFIG_NLS_UTF8=m
+
+#
+# Console drivers
+#
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_MDA_CONSOLE=m
+
+#
+# Frame-buffer support
+#
+CONFIG_FB=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FB_RIVA=m
+CONFIG_FB_CLGEN=m
+CONFIG_FB_PM2=m
+# CONFIG_FB_PM2_FIFO_DISCONNECT is not set
+CONFIG_FB_PM2_PCI=y
+CONFIG_FB_PM3=m
+# CONFIG_FB_CYBER2000 is not set
+CONFIG_FB_VESA=y
+# CONFIG_FB_VGA16 is not set
+CONFIG_FB_HGA=m
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_MATROX=m
+CONFIG_FB_MATROX_MILLENIUM=y
+CONFIG_FB_MATROX_MYSTIQUE=y
+CONFIG_FB_MATROX_G100=y
+CONFIG_FB_MATROX_I2C=m
+CONFIG_FB_MATROX_MAVEN=m
+# CONFIG_FB_MATROX_G450 is not set
+CONFIG_FB_MATROX_MULTIHEAD=y
+CONFIG_FB_ATY=m
+CONFIG_FB_ATY_GX=y
+CONFIG_FB_ATY_CT=y
+CONFIG_FB_RADEON=m
+CONFIG_FB_ATY128=m
+CONFIG_FB_SIS=m
+CONFIG_FB_SIS_300=y
+CONFIG_FB_SIS_315=y
+CONFIG_FB_NEOMAGIC=m
+CONFIG_FB_3DFX=m
+CONFIG_FB_VOODOO1=m
+# CONFIG_FB_TRIDENT is not set
+# CONFIG_FB_VIRTUAL is not set
+# CONFIG_FBCON_ADVANCED is not set
+CONFIG_FBCON_MFB=m
+CONFIG_FBCON_CFB8=y
+CONFIG_FBCON_CFB16=y
+CONFIG_FBCON_CFB24=y
+CONFIG_FBCON_CFB32=y
+CONFIG_FBCON_HGA=m
+# CONFIG_FBCON_FONTWIDTH8_ONLY is not set
+# CONFIG_FBCON_FONTS is not set
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+
+#
+# Sound
+#
+CONFIG_SOUND=m
+# CONFIG_SOUND_ALI5455 is not set
+CONFIG_SOUND_BT878=m
+CONFIG_SOUND_CMPCI=m
+CONFIG_SOUND_CMPCI_FM=y
+CONFIG_SOUND_CMPCI_FMIO=388
+CONFIG_SOUND_CMPCI_FMIO=388
+CONFIG_SOUND_CMPCI_MIDI=y
+CONFIG_SOUND_CMPCI_MPUIO=330
+CONFIG_SOUND_CMPCI_JOYSTICK=y
+CONFIG_SOUND_CMPCI_CM8738=y
+# CONFIG_SOUND_CMPCI_SPDIFINVERSE is not set
+CONFIG_SOUND_CMPCI_SPDIFLOOP=y
+CONFIG_SOUND_CMPCI_SPEAKERS=2
+# CONFIG_SOUND_EMU10K1 is not set
+# CONFIG_SOUND_FUSION is not set
+# CONFIG_SOUND_CS4281 is not set
+# CONFIG_SOUND_ES1370 is not set
+# CONFIG_SOUND_ES1371 is not set
+# CONFIG_SOUND_ESSSOLO1 is not set
+# CONFIG_SOUND_MAESTRO is not set
+# CONFIG_SOUND_MAESTRO3 is not set
+# CONFIG_SOUND_FORTE is not set
+CONFIG_SOUND_ICH=m
+# CONFIG_SOUND_RME96XX is not set
+# CONFIG_SOUND_SONICVIBES is not set
+# CONFIG_SOUND_TRIDENT is not set
+# CONFIG_SOUND_MSNDCLAS is not set
+# CONFIG_SOUND_MSNDPIN is not set
+CONFIG_SOUND_VIA82CXXX=m
+CONFIG_MIDI_VIA82CXXX=y
+CONFIG_SOUND_OSS=m
+# CONFIG_SOUND_TRACEINIT is not set
+CONFIG_SOUND_DMAP=y
+# CONFIG_SOUND_AD1816 is not set
+# CONFIG_SOUND_AD1889 is not set
+# CONFIG_SOUND_SGALAXY is not set
+# CONFIG_SOUND_ADLIB is not set
+CONFIG_SOUND_ACI_MIXER=m
+# CONFIG_SOUND_CS4232 is not set
+# CONFIG_SOUND_SSCAPE is not set
+# CONFIG_SOUND_GUS is not set
+CONFIG_SOUND_VMIDI=m
+CONFIG_SOUND_TRIX=m
+CONFIG_SOUND_MSS=m
+CONFIG_SOUND_MPU401=m
+CONFIG_SOUND_NM256=m
+CONFIG_SOUND_MAD16=m
+CONFIG_MAD16_OLDCARD=y
+CONFIG_SOUND_PAS=m
+CONFIG_SOUND_PSS=m
+# CONFIG_PSS_MIXER is not set
+# CONFIG_PSS_HAVE_BOOT is not set
+CONFIG_SOUND_SB=m
+CONFIG_SOUND_AWE32_SYNTH=m
+CONFIG_SOUND_WAVEFRONT=m
+CONFIG_SOUND_MAUI=m
+CONFIG_SOUND_YM3812=m
+CONFIG_SOUND_OPL3SA1=m
+CONFIG_SOUND_OPL3SA2=m
+CONFIG_SOUND_YMFPCI=m
+CONFIG_SOUND_YMFPCI_LEGACY=y
+CONFIG_SOUND_UART6850=m
+CONFIG_SOUND_AEDSP16=m
+CONFIG_SC6600=y
+CONFIG_SC6600_JOY=y
+CONFIG_SC6600_CDROM=4
+CONFIG_SC6600_CDROMBASE=0
+CONFIG_AEDSP16_SBPRO=y
+CONFIG_AEDSP16_MPU401=y
+CONFIG_SOUND_TVMIXER=m
+
+#
+# USB support
+#
+CONFIG_USB=m
+# CONFIG_USB_DEBUG is not set
+
+#
+# Miscellaneous USB options
+#
+CONFIG_USB_DEVICEFS=y
+# CONFIG_USB_BANDWIDTH is not set
+
+#
+# USB Host Controller Drivers
+#
+# CONFIG_USB_EHCI_HCD is not set
+CONFIG_USB_UHCI=m
+CONFIG_USB_UHCI_ALT=m
+CONFIG_USB_OHCI=m
+
+#
+# USB Device Class drivers
+#
+CONFIG_USB_AUDIO=m
+# CONFIG_USB_EMI26 is not set
+# CONFIG_USB_BLUETOOTH is not set
+# CONFIG_USB_MIDI is not set
+CONFIG_USB_STORAGE=m
+# CONFIG_USB_STORAGE_DEBUG is not set
+CONFIG_USB_STORAGE_DATAFAB=y
+CONFIG_USB_STORAGE_FREECOM=y
+CONFIG_USB_STORAGE_ISD200=y
+CONFIG_USB_STORAGE_DPCM=y
+CONFIG_USB_STORAGE_HP8200e=y
+CONFIG_USB_STORAGE_SDDR09=y
+# CONFIG_USB_STORAGE_SDDR55 is not set
+CONFIG_USB_STORAGE_JUMPSHOT=y
+CONFIG_USB_ACM=m
+CONFIG_USB_PRINTER=m
+
+#
+# USB Human Interface Devices (HID)
+#
+CONFIG_USB_HID=m
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_HIDDEV=y
+# CONFIG_USB_KBD is not set
+# CONFIG_USB_MOUSE is not set
+CONFIG_USB_AIPTEK=m
+CONFIG_USB_WACOM=m
+# CONFIG_USB_POWERMATE is not set
+
+#
+# USB Imaging devices
+#
+# CONFIG_USB_DC2XX is not set
+# CONFIG_USB_MDC800 is not set
+CONFIG_USB_SCANNER=m
+CONFIG_USB_MICROTEK=m
+# CONFIG_USB_HPUSBSCSI is not set
+
+#
+# USB Multimedia devices
+#
+CONFIG_USB_IBMCAM=m
+# CONFIG_USB_KONICAWC is not set
+CONFIG_USB_OV511=m
+CONFIG_USB_PWC=m
+CONFIG_USB_SE401=m
+CONFIG_USB_STV680=m
+# CONFIG_USB_VICAM is not set
+# CONFIG_USB_DSBR is not set
+CONFIG_USB_DABUSB=m
+
+#
+# USB Network adaptors
+#
+# CONFIG_USB_PEGASUS is not set
+# CONFIG_USB_RTL8150 is not set
+# CONFIG_USB_KAWETH is not set
+# CONFIG_USB_CATC is not set
+# CONFIG_USB_CDCETHER is not set
+# CONFIG_USB_USBNET is not set
+
+#
+# USB port drivers
+#
+CONFIG_USB_USS720=m
+
+#
+# USB Serial Converter support
+#
+CONFIG_USB_SERIAL=m
+CONFIG_USB_SERIAL_GENERIC=y
+CONFIG_USB_SERIAL_BELKIN=m
+CONFIG_USB_SERIAL_WHITEHEAT=m
+CONFIG_USB_SERIAL_DIGI_ACCELEPORT=m
+CONFIG_USB_SERIAL_EMPEG=m
+CONFIG_USB_SERIAL_FTDI_SIO=m
+CONFIG_USB_SERIAL_VISOR=m
+CONFIG_USB_SERIAL_IPAQ=m
+CONFIG_USB_SERIAL_IR=m
+CONFIG_USB_SERIAL_EDGEPORT=m
+# CONFIG_USB_SERIAL_EDGEPORT_TI is not set
+CONFIG_USB_SERIAL_KEYSPAN_PDA=m
+CONFIG_USB_SERIAL_KEYSPAN=m
+# CONFIG_USB_SERIAL_KEYSPAN_USA28 is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28X is not set
+CONFIG_USB_SERIAL_KEYSPAN_USA28XA=y
+CONFIG_USB_SERIAL_KEYSPAN_USA28XB=y
+# CONFIG_USB_SERIAL_KEYSPAN_USA19 is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA18X is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA19W is not set
+CONFIG_USB_SERIAL_KEYSPAN_USA19QW=y
+CONFIG_USB_SERIAL_KEYSPAN_USA19QI=y
+CONFIG_USB_SERIAL_KEYSPAN_USA49W=y
+CONFIG_USB_SERIAL_MCT_U232=m
+CONFIG_USB_SERIAL_KLSI=m
+# CONFIG_USB_SERIAL_KOBIL_SCT is not set
+CONFIG_USB_SERIAL_PL2303=m
+CONFIG_USB_SERIAL_CYBERJACK=m
+CONFIG_USB_SERIAL_XIRCOM=m
+CONFIG_USB_SERIAL_OMNINET=m
+
+#
+# USB Miscellaneous drivers
+#
+# CONFIG_USB_RIO500 is not set
+# CONFIG_USB_AUERSWALD is not set
+# CONFIG_USB_TIGL is not set
+# CONFIG_USB_BRLVGER is not set
+# CONFIG_USB_LCD is not set
+
+#
+# Bluetooth support
+#
+# CONFIG_BLUEZ is not set
+
+#
+# Kernel hacking
+#
+# CONFIG_DEBUG_KERNEL is not set
+
+#
+# Library routines
+#
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=m
+

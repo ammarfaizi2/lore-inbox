@@ -1,87 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271009AbUJUWSj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271028AbUJUWSj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271009AbUJUWSj (ORCPT <rfc822;willy@w.ods.org>);
+	id S271028AbUJUWSj (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 21 Oct 2004 18:18:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270972AbUJUV4z
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271026AbUJUWSM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 17:56:55 -0400
-Received: from fw.osdl.org ([65.172.181.6]:37277 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270999AbUJUVyG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 17:54:06 -0400
-Date: Thu, 21 Oct 2004 14:54:02 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: akpm@osdl.org, torvalds@osdl.org
-Cc: jim.houston@ccur.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] make __sigqueue_alloc() a general helper
-Message-ID: <20041021145402.O2441@build.pdx.osdl.net>
+	Thu, 21 Oct 2004 18:18:12 -0400
+Received: from hell.sks3.muni.cz ([147.251.210.30]:49030 "EHLO
+	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S271009AbUJUWQ1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 18:16:27 -0400
+Date: Fri, 22 Oct 2004 00:16:23 +0200
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.9 - e1000 - page allocation failed
+Message-ID: <20041021221622.GA11607@mail.muni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 8bit
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Posix timers preallocate siqueue structures during timer creation
-and keep them for reuse.  This allocation happens in user context
-with no locks held, however it's designated as an atomic allocation.
-Loosen this restriction, and while we're at it let's do a bit of code
-consolidation so signal sending uses same __sigqueue_alloc() helper.
+Hello,
 
-Signed-off-by: Chris Wright <chrisw@osdl.org>
+I'm getting this message in kernel log:
 
- kernel/signal.c |   20 +++++++-------------
- 1 files changed, 7 insertions(+), 13 deletions(-)
+swapper: page allocation failure. order:0, mode:0x20
+ [__alloc_pages+441/862] __alloc_pages+0x1b9/0x35e
+ [__get_free_pages+37/63] __get_free_pages+0x25/0x3f
+ [kmem_getpages+33/201] kmem_getpages+0x21/0xc9
+ [cache_grow+171/333] cache_grow+0xab/0x14d
+ [cache_alloc_refill+372/537] cache_alloc_refill+0x174/0x219
+ [__kmalloc+133/140] __kmalloc+0x85/0x8c
+ [alloc_skb+71/224] alloc_skb+0x47/0xe0
+ [e1000_alloc_rx_buffers+68/227] e1000_alloc_rx_buffers+0x44/0xe3
+ [e1000_clean_rx_irq+398/1095] e1000_clean_rx_irq+0x18e/0x447
+ [__kfree_skb+131/253] __kfree_skb+0x83/0xfd
+ [e1000_clean+81/202] e1000_clean+0x51/0xca
+ [net_rx_action+119/246] net_rx_action+0x77/0xf6
+ [__do_softirq+183/198] __do_softirq+0xb7/0xc6
+ [do_softirq+45/47] do_softirq+0x2d/0x2f
+ [do_IRQ+274/304] do_IRQ+0x112/0x130
+ [common_interrupt+24/32] common_interrupt+0x18/0x20
+ [default_idle+0/44] default_idle+0x0/0x2c
+ [default_idle+41/44] default_idle+0x29/0x2c
+ [cpu_idle+63/88] cpu_idle+0x3f/0x58
+ [start_kernel+361/388] start_kernel+0x169/0x184
+ [unknown_bootoption+0/348] unknown_bootoption+0x0/0x15c
 
-===== kernel/signal.c 1.139 vs edited =====
---- 1.139/kernel/signal.c	2004-10-19 21:12:13 -07:00
-+++ edited/kernel/signal.c	2004-10-21 13:46:54 -07:00
-@@ -265,18 +265,18 @@
- 	return sig;
- }
- 
--static struct sigqueue *__sigqueue_alloc(void)
-+static inline struct sigqueue *__sigqueue_alloc(struct task_struct *t, int flags)
- {
- 	struct sigqueue *q = NULL;
- 
--	if (atomic_read(&current->user->sigpending) <
--			current->signal->rlim[RLIMIT_SIGPENDING].rlim_cur)
--		q = kmem_cache_alloc(sigqueue_cachep, GFP_ATOMIC);
-+	if (atomic_read(&t->user->sigpending) <
-+			t->signal->rlim[RLIMIT_SIGPENDING].rlim_cur)
-+		q = kmem_cache_alloc(sigqueue_cachep, flags);
- 	if (q) {
- 		INIT_LIST_HEAD(&q->list);
- 		q->flags = 0;
- 		q->lock = NULL;
--		q->user = get_uid(current->user);
-+		q->user = get_uid(t->user);
- 		atomic_inc(&q->user->sigpending);
- 	}
- 	return(q);
-@@ -764,14 +764,8 @@
- 	   make sure at least one signal gets delivered and don't
- 	   pass on the info struct.  */
- 
--	if (atomic_read(&t->user->sigpending) <
--			t->signal->rlim[RLIMIT_SIGPENDING].rlim_cur)
--		q = kmem_cache_alloc(sigqueue_cachep, GFP_ATOMIC);
--
-+	q = __sigqueue_alloc(t, GFP_ATOMIC);
- 	if (q) {
--		q->flags = 0;
--		q->user = get_uid(t->user);
--		atomic_inc(&q->user->sigpending);
- 		list_add_tail(&q->list, &signals->list);
- 		switch ((unsigned long) info) {
- 		case 0:
-@@ -1298,7 +1292,7 @@
- {
- 	struct sigqueue *q;
- 
--	if ((q = __sigqueue_alloc()))
-+	if ((q = __sigqueue_alloc(current, GFP_KERNEL)))
- 		q->flags |= SIGQUEUE_PREALLOC;
- 	return(q);
- }
+That machine has 300MB of free memory of 1GB total and 4GB of free swap. So what
+is wrong?
+
+-- 
+Luká¹ Hejtmánek

@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261260AbTEANuT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 09:50:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbTEANuT
+	id S261262AbTEAN6J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 09:58:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbTEAN6J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 09:50:19 -0400
-Received: from gw.chygwyn.com ([62.172.158.50]:25359 "EHLO gw.chygwyn.com")
-	by vger.kernel.org with ESMTP id S261260AbTEANuS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 09:50:18 -0400
-From: Steven Whitehouse <steve@gw.chygwyn.com>
-Message-Id: <200305011404.PAA17187@gw.chygwyn.com>
-Subject: Re: Remains of seq_file conversion for DECnet, plus fixes
-To: davem@redhat.com (David S. Miller)
-Date: Thu, 1 May 2003 15:04:00 +0100 (BST)
-Cc: linux-decnet-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20030501.054523.98892534.davem@redhat.com> from "David S. Miller" at May 01, 2003 05:45:23 AM
-Organization: ChyGywn Limited
-X-RegisteredOffice: 7, New Yatt Road, Witney, Oxfordshire. OX28 1NU England
-X-RegisteredNumber: 03887683
-Reply-To: Steve Whitehouse <Steve@ChyGwyn.com>
-X-Mailer: ELM [version 2.5 PL1]
+	Thu, 1 May 2003 09:58:09 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:29379 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S261262AbTEAN6H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 09:58:07 -0400
+Date: Thu, 01 May 2003 07:06:37 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel source tree splitting
+Message-ID: <11850000.1051797996@[10.10.2.4]>
+In-Reply-To: <200305010756_MC3-1-36E1-623@compuserve.com>
+References: <200305010756_MC3-1-36E1-623@compuserve.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
+>>> So there are many edits that needed to be done in lots of
+>>> Kconfig and Makefiles if one selectively pulls or omits certain
+>>> sub-directories.
+>> 
+>> Indeed, I ran across the same thing a while back. Would be *really* nice
+>> to fix, if only so some poor sod over a modem can download a smaller
+>> tarball, or save some diskspace.
 > 
->    From: Steven Whitehouse <steve@gw.chygwyn.com>
->    Date: Thu, 1 May 2003 14:27:08 +0100 (BST)
->    
->    Its got big again, so I've put it here, if you'd like it in bits rather than
->    all one lump, just shout:
-> 
-> Please do this because it's easier for me to evaluate small patches
-> doing one thing at a time and you're also making modifications to
-> things outside of decnet.
->
-Ok. I'll do that later this afternoon.
- 
-> About update_pmtu().  You are not required to implement this.
-> All of these places you see dereferencing dst->update_mtu()
-> know that they have an ipv4/ipv6 route.  Or do you know some
-> exception to this?
-> 
-I was thinking of that bit of code in ip_gre.c which I sent the fix for
-recently. Unless I've missed something it calls update_pmtu on the dst
-which is passed by the encapsulated protocol, although I've not actually
-tested that.
+>  I have seven source trees on disk right now.  Getting rid off all
+> the archs but i386 would not only save tons of space, it would also
+> make 'grep -r' go faster and stop spewing irrelevant hits for archs
+> that I couldn't care less about.
 
-Thats the reason I wasn't sure about the fix which I sent... it deleted the
-duplicated call only for IPv4 rather than the one which appears to get called
-for every protocol as I wasn't sure what was intended.
+Indeed. But whilst you're waiting, hardlink everything together, and 
+patch the differences (patch knows how to break hardlinks). Make a 
+script that cp -lR's the tree to another copy (normally takes < 1s), and
+then remove the other arches. grep that.
 
-Either way it seems reasonable to pass this information back to the
-protocol so perhaps it should say (in ipgre_tunnel_xmit()):
+cscope with prebuilt indeces on a filtered subset of the files may well do
+better than grep, depending on exactly what you're doing (does 99% of it
+for me). Don't use the cscope in Debian Woody, it's broken.
 
-	if (skb->dst && skb->dst->ops->update_pmtu)
-		skb->dst->ops->update_pmtu(skb->dst, mtu);
-?
-
-Steve.
+M.
 

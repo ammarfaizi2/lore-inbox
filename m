@@ -1,169 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261974AbTKVEPY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 23:15:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbTKVEPY
+	id S262001AbTKVEm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 23:42:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbTKVEm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 23:15:24 -0500
-Received: from uirapuru.fua.br ([200.129.163.1]:17292 "EHLO uirapuru.fua.br")
-	by vger.kernel.org with ESMTP id S261974AbTKVEPS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 23:15:18 -0500
-Message-ID: <3028.200.208.224.8.1069467302.squirrel@webmail.ufam.edu.br>
-Date: Sat, 22 Nov 2003 00:15:02 -0200 (BRST)
-Subject: [PATCH] detailed physical memory info in fs/proc/task_mmu.c 
-     [2.6.0-test9]
-From: edjard@ufam.edu.br
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org
-User-Agent: SquirrelMail/1.4.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+	Fri, 21 Nov 2003 23:42:27 -0500
+Received: from CPE-144-136-188-60.sa.bigpond.net.au ([144.136.188.60]:64009
+	"EHLO bubble.modra.org") by vger.kernel.org with ESMTP
+	id S262001AbTKVEmY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Nov 2003 23:42:24 -0500
+Date: Sat, 22 Nov 2003 15:12:21 +1030
+From: Alan Modra <amodra@bigpond.net.au>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Pavel Machek <pavel@suse.cz>, Jens Axboe <axboe@suse.de>,
+       bug-binutils@gnu.org, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ionice kills vanilla 2.6.0-test9 was [Re: [PATCH] cfq + io priorities (fwd)]
+Message-ID: <20031122044221.GN2900@bubble.sa.bigpond.net.au>
+References: <Pine.LNX.4.44.0311211439120.13789-100000@home.osdl.org> <Pine.LNX.4.44.0311211455510.13789-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0311211455510.13789-100000@home.osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Nov 21, 2003 at 03:05:23PM -0800, Linus Torvalds wrote:
+> So it definitely _does_ work in some versions, and the bug appears to be 
+> new to binutils 2.14, with 2.13 doing the right thing.
+> 
+> You can trivially see if with a simple assembly file like
+> 
+> 	start:
+> 		.long 1,2,3,a
+> 	a=(.-start)/4
 
-The piece of code below gives a richer information
-at /proc/PID/status for a process PID.
+Broken with http://sources.redhat.com/ml/binutils/2003-04/msg00412.html
+and http://sources.redhat.com/ml/binutils/2003-04/msg00414.html.
+That '/' is being treated as a start of line comment char, thus trimming
+the rest of the line.
 
-BR,
+I think gas/app.c:do_scrub_chars is such an awful mess that it's
+impossible to get right.  Needs to be tossed out and rewritten.  The
+fundamental problem is that you can't track which component of an
+assember input line you're preprocessing without more information on the
+particular target syntax.  And most of the current complexity is just
+for deciding whether to remove whitespace!  That at least needs to go.
 
-Edjard
--------------------------------------------------------------------
-10LE - Linux Lab at INDT
-JOSE - Open Source dEvelopers at ufam.edu.br (site still under construction)
+For now, I'm reverting HJ's patches and including your testcase in
+the gas testsuite.
 
+gas/ChangeLog
+	* app.c (do_scrub_chars): Revert 2003-04-23 and 2003-04-22.
+
+gas/testsuite/ChangeLog
+	* gas/i386/divide.s: New.
+	* gas/i386/divide.d: New.
+	* gas/i386/i386.exp (gas_32_check): Run it.
+
+Index: app.c
 ===================================================================
---- linux-2.6.0-test9/fs/proc/task_mmu.c   2003-10-25 14:43:00.000000000
--0400
-+++ linux/fs/proc/task_mmu.c               2003-11-21 13:51:42.000000000
--0400 @@
--3,44 +3,87 @@
- #include <linux/seq_file.h>
- #include <asm/uaccess.h>
+RCS file: /cvs/src/src/gas/app.c,v
+retrieving revision 1.26
+diff -u -p -r1.26 app.c
+--- app.c	21 Nov 2003 01:52:16 -0000	1.26
++++ app.c	22 Nov 2003 04:24:01 -0000
+@@ -1308,13 +1308,11 @@ do_scrub_chars (int (*get) (char *, int)
+ 	  /* Some relatively `normal' character.  */
+ 	  if (state == 0)
+ 	    {
+-	      if (IS_SYMBOL_COMPONENT (ch))
+-		state = 11;	/* Now seeing label definition.  */
++	      state = 11;	/* Now seeing label definition.  */
+ 	    }
+ 	  else if (state == 1)
+ 	    {
+-	      if (IS_SYMBOL_COMPONENT (ch))
+-		state = 2;	/* Ditto.  */
++	      state = 2;	/* Ditto.  */
+ 	    }
+ 	  else if (state == 9)
+ 	    {
+Index: testsuite/gas/i386/divide.d
+===================================================================
+RCS file: testsuite/gas/i386/divide.d
+diff -N testsuite/gas/i386/divide.d
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ testsuite/gas/i386/divide.d	22 Nov 2003 04:41:09 -0000
+@@ -0,0 +1,8 @@
++#objdump: -s
++#name: i386 divide
++
++.*: +file format .*
++
++Contents of section .*
++ 0000 01000000 02000000 03000000 04000000 .*
++ 0010 05000000 .*
+Index: testsuite/gas/i386/divide.s
+===================================================================
+RCS file: testsuite/gas/i386/divide.s
+diff -N testsuite/gas/i386/divide.s
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ testsuite/gas/i386/divide.s	22 Nov 2003 04:41:09 -0000
+@@ -0,0 +1,4 @@
++start:
++ .long 1,2,3,a,b
++ a=(.-start)/4-1
++b=(.-start)/4
+Index: testsuite/gas/i386/i386.exp
+===================================================================
+RCS file: /cvs/src/src/gas/testsuite/gas/i386/i386.exp,v
+retrieving revision 1.19
+diff -u -p -r1.19 i386.exp
+--- testsuite/gas/i386/i386.exp	23 Jun 2003 20:15:33 -0000	1.19
++++ testsuite/gas/i386/i386.exp	22 Nov 2003 04:41:09 -0000
+@@ -57,6 +57,7 @@ if [expr ([istarget "i*86-*-*"] ||  [ist
+     run_dump_test "pcrel"
+     run_dump_test "sub"
+     run_dump_test "prescott"
++    run_dump_test "divide"
+ 
+     # PIC is only supported on ELF targets.
+     if { ([istarget "*-*-elf*"] || [istarget "*-*-linux*"] )
 
-+
-+void phys_size_10LE(struct mm_struct *mm, unsigned long start_address,
-unsigned long end_address, unsigned long *size) {
-+  pgd_t *my_pgd;
-+  pmd_t *my_pmd;
-+  pte_t *my_pte;
-+  unsigned long page;
-+
-+  for (page = start_address; page < end_address; page += PAGE_SIZE) { +
- my_pgd = pgd_offset(mm, page);
-+    if (pgd_none(*my_pgd) || pgd_bad(*my_pgd)) break;
-+    my_pmd = pmd_offset(my_pgd, page);
-+    if (pmd_none(*my_pmd) || pmd_bad(*my_pmd)) break;
-+    my_pte = pte_offset_map(my_pmd, page);
-+    if (pte_present(*my_pte)) {
-+      *size += PAGE_SIZE;
-+    }
-+  }
-+}
-+
- char *task_mem(struct mm_struct *mm, char *buffer)
- {
--        unsigned long data = 0, stack = 0, exec = 0, lib = 0;
--        struct vm_area_struct *vma;
--
--        down_read(&mm->mmap_sem);
--        for (vma = mm->mmap; vma; vma = vma->vm_next) {
--                unsigned long len = (vma->vm_end - vma->vm_start) >> 10;
--                if (!vma->vm_file) {
--                        data += len;
--                        if (vma->vm_flags & VM_GROWSDOWN)
--                                stack += len;
--                        continue;
--                }
--                if (vma->vm_flags & VM_WRITE)
--                        continue;
--                if (vma->vm_flags & VM_EXEC) {
--                        exec += len;
--                        if (vma->vm_flags & VM_EXECUTABLE)
--                                continue;
--                        lib += len;
--                }
--        }
--        buffer += sprintf(buffer,
--                "VmSize:\t%8lu kB\n"
--                "VmLck:\t%8lu kB\n"
--                "VmRSS:\t%8lu kB\n"
--                "VmData:\t%8lu kB\n"
--                "VmStk:\t%8lu kB\n"
--                "VmExe:\t%8lu kB\n"
--                "VmLib:\t%8lu kB\n",
--                mm->total_vm << (PAGE_SHIFT-10),
--                mm->locked_vm << (PAGE_SHIFT-10),
--                mm->rss << (PAGE_SHIFT-10),
--                data - stack, stack,
--                exec - lib, lib);
--        up_read(&mm->mmap_sem);
--        return buffer;
-+  unsigned long data = 0, stack = 0, exec = 0, lib = 0;
-+  unsigned long phys_data = 0, phys_stack = 0, phys_exec = 0, phys_lib =
-0; +  unsigned long phys_brk = 0;
-+  struct vm_area_struct *vma;
-+  down_read(&mm->mmap_sem);
-+  for (vma = mm->mmap; vma; vma = vma->vm_next) {
-+    unsigned long len = (vma->vm_end - vma->vm_start) >> 10;
-+
-+    if (!vma->vm_file) {
-+      phys_size_10LE(mm, vma->vm_start, vma->vm_end, &phys_data); +
-if (vma->vm_flags & VM_GROWSDOWN) {
-+        stack += len;
-+        phys_size_10LE(mm, vma->vm_start, vma->vm_end, &phys_stack);
-+      }
-+      else {
-+        data += len;
-+      }
-+      continue;
-+    }
-+
-+    if (vma->vm_flags & VM_WRITE)
-+      continue;
-+
-+    if (vma->vm_flags & VM_EXEC) {
-+      exec += len;
-+      phys_size_10LE(mm, vma->vm_start, vma->vm_end, &phys_exec); +
-if (vma->vm_flags & VM_EXECUTABLE) {
-+        continue;
-+      }
-+      lib += len;
-+      phys_size_10LE(mm, vma->vm_start, vma->vm_end, &phys_lib);
-+    }
-+  }
-+  phys_size_10LE(mm, mm->start_brk, mm->brk, &phys_brk);
-+  buffer += sprintf(buffer,
-+                    "VmSize:\t%8lu kB\n"
-+                    "VmLck:\t%8lu kB\n"
-+                    "VmRSS:\t%8lu kB\n"
-+                    "VmData:\t%8lu kB\n"
-+                    "PhysicalData:\t%8lu kB\n"
-+                    "VmStk:\t%8lu kB\n"
-+                    "PhysicalStk:\t%8lu kB\n"
-+                    "VmExe:\t%8lu kB\n"
-+                    "PhysicalExe:\t%8lu kB\n"
-+                    "VmLib:\t%8lu kB\n"
-+                    "PhysicalLib:\t%8lu kB\n"
-+                    "VmHeap: \t%8lu KB\n"
-+                    "PhysicalHeap: \t%8lu KB\n",
-+                    mm->total_vm << (PAGE_SHIFT-10),
-+                    mm->locked_vm << (PAGE_SHIFT-10),
-+                    mm->rss << (PAGE_SHIFT-10),
-+                    data, (phys_data - phys_stack) >> 10,
-+                    stack, phys_stack >> 10,
-+                    exec - lib, (phys_exec - phys_lib) >> 10,
-+                    lib, phys_lib >> 10,
-+                    (mm->brk - mm->start_brk) >> 10,
-+                    phys_brk >> 10
-+                    );
-+  up_read(&mm->mmap_sem);
-+  return buffer;
- }
-
- unsigned long task_vsize(struct mm_struct *mm)
+-- 
+Alan Modra
+IBM OzLabs - Linux Technology Centre

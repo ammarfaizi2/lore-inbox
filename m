@@ -1,85 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282555AbRKZVON>; Mon, 26 Nov 2001 16:14:13 -0500
+	id <S282554AbRKZVWL>; Mon, 26 Nov 2001 16:22:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282556AbRKZVOC>; Mon, 26 Nov 2001 16:14:02 -0500
-Received: from smtp018.mail.yahoo.com ([216.136.174.115]:64009 "HELO
-	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S282555AbRKZVNy> convert rfc822-to-8bit; Mon, 26 Nov 2001 16:13:54 -0500
-From: Steve Brueggeman <xioborg@yahoo.com>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Journaling pointless with today's hard disks?
-Date: Mon, 26 Nov 2001 15:14:06 -0600
-Message-ID: <b0b50u0s566g9fusmrfs275lsjvr0dd0hu@4ax.com>
-In-Reply-To: <k1t40uciislnibv9927hekv82ejgu3eahb@4ax.com> <Pine.LNX.4.10.10111261232140.8817-100000@master.linux-ide.org>
-In-Reply-To: <Pine.LNX.4.10.10111261232140.8817-100000@master.linux-ide.org>
+	id <S282560AbRKZVWB>; Mon, 26 Nov 2001 16:22:01 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:55303 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S282554AbRKZVVs>; Mon, 26 Nov 2001 16:21:48 -0500
+Date: Mon, 26 Nov 2001 16:15:26 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Release Policy [was: Linux 2.4.16  ]
+In-Reply-To: <4.3.2.7.2.20011126120940.00b41b20@mail.osagesoftware.com>
+Message-ID: <Pine.LNX.3.96.1011126160539.27112J-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, since you don't clearify what part you object to, I'll have to
-assume that you object to my statement that the disk drive will not
-auto-reallocate when it cannot recover the data.
+On Mon, 26 Nov 2001, David Relson wrote:
 
-If you think that a disk drive should auto-reallocate a sector (ARRE
-enabled in the mode pages) that it cannot recover the original data
-from, than you can dream on.  I seriously hope this is not what you're
-recommending for ATA.  If a disk drive were to auto-reallocate a
-sector that it couldn't get valid data from, you'd have serious
-corruptions probelms!!!  Tell me, what data should exist in the sector
-that gets reallocated if it cannot retrieve the data the system
-believes to be there???  If the reallocated sector has random data,
-and the next read to it doesn't return an error, than the system will
-get no indication that it should not be using that data.
+> At 12:22 PM 11/26/01, Chris Meadors wrote:
+> 
+> >Aren't all the -pre's pre-finals?  And what if there is a big bug found in
+> >the -final, it will obviously be followed up with a -final-final?
 
-If the unrecoverable error happens durring a write, the disk drive
-still has the data in the buffer, so auto-reallocation on writes (AWRE
-enabled in the mode pages), is usually OK
+All the -pre's are before the final, but not release candidates. I think
+the rc until recently has been the one where someone said "we've put a
+hell of a lot of new stuff in this..." and concentrated on reported bugs,
+if any.
 
-That said, it'd be my bet that most disk drives still have a window of
-opportunity durring the reallocation operation, where if the drive
-lost power, they'd end up doing bad things.
+> >I like the ISC's release methods.  The do -rc's (-pre's would be fine for
+> >the kernel as it is already established), each -rc fixes problems found
+> >with the previous.  When an -rc has been out long enough with no more bug
+> >reports they release that code, WITHOUT changes.
+ 
+> I think of -pre releases as beta code - testable and likely broken.  An -rc 
+> release would be "possibly broken".  If problems are encountered, fix ONLY 
+> those problems to generate the next -rc.  If it's O.K., then make it "final".
 
-You can force a reallocation, but the data you get when you first read
-that unreadable reallocated sector is usually undefined, and often is
-the data pattern written when the drive was low-level formatted.
+Other than some quibbling about nomenclature, that's how I see it. We
+always had an alpha version for in-house testing only, then a beta for
+selected users, which for Linux would be those who have the guts to run
+the downloads, and then a release.
 
-That IS what is done, my knowledge is also first hand.
+I did commenrcial software development for a few decades and that was
+usually the practice, and that's what people like Microsoft were doing
+when I did a few beta tests for them. I think it's a good model for Linux
+stable kernel series.
 
-I have no descrepency with your description of how spare sectors are
-dolled out.
-
-Steve Brueggeman
-
-
-On Mon, 26 Nov 2001 12:36:02 -0800 (PST), you wrote:
-
->
->Steve,
->
->Dream on fellow, it is SOP that upon media failure the device logs the
->failure and does an internal re-allocation in the slip-sector stream.
->If the media is out of slip-sectors then it does an out-of-bounds
->re-allocation.  Once the total number of out-of-bounds sectors are gone
->you need to deal with getting new media or exectute a seek and purge
->operation; however, if the badblock list is full you are toast.
->
->That is what is done - knowledge is first hand.
->
->Regards,
->
->Andre Hedrick
->CEO/President, LAD Storage Consulting Group
->Linux ATA Development
->Linux Disk Certification Project
->
->On Mon, 26 Nov 2001, Steve Brueggeman wrote:
-
-
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261995AbVCMBpY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262002AbVCMBqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261995AbVCMBpY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 20:45:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262002AbVCMBpY
+	id S262002AbVCMBqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 20:46:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262554AbVCMBqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 20:45:24 -0500
-Received: from 83-216-143-24.alista342.adsl.metronet.co.uk ([83.216.143.24]:13582
-	"EHLO devzero.co.uk") by vger.kernel.org with ESMTP id S261995AbVCMBpS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 20:45:18 -0500
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: Any way to get larger fonts in XCONFIG ?
-Date: Sun, 13 Mar 2005 01:40:26 +0000
-User-Agent: KMail/1.8
-Cc: Reg Clemens <reg@dwf.com>, linux-kernel@vger.kernel.org
-References: <200503121912.j2CJCcZN025923@orion.dwf.com> <4233638F.90308@osdl.org>
-In-Reply-To: <4233638F.90308@osdl.org>
+	Sat, 12 Mar 2005 20:46:25 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:64145 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262002AbVCMBqW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 20:46:22 -0500
+To: Matt Mackall <mpm@selenic.com>
+Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] new timeofday core subsystem (v. A3)
+References: <1110590655.30498.327.camel@cog.beaverton.ibm.com>
+	<20050313004902.GD3163@waste.org>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: I have no actual hairline...
+Date: Sun, 13 Mar 2005 02:46:14 +0100
+In-Reply-To: <20050313004902.GD3163@waste.org> (Matt Mackall's message of
+ "Sat, 12 Mar 2005 16:49:02 -0800")
+Message-ID: <je3bv0qpw9.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503130140.26472.s0348365@sms.ed.ac.uk>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 12 March 2005 21:47, Randy.Dunlap wrote:
-> Reg Clemens wrote:
-> > Any way to get larger fonts with xconfig?
-> > On my system they are just about microscopic.
-> >
-> > I can do a <ctl><alt?<+> to go to a different screen resolution,
-> >  but then I have all sorts of scanning to deal with.
-> >
-> > Ive looked for documentation, but didnt find it in any of the
-> > places I looked...
->
-> No automated way to do it AFAIK, but you can edit
-> ~/.qt/qtrc and change this line (at least it works for me):
->
-> #font=Sans Serif,10,-1,5,50,0,0,0,0,0
-> font=Sans Serif,14,-1,5,50,0,0,0,0,0
->
-> Changes from 10 point to 14 point font.
+Matt Mackall <mpm@selenic.com> writes:
 
-That or run "qtconfig", where you can change all the font properties in a GUI.
+> On Fri, Mar 11, 2005 at 05:24:15PM -0800, john stultz wrote:
+>> +struct timesource_t timesource_jiffies = {
+>> +	.name = "jiffies",
+>> +	.priority = 0, /* lowest priority*/
+>> +	.type = TIMESOURCE_FUNCTION,
+>> +	.read_fnct = jiffies_read,
+>> +	.mask = (cycle_t)~0,
+>
+> Not sure this is right. The type of 0 is 'int' and the ~ will happen
+> before the cast to a potentially longer type.
+
+If you want an all-one value for any unsigned type then (type)-1 is the
+most reliable way.
+
+Andreas.
 
 -- 
-Cheers,
-Alistair.
-
-personal:   alistair()devzero!co!uk
-university: s0348365()sms!ed!ac!uk
-student:    CS/CSim Undergraduate
-contact:    1F2 55 South Clerk Street,
-            Edinburgh. EH8 9PP.
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

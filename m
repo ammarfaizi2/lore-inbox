@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262538AbUEFTYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUEFTe2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262538AbUEFTYa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 15:24:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262772AbUEFTYa
+	id S262418AbUEFTe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 15:34:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbUEFTe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 15:24:30 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:51629 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262538AbUEFTXl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 15:23:41 -0400
-Message-Id: <200405061923.i46JN97u006324@eeyore.valparaiso.cl>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] get rid of "+m" constraint in i386 rwsems 
-In-Reply-To: Your message of "Thu, 06 May 2004 14:24:54 +0100."
-             <20040506142454.C29621@flint.arm.linux.org.uk> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
-Date: Thu, 06 May 2004 15:23:09 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Thu, 6 May 2004 15:34:28 -0400
+Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:9746 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S262418AbUEFTe0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 15:34:26 -0400
+Date: Thu, 6 May 2004 21:34:55 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Michael Hunold <hunold@convergence.de>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       greg@kroah.com, sensors@stimpy.netroedge.com
+Subject: Re: [PATCH][2.6]
+Message-Id: <20040506213455.29154c51.khali@linux-fr.org>
+In-Reply-To: <409923F7.7050101@convergence.de>
+References: <409923F7.7050101@convergence.de>
+Reply-To: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> said:
+> With the new I2C_CLASS_ALL flag it will be possible that an adapter
+> can request that really all drivers are probed on the adapter. On the
+> other hand, drivers can make sure that they get the chance to probe on
+> every i2c adapter out there (this is not encouraged, though)
 
-[...]
+Depends. For example the eeprom driver will do that, and this is
+correct. That said, I agree that this is a collaborative approach and
+everybody will have to play the game.
 
-> After reading Richard's post, I wonder if, in the case of:
-> 
-> 	"=m" (x) : "m" (x)
-> 
-> whether assembly should assume that %0 is the same as %1.  Do they
-> just happen to be the same thing?  I'm thinking of the case where
-> there may be two different ways GCC may reference the same memory
-> location.
+> - rename I2C_ADAP_CLASS_xxx to I2C_CLASS_xxx (to be used both for 
+> drivers and adapters)
+> - add new I2C_CLASS_ALL and I2C_CLASS_SOUND classes
 
-It also might be a "memory location" that isn't really in memory (a local
-variable whose value resides in one register up to your asm() fragment, and
-from then on in another one or in memory; it might also be useful to load a
-value into a register from memory and restore it into memory after sundry
-manipulations, and even from a different register, much later).
+Mmm, I once proposed that I2C_ADAP_CLASS_SMBUS would be better renamed
+I2C_ADAP_CLASS_SENSORS (so I2C_CLASS_SENSORS now). What about that? I
+think it would be great to embed that change into your patch, so that
+the name changes only once.
 
-Today's compilers don't necessarily do things the way a naive understanding
-of the source language would say they do. Ever wonder why nobody uses
-"register" anymore (compilers are smarter than binding one value to a
-register today), and why fiddling with pointers when accessing arrays is
-not standard fare (compilers optimize the (bulky, slow) array accesses via
-indices out as a matter of course)?
+Now that we come to speak about that, I wonder if we would _also_ need a
+SMBUS class. SMBus is mostly a subset of I2C, essentially (but not
+completely) compatible. It may be useful at some point to know if a chip
+is compliant with SMBus or not. I don't think that i2c-core can make use
+of this at the moment, nor can I think of concrete examples where this
+would be needed. It's just a thought at the moment and I mention it here
+in case anyone has comments ;)
+
+For now we can stick to the classes we have (with the SMBUS->SENSORS
+change and the new SOUND class). The true SMBUS class can always be
+added later if needed, I guess.
+
+BTW, if HWMON is prefered to SENSORS, this is fine with me too, I have
+no strong preference.
+
+Thanks.
+
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Jean Delvare
+http://khali.linux-fr.org/

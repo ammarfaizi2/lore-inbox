@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261191AbRERRHi>; Fri, 18 May 2001 13:07:38 -0400
+	id <S261167AbRERRF6>; Fri, 18 May 2001 13:05:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261193AbRERRHU>; Fri, 18 May 2001 13:07:20 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:4100 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261173AbRERRGI>;
-	Fri, 18 May 2001 13:06:08 -0400
-Date: Thu, 17 May 2001 10:42:26 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alexander Viro <viro@math.psu.edu>,
-        James Simmons <jsimmons@transvirtual.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: LANANA: To Pending Device Number Registrants
-Message-ID: <20010517104226.B44@toy.ucw.cz>
-In-Reply-To: <Pine.GSO.4.21.0105151607100.21081-100000@weyl.math.psu.edu> <Pine.LNX.4.21.0105151328160.2470-100000@penguin.transmeta.com>
+	id <S261176AbRERRFs>; Fri, 18 May 2001 13:05:48 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:11017 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S261167AbRERRFb>;
+	Fri, 18 May 2001 13:05:31 -0400
+Date: Fri, 18 May 2001 13:04:28 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CML2 design philosophy heads-up
+Message-ID: <20010518130428.M14309@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010518034307.A10784@thyrsus.com> <E150fV9-0006q1-00@the-village.bc.nu> <20010518105353.A13684@thyrsus.com> <3B053B9B.23286E6C@redhat.com> <20010518112625.A14309@thyrsus.com> <20010518113726.A29617@devserv.devel.redhat.com> <20010518114922.C14309@thyrsus.com> <3B054AD6.7EB1582D@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.21.0105151328160.2470-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, May 15, 2001 at 01:37:53PM -0700
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B054AD6.7EB1582D@redhat.com>; from arjanv@redhat.com on Fri, May 18, 2001 at 05:16:22PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-Hi!
+Arjan van de Ven <arjanv@redhat.com>:
+> In my opinion, no configuration that is actually physically possible
+> is perverse. 
 
-> They might also be exactly the same channel, except with certain magic
-> bits set. The example peter gave was fine: tty devices could very usefully
-> be opened with something like
-> 
-> 	fd = open("/dev/tty00/nonblock,9600,n8", O_RDWR);
-> 
-> where we actually open up exactly the same channel as if we opened up
-> /dev/cua00, we just set the speed etc at the same time. Which makes things
-
-Hmm, there might be problem with this. How do you change speed without
-reopening device? [Remember: your mice knows when you close device]
-								Pavel
+Noted.  And a very pithy statement of the position.  Thanks.
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
+I do not find in orthodox Christianity one redeeming feature.
+	-- Thomas Jefferson

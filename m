@@ -1,83 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262136AbTEELS4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 07:18:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbTEELS4
+	id S262144AbTEELcZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 07:32:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262149AbTEELcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 07:18:56 -0400
-Received: from elin.scali.no ([62.70.89.10]:36228 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id S262136AbTEELSz (ORCPT
+	Mon, 5 May 2003 07:32:25 -0400
+Received: from mx0.gmx.net ([213.165.64.100]:52713 "HELO mx0.gmx.net")
+	by vger.kernel.org with SMTP id S262144AbTEELcX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 07:18:55 -0400
-Subject: Re: The disappearing sys_call_table export.
-From: Terje Eggestad <terje.eggestad@scali.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Arjan van de Ven <arjanv@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, D.A.Fedorov@inp.nsk.su
-In-Reply-To: <1052133798.2821.122.camel@pc-16.office.scali.no>
-References: <1052122784.2821.4.camel@pc-16.office.scali.no>
-	 <20030505092324.A13336@infradead.org>
-	 <1052127216.2821.51.camel@pc-16.office.scali.no>
-	 <20030505112531.B16914@infradead.org>
-	 <1052133798.2821.122.camel@pc-16.office.scali.no>
-Content-Type: text/plain
-Organization: Scali AS
-Message-Id: <1052134278.2821.131.camel@pc-16.office.scali.no>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 05 May 2003 13:31:19 +0200
-Content-Transfer-Encoding: 7bit
+	Mon, 5 May 2003 07:32:23 -0400
+Date: Mon, 5 May 2003 13:44:46 +0200 (MEST)
+From: S-n-e-a-k-e-r@gmx.net
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Subject: questions regarding arch/i386/boot/setup.S
+X-Priority: 3 (Normal)
+X-Authenticated-Sender: #0006823522@gmx.net
+X-Authenticated-IP: [193.171.252.134]
+Message-ID: <23912.1052135086@www4.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I write this to the kernel mailing list, because my question couldn't be
+answered on irc (eg. irc.kernelnewbie.org):
+____________________________________________________________________________
+arch/i386/boot/setup.S:
 
-On Mon, 2003-05-05 at 13:23, Terje Eggestad wrote:
+164 trampoline:     call    start_of_setup
+165                 .space  1024
+166 # End of setup header
+#####################################################
+167 
+168 start_of_setup:
+169 # Bootlin depends on this being done early
+170         movw    $0x01500, %ax
+____________________________________________________________________________
+my questions are:
 
-> 
-> > Again, where's your driver source so we can help you to find a better
-> > approach out of that mess?
-> >  
-> 
-> The trace module we made to trace munmap() and sbrk() could be opened,
-> but you'll be disappointed since all the pinning ( get_user_pages() and
-> friends), send() recv() etc are in the drivers for the various hardware,
-> most of which are not our property.  
-> 
-> The module works as follows. It catches sbrk(-arg) and munmap() and lays
-> out the trace info in a memory area mmap()'able thru the device file.  
-> So when processes need the trace info they have the info in memory to
-> avoid doing a ioctl().
-> 
-> Thats all we need to know if a given virtual address needs to be
-> (re)pinned. 
-> 
+-)    Why is there a call on line 164 and not a jmp?
+-)    Why does line 165 reserve 1024 bytes? what is it for?
+-)    On line 170: Why $0x01500 and not $0x1500?
 
-In all fairness this should be done in glibc, but the task of getting it
-done there was several orders of magnitude larger than just adding the
-syscall intercepts. Serves you right for writing clean code :-)
- 
-The thing is of course this *worked* until someone decided to remove the
-export of sys_call_table. 
+I would appreciate if someone could answer this mail, or if someone can
+provide ressources where I can find detailed description of the kernel code
+(didn't find anything, just overall information)
 
-Which is a decision that is most probably right, I just need another way
-of getting  a hook or notification of the sys calls. 
+regards, 
 
+andy
 
-
-
-
-> 
-> 
-> TJ
 -- 
-_________________________________________________________________________
-
-Terje Eggestad                  mailto:terje.eggestad@scali.no
-Scali Scalable Linux Systems    http://www.scali.com
-
-Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
-P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
-N-0619 Oslo                     fax:    +47 22 62 89 51
-NORWAY            
-_________________________________________________________________________
++++ GMX - Mail, Messaging & more  http://www.gmx.net +++
+Bitte lächeln! Fotogalerie online mit GMX ohne eigene Homepage!
 

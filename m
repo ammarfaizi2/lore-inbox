@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbULEBHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbULEBO5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261216AbULEBHe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 20:07:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbULEBHe
+	id S261220AbULEBO5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Dec 2004 20:14:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbULEBO5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 20:07:34 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:63116 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261216AbULEBH3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 20:07:29 -0500
-Subject: Re: Proposal for a userspace "architecture portability" library
-From: Robert Love <rml@novell.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, David Woodhouse <dwmw2@infradead.org>,
-       David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
-       libc-alpha@sources.redhat.com
-In-Reply-To: <16818.23575.549824.733470@cargo.ozlabs.ibm.com>
-References: <16818.23575.549824.733470@cargo.ozlabs.ibm.com>
-Content-Type: text/plain
-Date: Sat, 04 Dec 2004 20:08:44 -0500
-Message-Id: <1102208924.6052.94.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+	Sat, 4 Dec 2004 20:14:57 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:18842
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S261220AbULEBO4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Dec 2004 20:14:56 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [RFC] relinquish_fs() syscall
+Date: Sat, 4 Dec 2004 19:14:03 -0500
+User-Agent: KMail/1.6.2
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20041129114331.GA33900@gaz.sfgoth.com> <20041130141204.GE63669@gaz.sfgoth.com> <1101822206.25617.28.camel@localhost.localdomain>
+In-Reply-To: <1101822206.25617.28.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200412041914.03214.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-12-05 at 11:53 +1100, Paul Mackerras wrote:
+On Tuesday 30 November 2004 08:43 am, Alan Cox wrote:
 
-> Some of our kernel headers implement generally useful abstractions
-> across all of the architectures we support.  I would like to make an
-> "architecture portability" library, based on the kernel headers but as
-> a separate project from the kernel, and intended for use in userspace.
+> You would probably want a "private" AF_UNIX namespace too. The fact its
+> a single namespace for "anonymous" AF_UNIX and the \0 trick is used is
+> really legacy unix compatibility. Having multiple such namespaces is
+> certainly
+> doable. It's the same problem as the shared memory, semaphore and
+> message
+> queue objects have because they fall out of the filesystem namespace.
+> Posix
+> has fixed these but very few apps use the new forms.
 
-I think that this is an _awesome_ idea.  Might want to check out what
-overlap there is with existing glibc interfaces.  For example, I presume
-that glibc implements at least some of the atomic operations (but I also
-think having a full suite of atomic operations available is useful).
+Looking back at the patched together set of man pages, old printouts, stale 
+books, tricks picked up from other people's code, and occasional groveling 
+through the kernel and library sources I've used over the years to figure out 
+how to program Linux:
 
-Some of the stuff, like semaphores, isn't really going to port very well
-to user-space.  At least not directly, I would not think.
+Is there a book out there that actually says how we're SUPPOSED to be doing 
+all this stuff?  Which APIs are actually recommended for use under 2.6 and 
+later?  (Does O'reilley publish an up to date version of the POSIX API, with 
+examples?)
 
-But on numerous occasions I have wanted the kernel's barriers, atomic
-operations, bitwise operations, or some of the compiler things we
-implement (likely, unlikely, fixes) in user-space.
-
-> Now, clearly I can do this under the GPL.  However, I think it would
-> be more useful to have the library under the LGPL, which requires
-> either getting the permission of the authors of the kernel files, or
-> rewriting them from scratch.
-
-FWIW, you have my permission.  I've touched spinlock.h a bunch.
-
-	Robert Love
-
-
+Rob

@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314438AbSDRTcr>; Thu, 18 Apr 2002 15:32:47 -0400
+	id <S314439AbSDRTfa>; Thu, 18 Apr 2002 15:35:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314437AbSDRTcq>; Thu, 18 Apr 2002 15:32:46 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:60613 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S314436AbSDRTcp>; Thu, 18 Apr 2002 15:32:45 -0400
-Date: Thu, 18 Apr 2002 15:32:38 -0400
-From: Doug Ledford <dledford@redhat.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Andrea Arcangeli <andrea@suse.de>, jh@suse.cz,
-        linux-kernel@vger.kernel.org, jakub@redhat.com, aj@suse.de, ak@suse.de,
-        pavel@atrey.karlin.mff.cuni.cz,
-        References: 
-	20020417194249.B23438@redhat.com,
-        20020418072615.I14322@dualathlon.random
-Subject: Re: SSE related security hole
-Message-ID: <20020418153238.A25037@redhat.com>
-Mail-Followup-To: Doug Ledford <dledford@redhat.com>,
-	Pavel Machek <pavel@suse.cz>, Andrea Arcangeli <andrea@suse.de>,
-	jh@suse.cz, linux-kernel@vger.kernel.org, jakub@redhat.com,
-	aj@suse.de, ak@suse.de, pavel@atrey.karlin.mff.cuni.cz,
-	References:  20020417194249.B23438@redhat.com,
-	20020418072615.I14322@dualathlon.random
-In-Reply-To: <20020418072615.I14322@dualathlon.random> <20020418094444.A2450@redhat.com> <20020418192003.GE11220@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
+	id <S314440AbSDRTf3>; Thu, 18 Apr 2002 15:35:29 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:41736
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S314439AbSDRTf3>; Thu, 18 Apr 2002 15:35:29 -0400
+Date: Thu, 18 Apr 2002 12:34:29 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: "J.A. Magallon" <jamagallon@able.es>
+cc: Heinz Diehl <hd@cavy.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCHSET] Linux 2.4.19-pre7-jam1
+In-Reply-To: <20020418192728.GA1891@werewolf.able.es>
+Message-ID: <Pine.LNX.4.10.10204181232090.17538-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 18, 2002 at 09:20:03PM +0200, Pavel Machek wrote:
-> It introduces security hole: Unrelated tasks now have your top secret
-> value you stored in one of your registers.
 
-Well, that's been my point all along and why I sent the patch.  I was not 
-asking why leaving the registers alone instead of 0ing them out was not a 
-security hole.  I was asking why doing so was not backward compatible?
+Thanks for the positive feedback!
+About to add and test HPT372 final and then complete the MMIO operations.
+Next will be to make the driver do the error recovery path that block does
+not support and accellerate IO with true zero-copy.  Lastly will make the
+entire stack modular, which is about 50% completed.
 
--- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc. 
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-  
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Thu, 18 Apr 2002, J.A. Magallon wrote:
+
+> 
+> On 2002.04.18 Heinz Diehl wrote:
+> >On Wed Apr 17 2002, J.A. Magallon wrote:
+> >
+> >> Can it be related to my system getting hung on boot trying to do
+> >> an hdparm ?
+> >
+> >Yep, here it is exactly the same.
+> >
+> >I also changed '#if 1' to '#if 0' as Andre mentioned but it has no effect,
+> >my machine hangs at boot time....
+> >
+> 
+> It worked for me, just booted fine with hdparm included...
+> 
+> -- 
+> J.A. Magallon                           #  Let the source be with you...        
+> mailto:jamagallon@able.es
+> Mandrake Linux release 8.3 (Cooker) for i586
+> Linux werewolf 2.4.19-pre7-jam1 #2 SMP Wed Apr 17 21:20:31 CEST 2002 i686
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

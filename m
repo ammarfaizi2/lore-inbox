@@ -1,41 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269865AbRHNCQF>; Mon, 13 Aug 2001 22:16:05 -0400
+	id <S269326AbRHNCP0>; Mon, 13 Aug 2001 22:15:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269883AbRHNCP5>; Mon, 13 Aug 2001 22:15:57 -0400
-Received: from a1a90191.sympatico.bconnected.net ([209.53.18.14]:16768 "EHLO
-	a1a90191.sympatico.bconnected.net") by vger.kernel.org with ESMTP
-	id <S269865AbRHNCPn> convert rfc822-to-8bit; Mon, 13 Aug 2001 22:15:43 -0400
-Date: Mon, 13 Aug 2001 19:15:55 -0700
-From: Shane Wegner <shane@cm.nu>
-To: linux-kernel@vger.kernel.org
-Subject: Problem with cd-RW-vt82cxx under 2.4.9pre2
-Message-ID: <20010813191555.A1127@cm.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Mutt/1.3.18i
-Organization: Continuum Systems, Vancouver, Canada
+	id <S269865AbRHNCPG>; Mon, 13 Aug 2001 22:15:06 -0400
+Received: from mercury.Sun.COM ([192.9.25.1]:15804 "EHLO mercury.Sun.COM")
+	by vger.kernel.org with ESMTP id <S269326AbRHNCOz>;
+	Mon, 13 Aug 2001 22:14:55 -0400
+Message-ID: <3B788A88.B5E7CBA2@sun.com>
+Date: Mon, 13 Aug 2001 19:18:48 -0700
+From: Tim Hockin <thockin@sun.com>
+Organization: Sun Microsystems, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        torvalds@transmeta.com, jgarzik@mandrakesoft.com, mj@ucw.cz,
+        alan@redhat.com
+Subject: [PATCH] PCI devid ordering 
+Content-Type: multipart/mixed;
+ boundary="------------59724ED0E9988EA2993EE390"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+This is a multi-part message in MIME format.
+--------------59724ED0E9988EA2993EE390
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Under kernel 2.4.9pre2, I am unable to access my HP 8110
-CD-RW drive.  I have an Abit vp6 board which is a dual PIII
-and has the vt82cxxx chipset.  I dropped back to the 2.2.19
-kernel + Andre Hedrick's IDE patch and everything works
-fine.
+All,
 
-If you need any further information, let me know and I'll
-do my best to provide it.
+Attached is a VERY small patch against 2.4.8, which I have been sending for
+a while.  It merely re-orders one of the PCI device ids - the list was
+supposed to be kept in order.
 
-Shane
+If there is any reason this can't go into the next 2.4.x release, please
+let me know.
 
+Tim
 -- 
-Shane Wegner: shane@cm.nu
-              http://www.cm.nu/~shane/
-PGP:          1024D/FFE3035D
-              A0ED DAC4 77EC D674 5487
-              5B5C 4F89 9A4E FFE3 035D
+Tim Hockin
+Systems Software Engineer
+Sun Microsystems, Cobalt Server Appliances
+thockin@sun.com
+--------------59724ED0E9988EA2993EE390
+Content-Type: text/plain; charset=us-ascii;
+ name="pci_devid.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pci_devid.diff"
+
+diff -ruN dist+patches-2.4.8/include/linux/pci_ids.h cobalt-2.4.8/include/linux/pci_ids.h
+--- dist+patches-2.4.8/include/linux/pci_ids.h	Mon Aug  6 10:11:58 2001
++++ cobalt-2.4.8/include/linux/pci_ids.h	Mon Aug 13 16:42:50 2001
+@@ -1041,8 +1041,8 @@
+ #define PCI_DEVICE_ID_SERVERWORKS_LE	  0x0009
+ #define PCI_DEVICE_ID_SERVERWORKS_CIOB30  0x0010
+ #define PCI_DEVICE_ID_SERVERWORKS_CMIC_HE 0x0011
+-#define PCI_DEVICE_ID_SERVERWORKS_CSB5	  0x0201
+ #define PCI_DEVICE_ID_SERVERWORKS_OSB4	  0x0200
++#define PCI_DEVICE_ID_SERVERWORKS_CSB5	  0x0201
+ #define PCI_DEVICE_ID_SERVERWORKS_OSB4IDE 0x0211
+ #define PCI_DEVICE_ID_SERVERWORKS_CSB5IDE 0x0212
+ #define PCI_DEVICE_ID_SERVERWORKS_OSB4USB 0x0220
+
+--------------59724ED0E9988EA2993EE390--
+

@@ -1,78 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270754AbTHAMcu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 08:32:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270755AbTHAMcu
+	id S275213AbTHAMZW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 08:25:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275214AbTHAMZW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 08:32:50 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:49354 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S270754AbTHAMcs (ORCPT
+	Fri, 1 Aug 2003 08:25:22 -0400
+Received: from main.gmane.org ([80.91.224.249]:30873 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S275213AbTHAMZK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 08:32:48 -0400
-Date: Fri, 1 Aug 2003 14:32:36 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Ian Kumlien <pomac@vapor.com>
-Cc: Ihar Philips Filipau <filia@softhome.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [SHED][IO-SHED] Are we missing the big picture?
-Message-ID: <20030801123236.GS7920@suse.de>
-References: <fw7N.3DP.11@gated-at.bofh.it> <3F2A2C14.9030801@softhome.net> <1059740622.30747.67.camel@big.pomac.com>
+	Fri, 1 Aug 2003 08:25:10 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: IP multicast errors with linux 2.6.0-test2 and SiS900
+Date: Fri, 01 Aug 2003 14:20:07 +0200
+Message-ID: <yw1xu191k1s8.fsf@users.sourceforge.net>
+References: <yw1xznitk857.fsf@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1059740622.30747.67.camel@big.pomac.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:SoQewDTunAbP57i20xaYDBkHFxs=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 01 2003, Ian Kumlien wrote:
-> On Fri, 2003-08-01 at 11:00, Ihar "Philips" Filipau wrote:
-> >    Am I right - judging from your posting - that we finally reached 
-> > moment than Linux will have network-like queueing disciplines for disks 
-> > and CPUs?
-> 
-> CPU's? well, we do have a nice sheduler but i wouldn't say network-like
-> queuing.
-> 
-> >    In any way, CPU/disk throughput just another types of limited resource.
-> >    It would be nice to be able to manage it - who gets more, who gets 
-> > less. CPU/disk schedulers by manageability are far behind network.
-> >    IMHO must have for servers.
-> 
-> Yes, but, thats not what I'm saying.
-> 
-> CFQ as it apparently was called, builds a queue list when the disk is
+mru@users.sourceforge.net (Måns Rullgård) writes:
 
-I coined that phrase as a variant of SFQ, with C being Complete.
+> I'm experiencing some strange behavior with IP multicast in linux
+> 2.6.0-test2 on a SiS900 NIC.
+>
+> It will only receive multicast packets with destination address
+> 239.1.1.*, unless I "ifconfig eth0 allmulti".  With allmulti set, all
+> multcast addresses are received.  Setting promisc mode also does the
+> trick.
+>
+> This isn't the intended bahavior, is it?
 
-> under load. So you get really fast data access if there is no load, and
-> a common queue when there is load. The common queue is the bad thing
-> about CFQ, imagine putting AS there instead... This would mean fast data
-> access on unloaded systems, better throughput on loaded systems and
-> prioritization features could hook right in since AS would only be used
-> during load. IE, you can add all kinds of patches that only matters
-> during heavy load.
+Update: 239.2.*.1 seems to work as well, but 239.1.1.1 doesn't work.
 
-I dunno where you get this from, but you seem to have a misguide picture
-of how io schedulers work in Linux. AS works like deadline, but adds
-anticipation. This means you try to anticipate whether a process will
-issue a nearby read soon, and if so stall the disk head. deadline itself
-has a single queue for merging/sorting, and a single queue as a deadline
-fifo (for each data direction, read and write).
+Also, if I join several multicast groups using the same port number,
+all sockets receive packets from all groups.  Maybe this is intended,
+I can't find any details on this.
 
-Where CFQ differs is that it maintains such a backend system for each
-"class" (user, could be a task grouping of some sort too), with a small
-front end (class independent scheduler is used in some contexts) to
-select which class we do IO from. The old design just round-robined
-between all "busy" tasks, with some heuristics to minimize seeks.
+Hardware details:
 
-So for a single task, deadline and CFQ works the same basically. AS
-differs because of the anticipation of course.
+$ lscpi
+00:00.0 Host bridge: Silicon Integrated Systems [SiS] 650 Host (rev 01)
+00:01.0 PCI bridge: Silicon Integrated Systems [SiS] SiS 530 Virtual PCI-to-PCI bridge (AGP)
+00:02.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513 (rev 10)
+00:02.1 SMBus: Silicon Integrated Systems [SiS]: Unknown device 0016
+00:02.2 USB Controller: Silicon Integrated Systems [SiS] SiS7001 USB Controller (rev 07)
+00:02.3 USB Controller: Silicon Integrated Systems [SiS] SiS7001 USB Controller (rev 07)
+00:02.5 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0)
+00:02.7 Multimedia audio controller: Silicon Integrated Systems [SiS] SiS7012 PCI Audio Accelerator (rev a0)
+00:03.0 Ethernet controller: Silicon Integrated Systems [SiS] SiS900 10/100 Ethernet (rev 90)
+00:0a.0 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev a8)
+00:0a.1 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev a8)
+00:0a.2 FireWire (IEEE 1394): Ricoh Co Ltd R5C552 IEEE 1394 Controller
+00:0c.0 Communication controller: Conexant HSF 56k HSFi Modem (rev 01)
+01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS] SiS650/651/M650/740 PCI/AGP VGA Display Adapter
 
-> > > I liked Jens Axobe's 'CBQ' alike implementation (based on the idea of
-> > > Andrea A. (afair i have the names right) since it does the most
+$ lspci -s3 -v
+00:03.0 Ethernet controller: Silicon Integrated Systems [SiS] SiS900 10/100 Ethernet (rev 90)
+	Subsystem: Asustek Computer, Inc.: Unknown device 1455
+	Flags: bus master, medium devsel, latency 32, IRQ 11
+	I/O ports at a000 [size=256]
+	Memory at e6000000 (32-bit, non-prefetchable) [size=4K]
+	Expansion ROM at <unassigned> [disabled] [size=128K]
+	Capabilities: <available only to root>
 
-Nope, it's Axboe :)
+$ dmesg [in part]
+sis900.c: v1.08.06 9/24/2002
+eth0: ICS LAN PHY transceiver found at address 1.
+eth0: Using transceiver found at address 1 as default
+eth0: SiS 900 PCI Fast Ethernet at 0xa000, IRQ 11, 00:0c:6e:40:b0:22.
+eth0: Media Link On 100mbps full-duplex 
+
 
 -- 
-Jens Axboe
+Måns Rullgård
+mru@users.sf.net
 

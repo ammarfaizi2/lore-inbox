@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292378AbSBPO0Z>; Sat, 16 Feb 2002 09:26:25 -0500
+	id <S292370AbSBPOh4>; Sat, 16 Feb 2002 09:37:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292379AbSBPO0G>; Sat, 16 Feb 2002 09:26:06 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:45575
+	id <S292371AbSBPOhr>; Sat, 16 Feb 2002 09:37:47 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:50951
 	"EHLO golux.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S292378AbSBPOZ6>; Sat, 16 Feb 2002 09:25:58 -0500
-Date: Sat, 16 Feb 2002 08:57:06 -0500
+	id <S292370AbSBPOhc>; Sat, 16 Feb 2002 09:37:32 -0500
+Date: Sat, 16 Feb 2002 09:10:18 -0500
 From: "Eric S. Raymond" <esr@thyrsus.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Rob Landley <landley@trommello.org>, Dave Jones <davej@suse.de>,
-        Larry McVoy <lm@work.bitmover.com>,
-        Arjan van de Ven <arjan@redhat.com>, linux-kernel@vger.kernel.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Dave Jones <davej@suse.de>,
+        Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>,
+        linux-kernel@vger.kernel.org
 Subject: Re: Disgusted with kbuild developers
-Message-ID: <20020216085706.H23546@thyrsus.com>
+Message-ID: <20020216091018.I23546@thyrsus.com>
 Reply-To: esr@thyrsus.com
 Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Rob Landley <landley@trommello.org>, Dave Jones <davej@suse.de>,
-	Larry McVoy <lm@work.bitmover.com>,
-	Arjan van de Ven <arjan@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020216013538.A23546@thyrsus.com> <20020215135557.B10961@thyrsus.com> <20020215224916.L27880@suse.de> <20020215170459.A15406@thyrsus.com> <20020215232517.FXLQ71.femail38.sdc1.sfba.home.com@there> <20020216013538.A23546@thyrsus.com> <22614.1013851279@redhat.com>
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>, Dave Jones <davej@suse.de>,
+	Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3C6DE6A1.2B5717BE@mandrakesoft.com> <E16c44r-000670-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <22614.1013851279@redhat.com>; from dwmw2@infradead.org on Sat, Feb 16, 2002 at 09:21:19AM +0000
+In-Reply-To: <E16c44r-000670-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Feb 16, 2002 at 12:36:29PM +0000
 Organization: Eric Conspiracy Secret Labs
 X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse <dwmw2@infradead.org>:
-> However - the thing to which I and many others object most strongly is the 
-> rulebase policy changes which appear to be inseparable from the change in 
-> mechanism. That is; we've tried to get you to separate them, and failed.
+Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> The graph tells you that. The only interesting case I could find is the
+> negation one - some rules are  A conflicts with B which makes the UI side
+> much more fun
 
-Failed?  Hardly.
+That's right.  This is a CML2 require/prohibit construct.  CML1 cannot
+express this, and it's essential for side-effect forcing to work.  Jeff's
+observation about being tempted to introduce a `require' turns out actually 
+to be equivalent once you see how both problems generalize.
 
-The only rulebase policy change Tom Rini was able to identify in a recent
-review was the magic behavior of EXPERT with respect to entries without
-help.  Which I then removed by commenting out a single declaration.
+You can't deduce these constraints from graph analysis, because they're 
+not implicit in the if/then tree structure that is the only thing CML1
+knows about.
 
-There is a widespread myth that the CML2 rulebase is lousy with "policy
-changes".  I don't know how it got started, but it needs to die now.
+Jeff and Alan have now almost caught up to where I was two years ago when
+I realized the CMl1 formalism was inadequate.
 
-Maybe I need to write a CML2 FAQ.
+This is going in the FAQ.
 -- 
 		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>

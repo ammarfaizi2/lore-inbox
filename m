@@ -1,65 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262874AbTETALy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 20:11:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263056AbTETALx
+	id S262568AbTETAN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 20:13:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262718AbTETAN5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 20:11:53 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:52900 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262874AbTETALw (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 20:11:52 -0400
-Message-Id: <200305200024.h4K0OnPc025466@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Recent changes to sysctl.h breaks glibc 
-In-Reply-To: Your message of "Mon, 19 May 2003 17:55:06 MDT."
-             <m14r3q331h.fsf@frodo.biederman.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030519165623.GA983@mars.ravnborg.org> <Pine.LNX.4.44.0305191039320.16596-100000@home.transmeta.com> <babhik$sbd$1@cesium.transmeta.com> <m1d6ie37i8.fsf@frodo.biederman.org> <3EC95B58.7080807@zytor.com> <m18yt235cf.fsf@frodo.biederman.org> <3EC9660D.2000203@zytor.com>
-            <m14r3q331h.fsf@frodo.biederman.org>
+	Mon, 19 May 2003 20:13:57 -0400
+Received: from 12-226-168-214.client.attbi.com ([12.226.168.214]:49036 "EHLO
+	marta.kurtwerks.com") by vger.kernel.org with ESMTP id S262568AbTETAN4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 20:13:56 -0400
+Date: Mon, 19 May 2003 20:26:53 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
+To: reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove 'strchr' warning from reiserfs
+Message-ID: <20030520002653.GE21836@kurtwerks.com>
+References: <20030517191611.GA10417@mars.ravnborg.org> <20030519124712.2c4b692d.shemminger@osdl.org> <20030519213315.GA1069@mars.ravnborg.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1300630288P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 19 May 2003 20:24:49 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030519213315.GA1069@mars.ravnborg.org>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.20-xfs
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1300630288P
-Content-Type: text/plain; charset=us-ascii
+An unnamed Administration source, Sam Ravnborg, wrote:
+% On Mon, May 19, 2003 at 12:47:12PM -0700, Stephen Hemminger wrote:
+% > 
+% > Is this gcc behaviour documented anywhere?
+% 
+% I dropped a mail to gcc-bugs - the reply was:
+% 
+% =======
+% The kernel is a special case; GCC is entitled to assume the existence of
+% standard C library functions.
+% =======
+% 
+% So when messing with standard functions we may expect a few suprises,
+% which I think is fair enough.
 
-On Mon, 19 May 2003 17:55:06 MDT, Eric W. Biederman said:
-> If things must be maintained in concert it is a bug.  
-> 
-> With a fixed ABI people take advantage of new features as they
-> care for them.  And in general to use new features requires new code.
+Hmm. And -nostdlib (or -nodefaultlibs) doesn't catch it?
 
-And if the kernel headers aren't maintained in concert with the kernel,
-new userspace code can't reach the new features.
-
-Therefor, by your definition, the current situation is a bug.
-
-Try compiling code that uses futexes on a system that has a kernel that
-supports them, but kernel-headers that haven't been upgraded to mention them.
-The kernel has the new code, the userspace has the new code, but gcc will
-turn around and whinge about the new code because there's a piece missing in
-between.  So people *CANT* take advantage of the new features (unless they
-do something silly like drag their own foo.h file around where it can get
-out of sync with reality).
-
-
---==_Exmh_-1300630288P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+yXXQcC3lWbTT17ARAqXlAJ9B/F3OBLLh9yeK6shkWYN8jdzMBACcCMsC
-t64Solrib4GAqf86Ow9ot9w=
-=ViKe
------END PGP SIGNATURE-----
-
---==_Exmh_-1300630288P--
+K
+-- 
+According to Kentucky state law, every person must take a bath at least
+once a year.

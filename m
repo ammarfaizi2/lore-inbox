@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291088AbSBZQbq>; Tue, 26 Feb 2002 11:31:46 -0500
+	id <S291081AbSBZQiH>; Tue, 26 Feb 2002 11:38:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291084AbSBZQb0>; Tue, 26 Feb 2002 11:31:26 -0500
-Received: from pC19F4729.dip.t-dialin.net ([193.159.71.41]:35552 "EHLO
-	artus.fbunet.de") by vger.kernel.org with ESMTP id <S291081AbSBZQbR>;
-	Tue, 26 Feb 2002 11:31:17 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Fridtjof Busse <fridtjof.busse@gmx.de>
-Message-Id: <200202261722.13431@fbunet.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.4.18-ac1] Unable to mount root fs
-Date: Tue, 26 Feb 2002 17:31:39 +0100
-X-OS: Linux on i686
+	id <S291084AbSBZQh5>; Tue, 26 Feb 2002 11:37:57 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:64261 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S291081AbSBZQhm>; Tue, 26 Feb 2002 11:37:42 -0500
+Message-ID: <3C7BB9A3.30408@evision-ventures.com>
+Date: Tue, 26 Feb 2002 17:36:51 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: Mike Fedyk <mfedyk@matchmail.com>
+CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: ext3 and undeletion
+In-Reply-To: <fa.n4lfl6v.h4chor@ifi.uio.no> <05cb01c1be1e$c490ba00$1a01a8c0@allyourbase> <20020225172048.GV20060@matchmail.com> <02022518330103.01161@grumpersII> <a5f7s4$2o1$1@cesium.transmeta.com> <20020226160544.GD4393@matchmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-I successfully patched and compiled 2.4.18-ac1, no problems.
-But when I try to boot the system, the kernel is unable to mount the 
-root filesystem (/dev/hdf2):
+> True, and it could to tricks like listing space used for undelete as "free"
+> in addition to dynamic garbage collection.
+> 
+> Though, with a daemon checking the dirs often, or using Daniel's idea of a
+> socket between unlink() in glibc and an undelete daemon could work quite
+> similairly.
+> 
+> Also, there wouldn't be any interaction with filesystem internals, and
+> userspace would probably work better with non-posix type filesystems (vfat,
+> hfs, etc) too.
+> 
+> IOW, there seems to be little gain to having an kernelspace solution.
+>
 
-request_module[block-major-33]: Root fs not mounted
-VFS: Cannot open root devices "hdf2" or 21:42
-Please append a correct "root=" boot option
-Kernel panic: VFS: Unable to mount root fs on 21:42
+IMNSHO everyone thinking about undeletion in Linux should be
+sentenced to 1 year of VMS usage and asked then again if he
+still think's that it's a good idea...
 
-The bootloader-options are correct, a 2.4.18 kernel with exactly the 
-same config-options has no problems with mounting the root fs.
-hdf is secondary master, connected to a Promise UDMA 100 controller on 
-an ASUS A7V.
-
-The boot-option in grub.conf looks like
-
-title Linux-ac(2.4.18-ac1)
-        root (hd1,0)
-        kernel /vmlinuz-2.4.18-ac1 ro root=/dev/hdf2 hdc=ide-scsi
-title Linux (2.4.18)
-        root (hd1,0)
-        kernel /vmlinuz-2.4.18 ro root=/dev/hdf2 hdc=ide-scsi
-
-but only 2.4.18 works.
-Is this a bug or did I miss anything?
--- 
-Fridtjof Busse
-Microsoft is a cross between The Borg and the Ferengi. 
-Unfortunately they use Borg to do their marketing and Ferengi to do 
-their programming.

@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269299AbTGRPbq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 11:31:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268548AbTGRPar
+	id S271808AbTGRPca (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 11:32:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271799AbTGRPby
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 11:30:47 -0400
-Received: from mail.cpt.sahara.co.za ([196.41.29.142]:34544 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id S271857AbTGRPYe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 11:24:34 -0400
-Subject: Re: libata driver update posted
-From: Martin Schlemmer <azarah@gentoo.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Catalin BOIE <util@deuroconsult.ro>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <3F17F28C.9050105@pobox.com>
-References: <3F1711C8.6040207@pobox.com>
-	 <Pine.LNX.4.53.0307180924020.19703@hosting.rdsbv.ro>
-	 <3F17F28C.9050105@pobox.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1058542771.13515.1599.camel@workshop.saharacpt.lan>
+	Fri, 18 Jul 2003 11:31:54 -0400
+Received: from mail.gmx.de ([213.165.64.20]:24980 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S271777AbTGRPa4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 11:30:56 -0400
+Message-Id: <5.2.1.1.2.20030718174802.01b168a0@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Fri, 18 Jul 2003 17:50:07 +0200
+To: Con Kolivas <kernel@kolivas.org>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [PATCH] O6int for interactivity
+Cc: Nick Piggin <piggin@cyberone.com.au>,
+       Davide Libenzi <davidel@xmailserver.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>
+In-Reply-To: <200307190024.08571.kernel@kolivas.org>
+References: <5.2.1.1.2.20030718120229.01a8fcf0@pop.gmx.net>
+ <5.2.1.1.2.20030718071656.01af84d0@pop.gmx.net>
+ <5.2.1.1.2.20030718120229.01a8fcf0@pop.gmx.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 18 Jul 2003 17:39:32 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-07-18 at 15:13, Jeff Garzik wrote:
-> Catalin BOIE wrote:
-> >>Next update will add several host drivers, now that the libata API is
-> >>settling down.
-> > 
-> > 
-> > Sii3112A is/will be supported?
-> 
-> 
-> Yes, will be.
-> 
-> Silicon Image and Promise support are most likely next.
-> 
+At 12:24 AM 7/19/2003 +1000, Con Kolivas wrote:
+>On Fri, 18 Jul 2003 20:18, Mike Galbraith wrote:
+> > At 04:34 PM 7/18/2003 +1000, Nick Piggin wrote:
+> > >Mike Galbraith wrote:
+> > That _might_ (add salt) be priorities of kernel threads dropping too low.
+>
+>Is there any good reason for the priorities of kernel threads to vary at all?
+>In the original design they are subject to the same interactivity changes as
+>other processes and I've maintained that but I can't see a good reason for it
+>and plan to change it unless someone tells me otherwise.
 
-How is performance compared to the default driver for the ICH5 SATA ?
+They're so light now days that I never see them change.  I set bonus 
+manually to MAX_BONUS/2 in the last numbers posted.
 
-
-Thanks,
-
-
--- 
-Martin Schlemmer
-
+         -Mike 
 

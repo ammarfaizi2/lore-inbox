@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVBFOXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbVBFO0V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbVBFOXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 09:23:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbVBFOXQ
+	id S261155AbVBFO0V (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 09:26:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVBFO0U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 09:23:16 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:29417 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261243AbVBFOXN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 09:23:13 -0500
-Date: Sun, 6 Feb 2005 15:22:54 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>, akpm@osdl.org,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org, drepper@redhat.com
-Subject: Re: [PROPOSAL/PATCH] Remove PT_GNU_STACK support before 2.6.11
-Message-ID: <20050206142254.GA7902@elte.hu>
-References: <20050206120244.GA28061@elte.hu> <20050206124523.GA762@elte.hu> <20050206125002.GF30109@wotan.suse.de> <1107694800.22680.90.camel@laptopd505.fenrus.org> <20050206130152.GH30109@wotan.suse.de> <20050206130650.GA32015@infradead.org> <20050206131130.GJ30109@wotan.suse.de> <20050206133239.GA4483@elte.hu> <20050206134640.GB30476@wotan.suse.de> <20050206140802.GA6323@elte.hu>
+	Sun, 6 Feb 2005 09:26:20 -0500
+Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:16143 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S261155AbVBFO0O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 09:26:14 -0500
+Date: Sun, 6 Feb 2005 15:26:15 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Enrico Bartky <DOSProfi@web.de>, linux-pci@atrey.karlin.mff.cuni.cz
+Cc: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Maarten Deprez <maartendeprez@scarlet.be>, Greg KH <gregkh@suse.de>
+Subject: Re: M7101
+Message-Id: <20050206152615.1ab7498c.khali@linux-fr.org>
+In-Reply-To: <41DC59A4.1070006@web.de>
+References: <41DC59A4.1070006@web.de>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050206140802.GA6323@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Enrico,
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+Sorry for the delay.
 
-> > Last summer nobody did change the 32bit ABI on x86-64.
-> > 
-> > I only started it because the bug reports are appearing now and it's
-> > clear now that we have a problem. 
-> 
-> the vanilla 2.6.10 x64 kernel, using 32-bit fedora userland boots fine
-> here, and gives a noexec stack:
+> I have a board with the ALI M7101 chip, but I can't activate it in
+> BIOS.  I tried to compile the prog/hotplug/m7101.c but I seen that
+> this is only  for 2.4 Kernels. Is there a module for 2.6?
 
-same with SuSE 9.1 32-bit user-space running a vanilla 2.6.10 x64 kernel
-- PT_GNU_STACK is honored and the stack is noexec.
+The prog/hotplug/m7101.c (from the lm_sensors project) was a quick hack
+and only works with 2.4 kernels, as you noticed. For 2.6 kernels, the
+prefered solution is known as PCI quirks (drivers/pci/quirks.c). I can
+see that you already found that and proposed a patch for the 2.6 kernel
+here:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=110606482902883
 
-	Ingo
+Maarten Deprez then converted it to the proper kernel coding-style:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=110726276414532
+
+I invite you to test the new patch and confirm that it works for you.
+
+Any chance we could get the PCI folks to review the code and push it
+upwards if it is OK?
+
+For reference, here are links to the original m7101 unhiding driver code
+and help file:
+http://www2.lm-sensors.nu/~lm78/cvs/lm_sensors2/prog/hotplug/m7101.c
+http://www2.lm-sensors.nu/~lm78/cvs/lm_sensors2/prog/hotplug/README
+
+Thanks,
+-- 
+Jean Delvare

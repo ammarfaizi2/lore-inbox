@@ -1,62 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262027AbVCHBbn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261992AbVCGXiS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262027AbVCHBbn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 20:31:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVCHBba
+	id S261992AbVCGXiS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 18:38:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVCGXfx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 20:31:30 -0500
-Received: from ns1.lanforge.com ([66.165.47.210]:33445 "EHLO www.lanforge.com")
-	by vger.kernel.org with ESMTP id S262024AbVCHB3k (ORCPT
+	Mon, 7 Mar 2005 18:35:53 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:64720 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S261783AbVCGXB6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 20:29:40 -0500
-Message-ID: <422CFFFF.2010501@candelatech.com>
-Date: Mon, 07 Mar 2005 17:29:35 -0800
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Josef E. Galea" <josefeg@euroweb.net.mt>
-CC: Scott Feldman <sfeldma@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: Sending IP datagrams
-References: <422CE853.8070603@euroweb.net.mt> <9b84705fe7666dfbbf1782ca85ae2ae0@pobox.com> <422CF779.6030508@euroweb.net.mt>
-In-Reply-To: <422CF779.6030508@euroweb.net.mt>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 7 Mar 2005 18:01:58 -0500
+Date: Tue, 8 Mar 2005 02:27:20 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Nish Aravamudan <nish.aravamudan@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Fruhwirth Clemens <clemens@endorphin.org>,
+       Herbert Xu <herbert@gondor.apana.org.au>, cryptoapi@lists.logix.cz,
+       James Morris <jmorris@redhat.com>, David Miller <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [8/many] acrypto: crypto_dev.c
+Message-ID: <20050308022720.023a7a2b@zanzibar.2ka.mipt.ru>
+In-Reply-To: <29495f1d05030714515c44caf2@mail.gmail.com>
+References: <11102278542733@2ka.mipt.ru>
+	<1110227854480@2ka.mipt.ru>
+	<29495f1d0503071440562f054@mail.gmail.com>
+	<20050308021431.1313971a@zanzibar.2ka.mipt.ru>
+	<29495f1d05030714515c44caf2@mail.gmail.com>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [194.85.82.65]); Tue, 08 Mar 2005 02:01:17 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Josef E. Galea wrote:
-> Scott Feldman wrote:
+On Mon, 7 Mar 2005 14:51:21 -0800
+Nish Aravamudan <nish.aravamudan@gmail.com> wrote:
+
+> On Tue, 8 Mar 2005 02:14:31 +0300, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> > On Mon, 7 Mar 2005 14:40:52 -0800
+> > Nish Aravamudan <nish.aravamudan@gmail.com> wrote:
+> > 
+> > > On Mon, 7 Mar 2005 23:37:34 +0300, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> > > > --- /tmp/empty/crypto_dev.c     1970-01-01 03:00:00.000000000 +0300
+> > > > +++ ./acrypto/crypto_dev.c      2005-03-07 20:35:36.000000000 +0300
+> > > > @@ -0,0 +1,421 @@
+> > > > +/*
+> > > > + *     crypto_dev.c
+> > >
+> > > <snip>
+> > >
+> > > > +                       while (atomic_read(&__dev->refcnt)) {
 > 
->>
->> On Mar 7, 2005, at 3:48 PM, Josef E. Galea wrote:
->>
->>> Hi,
->>>
->>> Is there any way, other than socket buffers, to send IP datagrams 
->>> from a kernel module? If yes, can you please point me to some good 
->>> tutorial or sample code
->>
->>
->>
->> See net/core/pktgen.c for an example.
->>
->> -scott
->>
-> AFAIK that module uses socket buffers (struct sk_buff) to send the 
-> packets. I was asking whether there was another way to send the IP 
-> datagrams.
+> <snip>
+> 
+> > > > +                               set_current_state(TASK_UNINTERRUPTIBLE);
+> > > > +                               schedule_timeout(HZ);
+> > >
+> > > I don't see any wait-queues in the immediate area of this code. Can
+> > > this be an ssleep(1)?
+> > 
+> > Yes, you are right, this loop just spins until all pending sessions
+> > are removed from given crypto device, so it can just ssleep(1) here.
+> 
+> Would you like me to send an incremental patch or will you be changing
+> it yourself?
 
-The sk_buf is the thing you send to network drivers, it doesn't get
-any more basic unless you are hacking a particular driver and DMA'ing memory
-or something like that...
+That would be nice to see your changes in the acrypto.
+If it will be commited...
 
-Maybe you should explain what you are really trying to do?
+> Thanks,
+> Nish
 
-Ben
 
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
+	Evgeniy Polyakov
 
+Only failure makes us experts. -- Theo de Raadt

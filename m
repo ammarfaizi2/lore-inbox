@@ -1,72 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268707AbUIXMPr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268709AbUIXMRl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268707AbUIXMPr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 08:15:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268708AbUIXMPr
+	id S268709AbUIXMRl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 08:17:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268711AbUIXMRl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 08:15:47 -0400
-Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:45258 "EHLO
-	cenedra.walrond.org") by vger.kernel.org with ESMTP id S268707AbUIXMPo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 08:15:44 -0400
-From: Andrew Walrond <andrew@walrond.org>
-To: Sergei Haller <Sergei.Haller@math.uni-giessen.de>
-Subject: Re: lost memory on a 4GB amd64
-Date: Fri, 24 Sep 2004 13:15:42 +0100
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org, "Rafael J. Wysocki" <rjw@sisk.pl>
-References: <Pine.LNX.4.58.0409161445110.1290@magvis2.maths.usyd.edu.au> <200409241041.08975.andrew@walrond.org> <Pine.LNX.4.58.0409242126450.16306@fb07-calculator.math.uni-giessen.de>
-In-Reply-To: <Pine.LNX.4.58.0409242126450.16306@fb07-calculator.math.uni-giessen.de>
+	Fri, 24 Sep 2004 08:17:41 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:38310 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S268709AbUIXMRB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 08:17:01 -0400
+Date: Fri, 24 Sep 2004 05:16:52 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: [time] add support for CLOCK_THREAD_CPUTIME_ID and
+ CLOCK_PROCESS_CPUTIME_ID
+In-Reply-To: <B6E8046E1E28D34EB815A11AC8CA312902CD3264@mtv-atc-605e--n.corp.sgi.com>
+Message-ID: <Pine.LNX.4.58.0409240508560.5706@schroedinger.engr.sgi.com>
+References: <B6E8046E1E28D34EB815A11AC8CA312902CD3264@mtv-atc-605e--n.corp.sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409241315.42740.andrew@walrond.org>
-X-Spam-Score: 0.0 (/)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 Sep 2004 12:42, you wrote:
->
-> NUMA was enabled all the time (at least most of the time). I don't know if
-> I ever ran it without NUMA. I'll certainly try that.
->
-> Unfortunately, I won't be able to do any reboots during the next one or
-> two weeks since the machine has gone into stable operation tonight. (with
-> some loss of memory for now)
->
-> if it is of some interest, that's what dmesg tells about NUMA:
->
->      BIOS-provided physical RAM map:
->       BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
->       BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
->       BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
->       BIOS-e820: 0000000000100000 - 00000000bfff0000 (usable)
->       BIOS-e820: 00000000bfff0000 - 00000000bffff000 (ACPI data)
->       BIOS-e820: 00000000bffff000 - 00000000c0000000 (ACPI NVS)
->       BIOS-e820: 00000000ff780000 - 0000000100000000 (reserved)
->       BIOS-e820: 0000000100000000 - 0000000140000000 (usable)
->      Scanning NUMA topology in Northbridge 24
->      Number of nodes 2 (10010)
->      Node 0 MemBase 0000000000000000 Limit 000000013fffffff
->      Skipping disabled node 1
->      Using node hash shift of 24
->      Bootmem setup node 0 0000000000000000-000000013fffffff
->      No mptable found.
->      On node 0 totalpages: 1310719
->        DMA zone: 4096 pages, LIFO batch:1
->        Normal zone: 1306623 pages, LIFO batch:16
->        HighMem zone: 0 pages, LIFO batch:1
->
-> So actually it looks like the kernel well notices that only one processor
-> has access to the memory here.
->
+Hmm .... some further refinement to properly handle the process clock. The
+new thread groups make that possible ...
 
-Intriguing. If it works with NUMA disabled, it would strongly indicate a bug 
-in the NUMA kernel code.
+Index: linus/kernel/posix-timers.c
+===================================================================
+--- linus.orig/kernel/posix-timers.c	2004-09-23 15:12:01.000000000 -0700
++++ linus/kernel/posix-timers.c	2004-09-24 05:07:42.000000000 -0700
+@@ -133,18 +133,10 @@
+  *	    resolution.	 Here we define the standard CLOCK_REALTIME as a
+  *	    1/HZ resolution clock.
+  *
+- * CPUTIME & THREAD_CPUTIME: We are not, at this time, definding these
+- *	    two clocks (and the other process related clocks (Std
+- *	    1003.1d-1999).  The way these should be supported, we think,
+- *	    is to use large negative numbers for the two clocks that are
+- *	    pinned to the executing process and to use -pid for clocks
+- *	    pinned to particular pids.	Calls which supported these clock
+- *	    ids would split early in the function.
+- *
+  * RESOLUTION: Clock resolution is used to round up timer and interval
+  *	    times, NOT to report clock times, which are reported with as
+  *	    much resolution as the system can muster.  In some cases this
+- *	    resolution may depend on the underlaying clock hardware and
++ *	    resolution may depend on the underlying clock hardware and
+  *	    may not be quantifiable until run time, and only then is the
+  *	    necessary code is written.	The standard says we should say
+  *	    something about this issue in the documentation...
+@@ -162,7 +154,7 @@
+  *
+  *          At this time all functions EXCEPT clock_nanosleep can be
+  *          redirected by the CLOCKS structure.  Clock_nanosleep is in
+- *          there, but the code ignors it.
++ *          there, but the code ignores it.
+  *
+  * Permissions: It is assumed that the clock_settime() function defined
+  *	    for each clock will take care of permission checks.	 Some
+@@ -198,6 +190,8 @@
+ 	struct timespec *tp, struct timespec *mo);
+ int do_posix_clock_monotonic_gettime(struct timespec *tp);
+ int do_posix_clock_monotonic_settime(struct timespec *tp);
++int do_posix_clock_process_gettime(struct timespec *tp);
++int do_posix_clock_thread_gettime(struct timespec *tp);
+ static struct k_itimer *lock_timer(timer_t timer_id, unsigned long *flags);
 
-Definately worth a try as soon as you can afford to take the machine down for 
-a few minutes.
+ static inline void unlock_timer(struct k_itimer *timr, unsigned long flags)
+@@ -218,6 +212,14 @@
+ 		.clock_get = do_posix_clock_monotonic_gettime,
+ 		.clock_set = do_posix_clock_monotonic_settime
+ 	};
++	struct k_clock clock_thread = {.res = CLOCK_REALTIME_RES,
++		.abs_struct = NULL,
++		.clock_get = do_posix_clock_thread_gettime
++	};
++	struct k_clock clock_process = {.res = CLOCK_REALTIME_RES,
++		.abs_struct = NULL,
++		.clock_get = do_posix_clock_process_gettime
++	};
 
-Andrew
+ #ifdef CONFIG_TIME_INTERPOLATION
+ 	/* Clocks are more accurate with time interpolators */
+@@ -226,6 +228,8 @@
+
+ 	register_posix_clock(CLOCK_REALTIME, &clock_realtime);
+ 	register_posix_clock(CLOCK_MONOTONIC, &clock_monotonic);
++	register_posix_clock(CLOCK_PROCESS_CPUTIME_ID, &clock_process);
++	register_posix_clock(CLOCK_THREAD_CPUTIME_ID, &clock_thread);
+
+ 	posix_timers_cache = kmem_cache_create("posix_timers_cache",
+ 					sizeof (struct k_itimer), 0, 0, NULL, NULL);
+@@ -1227,6 +1231,18 @@
+ 	return -EINVAL;
+ }
+
++int do_posix_clock_thread_gettime(struct timespec *tp)
++{
++	jiffies_to_timespec(get_jiffies_64()-current->start_time, tp);
++	return 0;
++}
++
++int do_posix_clock_process_gettime(struct timespec *tp)
++{
++	jiffies_to_timespec(get_jiffies_64()-current->group_leader->start_time, tp);
++	return 0;
++}
++
+ asmlinkage long
+ sys_clock_settime(clockid_t which_clock, const struct timespec __user *tp)
+ {

@@ -1,56 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261907AbTCaXGi>; Mon, 31 Mar 2003 18:06:38 -0500
+	id <S261895AbTCaXMj>; Mon, 31 Mar 2003 18:12:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261908AbTCaXGi>; Mon, 31 Mar 2003 18:06:38 -0500
-Received: from [81.2.110.254] ([81.2.110.254]:23036 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id <S261907AbTCaXGh>;
-	Mon, 31 Mar 2003 18:06:37 -0500
-Subject: Re: 64-bit kdev_t - just for playing
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Joel Becker <Joel.Becker@oracle.com>, bert hubert <ahu@ds9a.nl>,
-       Greg KH <greg@kroah.com>, Andries.Brouwer@cwi.nl,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Wim Coekaerts <Wim.Coekaerts@oracle.com>
-In-Reply-To: <Pine.LNX.4.44.0303312215020.5042-100000@serv>
-References: <UTC200303272027.h2RKRbf27546.aeb@smtp.cwi.nl>
-	 <Pine.LNX.4.44.0303272245490.5042-100000@serv>
-	 <1048805732.3953.1.camel@dhcp22.swansea.linux.org.uk>
-	 <Pine.LNX.4.44.0303280008530.5042-100000@serv>
-	 <20030327234820.GE1687@kroah.com>
-	 <Pine.LNX.4.44.0303281031120.5042-100000@serv>
-	 <20030328180545.GG32000@ca-server1.us.oracle.com>
-	 <Pine.LNX.4.44.0303281924530.5042-100000@serv>
-	 <20030331083157.GA29029@outpost.ds9a.nl>
-	 <Pine.LNX.4.44.0303311039190.5042-100000@serv>
-	 <20030331172403.GM32000@ca-server1.us.oracle.com>
-	 <Pine.LNX.4.44.0303312215020.5042-100000@serv>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1049149133.1287.1.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 31 Mar 2003 23:18:54 +0100
+	id <S261905AbTCaXMi>; Mon, 31 Mar 2003 18:12:38 -0500
+Received: from dp.samba.org ([66.70.73.150]:13469 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261895AbTCaXMf>;
+	Mon, 31 Mar 2003 18:12:35 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Re-xmit: PCI IDs module alias fix
+Date: Tue, 01 Apr 2003 09:18:01 +1000
+Message-Id: <20030331232358.F38B52C003@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-03-31 at 22:32, Roman Zippel wrote:
-> 1. How do we want to manage dev_t numbers in the future?
+Linus, please apply (OK'd by Greg Kroah-Hartmann).
 
-Mostly dynamically it seems
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-> 2. What compromises can we make for 2.6?
+Name: Subdivide PCI class for aliases
+Author: Rusty Russell
+Status: Tested on 2.5.66-bk2
 
-Defaulting char devices to 256 minors and a lot of space so stuff doesnt
-break. Viro has done the block stuff and we have the scope to do sane
-stuff like /dev/disk/.. for all disks now.
+D: The previous handling of PCI class masks was too primitive: the
+D: class field is not "all or nothing" but has base class, subclass
+D: and interface fields.  This patch changes the alias form from:
+D: pci:vNdNsvNsdNcN to pci:vNdNsvNsdNbcNscNiN.
 
-> Without answering these questions now, we risk to pay heavily for it 
-> later. The ones who ask now for a larger dev_t the loudest are likely the 
-> first to demand later not change anything for "compability", because they 
-> hardcoded certain assumptions about dev_t into their applications.
-
-Glibc already has a bigger dev_t
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.66-bk2/scripts/file2alias.c working-2.5.66-bk2-pci-alias/scripts/file2alias.c
+--- linux-2.5.66-bk2/scripts/file2alias.c	2003-02-18 11:18:57.000000000 +1100
++++ working-2.5.66-bk2-pci-alias/scripts/file2alias.c	2003-03-27 16:35:37.000000000 +1100
+@@ -81,10 +81,14 @@ static int do_usb_entry(const char *file
+ 	return 1;
+ }
+ 
+-/* Looks like: pci:vNdNsvNsdNcN. */
++/* Looks like: pci:vNdNsvNsdNbcNscNiN. */
+ static int do_pci_entry(const char *filename,
+ 			struct pci_device_id *id, char *alias)
+ {
++	/* Class field can be divided into these three. */
++	unsigned char baseclass, subclass, interface,
++		baseclass_mask, subclass_mask, interface_mask;
++
+ 	id->vendor = TO_NATIVE(id->vendor);
+ 	id->device = TO_NATIVE(id->device);
+ 	id->subvendor = TO_NATIVE(id->subvendor);
+@@ -97,13 +101,26 @@ static int do_pci_entry(const char *file
+ 	ADD(alias, "d", id->device != PCI_ANY_ID, id->device);
+ 	ADD(alias, "sv", id->subvendor != PCI_ANY_ID, id->subvendor);
+ 	ADD(alias, "sd", id->subdevice != PCI_ANY_ID, id->subdevice);
+-	if (id->class_mask != 0 && id->class_mask != ~0) {
++
++	baseclass = (id->class) >> 16;
++	baseclass_mask = (id->class_mask) >> 16;
++	subclass = (id->class) >> 8;
++	subclass_mask = (id->class_mask) >> 8;
++	interface = id->class;
++	interface_mask = id->class_mask;
++
++	if ((baseclass_mask != 0 && baseclass_mask != 0xFF)
++	    || (subclass_mask != 0 && subclass_mask != 0xFF)
++	    || (interface_mask != 0 && interface_mask != 0xFF)) {
+ 		fprintf(stderr,
+-			"*** Warning: Can't handle class_mask in %s:%04X\n",
++			"*** Warning: Can't handle masks in %s:%04X\n",
+ 			filename, id->class_mask);
+ 		return 0;
+ 	}
+-	ADD(alias, "c", id->class_mask == ~0, id->class);
++
++	ADD(alias, "bc", baseclass_mask == 0xFF, baseclass);
++	ADD(alias, "sc", subclass_mask == 0xFF, subclass);
++	ADD(alias, "i", interface_mask == 0xFF, interface);
+ 	return 1;
+ }
+ 
 

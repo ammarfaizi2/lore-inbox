@@ -1,67 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129466AbRCADD6>; Wed, 28 Feb 2001 22:03:58 -0500
+	id <S129468AbRCADPU>; Wed, 28 Feb 2001 22:15:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129468AbRCADDt>; Wed, 28 Feb 2001 22:03:49 -0500
-Received: from tomts7.bellnexxia.net ([209.226.175.40]:26531 "EHLO
-	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S129466AbRCADDh>; Wed, 28 Feb 2001 22:03:37 -0500
-Message-ID: <3A9DBAF2.87E7D005@coplanar.net>
-Date: Wed, 28 Feb 2001 21:58:58 -0500
-From: Jeremy Jackson <jerj@coplanar.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Collins, Tom" <Tom.Collins@Surgient.com>, linux-kernel@vger.kernel.org
-Subject: Re: Dynamically altering code segments
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129469AbRCADPO>; Wed, 28 Feb 2001 22:15:14 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:16394 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129468AbRCADPC>; Wed, 28 Feb 2001 22:15:02 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: NBD Cleanup patch and bugfix in ll_rw_blk.c
+Date: 28 Feb 2001 19:14:35 -0800
+Organization: Transmeta Corporation
+Message-ID: <97keqr$6l3$1@penguin.transmeta.com>
+In-Reply-To: <200102282127.VAA20600@gw.chygwyn.com> <Pine.LNX.4.10.10102281525420.6380-100000@penguin.transmeta.com> <20010301010751.Y21518@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-"Collins, Tom" wrote:
-
-> Hi...
+In article <20010301010751.Y21518@suse.de>, Jens Axboe  <axboe@suse.de> wrote:
 >
-> This is my first post, so if this is off topic for this list, please
-direct
-> me
-> to another one that is more appropriate.  Thanks
->
-> That said, I am wanting to dynamically modify the kernel in specific
-places
-> to
-> implement a custom kernel trace mechanism.  The general idea is that,
-when
-> the
-> "trace" is off, there are NOP instruction sequences at various places
-in the
-> kernel.  When the "trace" is turned on, those same NOPs are replaced
-by JMPs
-> to code that implements the trace (such as logging events, using the
-MSR and
-> PMC's etc..).
->
-> This was a trick that was done in my old days of OS/2 performance
-tools
-> developement to get trace information from the running kernel.  In
-that
-> case,
-> we simply remapped the appropriate code segments to data segments (I
-think
-> back then it was called 'aliasing code segments') and used that
-segment to
-> make changes to the kernel code on the fly.
->
-> Is it possible to do the same thing in Linux?
->
+>I think most of the "we want to disable plugging" behaviour stems
+>from the way task queues behave. Once somebody starts a tq_disk
+>run, the list is fried and walked one by one. Both old loop
+>and nbd drop the io_request_lock and block, possibly waiting
+>for I/O to be done (at least the loop case, don't know about
+>ndb). But this I/O won't be done just because the target plug every
+>now and then just happens to be queued behind the nbd/loop one and a new
+>tq_disk run won't start it.
 
-the CS and DS segment descriptors already both map 0-4G, the DS being
-read-write.
-what you want is to change page protections, the system call mprotect()
-comes
-to mind.
+Ugh. 
 
+How about loop/ndb intercepting the damn requests at the "elevator"
+layer - that way you see every one of them, and the actual request
+function might as well just be a no-op?
 
-
+		Linus

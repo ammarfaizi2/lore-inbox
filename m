@@ -1,320 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263747AbUC3Q6h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 11:58:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263750AbUC3Q6h
+	id S263750AbUC3Q6l (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 11:58:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263751AbUC3Q6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 11:58:37 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:17586 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S263747AbUC3Q60 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 11:58:26 -0500
-Content-class: urn:content-classes:message
+	Tue, 30 Mar 2004 11:58:41 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:49311 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S263750AbUC3Q6j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 11:58:39 -0500
+Message-ID: <4069A729.3030507@nortelnetworks.com>
+Date: Tue, 30 Mar 2004 11:58:17 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [ACPI] [BKPATCH] ACPI for 2.6
-Date: Tue, 30 Mar 2004 08:57:40 -0800
-Message-ID: <37F890616C995246BE76B3E6B2DBE0552D0B7D@orsmsx403.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [ACPI] [BKPATCH] ACPI for 2.6
-Thread-Index: AcQTl3RbZqR8l+K3QOeT2j6BHf3BxQAQxHsgAHZFS1AADqDtwAABjAygACDRZAA=
-From: "Moore, Robert" <robert.moore@intel.com>
-To: "Li, Shaohua" <shaohua.li@intel.com>,
-       "Manpreet Singh" <Manpreet.Singh@efi.com>,
-       "Brown, Len" <len.brown@intel.com>,
-       "Linus Torvalds" <torvalds@osdl.org>
-Cc: "Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "ACPI Developers" <acpi-devel@lists.sourceforge.net>,
-       "Grover, Andrew" <andrew.grover@intel.com>
-X-OriginalArrivalTime: 30 Mar 2004 16:57:40.0964 (UTC) FILETIME=[1CE17240:01C41678]
+To: root@chaos.analogic.com
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: sched_yield() version 2.4.24
+References: <Pine.LNX.4.53.0403301138260.6967@chaos>
+In-Reply-To: <Pine.LNX.4.53.0403301138260.6967@chaos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The default behavior of the ACPI CA core subsystem is to leave all
-"wake" GPEs disabled.  It is the responsibility of the upper OSPM
-(OS-dependent) software to selectively enable the wake devices via the
-AcpiEnableGpe external interface.
+Richard B. Johnson wrote:
+> Anybody know why a task that does:
+> 
+> 		for(;;)
+> 		   sched_yield();
+> 
+> Shows 100% CPU utiliization when there are other tasks that
+> are actually getting the CPU? 
 
-We could argue about whether the core should enable or disable all wake
-GPEs by default, but the code to selectively pick wake GPEs is not and
-cannot be part of the core ACPI CA code.
+What do the other tasks show for cpu in top?
 
-Bob
+Maybe it's an artifact of the timer-based process sampling for cpu 
+utilization, and it just happens to be running when the timer interrupt 
+fires, so it keeps getting billed?
 
-
------Original Message-----
-From: acpi-devel-admin@lists.sourceforge.net
-[mailto:acpi-devel-admin@lists.sourceforge.net] On Behalf Of Li, Shaohua
-Sent: Monday, March 29, 2004 5:23 PM
-To: Manpreet Singh; Moore, Robert; Brown, Len; Linus Torvalds
-Cc: Kernel Mailing List; ACPI Developers
-Subject: RE: [ACPI] [BKPATCH] ACPI for 2.6
-
-Hi,
-I think ACPI should provide user interface to enable 'Wake' GPE before
-entering sleep. User can select which devices can wake up system. We
-have a track http://bugme.osdl.org/show_bug.cgi?id=1415 for this issue.
-
-Thanks,
-David
-> -----Original Message-----
-> From: acpi-devel-admin@lists.sourceforge.net [mailto:acpi-devel-
-> admin@lists.sourceforge.net] On Behalf Of Manpreet Singh
-> Sent: Tuesday, March 30, 2004 8:28 AM
-> To: Moore, Robert; Brown, Len; Linus Torvalds
-> Cc: Kernel Mailing List; ACPI Developers
-> Subject: RE: [ACPI] [BKPATCH] ACPI for 2.6
-> 
-> Hi Bob,
-> 
-> What I mean is that I see that the system goes into S3 suspend with
-all
-> GPEs
-> being disabled. So the bitvector 'WakeEnable' has a value of 0. Now,
-on my
-> I/O controller, PME_EN: which enables PME#s to assert a wake-up event
-is
-> also
-> off which is what I'd like to see enabled for wake on LAN (etherwake)
-to
-> work.
-> 
-> How is WakeEnable initialized? Does it depend on certain BIOS table
-> entries?
-> 
-> Forgive my n00b questions if they sound trivial.
-> 
-> Thanks,
-> Manpreet.
-> 
-> 
-> -----Original Message-----
-> From: Moore, Robert [mailto:robert.moore@intel.com]
-> Sent: Monday, March 29, 2004 9:33 AM
-> To: Manpreet Singh; Brown, Len; Linus Torvalds
-> Cc: Kernel Mailing List; ACPI Developers
-> Subject: RE: [ACPI] [BKPATCH] ACPI for 2.6
-> 
-> 
-> 
-> What makes you think that *all* GPEs are disabled?
-> 
-> Here is the relevant code:
-> 
->         /*
->          * 1) Disable all runtime GPEs
->          * 2) Enable all wakeup GPEs
->          */
->         Status = AcpiHwLowLevelWrite (8, GpeRegisterInfo->WakeEnable,
->                 &GpeRegisterInfo->EnableAddress);
-> 
-> The "WakeEnable" field is setup such that only the WAKE GPEs are
-> enabled.
-> 
-> Unless you are saying that "WakeEnable" is not initialized correctly.
-> 
-> Please clarify.
-> 
-> Bob
-> 
-> 
-> -----Original Message-----
-> From: acpi-devel-admin@lists.sourceforge.net
-> [mailto:acpi-devel-admin@lists.sourceforge.net] On Behalf Of Manpreet
-> Singh
-> Sent: Saturday, March 27, 2004 1:19 AM
-> To: Brown, Len; Linus Torvalds
-> Cc: Kernel Mailing List; ACPI Developers
-> Subject: RE: [ACPI] [BKPATCH] ACPI for 2.6
-> 
-> Hi Len,
-> 
-> This patch on 2.6.5-rc2 certainly helps with a "spurious" interrupt
-> problem
-> that I was seeing on a 2.6.4 kernel. It seems that we don't initialize
-> GPEs
-> unless they are needed for a resume.
-> 
-> But, in the function call "acpi_hw_prepare_gpes_for_sleep", it seems
-> that
-> currently *all* GPEs get disabled, some of which I would consider wake
-> up
-> events, like the PME enable bit that enables an S3 resume using a
-magic
-> packet. That doesn't allow wake on LAN to work properly. Is there way
-to
-> pick/specify the wake up events or does it come from the BIOS tables?
-> 
-> Also, if I have the console on a serial port, I don't get the console
-> back
-> after an S3 resume.
-> 
-> Actually, I am new to the ACPI list. If this is not the right place
-for
-> these
-> queries, please let me know.
-> 
-> Thanks,
-> Manpreet.
-> 
-> 
-> -----Original Message-----
-> From: acpi-devel-admin@lists.sourceforge.net
-> [mailto:acpi-devel-admin@lists.sourceforge.net]On Behalf Of Len Brown
-> Sent: Friday, March 26, 2004 4:59 PM
-> To: Linus Torvalds
-> Cc: Kernel Mailing List; ACPI Developers
-> Subject: [ACPI] [BKPATCH] ACPI for 2.6
-> 
-> 
-> Hi Linus, please do a
-> 
-> 	bk pull bk://linux-acpi.bkbits.net/linux-acpi-release-2.6.5
-> 
-> 	Three significant interrupt fixes.
-> 
-> thanks,
-> -Len
-> 
-> ps. a plain patch is also available here:
->
-ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2
-> .6.5/
-> acpi-20040326-2.6.5.diff.gz
-> 
-> This will update the following files:
-> 
->  arch/i386/kernel/acpi/boot.c      |   18 +
->  drivers/acpi/ec.c                 |    4
->  drivers/acpi/events/evgpe.c       |   11 -
->  drivers/acpi/events/evgpeblk.c    |  242 ++++++++++++++++++++++----
->  drivers/acpi/events/evmisc.c      |   43 ++--
->  drivers/acpi/events/evxfevnt.c    |   25 ++
->  drivers/acpi/executer/excreate.c  |   16 +
->  drivers/acpi/executer/exdump.c    |    1
->  drivers/acpi/executer/exresnte.c  |    5
->  drivers/acpi/executer/exstoren.c  |    1
->  drivers/acpi/hardware/hwgpe.c     |   98 ++++++----
->  drivers/acpi/hardware/hwsleep.c   |   22 +-
->  drivers/acpi/namespace/nsaccess.c |    9
->  drivers/acpi/namespace/nsdump.c   |    1
->  drivers/acpi/namespace/nseval.c   |    9
->  drivers/acpi/namespace/nssearch.c |    6
->  drivers/acpi/namespace/nsutils.c  |    2
->  drivers/acpi/namespace/nsxfeval.c |   26 +-
->  drivers/acpi/osl.c                |   21 ++
->  drivers/acpi/pci_link.c           |   18 +
->  drivers/acpi/resources/rsaddr.c   |   13 -
->  drivers/acpi/utilities/utglobal.c |   42 ++--
->  drivers/acpi/utilities/utmisc.c   |    5
->  include/acpi/acconfig.h           |    2
->  include/acpi/acglobal.h           |    2
->  include/acpi/achware.h            |    4
->  include/acpi/aclocal.h            |    7
->  include/acpi/actypes.h            |   84 +++++----
->  include/acpi/acutils.h            |    1
->  29 files changed, 537 insertions(+), 201 deletions(-)
-> 
-> through these ChangeSets:
-> 
-> <len.brown@intel.com> (04/03/26 1.1608.1.56)
->    [ACPI] Linux specific updates from ACPICA 20040326
->    "acpi_wake_gpes_always_on" boot flag for old GPE behaviour
-> 
-> <len.brown@intel.com> (04/03/26 1.1608.1.55)
->    [ACPI] ACPICA 20040326 from Bob Moore
-> 
->    Implemented support for "wake" GPEs via interaction between
->    GPEs and the _PRW methods.  Every GPE that is pointed to by
->    one or more _PRWs is identified as a WAKE GPE and by default
->    will no longer be enabled at runtime.  Previously, we were
->    blindly enabling all GPEs with a corresponding _Lxx or _Exx
->    method - but most of these turn out to be WAKE GPEs anyway.
->    We believe this has been the cause of thousands of
->    "spurious" GPEs on some systems.
-> 
->    This new GPE behavior is can be reverted to the original
->    behavior (enable ALL GPEs at runtime) via a runtime flag.
-> 
->    Fixed a problem where aliased control methods could not
->    access objects properly.  The proper scope within the
->    namespace was not initialized (transferred to the target of
->    the aliased method) before executing the target method.
-> 
->    Fixed a potential race condition on internal object
->    deletion on the return object in AcpiEvaluateObject.
-> 
->    Integrated a fix for resource descriptors where both
->    _MEM and _MTP were being extracted instead of just _MEM.
->    (i.e. bitmask was incorrectly too wide, 0x0F instead of 0x03.)
-> 
->    Added a special case for ACPI_ROOT_OBJECT in AcpiUtGetNodeName,
->    preventing a fault in some cases.
-> 
->    Updated Notify() values for debug statements in evmisc.c
-> 
->    Return proper status from AcpiUtMutexInitialize,
->    not just simply AE_OK.
-> 
-> <len.brown@intel.com> (04/03/26 1.1608.1.54)
->    [ACPI] proposed fix for non-identity-mapped SCI override
->    http://bugme.osdl.org/show_bug.cgi?id=2366
-> 
-> <len.brown@intel.com> (04/03/25 1.1608.1.53)
->    [ACPI] PCI interrupt link routing (Luming Yu)
->    use _PRS to determine resource type for _SRS
->    fixes HP Proliant servers
->    http://bugzilla.kernel.org/show_bug.cgi?id=1590
-> 
-> 
-> 
-> 
-> 
-> 
-> -------------------------------------------------------
-> This SF.Net email is sponsored by: IBM Linux Tutorials
-> Free Linux tutorial presented by Daniel Robbins, President and CEO of
-> GenToo technologies. Learn everything from fundamentals to system
-> administration.http://ads.osdn.com/?ad_id=1470&alloc_id=3638&op=click
-> _______________________________________________
-> Acpi-devel mailing list
-> Acpi-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/acpi-devel
-> 
-> 
-> -------------------------------------------------------
-> This SF.Net email is sponsored by: IBM Linux Tutorials
-> Free Linux tutorial presented by Daniel Robbins, President and CEO of
-> GenToo technologies. Learn everything from fundamentals to system
-> administration.http://ads.osdn.com/?ad_id70&alloc_id638&op=ick
-> _______________________________________________
-> Acpi-devel mailing list
-> Acpi-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/acpi-devel
-> 
-> 
-> -------------------------------------------------------
-> This SF.Net email is sponsored by: IBM Linux Tutorials
-> Free Linux tutorial presented by Daniel Robbins, President and CEO of
-> GenToo technologies. Learn everything from fundamentals to system
-> administration.http://ads.osdn.com/?ad_id70&alloc_id638&op=ick
-> _______________________________________________
-> Acpi-devel mailing list
-> Acpi-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/acpi-devel
-
-
--------------------------------------------------------
-This SF.Net email is sponsored by: IBM Linux Tutorials
-Free Linux tutorial presented by Daniel Robbins, President and CEO of
-GenToo technologies. Learn everything from fundamentals to system
-administration.http://ads.osdn.com/?ad_id70&alloc_id638&op=ick
-_______________________________________________
-Acpi-devel mailing list
-Acpi-devel@lists.sourceforge.net
-https://lists.sourceforge.net/lists/listinfo/acpi-devel
+Chris

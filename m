@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317293AbSGTApj>; Fri, 19 Jul 2002 20:45:39 -0400
+	id <S317307AbSGTAx0>; Fri, 19 Jul 2002 20:53:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317299AbSGTApi>; Fri, 19 Jul 2002 20:45:38 -0400
-Received: from p50887F04.dip.t-dialin.net ([80.136.127.4]:395 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317293AbSGTApg>; Fri, 19 Jul 2002 20:45:36 -0400
-Date: Fri, 19 Jul 2002 18:48:17 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Alan Cox <alan@redhat.com>
-cc: Andrew Rodland <arodland@noln.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH -ac] Panicking in morse code
-In-Reply-To: <200207200035.g6K0ZFN11415@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.44.0207191847550.3378-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317308AbSGTAx0>; Fri, 19 Jul 2002 20:53:26 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:25072 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317307AbSGTAxZ>; Fri, 19 Jul 2002 20:53:25 -0400
+Subject: Re: [patch 2/9] 2.5.6 lm_sensors
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Albert Cranford <ac9410@bellsouth.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3D381CD1.6A0B9909@bellsouth.net>
+References: <3D381CD1.6A0B9909@bellsouth.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 20 Jul 2002 03:07:57 +0100
+Message-Id: <1027130877.14314.6.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 2002-07-19 at 15:06, Albert Cranford wrote:
+> Hello Linus,
+> The i2c & lm_sensors group would like to submit these 9
+> patches from our stable 2.6.3 package.
 
-On Fri, 19 Jul 2002, Alan Cox wrote:
-> How about using bitmasks here. Say top five bits being the length, lower
-> 5 bits being 1 for dash 0 for dit ?
 
-Just have a look at his latest solution.
-
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+Does this stuff still destroy thinkpads so badly they have to go back to
+ibm for a non warranty repair ? Nobody seems willing to provide straight
+answers, and I think they must be addressed before we merge such code
 

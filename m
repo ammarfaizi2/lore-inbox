@@ -1,102 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263800AbTEODYa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 23:24:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263805AbTEODXQ
+	id S263809AbTEODbd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 23:31:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263813AbTEODWl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 23:23:16 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:18412 "EHLO
+	Wed, 14 May 2003 23:22:41 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:23020 "EHLO
 	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S263800AbTEODSX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 23:18:23 -0400
-Date: Thu, 15 May 2003 04:31:10 +0100
-Message-Id: <200305150331.h4F3VAH6000662@deviant.impure.org.uk>
-To: jgarzik@pobox.com
+	id S263810AbTEODSZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 23:18:25 -0400
+Date: Thu, 15 May 2003 04:31:13 +0100
+Message-Id: <200305150331.h4F3VDIJ000712@deviant.impure.org.uk>
+To: torvalds@transmeta.com
 From: davej@codemonkey.org.uk
 Cc: linux-kernel@vger.kernel.org
-Subject: xircom init cleanups
+Subject: Shorten rcu_check_quiescent_state.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/net/tulip/xircom_cb.c linux-2.5/drivers/net/tulip/xircom_cb.c
---- bk-linus/drivers/net/tulip/xircom_cb.c	2003-04-22 00:40:43.000000000 +0100
-+++ linux-2.5/drivers/net/tulip/xircom_cb.c	2003-04-22 01:23:14.000000000 +0100
-@@ -243,38 +243,29 @@ static int __devinit xircom_probe(struct
- 		return -ENODEV;
- 	}
+Single spin_unlock path cuts this down a little..
+
+diff -urpN --exclude-from=/home/davej/.exclude bk-linus/kernel/rcupdate.c linux-2.5/kernel/rcupdate.c
+--- bk-linus/kernel/rcupdate.c	2003-04-10 06:01:42.000000000 +0100
++++ linux-2.5/kernel/rcupdate.c	2003-04-03 06:02:38.000000000 +0100
+@@ -121,9 +121,8 @@ static void rcu_check_quiescent_state(vo
+ {
+ 	int cpu = smp_processor_id();
  
--	
- 	/* 
- 	   Before changing the hardware, allocate the memory.
- 	   This way, we can fail gracefully if not enough memory
- 	   is available. 
- 	 */
--	private = kmalloc(sizeof(*private),GFP_KERNEL);
--	memset(private, 0, sizeof(struct xircom_private));
-+	if ((dev = init_etherdev(NULL, sizeof(struct xircom_private))) == NULL) {
-+		printk(KERN_ERR "xircom_probe: failed to allocate etherdev\n");
-+		goto device_fail;
-+	}
-+	private = dev->priv;
- 	
- 	/* Allocate the send/receive buffers */
- 	private->rx_buffer = pci_alloc_consistent(pdev,8192,&private->rx_dma_handle);
--	
- 	if (private->rx_buffer == NULL) {
-  		printk(KERN_ERR "xircom_probe: no memory for rx buffer \n");
-- 		kfree(private);
--		return -ENODEV;
-+		goto rx_buf_fail;
- 	}	
- 	private->tx_buffer = pci_alloc_consistent(pdev,8192,&private->tx_dma_handle);
- 	if (private->tx_buffer == NULL) {
- 		printk(KERN_ERR "xircom_probe: no memory for tx buffer \n");
--		kfree(private->rx_buffer);
--		kfree(private);
--		return -ENODEV;
+-	if (!test_bit(cpu, &rcu_ctrlblk.rcu_cpu_mask)) {
++	if (!test_bit(cpu, &rcu_ctrlblk.rcu_cpu_mask))
+ 		return;
 -	}
--	dev = init_etherdev(dev, 0);
--	if (dev == NULL) {
--		printk(KERN_ERR "xircom_probe: failed to allocate etherdev\n");
--		kfree(private->rx_buffer);
--		kfree(private->tx_buffer);
--		kfree(private);
--		return -ENODEV;
-+		goto tx_buf_fail;
- 	}
-+
- 	SET_MODULE_OWNER(dev);
- 	printk(KERN_INFO "%s: Xircom cardbus revision %i at irq %i \n", dev->name, chip_rev, pdev->irq);
  
-@@ -304,14 +295,21 @@ static int __devinit xircom_probe(struct
- 	transceiver_voodoo(private);
- 	
- 	spin_lock_irqsave(&private->lock,flags);
--	  activate_transmitter(private);
--	  activate_receiver(private);
-+	activate_transmitter(private);
-+	activate_receiver(private);
- 	spin_unlock_irqrestore(&private->lock,flags);
- 	
- 	trigger_receive(private);
- 	
- 	leave("xircom_probe");
- 	return 0;
+ 	/* 
+ 	 * Races with local timer interrupt - in the worst case
+@@ -134,23 +133,22 @@ static void rcu_check_quiescent_state(vo
+ 		RCU_last_qsctr(cpu) = RCU_qsctr(cpu);
+ 		return;
+ 	}
+-	if (RCU_qsctr(cpu) == RCU_last_qsctr(cpu)) {
++	if (RCU_qsctr(cpu) == RCU_last_qsctr(cpu))
+ 		return;
+-	}
+ 
+ 	spin_lock(&rcu_ctrlblk.mutex);
+-	if (!test_bit(cpu, &rcu_ctrlblk.rcu_cpu_mask)) {
+-		spin_unlock(&rcu_ctrlblk.mutex);
+-		return;
+-	}
++	if (!test_bit(cpu, &rcu_ctrlblk.rcu_cpu_mask))
++		goto out_unlock;
 +
-+tx_buf_fail:
-+	kfree(private->rx_buffer);
-+rx_buf_fail:
-+	kfree(dev);
-+device_fail:
-+	return -ENODEV;
+ 	clear_bit(cpu, &rcu_ctrlblk.rcu_cpu_mask);
+ 	RCU_last_qsctr(cpu) = RCU_QSCTR_INVALID;
+-	if (rcu_ctrlblk.rcu_cpu_mask != 0) {
+-		spin_unlock(&rcu_ctrlblk.mutex);
+-		return;
+-	}
++	if (rcu_ctrlblk.rcu_cpu_mask != 0)
++		goto out_unlock;
++
+ 	rcu_ctrlblk.curbatch++;
+ 	rcu_start_batch(rcu_ctrlblk.maxbatch);
++
++out_unlock:
+ 	spin_unlock(&rcu_ctrlblk.mutex);
  }
  
- 
-@@ -336,7 +334,6 @@ static void __devexit xircom_remove(stru
- 				pci_free_consistent(pdev,8192,card->tx_buffer,card->tx_dma_handle);
- 			card->tx_buffer = NULL;			
- 		}
--		kfree(card);
- 	}
- 	release_region(dev->base_addr, 128);
- 	unregister_netdev(dev);

@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280606AbRKBJBD>; Fri, 2 Nov 2001 04:01:03 -0500
+	id <S280607AbRKBJBN>; Fri, 2 Nov 2001 04:01:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280610AbRKBJAx>; Fri, 2 Nov 2001 04:00:53 -0500
-Received: from frege-d-math-north-g-west.math.ethz.ch ([129.132.145.3]:19644
-	"EHLO frege.math.ethz.ch") by vger.kernel.org with ESMTP
-	id <S280606AbRKBJAp>; Fri, 2 Nov 2001 04:00:45 -0500
-Message-ID: <3BE270ED.7050109@debian.org>
-Date: Fri, 02 Nov 2001 11:09:49 +0100
-From: Giacomo Catenazzi <cate@debian.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010808
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolabs.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [CHECKER] Is this a bug?
-In-Reply-To: <fa.l396uov.18jgog6@ifi.uio.no> <fa.dvj9vsv.1b4k8ip@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S280610AbRKBJBE>; Fri, 2 Nov 2001 04:01:04 -0500
+Received: from ns.caldera.de ([212.34.180.1]:52897 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S280611AbRKBJAu>;
+	Fri, 2 Nov 2001 04:00:50 -0500
+Date: Fri, 2 Nov 2001 09:59:34 +0100
+Message-Id: <200111020859.fA28xY530514@ns.caldera.de>
+From: hch@caldera.de (Christoph Hellwig)
+To: kaboom@gatech.edu (Chris Ricker)
+Cc: Danek Duvall <duvall@emufarm.org>,
+        World Domination Now! <linux-kernel@vger.kernel.org>,
+        Mike Fedyk <mfedyk@matchmail.com>
+Subject: Re: Code from ~2.4.4 going into Solaris 9 Alpha?
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <Pine.LNX.4.33.0111011423510.20119-100000@verdande.oobleck.net>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> Also (in a separate patch at the end) is the removal of a whole bunch of:
-> 
-> #ifdef IP2DEBUG_TRACE
-> 	ip2trace(foo);
-> #endif
-> 
-> and replacing it with (the Linus-preferred, and far cleaner):
-> 
-> #ifdef IP2DEBUG_TRACE
-> void ip2trace(foo)
-> #else
-> #define ip2trace(foo) do {} while (0)
-> #endif
-> 
+In article <Pine.LNX.4.33.0111011423510.20119-100000@verdande.oobleck.net> you wrote:
+> Solaris 9/ia32 includes software called lxrun (actually slip-streamed during
+> Solaris 8, as Sun is so fond of doing for some brain-dead reason) which
+> implements the Linux/ia32 ABI on Solaris/ia32.  It's much like the Linux
+> compatibility layer all the *BSDs have these days.
 
-Why in Linux we use "do {} while (0)" instead of the
-standard "(void)0" ?
-(standard = as normal libc in <assert.h>)
+Lxrun is rather different than the BSD's linux emulation layer.
 
-do while(0) is used for multiple statment macro to avoid problem
-in if-else, not for empty instructions.
+Whilst the BSD's intercept linux syscalls at kernel level, lxrun gets
+the int80 syscalls dispatched back to userspace.
 
+It was originally developed by Mike Davidson at SCO (now Caldera) and
+for OpenServer and UnixWare, it is distributed under a Mozilla-style
+license.
 
-	giacomo
+Note that lxrun has a lot of problems with more advanced linux binaries
+and thus has been replaced by a kernel-level emulation in OpenUnix8, the
+successor to UnixWare.
 
+So all in all Sun is reusing old technology here 8)
+
+	Christoph
+
+-- 
+Whip me.  Beat me.  Make me maintain AIX.

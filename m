@@ -1,70 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263992AbTEOMlb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 08:41:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263993AbTEOMlb
+	id S263987AbTEOMwA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 08:52:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263990AbTEOMwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 08:41:31 -0400
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:40377 "EHLO
-	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S263992AbTEOMl3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 08:41:29 -0400
-Date: Thu, 15 May 2003 14:54:13 +0200
-From: Martin Waitz <tali@admingilde.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4 laptop mode
-Message-ID: <20030515125413.GX1253@admingilde.org>
-Mail-Followup-To: Jens Axboe <axboe@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20030514093504.GE17033@suse.de> <20030515085912.GV1253@admingilde.org> <20030515100653.GF15261@suse.de>
+	Thu, 15 May 2003 08:52:00 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:2176 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263987AbTEOMv7 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 08:51:59 -0400
+Message-Id: <200305150637.h4F6bY9M002096@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Patrick McHardy <kaber@trash.net>
+Cc: "David S. Miller" <davem@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix typo in 2.4 ipsec backport 
+In-Reply-To: Your message of "Tue, 13 May 2003 04:28:09 +0200."
+             <3EC05839.6030702@trash.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <3EC05839.6030702@trash.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CVXKxAdNG2kQIXaJ"
-Content-Disposition: inline
-In-Reply-To: <20030515100653.GF15261@suse.de>
-User-Agent: Mutt/1.3.28i
+Content-Type: multipart/signed; boundary="==_Exmh_-1434995952P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 15 May 2003 02:37:34 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---CVXKxAdNG2kQIXaJ
+--==_Exmh_-1434995952P
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-hi :)
+On Tue, 13 May 2003 04:28:09 +0200, Patrick McHardy said:
 
-On Thu, May 15, 2003 at 12:06:53PM +0200, Jens Axboe wrote:
-> > it would be great if somethink like that could be ported to 2.5...
-> What's stopping you?
+> --- a/net/ipv4/xfrm4_state.c	Tue May 13 04:22:50 2003
+> +++ b/net/ipv4/xfrm4_state.c	Tue May 13 04:22:50 2003
+> @@ -101,7 +101,7 @@
+>  		x0->lft.hard_add_expires_seconds = XFRM_ACQ_EXPIRES;
+>  		xfrm_state_hold(x0);
+>  		mod_timer(&x0->timer, jiffies + XFRM_ACQ_EXPIRES*HZ);
+> -		xfrm_state_hold(0);
+> +		xfrm_state_hold(x0);
 
-well the group that did that work does not have enough money to
-fund new staff, so i can't get paid to do it...
+What a blecherous variable name. Somebody is going to try 'fixing' it
+to 0x0 one of these days.. ;)
 
-and i don't have enough free time :(
-
-
-but anyway, your work on this topic is great, too! :)
-i am really looking forward to having a laptop-optimized os
-
---=20
-CU,		  / Friedrich-Alexander University Erlangen, Germany
-Martin Waitz	//  Department of Computer Science 3       _________
-______________/// - - - - - - - - - - - - - - - - - - - - ///
-dies ist eine manuell generierte mail, sie beinhaltet    //
-tippfehler und ist auch ohne grossbuchstaben gueltig.   /
-
---CVXKxAdNG2kQIXaJ
+--==_Exmh_-1434995952P
 Content-Type: application/pgp-signature
-Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQE+w430j/Eaxd/oD7IRAswUAJ4lTvYXknHzU5nd4qxi4Xh4Q3htuQCeOw+w
-O+rKBGLzUU3pcgfwc/JZSOI=
-=3OAl
+iD8DBQE+wzWucC3lWbTT17ARApkCAJ9bSk1pXQVl6LqBDDQ+wt5ELQC8WgCgwQxQ
+laeYBgCTQulvHBtCnDLPKVk=
+=f2V8
 -----END PGP SIGNATURE-----
 
---CVXKxAdNG2kQIXaJ--
+--==_Exmh_-1434995952P--

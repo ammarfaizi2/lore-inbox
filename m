@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264455AbUAaAqo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 19:46:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264451AbUAaAqo
+	id S264451AbUAaAz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 19:55:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264507AbUAaAz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 19:46:44 -0500
-Received: from ns.suse.de ([195.135.220.2]:23442 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264455AbUAaAqO (ORCPT
+	Fri, 30 Jan 2004 19:55:29 -0500
+Received: from mail.kroah.org ([65.200.24.183]:4555 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264451AbUAaAz1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 19:46:14 -0500
-To: Mark Haverkamp <markh@osdl.org>
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org
-Subject: Re: ide taskfile and cdrom hang
-References: <1075502193.26342.61.camel@markh1.pdx.osdl.net.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 31 Jan 2004 01:46:13 +0100
-In-Reply-To: <1075502193.26342.61.camel@markh1.pdx.osdl.net.suse.lists.linux.kernel>
-Message-ID: <p73ekthlzca.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 30 Jan 2004 19:55:27 -0500
+Date: Fri, 30 Jan 2004 16:55:26 -0800
+From: Greg KH <greg@kroah.com>
+To: David =?iso-8859-1?Q?Mart=EDnez?= Moreno <ender@debian.org>
+Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Subject: Re: Typo (Re: [PATCH] i2c driver fixes for 2.6.2-rc2)
+Message-ID: <20040131005526.GE10860@kroah.com>
+References: <10752464532256@kroah.com> <200401291227.15413.ender@debian.org> <20040129194705.GD5681@kroah.com> <200401301058.29324.ender@debian.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200401301058.29324.ender@debian.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Haverkamp <markh@osdl.org> writes:
+On Fri, Jan 30, 2004 at 10:58:29AM +0100, David Martínez Moreno wrote:
+> El Jueves, 29 de Enero de 2004 20:47, Greg KH escribió:
+> > On Thu, Jan 29, 2004 at 12:27:15PM +0100, David Martínez Moreno wrote:
+> > > 	Sure, it's only a small thing in return for all that Linux has given to
+> > > me.
+> > >
+> > > 	Following patch fixes two typos and a missing full stop. Applies cleanly
+> > > against 2.6.2-rc2 + i2c patches you just submitted.
+> >
+> > Hm, your mailer munged the patch (due to the PGP signature), care to
+> > redo it so that it can be applied?
+> 
+> 	I agree. :-)
+> 
+> 	There goes again, without GPG sig.
 
-> We have some test machines here at OSDL that have a problem with the ide
-> cdrom driver hanging when we cat the /proc/ide/hda/identify file. After
-> 30 seconds the console displays: "hda: lost interrupt" which reoccurs
-> every 30 seconds forever. We noticed it on 2.6.2-rc2-mm1 but It looks
-> like this has been a problem for a while. Our test machines just changed
-> their configuration to use make defconfig.  I found that if
-> CONFIG_IDE_TASKFILE_IO is N then the hang doesn't occur.  Is this a
-> common problem or are there just certain drives that won't work with
-> taskfile i/o enabled?  I've included my .config, lspci as attachments.  
-> The cdrom model is CD-224E.
+Much nicer.
 
-I looked at this some time ago together with BenH and Bart. The problem 
-seems to be that the taskfile statemachine for identify is quite broken.
-(even when it didn't hang it usually returned only garbage on other
-CD ROMs). 
+> 	Following patch fixes two typos and a missing full stop. Applies cleanly
+> against 2.6.2-rc2 + i2c patches you just submitted.
 
-The CD ROM doesn't answer the request for some reason and then the
-Linux taskfile code goes into an endless loop sending retries.
+Thanks, I've applied this to my trees.
 
-Bart had a patch to at least cure the hang by erroring out.
-
--Andi
-
+greg k-h

@@ -1,67 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274746AbRIZAUe>; Tue, 25 Sep 2001 20:20:34 -0400
+	id <S274749AbRIZAgI>; Tue, 25 Sep 2001 20:36:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274747AbRIZAUY>; Tue, 25 Sep 2001 20:20:24 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.121]:58629 "EHLO paip.net")
-	by vger.kernel.org with ESMTP id <S274746AbRIZAUO>;
-	Tue, 25 Sep 2001 20:20:14 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [PATCH][RFC] Allow net devices to contribute to /dev/random
-Date: 26 Sep 2001 00:20:32 GMT
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <9or70g$i59$1@abraham.cs.berkeley.edu>
-In-Reply-To: <1001461026.9352.156.camel@phantasy>
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1001463632 18601 128.32.45.153 (26 Sep 2001 00:20:32 GMT)
-X-Complaints-To: news@abraham.cs.berkeley.edu
-NNTP-Posting-Date: 26 Sep 2001 00:20:32 GMT
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	id <S274750AbRIZAf7>; Tue, 25 Sep 2001 20:35:59 -0400
+Received: from member.michigannet.com ([207.158.188.18]:8722 "EHLO
+	member.michigannet.com") by vger.kernel.org with ESMTP
+	id <S274749AbRIZAfy>; Tue, 25 Sep 2001 20:35:54 -0400
+Date: Tue, 25 Sep 2001 20:35:15 -0400
+From: Paul <set@pobox.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.10 much better than previous 2.4.x :-)
+Message-ID: <20010925203515.A227@squish.home.loc>
+Mail-Followup-To: Paul <set@pobox.com>,
+	Rik van Riel <riel@conectiva.com.br>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1001377785.1430.7.camel@gromit.house> <Pine.LNX.4.33L.0109242234410.19147-100000@imladris.rielhome.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L.0109242234410.19147-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Mon, Sep 24, 2001 at 10:35:53PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm worried about the language in the configuration documentation:
-  +  Some people, however, feel that network devices should not contribute to
-  +  /dev/random because an external attacker could observe incoming packets
-  +  in an attempt to learn the entropy pool's state. Note this is completely
-  +  theoretical. 
-Incrementing the entropy counter based on externally observable
-values is dangerous.  Calling this risk 'completely theoretical'
-is, I believe, a misrepresentation, unless I've missed something.
+Rik van Riel <riel@conectiva.com.br>, on Mon Sep 24, 2001 [10:35:53 PM] said:
+> 
+> If you have the time, could you also test 2.4.9-ac15 ?
+> 
+> (The -ac VM has basically branched off at 2.4.7 and has
+> evolved quite a bit since ... last week I fixed a stupid
+> page aging bug and things should be a lot better than
+> before now)
+> 
+> regards,
+> 
+> Rik
 
-A failed RNG is one of the most likely -- and most devastating
--- failure modes possible for modern cryptosystems, and as such
-it pays to be careful here.  Are you proposing this for inclusion
-in the mainline Linux kernel?  If so, I'm concerned that this patch
-could put security at risk.  What am I missing?
+	K6-333 128M ram
+	2.4.9-ac15 my impression: Well, running mutt with 80M
+folder open, desktop with several aterms and netscape with a few
+windows open, I started building a kernel in one term, and a
+'find / -type f -exec md5sum {}' in another, then started reading
+the mail, and occasionally jumping around the virtual desktop,
+exposing netscapes... (this is pretty much my normal working
+load, except for the find.)
+	I thought it worked very well; exposed netscapes were
+either just there, or drew almost instantly. (other kernels I
+have used, under the same load would usually take quite a bit
+longer for exposed netscape to draw itself.) 'interactiveness'
+seemed good.
 
-Here is my reasoning.  I'd like to quote drivers/char/random.c:
-  * add_interrupt_randomness() uses the inter-interrupt timing as random
-  * inputs to the entropy pool.  Note that not all interrupts are good
-  * sources of randomness!  For example, the timer interrupts is not a
-  * good choice, because the periodicity of the interrupts is too
-  * regular, and hence predictable to an attacker.  Disk interrupts are
-  * a better measure, since the timing of the disk interrupts are more
-  * unpredictable.
-  * 
-  * All of these routines try to estimate how many bits of randomness a
-  * particular randomness source.  They do this by keeping track of the
-  * first and second order deltas of the event timings.
-This suggests that add_interrupt_randomness() should not be called
-on all interrupts without discrimination.  Would it be fair to say
-that your patch enables randomness collection on almost all interrupts?
-If so, why is this safe to do?
+	Then, I read a post in this thread about swap being
+funny. I noticed that no swap was being reported as used all
+during my test. So, I forced the issue with an endless malloc.
+Very quickly, the system seems to freeze, and the disk is
+yammering away. I was waiting for the OOM killer to kick in,
+but it never did. <alt><sysrq> works well, and I used it to print
+out the Mem stats after several minutes. Eventually, I used
+sysrq to sync and kill (couldnt get it to reBoot, though).
+	Im not complaining-- Im just curious why no OOM killing, 
+and the Mem stats report 337148k swap free (I have 337168k).
+Does this memmory report look  proper for a machine thrashing
+itself to death from endless mallocs?
 
-I hope you agree that making this configurable does not obviate our
-responsibility to make sure that the default configuration is reasonable.
-This stuff is subtle, and changing it is not something I'd recommend
-without a careful analysis of the impact on security.  Moreover, the
-comments about 'completely theoretical' leave me concerned that any
-analysis that has been done on this patch may be based on misconceptions
-about cryptographic security.  Can you tell us anything about what
-security analysis you've done so far?
+Paul
+set@pobox.com
+
+SysRq : Show Memory
+Mem-info:
+Free pages:        1512kB (     0kB HighMem)
+( Active: 63, inactive_dirty: 172, inactive_clean: 0, free: 378 (351 702 1053) )
+1*4kB 1*8kB 1*16kB 1*32kB 1*64kB 1*128kB 1*256kB 0*512kB 0*1024kB 0*2048kB = 508kB)
+25*4kB 3*8kB 1*16kB 1*32kB 1*64kB 0*128kB 1*256kB 1*512kB 0*1024kB 0*2048kB = 1004kB)
+= 0kB)
+Swap cache: add 5, delete 5, find 0/0
+Page cache size: 79
+Buffer mem: 156
+Ramdisk pages: 0
+Free swap:       337148kB
+32764 pages of RAM
+0 pages of HIGHMEM
+1038 reserved pages
+115 pages shared
+0 pages swap cached
+0 pages in page table cache
+Buffer memory:      624kB

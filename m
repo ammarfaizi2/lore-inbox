@@ -1,206 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311856AbSCNW57>; Thu, 14 Mar 2002 17:57:59 -0500
+	id <S311848AbSCNW5a>; Thu, 14 Mar 2002 17:57:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311851AbSCNW5w>; Thu, 14 Mar 2002 17:57:52 -0500
-Received: from petkele.almamedia.fi ([194.215.205.158]:17393 "HELO
-	petkele.almamedia.fi") by vger.kernel.org with SMTP
-	id <S311854AbSCNW5i>; Thu, 14 Mar 2002 17:57:38 -0500
-Message-ID: <3C912ACF.AF3EE6F0@pp.inet.fi>
-Date: Fri, 15 Mar 2002 00:57:19 +0200
-From: Jari Ruusu <jari.ruusu@pp.inet.fi>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.2.20aa1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Herbert Valerio Riedel <hvr@hvrlab.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre3aa2
-In-Reply-To: <20020314032801.C1273@dualathlon.random>
-Content-Type: multipart/mixed;
- boundary="------------3BE25C181B8B92832600D9CC"
+	id <S311851AbSCNW5T>; Thu, 14 Mar 2002 17:57:19 -0500
+Received: from [63.204.6.12] ([63.204.6.12]:33202 "EHLO mail.somanetworks.com")
+	by vger.kernel.org with ESMTP id <S311848AbSCNW5I>;
+	Thu, 14 Mar 2002 17:57:08 -0500
+Date: Thu, 14 Mar 2002 17:56:45 -0500
+From: "Mark Frazer" <mark@somanetworks.com>
+To: Ben Greear <greearb@candelatech.com>
+Cc: Robert Love <rml@tech9.net>, Larry McVoy <lm@bitmover.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4 and BitKeeper
+Message-ID: <20020314175645.A30883@somanetworks.com>
+In-Reply-To: <Pine.LNX.4.21.0203140141450.4725-100000@freak.distro.conectiva> <3C904437.7080603@candelatech.com> <20020313224255.F9010@work.bitmover.com> <3C90E994.2030702@candelatech.com> <1016130404.4289.5.camel@phantasy> <3C90EEB9.5050007@candelatech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C90EEB9.5050007@candelatech.com>; from greearb@candelatech.com on Thu, Mar 14, 2002 at 11:40:57AM -0700
+X-Message-Flag: Lookout!
+Organization: Detectable, well, not really
+X-Fry-1: Drugs are for losers. And hypnosis is for losers with big weird
+X-Fry-2: eyebrows.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------3BE25C181B8B92832600D9CC
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-Andrea Arcangeli wrote:
-> Only in 2.4.19pre3aa2: 00_loop-IV-API-hvr-1
-> 
->         Make the IV API not to be in function of the blkdev
->         of the underlying fs, so you can copy your cryptoloop
->         around without risking to lose data. This breaks the
->         on-disk format of some encrypted transfer module though,
->         if you don't like it please discuss it here in CC with
->         Herbert Valerio Riedel <hvr@hvrlab.org>, the patch
->         is from him. I think writing a converter in place of
->         the loop data would be the preferred solution if needed. It could
->         be done in a way to link transparently with the source of
->         the kernel modules.
 
-Since you are finally fixing loop bugs, attached is a patch of loop fixes
-from loop-AES package (cipher code has been removed of course). These fixes
-are well tested and are basically unchanged since September 29 2001. Biggest
-fix is to make device backed loop work with swap so that encrypted swap is
-possible:
+Ben Greear <greearb@candelatech.com> [02/03/14 13:46]:
+> Ahh, that did fix the problem.  It must be configured differently
+> where I work, because I do not have to do the bk -r co command there.
 
-- IV computed in 512 byte units.
-- Make device backed loop work with swap by pre-allocating pages.
-- External encryption module locking bug fixed (from Ingo Rohloff).
-- Get rid of the loop_get_bs() crap.
-- grab_cache_page() return value handled properly, avoids Oops.
-- No more illegal messing with BH_Dirty flag.
-- No more illegal sleeping in generic_make_request().
-- Loops can be set-up properly when root partition is still mounted ro.
-- Default soft block size is set properly for file backed loops.
-- kmalloc() error case handled properly.
-- loop_set_fd() 'goto out_putf' error case handled properly.
-
-Regards,
-Jari Ruusu <jari.ruusu@pp.inet.fi>
---------------3BE25C181B8B92832600D9CC
-Content-Type: application/x-gzip;
- name="loop-fixes-2.4.19-pre2.diff.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="loop-fixes-2.4.19-pre2.diff.gz"
-
-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
---------------3BE25C181B8B92832600D9CC--
+You probably have
+checkout: get
+in your BitKeeper/etc/config file
 

@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275535AbTHNV3o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 17:29:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275539AbTHNV3o
+	id S275587AbTHNVgL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 17:36:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275588AbTHNVgL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 17:29:44 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:46590 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S275535AbTHNV3n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 17:29:43 -0400
-Date: Thu, 14 Aug 2003 23:29:35 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Alan Cox <alan@redhat.com>, pc300@cyclades.com
+	Thu, 14 Aug 2003 17:36:11 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:65152 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S275587AbTHNVgI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 17:36:08 -0400
+Date: Thu, 14 Aug 2003 22:36:00 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: David Wagner <daw@mozart.cs.berkeley.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch] 2.4.22-rc2-ac1: syntax error in Cyclades-PC300 Config.in entry
-Message-ID: <20030814212935.GS569@fs.tum.de>
-References: <200308091616.h79GG3C31402@devserv.devel.redhat.com>
+Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
+Message-ID: <20030814213600.GA12420@mail.jlokier.co.uk>
+References: <20030809173329.GU31810@waste.org> <20030813032038.GA1244@think> <20030813040614.GP31810@waste.org> <20030814165320.GA2839@speare5-1-14> <bhgoj9$9ab$1@abraham.cs.berkeley.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200308091616.h79GG3C31402@devserv.devel.redhat.com>
+In-Reply-To: <bhgoj9$9ab$1@abraham.cs.berkeley.edu>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch corrects a syntax error in a Config.in:
+David Wagner wrote:
+> Val Henson  wrote:
+> >Throwing away 80 bits of the 160 bit output is much better
+> >than folding the two halves together.  In all the cases we've
+> >discussed where folding might improve matters, throwing away half the
+> >output would be even better.
+> 
+> I don't see where you are getting this from.  Define
+>   F(x) = first80bits(SHA(x))
+>   G(x) = first80bits(SHA(x)) xor last80bits(SHA(x)).
+> What makes you think that F is a better (or worse) hash function than G?
+> 
+> I think there is little basis for discriminating between them.
+> If SHA is cryptographically secure, both F and G are fine.
+> If SHA is insecure, then all bets are off, and both F and G might be weak.
 
---- linux-2.4.22-rc2-ac1-full/drivers/net/wan/Config.in.old	2003-08-14 21:50:56.000000000 +0200
-+++ linux-2.4.22-rc2-ac1-full/drivers/net/wan/Config.in	2003-08-14 21:51:26.000000000 +0200
-@@ -80,7 +80,7 @@
-       if [ "$CONFIG_PCI" != "n" ]; then
- 	dep_tristate '    Cyclades-PC300 support (RS-232/V.35, X.21, T1/E1 boards)' CONFIG_PC300 $CONFIG_HDLC
- 	if [ "$CONFIG_PC300" != "n" ]; then
--		if ["$CONFIG_PPP" != "n" -a "$CONFIG_PPP_MULTLINK" != "n" -a "$CONFIG_PPP_SYNCTTY" != "n" -a "$CONFIG_HDLC_PPP" = "y"]; 
-+		if [ "$CONFIG_PPP" != "n" -a "$CONFIG_PPP_MULTLINK" != "n" -a "$CONFIG_PPP_SYNCTTY" != "n" -a "$CONFIG_HDLC_PPP" = "y"]; 
- 		then
- 			bool '      Cyclades-PC300 MLPPP support' CONFIG_PC300_MLPPP
- 		else
+I still do not see why either F or G are any more secure than SHA.
 
+F, G and SHA are all supposedly strong hash functions, and I don't see
+why the postulated folks capable of getting useful information about
+the inputs to SHA would have any more difficulty getting useful
+information about the inputs to F or G.
 
-The error message was:
-  scripts/Configure: line 83: [y: command not found
+Unless we're postulating that SHA is deliberately weak, so that the
+designers have a back door, that is not present in F or G.
 
+Could some explain, please?
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+-- Jamie

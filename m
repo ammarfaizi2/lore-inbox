@@ -1,50 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261334AbTDDVRQ (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 16:17:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbTDDVRP (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 16:17:15 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:1762 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261334AbTDDVRM (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 16:17:12 -0500
-Date: Fri, 4 Apr 2003 13:28:32 +0000
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: mikpe@csd.uu.se, mbligh@aracnet.com, robins.t@kutumb.org.in,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Bug 538] New: Rebooting of pentium-I during initial booting
- phase.
-Message-Id: <20030404132832.74ed6aee.rddunlap@osdl.org>
-In-Reply-To: <20030404132547.7bda0d49.rddunlap@osdl.org>
-References: <200304042052.h34KqZSE021540@harpo.it.uu.se>
-	<20030404132547.7bda0d49.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id S261302AbTDDVWB (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 16:22:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbTDDVWB (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 16:22:01 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:4581 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261302AbTDDVWA (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 16:22:00 -0500
+Date: Fri, 4 Apr 2003 13:33:20 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: "Hua Zhong" <hzhong@cisco.com>
+Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: Compile warning in 2.5.66-bk latest
+Message-Id: <20030404133320.4a6a2a8c.shemminger@osdl.org>
+In-Reply-To: <CDEDIMAGFBEBKHDJPCLDMEKMDGAA.hzhong@cisco.com>
+References: <1049408232.22772.1.camel@dell_ss3.pdx.osdl.net>
+	<CDEDIMAGFBEBKHDJPCLDMEKMDGAA.hzhong@cisco.com>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-| | >Problem Description:
-| | >The new kernel 2.5.65 reboots while booting process (in the very initial phase) making even noting the progress very difficult.
-| | >The system is running fine with 2.4.21-pre5, with the option "nodma".
-| | 
-| | Most probably a configuration error, viz. choosing a CPU type
-| | higher than generic 586. My Socket7 ASUS T2P4 with a Pentium
-| | Classic (pre-MMX) 133MHz boots 2.5.66 just fine.
-| 
-| Yes, I agree with that suggestion, but I don't see a problem.
-| Did you look at his .config file?  It's here:
-|   http://bugme.osdl.org/attachment.cgi?id=261&action=view
-| 
-| I'm comparing it to the .config on my Pentium-with-f00f-bug, which does
-| boot 2.5.65 successfully, and I don't see CPU option differences.
-| I see lots that don't matter and I see PIIX vs. VIA option differences.
-| 
-| Oh, and I have CONFIG_VIDEO_DEV enabled, while Robins does not.
-| Would that matter?
+On Thu, 3 Apr 2003 19:00:14 -0800
+"Hua Zhong" <hzhong@cisco.com> wrote:
 
-Ugh, never mind that last part.  I was thinking that was CONSOLE stuff,
-but it's not.
+> Hi Andrew:
+> 
+> It's probably another change set in the file (J_EXPECT_JH).
+> 
+> I don't have gcc 3.2 installed so I could not verify, but maybe the
+> following patch could fix it.
+> 
 
---
-~Randy
+This compiles and runs fine for me.
+
+
+> Maybe a better fix is to define all J_EXPECTxxx as sth like:
+> 
+> #define J_EXPECT(expr, why, params...)		__journal_expect(expr, why, ##
+> params)
+> 
+> as why is always needed.
+> 
+> diff -urN linux-2.5/include/linux/jbd.h linux-2.5-new/include/linux/jbd.h
+> --- linux-2.5/include/linux/jbd.h	Thu Apr  3 11:29:43 2003
+> +++ linux-2.5-new/include/linux/jbd.h	Thu Apr  3 21:48:25 2003
+> @@ -275,7 +275,7 @@
+>  	do {								     \
+>  		if (!(expr)) {						     \
+>  			printk(KERN_ERR "EXT3-fs unexpected failure: %s;\n", # expr); \
+> -			printk(KERN_ERR ## why);			     \
+> +			printk(KERN_ERR why);			     \
+>  		}							     \
+>  	} while (0)
+>  #define J_EXPECT(expr, why...)		__journal_expect(expr, ## why)
+> 
+> > -----Original Message-----
+> > From: Stephen Hemminger [mailto:shemminger@osdl.org]
+> > Sent: Thursday, April 03, 2003 2:17 PM
+> > To: Hua Zhong
+> > Cc: Linux Kernel Mailing List
+> > Subject: Compile warning in 2.5.66-bk latest
+> >
+> >
+> > Using gcc 3.2 with latest 2.5.66-bk
+> >
+> > gcc -Wp,-MD,drivers/block/.elevator.o.d -D__KERNEL__ -Iinclude
+> > -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
+> > -fno-common -pipe -mpreferred-stack-boundary=2 -march=pentium4
+> > -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include
+> > -DKBUILD_BASENAME=elevator -DKBUILD_MODNAME=elevator -c -o
+> > drivers/block/.tmp_elevator.o drivers/block/elevator.c
+> > fs/jbd/transaction.c:670:53: warning: pasting "KERN_ERR" and
+> > ""Possible IO failure.\n"" does not give a valid preprocessing token
+> >
+> >
+> >

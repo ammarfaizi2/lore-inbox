@@ -1,56 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261922AbUBWPYo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 10:24:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbUBWPYn
+	id S261923AbUBWP0u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 10:26:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbUBWP0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 10:24:43 -0500
-Received: from smtpq3.home.nl ([213.51.128.198]:49281 "EHLO smtpq3.home.nl")
-	by vger.kernel.org with ESMTP id S261922AbUBWPYl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 10:24:41 -0500
-Message-ID: <403A1B21.8000100@keyaccess.nl>
-Date: Mon, 23 Feb 2004 16:24:17 +0100
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031029
-X-Accept-Language: en-us, en
+	Mon, 23 Feb 2004 10:26:50 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:27523 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261923AbUBWP0f
+	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 10:26:35 -0500
+Date: Mon, 23 Feb 2004 10:28:20 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Coywolf Qi Hunt <coywolf@greatcn.org>
+cc: tao@acc.umu.se, alan@lxorguk.ukuu.org.uk,
+       Linux kernel <Linux-Kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix GDT limit in setup.S for 2.0 and 2.2
+In-Reply-To: <Pine.LNX.4.53.0402230933190.8770@chaos>
+Message-ID: <Pine.LNX.4.53.0402231012590.8959@chaos>
+References: <403114D9.2060402@lovecn.org> <403A07D8.5050704@greatcn.org>
+ <Pine.LNX.4.53.0402230933190.8770@chaos>
 MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-CC: Coywolf Qi Hunt <coywolf@greatcn.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: BOOT_CS
-References: <c16rdh$gtk$1@terminus.zytor.com> <40375261.6030705@greatcn.org> <20040221163213.GB15991@mail.shareable.org> <403984DD.4030108@greatcn.org> <20040223143056.GC30321@mail.shareable.org>
-In-Reply-To: <20040223143056.GC30321@mail.shareable.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
 
-> Your patch uses two instructions to flush the queue (push+ret) instead
-> of one (jmp or ljmp).  Is that documented as reliable?
+Sorry about my last response. I noticed from the code, that
+the LGDT instruction isn't pointing to where I though it
+was.
 
-No. The current arch manuals seem to say nothing definite, but Intel's 
-386 manual (ie, the cpu, not the arch) from 1986 explicitly says "after 
-setting PG, a jump must follow immediately".
+The first  WORD (16-bit int) that the LGDT points to
+is supposed to be the byte-length -1 of the real GDT.
+The next WORD is supposed to be the low address of the
+physical location of the real GDT and the next WORD is
+supposed to be the high address of the physical location
+of the read GDT.
 
-> I can easily imagine an implementation which decodes one instruction
-> after a mode change predictably, but not two.
-> 
-> I doubt that it makes a difference - we're setting PG, not changing 
-> the instruction format - but I'd like us to be sure it cannot fail on
->  things like 386s and 486s, and similar non-Intel chips.
+In the subject code, the real GDT is only 32 bytes in length,
+the variable you are changing truly should only be 0x1f, the
+length of the GDT - 1.
 
-I believe you should either keep it as is, do the long jump (although I 
-don't believe that to be necessary: setup.s already long jumped to us) 
-or only delete the indirect jump (we've just been longjumped to, and 
-identity-mapped, so everything would seem to be normalised already).
 
-In any case, please jump directly after setting PG.
+Earlier on, I just grabbed your patch and found my kernel
+wouldn't boot (with 0x800) as the length. This was
+probably because the current 0x8000, when loaded, creates
+some kind of alias that lets it work, but changing it to
+0x800 removes that alias. Anyway, I am about to boot
+this system with a mere 0x1f in that entry and see if
+it even boots.......
 
-Rene.
+
+On Mon, 23 Feb 2004, Richard B. Johnson wrote:
+
+> On Mon, 23 Feb 2004, Coywolf Qi Hunt wrote:
+>
+> > Hello,
+> >
+> > I posted this problem days ago. Just now I check FreeBSD code and find
+> > theirs code goes no this problem. Please take my patches for 2.0 and 2.2
+> > 2.4 patch have been already sent to Anvin.
+> >
+> > (patches for 2.0 and 2.2 enclosed)
+> >
+> >
+> > 	Coywolf
+> >
+>
+> Please review pages 5-10 thru 5-11 or the Intel 484 Programmer's
+> Reference manual and then tell me what you think you are doing.
+>
+> Screwing around with that GDT will cause large kernels, i.e.,
+> kernels that have RAM disks, to fail to load. I already explained
+> what the elements in the GDT mean. You seem to think you know
+> more than those at Intel who wrote the book.
+>
+> As the text in page 5-11 shows, if the granularity bit is '1'
+> The limit value is from 4 kilobytes to 4 gigabytes in increments
+> of 4K bytes. You just set that value to 2048 * 4096 = 8,388,608 bytes.
+> This means I can't load a 10 megabyte RAM disk. Stop screwing
+> with the startup code, you absolutely-positively don't have a clue
+> what you are doing.
+>
+>
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+>             Note 96.31% of all statistics are fiction.
+>
+>
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 

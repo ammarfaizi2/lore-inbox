@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263986AbTDYVLP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 17:11:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263989AbTDYVLP
+	id S264446AbTDYVFY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 17:05:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264458AbTDYVFU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 17:11:15 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29967 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263986AbTDYVLN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 17:11:13 -0400
-Message-ID: <3EA9A72F.4030505@zytor.com>
-Date: Fri, 25 Apr 2003 14:22:55 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en, sv
+	Fri, 25 Apr 2003 17:05:20 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:48286 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S264446AbTDYVFQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 17:05:16 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-To: John Bradford <john@grabjohn.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 9-track tape drive (Was: Re: versioned filesystems in linux)
-References: <200304252121.h3PLLwSX002318@81-2-122-30.bradfords.org.uk>
-In-Reply-To: <200304252121.h3PLLwSX002318@81-2-122-30.bradfords.org.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16041.42469.529671.272810@napali.hpl.hp.com>
+Date: Fri, 25 Apr 2003 14:17:25 -0700
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386 vsyscall DSO implementation
+In-Reply-To: <b8c7m5$u3u$1@cesium.transmeta.com>
+References: <3EA8942D.4050201@pobox.com>
+	<200304250210.h3P2AoU12348@magilla.sf.frob.com>
+	<16041.24730.267207.671647@napali.hpl.hp.com>
+	<b8c7m5$u3u$1@cesium.transmeta.com>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford wrote:
->>>Of bigger concern is that the inter-block gap is only 0.5 (or maybe 0.75
->>>inches, the memories are dim ;) - and you need to be able to stop and then get
->>>back up to speed in that distance (or decelerate, rewind, and get a running
->>>start).
->>>
->>
->>No, you don't.  You just need to make sure you don't have the head
->>active while you overshoot.  Performance will *definitely* suffer if
->>you don't, though, since you'd have to rewind.
-> 
-> 
-> Well, we could make our device dual speed, and either run at E.G. 60
-> I.P.S. or 120 I.P.S. depending on whether we want to read a large
-> block of data, or just one block that happens to be closer to the
-> current head position than the distance we need to accellerate to 120
-> I.P.S.
-> 
+>>>>> On 25 Apr 2003 14:00:53 -0700, "H. Peter Anvin" <hpa@zytor.com> said:
 
-Actually, as long as you get enough read speed across the head and can
-actually measure the real speed you can presumably vary the speed
-arbitrarily, all the way up to the breaking point of the medium.
+  hpa> Followup to: <16041.24730.267207.671647@napali.hpl.hp.com> By
+  hpa> author: David Mosberger <davidm@napali.hpl.hp.com> In
+  hpa> newsgroup: linux.dev.kernel
 
-	-hpa
+  >>  I like this.  Even better would be if all platforms could do the
+  >> same.  I'm definitely interested in doing something similar for
+  >> ia64 (the getunwind() syscall was always just a stop-gap
+  >> solution).
 
+  >> I assume that these kernel ELF images would then show up in
+  >> dl_iterate_phdr()?
 
+  >> To complete the picture, it would be nice if the kernel ELF
+  >> images were mappable files (either in /sysfs or /proc) and would
+  >> show up in /proc/PID/maps.  That way, a distributed application
+  >> such as a remote debugger could gain access to the kernel unwind
+  >> tables on a remote machine (assuming you have a remote
+  >> filesystem).
+
+  hpa> How about /boot?
+
+You mean a regular file?  I'm not sure whether this could be made to
+work.  The /proc/PID/maps entry (really: the vm_area for the kernel
+ELF images) would have to be created by the kernel, at a time when no
+real filesystem is available.  Also, since the kernel needs to store
+the data in kernel-memory anyhow, I don't think there is much point in
+storing it on disk as well.
+
+	--david

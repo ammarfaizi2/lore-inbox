@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266345AbTGENZk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 09:25:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266349AbTGENZk
+	id S266349AbTGEN0b (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 09:26:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266352AbTGEN0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 09:25:40 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:54685
+	Sat, 5 Jul 2003 09:26:31 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:55709
 	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S266345AbTGENZj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 09:25:39 -0400
-Subject: Re: 2.4 BK compile failure in dmi_scan: `BROKEN_PNP_BIOS'
-	undeclared
+	id S266349AbTGEN0Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 09:26:24 -0400
+Subject: Re: [PATCH 2.5.74, 2.5.74-mjb1] i2o compile fix
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Duncan Sands <baldrick@wanadoo.fr>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200307051356.35663.baldrick@wanadoo.fr>
-References: <200307051356.35663.baldrick@wanadoo.fr>
+To: Michael Buesch <fsdeveloper@yahoo.de>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200307051311.19491.fsdeveloper@yahoo.de>
+References: <200307051311.19491.fsdeveloper@yahoo.de>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1057412245.23488.5.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1057412285.23520.7.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 05 Jul 2003 14:37:25 +0100
+Date: 05 Jul 2003 14:38:06 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2003-07-05 at 12:56, Duncan Sands wrote:
-> make[2]: Entering directory `/home/duncan/linux-2.4/arch/i386/kernel'
-> gcc -D__KERNEL__ -I/home/duncan/linux-2.4/include -Wall -Wstrict-prototypes -Wno-trigraphs
-> -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2
-> -march=athlon   -nostdinc -iwithprefix include -DKBUILD_BASENAME=dmi_scan  -c -o dmi_scan.o
-> dmi_scan.c
-> dmi_scan.c: In function `exploding_pnp_bios':
-> dmi_scan.c:521: error: `BROKEN_PNP_BIOS' undeclared (first use in this function)
-> dmi_scan.c:521: error: (Each undeclared identifier is reported only once
-> dmi_scan.c:521: error: for each function it appears in.)
-> dmi_scan.c: In function `dmi_decode':
-> dmi_scan.c:944: warning: unused variable `data'
+On Sad, 2003-07-05 at 12:11, Michael Buesch wrote:
+> This patch is tested to apply to 2.5.74 and 2.5.74-mjb1
+> 
+> - --- drivers/message/i2o/i2o_scsi.c.orig	2003-07-05 13:00:07.000000000 +0200
+> +++ drivers/message/i2o/i2o_scsi.c	2003-07-05 13:02:59.000000000 +0200
+> @@ -53,6 +53,7 @@
+>  #include <asm/system.h>
+>  #include <asm/io.h>
+>  #include <asm/atomic.h>
+> +#include <linux/pci.h>
+>  #include <linux/blk.h>
+>  #include <linux/i2o.h>
+>  #include "../../scsi/scsi.h"
 
-Marcelo hasn't yet applied all the changes I sent him, including some
-that depend on each other. Just pull that change from -ac or wait
+Looks fine to me.
 

@@ -1,65 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbVA1QbC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbVA1Qb1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261467AbVA1QbC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 11:31:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbVA1QbC
+	id S261474AbVA1Qb1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 11:31:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVA1Qb1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 11:31:02 -0500
-Received: from mailr.eris.qinetiq.com ([128.98.1.9]:12698 "HELO
-	mailr.qinetiq-tim.net") by vger.kernel.org with SMTP
-	id S261467AbVA1Qaz convert rfc822-to-8bit (ORCPT
+	Fri, 28 Jan 2005 11:31:27 -0500
+Received: from mail.suse.de ([195.135.220.2]:51883 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261474AbVA1QbY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 11:30:55 -0500
-From: Mark Watts <m.watts@eris.qinetiq.com>
-Organization: QinetiQ
-To: Dan Williams <dcbw@redhat.com>
-Subject: Re: Where Linux 802.11x support needs work
-Date: Fri, 28 Jan 2005 16:38:08 +0000
-User-Agent: KMail/1.6.1
-References: <Pine.LNX.4.58.0501251630280.30850@devserv.devel.redhat.com>
-In-Reply-To: <Pine.LNX.4.58.0501251630280.30850@devserv.devel.redhat.com>
+	Fri, 28 Jan 2005 11:31:24 -0500
+Date: Fri, 28 Jan 2005 17:31:07 +0100
+From: Olaf Hering <olh@suse.de>
+To: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+Subject: [PATCH] typo in pci_scan_bus_parented
+Message-ID: <20050128163107.GA1124@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200501281638.08372.m.watts@eris.qinetiq.com>
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.29.0.5; VDF: 6.29.0.52; host: mailr.qinetiq-tim.net)
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+
+printk format string misses a x
 
 
+Signed-off-by: Olaf Hering <olh@suse.de>
 
-> o  Firmware issues
->    1) Cisco aironet firmware upload is quite inconsistent, fails with
->       5.21 for example.  Firmware <= 5.02 seems to be required for using
->       WEP with most access points.  Latest Cisco-provided driver is quite
->       different than latest in-kernel driver
-
-This might explain why I've never managed to get WEP working with my cisco 
-cards...
-
-Is there some documentation somewhere on exactly what firmware/driver/kernel 
-versions you need to make WEP work with aironet cards?
-
-Cheers,
-
-Mark.
-
-- -- 
-Mark Watts
-Senior Systems Engineer
-QinetiQ Trusted Information Management
-Trusted Solutions and Services group
-GPG Public Key ID: 455420ED
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFB+mpwBn4EFUVUIO0RAg+qAKDP9f3uV0YQfN/kj/Wp04NHtoTNJgCggun1
-IhMCNDTQ2sIPollnKE3SXNk=
-=pKy+
------END PGP SIGNATURE-----
+--- ../linux-2.6.11-rc2.orig/drivers/pci/probe.c	2005-01-22 02:48:34.000000000 +0100
++++ .//drivers/pci/probe.c	2005-01-28 17:24:50.115957815 +0100
+@@ -879,7 +879,7 @@ struct pci_bus * __devinit pci_scan_bus_
+ 
+ 	if (pci_find_bus(pci_domain_nr(b), bus)) {
+ 		/* If we already got to this bus through a different bridge, ignore it */
+-		DBG("PCI: Bus %04:%02x already known\n", pci_domain_nr(b), bus);
++		DBG("PCI: Bus %04x:%02x already known\n", pci_domain_nr(b), bus);
+ 		goto err_out;
+ 	}
+ 	list_add_tail(&b->node, &pci_root_buses);

@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261172AbUB0GRO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 01:17:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbUB0GRO
+	id S261725AbUB0GU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 01:20:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbUB0GU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 01:17:14 -0500
-Received: from cache1.telkomsel.co.id ([202.155.14.251]:8202 "EHLO
-	cache1.telkomsel.co.id") by vger.kernel.org with ESMTP
-	id S261172AbUB0GRM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 01:17:12 -0500
-Subject: Radeon Framebuffer Driver in 2.6.3?
-From: arief# <arief_m_utama@telkomsel.co.id>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1077863238.2522.6.camel@damai.telkomsel.co.id>
+	Fri, 27 Feb 2004 01:20:56 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:26887 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261692AbUB0GUx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 01:20:53 -0500
+Date: Fri, 27 Feb 2004 07:12:20 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: MP M <mageshmp2003@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: help in TCP checksum offload , TSO and zero copy
+Message-ID: <20040227061220.GC7785@alpha.home.local>
+References: <20040226185219.70474.qmail@web21407.mail.yahoo.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 27 Feb 2004 13:27:18 +0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040226185219.70474.qmail@web21407.mail.yahoo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+On Thu, Feb 26, 2004 at 10:52:19AM -0800, MP M wrote:
+> ttcp-t: 216442880 bytes in 299.34 real seconds =
+> 706.13 KB/sec +++
+^^^^^^^^^
 
+It's obvious that you have other problems, because lack of hardware
+checksum won't lead to such abysmal performance. You should start
+with *real* traffic, and not with I/O bound tools such as tar.
+For instance, you'd better use "dd if=/dev/zero bs=64k count=4000"
+(or use /dev/urandom) to generate some data if you absolutely need
+some. But here, I'm fairly certain that your disk is *THE* problem.
+I could easily reach the Gb/s with a P3/1G on a crappy dl2k, so I
+don't see why you could not to it on better hardware.
 
-Before, please cc me the answer, as I'm not on the list right now.
+Oh, and BTW, check your cable (netstat -i) to see if you get drops
+or errors. You can also have poor wires which lead to frequent
+retransmits. GigE uses all 4 pairs (8 wires), so a cable which
+works well on FastEth is not necessarily OK on GigE.
 
-In 2.6.3 (including -mmX patches), radeon framebuffer seems to having
-problems. Everytime I do clear screen, it only 'half cleared'. I still
-can see the mark of the previous texts in shaded mode. And it does not
-do deletion well, too. 
-
-Anybody else having the same problem?
-
-I like to see what's the problem, but I don't know framebuffer code (or
-any kernel code at all) well. If someone could give me pointer, I could
-give it a shot. 
-
-My hardware is, IBM Thinkpad T30 with Radeon 7500 card.
-2.6.2 and 2.4 does not have this problem. 
-
-
-Regards.
--arief
+Cheers,
+Willy
 

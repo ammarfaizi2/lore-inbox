@@ -1,64 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129584AbRAUWlh>; Sun, 21 Jan 2001 17:41:37 -0500
+	id <S129604AbRAUWwv>; Sun, 21 Jan 2001 17:52:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129604AbRAUWl1>; Sun, 21 Jan 2001 17:41:27 -0500
-Received: from wpk-smtp-relay2.cwci.net ([195.44.63.19]:32842 "EHLO
-	wpk-smtp-relay.cwci.net") by vger.kernel.org with ESMTP
-	id <S129584AbRAUWlT>; Sun, 21 Jan 2001 17:41:19 -0500
-Date: Sun, 21 Jan 2001 22:40:34 +0000 (UTC)
-From: Mo McKinlay <mmckinlay@gnu.org>
-To: Admin Mailing Lists <mlist@intergrafix.net>
-cc: Ragnar Hojland Espinosa <ragnar_hojland@eresmas.com>,
-        <profmakx.fmp@gmx.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: [OT?] Coding Style
-In-Reply-To: <Pine.LNX.4.10.10101210048360.17920-100000@athena.intergrafix.net>
-Message-ID: <Pine.LNX.4.30.0101212236480.1383-100000@nvws005.nv.london>
-Organization: inter/open Labs
-X-URL: http://www.interopen.org/
+	id <S130701AbRAUWwc>; Sun, 21 Jan 2001 17:52:32 -0500
+Received: from barry.mail.mindspring.net ([207.69.200.25]:53767 "EHLO
+	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S129604AbRAUWw1>; Sun, 21 Jan 2001 17:52:27 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Jeff Lightfoot <jeffml@pobox.com>
+Reply-To: jeffml@pobox.com
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.1pre9 Oops (was Re: 2.4.1pre8 Oops)
+Date: Sun, 21 Jan 2001 15:52:18 -0700
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <01012111414100.15973@earth>
+In-Reply-To: <01012111414100.15973@earth>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01012115521800.18005@earth>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sunday 21 January 2001 11:41, I wrote:
+> Nothing special with this box.  SMP no modules, Squid proxy and
+> running VNC/Pan at the time.  Using kernel version of reiserfs on
+> filesystems other than root.
 
-Today, Admin Mailing Lists (mlist@intergrafix.net) wrote:
+I also failed to mention that I use devfs.
 
-  > > And the lord spake, saying, "First shalt thou write thy holy code. Indenting
-  > > shalt thou count to three, no more, no less.  Three shalt be the spaces thou
-  > > shalt count, and the number of the counting shalt be three.  Four shalt thou
-  > > not count, nor count thou two, excepting that thou then proceedeth to three.
-  > > Eight is right out.  Once the number three, being the third number be
-  > > reached, shalt thou move towards indenting thy next line ..
+[Oops snipped]
 
-  > now I know why I never read the bible.
+Upgraded to 2.4.1pre9 and got the following Oops:
 
-..or Monty Python...
+EIP:    0010:[<c022b533>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00000086
+eax: 00000001   ebx: 00000001   ecx: 00000001   edx: c0238440
+esi: c02d7068   edi: 00000020   ebp: 0000000d   esp: c7a63ed0
+ds: 0018   es: 0018   ss: 0018
+Process pan (pid: 2318, stackpage=c7a63000)
+Stack: 00000001 c02d7068 00000020 0000000d 00000082 00000001 c02da381
+0000001e
+       c01125bf c0238440 00000001 00000001 00000001 00000001 c0233d6d
+00000001
+       00000020 c02f502c c02d7068 00000020 0000000d ffffe000 c1460018
+c0100018
+Call Trace: [<c01125bf>] [<c0100018>] [<c01ed565>] [<c011916c>]
+[<c010a8c5>] [<c0109014>] [<ffff0018>]
+       [<c0130018>] [<c0130e19>] [<c0108f53>] [<c010002b>]
+Code: 80 3d c0 6d 28 c0 00 f3 90 7e f5 e9 d6 b7 ee ff 80 3d c0 6d
 
-- -- 
-Mo McKinlay
-mmckinlay@gnu.org
-- -------------------------------------------------------------------------
-GnuPG/PGP Key: pub  1024D/76A275F9 2000-07-22
-
-
-
-
-
-
-
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjprZWUACgkQRcGgB3aidfnz0gCgqOGt7dg3cZH/uDz0Vpe/P9Fe
-ALsAn2y2L/D9e1QRWTb6jDSM+kvsrShr
-=3D28
------END PGP SIGNATURE-----
+>>EIP; c022b533 <stext_lock+787/662d>   <=====
+Trace; c01125bf <smp_error_interrupt+43/48>
+Trace; c0100018 <startup_32+18/cb>
+Trace; c01ed565 <net_tx_action+5/118>
+Trace; c011916c <do_softirq+5c/8c>
+Trace; c010a8c5 <do_IRQ+e5/f4>
+Trace; c0109014 <ret_from_intr+0/20>
+Trace; ffff0018 <END_OF_CODE+3fcd7e44/????>
+Trace; c0130018 <sys_fchdir+c/11c>
+Trace; c0130e19 <sys_read+a1/c4>
+Trace; c0108f53 <system_call+33/38>
+Trace; c010002b <startup_32+2b/cb>
+Code;  c022b533 <stext_lock+787/662d>
+00000000 <_EIP>:
+Code;  c022b533 <stext_lock+787/662d>   <=====
+   0:   80 3d c0 6d 28 c0 00      cmpb   $0x0,0xc0286dc0   <=====
+Code;  c022b53a <stext_lock+78e/662d>
+   7:   f3 90                     repz nop 
+Code;  c022b53c <stext_lock+790/662d>
+   9:   7e f5                     jle    0 <_EIP>
+Code;  c022b53e <stext_lock+792/662d>
+   b:   e9 d6 b7 ee ff            jmp    ffeeb7e6 <_EIP+0xffeeb7e6> 
+c0116d19 <printk+11/17c>
+Code;  c022b543 <stext_lock+797/662d>
+  10:   80 3d c0 6d 00 00 00      cmpb   $0x0,0x6dc0
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

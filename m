@@ -1,73 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261629AbUKSWAM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261622AbUKSWAL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261629AbUKSWAM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 17:00:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbUKSVyR
+	id S261622AbUKSWAL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 17:00:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbUKSVyC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 16:54:17 -0500
-Received: from c7ns3.center7.com ([216.250.142.14]:12701 "EHLO
-	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S261605AbUKSVwD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 16:52:03 -0500
-Message-ID: <419E6E5D.2000709@devicelogics.com>
-Date: Fri, 19 Nov 2004 15:06:21 -0700
-From: "Jeff V. Merkey" <jmerkey@devicelogics.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@devicelogics.com>
-Cc: linux-kernel@vger.kernel.org, jmerkey@drdos.com
-Subject: Re: Linux 2.6.9 pktgen module causes INIT process respawning and
- sickness
-References: <419E6B44.8050505@devicelogics.com>
-In-Reply-To: <419E6B44.8050505@devicelogics.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Nov 2004 16:54:02 -0500
+Received: from mail.kroah.org ([69.55.234.183]:7060 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261610AbUKSVwH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 16:52:07 -0500
+Date: Fri, 19 Nov 2004 13:51:39 -0800
+From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [BK PATCH] USB fixes for 2.6.10-rc2
+Message-ID: <20041119215139.GA15621@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Additionally, when packets sizes 64, 128, and 256 are selected, pktgen 
-is unable to achieve > 500,000 pps (349,000 only on my system).
-A Smartbits generator can achieve over 1 million pps with 64 byte 
-packets on gigabit.  This is one performance
-issue for this app.  However, at 1500 and 1048 sizes, gigabit saturation 
-is achievable. 
+Here are a some bugfixes and additional device ids for USB drivers for
+2.6.10-rc2.
 
-Jeff
+Please pull from:
+	bk://kernel.bkbits.net/gregkh/linux/usb-2.6
 
-Jeff V. Merkey wrote:
+Patches will be posted to linux-usb-devel as a follow-up thread for
+those who want to see them.
 
->
-> With pktgen.o configured to send 123MB/S on a gigabit on a system 
-> using pktgen set to the following parms:
->
-> pgset "odev eth1"
-> pgset "pkt_size 1500"
-> pgset "count 0"
-> pgset "ipg 5000"
-> pgset "src_min 10.0.0.1"
-> pgset "src_max 10.0.0.254"
-> pgset "dst_min 192.168.0.1"
-> pgset "dst_max 192.168.0.254"
->
-> After 37 hours of continual packet generation into a gigabit 
-> regeneration tap device,
-> the server system console will start to respawn the INIT process about 
-> every 10-12
-> hours of continuous packet generation.
->
-> As a side note, this module in Linux is extremely useful and the "USE 
-> WITH CAUTION" warnings
-> are certainly will stated.  The performance of this tool is excellent.
->
-> Jeff
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+thanks,
+
+greg k-h
+
+ drivers/usb/input/Kconfig          |    3 
+ drivers/usb/net/pegasus.c          |    8 
+ drivers/usb/serial/ftdi_sio.c      |    1 
+ drivers/usb/serial/ipaq.c          |  483 +++++++++++++++++++++++++++++++++----
+ drivers/usb/serial/ipaq.h          |   75 -----
+ drivers/usb/serial/pl2303.c        |    2 
+ drivers/usb/serial/pl2303.h        |    2 
+ drivers/usb/serial/visor.c         |    3 
+ drivers/usb/storage/isd200.c       |    4 
+ drivers/usb/storage/scsiglue.c     |   53 ----
+ drivers/usb/storage/transport.c    |    4 
+ drivers/usb/storage/unusual_devs.h |   18 -
+ drivers/usb/storage/usb.c          |   26 -
+ drivers/usb/storage/usb.h          |    8 
+ 14 files changed, 499 insertions(+), 191 deletions(-)
+-----
+
+<masaki-c:nict.go.jp>:
+  o USB: new defice for usb serial pl2303
+
+<twogood:users.sourceforge.net>:
+  o Re: The "ipaq" module: Updated list of vendor/product IDs
+
+Daniel Ritz:
+  o USB: Add some help text for touchkitusb
+
+Matthew Dharm:
+  o USB Storage: Remove unnecessary state testing
+  o USB Storage: Force INQUIRY length to be 36
+  o USB Storage: fixes to usb-storage scanning thread
+
+Paul Ortyl:
+  o USB Storage: Unusual_dev entry for tekom/yakumo
+
+Paulo Marques:
+  o USB: add PID to ftdi_sio.c
+
+Petko Manolov:
+  o USB: pegasus endian fixes
+
+Roger Luethi:
+  o USB: visor: Always do generic_startup
 

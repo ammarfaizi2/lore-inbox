@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262184AbSJJTTA>; Thu, 10 Oct 2002 15:19:00 -0400
+	id <S262110AbSJJTbg>; Thu, 10 Oct 2002 15:31:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262167AbSJJTR6>; Thu, 10 Oct 2002 15:17:58 -0400
-Received: from packet.digeo.com ([12.110.80.53]:27062 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262184AbSJJTQu>;
-	Thu, 10 Oct 2002 15:16:50 -0400
-Message-ID: <3DA5D374.330E5970@digeo.com>
-Date: Thu, 10 Oct 2002 12:22:28 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S262115AbSJJTbg>; Thu, 10 Oct 2002 15:31:36 -0400
+Received: from dsl-213-023-020-143.arcor-ip.net ([213.23.20.143]:27075 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S262110AbSJJTbf>;
+	Thu, 10 Oct 2002 15:31:35 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: two problems using EXT3 htrees
+Date: Thu, 10 Oct 2002 21:07:35 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Andrew_Purtell@NAI.com, tytso@mit.edu, linux-kernel@vger.kernel.org
+References: <1D4F16D4D695D21186A300A0C9DCF9838F611F@LOS-83-207.nai.com> <E17zd3i-0008A8-00@starship> <20021010170317.GI3045@clusterfs.com>
+In-Reply-To: <20021010170317.GI3045@clusterfs.com>
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [LART] inode mismanagement in hugetlb code
-References: <Pine.GSO.4.21.0210101447390.13421-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Oct 2002 19:22:28.0807 (UTC) FILETIME=[5F695570:01C27092]
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17ziem-0000Dk-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
+On Thursday 10 October 2002 19:03, Andreas Dilger wrote:
+> On Oct 10, 2002  15:08 +0200, Daniel Phillips wrote:
+> > On Wednesday 09 October 2002 20:29, Andrew_Purtell@NAI.com wrote:
+> > > I recently patched my 2.4.19 kernel with EXT3 dir_index support and tried
+> > > it out on my 80GB EXT3 data partition...
+> > 
+> > Could you please provide a pointer to the patch you used?
 > 
-> [A discussion of the meanings of the terms "MUST", "SHOULD", and "MAY" appears
-> in RFC-1123; the terms "MUST NOT" and "SHOULD NOT" are logical extensions of
-> this usage]
-> 
->         a) inodes MUST have an address of valid struct super_block in their
-> ->i_sb.  Had been discussed quite a few times already.
-> 
+> A number of people have been getting this same bug under high load.  I
+> believe they are using the patches from Ted, and/or BK extfs.bkbits.net.
 
-afaict, that code only wants an inode because it is borrowing
-the pagecache functions for page lookup.  It's using i_ino as
-a search key too.  It has no superblock.
+Does the Chris Lee flavor of the patch (before Ted's cleanups) exhibit the
+same bug?  I suppose the pre-cleanup patch is incompatible with e2fsck
+because of the hash function change, but that would be easy to fix.
 
-Solutions might be: 1) allocate a private <int key, radix tree>
-structure or 2) require that these inodes come from hugetlbfs,
-although the "key" makes that a bit tricky.
+-- 
+Daniel

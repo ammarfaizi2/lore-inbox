@@ -1,55 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270773AbRHNTyD>; Tue, 14 Aug 2001 15:54:03 -0400
+	id <S270761AbRHNTyx>; Tue, 14 Aug 2001 15:54:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270759AbRHNTxx>; Tue, 14 Aug 2001 15:53:53 -0400
-Received: from fepD.post.tele.dk ([195.41.46.149]:13987 "EHLO
-	fepD.post.tele.dk") by vger.kernel.org with ESMTP
-	id <S270773AbRHNTxl>; Tue, 14 Aug 2001 15:53:41 -0400
-Date: Tue, 14 Aug 2001 16:22:10 +0200
-From: Erik Corry <erik@arbat.com>
-To: lm@bitmover.com, linux-kernel@vger.kernel.org, mikpe@csd.uu.se
-Subject: Re: [RFC][PATCH] Scalable Scheduling
-Message-ID: <20010814162210.A6660@arbat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S270776AbRHNTyo>; Tue, 14 Aug 2001 15:54:44 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:50743 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S270774AbRHNTyc>; Tue, 14 Aug 2001 15:54:32 -0400
+Message-ID: <3B7981F9.3000708@blue-labs.org>
+Date: Tue, 14 Aug 2001 15:54:33 -0400
+From: David Ford <david@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Per Jessen <per@computer.org>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Are we going too fast?
+In-Reply-To: <3B776EA5000338FD@mta3n.bluewin.ch> (added by postmaster@bluewin.ch)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Per Jessen wrote:
 
-"Larry McVoy" <20010808111844.S23718@work.bitmover.com> wrote:
+>>On Mon, 13 Aug 2001 14:11:32 +0100 (BST), Alan Cox wrote:
+>>
+>>If you want maximum stability you want to be running 2.2 or even 2.0. Newer
+>>less tested code is always less table. 2.4 wont be as stable as 2.2 for a
+>>year yet.
+>>
+>
+>Couldn't have put that any better. On mission-critical systems, this is
+>exactly what people do. Personally, my experience is from the big-iron
+>world of S390 -  if you're a bleeding-edge organisation, you'll be out
+>there applying the latest PTFs, you'll be running the latest OS/390 etc. 
+>If you're conservative, you're at least 2, maybe 3 releases (in todays 
+>OS390 this means about 18-24 months) behind. If you're ultra-conservative,
+>you'll wait for the point where you can no longer avoid an upgrade.
+>
 
-> Someobdy really ought to take the time to make a cache miss counter program
-> that works like /bin/time.  So I could do
+Unfortunately, this methodology also introduces another important 
+factor.  You are the most likely target for exploits and 
+vulnerabilities.  As is ever so strongly evidenced by the great numbers 
+of people being exploited because the version of software they have is 
+outdated.
 
-> 	$ cachemiss lat_ctx 2
-> 	10123 instruction, 22345 data, 50432 TLB flushes
+It's a gross measure of risks; where does the risk come from, how can it 
+affect you, and what can you do about it.
 
-Take a look at http://www.csd.uu.se/~mikpe/linux/perfctr/.
+Some of the most common questions asked on support areas is (take IIS 
+for example) "My server is being exploited, how can I stop it?" and the 
+most common answer to that is "Upgrade and install all necessary patches."
 
-It's a patch to make the performance counters per-program, and
-make them easy to control.
+Save for the rare occasion of issue, I run a few different server farms 
+and they all perform very well and are all rock solid stable.  I should 
+also note that they are all 2.4 kernels.  For servers I seem to have 
+really good success stories, for my workstation I tend to have issues 
+which is fairly natural, my workstation has numerous accessory cards and 
+features.
 
-There's an example program in there called perfex which does what
-you want, though the user interface isn't as simple as the above.
-You can do
+To be honest, save for either power outtage or kernel upgrade, I rarely 
+have to deal with reboots.  I tend to keep my servers within a few 
+releases of the current code.  Due to this policy I rarely have exploit 
+and vulnerability issues.  One particular server (which has a VIA 
+chipset...is it jinxed? :) has problems now and then but they get fixed.
 
-perfex -e 0x00430046 lat_ctx 2
+David
 
-The last two digits of the -e value are the counter to be printed,
-which in this case (Athlon) is the data-TLB misses.  That stuff
-is documented in 
-http://www.amd.com/products/cpg/athlon/techdocs/pdf/22007.pdf
-page 164/180
 
-It would be nice if the patch found it's way into the kernel.
-
-If you have APIC support there is also infrastructure for profiling
-based on event-sampling instead of time sampling (sample every 100
-cache misses instead of every 100us).  (Sadly my old 0.25um Athlon
-has no APIC support).
-
--- 
-Erik Corry erik@arbat.com           Ceterum censeo, Microsoftem esse delendam!

@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310654AbSDAIRQ>; Mon, 1 Apr 2002 03:17:16 -0500
+	id <S310666AbSDAIUg>; Mon, 1 Apr 2002 03:20:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310666AbSDAIRH>; Mon, 1 Apr 2002 03:17:07 -0500
-Received: from ip143.gte1.rb1.bel.nwlink.com ([209.20.131.143]:33716 "EHLO
-	khem.blackfedora.com") by vger.kernel.org with ESMTP
-	id <S310654AbSDAIQv>; Mon, 1 Apr 2002 03:16:51 -0500
-To: Dumitru Ciobarcianu <cioby@lnx.ro>
-Cc: Dale Amon <amon@vnl.com>, linux-kernel@vger.kernel.org
-Subject: Re: Number of loopback devices
-In-Reply-To: <20020401003015.GO4583@vnl.com>
-	<1017647543.1449.1.camel@LNX.iNES.RO>
-From: Mark Atwood <mra@pobox.com>
-Date: 01 Apr 2002 00:17:06 -0800
-Message-ID: <m3u1qvj0jh.fsf@khem.blackfedora.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
+	id <S310740AbSDAIU0>; Mon, 1 Apr 2002 03:20:26 -0500
+Received: from holomorphy.com ([66.224.33.161]:947 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S310666AbSDAIUH>;
+	Mon, 1 Apr 2002 03:20:07 -0500
+Date: Mon, 1 Apr 2002 00:19:44 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux needs new leadership.
+Message-ID: <20020401081944.GB21206@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.01.2002ApR11F0015.31337-101723@transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dumitru Ciobarcianu <cioby@lnx.ro> writes:
-> It is configurable.
-> 
-> options loop max_loop=n
-> 
-> in modules.conf, or if youre using it builtin
+On Mon, Apr 01, 2002 at 12:00:00AM -0700, Linus Torvalds wrote:
+[BS about Linux needing new leadership snipped]
 
-Does it take lots of kernal memory to set it high? Or how hard would
-it be to make it eventually completely dynamic?
+No he didn't.
 
--- 
-Mark Atwood   | Well done is better than well said.
-mra@pobox.com | 
-http://www.pobox.com/~mra
+>From the forged headers:
+
+Received: from pkdt.proxel.ru ([194.190.195.189]:21594 "HELO pkdt.proxel.ru")
+        by vger.kernel.org with SMTP id <S310441AbSDAIHF>;        
+        Mon, 1 Apr 2002 03:07:05 -0500
+
+
+Cheers,
+Bill

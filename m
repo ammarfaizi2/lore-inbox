@@ -1,75 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267166AbSLKObH>; Wed, 11 Dec 2002 09:31:07 -0500
+	id <S267162AbSLKOZj>; Wed, 11 Dec 2002 09:25:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267165AbSLKObH>; Wed, 11 Dec 2002 09:31:07 -0500
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:32517 "EHLO
+	id <S267152AbSLKOZj>; Wed, 11 Dec 2002 09:25:39 -0500
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:65284 "EHLO
 	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S267167AbSLKObG>; Wed, 11 Dec 2002 09:31:06 -0500
-Message-Id: <200212111430.gBBETua06759@Port.imtp.ilyichevsk.odessa.ua>
+	id <S267162AbSLKOZi>; Wed, 11 Dec 2002 09:25:38 -0500
+Message-Id: <200212111419.gBBEJua06684@Port.imtp.ilyichevsk.odessa.ua>
 Content-Type: text/plain; charset=US-ASCII
 From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
 Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Kevin Corry <corryk@us.ibm.com>,
-       Joe Thornber <joe@fib011235813.fsnet.co.uk>
-Subject: Re: [PATCH] dm.c - device-mapper I/O path fixes
-Date: Wed, 11 Dec 2002 17:19:33 -0200
+To: Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: Why does C3 CPU downgrade in kernel 2.4.20?
+Date: Wed, 11 Dec 2002 17:09:34 -0200
 X-Mailer: KMail [version 1.3.2]
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, lvm-devel@sistina.com
-References: <02121016034706.02220@boiler> <200212111330.gBBDTTa06416@Port.imtp.ilyichevsk.odessa.ua> <02121107165303.29515@boiler>
-In-Reply-To: <02121107165303.29515@boiler>
+Cc: Daniel Egger <degger@fhm.edu>, Joseph <jospehchan@yahoo.com.tw>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <009f01c2a000$f38885d0$3716a8c0@taipei.via.com.tw> <200212110829.gBB8Tja05013@Port.imtp.ilyichevsk.odessa.ua> <20021211105808.GA17354@codemonkey.org.uk>
+In-Reply-To: <20021211105808.GA17354@codemonkey.org.uk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11 December 2002 11:16, Kevin Corry wrote:
-> > > --- diff/drivers/md/dm.c	2002-12-11 12:00:29.000000000 +0000
-> > > +++ source/drivers/md/dm.c	2002-12-11 12:00:34.000000000 +0000
-> > > @@ -238,10 +238,11 @@
-> > >  	static spinlock_t _uptodate_lock = SPIN_LOCK_UNLOCKED;
-> > >  	unsigned long flags;
-> > >
-> > > -	spin_lock_irqsave(&_uptodate_lock, flags);
-> > > -	if (error)
-> > > +	if (error) {
-> > > +		spin_lock_irqsave(&_uptodate_lock, flags);
-> > >  		io->error = error;
-> > > -	spin_unlock_irqrestore(&_uptodate_lock, flags);
-> > > +		spin_unlock_irqrestore(&_uptodate_lock, flags);
-> > > +	}
-> > >
-> > >  	if (atomic_dec_and_test(&io->io_count)) {
-> > >  		if (atomic_dec_and_test(&io->md->pending))
-> >
-> > This seems pointless, end result:
-> >
-> > 	spin_lock_irqsave(&_uptodate_lock, flags);
-> >  	io->error = error;
-> > 	spin_unlock_irqrestore(&_uptodate_lock, flags);
+On 11 December 2002 08:58, Dave Jones wrote:
+> On Wed, Dec 11, 2002 at 11:19:23AM -0200, Denis Vlasenko wrote:
+>  > > Prolly I would have to do more benchmarking to find out about
+>  > > aligment advantages.
+>  >
+>  > I heard cmovs are microcoded in Centaurs.
+>  > s...l...o...w...
 >
-> Are you saying the "if (error)" part is pointless? If so, I have to
+> Hardly surprising given that the chip isn't targetted at the
+> performance market.
 
-No. Locking is pointless. What exactly you try to protect here? 
+*We Support 686 Instruction Set* plastered everywhere? ;)
+Who cares that a single cmov take some tens of cycles...
+(btw, can someone measure that? I have no C3...)
 
-> disagree. A bio may be split into several sub-bio's. When each of
-> those split bio's completes, they are going to call this function.
-> But if only one of those split bio's has an error, then the error
-> might get lost without that "if" statement.
->
-> However, it might be a good idea to consider how bio's keep track of
-> errors. When a bio is created, it is marked UPTODATE. Then, if any
-> part of a bio takes an error, the UPTODATE flag is turned off. When
-> the whole bio completes, if the UPTODATE flag is still on, there were
-> no errors during the i/o. Perhaps the "error" field in "struct dm_io"
-> could be modified to use this method of error tracking? Then we could
-> change dec_pending() to be something like:
->
-> if (error)
-> 	clear_bit(DM_IO_UPTODATE, &io->error);
->
-> with a "set_bit(DM_IO_UPTODATE, &ci.io->error);" in __bio_split().
+On 7 July 2002 12:32, Willy TARREAU wrote:
+> because GCC's output is really ugly. In fact, it is
+> also ugly when it generates cmov. I disassembled my
+> libc and found that it subobtimizes the code at the
+> point that it's far worse with cmov than without !
+> (more instructions, more memory accesses, more
+> registers used).
 
-You seem to overestimate my knowledge of this part of the kernel. :(
+Do not try to optimize "pedal to the metal" without
+actually looking at the results.
+With "-march=i686" on C3 one will get:
+
+* Non-optimal GCC code generation
+* Really Slow (tm) cmovs
+* Buggy code (cmov with mem operands)
+  if one don't think above two are not enough ;)
+
+On 10 December 2002 05:22, Daniel Egger wrote:
+> Am Die, 2002-12-10 um 06.52 schrieb Dave Jones:
+> > I believe someone (Jeff Garzik?) benchmarked gcc code generation,
+> > and the C3 executed code scheduled for a 486 faster than it did for
+> > -m586
+> > I'm not sure about the alignment flags. I've been meaning to look
+> > into that myself...
+>
+> Interesting. I have no clue about which C3 you're talking about here
+> but a VIA Ezra has all 686 instructions including cmov and thus
+> optimising for PPro works best for me.
+
+Such things need testing. A kernel compile would suffice I guess.
 --
 vda

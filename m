@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318330AbSGYFgh>; Thu, 25 Jul 2002 01:36:37 -0400
+	id <S318327AbSGYFbq>; Thu, 25 Jul 2002 01:31:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318329AbSGYFgh>; Thu, 25 Jul 2002 01:36:37 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:27022 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S318330AbSGYFgf>; Thu, 25 Jul 2002 01:36:35 -0400
-Date: Wed, 24 Jul 2002 23:39:46 -0600
-Message-Id: <200207250539.g6P5dkU29950@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: [PATCH] devfs v214 available
+	id <S318324AbSGYFbq>; Thu, 25 Jul 2002 01:31:46 -0400
+Received: from willow.seitz.com ([146.145.147.140]:10509 "EHLO
+	willow.seitz.com") by vger.kernel.org with ESMTP id <S318327AbSGYF1v>;
+	Thu, 25 Jul 2002 01:27:51 -0400
+From: Ross Vandegrift <ross@willow.seitz.com>
+Date: Thu, 25 Jul 2002 01:30:45 -0400
+To: Christian Lavoie <clavoie@bmed.mcgill.ca>
+Cc: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
+Subject: Re: Alright, I give up.  What does the "i" in "inode" stand for?
+Message-ID: <20020725053045.GB3770@willow.seitz.com>
+References: <200207190432.g6J4WD2366706@pimout5-int.prodigy.net> <20020725022454.A8711@unicyclist.com> <20020725024327.GF26787@pegasys.ws> <200207242318.49536.clavoie@bmed.mcgill.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200207242318.49536.clavoie@bmed.mcgill.ca>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. Version 214 of my devfs patch is now available from:
-http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
-The devfs FAQ is also available here.
+On Wed, Jul 24, 2002 at 11:18:49PM -0400, Christian Lavoie wrote:
+> On July 24, 2002 10:43 pm, jw schultz wrote:
+> > That was his atom.
+> 
+> I think you're referring to Democritus, but I can't find the reference in my 
+> books...
 
-Patch directly available from:
-ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.5/devfs-patch-current.gz
+He is.  Leon Lederman talks extensively about Democritus in "The God
+Particle", a physics text many geek have probably read.
 
-AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.5/devfs-patch-current.gz
+And according to Lederman, he described it with a chunk of cheese.
 
-NOTE: kernel 2.5.1 and later require devfsd-v1.3.19 or later.
-
-This is against 2.5.27. Highlights of this release:
-
-- Switched to ISO C structure field initialisers
-
-- Switch to set_current_state() and move before add_wait_queue()
-
-- Updated README from master HTML file
-
-- Fixed devfs entry leak in <devfs_readdir> when *readdir fails
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Ross Vandegrift
+ross@willow.seitz.com

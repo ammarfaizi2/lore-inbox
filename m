@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261301AbTIKOdh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 10:33:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbTIKOdh
+	id S261265AbTIKObT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 10:31:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbTIKObS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 10:33:37 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:35985 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261301AbTIKOde (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 10:33:34 -0400
-Subject: Re: Problem: IDE data corruption with VIA chipsets on
-	2.4.20-19.8+others
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Eric Bickle <ebickle@healthspace.ca>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <003601c37826$26d8d220$5d74ad8e@hyperwolf>
-References: <003601c37826$26d8d220$5d74ad8e@hyperwolf>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1063290726.2967.15.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
-Date: Thu, 11 Sep 2003 15:32:07 +0100
+	Thu, 11 Sep 2003 10:31:18 -0400
+Received: from sphere.barak.net.il ([212.150.48.98]:6089 "EHLO
+	sphere.barak.net.il") by vger.kernel.org with ESMTP id S261265AbTIKObP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 10:31:15 -0400
+From: "Amir Hermelin" <amir@montilio.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: page cache and buffer cache in 2.4.18 and up
+Date: Thu, 11 Sep 2003 17:30:05 +0200
+Organization: Montilio
+Message-ID: <003301c37879$938fda00$0601a8c0@CARTMAN>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2003-09-11 at 06:32, Eric Bickle wrote:
-> == during server runtime ==
-> kernel: hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> kernel: hdc: dma_intr: error=0x40 { UncorrectableError }, LBAsect=150637065,
-> sector=150636992
+Hi,
+Since the change in kernel 2.4, read and writes go both through the page and
+buffer cache. Is the cached data held twice (i.e. uses twice the memory)? I
+noticed that the struct page holds a pointer to a buffer-head list; does
+that list contain actual data, or just pointers into the cached page data?
 
-This is a physical failure from the hard disk *NOT* a Linux problem
-
-> kernel: end_request: I/O error, dev 16:01 (hdc), sector 150636992
-> kernel: hdc: dma_intr: status=0x53 { DriveReady SeekComplete Index Error }
-> kernel: hdc: dma_intr: error=0x40 { UncorrectableError }, LBAsect=150630007,
-> sector=150629920
-
-Ditto
-
-So the only things you've posted here are physical drive failures.
+Thanks,
+Amir.
 
 

@@ -1,96 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264161AbUDRLcu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 07:32:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264162AbUDRLcu
+	id S264095AbUDRLfi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 07:35:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264159AbUDRLfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 07:32:50 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:24069 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264161AbUDRLcr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 07:32:47 -0400
-Date: Sun, 18 Apr 2004 12:32:41 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>, Rolf Kutz <kutz@netcologne.de>,
-       244207@bugs.debian.org, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: Bug#244207: kernel-source-2.6.5: mwave gives warning on suspend
-Message-ID: <20040418123241.A625@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	Rolf Kutz <kutz@netcologne.de>, 244207@bugs.debian.org,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Russell King <rmk+lkml@arm.linux.org.uk>
-References: <20040417104311.9C13A1D802@jamaika.kutz.dyndns.org> <20040417113918.GA4846@gondor.apana.org.au> <20040417124850.C14786@flint.arm.linux.org.uk> <20040417122322.GA15052@gondor.apana.org.au> <20040417122954.GA7533@gondor.apana.org.au> <20040418103109.GA13756@gondor.apana.org.au> <20040418121755.A493@infradead.org>
+	Sun, 18 Apr 2004 07:35:36 -0400
+Received: from pra64-d92.gd.dial-up.cz ([193.85.64.92]:30848 "EHLO
+	penguin.localdomain") by vger.kernel.org with ESMTP id S264044AbUDRLfZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Apr 2004 07:35:25 -0400
+Date: Sun, 18 Apr 2004 13:35:18 +0200
+To: linux-kernel@vger.kernel.org, sam@ravnborg.org
+Subject: Re: menuconfig and UTF-8
+Message-ID: <20040418113518.GA2588@penguin.localdomain>
+Mail-Followup-To: linux-kernel@vger.kernel.org, sam@ravnborg.org
+References: <20040404122426.GA16383@penguin.localdomain> <20040405212148.GA2387@mars.ravnborg.org> <20040406184000.GB3770@penguin.localdomain> <yw1xfzbhnde8.fsf@kth.se> <20040406192219.GA5938@penguin.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040418121755.A493@infradead.org>; from hch@infradead.org on Sun, Apr 18, 2004 at 12:17:55PM +0100
+In-Reply-To: <20040406192219.GA5938@penguin.localdomain>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: sebek64@post.cz (Marcel Sebek)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 18, 2004 at 12:17:55PM +0100, Christoph Hellwig wrote:
-> It's still bogus.  The driver gets the sysfs support completely wrong
-> and the right thing would be to find that change in the BK history and
-> back it out.
+Here is another patch.  It saves LC_CTYPE value to a temporary variable
+and restores it for *config targets.  It fixes the problem with
+menuconfig and UTF-8 console.
 
-Here's a patch to #if 0 out all the crap:
 
---- 1.12/drivers/char/mwave/mwavedd.c	Wed Sep 10 08:41:45 2003
-+++ edited/drivers/char/mwave/mwavedd.c	Sun Apr 18 13:31:22 2004
-@@ -466,6 +466,7 @@
+
+diff -urN linux-2.6/Makefile linux-2.6-new/Makefile
+--- linux-2.6/Makefile	2004-04-18 13:20:47.000000000 +0200
++++ linux-2.6-new/Makefile	2004-04-18 13:26:31.000000000 +0200
+@@ -131,14 +131,20 @@
+ endif
  
- static struct miscdevice mwave_misc_dev = { MWAVE_MINOR, "mwave", &mwave_fops };
+ # Make sure we're not wasting cpu-cycles doing locale handling, yet do make
+-# sure error messages appear in the user-desired language
++# sure error messages appear in the user-desired language and LC_CTYPE is
++# preserved for *config targets
+ ifdef LC_ALL
+ LANG := $(LC_ALL)
+ LC_ALL :=
+ endif
+ LC_COLLATE := C
++ifdef LC_CTYPE
++SAVED_LC_CTYPE := $(LC_CTYPE)
++else
++SAVED_LC_CTYPE := C
++endif
+ LC_CTYPE := C
+-export LANG LC_ALL LC_COLLATE LC_CTYPE
++export LANG LC_ALL LC_COLLATE LC_CTYPE SAVED_LC_CTYPE
  
-+#if 0 /* totally b0rked */
- /*
-  * sysfs support <paulsch@us.ibm.com>
-  */
-@@ -499,6 +500,7 @@
- 	&dev_attr_uart_irq,
- 	&dev_attr_uart_io,
- };
-+#endif
+ srctree		:= $(if $(KBUILD_SRC),$(KBUILD_SRC),$(CURDIR))
+ TOPDIR		:= $(srctree)
+diff -urN linux-2.6/scripts/kconfig/Makefile linux-2.6-new/scripts/kconfig/Makefile
+--- linux-2.6/scripts/kconfig/Makefile	2004-04-18 13:27:37.000000000 +0200
++++ linux-2.6-new/scripts/kconfig/Makefile	2004-04-18 13:27:56.000000000 +0200
+@@ -4,6 +4,9 @@
  
- /*
- * mwave_init is called on module load
-@@ -508,11 +510,11 @@
- */
- static void mwave_exit(void)
- {
--	int i;
- 	pMWAVE_DEVICE_DATA pDrvData = &mwave_s_mdd;
+ .PHONY: oldconfig xconfig gconfig menuconfig config silentoldconfig
  
- 	PRINTK_1(TRACE_MWAVE, "mwavedd::mwave_exit entry\n");
++LC_CTYPE := $(SAVED_LC_CTYPE)
++export LC_CTYPE
++
+ xconfig: $(obj)/qconf
+ 	$< arch/$(ARCH)/Kconfig
  
-+#if 0
- 	for (i = 0; i < pDrvData->nr_registered_attrs; i++)
- 		device_remove_file(&mwave_device, mwave_dev_attrs[i]);
- 	pDrvData->nr_registered_attrs = 0;
-@@ -521,6 +523,7 @@
- 		device_unregister(&mwave_device);
- 		pDrvData->device_registered = FALSE;
- 	}
-+#endif
- 
- 	if ( pDrvData->sLine >= 0 ) {
- 		unregister_serial(pDrvData->sLine);
-@@ -638,6 +641,7 @@
- 	}
- 	/* uart is registered */
- 
-+#if 0
- 	/* sysfs */
- 	memset(&mwave_device, 0, sizeof (struct device));
- 	snprintf(mwave_device.bus_id, BUS_ID_SIZE, "mwave");
-@@ -655,6 +659,7 @@
- 		}
- 		pDrvData->nr_registered_attrs++;
- 	}
-+#endif
- 
- 	/* SUCCESS! */
- 	return 0;
+
+
+-- 
+Marcel Sebek
+jabber: sebek@jabber.cz                     ICQ: 279852819
+linux user number: 307850                 GPG ID: 5F88735E
+GPG FP: 0F01 BAB8 3148 94DB B95D  1FCA 8B63 CA06 5F88 735E
+

@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318152AbSIOSDa>; Sun, 15 Sep 2002 14:03:30 -0400
+	id <S318148AbSIOSBK>; Sun, 15 Sep 2002 14:01:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318153AbSIOSDa>; Sun, 15 Sep 2002 14:03:30 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.18.111]:21260 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S318152AbSIOSD3>; Sun, 15 Sep 2002 14:03:29 -0400
-Date: Sun, 15 Sep 2002 20:08:26 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
-Cc: pavel@ucw.cz, linux-kernel@vger.kernel.org
-Subject: Re: LMbench2.0 results
-Message-ID: <20020915180826.GA11311@atrey.karlin.mff.cuni.cz>
-References: <20020914182627.28529.qmail@linuxmail.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020914182627.28529.qmail@linuxmail.org>
-User-Agent: Mutt/1.3.28i
+	id <S318151AbSIOSBK>; Sun, 15 Sep 2002 14:01:10 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:25606 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318148AbSIOSBJ>; Sun, 15 Sep 2002 14:01:09 -0400
+Date: Sun, 15 Sep 2002 11:06:09 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Daniel Phillips <phillips@arcor.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Brownell <david-b@pacbell.net>,
+       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+       Greg KH <greg@kroah.com>, <linux-usb-devel@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
+In-Reply-To: <E17qRfU-0001qz-00@starship>
+Message-ID: <Pine.LNX.4.44.0209151103170.10830-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> [...]
-> > I hope powermanagment is completely disabled this time.
-> > 									Pavel
-> Yes.
-> Pavel, is there a way to disable apm at boot time with a lilo
-parameter?
+On Sun, 15 Sep 2002, Daniel Phillips wrote:
+> 
+> Let's try a different show of hands: How many users would be happier if
+> they knew that kernel developers are using modern techniques to improve
+> the quality of the kernel?
 
-apm=off
-					Pavel
+You're all talk and no action.
 
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+The last time I looked, the people who really _do_ improve the quality of
+the kernel don't tend to care too much about debuggers, or are at least
+capable to add a patch on their own.
+
+In fact, of the people who opened their mouth about the BUG() issue, how 
+many actually ended up personally _debugging_ the BUG() that we were 
+talking about?
+
+I did. Matt probably did. But I didn't see you fixing it with your
+debugger.
+
+So next time you bring up the kernel debugger issue, show some code and 
+real improvement first. Until then, don't spout off.
+
+		Linus
+

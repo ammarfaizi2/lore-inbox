@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbTJANbv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 09:31:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262117AbTJANbv
+	id S262104AbTJAN0X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 09:26:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbTJAN0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 09:31:51 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:59360 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262116AbTJANbF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 09:31:05 -0400
-Date: Wed, 1 Oct 2003 15:31:04 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Matthew Wilcox <willy@debian.org>
-Cc: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>, len.brown@intel.com
-Subject: Re: [ACPI] ACPI blacklisting: move year blacklist into acpi/blacklist.c
-Message-ID: <20031001133104.GA21626@atrey.karlin.mff.cuni.cz>
-References: <20031001101826.GA3503@elf.ucw.cz> <20031001122412.GJ24824@parcelfarce.linux.theplanet.co.uk>
+	Wed, 1 Oct 2003 09:26:23 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5772 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262104AbTJAN0U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 09:26:20 -0400
+Date: Wed, 1 Oct 2003 14:26:19 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] CONFIG_* In Comments Considered Harmful
+Message-ID: <20031001132619.GL24824@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031001122412.GJ24824@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > AFAICS. It also adds some externs to include/linux/acpi.h, but I
-> > believe *way* more externs are needed. Please apply,
-> 
-> > --- /usr/src/tmp/linux/include/linux/acpi.h	2003-08-27 12:00:48.000000000 +0200
-> > +++ /usr/src/linux/include/linux/acpi.h	2003-10-01 11:53:51.000000000 +0200
-> > @@ -403,8 +403,8 @@
-> >  
-> >  struct pci_dev;
-> >  
-> > -int acpi_pci_irq_enable (struct pci_dev *dev);
-> > -int acpi_pci_irq_init (void);
-> > +extern int acpi_pci_irq_enable (struct pci_dev *dev);
-> > +extern int acpi_pci_irq_init (void);
-> 
-> Why do they need to be externs?  The comp.lang.c FAQ suggests they don't
-> have to be.
-> 
-> http://www.eskimo.com/~scs/C-faq/q1.11.html
+I reviewed the dependency list for a file this morning to see why it was
+being unnecessarily recompiled (a little fetish of mine, mostly harmless).
+I was a little discombobulated to find this line:
 
-Well, they don't *have* to be there, but as FAQ says, it is stylistics
-hint.
+    $(wildcard include/config/higmem.h) \
 
+Naturally, I assumed a typo somewhere.  It turns out there is indeed
+a CONFIG_HIGMEM in include/linux/mm.h, but it's in a comment.  The
+fixdep script doesn't parse C itself, so it doesn't know that this should
+be ignored.  Rather than fix the typo, I deleted the comment; the ifdef'ed
+code is a mere two lines so the comment seems unnecessary.
 
-									Pavel
+This serves as a useful warning to people -- don't put CONFIG_FOO in a
+comment unnecessarily.  Because even when it's true now, maybe the #if
+gets changed and the comment doesn't.
+
+Index: include/linux/mm.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/linux/mm.h,v
+retrieving revision 1.5
+diff -u -p -r1.5 mm.h
+--- a/include/linux/mm.h	28 Sep 2003 04:06:20 -0000	1.5
++++ b/include/linux/mm.h	1 Oct 2003 13:15:53 -0000
+@@ -196,7 +196,7 @@ struct page {
+ #if defined(WANT_PAGE_VIRTUAL)
+ 	void *virtual;			/* Kernel virtual address (NULL if
+ 					   not kmapped, ie. highmem) */
+-#endif /* CONFIG_HIGMEM || WANT_PAGE_VIRTUAL */
++#endif
+ };
+ 
+ /*
+
 -- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

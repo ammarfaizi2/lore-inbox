@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292913AbSBVSmw>; Fri, 22 Feb 2002 13:42:52 -0500
+	id <S292904AbSBVSnY>; Fri, 22 Feb 2002 13:43:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292909AbSBVSmm>; Fri, 22 Feb 2002 13:42:42 -0500
-Received: from bitmover.com ([192.132.92.2]:42637 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S292904AbSBVSmd>;
-	Fri, 22 Feb 2002 13:42:33 -0500
-Date: Fri, 22 Feb 2002 10:42:32 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Christoph Hellwig <hch@caldera.de>,
-        lm@bitmover.com, hpa@kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 bitkeeper repository
-Message-ID: <20020222104232.D28253@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	Christoph Hellwig <hch@caldera.de>, lm@bitmover.com, hpa@kernel.org,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3C766020.FFC64A87@mandrakesoft.com> <Pine.LNX.4.21.0202221435210.29216-100000@freak.distro.conectiva>
-Mime-Version: 1.0
+	id <S292909AbSBVSnN>; Fri, 22 Feb 2002 13:43:13 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:63440 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S292904AbSBVSm5>;
+	Fri, 22 Feb 2002 13:42:57 -0500
+From: David Mosberger <davidm@hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.21.0202221435210.29216-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Fri, Feb 22, 2002 at 02:36:39PM -0200
+Content-Transfer-Encoding: 7bit
+Message-ID: <15478.37161.767510.748999@napali.hpl.hp.com>
+Date: Fri, 22 Feb 2002 10:42:49 -0800
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: Steffen Persvold <sp@scali.com>, linux-kernel@vger.kernel.org,
+        jmerkey@timpanogas.org
+Subject: Re: ioremap()/PCI sickness in 2.4.18-rc2 (FIXED ALMOST)
+In-Reply-To: <20020222111756.A11081@vger.timpanogas.org>
+In-Reply-To: <20020220103320.A32211@vger.timpanogas.org>
+	<20020220103539.B32211@vger.timpanogas.org>
+	<3C73DC34.E83CCD35@mandrakesoft.com>
+	<20020220.093034.112623671.davem@redhat.com>
+	<20020220110004.A32431@vger.timpanogas.org>
+	<20020220145449.A1102@vger.timpanogas.org>
+	<20020220151053.A1198@vger.timpanogas.org>
+	<3C7626A9.330A9249@scali.com>
+	<20020222111756.A11081@vger.timpanogas.org>
+X-Mailer: VM 7.00 under Emacs 21.1.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 22, 2002 at 02:36:39PM -0200, Marcelo Tosatti wrote:
-> As soon as I have time, I'll learn BK and maintain the repository myself.
+>>>>> On Fri, 22 Feb 2002 11:17:56 -0700, "Jeff V. Merkey" <jmerkey@vger.timpanogas.org> said:
 
-A couple of useful resources are:
+  Jeff> On early IA64 long long was assumed to be 64 bit, long 32
+  Jeff> bit. After emailing some folks off line I relaize this may not
+  Jeff> be the case any longer, but still is on some compiler options.
 
-    http://www.bitkeeper.com/cvs2bk.html    
-    http://www.bitkeeper.com/Test.html    
-    http://news.linuxprogramming.com/news_story.php3?ltsn=2002-02-21-001-06-DT-HT
-The last one is Jeff's writeup, very nice.
+In the context of Linux, this is certainly not true.  Linux/ia64
+always has been LP64 (i.e., sizeof(long)=8).  Perhaps you're confusing
+this with the hp-ux C compiler, which defaults to ILP32?  Another
+potential source of confusion is Windows, which uses the P64 data
+model (only pointers and "long long" are 64 bits).
 
-Also, if you want, one of us can get on IRC while you are walking the demo
-and answer your questions.  
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+	--david

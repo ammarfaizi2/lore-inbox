@@ -1,72 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129759AbQLGI13>; Thu, 7 Dec 2000 03:27:29 -0500
+	id <S129730AbQLGIc7>; Thu, 7 Dec 2000 03:32:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129413AbQLGI1T>; Thu, 7 Dec 2000 03:27:19 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:21776 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129319AbQLGI1N>; Thu, 7 Dec 2000 03:27:13 -0500
-Date: Wed, 6 Dec 2000 02:29:47 -0500 (EST)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-To: Rusty Russell <rusty@linuxcare.com.au>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ipchains log will show all flags 
-In-Reply-To: <20001206004022.B8AAC813F@halfway.linuxcare.com.au>
-Message-ID: <Pine.LNX.4.30.0012060226360.620-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-Copyright: Copyright 2000 by Mike A. Harris - All rights reserved
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129406AbQLGIcv>; Thu, 7 Dec 2000 03:32:51 -0500
+Received: from dns.growzone.com.au ([202.9.32.1]:16915 "EHLO
+	mail.growzone.com.au") by vger.kernel.org with ESMTP
+	id <S129226AbQLGIcj>; Thu, 7 Dec 2000 03:32:39 -0500
+Message-Id: <200012070801.eB781RY23347@gandalf.growzone.com.au>
+To: Ben Greear <greearb@candelatech.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-net <linux-net@vger.kernel.org>
+X-Face: ]IrGs{LrofDtGfsrG!As5=G'2HRr2zt:H>djXb5@v|Dr!jOelxzAZ`!}("]}]
+	Q!)1w#X;)nLlb'XhSu,QL>;)L/l06wsI?rv-xy6%Y1e"BUiV%)mU;]f-5<#U6
+	UthZ0QrF7\_p#q}*Cn}jd|XT~7P7ik]Q!2u%aTtvc;)zfH\:3f<[a:)M
+Organization: GrowZone OnLine
+X-Mailer: nmh-1.0.4 exmh-2.2
+X-OS: Linux-2.4.0 RedHat 7.0
+X-URL: http://www.growzone.com.au/tony
+Subject: Re: How to programatically determine if policy-based routing is compiled into the kernel? 
+In-Reply-To: message-id <3A2F3FE7.5CDD0EDA@candelatech.com> 
+	 of Thu, Dec 07 00:44:39 2000
+Date: Thu, 07 Dec 2000 18:01:27 +1000
+From: Tony Nugent <tony@growzone.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Dec 2000, Rusty Russell wrote:
+On Thu Dec 07 2000 at 00:44, Ben Greear wrote:
 
->Date: Wed, 06 Dec 2000 11:40:12 +1100
->From: Rusty Russell <rusty@linuxcare.com.au>
->To: Mike A. Harris <mharris@opensourceadvocate.org>
->Cc: linux-kernel@vger.kernel.org
->Subject: Re: [PATCH] ipchains log will show all flags
->
->In message <Pine.LNX.4.30.0012051058090.620-100000@asdf.capslock.lan> you write
->:
->> Personally, I'd like to see the rule number stay on the end,and
->> have the new display just before it.  The rule number in the
->> middle looks messy.
->
->But what will break people's perl scripts?
->
->I think leaving the rule number at the end is probably the Right Thing
->from this point of view, so that would be a nice change.
+> I have a product that is dependent on policy-based (source routing)
+> and would like to be able to scream loudly at install and startup if
+> policy-based routing is not enabled in the kernel.
+> 
+> Is there some way to determine this?  Specifically, I'd love
+> a way to find out through the /proc system, but an ioctl or
+> similar call would be OK.  I'd even settle for some other tool,
+> like 'ip', if I could just figure out what commands to tell it.
 
-I am of the camp "do it right, and fix problems that arise"
-rather than doing things messy and/or kludgy in the name of
-compatibility.
+Run a command that attempts to use policy-based routing (doing
+something "benign" like a listing).  If it fails then good chance
+that it isn't compiled in :-)
 
-I'd rather see such a feature not get in than to see it get in as
-a kludge that is permanent.
+[ or it may simply mean that the appropriate modules are not loaded,
+so beware that one :]
 
->But I prefer the compressed form of `-----' (with the old `SYN' kept
->there) to the "SYN FIN RST" alternative.
+That command would need to be /sbin/ip or /sbin/tc or whatever.
 
-I prefer the SYN to disappear and be replaced with the new way
-IMHO.  It'd be nice to see netfilter do this as well if it
-doesn't already do similar.  2.4.0 isn't released yet, so
-changing it now is safe IMHO.
+If you want to ferrit out what proc looks like with and without
+routing policy enabled, that would be another way to do it.
 
-Just some more food for thought...
-
-Anyone?
-
-
-----------------------------------------------------------------------
-      Mike A. Harris  -  Linux advocate  -  Open source advocate
-          This message is copyright 2000, all rights reserved.
-  Views expressed are my own, not necessarily shared by my employer.
-----------------------------------------------------------------------
-
-If it weren't for C, we'd all be programming in BASI and OBOL.
-
+Cheers
+Tony
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

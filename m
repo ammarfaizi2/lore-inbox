@@ -1,57 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266691AbUBQWaz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 17:30:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266693AbUBQW1j
+	id S266700AbUBQWay (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 17:30:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266691AbUBQW1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 17:27:39 -0500
-Received: from gate.crashing.org ([63.228.1.57]:47523 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S266691AbUBQWYa (ORCPT
+	Tue, 17 Feb 2004 17:27:48 -0500
+Received: from [212.28.208.94] ([212.28.208.94]:63754 "HELO dewire.com")
+	by vger.kernel.org with SMTP id S266576AbUBQW1O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 17:24:30 -0500
-Subject: Re: Radeonfb problem
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Damian Kolkowski <damian@kolkowski.no-ip.org>
-Cc: Kronos <kronos@kronoz.cjb.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Sergio Vergata <vergata@stud.fbi.fh-darmstadt.de>
-In-Reply-To: <20040217215738.ALLYOURBASEAREBELONGTOUS.B9706@kolkowski.no-ip.org>
-References: <200402172008.39887.vergata@stud.fbi.fh-darmstadt.de>
-	 <20040217203604.GA19110@dreamland.darkstar.lan>
-	 <20040217211120.ALLYOURBASEAREBELONGTOUS.A8392@kolkowski.no-ip.org>
-	 <20040217213441.GA22103@dreamland.darkstar.lan>
-	 <20040217215738.ALLYOURBASEAREBELONGTOUS.B9706@kolkowski.no-ip.org>
-Content-Type: text/plain
-Message-Id: <1077056532.1076.27.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 18 Feb 2004 09:22:12 +1100
+	Tue, 17 Feb 2004 17:27:14 -0500
+From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: UTF-8 and case-insensitivity
+Date: Tue, 17 Feb 2004 23:27:08 +0100
+User-Agent: KMail/1.6.1
+Cc: tridge@samba.org, Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+References: <16433.38038.881005.468116@samba.org> <200402172208.25398.robin.rosenberg.lists@dewire.com> <Pine.LNX.4.58.0402171314320.2154@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0402171314320.2154@home.osdl.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200402172327.08962.robin.rosenberg.lists@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-02-18 at 08:57, Damian Kolkowski wrote:
-> * Kronos <kronos@kronoz.cjb.net> [2004-02-17 22:51]:
-> > > 2.6.3-rc4 with new radeonfb looks better, but in lilo.con append for radeonfb
-> > > wont work.
-> > 
-> > What do you mean? What are passing to the kernel?
-> 
-> For example:
-> 
-> append = "video=radeon:1024x768-32@100" works for 2.4.x
-> append = "video=radeonfb:1024x768-32@100 works for 2.6.x
-> 
-> but for new radeonfb _radeonfb_ in append won't work, my screean start with
-> small res on 36 Hz ;-) So I need to use fbset.
-> 
-> Besides don't use 2.6.x even on desktop, that was only a test with new
-> radeonfb from Ben H.
+On Tuesday 17 February 2004 22.17, Linus Torvalds wrote:
+> The fact that _I_ think pathnames are just a nice stream of bytes sadly 
+> doesn't make Windows clients do the same. Some day when I'm King Of The 
+> World, and I can outlaw windows clients, we'll finally get rid of the 
+LPA = Linus' Patriot Act. 
 
-Ugh ? Send me a dmesg log at boot please without any command
-line. radeonfb should set your display to the native panel size
-by default
+> braindamage, but until then I'm pragmatic enough to say "let's help out 
+> the poor samba people who have to deal with the crap day in and day out".
+> 
+> What's your problem with that?
 
-Ben.
+Nothing wrong with helping people. 
 
+Having to put up with the existence of Windows day in and out is the reason I'm still on
+an eight-bit encoding.  Sorry for not explaining the REAL problem, but only a partial
+problem. I need to support all kinds of clients on Windows with protocols that convey no
+character set info. With samba that's no problem. Having to put up with a Unix world running 
+ISO-8859-1 (or ISO-8859-15) is another. Ofcourse that means Linux machines also add
+to the disturbance by not storing things as unicode. The real obstable is file names, 
+everything else including content of files, I can handle (I think). Maybe I'll find a solution
+for the filenames too, but usually some hot discussions are needed for the brain to kick
+into the right gear. 
 
+I want to switch to UTF-8 to work better with the outside world, but as things are people will 
+start to take notice of what OS is running in the shadows when they see the filename problems, and 
+start demanding Windows, and ...  You see; I'm not mean; I don't want to do that to them (or myself),
+
+-- robin

@@ -1,115 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282481AbRLWWHV>; Sun, 23 Dec 2001 17:07:21 -0500
+	id <S282056AbRLWWGK>; Sun, 23 Dec 2001 17:06:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282081AbRLWWHD>; Sun, 23 Dec 2001 17:07:03 -0500
-Received: from nycsmtp3out.rdc-nyc.rr.com ([24.29.99.227]:49834 "EHLO
-	nycsmtp3out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S281863AbRLWWGo>; Sun, 23 Dec 2001 17:06:44 -0500
-Message-ID: <3C26555F.3000802@nyc.rr.com>
-Date: Sun, 23 Dec 2001 17:06:23 -0500
-From: John Weber <weber@nyc.rr.com>
-Organization: WorldWideWeber
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
-MIME-Version: 1.0
+	id <S281863AbRLWWGB>; Sun, 23 Dec 2001 17:06:01 -0500
+Received: from chemlab.org ([216.151.95.151]:6874 "EHLO chemlab.org")
+	by vger.kernel.org with ESMTP id <S282056AbRLWWFt>;
+	Sun, 23 Dec 2001 17:05:49 -0500
+Date: Sun, 23 Dec 2001 17:05:47 -0500
+From: "steve j. kondik" <shade@chemlab.org>
 To: linux-kernel@vger.kernel.org
-Subject: Re: OOPS Kernel 2.4.17
-In-Reply-To: <fa.cc39hdv.18kqu2b@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Cc: linux-xfs@oss.sgi.com
+Subject: oops on boot w/ lvm root & xfs
+Message-ID: <20011223220547.GA16992@chemlab.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In case any of you are interested in what caused this oops.
-I was compiling the kernel with gcc 3.1.0 (unknowingly at
-first).
+i'm not sure if this is a devfs problem of an xfs problem.
+i'm using an initrd to set up my lvmroot.  devfs complains then
+panics.  all versions of 2.4.17 that i've tried (rc1, rc2, final)
+will not boot.  2.4.16 runs fine.  help :>
 
-Compiling the kernel with gcc 2.9.5, gcc 2.9.6, and gcc 3.0.3
-does not cause this oops.
+devfs: devfs_do_symlink(root): could not append to parent, err: -17
+change_root: old root has d_count=2
 
+here's the ksymoops (i copied this by hand- i hope its right)
 
-John Weber wrote:
+ksymoops 2.4.3 on i686 2.4.16-sk.  Options used
+     -V (specified)
+     -K (specified)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.17-xfs (specified)
+     -m /boot/System.map-2.4.17-xfs (specified)
 
-> As previously posted, this oops occurs on boot (and somewhere after or
-> during the loading of the floppy driver).
-> 
-> $ ksymoops --no-ksyms --no-lsmod -o /lib/modules/2.4.17/ -m
-> /boot/System.map-2.4.17 Oops.file 
-> ksymoops 2.4.1 on i686 2.4.16.  Options used
->      -V (default)
->      -K (specified)
->      -L (specified)
->      -o /lib/modules/2.4.17/ (specified)
->      -m /boot/System.map-2.4.17 (specified)
-> 
-> No modules in ksyms, skipping objects
-> Unable to handle kernel paging request at virual address 0000413d
-> c0106ea6
-> *pde = 00000000
-> Oops: 0000
-> CPU:    0
-> EIP:    0010:[<c0106ea6>]    Not tainted
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> EFLAGS: 00010286
-> eax: c7faff2c   ebx: c7fae000   ecx: 00000000   edx: 00000001
-> esi: c7faff60   edi: c7fae246   ebp: 00004111   esp: c7fafe84
-> ds: 0018   es: 0018   ss: 0018
-> Process keventd (pid: 2, stackpage=c7faf000)
-> Stack: 00000202 c02962e0 c7fae000 00000000 c02e8500 c7fae000 c7fafef4
-> c02eab80
->        c7fafed4 c0112fec 00000000 c7fae000 00000000 00000000 00000001
-> c7fae000
->        c7fafef8 c7fafef8 c7f62000 00000008 00004000 c0114b13 00000000
-> 00004111
-> Call Trace: [<c0112fec>] [<c0114b13>] [<c0121ec0>] [<c0105abf>]
-> [<c0107384>]
->    [<c0121ec0>] [<c0105655>] [<c0121f33>] [<c0121ec0>] [<c011a54a>]
-> [<c01224dc>]
->    [<c0122310>] [<c0105000>] [<c010565e>] [<c0122310>]
-> Code: 8b 45 2c 83 e0 03 83 f8 03 74 0f 81 c4 94 00 00 00 89 d0 5b
-> 
-> 
->>>EIP; c0106ea6 <do_signal+16/2e0>   <=====
->>>
-> Trace; c0112fec <wait_for_completion+6c/90>
-> Trace; c0114b13 <do_fork+4b3/640>
-> Trace; c0121ec0 <____call_usermodehelper+0/50>
-> Trace; c0105abf <sys_clone+2f/40>
-> Trace; c0107384 <signal_return+14/18>
-> Trace; c0121ec0 <____call_usermodehelper+0/50>
-> Trace; c0105655 <kernel_thread+25/40>
-> Trace; c0121f33 <__call_usermodehelper+23/40>
-> Trace; c0121ec0 <____call_usermodehelper+0/50>
-> Trace; c011a54a <__run_task_queue+5a/70>
-> Trace; c01224dc <context_thread+1cc/1e0>
-> Trace; c0122310 <context_thread+0/1e0>
-> Trace; c0105000 <_stext+0/0>
-> Trace; c010565e <kernel_thread+2e/40>
-> Trace; c0122310 <context_thread+0/1e0>
-> Code;  c0106ea6 <do_signal+16/2e0>
-> 00000000 <_EIP>:
-> Code;  c0106ea6 <do_signal+16/2e0>   <=====
->    0:   8b 45 2c                  mov    0x2c(%ebp),%eax   <=====
-> Code;  c0106ea9 <do_signal+19/2e0>
->    3:   83 e0 03                  and    $0x3,%eax
-> Code;  c0106eac <do_signal+1c/2e0>
->    6:   83 f8 03                  cmp    $0x3,%eax
-> Code;  c0106eaf <do_signal+1f/2e0>
->    9:   74 0f                     je     1a <_EIP+0x1a> c0106ec0
-> <do_signal+30/2e0>
-> Code;  c0106eb1 <do_signal+21/2e0>
->    b:   81 c4 94 00 00 00         add    $0x94,%esp
-> Code;  c0106eb7 <do_signal+27/2e0>
->   11:   89 d0                     mov    %edx,%eax
-> Code;  c0106eb9 <do_signal+29/2e0>
->   13:   5b                        pop    %ebx
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c012d3ed>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010246
+eax: 00000000   ebx: c14be440    ecx: c14be4a8   edx: c14be438
+esi: c14be431   edi: c031b4d4    ebp: 00020000   esp: c140ff00
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 1, stackpage=c140f000)
+Stack: c140ff68 c140e000 cfecc340 c140ffbc c140ff1c c14be460 00000004 0000000c
+       c038d7c4 c031b4c7 00000014 00000040 00000000 00000000 00000000 c038d0df
+       c0317560 00000002 ffffffbf ffffffff 00000009 c140ffe0 cfecc340 00000000
+Call Trace: [<c011a5b6>] [<c010706b>] [<c010526b>] [<c01052af>] [<c0105798>]
+Code: 0f 0b 8b 12 8b 02 0f 0d 00 81 fa 68 46 36 c0 75 d4 a1 68 46
 
+>>EIP; c012d3ec <kmem_cache_create+2ec/340>   <=====
+Trace; c011a5b6 <sys_waitpid+16/20>
+Trace; c010706a <system_call+32/38>
+Trace; c010526a <prepare_namespace+12a/150>
+Trace; c01052ae <init+1e/150>
+Trace; c0105798 <kernel_thread+28/40>
+Code;  c012d3ec <kmem_cache_create+2ec/340>
+00000000 <_EIP>:
+Code;  c012d3ec <kmem_cache_create+2ec/340>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c012d3ee <kmem_cache_create+2ee/340>
+   2:   8b 12                     mov    (%edx),%edx
+Code;  c012d3f0 <kmem_cache_create+2f0/340>
+   4:   8b 02                     mov    (%edx),%eax
+Code;  c012d3f2 <kmem_cache_create+2f2/340>
+   6:   0f 0d 00                  prefetch (%eax)
+Code;  c012d3f4 <kmem_cache_create+2f4/340>
+   9:   81 fa 68 46 36 c0         cmp    $0xc0364668,%edx
+Code;  c012d3fa <kmem_cache_create+2fa/340>
+   f:   75 d4                     jne    ffffffe5 <_EIP+0xffffffe5> c012d3d0 <kmem_cache_create+2d0/340>
+Code;  c012d3fc <kmem_cache_create+2fc/340>
+  11:   a1 68 46 00 00            mov    0x4668,%eax
 
+Kernel panic: Attempted to kill init!   
 
+-- 
+http://chemlab.org  -  email shade-pgpkey@chemlab.org for pgp public key
+  chemlab radio!    -  drop out @ http://mp3.chemlab.org:8000   24-7-365
+
+"i could build anything if i could just find my tools.."	

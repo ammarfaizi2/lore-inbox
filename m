@@ -1,50 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbVAGTXZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVAGTZu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261540AbVAGTXZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 14:23:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbVAGTXY
+	id S261546AbVAGTZu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 14:25:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbVAGTYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 14:23:24 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:16143 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261541AbVAGTR4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 14:17:56 -0500
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Javier Villavicencio <javierv@migraciones.gov.ar>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>
-Subject: Re: no entropy and no output at /dev/random (quick question)
-Date: Fri, 7 Jan 2005 21:17:45 +0200
-User-Agent: KMail/1.5.4
-Cc: David Wagner <daw-usenet@taverner.cs.berkeley.edu>,
-       linux-kernel@vger.kernel.org
-References: <200411301249.iAUCnJgs004281@laptop11.inf.utfsm.cl> <41ACA45B.206@migraciones.gov.ar>
-In-Reply-To: <41ACA45B.206@migraciones.gov.ar>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Jan 2005 14:24:19 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:2238 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261556AbVAGTWK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 14:22:10 -0500
+Date: Fri, 7 Jan 2005 11:21:58 -0800
+From: Greg KH <greg@kroah.com>
+To: Mark_H_Johnson@Raytheon.com
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.10-mm1
+Message-ID: <20050107192158.GA30096@kroah.com>
+References: <OF4C49B1DD.0FAC66D2-ON86256F81.0059D64B@raytheon.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501072117.45959.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <OF4C49B1DD.0FAC66D2-ON86256F81.0059D64B@raytheon.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 30 November 2004 18:48, Javier Villavicencio wrote:
-> > Reading /dev/urandom depletes exactly the same pool, it just doesn't block
-> > when the pool is empty. As said pool has other uses, indiscriminate reading
-> > of either can DoS other parts of the system.
+On Thu, Jan 06, 2005 at 10:32:31AM -0600, Mark_H_Johnson@Raytheon.com wrote:
+> After booting with 2.6.10-mm1, I get the following message on the serial
+> console (last message seen):
 > 
-> But why if /dev/random depletes and you don't have any source of entropy 
-> ? As you may have seen in my setup I had no mouse/keyboard attached to 
-> that server, and the only "things" capable of generate entropy where the 
-> two nics and the DAC960.
-> So I've enabled entropy only for the local nic and the DAC960 (at least 
-> "I think", for the dac :+) and now I'm plenty of entropy, but for a 
-> setup like this, the server may have been running without entropy at all 
-> for weeks (I've forgot to check the uptime :+P).
-> About this, think about php generating session_id()s without entropy 
-> (o_O), and stuff like that....
+> PCI: 0000:00:0b.0 has unsupported PM cap regs version (1)
+> 
+> For reference, lspci shows that device is
+> 00:0b.0 Multimedia audio controller: Ensoniq 5880 AudioPCI (rev 02)
+> 
+> I notice there is a relatively recent patch to add this message.
+>   http://article.gmane.org/gmane.linux.kernel/263974
+> 
+> However, my .config includes
+> 
+> #
+> # Power management options (ACPI, APM)
+> #
+> # CONFIG_PM is not set
+> 
+> which should disable all power management related processing.
+> 
+> [1] Should the code generating the warning be active without CONFIG_PM
+> being set?
+> 
+> [2] Can you explain why the message is generated (why not silently ignore
+> the older hardware) or is there something in an init script (I am using
+> Fedora Core 2) that [incorrectly] assumes power management is available to
+> cause the message to be printed?
 
-BTW why your php developer can't use /dev/urandom?
---
-vda
+David, any ideas?  Should I just revert this change for now?
 
+thanks,
+
+greg k-h

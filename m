@@ -1,32 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131161AbQLFBZl>; Tue, 5 Dec 2000 20:25:41 -0500
+	id <S130108AbQLFBiN>; Tue, 5 Dec 2000 20:38:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131160AbQLFBZb>; Tue, 5 Dec 2000 20:25:31 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5636 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131030AbQLFBZT>; Tue, 5 Dec 2000 20:25:19 -0500
-To: michal@harddata.com (Michal Jaegermann)
-Date: Wed, 6 Dec 2000 00:57:13 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <20001205151813.A1062@mail.harddata.com> from "Michal Jaegermann" at Dec 05, 2000 03:18:13 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130139AbQLFBiC>; Tue, 5 Dec 2000 20:38:02 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:16139 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130108AbQLFBiA>; Tue, 5 Dec 2000 20:38:00 -0500
+Date: Tue, 5 Dec 2000 17:07:19 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
+cc: "H. Peter Anvin" <hpa@transmeta.com>, Alan Cox <alan@redhat.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: That horrible hack from hell called A20
+In-Reply-To: <Pine.LNX.4.10.10012060118580.5125-100000@chaos.thphy.uni-duesseldorf.de>
+Message-ID: <Pine.LNX.4.10.10012051703080.811-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E143StY-0000CS-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> depmod: *** Unresolved symbols in /lib/modules/2.2.18pre24/misc/agpgart.o
-> depmod:         smp_call_function
-> depmod:         smp_num_cpus
-> 
-> The machine affected is actually Alpha but likely this is not relevant.
 
-For ksyms the architecture is often very relevant so thanks for warning me what
-you are using. 
+
+On Wed, 6 Dec 2000, Kai Germaschewski wrote:
+
+> 
+> On Tue, 5 Dec 2000, H. Peter Anvin wrote:
+> 
+> > If you have had A20M# problems with any kernel -- recent or not --
+> > *please* try this patch, against 2.4.0-test12-pre5:
+> 
+> Just a datapoint: This patch doesn't fix the problem here (Sony
+> PCG-Z600NE). Still the spontaneous reboot exactly the moment I expect to
+> get my console back from resumeing.
+
+Actually, I bet I know what's up.
+
+Want to bet $5 USD that suspend/resume saves the keyboard A20 state, but
+does NOT save the fast-A20 gate information?
+
+So anything that enables A20 with only the fast A20 gate will find that
+A20 is disabled again on resume.
+
+Which would make Linux _really_ unhappy, needless to say. Instant death in
+the form of a triple fault (all of the Linux kernel code is in the 1-2MB
+area, which would be invisible), resulting in an instant reboot.
+
+Peter, we definitely need to do the keyboard A20, even if fast-A20 works
+fine. 
+
+			Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

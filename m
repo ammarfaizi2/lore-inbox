@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263261AbUJ2Acw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263285AbUJ2BmN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263261AbUJ2Acw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 20:32:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263266AbUJ2AaV
+	id S263285AbUJ2BmN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 21:42:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbUJ2Bir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 20:30:21 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:58118 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263271AbUJ2A0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 20:26:45 -0400
-Date: Fri, 29 Oct 2004 02:26:13 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: jgarzik@pobox.com
-Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] scsi/ahci.c: remove an unused function
-Message-ID: <20041029002613.GY29142@stusta.de>
-References: <20041028231613.GF3207@stusta.de>
+	Thu, 28 Oct 2004 21:38:47 -0400
+Received: from gate.crashing.org ([63.228.1.57]:61064 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263290AbUJ2Bax (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 21:30:53 -0400
+Subject: [PATCH] ppc64: Enable maple IDE fixup
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Fri, 29 Oct 2004 11:25:55 +1000
+Message-Id: <1099013155.29690.102.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041028231613.GF3207@stusta.de>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ this time without the problems due to a digital signature... ]
+Hi !
 
-The patch below removes an unused function from drivers/scsi/ahci.c
+Now that pci_get_legacy_ide_irq() support has been merged, it's time
+to enable use of it by the Maple platform code.
+
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+
+Index: linux-work/arch/ppc64/kernel/maple_setup.c
+===================================================================
+--- linux-work.orig/arch/ppc64/kernel/maple_setup.c	2004-10-27 13:12:16.000000000 +1000
++++ linux-work/arch/ppc64/kernel/maple_setup.c	2004-10-29 11:19:27.931904024 +1000
+@@ -229,9 +229,7 @@
+ 	.init_IRQ		= maple_init_IRQ,
+ 	.get_irq		= mpic_get_irq,
+ 	.pcibios_fixup		= maple_pcibios_fixup,
+-#if 0
+ 	.pci_get_legacy_ide_irq	= maple_pci_get_legacy_ide_irq,
+-#endif
+ 	.restart		= maple_restart,
+ 	.power_off		= maple_power_off,
+ 	.halt			= maple_halt,
 
 
-diffstat output:
- drivers/scsi/ahci.c |    9 ---------
- 1 files changed, 9 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc1-mm1-full/drivers/scsi/ahci.c.old	2004-10-28 23:28:09.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/drivers/scsi/ahci.c	2004-10-28 23:28:17.000000000 +0200
-@@ -504,15 +504,6 @@
- 	ahci_fill_sg(qc);
- }
- 
--static inline void ahci_dma_complete (struct ata_port *ap,
--                                     struct ata_queued_cmd *qc,
--				     int have_err)
--{
--	/* get drive status; clear intr; complete txn */
--	ata_qc_complete(ata_qc_from_tag(ap, ap->active_tag),
--			have_err ? ATA_ERR : 0);
--}
--
- static void ahci_intr_error(struct ata_port *ap, u32 irq_stat)
- {
- 	void *mmio = ap->host_set->mmio_base;

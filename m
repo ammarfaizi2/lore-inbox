@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265940AbUFYAH0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265903AbUFYAPW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265940AbUFYAH0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 20:07:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265946AbUFYAH0
+	id S265903AbUFYAPW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 20:15:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265946AbUFYAPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 20:07:26 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:58847 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265940AbUFYAHY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 20:07:24 -0400
-Date: Thu, 24 Jun 2004 19:07:20 -0500
-From: Ken Preslan <kpreslan@redhat.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Patch to allow distributed flock
-Message-ID: <20040625000720.GA13755@potassium.msp.redhat.com>
-References: <20040624231057.GA13033@potassium.msp.redhat.com> <1088121132.8906.29.camel@lade.trondhjem.org>
+	Thu, 24 Jun 2004 20:15:21 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:27623 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265903AbUFYAPQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 20:15:16 -0400
+Date: Fri, 25 Jun 2004 02:15:14 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: willy@debian.org
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: [2.6 patch] fix arch/i386/pci/Makefile
+Message-ID: <20040625001513.GB18303@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1088121132.8906.29.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 24, 2004 at 07:52:12PM -0400, Trond Myklebust wrote:
-> If you defer updating the VFS until after the ->lock() call returns,
-> then it makes it difficult to protect yourself against races (as I
-> argued about the POSIX lock interface on the list yesterday).
-> 
-> If you have the underlying filesystem call flock_lock_file() itself,
-> then that gives it the freedom to implement its own locking scheme
-> around that call.
-> For instance NFS has a thread that is supposed to reclaim locks if the
-> server reboots. We take a non-exclusive lock on an rwsem to ensure that
-> we block it while there are outstanding locking RPC calls, however that
-> rwsem has to be released before we return from the ->lock() call, and so
-> there exists a race after the rwsem was released until the
-> inode->i_flock list is updated.
+I got the following compile error in 2.6.7-mm2 (but it doesn't seem to 
+be specific to -mm2):
 
-Ah, good idea.
+<--  snip  -->
 
-Something else I've been wondering:
+...
+  LD      .tmp_vmlinux1
+drivers/built-in.o(.text+0x6c24a): In function `acpi_pci_root_add':
+: undefined reference to `pci_acpi_scan_root'
+make: *** [.tmp_vmlinux1] Error 1
 
-If the FS is managing the posix locks and/or flocks, is there really a
-reason to acquire the VFS versions of the locks too?  As long as there is
-some bit set that tells the VFS to call down into the FS to unlock the
-locks on process exit, keeping both sets of locks seems wasteful.
-What am I missing?
+<--  snip  -->
 
--- 
-Ken Preslan <kpreslan@redhat.com>
+This problem occurs with
+  CONFIG_ACPI_PCI=y && (CONFIG_X86_VISWS=y || CONFIG_X86_NUMAQ=y)
 
+The patch below fixes it.
+
+Please apply
+Adrian
+
+
+--- linux-2.6.7-mm2-full/arch/i386/pci/Makefile.old	2004-06-25 02:08:29.000000000 +0200
++++ linux-2.6.7-mm2-full/arch/i386/pci/Makefile	2004-06-25 02:10:36.000000000 +0200
+@@ -5,10 +5,11 @@
+ obj-$(CONFIG_PCI_DIRECT)	+= direct.o
+ 
+ pci-y				:= fixup.o
+-pci-$(CONFIG_ACPI_PCI)		+= acpi.o
+ pci-y				+= legacy.o irq.o
+ 
+ pci-$(CONFIG_X86_VISWS)		:= visws.o fixup.o
+ pci-$(CONFIG_X86_NUMAQ)		:= numa.o irq.o
+ 
++pci-$(CONFIG_ACPI_PCI)		+= acpi.o
++
+ obj-y				+= $(pci-y) common.o

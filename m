@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265995AbTAKJD7>; Sat, 11 Jan 2003 04:03:59 -0500
+	id <S266295AbTAKJXC>; Sat, 11 Jan 2003 04:23:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266295AbTAKJD7>; Sat, 11 Jan 2003 04:03:59 -0500
-Received: from tool9.argh.org ([193.41.144.5]:20203 "EHLO toolnine.argh.org")
-	by vger.kernel.org with ESMTP id <S265995AbTAKJD6>;
-	Sat, 11 Jan 2003 04:03:58 -0500
-Date: Sat, 11 Jan 2003 11:12:42 +0100
-From: Alexander Koch <efraim@clues.de>
+	id <S266322AbTAKJXC>; Sat, 11 Jan 2003 04:23:02 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:37394
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S266295AbTAKJXB>; Sat, 11 Jan 2003 04:23:01 -0500
+Date: Sat, 11 Jan 2003 01:29:42 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
 To: linux-kernel@vger.kernel.org
-Subject: getting my serial ports back? ;-)
-Message-ID: <20030111101241.GA3589@clues.de>
-Mime-Version: 1.0
+Subject: Did it DIE, finally ?  Please don't do it again!
+Message-ID: <Pine.LNX.4.10.10301110121450.31168-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What do I have to do to get my serial ports back?
 
-devfs: v1.22 (20021013) Richard Gooch (rgooch@atnf.csiro.au)
-devfs: boot_options: 0x1
-pnp: the driver 'serial' has been registered
-pnp: pnp: match found with the PnP device '00:0f' and the driver 'serial'
-pnp: the device '00:0f' has been activated
-devfs_register(tts/2): could not append to parent, err: -17
-tts/2 at I/O 0x3e8 (irq = 4) is a 16550A
-pnp: pnp: match found with the PnP device '00:10' and the driver 'serial'
-pnp: the device '00:10' has been activated
-devfs_register(tts/3): could not append to parent, err: -17
-tts/3 at I/O 0x2e8 (irq = 3) is a 16550A
+Please do not reply to this thread.
 
-Effectively as my mouse is on the serial port and it
-obviously does not work in gpm or with X directly.
+Everytime anyone brings up a vendors name regardless, they get free
+advertising here.  This is a development list, and I will shutup now.
 
-ttyS0: LSR safety check engaged!
-ttyS0: LSR safety check engaged!
-ttyS0: LSR safety check engaged!
-ttyS1: LSR safety check engaged!
-ttyS1: LSR safety check engaged!
-ttyS1: LSR safety check engaged!
+I hope the mocking of the results was enough to not repeat.
+If anyone does it here, it will only bait more to follow.
 
-That's coming from gpm startup, at least one of it, although
-I have /dev/tts/0 in my gpm.conf... Ah, it's hardcoded in the
-binary, it seems (doing a strings on it).
+Regardless if it is a product, political view, (horses and wishes), the
+world would be a better ..., or whatever !!  The end result is free
+adverstising.
 
-Anyway, does anyone have a clue as to why my serial modules
-are not working any longer since 2.5.53 (and neither 2.5.55)?
-I am not missing it much for X but at least gpm is a good
-thing.
+Bad Press is better than no press, please remember this.
 
-Thanks,
-Alexander
+If you want to roast me offline please do.
+Please do not do it here.
+
+Regards,
+
+Andre Hedrick
+LAD Storage Consulting Group
 

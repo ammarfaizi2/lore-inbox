@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132277AbRAJBNW>; Tue, 9 Jan 2001 20:13:22 -0500
+	id <S132630AbRAJBQW>; Tue, 9 Jan 2001 20:16:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132693AbRAJBNN>; Tue, 9 Jan 2001 20:13:13 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:52617 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S132277AbRAJBNI>;
-	Tue, 9 Jan 2001 20:13:08 -0500
-Date: Tue, 9 Jan 2001 16:55:36 -0800
-Message-Id: <200101100055.QAA07674@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: linux-kernel@vger.kernel.org
-CC: netdev@oss.sgi.com
-Subject: Updated zerocopy patch up on kernel.org
+	id <S132668AbRAJBQM>; Tue, 9 Jan 2001 20:16:12 -0500
+Received: from mail-out1.apple.com ([17.254.0.52]:32470 "EHLO
+	mail-out1.apple.com") by vger.kernel.org with ESMTP
+	id <S132630AbRAJBQD>; Tue, 9 Jan 2001 20:16:03 -0500
+Date: Tue, 9 Jan 2001 17:14:33 -0800 (PST)
+From: Dave Zarzycki <dave@zarzycki.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+In-Reply-To: <Pine.LNX.4.30.0101091638130.4491-100000@e2>
+Message-ID: <Pine.LNX.4.30.0101091708410.1796-100000@batman.zarzycki.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 9 Jan 2001, Ingo Molnar wrote:
 
-Nothing interesting or new, just merges up with the latest 2.4.1-pre1
-patch from Linus.
+> then you'll love the zerocopy patch :-) Just use sendfile() or specify
+> MSG_NOCOPY to sendmsg(), and you'll see effective memory-to-card
+> DMA-and-checksumming on cards that support it.
 
-ftp.kernel.org:/pub/linux/kernel/people/davem/zerocopy-2.4.1p1-1.diff.gz
+I'm confused.
 
-I haven't had any reports from anyone, which must mean that it is
-working perfectly fine and adds no new bugs, testers are thus in
-nirvana and thus have nothing to report.  :-)
+In user space, how do you know when its safe to reuse the buffer that was
+handed to sendmsg() with the MSG_NOCOPY flag? Or does sendmsg() with that
+flag block until the buffer isn't needed by the kernel any more? If it
+does block, doesn't that defeat the use of non-blocking I/O?
 
-As much as I would like to believe this, I know that there must be
-some (however minor) bug in there.  So please make the effort to
-report bugs if you do spot them.  Again, a reminder to test bugs also
-against vanilla 2.4.1pre1 and report the bug against that if the bug
-appears there too. This way, I know what bugs are specific to the
-zerocopy stuff and which are not.
+davez
 
-Thanks.
+-- 
+Dave Zarzycki
+http://thor.sbay.org/~dave/
 
-Later,
-David S. Miller
-davem@redhat.com
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

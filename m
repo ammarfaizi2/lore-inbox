@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261420AbSIWVRe>; Mon, 23 Sep 2002 17:17:34 -0400
+	id <S261432AbSIWVY4>; Mon, 23 Sep 2002 17:24:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261428AbSIWVRe>; Mon, 23 Sep 2002 17:17:34 -0400
-Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:59776 "EHLO
-	gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id <S261420AbSIWVRd>; Mon, 23 Sep 2002 17:17:33 -0400
-Date: Mon, 23 Sep 2002 14:22:40 -0700
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Larry McVoy <lm@bitmover.com>, Peter Waechtler <pwaechtler@mac.com>,
-       linux-kernel@vger.kernel.org, ingo Molnar <mingo@redhat.com>,
-       "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-Message-ID: <20020923212240.GC2075@gnuppy.monkey.org>
-References: <20020922143257.A8397@work.bitmover.com> <Pine.LNX.3.96.1020923055128.11375A-100000@gatekeeper.tmr.com>
+	id <S261426AbSIWVY3>; Mon, 23 Sep 2002 17:24:29 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:46523 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261368AbSIWVXq>;
+	Mon, 23 Sep 2002 17:23:46 -0400
+Date: Mon, 23 Sep 2002 14:17:52 -0700 (PDT)
+Message-Id: <20020923.141752.91362457.davem@redhat.com>
+To: davidm@hpl.hp.com, davidm@napali.hpl.hp.com
+Cc: dmo@osdl.org, axboe@suse.de, phillips@arcor.de, _deepfire@mail.ru,
+       linux-kernel@vger.kernel.org
+Subject: Re: DAC960 in 2.5.38, with new changes
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <15759.34428.608321.969391@napali.hpl.hp.com>
+References: <15759.32569.964762.776074@napali.hpl.hp.com>
+	<20020923.135708.10698522.davem@redhat.com>
+	<15759.34428.608321.969391@napali.hpl.hp.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1020923055128.11375A-100000@gatekeeper.tmr.com>
-User-Agent: Mutt/1.4i
-From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 23, 2002 at 06:05:18AM -0400, Bill Davidsen wrote:
-> And BSD? And Solaris?
+   From: David Mosberger <davidm@napali.hpl.hp.com>
+   Date: Mon, 23 Sep 2002 14:24:12 -0700
 
-Me and buddy of mine ran lmbench on NetBSD 1.6 (ppc) and a recent version
-of Linux (same machine) and found that NetBSD was about 2x slower than
-Linux for context switching. It's really not that bad considering that it
-was worse at one point. It might effect things like inter-process pipe
-communication performance, but it's not outside of reasonablility to use
-a 1:1 system in that case.
+     >> I don't think the proposed 32-bit behavior is off the mark, and
+     >> anyways x86 can actually make the 64-bit store I believe if it
+     >> wants at least on more recent processors.
+   
+   Surely we wouldn't want to define a new API that can't be supported on
+   all 32-bit platforms, no?  Perhaps writeq_nonatomic()?
+   
+I'm saying we define writeq() to be implementable as two 32-bit
+transations, that will be the API.
 
-BTW, NetBSD is moving to a scheduler activations threading system and
-they have some preliminary stuff in the works and working. ;)
-
-> > If that's a true statement, and in Linux it tends to be far more true
-> > than other operating systems, then there is no reason to have M:N.
-> 
-> No matter how fast you do context switch in and out of kernel and a sched
-> to see what runs next, it can't be done as fast as it can be avoided.
-> Being N:M doesn't mean all implementations must be faster, just that doing
-> it all in user mode CAN be faster.
-
-Unless you have a broken architecture like the x86. The FPU in that case
-can be problematic and folks where playing around with adding a syscall
-to query the status of the FPU. They things might be more even, but...
-this is also unclear as to how these variables are going to play out.
-
-> Benchmarks are nice, I await results from a loaded production threaded
-> DNS/mail/web/news/database server. Well, I guess production and 2.5 don't
-> really go together, do they, but maybe some experimental site which could
-> use 2.5 long enough to get numbers. If you could get a threaded database
-> to run, that would be a good test of shared resources rather than a bunch
-> of independent activities doing i/o. 
-
-I think that would be interesting too.
-
-bill
-
+I think adding some weird new writeq_nonatomic() will just create
+more confusion than it saves.

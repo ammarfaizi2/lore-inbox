@@ -1,74 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129138AbRBGFfJ>; Wed, 7 Feb 2001 00:35:09 -0500
+	id <S129026AbRBGFu2>; Wed, 7 Feb 2001 00:50:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129114AbRBGFet>; Wed, 7 Feb 2001 00:34:49 -0500
-Received: from 218-MADR-X32.libre.retevision.es ([62.83.5.218]:65042 "EHLO
-	vivaldi.ddts.net") by vger.kernel.org with ESMTP id <S129138AbRBGFes> convert rfc822-to-8bit;
-	Wed, 7 Feb 2001 00:34:48 -0500
-Date: Wed, 7 Feb 2001 06:34:33 +0100 (MET)
-From: Roberto Diaz <rdiazmartin@vivaldi.ddts.net>
-To: linux-legal@nl.linux.org
-cc: Roberto Diaz <rdiazmartin@vivaldi.net.dhis.org>,
-        linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>,
-        Guido Socher <guido@bearix.oche.de>
-Subject: Re: Software Mestizo Manifesto 
-In-Reply-To: <Pine.LNX.4.21.0102070252580.1535-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0102070625350.494-100000@vivaldi.ddts.net>
+	id <S129028AbRBGFuT>; Wed, 7 Feb 2001 00:50:19 -0500
+Received: from assigned.162.54.206.in-addr.arpa ([206.54.162.175]:24654 "EHLO
+	mail.roland.net") by vger.kernel.org with ESMTP id <S129026AbRBGFuH>;
+	Wed, 7 Feb 2001 00:50:07 -0500
+Date: Tue, 6 Feb 2001 23:50:16 -0600 (CST)
+From: Jim Roland <jroland@roland.net>
+To: "J. Dow" <jdow@earthlink.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: RedHat kernel RPM 2.2.16
+In-Reply-To: <0b2801c090c6$3e1a76e0$0a25a8c0@wizardess.wiz>
+Message-ID: <Pine.LNX.4.05.10102062344490.31995-100000@ns.roland.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Quoted from the GPL:
-> -------
->   6. Each time you redistribute the Program (or any work based on the
-> Program), the recipient automatically receives a license from the
-> original licensor to copy, distribute or modify the Program subject to
-> these terms and conditions.  You may not impose any further
-> restrictions on the recipients' exercise of the rights granted herein.
-> You are not responsible for enforcing compliance by third parties to
-> this License.
-> -------
+I appreciate your comments, but the SOURCE is exactly what I am needing in
+order to compile in PCTel modem support.  FYI, I'm not a newbie, so I do
+not uninstall a kernel from a running system (no offense on your
+assumption :-P).  Besides if I did, I would just simply spend 5 minutes
+creating a rescue floppy and away I go.  No problem.  Anyway, I have
+already installed the binary form of the 2.2.16 kernel, I am needing the
+sources so I can kludge together a module for the PCTel support.
+
+FWIW, the rpm -i did unpack the kernel to the /usr/src/redhat/SOURCES
+directory, however, I had to manually untar the sources to /usr/src to get
+my kernel, move over the appropriate .config file, and manually run the
+patches to patch the sources.  Forcing RPM to be very talkative (via -vv)
+gave me a bunch of "action unknown" errors, and the rpm's install scripts
+did not execute.  This occurs on an RH7 system as well.  Seems to be
+something wrong with RH's kernel rpm?
+
+JR
+
+
+
+On Tue, 6 Feb 2001, J. Dow wrote:
+
+> RTFM - it is writ large on the RedHat site. You have probably rendered your
+> machine unbootable at this point if you tried first with the regular kernel
+> RPM. Recovery is awkward. You *NEVER* *EVER* -U a kernel RPM. You *ALWAYS* -i
+> it instead. Then your old kernel is still present in case the new one shows
+> problems, like 2.2.16 will.
 > 
-> Your "ethical" statement is incompatible with the GPL.
-
-Thank you very much.. do you find incompatibilities here:
-
-/******************  Software Mestizo Manifesto  *********************
- * This code is **Software Mestizo** meaning it has been developed with
- * the help of many diverse individuals worldwide; no matter their 
- * racial or cultural origin, they all work together in peace and harmony 
- * in the belief of humankind fraternity.  Using this software with the 
- * purpose of harming these principles is to harm the software itself,
- * We advice to use it only in the context of these principles or refrain 
- * from its use if you don't agree with the spirit in which it was 
- * written.
- */ 
-
-Please let the people to decide wether they want to attach this to their
-source code.. I am only trying to do a manifesto which I think is valuable
-
-Please send a CC: to Guido Socher <guido@bearix.oche.de> he is the
-Editor-in-Chief of www.linuxfocus.org maybe he could help (or kill me
-still dont know.. anyway).
-
-
-Regards
-
-Roberto
-
-------------------------------------------------------------------------
-Roberto Diaz <rdiazmartin@vivaldi.dtts.net>
-http://vivaldi.dtts.net 
-Powered by ddt dynamic DNS
-Powered by GNU running on a Linux kernel.
-Powered by Debian (The real wonder)
-
-Concerto Grosso Op. 3/8 A minor
-Antonio Vivaldi (so... do you need beautiful words?)
-------------------------------------------------------------------------
+> Furthermore installing the source RPMs does not install a new kernel. You have
+> to proceed from there with building the kernel. That means you have to have
+> kgcc installed and all the other proper materials.
+> 
+> I saw your email on the RedHat list but it was at the beginning of 80 some
+> messages so I didn't reply figuring someone else would have. I guess nobody
+> felt like typing "RTFM". As I say, RedHat has kernel compilation and kernel
+> installation information on their website in a fairly easy to find place.
+> A little digging would be good for your soul and education. There is other
+> stuff there associated with the kernel compile and install instructions
+> that can be a great help.
+> 
+> {^_^}
+> 
+> ----- Original Message ----- 
+> From: "Jim Roland" <jroland@roland.net>
+> To: <linux-kernel@vger.kernel.org>
+> Sent: Tuesday, February 06, 2001 21:03
+> Subject: RedHat kernel RPM 2.2.16
+> 
+> 
+> > I am trying to get RedHat's Kernel RPM 2.2.16 installed, however, the rpm
+> > program does unpack the files, but does not run any script to install them
+> > into the source tree (kernel-2.2.16-3.i386.src.rpm).  Is there a trick to
+> > making it work?
+> > 
+> > 
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > Please read the FAQ at http://www.tux.org/lkml/
+> > 
+> 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

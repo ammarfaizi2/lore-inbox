@@ -1,56 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVABLz3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbVABL7l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbVABLz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 06:55:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbVABLz3
+	id S261240AbVABL7l (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 06:59:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVABL7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 06:55:29 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32273 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261199AbVABLzX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 06:55:23 -0500
-Date: Sun, 2 Jan 2005 11:55:20 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pierre Ossman <drzeus-list@drzeus.cx>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix MMC warnings
-Message-ID: <20050102115520.A4166@flint.arm.linux.org.uk>
-Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <41D73B43.3080109@drzeus.cx> <20050102084409.A1925@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050102084409.A1925@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Sun, Jan 02, 2005 at 08:44:09AM +0000
+	Sun, 2 Jan 2005 06:59:41 -0500
+Received: from mail.dif.dk ([193.138.115.101]:23006 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261240AbVABL7h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 06:59:37 -0500
+Date: Sun, 2 Jan 2005 13:10:50 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Steve French <sfrench@samba.org>, Steve French <sfrench@us.ibm.com>
+Cc: samba-technical <samba-technical@lists.samba.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Chris Clayton <chris_clayton@f1internet.com>,
+       Jesper Juhl <juhl-lkml@dif.dk>
+Subject: [Patch] More unnecessary assignments in fs/cifs/file.c (fwd)
+Message-ID: <Pine.LNX.4.61.0501021209180.3494@dragon.hygekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 02, 2005 at 08:44:09AM +0000, Russell King wrote:
-> On Sun, Jan 02, 2005 at 01:07:31AM +0100, Pierre Ossman wrote:
-> > Here's a patch that fixes the compiler warnings in mmc.c.
-> 
-> I'd rather the compiler was fixed so that it does proper analysis of
-> the code, rather than blatently issuing warnings for code which is
-> unreachable.
 
-Actually, you're quite correct about the first instance - 'mask' may
-be generated from 1 << 32 - 1, which is definitely reachable, and gcc
-will warn about.  There's also another bug - an out by one on whether
-to use the second word to construct the value.
+Hi Steve, 
 
-However, the other 5 warnings are due to (corrected version):
+Chris Clayton send me the patch below and asked if I could forward it for 
+him.
+Since Chris' original patch was whitespace damaged I've rediffed it 
+against 2.6.10-bk4 
 
-	if (16 + 0 > 32)
-		__res |= resp[__off-1] << (32 - 0);
+I've kept Chris' comments on the patch below but substituted his original 
+with my re-diffed version and added my own Signed-off-by line since the 
+patch looks good to me.
 
-Obviously, this code is not reachable since the if condition is false.
-Therefore, gcc's whinging about the shift being >= 32 is wrong.
 
-That said, the fix doesn't change gcc's code generation, so I think I'll
-apply the changes.  Thanks.
+---------- Forwarded message ----------
+Date: Fri, 31 Dec 2004 16:58:33 +0000
+From: Chris Clayton <chris_clayton@f1internet.com>
+To: juhl-lkml@dif.dk
+Subject: [Patch] More unnecessary assignments in fs/cifs/file.c
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+<text irrelevant to the patch snipped>
+
+I saw the patch you submitted ealier this week to remove two unnecessary 
+assignments from fs/cifs/file.c. Whilst looking over the original source 
+file, I think I've spotted two more of these assignments. The patch below is 
+against virgin 2.6.10 (i.e it doesn't have your earlier whitespace patch 
+applied), so you may have to fix it up a bit to get it to apply to your tree.
+
+Thanks,
+
+Chris
+
+Signed-off-by: Chris Clayton  <chris_clayton@f1internet.com>
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+
+
+--- linux-2.6.10-bk4-orig/fs/cifs/file.c	2004-12-24 22:33:48.000000000 +0100
++++ linux-2.6.10-bk4/fs/cifs/file.c	2005-01-02 12:56:13.000000000 +0100
+@@ -73,9 +73,8 @@ cifs_open(struct inode *inode, struct fi
+ 		}
+ 		read_unlock(&GlobalSMBSeslock);
+ 		if(file->private_data != NULL) {
+-			rc = 0;
+ 			FreeXid(xid);
+-			return rc;
++			return 0;
+ 		} else {
+ 			if(file->f_flags & O_EXCL)
+ 				cERROR(1,("could not find file instance for new file %p ",file));
+@@ -1952,9 +1951,8 @@ cifs_readdir(struct file *file, void *di
+ 	data = kmalloc(bufsize, GFP_KERNEL);
+ 	pfindData = (FILE_DIRECTORY_INFO *) data;
+ 	if(data == NULL) {
+-		rc = -ENOMEM;
+ 		FreeXid(xid);
+-		return rc;
++		return -ENOMEM;
+ 	}
+ 	down(&file->f_dentry->d_sb->s_vfs_rename_sem);
+ 	full_path = build_wildcard_path_from_dentry(file->f_dentry);
+
+
+

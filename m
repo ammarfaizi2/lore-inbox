@@ -1,56 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269316AbTCDHmH>; Tue, 4 Mar 2003 02:42:07 -0500
+	id <S269319AbTCDHyK>; Tue, 4 Mar 2003 02:54:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269317AbTCDHmH>; Tue, 4 Mar 2003 02:42:07 -0500
-Received: from csl.Stanford.EDU ([171.64.73.43]:61652 "EHLO csl.stanford.edu")
-	by vger.kernel.org with ESMTP id <S269316AbTCDHmG>;
-	Tue, 4 Mar 2003 02:42:06 -0500
-From: Dawson Engler <engler@csl.stanford.edu>
-Message-Id: <200303040752.h247qOx20275@csl.stanford.edu>
-Subject: Re: [CHECKER] potential deadlocks
-To: Nikita@Namesys.COM (Nikita Danilov)
-Date: Mon, 3 Mar 2003 23:52:24 -0800 (PST)
-Cc: akpm@digeo.com (Andrew Morton), linux-kernel@vger.kernel.org
-In-Reply-To: <15971.9271.619893.597694@laputa.namesys.com> from "Nikita Danilov" at Mar 03, 2003 12:45:27 PM
-X-Mailer: ELM [version 2.5 PL0pre8]
-MIME-Version: 1.0
+	id <S269321AbTCDHyK>; Tue, 4 Mar 2003 02:54:10 -0500
+Received: from [195.128.145.236] ([195.128.145.236]:29312 "EHLO hippo.ru")
+	by vger.kernel.org with ESMTP id <S269319AbTCDHyI>;
+	Tue, 4 Mar 2003 02:54:08 -0500
+Date: Tue, 4 Mar 2003 13:30:20 +0400
+From: Vlad Harchev <hvv@hippo.ru>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 and cryptofs on raid1 - what will be cached and how many times
+Message-ID: <20030304093020.GA4024@h>
+References: <20030302105634.GA4258@h> <20030303093832.GA4601@h> <15971.52790.676134.722437@notabene.cse.unsw.edu.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <15971.52790.676134.722437@notabene.cse.unsw.edu.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Andrew Morton writes:
->  > Dawson Engler <engler@csl.stanford.edu> wrote:
->  > >
->  > > BTW, are there known deadlocks (harmless or otherwise)?  Debugging
->  > > the checker is a bit hard since false negatives are silent...
->  > 
->  > Known deadlocks tend to get fixed.  But I am surprised that you did not
->  > encounter more of them.
->  > 
->  > btw, the filesystem transaction operations can be treated as sleeping locks. 
->  > So for ext3, journal_start()/journal_stop() may, for lock-ranking purposes,
->  > be treated in the same way as taking and releasing a per-superblock
->  > semaphore.  Other filesystems probably have similar restrictions.
->  > 
+On Tue, Mar 04, 2003 at 08:50:46AM +1100, Neil Brown wrote:
+> On Monday March 3, hvv@hippo.ru wrote:
+> > On Sun, Mar 02, 2003 at 02:56:34PM +0400, Vlad Harchev wrote:
+> > > Hello, 
+> > > 
+> > > Could you please answer the following question:
+> > > 
+> > > Suppose we have a crypto filesystem on a raid1 array  of 2 devices. What will
+> > > the kernel cache of fileystem data contain - encrypted data or not? Will is 
+> > > be 2 copies of the same data in the cache or not?
+> > 
+> > Sorry for confusion - of course I meant linux software raid here..
 > 
-> So are page-fault and memory allocation events, because thread
-> blocks on them, and deadlocks involving servicing page fault or memory
-> laundering have definitely been seen.
+> With raid1 has no effect on caching.  Exactly the same data is cached
+> with raid1 as with as plain SCSI or IDE drive.
 
-Do you mean calls to copy_*_user and kmalloc(GFP_WAIT) or did you have
-something else in mind as well?
+ The question I asked is - will under the active usage there be exactly one
+copy of a file's data, or there will be N (where N is number of disks in raid1
+array) copies in the cache? I.e. how optimal caching is performed?
+ 
+> Raid5 is different.  It has an extra cache of some of the data that
+> has been written-to or read-from the devices.
 
-> We have (incomplete) description of kernel lock ordering, which is
-> centered around reiser4 locks, but also includes some core kernel stuff.
+ OK, thank you for pointing this.
+ 
 > 
-> It is available at 
+> >  
+> > > Is there any way to force kernel to cache the same file data only once, and
+> > > keep it unencrypted (in cache)?
+> > > 
 > 
-> http://www.namesys.com/v4/lock-ordering.dot  --- source for Bell-Labs' dot(1)
-> http://www.namesys.com/v4/lock-ordering.ps   --- postscript output, produced from the .dot source
+> I suspect that depends of the details of the implementation of you
+> "crypto filesystem".
 
-Wonderful; thanks!
+ Sorry for confusion - I meant loopback-based crypto filesystem - e.g. loop-aes
+based (loop-aes.sourceforge.net) or CryptoAPI-based (www.kerneli.org) - both
+are loopback-based filesystem (one has to call losetup(8) to point out chipher,
+a password..) I'm getting an impression that the kernel cache will contain
+encrypted data in case loopback-based crypto filesystems are used just 
+observing performance..
 
-
-
+Thank you for the anwser!
+-- 
+ Best regards,
+  -Vlad

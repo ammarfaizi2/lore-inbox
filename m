@@ -1,36 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265913AbSKBKCP>; Sat, 2 Nov 2002 05:02:15 -0500
+	id <S265916AbSKBKKK>; Sat, 2 Nov 2002 05:10:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265916AbSKBKCP>; Sat, 2 Nov 2002 05:02:15 -0500
-Received: from ns.suse.de ([213.95.15.193]:39181 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S265913AbSKBKCO>;
-	Sat, 2 Nov 2002 05:02:14 -0500
-To: Dipankar Sarma <woofwoof@hathway.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: dcache_rcu [performance results]
-References: <20021030161912.E2613@in.ibm.com.suse.lists.linux.kernel> <20021031162330.B12797@in.ibm.com.suse.lists.linux.kernel> <3DC32C03.C3910128@digeo.com.suse.lists.linux.kernel> <20021102144306.A6736@dikhow.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 02 Nov 2002 11:08:44 +0100
-In-Reply-To: Dipankar Sarma's message of "2 Nov 2002 10:21:23 +0100"
-Message-ID: <p734rb0s2qb.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S265918AbSKBKKK>; Sat, 2 Nov 2002 05:10:10 -0500
+Received: from ulima.unil.ch ([130.223.144.143]:28550 "HELO ulima.unil.ch")
+	by vger.kernel.org with SMTP id <S265916AbSKBKKJ>;
+	Sat, 2 Nov 2002 05:10:09 -0500
+Date: Sat, 2 Nov 2002 11:16:39 +0100
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Logitech wheel and 2.5? (PS/2)
+Message-ID: <20021102101639.GA27372@ulima.unil.ch>
+References: <20021102110316.3c60c30d.khaho@koti.soon.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20021102110316.3c60c30d.khaho@koti.soon.fi>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dipankar Sarma <woofwoof@hathway.com> writes:
+On Sat, Nov 02, 2002 at 11:03:16AM +0200, Kari Hameenaho wrote:
+
+> The packet #0 message is not causing any trouble.
 > 
-> I should add that this is a general trend we see in all workloads
-> that do a lot of open/closes and so much so that performance is very
-> sensitive to how close to / your application's working directory
-> is. You would get much better system time if you compile a kernel
-> in /linux as compared to say /home/fs01/users/akpm/kernel/linux ;-)
+> The wheel will work in X with mouse set to imps/2, in XF86Config(-4):
+> Section "InputDevice"
+> ..
+>     Option "Protocol"    "ImPS/2"
+>     Option "ZAxisMapping" "4 5"
+> ...
+> EndSection
 
-That's interesting. Perhaps it would make sense to have a fast path
-that just does a string match of the to be looked up path to a cached copy 
-of cwd and if it matches works as if cwd was the root. Would need to be 
-careful with chroot where cwd could be outside the root and clear the
-cached copy in this case. Then you could avoid all the locking overhead
-for directories above your cwd if you stay in there.
+I have changed it ;-)
 
--Andi
+> Button on left may act same as middle button, at least for me it is and
+> nicer to use.
+> 
+> Mouse position loose seems to be caused by strange messages from mouse:
+> is your mouse wireless too ?
+
+Yes it is!
+
+> Here is a patch that works for me: note that it is too ugly for real
+> inclusion and may cause troubles in other setups. But you can try it if
+> you want. I have sent it to maintainer too, maybe a better solution will
+> arrive in future kernels.
+
+patched, but I got:
+
+make -f scripts/Makefile.build obj=drivers/input/mouse
+  gcc -Wp,-MD,drivers/input/mouse/.psmouse.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=pentium4 -Iarch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=psmouse   -c -o drivers/input/mouse/psmouse.o drivers/input/mouse/psmouse.c
+drivers/input/mouse/psmouse.c: In function `psmouse_process_packet':
+drivers/input/mouse/psmouse.c:90: label `out' used but not defined
+make[3]: *** [drivers/input/mouse/psmouse.o] Error 1
+make[2]: *** [drivers/input/mouse] Error 2
+make[1]: *** [drivers/input] Error 2
+make: *** [drivers] Error 2
+
+Thank you very much,
+
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

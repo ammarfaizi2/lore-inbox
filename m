@@ -1,46 +1,121 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311463AbSC1CQZ>; Wed, 27 Mar 2002 21:16:25 -0500
+	id <S311536AbSC1C0t>; Wed, 27 Mar 2002 21:26:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311519AbSC1CQP>; Wed, 27 Mar 2002 21:16:15 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:59381
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S311463AbSC1CQI>; Wed, 27 Mar 2002 21:16:08 -0500
-Date: Wed, 27 Mar 2002 18:17:31 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Matthew Kirkwood <matthew@hairy.beasts.org>, Andi Kleen <ak@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Filesystem benchmarks: ext2 vs ext3 vs jfs vs minix
-Message-ID: <20020328021731.GC8627@matchmail.com>
-Mail-Followup-To: Matthew Kirkwood <matthew@hairy.beasts.org>,
-	Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <p73y9ge3xww.fsf@oldwotan.suse.de> <Pine.LNX.4.33.0203271419230.28110-100000@sphinx.mythic-beasts.com> <20020327180247.GU21133@turbolinux.com>
+	id <S311530AbSC1C0k>; Wed, 27 Mar 2002 21:26:40 -0500
+Received: from red.csi.cam.ac.uk ([131.111.8.70]:43951 "EHLO red.csi.cam.ac.uk")
+	by vger.kernel.org with ESMTP id <S311519AbSC1C02>;
+	Wed, 27 Mar 2002 21:26:28 -0500
+Message-Id: <5.1.0.14.2.20020328022509.020ae800@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 28 Mar 2002 02:27:03 +0000
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: New URL - ANN: New NTFS driver (2.0.0/TNG) now finished.
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 27, 2002 at 11:02:47AM -0700, Andreas Dilger wrote:
-> On Mar 27, 2002  14:47 +0000, Matthew Kirkwood wrote:
-> > Postgres doesn't pre-allocate datafiles.  They reckon it's not
-> > their job to implement a filesystem, and I'm inclined to agree.
-> > They do prefer fdatasync on datafiles and (I think) O_DATASYNC
-> > for their journal files where available, but I haven't checked
-> > that my build is doing that.
-> 
-> If the I/O is normally sync driven, you should consider testing ext3
-> with "data=journal".  While this seems counterintuitive because it is
-> writing the data to disk twice, it can often be faster in real-world
-> "bursty" environments because the sync I/O goes to the journal in one
-> contiguous write, and it can then be written to the rest of the fs
-> asynchronously safely. 
+Hi,
 
-Don't forget to have enough extra memory so that it can have time to do
-those async writes later.
+The URLs I gave initially don't seem to work at present. )-:
 
-When is ext3 going to get high and low watermarks?
+Here are some working ones (I verified they work just now):
 
-Currently it hits a (50%?) high usage level and then sync writes the entire
-journal contents. :(  Has that changed?
+http://virus-b.christs.cam.ac.uk/~aia21/linux/linux-2.5.7-ntfs-2.0.0.patch.bz2 
+(151kiB)
+
+http://virus-b.christs.cam.ac.uk/~aia21/linux/linux-2.5.7-ntfs-2.0.0.patch.gz 
+(199kiB)
+
+http://virus-b.christs.cam.ac.uk/~aia21/linux/linux-2.5.7-ntfs-2.0.0.patch 
+(796kiB)
+
+Best regards,
+
+Anton
+
+-----------
+
+Hi,
+
+This is to announce that the new NTFS Linux kernel driver 2.0.0 (formerly 
+NTFS TNG) is now finished (read-only). It is for kernel 2.5.7 only and will 
+be submitted to Linus for inclusion in the 2.5 kernel series when Linus 
+returns from his holiday.
+
+The driver has been tested extensively and has survived all tests so far.
+
+It is fully compatible with kernel preemption and SMP. And it should work 
+on both little endian and big endian architectures, and both on 32 and 64 
+bit architectures. Note, only ia32 has actually been tested and there may 
+be problems with architectures not supporting unaligned accesses. Any 
+volunteers for non-ia32 architectures?
+
+The new driver is significantly faster than the old driver (~20% in my 
+tests), uses less CPU time and generally is superior to the old driver. (-:
+
+The driver can be compiled both with gcc-2.95 and gcc-2.96. gcc-3.x has not 
+been tested. (If anyone experiences compilation problems especially with 
+gcc-2.95 please let me know and they will be fixed ASAP!)
+
+To try the driver either use BitKeeper to obtain a clone from the repository:
+
+         bk clone -q http://linux-ntfs.bkbits.net/ntfs-tng-2.5
+
+Or if you already have a clone derived from an official kernel repository 
+you only need to pull in the changes:
+
+         bk pull http://linux-ntfs.bkbits.net/ntfs-tng-2.5
+
+And then checkout all the files using bk -r co -q from within the 
+repository directory.
+
+For people not using BitKeeper patches for the standard 2.5.7 kernel are 
+available here:
+
+http://www-stu.christs.cam.ac.uk/~aia21/linux/linux-2.5.7-ntfs-2.0.0.patch.bz2 
+(151kiB)
+
+http://www-stu.christs.cam.ac.uk/~aia21/linux/linux-2.5.7-ntfs-2.0.0.patch.gz 
+(199kiB)
+
+http://www-stu.christs.cam.ac.uk/~aia21/linux/linux-2.5.7-ntfs-2.0.0.patch 
+(796kiB)
+
+Finally, for people wanting to browse the source code on-line, point your 
+web browser at:
+
+         http://linux-ntfs.bkbits.net:8080/ntfs-tng-2.5
+
+Please everyone courageous enough to use a bleeding edge kernel and who is 
+also an NTFS user give this a try and let me know if you encounter any 
+problems! - Thanks!
+
+Best regards,
+
+Anton
+
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

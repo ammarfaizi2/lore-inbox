@@ -1,48 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267500AbUGWAWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266798AbUGWAdx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267500AbUGWAWF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 20:22:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267502AbUGWAWF
+	id S266798AbUGWAdx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 20:33:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266861AbUGWAdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 20:22:05 -0400
-Received: from out002pub.verizon.net ([206.46.170.141]:16546 "EHLO
-	out002.verizon.net") by vger.kernel.org with ESMTP id S267500AbUGWAVt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 20:21:49 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Organization: Organization: undetectable
-To: Adrian Bunk <bunk@fs.tum.de>, Francois Romieu <romieu@fr.zoreil.com>,
-       Greg KH <greg@kroah.com>, Jesse Stockall <stockall@magma.ca>,
-       Oliver Neukum <oliver@neukum.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] delete devfs
-Date: Thu, 22 Jul 2004 20:21:51 -0400
-User-Agent: KMail/1.6
-References: <20040721141524.GA12564@kroah.com> <200407220624.15941.gene.heskett@verizon.net> <20040722210659.GA7143@mars.ravnborg.org>
-In-Reply-To: <20040722210659.GA7143@mars.ravnborg.org>
+	Thu, 22 Jul 2004 20:33:53 -0400
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:56487 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266798AbUGWAdv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 20:33:51 -0400
+Message-ID: <41005CE6.7040803@yahoo.com.au>
+Date: Fri, 23 Jul 2004 10:33:42 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Nathan Lynch <nathanl@austin.ibm.com>
+CC: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       "Matthew C. Dobson [imap]" <colpatch@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: sched domains bringup race?
+References: <1089944026.32312.47.camel@nighthawk>	 <20040718134559.A25488@unix-os.sc.intel.com>	 <40FB78D5.1070604@yahoo.com.au> <1090533339.3041.13.camel@booger>
+In-Reply-To: <1090533339.3041.13.camel@booger>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200407222021.52027.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [151.205.62.219] at Thu, 22 Jul 2004 19:21:48 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 22 July 2004 17:06, sam@ravnborg.org wrote:
-[...]
->I've been non-subscriber for a long period and never had trouble
-> finding old 'subscriber-only' articles. So you are doing something
-> wrong.
->
-Right, and I've already apologized to Jon privately.  I just wasn't 
-doing the obvious because the last time I tried it, well over a year 
-ago, it didn't work.  My mistake.  Sorry for the noise
+Nathan Lynch wrote:
 
--- 
-Cheers Sam, Gene
-There are 4 boxes to be used in defense of liberty. 
-Soap, ballot, jury, and ammo.
-Please use in that order, starting now.  -Ed Howdershelt, Author
-Additions to this message made by Gene Heskett are Copyright 2004, 
-Maurice E. Heskett, all rights reserved.
+>On Mon, 2004-07-19 at 02:31, Nick Piggin wrote:
+>
+>>Keshavamurthy Anil S wrote:
+>>
+>>>Even on my system which is Intel 865 chipset (P4 with HT enabled system) 
+>>>I see a bug check somewhere in the schedular_tick during boot.
+>>>However if I move the sched_init_smp() after do_basic_setup() the
+>>>kernel boots without any problem. Any clue here?
+>>>
+>>There shouldn't be any problem doing that if we have to, obviously we
+>>need to know why. Is it possible that cpu_sibling_map, or one of the
+>>CPU masks isn't set up correctly at the time of the call?
+>>
+>
+>In 2.6.8-rc1-mm1 at least, backing this patch out fixed it for me on
+>ppc64:
+>
+>http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc1/2.6.8-rc1-mm1/broken-out/detect-too-early-schedule-attempts.patch
+>
+>Code with statements of the form:
+>
+>if (system_state == SYSTEM_BOOTING)
+>	/* do something boot-specific */
+>else
+>	/* do something assuming system_state == SYSTEM_RUNNING */
+>
+>is broken by this change.  Parts of the cpu bringup code in arch/ppc64
+>do this (and thus need to be fixed if the above change is kept). 
+>Chances are there is similar code in some x86 setups.
+>
+>
+
+That patch can be dropped AFAIKS.
+
+sched-clean-init-idle.patch introduces a better check.
+
+

@@ -1,66 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUIHMSk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbUIHMN4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbUIHMSk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 08:18:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbUIHMSK
+	id S262071AbUIHMN4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 08:13:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUIHMNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 08:18:10 -0400
-Received: from ltgp.iram.es ([150.214.224.138]:37509 "EHLO ltgp.iram.es")
-	by vger.kernel.org with ESMTP id S261239AbUIHMP6 (ORCPT
+	Wed, 8 Sep 2004 08:13:51 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:12794 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269149AbUIHMJ7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 08:15:58 -0400
-From: Gabriel Paubert <paubert@iram.es>
-Date: Wed, 8 Sep 2004 14:12:36 +0200
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Zachary Amsden <zach@vmware.com>, linux-kernel@vger.kernel.org,
-       davej@codemonkey.org.uk, hpa@zytor.com, bgerst@didntduck.org,
-       Riley@Williams.Name
-Subject: Re: PROBLEM: x86 alignment check bug
-Message-ID: <20040908121236.GA5283@iram.es>
-References: <413E498D.4020807@vmware.com> <20040907170807.2e8bba1d.davem@davemloft.net>
+	Wed, 8 Sep 2004 08:09:59 -0400
+Subject: Re: Generating kernel crash dumps in elf core file format
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: "Amit S. Kale" <amitkale@linsyssoft.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, yakker@sourceforge.net,
+       suparna bhattacharya <suparna@in.ibm.com>,
+       Hariprasad Nellitheertha <hari@in.ibm.com>, akpm@osdl.org
+In-Reply-To: <200409081719.10253.amitkale@linsyssoft.com>
+References: <200409081313.28087.amitkale@linsyssoft.com>
+	 <1094636955.18148.8.camel@2fwv946.in.ibm.com>
+	 <200409081719.10253.amitkale@linsyssoft.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1094646046.18457.23.camel@2fwv946.in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040907170807.2e8bba1d.davem@davemloft.net>
-User-Agent: Mutt/1.5.6+20040818i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 08 Sep 2004 17:50:47 +0530
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 07, 2004 at 05:08:07PM -0700, David S. Miller wrote:
-> On Tue, 07 Sep 2004 16:51:41 -0700
-> Zachary Amsden <zach@vmware.com> wrote:
+On Wed, 2004-09-08 at 17:19, Amit S. Kale wrote:
+> On Wednesday 08 Sep 2004 3:20 pm, Vivek Goyal wrote:
+> > Hi Amit,
+> >
+> > We are already working in this direction. Kexec based crash dump
+> > approach exports a device interface to read/save the crash dump in elf
+> > core file format and user shall be able to analyze the dumps using gdb.
+> >
+> > Initial set of patches were posted by Hari on LKML for review. Please
+> > have a look at following thread.
+> >
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=109274443023485&w=2
+> >
+> > Very soon Hari is going to post the final set of patches to be included
+> > in -mm tree.
 > 
-> > Clearly, this is not correct.  Considering how difficult the fix is (the 
-> > kernel must disassemble the faulting instruction and use register 
-> > information to determine the faulting address),
+> Hi Vivek,
 > 
-> While it is more difficult to disassemble x86 opcodes,
-> what you describe is exactly how we handle this on
-> sparc64.  In fact we do opcode decoding for most fault
-> types.
+> Nice!
+> 
+> Could you also tell us about the state of user level utilities required to 
+> save dumps in elf format? Are they going to be available any time soon?
 
-For page faults, cr2 gives you the linear address, i.e., after
-adding the base of the segment, which you can only find
-by looking up the GDT and/or LDT for the correct segment.
+Hi Amit
 
-Of course, the address decoding depends also of the size
-attributes of the code segment (16 or 32 bits for i386, 
-64 bits for x86_64) which needs also a lookup of CS in the
-segment tables, and of a possible address prefix which 
-affects the decoding. Of course this is fraught with race
-if another thread modifies the LDT at the same time.
+Simple file copy commands like cp, scp can be used. No additional user
+space utilities have to be written. /proc/vmcore interface itself shall
+export the dump as ELF format file.
 
-Then most instructions use a standard memory address
-encoding, but there are a few exceptions which implicitly
-use ESI and/or EDI. For the ones that use two memory 
-addresses (movs/cmps), you'd have to even compute both 
-addresses and decide which one is the unaligned one. 
+More details are available in documentation patch.
 
-I somehow suspect that Sparc is somewhat simpler to decode
-than i386/x86_64 ;-)
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109274464705867&w=2
 
-Don't bloat the kernel with decoding this mess, please.
-A helper library in user space, why not?
+Thanks 
+Vivek
+ 
+> 
+> Thanks.
+> -Amit
+> 
+> >
+> > Thanks
+> > Vivek
+> >
+> > On Wed, 2004-09-08 at 13:13, Amit S. Kale wrote:
+> > > Hi,
+> > >
+> > > We are thinking of implementing the generation of linux kernel crash
+> > > dumps in elf core file format. This will enable users to analyze kernel
+> > > crash dumps using gdb. It should be good tool to complement KGDB. KGDB
+> > > could be used during development stage for live kernel analysis and
+> > > LKCD-GDB could be used with the same capabilities for analysis of
+> > > customer problems and in house release testing.
+> > >
+> > > We would like to know if people think this will be useful or they are
+> > > more comfortable with current way of kernel panic analysis using existing
+> > > LKCD.
+> > >
+> > > Any ideas/suggestions/pointers to existing work in this area are most
+> > > welcome.
+> > >
+> > > Thanks.
+> > > -Amit Kale
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> > > in the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
-	Regards,
-	Gabriel

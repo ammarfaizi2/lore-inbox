@@ -1,106 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315928AbSFGAC4>; Thu, 6 Jun 2002 20:02:56 -0400
+	id <S312962AbSFGAWf>; Thu, 6 Jun 2002 20:22:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316194AbSFGACz>; Thu, 6 Jun 2002 20:02:55 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:5281 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S315928AbSFGACy>; Thu, 6 Jun 2002 20:02:54 -0400
-Date: Thu, 6 Jun 2002 19:02:54 -0500 (CDT)
-From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Patrick Mochel <mochel@osdl.org>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] PCI device matching fix
-In-Reply-To: <Pine.LNX.4.33.0206061620490.654-100000@geena.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.44.0206061851360.31896-100000@chaos.physics.uiowa.edu>
+	id <S313181AbSFGAWe>; Thu, 6 Jun 2002 20:22:34 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27399 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S312962AbSFGAWd>;
+	Thu, 6 Jun 2002 20:22:33 -0400
+Message-ID: <3CFFFC2D.8010104@mandrakesoft.com>
+Date: Thu, 06 Jun 2002 20:19:57 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/00200205
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@redhat.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, lei_hu@ali.com.tw,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] update for ALi Audio Driver (0.14.10)
+In-Reply-To: <200206062347.g56NlwZ17861@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Jun 2002, Patrick Mochel wrote:
+Alan Cox wrote:
 
-> Actually, it appears to be as easy as the patch below. Or, I just could 
-> just not know what the hell I'm talking about. 
-> 
-> Things appear to be working (with the eepro100 as a module)....
-> 
-> 	-pat
-> 
-> ===== drivers/base/driver.c 1.7 vs edited =====
-> --- 1.7/drivers/base/driver.c	Wed Jun  5 15:59:31 2002
-> +++ edited/drivers/base/driver.c	Thu Jun  6 16:13:35 2002
-> @@ -67,9 +67,9 @@
->  	pr_debug("Registering driver '%s' with bus '%s'\n",drv->name,drv->bus->name);
+>>Why?  Hardware semaphores are notorious for causing hangs.  Nobody is 
+>>sharing the hardware under Linux, so I think we should enable access on 
+>>init, and not disable access until driver close.  IMO the mixer should 
+>>be guarded by a Linux kernel semaphore...  I have a patch from Thomas 
+>>Sailer (I think) lying around somewhere that does just that to the via 
+>>audio driver.  Maybe we can adapt it.
+>>(I cc'd this little detail, in my ali/trident.c patch review, to you)
+>>    
+>>
+>
+>So add a timeout to it ?
 >  
->  	get_bus(drv->bus);
-> -	atomic_set(&drv->refcount,2);
->  	rwlock_init(&drv->lock);
->  	INIT_LIST_HEAD(&drv->devices);
-> +	SET_MODULE_OWNER(drv);
->  	write_lock(&drv->bus->lock);
->  	list_add(&drv->bus_list,&drv->bus->drivers);
->  	write_unlock(&drv->bus->lock);
+>
+There is a problem in via audio, that seems to be present in trident.c 
+too:  trident_ioctl_mixdev doesn't protect the call to 
+codec->mixer_ioctl, which in turn can read and write to the AC97 codec.
 
-drivers/base is always compiled in. So SET_MODULE_OWNER will set the owner 
-to NULL.
+I'm saying, (1) hardware semaphores are error prone and (2) are we using 
+the hardware sem to work around this lack of locking on ->mixer_ioctl?
 
-> -void remove_driver(struct device_driver * drv)
-> +struct device_driver * get_driver(struct device_driver * drv)
->  {
-> -	write_lock(&drv->bus->lock);
-> -	atomic_set(&drv->refcount,0);
-> -	list_del_init(&drv->bus_list);
-> -	write_unlock(&drv->bus->lock);
-> -	__remove_driver(drv);
-> +	__MOD_INC_USE_COUNT(drv->owner);
-> +	return drv;
->  }
->  
-> -/**
-> - * put_driver - decrement driver's refcount and clean up if necessary
-> - * @drv:	driver in question
-> - */
->  void put_driver(struct device_driver * drv)
->  {
-> -	write_lock(&drv->bus->lock);
-> -	if (!atomic_dec_and_test(&drv->refcount)) {
-> -		write_unlock(&drv->bus->lock);
-> -		return;
-> -	}
-> -	list_del_init(&drv->bus_list);
-> -	write_unlock(&drv->bus->lock);
-> -	__remove_driver(drv);
-> +	__MOD_DEC_USE_COUNT(drv->owner);
->  }
+    Jeff
 
-So the __MOD_{INC,DEC}_USE_COUNT() should oops right here.
-If you tested it and it doesn't oops, I don't understand why.
 
-So, for one, if you want to go that road, you should use fops_get()/put()
-(you can use just these, or rename them appropriately), they'll do the
-right thing if a thing is modular as opposed to built-in (owner == NULL).
 
-And, you need to set the owner from the module which you want to protect.
-
-So in the your driver:
-
-struct pci_driver my_drv {
-	probe: ...
-	driver : {
-		owner: THIS_MODULE,
-	}
-}
-
-which certainly is ugly since owner is in a sub-struct. But it's not
-really a possibility anyway, since in this case pci_register_driver will 
-do a MOD_INC_USE_COUNT and you never have a chance to call 
-pci_unregister_driver() to decrement it again, since you need to have it
-decremented before you can call pci_unregister_driver() (because
-that's called from your module_exit() function).
-
---Kai
-
-		
 

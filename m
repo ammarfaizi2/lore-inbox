@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265084AbUELAX4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264898AbUELA2E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265084AbUELAX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 20:23:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265080AbUELAMf
+	id S264898AbUELA2E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 20:28:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265101AbUELAZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 20:12:35 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:57239 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S263467AbUELAAv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 20:00:51 -0400
-Date: Tue, 11 May 2004 16:58:53 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Paul Jackson <pj@sgi.com>, ashok.raj@intel.com, davidm@hpl.hp.com,
-       linux-kernel@vger.kernel.org, anil.s.keshavamurthy@intel.com
-Subject: Re: (resend) take3: Updated CPU Hotplug patches for IA64 (pj blessed) Patch [6/7]
-Message-ID: <20040511165853.A21249@unix-os.sc.intel.com>
-References: <20040504211755.A13286@unix-os.sc.intel.com> <20040511161653.49e836e5.pj@sgi.com> <20040511163801.2a657b07.akpm@osdl.org>
+	Tue, 11 May 2004 20:25:23 -0400
+Received: from mail.kroah.org ([65.200.24.183]:14976 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265081AbUELAMu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 20:12:50 -0400
+Date: Tue, 11 May 2004 17:12:15 -0700
+From: Greg KH <greg@kroah.com>
+To: Valdis.Kletnieks@vt.edu, Dave Airlie <airlied@linux.ie>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       dri-devel@lists.sourceforge.net
+Subject: Re: From Eric Anholt:
+Message-ID: <20040512001215.GA27789@kroah.com>
+References: <200405112211.i4BMBQDZ006167@hera.kernel.org> <20040511222245.GA25644@kroah.com> <Pine.LNX.4.58.0405120018360.3826@skynet> <200405112334.i4BNYdjO018918@turing-police.cc.vt.edu> <20040511234329.GA27242@kroah.com> <20040512000709.GA10233@nevyn.them.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040511163801.2a657b07.akpm@osdl.org>; from akpm@osdl.org on Tue, May 11, 2004 at 04:38:01PM -0700
+In-Reply-To: <20040512000709.GA10233@nevyn.them.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 11, 2004 at 04:38:01PM -0700, Andrew Morton wrote:
-> Paul Jackson <pj@sgi.com> wrote:
-> >
-> > On the off chance that
-> > others find this way of phrasing it helpful, I post it here for the
-> > record.
+On Tue, May 11, 2004 at 08:07:09PM -0400, Daniel Jacobowitz wrote:
+> On Tue, May 11, 2004 at 04:43:29PM -0700, Greg KH wrote:
+> > On Tue, May 11, 2004 at 07:34:39PM -0400, Valdis.Kletnieks@vt.edu wrote:
+> > > On Wed, 12 May 2004 00:20:51 BST, Dave Airlie said:
+> > > 
+> > > > I just looked at drm.h and nearly all the ioctls use int, this file is
+> > > > included in user-space applications also at the moment, I'm worried
+> > > > changing all ints to __u32 will break some of these, anyone on DRI list
+> > > > care to comment?
+> > > 
+> > > Is this a case where somebody is *really* including kernel headers in userspace
+> > > and we need to smack them, or are they using a copy that's been sanitized
+> > > (and possibly fixed)?
+> > 
+> > Don't know, but how are you dealing with the issue that an "int" is
+> > different for different kernel sizes (64 vs 32) and userspace too.
+> > That's why you can't use it in an ioctl and expect things to work
+> > properly.
 > 
-> Thanks, I added that to the changelog.  If you think additional code
-> commentary is needed, please send patches.
-> 
-> I guess I'm not doing anything useful with these patches.  Is it OK with
-> everyone if I scoot them over to davidm?
+> I'm not disagreeing that it ought to use __u32, but are there any Linux
+> supported targets that don't have a 32-bit int?  It's long that tends
+> to change size.
 
+I don't think so, but I am not sure.  That's why you should use __u32 to
+keep people from guessing :)
 
-I had sent a private mail to davidm for inclusion in ia64 tree, he mentioned 
-that it would be preferable to cook akpm tree to make sure no build breaks, 
-and then he would consider those for inclusion in his tree. especially -mm gets
-more testing, but iam not sure how may would really try this hotplug :-)
+thanks,
 
-anytime now seems appropriate...
-
-until David pickup's these it would be great to leave the here for anyone 
-interested in testing...
-
-Cheers,
-Ashok
+greg k-h

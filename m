@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267152AbSKMJ7b>; Wed, 13 Nov 2002 04:59:31 -0500
+	id <S267156AbSKMKF6>; Wed, 13 Nov 2002 05:05:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267156AbSKMJ7b>; Wed, 13 Nov 2002 04:59:31 -0500
-Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:50078 "EHLO
-	mail.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
-	id <S267152AbSKMJ71>; Wed, 13 Nov 2002 04:59:27 -0500
-Date: Wed, 13 Nov 2002 10:06:15 +0000 (GMT)
-From: Matt Bernstein <matt@theBachChoir.org.uk>
-X-X-Sender: mb@jester.mews
-To: Margit Schubert-While <margit@margit.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.47-ac2
-In-Reply-To: <4.3.2.7.2.20021113091351.00b51c90@mail.dns-host.com>
-Message-ID: <Pine.LNX.4.44.0211131003330.3300-100000@jester.mews>
-X-URL: http://www.theBachChoir.org.uk/
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Auth-User: mb
-X-uvscan-result: clean (18BuPX-0003zG-00)
+	id <S267157AbSKMKF6>; Wed, 13 Nov 2002 05:05:58 -0500
+Received: from holomorphy.com ([66.224.33.161]:18880 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267156AbSKMKF5>;
+	Wed, 13 Nov 2002 05:05:57 -0500
+Date: Wed, 13 Nov 2002 02:10:05 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Greg KH <greg@kroah.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Matthew Dobson <colpatch@us.ibm.com>, linux-kernel@vger.kernel.org,
+       hohnbaum@us.ibm.com, mochel@osdl.org
+Subject: Re: [0/4] NUMA-Q: remove PCI bus number mangling
+Message-ID: <20021113101005.GH23425@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Greg KH <greg@kroah.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+	Matthew Dobson <colpatch@us.ibm.com>, linux-kernel@vger.kernel.org,
+	hohnbaum@us.ibm.com, mochel@osdl.org
+References: <20021112213504.GV23425@holomorphy.com> <20021112213906.GW23425@holomorphy.com> <177250000.1037141189@flay> <20021112215305.GZ23425@holomorphy.com> <179150000.1037145229@flay> <20021112225937.GA23425@holomorphy.com> <20021112235824.GG22031@holomorphy.com> <20021113000435.GE32274@kroah.com> <20021113001246.GC23425@holomorphy.com> <20021113002032.GF32274@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021113002032.GF32274@kroah.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10:43 +0100 Margit Schubert-While wrote:
+On Tue, Nov 12, 2002 at 04:20:32PM -0800, Greg KH wrote:
+> Ok, then also please fix up drivers/pci/probe.c::pci_setup_device() to
+> set a unique slot_name up for the pci_dev, if you have multiple
+> domains/segments.
+> thanks,
+> greg k-h
 
->To keep you all busy :-)
->
->In file included from drivers/block/DAC960.c:49:
->drivers/block/DAC960.h:2572:2: #error I am a non-portable driver, please 
->convert me to use the Documentation/DMA-mapping.txt interfaces
+Reporting that stuff is trivial, but resolving the deep arch issues
+with the remaining failures I'm getting (not directly bus-related,
+actually I/O resource allocation going wrong) have me badly stumped.
 
-For the keen:
+Push back that ETA to weeks. I'll break off generically mergeable
+bits and send them your way as I go though. The patch queue is
+something like 20 long, but most of the content is "resolve one
+problem after the other". Getting this into a state of "the system
+works at every step of the way" is tricky, esp. since the end results
+of today's excursion do not yet include a fully-working system.
 
-$ find drivers/ -name "*.[ch]" \
-	-exec grep -l 'Documentation/DMA-mapping.txt' "{}" \;
 
-drivers/net/defxx.c
-drivers/net/rrunner.c
-drivers/net/rcpci45.c
-drivers/scsi/scsiiom.c
-drivers/scsi/53c7,8xx.c
-drivers/scsi/dpt_i2o.c
-drivers/scsi/gdth.c
-drivers/scsi/eata_dma.c
-drivers/scsi/AM53C974.c
-drivers/scsi/ini9100u.c
-drivers/block/DAC960.h
-drivers/media/video/video-buf.h
-drivers/message/i2o/i2o_lan.c
-drivers/parisc/sba_iommu.c
-
+Bill

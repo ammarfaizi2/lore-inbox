@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270333AbTGSOqm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 10:46:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270364AbTGSOql
+	id S270313AbTGSOtZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 10:49:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270364AbTGSOtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 10:46:41 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17077 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S270333AbTGSOp4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 10:45:56 -0400
-Message-ID: <3F195D1B.8010608@pobox.com>
-Date: Sat, 19 Jul 2003 11:00:43 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: James Simmons <jsimmons@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: offtopic crap (was Re: Bitkeeper)
-References: <E19dbGS-00026T-9R@fencepost.gnu.org>	<Pine.LNX.4.44.0307190049460.10769-100000@phoenix.infradead.org> <20030718180506.35e8c376.davem@redhat.com>
-In-Reply-To: <20030718180506.35e8c376.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 19 Jul 2003 10:49:25 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:32010 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S270313AbTGSOtW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 10:49:22 -0400
+Date: Sat, 19 Jul 2003 16:04:17 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: John Bradford <john@grabjohn.com>
+Cc: lkml@lrsehosting.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org, lm@bitmover.com, rms@gnu.org,
+       Valdis.Kletnieks@vt.edu
+Subject: Re: [OT] HURD vs Linux/HURD
+Message-ID: <20030719160417.A5326@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	John Bradford <john@grabjohn.com>, lkml@lrsehosting.com,
+	alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+	lm@bitmover.com, rms@gnu.org, Valdis.Kletnieks@vt.edu
+References: <200307191503.h6JF3tac002376@81-2-122-30.bradfords.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200307191503.h6JF3tac002376@81-2-122-30.bradfords.org.uk>; from john@grabjohn.com on Sat, Jul 19, 2003 at 04:03:55PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> So, let me put it this way, if you start a BK flame thread it is _YOU_
-> who I will blacklist from posting to vger.kernel.org
+On Sat, Jul 19, 2003 at 04:03:55PM +0100, John Bradford wrote:
+> What HURD code comes from Linux?  GNU/Mach uses code from Linux, but
+> not HURD as far as I know.
 
-
-No more horribly-offtopic RMS trolls?  :)
-
-	Jeff
-
-
+the networking code at least (aka pfinet)
 

@@ -1,84 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265903AbUAEHwt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 02:52:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265905AbUAEHwt
+	id S265896AbUAEIM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 03:12:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265898AbUAEIM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 02:52:49 -0500
-Received: from smtp2.clear.net.nz ([203.97.37.27]:24749 "EHLO
-	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S265903AbUAEHwr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 02:52:47 -0500
-Date: Mon, 05 Jan 2004 20:45:26 +1300
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: udev and devfs - The final word
-In-reply-to: <m31xqedelx.fsf@lugabout.jhcloos.org>
-To: "James H. Cloos Jr." <cloos@jhcloos.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andries Brouwer <aebr@win.tue.nl>,
-       Rob Love <rml@ximian.com>, rob@landley.net,
-       Pascal Schmidt <der.eremit@email.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-Reply-to: ncunningham@clear.net.nz
-Message-id: <1073288725.2385.70.camel@laptop-linux>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk
-Content-type: multipart/signed; boundary="=-3RaJWqJM2YbZR7kpCNMJ";
- protocol="application/pgp-signature"; micalg=pgp-sha1
-References: <20040103040013.A3100@pclin040.win.tue.nl>
- <Pine.LNX.4.58.0401022033010.10561@home.osdl.org>
- <20040103141029.B3393@pclin040.win.tue.nl>
- <Pine.LNX.4.58.0401031423180.2162@home.osdl.org>
- <20040104000840.A3625@pclin040.win.tue.nl>
- <Pine.LNX.4.58.0401031802420.2162@home.osdl.org>
- <20040104034934.A3669@pclin040.win.tue.nl>
- <Pine.LNX.4.58.0401031856130.2162@home.osdl.org>
- <20040104142111.A11279@pclin040.win.tue.nl>
- <Pine.LNX.4.58.0401041302080.2162@home.osdl.org>
- <20040104230104.A11439@pclin040.win.tue.nl>
- <Pine.LNX.4.58.0401041847370.2162@home.osdl.org>
- <m31xqedelx.fsf@lugabout.jhcloos.org>
+	Mon, 5 Jan 2004 03:12:26 -0500
+Received: from mail.kroah.org ([65.200.24.183]:62640 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265896AbUAEIMY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 03:12:24 -0500
+Date: Mon, 5 Jan 2004 00:12:26 -0800
+From: Greg KH <greg@kroah.com>
+To: lk@rekl.yi.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: KM266/VT8235, USB2.0 and problems
+Message-ID: <20040105081226.GA14177@kroah.com>
+References: <Pine.LNX.4.58.0401042314160.18200@rekl.yi.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0401042314160.18200@rekl.yi.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jan 04, 2004 at 11:30:51PM -0600, lk@rekl.yi.org wrote:
+> Hi.  I've noticed that intermittently in the past with some devices, and 
+> now every time with my new USB2.0 thumb drive (aka pen drive, aka flash 
+> memory thing) that there are errors with the USB on my motherboard.  It's 
+> a M7VIG-PRO, which has a KM266/VT8235 chipset.
+> 
+> Using kernel 2.6.0, I can only access my flash drive several times before 
+> getting an error about not being able to access the device.  The dmesg 
+> output is below.  When I try on my laptop, which has an EHCI USB2.0 
+> controller, the device works flawlessly.  There are no errors, etc.
+> 
+> I am using a USB keyboard and a USB mouse.  Both work fine.
+> 
+> I've tried several combinations of connecting the device, with and without 
+> the "noapic" kernel option while booting.  I've connected the device to 
+> the motherboard's USB sockets (ie the ones soldered to the board, not via 
+> wires to the case), through a USB2.0 hub, etc.  I get the same result 
+> every time.
+> 
+> I've included the relevant parts of "dmesg" and "dmidecode".  Please cc: 
+> me on responses, since I'm not subscribed, and let me know what to try 
+> next.
 
---=-3RaJWqJM2YbZR7kpCNMJ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Do the errors go away if you stop using devfs?
 
-Hi.
+thanks,
 
-On Mon, 2004-01-05 at 20:44, James H. Cloos Jr. wrote:
-> >>>>> "Linus" =3D=3D Linus Torvalds <torvalds@osdl.org> writes:
->=20
-> Linus> Why? Becuase that _program_ sure as hell isn't
-> Linus> running across a reboot.
->=20
-> Is that strictly true?  With (software) suspend to disk,
-> will the old device enumeration data be recovered from
-> the suspend partition?
-
-Yes. You end up running the original kernel.
-
-Regards,
-
-Nigel
-
---=20
-My work on Software Suspend is graciously brought to you by
-LinuxFund.org.
-
---=-3RaJWqJM2YbZR7kpCNMJ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/+RYVVfpQGcyBBWkRAlBHAJ0e4hwg1ELvpRT8gDM8z1svmdDd5ACfdI8I
-0daYfj9yT7JmddVQKo7+0Yw=
-=RB1V
------END PGP SIGNATURE-----
-
---=-3RaJWqJM2YbZR7kpCNMJ--
-
+greg k-h

@@ -1,170 +1,234 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262857AbVCPXXH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262883AbVCPXXI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262857AbVCPXXH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 18:23:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262883AbVCPXW3
+	id S262883AbVCPXXI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 18:23:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262870AbVCPXVj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 18:22:29 -0500
-Received: from gate.crashing.org ([63.228.1.57]:4794 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262857AbVCPXTi (ORCPT
+	Wed, 16 Mar 2005 18:21:39 -0500
+Received: from fire.osdl.org ([65.172.181.4]:5358 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262856AbVCPXG3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 18:19:38 -0500
-Subject: Re: [PATCH 2/2] Thinkpad Suspend Powersave: Add D2 power saving
-	code for Thinkpads with Radeon video chipsets
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "Theodore Y. Ts'o" <tytso@mit.edu>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-thinkpad@linux-thinkpad.org, "Brown, Len" <len.brown@intel.com>,
-       Volker Braun <volker.braun@physik.hu-berlin.de>
-In-Reply-To: <3.518178082@mit.edu>
-References: <3.518178082@mit.edu>
-Content-Type: text/plain
-Date: Thu, 17 Mar 2005 10:19:04 +1100
-Message-Id: <1111015144.15510.47.camel@gaston>
+	Wed, 16 Mar 2005 18:06:29 -0500
+Date: Wed, 16 Mar 2005 15:06:12 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Sean Neakums <sneakums@zork.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-mm4
+Message-Id: <20050316150612.2359a488.akpm@osdl.org>
+In-Reply-To: <6u8y4n434b.fsf@zork.zork.net>
+References: <20050316040654.62881834.akpm@osdl.org>
+	<6u8y4n434b.fsf@zork.zork.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-16 at 10:16 -0500, Theodore Y. Ts'o wrote:
-> Force the Radeon video chipset on IBM Thinkpads to use the D2 state when
-> suspending in order to save a much greater amount of power.
+Sean Neakums <sneakums@zork.net> wrote:
+>
+>  Fails to build here:
 > 
-> This patch is based on an earlier version by Volker Braun, but instead
-> of using an explicit whitelist that would have to contain hundreds of
-> entries, instead we enable going to the D2 state for IBM Thinkpads if a
-> CONFIG_EXPERIMENTAL option (CONFIG_FB_RADEON_THINKPAD_PM) is enabled and
-> use a black-list if necessary.
+>    arch/ppc/platforms/built-in.o(.pmac.text+0x6828): In function `flush_disable_caches':
+>    : undefined reference to `cpufreq_frequency_table_verify'
+>    arch/ppc/platforms/built-in.o(.pmac.text+0x6868): In function `flush_disable_caches':
+>    : undefined reference to `cpufreq_frequency_table_target'
+>    arch/ppc/platforms/built-in.o(.pmac.text+0x68f0): In function `flush_disable_caches':
+>    : undefined reference to `cpufreq_frequency_table_cpuinfo'
+>    make: *** [.tmp_vmlinux1] Error 1
 > 
-> Signed-off-by: "Theodore Ts'o" <tytso@mit.edu>
-
-You probably want to remove the bit that does
-
-	OUTREG(TV_DAC_CNTL, INREG(TV_DAC_CNTL) | 0x07000000);
-
-Or you'll lose TV output :)
-
-Ben.
-
 > 
-> Index: src/drivers/video/Kconfig
-> ===================================================================
-> --- src.orig/drivers/video/Kconfig	2005-03-14 12:40:48.000000000 -0500
-> +++ src/drivers/video/Kconfig	2005-03-16 00:40:21.000000000 -0500
-> @@ -711,6 +711,15 @@
->  	help
->  	  Say Y here if you want DDC/I2C support for your Radeon board. 
->  
-> +config FB_RADEON_THINKPAD_PM
-> +	bool "Video Power Management for Thinkpads (EXPERIMENTAL)"
-> +	depends on PM && FB_RADEON && X86 && EXPERIMENTAL
-> +	default n
-> +	help
-> +	  Say Y here if you want to force the Radeon video chipset on 
-> +	  IBM Thinkpads to use the D2 state when suspending in order to
-> +	  save a much greater amount of power.
-> +
->  config FB_RADEON_DEBUG
->  	bool "Lots of debug output from Radeon driver"
->  	depends on FB_RADEON
-> Index: src/drivers/video/aty/radeon_base.c
-> ===================================================================
-> --- src.orig/drivers/video/aty/radeon_base.c	2005-03-14 12:40:48.000000000 -0500
-> +++ src/drivers/video/aty/radeon_base.c	2005-03-14 12:40:48.000000000 -0500
-> @@ -273,6 +273,9 @@
->  #ifdef CONFIG_MTRR
->  static int nomtrr = 0;
->  #endif
-> +#ifdef CONFIG_FB_RADEON_THINKPAD_PM
-> +int radeon_force_sleep = 0;
-> +#endif
->  
->  /*
->   * prototypes
-> @@ -2535,6 +2538,10 @@
->  			force_measure_pll = 1;
->  		} else if (!strncmp(this_opt, "ignore_edid", 11)) {
->  			ignore_edid = 1;
-> +#ifdef CONFIG_FB_RADEON_THINKPAD_PM
-> +		} else if (!strncmp(this_opt, "force_sleep", 11)) {
-> +			radeon_force_sleep = 1;
-> +#endif
->  		} else
->  			mode_option = this_opt;
->  	}
-> @@ -2574,3 +2581,7 @@
->  MODULE_PARM_DESC(panel_yres, "int: set panel yres");
->  module_param(mode_option, charp, 0);
->  MODULE_PARM_DESC(mode_option, "Specify resolution as \"<xres>x<yres>[-<bpp>][@<refresh>]\" ");
-> +#ifdef CONFIG_FB_RADEON_THINKPAD_PM
-> +module_param(radeon_force_sleep, int, 0);
-> +MODULE_PARM_DESC(radeon_force_sleep, "bool: force ACPI sleep mode on untested machines");
-> +#endif
-> Index: src/drivers/video/aty/radeon_pm.c
-> ===================================================================
-> --- src.orig/drivers/video/aty/radeon_pm.c	2005-03-14 12:40:48.000000000 -0500
-> +++ src/drivers/video/aty/radeon_pm.c	2005-03-14 12:40:48.000000000 -0500
-> @@ -27,6 +27,27 @@
->  
->  #include "ati_ids.h"
->  
-> +#ifdef CONFIG_FB_RADEON_THINKPAD_PM
-> +#include <linux/dmi.h>
-> +
-> +static struct dmi_system_id __devinitdata radeonfb_dmi_table[] = {
-> +	{
-> +		.ident = "IBM ThinkPad",
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "IBM"),
-> +			DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad"),
-> +		},
-> +	},
-> +	{ },
-> +};
-> +
-> +static struct dmi_system_id __devinitdata radeonfb_dmi_blacklist[] = {
-> +	{ },
-> +};
-> +
-> +extern int radeon_force_sleep;
-> +#endif
-> +
->  void radeon_pm_disable_dynamic_mode(struct radeonfb_info *rinfo)
->  {
->  	u32 tmp;
-> @@ -2750,6 +2771,30 @@
->  #endif
->  	}
->  #endif /* defined(CONFIG_PM) && defined(CONFIG_PPC_OF) */
-> +
-> +	/* The PM code also seems to work on many IBM ThinkPad models, 
-> +	 * but of course Your Mileage May Vary.
-> +	 */
-> +#ifdef CONFIG_FB_RADEON_THINKPAD_PM
-> +	if (radeon_force_sleep || 
-> +	    (rinfo->is_mobility && rinfo->pm_reg &&
-> +	     (rinfo->family <= CHIP_FAMILY_RV250) &&
-> +	     dmi_check_system(radeonfb_dmi_table) && 
-> +	     !dmi_check_system(radeonfb_dmi_blacklist))) {
-> +		if (radeon_force_sleep)
-> +			printk("radeonfb: forcefully enabling sleep mode\n");
-> +		else
-> +			printk("radeonfb: enabling sleep mode\n");
-> +
-> +		rinfo->pm_mode |= radeon_pm_d2;
-> +
-> +		/* Power down TV DAC, that saves a significant amount of power,
-> +		 * we'll have something better once we actually have some TVOut
-> +		 * support
-> +		 */
-> +		OUTREG(TV_DAC_CNTL, INREG(TV_DAC_CNTL) | 0x07000000);
-> +	}
-> +#endif /* CONFIG_FB_RADEON_THINKPAD_PM */
->  }
->  
->  void radeonfb_pm_exit(struct radeonfb_info *rinfo)
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
+>  This patch makes it work again; there are duplicate CPU_FREQ_TABLE
+>  definitions in some arch Kconfigs.  Possibly not the Right Thing(tm).
+> 
+>  [briny(~/build/linux/S11-mm4)] find arch/ -name Kconfig | xargs grep '^config CPU_FREQ_TABLE'
+>  arch/sparc64/Kconfig:config CPU_FREQ_TABLE
+>  arch/sh/Kconfig:config CPU_FREQ_TABLE
+>  arch/ppc/Kconfig:config CPU_FREQ_TABLE
+>  arch/x86_64/kernel/cpufreq/Kconfig:config CPU_FREQ_TABLE
+
+Yes, the pmac cpufreq Kconfig dependencies are being troublesome.
+
+Roman sent this to Ben and I overnight:
+
+
+From: Roman Zippel <zippel@linux-m68k.org>
+
+This completes the Kconfig cleanup for all other archs.  CPU_FREQ_TABLE was
+moved to drivers/cpufreq/Kconfig and is selected as needed.
+
+Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ 25-akpm/arch/ppc/Kconfig                   |    6 +-----
+ 25-akpm/arch/sh/Kconfig                    |   11 +----------
+ 25-akpm/arch/sparc64/Kconfig               |   16 ++++------------
+ 25-akpm/arch/x86_64/kernel/cpufreq/Kconfig |   28 ++++++++++------------------
+ 4 files changed, 16 insertions(+), 45 deletions(-)
+
+diff -puN arch/ppc/Kconfig~complete-cpufreq-kconfig-cleanup arch/ppc/Kconfig
+--- 25/arch/ppc/Kconfig~complete-cpufreq-kconfig-cleanup	2005-03-16 15:05:33.000000000 -0800
++++ 25-akpm/arch/ppc/Kconfig	2005-03-16 15:05:33.000000000 -0800
+@@ -203,16 +203,12 @@ source "drivers/cpufreq/Kconfig"
+ config CPU_FREQ_PMAC
+ 	bool "Support for Apple PowerBooks"
+ 	depends on CPU_FREQ && ADB_PMU
++	select CPU_FREQ_TABLE
+ 	help
+ 	  This adds support for frequency switching on Apple PowerBooks,
+ 	  this currently includes some models of iBook & Titanium
+ 	  PowerBook.
+ 
+-config CPU_FREQ_TABLE
+-	tristate
+-	depends on CPU_FREQ_PMAC
+-	default y
+-
+ config PPC601_SYNC_FIX
+ 	bool "Workarounds for PPC601 bugs"
+ 	depends on 6xx && (PPC_PREP || PPC_PMAC)
+diff -puN arch/sh/Kconfig~complete-cpufreq-kconfig-cleanup arch/sh/Kconfig
+--- 25/arch/sh/Kconfig~complete-cpufreq-kconfig-cleanup	2005-03-16 15:05:33.000000000 -0800
++++ 25-akpm/arch/sh/Kconfig	2005-03-16 15:05:33.000000000 -0800
+@@ -659,19 +659,10 @@ menu "CPU Frequency scaling"
+ 
+ source "drivers/cpufreq/Kconfig"
+ 
+-config CPU_FREQ_TABLE
+-	tristate "CPU frequency table helpers"
+-	depends on CPU_FREQ
+-	default y
+-	help
+-	  Many cpufreq drivers use these helpers, so only say N here if
+-	  the cpufreq driver of your choice doesn't need these helpers.
+-
+-	  If unsure, say Y.
+-
+ config SH_CPU_FREQ
+ 	tristate "SuperH CPU Frequency driver"
+ 	depends on CPU_FREQ
++	select CPU_FREQ_TABLE
+ 	help
+ 	  This adds the cpufreq driver for SuperH. At present, only
+ 	  the SH-4 is supported.
+diff -puN arch/sparc64/Kconfig~complete-cpufreq-kconfig-cleanup arch/sparc64/Kconfig
+--- 25/arch/sparc64/Kconfig~complete-cpufreq-kconfig-cleanup	2005-03-16 15:05:33.000000000 -0800
++++ 25-akpm/arch/sparc64/Kconfig	2005-03-16 15:05:33.000000000 -0800
+@@ -136,19 +136,10 @@ config NR_CPUS
+ 
+ source "drivers/cpufreq/Kconfig"
+ 
+-config CPU_FREQ_TABLE
+-       tristate "CPU frequency table helpers"
+-       depends on CPU_FREQ
+-       default y
+-       help
+-         Many CPUFreq drivers use these helpers, so only say N here if
+-	 the CPUFreq driver of your choice doesn't need these helpers.
+-
+-	 If in doubt, say Y.
+-
+ config US3_FREQ
+ 	tristate "UltraSPARC-III CPU Frequency driver"
+-	depends on CPU_FREQ_TABLE
++	depends on CPU_FREQ
++	select CPU_FREQ_TABLE
+ 	help
+ 	  This adds the CPUFreq driver for UltraSPARC-III processors.
+ 
+@@ -158,7 +149,8 @@ config US3_FREQ
+ 
+ config US2E_FREQ
+ 	tristate "UltraSPARC-IIe CPU Frequency driver"
+-	depends on CPU_FREQ_TABLE
++	depends on CPU_FREQ
++	select CPU_FREQ_TABLE
+ 	help
+ 	  This adds the CPUFreq driver for UltraSPARC-IIe processors.
+ 
+diff -puN arch/x86_64/kernel/cpufreq/Kconfig~complete-cpufreq-kconfig-cleanup arch/x86_64/kernel/cpufreq/Kconfig
+--- 25/arch/x86_64/kernel/cpufreq/Kconfig~complete-cpufreq-kconfig-cleanup	2005-03-16 15:05:33.000000000 -0800
++++ 25-akpm/arch/x86_64/kernel/cpufreq/Kconfig	2005-03-16 15:05:33.000000000 -0800
+@@ -6,22 +6,13 @@ menu "CPU Frequency scaling"
+ 
+ source "drivers/cpufreq/Kconfig"
+ 
+-config CPU_FREQ_TABLE
+-       tristate "CPU frequency table helpers"
+-       depends on CPU_FREQ
+-       default y
+-       help
+-         Many CPUFreq drivers use these helpers, so only say N here if
+-	 the CPUFreq driver of your choice doesn't need these helpers.
+-
+-	 If in doubt, say Y.
++if CPU_FREQ
+ 
+ comment "CPUFreq processor drivers"
+-       depends on CPU_FREQ
+ 
+ config X86_POWERNOW_K8
+ 	tristate "AMD Opteron/Athlon64 PowerNow!"
+-	depends on CPU_FREQ_TABLE
++	select CPU_FREQ_TABLE
+ 	help
+ 	  This adds the CPUFreq driver for mobile AMD Opteron/Athlon64 processors.
+ 
+@@ -31,12 +22,14 @@ config X86_POWERNOW_K8
+ 
+ config X86_POWERNOW_K8_ACPI
+ 	bool
+-	depends on ((X86_POWERNOW_K8 = "m" && ACPI_PROCESSOR) || (X86_POWERNOW_K8 = "y" && ACPI_PROCESSOR = "y"))
++	depends on X86_POWERNOW_K8 && ACPI_PROCESSOR
++	depends on !(X86_POWERNOW_K8 = y && ACPI_PROCESSOR = m)
+ 	default y
+ 
+ config X86_SPEEDSTEP_CENTRINO
+ 	tristate "Intel Enhanced SpeedStep"
+-	depends on CPU_FREQ_TABLE && ACPI_PROCESSOR
++	select CPU_FREQ_TABLE
++	depends on ACPI_PROCESSOR
+ 	help
+ 	  This adds the CPUFreq driver for Enhanced SpeedStep enabled
+ 	  mobile CPUs.  This means Intel Pentium M (Centrino) CPUs
+@@ -53,7 +46,7 @@ config X86_SPEEDSTEP_CENTRINO_ACPI
+ 
+ config X86_ACPI_CPUFREQ
+ 	tristate "ACPI Processor P-States driver"
+-	depends on CPU_FREQ_TABLE && ACPI_PROCESSOR
++	depends on ACPI_PROCESSOR
+ 	help
+ 	  This driver adds a CPUFreq driver which utilizes the ACPI
+ 	  Processor Performance States.
+@@ -63,7 +56,6 @@ config X86_ACPI_CPUFREQ
+ 	  If in doubt, say N.
+ 
+ comment "shared options"
+-	depends on CPU_FREQ
+ 
+ config X86_ACPI_CPUFREQ_PROC_INTF
+         bool "/proc/acpi/processor/../performance interface (deprecated)"
+@@ -78,7 +70,7 @@ config X86_ACPI_CPUFREQ_PROC_INTF
+ 
+ config X86_P4_CLOCKMOD
+ 	tristate "Intel Pentium 4 clock modulation"
+-	depends on CPU_FREQ_TABLE && EMBEDDED
++	depends on EMBEDDED
+ 	help
+ 	  This adds the clock modulation driver for Intel Pentium 4 / XEON
+ 	  processors.  When enabled it will lower CPU temperature by skipping
+@@ -96,9 +88,9 @@ config X86_P4_CLOCKMOD
+ 
+ config X86_SPEEDSTEP_LIB
+         tristate
+-        depends on (X86_P4_CLOCKMOD)
+-        default (X86_P4_CLOCKMOD)
++        default X86_P4_CLOCKMOD
+ 
++endif
+ 
+ endmenu
+ 
+_
 

@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129076AbQKPSox>; Thu, 16 Nov 2000 13:44:53 -0500
+	id <S129069AbQKPSrf>; Thu, 16 Nov 2000 13:47:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129132AbQKPSon>; Thu, 16 Nov 2000 13:44:43 -0500
-Received: from sisley.ri.silicomp.fr ([62.160.165.44]:9487 "EHLO
-	sisley.ri.silicomp.fr") by vger.kernel.org with ESMTP
-	id <S129076AbQKPSod>; Thu, 16 Nov 2000 13:44:33 -0500
-Date: Thu, 16 Nov 2000 19:14:21 +0100 (CET)
-From: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: viro@math.psu.edu, linux-kernel@vger.kernel.org,
-        Eric Paire <paire@ri.silicomp.fr>
-Subject: Re: [BUG] Inconsistent behaviour of rmdir
-In-Reply-To: <Pine.LNX.4.10.10011160747260.2184-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0011161904580.30811-100000@sisley.ri.silicomp.fr>
+	id <S129132AbQKPSrZ>; Thu, 16 Nov 2000 13:47:25 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15424 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129069AbQKPSrK>; Thu, 16 Nov 2000 13:47:10 -0500
+Subject: Re: APM oops with Dell 5000e laptop
+To: dax@gurulabs.com (Dax Kelson)
+Date: Thu, 16 Nov 2000 18:17:50 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.SOL.4.30.0011161054420.16124-100000@ultra1.inconnect.com> from "Dax Kelson" at Nov 16, 2000 10:59:27 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13wTbc-0008BC-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Nov 2000, Linus Torvalds wrote:
+> The kernel works around/ignores/disables other broken hardware or broken
+> features of otherwise working hardware with black lists.  There will be
+> many *many* of these laptops sold.
 
-> The cwd is not the problem. The '.' is.
-> 
-> The reason for that check is that allowing "rmdir(".")" confuses a lot of
-> UNIX programs, because it wasn't traditionally allowed.
+And I hope many many of these people demand BIOS upgrades or send them back.
 
-This is a point I don't understand here : do you mean that they are
-confused if they can rmdir "." but not if they can rmdir their cwd
-differently ? What's the difference ?
+> Is there a way to uniquely identify the affected BIOSes at boot time and
 
-I am not saying that rmdir MUST be allowed on "." ; I just suggested that
-it be allowed _because_ you can rmdir your cwd anyway. Now if rmdir "." is
-forbidden, then I think rmdir `pwd` should fail as well. Or am I missing
-something ?
+Im looking at one with some pointers from Dell. It won't be in 2.2.18 so its
+quite likely a fixed BIOS will be out first anyway.
 
-
--- 
-Jean-Marc Saffroy - Research Engineer - Silicomp Research Institute
-mailto:jms@migrantprogrammer.com
+Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

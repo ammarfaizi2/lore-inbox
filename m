@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275945AbTHOMmY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 08:42:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275946AbTHOMmY
+	id S275968AbTHOMhf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 08:37:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275969AbTHOMhe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 08:42:24 -0400
-Received: from smtp3.att.ne.jp ([165.76.15.139]:29063 "EHLO smtp3.att.ne.jp")
-	by vger.kernel.org with ESMTP id S275945AbTHOMmP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 08:42:15 -0400
-Message-ID: <0d7c01c3632a$668da140$1aee4ca5@DIAMONDLX60>
-From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: "Russell King" <rmk@arm.linux.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-References: <0a5b01c36305$4dec8b80$1aee4ca5@DIAMONDLX60> <20030815111442.A12422@flint.arm.linux.org.uk>
-Subject: Re: Trying to run 2.6.0-test3
-Date: Fri, 15 Aug 2003 21:39:07 +0900
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Fri, 15 Aug 2003 08:37:34 -0400
+Received: from uni00du.unity.ncsu.edu ([152.1.13.100]:47744 "EHLO
+	uni00du.unity.ncsu.edu") by vger.kernel.org with ESMTP
+	id S275968AbTHOMhc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 08:37:32 -0400
+From: jlnance@unity.ncsu.edu
+Date: Fri, 15 Aug 2003 08:37:08 -0400
+To: mouschi@wi.rr.com, linux-kernel@vger.kernel.org
+Subject: Re: Interesting VM feature?
+Message-ID: <20030815123708.GA2231@ncsu.edu>
+References: <13dedd139cb9.139cb913dedd@rdc-kc.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <13dedd139cb9.139cb913dedd@rdc-kc.rr.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Russell King" <rmk@arm.linux.org.uk> replied to me:
+On Thu, Aug 14, 2003 at 09:17:07PM -0500, mouschi@wi.rr.com wrote:
 
-> > 1.  Although both yenta and i82365 are compiled in, my 16-bit NE2000 clone
-> > isn't recognized.  If I boot kernel 2.4.19 I can use the network, if I
-> > boot kernel 2.6.0 I can't find any way to use the network.  Partial output
-> > of various commands and files are shown below.
->
-> As a general rule, you should be using yenta not i82365.  There have
-> been some historical problems when you build both into the kernel,
-> so you might like to try disabling i82365.
+> What this mempool wants to do is to be able to
+> allocate a block of memory and tell the kernel which
+> pages from it can be outright discarded, instead of
+> swapped out when memory starts to get crowded. 
 
-I will do that in my next build.  For some reason I wasn't sure if yenta
-would handle 16-bit cards.  But this turns out not to be necessary.  Also
-the PCMCIA suggestions which Felipe Alfaro Solana suggested (the suggestions
-which I intended to try) turned out not to be necessary.  The winner is the
-next one:
+I think you might be able to get what you want with madvise() or perhaps
+by mmap()ing new clean pages on top of the pages you want to throw away.
 
-> I don't see any sign of cardmgr starting up in your message logs,
+> I'm going to keep reading. If this is already
+> implemented, or if the efficiency gains would be
+> nil, somebody yell at me before I start crashing my
 
-You're right.  I started it from the command line.  It didn't recognize the
-existing card, but "cardctl eject 0" followed by "cardctl insert 0" taught it.
+I would not implement this unless you either know you have a problem
+with your mempool swap speed or you are bored.  I doubt it is going
+to help a lot, and it will certainly simplify your code to leave it
+out.  If you later find that you have performance problems you can
+look into this again.
 
-Now the question is why cardmgr doesn't start automatically in 2.6.0-test3.
-In 2.4.19, PCMCIA support was a module, for which I guess I never bothered
-to change SuSE's default.  In 2.6.0-test1 since had to set all options
-myself, I compiled in PCMCIA support, and it's still that way in test3.
-I'll try to see if I can find the reason, though of course you might be able
-to guess it instantaneously.
+Thanks,
 
-Thank you.
+Jim

@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131489AbQLVSlr>; Fri, 22 Dec 2000 13:41:47 -0500
+	id <S131360AbQLVSl6>; Fri, 22 Dec 2000 13:41:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131370AbQLVSli>; Fri, 22 Dec 2000 13:41:38 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:38908 "EHLO
-	webber.adilger.net") by vger.kernel.org with ESMTP
-	id <S129870AbQLVSlZ>; Fri, 22 Dec 2000 13:41:25 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200012221809.eBMI9jA27136@webber.adilger.net>
-Subject: Re: recommended gcc compiler version
-In-Reply-To: <200012220700.XAA09901@pobox.com> "from Barry K. Nathan at Dec 21,
- 2000 11:00:46 pm"
-To: barryn@pobox.com
-Date: Fri, 22 Dec 2000 11:09:45 -0700 (MST)
-CC: "Robert B. Easter" <reaster@comptechnews.com>,
-        linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+	id <S131370AbQLVSlr>; Fri, 22 Dec 2000 13:41:47 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:7296 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S131360AbQLVSle>;
+	Fri, 22 Dec 2000 13:41:34 -0500
+Date: Fri, 22 Dec 2000 10:11:06 -0800 (PST)
+From: J J Sloan <jjs@mirai.cx>
+To: linux-kernel@vger.kernel.org
+Subject: drm woes continue in test13-pre4
+Message-ID: <Pine.LNX.4.10.10012221002580.812-100000@mirai.cx>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Barry writes:
-> > Linux 2.2.18?
-> 
-> gcc 2.7.2.3 is safest, but egcs 1.1.2 should be safe even for
-> mission-critical stuff. gcc 2.95.2 seems to work for many people, but
-> isn't necessarily safe.
+Greetings,
 
-Speaking of this - I had problems with a gcc 2.95.2 compiled 2.2.18+IDE patch,
-yet the same kernel compiled with egcs is OK.  On one system the 2.95.2
-kernel complained at partition checking time, but seemed to work OK, and
-on an SMP box, the kernel would just panic at partition checking time.
+Up to and including -test12, tdfx.o has built and run nicely.
 
-If anyone is interested in looking at this (gcc folks or whatever), I
-have KDB in that kernel and can send you a stack trace at the panic.
-Otherwise, I'll just stick with egcs.
+Starting with -test13-pre1, and continuing to -test13-pre4,
+tdfx.o (and other modules e,g the olympic.o token ring driver)
+have not been successfully created. In general, modules work fine,
+it's just a few that have been broken byu the makefile changes.
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+# uname -r
+2.4.0-test13-pre4 
+
+# lsmod
+Module                  Size  Used by
+iptable_filter          1872   0  (autoclean) (unused)
+ip_nat_ftp              3408   0  (unused)
+iptable_nat            12672   1  [ip_nat_ftp]
+ip_conntrack_ftp        2048   0  (unused)
+ip_conntrack           13056   2  [ip_nat_ftp iptable_nat
+ip_conntrack_ftp]
+ip_tables              10624   4  [iptable_filter iptable_nat]
+ide-scsi                8096   0 
+8139too                15632   2  (autoclean)
+emu10k1                45232   0 
+
+However, "modprobe tdfx" yields 34 lines of "unresolved symbol" 
+messages and a failure to load the module.
+
+Other info: 
+modutils version: 2.3.21
+gcc version: egcs-2.91.66
+
+More info on request
+
+Hope this helps direct attention to the problem -
+
+jjs
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

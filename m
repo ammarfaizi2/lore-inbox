@@ -1,87 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135283AbRDWPTx>; Mon, 23 Apr 2001 11:19:53 -0400
+	id <S135292AbRDWPVX>; Mon, 23 Apr 2001 11:21:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135292AbRDWPTo>; Mon, 23 Apr 2001 11:19:44 -0400
-Received: from fe070.worldonline.dk ([212.54.64.208]:26638 "HELO
-	fe070.worldonline.dk") by vger.kernel.org with SMTP
-	id <S135283AbRDWPTh>; Mon, 23 Apr 2001 11:19:37 -0400
-Message-ID: <3AE449A3.3050601@eisenstein.dk>
-Date: Mon, 23 Apr 2001 17:26:27 +0200
-From: Jesper Juhl <juhl@eisenstein.dk>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-mosix i586; en-US; m18) Gecko/20010131 Netscape6/6.01
-X-Accept-Language: en, da
-MIME-Version: 1.0
+	id <S135293AbRDWPVO>; Mon, 23 Apr 2001 11:21:14 -0400
+Received: from cs1-hq.oecd.org ([193.51.65.66]:46091 "EHLO cs1-hq.oecd.org")
+	by vger.kernel.org with ESMTP id <S135292AbRDWPVG>;
+	Mon, 23 Apr 2001 11:21:06 -0400
+Date: Mon, 23 Apr 2001 17:20:35 +0200
+From: =?iso-8859-1?Q?R=EDkhar=F0ur_Egilsson?= 
+	<Rikhardur.EGILSSON@oecd.org>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] pedantic code cleanup - am I wasting my time with this?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [2.2.19 reiserfs] vs-8345: get_mem_for_virtual_node: kmalloc failed.
+Message-ID: <20010423172035.A4359@OECD.OECD.ORG>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+X-Q: Why pay for drugs when you can get Linux for free ?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi people,
+This machine is has a 400MHz PII, Adaptec AIC-7895, 631 MB of memory,
+and about 512 Meg of swap).
 
-I'm reading through various pieces of source code to try and get an 
-understanding of how the kernel works (with the hope that I'll 
-eventually be able to contribute something really usefull, but you've 
-got to start somewhere ;)
+When compiling the kernel (2.2.19) I changed __FD_SETSIZE in
+/usr/include/bits/types.h from 1024 to 8192.
+(Increased number of file descriptors)
 
-While reading through the source I've stumbled across various bits and 
-pieces that are not exactely wrong, but not strictly correct either. I 
-was wondering if I would be wasting my time by cleaning this up or if it 
-would actually be appreciated. One example of these things is the patch 
-below:
+The following is executed at boot time:
 
---- linux-2.4.3-vanilla/include/linux/rtnetlink.h       Sun Apr 22 
-02:29:20 2001
-+++ linux-2.4.3/include/linux/rtnetlink.h       Mon Apr 23 17:09:02 2001
-@@ -112,7 +112,7 @@
-         RTN_PROHIBIT,           /* Administratively prohibited  */
-         RTN_THROW,              /* Not in this table            */
-         RTN_NAT,                /* Translate this address       */
--       RTN_XRESOLVE,           /* Use external resolver        */
-+       RTN_XRESOLVE            /* Use external resolver        */
-  };
+# More file descriptors
+echo 8192 > /proc/sys/fs/file-max
 
-  #define RTN_MAX RTN_XRESOLVE
-@@ -278,7 +278,7 @@
-  #define RTAX_CWND RTAX_CWND
-         RTAX_ADVMSS,
-  #define RTAX_ADVMSS RTAX_ADVMSS
--       RTAX_REORDERING,
-+       RTAX_REORDERING
-  #define RTAX_REORDERING RTAX_REORDERING
-  };
+# Inodes 4x the file-max
+echo 32768 > /proc/sys/fs/inode-max
+# More user ports
+echo 1024 32768 > /proc/sys/net/ipv4/ip_local_port_range
 
-@@ -501,7 +501,7 @@
-         TCA_OPTIONS,
-         TCA_STATS,
-         TCA_XSTATS,
--       TCA_RATE,
-+       TCA_RATE
-  };
+echo 768 > /proc/sys/net/ipv4/tcp_max_syn_backlog
 
-  #define TCA_MAX TCA_RATE
+echo 120 >  /proc/sys/net/ipv4/tcp_fin_timeout
 
 
-All the above does is to remove the last comma from 3 enumeration lists. 
-I know that gcc has no problem with that, but to be strictly correct the 
-last entry should not have a trailing comma.
+And I started to see this recenty : 
 
-Another example is the following line (1266) from linux/include/net/sock.h
+Apr 19 11:54:24 netcache2 kernel: eth0: Memory squeeze, deferring packet.
+Apr 19 11:54:24 netcache2 kernel: eth0: Memory squeeze, deferring packet.
+Apr 19 11:54:33 netcache2 last message repeated 1113 times
+Apr 19 11:54:33 netcache2 kernel: mem_for_virtual_node: kmalloc failed.  There were 272 allocations
+Apr 19 11:54:33 netcache2 last message repeated 1113 times
+Apr 19 11:54:33 netcache2 kernel: mem_for_virtual_node: kmalloc failed.  There were 272 allocations
+Apr 19 11:54:33 netcache2 kernel: vs-8345: get_mem_for_virtual_node: kmalloc failed.  There were 272 allocations
+Apr 19 11:54:33 netcache2 kernel: vs-8345: get_mem_for_virtual_node: kmalloc failed.  There were 272 allocations
 
-         return (waitall ? len : min(sk->rcvlowat, len)) ? : 1;
+...
+...
+This goes on until ...
 
-To be strictly correct the second expression (between '?' and ':' ) 
-should not be omitted (all you guys already know that ofcourse).
-
-Would patches that clean up stuff like that be appreciated or am I just 
-wasting my time?
-Should I just adopt an 'if gcc -Wall does not complain then it's ok' 
-attitude and leave this stuff alone?
-
-
-Best regards,
-Jesper Juhl - juhl@eisenstein.dk
+Apr 19 11:56:45 netcache2 kernel: vs-8345: get_mem_for_virtual_node: kmalloc failed.  There were 272 allocations
+Apr 19 11:56:45 netcache2 last message repeated 198 times
+Apr 19 11:56:53 netcache2 squid[8377]: Squid Parent: child process 8439 exited due to signal 6
+Apr 19 11:56:45 netcache2 last message repeated 198 times
+Apr 19 11:56:53 netcache2 squid[8377]: Squid Parent: child process 8439 exited due to signal 6
+Apr 19 11:56:56 netcache2 squid[8377]: Squid Parent: child process 13195 started
+Apr 19 11:56:56 netcache2 squid[8377]: Squid Parent: child process 13195 started
 
 
+Is there anything I can do to prevent this from happening ?
+
+This (squid) server, serves about 50 requests/sec, so 2 minutes of downtime
+means a lot of unhappy "customers". 
+
+
+-- 
+ Ríkharður Egilsson - Networking/Security EXD/ITN/CCO
+ OECD/OCDE - Organisation for Economic Co-operation and Development

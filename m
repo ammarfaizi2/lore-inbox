@@ -1,45 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261660AbSL1Owj>; Sat, 28 Dec 2002 09:52:39 -0500
+	id <S261581AbSL1OvP>; Sat, 28 Dec 2002 09:51:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261721AbSL1Owj>; Sat, 28 Dec 2002 09:52:39 -0500
-Received: from host194.steeleye.com ([66.206.164.34]:22287 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S261660AbSL1Owi>; Sat, 28 Dec 2002 09:52:38 -0500
-Message-Id: <200212281500.gBSF0pc01929@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Tomas Szepe <szepe@pinerecords.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Samuel Flory <sflory@rackable.com>,
-       "Justin T. Gibbs" <gibbs@scsiguy.com>,
-       Janet Morgan <janetmor@us.ibm.com>, "" <linux-scsi@vger.kernel.org>,
-       "" <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] aic7xxx bouncing over 4G 
-In-Reply-To: Message from Rik van Riel <riel@conectiva.com.br> 
-   of "Sat, 28 Dec 2002 11:33:02 -0200." <Pine.LNX.4.50L.0212281131580.26879-100000@imladris.surriel.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 28 Dec 2002 09:00:51 -0600
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S261545AbSL1OvP>; Sat, 28 Dec 2002 09:51:15 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:43910 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
+	id <S261581AbSL1OvO>; Sat, 28 Dec 2002 09:51:14 -0500
+Date: Sat, 28 Dec 2002 07:05:33 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [RFT][PATCH] generic device DMA implementation
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: James.bottomley@steeleye.com, linux-kernel@vger.kernel.org,
+       manfred@colorfulllife.com
+Message-id: <3E0DBDBD.80701@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+References: <200212280248.SAA25890@adam.yggdrasil.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-riel@conectiva.com.br said:
-> If it's the new driver, it's breaking on WAY too many machines and I
-> have no idea why it got ever merged... 
+Adam J. Richter wrote:
+> At 2002-12-28 1:29:54 GMT, David Brownell wrote:
+> 
+>>Isn't the goal to make sure that for every kind of "struct device *"
+>>it should be possible to use those dma_*() calls, without BUGging
+>>out.
+> 
+> 	No.
+> 
+>>If that's not true ... then why were they defined?
+> 
+> 	So that other memory mapped busses such as ISA and sbus
+> can use them.
 
-It got merged because no-one was testing it when supplied in its current form 
-outside the 2.5 tree and because no-one was fixing the older incarnation of 
-this driver that was in the tree.  Including it was a caclulated risk 
-mitigated significantly because we still have a maintained aic7xxx_old driver.
+That sounds like a "yes", not a "no" ... except for devices on busses
+that don't have do memory mapped I/O.  It's what I described:  dma_*()
+calls being used with struct device, without BUGging out.
 
-So far, the only bug report I have is from Andrew Morton proving that it still 
-doesn't get it's bounce buffers right.
 
-I assume all your bug reports are on their way to linux-scsi?
+> 	USB devices should do DMA operations with respect to their USB
+> host adapters, typically a PCI device.  For example, imagine a machine
+> with two USB controllers on different bus instances.
 
-James
+USB already does that ... you write as if it didn't.  It's done that
+since pretty early in the 2.4 series, when conversions to the "new" PCI
+DMA APIs replaced usage of virt_to_bus and bus_to_virt and USB became
+usable on platforms that weren't very PC-like.  Controllers that don't
+use PCI also need Linux support, in embedded configs.
+
+However, the device drivers can't do that using the not-yet-generic DMA
+calls.  It's handled by usbcore, or by the USB DMA calls.  That works,
+and will continue to do so ... but it does highlight how "generic" the
+implementation of those APIs is (not very).
+
+- Dave
+
 
 

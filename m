@@ -1,71 +1,150 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267526AbTACOAe>; Fri, 3 Jan 2003 09:00:34 -0500
+	id <S267523AbTACO3W>; Fri, 3 Jan 2003 09:29:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267523AbTACOAe>; Fri, 3 Jan 2003 09:00:34 -0500
-Received: from blackbird.intercode.com.au ([203.32.101.10]:1293 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id <S267522AbTACOAc>; Fri, 3 Jan 2003 09:00:32 -0500
-Date: Sat, 4 Jan 2003 01:08:59 +1100 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: sparclinux@vger.kernel.org
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.5.54-sparc64 compile errors
-In-Reply-To: <Pine.LNX.3.96.1030102191604.22760J-100000@ligur.expressz.com>
-Message-ID: <Mutt.LNX.4.44.0301040101070.17638-100000@blackbird.intercode.com.au>
+	id <S267525AbTACO3W>; Fri, 3 Jan 2003 09:29:22 -0500
+Received: from [62.39.112.246] ([62.39.112.246]:24977 "EHLO dot.kde.org")
+	by vger.kernel.org with ESMTP id <S267523AbTACO3U>;
+	Fri, 3 Jan 2003 09:29:20 -0500
+Date: Fri, 3 Jan 2003 16:22:14 +0100 (CET)
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+X-X-Sender: bero@dot.kde.org
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com, "" <alan@lxorguk.ukuu.org.uk>,
+       "" <marcelo@conectiva.com.br>
+Subject: [PATCH] AGP support for VIA P4X333 boards
+Message-ID: <Pine.LNX.4.50.0301031438080.29994-300000@dot.kde.org>
+X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
+X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="658437744-552910360-1041601325=:29994"
+Content-ID: <Pine.LNX.4.50.0301031621410.16422@dot.kde.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Jan 2003, BODA Karoly jr. wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> o And an error which with I can't do anything... :(
-> 
->   sparc64-linux-gcc -Wp,-MD,arch/sparc64/kernel/.head.o.d -D__ASSEMBLY__
-> -D__KERNEL__ -Iinclude -m64 -mcpu=ultrasparc -Wa,--undeclared-regs
-> -nostdinc -iwithprefix include  -ansi  -c -o arch/sparc64/kernel/head.o
-> arch/sparc64/kernel/head.S
-> In file included from include/linux/cache.h:4,
->                  from include/asm/smp.h:11,
->                  from arch/sparc64/kernel/entry.S:15,
->                  from arch/sparc64/kernel/head.S:734:
-> include/linux/kernel.h:31: warning: `ALIGN' redefined
-> include/linux/linkage.h:24: warning: this is the location of the previous definition
-> 
+--658437744-552910360-1041601325=:29994
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.50.0301031621411.16422@dot.kde.org>
 
-This is a namespace collision introduced with ALIGN() being moved to
-kernel.h.  A patch below resolves this for sparc64 by not including some
-non-asm headers when compiling assembler, although the namespace issue
-itself may still need to be fixed (e.g. change ALIGN() to ALIGN_TO() 
-in kernel.h ?).  
+SSIA
+The patch adds AGP support for VIA P4X333 mainboards [by simply adding the 
+PCI IDs, the generic VIA driver works].
 
-It looks like sparc32 has a similar problem.
+LLaP
+bero
 
-
-- James
 -- 
-James Morris
-<jmorris@intercode.com.au>
+Ark Linux - Linux for the masses
+http://www.arklinux.org/
+--658437744-552910360-1041601325=:29994
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="linux-2.4.20-ViaP4X333.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.50.0301031442050.29994@dot.kde.org>
+Content-Description: Patch for vanilla 2.4.20
+Content-Disposition: ATTACHMENT; FILENAME="linux-2.4.20-ViaP4X333.patch"
 
-diff -urN -X dontdiff linux-2.5.54.orig/include/asm-sparc64/smp.h linux-2.5.54.w1/include/asm-sparc64/smp.h
---- linux-2.5.54.orig/include/asm-sparc64/smp.h	Wed Oct  9 22:39:39 2002
-+++ linux-2.5.54.w1/include/asm-sparc64/smp.h	Sat Jan  4 00:43:28 2003
-@@ -7,13 +7,14 @@
- #define _SPARC64_SMP_H
- 
- #include <linux/config.h>
--#include <linux/threads.h>
--#include <linux/cache.h>
- #include <asm/asi.h>
- #include <asm/starfire.h>
- #include <asm/spitfire.h>
- 
- #ifndef __ASSEMBLY__
-+#include <linux/threads.h>
-+#include <linux/cache.h>
-+
- /* PROM provided per-processor information we need
-  * to start them all up.
-  */
+LS0tIGxpbnV4LTIuNC4yMC9pbmNsdWRlL2xpbnV4L3BjaV9pZHMuaC5iZXJv
+CUZyaSBKYW4gIDMgMTM6NDk6MDkgMjAwMw0KKysrIGxpbnV4LTIuNC4yMC9p
+bmNsdWRlL2xpbnV4L3BjaV9pZHMuaAlGcmkgSmFuICAzIDEzOjQ5OjM3IDIw
+MDMNCkBAIC05ODYsNiArOTg2LDcgQEANCiAjZGVmaW5lIFBDSV9ERVZJQ0Vf
+SURfVklBXzgyMzNDXzAJMHgzMTA5DQogI2RlZmluZSBQQ0lfREVWSUNFX0lE
+X1ZJQV84MzYxCQkweDMxMTINCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfVklB
+XzgyMzNBCQkweDMxNDcNCisjZGVmaW5lIFBDSV9ERVZJQ0VfSURfVklBX1A0
+WDMzMwkweDMxNjgNCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfVklBXzg2QzEw
+MEEJMHg2MTAwDQogI2RlZmluZSBQQ0lfREVWSUNFX0lEX1ZJQV84MjMxCQkw
+eDgyMzENCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfVklBXzgyMzFfNAkweDgy
+MzUNCi0tLSBsaW51eC0yLjQuMjAvaW5jbHVkZS9saW51eC9hZ3BfYmFja2Vu
+ZC5oLmJlcm8JRnJpIEphbiAgMyAxMzo0OTo0NSAyMDAzDQorKysgbGludXgt
+Mi40LjIwL2luY2x1ZGUvbGludXgvYWdwX2JhY2tlbmQuaAlGcmkgSmFuICAz
+IDEzOjUwOjAxIDIwMDMNCkBAIC02MCw2ICs2MCw3IEBADQogCVZJQV9BUE9M
+TE9fUFJPLA0KIAlWSUFfQVBPTExPX0tYMTMzLA0KIAlWSUFfQVBPTExPX0tU
+MTMzLA0KKwlWSUFfQVBPTExPX1A0WDQwMCwNCiAJU0lTX0dFTkVSSUMsDQog
+CUFNRF9HRU5FUklDLA0KIAlBTURfSVJPTkdBVEUsDQotLS0gbGludXgtMi40
+LjIwL2RyaXZlcnMvY2hhci9kcm0vZHJtX2FncHN1cHBvcnQuaC5iZXJvCUZy
+aSBKYW4gIDMgMTM6NTA6MTcgMjAwMw0KKysrIGxpbnV4LTIuNC4yMC9kcml2
+ZXJzL2NoYXIvZHJtL2RybV9hZ3BzdXBwb3J0LmgJRnJpIEphbiAgMyAxMzo1
+MDo0OSAyMDAzDQpAQCAtMjgxLDYgKzI4MSw4IEBADQogCQkJYnJlYWs7DQog
+CQljYXNlIFZJQV9BUE9MTE9fUFJPOiAJaGVhZC0+Y2hpcHNldCA9ICJWSUEg
+QXBvbGxvIFBybyI7DQogCQkJYnJlYWs7DQorCQljYXNlIFZJQV9BUE9MTE9f
+UDRYNDAwOgloYXJkLT5jaGlwc2V0ID0gIlZJQSBBcG9sbG8gUDRYNDAwIjsN
+CisJCQlicmVhazsNCiANCiAJCWNhc2UgU0lTX0dFTkVSSUM6CWhlYWQtPmNo
+aXBzZXQgPSAiU2lTIjsgICAgICAgICAgIGJyZWFrOw0KIAkJY2FzZSBBTURf
+R0VORVJJQzoJaGVhZC0+Y2hpcHNldCA9ICJBTUQiOyAgICAgICAgICAgYnJl
+YWs7DQotLS0gbGludXgtMi40LjIwL2RyaXZlcnMvY2hhci9hZ3AvYWdwZ2Fy
+dF9iZS5jLmJlcm8JRnJpIEphbiAgMyAxMzo1MDo1OSAyMDAzDQorKysgbGlu
+dXgtMi40LjIwL2RyaXZlcnMvY2hhci9hZ3AvYWdwZ2FydF9iZS5jCUZyaSBK
+YW4gIDMgMTM6NTE6NDYgMjAwMw0KQEAgLTQ3MTQsNiArNDcxNCwxMiBAQA0K
+IAkJIlZpYSIsDQogCQkiQXBvbGxvIFBybyBLVDI2NiIsDQogCQl2aWFfZ2Vu
+ZXJpY19zZXR1cCB9LA0KKwl7IFBDSV9ERVZJQ0VfSURfVklBX1A0WDMzMywN
+CisJCVBDSV9WRU5ET1JfSURfVklBLA0KKwkJVklBX0FQT0xMT19QNFg0MDAs
+DQorCQkiVmlhIiwNCisJCSJBcG9sbG8gUDRYNDAwIiwNCisJCXZpYV9nZW5l
+cmljX3NldHVwIH0sDQogCXsgMCwNCiAJCVBDSV9WRU5ET1JfSURfVklBLA0K
+IAkJVklBX0dFTkVSSUMsDQotLS0gbGludXgtMi40LjIwL2RyaXZlcnMvY2hh
+ci9kcm0tNC4wL2FncHN1cHBvcnQuYy5iZXJvCUZyaSBKYW4gIDMgMTM6NTI6
+MDEgMjAwMw0KKysrIGxpbnV4LTIuNC4yMC9kcml2ZXJzL2NoYXIvZHJtLTQu
+MC9hZ3BzdXBwb3J0LmMJRnJpIEphbiAgMyAxMzo1MjoyMiAyMDAzDQpAQCAt
+Mjc1LDYgKzI3NSw3IEBADQogCQkJYnJlYWs7DQogCQljYXNlIFZJQV9BUE9M
+TE9fS1QxMzM6CWhlYWQtPmNoaXBzZXQgPSAiVklBIEFwb2xsbyBLVDEzMyI7
+IA0KIAkJCWJyZWFrOw0KKwkJY2FzZSBWSUFfQVBPTExPX1A0WDQwMDoJaGVh
+ZC0+Y2hpcHNldCA9ICJWSUEgQXBvbGxvIFA0WDQwMCI7DQogI2VuZGlmDQog
+DQogCQljYXNlIFZJQV9BUE9MTE9fUFJPOiAJaGVhZC0+Y2hpcHNldCA9ICJW
+SUEgQXBvbGxvIFBybyI7DQo=
+--658437744-552910360-1041601325=:29994
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="linux-2.4.20-ac2-ViaP4X333.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.50.0301031442051.29994@dot.kde.org>
+Content-Description: Patch for 2.4.20-ac2
+Content-Disposition: ATTACHMENT; FILENAME="linux-2.4.20-ac2-ViaP4X333.patch"
 
+LS0tIGxpbnV4LTIuNC4yMC9pbmNsdWRlL2xpbnV4L3BjaV9pZHMuaC5wNHgz
+MzN+CUZyaSBKYW4gIDMgMTM6Mjc6MjUgMjAwMw0KKysrIGxpbnV4LTIuNC4y
+MC9pbmNsdWRlL2xpbnV4L3BjaV9pZHMuaAlGcmkgSmFuICAzIDEzOjI3OjM2
+IDIwMDMNCkBAIC0xMDE0LDYgKzEwMTQsNyBAQA0KICNkZWZpbmUgUENJX0RF
+VklDRV9JRF9WSUFfODIzM0NfMAkweDMxMDkNCiAjZGVmaW5lIFBDSV9ERVZJ
+Q0VfSURfVklBXzgzNjEJCTB4MzExMg0KICNkZWZpbmUgUENJX0RFVklDRV9J
+RF9WSUFfODIzM0EJCTB4MzE0Nw0KKyNkZWZpbmUgUENJX0RFVklDRV9JRF9W
+SUFfUDRYMzMzCTB4MzE2OA0KICNkZWZpbmUgUENJX0RFVklDRV9JRF9WSUFf
+ODIzNQkJMHgzMTc3DQogI2RlZmluZSBQQ0lfREVWSUNFX0lEX1ZJQV84Mzc3
+XzAJMHgzMTg5DQogI2RlZmluZSBQQ0lfREVWSUNFX0lEX1ZJQV84NkMxMDBB
+CTB4NjEwMA0KLS0tIGxpbnV4LTIuNC4yMC9pbmNsdWRlL2xpbnV4L2FncF9i
+YWNrZW5kLmgucDR4MzMzfglGcmkgSmFuICAzIDEzOjMwOjMxIDIwMDMNCisr
+KyBsaW51eC0yLjQuMjAvaW5jbHVkZS9saW51eC9hZ3BfYmFja2VuZC5oCUZy
+aSBKYW4gIDMgMTM6MzA6NDcgMjAwMw0KQEAgLTYxLDYgKzYxLDcgQEANCiAJ
+VklBX0FQT0xMT19LWDEzMywNCiAJVklBX0FQT0xMT19LVDEzMywNCiAJVklB
+X0FQT0xMT19LVDQwMCwNCisJVklBX0FQT0xMT19QNFg0MDAsDQogCVNJU19H
+RU5FUklDLA0KIAlBTURfR0VORVJJQywNCiAJQU1EX0lST05HQVRFLA0KLS0t
+IGxpbnV4LTIuNC4yMC9kcml2ZXJzL2NoYXIvZHJtL2RybV9hZ3BzdXBwb3J0
+LmgucDR4MzMzfglGcmkgSmFuICAzIDEzOjI5OjI5IDIwMDMNCisrKyBsaW51
+eC0yLjQuMjAvZHJpdmVycy9jaGFyL2RybS9kcm1fYWdwc3VwcG9ydC5oCUZy
+aSBKYW4gIDMgMTM6Mjk6NTkgMjAwMw0KQEAgLTI4MSw2ICsyODEsOCBAQA0K
+IAkJCWJyZWFrOw0KIAkJY2FzZSBWSUFfQVBPTExPX0tUNDAwOiAgaGVhZC0+
+Y2hpcHNldCA9ICJWSUEgQXBvbGxvIEtUNDAwIjsNCiAJCQlicmVhazsNCisJ
+CWNhc2UgVklBX0FQT0xMT19QNFg0MDA6CWhlYWQtPmNoaXBzZXQgPSAiVklB
+IEFwb2xsbyBQNFg0MDAiOw0KKwkJCWJyZWFrOw0KIAkJY2FzZSBWSUFfQVBP
+TExPX1BSTzogCWhlYWQtPmNoaXBzZXQgPSAiVklBIEFwb2xsbyBQcm8iOw0K
+IAkJCWJyZWFrOw0KIA0KLS0tIGxpbnV4LTIuNC4yMC9kcml2ZXJzL2NoYXIv
+YWdwL2FncGdhcnRfYmUuYy5wNHgzMzN+CUZyaSBKYW4gIDMgMTM6Mjc6MzYg
+MjAwMw0KKysrIGxpbnV4LTIuNC4yMC9kcml2ZXJzL2NoYXIvYWdwL2FncGdh
+cnRfYmUuYwlGcmkgSmFuICAzIDEzOjMzOjI3IDIwMDMNCkBAIC00NzI4LDEx
+ICs0NzI4LDExIEBADQogCQkiVmlhIiwNCiAJCSJBcG9sbG8gUHJvIEtUNDAw
+IiwNCiAJCXZpYV9nZW5lcmljX3NldHVwIH0sDQotICAgICAgICB7IFBDSV9E
+RVZJQ0VfSURfVklBXzgzNzdfMCwNCisJeyBQQ0lfREVWSUNFX0lEX1ZJQV9Q
+NFgzMzMsDQogCQlQQ0lfVkVORE9SX0lEX1ZJQSwNCi0JCVZJQV9BUE9MTE9f
+S1Q0MDAsDQorCQlWSUFfQVBPTExPX1A0WDQwMCwNCiAJCSJWaWEiLA0KLQkJ
+IkFwb2xsbyBQcm8gS1Q0MDAiLA0KKwkJIkFwb2xsbyBQNFg0MDAiLA0KIAkJ
+dmlhX2dlbmVyaWNfc2V0dXAgfSwNCiAJeyAwLA0KIAkJUENJX1ZFTkRPUl9J
+RF9WSUEsDQotLS0gbGludXgtMi40LjIwL2RyaXZlcnMvY2hhci9kcm0tNC4w
+L2FncHN1cHBvcnQuYy5wNHgzMzN+CUZyaSBKYW4gIDMgMTM6MzE6MTQgMjAw
+Mw0KKysrIGxpbnV4LTIuNC4yMC9kcml2ZXJzL2NoYXIvZHJtLTQuMC9hZ3Bz
+dXBwb3J0LmMJRnJpIEphbiAgMyAxMzozMTo0OSAyMDAzDQpAQCAtMjc3LDYg
+KzI3Nyw4IEBADQogCQkJYnJlYWs7DQogCQljYXNlIFZJQV9BUE9MTE9fS1Q0
+MDA6ICBoZWFkLT5jaGlwc2V0ID0gIlZJQSBBcG9sbG8gS1Q0MDAiOw0KIAkJ
+CWJyZWFrOw0KKwkJY2FzZSBWSUFfQVBPTExPX1A0WDQwMDoJaGVhZC0+Y2hp
+cHNldCA9ICJWSUEgQXBvbGxvIFA0WDQwMCI7DQorCQkJYnJlYWs7DQogI2Vu
+ZGlmDQogDQogCQljYXNlIFZJQV9BUE9MTE9fUFJPOiAJaGVhZC0+Y2hpcHNl
+dCA9ICJWSUEgQXBvbGxvIFBybyI7DQo=
+--658437744-552910360-1041601325=:29994--

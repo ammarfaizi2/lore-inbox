@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282238AbRKWUtY>; Fri, 23 Nov 2001 15:49:24 -0500
+	id <S282239AbRKWUzn>; Fri, 23 Nov 2001 15:55:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282239AbRKWUtN>; Fri, 23 Nov 2001 15:49:13 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:58072 "EHLO
-	VL-MS-MR002.sc1.videotron.ca") by vger.kernel.org with ESMTP
-	id <S282238AbRKWUtL>; Fri, 23 Nov 2001 15:49:11 -0500
-Message-ID: <001a01c17460$4c0fc970$0100a8c0@dad>
-From: "Norm Dressler" <ndressler@dinmar.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <002101c17430$d94b2f80$3828a8c0@ndrlaptop> <20011123.122538.74728853.davem@redhat.com>
-Subject: Re: Sparc64 Compiles OK, but won't boot new kernel
-Date: Fri, 23 Nov 2001 15:49:08 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S282240AbRKWUzd>; Fri, 23 Nov 2001 15:55:33 -0500
+Received: from pc-62-30-67-59-az.blueyonder.co.uk ([62.30.67.59]:22766 "EHLO
+	kushida.jlokier.co.uk") by vger.kernel.org with ESMTP
+	id <S282239AbRKWUzZ>; Fri, 23 Nov 2001 15:55:25 -0500
+Date: Fri, 23 Nov 2001 20:52:35 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: berthiaume_wayne@emc.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Multicast Broadcast
+Message-ID: <20011123205235.A11439@kushida.jlokier.co.uk>
+In-Reply-To: <93F527C91A6ED411AFE10050040665D00241AB03@corpusmx1.us.dg.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <93F527C91A6ED411AFE10050040665D00241AB03@corpusmx1.us.dg.com>; from berthiaume_wayne@emc.com on Wed, Nov 21, 2001 at 03:53:48PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was able to solve it -- I also had freeswan patched into the kernel and
-when you include the debug portions, it more then doubles the size of your
-kernel.
+berthiaume_wayne@emc.com wrote:
+> 	I have a cluster that I wish to be able to perform a multicast
+> broadcast over two backbones, primary and secondary, simultaneously. The two
+> eth's are bound to the same VIP. When I perform the broadcast, it only goes
+> out on eth0. 
 
-Norm
+I have seen this problem when trying to use an NTP server to multicast
+to two ethernets.  Unfortunately, NTP's output would only send to one of
+the networks (eth0).
 
------ Original Message -----
-From: "David S. Miller" <davem@redhat.com>
-To: <ndressler@dinmar.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: November 23, 2001 3:25 PM
-Subject: Re: Sparc64 Compiles OK, but won't boot new kernel
+I never did find a workaround.
 
-
->
-> Compile more things as modules, your kernel has too many things
-> compiled statically into it and is therefore too large to boot.
->
->
-
-
+-- Jamie

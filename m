@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263376AbTLSO6c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 09:58:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263453AbTLSO6c
+	id S263299AbTLSPGp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 10:06:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263424AbTLSPGo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 09:58:32 -0500
-Received: from mail-06.iinet.net.au ([203.59.3.38]:3747 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S263376AbTLSO6a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 09:58:30 -0500
-Message-ID: <3FE31212.3020701@cyberone.com.au>
-Date: Sat, 20 Dec 2003 01:58:26 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Fri, 19 Dec 2003 10:06:44 -0500
+Received: from citrine.spiritone.com ([216.99.193.133]:48042 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S263299AbTLSPGn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 10:06:43 -0500
+Date: Fri, 19 Dec 2003 07:06:18 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Nick Piggin <piggin@cyberone.com.au>, Ingo Molnar <mingo@redhat.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Anton Blanchard <anton@samba.org>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>, Mark Wong <markw@osdl.org>
+Subject: Re: [PATCH] improve rwsem scalability (was Re: [CFT][RFC] HT scheduler)
+Message-ID: <35510000.1071846377@[10.10.2.4]>
+In-Reply-To: <3FE2E67A.70809@cyberone.com.au>
+References: <20031208155904.GF19412@krispykreme> <3FD50456.3050003@cyberone.com.au> <20031209001412.GG19412@krispykreme> <3FD7F1B9.5080100@cyberone.com.au> <3FD81BA4.8070602@cyberone.com.au> <3FD8317B.4060207@cyberone.com.au> <20031211115222.GC8039@holomorphy.com> <3FD86C70.5000408@cyberone.com.au> <20031211132301.GD8039@holomorphy.com> <3FD8715F.9070304@cyberone.com.au> <20031211133207.GE8039@holomorphy.com> <3FD88D93.3000909@cyberone.com.au> <3FD91F5D.30005@cyberone.com.au> <Pine.LNX.4.58.0312120440400.14103@devserv.devel.redhat.com> <3FDA5842.9090109@cyberone.com.au> <3FDBB261.5010208@cyberone.com.au> <3FDFE95C.9050901@cyberone.com.au> <3FE2E67A.70809@cyberone.com.au>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH] sched domains w27 for 2.6.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://www.kerneltrap.org/~npiggin/w27/
+>> What do you think? Is there any other sorts of benchmarks I should try?
+>> The improvement I think is significant, although volanomark is quite
+>> erratic and doesn't show it well.
+>> 
+>> I don't see any problem with moving the wakeups out of the rwsem's 
+>> spinlock.
+>> 
+> 
+> Actually my implementation does have a race because list_del_init isn't
+> atomic. Shouldn't be difficult to fix if anyone cares about it... otherwise
+> I won't bother.
 
-This patch includes a lot of fixes, especially to the active balancing
-and HT code. It also addresses Rusty's suggestions, and will hopefully fix
-Zwane's interactivity problems. Testing, comments welcome.
+If you can fix it up, I'll get people here to do some more testing on the
+patch on other benchmarks, etc.
 
-Nick
-
+M.
 

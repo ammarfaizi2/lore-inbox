@@ -1,45 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276175AbRJCMyR>; Wed, 3 Oct 2001 08:54:17 -0400
+	id <S276184AbRJCNAR>; Wed, 3 Oct 2001 09:00:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276174AbRJCMx5>; Wed, 3 Oct 2001 08:53:57 -0400
-Received: from ns.suse.de ([213.95.15.193]:15891 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S276172AbRJCMxu>;
-	Wed, 3 Oct 2001 08:53:50 -0400
-Date: Wed, 3 Oct 2001 14:54:17 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: "sebastien.cabaniols" <sebastien.cabaniols@laposte.net>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [POT] Which journalised filesystem ? 
-In-Reply-To: <Pine.LNX.4.33L.0110030938130.4835-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.LNX.4.30.0110031448460.16788-100000@Appserv.suse.de>
+	id <S276176AbRJCNAH>; Wed, 3 Oct 2001 09:00:07 -0400
+Received: from lambik.cc.kuleuven.ac.be ([134.58.10.1]:17418 "EHLO
+	lambik.cc.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id <S276181AbRJCM7x>; Wed, 3 Oct 2001 08:59:53 -0400
+Message-Id: <200110031300.PAA17063@lambik.cc.kuleuven.ac.be>
+Content-Type: text/plain; charset=US-ASCII
+From: Frank Dekervel <Frank.dekervel@student.kuleuven.ac.Be>
+To: linux-kernel@vger.kernel.org
+Subject: mtu problem with masquerading+pppoe(adsl) setup
+Date: Wed, 3 Oct 2001 15:00:17 +0200
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Oct 2001, Rik van Riel wrote:
 
-> Personally I like ext3 a lot.  I've been using it for almost a
-> year now and it has never given me trouble.
-
-I've similar experiences with ext3, except for one bad instance
-recently when I put it on my laptop. Lots of asserts were triggered,
-and on reboot it couldn't find the journal, the superblock,
-or the backup superblocks. I spent a few hours trying to get data
-back, and eventually gave up and reformatted as ext2.
-
-Alan mentioned this was something to do with the IBM hard disk
-having strange write-cache properties that confuse ext3.
-I'm not sure if this has been fixed or not yet, but its enough
-to make me think twice about trying it on the vaio for a while.
-
-regards,
-
-Dave.
-
--- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
-
+ Hello, (i am sorry if this is the wrong place to ask)
+ 
+ despite the frequent discussions concerning this topic on usenet, i failed 
+ to solve my problem:
+ 
+ - i have a debian potatoe box that acts as a masquerading server for a 
+ heterogenous win2k/winnt/mac LAN. pppoe works fine, and so does 
+ masquerading ... almost
+ 
+ - the kernel i installed is the latest 2.2 kernel (2.2.19)
+ 
+ the problem:
+ 
+ i can't access some sites from the masq clients, while i can access them 
+ from the masq server. (like www.vitrine.be)
+ 
+ The problem seems to be widely known, and seems to be an MTU+no-fragment 
+ packets issue. and indeed:
+ - the MTU on my LAN is 1500 bytes
+ - the MTU on my ppp connection is 1492 bytes.
+ 
+ on the archives, i found the following solutions:
+ - raising the ppp MTU to 1500 bytes. it won't work. even if i specify 1500, 
+ the mtu is still 1492.
+ - lowering the mtu of the LAN to 1492 bytes. thats not an option according 
+ to my boss.
+ - upgrade to something newer than 2.2.14. i run 2.2.19 and i still have the 
+ problem.
+ 
+ So my questions are:
+ 
+ - are there other options ? i read some vague german things about msschamp 
+ or something like that, but i don't know if they are even related.
+ 
+ - will an upgrade to linux 2.4 or the kernelspace pppoe driver fix my 
+ problem ? (i would like to keep my current setup, i don't know how 
+ difficult it is to upgrade a potatoe box to such a recent version ..)
+ 
+ 
+ Some other observations:
+ 
+ - win2k as masquerading server does not have the problem, but switching to 
+ win2k is not really an option since win2k seems to have severe problems 
+ with ftp connections.
+ 
+ - the problem also occurs for some mail servers.
+ 
+ 
+ Thanks in advance,
+ 
+ Frank Dekervel
+ 
+ 
+ 
+ -- 
+ Frank Dekervel
+ Mechelsestraat 88
+ 3000 Leuven
+ frank.dekervel@student.kuleuven.([nospam]).ac.be

@@ -1,90 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266198AbUAQTd3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 14:33:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266202AbUAQTd3
+	id S266132AbUAQTrQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 14:47:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266138AbUAQTrQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 14:33:29 -0500
-Received: from red-corpb4-7-68.telnor.net ([200.76.246.68]:39896 "EHLO
-	pubserv01.bajawireless.net") by vger.kernel.org with ESMTP
-	id S266198AbUAQTd0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 14:33:26 -0500
+	Sat, 17 Jan 2004 14:47:16 -0500
+Received: from fep05-svc.mail.telepac.pt ([194.65.5.209]:19420 "EHLO
+	fep05-svc.mail.telepac.pt") by vger.kernel.org with ESMTP
+	id S266132AbUAQTrL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jan 2004 14:47:11 -0500
+Date: Sat, 17 Jan 2004 19:47:07 +0000
+From: Nuno Monteiro <nuno@itsari.org>
+To: marcelo.tosatti@cyclades.com
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040117195702.67bc83ea.pochini@shiny.it>
-References: <20040117195702.67bc83ea.pochini@shiny.it>
-Subject: Re: License question
-To: Giuliano Pochini <pochini@shiny.it>
-Message-ID: <opr1xqbz2lq5eh14@localhost>
-From: Misshielle Wong <mwl@bajoo.net>
-Content-Type: text/plain; format=flowed; charset=utf-8
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Date: Sat, 17 Jan 2004 11:41:49 -0800
-User-Agent: Opera7.23/Linux M2 build 518
+Subject: [PATCH][2.4] Remove ide bootup noise
+Message-ID: <20040117194707.GC19667@hobbes.itsari.int>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 2.0.15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Hi Marcelo,
 
-On Sat, 17 Jan 2004 19:57:02 +0100, Giuliano Pochini <pochini@shiny.it> 
-wrote:
 
->
-> Is it possile to include in the kernel distro some code with this
-> BSD-style license ?
->
+Recently, while syncing my local tree from 2.4.22 to 2.4.25-pre I found 
+this little patchlet (back from the 2.4.20 days, AFAIR) that still 
+applies and looks pertinent. I believe the original author is Erik 
+Andersen, although I can't say for certain since I don't have the 
+original email around anymore. Also, I seem to recall that Jens Axboe 
+ok'ed it, but for whatever reason it never found its way into mainline.
 
-Let me see
+This will remove the pointless boot message about wether or not the drive 
+supports host protected area. Since we don't report any other drive 
+capabilities this should go, as it' is just pointless noise. In 2.6 this 
+was killed too. Also, this information can be obtained using 'hdparm'.
 
->
-> Copyright (c) 2002 Echo Digital Audio
-> All rights reserved.
-> www.echoaudio.com
->
-> Permission is hereby granted, free of charge, to any person obtaining a
-> copy of this software and associated documentation files (the
-> "Software"), to deal with the Software without restriction, including
-> without limitation the rights to use, copy, modify, merge, publish,
-> distribute, sublicense, and/or sell copies of the Software, and to
-> permit persons to whom the Software is furnished to do so, subject to
-> the following conditions:
->
-> - Redistributions of source code must retain the above copyright
-> notice, this list of conditions and the following disclaimers.
->
-> - Redistributions in binary form must reproduce the above copyright
-> notice, this list of conditions and the following disclaimers in the
-> documentation and/or other materials provided with the distribution.
->
-> - Neither the name of Echo Digital Audio, nor the names of its
-> contributors may be used to endorse or promote products derived from
-> this Software without specific prior written permission.
->
+Please review and apply.
 
-Mmmm... I think yes. Code in kernel must be licensed GPL. Above allow 
-sublicense so ok
 
-> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-> EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-> MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-> IN NO EVENT SHALL THE CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR
-> ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-> TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-> SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE SOFTWARE.
->
->
-> --
-> Giuliano.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" 
-> in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Regards,
+
+
+		Nuno
 
 
 
--- 
-Using M2, Opera's revolutionary e-mail client: http://www.opera.com/m2/
+
+--- linux-2.4.25-pre5/drivers/ide/ide-disk.c.orig	2004-01-15 22:20:25.355342064 +0000
++++ linux-2.4.25-pre5/drivers/ide/ide-disk.c	2004-01-15 22:25:48.189263848 +0000
+@@ -1136,10 +1136,7 @@
+  */
+ static inline int idedisk_supports_host_protected_area(ide_drive_t *drive)
+ {
+-	int flag = (drive->id->cfs_enable_1 & 0x0400) ? 1 : 0;
+-	if (flag)
+-		printk("%s: host protected area => %d\n", drive->name, flag);
+-	return flag;
++	return ((drive->id->cfs_enable_1 & 0x0400) ? 1 : 0);
+ }
+ 
+ /*
+
+

@@ -1,41 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262831AbUCJU5o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 15:57:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262821AbUCJU5o
+	id S262814AbUCJU4y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 15:56:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262820AbUCJU4y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 15:57:44 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:424 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262820AbUCJU5J
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 15:57:09 -0500
-Message-ID: <404F8118.1060203@pobox.com>
-Date: Wed, 10 Mar 2004 15:56:56 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+	Wed, 10 Mar 2004 15:56:54 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:19138 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262814AbUCJUzF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 15:55:05 -0500
+Message-ID: <404F7EF8.5020402@acm.org>
+Date: Wed, 10 Mar 2004 14:47:52 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030428
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Miquel van Smoorenburg <miquels@cistron.nl>
-CC: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: [PATCH] 2.4.x Linux Medley RAID Version 7
-References: <200403101707.38595.bzolnier@elka.pw.edu.pl> <Pine.LNX.4.40.0403101917170.2582-100000@jehova.dsm.dk> <c2nv0b$j5$1@news.cistron.nl>
-In-Reply-To: <c2nv0b$j5$1@news.cistron.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Greg KH <greg@kroah.com>
+Cc: Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, "Davis, Todd C" <todd.c.davis@intel.com>,
+       sensors@stimpy.netroedge.com, "Simon G. Vogl" <simon@tk.uni-linz.ac.at>
+Subject: Re: 2.6.4-rc2-mm1: IPMI_SMB doesnt compile
+References: <20040307223221.0f2db02e.akpm@osdl.org> <20040309013917.GH14833@fs.tum.de> <404F3BC3.2090906@acm.org> <20040310185105.GS14833@fs.tum.de> <20040310190648.GB18892@kroah.com>
+In-Reply-To: <20040310190648.GB18892@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miquel van Smoorenburg wrote:
-> MD already has support for more than one type of superblock. I think
-> if you just add medley (or intel, or ..) support to MD you're all set.
+Greg KH wrote:
 
-Indeed.  Further, we have the new vendor-neutral RAID metadata format, 
-"DDF", looming on the very near horizon.
+>On Wed, Mar 10, 2004 at 07:51:05PM +0100, Adrian Bunk wrote:
+>  
+>
+>>On Wed, Mar 10, 2004 at 10:01:07AM -0600, Corey Minyard wrote:
+>>    
+>>
+>>>...
+>>>I have included a patch from Todd Davis at Intel that adds this function 
+>>>to the I2C driver.  I believe Todd has been working on getting this in 
+>>>through the I2C driver writers, although the patch is fairly non-intrusive.
+>>>
+>>>However, I have no real way to test this patch.
+>>>...
+>>>      
+>>>
+>>I can only confirm that it fixes the compilation...
+>>
+>>
+>>The patch to i2c-core.c is strange:
+>>    
+>>
+>
+>And dumb, and incorrect :(
+>
+>  
+>
+Wrong as in: "This code will not work" or wrong as in: "don't export the 
+variable and the function", or both?  I certainly agree that exporting 
+both is wrong, there should really be two inline functions with only the 
+variable exported, or only functions exported and the variable hidden.  
+That's an easy change.
 
-I want to avoid having NN duplicated RAID0/1/5 engines, like ataraid in 
-2.4 was threatening to be.
+However, if the code does not work, that is a bigger deal.  I'm fairly 
+sure it works in some cases, but not sure about all.
 
-	Jeff
+The patch I posted is for 2.6, BTW.
 
-
+-Corey
 

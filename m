@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317512AbSINTwS>; Sat, 14 Sep 2002 15:52:18 -0400
+	id <S317506AbSINUVY>; Sat, 14 Sep 2002 16:21:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317517AbSINTwR>; Sat, 14 Sep 2002 15:52:17 -0400
-Received: from b.mail.peak.org ([198.88.144.71]:13321 "EHLO b.mail.peak.org")
-	by vger.kernel.org with ESMTP id <S317512AbSINTwR>;
-	Sat, 14 Sep 2002 15:52:17 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Kenneth Corbin <kencx@peak.org>
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: Linux consistently crashes running grip (solved)
-Date: Sat, 14 Sep 2002 12:51:08 -0700
-User-Agent: KMail/1.4.1
-References: <200209021149.41654.kencx@peak.org>
-In-Reply-To: <200209021149.41654.kencx@peak.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209141251.08528.kencx@peak.org>
+	id <S317517AbSINUVY>; Sat, 14 Sep 2002 16:21:24 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:44022
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317506AbSINUVX>; Sat, 14 Sep 2002 16:21:23 -0400
+Subject: Re: Problem with 2.4.19/2.4.20-pre7 multiple root floppy disks-
+	2.4.18 works.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Alan Miles <alanmiles@hfx.eastlink.ca>
+Cc: linux-kernel@vger.kernel.org, Riley@Williams.Name
+In-Reply-To: <JLEBIHHBMBHBAFPAJLEFOECFDAAA.alanmiles@hfx.eastlink.ca>
+References: <JLEBIHHBMBHBAFPAJLEFOECFDAAA.alanmiles@hfx.eastlink.ca>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
+Date: 14 Sep 2002 21:27:55 +0100
+Message-Id: <1032035275.13636.15.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 02 September 2002 11:49 am, Kenneth Corbin wrote:
-> I am not subscribed to this list, please cc me with any response.
-> Thanks in advance for wading through this.
->
-> 1. Linux consistently crashes running grip.
+On Fri, 2002-09-13 at 21:08, Alan Miles wrote:
+> I reported this problem with 2.4.19 and have just tested the 2.4.20-pre7
+> kernel. The same problem exists there.
+> I must re-iterate that 2.4.18 works fine with all of my 7 uncompressed
+> 1.44MB floppy disks, and the 2.4.18 system boots up fine.
 
-Confirmed as a sporadic hardware issue.  I took my machine in to a dealer to 
-get checked out, by the time it got there it couldn't boot linux at all.   
-After instaling a new motherboard, with faster memory and CPU upgrades, I 
-haven't had any problem with Linux crashing at all.
+Yes its in my bug list. Its up to someone it matters to to provide
+patches. It could be a ramdisk change. it could well come from the
+initrd loading cleanup/root ramfs stuff.
 
-My ISP choose that particular instant to go down, so it took a while to get 
-back on this.   Thanks to everyone for pointing me in the right direction.

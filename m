@@ -1,91 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261960AbRFFMJE>; Wed, 6 Jun 2001 08:09:04 -0400
+	id <S262078AbRFFMHD>; Wed, 6 Jun 2001 08:07:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262036AbRFFMIy>; Wed, 6 Jun 2001 08:08:54 -0400
-Received: from turnover.lancs.ac.uk ([148.88.17.220]:16125 "EHLO
-	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
-	id <S261960AbRFFMIi>; Wed, 6 Jun 2001 08:08:38 -0400
-Message-Id: <l0313030cb743c5bfd10e@[192.168.239.105]>
-In-Reply-To: <0106061316300A.00553@starship>
-In-Reply-To: <20010606095431.C15199@dev.sportingbet.com>
- <3B1D5ADE.7FA50CD0@illusionary.com> <991815578.30689.1.camel@nomade>
- <20010606095431.C15199@dev.sportingbet.com>
+	id <S262036AbRFFMGx>; Wed, 6 Jun 2001 08:06:53 -0400
+Received: from AMontpellier-201-1-3-224.abo.wanadoo.fr ([193.252.1.224]:9469
+	"EHLO microsoft.com") by vger.kernel.org with ESMTP
+	id <S261960AbRFFMGo>; Wed, 6 Jun 2001 08:06:44 -0400
+Subject: Re: 2.4.5-ac6: IDE deadlocks/bugs + unexpected IO-APIC
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com
+In-Reply-To: <991759157.22536.9.camel@nomade>
+In-Reply-To: <991759157.22536.9.camel@nomade>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 06 Jun 2001 14:03:24 +0200
+Message-Id: <991829006.32526.3.camel@nomade>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Wed, 6 Jun 2001 13:07:56 +0100
-To: Daniel Phillips <phillips@bonn-fries.net>,
-        Sean Hunter <sean@dev.sportingbet.com>,
-        Xavier Bestel <xavier.bestel@free.fr>
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: Break 2.4 VM in five easy steps
-Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > Did you try to put twice as much swap as you have RAM ? (e.g. add a
->> > 512M swapfile to your box)
->> > This is what Linus recommended for 2.4 (swap = 2 * RAM), saying
->> > that anything less won't do any good: 2.4 overallocates swap even
->> > if it doesn't use it all. So in your case you just have enough swap
->> > to map your RAM, and nothing to really swap your apps.
->>
->> For large memory boxes, this is ridiculous.  Should I have 8GB of
->> swap?
->
->And laptops with big memories and small disks.
+On 05 Jun 2001 18:39:16 +0200, Xavier Bestel wrote:
+> Hi !
+> 
+> I have an ABit VP6 (Dual PIII, infamous VIA686, onboard IDE + onboard
+> HPT370). This is a new machine, so I didn't test it on several kernels.
+> 
+> Using 2.4.4-ac11 (SMP), it started to deadlock really often when
+> accessing the new disk (Seagate Barracuda, udma5, big reiserfs partition
+> + swap) I put on the HPT370, even when mounting it.
+> 
+> Using 2.4.5-ac6, things are much better, but sometimes it hangs at boot
+> around "RAMDISK: Loading 4096 blocks [1 disk] into ram disk ..." - I say
+> "around" because sometimes it displays "ACPI: Core Subsystem version
+> ...", and sometimes not.
+> And sometimes it still hangs randomly. No messages, nothing special in
+> the logs except an "unexpected IO-APIC" (that's why I put linux-smp in
+> Cc:) and 40 Megs (!!) of:
+> Jun  2 23:11:58 bip kernel: attempt to access beyond end of device
+> Jun  2 23:11:58 bip kernel: 07:00: rw=0, want=4906986, limit=4906984
+> Jun  2 23:11:58 bip kernel: attempt to access beyond end of device
+> Jun  2 23:11:58 bip kernel: 07:00: rw=0, want=4906988, limit=4906984
+> Jun  2 23:11:58 bip kernel: attempt to access beyond end of device
+> Jun  2 23:11:58 bip kernel: 07:00: rw=0, want=4906986, limit=4906984
+> Jun  2 23:11:58 bip kernel: attempt to access beyond end of device
+> Jun  2 23:11:58 bip kernel: 07:00: r<6>07:00: rw=0, want=4906988, limi4
+> Jun  2 23:11:58 bip kernel: att<6>07:4
+> Jun  2 23:11:58 bip kernel: attemp<6>07:00: rw=0, want=4906988, 4
+> Jun  2 23:11:58 bip kernel: att<6>07:004
+> Jun  2 23:11:58 bip kernel: attemp<6>07:00: rw=0, want=4906988, li4
+> Jun  2 23:11:58 bip kernel: atte<6>07:004
+> Jun  2 23:11:58 bip kernel: att<6>07:00: rw=0, want=4906988, l4
+> Jun  2 23:11:58 bip kernel: attempt t<6>074
+> Jun  2 23:11:58 bip kernel: attem<6>07:00: rw=0, want=4906988, limit=4
+> Jun  2 23:11:58 bip kernel: at<6>07:00: rw=0, 4
+> Jun  2 23:11:58 bip kernel: atte<6>07:00: rw=0, want=4906988, limit=4
+> 
+> dated between Jun  2 23:11:58 and Jun  2 23:14:10
+> 
+> The thing that annoys me is that today, I just found the my /etc/motd
+> with junk appended (a bit of C code). /etc/motd is on my root partition
+> on a disk (Seagate ST36531A, big ext2 partition + swap) NOT on the
+> HPT370, but on the first onboard IDE.
+> 
+> 
+> I know (now that I looked a bit in the archives) that the VIA686 chipset
+> isn't reliable. Any hint to make my PC work while keeping reasonable
+> performance ?
+> What should I do to help ?
+> 
+> Xav
 
-Strongly agree.  I have a PowerBook G3 with 320Mb RAM.  The 18Gb HD is
-shared between a total of 4 operating systems.  I haven't got space to put
-2/3rds of a Gb of swap on it - in fact I use only 128Mb of swap under
-Linux, and don't usually have a problem.
+Seems to be working better with -ac9, thanks to Jeff's patch I guess. No
+more need for "noapic".
 
-MacOS X uses whatever disk space it needs, from the volumes currently
-mounted.  MacOS 9.0.4 is configured to run totally without swap.  Windoze
-95 is configured to run in it's usual bloated way, from a total of about
-1Gb of virtual HD.
-
-I'm glad to report that with the new fixes being worked on at present, swap
-usage is relatively minimalist under the test loads I am able to subject my
-Athlon to.  With mem=32M, compiling MySQL goes 65Mb into swap at maximum,
-during compilation of a particularly massive C++ file.  Compilation takes
-2h15m under these conditions, which is a little slow but that's what
-happens when a system starts thrashing heavily.
-
-With mem=48M, compilation completes in about 6m30s, which compares well
-with the 5-minute "best case" compile time with unrestricted memory
-available.  I didn't check the total swap usage on that run, but it was
-less than the 65Mb used with mem=32M.  After the monster file had
-completed, the swap balance was largely restored within a few files'
-compilation - something which doesn't happen with stock 2.4.x.
-
-With mem=32M, I can sensibly load XFree86 v4, KDE 1.2, XMMS, a webcam app
-and Netscape 4.6.  XMMS glitches occasionally (not often, and not
-particularly seriously) as I switch between 1600x1200x24bpp virtual
-desktops, and swapping gets heavy at times, but the system is essentially
-usable and avoids thrashing.  This weekend, I'll treat a friend with an
-ageing Cyrix machine to the patches and see if she notices the difference -
-the answer will probably be yes.
-
-It remains to be seen how industrial-sized applications fare with the
-changes, but I strongly suspect that any reaction will be positive rather
-than negative.  Industrial applications *should* be running as if no swap
-was available, in any case...
-
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
-
-The key to knowledge is not to rely on people to teach you it.
-
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
-
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
------END GEEK CODE BLOCK-----
-
+Xav
 

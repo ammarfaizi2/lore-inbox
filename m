@@ -1,103 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262102AbTH0T5P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 15:57:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbTH0T5P
+	id S262056AbTH0UJQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 16:09:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262057AbTH0UJQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 15:57:15 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:31104 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262102AbTH0T5I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 15:57:08 -0400
-Date: Wed, 27 Aug 2003 15:58:14 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: root@mauve.demon.co.uk
-cc: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: usb-storage: how to ruin your hardware(?)
-In-Reply-To: <200308271933.UAA14620@mauve.demon.co.uk>
-Message-ID: <Pine.LNX.4.53.0308271535060.5064@chaos>
-References: <200308271933.UAA14620@mauve.demon.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 27 Aug 2003 16:09:16 -0400
+Received: from fw.osdl.org ([65.172.181.6]:60072 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262056AbTH0UJN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 16:09:13 -0400
+Date: Wed, 27 Aug 2003 12:53:10 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: warudkar@vsnl.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test4-mm1 - kswap hogs cpu OO takes ages to start!
+Message-Id: <20030827125310.15ebf8f9.akpm@osdl.org>
+In-Reply-To: <200308272137.42632.kernel@kolivas.org>
+References: <200308272138.h7RLciK29987@webmail2.vsnl.net>
+	<200308272137.42632.kernel@kolivas.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Aug 2003 root@mauve.demon.co.uk wrote:
-
-> >
-> > On Wed, 27 Aug 2003, H.Rosmanith (Kernel Mailing List) wrote:
-> >
-> > > > > "after the first write the flash device failed entirely". That doen't
-> <snip>
-> > Remember when AT Class machines had a BIOS that allowed you
-> > to low-level format hard drives? When early IDE drives came
-> > out, persons tried to format them and they got destroyed.
-> > So, BIOS vendors took away the format capability.
-> >
-> > The IDE drive companies started a lie that was repeated so
-> > often that it seemed true. It was that IDE drives didn't
-> > have 'formatters' and, therefore, could only be formatted
-> > at the factory. Of course, if this was true, how come
-> > the format command did anything??  The truth was that
+Con Kolivas <kernel@kolivas.org> wrote:
 >
-> This is actually true, and has been since around 80Mb or so.
-> There is no absolute positioning information on the disk drive that can
-> be used to lay down new positioning information for the tracks.
-> Before this, there used to be a stepper motor that could position the
-> head at track 743, or a seperate head that read track information from
-> a dedicated surface.
->
+> On Thu, 28 Aug 2003 07:38, warudkar@vsnl.net wrote:
+> > Trying out 2.6.0-test4-mm1. Inside KDE, I start OpenOffice.org, Rational
+> > Rose and Konsole at a time. All of these take extremely long time to
+> > startup. (approx > 5 minutes). Kswapd hogs the CPU all the time. X becomes
+> > unusable till all of them startup, although I can telnet and run top. Same
+> > thing run under 2.4.18 starts up in 3 minutes, X stays usable and kswapd
+> > never take more than 2% CPU.
+> 
+> Yes I can reproduce this with a memory heavy load as well on low memory 
+> (linking at the end of a big kernel compile is standard problem).
 
-No. Embedded servo-tracks have been used for this. Once a track is
-written at the factory, even if the sectors are corrupt, it can
-still be used for servo position because even corrupt data has
-the spectral information necessary for the servo to find the
-center of the track. The only possible problem is that you can't
-find even one good sector to verify the track information. Both
-the track number and the sector number is in the sector header.
+It could be that recent changes to page reclaim which improve I/O
+scheduling have exacerbated this.
 
-You can low-level format many/most/all SCSI disks and ESDI disks
-even though they also have embedded servo and voice-coil
-positioners with no stepper motors and no feedback except from
-the track information that you re-write.
+Does this make a difference?
 
-Embedded servos work because the magnetic domains are always
-too large for the data bits. This means that the system
-ends up acting like a low-pass filter. The phase through
-this filter changes, depending upon the position of the
-head relative to when it was written. The servo nulls the
-phase-shift to be what it was when the track was written.
-This gets the head to the center of the track.
+diff -puN mm/vmscan.c~a mm/vmscan.c
+--- 25/mm/vmscan.c~a	Wed Aug 27 12:51:36 2003
++++ 25-akpm/mm/vmscan.c	Wed Aug 27 12:51:48 2003
+@@ -360,8 +360,6 @@ shrink_list(struct list_head *page_list,
+ 		 * See swapfile.c:page_queue_congested().
+ 		 */
+ 		if (PageDirty(page)) {
+-			if (referenced)
+-				goto keep_locked;
+ 			if (!is_page_cache_freeable(page))
+ 				goto keep_locked;
+ 			if (!mapping)
 
-You do need some kind of independent positioner to write
-the first tracks at the factory. Most use a 'formatter'
-fixture that contains the feedback hardware necessary to do this.
-
-Prototype drives get tracks written entirely using a software
-approximation method where the first track is written slightly
-off from the home position,  the next tracks are written
-where the read-level from the previous write has fallen
-6 dB (50%), as the positioner current is 'bumped' to overcome
-friction and move to the next incremental track location.
-
-This is not done for production drives because it is too
-slow. However, this will allow the designer to experimentally
-determine the maximim possible capacity of the drive, i.e.,
-maximum number of cylinders.
-
-> > these drives stored their parameters on the disk platters.
-> > If you re-wrote the first real sectors on the drive, the
->
-> This is more likely the problem, but
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+_
 

@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261584AbSJJOBz>; Thu, 10 Oct 2002 10:01:55 -0400
+	id <S261586AbSJJODl>; Thu, 10 Oct 2002 10:03:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261586AbSJJOBz>; Thu, 10 Oct 2002 10:01:55 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:54955 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261584AbSJJOBz>; Thu, 10 Oct 2002 10:01:55 -0400
-Subject: Re: Patch: linux-2.5.41/drivers/ide - build IDE as a module
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: Andre Hedrick <andre@linux-ide.org>, axboe@suse.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021010064457.A460@baldur.yggdrasil.com>
-References: <20021010064457.A460@baldur.yggdrasil.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 10 Oct 2002 15:18:36 +0100
-Message-Id: <1034259516.6463.10.camel@irongate.swansea.linux.org.uk>
+	id <S261587AbSJJODl>; Thu, 10 Oct 2002 10:03:41 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:36574 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S261586AbSJJODk>;
+	Thu, 10 Oct 2002 10:03:40 -0400
+Date: Thu, 10 Oct 2002 08:04:48 -0600
+From: yodaiken@fsmlabs.com
+To: Larry McVoy <lm@work.bitmover.com>,
+       "Henning P. Schmiedehausen" <hps@intermeta.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: BK is *evil* corporate software [was Re: New BK License Problem?]
+Message-ID: <20021010080448.A17675@hq.fsmlabs.com>
+References: <20021005112552.A9032@work.bitmover.com> <20021007001137.A6352@elf.ucw.cz> <5.1.0.14.2.20021007204830.00b8b460@pop.gmx.net> <20021007143134.V14596@work.bitmover.com> <ao2ee1$l0c$1@forge.intermeta.de> <20021009165500.L27050@work.bitmover.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021009165500.L27050@work.bitmover.com>; from lm@bitmover.com on Wed, Oct 09, 2002 at 04:55:00PM -0700
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-10 at 14:44, Adam J. Richter wrote:
-> 	1. For the time being, I have reassembled some of the
-> drivers/ide object files into ide-mod.o again, because there are some
-> circular references (not necessarily a bad thing) that modprobe cannot
-> otherwise handle.  For now, this includes putting ide-probe in
-> ide-mod.
+On Wed, Oct 09, 2002 at 04:55:00PM -0700, Larry McVoy wrote:
+> > Let's insert some fact in this discussion:
+> 
+> OK.
+> 
+> > Basically you charge a small(-ish) company about $25k for any
+> > reasonable license. This is about as much as we spent for Software in
+> > the last seven years (we do own a few Windows and Office licenses).
 
-I don't think that is actually avoidable. We end up with a lump that I'd
-probably call "ide-core" which is fine.
+The historical expense for software
+in your company has absolutely no relation to the cost-effectiveness of
+a new purchase as far as I can see.
 
-> 	2. I have changed cmd640.o and legacy.o from dep_bool to
-> dep_tristate and made them also depend on $CONFIG_BLK_DEV_IDE, so
-> that they will only be offered as modules if ide-mod.o is a
-> module (since, like any IDE driver, they require some symbols in
-> ide-mod.o).
+But it is interesting that you can hire a full time "really good" 
+programmer for total cost of $50K/year. Salaries are dropping.
 
-Sounds right
 
-> 	These changes are probably not perfect, but I think they
-> should be an improvement with no real disadvantages in comparison to
-> what they replace, so I would encourage you to integrate the changes
-> if you see no problem.  Please let me know what you want to do, or if
-> there is something more you'd like me to do regarding this patch.
 
-I'll go over it again, but I have no major problem with applying them
-and working from there to clean up the corners. Firstly however do one
-little thing - dont put extern blah() in the code, add them to the right
-header files.
+
+-- 
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
 

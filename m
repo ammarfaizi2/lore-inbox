@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261500AbSJFHYx>; Sun, 6 Oct 2002 03:24:53 -0400
+	id <S263350AbSJFHed>; Sun, 6 Oct 2002 03:34:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263350AbSJFHYx>; Sun, 6 Oct 2002 03:24:53 -0400
-Received: from f189.law8.hotmail.com ([216.33.241.189]:34568 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S261500AbSJFHYw>;
-	Sun, 6 Oct 2002 03:24:52 -0400
-X-Originating-IP: [80.13.94.100]
-From: "Frederic Richard" <chew2107@hotmail.com>
-To: webmaster@linux-ide.org, andre@linux-ide.org, linux-kernel@vger.kernel.org
-Subject: Need help please
-Date: Sun, 06 Oct 2002 09:30:24 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Message-ID: <F189j90VIhCWRL8FAGJ0001001b@hotmail.com>
-X-OriginalArrivalTime: 06 Oct 2002 07:30:24.0694 (UTC) FILETIME=[3C340D60:01C26D0A]
+	id <S263351AbSJFHed>; Sun, 6 Oct 2002 03:34:33 -0400
+Received: from ip45.usw1.rb1.pdx.nwlink.com ([207.202.132.45]:44008 "EHLO
+	consumption.net") by vger.kernel.org with ESMTP id <S263350AbSJFHed>;
+	Sun, 6 Oct 2002 03:34:33 -0400
+Date: Sun, 6 Oct 2002 00:58:59 -0700 (PDT)
+From: <crozierm@consumption.net>
+To: linux-kernel@vger.kernel.org
+Subject: keyboard/mouse "freeze" with uhci error in logs
+Message-ID: <Pine.LNX.4.21.0210060052510.31233-100000@consumption.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a HPT302 but I don't know which kernel support this chipset. Can you 
-tell me which kernel or patch I must use and how I can apply this???
 
-Please help me
+Hello,
+
+I'm trying 2.5.40 and frequently my keyboard and mouse are "freezing",
+usually accompanying a change in the console (exiting xfree86 or
+switching virtual consoles).  Otherwise everything is fine, I can telnet
+in and reboot.
+
+This is the message that I found in the logs:
+
+kernel: uhci-hcd.c: ef80: host controller process error. something bad
+happened
+
+kernel: uhci-hcd.c: ef80: host controller halted. very bad
 
 
-thank a lot if you can help me
+If I can provide more information, please email me directly as I'm not on 
+the list.
 
-sorry for my bad english
+-Michael
 
-_________________________________________________________________
-Affichez, modifiez et partagez gratuitement vos photos en ligne: 
-http://photos.msn.com/support/worldwide.aspx
+-- 
+
 

@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275990AbSIVBNH>; Sat, 21 Sep 2002 21:13:07 -0400
+	id <S276004AbSIVBmC>; Sat, 21 Sep 2002 21:42:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275993AbSIVBNH>; Sat, 21 Sep 2002 21:13:07 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55053 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S275990AbSIVBNG>; Sat, 21 Sep 2002 21:13:06 -0400
+	id <S276042AbSIVBmC>; Sat, 21 Sep 2002 21:42:02 -0400
+Received: from h24-68-71-10.vc.shawcable.net ([24.68.71.10]:33797 "EHLO
+	kruhftwerk.dyndns.org") by vger.kernel.org with ESMTP
+	id <S276004AbSIVBmB>; Sat, 21 Sep 2002 21:42:01 -0400
+Date: Sat, 21 Sep 2002 18:47:09 -0700
+From: Burton Samograd <kruhft@kruhft.dyndns.org>
 To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [linux-usb-devel] Re: 2.5.26 hotplug failure
-Date: Sun, 22 Sep 2002 01:21:06 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <amj5u2$20t$1@penguin.transmeta.com>
-References: <200207180950.42312.duncan.sands@wanadoo.fr> <20020920231112.GC24813@kroah.com> <3D8BDF9A.305@pacbell.net> <20020921033137.GA26017@kroah.com>
-X-Trace: palladium.transmeta.com 1032657488 3976 127.0.0.1 (22 Sep 2002 01:18:08 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 22 Sep 2002 01:18:08 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+Subject: boot kernel panic with 2.5.37
+Message-ID: <20020922014709.GA8035@kruhft.dyndns.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="opJtzjQTFsWo+cga"
+Content-Disposition: inline
+X-GPG-key: http://kruhftwerk.dyndns.org/kruhft.pubkey.asc
+X-Operating-System: Linux kruhft.dyndns.org 2.4.19-gentoo-r9 
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20020921033137.GA26017@kroah.com>, Greg KH  <greg@kroah.com> wrote:
->On Fri, Sep 20, 2002 at 07:55:22PM -0700, David Brownell wrote:
->> 
->> How about a facility to create the character (or block?) special file
->> node right there in the driverfs directory?  Optional of course.
->
->No, Linus has stated that this is not ok to do.  See the lkml archives
->for the whole discussion about this.
 
-I'm not totally against it, it's just that it has some issues:
+--opJtzjQTFsWo+cga
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
- - naming policy in general. Trivially handled by just always calling
-   the special node something truly boring and nautral like "node", and
-   be done with it. The _path_ is the real name, the "node" would be
-   just an openable entity.
+Hi all,
 
- - the issue of persistent permissions and ownership. 
+After solving the kernel compile problem earlier i tried to actually
+run it and got a kernel panic which consisted of the following:
 
-The latter is the real problem.  And I personally think the only sane
-policy is to just let "/sbin/hotplug" handle it, which definitely
-implies _not_ having the kernel create the real device node. That way
-user-space can have any policy it damn well pleases, including having
-some default heuristics along with "a priori known nodes".
+<-- snip a bunch of stuff that i didn't write down but similar to the
+following line -->
 
-But clearly that user-space hotplug entity needs to know major and minor
-numbers in order to create the real device node, and that's where the
-"node" thing may be acceptable - as a template, nothing more.  Although
-I suspect that there are other, simpler and more acceptable templates
-(ie export the dang thing as just a "node" text-file, which describes
-the majors and minors and "char vs block" issues)
+[<C0228EDA>] [<C0227F49>]
 
-		Linus
+Code: 89 42 04 89 10 68 01 00 00 00 c7 03 00 00 00 c7 43 04 00
+
+<0> Kernel Panic: Aiee, killing interrupt handler!
+In interrupt handler - not syncing
+
+<-- end of output -->
+
+I sent my kernel config in an earlier message today (subject Re:
+problems building bzImage with 2.5.*) for those that need to see it.
+
+burton
+--opJtzjQTFsWo+cga
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9jSEcLq/0KC7fYbURAjLVAJ4ztpE7bAXQ8tymvlg3Be/zs0X5iwCfamjA
+GoYICtsl621qWfJQJZKLJi4=
+=45ug
+-----END PGP SIGNATURE-----
+
+--opJtzjQTFsWo+cga--

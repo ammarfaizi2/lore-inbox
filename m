@@ -1,48 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265154AbUFATaz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265161AbUFATew@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265154AbUFATaz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 15:30:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265160AbUFATaz
+	id S265161AbUFATew (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 15:34:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265162AbUFATew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 15:30:55 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:5278 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S265154AbUFATao (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 15:30:44 -0400
-Message-Id: <200406011929.i51JTjGO006174@eeyore.valparaiso.cl>
-To: Pavel Machek <pavel@suse.cz>
-cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@redhat.com>,
+	Tue, 1 Jun 2004 15:34:52 -0400
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:25011 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S265161AbUFATev (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 15:34:51 -0400
+Date: Tue, 1 Jun 2004 12:34:44 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, "H. Peter Anvin" <hpa@zytor.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH] explicitly mark recursion count 
-In-Reply-To: Message from Pavel Machek <pavel@suse.cz> 
-   of "Tue, 01 Jun 2004 14:20:13 +0200." <20040601122013.GA10233@elf.ucw.cz> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
-Date: Tue, 01 Jun 2004 15:29:45 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+Subject: Re: [PATCH][2.6.6-rc3] gcc-3.4.0 fixes
+Message-ID: <20040601193444.GA24136@taniwha.stupidest.org>
+References: <200404292146.i3TLkfI0019612@harpo.it.uu.se> <c892nk$5pf$1@terminus.zytor.com> <16572.38987.239160.819836@alkaid.it.uu.se> <Pine.LNX.4.58.0406011020310.14095@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0406011020310.14095@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> said:
-> =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de> said:
-> > > So effectively, it comes down to the recursive paths.  Unless someone
-> > > comes up with a semantical parser that can figure out the maximum
-> > > number of iterations, we have to look at them manually.
+On Tue, Jun 01, 2004 at 10:27:16AM -0700, Linus Torvalds wrote:
 
-> > Linus, Andrew, would you accept patches like the one below?  With such
-> > information and assuming that the comments will get maintained, it's
-> > relatively simple to unroll recursions and measure stack comsumption
-> > more accurately.
-> 
-> Perhaps some other format of comment should be introduced? Will not
-> this interfere with linuxdoc?
+> And even function pointers should be safeish. The fact that some
+> broken architecture (can you say "ia64"?) has totally idiotic
+> calling conventions and requires the caller to load the GP value is
+> _their_ problem.
 
-If the comment gets out of sync, you are toast. Too easy for that to
-happen, IMVHO.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+ia64 function pointers are actually pointers to the 128-bit
+descriptors so all pointers are still 64-bit.
+
+
+  --cw

@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262007AbSJNRus>; Mon, 14 Oct 2002 13:50:48 -0400
+	id <S262042AbSJNRtl>; Mon, 14 Oct 2002 13:49:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262065AbSJNRur>; Mon, 14 Oct 2002 13:50:47 -0400
-Received: from mail18.svr.pol.co.uk ([195.92.67.23]:10501 "EHLO
-	mail18.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S262062AbSJNRup>; Mon, 14 Oct 2002 13:50:45 -0400
-Date: Mon, 14 Oct 2002 18:56:08 +0100
-To: Austin Gonyou <austin@coremetrics.com>
-Cc: linux-lvm@sistina.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-lvm] Re: [PATCH] 2.5 version of device mapper submission
-Message-ID: <20021014175608.GA14963@fib011235813.fsnet.co.uk>
-References: <1034453946.15067.22.camel@irongate.swansea.linux.org.uk> <1034614756.29775.5.camel@UberGeek.coremetrics.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1034614756.29775.5.camel@UberGeek.coremetrics.com>
-User-Agent: Mutt/1.4i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+	id <S262007AbSJNRtl>; Mon, 14 Oct 2002 13:49:41 -0400
+Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:18103
+	"EHLO mx1.rackable.com") by vger.kernel.org with ESMTP
+	id <S262042AbSJNRsd>; Mon, 14 Oct 2002 13:48:33 -0400
+Message-ID: <3DAB0647.9040603@rackable.com>
+Date: Mon, 14 Oct 2002 11:00:39 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Theewara Vorakosit <g4465018@pirun.ku.ac.th>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: NFS root on 2.4.18-14
+References: <Pine.GSO.4.44.0210142012520.5993-100000@pirun.ku.ac.th>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Oct 2002 17:54:26.0198 (UTC) FILETIME=[BC622B60:01C273AA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 14, 2002 at 11:59:17AM -0500, Austin Gonyou wrote:
-> Just curious, but device-mapper and 2.5.42 do not seem to jive very
-> well. Please advise.
+Theewara Vorakosit wrote:
 
-Try the patches at:
+>Dear All,
+>    I use Red Hat 8.0 and kernel 2.4.18-14, which come from redhat
+>distribution. I want create a NFS-root kernel to build a diskless linux
+>using NFS root. I select "IP kernel level configuration-> BOOTP, DHCP",
+>NFS root support. I boot client using my kernel, it does not requrest for
+>an IP address. It try to mount NFS root immediately. Do I forget
+>something?
+>Thanks,
+>Theewara
+>
+>  
+>
+You need to give the kernel instructions to use dhcp.   I've always 
+found this works:
 
-http://people.sistina.com/~thornber/patches/2.5-unstable/
+ip=::::::dhcp nfsroot=192.168.1.5:/vol0/nfs/root/10.01
 
-There are three minor changes:
 
-09.patch
-  [Device-mapper]
-  Remove linux/iobuf.h include.
-
-10.patch
-  [Device-mapper]
-  Add call to blk_queue_bounce() at the beginning of the request function.
-
-11.patch
-  [Device-mapper]
-  Pass md into dm_suspend/dm_resume instead of a kdev_t.
-
-- Joe

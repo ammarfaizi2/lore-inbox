@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263672AbUCUQYF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 11:24:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263674AbUCUQYF
+	id S263670AbUCUQXS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 11:23:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263672AbUCUQXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 11:24:05 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:28434 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263672AbUCUQYC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 11:24:02 -0500
-Date: Sun, 21 Mar 2004 16:24:01 +0000
-From: Christoph Hellwig <hch@infradead.org>
+	Sun, 21 Mar 2004 11:23:18 -0500
+Received: from citrine.spiritone.com ([216.99.193.133]:56454 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S263670AbUCUQXQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 11:23:16 -0500
+Date: Sun, 21 Mar 2004 08:23:20 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
 To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc2-aa1
-Message-ID: <20040321162401.A8778@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-References: <20040321145547.GA3649@dualathlon.random>
-Mime-Version: 1.0
+cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: 2.6.5-rc1-aa3
+Message-ID: <2923100000.1079886200@[10.10.2.4]>
+In-Reply-To: <20040321132630.GO10787@dualathlon.random>
+References: <20040320210306.GA11680@dualathlon.random> <2910700000.1079849836@[10.10.2.4]> <20040321132630.GO10787@dualathlon.random>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040321145547.GA3649@dualathlon.random>; from andrea@suse.de on Sun, Mar 21, 2004 at 03:55:47PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A bunch of rather cosmetic comments while looking over the patch:
+--Andrea Arcangeli <andrea@suse.de> wrote (on Sunday, March 21, 2004 14:26:30 +0100):
 
- - all the binfmt handler seems to copy exactly the same vma setup,
-   maybe we should add a helper for that?
- - the struct anon_vma_s / anon_vma_t naming is awkward, why not just
-   struct anon_vma *insert reference to Documentation/CodingStyle here*
- - the inclusion guards in objrmap.h are wrong
- - why is PG_swapcache bit 21?  You removed PG_direct so bit 16 is free now
- - I don't really like the swapper space special case in ___add_to_page_cache,
-   IIRC there's only one caller of it for the swapper space and IMHO you're
-   better off opencoding it
- - dito for __remove_from_page_cache 
- - is renaming rmap.c to objrmap.c really nessecary?  It contains about
-   the same functions, and keeping the old, implementation-agnostic name
-   makes it easiert to follow the radical changes..
+> On Sat, Mar 20, 2004 at 10:17:16PM -0800, Martin J. Bligh wrote:
+>> > Fixed the sigbus in nopage and improved the page_t layout per Hugh's
+>> > suggestion. BUG() with discontigmem disabled if somebody returns non-ram
+>> > via do_no_page, that cannot work right on numa anyways.
+>> 
+>> OK, well it doesn't oops any more. But sshd still dies as soon as it starts,
+>> so accessing the box is tricky ;-) And now I have no obvious diagnostics
+>> either ...
+> 
+> Jens sent me the perfect strace log, after his help it has not been
+> difficult to spot the bug. this incremental should fix it
+> MAP_SHARED|MAP_ANONYMOUS isn't very common and my userspace never
+> triggered it. I placed the pgoff anon setting in the path of the shared
+> memory too, that generated the sigbus. Leaving the setting only in the
+> MAP_PRIVATE should fix it, the anonymous memory is only MAP_PRIVATE.
+> 
+> patch is untested at the moment, as soon as I get confirmation I'll
+> upload an update.
+
+Yup, that fixes mine up too - runs fine now.
+
+M.
+

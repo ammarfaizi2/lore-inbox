@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261396AbTIYR6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 13:58:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbTIYR6G
+	id S261823AbTIYSoE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 14:44:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTIYSoD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 13:58:06 -0400
-Received: from havoc.gtf.org ([63.247.75.124]:56290 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S261396AbTIYR5h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 13:57:37 -0400
-Date: Thu, 25 Sep 2003 13:57:35 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, andrea@kernel.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Matthew Wilcox <willy@debian.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       Larry McVoy <lm@bitmover.com>
-Subject: Re: log-buf-len dynamic
-Message-ID: <20030925175735.GB21341@gtf.org>
-References: <m1n0csiybu.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.44.0309251026550.29320-100000@home.osdl.org>
+	Thu, 25 Sep 2003 14:44:03 -0400
+Received: from pentafluge.infradead.org ([213.86.99.235]:56974 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261823AbTIYSnP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 14:43:15 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Rene Rebe <rene.rebe@gmx.net>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030925.200135.607960881.rene.rebe@gmx.net>
+References: <1063221565.678.2.camel@gaston>
+	 <20030910.222620.730549923.rene.rebe@gmx.net>
+	 <1063262157.2023.19.camel@gaston>
+	 <20030925.200135.607960881.rene.rebe@gmx.net>
+Message-Id: <1064515390.19697.6.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309251026550.29320-100000@home.osdl.org>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 25 Sep 2003 20:43:11 +0200
+X-SA-Exim-Mail-From: benh@kernel.crashing.org
+Subject: Re: dmasound_pmac (2.4.x{,-benh}) does not restore mixer during
+	PM-wake
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
+X-SA-Exim-Scanned: Yes
+X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 25, 2003 at 10:30:58AM -0700, Linus Torvalds wrote:
-> I don't know what the solution to it might be - but I don't think the 
-> reason they are using BK is that they are trying to emulate "the great 
-> kernel project". I know it wasn't for me - it's just that once you get 
-> used to BK, there's no way you'll ever go back to CVS willingly. 
+On Thu, 2003-09-25 at 20:01, Rene Rebe wrote:
+> Hi,
+> 
+> On: Thu, 11 Sep 2003 08:35:57 +0200,
+>     Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> > 
+> > > so hm?!? - is the wakeup order of the devices incorrect (i2c needs to
+> > > be before damsound_pmac ...)?
+> > 
+> > The i2c bus isn't suspended during sleep... I don't know for sure
+> > what's up, I'll investigate.
+> 
+> Have you found some time to look into this issue in more detail? I
+> already tried a tiny timeout wihtout help - maybe you got an idea?
 
-Nod.  All my new projects start out in BitKeeper these days, because
-it's so much better than cvs.
+My current bk 2.4 contains a reworked i2c driver that might help...
 
-	Jeff
-
+Ben.
 
 

@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261576AbSJURjL>; Mon, 21 Oct 2002 13:39:11 -0400
+	id <S261412AbSJURpi>; Mon, 21 Oct 2002 13:45:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261578AbSJURjI>; Mon, 21 Oct 2002 13:39:08 -0400
-Received: from im1.mail.tds.net ([216.170.230.91]:9389 "EHLO im1.sec.tds.net")
-	by vger.kernel.org with ESMTP id <S261555AbSJURiS>;
-	Mon, 21 Oct 2002 13:38:18 -0400
-Date: Mon, 21 Oct 2002 13:44:13 -0400 (EDT)
-From: Jon Portnoy <portnoy@tellink.net>
-X-X-Sender: portnoy@cerberus.localhost
-To: Christoph Hellwig <hch@infradead.org>
-cc: webmaster@vger.kernel.org, <linux-kernel@vger.kernel.org>
+	id <S261224AbSJURpi>; Mon, 21 Oct 2002 13:45:38 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:33037 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261191AbSJURpf>; Mon, 21 Oct 2002 13:45:35 -0400
+Date: Mon, 21 Oct 2002 18:51:41 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Christoph Hellwig <hch@infradead.org>, webmaster@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Listmaster request: Blacklist rms@gnu.org
-In-Reply-To: <20021021182737.A23371@infradead.org>
-Message-ID: <Pine.LNX.4.44.0210211343250.12787-100000@cerberus.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20021021185141.A25009@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, webmaster@vger.kernel.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20021021182737.A23371@infradead.org> <1035223326.27309.226.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1035223326.27309.226.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Mon, Oct 21, 2002 at 07:02:06PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Offending everyone? That's interesting, I found his points perfectly 
-valid.
-
-If he's no longer bothering you, why do you feel a need to shut everyone 
-else out from a valid argument, too? Other people who don't like it are 
-just as capable of using procmail.
-
-
-On Mon, 21 Oct 2002, Christoph Hellwig wrote:
-
-> Hi Matti, hi Dave,
+On Mon, Oct 21, 2002 at 07:02:06PM +0100, Alan Cox wrote:
+> On Mon, 2002-10-21 at 18:27, Christoph Hellwig wrote:
+> > Hi Matti, hi Dave,
+> > 
+> > I've adjusted my procmail filters now, still people using web archives
+> > suffer from Richard's ignorance of the technical charta, his bad
+> > trolling and offending everyone on the list.  As his previous posts
+> > have been of a similar "quality" I'd like to request blacklisting him
+> > from the vger list.
 > 
-> I've adjusted my procmail filters now, still people using web archives
-> suffer from Richard's ignorance of the technical charta, his bad
-> trolling and offending everyone on the list.  As his previous posts
-> have been of a similar "quality" I'd like to request blacklisting him
-> from the vger list.
-> 
-> Thanks in advance,
-> 	Christoph
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Do you have the right to make that decision for them ? Is that any
+> different from a government deciding what you don't need to hear or a
+> corrupt police state dictator trying to hide things[1] 8). If you think
+> rms should be blacklisted I'd like to propose you are blacklisted too
+> for being dangerously naiive 8)
+
+I want to blacklist for a histroy of 100% oftopic posts.  I don't want
+him to shutup at all, just post to a list where his rants are ontopic,
+say gnu-ethics.
 

@@ -1,67 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262213AbRE2ELB>; Tue, 29 May 2001 00:11:01 -0400
+	id <S262265AbRE2EVD>; Tue, 29 May 2001 00:21:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262215AbRE2EKw>; Tue, 29 May 2001 00:10:52 -0400
-Received: from unthought.net ([212.97.129.24]:61594 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S262213AbRE2EKl>;
-	Tue, 29 May 2001 00:10:41 -0400
-Date: Tue, 29 May 2001 06:10:39 +0200
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: "G. Hugh Song" <ghsong@kjist.ac.kr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Plain 2.4.5 VM...
-Message-ID: <20010529061039.D29962@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	"G. Hugh Song" <ghsong@kjist.ac.kr>, linux-kernel@vger.kernel.org
-In-Reply-To: <200105290232.f4T2W9m00876@bellini.kjist.ac.kr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <200105290232.f4T2W9m00876@bellini.kjist.ac.kr>; from ghsong@kjist.ac.kr on Tue, May 29, 2001 at 11:32:09AM +0900
+	id <S262269AbRE2EUy>; Tue, 29 May 2001 00:20:54 -0400
+Received: from [216.6.80.34] ([216.6.80.34]:63506 "EHLO
+	dcmtechdom.dcmtech.co.in") by vger.kernel.org with ESMTP
+	id <S262265AbRE2EUl>; Tue, 29 May 2001 00:20:41 -0400
+Message-ID: <7FADCB99FC82D41199F9000629A85D1A01459A19@dcmtechdom.dcmtech.co.in>
+From: "Harivansh S. Mehta" <harivansh@dcmtech.co.in>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Serial Programming
+Date: Tue, 29 May 2001 09:54:47 +0530
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 29, 2001 at 11:32:09AM +0900, G. Hugh Song wrote:
-> 
-> Jeff Garzik wrote: 
-> > 
-> > Ouch! When compiling MySql, building sql_yacc.cc results in a ~300M 
-> > cc1plus process size. Unfortunately this leads the machine with 380M of 
-> > RAM deeply into swap: 
-> > 
-> > Mem: 381608K av, 248504K used, 133104K free, 0K shrd, 192K 
-> > buff 
-> > Swap: 255608K av, 255608K used, 0K free 215744K 
-> > cached 
-> > 
-> > Vanilla 2.4.5 VM. 
-> > 
-> 
-> This bug known as the swap-reclaim bug has been there for a while since 
-> around 2.4.4.  Rick van Riel said that it is in the TO-DO list.
-> Because of this, I went back to 2.2.20pre2aa1 on UP2000 SMP.
-> 
-> IMHO, the current 2.4.* kernels should still be 2.3.*.  When this bug
-> is removed, I will come back to 2.4.*.
+Hi,
+I am developing a driver which reads some data from the serial port in the
+raw mode. For doing the same i do a call to which fails. The call to
+our_ioctl for get serial data fails with return value -14 which is EBADADDR.
 
-Just keep enough swap around.  How hard can that be ?
+The same read works if we send a direct read request from an application to
+our driver. However when we call the same thing from within the driver
+module, it fails .
+Please suggest  a way for this.
 
-Really, it's not like a memory leak or something.  It's just "late reclaim".
 
-If Linux didn't do over-commit, you wouldn't have been able to run that job
-anyway.
+The code is something like this 
 
-It's not a bug.  It's a feature.  It only breaks systems that are run with "too
-little" swap, and the only difference from 2.2 till now is, that the definition
-of "too little" changed.
+FILE * fp;
+init_module()
+{
+fp = filp_open ("/dev/ttyS0", O_RDWR);
+}
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+
+int  our_read(struct file *filp, char *buf, size_t size, loff_t *off)  
+{ 
+	if (fp)
+	{
+	    if (fp->f_op && fp->f_op->read)
+ 		retval =  fp->f_op->read(filep,buf,size,&filep->f_pos); 
+	}
+}
+
+
+int  our_ioctl(struct inode *in, struct file *f, unsigned int cmd,
+                 unsigned long arg)  
+{
+	switch (cmd)
+	{
+		case GET_SERIAL_DATA : return our_read(NULL, (char * ) arg,
+MAX_READ, NULL);
+		break;
+	}
+}
+
+
+TIA
+Harivansh S. Mehta
+DCM Technologies Ltd.
+India

@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261341AbTDOMon (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 08:44:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbTDOMon 
+	id S261358AbTDOMtd (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 08:49:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbTDOMtd 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 08:44:43 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:4992 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S261341AbTDOMom (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 08:44:42 -0400
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200304141815.h3EIF5q6001699@81-2-122-30.bradfords.org.uk>
-Subject: Re: kernel support for non-English user messages
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Mon, 14 Apr 2003 19:15:05 +0100 (BST)
-Cc: john@grabjohn.com (John Bradford), vda@port.imtp.ilyichevsk.odessa.ua,
-       76306.1226@compuserve.com (Chuck Ebbert),
-       linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <Pine.LNX.4.44.0304141024250.19302-100000@home.transmeta.com> from "Linus Torvalds" at Apr 14, 2003 10:29:14 AM
-X-Mailer: ELM [version 2.5 PL6]
+	Tue, 15 Apr 2003 08:49:33 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:4365 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id S261358AbTDOMtc (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 08:49:32 -0400
+Date: Tue, 15 Apr 2003 15:01:09 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Jens Axboe <axboe@suse.de>
+cc: Duncan Sands <baldrick@wanadoo.fr>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Andrew Morton <akpm@digeo.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BUGed to death
+In-Reply-To: <20030415123134.GM9776@suse.de>
+Message-ID: <Pine.LNX.4.44.0304151453320.12110-100000@serv>
+References: <80690000.1050351598@flay> <200304151401.00704.baldrick@wanadoo.fr>
+ <20030415123134.GM9776@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Anybody who doesn't document their code is wasting an opportunity to
-> > improve their work.
+Hi,
+
+On Tue, 15 Apr 2003, Jens Axboe wrote:
+
+> > What happens if you just turn BUG_ON into "do {} while (0)"?
 > 
-> Some people care about documentation, some people don't. That's a fact,
-> and spouting platitudes about "improving their work" just doesn't
-> _matter_.
-
-[snip]
-
-> And you know what? That _lack_ of comments and documantation improves my 
-> work. Not because documentation is bad, but because I DO NOT CARE. So I 
-> concentrate on the stuff I do care about.
+> If you do that, you must audit every single BUG_ON to make sure the
+> expression doesn't have any side effects.
 > 
-> So no, people are _NOT_ "wasting an opportunity". 
+> 	BUG_ON(do_the_good_stuff());
 
-You are right on this one, I appologise.  
+This should avoid the problem:
 
-Substitute 'indenting' for 'comments and documentation' and I could
-have written that last paragraph myself.
+#define BUG_ON(cond) do { if (cond); } while (0)
 
-John.
+bye, Roman
+

@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271963AbRH2NUw>; Wed, 29 Aug 2001 09:20:52 -0400
+	id <S271839AbRH2Ntf>; Wed, 29 Aug 2001 09:49:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271964AbRH2NUm>; Wed, 29 Aug 2001 09:20:42 -0400
-Received: from [195.66.192.167] ([195.66.192.167]:5639 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S271963AbRH2NUd>; Wed, 29 Aug 2001 09:20:33 -0400
-Date: Wed, 29 Aug 2001 16:14:49 +0300
-From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: The Bat! (v1.44)
-Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Organization: IMTP
-X-Priority: 3 (Normal)
-Message-ID: <314590620.20010829161449@port.imtp.ilyichevsk.odessa.ua>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-CC: linux-kernel@vger.kernel.org
-Subject: Re[2]: Shutting down NFS
-In-Reply-To: <200108291258.HAA66579@tomcat.admin.navo.hpc.mil>
-In-Reply-To: <200108291258.HAA66579@tomcat.admin.navo.hpc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S271889AbRH2NtQ>; Wed, 29 Aug 2001 09:49:16 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:33540 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S271839AbRH2NtE>;
+	Wed, 29 Aug 2001 09:49:04 -0400
+Date: Wed, 29 Aug 2001 10:48:36 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Andi Kleen <ak@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: page_launder() on 2.4.9/10 issue
+In-Reply-To: <oup8zg4j8u0.fsf@pigdrop.muc.suse.de>
+Message-ID: <Pine.LNX.4.33L.0108291047060.27250-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Jesse,
+On 28 Aug 2001, Andi Kleen wrote:
 
-Wednesday, August 29, 2001, 3:58:07 PM, you wrote:
->> killall5 -15; sleep 5; killall5 -9; sleep 5
->> killall5 -15; sleep 5; killall5 -9; sleep 5
->> killall5 -15; sleep 5; killall5 -9 ?
->> 
->> This looks ugly and total sleep time is 25 sec.
->> A better way is to make NFS daemons understand what user wants after
->> first call, not a third.
+> Regarding kswapd in 2.4.9:
+>
+> At least something seems to be broken in it. I did run some 900MB processes
+> on a 512MB machine with 2.4.9 and kswapd took between 70 and 90% of the CPU
+> time.
 
-JP> This already looks like overkill :-) Only the first one should be
-JP> needed. I can understand that NFSD could disable signal 15, but not
-JP> how it can disable 9... The only way I know for that to happen is
-JP> if the process is in an uninterruptable sleep for some reason (and
-JP> that should only delay signal delivery, not eliminate it).
+Well yes, if you never wait on IO synchronously kswapd turns
+into one big busy-loop. But we knew that, it was even written
+down in the comments in vmscan.c ;)
 
-It looks like killall5 bug - "killall -9 nfsd" kills nfsd at once.
-Do you know where killall5 source is? There's no killall5 in
-util-linux...
+regards,
 
-Best regards,
-VDA
---
-mailto:VDA@port.imtp.ilyichevsk.odessa.ua
-http://port.imtp.ilyichevsk.odessa.ua/vda/
+Rik
+-- 
+IA64: a worthy successor to i860.
 
+http://www.surriel.com/ http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

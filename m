@@ -1,67 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265514AbUBFPyY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 10:54:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265525AbUBFPyY
+	id S265529AbUBFP5d (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 10:57:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265533AbUBFP5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 10:54:24 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:10969
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S265514AbUBFPyW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 10:54:22 -0500
-Date: Fri, 6 Feb 2004 16:54:20 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       Jamie Lokier <jamie@shareable.org>, Chris McDermott <lcm@us.ibm.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Joel Becker <Joel.Becker@oracle.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: [RFC][PATCH] linux-2.6.2_vsyscall-gtod_B2.patch
-Message-ID: <20040206155420.GT31926@dualathlon.random>
-References: <1076037045.757.21.camel@cog.beaverton.ibm.com> <20040206040123.GN31926@dualathlon.random> <40235E24.2060500@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40235E24.2060500@redhat.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Fri, 6 Feb 2004 10:57:33 -0500
+Received: from mx1.mail.ru ([194.67.23.21]:10257 "EHLO mx1.mail.ru")
+	by vger.kernel.org with ESMTP id S265529AbUBFP5b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 10:57:31 -0500
+Message-ID: <4023B961.2090103@mail.ru>
+Date: Fri, 06 Feb 2004 16:57:21 +0100
+From: marcel cotta <mc123@mail.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+Followup-To: marcel,cotta,<mc123@mail.ru>
+To: Hugh Dickins <hugh@veritas.com>
+CC: Good Oleg <olecom.gnu-linux@mail.ru>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BUG]: kernel BUG at mm/swapfile.c:806! (2.6)
+References: <Pine.LNX.4.44.0402060701290.2888-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0402060701290.2888-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam: Not detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 06, 2004 at 01:28:04AM -0800, Ulrich Drepper wrote:
-> Andrea Arcangeli wrote:
+Hugh Dickins wrote:
+> On Fri, 6 Feb 2004, [koi8-r] "Good Oleg[koi8-r] "  wrote:
 > 
-> > with regards to Ulrich's security related comments, this won't make any
-> > difference compared to the fixed address version either, since the
-> > vsyscall page is still at a fixed address in the fixmap area,
 > 
-> Gee, you don't want to understand it.
+>>PC(see below) 256Mib of RAM, linux-2.6.2, 300Mib swap file (swapon /mnt/swap/swap)
+>>When programs cause big memory usage i have this
+>>(since my 2.4.22 to 2.6.0-test11 migration):
+>>
+>>Feb  6 02:26:27 gluon kernel: ------------[ cut here ]------------
+>>Feb  6 02:26:27 gluon kernel: kernel BUG at mm/swapfile.c:806!
+>>Feb  6 02:26:27 gluon kernel: invalid operand: 0000 [#1]
+>>Feb  6 02:26:27 gluon kernel: CPU:    0
+>>Feb  6 02:26:27 gluon kernel: EIP:    0060:[<c015c7c4>]    Tainted: PFS
+>>Feb  6 02:26:27 gluon kernel: EFLAGS: 00010246
+>>Feb  6 02:26:27 gluon kernel: EIP is at map_swap_page+0x34/0x60
 > 
-> Even if the official kernel's handling of the vdso puts it at the same
-> address all the time this does not mean this can be engraved in stone.
+> 
+> [ helpful info snipped ]
+> 
+> Interesting, thank you.  That's the second report (first on 16 Jan,
+> and in that case Not Tainted).  I looked around and found some bugs in
+> the swapfile page accounting (if swapfile filesystem blocksize < 4k:
+> is yours?  never heard back from Marcel on that) - still intermittently
+> working on and testing the fixes there - but in the end nothing which
+> would actually cause this BUG.  Was rather thinking it came from slab
+> corruption, but a second report makes that (a little) less likely.
+> I'll look again later on, but other eyes may find it sooner.
+> 
+> Hugh
+> 
+> 
+> 
 
-i386 in 2.6.2 has the very same security issues. Fixed address for all
-binary kernel shipped for the sysenter or int 0x80 instructions.  go
-complain who wrote the i386 code.
+oops, i thought i told you that my blocksize is exactly 4k - sorry
 
-> It must be possible to move the page.  And I expect this will be the
-> case in our kernels.
+btw, i hit this bug again a few days after i reported it
+one time it went crazy and oopsed 8 times in about 8 minutes
 
-what are "yours" kernels? You mean mainline or what? I'm saying it's
-perfectly fine to relocate the vsyscall page on demand with an
-additional syscall but this will have an overhead, like relocating the
-.text executable as well will have an overhead, and before you can care
-about relocating the vsyscall address, you should relocate the .text of
-the executable as Andi noted.
+i think it only happened when the system was swapping heavily
+(swapd creating new swapfiles as fast as it could) and i manually
+swapon'ed another (bigger, ~50MB) swapfile by hand
 
-> It is completely unacceptable to use fixed addresses or require the libc
-> to be recompiled for a new address.  At the highest security level the
-> vdso address should vary from program run to program run which means
-> there is no way to change the libc.
-
-This is fine, the new syscall I'm advocating will simply relocate the
-vsyscall page with a new pte and a tlb flush during every context
-switch, write it for i386 now since 2.6.2 has those int 0x80 and syscall
-instructions at fixed address too.
+marcel

@@ -1,74 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311079AbSCHUmX>; Fri, 8 Mar 2002 15:42:23 -0500
+	id <S311068AbSCHUlx>; Fri, 8 Mar 2002 15:41:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311091AbSCHUmS>; Fri, 8 Mar 2002 15:42:18 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:46788 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S311079AbSCHUmK>;
-	Fri, 8 Mar 2002 15:42:10 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Hubertus Franke <frankeh@watson.ibm.com>
-Reply-To: frankeh@watson.ibm.com
-Organization: IBM Research
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
-Date: Fri, 8 Mar 2002 15:29:28 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0203081109390.2749-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0203081109390.2749-100000@penguin.transmeta.com>
+	id <S311079AbSCHUlo>; Fri, 8 Mar 2002 15:41:44 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:49395 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S311068AbSCHUli>;
+	Fri, 8 Mar 2002 15:41:38 -0500
+Message-ID: <3C8921AB.6DC37849@mvista.com>
+Date: Fri, 08 Mar 2002 12:40:11 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020308202836.7D8163FE06@smtp.linux.ibm.com>
+To: root@chaos.analogic.com
+CC: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Terje Eggestad <terje.eggestad@scali.com>,
+        Ben Greear <greearb@candelatech.com>,
+        Davide Libenzi <davidel@xmailserver.org>
+Subject: Re: gettimeofday() system call timing curiosity
+In-Reply-To: <Pine.LNX.3.95.1020308134552.6627A-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 08 March 2002 02:22 pm, Linus Torvalds wrote:
-> On Fri, 8 Mar 2002, Hubertus Franke wrote:
-> > Could you also comment on the functionality that has been discussed.
->
-> First off, I have to say that I really like the current patch by Rusty.
-> The hashing approach is very clean, and it all seems quite good. As to
->
-Agreed, Rusty did a marvelous job pulling all the right thinks together
-and adding the hashing.
+"Richard B. Johnson" wrote:
+> 
+> On Fri, 8 Mar 2002, Jamie Lokier wrote:
+> 
+> > Jamie Lokier wrote:
+> > > It takes the median of 1000 samples of the TSC time taken to do a
+> > > rdtsc/gettimeofday/rdtsc measurement, then uses that as the threshold
+> > > for deciding which of the subsequent 1000000 measurements are accepted.
+> > > Then linear regression through the accepted points.
+> > >
+> > > I see a couple of results there which suggests a probable fault in the
+> > > filtering algorithm.  Perhaps it should simply use the smallest TSC time
+> > > taken as the threshold.
+> >
+> > I've looked more closely.  Of all the machines I have access to, only my
+> > laptop shows the anomolous measurements.
+> >
+> > It turns out that the median of "time in TSC cycles to do a
+> > rdtsc+gettimeofday+rdtsc measurement" varies from run to run.  It only
+> > varies between two values, though.
+> >
+> [SNIPPED...]
+> 
+> The following program clearly shows that Linux will not return the
+> same gettimeofday values twice in succession. Since it provably takes
+> less than 1 microsecond to make a system call on a modern machine,
+> Linux must be waiting within the gettimeofday procedure long enough
+> to make certain that the time has changed. This may be screwing up
+> any performance measurments made with gettimeofday().
+> 
+Balderdash!!  It is easy to do if you machine is fast enough.  On my
+800MHZ PIII gettimeofday take about 0.7 micro seconds min. over about
+100 calls, NO loop overhead.  
 
-> specific points:
-> > (I) the fairness issues that have been raised.
-> >     do you support two wakeup mechanism: FUTEX_UP and FUTEX_UP_FAIR
-> >     or you don't care about fairness and starvation
->
-> I don't think fairness and starvation is that big of a deal for
-> semaphores, usually being unfair in these things tends to just improve
-> performance through better cache locality with no real downside. That
-> said, I think the option should be open (which it does seem to be).
->
-Yip, I'd prefer to leave it up to the user on what one exactly wants
-fair or non-fair wakeup.
+-g
 
-> For rwlocks, my personal preference is the fifo-fair-preference (unlike
-> semaphore fairness, I have actually seen loads where read- vs
-> write-preference really is unacceptable). This might be a point where we
-> give users the choice.
->
-> I do think we should make the lock bigger - I worry that atomic_t simply
-> won't be enough for things like fair rwlocks, which might want a
-> "cmpxchg8b" on x86.
->
-
-But what about compatibility with i368, no cmpxchg or cmpxchg8b
-Can't we have to types and infer from the op in the kernel what 
-the correct size in user space is.
-
-> So I would suggest making the size (and thus alignment check) of locks at
-> least 8 bytes (and preferably 16). That makes it slightly harder to put
-> locks on the stack, but gcc does support stack alignment, even if the code
-> sucks right now.
->
-> 		Linus
-
-Keeping it small, allows for the common case of mutex integration into data
-objects, though its not a big deal.
+> #include <stdio.h>
+> #include <sys/time.h>
+> 
+> int main(void);
+> int main()
+> {
+>    struct timeval tv, pv;
+>    tv.tv_sec  = tv.tv_usec = pv.tv_sec = pv.tv_usec = 0;
+>    for(;;)
+>    {
+>         (void)gettimeofday(&tv, NULL);
+>         if((tv.tv_sec != pv.tv_sec) || (tv.tv_usec != pv.tv_usec))
+>             printf("sec = %ld usec = %ld\n", tv.tv_sec, tv.tv_usec);
+>          else
+>             puts("The same!");
+>          pv = tv;
+>    }
+>    return 0;
+> }
+> 
+> Cheers,
+> Dick Johnson
+> 
+> Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+> 
+>         Bill Gates? Who?
 
 -- 
--- Hubertus Franke  (frankeh@watson.ibm.com)
+George           george@mvista.com
+High-res-timers: http://sourceforge.net/projects/high-res-timers/
+Real time sched: http://sourceforge.net/projects/rtsched/

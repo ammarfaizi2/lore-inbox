@@ -1,80 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263879AbUFSXqQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264775AbUFSXro@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263879AbUFSXqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 19:46:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264512AbUFSXqP
+	id S264775AbUFSXro (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 19:47:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264777AbUFSXro
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 19:46:15 -0400
-Received: from outbound01.telus.net ([199.185.220.220]:60818 "EHLO
-	priv-edtnes56.telusplanet.net") by vger.kernel.org with ESMTP
-	id S263879AbUFSXqN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 19:46:13 -0400
-Subject: Compile time error, no vmlinuz (2.6.7-bk2)
-From: Bob Gill <gillb4@telusplanet.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1087689095.14733.26.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 19 Jun 2004 17:51:35 -0600
+	Sat, 19 Jun 2004 19:47:44 -0400
+Received: from out009pub.verizon.net ([206.46.170.131]:60390 "EHLO
+	out009.verizon.net") by vger.kernel.org with ESMTP id S264512AbUFSXrm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 19:47:42 -0400
+Message-ID: <029901c45657$d34d79b0$6401a8c0@waterdell>
+From: "Arun Sen" <arunsen@verizon.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Two Questions
+Date: Sat, 19 Jun 2004 18:47:47 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [4.10.168.165] at Sat, 19 Jun 2004 18:47:39 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.  I recently built 2.6.7-bk2 (or at least tried to).  It refuses to
-create the compressed kernel image (the system map and ramdisk image
-build though).  I suspect the problem springs from the compile-time
-error message I get when I build:
+Hi
+I am doing some research that deals with patches to the kernel.  Here are my
+questions:
 
-  CC      security/dummy.o
-  CC      security/selinux/avc.o
-  CC      security/selinux/hooks.o
-security/selinux/hooks.c:4130: error: `selinux_netlink_send' undeclared
-here (not in a function)
-security/selinux/hooks.c:4130: error: initializer element is not
-constant
-security/selinux/hooks.c:4130: error: (near initialization for
-`selinux_ops.netlink_send')
-security/selinux/hooks.c:4131: error: `selinux_netlink_recv' undeclared
-here (not in a function)
-security/selinux/hooks.c:4131: error: initializer element is not
-constant
-security/selinux/hooks.c:4131: error: (near initialization for
-`selinux_ops.netlink_recv')
-make[2]: *** [security/selinux/hooks.o] Error 1
-make[1]: *** [security/selinux] Error 2
-make: *** [security] Error 2
-make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
-  CHK     include/linux/compile.h
-  CC      security/selinux/hooks.o
-security/selinux/hooks.c:4130: error: `selinux_netlink_send' undeclared
-here (not in a function)
-security/selinux/hooks.c:4130: error: initializer element is not
-constant
-security/selinux/hooks.c:4130: error: (near initialization for
-`selinux_ops.netlink_send')
-security/selinux/hooks.c:4131: error: `selinux_netlink_recv' undeclared
-here (not in a function)
-security/selinux/hooks.c:4131: error: initializer element is not
-constant
-security/selinux/hooks.c:4131: error: (near initialization for
-`selinux_ops.netlink_recv')
-make[2]: *** [security/selinux/hooks.o] Error 1
-make[1]: *** [security/selinux] Error 2
-make: *** [security] Error 2
-make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
-  CC [M]  arch/i386/kernel/msr.o
-  CC [M]  arch/i386/kernel/cpuid.o
-  CC [M]  fs/binfmt_aout.o
+[1]  I have obtained the patches for different versions of the kernel from a
+mirror website.  However, they do not tell me who are the authors of these
+patches and what are their addresses/emails.  How can I get this
+information?
 
-I grokked lkml a bit for a patch but found none.  hooks.c seems to have
-selinux_netlink_send defined at line 3366 and selinux_netlink_recv seems
-to be defined at line 3381 and I didn't see an #ifdef/#endif compiler
-directive wrapped around them.  I'm compiling SELinux into the kernel,
-but haven't enabled it at boot time on my system (yet).  2.6.7 builds
-ok.
+[2]  What is the actual process of approval of a patch that goes into the
+kernel?
 
-Please mail me directly as I'm not on the list, TIA,
+Thanks.
 
-Bob
+Arun
 

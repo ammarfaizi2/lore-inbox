@@ -1,36 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263576AbTDTNbA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 09:31:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263577AbTDTNbA
+	id S263577AbTDTNgH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 09:36:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263578AbTDTNgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 09:31:00 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50407 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263576AbTDTNa7
+	Sun, 20 Apr 2003 09:36:07 -0400
+Received: from mail.actcom.co.il ([192.114.47.13]:23217 "EHLO
+	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S263577AbTDTNgG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 09:30:59 -0400
-Date: Sun, 20 Apr 2003 14:42:58 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Shachar Shemesh <lkml@shemesh.biz>
-Cc: Ben Collins <bcollins@debian.org>, Larry McVoy <lm@work.bitmover.com>,
+	Sun, 20 Apr 2003 09:36:06 -0400
+Message-ID: <3EA2A4DD.2080809@shemesh.biz>
+Date: Sun, 20 Apr 2003 16:47:09 +0300
+From: Shachar Shemesh <lkml@shemesh.biz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+CC: Ben Collins <bcollins@debian.org>, Larry McVoy <lm@work.bitmover.com>,
        linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: BK->CVS, kernel.bkbits.net
-Message-ID: <20030420134258.GG10374@parcelfarce.linux.theplanet.co.uk>
-References: <20030417162723.GA29380@work.bitmover.com> <20030420013440.GG2528@phunnypharm.org> <3EA24CF8.5080609@shemesh.biz> <20030420130123.GK2528@phunnypharm.org> <3EA2A285.2070307@shemesh.biz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EA2A285.2070307@shemesh.biz>
-User-Agent: Mutt/1.4.1i
+References: <Pine.GSO.4.21.0304201157280.14680-100000@vervain.sonytel.be>
+In-Reply-To: <Pine.GSO.4.21.0304201157280.14680-100000@vervain.sonytel.be>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 20, 2003 at 04:37:09PM +0300, Shachar Shemesh wrote:
- 
-> On the other hand, both Wine (where I got to know it) and KDE seem to 
-> offer cvsup for getting the repository, so it can't be THAT difficult. 
-> As also noted above, Debian does carry it in easy to deploy .deb, as 
-> part of the main distro's archive (confirmed available on stable).
+Geert Uytterhoeven wrote:
 
-Debian carries it for i386.  Modula 3 _is_ a bitch to bootstrap and most
-of architectures simply do not bother.
+>On Sun, 20 Apr 2003, Shachar Shemesh wrote:
+>  
+>
+>>The idea is that it uses the full duplexity of the channel to get client 
+>>    
+>>
+>                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  
+>
+>>side information about the repository on that end while downloading 
+>>changes, thus increasing the effective bandwidth. It only falls back to 
+>>    
+>>
+>
+>What does this mean for asymmetric links (ADSL or cable)?
+>
+>Gr{oetje,eeting}s,
+>
+>						Geert
+>  
+>
+ADSL is still full duplex, just not symetrical.
+
+If I understand cvsup's operation enough, it uses the fact it 
+understands what a CVS repository is to send to the server the revisions 
+available for a given file. The lets the server know which parts of the 
+file it needs to send back. The uplink side receives a very low 
+utilization compared to the downlink side. In practice, I'm using cvsup 
+for the Wine repository over an ADSL (1.5M down, I don't remeber whether 
+it's 64 or 128K up), and am very pleased from it. Admitebly, I was not a 
+very enthusiastic rsync convert, so I can't tell you how much faster 
+cvsup is.
+
+If you want an official benchmark, you'll have to wait a few days for my 
+Wine rep. to fall out of synch. I should note the cvsup is useless if 
+all your'e going to do is get the initial version. If I recall 
+correctly, it actually use rsync to transfer files it cannot parse as 
+CVS files, which means that initial repository retrieval should be 
+equally fast with both.
+
+-- 
+Shachar Shemesh
+Open Source integration consultant
+Home page & resume - http://www.shemesh.biz/
+
+

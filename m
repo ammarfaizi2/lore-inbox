@@ -1,74 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262705AbVA0S5V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262614AbVA0TLh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262705AbVA0S5V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 13:57:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262708AbVA0S4z
+	id S262614AbVA0TLh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 14:11:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262624AbVA0TLg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 13:56:55 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:31681 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262705AbVA0SzH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 13:55:07 -0500
-Message-ID: <41F93926.4090401@comcast.net>
-Date: Thu, 27 Jan 2005 13:55:34 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: Patch 4/6  randomize the stack pointer
-References: <20050127101117.GA9760@infradead.org>  <20050127101322.GE9760@infradead.org>  <41F92721.1030903@comcast.net> <1106848051.5624.110.camel@laptopd505.fenrus.org> <41F92D2B.4090302@comcast.net> <Pine.LNX.4.58.0501271010130.2362@ppc970.osdl.org> <Pine.LNX.4.58.0501271018510.2362@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0501271018510.2362@ppc970.osdl.org>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Thu, 27 Jan 2005 14:11:36 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:53385 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262614AbVA0TLe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 14:11:34 -0500
+Date: Thu, 27 Jan 2005 20:11:20 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, torvalds@osdl.org
+Subject: Re: Patch 1/6  introduce sysctl
+Message-ID: <20050127191120.GA10460@elte.hu>
+References: <20050127101117.GA9760@infradead.org> <20050127101201.GB9760@infradead.org> <20050127181525.GA4784@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050127181525.GA4784@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
+* Pavel Machek <pavel@ucw.cz> wrote:
 
-
-Linus Torvalds wrote:
+> Hi!
 > 
-> On Thu, 27 Jan 2005, Linus Torvalds wrote:
+> > This first patch of the series introduces a sysctl (default off) that
+> > enables/disables the randomisation feature globally. Since randomisation may
+> > make it harder to debug really tricky situations (reproducability goes
+> > down), the sysadmin needs a way to disable it globally.
 > 
->>Real engineering is about doing a good job balancing different issues.
-> 
-> 
+> Well, for distribution vendors, seeing "these reports from users are
+> same error" will becoe harder, too, and sysctl can not help there :-(.
 
-[...]
+this is true to a limited degree, but it's only part of the picture. 
+When we first introduced address-space randomisation in Fedora 1 (almost
+2 years ago) we were worried about this effect too, very much in fact. 
 
-> test. Maybe such a vendor understands that you have to ease into things, 
-> and you can't just say "this is how it has to be done from now on".
-> 
+What happened is that the _debugging infrastructure_ improved. Fedora
+introduced debug-info packages, so that we dont get any raw dumps of
+bugs anymore - what we get are nice symbolic backtraces which are easy
+to match up against each other.
 
-My idea of "Easing into things" is dropping the full model in the guy's
-face and saying "Here, this is what we want to do.  It's there, you
-don't have to use it, but you should be mindful because it's better and
-in the future people will want it."  Then people will wait to turn it on
-until everything is written to work with it--and every developer will
-see it and know that that is there and that certain things need to be done.
+also, we already have this effect in the mainline kernel - on P4's the
+stack is already randomized. Also, prelink (even the non-randomized
+variant) already creates a per-machine VM layout of libraries.
 
-You don't have to beat them with a crowbar until they listen, but you
-have to show them what they're supposed to do.
+so, i'm glad to report, it's a non-issue. Sometimes developers want to
+disable randomisation during development (quick'n'easy hacks get quicker
+and easier - e.g. if you watch an address within gdb), so having the
+capability for unprivileged users to disable randomisation on the fly is
+useful and Fedora certainly offers that, but from a support and
+bug-reporting POV it's not a problem.
 
-> 			Linus
-> 
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB+TklhDd4aOud5P8RArG1AJ48Sno5o0MywWKcwFIF2n8GapOLrACffZDG
-KzNjlsb8m2DWVaPEt+yfQ+k=
-=BBA9
------END PGP SIGNATURE-----
+	Ingo

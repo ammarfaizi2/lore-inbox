@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278447AbRJ3NdS>; Tue, 30 Oct 2001 08:33:18 -0500
+	id <S279949AbRJ3Nh6>; Tue, 30 Oct 2001 08:37:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279794AbRJ3NdJ>; Tue, 30 Oct 2001 08:33:09 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:43181 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S278447AbRJ3Ncz>; Tue, 30 Oct 2001 08:32:55 -0500
-Date: Tue, 30 Oct 2001 14:29:12 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Green <greeen@iii.org.tw>
-cc: LinuxEmbeddedMailList <linux-embedded@waste.org>,
-        LinuxKernelMailList <linux-kernel@vger.kernel.org>,
-        MipsMailList <linux-mips@fnet.fr>
-Subject: Re: Discontinuous memory!!
-In-Reply-To: <00c701c1612b$4c133620$4c0c5c8c@trd.iii.org.tw>
-Message-ID: <Pine.GSO.3.96.1011030142241.6694F-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S279794AbRJ3Nhs>; Tue, 30 Oct 2001 08:37:48 -0500
+Received: from nydalah028.sn.umu.se ([130.239.118.227]:35973 "EHLO
+	x-files.giron.wox.org") by vger.kernel.org with ESMTP
+	id <S279949AbRJ3Nh3>; Tue, 30 Oct 2001 08:37:29 -0500
+Message-ID: <00a701c16148$4fb86a30$0201a8c0@HOMER>
+From: "Martin Eriksson" <nitrax@giron.wox.org>
+To: "Sam Vilain" <sam@vilain.net>, "Bryan O'Sullivan" <bos@serpentine.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <1004179736.1615.19.camel@pelerin.serpentine.com> <E15yYuU-00043h-00@hoffman.vilain.net>
+Subject: Re: VIA KT133 data corruption update
+Date: Tue, 30 Oct 2001 14:39:34 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Oct 2001, Green wrote:
+----- Original Message -----
+From: "Sam Vilain" <sam@vilain.net>
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Tuesday, October 30, 2001 2:26 PM
+Subject: Re: VIA KT133 data corruption update
 
-> How could I modify the kernel to support 32MB discontinuous memory?
 
- You need to call add_memory_region() for each continuous physical memory
-area.  See how it's done for other platforms.
+<snip>
+>
+> I notice that Dell use FreeDOS on their utility disks that do this sort of
+> thing.  Dell++.  Perhaps you might have more luck using that over
+> WinBlowsME.
+>
+> http://www.freedos.org/
+>
 
- Note that <linux-mips@oss.sgi.com> is probably the best place to discuss
-MIPS/Linux issues.
+Even better: www.bootdisk.org
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

@@ -1,123 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbUBBXdP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 18:33:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbUBBXdP
+	id S264506AbUBBX0e (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 18:26:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265834AbUBBX0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 18:33:15 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:31485 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261595AbUBBXdK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 18:33:10 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Mark Haverkamp <markh@osdl.org>
-Subject: Re: ide taskfile and cdrom hang
-Date: Tue, 3 Feb 2004 00:37:32 +0100
-User-Agent: KMail/1.5.3
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Cliff White <cliffw@osdl.org>
-References: <1075502193.26342.61.camel@markh1.pdx.osdl.net> <200402022235.47439.bzolnier@elka.pw.edu.pl> <1075758247.12117.1.camel@markh1.pdx.osdl.net>
-In-Reply-To: <1075758247.12117.1.camel@markh1.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Feb 2004 18:26:34 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:38558 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264506AbUBBX0c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 18:26:32 -0500
+Date: Mon, 2 Feb 2004 15:26:56 -0800
+From: Greg KH <greg@kroah.com>
+To: Linda Xie <lxiep@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, scheel@us.ibm.com, wortman@us.ibm.com
+Subject: Re: PATCPATCH -- add unlimited name lengths support to sysfs
+Message-ID: <20040202232656.GA16474@us.ibm.com>
+References: <3FDF902A.4000903@us.ltcfwd.linux.ibm.com> <20031216231447.GA4781@kroah.com> <3FE0BC4D.8080605@us.ltcfwd.linux.ibm.com> <20031217204100.GA13305@kroah.com> <3FE10F8A.7080902@us.ltcfwd.linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200402030037.32701.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <3FE10F8A.7080902@us.ltcfwd.linux.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-Operating-System: Linux 2.6.2-rc3 (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 02 of February 2004 22:44, Mark Haverkamp wrote:
-> On Mon, 2004-02-02 at 13:35, Bartlomiej Zolnierkiewicz wrote:
-> > On Monday 02 of February 2004 21:45, Mark Haverkamp wrote:
-> > > On Mon, 2004-02-02 at 11:45, Bartlomiej Zolnierkiewicz wrote:
-> > > > On Monday 02 of February 2004 19:46, Mark Haverkamp wrote:
-> > > > > On Sun, 2004-02-01 at 12:48, Bartlomiej Zolnierkiewicz wrote:
-> > >
-> > > [ .... ]
-> > >
-> > > > > Thanks,
-> > > > >
-> > > > > hdparm -I /dev/hda didn't hang.  I got this on the console:
-> > > > >
-> > > > > hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-> > > > > hda: drive_cmd: error=0x04Aborted Command
-> > > >
-> > > > That's okay.
-> > > > hdparm first tries WIN_IDENTIFY which can fail on ATAPI devices.
-> > > >
-> > > > > I added the patch that you provided and I still get the hang when I
-> > > > > cat /proc/ide/hda/identify.  I put a printk In the code to make
-> > > > > sure that it was going through the added code, and it is.
-> > > >
-> > > > So it is something different.  Can you give this patch a go?
-> > > > We will know more about what's going on.
-> > > >
-> > > > Thanks,
-> > > > --bart
-> > >
-> > > OK, Here it is:
-> > >
-> > > hda: (WAIT_NOT_BUSY) status=0xd0
-> > > hda: (CHECK_STATUS) status=0xd0
-> > > hda: (BUSY) status=0xd0
-> > > hda: lost interrupt
-> > > hda: (BUSY) status=0x50
-> > > hda: lost interrupt
-> > > hda: (BUSY) status=0x50
-> > > hda: lost interrupt
-> > > hda: (BUSY) status=0x50
-> > > hda: lost interrupt
-> > > hda: (BUSY) status=0x50
+On Wed, Dec 17, 2003 at 08:23:06PM -0600, Linda Xie wrote:
+> Greg KH wrote:
+> >On Wed, Dec 17, 2003 at 02:27:57PM -0600, Linda Xie wrote:
 > >
-> > Here we go with next (incremental) patch...
+> >>Greg KH wrote:
+> >>
+> >>>On Tue, Dec 16, 2003 at 05:07:22PM -0600, Linda Xie wrote:
+> >>>
+> >>>
+> >>>>diff -Nru a/fs/sysfs/symlink.c b/fs/sysfs/symlink.c
+> >>>>--- a/fs/sysfs/symlink.c	Sun Dec 14 21:19:29 2003
+> >>>>+++ b/fs/sysfs/symlink.c	Sun Dec 14 21:19:29 2003
+> >>>>@@ -42,7 +42,10 @@
+> >>>>	struct kobject * p = kobj;
+> >>>>	int length = 1;
+> >>>>	do {
+> >>>>-		length += strlen(p->name) + 1;
+> >>>>+		if (p->k_name)
+> >>>>+			length += strlen(p->k_name) + 1;
+> >>>>+		else
+> >>>>+			length += strlen(p->name) + 1;
+> >>>
+> >>>
+> >>>Shouldn't this just be:
+> >>>		length += strlen(kobject_name(p)) + 1;
+> >>>
+> >>
+> >>That is correct. But here is my concern: Some of the callers of 
+> >>sysfs_create_link()
+> >>set p->name instead of p->k_name. So for them, the length calculated 
+> >>using kobject_name(p) will be incorrect. Correct me if I am wrong.
 > >
-> >  linux-2.6.2-rc2-root/drivers/ide/ide-taskfile.c |   12 ++++++++----
-> >  1 files changed, 8 insertions(+), 4 deletions(-)
 > >
-> > diff -puN drivers/ide/ide-taskfile.c~ide_tf_identify_debug2
-> > drivers/ide/ide-taskfile.c ---
-> > linux-2.6.2-rc2/drivers/ide/ide-taskfile.c~ide_tf_identify_debug2	2004-02
-> >-02 22:24:31.802461904 +0100 +++
-> > linux-2.6.2-rc2-root/drivers/ide/ide-taskfile.c	2004-02-02
-> > 22:33:54.987844712 +0100 @@ -786,14 +786,18 @@
-> > EXPORT_SYMBOL(task_mulout_intr);
-> >  static u8 wait_drive_not_busy(ide_drive_t *drive)
-> >  {
-> >  	ide_hwif_t *hwif = HWIF(drive);
-> > -	int retries = 5;
-> > +	int retries = 100;
-> >  	u8 stat;
-> > +
-> >  	/*
-> > -	 * (ks) Last sector was transfered, wait until drive is ready.
-> > -	 * This can take up to 10 usec. We willl wait max 50 us.
-> > +	 * Last sector was transfered, wait until drive is ready.
-> > +	 * This can take up to 10 usec, but we will wait max 1 ms
-> > +	 * (drive_cmd_intr() waits that long).
-> >  	 */
-> > -	while (((stat = hwif->INB(IDE_STATUS_REG)) & BUSY_STAT) && retries--)
-> > +	while (((stat = hwif->INB(IDE_STATUS_REG)) & BUSY_STAT) && retries--) {
-> > +		printk("%s: (UDELAY(10)) status=0x%02x\n", drive->name, stat);
-> >  		udelay(10);
-> > +	}
-> >  	printk("%s: (WAIT_NOT_BUSY) status=0x%02x\n", drive->name, stat);
-> >  	return stat;
-> >  }
+> >Well if a kobject only uses the .name field, .k_name will point to it
+> >(see kobject_add()), so the kobject_name() call will work in the above
+> >case (as it should always do.)  Actually that if (p->k_name) statement
+> >will always be true because of this fact :)
 > >
-> > _
->
-> No hang this time.  Saw this on the console:
->
-> hda: (UDELAY(10)) status=0xd8
-> hda: (WAIT_NOT_BUSY) status=0x50
-> hda: (CHECK_STATUS) status=0x50
-> hda: (UDELAY(10)) status=0xd8
-> hda: (WAIT_NOT_BUSY) status=0x50
-> hda: (CHECK_STATUS) status=0x50
+> >This lets people like the edd driver which does:
+> >	 snprintf(edev->kobj.name, EDD_DEVICE_NAME_SIZE, "int13_dev%02x", 
+> >	 edd[i].device);
+> >still work properly.  Ideally, callers like this should change to use
+> >the kobject_set_name() function, but there's no rush.
+> >
+> >thanks,
+> >
+> >greg k-h
+> >
+> 
+> Thank you very much. Below is an updated patch:
 
-Now, can you comment out "(UDELAY(10))" printk and add printk for "retries"
-variable after while {} loop.  I thought there will be more "(UDELAY(10))"
-messages - but I forgot about delay introduced by printk() call :-).
+Ick, that patch had no tabs :(
 
---bart
+Care to fix your email client and send it to me again?
 
+thanks,
+
+greg k-h

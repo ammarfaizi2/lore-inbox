@@ -1,115 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268695AbUJDWGA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268678AbUJDWEt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268695AbUJDWGA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 18:06:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268686AbUJDWFp
+	id S268678AbUJDWEt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 18:04:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268652AbUJDVzs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 18:05:45 -0400
-Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:53053 "EHLO
-	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S268698AbUJDWC4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 18:02:56 -0400
-X-BrightmailFiltered: true
-Reply-To: <hzhong@cisco.com>
-From: "Hua Zhong" <hzhong@cisco.com>
-To: "'Andrew Morton'" <akpm@osdl.org>, <gww@btinternet.com>, <s.rivoir@gts.it>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: 2.6.9-rc3-mm2
-Date: Mon, 4 Oct 2004 15:02:52 -0700
-Organization: Cisco Systems
-Message-ID: <00b301c4aa5d$e4f61730$ca41cb3f@amer.cisco.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-Reply-To: <20041004143953.10e6d764.akpm@osdl.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4939.300
-Importance: Normal
+	Mon, 4 Oct 2004 17:55:48 -0400
+Received: from pat.uio.no ([129.240.130.16]:18365 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S268677AbUJDVyP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 17:54:15 -0400
+Subject: Re: [PATCH] NFS using CacheFS
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Steve Dickson <SteveD@redhat.com>
+Cc: nfs@lists.sourceforge.net,
+       Linux filesystem caching discussion list 
+	<linux-cachefs@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4161B664.70109@RedHat.com>
+References: <4161B664.70109@RedHat.com>
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <1096926837.22446.141.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 04 Oct 2004 23:53:57 +0200
+Content-Transfer-Encoding: 8BIT
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+På må , 04/10/2004 klokka 22:45, skreiv Steve Dickson:
 
+> 3) There is no user level support. I realize this is extremely cheesy
+>      but I noticed that the NFS posix mount  option (in the 2.6 kernel)
+>      was no longer being used, so I high jacked it.  Which means
+>      to make NFS to used CacheFS you need to use the posix option:
+> 
+>      mount -o posix server:/export/home /mnt/server/home
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Andrew Morton
-> Sent: Monday, October 04, 2004 2:40 PM
-> To: gww@btinternet.com; s.rivoir@gts.it; linux-kernel@vger.kernel.org
-> Subject: Re: 2.6.9-rc3-mm2
-> 
-> 
-> Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > Could you try this patch?  It'll locate the bug for us.
-> 
-> Don't worry about this - Ingo found it.
-> 
-> You could try these instead:
-> 
-> --- 
-> 25/include/linux/netfilter_ipv4/ip_conntrack.h~conntrack-preem
-> pt-safety-fix	Mon Oct  4 14:36:19 2004
-> +++ 25-akpm/include/linux/netfilter_ipv4/ip_conntrack.h	
-> Mon Oct  4 14:37:02 2004
-> @@ -311,10 +311,11 @@ struct ip_conntrack_stat
->  	unsigned int expect_delete;
->  };
->  
-> -#define CONNTRACK_STAT_INC(count)				\
-> -	do {							\
-> -		per_cpu(ip_conntrack_stat, get_cpu()).count++;	\
-> -		put_cpu();					\
-> +#define CONNTRACK_STAT_INC(count)				
-> 	\
-> +	do {							
-> 	\
-> +		preempt_disable();				
-> 	\
-> +		per_cpu(ip_conntrack_stat, 
-> smp_processor_id()).count++;	\
-> +		preempt_disable();				
+This is my one and only real gripe about it. The posix mount option is
+clearly documented, so we really cannot play around with it. Why can't
+you just add a separate cachefs flag?
 
-I guess it should be "preempt_enable()"? :)
+Otherwise, I'm a bit dubious about the wisdom of putting
+nfs_invalidatepage() and nfs_releasepage() into fs/nfs/file.c. These are
+not file operations, but rather pure page cache operations. I would have
+thought that either read.c or possibly nfs-cachefs.c would be more
+appropriate.
 
-> 	\
->  	} while (0)
->  
->  /* eg. PROVIDES_CONNTRACK(ftp); */
-> _
-> 
-> 
-> --- 25/include/net/neighbour.h~neigh_stat-preempt-fix-fix	
-> Mon Oct  4 14:39:22 2004
-> +++ 25-akpm/include/net/neighbour.h	Mon Oct  4 14:39:22 2004
-> @@ -113,8 +113,9 @@ struct neigh_statistics
->  
->  #define NEIGH_CACHE_STAT_INC(tbl, field)			
-> 	\
->  	do {							
-> 	\
-> -		(per_cpu_ptr((tbl)->stats, 
-> get_cpu())->field)++;	\
-> -		put_cpu();					
-> 	\
-> +		preempt_disable();				
-> 	\
-> +		(per_cpu_ptr((tbl)->stats, 
-> smp_processor_id())->field)++; \
-> +		preempt_enable();				
-> 	\
->  	} while (0)
->  
->  struct neighbour
-> _
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Please note too that Chuck has made generic functions for copying and
+comparing NFS filehandles. They should be used in nfs_cache_fh_match() &
+co.
+I'm a bit worried about the use of the raw IP address in
+nfs_cache_server_match(). It seems to me that when we add the NFSv4.1
+support for trunking over several different transport mechanisms (RDMA,
+IPv4/v6 etc) on the same mountpoint, then we may end up with a problem.
+We can probably leave it in for now, but later we may want to consider
+switching to using server->hostname or something equivalent.
+
+Otherwise, it looks good. Looking forward to try it out...
+
+Cheers,
+  Trond
 

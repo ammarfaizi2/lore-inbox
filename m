@@ -1,41 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265661AbUBPQxh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 11:53:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265700AbUBPQxh
+	id S265736AbUBPQ6C (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 11:58:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265740AbUBPQ6C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 11:53:37 -0500
-Received: from mail.shareable.org ([81.29.64.88]:17284 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S265661AbUBPQxg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 11:53:36 -0500
-Date: Mon, 16 Feb 2004 16:53:29 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Christophe Saout <christophe@saout.de>,
-       LKML <linux-kernel@vger.kernel.org>, pavel@suse.cz
-Subject: Re: kthread, signals and PF_FREEZE (suspend)
-Message-ID: <20040216165329.GB17323@mail.shareable.org>
-References: <1076890731.5525.31.camel@leto.cs.pocnet.net> <20040216034251.0912E2C0F8@lists.samba.org>
+	Mon, 16 Feb 2004 11:58:02 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:2456 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S265736AbUBPQ56 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 11:57:58 -0500
+Date: Mon, 16 Feb 2004 17:57:56 +0100
+From: Jens Axboe <axboe@suse.de>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: dm core patches
+Message-ID: <20040216165756.GB18938@suse.de>
+References: <1076690681.2158.54.camel@mulgrave>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040216034251.0912E2C0F8@lists.samba.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1076690681.2158.54.camel@mulgrave>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> > That means that signal_pending() will return true for that process which
-> > will make kthread stop the thread.
+On Fri, Feb 13 2004, James Bottomley wrote:
+> > The mechanism is in place, but the SCSI stack still needs a few changes
+> > to pass down the correct errors. The easiest would be to pass down
+> > pseudo-sense keys (I'd rather just call them something else as not to
+> > confuse things, io error hints or something) to
+> > end_that_request_first(), changing uptodate from a bool to a hint.
 > 
-> Yes, the way they are currently coded.  I had assumed that spurious
-> signals do not occur.
+> Yes, I'm ready to do this in SCSI.  I think the uptodate field should
+> include at least two (and possibly three) failure type indications:
+> 
+> - fatal: error cannot be retried
+> - retryable: error may be retried
+> 
+> and possibly
+> 
+> - informational: This is dangerous, since it's giving information about
+> a transaction that actually succeeded (i.e. we'd need to fix drivers to
+> recognise it as being uptodate but with info, like sector remapped)
+> 
+> Then, we also have a error origin indication:
+> 
+> - device: The device is actually reporting the problem
+> - transport: the error is a transport error
+> - driver: the error comes from the device driver.
+> 
+> So dm would know that fatal transport or driver errors could be
+> repathed, but fatal device errors probably couldn't.
+> 
+> Any that I've missed?
 
-Yowch.  Does suspend mean this warning in futex_wait is wrong?
+Nope, this looks pretty spot-on to me. I have to agree with Lars and
+rather keep it simple and straight forward, than introduce shady
+informational bits.
 
-	/* A spurious wakeup should never happen. */
-	WARN_ON(!signal_pending(current));
-	return -EINTR;
+-- 
+Jens Axboe
 
--- Jamie

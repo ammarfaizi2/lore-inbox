@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268940AbRIDUWG>; Tue, 4 Sep 2001 16:22:06 -0400
+	id <S268926AbRIDUYG>; Tue, 4 Sep 2001 16:24:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268916AbRIDUVz>; Tue, 4 Sep 2001 16:21:55 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:44046 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268940AbRIDUVp>; Tue, 4 Sep 2001 16:21:45 -0400
-Subject: Re: page_launder() on 2.4.9/10 issue
-To: jaharkes@cs.cmu.edu (Jan Harkes)
-Date: Tue, 4 Sep 2001 21:25:20 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        marcelo@conectiva.com.br (Marcelo Tosatti),
-        riel@conectiva.com.br (Rik van Riel), linux-kernel@vger.kernel.org
-In-Reply-To: <20010904153958.A31994@cs.cmu.edu> from "Jan Harkes" at Sep 04, 2001 03:39:59 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S268922AbRIDUXz>; Tue, 4 Sep 2001 16:23:55 -0400
+Received: from cs666822-222.austin.rr.com ([66.68.22.222]:23430 "EHLO
+	igor.taral.net") by vger.kernel.org with ESMTP id <S268916AbRIDUXr>;
+	Tue, 4 Sep 2001 16:23:47 -0400
+Date: Tue, 4 Sep 2001 15:24:06 -0500
+From: Taral <taral@taral.net>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: DEVFS_FL_AUTO_DEVNUM on block devices
+Message-ID: <20010904152406.A5735@taral.net>
+In-Reply-To: <20010904144605.A5496@taral.net> <200109042013.f84KDYD08203@vindaloo.ras.ucalgary.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15eMl6-0004Rn-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <200109042013.f84KDYD08203@vindaloo.ras.ucalgary.ca>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Pages allocated with do_anonymous_page are not added to the active list.
-> as a result there is no aging information for a page until it is
-> unmapped. So we might be unmapping and allocating swap for shared pages
+On Tue, Sep 04, 2001 at 02:13:34PM -0600, Richard Gooch wrote:
+> taral@taral.net writes:
+> > 
+> > --HlL+5n6rz5pIUxbD
+> > Content-Type: text/plain; charset=us-ascii
+> > Content-Disposition: inline
+> > Content-Transfer-Encoding: quoted-printable
+> 
+> Please fix your mailer to not send this junk.
 
-Right ok. 
+It's not junk, it's PGP/MIME. But I disabled it for you.
 
-> I guess it is just more carefully papering over the existing problems.
+> You can use the devfs_alloc_major() function to grab a major number
+> that won't conflict with another driver. Then use that major when
+> calling devfs_register().
 
-If you are correct then I suspect the better behaviour is primarily coming
-from the balancing algorithms and the choices made rather than the quality
-of data suggested.
+Sounds good to me. It might be wise, however, to disable use of
+DEVFS_FL_AUTO_DEVNUM in devfs_register with block devices, since it's
+not incredibly useful to have two different drivers sharing a major
+number.
 
-When Rik gets back off a plane this sounds like something that should be
-tested - one item at a time.
-
-Alan
-
+-- 
+Taral <taral@taral.net>
+This message is digitally signed. Please PGP encrypt mail to me.
+"Any technology, no matter how primitive, is magic to those who don't
+understand it." -- Florence Ambrose

@@ -1,115 +1,155 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262167AbVAZXxP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262201AbVAZXxP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262167AbVAZXxP (ORCPT <rfc822;willy@w.ods.org>);
+	id S262201AbVAZXxP (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 26 Jan 2005 18:53:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262210AbVAZXwn
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbVAZXuJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 18:52:43 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:8171 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S262223AbVAZT6Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 14:58:16 -0500
-Date: Wed, 26 Jan 2005 23:21:05 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
-Message-ID: <20050126232105.77781a17@zanzibar.2ka.mipt.ru>
-In-Reply-To: <20050126202027.3b56a14f.khali@linux-fr.org>
-References: <waZNwjBp.1106750054.2006670.khali@localhost>
-	<1106755819.5257.207.camel@uganda>
-	<20050126202027.3b56a14f.khali@linux-fr.org>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 26 Jan 2005 18:50:09 -0500
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:36263 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262142AbVAZTap (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 14:30:45 -0500
+Message-ID: <41F7EFF4.40303@comcast.net>
+Date: Wed, 26 Jan 2005 14:31:00 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sytse Wielinga <s.b.wielinga@student.utwente.nl>
+CC: Linus Torvalds <torvalds@osdl.org>, Bill Davidsen <davidsen@tmr.com>,
+       Valdis.Kletnieks@vt.edu, Arjan van de Ven <arjan@infradead.org>,
+       Ingo Molnar <mingo@elte.hu>, Christoph Hellwig <hch@infradead.org>,
+       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       marcelo.tosatti@cyclades.com, Greg KH <greg@kroah.com>, chrisw@osdl.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: thoughts on kernel security issues
+References: <1106157152.6310.171.camel@laptopd505.fenrus.org> <200501191947.j0JJlf3j024206@turing-police.cc.vt.edu> <41F6604B.4090905@tmr.com> <Pine.LNX.4.58.0501250741210.2342@ppc970.osdl.org> <41F6816D.1020306@tmr.com> <41F68975.8010405@comcast.net> <Pine.LNX.4.58.0501251025510.2342@ppc970.osdl.org> <41F691D6.8040803@comcast.net> <Pine.LNX.4.58.0501251054400.2342@ppc970.osdl.org> <41F6A5F8.5030100@comcast.net> <20050126160620.GE23182@speedy.student.utwente.nl>
+In-Reply-To: <20050126160620.GE23182@speedy.student.utwente.nl>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Jan 2005 20:20:27 +0100
-Jean Delvare <khali@linux-fr.org> wrote:
-
-> [Voluntarily skipping a large part of the discussion so as to stop
-> wasting everyone's time and focus on the one technical point I am
-> interested in.]
-> 
-> Hi Evgeniy,
-> 
-> > As I saw from different documentation - logical devices itself are the
-> > same.
-> > 
-> > And it is the same for superio standard.
-> > 
-> > For example sc1100 and pc87366 superio chips have the same logical
-> > inside, although different logical device set.
-> > 
-> > (...)
-> > 
-> > Not only access.
-> > Logic inside superio chip is submitted to superio standard.
-> > I designed(at least tried to) superio subsistem
-> > that it can handle all differencies using per device callbacks.
-> 
-> I would like to ensure that we agree on what is common to all Super-I/O
-> chips (as per Intel's LPC specification).
-> 
-> 1* Super-I/O are accessed at I/O addresses 0x2e+0x2f or alternate
-> addresses 0x4e+0x4f.
-> 
-> 2* These addresses give access to a 256 byte addressing space.
-> 
-> 3* Super-I/O chips are divided in logical devices, which can be selected
-> by writing its id to 0x07. What each logical device does is not
-> standardized (depends of the chip).
-> 
-> 4* Range 0x00-0x2f is common to all logical devices, while range
-> 0x30-0xff is logical-device specific.
-> 
-> 5* Range 0x20-0x2f contains chip-wide identification and configuration
-> registers. Definition of these registers is not standardized.
-> 
-> 6* 0x31 controls the activation of each logical device, 0x60-0x63 its
-> base address, 0x70-0x73 its interrupts. Definition of these registers is
-> standardized.
-> 
-> 7* Range 0xf0-0xff contains logical device-specific configuration
-> registers. Definition of these registers is not standardized.
-> 
-> And that's about it. The way each logical device works (how registers
-> are mapped from the base address) is completely chip-specific.
-> 
-> Do we agree on all this, or did I miss somthing? I would like to make
-> sure that, when you refer to sharing as much code as possible between
-> the various Super-I/O chips, you really mean the organization of logical
-> devices within the Super-I/O (selection, retrieval of base address and
-> interrupt configuration) and not the logical devices themselves.
-
-You are absolutely right, I just want to add following note:
-
-Most of the logical devices inside superio chips has standardized access methods.
-One just need base address and index, that is all.
-For such devices all infrastructure already exists in the provided superio core.
-One just need to provide one logical device driver for it(like sc_gpio.c).
-
-But, sometimes it really can be the situation, when logical device is not
-obeyed to rules in the existing logical device driver(like GPIO in sc1100, which is
-not superio logical device but is fitted design quite well), for such
-cases there is also infrastructure in superio driver. For example scx.c -
-it has it's own private GPIO logical device, which is "cloned" from the
-"standard"(described in sc_gpio.c) logical device(clones actully have 
-almost nothing in common).
-
-Situation with device cloning is very unlikely according to various superio
-chips I saw and read datasheets.
- 
-> Thanks,
-> -- 
-> Jean Delvare
-> http://khali.linux-fr.org/
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
-	Evgeniy Polyakov
 
-Only failure makes us experts. -- Theo de Raadt
+Sytse Wielinga wrote:
+> On Tue, Jan 25, 2005 at 03:03:04PM -0500, John Richard Moser wrote:
+> 
+>>That being said, you should also consider (unless somebody forgot to
+>>tell me something) that it takes two source trees to make a split-out
+>>patch.  The author also has to chew down everything but the feature he
+>>wants to split out.  I could probably log 10,000 man-hours splitting up
+>>GrSecurity.  :)
+> 
+> 
+> I'd try out Andrew's patch scripts if I were you. If you're making a patch to
+> the kernel, you'd best keep it in separate patches from the beginning, and
+> that's exactly what those scripts are very useful for.
+> 
+> 
+>>>It's also a lot easier to find the (inevitable) bugs. Either you already 
+>>>have a clue ("try reverting that one patch") or you can do things like 
+>>>binary searching. The bugs introduced a patch often have very little to do 
+>>>with the thing a patch fixes - exactly because the patch _fixes_ 
+>>>something, it's been tested with that particular problem, and the new 
+>>>problem it introduces is usually orthogonal.
+>>
+>>true. Very very true.
+>>
+>>With things like Gr, there's like a million features.  Normally the
+>>first step I take is "Disable it all".  If it still breaks, THEN THERE'S
+>>A PROBLEM.  If it works, then the binary searching begins.
+> 
+> 
+> So how do you think you would do a binary search within big patches, if it
+> would take you 10,000 man-hours to split up the patch? Disabling a lot of
+> small patches is easy, disabling a part of a big one takes a lot more work.
+> 
+
+'make menuconfig' is not a lot more work wtf
+
+
+[*] Grsecurity
+  Security Level (Custom)  --->
+  Address Space Protection  --->
+  Role Based Access Control Options  --->
+  Filesystem Protections  --->
+  Kernel Auditing  --->
+  Executable Protections  --->
+  Network Protections  --->
+  Sysctl support  --->
+  Logging Options  --->
+
+?? Address Space Protection ??
+ [ ] Deny writing to /dev/kmem, /dev/mem, and /dev/port
+ [ ] Disable privileged I/O
+ [*] Remove addresses from /proc/<pid>/[maps|stat]
+ [*] Deter exploit bruteforcing
+ [*] Hide kernel symbols
+
+Need I continue?  There's some 30 or 40 more options I could show.  If
+you can't use your enter, left, right, up, y, n, and ? keys, you're
+crippled and won't be able to patch and unpatch crap either.
+
+> 
+>>>Which is why lots of small patches usually have _different_ bug behaviour
+>>>than the patch they fix. To go back to the A+B fix: the bug they fix may
+>>>be fixed only by the _combination_ of the patch, but the bug they cause is
+>>>often an artifact of _one_ of the patches.
+>>>
+>>
+>>Wasn't talking about bugfixes, see above.
+> 
+> 
+> Oh, so you're saying that security fixes don't cause bugs? Great world you live
+> in, then...
+> 
+
+I didn't say that.  I said I wasn't talking about bugfix patches.  I
+wasn't talking about "mremap(0,0) gives you root," I was talking about
+"preventing following links under X conditions breaks nothing legitimate
+but deadstops /tmp races" or "properly setting CPU protections for
+PROT_EXEC stops code injection" or "ASLR stops ret2libc attacks."
+
+If you people ever bothered to read what I say, you wouldn't continually
+say stupid shit like <me> You get milk from cows <you> wtf idiot
+chocolate milk doens't come from chocolate cows
+
+> 
+>>>IOW, splitting the patches up makes them
+>>> - easier to merge
+>>> - easier to verify
+>>> - easier to debug
+>>>
+>>>and combining them has _zero_ advantages (whatever bug the combined patch
+>>>fix _will_ be fixed by the series of individual patches too - even if the
+>>>splitting was buggy in some respect, you are pretty much guaranteed of
+>>>this, since the bug you were trying to fix is the _one_ thing you are
+>>>really testing for). 
+>>
+>>Lots of work to split up a patch though.
+> 
+> 
+> See above.
+> 
+>     Sytse
+> 
+
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB9+/zhDd4aOud5P8RAsZzAJ4rUryqsKc1OcfT4Nwc1m/lJtePPwCfXMWx
+fEoc1nSxOfEzjJNZRDx6qYQ=
+=NYJe
+-----END PGP SIGNATURE-----

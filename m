@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264839AbSKRV06>; Mon, 18 Nov 2002 16:26:58 -0500
+	id <S264856AbSKRV14>; Mon, 18 Nov 2002 16:27:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264842AbSKRV06>; Mon, 18 Nov 2002 16:26:58 -0500
-Received: from fep19-0.kolumbus.fi ([193.229.0.45]:35506 "EHLO
-	fep19-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id <S264839AbSKRV06>; Mon, 18 Nov 2002 16:26:58 -0500
-Date: Mon, 18 Nov 2002 23:33:58 +0200 (EET)
-From: Kai Makisara <Kai.Makisara@kolumbus.fi>
-X-X-Sender: makisara@kai.makisara.local
-To: linux-kernel@vger.kernel.org
-cc: Gregoire Favre <greg@ulima.unil.ch>
-Subject: Re: 2.5.48 and SCSI ?
-In-Reply-To: <20021118203605.GC8357@ulima.unil.ch>
-Message-ID: <Pine.LNX.4.44.0211182329020.736-100000@kai.makisara.local>
+	id <S264885AbSKRV14>; Mon, 18 Nov 2002 16:27:56 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20491 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264856AbSKRV1y>;
+	Mon, 18 Nov 2002 16:27:54 -0500
+Message-ID: <3DD95CD8.9000703@pobox.com>
+Date: Mon, 18 Nov 2002 16:34:16 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Vergoz Michael <mvergoz@sysdoor.com>, Ducrot Bruno <poup@poupinou.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 8139too.c patch for kernel 2.4.19
+References: <028901c28ead$10dfbd20$76405b51@romain> <3DD89813.9050608@pobox.com> <003b01c28edf$9e2b1530$76405b51@romain> <20021118170447.GB27595@poup.poupinou.org> <3DD9227E.5030204@pobox.com> <001901c28f2b$2f3540a0$76405b51@romain> <3DD92DE8.7030501@pobox.com> <00c701c28f3d$b044a160$76405b51@romain> <3DD9588C.8090701@pobox.com>
+In-Reply-To: <028901c28ead$10dfbd20$76405b51@romain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Nov 2002, Gregoire Favre wrote:
+Jeff Garzik wrote:
 
-> Hello,
->
-> I have applied the patch sent today, but the kernel don't find my root
-> (aic7xxx), what I got is:
->
-I had the same problem with sym53c8xxx_2 when devfs was configured into
-the kernel (but not mounted). Then I made a kernel with devfs disabled and
-now this boots (and seems to work).
+> 8139C+ is a totally different chip, and thus gets a totally different
+> driver.
 
--- 
-Kai
+
+
+Well, to correct myself before anyone calls me on it, 8139too and 8139cp 
+do share some phy code.
+
+However 8139cp phy code is obviously simplified from 8139too since it 
+does not support external phys in the driver like 8139too does with the 
+"8129" chip.
+
+	Jeff
+
+
 

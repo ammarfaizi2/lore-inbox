@@ -1,50 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265212AbUGDRKd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265214AbUGDRXM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265212AbUGDRKd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 13:10:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265214AbUGDRKd
+	id S265214AbUGDRXM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 13:23:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265215AbUGDRXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 13:10:33 -0400
-Received: from cantor.suse.de ([195.135.220.2]:43966 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265212AbUGDRKb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 13:10:31 -0400
-Date: Sun, 4 Jul 2004 19:10:28 +0200
-From: Olaf Hering <olh@suse.de>
-To: Jurriaan <thunder7@xs4all.nl>
-Cc: Antonino Daplas <adaplas@pol.net>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@lists.linuxppc.org
-Subject: Re: 2.6.7-bk16, mode-switch-in-fbcon_blank.patch breaks X on r128
-Message-ID: <20040704171028.GA22469@suse.de>
-References: <20040704160358.GA20970@suse.de> <20040704164037.GA18255@middle.of.nowhere>
+	Sun, 4 Jul 2004 13:23:12 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:38079 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S265214AbUGDRXL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 13:23:11 -0400
+Date: Sun, 4 Jul 2004 19:17:32 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: David Gibson <hermes@gibson.dropbear.id.au>, jt@hpl.hp.com,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Dan Williams <dcbw@redhat.com>, Pavel Roskin <proski@gnu.org>
+Subject: Re: [PATCH] Update in-kernel orinoco drivers to upstream current CVS
+Message-ID: <20040704191732.A20676@electric-eye.fr.zoreil.com>
+References: <20040702222655.GA10333@bougret.hpl.hp.com> <20040703010709.A22334@electric-eye.fr.zoreil.com> <20040704021304.GD25992@zax>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040704164037.GA18255@middle.of.nowhere>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040704021304.GD25992@zax>; from hermes@gibson.dropbear.id.au on Sun, Jul 04, 2004 at 12:13:04PM +1000
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Sun, Jul 04, Jurriaan wrote:
+David Gibson <hermes@gibson.dropbear.id.au> :
+[...]
+> your patches would be much more useful if they aimed at the CVS
+> "for_linus" branch.
 
-> From: Olaf Hering <olh@suse.de>
-> Date: Sun, Jul 04, 2004 at 06:03:58PM +0200
-> > 
-> > This patch, which went into 2.6.7-bk16, breaks X on my ibook with r128
-> > chipset. X starts just fine, but the screen stays black. I can switch to
-> > a textconsole and the console login appears.
-> > 
-> > I see no errors in dmesg or XFree86.0.log. Its version 4.3.0 from SuSE 8.2.
-> > 
-> 
-> I also had problems (switching back from X to console rewrote my refresh
-> rate from 85 to 60 Hz) and this patch was posted in the
-> linux-fbdev-devel mailinglist which solved my problems.
-> 
-> could you try it and let Antonino A Daplas (adaplas @ pol.net) know if
-> this worked for you?
+The savannah thing refused the cvs+ssh connection. It would help if
+someone could post the url of the relevant tarball. 
 
-No, this will not work, fbcon_resize() is called before fbcon_blank(). I
-think the removed code in fbcon_blank() is needed.
+--
+Ueimor

@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316655AbSFNKyU>; Fri, 14 Jun 2002 06:54:20 -0400
+	id <S317325AbSFNLG6>; Fri, 14 Jun 2002 07:06:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317205AbSFNKyT>; Fri, 14 Jun 2002 06:54:19 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:3588 "HELO
+	id <S317473AbSFNLG5>; Fri, 14 Jun 2002 07:06:57 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:11524 "HELO
 	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S316655AbSFNKyS>; Fri, 14 Jun 2002 06:54:18 -0400
-Message-ID: <3D09CB4F.B1913B95@aitel.hist.no>
-Date: Fri, 14 Jun 2002 12:54:07 +0200
+	id <S317325AbSFNLG5>; Fri, 14 Jun 2002 07:06:57 -0400
+Message-ID: <3D09CE45.C2D8152B@aitel.hist.no>
+Date: Fri, 14 Jun 2002 13:06:45 +0200
 From: Helge Hafting <helgehaf@aitel.hist.no>
 X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.20-dj3 i686)
 X-Accept-Language: no, en, en
 MIME-Version: 1.0
-To: Robbert Kouprie <robbert@radium.jvb.tudelft.nl>,
-        linux-kernel@vger.kernel.org
-Subject: Re: The buggy APIC of the Abit BP6
-In-Reply-To: <003601c212de$77316240$020da8c0@nitemare>
+To: Matthew Wakeling <mnw21@bigfoot.com>, linux-kernel@vger.kernel.org
+Subject: Re: Very large font size crashing X Font Server and Grounding Serverto a 
+ Halt (was: remote DoS in Mozilla 1.0)
+In-Reply-To: <Pine.LNX.4.44.0206132255220.4999-100000@server3.jumpleads.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robbert Kouprie wrote:
-
-> That could indeed be a problem. But this will become clear pretty soon
-> once this APIC reprogramming workaround is actually implemented in the
-> kernel. Then I will be able to test that. Any ideas how this workaround
-> in the kernel would look like?
-
-Not much.  Take a look at what happens in the kernel
-when a pci device driver allocate an irq, and what happens 
-when it releases it.
-
-What you have to do, is probably to release the (broken) irq
-without disturbing the driver's internal data.  Then
-claim it again immediately on behalf of the driver.  You
-have now treated the APIC the same way as a close/open do.
-No interrupt from that device should happen in the middle
-of this - but you should be fine as the irq supposedly is dead.
-
-And this is something you'll have to do wherever the error
-is detected, i.e. near the code that prints that message.
+Matthew Wakeling wrote:
+[...]
+> However, one circumstance that throwing lots of swap around doesn't
+> fix is when a process has an insatiable need for memory. In this case,
+> either the process grows very quickly, or is just plain big. I think the
+> out-of-memory killer should target big or growing processes. If it doesn't
+> hit the correct process the first time, it will free up a lot more RAM
+> than it would otherwise, and it would be likely to get it right the second
+> time.
+> 
+A fork bomb would kill everything else in your machine then.  The bomb
+program doesn't grow and is smaller than anythine else - but there's 
+so many of them.  So all the other useful programs, 
+including shells, are killed. :-(
 
 Helge Hafting

@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268129AbRHGPKJ>; Tue, 7 Aug 2001 11:10:09 -0400
+	id <S268133AbRHGPKJ>; Tue, 7 Aug 2001 11:10:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268133AbRHGPKA>; Tue, 7 Aug 2001 11:10:00 -0400
-Received: from smtp3.cern.ch ([137.138.131.164]:54918 "EHLO smtp3.cern.ch")
-	by vger.kernel.org with ESMTP id <S268129AbRHGPJx>;
-	Tue, 7 Aug 2001 11:09:53 -0400
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Andrew McNamara <andrewm@connect.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: how to tell Linux *not* to share IRQs ?
-In-Reply-To: <20010726070621.D69A1BE91@wawura.off.connect.com.au> <20010726193934.A29055@weta.f00f.org>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 07 Aug 2001 17:09:47 +0200
-In-Reply-To: Chris Wedgwood's message of "Thu, 26 Jul 2001 19:39:34 +1200"
-Message-ID: <d33d73x5xg.fsf@lxplus014.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S267615AbRHGPJ7>; Tue, 7 Aug 2001 11:09:59 -0400
+Received: from 63-216-69-197.sdsl.cais.net ([63.216.69.197]:38409 "EHLO
+	vyger.freesoft.org") by vger.kernel.org with ESMTP
+	id <S268206AbRHGPJz>; Tue, 7 Aug 2001 11:09:55 -0400
+Message-ID: <3B7004BA.7896CFF7@freesoft.org>
+Date: Tue, 07 Aug 2001 11:09:46 -0400
+From: Brent Baccala <baccala@freesoft.org>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-usb-devel <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: Problem with usb-storage using HP 8200 external CD-ROM burner
+In-Reply-To: <3B68FB0C.5BC83115@freesoft.org> <20010806014626.K24225@one-eyed-alien.net> <3B6EF4DA.8899E1D3@freesoft.org> <20010806201746.C6080@one-eyed-alien.net> <20010807093320.I6192@suse.de>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Chris" == Chris Wedgwood <cw@f00f.org> writes:
+Jens Axboe wrote:
+> 
+> On Mon, Aug 06 2001, Matthew Dharm wrote:
+> > >       774         spin_lock_irqsave(&io_request_lock, flags);
+> > >       775         rtn = SCpnt->host->hostt->eh_abort_handler(SCpnt);
+> > >       776         spin_unlock_irqrestore(&io_request_lock, flags);
+> > >
+> > > seems like a real shotgun approach.  Get rid of the spinlock stuff, and
+> > > make sure that the abort handlers lock io_request_lock themselves if
+> > > they need it.  Of course, this would require changes to all the scsi
+> > > drivers.
+> >
+> > Hrm... perhaps I could just unlock that spinlock and then re-lock it before
+> > returning.  Anyone have a clue if this would work?
+> 
+> That would work -- stuff like the above is already scheduled for removal
+> for 2.5. Locking will be moved from the mid layer to the drivers
+> themselves.
 
-Chris> On Thu, Jul 26, 2001 at 05:06:21PM +1000, Andrew McNamara
-> wrote: Does this mean the ISRs for every driver sharing an
-> interrupt have to poll their device when an interrupt comes in
-> (in the case of shared PCI interrupts), or is there some
-> additional hardware smarts so the kernel knows which driver's
-> ISRs need to be invoked?
+If that's the case (the locking will be moved in 2.5), then I'd suggest
+using Matthew's idea of unlocking, then re-locking the spinlock, as a
+temporary measure.
 
-Chris> Yes, drivers need to check their hardware devices and
-Chris> acknowledge whether or not it's was their interrupt or not.  It
-Chris> sounds terrible but even with many thousands of interrupts per
-Chris> second the cost doesn't seem to be that high.
+-- 
+                                        -bwb
 
-Not only is this the case, it's also the only sane thing to do <tm>,
-any device driver should check the status of the hardware it is
-serving before doing anything else.
+                                        Brent Baccala
+                                        baccala@freesoft.org
 
-Jes
+==============================================================================
+       For news from freesoft.org, subscribe to announce@freesoft.org:
+   
+mailto:announce-request@freesoft.org?subject=subscribe&body=subscribe
+==============================================================================

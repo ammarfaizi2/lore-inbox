@@ -1,43 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263105AbSKTX4i>; Wed, 20 Nov 2002 18:56:38 -0500
+	id <S263837AbSKTX5J>; Wed, 20 Nov 2002 18:57:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263760AbSKTX4i>; Wed, 20 Nov 2002 18:56:38 -0500
-Received: from windlord.Stanford.EDU ([171.64.13.23]:19104 "HELO
-	windlord.stanford.edu") by vger.kernel.org with SMTP
-	id <S263105AbSKTX4O>; Wed, 20 Nov 2002 18:56:14 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: spinlocks, the GPL, and binary-only modules
-References: <fa.fglehrv.95g32b@ifi.uio.no> <fa.h7et98v.hjm1of@ifi.uio.no>
-In-Reply-To: <fa.h7et98v.hjm1of@ifi.uio.no> (Mark Mielke's message of "Wed,
- 20 Nov 2002 08:21:20 GMT")
-From: Russ Allbery <rra@stanford.edu>
-Organization: The Eyrie
-Date: Wed, 20 Nov 2002 16:03:14 -0800
-Message-ID: <yl3cpviybh.fsf@windlord.stanford.edu>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) XEmacs/21.4 (Honest Recruiter,
- sparc-sun-solaris2.6)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S263760AbSKTX4m>; Wed, 20 Nov 2002 18:56:42 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:50564 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264665AbSKTXz6>; Wed, 20 Nov 2002 18:55:58 -0500
+Subject: Re: Early crc32 initialization
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Matt_Domsch@Dell.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, brian@murphy.dk
+In-Reply-To: <20BF5713E14D5B48AA289F72BD372D68C1EBC4@AUSXMPC122.aus.amer.dell.com>
+References: <20BF5713E14D5B48AA289F72BD372D68C1EBC4@AUSXMPC122.aus.amer.dell.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 21 Nov 2002 00:31:34 +0000
+Message-Id: <1037838694.3267.111.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Mielke <mark@mark.mielke.cc> writes:
+On Wed, 2002-11-20 at 23:01, Matt_Domsch@Dell.com wrote:
+> I have removed dynamic allocation of memory because the 
+> memory subsystem is also not initialised at the stage where I
+> need the crc functions.
 
-> I think this restriction (the need for copyright assignment) only
-> applies to code 'incorporated in FSF projects', whatever that means. See
-> the GPL FAQ for a rather vague explanation.
+How about generating the table at compile time ?
 
-> Are 'FSF projects' the packages that can be downloaded from ftp.gnu.org?
-
-Copyright assignments are only needed for projects for which the FSF holds
-the copyright and requires copyright assignments, and then only if one
-wants one's code to make it into the GNU-distributed version.
-
-I don't believe it is possible to answer that question with more
-granularity without going down to a project-by-project check.  There
-certainly have been packages available from ftp.gnu.org that do not
-require copyright assignments to contribute to.
-
--- 
-Russ Allbery (rra@stanford.edu)             <http://www.eyrie.org/~eagle/>

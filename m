@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbTKYRGc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 12:06:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbTKYRGc
+	id S262761AbTKYRNX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 12:13:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262762AbTKYRNX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 12:06:32 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:33799 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261875AbTKYRGb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 12:06:31 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: USB printer and scanner modules don't load automatically in linux-2.6.0-test10
-Date: 25 Nov 2003 16:55:33 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bq01i5$4g0$1@gatekeeper.tmr.com>
-References: <20031124210755.FNIR9968.fed1mtao05.cox.net@bill.ps.uci.edu>
-X-Trace: gatekeeper.tmr.com 1069779333 4608 192.168.12.62 (25 Nov 2003 16:55:33 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Tue, 25 Nov 2003 12:13:23 -0500
+Received: from fw.osdl.org ([65.172.181.6]:29086 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262761AbTKYRNU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 12:13:20 -0500
+Date: Tue, 25 Nov 2003 09:13:53 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Joe Korty <joe.korty@ccur.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] possible erronous use of tick_usec in do_gettimeofday
+Message-Id: <20031125091353.00dd144a.shemminger@osdl.org>
+In-Reply-To: <20031125164237.GA15498@rudolph.ccur.com>
+References: <1067300966.1118.378.camel@cog.beaverton.ibm.com>
+	<20031027171738.1f962565.shemminger@osdl.org>
+	<20031028115558.GA20482@iram.es>
+	<20031028102120.01987aa4.shemminger@osdl.org>
+	<20031029100745.GA6674@iram.es>
+	<20031029113850.047282c4.shemminger@osdl.org>
+	<16288.17470.778408.883304@wombat.chubb.wattle.id.au>
+	<3FA1838C.3060909@mvista.com>
+	<Pine.LNX.4.53.0310301645170.16005@chaos>
+	<16289.39801.239846.9369@wombat.chubb.wattle.id.au>
+	<20031125164237.GA15498@rudolph.ccur.com>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20031124210755.FNIR9968.fed1mtao05.cox.net@bill.ps.uci.edu>,
-Meinhard E. Mayer <mmayer@uci.edu> wrote:
-| I don't know whether I am supposed to ssend this to any of you or the
-| general list.
-| I have been using -test9 and -test10 for a while and noticed that the
-| modules for my connected USB printer and scanner did not load
-| automatically during boot (as they do in kernel-2.4.22-1.2115.nptl
-| (Fedorea-SC1) or other versions of 2.4.22). 
-| The alternatives were to enter 
-| sudo modprobe usbpr
-| sudo modprobe scanner
-| or to compile the drivers into the kernel (which I ultimately did). 
-| I could not figure out the correct format for the new /etc/modprobe.conf
-| to remedy this; I also compiled the soundcard-driver into the kernel
-| since the test9 kernel. 
+On Tue, 25 Nov 2003 11:42:38 -0500
+Joe Korty <joe.korty@ccur.com> wrote:
 
-Before demand loading can work you need to put the path to the module
-loader program in /proc/sys/kernel/modprobe (from memory). Yes, that
-makes booting a portable kernel using initrd more complex...
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+> test10's version of do_gettimeofday is using tick_usec which is
+> defined in terms of USER_HZ not HZ.
+> 
+> Against 2.6.0-test10-bk1.  Compiled, not tested, for comment only.
+
+Your right. tick_usec is in user hz so the value of max_ntp_tick would be
+too large.

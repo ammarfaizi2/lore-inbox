@@ -1,62 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273273AbTG3S7v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 14:59:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273282AbTG3S7v
+	id S273295AbTG3THq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 15:07:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273297AbTG3TGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 14:59:51 -0400
-Received: from fw.osdl.org ([65.172.181.6]:6302 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S273273AbTG3S7t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 14:59:49 -0400
-Date: Wed, 30 Jul 2003 12:00:02 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Sander van Malssen <svm@kozmix.org>
-Cc: yoh@onerussian.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2-bk3 phantom I/O errors
-Message-Id: <20030730120002.29c13b0c.akpm@osdl.org>
-In-Reply-To: <20030730170432.GA692@kozmix.org>
-References: <20030729153114.GA30071@washoe.rutgers.edu>
-	<20030729135025.335de3a0.akpm@osdl.org>
-	<20030730170432.GA692@kozmix.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 30 Jul 2003 15:06:31 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:20743 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S273295AbTG3TG1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 15:06:27 -0400
+Date: Wed, 30 Jul 2003 21:05:50 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Felipe W Damasio <felipewd@terra.com.br>
+Cc: torvalds@osdl.org, akpm@osdl.org, alan@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] drivers/char/riscom8.c: cli/sti removal
+Message-ID: <20030730210550.A5015@electric-eye.fr.zoreil.com>
+References: <3F2804CC.90602@terra.com.br>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3F2804CC.90602@terra.com.br>; from felipewd@terra.com.br on Wed, Jul 30, 2003 at 02:47:56PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sander van Malssen <svm@kozmix.org> wrote:
->
-> If I try this on 2.6.0-test2-mm1 with the dump_stack() added (ext3, no
->  initrd) I get the following:
-> 
-> 
->  Buffer I/O error on device hda1, logical block 25361
->  Call Trace:
->   [<c0150f02>] buffer_io_error+0x42/0x50
+Felipe W Damasio <felipewd@terra.com.br> :
+[cli+restore/spinlock conversioni for riscom8]
+> --- linux-2.6.0-test2/drivers/char/riscom8.c.orig	Wed Jul 30 14:39:11 2003
+> +++ linux-2.6.0-test2/drivers/char/riscom8.c	Wed Jul 30 14:42:44 2003
+[...]
+> @@ -1084,7 +1090,7 @@
+>  	if (!port || rc_paranoia_check(port, tty->name, "close"))
+>  		return;
+>  	
+> -	save_flags(flags); cli();
+> +	spin_lock_irqsave(&rc_lock, flags);
+>  	if (tty_hung_up_p(filp))
+>  		goto out;
+>  	
 
-OK, looks like the new readahead stuff confused the error reporting.
+   1111         tty->closing = 1;
+   1112         if (port->closing_wait != ASYNC_CLOSING_WAIT_NONE)
+   1113                 tty_wait_until_sent(tty, port->closing_wait);
+                        ^^^^^^^^^^^^^^^^^^^ -> may sleep
+[...]
+   1132                 while(port->IER & IER_TXEMPTY)  {
+   1133                         current->state = TASK_INTERRUPTIBLE;
+   1134                         schedule_timeout(port->timeout);
+                                ^^^^^^^^^^^^^^^^ -> <blink>BOOM</blink>
 
-Does this make the error messages go away?
+If you haven't read Documentation/DocBook/kernel-locking.tmpl, please give
+it a try. If you have, well, double-check your code.
 
+Regards
 
-diff -puN mm/readahead.c~a mm/readahead.c
---- 25/mm/readahead.c~a	2003-07-30 11:58:07.000000000 -0700
-+++ 25-akpm/mm/readahead.c	2003-07-30 11:58:20.000000000 -0700
-@@ -96,7 +96,7 @@ static int read_pages(struct address_spa
- 	struct pagevec lru_pvec;
- 	int ret = 0;
- 
--	current->flags |= PF_READAHEAD;
-+//	current->flags |= PF_READAHEAD;
- 
- 	if (mapping->a_ops->readpages) {
- 		ret = mapping->a_ops->readpages(filp, mapping, pages, nr_pages);
-
-_
-
-
-
-Tell me how hard this is to hit.  Does it only happen when there is a large
-amount of IO happening?  What is the system doing at the time?
+--
+Ueimor

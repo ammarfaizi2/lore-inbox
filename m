@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129091AbQKQXrM>; Fri, 17 Nov 2000 18:47:12 -0500
+	id <S129145AbQKQXwz>; Fri, 17 Nov 2000 18:52:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129145AbQKQXrC>; Fri, 17 Nov 2000 18:47:02 -0500
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:56559 "EHLO
+	id <S129302AbQKQXwq>; Fri, 17 Nov 2000 18:52:46 -0500
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:60656 "EHLO
 	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S129091AbQKQXqv>; Fri, 17 Nov 2000 18:46:51 -0500
-Date: Sat, 18 Nov 2000 00:18:36 +0100 (CET)
+	id <S129145AbQKQXwd>; Fri, 17 Nov 2000 18:52:33 -0500
+Date: Sat, 18 Nov 2000 00:24:17 +0100 (CET)
 From: Matthias Juchem <matthias@gandalf.math.uni-mannheim.de>
 Reply-To: Matthias Juchem <juchem@uni-mannheim.de>
 To: torvalds@transmeta.com
 cc: linux-kernel@vger.kernel.org
-Subject: [patchlet] fix some typos and pathnames in Configure.help
-Message-ID: <Pine.LNX.4.21.0011180005060.10790-100000@gandalf.math.uni-mannheim.de>
+Subject: [patchlet] fix some typos and pathnames in Configure.help (fwd)
+Message-ID: <Pine.LNX.4.21.0011180023080.10790-100000@gandalf.math.uni-mannheim.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -23,6 +23,7 @@ Hello,
 this fixes some typos and pathnames in pointers from Configure.help to
 files in the Documentation subtree.
 Not much, but better than nothing.
+Diff is against 2.4.0-test10.
 
 Matthias
 
@@ -83,6 +84,7 @@ Matthias
    for more info on this driver's capabilities.
  
  Ensoniq Soundscape support
+
 
 
 -

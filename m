@@ -1,172 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263831AbUFIMT0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265745AbUFIMUX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263831AbUFIMT0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 08:19:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265742AbUFIMT0
+	id S265745AbUFIMUX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 08:20:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265747AbUFIMUD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 08:19:26 -0400
-Received: from mxfep02.bredband.com ([195.54.107.73]:26348 "EHLO
-	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S263831AbUFIMTV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 08:19:21 -0400
-Subject: [PATCH] A generic_file_sendpage()
-From: Alexander Nyberg <alexn@telia.com>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040608193621.GA12780@holomorphy.com>
-References: <20040608154438.GK18083@dualathlon.random>
-	 <20040608193621.GA12780@holomorphy.com>
+	Wed, 9 Jun 2004 08:20:03 -0400
+Received: from linux2.isphuset.no ([213.236.237.186]:40403 "EHLO
+	gtw.mailserveren.com") by vger.kernel.org with ESMTP
+	id S265745AbUFIMTx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 08:19:53 -0400
+Subject: ACPI / cpu temperature problem
+From: Hans Kristian Rosbach <hans.kristian@isphuset.no>
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Message-Id: <1086783559.1194.24.camel@boxen>
+Organization: ISPHuset Nordic AS
+Message-Id: <1086783539.14784.24.camel@linux.local>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 09 Jun 2004 14:19:19 +0200
+Date: Wed, 09 Jun 2004 14:19:00 +0200
 Content-Transfer-Encoding: 7bit
+X-Declude-Sender: hans.kristian@isphuset.no [195.159.151.115]
+X-Note: This E-mail was scanned by Declude JunkMail (www.declude.com) for spam.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The sendfile() for all file systems remain unusable as it is right now,
-only works for sending data to socket. But that should be as much performance
-enhancing as this yes?
+Hi, recently we bought 12 identical Supermicro servers. On these
+we run Fedora Core 2 with all available updates through yum.
 
-Please hit me with cluebat for what I'm missing.
-(yes, rebooted between all copying)
+On most of our other servers we have the ability to monitor the
+cpu temperature through '/proc/acpi/thermal_zone/THRM/temperature'
+and this works fine. We monitor most servers using rrd graphs.
 
------------------------------------
-Normal read/write with 16K buffers:
+Now, the problem with all these supermicro servers is that the
+temperature seems to be stuck at 27 C. No matter what load or
+temperature in the room. Something is clearly wrong.
+What can be done to fix this? We tried setting polling_frequency
+to '10', but that made no difference.
 
-comp1 with 4 scsi disks sw raid0:
-kernie:/mnt/data/playground# time ./copyf tref x1
-size: 2097152000
+What can be done to fix this? Btw, lm_sensors finds no chips.
 
-real    2m9.680s
-user    0m0.075s
-sys     0m21.019s
+The specs of the model can be found here:
+http://www.supermicro.com/products/system/1U/5013/SYS-5013C-T.cfm
 
-comp2 with single ide disk:
-om3:/home/alex# time ./copyf haha c1
-size: 1048576000
+Some maybe useful info follows:
+-------------------------------
 
-real    1m25.104s
-user    0m0.042s
-sys     0m14.880s
+# cat /proc/version
+Linux version 2.6.5-1.358smp (bhcompile@bugs.build.redhat.com) (gcc
+version 3.3.3 20040412 (Red Hat Linux 3.3.3-7)) #1 SMP Sat May 8
+09:25:36 EDT 2004
 
+# cat /proc/acpi/thermal_zone/THRM/temperature
+temperature:             27 C
 
------------------------------------
-Normal read/write with 64K buffers:
+# lspci
+00:00.0 Host bridge: Intel Corp. 82875P Memory Controller Hub (rev 02)
+00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB/EB/ER Hub interface to PCI
+Bridge (rev c2)
+00:1f.0 ISA bridge: Intel Corp. 82801EB/ER (ICH5/ICH5R) LPC Bridge (rev
+02)
+00:1f.2 IDE interface: Intel Corp. 82801EB (ICH5) Serial ATA 150 Storage
+Controller (rev 02)
+00:1f.3 SMBus: Intel Corp. 82801EB/ER (ICH5/ICH5R) SMBus Controller (rev
+02)
+01:09.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
+01:0a.0 Ethernet controller: Intel Corp. 82541EI Gigabit Ethernet
+Controller (Copper)
+01:0b.0 Ethernet controller: Intel Corp. 82541EI Gigabit Ethernet
+Controller (Copper)
 
-comp1 with 4 scsi disks sw raid0:
-kernie:/mnt/data/playground# time ./copyf tref x3
-size: 2097152000
+# sensors
+No sensors found!
+# sensors -v
+sensors version 2.8.6
 
-real    2m11.160s
-user    0m0.035s
-sys     0m20.745s
-
-
-comp2 with single ide disk:
-om3:/home/alex# time ./copyf haha c3
-size: 1048576000
-
-real    1m25.651s
-user    0m0.052s
-sys     0m14.020s
-
-
------------------------------------
-Using sendfile() to copy entire files:
-
-comp1 with 4 scsi disks sw raid0:
-kernie:/mnt/data/playground# time ./sendf tref x2
-size: 2097152000
-
-real    2m9.645s
-user    0m0.001s
-sys     0m19.961s
-
-and again:
-
-real    2m9.675s
-user    0m0.001s
-sys     0m19.271s
+during boot:
+ACPI: Fan [FAN] (on)
+ACPI: Processor [CPU0] (supports C1)
+ACPI: Processor [CPU1] (supports C1)
+ACPI: Thermal Zone [THRM] (27 C)
+ACPI: (supports S0 S1 S4 S5)
+ACPI: Power Button (FF) [PWRF]
 
 
-comp2 with single ide disk:
-om3:/home/alex# time ./sendf haha c2
-size: 1048576000
-
-real    1m24.395s
-user    0m0.002s
-sys     0m13.151s
-
-and again:
-
-real    1m23.781s
-user    0m0.001s
-sys     0m12.967s
-
-
-
---- include/linux/fs_orig.h     2004-06-09 00:37:29.000000000 +0200
-+++ include/linux/fs.h  2004-06-07 18:13:54.000000000 +0200
-@@ -1405,6 +1405,7 @@ extern ssize_t do_sync_write(struct file
- ssize_t generic_file_write_nolock(struct file *file, const struct iovec *iov,
-                                unsigned long nr_segs, loff_t *ppos);
- extern ssize_t generic_file_sendfile(struct file *, loff_t *, size_t, read_actor_t, void __user *);
-+extern ssize_t generic_file_sendpage(struct file *, struct page *, int, size_t, loff_t *, int);
- extern void do_generic_mapping_read(struct address_space *mapping,
-                                    struct file_ra_state *, struct file *,
-                                    loff_t *, read_descriptor_t *, read_actor_t);
---- mm/filemap_orig.c   2004-06-09 00:37:45.000000000 +0200
-+++ mm/filemap.c        2004-06-08 22:19:48.000000000 +0200
-@@ -961,7 +961,32 @@ generic_file_read(struct file *filp, cha
-
- EXPORT_SYMBOL(generic_file_read);
-
--int file_send_actor(read_descriptor_t * desc, struct page *page, unsigned long offset, unsigned long size)
-+ssize_t generic_file_sendpage(struct file *out_file, struct page *page,
-+                       int offset, size_t size, loff_t *pos, int more)
-+{
-+       void *addr;
-+       int ret;
-+       mm_segment_t old_fs;
-+
-+       old_fs = get_fs();
-+       set_fs(KERNEL_DS);
-+
-+       addr = kmap(page);
-+       if (!addr) {
-+               set_fs(old_fs);
-+               return -ENOMEM;
-+       }
-+
-+       ret = out_file->f_op->write(out_file, addr + offset, size, pos);
-+
-+       kunmap(addr);
-+
-+       set_fs(old_fs);
-+       return ret;
-+}
-+
-+int file_send_actor(read_descriptor_t * desc, struct page *page,
-+                       unsigned long offset, unsigned long size)
- {
-        ssize_t written;
-        unsigned long count = desc->count;
---- fs/ext3/file_orig.c 2004-06-09 00:42:50.000000000 +0200
-+++ fs/ext3/file.c      2004-06-07 18:12:19.000000000 +0200
-@@ -129,6 +129,7 @@ struct file_operations ext3_file_operati
-        .release        = ext3_release_file,
-        .fsync          = ext3_sync_file,
-        .sendfile       = generic_file_sendfile,
-+       .sendpage       = generic_file_sendpage,
- };
-
- struct inode_operations ext3_file_inode_operations = {
-@@ -140,4 +141,3 @@ struct inode_operations ext3_file_inode_
-        .removexattr    = ext3_removexattr,
-        .permission     = ext3_permission,
- };
--
-
+Sincerly
+   Hans K. Rosbach
 

@@ -1,78 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261829AbRESPL1>; Sat, 19 May 2001 11:11:27 -0400
+	id <S261819AbRESPNh>; Sat, 19 May 2001 11:13:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261827AbRESPLS>; Sat, 19 May 2001 11:11:18 -0400
-Received: from smtp1.libero.it ([193.70.192.51]:25287 "EHLO smtp1.libero.it")
-	by vger.kernel.org with ESMTP id <S261821AbRESPLM>;
-	Sat, 19 May 2001 11:11:12 -0400
-Message-ID: <3B068D00.95338099@alsa-project.org>
-Date: Sat, 19 May 2001 17:10:56 +0200
-From: Abramo Bagnara <abramo@alsa-project.org>
-Organization: Opera Unica
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i586)
-X-Accept-Language: it, en
+	id <S261824AbRESPNR>; Sat, 19 May 2001 11:13:17 -0400
+Received: from adsl-151-196-235-14.baltmd.adsl.bellatlantic.net ([151.196.235.14]:13298
+	"EHLO vaio.greennet") by vger.kernel.org with ESMTP
+	id <S261819AbRESPNH>; Sat, 19 May 2001 11:13:07 -0400
+Date: Sat, 19 May 2001 11:15:38 -0400 (EDT)
+From: Donald Becker <becker@scyld.com>
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
+        linux-net@vger.rutgers.edu, jgarzik@mandrakesoft.com
+Subject: Re: RTL8139 difficulties in 2.2, not in 2.4
+In-Reply-To: <20010519140413.B1795@emma1.emma.line.org>
+Message-ID: <Pine.LNX.4.10.10105191107450.956-100000@vaio.greennet>
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: Ben LaHaise <bcrl@redhat.com>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD 
- w/info-PATCH]device arguments from lookup)
-In-Reply-To: <Pine.GSO.4.21.0105190940310.5339-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> 
->         Folks, before you get all excited about cramming side effects into
-> open(2), consider the following case:
-> 
-> 1) opening "/dev/zero/start_nuclear_war" has a certain side effect.
-> 
-> 2) Local user does the following:
->         ln -sf /dev/zero/start_nuclear_war bar
->         while true; do
->                 mkdir foo
->                 rmdir foo
->                 ln -sf bar foo
->                 rm foo
->         done
-> 
-> 3) Comes the night and root runs (from crontab) updatedb(8). Said beast
-> includes find(1). With sufficiently bad timing find _will_ be tricked
-> into attempt to open foo. It will honestly lstat() it, all right. But
-> there's no way to make sure that subsequent open() on the found directory
-> will get the same object.
-> 
-> 4) Side effect happens...
-> 
-> Similar scenarios can be found for other programs run by/as root, but I
-> think that the point is obvious - side effects on open() are not a good
-> idea. Yes, we can play with checking for O_DIRECTORY, yodda, yodda, but
-> I wouldn't bet a dime on security of a system with such side effects.
-> A lot of stuff relies on the fact that close(open(foo, O_RDONLY)) is a
-> no-op. Breaking that assumption is a Bad Thing(tm).
+On Sat, 19 May 2001, Matthias Andree wrote:
 
-Can't this easily avoided if the needed action is not
+> I'm having difficulties with a RTL8139 with Linux 2.2.19 (both drivers),
+> but not with Linux 2.4.4's 8139too driver. The card is an Allied Telesyn
+> AT-2500TX, the chip is reported as 8139C/rev. 0x10. The card shares its
+> IRQ 9 with an nVidia Riva TNT 128 [NV04], rev. 4.
+...
+> eth1: Transmit timeout, status 0c 0005 media 18.
+> eth1: Tx queue start entry 4  dirty entry 0.
+> eth1: RTL8139 Interrupt line blocked, status 5.
+> eth1: RTL8139 Interrupt line blocked, status 5.
+> eth1: RTL8139 Interrupt line blocked, status 4.
+> eth1: RTL8139 Interrupt line blocked, status 4.
+> (continues every minute with status 4 if no traffic on interface)
 
-< /dev/zero/start_nuclear_war 
-or
-> /dev/zero/start_nuclear_war
+The card is reporting that the interrupt line has been asserted (Tx
+done), but the interrupt handler hasn't been called.
 
-but
+You can verify this by watching the interrupt count in /proc/interrupts.
 
-echo "I'm evil" > /dev/zero/start_nuclear_war
+Try booting the kernel with "noapic", which we recommend as the safe
+default setting.
 
-?
 
--- 
-Abramo Bagnara                       mailto:abramo@alsa-project.org
+Donald Becker				becker@scyld.com
+Scyld Computing Corporation		http://www.scyld.com
+410 Severn Ave. Suite 210		Second Generation Beowulf Clusters
+Annapolis MD 21403			410-990-9993
 
-Opera Unica                          Phone: +39.546.656023
-Via Emilia Interna, 140
-48014 Castel Bolognese (RA) - Italy
-
-ALSA project               http://www.alsa-project.org
-It sounds good!

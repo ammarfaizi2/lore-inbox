@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316444AbSFEUoK>; Wed, 5 Jun 2002 16:44:10 -0400
+	id <S316355AbSFEUpO>; Wed, 5 Jun 2002 16:45:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316446AbSFEUoJ>; Wed, 5 Jun 2002 16:44:09 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:50955 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S316444AbSFEUoH>;
-	Wed, 5 Jun 2002 16:44:07 -0400
-Date: Wed, 5 Jun 2002 13:41:23 -0700
-From: Greg KH <greg@kroah.com>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with new driver model?
-Message-ID: <20020605204123.GG4339@kroah.com>
-In-Reply-To: <1023308709.791.8.camel@diemos.microgate.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Wed, 08 May 2002 18:32:30 -0700
+	id <S316422AbSFEUpL>; Wed, 5 Jun 2002 16:45:11 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39182 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316355AbSFEUpI>; Wed, 5 Jun 2002 16:45:08 -0400
+Date: Wed, 5 Jun 2002 13:43:47 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Pavel Machek <pavel@ucw.cz>
+cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.20 swsusp: stop abusing headers with non-inlined functions
+In-Reply-To: <20020605122714.GA4376@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.33.0206051330370.1471-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 05, 2002 at 03:25:08PM -0500, Paul Fulghum wrote:
-> When testing the drivers I maintain on 2.5.20, I hit the
-> BUG_ON in include/linux/devices.txt:115.
 
-See:
-	http://marc.theaimsgroup.com/?l=linux-kernel&m=102316813812289&w=2
+Hmm.. Which version of the kernel is this against? It doesn't apply to 
+clean 2.5.20 (which doesn't even have suspend.c), nor does it apply to my 
+current BK head with your previous patches installed.
 
-for a fix for this problem.
+Or does your mailer corrupt whitespace or something?
 
-thanks,
+The difference seems to be one empty line. I applied it by hand, but I
+wanted to point out to you that you're apparently generating patches
+against some bogus kernel versions, and in general I will _not_ bother 
+with patches that don't apply cleanly.
 
-greg k-h
+		Linus
+

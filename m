@@ -1,78 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288982AbSAUAcl>; Sun, 20 Jan 2002 19:32:41 -0500
+	id <S288984AbSAUAqb>; Sun, 20 Jan 2002 19:46:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288980AbSAUAcf>; Sun, 20 Jan 2002 19:32:35 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:9999 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id <S288982AbSAUAcR>;
-	Sun, 20 Jan 2002 19:32:17 -0500
-Message-ID: <3C4B60A1.3030302@namesys.com>
-Date: Mon, 21 Jan 2002 03:28:17 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org
-Subject: Re: Possible Idea with filesystem buffering.
-In-Reply-To: <Pine.LNX.4.33L.0201202110290.32617-100000@imladris.surriel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S288985AbSAUAqV>; Sun, 20 Jan 2002 19:46:21 -0500
+Received: from smtpsrv0.isis.unc.edu ([152.2.1.139]:19653 "EHLO
+	smtpsrv0.isis.unc.edu") by vger.kernel.org with ESMTP
+	id <S288984AbSAUAqE>; Sun, 20 Jan 2002 19:46:04 -0500
+Date: Sun, 20 Jan 2002 19:45:59 -0500
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: DEVFS broken?
+Message-ID: <20020121004559.GA487@opeth.ath.cx>
+In-Reply-To: <20020117171229.GA1084@the-penguin.otak.com> <20020117190449.GA2860@opeth.ath.cx> <200201202004.g0KK4aN13185@vindaloo.ras.ucalgary.ca>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="6TrnltStXW4iwmi0"
+Content-Disposition: inline
+In-Reply-To: <200201202004.g0KK4aN13185@vindaloo.ras.ucalgary.ca>
+User-Agent: Mutt/1.3.25i
+From: Dan Chen <crimsun@email.unc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
 
->On Sun, 20 Jan 2002, Shawn Starr wrote:
->
->>But why should each filesystem have to have a different method of
->>buffering/caching? that just doesn't fit the layered model of the
->>kernel IMHO.
->>
->
->I think Hans will give up the idea once he realises the
->performance implications. ;)
->
->Rik
->
+--6TrnltStXW4iwmi0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Rik, what reiser4 does is take a slum (a slum is a contiguous in the 
-tree order set of
-dirty buffers), and just before flushing it to disk we squeeze the 
-entire slum as far
-to the left as we can, and encrypt any parts of it that we need to 
-encrypt, and assign
-block numbers to it.  
+Working well so far: booted and no oopses yet. Thanks!
 
-Tree balancing normally has a tradeoff between memory copies performed on
-average per insertion, and tightness in packing nodes.    Squeezing in 
-response to
-memory pressure greatly optimizes the the number of nodes  we are packed 
-into
-while only performing one memory copy just before flush time for that 
-optimization.
-It is MUCH more efficient.  Block allocation ala XFS can be much more 
-optimal if
-done just before flushing.  Encryption just before flushing rather than 
-with every
- modification to a file is also much more efficient.  Committing 
-transactions
-also have a complex need to be memory pressure driven (complex enough
-that I won't describe it here).
+On Sun, Jan 20, 2002 at 01:04:36PM -0700, Richard Gooch wrote:
+> Please apply this patch on top of devfs-patch-v199.7 or on top of
+> plain 2.5.2, and let me know the result.
 
-So, really, memory pressure needs to push a whole set of events in a well
-designed filesystem.  Thinking that you can just pick a page and write it
-and write no other pages, all without understanding the optimizations of
-the filesystem you write to, is simplistic.
+--=20
+Dan Chen                 crimsun@email.unc.edu
+GPG key:   www.unc.edu/~crimsun/pubkey.gpg.asc
 
-Suppose we do what you ask, and always write the page (as well as some
-other pages) to disk.  This will result in the filesystem cache as a whole
-receiving more pressure than other caches that only write one page in
-response to pressure.  This is unbalanced, leads to some caches having
-shorter average page lifetimes than others, and it is therefor 
-suboptimal.  Yes?
+--6TrnltStXW4iwmi0
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE8S2THMwVVFhIHlU4RAuUeAJ0RlI29TkWBhEWGH23f8r5vkt2l3gCfRwKJ
+LoWtpyFTIQkZD4l0YrfCJjM=
+=IGcv
+-----END PGP SIGNATURE-----
 
-Hans
-
+--6TrnltStXW4iwmi0--

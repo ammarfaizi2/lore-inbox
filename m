@@ -1,95 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269500AbUIZHAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269501AbUIZHFX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269500AbUIZHAY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 03:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269501AbUIZHAY
+	id S269501AbUIZHFX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 03:05:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269502AbUIZHFW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 03:00:24 -0400
-Received: from gate.crashing.org ([63.228.1.57]:43396 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S269500AbUIZHAP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 03:00:15 -0400
-Subject: Re: [PATCH] ppc64: Fix 32 bits conversion of SI_TIMER signals
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200409260205.i8Q25pGb013827@hera.kernel.org>
-References: <200409260205.i8Q25pGb013827@hera.kernel.org>
-Content-Type: text/plain
-Message-Id: <1096181913.18234.300.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 26 Sep 2004 16:58:34 +1000
-Content-Transfer-Encoding: 7bit
+	Sun, 26 Sep 2004 03:05:22 -0400
+Received: from av7-1-sn1.fre.skanova.net ([81.228.11.113]:8892 "EHLO
+	av7-1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S269501AbUIZHFI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Sep 2004 03:05:08 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Gerd Knorr <kraxel@bytesex.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.9-rc2
+References: <Pine.LNX.4.58.0409130937050.4094@ppc970.osdl.org>
+	<m3ekl5de7b.fsf@telia.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 26 Sep 2004 09:05:05 +0200
+In-Reply-To: <m3ekl5de7b.fsf@telia.com>
+Message-ID: <m3pt49ik7y.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-09-26 at 11:41, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1991, 2004/09/25 18:41:38-07:00, benh@kernel.crashing.org
+Peter Osterlund <petero2@telia.com> writes:
+
+> Linus Torvalds <torvalds@osdl.org> writes:
 > 
-> 	[PATCH] ppc64: Fix 32 bits conversion of SI_TIMER signals
-> 	
-> 	The current 32 bits translation of the SI_TIMER is wrong on ppc64, causing
-> 	the tst-timer4 testcase of glibc to fail in 32 bits. This patch fixes it.
-> 	
-> 	Signed-off-by: Olaf Hering <olh@suse.de>
-> 	Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> 	Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+> > Gerd Knorr:
+> >   o v4l: bttv driver update
 > 
+> This patch,
+> 
+>     http://linus.bkbits.net:8080/linux-2.5/cset@4138a998OBJaigDdWZo3Y58C5Brqlg?nav=index.html|ChangeSet@-2w
+> 
+> makes my computer lock up or instantly reboot when I try to do a tv
+> recording with mplayer.
 
-Agh !
+I think the patch below should be applied before 2.6.9. It fixes the
+bug that made the card DMA lots of data to random memory locations,
+causing lockups and instant reboots.
 
-I had two patches, a broken one and a good one and ... of course I sent
-the broken one, sorry :(
+The problem was that the yoffset variable got modified inside the
+loop, but the logic in the switch statement was meant to work on the
+initial value of the yoffset variable.
 
-Can you still back it out ?
+(Bug fix extracted from
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109532814823565&w=2)
 
-Here is the correct one:
+Signed-off-by: Peter Osterlund <petero2@telia.com>
 
+---
 
-ppc64: Fix 32 bits conversion of SI_TIMER signals
-	
-The current 32 bits translation of the SI_TIMER is wrong on ppc64, causing
-the tst-timer4 testcase of glibc to fail in 32 bits. This patch fixes it.
+ linux-petero/drivers/media/video/bttv-risc.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
-Signed-off-by: Olaf Hering <olh@suse.de>
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-
-===== arch/ppc64/kernel/signal32.c 1.57 vs edited =====
---- 1.57/arch/ppc64/kernel/signal32.c	2004-09-14 10:23:15 +10:00
-+++ edited/arch/ppc64/kernel/signal32.c	2004-09-26 16:57:11 +10:00
-@@ -472,9 +472,13 @@
- 				  &d->si_addr);
- 		break;
- 	case __SI_POLL >> 16:
--	case __SI_TIMER >> 16:
- 		err |= __put_user(s->si_band, &d->si_band);
- 		err |= __put_user(s->si_fd, &d->si_fd);
-+		break;
-+	case __SI_TIMER >> 16:
-+		err |= __put_user(s->si_tid, &d->si_tid);
-+		err |= __put_user(s->si_overrun, &d->si_overrun);
-+		err |= __put_user(s->si_int, &d->si_int);
- 		break;
- 	case __SI_RT >> 16: /* This is not generated by the kernel as of now.  */
- 	case __SI_MESGQ >> 16:
-===== include/asm-ppc64/ppc32.h 1.16 vs edited =====
---- 1.16/include/asm-ppc64/ppc32.h	2004-09-17 16:58:38 +10:00
-+++ edited/include/asm-ppc64/ppc32.h	2004-09-26 09:37:49 +10:00
-@@ -32,8 +32,10 @@
+diff -puN drivers/media/video/bttv-risc.c~bttv-crash-fix drivers/media/video/bttv-risc.c
+--- linux/drivers/media/video/bttv-risc.c~bttv-crash-fix	2004-09-26 08:39:52.627762048 +0200
++++ linux-petero/drivers/media/video/bttv-risc.c	2004-09-26 08:42:23.642804272 +0200
+@@ -125,6 +125,7 @@ bttv_risc_planar(struct bttv *btv, struc
+ 	struct scatterlist *ysg;
+ 	struct scatterlist *usg;
+ 	struct scatterlist *vsg;
++	int topfield = (0 == yoffset);
+ 	int rc;
  
- 		/* POSIX.1b timers */
- 		struct {
--			unsigned int _timer1;
--			unsigned int _timer2;
-+			timer_t _tid;			/* timer id */
-+			int _overrun;			/* overrun count */
-+			compat_sigval_t _sigval;		/* same as below */
-+			int _sys_private;		/* not to be passed to user */
- 		} _timer;
- 
- 		/* POSIX.1b signals */
+ 	/* estimate risc mem: worst case is one write per page border +
+@@ -153,13 +154,13 @@ bttv_risc_planar(struct bttv *btv, struc
+ 			chroma = 1;
+ 			break;
+ 		case 1:
+-			if (!yoffset)
++			if (topfield)
+ 				chroma = (line & 1) == 0;
+ 			else
+ 				chroma = (line & 1) == 1;
+ 			break;
+ 		case 2:
+-			if (!yoffset)
++			if (topfield)
+ 				chroma = (line & 3) == 0;
+ 			else
+ 				chroma = (line & 3) == 2;
+_
 
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

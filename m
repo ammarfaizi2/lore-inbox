@@ -1,66 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317450AbSGITkD>; Tue, 9 Jul 2002 15:40:03 -0400
+	id <S317471AbSGIToD>; Tue, 9 Jul 2002 15:44:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317452AbSGITkC>; Tue, 9 Jul 2002 15:40:02 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:25477
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S317450AbSGITkA>; Tue, 9 Jul 2002 15:40:00 -0400
-Date: Tue, 9 Jul 2002 12:42:26 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Fix drivers/media/video/videodev.c on !MODULE case
-Message-ID: <20020709194226.GR695@opus.bloom.county>
+	id <S317472AbSGIToC>; Tue, 9 Jul 2002 15:44:02 -0400
+Received: from smtp013.mail.yahoo.com ([216.136.173.57]:23565 "HELO
+	smtp013.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S317471AbSGIToB>; Tue, 9 Jul 2002 15:44:01 -0400
+Subject: how to debug it?
+From: Michael Gruner <stockraser@yahoo.de>
+To: Joseph Pingenot <trelane@digitasaru.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020709133606.A8202@ksu.edu>
+References: <1026193021.1076.29.camel@highflyer>
+	<200207091227.15957.bernd-schubert@web.de>
+	<1026232702.757.9.camel@highflyer>  <20020709133606.A8202@ksu.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1026243598.757.56.camel@highflyer>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 09 Jul 2002 21:40:51 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently videodev_proc_destroy() isn't always compiled in when used.
-Right now it's compiled in based on MODULE && CONFIG_PROC_FS &&
-CONFIG_VIDEO_PROC_FS.  The two problems here the part of the file where
-videodev_proc_destroy resides is already protected by CONFIG_PROC_FS &&
-CONFIG_VIDEO_PROC_FS.  The second problem is that
-videodev_proc_destroy() isn't module specific, and is called on
-CONFIG_PROC_FS && CONFIG_VIDEO_PROC_FS.
+> >ok, did it as you say: in the BIOS I switched to Vsync/blank screen.
+> >Let's see what happens.
+> >BTW: My graphics card isn't a nvidia as many of you suggested but an ATI
+> >Rage pro (what did you wrote Bernd? ;-) ).
+> >Another interesting thing I got back in mind today was: one day my XMMS
+> >played a mp3 song and I switched to console (oooops...you know what
+> >happend) but the song kept on playing in a loop that was some
+> >milliseconds until I powered the box off. I don't know what to think
+> >about that.
+> 
+> I've seen the same thing on my ATI XPert@Play (Rage Pro chipset).  At 
+>   2.4.17, it was a risky proposition to switch between X and a text VC.
+>   It's better in 2.4.18, although not much (I believe.  I may be wrong).
+>   I have happend upon a situation a number of times where, when switching
+>   from X to a text VC, the machine "locks up", but CTRL-F7 (the X VC) will
+>   get me back to a working X login screen (KDM), at least for a while.  If
+>   I keep trying to switch to a text VC (which never works), it eventually
+>   fully locks up, to the point where I have to pull the plug, since the on
+>   switch is non-responsive.  If I tell it to shut down, it gets *most* of
+>   the way through before carping out and locking up fully.
+> I don't *believe* I've seen this in 2.5.x, although I may be wrong.
+> 
+Do you think it would be a good idea to get it out of the stable tree?
+Or is it better to try to live with it and wait for getting 2.5 the
+stable tree?
 
-This removes the unnecessary tests and updates a comment as well to
-reflect what's being tested.
+Is there a howto to get this debugged? Looking into /var/log/messages
+there are no messages that could point out that bad thing.
+
+michael
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Windmuehlenweg 22 07907 Schleiz
+mobil: +491628955029
+e-Mail: Michael.Gruner@fh-hof.de
 
-===== drivers/media/video/videodev.c 1.13 vs edited =====
---- 1.13/drivers/media/video/videodev.c	Wed Apr  3 17:05:11 2002
-+++ edited/drivers/media/video/videodev.c	Tue Jul  9 12:38:30 2002
-@@ -288,8 +288,6 @@
- 	video_dev_proc_entry->owner = THIS_MODULE;
- }
- 
--#ifdef MODULE
--#if defined(CONFIG_PROC_FS) && defined(CONFIG_VIDEO_PROC_FS)
- static void videodev_proc_destroy(void)
- {
- 	if (video_dev_proc_entry != NULL)
-@@ -298,8 +296,6 @@
- 	if (video_proc_entry != NULL)
- 		remove_proc_entry("video", &proc_root);
- }
--#endif
--#endif
- 
- static void videodev_proc_create_dev (struct video_device *vfd, char *name)
- {
-@@ -344,7 +340,7 @@
- 	}
- }
- 
--#endif /* CONFIG_VIDEO_PROC_FS */
-+#endif /* CONFIG_VIDEO_PROC_FS && CONFIG_VIDEO_PROC_FS */
- 
- extern struct file_operations video_fops;
- 
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
+

@@ -1,123 +1,317 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261343AbTIOS7E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 14:59:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbTIOS7E
+	id S261299AbTIOTGg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 15:06:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbTIOTGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 14:59:04 -0400
-Received: from maverick.eskuel.net ([81.56.212.215]:37772 "EHLO
-	maverick.eskuel.net") by vger.kernel.org with ESMTP id S261343AbTIOS66
+	Mon, 15 Sep 2003 15:06:36 -0400
+Received: from law11-f84.law11.hotmail.com ([64.4.17.84]:9484 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261380AbTIOTGQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 14:58:58 -0400
-Message-ID: <3F660BF7.6060106@eskuel.net>
-Date: Mon, 15 Sep 2003 20:59:03 +0200
-From: Mathieu LESNIAK <maverick@eskuel.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030903 Thunderbird/0.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>, mochel@osdl.org
-Subject: Nearly succes with suspend to disk in -test5-mm2
-Content-Type: multipart/mixed;
- boundary="------------070303060506010701080406"
+	Mon, 15 Sep 2003 15:06:16 -0400
+X-Originating-IP: [220.224.1.170]
+X-Originating-Email: [kartik_me@hotmail.com]
+From: "kartikey bhatt" <kartik_me@hotmail.com>
+To: erlend-a@ux.his.no
+Cc: jmorris@intercode.com.au, linux-kernel@vger.kernel.org, mpm@selenic.com
+Subject: Re: [CRYPTO] Testing Module Cleanup.
+Date: Tue, 16 Sep 2003 00:36:15 +0530
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <Law11-F84eSOzNCWbzw00015673@hotmail.com>
+X-OriginalArrivalTime: 15 Sep 2003 19:06:15.0795 (UTC) FILETIME=[6FE67C30:01C37BBC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070303060506010701080406
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+anyway you have modified it.
+thanks for improving code.
 
-Hi,
-
-I've tested the last kernel of -mm series, -test5-mm2. One of the 
-important feature to me is the suspend to disk, and it's one of the 
-first kernel that suspend fine on my laptop. I'm now able to do a 
-suspend / resume cycle with nearly no problem :)
-However, I saw some oops while resuming. Nothing critical, but if it an 
-help debugging ...
-
-See the attached file for the syslog part showing suspend / resume with 
-the oops.
-
-I can give more details on my setup if you want.
-
-Mathieu LESNIAK
-
---------------070303060506010701080406
-Content-Type: text/plain;
- name="syslog-presario-suspend"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="syslog-presario-suspend"
-
-Sep 15 20:46:38 minimaverick kernel: Stopping tasks: ================================|
-Sep 15 20:46:38 minimaverick kernel: Freeing memory: ........................|
-Sep 15 20:46:38 minimaverick kernel: hdc: start_power_step(step: 0)
-Sep 15 20:46:38 minimaverick kernel: hdc: completing PM request, suspend
-Sep 15 20:46:38 minimaverick kernel: hda: start_power_step(step: 0)
-Sep 15 20:46:38 minimaverick kernel: hda: start_power_step(step: 1)
-Sep 15 20:46:38 minimaverick kernel: hda: complete_power_step(step: 1, stat: 50, err: 0)
-Sep 15 20:46:38 minimaverick kernel: hda: completing PM request, suspend
-Sep 15 20:46:38 minimaverick kernel: eth0: remaining active for wake-on-lan
-Sep 15 20:46:38 minimaverick kernel: PM: Attempting to suspend to disk.
-Sep 15 20:46:38 minimaverick kernel: PM: snapshotting memory.
-Sep 15 20:46:38 minimaverick kernel: /critical section: Counting pages to copy[nosave c044d000] (pages needed: 3978+512=4490 free: 44901)
-Sep 15 20:46:38 minimaverick kernel: Alloc pagedir
-Sep 15 20:46:39 minimaverick kernel: [nosave c044d000]<7>PM: Image restored successfully.
-Sep 15 20:46:39 minimaverick kernel: Freeing prev allocated pagedir
-Sep 15 20:46:39 minimaverick kernel: eth0: autonegotiation did not complete in 4000 usec.
-Sep 15 20:46:39 minimaverick kernel: hda: Wakeup request inited, waiting for !BSY...
-Sep 15 20:46:39 minimaverick kernel: hda: start_power_step(step: 1000)
-Sep 15 20:46:39 minimaverick kernel: blk: queue c1377800, I/O limit 4095Mb (mask 0xffffffff)
-Sep 15 20:46:39 minimaverick kernel: hda: completing PM request, resume
-Sep 15 20:46:39 minimaverick kernel: hdc: Wakeup request inited, waiting for !BSY...
-Sep 15 20:46:39 minimaverick kernel: hdc: start_power_step(step: 1000)
-Sep 15 20:46:39 minimaverick kernel: hdc: completing PM request, resume
-Sep 15 20:46:39 minimaverick kernel: Restarting tasks...<3>bad: scheduling while atomic!
-Sep 15 20:46:39 minimaverick kernel: Call Trace:
-Sep 15 20:46:39 minimaverick kernel:  [schedule+1436/1456] schedule+0x59c/0x5b0
-Sep 15 20:46:39 minimaverick kernel:  [wake_up_process+38/48] wake_up_process+0x26/0x30
-Sep 15 20:46:39 minimaverick kernel:  [thaw_processes+164/256] thaw_processes+0xa4/0x100
-Sep 15 20:46:39 minimaverick kernel:  [acpi_pm_finish+20/54] acpi_pm_finish+0x14/0x36
-Sep 15 20:46:39 minimaverick kernel:  [finish+22/64] finish+0x16/0x40
-Sep 15 20:46:39 minimaverick kernel:  [pm_suspend_disk+126/192] pm_suspend_disk+0x7e/0xc0
-Sep 15 20:46:39 minimaverick kernel:  [enter_state+165/176] enter_state+0xa5/0xb0
-Sep 15 20:46:39 minimaverick kernel:  [state_store+103/113] state_store+0x67/0x71
-Sep 15 20:46:39 minimaverick kernel:  [subsys_attr_store+58/64] subsys_attr_store+0x3a/0x40
-Sep 15 20:46:39 minimaverick kernel:  [flush_write_buffer+59/80] flush_write_buffer+0x3b/0x50
-Sep 15 20:46:39 minimaverick kernel:  [sysfs_write_file+96/112] sysfs_write_file+0x60/0x70
-Sep 15 20:46:39 minimaverick kernel:  [sysfs_write_file+0/112] sysfs_write_file+0x0/0x70
-Sep 15 20:46:39 minimaverick kernel:  [vfs_write+184/304] vfs_write+0xb8/0x130
-Sep 15 20:46:39 minimaverick kernel:  [sys_write+66/112] sys_write+0x42/0x70
-Sep 15 20:46:39 minimaverick kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Sep 15 20:46:39 minimaverick kernel: 
-Sep 15 20:46:39 minimaverick kernel:  done
-Sep 15 20:46:39 minimaverick kernel: bad: scheduling while atomic!
-Sep 15 20:46:39 minimaverick kernel: Call Trace:
-Sep 15 20:46:39 minimaverick kernel:  [schedule+1436/1456] schedule+0x59c/0x5b0
-Sep 15 20:46:39 minimaverick kernel:  [sys_write+66/112] sys_write+0x42/0x70
-Sep 15 20:46:39 minimaverick kernel:  [work_resched+5/22] work_resched+0x5/0x16
-Sep 15 20:46:39 minimaverick kernel: 
-Sep 15 20:46:39 minimaverick kernel: Unable to handle kernel paging request at virtual address 401279b8
-Sep 15 20:46:39 minimaverick kernel:  printing eip:
-Sep 15 20:46:39 minimaverick kernel: 401279b8
-Sep 15 20:46:39 minimaverick kernel: *pde = 084d3067
-Sep 15 20:46:39 minimaverick kernel: *pte = 00000000
-Sep 15 20:46:39 minimaverick kernel: Oops: 0004 [#1]
-Sep 15 20:46:39 minimaverick kernel: PREEMPT 
-Sep 15 20:46:39 minimaverick kernel: CPU:    0
-Sep 15 20:46:39 minimaverick kernel: EIP:    0073:[<401279b8>]    Not tainted VLI
-Sep 15 20:46:39 minimaverick kernel: EFLAGS: 00010246
-Sep 15 20:46:39 minimaverick kernel: EIP is at 0x401279b8
-Sep 15 20:46:39 minimaverick kernel: eax: 00000004   ebx: 00000001   ecx: 080f8c08   edx: 00000004
-Sep 15 20:46:39 minimaverick kernel: esi: 00000004   edi: 080f8c08   ebp: bffff7c8   esp: bffff798
-Sep 15 20:46:39 minimaverick kernel: ds: 007b   es: 007b   ss: 007b
-Sep 15 20:46:39 minimaverick kernel: Process bash (pid: 429, threadinfo=c80f4000 task=ca26f310)
-Sep 15 20:46:39 minimaverick kernel:  <6>note: bash[429] exited with preempt_count 1
-Sep 15 20:46:39 minimaverick kernel: Losing too many ticks!
-Sep 15 20:46:39 minimaverick kernel: TSC cannot be used as a timesource. (Are you running with SpeedStep?)
-Sep 15 20:46:39 minimaverick kernel: Falling back to a sane timesource.
+             -Kartikey Mahendra Bhatt
 
 
---------------070303060506010701080406--
+>From: Erlend Aasland <erlend-a@ux.his.no>
+>To: kartikey bhatt <kartik_me@hotmail.com>
+>CC: jmorris@intercode.com.au, linux-kernel@vger.kernel.org
+>Subject: Re: [CRYPTO] Testing Module Cleanup.
+>Date: Mon, 15 Sep 2003 15:43:34 +0200
+>
+>On 09/15/03 00:30, kartikey bhatt wrote:
+> > I have cleaned up the testing module.
+> > A complete rewrite.
+> > Any suggestions are welcome.
+>
+>What about removing some magic numbers to make it a little more
+>readable?
+>
+>
+>Regards
+>	Erlend Aasland
+>
+>--- linux-2.6.0-test5-dirty/crypto/tcrypt.c	2003-09-15 21:36:30.000000000 
+>+0200
+>+++ linux-2.6.0-test5-dirty/crypto/tcrypt.c~	2003-09-15 21:35:21.000000000 
+>+0200
+>@@ -43,6 +43,14 @@
+>  #define IDX7		27333
+>  #define IDX8		3000
+>
+>+/*
+>+ * Used by test_cipher()
+>+ */
+>+#define ENCRYPT 1
+>+#define DECRYPT 0
+>+#define MODE_ECB 1
+>+#define MODE_CBC 0
+>+
+>  static unsigned int IDX[8] = { IDX1, IDX2, IDX3, IDX4, IDX5, IDX6, IDX7, 
+>IDX8 };
+>
+>  static int mode;
+>@@ -251,10 +259,16 @@
+>  	char *key;
+>  	struct cipher_testvec *cipher_tv;
+>  	struct scatterlist sg[8];
+>-	char *e, *m;
+>+	char e[11], m[4];
+>
+>-	e = enc ? "encryption" : "decryption";
+>-	m = mode ? "ECB" : "CBC";
+>+	if (enc == ENCRYPT)
+>+		strncpy(e, "encryption", 11);
+>+	else
+>+		strncpy(e, "decryption", 11);
+>+	if (mode == MODE_ECB)
+>+		strncpy(m, "ECB", 4);
+>+	else
+>+		strncpy(m, "CBC", 4);
+>
+>  	printk("\ntesting %s %s %s \n", algo, m, e);
+>
+>@@ -497,46 +511,46 @@
+>  		test_hash("sha1", sha1_tv_template, SHA1_TEST_VECTORS);
+>
+>  		//DES
+>-		test_cipher ("des", 1, 1, des_enc_tv_template, DES_ENC_TEST_VECTORS);
+>-		test_cipher ("des", 1, 0, des_dec_tv_template, DES_DEC_TEST_VECTORS);
+>-		test_cipher ("des", 0, 1, des_cbc_enc_tv_template, 
+>DES_CBC_ENC_TEST_VECTORS);
+>-		test_cipher ("des", 0, 0, des_cbc_dec_tv_template, 
+>DES_CBC_DEC_TEST_VECTORS);
+>+		test_cipher ("des", MODE_ECB, ENCRYPT, des_enc_tv_template, 
+>DES_ENC_TEST_VECTORS);
+>+		test_cipher ("des", MODE_ECB, DECRYPT, des_dec_tv_template, 
+>DES_DEC_TEST_VECTORS);
+>+		test_cipher ("des", MODE_CBC, ENCRYPT, des_cbc_enc_tv_template, 
+>DES_CBC_ENC_TEST_VECTORS);
+>+		test_cipher ("des", MODE_CBC, DECRYPT, des_cbc_dec_tv_template, 
+>DES_CBC_DEC_TEST_VECTORS);
+>
+>  		//DES3_EDE
+>-		test_cipher ("des3_ede", 1, 1, des3_ede_enc_tv_template, 
+>DES3_EDE_ENC_TEST_VECTORS);
+>-		test_cipher ("des3_ede", 1, 0, des3_ede_dec_tv_template, 
+>DES3_EDE_DEC_TEST_VECTORS);
+>+		test_cipher ("des3_ede", MODE_ECB, ENCRYPT, des3_ede_enc_tv_template, 
+>DES3_EDE_ENC_TEST_VECTORS);
+>+		test_cipher ("des3_ede", MODE_ECB, DECRYPT, des3_ede_dec_tv_template, 
+>DES3_EDE_DEC_TEST_VECTORS);
+>
+>  		test_hash("md4", md4_tv_template, MD4_TEST_VECTORS);
+>
+>  		test_hash("sha256", sha256_tv_template, SHA256_TEST_VECTORS);
+>
+>  		//BLOWFISH
+>-		test_cipher ("blowfish", 1, 1, bf_enc_tv_template, BF_ENC_TEST_VECTORS);
+>-		test_cipher ("blowfish", 1, 0, bf_dec_tv_template, BF_DEC_TEST_VECTORS);
+>-		test_cipher ("blowfish", 0, 1, bf_cbc_enc_tv_template, 
+>BF_CBC_ENC_TEST_VECTORS);
+>-		test_cipher ("blowfish", 0, 0, bf_cbc_dec_tv_template, 
+>BF_CBC_DEC_TEST_VECTORS);
+>+		test_cipher ("blowfish", MODE_ECB, ENCRYPT, bf_enc_tv_template, 
+>BF_ENC_TEST_VECTORS);
+>+		test_cipher ("blowfish", MODE_ECB, DECRYPT, bf_dec_tv_template, 
+>BF_DEC_TEST_VECTORS);
+>+		test_cipher ("blowfish", MODE_CBC, ENCRYPT, bf_cbc_enc_tv_template, 
+>BF_CBC_ENC_TEST_VECTORS);
+>+		test_cipher ("blowfish", MODE_CBC, DECRYPT, bf_cbc_dec_tv_template, 
+>BF_CBC_DEC_TEST_VECTORS);
+>
+>  		//TWOFISH
+>-		test_cipher ("twofish", 1, 1, tf_enc_tv_template, TF_ENC_TEST_VECTORS);
+>-		test_cipher ("twofish", 1, 0, tf_dec_tv_template, TF_DEC_TEST_VECTORS);
+>-		test_cipher ("twofish", 0, 1, tf_cbc_enc_tv_template, 
+>TF_CBC_ENC_TEST_VECTORS);
+>-		test_cipher ("twofish", 0, 0, tf_cbc_dec_tv_template, 
+>TF_CBC_DEC_TEST_VECTORS);
+>+		test_cipher ("twofish", MODE_ECB, ENCRYPT, tf_enc_tv_template, 
+>TF_ENC_TEST_VECTORS);
+>+		test_cipher ("twofish", MODE_ECB, DECRYPT, tf_dec_tv_template, 
+>TF_DEC_TEST_VECTORS);
+>+		test_cipher ("twofish", MODE_CBC, ENCRYPT, tf_cbc_enc_tv_template, 
+>TF_CBC_ENC_TEST_VECTORS);
+>+		test_cipher ("twofish", MODE_CBC, DECRYPT, tf_cbc_dec_tv_template, 
+>TF_CBC_DEC_TEST_VECTORS);
+>
+>  		//SERPENT
+>-		test_cipher ("serpent", 1, 1, serpent_enc_tv_template, 
+>SERPENT_ENC_TEST_VECTORS);
+>-		test_cipher ("serpent", 1, 0, serpent_dec_tv_template, 
+>SERPENT_DEC_TEST_VECTORS);
+>+		test_cipher ("serpent", MODE_ECB, ENCRYPT, serpent_enc_tv_template, 
+>SERPENT_ENC_TEST_VECTORS);
+>+		test_cipher ("serpent", MODE_ECB, DECRYPT, serpent_dec_tv_template, 
+>SERPENT_DEC_TEST_VECTORS);
+>
+>  		//AES
+>-		test_cipher ("aes", 1, 1, aes_enc_tv_template, AES_ENC_TEST_VECTORS);
+>-		test_cipher ("aes", 1, 0, aes_dec_tv_template, AES_DEC_TEST_VECTORS);
+>+		test_cipher ("aes", MODE_ECB, ENCRYPT, aes_enc_tv_template, 
+>AES_ENC_TEST_VECTORS);
+>+		test_cipher ("aes", MODE_ECB, DECRYPT, aes_dec_tv_template, 
+>AES_DEC_TEST_VECTORS);
+>
+>  		//CAST5
+>-		test_cipher ("cast5", 1, 1, cast5_enc_tv_template, 
+>CAST5_ENC_TEST_VECTORS);
+>-		test_cipher ("cast5", 1, 0, cast5_dec_tv_template, 
+>CAST5_DEC_TEST_VECTORS);
+>+		test_cipher ("cast5", MODE_ECB, ENCRYPT, cast5_enc_tv_template, 
+>CAST5_ENC_TEST_VECTORS);
+>+		test_cipher ("cast5", MODE_ECB, DECRYPT, cast5_dec_tv_template, 
+>CAST5_DEC_TEST_VECTORS);
+>
+>  		//CAST6
+>-		test_cipher ("cast6", 1, 1, cast6_enc_tv_template, 
+>CAST6_ENC_TEST_VECTORS);
+>-		test_cipher ("cast6", 1, 0, cast6_dec_tv_template, 
+>CAST6_DEC_TEST_VECTORS);
+>+		test_cipher ("cast6", MODE_ECB, ENCRYPT, cast6_enc_tv_template, 
+>CAST6_ENC_TEST_VECTORS);
+>+		test_cipher ("cast6", MODE_ECB, DECRYPT, cast6_dec_tv_template, 
+>CAST6_DEC_TEST_VECTORS);
+>
+>  		test_hash("sha384", sha384_tv_template, SHA384_TEST_VECTORS);
+>  		test_hash("sha512", sha512_tv_template, SHA512_TEST_VECTORS);
+>@@ -557,15 +571,15 @@
+>  		break;
+>
+>  	case 3:
+>-		test_cipher ("des", 1, 1, des_enc_tv_template, DES_ENC_TEST_VECTORS);
+>-		test_cipher ("des", 1, 0, des_dec_tv_template, DES_DEC_TEST_VECTORS);
+>-		test_cipher ("des", 0, 1, des_cbc_enc_tv_template, 
+>DES_CBC_ENC_TEST_VECTORS);
+>-		test_cipher ("des", 0, 0, des_cbc_dec_tv_template, 
+>DES_CBC_DEC_TEST_VECTORS);
+>+		test_cipher ("des", MODE_ECB, ENCRYPT, des_enc_tv_template, 
+>DES_ENC_TEST_VECTORS);
+>+		test_cipher ("des", MODE_ECB, DECRYPT, des_dec_tv_template, 
+>DES_DEC_TEST_VECTORS);
+>+		test_cipher ("des", MODE_CBC, ENCRYPT, des_cbc_enc_tv_template, 
+>DES_CBC_ENC_TEST_VECTORS);
+>+		test_cipher ("des", MODE_CBC, DECRYPT, des_cbc_dec_tv_template, 
+>DES_CBC_DEC_TEST_VECTORS);
+>  		break;
+>
+>  	case 4:
+>-		test_cipher ("des3_ede", 1, 1, des3_ede_enc_tv_template, 
+>DES3_EDE_ENC_TEST_VECTORS);
+>-		test_cipher ("des3_ede", 1, 0, des3_ede_dec_tv_template, 
+>DES3_EDE_DEC_TEST_VECTORS);
+>+		test_cipher ("des3_ede", MODE_ECB, ENCRYPT, des3_ede_enc_tv_template, 
+>DES3_EDE_ENC_TEST_VECTORS);
+>+		test_cipher ("des3_ede", MODE_ECB, DECRYPT, des3_ede_dec_tv_template, 
+>DES3_EDE_DEC_TEST_VECTORS);
+>  		break;
+>
+>  	case 5:
+>@@ -577,28 +591,28 @@
+>  		break;
+>
+>  	case 7:
+>-		test_cipher ("blowfish", 1, 1, bf_enc_tv_template, BF_ENC_TEST_VECTORS);
+>-		test_cipher ("blowfish", 1, 0, bf_dec_tv_template, BF_DEC_TEST_VECTORS);
+>-		test_cipher ("blowfish", 0, 1, bf_cbc_enc_tv_template, 
+>BF_CBC_ENC_TEST_VECTORS);
+>-		test_cipher ("blowfish", 0, 0, bf_cbc_dec_tv_template, 
+>BF_CBC_DEC_TEST_VECTORS);
+>+		test_cipher ("blowfish", MODE_ECB, ENCRYPT, bf_enc_tv_template, 
+>BF_ENC_TEST_VECTORS);
+>+		test_cipher ("blowfish", MODE_ECB, DECRYPT, bf_dec_tv_template, 
+>BF_DEC_TEST_VECTORS);
+>+		test_cipher ("blowfish", MODE_CBC, ENCRYPT, bf_cbc_enc_tv_template, 
+>BF_CBC_ENC_TEST_VECTORS);
+>+		test_cipher ("blowfish", MODE_CBC, DECRYPT, bf_cbc_dec_tv_template, 
+>BF_CBC_DEC_TEST_VECTORS);
+>  		break;
+>
+>  	case 8:
+>-		test_cipher ("twofish", 1, 1, tf_enc_tv_template, TF_ENC_TEST_VECTORS);
+>-		test_cipher ("twofish", 1, 0, tf_dec_tv_template, TF_DEC_TEST_VECTORS);
+>-		test_cipher ("twofish", 0, 1, tf_cbc_enc_tv_template, 
+>TF_CBC_ENC_TEST_VECTORS);
+>-		test_cipher ("twofish", 0, 0, tf_cbc_dec_tv_template, 
+>TF_CBC_DEC_TEST_VECTORS);
+>+		test_cipher ("twofish", MODE_ECB, ENCRYPT, tf_enc_tv_template, 
+>TF_ENC_TEST_VECTORS);
+>+		test_cipher ("twofish", MODE_ECB, DECRYPT, tf_dec_tv_template, 
+>TF_DEC_TEST_VECTORS);
+>+		test_cipher ("twofish", MODE_CBC, ENCRYPT, tf_cbc_enc_tv_template, 
+>TF_CBC_ENC_TEST_VECTORS);
+>+		test_cipher ("twofish", MODE_CBC, DECRYPT, tf_cbc_dec_tv_template, 
+>TF_CBC_DEC_TEST_VECTORS);
+>  		break;
+>
+>  	case 9:
+>-		test_cipher ("serpent", 1, 1, serpent_enc_tv_template, 
+>SERPENT_ENC_TEST_VECTORS);
+>-		test_cipher ("serpent", 1, 0, serpent_dec_tv_template, 
+>SERPENT_DEC_TEST_VECTORS);
+>+		test_cipher ("serpent", MODE_ECB, ENCRYPT, serpent_enc_tv_template, 
+>SERPENT_ENC_TEST_VECTORS);
+>+		test_cipher ("serpent", MODE_ECB, DECRYPT, serpent_dec_tv_template, 
+>SERPENT_DEC_TEST_VECTORS);
+>
+>  		break;
+>
+>  	case 10:
+>-		test_cipher ("aes", 1, 1, aes_enc_tv_template, AES_ENC_TEST_VECTORS);
+>-		test_cipher ("aes", 1, 0, aes_dec_tv_template, AES_DEC_TEST_VECTORS);
+>+		test_cipher ("aes", MODE_ECB, ENCRYPT, aes_enc_tv_template, 
+>AES_ENC_TEST_VECTORS);
+>+		test_cipher ("aes", MODE_ECB, DECRYPT, aes_dec_tv_template, 
+>AES_DEC_TEST_VECTORS);
+>  		break;
+>
+>  	case 11:
+>@@ -614,13 +628,13 @@
+>  		break;
+>
+>  	case 14:
+>-		test_cipher ("cast5", 1, 1, cast5_enc_tv_template, 
+>CAST5_ENC_TEST_VECTORS);
+>-		test_cipher ("cast5", 1, 0, cast5_dec_tv_template, 
+>CAST5_DEC_TEST_VECTORS);
+>+		test_cipher ("cast5", MODE_ECB, ENCRYPT, cast5_enc_tv_template, 
+>CAST5_ENC_TEST_VECTORS);
+>+		test_cipher ("cast5", MODE_ECB, DECRYPT, cast5_dec_tv_template, 
+>CAST5_DEC_TEST_VECTORS);
+>  		break;
+>
+>  	case 15:
+>-		test_cipher ("cast6", 1, 1, cast6_enc_tv_template, 
+>CAST6_ENC_TEST_VECTORS);
+>-		test_cipher ("cast6", 1, 0, cast6_dec_tv_template, 
+>CAST6_DEC_TEST_VECTORS);
+>+		test_cipher ("cast6", MODE_ECB, ENCRYPT, cast6_enc_tv_template, 
+>CAST6_ENC_TEST_VECTORS);
+>+		test_cipher ("cast6", MODE_ECB, DECRYPT, cast6_dec_tv_template, 
+>CAST6_DEC_TEST_VECTORS);
+>  		break;
+>
+>  #ifdef CONFIG_CRYPTO_HMAC
+
+_________________________________________________________________
+Get personal loans. It's hassle-free. 
+http://server1.msn.co.in/msnleads/citibankpersonalloan/citibankploanjuly03.asp?type=txt 
+It's approved instantly.
 

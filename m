@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262111AbTK1Knu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 05:43:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbTK1Knu
+	id S262114AbTK1KrY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 05:47:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbTK1KrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 05:43:50 -0500
-Received: from mail47-s.fg.online.no ([148.122.161.47]:12487 "EHLO
-	mail47.fg.online.no") by vger.kernel.org with ESMTP id S262111AbTK1Knt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 05:43:49 -0500
-To: Nigel Cunningham <ncunningham@clear.net.nz>
-Cc: gene.heskett@verizon.net, =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6 not cat proof
-References: <20031126201052.GA16106@outpost.ds9a.nl>
-	<20031127035755.2d960969.pj@sgi.com> <yw1xoeuxbw7u.fsf@kth.se>
-	<200311271237.22730.gene.heskett@verizon.net>
-	<1069957288.1920.7.camel@laptop-linux>
-From: Harald Arnesen <harald@skogtun.org>
-Date: Fri, 28 Nov 2003 11:43:28 +0100
-In-Reply-To: <1069957288.1920.7.camel@laptop-linux> (Nigel Cunningham's
- message of "Fri, 28 Nov 2003 07:21:28 +1300")
-Message-ID: <87smk8lqnj.fsf@basilikum.skogtun.org>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 28 Nov 2003 05:47:24 -0500
+Received: from main.gmane.org ([80.91.224.249]:19879 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262114AbTK1KrW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Nov 2003 05:47:22 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: Strange behavior observed w.r.t 'su' command
+Date: Fri, 28 Nov 2003 11:47:20 +0100
+Message-ID: <yw1x65h43h3b.fsf@kth.se>
+References: <3FC707B6.1070704@mailandnews.com> <jeoeuw7pf7.fsf@sykes.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:7CGs1Sg1TBF141h/5tD+Ig1iP9Y=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham <ncunningham@clear.net.nz> writes:
+Andreas Schwab <schwab@suse.de> writes:
 
-> Just one more!... Perhaps you had to rm /bin/cat 9 times because you
-> forgot the -f switch?..
+>> hi, i am not sure if this is a kernel problem or an 'su' related issue,
+>> but this is what  i have observed. Tried on 2.4.20-8 ( RH 9.0 kernel ) and
+>> latest 2.6.0-test11.
+>>
+>> - log in as any normal user. ( on Console.).
+>> - su - root
+>> - from root prompt, run 'ps' and check the pid of 'su'.
+>> - kill -9 <pid of su>
+>> After the kill command, strangely my keyboard switches to unbuffered mode
+>> ( a key press is processed immediately ). Also, i alternate between the
+>> root prompt and the normal user prompt.
+>> Every key press switches from root prompt to normal user prompt and vice
+>> versa. Typing 'whoami' at the respective prompts displays 'normal user'
+>> and 'root' for the respective prompts.
+>
+> Nothing unusual, you just have two shells competing with each other on the
+> terminal.  Don't use kill -9 unless you know what you are doing.
 
-Wouldn't "kill -9" work...?
+It appears that my su exec()s the shell, whereas the redhat and gentoo
+su fork() and exec().
+
 -- 
-Hilsen Harald.
+Måns Rullgård
+mru@kth.se
+

@@ -1,38 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267628AbSKTFYP>; Wed, 20 Nov 2002 00:24:15 -0500
+	id <S265787AbSKTFf4>; Wed, 20 Nov 2002 00:35:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267629AbSKTFYP>; Wed, 20 Nov 2002 00:24:15 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:5138 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267628AbSKTFYP>;
-	Wed, 20 Nov 2002 00:24:15 -0500
-Date: Tue, 19 Nov 2002 21:24:43 -0800
-From: Greg KH <greg@kroah.com>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: PATCH(2.5.48): Eliminate pcidev.driver_data
-Message-ID: <20021120052442.GF21953@kroah.com>
-References: <20021119211626.A2389@baldur.yggdrasil.com>
-Mime-Version: 1.0
+	id <S265798AbSKTFf4>; Wed, 20 Nov 2002 00:35:56 -0500
+Received: from packet.digeo.com ([12.110.80.53]:11660 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265787AbSKTFfz>;
+	Wed, 20 Nov 2002 00:35:55 -0500
+Message-ID: <3DDB20DC.7C8BE115@digeo.com>
+Date: Tue, 19 Nov 2002 21:42:52 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rebecca.Callan@ir.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: decrement of inodes_stat.nr_inodes in inode.c not SMP safe?
+References: <694BB7191495D51183A9005004C0B05482D50E@ir-exchange-srv.ir.com.au>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021119211626.A2389@baldur.yggdrasil.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Nov 2002 05:42:52.0730 (UTC) FILETIME=[AB1F39A0:01C29057]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 19, 2002 at 09:16:26PM -0800, Adam J. Richter wrote:
-> At 2.5.45, I reposted this
-> patch and Greg Kroah-Hartman said that he would submit it to you in
-> "the next round of pci cleanups I'm going to be sending to Linus", but
-> it seems to have fallen through the cracks since then.
+Rebecca.Callan@ir.com wrote:
+> 
+> The value for nr_inodes in /proc/sys/fs/inode-state appears to be wrong.
+> 
+> I think this is probably a bug in all 2.4 smp kernels. I've seen it in
+> 2.4.8-26mdksmp and 2.4.18-3smp.
+> 
 
-I've been on "vacation" this week, and wanted to get my pcibios cleanup
-changes done first (which I just sent off.)  Sorry for the delay.
+Is true.  The 2.5 change needs to be backported.
 
-This patch looks good, and if Linus doesn't take it directly, I'll put
-it up in a tree to send to him later :)
 
-Sorry again for the delay,
+--- linux-akpm/fs/inode.c~inodes_stat-race	Tue Nov 19 21:42:08 2002
++++ linux-akpm-akpm/fs/inode.c	Tue Nov 19 21:42:23 2002
+@@ -532,22 +532,25 @@ void clear_inode(struct inode *inode)
+  * Dispose-list gets a local list with local inodes in it, so it doesn't
+  * need to worry about list corruption and SMP locks.
+  */
+-static void dispose_list(struct list_head * head)
++static void dispose_list(struct list_head *head)
+ {
+-	struct list_head * inode_entry;
+-	struct inode * inode;
++	int nr_disposed = 0;
+ 
+-	while ((inode_entry = head->next) != head)
+-	{
+-		list_del(inode_entry);
++	while (!list_empty(head)) {
++		struct inode *inode;
++
++		inode = list_entry(head->next, struct inode, i_list);
++		list_del(&inode->i_list);
+ 
+-		inode = list_entry(inode_entry, struct inode, i_list);
+ 		if (inode->i_data.nrpages)
+ 			truncate_inode_pages(&inode->i_data, 0);
+ 		clear_inode(inode);
+ 		destroy_inode(inode);
+-		inodes_stat.nr_inodes--;
++		nr_disposed++;
+ 	}
++	spin_lock(&inode_lock);
++	inodes_stat.nr_inodes -= nr_disposed;
++	spin_unlock(&inode_lock);
+ }
+ 
+ /*
 
-greg k-h
+_

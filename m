@@ -1,87 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S513489AbUKBCxH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263380AbUKAXBf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S513489AbUKBCxH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 21:53:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264401AbUKBCsr
+	id S263380AbUKAXBf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 18:01:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S380344AbUKAXBZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 21:48:47 -0500
-Received: from mail24.syd.optusnet.com.au ([211.29.133.165]:48566 "EHLO
-	mail24.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S280016AbUKBCj2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 21:39:28 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16774.62295.469676.663865@wombat.chubb.wattle.id.au>
-Date: Tue, 2 Nov 2004 13:39:19 +1100
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: Andrew.Morton.akpm@osdl.org, Tony Luck <tony.luck@intel.com>
-CC: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] IA64 build broken... cond_syscall()... Fixes?
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+	Mon, 1 Nov 2004 18:01:25 -0500
+Received: from mail.kroah.org ([69.55.234.183]:64675 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S286266AbUKAV7P convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 16:59:15 -0500
+X-Donotread: and you are reading this why?
+Subject: Re: [PATCH] Driver Core patches for 2.6.10-rc1
+In-Reply-To: <10993462772966@kroah.com>
+X-Patch: quite boring stuff, it's just source code...
+Date: Mon, 1 Nov 2004 13:57:57 -0800
+Message-Id: <10993462772266@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ChangeSet 1.2451, 2004/11/01 13:06:31-08:00, dtor_core@ameritech.net
 
-Hi Folks,
-   The kernel 2.6 IA64 build has been broken for several days (see
-http://www.gelato.unsw.edu.au/kerncomp )
+[PATCH] Driver core: add driver symlink to device
 
-The reason is that cond_syscall() for IA64 is defined as:
+Driver core: when binding device to a driver create "driver"
+             symlink in device's directory. Rename serio's
+             "driver" attribute to "drvctl" (write-only)
 
-  #define cond_syscall(x) asmlinkage long x (void) \
-	__attribute__((weak,alias("sys_ni_syscall")))   
-
-which of course doesn't work if there's a prototype in scope for x,
-unless the type of x just happens to be the same as for sys_ni_syscall.
-
-Changing to the type-safe version
-   #define cond_syscall(x) __typeof__ (x) x \
-	   __attribute__((weak,alias("sys_ni_syscall")));
-gives an error, e.g., 
- error: `compat_sys_futex' defined both normally and as an alias
-
-Most architectures use inline assembly language which avoids the
-problem.  However, we don't want to do this for IA64, to allow
-compilers other than gcc to be used (in general, gcc generated code
-for IA64 is extremely poor).
-
-There are several ways to fix this.  The simple way is to ensure that
-there are no prototypes for any system calls included in kernel/sys.c
-(the only place where cond_syscall is used).  That's what this patch
-does:
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
+ drivers/base/bus.c          |    2 ++
+ drivers/input/serio/serio.c |    7 +------
+ 2 files changed, 3 insertions(+), 6 deletions(-)
 
-===== kernel/sys.c 1.97 vs edited =====
---- 1.97/kernel/sys.c	2004-10-28 07:35:17 +10:00
-+++ edited/kernel/sys.c	2004-11-02 13:34:33 +11:00
-@@ -5,7 +5,6 @@
-  */
+
+diff -Nru a/drivers/base/bus.c b/drivers/base/bus.c
+--- a/drivers/base/bus.c	2004-11-01 13:36:05 -08:00
++++ b/drivers/base/bus.c	2004-11-01 13:36:05 -08:00
+@@ -246,6 +246,7 @@
+ 	list_add_tail(&dev->driver_list, &dev->driver->devices);
+ 	sysfs_create_link(&dev->driver->kobj, &dev->kobj,
+ 			  kobject_name(&dev->kobj));
++	sysfs_create_link(&dev->kobj, &dev->driver->kobj, "driver");
+ }
  
- #include <linux/config.h>
--#include <linux/compat.h>
- #include <linux/module.h>
- #include <linux/mm.h>
- #include <linux/utsname.h>
-@@ -25,8 +24,9 @@
- #include <linux/dcookies.h>
- #include <linux/suspend.h>
  
--/* Don't include this - it breaks ia64's cond_syscall() implementation */
-+/* Don't include these - they break ia64's cond_syscall() implementation */
- #if 0
-+#include <linux/compat.h>
- #include <linux/syscalls.h>
- #endif
+@@ -370,6 +371,7 @@
+ 	struct device_driver * drv = dev->driver;
+ 	if (drv) {
+ 		sysfs_remove_link(&drv->kobj, kobject_name(&dev->kobj));
++		sysfs_remove_link(&dev->kobj, "driver");
+ 		list_del_init(&dev->driver_list);
+ 		device_detach_shutdown(dev);
+ 		if (drv->remove)
+diff -Nru a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
+--- a/drivers/input/serio/serio.c	2004-11-01 13:36:05 -08:00
++++ b/drivers/input/serio/serio.c	2004-11-01 13:36:05 -08:00
+@@ -246,11 +246,6 @@
+ 	return sprintf(buf, "%s\n", serio->name);
+ }
  
+-static ssize_t serio_show_driver(struct device *dev, char *buf)
+-{
+-	return sprintf(buf, "%s\n", dev->driver ? dev->driver->name : "(none)");
+-}
+-
+ static ssize_t serio_rebind_driver(struct device *dev, const char *buf, size_t count)
+ {
+ 	struct serio *serio = to_serio_port(dev);
+@@ -307,7 +302,7 @@
+ 
+ static struct device_attribute serio_device_attrs[] = {
+ 	__ATTR(description, S_IRUGO, serio_show_description, NULL),
+-	__ATTR(driver, S_IWUSR | S_IRUGO, serio_show_driver, serio_rebind_driver),
++	__ATTR(drvctl, S_IWUSR, NULL, serio_rebind_driver),
+ 	__ATTR(bind_mode, S_IWUSR | S_IRUGO, serio_show_bind_mode, serio_set_bind_mode),
+ 	__ATTR_NULL
+ };
 
-
-
---
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*

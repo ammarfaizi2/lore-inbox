@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269376AbUIIIzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269372AbUIIJCe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269376AbUIIIzf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 04:55:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269378AbUIIIzf
+	id S269372AbUIIJCe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 05:02:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269373AbUIIJCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 04:55:35 -0400
-Received: from mf2.realtek.com.tw ([220.128.56.22]:21764 "EHLO
-	mf2.realtek.com.tw") by vger.kernel.org with ESMTP id S269376AbUIIIz1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 04:55:27 -0400
-Message-ID: <009901c4964a$be2468e0$8b1a13ac@realtek.com.tw>
-From: "colin" <colin@realtek.com.tw>
-To: <linux-kernel@vger.kernel.org>
-Subject: What File System supports Application XIP
-Date: Thu, 9 Sep 2004 16:55:18 +0800
-MIME-Version: 1.0
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-X-MIMETrack: Itemize by SMTP Server on msx/Realtek(Release 6.0.2CF1|June 9, 2003) at
- 2004/09/09 =?Big5?B?pFWkyCAwNDo1NjoyMg==?=,
-	Serialize by Router on msx/Realtek(Release 6.0.2CF1|June 9, 2003) at 2004/09/09
- =?Big5?B?pFWkyCAwNDo1NjoyMw==?=,
-	Serialize complete at 2004/09/09 =?Big5?B?pFWkyCAwNDo1NjoyMw==?=
+	Thu, 9 Sep 2004 05:02:34 -0400
+Received: from gate.crashing.org ([63.228.1.57]:48582 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S269372AbUIIJCd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 05:02:33 -0400
+Subject: Re: vDSO for ppc64 : Preliminary release #3
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Cc: linuxppc64-dev <linuxppc64-dev@lists.linuxppc.org>,
+       Ulrich Drepper <drepper@redhat.com>
+In-Reply-To: <1094719382.2543.62.camel@gaston>
+References: <1094719382.2543.62.camel@gaston>
+Content-Type: text/plain
+Message-Id: <1094720488.2667.65.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 09 Sep 2004 19:01:29 +1000
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	charset="big5"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2004-09-09 at 18:43, Benjamin Herrenschmidt wrote:
 
+> +	/*
+> +	 * pick a base address for the vDSO in process space. We have a default
+> +	 * base of 1Mb on which we had a random offset up to 1Mb.
+> +	 * XXX: Add possibility for a program header to specify that location
+> +	 */
+> +	current->thread.vdso_base = 0x00100000 
+> +		+ 0xaa000;/* + ((unsigned long)vma & 0x000ff000); */
+> +
 
-Hi there,
-We are developing embedded Linux system. Performance is our consideration.
-We hope some applications can run as fast as possible,
-and are think if they can be put in a filesystem image, which resides in
-RAM, and run in XIP (eXecute In Place)  manners.
-I know that Cramfs has supported Application XIP. Is there any other FS that
-also supports it? Ramdisk? Ramfs? Romfs?
+Note that the above is a hack putting the vDSO at 0x1aa000 instead of
+it's native link address of 0x100000 to test that it works ;)
 
-Thanks and regards,
-Colin
-
+Ben.
 
 

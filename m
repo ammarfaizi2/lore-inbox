@@ -1,53 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291716AbSBALeX>; Fri, 1 Feb 2002 06:34:23 -0500
+	id <S291706AbSBALbn>; Fri, 1 Feb 2002 06:31:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291707AbSBALeN>; Fri, 1 Feb 2002 06:34:13 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:41389 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S291714AbSBALeA>; Fri, 1 Feb 2002 06:34:00 -0500
-Message-ID: <3C5A7D18.FF50865F@redhat.com>
-Date: Fri, 01 Feb 2002 11:33:44 +0000
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13smp i686)
-X-Accept-Language: en
+	id <S291713AbSBALbd>; Fri, 1 Feb 2002 06:31:33 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:57106 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S291706AbSBALbR>;
+	Fri, 1 Feb 2002 06:31:17 -0500
+Date: Fri, 1 Feb 2002 09:30:56 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+Cc: Larry McVoy <lm@work.bitmover.com>, Keith Owens <kaos@ocs.com.au>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin 
+In-Reply-To: <200202011111.g11BBVf0009257@tigger.cs.uni-dortmund.de>
+Message-ID: <Pine.LNX.4.33L.0202010926080.17106-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Radix-tree pagecache for 2.5
-In-Reply-To: <E16WReX-0003gt-00@the-village.bc.nu> <Pine.LNX.4.33L.0202010903380.17106-100000@imladris.surriel.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> 
-> On Fri, 1 Feb 2002, Alan Cox wrote:
-> 
-> > > the prefetch engine will have to restart every 4kB, so we would want to
-> > > use 16MB pages if possible.
-> > >
-> > > How would we allocate large pages? Would there be a boot option to
-> > > reserve an area of RAM for large pages only?
-> >
-> > If you have an rmap all you have to do is to avoid smearing kernel objects
-> > around lots of 16Mb page sets. If need be you can then get a 16Mb page
-> > back just by shuffling user pages.
-> >
-> > It does make the performance analysis much more interesting though.
-> 
-> Actually, I suspect that for most workloads the amount of
-> large pages vs. the amount of small pages should be fairly
-> static.
-> 
-> In that case we can just reclaim an old large page from
-> the inactive_clean list whenever we want to allocate a new
-> one.
-> 
-> As for not putting kernel objects everywhere, this comes
-> naturally with HIGHMEM ;)
+On Fri, 1 Feb 2002, Horst von Brand wrote:
 
-well except when you start doing pagetables high, as Andrea is doing
-(and it makes tons of sense to do that)
+> I wonder how your commercial customers develop code then. Either each
+> programmer futzes around in his/her own tree, and then creates a patch
+> (or some such) for everybody to see (then I don't see the point of
+> source control as a help to the individual developer), or everybody
+> sees all the backtracking going on everywhere (in which case the
+> repository is a mostly useless mess AFAICS).
+
+If the object is to minimise confusion by not showing
+back-tracked changes, why not simply allow the user
+to mark changesets with a "visibility":
+
+1) hidden, for stuff which shouldn't be seen by default,
+   like backed out changes, etc..
+2) small, individual development steps to achieve a new
+   feature
+3) normal, the normal commits
+4) major (tagged versions ?)
+
+This way the user can select how detailed the overview
+of the versions should be.
+
+Also, when viewing a changeset/version of a certain
+priority, bitkeeper could optionally "fold in" the
+hidden changesets between the last changeset and the
+one the user wants to view.
+
+Would this be a workable scheme ?
+
+(keeps the bitkeeper repository intact, can reduce
+the confusion)
+
+regards,
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

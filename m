@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275224AbRKSItS>; Mon, 19 Nov 2001 03:49:18 -0500
+	id <S275843AbRKSIxs>; Mon, 19 Nov 2001 03:53:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275843AbRKSIs7>; Mon, 19 Nov 2001 03:48:59 -0500
-Received: from penguin-ext.wise.edt.ericsson.se ([194.237.142.110]:942 "EHLO
-	penguin-ext.wise.edt.ericsson.se") by vger.kernel.org with ESMTP
-	id <S275224AbRKSIst>; Mon, 19 Nov 2001 03:48:49 -0500
-From: Miklos.Szeredi@eth.ericsson.se (Miklos Szeredi)
-Date: Mon, 19 Nov 2001 09:48:01 +0100 (MET)
-Message-Id: <200111190848.JAA23707@duna207.danubius>
-To: Jamie Lokier <lfs@tantalophile.demon.co.uk>
-CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        avfs@fazekas.hu
-In-Reply-To: <20011117175253.A5003@kushida.jlokier.co.uk> (message from Jamie
-	Lokier on Sat, 17 Nov 2001 17:52:53 +0000)
-Subject: Re: Introducing FUSE: Filesystem in USErspace
-In-Reply-To: <200111121128.MAA15119@duna207.danubius> <20011117175253.A5003@kushida.jlokier.co.uk>
+	id <S276094AbRKSIxj>; Mon, 19 Nov 2001 03:53:39 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:29686 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S276249AbRKSIx3>;
+	Mon, 19 Nov 2001 03:53:29 -0500
+Date: Mon, 19 Nov 2001 01:52:42 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Devlinks.  Code.  (Dcache abuse?)
+Message-ID: <20011119015242.B1308@lynx.no>
+Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <15348.58752.207182.488419@notabene.cse.unsw.edu.au> <E164gCQ-0003YZ-00@the-village.bc.nu> <15352.32969.717938.153375@notabene.cse.unsw.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <15352.32969.717938.153375@notabene.cse.unsw.edu.au>; from neilb@cse.unsw.edu.au on Mon, Nov 19, 2001 at 02:47:21PM +1100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Nov 19, 2001  14:47 +1100, Neil Brown wrote:
+>  - devfs puts a lot of miscellaneous stuff in the top level.
+>    I would want to group them into one namespace. e.g.:
+>        misc/memory/mem
+>        misc/memory/kmem
+>        misc/memory/zero
+>        misc/memory/null
+>        misc/random/random
+>        misc/random/urandom
 
-> Minimal caching?  I would hope for maximal caching, for when userspace
-> is able to say "yes the page you have is still valid".  Preferably
-> without a round trip to userspace for every page.
+Erm, what about the millions+ of scripts/apps that reference /dev/zero
+or /dev/null?
 
-I made some performance tests with FUSE, and the raw throughput is
-about 60MBytes/s on a Celeron/360 for both reads and writes.  And yes,
-that includes two context switches and a copy_to_user/copy_from_user
-pair for each page.
-
-I think that at such speed it's not really such a grave problem if
-caching is not done in kernel, and it simplifies things a _lot_.
-
-Miklos
-
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

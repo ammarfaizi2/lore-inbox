@@ -1,70 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261331AbTCGBa5>; Thu, 6 Mar 2003 20:30:57 -0500
+	id <S261330AbTCGB3N>; Thu, 6 Mar 2003 20:29:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261334AbTCGBa5>; Thu, 6 Mar 2003 20:30:57 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:45279 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S261331AbTCGBaz>; Thu, 6 Mar 2003 20:30:55 -0500
-Subject: Re: Latest bk build error in xfrm.h
-From: Rusty Lynch <rusty@linux.co.intel.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: miyazawa@linux-ipv6.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20030306.160300.126216253.davem@redhat.com>
-References: <1046980043.4170.31.camel@vmhack>
-	<1046986725.4169.40.camel@vmhack> 
-	<20030306.160300.126216253.davem@redhat.com>
-Content-Type: text/plain
+	id <S261332AbTCGB3N>; Thu, 6 Mar 2003 20:29:13 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:50171 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S261330AbTCGB3L>;
+	Thu, 6 Mar 2003 20:29:11 -0500
+Message-ID: <3E67F844.2090902@mvista.com>
+Date: Thu, 06 Mar 2003 17:39:16 -0800
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: davidm@hpl.hp.com
+CC: linux-kernel@vger.kernel.org, jim.houston@ccur.com
+Subject: Re: POSIX timer syscalls
+References: <200303062306.h26N6hrd008442@napali.hpl.hp.com>	<3E67DF8E.9080005@mvista.com> <15975.62823.5398.712934@napali.hpl.hp.com>
+In-Reply-To: <15975.62823.5398.712934@napali.hpl.hp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Mar 2003 17:24:04 -0800
-Message-Id: <1047000245.4169.45.camel@vmhack>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-06 at 16:03, David S. Miller wrote:
->    From: Rusty Lynch <rusty@linux.co.intel.com>
->    Date: 06 Mar 2003 13:38:44 -0800
+David Mosberger wrote:
+>>>>>>On Thu, 06 Mar 2003 15:53:50 -0800, george anzinger <george@mvista.com> said:
 > 
->    The problem is now the core networking has a dependency on the crypto
->    hmac code (CONFIG_CRYOTPO_HMAC) since the ipv4 ipsec code was added to
->    include/net/xfrm.h (which is included from all kinds of places.)
->    
->    The pretty much exhaust my networking/ipsec knowledge so no patch.
->    
-> I just pushed the following patch to Linus, should fix the build for
-> everyone.  It's also available at:
 > 
-> 	bk://kernel.bkbits.net/davem/netfix-2.5
+>   George> I think there is a bit of a problem in the idr code
+>   George> (.../lib/idr.c) which manages the id allocation.  Seems we
+>   George> are returning "long" from functions declared as int.  If I
+>   George> remember the code correctly this will work, but it does
+>   George> eliminate the sequence number that should be in the high 8
+>   George> bits of the id.
 > 
-> Thanks.
+> Yes.  We have had some reports of problems with POSIX timers and I
+> suspect this might be the reason (though I don't know what the exact
+> code-base was that the person reporting the problem was using).
 > 
-> ChangeSet@1.1075.2.1, 2003-03-06 16:17:07-08:00, davem@nuts.ninka.net
->   [IPSEC]: Fix build when ipsec is disabled.
+>   George> This assumes that you never allocate more than 2,147,483,647
+>   George> timers at once :) I will look at this and send in a patch.
+>   George> I think we should return what ever timer_t is, so we should
+>   George> run that to ground first.
+> 
+> Yes, that would be better.  According to Uli, a 32-bit timer_t is fine
+> as far as the standards are concerned.  That's good.
+> 
+>   George> I suspect we should also have a look at all the structures
+>   George> with a view to alignment issues or is this not a problem?
+>   George> I.e. is this struct ok:
+> 
+>   George> struct { long a; int b; long c; }
+> 
+> Such code may be OK correctnesswise, but to avoid wasting space, it's
+> clearly better to list larger members first.
+
+Ok, I will fix all the above and shoot you a patch.  I assume you can 
+test it on a 64-bit platform.  Right?
+
+-g
+> 
+> 	--david
+> 
 > 
 
-There is still a build dependency between the INET_AH/INET_ESP and
-CRYPTO_HMAC that the Kconfig does not cover.  The following trivial
-patch fixes it:
-
---- net/ipv4/Kconfig.orig	2003-03-06 17:36:13.000000000 -0800
-+++ net/ipv4/Kconfig	2003-03-06 17:37:38.000000000 -0800
-@@ -350,6 +350,7 @@
- 
- config INET_AH
- 	tristate "IP: AH transformation"
-+	depends on CRYPTO_HMAC
- 	---help---
- 	  Support for IPsec AH.
- 
-@@ -357,6 +358,7 @@
- 
- config INET_ESP
- 	tristate "IP: ESP transformation"
-+	depends on CRYPTO_HMAC
- 	---help---
- 	  Support for IPsec ESP.
- 
- 
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

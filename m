@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261955AbSJNQfo>; Mon, 14 Oct 2002 12:35:44 -0400
+	id <S262023AbSJNQof>; Mon, 14 Oct 2002 12:44:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262003AbSJNQfo>; Mon, 14 Oct 2002 12:35:44 -0400
-Received: from packet.digeo.com ([12.110.80.53]:35511 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261955AbSJNQfk>;
-	Mon, 14 Oct 2002 12:35:40 -0400
-Message-ID: <3DAAF3B2.24158D49@digeo.com>
-Date: Mon, 14 Oct 2002 09:41:22 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Steve Lord <lord@sgi.com>
-CC: Hugh Dickins <hugh@veritas.com>, lkml <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [patch] remove BKL from inode_setattr
-References: <3DAA6587.2A4C24B0@digeo.com> <1034604439.25231.9.camel@jen.americas.sgi.com>
+	id <S262025AbSJNQof>; Mon, 14 Oct 2002 12:44:35 -0400
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:56581 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262023AbSJNQoe>;
+	Mon, 14 Oct 2002 12:44:34 -0400
+Date: Mon, 14 Oct 2002 09:50:44 -0700
+From: Greg KH <greg@kroah.com>
+To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] Sleeping in illegal context
+Message-ID: <20021014165043.GB6955@kroah.com>
+References: <20021013174316.732c4298.us15@os.inf.tu-dresden.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Oct 2002 16:41:26.0807 (UTC) FILETIME=[8A102270:01C273A0]
+Content-Disposition: inline
+In-Reply-To: <20021013174316.732c4298.us15@os.inf.tu-dresden.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Lord wrote:
+On Sun, Oct 13, 2002 at 05:43:16PM +0200, Udo A. Steinberg wrote:
 > 
-> On Mon, 2002-10-14 at 01:34, Andrew Morton wrote:
+> Hello,
 > 
-> >
-> > The number of filsystems which do not take the bkl in truncate/setattr
-> > is in fact quite small.  Here's the patch which removes all doubt:
-> >
-> >
-> >
-> >
-> >  fs/affs/file.c          |   13 ++++++++-----
-> >  fs/attr.c               |    2 --
-> >  fs/cifs/inode.c         |    7 ++++++-
-> >  fs/jfs/file.c           |    3 +++
-> >  fs/reiserfs/file.c      |    2 ++
-> >  fs/smbfs/proc.c         |   18 +++++++++++++++---
-> >  fs/sysv/itree.c         |    6 +++++-
-> >  fs/xfs/linux/xfs_iops.c |   11 +++++++++--
-> >  8 files changed, 48 insertions(+), 14 deletions(-)
+> This turned up in 2.5.42-ac1.
 > 
-> XFS deliberately does not take the BKL - anywhere. Our setattr
-> code is doing its own locking. You just added the BKL to a
-> bunch of xfs operations which do not need it. Now, vmtruncate
-> may need it, itself, but if vmtruncate does not, then the xfs
-> callout from vmtruncate certainly does not.
-> 
+> Debug: sleeping function called from illegal context at include/asm/semaphore.h:119
+> Call Trace:
+>  [<c02ad282>] usb_hub_events+0x72/0x3b0
 
-Sorry, but that is standard "bkl migration" methodology.  You had it
-before, so you get it after.  It is not my role to change XFS locking.
+Should be fixed in the latest round of patches I sent to Linus.
 
-Anyway, I don't think these patches are going anywhere.
+thanks,
+
+greg k-h

@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbVBGWtv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbVBGWwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261319AbVBGWtv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 17:49:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbVBGWsq
+	id S261291AbVBGWwE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 17:52:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbVBGWuG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 17:48:46 -0500
-Received: from fw.osdl.org ([65.172.181.6]:712 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261291AbVBGWri (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 17:47:38 -0500
-Date: Mon, 7 Feb 2005 14:47:34 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: Chris Wright <chrisw@osdl.org>,
-       =?iso-8859-1?Q?Lorenzo_Hern=E1ndez_Garc=EDa-Hierro?= 
-	<lorenzo@gnu.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Filesystem linking protections
-Message-ID: <20050207144734.C469@build.pdx.osdl.net>
-References: <1107802626.3754.224.camel@localhost.localdomain> <20050207111235.Y24171@build.pdx.osdl.net> <4207C4C7.8080704@comcast.net> <20050207120516.A24171@build.pdx.osdl.net> <4207EBD4.9090104@comcast.net>
+	Mon, 7 Feb 2005 17:50:06 -0500
+Received: from pat.uio.no ([129.240.130.16]:12539 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261291AbVBGWsx convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 17:48:53 -0500
+Subject: Re: Irix NFS server usual problem
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Olivier Galibert <galibert@pobox.com>
+Cc: "Hack inc." <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050207221638.GA18723@dspnet.fr.eu.org>
+References: <20050207221638.GA18723@dspnet.fr.eu.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Mon, 07 Feb 2005 17:48:44 -0500
+Message-Id: <1107816524.9970.8.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <4207EBD4.9090104@comcast.net>; from nigelenki@comcast.net on Mon, Feb 07, 2005 at 05:29:40PM -0500
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 8BIT
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0.008, required 12,
+	autolearn=disabled, AWL 0.01)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* John Richard Moser (nigelenki@comcast.net) wrote:
-> Yes, mkdtemp() and mkstemp().
+må den 07.02.2005 Klokka 23:16 (+0100) skreiv Olivier Galibert:
+> I'm starting to install some fedora core 3 systems in an environment
+> where 64bits SGIs are still serving the home directories.  They have
+> the bug/feature that required the 2.4 patch to hack the 64bits
+> cookies[1].  The 2.6 kernel I just found still can't compensate by
+> itself for the issue.
 > 
-> Of course we can't always rely on programmers to get it right, so the
-> idea here is to make sure we ask broken code to behave nicely, and stab
-> it in the face if it doesn't.  Please try to examine this in that scope.
+> Is there an easy way to fix that?
 
-It's fine for hardened distro.  But still inappropriate for mainline.
+Have you applied SGI's IRIX patches to your server (the one that makes
+the cookies take 32-bit values)?
 
-thanks,
--chris
+Alternatively, you can forward-port the old 2.4.x cookie hack to 2.6.x
+(that should be fairly trivial to do). You can find the patch on
+
+http://client.linux-nfs.org/Linux-2.4.x/2.4.26/linux-2.4.26-02-seekdir.dif
+
+Cheers,
+  Trond
+
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Trond Myklebust <trond.myklebust@fys.uio.no>
+

@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265995AbUBQFZr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 00:25:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266019AbUBQFZr
+	id S266001AbUBQF1D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 00:27:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266007AbUBQF1D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 00:25:47 -0500
-Received: from c3p0.cc.swin.edu.au ([136.186.1.30]:12304 "EHLO swin.edu.au")
-	by vger.kernel.org with ESMTP id S265995AbUBQFZp (ORCPT
+	Tue, 17 Feb 2004 00:27:03 -0500
+Received: from fw.osdl.org ([65.172.181.6]:39316 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266001AbUBQF06 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 00:25:45 -0500
-To: linux-kernel@vger.kernel.org
-From: Tim Connors <tconnors+linuxkernel1076995458@astro.swin.edu.au>
-Subject: Re: UTF-8 and case-insensitivity
-In-reply-to: <16433.38038.881005.468116@samba.org>
-References: <16433.38038.881005.468116@samba.org>
-X-Face: "$j_Mi4]y1OBC/&z_^bNEN.b2?Nq4#6U/FiE}PPag?w3'vo79[]J_w+gQ7}d4emsX+`'Uh*.GPj}6jr\XLj|R^AI,5On^QZm2xlEnt4Xj]Ia">r37r<@S.qQKK;Y,oKBl<1.sP8r,umBRH';vjULF^fydLBbHJ"tP?/1@iDFsKkXRq`]Jl51PWN0D0%rty(`3Jx3nYg!
-Message-ID: <slrn-0.9.7.4-11486-5025-200402171624-tc@hexane.ssi.swin.edu.au>
-Date: Tue, 17 Feb 2004 16:25:38 +1100
+	Tue, 17 Feb 2004 00:26:58 -0500
+Date: Mon, 16 Feb 2004 21:27:58 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: dmorris@metavize.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.2] Badness in futex_wait revisited
+Message-Id: <20040216212758.437af444.akpm@osdl.org>
+In-Reply-To: <20040217051911.6AC112C066@lists.samba.org>
+References: <40311703.8070309@metavize.com>
+	<20040217051911.6AC112C066@lists.samba.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tridge@samba.org said on Tue, 17 Feb 2004 15:12:06 +1100:
-> Given how much pain the "kernel is agnostic to charset encoding"
-> attitude has cost me in terms of programming pain, I thought I should
-> de-cloak from lurk mode and put my 2c into the UTF-8 issue.
-> 
-> Personally I think that eventually the Linux kernel will have to
-> embrace the interpretation of the byte streams that applications have
-> given it,
+Rusty Russell <rusty@rustcorp.com.au> wrote:
+>
+> -	if (likely(!list_empty(&q.list)))
+>  +	if (likely(!list_empty(&q.list))) {
+>  +		current->flags |= PF_FUTEX_DEBUG;
+>   		time = schedule_timeout(time);
+>  +		current->flags &= ~PF_FUTEX_DEBUG;
+>  +	}
+>   	__set_current_state(TASK_RUNNING);
+>   
+>   	/*
+>  diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6375-linux-2.6.3-rc3-bk1/kernel/sched.c .6375-linux-2.6.3-rc3-bk1.updated/kernel/sched.c
+>  --- .6375-linux-2.6.3-rc3-bk1/kernel/sched.c	2004-02-15 18:17:22.000000000 +1100
+>  +++ .6375-linux-2.6.3-rc3-bk1.updated/kernel/sched.c	2004-02-17 12:02:24.000000000 +1100
+>  @@ -658,6 +658,14 @@ static int try_to_wake_up(task_t * p, un
+>   	long old_state;
+>   	runqueue_t *rq;
+>   
+>  +	if ((p->flags & PF_FUTEX_DEBUG)
+>  +	    && !(current->flags & PF_FUTEX_DEBUG)) {
+>  +		printk("%s %i waking %s: %i %i\n",
+>  +		       current->comm, (int)in_interrupt(),
+>  +		       p->comm, p->tgid, p->pid);
+>  +		WARN_ON(1);
+>  +	}
+>  +
 
-What applications?
+If the schedule_timeout() expires then this wakeup will occur from within
+the timer interrupt - current could point at any old thing.  We will get
+bogus warnings.
 
-> despite the fact that this will be very painful and
-> potentially quite complex. The reason is that I think that eventually
-> the Linux kernel will need to efficiently support a userspace policy
-> of case-insensitivity and the only way to do case-insensitive filename
-> operations is to interpret those byte streams as a particular
-> encoding.
-> 
-> Personally I much prefer the systems I use to be case-sensitive, but
-> there are important applications that require case-insensitivity for
-> interoperability. 
 
-Why? Sounds pretty idiotic to me.
-
-If you don't like it, using some microshit filesystem like vfat. I'll
-keep using ext3 etc, thanks.
-
--- 
-TimC -- http://astronomy.swin.edu.au/staff/tconnors/
-Conclusion to my thesis -- "It is trivial to show that it is 
-clearly obvious that this is not woofly."

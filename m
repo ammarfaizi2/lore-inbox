@@ -1,51 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136156AbRAHAjB>; Sun, 7 Jan 2001 19:39:01 -0500
+	id <S135848AbRAHAml>; Sun, 7 Jan 2001 19:42:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136254AbRAHAiu>; Sun, 7 Jan 2001 19:38:50 -0500
-Received: from dorf.wh.uni-dortmund.de ([129.217.255.136]:51730 "HELO
-	mail.dorf.wh.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S136079AbRAHAii>; Sun, 7 Jan 2001 19:38:38 -0500
-Date: Mon, 8 Jan 2001 01:38:12 +0100
-From: Patrick Mau <mau@oscar.prima.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Paket counters for aliased interfaces ?
-Message-ID: <20010108013812.A17385@oscar.dorf.wh.uni-dortmund.de>
-Reply-To: Patrick Mau <mau@oscar.prima.de>
+	id <S136039AbRAHAmV>; Sun, 7 Jan 2001 19:42:21 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:46091 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S135848AbRAHAmU>;
+	Sun, 7 Jan 2001 19:42:20 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: A Guy Called Tyketto <tyketto@wizard.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: FW: compile problem in 2.4.0-ac3 
+In-Reply-To: Your message of "Sun, 07 Jan 2001 15:02:40 -0800."
+             <20010107150240.A7070@wizard.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+Date: Mon, 08 Jan 2001 11:42:12 +1100
+Message-ID: <9034.978914532@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sun, 7 Jan 2001 15:02:40 -0800, 
+A Guy Called Tyketto <tyketto@wizard.com> wrote:
+>I'm still seeing 
+>
+>#include <linuxpi.h>
+>
+>        at line 25 of acpi_ksyms.c. This is also the same line, in 
+>patch-2.4.0-ac2 (counted the lines of each). Neither patches compile from this.
 
-I would like to use IP-Aliasing to create a private network
-between a few machines without buying more hardware. That's
-easy, but ifconfig tells me:
+Not happening here.  -ac2 and -ac3 have the same text.
 
-eth0      Link encap:Ethernet  HWaddr xx:xx:xx:xx:xx:xx
-          inet addr:x.x.x.x  Bcast:x.x.x.x  Mask:x.x.x.x
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:126810 errors:0 dropped:0 overruns:0 frame:1426
-          TX packets:49286 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:15942 txqueuelen:100
-          Interrupt:17
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.4.0/drivers/acpi/acpi_ksyms.c linux.ac/drivers/acpi/acpi_ksyms.c
+--- linux-2.4.0/drivers/acpi/acpi_ksyms.c       Thu Jan  1 01:00:00 1970
++++ linux.ac/drivers/acpi/acpi_ksyms.c  Wed Jan  3 16:49:59 2001
+@@ -0,0 +1,91 @@
++/*
++ *  ksyms.c - ACPI exported symbols
++ *
++ *  Copyright (C) 2000 Andrew Grover
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ */
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/types.h>
++#include <linux/acpi.h>	<== line 25
++#include "acpi.h"
 
-eth0:0    Link encap:Ethernet  HWaddr xx:xx:xx:xx:xx:xx
-          inet addr:10.1.1.1  Bcast:10.1.1.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          Interrupt:17
+You have corrupted your patch and/or source.
 
-And here's the question:
-I would like to collect statistics for eth0:0 but obviously the
-pakets are only counted for the real interface. If I had enough time
-and knowledge, how should I implement paket counters for aliased
-interfaces ?
-
-PS: Am I right that it isn't possible ? tcpdump doesn't 'work right'
-    either.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

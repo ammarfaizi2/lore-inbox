@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVACN6K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbVACN6s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261449AbVACN6K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 08:58:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbVACN6K
+	id S261450AbVACN6s (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 08:58:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVACN6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 08:58:10 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:12549 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261449AbVACN6G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 08:58:06 -0500
-Date: Mon, 3 Jan 2005 14:58:05 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Robert W. Fuller" <orangemagicbus@sbcglobal.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Reviving the concept of a stable series (was Re: starting with 2.7)
-Message-ID: <20050103135805.GB2980@stusta.de>
-References: <1697129508.20050102210332@dns.toxicfilms.tv> <20050102203615.GL29332@holomorphy.com> <20050102212427.GG2818@pclin040.win.tue.nl> <20050102214211.GM29332@holomorphy.com> <20050102221534.GG4183@stusta.de> <20050102232102.GN26717@gallifrey> <41D91707.6040102@tlinx.org> <41D937D5.7010105@sbcglobal.net>
+	Mon, 3 Jan 2005 08:58:48 -0500
+Received: from [144.51.25.10] ([144.51.25.10]:25547 "EHLO epoch.ncsc.mil")
+	by vger.kernel.org with ESMTP id S261450AbVACN6n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 08:58:43 -0500
+Subject: Re: Is CAP_SYS_ADMIN checked by every program !?
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Tetsuo Handa <from-linux-kernel@i-love.sakura.ne.jp>
+Cc: lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@osdl.org>
+In-Reply-To: <200412301640.FCB13564.FtFPMSMGJtSOLVOYN@i-love.sakura.ne.jp>
+References: <200412291347.JEH41956.OOtStPFFNMLJVGMYS@i-love.sakura.ne.jp>
+	 <9033584D-5A24-11D9-989E-000393ACC76E@mac.com>
+	 <200412301640.FCB13564.FtFPMSMGJtSOLVOYN@i-love.sakura.ne.jp>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1104760366.16598.40.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41D937D5.7010105@sbcglobal.net>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 03 Jan 2005 08:52:46 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 03, 2005 at 07:17:25AM -0500, Robert W. Fuller wrote:
->...
-> 3.  If progress is to be made in the development model for Linux, then 
-> people need to be less reactionary.  In other words, don't criticize 
-> changes in the development model unless you have a suggestion for 
-> progressing the model.
+On Thu, 2004-12-30 at 02:40, Tetsuo Handa wrote:
+> I'm developing a kernel patch that provides simple and handy
+> MAC(mandatory access control) functionality, much easier than SELinux.
+> And now I'm porting the patch from 2.4 to 2.6,
+> though the patch can't support LSM, for it refers 'struct vfsmount'.
+> 
+> At first, I doubted that some kernel function (do_execve(), memory management
+> functions, or any kernel functions that are always called by every process) is
+> doing this CAP_SYS_ADMIN checking. But may be this CAP_SYS_ADMIN checking is
+> caused by the Fedora Core 3's libc, not by the kernel.
+> I don't have 2.6 kernel environment other than Fedora Core 3.
+> 
+> But anyway, I have to give up checking for CAP_SYS_ADMIN .
 
-You can compare the old development model with the new development 
-model, and if you think the progression is a regression it's not 
-reactionary but simply correct to ask for going back to the old model.
-
-It's a bit like at the height of the "new economy" hype:
-"Reactionary" people who didn't believe in the wonders of the
-"new economiy" but bought "old economy" stocks (or no stocks at all) 
-lost less money.
-
-cu
-Adrian
+Just override the vm_enough_memory security hook with your own function,
+as we do in SELinux, to avoid auditing the CAP_SYS_ADMIN check there.
+Note that this issue has also come up again on the linux-security-module
+mailing list recently, and might be addressed through a change to the
+cap_vm_enough_memory hook function.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 

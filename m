@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269587AbRHCUZ7>; Fri, 3 Aug 2001 16:25:59 -0400
+	id <S269584AbRHCUZ3>; Fri, 3 Aug 2001 16:25:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269590AbRHCUZk>; Fri, 3 Aug 2001 16:25:40 -0400
-Received: from erasmus.off.net ([64.39.30.25]:8968 "HELO erasmus.off.net")
-	by vger.kernel.org with SMTP id <S269587AbRHCUZa>;
-	Fri, 3 Aug 2001 16:25:30 -0400
-Date: Fri, 3 Aug 2001 16:25:41 -0400
-From: Zach Brown <zab@zabbo.net>
-To: Bill Pringlemeir <bpringle@sympatico.ca>
-Cc: Chris Rankin <rankincj@yahoo.com>, linux-kernel@vger.kernel.org,
-        nerijus@users.sourceforge.net
-Subject: Re: Fw: PATCH: creating devices for multiple sound cards
-Message-ID: <20010803162541.G3034@erasmus.off.net>
-In-Reply-To: <E15SSDc-0001o9-00@the-village.bc.nu> <20010803000239.91173.qmail@web13105.mail.yahoo.com> <20010802201329.A3034@erasmus.off.net> <m2y9p1nk5a.fsf@sympatico.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <m2y9p1nk5a.fsf@sympatico.ca>; from bpringle@sympatico.ca on Fri, Aug 03, 2001 at 01:11:29PM -0400
+	id <S269587AbRHCUZT>; Fri, 3 Aug 2001 16:25:19 -0400
+Received: from mx.adelphiacom.com ([24.48.58.197]:50855 "EHLO
+	mx.adelphiacom.com") by vger.kernel.org with ESMTP
+	id <S269584AbRHCUZK>; Fri, 3 Aug 2001 16:25:10 -0400
+Message-ID: <69DCAE8DF2BFD411AACC0002A50A63F005BB935A@cdptex1.adelphiacom.com>
+From: Sam James <sam.james@adelphia.com>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>, tao@acc.umu.se
+Cc: phillips@bonn-fries.net, sct@redhat.com, linux-kernel@vger.kernel.org
+Subject: RE: intermediate summary of ext3-2.4-0.9.4 thread
+Date: Fri, 3 Aug 2001 16:25:19 -0400 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If ALSA will replace OSS, then does it make it somewhat futile to add
-> things to the current set of sound drivers?  
+>
+>This is just completely true. One wonders why we seem to enjoy
+>getting screwed this way. We shouldn't be patching these MTAs or
+>hacking Linux to act like BSD. We should be avoiding these MTAs.
+>
+>Somebody can create a big MTA list, listing the good and bad ones.
+>Then we get the Linux-hostile MTAs out of the Linux distributions,
+>demanding compliance like we do for filesystem layout. We also hunt
+>down Linux-related web pages that mention these MTAs and get the
+>pages changed or removed. The point is to make these MTAs just
+>disappear, never to be seen again. Nice MTAs get promoted.
 
-Not at all.  As Alan said, its going to be quite a while before people
-are seriously using 2.[56].  Until then its OSS for the majority of
-users.
 
-- z
+Your not related to Bill Gates are you?

@@ -1,111 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277315AbRJEGD5>; Fri, 5 Oct 2001 02:03:57 -0400
+	id <S277318AbRJEG3D>; Fri, 5 Oct 2001 02:29:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277318AbRJEGDr>; Fri, 5 Oct 2001 02:03:47 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:51653 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S277315AbRJEGDi>;
-	Fri, 5 Oct 2001 02:03:38 -0400
-Message-ID: <3BBD4D54.96A08A3D@candelatech.com>
-Date: Thu, 04 Oct 2001 23:04:04 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-12 i686)
-X-Accept-Language: en
+	id <S277320AbRJEG2y>; Fri, 5 Oct 2001 02:28:54 -0400
+Received: from [205.178.14.190] ([205.178.14.190]:55826 "EHLO
+	orca.desanasystems.com") by vger.kernel.org with ESMTP
+	id <S277318AbRJEG2s>; Fri, 5 Oct 2001 02:28:48 -0400
+Message-ID: <1DF71FB881F4D311A6B700C04FA06A1AB6B2F7@orca.desanasystems.com>
+From: "Michailidis, Dimitrios" <dm@desanasystems.com>
+To: "'kravetz@us.ibm.com'" <kravetz@us.ibm.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Context switch times
+Date: Thu, 4 Oct 2001 23:31:02 -0700 
 MIME-Version: 1.0
-To: Mark Henson <kern@wolf.ericsson.net.nz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Throughput @100Mbs on link of ~10ms latency
-In-Reply-To: <Pine.LNX.4.33.0110051704430.16678-100000@wolf.ericsson.net.nz>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Henson wrote:
-> 
-> Hi,
-> 
-> Can someone give me a pointer to a FAQ on how to tune a 2.4 machine to
-> achieve high throughput (approx i/f speed 100Mbits/sec) on a link with the
-> following characteristics:
-> 
-> Latency         Throughput
-> 
-> 9-10ms          3.8 MByte/s
-> 3-4ms           7-8MByte/s
-> 
-> I have implemented:
-> 
-> echo "4096 87380 4194304" > /proc/sys/net/ipv4/tcp_rmem
-> echo "4096 65536 4194304" > /proc/sys/net/ipv4/tcp_wmem
-> 
-> from http://www-didc.lbl.gov/tcp-wan.html
-> 
-> this lifted the performance from ~1MByte/s to the 3.8 above.
-> 
-> When the receiving machine is freebsd I get 10.05 MBytes/s which
-> is interesting - but when sending from BSD I get the same rate.
-> 
+> I believe the 'quick and dirty' patches we came up with substantially
+> increased context switch times for this benchmark (doubled them).
+> The reason is that you needed to add IPI time to the context switch
+> time.  Therefore, I did not actively pursue getting these accepted. :)
+> It appears that something in the 2.2 scheduler did a much better
+> job of handling this situation.  I haven't looked at the 2.2 code.
+> Does anyone know what feature of the 2.2 scheduler was more successful
+> in keeping tasks on the CPUs on which they previously executed?
+> Also, why was that code removed from 2.4?  I can research, but I
+> suspect someone here has firsthand knowledge.
 
-Some things I change to increase performance (it seems to help...)
-(I'm cutting & pasting from a perl script, so you'll need to interpret
- it a bit..)
+The reason 2.2 does better is because under some conditions if a woken up
+process's preferred CPU is busy it will refrain from moving it to another
+CPU even if there are many idle CPUs, in the hope that the preferred CPU
+will become available soon.  This can cause situations where processes are
+sitting on the run queue while CPUs idle, but works great for lmbench.  OTOH
+2.4 assigns processes to CPUs as soon as possible.  IIRC this change
+happened in one of the early 2.3.4x kernels.
 
-# NOTE:  For faster systems I usually bump the *mem* settings up to 4MB.
-
-my $netdev_max_backlog = 4096; # Maximum number of packets, queued on the INPUT side, when
-                               # the interface receives pkts faster than it can process them.
-
-my $wmem_max = 512000;  # Write memory buffer.  This is probably fine for any setup,
-                        # and could be smaller (256000) for < 5Mbps connections.
-
-my $wmem_default = 512000;  # Write memory buffer.  This is probably fine for any setup,
-                            # and could be smaller (256000) for < 5Mbps connections.
-
-my $rmem_max = 1024000;  # Receive memory (packet) buffer.  If you are running lots of very fast traffic,
-                         # you may want to make this larger, up to 4096000 or so.  If you are
-                         # at around 20Mbps of traffic per connection or smaller, then 1024000
-                         # is plenty.  For < 5Mbps of traffic, 512000 should be fine.
-
-my $rmem_default = 1024000;  # Receive memory (packet) buffer.  If you are running lots of very fast traffic,
-                             # you may want to make this larger, up to 4096000 or so.  If you are
-                             # at around 20Mbps of traffic per connection or smaller, then 1024000
-                             # is plenty.  For < 5Mbps of traffic, 512000 should be fine.
-
-printAndExec("echo $wmem_max > /proc/sys/net/core/wmem_max");
-printAndExec("echo $wmem_default > /proc/sys/net/core/wmem_default");
-printAndExec("echo $rmem_max > /proc/sys/net/core/rmem_max");
-printAndExec("echo $rmem_default > /proc/sys/net/core/rmem_default");
-printAndExec("echo $netdev_max_backlog > /proc/sys/net/core/netdev_max_backlog");
-
-
-And of course, make sure you can get the performance with a known fast network
-(and near zero latency) first!!
-
-The e100 has some interesting options that seem to make it handle high packet
-counts better, as well as giving it bigger descriptor lists, but I haven't
-really benchmarked it..
-
-Ben
-
-> cheers
-> Mark
-> 
-> [root@tsaturn ncftp]# lsmod
-> Module                  Size  Used by
-> autofs                 11264   1  (autoclean)
-> 3c59x                  25344   1  (autoclean)
-> e100                   44240   1  (autoclean)
-> ipchains               38976   0  (unused)
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+---
+Dimitris Michailidis				 dm@desanasystems.com

@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316631AbSEWNLa>; Thu, 23 May 2002 09:11:30 -0400
+	id <S316617AbSEWNKi>; Thu, 23 May 2002 09:10:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316643AbSEWNL3>; Thu, 23 May 2002 09:11:29 -0400
-Received: from [62.70.58.70] ([62.70.58.70]:9872 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S316631AbSEWNL1> convert rfc822-to-8bit;
-	Thu, 23 May 2002 09:11:27 -0400
-Message-Id: <200205231311.g4NDBO613726@mail.pronto.tv>
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: Pronto TV AS
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] 2.4 VM sucks. Again
-Date: Thu, 23 May 2002 15:11:24 +0200
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S316631AbSEWNKh>; Thu, 23 May 2002 09:10:37 -0400
+Received: from harrier.mail.pas.earthlink.net ([207.217.120.12]:38142 "EHLO
+	harrier.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S316617AbSEWNKh>; Thu, 23 May 2002 09:10:37 -0400
+Date: Thu, 23 May 2002 09:10:23 -0400
+To: akpm@zip.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: tiobench
+Message-ID: <20020523091023.A555@rushmore>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all
+Andrew Morton wrote:
+> tiobench sequential read throughput is enormously sensitive to the
+> readahead setting.  With the readahead at the default 128k
+> with
+>
+>         blockdev --setra 512 /dev/hda
+>
+> gives very nice throughput.  But somehow 2.4.x seems to cheat
+> and seems to do twice the readahead than the setting says, or something.
 
-I've been here complaining about the 2.4 VM before, and here I am, back again.
+Bigger readahead helps dbench too.
 
-PROBLEM:
-----------------------
-Starting up 30 downloads from a custom HTTP server (or Tux - or Apache - 
-doesn't matter), file size is 3-6GB, download speed = ~4.5Mbps. After some 
-time the kernel (a) goes bOOM (out of memory) if not having any swap, or (b) 
-goes gong swapping out anything it can.
+Readahead in 2.5.x and dbench and tiobench sequential read 
+average throughput on my uniproc ide box was roughly:
 
-The custom HTTP server processes each have a static buffer of two megabytes, 
-no malloc()s, and are written in < 1000 lines of C.
+kernel          readahead        dbench         tiobench
+2.5.0 - 2.5.7       8            8.1 mb/s       9.9 mb/s
+2.5.8 - 2.5.10      0            3.5 mb/s       9.9 mb/s
+2.5.11 - 2.5.17   256           13   mb/s      10.2 mb/s
+2.5.8-akpm       1024           22   mb/s      18.1 mb/s
 
-Theory: The buffer fills up, as the clients can't read as fast as kernel is 
-reading from disk, and the server goes boom
+Bigger readahead appears to lower tiobench sequential read 
+latency a little.
 
-thanks for any help
-
-roy
-
+2.4.x showed readahead = 8 for 2.4.3 - 2.4.19-pre8, including
+aa, ac, jam, mjc, and rmap.
 
 -- 
-Roy Sigurd Karlsbakk, Datavaktmester
+Randy Hron
 
-Computers are like air conditioners.
-They stop working when you open Windows.

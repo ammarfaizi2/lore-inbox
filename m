@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262035AbUDTANU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261865AbUDTAYo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262035AbUDTANU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 20:13:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbUDTANU
+	id S261865AbUDTAYo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 20:24:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbUDTAYo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 20:13:20 -0400
-Received: from smtp015.mail.yahoo.com ([216.136.173.59]:33931 "HELO
-	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262035AbUDTANS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 20:13:18 -0400
-Message-ID: <40846B1B.2010103@yahoo.com.au>
-Date: Tue, 20 Apr 2004 10:13:15 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
+	Mon, 19 Apr 2004 20:24:44 -0400
+Received: from terminus.zytor.com ([63.209.29.3]:41176 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S261865AbUDTAYn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 20:24:43 -0400
+Message-ID: <40846DB7.4090102@zytor.com>
+Date: Mon, 19 Apr 2004 17:24:23 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031030
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-To: Antti Lankila <alankila@elma.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: elevator=as, or actually gpm doesn't get time from scheduler???
-References: <Pine.A41.4.58.0404191609060.42820@tokka.elma.fi>
-In-Reply-To: <Pine.A41.4.58.0404191609060.42820@tokka.elma.fi>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Venkata Ravella <Venkata.Ravella@synopsys.com>
+CC: raven@themaw.net, linux-kernel@vger.kernel.org,
+       Ramki.Balasubramanium@synopsys.com, ab@californiadigital.com,
+       autofs@linux.kernel.org
+Subject: Re: Automount/NFS issues causing executables to appear corrupted
+References: <200404200008.i3K08Zvs018948@radium.internal.synopsys.com>
+In-Reply-To: <200404200008.i3K08Zvs018948@radium.internal.synopsys.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Antti Lankila wrote:
-
-> My X reads gpmdata, so perhaps that's the problem? I now undercut gpm in
-> order to examine the situation, and my system behaves _perfectly_ as far as
-> I can see. The mouse issues are all gone. (gpm is still running in the
-> background, X just reads psaux directly. As I have understood, this is
-> possible in 2.6 while in 2.4 it caused a problem for multiple readers.)
+Venkata Ravella wrote:
+> autofs version is autofs-3.1.7-21
 > 
-> I progress from now by removing gpm on all my systems.  There's still the
-> issue what gpm (or maybe kernel's scheduler) is doing wrong, I suppose.
-> Nevertheless, gpm is virtually useless for me and has so far caused far more
-> grief than its utility has ever been worth.
+> I also have one new update. We started seeing similar problem on
+> the system running the kernel 2.4.18-e.12smp which has the same
+> version(3.1.7-21) of autofs as well.
 > 
-> I'm sorry for having wasted your time with this.
+> This may or may not be an autofs problem but, restarting autofs
+> fixes this problem temporarily.
 > 
 
-Not at all, thank you for reporting the problem.
+That will cause an NFS remount.  This really feels much more like an NFS
+problem.
 
-It seems the CPU scheduler is a bit fragile when there
-are a number of interrelated processes. Note: I don't
-know whether my scheduler fixes this case or not, it might
-just be a difficult problem.
+	-hpa
+

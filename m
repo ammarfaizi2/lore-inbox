@@ -1,37 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268159AbUHKSuI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268166AbUHKSxG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268159AbUHKSuI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 14:50:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268162AbUHKSuI
+	id S268166AbUHKSxG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 14:53:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268175AbUHKSxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 14:50:08 -0400
-Received: from pcp03597207pcs.malvrn01.pa.comcast.net ([68.60.228.28]:53516
-	"HELO vortex.com") by vger.kernel.org with SMTP id S268159AbUHKSuF
+	Wed, 11 Aug 2004 14:53:06 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:29081 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S268166AbUHKSwo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 14:50:05 -0400
-Date: Wed, 11 Aug 2004 18:50:01 +0000
-From: guidopian@bawdycaste.org
-Subject: software
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-References: <E78I1JIDKHH01LJ0@vger.kernel.org>
-In-Reply-To: <E78I1JIDKHH01LJ0@vger.kernel.org>
-Message-ID: <887C5KLGL2KGK16A@bawdycaste.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 11 Aug 2004 14:52:44 -0400
+Date: Wed, 11 Aug 2004 20:54:53 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Benno <benjl@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Building on platforms other than Linux
+Message-ID: <20040811185453.GA7217@mars.ravnborg.org>
+Mail-Followup-To: Benno <benjl@cse.unsw.edu.au>,
+	linux-kernel@vger.kernel.org
+References: <20040811091349.GX862@cse.unsw.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040811091349.GX862@cse.unsw.edu.au>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Office 2003 Professional - 110   
-Microsoft Office XP Professional - 100
-Microsoft SQL Server 2000 Enterprise Edition - 200
-Borland Delphi 7 Professional - 70
-Linux Redhat 7.3 - 200
-Microsoft SQL Server 2000 Enterprise Edition - 200
-Ahead Nero v6.3 Powerpack - 40
-Adobe InDesign CS - 100
-Symantec WinFax PRO v10.03 - 40
-Windows 2000 Server - 50
+On Wed, Aug 11, 2004 at 07:13:49PM +1000, Benno wrote:
+> Hi,
+> 
+> I was wondering if there were any, in priniciple, objections
+> to making the Linux kernel buildable on different Unix-like 
+> platforms?
 
-and a lot more http://www.bestsoftconvert.info/
+The userbase for building kernels are only increasing and there
+continue to be more focus from the embedded people.
+Having experince in this field first-hand tells me that a kernel
+that can be build on several paltforms are a good thing.
 
+For kbuild you will at some point start to see patches so at least
+the build system does not restrict us to Linux alone.
+
+People on this list usually reply: "shift development to a Linux
+based platform". This is for many developers a nice dream,
+but they are restricted by coporate rules etc.
+
+So please feed patches to this list with your findings.
+
+> 
+> I am currently compiling on MacOSX and this, for the most part was
+> fairly straightforward and simple. The biggest gotcha I had was
+> that libkconfig is compiled as a shared library, and unfortunately shared
+> libraries are done quite different on different systems. Specifically MacOSX
+> doesn't support gcc -shared.
+
+Please submit a patch for this and make sure to include Roman Zippel, he
+is the maintainer of kconfig.
+
+[I recall RedHat already disables the shared library??]
+
+	Sam

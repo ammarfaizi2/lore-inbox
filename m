@@ -1,64 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318643AbSHWHyc>; Fri, 23 Aug 2002 03:54:32 -0400
+	id <S318649AbSHWIFx>; Fri, 23 Aug 2002 04:05:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318649AbSHWHyc>; Fri, 23 Aug 2002 03:54:32 -0400
-Received: from mailgw.aecom.yu.edu ([129.98.1.16]:62618 "EHLO
-	mailgw.aecom.yu.edu") by vger.kernel.org with ESMTP
-	id <S318643AbSHWHyb>; Fri, 23 Aug 2002 03:54:31 -0400
-Mime-Version: 1.0
-Message-Id: <a05111608b98b96373cce@[129.98.90.227]>
-Date: Fri, 23 Aug 2002 03:58:39 -0400
-To: linux-kernel@vger.kernel.org
-From: Maurice Volaski <mvolaski@aecom.yu.edu>
-Subject: SMP Netfinity 340 hangs under 2.4.19
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S318706AbSHWIFx>; Fri, 23 Aug 2002 04:05:53 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:42062 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id <S318649AbSHWIFw>; Fri, 23 Aug 2002 04:05:52 -0400
+Date: Fri, 23 Aug 2002 09:10:33 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Gilad Ben-Yossef <gilad@benyossef.com>
+cc: James Bourne <jbourne@mtroyal.ab.ca>,
+       "Reed, Timothy A" <timothy.a.reed@lmco.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Hyperthreading
+In-Reply-To: <1030087689.25063.7.camel@gby.benyossef.com>
+Message-ID: <Pine.LNX.4.44.0208230852320.9367-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A single processor Netfinity 340 running RedHat 7.1 and kernel 2.4.18 
-was recently upgraded to
+On 23 Aug 2002, Gilad Ben-Yossef wrote:
+> 
+> hmm... isn't there an option to tell the kernel you are using a
+> HyperThreaded system, or is it detected on runtime?  I mean, think about
+> a P4 Xeon 2 way SMP - unless told otherwise the kernel will 'see' it as
+> a 4 way SMP box *but* the proccessors are not equel!
 
-1) 1 GB RAM
-2) second processor (1 Ghz Xeon)
-3) 2.4.19 for SMP with bigmem and added NFS server patches and 
-ext3-related patches.
+There is the "noht" boot arg to tell the kernel not to use HT,
+and there is the X86_FEATURE_HT cpu capability flag, but I think
+the runtime indication you're looking for is smp_num_siblings:
+1 without HT, 2 (ever more?) with HT.
 
-Heavily used processes are netatalk, samba, and NFS.
+> If for example, you have a task running and another task just woke up
+> and the scheduler needs to assign a CPU for it, choosing the other
+> 'instance' of the same CPU as the already running task to run it on as
+> opposed to choosing one of the 'instanaces' of the other seperate CPU
+> seems a mistake IMHO, but the scheduler won't be able to make the
+> judgment because it doesn't know it is running on a SMT box at all.
 
-The box is now hard locking periodically (every several days).
+SMT I don't know.  Your point is valid, and you'll find the 2.4 -aa
+and -ac trees (both using newer O1 scheduler) each have code in (or
+called out from) kernel/sched.c to deal with that.
 
-Lore elsewhere on the Internet says Netfinity SMP boxes have had 
-trouble with the nmi-watchdog and the  screen blanker. The former was 
-turning off via LILO and the latter turned off in script (for both 
-terminal and for X).
+The mainline 2.4 does not take that into consideration, and so far
+as I can see (please correct me), nor does 2.5 as yet - will probably
+get added from 2.4 -aa or -ac in due course.  It's not an issue of
+correctness, just optimality.
 
-It seemed that box was OK (for about 2 weeks) when it was not 
-attached to external RAID hardware (via Adaptec 29160LP card). At 
-least one hang occurred during fsck of the hardware RAID and another 
-during what was probably heavy disk activity on the RAID.
+Hugh
 
-The memory was reverted back to the original but it still hung. 
-Presumably, this rules out #1.
-
-In the latest hang, the keyboard is locked up, but the Ethernet card 
-(e1000) has link and ssh and https and ping respond on scan but 
-that's it.Also, heartbeat runs on the box and it stopped reporting to 
-the motherboard Ethernet and serial port being watched by failover 
-node's heartbeat.
-
-Note that another box configured virtually identically except for the 
-e1000 and the Adaptec card (no external RAID) has not hung.
-
-
-Is there significance to the fact that keyboard and mouse are frozen 
-but apparently some processes are still up?
-
-Does anyone one think this could be an issue with the patched SMP kernel?
-
-More keywords: crash, freeze, hung, frozen, locked up.
--- 
-
-Maurice Volaski, mvolaski@aecom.yu.edu
-Computing Support, Rose F. Kennedy Center
-Albert Einstein College of Medicine of Yeshiva University

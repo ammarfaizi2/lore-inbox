@@ -1,45 +1,93 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316324AbSEOFBe>; Wed, 15 May 2002 01:01:34 -0400
+	id <S315808AbSEOFWZ>; Wed, 15 May 2002 01:22:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316325AbSEOFBd>; Wed, 15 May 2002 01:01:33 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:60157 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S316324AbSEOFBd>; Wed, 15 May 2002 01:01:33 -0400
-Date: Wed, 15 May 2002 01:01:07 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Tony.P.Lee@nokia.com, lmb@suse.de, woody@co.intel.com,
-        linux-kernel@vger.kernel.org, zaitcev@redhat.com
-Subject: Re: InfiniBand BOF @ LSM - topics of interest
-Message-ID: <20020515010107.A31154@devserv.devel.redhat.com>
-In-Reply-To: <4D7B558499107545BB45044C63822DDE3A206F@mvebe001.NOE.Nokia.com> <E177od2-0000wp-00@the-village.bc.nu>
+	id <S316330AbSEOFWY>; Wed, 15 May 2002 01:22:24 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:56582 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S315808AbSEOFWY>;
+	Wed, 15 May 2002 01:22:24 -0400
+Date: Tue, 14 May 2002 21:21:13 -0700
+From: Greg KH <greg@kroah.com>
+To: Denis Oliver Kropp <dok@directfb.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] vmwarefb 0.5.2
+Message-ID: <20020515042113.GA22029@kroah.com>
+In-Reply-To: <20020515010242.GA1257@skunk.convergence.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 17 Apr 2002 03:10:07 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: Wed, 15 May 2002 03:35:00 +0100 (BST)
-> From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+On Wed, May 15, 2002 at 03:02:42AM +0200, Denis Oliver Kropp wrote:
+> 
+> Hi,
+> 
+> this is an updated version of the VMware framebuffer driver.
+> It contains a fix regarding the framebuffer offset (screen_base)
+> for non-standard modes.
 
-> According to folks at Quantum the IB stuff isnt doing 'true' congestion
-> control. At the moment its hard to tell since 1.0a doesn't deal with
-> congestion management and the 2.0 congestion stuff isnt due out until
-> later this year. Even then the Infiniband trade association folks use
-> words like "hopefully eliminating the congestion" in their presentation to 
-> describe their mechanism.
+Some non-technical questions about this code:
+	- please read Documentation/CodingStyle and reformat your code
+	  based on that (scripts/Lindent will do it for you if you
+	  want.)
 
-The thing about Infiniband is that its scope is so great.
-If you consider Infiniband was only a glorified PCI with serial
-connector, the congestion control is not an issue. Credits
-are quite sufficient to provide per link flow control, and
-everything would work nicely with a couple of switches.
-Such was the original plan, anyways, but somehow cluster
-ninjas managed to hijack the spec and we have the rabid
-overengineering running amok. In fact, they ran so far
-that Intel jumped ship and created PCI Express, and we
-have discussions about congestion control. Sad, really...
+> +++ linux/drivers/video/vmware/guest_os.h	Tue May 14 01:32:04 2002
+> @@ -0,0 +1,27 @@
+> +/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/vmware/guest_os.h,v 1.1 2001/04/05 19:29:44 dawes Exp $ */
+> +/* *********************************************************
+> + * Copyright (C) 1999-2001 VMware, Inc.
+> + * All Rights Reserved
+> + * Id: guest_os.h,v 1.5 2001/01/26 23:32:15 yoel Exp $
+> + * **********************************************************/
 
--- Pete
+<snip>
+
+> +++ linux/drivers/video/vmware/svga_limits.h	Tue May 14 01:31:47 2002
+> @@ -0,0 +1,53 @@
+> +/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/vmware/svga_limits.h,v 1.1 2001/04/05 19:29:44 dawes Exp $ */
+> +/* **********************************************************
+> + * Copyright (C) 1998-2001 VMware, Inc.
+> + * All Rights Reserved
+> + * Id: svga_limits.h,v 1.8 2001/01/26 23:32:15 yoel Exp $
+> + * **********************************************************/
+
+<snip>
+
+> +++ linux/drivers/video/vmware/svga_reg.h	Tue May 14 01:31:27 2002
+> @@ -0,0 +1,298 @@
+> +/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/vmware/svga_reg.h,v 1.4 2001/09/13 08:36:24 alanh Exp $ */
+> +/* **********************************************************
+> + * Copyright (C) 1998-2001 VMware, Inc.
+> + * All Rights Reserved
+> + * $Id: svga_reg.h,v 1.16 2001/07/25 22:41:24 mgoodman Exp $
+> + * **********************************************************/
+
+<snip>
+
+> +#ifdef MODULE
+> +
+> +MODULE_AUTHOR("(c) 2002  Denis Oliver Kropp <dok@directfb.org>");
+> +MODULE_LICENSE("GPL");
+> +MODULE_DESCRIPTION("FBDev driver for VMware Virtual SVGA Card");
+> +MODULE_PARM(disabled, "i");
+> +MODULE_PARM_DESC(disabled, "Disable this driver's initialization.");
+> +
+> +#endif
+
+	- drop the #ifdef, it's not needed.
+
+	- you are stating that your module is under the GPL, yet it uses
+	  two files that are marked "All Rights Reserved" with the
+	  copyright from VMWare, Inc.  I don't think you can do that :)
+
+Is VMWare ok with releasing those files under the GPL?  If so, I suggest
+you add that line to those files, and then everything should be fine.
+
+thanks,
+
+greg k-h

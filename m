@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267482AbSKQKJJ>; Sun, 17 Nov 2002 05:09:09 -0500
+	id <S267481AbSKQKJI>; Sun, 17 Nov 2002 05:09:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267487AbSKQKIb>; Sun, 17 Nov 2002 05:08:31 -0500
-Received: from 2-103.ctame701-2.telepar.net.br ([200.181.170.103]:17420 "EHLO
+	id <S267489AbSKQKIl>; Sun, 17 Nov 2002 05:08:41 -0500
+Received: from 2-103.ctame701-2.telepar.net.br ([200.181.170.103]:18700 "EHLO
 	brinquendo.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S267481AbSKQKHk>; Sun, 17 Nov 2002 05:07:40 -0500
-Date: Sun, 17 Nov 2002 08:14:27 -0200
+	id <S267482AbSKQKHx>; Sun, 17 Nov 2002 05:07:53 -0500
+Date: Sun, 17 Nov 2002 08:14:41 -0200
 From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: Christoph Hellwig <hch@lst.de>, Matthew Wilcox <willy@debian.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] jffs2: fix up header file cleanups
-Message-ID: <20021117101427.GE27924@conectiva.com.br>
+Subject: [PATCH] ntfs: fix up header file cleanups
+Message-ID: <20021117101440.GF27924@conectiva.com.br>
 Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
 	Linus Torvalds <torvalds@transmeta.com>,
 	Christoph Hellwig <hch@lst.de>, Matthew Wilcox <willy@debian.org>,
@@ -43,47 +43,47 @@ You can import this changeset into BK by piping this whole message to:
 ===================================================================
 
 
-ChangeSet@1.849, 2002-11-17 07:37:45-02:00, acme@conectiva.com.br
+ChangeSet@1.850, 2002-11-17 07:50:35-02:00, acme@conectiva.com.br
   Fix up after header file cleanups: add <linux/mount.h> to
-  jffs2 that got it implicitly before.
+  ntfs that got it implicitly before.
 
 
- super.c |    1 +
+ inode.c |    1 +
  1 files changed, 1 insertion(+)
 
 
-diff -Nru a/fs/jffs2/super.c b/fs/jffs2/super.c
---- a/fs/jffs2/super.c	Sun Nov 17 07:38:01 2002
-+++ b/fs/jffs2/super.c	Sun Nov 17 07:38:01 2002
-@@ -19,6 +19,7 @@
- #include <linux/init.h>
- #include <linux/list.h>
- #include <linux/fs.h>
+diff -Nru a/fs/ntfs/inode.c b/fs/ntfs/inode.c
+--- a/fs/ntfs/inode.c	Sun Nov 17 07:50:52 2002
++++ b/fs/ntfs/inode.c	Sun Nov 17 07:50:52 2002
+@@ -23,6 +23,7 @@
+ #include <linux/buffer_head.h>
+ #include <linux/smp_lock.h>
+ #include <linux/quotaops.h>
 +#include <linux/mount.h>
- #include <linux/jffs2.h>
- #include <linux/pagemap.h>
- #include <linux/mtd/mtd.h>
+ 
+ #include "ntfs.h"
+ #include "dir.h"
 
 ===================================================================
 
 
 This BitKeeper patch contains the following changesets:
-1.849
+1.850
 ## Wrapped with gzip_uu ##
 
 
-begin 664 bkpatch11665
-M'XL(`'ECUST``]U4VXK;,!!]CKYB((\EMD:2+S'-DN[VRA8:4O8#9%F.W;4M
-M8\GI+OCCJZ1+%K+I0\L^51H0:$:C,W,.,X<[JX=L)E6KR1P^&^NRF3*=5J[>
-MRT"9-L@'[]@:XQUA95H=7M^&=:>:L=!VP8*(>/=&.E7!7@\VFV'`3S?NL=?9
-M;/OAT]W7=UM"5BNXJ62WT]^U@]6*.#/L95/8M7158[K`#;*SK7;'CZ=3Z,0H
-M97Y'F'`:Q1/&5"23P@)1"M0%92*-!3G4L#['?I8%$1.ZY)Q'$R+#E+P'#%*Q
-M!,I"Q!`3H$G&DTQ$"\HR2N%B4GB#L*#D&EZW@!NBX&/]`&,/LG1Z@$K+PA]E
-MW6A0C9;=V-L,9%'`VZ;NQH>P-6/G@NK*`_%O?Y2E9>`JZ6!G'-3>VKZI5>V:
-M1\AU:08=D%OPA0M*-L]4D,5?+D*HI.0*^@/)EVLO;7B$$]JQUT.@3BU@%%.^
-MG%`P)J9EJA2G2:)SS$49I9?;?3G9$Y6)8%,<B9@>Y74>>5#9JZ,D^<XKW:V+
-MNNA<,:K[P`R[/X"D-&4\8I[TF/ND1[TQ^D)N[/^5VV]ROL%B^'DT+Y_-"Y[^
-D08)?&`*2^=,H.H?X/)54I=6]'=L53V,>E5B27Q)U6P_U!```
+begin 664 bkpatch12771
+M'XL(`'QFUST``]U4WVO;,!!^COZ*@SR.V'>R9<=F*5VZGV30D-&GL0=%DFLS
+MVPJVG+7@/WY*UC60=@\K>YI.(*0[W7VG[T-3N.E-ET^D:@R;PD?;NWRB;&N4
+MJ_8R4+8)MIUW;*SUCK"TC0F7J[!J53UHT\]X()AWKZ53)>Q-U^<3"J+'$W>_
+M,_ED\^[#S><W&\86"[@J97MKOA@'BP5SMMO+6O>7TI6U;0/7R;9OC#L6'A]#
+M1X[(O0E*(Q3)2`G&Z:A($\F8C$8>SY.8'7JX/,=^EH6(4LRB-!8C$8^1O04*
+MY@(!>4@44@J8Y@+S2,R0YXCP;%)X13!#MH1_V\`54_"^NH-A![)PIH/22.V7
+MHJH-J-K(=MCU.4BMX75=M<-=V-BA=4%YX8'XNZTK>G"E='!K'51^-KNZ4I6K
+M[V%K"MN9@*T@2S-BZQ,1;/:7@S&4R"Y@N1J+/CP4]7JPV@1JI"Q%)&\19B(;
+MT6_B<:MT5,P3E<PUJBSES[_IDUPGN@1&?(R2.*:CA,X"#T)Z*136R+;HC/9H
+M:ML50UU7A3D`^OJ;V6]_P(6"^T$X1C'-^5%&OM@3&?'_5D:_^+B&6??C.+TN
+HUN?4O$!:G[@`8M.'#^8<X.FO4:51W_NA6?`X40)1LY^^[/P!RP0`````
 `
 end
 

@@ -1,57 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281395AbRKLKQ1>; Mon, 12 Nov 2001 05:16:27 -0500
+	id <S281407AbRKLK2C>; Mon, 12 Nov 2001 05:28:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281394AbRKLKQS>; Mon, 12 Nov 2001 05:16:18 -0500
-Received: from gorilla.mchh.siemens.de ([194.138.158.18]:8592 "EHLO
-	gorilla.mchh.siemens.de") by vger.kernel.org with ESMTP
-	id <S281392AbRKLKQK>; Mon, 12 Nov 2001 05:16:10 -0500
-Message-ID: <4D486782CA36D4118A530000D11EA42A143E04@blns204e.bln.icn.siemens.de>
-From: Graf Holger <Holger.Graf@icn.siemens.de>
-To: "'David Grant'" <davidgrant79@hotmail.com>
+	id <S281408AbRKLK1v>; Mon, 12 Nov 2001 05:27:51 -0500
+Received: from [62.110.33.51] ([62.110.33.51]:34222 "EHLO gelma.fondoweb.net")
+	by vger.kernel.org with ESMTP id <S281407AbRKLK1g>;
+	Mon, 12 Nov 2001 05:27:36 -0500
+Date: Mon, 12 Nov 2001 11:27:26 +0100
+From: andrea gelmini <andrea.gelmini@linux.it>
+To: lobo@polbox.com
 Cc: linux-kernel@vger.kernel.org
-Subject: RE: Athlon cooling
-Date: Mon, 12 Nov 2001 11:15:43 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Subject: Re: Nazi kernels
+Message-ID: <20011112112726.E24974@gelma.lugbs.linux.it>
+In-Reply-To: <20011111043442.A3454@chello062179017166.chello.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011111043442.A3454@chello062179017166.chello.pl>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.4.13-ac5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Look for LVCool.
+On Sun, Nov 11, 2001 at 04:34:42AM +0100, lobo@polbox.com wrote:
+> Thank You guys for Your work. I'm say goodbye to linux community,
+> because nazi kernel's don't allow me to load modules needed for my
+> graphic card. What will be next, maybe you disable to run non GPL
+> executables under linux ?
 
-http://www.naggelgames.de/vcool/VC_Linux.html
+you've got the sources. where's the problem?
 
-If you have ACPI enabled you can comment out lvcool's idle loop.
-
-Holger
-______________________________________________________________________
-User error! Please replace user and hit any key to continue...
-
-Disclaimer: My opinions are entirely my own I was assured.
-Holger.Graf@icn.siemens.de
-
-> -----Original Message-----
-> From:	David Grant [SMTP:davidgrant79@hotmail.com]
-> Sent:	Friday, November 09, 2001 3:19 AM
-> To:	linux-kernel@vger.kernel.org
-> Subject:	Athlon cooling
-> 
-> There is a program for Windows called CPUIdle, which cools the Athlon
-> tremendoulsy.  I can get my temp. from 52C down to 36C.  It makes the CPU
-> truly go idle.  Is there anything like this for Linux, and I'm wondering if
-> anyone knows the instructions (and/or signals) which could be used to put
-> the Athlon into this state.  I guess it's more of a question for some APM
-> guys, but I thought some people here might know the interface to the Athlon,
-> and might thus know how this software cooling works.  Actually the low-level
-> apm stuff is part of the kernel right?  so maybe this is on-topic.
-> 
-> http://www.cpuidle.de/
-> 
-> Cheers,
-> David Grant
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+ciao,
+andrea

@@ -1,58 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266757AbUBGKrR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 05:47:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266775AbUBGKrR
+	id S266775AbUBGKrc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 05:47:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266797AbUBGKrc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 05:47:17 -0500
-Received: from mail.shareable.org ([81.29.64.88]:49872 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S266757AbUBGKrQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 05:47:16 -0500
-Date: Sat, 7 Feb 2004 10:47:12 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: the grugq <grugq@hcunix.net>
-Cc: Hans Reiser <reiser@namesys.com>, Valdis.Kletnieks@vt.edu,
-       Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH - ext2fs privacy (i.e. secure deletion) patch
-Message-ID: <20040207104712.GA16093@mail.shareable.org>
-References: <4017E3B9.3090605@hcunix.net> <20040203222030.GB465@elf.ucw.cz> <40203DE1.3000302@hcunix.net> <200402040320.i143KCaD005184@turing-police.cc.vt.edu> <20040207002010.GF12503@mail.shareable.org> <40243C24.8080309@namesys.com> <40243F97.3040005@hcunix.net> <40247A63.1030200@namesys.com> <4024B618.2070202@hcunix.net>
+	Sat, 7 Feb 2004 05:47:32 -0500
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:16392 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S266775AbUBGKrb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 05:47:31 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+Date: Sat, 7 Feb 2004 13:10:36 +0300
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Fw: rc3-mm1: oops in keventd_stop_kthread
+Message-ID: <20040207101036.GB4269@localhost.localdomain>
+References: <20040204200410.GA3802@localhost.localdomain> <20040205060543.09B542C270@lists.samba.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4024B618.2070202@hcunix.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040205060543.09B542C270@lists.samba.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the grugq wrote:
-> If, on the other hand, we have a threat model of, say, the police, then 
-> things are very different. In the UK, there is a law which requires you 
-> to turn over your encryption keys when the court demands them. The 
-> police have a tactic for extracting keys which involves physical 
-> violence and intimidation. These are very effective against encryption. 
+On Thu, Feb 05, 2004 at 04:09:29PM +1100, Rusty Russell wrote:
+> Reproduced using your config, and fixed.
 
-This is how to implement secure deletion cryptographically:
+confirmed with 2.6.2-mm1
 
-   - Each time a file is created, choose a random number.
-
-   - Encrypt the number with your filesystem key and store the
-     encrypted version in the inode.
-
-   - The number is used for encrypting that file.
-
-Secure deletion is then a matter of securely deleting the inode.
-The file data does not have to be overwritten.
-
-This is secure against many attacks that "secure deletion" by
-overwriting is weak against.  This includes electron microscopes
-looking at the data, and UK law.  (The police can demand your
-filesystem key, but nobody knows the random number that belonged to a
-new-deleted inode).
-
-There is a chance the electron microscope may recover the number from
-the securely deleted inode.  That is the weakness of this system,
-therefore the inode data should be very thoroughly erased or itself
-subject to careful cryptographic hding.
-
--- Jamie
+thank you

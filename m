@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286266AbRLJNuI>; Mon, 10 Dec 2001 08:50:08 -0500
+	id <S286267AbRLJNwS>; Mon, 10 Dec 2001 08:52:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286265AbRLJNt5>; Mon, 10 Dec 2001 08:49:57 -0500
-Received: from mpdr0.detroit.mi.ameritech.net ([206.141.239.206]:39299 "EHLO
-	mailhost.det.ameritech.net") by vger.kernel.org with ESMTP
-	id <S286261AbRLJNtu>; Mon, 10 Dec 2001 08:49:50 -0500
-Date: Mon, 10 Dec 2001 08:47:58 -0500 (EST)
-From: volodya@mindspring.com
-Reply-To: volodya@mindspring.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: mm question
-In-Reply-To: <E16DQl3-00023R-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.20.0112100844210.17065-100000@node2.localnet.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286268AbRLJNwI>; Mon, 10 Dec 2001 08:52:08 -0500
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:56840 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S286267AbRLJNwE>; Mon, 10 Dec 2001 08:52:04 -0500
+Date: Mon, 10 Dec 2001 14:51:53 +0100
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Support of sonypi module/code
+Message-ID: <20011210145152.B14688@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+In-Reply-To: <000001c17fc3$fe666c00$0102a8c0@lee> <20011209231333.A117@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20011209231333.A117@elf.ucw.cz>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Dec 09, 2001 at 11:13:33PM +0100, Pavel Machek wrote:
 
-
-On Mon, 10 Dec 2001, Alan Cox wrote:
-
-> >  How does one do the following task: obtain a bunch of free pages (around
-> > 300K) with physical addresses between certain bounds (more then
-> > 0x4000000, but it is likely this is not constant) reserver them and map to
-> > kernel space so that the driver can access them directly ?
+> > Am I going to be treading on anybody's toes if I release a patch for the
+> > sonypi module to add battery and AC power information support?
 > 
-> We support allocating pages below 16Mb, below 4Gb, or anywhere within RAM
-> on x86. If you want to within a range or your 300K must be a single 300K
-> block then you need to allocate it at boot time
-> 
+> Releasing patch to l-k is *always* okay, as long as you don't mail it
+> linus or marcelo for inclusion.
 
-It does not have to be contiguous. I was thinking of simply starting with 
-the smallest address and trying to free the pages until the needed amount 
-is available. But I have no idea how to properly do locking or force the
-page to be swapped out or something. 
+Indeed. However, sending a copy to the known maintainer of the code
+in question is always a good idea.
 
-As for doing this during boot time this does not seem like a good idea for
-two reasons: 
-  a) I need at least _two_ buffers 300K each
-  b) the actual amount of RAM needed changes depending on video standard
-     (this is for video capture).
-
-                     thanks
-
-                            Vladimir Dergachev
-
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+|---------------- Free Software Engineer -----------------|
+| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+|------------- Alcôve, liberating software ---------------|

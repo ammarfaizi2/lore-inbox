@@ -1,79 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265655AbUAMVNC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 16:13:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265649AbUAMVMQ
+	id S265620AbUAMVJk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 16:09:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265624AbUAMVJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 16:12:16 -0500
-Received: from linux.us.dell.com ([143.166.224.162]:23733 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S265624AbUAMVKc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 16:10:32 -0500
-Date: Tue, 13 Jan 2004 15:10:16 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Scott Long <scott_long@adaptec.com>, linux-raid@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Proposed Enhancements to MD
-Message-ID: <20040113151016.C7646@lists.us.dell.com>
-References: <40036902.8080403@adaptec.com> <20040113081932.A721@lists.us.dell.com> <400436CC.7020007@pobox.com>
+	Tue, 13 Jan 2004 16:09:39 -0500
+Received: from amsfep18-int.chello.nl ([213.46.243.14]:16922 "EHLO
+	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
+	id S265620AbUAMVJZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 16:09:25 -0500
+Date: Tue, 13 Jan 2004 22:09:23 +0100
+From: Haakon Riiser <haakon.riiser@fys.uio.no>
+To: linux-kernel@vger.kernel.org
+Subject: Busy-wait delay in qmail 1.03 after upgrading to Linux 2.6
+Message-ID: <20040113210923.GA955@s.chello.no>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <400436CC.7020007@pobox.com>; from jgarzik@pobox.com on Tue, Jan 13, 2004 at 01:19:56PM -0500
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 13, 2004 at 01:19:56PM -0500, Jeff Garzik wrote:
-> Matt Domsch wrote:
-> > I haven't seen the spec yet myself, but I'm lead to believe that
-> > DDF allows for multiple logical drives to be created across a single
-> > set of disks (e.g. a 10GB RAID1 LD and a 140GB RAID0 LD together on
-> > two 80GB spindles), as well as whole disks be used.  It has a
-> 
-> 
-> Me either.  Any idea if there will be a public comment period, or is the 
-> spec "locked" into 1.0 when it's released in a month or so?
+When I first upgraded to Linux 2.6.0, I noticed that my mail
+program (mutt) would occasionally stall when I send mails, even
+when I send to a local account.
 
-As it happens, Bill Dawkins of Dell is the DDF committee chair at
-SNIA.  Here's what he's told me:
+I investigated this further using the following strace command
+(must be done as root) on qmail-inject:
 
-The current draft of the DDF specification is available for review
-to any member of SNIA. This is a "Work in Progress" draft. Anyone in a
-member company can go to www.snia.org and sign up for web access. They
-will then have to sign up for the DDF Technical Working Group.
-Acceptance to the DDF TWG is automatic and the current documents are
-available there.
-(As Dell is a member, I signed up for the DDF TWG as an observer.
-Other companies are also on the member list, including Sistina, so
-Jeff you may be able to get a Sistina collegue to mail you a copy.
-http://www.snia.org/about/member_list has the list of member
-companies. - Matt)
+  env - /usr/bin/strace -s1024 -tt -T -fF -o /tmp/st.out \
+   /var/qmail/bin/qmail-inject </tmp/mail.test
 
-For people and companies who are not members of SNIA, I am writing to
-the SNIA Technical Director to see if I can release copies of the
-draft spec now. I'll let you know when I get a response.
+/tmp/mail.test is this file:
 
-As for the timeline, we have a face to face meeting of the DDF TWG
-next Tuesday and it is our intent to vote on releasing the
-specification as a "Trial Use" specification for public review and
-comment. If the vote is affirmative, the SNIA Technical Council will
-have to meet to determine when and if to release the "Trial Use"
-specification. This may take a few months, so we are probably looking
-at March for full release. Feel free to share this information with
-your Linux contacts.
+  -----BEGIN-----
+  From: hakonrk
+  To: hakonrk
+  Subject: hello
 
+  world
+  -----END-----
 
+The entire output from strace is available for download from
+<http://home.chello.no/~hakonrk/2.6.1.strace.out>, but I think
+only this line is interesting:
 
-So, for now, if you're in SNIA, you can get access to the draft spec,
-and in a few months the draft spec should be publicly available.
+  5083  16:00:30.714309 write(5, "\0", 1) = 1 <1.637019>
 
-Thanks,
-Matt
+This the only write() to file descriptor 5 issued by qmail-queue,
+right before it exists, and this is what causes the delay.
+Notice that writing this single NUL-byte takes almost 1.64 seconds
+(the number in the angle brackets at the end of the line is the
+time spent in the system call, given by the -T flag to strace).
+Furthermore, the kernel appears to be busy-waiting in this system
+call, because the CPU usage quickly jumps to 100%.
+
+Compare this to the result on Linux 2.4.24:
+<http://home.chello.no/~hakonrk/2.4.24.strace.out>
+Here's the same line that causes the delay on 2.6:
+
+  5172  17:55:23.979799 write(5, "\0", 1) = 1 <0.000441>
+
+Three orders of magnitude faster on 2.4!
+
+I should also mention that the write-delay varies greatly.  I got
+the above result (1.64 seconds) on a 2.6-system that had been
+up for around four hours.  After rebooting, the delay dropped to
+0.3 seconds, but it increases steadily while the system is up.
+
+Finally, some info on my system:
+
+  OS:      Slackware 9.1
+  Kernels: 2.6.0, 2.6.1, 2.4.24
+  Qmail:   1.03
+  libc:    2.3.2
+  gcc:     3.2.3
+  CPU:     Athlon XP2500+
+
+Kernel 2.6.1 was configured with
+<http://home.chello.no/~hakonrk/config-2.6.1> 
+and 2.4.24 with <http://home.chello.no/~hakonrk/config-2.4.24>.
+If you need to know more, just ask.
+
+If anyone on this list uses Qmail on Linux 2.6.x, I'd appreciate
+it if you could do the strace test and see if you can reproduce
+this bug.  Thanks in advance!
 
 -- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+ Haakon

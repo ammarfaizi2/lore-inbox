@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264857AbSKENkp>; Tue, 5 Nov 2002 08:40:45 -0500
+	id <S264859AbSKENtE>; Tue, 5 Nov 2002 08:49:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264858AbSKENkp>; Tue, 5 Nov 2002 08:40:45 -0500
-Received: from mailout09.sul.t-online.com ([194.25.134.84]:57227 "EHLO
-	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S264857AbSKENko>; Tue, 5 Nov 2002 08:40:44 -0500
-Message-Id: <4.3.2.7.2.20021105145305.00c5d2b0@192.168.6.2>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Tue, 05 Nov 2002 14:53:24 +0100
-To: linux-kernel@vger.kernel.org
-From: Roger While <RogerWhile@sim-basis.de>
-Subject: 2.5.46 make modules_install fail
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-MDRemoteIP: 192.168.6.50
-X-Return-Path: RogerWhile@sim-basis.de
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+	id <S264860AbSKENtE>; Tue, 5 Nov 2002 08:49:04 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:17158 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S264859AbSKENtD>; Tue, 5 Nov 2002 08:49:03 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15815.52697.903554.908594@laputa.namesys.com>
+Date: Tue, 5 Nov 2002 16:55:37 +0300
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: Linus Torvalds <Torvalds@Transmeta.COM>
+Cc: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
+Subject: [PATCH]: fix typo in usr/Makefile
+X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
+X-Antipastobozoticataclysm: When George Bush projectile vomits antipasto on the Japanese.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make -f scripts/Makefile.modinst obj=arch/i386/lib
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.46; fi
-depmod: *** Unresolved symbols in 
-/lib/modules/2.5.46/kernel/drivers/isdn/hisax/hisax.o
-depmod:         kstat__per_cpu
-depmod: *** Unresolved symbols in 
-/lib/modules/2.5.46/kernel/drivers/isdn/i4l/isdn.o
-depmod:         cli
-depmod:         restore_flags
-depmod:         save_flags
-depmod: *** Unresolved symbols in 
-/lib/modules/2.5.46/kernel/fs/binfmt_aout.o
-depmod:         ptrace_notify
-make: *** [_modinst_post] Error 1
+Hello, Linus,
 
+following patch fixes typo introduced by last changeset: "./$<" already
+contains directory.
+
+Please apply.
+Nikita.
+===== usr/Makefile 1.3 vs edited =====
+--- 1.3/usr/Makefile	Tue Nov  5 01:04:41 2002
++++ edited/usr/Makefile	Tue Nov  5 16:48:19 2002
+@@ -11,6 +11,6 @@
+ 	$(call if_changed,ld)
+ 
+ $(obj)/initramfs_data.cpio.gz: $(obj)/gen_init_cpio
+-	( cd $(obj) ; ./$< | gzip -9c > $@ )
++	( ./$< | gzip -9c > $@ )
+ 
+ 
 

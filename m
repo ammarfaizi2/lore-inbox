@@ -1,39 +1,131 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131228AbRCTXV4>; Tue, 20 Mar 2001 18:21:56 -0500
+	id <S129143AbRCTXfQ>; Tue, 20 Mar 2001 18:35:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131232AbRCTXVq>; Tue, 20 Mar 2001 18:21:46 -0500
-Received: from vp175062.reshsg.uci.edu ([128.195.175.62]:18189 "EHLO
-	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
-	id <S131228AbRCTXVa>; Tue, 20 Mar 2001 18:21:30 -0500
-Date: Tue, 20 Mar 2001 15:20:39 -0800
-Message-Id: <200103202320.f2KNKdF22559@moisil.dev.hydraweb.com>
-From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-To: Doug Ledford <dledford@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: esound (esd), 2.4.[12] chopped up sound -- solved
-In-Reply-To: <3AB7BB59.9513514C@redhat.com>
-User-Agent: tin/1.5.7-20001104 ("Paradise Regained") (UNIX) (Linux/2.2.18 (i586))
+	id <S129115AbRCTXfH>; Tue, 20 Mar 2001 18:35:07 -0500
+Received: from umail.unify.com ([204.163.170.2]:29372 "EHLO umail.unify.com")
+	by vger.kernel.org with ESMTP id <S129143AbRCTXex>;
+	Tue, 20 Mar 2001 18:34:53 -0500
+Message-ID: <419E5D46960FD211A2D5006008CAC79902E5C135@pcmailsrv1.sac.unify.com>
+From: "Manuel A. McLure" <mmt@unify.com>
+To: "'Jeff Garzik'" <jgarzik@mandrakesoft.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: NETDEV WATCHDOG: eth0: transmit timed out on LNE100TX 4.0,  k
+	ernel2.4.2-ac11 and earlier.
+Date: Tue, 20 Mar 2001 15:33:37 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Mar 2001 15:19:37 -0500, Doug Ledford <dledford@redhat.com> wrote:
+I'd looked for changes in tulip between 2.4.2-ac11 and 2.4.2-ac20 and hadn't
+seen any - that's why I hadn't updated. I gather that the change in question
+is at a higher level?
 
-> Why would esd get a short write() unless it is opening the file in non
-> blocking mode (which I didn't see when I was working on the i810 sound
-> driver)?  If esd is writing to a file in blocking mode and that write is
-> returning short, then that sounds like a driver bug to me.
+Anyway, I've upgraded to 2.4.2-ac20 and now I still get the error messages:
 
-No, it's not a bug. It would be a bug if esd was writing to a *real* file
-or if the write() returned -1 and an errno of EAGAIN. But incomplete writes
-are very much ok.
+Mar 20 14:35:52 ulthar kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Mar 20 14:35:52 ulthar kernel: eth0: Transmit timed out, status fc664010,
+CSR12
+00000000, resetting...
 
-Just try opening /dev/tty and see how it won't take writes of more than
-2k (iirc). And that's not just on Linux, I've tested on Solaris and BSD
-as well -- though it was a while ago.
+but instead of hanging completely the connection just gets extremely slow
+and "bursty" as shown by the following fragment of ping output:
 
-Ion
+64 bytes from leng.internal.mclure.org (10.1.1.1): icmp_seq=8 ttl=255
+time=130 usec
+64 bytes from leng.internal.mclure.org (10.1.1.1): icmp_seq=9 ttl=255
+time=358 usec
+64 bytes from leng.internal.mclure.org (10.1.1.1): icmp_seq=10 ttl=255
+time=6.000 sec
+64 bytes from leng.internal.mclure.org (10.1.1.1): icmp_seq=4 ttl=255
+time=12.001 sec
+64 bytes from leng.internal.mclure.org (10.1.1.1): icmp_seq=12 ttl=255
+time=1.000 sec
+64 bytes from leng.internal.mclure.org (10.1.1.1): icmp_seq=13 ttl=255
+time=368 usec
+64 bytes from leng.internal.mclure.org (10.1.1.1): icmp_seq=14 ttl=255
+time=361 usec
+64 bytes from leng.internal.mclure.org (10.1.1.1): icmp_seq=15 ttl=255
+time=395 usec
 
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+So the behavior is quite a bit better (at least I can telnet in to
+ifdown/ifup) but still not OK. Once again, ifdown/ifup makes things work OK.
+
+Thanks!
+--
+Manuel A. McLure - Unify Corp. Technical Support <mmt@unify.com>
+Space Ghost: "Hey, what happened to the-?" Moltar: "It's out." SG: "What
+about-?" M: "It's fixed." SG: "Eh, good. Good."
+
+
+
+
+"Jeff Garzik" wrote:
+> "Manuel A. McLure" wrote:
+> > 
+> > System:
+> > AMD Athlon Thunderbird 900MHz
+> > MSI K7T Pro (VIA KT133 chipset)
+> > Network card: Linksys LNE100TX Rev. 4.0 (tulip)
+> > Kernel: 2.2.18 (with 0.92 Scyld drivers), 2.4.0, 2.4.1, 
+> 2.4.2, 2.4.2-ac11
+> > 
+> > With all the above kernel revisions/drivers, my network 
+> card hangs at random
+> > (sometimes within minutes, other times it takes days). To 
+> restart it I need
+> > to do an ifdown/ifup cycle and it will work fine until the 
+> next hang. I
+> > upgraded to 2.4.2-ac11 because of the documented tulip 
+> fixes, but after a
+> > few days got this again. The error log shows:
+> 
+> In Alan Cox terms, that's a long time ago :)
+> 
+> Can you please try 2.4.2-ac20?  It includes fixes 
+> specifically for this
+> problem.
+
+I'd looked for changes in tulip between 2.4.2-ac11 and 2.4.2-ac20 and hadn't
+seen any - that's why I hadn't updated. I gather that the change in question
+is at a higher level?
+
+Anyway, I've upgraded to 2.4.2-ac20 and now I still get the error messages:
+
+Mar 20 14:35:52 ulthar kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Mar 20 14:35:52 ulthar kernel: eth0: Transmit timed out, status fc664010,
+CSR12
+00000000, resetting...
+
+but instead of hanging completely the connection just gets extremely slow
+and "bursty" as shown by the following fragment of ping output:
+
+64 bytes from leng.internal.mclure.org (10.1.1.1): icmp_seq=8 ttl=255
+time=130 usec
+64 bytes from leng.internal.mclure.org (10.1.1.1): icmp_seq=9 ttl=255
+time=358 usec
+64 bytes from leng.internal.mclure.org (10.1.1.1): icmp_seq=10 ttl=255
+time=6.000 sec
+64 bytes from leng.internal.mclure.org (10.1.1.1): icmp_seq=4 ttl=255
+time=12.001 sec
+64 bytes from leng.internal.mclure.org (10.1.1.1): icmp_seq=12 ttl=255
+time=1.000 sec
+64 bytes from leng.internal.mclure.org (10.1.1.1): icmp_seq=13 ttl=255
+time=368 usec
+64 bytes from leng.internal.mclure.org (10.1.1.1): icmp_seq=14 ttl=255
+time=361 usec
+64 bytes from leng.internal.mclure.org (10.1.1.1): icmp_seq=15 ttl=255
+time=395 usec
+
+So the behavior is quite a bit better (at least I can telnet in to
+ifdown/ifup) but still not OK. Once again, ifdown/ifup makes things work
+fine until the problem starts again.
+
+Thanks!
+--
+Manuel A. McLure - Unify Corp. Technical Support <mmt@unify.com>
+Space Ghost: "Hey, what happened to the-?" Moltar: "It's out." SG: "What
+about-?" M: "It's fixed." SG: "Eh, good. Good."

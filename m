@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317981AbSHLNR3>; Mon, 12 Aug 2002 09:17:29 -0400
+	id <S317986AbSHLNSC>; Mon, 12 Aug 2002 09:18:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317986AbSHLNR3>; Mon, 12 Aug 2002 09:17:29 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:12493 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S317981AbSHLNR3>;
-	Mon, 12 Aug 2002 09:17:29 -0400
-Date: Mon, 12 Aug 2002 17:20:01 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>,
-       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-       <julliard@winehq.com>, <ldb@ldb.ods.org>
-Subject: Re: [patch] tls-2.5.31-C3
-In-Reply-To: <1029146896.16216.113.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0208121717290.19150-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317987AbSHLNSC>; Mon, 12 Aug 2002 09:18:02 -0400
+Received: from sprocket.loran.com ([209.167.240.9]:3322 "EHLO
+	ottonexc1.peregrine.com") by vger.kernel.org with ESMTP
+	id <S317986AbSHLNSA>; Mon, 12 Aug 2002 09:18:00 -0400
+Subject: Re: actiontec PCI call waiting modem not responding with kernels
+	2.4.7+, 2.4.6 is ok though..
+From: Dana Lacoste <dana.lacoste@peregrine.com>
+To: Steven Walter <srwalter@yahoo.com>
+Cc: Blaise <jblaiseg@bellsouth.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020811053156.GA17530@hapablap.dns2go.com>
+References: <3D5569B4.4010500@bellsouth.net> 
+	<20020811053156.GA17530@hapablap.dns2go.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 12 Aug 2002 09:21:49 -0400
+Message-Id: <1029158509.31368.108.camel@dlacoste.ottawa.loran.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2002-08-11 at 01:31, Steven Walter wrote:
+> Wow, these reports are coming out of the woodwork all of a sudden.  Just
+> yesterday I got an email from a guy with the same (probably) problem.  I
+> own an Actiontec PCI call waiting modem, and it works fine with every
+> version of Linux I've thrown at it; I like it.
+> 
+> First things first:  are you using setserial to set up the modem?  If
+> so, cut it out.  Modern 2.4 kernels autodetect and setup everything
+> themselves (Not sure when that started; possibly 2.4.7).  Anyway, try
+> using /dev/ttyS4 as your modem device and see what happens; that is the
+> first PCI serial port.
+> 
+> Let me know.
 
-On 12 Aug 2002, Alan Cox wrote:
+Another confirmed "working" report.
 
-> Which does mean you can steal the old TLS value and put it back across
-> the calls just by changing the TLS data for that process. [...]
+If you're using devfs it's easy to tell if it's tts/4 or tts/2 or
+whatever, but assuming you're not using setserial and you're using
+the right ttyS it works fine (using the actiontec and IBM versions
+of the same card, based on the lucent venus chipset, with
+2.4.everything)
 
-yes - the 0x40 segment can be saved & restored safely. We have per-CPU
-GDTs so nobody can modify them while the APM BIOS is executing. (assuming
-preemption is disabled.)
-
-> [...] For that matter on Windows emulation I thought Windows also needed
-> 0x40 to be the same offset as the BIOS does so can't we leave it
-> hardwired ?
-
-another thing: do we want this with descriptor priviledge level 3? Because
-the APM 0x40 GDT entry was a ring 0 descriptor, but that would not be
-accessible to Wine or DOSEMU.
-
-	Ingo
+Dana Lacoste
+Ottawa, Canada
 

@@ -1,42 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262339AbUCGVdV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 16:33:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbUCGVdV
+	id S262343AbUCGWM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 17:12:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbUCGWM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 16:33:21 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:44983
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S262339AbUCGVdU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 16:33:20 -0500
-Message-ID: <404B950B.8010205@redhat.com>
-Date: Sun, 07 Mar 2004 13:32:59 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040307
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: mike@theoretic.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Potential bug in fs/binfmt_elf.c?
-References: <1078508281.3065.33.camel@linux.littlegreen> <404A1C71.3010507@redhat.com> <1078607410.10313.7.camel@linux.littlegreen> <404ABD06.4060607@redhat.com> <pan.2004.03.07.09.58.43.675972@codeweavers.com> <404AFD72.3070306@redhat.com> <pan.2004.03.07.11.53.54.970527@codeweavers.com>
-In-Reply-To: <pan.2004.03.07.11.53.54.970527@codeweavers.com>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Sun, 7 Mar 2004 17:12:27 -0500
+Received: from law10-f80.law10.hotmail.com ([64.4.15.80]:38407 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S262343AbUCGWMN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 17:12:13 -0500
+X-Originating-IP: [67.22.169.122]
+X-Originating-Email: [jpiszcz@hotmail.com]
+From: "Justin Piszcz" <jpiszcz@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.6.3 / cdrdao 1.1.8 only recognizes devices on one IDE channel
+Date: Sun, 07 Mar 2004 22:12:12 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <Law10-F80H4WdMCARe600008525@hotmail.com>
+X-OriginalArrivalTime: 07 Mar 2004 22:12:12.0482 (UTC) FILETIME=[3DAE5220:01C40491]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Hearn wrote:
+The problem is cdrdao only see's the devices on the second IDE BUS (IDE1) 
+and does not see anything on IDE0.
 
-> But can it handle this case, or will it also map the load area ELF section
-> wrongly?
+$ uname -r
+2.6.3
 
-It will most probably do something you don't want.
+$ cdrdao 2>&1 | grep -i version
+Cdrdao version 1.1.8 - (C) Andreas Mueller <andreas@daneb.de>
 
-But ld.so is no particularly special program.  Just write your own very
-small and specialized dynamic loader which does exactly what you need.
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
 
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+hda=plextor 12/10/32a
+hdc=plextor 12/10/32a
+hdd=toshiba 16x dvdrom
+
+hda: PLEXTOR CD-R PX-W1210A, ATAPI CD/DVD-ROM drive
+hdc: PLEXTOR CD-R PX-W1210A, ATAPI CD/DVD-ROM drive
+hdd: TOSHIBA DVD-ROM SD-M1712, ATAPI CD/DVD-ROM drive
+
+ATAPI:0,0,0: PLEXTOR CD-R   PX-W1210A   Rev: 1.10
+ATAPI:0,0,1:    Rev:
+ATAPI:0,0,2:    Rev:
+ATAPI:0,0,3:    Rev:
+ATAPI:0,0,4:    Rev:
+ATAPI:0,0,5:    Rev:
+ATAPI:0,0,6:    Rev:
+ATAPI:0,0,7:    Rev:
+ATAPI:0,1,0: TOSHIBA DVD-ROM SD-M1712   Rev: 1004
+ATAPI:0,1,1:    Rev:
+ATAPI:0,1,2:    Rev:
+ATAPI:0,1,3:    Rev:
+ATAPI:0,1,4:    Rev:
+ATAPI:0,1,5:    Rev:
+ATAPI:0,1,6:    Rev:
+ATAPI:0,1,7:    Rev:
+ATAPI:0,2,0:    Rev:
+ATAPI:0,2,1:    Rev:
+ATAPI:0,2,2:    Rev:
+ATAPI:0,2,3:    Rev:
+ATAPI:0,2,4:    Rev:
+ATAPI:0,2,5:    Rev:
+ATAPI:0,2,6:    Rev:
+ATAPI:0,2,7:    Rev:
+ATAPI:0,3,0:    Rev:
+ATAPI:0,3,1:    Rev:
+ATAPI:0,3,2:    Rev:
+ATAPI:0,3,3:    Rev:
+ATAPI:0,3,4:    Rev:
+...  (all empty)
+ATAPI:9,9,9:    Rev:
+
+Also, how does cdrecord work when not using ide-scsi?
+$ cdrecord --scanbus
+Cdrecord 2.00.3 (i686-pc-linux-gnu) Copyright (C) 1995-2002 J�rg Schilling
+Linux sg driver version: 3.5.30
+Using libscg version 'schily-0.7'
+scsibus0:
+        0,0,0     0) *
+        0,1,0     1) *
+        0,2,0     2) 'IOMEGA  ' 'ZIP 100         ' 'J.03' Removable Disk
+        0,3,0     3) *
+        0,4,0     4) *
+        0,5,0     5) *
+        0,6,0     6) *
+        0,7,0     7) *
+$ cdrecord dev=/dev/hda
+
+$ cdrecord dev=/dev/hda --scanbus
+Cdrecord 2.00.3 (i686-pc-linux-gnu) Copyright (C) 1995-2002 J�rg Schilling
+scsidev: '/dev/hda'
+devname: '/dev/hda'
+scsibus: -2 target: -2 lun: -2
+Warning: Open by 'devname' is unintentional and not supported.
+Linux sg driver version: 3.5.27
+Using libscg version 'schily-0.7'
+scsibus0:
+        0,0,0     0) 'PLEXTOR ' 'CD-R   PX-W1210A' '1.10' Removable CD-ROM
+        0,1,0     1) *
+        0,2,0     2) *
+        0,3,0     3) *
+        0,4,0     4) *
+        0,5,0     5) *
+        0,6,0     6) *
+        0,7,0     7) *
+$
+
+_________________________________________________________________
+Get business advice and resources to improve your work life, from bCentral. 
+http://special.msn.com/bcentral/loudclear.armx
+

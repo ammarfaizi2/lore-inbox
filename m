@@ -1,81 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262070AbTJARoh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 13:44:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbTJARog
+	id S263159AbTJASGk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 14:06:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263161AbTJASGk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 13:44:36 -0400
-Received: from mail.zrz.TU-Berlin.DE ([130.149.4.15]:14726 "EHLO
-	mail.zrz.tu-berlin.de") by vger.kernel.org with ESMTP
-	id S262015AbTJARo1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 13:44:27 -0400
-X-Mailer: exmh 2.3 [17-Jan-2001] with nmh-1.0.4
-To: isdn4linux@listserv.isdn4linux.de
-Cc: linux-kernel@vger.kernel.org
-Comment: Software is like sex - it's better when it's free. --Linus Torvalds
-Subject: 2.4.22 PPP filtering for ISDN
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 01 Oct 2003 19:44:20 +0200
-From: Frank Elsner <Elsner@zrz.TU-Berlin.DE>
-Message-Id: <E1A4l1Q-0001GC-FD@bronto.zrz.TU-Berlin.DE>
+	Wed, 1 Oct 2003 14:06:40 -0400
+Received: from glangrak.cable.icemark.net ([62.2.156.54]:11409 "EHLO
+	glangrak.internal.icemark.net") by vger.kernel.org with ESMTP
+	id S263159AbTJASGh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 14:06:37 -0400
+Date: Wed, 1 Oct 2003 20:06:33 +0200 (CEST)
+From: beh@icemark.net
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.5 (>>2.5.62)/2.6 keyboard oddity
+Message-ID: <Pine.LNX.4.58.0310011940340.13575@berenium.icemark.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-When trying to compile kernel 2.4.22 (from kernel.org) with 
-PPP filtering for ISDN enabled by "CONFIG_IPPP_FILTER=y" I get 
+Since quite some time I upgraded to the latest kernel
+(2.6.0-test6). Up until a few days ago, I'd been using 2.5.62
+(originally needed to upgrade 2.4->2.5 for better USB palmsync
+support).
 
-    ld -m elf_i386 -T /usr/src/linux-2.4.22/arch/i386/vmlinux.lds -e stext arch/i386
-/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o init/do_m
-ounts.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/f
-s.o ipc/ipc.o \
-         drivers/parport/driver.o drivers/char/char.o drivers/block/block.o driv
-ers/misc/misc.o drivers/net/net.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o
- drivers/cdrom/driver.o drivers/pci/driver.o drivers/video/video.o drivers/media
-/media.o drivers/isdn/vmlinux-obj.o \
-        net/network.o \
-        /usr/src/linux-2.4.22/arch/i386/lib/lib.a /usr/src/linux-2.4.22/lib/lib.
-a /usr/src/linux-2.4.22/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-drivers/isdn/vmlinux-obj.o: In function `isdn_ppp_ioctl':
-drivers/isdn/vmlinux-obj.o(.text+0xe64e): undefined reference to `sk_chk_filter'
-drivers/isdn/vmlinux-obj.o: In function `isdn_ppp_push_higher':
-drivers/isdn/vmlinux-obj.o(.text+0xf2e5): undefined reference to `sk_run_filter'
-drivers/isdn/vmlinux-obj.o(.text+0xf32d): undefined reference to `sk_run_filter'
-drivers/isdn/vmlinux-obj.o: In function `isdn_ppp_xmit':
-drivers/isdn/vmlinux-obj.o(.text+0xf729): undefined reference to `sk_run_filter'
-drivers/isdn/vmlinux-obj.o(.text+0xf78e): undefined reference to `sk_run_filter'
-drivers/isdn/vmlinux-obj.o: In function `isdn_ppp_autodial_filter':
-drivers/isdn/vmlinux-obj.o(.text+0xfcba): undefined reference to `sk_run_filter'
-drivers/isdn/vmlinux-obj.o(.text+0xfce4): more undefined references to `sk_run_f
-ilter' follow
-make: *** [vmlinux] Error 1
+Since the upgrade, I am experiencing some oddities regarding
+keyboard handling - and it's definetely not a hardware problem (the
+problem is there consistently in 2.6.0 and consistently NOT present
+in 2.5.62).
 
-Relevant config options are set as follows:
+The problem shows up like this - under X, I have a number of
+keyboard bindings to start a few applications (xterm, mozilla,
+pine, ...).
 
-# ISDN subsystem
-CONFIG_ISDN=y
-CONFIG_ISDN_BOOL=y
-CONFIG_ISDN_PPP=y
-CONFIG_ISDN_PPP_VJ=y
-CONFIG_ISDN_MPP=y
-CONFIG_ISDN_PPP_BSDCOMP=m
-CONFIG_ISDN_PPP_LZSCOMP=m          
-
-Where is the problem located ?          
+Since the upgrade to 2.6, sometimes, a key combination doesn't
+work; or gets triggered 3 or 4 times...
+Also, when the input focus is still in a text window, I see, that
+sometimes, ctrl+alt don't react properly (e.g. input focus is on an
+xterm - I press CTRL+ALT+m to start mozilla through a binding,
+mozilla doesn't get started - instead an 'm' appears in the xterm
+(showing that at least the CTRL didn't make it... ;-(
 
 
-Regards        _______________________________________________________________ 
-Frank Elsner  /                         c/o  Technische Universitaet Berlin   |
- ____________/                               ZRZ, Sekr. E-N 50                |
-|                                            Einsteinufer 17                  |
-| Voice: +49 30 314 23897                    D-10587 Berlin                   |
-| SMTP : Elsner@zrz.TU-Berlin.DE             Germany    ______________________|
-|_______________________________________________________| Momentan ist richtig
+The hardware I am experencing problems with, is an IBM Thinkpad
+A30p (uses standard AT keyboard drivers).
+
+
+Any clue, how to fix this?
 
 
 
+    Benedikt
+
+PATRIOT, n.  One to whom the interests of a part seem superior to those
+       of the whole.  The dupe of statesmen and the tool of conquerors.
+			(Ambrose Bierce, The Devil's Dictionary)

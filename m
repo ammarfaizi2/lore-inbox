@@ -1,66 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262154AbVCBDMq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262148AbVCBDMa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262154AbVCBDMq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 22:12:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbVCBDMq
+	id S262148AbVCBDMa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 22:12:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262151AbVCBDMa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 22:12:46 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:21428 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S262151AbVCBDMj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 22:12:39 -0500
-Message-ID: <42252F77.3050701@jp.fujitsu.com>
-Date: Wed, 02 Mar 2005 12:13:59 +0900
-From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
+	Tue, 1 Mar 2005 22:12:30 -0500
+Received: from 70-56-134-246.albq.qwest.net ([70.56.134.246]:16785 "EHLO
+	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S262148AbVCBDM0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 22:12:26 -0500
+Date: Tue, 1 Mar 2005 20:13:26 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Nathan Lynch <ntl@pobox.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org
+Subject: Re: [PATCH] explicitly bind idle tasks
+In-Reply-To: <20050302014701.GA5897@otto>
+Message-ID: <Pine.LNX.4.61.0503012012140.3122@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.61.0502010009010.3010@montezuma.fsmlabs.com>
+ <20050227031655.67233bb5.akpm@osdl.org> <1109542971.14993.217.camel@gaston>
+ <20050227144928.6c71adaf.akpm@osdl.org> <20050302014701.GA5897@otto>
 MIME-Version: 1.0
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, Matthew Wilcox <matthew@wil.cx>,
-       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linas Vepstas <linas@austin.ibm.com>,
-       "Luck, Tony" <tony.luck@intel.com>
-Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
-References: <422428EC.3090905@jp.fujitsu.com> <Pine.LNX.4.58.0503010844470.25732@ppc970.osdl.org> <20050301165904.GN28741@parcelfarce.linux.theplanet.co.uk> <200503010910.29460.jbarnes@engr.sgi.com>
-In-Reply-To: <200503010910.29460.jbarnes@engr.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes wrote:
-> This was my thought too last time we had this discussion.  A completely 
-> asynchronous call is probably needed in addition to Hidetoshi's proposed API, 
-> since as you point out, the driver may not be running when an error occurs 
-> (e.g. in the case of a DMA error or more general bus problem).  The async 
-> ->error callback could do a total reset of the card, or something along those 
-> lines as Jeff suggests, while the inline ioerr_clear/ioerr_check API could 
-> potentially deal with errors as they happen (probably in the case of PIO 
-> related errors), when the additional context may allow us to be smarter about 
-> recovery.
+On Tue, 1 Mar 2005, Nathan Lynch wrote:
 
-Depend on the bridge implementation, special error handling of PCI-X would be
-available in the case of a DMA error.
+> On Sun, Feb 27, 2005 at 02:49:28PM -0800, Andrew Morton wrote:
+> > Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> > >
+> > > > -		if (cpu_is_offline(smp_processor_id()) &&
+> > >  > +		if (cpu_is_offline(_smp_processor_id()) &&
+> > >  >  		    system_state == SYSTEM_RUNNING)
+> > >  >  			cpu_die();
+> > >  >  	}
+> > >  > _
+> > > 
+> > >  This is the idle loop. Is that ever supposed to be preempted ?
+> > 
+> > Nope, it's a false positive.  We had to do the same in x86's idle loop and
+> > probably others will hit it.
+> 
+> Perhaps I'm missing something, but is there any reason we can't do
+> the following?  I've tested it on ppc64, doesn't seem to break anything.
+> 
+> With hotplug cpu and preempt, we tend to see smp_processor_id warnings
+> from idle loop code because it's always checking whether its cpu has
+> gone offline.  Replacing every use of smp_processor_id with
+> _smp_processor_id in all idle loop code is one solution; another way
+> is explicitly binding idle threads to their cpus (the smp_processor_id
+> warning does not fire if the caller is bound only to the calling cpu).
+> This has the (admittedly slight) advantage of letting us know if an
+> idle thread ever runs on the wrong cpu.
 
-PCI-X Command register has Uncorrectable Data Error Recovery Enable bit to
-avoid asserting SERR on error. Some bridge generates poisoned data and pass
-it to destination instead of asserting error or passing broken data.
-
-The device driver would be interrupted on the completion of DMA, and check
-status register of controlling device to find a error during the DMA.
-If there was a error, driver could attempt to recover from the error.
-
-I don't know whether this is actually possible or not, and also there are
-upcoming drivers implementing such special handling.
-
-Though, when and how we should call drivers to do device specific staff is
-one of the problem. My API would provide "a chance" which could be defined by
-driver, at least.
-
+Makes sense to me, for some reason i thought the smp_processor_id() 
+function did a cpu_rq->idle check of some sort.
 
 Thanks,
-H.Seto
+	Zwane
 

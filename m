@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317675AbSFLJbB>; Wed, 12 Jun 2002 05:31:01 -0400
+	id <S317676AbSFLJdz>; Wed, 12 Jun 2002 05:33:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317676AbSFLJbA>; Wed, 12 Jun 2002 05:31:00 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:30671 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317675AbSFLJa7>;
-	Wed, 12 Jun 2002 05:30:59 -0400
-Date: Wed, 12 Jun 2002 02:26:41 -0700 (PDT)
-Message-Id: <20020612.022641.123609388.davem@redhat.com>
-To: rusty@rustcorp.com.au
-Cc: akpm@zip.com.au, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        k-suganuma@mvj.biglobe.ne.jp
-Subject: Re: [PATCH] 2.5.21 Nonlinear CPU support 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <E17I25H-0002hf-00@wagner.rustcorp.com.au>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S317677AbSFLJdy>; Wed, 12 Jun 2002 05:33:54 -0400
+Received: from ccs.covici.com ([209.249.181.196]:25729 "EHLO ccs.covici.com")
+	by vger.kernel.org with ESMTP id <S317676AbSFLJdx>;
+	Wed, 12 Jun 2002 05:33:53 -0400
+To: linux-kernel@vger.kernel.org
+Subject: bio.h problem in kernel 2.5.21
+From: John Covici <covici@ccs.covici.com>
+Date: Wed, 12 Jun 2002 05:33:53 -0400
+Message-ID: <m3fzzssuwu.fsf@ccs.covici.com>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.2.50
+ (i686-pc-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Rusty Russell <rusty@rustcorp.com.au>
-   Date: Wed, 12 Jun 2002 16:58:23 +1000
+vmalloc.c seems to have a problem with bio.h -- at least all the
+errors are in there in 2.5.21.
 
-   In message <20020611.021043.04190747.davem@redhat.com> you write:
-   > And remember, it's the anal "every microoptimization at all costs"
-   > people that keep the kernel sane and from running out of control bloat
-   > wise.
-   
-   But it also gave us crap like net/ipv4/route.c:ip_rt_acct_read() 8(
+Any assistance would be appreciated.
 
-That's far from being an attempt optimization :-)
-Furthermore, cleanup patches are always happily accepted.
-9 out of 10 2.5.x networking patches I apply are cleanups
-from Arnaldo these days.
+  gcc -Wp,-MD,.vmalloc.o.d -D__KERNEL__ -I/usr/src/linux-2.5.21/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -nostdinc -iwithprefix include    -DKBUILD_BASENAME=vmalloc   -c -o vmalloc.o vmalloc.c
+In file included from /usr/src/linux-2.5.21/include/linux/highmem.h:5,
+                 from vmalloc.c:13:
+/usr/src/linux-2.5.21/include/linux/bio.h:90: parse error before `atomic_t'
+/usr/src/linux-2.5.21/include/linux/bio.h:90: warning: no semicolon at end of struct or union
+/usr/src/linux-2.5.21/include/linux/bio.h:95: parse error before `}'
+make[2]: *** [vmalloc.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.5.21/mm'
+make[1]: *** [mm] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5.21'
+make: *** [make_with_config] Error 2
+
+-- 
+         John Covici
+         covici@ccs.covici.com

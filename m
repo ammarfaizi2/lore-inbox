@@ -1,95 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263760AbTDUEdu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 00:33:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263761AbTDUEdu
+	id S263761AbTDUEfH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 00:35:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263762AbTDUEfH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 00:33:50 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:19912
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S263760AbTDUEds (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 00:33:48 -0400
-Message-ID: <3EA3775C.6060703@redhat.com>
-Date: Sun, 20 Apr 2003 21:45:16 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030420
-X-Accept-Language: en-us, en
+	Mon, 21 Apr 2003 00:35:07 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:58812 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S263761AbTDUEfF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 00:35:05 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Larry McVoy <lm@bitmover.com>
+Date: Mon, 21 Apr 2003 14:46:45 +1000
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: oops with bk version as of 20030420T20:00:00-0700
-References: <3EA369B7.5070905@redhat.com>
-In-Reply-To: <3EA369B7.5070905@redhat.com>
-X-Enigmail-Version: 0.74.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig2B1E3880B9C2FBFADF90F748"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16035.30645.648954.185797@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BK->CVS, kernel.bkbits.net
+In-Reply-To: message from Larry McVoy on Saturday April 19
+References: <20030417162723.GA29380@work.bitmover.com>
+	<b7n46e$dtb$1@cesium.transmeta.com>
+	<20030420003021.GA10547@work.bitmover.com>
+X-Mailer: VM 7.14 under Emacs 21.2.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig2B1E3880B9C2FBFADF90F748
-Content-Type: multipart/mixed;
- boundary="------------060804010101070508070300"
+On Saturday April 19, lm@bitmover.com wrote:
+>                              By the way, I think the bandwidth is pretty
+> darn low, after all that fuss almost nobody seems to use this, it just
+> gives them warm fuzzies to know that the history has been captured in
+> an open format which is worth it if it means no more BK flame wars, eh?
 
-This is a multi-part message in MIME format.
---------------060804010101070508070300
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-Ulrich Drepper wrote:
-> I got this oops right at startup time.  The machine is a UP P4 HT
-> (Northwood core).
-> [...]
+Well, I just became a big fan:
 
-Cured by this patch.  Arnaldo Carvalho de Melo pointed me to the lkml
-thread.
+% time bk pull
+....
+444.95user 42.29system 49:09.46elapsed 16%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (326737major+196385minor)pagefaults 0swaps
 
--- 
---------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
 
---------------060804010101070508070300
-Content-Type: text/plain;
- name="d-kernel-rtc"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="d-kernel-rtc"
+% time cvs update
+.....
+2.78user 1.94system 4:12.36elapsed 1%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (333major+7240minor)pagefaults 0swaps
 
---- drivers/char/rtc.c-save	2003-04-20 21:43:11.000000000 -0700
-+++ drivers/char/rtc.c	2003-04-20 21:40:23.000000000 -0700
-@@ -180,7 +180,7 @@ static const unsigned char days_in_mo[] 
-  *	(See ./arch/XXXX/kernel/time.c for the set_rtc_mmss() function.)
-  */
- 
--static void rtc_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-+static irqreturn_t rtc_interrupt(int irq, void *dev_id, struct pt_regs *regs)
- {
- 	/*
- 	 *	Can be an alarm interrupt, update complete interrupt,
-@@ -208,6 +208,7 @@ static void rtc_interrupt(int irq, void 
- 	wake_up_interruptible(&rtc_wait);	
- 
- 	kill_fasync (&rtc_async_queue, SIGIO, POLL_IN);
-+	return IRQ_HANDLED;
- }
- #endif
- 
 
---------------060804010101070508070300--
+That is an order of magnitude difference in wall-clock time!  This is
+on my humble notebook with "only" 128Meg of RAM.  The delay is mostly 
+in the consistency checking.  Sure there is a way to turn that off.
 
---------------enig2B1E3880B9C2FBFADF90F748
-Content-Type: application/pgp-signature
+NeilBrown
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+o3dc2ijCOnn/RHQRAtwrAKDMuDiHkk7xq69r7tA2ptaMQ1vCDQCePkVw
-8+9SGE9+4xWSCsvh5iQY8N8=
-=uyp/
------END PGP SIGNATURE-----
-
---------------enig2B1E3880B9C2FBFADF90F748--
-
+(I only used bk to
+   "bk tag LATEST  ; bk pull; bk export -tpatch -rLATEST, > file"
+ and cvs will allow the same end result)

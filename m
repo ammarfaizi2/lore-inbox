@@ -1,42 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278561AbRJXPUd>; Wed, 24 Oct 2001 11:20:33 -0400
+	id <S278566AbRJXPVE>; Wed, 24 Oct 2001 11:21:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278566AbRJXPUX>; Wed, 24 Oct 2001 11:20:23 -0400
-Received: from sigint.cs.purdue.edu ([128.10.2.82]:43666 "HELO
-	sigint.cs.purdue.edu") by vger.kernel.org with SMTP
-	id <S278561AbRJXPUQ>; Wed, 24 Oct 2001 11:20:16 -0400
-Date: Wed, 24 Oct 2001 10:20:50 -0500
-From: linux@sigint.cs.purdue.edu
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] autofs4 symlink size
-Message-ID: <20011024102050.A12112@sigint.cs.purdue.edu>
-Mime-Version: 1.0
+	id <S278567AbRJXPUx>; Wed, 24 Oct 2001 11:20:53 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11527 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S278566AbRJXPUs>; Wed, 24 Oct 2001 11:20:48 -0400
+Subject: Re: fdisk: "File size limit exceeded on fdisk" 2.4.10 to 2.4.13-pre6
+To: timtas@dplanet.ch (Tim Tassonis)
+Date: Wed, 24 Oct 2001 16:27:44 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E15wPed-0000HM-00@lttit> from "Tim Tassonis" at Oct 24, 2001 05:09:15 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Disclaimer: Any similarity to an opinion of Purdue is purely coincidental
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15wPwW-0001oq-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I sent this to the autofs4 maintainer a while ago, but never heard back.
-autofs4 doesn't return a size for the symlinks it creates, which is
-inconsistent with other filesystems.  (The Almquist shell uses the sizes
-of path components to allocate buffers during a walk, so it can't traverse
-autofs4-linked paths.)
+> When I try to create a partition of 2GB using fdisk or parted, I get the
+> error "File size limit exceeded (core dumped)". I already read about this
+> error on the mailing list, but sadly not of any solution.
 
-This patch applies against 2.4.9 (and probably earlier) through 2.4.13.
-
---- fs/autofs4/inode.c.orig	Fri Feb  9 14:29:44 2001
-+++ fs/autofs4/inode.c	Thu Aug 23 16:01:59 2001
-@@ -315,8 +315,10 @@
- 		inode->i_nlink = 2;
- 		inode->i_op = &autofs4_dir_inode_operations;
- 		inode->i_fop = &autofs4_dir_operations;
--	} else if (S_ISLNK(inf->mode))
-+	} else if (S_ISLNK(inf->mode)) {
-+		inode->i_size = inf->size;
- 		inode->i_op = &autofs4_symlink_inode_operations;
-+	}
- 
- 	return inode;
- }
+Make sure you have limits set right and a new enough glibc. 

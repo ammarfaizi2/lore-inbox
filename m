@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129401AbQLQIpt>; Sun, 17 Dec 2000 03:45:49 -0500
+	id <S131789AbQLRKfM>; Mon, 18 Dec 2000 05:35:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129408AbQLQIpi>; Sun, 17 Dec 2000 03:45:38 -0500
-Received: from linuxcare.com.au ([203.29.91.49]:23556 "EHLO
-	front.linuxcare.com.au") by vger.kernel.org with ESMTP
-	id <S129401AbQLQIp0>; Sun, 17 Dec 2000 03:45:26 -0500
-From: Rusty Russell <rusty@linuxcare.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
-Subject: Re: NFS: set_bit on an 'int' variable OK for 64-bit? 
-In-Reply-To: Your message of "Mon, 11 Dec 2000 17:08:45 BST."
-             <E145WRS-0008A3-00@the-village.bc.nu> 
-Date: Fri, 15 Dec 2000 16:47:26 +1100
-Message-Id: <E146niI-00009W-00@halfway>
+	id <S131796AbQLRKfC>; Mon, 18 Dec 2000 05:35:02 -0500
+Received: from pc7.prs.nunet.net ([199.249.167.77]:2569 "HELO
+	pc7.prs.nunet.net") by vger.kernel.org with SMTP id <S131789AbQLRKey>;
+	Mon, 18 Dec 2000 05:34:54 -0500
+Message-ID: <20001218100429.8407.qmail@pc7.prs.nunet.net>
+From: "Rico Tudor" <rico@patrec.com>
+Subject: Re: ServerWorks docs?
+To: jeff@aslab.com (Jeff Nguyen)
+Date: Mon, 18 Dec 100 04:04:29 -0600 (CST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <04e401c067d1$1e6a90a0$7818b7c0@aslab.com> from "Jeff Nguyen" at Dec 16, 0 06:29:00 pm
+X-Mailer: ELM [version 2.4 PL25]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <E145WRS-0008A3-00@the-village.bc.nu> you write:
-> > since test11, the NFS code uses the set_bit and related routines
-> > to manipulate the wb_flags member of the nfs_page struct (nfs_page.h).
-> > Unfortunately, wb_flags has still data type 'int'.
-> 
-> NFS is wrong. Rusty did a complete audit of the code and I've been feeding
-> some stuff to Linus. That one may have been missed
+Thanks for the offer, but the basic problem remains: no docs.
+As jamagallon@able.es noted, http://www.netroedge.com/~lm78/ shows some
+cause for hope, but a medium-sized LART is still called for.
 
-Yes, didn't grep the headers.  Hmm... that's the only one in
-include/linux/*.h though.
+My interest in ServerWorks documentation is two-fold: first, to
+expand chipset support in my ECC utility and second, to better support
+ServerWorks-based machines in my workplace.
 
-> > What do you suggest we should do?   Fix nfs_page to use a 'long'
-> > variable, or change our bitops macros to use ints?
-> 
-> Fix NFS
+On behalf of the Linux community, I would sign NDA if it was civilized
+and if my source remained, obviously, public-domain.  I could visit
+ServerWorks on my next foray to the Bay Area.
 
-Yep, it's trivial.
+More important to me is ready access to technical documentation to support
+machines at work.  I come from the era when PDP-11's were shipped with
+schematics, the OS, and the source to the OS.  Things have been going
+downhill ever since.  I'm not catching the next plane to the Bay Area
+for "eyes only" examination of a document every time a problem arises.
+In this regard, companies like IBM Storage and Intel win my kudos,
+and my dollars.  ServerWorks may get some of those dollars because they
+have an affordable chipset that supports 4 GB, but that advantage can
+change overnight.  It's not like IP has a long half-life these days,
+unless you can corner the pyramid-building business.
 
-Cheers,
-Rusty. 
---
-Hacking time.
+These companies must evaluate their proprietary stance in relation to lost
+sales, the more so as free source accelerates.  ATI, Matrox, Adaptec: need
+we say more?  But then, I'm preaching to the choir.  Perhaps ServerWorks
+should look into their hearts, and decide what small part of their IP
+has enormous, eternal value -- the kind that will have them rolling in
+dough, just like Scrooge McDuck.  The rest of the specification, like
+the miserable ECC circuitry that's been done a million times before,
+release it already!  Their adoring Linux fans are waiting.
 
---- working-2.4.0-test12/include/linux/nfs_page.h.~1~	Thu Dec 14 14:20:28 2000
-+++ working-2.4.0-test12/include/linux/nfs_page.h	Fri Dec 15 16:46:09 2000
-@@ -31,10 +31,10 @@
- 	struct page		*wb_page;	/* page to read in/write out */
- 	wait_queue_head_t	wb_wait;	/* wait queue */
- 	unsigned long		wb_timeout;	/* when to read/write/commit */
-+	unsigned long		wb_flags;	/* long req'd for set_bit */
- 	unsigned int		wb_offset,	/* Offset of read/write */
- 				wb_bytes,	/* Length of request */
--				wb_count,	/* reference count */
--				wb_flags;
-+				wb_count;	/* reference count */
- 	struct nfs_writeverf	wb_verf;	/* Commit cookie */
- };
+P.S. I wonder if Via reads this list.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

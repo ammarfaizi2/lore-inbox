@@ -1,44 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262349AbRENSCV>; Mon, 14 May 2001 14:02:21 -0400
+	id <S262352AbRENSKL>; Mon, 14 May 2001 14:10:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262350AbRENSCM>; Mon, 14 May 2001 14:02:12 -0400
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:64251 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S262349AbRENSB4>; Mon, 14 May 2001 14:01:56 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200105141800.f4EI0TTb001638@webber.adilger.int>
-Subject: Re: Getting FS access events
-In-Reply-To: <01051415043103.02742@starship> "from Daniel Phillips at May 14,
- 2001 03:04:31 pm"
-To: Daniel Phillips <phillips@bonn-fries.net>
-Date: Mon, 14 May 2001 12:00:29 -0600 (MDT)
-CC: Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
-MIME-Version: 1.0
+	id <S262351AbRENSKC>; Mon, 14 May 2001 14:10:02 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:20434 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S262352AbRENSJv>;
+	Mon, 14 May 2001 14:09:51 -0400
+Date: Mon, 14 May 2001 20:09:45 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200105141809.UAA09657.aeb@vlet.cwi.nl>
+To: Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk
+Subject: Re: Minor numbers
+Cc: R.E.Wolff@bitwizard.nl, aqchen@us.ibm.com, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel writes:
-> But we don't need anything so fancy to try out your idea, we just need 
-> a lvm-like device that can:
+>> The exercise is essentially the patch that I sent last month or so.
+
+> mknod takes a 32bit input
+> the stat64 padding only has room for 32bits
+
+Hmm. You make me search for this old patch.
+Since Linus' reaction was not exactly positive I left
+the topic again, but there must be a copy somewhere..
+
+Aha, found it. Mail from March 24.
+
+==================================================================
+...
+- For stat all is fine already since we got stat64.
+- For mknod a little work is required.
+- The state of affairs with loopinfo is sad today (the fact that
+kernel and glibc use dev_t of different size causes problems)
+but all will be well with 64-bit dev_t.
+...
+(iii) mknod:
+Then there is the prototype of mknod.
+I changed it for all filesystems to
+
+diff -r linux-2.4.2/linux/fs/ext2/namei.c linux-2.4.2kdevt/linux/fs/ext2/namei.c
+387c387,388
+< static int ext2_mknod (struct inode * dir, struct dentry *dentry, int mode, int rdev)
+---
+> static int ext2_mknod (struct inode * dir, struct dentry *dentry, int mode,
+>                      dev_t rdev)
+
+The system call itself cannot easily be changed to take a larger dev_t,
+mostly because under old glibc the high order part would be random.
+So, mknod64, with
+
+diff linux-2.4.2/linux/fs/namei.c linux-2.4.2kdevt/linux/fs/namei.c
+1205c1208
+< asmlinkage long sys_mknod(const char * filename, int mode, dev_t dev)
+---
+> static long mknod_common(const char * filename, int mode, dev_t dev)
+1245a1249,1259
+> }
 > 
->   - Maintain a block cache
->   - Remap logical to physical blocks
->   - Record the block accesses
->   - Physically reorder the blocks according to the recorded order
->   - Load a given region of disk into the block cache on command
+> asmlinkage long sys_mknod64(const char * filename, int mode,
+>                           unsigned int ma, unsigned int mi)
+> {
+>       return mknod_common(filename, mode, ((dev_t) ma << 32) | mi);
+> }
+...
+==================================================================
 
-The current LVM device (if compiled with DEBUG_MAP) will report all of
-the logical->physical block mappings via printk.  Probably too heavy-
-weight for a large amount of IO.  It could be changed to save the block
-numbers into a cache, to be extracted later.  All of the LVM mapping
-is done in the lvm_map() function.
+Yes, so mknod is solved by having mknod64.
+I saw no problems with stat64, but you do.
+Hmm. I was running a system with 64-bit dev_t when I wrote that letter,
+so at least for i386 there cannot be any serious problems.
+Let me see.
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+=================== include/asm-i386/stat.h ======================
+/* This matches struct stat64 in glibc2.1, hence the absolutely
+ * insane amounts of padding around dev_t's.
+ */
+struct stat64 {
+        unsigned short  st_dev;
+        unsigned char   __pad0[10];
+...
+        unsigned short  st_rdev;
+        unsigned char   __pad3[10];
+...
+==================================================================
+
+So, it seems that you are too pessimistic.
+The present stat64 structure even allows 96-bit dev_t.
+
+Andries

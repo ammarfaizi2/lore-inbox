@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264780AbSKEEvs>; Mon, 4 Nov 2002 23:51:48 -0500
+	id <S263277AbSKEFKW>; Tue, 5 Nov 2002 00:10:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264886AbSKEEvs>; Mon, 4 Nov 2002 23:51:48 -0500
-Received: from modemcable074.85-202-24.mtl.mc.videotron.ca ([24.202.85.74]:54025
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S264780AbSKEEvR>; Mon, 4 Nov 2002 23:51:17 -0500
-Date: Mon, 4 Nov 2002 23:59:38 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Dave Jones <davej@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       <venkatesh.pallipadi@intel.com>
-Subject: [PATCH][2.5-AC] Start from bank 0 for P4 MCE init (resend)
-Message-ID: <Pine.LNX.4.44.0211042107590.27141-100000@montezuma.mastecende.com>
+	id <S264765AbSKEFKV>; Tue, 5 Nov 2002 00:10:21 -0500
+Received: from whitsun.whitsunday.net.au ([203.25.188.10]:55302 "EHLO
+	mail1.whitsunday.net.au") by vger.kernel.org with ESMTP
+	id <S263277AbSKEFKV> convert rfc822-to-8bit; Tue, 5 Nov 2002 00:10:21 -0500
+From: John W Fort <johnf@whitsunday.net.au>
+To: linux-kernel@vger.kernel.org
+Subject: Patch-2.5.45-ac1  inia100 compile and run problems
+Date: Tue, 05 Nov 2002 15:16:20 +1000
+Message-ID: <etkesucpk7plmukbdvmsa4gbs2f4rng1oa@4ax.com>
+X-Mailer: Forte Agent 1.92/32.572
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Index: linux-2.5.44-ac5/arch/i386/kernel/cpu/mcheck/p4.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.44-ac5/arch/i386/kernel/cpu/mcheck/p4.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 p4.c
---- linux-2.5.44-ac5/arch/i386/kernel/cpu/mcheck/p4.c	3 Nov 2002 07:20:04 -0000	1.1.1.1
-+++ linux-2.5.44-ac5/arch/i386/kernel/cpu/mcheck/p4.c	3 Nov 2002 16:47:14 -0000
-@@ -220,7 +220,7 @@
- 		wrmsr(MSR_IA32_MCG_CTL, 0xffffffff, 0xffffffff);
- 	banks = l&0xff;
- 
--	for(i=1; i<banks; i++)
-+	for(i=0; i<banks; i++)
- 		wrmsr(MSR_IA32_MC0_CTL+4*i, 0xffffffff, 0xffffffff);
- 
- 	for(i=0; i<banks; i++)
+Attn: Alan Cox
 
--- 
-function.linuxpower.ca
+Thank you for your work on the inia100 SCSI card, it not so much an orphan, but a street
+kid that everyone thinks they can molest.
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Trivial bits from 2.5.45-ac1 compile:
+drivers/scsi/inia100.h:78: warning: `inia100_detect' declared `static' but never defined
+drivers/scsi/inia100.h:79: warning: `inia100_release' declared `static' but never defined
+drivers/scsi/inia100.h:80: warning: `inia100_queue' declared `static' but never defined
+drivers/scsi/inia100.h:81: warning: `inia100_abort' declared `static' but never defined
+drivers/scsi/inia100.h:82: warning: `inia100_device_reset' declared `static' but never defined
+drivers/scsi/inia100.h:83: warning: `inia100_bus_reset' declared `static' but never defined
 
+I was working on the last three of those but the rug was pulled from under me by someone
+with a grander vision.
+
+Anyhow, I ran two parallel Bonnies on both spindles on the same host/bus and got this:
+
+Incorrect number of segments after building list
+counted 17, received 16
+req nr_sec 256, cur_nr_sec 8
+end request: I/O error, dev 08:10 sector 6685776
+
+and then hangs the bus.
+Would it be because there is no 'eh_host_reset_handler'?
+
+The first run both drives reported similar I/O errors.
+Works fine with 'patch-2.5.45' from Linus.
+How can I help?
+
+cu  johnf
 

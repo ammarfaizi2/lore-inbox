@@ -1,50 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270373AbTHLOjM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 10:39:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270384AbTHLOjL
+	id S270439AbTHLOsS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 10:48:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270441AbTHLOsS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 10:39:11 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:39952 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S270373AbTHLOjI
+	Tue, 12 Aug 2003 10:48:18 -0400
+Received: from out006pub.verizon.net ([206.46.170.106]:30410 "EHLO
+	out006.verizon.net") by vger.kernel.org with ESMTP id S270439AbTHLOsH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 10:39:08 -0400
-Date: Tue, 12 Aug 2003 16:39:01 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: linux kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: generic strncpy - off-by-one error
-Message-ID: <20030812143901.GA18522@alpha.home.local>
-References: <m21xvrynnk.wl%ysato@users.sourceforge.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 12 Aug 2003 10:48:07 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+To: Thomas Molina <tmolina@cablespeed.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] add an -Os config option
+Date: Tue, 12 Aug 2003 10:48:04 -0400
+User-Agent: KMail/1.5.1
+References: <Pine.LNX.4.44.0308112149470.1795-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0308112149470.1795-100000@localhost.localdomain>
+Organization: None that appears to be detectable by casual observers
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <m21xvrynnk.wl%ysato@users.sourceforge.jp>
-User-Agent: Mutt/1.4i
+Message-Id: <200308121048.04063.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [151.205.10.14] at Tue, 12 Aug 2003 09:48:05 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 12, 2003 at 11:07:59PM +0900, Yoshinori Sato wrote:
-> zero fill count is off-by-one error
+On Monday 11 August 2003 22:51, Thomas Molina wrote:
+>On Mon, 11 Aug 2003, Gene Heskett wrote:
+>> On Monday 11 August 2003 17:19, Michael Buesch wrote:
+>> >-----BEGIN PGP SIGNED MESSAGE-----
+>> >Hash: SHA1
+>> >
+>> >On Monday 11 August 2003 23:11, Adrian Bunk wrote:
+>> >> +	  The resulting kernel might be significantly slower.
+>> >
+>> >With my poor english knowledge I would say it should be
+>> > "significant". Correct?
+>>
+>> No, the quoted "significantly" version is the correct english
+>> useage in this apparently present tense.
+>
+>Now you have hit one of my hot buttons :)
+>
+>Your use of useage is an incorrect use.  Simply use use in the above
+>sentence :)
+>
+>sineage, useage, etc. are simply incorrect
 
-I disagree here. With your code, if count becomes 0 within the first while(),
-you set it to (unsigned)(-1) (because count is size_t), and the second loop
-will add this number of zeroes after dest (4 billion on 32 bits archs).
+Well, in the everyday use, they do seem to be miss-used quite 
+frequently as it is observed by me.  And I am not an english 
+professor, just a senior (68) citizen with an 8th grade education, a 
+GED, and a diploma from the University of Hard Knocks.  There really 
+is such a thing you see.
 
-The original code seems OK to me.
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 
-Cheers,
-Willy
-
-> --- lib/string.c~	2003-08-09 20:30:36.000000000 +0900
-> +++ lib/string.c	2003-08-12 22:55:47.000000000 +0900
-> @@ -89,7 +89,8 @@
->  
->  	while (count && (*dest++ = *src++) != '\0')
->  		count--;
-> -	while (count) {
-> +	count--;
-> +	while (count > 0) {
->  		*dest++ = 0;
->  		count--;
->  	}

@@ -1,75 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262735AbTELVNb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 17:13:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262737AbTELVNa
+	id S262776AbTELVRL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 17:17:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262783AbTELVRL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 17:13:30 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:51473 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262735AbTELVN2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 17:13:28 -0400
-Date: Mon, 12 May 2003 22:25:50 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Pavel Machek <pavel@ucw.cz>
-cc: Damian =?utf-8?Q?Ko=C5=82kowski?= <deimos@deimos.one.pl>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] 2.5.69 - no setfont and loadkeys on tty > 1
-In-Reply-To: <20030511173817.GA2155@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.44.0305122223570.14641-100000@phoenix.infradead.org>
+	Mon, 12 May 2003 17:17:11 -0400
+Received: from smtp-101-monday.nerim.net ([62.4.16.101]:1551 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S262776AbTELVRE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 17:17:04 -0400
+From: "STK" <stk@nerim.net>
+To: "'Jos Hulzink'" <josh@stack.nl>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Cc: "'Zwane Mwaikambo'" <zwane@linuxpower.ca>
+Subject: RE: [RFC] How to fix MPS 1.4 + ACPI behaviour ?
+Date: Mon, 12 May 2003 23:29:35 +0200
+Message-ID: <000b01c318cd$992f92e0$0200a8c0@QUASARLAND>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+In-Reply-To: <200305122250.32897.josh@stack.nl>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2727.1300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Hi!
-> 
-> > I'am wondering why setfont and loadkeys in setting only on first tty.
-> > It works (setting font map on all six tty) in 2.{2,4}.x.
-> > 
-> > I'am using _radeonfb_ with rv250if, could it be the reason?
-> 
-> FYI, its same as vesafb here.
-> 								Pavel
+For me the linux kernel should invoke the _PIC method with the right
+parameter.
 
-Try this patch. If it works I will pass it on to linus. thank you.
+Look at the specification Section 
+
+<< ================ Start ================
+5.8.1 _PIC Method
+The \_PIC optional method is to report to the BIOS the current interrupt
+model used by the OS. This
+control method returns nothing. The argument passed into the method
+signifies the interrupt model OSPM
+has chosen, PIC mode, APIC mode, or SAPIC mode. Notice that calling this
+method is optional for OSPM.
+If the method is never called, the BIOS must assume PIC mode. It is
+important that the BIOS save the value
+passed in by OSPM for later use during wake operations.
+_PIC(x):
+_PIC(0) => PIC Mode
+_PIC(1) => APIC Mode
+_PIC(2) => SAPIC Mode
+_PIC(3-n) => Reserved
+
+==================== End ====================>
+
+==> No MADT table, so ACPI sets up the APIC in PIC mode (which I wonder
+wether correct, but ok)
+For me the kernel should invoke the _PIC method with the right
+parameter, in this case the ACPI module will receive the right table
+during the _PRT
+
+Bios ASL code:
+                Method(_PRT)
+                {
+                If(\PICF) <== internal variable set by _PIC
+                {   
+                	==> Returning APIC Mode
+                	Return(APIC)
+                }
+                Else 
+                {
+                	==> Returning PIC Mode
+                	Return(PICM)
+                }
+			}
+
+Regards,
+
+Yann
 
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1077  -> 1.1078 
-#	drivers/char/vt_ioctl.c	1.22    -> 1.23   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/05/12	jsimmons@maxwell.earthlink.net	1.1078
-# [CONSOLE] This patch fixes the problem of not being able to set the fonts on VCs other than the first one. This also was the bug that was casuing dual head (vga and mda) to lock up.
-# --------------------------------------------
-#
-diff -Nru a/drivers/char/vt_ioctl.c b/drivers/char/vt_ioctl.c
---- a/drivers/char/vt_ioctl.c	Mon May 12 14:12:47 2003
-+++ b/drivers/char/vt_ioctl.c	Mon May 12 14:12:47 2003
-@@ -869,13 +869,13 @@
- 		if (clin > 32)
- 			return -EINVAL;
- 		    
--		if (vlin)
--			vc->vc_scan_lines = vlin;
--		if (clin)
--			vc->vc_font.height = clin;
--	
--		for (i = 0; i < MAX_NR_CONSOLES; i++)
-+		for (i = 0; i < MAX_NR_CONSOLES; i++) {
-+			if (vlin)
-+				vc_cons[i].d->vc_scan_lines = vlin;
-+			if (clin)
-+				vc_cons[i].d->vc_font.height = clin;
- 			vc_resize(i, cc, ll);
-+		}
-   		return 0;
- 	}
- 
+-----Original Message-----
+From: Jos Hulzink [mailto:josh@stack.nl] 
+Sent: lundi 12 mai 2003 22:51
+To: STK; 'linux-kernel'
+Cc: 'Zwane Mwaikambo'
+Subject: Re: [RFC] How to fix MPS 1.4 + ACPI behaviour ?
+
+
+On Monday 12 May 2003 22:40, STK wrote:
+> Hi,
+>
+> If no Multiple APIC Description Table (MADT) is described, in this
+> case the _PIC method can be used to tell the bios to return the right 
+> table (PIC or APIC routing table).
+>
+> In this case, if the MPS table describes matches the ACPI APIC table
+> (this is the case, because the ACPI APIC table is built from the MPS 
+> table), you do not need to remap all IRQs.
+
+So, it's more or less a bug in the ACPI code that should do some things
+when 
+no MADT is dectected ? Or do I understand you wrong ?
+
+Jos
+
 

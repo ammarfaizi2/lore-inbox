@@ -1,69 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267545AbTBFXbY>; Thu, 6 Feb 2003 18:31:24 -0500
+	id <S267543AbTBFXkb>; Thu, 6 Feb 2003 18:40:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267542AbTBFXbY>; Thu, 6 Feb 2003 18:31:24 -0500
-Received: from relay-1m.club-internet.fr ([194.158.104.40]:2432 "HELO
-	relay-1m.club-internet.fr") by vger.kernel.org with SMTP
-	id <S267539AbTBFXbW> convert rfc822-to-8bit; Thu, 6 Feb 2003 18:31:22 -0500
-Date: Fri, 7 Feb 2003 00:40:37 +0100
-From: Philippe =?ISO-8859-1?Q?Gramoull=E9?= 
-	<philippe.gramoulle@mmania.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: markh@osdl.org, linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5] fix megaraid driver compile error
-Message-Id: <20030207004037.334abaaf.philippe.gramoulle@mmania.com>
-In-Reply-To: <Pine.LNX.4.44.0302061202430.3545-100000@home.transmeta.com>
-References: <1044559247.4858.49.camel@markh1.pdx.osdl.net>
-	<Pine.LNX.4.44.0302061202430.3545-100000@home.transmeta.com>
-Organization: Lycos Europe
-X-Mailer: Sylpheed version 0.8.9claws41 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S267554AbTBFXkb>; Thu, 6 Feb 2003 18:40:31 -0500
+Received: from h-64-105-35-85.SNVACAID.covad.net ([64.105.35.85]:13723 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S267543AbTBFXk2>; Thu, 6 Feb 2003 18:40:28 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Thu, 6 Feb 2003 15:49:48 -0800
+Message-Id: <200302062349.PAA21867@adam.yggdrasil.com>
+To: greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Restore module support.
+Cc: zippel@linux-m68k.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 2003-02-06, Greg KH wrote:
+>On Fri, Feb 07, 2003 at 12:09:27AM +0100, Roman Zippel wrote:
+>> Hi,
+>> 
+>> On Tue, 4 Feb 2003, Rusty Russell wrote:
+>> 
+>> > I'm going to stop here, since I don't think you understand what I am
+>> > proposing, nor how the current system works: this makes is extremely
+>> > difficult to describe changes, and time consuming.
+>> 
+>> Rusty, if you continue to ignore criticism, I have only one answer left:
+>> 
+>> http://www.xs4all.nl/~zippel/restore-modules-2.5.59.diff
+>
+>But what are the modutils numbers? :)
+>
+>Come on, what Rusty did was the "right thing to do" and has made life
+>easier for all of the arch maintainers (or so says the ones that I've
+>talked to), and has made my life easier with regards to
+>MODULE_DEVICE_TABLE() logic, which will enable the /sbin/hotplug
+>scripts/binary to shrink a _lot_.
 
-Sorry, i posted the fix on Feb 4th, but i forgot 
- 1) to include [PATCH] in the subject and 2) to send it to the
-right person instead of just posting to LKML, as it's my first post :o)
+	I'd be interested in some elaboration on these two points.
 
-The fix was attached as well and shouldn't have whitespace<->tab issue
+	I'd like to understand what problems were solved for other
+architectures by putting the module loader into the kernel, so I could
+compare what would be involved to delivering the same benefit with a
+user-level module loader.
 
-Thanks,
+	I think the MODULE_DEVICE_TABLE stuff is largely independent
+of whether the module loading is done inside the kernel or from user
+level, but if this is due to some misunderstanding on my part, please
+set me straight.
 
-Philippe
+	Although I write this in response to a message by Greg KH, I
+would welcome answers from anyone.
 
---
-Philippe Gramoullé
-philippe.gramoulle@mmania.com
-Lycos Europe - NOC France
-
-
-On Thu, 6 Feb 2003 12:04:15 -0800 (PST)
-Linus Torvalds <torvalds@transmeta.com> wrote:
-
-
-  |  
-  |  On 6 Feb 2003, Mark Haverkamp wrote:
-  |  >
-  |  > This moves access of the host element to device since host has been
-  |  > removed from struct scsi_cmnd.
-  |  
-  |  This is whitespace-damaged.
-  |  
-  |  Please fix broken mailers. I generally don't bother to fix up whitespace
-  |  damage from people who can't bother to have a good mailer. It's just not 
-  |  worth it - if I try to fix it up (even if it is often trivial), it just 
-  |  means that people will continue to send crap patches to me.
-  |  
-  |  		Linus
-  |  
-  |  -
-  |  To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-  |  the body of a message to majordomo@vger.kernel.org
-  |  More majordomo info at  http://vger.kernel.org/majordomo-info.html
-  |  Please read the FAQ at  http://www.tux.org/lkml/
-  |  
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

@@ -1,182 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262839AbTJFJBy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 05:01:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbTJFJBy
+	id S263014AbTJFJCb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 05:02:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbTJFJCK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 05:01:54 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:41149 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262839AbTJFJAp (ORCPT
+	Mon, 6 Oct 2003 05:02:10 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:2448 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263014AbTJFJBT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 05:00:45 -0400
-Date: Mon, 6 Oct 2003 14:31:07 +0530
+	Mon, 6 Oct 2003 05:01:19 -0400
+Date: Mon, 6 Oct 2003 14:31:39 +0530
 From: Maneesh Soni <maneesh@in.ibm.com>
 To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
        Patrick Mochel <mochel@osdl.org>, Greg KH <gregkh@us.ibm.com>
 Cc: LKML <linux-kernel@vger.kernel.org>, Dipankar Sarma <dipankar@in.ibm.com>
-Subject: [RFC 3/6] sysfs-file.patch
-Message-ID: <20031006090107.GH4220@in.ibm.com>
+Subject: [RFC 4/6] sysfs-symlink.patch
+Message-ID: <20031006090139.GI4220@in.ibm.com>
 Reply-To: maneesh@in.ibm.com
-References: <20031006085915.GE4220@in.ibm.com> <20031006090003.GF4220@in.ibm.com> <20031006090030.GG4220@in.ibm.com>
+References: <20031006085915.GE4220@in.ibm.com> <20031006090003.GF4220@in.ibm.com> <20031006090030.GG4220@in.ibm.com> <20031006090107.GH4220@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031006090030.GG4220@in.ibm.com>
+In-Reply-To: <20031006090107.GH4220@in.ibm.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-
-o  This patch modifies the externals sysfs_create_file and 
-   sysfs_create_bin_file. Now these don't actually create files but just links
-   the attribute to the kobject. There is no change in the definition but
-   actual function. These should be actually part of kobject code but as of
-   now for not changing the interfaces there are kept as part of sysfs code.
-   
+o This patch creates symlink kobject. We don't create the symlink in sysfs
+  when sysfs_create_symlink() is called but just allocates one kobject to act
+  as symlink. Again this code should be part of kobject code. But to keep the
+  interfaces same it is in sysfs code.
 
 
- fs/sysfs/bin.c  |   40 +++++++++++++++++-----------------------
- fs/sysfs/file.c |   45 +++++++++++++++++++--------------------------
- 2 files changed, 36 insertions(+), 49 deletions(-)
+ fs/sysfs/symlink.c |   41 +++++++++++++++++++++++++++++------------
+ 1 files changed, 29 insertions(+), 12 deletions(-)
 
-diff -puN fs/sysfs/file.c~sysfs-file fs/sysfs/file.c
---- linux-2.6.0-test6/fs/sysfs/file.c~sysfs-file	2003-10-06 11:58:10.000000000 +0530
-+++ linux-2.6.0-test6-maneesh/fs/sysfs/file.c	2003-10-06 11:58:50.000000000 +0530
-@@ -11,7 +11,7 @@
- 
- static struct file_operations sysfs_file_operations;
- 
--static int init_file(struct inode * inode)
-+int sysfs_init_file(struct inode * inode)
- {
- 	inode->i_size = PAGE_SIZE;
- 	inode->i_fop = &sysfs_file_operations;
-@@ -345,27 +345,6 @@ static struct file_operations sysfs_file
- };
- 
- 
--int sysfs_add_file(struct dentry * dir, const struct attribute * attr)
--{
--	struct dentry * dentry;
--	int error;
--
--	down(&dir->d_inode->i_sem);
--	dentry = sysfs_get_dentry(dir,attr->name);
--	if (!IS_ERR(dentry)) {
--		error = sysfs_create(dentry,
--				     (attr->mode & S_IALLUGO) | S_IFREG,
--				     init_file);
--		if (!error)
--			dentry->d_fsdata = (void *)attr;
--		dput(dentry);
--	} else
--		error = PTR_ERR(dentry);
--	up(&dir->d_inode->i_sem);
--	return error;
--}
--
--
- /**
-  *	sysfs_create_file - create an attribute file for an object.
-  *	@kobj:	object we're creating for. 
-@@ -374,11 +353,25 @@ int sysfs_add_file(struct dentry * dir, 
- 
- int sysfs_create_file(struct kobject * kobj, const struct attribute * attr)
- {
--	if (kobj && attr)
--		return sysfs_add_file(kobj->dentry,attr);
--	return -EINVAL;
--}
-+	struct kobject_attr * k_attr;
-+	
-+	if (!kobj || !attr)
-+		return -EINVAL;
- 
-+	k_attr = kmalloc(sizeof(k_attr), GFP_KERNEL);
-+	if (!k_attr)
-+		return -ENOMEM;
-+	memset(k_attr, 0, sizeof(k_attr));
-+	INIT_LIST_HEAD(&k_attr->list);
-+	k_attr->flags |= KOBJ_TEXT_ATTR;
-+	k_attr->attr_u.attr = attr;
-+
-+	down_write(&kobj->k_rwsem);
-+	list_add(&k_attr->list, &kobj->attr);
-+	up_write(&kobj->k_rwsem);
-+	
-+	return 0;
-+}
- 
- /**
-  * sysfs_update_file - update the modified timestamp on an object attribute.
-diff -puN fs/sysfs/bin.c~sysfs-file fs/sysfs/bin.c
---- linux-2.6.0-test6/fs/sysfs/bin.c~sysfs-file	2003-10-06 11:58:13.000000000 +0530
-+++ linux-2.6.0-test6-maneesh/fs/sysfs/bin.c	2003-10-06 11:58:50.000000000 +0530
-@@ -9,6 +9,7 @@
- #include <linux/kobject.h>
- #include <linux/module.h>
- #include <linux/slab.h>
-+#include <linux/namei.h>
- 
- #include <asm/uaccess.h>
- 
-@@ -131,7 +132,7 @@ static int release(struct inode * inode,
+diff -puN fs/sysfs/symlink.c~sysfs-symlink fs/sysfs/symlink.c
+--- linux-2.6.0-test6/fs/sysfs/symlink.c~sysfs-symlink	2003-10-06 12:08:04.000000000 +0530
++++ linux-2.6.0-test6-maneesh/fs/sysfs/symlink.c	2003-10-06 12:14:43.000000000 +0530
+@@ -15,7 +15,8 @@ static int init_symlink(struct inode * i
  	return 0;
  }
  
--static struct file_operations bin_fops = {
-+struct file_operations bin_fops = {
- 	.read		= read,
- 	.write		= write,
- 	.llseek		= generic_file_llseek,
-@@ -148,31 +149,24 @@ static struct file_operations bin_fops =
- 
- int sysfs_create_bin_file(struct kobject * kobj, struct bin_attribute * attr)
+-static int sysfs_symlink(struct inode * dir, struct dentry *dentry, const char * symname)
++int sysfs_symlink(struct inode * dir, struct dentry *dentry, 
++		   const char * symname)
  {
--	struct dentry * dentry;
--	struct dentry * parent;
--	int error = 0;
-+	struct kobject_attr * k_attr;
+ 	int error;
  
- 	if (!kobj || !attr)
- 		return -EINVAL;
--
--	parent = kobj->dentry;
--
--	down(&parent->d_inode->i_sem);
--	dentry = sysfs_get_dentry(parent,attr->attr.name);
--	if (!IS_ERR(dentry)) {
--		dentry->d_fsdata = (void *)attr;
--		error = sysfs_create(dentry,
--				     (attr->attr.mode & S_IALLUGO) | S_IFREG,
--				     NULL);
--		if (!error) {
--			dentry->d_inode->i_size = attr->size;
--			dentry->d_inode->i_fop = &bin_fops;
--		}
--		dput(dentry);
--	} else
--		error = PTR_ERR(dentry);
--	up(&parent->d_inode->i_sem);
--	return error;
-+	
-+	k_attr = kmalloc(sizeof(k_attr), GFP_KERNEL);
-+	if (!k_attr)
+@@ -71,13 +72,12 @@ static void fill_object_path(struct kobj
+  */
+ int sysfs_create_link(struct kobject * kobj, struct kobject * target, char * name)
+ {
+-	struct dentry * dentry = kobj->dentry;
+-	struct dentry * d;
+ 	int error = 0;
+ 	int size;
+ 	int depth;
+ 	char * path;
+ 	char * s;
++	struct kobject * link;
+ 
+ 	depth = object_depth(kobj);
+ 	size = object_path_length(target) + depth * 3 - 1;
+@@ -96,15 +96,19 @@ int sysfs_create_link(struct kobject * k
+ 	fill_object_path(target,path,size);
+ 	pr_debug("%s: path = '%s'\n",__FUNCTION__,path);
+ 
+-	down(&dentry->d_inode->i_sem);
+-	d = sysfs_get_dentry(dentry,name);
+-	if (!IS_ERR(d))
+-		error = sysfs_symlink(dentry->d_inode,d,path);
+-	else
+-		error = PTR_ERR(d);
+-	dput(d);
+-	up(&dentry->d_inode->i_sem);
+-	kfree(path);
++	link = kmalloc(sizeof(struct kobject), GFP_KERNEL); 
++	if (!link) {
++		kfree(path);
 +		return -ENOMEM;
-+	memset(k_attr, 0, sizeof(k_attr));
-+	INIT_LIST_HEAD(&k_attr->list);
-+	k_attr->flags |= KOBJ_BINARY_ATTR;
-+	k_attr->attr_u.bin_attr = attr;
-+
++	}
++	memset(link, 0, sizeof(struct kobject));
++	kobject_init(link);
++	kobject_set_name(link, name);
++	link->k_symlink = path;
 +	down_write(&kobj->k_rwsem);
-+	list_add(&k_attr->list, &kobj->attr);
++	list_add(&link->k_sibling, &kobj->k_children);
 +	up_write(&kobj->k_rwsem);
-+	
-+	return 0;
++	link->dentry = NULL;
+ 	return error;
  }
  
+@@ -117,6 +121,19 @@ int sysfs_create_link(struct kobject * k
+ 
+ void sysfs_remove_link(struct kobject * kobj, char * name)
+ {
++	struct list_head * tmp;
++
++	down_write(&kobj->k_rwsem);
++	tmp = kobj->k_sibling.next;
++	while (tmp != &kobj->k_sibling) {
++		struct kobject * k = list_entry(tmp, struct kobject, k_sibling);
++		tmp = tmp->next;
++		if (!strcmp(kobject_name(k), name) && (k->k_symlink)) {
++			kfree(k->k_symlink);
++			kobject_cleanup(k);
++		}
++	}
++	up_write(&kobj->k_rwsem);
+ 	sysfs_hash_and_remove(kobj->dentry,name);
+ }
  
 
 _

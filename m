@@ -1,17 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267141AbTBQOES>; Mon, 17 Feb 2003 09:04:18 -0500
+	id <S267122AbTBQO3t>; Mon, 17 Feb 2003 09:29:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267137AbTBQOD6>; Mon, 17 Feb 2003 09:03:58 -0500
-Received: from chii.cinet.co.jp ([61.197.228.217]:22912 "EHLO
+	id <S267243AbTBQOMF>; Mon, 17 Feb 2003 09:12:05 -0500
+Received: from chii.cinet.co.jp ([61.197.228.217]:28032 "EHLO
 	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S267097AbTBQOBK>; Mon, 17 Feb 2003 09:01:10 -0500
-Date: Mon, 17 Feb 2003 23:09:09 +0900
+	id <S267176AbTBQOHt>; Mon, 17 Feb 2003 09:07:49 -0500
+Date: Mon, 17 Feb 2003 23:15:52 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCHSET] PC-9800 subarch. support for 2.5.61 (10/26) floppy #1
-Message-ID: <20030217140909.GJ4799@yuzuki.cinet.co.jp>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "'Christoph Hellwig'" <hch@infradead.org>
+Subject: [PATCHSET] PC-9800 subarch. support for 2.5.61 (16/26) NIC
+Message-ID: <20030217141552.GP4799@yuzuki.cinet.co.jp>
 References: <20030217134333.GA4734@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,2289 +23,1613 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is patchset to support NEC PC-9800 subarchitecture
-against 2.5.61 (10/26).
+against 2.5.61 (16/26).
 
-Driver for PC98 standard floppy disk drive. 1 of 2.
-floppy98.c is too big for sending via. LKML.
-I separeate patch to floppy98-1.patch and floppy98-2.patch.
+C-bus(PC98's legacy bus like ISA) network cards support.
 
-diff -Nru linux-2.5.61/drivers/block/Kconfig linux98-2.5.61/drivers/block/Kconfig
---- linux-2.5.61/drivers/block/Kconfig	2003-02-15 08:51:20.000000000 +0900
-+++ linux98-2.5.61/drivers/block/Kconfig	2003-02-16 17:19:03.000000000 +0900
-@@ -6,6 +6,7 @@
+diff -Nru linux-2.5.61/drivers/net/3c509.c linux98-2.5.61/drivers/net/3c509.c
+--- linux-2.5.61/drivers/net/3c509.c	2003-02-15 08:51:09.000000000 +0900
++++ linux98-2.5.61/drivers/net/3c509.c	2003-02-15 14:38:08.000000000 +0900
+@@ -56,6 +56,10 @@
+ 		v1.19b 08Nov2002 Marc Zyngier <maz@wild-wind.fr.eu.org>
+ 		    - Introduce driver model for EISA cards.
+ */
++/*
++  FIXES for PC-9800:
++  Shu Iwanaga: 3c569B(PC-9801 C-bus) support
++*/
  
- config BLK_DEV_FD
- 	tristate "Normal floppy disk support"
-+	depends on !X86_PC9800
+ #define DRV_NAME	"3c509"
+ #define DRV_VERSION	"1.19b"
+@@ -257,7 +261,7 @@
+ };
+ #endif /* CONFIG_MCA */
+ 
+-#ifdef __ISAPNP__
++#if defined(__ISAPNP__) && !defined(CONFIG_X86_PC9800)
+ static struct isapnp_device_id el3_isapnp_adapters[] __initdata = {
+ 	{	ISAPNP_ANY_ID, ISAPNP_ANY_ID,
+ 		ISAPNP_VENDOR('T', 'C', 'M'), ISAPNP_FUNCTION(0x5090),
+@@ -350,7 +354,7 @@
+ 		if (lp->pmdev)
+ 			pm_unregister(lp->pmdev);
+ #endif
+-#ifdef __ISAPNP__
++#if defined(__ISAPNP__) && !defined(CONFIG_X86_PC9800)
+ 		if (lp->type == EL3_PNP)
+ 			pnp_device_detach(to_pnp_dev(lp->dev));
+ #endif
+@@ -368,12 +372,12 @@
+ 	int ioaddr, irq, if_port;
+ 	u16 phys_addr[3];
+ 	static int current_tag;
+-#ifdef __ISAPNP__
++#if defined(__ISAPNP__) && !defined(CONFIG_X86_PC9800)
+ 	static int pnp_cards;
+ 	struct pnp_dev *idev = NULL;
+ #endif /* __ISAPNP__ */
+ 
+-#ifdef __ISAPNP__
++#if defined(__ISAPNP__) && !defined(CONFIG_X86_PC9800)
+ 	if (nopnp == 1)
+ 		goto no_pnp;
+ 
+@@ -421,6 +425,9 @@
+ no_pnp:
+ #endif /* __ISAPNP__ */
+ 
++#ifdef CONFIG_X86_PC9800
++	id_port = 0x71d0;
++#else
+ 	/* Select an open I/O location at 0x1*0 to do contention select. */
+ 	for ( ; id_port < 0x200; id_port += 0x10) {
+ 		if (check_region(id_port, 1))
+@@ -435,6 +442,7 @@
+ 		printk(" WARNING: No I/O port available for 3c509 activation.\n");
+ 		return -ENODEV;
+ 	}
++#endif /* CONFIG_X86_PC9800 */
+ 	/* Next check for all ISA bus boards by sending the ID sequence to the
+ 	   ID_PORT.  We find cards past the first by setting the 'current_tag'
+ 	   on cards as they are found.  Cards with their tag set will not
+@@ -465,7 +473,7 @@
+ 		phys_addr[i] = htons(id_read_eeprom(i));
+ 	}
+ 
+-#ifdef __ISAPNP__
++#if defined(__ISAPNP__) && !defined(CONFIG_X86_PC9800)
+ 	if (nopnp == 0) {
+ 		/* The ISA PnP 3c509 cards respond to the ID sequence.
+ 		   This check is needed in order not to register them twice. */
+@@ -490,9 +498,19 @@
+ 	{
+ 		unsigned int iobase = id_read_eeprom(8);
+ 		if_port = iobase >> 14;
++#ifdef CONFIG_X86_PC9800
++		ioaddr = 0x40d0 + ((iobase & 0x1f) << 8);
++#else
+ 		ioaddr = 0x200 + ((iobase & 0x1f) << 4);
++#endif
+ 	}
+ 	irq = id_read_eeprom(9) >> 12;
++#ifdef CONFIG_X86_PC9800
++	if (irq == 7)
++		irq = 6;
++	else if (irq == 15)
++		irq = 13;
++#endif
+ 
+ 	if (!(dev = init_etherdev(NULL, sizeof(struct el3_private))))
+ 			return -ENOMEM;
+@@ -522,7 +540,11 @@
+ 	outb(0xd0 + ++current_tag, id_port);
+ 
+ 	/* Activate the adaptor at the EEPROM location. */
++#ifdef CONFIG_X86_PC9800
++	outb((ioaddr >> 8) | 0xe0, id_port);
++#else
+ 	outb((ioaddr >> 4) | 0xe0, id_port);
++#endif
+ 
+ 	EL3WINDOW(0);
+ 	if (inw(ioaddr) != 0x6d50) {
+@@ -534,7 +556,7 @@
+ 	/* Free the interrupt so that some other card can use it. */
+ 	outw(0x0f00, ioaddr + WN0_IRQ);
+ 
+-#ifdef __ISAPNP__	
++#if defined(__ISAPNP__) && !defined(CONFIG_X86_PC9800)
+  found:							/* PNP jumps here... */
+ #endif /* __ISAPNP__ */
+ 
+@@ -543,7 +565,7 @@
+ 	dev->irq = irq;
+ 	dev->if_port = if_port;
+ 	lp = dev->priv;
+-#ifdef __ISAPNP__
++#if defined(__ISAPNP__) && !defined(CONFIG_X86_PC9800)
+ 	lp->dev = &idev->dev;
+ #endif
+ 
+@@ -1388,6 +1410,12 @@
+ 	outw(0x0001, ioaddr + 4);
+ 
+ 	/* Set the IRQ line. */
++#ifdef CONFIG_X86_PC9800
++	if (dev->irq == 6)
++		dev->irq = 7;
++	else if (dev->irq == 13)
++		dev->irq = 15;
++#endif
+ 	outw((dev->irq << 12) | 0x0f00, ioaddr + WN0_IRQ);
+ 
+ 	/* Set the station address in window 2 each time opened. */
+@@ -1550,7 +1578,7 @@
+ MODULE_PARM_DESC(irq, "IRQ number(s) (assigned)");
+ MODULE_PARM_DESC(xcvr,"tranceiver(s) (0=internal, 1=external)");
+ MODULE_PARM_DESC(max_interrupt_work, "maximum events handled per interrupt");
+-#ifdef __ISAPNP__
++#if defined(__ISAPNP__) && !defined(CONFIG_X86_PC9800)
+ MODULE_PARM(nopnp, "i");
+ MODULE_PARM_DESC(nopnp, "disable ISA PnP support (0-1)");
+ MODULE_DEVICE_TABLE(isapnp, el3_isapnp_adapters);
+diff -Nru linux-2.5.42/drivers/net/8390.h linux98-2.5.42/drivers/net/8390.h
+--- linux-2.5.42/drivers/net/8390.h	2002-10-12 13:22:14.000000000 +0900
++++ linux98-2.5.42/drivers/net/8390.h	2002-10-15 23:03:22.000000000 +0900
+@@ -123,7 +123,8 @@
+ #define inb_p(port)   in_8(port)
+ #define outb_p(val,port)  out_8(port,val)
+ 
+-#elif defined(CONFIG_ARM_ETHERH) || defined(CONFIG_ARM_ETHERH_MODULE)
++#elif defined(CONFIG_ARM_ETHERH) || defined(CONFIG_ARM_ETHERH_MODULE) || \
++      defined(CONFIG_NET_CBUS)
+ #define EI_SHIFT(x)	(ei_local->reg_offset[x])
+ #else
+ #define EI_SHIFT(x)	(x)
+diff -Nru linux-2.5.61/drivers/net/Kconfig linux98-2.5.61/drivers/net/Kconfig
+--- linux-2.5.61/drivers/net/Kconfig	2003-02-15 08:52:31.000000000 +0900
++++ linux98-2.5.61/drivers/net/Kconfig	2003-02-15 14:24:25.000000000 +0900
+@@ -662,7 +662,7 @@
+ 	  as <file:Documentation/networking/net-modules.txt>.
+ 
+ config EL3
+-	tristate "3c509/3c529 (MCA)/3c579 \"EtherLink III\" support"
++	tristate "3c509/3c529 (MCA)/3c569B (98)/3c579 \"EtherLink III\" support"
+ 	depends on NET_VENDOR_3COM && (ISA || EISA || MCA)
  	---help---
- 	  If you want to use the floppy disk drive(s) of your PC under Linux,
- 	  say Y. Information about this driver, especially important for IBM
-@@ -27,6 +28,13 @@
- 	tristate "Atari floppy support"
- 	depends on ATARI
+ 	  If you have a network (Ethernet) card belonging to the 3Com
+@@ -931,7 +931,7 @@
+ source "drivers/net/tulip/Kconfig"
  
-+config BLK_DEV_FD98
-+	tristate "NEC PC-9800 floppy disk support"
-+	depends on X86_PC9800
+ config AT1700
+-	tristate "AT1700/1720 support (EXPERIMENTAL)"
++	tristate "AT1700/1720/RE1000Plus(C-Bus) support (EXPERIMENTAL)"
+ 	depends on NET_ETHERNET && (ISA || MCA) && EXPERIMENTAL
+ 	---help---
+ 	  If you have a network (Ethernet) card of this type, say Y and read
+@@ -977,7 +977,7 @@
+ 
+ config NET_ISA
+ 	bool "Other ISA cards"
+-	depends on NET_ETHERNET && ISA
++	depends on NET_ETHERNET && ISA && !X86_PC9800
+ 	---help---
+ 	  If your network (Ethernet) card hasn't been mentioned yet and its
+ 	  bus system (that's the way the cards talks to the other components
+@@ -1175,6 +1175,55 @@
+ 	  the Ethernet-HOWTO, available from
+ 	  <http://www.linuxdoc.org/docs.html#howto>.
+ 
++config NET_CBUS
++	bool "NEC PC-9800 C-bus cards"
++	depends on NET_ETHERNET && ISA && X86_PC9800
 +	---help---
-+	  If you want to use the floppy disk drive(s) of NEC PC-9801/PC-9821,
-+	  say Y.
++	  If your network (Ethernet) card hasn't been mentioned yet and its
++	  bus system (that's the way the cards talks to the other components
++	  of your computer) is NEC PC-9800 C-Bus, say Y.
 +
- config BLK_DEV_SWIM_IOP
- 	bool "Macintosh IIfx/Quadra 900/Quadra 950 floppy support (EXPERIMENTAL)"
- 	depends on MAC && EXPERIMENTAL
-diff -Nru linux-2.5.61/drivers/block/Makefile linux98-2.5.61/drivers/block/Makefile
---- linux-2.5.61/drivers/block/Makefile	2003-02-15 08:52:27.000000000 +0900
-+++ linux98-2.5.61/drivers/block/Makefile	2003-02-16 17:19:03.000000000 +0900
-@@ -12,6 +12,7 @@
++config NE2K_CBUS
++	tristate "Most NE2000-based Ethernet support"
++	depends on NET_CBUS
++
++config NE2K_CBUS_EGY98
++	bool "Melco EGY-98 support"
++	depends on NE2K_CBUS
++
++config NE2K_CBUS_LGY98
++	bool "Melco LGY-98 support"
++	depends on NE2K_CBUS
++
++config NE2K_CBUS_ICM
++	bool "ICM IF-27xxET support"
++	depends on NE2K_CBUS
++
++config NE2K_CBUS_IOLA98
++	bool "I-O DATA LA-98 support"
++	depends on NE2K_CBUS
++
++config NE2K_CBUS_CNET98EL
++	bool "Contec C-NET(98)E/L support"
++	depends on NE2K_CBUS
++
++config NE2K_CBUS_CNET98EL_IO_BASE
++	hex "C-NET(98)E/L I/O base address (0xaaed or 0x55ed)"
++	depends on NE2K_CBUS_CNET98EL
++	default "0xaaed"
++
++config NE2K_CBUS_ATLA98
++	bool "Allied Telesis LA-98 Support"
++	depends on NE2K_CBUS
++
++config NE2K_CBUS_BDN
++	bool "ELECOM Laneed LD-BDN[123]A Support"
++	depends on NE2K_CBUS
++
++config NE2K_CBUS_NEC108
++	bool "NEC PC-9801-108 Support"
++	depends on NE2K_CBUS
++
+ config SKMC
+ 	tristate "SKnet MCA support"
+ 	depends on NET_ETHERNET && MCA
+diff -Nru linux-2.5.61/drivers/net/Makefile linux98-2.5.61/drivers/net/Makefile
+--- linux-2.5.61/drivers/net/Makefile	2003-02-15 08:51:25.000000000 +0900
++++ linux98-2.5.61/drivers/net/Makefile	2003-02-15 14:24:25.000000000 +0900
+@@ -86,6 +86,7 @@
+ obj-$(CONFIG_WD80x3) += wd.o 8390.o
+ obj-$(CONFIG_EL2) += 3c503.o 8390.o
+ obj-$(CONFIG_NE2000) += ne.o 8390.o
++obj-$(CONFIG_NE2K_CBUS) += ne.o 8390.o
+ obj-$(CONFIG_NE2_MCA) += ne2.o 8390.o
+ obj-$(CONFIG_HPLAN) += hp.o 8390.o
+ obj-$(CONFIG_HPLAN_PLUS) += hp-plus.o 8390.o
+diff -Nru linux-2.5.42/drivers/net/Makefile.lib linux98-2.5.42/drivers/net/Makefile.lib
+--- linux-2.5.42/drivers/net/Makefile.lib	2002-10-12 13:22:18.000000000 +0900
++++ linux98-2.5.42/drivers/net/Makefile.lib	2002-10-15 23:03:22.000000000 +0900
+@@ -19,6 +19,7 @@
+ obj-$(CONFIG_MACMACE)		+= crc32.o
+ obj-$(CONFIG_MIPS_AU1000_ENET)	+= crc32.o
+ obj-$(CONFIG_NATSEMI)		+= crc32.o	
++obj-$(CONFIG_NE2K_CBUS)		+= crc32.o
+ obj-$(CONFIG_PCMCIA_FMVJ18X)	+= crc32.o
+ obj-$(CONFIG_PCMCIA_SMC91C92)	+= crc32.o
+ obj-$(CONFIG_PCMCIA_XIRTULIP)	+= crc32.o
+diff -Nru linux-2.5.61/drivers/net/Space.c linux98-2.5.61/drivers/net/Space.c
+--- linux-2.5.61/drivers/net/Space.c	2003-02-15 08:51:12.000000000 +0900
++++ linux98-2.5.61/drivers/net/Space.c	2003-02-15 14:24:25.000000000 +0900
+@@ -233,7 +233,7 @@
+ #ifdef CONFIG_E2100		/* Cabletron E21xx series. */
+ 	{e2100_probe, 0},
+ #endif
+-#ifdef CONFIG_NE2000		/* ISA (use ne2k-pci for PCI cards) */
++#if defined(CONFIG_NE2000) || defined(CONFIG_NE2K_CBUS)	/* ISA & PC-9800 CBUS (use ne2k-pci for PCI cards) */
+ 	{ne_probe, 0},
+ #endif
+ #ifdef CONFIG_LANCE		/* ISA/VLB (use pcnet32 for PCI cards) */
+diff -Nru linux-2.5.57/drivers/net/at1700.c linux98-2.5.57/drivers/net/at1700.c
+--- linux-2.5.57/drivers/net/at1700.c	2003-01-14 09:31:51.000000000 +0900
++++ linux98-2.5.57/drivers/net/at1700.c	2003-01-14 09:55:53.000000000 +0900
+@@ -34,6 +34,10 @@
+ 	only is it difficult to detect, it also moves around in I/O space in
+ 	response to inb()s from other device probes!
+ */
++/*
++	99/03/03  Allied Telesis RE1000 Plus support by T.Hagawa
++	99/12/30	port to 2.3.35 by K.Takai
++*/
  
- obj-$(CONFIG_MAC_FLOPPY)	+= swim3.o
- obj-$(CONFIG_BLK_DEV_FD)	+= floppy.o
-+obj-$(CONFIG_BLK_DEV_FD98)	+= floppy98.o
- obj-$(CONFIG_AMIGA_FLOPPY)	+= amiflop.o
- obj-$(CONFIG_ATARI_FLOPPY)	+= ataflop.o
- obj-$(CONFIG_BLK_DEV_SWIM_IOP)	+= swim_iop.o
-diff -Nru linux-2.5.61/drivers/block/floppy98.c linux98-2.5.61/drivers/block/floppy98.c
---- linux-2.5.61/drivers/block/floppy98.c	1970-01-01 09:00:00.000000000 +0900
-+++ linux98-2.5.61/drivers/block/floppy98.c	2003-02-16 20:34:27.000000000 +0900
-@@ -0,0 +1,2240 @@
-+/*
-+ *  linux/drivers/block/floppy.c
-+ *
-+ *  Copyright (C) 1991, 1992  Linus Torvalds
-+ *  Copyright (C) 1993, 1994  Alain Knaff
-+ *  Copyright (C) 1998 Alan Cox
-+ */
-+/*
-+ * 02.12.91 - Changed to static variables to indicate need for reset
-+ * and recalibrate. This makes some things easier (output_byte reset
-+ * checking etc), and means less interrupt jumping in case of errors,
-+ * so the code is hopefully easier to understand.
-+ */
+ #include <linux/config.h>
+ #include <linux/errno.h>
+@@ -76,10 +80,17 @@
+  *	ISA
+  */
+ 
++#ifndef CONFIG_X86_PC9800
+ static int at1700_probe_list[] __initdata = {
+ 	0x260, 0x280, 0x2a0, 0x240, 0x340, 0x320, 0x380, 0x300, 0
+ };
+ 
++#else /* CONFIG_X86_PC9800 */
++static int at1700_probe_list[] __initdata = {
++	0x1d6, 0x1d8, 0x1da, 0x1d4, 0xd4, 0xd2, 0xd8, 0xd0, 0
++};
 +
-+/*
-+ * This file is certainly a mess. I've tried my best to get it working,
-+ * but I don't like programming floppies, and I have only one anyway.
-+ * Urgel. I should check for more errors, and do more graceful error
-+ * recovery. Seems there are problems with several drives. I've tried to
-+ * correct them. No promises.
-+ */
++#endif /* CONFIG_X86_PC9800 */
+ /*
+  *	MCA
+  */
+@@ -122,6 +133,7 @@
+ 
+ 
+ /* Offsets from the base address. */
++#ifndef CONFIG_X86_PC9800
+ #define STATUS			0
+ #define TX_STATUS		0
+ #define RX_STATUS		1
+@@ -136,6 +148,7 @@
+ #define TX_START		10
+ #define COL16CNTL		11		/* Controll Reg for 16 collisions */
+ #define MODE13			13
++#define RX_CTRL			14
+ /* Configuration registers only on the '865A/B chips. */
+ #define EEPROM_Ctrl 	16
+ #define EEPROM_Data 	17
+@@ -144,8 +157,39 @@
+ #define IOCONFIG		18		/* Either read the jumper, or move the I/O. */
+ #define IOCONFIG1		19
+ #define	SAPROM			20		/* The station address PROM, if no EEPROM. */
++#define MODE24			24
+ #define RESET			31		/* Write to reset some parts of the chip. */
+ #define AT1700_IO_EXTENT	32
++#define PORT_OFFSET(o) (o)
++#else /* CONFIG_X86_PC9800 */
++#define STATUS			(0x0000)
++#define TX_STATUS		(0x0000)
++#define RX_STATUS		(0x0001)
++#define TX_INTR			(0x0200)/* Bit-mapped interrupt enable registers. */
++#define RX_INTR			(0x0201)
++#define TX_MODE			(0x0400)
++#define RX_MODE			(0x0401)
++#define CONFIG_0		(0x0600)/* Misc. configuration settings. */
++#define CONFIG_1		(0x0601)
++/* Run-time register bank 2 definitions. */
++#define DATAPORT		(0x0800)/* Word-wide DMA or programmed-I/O dataport. */
++#define TX_START		(0x0a00)
++#define COL16CNTL		(0x0a01)/* Controll Reg for 16 collisions */
++#define MODE13			(0x0c01)
++#define RX_CTRL			(0x0e00)
++/* Configuration registers only on the '865A/B chips. */
++#define EEPROM_Ctrl 	(0x1000)
++#define EEPROM_Data 	(0x1200)
++#define CARDSTATUS	16			/* FMV-18x Card Status */
++#define CARDSTATUS1	17			/* FMV-18x Card Status */
++#define IOCONFIG		(0x1400)/* Either read the jumper, or move the I/O. */
++#define IOCONFIG1		(0x1600)
++#define	SAPROM			20		/* The station address PROM, if no EEPROM. */
++#define	MODE24			(0x1800)/* The station address PROM, if no EEPROM. */
++#define RESET			(0x1e01)/* Write to reset some parts of the chip. */
++#define PORT_OFFSET(o) ({ int _o_ = (o); (_o_ & ~1) * 0x100 + (_o_ & 1); })
++#endif /* CONFIG_X86_PC9800 */
 +
-+/*
-+ * As with hd.c, all routines within this file can (and will) be called
-+ * by interrupts, so extreme caution is needed. A hardware interrupt
-+ * handler may not sleep, or a kernel panic will happen. Thus I cannot
-+ * call "floppy-on" directly, but have to set a special timer interrupt
-+ * etc.
-+ */
+ 
+ #define TX_TIMEOUT		10
+ 
+@@ -225,8 +269,20 @@
+ 	int slot, ret = -ENODEV;
+ 	struct net_local *lp;
+ 	
++#ifndef CONFIG_X86_PC9800
+ 	if (!request_region(ioaddr, AT1700_IO_EXTENT, dev->name))
+ 		return -EBUSY;
++#else
++	for (i = 0; i < 0x2000; i += 0x0200) {
++		if (!request_region(ioaddr + i, 2, dev->name)) {
++			while (i > 0) {
++				i -= 0x0200;
++				release_region(ioaddr + i, 2);
++			}
++			return -EBUSY;
++		}
++	}
++#endif
+ 
+ 		/* Resetting the chip doesn't reset the ISA interface, so don't bother.
+ 	   That means we have to be careful with the register values we probe for.
+@@ -317,10 +373,17 @@
+ 		/* Reset the internal state machines. */
+ 	outb(0, ioaddr + RESET);
+ 
+-	if (is_at1700)
++	if (is_at1700) {
++#ifndef CONFIG_X86_PC9800
+ 		irq = at1700_irqmap[(read_eeprom(ioaddr, 12)&0x04)
+ 						   | (read_eeprom(ioaddr, 0)>>14)];
+-	else {
++#else
++		{
++			char re1000plus_irqmap[4] = {3, 5, 6, 12};
++			irq = re1000plus_irqmap[inb(ioaddr + IOCONFIG1) >> 6];
++		}
++#endif
++	} else {
+ 		/* Check PnP mode for FMV-183/184/183A/184A. */
+ 		/* This PnP routine is very poor. IO and IRQ should be known. */
+ 		if (inb(ioaddr + CARDSTATUS1) & 0x20) {
+@@ -392,18 +455,22 @@
+ 	/* Set the station address in bank zero. */
+ 	outb(0x00, ioaddr + CONFIG_1);
+ 	for (i = 0; i < 6; i++)
+-		outb(dev->dev_addr[i], ioaddr + 8 + i);
++		outb(dev->dev_addr[i], ioaddr + PORT_OFFSET(8 + i));
+ 
+ 	/* Switch to bank 1 and set the multicast table to accept none. */
+ 	outb(0x04, ioaddr + CONFIG_1);
+ 	for (i = 0; i < 8; i++)
+-		outb(0x00, ioaddr + 8 + i);
++		outb(0x00, ioaddr + PORT_OFFSET(8 + i));
+ 
+ 
+ 	/* Switch to bank 2 */
+ 	/* Lock our I/O address, and set manual processing mode for 16 collisions. */
+ 	outb(0x08, ioaddr + CONFIG_1);
++#ifndef CONFIG_X86_PC9800
+ 	outb(dev->if_port, ioaddr + MODE13);
++#else
++	outb(0, ioaddr + MODE13);
++#endif
+ 	outb(0x00, ioaddr + COL16CNTL);
+ 
+ 	if (net_debug)
+@@ -447,7 +514,12 @@
+ 	kfree(dev->priv);
+ 	dev->priv = NULL;
+ err_out:
++#ifndef CONFIG_X86_PC9800
+ 	release_region(ioaddr, AT1700_IO_EXTENT);
++#else
++	for (i = 0; i < 0x2000; i += 0x0200)
++		release_region(ioaddr + i, 2);
++#endif
+ 	return ret;
+ }
+ 
+@@ -459,7 +531,11 @@
+ #define EE_DATA_READ	0x80	/* EEPROM chip data out, in reg. 17. */
+ 
+ /* Delay between EEPROM clock transitions. */
++#ifndef CONFIG_X86_PC9800
+ #define eeprom_delay()	do { } while (0)
++#else
++#define eeprom_delay()	__asm__ ("out%B0 %%al,%0" :: "N"(0x5f))
++#endif
+ 
+ /* The EEPROM commands include the alway-set leading bit. */
+ #define EE_WRITE_CMD	(5 << 6)
+@@ -542,12 +618,12 @@
+ 		inw (ioaddr + STATUS), inb (ioaddr + TX_STATUS) & 0x80
+ 		? "IRQ conflict" : "network cable problem");
+ 	printk ("%s: timeout registers: %04x %04x %04x %04x %04x %04x %04x %04x.\n",
+-	 dev->name, inw (ioaddr + 0), inw (ioaddr + 2), inw (ioaddr + 4),
+-		inw (ioaddr + 6), inw (ioaddr + 8), inw (ioaddr + 10),
+-		inw (ioaddr + 12), inw (ioaddr + 14));
++	 dev->name, inw(ioaddr + TX_STATUS), inw(ioaddr + TX_INTR), inw(ioaddr + TX_MODE),
++		inw(ioaddr + CONFIG_0), inw(ioaddr + DATAPORT), inw(ioaddr + TX_START),
++		inw(ioaddr + MODE13 - 1), inw(ioaddr + RX_CTRL));
+ 	lp->stats.tx_errors++;
+ 	/* ToDo: We should try to restart the adaptor... */
+-	outw (0xffff, ioaddr + 24);
++	outw(0xffff, ioaddr + MODE24);
+ 	outw (0xffff, ioaddr + TX_STATUS);
+ 	outb (0x5a, ioaddr + CONFIG_0);
+ 	outb (0xe8, ioaddr + CONFIG_1);
+@@ -704,7 +780,7 @@
+ 				   dev->name, inb(ioaddr + RX_MODE), status);
+ #ifndef final_version
+ 		if (status == 0) {
+-			outb(0x05, ioaddr + 14);
++			outb(0x05, ioaddr + RX_CTRL);
+ 			break;
+ 		}
+ #endif
+@@ -724,7 +800,7 @@
+ 					   dev->name, pkt_len);
+ 				/* Prime the FIFO and then flush the packet. */
+ 				inw(ioaddr + DATAPORT); inw(ioaddr + DATAPORT);
+-				outb(0x05, ioaddr + 14);
++				outb(0x05, ioaddr + RX_CTRL);
+ 				lp->stats.rx_errors++;
+ 				break;
+ 			}
+@@ -734,7 +810,7 @@
+ 					   dev->name, pkt_len);
+ 				/* Prime the FIFO and then flush the packet. */
+ 				inw(ioaddr + DATAPORT); inw(ioaddr + DATAPORT);
+-				outb(0x05, ioaddr + 14);
++				outb(0x05, ioaddr + RX_CTRL);
+ 				lp->stats.rx_dropped++;
+ 				break;
+ 			}
+@@ -761,7 +837,7 @@
+ 			if ((inb(ioaddr + RX_MODE) & 0x40) == 0x40)
+ 				break;
+ 			inw(ioaddr + DATAPORT);				/* dummy status read */
+-			outb(0x05, ioaddr + 14);
++			outb(0x05, ioaddr + RX_CTRL);
+ 		}
+ 
+ 		if (net_debug > 5)
+@@ -851,7 +927,7 @@
+ 		/* Switch to bank 1 and set the multicast table. */
+ 		outw((saved_bank & ~0x0C00) | 0x0480, ioaddr + CONFIG_0);
+ 		for (i = 0; i < 8; i++)
+-			outb(mc_filter[i], ioaddr + 8 + i);
++			outb(mc_filter[i], ioaddr + PORT_OFFSET(8 + i));
+ 		memcpy(lp->mc_filter, mc_filter, sizeof(mc_filter));
+ 		outw(saved_bank, ioaddr + CONFIG_0);
+ 	}
+@@ -861,7 +937,12 @@
+ 
+ #ifdef MODULE
+ static struct net_device dev_at1700;
++#ifndef CONFIG_X86_PC9800
+ static int io = 0x260;
++#else
++static int io = 0xd0;
++#endif
 +
-+/*
-+ * 28.02.92 - made track-buffering routines, based on the routines written
-+ * by entropy@wintermute.wpi.edu (Lawrence Foard). Linus.
-+ */
+ static int irq;
+ 
+ MODULE_PARM(io, "i");
+@@ -901,7 +982,15 @@
+ 
+ 	/* If we don't do this, we can't re-insmod it later. */
+ 	free_irq(dev_at1700.irq, NULL);
++#ifndef CONFIG_X86_PC9800
+ 	release_region(dev_at1700.base_addr, AT1700_IO_EXTENT);
++#else
++	{
++		int i;
++		for (i = 0; i < 0x2000; i += 0x200)
++			release_region(dev_at1700.base_addr + i, 2);
++	}
++#endif
+ }
+ #endif /* MODULE */
+ MODULE_LICENSE("GPL");
+diff -Nru linux-2.5.61/drivers/net/ne.c linux98-2.5.61/drivers/net/ne.c
+--- linux-2.5.61/drivers/net/ne.c	2003-02-15 08:51:42.000000000 +0900
++++ linux98-2.5.61/drivers/net/ne.c	2003-02-16 11:49:42.000000000 +0900
+@@ -109,6 +109,10 @@
+     {"PCM-4823", "PCM-4823", {0x00, 0xc0, 0x6c}}, /* Broken Advantech MoBo */
+     {"REALTEK", "RTL8019", {0x00, 0x00, 0xe8}}, /* no-name with Realtek chip */
+     {"LCS-8834", "LCS-8836", {0x04, 0x04, 0x37}}, /* ShinyNet (SET) */
++    {"LA/T-98?", "LA/T-98", {0x00, 0xa0, 0xb0}},	/* I/O Data */
++    {"EGY-98?", "EGY-98", {0x00, 0x40, 0x26}},		/* Melco EGY98 */
++    {"ICM?", "ICM-27xx-ET", {0x00, 0x80, 0xc8}},	/* ICM IF-27xx-ET */
++    {"CNET-98/EL?", "CNET(98)E/L", {0x00, 0x80, 0x4C}},	/* Contec CNET-98/EL */
+     {0,}
+ };
+ #endif
+@@ -116,9 +120,10 @@
+ /* ---- No user-serviceable parts below ---- */
+ 
+ #define NE_BASE	 (dev->base_addr)
+-#define NE_CMD	 	0x00
+-#define NE_DATAPORT	0x10	/* NatSemi-defined port window offset. */
+-#define NE_RESET	0x1f	/* Issue a read to reset, a write to clear. */
++#define NE_CMD	 	EI_SHIFT(0x00)
++#define NE_DATAPORT	EI_SHIFT(0x10)	/* NatSemi-defined port window offset. */
++#define NE_RESET	EI_SHIFT(0x1f) /* Issue a read to reset, a write to clear. */
 +
-+/*
-+ * Automatic floppy-detection and formatting written by Werner Almesberger
-+ * (almesber@nessie.cs.id.ethz.ch), who also corrected some problems with
-+ * the floppy-change signal detection.
-+ */
+ #define NE_IO_EXTENT	0x20
+ 
+ #define NE1SM_START_PG	0x20	/* First page of TX buffer */
+@@ -126,9 +131,15 @@
+ #define NESM_START_PG	0x40	/* First page of TX buffer */
+ #define NESM_STOP_PG	0x80	/* Last page +1 of RX ring */
+ 
++#ifdef CONFIG_NET_CBUS
++#include "ne2k_cbus.h"
++#endif
 +
-+/*
-+ * 1992/7/22 -- Hennus Bergman: Added better error reporting, fixed
-+ * FDC data overrun bug, added some preliminary stuff for vertical
-+ * recording support.
-+ *
-+ * 1992/9/17: Added DMA allocation & DMA functions. -- hhb.
-+ *
-+ * TODO: Errors are still not counted properly.
-+ */
+ int ne_probe(struct net_device *dev);
+ static int ne_probe1(struct net_device *dev, int ioaddr);
++#ifndef CONFIG_NET_CBUS
+ static int ne_probe_isapnp(struct net_device *dev);
++#endif
+ 
+ static int ne_open(struct net_device *dev);
+ static int ne_close(struct net_device *dev);
+@@ -163,6 +174,8 @@
+ 	E2010	 starts at 0x100 and ends at 0x4000.
+ 	E2010-x starts at 0x100 and ends at 0xffff.  */
+ 
++#ifndef CONFIG_NET_CBUS
 +
-+/* 1992/9/20
-+ * Modifications for ``Sector Shifting'' by Rob Hooft (hooft@chem.ruu.nl)
-+ * modeled after the freeware MS-DOS program fdformat/88 V1.8 by
-+ * Christoph H. Hochst\"atter.
-+ * I have fixed the shift values to the ones I always use. Maybe a new
-+ * ioctl() should be created to be able to modify them.
-+ * There is a bug in the driver that makes it impossible to format a
-+ * floppy as the first thing after bootup.
-+ */
+ int __init ne_probe(struct net_device *dev)
+ {
+ 	unsigned int base_addr = dev->base_addr;
+@@ -236,6 +249,116 @@
+ 	return -ENODEV;
+ }
+ 
++#else /* CONFIG_NET_CBUS */
 +
-+/*
-+ * 1993/4/29 -- Linus -- cleaned up the timer handling in the kernel, and
-+ * this helped the floppy driver as well. Much cleaner, and still seems to
-+ * work.
-+ */
++int __init ne_probe(struct net_device *dev)
++{
++	unsigned int base_addr = dev->base_addr;
 +
-+/* 1994/6/24 --bbroad-- added the floppy table entries and made
-+ * minor modifications to allow 2.88 floppies to be run.
-+ */
++	SET_MODULE_OWNER(dev);
 +
-+/* 1994/7/13 -- Paul Vojta -- modified the probing code to allow three or more
-+ * disk types.
-+ */
++	if (ei_debug > 2)
++		printk(KERN_DEBUG "ne_probe(): entered.\n");
 +
-+/*
-+ * 1994/8/8 -- Alain Knaff -- Switched to fdpatch driver: Support for bigger
-+ * format bug fixes, but unfortunately some new bugs too...
-+ */
++	/* If CONFIG_NET_CBUS,
++	   we need dev->priv->reg_offset BEFORE to probe */
++	if (ne2k_cbus_init(dev) != 0) {
++		return -ENOMEM;
++	}
 +
-+/* 1994/9/17 -- Koen Holtman -- added logging of physical floppy write
-+ * errors to allow safe writing by specialized programs.
-+ */
++	/* First check any supplied i/o locations. User knows best. <cough> */
++	if (base_addr > 0) {
++		int result;
++		const struct ne2k_cbus_hwinfo *hw = ne2k_cbus_get_hwinfo((int)(dev->mem_start & NE2K_CBUS_HARDWARE_TYPE_MASK));
 +
-+/* 1995/4/24 -- Dan Fandrich -- added support for Commodore 1581 3.5" disks
-+ * by defining bit 1 of the "stretch" parameter to mean put sectors on the
-+ * opposite side of the disk, leaving the sector IDs alone (i.e. Commodore's
-+ * drives are "upside-down").
-+ */
++		if (ei_debug > 2)
++			printk(KERN_DEBUG "ne_probe(): call ne_probe_cbus(base_addr=0x%x)\n", base_addr);
 +
-+/*
-+ * 1995/8/26 -- Andreas Busse -- added Mips support.
-+ */
++		result = ne_probe_cbus(dev, hw, base_addr);
++		if (result != 0)
++			ne2k_cbus_destroy(dev);
 +
-+/*
-+ * 1995/10/18 -- Ralf Baechle -- Portability cleanup; move machine dependent
-+ * features to asm/floppy.h.
-+ */
++		return result;
++	}
 +
-+/*
-+ * 1998/05/07 -- Russell King -- More portability cleanups; moved definition of
-+ * interrupt and dma channel to asm/floppy.h. Cleaned up some formatting &
-+ * use of '0' for NULL.
-+ */
-+ 
-+/*
-+ * 1998/06/07 -- Alan Cox -- Merged the 2.0.34 fixes for resource allocation
-+ * failures.
-+ */
++	if (ei_debug > 2)
++		printk(KERN_DEBUG "ne_probe(): base_addr is not specified.\n");
 +
-+/*
-+ * 1998/09/20 -- David Weinehall -- Added slow-down code for buggy PS/2-drives.
-+ */
++#ifndef MODULE
++	/* Last resort. The semi-risky C-Bus auto-probe. */
++	if (ei_debug > 2)
++		printk(KERN_DEBUG "ne_probe(): auto-probe start.\n");
 +
-+/*
-+ * 1999/01/19 -- N.Fujita & Linux/98 Project -- Added code for NEC PC-9800
-+ * series.
-+ */
++	{
++		const struct ne2k_cbus_hwinfo *hw = ne2k_cbus_get_hwinfo((int)(dev->mem_start & NE2K_CBUS_HARDWARE_TYPE_MASK));
 +
-+/*
-+ * 1999/08/13 -- Paul Slootman -- floppy stopped working on Alpha after 24
-+ * days, 6 hours, 32 minutes and 32 seconds (i.e. MAXINT jiffies; ints were
-+ * being used to store jiffies, which are unsigned longs).
-+ */
++		if (hw && hw->hwtype) {
++			const unsigned short *plist;
++			for (plist = hw->portlist; *plist; plist++) {
++				const struct ne2k_cbus_region *rlist;
++				for (rlist = hw->regionlist; rlist->range; rlist++) {
++					if (check_region(*plist+rlist->start, rlist->range))
++						break;
++				}
++				if (rlist->range) {
++					/* check_region() failed */ 
++					continue; /* try next base port */
++				}
++				/* check_region() succeeded */
++				if (ne_probe_cbus(dev,hw,*plist) == 0)
++					return 0;
++			}
++		} else {
++			for (hw = &ne2k_cbus_hwinfo_list[0]; hw->hwtype; hw++) {
++				const unsigned short *plist;
++				for(plist=hw->portlist; *plist; plist++){
++					const struct ne2k_cbus_region *rlist;
 +
-+/*
-+ * 2000/08/28 -- Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-+ * - get rid of check_region
-+ * - s/suser/capable/
-+ */
++					for (rlist = hw->regionlist; rlist->range; rlist++) {
++						if (check_region(*plist+rlist->start, rlist->range))
++							break;
++					}
++					if (rlist->range) {
++						/* check_region() failed */ 
++						continue; /* try next base port */
++					}
++					/* check_region() succeeded */
++					if (ne_probe_cbus(dev,hw,*plist) == 0)
++						return 0;
++				}
++			}
++		}
++	}
++#endif
 +
-+/*
-+ * 2001/08/26 -- Paul Gortmaker - fix insmod oops on machines with no
-+ * floppy controller (lingering task on list after module is gone... boom.)
-+ */
++	ne2k_cbus_destroy(dev);
 +
-+/*
-+ * 2002/02/07 -- Anton Altaparmakov - Fix io ports reservation to correct range
-+ * (0x3f2-0x3f5, 0x3f7). This fix is a bit of a hack but the proper fix
-+ * requires many non-obvious changes in arch dependent code.
-+ */
++	return -ENODEV;
++}
 +
-+/*
-+ * 2002/10/12 -- Osamu Tomita <tomita@cinet.co.jp>
-+ * split code from floppy.c
-+ * support NEC PC-9800 only
-+ */
++static int __init ne_probe_cbus(struct net_device *dev, const struct ne2k_cbus_hwinfo *hw, int ioaddr)
++{
++	if (ei_debug > 2)
++		printk(KERN_DEBUG "ne_probe_cbus(): entered. (called from %p)\n",
++		       __builtin_return_address(0));
 +
-+#define FLOPPY_SANITY_CHECK
-+#undef  FLOPPY_SILENT_DCL_CLEAR
++	if (hw && hw->hwtype) {
++		ne2k_cbus_set_hwtype(dev, hw, ioaddr);
++		return ne_probe1(dev, ioaddr);
++	} else {
++		/* auto detect */
 +
-+/*
-+#define PC9800_DEBUG_FLOPPY
-+#define PC9800_DEBUG_FLOPPY2
++		printk(KERN_DEBUG "ne_probe_cbus(): try to determine hardware types.\n");
++		for (hw = &ne2k_cbus_hwinfo_list[0]; hw->hwtype; hw++) {
++			ne2k_cbus_set_hwtype(dev, hw, ioaddr);
++			if (ne_probe1(dev, ioaddr)==0)
++				return 0;
++		}
++	}
++	return ENODEV;
++}
++#endif /* !CONFIG_NET_CBUS */
++
+ static int __init ne_probe1(struct net_device *dev, int ioaddr)
+ {
+ 	int i;
+@@ -243,30 +366,62 @@
+ 	int wordlength = 2;
+ 	const char *name = NULL;
+ 	int start_page, stop_page;
+-	int neX000, ctron, copam, bad_card;
++	int neX000, bad_card;
++#ifndef CONFIG_NET_CBUS
++	int ctron, copam;
++#endif
+ 	int reg0, ret;
+ 	static unsigned version_printed;
++#ifdef CONFIG_NET_CBUS
++	const struct ne2k_cbus_hwinfo *hw = ne2k_cbus_get_hwinfo((int)(dev->mem_start & NE2K_CBUS_HARDWARE_TYPE_MASK));
++	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
++#endif
++
++#ifdef CONFIG_NE2K_CBUS_CNET98EL
++	if (hw->hwtype == NE2K_CBUS_HARDWARE_TYPE_CNET98EL) {
++		outb_p(0, CONFIG_NE2K_CBUS_CNET98EL_IO_BASE);
++		/* udelay(5000);	*/
++		outb_p(1, CONFIG_NE2K_CBUS_CNET98EL_IO_BASE);
++		/* udelay(5000);	*/
++		outb_p((ioaddr & 0xf000) >> 8 | 0x08 | 0x01, CONFIG_NE2K_CBUS_CNET98EL_IO_BASE + 2);
++		/* udelay(5000); */
++	}
++#endif
+ 
++#ifndef CONFIG_NET_CBUS
+ 	if (!request_region(ioaddr, NE_IO_EXTENT, dev->name))
+ 		return -EBUSY;
++#else /* CONFIG_NET_CBUS */
++	{
++		const struct ne2k_cbus_region *rlist;
++		for (rlist = hw->regionlist; rlist->range; rlist++) {
++			if (!request_region(ioaddr + rlist->start,
++						rlist->range, dev->name))
++				return -EBUSY;
++		}
++	}
++#endif /* !CONFIG_NET_CBUS */
+ 
+-	reg0 = inb_p(ioaddr);
++	reg0 = inb_p(ioaddr + EI_SHIFT(0));
+ 	if (reg0 == 0xFF) {
+ 		ret = -ENODEV;
+ 		goto err_out;
+ 	}
+ 
+ 	/* Do a preliminary verification that we have a 8390. */
++#ifdef CONFIG_NE2K_CBUS_CNET98EL
++	if (hw->hwtype != NE2K_CBUS_HARDWARE_TYPE_CNET98EL)
++#endif
+ 	{
+ 		int regd;
+ 		outb_p(E8390_NODMA+E8390_PAGE1+E8390_STOP, ioaddr + E8390_CMD);
+-		regd = inb_p(ioaddr + 0x0d);
+-		outb_p(0xff, ioaddr + 0x0d);
++		regd = inb_p(ioaddr + EI_SHIFT(0x0d));
++		outb_p(0xff, ioaddr + EI_SHIFT(0x0d));
+ 		outb_p(E8390_NODMA+E8390_PAGE0, ioaddr + E8390_CMD);
+ 		inb_p(ioaddr + EN0_COUNTER0); /* Clear the counter by reading. */
+ 		if (inb_p(ioaddr + EN0_COUNTER0) != 0) {
+ 			outb_p(reg0, ioaddr);
+-			outb_p(regd, ioaddr + 0x0d);	/* Restore the old values. */
++			outb_p(regd, ioaddr + EI_SHIFT(0x0d));	/* Restore the old values. */
+ 			ret = -ENODEV;
+ 			goto err_out;
+ 		}
+@@ -290,6 +445,11 @@
+ 	{
+ 		unsigned long reset_start_time = jiffies;
+ 
++#ifdef CONFIG_NET_CBUS
++		/* derived from CNET98EL-patch for bad clones */
++		outb_p(E8390_NODMA | E8390_STOP, ioaddr+E8390_CMD);
++#endif
++
+ 		/* DON'T change these to inb_p/outb_p or reset will fail on clones. */
+ 		outb(inb(ioaddr + NE_RESET), ioaddr + NE_RESET);
+ 
+@@ -308,15 +468,86 @@
+ 		outb_p(0xff, ioaddr + EN0_ISR);		/* Ack all intr. */
+ 	}
+ 
++#ifdef CONFIG_NE2K_CBUS_CNET98EL
++	if (hw->hwtype == NE2K_CBUS_HARDWARE_TYPE_CNET98EL) {
++		static const char pat[32] ="AbcdeFghijKlmnoPqrstUvwxyZ789012";
++		char buf[32];
++		int maxwait = 200;
++
++		if (ei_debug > 2) {
++			printk(" [CNET98EL-specific initialize...");
++		}
++		outb_p(E8390_NODMA | E8390_STOP, ioaddr+E8390_CMD); /* 0x20|0x1 */
++		i=inb(ioaddr);
++		if ((i & ~0x2) != (0x20 | 0x01))
++			return ENODEV;
++		if ((inb(ioaddr + 0x7) & 0x80) != 0x80)
++			return ENODEV;
++		outb_p(E8390_RXOFF, ioaddr+EN0_RXCR); /* out(ioaddr+0xc, 0x20) */
++		/* outb_p(ENDCFG_WTS|ENDCFG_FT1|ENDCFG_LS, ioaddr+EN0_DCFG); */
++		outb_p(ENDCFG_WTS|0x48, ioaddr+EN0_DCFG); /* 0x49 */
++		outb_p(CNET98EL_START_PG, ioaddr+EN0_STARTPG);
++		outb_p(CNET98EL_STOP_PG, ioaddr+EN0_STOPPG);
++		if (ei_debug > 2) {
++			printk("memory check");
++		}
++		for (i = 0; i < 65536; i += 1024) {
++			if (ei_debug > 2) {
++				printk(" %04x",i);
++			}
++			ne2k_cbus_writemem(dev,ioaddr, i, pat, 32);
++			while (((inb(ioaddr + EN0_ISR) & ENISR_RDC) != ENISR_RDC) && --maxwait)
++				;
++			ne2k_cbus_readmem(dev, ioaddr, i, buf, 32);
++			if (memcmp(pat, buf, 32)) {
++				if (ei_debug > 2) {
++					printk(" failed.");
++				}
++				break;
++			}
++		}
++		if (i != 16384) {
++			if (ei_debug > 2) {
++				printk("] ");
++			}
++			printk("memory failure at %x\n", i);
++			return ENODEV;
++		}
++		if (ei_debug > 2) {
++			printk(" good...");
++		}
++		if (!dev->irq) {
++			if (ei_debug > 2) {
++				printk("] ");
++			}
++			printk("IRQ must be specified for C-NET(98)E/L. probe failed.\n");
++			return ENODEV;
++		}
++		outb((dev->irq>5) ? (dev->irq&4):(dev->irq>>1), ioaddr + (0x2 | 0x400));
++		outb(0x7e, ioaddr + (0x4 | 0x400));
++		ne2k_cbus_readmem(dev, ioaddr, 16384, SA_prom, 32);
++		outb(0xff, ioaddr + EN0_ISR);
++		if (ei_debug > 2) {
++			printk("done]");
++		}
++	} else
++#endif /* CONFIG_NE2K_CBUS_CNET98EL */
+ 	/* Read the 16 bytes of station address PROM.
+ 	   We must first initialize registers, similar to NS8390_init(eifdev, 0).
+ 	   We can't reliably read the SAPROM address without this.
+ 	   (I learned the hard way!). */
+ 	{
+-		struct {unsigned char value, offset; } program_seq[] =
++		struct {unsigned char value; unsigned short offset;} program_seq[] = 
+ 		{
+ 			{E8390_NODMA+E8390_PAGE0+E8390_STOP, E8390_CMD}, /* Select page 0*/
++#ifndef CONFIG_NET_CBUS
+ 			{0x48,	EN0_DCFG},	/* Set byte-wide (0x48) access. */
++#else
++			/* NEC PC-9800: some board can only handle word-wide access? */
++			{0x48 | ENDCFG_WTS,	EN0_DCFG},	/* Set word-wide (0x48) access. */
++			{16384 / 256, EN0_STARTPG},
++			{32768 / 256, EN0_STOPPG},
++#endif
+ 			{0x00,	EN0_RCNTLO},	/* Clear the count regs. */
+ 			{0x00,	EN0_RCNTHI},
+ 			{0x00,	EN0_IMR},	/* Mask completion irq. */
+@@ -332,29 +563,42 @@
+ 
+ 		for (i = 0; i < sizeof(program_seq)/sizeof(program_seq[0]); i++)
+ 			outb_p(program_seq[i].value, ioaddr + program_seq[i].offset);
+-
+-	}
++#ifndef CONFIG_NET_CBUS
+ 	for(i = 0; i < 32 /*sizeof(SA_prom)*/; i+=2) {
+ 		SA_prom[i] = inb(ioaddr + NE_DATAPORT);
+ 		SA_prom[i+1] = inb(ioaddr + NE_DATAPORT);
+ 		if (SA_prom[i] != SA_prom[i+1])
+ 			wordlength = 1;
+ 	}
++#else
++	insw(ioaddr + NE_DATAPORT, SA_prom, 32 >> 1);
++#endif
++
++	}
+ 
+ 	if (wordlength == 2)
+ 	{
+ 		for (i = 0; i < 16; i++)
+ 			SA_prom[i] = SA_prom[i+i];
++#ifndef CONFIG_NET_CBUS
+ 		/* We must set the 8390 for word mode. */
+ 		outb_p(0x49, ioaddr + EN0_DCFG);
++#endif
+ 		start_page = NESM_START_PG;
+ 		stop_page = NESM_STOP_PG;
++#ifdef CONFIG_NE2K_CBUS_CNET98EL
++		if (hw->hwtype == NE2K_CBUS_HARDWARE_TYPE_CNET98EL) {
++			start_page = CNET98EL_START_PG;
++			stop_page = CNET98EL_STOP_PG;
++		}
++#endif
+ 	} else {
+ 		start_page = NE1SM_START_PG;
+ 		stop_page = NE1SM_STOP_PG;
+ 	}
+ 
+ 	neX000 = (SA_prom[14] == 0x57  &&  SA_prom[15] == 0x57);
++#ifndef CONFIG_NET_CBUS
+ 	ctron =  (SA_prom[0] == 0x00 && SA_prom[1] == 0x00 && SA_prom[2] == 0x1d);
+ 	copam =  (SA_prom[14] == 0x49 && SA_prom[15] == 0x00);
+ 
+@@ -368,6 +612,11 @@
+ 		start_page = 0x01;
+ 		stop_page = (wordlength == 2) ? 0x40 : 0x20;
+ 	}
++#else
++	if (neX000) {
++		name = "C-Bus-NE2K-compat";
++	}
++#endif
+ 	else
+ 	{
+ #ifdef SUPPORT_NE_BAD_CLONES
+@@ -414,10 +663,18 @@
+ 		dev->irq = probe_irq_off(cookie);
+ 		if (ei_debug > 2)
+ 			printk(" autoirq is %d\n", dev->irq);
+-	} else if (dev->irq == 2)
++	} else
++#ifndef CONFIG_X86_PC9800
++	if (dev->irq == 2)
+ 		/* Fixup for users that don't know that IRQ 2 is really IRQ 9,
+ 		   or don't know which one to set. */
+ 		dev->irq = 9;
++#else
++	if (dev->irq == 7)
++		/* Fixup for users that don't know that IRQ 7 is really IRQ 11,
++		   or don't know which one to set. */
++		dev->irq = 11;
++#endif
+ 
+ 	if (! dev->irq) {
+ 		printk(" failed to detect IRQ line.\n");
+@@ -448,8 +705,13 @@
+ 		dev->dev_addr[i] = SA_prom[i];
+ 	}
+ 
++#ifndef CONFIG_NET_CBUS
+ 	printk("\n%s: %s found at %#x, using IRQ %d.\n",
+ 		dev->name, name, ioaddr, dev->irq);
++#else
++	printk("\n%s: %s found at %#x, hardware type %d(%s), using IRQ %d.\n",
++		   dev->name, name, ioaddr, hw->hwtype, hw->hwident, dev->irq);
++#endif
+ 
+ 	ei_status.name = name;
+ 	ei_status.tx_start_page = start_page;
+@@ -473,10 +735,23 @@
+ 	return 0;
+ 
+ err_out_kfree:
++#ifndef CONFIG_NET_CBUS
+ 	kfree(dev->priv);
+ 	dev->priv = NULL;
++#else
++	ne2k_cbus_destroy(dev);
++#endif
+ err_out:
++#ifndef CONFIG_NET_CBUS
+ 	release_region(ioaddr, NE_IO_EXTENT);
++#else
++	{
++		const struct ne2k_cbus_region *rlist;
++		for (rlist = hw->regionlist; rlist->range; rlist++) {
++			release_region(ioaddr + rlist->start, rlist->range);
++		}
++	}
++#endif
+ 	return ret;
+ }
+ 
+@@ -500,10 +775,18 @@
+ static void ne_reset_8390(struct net_device *dev)
+ {
+ 	unsigned long reset_start_time = jiffies;
++#ifdef CONFIG_NET_CBUS
++	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
++#endif
+ 
+ 	if (ei_debug > 1)
+ 		printk(KERN_DEBUG "resetting the 8390 t=%ld...", jiffies);
+ 
++#ifdef CONFIG_NET_CBUS
++	/* derived from CNET98EL-patch for bad clones... */
++	outb_p(E8390_NODMA | E8390_STOP, NE_BASE + E8390_CMD);  /* 0x20 | 0x1 */
++#endif
++
+ 	/* DON'T change these to inb_p/outb_p or reset will fail on clones. */
+ 	outb(inb(NE_BASE + NE_RESET), NE_BASE + NE_RESET);
+ 
+@@ -526,6 +809,9 @@
+ static void ne_get_8390_hdr(struct net_device *dev, struct e8390_pkt_hdr *hdr, int ring_page)
+ {
+ 	int nic_base = dev->base_addr;
++#ifdef CONFIG_NET_CBUS
++	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
++#endif
+ 
+ 	/* This *shouldn't* happen. If it does, it's the last thing you'll see */
+ 
+@@ -568,6 +854,9 @@
+ #endif
+ 	int nic_base = dev->base_addr;
+ 	char *buf = skb->data;
++#ifdef CONFIG_NET_CBUS
++	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
++#endif
+ 
+ 	/* This *shouldn't* happen. If it does, it's the last thing you'll see */
+ 	if (ei_status.dmaing)
+@@ -578,6 +867,12 @@
+ 		return;
+ 	}
+ 	ei_status.dmaing |= 0x01;
++
++#ifdef CONFIG_NET_CBUS
++	/* round up count to a word (derived from ICM-patch) */
++	count = (count + 1) & ~1;
++#endif
++
+ 	outb_p(E8390_NODMA+E8390_PAGE0+E8390_START, nic_base+ NE_CMD);
+ 	outb_p(count & 0xff, nic_base + EN0_RCNTLO);
+ 	outb_p(count >> 8, nic_base + EN0_RCNTHI);
+@@ -635,6 +930,9 @@
+ #ifdef NE_SANITY_CHECK
+ 	int retries = 0;
+ #endif
++#ifdef CONFIG_NET_CBUS
++	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
++#endif
+ 
+ 	/* Round the count up for word writes.  Do we need to do this?
+ 	   What effect will an odd byte count have on the 8390?
+@@ -738,13 +1036,22 @@
+ static int io[MAX_NE_CARDS];
+ static int irq[MAX_NE_CARDS];
+ static int bad[MAX_NE_CARDS];	/* 0xbad = bad sig or no reset ack */
++#ifdef CONFIG_NET_CBUS
++static int hwtype[MAX_NE_CARDS] = { 0, }; /* board type */
++#endif
+ 
+ MODULE_PARM(io, "1-" __MODULE_STRING(MAX_NE_CARDS) "i");
+ MODULE_PARM(irq, "1-" __MODULE_STRING(MAX_NE_CARDS) "i");
+ MODULE_PARM(bad, "1-" __MODULE_STRING(MAX_NE_CARDS) "i");
++#ifdef CONFIG_NET_CBUS
++MODULE_PARM(hwtype, "1-" __MODULE_STRING(MAX_NE_CARDS) "i");
++#endif
+ MODULE_PARM_DESC(io, "I/O base address(es),required");
+ MODULE_PARM_DESC(irq, "IRQ number(s)");
+ MODULE_PARM_DESC(bad, "Accept card(s) with bad signatures");
++#ifdef CONFIG_NET_CBUS
++MODULE_PARM_DESC(hwtype, "Board type of PC-9800 C-Bus NIC");
++#endif
+ MODULE_DESCRIPTION("NE1000/NE2000 ISA/PnP Ethernet driver");
+ MODULE_LICENSE("GPL");
+ 
+@@ -762,6 +1069,9 @@
+ 		dev->irq = irq[this_dev];
+ 		dev->mem_end = bad[this_dev];
+ 		dev->base_addr = io[this_dev];
++#ifdef CONFIG_NET_CBUS
++		dev->mem_start = hwtype[this_dev];
++#endif
+ 		dev->init = ne_probe;
+ 		if (register_netdev(dev) == 0) {
+ 			found++;
+@@ -791,9 +1101,23 @@
+ 			if (idev)
+ 				pnp_device_detach(idev);
+ 			free_irq(dev->irq, dev);
++#ifndef CONFIG_NET_CBUS
+ 			release_region(dev->base_addr, NE_IO_EXTENT);
++#else /* CONFIG_NET_CBUS */
++			{
++				const struct ne2k_cbus_hwinfo *hw = ne2k_cbus_get_hwinfo((int)(dev->mem_start & NE2K_CBUS_HARDWARE_TYPE_MASK));
++				const struct ne2k_cbus_region *rlist;
++				for (rlist = hw->regionlist; rlist->range; rlist++) {
++					release_region(dev->base_addr + rlist->start, rlist->range);
++				}
++			}
++#endif /* !CONFIG_NET_CBUS */
+ 			unregister_netdev(dev);
++#ifndef CONFIG_NET_CBUS
+ 			kfree(priv);
++#else
++			ne2k_cbus_destroy(dev);
++#endif
+ 		}
+ 	}
+ }
+diff -Nru linux-2.5.50/drivers/net/ne2k_cbus.h linux98-2.5.50/drivers/net/ne2k_cbus.h
+--- linux-2.5.42/drivers/net/ne2k_cbus.h	1970-01-01 09:00:00.000000000 +0900
++++ linux98-2.5.42/drivers/net/ne2k_cbus.h	2002-12-15 10:56:15.000000000 +0900
+@@ -0,0 +1,481 @@
++/* ne2k_cbus.h: 
++   vender-specific information definition for NEC PC-9800
++   C-bus Ethernet Cards
++   Used in ne.c 
++
++   (C)1998,1999 KITAGWA Takurou & Linux/98 project
 +*/
 +
-+#define REALLY_SLOW_IO
++#include <linux/config.h>
 +
-+#define DEBUGT 2
-+#define DCL_DEBUG /* debug disk change line */
++#undef NE_RESET
++#define NE_RESET EI_SHIFT(0x11) /* Issue a read to reset, a write to clear. */
 +
-+/* do print messages for unexpected interrupts */
-+static int print_unex=1;
-+#include <linux/module.h>
-+#include <linux/sched.h>
-+#include <linux/fs.h>
-+#include <linux/kernel.h>
-+#include <linux/timer.h>
-+#include <linux/workqueue.h>
-+#include <linux/version.h>
-+#define FDPATCHES
-+#include <linux/fdreg.h>
-+
-+/*
-+ * 1998/1/21 -- Richard Gooch <rgooch@atnf.csiro.au> -- devfs support
-+ */
-+
-+
-+#include <linux/fd.h>
-+#define FLOPPY98_MOTOR_MASK 0x08
-+
-+#define FDPATCHES
-+#include <linux/hdreg.h>
-+#define FD98_STATUS	(0 + FD_IOPORT )
-+#define FD98_DATA	(2 + FD_IOPORT )
-+#define FD_MODE		(4 + FD_IOPORT )
-+#define FD_MODE_CHANGE	0xbe
-+#define FD_EMODE_CHANGE	0x4be
-+
-+#include <linux/errno.h>
-+#include <linux/slab.h>
-+#include <linux/mm.h>
-+#include <linux/bio.h>
-+#include <linux/string.h>
-+#include <linux/fcntl.h>
-+#include <linux/delay.h>
-+#include <linux/mc146818rtc.h> /* CMOS defines */
-+#include <linux/ioport.h>
-+#include <linux/interrupt.h>
-+#include <linux/init.h>
-+#include <linux/devfs_fs_kernel.h>
-+#include <linux/device.h>
-+#include <linux/buffer_head.h>		/* for invalidate_buffers() */
-+
-+/*
-+ * PS/2 floppies have much slower step rates than regular floppies.
-+ * It's been recommended that take about 1/4 of the default speed
-+ * in some more extreme cases.
-+ */
-+static int slow_floppy;
-+
-+#include <asm/dma.h>
-+#include <asm/irq.h>
-+#include <asm/system.h>
-+#include <asm/io.h>
-+#include <asm/uaccess.h>
-+
-+#ifndef DEFAULT_FLOPPY_IRQ
-+# define DEFAULT_FLOPPY_IRQ	11
++#ifdef CONFIG_NE2K_CBUS_CNET98EL
++#ifndef CONFIG_NE2K_CBUS_CNET98EL_IO_BASE
++#warning CONFIG_NE2K_CBUS_CNET98EL_IO_BASE is not defined(config error?)
++#warning use 0xaaed as default
++#define CONFIG_NE2K_CBUS_CNET98EL_IO_BASE 0xaaed /* or 0x55ed */
 +#endif
-+#ifndef DEFAULT_FLOPPY_DMA
-+# define DEFAULT_FLOPPY_DMA	2
++#define CNET98EL_START_PG 0x00
++#define CNET98EL_STOP_PG 0x40
 +#endif
 +
-+static int FLOPPY_IRQ=DEFAULT_FLOPPY_IRQ;
-+static int FLOPPY_DMA=DEFAULT_FLOPPY_DMA;
-+static int can_use_virtual_dma=2;
-+static int auto_detect_mode = 0;
-+static int retry_auto_detect = 0;
-+#define FD_AFTER_RESET_DELAY 1000
++/* Hardware type definition (derived from *BSD) */
++#define NE2K_CBUS_HARDWARE_TYPE_MASK 0xff
 +
-+/* =======
-+ * can use virtual DMA:
-+ * 0 = use of virtual DMA disallowed by config
-+ * 1 = use of virtual DMA prescribed by config
-+ * 2 = no virtual DMA preference configured.  By default try hard DMA,
-+ * but fall back on virtual DMA when not enough memory available
-+ */
++/* 0: reserved for auto-detect */
++/* 1: (not tested)
++   Allied Telesis CentreCom LA-98-T */
++#define NE2K_CBUS_HARDWARE_TYPE_ATLA98 1
++/* 2: (not tested)
++   ELECOM Laneed
++   LD-BDN[123]A
++   PLANET SMART COM 98 EN-2298-C
++   MACNICA ME98 */
++#define NE2K_CBUS_HARDWARE_TYPE_BDN 2
++/* 3:
++   Melco EGY-98
++   Contec C-NET(98)E*A/L*A,C-NET(98)P */
++#define NE2K_CBUS_HARDWARE_TYPE_EGY98 3
++/* 4:
++   Melco LGY-98,IND-SP,IND-SS
++   MACNICA NE2098 */
++#define NE2K_CBUS_HARDWARE_TYPE_LGY98 4
++/* 5:
++   ICM DT-ET-25,DT-ET-T5,IF-2766ET,IF-2771ET
++   PLANET SMART COM 98 EN-2298-T,EN-2298P-T
++   D-Link DE-298PT,DE-298PCAT
++   ELECOM Laneed LD-98P */
++#define NE2K_CBUS_HARDWARE_TYPE_ICM 5
++/* 6: (reserved for SIC-98, which is not supported in this driver.) */
++/* 7: (unused in *BSD?)
++   <Original NE2000 compatible>
++   <for PCI/PCMCIA cards>
++*/
++#define NE2K_CBUS_HARDWARE_TYPE_NE2K 7
++/* 8:
++   NEC PC-9801-108 */
++#define NE2K_CBUS_HARDWARE_TYPE_NEC108 8
++/* 9:
++   I-O DATA LA-98,LA/T-98 */
++#define NE2K_CBUS_HARDWARE_TYPE_IOLA98 9
++/* 10: (reserved for C-NET(98), which is not supported in this driver.) */
++/* 11:
++   Contec C-NET(98)E,L */
++#define NE2K_CBUS_HARDWARE_TYPE_CNET98EL 11
 +
-+static int use_virtual_dma;
-+/* =======
-+ * use virtual DMA
-+ * 0 using hard DMA
-+ * 1 using virtual DMA
-+ * This variable is set to virtual when a DMA mem problem arises, and
-+ * reset back in floppy_grab_irq_and_dma.
-+ * It is not safe to reset it in other circumstances, because the floppy
-+ * driver may have several buffers in use at once, and we do currently not
-+ * record each buffers capabilities
-+ */
++#define NE2K_CBUS_HARDWARE_TYPE_MAX 11
 +
-+static spinlock_t floppy_lock = SPIN_LOCK_UNLOCKED;
++/* HARDWARE TYPE ID 12-31: reserved */
 +
-+static unsigned short virtual_dma_port=0x3f0;
-+void floppy_interrupt(int irq, void *dev_id, struct pt_regs * regs);
-+static int set_mode(char mask, char data);
-+static void register_devfs_entries (int drive) __init;
-+
-+#define K_64	0x10000		/* 64KB */
-+
-+/* the following is the mask of allowed drives. By default units 2 and
-+ * 3 of both floppy controllers are disabled, because switching on the
-+ * motor of these drives causes system hangs on some PCI computers. drive
-+ * 0 is the low bit (0x1), and drive 7 is the high bit (0x80). Bits are on if
-+ * a drive is allowed.
-+ *
-+ * NOTE: This must come before we include the arch floppy header because
-+ *       some ports reference this variable from there. -DaveM
-+ */
-+
-+static int allowed_drive_mask = 0x0f;
-+
-+#include <asm/floppy.h>
-+
-+static int irqdma_allocated;
-+
-+#define LOCAL_END_REQUEST
-+#define DEVICE_NAME "floppy"
-+
-+#include <linux/blk.h>
-+#include <linux/blkpg.h>
-+#include <linux/cdrom.h> /* for the compatibility eject ioctl */
-+#include <linux/completion.h>
-+
-+static struct request *current_req;
-+static struct request_queue floppy_queue;
-+
-+#ifndef fd_get_dma_residue
-+#define fd_get_dma_residue() get_dma_residue(FLOPPY_DMA)
-+#endif
-+
-+/* Dma Memory related stuff */
-+
-+#ifndef fd_dma_mem_free
-+#define fd_dma_mem_free(addr, size) free_pages(addr, get_order(size))
-+#endif
-+
-+#ifndef fd_dma_mem_alloc
-+#define fd_dma_mem_alloc(size) __get_dma_pages(GFP_KERNEL,get_order(size))
-+#endif
-+
-+static inline void fallback_on_nodma_alloc(char **addr, size_t l)
-+{
-+#ifdef FLOPPY_CAN_FALLBACK_ON_NODMA
-+	if (*addr)
-+		return; /* we have the memory */
-+	if (can_use_virtual_dma != 2)
-+		return; /* no fallback allowed */
-+	printk("DMA memory shortage. Temporarily falling back on virtual DMA\n");
-+	*addr = (char *) nodma_mem_alloc(l);
-+#else
-+	return;
-+#endif
-+}
-+
-+/* End dma memory related stuff */
-+
-+static unsigned long fake_change;
-+static int initialising=1;
-+
-+static inline int TYPE(kdev_t x) {
-+	return  (minor(x)>>2) & 0x1f;
-+}
-+static inline int DRIVE(kdev_t x) {
-+	return (minor(x)&0x03) | ((minor(x)&0x80) >> 5);
-+}
-+#define ITYPE(x) (((x)>>2) & 0x1f)
-+#define TOMINOR(x) ((x & 3) | ((x & 4) << 5))
-+#define UNIT(x) ((x) & 0x03)		/* drive on fdc */
-+#define FDC(x) (((x) & 0x04) >> 2)  /* fdc of drive */
-+#define REVDRIVE(fdc, unit) ((unit) + ((fdc) << 2))
-+				/* reverse mapping from unit and fdc to drive */
-+#define DP (&drive_params[current_drive])
-+#define DRS (&drive_state[current_drive])
-+#define DRWE (&write_errors[current_drive])
-+#define FDCS (&fdc_state[fdc])
-+#define CLEARF(x) (clear_bit(x##_BIT, &DRS->flags))
-+#define SETF(x) (set_bit(x##_BIT, &DRS->flags))
-+#define TESTF(x) (test_bit(x##_BIT, &DRS->flags))
-+
-+#define UDP (&drive_params[drive])
-+#define UDRS (&drive_state[drive])
-+#define UDRWE (&write_errors[drive])
-+#define UFDCS (&fdc_state[FDC(drive)])
-+#define UCLEARF(x) (clear_bit(x##_BIT, &UDRS->flags))
-+#define USETF(x) (set_bit(x##_BIT, &UDRS->flags))
-+#define UTESTF(x) (test_bit(x##_BIT, &UDRS->flags))
-+
-+#define DPRINT(format, args...) printk(DEVICE_NAME "%d: " format, current_drive , ## args)
-+
-+#define PH_HEAD(floppy,head) (((((floppy)->stretch & 2) >>1) ^ head) << 2)
-+#define STRETCH(floppy) ((floppy)->stretch & FD_STRETCH)
-+
-+#define CLEARSTRUCT(x) memset((x), 0, sizeof(*(x)))
-+
-+/* read/write */
-+#define COMMAND raw_cmd->cmd[0]
-+#define DR_SELECT raw_cmd->cmd[1]
-+#define TRACK raw_cmd->cmd[2]
-+#define HEAD raw_cmd->cmd[3]
-+#define SECTOR raw_cmd->cmd[4]
-+#define SIZECODE raw_cmd->cmd[5]
-+#define SECT_PER_TRACK raw_cmd->cmd[6]
-+#define GAP raw_cmd->cmd[7]
-+#define SIZECODE2 raw_cmd->cmd[8]
-+#define NR_RW 9
-+
-+/* format */
-+#define F_SIZECODE raw_cmd->cmd[2]
-+#define F_SECT_PER_TRACK raw_cmd->cmd[3]
-+#define F_GAP raw_cmd->cmd[4]
-+#define F_FILL raw_cmd->cmd[5]
-+#define NR_F 6
-+
-+/*
-+ * Maximum disk size (in kilobytes). This default is used whenever the
-+ * current disk size is unknown.
-+ * [Now it is rather a minimum]
-+ */
-+#define MAX_DISK_SIZE 4 /* 3984*/
-+
-+
-+/*
-+ * globals used by 'result()'
-+ */
-+#define MAX_REPLIES 16
-+static unsigned char reply_buffer[MAX_REPLIES];
-+static int inr; /* size of reply buffer, when called from interrupt */
-+#define ST0 (reply_buffer[0])
-+#define ST1 (reply_buffer[1])
-+#define ST2 (reply_buffer[2])
-+#define ST3 (reply_buffer[0]) /* result of GETSTATUS */
-+#define R_TRACK (reply_buffer[3])
-+#define R_HEAD (reply_buffer[4])
-+#define R_SECTOR (reply_buffer[5])
-+#define R_SIZECODE (reply_buffer[6])
-+
-+#define SEL_DLY (2*HZ/100)
-+
-+/*
-+ * this struct defines the different floppy drive types.
-+ */
-+static struct {
-+	struct floppy_drive_params params;
-+	const char *name; /* name printed while booting */
-+} default_drive_params[]= {
-+/* NOTE: the time values in jiffies should be in msec!
-+ CMOS drive type
-+  |     Maximum data rate supported by drive type
-+  |     |   Head load time, msec
-+  |     |   |   Head unload time, msec (not used)
-+  |     |   |   |     Step rate interval, usec
-+  |     |   |   |     |       Time needed for spinup time (jiffies)
-+  |     |   |   |     |       |      Timeout for spinning down (jiffies)
-+  |     |   |   |     |       |      |   Spindown offset (where disk stops)
-+  |     |   |   |     |       |      |   |     Select delay
-+  |     |   |   |     |       |      |   |     |     RPS
-+  |     |   |   |     |       |      |   |     |     |    Max number of tracks
-+  |     |   |   |     |       |      |   |     |     |    |     Interrupt timeout
-+  |     |   |   |     |       |      |   |     |     |    |     |   Max nonintlv. sectors
-+  |     |   |   |     |       |      |   |     |     |    |     |   | -Max Errors- flags */
-+{{0,  500, 16, 16, 8000,    1*HZ, 3*HZ,  0, SEL_DLY, 5,  80, 3*HZ, 20, {3,1,2,0,2}, 0,
-+      0, { 7, 4, 8, 2, 1, 5, 3,10}, 3*HZ/2, 0 }, "unknown" },
-+
-+{{1,  300, 16, 16, 8000,    1*HZ, 3*HZ,  0, SEL_DLY, 5,  40, 3*HZ, 17, {3,1,2,0,2}, 0,
-+      0, { 1, 0, 0, 0, 0, 0, 0, 0}, 3*HZ/2, 1 }, "360K PC" }, /*5 1/4 360 KB PC*/
-+
-+{{2,  500, 16, 16, 6000, 4*HZ/10, 3*HZ, 14, SEL_DLY, 6,  83, 3*HZ, 17, {3,1,2,0,2}, 0,
-+      0, { 2, 6, 4, 0, 0, 0, 0, 0}, 3*HZ/2, 2 }, "1.2M" }, /*5 1/4 HD AT*/
-+
-+{{3,  250, 16, 16, 3000,    1*HZ, 3*HZ,  0, SEL_DLY, 5,  83, 3*HZ, 20, {3,1,2,0,2}, 0,
-+      0, { 4, 6, 0, 0, 0, 0, 0, 0}, 3*HZ/2, 4 }, "720k" }, /*3 1/2 DD*/
-+
-+{{4,  500, 16, 16, 4000, 4*HZ/10, 3*HZ, 10, SEL_DLY, 5,  83, 3*HZ, 20, {3,1,2,0,2}, 0,
-+      0, { 7,10, 2, 4, 6, 0, 0, 0}, 3*HZ/2, 7 }, "1.44M" }, /*3 1/2 HD*/
-+
-+{{5, 1000, 15,  8, 3000, 4*HZ/10, 3*HZ, 10, SEL_DLY, 5,  83, 3*HZ, 40, {3,1,2,0,2}, 0,
-+      0, { 7, 8, 4,25,28,22,31,21}, 3*HZ/2, 8 }, "2.88M AMI BIOS" }, /*3 1/2 ED*/
-+
-+{{6, 1000, 15,  8, 3000, 4*HZ/10, 3*HZ, 10, SEL_DLY, 5,  83, 3*HZ, 40, {3,1,2,0,2}, 0,
-+      0, { 7, 8, 4,25,28,22,31,21}, 3*HZ/2, 8 }, "2.88M" } /*3 1/2 ED*/
-+/*    |  --autodetected formats---    |      |      |
-+ *    read_track                      |      |    Name printed when booting
-+ *				      |     Native format
-+ *	            Frequency of disk change checks */
++struct ne2k_cbus_offsetinfo {
++	unsigned short skip;
++	unsigned short offset8; /* +0x8 - +0xf */
++	unsigned short offset10; /* +0x10 */
++	unsigned short offset1f; /* +0x1f */
 +};
 +
-+static struct floppy_drive_params drive_params[N_DRIVE];
-+static struct floppy_drive_struct drive_state[N_DRIVE];
-+static struct floppy_write_errors write_errors[N_DRIVE];
-+static struct timer_list motor_off_timer[N_DRIVE];
-+static struct gendisk *disks[N_DRIVE];
-+static struct floppy_raw_cmd *raw_cmd, default_raw_cmd;
-+
-+/*
-+ * This struct defines the different floppy types.
-+ *
-+ * Bit 0 of 'stretch' tells if the tracks need to be doubled for some
-+ * types (e.g. 360kB diskette in 1.2MB drive, etc.).  Bit 1 of 'stretch'
-+ * tells if the disk is in Commodore 1581 format, which means side 0 sectors
-+ * are located on side 1 of the disk but with a side 0 ID, and vice-versa.
-+ * This is the same as the Sharp MZ-80 5.25" CP/M disk format, except that the
-+ * 1581's logical side 0 is on physical side 1, whereas the Sharp's logical
-+ * side 0 is on physical side 0 (but with the misnamed sector IDs).
-+ * 'stretch' should probably be renamed to something more general, like
-+ * 'options'.  Other parameters should be self-explanatory (see also
-+ * setfdprm(8)).
-+ */
-+/*
-+	    Size
-+	     |  Sectors per track
-+	     |  | Head
-+	     |  | |  Tracks
-+	     |  | |  | Stretch
-+	     |  | |  | |  Gap 1 size
-+	     |  | |  | |    |  Data rate, | 0x40 for perp
-+	     |  | |  | |    |    |  Spec1 (stepping rate, head unload
-+	     |  | |  | |    |    |    |    /fmt gap (gap2) */
-+static struct floppy_struct floppy_type[32] = {
-+	{    0, 0,0, 0,0,0x00,0x00,0x00,0x00,NULL    },	/*  0 no testing    */
-+#if 0
-+	{  720, 9,2,40,0,0x2A,0x02,0xDF,0x50,"d360"  }, /*  1 360KB PC      */
-+#else
-+	{ 2464,16,2,77,0,0x35,0x48,0xDF,0x74,"d360"  }, /*  1 1.25MB 98     */
-+#endif
-+	{ 2400,15,2,80,0,0x1B,0x00,0xDF,0x54,"h1200" },	/*  2 1.2MB AT      */
-+	{  720, 9,1,80,0,0x2A,0x02,0xDF,0x50,"D360"  },	/*  3 360KB SS 3.5" */
-+	{ 1440, 9,2,80,0,0x2A,0x02,0xDF,0x50,"D720"  },	/*  4 720KB 3.5"    */
-+	{  720, 9,2,40,1,0x23,0x01,0xDF,0x50,"h360"  },	/*  5 360KB AT      */
-+	{ 1440, 9,2,80,0,0x23,0x01,0xDF,0x50,"h720"  },	/*  6 720KB AT      */
-+	{ 2880,18,2,80,0,0x1B,0x00,0xCF,0x6C,"H1440" },	/*  7 1.44MB 3.5"   */
-+	{ 5760,36,2,80,0,0x1B,0x43,0xAF,0x54,"E2880" },	/*  8 2.88MB 3.5"   */
-+	{ 6240,39,2,80,0,0x1B,0x43,0xAF,0x28,"E3120" },	/*  9 3.12MB 3.5"   */
-+
-+	{ 2880,18,2,80,0,0x25,0x00,0xDF,0x02,"h1440" }, /* 10 1.44MB 5.25"  */
-+	{ 3360,21,2,80,0,0x1C,0x00,0xCF,0x0C,"H1680" }, /* 11 1.68MB 3.5"   */
-+	{  820,10,2,41,1,0x25,0x01,0xDF,0x2E,"h410"  },	/* 12 410KB 5.25"   */
-+	{ 1640,10,2,82,0,0x25,0x02,0xDF,0x2E,"H820"  },	/* 13 820KB 3.5"    */
-+	{ 2952,18,2,82,0,0x25,0x00,0xDF,0x02,"h1476" },	/* 14 1.48MB 5.25"  */
-+	{ 3444,21,2,82,0,0x25,0x00,0xDF,0x0C,"H1722" },	/* 15 1.72MB 3.5"   */
-+	{  840,10,2,42,1,0x25,0x01,0xDF,0x2E,"h420"  },	/* 16 420KB 5.25"   */
-+	{ 1660,10,2,83,0,0x25,0x02,0xDF,0x2E,"H830"  },	/* 17 830KB 3.5"    */
-+	{ 2988,18,2,83,0,0x25,0x00,0xDF,0x02,"h1494" },	/* 18 1.49MB 5.25"  */
-+	{ 3486,21,2,83,0,0x25,0x00,0xDF,0x0C,"H1743" }, /* 19 1.74 MB 3.5"  */
-+
-+	{ 1760,11,2,80,0,0x1C,0x09,0xCF,0x00,"h880"  }, /* 20 880KB 5.25"   */
-+	{ 2080,13,2,80,0,0x1C,0x01,0xCF,0x00,"D1040" }, /* 21 1.04MB 3.5"   */
-+	{ 2240,14,2,80,0,0x1C,0x19,0xCF,0x00,"D1120" }, /* 22 1.12MB 3.5"   */
-+	{ 3200,20,2,80,0,0x1C,0x20,0xCF,0x2C,"h1600" }, /* 23 1.6MB 5.25"   */
-+	{ 3520,22,2,80,0,0x1C,0x08,0xCF,0x2e,"H1760" }, /* 24 1.76MB 3.5"   */
-+	{ 3840,24,2,80,0,0x1C,0x20,0xCF,0x00,"H1920" }, /* 25 1.92MB 3.5"   */
-+	{ 6400,40,2,80,0,0x25,0x5B,0xCF,0x00,"E3200" }, /* 26 3.20MB 3.5"   */
-+	{ 7040,44,2,80,0,0x25,0x5B,0xCF,0x00,"E3520" }, /* 27 3.52MB 3.5"   */
-+	{ 7680,48,2,80,0,0x25,0x63,0xCF,0x00,"E3840" }, /* 28 3.84MB 3.5"   */
-+
-+	{ 3680,23,2,80,0,0x1C,0x10,0xCF,0x00,"H1840" }, /* 29 1.84MB 3.5"   */
-+	{ 1600,10,2,80,0,0x25,0x02,0xDF,0x2E,"D800"  },	/* 30 800KB 3.5"    */
-+	{ 3200,20,2,80,0,0x1C,0x00,0xCF,0x2C,"H1600" }, /* 31 1.6MB 3.5"    */
++struct ne2k_cbus_region {
++	unsigned short start;
++	short range;
 +};
 +
-+#define	NUMBER(x)	(sizeof(x) / sizeof(*(x)))
-+#define SECTSIZE (_FD_SECTSIZE(*floppy))
-+
-+/* Auto-detection: Disk type used until the next media change occurs. */
-+static struct floppy_struct *current_type[N_DRIVE];
-+
-+/*
-+ * User-provided type information. current_type points to
-+ * the respective entry of this array.
-+ */
-+static struct floppy_struct user_params[N_DRIVE];
-+
-+static sector_t floppy_sizes[256];
-+
-+/*
-+ * The driver is trying to determine the correct media format
-+ * while probing is set. rw_interrupt() clears it after a
-+ * successful access.
-+ */
-+static int probing;
-+
-+/* Synchronization of FDC access. */
-+#define FD_COMMAND_NONE -1
-+#define FD_COMMAND_ERROR 2
-+#define FD_COMMAND_OKAY 3
-+
-+static volatile int command_status = FD_COMMAND_NONE;
-+static unsigned long fdc_busy;
-+static DECLARE_WAIT_QUEUE_HEAD(fdc_wait);
-+static DECLARE_WAIT_QUEUE_HEAD(command_done);
-+
-+#define NO_SIGNAL (!interruptible || !signal_pending(current))
-+#define CALL(x) if ((x) == -EINTR) return -EINTR
-+#define ECALL(x) if ((ret = (x))) return ret;
-+#define _WAIT(x,i) CALL(ret=wait_til_done((x),i))
-+#define WAIT(x) _WAIT((x),interruptible)
-+#define IWAIT(x) _WAIT((x),1)
-+
-+/* Errors during formatting are counted here. */
-+static int format_errors;
-+
-+/* Format request descriptor. */
-+static struct format_descr format_req;
-+
-+/*
-+ * Rate is 0 for 500kb/s, 1 for 300kbps, 2 for 250kbps
-+ * Spec1 is 0xSH, where S is stepping rate (F=1ms, E=2ms, D=3ms etc),
-+ * H is head unload time (1=16ms, 2=32ms, etc)
-+ */
-+
-+/*
-+ * Track buffer
-+ * Because these are written to by the DMA controller, they must
-+ * not contain a 64k byte boundary crossing, or data will be
-+ * corrupted/lost.
-+ */
-+static char *floppy_track_buffer;
-+static int max_buffer_sectors;
-+
-+static int *errors;
-+typedef void (*done_f)(int);
-+static struct cont_t {
-+	void (*interrupt)(void); /* this is called after the interrupt of the
-+				  * main command */
-+	void (*redo)(void); /* this is called to retry the operation */
-+	void (*error)(void); /* this is called to tally an error */
-+	done_f done; /* this is called to say if the operation has 
-+		      * succeeded/failed */
-+} *cont;
-+
-+static void floppy_ready(void);
-+static void floppy_start(void);
-+static void process_fd_request(void);
-+static void recalibrate_floppy(void);
-+static void floppy_shutdown(unsigned long);
-+
-+static int floppy_grab_irq_and_dma(void);
-+static void floppy_release_irq_and_dma(void);
-+
-+/*
-+ * The "reset" variable should be tested whenever an interrupt is scheduled,
-+ * after the commands have been sent. This is to ensure that the driver doesn't
-+ * get wedged when the interrupt doesn't come because of a failed command.
-+ * reset doesn't need to be tested before sending commands, because
-+ * output_byte is automatically disabled when reset is set.
-+ */
-+#define CHECK_RESET { if (FDCS->reset){ reset_fdc(); return; } }
-+static void reset_fdc(void);
-+
-+/*
-+ * These are global variables, as that's the easiest way to give
-+ * information to interrupts. They are the data used for the current
-+ * request.
-+ */
-+#define NO_TRACK -1
-+#define NEED_1_RECAL -2
-+#define NEED_2_RECAL -3
-+
-+static int usage_count;
-+
-+/* buffer related variables */
-+static int buffer_track = -1;
-+static int buffer_drive = -1;
-+static int buffer_min = -1;
-+static int buffer_max = -1;
-+
-+/* fdc related variables, should end up in a struct */
-+static struct floppy_fdc_state fdc_state[N_FDC];
-+static int fdc; /* current fdc */
-+
-+static struct floppy_struct *_floppy = floppy_type;
-+static unsigned char current_drive;
-+static long current_count_sectors;
-+static unsigned char fsector_t; /* sector in track */
-+static unsigned char in_sector_offset;	/* offset within physical sector,
-+					 * expressed in units of 512 bytes */
-+
-+#ifndef fd_eject
-+static inline int fd_eject(int drive)
-+{
-+	return -EINVAL;
-+}
++struct ne2k_cbus_hwinfo {
++	const unsigned short hwtype;
++	const unsigned char *hwident;
++#ifndef MODULE
++	const unsigned short *portlist;
 +#endif
-+
-+#ifdef DEBUGT
-+static long unsigned debugtimer;
-+#endif
-+
-+/*
-+ * Debugging
-+ * =========
-+ */
-+static inline void set_debugt(void)
-+{
-+#ifdef DEBUGT
-+	debugtimer = jiffies;
-+#endif
-+}
-+
-+static inline void debugt(const char *message)
-+{
-+#ifdef DEBUGT
-+	if (DP->flags & DEBUGT)
-+		printk("%s dtime=%lu\n", message, jiffies-debugtimer);
-+#endif
-+}
-+
-+typedef void (*timeout_fn)(unsigned long);
-+static struct timer_list fd_timeout = TIMER_INITIALIZER(floppy_shutdown, 0, 0);
-+
-+static const char *timeout_message;
-+
-+#ifdef FLOPPY_SANITY_CHECK
-+static void is_alive(const char *message)
-+{
-+	/* this routine checks whether the floppy driver is "alive" */
-+	if (fdc_busy && command_status < 2 && !timer_pending(&fd_timeout)){
-+		DPRINT("timeout handler died: %s\n",message);
-+	}
-+}
-+#endif
-+
-+static void (*do_floppy)(void) = NULL;
-+
-+#ifdef FLOPPY_SANITY_CHECK
-+
-+#define OLOGSIZE 20
-+
-+static void (*lasthandler)(void);
-+static unsigned long interruptjiffies;
-+static unsigned long resultjiffies;
-+static int resultsize;
-+static unsigned long lastredo;
-+
-+static struct output_log {
-+	unsigned char data;
-+	unsigned char status;
-+	unsigned long jiffies;
-+} output_log[OLOGSIZE];
-+
-+static int output_log_pos;
-+#endif
-+
-+#define current_reqD -1
-+#define MAXTIMEOUT -2
-+
-+static void reschedule_timeout(int drive, const char *message, int marg)
-+{
-+	if (drive == current_reqD)
-+		drive = current_drive;
-+	del_timer(&fd_timeout);
-+	if (drive < 0 || drive > N_DRIVE) {
-+		fd_timeout.expires = jiffies + 20UL*HZ;
-+		drive=0;
-+	} else
-+		fd_timeout.expires = jiffies + UDP->timeout;
-+	add_timer(&fd_timeout);
-+	if (UDP->flags & FD_DEBUG){
-+		DPRINT("reschedule timeout ");
-+		printk(message, marg);
-+		printk("\n");
-+	}
-+	timeout_message = message;
-+}
-+
-+static int maximum(int a, int b)
-+{
-+	if (a > b)
-+		return a;
-+	else
-+		return b;
-+}
-+#define INFBOUND(a,b) (a)=maximum((a),(b));
-+
-+static int minimum(int a, int b)
-+{
-+	if (a < b)
-+		return a;
-+	else
-+		return b;
-+}
-+#define SUPBOUND(a,b) (a)=minimum((a),(b));
-+
-+
-+/*
-+ * Bottom half floppy driver.
-+ * ==========================
-+ *
-+ * This part of the file contains the code talking directly to the hardware,
-+ * and also the main service loop (seek-configure-spinup-command)
-+ */
-+
-+/*
-+ * disk change.
-+ * This routine is responsible for maintaining the FD_DISK_CHANGE flag,
-+ * and the last_checked date.
-+ *
-+ * last_checked is the date of the last check which showed 'no disk change'
-+ * FD_DISK_CHANGE is set under two conditions:
-+ * 1. The floppy has been changed after some i/o to that floppy already
-+ *    took place.
-+ * 2. No floppy disk is in the drive. This is done in order to ensure that
-+ *    requests are quickly flushed in case there is no disk in the drive. It
-+ *    follows that FD_DISK_CHANGE can only be cleared if there is a disk in
-+ *    the drive.
-+ *
-+ * For 1., maxblock is observed. Maxblock is 0 if no i/o has taken place yet.
-+ * For 2., FD_DISK_NEWCHANGE is watched. FD_DISK_NEWCHANGE is cleared on
-+ *  each seek. If a disk is present, the disk change line should also be
-+ *  cleared on each seek. Thus, if FD_DISK_NEWCHANGE is clear, but the disk
-+ *  change line is set, this means either that no disk is in the drive, or
-+ *  that it has been removed since the last seek.
-+ *
-+ * This means that we really have a third possibility too:
-+ *  The floppy has been changed after the last seek.
-+ */
-+
-+static int disk_change(int drive)
-+{
-+	return UTESTF(FD_DISK_CHANGED);
-+}
-+
-+static int set_mode(char mask, char data)
-+{
-+	register unsigned char newdor, olddor;
-+
-+	olddor = FDCS->dor;
-+	newdor = (olddor & mask) | data;
-+	if (newdor != olddor) {
-+		FDCS->dor = newdor;
-+		fd_outb(newdor, FD_MODE);
-+	}
-+
-+	if (newdor & FLOPPY98_MOTOR_MASK)
-+		floppy_grab_irq_and_dma();
-+
-+	if (olddor & FLOPPY98_MOTOR_MASK)
-+		floppy_release_irq_and_dma();
-+
-+	return olddor;
-+}
-+
-+static void twaddle(void)
-+{
-+	if (DP->select_delay)
-+		return;
-+
-+	fd_outb(FDCS->dor & 0xf7, FD_MODE);
-+	fd_outb(FDCS->dor, FD_MODE);
-+	DRS->select_date = jiffies;
-+}
-+
-+/* reset all driver information about the current fdc. This is needed after
-+ * a reset, and after a raw command. */
-+static void reset_fdc_info(int mode)
-+{
-+	int drive;
-+
-+	FDCS->spec1 = FDCS->spec2 = -1;
-+	FDCS->need_configure = 1;
-+	FDCS->perp_mode = 1;
-+	FDCS->rawcmd = 0;
-+	for (drive = 0; drive < N_DRIVE; drive++)
-+		if (FDC(drive) == fdc &&
-+		    (mode || UDRS->track != NEED_1_RECAL))
-+			UDRS->track = NEED_2_RECAL;
-+}
-+
-+/* selects the fdc and drive, and enables the fdc's input/dma. */
-+static void set_fdc(int drive)
-+{
-+	fdc = 0;
-+	current_drive = drive;
-+	set_mode(~0, 0x10);
-+	if (FDCS->rawcmd == 2)
-+		reset_fdc_info(1);
-+
-+	if (fd_inb(FD98_STATUS) != STATUS_READY)
-+		FDCS->reset = 1;
-+}
-+
-+/* locks the driver */
-+static int _lock_fdc(int drive, int interruptible, int line)
-+{
-+	if (!usage_count){
-+		printk(KERN_ERR "Trying to lock fdc while usage count=0 at line %d\n", line);
-+		return -1;
-+	}
-+	if(floppy_grab_irq_and_dma()==-1)
-+		return -EBUSY;
-+
-+	if (test_and_set_bit(0, &fdc_busy)) {
-+		DECLARE_WAITQUEUE(wait, current);
-+		add_wait_queue(&fdc_wait, &wait);
-+
-+		for (;;) {
-+			set_current_state(TASK_INTERRUPTIBLE);
-+
-+			if (!test_and_set_bit(0, &fdc_busy))
-+				break;
-+
-+			schedule();
-+
-+			if (!NO_SIGNAL) {
-+				remove_wait_queue(&fdc_wait, &wait);
-+				return -EINTR;
-+			}
-+		}
-+
-+		set_current_state(TASK_RUNNING);
-+		remove_wait_queue(&fdc_wait, &wait);
-+	}
-+	command_status = FD_COMMAND_NONE;
-+
-+	reschedule_timeout(drive, "lock fdc", 0);
-+	set_fdc(drive);
-+	return 0;
-+}
-+
-+#define lock_fdc(drive,interruptible) _lock_fdc(drive,interruptible, __LINE__)
-+
-+#define LOCK_FDC(drive,interruptible) \
-+if (lock_fdc(drive,interruptible)) return -EINTR;
-+
-+
-+/* unlocks the driver */
-+static inline void unlock_fdc(void)
-+{
-+	raw_cmd = 0;
-+	if (!fdc_busy)
-+		DPRINT("FDC access conflict!\n");
-+
-+	if (do_floppy)
-+		DPRINT("device interrupt still active at FDC release: %p!\n",
-+			do_floppy);
-+	command_status = FD_COMMAND_NONE;
-+	del_timer(&fd_timeout);
-+	cont = NULL;
-+	clear_bit(0, &fdc_busy);
-+	floppy_release_irq_and_dma();
-+	wake_up(&fdc_wait);
-+}
-+
-+#ifndef CONFIG_PC9800_MOTOR_OFF /* tomita */
-+
-+/* switches the motor off after a given timeout */
-+static void motor_off_callback(unsigned long nr)
-+{
-+	printk(KERN_DEBUG "fdc%lu: turn off motor\n", nr);
-+}
-+
-+/* schedules motor off */
-+static void floppy_off(unsigned int drive)
-+{
-+}
-+
-+#else /* CONFIG_PC9800_MOTOR_OFF */
-+
-+/* switches the motor off after a given timeout */
-+static void motor_off_callback(unsigned long fdc)
-+{
-+	printk(KERN_DEBUG "fdc%u: turn off motor\n", (unsigned int) fdc);
-+
-+	fd_outb(0, FD_MODE);	/* MTON = 0 */
-+}
-+
-+static struct timer_list motor_off_timer[N_FDC] = {
-+	{ data: 0, function: motor_off_callback },
-+#if N_FDC > 1
-+	{ data: 1, function: motor_off_callback },
-+#endif
-+#if N_FDC > 2
-+# error "N_FDC > 2; please fix initializer for motor_off_timer[]"
-+#endif
++	const struct ne2k_cbus_offsetinfo *offsetinfo;
++	const struct ne2k_cbus_region *regionlist;
 +};
 +
-+/* schedules motor off */
-+static void floppy_off(unsigned int drive)
-+{
-+	unsigned long volatile delta;
-+	register int fdc = FDC(drive);
++#ifdef CONFIG_NE2K_CBUS_ATLA98
++#ifndef MODULE
++static unsigned short atla98_portlist[] __initdata = {
++	0xd0,
++	0
++};
++#endif
++#define atla98_offsetinfo ne2k_offsetinfo
++#define atla98_regionlist ne2k_regionlist
++#endif /* CONFIG_NE2K_CBUS_ATLA98 */
 +
-+	if (!(FDCS->dor & (0x10 << UNIT(drive))))
-+		return;
-+
-+	del_timer(motor_off_timer + fdc);
-+
++#ifdef CONFIG_NE2K_CBUS_BDN
++#ifndef MODULE
++static unsigned short bdn_portlist[] __initdata = {
++	0xd0,
++	0
++};
++#endif
++static struct ne2k_cbus_offsetinfo bdn_offsetinfo __initdata = {
 +#if 0
-+	/* make spindle stop in a position which minimizes spinup time
-+	 * next time */
-+	if (UDP->rps){
-+		delta = jiffies - UDRS->first_read_date + HZ -
-+			UDP->spindown_offset;
-+		delta = ((delta * UDP->rps) % HZ) / UDP->rps;
-+		motor_off_timer[drive].expires = jiffies + UDP->spindown - delta;
-+	}
++	/* comes from FreeBSD(98) ed98.h */
++	0x1000, 0x8000, 0x100, 0xc200 /* ??? */
 +#else
-+	if (UDP->rps)
-+		motor_off_timer[drive].expires = jiffies + UDP->spindown;
++	/* comes from NetBSD/pc98 if_ne_isa.c */
++	0x1000, 0x8000, 0x100, 0x7f00 /* ??? */
++#endif
++};
++static struct ne2k_cbus_region bdn_regionlist[] __initdata = {
++	{0x0, 1}, {0x1000, 1}, {0x2000, 1}, {0x3000,1},
++	{0x4000, 1}, {0x5000, 1}, {0x6000, 1}, {0x7000, 1},
++	{0x8000, 1}, {0x9000, 1}, {0xa000, 1}, {0xb000, 1},
++	{0xc000, 1}, {0xd000, 1}, {0xe000, 1}, {0xf000, 1},
++	{0x100, 1}, {0x7f00, 1},
++	{0x0, 0}
++};
++#endif /* CONFIG_NE2K_CBUS_BDN */
++
++#ifdef CONFIG_NE2K_CBUS_EGY98
++#ifndef MODULE
++static unsigned short egy98_portlist[] __initdata = {
++	0xd0,
++	0
++};
++#endif
++static struct ne2k_cbus_offsetinfo egy98_offsetinfo __initdata = {
++	0x02, 0x100, 0x200, 0x300
++};
++static struct ne2k_cbus_region egy98_regionlist[] __initdata = {
++	{0x0, 1}, {0x2, 1}, {0x4, 1}, {0x6, 1},
++	{0x8, 1}, {0xa, 1}, {0xc, 1}, {0xe, 1},
++	{0x100, 1}, {0x102, 1}, {0x104, 1}, {0x106, 1},
++	{0x108, 1}, {0x10a, 1}, {0x10c, 1}, {0x10e, 1},
++	{0x200, 1}, {0x300, 1},
++	{0x0, 0}
++};
++#endif /* CONFIG_NE2K_CBUS_EGY98 */
++
++#ifdef CONFIG_NE2K_CBUS_LGY98
++#ifndef MODULE
++static unsigned short lgy98_portlist[] __initdata = {
++	0xd0, 0x10d0, 0x20d0, 0x30d0, 0x40d0, 0x50d0, 0x60d0, 0x70d0,
++	0
++};
++#endif
++static struct ne2k_cbus_offsetinfo lgy98_offsetinfo __initdata = {
++	0x01, 0x08, 0x200, 0x300
++};
++static struct ne2k_cbus_region lgy98_regionlist[] __initdata = {
++	{0x0, 16}, {0x200, 1}, {0x300, 1},
++	{0x0, 0}
++};
++#endif /* CONFIG_NE2K_CBUS_LGY98 */
++
++#ifdef CONFIG_NE2K_CBUS_ICM
++#ifndef MODULE
++static unsigned short icm_portlist[] __initdata = {
++	/* ICM */
++	0x56d0,
++	/* LD-98PT */
++	0x46d0, 0x66d0, 0x76d0, 0x86d0, 0x96d0, 0xa6d0, 0xb6d0, 0xc6d0,
++	0
++};
++#endif
++static struct ne2k_cbus_offsetinfo icm_offsetinfo __initdata = {
++	0x01, 0x08, 0x100, 0x10f
++};
++static struct ne2k_cbus_region icm_regionlist[] __initdata = {
++	{0x0, 16}, {0x100, 16},
++	{0x0, 0}
++};
++#endif /* CONFIG_NE2K_CBUS_ICM */
++
++#if defined(CONFIG_NE2K_CBUS_NE2K) && !defined(MODULE)
++static unsigned short ne2k_portlist[] __initdata = {
++	0xd0, 0x300, 0x280, 0x320, 0x340, 0x360, 0x380,
++	0
++};
++#endif
++#if defined(CONFIG_NE2K_CBUS_NE2K) || defined(CONFIG_NE2K_CBUS_ATLA98)
++static struct ne2k_cbus_offsetinfo ne2k_offsetinfo __initdata = {
++	0x01, 0x08, 0x10, 0x1f
++};
++static struct ne2k_cbus_region ne2k_regionlist[] __initdata = {
++	{0x0, 32},
++	{0x0, 0}
++};
 +#endif
 +
-+	add_timer(motor_off_timer + fdc);
-+}
-+
-+#endif /* CONFIG_PC9800_MOTOR_OFF */
-+
-+/*
-+ * cycle through all N_DRIVE floppy drives, for disk change testing.
-+ * stopping at current drive. This is done before any long operation, to
-+ * be sure to have up to date disk change information.
-+ */
-+static void scandrives(void)
-+{
-+	int i, drive, saved_drive;
-+
-+	if (DP->select_delay)
-+		return;
-+
-+	saved_drive = current_drive;
-+	for (i=0; i < N_DRIVE; i++){
-+		drive = (saved_drive + i + 1) % N_DRIVE;
-+		if (UDRS->fd_ref == 0 || UDP->select_delay != 0)
-+			continue; /* skip closed drives */
-+		set_fdc(drive);
-+	}
-+	set_fdc(saved_drive);
-+}
-+
-+static void empty(void)
-+{
-+}
-+
-+static DECLARE_WORK(floppy_work, NULL, NULL);
-+
-+static void schedule_bh( void (*handler)(void*) )
-+{
-+	PREPARE_WORK(&floppy_work, handler, NULL);
-+	schedule_work(&floppy_work);
-+}
-+
-+static struct timer_list fd_timer = TIMER_INITIALIZER(NULL, 0, 0);
-+
-+static void cancel_activity(void)
-+{
-+	do_floppy = NULL;
-+	PREPARE_WORK(&floppy_work, (void*)(void*)empty, NULL);
-+	del_timer(&fd_timer);
-+}
-+
-+/* this function makes sure that the disk stays in the drive during the
-+ * transfer */
-+static void fd_watchdog(void)
-+{
-+#ifdef DCL_DEBUG
-+	if (DP->flags & FD_DEBUG){
-+		DPRINT("calling disk change from watchdog\n");
-+	}
++#ifdef CONFIG_NE2K_CBUS_NEC108
++#ifndef MODULE
++static unsigned short nec108_portlist[] __initdata = {
++	0x770, 0x2770, 0x4770, 0x6770,
++	0
++};
++#endif
++static struct ne2k_cbus_offsetinfo nec108_offsetinfo __initdata = {
++	0x02, 0x1000, 0x888, 0x88a
++};
++static struct ne2k_cbus_region nec108_regionlist[] __initdata = {
++	{0x0, 1}, {0x2, 1}, {0x4, 1}, {0x6, 1},
++	{0x8, 1}, {0xa, 1}, {0xc, 1}, {0xe, 1},
++	{0x1000, 1}, {0x1002, 1}, {0x1004, 1}, {0x1006, 1},
++	{0x1008, 1}, {0x100a, 1}, {0x100c, 1}, {0x100e, 1},
++	{0x888, 1}, {0x88a, 1}, {0x88c, 1}, {0x88e, 1},
++	{0x0, 0}
++};
 +#endif
 +
-+	if (disk_change(current_drive)){
-+		DPRINT("disk removed during i/o\n");
-+		cancel_activity();
-+		cont->done(0);
-+		reset_fdc();
-+	} else {
-+		del_timer(&fd_timer);
-+		fd_timer.function = (timeout_fn) fd_watchdog;
-+		fd_timer.expires = jiffies + HZ / 10;
-+		add_timer(&fd_timer);
-+	}
-+}
-+
-+static void main_command_interrupt(void)
-+{
-+	del_timer(&fd_timer);
-+	cont->interrupt();
-+}
-+
-+/* waits for a delay (spinup or select) to pass */
-+static int fd_wait_for_completion(unsigned long delay, timeout_fn function)
-+{
-+	if (FDCS->reset){
-+		reset_fdc(); /* do the reset during sleep to win time
-+			      * if we don't need to sleep, it's a good
-+			      * occasion anyways */
-+		return 1;
-+	}
-+
-+	if ((signed) (jiffies - delay) < 0){
-+		del_timer(&fd_timer);
-+		fd_timer.function = function;
-+		fd_timer.expires = delay;
-+		add_timer(&fd_timer);
-+		return 1;
-+	}
-+	return 0;
-+}
-+
-+static spinlock_t floppy_hlt_lock = SPIN_LOCK_UNLOCKED;
-+static int hlt_disabled;
-+static void floppy_disable_hlt(void)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&floppy_hlt_lock, flags);
-+	if (!hlt_disabled) {
-+		hlt_disabled=1;
-+#ifdef HAVE_DISABLE_HLT
-+		disable_hlt();
++#ifdef CONFIG_NE2K_CBUS_IOLA98
++#ifndef MODULE
++static unsigned short iola98_portlist[] __initdata = {
++	0xd0, 0xd2, 0xd4, 0xd6, 0xd8, 0xda, 0xdc, 0xde,
++	0
++};
 +#endif
-+	}
-+	spin_unlock_irqrestore(&floppy_hlt_lock, flags);
-+}
++static struct ne2k_cbus_offsetinfo iola98_offsetinfo __initdata = {
++	0x1000, 0x8000, 0x100, 0xf100
++};
++static struct ne2k_cbus_region iola98_regionlist[] __initdata = {
++	{0x0, 1}, {0x1000, 1}, {0x2000, 1}, {0x3000, 1},
++	{0x4000, 1}, {0x5000, 1}, {0x6000, 1}, {0x7000, 1},
++	{0x8000, 1}, {0x9000, 1}, {0xa000, 1}, {0xb000, 1},
++	{0xc000, 1}, {0xd000, 1}, {0xe000, 1}, {0xf000, 1},
++	{0x100, 1}, {0xf100, 1},
++	{0x0,0}
++};
++#endif /* CONFIG_NE2K_CBUS_IOLA98 */
 +
-+static void floppy_enable_hlt(void)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&floppy_hlt_lock, flags);
-+	if (hlt_disabled){
-+		hlt_disabled=0;
-+#ifdef HAVE_DISABLE_HLT
-+		enable_hlt();
++#ifdef CONFIG_NE2K_CBUS_CNET98EL
++#ifndef MODULE
++static unsigned short cnet98el_portlist[] __initdata = {
++	0x3d0, 0x13d0, 0x23d0, 0x33d0, 0x43d0, 0x53d0, 0x60d0, 0x70d0,
++	0
++};
 +#endif
-+	}
-+	spin_unlock_irqrestore(&floppy_hlt_lock, flags);
-+}
-+
-+
-+static void setup_DMA(void)
-+{
-+	unsigned long f;
-+
-+#ifdef FLOPPY_SANITY_CHECK
-+	if (raw_cmd->length == 0){
-+		int i;
-+
-+		printk("zero dma transfer size:");
-+		for (i=0; i < raw_cmd->cmd_count; i++)
-+			printk("%x,", raw_cmd->cmd[i]);
-+		printk("\n");
-+		cont->done(0);
-+		FDCS->reset = 1;
-+		return;
-+	}
-+	if (((unsigned long) raw_cmd->kernel_data) % 512){
-+		printk("non aligned address: %p\n", raw_cmd->kernel_data);
-+		cont->done(0);
-+		FDCS->reset=1;
-+		return;
-+	}
-+#endif
-+	f=claim_dma_lock();
-+	fd_disable_dma();
-+#ifdef fd_dma_setup
-+	if (fd_dma_setup(raw_cmd->kernel_data, raw_cmd->length, 
-+			(raw_cmd->flags & FD_RAW_READ)?
-+			DMA_MODE_READ : DMA_MODE_WRITE,
-+			FDCS->address) < 0) {
-+		release_dma_lock(f);
-+		cont->done(0);
-+		FDCS->reset=1;
-+		return;
-+	}
-+	release_dma_lock(f);
-+#else	
-+	fd_clear_dma_ff();
-+	fd_cacheflush(raw_cmd->kernel_data, raw_cmd->length);
-+	fd_set_dma_mode((raw_cmd->flags & FD_RAW_READ)?
-+			DMA_MODE_READ : DMA_MODE_WRITE);
-+	fd_set_dma_addr(raw_cmd->kernel_data);
-+	fd_set_dma_count(raw_cmd->length);
-+	virtual_dma_port = FDCS->address;
-+	fd_enable_dma();
-+	release_dma_lock(f);
-+#endif
-+	floppy_disable_hlt();
-+}
-+
-+static void show_floppy(void);
-+
-+/* waits until the fdc becomes ready */
-+
-+#ifdef PC9800_DEBUG_FLOPPY
-+#define READY_DELAY 10000000
-+#else
-+#define READY_DELAY 100000
++static struct ne2k_cbus_offsetinfo cnet98el_offsetinfo __initdata = {
++	0x01, 0x08, 0x40e, 0x400
++};
++static struct ne2k_cbus_region cnet98el_regionlist[] __initdata = {
++	{0x0, 16}, {0x400, 16},
++	{0x0, 0}
++};
 +#endif
 +
-+static int wait_til_ready(void)
-+{
-+	int counter, status;
-+	if (FDCS->reset)
-+		return -1;
-+	for (counter = 0; counter < READY_DELAY; counter++) {
-+		status = fd_inb(FD98_STATUS);		
-+		if (status & STATUS_READY)
-+			return status;
-+	}
-+	if (!initialising) {
-+		DPRINT("Getstatus times out (%x) on fdc %d\n",
-+			status, fdc);
-+		show_floppy();
-+	}
-+	FDCS->reset = 1;
-+	return -1;
-+}
 +
-+/* sends a command byte to the fdc */
-+static int output_byte(char byte)
-+{
-+	int status;
++/* port information table (for ne.c initialize/probe process) */
 +
-+	if ((status = wait_til_ready()) < 0)
-+		return -1;
-+	if ((status & (STATUS_READY|STATUS_DIR|STATUS_DMA)) == STATUS_READY){
-+		fd_outb(byte,FD98_DATA);
-+#ifdef FLOPPY_SANITY_CHECK
-+		output_log[output_log_pos].data = byte;
-+		output_log[output_log_pos].status = status;
-+		output_log[output_log_pos].jiffies = jiffies;
-+		output_log_pos = (output_log_pos + 1) % OLOGSIZE;
-+#endif
-+		return 0;
-+	}
-+	FDCS->reset = 1;
-+	if (!initialising) {
-+		DPRINT("Unable to send byte %x to FDC. Fdc=%x Status=%x\n",
-+		       byte, fdc, status);
-+		show_floppy();
-+	}
-+	return -1;
-+}
-+#define LAST_OUT(x) if (output_byte(x)<0){ reset_fdc();return;}
-+
-+/* gets the response from the fdc */
-+static int result(void)
-+{
-+	int i, status=0;
-+
-+	for(i=0; i < MAX_REPLIES; i++) {
-+		if ((status = wait_til_ready()) < 0)
-+			break;
-+		status &= STATUS_DIR|STATUS_READY|STATUS_BUSY|STATUS_DMA;
-+		if ((status & ~STATUS_BUSY) == STATUS_READY){
-+#ifdef FLOPPY_SANITY_CHECK
-+			resultjiffies = jiffies;
-+			resultsize = i;
-+#endif
-+			return i;
-+		}
-+		if (status == (STATUS_DIR|STATUS_READY|STATUS_BUSY))
-+			reply_buffer[i] = fd_inb(FD98_DATA);
-+		else
-+			break;
-+	}
-+	if (!initialising) {
-+		DPRINT("get result error. Fdc=%d Last status=%x Read bytes=%d\n",
-+		       fdc, status, i);
-+		show_floppy();
-+	}
-+	FDCS->reset = 1;
-+	return -1;
-+}
-+
-+static int fifo_depth = 0xa;
-+static int no_fifo;
-+
-+#define NOMINAL_DTR 500
-+
-+/* Issue a "SPECIFY" command to set the step rate time, head unload time,
-+ * head load time, and DMA disable flag to values needed by floppy.
-+ *
-+ * The value "dtr" is the data transfer rate in Kbps.  It is needed
-+ * to account for the data rate-based scaling done by the 82072 and 82077
-+ * FDC types.  This parameter is ignored for other types of FDCs (i.e.
-+ * 8272a).
-+ *
-+ * Note that changing the data transfer rate has a (probably deleterious)
-+ * effect on the parameters subject to scaling for 82072/82077 FDCs, so
-+ * fdc_specify is called again after each data transfer rate
-+ * change.
-+ *
-+ * srt: 1000 to 16000 in microseconds
-+ * hut: 16 to 240 milliseconds
-+ * hlt: 2 to 254 milliseconds
-+ *
-+ * These values are rounded up to the next highest available delay time.
-+ */
-+static void fdc_specify(void)
-+{
-+	output_byte(FD_SPECIFY);
-+	output_byte(FDCS->spec1 = 0xdf);
-+	output_byte(FDCS->spec2 = 0x24);
-+}
-+
-+static void tell_sector(void)
-+{
-+	printk(": track %d, head %d, sector %d, size %d",
-+	       R_TRACK, R_HEAD, R_SECTOR, R_SIZECODE);
-+} /* tell_sector */
-+
-+static int auto_detect_mode_pc9800(void)
-+{
-+#ifdef PC9800_DEBUG_FLOPPY
-+	printk("auto_detect_mode_pc9800: retry_auto_detect=%d\n",
-+		retry_auto_detect);
-+#endif
-+	if (retry_auto_detect > 4) {
-+		retry_auto_detect = 0;	   
-+		return 1;
-+	}
-+
-+	switch ((int)(_floppy - floppy_type)) {
-+		case 2:
-+			_floppy = floppy_type + 4;
-+			break;
-+
-+		case 4:
-+		case 6:
-+			_floppy = floppy_type + 7;
-+			break;
-+
-+		case 7:
-+		case 10:
-+			_floppy = floppy_type + 2;
-+			break;
-+
-+		default:
-+			_floppy = floppy_type + 7;
-+	}
-+
-+	retry_auto_detect++;
-+	return 0;
-+}
-+
-+static void access_mode_change_pc9800(void);
-+
-+/*
-+ * OK, this error interpreting routine is called after a
-+ * DMA read/write has succeeded
-+ * or failed, so we check the results, and copy any buffers.
-+ * hhb: Added better error reporting.
-+ * ak: Made this into a separate routine.
-+ */
-+static int interpret_errors(void)
-+{
-+	char bad;
-+
-+	if (inr!=7) {
-+		DPRINT("-- FDC reply error");
-+		FDCS->reset = 1;
-+		return 1;
-+	}
-+
-+	/* check IC to find cause of interrupt */
-+	switch (ST0 & ST0_INTR) {
-+		case 0x40:	/* error occurred during command execution */
-+			if (ST1 & ST1_EOC)
-+				return 0; /* occurs with pseudo-DMA */
-+			bad = 1;
-+			if (ST1 & ST1_WP) {
-+				DPRINT("Drive is write protected\n");
-+				CLEARF(FD_DISK_WRITABLE);
-+				cont->done(0);
-+				bad = 2;
-+			} else if (ST1 & ST1_ND) {
-+				SETF(FD_NEED_TWADDLE);
-+			} else if (ST1 & ST1_OR) {
-+				if (DP->flags & FTD_MSG)
-+					DPRINT("Over/Underrun - retrying\n");
-+				bad = 0;
-+			}else if (*errors >= DP->max_errors.reporting){
-+				if (ST0 & ST0_ECE) {
-+					printk("Recalibrate failed!");
-+				} else if (ST2 & ST2_CRC) {
-+					printk("data CRC error");
-+					tell_sector();
-+				} else if (ST1 & ST1_CRC) {
-+					printk("CRC error");
-+					tell_sector();
-+				} else if ((ST1 & (ST1_MAM|ST1_ND)) || (ST2 & ST2_MAM)) {
-+					if (auto_detect_mode) {
-+						bad = (char)auto_detect_mode_pc9800();
-+						access_mode_change_pc9800();
-+					}
-+
-+					if (bad) {
-+						printk("floppy error: MA: _floppy - floppy_type=%d\n", (int)(_floppy - floppy_type));
-+						printk("bad=%d\n", (int)bad);
-+						if (!probing) {
-+							printk("sector not found");
-+							tell_sector();
-+						} else
-+							printk("probe failed...");
-+					}
-+				} else if (ST2 & ST2_WC) {	/* seek error */
-+					printk("wrong cylinder");
-+				} else if (ST2 & ST2_BC) {	/* cylinder marked as bad */
-+					printk("bad cylinder");
-+				} else {
-+					printk("unknown error. ST[0..2] are: 0x%x 0x%x 0x%x", ST0, ST1, ST2);
-+					tell_sector();
-+				}
-+				printk("\n");
-+
-+			}
-+			if (ST2 & ST2_WC || ST2 & ST2_BC)
-+				/* wrong cylinder => recal */
-+				DRS->track = NEED_2_RECAL;
-+			return bad;
-+		case 0x80: /* invalid command given */
-+			DPRINT("Invalid FDC command given!\n");
-+			cont->done(0);
-+			return 2;
-+		case 0xc0:
-+			SETF(FD_DISK_CHANGED);
-+			SETF(FD_DISK_WRITABLE);
-+			DPRINT("Abnormal termination caused by polling\n");
-+			cont->error();
-+			return 2;
-+		default: /* (0) Normal command termination */
-+			auto_detect_mode = 0;
-+			return 0;
-+	}
-+}
-+
-+/*
-+ * This routine is called when everything should be correctly set up
-+ * for the transfer (i.e. floppy motor is on, the correct floppy is
-+ * selected, and the head is sitting on the right track).
-+ */
-+static void setup_rw_floppy(void)
-+{
-+	int i,r, flags,dflags;
-+	unsigned long ready_date;
-+	timeout_fn function;
-+
-+	access_mode_change_pc9800();
-+	flags = raw_cmd->flags;
-+	if (flags & (FD_RAW_READ | FD_RAW_WRITE))
-+		flags |= FD_RAW_INTR;
-+
-+	if ((flags & FD_RAW_SPIN) && !(flags & FD_RAW_NO_MOTOR)){
-+		ready_date = DRS->spinup_date + DP->spinup;
-+		/* If spinup will take a long time, rerun scandrives
-+		 * again just before spinup completion. Beware that
-+		 * after scandrives, we must again wait for selection.
-+		 */
-+		if ((signed) (ready_date - jiffies) > DP->select_delay){
-+			ready_date -= DP->select_delay;
-+			function = (timeout_fn) floppy_start;
-+		} else
-+			function = (timeout_fn) setup_rw_floppy;
-+
-+		/* wait until the floppy is spinning fast enough */
-+		if (fd_wait_for_completion(ready_date,function))
-+			return;
-+	}
-+	dflags = DRS->flags;
-+
-+	if ((flags & FD_RAW_READ) || (flags & FD_RAW_WRITE))
-+		setup_DMA();
-+
-+	if (flags & FD_RAW_INTR)
-+		do_floppy = main_command_interrupt;
-+
-+	r=0;
-+	for (i=0; i< raw_cmd->cmd_count; i++)
-+		r|=output_byte(raw_cmd->cmd[i]);
-+
-+#ifdef DEBUGT
-+	debugt("rw_command: ");
-+#endif
-+	if (r){
-+		cont->error();
-+		reset_fdc();
-+		return;
-+	}
-+
-+	if (!(flags & FD_RAW_INTR)){
-+		inr = result();
-+		cont->interrupt();
-+	} else if (flags & FD_RAW_NEED_DISK)
-+		fd_watchdog();
-+}
-+
-+static int blind_seek;
-+
-+/*
-+ * This is the routine called after every seek (or recalibrate) interrupt
-+ * from the floppy controller.
-+ */
-+static void seek_interrupt(void)
-+{
-+#ifdef DEBUGT
-+	debugt("seek interrupt:");
-+#endif
-+	if (inr != 2 || (ST0 & 0xF8) != 0x20) {
-+		DRS->track = NEED_2_RECAL;
-+		cont->error();
-+		cont->redo();
-+		return;
-+	}
-+	if (DRS->track >= 0 && DRS->track != ST1 && !blind_seek){
-+#ifdef DCL_DEBUG
-+		if (DP->flags & FD_DEBUG){
-+			DPRINT("clearing NEWCHANGE flag because of effective seek\n");
-+			DPRINT("jiffies=%lu\n", jiffies);
-+		}
-+#endif
-+		CLEARF(FD_DISK_NEWCHANGE); /* effective seek */
-+		CLEARF(FD_DISK_CHANGED); /* effective seek */
-+		DRS->select_date = jiffies;
-+	}
-+	DRS->track = ST1;
-+	floppy_ready();
-+}
-+
-+static void check_wp(void)
-+{
-+	if (TESTF(FD_VERIFY)) {
-+		/* check write protection */
-+		output_byte(FD_GETSTATUS);
-+		output_byte(UNIT(current_drive));
-+		if (result() != 1){
-+			FDCS->reset = 1;
-+			return;
-+		}
-+		CLEARF(FD_VERIFY);
-+		CLEARF(FD_NEED_TWADDLE);
-+#ifdef DCL_DEBUG
-+		if (DP->flags & FD_DEBUG){
-+			DPRINT("checking whether disk is write protected\n");
-+			DPRINT("wp=%x\n",ST3 & 0x40);
-+		}
-+#endif
-+		if (!(ST3  & 0x40))
-+			SETF(FD_DISK_WRITABLE);
-+		else
-+			CLEARF(FD_DISK_WRITABLE);
-+	}
-+}
-+
-+static void seek_floppy(void)
-+{
-+	int track;
-+
-+	blind_seek=0;
-+
-+#ifdef DCL_DEBUG
-+	if (DP->flags & FD_DEBUG){
-+		DPRINT("calling disk change from seek\n");
-+	}
-+#endif
-+
-+	if (!TESTF(FD_DISK_NEWCHANGE) &&
-+	    disk_change(current_drive) &&
-+	    (raw_cmd->flags & FD_RAW_NEED_DISK)){
-+		/* the media changed flag should be cleared after the seek.
-+		 * If it isn't, this means that there is really no disk in
-+		 * the drive.
-+		 */
-+		SETF(FD_DISK_CHANGED);
-+		cont->done(0);
-+		cont->redo();
-+		return;
-+	}
-+	if (DRS->track <= NEED_1_RECAL){
-+		recalibrate_floppy();
-+		return;
-+	} else if (TESTF(FD_DISK_NEWCHANGE) &&
-+		   (raw_cmd->flags & FD_RAW_NEED_DISK) &&
-+		   (DRS->track <= NO_TRACK || DRS->track == raw_cmd->track)) {
-+		/* we seek to clear the media-changed condition. Does anybody
-+		 * know a more elegant way, which works on all drives? */
-+		if (raw_cmd->track)
-+			track = raw_cmd->track - 1;
-+		else {
-+			if (DP->flags & FD_SILENT_DCL_CLEAR){
-+				blind_seek = 1;
-+				raw_cmd->flags |= FD_RAW_NEED_SEEK;
-+			}
-+			track = 1;
-+		}
-+	} else {
-+		check_wp();
-+		if (raw_cmd->track != DRS->track &&
-+		    (raw_cmd->flags & FD_RAW_NEED_SEEK))
-+			track = raw_cmd->track;
-+		else {
-+			setup_rw_floppy();
-+			return;
-+		}
-+	}
-+
-+	do_floppy = seek_interrupt;
-+	output_byte(FD_SEEK);
-+	output_byte(UNIT(current_drive));
-+	LAST_OUT(track);
-+#ifdef DEBUGT
-+	debugt("seek command:");
-+#endif
-+}
-+
-+static void recal_interrupt(void)
-+{
-+#ifdef DEBUGT
-+	debugt("recal interrupt:");
-+#endif
-+	if (inr !=2)
-+		FDCS->reset = 1;
-+	else if (ST0 & ST0_ECE) {
-+	       	switch(DRS->track){
-+			case NEED_1_RECAL:
-+#ifdef DEBUGT
-+				debugt("recal interrupt need 1 recal:");
-+#endif
-+				/* after a second recalibrate, we still haven't
-+				 * reached track 0. Probably no drive. Raise an
-+				 * error, as failing immediately might upset
-+				 * computers possessed by the Devil :-) */
-+				cont->error();
-+				cont->redo();
-+				return;
-+			case NEED_2_RECAL:
-+#ifdef DEBUGT
-+				debugt("recal interrupt need 2 recal:");
-+#endif
-+				/* If we already did a recalibrate,
-+				 * and we are not at track 0, this
-+				 * means we have moved. (The only way
-+				 * not to move at recalibration is to
-+				 * be already at track 0.) Clear the
-+				 * new change flag */
-+#ifdef DCL_DEBUG
-+				if (DP->flags & FD_DEBUG){
-+					DPRINT("clearing NEWCHANGE flag because of second recalibrate\n");
-+				}
-+#endif
-+
-+				CLEARF(FD_DISK_NEWCHANGE);
-+				DRS->select_date = jiffies;
-+				/* fall through */
-+			default:
-+#ifdef DEBUGT
-+				debugt("recal interrupt default:");
-+#endif
-+				/* Recalibrate moves the head by at
-+				 * most 80 steps. If after one
-+				 * recalibrate we don't have reached
-+				 * track 0, this might mean that we
-+				 * started beyond track 80.  Try
-+				 * again.  */
-+				DRS->track = NEED_1_RECAL;
-+				break;
-+		}
-+	} else
-+		DRS->track = ST1;
-+	floppy_ready();
-+}
-+
-+static void print_result(char *message, int inr)
-+{
-+	int i;
-+
-+	DPRINT("%s ", message);
-+	if (inr >= 0)
-+		for (i=0; i<inr; i++)
-+			printk("repl[%d]=%x ", i, reply_buffer[i]);
-+	printk("\n");
-+}
-+
-+/* interrupt handler. Note that this can be called externally on the Sparc */
-+void floppy_interrupt(int irq, void *dev_id, struct pt_regs * regs)
-+{
-+	void (*handler)(void) = do_floppy;
-+	int do_print;
-+	unsigned long f;
-+
-+	lasthandler = handler;
-+	interruptjiffies = jiffies;
-+
-+	f=claim_dma_lock();
-+	fd_disable_dma();
-+	release_dma_lock(f);
-+
-+	floppy_enable_hlt();
-+	do_floppy = NULL;
-+	if (fdc >= N_FDC || FDCS->address == -1){
-+		/* we don't even know which FDC is the culprit */
-+		printk("DOR0=%x\n", fdc_state[0].dor);
-+		printk("floppy interrupt on bizarre fdc %d\n",fdc);
-+		printk("handler=%p\n", handler);
-+		is_alive("bizarre fdc");
-+		return;
-+	}
-+
-+	FDCS->reset = 0;
-+	/* We have to clear the reset flag here, because apparently on boxes
-+	 * with level triggered interrupts (PS/2, Sparc, ...), it is needed to
-+	 * emit SENSEI's to clear the interrupt line. And FDCS->reset blocks the
-+	 * emission of the SENSEI's.
-+	 * It is OK to emit floppy commands because we are in an interrupt
-+	 * handler here, and thus we have to fear no interference of other
-+	 * activity.
-+	 */
-+
-+	do_print = !handler && !initialising;
-+
-+	inr = result();
-+	if (inr && do_print)
-+		print_result("unexpected interrupt", inr);
-+	if (inr == 0){
-+		do {
-+			output_byte(FD_SENSEI);
-+			inr = result();
-+			if ((ST0 & ST0_INTR) == 0xC0) {
-+				int drive = ST0 & ST0_DS;
-+
-+				/* Attention Interrupt. */
-+				if (ST0 & ST0_NR) {
-+#ifdef PC9800_DEBUG_FLOPPY
-+					if (do_print)
-+						printk(KERN_DEBUG
-+							"floppy debug: floppy ejected (drive %d)\n",
-+							drive);
-+#endif
-+					USETF(FD_DISK_CHANGED);
-+					USETF(FD_VERIFY);
-+				} else {
-+#ifdef PC9800_DEBUG_FLOPPY
-+					if (do_print)
-+						printk(KERN_DEBUG
-+							"floppy debug: floppy inserted (drive %d)\n",
-+							drive);
-+#endif
-+				}
-+			} /* Attention Interrupt */
-+#ifdef PC9800_DEBUG_FLOPPY
-+			else {
-+				printk(KERN_DEBUG
-+					"floppy debug : unknown interrupt\n");
-+			}
-+#endif
-+		} while ((ST0 & 0x83) != UNIT(current_drive) && inr == 2);
-+	}
-+	if (handler) {
-+		schedule_bh( (void *)(void *) handler);
-+	} else {
-+#if 0
-+		FDCS->reset = 1;
-+#endif
-+	}
-+	is_alive("normal interrupt end");
-+}
-+
-+static void recalibrate_floppy(void)
-+{
-+#ifdef DEBUGT
-+	debugt("recalibrate floppy:");
-+#endif
-+	do_floppy = recal_interrupt;
-+	output_byte(FD_RECALIBRATE);
-+	LAST_OUT(UNIT(current_drive));
-+}
-+
-+/*
-+ * Must do 4 FD_SENSEIs after reset because of ``drive polling''.
-+ */
-+static void reset_interrupt(void)
-+{
-+#ifdef PC9800_DEBUG_FLOPPY
-+	printk("floppy debug: reset interrupt\n");
-+#endif
-+#ifdef DEBUGT
-+	debugt("reset interrupt:");
-+#endif
-+	result();		/* get the status ready for set_fdc */
-+	if (FDCS->reset) {
-+		printk("reset set in interrupt, calling %p\n", cont->error);
-+		cont->error(); /* a reset just after a reset. BAD! */
-+	}
-+	cont->redo();
-+}
-+
-+/*
-+ * reset is done by pulling bit 2 of DOR low for a while (old FDCs),
-+ * or by setting the self clearing bit 7 of STATUS (newer FDCs)
-+ */
-+static void reset_fdc(void)
-+{
-+	unsigned long flags;
-+
-+#ifdef PC9800_DEBUG_FLOPPY
-+	printk("floppy debug: reset_fdc\n");
-+#endif
-+
-+	do_floppy = reset_interrupt;
-+	FDCS->reset = 0;
-+	reset_fdc_info(0);
-+
-+	/* Pseudo-DMA may intercept 'reset finished' interrupt.  */
-+	/* Irrelevant for systems with true DMA (i386).          */
-+
-+	flags=claim_dma_lock();
-+	fd_disable_dma();
-+	release_dma_lock(flags);
-+
-+	fd_outb(FDCS->dor | 0x80, FD_MODE);
-+	udelay(FD_RESET_DELAY);
-+	fd_outb(FDCS->dor, FD_MODE);
-+	udelay(FD_AFTER_RESET_DELAY);
-+}
-+
-+static void show_floppy(void)
-+{
-+	int i;
-+
-+	printk("\n");
-+	printk("floppy driver state\n");
-+	printk("-------------------\n");
-+	printk("now=%lu last interrupt=%lu diff=%lu last called handler=%p\n",
-+	       jiffies, interruptjiffies, jiffies-interruptjiffies, lasthandler);
-+
-+
-+#ifdef FLOPPY_SANITY_CHECK
-+	printk("timeout_message=%s\n", timeout_message);
-+	printk("last output bytes:\n");
-+	for (i=0; i < OLOGSIZE; i++)
-+		printk("%2x %2x %lu\n",
-+		       output_log[(i+output_log_pos) % OLOGSIZE].data,
-+		       output_log[(i+output_log_pos) % OLOGSIZE].status,
-+		       output_log[(i+output_log_pos) % OLOGSIZE].jiffies);
-+	printk("last result at %lu\n", resultjiffies);
-+	printk("last redo_fd_request at %lu\n", lastredo);
-+	for (i=0; i<resultsize; i++){
-+		printk("%2x ", reply_buffer[i]);
-+	}
-+	printk("\n");
-+#endif
-+
-+	printk("status=%x\n", fd_inb(FD98_STATUS));
-+	printk("fdc_busy=%lu\n", fdc_busy);
-+	if (do_floppy)
-+		printk("do_floppy=%p\n", do_floppy);
-+	if (floppy_work.pending)
-+		printk("floppy_work.func=%p\n", floppy_work.func);
-+	if (timer_pending(&fd_timer))
-+		printk("fd_timer.function=%p\n", fd_timer.function);
-+	if (timer_pending(&fd_timeout)){
-+		printk("timer_function=%p\n",fd_timeout.function);
-+		printk("expires=%lu\n",fd_timeout.expires-jiffies);
-+		printk("now=%lu\n",jiffies);
-+	}
-+	printk("cont=%p\n", cont);
-+	printk("current_req=%p\n", current_req);
-+	printk("command_status=%d\n", command_status);
-+	printk("\n");
-+}
-+
-+static void floppy_shutdown(unsigned long data)
-+{
-+	unsigned long flags;
-+	
-+	if (!initialising)
-+		show_floppy();
-+	cancel_activity();
-+
-+	floppy_enable_hlt();
-+	
-+	flags=claim_dma_lock();
-+	fd_disable_dma();
-+	release_dma_lock(flags);
-+	
-+	/* avoid dma going to a random drive after shutdown */
-+
-+	if (!initialising)
-+		DPRINT("floppy timeout called\n");
-+	FDCS->reset = 1;
-+	if (cont){
-+		cont->done(0);
-+		cont->redo(); /* this will recall reset when needed */
-+	} else {
-+		printk("no cont in shutdown!\n");
-+		process_fd_request();
-+	}
-+	is_alive("floppy shutdown");
-+}
-+/*typedef void (*timeout_fn)(unsigned long);*/
-+
-+static void access_mode_change_pc9800(void)
-+{
-+	static int access_mode, mode_change_now, old_mode, new_set = 1;
-+#ifdef PC9800_DEBUG_FLOPPY2
-+	printk("enter access_mode_change\n");
-+#endif
-+	access_mode = mode_change_now = 0;
-+	if (DP->cmos==4) {
-+		switch ((int)(_floppy - &floppy_type[0])) {
-+		case 1:
-+		case 2:
-+			new_set = 1;
-+			access_mode = 2;
-+			break;
-+
-+		case 4:
-+		case 6:
-+			new_set = 1;
-+			access_mode = 3;
-+			break;
-+
-+		case 7:
-+		case 10:
-+			new_set = 1;
-+			access_mode = 1;
-+			break;
-+
-+		default:
-+			access_mode = 1;
-+			break;
-+		}
-+
-+		old_mode = fd_inb(FD_MODE_CHANGE) & 3;
-+
-+		switch (access_mode) {
-+		case 1:
-+			if ((old_mode & 2) == 0) {
-+				fd_outb(old_mode | 2, FD_MODE_CHANGE);
-+				mode_change_now = 1;
-+			} else {
-+				fd_outb(current_drive << 5, FD_EMODE_CHANGE);
-+				if (fd_inb(FD_EMODE_CHANGE) == 0xff)
-+					return;
-+			}
-+
-+			fd_outb((current_drive << 5) | 0x11, FD_EMODE_CHANGE);
-+			mode_change_now = 1;
-+			break;
-+
-+		case 2:
-+			if ((old_mode & 2) == 0) {
-+				fd_outb(old_mode | 2, FD_MODE_CHANGE);
-+				mode_change_now = 1;
-+			} else {
-+				fd_outb(current_drive << 5, FD_EMODE_CHANGE);
-+				if ((fd_inb(FD_EMODE_CHANGE) & 1) == 0)
-+					return;
-+				fd_outb((current_drive << 5) | 0x10, FD_EMODE_CHANGE);
-+				mode_change_now = 1;
-+			}
-+
-+			break;
-+
-+		case 3:
-+			if ((old_mode & 2) == 0)
-+				return;
-+			fd_outb(current_drive << 5, FD_EMODE_CHANGE);
-+			if (fd_inb(FD_EMODE_CHANGE) & 1)
-+				fd_outb((current_drive << 5) | 0x10, FD_EMODE_CHANGE);
-+			fd_outb(old_mode & 0xfd, FD_MODE_CHANGE);
-+			mode_change_now = 1;
-+			break;
-+
-+		default:
-+			break;
-+		}
-+	} else {
-+		switch ((int)(_floppy - &floppy_type[0])) {
-+		case 1:
-+		case 2:
-+			new_set = 1;
-+			access_mode = 2;
-+			break;
-+
-+		case 4:
-+		case 6:
-+			new_set = 1;
-+			access_mode = 3;
-+			break;
-+
-+		default:
-+			switch (DP->cmos) {
-+			case 2:
-+				access_mode = 2;
-+				break;
-+
-+			case 3:
-+				access_mode = 3;
-+				break;
-+
-+			default:
-+				break;
-+			}
-+
-+			break;
-+		}
-+
-+		old_mode = fd_inb(FD_MODE_CHANGE) & 3;
-+
-+		switch (access_mode) {
-+		case 2:
-+			if ((old_mode & 2) == 0) {
-+				fd_outb(old_mode | 2, FD_MODE_CHANGE);
-+				mode_change_now = 1;
-+			}
-+
-+			break;
-+
-+		case 3:
-+			if (old_mode & 2) {
-+				fd_outb(old_mode & 0xfd, FD_MODE_CHANGE);
-+				mode_change_now = 1;
-+			}
-+
-+			break;
-+
-+		default:
-+			break;
-+		}
-+	}
-+#ifdef PC9800_DEBUG_FLOPPY2
-+	printk("floppy debug: DP->cmos=%d\n", DP->cmos);
-+	printk("floppy debug: mode_change_now=%d\n", mode_change_now);
-+	printk("floppy debug: access_mode=%d\n", access_mode);
-+	printk("floppy debug: old_mode=%d\n", old_mode);
-+	printk("floppy debug: _floppy - &floppy_type[0]=%d\n", (int)(_floppy - &floppy_type[0]));
-+#endif /* PC9800_DEBUG_FLOPPY2 */
-+	if(mode_change_now)
-+		reset_fdc();
-+}
-+
-+/* start motor, check media-changed condition and write protection */
-+static int start_motor(void (*function)(void) )
-+{
-+	access_mode_change_pc9800();
-+	set_mode(~0, 0x8);
-+
-+	/* wait_for_completion also schedules reset if needed. */
-+	return(fd_wait_for_completion(DRS->select_date+DP->select_delay,
-+				   (timeout_fn) function));
-+}
-+
-+static void floppy_ready(void)
-+{
-+	CHECK_RESET;
-+	if (start_motor(floppy_ready)) return;
-+
-+#ifdef DCL_DEBUG
-+	if (DP->flags & FD_DEBUG){
-+		DPRINT("calling disk change from floppy_ready\n");
-+	}
-+#endif
-+	if (!(raw_cmd->flags & FD_RAW_NO_MOTOR) &&
-+	   disk_change(current_drive) &&
-+	   !DP->select_delay)
-+		twaddle(); /* this clears the dcl on certain drive/controller
-+			    * combinations */
-+
-+#ifdef fd_chose_dma_mode
-+	if ((raw_cmd->flags & FD_RAW_READ) || 
-+	    (raw_cmd->flags & FD_RAW_WRITE))
++static struct ne2k_cbus_hwinfo ne2k_cbus_hwinfo_list[] __initdata = {
++#ifdef CONFIG_NE2K_CBUS_ATLA98
++/* NOT TESTED */
 +	{
-+		unsigned long flags = claim_dma_lock();
-+		fd_chose_dma_mode(raw_cmd->kernel_data,
-+				  raw_cmd->length);
-+		release_dma_lock(flags);
++		NE2K_CBUS_HARDWARE_TYPE_ATLA98,
++		"LA-98-T",
++#ifndef MODULE
++		atla98_portlist,
++#endif
++		&atla98_offsetinfo, atla98_regionlist
++	},
++#endif
++#ifdef CONFIG_NE2K_CBUS_BDN
++/* NOT TESTED */
++	{
++		NE2K_CBUS_HARDWARE_TYPE_BDN,
++		"LD-BDN[123]A",
++#ifndef MODULE
++		bdn_portlist,
++#endif
++		&bdn_offsetinfo, bdn_regionlist
++	},
++#endif
++#ifdef CONFIG_NE2K_CBUS_ICM
++	{
++		NE2K_CBUS_HARDWARE_TYPE_ICM,
++		"IF-27xxET",
++#ifndef MODULE
++		icm_portlist,
++#endif
++		&icm_offsetinfo, icm_regionlist
++	},
++#endif
++#ifdef CONFIG_NE2K_CBUS_NE2K
++	{
++		NE2K_CBUS_HARDWARE_TYPE_NE2K,
++		"NE2000 compat.",
++#ifndef MODULE
++		ne2k_portlist,
++#endif
++		&ne2k_offsetinfo, ne2k_regionlist
++	},
++#endif
++#ifdef CONFIG_NE2K_CBUS_NEC108
++	{
++		NE2K_CBUS_HARDWARE_TYPE_NEC108,
++		"PC-9801-108",
++#ifndef MODULE
++		nec108_portlist,
++#endif
++		&nec108_offsetinfo, nec108_regionlist
++	},
++#endif
++#ifdef CONFIG_NE2K_CBUS_IOLA98
++	{
++		NE2K_CBUS_HARDWARE_TYPE_IOLA98,
++		"LA-98",
++#ifndef MODULE
++		iola98_portlist,
++#endif
++		&iola98_offsetinfo, iola98_regionlist
++	},
++#endif
++#ifdef CONFIG_NE2K_CBUS_CNET98EL
++	{
++		NE2K_CBUS_HARDWARE_TYPE_CNET98EL,
++		"C-NET(98)E/L",
++#ifndef MODULE
++		cnet98el_portlist,
++#endif
++		&cnet98el_offsetinfo, cnet98el_regionlist
++	},
++#endif
++/* NOTE: LGY98 must be probed before EGY98, or system stalled!? */
++#ifdef CONFIG_NE2K_CBUS_LGY98
++	{
++		NE2K_CBUS_HARDWARE_TYPE_LGY98,
++		"LGY-98",
++#ifndef MODULE
++		lgy98_portlist,
++#endif
++		&lgy98_offsetinfo, lgy98_regionlist
++	},
++#endif
++#ifdef CONFIG_NE2K_CBUS_EGY98
++	{
++		NE2K_CBUS_HARDWARE_TYPE_EGY98,
++		"EGY-98",
++#ifndef MODULE
++		egy98_portlist,
++#endif
++		&egy98_offsetinfo, egy98_regionlist
++	},
++#endif
++	{
++		0,
++		"unsupported hardware",
++#ifndef MODULE
++		NULL,
++#endif
++		NULL, NULL
 +	}
-+#endif
++};
 +
-+#if 0
-+	access_mode_change_pc9800();
++static int __init ne2k_cbus_init(struct net_device *dev)
++{
++	struct ei_device *ei_local;
++	if (dev->priv == NULL) {
++		ei_local = kmalloc(sizeof(struct ei_device), GFP_KERNEL);
++		if (ei_local == NULL)
++			return -ENOMEM;
++		memset(ei_local, 0, sizeof(struct ei_device));
++		ei_local->reg_offset = kmalloc(sizeof(typeof(*ei_local->reg_offset))*18, GFP_KERNEL);
++		if (ei_local->reg_offset == NULL) {
++			kfree(ei_local);
++			return -ENOMEM;
++		}
++		spin_lock_init(&ei_local->page_lock);
++		dev->priv = ei_local;
++	}
++	return 0;
++}
++
++static void ne2k_cbus_destroy(struct net_device *dev)
++{
++	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
++	if (ei_local != NULL) {
++		if (ei_local->reg_offset)
++			kfree(ei_local->reg_offset);
++		kfree(dev->priv);
++		dev->priv = NULL;
++	}
++}
++
++static const struct ne2k_cbus_hwinfo * __init ne2k_cbus_get_hwinfo(int hwtype)
++{
++	const struct ne2k_cbus_hwinfo *hw;
++
++	for (hw = &ne2k_cbus_hwinfo_list[0]; hw->hwtype; hw++) {
++		if (hw->hwtype == hwtype) break;
++	}
++	return hw;
++}
++
++static void __init ne2k_cbus_set_hwtype(struct net_device *dev, const struct ne2k_cbus_hwinfo *hw, int ioaddr)
++{
++	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
++	int i;
++	int hwtype_old = dev->mem_start & NE2K_CBUS_HARDWARE_TYPE_MASK;
++
++	if (!ei_local)
++		panic("Gieee! ei_local == NULL!! (from %p)",
++		       __builtin_return_address(0));
++
++	dev->mem_start &= ~NE2K_CBUS_HARDWARE_TYPE_MASK;
++	dev->mem_start |= hw->hwtype & NE2K_CBUS_HARDWARE_TYPE_MASK;
++
++	if (ei_debug > 2) {
++		printk(KERN_DEBUG "hwtype changed: %d -> %d\n",hwtype_old,(int)(dev->mem_start & NE2K_CBUS_HARDWARE_TYPE_MASK));
++	}
++
++	if (hw->offsetinfo) {
++		for (i = 0; i < 8; i++) {
++			ei_local->reg_offset[i] = hw->offsetinfo->skip * i;
++		}
++		for (i = 8; i < 16; i++) {
++			ei_local->reg_offset[i] =
++				hw->offsetinfo->skip*(i-8) + hw->offsetinfo->offset8;
++		}
++#ifdef CONFIG_NE2K_CBUS_NEC108
++		if (hw->hwtype == NE2K_CBUS_HARDWARE_TYPE_NEC108) {
++			int adj = (ioaddr & 0xf000) /2;
++			ei_local->reg_offset[16] = 
++				(hw->offsetinfo->offset10 | adj) - ioaddr;
++			ei_local->reg_offset[17] = 
++				(hw->offsetinfo->offset1f | adj) - ioaddr;
++		} else {
++#endif /* CONFIG_NE2K_CBUS_NEC108 */
++			ei_local->reg_offset[16] = hw->offsetinfo->offset10;
++			ei_local->reg_offset[17] = hw->offsetinfo->offset1f;
++#ifdef CONFIG_NE2K_CBUS_NEC108
++		}
 +#endif
-+	if (raw_cmd->flags & (FD_RAW_NEED_SEEK | FD_RAW_NEED_DISK)){
-+		fdc_specify(); /* must be done here because of hut, hlt ... */
-+		seek_floppy();
 +	} else {
-+		if ((raw_cmd->flags & FD_RAW_READ) || 
-+		    (raw_cmd->flags & FD_RAW_WRITE))
-+			fdc_specify();
-+		setup_rw_floppy();
-+	}
-+}
-+
-+static void floppy_start(void)
-+{
-+	reschedule_timeout(current_reqD, "floppy start", 0);
-+
-+	scandrives();
-+#ifdef DCL_DEBUG
-+	if (DP->flags & FD_DEBUG){
-+		DPRINT("setting NEWCHANGE in floppy_start\n");
-+	}
-+#endif
-+	SETF(FD_DISK_NEWCHANGE);
-+	floppy_ready();
-+}
-+
-+/*
-+ * ========================================================================
-+ * here ends the bottom half. Exported routines are:
-+ * floppy_start, floppy_off, floppy_ready, lock_fdc, unlock_fdc, set_fdc,
-+ * start_motor, reset_fdc, reset_fdc_info, interpret_errors.
-+ * Initialization also uses output_byte, result, set_dor, floppy_interrupt
-+ * and set_dor.
-+ * ========================================================================
-+ */
-+/*
-+ * General purpose continuations.
-+ * ==============================
-+ */
-+
-+static void do_wakeup(void)
-+{
-+	reschedule_timeout(MAXTIMEOUT, "do wakeup", 0);
-+	cont = 0;
-+	command_status += 2;
-+	wake_up(&command_done);
-+}
-+
-+static struct cont_t wakeup_cont={
-+	empty,
-+	do_wakeup,
-+	empty,
-+	(done_f)empty
-+};
-+
-+
-+static struct cont_t intr_cont={
-+	empty,
-+	process_fd_request,
-+	empty,
-+	(done_f) empty
-+};
-+
-+static int wait_til_done(void (*handler)(void), int interruptible)
-+{
-+	int ret;
-+
-+	schedule_bh((void *)(void *)handler);
-+
-+	if (command_status < 2 && NO_SIGNAL) {
-+		DECLARE_WAITQUEUE(wait, current);
-+
-+		add_wait_queue(&command_done, &wait);
-+		for (;;) {
-+			set_current_state(interruptible?
-+					  TASK_INTERRUPTIBLE:
-+					  TASK_UNINTERRUPTIBLE);
-+
-+			if (command_status >= 2 || !NO_SIGNAL)
-+				break;
-+
-+			is_alive("wait_til_done");
-+
-+			schedule();
++		/* make dummmy offset list */
++		for (i = 0; i < 16; i++) {
++			ei_local->reg_offset[i] = i;
 +		}
-+
-+		set_current_state(TASK_RUNNING);
-+		remove_wait_queue(&command_done, &wait);
++		ei_local->reg_offset[16] = 0x10;
++		ei_local->reg_offset[17] = 0x1f;
 +	}
++}
 +
-+	if (command_status < 2){
-+		cancel_activity();
-+		cont = &intr_cont;
-+		reset_fdc();
-+		return -EINTR;
-+	}
-+
-+#ifdef PC9800_DEBUG_FLOPPY
-+	if (command_status != FD_COMMAND_OKAY)
-+		printk("floppy check: wait_til_done out:%d\n", command_status);
++#if defined(CONFIG_NE2K_CBUS_ICM) || defined(CONFIG_NE2K_CBUS_CNET98EL)
++static void __init ne2k_cbus_readmem(struct net_device *dev, int ioaddr, unsigned short memaddr, char *buf, unsigned short len)
++{
++	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
++	outb_p(E8390_NODMA | E8390_START, ioaddr+E8390_CMD);
++	outb_p(len & 0xff, ioaddr+EN0_RCNTLO);
++	outb_p(len >> 8, ioaddr+EN0_RCNTHI);
++	outb_p(memaddr & 0xff, ioaddr+EN0_RSARLO);
++	outb_p(memaddr >> 8, ioaddr+EN0_RSARHI);
++	outb_p(E8390_RREAD | E8390_START, ioaddr+E8390_CMD);
++	insw(ioaddr+NE_DATAPORT, buf, len >> 1);
++}
++static void __init ne2k_cbus_writemem(struct net_device *dev, int ioaddr, unsigned short memaddr, const char *buf, unsigned short len)
++{
++	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
++	outb_p(E8390_NODMA | E8390_START, ioaddr+E8390_CMD);
++	outb_p(ENISR_RDC, ioaddr+EN0_ISR);
++	outb_p(len & 0xff, ioaddr+EN0_RCNTLO);
++	outb_p(len >> 8, ioaddr+EN0_RCNTHI);
++	outb_p(memaddr & 0xff, ioaddr+EN0_RSARLO);
++	outb_p(memaddr >> 8, ioaddr+EN0_RSARHI);
++	outb_p(E8390_RWRITE | E8390_START, ioaddr+E8390_CMD);
++	outsw(ioaddr+NE_DATAPORT, buf, len >> 1);
++}
 +#endif
-+	if (FDCS->reset)
-+		command_status = FD_COMMAND_ERROR;
-+	if (command_status == FD_COMMAND_OKAY)
-+		ret=0;
-+	else
-+		ret=-EIO;
-+	command_status = FD_COMMAND_NONE;
-+	return ret;
-+}
 +
-+static void generic_done(int result)
-+{
-+	command_status = result;
-+	cont = &wakeup_cont;
-+}
-+
-+static void generic_success(void)
-+{
-+	cont->done(1);
-+}
-+
-+static void generic_failure(void)
-+{
-+	cont->done(0);
-+}
-+
-+static void success_and_wakeup(void)
-+{
-+	generic_success();
-+	cont->redo();
-+}
-+
-+
-+/*
-+ * formatting and rw support.
-+ * ==========================
-+ */
-+
-+static int next_valid_format(void)
-+{
-+	int probed_format;
-+
-+	probed_format = DRS->probed_format;
-+	while(1){
-+		if (probed_format >= 8 ||
-+		     !DP->autodetect[probed_format]){
-+			DRS->probed_format = 0;
-+			return 1;
-+		}
-+		if (floppy_type[DP->autodetect[probed_format]].sect){
-+			DRS->probed_format = probed_format;
-+			return 0;
-+		}
-+		probed_format++;
-+	}
-+}
-+
-+static void bad_flp_intr(void)
-+{
-+	if (probing){
-+		DRS->probed_format++;
-+		if (!next_valid_format())
-+			return;
-+	}
-+	(*errors)++;
-+	INFBOUND(DRWE->badness, *errors);
-+	if (*errors > DP->max_errors.abort)
-+		cont->done(0);
-+	if (*errors > DP->max_errors.reset)
-+		FDCS->reset = 1;
-+	else if (*errors > DP->max_errors.recal)
-+		DRS->track = NEED_2_RECAL;
-+}
-+
-+static void set_floppy(int drive)
-+{
-+	int type = ITYPE(UDRS->fd_device);
-+	if (type) {
-+		auto_detect_mode = 0;
-+		_floppy = floppy_type + type;
-+	} else if (auto_detect_mode == 0) {
-+		auto_detect_mode = 1;
-+		retry_auto_detect = 0;
-+		_floppy = current_type[drive];
-+	}
-+#ifdef PC9800_DEBUG_FLOPPY2
-+	printk("set_floppy: set floppy type=%d\n", (int)(_floppy - floppy_type));
-+#endif
-+}
-+
-+/*
-+ * formatting support.
-+ * ===================
-+ */
-+static void format_interrupt(void)
-+{
-+	switch (interpret_errors()){
-+		case 1:
-+			cont->error();
-+		case 2:
-+			break;
-+		case 0:
-+			cont->done(1);
-+	}
-+	cont->redo();
-+}
-+
++static int ne_probe_cbus(struct net_device *dev, const struct ne2k_cbus_hwinfo *hw, int ioaddr);
++/* End of ne2k_cbus.h */

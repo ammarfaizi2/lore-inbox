@@ -1,109 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263979AbUGFPJv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263980AbUGFP3n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263979AbUGFPJv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 11:09:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263980AbUGFPJv
+	id S263980AbUGFP3n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 11:29:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263995AbUGFP3n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 11:09:51 -0400
-Received: from pra69-d92.gd.dial-up.cz ([193.85.69.92]:34434 "EHLO
-	penguin.localdomain") by vger.kernel.org with ESMTP id S263979AbUGFPJs
+	Tue, 6 Jul 2004 11:29:43 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:58120 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S263980AbUGFP3k
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 11:09:48 -0400
-Date: Tue, 6 Jul 2004 17:09:18 +0200
-To: davem@redhat.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       netfilter-devel@lists.netfilter.org, laforge@netfilter.org
-Subject: [PATCH 2.6] ip6t_LOG and packets with hop-by-hop options
-Message-ID: <20040706150918.GA5009@penguin.localdomain>
-Mail-Followup-To: davem@redhat.com, linux-kernel@vger.kernel.org,
-	netdev@oss.sgi.com, netfilter-devel@lists.netfilter.org,
-	laforge@netfilter.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="XsQoSWH+UP9D9v3l"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040523i
-From: sebek64@post.cz (Marcel Sebek)
+	Tue, 6 Jul 2004 11:29:40 -0400
+To: Zinx Verituse <zinx@epicsol.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 8139too in 2.6.x tx timeout
+References: <20040626222304.GA31195@bliss>
+	<87hdsoghdv.fsf@devron.myhome.or.jp> <20040704194009.GA2029@bliss>
+	<873c4713fl.fsf@ibmpc.myhome.or.jp> <20040706053328.GA860@bliss>
+	<20040706064725.GA11069@bliss>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Wed, 07 Jul 2004 00:29:26 +0900
+In-Reply-To: <20040706064725.GA11069@bliss>
+Message-ID: <87eknp5f3d.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Zinx Verituse <zinx@epicsol.org> writes:
 
---XsQoSWH+UP9D9v3l
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> I have now discovered what causes the card to work on knoppix --
+> The probe during the loading of the OSS "cs46xx.o" driver.  This driver
+> doesn't work with my sound card (non-AC97 codec), and does not finish
+> loading, but apparently it does some magic that causes the rtl8139C NIC
+> I have to work :x
 
-Packet with IPPROTO_HOPOPTS extended header isn't logged properly by
-ip6t_LOG.c. It only prints PROTO=3D0 and nothing more, because
-IPPROTO_HOPOPTS=3D0 and in this file 0 is used to indicate last header.
-This patch fix it by using IPPROTO_NONE to indicate last header.
-
-Signed-off-by: Marcel Sebek <sebek64@post.cz>
-
-
-diff -urpN linux-2.6/net/ipv6/netfilter/ip6t_LOG.c linux-2.6-new/net/ipv6/n=
-etfilter/ip6t_LOG.c
---- linux-2.6/net/ipv6/netfilter/ip6t_LOG.c	2004-04-21 20:01:54.000000000 +=
-0200
-+++ linux-2.6-new/net/ipv6/netfilter/ip6t_LOG.c	2004-07-06 16:48:20.0000000=
-00 +0200
-@@ -48,10 +48,10 @@ static spinlock_t log_lock =3D SPIN_LOCK_U
-=20
- /* takes in current header and pointer to the header */
- /* if another header exists, sets hdrptr to the next header
--   and returns the new header value, else returns 0 */
-+   and returns the new header value, else returns IPPROTO_NONE */
- static u_int8_t ip6_nexthdr(u_int8_t currenthdr, u_int8_t **hdrptr)
- {
--	u_int8_t hdrlen, nexthdr =3D 0;
-+	u_int8_t hdrlen, nexthdr =3D IPPROTO_NONE;
-=20
- 	switch(currenthdr){
- 		case IPPROTO_AH:
-@@ -77,7 +77,6 @@ static u_int8_t ip6_nexthdr(u_int8_t cur
- 			break;
- 	}=09
- 	return nexthdr;
--
- }
-=20
- /* One level of recursion won't kill us */
-@@ -101,7 +100,7 @@ static void dump_packet(const struct ip6
-=20
- 	fragment =3D 0;
- 	hdrptr =3D (u_int8_t *)(ipv6h + 1);
--	while (currenthdr) {
-+	while (currenthdr !=3D IPPROTO_NONE) {
- 		if ((currenthdr =3D=3D IPPROTO_TCP) ||
- 		    (currenthdr =3D=3D IPPROTO_UDP) ||
- 		    (currenthdr =3D=3D IPPROTO_ICMPV6))
-@@ -264,7 +263,7 @@ static void dump_packet(const struct ip6
- 		}
- 		break;
- 	}
--	/* Max length: 10 "PROTO 255 " */
-+	/* Max length: 10 "PROTO=3D255 " */
- 	default:
- 		printk("PROTO=3D%u ", currenthdr);
- 	}
-
---=20
-Marcel Sebek
-jabber: sebek@jabber.cz                     ICQ: 279852819
-linux user number: 307850                 GPG ID: 5F88735E
-GPG FP: 0F01 BAB8 3148 94DB B95D  1FCA 8B63 CA06 5F88 735E
+Oh, cs46xx.o seems to have a workaround or something for ThinkPad.
+The cs46xx.o calling the "clkrun_hack(card, 1)" before initialize.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
 
---XsQoSWH+UP9D9v3l
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+/*
+ *	Handle the CLKRUN on a thinkpad. We must disable CLKRUN support
+ *	whenever we need to beat on the chip.
+ *
+ *	The original idea and code for this hack comes from David Kaiser at
+ *	Linuxcare. Perhaps one day Crystal will document their chips well
+ *	enough to make them useful.
+ */
+ 
+static void clkrun_hack(struct cs_card *card, int change)
+{
+	struct pci_dev *acpi_dev;
+	u16 control;
+	u8 pp;
+	unsigned long port;
+	int old=card->active;
+	
+	card->active+=change;
+	
+	acpi_dev = pci_find_device(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82371AB_3, NULL);
+	if(acpi_dev == NULL)
+		return;		/* Not a thinkpad thats for sure */
 
-iD8DBQFA6sCei2PKBl+Ic14RAnMzAJ0eiT7tjALg/NK/CBncrOx4T7483ACgsbLW
-CH8XFhFINipmMwaX8CnB/4w=
-=dWBX
------END PGP SIGNATURE-----
+	/* Find the control port */		
+	pci_read_config_byte(acpi_dev, 0x41, &pp);
+	port=pp<<8;
 
---XsQoSWH+UP9D9v3l--
+	/* Read ACPI port */	
+	control=inw(port+0x10);
+
+	/* Flip CLKRUN off while running */
+	if(!card->active && old)
+	{
+		CS_DBGOUT(CS_PARMS , 9, printk( KERN_INFO
+			"cs46xx: clkrun() enable clkrun - change=%d active=%d\n",
+				change,card->active));
+		outw(control|0x2000, port+0x10);
+	}
+	else 
+	{
+	/*
+	* sometimes on a resume the bit is set, so always reset the bit.
+	*/
+		CS_DBGOUT(CS_PARMS , 9, printk( KERN_INFO
+			"cs46xx: clkrun() disable clkrun - change=%d active=%d\n",
+				change,card->active));
+		outw(control&~0x2000, port+0x10);
+	}
+}

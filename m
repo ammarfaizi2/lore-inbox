@@ -1,87 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261835AbTEDXSK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 19:18:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbTEDXSJ
+	id S261840AbTEDXka (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 19:40:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbTEDXka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 19:18:09 -0400
-Received: from cpt-dial-196-30-179-171.mweb.co.za ([196.30.179.171]:11136 "EHLO
-	nosferatu.lan") by vger.kernel.org with ESMTP id S261835AbTEDXSI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 19:18:08 -0400
-Subject: Re: [2.5] Update sk98lin driver
-From: Martin Schlemmer <azarah@gentoo.org>
-Reply-To: azarah@gentoo.org
-To: Andrew Morton <akpm@digeo.com>
-Cc: KML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030504145038.5b0495b5.akpm@digeo.com>
-References: <1052073847.4478.18.camel@nosferatu.lan>
-	 <20030504145038.5b0495b5.akpm@digeo.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-+QKCt9dOtebGVfjbRjf7"
+	Sun, 4 May 2003 19:40:30 -0400
+Received: from qix.net ([207.40.214.9]:9745 "EHLO neocygnus.qix.net")
+	by vger.kernel.org with ESMTP id S261840AbTEDXk3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 May 2003 19:40:29 -0400
+Subject: [TRIVIAL][PATCH 2.4] Help dummies configure QoS
+From: Dave Maietta <dave@qix.net>
+To: linux-kernel@vger.kernel.org
+Cc: trivial@rustcorp.com.au
+Content-Type: text/plain
 Organization: 
-Message-Id: <1052090947.4459.16.camel@nosferatu.lan>
+Message-Id: <1052092397.5844.33.camel@hell>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4- 
-Date: 05 May 2003 01:29:07 +0200
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 04 May 2003 19:53:18 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In the packet schedulers section of the config scripts, neither the
+Ingress Qdisc nor any comment about its existence are displayed in
+Menuconfig if some dependencies are not met in other places.  To help
+dummies like me know that it's there, please consider the following
+patch:
 
---=-+QKCt9dOtebGVfjbRjf7
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Sun, 2003-05-04 at 23:50, Andrew Morton wrote:
-
-> > Now the problem is that if I try to load it, I get this:
-> >=20
-> > -----------------------------------------
-> > sk98lin: Unknown symbol __udivdi3
-> > -----------------------------------------
-> >=20
-> > Meaning it linked with libgcc_s.so.  Any ideas why ?
-> >=20
->=20
-> This was the fix for the in-kernel driver, so it'll presumably
-> fix the updated driver.
->=20
->=20
-> diff -puN drivers/net/sk98lin/h/skgepnm2.h~sk98-build-fix drivers/net/sk9=
-8lin/h/skgepnm2.h
-> --- 25/drivers/net/sk98lin/h/skgepnm2.h~sk98-build-fix	Thu Mar  6 16:18:0=
-7 2003
-> +++ 25-akpm/drivers/net/sk98lin/h/skgepnm2.h	Thu Mar  6 16:18:07 2003
-> @@ -341,7 +341,7 @@ typedef struct s_PnmiStatAddr {
->  #if SK_TICKS_PER_SEC =3D=3D 100
->  #define SK_PNMI_HUNDREDS_SEC(t)	(t)
->  #else
-> -#define SK_PNMI_HUNDREDS_SEC(t)	(((t) * 100) / (SK_TICKS_PER_SEC))
-> +#define SK_PNMI_HUNDREDS_SEC(t)	((((long)t) * 100) / (SK_TICKS_PER_SEC))
->  #endif
-> =20
->  /*
-
-Thanks, that fixed it =3D)
+--- linux/net/sched/Config.in.orig	2003-05-04 18:50:54.000000000 -0400
++++ linux/net/sched/Config.in	2003-05-04 18:43:32.000000000 -0400
+@@ -16,9 +16,6 @@
+ tristate '  TBF queue' CONFIG_NET_SCH_TBF
+ tristate '  GRED queue' CONFIG_NET_SCH_GRED
+ tristate '  Diffserv field marker' CONFIG_NET_SCH_DSMARK
+-if [ "$CONFIG_NETFILTER" = "y" ]; then
+-   tristate '  Ingress Qdisc' CONFIG_NET_SCH_INGRESS
+-fi
+ bool '  QoS support' CONFIG_NET_QOS
+ if [ "$CONFIG_NET_QOS" = "y" ]; then
+    bool '    Rate estimator' CONFIG_NET_ESTIMATOR
+@@ -38,4 +35,12 @@
+       bool '    Traffic policing (needed for in/egress)'
+CONFIG_NET_CLS_POLICE
+    fi
+ fi
++if [ "$CONFIG_NETFILTER" = "n" -o "$CONFIG_NET_QOS" = "n" -o \
++   "$CONFIG_NET_CLS" = "n" -o "$CONFIG_NET_CLS_POLICE" = "n" ]; then
++   comment '  Ingress Qdisc:  To enable, please include'
++   comment '    Network Packet Filtering, QoS Support,'
++   comment '    and Packet Classifier API/Traffic Policing'
++else
++   tristate '  Ingress Qdisc' CONFIG_NET_SCH_INGRESS
++fi
+ 
 
 
---=20
-
-Martin Schlemmer
-
-
-
-
---=-+QKCt9dOtebGVfjbRjf7
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+taJCqburzKaJYLYRAgTPAJwJX9w8+iH/yscjP475YGsW62cJ2QCgl789
-EU6KHqfLXtbQEKLuLy2kQEY=
-=jT2o
------END PGP SIGNATURE-----
-
---=-+QKCt9dOtebGVfjbRjf7--
+Thanks,
+Dave Maietta
+dave$qix,net
 

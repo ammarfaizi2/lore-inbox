@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270274AbRH1Go4>; Tue, 28 Aug 2001 02:44:56 -0400
+	id <S270271AbRH1Gvg>; Tue, 28 Aug 2001 02:51:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270271AbRH1Gor>; Tue, 28 Aug 2001 02:44:47 -0400
-Received: from [213.97.184.209] ([213.97.184.209]:1152 "HELO piraos.com")
-	by vger.kernel.org with SMTP id <S270269AbRH1Goe>;
-	Tue, 28 Aug 2001 02:44:34 -0400
-Date: Tue, 28 Aug 2001 08:44:49 +0200 (CEST)
-From: German Gomez Garcia <german@piraos.com>
-To: Mailing List Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: SCSI Error?
-In-Reply-To: <Pine.LNX.4.33.0108280613280.220-100000@hal9000.piraos.com>
-Message-ID: <Pine.LNX.4.33.0108280839540.867-100000@hal9000.piraos.com>
+	id <S270273AbRH1Gv0>; Tue, 28 Aug 2001 02:51:26 -0400
+Received: from ns.suse.de ([213.95.15.193]:21007 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S270271AbRH1GvR>;
+	Tue, 28 Aug 2001 02:51:17 -0400
+To: Hans Reiser <reiser@namesys.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Journal Filesystem Comparison on Netbench
+In-Reply-To: <3B8A6122.3C784F2D@us.ibm.com.suse.lists.linux.kernel> <3B8AA7B9.8EB836FF@namesys.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 28 Aug 2001 08:51:32 +0200
+In-Reply-To: Hans Reiser's message of "27 Aug 2001 22:07:02 +0200"
+Message-ID: <oupsneck77v.fsf@pigdrop.muc.suse.de>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Aug 2001, German Gomez Garcia wrote:
+Hans Reiser <reiser@namesys.com> writes:
 
-> On Tue, 28 Aug 2001, German Gomez Garcia wrote:
->
-> > 	Hello,
-> >
-> > 	I would like to know what the attached error mean, I'm using
-> > 2.4.9-ac3, and I don't know if one of my disk has died, it's currently
-> > working, but I would like to know if that is a hardware error or just a
-> > kernel problem.
->
-> 	Well, it seems to be a kernel problem, as it happens almost
-> inmediately after reboot with 2.4.9-ac3 (also with 2.4.9-ac1) It doesn't
-> happens with 2.4.7-ac9 and I'm currently going down to 2.4.8-ac11 (before
-> 2.4.9 merge in -ac tree?) I'll report later.
+> That said, it does not surprise me that our locking is coarser than other
+> filesystems, and we will be fixing that in version 4.  Unfortunately we don't
+> have the hardware to replicate your results.
 
-	Finally it was a hardware problem, both fans that cooled the hard
-disks died at the same time, so the HDs were getting really hot, and it
-seems that 2.4.7 doesn't play with the HD with the swap partition on it so
-hard as 2.4.9 (the only way I could explain why 2.4.7 didn't crash and
-2.4.9 crashed almost after boot). Sorry to bother you with hardware
-problems, but two fans at the same time ... that's bad luck!
+It does not really look like a locking problem. If you look at the profiling
+logs it is pretty clear that the problem is the algorithm used in 
+bitmap.c:find_forward. find_forward and reiserfs_in_journal 
+(called by find_forward)
+are by most the biggest CPU users in file system space, and 
+reiserfs_in_journal is called over 30 million times, far more often than
+any other function. On looking at it it is pretty clear why it is slow;
+the algorithm is just stupid. It also runs under the BKL, which explains 
+the long locking times. Fix that function and it'll look much better.
+i.e. one way would be to keep a shadow map of all bitmaps that has all
+journaled blocks set also, to quickly skip them for the common case.
 
-	Regards,
+-Andi
 
-	- german
-
--------------------------------------------------------------------------
-German Gomez Garcia          | Send email with "SEND GPG KEY" as subject
-<german@piraos.com>          | to receive my GnuPG public key.
-
+ 

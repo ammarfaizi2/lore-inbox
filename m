@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266936AbTAIRuC>; Thu, 9 Jan 2003 12:50:02 -0500
+	id <S266938AbTAIRvF>; Thu, 9 Jan 2003 12:51:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266938AbTAIRuC>; Thu, 9 Jan 2003 12:50:02 -0500
-Received: from [217.167.51.129] ([217.167.51.129]:28631 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S266936AbTAIRuA>;
-	Thu, 9 Jan 2003 12:50:00 -0500
-Subject: Re: [patch 2.5] 2-pass PCI probing, generic part
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Grant Grundler <grundler@cup.hp.com>, Paul Mackerras <paulus@samba.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, davidm@hpl.hp.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       greg@kroah.com
-In-Reply-To: <20030109204626.A2007@jurassic.park.msu.ru>
-References: <1041942820.20658.2.camel@irongate.swansea.linux.org.uk>
-	 <Pine.LNX.4.44.0301070942440.1913-100000@home.transmeta.com>
-	 <20030109204626.A2007@jurassic.park.msu.ru>
+	id <S266939AbTAIRvF>; Thu, 9 Jan 2003 12:51:05 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:6798
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266938AbTAIRu4>; Thu, 9 Jan 2003 12:50:56 -0500
+Subject: Re: MB without keyboard controller / USB-only keyboard ?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030109183952.6be142fe.skraw@ithnet.com>
+References: <20030109114247.211f7072.skraw@ithnet.com>
+	 <1042134121.27796.20.camel@irongate.swansea.linux.org.uk>
+	 <20030109183952.6be142fe.skraw@ithnet.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1042134735.522.19.camel@zion.wanadoo.fr>
+Message-Id: <1042137928.27796.48.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 09 Jan 2003 18:52:15 +0100
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 09 Jan 2003 18:45:28 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-01-09 at 18:46, Ivan Kokshaysky wrote:
-
-> There is no need for changes to arch-specific code, as everything
-> is hidden in pci_scan_bus(). However, it's possible to use
-> pci_scan_bus_parented() and pci_probe_resources() directly,
-> because some arch-specific fixups between these two might
-> be useful.
+On Thu, 2003-01-09 at 17:39, Stephan von Krawczynski wrote:
+> > > pc_keyb: controller jammed (0xFF)
+> > 
+> > Does your BIOS do keyboard emulation ?
 > 
-> Note: on powermacs, if the I/O ASIC is behind PCI-PCI bridge, the
-> bridge device probably should be marked as "skip_probe" as well.
+> It is Compaq EVO D510. It has merely nothing of interest in the BIOS (no
+> keyboard emu). As far as I remember it contains an I845 chipset.
 
-Good.
-
-Yes, On these, I'll skip the pci<->pci bridge in cases there is one on
-the path too, this will add some nasty logic to the pmac pci code, but
-that's ok as long as that crap doesn't leak out of
-arch/ppc/platforms/pmac_*
-
-Ben.
+Can you use the USB keyboard to configure the BIOS during boot. If so
+then it almost certainly has USB bios emulation. Another trivial test
+that would be useful is to stick a freedos boot floppy in the box and
+see if freedos works
 

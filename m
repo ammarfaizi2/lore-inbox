@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316857AbSHGXsf>; Wed, 7 Aug 2002 19:48:35 -0400
+	id <S316709AbSHGXrl>; Wed, 7 Aug 2002 19:47:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316912AbSHGXse>; Wed, 7 Aug 2002 19:48:34 -0400
-Received: from 205-158-62-131.outblaze.com ([205.158.62.131]:43241 "HELO
-	ws5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S316857AbSHGXsP>; Wed, 7 Aug 2002 19:48:15 -0400
-Message-ID: <20020807235150.11721.qmail@operamail.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S316857AbSHGXrl>; Wed, 7 Aug 2002 19:47:41 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:24078 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S316709AbSHGXrU>; Wed, 7 Aug 2002 19:47:20 -0400
+Message-ID: <3D51B25E.2000C8C8@linux-m68k.org>
+Date: Thu, 08 Aug 2002 01:50:54 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Matthew Bell" <mwsb@operamail.com>
-To: linux-kernel@vger.kernel.org
-Cc: marcelo@conectiva.com.br
-Date: Thu, 08 Aug 2002 07:51:50 +0800
-Subject: [PATCH] 2.4.19; drivers/parport/Config.in (parport_serial)
-    <should depend on CONFIG_PCI>
-X-Originating-Ip: 195.10.121.242
-X-Originating-Server: ws5-1.us4.outblaze.com
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] module cleanup (3/5)
+References: <E17cDB7-0002v5-00@scrub.xs4all.nl>
+Content-Type: multipart/mixed;
+ boundary="------------47B808B48F8D04F348505F79"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Presumamby parport_serial.c should depend on CONFIG_PCI?
----parport_serial.diff------------------------------------- linux-2.4.19.orig/drivers/parport/Config.in 2001-12-21 17:41:55.000000000 +0000
-+++ linux-2.4.19/drivers/parport/Config.in      2002-08-06 18:52:21.000000000 +0100
-@@ -17,7 +17,7 @@
-       else
-          define_tristate CONFIG_PARPORT_PC_CML1 $CONFIG_PARPORT_PC
-       fi
--      dep_tristate '    Multi-IO cards (parallel and serial)' CONFIG_PARPORT_SERIAL $CONFIG_PARPORT_PC_CML1
-+      dep_tristate '    Multi-IO cards (parallel and serial)' CONFIG_PARPORT_SERIAL $CONFIG_PARPORT_PC_CML1 $CONFIG_PCI
-    fi
-    if [ "$CONFIG_PARPORT_PC" != "n" ]; then
-       if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
----parport_serial.diff----------------------------------
--- 
-_______________________________________________
-Download the free Opera browser at http://www.opera.com/
+This is a multi-part message in MIME format.
+--------------47B808B48F8D04F348505F79
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 
-Free OperaMail at http://www.operamail.com/
+Hi,
 
-Powered by Outblaze
+I wrote:
+
+> This patch removes __MODULE_STRING() in favour of __stringify().
+
+Unfortunately too much code still uses it, so here is a small follow up
+patch to add a compatibility define.
+
+bye, Roman
+--------------47B808B48F8D04F348505F79
+Content-Type: text/plain; charset=iso-8859-15;
+ name="string.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="string.diff"
+
+--- linux/include/linux/module.h.org	Thu Aug  8 01:41:46 2002
++++ linux/include/linux/module.h	Thu Aug  8 01:42:37 2002
+@@ -130,6 +130,7 @@
+ /* Backwards compatibility definition.  */
+ 
+ #define GET_USE_COUNT(module)	(atomic_read(&(module)->uc.usecount))
++#define __MODULE_STRING(x)	__stringify(x)
+ 
+ /* Poke the use count of a module.  */
+ 
+
+--------------47B808B48F8D04F348505F79--
+

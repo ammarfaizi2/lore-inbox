@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267836AbTBJMTV>; Mon, 10 Feb 2003 07:19:21 -0500
+	id <S264729AbTBJMYF>; Mon, 10 Feb 2003 07:24:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267838AbTBJMTV>; Mon, 10 Feb 2003 07:19:21 -0500
-Received: from dial-ctb04112.webone.com.au ([210.9.244.112]:37639 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id <S267836AbTBJMRf>;
-	Mon, 10 Feb 2003 07:17:35 -0500
-Message-ID: <3E479AA1.3050308@cyberone.com.au>
-Date: Mon, 10 Feb 2003 23:27:13 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: andrea@suse.de, reiser@namesys.com, jakob@unthought.net,
-       david.lang@digitalinsight.com, riel@conectiva.com.br,
-       ckolivas@yahoo.com.au, linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK] 2.4.20-ck3
- / aa / rmap with contest]
-References: <3E47579A.4000700@cyberone.com.au>	<20030210080858.GM31401@dualathlon.random>	<20030210001921.3a0a5247.akpm@digeo.com>	<20030210085649.GO31401@dualathlon.random>	<20030210010937.57607249.akpm@digeo.com>	<3E4779DD.7080402@namesys.com>	<20030210101539.GS31401@dualathlon.random>	<3E4781A2.8070608@cyberone.com.au>	<20030210111017.GV31401@dualathlon.random>	<3E478C09.6060508@cyberone.com.au>	<20030210113923.GY31401@dualathlon.random>	<20030210034808.7441d611.akpm@digeo.com>	<3E4792B7.5030108@cyberone.com.au> <20030210041245.68665ff6.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S267725AbTBJMYF>; Mon, 10 Feb 2003 07:24:05 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:19885
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264729AbTBJMYE>; Mon, 10 Feb 2003 07:24:04 -0500
+Subject: Re: [BK PATCH] LSM changes for 2.5.59
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Crispin Cowan <crispin@wirex.com>
+Cc: LA Walsh <law@tlinx.org>, "'Christoph Hellwig'" <hch@infradead.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       linux-security-module@wirex.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E471F21.4010803@wirex.com>
+References: <001001c2d0b0$cf49b190$1403a8c0@sc.tlinx.org>
+	 <3E471F21.4010803@wirex.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1044883918.418.18.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 10 Feb 2003 13:31:58 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Mon, 2003-02-10 at 03:40, Crispin Cowan wrote:
+> Because Linus asked for access control support, not audit logging 
+> support, it is not surprising that logging models don't fit so well.
 
->Nick Piggin <piggin@cyberone.com.au> wrote:
->
->>That is what I can't understand. Movement of the disk head should
->>be exactly the same in either situation and 128K is not exactly
->>a pitiful request size - so it suggests a quirk somewhere. It
->>is not as if the disk has to be particularly smart or know a
->>lot about the data in order to optimise the head movement for
->>a load like this.
->>
->
->Yes, that's a bit odd.  Some reduction in CPU cost and bus
->traffic, etc would be expected.   Could be that sending out a
->request which is larger than a track is saving a rev of the disk
->for some reason.
->
-Shouldn't be. Even at 128KB readahead we should always have
-outstanding requests against the disk in a streaming read
-scenario, right? Maybe if the track buffers are bigger than
-128K?
-
-Is there a magic number above which you see the improvement,
-Andrea? Or does it steadily climb?
+The snare folks are moving bit by bit from their original hacks to
+a clean audit hook model. That may give you the hooks you want for
+auditing in 2.7. Thats seperate to the security stuff and you may
+want one and not the other.
 

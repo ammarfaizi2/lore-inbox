@@ -1,56 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261947AbUCaNHv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 08:07:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbUCaNHv
+	id S261704AbUCaNRS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 08:17:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbUCaNRS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 08:07:51 -0500
-Received: from mail.tmr.com ([216.238.38.203]:4103 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S261947AbUCaNHu (ORCPT
+	Wed, 31 Mar 2004 08:17:18 -0500
+Received: from smtp.netcabo.pt ([212.113.174.9]:51022 "EHLO smtp.netcabo.pt")
+	by vger.kernel.org with ESMTP id S261704AbUCaNRQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 08:07:50 -0500
-Date: Wed, 31 Mar 2004 08:04:10 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-cc: Len Brown <len.brown@intel.com>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Willy Tarreau <willy@w.ods.org>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arkadiusz Miskiewicz <arekm@pld-linux.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Subject: Re: [ACPI] Re: Linux 2.4.26-rc1 (cmpxchg vs 80386 build)
-In-Reply-To: <Pine.LNX.4.55.0403311305000.24584@jurand.ds.pg.gda.pl>
-Message-ID: <Pine.LNX.3.96.1040331075620.11879A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 31 Mar 2004 08:17:16 -0500
+Subject: Re: who is merlin.fit.vutbr.cz?
+From: Martijn Kuipers <mk@wipsim.net>
+Reply-To: mk@wipsim.net
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-uHv3Yk8HqdgboDLXpIpQ"
+Message-Id: <1080738907.1611.16.camel@calvin>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 31 Mar 2004 14:15:07 +0100
+X-OriginalArrivalTime: 31 Mar 2004 13:16:31.0178 (UTC) FILETIME=[61E28AA0:01C41722]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Mar 2004, Maciej W. Rozycki wrote:
 
-> On Tue, 30 Mar 2004, Bill Davidsen wrote:
-> 
-> > Is there no reasonable way to avoid using it in ACPI? It's not as if 
-> > performance was critical there, or the code gets run often. Too bad it 
-> > can't just be emulated like floating point, but I don't think it can on SMP.
-> 
->  Well, "cmpxchg", "xadd", etc. can be easily emulated with an aid of a
-> spinlock.  With SMP operation included.
+--=-uHv3Yk8HqdgboDLXpIpQ
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-Clearly they can be replaced with inline code, as for catching the ill-op
-fault and emulating inline, I want to think about that a bit on SMP, in
-the case where multiple CPUs are accessing different locations, one is in
-kernel and one in user mode, etc.
+Hi,
 
-If it can be emulated safely in all cases, then that provides an out for
-the 386 case. To be useful it would have to be correct for all
-combinations of SMP, preempt and an interrupt and any point.
+I guess it is the student server (whatever that means) from the Faculty
+of Information Technology of the Brno University of Technology in the
+Czech Republic.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+They give this information on the machine:
+merlin
+Asus P4P800-VM, Pentium 4 HT/2,6GHz, 512 MB RAM, 80 GB HDD
+RedHat Linux
+studentsk=FD server Linux
+
+Also note that they list the following email-address for any problems:
+linux@fit.vutbr.cz
+or for information: info@fit.vutbr.cz
+
+As to which person is behind the process on the machine, I got no clue.
+
+Kind regards,
+Martijn Kuipers
+
+
+
+--=-uHv3Yk8HqdgboDLXpIpQ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAasRbPxCZHR1qs1URAnOPAJ94PIs3RA8CDC7ZiXXjBkjXnHqD0QCglGIB
+7mEV0MHnK25NtQnGzBXPy0M=
+=7Lw5
+-----END PGP SIGNATURE-----
+
+--=-uHv3Yk8HqdgboDLXpIpQ--
 

@@ -1,75 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267972AbUHEVi7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267992AbUHEVhK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267972AbUHEVi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 17:38:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267991AbUHEVhs
+	id S267992AbUHEVhK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 17:37:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267875AbUHEVfR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 17:37:48 -0400
-Received: from mail8.fw-bc.sony.com ([160.33.98.75]:54237 "EHLO
-	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
-	id S267972AbUHEVfa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 17:35:30 -0400
-Message-ID: <4112A91B.6090508@am.sony.com>
-Date: Thu, 05 Aug 2004 14:39:39 -0700
-From: Tim Bird <tim.bird@am.sony.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
+	Thu, 5 Aug 2004 17:35:17 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:48276 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S267964AbUHEVdy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 17:33:54 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: Altix I/O code reorganization
+Date: Thu, 5 Aug 2004 14:32:36 -0700
+User-Agent: KMail/1.6.2
+Cc: Pat Gefre <pfg@sgi.com>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+References: <20040805181619.GA30543@kroah.com> <Pine.SGI.3.96.1040805155001.143418D-100000@fsgi900.americas.sgi.com> <20040805210824.GA15962@kroah.com>
+In-Reply-To: <20040805210824.GA15962@kroah.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Lee Revell <rlrevell@joe-job.com>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Todd Poynor <tpoynor@mvista.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       dsingleton@mvista.com, lkml@rtr.ca
-Subject: Re: [PATCH] Configure IDE probe delays
-References: <20040730191100.GA22201@slurryseal.ddns.mvista.com>	 <1091226922.5083.13.camel@localhost.localdomain>	 <1091232770.1677.24.camel@mindpipe>	 <200407311434.59604.vda@port.imtp.ilyichevsk.odessa.ua>	 <1091297179.1677.290.camel@mindpipe> <1091302522.6910.4.camel@localhost.localdomain>
-In-Reply-To: <1091302522.6910.4.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200408051432.36240.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> If you want to speed this up then the two bits that the initial proposal
-> and Jeff have sensibly come up with are
-> 
-> 1.	Are we doing too many probes
+On Thursday, August 5, 2004 2:08 pm, Greg KH wrote:
+> On Thu, Aug 05, 2004 at 03:51:46PM -0500, Pat Gefre wrote:
+> > On Thu, 5 Aug 2004, Greg KH wrote:
+> >
+> > + On Wed, Aug 04, 2004 at 03:14:08PM -0500, Pat Gefre wrote:
+> > + >
+> > + > The patches and a short comment for each:
+> > +
+> > + Care to post the patches here so that we can comment on them?
+> > +
+> > + greg k-h
+> > +
+> >
+> > I thought I put the url where the patches are.
+>
+> You did.  You must not have read what Documentation/SubmittingPatches
+> says to do...
 
-By way of commentary, it *is* possible to reduce the number of probes
-using existing kernel command line options (hd<x>=noprobe and
-ide<x>=noprobe)  This helps on systems where interfaces or devices
-are known not to exist.  This is described in my OLS paper, and I
-plan to put up a wiki page with instructions for interested parties,
-real soon now... :-)
+Quoting said document:
 
-However, further reducing the number of probes is still a worthy goal.
-We'll take a look at this when we get a chance.  Given some
-of the feedback on this thread, this sounds like it might be prone
-to worse breakage for legacy hardware than simply adjusting the delay
-duration.
+  7) E-mail size.
 
-> 2.	Should we switch to proper reset polling
-> 
-> For certain cases (PPC spin up) we actually have switched to doing drive
-> spin up this way...
+  When sending patches to Linus, always follow step #6.
 
-I'm not sure what this means.  Can someone tell me more about this
-or point me to some code?  (Sorry for my ignorance, I'm not an IDE
-expert by any means.)
+  Large changes are not appropriate for mailing lists, and some
+  maintainers.  If your patch, uncompressed, exceeds 40 kB in size,
+  it is preferred that you store your patch on an Internet-accessible
+  server, and provide instead a URL (link) pointing to your patch.
 
-BTW - Any comments on Todd's new patch? (see message with title
-"IDE probe delay symbol")  This one doesn't make the value configurable,
-but does use a #define (preserving the traditional 50 ms value).  This
-at least removes a magic number, and it makes it easier to identify the
-msleeps that have historically been related.
+A few of the patches at that URL are very large (one is over 400k).  That 
+said, some of the others could probably be posted.
 
-With this new patch, nothing changes for the legacy crowd, but it still
-makes it easier for RACER_BOYs ;-) to dink with the value.
-
-=============================
-Tim Bird
-Architecture Group Co-Chair, CE Linux Forum
-Senior Staff Engineer, Sony Electronics
-E-mail: tim.bird@am.sony.com
-=============================
+Jesse

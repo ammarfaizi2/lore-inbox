@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265818AbUBBWbL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 17:31:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265837AbUBBWbL
+	id S265837AbUBBWcZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 17:32:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265863AbUBBWcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 17:31:11 -0500
-Received: from kalmia.drgw.net ([209.234.73.41]:21455 "EHLO kalmia.hozed.org")
-	by vger.kernel.org with ESMTP id S265818AbUBBWbI (ORCPT
+	Mon, 2 Feb 2004 17:32:25 -0500
+Received: from smtp06.auna.com ([62.81.186.16]:46830 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id S265837AbUBBWcX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 17:31:08 -0500
-Date: Mon, 2 Feb 2004 16:31:07 -0600
-From: Troy Benjegerdes <hozer@hozed.org>
-To: infiniband-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Getting an Infiniband access layer in the linux kernel
-Message-ID: <20040202223107.GA27125@kalmia.hozed.org>
+	Mon, 2 Feb 2004 17:32:23 -0500
+Date: Mon, 2 Feb 2004 23:32:21 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Greg KH <greg@kroah.com>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: udev depends on /usr
+Message-ID: <20040202223221.GC2748@werewolf.able.es>
+References: <20040126215036.GA6906@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20040126215036.GA6906@kroah.com> (from greg@kroah.com on Mon, Jan 26, 2004 at 22:50:36 +0100)
+X-Mailer: Balsa 2.0.16
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are 10gigabit ethernet drivers in the kernel.org 2.6, but no
-infiniband drivers. Infiniband cards are faster, AND cheaper than 10gig
-hardware right now, so this makes no sense.
 
-Has anyone gotten on linux-kernel and asked about what it would take to
-get the infiniband access layer into the kernel? (Once that's there we
-could *start* talking about IPOIB, and such)
+On 2004.01.26, Greg KH wrote:
+> I've released the 015 version of udev.  It can be found at:
+>  	kernel.org/pub/linux/utils/kernel/hotplug/udev-015.tar.gz
+> 
 
-The first, and biggest problem is the access layer is of little use
-without a VPD, and since mellanox is the only game in town right now, we
-need mellanox to release a VPD that's GPL-compatible. This is mellanox's
-problem, so we can't really do anything but tell them to hurry up.
+Little problem ;)
+I have some modules in /etc/modprobe.preload. Subject of this mail is
+ide-cd.
 
-Second is extracting the code into smaller digestible chunks that people
-aren't going to scream over. So, can someone tell me how to extract just
-the access layer out of the infiniband.bkbits.net tree? I'd like just
-enough to be able to run something like NetPIPE on the intel verbs
-layer.
+When ide-cd gets loaded, the kernel/udev chain calls
+/etc/udev/scripts/ide-devfs.sh, wich uses 'expr'. I my system
+(Mandrake 10) and on a RedHat 9 'expr' lives in /usr/bin, and /usr can
+be still unmounted when rc.modules is called...
 
-And can someone from lkml please respond with suggestions on what would
-have a chance of getting blessed with the appropriate penguin-pee?
+Solution ? Change udev, change coreutils locations...
+Standarisation of what is avaliable from coreutils before /usr ?
 
-
+TIA
 
 -- 
---------------------------------------------------------------------------
-Troy Benjegerdes                'da hozer'                hozer@hozed.org  
-
-Somone asked my why I work on this free (http://www.fsf.org/philosophy/)
-software stuff and not get a real job. Charles Shultz had the best answer:
-
-"Why do musicians compose symphonies and poets write poems? They do it
-because life wouldn't have any meaning for them if they didn't. That's why
-I draw cartoons. It's my life." -- Charles Shultz
+J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
+werewolf!able!es                         \           It's better when it's free
+Mandrake Linux release 10.0 (Cooker) for i586
+Linux 2.6.2-rc2-jam2 (gcc 3.3.2 (Mandrake Linux 10.0 3.3.2-4mdk))

@@ -1,62 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269645AbUJMHYg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269647AbUJMH3b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269645AbUJMHYg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 03:24:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269647AbUJMHYd
+	id S269647AbUJMH3b (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 03:29:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269648AbUJMH3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 03:24:33 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:26257 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S269645AbUJMHYX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 03:24:23 -0400
-Date: Wed, 13 Oct 2004 17:23:53 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: piggin@cyberone.com.au, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       linux-xfs@oss.sgi.com
-Subject: Re: Page cache write performance issue
-Message-ID: <20041013172352.B4917536@wobbly.melbourne.sgi.com>
-References: <20041013054452.GB1618@frodo> <20041012231945.2aff9a00.akpm@osdl.org> <20041013063955.GA2079@frodo> <20041013000206.680132ad.akpm@osdl.org>
+	Wed, 13 Oct 2004 03:29:31 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:3468 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S269647AbUJMH33
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 03:29:29 -0400
+Date: Wed, 13 Oct 2004 09:28:14 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Danny <dannydaemonic@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: mm kernel oops with r8169 & named, PREEMPT
+Message-ID: <20041013072814.GA24066@electric-eye.fr.zoreil.com>
+References: <9625752b041012230068619e68@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20041013000206.680132ad.akpm@osdl.org>; from akpm@osdl.org on Wed, Oct 13, 2004 at 12:02:06AM -0700
+In-Reply-To: <9625752b041012230068619e68@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 13, 2004 at 12:02:06AM -0700, Andrew Morton wrote:
-> 
-> Well something else if fishy: how can you possibly achieve only 4MB/sec? 
+Danny <dannydaemonic@gmail.com> :
+> This is with the network driver r8169 and linux-2.6.9-rc4-mm1.  Same
+> thing happened with linux-2.6.9-rc3-mm3 (but also locked up). 
+> linux-2.6.8.1-mm4 didn't seem to have this problem.  This is very
+> repeatable, if this is an unknown issue let me know (CC please, not on
+> the list) and I will jump through the hoops to get a useful oops.
 
-These are 1K writes too remember, so it feels a bit like we
-write 'em out one at a time, sync (though no O_SYNC, or fsync,
-or such involved here).  This is on an i686, so 4K pages, and
-using 4K filesystem blocksizes (both xfs and ext2).
+Try the patch below (courtesy of Jon Mason, whitespaces may be wrong) and
+see 1) if things perform better 2) if "timeout" messages appear in the
+kernel log.
 
-And now that you mention, yes, this is multiple times below
-the direct IO numbers too (which on this box are ~30MB/sec
-for direct blkdev writes, IIRC, & XFS has similar numbers).
+Oops as well as Cc: netdev@oss.sgi.com are welcome.
 
-> Using floppy disks or something?
+--- linux-2.6.9-rc4-mm1/drivers/net/r8169.c     2004-10-12 13:59:57.000000000 -0500
++++ linux-2.6.9-rc4-mm1/drivers/net/r8169.c     2004-10-12 10:51:21.000000000 -0500
+@@ -1680,6 +1680,7 @@ static void rtl8169_unmap_tx_skb(struct
 
-Heh, uh, no.  (and no, not "pencils" either ;)
+ 	pci_unmap_single(pdev, le64_to_cpu(desc->addr), len, PCI_DMA_TODEVICE);
+ 	desc->opts2 = 0x00;
++	desc->opts1 = 0x00;
+ 	desc->addr = 0x00;
+ 	tx_skb->len = 0;
+ }
 
-> Does the same happen on ext2?
 
-Yes.
-
-> It's exactly a 500MB write on a 1000MB machine, yes?
-
-Thats correct.
-
-No slab/page/.. debug options enabled either - its the same
-.config that was performing ~10x better on 2.6.8.  I also
-verified that it wasn't any of the XFS changes either (they
-wouldn't have affected ext2 anyway, of course) - the same
-XFS code backported to 2.6.8 performs fine also.
-
-cheers.
-
--- 
-Nathan

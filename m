@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315540AbSGFOeR>; Sat, 6 Jul 2002 10:34:17 -0400
+	id <S315539AbSGFOrB>; Sat, 6 Jul 2002 10:47:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315619AbSGFOeQ>; Sat, 6 Jul 2002 10:34:16 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:35547 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S315540AbSGFOeQ>; Sat, 6 Jul 2002 10:34:16 -0400
-Date: Sat, 6 Jul 2002 16:36:32 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Grega Fajdiga <Gregor.Fajdiga@telemach.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Where is Martin Dalecki?
-In-Reply-To: <20020706121859.2b137690.Gregor.Fajdiga@telemach.net>
-Message-ID: <Pine.SOL.4.30.0207061632520.1792-100000@mion.elka.pw.edu.pl>
+	id <S315593AbSGFOrA>; Sat, 6 Jul 2002 10:47:00 -0400
+Received: from ares.kos.net ([199.246.2.117]:21960 "HELO ares.kos.net")
+	by vger.kernel.org with SMTP id <S315539AbSGFOrA>;
+	Sat, 6 Jul 2002 10:47:00 -0400
+Message-ID: <004201c224fc$4b828a40$0a00000a@kos.net>
+From: "Steve Cole" <coles@vip.kos.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Follow-up to Dual Athlon XP MP board problems
+Date: Sat, 6 Jul 2002 10:49:13 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It appears - though it is still too early to tell - that my problems with
+the dual Athlon XP MP system has to do with something called "slew rate".
+There is zero documentation on this feature in the motherboard manual, and
+setting it to "auto" is what was causing the problem.
 
-On Sat, 6 Jul 2002, Grega Fajdiga wrote:
-
-> Good day,
->
-> There has been a while since any IDE patches have gone into main tree.
-> Also, it's been a while since Martin Dalecki released an IDE patch.
-> Where is he? In lat two weeks or so only Bartolmej (did I spell this
-> correctly?) has been releasing them. Could anyone elaborate?
-
-(1) Martin is on vacation, if I remeber well till 7th July (?).
-(2) Wrong :( ! Bartlomiej!
-
-:-)
-
-> Regards,
-> Grega Fajdiga
-
-Regards
---
-Bartlomiej !!!!
+Apparently for XP processors, the "slew rate" must be set to "1".  So far
+this has cleaned up the stability problems, and the 2.4.19.x kernel is
+supporting the hardware in the box.  Speaking of 2.4.19, I'm looking forward
+eagerly for it to be nailed together.
 

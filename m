@@ -1,41 +1,340 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271371AbTGQKDo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 06:03:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271374AbTGQKDn
+	id S271379AbTGQKOC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 06:14:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271384AbTGQKOB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 06:03:43 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:57613 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S271371AbTGQKDm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 06:03:42 -0400
-Date: Thu, 17 Jul 2003 11:18:05 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Larry McVoy <lm@work.bitmover.com>, Andrew Morton <akpm@digeo.com>,
-       Daniel Phillips <phillips@arcor.de>, acme@conectiva.com.br, cw@f00f.org,
-       torvalds@transmeta.com, geert@linux-m68k.org, alan@lxorguk.ukuu.org.uk,
-       perex@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: GCC speed (was [PATCH] Isapnp warning)
-Message-ID: <20030717111805.A18449@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Pavel Machek <pavel@suse.cz>, Larry McVoy <lm@work.bitmover.com>,
-	Andrew Morton <akpm@digeo.com>, Daniel Phillips <phillips@arcor.de>,
-	acme@conectiva.com.br, cw@f00f.org, torvalds@transmeta.com,
-	geert@linux-m68k.org, alan@lxorguk.ukuu.org.uk, perex@suse.cz,
-	linux-kernel@vger.kernel.org
-References: <20030621125111.0bb3dc1c.akpm@digeo.com> <20030622014345.GD10801@conectiva.com.br> <20030621191705.3c1dbb16.akpm@digeo.com> <200306221522.29653.phillips@arcor.de> <20030622103251.158691c3.akpm@digeo.com> <20030623010555.GA4302@work.bitmover.com> <20020104113205.GB1778@zaurus.ucw.cz>
+	Thu, 17 Jul 2003 06:14:01 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:2947
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S271379AbTGQKNS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 06:13:18 -0400
+Date: Thu, 17 Jul 2003 12:28:57 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.22pre6aa1
+Message-ID: <20030717102857.GA1855@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020104113205.GB1778@zaurus.ucw.cz>; from pavel@suse.cz on Fri, Jan 04, 2002 at 12:32:05PM +0100
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 04, 2002 at 12:32:05PM +0100, Pavel Machek wrote:
-> Perhaps someone schould create 2.7.3 with long long bugs fixed
-> and with c99 initializers?
+URL:
 
-2.7 does have C99 initializers.
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.22pre6aa1.gz
 
+changelog diff between 2.4.21rc8aa1 and 2.4.22pre6aa1:
+
+Only in 2.4.21rc8aa1: 00_01_cciss-1
+Only in 2.4.21rc8aa1: 00_02_cciss-1
+Only in 2.4.21rc8aa1: 00_03_cciss-1
+
+	Updates are in mainline.
+
+Only in 2.4.21rc8aa1: 00_backout-irda-trivial-1
+
+	Somebody acknowledged and fixed the breakage properly.
+	I hadn't a chance to test it myself yet on my cellphone,
+	but I will shortly.
+
+Only in 2.4.21rc8aa1: 00_binfmt-elf-checks-1
+Only in 2.4.22pre6aa1: 00_binfmt-elf-checks-2
+Only in 2.4.21rc8aa1: 00_dirty-inode-1
+Only in 2.4.22pre6aa1: 00_dirty-inode-3
+Only in 2.4.21rc8aa1: 00_drop-inetpeer-cache-4.gz
+Only in 2.4.22pre6aa1: 00_drop-inetpeer-cache-5.gz
+Only in 2.4.21rc8aa1: 00_ext3-register-filesystem-lifo-1
+Only in 2.4.22pre6aa1: 00_ext3-register-filesystem-lifo-2
+Only in 2.4.21rc8aa1: 00_extraversion-24
+Only in 2.4.22pre6aa1: 00_extraversion-26
+Only in 2.4.21rc8aa1: 00_generic_file_write_nolock-1
+Only in 2.4.22pre6aa1: 00_generic_file_write_nolock-3
+Only in 2.4.21rc8aa1: 00_module-locking-fix-2
+Only in 2.4.22pre6aa1: 00_module-locking-fix-3
+Only in 2.4.21rc8aa1: 00_netconsole-2.4.10-C2-3.gz
+Only in 2.4.22pre6aa1: 00_netconsole-2.4.10-C2-4.gz
+Only in 2.4.21rc8aa1: 00_rwsem-fair-36
+Only in 2.4.21rc8aa1: 00_rwsem-fair-36-recursive-8
+Only in 2.4.22pre6aa1: 00_rwsem-fair-38
+Only in 2.4.22pre6aa1: 00_rwsem-fair-38-recursive-8
+Only in 2.4.21rc8aa1: 00_setfl-race-fix-2
+Only in 2.4.22pre6aa1: 00_setfl-race-fix-3
+Only in 2.4.21rc8aa1: 00_vm-cleanups-2
+Only in 2.4.22pre6aa1: 00_vm-cleanups-3
+Only in 2.4.21rc8aa1: 05_vm_20_cleanups-2
+Only in 2.4.22pre6aa1: 05_vm_20_cleanups-3
+Only in 2.4.21rc8aa1: 07_qlogicfc-4.gz
+Only in 2.4.22pre6aa1: 07_qlogicfc-5.gz
+Only in 2.4.21rc8aa1: 10_rawio-vary-io-18
+Only in 2.4.22pre6aa1: 10_rawio-vary-io-21
+Only in 2.4.21rc8aa1: 20_rcu-poll-8
+Only in 2.4.22pre6aa1: 20_rcu-poll-9
+Only in 2.4.21rc8aa1: 20_sched-o1-fixes-8
+Only in 2.4.22pre6aa1: 20_sched-o1-fixes-9
+Only in 2.4.21rc8aa1: 50_uml-patch-2.4.20-5-1.gz
+Only in 2.4.22pre6aa1: 50_uml-patch-2.4.20-5-2.gz
+Only in 2.4.21rc8aa1: 60_atomic-lookup-5
+Only in 2.4.22pre6aa1: 60_atomic-lookup-6
+Only in 2.4.21rc8aa1: 60_tux-exports-6
+Only in 2.4.22pre6aa1: 60_tux-exports-7
+Only in 2.4.21rc8aa1: 70_delalloc-2
+Only in 2.4.22pre6aa1: 70_delalloc-3
+Only in 2.4.21rc8aa1: 96_inode_read_write-atomic-6
+Only in 2.4.22pre6aa1: 96_inode_read_write-atomic-8
+Only in 2.4.21rc8aa1: 97_i_size-corruption-fixes-2
+Only in 2.4.22pre6aa1: 97_i_size-corruption-fixes-4
+Only in 2.4.21rc8aa1: 9900_aio-20.gz
+Only in 2.4.22pre6aa1: 9900_aio-21.gz
+Only in 2.4.22pre6aa1: 9920_kgdb-10.gz
+Only in 2.4.21rc8aa1: 9920_kgdb-8.gz
+Only in 2.4.21rc8aa1: 9925_kmsgdump-0.4.4-2.gz
+Only in 2.4.22pre6aa1: 9925_kmsgdump-0.4.4-3.gz
+Only in 2.4.21rc8aa1: 9930_io_request_scale-5
+Only in 2.4.22pre6aa1: 9930_io_request_scale-6
+Only in 2.4.22pre6aa1: 9985_blk-atomic-12
+Only in 2.4.21rc8aa1: 9985_blk-atomic-9
+Only in 2.4.21rc8aa1: 9996_kiobuf-slab-1
+Only in 2.4.22pre6aa1: 9996_kiobuf-slab-2
+Only in 2.4.21rc8aa1: 9998_lowlatency-fixes-12
+Only in 2.4.22pre6aa1: 9998_lowlatency-fixes-13
+Only in 2.4.21rc8aa1: 9999_dm-1
+Only in 2.4.22pre6aa1: 9999_dm-2
+Only in 2.4.21rc8aa1: 9999_gcc-3.3-6
+Only in 2.4.22pre6aa1: 9999_gcc-3.3-7
+Only in 2.4.21rc8aa1: 9999_sched_yield_scale-2
+Only in 2.4.22pre6aa1: 9999_sched_yield_scale-5
+
+	Rediffed.
+
+Only in 2.4.22pre6aa1: 00_copy-namespace-1
+
+	Fix copy-namespace.
+
+Only in 2.4.21rc8aa1: 00_cpufreq-1
+
+	Dropped (would better go in mainline than in -aa, I already	
+	tried it and it doesn't do what I need, and now it's rejecting
+	in multiple ways).
+
+Only in 2.4.22pre6aa1: 00_crc-makefile-clean-1
+
+	Remeber to delete the autogenerated files to generate
+	clean diffs.
+
+Only in 2.4.21rc8aa1: 00_cs46xx-u32-1
+Only in 2.4.21rc8aa1: 00_floppy-smp-race-and-queuesize-1
+Only in 2.4.21rc8aa1: 00_ipv6-route-fix-1
+Only in 2.4.21rc8aa1: 00_o_direct-b_page-null-1
+Only in 2.4.21rc8aa1: 00_ppp-ioctl-memleak-1
+Only in 2.4.21rc8aa1: 00_tcp-tw-death-2
+Only in 2.4.21rc8aa1: 00_usbnet-zaurus-c700-1
+Only in 2.4.21rc8aa1: 00_wait_kio-cleanup-1
+Only in 2.4.21rc8aa1: 10_tlb-state-3
+Only in 2.4.21rc8aa1: 30_02_call-reserve1-1
+Only in 2.4.21rc8aa1: 30_03_call-reserve2-2
+Only in 2.4.21rc8aa1: 30_04_noac-1
+Only in 2.4.21rc8aa1: 30_09_o_direct-3
+Only in 2.4.21rc8aa1: 30_10-lockd1-1
+Only in 2.4.21rc8aa1: 30_11-lockd2-1
+Only in 2.4.21rc8aa1: 30_13-lockd4-1
+Only in 2.4.21rc8aa1: 30_15-xprt_fixes-1
+Only in 2.4.21rc8aa1: 70_quota-backport-3
+Only in 2.4.21rc8aa1: 9999901_O_DIRECT-1
+
+	Merged in mainline.
+
+Only in 2.4.22pre6aa1: 00_elevator-lowlatency-1
+
+	Reduced the number of requests during seeks (the latency times
+	increased slightly during seeks with pre5/pre6).
+
+Only in 2.4.22pre6aa1: 00_elevator-read-reservation-axboe-2l-1
+
+	Incremental patch from Jens, that reserved some spare
+	request for reads. This is been measured to avoid some
+	waiting for reads and it's beneficial in the common case.
+
+Only in 2.4.22pre6aa1: 00_fdatasync-cleanup-1
+
+	Avoid a compile time warning.
+
+Only in 2.4.21rc8aa1: 00_ksoftirqd-max-loop-networking-1
+Only in 2.4.22pre6aa1: 00_ksoftirqd-max-loop-networking-2
+
+	Merged a fix from Philip Craig to be sure to make
+	the anti-DoS logic effective. He wrote and verified
+	the code. It makes perfect sense so it's applied.
+	Normal usages shouldn't notice the difference, especially with the
+	max-loop logic.
+
+Only in 2.4.22pre6aa1: 00_parport-multi-io-pci-1
+
+	Multi-io cards depends on config-pci, from
+	Matthew Bell.
+
+Only in 2.4.21rc8aa1: 00_radeon-3
+
+	This started to reject and the mainline code seems
+	slightly different now. Should be rechecked later.
+
+Only in 2.4.21rc8aa1: 00_sched-O1-aa-2.4.19rc3-12.gz
+Only in 2.4.22pre6aa1: 00_sched-O1-aa-2.4.19rc3-14.gz
+
+	Avoid losing an half timeslice of in signal delivery delay
+	if the signal was sent while the task was under weakup. Fix
+	from Ingo Molnar.
+
+Only in 2.4.21rc8aa1: 00_semop-timeout-2
+Only in 2.4.22pre6aa1: 00_semop-timeout-3
+
+	Most of it merged in mainline, except the ia64 entry
+	in the syscall table. Interestingly the syscall
+	now allocated for ia64 is different than the one in 21rc8aa1.
+
+Only in 2.4.21rc8aa1: 00_smp-timers-not-deadlocking-3
+Only in 2.4.22pre6aa1: 00_smp-timers-not-deadlocking-5
+
+	Merged an anti deadlock fix from lcm, 2.5 probably needs it too. In
+	short the theory that mod_timer is the only thing that can run in
+	parallel was wrong, add_timer and del_timer/del_timer_sync can too.
+	Having already fixed mod_timer in a backwards compatible way before
+	merging the smp-timers in -aa, made it easy to fix those further
+	windows too.
+
+Only in 2.4.21rc8aa1: 00_usb_get_string-len-1
+
+	Dropped, was the wrong fix and it could break stuff.
+
+Only in 2.4.22pre6aa1: 05_vm_25_try_to_free_buffers-invariant-1
+
+	Minor cleanup from Daniele Bellucci.
+
+Only in 2.4.21rc8aa1: 10_o_direct-open-check-3
+Only in 2.4.22pre6aa1: 10_o_direct-open-check-4
+
+	Updated to handle the double API.
+
+Only in 2.4.21rc8aa1: 10_try-cciss-only-4G-1
+
+	Dropped, new code in mainline.
+
+Only in 2.4.22pre6aa1: 21_ppc64-aa-2
+
+	Was used to fix ppc64 around pre3, but pre3-pre6 may have
+	broke stuff again, I didn't check.
+
+Only in 2.4.21rc8aa1: 70_xfs-1.2-3.gz
+Only in 2.4.22pre6aa1: 70_xfs-1.3-2.gz
+Only in 2.4.21rc8aa1: 70_xfs-config-stuff-3
+Only in 2.4.22pre6aa1: 70_xfs-config-stuff-4
+Only in 2.4.21rc8aa1: 70_xfs-exports-1
+Only in 2.4.22pre6aa1: 70_xfs-exports-2
+Only in 2.4.21rc8aa1: 70_xfs-sysctl-2
+Only in 2.4.22pre6aa1: 70_xfs-sysctl-3
+Only in 2.4.21rc8aa1: 71_posix_acl-2
+Only in 2.4.22pre6aa1: 71_posix_acl-3
+Only in 2.4.22pre6aa1: 71_xfs-VM_IO-1
+Only in 2.4.21rc8aa1: 71_xfs-aa-2
+Only in 2.4.22pre6aa1: 71_xfs-aa-4
+Only in 2.4.22pre6aa1: 71_xfs-fixup-1
+Only in 2.4.22pre6aa1: 71_xfs-infrastructure-1
+Only in 2.4.22pre6aa1: 71_xfs-tuning-1
+
+	Upgraded XFS from 1.2 to 1.3.
+
+Only in 2.4.21rc8aa1: 80_x86_64-common-code-6
+Only in 2.4.21rc8aa1: 82_x86_64-suse-12
+Only in 2.4.21rc8aa1: 84_x86-64-arch-3
+Only in 2.4.21rc8aa1: 85_x86-64-includes-2
+
+	Dropped, mainline is more uptodate. Though it
+	won't compile like ia64.
+
+Only in 2.4.21rc8aa1: 93_NUMAQ-10
+Only in 2.4.22pre6aa1: 93_NUMAQ-13
+
+	Merged latest numa code for x440.
+
+Only in 2.4.22pre6aa1: 9900_aio-21-ppc-1
+
+	ppc aio code.
+
+Only in 2.4.22pre6aa1: 9901_aio-blkdev-1
+
+	Allow aio on blkdevices too (dunno who wrote this).
+
+Only in 2.4.21rc8aa1: 9910_shm-largepage-13.gz
+Only in 2.4.22pre6aa1: 9910_shm-largepage-16.gz
+
+	Thanks to Hugh for the help in porting the bigpages
+	to the rewritten shmfs layer in 22pre. No idea at the moment if it
+	works or if it only compiles.
+
+Only in 2.4.21rc8aa1: 9940_ocfs-2.gz
+Only in 2.4.22pre6aa1: 9940_ocfs-3.gz
+Only in 2.4.21rc8aa1: 9941_ocfs-20021012.gz
+Only in 2.4.22pre6aa1: 9941_ocfs-direct-1
+Only in 2.4.22pre6aa1: 9941_ocfs-warnings-1
+Only in 2.4.21rc8aa1: 9942_ocfs-compile-2
+Only in 2.4.22pre6aa1: 9942_ocfs-o_direct-API-1
+
+	Upgraded to a more recent ocfs version (merged by Andi Kleen).
+
+Only in 2.4.21rc8aa1: 9980_fix-pausing-5
+Only in 2.4.22pre6aa1: 9980_fix-pausing-6
+Only in 2.4.21rc8aa1: 9981_elevator-lowlatency-5
+
+	Fix pausing and elevator lowlatency are now in 2.4.22pre.
+
+	Unplugging the queue may avoid a reschedule.
+
+Only in 2.4.21rc8aa1: 9986_elevator-merge-fast-path-1
+Only in 2.4.22pre6aa1: 9986_elevator-merge-fast-path-2
+
+	Enabled for headactive devices (i.e. IDE) too. Idea
+	and original patch from Daniele Bellucci, final
+	patch from Jens Axboe.
+
+Only in 2.4.22pre6aa1: 9998_lowlatency-reiserfs-1
+
+	Added an appealing reschedule hook (should be double checked).
+
+Only in 2.4.22pre6aa1: 9999900_desktop-2
+
+	Added a desktop mode that guarantees an higher degree
+	of fariness in the scheduler.
+
+Only in 2.4.22pre6aa1: 9999900_drm-4.3-1.gz
+
+	drm updates. Merged by Chip Salzenberg.
+
+Only in 2.4.22pre6aa1: 9999900_ecc-20020904-1.gz
+
+	ecc timer poller latest code. Merged by Chip Salzenberg.
+
+Only in 2.4.21rc8aa1: 9999900_ikd-1
+Only in 2.4.22pre6aa1: 9999900_ikd-2.gz
+
+	Initialize it at boot so it will have a chance to work.
+
+Only in 2.4.22pre6aa1: 9999900_x86-movsl-copy-user-1
+
+	Boost the copy-user asm.
+
+Only in 2.4.21rc8aa1: 9999_truncate-nopage-race-1
+Only in 2.4.22pre6aa1: 9999_truncate-nopage-race-3
+
+	Take advantage of the i_alloc_sem in read mode to serialize only
+	against truncates, to avoid possible suprious reschedules.
+
+Only in 2.4.21rc8aa1: 10_ext3-o_direct-2
+Only in 2.4.22pre6aa1: 10_ext3-o_direct-3
+Only in 2.4.21rc8aa1: 40_o_direct-reiserfs-2
+
+	Update to new API.
+
+Andrea

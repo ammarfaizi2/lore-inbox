@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131829AbRAIAWq>; Mon, 8 Jan 2001 19:22:46 -0500
+	id <S136702AbRAIAY4>; Mon, 8 Jan 2001 19:24:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136702AbRAIAWg>; Mon, 8 Jan 2001 19:22:36 -0500
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:7429 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S131829AbRAIAWZ>; Mon, 8 Jan 2001 19:22:25 -0500
-Date: 08 Jan 2001 23:39:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
+	id <S136751AbRAIAYq>; Mon, 8 Jan 2001 19:24:46 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:47366 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S136702AbRAIAYa>; Mon, 8 Jan 2001 19:24:30 -0500
+From: Rusty Russell <rusty@linuxcare.com.au>
 To: linux-kernel@vger.kernel.org
-Message-ID: <7tSnVTQ1w-B@khms.westfalen.de>
-In-Reply-To: <93d7fr$429$1@penguin.transmeta.com>
-Subject: Re: setfsuid on ext2 weirdness (2.4)
-X-Mailer: CrossPoint v3.12d.kh5 R/C435
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <93d7fr$429$1@penguin.transmeta.com>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Cc: "Jeremy M. Dolan" <jmd@foozle.turbogeek.org>
+Subject: Re: Extraneous whitespace removal? 
+In-Reply-To: Your message of "Mon, 08 Jan 2001 04:42:18 MDT."
+             <20010108044218.A9610@foozle.turbogeek.org> 
+Date: Tue, 09 Jan 2001 11:24:20 +1100
+Message-Id: <E14FmaK-0000NJ-00@halfway>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-torvalds@transmeta.com (Linus Torvalds)  wrote on 08.01.01 in <93d7fr$429$1@penguin.transmeta.com>:
+In message <20010108044218.A9610@foozle.turbogeek.org> you write:
+> Pluses:
+>  - clean up messy whitespace
+>  - cut precious picoseconds off compile time
+>  - cut kernel tree by 200k (+/- alot)
 
-> And hey, if you think the above is confusing, try making your /dev/null
-> a regular (writable) file by mistake.  Now THAT will be confusing as
-> hell: things will actually work surprisingly well, but some thing
-> _really_ don't work the way they are intended to.  And chasing it down
-> is an exercise in futility.  Yes, I've done that at least twice as root
-> by mistake.
+I've done this before, but never posted it, lest they think I'm
+insane.  I vote this for 2.5.1.
 
-So have I. It's so damned easy. Just remove the original; pretty soon  
-*something* will create a plain file there.
-
-Now you have:
-
-* Actual input reading from /dev/null (and it changes!).
-* Unusual permissions on /dev/null
-
-Fun fun fun. Many unusual failure modes.
-
-MfG Kai
+You, sir, have balls,
+Rusty.
+--
+http://linux.conf.au The Linux conference Australia needed.
+--- working-2.4.0/MAINTAINERS.~1~	Mon Jan  1 04:31:15 2001
++++ working-2.4.0/MAINTAINERS	Tue Jan  9 11:23:48 2001
+@@ -1434,6 +1434,11 @@
+ L:	linux-scsi@vger.kernel.org
+ S:	Maintained
+ 
++WHITESPACE
++P:	Jeremy M. Dolan
++M:	jmd@foozle.turbogeek.org
++S:	Maintained
++
+ X.25 NETWORK LAYER
+ P:	Henner Eisen
+ M:	eis@baty.hanse.de
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274664AbRIYWjI>; Tue, 25 Sep 2001 18:39:08 -0400
+	id <S274669AbRIYWl1>; Tue, 25 Sep 2001 18:41:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274567AbRIYWjA>; Tue, 25 Sep 2001 18:39:00 -0400
-Received: from ranger.argus-systems.com ([206.221.232.80]:1167 "EHLO
-	ranger.argus-systems.com") by vger.kernel.org with ESMTP
-	id <S274661AbRIYWik>; Tue, 25 Sep 2001 18:38:40 -0400
-Message-ID: <3BB10767.3080901@argus-systems.com>
-Date: Tue, 25 Sep 2001 17:38:31 -0500
-From: Chad Hanson <hanson@argus-systems.com>
-Organization: Argus Systems Group, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
-X-Accept-Language: en-us
-MIME-Version: 1.0
+	id <S274567AbRIYWlR>; Tue, 25 Sep 2001 18:41:17 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:39690 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S274670AbRIYWlI>; Tue, 25 Sep 2001 18:41:08 -0400
+Date: Tue, 25 Sep 2001 18:41:32 -0400
+Message-Id: <200109252241.f8PMfWY07018@deathstar.prodigy.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Binary only module overview
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] 2.4.10 improved reiserfs a lot, but could still be better
+X-Newsgroups: linux.dev.kernel
+In-Reply-To: <Pine.LNX.4.20.0109250820001.28393-100000@otter.mbay.net>
+Organization: TMR Associates, Schenectady NY
+From: davidsen@tmr.com (bill davidsen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+In article <Pine.LNX.4.20.0109250820001.28393-100000@otter.mbay.net> jalvo@mbay.net wrote:
 
-PitBull LX for Linux source patches have been available at 
-www.argusrevolution.com. After the tragic event of Sept 11, Argus has 
-temporarily suspended the operation of this web site. I am sorry for the 
-inconvenience this may have caused. The Argus PitBull LX for Linux 
-patches for Linux will be available shortly at 
-http://sourceforge.net/projects/pitbull-lx
+| There used to be stupid hard disk formatting tricks where the sector
+| numbers were interleaved
+| 
+| 1001 1008 1002 1009 1003 1010 1004 1011 1005 1012 1006 1013 1007 1014
+| 
+| just to gain that enhancement. I also remember an ancient IBM Dasd trick
+| where the sectors were offset just slightly so that a track to track
+| switch could pick up the next sector in time.
+| 
+| Ancient history...
 
-Thanks for your understanding,
+  The spacing between consecutively numbered sectors is called
+interleave, and the offset between cylinders is called skew.
 
-Chad Hanson
+  Take a look at superformat, it's still done. The object is to take any
+media without hardware cache and match the timing of the media under the
+head with the need for data. This could easily double the transfer rate
+on any media which runs in an unbuffered reader.
 
-> On Tue, Sep 25, 2001 at 08:44:39AM -0700, Greg KH wrote:
-> 
-> 
->> On Mon, Sep 24, 2001 at 12:40:44PM -0400, Arjan van de Ven wrote:
-> 
->> > 
->> > I'm composing a list of all existing binary only modules, 
-> 
->> 
->> Argus System's PitBull for Linux modifies the kernel.  No source or
->> patches for these modifications can be found on the web, so I'm guessing
->> that it's closed source:
->> http://www.argus-systems.com/
-> 
-> 
+  And I would be surprised if modern hard drives don't allow using an
+offset between tracks so that when a track is read the next track
+"starts" under the read heads after the delay to step one track. This
+can save you the rotational latency of the drive, which on a 7200rpm
+drive is ~8.5ms, or as great as the step time. If actual track to track
+is matched to the step time you save that one rotation on big block
+reads, like swaps.
 
+  Guess it's not quite so ancient history after all, just done by the
+vendor typically. If I were writing a low level formatting routine, and
+I haven't in over a decade, I would run some tests on how much skew is
+needed to have the first sector under the head. The penelty for making
+that number a little too large is a sector or two, the penalty for
+making it too small is one rotation less a sector or two.
 
 -- 
-Chad Hanson
-VP and Chief Technologist, Govt Systems
-Argus Systems Group, Inc.
-mailto:hanson@argus-systems.com
-http://www.argus-systems.com
-Phone: (217) 355-6308
-Fax:   (217) 355-1433
-
+bill davidsen <davidsen@tmr.com>
+ "If I were a diplomat, in the best case I'd go hungry.  In the worst
+  case, people would die."
+		-- Robert Lipe

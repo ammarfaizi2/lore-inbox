@@ -1,12 +1,12 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267615AbTAQRPK>; Fri, 17 Jan 2003 12:15:10 -0500
+	id <S267608AbTAQRNf>; Fri, 17 Jan 2003 12:13:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267617AbTAQRPJ>; Fri, 17 Jan 2003 12:15:09 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:44747 "EHLO
+	id <S267612AbTAQRNf>; Fri, 17 Jan 2003 12:13:35 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:21962 "EHLO
 	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267615AbTAQRPE>; Fri, 17 Jan 2003 12:15:04 -0500
-Date: Fri, 17 Jan 2003 09:23:32 -0800
+	id <S267608AbTAQRNb>; Fri, 17 Jan 2003 12:13:31 -0500
+Date: Fri, 17 Jan 2003 09:21:49 -0800
 From: "Martin J. Bligh" <mbligh@aracnet.com>
 To: Erich Focht <efocht@ess.nec.de>, Ingo Molnar <mingo@elte.hu>
 cc: Christoph Hellwig <hch@infradead.org>, Robert Love <rml@tech9.net>,
@@ -16,7 +16,7 @@ cc: Christoph Hellwig <hch@infradead.org>, Robert Love <rml@tech9.net>,
        linux-kernel <linux-kernel@vger.kernel.org>,
        lse-tech <lse-tech@lists.sourceforge.net>
 Subject: Re: [patch] sched-2.5.59-A2
-Message-ID: <295750000.1042824212@titus>
+Message-ID: <286110000.1042824100@titus>
 In-Reply-To: <200301171535.21226.efocht@ess.nec.de>
 References: <Pine.LNX.4.44.0301170921430.3723-100000@localhost.localdomain> <200301171535.21226.efocht@ess.nec.de>
 X-Mailer: Mulberry/2.2.1 (Linux/x86)
@@ -29,228 +29,288 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 > I like the cleanup of the topology.h. 
 
-And the rest of Ingo's second version:
+Any chance we could keep that broken out as a seperate patch?
+Topo cleanups below:
 
-diff -urpN -X /home/fletch/.diff.exclude ingo-A/kernel/sched.c ingo-B/kernel/sched.c
---- ingo-A/kernel/sched.c	Fri Jan 17 09:18:32 2003
-+++ ingo-B/kernel/sched.c	Fri Jan 17 09:19:42 2003
-@@ -153,10 +153,9 @@ struct runqueue {
- 			nr_uninterruptible;
- 	task_t *curr, *idle;
- 	prio_array_t *active, *expired, arrays[2];
--	int prev_nr_running[NR_CPUS];
-+	int prev_cpu_load[NR_CPUS];
- #ifdef CONFIG_NUMA
- 	atomic_t *node_nr_running;
--	unsigned int nr_balanced;
- 	int prev_node_load[MAX_NUMNODES];
- #endif
- 	task_t *migration_thread;
-@@ -765,29 +764,6 @@ static int find_busiest_node(int this_no
- 	return node;
- }
+diff -urpN -X /home/fletch/.diff.exclude virgin/drivers/base/cpu.c ingo-A/drivers/base/cpu.c
+--- virgin/drivers/base/cpu.c	Sun Dec  1 09:59:47 2002
++++ ingo-A/drivers/base/cpu.c	Fri Jan 17 09:19:23 2003
+@@ -6,8 +6,7 @@
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/cpu.h>
+-
+-#include <asm/topology.h>
++#include <linux/topology.h>
  
--static inline unsigned long cpus_to_balance(int this_cpu, runqueue_t *this_rq)
--{
--	int this_node = __cpu_to_node(this_cpu);
--	/*
--	 * Avoid rebalancing between nodes too often.
--	 * We rebalance globally once every NODE_BALANCE_RATE load balances.
--	 */
--	if (++(this_rq->nr_balanced) == NODE_BALANCE_RATE) {
--		int node = find_busiest_node(this_node);
--		this_rq->nr_balanced = 0;
--		if (node >= 0)
--			return (__node_to_cpu_mask(node) | (1UL << this_cpu));
--	}
--	return __node_to_cpu_mask(this_node);
--}
+ 
+ static int cpu_add_device(struct device * dev)
+diff -urpN -X /home/fletch/.diff.exclude virgin/drivers/base/memblk.c ingo-A/drivers/base/memblk.c
+--- virgin/drivers/base/memblk.c	Mon Dec 16 21:50:42 2002
++++ ingo-A/drivers/base/memblk.c	Fri Jan 17 09:19:23 2003
+@@ -7,8 +7,7 @@
+ #include <linux/init.h>
+ #include <linux/memblk.h>
+ #include <linux/node.h>
+-
+-#include <asm/topology.h>
++#include <linux/topology.h>
+ 
+ 
+ static int memblk_add_device(struct device * dev)
+diff -urpN -X /home/fletch/.diff.exclude virgin/drivers/base/node.c ingo-A/drivers/base/node.c
+--- virgin/drivers/base/node.c	Fri Jan 17 09:18:26 2003
++++ ingo-A/drivers/base/node.c	Fri Jan 17 09:19:23 2003
+@@ -7,8 +7,7 @@
+ #include <linux/init.h>
+ #include <linux/mm.h>
+ #include <linux/node.h>
+-
+-#include <asm/topology.h>
++#include <linux/topology.h>
+ 
+ 
+ static int node_add_device(struct device * dev)
+diff -urpN -X /home/fletch/.diff.exclude virgin/include/asm-generic/topology.h ingo-A/include/asm-generic/topology.h
+--- virgin/include/asm-generic/topology.h	Fri Jan 17 09:18:31 2003
++++ ingo-A/include/asm-generic/topology.h	Fri Jan 17 09:19:23 2003
+@@ -1,56 +0,0 @@
+-/*
+- * linux/include/asm-generic/topology.h
+- *
+- * Written by: Matthew Dobson, IBM Corporation
+- *
+- * Copyright (C) 2002, IBM Corp.
+- *
+- * All rights reserved.          
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful, but
+- * WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
+- * NON INFRINGEMENT.  See the GNU General Public License for more
+- * details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+- *
+- * Send feedback to <colpatch@us.ibm.com>
+- */
+-#ifndef _ASM_GENERIC_TOPOLOGY_H
+-#define _ASM_GENERIC_TOPOLOGY_H
+-
+-/* Other architectures wishing to use this simple topology API should fill
+-   in the below functions as appropriate in their own <asm/topology.h> file. */
+-#ifndef __cpu_to_node
+-#define __cpu_to_node(cpu)		(0)
+-#endif
+-#ifndef __memblk_to_node
+-#define __memblk_to_node(memblk)	(0)
+-#endif
+-#ifndef __parent_node
+-#define __parent_node(node)		(0)
+-#endif
+-#ifndef __node_to_first_cpu
+-#define __node_to_first_cpu(node)	(0)
+-#endif
+-#ifndef __node_to_cpu_mask
+-#define __node_to_cpu_mask(node)	(cpu_online_map)
+-#endif
+-#ifndef __node_to_memblk
+-#define __node_to_memblk(node)		(0)
+-#endif
+-
+-/* Cross-node load balancing interval. */
+-#ifndef NODE_BALANCE_RATE
+-#define NODE_BALANCE_RATE 10
+-#endif
+-
+-#endif /* _ASM_GENERIC_TOPOLOGY_H */
+diff -urpN -X /home/fletch/.diff.exclude virgin/include/asm-i386/cpu.h ingo-A/include/asm-i386/cpu.h
+--- virgin/include/asm-i386/cpu.h	Sun Nov 17 20:29:50 2002
++++ ingo-A/include/asm-i386/cpu.h	Fri Jan 17 09:19:23 2003
+@@ -3,8 +3,8 @@
+ 
+ #include <linux/device.h>
+ #include <linux/cpu.h>
++#include <linux/topology.h>
+ 
+-#include <asm/topology.h>
+ #include <asm/node.h>
+ 
+ struct i386_cpu {
+diff -urpN -X /home/fletch/.diff.exclude virgin/include/asm-i386/memblk.h ingo-A/include/asm-i386/memblk.h
+--- virgin/include/asm-i386/memblk.h	Sun Nov 17 20:29:47 2002
++++ ingo-A/include/asm-i386/memblk.h	Fri Jan 17 09:19:25 2003
+@@ -4,8 +4,8 @@
+ #include <linux/device.h>
+ #include <linux/mmzone.h>
+ #include <linux/memblk.h>
++#include <linux/topology.h>
+ 
+-#include <asm/topology.h>
+ #include <asm/node.h>
+ 
+ struct i386_memblk {
+diff -urpN -X /home/fletch/.diff.exclude virgin/include/asm-i386/node.h ingo-A/include/asm-i386/node.h
+--- virgin/include/asm-i386/node.h	Sun Nov 17 20:29:29 2002
++++ ingo-A/include/asm-i386/node.h	Fri Jan 17 09:19:24 2003
+@@ -4,8 +4,7 @@
+ #include <linux/device.h>
+ #include <linux/mmzone.h>
+ #include <linux/node.h>
+-
+-#include <asm/topology.h>
++#include <linux/topology.h>
+ 
+ struct i386_node {
+ 	struct node node;
+diff -urpN -X /home/fletch/.diff.exclude virgin/include/asm-i386/topology.h ingo-A/include/asm-i386/topology.h
+--- virgin/include/asm-i386/topology.h	Fri Jan 17 09:18:31 2003
++++ ingo-A/include/asm-i386/topology.h	Fri Jan 17 09:19:23 2003
+@@ -61,17 +61,6 @@ static inline int __node_to_first_cpu(in
+ /* Returns the number of the first MemBlk on Node 'node' */
+ #define __node_to_memblk(node) (node)
+ 
+-/* Cross-node load balancing interval. */
+-#define NODE_BALANCE_RATE 100
 -
 -#else /* !CONFIG_NUMA */
+-/*
+- * Other i386 platforms should define their own version of the 
+- * above macros here.
+- */
 -
--static inline unsigned long cpus_to_balance(int this_cpu, runqueue_t *this_rq)
--{
--	return cpu_online_map;
--}
+-#include <asm-generic/topology.h>
 -
  #endif /* CONFIG_NUMA */
  
- #if CONFIG_SMP
-@@ -807,10 +783,10 @@ static inline unsigned int double_lock_b
- 			spin_lock(&busiest->lock);
- 			spin_lock(&this_rq->lock);
- 			/* Need to recalculate nr_running */
--			if (idle || (this_rq->nr_running > this_rq->prev_nr_running[this_cpu]))
-+			if (idle || (this_rq->nr_running > this_rq->prev_cpu_load[this_cpu]))
- 				nr_running = this_rq->nr_running;
- 			else
--				nr_running = this_rq->prev_nr_running[this_cpu];
-+				nr_running = this_rq->prev_cpu_load[this_cpu];
- 		} else
- 			spin_lock(&busiest->lock);
- 	}
-@@ -847,10 +823,10 @@ static inline runqueue_t *find_busiest_q
- 	 * that case we are less picky about moving a task across CPUs and
- 	 * take what can be taken.
- 	 */
--	if (idle || (this_rq->nr_running > this_rq->prev_nr_running[this_cpu]))
-+	if (idle || (this_rq->nr_running > this_rq->prev_cpu_load[this_cpu]))
- 		nr_running = this_rq->nr_running;
- 	else
--		nr_running = this_rq->prev_nr_running[this_cpu];
-+		nr_running = this_rq->prev_cpu_load[this_cpu];
- 
- 	busiest = NULL;
- 	max_load = 1;
-@@ -859,11 +835,11 @@ static inline runqueue_t *find_busiest_q
- 			continue;
- 
- 		rq_src = cpu_rq(i);
--		if (idle || (rq_src->nr_running < this_rq->prev_nr_running[i]))
-+		if (idle || (rq_src->nr_running < this_rq->prev_cpu_load[i]))
- 			load = rq_src->nr_running;
- 		else
--			load = this_rq->prev_nr_running[i];
--		this_rq->prev_nr_running[i] = rq_src->nr_running;
-+			load = this_rq->prev_cpu_load[i];
-+		this_rq->prev_cpu_load[i] = rq_src->nr_running;
- 
- 		if ((load > max_load) && (rq_src != this_rq)) {
- 			busiest = rq_src;
-@@ -922,7 +898,7 @@ static inline void pull_task(runqueue_t 
-  * We call this with the current runqueue locked,
-  * irqs disabled.
+ #endif /* _ASM_I386_TOPOLOGY_H */
+diff -urpN -X /home/fletch/.diff.exclude virgin/include/asm-ia64/topology.h ingo-A/include/asm-ia64/topology.h
+--- virgin/include/asm-ia64/topology.h	Fri Jan 17 09:18:31 2003
++++ ingo-A/include/asm-ia64/topology.h	Fri Jan 17 09:19:23 2003
+@@ -60,7 +60,4 @@
   */
--static void load_balance(runqueue_t *this_rq, int idle)
-+static void load_balance(runqueue_t *this_rq, int idle, unsigned long cpumask)
- {
- 	int imbalance, idx, this_cpu = smp_processor_id();
- 	runqueue_t *busiest;
-@@ -930,8 +906,7 @@ static void load_balance(runqueue_t *thi
- 	struct list_head *head, *curr;
- 	task_t *tmp;
+ #define __node_to_memblk(node) (node)
  
--	busiest = find_busiest_queue(this_rq, this_cpu, idle, &imbalance,
--					cpus_to_balance(this_cpu, this_rq));
-+	busiest = find_busiest_queue(this_rq, this_cpu, idle, &imbalance, cpumask);
- 	if (!busiest)
- 		goto out;
- 
-@@ -1006,21 +981,75 @@ out:
-  * frequency and balancing agressivity depends on whether the CPU is
-  * idle or not.
-  *
-- * busy-rebalance every 250 msecs. idle-rebalance every 1 msec. (or on
-+ * busy-rebalance every 200 msecs. idle-rebalance every 1 msec. (or on
-  * systems with HZ=100, every 10 msecs.)
-+ *
-+ * On NUMA, do a node-rebalance every 400 msecs.
-  */
--#define BUSY_REBALANCE_TICK (HZ/4 ?: 1)
- #define IDLE_REBALANCE_TICK (HZ/1000 ?: 1)
-+#define BUSY_REBALANCE_TICK (HZ/5 ?: 1)
-+#define IDLE_NODE_REBALANCE_TICK (IDLE_REBALANCE_TICK * 2)
-+#define BUSY_NODE_REBALANCE_TICK (BUSY_REBALANCE_TICK * 2)
- 
--static inline void idle_tick(runqueue_t *rq)
-+#if CONFIG_NUMA
-+static void balance_node(runqueue_t *this_rq, int idle, int this_cpu)
- {
--	if (jiffies % IDLE_REBALANCE_TICK)
--		return;
--	spin_lock(&rq->lock);
--	load_balance(rq, 1);
--	spin_unlock(&rq->lock);
-+	int node = find_busiest_node(__cpu_to_node(this_cpu));
-+	unsigned long cpumask, this_cpumask = 1UL << this_cpu;
-+
-+	if (node >= 0) {
-+		cpumask = __node_to_cpu_mask(node) | this_cpumask;
-+		spin_lock(&this_rq->lock);
-+		load_balance(this_rq, idle, cpumask);
-+		spin_unlock(&this_rq->lock);
-+	}
+-/* Cross-node load balancing interval. */
+-#define NODE_BALANCE_RATE 10
+-
+ #endif /* _ASM_IA64_TOPOLOGY_H */
+diff -urpN -X /home/fletch/.diff.exclude virgin/include/asm-ppc64/topology.h ingo-A/include/asm-ppc64/topology.h
+--- virgin/include/asm-ppc64/topology.h	Fri Jan 17 09:18:31 2003
++++ ingo-A/include/asm-ppc64/topology.h	Fri Jan 17 09:19:23 2003
+@@ -46,18 +46,6 @@ static inline unsigned long __node_to_cp
+ 	return mask;
  }
-+#endif
  
-+static void rebalance_tick(runqueue_t *this_rq, int idle)
-+{
-+#if CONFIG_NUMA
-+	int this_cpu = smp_processor_id();
-+#endif
-+	unsigned long j = jiffies;
-+
-+	/*
-+	 * First do inter-node rebalancing, then intra-node rebalancing,
-+	 * if both events happen in the same tick. The inter-node
-+	 * rebalancing does not necessarily have to create a perfect
-+	 * balance within the node, since we load-balance the most loaded
-+	 * node with the current CPU. (ie. other CPUs in the local node
-+	 * are not balanced.)
-+	 */
-+	if (idle) {
-+#if CONFIG_NUMA
-+		if (!(j % IDLE_NODE_REBALANCE_TICK))
-+			balance_node(this_rq, idle, this_cpu);
-+#endif
-+		if (!(j % IDLE_REBALANCE_TICK)) {
-+			spin_lock(&this_rq->lock);
-+			load_balance(this_rq, 0, __cpu_to_node_mask(this_cpu));
-+			spin_unlock(&this_rq->lock);
-+		}
-+		return;
-+	}
-+#if CONFIG_NUMA
-+	if (!(j % BUSY_NODE_REBALANCE_TICK))
-+		balance_node(this_rq, idle, this_cpu);
-+#endif
-+	if (!(j % BUSY_REBALANCE_TICK)) {
-+		spin_lock(&this_rq->lock);
-+		load_balance(this_rq, idle, __cpu_to_node_mask(this_cpu));
-+		spin_unlock(&this_rq->lock);
-+	}
-+}
-+#else
+-/* Cross-node load balancing interval. */
+-#define NODE_BALANCE_RATE 10
+-
+-#else /* !CONFIG_NUMA */
+-
+-#define __cpu_to_node(cpu)		(0)
+-#define __memblk_to_node(memblk)	(0)
+-#define __parent_node(nid)		(0)
+-#define __node_to_first_cpu(node)	(0)
+-#define __node_to_cpu_mask(node)	(cpu_online_map)
+-#define __node_to_memblk(node)		(0)
+-
+ #endif /* CONFIG_NUMA */
+ 
+ #endif /* _ASM_PPC64_TOPOLOGY_H */
+diff -urpN -X /home/fletch/.diff.exclude virgin/include/linux/mmzone.h ingo-A/include/linux/mmzone.h
+--- virgin/include/linux/mmzone.h	Fri Jan 17 09:18:31 2003
++++ ingo-A/include/linux/mmzone.h	Fri Jan 17 09:19:23 2003
+@@ -255,9 +255,7 @@ static inline struct zone *next_zone(str
+ #define MAX_NR_MEMBLKS	1
+ #endif /* CONFIG_NUMA */
+ 
+-#include <asm/topology.h>
+-/* Returns the number of the current Node. */
+-#define numa_node_id()		(__cpu_to_node(smp_processor_id()))
++#include <linux/topology.h>
+ 
+ #ifndef CONFIG_DISCONTIGMEM
+ extern struct pglist_data contig_page_data;
+diff -urpN -X /home/fletch/.diff.exclude virgin/include/linux/topology.h ingo-A/include/linux/topology.h
+--- virgin/include/linux/topology.h	Wed Dec 31 16:00:00 1969
++++ ingo-A/include/linux/topology.h	Fri Jan 17 09:19:23 2003
+@@ -0,0 +1,43 @@
 +/*
-+ * on UP we do not need to balance between CPUs:
++ * linux/include/linux/topology.h
 + */
-+static inline void rebalance_tick(runqueue_t *this_rq, int idle)
-+{
-+}
- #endif
++#ifndef _LINUX_TOPOLOGY_H
++#define _LINUX_TOPOLOGY_H
++
++#include <asm/topology.h>
++
++/*
++ * The default (non-NUMA) topology definitions:
++ */
++#ifndef __cpu_to_node
++#define __cpu_to_node(cpu)		(0)
++#endif
++#ifndef __memblk_to_node
++#define __memblk_to_node(memblk)	(0)
++#endif
++#ifndef __parent_node
++#define __parent_node(node)		(0)
++#endif
++#ifndef __node_to_first_cpu
++#define __node_to_first_cpu(node)	(0)
++#endif
++#ifndef __cpu_to_node_mask
++#define __cpu_to_node_mask(cpu)		(cpu_online_map)
++#endif
++#ifndef __node_to_cpu_mask
++#define __node_to_cpu_mask(node)		(cpu_online_map)
++#endif
++#ifndef __node_to_memblk
++#define __node_to_memblk(node)		(0)
++#endif
++
++#ifndef __cpu_to_node_mask
++#define __cpu_to_node_mask(cpu)		__node_to_cpu_mask(__cpu_to_node(cpu))
++#endif
++
++/*
++ * Generic defintions:
++ */
++#define numa_node_id()			(__cpu_to_node(smp_processor_id()))
++
++#endif /* _LINUX_TOPOLOGY_H */
+diff -urpN -X /home/fletch/.diff.exclude virgin/mm/page_alloc.c ingo-A/mm/page_alloc.c
+--- virgin/mm/page_alloc.c	Fri Jan 17 09:18:32 2003
++++ ingo-A/mm/page_alloc.c	Fri Jan 17 09:19:25 2003
+@@ -28,8 +28,7 @@
+ #include <linux/blkdev.h>
+ #include <linux/slab.h>
+ #include <linux/notifier.h>
+-
+-#include <asm/topology.h>
++#include <linux/topology.h>
  
- DEFINE_PER_CPU(struct kernel_stat, kstat) = { { 0 } };
-@@ -1063,9 +1092,7 @@ void scheduler_tick(int user_ticks, int 
- 			kstat_cpu(cpu).cpustat.iowait += sys_ticks;
- 		else
- 			kstat_cpu(cpu).cpustat.idle += sys_ticks;
--#if CONFIG_SMP
--		idle_tick(rq);
--#endif
-+		rebalance_tick(rq, 1);
- 		return;
- 	}
- 	if (TASK_NICE(p) > 0)
-@@ -1121,11 +1148,8 @@ void scheduler_tick(int user_ticks, int 
- 			enqueue_task(p, rq->active);
- 	}
- out:
--#if CONFIG_SMP
--	if (!(jiffies % BUSY_REBALANCE_TICK))
--		load_balance(rq, 0);
--#endif
- 	spin_unlock(&rq->lock);
-+	rebalance_tick(rq, 0);
- }
+ DECLARE_BITMAP(node_online_map, MAX_NUMNODES);
+ DECLARE_BITMAP(memblk_online_map, MAX_NR_MEMBLKS);
+diff -urpN -X /home/fletch/.diff.exclude virgin/mm/vmscan.c ingo-A/mm/vmscan.c
+--- virgin/mm/vmscan.c	Mon Dec 23 23:01:58 2002
++++ ingo-A/mm/vmscan.c	Fri Jan 17 09:19:25 2003
+@@ -27,10 +27,10 @@
+ #include <linux/pagevec.h>
+ #include <linux/backing-dev.h>
+ #include <linux/rmap-locking.h>
++#include <linux/topology.h>
  
- void scheduling_functions_start_here(void) { }
-@@ -1184,7 +1208,7 @@ need_resched:
- pick_next_task:
- 	if (unlikely(!rq->nr_running)) {
- #if CONFIG_SMP
--		load_balance(rq, 1);
-+		load_balance(rq, 1, __cpu_to_node_mask(smp_processor_id()));
- 		if (rq->nr_running)
- 			goto pick_next_task;
- #endif
+ #include <asm/pgalloc.h>
+ #include <asm/tlbflush.h>
+-#include <asm/topology.h>
+ #include <asm/div64.h>
+ 
+ #include <linux/swapops.h>
 

@@ -1,51 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267624AbTAHSnF>; Wed, 8 Jan 2003 13:43:05 -0500
+	id <S267852AbTAHStW>; Wed, 8 Jan 2003 13:49:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267838AbTAHSnF>; Wed, 8 Jan 2003 13:43:05 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:18695 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S267624AbTAHSnC>; Wed, 8 Jan 2003 13:43:02 -0500
-Date: Wed, 8 Jan 2003 13:36:06 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Robert Love <rml@tech9.net>
-cc: Adrian Bunk <bunk@fs.tum.de>, "Robert P. J. Day" <rpjday@mindspring.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: observations on 2.5 config screens
-In-Reply-To: <1042041195.694.2734.camel@phantasy>
-Message-ID: <Pine.LNX.3.96.1030108132758.22872B-100000@gatekeeper.tmr.com>
+	id <S267853AbTAHStW>; Wed, 8 Jan 2003 13:49:22 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:34269 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S267852AbTAHStV>; Wed, 8 Jan 2003 13:49:21 -0500
+Message-ID: <F760B14C9561B941B89469F59BA3A84725A10C@orsmsx401.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: Pavel Machek <pavel@ucw.cz>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: RE: kacpidpc needs to die
+Date: Wed, 8 Jan 2003 10:57:53 -0800 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+content-class: urn:content-classes:message
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8 Jan 2003, Robert Love wrote:
+> From: Pavel Machek [mailto:pavel@ucw.cz] 
+> For reasons discussed before [forking from timer is not safe, anyway],
+> kacpidpc needs to die. Andrew, are you going to kill it or should I do
+> it?
 
-> On Wed, 2003-01-08 at 09:32, Bill Davidsen wrote:
-> 
-> > Someone else suggested putting all the low level options like preempt,
-> > smp, and the stuff in kernel-hacking into a single menu, with a better
-> > name.
-> 
-> I do not think I like this.  SMP, kernel preemption, and high memory
-> support are the three most fundamental choices one makes during
-> configuration.
+I can kill it...let me just verify with you --
+acpi_os_queue_for_execution has a two block switch statement, just use
+the first block (the case that uses schedule_work) and delete the rest,
+yes?
 
-I guess, depending on your definition of fundemental. I would put any
-option which affects the kernel as a whole in that category, myself.
-Compiling with frame pointers comes to mind, since every object file is
-changed and there are performance implications as well.
-
-> They should be out in the open, in the beginning, in a well-labeled
-> category.  They only issue I see is "processor options" should be
-> renamed "core options" or whatever.  But that is trivial.
-
-Processor option would select the processor and any architecture dependent
-options, I would think. Something like "kernel characteristics" could have
-options like smp.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Thanks -- Regards -- Andy

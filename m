@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266302AbUAVSYk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 13:24:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266298AbUAVSYk
+	id S264451AbUAVPhd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 10:37:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264484AbUAVPhc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 13:24:40 -0500
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:46516 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S266294AbUAVSYd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 13:24:33 -0500
-Subject: Re: [patch] PCI Express Enhanced Config Patch - 2.6.0-test11
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@colin2.muc.de>
-Cc: "Durairaj, Sundarapandian" <sundarapandian.durairaj@intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, torvalds@osdl.org, greg@kroah.com,
-       "Kondratiev, Vladimir" <vladimir.kondratiev@intel.com>,
-       "Seshadri, Harinarayanan" <harinarayanan.seshadri@intel.com>
-In-Reply-To: <20040122131258.GA84577@colin2.muc.de>
-References: <6B09584CC3D2124DB45C3B592414FA83011A3357@bgsmsx402.gar.corp.intel.com>
-	 <20040122131258.GA84577@colin2.muc.de>
-Content-Type: text/plain
+	Thu, 22 Jan 2004 10:37:32 -0500
+Received: from mail018.syd.optusnet.com.au ([211.29.132.72]:11700 "EHLO
+	mail018.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264451AbUAVPhc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 10:37:32 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Timothy Miller <miller@techsource.com>,
+       Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: Deadline for video capture
+Date: Fri, 23 Jan 2004 02:37:22 +1100
+User-Agent: KMail/1.5.3
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200401221608.05924.kernel@kolivas.org> <400F5CE5.6000602@cyberone.com.au> <400FDDF8.4080600@techsource.com>
+In-Reply-To: <400FDDF8.4080600@techsource.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1074795663.1413.8.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 22 Jan 2004 18:21:04 +0000
+Content-Disposition: inline
+Message-Id: <200401230237.23138.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-01-22 at 13:12, Andi Kleen wrote:
-> > +#ifdef CONFIG_PCI_EXPRESS
-> > +	else if (!strcmp(str, "no_pcie")) {
-> 
-> Would "no_pciexp" be better? no_pcie looks nearly like a typo.
+On Fri, 23 Jan 2004 01:28, Timothy Miller wrote:
+> Also, what kind of other system load was going on when the capture was
+> happening?  A kernel compile?  
 
-Other "nofoo" generally don't use "_" (Linux kernel really needs an
-actual policy document for such stuff tho)
+Basically idle. With the deadline scheduler I was able to continue using the 
+machine without dropping frames.
+
+Con
 

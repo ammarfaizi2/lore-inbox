@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130143AbRCBXhc>; Fri, 2 Mar 2001 18:37:32 -0500
+	id <S130145AbRCBXib>; Fri, 2 Mar 2001 18:38:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130145AbRCBXhW>; Fri, 2 Mar 2001 18:37:22 -0500
-Received: from anubis.han.de ([212.63.63.3]:6149 "EHLO anubis.han.de")
-	by vger.kernel.org with ESMTP id <S130143AbRCBXhK>;
-	Fri, 2 Mar 2001 18:37:10 -0500
-Date: Sat, 3 Mar 2001 00:41:14 +0100
-From: jum@anubis.han.de (Jens-Uwe Mager)
-Message-Id: <slrn9a0bjn.o1.jum@anubis.han.de>
-Newsgroups: hannet.ml.linux.rutgers.linux-kernel
-Subject: Re: ftruncate not extending files?
-In-Reply-To: <mng==Pine.LNX.4.30.0103011502050.23650-100000@swamp.bayern.net> <E14YXft-0008GK-00@the-village.bc.nu> <20010302084544.A26070@home.ds9a.nl> <mng==20010302095701.A4685@sable.ox.ac.uk>
-Organization: At Home
-Apparently-To: <jum@anubis.han.de>
+	id <S130153AbRCBXiW>; Fri, 2 Mar 2001 18:38:22 -0500
+Received: from ns1.uklinux.net ([212.1.130.11]:49929 "EHLO s1.uklinux.net")
+	by vger.kernel.org with ESMTP id <S130145AbRCBXiH>;
+	Fri, 2 Mar 2001 18:38:07 -0500
+Envelope-To: linux-kernel@vger.kernel.org
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200103022337.XAA01526@raistlin.arm.linux.org.uk>
+Subject: Re: [PATCH] alloc_tty_struct() wastage?
+To: hugh@veritas.com (Hugh Dickins)
+Date: Fri, 2 Mar 2001 23:37:26 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), tytso@mit.edu (Theodore Ts'o),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0103022326070.1719-100000@localhost.localdomain> from "Hugh Dickins" at Mar 02, 2001 11:29:02 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 
-On Fri, 2 Mar 2001 10:17:14 GMT, Malcolm Beattie <mbeattie@sable.ox.ac.uk> wrote:
->bert hubert writes:
->> I would've sworn, based on the fact that I saw people do it, that ftruncate
->> was a legitimate way to extend a file
->
->Well it's not SuSv2 standards compliant:
->
->    http://www.opengroup.org/onlinepubs/007908799/xsh/ftruncate.html
->
->    If the file previously was larger than length, the extra data is
->    discarded. If it was previously shorter than length, it is
->    unspecified whether the file is changed or its size increased. If
->    ^^^^^^^^^^^
->    the file is extended, the extended area appears as if it were
->    zero-filled.
->
->How "legitimate" relates to "SuSv2 standards compliant" is your call.
+Hugh Dickins writes:
+> I've been puzzling over alloc_tty_struct(), which seems determined
+> to waste memory on a machine of page size 8KB.
 
-It is interesting to compare the wording of the Solaris man page, it
-sounds pretty much like the SuSv2 paragraph above, but without the
-restriction that the result is unspecified, it guarantees the extending
-is a legitimate operation. Sounds like the SuSv2 authors chickened out
-on that issue, most of the Unix platforms I know (including SunOS 4&5,
-HP/UX, IRIX, Tru64, AIX and various *BSD) do happily extend a file on
-truncate.
+Maybe you could change the ">" to ">="?
 
--- 
-Jens-Uwe Mager	<pgp-mailto:62CFDB25>
+> I've come to the conclusion that it represents great caution on
+> Russell's part when introducing ARM, not to interfere with
+> existing code of other architectures - is that so, Russell?
+
+My understanding of the usage of get_free_page there is as follows:
+The problem was that sizeof(struct tty_struct) was very close to
+the page size of x86 machines (4K), and kmalloc wasted space
+unnecessarily.  Therefore get_free_page was used by x86 to allocate
+this structure.  I think I'm right in saying that allocating
+anything larger than half your page size is best done with
+get_free_page.
+
+Someone will probably correct me on that comment above though.
+Can someone confirm please: is it safe and reasonable to use
+kmalloc on allocating tty_struct on all architectures now?
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

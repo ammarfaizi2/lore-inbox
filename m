@@ -1,60 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbULQPp2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbULQPr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbULQPp2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 10:45:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbULQPp2
+	id S261360AbULQPr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 10:47:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbULQPr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 10:45:28 -0500
-Received: from host-3.tebibyte16-2.demon.nl ([82.161.9.107]:24080 "EHLO
-	doc.tebibyte.org") by vger.kernel.org with ESMTP id S261326AbULQPpX
+	Fri, 17 Dec 2004 10:47:59 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:36482 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261360AbULQPrk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 10:45:23 -0500
-Message-ID: <41C2FF09.5020005@tebibyte.org>
-Date: Fri, 17 Dec 2004 16:45:13 +0100
-From: Chris Ross <chris@tebibyte.org>
-Organization: At home (Eindhoven, The Netherlands)
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: pt-br, pt
+	Fri, 17 Dec 2004 10:47:40 -0500
+Message-ID: <41C2FF99.3020908@tmr.com>
+Date: Fri, 17 Dec 2004 10:47:37 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: Linux 2.6.9-ac16
-References: <1103222616.21920.12.camel@localhost.localdomain> <41C2DA43.9070900@tebibyte.org> <41C2F273.6010707@nortelnetworks.com>
-In-Reply-To: <41C2F273.6010707@nortelnetworks.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: James Morris <jmorris@redhat.com>
+CC: Patrick McHardy <kaber@trash.net>, Bryan Fulton <bryan@coverity.com>,
+       netdev@oss.sgi.com, netfilter-devel@lists.netfilter.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Coverity] Untrusted user data in kernel
+References: <41C26DD1.7070006@trash.net> <Xine.LNX.4.44.0412170144410.12579-100000@thoron.boston.redhat.com>
+In-Reply-To: <Xine.LNX.4.44.0412170144410.12579-100000@thoron.boston.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Chris,
-
-Chris Friesen escreveu:
-> As it stands, 2.6.10-rc2-mm4 still shows nasty behaviour in OOM
-> conditions, killing off more tasks than strictly required, and
-> locking up the system for 10-15secs while doing it.
+James Morris wrote:
+> On Fri, 17 Dec 2004, Patrick McHardy wrote:
 > 
-> I'd be much happier doing a quick and dirty scan and knocking off 
-> something *now* rather than locking up the system.  Surely it can't
-> take 60 billion cycles of cpu time to pick a task to kill.
+> 
+>>James Morris wrote:
+>>
+>>
+>>>This at least needs CAP_NET_ADMIN.
+>>>
+>>
+>>It is already checked in do_ip6t_set_ctl(). Otherwise anyone could
+>>replace iptables rules :)
+> 
+> 
+> That's what I meant, you need the capability to do anything bad :-)
 
-Thomas Gleixner has been particularly interested the algorithms for 
-deciding which task to kill (like me he got fed up with it picking the 
-ssh daemon first).
+Are you saying that processes with capability don't make mistakes? This 
+isn't a bug related to untrusted users doing privileged operations, it's 
+a case of using unchecked user data.
 
-See for example the thread at 
-http://marc.theaimsgroup.com/?t=110189482200001&r=1&w=2
 
-Some of the delay is by design: when OOM is reached we kill something 
-off, wait a bit for the memory to be freed and become available to the 
-system again, check whether now have enough memory, if not rinse and 
-repeat. However, as I recall this is compounded by 2.6.9 having some 
-nasty rentrancy problems causing the OOM killer to be called something 
-like 100 times instead of once.
-
-Perhaps Thomas could enlighten us as to the current state of play here?
-
-Regards,
-Chris R.
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

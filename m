@@ -1,78 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319358AbSHQEOM>; Sat, 17 Aug 2002 00:14:12 -0400
+	id <S319337AbSHQEj7>; Sat, 17 Aug 2002 00:39:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319359AbSHQEOM>; Sat, 17 Aug 2002 00:14:12 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:7887 "EHLO e21.nc.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S319358AbSHQEOL>;
-	Sat, 17 Aug 2002 00:14:11 -0400
-Date: Fri, 16 Aug 2002 21:15:44 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S319340AbSHQEj7>; Sat, 17 Aug 2002 00:39:59 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:9220 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S319337AbSHQEj6>; Sat, 17 Aug 2002 00:39:58 -0400
+Date: Fri, 16 Aug 2002 21:46:09 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
 cc: Benjamin LaHaise <bcrl@redhat.com>, Andrea Arcangeli <andrea@suse.de>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Chris Friesen <cfriesen@nortelnetworks.com>,
-       Pavel Machek <pavel@elf.ucw.cz>, linux-kernel@vger.kernel.org,
-       linux-aio@kvack.org
-Subject: Re: aio-core why not using SuS? [Re: [rfc] aio-core for 2.5.29 (Re: async-io API registration for 2.5.29)]
-Message-ID: <2156501334.1029532543@[10.10.2.3]>
-In-Reply-To: <Pine.LNX.4.44.0208162056250.2305-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0208162056250.2305-100000@home.transmeta.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
+       Pavel Machek <pavel@elf.ucw.cz>, <linux-kernel@vger.kernel.org>,
+       <linux-aio@kvack.org>
+Subject: Re: aio-core why not using SuS? [Re: [rfc] aio-core for 2.5.29 (Re:
+ async-io API registration for 2.5.29)]
+In-Reply-To: <2156501334.1029532543@[10.10.2.3]>
+Message-ID: <Pine.LNX.4.44.0208162134440.2497-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> At least some of those you don't have to kmap ... at least not in
->> the traditional sense. This sort of thing is a good application
->> for the per-process (or per-task) kernel virtual address area.
->> you just map in the stuff you need for your own task, instead
->> of having to share the global space with everybody.
+
+On Fri, 16 Aug 2002, Martin J. Bligh wrote:
 > 
-> Careful.
-> 
-> The VM space is shared _separately_ from other data structures, which
-> means that you can _not_ user per-VM virtual address areas and expect them 
-> to scale with load. And than some VM happens to have thousands of threads, 
-> and you're dead.
+> 1. We have a per-process UKVA (user-kernel virtual address space), 
 
-OK ... not sure I understand the exact scenario you're evisioning,
-but I can certainly see some problems in that area. There are two 
-different ways we could do this (or a combination of both), and I'm 
-not 100% sure if they solve the problems you mention, but it'd be
-interesting to see what you think.
+What is your definition of a "process"?
 
-1. We have a per-process UKVA (user-kernel virtual address space), 
-which is great for per-process stuff like mapping pagetables. Dave
-McCracken made an implementation of this that carves off a fixed
-amount of space between the top of the stack and PAGE_OFFSET.
-That makes highpte more efficient by saving the kmaps most of the
-time (or it should).
+Linux doesn't really have any such thing. Linux threads share different 
+amounts of stuff, and a traditional process just happens to share nothing. 
+However, since they _can_ share more, it's damn hard to see what a 
+"per-process" mapping means.
 
-2. A per task UKVA, that'd probably have to come out of something
-like the vmalloc space. I think Bill Irwin derived something like 
-that from Dave's work, though I'm not sure it's complete & working 
-as yet. Per task things like the kernel stack (minus the task_struct 
-&  waitqueues) could go in here.
+> 2. A per task UKVA, that'd probably have to come out of something
+> like the vmalloc space. I think Bill Irwin derived something like 
+> that from Dave's work, though I'm not sure it's complete & working 
+> as yet. Per task things like the kernel stack (minus the task_struct 
+> &  waitqueues) could go in here.
 
-> Kernel stacks most certainly can't do this easily, since you'll just hit 
-> the scalability problem somewhere else (ie many threads, same VM). 
+And what is your definition of a "task"?
 
-Does (2) solve some of the thread scalability problems you're worried
-about?
- 
-> And files, for example, can not only be many files for one VM, you can 
-> have the reverse too, ie many VM's, one file table.
+You seem to think that a task is one thread ("per task things like the
+kernel stack"), ie a 1:1 mapping with a "struct task_stuct".
 
-Could we fix this by having multiple tasks map the same page and share
-it? Still much less vaddr space overhead than global?
+But if you have such a mapping, then you _cannot_ make a per-task VM
+space, because many tasks will share the same VM. You cannot even do a
+per-cpu mapping change (and rewrite the VM on thread switch), since the VM
+is _shared_ across CPU's, and absolutely has to be in order to work with
+CPU's that do TLB fill in hardware (eg x86).
 
-Hopefully I haven't totally missed your point ... if so, hit me again,
-but harder and slower ;-)
+The fact is, that in order to get the right TLB behaviour, the _only_
+thing you can do is to have a "per-MM UKVA". It's not per thread, and it's
+not per process. It's one per MM, which is _neither_.
 
-M.
+And this is where the problems come in. Since it is per-MM (and thus 
+shared across CPU's) updates need to be SMP-safe. And since it is per-MM, 
+it means that _any_ data structure that might be shared across different 
+MM's are really really dangerous to put in this thing (think virtual 
+caches on some hardware). 
+
+And since it is per-MM, it means that anything that there can be multiple 
+of per MM (which is pretty much _every_ data structure in the kernel) 
+cannot go at a fixed address or anything like that, but needs to be 
+allocated within the per-MM area dynamically.
+
+I suspect that you are used to the traditional UNIX "process" notion,
+where a "process" has exactly one file table, and has exactly one set of
+signals, one set of semaphores etc. In that setup it can be quite
+convenient to map these into the VM address space at magical addresses.
+
+You may also be used to per-CPU page tables or software TLB fill
+situations, where different CPU's can have different TLB contents. That
+can be used to have per-thread mappings. Again, that doesn't work on Linux
+due to page table sharing and hw TLB fills.
+
+		Linus
 

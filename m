@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131031AbQLPBwz>; Fri, 15 Dec 2000 20:52:55 -0500
+	id <S129408AbQLPKeu>; Sat, 16 Dec 2000 05:34:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130650AbQLPBwp>; Fri, 15 Dec 2000 20:52:45 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:23560 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S131031AbQLPBwi>;
-	Fri, 15 Dec 2000 20:52:38 -0500
-Date: Thu, 14 Dec 2000 17:11:47 -0700 (MST)
-From: Dan Egli <dan@tools.c4usa.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Signal 11
-In-Reply-To: <Pine.LNX.4.10.10012141543130.12695-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0012141708160.13899-100000@tools.c4usa.com>
+	id <S129345AbQLPKej>; Sat, 16 Dec 2000 05:34:39 -0500
+Received: from SPYLOG-TCNET.tcnet.ru ([195.230.65.66]:25349 "HELO gate.local")
+	by vger.kernel.org with SMTP id <S129408AbQLPKe2>;
+	Sat, 16 Dec 2000 05:34:28 -0500
+From: "Max Shaposhnikov" <shapa@spylog.ru>
+To: <linux-kernel@vger.kernel.org>
+Subject: raid5 broken in latest 2.4
+Date: Fri, 15 Dec 2000 18:24:19 +0300
+Message-ID: <AOEJJKJLFPBGFHPGKHAFCEJACBAA.shapa@spylog.ru>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Dec 2000, Linus Torvalds wrote:
+raid5 bug in 2.4test12pre13
 
-> Yes. 
-> 
-> And I realize that somebody inside RedHat really wanted to use a snapshot
-> in order to get some C++ code to compile right.
-> 
-> But it at the same time threw C stability out the window, by using a
-> not-very-widely-tested snapshot for a major new release. 
-> 
-> Are you seriously saying that you think it was a good trade-off? Or are
-> you just ashamed of admitting that RH did something stupid?
-> 
-Pardon the poking in here, but I must say I agree here. RH did a VERY dumb
-thing. 
+mk2efs froze (at approx. 50% persents)
+on big partition (15G)
+mkreiserfs - got the same error too. it seems raid5 in latest 2.4 is broken.
 
-> I have a report from a Sony VAIO user that couldn't compile the CVS X at
-> all on his picturebook (and you need to compile the CVS tree in order to
-> get required fixes for the ATI Rage Mobility in that machine). I don't
-> know the details, but they were apparently due to RH 7 issues. 
+2.4test10 - all is fine.
 
-It's not in the X tree or anything, but here's a personal example.
-Machine: Dual P3 550
-HDD: Dual Ultra2Wide Seagate 18GB Hdd
-OS: RedHat 7
-Compile Target: Linux Kernel 2.2.17
-Result with gcc 2.96: Failure (syntax errors in the i386 branch of the
-arch tree)
-Result with compat-egcs-62: Success on the first try.
+ext2 tools - latest version (1.20)
+SuSE 7.0
+SMP pIII-800
+1G of RAM
 
+bur repeats on 3 servers.
+
+
+Max Shaposhnikov,
+SpyLog UNIX administrator (www.spylog.ru)
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

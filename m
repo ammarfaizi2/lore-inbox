@@ -1,61 +1,90 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313060AbSEIOLE>; Thu, 9 May 2002 10:11:04 -0400
+	id <S313157AbSEIOOy>; Thu, 9 May 2002 10:14:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313070AbSEIOLD>; Thu, 9 May 2002 10:11:03 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29203 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313060AbSEIOLD>;
-	Thu, 9 May 2002 10:11:03 -0400
-Message-ID: <3CDA8341.6070706@mandrakesoft.com>
-Date: Thu, 09 May 2002 10:10:09 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/00200203
-X-Accept-Language: en-us, en
+	id <S313125AbSEIOOx>; Thu, 9 May 2002 10:14:53 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:44416 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S313113AbSEIOOv>; Thu, 9 May 2002 10:14:51 -0400
+Date: Thu, 9 May 2002 10:15:01 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Martinez, Michael - CSREES/ISTM" <MMARTINEZ@intranet.reeusda.gov>
+cc: "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Anyone aware of known issues with the scsi driver in kernel-smp-2 .4.2-2?
+In-Reply-To: <630DA58AD01AD311B13A00C00D00E9BC05D20130@CSREESSERVER>
+Message-ID: <Pine.LNX.3.95.1020509094242.7962A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-CC: twaugh@redhat.com, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] parport irq sharing
-In-Reply-To: <Pine.LNX.4.44.0205091416280.6271-100000@netfinity.realnet.co.sz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
+On Thu, 9 May 2002, Martinez, Michael - CSREES/ISTM wrote:
 
->--- linux-2.4.19-pre-ac/drivers/parport/parport_pc.c	Mon Apr  8 21:36:20 2002
->+++ linux-2.4.19-pre7-ac3/drivers/parport/parport_pc.c	Thu May  9 08:19:32 2002
->@@ -2355,7 +2355,7 @@
+> I'm using kernel-smp-2.4.2-2, and I'm having some problems with my
+> scsi tape, which is a HP SureDat device; and using Sony DDS-3 DAT tapes.
 > 
-> 	if (p->irq != PARPORT_IRQ_NONE) {
-> 		if (request_irq (p->irq, parport_pc_interrupt,
->-				 0, p->name, p)) {
->+				 SA_SHIRQ, p->name, p)) {
-> 			printk (KERN_WARNING "%s: irq %d in use, "
-> 				"resorting to polled operation\n",
-> 				p->name, p->irq);
->
-
-I don't think you want to do this unconditionally... probably breaks 
-older setups.
-
->
->--- linux-2.4.19-pre7-ac3/drivers/parport/parport_serial.c.orig	Sun May  5 14:24:36 2002
->+++ linux-2.4.19-pre7-ac3/drivers/parport/parport_serial.c	Thu May  9 09:46:58 2002
->@@ -249,7 +249,7 @@
-> 	int success = 0;
+> Any sort of write and recover procedure (tar; dump; cat; dd) results in
+> random byte mistakes in the recovered data. These byte mistakes always
+> follow the form of being offset from the original byte, by 2.
 > 
-> 	if (cards[i].preinit_hook &&
->-	    cards[i].preinit_hook (dev, PARPORT_IRQ_NONE, PARPORT_DMA_NONE))
->+	    cards[i].preinit_hook (dev, dev->irq, PARPORT_DMA_NONE))
-> 		return -ENODEV;
+> For example, if the original byte had an octal value of 88; then the
+                                           ^^^^^
+FYI there is no octal value of 88, perhaps you mean hex or decimal?
+
+> recovered byte would be 90.
+
+A value change from 0x88 to 0x90 = 0x08, must be decimal.
+
 > 
-> 	for (n = 0; n < cards[i].numports; n++) {
->
+> A file of 12kbytes would have on average five or six of these mistakes. 
+> 
+> Has anyone heard of an issue with the SCSI driver that would produce this
+> type of problem?
+> 
 
-If parport_serial is 100% PCI (I'm too lazy to check), this should be ok...
+My machines use SCSI tapes, both DAT and video-8, every night.
+I do recoveries on the average once a week and have never
+found bad data (Linux 2.4.18).
 
-    Jeff
+It's practically impossible for the SCSI driver(s) to change data.
+Bugs could result in overwriting buffers, etc., but the data that
+got spilled would have been "good".
 
+You could have some module that is writing data somewhere it shouldn't
+and corrupting buffers.
 
+I would suggest:
+
+(1) Remove any modules, not in use (just `rmmod` from a running machine).
+Try to backup/restore some directory tree and see if it's "fixed".
+
+(2)  If you updated from an earlier version, make sure that the user-mode
+'bdflush' is not running. Periodic sync() is now done in the kernel.
+I found that the user-mode sync() has some race condition that will
+cause problems on a SMP machine. For instance, if you are doing a
+kernel compile and you execute `sync()` from another task, the
+kernel compile may error-out with 'file-not-found' errors. This
+problem has been around since the internal bdflush (kflushd) was
+incorporated.
+
+This may be messing up your file-system during a tape restore. It
+can also mess up your file-system without you knowing it, just
+modify the init startup so it never starts bdflush.
+
+(3)  All known tape-drives do CRC so the data coming out should be
+good, but... you could have an intermittent SCSI cable-connection so
+that data bit 1 is sometimes not present when it should be. That
+can change some data values by 2. As a hack, just change the cable
+if you have another laying around. The act of unplugging and re-plugging
+SCSI cables often removes accumulated dirt or oxides that are messing
+up data.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
 

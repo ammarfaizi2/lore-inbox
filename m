@@ -1,1111 +1,449 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266584AbSKZT06>; Tue, 26 Nov 2002 14:26:58 -0500
+	id <S266649AbSKZTkg>; Tue, 26 Nov 2002 14:40:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266609AbSKZT06>; Tue, 26 Nov 2002 14:26:58 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:6866 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S266584AbSKZTZy>;
-	Tue, 26 Nov 2002 14:25:54 -0500
-Date: Tue, 26 Nov 2002 19:31:07 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Split up AGP GART device lists.
-Message-ID: <20021126193107.GA25048@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S266564AbSKZTkg>; Tue, 26 Nov 2002 14:40:36 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:34004 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S266693AbSKZTkN>; Tue, 26 Nov 2002 14:40:13 -0500
+Date: Tue, 26 Nov 2002 11:47:29 -0800
+From: Rusty Lynch <rusty@linux.co.intel.com>
+Message-Id: <200211261947.gAQJlTS23275@linux.intel.com>
+To: mochel@osdl.org
+Subject: [PATCH][2.5.49-bk1]Kprobes Printk Sample Driver
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's a lot of redundancy in the lists of devices
-supported by AGPGART.
-In particular, Vendor ID/Name and pointers to the
-chipset setup routines are typically a per-vendor
-thing rather than a per-device thing.
+After recieving lots of input (including a name change)
+on the "noisy" driver, I am resending the code as the 
+"Kprobes Printk" driver.
 
-The below patch addresses this by splitting the table
-into a vendor/device pair where a vendor table has
-a pointer to n device tables.  In the few cases where
-some chipsets need a non-generic chipset init routine,
-they can override the one specified in the vendor table.
+This is a sample kprobes driver that enables arbitrary 
+printk's to be inserted in valid kernel mapped addresses,
+with all user space controls accessed via sysfs.
 
-I've given this a boot-test on a box with an Intel i850 GART,
-but due to the multi-vendor nature of the patch, I'd
-appreciate testers from various other chipsets to make sure
-I didn't miss something obvious.
+By building this driver into the kernel (or inserting
+it as a module), a new directory called "kprobes_printk"
+will be created in your sysfs root. On my system I see:
 
-Patch is against latest bitkeeper, but should apply to any 2.5-recent.
+[root@penguin2 root]# tree /sys/kprobes_printk/
+/sys/kprobes_printk/
+`-- ctl
 
-		Dave
+Printk probes can be inserted into add by writing a
+string of the format "add ADDRESS MESSAGE" to the 
+'ctl' file.
 
+For example, I can do the following to make the string
+"sys_fork" printk'ed everytime somebody calls the
+fork system call:
 
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/char/agp/agp.c agpgart/drivers/char/agp/agp.c
---- bk-linus/drivers/char/agp/agp.c	2002-11-26 10:41:12.000000000 -0100
-+++ agpgart/drivers/char/agp/agp.c	2002-11-26 19:14:33.000000000 -0100
-@@ -744,469 +744,60 @@ void agp_enable(u32 mode)
+[root@penguin2 root]# grep sys_fork /usr/src/linux/System.map
+c0107d50 T sys_fork
+[root@penguin2 root]# echo "add 0xc0107d50 sys_fork" > /sys/kprobes_printk/ctl
+[root@penguin2 root]# tree /sys/kprobes_printk/
+/sys/kprobes_printk/
+|-- c0107d50
+|   `-- message
+`-- ctl
+[root@penguin2 root]# cat /sys/kprobes_printk/c0107d50/message
+sys_fork
+[root@penguin2 root]# tail --lines=4 /var/log/messages
+Nov 26 11:16:15 penguin2 su(pam_unix)[3422]: session opened for user root by rusty(uid=0)
+Nov 26 11:23:01 penguin2 kernel: kp_pre_handler: sys_fork
+Nov 26 11:23:35 penguin2 kernel: kp_pre_handler: sys_fork
+Nov 26 11:24:40 penguin2 last message repeated 2 times
+
+To delete a printk probe write a string of the format
+"del ADDRESS" to the 'ctl' file. On my system I do:
+
+[root@penguin2 root]# echo "del 0xc0107d50" > /sys/kprobes_printk/ctl
+[root@penguin2 root]# tree /sys/kprobes_printk/
+/sys/kprobes_printk/
+`-- ctl
+
+This driver depends on:
+* Kprobes 
+* A tweak to traps.c that addes an exported function
+  that enables kprobes_printk to verify user space
+  is handing a valid kernel mapped address to
+  insert a probe.
+* A few tweaks to sysfs that Patrick Mochel has made 
+  to his tree, but are not in 2.5.49-bk1.     
+
+To make it easier for somebody to play with this, I 
+have uploading all the needed patches for this to
+be built on a 2.5.49-bk1 tree.
+
+Kprobes => 
+http://www.stinkycat.com/patches/changes_to_bk1/kprobes-2.5.49-bk1.diff
+
+Sysfs Tweaks =>
+http://www.stinkycat.com/patches/changes_to_bk1/sysfs_tweaks_2.5.49-bk1.diff
+
+Traps.c tweak =>
+http://www.stinkycat.com/patches/changes_to_bk1/vka-2.5.49-bk1.diff
+
+The driver itself (depends on all three above)=>
+http://www.stinkycat.com/patches/changes_to_bk1/kprobes-printk-2.5.49-bk1.diff
+
+Here is that last patch inlined:
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.876   -> 1.877  
+#	   arch/i386/Kconfig	1.13    -> 1.14   
+#	drivers/char/Makefile	1.46    -> 1.47   
+#	               (new)	        -> 1.1     drivers/char/kprobes_printk.c
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/11/26	rusty@penguin.(none)	1.877
+# Adding KPROBES_PRINTK option to build the kprobes printk driver that 
+# enables arbitrary printk statements to be inserted into valid kernel
+# address using kprobes.
+# --------------------------------------------
+#
+diff -Nru a/arch/i386/Kconfig b/arch/i386/Kconfig
+--- a/arch/i386/Kconfig	Tue Nov 26 10:54:44 2002
++++ b/arch/i386/Kconfig	Tue Nov 26 10:54:44 2002
+@@ -1560,6 +1560,23 @@
+ 	  for kernel debugging, non-intrusive instrumentation and testing.  If
+ 	  in doubt, say "N".
  
- /* End - Generic Agp routines */
- 
--
--/* per-chipset initialization data.
-- * note -- all chipsets for a single vendor MUST be grouped together
-- */
-+/* per-chipset initialization data. */
- static struct {
--	unsigned short device_id; /* first, to make table easier to read */
--	unsigned short vendor_id;
--	enum chipset_type chipset;
--	const char *vendor_name;
--	const char *chipset_name;
--	int (*chipset_setup) (struct pci_dev *pdev);
--} agp_bridge_info[] __initdata = {
-+	struct agp_bridge_info *ptr;
-+} agp_bridge_list[] __initdata = {
- 
- #ifdef CONFIG_AGP_ALI
--	{
--		.device_id	= PCI_DEVICE_ID_AL_M1541,
--		.vendor_id	= PCI_VENDOR_ID_AL,
--		.chipset	= ALI_M1541,
--		.vendor_name	= "Ali",
--		.chipset_name	= "M1541",
--		.chipset_setup	= ali_generic_setup,
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_AL_M1621,
--		.vendor_id	= PCI_VENDOR_ID_AL,
--		.chipset	= ALI_M1621,
--		.vendor_name	= "Ali",
--		.chipset_name	= "M1621",
--		.chipset_setup	= ali_generic_setup,
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_AL_M1631,
--		.vendor_id	= PCI_VENDOR_ID_AL,
--		.chipset	= ALI_M1631,
--		.vendor_name	= "Ali",
--		.chipset_name	= "M1631",
--		.chipset_setup	= ali_generic_setup,
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_AL_M1632,
--		.vendor_id	= PCI_VENDOR_ID_AL,
--		.chipset	= ALI_M1632,
--		.vendor_name	= "Ali",
--		.chipset_name	= "M1632",
--		.chipset_setup	= ali_generic_setup,
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_AL_M1641,
--		.vendor_id	= PCI_VENDOR_ID_AL,
--		.chipset	= ALI_M1641,
--		.vendor_name	= "Ali",
--		.chipset_name	= "M1641",
--		.chipset_setup	= ali_generic_setup,
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_AL_M1644,
--		.vendor_id	= PCI_VENDOR_ID_AL,
--		.chipset	= ALI_M1644,
--		.vendor_name	= "Ali",
--		.chipset_name	= "M1644",
--		.chipset_setup	= ali_generic_setup,
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_AL_M1647,
--		.vendor_id	= PCI_VENDOR_ID_AL,
--		.chipset	= ALI_M1647,
--		.vendor_name	= "Ali",
--		.chipset_name	= "M1647",
--		.chipset_setup	= ali_generic_setup,
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_AL_M1651,
--		.vendor_id	= PCI_VENDOR_ID_AL,
--		.chipset	= ALI_M1651,
--		.vendor_name	= "Ali",
--		.chipset_name	= "M1651",
--		.chipset_setup	= ali_generic_setup,
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_AL_M1671,
--		.vendor_id	= PCI_VENDOR_ID_AL,
--		.chipset	= ALI_M1671,
--		.vendor_name	= "Ali",
--		.chipset_name	= "M1671",
--		.chipset_setup	= ali_generic_setup,
--	},
--	{
--		.device_id	= 0,
--		.vendor_id	= PCI_VENDOR_ID_AL,
--		.chipset	= ALI_GENERIC,
--		.vendor_name	= "Ali",
--		.chipset_name	= "Generic",
--		.chipset_setup	= ali_generic_setup,
--	},
--#endif /* CONFIG_AGP_ALI */
--
-+	{ .ptr = &ali_agp_bridge_info },
-+#endif
- #ifdef CONFIG_AGP_AMD_8151
--	{ 
--		.device_id	= PCI_DEVICE_ID_AMD_8151_0,
--		.vendor_id  = PCI_VENDOR_ID_AMD,
--		.chipset    = AMD_8151,
--		.vendor_name = "AMD",
--		.chipset_name = "8151",
--		.chipset_setup = amd_8151_setup 
--	},
--#endif /* CONFIG_AGP_AMD */
--
-+	{.ptr = &amd_k8_agp_bridge_info },
-+#endif
- #ifdef CONFIG_AGP_AMD
--	{
--		.device_id	= PCI_DEVICE_ID_AMD_FE_GATE_7006,
--		.vendor_id	= PCI_VENDOR_ID_AMD,
--		.chipset	= AMD_IRONGATE,
--		.vendor_name	= "AMD",
--		.chipset_name	= "Irongate",
--		.chipset_setup	= amd_irongate_setup,
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_AMD_FE_GATE_700E,
--		.vendor_id	= PCI_VENDOR_ID_AMD,
--		.chipset	= AMD_761,
--		.vendor_name	= "AMD",
--		.chipset_name	= "761",
--		.chipset_setup	= amd_irongate_setup,
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_AMD_FE_GATE_700C,
--		.vendor_id	= PCI_VENDOR_ID_AMD,
--		.chipset	= AMD_762,
--		.vendor_name	= "AMD",
--		.chipset_name	= "760MP",
--		.chipset_setup	= amd_irongate_setup,
--	},
--	{
--		.device_id	= 0,
--		.vendor_id	= PCI_VENDOR_ID_AMD,
--		.chipset	= AMD_GENERIC,
--		.vendor_name	= "AMD",
--		.chipset_name	= "Generic",
--		.chipset_setup	= amd_irongate_setup,
--	},
--#endif /* CONFIG_AGP_AMD */
-+	{.ptr = &amd_agp_bridge_info },
-+#endif
- #ifdef CONFIG_AGP_INTEL
--	{
--		.device_id	= PCI_DEVICE_ID_INTEL_82443LX_0,
--		.vendor_id	= PCI_VENDOR_ID_INTEL,
--		.chipset	= INTEL_LX,
--		.vendor_name	= "Intel",
--		.chipset_name	= "440LX",
--		.chipset_setup	= intel_generic_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_INTEL_82443BX_0,
--		.vendor_id	= PCI_VENDOR_ID_INTEL,
--		.chipset	= INTEL_BX,
--		.vendor_name	= "Intel",
--		.chipset_name	= "440BX",
--		.chipset_setup	= intel_generic_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_INTEL_82443GX_0,
--		.vendor_id	= PCI_VENDOR_ID_INTEL,
--		.chipset	= INTEL_GX,
--		.vendor_name	= "Intel",
--		.chipset_name	= "440GX",
--		.chipset_setup	= intel_generic_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_INTEL_82815_MC,
--		.vendor_id	= PCI_VENDOR_ID_INTEL,
--		.chipset	= INTEL_I815,
--		.vendor_name	= "Intel",
--		.chipset_name	= "i815",
--		.chipset_setup	= intel_815_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_INTEL_82820_HB,
--		.vendor_id	= PCI_VENDOR_ID_INTEL,
--		.chipset	= INTEL_I820,
--		.vendor_name	= "Intel",
--		.chipset_name	= "i820",
--		.chipset_setup	= intel_820_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_INTEL_82820_UP_HB,
--		.vendor_id	= PCI_VENDOR_ID_INTEL,
--		.chipset	= INTEL_I820,
--		.vendor_name	= "Intel",
--		.chipset_name	= "i820",
--		.chipset_setup	= intel_820_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_INTEL_82830_HB,
--		.vendor_id	= PCI_VENDOR_ID_INTEL,
--		.chipset	= INTEL_I830_M,
--		.vendor_name	= "Intel",
--		.chipset_name	= "i830M",
--		.chipset_setup	= intel_830mp_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_INTEL_82845G_HB,
--		.vendor_id	= PCI_VENDOR_ID_INTEL,
--		.chipset	= INTEL_I845_G,
--		.vendor_name	= "Intel",
--		.chipset_name	= "i845G",
--		.chipset_setup	= intel_830mp_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_INTEL_82840_HB,
--		.vendor_id	= PCI_VENDOR_ID_INTEL,
--		.chipset	= INTEL_I840,
--		.vendor_name	= "Intel",
--		.chipset_name	= "i840",
--		.chipset_setup	= intel_840_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_INTEL_82845_HB,
--		.vendor_id	= PCI_VENDOR_ID_INTEL,
--		.chipset	= INTEL_I845,
--		.vendor_name	= "Intel",
--		.chipset_name	= "i845",
--		.chipset_setup	= intel_845_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_INTEL_82850_HB,
--		.vendor_id	= PCI_VENDOR_ID_INTEL,
--		.chipset	= INTEL_I850,
--		.vendor_name	= "Intel",
--		.chipset_name	= "i850",
--		.chipset_setup	= intel_850_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_INTEL_82860_HB,
--		.vendor_id	= PCI_VENDOR_ID_INTEL,
--		.chipset	= INTEL_I860,
--		.vendor_name	= "Intel",
--		.chipset_name	= "i860",
--		.chipset_setup	= intel_860_setup
--	},
--	{
--		.device_id	= 0,
--		.vendor_id	= PCI_VENDOR_ID_INTEL,
--		.chipset	= INTEL_GENERIC,
--		.vendor_name	= "Intel",
--		.chipset_name	= "Generic",
--		.chipset_setup	= intel_generic_setup
--	},
--
--#endif /* CONFIG_AGP_INTEL */
--
-+	{.ptr = &intel_agp_bridge_info },
-+#endif
- #ifdef CONFIG_AGP_SIS
--	{
--		.device_id	= PCI_DEVICE_ID_SI_740,
--		.vendor_id	= PCI_VENDOR_ID_SI,
--		.chipset	= SIS_GENERIC,
--		.vendor_name	= "SiS",
--		.chipset_name	= "740",
--		.chipset_setup	= sis_generic_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_SI_650,
--		.vendor_id	= PCI_VENDOR_ID_SI,
--		.chipset	= SIS_GENERIC,
--		.vendor_name	= "SiS",
--		.chipset_name	= "650",
--		.chipset_setup	= sis_generic_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_SI_645,
--		.vendor_id	= PCI_VENDOR_ID_SI,
--		.chipset	= SIS_GENERIC,
--		.vendor_name	= "SiS",
--		.chipset_name	= "645",
--		.chipset_setup	= sis_generic_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_SI_735,
--		.vendor_id	= PCI_VENDOR_ID_SI,
--		.chipset	= SIS_GENERIC,
--		.vendor_name	= "SiS",
--		.chipset_name	= "735",
--		.chipset_setup	= sis_generic_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_SI_745,
--		.vendor_id	= PCI_VENDOR_ID_SI,
--		.chipset	= SIS_GENERIC,
--		.vendor_name	= "SiS",
--		.chipset_name	= "745",
--		.chipset_setup	= sis_generic_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_SI_730,
--		.vendor_id	= PCI_VENDOR_ID_SI,
--		.chipset	= SIS_GENERIC,
--		.vendor_name	= "SiS",
--		.chipset_name	= "730",
--		.chipset_setup	= sis_generic_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_SI_630,
--		.vendor_id	= PCI_VENDOR_ID_SI,
--		.chipset	= SIS_GENERIC,
--		.vendor_name	= "SiS",
--		.chipset_name	= "630",
--		.chipset_setup	= sis_generic_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_SI_540,
--		.vendor_id	= PCI_VENDOR_ID_SI,
--		.chipset	= SIS_GENERIC,
--		.vendor_name	= "SiS",
--		.chipset_name	= "540",
--		.chipset_setup	= sis_generic_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_SI_620,
--		.vendor_id	= PCI_VENDOR_ID_SI,
--		.chipset	= SIS_GENERIC,
--		.vendor_name	= "SiS",
--		.chipset_name	= "620",
--		.chipset_setup	= sis_generic_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_SI_530,
--		.vendor_id	= PCI_VENDOR_ID_SI,
--		.chipset	= SIS_GENERIC,
--		.vendor_name	= "SiS",
--		.chipset_name	= "530",
--		.chipset_setup	= sis_generic_setup
--	},
--        {
--		.device_id	= PCI_DEVICE_ID_SI_550,
--		.vendor_id	= PCI_VENDOR_ID_SI,
--		.chipset	= SIS_GENERIC,
--		.vendor_name	= "SiS",
--		.chipset_name	= "550",
--		.chipset_setup	= sis_generic_setup
--	},
--	{
--		.device_id	= 0,
--		.vendor_id	= PCI_VENDOR_ID_SI,
--		.chipset	= SIS_GENERIC,
--		.vendor_name	= "SiS",
--		.chipset_name	= "Generic",
--		.chipset_setup	= sis_generic_setup
--	},
--#endif /* CONFIG_AGP_SIS */
--
-+	{.ptr = &sis_agp_bridge_info },
-+#endif
- #ifdef CONFIG_AGP_VIA
--	{
--		.device_id	= PCI_DEVICE_ID_VIA_8501_0,
--		.vendor_id	= PCI_VENDOR_ID_VIA,
--		.chipset	= VIA_MVP4,
--		.vendor_name	= "Via",
--		.chipset_name	= "MVP4",
--		.chipset_setup	= via_generic_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_VIA_82C597_0,
--		.vendor_id	= PCI_VENDOR_ID_VIA,
--		.chipset	= VIA_VP3,
--		.vendor_name	= "Via",
--		.chipset_name	= "VP3",
--		.chipset_setup	= via_generic_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_VIA_82C598_0,
--		.vendor_id	= PCI_VENDOR_ID_VIA,
--		.chipset	= VIA_MVP3,
--		.vendor_name	= "Via",
--		.chipset_name	= "MVP3",
--		.chipset_setup	= via_generic_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_VIA_82C691,
--		.vendor_id	= PCI_VENDOR_ID_VIA,
--		.chipset	= VIA_APOLLO_PRO,
--		.vendor_name	= "Via",
--		.chipset_name	= "Apollo Pro",
--		.chipset_setup	= via_generic_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_VIA_8371_0,
--		.vendor_id	= PCI_VENDOR_ID_VIA,
--		.chipset	= VIA_APOLLO_KX133,
--		.vendor_name	= "Via",
--		.chipset_name	= "Apollo Pro KX133",
--		.chipset_setup	= via_generic_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_VIA_8363_0,
--		.vendor_id	= PCI_VENDOR_ID_VIA,
--		.chipset	= VIA_APOLLO_KT133,
--		.vendor_name	= "Via",
--		.chipset_name	= "Apollo Pro KT133",
--		.chipset_setup	= via_generic_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_VIA_8367_0,
--		.vendor_id	= PCI_VENDOR_ID_VIA,
--		.chipset	= VIA_APOLLO_KT133,
--		.vendor_name	= "Via",
--		.chipset_name	= "Apollo Pro KT266",
--		.chipset_setup	= via_generic_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_VIA_8377_0,
--		.vendor_id	= PCI_VENDOR_ID_VIA,
--		.chipset	= VIA_APOLLO_KT400,
--		.vendor_name	= "Via",
--		.chipset_name	= "Apollo Pro KT400",
--		.chipset_setup	= via_generic_setup
--	},
--	{
--		.device_id	= PCI_DEVICE_ID_VIA_8653_0,
--		.vendor_id	= PCI_VENDOR_ID_VIA,
--		.chipset	= VIA_APOLLO_PRO,
--		.vendor_name	= "Via",
--		.chipset_name	= "Apollo Pro266T",
--		.chipset_setup	= via_generic_setup
--	},
--	{
--		.device_id	= 0,
--		.vendor_id	= PCI_VENDOR_ID_VIA,
--		.chipset	= VIA_GENERIC,
--		.vendor_name	= "Via",
--		.chipset_name	= "Generic",
--		.chipset_setup	= via_generic_setup
--	},
--#endif /* CONFIG_AGP_VIA */
--
-+	{.ptr = &via_agp_bridge_info },
-+#endif
- #ifdef CONFIG_AGP_HP_ZX1
--	{
--		.device_id	= PCI_DEVICE_ID_HP_ZX1_LBA,
--		.vendor_id	= PCI_VENDOR_ID_HP,
--		.chipset	= HP_ZX1,
--		.vendor_name	= "HP",
--		.chipset_name	= "ZX1",
--		.chipset_setup	= hp_zx1_setup
--	},
-+	{.ptr = &hp_agp_bridge_info },
- #endif
--
--	{ }, /* dummy final entry, always present */
-+	{NULL},
- };
++config KPROBES_PRINTK
++	tristate "Kprobes Printk Driver"
++	depends on KPROBES
++	help
++	  This kprobes sample driver enables arbitrary printk statements
++	  to be inserted at any address where a valid kprobe can be inserted.
++	  User space can access this functionality through sysfs.  For 
++	  details see <file:Documentation/kprobes_printk_sample.txt>.
++	   
++	  This driver is also available as a module ( = code which can be
++	  inserted in and removed from the running kernel whenever you want).
++	  The module will be called kprobes_printk.o.  If you want to compile 
++	  it as a module, say M here and read <file:Documentation/modules.txt>.
++
++	  Inserting printk statements in very busy code is a quick way to
++	  bring your system to it's knees.  If in doubt, say "N".
++
+ config DEBUG_STACKOVERFLOW
+ 	bool "Check for stack overflows"
+ 	depends on DEBUG_KERNEL
+diff -Nru a/drivers/char/Makefile b/drivers/char/Makefile
+--- a/drivers/char/Makefile	Tue Nov 26 10:54:44 2002
++++ b/drivers/char/Makefile	Tue Nov 26 10:54:44 2002
+@@ -82,6 +82,7 @@
+ obj-$(CONFIG_AGP) += agp/
+ obj-$(CONFIG_DRM) += drm/
+ obj-$(CONFIG_PCMCIA) += pcmcia/
++obj-$(CONFIG_KPROBES_PRINTK) += kprobes_printk.o
  
  
- /* scan table above for supported devices */
- static int __init agp_lookup_host_bridge (struct pci_dev *pdev)
- {
--	int i;
-+	int i=0, j=0;
-+	struct agp_bridge_info *bridge=NULL;
-+	struct agp_device_ids *devs;
- 	
--	for (i = 0; i < ARRAY_SIZE (agp_bridge_info); i++)
--		if (pdev->vendor == agp_bridge_info[i].vendor_id)
-+	while (agp_bridge_list[i].ptr != NULL) {
-+		bridge = agp_bridge_list[i].ptr;
-+		if (pdev->vendor == bridge->vendor_id)
- 			break;
-+		i++;
+ # Files generated that shall be removed upon make clean
+diff -Nru a/drivers/char/kprobes_printk.c b/drivers/char/kprobes_printk.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/drivers/char/kprobes_printk.c	Tue Nov 26 10:54:44 2002
+@@ -0,0 +1,298 @@
++/*
++ * Kprobes Printk Interface for Linux
++ *
++ * This driver allows arbitrary printk's to be inserted into
++ * executing kernel code by using the new kprobes interface.
++ * A message is attached to an address, and when that address
++ * is reached, the message is printed. 
++ *
++ * This uses a sysfs control file to manage a list of probes. 
++ * The sysfs directory is at
++ *
++ * /sys/kprobes_printk/
++ *
++ * and the control is named 'ctl'. 
++ *
++ * A Printk Probe can be added by echoing into the file, like:
++ *
++ *	$ echo "add <address> <message>" > /sys/kprobes_printk/ctl
++ *
++ * where <address> is the address to break on, and <message> 
++ * is the message to print when the address is reached. 
++ *
++ * Probes can be removed by doing:
++ *
++ *	$ echo "del <address>" > /sys/kprobes_printk/ctl
++ *
++ * where <address> is the address of the probe.
++ *
++ * The probes themselves get a directory under /sys/kprobes_printk/, and
++ * the name of the directory is the address of the probe. Each
++ * probe directory contains one file ('message') that contains
++ * the message to be printed. (More may be added later).
++ *
++ * Copyright (C) 2002 Rusty Lynch <rusty@linux.intel.com>
++ */
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/kprobes.h>
++#include <linux/slab.h>
++#include <linux/kobject.h>
++
++/* exported by arch/YOURARCH/kernel/traps.c */
++extern int valid_kernel_address(unsigned long);
++
++#define MAX_MSG_SIZE 128
++
++#define to_nprobe(entry) container_of(entry,struct nprobe,kobj.entry);
++
++static DECLARE_MUTEX(kp_sem);
++static struct subsystem kp_subsys;
++
++/*
++ * struct nrpobe: data structure for managing list of probe points
++ */
++struct nprobe {
++	struct kprobe probe;
++	char message[MAX_MSG_SIZE + 1];
++	struct kobject kobj;
++};
++
++/* 
++ * Probe handlers.
++ * Only one is used (pre) to print the message out.
++ */
++static void kp_pre_handler(struct kprobe *p, struct pt_regs *r)
++{
++	struct nprobe *c = container_of(p, struct nprobe, probe);
++	printk(KERN_CRIT "%s: %s\n", __FUNCTION__, c->message);
++}
++
++static void kp_post_handler(struct kprobe *p, struct pt_regs *r, 
++			    unsigned long flags)
++{ }
++
++static int kp_fault_handler(struct kprobe *p, struct pt_regs *r, int trapnr)
++{
++	/* Let the kernel handle this fault */
++	return 0;
++}
++
++
++/*
++ * struct kp_attribute - used for defining probe attributes, 
++ * with a typesafe show method.
++ */
++struct kp_attribute {
++	struct attribute attr;
++	ssize_t (*show)(struct nprobe *,char *,size_t,loff_t);
++};
++
++
++/**
++ *	kp_attr_show - forward sysfs read call to proper handler.
++ *	@kobj:	kobject of probe being acessed.
++ *	@attr:	generic attribute portion of struct kp_attribute.
++ *	@page:	buffer to write into.
++ *	@count:	number of bytes requested.
++ *	@off:	offset into buffer.
++ *
++ *	This is called from sysfs and is necessary to convert the generic
++ *	kobject into the right type, and to convert the attribute into the
++ *	right attribute type.
++ */
++
++static ssize_t kp_attr_show(struct kobject * kobj, struct attribute * attr,
++			    char * page, size_t count, loff_t off)
++{
++	struct nprobe * n = container_of(kobj,struct nprobe,kobj);
++	struct kp_attribute * kp_attr = 
++		container_of(attr,struct kp_attribute,attr);
++	return kp_attr->show ? kp_attr->show(n,page,count,off) : 0;
++}
++
++/*
++ * kp_sysfs_ops - sysfs operations for struct nprobes.
++ */
++static struct sysfs_ops kp_sysfs_ops = {
++	.show	= kp_attr_show,
++};
++
++
++/* Default Attribute - the message to print out. */
++static ssize_t kp_message_read(struct nprobe * n, char * page, 
++			       size_t count, loff_t off)
++{
++	return off ? 0: snprintf(page,MAX_MSG_SIZE,"%s\n",n->message);
++}
++
++static struct kp_attribute attr_message = {
++	.attr	= { .name = "message", .mode = S_IRUGO },
++	.show	= kp_message_read,
++};
++
++/* Declare array of default attributes to be added when an nprobe is added */
++static struct attribute * default_attrs[] = {
++	&attr_message.attr,
++	NULL,
++};
++
++
++/* Declare kp_subsys for addition to sysfs */
++static struct subsystem kp_subsys = {
++	.kobj	= { .name = "kprobes_printk" },
++	.default_attrs	= default_attrs,
++	.sysfs_ops	= &kp_sysfs_ops,
++};
++
++
++/*
++ * kp ctl attribute.
++ * This is declared as an attribute of the subsystem, and added in 
++ * kp_init(). 
++ * 
++ * Reading this attribute dumps all the registered kp probes.
++ * Writing to it either adds or deletes a kp probe, as described at 
++ * the beginning of the file.
++ */
++static ssize_t ctl_show(struct subsystem * s, char * page, 
++			size_t count, loff_t off)
++{
++	char * str = page;
++	int ret = 0;
++
++	down(&kp_sem);
++	if (!off) {
++		struct list_head * entry, * next;
++		list_for_each_safe(entry,next,&kp_subsys.list) {
++			struct nprobe * n = to_nprobe(entry);
++			if ((ret + MAX_MSG_SIZE) > PAGE_SIZE)
++				break;
++			str += snprintf(str,PAGE_SIZE - ret,"%p: %s\n",
++					n->probe.addr,n->message);
++			ret = str - page;
++		}
 +	}
- 
--	if (i >= ARRAY_SIZE (agp_bridge_info)) {
-+	/* Vendor not found! */
-+	if (bridge == NULL) {
- 		printk (KERN_DEBUG PFX "unsupported bridge\n");
- 		return -ENODEV;
- 	}
- 
--	while ((i < ARRAY_SIZE (agp_bridge_info)) &&
--	       (agp_bridge_info[i].vendor_id == pdev->vendor)) {
--		if (pdev->device == agp_bridge_info[i].device_id) {
-+	devs = bridge->ids;
++	up(&kp_sem);
++	return ret;
++}
 +
-+	while (devs[j].chipset_name != NULL) {
-+		if (pdev->device == devs[j].device_id) {
- #ifdef CONFIG_AGP_ALI
- 			if (pdev->device == PCI_DEVICE_ID_AL_M1621) {
- 				u8 hidden_1621_id;
-@@ -1214,21 +805,21 @@ static int __init agp_lookup_host_bridge
- 				pci_read_config_byte(pdev, 0xFB, &hidden_1621_id);
- 				switch (hidden_1621_id) {
- 				case 0x31:
--					agp_bridge_info[i].chipset_name="M1631";
-+					devs[j].chipset_name="M1631";
- 					break;
- 				case 0x32:
--					agp_bridge_info[i].chipset_name="M1632";
-+					devs[j].chipset_name="M1632";
- 					break;
- 				case 0x41:
--					agp_bridge_info[i].chipset_name="M1641";
-+					devs[j].chipset_name="M1641";
- 					break;
- 				case 0x43:
- 					break;
- 				case 0x47:
--					agp_bridge_info[i].chipset_name="M1647";
-+					devs[j].chipset_name="M1647";
- 					break;
- 				case 0x51:
--					agp_bridge_info[i].chipset_name="M1651";
-+					devs[j].chipset_name="M1651";
- 					break;
- 				default:
- 					break;
-@@ -1237,30 +828,32 @@ static int __init agp_lookup_host_bridge
- #endif
- 
- 			printk (KERN_INFO PFX "Detected %s %s chipset\n",
--				agp_bridge_info[i].vendor_name,
--				agp_bridge_info[i].chipset_name);
--			agp_bridge.type = agp_bridge_info[i].chipset;
--			return agp_bridge_info[i].chipset_setup (pdev);
-+				bridge->vendor_name, devs[j].chipset_name);
-+			agp_bridge.type = devs[j].chipset;
++static int add(unsigned long addr, char * message)
++{
++	struct nprobe * n;
++	int error = 0;
 +
-+			if (devs[j].chipset_setup != NULL)
-+				return devs[j].chipset_setup(pdev);
-+			else
-+				return bridge->chipset_setup(pdev);
- 		}
--		
--		i++;
-+		j++;
- 	}
- 
--	i--; /* point to vendor generic entry (device_id == 0) */
-+	j--; /* point to vendor generic entry (device_id == 0) */
- 
- 	/* try init anyway, if user requests it AND
- 	 * there is a 'generic' bridge entry for this vendor */
--	if (agp_try_unsupported && agp_bridge_info[i].device_id == 0) {
-+	if (agp_try_unsupported && devs[i].device_id == 0) {
- 		printk(KERN_WARNING PFX "Trying generic %s routines"
- 		       " for device id: %04x\n",
--		       agp_bridge_info[i].vendor_name, pdev->device);
--		agp_bridge.type = agp_bridge_info[i].chipset;
--		return agp_bridge_info[i].chipset_setup (pdev);
-+		       bridge->vendor_name, pdev->device);
-+		agp_bridge.type = devs[i].chipset;
-+		return bridge->chipset_setup(pdev);
- 	}
- 
- 	printk(KERN_ERR PFX "Unsupported %s chipset (device id: %04x),"
--	       " you might want to try agp_try_unsupported=1.\n",
--	       agp_bridge_info[i].vendor_name, pdev->device);
-+		" you might want to try agp_try_unsupported=1.\n",
-+		bridge->vendor_name, pdev->device);
- 	return -ENODEV;
- }
- 
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/char/agp/agp.h agpgart/drivers/char/agp/agp.h
---- bk-linus/drivers/char/agp/agp.h	2002-11-26 10:41:12.000000000 -0100
-+++ agpgart/drivers/char/agp/agp.h	2002-11-26 18:39:53.000000000 -0100
-@@ -381,4 +381,26 @@ struct agp_bridge_data {
- #define HP_ZX1_PDIR_BASE	0x320
- #define HP_ZX1_CACHE_FLUSH	0x428
- 
-+struct agp_device_ids {
-+	unsigned short device_id; /* first, to make table easier to read */
-+	enum chipset_type chipset;
-+	const char *chipset_name;
-+	int (*chipset_setup) (struct pci_dev *pdev);	/* used to override generic */
++	if (!valid_kernel_address(addr))
++		return -EFAULT;
++
++	n = kmalloc(sizeof(struct nprobe),GFP_KERNEL);
++	if (!n)
++		return -ENOMEM;
++	memset(n,0,sizeof(struct nprobe));
++
++	n->probe.addr = (kprobe_opcode_t *)addr;
++	strncpy(n->message,message,MAX_MSG_SIZE);
++	n->probe.pre_handler = kp_pre_handler;
++	n->probe.post_handler = kp_post_handler;
++	n->probe.fault_handler = kp_fault_handler;
++
++	/* Doing this manually will be unnecessary soon. */
++	kobject_init(&n->kobj);
++	n->kobj.subsys = &kp_subsys;
++	snprintf(n->kobj.name, KOBJ_NAME_LEN, "%p", n->probe.addr);
++	
++	if ((error = register_kprobe(&n->probe))) {
++		printk(KERN_ERR "Unable to register probe at %p\n", 
++		       (n->probe).addr);
++		goto Error;
++	}
++
++	if (!try_module_get(THIS_MODULE))
++		goto Error;
++
++	if ((error = kobject_register(&n->kobj))) {
++		unregister_kprobe(&n->probe);
++		module_put(THIS_MODULE);
++		goto Error;
++	}
++
++	goto Done;
++ Error:
++	kfree(n);
++ Done:
++	return error;
++}
++
++static int del(unsigned long addr)
++{
++	struct list_head * entry;
++	struct nprobe * n;
++
++	list_for_each(entry,&kp_subsys.list) {
++		n = to_nprobe(entry);
++		if ((unsigned long)(n->probe.addr) == addr) {
++			unregister_kprobe(&n->probe);
++			kobject_unregister(&n->kobj);
++			module_put(THIS_MODULE);
++			return 0;
++		}
++	}
++	return -EFAULT;
++}
++
++static ssize_t ctl_store(struct subsystem * s, const char * page, 
++			 size_t count, loff_t off)
++{
++	char message[MAX_MSG_SIZE];
++	char ctl[16];
++	unsigned long addr;
++	int num;
++	int error;
++	int ret = 0;
++
++	down(&kp_sem);
++	if (off)
++		goto Done;
++	num = sscanf(page,"%15s 0x%lx %128s",ctl,&addr,message);
++	if (!num) {
++		error = -EINVAL;
++		goto Done;
++	}
++	if (!strcmp(ctl,"add") && num == 3)
++		error = add(addr,message);
++	else if (!strcmp(ctl,"del") && num == 2)
++		error = del(addr);
++	else
++		error = -EINVAL;
++	ret = error ? error : count;
++ Done:
++	up(&kp_sem);
++	return ret;
++}
++
++static struct subsys_attribute subsys_attr_ctl = {
++	.attr	= { .name = "ctl", .mode = 0644 },
++	.show	= ctl_show,
++	.store	= ctl_store,
 +};
 +
-+struct agp_bridge_info {
-+	unsigned short vendor_id;
-+	const char *vendor_name;
-+	int (*chipset_setup) (struct pci_dev *pdev);
-+	struct agp_device_ids *ids;
-+};
 +
-+extern struct agp_bridge_info ali_agp_bridge_info;
-+extern struct agp_bridge_info amd_k8_agp_bridge_info;
-+extern struct agp_bridge_info amd_agp_bridge_info;
-+extern struct agp_bridge_info intel_agp_bridge_info;
-+extern struct agp_bridge_info sis_agp_bridge_info;
-+extern struct agp_bridge_info via_agp_bridge_info;
-+extern struct agp_bridge_info hp_agp_bridge_info;
++static int __init kp_init(void)
++{
++	subsystem_register(&kp_subsys);
++	subsys_create_file(&kp_subsys,&subsys_attr_ctl);
++	return 0;
++}
 +
- #endif				/* _AGP_BACKEND_PRIV_H */
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/char/agp/ali-agp.c agpgart/drivers/char/agp/ali-agp.c
---- bk-linus/drivers/char/agp/ali-agp.c	2002-11-26 10:41:12.000000000 -0100
-+++ agpgart/drivers/char/agp/ali-agp.c	2002-11-26 18:27:59.000000000 -0100
-@@ -32,6 +32,7 @@
- #include <linux/init.h>
- #include <linux/agp_backend.h>
- #include "agp.h"
-+#include "ali.h"
- 
- static int ali_fetch_size(void)
- {
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/char/agp/ali.h agpgart/drivers/char/agp/ali.h
---- bk-linus/drivers/char/agp/ali.h	1969-12-31 23:00:00.000000000 -0100
-+++ agpgart/drivers/char/agp/ali.h	2002-11-26 17:44:56.000000000 -0100
-@@ -0,0 +1,64 @@
-+struct agp_device_ids ali_agp_device_ids[] __initdata =
++static void __exit kp_exit (void)
 +{
-+	{
-+		.device_id	= PCI_DEVICE_ID_AL_M1541,
-+		.chipset	= ALI_M1541,
-+		.chipset_name	= "M1541",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_AL_M1621,
-+		.chipset	= ALI_M1621,
-+		.chipset_name	= "M1621",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_AL_M1631,
-+		.chipset	= ALI_M1631,
-+		.chipset_name	= "M1631",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_AL_M1632,
-+		.chipset	= ALI_M1632,
-+		.chipset_name	= "M1632",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_AL_M1641,
-+		.chipset	= ALI_M1641,
-+		.chipset_name	= "M1641",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_AL_M1644,
-+		.chipset	= ALI_M1644,
-+		.chipset_name	= "M1644",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_AL_M1647,
-+		.chipset	= ALI_M1647,
-+		.chipset_name	= "M1647",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_AL_M1651,
-+		.chipset	= ALI_M1651,
-+		.chipset_name	= "M1651",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_AL_M1671,
-+		.chipset	= ALI_M1671,
-+		.chipset_name	= "M1671",
-+	},
-+	{
-+		.device_id	= 0,
-+		.chipset	= ALI_GENERIC,
-+		.chipset_name	= "Generic",
-+	},
++	subsys_remove_file(&kp_subsys,&subsys_attr_ctl);
++	subsystem_unregister(&kp_subsys);
++}
 +
-+	{ }, /* dummy final entry, always present */
-+};
++module_init(kp_init);
++module_exit(kp_exit);
 +
-+struct agp_bridge_info ali_agp_bridge_info __initdata =
-+{
-+	.vendor_id	= PCI_VENDOR_ID_AL,
-+	.vendor_name	= "Ali",
-+	.chipset_setup	= ali_generic_setup,
-+	.ids			= ali_agp_device_ids,
-+};
-+
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/char/agp/amd-agp.c agpgart/drivers/char/agp/amd-agp.c
---- bk-linus/drivers/char/agp/amd-agp.c	2002-11-26 10:41:12.000000000 -0100
-+++ agpgart/drivers/char/agp/amd-agp.c	2002-11-26 18:28:08.000000000 -0100
-@@ -31,6 +31,7 @@
- #include <linux/init.h>
- #include <linux/agp_backend.h>
- #include "agp.h"
-+#include "amd.h"
- 
- struct amd_page_map {
- 	unsigned long *real;
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/char/agp/amd.h agpgart/drivers/char/agp/amd.h
---- bk-linus/drivers/char/agp/amd.h	1969-12-31 23:00:00.000000000 -0100
-+++ agpgart/drivers/char/agp/amd.h	2002-11-26 17:44:36.000000000 -0100
-@@ -0,0 +1,32 @@
-+struct agp_device_ids amd_agp_device_ids[] __initdata =
-+{
-+	{
-+		.device_id	= PCI_DEVICE_ID_AMD_FE_GATE_7006,
-+		.chipset	= AMD_IRONGATE,
-+		.chipset_name	= "Irongate",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_AMD_FE_GATE_700E,
-+		.chipset	= AMD_761,
-+		.chipset_name	= "761",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_AMD_FE_GATE_700C,
-+		.chipset	= AMD_762,
-+		.chipset_name	= "760MP",
-+	},
-+	{
-+		.device_id	= 0,
-+		.chipset	= AMD_GENERIC,
-+		.chipset_name	= "Generic",
-+	},
-+	{ }, /* dummy final entry, always present */
-+};
-+
-+struct agp_bridge_info amd_agp_bridge_info __initdata = 
-+{
-+	.vendor_id	= PCI_VENDOR_ID_AMD,
-+	.vendor_name	= "AMD",
-+	.chipset_setup	= amd_irongate_setup,
-+	.ids		= amd_agp_device_ids,
-+};
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/char/agp/hp-agp.c agpgart/drivers/char/agp/hp-agp.c
---- bk-linus/drivers/char/agp/hp-agp.c	2002-11-26 10:41:12.000000000 -0100
-+++ agpgart/drivers/char/agp/hp-agp.c	2002-11-26 18:31:15.000000000 -0100
-@@ -31,7 +31,7 @@
- #include <linux/init.h>
- #include <linux/agp_backend.h>
- #include "agp.h"
--
-+#include "hp.h"
- 
- #ifndef log2
- #define log2(x)		ffz(~(x))
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/char/agp/hp.h agpgart/drivers/char/agp/hp.h
---- bk-linus/drivers/char/agp/hp.h	1969-12-31 23:00:00.000000000 -0100
-+++ agpgart/drivers/char/agp/hp.h	2002-11-26 17:44:39.000000000 -0100
-@@ -0,0 +1,17 @@
-+struct agp_device_ids hp_agp_device_ids[] __initdata =
-+{
-+	{
-+		.device_id	= PCI_DEVICE_ID_HP_ZX1_LBA,
-+		.chipset	= HP_ZX1,
-+		.chipset_name	= "ZX1",
-+	},
-+	{ }, /* dummy final entry, always present */
-+};
-+
-+struct agp_bridge_info hp_agp_bridge_info __initdata =
-+{
-+	.vendor_id	= PCI_VENDOR_ID_HP,
-+	.vendor_name	= "HP",
-+	.chipset_setup	= hp_zx1_setup,
-+	.ids		= hp_agp_device_ids,
-+};
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/char/agp/i8x0-agp.c agpgart/drivers/char/agp/i8x0-agp.c
---- bk-linus/drivers/char/agp/i8x0-agp.c	2002-11-26 10:41:12.000000000 -0100
-+++ agpgart/drivers/char/agp/i8x0-agp.c	2002-11-26 18:37:28.000000000 -0100
-@@ -31,7 +31,7 @@
- #include <linux/init.h>
- #include <linux/agp_backend.h>
- #include "agp.h"
--
-+#include "i8x0.h"
- 
- static int intel_fetch_size(void)
- {
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/char/agp/i8x0.h agpgart/drivers/char/agp/i8x0.h
---- bk-linus/drivers/char/agp/i8x0.h	1969-12-31 23:00:00.000000000 -0100
-+++ agpgart/drivers/char/agp/i8x0.h	2002-11-26 18:29:30.000000000 -0100
-@@ -0,0 +1,86 @@
-+struct agp_device_ids intel_agp_device_ids[] __initdata =
-+{
-+	{
-+		.device_id	= PCI_DEVICE_ID_INTEL_82443LX_0,
-+		.chipset	= INTEL_LX,
-+		.chipset_name	= "440LX",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_INTEL_82443BX_0,
-+		.chipset	= INTEL_BX,
-+		.chipset_name	= "440BX",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_INTEL_82443GX_0,
-+		.chipset	= INTEL_GX,
-+		.chipset_name	= "440GX",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_INTEL_82815_MC,
-+		.chipset	= INTEL_I815,
-+		.chipset_name	= "i815",
-+		.chipset_setup	= intel_815_setup
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_INTEL_82820_HB,
-+		.chipset	= INTEL_I820,
-+		.chipset_name	= "i820",
-+		.chipset_setup	= intel_820_setup
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_INTEL_82820_UP_HB,
-+		.chipset	= INTEL_I820,
-+		.chipset_name	= "i820",
-+		.chipset_setup	= intel_820_setup
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_INTEL_82830_HB,
-+		.chipset	= INTEL_I830_M,
-+		.chipset_name	= "i830M",
-+		.chipset_setup	= intel_830mp_setup
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_INTEL_82845G_HB,
-+		.chipset	= INTEL_I845_G,
-+		.chipset_name	= "i845G",
-+		.chipset_setup	= intel_830mp_setup
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_INTEL_82840_HB,
-+		.chipset	= INTEL_I840,
-+		.chipset_name	= "i840",
-+		.chipset_setup	= intel_840_setup
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_INTEL_82845_HB,
-+		.chipset	= INTEL_I845,
-+		.chipset_name	= "i845",
-+		.chipset_setup	= intel_845_setup
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_INTEL_82850_HB,
-+		.chipset	= INTEL_I850,
-+		.chipset_name	= "i850",
-+		.chipset_setup	= intel_850_setup
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_INTEL_82860_HB,
-+		.chipset	= INTEL_I860,
-+		.chipset_name	= "i860",
-+		.chipset_setup	= intel_860_setup
-+	},
-+	{
-+		.device_id	= 0,
-+		.chipset	= INTEL_GENERIC,
-+		.chipset_name	= "Generic",
-+	},
-+	{ }, /* dummy final entry, always present */
-+};
-+
-+struct agp_bridge_info intel_agp_bridge_info __initdata =
-+{
-+	.vendor_id	= PCI_VENDOR_ID_INTEL,
-+	.vendor_name	= "Intel",
-+	.chipset_setup	= intel_generic_setup,
-+	.ids			= intel_agp_device_ids,			
-+};
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/char/agp/k8-agp.c agpgart/drivers/char/agp/k8-agp.c
---- bk-linus/drivers/char/agp/k8-agp.c	2002-11-26 10:41:12.000000000 -0100
-+++ agpgart/drivers/char/agp/k8-agp.c	2002-11-26 18:31:44.000000000 -0100
-@@ -13,6 +13,7 @@
- #include <linux/init.h>
- #include <linux/agp_backend.h>
- #include "agp.h"
-+#include "k8-agp.h"
- 
- extern int agp_memory_reserved;
- extern __u32 *agp_gatt_table; 
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/char/agp/k8-agp.h agpgart/drivers/char/agp/k8-agp.h
---- bk-linus/drivers/char/agp/k8-agp.h	1969-12-31 23:00:00.000000000 -0100
-+++ agpgart/drivers/char/agp/k8-agp.h	2002-11-26 17:44:44.000000000 -0100
-@@ -0,0 +1,17 @@
-+struct agp_device_ids amd_k8_device_ids[] __initdata =
-+{
-+	{ 
-+		.device_id	= PCI_DEVICE_ID_AMD_8151_0,
-+		.chipset    = AMD_8151,
-+		.chipset_name = "8151",
-+	},
-+	{ }, /* dummy final entry, always present */
-+};
-+
-+struct agp_bridge_info amd_k8_agp_bridge_info[] __initdata =
-+{
-+	.vendor_id		= PCI_VENDOR_ID_AMD,
-+	.vendor_name	= "AMD",
-+	.chipset_setup	= amd_8151_setup,
-+	.ids			= amd_k8_device_ids,
-+};
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/char/agp/sis-agp.c agpgart/drivers/char/agp/sis-agp.c
---- bk-linus/drivers/char/agp/sis-agp.c	2002-11-26 10:41:12.000000000 -0100
-+++ agpgart/drivers/char/agp/sis-agp.c	2002-11-26 18:31:45.000000000 -0100
-@@ -31,6 +31,7 @@
- #include <linux/init.h>
- #include <linux/agp_backend.h>
- #include "agp.h"
-+#include "sis.h"
- 
- static int sis_fetch_size(void)
- {
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/char/agp/sis.h agpgart/drivers/char/agp/sis.h
---- bk-linus/drivers/char/agp/sis.h	1969-12-31 23:00:00.000000000 -0100
-+++ agpgart/drivers/char/agp/sis.h	2002-11-26 17:44:46.000000000 -0100
-@@ -0,0 +1,72 @@
-+struct agp_device_ids sis_agp_device_ids[] __initdata =
-+{
-+	{
-+		.device_id	= PCI_DEVICE_ID_SI_740,
-+		.chipset	= SIS_GENERIC,
-+		.chipset_name	= "740",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_SI_650,
-+		.chipset	= SIS_GENERIC,
-+		.chipset_name	= "650",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_SI_645,
-+		.chipset	= SIS_GENERIC,
-+		.chipset_name	= "645",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_SI_735,
-+		.chipset	= SIS_GENERIC,
-+		.chipset_name	= "735",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_SI_745,
-+		.chipset	= SIS_GENERIC,
-+		.chipset_name	= "745",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_SI_730,
-+		.chipset	= SIS_GENERIC,
-+		.chipset_name	= "730",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_SI_630,
-+		.chipset	= SIS_GENERIC,
-+		.chipset_name	= "630",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_SI_540,
-+		.chipset	= SIS_GENERIC,
-+		.chipset_name	= "540",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_SI_620,
-+		.chipset	= SIS_GENERIC,
-+		.chipset_name	= "620",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_SI_530,
-+		.chipset	= SIS_GENERIC,
-+		.chipset_name	= "530",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_SI_550,
-+		.chipset	= SIS_GENERIC,
-+		.chipset_name	= "550",
-+	},
-+	{
-+		.device_id	= 0,
-+		.chipset	= SIS_GENERIC,
-+		.chipset_name	= "Generic",
-+	},
-+	{ }, /* dummy final entry, always present */
-+};
-+
-+struct agp_bridge_info sis_agp_bridge_info __initdata =
-+{
-+	.vendor_id	= PCI_VENDOR_ID_SI,
-+	.vendor_name	= "SiS",
-+	.chipset_setup	= sis_generic_setup,
-+	.ids			= sis_agp_device_ids,
-+};
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/char/agp/via-agp.c agpgart/drivers/char/agp/via-agp.c
---- bk-linus/drivers/char/agp/via-agp.c	2002-11-26 10:41:12.000000000 -0100
-+++ agpgart/drivers/char/agp/via-agp.c	2002-11-26 18:31:46.000000000 -0100
-@@ -32,6 +32,7 @@
- #include <linux/init.h>
- #include <linux/agp_backend.h>
- #include "agp.h"
-+#include "via.h"
- 
- 
- static int via_fetch_size(void)
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/char/agp/via.h agpgart/drivers/char/agp/via.h
---- bk-linus/drivers/char/agp/via.h	1969-12-31 23:00:00.000000000 -0100
-+++ agpgart/drivers/char/agp/via.h	2002-11-26 17:44:49.000000000 -0100
-@@ -0,0 +1,62 @@
-+struct agp_device_ids via_agp_device_ids[] __initdata =
-+{
-+	{
-+		.device_id	= PCI_DEVICE_ID_VIA_8501_0,
-+		.chipset	= VIA_MVP4,
-+		.chipset_name	= "MVP4",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_VIA_82C597_0,
-+		.chipset	= VIA_VP3,
-+		.chipset_name	= "VP3",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_VIA_82C598_0,
-+		.chipset	= VIA_MVP3,
-+		.chipset_name	= "MVP3",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_VIA_82C691,
-+		.chipset	= VIA_APOLLO_PRO,
-+		.chipset_name	= "Apollo Pro",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_VIA_8371_0,
-+		.chipset	= VIA_APOLLO_KX133,
-+		.chipset_name	= "Apollo Pro KX133",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_VIA_8363_0,
-+		.chipset	= VIA_APOLLO_KT133,
-+		.chipset_name	= "Apollo Pro KT133",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_VIA_8367_0,
-+		.chipset	= VIA_APOLLO_KT133,
-+		.chipset_name	= "Apollo Pro KT266",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_VIA_8377_0,
-+		.chipset	= VIA_APOLLO_KT400,
-+		.chipset_name	= "Apollo Pro KT400",
-+	},
-+	{
-+		.device_id	= PCI_DEVICE_ID_VIA_8653_0,
-+		.chipset	= VIA_APOLLO_PRO,
-+		.chipset_name	= "Apollo Pro266T",
-+	},
-+	{
-+		.device_id	= 0,
-+		.chipset	= VIA_GENERIC,
-+		.chipset_name	= "Generic",
-+	},
-+	{ }, /* dummy final entry, always present */
-+};
-+
-+struct agp_bridge_info via_agp_bridge_info __initdata =
-+{
-+	.vendor_id	= PCI_VENDOR_ID_VIA,
-+	.vendor_name	= "Via",
-+	.chipset_setup	= via_generic_setup,
-+	.ids			= via_agp_device_ids,
-+};
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
++MODULE_AUTHOR("Rusty Lynch");
++MODULE_LICENSE("GPL");

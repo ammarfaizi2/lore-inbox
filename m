@@ -1,36 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261645AbULTVPF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261640AbULTVVZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261645AbULTVPF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 16:15:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261646AbULTVPF
+	id S261640AbULTVVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 16:21:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbULTVVZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 16:15:05 -0500
-Received: from waste.org ([216.27.176.166]:51349 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261645AbULTVPC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 16:15:02 -0500
-Date: Mon, 20 Dec 2004 13:14:19 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Mark Broadbent <markb@wetlettuce.com>
-Cc: romieu@fr.zoreil.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: Lockup with 2.6.9-ac15 related to netconsole
-Message-ID: <20041220211419.GC5974@waste.org>
-References: <59719.192.102.214.6.1103214002.squirrel@webmail.wetlettuce.com> <20041216211024.GK2767@waste.org> <34721.192.102.214.6.1103274614.squirrel@webmail.wetlettuce.com> <20041217215752.GP2767@waste.org> <20041217233524.GA11202@electric-eye.fr.zoreil.com> <36901.192.102.214.6.1103535728.squirrel@webmail.wetlettuce.com>
+	Mon, 20 Dec 2004 16:21:25 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:11650 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261640AbULTVVW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 16:21:22 -0500
+Subject: Re: [2.6 patch] ieee1394_core.c: remove unneeded EXPORT_SYMBOL's
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ben Collins <bcollins@debian.org>
+Cc: Arne Caspari <arnem@informatik.uni-bremen.de>,
+       Adrian Bunk <bunk@stusta.de>, linux1394-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041220154638.GE457@phunnypharm.org>
+References: <20041220015320.GO21288@stusta.de>
+	 <41C694E0.8010609@informatik.uni-bremen.de>
+	 <20041220143901.GD457@phunnypharm.org>
+	 <1103555716.29968.27.camel@localhost.localdomain>
+	 <20041220154638.GE457@phunnypharm.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1103573716.31512.10.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <36901.192.102.214.6.1103535728.squirrel@webmail.wetlettuce.com>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 20 Dec 2004 20:15:17 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 20, 2004 at 09:42:08AM -0000, Mark Broadbent wrote:
+On Llu, 2004-12-20 at 15:46, Ben Collins wrote:
+> > You might as well remove the ifdef if you do that since vendors will
+> > have to guess what the right answer is an will probably uniformly say
+> > "Y". At that point its basically a non-option. Far better to submit the
+> > driver
 > 
-> Exactly the same happens, I still get a 'NMI Watchdog detected LOCKUP'
-> with the r8169 device using the above patch on top of 2.6.10-rc3-bk10.
+> You are missing the point though. Lots of these are part of our API, and
 
-Ok, that suggests a problem localized to netpoll itself. Do you have
-spinlock debugging turned on by any chance? 
+I think you missed my point. Any vendor faced with that Config option
+will say Y so almost every tree will always have it - so why ask as
+opposed to keeping the status quo.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+> into the kernel mainline. But that API is needed, none-the-less, to expose
+> the internals of the system.
+> 
+> I'd hate to think that our "license" worries outweigh the small hacker
+> community for some projects.
+
+Sure but if Adrian was trying to just tidy licensing issues he'd submit
+a switch to EXPORT_SYMBOL_GPL. (Admittedly for anything as closely tied
+as the innards of the ieee1394 layer its probably implied anyway).
+
+There are two conflicting goals here - to have clean complete API's and
+to stamp out the large number of unused, historic and at times bogus
+exports. If these API's are needed and used then they should stay just
+as some others elsewhere in the kernel have.
+
+Think of it as a case of the office cleaner having not realised the pile
+of paper on the floor was important, thats all.
+
+As to the video stuff - merging that is a parallel but unrelated
+question and it seems it would be benefical to all involved.
+
+Alan
+

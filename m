@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130886AbQKINns>; Thu, 9 Nov 2000 08:43:48 -0500
+	id <S130018AbQKINwT>; Thu, 9 Nov 2000 08:52:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130889AbQKINni>; Thu, 9 Nov 2000 08:43:38 -0500
-Received: from 513.holly-springs.nc.us ([216.27.31.173]:11530 "EHLO
-	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
-	id <S130886AbQKINnY>; Thu, 9 Nov 2000 08:43:24 -0500
-Message-ID: <3A0AA9F2.9F76DF1@holly-springs.nc.us>
-Date: Thu, 09 Nov 2000 08:43:14 -0500
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.16 i686)
+	id <S129642AbQKINwJ>; Thu, 9 Nov 2000 08:52:09 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:60932 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129322AbQKINvv>;
+	Thu, 9 Nov 2000 08:51:51 -0500
+Message-ID: <3A0AABA0.65CC42FA@mandrakesoft.com>
+Date: Thu, 09 Nov 2000 08:50:24 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Lars Marowsky-Bree <lmb@suse.de>, Christoph Rohland <cr@sap.com>,
-        richardj_moore@uk.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
-In-Reply-To: <E13trrP-00019n-00@the-village.bc.nu>
+CC: Andrey Panin <pazke@orbita.don.sitek.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] media/radio [check_region() removal... ]
+In-Reply-To: <E13trtf-0001A3-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Alan Cox wrote:
+> 
+> > 2) i found that some net drivers (3c527.c, sk_mca.c) use io region and
+> > don't call request_region() at all. Should they be fixed ?
+> 
+> Probably.
+> 
+> MCA bus ensures there can be no collisions of I/O space but it does mean the
+> user cannot see what is where as is
 
-> RTLinux is hardly a fork. UcLinux is a fork, it has its own mailing list, web
-> site and everything. Post 2.4 I'm still very interested in spending time merging
-> the 2.4 uc and the main tree. I think it can be done and they are doing it in
-> a way that leads logically to this.
+Ditto for PCI... it's also a good idea to do it so that another driver
+doesn't trample on your I/O space.  I don't think there are any
+de4x5/tulip type situations for MCA, but ya never know...
 
-
-And how would a hypothetical Advanced Linux Kernel Project be different?
-Set aside the GKHI and the issue of binary-only hook modules; how would
-an "enterprise" fork be any different than RT or UC? It'll go off,
-change and add some things, and then perhaps be merged back in later. In
-the meantime, developers who want to add "enterpriseness" to Linux will
-have an outlet and won't have to simply gripe on this list anymore. And
-users who want an "enterprise" kernel can get one.
-
--M
+-- 
+Jeff Garzik             |
+Building 1024           | Would you like a Twinkie?
+MandrakeSoft            |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

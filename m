@@ -1,140 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263271AbUJ2AqS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263252AbUJ2Amu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263271AbUJ2AqS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 20:46:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263248AbUJ2Aoj
+	id S263252AbUJ2Amu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 20:42:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263222AbUJ2AjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 20:44:39 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:10708 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S263267AbUJ2A2T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 20:28:19 -0400
-Subject: Re: time and suspending sysdevs [was Re: Fixing MTRR smp breakage
-	and suspending sysdevs.]
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Li, Shaohua" <shaohua.li@intel.com>,
-       Patrick Mochel <mochel@digitalimplant.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041028223838.GA2319@elf.ucw.cz>
-References: <16A54BF5D6E14E4D916CE26C9AD30575699E58@pdsmsx402.ccr.corp.intel.com>
-	 <20041027100046.GB26265@elf.ucw.cz>  <20041028223838.GA2319@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1099009119.3441.12.camel@desktop.cunninghams>
+	Thu, 28 Oct 2004 20:39:12 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:52998 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S263255AbUJ2AZS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 20:25:18 -0400
+Date: Fri, 29 Oct 2004 02:24:42 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] OSS: remove unused functions
+Message-ID: <20041029002442.GV29142@stusta.de>
+References: <20041028231214.GC3207@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 29 Oct 2004 10:18:39 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041028231214.GC3207@stusta.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-29 at 08:38, Pavel Machek wrote:
-> Hi!
-> 
-> > > >One thing I have noticed is that by adding the sysdev suspend/resume
-> > > >calls, I've gained a few seconds delay. I'll see if I can track down
-> > > the
-> > > >cause.
+[ this time without the problems due to a digital signature... ]
 
-Don't think I actually mentioned the case: it's the pit timer, it
-appears (number before is jiffies). Interestingly, there is a delay in
-suspending, but it only shows after we exit the sysdev call (when
-interrupts are reenabled? Haven't looked more closely).
+The patch below removes some unused functions from OSS.
 
-Suspending System Devices
-Suspending type 'irqrouter':
- 4294741499: Starting global drivers irqrouter0
- 4294741499: Starting auxillary drivers.
-Suspending type 'ioapic':
- 4294741499: Starting global drivers ioapic0
- 4294741499: Starting auxillary drivers.
- 4294741499: Starting generic driver.
- 4294741499: Done.
-Suspending type 'lapic':
- 4294741499: Starting global drivers lapic0
- 4294741499: Starting auxillary drivers.
- 4294741499: Starting generic driver.
- 4294741499: Done.
-Suspending type 'timer':
- 4294741499: Starting global drivers timer0
- 4294741499: Starting auxillary drivers.
-Suspending type 'pit':
- 4294741499: Starting global drivers pit0
- 4294741499: Starting auxillary drivers.
- 4294741499: Starting generic driver.
- 4294741499: Done.
-Suspending type 'i8259':
- 4294741499: Starting global drivers i82590
- 4294741499: Starting auxillary drivers.
- 4294741499: Starting generic driver.
- 4294741499: Done.
-Suspending type 'cpu':
- 4294741499: Starting global drivers cpu0
- 4294741499: Starting auxillary drivers.
- 4294741499: Starting global drivers cpu1
- 4294741499: Starting auxillary drivers.
-Back from sysdev_suspend.
-sysdev_resume
-Resuming System Devices
-Resuming type 'cpu':
- 4294742128: cpu0
- 4294742128: Starting auxillary drivers.
- 4294742128: Starting global drivers cpu0
- 4294742128: Done.
- 4294742128: cpu1
- 4294742128: Starting auxillary drivers.
- 4294742128: Starting global drivers cpu1
- 4294742128: Done.
-Resuming type 'i8259':
- 4294742128: i82590
- 4294742128: Starting generic driver.
- 4294742128: Starting auxillary drivers.
- 4294742128: Starting global drivers i82590
- 4294742128: Done.
-Resuming type 'pit':
- 4294742128: pit0
- 4294742128: Starting generic driver.
- 4294772030: Starting auxillary drivers.
- 4294772030: Starting global drivers pit0
- 4294772030: Done.
-Resuming type 'timer':
- 4294772030: timer0
- 4294772030: Starting generic driver.
- 4294772030: Starting auxillary drivers.
- 4294772030: Starting global drivers timer0
- 4294772030: Done.
-Resuming type 'lapic':
- 4294772030: lapic0
- 4294772030: Starting generic driver.
- 4294772030: Starting auxillary drivers.
- 4294772030: Starting global drivers lapic0
- 4294772030: Done.
-Resuming type 'ioapic':
- 4294772030: ioapic0
- 4294772030: Starting generic driver.
- 4294772030: Starting auxillary drivers.
- 4294772030: Starting global drivers ioapic0
- 4294772030: Done.
-Resuming type 'irqrouter':
- 4294772030: irqrouter0
- 4294772030: Starting generic driver.
- 4294772030: Starting auxillary drivers.
- 4294772030: Starting global drivers irqrouter0
- 4294772030: Done.
-power up suspend device tree.
-done
 
-Regards,
+diffstat output:
+ sound/oss/ad1889.c |   14 --------------
+ sound/oss/cmpci.c  |    9 ---------
+ sound/oss/cs46xx.c |   25 -------------------------
+ sound/oss/ymfpci.c |    5 -----
+ 4 files changed, 53 deletions(-)
 
-Nigel
 
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Everyone lives by faith. Some people just don't believe it.
-Want proof? Try to prove that the theory of evolution is true.
-
+--- linux-2.6.10-rc1-mm1-full/sound/oss/ad1889.c.old	2004-10-28 23:45:24.000000000 +0200
++++ linux-2.6.10-rc1-mm1-full/sound/oss/ad1889.c	2004-10-28 23:44:59.000000000 +0200
+@@ -82,20 +82,6 @@
+ 	ac97_codec->codec_write(dev->ac97_codec, AC97_POWER_CONTROL, 0);
+ }
+ 
+-static inline void ad1889_set_adc_rate(ad1889_dev_t *dev, int rate)
+-{
+-	struct ac97_codec *ac97_codec = dev->ac97_codec;
+-
+-	DBG("Setting ADC rate to %d\n", rate);
+-	dev->state[AD_ADC_STATE].dmabuf.rate = rate;
+-	AD1889_WRITEW(dev, AD_DSRES, rate);
+-
+-	/* Cycle the ADC to enable the new rate */
+-	ac97_codec->codec_write(dev->ac97_codec, AC97_POWER_CONTROL, 0x0100);
+-	WAIT_10MS();
+-	ac97_codec->codec_write(dev->ac97_codec, AC97_POWER_CONTROL, 0);
+-}
+-
+ static inline void ad1889_set_wav_fmt(ad1889_dev_t *dev, int fmt)
+ {
+ 	u16 tmp;
+--- linux-2.6.10-rc1-mm1-full/sound/oss/ymfpci.c.old	2004-10-28 23:45:45.000000000 +0200
++++ linux-2.6.10-rc1-mm1-full/sound/oss/ymfpci.c	2004-10-28 23:46:01.000000000 +0200
+@@ -124,11 +124,6 @@
+  *  common I/O routines
+  */
+ 
+-static inline u8 ymfpci_readb(ymfpci_t *codec, u32 offset)
+-{
+-	return readb(codec->reg_area_virt + offset);
+-}
+-
+ static inline void ymfpci_writeb(ymfpci_t *codec, u32 offset, u8 val)
+ {
+ 	writeb(val, codec->reg_area_virt + offset);
+--- linux-2.6.10-rc1-mm1-full/sound/oss/cmpci.c.old	2004-10-28 23:46:25.000000000 +0200
++++ linux-2.6.10-rc1-mm1-full/sound/oss/cmpci.c	2004-10-28 23:46:41.000000000 +0200
+@@ -1162,15 +1162,6 @@
+ 		enable_adc(s);
+ }
+ 
+-static inline void enable_dac(struct cm_state *s)
+-{
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&s->lock, flags);
+-	enable_dac_unlocked(s);
+-	spin_unlock_irqrestore(&s->lock, flags);
+-}
+-
+ static inline void stop_adc_unlocked(struct cm_state *s)
+ {
+ 	if (s->enable & ENADC) {
+--- linux-2.6.10-rc1-mm1-full/sound/oss/cs46xx.c.old	2004-10-28 23:47:27.000000000 +0200
++++ linux-2.6.10-rc1-mm1-full/sound/oss/cs46xx.c	2004-10-28 23:47:37.000000000 +0200
+@@ -391,31 +391,6 @@
+ static int cs46xx_suspend_tbl(struct pci_dev *pcidev, u32 state);
+ static int cs46xx_resume_tbl(struct pci_dev *pcidev);
+ 
+-static inline unsigned ld2(unsigned int x)
+-{
+-	unsigned r = 0;
+-	
+-	if (x >= 0x10000) {
+-		x >>= 16;
+-		r += 16;
+-	}
+-	if (x >= 0x100) {
+-		x >>= 8;
+-		r += 8;
+-	}
+-	if (x >= 0x10) {
+-		x >>= 4;
+-		r += 4;
+-	}
+-	if (x >= 4) {
+-		x >>= 2;
+-		r += 2;
+-	}
+-	if (x >= 2)
+-		r++;
+-	return r;
+-}
+-
+ #if CSDEBUG
+ 
+ /* DEBUG ROUTINES */

@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272004AbRHVNQj>; Wed, 22 Aug 2001 09:16:39 -0400
+	id <S271999AbRHVNST>; Wed, 22 Aug 2001 09:18:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271999AbRHVNQa>; Wed, 22 Aug 2001 09:16:30 -0400
-Received: from smtp3.cern.ch ([137.138.131.164]:8676 "EHLO smtp3.cern.ch")
-	by vger.kernel.org with ESMTP id <S272000AbRHVNQP>;
-	Wed, 22 Aug 2001 09:16:15 -0400
-To: <mjacob@feral.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ricky Beam <jfbeam@bluetopia.net>,
-        <linux-kernel@vger.kernel.org>
+	id <S272002AbRHVNSJ>; Wed, 22 Aug 2001 09:18:09 -0400
+Received: from smtp3.cern.ch ([137.138.131.164]:9445 "EHLO smtp3.cern.ch")
+	by vger.kernel.org with ESMTP id <S272000AbRHVNSA>;
+	Wed, 22 Aug 2001 09:18:00 -0400
+To: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
 Subject: Re: Qlogic/FC firmware
-In-Reply-To: <20010821172532.C23686-100000@wonky.feral.com>
+In-Reply-To: <E15ZKNa-0000UE-00@the-village.bc.nu> <200108220615.IAA16563@ns.cablesurf.de>
 From: Jes Sorensen <jes@sunsite.dk>
-Date: 22 Aug 2001 15:15:45 +0200
-In-Reply-To: Matthew Jacob's message of "Tue, 21 Aug 2001 17:35:50 -0700 (PDT)"
-Message-ID: <d3r8u4me0u.fsf@lxplus050.cern.ch>
+Date: 22 Aug 2001 15:17:37 +0200
+In-Reply-To: Oliver Neukum's message of "Wed, 22 Aug 2001 08:04:56 +0200"
+Message-ID: <d3n14smdxq.fsf@lxplus050.cern.ch>
 User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Matthew" == Matthew Jacob <mjacob@feral.com> writes:
+>>>>> "Oliver" == Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de> writes:
 
-Matthew> It's not just a question of having firmware updated into
-Matthew> flash- which, btw, companies like Veritas have shied away
-Matthew> from getting custoemrs to do because you *do* have a small
-Matthew> but finite amount of risk updating flash. It's also code that
-Matthew> as yet has to be written for qlogicfc (e.g.) that would pull
-Matthew> it *out* of flash so it can be pushed into SRAM (which is
-Matthew> what the BIOS code on other platforms do).
+>> > Oh for the love of God, will you people stop drooling over the
+>> fucking > GPL? It's *firmware*... it's just a bunch of bits.  It's
+>> *not* a program > the kernel executes.  It's just
+>> data. (__init_data to be exact.)
+>> 
+>> Look, if its not distributable then its no good to anyone.
 
-Yeah vendors tend to like this idea, it's not just Veritas and QLogic
-who went down this path, unfortunately.
+Oliver> Are you allowed to distribute an initrd that contains it,
+Oliver> build from it and GNU tools ?
 
-Updating the flash does seem very easy, and the good thing about the
-QLA adapters is that you can reflash even if you screwed up in the
-first place. Yup I tried that ;) Writing the flash utility seems like
-a piece of cake in this as well. What doesn't look as easy is to
-figure out that directory structure of the firmware images ;-( Any
-chance you got some data on that?
+If you don't violate any of the licenses of the apps you stick on the
+initrd. The fact you use GNU tools to build the initrd doesn't really
+matter.
 
-Cheers,
+The problem with including this in the kernel is that the kernel as a
+whole is GPL'ed so including something that is in conflict with the
+GPL is kinda problematic.
+
+Cheers
 Jes

@@ -1,83 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313019AbSDVOtV>; Mon, 22 Apr 2002 10:49:21 -0400
+	id <S314213AbSDVOwf>; Mon, 22 Apr 2002 10:52:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314213AbSDVOtU>; Mon, 22 Apr 2002 10:49:20 -0400
-Received: from mailf.telia.com ([194.22.194.25]:14290 "EHLO mailf.telia.com")
-	by vger.kernel.org with ESMTP id <S313019AbSDVOtT>;
-	Mon, 22 Apr 2002 10:49:19 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-To: andersen@codepoet.org, "Dr. Death" <drd@homeworld.ath.cx>
-Subject: Re: A CD with errors (scratches etc.) blocks the whole system while reading damadged files
-Date: Mon, 22 Apr 2002 16:49:54 +0200
-X-Mailer: KMail [version 1.4.5]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3CBEC67F.3000909@filez> <20020419200112.GA16209@codepoet.org>
+	id <S314223AbSDVOwe>; Mon, 22 Apr 2002 10:52:34 -0400
+Received: from dsl-213-023-039-131.arcor-ip.net ([213.23.39.131]:45723 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S314213AbSDVOwd>;
+	Mon, 22 Apr 2002 10:52:33 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
+Date: Sun, 21 Apr 2002 16:53:05 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Larry McVoy <lm@bitmover.com>, Jeff Garzik <garzik@havoc.gtf.org>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0204211158160.30929-100000@twinlark.arctic.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200204221649.54875.roger.larsson@skelleftea.mail.telia.com>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16zIi9-0001Fs-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sunday 21 April 2002 21:06, dean gaudet wrote:
+> personally i probably wouldn't be so interested in bk if it weren't for
+> all the zealots telling me it's something i shouldn't even consider using.
+> your approach is about as effective as the war on drugs, or minimum
+> alcohol consumption age limits.  tell what i can't do and i'm damn well
+> going to go investigate what it is that's supposedly so bad for me.
+> 
+> thanks to all of you for pointing me in the direction of a tool which
+> looks to be a huge step forward in SCM.  i believe "paradigm shift" would
+> be an apt term for bk.
 
-Byt why does it look up the whole system during these retries?
-Does it busy wait? (on timer or HW status)
+You seem to think I'm against Bitkeeper, or its use, or that I think
+Bitkeeper isn't helping linux.  You're wrong.  I am against carrying what
+*appears* to be a big advertisement for Bitkeeper itself in the Linux
+source tree.  This I see as akin to putting up a commercial billboard in a
+public park.  Would you be comfortable with that?
 
-In that case the preemtive kernel could help too... (assuming that it
-does not busy wait under a lock - but it is not unlikely...)
+If my comments have caused increased interest in Bitkeeper and spiked up
+Larry's downloads, I am glad.  Now everybody is happy except a number of
+those whose involvement with Linux is based on some kind of philosophical
+belief in the freeness of software (or at least in the freeness of Linux)
+and who have been on the butt end of numerous insults in this thread,
+your insult above ("zealots") being a good example.
 
-/RogerL
+I have suggested carrying a URL instead.  Is it reasonable?  Who is being
+extreme here?
 
-On Friday 19 April 2002 22.01, Erik Andersen wrote:
-> On Thu Apr 18, 2002 at 03:13:35PM +0200, Dr. Death wrote:
-> > Problem:
-> > 
-> > I use SuSE Linux 7.2 and when I create md5sums from damaged files on a 
-> > CD, the WHOLE system  freezes or is ugly slow untill md5 has passed the 
-> > damaged part of the file !
-> 
-> This should help somewhat.  Currently, ide-cd.c retries ERROR_MAX
-> (8) times when it sees an error.  But ide.c is also retrying
-> ERROR_MAX times when _it_ sees an error, and does a bus reset
-> after evey 4 failures.  So for each bad sector, you get 64
-> retries (with typical timouts of 7 seconds each) plus 16 bus
-> resets per bad sector.
-> 
-> The funny thing is though, we knew after the first read that we
-> had an uncorrectable medium error.  Try this patch vs 2.4.19-pre7
-> 
-> --- linux/drivers/ide/ide-cd.c.orig	Tue Apr  9 06:59:56 2002
-> +++ linux/drivers/ide/ide-cd.c	Tue Apr  9 07:04:59 2002
-> @@ -657,6 +657,11 @@
->  			   request or data protect error.*/
->  			ide_dump_status (drive, "command error", stat);
->  			cdrom_end_request (0, drive);
-> +		} else if (sense_key == MEDIUM_ERROR) {
-> +			/* No point in re-trying a zillion times on a bad 
-> +			 * sector...  If we got here the error is not correctable */
-> +			ide_dump_status (drive, "media error (bad sector)", stat);
-> +			cdrom_end_request (0, drive);
->  		} else if ((err & ~ABRT_ERR) != 0) {
->  			/* Go to the default handler
->  			   for other errors. */
->  -Erik
-> 
-> --
-> Erik B. Andersen             http://codepoet-consulting.com/
-> --This message was written using 73% post-consumer electrons--
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+Furthermore, who is making the vicious attacks, and why?
 
 -- 
-Roger Larsson
-Skellefteå
-Sweden
-
+Daniel

@@ -1,61 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263038AbUJ1XMN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263046AbUJ1XNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263038AbUJ1XMN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 19:12:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262922AbUJ1XIe
+	id S263046AbUJ1XNS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 19:13:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262950AbUJ1XMo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 19:08:34 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:52241 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262893AbUJ1XFy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 19:05:54 -0400
-Date: Fri, 29 Oct 2004 01:05:22 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: jgarzik@pobox.com, linux-net@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] net/skfp/smt.c: remove an unused function
-Message-ID: <20041028230522.GX3207@stusta.de>
+	Thu, 28 Oct 2004 19:12:44 -0400
+Received: from colin2.muc.de ([193.149.48.15]:55313 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261326AbUJ1XI1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 19:08:27 -0400
+Date: 29 Oct 2004 01:08:24 +0200
+Date: Fri, 29 Oct 2004 01:08:24 +0200
+From: Andi Kleen <ak@muc.de>
+To: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org
+Subject: [PATCH] Fix x86-64 genapic build
+Message-ID: <20041028230824.GA80511@muc.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-The patch below removes an unused function from drivers/net/skfp/smt.c
+He x86-64 genapic patch that was recently merged missed some definitions
+and doesn't compile at all. This patch fixes it. 
 
+Please apply ASAP.
 
-diffstat output:
- drivers/net/skfp/smt.c |    7 -------
- 1 files changed, 7 deletions(-)
+Add missing defines for genapic
 
+Signed-off-by: Andi Kleen <ak@muc.de>
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
-- --- linux-2.6.10-rc1-mm1-full/drivers/net/skfp/smt.c.old	2004-10-28 23:18:46.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/drivers/net/skfp/smt.c	2004-10-28 23:19:00.000000000 +0200
-@@ -135,13 +135,6 @@
- 		*(short *)(&smc->mib.m[MAC0].fddiMACSMTAddress.a[4])) ;
- }
- 
-- -static inline int is_zero(const struct fddi_addr *addr)
-- -{
-- -	return(*(short *)(&addr->a[0]) == 0 &&
-- -	       *(short *)(&addr->a[2]) == 0 &&
-- -	       *(short *)(&addr->a[4]) == 0 ) ;
-- -}
-- -
- static inline int is_broadcast(const struct fddi_addr *addr)
- {
- 	return(*(u_short *)(&addr->a[0]) == 0xffff &&
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFBgXsymfzqmE8StAARAhK0AJ40SOGXWcEsTBTsn5VT9QzBqogwxwCghiME
-UKKBxu3t4KJqGbbsbcOLx2Q=
-=Dxpv
------END PGP SIGNATURE-----
+diff -puN include/asm-x86_64/apicdef.h~kexec-apic-virtwire-on-shutdownx86_64 include/asm-x86_64/apicdef.h
+--- 25/include/asm-x86_64/apicdef.h~kexec-apic-virtwire-on-shutdownx86_64	2004-10-16 01:30:50.550815752 -0700
++++ 25-akpm/include/asm-x86_64/apicdef.h	2004-10-16 01:30:50.555814992 -0700
+@@ -32,6 +32,8 @@
+ #define			SET_APIC_LOGICAL_ID(x)	(((x)<<24))
+ #define			APIC_ALL_CPUS		0xFFu
+ #define		APIC_DFR	0xE0
++#define			APIC_DFR_CLUSTER		0x0FFFFFFFul
++#define			APIC_DFR_FLAT			0xFFFFFFFFul
+ #define		APIC_SPIV	0xF0
+ #define			APIC_SPIV_FOCUS_DISABLED	(1<<9)
+ #define			APIC_SPIV_APIC_ENABLED		(1<<8)
+@@ -87,6 +89,7 @@
+ #define			APIC_LVT_REMOTE_IRR		(1<<14)
+ #define			APIC_INPUT_POLARITY		(1<<13)
+ #define			APIC_SEND_PENDING		(1<<12)
++#define			APIC_MODE_MASK			0x700
+ #define			GET_APIC_DELIVERY_MODE(x)	(((x)>>8)&0x7)
+ #define			SET_APIC_DELIVERY_MODE(x,y)	(((x)&~0x700)|((y)<<8))
+ #define				APIC_MODE_FIXED		0x0
+_

@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267047AbSLNEdY>; Fri, 13 Dec 2002 23:33:24 -0500
+	id <S267048AbSLNElH>; Fri, 13 Dec 2002 23:41:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267048AbSLNEdY>; Fri, 13 Dec 2002 23:33:24 -0500
-Received: from windsormachine.com ([206.48.122.28]:22537 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id <S267047AbSLNEdX>; Fri, 13 Dec 2002 23:33:23 -0500
-Date: Fri, 13 Dec 2002 23:41:11 -0500 (EST)
-From: Mike Dresser <mdresser_l@windsormachine.com>
-To: GrandMasterLee <masterlee@digitalroadkill.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Intel P6 vs P7 system call performance
-In-Reply-To: <1039827325.31718.27.camel@UberGeek>
-Message-ID: <Pine.LNX.4.33.0212132319280.29293-100000@router.windsormachine.com>
+	id <S267116AbSLNElH>; Fri, 13 Dec 2002 23:41:07 -0500
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:19598 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S267048AbSLNElG> convert rfc822-to-8bit; Fri, 13 Dec 2002 23:41:06 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Matt Young <wz6b@arrl.net>
+Reply-To: wz6b@arrl.net
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.5.50 enable USB - ethernet?
+Date: Fri, 13 Dec 2002 20:48:20 -0800
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200212132048.21047.wz6b@arrl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Dec 2002, GrandMasterLee wrote:
+Seems especially strange that kmalloc is not exported
 
-> there. On my quad P4 Xeon 1.6Ghz with 1M L3 cache, I can compile a
-> kernel in about 35 seconds. Mind you that's my own config, not
-> *everything*. On a dual athlon MP at 1.8 Ghz, I get about 5 mins or so.
-> Both are running with make -jx where X is the saturation value.
-
-Something seems odd about the athlon MP time, I've got a celeron 533
-with slow disks that does a pretty standard make dep ; make of 2.4.20 in
-7m05, which is not that much different considering it's a third the speed,
-and one cpu instead of two.
-
-The single P4/2.53 in another machine can haul down in 3m17s
-
-Guess our kernel .config's or version must vary greatly.
-
-Mike
+make -f scripts/Makefile.modinst obj=arch/i386/lib
+echo /sbin/depmod
+/sbin/depmod
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.50; fi
+depmod: *** Unresolved symbols in /lib/modules/2.5.50/kernel/dummy.o
+depmod:         __kfree_skb
+depmod:         ether_setup
+depmod:         kmalloc
+depmod:         unregister_netdev
+depmod:         register_netdev
+depmod:         dev_alloc_name
+depmod:         kfree
 

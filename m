@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269595AbRHGAeS>; Mon, 6 Aug 2001 20:34:18 -0400
+	id <S269918AbRHGAvt>; Mon, 6 Aug 2001 20:51:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269601AbRHGAeH>; Mon, 6 Aug 2001 20:34:07 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:762 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S269595AbRHGAdy>;
-	Mon, 6 Aug 2001 20:33:54 -0400
-Date: Mon, 6 Aug 2001 20:34:03 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: Linus Torvalds <torvalds@transmeta.com>,
+	id <S270020AbRHGAvj>; Mon, 6 Aug 2001 20:51:39 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:31620 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S269836AbRHGAv2>; Mon, 6 Aug 2001 20:51:28 -0400
+Date: Mon, 6 Aug 2001 18:51:45 -0600
+Message-Id: <200108070051.f770pji27036@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] one of $BIGNUM devfs races
+In-Reply-To: <Pine.GSO.4.21.0108062033190.16817-100000@weyl.math.psu.edu>
 In-Reply-To: <200108062350.f76NokT26152@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.GSO.4.21.0108062033190.16817-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	<Pine.GSO.4.21.0108062033190.16817-100000@weyl.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 6 Aug 2001, Richard Gooch wrote:
-
-> This patch has the following ugly construct:
+Alexander Viro writes:
 > 
-> > +	/*  Ensure table size is enough  */
-> > +	while (fs_info.num_inodes >= fs_info.table_size) {
+> On Mon, 6 Aug 2001, Richard Gooch wrote:
 > 
-> Putting the allocation inside a while loop is horrible, and isn't a
+> > This patch has the following ugly construct:
+> > 
+> > > +	/*  Ensure table size is enough  */
+> > > +	while (fs_info.num_inodes >= fs_info.table_size) {
+> > 
+> > Putting the allocation inside a while loop is horrible, and isn't a
+> 
+> Why, exactly? I can show you quite a few places where we do exactly
+> that (allocate and if somebody else had done it before us - free and
+> repeat).  Pretty common for situations when we want low-contention
+> spinlocks to protect actual reassignment of buffer (in this case BKL
+> acts as such).
 
-Why, exactly? I can show you quite a few places where we do exactly that
-(allocate and if somebody else had done it before us - free and repeat).
-Pretty common for situations when we want low-contention spinlocks
-to protect actual reassignment of buffer (in this case BKL acts as such).
+Even if it were only a situation of allocating, I don't like the loop,
+because it means you can end up allocating twice for no reason.
 
-> perfect solution anyway. I'm fixing this (and other races) with proper
-> locking. If you went to the trouble to start patching, why at least
-> didn't you do it cleanly with a lock?
+More importantly, the loop you used doesn't protect insertions into
+the table. So it's not safe on SMP.
 
-Because it means adding a per-superblock lock for no good reason.
- 
-> Furthermore, the patch makes gratuitous formatting changes (which made
-> it harder to see what it actually *changed*).
+Anyway, I've already fixed the allocation race you're concerned about,
+plus the insertion race, in my tree (using a semaphore).
 
-_Gratitious_?  You want your style (which, BTW, flies in the face of
-Documentation/CodingStyle) - you do it in some vaguely reasonable time.
-Excuse me, but I might be inclined to follow your style half a year
-ago.  By now, IMO, you've lost any grounds for complaining.  There is a
-bunch of holes.  Holes that need fixing.  If you "have other priorities"
-for that long - expect other folks to start fixing them without any
-respect to your opinion on style.
+> > perfect solution anyway. I'm fixing this (and other races) with proper
+> > locking. If you went to the trouble to start patching, why at least
+> > didn't you do it cleanly with a lock?
+> 
+> Because it means adding a per-superblock lock for no good reason.
 
-/me is sorely tempted to say "screw it" and just do fork'n'rewrite...
+Well, it's just a single lock (only one devfs superblock possible).
+And this is generally a low-contention case (new devfs entries are not
+created that often). Using the lock also keeps the code simpler.
 
-PS: ObYourPropertyManager: karmic retribution?
+> PS: ObYourPropertyManager: karmic retribution?
 
+Um, retribution for putting in an awful lot of time developing devfs
+(despite extreme hostility), at considerable personal sacrifice, and
+being patient and civilised to those who flamed against it? My, how
+I've been such a horrible person.
+
+I find your comment on karmic retribution repugnant.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

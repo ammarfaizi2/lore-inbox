@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262596AbSI0TIV>; Fri, 27 Sep 2002 15:08:21 -0400
+	id <S261600AbSI0TUa>; Fri, 27 Sep 2002 15:20:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262601AbSI0TIU>; Fri, 27 Sep 2002 15:08:20 -0400
-Received: from blowme.phunnypharm.org ([65.207.35.140]:46860 "EHLO
-	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S262596AbSI0TIS>; Fri, 27 Sep 2002 15:08:18 -0400
-Date: Fri, 27 Sep 2002 15:13:17 -0400
-From: Ben Collins <bcollins@debian.org>
+	id <S261726AbSI0TUa>; Fri, 27 Sep 2002 15:20:30 -0400
+Received: from packet.digeo.com ([12.110.80.53]:64645 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261600AbSI0TUa>;
+	Fri, 27 Sep 2002 15:20:30 -0400
+Message-ID: <3D94B0BE.991E770@digeo.com>
+Date: Fri, 27 Sep 2002 12:25:50 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Christoph Hellwig <hch@sgi.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix drm ioctl ABI default
-Message-ID: <20020927191316.GA564@phunnypharm.org>
-References: <20020927212752.E4733@sgi.com> <1033153674.16726.10.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [patch] 'virtual => physical page mappingcache',vcache-2.5.38-B8
+References: <3D94A4D9.D458D453@digeo.com> <1033154186.16726.17.camel@irongate.swansea.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1033153674.16726.10.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Sep 2002 19:25:43.0682 (UTC) FILETIME=[AC322620:01C2665B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 27, 2002 at 08:07:54PM +0100, Alan Cox wrote:
-> On Sat, 2002-09-28 at 02:27, Christoph Hellwig wrote:
-> > Add a config option to make the i810 drm ioctl ABI XFree4.1 compatible
-> > by default (currently that's a module parameter).  The XFree folks fucked
-> > this up by adding members in the middle of a struct and we have to work
-> > around it now.  At least we should have the pre-2.4.20 behaviour as default.
-> > (And I'd suggest you add that option as y to the defconfig)
+Alan Cox wrote:
 > 
-> With all the vendors now shipping 4.2 this seems a bad thing to default
-> to the 4,1 interface - especially as the 4.1 server is
+> On Fri, 2002-09-27 at 19:35, Andrew Morton wrote:
+> > O_DIRECT writes operate under i_sem, which provides exclusion
+> > from trucate.  Do you know something which I don't??
+> 
+> So it does, hidden away in generic_file_write rather than the lower
+> layers.
 
-No, not all vendors are shipping 4.2 yet.
+Well that's sort of the same level at which truncate takes it.
+It's a pretty big lock.
 
-> o Buggy
-> o Has security holes that are fixed in 4.2.1 only
+> Interesting. So now I have a new question to resolve, which is
+> why doing O_DIRECT and truncate together corrupted my disk when I tried
+> it trying to break stuff
 
-...or patched onto 4.1.x from 4.2 source.
+Interesting indeed.  Possibly invalidate_inode_pages2() accidentally
+left some dirty buffers detached from the mapping.  Hard to see how
+it could do that.
 
-4.1 is still out in the wild for most ppl.
-
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+What kernel were you testing?

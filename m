@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130884AbRAZJKI>; Fri, 26 Jan 2001 04:10:08 -0500
+	id <S129305AbRAZJKj>; Fri, 26 Jan 2001 04:10:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129390AbRAZJJ6>; Fri, 26 Jan 2001 04:09:58 -0500
-Received: from snowbird.megapath.net ([216.200.176.7]:42501 "EHLO
-	megapathdsl.net") by vger.kernel.org with ESMTP id <S129305AbRAZJJo>;
-	Fri, 26 Jan 2001 04:09:44 -0500
-Message-ID: <3A713E8F.131C6589@megapathdsl.net>
-Date: Fri, 26 Jan 2001 01:08:31 -0800
-From: Miles Lane <miles@megapathdsl.net>
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.1-pre9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: linux-kernel@vger.kernel.org, chmouel@mandrakesoft.com
-Subject: Re: Running "make install" runs lilo on my Athlon but not my Pentium II.
-In-Reply-To: <200101222202.f0MM24s01811@flint.arm.linux.org.uk>
+	id <S129390AbRAZJKb>; Fri, 26 Jan 2001 04:10:31 -0500
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:42501 "HELO
+	metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S129305AbRAZJKI>; Fri, 26 Jan 2001 04:10:08 -0500
+Date: Fri, 26 Jan 2001 22:09:59 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: kuznet@ms2.inr.ac.ru
+Cc: "David S. Miller" <davem@redhat.COM>, linux-kernel@vger.kernel.org
+Subject: Re: [UPDATE] Zerocopy, last one today I promise :-)
+Message-ID: <20010126220959.C11097@metastasis.f00f.org>
+In-Reply-To: <14960.22256.322768.447815@pizda.ninka.net> <200101251940.WAA10110@ms2.inr.ac.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200101251940.WAA10110@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Thu, Jan 25, 2001 at 10:40:40PM +0300
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> 
-> Miles Lane writes:
-> > When I run "make install" on my Pentium II machine, lilo gets
-> > run after vmlinuz is built.  When I do the same thing on my Athlon,
-> > vmlinuz gets built, but lilo does get run.
-> 
-> Have you checked for the existance of a /sbin/installkernel file on either
-> machine?
+On Thu, Jan 25, 2001 at 10:40:40PM +0300, kuznet@ms2.inr.ac.ru wrote:
 
-Yes.  The script exists on both machines, but I think you have
-nailed the problem.  The working machine is running RedHat 6.2 plus
-a 2.4.0+ kernel.  The other (the Athlon) is running Mandrake 7.2 plus
-a 2.4.0+ kernel.  On the working machine, the installkernel script
-is just a shell script.  While, on the problem machine, the script
-is a PERL script written by chmouel@mandrakesoft.com.  
+    It simply does not exist for 82559* in all the steppings.
+    eepro100 is pretty poor device.
+    
+    Probably, it exists for card identified as Gamla (D102) (82559 is
+    D101).
 
-So, Chmouel, what gives?  Can you help me debug this?
+I have code from Audrey to enable HWCK for received only and code
+from you for SG -- but no way to enable HWCK for TX. The Intel
+provided drivers themselves don't seem to have any way of doing this
+so i wonder if it is either undocumented so Intel can sell the same
+hardware at a premium (as they do for NT, the only different being
+drivers) or simply because the HW is poor.
 
-Thanks Russell,
 
-	Miles
+
+  --cw
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,119 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261693AbVDELUk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbVDEL2h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261693AbVDELUk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 07:20:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbVDELUj
+	id S261691AbVDEL2h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 07:28:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbVDEL2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 07:20:39 -0400
-Received: from dea.vocord.ru ([217.67.177.50]:60341 "EHLO vocord.com")
-	by vger.kernel.org with ESMTP id S261693AbVDELUW (ORCPT
+	Tue, 5 Apr 2005 07:28:37 -0400
+Received: from smtpout.mac.com ([17.250.248.44]:52458 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261691AbVDEL2c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 07:20:22 -0400
-Subject: Re: Netlink Connector / CBUS
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Reply-To: johnpol@2ka.mipt.ru
-To: hadi@cyberus.ca
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org,
-       netdev <netdev@oss.sgi.com>, "David S. Miller" <davem@davemloft.net>,
-       James Morris <jmorris@redhat.com>, rml@novell.com,
-       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1112698800.1088.50.camel@jzny.localdomain>
-References: <Xine.LNX.4.44.0504050108260.9383-100000@thoron.boston.redhat.com>
-	 <1112686480.28858.17.camel@uganda>
-	 <1112697888.1089.44.camel@jzny.localdomain>
-	 <1112698800.1088.50.camel@jzny.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-sSnCz6Q18Ygv+8vLJ7Uc"
-Organization: MIPT
-Date: Tue, 05 Apr 2005 15:25:22 +0400
-Message-Id: <1112700322.28858.42.camel@uganda>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Tue, 05 Apr 2005 15:18:39 +0400 (MSD)
+	Tue, 5 Apr 2005 07:28:32 -0400
+In-Reply-To: <d5803044b1c7dcc631eda71863d44fa2@xs4all.nl>
+References: <424FD9BB.7040100@osvik.no> <20050403220508.712e14ec.sfr@canb.auug.org.au> <424FE1D3.9010805@osvik.no> <524d7fda64be6a3ab66a192027807f57@xs4all.nl> <1112559934.5268.9.camel@tiger> <d5b47c419f6e5aa280cebd650e7f6c8f@mac.com> <3821024b00b47598e66f504c51437f72@xs4all.nl> <42511BD8.4060608@osvik.no> <c3057294a216d19047bdca201fc97e2f@xs4all.nl> <20050404205718.GZ8859@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.61.0504041718580.5550@chaos.analogic.com> <62f8215dd556d5a50b307f5b6d4f578b@mac.com> <d5803044b1c7dcc631eda71863d44fa2@xs4all.nl>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <a2a171644af3ab214c5bc612eecc9167@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: Grzegorz Kulewski <kangur@polcom.net>, Adrian Bunk <bunk@stusta.de>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       linux-kernel@vger.kernel.org, Andreas Schwab <schwab@suse.de>,
+       Kenneth Johansson <ken@kenjo.org>,
+       Stephen Rothwell <sfr@canb.auug.org.au>, linux-os@analogic.com,
+       Dag Arne Osvik <da@osvik.no>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Use of C99 int types
+Date: Tue, 5 Apr 2005 07:27:49 -0400
+To: Renate Meijer <kleuske@xs4all.nl>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Apr 05, 2005, at 05:23, Renate Meijer wrote:
+>> uint8/16/32/64, on the other hand, are specific bit-sizes, which
+>> may not be as fast or correct as a simple size_t.
+>
+> Using specific widths may yield benefits on one platform, whilst
+> proving a real bottleneck when porting something to another. A
+> potential of problems easily avoided by using plain-vanilla
+> integers.
 
---=-sSnCz6Q18Ygv+8vLJ7Uc
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+The point of specific-width integers is to preserve a specific
+binary format, such as a filesystem on-disk data structure, or a
+kernel-userspace ABI, etc.  If you just need a number, use a
+different type.
 
-On Tue, 2005-04-05 at 07:00 -0400, jamal wrote:
-> and, oh yeah - wheres the documentation Evgeniy? ;->
+> Strictly speaking, a definition starting with a double
+> underscore is reserved for use by the compiler and associated
+> libs
 
-In the tree :)
-Documentation/connector/connector.txt - some notes, API.
-Documentation/connector/cn_test.c - kernel example.
-Uses cn_netlink_send(), notification feature.
+Well, _strictly_speaking_, it's "implementation defined", where the
+"implementation" includes the kernel (due to the syscall interface).
 
-I will send today a pathc that adds in-source documentation
-bits with some code cleanups.
+> this such a declaration would invade implementation namespace.
+> The compilers implementation, that is.
 
-> cheers,
-> jamal
->=20
-> On Tue, 2005-04-05 at 06:44, jamal wrote:
-> > To be fair to Evgeniy I am not against the Konnector idea. I think that
-> > it is a useful feature to have an easy to use messaging between
-> > kernel-kernel and kernel-userspace. The fact that he leveraged netlink
-> > instead of inventing things is a bonus. Having said that i have not
-> > seriously scrutinized the code - and i think the idea of this new thing
-> > hes tossing around called CBUS maybe pushing it.
-> >=20
-> > cheers,
-> > jamal
-> >=20
-> > On Tue, 2005-04-05 at 03:34, Evgeniy Polyakov wrote:
-> > > On Tue, 2005-04-05 at 01:10 -0400, Herbert Xu wrote:
-> > > >On Tue, Apr 05, 2005 at 11:03:16AM +0400, Evgeniy Polyakov wrote:
-> > > >>=20
-> > > >> I received comments and feature requests from Herbert Xu and Jamal=
- Hadi
-> > > >> Salim,
-> > > >> almost all were successfully resolved.
-> > > >
-> > > >Please do not construe my involvement in these threads as endorsemen=
-t
-> > > >for this system.
-> > >=20
-> > > Sure.
-> > > I remember you are against it :).
-> > >=20
-> > > >In fact to this day I still don't understand what problems this thin=
-g is
-> > > >meant to solve.
-> > >=20
-> > > Hmm, what else can I add to my words?
-> > > May be checking the size of the code needed to broadcast kobject chan=
-ges
-> > > in kobject_uevent.c for example...
-> > > Netlink socket allocation + skb handling against call to cn_netlink_s=
-end().
-> > >=20
-> > > >--=20
-> > > >Visit Openswan at http://www.openswan.org/
-> > > >Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-> > > >Home Page: http://gondor.apana.org.au/~herbert/
-> > > >PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
-> > >=20
-> >=20
-> >=20
-> >=20
---=20
-        Evgeniy Polyakov
+But the C library is implicitly dependent on the kernel headers for
+a wide variety of datatypes.
 
-Crash is better than data corruption -- Arthur Grabowski
+> In this case, the boundary is a bit vague, i see that, since a lot
+> of header definitions also reside in the /usr/include hierarchy.
 
---=-sSnCz6Q18Ygv+8vLJ7Uc
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Some of which are produced by kernel sources: /usr/include/linux,
+/usr/include/asm, etc.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+> I think it would be usefull to at least *agree* on a standard type
+> for 8/16/32/64-bit integer types. What I see now as a result of
+> grepping for 'uint32' is a lot more confusing than stdint.h
 
-iD8DBQBCUnWiIKTPhE+8wY0RAlXXAJ9cqMiWKTv+jyUGIgqYjppnwYvvlACfYXx7
-uJSA7Zm+fMplyqvjC2bt38w=
-=f8I/
------END PGP SIGNATURE-----
+Well, Linus has supported that there is no standard, except where
+ABI is concerned, there we must use __u32 so that it does not clash
+with libc or user programs.
 
---=-sSnCz6Q18Ygv+8vLJ7Uc--
+> Especially the types with leading underscores look cool, but in
+> reality may cause a conflict with compiler internals and should only
+> be used when defining compiler libraries.
+
+It's "implementation" (kernel+libc+gcc) defined.  It just means that
+gcc, the kernel, and libc have to be much more careful not to tread
+on each others toes.
+
+> The '__' have explicitly been put in by ISO in order to avoid
+> conflicts between user-code and the standard libraries,
+
+The "standard libraries" includes the syscall interface here.  If
+the kernel types could not be prefixed with __, then what _should_
+we prefix them with?
+
+> Furthermore, I think it's wise to convince the community that if
+> not needed, integers should not be specified by any specific width.
+
+That doesn't work for an ABI.  If you switch compilers (or from 32-bit
+to 64-bit like from x86 to x86-64, you _must_ be able to specify
+certain widths for all the ABI numbers to preserve compatibility.
+
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
+
 

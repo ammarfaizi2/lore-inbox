@@ -1,67 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266885AbUHYLbr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268413AbUHYHCv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266885AbUHYLbr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 07:31:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266745AbUHYLbr
+	id S268413AbUHYHCv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 03:02:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268464AbUHYHCt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 07:31:47 -0400
-Received: from mail.gmx.net ([213.165.64.20]:13505 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S266885AbUHYLbn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 07:31:43 -0400
-X-Authenticated: #4512188
-Message-ID: <412C789D.2050303@gmx.de>
-Date: Wed, 25 Aug 2004 13:31:41 +0200
-From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040815)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Peter Williams <pwil3058@bigpond.net.au>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] V-5.0.1 Single Priority Array O(1) CPU Scheduler Evaluation
-References: <412AAC1D.5050104@bigpond.net.au> <412C53D6.3040202@bigpond.net.au>
-In-Reply-To: <412C53D6.3040202@bigpond.net.au>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 25 Aug 2004 03:02:49 -0400
+Received: from natnoddy.rzone.de ([81.169.145.166]:13038 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S268413AbUHYHCi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 03:02:38 -0400
+Subject: Re: radeonfb problems (console blanking & acpi suspend)
+From: Alexander Rauth <Alexander.Rauth@promotion-ie.de>
+Reply-To: Alexander.Rauth@promotion-ie.de
+To: Hamie <hamish@travellingkiwi.com>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+In-Reply-To: <412BB8FF.3090601@travellingkiwi.com>
+References: <1093277876.9973.15.camel@pro30.local.promotion-ie.de>
+	 <20040824110024.GA3502@openzaurus.ucw.cz>
+	 <412BB8FF.3090601@travellingkiwi.com>
+Content-Type: text/plain
+Organization: Pro/Motion Industrie-Elektronik GmbH
+Message-Id: <1093417345.19071.13.camel@pro11.local.promotion-ie.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 25 Aug 2004 09:02:25 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Am Di, den 24.08.2004 schrieb Hamie um 23:54:
+> Really? I use 2.6.8.1 on an r50p with radeonfb enabled, and don't 
+> experience this... But I do run X as well (X.Org) with the X.Org radeon 
+> driver
+I use the ati-driver and that suffers from the same problem. Which X
+version do you use??? I want to give it a try.
 
-Peter Williams wrote:
-| Now available for 2.6.9-rc1:
-|
-| ZAPHOD:
-|
-<http://prdownloads.sourceforge.net/cpuse/patch-2.6.9-rc1-spa_zaphod_FULL-v5.0.1?download>
+> I do have problems with a total freeze several minutes after the SECOND 
+> suspend... But I'm stil trying to track that down...
+I have still problems with the errors in the DSDT. Do you found any
+working solution for this (I tried to modify it by the guides I found by
+googling. But it didn't work for me)?
 
-|
-|
-| HYDRA:
-|
-<http://prdownloads.sourceforge.net/cpuse/patch-2.6.9-rc1-spa_hydra_FULL-v5.0.1?download>
+I not sure, but I think there's also a bug in the e1000 driver that
+makes suspend/resume break ... do you tried to unload/load it with
+acpid.
 
-|
-|
-| Others at <https://sourceforge.net/projects/cpuse/>
-|
-| Peter
+Sorry for my bad English ;-)
+Alexander
 
-Hie, could you provide me link which explans in detail, but yet easy to
-read, how those schedulers work?
-
-Thanks,
-
-Prakash
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBLHidxU2n/+9+t5gRAi4HAKDiiGaytNv/bMuYWn7k6MJfmVRV/gCg8qYf
-XIDpzNXeQ0Mq1cRX3ch2XBs=
-=Shmq
------END PGP SIGNATURE-----

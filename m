@@ -1,27 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292854AbSCAMGw>; Fri, 1 Mar 2002 07:06:52 -0500
+	id <S292985AbSCAMPo>; Fri, 1 Mar 2002 07:15:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293002AbSCAMGm>; Fri, 1 Mar 2002 07:06:42 -0500
-Received: from mother.ludd.luth.se ([130.240.16.3]:48298 "EHLO
-	mother.ludd.luth.se") by vger.kernel.org with ESMTP
-	id <S292854AbSCAMGa>; Fri, 1 Mar 2002 07:06:30 -0500
-Date: Fri, 1 Mar 2002 13:06:28 +0100 (MET)
-From: texas <texas@ludd.luth.se>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Dual P4 Xeon i860 system - lockups in 2.4 & no boot in 2.2
-In-Reply-To: <E16glTg-0003Nd-00@the-village.bc.nu>
-Message-ID: <Pine.GSU.4.33.0203011244100.414-100000@father.ludd.luth.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293037AbSCAMPd>; Fri, 1 Mar 2002 07:15:33 -0500
+Received: from vana.vc.cvut.cz ([147.32.240.58]:2176 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id <S293015AbSCAMPZ>;
+	Fri, 1 Mar 2002 07:15:25 -0500
+Date: Fri, 1 Mar 2002 13:14:41 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: viro@math.psu.edu
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] 2.5.6-pre2 dparent_lock
+Message-ID: <20020301121441.GA1566@vana.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nope, "noapic" didn't do it for 2.4, it locked up on me again :-(
+Hi,
+  I did not notice anybody reporting this yet. Without this fs 
+modules refuse to load to 2.5.6-pre2 due to missing dparent_lock
+symbol. Tested with vfat and ncpfs.
+				Petr Vandrovec
+				vandrove@vc.cvut.cz
 
-I am currently running a vanilla 2.2.20 with "noapic". As mentioned, it
-fixes the boot problem but we'll see about lockups in 2.2.
 
-Thanks,
-Johan
+* Export dparent_lock symbol.
 
+diff -urdN linux/kernel/ksyms.c linux/kernel/ksyms.c
+--- linux/kernel/ksyms.c	Fri Mar  1 11:23:55 2002
++++ linux/kernel/ksyms.c	Fri Mar  1 12:03:57 2002
+@@ -285,6 +285,7 @@
+ EXPORT_SYMBOL(get_sb_bdev);
+ EXPORT_SYMBOL(get_sb_nodev);
+ EXPORT_SYMBOL(get_sb_single);
++EXPORT_SYMBOL(dparent_lock);
+ 
+ /* for stackable file systems (lofs, wrapfs, cryptfs, etc.) */
+ EXPORT_SYMBOL(default_llseek);

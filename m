@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271071AbTG1Uz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 16:55:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271107AbTG1UzU
+	id S270724AbTG1Upr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 16:45:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271094AbTG1UpL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 16:55:20 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:54146 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S271071AbTG1Uy6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 16:54:58 -0400
-Date: Mon, 28 Jul 2003 22:54:38 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Bruce Harada <bharada@coral.ocn.ne.jp>
-Cc: Meelis Roos <mroos@linux.ee>, linux-kernel@vger.kernel.org
-Subject: Re: raid5 autoselecting a slower checksum function
-Message-ID: <20030728205438.GI32673@louise.pinerecords.com>
-References: <Pine.GSO.4.44.0307281811290.13144-100000@math.ut.ee> <20030729003046.15975639.bharada@coral.ocn.ne.jp>
+	Mon, 28 Jul 2003 16:45:11 -0400
+Received: from fw.osdl.org ([65.172.181.6]:34271 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271036AbTG1UoN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 16:44:13 -0400
+Date: Mon, 28 Jul 2003 13:41:28 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Balram Adlakha <b_adlakha@softhome.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2 OSS emu10k1
+Message-Id: <20030728134128.50dcd71e.rddunlap@osdl.org>
+In-Reply-To: <20030727190257.GA2840@localhost.localdomain>
+References: <20030727190257.GA2840@localhost.localdomain>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030729003046.15975639.bharada@coral.ocn.ne.jp>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [bharada@coral.ocn.ne.jp]
-> 
-> On Mon, 28 Jul 2003 18:17:00 +0300 (EEST)
-> Meelis Roos <mroos@linux.ee> wrote:
-> 
-> <snip>
-> 
-> > Why doesn't it select p5_mmx if it is 37% faster than pIII_sse?
-> 
-> This has come up before - see :
-> 
-> http://hypermail.idiosynkrasia.net/linux-kernel/archived/2003/week01/1894.html
+On Mon, 28 Jul 2003 00:32:57 +0530 Balram Adlakha <b_adlakha@softhome.net> wrote:
 
-Fair enough, but wouldn't it be more appropriate if the kernel printed
-a message like "SSE present, good.  No need to try the other checksumming
-methods" in this case?
+| I cannot compile the emu10k1 module:
+| 
+| sound/oss/emu10k1/hwaccess.c:182: redefinition of `emu10k1_writefn0_2'
+| sound/oss/emu10k1/hwaccess.c:164: `emu10k1_writefn0_2' previously defined here
+| make[3]: *** [sound/oss/emu10k1/hwaccess.o] Error 1
+| make[2]: *** [sound/oss/emu10k1] Error 2
+| make[1]: *** [sound/oss] Error 2
+| make: *** [sound] Error 2
+| 
+| 
+| Everything else looks fine till now...
+| -
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+I don't see this problem when I build it.
+Could it be a source file (or download) problem?
+or a tools problem?
+
+--
+~Randy

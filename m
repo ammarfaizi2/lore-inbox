@@ -1,77 +1,167 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbVAWBcX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVAWBeT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261175AbVAWBcX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 20:32:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbVAWBcX
+	id S261179AbVAWBeT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 20:34:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbVAWBeS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 20:32:23 -0500
-Received: from mail08.syd.optusnet.com.au ([211.29.132.189]:25815 "EHLO
-	mail08.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261175AbVAWBcR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 20:32:17 -0500
-Message-ID: <41F2FE81.7020002@kolivas.org>
-Date: Sun, 23 Jan 2005 12:31:45 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Jack O'Quin" <joq@io.com>
-Cc: Rui Nuno Capela <rncbc@rncbc.org>, linux <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, rlrevell@joe-job.com,
-       paul@linuxaudiosystems.com, CK Kernel <ck@vds.kolivas.org>,
-       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se
-Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt 
- scheduling
-References: <41EEE1B1.9080909@kolivas.org> <41EF00ED.4070908@kolivas.org>	<873bwwga0w.fsf@sulphur.joq.us> <41EF123D.703@kolivas.org>	<87ekgges2o.fsf@sulphur.joq.us> <41EF2E7E.8070604@kolivas.org>	<87oefkd7ew.fsf@sulphur.joq.us>	<10752.195.245.190.93.1106211979.squirrel@195.245.190.93>	<65352.195.245.190.94.1106240981.squirrel@195.245.190.94>	<41F19907.2020809@kolivas.org> <87k6q6c7fz.fsf@sulphur.joq.us>	<41F1F735.1000603@kolivas.org> <41F1F7AF.7000105@kolivas.org>	<41F1FC1D.10308@kolivas.org> <87wtu55i3x.fsf@sulphur.joq.us>
-In-Reply-To: <87wtu55i3x.fsf@sulphur.joq.us>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig768F33D329CA6F353B9011BA"
+	Sat, 22 Jan 2005 20:34:18 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16274 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261181AbVAWBdh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 20:33:37 -0500
+Date: Sat, 22 Jan 2005 19:59:49 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Mel Gorman <mel@csn.ul.ie>
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Avoiding fragmentation through different allocator
+Message-ID: <20050122215949.GD26391@logos.cnet>
+References: <20050120101300.26FA5E598@skynet.csn.ul.ie> <20050121142854.GH19973@logos.cnet> <Pine.LNX.4.58.0501222128380.18282@skynet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0501222128380.18282@skynet>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig768F33D329CA6F353B9011BA
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Jack O'Quin wrote:
+On Sat, Jan 22, 2005 at 09:48:20PM +0000, Mel Gorman wrote:
+> On Fri, 21 Jan 2005, Marcelo Tosatti wrote:
 > 
-> Neither run exhibits reliable audio performance.  There is some low
-> latency performance problem with your system.  Maybe ReiserFS is
-> causing trouble even with logging turned off.  Perhaps the problem is
-> somewhere else.  Maybe some device is misbehaving.
+> > On Thu, Jan 20, 2005 at 10:13:00AM +0000, Mel Gorman wrote:
+> > > <Changelog snipped>
+> >
+> > Hi Mel,
+> >
+> > I was thinking that it would be nice to have a set of high-order
+> > intensive workloads, and I wonder what are the most common high-order
+> > allocation paths which fail.
+> >
 > 
-> Until you solve this problem, beware of drawing conclusions.
+> Agreed. As I am not fully sure what workloads require high-order
+> allocations, I updated VMRegress to keep track of the count of
+> allocations and released 0.11
+> (http://www.csn.ul.ie/~mel/projects/vmregress/vmregress-0.11.tar.gz). To
+> use it to track allocations, do the following
+> 
+> 1. Download and unpack vmregress
+> 2. Patch a kernel with kernel_patches/v2.6/trace_pagealloc-count.diff .
+> The patch currently requires the modified allocator but I can fix that up
+> if people want it. Build and deploy the kernel
+> 3. Build vmregress by
+>   ./configure --with-linux=/usr/src/linux-2.6.11-rc1-mbuddy
+>   (or whatever path is appropriate)
+>   make
+> 4. Load the modules with;
+>   insmod src/code/vmregress_core.ko
+>   insmod src/sense/trace_alloccount.ko
+> 
+> This will create a proc entry /proc/vmregress/trace_alloccount that looks
+> something like;
+> 
+> Allocations (V1)
+> -----------
+> KernNoRclm   997453      370       50        0        0        0        0        0        0        0        0
+> KernRclm      35279        0        0        0        0        0        0        0        0        0        0
+> UserRclm    9870808        0        0        0        0        0        0        0        0        0        0
+> Total      10903540      370       50        0        0        0        0        0        0        0        0
+> 
+> Frees
+> -----
+> KernNoRclm   590965      244       28        0        0        0        0        0        0        0        0
+> KernRclm     227100       60        5        0        0        0        0        0        0        0        0
+> UserRclm    7974200       73       17        0        0        0        0        0        0        0        0
+> Total      19695805      747      100        0        0        0        0        0        0        0        0
+> 
+> To blank the counters, use
+> 
+> echo 0 > /proc/vmregress/trace_alloccount
+> 
+> Whatever workload we come up with, this proc entry will tell us if it is
+> exercising high-order allocations right now.
 
-The idea is to get equivalent performance to SCHED_FIFO. The results 
-show that much, and it is 100 times better than unprivileged 
-SCHED_NORMAL. The fact that this is an unoptimised normal desktop 
-environment means that the conclusion we _can_ draw is that SCHED_ISO is 
-as good as SCHED_FIFO for audio on the average desktop. I need someone 
-with optimised hardware setup to see if it's as good as SCHED_FIFO in 
-the critical setup.
+Great, excellent! Thanks.
 
-I'm actually not an audio person and have no need for such a setup, but 
-I can see how linux would benefit from such support... ;)
+I plan to spend some time testing and trying to understand the vmregress package 
+this week.
+ 
+> > It mostly depends on hardware because most high-order allocations happen
+> > inside device drivers? What are the kernel codepaths which try to do
+> > high-order allocations and fallback if failed?
+> >
+> 
+> I'm not sure. I think that the paths we exercise right now will be largely
+> artifical. For example, you can force order-2 allocations by scping a
+> large file through localhost (because of the large MTU in that interface).
+> I have not come up with another meaningful workload that guarentees
+> high-order allocations yet.
 
-Cheers,
-Con
+Thoughts and criticism of the following ideas are very much appreciated:
 
---------------enig768F33D329CA6F353B9011BA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+In private conversation with wli (who helped me providing this information) we can 
+conjecture the following:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Modern IO devices are capable of doing scatter/gather IO.
 
-iD8DBQFB8v6GZUg7+tp6mRURAtMPAJ9H1UZDGWOr0d39kBj15OjGPzUBawCePTJo
-G1gR4t3obb5BoBVEWXBFccc=
-=sRTU
------END PGP SIGNATURE-----
+There is overhead associated with setting up and managing the scatter/gather tables. 
 
---------------enig768F33D329CA6F353B9011BA--
+The benefit of large physically contiguous blocks is the ability to avoid the SG 
+management overhead. 
+
+Now the question is: The added overhead of allocating high order blocks through migration 
+offsets the overhead of SG IO ? Quantifying that is interesting.
+
+This depends on the driver implementation (how efficiently its able to manage the SG IO tables) and 
+device/IO subsystem characteristics.
+
+Also filesystems benefit from big physically contiguous blocks. Quoting wli
+"they want bigger blocks and contiguous memory to match bigger blocks..."
+
+I completly agree that your simplified allocator decreases fragmentation which in turn
+benefits the system overall. 
+
+This is an area which can be further improved - ie efficiency in reducing fragmentation 
+is excellent. 
+I sincerely appreciate the work you are doing!
+
+> > To measure whether the cost of page migration offsets the ability to be
+> > able to deliver high-order allocations we want a set of meaningful
+> > performance tests?
+> >
+> 
+> Bear in mind, there are more considerations. The allocator potentially
+> makes hotplug problems easier and could be easily tied into any
+> page-zeroing system. Some of your own benchmarks also implied that the
+> modified allocator helped some types of workloads which is beneficial in
+> itself.The last consideration is HugeTLB pages, which I am hoping William
+> will weigh in.
+> 
+> Right now, I believe that the pool of huge pages is of a fixed size
+> because of fragmentation difficulties. If we knew we could allocate huge
+> pages, this pool would not have to be fixed. Some applications will
+> heavily benefit from this. While databases are the obvious one,
+> applications with large heaps will also benefit like Java Virtual
+> Machines. I can dig up papers that measured this on Solaris although I
+> don't have them at hand right now.
+
+Please.
+
+> We know right now that the overhead of this allocator is fairly low
+> (anyone got benchmarks to disagree) but I understand that page migration
+> is relatively expensive. The allocator also does not have adverse
+> CPU+cache affects like migration and the concept is fairly simple.
+
+Agreed.
+
+> > Its quite possible that not all unsatisfiable high-order allocations
+> > want to force page migration (which is quite expensive in terms of
+> > CPU/cache). Only migrate on __GFP_NOFAIL ?
+> >
+> 
+> I still believe with the allocator, we will only have to migrate in
+> exceptional circumstances.
+
+Agreed - best scenario is the guaranteed availability of high-order blocks, where 
+migration is not necessary.
+
+

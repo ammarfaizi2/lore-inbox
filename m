@@ -1,81 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262188AbTH3ArK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 20:47:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbTH3AqV
+	id S262196AbTH3BJo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 21:09:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262203AbTH3BJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 20:46:21 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:22152 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262188AbTH3AqQ (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 20:46:16 -0400
-Message-Id: <200308300046.h7U0k8m8011982@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: don fisher <dfisher@as.arizona.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to choose between ip 2 identical ethernet cards 
-In-Reply-To: Your message of "Fri, 29 Aug 2003 17:29:29 PDT."
-             <3F4FEFE9.4050704@as.arizona.edu> 
-From: Valdis.Kletnieks@vt.edu
-References: <3F4FEFE9.4050704@as.arizona.edu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1616740185P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Fri, 29 Aug 2003 21:09:44 -0400
+Received: from postoffice9.mail.cornell.edu ([132.236.56.39]:14564 "EHLO
+	postoffice9.mail.cornell.edu") by vger.kernel.org with ESMTP
+	id S262196AbTH3BJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 21:09:43 -0400
+Message-ID: <3F4FFA2B.9030802@cornell.edu>
+Date: Fri, 29 Aug 2003 21:13:15 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030816 Thunderbird/0.2a
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Gaston Gransis <give54sh2@yahoo.com.ar>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Via 8235 rear sound
+References: <20030830003440.66145.qmail@web20714.mail.yahoo.com>
+In-Reply-To: <20030830003440.66145.qmail@web20714.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Fri, 29 Aug 2003 20:46:08 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1616740185P
-Content-Type: text/plain; charset="us-ascii"
-Content-Id: <11969.1062204360.1@turing-police.cc.vt.edu>
+Gaston Gransis wrote:
+> Hi everybody:
+>   i came hear as the last resource ... i have tried
+> with alsa mailing list, and nobody answered me ...
+> I installed this driver(kernel 2.6.0-test2) and
+> compiled all the alsa libraries.
+> When i play sound everything works great except for
+> the rear channel, and the center/lfe channel. 
 
-On Fri, 29 Aug 2003 17:29:29 PDT, don fisher <dfisher@as.arizona.edu>  said:
+I have the exact same problem with the exact same card.
+Rear/center channels are dead unless I duplicate front.
+Has been there since before the 2.6 series.
 
-> I have tried changing the order of loading modules, along with a few 
-> vain attempts in modules.conf. For info, this is a Redhat system. 
-> Where is the definition as to which device will be associated with 
-> eth0 made?
+>  cat /proc/asound/version
+> Advanced Linux Sound Architecture Driver Version 0.9.4
+> (Mon Jun 09 12:01:18 2003 UTC).
+> Compiled on Aug 25 2003 for kernel 2.6.0-test2.
 
-'man nameif'
+Verified with:
 
-Works great, less filling - my Dell 840 has up to *4* ethernets (the onboard
-built-in, the dock, the built-in wireless, and a Xircom card that's a combo
-56k modem/100BaseT).
+Advanced Linux Sound Architecture Driver Version 0.9.6 (Mon Jul 28 
+11:08:42 2003 UTC).
+Compiled on Aug 18 2003 for kernel 2.6.0-test3.
 
-My /etc/mactab looks like this:
-
-# Onboard 10/100 port
-eth0 00:06:5b:b9:5e:27
-# 10/100 port on Xircom 10/100/56K card
-eth2 00:10:a4:9c:a8:86
-# wireless card
-wvlan0 00:02:2d:5c:11:48
-eth1 00:02:2d:5c:11:48
-# 10/100 port on dock...
-eth3 00:06:5b:ea:8e:4e
-
-(yes, there's 2 entries for the wireless - 2.4 kernel wants wvlanX, 2.6 calls it ethX.
-
-The magic under a RedHat system happens in:
-
-/etc/sysconfig/network-scripts/ifup
-
-Hope that helps.
+and alsa-lib 0.9.5
 
 
 
 
---==_Exmh_-1616740185P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/T/PPcC3lWbTT17ARAgwbAKDgk/pGGzQWhO6nKX0NGmww7IlXeQCgpPd3
-WzfJeyRRNK59KW+QCeSTYKo=
-=LSA/
------END PGP SIGNATURE-----
-
---==_Exmh_-1616740185P--

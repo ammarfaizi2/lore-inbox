@@ -1,33 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278633AbRJSTmJ>; Fri, 19 Oct 2001 15:42:09 -0400
+	id <S278643AbRJSUHK>; Fri, 19 Oct 2001 16:07:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278636AbRJSTl7>; Fri, 19 Oct 2001 15:41:59 -0400
-Received: from [207.8.4.6] ([207.8.4.6]:9435 "EHLO one.interactivesi.com")
-	by vger.kernel.org with ESMTP id <S278633AbRJSTls>;
-	Fri, 19 Oct 2001 15:41:48 -0400
-Message-ID: <3BD08207.7090807@interactivesi.com>
-Date: Fri, 19 Oct 2001 14:41:59 -0500
-From: Timur Tabi <ttabi@interactivesi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: John Tyner <jtyner@cs.ucr.edu>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Kernel Newbies Mailing List <kernelnewbies@nl.linux.org>
-Subject: Re: Allocating more than 890MB in the kernel?
-In-Reply-To: <Pine.LNX.4.30.0110191204210.21846-100000@hill.cs.ucr.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S278644AbRJSUHB>; Fri, 19 Oct 2001 16:07:01 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:11505
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S278643AbRJSUGo>; Fri, 19 Oct 2001 16:06:44 -0400
+Date: Fri, 19 Oct 2001 13:07:12 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Bad name/docs: "Forwarding between high speed interfaces"
+Message-ID: <20011019130712.H2467@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Tyner wrote:
+  This option enables NIC (Network Interface Card) hardware throttling
+  during periods of extremal congestion. At the moment only a couple
+  of device drivers support it (really only one -- tulip, a modified
+  8390 driver can be found at
+  ftp://ftp.inr.ac.ru/ip-routing/fastroute/fastroute-8390.tar.gz ). 
+  
+  Really, this option is applicable to any machine attached to a fast
+  enough network, and even a 10 Mb NIC is able to kill a not very slow
+  box, such as a 120MHz Pentium.
+    
+  However, do not say Y here if you did not experience any serious
+  problems.
 
-> Isn't this solved by just recompiling the kernel with HIGHMEM support?
+This doesn't look too incouraging.  Until I read the whole 150+ message
+thread about IRQ throtling, I thought it had something to do with ethernet
+bridging at high load.
 
+I'm not surprised that this option has been overlooked.
 
-I don't think so.  The Red Hat 7.1 kernel is compiled with "4GB" support, 
-which apparently is the same as HIGHMEM.  We see the 890MB kernel vmalloc 
-limit still.
+I think the Configure.help message should be something like:
 
+This option enables NIC (Network Interface Card) hardware throttling
+during periods high load. 
+
+Without this option, a fast NIC, fast network, and a slow computer can get
+enough pp/s (packets per second) to provide an effective DoS attack.  (This
+has been reported to be possible with a 10Mbps ethernet NIC on a Pentium
+120Mhz)
+
+At the moment only a few device drivers support it (At the moment, only
+tulip, and  a modified 8390 - specifically NE2000/1000 - driver that can be
+found at ftp://ftp.inr.ac.ru/ip-routing/fastroute/fastroute-8390.tar.gz).
+
+Hopefully more drivers will support this feature soon.
+
+=================
+
+I took a look at fastroute-8390.tar.gz, and it seems to be a driver written
+by Donald Becker from way back in '94.  If so, it's probably 2.2 only, and
+should be taken out of the 2.4 documentation.

@@ -1,73 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbVDEJaw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbVDEJet@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261650AbVDEJaw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 05:30:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbVDEJ2y
+	id S261662AbVDEJet (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 05:34:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVDEJch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 05:28:54 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:908 "EHLO lirs02.phys.au.dk")
-	by vger.kernel.org with ESMTP id S261650AbVDEJ0b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 05:26:31 -0400
-Date: Tue, 5 Apr 2005 11:25:55 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Steven Rostedt <rostedt@goodmis.org>,
-       Gene Heskett <gene.heskett@verizon.net>,
-       LKML <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.43-00
-In-Reply-To: <20050405053410.GA18839@elte.hu>
-Message-Id: <Pine.OSF.4.05.10504051105040.10558-100000@da410.phys.au.dk>
+	Tue, 5 Apr 2005 05:32:37 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:38878 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261652AbVDEJ2Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 05:28:24 -0400
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear
+	copyright notice.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Ian Campbell <ijc@hellion.org.uk>, Sven Luther <sven.luther@wanadoo.fr>,
+       "Theodore Ts'o" <tytso@mit.edu>, Greg KH <greg@kroah.com>,
+       Michael Poole <mdpoole@troilus.org>, debian-legal@lists.debian.org,
+       debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20050405091144.GA18219@lst.de>
+References: <20050404141647.GA28649@pegasos>
+	 <20050404175130.GA11257@kroah.com> <20050404182753.GC31055@pegasos>
+	 <20050404191745.GB12141@kroah.com> <20050404192945.GB1829@pegasos>
+	 <20050404205527.GB8619@thunk.org> <20050404211931.GB3421@pegasos>
+	 <1112689164.3086.100.camel@icampbell-debian>
+	 <20050405083217.GA22724@pegasos>
+	 <1112690965.3086.107.camel@icampbell-debian>
+	 <20050405091144.GA18219@lst.de>
+Content-Type: text/plain
+Date: Tue, 05 Apr 2005 11:28:07 +0200
+Message-Id: <1112693287.6275.30.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-DAIMI-Spam-Score: 0 () 
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Apr 2005, Ingo Molnar wrote:
-
+On Tue, 2005-04-05 at 11:11 +0200, Christoph Hellwig wrote:
+> On Tue, Apr 05, 2005 at 09:49:25AM +0100, Ian Campbell wrote:
+> > I don't think you did get a rejection, a few people said that _they_
+> > weren't going to do it, but if you want to then go ahead. I think people
+> > are just fed up of people bringing up the issue and then failing to do
+> > anything about it -- so prove them wrong ;-)
 > 
-> * Esben Nielsen <simlo@phys.au.dk> wrote:
-> 
-> > > Now the question is, who will fix it? Preferably the maintainers, but I
-> > > don't know how much of a priority this is to them. I don't have the time
-> > > now to look at this and understand enough about the code to be able to
-> > > make a proper fix, and I'm sure you have other things to do too.
-> > 
-> > How about adding a
-> >  if(rt_task(current)) {
-> >         WARN_ON(1);
-> >         mutex_setprio(current, MAX_PRIO-1)
-> >  }
-> > ?
-> > 
-> > to find all calls to yields from rt-tasks. That will force the user 
-> > (aka the real-time developer) to either stop calling the subsystems 
-> > still using yield from his RT-tasks, or fix those subsystems.
-> 
-> i've added this to the -43-08 patch, so that we can see the scope of the 
-> problem. But any yield() use could become a problem due to priority 
-> inheritance. (which might eventually be expanded to userspace locking 
-> too)
-> 
-Any calls to non-deterministic subsystems breaks the real-time properties.
-yield() is certainly not the only problem. Code waiting for RCU-completion
-or whatever is bad too. Calling code like that from RT-tasks or calling
-them while having locks shared with RT-tasks is just bad. Anyone knowing
-about RT development _has_ to know that. Putting warnings and traces into
-the kernel is a nice feature. 
+> Actually patches to add firmware loader support to tg3 got rejected.
 
-Static code analyzes would also help quite a bit. What about having a new
-attribute "nonrt" for functions and locks? yield() and syncronize_kernel() are 
-certain candidates. Any function having nonrt operations are marked 
-nonrt. Any lock becomes held while doing a nonrt operation is marked
-nonrt. Taking a nonrt lock is a nonrt operation. (Might end up marking the
-whole kernel nonrt....)
+I think they will be accepted if they first introduce a transition
+period where tg3 will do request_firmware() and only use the built-in
+firmware if that fails. Second step is to make the built-in firmware a
+config option and then later on when the infrastructure matures for
+firmware loading/providing firmware it can be removed from the driver
+entirely.
 
-Esben
-
-> 	Ingo
-
-
+One of the sticking points will be how people get the firmware; I can
+see the point of a kernel-distributable-firmware project related to the
+kernel (say on kernel.org) which would provide a nice collection of
+distributable firmwares (and is appropriately licensed). Without such
+joint infrastructure things will always be a mess and in that context I
+can see the point of the driver authors not immediately wanting to
+switch exclusively. Simply because they'll get swamped with email about
+how the driver doesn't work...
 

@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289825AbSAWMkx>; Wed, 23 Jan 2002 07:40:53 -0500
+	id <S289836AbSAWMqd>; Wed, 23 Jan 2002 07:46:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289837AbSAWMkd>; Wed, 23 Jan 2002 07:40:33 -0500
-Received: from sun.fadata.bg ([80.72.64.67]:2053 "HELO fadata.bg")
-	by vger.kernel.org with SMTP id <S289836AbSAWMk0>;
-	Wed, 23 Jan 2002 07:40:26 -0500
-To: "David S. Miller" <davem@redhat.com>
-Cc: manfred@colorfullife.com, masp0008@stud.uni-saarland.de,
-        drobbins@gentoo.org, linux-kernel@vger.kernel.org
-Subject: Re: Athlon/AGP issue update
-In-Reply-To: <3C4E9291.8DA0BD7F@stud.uni-saarland.de>
-	<20020123.034411.71089598.davem@redhat.com> <87wuy9b62u.fsf@fadata.bg>
-	<20020123.043441.112625212.davem@redhat.com>
-X-No-CC: Reply to lists, not to me.
-From: Momchil Velikov <velco@fadata.bg>
-In-Reply-To: <20020123.043441.112625212.davem@redhat.com>
-Date: 23 Jan 2002 14:41:09 +0200
-Message-ID: <87r8ohb5p6.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S289837AbSAWMqO>; Wed, 23 Jan 2002 07:46:14 -0500
+Received: from mail002.syd.optusnet.com.au ([203.2.75.245]:21661 "EHLO
+	mail002.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id <S289836AbSAWMqF>; Wed, 23 Jan 2002 07:46:05 -0500
+Date: Wed, 23 Jan 2002 20:45:50 +0800
+From: Michal Gornisiewicz <michal@tartarus.uwa.edu.au>
+To: Joel Cordonnier <joel_linuxfr@yahoo.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: unable to mount root fs / reiserfs /HELP please
+Message-ID: <20020123124550.GB4375@tartarus.uwa.edu.au>
+In-Reply-To: <20020123113048.82063.qmail@web13006.mail.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020123113048.82063.qmail@web13006.mail.yahoo.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "David" == David S Miller <davem@redhat.com> writes:
+Joel,
 
-David>    From: Momchil Velikov <velco@fadata.bg>
-David>    Date: 23 Jan 2002 14:32:57 +0200
+On Wed, Jan 23, 2002 at 12:30:48PM +0100, Joel Cordonnier wrote:
+> I just compile a 2.4.15 kernel on my HP omnibook XE3.
+> At the moment, I have a dual partition win2k/suse 7.3.
+> 
+*snip*
+>
+> I have read that reiserfs is not supported for a
+> 'default' kernel and that i have to include
+> patches...right `?
 
-David>    Erm, why would the granularity of mapping matter at all ?
+Reiserfs has been in the main kernel since 2.4.1-pre4. All you need to
+do is enable it when you compile the kernel. The option is
+CONFIG_REISERFS_FS under File Systems. You will need to compile it into
+the kernel, not as a module to boot your root file system.
 
-David> Because on a TLB miss the speculative store would be cancelled.
-David> With 4MB pages the TLB can hit, with 4K pages it cannot.
+Also, make sure you have a recent version of lilo, with reiserfs support.
 
-Yes. But there _is_ some instruction writing into the AGP memory, and
-this instruction will still write there no matter what are mappings,
-and it can still get speculatively executed and so on, leading to the
-same result, no ?
+
+MG

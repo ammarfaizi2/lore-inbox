@@ -1,67 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261771AbTCZQ2d>; Wed, 26 Mar 2003 11:28:33 -0500
+	id <S261762AbTCZQYv>; Wed, 26 Mar 2003 11:24:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261772AbTCZQ2d>; Wed, 26 Mar 2003 11:28:33 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:6817 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S261771AbTCZQ2b>; Wed, 26 Mar 2003 11:28:31 -0500
-Date: Wed, 26 Mar 2003 08:39:40 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 506] New: clean-up: unneeded version.h in sound drivers 
-Message-ID: <232710000.1048696780@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S261767AbTCZQYv>; Wed, 26 Mar 2003 11:24:51 -0500
+Received: from d12lmsgate-5.de.ibm.com ([194.196.100.238]:56993 "EHLO
+	d12lmsgate-5.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S261762AbTCZQYt>; Wed, 26 Mar 2003 11:24:49 -0500
+Importance: Normal
+Sensitivity: 
+Subject: Re: [PATCH] s390 update (3/9): listing & kerntypes.
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF72A4868D.BBBD469B-ONC1256CF5.005A937E@de.ibm.com>
+From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
+Date: Wed, 26 Mar 2003 17:32:12 +0100
+X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 26/03/2003 17:33:46
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=506
 
-           Summary: clean-up: unneeded version.h in sound drivers
-    Kernel Version: 2.5.66-bk2
-            Status: NEW
-          Severity: low
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: bwindle-kbt@fint.org
+> No.  Either we add Kerntypes to the architecture-independent code (I'm
+all
+> for it!) or not at all.  Cludging this into s390-specific code is a very,
+> very bad idea.
+Well, even if the Kerntypes gets added to the architecture-independent code
+we still would need some special s390 includes to get all the types we need.
+In particular the common i/o layer includes would have to be added in a
+architecture specific way, either by #ifdef or by special files that get
+include by the common kerntypes file.
 
-
-Problem Description:
-There appear to be quite a few files in the 2.5.66-bk2 tree, in the sound 
-driver area, that #include <linux/version.h>, but do not use any of the
-three  things defined in it.
-
-linux/sound/oss/cs46xx.c
-linux/sound/oss/emu10k1/audio.c
-linux/sound/oss/emu10k1/passthrough.c
-linux/sound/oss/emu10k1/mixer.c
-linux/sound/oss/emu10k1/main.c
-linux/sound/oss/emu10k1/midi.c
-linux/sound/oss/cs4281/cs4281m.c
-linux/sound/oss/esssolo1.c
-linux/sound/oss/ac97_codec.c
-linux/sound/oss/ite8172.c
-linux/sound/oss/btaudio.c
-linux/sound/oss/sonicvibes.c
-linux/sound/oss/cmpci.c
-linux/sound/oss/msnd_pinnacle.c
-linux/sound/oss/nec_vrc5477.c
-linux/sound/oss/es1371.c
-linux/sound/oss/i810_audio.c
-linux/sound/oss/trident.c
-linux/sound/oss/maestro.c
-linux/sound/oss/es1370.c
-linux/sound/core/wrappers.c
-linux/sound/core/memory_wrapper.c
-linux/sound/core/sgbuf.c
-
-Because of this, if the kernel version changes, but nothing else is
-modified,  these file would be forced needless to recompile due to
-version.h changing.
-
-Would a patch to remove these unnessary includes be accepted?
+blue skies,
+   Martin
 
 

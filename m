@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316837AbSGNOYi>; Sun, 14 Jul 2002 10:24:38 -0400
+	id <S316852AbSGNOZW>; Sun, 14 Jul 2002 10:25:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316853AbSGNOYg>; Sun, 14 Jul 2002 10:24:36 -0400
-Received: from mailhub.fokus.gmd.de ([193.174.154.14]:9112 "EHLO
-	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
-	id <S316837AbSGNOYc>; Sun, 14 Jul 2002 10:24:32 -0400
-Date: Sun, 14 Jul 2002 16:25:48 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.gmd.de>
-Message-Id: <200207141425.g6EEPmpc019153@burner.fokus.gmd.de>
-To: alan@lxorguk.ukuu.org.uk, schilling@fokus.gmd.de
-Cc: linux-kernel@vger.kernel.org
+	id <S316853AbSGNOZV>; Sun, 14 Jul 2002 10:25:21 -0400
+Received: from p50886DAC.dip.t-dialin.net ([80.136.109.172]:12680 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316852AbSGNOZS>; Sun, 14 Jul 2002 10:25:18 -0400
+Date: Sun, 14 Jul 2002 08:28:08 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Joerg Schilling <schilling@fokus.gmd.de>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: IDE/ATAPI in 2.5
+In-Reply-To: <200207141326.g6EDQr42019083@burner.fokus.gmd.de>
+Message-ID: <Pine.LNX.4.44.0207140826130.3331-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From alan@lxorguk.ukuu.org.uk Sun Jul 14 15:35:09 2002
+Hi,
 
->On Sun, 2002-07-14 at 14:17, Joerg Schilling wrote:
->> Did you ever looks at the ATAPI specs?
->> 
->> ATAPI _is_ SCSI over IDE with a few "bugs"/deviations:
+On Sun, 14 Jul 2002, Joerg Schilling wrote:
+> What can you do with the drive - besides using it as CD-ROM?
 
->In other words as he said ATAPI is not SCSI
+Lots of stuff. It supports all the commands you mentioned, plus it is one 
+of the best readers I ever had. Put a milk glass CD in it, it will read 
+you the contents. Put any audio CD into it, it will read off at the finest 
+quality ever. It's bad that I can't always take it with me.
 
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 
-It would really help not to turn a technically based discussion
-into personal bashing. I am still waiting to see any tecnical based
-argument from you.
-
-It seems that you are not nterested in a better technical based solution
-but in preventing other people's ideas from being used.
-
-Jörg
-
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
- URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix

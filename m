@@ -1,44 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265409AbRF0VWy>; Wed, 27 Jun 2001 17:22:54 -0400
+	id <S265413AbRF0V1y>; Wed, 27 Jun 2001 17:27:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265410AbRF0VWo>; Wed, 27 Jun 2001 17:22:44 -0400
-Received: from colorfullife.com ([216.156.138.34]:22794 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S265409AbRF0VWg>;
-	Wed, 27 Jun 2001 17:22:36 -0400
-Message-ID: <3B3A4E8B.E4301909@colorfullife.com>
-Date: Wed, 27 Jun 2001 23:22:19 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6-pre5 i686)
-X-Accept-Language: en, de
+	id <S265412AbRF0V1o>; Wed, 27 Jun 2001 17:27:44 -0400
+Received: from mailhost.terra.es ([195.235.113.151]:46630 "EHLO
+	tsmtppp1.teleline.es") by vger.kernel.org with ESMTP
+	id <S265413AbRF0V12>; Wed, 27 Jun 2001 17:27:28 -0400
+Message-ID: <3B3A525E.B321BC5@reymad.com>
+Date: Wed, 27 Jun 2001 23:38:38 +0200
+From: Gonzalo Aguilar <gad@reymad.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: es, en
 MIME-Version: 1.0
-To: Scott Long <scott@swiftview.com>, linux-kernel@vger.kernel.org
-Subject: Re: wake_up vs. wake_up_sync
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Subject: sched.h problem in 2.4.x and new gcc compilers
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm having trouble understanding the difference between these.
-> Synchronous apparently causes try_to_wake_up() to NOT call
-> reschedule_idle() but I'm uncertain what reschedule_idle() is doing. I
-> assume it just looks for an idle CPU and makes that CPU reschedule.
-> 
-> What is the purpose of wake_up_sync?
+Hello, there is a little problem with some headers and
+new glibs and compilers. Kernel fails to compile and worst
+is the extern declaration in sched.h
 
-Avoid the reschedule_idle() call - it's quite costly, and it could cause
-processes jumping from one cpu to another.
+Don't if this is a gcc or glib problem (surely gcc) but doesn't
+works...
 
-> Why would you want to prevent
-> reschedule_idle()?
-> 
-If one process runs, wakes up another process and _knows_ that it's
-going to sleep immediately after the wake_up it doesn't need the
-reschedule_idle: the current cpu will be idle soon, the scheduler
-doesn't need to find another cpu for the woken up thread.
+The patch is only redeclaring xtime in extern:
 
-I think the pipe code is the only user of _sync right now - pipes cause
-an incredible amount of task switches.
+*************************** cut here ******************************
+--- include/linux/sched.h	Wed Jun 27 23:19:04 2001
++++ include/linux/sched.h~	Thu Jun 21 12:36:26 2001
+@@ -537,7 +537,7 @@
+ extern unsigned long volatile jiffies;
+ extern unsigned long itimer_ticks;
+ extern unsigned long itimer_next;
+-extern volatile struct timeval xtime __attribute__ ((aligned (16)));
++extern struct timeval xtime;
+ extern void do_timer(struct pt_regs *);
+ 
+ extern unsigned int * prof_buffer;
+***************************** cut here ******************************
 
---
-	Manfred
+I made it with the copy that joe editor does, you know the change is:
+
+-extern volatile struct timeval xtime __attribute__ ((aligned (16)));
++extern struct timeval xtime;
+
+There are other problems with multiline string literals all over the
+code
+but this is only a warning... One is this...
+
+/mnt/hd2/src/linux-2.4.5/include/asm/checksum.h:72:30: warning:
+multi-line string literals are deprecated
+
+Hope it helps. It's a ridiculous patch but now it's fixed.
+
+Thanks
+-- 
+Gonzalo Aguilar. Madrid, España (Spain) |
+Reymad Studios | gad@reymad.com		|
+Privado        | eshero@airtel.net	|
+----------------------------------------+

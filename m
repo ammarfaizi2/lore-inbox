@@ -1,30 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310580AbSCGWxI>; Thu, 7 Mar 2002 17:53:08 -0500
+	id <S310583AbSCGWzS>; Thu, 7 Mar 2002 17:55:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310571AbSCGWw6>; Thu, 7 Mar 2002 17:52:58 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2310 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310579AbSCGWwr>; Thu, 7 Mar 2002 17:52:47 -0500
-Subject: Re: [opensource] Re: Petition Against Official Endorsement of
-To: Weimer@CERT.Uni-Stuttgart.DE (Florian Weimer)
-Date: Thu, 7 Mar 2002 23:08:11 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <87lmd4ov5b.fsf@CERT.Uni-Stuttgart.DE> from "Florian Weimer" at Mar 07, 2002 11:44:32 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S310582AbSCGWzI>; Thu, 7 Mar 2002 17:55:08 -0500
+Received: from mail.cert.uni-stuttgart.de ([129.69.16.17]:8909 "HELO
+	Mail.CERT.Uni-Stuttgart.DE") by vger.kernel.org with SMTP
+	id <S310581AbSCGWzA>; Thu, 7 Mar 2002 17:55:00 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: SSSCA: We're in trouble now
+In-Reply-To: <Pine.LNX.4.44L.0203061325360.2181-100000@imladris.surriel.com>
+From: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
+Date: Thu, 07 Mar 2002 23:54:23 +0100
+In-Reply-To: <Pine.LNX.4.44L.0203061325360.2181-100000@imladris.surriel.com> (Rik
+ van Riel's message of "Wed, 6 Mar 2002 13:26:06 -0300 (BRT)")
+Message-ID: <877kooouow.fsf@CERT.Uni-Stuttgart.DE>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.1 (i686-pc-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16j6zb-00045d-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Using BitKeeper might break the way security issues are currently
-> handled by distributors of the GNU/Linux system, due to the open
-> logging feature.
+Rik van Riel <riel@conectiva.com.br> writes:
 
-It simply means security updates have to be kept seperate from the bitkeeper
-maintained tree. We can handle that ok. It might mean the first Linus and
-Marcelo push into their tree is when the vendor updates go out but thats
-not a big problem to arrange
+>> And for the safety of those in the USA and around the world,
+>> particularly on this list... it is best not to even think about it...
+>
+> Wasn't the second amendment created for this purpose ?
+
+If you aren't a US citizen, the Constitution does not grant any rights
+to you, I'm afraid.  (Some courts might disagree, but I wouldn't bet
+my freedom or even my life on it.)
+
+-- 
+Florian Weimer 	                  Weimer@CERT.Uni-Stuttgart.DE
+University of Stuttgart           http://CERT.Uni-Stuttgart.DE/people/fw/
+RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898

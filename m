@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271236AbTHSP0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 11:26:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271283AbTHSP0Q
+	id S270751AbTHSPpj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 11:45:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270801AbTHSPpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 11:26:16 -0400
-Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:16906 "EHLO
-	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
-	id S271236AbTHSP0P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 11:26:15 -0400
-To: Frank Gevaerts <frank@gevaerts.be>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SCO's "proof"
-References: <3F422809.7080806@yahoo.com> <20030819145213.GC5582@gallifrey>
-	<20030819150137.GA22521@gevaerts.be>
-From: Colin Paul Adams <colin@colina.demon.co.uk>
-Date: 19 Aug 2003 16:25:28 +0100
-In-Reply-To: <20030819150137.GA22521@gevaerts.be>
-Message-ID: <lt4r0du0t3.fsf@colina.demon.co.uk>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 19 Aug 2003 11:45:18 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:62857 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S270759AbTHSPpM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 11:45:12 -0400
+Date: Tue, 19 Aug 2003 08:34:38 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: "Bas Bloemsaat" <bloemsaa@xs4all.nl>
+Cc: richard@aspectgroup.co.uk, skraw@ithnet.com, willy@w.ods.org,
+       alan@lxorguk.ukuu.org.uk, carlosev@newipnet.com,
+       lamont@scriptkiddie.org, davidsen@tmr.com, marcelo@conectiva.com.br,
+       netdev@oss.sgi.com, linux-net@vger.kernel.org, layes@loran.com,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
+Message-Id: <20030819083438.26c985b9.davem@redhat.com>
+In-Reply-To: <070c01c36653$7f3c1ab0$c801a8c0@llewella>
+References: <353568DCBAE06148B70767C1B1A93E625EAB57@post.pc.aspectgroup.co.uk>
+	<070c01c36653$7f3c1ab0$c801a8c0@llewella>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Frank" == Frank Gevaerts <frank@gevaerts.be> writes:
+On Tue, 19 Aug 2003 15:11:59 +0200
+"Bas Bloemsaat" <bloemsaa@xs4all.nl> wrote:
 
-    >> > minnie.tuhs.org/UnixTree/V7/usr/sys/sys/malloc.c.html
-    >> > 
-    >> > Ok, SCO: This was easy. Now, show us the other many examples.
-    >> 
-    >> Is it? What the hell was the copyright on that code?
+> It it doesn't define a standard either, but makes
+> perfectly clear that any interface has it's own ARP,
+> not one ARP for the entire system.
 
-    Frank> AFAIK it was released under a BSD license by Caldera...
+This is absolutely not true.
 
-But Caldera are SCO now, aren't they? Are they going to sue themselves!?
--- 
-Colin Paul Adams
-Preston Lancashire
+There are two valid ways the RFCs allow systems to handle
+IP addresses.
+
+1) IP addresses are owned by "the host"
+2) IP addresses are owned by "the interface"
+
+Linux does #1, many systems do #2, both are correct.
+
+We provide ways for you to obtain the behavior or #2
+so there is nothing to complain about.
+

@@ -1,69 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282251AbRKWVod>; Fri, 23 Nov 2001 16:44:33 -0500
+	id <S282252AbRKWVvd>; Fri, 23 Nov 2001 16:51:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282253AbRKWVoY>; Fri, 23 Nov 2001 16:44:24 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:46724 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S282251AbRKWVoN>; Fri, 23 Nov 2001 16:44:13 -0500
-Message-ID: <001e01c17467$d1deaf10$f5976dcf@nwfs>
-From: "Jeff Merkey" <jmerkey@timpanogas.org>
-To: "Alexander Viro" <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
-Cc: "Linus Torvalds" <torvalds@transmeta.com>,
-        "Marcelo Tosatti" <marcelo@conectiva.com.br>
+	id <S282255AbRKWVvY>; Fri, 23 Nov 2001 16:51:24 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:24540 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S282252AbRKWVvI>;
+	Fri, 23 Nov 2001 16:51:08 -0500
+Date: Fri, 23 Nov 2001 16:51:03 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: linux-kernel@vger.kernel.org
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [PATCH][CFT] Re: 2.4.15-pre9 breakage (inode.c)
 In-Reply-To: <Pine.GSO.4.21.0111231606150.2422-100000@weyl.math.psu.edu>
-Subject: Re: 2.4.15-pre9 breakage (inode.c)
-Date: Fri, 23 Nov 2001 14:42:59 -0700
+Message-ID: <Pine.GSO.4.21.0111231634310.2422-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Untested fix follows.  And please, pass the brown paperbag... ;-/
 
-Al,
-
-I have seen this as well during testing, except in my case, it results in a
-hard hang of sorts that does not respond to signals.  I can make it show up
-easily by doing a copy accross mount points in low memory conditions, if any
-of this helps.  Sounds like you've got a good handle on it, though.
-
-Jeff
-
------ Original Message -----
-From: "Alexander Viro" <viro@math.psu.edu>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Linus Torvalds" <torvalds@transmeta.com>; "Marcelo Tosatti"
-<marcelo@conectiva.com.br>
-Sent: Friday, November 23, 2001 2:22 PM
-Subject: 2.4.15-pre9 breakage (inode.c)
-
-
-> Sigh...  Supposed fix to problems with stale inodes was completely
-> broken.
->
-> What we need is "if we are doing last iput() on fs that is getting
-> shut, sync it and don't leave it in cache".  And yes, we have a similar
-> path in iput().  Similar, but not quite the same.
->
-> Fix is
-> * new fs flag: "MS_ACTIVE".
-> * set after normal ->read_super().
-> * reset after we are done with fsync_super() in kill_super().
-> * iput() checking that and if it's set - doing write_inode_now() and
-kicking
-> it out of hash.
->
-> I'll send patch in ~10 minutes.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+diff -urN S15/fs/inode.c S15-fix/fs/inode.c
+--- S15/fs/inode.c	Fri Nov 23 06:45:43 2001
++++ S15-fix/fs/inode.c	Fri Nov 23 16:33:33 2001
+@@ -1065,24 +1065,27 @@
+ 			if (inode->i_state != I_CLEAR)
+ 				BUG();
+ 		} else {
+-			if (!list_empty(&inode->i_hash) && sb && sb->s_root) {
++			if (!list_empty(&inode->i_hash) {
+ 				if (!(inode->i_state & (I_DIRTY|I_LOCK))) {
+ 					list_del(&inode->i_list);
+ 					list_add(&inode->i_list, &inode_unused);
+ 				}
+ 				inodes_stat.nr_unused++;
+ 				spin_unlock(&inode_lock);
+-				return;
+-			} else {
+-				list_del_init(&inode->i_list);
++				if (!sb || sb->s_flags & MS_ACTIVE))
++					return;
++				write_inode_now(inode);
++				spin_lock(&inode_lock);
++				inodes_stat.nr_unused--;
+ 				list_del_init(&inode->i_hash);
+-				inode->i_state|=I_FREEING;
+-				inodes_stat.nr_inodes--;
+-				spin_unlock(&inode_lock);
+-				if (inode->i_data.nrpages)
+-					truncate_inode_pages(&inode->i_data, 0);
+-				clear_inode(inode);
+ 			}
++			list_del_init(&inode->i_list);
++			inode->i_state|=I_FREEING;
++			inodes_stat.nr_inodes--;
++			spin_unlock(&inode_lock);
++			if (inode->i_data.nrpages)
++				truncate_inode_pages(&inode->i_data, 0);
++			clear_inode(inode);
+ 		}
+ 		destroy_inode(inode);
+ 	}
+diff -urN S15/fs/super.c S15-fix/fs/super.c
+--- S15/fs/super.c	Fri Nov 23 06:45:43 2001
++++ S15-fix/fs/super.c	Fri Nov 23 16:26:18 2001
+@@ -462,6 +462,7 @@
+ 	lock_super(s);
+ 	if (!type->read_super(s, data, flags & MS_VERBOSE ? 1 : 0))
+ 		goto out_fail;
++	s->s_flags |= MS_ACTIVE;
+ 	unlock_super(s);
+ 	/* tell bdcache that we are going to keep this one */
+ 	if (bdev)
+@@ -614,6 +615,7 @@
+ 	lock_super(s);
+ 	if (!fs_type->read_super(s, data, flags & MS_VERBOSE ? 1 : 0))
+ 		goto out_fail;
++	s->s_flags |= MS_ACTIVE;
+ 	unlock_super(s);
+ 	get_filesystem(fs_type);
+ 	path_release(&nd);
+@@ -695,6 +697,7 @@
+ 		lock_super(s);
+ 		if (!fs_type->read_super(s, data, flags & MS_VERBOSE ? 1 : 0))
+ 			goto out_fail;
++		s->s_flags |= MS_ACTIVE;
+ 		unlock_super(s);
+ 		get_filesystem(fs_type);
+ 		return s;
+@@ -739,6 +742,7 @@
+ 	dput(root);
+ 	fsync_super(sb);
+ 	lock_super(sb);
++	sb->s_flags &= ~MS_ACTIVE;
+ 	invalidate_inodes(sb);	/* bad name - it should be evict_inodes() */
+ 	if (sop) {
+ 		if (sop->write_super && sb->s_dirt)
+diff -urN S15/include/linux/fs.h S15-fix/include/linux/fs.h
+--- S15/include/linux/fs.h	Fri Nov 23 06:45:44 2001
++++ S15-fix/include/linux/fs.h	Fri Nov 23 16:24:44 2001
+@@ -110,6 +110,7 @@
+ #define MS_BIND		4096
+ #define MS_REC		16384
+ #define MS_VERBOSE	32768
++#define MS_ACTIVE	(1<<30)
+ #define MS_NOUSER	(1<<31)
+ 
+ /*
 

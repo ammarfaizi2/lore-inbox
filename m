@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292235AbSBTT2H>; Wed, 20 Feb 2002 14:28:07 -0500
+	id <S292223AbSBTT25>; Wed, 20 Feb 2002 14:28:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292232AbSBTT16>; Wed, 20 Feb 2002 14:27:58 -0500
-Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:21793 "EHLO
-	mailsorter.ma.tmpw.net") by vger.kernel.org with ESMTP
-	id <S292223AbSBTT1l>; Wed, 20 Feb 2002 14:27:41 -0500
-Message-ID: <3AB544CBBBE7BF428DA7DBEA1B85C79C01101F77@nocmail.ma.tmpw.net>
-From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-To: "'David S. Miller'" <davem@redhat.com>
-Cc: ultralinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: RE: 2.5.5 on Sparc, Ughh...
-Date: Wed, 20 Feb 2002 14:27:28 -0500
+	id <S292229AbSBTT2v>; Wed, 20 Feb 2002 14:28:51 -0500
+Received: from toole.uol.com.br ([200.231.206.186]:63142 "EHLO
+	toole.uol.com.br") by vger.kernel.org with ESMTP id <S292223AbSBTT2B>;
+	Wed, 20 Feb 2002 14:28:01 -0500
+Date: Wed, 20 Feb 2002 16:27:26 -0300 (BRT)
+From: Cesar Suga <sartre@linuxbr.com>
+To: Thomas Winischhofer <tw@webit.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: A simple patch for SIS (documentation and kbuild)
+In-Reply-To: <3C73EBD2.2116ECA8@webit.com>
+Message-ID: <Pine.LNX.4.40.0202201625000.2588-100000@sartre.linuxbr.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You can start out with the below to fix things correctly.  The only
-> unhandled thing is the pte_offset stuff and I'll work on that some time
-> later today.
+On Wed, 20 Feb 2002, Thomas Winischhofer wrote:
 
-Thanks Dave,
+> +SiS 300/540/630
+> +CONFIG_DRM_SIS
+> +  Choose this option if you have a SIS 300, 540 or 630 graphics card.
+> +  If M is selected, the module will be called sis.o.  AGP support is
+> +  required for this driver to work.
 
-I finally had the chance to try out your changes.  That pesky work thing
-keeps getting in my way.  So far so good, from a clean tree, they apply
-fine, and fix all the other issues up to the pte_offset issues in filemap.c.
-If you get to them, shoot me a copy and I'll apply and test for you.
+> Before posting patches you'd better inform yourself.
 
- I see alot of warnings still from flush_dcache_page in
-/include/linux/highmem.h and it looks like a duplicate declaration in
-/asm-sparc64/pgalloc.h, but I have not had the chance to check that out yet.
-I'll try to follow it up if you haven't seen that one yet.
+> AGP is *not* required.
 
-On a side note, though not arch specific, if you use ramdisk, you'll need to
-apply the patch below that removes second argument to bi_end_io that was
-removed earlier in the series.  I have seen a patch floating around,
-hopefully it will get pushed up the chain.
+	Ah, sorry. I didn't notice __MUST_HAVE_AGP to be zero. I'll take
+care.
 
-Thanks again for your help!
-Bruce H.
+	Regards,
+	Cesar Suga <sartre@linuxbr.com>
 
---- drivers/block/rd.c.old	Wed Feb 20 14:20:53 2002
-+++ drivers/block/rd.c	Wed Feb 20 12:42:52 2002
-@@ -268,7 +268,7 @@
- 		goto fail;
- 
- 	set_bit(BIO_UPTODATE, &sbh->bi_flags);
--	sbh->bi_end_io(sbh, len >> 9);
-+	sbh->bi_end_io(sbh);
- 	return 0;
-  fail:
- 	bio_io_error(sbh)
 

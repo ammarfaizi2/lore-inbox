@@ -1,36 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261218AbVA0WI7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVA0WLT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261218AbVA0WI7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 17:08:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVA0WI7
+	id S261237AbVA0WLT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 17:11:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbVA0WLS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 17:08:59 -0500
-Received: from farley.sventech.com ([69.36.241.87]:59590 "EHLO
-	farley.sventech.com") by vger.kernel.org with ESMTP id S261218AbVA0WI6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 17:08:58 -0500
-Date: Thu, 27 Jan 2005 14:08:57 -0800
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: DervishD <lkml@dervishd.net>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-usb-users@lists.sourceforge.net
-Subject: Re: USB API, ioctl's and libusb
-Message-ID: <20050127220857.GK21204@sventech.com>
-References: <20050126122014.GF58@DervishD> <200501261440.38766.oliver@neukum.org> <20050126163811.GA259@DervishD> <20050126212411.GB21204@sventech.com> <20050127110204.GA76@DervishD>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050127110204.GA76@DervishD>
-User-Agent: Mutt/1.4.1i
+	Thu, 27 Jan 2005 17:11:18 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56541 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261221AbVA0WLJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 17:11:09 -0500
+Message-ID: <41F966E7.4030208@pobox.com>
+Date: Thu, 27 Jan 2005 17:10:47 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stephen Hemminger <shemminger@osdl.org>
+CC: netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
+Subject: Re: [PATCH] skge driver (0.5)
+References: <20050119135217.38fe5f05@dxpl.pdx.osdl.net> <20050125151507.414e7f4f@dxpl.pdx.osdl.net>
+In-Reply-To: <20050125151507.414e7f4f@dxpl.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 27, 2005, DervishD <lkml@dervishd.net> wrote:
->     Didn't knew about that... Thanks a lot for the info!. Is there
-> any documentation available for the ioctl USB interface to the
-> kernel? Any API guide or something like that?
-
-You can use the kernel sources to see how to use it.
-
-JE
+applied to netdev
 

@@ -1,82 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272474AbTGZMhn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 08:37:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272475AbTGZMhn
+	id S272479AbTGZMsU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 08:48:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272480AbTGZMsT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 08:37:43 -0400
-Received: from tomts15.bellnexxia.net ([209.226.175.3]:2975 "EHLO
-	tomts15-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S272474AbTGZMhj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 08:37:39 -0400
-Date: Sat, 26 Jul 2003 08:30:59 -0400 (EDT)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Tomas Szepe <szepe@pinerecords.com>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: some kernel config menu suggested tweaks
-In-Reply-To: <20030726121432.GB6560@louise.pinerecords.com>
-Message-ID: <Pine.LNX.4.53.0307260821570.30928@localhost.localdomain>
-References: <Pine.LNX.4.53.0307241256430.20528@localhost.localdomain>
- <20030726121432.GB6560@louise.pinerecords.com>
+	Sat, 26 Jul 2003 08:48:19 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:61841 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S272479AbTGZMsQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 08:48:16 -0400
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Jurriaan <thunder7@xs4all.nl>, linux-kernel@vger.kernel.org
+Subject: Re: cutting down on boot messages
+References: <20030725195752.GA8107@middle.of.nowhere>
+	<20030725200440.GA1686@matchmail.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 25 Jul 2003 23:09:50 +0200
+In-Reply-To: <20030725200440.GA1686@matchmail.com>
+Message-ID: <m37k66xqht.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 Jul 2003, Tomas Szepe wrote:
+Mike Fedyk <mfedyk@matchmail.com> writes:
 
-> > [rpjday@mindspring.com]
-> > 
-> > 1) i mentioned this before, i think, but after one deselects
-> >    Power management, should ACPI Support and CPU Frequency
-> >    scaling still be available?
-> > 
-> >    the "make xconfig" menu display suggests a submenu 
-> >    structure there, which clearly isn't the case.
-> 
-> Why don't you go ahead and send a patch?
-> 
-> > 2) can all of the low-level SCSI drivers be made deselectable
-> >    in one swell foop?  folks might want SCSI support just for
-> >    generic support and SCSI (ide-scsi) emulation, but have no
-> >    interest in low level SCSI drivers.
-> 
-> Add a SCSI lowlevel drivers submenu (~4 lines of Kconfig).
-> 
-> > 3) can all of ATM support be deselected with a single click?
-> >    in the same way "PCMCIA network device support" is done just
-> >    above it under "Networking options"?
-> 
-> Send a patch.
+> You'd do better to have a boot time command line option to limit printk
+> messages to err, or above.  Most of the printk messages have been given a
+> severity already, so this shouldn't be a problem, and it will probably
+> uncover some errors in the severity of certain messages.
 
-i'd be happy to, but based on my previous experience sending
-in a few patches, it's just not worth the aggravation any more.
-
-just one of my patches that got adopted took, literally, several
-weeks of being dropped on the floor with no reason why.  and i
-had to resubmit it, slightly updated, for every BK rev of the
-kernel since the previous patch wouldn't apply cleanly --
-it might be a line or two off, which would require remaking
-the patch and resubmitting it *again*.  at which point, it
-would be dropped on the floor *again*.
-
-don't get me wrong -- i understand that there has to be some
-form of QA in accepting kernel patches, and after a while, 
-regular submitters can build up a reputation.
-
-but, at this point, it's not terribly useful to encourage people
-to submit patches if those patches are just tossed.
-
-it's like the classic catch-22:
-
-  "we can't hire you.  you don't have enough experience doing
-    this job."
-  "ok, so how do i get experience?"
-  "well, you have to do this job for a while."
-
-uh, right.  so, while there's not much point in my submitting
-patches, i can still toss suggestions from the sidelines, unless
-you have some ideas.  i'm certainly open to advice.
-
-rday
+Right.
+In fact I'd rather leave the console printing KERN_INFO and make sure
+the (debug) messages are really KERN_DEBUG. This way we wouldn't have
+much noise with normal boot, but we could see KERN_DEBUG when something
+goes wrong (and the kernel is being told to print everything).
+-- 
+Krzysztof Halasa
+Network Administrator

@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278574AbRJ1QgG>; Sun, 28 Oct 2001 11:36:06 -0500
+	id <S278594AbRJ1Qoi>; Sun, 28 Oct 2001 11:44:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278572AbRJ1Qf4>; Sun, 28 Oct 2001 11:35:56 -0500
-Received: from postfix1-2.free.fr ([213.228.0.130]:42425 "HELO
-	postfix1-2.free.fr") by vger.kernel.org with SMTP
-	id <S278574AbRJ1Qfp>; Sun, 28 Oct 2001 11:35:45 -0500
-Date: Sun, 28 Oct 2001 13:40:16 +0100
-From: Thierry Laronde <tlaronde@polynum.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Virtual(?) kernel root
-Message-ID: <20011028134016.B239@polynum.org>
-In-Reply-To: <20011026215939.A13222@polynum.org> <200110280825.f9S8PROO004923@leija.fmi.fi>
+	id <S278603AbRJ1Qo2>; Sun, 28 Oct 2001 11:44:28 -0500
+Received: from cc264272-a.gambrills1.md.home.com ([65.14.225.200]:18098 "HELO
+	orthanc.cipherdyne.com") by vger.kernel.org with SMTP
+	id <S278594AbRJ1QoN>; Sun, 28 Oct 2001 11:44:13 -0500
+Date: Sun, 28 Oct 2001 11:45:00 -0500
+From: Michael Rash <mbr@cipherdyne.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Darrell A Escola <darrell-sg@descola.net>, linux-kernel@vger.kernel.org,
+        netfilter@lists.samba.org
+Subject: Re: iptables in 2.4.10, 2.4.11pre6 problems
+Message-ID: <20011028114500.A27656@orthanc.cipherdyne.com>
+In-Reply-To: <1002646705.2177.9.camel@aurora> <Pine.LNX.4.33.0110091005540.209-100000@desktop> <20011010135503.4f5c06b9.rusty@rustcorp.com.au> <20011019061830.A8087@descola.net> <20011024142512.4f22ab17.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200110280825.f9S8PROO004923@leija.fmi.fi>; from hurtta@leija.mh.fmi.fi on Sun, Oct 28, 2001 at 10:25:27AM +0200
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20011024142512.4f22ab17.rusty@rustcorp.com.au>; from rusty@rustcorp.com.au on Wed, Oct 24, 2001 at 02:25:12PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 28, 2001 at 10:25:27AM +0200, Kari Hurtta wrote:
-> > 
-> > Has an equivalent scheme being already discussed?
-> 
-> On linux/fs/namespace.c there is following comment: (from linux 2.4.12)
-> 
-> /*
->  * Absolutely minimal fake fs - only empty root directory and nothing else.
->  * In 2.5 we'll use ramfs or tmpfs, but for now it's all we need - just
->  * something to go with root vfsmount.
->  */
-> <...>
-> static DECLARE_FSTYPE(root_fs_type, "rootfs", rootfs_read_super, FS_NOMOUNT);
->  
-> 
-> But I do not think that that comment refers to equivalent scheme
-> than what you are proposing.
+On Oct 24, 2001, Rusty Russell wrote:
 
-Thanks for the tip. For the major part (don't speaking about /kbin or
-something like that), I think the change would be more a way to see the
-stuff than a lot of coding changes. In this case, having always and a
-sole kernel root, will allow to mount all sort of fs (virtual or not),
-and to allow kernel threads to refere to this unchanged root.
+> On Fri, 19 Oct 2001 06:18:30 -0700
+> Darrell A Escola <darrell-sg@descola.net> wrote:
+> 
+> > I have been running 2.4.10-ac11 for 7 days now with
+> > TCP_CONNTRACK_CLOSE_WAIT set to 120 seconds - this has stopped nearly
+> > all firewall activity on established connections.
+> 
+> OK... I think this needs changing then.  Can everyone please try the following
+> trivial patch and report any changes?
 
-Cheers,
--- 
-Thierry Laronde (Alceste) <tlaronde@polynum.org>
-Key fingerprint = 0FF7 E906 FBAF FE95 FD89  250D 52B1 AE95 6006 F40C
+Running 2.4.4 with this patch for the past 4 days has reduced the number of 
+inappropriately dropped packets by ip_conntrack to nearly zero.  The number
+of legitimate packets that used to be dropped previous to running this patch
+would sometimes reach into the low hundreds over the same time frame.  (FWIW,
+I have a cable modem connection to the 'net, and so it gets a bit slow from 
+time to time since my bandwidth is shared...).
+
+--Mike
+
+
+> diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.4.12-official/net/ipv4/netfilter/ip_conntrack_proto_tcp.c working-2.4.12-tcptime/net/ipv4/netfilter/ip_conntrack_proto_tcp.c
+> --- linux-2.4.12-official/net/ipv4/netfilter/ip_conntrack_proto_tcp.c	Sun Apr 29 06:17:11 2001
+> +++ working-2.4.12-tcptime/net/ipv4/netfilter/ip_conntrack_proto_tcp.c	Wed Oct 24 14:23:26 2001
+> @@ -55,7 +55,7 @@
+>      2 MINS,	/*	TCP_CONNTRACK_FIN_WAIT,	*/
+>      2 MINS,	/*	TCP_CONNTRACK_TIME_WAIT,	*/
+>      10 SECS,	/*	TCP_CONNTRACK_CLOSE,	*/
+> -    60 SECS,	/*	TCP_CONNTRACK_CLOSE_WAIT,	*/
+> +    2 MINS,	/*	TCP_CONNTRACK_CLOSE_WAIT,	*/
+>      30 SECS,	/*	TCP_CONNTRACK_LAST_ACK,	*/
+>      2 MINS,	/*	TCP_CONNTRACK_LISTEN,	*/
+>  };
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+Michael B. Rash
+http://www.cipherdyne.com
+Key fingerprint = 8E40 0826 4BBD 9DAF 4563  695C AC21 A428 70C9 B006

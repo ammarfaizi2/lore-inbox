@@ -1,31 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267349AbSLMC6w>; Thu, 12 Dec 2002 21:58:52 -0500
+	id <S267357AbSLMC6N>; Thu, 12 Dec 2002 21:58:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267363AbSLMC6X>; Thu, 12 Dec 2002 21:58:23 -0500
-Received: from dp.samba.org ([66.70.73.150]:734 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267349AbSLMC6F>;
+	id <S267363AbSLMC6N>; Thu, 12 Dec 2002 21:58:13 -0500
+Received: from dp.samba.org ([66.70.73.150]:478 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267357AbSLMC6F>;
 	Thu, 12 Dec 2002 21:58:05 -0500
 From: Rusty Russell <rusty@rustcorp.com.au>
 To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Revert module directory hierarchy and depmod invocation
-Date: Fri, 13 Dec 2002 14:04:57 +1100
-Message-Id: <20021213030554.F27312C14D@lists.samba.org>
+Cc: linux-kernel@vger.kernel.org, kees.bakker@altium.nl (Kees Bakker)
+Subject: [PATCH] Module init reentry fix
+Date: Fri, 13 Dec 2002 13:44:56 +1100
+Message-Id: <20021213030554.1498F2C305@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Linus, please apply.
 
-While the kernel, depmod et. al. don't care, other tools want the
-directory hierarchy under /lib/modules/`uname -r`/.  Sure, it's bogus
-for them to rely on kernel source layout, but noone has come up with a
-better alternative, so revert.
+In some configurations, parport and bttv request a module inside their
+module_init function.  Drop the lock around mod->init(), change
+module->live to module->state so we can detect modules which are in
+init.
 
-NOTE: You *still* can't have two modules of the same name!  (You never
-could).
+Survives stress_modules.sh here for a few hours, and according to
+Kees, does fix the problem.
 
-Thanks,
 Rusty.
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

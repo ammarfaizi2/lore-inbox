@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264305AbUBDTSc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 14:18:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264321AbUBDTSc
+	id S264286AbUBDTPy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 14:15:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbUBDTPx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 14:18:32 -0500
-Received: from web9704.mail.yahoo.com ([216.136.129.140]:64310 "HELO
-	web9704.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264305AbUBDTSa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 14:18:30 -0500
-Message-ID: <20040204191829.57468.qmail@web9704.mail.yahoo.com>
-Date: Wed, 4 Feb 2004 11:18:29 -0800 (PST)
-From: Alok Mooley <rangdi@yahoo.com>
-Subject: Re: Active Memory Defragmentation: Our implementation & problems
-To: root@chaos.analogic.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>,
-       Dave Hansen <haveblue@us.ibm.com>
-In-Reply-To: <Pine.LNX.4.53.0402041402310.2722@chaos>
+	Wed, 4 Feb 2004 14:15:53 -0500
+Received: from wsip-68-14-253-125.ph.ph.cox.net ([68.14.253.125]:3968 "EHLO
+	office.labsysgrp.com") by vger.kernel.org with ESMTP
+	id S264286AbUBDTPu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 14:15:50 -0500
+Message-ID: <40211EE7.8090707@backtobasicsmgmt.com>
+Date: Wed, 04 Feb 2004 09:33:43 -0700
+From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Organization: Back to Basics Network Management
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.2 aka "Feisty Dunnart"
+References: <40210578.6000504@mrc-bsu.cam.ac.uk>	 <200402041503.i14F3Bdq000287@81-2-122-30.bradfords.org.uk> <1075907649.23288.1.camel@midux>
+In-Reply-To: <1075907649.23288.1.camel@midux>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- "Richard B. Johnson" <root@chaos.analogic.com> >
-If this is an Intel x86 machine, it is impossible
-> for pages
-> to get fragmented in the first place. The hardware
-> allows any
-> page, from anywhere in memory, to be concatenated
-> into linear
-> virtual address space. Even the kernel address space
-> is virtual.
-> The only time you need physically-adjacent pages is
-> if you
-> are doing DMA that is more than a page-length at a
-> time. The
-> kernel keeps a bunch of those pages around for just
-> that
-> purpose.
+Markus Hästbacka wrote:
+
+> On Wed, 2004-02-04 at 17:03, John Bradford wrote:
 > 
-> So, if you are making a "memory defragmenter", it is
-> a CPU time-sink.
-> That's all.
+>>There was some discussion on the list about dropping version numbers
+>>altogether during 2.7:
+>>
+>>http://marc.theaimsgroup.com/?l=linux-kernel&m=107174577415393&w=2
+> 
+> Like it isn't hard enough already? You mean something like
+> Smoking beaver.Out of detox.While running?
 
-What if the external fragmentation increases so much
-that it is not possible to find a large sized block?
-Then, is it not better to defragment rather than swap
-or fail?
+Several Species Of Small Furry Animals.Gathered Together In A Cave.And 
+Grooving With A Pict
 
--Alok
-
-__________________________________
-Do you Yahoo!?
-Yahoo! SiteBuilder - Free web site building tool. Try it!
-http://webhosting.yahoo.com/ps/sb/

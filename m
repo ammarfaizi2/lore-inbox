@@ -1,85 +1,133 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265039AbTAAR5U>; Wed, 1 Jan 2003 12:57:20 -0500
+	id <S264972AbTAASDB>; Wed, 1 Jan 2003 13:03:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265051AbTAAR5U>; Wed, 1 Jan 2003 12:57:20 -0500
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:56387 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S265039AbTAAR5T>;
-	Wed, 1 Jan 2003 12:57:19 -0500
+	id <S265051AbTAASDB>; Wed, 1 Jan 2003 13:03:01 -0500
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:25624 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S264972AbTAASC7>;
+	Wed, 1 Jan 2003 13:02:59 -0500
 From: <Hell.Surfers@cwctv.net>
-To: riel@conectiva.com.br, linux-kernel@vger.kernel.org
-Date: Wed, 1 Jan 2003 18:05:32 +0000
-Subject: Re: GPL and Nvidia
+To: mark@justirc.net, linux-kernel@vger.kernel.org
+Date: Wed, 1 Jan 2003 18:10:42 +0000
+Subject: RE:Re: Why is Nvidia given GPL'd code to use in closed source drivers?
 MIME-Version: 1.0
 X-Mailer: Liberate TVMail 2.6
 Content-Type: multipart/mixed;
- boundary="1041444332499"
-Message-ID: <0c1c12302180113DTVMAIL8@smtp.cwctv.net>
+ boundary="1041444642915"
+Message-ID: <0bfb13407180113DTVMAIL8@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---1041444332499
+--1041444642915
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
-and how would it work otherwise? without GPL include/files? magic? divine act of god?
+NVidia would not go under, but if they did, you would still have drivers for it.
 
 Dean. Three ways to kill yourself, and ive been drove in one...
 
-On 	Wed, 1 Jan 2003 14:35:10 -0200 (BRST) 	Rik van Riel <riel@conectiva.com.br> wrote:
+On 	Wed, 01 Jan 2003 11:13:28 -0500 	Mark Rutherford <mark@justirc.net> wrote:
 
---1041444332499
+--1041444642915
 Content-Type: message/rfc822
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Wed, 1 Jan 2003 16:33:44 +0000
-Received: from localhost ([IPv6:::ffff:127.0.0.1]:30685 "EHLO localhost")
-	by imladris.surriel.com with ESMTP id <S80020AbTAAQf0>;
-	Wed, 1 Jan 2003 14:35:26 -0200
-Date: Wed, 1 Jan 2003 14:35:10 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Hell.Surfers@cwctv.net
-cc: linux-kernel@vger.kernel.org, "" <andre@linux-ide.org>
-Subject: Re: GPL and Nvidia
-In-Reply-To: <076541035040113DTVMAIL10@smtp.cwctv.net>
-Message-ID: <Pine.LNX.4.50L.0301011432500.2429-100000@imladris.surriel.com>
-References: <076541035040113DTVMAIL10@smtp.cwctv.net>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Wed, 1 Jan 2003 16:15:19 +0000
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id <S267259AbTAAQFC>; Wed, 1 Jan 2003 11:05:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org
+	id <S267260AbTAAQFC>; Wed, 1 Jan 2003 11:05:02 -0500
+Received: from rrcs-midsouth-24-172-39-28.biz.rr.com ([24.172.39.28]:40210
+	"EHLO maunzelectronics.com") by vger.kernel.org with ESMTP
+	id <S267259AbTAAQFA>; Wed, 1 Jan 2003 11:05:00 -0500
+Received: from justirc.net (ident@maunzelectronics.com [24.172.39.28])
+	by maunzelectronics.com (8.11.4/8.11.4) with ESMTP id h01GEiW07988
+	for <linux-kernel@vger.kernel.org>; Wed, 1 Jan 2003 11:14:44 -0500
+Message-ID: <3E1313A8.18854119@justirc.net>
+Date: Wed, 01 Jan 2003 11:13:28 -0500
+From: Mark Rutherford <mark@justirc.net>
+X-Mailer: Mozilla 4.8 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-Path: riel@conectiva.com.br
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+References: <Pine.LNX.4.10.10212312340420.421-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
 
-On Wed, 1 Jan 2003 Hell.Surfers@cwctv.net wrote:
+OK....
+I have a suggestion..
+We all concede (with the exception of a few) that Nvidia did nothing wrong with
+including headers in their driver.
+I dont think they did...
+I use their product, and it works well for me.
+I would LOVE to see Nvidia open source, but that might just drive a nail in the
+right place for them.. and they go under.
+We cannot force our ideas on a company, all they will do is turn and walk away.
+We can show them our way, if they like it, good. if not, we tried.
+I think we have tried, and I think Nvidia is well aware of our way here.
+Now, on to the suggestion!
 
-> lets see, In Britain we dont have "lawyers" we have solicitors, "no
-> legal ground" yes I do have legal ground, having the hardware is
-> irrelevent, I have the drivers, the "improperly" licensed drivers as
-> they are, I dont discriminate againtst nvidia users, I am unhappy I cant
-> help them with those modules, they include GPL routines
+lets let this thread die. its been argued before, over and over.
+please?
 
-Where is your proof that nvidia includes copyrightable GPL
-routines in their driver ?
 
-Without such proof, you have no grounds to make an accusation
-against nvidia.
 
-Yes, I am at times annoyed by getting reports about "kernel bugs"
-that turn out to be caused by the nvidia driver, but that doesn't
-change the fact that that driver is made by nvidia and they get
-to decide if and how they want to publish it.
 
-regards,
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://guru.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
---1041444332499--
+Andre Hedrick wrote:
+
+> Hell.Surfers,
+>
+> On Wed, 1 Jan 2003 Hell.Surfers@cwctv.net wrote:
+>
+> > You must understand the GNU/LINUX community is being manipulated by NVidia.
+>
+>    NVIDIA Corporate Office:
+>    2701 San Tomas Expressway
+>    Santa Clara, CA 95050
+>    Tel: 408-486-2000
+>    Fax: 408-486-2200
+>    info@nvidia.com
+>    Directions to Corporate Office
+>
+> > Dean. Three ways to kill yourself, and ive been drove in one...
+>
+> GO FOR IT!
+>
+> I will love to see the fall out.
+>
+> Regards,
+>
+> Andre Hedrick
+> LAD Storage Consulting Group
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+--
+Regards,
+Mark Rutherford
+mark@justirc.net
+
+
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+--1041444642915--
 
 

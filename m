@@ -1,68 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261317AbSKTPaH>; Wed, 20 Nov 2002 10:30:07 -0500
+	id <S261312AbSKTPbc>; Wed, 20 Nov 2002 10:31:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261318AbSKTPaH>; Wed, 20 Nov 2002 10:30:07 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:59544 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
-	id <S261317AbSKTPaF>; Wed, 20 Nov 2002 10:30:05 -0500
-Date: Wed, 20 Nov 2002 07:40:48 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [2.4, 2.5, USB] locking issue
-To: Greg KH <greg@kroah.com>, Samium Gromoff <_deepfire@mail.ru>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3DDBAD00.3010500@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-References: <E18Dmyi-000FRS-00@f16.mail.ru> <20021120084532.GD22936@kroah.com>
+	id <S261318AbSKTPbc>; Wed, 20 Nov 2002 10:31:32 -0500
+Received: from [195.101.102.66] ([195.101.102.66]:3344 "EHLO
+	daisy.lynuxworks.fr") by vger.kernel.org with ESMTP
+	id <S261312AbSKTPba>; Wed, 20 Nov 2002 10:31:30 -0500
+From: "Salvatore Palma" <spalma@lynuxworks.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Error in compiling the 2.4.20-rc1 linux  ppc kernel version
+Date: Wed, 20 Nov 2002 16:39:14 +0100
+Message-ID: <BEEJIEHLJEGEGMHGMGMHKENKCDAA.spalma@lynuxworks.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Mon, Nov 18, 2002 at 05:34:20PM +0300, Samium Gromoff wrote:
-> 
->>        The possible problem is encountered in ehci-q.c and ehci-sched.c
->>  in 2.4.19-pre9 and in one occurence in ehci-q.c of 2.5.47.
-
-It's not a problem, see below.  The 2.5 code is better, since only one
-body of code is managing the TD queues for async (control, bulk) and
-interrupt queue heads.
 
 
->>        the offending pattern is the same in both files:
->>
->>        if (!list_empty (qtd_list)) {
->> -----------------------8<----------------------------------------------
->>                list_splice (qtd_list, &qh->qtd_list);
->>                qh_update (qh, list_entry (qtd_list->next, struct ehci_qtd, qtd_list));
->> -----------------------8<----------------------------------------------
->>        } else {
->>                qh->hw_qtd_next = qh->hw_alt_next = EHCI_LIST_END;
->>        }
-
-Slightly different in 2.5.48 since it uses a dummy TD (so certain race
-conditions can't happen), and it won't line-wrap that qh_update() call.
+Hello
+could you please help me in understand how to resolve the following problem
+during linking phase?
 
 
->>        since list_splice() the qtd_list is diposed of its belongings and
->>        immediately in the next line we rely on qtd_list->next to point
->>        at an existing list_head.
->>
->>        i haven`t noticed any locking out there, and i`m afraid of what
->>        could result from a preemption happening between these two lines.
-> 
-> 
-> Um, David, any thoughts about this?
+make[2]: Nothing to be done for `all_targets'.
+make[2]: Leaving directory `/usr/linuxppc/src-linuxppc_2_4/arch/ppc/lib'
+make[1]: Leaving directory `/usr/linuxppc/src-linuxppc_2_4/arch/ppc/lib'
+/usr/linuxppc/ppc/powerpc-linux/bin/ld -T arch/ppc/vmlinux.lds -Ttext
+0xc0000000 -Bstatic arch/ppc/kernel/head.o arch/ppc/kernel/idle_6xx.o
+init/main.o init/version.o init/do_mounts.o \
+        --start-group \
+        arch/ppc/kernel/kernel.o arch/ppc/platforms/platform.o
+arch/ppc/mm/mm.o arch/ppc/lib/lib.o kernel/kernel.o mm/mm.o fs/fs.o
+ipc/ipc.o \
+         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o
+drivers/net/net.o drivers/media/media.o drivers/ieee1394/ieee1394drv.o
+drivers/pci/driver.o drivers/macintosh/macintosh.o \
+        net/network.o \
+        /usr/linuxppc/src-linuxppc_2_4/lib/lib.a \
+        --end-group \
+        -o vmlinux
+mm/mm.o: In function `do_wp_page':
+mm/mm.o(.text+0x12a4): undefined reference to `flush_tlb_page'
+mm/mm.o(.text+0x12a4): relocation truncated to fit: R_PPC_REL24
+flush_tlb_page
+mm/mm.o(.text+0x1444): undefined reference to `flush_tlb_page'
+mm/mm.o(.text+0x1444): relocation truncated to fit: R_PPC_REL24
+flush_tlb_page
+mm/mm.o: In function `handle_mm_fault':
+mm/mm.o(.text+0x1cf8): undefined reference to `flush_tlb_page'
+mm/mm.o(.text+0x1cf8): relocation truncated to fit: R_PPC_REL24
+flush_tlb_page
+fs/fs.o: In function `dput':
+fs/fs.o(.text+0x17924): undefined reference to `atomic_dec_and_lock'
+fs/fs.o(.text+0x17924): relocation truncated to fit: R_PPC_REL24
+atomic_dec_and_lock
+make: *** [vmlinux] Error 1
 
-That code runs under a spinlock_irqsave(&ehci->lock,...), so no
-other task can preempt.  And list_splice() doesn't modify qtd_list,
-so the qtd_list->next pointer stays valid ... it's like list_del(),
-not list_del_init(), read <linux/list.h> to see.
+I did the following:
 
-- Dave
+# make clean
+# make dep
+# make zImage.initrd
 
 
+Many Thanks for any your help
+Salvatore
+
+
+
+
+
+
+
+===================================================================
+Salvatore Palma               e: spalma@lynuxworks.fr
+Consulting Engineer           v: +33 1 30 85 06 00
+LYNUXWORKS S.A.               f: +33 1 30 85 06 06
+2 allee de la Fresnerie       www.lynuxworks.com
+78330 Fontenay-Le-Fleury
+France
+
+Open source and true real-time embedded solutions for the post-PC era
+=====================================================================
 

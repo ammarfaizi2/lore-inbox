@@ -1,46 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264235AbTFPSqo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 14:46:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264091AbTFPSoK
+	id S263258AbTFPSwT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 14:52:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264146AbTFPSwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 14:44:10 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:45803 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S264188AbTFPSng (ORCPT
+	Mon, 16 Jun 2003 14:52:19 -0400
+Received: from ida.rowland.org ([192.131.102.52]:54788 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S263258AbTFPSwR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 14:43:36 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Mon, 16 Jun 2003 14:52:17 -0400
+Date: Mon, 16 Jun 2003 15:06:10 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Patrick Mochel <mochel@osdl.org>
+cc: viro@parcelfarce.linux.theplanet.co.uk,
+       Russell King <rmk@arm.linux.org.uk>, Greg KH <greg@kroah.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Flaw in the driver-model implementation of attributes
+In-Reply-To: <Pine.LNX.4.44.0306161133010.908-100000@cherise>
+Message-ID: <Pine.LNX.4.44L0.0306161450510.1350-100000@ida.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16110.4883.885590.597687@napali.hpl.hp.com>
-Date: Mon, 16 Jun 2003 11:57:23 -0700
-To: "Riley Williams" <Riley@Williams.Name>
-Cc: "Vojtech Pavlik" <vojtech@suse.cz>, <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] input: Fix CLOCK_TICK_RATE usage ...  [8/13]
-In-Reply-To: <BKEGKPICNAKILKJKMHCAOEGHEFAA.Riley@Williams.Name>
-References: <20030614231455.A26303@ucw.cz>
-	<BKEGKPICNAKILKJKMHCAOEGHEFAA.Riley@Williams.Name>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Sun, 15 Jun 2003 11:51:00 +0100, "Riley Williams" <Riley@Williams.Name> said:
+I'm forced to agree with most of what you say.
 
-  Riley> 2. The IA64 arch didn't define CLOCK_TICK_RATE at all, but
-  Riley> then used the 1193182 value as a magic value in several
-  Riley> files. I've inserted that as the definition thereof in
-  Riley> timex.h for that arch.
+On Mon, 16 Jun 2003, Patrick Mochel wrote:
 
-AFAIK, on ia64, it makes absolutely no sense at all to define this
-magic CLOCK_TICK_RATE in timex.h.  There simply is nothing in the ia64
-architecture that requires any timer to operate at 1193182 Hz.
+> That's not the problem, only one possible solution. The problem is that 
+> the driver does not own the object it's exporting the attribute for. 
+> 
+> The object who owns the attributes gets its refcount incremented when the 
+> file is opened. If the module owns that object, it can take measures on 
+> unload to wait for that reference count to reach 0. 
 
-If there are drivers that rely on the frequency, those drivers should
-be fixed instead.
+Yes.  This may delay the rmmod system call (make it wait until some other 
+user process has closed the attribute file), but who cares about that?
 
-Please do not add CLOCK_TICK_RATE to the ia64 timex.h header file.
+> If a piece of code exports an attribute for an object that it does not 
+> own, it must explicitly modify the reference count for that object. There 
+> is no other way to be safe. 
 
-	--david
+Even that's not enough to be safe.  Modifying the reference count doesn't 
+help because this isn't a problem of the object being deleted, it's a 
+problem of a struct device_attributes being deleted -- and they don't have 
+reference counts since they aren't objects.
+
+> Note that by pinning the driver in memory when you create a sysfs file 
+> that it owns will prevent the module from ever being unloaded. That is 
+> possible, but not desirable. Note that that change would make your point 
+> moot. :) 
+
+Again I agree.  That was never my intention.  The change I originally
+suggested would simply make device_remove_file() atomic with respect
+to readers and writers of the attribute file:  It wouldn't return until
+all current readers or writers had left the show()/store() routine, and
+after it returned nobody would call show()/store().  I still don't see any 
+reason not to implement something like this.
+
+> Also, device_create_file() does not have a driver argument, because 
+> drivers are not the only entities that may create files for a device. The 
+> owning bus and the core itself may also use that call. Drivers are 
+> probably the least qualified (most unsafe) entities to do so.
+
+Most unsafe, perhaps.  But least qualified?  Who can possibly be more 
+qualified to display the state or affect the functioning of a device than 
+its driver?!
+
+However, you may very well approve of my previous suggestion (crossed in 
+the email) for a driver-specific subdirectory of the device directory.  I 
+think it's more awkward, but it fits in your framework better.
+
+Alan Stern
+

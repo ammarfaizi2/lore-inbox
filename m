@@ -1,23 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263341AbUCNKMv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 05:12:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263342AbUCNKMv
+	id S263334AbUCNKa4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 05:30:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263340AbUCNKa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 05:12:51 -0500
-Received: from [61.48.16.49] ([61.48.16.49]:36245 "ehlo yahoo.com.cn")
-	by vger.kernel.org with ESMTP id S263341AbUCNKMr (ORCPT
+	Sun, 14 Mar 2004 05:30:56 -0500
+Received: from [61.48.16.49] ([61.48.16.49]:11429 "ehlo yahoo.com.cn")
+	by vger.kernel.org with ESMTP id S263334AbUCNKaw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 05:12:47 -0500
+	Sun, 14 Mar 2004 05:30:52 -0500
 From: "ZHL jewelry" <liyo1978@yahoo.com.cn>
 Subject: business for you
 To: linux-kernel@vger.kernel.org
 Content-Type: text/plain;charset="GB2312"
 Reply-To: liyo1978@yahoo.com.cn
-Date: Sun, 14 Mar 2004 18:12:48 +0800
+Date: Sun, 14 Mar 2004 18:30:53 +0800
 X-Priority: 3
 X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-Message-Id: <S263341AbUCNKMr/20040314101247Z+35@vger.kernel.org>
+Message-Id: <S263334AbUCNKaw/20040314103052Z+1416@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -54,6 +54,7 @@ Fax: (8610) 82563221
 
 Mobile: 13051076228 
 
+Yahoo ID:liudesheng1118
 
 E-mail: 
 business@upfeeling.com, 

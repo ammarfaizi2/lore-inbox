@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265287AbUIOQ6o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266820AbUIORB7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265287AbUIOQ6o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 12:58:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266244AbUIOQ57
+	id S266820AbUIORB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 13:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266850AbUIORB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 12:57:59 -0400
-Received: from convulsion.choralone.org ([212.13.208.157]:33802 "EHLO
-	convulsion.choralone.org") by vger.kernel.org with ESMTP
-	id S266821AbUIOQ4N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 12:56:13 -0400
-Date: Wed, 15 Sep 2004 17:56:08 +0100
-From: Dave Jones <davej@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Being more anal about iospace accesses..
-Message-ID: <20040915165608.GC24892@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0409081543320.5912@ppc970.osdl.org> <Pine.LNX.4.58.0409150737260.2333@ppc970.osdl.org> <Pine.LNX.4.58.0409150859100.2333@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0409150859100.2333@ppc970.osdl.org>
-User-Agent: Mutt/1.3.28i
+	Wed, 15 Sep 2004 13:01:59 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61621 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266820AbUIORB2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 13:01:28 -0400
+Message-ID: <41487558.7010404@pobox.com>
+Date: Wed, 15 Sep 2004 13:01:12 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mark Lord <lsml@rtr.ca>
+CC: dougg@torque.net, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH] New QStor SATA/RAID Driver for 2.6.9-rc2
+References: <414711AC.5030200@rtr.ca> <41471A84.4090200@pobox.com> <4147C38C.3000104@torque.net> <414839F0.20008@rtr.ca>
+In-Reply-To: <414839F0.20008@rtr.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15, 2004 at 09:30:42AM -0700, Linus Torvalds wrote:
+Mark Lord wrote:
+> Currently on Linux, that interface is called "SCSI".
+> I think it might not be unreasonable to gradually evolve
+> the SCSI host interface to include, say, a non-translating
+> queuecommand() method, and associated pals.
+[...]
+> We practically have that already today.
+> The SCSI mid-layer is a nice generic block device glue system.
+> We just need perhaps to make it less SCSI-specific.
 
- > So right now the current snapshots (and 2.6.9-rc2) have this enabled, and
- > some drivers will be _very_ noisy when compiled. Most of the regular ones
- > are fine, so maybe people haven't even noticed it that much, but some of
- > them were using things like "u32" to store MMIO pointers, and are
- > generally extremely broken on anything but an x86.  We'll hopefully get
- > around to fixing them up eventually, but in the meantime this should at 
- > least explain the background for some of the new noise people may see.
 
-For the curious, 6MB of sparse output is generated from a make allmodconfig
-right now. (http://www.codemonkey.org.uk/junk/2.6.9-rc2-warnings.txt)
+You seem to have independent reached the same conclusion I did :)
 
-You can filter out just the __iomem warnings by grepping for asn:2
+To be specific, SCSI provides LLD infrastructure that block does not:
+1) infrastructure for queueing, retrying, and timing out requests
+2) an error handling thread.
+3) a standard method of addressing attached devices
+4) a standard method of submitting raw commands from userspace
 
-		Dave
+It is my goal to shift this infrastructure from SCSI to block over time. 
+  There is a fair amount of queueing infrastructure now in 2.6 (part of 
+#1), and Jens already has test code for #4.
+
+I had hoped to start working on this in 2.7, but with the new dev model 
+2.7 is postponed indefinitely....  so I guess I'll start working on it 
+sooner rather than later :)
+
+	Jeff
+
 

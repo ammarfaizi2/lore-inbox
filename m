@@ -1,88 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbVB1OID@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVB1ONj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261625AbVB1OID (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 09:08:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbVB1OGr
+	id S261636AbVB1ONj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 09:13:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbVB1OMy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 09:06:47 -0500
-Received: from imag.imag.fr ([129.88.30.1]:40658 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S261596AbVB1OB1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 09:01:27 -0500
-Message-ID: <1109599275.4223242b6b560@webmail.imag.fr>
-Date: Mon, 28 Feb 2005 15:01:15 +0100
-From: colbuse@ensisun.imag.fr
-To: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 3/2] drivers/char/vt.c: remove unnecessary code
-References: <1109596437.422319158044b@webmail.imag.fr> <20050228132849.B16460@flint.arm.linux.org.uk>
-In-Reply-To: <20050228132849.B16460@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-User-Agent: Internet Messaging Program (IMP) 3.1
-X-Originating-IP: 193.49.124.107
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (imag.imag.fr [129.88.30.1]); Mon, 28 Feb 2005 15:01:15 +0100 (CET)
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-Information: Please contact the ISP for more information
+	Mon, 28 Feb 2005 09:12:54 -0500
+Received: from mx02.cybersurf.com ([209.197.145.105]:33971 "EHLO
+	mx02.cybersurf.com") by vger.kernel.org with ESMTP id S261627AbVB1OKM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 09:10:12 -0500
+Subject: Re: [Lse-tech] Re: A common layer for Accounting packages
+From: jamal <hadi@cyberus.ca>
+Reply-To: hadi@cyberus.ca
+To: Thomas Graf <tgraf@suug.ch>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       kaigai@ak.jp.nec.com, marcelo.tosatti@cyclades.com,
+       "David S. Miller" <davem@redhat.com>, jlan@sgi.com,
+       lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, elsa-devel@lists.sourceforge.net
+In-Reply-To: <20050228135307.GP31837@postel.suug.ch>
+References: <20050224212839.7953167c.akpm@osdl.org>
+	 <20050227094949.GA22439@logos.cnet> <4221E548.4000008@ak.jp.nec.com>
+	 <20050227140355.GA23055@logos.cnet> <42227AEA.6050002@ak.jp.nec.com>
+	 <1109575236.8549.14.camel@frecb000711.frec.bull.fr>
+	 <20050227233943.6cb89226.akpm@osdl.org>
+	 <1109592658.2188.924.camel@jzny.localdomain>
+	 <20050228132051.GO31837@postel.suug.ch>
+	 <1109598010.2188.994.camel@jzny.localdomain>
+	 <20050228135307.GP31837@postel.suug.ch>
+Content-Type: text/plain
+Organization: jamalopolous
+Message-Id: <1109599803.2188.1014.camel@jzny.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 28 Feb 2005 09:10:03 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Surlignage Russell King <rmk+lkml@arm.linux.org.uk>:
-
-> On Mon, Feb 28, 2005 at 02:13:57PM +0100, colbuse@ensisun.imag.fr wrote:
-> > NPAR times :-). As I stated, npar is unsigned.
+On Mon, 2005-02-28 at 08:53, Thomas Graf wrote:
+> * jamal <1109598010.2188.994.camel@jzny.localdomain> 2005-02-28 08:40
+> > 
+> > netlink broadcast or a wrapper around it.
+> > Why even bother doing the check with netlink_has_listeners()?
 > 
-> I think that's disgusting then - it isn't obvious what's going on, which
-> leads to mistakes.
-> 
-> For the sake of a micro-optimisation such as this, it's far more important
-> that the code be readable and easily understandable.
-> 
-> Others may disagree.
-> 
+> To implement the master enable/disable switch they want. The messages
+> don't get send out anyway but why bother doing all the work if nothing
+> will get send out in the end? It implements a well defined flag
+> controlled by open/close on fds (thus handles dying applications)
+> stating whether the whole code should be enabled or disabled. It is of
+> course not needed to avoid sending unnecessary messages.
 
-I agree :) . But, if we look to the code, we can notice that there is actually
-no reason for npar to be unsigned. What do you think of this version?
+To justify writting the new code, I am assuming someone has actually sat
+down and in the minimal stuck their finger in the air
+and said "yes, there is definetely wind there".
 
+Which leadsto Marcello's question in other email:
+Theres some overhead. 
+- Message needs to be built with skbs allocated (not the cn_xxx thing
+that seems to be invoked - I suspect that thing will build the skbs);
+- the netlink table needs to be locked 
+-and searched and only then do you find theres nothing to send to. 
 
---- old/drivers/char/vt.c       2004-12-24 22:35:25.000000000 +0100
-+++ new/drivers/char/vt.c       2005-02-28 12:53:57.933256631 +0100
-@@ -1655,9 +1655,9 @@
-                        vc_state = ESnormal;
-                return;
-        case ESsquare:
--               for(npar = 0 ; npar < NPAR ; npar++)
-+               for(npar = NPAR - 1; npar >= 0; npar--)
-                        par[npar] = 0;
-+               npar++;
--               npar = 0;
-                vc_state = ESgetpars;
-                if (c == '[') { /* Function key */
-                        vc_state=ESfunckey;
+The point i was making is if you actually had to post this question,
+then you must be running into some problems of complexity ;->
+which implies to me that the delta overhead maybe worth it compared to
+introducing the complexity or any new code.
+I wasnt involved in the discussion - I just woke up and saw the posting
+and was bored. So the justification for the optimization has probably
+been explained and it may be worth doing the check (but probably such
+check should go into whatever that cn_xxx is).
 
-
---- old/include/linux/console_struct.h  2004-12-24 22:33:48.000000000 +0100
-+++ old/include/linux/console_struct.h  2005-02-28 14:49:53.653616335 +0100
-@@ -44,7 +44,8 @@
-        unsigned short  vc_video_erase_char;    /* Background erase character */
-        /* VT terminal data */
-        unsigned int    vc_state;               /* Escape sequence parser state */
--       unsigned int    vc_npar,vc_par[NPAR];   /* Parameters of current escape
-sequence */
-+       unsigned int    vc_par[NPAR];           /* Parameters of current escape
-sequence */
-+       int             vc_npar;                /* Current position in vc_par */
-        struct tty_struct *vc_tty;              /* TTY we are attached to */
-        /* mode flags */
-        unsigned int    vc_charset      : 1;    /* Character set G0 / G1 */
-
-
---
-Emmanuel Colbus
-Club GNU/Linux
-ENSIMAG - Departement telecoms
-
-
--------------------------------------------------
-envoyé via Webmail/IMAG !
+cheers,
+jamal
 

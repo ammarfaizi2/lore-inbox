@@ -1,47 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317994AbSHHVz1>; Thu, 8 Aug 2002 17:55:27 -0400
+	id <S318019AbSHHVzc>; Thu, 8 Aug 2002 17:55:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318019AbSHHVz1>; Thu, 8 Aug 2002 17:55:27 -0400
-Received: from [63.204.6.12] ([63.204.6.12]:59837 "EHLO mail.somanetworks.com")
-	by vger.kernel.org with ESMTP id <S317994AbSHHVz0>;
-	Thu, 8 Aug 2002 17:55:26 -0400
-Date: Thu, 8 Aug 2002 17:59:06 -0400 (EDT)
-From: "Scott Murray" <scottm@somanetworks.com>
-X-X-Sender: <scottm@rancor.yyz.somanetworks.com>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: PCI hotplug resource reservation 
-In-Reply-To: <21750.1028835889@redhat.com>
-Message-ID: <Pine.LNX.4.33.0208081707370.26999-100000@rancor.yyz.somanetworks.com>
+	id <S318024AbSHHVzc>; Thu, 8 Aug 2002 17:55:32 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:61708 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S318019AbSHHVzb>; Thu, 8 Aug 2002 17:55:31 -0400
+Date: Thu, 8 Aug 2002 23:58:31 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Luca Barbieri <ldb@ldb.ods.org>
+cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [2.5] asm-generic/atomic.h and changes to arm, parisc,
+ mips, m68k, sh, cris to use it
+In-Reply-To: <1028842995.1669.70.camel@ldb>
+Message-ID: <Pine.LNX.4.44.0208082357170.8911-100000@serv>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Aug 2002, David Woodhouse wrote:
+Hi,
 
->
-> scottm@somanetworks.com said:
-> >  you have any objection to this boot time reservation stuff going in
-> > for now as a cPCI only thing?  I can imagine other solutions that use
-> > DMI scans or the like to detect cPCI master cards and grab chunks of
-> > the resource space(s) for the hotswap buses, but don't have any clever
-> > ideas on reliable heuristics for knowing how big those chunks should
-> > be for a given card.
->
-> No objections. I can't see any 'proper' fix other than adding the ability
-> to relocate live cards. And I don't reckon that's going to happen.
+On 8 Aug 2002, Luca Barbieri wrote:
 
-Cool, thanks.
+> On UP, it disables interrupts around atomic ops with the exception of
+> non-testing ops on m68k.
 
-Scott
+Why did you change m68k? It was fine before.
 
-
--- 
-Scott Murray
-SOMA Networks, Inc.
-Toronto, Ontario
-e-mail: scottm@somanetworks.com
-
+bye, Roman
 

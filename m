@@ -1,144 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267517AbUIUIY5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267515AbUIUIdU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267517AbUIUIY5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 04:24:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267518AbUIUIY5
+	id S267515AbUIUIdU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 04:33:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267518AbUIUIdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 04:24:57 -0400
-Received: from zero.aec.at ([193.170.194.10]:63750 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S267517AbUIUIYp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 04:24:45 -0400
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Add tainted bit for machine checks
-From: Andi Kleen <ak@muc.de>
-Date: Tue, 21 Sep 2004 10:24:41 +0200
-Message-ID: <m3isa8av1y.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 21 Sep 2004 04:33:20 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:31172 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S267515AbUIUIdE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 04:33:04 -0400
+Date: Tue, 21 Sep 2004 17:32:58 +0900
+From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+Subject: Re: [RFC&PATCH 1/2] PCI Error Recovery (readX_check)
+In-reply-to: <20040918043654.GA11259@cup.hp.com>
+To: Grant Grundler <iod00d@hp.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Message-id: <414FE73A.5070008@jp.fujitsu.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7bit
+X-Accept-Language: ja, en-us, en
+User-Agent: Mozilla Thunderbird 0.7.3 (Windows/20040803)
+References: <412FDE7B.3070609@jp.fujitsu.com> <414AD33A.80701@jp.fujitsu.com>
+ <20040918043654.GA11259@cup.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Grant,
+thank you for your constant comment/interest.
 
-Add a new "M" tainted bit in oopses for machine checks.
+Grant Grundler wrote:
+>>diff -Nur linux-2.6.8.1/include/asm-i386/io.h 
+>>linux-2.6.8.1-pci/include/asm-i386/io.h
+>>--- linux-2.6.8.1/include/asm-i386/io.h	2004-08-14 
+> 
+> ...
+> 
+>>+static inline unsigned char _readb_check(unsigned char *addr)
+>>+{
+>>+	return readb(addr);
+>>+}
+> 
+> 
+> Instead of adding those to io.h, wouldn't it be better to add
+> a new header file? e.g io_check.h or something like that.
+> 
+> io.h is cluttered up with too much stuff already.
+> Anyone who wants to use these functions will be writing new
+> code and a new header file shouldn't be a problem.
 
-This shows in a oops when the machine had already a machine check.
-That information may be useful to see if the machine has hardware
-trouble and if it's really worth to invest much time into a
-mysterious oops.
+Sounds good.
+Hmm, I tend to avoid creating new file in the Linux tree... :-p
 
-Support for i386 and x86-64 so far.
 
-Index: linux/arch/x86_64/kernel/mce.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/mce.c	2004-09-13 22:19:22.%N +0200
-+++ linux/arch/x86_64/kernel/mce.c	2004-09-21 10:15:55.%N +0200
-@@ -227,6 +227,7 @@
- 	}
- 
-  out:
-+	tainted |= TAINT_MACHINE_CHECK;
- 	/* Last thing done in the machine check exception to clear state. */
- 	wrmsrl(MSR_IA32_MCG_STATUS, 0);
- }
-Index: linux/kernel/panic.c
-===================================================================
---- linux.orig/kernel/panic.c	2004-09-13 22:18:13.%N +0200
-+++ linux/kernel/panic.c	2004-09-21 10:16:24.%N +0200
-@@ -111,6 +111,7 @@
-  *  'P' - Proprietary module has been loaded.
-  *  'F' - Module has been forcibly loaded.
-  *  'S' - SMP with CPUs not designed for SMP.
-+ *  'M' - Machine had a machine check experience.
-  *
-  *	The string is overwritten by the next call to print_taint().
-  */
-@@ -119,7 +120,8 @@
- {
- 	static char buf[20];
- 	if (tainted) {
--		snprintf(buf, sizeof(buf), "Tainted: %c%c%c",
-+		snprintf(buf, sizeof(buf), "Tainted: %c%c%c%c",
-+ 			tainted & TAINT_MACHINE_CHECK ? 'M' : ' ',
- 			tainted & TAINT_PROPRIETARY_MODULE ? 'P' : 'G',
- 			tainted & TAINT_FORCED_MODULE ? 'F' : ' ',
- 			tainted & TAINT_UNSAFE_SMP ? 'S' : ' ');
-Index: linux/include/linux/kernel.h
-===================================================================
---- linux.orig/include/linux/kernel.h	2004-09-13 22:18:13.%N +0200
-+++ linux/include/linux/kernel.h	2004-09-21 10:15:55.%N +0200
-@@ -141,6 +141,7 @@
- 	SYSTEM_RESTART,
- } system_state;
- 
-+#define TAINT_MACHINE_CHECK		(1<<10)
- #define TAINT_PROPRIETARY_MODULE	(1<<0)
- #define TAINT_FORCED_MODULE		(1<<1)
- #define TAINT_UNSAFE_SMP		(1<<2)
-Index: linux/arch/i386/kernel/cpu/mcheck/k7.c
-===================================================================
---- linux.orig/arch/i386/kernel/cpu/mcheck/k7.c	2004-03-21 21:12:03.%N +0100
-+++ linux/arch/i386/kernel/cpu/mcheck/k7.c	2004-09-21 10:15:55.%N +0200
-@@ -64,6 +64,8 @@
- 	printk (KERN_EMERG "Attempting to continue.\n");
- 	mcgstl &= ~(1<<2);
- 	wrmsr (MSR_IA32_MCG_STATUS,mcgstl, mcgsth);
-+
-+	tainted |= TAINT_MACHINE_CHECK;
- }
- 
- 
-Index: linux/arch/i386/kernel/cpu/mcheck/p6.c
-===================================================================
---- linux.orig/arch/i386/kernel/cpu/mcheck/p6.c	2004-03-21 21:12:03.%N +0100
-+++ linux/arch/i386/kernel/cpu/mcheck/p6.c	2004-09-21 10:15:55.%N +0200
-@@ -76,6 +76,8 @@
- 	}
- 	mcgstl &= ~(1<<2);
- 	wrmsr (MSR_IA32_MCG_STATUS,mcgstl, mcgsth);
-+
-+	tainted |= TAINT_MACHINE_CHECK;
- }
- 
- /* Set up machine check reporting for processors with Intel style MCE */
-Index: linux/arch/i386/kernel/cpu/mcheck/p4.c
-===================================================================
---- linux.orig/arch/i386/kernel/cpu/mcheck/p4.c	2004-06-16 12:22:43.%N +0200
-+++ linux/arch/i386/kernel/cpu/mcheck/p4.c	2004-09-21 10:15:55.%N +0200
-@@ -226,6 +226,8 @@
- 	}
- 	mcgstl &= ~(1<<2);
- 	wrmsr (MSR_IA32_MCG_STATUS,mcgstl, mcgsth);
-+
-+	tainted |= TAINT_MACHINE_CHECK;
- }
- 
- 
-Index: linux/arch/i386/kernel/cpu/mcheck/p5.c
-===================================================================
---- linux.orig/arch/i386/kernel/cpu/mcheck/p5.c	2004-03-21 21:12:03.%N +0100
-+++ linux/arch/i386/kernel/cpu/mcheck/p5.c	2004-09-21 10:15:55.%N +0200
-@@ -25,6 +25,8 @@
- 	printk(KERN_EMERG "CPU#%d: Machine Check Exception:  0x%8X (type 0x%8X).\n", smp_processor_id(), loaddr, lotype);
- 	if(lotype&(1<<5))
- 		printk(KERN_EMERG "CPU#%d: Possible thermal failure (CPU on fire ?).\n", smp_processor_id());
-+
-+	tainted |= TAINT_MACHINE_CHECK;
- }
- 
- /* Set up machine check reporting for processors with Intel style MCE */
-Index: linux/arch/i386/kernel/cpu/mcheck/winchip.c
-===================================================================
---- linux.orig/arch/i386/kernel/cpu/mcheck/winchip.c	2004-03-21 21:12:03.%N +0100
-+++ linux/arch/i386/kernel/cpu/mcheck/winchip.c	2004-09-21 10:15:55.%N +0200
-@@ -19,6 +19,7 @@
- static asmlinkage void winchip_machine_check(struct pt_regs * regs, long error_code)
- {
- 	printk(KERN_EMERG "CPU0: Machine Check Exception.\n");
-+	tainted |= TAINT_MACHINE_CHECK;
- }
- 
- /* Set up machine check reporting on the Winchip C6 series */
+> Oh...and linus' recent addition of iomap.h to 2.6.9-rcX kernels:
+> 	http://www.ussg.iu.edu/hypermail/linux/kernel/0409.1/2561.html
+> 
+> This might be an opportunity for you to make the new interface
+> a bit more aware of error recovery.
+> 
+> It would make sense to integrate directly into his new design
+> for new kernel functionality. If someone is (re)writing code
+> to use the new interfaces, they might do it differently
+> if the pci error recovery is part of that.
+> 
+> Sorry, I don't mean to upset the your plans and suspect
+> what you are doing will be useful for existing 2.6 kernels
+> shipped by distro's.
 
+Thank you for your information.
+I hadn't notice the Linus's post... iomap.h is very interesting.
+
+In fact, I'm targeting current distro's. However now I think it is
+worth to reconsider my plan if we are entering a great transitional
+stage in the development of the kernel infrastructure...
+
+
+>>diff -Nur linux-2.6.8.1/include/asm-ia64/io.h 
+>>linux-2.6.8.1-pci/include/asm-ia64/io.h
+> 
+> ...
+> 
+>>+static inline unsigned char
+>>+_readb_check(unsigned char *addr)
+>>+{
+>>+	register unsigned long gr8 asm("r8");
+>>+	unsigned char val;
+>>+
+>>+	val = readb(addr);
+>>+	asm volatile ("add %0=%1,r0" : "=r"(gr8) : "r"(val));
+> 
+> 
+> Sorry - I don't understand the intent of the asm here.
+> Would a short comment be sufficient to explain?
+> 
+> I'm trying to understand why it's different from i386 and
+> not what "add" does.
+
+This part is ia64 specific staff... we need something like "add" to
+make sure the value is not poisoned.  Since the processor asserts an
+MCA at the time when the poisoned value is "consumed" - more properly,
+the MCA is signaled at or before the use of the IO read transaction:
+
+LabelA:  ld8  r15 = [r16] // Load
+LabelB:  Mov  r17 = r18;;
+  :
+LabelX:  Mov  r22 = r15   // MCA signaled at or before this instruction
+
+So the "add" make us sure that read_pci_errors() which should follow
+this readX_check() never fail to catch all MCA that could be caused by
+values fetched by some readX_check().
+
+AFAIK, this "add" works as something like barrier(), definitely certain,
+and quick than PAL_MC_DRAIN call.
+
+
+>>+u8  readb_check(struct pci_dev *, u8 *);
+>>+u16 readw_check(struct pci_dev *, u16 *);
+>>+u32 readl_check(struct pci_dev *, u32 *);
+> 
+> 
+> These function protoypes are added to i386 and ia64 asm/pci.h and
+> to linux/pci.h.
+> Do you really need to add the same function proto to asm/pci.h?
+> Or am I overlooking something? (It's been a long day again...)
+
+No no, it's my overlooking... They are duplicated.
+Add it only linux/pci.h.
+
+
+Thanks,
+H.Seto

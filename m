@@ -1,39 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264875AbRFTNlU>; Wed, 20 Jun 2001 09:41:20 -0400
+	id <S264877AbRFTNpA>; Wed, 20 Jun 2001 09:45:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264878AbRFTNlK>; Wed, 20 Jun 2001 09:41:10 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:10506 "EHLO
-	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S264876AbRFTNkz>; Wed, 20 Jun 2001 09:40:55 -0400
-Date: Wed, 20 Jun 2001 15:36:51 +0200
-From: Soeren Sonnenburg <sonnenburg@informatik.hu-berlin.de>
+	id <S264878AbRFTNou>; Wed, 20 Jun 2001 09:44:50 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:37648 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S264877AbRFTNoi>; Wed, 20 Jun 2001 09:44:38 -0400
+Date: Wed, 20 Jun 2001 15:44:30 +0200
+From: Andrea Arcangeli <andrea@suse.de>
 To: linux-kernel@vger.kernel.org
-Subject: kernel BUG at inode.c:486 - where fixed ?
-Message-ID: <20010620153651.B29711@server.intranet.wo.rk>
+Subject: 2.4.6pre3aa2
+Message-ID: <20010620154430.D22569@athlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.18i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Diff between 2.4.6pre3aa1 and 2.4.6pre3aa2:
 
-Has this bug been fixed and if so in which version ?
+Only in 2.4.6pre3aa2: 00_alpha-numa-initrd-1
 
-Jun 20 00:15:14 zapp kernel: kernel BUG at inode.c:486!
-Jun 20 00:15:14 zapp kernel: invalid operand: 0000
-Jun 20 00:15:14 zapp kernel: CPU:    0
-Jun 20 00:15:14 zapp kernel: EIP:    0010:[clear_inode+51/256]
-Jun 20 00:15:14 zapp kernel: EFLAGS: 00010286
-Jun 20 00:15:14 zapp kernel: eax: 0000001b   ebx: e4442ac0   ecx: e3488000   edx: e8a61540
-Jun 20 00:15:14 zapp kernel: esi: c0263300   edi: e813a2c0   ebp: e3489fa4   esp: e3489edc
-Jun 20 00:15:14 zapp kernel: ds: 0018   es: 0018   ss: 0018
-Jun 20 00:15:14 zapp kernel: Process kpsewhich (pid: 28368, stackpage=e3489000)
-Jun 20 00:15:14 zapp kernel: Stack: c021bc2e c021bc8d 000001e6 e4442ac0 c0140aa7 e4442ac0 e43cb140 e4442ac0
-Jun 20 00:15:14 zapp kernel:        c0155fad e4442ac0 c013e516 e43cb140 e4442ac0 e43cb140 00000000 c0136f08
-Jun 20 00:15:14 zapp kernel:        e43cb140 e3489f58 c013764a e813a2c0 e3489f58 00000000 efc58000 00000000
-Jun 20 00:15:14 zapp kernel: Call Trace: [iput+311/336] [nfs_dentry_iput+29/48] [dput+214/336] [cached_lookup+72/96] [path_walk+1338/1936] [getname+90/Jun 20 00:15:14 zapp kernel:        [sys_access+141/304] [system_call+51/56]
+	Release initrd memory from right numa node.
 
-Soeren.
+	(recommended)
+
+Only in 2.4.6pre3aa2: 00_alpha-srm-2.4.6-pre1-1
+
+	Access the srm variables via /proc/srm_environment.
+	Patch posted to l-k by Jan-Benedict Glaw <jbglaw@lug-owl.de>.
+
+	(nice to have)
+
+Only in 2.4.6pre3aa2: 00_initrd-release-blkdev-1
+
+	Remeber to release the opened blkdev after initrd load.
+
+	(recommended)
+
+Only in 2.4.6pre3aa2: 00_ksoftirqd-6_ia64-1
+Only in 2.4.6pre3aa2: 00_ksoftirqd-6_ppc-1
+
+	softirq updates for ppc and ia64.
+
+	(recommended)
+
+Only in 2.4.6pre3aa2: 00_locks-1
+
+	Fix from ac16 (avoid corrupting the lock_depth).
+
+	(recommended)
+
+Only in 2.4.6pre3aa2: 00_max-threads-1
+
+	Each task is going to take more than 2 pages. There's
+	also the pid limit and the per-user limit but turning
+	the default down is good idea. Fix from Rik from ac16.
+
+	(recommended)
+
+Only in 2.4.6pre3aa2: 00_swapinfo-1
+
+	Only show deviecs when then swap_map is been allocated
+	to avoid oops during swapon. Fix from
+	Paul Menage <pmenage@ensim.com>.
+
+	(nice to have)
+
+Only in 2.4.6pre3aa1/30_tux: 30_atomic-lookup-3
+Only in 2.4.6pre3aa2/30_tux: 30_atomic-lookup-4
+
+	Introduce O_ATOMICLOOKUP for ppc equal to 01000000.
+
+Only in 2.4.6pre3aa2: 40_experimental/40_blkdev-pagecache-3
+
+	Optional patch to apply to move the blkdev from buffercache to
+	pagecache. At the moment this breaks the ramdisk and in turn initrd.
+	Read the 40_experimental/README for more details. Like the tux patches
+	this one is not included into the global diff (2.4.6pre3aa2.{gz,bz2}).
+
+Andrea

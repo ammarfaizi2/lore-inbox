@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284198AbRLFUSL>; Thu, 6 Dec 2001 15:18:11 -0500
+	id <S284189AbRLFUSL>; Thu, 6 Dec 2001 15:18:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284181AbRLFUR7>; Thu, 6 Dec 2001 15:17:59 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:41866 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S284182AbRLFUQ3>;
-	Thu, 6 Dec 2001 15:16:29 -0500
-Date: Thu, 06 Dec 2001 12:15:54 -0800 (PST)
-Message-Id: <20011206.121554.106436207.davem@redhat.com>
-To: lm@bitmover.com
-Cc: phillips@bonn-fries.net, davidel@xmailserver.org, rusty@rustcorp.com.au,
-        Martin.Bligh@us.ibm.com, riel@conectiva.com.br, lars.spam@nocrew.org,
-        alan@lxorguk.ukuu.org.uk, hps@intermeta.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: SMP/cc Cluster description
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011206121004.F27589@work.bitmover.com>
-In-Reply-To: <20011206115338.E27589@work.bitmover.com>
-	<E16C4r8-0000r0-00@starship.berlin>
-	<20011206121004.F27589@work.bitmover.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+	id <S284210AbRLFURy>; Thu, 6 Dec 2001 15:17:54 -0500
+Received: from mk-smarthost-1.mail.uk.tiscali.com ([212.74.112.71]:52490 "EHLO
+	mk-smarthost-1.mail.uk.tiscali.com") by vger.kernel.org with ESMTP
+	id <S284181AbRLFUQ0>; Thu, 6 Dec 2001 15:16:26 -0500
+To: linux-kernel@vger.kernel.org
+From: Jonathan Hudson <jonathan@daria.co.uk>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Newsreader: knews 1.0b.1
+x-no-productlinks: yes
+X-Comment-To: kees
+In-Reply-To: <fa.ljcupnv.1ghotjk@ifi.uio.no>
+Subject: Re: Q: device(file) permissions for USB
+X-Newsgroups: fa.linux.kernel
+Content-Type: text/plain; charset=iso-8859-1
+NNTP-Posting-Host: daria.co.uk
+Message-ID: <664.3c0fd1b7.a66fa@trespassersw.daria.co.uk>
+Date: Thu, 06 Dec 2001 20:14:47 GMT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Larry McVoy <lm@bitmover.com>
-   Date: Thu, 6 Dec 2001 12:10:04 -0800
+In article <fa.ljcupnv.1ghotjk@ifi.uio.no>,
+	kees <kees@schoen.nl> writes:
+k>   This message is in MIME format.  The first part should be readable text,
+k>   while the remaining parts are likely unreadable without MIME-aware tools.
+k>   Send mail to mime@docserver.cac.washington.edu for more info.
+k> 
+k> ---1463801846-915869288-1007668919=:13843
+k> Content-Type: TEXT/PLAIN; charset=US-ASCII
+k> 
+k> Hi,
+k> 
+k> I have been playing with an USB camera. I've run into the following
+k> problem:
+k> The (default?) permissions for /proc/bus/usb/001/011 (and others) are
+k> 0644. This makes the ioctl (see attached trace to fail). So I have to:
+k> either chmod the usb device file each time I unplug and replug the camera
+k> OR make the pencam program SUID root, which is neither comfortable.
+k> Is there a way to affect the default permissions for the USB devices?
 
-   Huh?  Of course not, they'd use mutexes in a mmap-ed file, which uses
-   the hardware's coherency.  No locks in the vfs or fs, that's all done
-   in the mmap/page fault path for sure, but once the data is mapped you
-   aren't dealing with the file system at all.
-
-We're talking about two things.
-
-Once the data is MMAP'd, sure things are coherent just like on any
-other SMP, for the user.
-
-But HOW DID YOU GET THERE?  That is the question you are avoiding.
-How do I look up "/etc/passwd" in the filesystem on a ccCluster?
-How does OS image 1 see the same "/etc/passwd" as OS image 2?
-
-If you aren't getting rid of this locking, what is the point?
-That is what we are trying to talk about.
+Use hotplug to run a script to change the permissions when the device
+is connected. Mail me off list for an example.

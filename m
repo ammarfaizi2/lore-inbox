@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262496AbVAUUjo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262505AbVAUUr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262496AbVAUUjo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 15:39:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262502AbVAUUh4
+	id S262505AbVAUUr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 15:47:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbVAUUoB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 15:37:56 -0500
-Received: from anubis.aker.com.br ([200.101.19.4]:28101 "EHLO
-	firewall.aker.com.br") by vger.kernel.org with ESMTP
-	id S262498AbVAUUbb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 15:31:31 -0500
-Message-ID: <41F166A1.4030000@aker.com.br>
-Date: Fri, 21 Jan 2005 18:31:29 -0200
-From: Jorge Peixoto Vasquez <jorge@aker.com.br>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
+	Fri, 21 Jan 2005 15:44:01 -0500
+Received: from www.missl.cs.umd.edu ([128.8.126.38]:35087 "EHLO
+	www.missl.cs.umd.edu") by vger.kernel.org with ESMTP
+	id S262504AbVAUUmv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 15:42:51 -0500
+Date: Fri, 21 Jan 2005 16:11:36 -0500 (EST)
+From: Adam Sulmicki <adam@cfar.umd.edu>
+X-X-Sender: adam@www.missl.cs.umd.edu
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: compile error in linux-2.6.11-rc1 
+Message-ID: <Pine.BSF.4.62.0501211607560.50515@www.missl.cs.umd.edu>
+X-WEB: http://www.eax.com
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: via-rhine tx timeouts (AGAIN)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
 
-This error seems to appear and re-appear periodically in this list.
+hello,
+ 	fyi
 
-This time's encarnation is triggered by a sequence of changing the board 
-state to up and down.
-
-When this happens, the system can no longer send data through the board 
-and keeps periodically printing (each other second or so):
-
-NETDEV WATCHDOG: eth0 trasmit timed out
-eth0: Trasmit timed out, status 0000, PHY status 786d, reseting ...
-eth0: Reset not complete yet. Trying harder.
-eth0:  Setting full duplex based on MII .... capability of  45e1.
-
-ifconfig up / down again won't recover from the problem.
-This box serves as a firewall, so there is traffic all the time during 
-the sequence described above comming from other interfaces.
-
-This behaviours first showed up when loading the slhc.o PPP driver, 
-which wasn't used before.
-
-And this machine has neither APIC or ACPI enabled and runs kernel 
-2.4.26. Switching to kernel 2.4.29 didn't help at all.
-
-Any ideas?
-
-jOrge
-
--- 
-Jorge Peixoto Vasquez, Elect. Eng.
-Aker Security Solutions - www.aker.com.br
+   CC      arch/i386/kernel/timers/timer_pit.o
+   CC      arch/i386/kernel/timers/common.o
+   LD      arch/i386/kernel/timers/built-in.o
+   CC      arch/i386/kernel/reboot.o
+   CC      arch/i386/kernel/mpparse.o
+   CC      arch/i386/kernel/apic.o
+   CC      arch/i386/kernel/nmi.o
+arch/i386/kernel/nmi.c: In function `check_nmi_watchdog':
+arch/i386/kernel/nmi.c:130: error: `cpu_callin_map' undeclared (first use 
+in this function)
+arch/i386/kernel/nmi.c:130: error: (Each undeclared identifier is reported 
+only once
+arch/i386/kernel/nmi.c:130: error: for each function it appears in.)
+make[1]: *** [arch/i386/kernel/nmi.o] Error 1
+make: *** [arch/i386/kernel] Error 2
+linux:/usr/src/cm/kexec/linux-2.6.11-rc1 #
 

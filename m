@@ -1,61 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293060AbSCYBlI>; Sun, 24 Mar 2002 20:41:08 -0500
+	id <S310924AbSCYBoS>; Sun, 24 Mar 2002 20:44:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310436AbSCYBk7>; Sun, 24 Mar 2002 20:40:59 -0500
-Received: from kirsti.kvarteret.uib.no ([129.177.162.235]:34010 "EHLO
-	ttt.kvarteret.org") by vger.kernel.org with ESMTP
-	id <S293060AbSCYBkr>; Sun, 24 Mar 2002 20:40:47 -0500
-Date: Mon, 25 Mar 2002 02:40:22 +0100
-From: =?iso-8859-1?Q?Kjetil_Nyg=E5rd?= <kjetiln@kvarteret.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems with booting from SX6000
-Message-ID: <20020325024022.A6502@kvarteret.org>
-In-Reply-To: <20020324210811.B29097@kvarteret.org> <E16pEo3-00079j-00@the-village.bc.nu>
+	id <S310913AbSCYBn7>; Sun, 24 Mar 2002 20:43:59 -0500
+Received: from c17736.belrs2.nsw.optusnet.com.au ([211.28.31.90]:61865 "EHLO
+	bozar") by vger.kernel.org with ESMTP id <S310436AbSCYBnt>;
+	Sun, 24 Mar 2002 20:43:49 -0500
+Date: Mon, 25 Mar 2002 12:43:18 +1100
+From: Andre Pang <ozone@algorithm.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Screen corruption in 2.4.18
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <200203192112.WAA09721@jagor.srce.hr> <20020323160647.GA22958@hapablap.dyn.dhs.org> <1016953516.189201.5912.nullmailer@bozar.algorithm.com.au> <200203241507.g2OF7WN26069@ls401.hinet.hr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-X-Scanner: exiscan *16pJTC-0001sL-00*bdZgm.2wytA* (Det Akademiske Kvarter, Bergen, Norway)
+User-Agent: Mutt/1.3.27i
+Message-Id: <1017020598.420771.13343.nullmailer@bozar.algorithm.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 24, 2002 at 08:41:35PM +0000, Alan Cox wrote:
-> > I have problems with booting from a Promise SX6000. 
-> > I installed rh7.2, but the kernel cannot mount the filesystem. I get error
-> > 6 on mounting the file-system.  But in 'linux rescue' it manages to mount 
-> > the filesystems fine.
-> > 
-> > What is wrong?
+On Sun, Mar 24, 2002 at 04:07:31PM +0100, Danijel Schiavuzzi wrote:
+
+> > In the meantime, I'd probably suggest a patch which looks for
+> > clears only bit 7 of Rx55 if an 8363 and an 8365 is found.  I'll
+> > whip one up later today.
 > 
-> Firstly you must have recent firmware or the supertrak and SX6000 hang when
-> the module is loaded twice (as occurs when kudzu probes). Secondly you
-> should upgrade to the RH 2.4.9 errata kernel ASAP to avoid other weird hangs
-> under load that the newer i2o driver works around.
+> Yes, should implement some autodetection to detect VT8365 and clear only bit 
+> 7 and include it in the kernel *as soon as possible* (I don't have any kernel 
+> programming experience, so don't ask me to do so, although it should be 
+> something trivial ;))
 
-I have now installed the latest rh-kernel. I have also tried the 2.4.18 kernel (There should be some fixes for Promise SX6000 there). And the firmware is the newest. But still the system hangs during booting. I get the following messages:
+I've had a quick look at the pci-pc.c file which handles the PCI
+fixups, but I can't see of a way to say "if this chip is detected
+_and_ that chip is detected, modify this bit in the first chip."
+It's possible, but not without some real ugly hackery.
 
+Assuming that _only_ the integrated KT133+KM133 chipset uses the
+VT8365 PCI ID (0x8305), it'd be easy to make a special-case patch
+for it.  My only worry is that other chipsets (like the 'normal'
+KT133 without the KM133) use the same PCI ID; we should avoid
+modifying the fix for the other chipsets, if possible.
 
-"""
-Partition Check: 
-i2o/hda: i2o/hda1 i2o/hda2 i2o/hda3 i2o/hda4 < i2o/hda5 i2o/hd6 >
-Loading jbd module
-Journaled Block Device loaded
-Loading ext3 module
-Mounting /proc filesystem
-Creating root device
-Mounting root filesystem
-Mounting: error 19 ext3
-pivotroot: pivot_root(/sysroot, /sysroot/initrd) failed: 2
-Freeing unused kernel memory: 224k freed
-Kernel panic: no init found.  Try pasing init= to kernel.
-"""
-
-There could be spelling-errors, but else it should be all right. I have not made any changes to the system. (pure rh-7.2 install)
+Can somebody with a KT133/KT133A do a "lspci -n" and grep for
+'8305'?  If it doesn't appear, I'll send off my patch.
 
 
-Regards
-	Kjetil Nygård
-
+-- 
+#ozone/algorithm <ozone@algorithm.com.au>          - trust.in.love.to.save

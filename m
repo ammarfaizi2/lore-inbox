@@ -1,52 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267887AbUGaBN1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267885AbUGaBij@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267887AbUGaBN1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 21:13:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267888AbUGaBN1
+	id S267885AbUGaBij (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 21:38:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267891AbUGaBij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 21:13:27 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:8708 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S267887AbUGaBNZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 21:13:25 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-L2 PS2 keyboard gone south
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Shane Shrybman <shrybman@aei.ca>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1091232345.1677.20.camel@mindpipe>
-References: <1091196403.2401.10.camel@mars> <20040730152040.GA13030@elte.hu>
-	 <1091209106.2356.3.camel@mars>
-	 <1091229695.2410.1.camel@teapot.felipe-alfaro.com>
-	 <1091232345.1677.20.camel@mindpipe>
-Content-Type: text/plain
-Date: Sat, 31 Jul 2004 03:13:04 +0200
-Message-Id: <1091236384.2672.0.camel@teapot.felipe-alfaro.com>
+	Fri, 30 Jul 2004 21:38:39 -0400
+Received: from waste.org ([209.173.204.2]:19587 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S267888AbUGaBid (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 21:38:33 -0400
+Date: Fri, 30 Jul 2004 20:38:26 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 2/3] vprintk for ext2 errors
+Message-ID: <20040731013826.GX16310@waste.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.91 (1.5.91-1) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-07-30 at 20:05 -0400, Lee Revell wrote:
-> On Fri, 2004-07-30 at 19:21, Felipe Alfaro Solana wrote:
-> > On Fri, 2004-07-30 at 13:38 -0400, Shane Shrybman wrote:
-> > 
-> > > > M5 does that differently, yes - so could you try it? If you still get
-> > > > problems, does this fix it:
-> > > 
-> > > Ok, M5 locked up the whole machine within a few seconds of starting X.
-> > 
-> > Me too, with voluntary-preempt=3... It seems I can trigger this randomly
-> > by heavily moving the mouse around while logging in into my KDE session.
-> > 
-> > However, with voluntary-preempt=2 I've been unable to lock the machine
-> > yet.
-> 
-> It looks like this is a mouse problem, I have a PS/2 keyboard and USB
-> mouse and have not had any problems yet with M5.  I also found that with
-> L2, I could toggle Caps Lock fast enough to get significantly 'ahead' of
-> it, this no longer happens with M5.
+Kill error_buf madness in ext2
 
-I have a PS/2 keyboard and a USB mouse.
+Signed-off-by: Matt Mackall <mpm@selenic.com>
 
+ tiny-mpm/fs/ext2/super.c |   45 +++++++++++++++++++++++----------------------
+ 1 files changed, 23 insertions(+), 22 deletions(-)
+
+diff -puN fs/ext2/super.c~kill-ext2-error-buff fs/ext2/super.c
+--- tiny/fs/ext2/super.c~kill-ext2-error-buff	2004-03-20 12:14:47.000000000 -0600
++++ tiny-mpm/fs/ext2/super.c	2004-03-20 12:14:47.000000000 -0600
+@@ -37,8 +37,6 @@ static void ext2_sync_super(struct super
+ static int ext2_remount (struct super_block * sb, int * flags, char * data);
+ static int ext2_statfs (struct super_block * sb, struct kstatfs * buf);
+ 
+-static char error_buf[1024];
+-
+ void ext2_error (struct super_block * sb, const char * function,
+ 		 const char * fmt, ...)
+ {
+@@ -52,16 +50,17 @@ void ext2_error (struct super_block * sb
+ 			cpu_to_le16(le16_to_cpu(es->s_state) | EXT2_ERROR_FS);
+ 		ext2_sync_super(sb, es);
+ 	}
+-	va_start (args, fmt);
+-	vsprintf (error_buf, fmt, args);
+-	va_end (args);
+-	if (test_opt (sb, ERRORS_PANIC))
+-		panic ("EXT2-fs panic (device %s): %s: %s\n",
+-		       sb->s_id, function, error_buf);
+-	printk (KERN_CRIT "EXT2-fs error (device %s): %s: %s\n",
+-		sb->s_id, function, error_buf);
+-	if (test_opt (sb, ERRORS_RO)) {
+-		printk ("Remounting filesystem read-only\n");
++
++	va_start(args, fmt);
++	printk(KERN_CRIT "EXT2-fs error (device %s): %s: ",sb->s_id, function);
++	vprintk(fmt, args);
++	printk("\n");
++	va_end(args);
++
++	if (test_opt(sb, ERRORS_PANIC))
++		panic("EXT2-fs panic from previous error\n");
++	if (test_opt(sb, ERRORS_RO)) {
++		printk("Remounting filesystem read-only\n");
+ 		sb->s_flags |= MS_RDONLY;
+ 	}
+ }
+@@ -79,12 +78,13 @@ NORET_TYPE void ext2_panic (struct super
+ 		mark_buffer_dirty(sbi->s_sbh);
+ 		sb->s_dirt = 1;
+ 	}
+-	va_start (args, fmt);
+-	vsprintf (error_buf, fmt, args);
+-	va_end (args);
++	va_start(args, fmt);
++	printk(KERN_CRIT "EXT2-fs error (device %s): %s: ",sb->s_id, function);
++	vprintk(fmt, args);
++	printk("\n");
++	va_end(args);
+ 	sb->s_flags |= MS_RDONLY;
+-	panic ("EXT2-fs panic (device %s): %s: %s\n",
+-	       sb->s_id, function, error_buf);
++	panic("EXT2-fs panic forced\n");
+ }
+ 
+ void ext2_warning (struct super_block * sb, const char * function,
+@@ -92,11 +92,12 @@ void ext2_warning (struct super_block * 
+ {
+ 	va_list args;
+ 
+-	va_start (args, fmt);
+-	vsprintf (error_buf, fmt, args);
+-	va_end (args);
+-	printk (KERN_WARNING "EXT2-fs warning (device %s): %s: %s\n",
+-		sb->s_id, function, error_buf);
++	va_start(args, fmt);
++	printk(KERN_WARNING "EXT2-fs warning (device %s): %s: ",
++	       sb->s_id, function);
++	vprintk(fmt, args);
++	printk("\n");
++	va_end(args);
+ }
+ 
+ void ext2_update_dynamic_rev(struct super_block *sb)
+
+_
+
+
+-- 
+Mathematics is the supreme nostalgia of our time.

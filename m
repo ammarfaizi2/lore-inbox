@@ -1,94 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311480AbSCNC0x>; Wed, 13 Mar 2002 21:26:53 -0500
+	id <S311479AbSCNCcn>; Wed, 13 Mar 2002 21:32:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311479AbSCNC0n>; Wed, 13 Mar 2002 21:26:43 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:24949 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S311469AbSCNC01>; Wed, 13 Mar 2002 21:26:27 -0500
-Date: Thu, 14 Mar 2002 03:28:01 +0100
-From: Andrea Arcangeli <andrea@suse.de>
+	id <S311481AbSCNCce>; Wed, 13 Mar 2002 21:32:34 -0500
+Received: from quechua.inka.de ([212.227.14.2]:17174 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S311479AbSCNCcS>;
+	Wed, 13 Mar 2002 21:32:18 -0500
+From: Bernd Eckenfels <ecki-news2002-02@lina.inka.de>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.19pre3aa2
-Message-ID: <20020314032801.C1273@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Subject: Re: [PATCH-RFC] POSIX Event Logging, kernel 2.5.6 & 2.4.18
+In-Reply-To: <3C8FF7C7.5CA133B0@us.ibm.com>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
+Message-Id: <E16lL2R-0006Rt-00@sites.inka.de>
+Date: Thu, 14 Mar 2002 03:32:19 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-URL:
+In article <3C8FF7C7.5CA133B0@us.ibm.com> you wrote:
+> Another way to "replace" printk is not to replace the function itself,
+> but
+> instead combine printk's ring buffer with the event logging buffer, but
+> still
+> the end-user would see events in the event log and/or messages in
+> /var/log/messages.  A proposal like that at this point in time would
+> probably
+> be too radical, but is certainly a possibility.
 
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre3aa2.gz
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre3aa2/
+Yes, I think it is at least needed to share the ring buffer.
 
-VM alone:
+> I am sorry, I am not really familiar with netlink.  Please explain why
+> you 
+> think netlink could be (or perhaps should be) replaced with event
+> logging ?      
 
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.19pre3/vm-32
+There are different uses for netlink, but one of the most common is event
+signalling (high performance) for routing and interface changes. Also
+denied/accounted/accepted packets need to be logged by something like ulogd
+because printk is not the right solution for that.
 
-Changelog:
+> I think the point you are making is that there are certain events that
+> you
+> never under any circumstances want to miss or discard because of their 
+> importance.  printk does not address this nor does it report the fact
+> that
+> messages in the ring buffer have even been overwritten.  Event logging
+> is a little better, but it does not prevent the loss of events either.
 
-Only in 2.4.19pre3aa1: 00_lcall_trace-1
+Posix and BSD Auditing events are an example for that. In secure mode the
+system must be halted on overflow. a printk replacement will want to keep the
+oldest entries and a enterprise event system may want to keep the oldest.
 
-	Obsoleted by mainline (thanks to Christoph Hellwig for
-	the reminder).
+> One scheme we have thought of is to add dynamic event buffer allocation,
+> so
+> that if the static event buffer overflows additional dynamic buffering
+> will
+> activate until the logging daemon can read-out the events.  Another 
+> possibility is the "selective" discarding of lower severity events when
+> the
+> event buffer reaches a high-water mark.
 
-Only in 2.4.19pre3aa2: 00_loop-IV-API-hvr-1
+yes, but even larger dynamic kernel buffers will not stop you from running
+into full buffers. And I think a flexible policy will allow everybody to be
+happy with your framework. the only way to get it accepted, right?
 
-	Make the IV API not to be in function of the blkdev
-	of the underlying fs, so you can copy your cryptoloop
-	around without risking to lose data. This breaks the
-	on-disk format of some encrypted transfer module though,
-	if you don't like it please discuss it here in CC with
-	Herbert Valerio Riedel <hvr@hvrlab.org>, the patch
-	is from him. I think writing a converter in place of
-	the loop data would be the preferred solution if needed. It could
-	be done in a way to link transparently with the source of
-	the kernel modules.
+> draining them out, the "per-event type"  policy you seem to be
+> suggesting 
+> *I think* would add more complexity than dynamically allocating more
+> buffer
+> space when needed.  Please elaborate if you disagree.    
 
-Only in 2.4.19pre3aa2: 00_multipath-routing-smp-1
+I agree, it adds more complexity. Simple solutions are prefered, as long as
+they are solutions :)
 
-	SMP race fix.
-
-Only in 2.4.19pre3aa2: 00_zlib-1
-
-	the zlib fix.
-
-Only in 2.4.19pre3aa1: 10_nfs-o_direct-4
-Only in 2.4.19pre3aa2: 10_nfs-o_direct-5
-Only in 2.4.19pre3aa1: 10_reiserfs-o_direct-1
-
-	Merged together for consistency, suggested by
-	Christoph Hellwig.
-
-Only in 2.4.19pre3aa1: 10_vm-31
-Only in 2.4.19pre3aa2: 10_vm-32
-
-	Fixed ext3 deadlock and "theorical" mainline SMP race for
-	some arch.
-
-Only in 2.4.19pre3aa2: 21_pte-highmem-f00f-1
-
-	vmalloc called before smp_init was an hack, right way
-	is to use fixmap. CONFIG_M686 doesn't mean much these
-	days, but it's ok and probably most vendors will use it
-	for the smp kernels, so it will save 4096 of the vmalloc space.
-	I just didn't wanted to clobber the code with || CONFIG_K7 ||
-	CONFIG_... | ... given all the other f00f stuff is also
-	conditional only to M686 and probably nobody bothered to compile
-	it out for my same reason (if somebody worries about the few
-	kbytes of bytecode and the 4096 bytes of vmalloc virtual address
-	space feel free to send me a patch :).
-
-	This allows booting P5 SMP with pte-highmem.
-
-Only in 2.4.19pre3aa1: 70_xfs-6.gz
-Only in 2.4.19pre3aa2: 70_xfs-7.gz
-
-	Rediffed for the vm deadlock fix, also clear PG_Launder _before_
-	unlocking the buffer in write_buffer_locked().
-
-Andrea
+Greetings
+Bernd

@@ -1,70 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261178AbUCHUIu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 15:08:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbUCHUIA
+	id S261170AbUCHULM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 15:11:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbUCHULM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 15:08:00 -0500
-Received: from smtp02.web.de ([217.72.192.151]:61985 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S261178AbUCHUHt (ORCPT
+	Mon, 8 Mar 2004 15:11:12 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:44720 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261170AbUCHUKx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 15:07:49 -0500
-From: Thomas Schlichter <thomas.schlichter@web.de>
-To: Andrew Morton <akpm@osdl.org>, luming.yu@intel.com, len.brown@intel.com
-Subject: Re: 2.6.4-rc2-mm1
-Date: Mon, 8 Mar 2004 20:44:57 +0100
-User-Agent: KMail/1.5.4
-References: <20040307223221.0f2db02e.akpm@osdl.org>
-In-Reply-To: <20040307223221.0f2db02e.akpm@osdl.org>
+	Mon, 8 Mar 2004 15:10:53 -0500
+Date: Mon, 8 Mar 2004 21:10:49 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Balram Adlakha <balram_a@ftml.net>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_80MTAOfw1SMKBlu"
-Message-Id: <200403082045.00527.thomas.schlichter@web.de>
+Subject: Re: 2.6.4-rc2-mm1
+Message-ID: <20040308201049.GK23525@suse.de>
+References: <20040308174109.GA784@balram.gotdns.org> <20040308194749.GJ23525@suse.de> <20040308195600.GA3155@balram.gotdns.org> <20040308200639.GA3397@balram.gotdns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040308200639.GA3397@balram.gotdns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 09 2004, Balram Adlakha wrote:
+> I can't figure out why my ripping speed is so slow though, I'm getting
+> a 3x speed with paranoia, around 6x without jitter correction. Any
+> ideas where the problem might be?
 
---Boundary-00=_80MTAOfw1SMKBlu
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Probably the drive, not all drives are happy with reading cdda really
+fast...
 
-Hi,
-
-the bk-acpi.patch leads to following warning:
-
-In file included from include/asm/fixmap.h:18,
-                 from arch/i386/kernel/time_hpet.c:17:
-include/asm/acpi.h: In function `__acpi_acquire_global_lock':
-include/asm/acpi.h:72: Warnung: implicit declaration of function `cmpxchg'
-
-The attached patch fixes it by including <asm/system.h>.
-
-Best regards
-  Thomas Schlichter
-
---Boundary-00=_80MTAOfw1SMKBlu
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="fix-acpi_cmpxchg.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="fix-acpi_cmpxchg.diff"
-
---- linux-2.6.4-rc2-mm1/include/asm-i386/acpi.h.orig	2004-03-08 14:18:31.000000000 +0100
-+++ linux-2.6.4-rc2-mm1/include/asm-i386/acpi.h	2004-03-08 14:55:21.000000000 +0100
-@@ -28,6 +28,8 @@
- 
- #ifdef __KERNEL__
- 
-+#include <asm/system.h>
-+
- #define COMPILER_DEPENDENT_INT64   long long
- #define COMPILER_DEPENDENT_UINT64  unsigned long long
- 
-
---Boundary-00=_80MTAOfw1SMKBlu--
-
+-- 
+Jens Axboe
 

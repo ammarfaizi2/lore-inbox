@@ -1,61 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318911AbSHSPSF>; Mon, 19 Aug 2002 11:18:05 -0400
+	id <S318913AbSHSPXp>; Mon, 19 Aug 2002 11:23:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318913AbSHSPSF>; Mon, 19 Aug 2002 11:18:05 -0400
-Received: from Morgoth.esiway.net ([193.194.16.157]:11270 "EHLO
-	Morgoth.esiway.net") by vger.kernel.org with ESMTP
-	id <S318911AbSHSPSE>; Mon, 19 Aug 2002 11:18:04 -0400
-Date: Mon, 19 Aug 2002 17:21:58 +0200 (CEST)
-From: Marco Colombo <marco@esi.it>
-To: Oliver Neukum <oliver@neukum.name>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] (0/4) Entropy accounting fixes
-In-Reply-To: <200208191622.39957.oliver@neukum.name>
-Message-ID: <Pine.LNX.4.44.0208191711500.26653-100000@Megathlon.ESI>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318914AbSHSPXp>; Mon, 19 Aug 2002 11:23:45 -0400
+Received: from angband.namesys.com ([212.16.7.85]:61831 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S318913AbSHSPXo>; Mon, 19 Aug 2002 11:23:44 -0400
+Date: Mon, 19 Aug 2002 19:27:42 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       reiserfs-dev@namesys.com, viro@math.psu.edu
+Subject: Re: Need more symbols to be exported out of kernel
+Message-ID: <20020819192742.A19821@namesys.com>
+References: <20020819184208.A11022@namesys.com> <20020819155226.A26430@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20020819155226.A26430@infradead.org>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Aug 2002, Oliver Neukum wrote:
+Hello!
 
-> 
-> > > 1. You create a problem for in kernel users of random numbers.
-> > > 2. You forgo the benefit of randomness by concurrent access to
-> > > /dev/urandom 3. You will not benefit from hardware random number
-> > > generators as easily.
-> >
-> > You lost me. The kernel of course has "client" access to the internal
-> > pool. And since the userspace reads from /dev/random, it benefits
-> 
-> The kernel users of random numbers may be unable to block.
-> Thus the kernel has to have a PRNG anyway.
-> You may as well export it.
-> 
-> > from HRNG just the same way it does now. Point 2 is somewhat obscure
-> > to me. The kernel has only one observer to deal with, in theory.
-> 
-> In theory. In practice what goes out through eg. the network is
-> most important. Additional accesses to a PRNG bitstream unknown
-> outside make it harder to predict the bitstream.
+On Mon, Aug 19, 2002 at 03:52:26PM +0100, Christoph Hellwig wrote:
 
-Not at all. Let me (one process) read 1MB from /dev/urandom,
-and analyze it. If I can break SHA-1, I'm able to predict *future*
-/dev/urandom output, expecially if I keep draining bits from /dev/random.
+> >    remove_suid
+> trivial inline,  either move it to a header or copy & paste.
 
-And even if it was not the case, you don't necessary need to read
-the PRNG output *in order* to be able to guess it. Every N bits you
-read, you learn more about its internal state.
+Moving to header file trned out to be not that trivial ;)
+So I just exported it as it is, since it never was inline desplite
+the definition.
+Ans I hate duplicating code as it will become maintenance nightmare
+later.
 
-Despite that, you tells you I'm not able to capture outgoing network
-packets as well?
+Ok, here is first draft of the patch, any issues?
 
-.TM.
--- 
-      ____/  ____/   /
-     /      /       /			Marco Colombo
-    ___/  ___  /   /		      Technical Manager
-   /          /   /			 ESI s.r.l.
- _____/ _____/  _/		       Colombo@ESI.it
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.748   -> 1.749  
+#	      kernel/ksyms.c	1.60    -> 1.61   
+#	        mm/filemap.c	1.67    -> 1.68   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/08/19	green@angband.namesys.com	1.749
+# export generic_osync_inode,block_commit_write, remove_suid
+# --------------------------------------------
+#
+diff -Nru a/kernel/ksyms.c b/kernel/ksyms.c
+--- a/kernel/ksyms.c	Mon Aug 19 19:24:31 2002
++++ b/kernel/ksyms.c	Mon Aug 19 19:24:31 2002
+@@ -215,6 +215,7 @@
+ EXPORT_SYMBOL(generic_cont_expand);
+ EXPORT_SYMBOL(cont_prepare_write);
+ EXPORT_SYMBOL(generic_commit_write);
++EXPORT_SYMBOL(block_commit_write);
+ EXPORT_SYMBOL(block_truncate_page);
+ EXPORT_SYMBOL(generic_block_bmap);
+ EXPORT_SYMBOL(generic_file_read);
+@@ -531,6 +532,8 @@
+ EXPORT_SYMBOL(is_bad_inode);
+ EXPORT_SYMBOL(event);
+ EXPORT_SYMBOL(brw_page);
++EXPORT_SYMBOL(generic_osync_inode);
++EXPORT_SYMBOL(remove_suid);
+ 
+ #ifdef CONFIG_UID16
+ EXPORT_SYMBOL(overflowuid);
+diff -Nru a/mm/filemap.c b/mm/filemap.c
+--- a/mm/filemap.c	Mon Aug 19 19:24:31 2002
++++ b/mm/filemap.c	Mon Aug 19 19:24:31 2002
+@@ -2886,7 +2886,7 @@
+ 	return page;
+ }
+ 
+-inline void remove_suid(struct inode *inode)
++void remove_suid(struct inode *inode)
+ {
+ 	unsigned int mode;
+ 
 
+Bye,
+    Oleg

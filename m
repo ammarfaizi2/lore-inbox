@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262065AbUB2QX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 11:23:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbUB2QX3
+	id S262068AbUB2Qax (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 11:30:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbUB2Qax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 11:23:29 -0500
-Received: from gprs154-126.eurotel.cz ([160.218.154.126]:41601 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262065AbUB2QX2 (ORCPT
+	Sun, 29 Feb 2004 11:30:53 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:59540 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262068AbUB2Qaw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 11:23:28 -0500
-Date: Sun, 29 Feb 2004 17:23:17 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Karol Kozimor <sziwan@hell.org.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Dropping CONFIG_PM_DISK?
-Message-ID: <20040229162317.GC283@elf.ucw.cz>
-References: <1ulUA-33w-3@gated-at.bofh.it> <20040229161721.GA16688@hell.org.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040229161721.GA16688@hell.org.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Sun, 29 Feb 2004 11:30:52 -0500
+Date: Sun, 29 Feb 2004 17:30:41 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.4-rc1
+In-Reply-To: <Pine.LNX.4.58.0402271458480.1078@ppc970.osdl.org>
+Message-ID: <Pine.GSO.4.58.0402291729180.7483@waterleaf.sonytel.be>
+References: <Pine.LNX.4.58.0402271458480.1078@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 27 Feb 2004, Linus Torvalds wrote:
+> Ok, as usual, there was a lot of stuff for the -rc1, but as seems to be
+> more and more true it is mainly in the "periphery".
+>
+> Andrew Morton:
+>   o m68k: Amiga Hydra Ethernet new driver model
 
-> > Would there be any major screaming if I tried to drop CONFIG_PM_DISK?
-> > It seems noone is maintaining it, equivalent functionality is provided
-> > by swsusp, and it is confusing users...
-> 
-> It may be ugly, it may be unmaintained, but I get the impression that it
-> works for some people for whom swsusp doesn't. So unless swsusp works for
-> everyone or Nigel's swsusp2 is merged, I'd suggest leaving that in.
+This part of the patch seems to have been lost (root_hydra_dev is no more):
 
-Do you have example when pmdisk works and swsusp does not? I'm not
-aware of any in recent history...
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+--- linux-2.6.4-rc1/drivers/net/hydra.c	2004-02-29 09:32:04.000000000 +0100
++++ linux-m68k-2.6.4-rc1/drivers/net/hydra.c	2004-02-29 09:53:41.000000000 +0100
+@@ -142,10 +142,6 @@
+     ei_status.reg_offset = hydra_offsets;
+     dev->open = &hydra_open;
+     dev->stop = &hydra_close;
+-#ifdef MODULE
+-    ei_status.priv = (unsigned long)root_hydra_dev;
+-    root_hydra_dev = dev;
+-#endif
+     NS8390_init(dev, 0);
+
+     err = register_netdev(dev);
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

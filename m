@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318282AbSGRRC2>; Thu, 18 Jul 2002 13:02:28 -0400
+	id <S318123AbSGRRPJ>; Thu, 18 Jul 2002 13:15:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318281AbSGRRC2>; Thu, 18 Jul 2002 13:02:28 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:60406 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S318278AbSGRRC1>; Thu, 18 Jul 2002 13:02:27 -0400
-Subject: Re: [PATCH] per-cpu patch 2/3
-From: Robert Love <rml@tech9.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20020718042221.36D114479@lists.samba.org>
-References: <20020718042221.36D114479@lists.samba.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 18 Jul 2002 10:05:26 -0700
-Message-Id: <1027011926.1086.118.camel@sinai>
-Mime-Version: 1.0
+	id <S318278AbSGRRPJ>; Thu, 18 Jul 2002 13:15:09 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:25306 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S318123AbSGRRPI>; Thu, 18 Jul 2002 13:15:08 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Ivan Gyurdiev <ivangurdiev@attbi.com>
+Reply-To: ivangurdiev@attbi.com
+Organization: ( )
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Kernel headers....ppp, 2.4, 2.5
+Date: Wed, 17 Jul 2002 13:21:02 -0400
+User-Agent: KMail/1.4.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200207171321.02167.ivangurdiev@attbi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-07-17 at 20:48, Rusty Russell wrote:
-> Given the ongoing races with smp_processor_id() and preempt, this
-> makes sense to me.  this_cpu() was too generic a name anyway.
+Hi, 
+Having some trouble compiling kdenetwork.
 
-Very nice, although:
+/usr/include/linux/if_ppp.h:90: use of enum `NPmode' without previous 
+   declaration
 
-How do you reenable preemption?
+This is defined in ppp_defs.h, but apparently it doesn't get included 
+anywhere...  
 
-We already have get_cpu() and put_cpu() which do pretty much what you
-are suggesting (and put_cpu() enables preemption) and are used by code
-today.  If you want to make changes to them, that is fine, but we should
-keep the interface...
+Should ppp_defs.h be included in if_ppp.h
+(that goes for if_pppvar.h too) ?
+I see those headers use structures from ppp_defs.h
 
-	Robert Love
+
+
+
+
 
 

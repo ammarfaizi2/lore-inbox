@@ -1,64 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbTKYGkV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 01:40:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbTKYGkU
+	id S262048AbTKYGgK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 01:36:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbTKYGgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 01:40:20 -0500
-Received: from iisc.ernet.in ([144.16.64.3]:28352 "EHLO iisc.ernet.in")
-	by vger.kernel.org with ESMTP id S262050AbTKYGkO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 01:40:14 -0500
-From: anand@eis.iisc.ernet.in (SVR Anand)
-Message-Id: <200311250639.MAA21483@eis.iisc.ernet.in>
-Subject: Re: 2.6.0-test9 : bridge freezes
-To: shemminger@osdl.org (Stephen Hemminger)
-Date: Tue, 25 Nov 2003 12:09:57 +0530 (GMT+05:30)
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org, bridge@osdl.org
-In-Reply-To: <20031124110939.1cb3f87c.shemminger@osdl.org> from "Stephen Hemminger" at Nov 24, 2003 11:09:39 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	Tue, 25 Nov 2003 01:36:10 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:11781
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S262048AbTKYGgI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 01:36:08 -0500
+Date: Mon, 24 Nov 2003 22:36:02 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: OOps! was: 2.6.0-test9-mm5
+Message-ID: <20031125063602.GA1329@mis-mike-wstn.matchmail.com>
+Mail-Followup-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+References: <20031121121116.61db0160.akpm@osdl.org> <20031124225527.GB1343@mis-mike-wstn.matchmail.com> <Pine.LNX.4.58.0311241840380.8180@montezuma.fsmlabs.com> <20031124235807.GA1586@mis-mike-wstn.matchmail.com> <20031125003658.GA1342@mis-mike-wstn.matchmail.com> <Pine.LNX.4.58.0311242013270.1859@montezuma.fsmlabs.com> <20031125051018.GA1331@mis-mike-wstn.matchmail.com> <Pine.LNX.4.58.0311250033170.4230@montezuma.fsmlabs.com> <20031125054709.GC1331@mis-mike-wstn.matchmail.com> <Pine.LNX.4.58.0311250053410.4230@montezuma.fsmlabs.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0311250053410.4230@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-To begin with, thanks a lot for the concern you all have shown to address my 
-problem.
-
-This morning I have put in test9-bk25 image to see if the problem disappears. 
-The result should be out in the next few hours. I hope it is OK if I send you 
-the slabinfo in case the problem persists. 
-
-I plan to test in stages.
-
-i) Just bridging, no iptables
-ii) With iptables.
-
-I have very limited set of iptables rules. In fact it is as simple as blocking
-icmp. There are no errors reported by ethernet devices.
-
-Anand
-
-PS : The latest test10 stops at the booting stage while initialising my aic7xxx
-     scsi. So, I had to use bk25. 
+On Tue, Nov 25, 2003 at 12:54:49AM -0500, Zwane Mwaikambo wrote:
+> On Mon, 24 Nov 2003, Mike Fedyk wrote:
 > 
-> Linus is right, this is probably a memory leak issue.  There are several areas
-> that could be the problem:
-> 	- core networking 
-> 	- iptables
-> 		- iptables filter
-> 	- ethernet bridging
-> 	- ethernet driver (rtl8169)
+> > On Tue, Nov 25, 2003 at 12:33:47AM -0500, Zwane Mwaikambo wrote:
+> > > Indeed it looks PnPBIOS related, i'll await your other tests.
+> >
+> > Ok, I'll get started compiling up some kernels.
+> >
+> > Am I right in thinking that the pnpbios patches are in a series, where I
+> > should revert 4, then 3, etc?
 > 
-> To find/fix the problem, we need to narrow down the scope.  
-> Things that would help are, what are the iptables rules you are using?
-> Are there any errors showing up on the ethernet devices?
-> Also what does the bridge forwarding table look like? are there lots of entries, are
-> you running spanning tree?
-> 
-> 
-> 
+> Yes, that should do it. Whenever in doubt you can always refer to;
 
+Took a quick look at the patches, and since they don't modify the same parts
+of the same files, I'm backing them out in order of patch size.
+
+Reverted pnp-fix-2:
+Still OOpses.
+
+What do you want to bet that it's the smallest one? ;)

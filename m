@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262178AbVCHXc0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262223AbVCHXhV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262178AbVCHXc0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 18:32:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbVCHX3T
+	id S262223AbVCHXhV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 18:37:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbVCHXcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 18:29:19 -0500
-Received: from mail.netilla.com ([63.97.64.130]:65059 "EHLO mail.netilla.com")
-	by vger.kernel.org with ESMTP id S262166AbVCHXWb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 18:22:31 -0500
-Subject: e1000 driver and interrupt registration
-From: Devin Heitmueller <devin.heitmueller@aepnetworks.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: AEP Networks Inc.
-Date: Tue, 08 Mar 2005 18:22:25 -0500
-Message-Id: <1110324145.8711.63.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Mar 2005 23:22:25.0612 (UTC) FILETIME=[B01770C0:01C52435]
+	Tue, 8 Mar 2005 18:32:33 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:2828 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262206AbVCHXa2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 18:30:28 -0500
+From: Kristian =?iso-8859-1?q?S=F8rensen?= <ks@cs.aau.dk>
+Organization: Aalborg University
+To: Peter Chubb <peterc@gelato.unsw.edu.au>
+Subject: Re: Reading large /proc entry from kernel module
+User-Agent: KMail/1.7.2
+References: <200503081445.56237.ks@cs.aau.dk> <16942.12134.913207.508414@wombat.chubb.wattle.id.au>
+In-Reply-To: <16942.12134.913207.508414@wombat.chubb.wattle.id.au>
+MIME-Version: 1.0
+Content-Disposition: inline
+Date: Wed, 9 Mar 2005 00:31:17 +0100
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200503090031.17502.ks@cs.aau.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wednesday 09 March 2005 00:04, Peter Chubb wrote:
+> >>>>> "Kristian" == Kristian Sørensen <ks@cs.aau.dk> writes:
+>
+> Kristian> Hi all!  I have some trouble reading a 2346 byte /proc entry
+> Kristian> from our Umbrella kernel module.
+>
+>
+> Kristian> static int umb_proc_write(struct file *file, const char *buffer,
+> Kristian>                          unsigned long count, void *data) {
+> Kristian>	char *policy;
+> Kristian>	int *lbuf;
+> Kristian>	int i;
+>
+> Here's your problem:  lbuf should be a char * not an int *.
+> When you look lbuf[0] you'll get the first four characters packed
+> into the int.
+Okay, thanks! :-D That solves the first error :)
 
-I recently upgraded to 2.4.29 from 2.4.21 and see that the interrupt of
-the e1000 device is not being shown when running /sbin/ifconfig.
-
-It would appear that in version 1.56 of e1000_main.c, the e1000_probe
-function was modified to store the IRQ of the device in pdev->irq
-instead of netdev->irq.
-
-http://linux.bkbits.net:8080/linux-2.4/diffs/drivers/net/e1000/e1000_main.c@1.56?nav=index.html|src/|src/drivers|src/drivers/net|src/drivers/net/e1000|hist/drivers/net/e1000/e1000_main.c
-
-According to the log, this was done "in preparation for MSI support".
-However, it would appear that no other Ethernet driver does this.  As a
-result, the value is not present in the netdev->irq field, and hence the
-SIOCGIFMAP ioctl call does not include the interrupt.
-
-Is this expected behavior?  It would appear that this is a backport from
-2.6, so perhaps it should not work this way in stable 2.4 kernels.
-
-Is there any harm in also including the IRQ in the netdev struct, as I
-have applications that expect this (such as ifconfig)?
-
-The following patch appears to fix the issue.  I'm just not sure if it
-breaks anything else:
-
---- linux-2.4.29/drivers/net/e1000/e1000_main.c Wed Jan 19 09:09:56 2005
-+++ kernel/drivers/net/e1000/e1000_main.c       Tue Mar  8 16:13:46 2005
-@@ -485,6 +485,9 @@
- #endif
-        strcpy(netdev->name, pci_name(pdev));
-
-+       netdev->irq = pdev->irq;
-+
-        netdev->mem_start = mmio_start;
-        netdev->mem_end = mmio_start + mmio_len;
-        netdev->base_addr = adapter->hw.io_base;
-
-Thanks in advance,
+However, I still only get the the first 1003 characters, when I traverse the 
+buffer :-/
 
 -- 
-Devin Heitmueller
-Senior Software Engineer
-AEP Networks, Inc. (formerly Netilla)
-
+Kristian Sørensen
+E-mail: ipqw@users.sf.net, Phone: +45 29723816

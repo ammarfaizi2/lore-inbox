@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263936AbTKJQ0o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 11:26:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263957AbTKJQ0o
+	id S263957AbTKJQ3S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 11:29:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263963AbTKJQ3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 11:26:44 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45959 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263936AbTKJQ0m
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 11:26:42 -0500
-Message-ID: <3FAFBC28.5000600@pobox.com>
-Date: Mon, 10 Nov 2003 11:26:16 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Oliver M. Bolzer" <oliver@gol.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Success with  Promise FastTrak S150 TX4 (Re: [BK PATCHES] libata
- fixes)
-References: <20031108172621.GA8041@gtf.org> <20031110095248.GA20497@magi.fakeroot.net>
-In-Reply-To: <20031110095248.GA20497@magi.fakeroot.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 10 Nov 2003 11:29:18 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:8320 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263957AbTKJQ3Q (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 11:29:16 -0500
+Message-Id: <200311101629.hAAGTAwi002657@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Any thoughts when 2.6.0-test10 is due? 
+In-Reply-To: Your message of "Mon, 10 Nov 2003 09:56:39 GMT."
+             <5.2.0.9.0.20031110095312.00b3dea0@mailhost.ivimey.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <5.2.0.9.0.20031110095312.00b3dea0@mailhost.ivimey.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1623194150P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 10 Nov 2003 11:29:10 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver M. Bolzer wrote:
-> On Sat, Nov 08, 2003 at 12:26:21PM -0500, Jeff Garzik <jgarzik@pobox.com> wrote...
->  
-> 
->><jgarzik@redhat.com> (03/11/06 1.1415)
->>   [libata] fix ugly Promise interrupt masking bug
-> 
-> 
-> This solved the last outstanding problem with the 4th drive and the
-> driver seems to find all drives and properly boot off them, at least
-> in a situation where no RAID-functionalty of the card is used. Great
-> Work.
+--==_Exmh_-1623194150P
+Content-Type: text/plain; charset=us-ascii
 
-Thanks for testing.
+On Mon, 10 Nov 2003 09:56:39 GMT, Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>  said:
+> ... It's been a couple of weeks since -test9 came out, and I'd quite like 
+> to get a kernel that includes the various good patches that have been 
+> proposed since then.
 
+Make note that a lot of the more intrusive patches will be deferred to 2.6.1,
+which will have a patch easily 10x the size of the -test[789] ones (Linus
+is being intentionally very picky about what goes into the tree).  I'm
+going to predict that the 2.6.0->2.6.1 patch will be well over a megabyte
+even after gzipping.
 
-> # A first quick run of bonnie++ seems to show 2.6.0-test9+libata several
-> # %s slower then 2.4.22+ft3xx, but that might be related to differences
-> # between 2.4 and 2.6.
+--==_Exmh_-1623194150P
+Content-Type: application/pgp-signature
 
-One possibility is that queueing is not yet enabled in my sata_promise 
-driver.  Several of the SATA drivers support having multiple commands 
-outstanding per driver (tagged command queueing), but I need to do a bit 
-more work before I can enable queueing in the core.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-	Jeff
+iD8DBQE/r7zWcC3lWbTT17ARAtvgAKCU+yrNiQIjDDgQ1M7Yc1dRv1ty3ACgxdLI
+TAOylORu4UE6flw04VM0em0=
+=yKQv
+-----END PGP SIGNATURE-----
 
-
+--==_Exmh_-1623194150P--

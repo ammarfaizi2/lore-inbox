@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312386AbSCUQEt>; Thu, 21 Mar 2002 11:04:49 -0500
+	id <S310249AbSCUQQj>; Thu, 21 Mar 2002 11:16:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312384AbSCUQEf>; Thu, 21 Mar 2002 11:04:35 -0500
-Received: from dsl-65-188-226-101.telocity.com ([65.188.226.101]:62478 "HELO
-	fancypants.trellisinc.com") by vger.kernel.org with SMTP
-	id <S312383AbSCUQEO>; Thu, 21 Mar 2002 11:04:14 -0500
-Date: Thu, 21 Mar 2002 11:04:12 -0500
-From: nicholas black <dank@trellisinc.com>
+	id <S311593AbSCUQQa>; Thu, 21 Mar 2002 11:16:30 -0500
+Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:61354 "EHLO
+	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S310249AbSCUQQZ>; Thu, 21 Mar 2002 11:16:25 -0500
+Message-ID: <3C9A0735.8999EBB3@wanadoo.fr>
+Date: Thu, 21 Mar 2002 17:15:49 +0100
+From: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i586)
+X-Accept-Language: fr-FR, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: lionel.bouton@inet6.fr, marcelo@connectiva.com.br
-Subject: sis 5591 ide in 2.4.19-pre3 consumes souls
-Message-ID: <20020321110412.A6558@fancypants.trellisinc.com>
-Mime-Version: 1.0
+Subject: 2.5.7 does not compile
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yesterday night i excitedly came home to my shiny new -pre3, to discover
-that on boot, all ide devices timeout on DMA requests.  i'm using the
-sis ide driver on my sis 5591 controller, which is integrated onto an
-amptron 810 motherboard.  
+make[3]: Entering directory
+`/usr/src/kernel-sources-2.5.7/drivers/net/hamradio'
+gcc -D__KERNEL__ -I/usr/src/kernel-sources-2.5.7/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=k6 -DMODULE -DMODVERSIONS -include
+/usr/src/kernel-sources-2.5.7/include/linux/modversions.h 
+-DKBUILD_BASENAME=scc  -c -o scc.o scc.c
+scc.c: In function `scc_net_rx':
+scc.c:1664: `dev' undeclared (first use in this function)
+scc.c:1664: (Each undeclared identifier is reported only once
+scc.c:1664: for each function it appears in.)
+make[3]: *** [scc.o] Error 1
+make[3]: Leaving directory
+`/usr/src/kernel-sources-2.5.7/drivers/net/hamradio'
+make[2]: *** [_modsubdir_net/hamradio] Error 2
+make[2]: Leaving directory `/usr/src/kernel-sources-2.5.7/drivers'
+make[1]: *** [_mod_drivers] Error 2
+make[1]: Leaving directory `/usr/src/kernel-sources-2.5.7'
+make: *** [stamp-build] Error 2
 
-i haven't had a chance to capture exact logs yet, but can do testing
-tonight.  exact behavior follows:
-
-rebooted with 2.4.19-pre3-jl11 (preemptive; jl11 is a patch to
-networking code that should play no role here).  hard drive hda and
-cdrom's hdc,hdd are detected.  upon partition check of hda1, the system
-hung for roughly 20 seconds, after which it was declared dma commands
-had timed out.  this was repeated for all other partitions on the drive,
-after which the kernel panicked, unable to mount the root fs.
-
-this behavior continued to manifest over any number of reboots.
-interestingly, i could get my old 2.4.18-jl11 (non-preempt) to work
-fine, but only after a hard power down.  reboots left it in the same
-situation, but not logging nearly so much to the console :).
-
--- 
-nicholas black (dank@trellisinc.com)
-"c has types for a reason.  c++ improved the type system for a reason.  perl
- and php programs have run-time failures for a reason." - lkml
+-----------
+Regards
+	Jean-Luc

@@ -1,70 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbVCXSu6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263156AbVCXSw7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261618AbVCXSu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 13:50:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVCXSu5
+	id S263156AbVCXSw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 13:52:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVCXSw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 13:50:57 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:29143 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S262648AbVCXSug (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 13:50:36 -0500
-Message-ID: <42430C26.6000603@comcast.net>
-Date: Thu, 24 Mar 2005 13:51:18 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050111)
-X-Accept-Language: en-us, en
+	Thu, 24 Mar 2005 13:52:58 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:12729 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S262648AbVCXSvd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 13:51:33 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org, jmorris@redhat.com,
+       herbert@gondor.apana.org.au
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy
+ (2.6.11)
+References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast>
+	<20050323203856.17d650ec.akpm@osdl.org>
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 24 Mar 2005 19:51:30 +0100
+In-Reply-To: <20050323203856.17d650ec.akpm@osdl.org> (Andrew Morton's
+ message of "Wed, 23 Mar 2005 20:38:56 -0800")
+Message-ID: <m1y8cc3mj1.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-CC: ubuntu-devel <ubuntu-devel@lists.ubuntu.com>, linux-kernel@vger.kernel.org
-Subject: Re: vfat broken in 2.6.10?
-References: <4241E3EA.4080501@comcast.net> <87fyyl3war.fsf@devron.myhome.or.jp>
-In-Reply-To: <87fyyl3war.fsf@devron.myhome.or.jp>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Andrew Morton <akpm@osdl.org> writes:
 
-
-
-OGAWA Hirofumi wrote:
-> John Richard Moser <nigelenki@comcast.net> writes:
-> 
-> 
->>It appears dosfsck may not be working quite right.  I've taken this into
->>account, hence the second pass after each fsck.  This is either a
->>dosfsck issue, a usb-storage issue for the PNY compact flash drive, or
->>an issue with vfat itself.
+> David McCullough <davidm@snapgear.com> wrote:
 >>
->>So either LKML needs to fix the drivers, or Ubuntu needs to upgrade/fix
->>dosfsck or some patch they've applied to the kernel.
-> 
-> 
-> Can you try http://user.parknet.co.jp/hirofumi/tmp/fatfsprogs.tar.bz2,
-> or most recently released dosfstools (2.11 or later)?
+>> Here is a small patch for 2.6.11 that adds a routine:
+>> 
+>>  	add_true_randomness(__u32 *buf, int nwords);
+>
+> It neither applies correctly nor compiles in current kernels.  2.6.11 is
+> very old in kernel time.
+>
+> Are we likely to see any in-kernel users of this?
 
-I would really, but I haven't mastered creating debian packages yet; on
-Gentoo I just wrote ebuilds whenever I wanted to test something, then
-uninstalled it if it broke.  Maybe someone else can do it. . . .
+I added similar support to the pre hw_random AMD8111 driver
+a long time ago. Basically a timer that regularly read some
+dat from the hw random generator and feed it into the random
+code.
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+I think it is a good idea, because it doesnt make much sense
+imho to run a daemon for something that can be done in 20 lines
+of code in the kernel.
 
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCQwwlhDd4aOud5P8RAvDlAJ9EutR6A5BRF8Ej8JaXiDxNJKFbiwCfX56o
-S4wcvdgMldvZjmhoRasFPLk=
-=VubT
------END PGP SIGNATURE-----
+-Andi 

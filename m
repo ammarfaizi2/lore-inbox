@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316541AbSILPlZ>; Thu, 12 Sep 2002 11:41:25 -0400
+	id <S316235AbSILPxN>; Thu, 12 Sep 2002 11:53:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316542AbSILPlZ>; Thu, 12 Sep 2002 11:41:25 -0400
-Received: from 62-190-219-3.pdu.pipex.net ([62.190.219.3]:27404 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S316541AbSILPlY>; Thu, 12 Sep 2002 11:41:24 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200209121553.g8CFrrEh003646@darkstar.example.net>
-Subject: Re: XFS?
-To: martin.knoblauch@mscsoftware.com
-Date: Thu, 12 Sep 2002 16:53:52 +0100 (BST)
+	id <S316491AbSILPxM>; Thu, 12 Sep 2002 11:53:12 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:2038 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316235AbSILPxM>; Thu, 12 Sep 2002 11:53:12 -0400
+Subject: Re: unexpected IO-APIC on IBM xSeries 440
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: mzielinski@wp-sa.pl
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200209121727.50745.martin.knoblauch@mscsoftware.com> from "Martin Knoblauch" at Sep 12, 2002 05:27:50 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200209121733.28871.mzielinski@wp-sa.pl>
+References: <200209121733.28871.mzielinski@wp-sa.pl>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
+Date: 12 Sep 2002 16:58:29 +0100
+Message-Id: <1031846309.2838.96.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >> In my opinion the non-inclosure in the mainline kernel is the most 
-> >> important reason not to use XFS (or any other FS). Which in turn 
-> >> massively reduces the tester base. It is a shame, because for some 
-> type 
-> >> of applications it performs great, or better than anything else. 
-> >
-> >
-> >On the other hand, filesystem corruption bugs are one of the worst type 
-> >to suffer from. We absolutely don't want to include filesystems 
-> >without at least a reasonable proven track record in the mainline 
-> >kernel, and therefore encourage the various distributions to use them, 
-> >incase any bugs do show up. Look how long a buffer overflow existed in 
-> >Zlib unnoticed. 
+On Thu, 2002-09-12 at 16:33, Mariusz Zielinski wrote:
+> Hi list,
+> as instructed I'm making contact (attached dmesg). IBM claims that machine
+> is supported under linux (RedHat Advanced Server 2.1) but I couldn't find any 
+> patches. Is it possible that RedHat is hiding some patches from linux 
+> community? :)
+
+Hardly. The patches for pretty much every vendor tree are neatly broken
+down at http://www.kernelnewbies.org/
+
 > 
-> If enclosure in "major" distribuitons defines mainline for you, I have 
-> to agree. Otherwise, how do you get "a  proven track record in 
-> mainline" without having it in the mainline kernel ? :-)
+> The problem is that /proc/cpuinfo shows at most 4 processors (depending on 
+> kernel version). Dmesg shows many  "APIC error on CPUx: 00(80)" errors.
+> I can provide you with further details (make some tests) if needed. 
 
-Sorry, I meant we should be wary about what is moved from being development code to non-development code in the stable kernel.
+I don't know what state 2.5 is on Summit numa but 2.4.19-ac and
+2.4.20pre6 plus one patch (I can bounce you the diff if you want) should
+work nicely on summit chipsets with any distro
 
->  In any case, one could always mark XFS as "experimental" for some time.
-
-Exactly, I think we should.
-
-The distributions will 'mirror' that, by including support, but not making it obvious unless you poke around looking for it - so it gets the new feature out to the more users, but doesn't present it as just another option for newbies to select without realising what they are doing.
-
-> >EXT2 is a very capable filesystem, and has *years* of proven 
-> >reliability. That's why I'm not going to switch away from it for 
-> >critical work any time soon. 
-> 
-> sure, if you can live with the fsck time on your 200 GB (or bigger) 
-> filesystem after the occasional crash.
-
-But Linux doesn't crash...  :-)
-
-John.

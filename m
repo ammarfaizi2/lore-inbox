@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265872AbSLIRY7>; Mon, 9 Dec 2002 12:24:59 -0500
+	id <S265939AbSLIRpf>; Mon, 9 Dec 2002 12:45:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265890AbSLIRY7>; Mon, 9 Dec 2002 12:24:59 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19211 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265872AbSLIRY5>; Mon, 9 Dec 2002 12:24:57 -0500
-Date: Mon, 9 Dec 2002 09:33:22 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-cc: Daniel Jacobowitz <dan@debian.org>, george anzinger <george@mvista.com>,
-       Jim Houston <jim.houston@ccur.com>,
-       Stephen Rothwell <sfr@canb.auug.org.au>,
-       LKML <linux-kernel@vger.kernel.org>, <anton@samba.org>,
-       "David S. Miller" <davem@redhat.com>, <ak@muc.de>, <davidm@hpl.hp.com>,
-       <ralf@gnu.org>, <willy@debian.org>
-Subject: Re: [PATCH] compatibility syscall layer (lets try again)
-In-Reply-To: <OFC1954F5C.20E78677-ONC1256C8A.005E887F@de.ibm.com>
-Message-ID: <Pine.LNX.4.44.0212090927430.3397-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265960AbSLIRpe>; Mon, 9 Dec 2002 12:45:34 -0500
+Received: from pc1-cwma1-5-cust42.swan.cable.ntl.com ([80.5.120.42]:31933 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265939AbSLIRpe>; Mon, 9 Dec 2002 12:45:34 -0500
+Subject: Re: /proc/pci deprecation?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Richard Henderson <rth@twiddle.net>, Patrick Mochel <mochel@osdl.org>,
+       Willy Tarreau <willy@w.ods.org>, Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       jgarzik@pobox.com
+In-Reply-To: <Pine.LNX.4.44.0212090854510.3397-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0212090854510.3397-100000@home.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 09 Dec 2002 18:29:37 +0000
+Message-Id: <1039458577.10470.49.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2002-12-09 at 17:00, Linus Torvalds wrote:
+> On 9 Dec 2002, Alan Cox wrote:
+> > I wonder if this is why we have all these problems with VIA chipset
+> > interrupt handling. According to VIA docs they _do_ use
+> > PCI_INTERRUPT_LINE on integrated devices to select the IRQ routing
+> > between APIC and PCI/ISA etc, as well as 0 meaning "IRQ disabled"
+> 
+> Whee.. That sounds like a load of crock in the first place, since the
+> PCI_INTERRUPT_LINE thing should be just a scratch register as far as I
+> know. However, it doesn't really matter - we definitely should never write
+> to it anyway, so the VIA behaviour while strange should still be
+> acceptable.
 
-On Mon, 9 Dec 2002, Martin Schwidefsky wrote:
->
-> For s390/s390x this is actually quite tricky. The system call number is
-> coded in the instruction, e.g. 0x0aa2 is svc 162 or sys_nanosleep. There
-> is no register involved that contains the system call number I could
-> simply change. I either have to change the instruction (no way) or I
-> have to avoid going back to userspace in this case. This would require
-> assembler magic in entry.S. Not nice.
-
-Well, that is tricky independently of the actual argument stuff - even the
-_current_ system call restart ends up being tricky for you in that case, I
-suspect. The current one already basically depends on rewriting the system
-call number, it just leaves the arguments untouched.
-
-One thing you could do (which is pretty much architecture-independent) is
-to have a "restart" flag in the thread info structure. The system call
-entry code-path already has to check the thread info structure for things
-like the "ptrace" flags, so it shouldn't add much overhead to the system
-call entrypoint.
-
-You would need to add a "do _not_ restart" macro to the system call
-restart infrastructure, which would clear the restart bit when a restarted
-system call returns (it also would get cleared when ERESTART_RESTARTBLOCK
-ends up being changed into an EINTR, of course, but that's already
-architecture-dependent code so you can do anything there).
-
-			Linus
+Tested and verified. If I leave it alone non apic mode works. To use
+APIC mode I have to write the new IRQ value into that register. I've
+shoved that into the driver for now, since its a demented chip specific
+horror.
 

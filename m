@@ -1,35 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277782AbRJWPkf>; Tue, 23 Oct 2001 11:40:35 -0400
+	id <S277798AbRJWPnz>; Tue, 23 Oct 2001 11:43:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277783AbRJWPkZ>; Tue, 23 Oct 2001 11:40:25 -0400
-Received: from polypc17.chem.rug.nl ([129.125.25.92]:52615 "EHLO
-	polypc17.chem.rug.nl") by vger.kernel.org with ESMTP
-	id <S277782AbRJWPkS>; Tue, 23 Oct 2001 11:40:18 -0400
-Date: Tue, 23 Oct 2001 17:40:52 +0200 (CEST)
-From: "J.R. de Jong" <jdejong@chem.rug.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Andre's PDC20269 support patch?
-In-Reply-To: <01102317133101.00754@ElkOS>
-Message-ID: <Pine.LNX.4.21.0110231736480.18660-100000@polypc17.chem.rug.nl>
+	id <S277792AbRJWPnp>; Tue, 23 Oct 2001 11:43:45 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61701 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277785AbRJWPni>; Tue, 23 Oct 2001 11:43:38 -0400
+Subject: Re: Fail to compile 2.4.13-pre6 (with ext3fs) with gcc-3.0
+To: kilobug@freesurf.fr (Kilobug)
+Date: Tue, 23 Oct 2001 16:50:44 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (lkm)
+In-Reply-To: <3BD588F5.7020301@freesurf.fr> from "Kilobug" at Oct 23, 2001 05:12:53 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15w3pE-0006BQ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
+> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
+> -march=athlon     -c -o 8139too.o 8139too.c
+> 8139too.c: In function `netdev_ethtool_ioctl':
+> 8139too.c:2432: Unrecognizable insn:
+> (insn/i 618 1061 1058 (parallel[
 
-Does anyone have information when (and where) a patch from Andre Hedrick
-will be available containing the Promise PDC20269 support he mentioned
-earlier this month?
-
-There is nothing there at 
-http://www.kernel.org/pub/linux/kernel/people/hedrick/
-
-Thanx
-
-Johan.
----
-
-Microsoft... is that somekind of toiletpaper?
-
+gcc 3.0 isnt an appropriate compiler for the kernel right now. Do let
+the gcc development team know about the problem though

@@ -1,55 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265059AbSKVCeL>; Thu, 21 Nov 2002 21:34:11 -0500
+	id <S265034AbSKVCc7>; Thu, 21 Nov 2002 21:32:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265066AbSKVCeL>; Thu, 21 Nov 2002 21:34:11 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:1299 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S265059AbSKVCeJ>;
-	Thu, 21 Nov 2002 21:34:09 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200211220241.gAM2fEZ357378@saturn.cs.uml.edu>
-Subject: Re: Where is ext2/3 secure delete ("s") attribute?
-To: jgarzik@pobox.com (Jeff Garzik)
-Date: Thu, 21 Nov 2002 21:41:14 -0500 (EST)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan), linux-kernel@vger.kernel.org,
-       kentborg@borg.org, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <3DDD88BB.209@pobox.com> from "Jeff Garzik" at Nov 21, 2002 08:30:35 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S265059AbSKVCc7>; Thu, 21 Nov 2002 21:32:59 -0500
+Received: from mail-02.iinet.net.au ([203.59.3.34]:40978 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id <S265034AbSKVCc7>;
+	Thu, 21 Nov 2002 21:32:59 -0500
+Message-ID: <3DDD7CB9.4050001@iinet.net.au>
+Date: Fri, 22 Nov 2002 11:39:21 +1100
+From: Nero <neroz@iinet.net.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021016
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] Qt 3.1 and xconfig
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik writes:
-> Albert D. Cahalan wrote:
+For some reason this didn't get to the list last time I sent it, so here 
+it is again:
 
->> Forget the shred program. It's less useful than having the
->> filesystem simply zero the blocks, because it's slow and you
->> can't be sure to hit the OS-visible blocks.
->
-> Why not?
->
-> Please name a filesystem that moves allocated blocks around on you.  And 
-> point to code, too.
+If you link against qt 3.1 (and this will be common soon, KDE 3.1
+requires it), you can't change any of the options. There is a warning
+when it is running:
 
-Reiserfs tails
-  fs/reiserfs
-
-ext3 with data journalling
-  fs/ext3
-
-the journalling flash filesystems
-  fs/jffs
-  fs/jffs2
-
-NTFS with compression
-  fs/ntfs
+QObject::connect: No such signal ConfigList::menuSelected(struct menu*)
+QObject::connect:  (sender name:   'unnamed')
+QObject::connect:  (receiver name: 'unnamed')
+QObject::connect: No such signal ConfigList::menuSelected(struct menu*)
+QObject::connect:  (sender name:   'unnamed')
+QObject::connect:  (receiver name: 'unnamed')
 
 
-Some of these are listed in the shred man page.
 
-Multiple overwrites won't protect you from the disk manufacturer
-or the NSA. Only one is needed to protect against root & kernel.
-So it makes sense to have the filesystem zero the blocks when
-they are freed from a file.

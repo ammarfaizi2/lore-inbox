@@ -1,136 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263895AbUFKNjo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263928AbUFKNkR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263895AbUFKNjo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 09:39:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263928AbUFKNjo
+	id S263928AbUFKNkR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 09:40:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263932AbUFKNkR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 09:39:44 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:54915 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S263895AbUFKNjj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 09:39:39 -0400
-Date: Fri, 11 Jun 2004 22:40:53 +0900
-From: Takao Indoh <indou.takao@soft.fujitsu.com>
-Subject: Re: [PATCH 1/4]Diskdump Update
-In-reply-to: <1086954645.2731.23.camel@laptop.fenrus.com>
-To: arjanv@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Message-id: <ABC44FB9B74DDCindou.takao@soft.fujitsu.com>
-MIME-version: 1.0
-X-Mailer: TuruKame 3.55
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-References: <1086954645.2731.23.camel@laptop.fenrus.com>
+	Fri, 11 Jun 2004 09:40:17 -0400
+Received: from mail.aei.ca ([206.123.6.14]:23277 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S263928AbUFKNkK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 09:40:10 -0400
+Subject: Re: [PATCH][2.6.7-rc3] Single Priority Array CPU Scheduler
+From: Shane Shrybman <shrybman@aei.ca>
+To: pwil3058@bigpond.net.au
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1086961198.2787.19.camel@mars>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 11 Jun 2004 09:39:58 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Peter,
 
-On Fri, 11 Jun 2004 13:50:45 +0200, Arjan van de Ven wrote:
+I just started to try out your SPA scheduler patch and found that it is
+noticeably sluggish when resizing a mozilla window on the desktop. I
+have a profile of 2.6.7-rc3-spa and 2.6.7-rc2-mm2 and put them up at:
+http://zeke.yi.org/linux/spa/ . There is also vmstat output there but it
+doesn't look too helpful to me.
 
->>  	console_verbose();
->> -	spin_lock_irq(&die_lock);
->> +	if (!crashdump_mode())
->> +		spin_lock_irq(&die_lock);
->
->
->why is this??
+The test was basic and went like this:
 
-It is for safety.
-If diskdump dies during dumping, die() is called again.
-In such a case, system falls into the deadlock by die_lock.
-User cannot't know what happened to diskdump.
-By this correction, spin_lock_irq() is skipped and show_registers()
-shows stack trace. User may be able to know what happened even if dump
-fails.
+x86, K7, UP, gnome desktop with mozilla (with a bunch of tabs) and a few
+rxvts. cmdline= elevator=cfq profile=1
 
+readprofile -r
 
->
->
->> +#ifndef TRUE
->> +#define TRUE	1
->> +#endif
->> +#ifndef FALSE
->> +#define FALSE	0
->> +#endif
->
->it's kernel convention to just use 0 and !0 
+grab a corner of my mozilla window and continually move it around for
+several seconds
 
-OK.
+readprofile -v -m /boot/System.map-2.6.7-rc3|sort -rn +2|head -n30
 
+do the same while dumping vmstat 1 to a file.
 
->
->> +MODULE_PARM(fallback_on_err, "i");
->> +MODULE_PARM(allow_risky_dumps, "i");
->> +MODULE_PARM(block_order, "i");
->> +MODULE_PARM(sample_rate, "i");
->
->please exclusively use the 2.6 module parameter mechanism for new code.
+The kernel with your patch had a much harder time keeping up with the
+window resizing. Moving the entire window did not seem too bad or not
+too noticeable. I tried a similar test while running a kernel compile
+(make -j3) and it made the window resizing _really_ slow to respond.
 
-I see. I'll change this code using __setup.
+Regards,
+
+Shane
 
 
 
->> +		page = mem_map + nr;
->
->this is not safe for discontig mem and thus broken
-
-Ok, I fix it.
-
--		page = mem_map + nr;
-+		page = pfn_to_page(nr);
-
-I also need fix this.
-
--	for (nr = 0; nr < max_mapnr; nr++) {
-+	for (nr = 0; nr < max_pfn; nr++) {
 
 
-
->> +	/*
->> +	 * Check the checksum of myself
->> +	 */
->> +	spin_trylock(&disk_dump_lock);
->
->you need to handle the failure case of trylock of course
-
-I see, thanks.
-
-
-
->> +#ifdef CONFIG_PROC_FS
->> +static int proc_ioctl(struct inode *inode, struct file *file, unsigned 
->> int cmd, unsigned long param)
->
->
->ehhh this looks evil
-
-Sorry, but would you please explain?
-
-
-
->> diff -Nur linux-2.6.6.org/drivers/block/genhd.c linux-2.6.6/drivers/block
->> /genhd.c
->> --- linux-2.6.6.org/drivers/block/genhd.c	2004-05-10 11:32:29.000000000 
-+>> 0900
->> +++ linux-2.6.6/drivers/block/genhd.c	2004-06-09 19:17:46.000000000 +
-0900
->> @@ -224,6 +224,8 @@
->>  	return  kobj ? to_disk(kobj) : NULL;
->>  }
->>  
->> +EXPORT_SYMBOL(get_gendisk);
->
->
->this is WRONG. VERY WRONG.
-
-I used get_gendisk() to get gendisk from inode.
-
-	gd = get_gendisk(inode->i_rdev, &part);
-
-But, I can get gendiskd by i_bdev->bd_disk, so this export
-is not needed. I remove it.
-
-
-Best Regards,
-Takao Indoh

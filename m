@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314465AbSEVOUQ>; Wed, 22 May 2002 10:20:16 -0400
+	id <S314504AbSEVOXT>; Wed, 22 May 2002 10:23:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314553AbSEVOUP>; Wed, 22 May 2002 10:20:15 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:16144 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S314465AbSEVOUO>; Wed, 22 May 2002 10:20:14 -0400
-Message-ID: <3CEB9A3C.6000102@evision-ventures.com>
-Date: Wed, 22 May 2002 15:16:44 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
+	id <S314553AbSEVOXS>; Wed, 22 May 2002 10:23:18 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:22725 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S314504AbSEVOXR>;
+	Wed, 22 May 2002 10:23:17 -0400
+Date: Wed, 22 May 2002 09:19:34 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>, Andi Kleen <ak@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] POSIX personality
+Message-ID: <13860000.1022077174@baldur.austin.ibm.com>
+In-Reply-To: <Pine.LNX.4.33.0205211603340.15094-100000@penguin.transmeta.com>
+X-Mailer: Mulberry/2.2.0 (Linux/x86)
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: Vojtech Pavlik <vojtech@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Padraig Brady <padraig@antefacto.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.17 /dev/ports
-In-Reply-To: <Pine.GSO.4.21.0205220957320.2737-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Alexander Viro napisa?:
-> 
-> On Wed, 22 May 2002, Martin Dalecki wrote:
-> 
-> 
->>So at least we know now:
->>
->>1. Kernel is bogous.
->>2. util-linux is bogous.
->>
->>IOCTL is ineed the way to go to implement such functionality...
-> 
-> 
-> For kbdrate???  sysctl I might see - after all, we are talking about
-> setting two numbers.  ioctl() to pass a couple of integers to the kernel?
-> No, thanks.
 
-Ahhh and just another note - we are talking about a property of a
-*device* not a property of the kernel - so ioctl (read io as device)
-and certainly not sysctl (read sys as kernel).
+--On Tuesday, May 21, 2002 04:08:52 PM -0700 Linus Torvalds
+<torvalds@transmeta.com> wrote:
 
-What could be sonsidered as an *serious* alternative would
-be to abstract it out even further and implement it on
-the tset (terminal settings) levels. But *certainly* not sysctl.
+>> 
+>> One reason for it would be that it would be more efficient. All the
+>> various shared state needed for POSIX thread group emulation could be
+>> put into a  single structure with a single reference count.
+> 
+> Now, that's a separate issue - the issue of the exact _granularity_ of
+> the  bits, and how you group things together.
+> 
+> On that front, I don't have any strong feelings - but I suspect that it 
+> almost always ends up being fairly obvious when it is "right" to group 
+> things together, and when it isn't.
+> 
+> For example, we probably could have had just one bit for (FS | FILES),
+> and  the same is probably true of (SIGHAND | THREAD), but on the whole we 
+> haven't really had any gray areas when it comes to the grouping. And I 
+> don't see any coming up.
+> 
+> Does that mean that we might have a CLONE_POSIXDAMAGE that just covers all
+> the strange POSIX stuff that make no sense anywhere else? Maybe. But I'd
+> want that to be just another bit with the same semantic behaviour as the
+> existing ones, _not_ be some external "POSIX personality".
 
+I've been thinking along those lines myself.  At this point I'd suggest we
+implement them as separate, then if in the future no one ever uses them
+separately we can consider combining them.  I know this can raise some
+backward compatibility issues but in theory if anyone cares we wouldn't do
+it.
 
+Dave McCracken
+
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
 

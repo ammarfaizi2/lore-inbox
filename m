@@ -1,69 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266142AbUA2CWc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 21:22:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266165AbUA2CWc
+	id S265631AbUA2Cfn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 21:35:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266093AbUA2Cfn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 21:22:32 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:10204 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266142AbUA2CWa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 21:22:30 -0500
-Subject: Re: 2.6.1: process start times by procps
-From: john stultz <johnstul@us.ibm.com>
-To: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040127155254.GA1656@elektroni.ee.tut.fi>
-References: <20040123194714.GA22315@elektroni.ee.tut.fi>
-	 <20040125110847.GA10824@elektroni.ee.tut.fi>
-	 <20040127155254.GA1656@elektroni.ee.tut.fi>
-Content-Type: text/plain
-Message-Id: <1075342912.1592.72.camel@cog.beaverton.ibm.com>
+	Wed, 28 Jan 2004 21:35:43 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43145 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265631AbUA2Cfl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 21:35:41 -0500
+Date: Thu, 29 Jan 2004 02:35:39 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: Walter Harms <WHarms@bfs.de>
+Cc: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Kernel-janitors] mm/slab.c: linux 2.6.1 fix 2 unguarded kmalloc and a PAGE_SHIFT
+Message-ID: <20040129023539.GA18725@parcelfarce.linux.theplanet.co.uk>
+References: =?ISO-8859-1?Q?=20<vines.sxdD+dlw=B2?= =?ISO-8859-1?Q?+A@SZKOM.BFS.DE>?=
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 28 Jan 2004 18:21:52 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: =?ISO-8859-1?Q?=20<vines.sxdD+dlw=B2?= =?ISO-8859-1?Q?+A@SZKOM.BFS.DE>?=
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-01-27 at 07:52, Petri Kaukasoina wrote:
-> On Sun, Jan 25, 2004 at 01:08:47PM +0200, I wrote:
-> > On Fri, Jan 23, 2004 at 09:47:14PM +0200, I wrote:
-> > > For example, I started this bash process really at 21:24 (date showed 21:24
-> > > then):
-> > > 
-> > > kaukasoi 22108  0.0  0.2  4452 1532 pts/4    R    21:28   0:00 /bin/bash
-> > 
-> > OK, I would like to make my bug report more accurate: the problem seems to
-> > be that the value of btime in /proc/stat is not correct.
-> 
-> btime in /proc/stat does not stay constant but decreases at a rate of 15
-> secs/day. (So I thought that that's why there is that four minute error in
-> ps output after uptime of a couple of weeks.) Maybe this has something to do
-> with the fact that the 'timer' line in /proc/interrupts does not seem to
-> increase at an exact rate of 1000 steps per second but about 1000.18 steps
-> per second, instead. (The relative error is the same: 0.18 divided by 1000
-> is equal to 15 seconds divided by 24 hours).
-> 
-> I made an experiment shown below. I know nothing about kernel programming,
-> so this is probably not correct, but at least btime seemed to stay constant.
-> (I don't believe this fixes procps, though. If HZ if off by 180 ppm then I
-> guess ps can't possibly get its calculations involving HZ right. But at
-> least the bootup time reported by procinfo stays constant.)
+On Sun, Jan 25, 2004 at 03:02:24PM +0100, Walter Harms wrote:
+> Hi list,
+> this fixes catches 2 unguarded kmallocs() and changes a statement so that PAGE_SHIFT >20 causes a warning. 
+> At least sparc64 is prepared for a  PAGE_SHIFT >20.
 
+> -       if (num_physpages > (32 << 20) >> PAGE_SHIFT)
+> +       if (num_physpages > (32 << (20-PAGE_SHIFT) )
 
-Uh, what does your /etc/ntp/drift file show?
+Erm, that's a bad change to make.  There's nothing wrong with having
+a PAGE_SHIFT of >20, and this code would still work ... but with your
+change it's now undefined behaviour.  Please don't make this change.
 
-The basic equation is: 
-btime ~= gettimeodfay() - uptime
+(worked examples:
 
-Thus if your time of day is adjusted by NTP, btime will change as well.
-Uptime is calculated calculated by jiffies/HZ, and HZ is not NTP
-adjusted, so if your system is running 180ppm too fast or slow, btime
-would be expected to change. 
+1. suppose we have a PAGE_SHIFT of 24 (16MB page size), the original
+code shifts 32 left by 20 then right by 24, net result a right shift of
+4 => 2.  Since any machine with a 16MB page size is going to have more
+than 2 pages, we're fine.  the new code will shift 32 left by -4 which
+is undefined.  bad.
 
-I'm not yet sure how that is related to the ps start time being wrong.
+2. suppose we have a PAGE_SHIFT of 26 (64MB page size), the original
+code shifts right by 6, result 0.  Since the number of pages is > 0
+(one hopes ;-), the test will also succeed as desired.
 
-thanks
--john
+)
 
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

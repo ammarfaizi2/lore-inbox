@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262310AbSJELtJ>; Sat, 5 Oct 2002 07:49:09 -0400
+	id <S261945AbSJEL5H>; Sat, 5 Oct 2002 07:57:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262315AbSJELtJ>; Sat, 5 Oct 2002 07:49:09 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60423 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262310AbSJELtI>;
-	Sat, 5 Oct 2002 07:49:08 -0400
-Date: Sat, 5 Oct 2002 12:54:43 +0100
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: New BK License Problem?
-Message-ID: <20021005115443.GW710@gallifrey>
-References: <AD47B5CD-D7DB-11D6-A2D4-0003939E069A@mac.com> <20021004140802.E24148@work.bitmover.com> <20021004.160216.58843127.davem@redhat.com> <20021004163335.A5336@work.bitmover.com> <20021005003840.GQ710@gallifrey> <20021004174501.Q835@work.bitmover.com> <20021005005344.GR710@gallifrey> <20021004180600.R835@work.bitmover.com> <20021005011706.GU710@gallifrey> <20021004185325.V835@work.bitmover.com>
+	id <S262003AbSJEL5G>; Sat, 5 Oct 2002 07:57:06 -0400
+Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:31386 "EHLO
+	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S261945AbSJEL5G>; Sat, 5 Oct 2002 07:57:06 -0400
+Date: Sat, 5 Oct 2002 12:21:15 +0200
+From: Richard Zidlicky <rz@linux-m68k.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: 2.4.19 NFS file perms
+Message-ID: <20021005122115.A1338@linux-m68k.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021004185325.V835@work.bitmover.com>
-User-Agent: Mutt/1.4i
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.4.18 (i686)
-X-Uptime: 12:46:55 up 3 days, 14:13,  1 user,  load average: 0.20, 0.38, 0.18
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In private email with Larry I asked him to clarify the question to the
-list; he didn't want to; but he did clarify to me the following and said
-I could pass it on. Here is my understanding of what he said.
+Hi,
 
-It really does appear that if you happen to be employed by a rival of
-Larry's then you aren't allowed to use it, even to check out free
-software unless you talk to Larry first.  He seems to be open to working
-out exemptions/work arounds for particular organisations.
+on an NFS mounted fs, executing as root I see this:
 
-I was worried that this meant that some people didn't have access to
-free software stored with bk; he pointed out that he has gone to great lengths 
-to make the file formats fully compatible with SCCS (which answered my
-question of why something in this day and age had messages about SCCS
-appearing). So it should be possible to access the software using
-software other than bitkeeper.
+[root@sirizidl nfsr]# ll /nfsr/toplev.fig 
+-rw-------    1 kernel   users       48500 Oct  5 11:42 /nfsr/toplev.fig
+[root@sirizidl nfsr]# xfig /nfsr/toplev.fig 
+[snip]
+...
+stat64("toplev.fig", {st_mode=S_IFREG|0600, st_size=48500, ...}) = 0
+open("toplev.fig", O_RDONLY)            = 4
+fstat64(4, {st_mode=S_IFREG|0600, st_size=48500, ...}) = 0
+old_mmap(NULL, 48500, PROT_READ, MAP_PRIVATE, 4, 0) = 0xc0011000
+read(4, 0xefffe4cb, 1)                  = -1 EIO (Input/output error)
+_llseek(4, 48500, [48500], SEEK_SET)    = 0
+--- SIGBUS (Bus error) ---
 
-Now while I happen to not to like the idea of a license that restricts
-usage based on who you happen to work for, my main fear (of people being
-unable to get to hosted software) seems to be irrelevent due to this
-SCCS compatibility.  So how does one use SCCS/CSSC to get the bk kernel
-repositories?
+glibc crashes in fgets because it doesn't expect the problem after the 
+file has been successfully opened and mapped.. who is at fault here?
 
-That is my last message on this subject.
+Remote nfs server is an old userspace implementation btw.
 
-Dave
- ---------------- Have a happy GNU millennium! ----------------------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM, SPARC and HP-PA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+Richard
+

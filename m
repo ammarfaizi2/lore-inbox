@@ -1,63 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130271AbQLCUvX>; Sun, 3 Dec 2000 15:51:23 -0500
+	id <S130764AbQLCUzO>; Sun, 3 Dec 2000 15:55:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130764AbQLCUvO>; Sun, 3 Dec 2000 15:51:14 -0500
-Received: from u-code.de ([207.159.137.250]:8945 "EHLO u-code.de")
-	by vger.kernel.org with ESMTP id <S130271AbQLCUvG>;
-	Sun, 3 Dec 2000 15:51:06 -0500
-From: Eckhard Jokisch <eckhard@u-code.de>
-Reply-To: e.ckhard@u-code.de
-Organization: u-code
-To: marcel@mesa.nl, linux-kernel@vger.kernel.org
-Subject: Re: IDE_TAPE problem wiht ONSTREAM DI30
-Date: Sun, 3 Dec 2000 21:07:59 +0000
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <00113016484200.11054@eckhard> <20001130170539.C25168@joshua.mesa.nl>
-In-Reply-To: <20001130170539.C25168@joshua.mesa.nl>
-MIME-Version: 1.0
-Message-Id: <00120321222000.00506@eckhard>
-Content-Transfer-Encoding: 7BIT
+	id <S131166AbQLCUzF>; Sun, 3 Dec 2000 15:55:05 -0500
+Received: from [212.187.250.66] ([212.187.250.66]:3847 "HELO
+	proxy.jakinternet.co.uk") by vger.kernel.org with SMTP
+	id <S130764AbQLCUy7>; Sun, 3 Dec 2000 15:54:59 -0500
+To: linux-kernel@vger.kernel.org
+From: Jonathan Hudson <jonathan@daria.co.uk>
+Mime-Version: 1.0
+X-Newsreader: knews 1.0b.1
+x-no-productlinks: yes
+X-Comment-To: Alexander Viro
+In-Reply-To: <20001202173959.A10166@vana.vc.cvut.cz> <Pine.GSO.4.21.0012021255330.28923-100000@weyl.math.psu.edu>
+Subject: Re: corruption
+X-Newsgroups: fa.linux.kernel
+Content-Type: text/plain; charset=iso-8859-1
+NNTP-Posting-Host: 192.168.1.1
+Message-ID: <970.3a2aabf8.5cd1e@trespassersw.daria.co.uk>
+Date: Sun, 03 Dec 2000 20:24:24 GMT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Don, 30 Nov 2000 schrieben Sie:
-> On Thu, Nov 30, 2000 at 04:26:09PM +0000, Eckhard Jokisch wrote:
-> > 
-> > I tried the ide-tape driver for several weeks now. And after some time during
-> > writing or reading tar stops because of errors.
-> > 
-> > Error messages are:
-> > Nov 30 15:32:20  kernel: ide-tape: ht0: I/O error, pc =  8, key =  0,
-> > asc =  0, ascq =  2 Nov 30 15:32:25 eckhard last message repeated 1000 times
-> > Nov 30 15:32:25  kernel: ide-tape: ht0: unrecovered read error on logical block number 461706, skipping
 
-....
+In article <Pine.GSO.4.21.0012021255330.28923-100000@weyl.math.psu.edu>,
+	Alexander Viro <viro@math.psu.edu> writes:
+AV> 
+>> > ed fs/buffer.c <<EOF
+>> > /unmap_buffer/
+>> > /}/i
+AV> 		spin_lock(&lru_list_lock);
+>> > 		remove_inode_queue(bh);
+AV> 		spin_unlock(&lru_list_lock);
+>> > .
+>> > wq
+>> > EOF
+AV> 
 
-> I ran into such problems since februari or so and have been in contact with
-> the ide-tape developers and Onstream about it. 
-> I recently volunteered to try improving the end of media handling (basicly by
-> implementing early warning EOM) but so far have not had much time to work on it...
+I applied this on top the the previous SCT patch, and have thrashed
+the system harder than I would have dared previously. It's still
+running. I feel very comfortable with this, much more so than any
+prior 2.4.0t*.
 
-Where can I start to do that? 
-Can you tell me how I can set the debug_level to 3 or 5?
-Why do I get this errors on make modules when I compile the driver with
-IDETAPE_DEBUG_LOG_VERBOSE to 1 in ide-tape.c?: gcc -D__KERNEL__
--I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
--fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686
--malign-functions=4  -DMODULE -DMODVERSIONS -include
-/usr/src/linux/include/linux/modversions.h   -c -o ide-tape.o ide-tape.c
-ide-tape.c: In function `idetape_sense_key_verbose': ide-tape.c:1395: warning:
-function returns address of local variable ide-tape.c: In function
-`idetape_command_key_verbose': ide-tape.c:1413: parse error before `case'
-ide-tape.c:1424: warning: function returns address of local variable make[2]:
-*** [ide-tape.o] Error 1 make[2]: Leaving directory
-`/src/2.4-test11/drivers/ide' make[1]: *** [_modsubdir_ide] Error 2 make[1]:
-Leaving directory `/src/2.4-test11/drivers' make: *** [_mod_drivers] Error 2
-
-Hopefully
-Eckhard
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

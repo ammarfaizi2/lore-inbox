@@ -1,78 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268922AbRG0SKu>; Fri, 27 Jul 2001 14:10:50 -0400
+	id <S268710AbRG0SbP>; Fri, 27 Jul 2001 14:31:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268925AbRG0SKk>; Fri, 27 Jul 2001 14:10:40 -0400
-Received: from zipmail.com ([207.88.19.245]:61080 "EHLO zipmail.com")
-	by vger.kernel.org with ESMTP id <S268922AbRG0SKZ>;
-	Fri, 27 Jul 2001 14:10:25 -0400
-Message-ID: <3B61AE96.5030909@firein.net>
-Date: Fri, 27 Jul 2001 14:10:30 -0400
-From: Dustin Byford <dustin@firein.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.7 i686; en-US; rv:0.9.1) Gecko/20010608
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: Joshua Schmidlkofer <menion@srci.iwpsd.org>, linux-kernel@vger.kernel.org
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-In-Reply-To: <E15Q9Bw-0005q5-00@the-village.bc.nu> <0107270926070B.06707@widmers.oce.srci.oce.int> <3B618CF2.5C105903@namesys.com>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S268335AbRG0SbF>; Fri, 27 Jul 2001 14:31:05 -0400
+Received: from mail1.qualcomm.com ([129.46.64.223]:57498 "EHLO
+	mail1.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S268710AbRG0Sav>; Fri, 27 Jul 2001 14:30:51 -0400
+Message-Id: <4.3.1.0.20010727112236.03454b30@mail1>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.1
+Date: Fri, 27 Jul 2001 11:31:22 -0700
+To: Andrea Arcangeli <andrea@suse.de>
+From: Maksim Krasnyanskiy <maxk@qualcomm.com>
+Subject: Re: 2.4.7 softirq incorrectness.
+Cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
+In-Reply-To: <20010727170107.J22784@athlon.random>
+In-Reply-To: <4.3.1.0.20010726165025.0574cdc0@mail1>
+ <200107261746.VAA31697@ms2.inr.ac.ru>
+ <20010726002357.D32148@athlon.random>
+ <200107261746.VAA31697@ms2.inr.ac.ru>
+ <20010726202939.D22784@athlon.random>
+ <4.3.1.0.20010726165025.0574cdc0@mail1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hans Reiser wrote:
 
-> Maybe somebody else who is using both ReiserFS and RedHat's boot scripts can comment on whether
-> things are slow for them and if so, where they get slow.
+> > Should we then create generic function (something like netif_rx_from_user) than will call do_softirq 
+> > after calling netif_rx ?
+>
+>creating such a function is certainly ok (it must first check pending()
+>before running do_softirq of course). The name shouldn't be "from user"
+>because we actually call it from normal kernel context.
+Sure.
 
+> > I queue it and do tasklet_schedule(tx_task). Everything works just fine but on SMP machine I noticed that sometimes 
+> > data is sent in the wrong order. And the only reason why reordering could happen is if several tx_tasks are runing at the 
+>
+>Do you use tasklet_enable ? 
+Yep. To sync rx and tx tasks.
 
-For what it's worth I just configured a RedHat 7.1 box with reiserfs on 
-all partitions except /boot using this update disk 
-ftp://139.82.28.40/pub/update-rh71reiser-v1.img from 
-http://cambuca.ldhs.cetuc.puc-rio.br/.
+>This patch fixes a bug in tasklet_enable.
+>(bug found by David Mosemberg) We are thinking at more CPU friendly ways
+>to handle the tasklet_disable, Linus just had a suggestion, but I don't
+>have time right now to think much about the alternate approches (i'm at
+>ols), I will do next week. If you are usng tasklet_enable you may want
+>to give it a spin.
+Applied to 2.4.8-pre1. Didn't make any difference. 
+Also it doesn't fix the scenario that I described (reschedule while running). I'm still wondering why don't I hit that trylock/BUG 
+in tasklet_action.
 
-Upgraded all of redhat's packages, note there is a SysVinit update and a 
-gcc update.
+Thanks
+Max
 
-Compiled a 2.4.7-pre kernel and the latest reiserfsprogs.
+Maksim Krasnyanskiy	
+Senior Kernel Engineer
+Qualcomm Incorporated
 
-Mounted /boot read only to eliminate the chance of an fsck required on 
-that partition.
-
-I have been running reiserfs on a mail server with about 60k accounts 
-(30k really active) for about 6 months. I haven't experienced any 
-problems with the filesystems. The one I just configured is its intended 
-replacment. After a few days of testing with bonnie, some perl scripts I 
-wrote, and a few pullings of the power cord I think it's almost ready 
-for production. An upgrade to 2.4.7 and some more testing will tell.
-
-If you pull the plug on this machine it takes around 40 seconds to get 
-back to the login prompt, (p3-600 60G ide drive). Including the act of 
-pulling the power cord, bios delays, lilo delays, and the rest of the 
-redhat boot sequence.
-
-So, in my experience I've had very few problems with reiserfs and 
-redhat. That said, the slightest hint of data corruption under normal 
-(continuous power, no failing hardware) operation and I'll probably be 
-evaluating other filesystems. There are sometimes as many as 500,000 
-files on this filesystem, reiserfs seems to do a good job under my 
-conditions.
-
-				--Dustin
-
-Also, one purely cosmetic patch to rc.sysinit if you want:
---- rc.sysinit.orig Fri Jul 27 13:06:58 2001
-+++ rc.sysinit Fri Jul 27 13:38:25 2001
-@@ -211,7 +211,8 @@
-
-_RUN_QUOTACHECK=0
-ROOTFSTYPE=`grep " / " /proc/mounts | awk '{ print $3 }'`
--if [ -z "$fastboot" -a "$ROOTFSTYPE" != "nfs" ]; then
-+if [ -z "$fastboot" -a "$ROOTFSTYPE" != "nfs" \
-+ -a "$ROOTFSTYPE" != "reiserfs" ]; then
-
-STRING=$"Checking root filesystem"
-echo $STRING
+maxk@qualcomm.com
+http://bluez.sf.net
+http://vtun.sf.net
 

@@ -1,70 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315805AbSFTWlb>; Thu, 20 Jun 2002 18:41:31 -0400
+	id <S315923AbSFTWsm>; Thu, 20 Jun 2002 18:48:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315806AbSFTWla>; Thu, 20 Jun 2002 18:41:30 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:43016 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S315805AbSFTWla> convert rfc822-to-8bit; Thu, 20 Jun 2002 18:41:30 -0400
-Message-ID: <3D125A0C.3000802@evision-ventures.com>
-Date: Fri, 21 Jun 2002 00:41:16 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
-X-Accept-Language: pl, en-us
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Cort Dougan <cort@fsmlabs.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Benjamin LaHaise <bcrl@redhat.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Robert Love <rml@tech9.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: latest linus-2.5 BK broken
-References: <Pine.LNX.4.44.0206201511300.872-100000@home.transmeta.com>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
+	id <S315925AbSFTWsl>; Thu, 20 Jun 2002 18:48:41 -0400
+Received: from jalon.able.es ([212.97.163.2]:32430 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S315923AbSFTWsk>;
+	Thu, 20 Jun 2002 18:48:40 -0400
+Date: Fri, 21 Jun 2002 00:48:31 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre10aa3
+Message-ID: <20020620224831.GE1742@werewolf.able.es>
+References: <20020620055933.GA1308@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20020620055933.GA1308@dualathlon.random>; from andrea@suse.de on Thu, Jun 20, 2002 at 07:59:33 +0200
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-U¿ytkownik Linus Torvalds napisa³:
 
-> At which point it doesn't _matter_ if you only get 70% or 30% or 12%
-> improvement. If it's within "cheap enough", people will buy it. In fact,
-> once it gets "too cheap", people will buy something more expensive just
-> because a cheap PC obviously isn't good enough. That's _reality_.
-> 
-> Your "efficiency" arguments have no basis in the real life of economics in
-> a developing market. Only embedded people care about absolute cost and
-> absolute efficiencies ("it's not worth it for us to go for a more powerful
-> CPU, since we don't need it"). The rest of the world takes that 66MHz
-> improvement (in a CPU that does multiple gigahertz) and is happy about it.
-> Or takes the added 12%, and is happy about it.
+On 2002.06.20 Andrea Arcangeli wrote:
+>
+>Also merges some stuff from 19pre10jam2, not all the same, in particular
+>irq-balance is quite different, previous algorithm looked not really
+>good while auditing it, benchmarks will tell, any feedback on this in
+>particular would be welcome. Have a look at xosview to see the
+>difference.
+>
 
-You don't read economic papers. Don't you? Or what is it with this
-plumbing server/pc market around us? Or increased notebook sales.
-(Typical marked saturation symptom, like the second car for the
-familiy :-).
+Still not tested on the dual xeon, but on a BX with doal PII:
+werewolf:~# cat /proc/interrupts
+           CPU0       CPU1       
+  0:      83491      63920    IO-APIC-edge  timer
+  1:       2044       1213    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+  5:          1          1   IO-APIC-level  bttv
+  8:          0          1    IO-APIC-edge  rtc
+ 10:      52335      24289   IO-APIC-level  aic7xxx, EMU10K1
+ 11:      69049      50801   IO-APIC-level  eth0, nvidia
+ 12:      33155      23661    IO-APIC-edge  PS/2 Mouse
+ 14:          2         14    IO-APIC-edge  ide0
+ 15:          3         13    IO-APIC-edge  ide1
+NMI:          0          0 
+LOC:     147281     147325 
+ERR:          0
+MIS:         36
 
-I suggest it's precisely the end of the open invention curve out there:
+Old patch, on the dual P4Xeon box:
+werewolf:~> ssh annwn cat /proc/interrupts
+           CPU0       CPU1       CPU2       CPU3       
+  0:    3302667    3295991    3299383    3299984    IO-APIC-edge  timer
+  1:       4813       4680       4796       4846    IO-APIC-edge  keyboard
+  2:          0          0          0          0          XT-PIC  cascade
+  8:          1          0          0          0    IO-APIC-edge  rtc
+ 12:      64959      64803      65238      63623    IO-APIC-edge  PS/2 Mouse
+ 16:      65038      66347      60169      67167   IO-APIC-level  e100
+ 17:          0          0          0          0   IO-APIC-level  Intel ICH2
+ 18:     529910     524941     535660     535544   IO-APIC-level  aic7xxx, eth2
+ 19:      71883      71973      72540      72460   IO-APIC-level  usb-uhci, eth0
+ 22:    2497022    2491901    2495182    2495298   IO-APIC-level  nvidia
+ 23:          0          0          0          0   IO-APIC-level  usb-uhci
+NMI:          0          0          0          0 
+LOC:   13198438   13198374   13198440   13198453 
+ERR:          0
+MIS:          0
 
-1. Nowadays the CPUs are indeed good enough for most of the common tasks.
-    WindowsXP tries hard to help overcome this :-). But in reality Win2000
-    is just fine for office work.
+I think the old one looks much better... ;)
 
-2. The technology in question is starting to hit real physical barriers becouse
-   it appears more and more that not everything comming out of the labs
-   can be implemented at reasonable costs.
-
-> Humans are not rational creatures. We're _rationalizing_ creatures, and we
-> love rationalizing that big machine that just makes us feel better.
-
-Perhaps it's just still too deep in to my brain that
-the overwhelimg part of the PC market is still determined
-by corporate buyers (70%). And they look for efficiency (well within
-wide boundaries :-). There is for example not much of an uprush from
-Win4.0 or Win2000 to WindowsXP. Not only due to "political" reasons,
-but becouse a normal PC from few years ago still does the job
-for office productivity. Quite away from the days of yearly upgrades
-all around the office :-)... And finally the whole thing driving
-the movement behind AS/390 boxen running Linux OS instancies is consolidation
-and costs too...
-
+-- 
+J.A. Magallon             \   Software is like sex: It's better when it's free
+mailto:jamagallon@able.es  \                    -- Linus Torvalds, FSF T-shirt
+Linux werewolf 2.4.19-pre10-jam3a, Mandrake Linux 8.3 (Cooker) for i586
+gcc (GCC) 3.1.1 (Mandrake Linux 8.3 3.1.1-0.4mdk)

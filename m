@@ -1,49 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270544AbTGZSCu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 14:02:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270575AbTGZSCu
+	id S262464AbTGZSLh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 14:11:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbTGZSLc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 14:02:50 -0400
-Received: from holomorphy.com ([66.224.33.161]:60348 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S270544AbTGZSCs (ORCPT
+	Sat, 26 Jul 2003 14:11:32 -0400
+Received: from lidskialf.net ([62.3.233.115]:27324 "EHLO beyond.lidskialf.net")
+	by vger.kernel.org with ESMTP id S262464AbTGZSKs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 14:02:48 -0400
-Date: Sat, 26 Jul 2003 11:19:13 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       LKML <linux-kernel@vger.kernel.org>, kernel@kolivas.org, mingo@elte.hu
-Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
-Message-ID: <20030726181913.GY15452@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Marc-Christian Petersen <m.c.p@wolk-project.de>,
-	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-	LKML <linux-kernel@vger.kernel.org>, kernel@kolivas.org,
-	mingo@elte.hu
-References: <1059211833.576.13.camel@teapot.felipe-alfaro.com> <200307261142.43277.m.c.p@wolk-project.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 26 Jul 2003 14:10:48 -0400
+From: Andrew de Quincey <adq_dvb@lidskialf.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Nvidia nforce2 IRQ polarity with IO-APIC problem
+Date: Sat, 26 Jul 2003 19:26:00 +0100
+User-Agent: KMail/1.5.2
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200307261142.43277.m.c.p@wolk-project.de>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Message-Id: <200307261926.00207.adq_dvb@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 26, 2003 at 11:46:45AM +0200, Marc-Christian Petersen wrote:
-> Now that I've tested 2.6.0-test-1-wli (William Lee Irwin's Tree) for over a 
-> week, I thought about, that the problem might _not_ be only the O(1) 
-> Scheduler, because -wli has changed almost nothing to the scheduler stuff, 
-> it's almost 2.6.0-test1 code and running that kernel, my system is _alot_ 
-> more responsive than 2.6.0-test1 or 2.6.0-test1-mm* or all the Oxint 
-> scheduler fixes have ever been.
-> Strange no?
-> P.S.: I've not tested Ingo's G3 scheduler fix yet. More to come.
+Hi, over the last week or so I have been developing a patch against 2.5.75 to 
+fix the IRQ problems I was having with onboard devices on my Nvidia 
+Nforce2-based Epox 8RDA+ motherboard.
 
-I've no plausible explanation for this; perhaps the only possible one
-is that one of the algorithms that was sped up was behaving badly enough
-to interfere with scheduling.
+It turned out that i386 linux was assuming all IRQs > 15 were active low, 
+level, and programming the IO-APIC with these parameters.
 
+However, on my board, it turned out this was not the case. They were actually 
+active HIGH, level. My patch fixes the io_apic code in linux to use the IRQ 
+resource definitions from ACPI to setup the APIC. With this, my onboard 
+devices now work.
 
--- wli
+The next problem is more troublesome. PCI cards plugged into the expansion 
+slots do not appear to transmit IRQs (I'm testing with a Netgear MA311 
+wavelan card).
+
+The PCI expansion slot IRQs are mapped to IO-APIC pins 16,17,18,19 (system 
+IRQ#16,17,18,19). In the ACPI IRQ resource definitions, these are defined as 
+active HIGH, level (whereas standard PCI IRQs are active LOW, level).
+
+I suspected there might be an error in the ACPI definitions, so I tried 
+hacking my patch to force IRQs 16->19 to active low. With this hack, I do see 
+device IRQs, but I also see MILLIONS of spurious IRQs.... so the code in 
+irq.c masks off the interrupts with the message "IRQ#18: nobody cared".
+
+I went into windows and checked how it was programming the IO-APIC. It is 
+programming it as per the ACPI definitions.... i.e. the PCI expansion device 
+IRQs are set to active HIGH, level. The PCI cards work in windows perfectly.
+
+Checking the chip documentation for the wavelan PCI device shows that 
+(suprise!) it generates IRQs which are active low, level.
+
+So. 
+
+1) The motherboard is expecting IRQs which are active HIGH, level.
+2) PCI expansion devices are generating active LOW, level IRQs.
+
+Something must be missing between these two. Does anyone have any ideas what. 
+As this is an nvidia chipset, I do not have documentation on the MCP-T 
+southbridge chipset.
+

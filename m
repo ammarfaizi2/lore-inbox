@@ -1,70 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262207AbSKDJeg>; Mon, 4 Nov 2002 04:34:36 -0500
+	id <S262067AbSKDJhz>; Mon, 4 Nov 2002 04:37:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262209AbSKDJef>; Mon, 4 Nov 2002 04:34:35 -0500
-Received: from ns.unibanka.lv ([193.178.151.1]:47692 "EHLO ns.unibanka.lv")
-	by vger.kernel.org with ESMTP id <S262207AbSKDJeb>;
-	Mon, 4 Nov 2002 04:34:31 -0500
-Subject: Re: [BK console] console updates.
-To: James Simmons <jsimmons@infradead.org>,
-       Christoph Hellwig <hch@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux console project <linuxconsole-dev@lists.sourceforge.net>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-X-Mailer: Lotus Notes Release 5.0.4  June 8, 2000
-Message-ID: <OF15F84381.6ACA34E4-ONC2256C67.003460FB@unibanka.lv>
-From: Aivils Stoss <Aivils.Stoss@unibanka.lv>
-Date: Mon, 4 Nov 2002 11:40:39 +0200
-X-MIMETrack: Serialize by Router on lotus/UNIBANKA/LV(Release 5.0.5 |September 22, 2000) at
- 2002.11.04 11:40:42
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S262354AbSKDJhy>; Mon, 4 Nov 2002 04:37:54 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:40603 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S262067AbSKDJhx>;
+	Mon, 4 Nov 2002 04:37:53 -0500
+Date: Mon, 4 Nov 2002 10:44:13 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       benh@kernel.crashing.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp: don't eat ide disks
+Message-ID: <20021104094413.GF13587@suse.de>
+References: <Pine.LNX.4.44.0211031439330.11657-100000@home.transmeta.com> <Pine.LNX.4.44.0211031452380.11657-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0211031452380.11657-100000@home.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fri, 1 Nov 2002 09:40:05 -0800 (PST) James Simons wrote:
->> On Wed, Oct 30, 2002 at 01:56:38PM -0800, James Simmons wrote:
->> > I doubt this code will go into 2.5.X but it is avaiable for anyone to
-play
->> > with it.
->>
->> Why?  I don't want to live another release with the old, crappy console,
->> and you've been working on this during almost all of 2.4 now..
->
->Give my console diff a try.
->
->http://phoenix.infradead.org/~jsimmons/console.diff.gz
->
->Its against 2.5.45. It has 3 bugs I know of.
->
->1) Switch back to X messes up the screen.
+On Sun, Nov 03 2002, Linus Torvalds wrote:
+> 
+> On Sun, 3 Nov 2002, Linus Torvalds wrote:
+> > 
+> > The above should work pretty much on all block drivers out there, btw:
+> > the ones that don't understand SCSI commands should just ignore requests
+> > that aren't the regular REQ_CMD commands.
+> 
+> Note that "should work" does not necessarily mean "does work". For
+> example, in the IDE world, some of the generic packet command stuff is
+> only understood by ide-cd.c, and the generic IDE layer doesn't necessarily
+> understand it even if you have a disk that speaks ATAPI. I think Jens will 
+> fix that wart.
 
-Already fixed in the linuxconsole 2.4.X backport http://startx.times.lv/
+It's probably not a good idea to rely on ata drives that also speak
+atapi, to my knowledge only a few old WDC drives ever did that. Since we
+are basically moving to the point where "SCSI" commands is the
+commandset that the block layer uses to make drivers do things for it,
+I had the idea of doing a rq -> taskfile conversion for ide. Just for
+simple things like read/write and sync cache, basically stuff that is
+directly translatable. That would make Linus' example actually work, and
+it would also make the direct read/write programs using SG_IO work on
+IDE drives as well.
 
-Aivils Stoss
-
---- linus-2.5/drivers/char/vt_ioctl.c    Mon Nov  4 11:33:57 2002
-+++ linus-2.5/drivers/char/vt_ioctl.c.changed      Mon Nov  4 11:36:45 2002
-@@ -1089,17 +1089,17 @@ int vt_ioctl(struct tty_struct *tty, str
-                    if (!tmp) {
-                         tmp = vc_allocate(vc->vt_newvt);
-                         if (!tmp) {
-                              i = vc->vt_newvt;
-                              vc->vt_newvt = -1;
-                              return i;
-                         }
-                    }
--
-+                   vc->vt_newvt = -1;
-                    /*
-                     * When we actually do the console switch,
-                     * make sure we are atomic with respect to
-                     * other console switches..
-                     */
-                    acquire_console_sem();
-                    complete_change_console(tmp,
-vc->display_fg->fg_console);
-                    release_console_sem();
+-- 
+Jens Axboe
 

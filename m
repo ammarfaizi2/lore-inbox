@@ -1,47 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282112AbRK1JrS>; Wed, 28 Nov 2001 04:47:18 -0500
+	id <S282111AbRK1JxJ>; Wed, 28 Nov 2001 04:53:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282104AbRK1Jq6>; Wed, 28 Nov 2001 04:46:58 -0500
-Received: from [212.65.238.182] ([212.65.238.182]:54538 "EHLO
-	trebo3.chemoprojekt.cz") by vger.kernel.org with ESMTP
-	id <S282093AbRK1Jq4>; Wed, 28 Nov 2001 04:46:56 -0500
-Message-ID: <35E64A70B5ACD511BCB0000000004CA10BD4D6@NT_CHEMO>
-From: PVotruba@Chemoprojekt.cz
-To: linux-kernel@vger.kernel.org
-Subject: RE: 'spurious 8259A interrupt: IRQ7'
-Date: Wed, 28 Nov 2001 10:46:51 +0100
+	id <S282103AbRK1Jwt>; Wed, 28 Nov 2001 04:52:49 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:60965 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S282108AbRK1Jwe>; Wed, 28 Nov 2001 04:52:34 -0500
+Date: Wed, 28 Nov 2001 11:57:49 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Kernel man pages
+Message-ID: <Pine.LNX.4.33.0111281151240.1912-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also noticed on via686a, duron, geforce2mx, realtek 8029 10 Mbps NIC, ES
-1371 sound card, zip drive on paralell port.. Later I'll try to disable
-paralell port in bios and see if that strange message disappears...
+I've sent an email to the general linux man pages maintainer (Andries
+Brouwer) at LDP regarding the state of the kernel manpages (section 8?).
+Is there an interest in having the kernel functions/device drivers
+documented? I'm thinking more in the style of Free/NetBSD. Obviously not
+all API can be covered since some of it is for internal use only.
+
+Comments?
+
+-Zwane Mwaikambo
 
 
-	--- previous message follows: 
-> On Tue, Nov 27, 2001 at 02:38:13PM -0000, Martin A. Brooks wrote:
-> 
-> > In my research before posting, a common thread seemed to be the presence
-> of
-> > a tulip card in the machine.  Has anyone seen this on a non-tulip box?
-> 
-> Yup: standard SuSE 7.3 install on an Asus A7V266-E motherboard (VIA KT266A
-> chipset, 512 MB DDR, Athlon XP).
-> 
-> Just recently installed Linux on that machine (yesterday evening) so I
-> don't even know what kernel version SuSE 7.3 uses. :-( If needed, I can
-> try
-> other kernels.
-> 
-> -- 
->       Jurjen Oskam * http://www.stupendous.org/ for PGP key * Q265230
->     8:39am  up 30 days, 23:33,  1 user,  load average: 0.15, 0.03, 0.01
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

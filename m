@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267853AbTBVIjw>; Sat, 22 Feb 2003 03:39:52 -0500
+	id <S267855AbTBVIk7>; Sat, 22 Feb 2003 03:40:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267855AbTBVIjw>; Sat, 22 Feb 2003 03:39:52 -0500
-Received: from ce06d.unt0.torres.ka0.zugschlus.de ([212.126.206.6]:39684 "EHLO
+	id <S267856AbTBVIk7>; Sat, 22 Feb 2003 03:40:59 -0500
+Received: from ce06d.unt0.torres.ka0.zugschlus.de ([212.126.206.6]:40708 "EHLO
 	torres.ka0.zugschlus.de") by vger.kernel.org with ESMTP
-	id <S267853AbTBVIju>; Sat, 22 Feb 2003 03:39:50 -0500
-Date: Sat, 22 Feb 2003 09:49:58 +0100
+	id <S267855AbTBVIkz>; Sat, 22 Feb 2003 03:40:55 -0500
+Date: Sat, 22 Feb 2003 09:51:02 +0100
 From: Marc Haber <mh+linux-kernel@zugschlus.de>
 To: linux-kernel@vger.kernel.org
-Subject: ethernet-ATM-Router freezing
-Message-ID: <20030222084958.GC23827@torres.ka0.zugschlus.de>
+Subject: 2.4.20-ac1 not seeing IDE disk on PIIX host adapter
+Message-ID: <20030222085102.GA23966@torres.ka0.zugschlus.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -20,46 +20,20 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-we use Linux to terminate ATM PVCs and to move the traffic coming in
-on the ATM link to Ethernet. We have two parallel machines with
-identical hardware (about two years old), in a Debian GNU/Linux setup
-built in November 2002. Current kernel is 2.4.20-ac1, and the setup
-hasn't been touched since December 2002. One of the machines does the
-work, while the other is waiting to be activated in case of failure.
-Max load is about 6 Mbit, the machines are mostly idle. At least I
-won't call them loaded.
+I have here a recent Acer notebook which I plan to use with Linux. The
+system I installed uses Kernel 2.4.20-ac1 which is the kernel we use
+on most other production systems at our site. The notebook has an 810
+chipset; the IDE chip is seen by the normal PIIX driver.
 
-A few days ago, the "active" machine has started spontaneously
-freezing. The freezes don't happen at times with especially high or
-low load, they don't happan during the same time of day. The freezes
-are complete:
-- no network respose on the ATM link
-- no network response on the Ethernet link
-- no response at all on the system console
-- no error or panic messages on the console
-- no response to Magic SysRq
-- atsar doesn't show any strange patterns in CPU/memory usage
-- syslog doesn't show anything strange
-- mrtg doesn't show anything strange in network load
+Linux 2.4.20-ac1 sees the PIIX chip, but not the disks connected to
+it. This of course results in a kernel panic "unable to mount root
+fs". Same thing happens with 2.4.20-ac2. Vanilla 2.4.20 works fine. Of
+course, all kernels have been built with the same configuration.
 
-Reset button is needed to revive the frozen box.
-
-These freezes occur on the machine actually doing the work. If I move
-the work to the other box, the freezes go with the work. Thus, I am
-pretty confident that this is not faulty hardware. I don't believe
-either that this is a incompatibility of the kernel since the systems
-in question have been working in this software configuration for two
-months before the problems started.
-
-Are there any known problems in the current ATM code that might cause
-these freezes? Any other kernel versions I could try?
-
-I am currently thinking about splitting the load between both boxes,
-and downgrading one of them to a 2.4.19 or 2.4.18 kernel, and
-upgrading the other one to a 2.4.21pre kernel. Have there been any
-relevant changes to the ATM code recently?
-
-Any hints will be appreciated. Thanks!
+2.4.20 is fine for this notebook, so this issue has no urgency for me
+in any way. I just wanted to point out potential problems to the
+people capable of investigating. I'll happily provide any information
+that might be required.
 
 Cheers
 Marc

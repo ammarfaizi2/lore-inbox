@@ -1,83 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281024AbRLDQno>; Tue, 4 Dec 2001 11:43:44 -0500
+	id <S280961AbRLDQo1>; Tue, 4 Dec 2001 11:44:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280961AbRLDQnk>; Tue, 4 Dec 2001 11:43:40 -0500
-Received: from cm.med.3284844210.kabelnet.net ([195.202.190.178]:20495 "EHLO
-	phobos.hvrlab.org") by vger.kernel.org with ESMTP
-	id <S281047AbRLDQmN>; Tue, 4 Dec 2001 11:42:13 -0500
-Subject: ANNOUNCE: (BETA!) international kernel patch for 2.4.16 available!
-From: Herbert Valerio Riedel <hvr@hvrlab.org>
-To: linux-crypto@nl.linux.org
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 04 Dec 2001 17:41:33 +0100
-Message-Id: <1007484097.12213.12.camel@janus.txd.hvrlab.org>
-Mime-Version: 1.0
+	id <S281047AbRLDQn6>; Tue, 4 Dec 2001 11:43:58 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:25353 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S281129AbRLDQmv>;
+	Tue, 4 Dec 2001 11:42:51 -0500
+Date: Tue, 4 Dec 2001 14:42:28 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Peter Zaitsev <pz@spylog.ru>
+Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@zip.com.au>,
+        <theowl@freemail.c3.hu>, <theowl@freemail.hu>,
+        <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re[2]: your mail on mmap() to the kernel list
+In-Reply-To: <16498470022.20011204183624@spylog.ru>
+Message-ID: <Pine.LNX.4.33L.0112041439210.4079-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 4 Dec 2001, Peter Zaitsev wrote:
+> Tuesday, December 04, 2001, 5:15:49 PM, you wrote:
 
-*WARNING* this is meant for the brave ones (read beta-testers ;), which
-want to do some tests, and hopefully report back any problems they
-encounter!
+> AA> You can fix the problem in userspace by using a meaningful 'addr' as
+> AA> hint to mmap(2), or by using MAP_FIXED from userspace, then the kernel
+> AA> won't waste time searching the first available mapping over
+> AA> TASK_UNMAPPED_BASE.
 
-I assume everyone interested already knows what the international patch
-is for; and if not then maybe it's better to wait for the final version
-of this patch which will get a more informative announcement... :-)
+> Well. Really you can't do this, because you can not really track all of
+> the mappings in user program as glibc and probably other libraries
+> use mmap for their purposes.
 
-if you head over to {ftp,www}.kernel.org in
-/pub/linux/kernel/people/hvr/testing/
+There's no reason we couldn't do this hint in kernel space.
 
-you'll find 
+In arch_get_unmapped_area we can simply keep track of the
+lowest address where we found free space, while on munmap()
+we can adjust this hint if needed.
 
-*) patch-int-2.4.16.0.{bz2,gz}
+OTOH, I doubt it would help real-world workloads where the
+application maps and unmaps areas of different sizes and
+actually does something with the memory instead of just
+mapping and unmapping it ;)))
 
-a patch that contains:
-- the cryptographic kernel API layer
-- cryptographic ciphers (aes, twofish, mars, rc6, serpent, dfc,
-  blowfish, idea, rc5, 3des, des)
-- digest algorithms (md5, sha1)
-- cryptographic loop filter module ('cryptoloop')
+kind regards,
 
-this patch needs _one_ of the following two patches to be applied in
-order to make use of (i.e. compile) the cryptoloop module...
-
-*) loop-jari-2.4.16.0.patch
-
-jari's loop patch (slightly modified +++) featuring:
-
-- IV computed in 512 byte units.
-- Make device backed loop work with swap by pre-allocating pages.
-- External encryption module locking bug fixed (from Ingo Rohloff).
-- Get rid of the loop_get_bs() crap.
-- grab_cache_page() return value handled properly, avoids Oops.
-- No more illegal messing with BH_Dirty flag.
-- No more illegal sleeping in generic_make_request().
-- Loops can be set-up properly when root partition is still mounted ro.
-- Default soft block size is set properly for file backed loops.
-- kmalloc() error case handled properly.
-
-+++ added 2 #defines and 1 typedef to loop.h for cryptoloop.c
-
-*) loop-hvr-2.4.16.0.patch
-
-my patch, with only the following functional improvement:
-
-- IV computed in 512 byte units.
-
-
-...
-
-ps: the reason for kerneli.org being down or the lack of development of
-the int. patch is NOT caused by any government intervention...
-
-regards,
+Rik
 -- 
-Herbert Valerio Riedel       /    Phone: (EUROPE) +43-1-58801-18840
-Email: hvr@hvrlab.org       /    Finger hvr@gnu.org for GnuPG Public Key
-GnuPG Key Fingerprint: 7BB9 2D6C D485 CE64 4748  5F65 4981 E064 883F
-4142
+Shortwave goes a long way:  irc.starchat.net  #swl
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
 

@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266810AbUHISBK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264923AbUHISFA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266810AbUHISBK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 14:01:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266813AbUHISBK
+	id S264923AbUHISFA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 14:05:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266218AbUHISFA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 14:01:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:20439 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266810AbUHISBH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 14:01:07 -0400
-Date: Mon, 9 Aug 2004 10:59:52 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: Stephane Jourdois <stephane@rubis.org>,
-       Filip Van Raemdonck <filipvr@xs4all.be>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <greg@kroah.com>,
-       zaitcev@redhat.com
-Subject: Re: 2.6.8-rc2-mm1: bluetooth broken?
-Message-Id: <20040809105952.45725e0c@lembas.zaitcev.lan>
-References: <20040808191912.GA620@elf.ucw.cz>
-	<1092003277.2773.45.camel@pegasus>
-	<20040809095425.GA12667@debian>
-	<1092046959.21815.15.camel@pegasus>
-	<20040809120705.GA23073@diamant.rubis.org>
-	<1092057843.21815.21.camel@pegasus>
-	<20040809133452.GA24530@diamant.rubis.org>
-	<1092061267.4639.4.camel@pegasus>
-	<20040809151229.GA8651@diamant.rubis.org>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Aug 2004 14:05:00 -0400
+Received: from ms-2.rz.RWTH-Aachen.DE ([134.130.3.131]:13453 "EHLO
+	ms-dienst.rz.rwth-aachen.de") by vger.kernel.org with ESMTP
+	id S264923AbUHISE5 (ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 14:04:57 -0400
+Date: Mon, 09 Aug 2004 19:48:03 +0200
+From: Alexander Gran <alex@zodiac.dnsalias.org>
+Subject: Re: Cannot burn without strace on 2.6.8-rc3-mm1
+In-reply-to: <20040809152944.GA30412@outpost.ds9a.nl>
+To: bert hubert <ahu@ds9a.nl>, Linux-kernel@vger.kernel.org
+Message-id: <200408091948.05744@zodiac.zodiac.dnsalias.org>
+MIME-version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: KMail/1.6.2
+X-Ignorant-User: yes
+References: <200408091649.20180@zodiac.zodiac.dnsalias.org>
+ <20040809152944.GA30412@outpost.ds9a.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 09 Aug 2004 18:49:05 +0200
-Marcel Holtmann <marcel@holtmann.org> wrote:
+Am Montag, 9. August 2004 17:29 schrieb bert hubert:
+> Try:
+> LD_ASSUME_KERNEL=2.4 cdrecord -v dev=/dev/hdc etc etc etc.
 
-> --- ub.c.orig   2004-08-09 18:40:38.000000000 +0200
-> +++ ub.c        2004-08-09 18:24:15.000000000 +0200
-> @@ -318,6 +318,7 @@
->  static struct usb_device_id ub_usb_ids[] = {
->         // { USB_DEVICE_VER(0x0781, 0x0002, 0x0009, 0x0009) },  /* SDDR-31 */
->         { USB_INTERFACE_INFO(USB_CLASS_MASS_STORAGE, US_SC_SCSI, US_PR_BULK) },
-> +       { }
->  };
+Doesn't work, same error.
 
-Tsk, tsk, what a dumb bug. Thanks, Marcel.
+regards
+Alex
 
--- Pete
+-- 
+Encrypted Mails welcome.
+PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
+

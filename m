@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312136AbSDDX4v>; Thu, 4 Apr 2002 18:56:51 -0500
+	id <S312331AbSDDX7w>; Thu, 4 Apr 2002 18:59:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312277AbSDDX4l>; Thu, 4 Apr 2002 18:56:41 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62225 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S312136AbSDDX4b>; Thu, 4 Apr 2002 18:56:31 -0500
-Date: Thu, 4 Apr 2002 15:55:40 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Robert Love <rml@tech9.net>
-cc: Andrew Morton <akpm@zip.com.au>, Roger Larsson <roger.larsson@norran.net>,
-        Dave Hansen <haveblue@us.ibm.com>,
-        "Adam J. Richter" <adam@yggdrasil.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Patch: linux-2.5.8-pre1/kernel/exit.c change caused BUG() at
- boot  time
-In-Reply-To: <1017964079.23629.662.camel@phantasy>
-Message-ID: <Pine.LNX.4.33.0204041554350.26177-100000@penguin.transmeta.com>
+	id <S312317AbSDDX7m>; Thu, 4 Apr 2002 18:59:42 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:12486 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S312314AbSDDX7a>; Thu, 4 Apr 2002 18:59:30 -0500
+Date: Thu, 4 Apr 2002 15:59:47 -0800 (PST)
+From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+To: "David N. Welton" <davidw@dedasys.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: forth interpreter as kernel module
+In-Reply-To: <877knnowi8.fsf@dedasys.com>
+Message-ID: <Pine.LNX.4.33.0204041549480.2309-100000@shell1.aracnet.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 5 Apr 2002, David N. Welton wrote:
 
-On 4 Apr 2002, Robert Love wrote:
-> 
-> Hm, how so?  I contend not to rudely set the task state but instead mark
-> the task as "preempted" in preempt_schedule and handle this case in
-> schedule.
+>
+> [ please CC replies to me ]
+>
+> Once upon a time, I had a rather random idea, and, acting on it, I
+> wedged a forth interpreter into the Linux kernel.  I've always wanted
+> to clean it up and do things nicely, but have never really found the
+> time or the motivation.
 
-Ahh, I misunderstood - I thought you meant setting the bit when setting 
-current->state.
+We had another similar post a few weeks ago. *Two* Linux kernel Forth
+interpreters in one year -- what are the odds? :)
 
-Fair enough. Send me a patch to look at.
+Seriously, though, a Forth that could be accessed inside the kernel has
+profound (in)security implications. I'm not sure I like the thought of
+something as powerful as Forth available with kernel privileges. It
+would make an interesting debugging / diagnostic tool if "kgdb", etc.
+didn't exist, but given that there *are* some debug tools already, I'm
+not sure what I'd do with it.
 
-		Linus
+Now a *user-space* full-featured Forth -- something like Tom Zimmer's
+Windows32 Forth or Forth, Inc.'s SwiftForth -- with GUIs and all the
+other goodies -- now *that* I'd love to have. But a tiny Forth in the
+kernel? Nope.
+-- 
+M. Edward Borasky
+znmeb@borasky-research.net
+
+The COUGAR Project
+http://www.borasky-research.com/Cougar.htm
+
+Q. How do you tell when a pineapple is ready to eat?
+A. It picks up its knife and fork.
 

@@ -1,111 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262399AbVBLIIx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262401AbVBLIbR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262399AbVBLIIx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 03:08:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262401AbVBLIIx
+	id S262401AbVBLIbR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 03:31:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262402AbVBLIbQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 03:08:53 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:58807 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262399AbVBLIIS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 03:08:18 -0500
-Date: Sat, 12 Feb 2005 00:08:00 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Ray Bryant <raybry@sgi.com>
-Cc: taka@valinux.co.jp, hugh@veritas.com, akpm@osdl.org, haveblue@us.ibm.com,
-       marcello@cyclades.com, raybry@sgi.com, raybry@austin.rr.com,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC 2.6.11-rc2-mm2 7/7] mm: manual page migration --
- sys_page_migrate
-Message-Id: <20050212000800.5ecee064.pj@sgi.com>
-In-Reply-To: <20050212032620.18524.15178.29731@tomahawk.engr.sgi.com>
-References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com>
-	<20050212032620.18524.15178.29731@tomahawk.engr.sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 12 Feb 2005 03:31:16 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:30427 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S262401AbVBLIbO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Feb 2005 03:31:14 -0500
+Message-ID: <420DBEBE.1060008@t-online.de>
+Date: Sat, 12 Feb 2005 09:30:54 +0100
+From: Harald Dunkel <harald.dunkel@t-online.de>
+User-Agent: Debian Thunderbird 1.0 (X11/20050119)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <gregkh@suse.de>
+CC: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] hotplug-ng 001 release
+References: <20050211004033.GA26624@suse.de> <420D1050.3080405@t-online.de> <20050211210114.GA21314@suse.de>
+In-Reply-To: <20050211210114.GA21314@suse.de>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig0E1E22F8368F85C4D2DBD4F5"
+X-ID: SgDT-aZEZec3nIFMid1J68rskuVnPpNo2TuHKMFX6KlSUwOgmnCO4K
+X-TOI-MSGID: 36484ad0-6af6-4ce3-baf5-4a25a3702cf1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Minor comments ... nothing profound.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig0E1E22F8368F85C4D2DBD4F5
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Ray wrote:
-> once we agree on what the authority model should be.
+Greg KH wrote:
+>
+> Because we don't have an easy way yet to build against a copy of klibc
+> on a system?  For right now, it's the simplest way to ensure that it
+> works for everyone, once klibc moves into the kernel tree I can remove
+> it from udev and hotplug-ng.
+>
 
-Are the usual kill-like permissions sufficient?
-You can migrate the pages of a process if you can kill it.
+If it is not possible to use klibc together with a non-Linux
+system (e.g. FreeBSD or Mach), then I would suggest to make
+klibc an optional kernel patch and drop it from udev and
+hotplug.
 
-===
+> Is it causing problems for you?
+>
 
-In the following routine, tighten up some vertical spacing,
-add { ... } , ...
+Some months ago I had contributed a patch to add an install
+target to the klibc Makefiles. I just wonder why it has been
+ignored.
 
-The migrated and count manipulations are confusing my
-feeble brain.  Is this thing supposed to return 0 if all
-count pages are migrated?  Sure seems that it does, as it
-returns 'migrated', which is 'count - migrated', but that
-migrated is really count, so it returns 'count - count',
-which is zero.  Huh ...  The phrase 'return migrated' would
-make me think it returned some count of how many were
-migrated on success, not zero.
 
-The variable name 'remains' is rather elaborate for what
-looks like a trivial return case.  But perhaps it actually
-provides a better clue to the return value, which apparently
-is the number of pages _not_ migrated successfully.
+Regards
 
-Think carefully about what each variable represents, and
-then use each variable consistently.
+Harri
 
-And try to avoid the embedded 'return remains'.  A function
-header comment, saying what this routine does and returns might
-be helpful.
+--------------enig0E1E22F8368F85C4D2DBD4F5
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-=========================================================================
-static int
-migrate_vma_common(struct list_head *page_list, short *node_map, int count)
-{
-	int pass, remains, migrated;
-	struct page *page;
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-	for (pass = 0; pass < 10; msleep(10), pass++) {
-		remains = try_to_migrate_pages(page_list, node_map);
-		if (remains < 0)
-			return remains;
+iD8DBQFCDb7DUTlbRTxpHjcRAjy0AJoCK6k9ANY0IKN9RA74hUmr8nCrqgCfc89w
+D9h4zqgd0/FlG07H+6QS43g=
+=azBJ
+-----END PGP SIGNATURE-----
 
-		migrated = 0;
-		if (!list_empty(page_list)) {
-			list_for_each_entry(page, page_list, lru)
-				migrated++;
-		} else {
-			migrated = count;
-			break;
-		}
-		migrated = count - migrated;
-	}
-	return migrated;
-}
-=========================================================================
-
-Better init tmp_new_nodes, node_map to 0, or if tmp_old_news fails to
-allocate, you might try freeing bogus values for the other two in
-sys_page_migrate():
-
-===============================================================
-+       short *tmp_old_nodes;
-+       short *tmp_new_nodes;
-+       short *node_map;
-+       ...
-+
-+
-+       tmp_old_nodes = (short *) kmalloc(size, GFP_KERNEL);
-+       tmp_new_nodes = (short *) kmalloc(size, GFP_KERNEL);
-+       node_map = (short *) kmalloc(MAX_NUMNODES*sizeof(short), GFP_KERNEL);
-================================================================
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401
+--------------enig0E1E22F8368F85C4D2DBD4F5--

@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261463AbTA1VuT>; Tue, 28 Jan 2003 16:50:19 -0500
+	id <S261448AbTA1Vt3>; Tue, 28 Jan 2003 16:49:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261593AbTA1VuS>; Tue, 28 Jan 2003 16:50:18 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:57867 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261463AbTA1VuP>;
-	Tue, 28 Jan 2003 16:50:15 -0500
-Date: Tue, 28 Jan 2003 13:56:44 -0800
-From: Greg KH <greg@kroah.com>
-To: Stanley Wang <stanley.wang@linux.co.intel.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       PCI_Hot_Plug_Discuss <pcihpd-discuss@lists.sourceforge.net>
-Subject: Re: [RFC] Get rid of all procfs stuff for PCI subsystem.
-Message-ID: <20030128215644.GA7382@kroah.com>
-References: <Pine.LNX.4.44.0301281747230.3171-100000@manticore.sh.intel.com>
-Mime-Version: 1.0
+	id <S261451AbTA1Vt3>; Tue, 28 Jan 2003 16:49:29 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:6408 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S261448AbTA1Vt2>;
+	Tue, 28 Jan 2003 16:49:28 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301282159.h0SLxPk7003050@darkstar.example.net>
+Subject: Re: Bootscreen
+To: b_adlakha@softhome.net (Balram Adlakha)
+Date: Tue, 28 Jan 2003 21:59:25 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200301290318.20817.b_adlakha@softhome.net> from "Balram Adlakha" at Jan 29, 2003 03:18:20 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301281747230.3171-100000@manticore.sh.intel.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 28, 2003 at 05:59:28PM +0800, Stanley Wang wrote:
-> Hi, Greg
-> When did I try to remove all procfs stuff from pci_hotplug_core.c,
-> I found I could only cut little codes off.
+> though i have recently subscribed to this list (OMG, 30 mails/hour!), I've 
+> read the whole thread about this bootscreen thing... I see absolutely _no_ 
+> reason why it should not be included in the kernel configuration, since there 
+> are patches available already to make it work, and there are already soo many 
+> useless options that adding another won't make a difference...
 
-But you cut out everything that was there, right?  There wasn't much.
+Many old options are also removed, though.
 
-> So I suggest:
-> How about to get rid of all procfs stuff for PCI subsystem?
-> It could reduce about 700 lines codes from the kernel.
-> I think we could get all information from sysfs, right?
-> But it may break some user mode utilities.
+> I don't think adding the option to the kernel configuration would do any 
+> harm...exept that the kernel source may get enlarged by (200 kb?), and the 
+> kernel source gets enlarged every day anyway... 2.5 is HUGE compared to 
+> 2.2...
 
-If you look, a lot of it is now under a config option to just not enable
-it at all, which helps out a lot.
+That's partly because it's a development tree.  There are big efforts
+to trim it down as much as possible.
 
-thanks,
+I don't see any real advantage to putting in to the mainstream kernel
+something which can be achieved easily with a custom bootloader, and
+kernel options.
 
-greg k-h
+John.

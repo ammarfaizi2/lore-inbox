@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277728AbRJROsY>; Thu, 18 Oct 2001 10:48:24 -0400
+	id <S277729AbRJROue>; Thu, 18 Oct 2001 10:50:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277729AbRJROsO>; Thu, 18 Oct 2001 10:48:14 -0400
-Received: from zork.zork.net ([64.81.65.8]:19723 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id <S277728AbRJROr6>;
-	Thu, 18 Oct 2001 10:47:58 -0400
-To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Making diff(1) of linux kernels faster
-From: Sean Neakums <sneakums@zork.net>
-X-Message-Flag: Message text advisory: HATE SPEECH, ARGUMENTUM AD BACULUM
-X-Mailer: Norman
-Date: Thu, 18 Oct 2001 15:48:29 +0100
-Message-ID: <6ulmi9vwaq.fsf@zork.zork.net>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/20.7
+	id <S277730AbRJROuY>; Thu, 18 Oct 2001 10:50:24 -0400
+Received: from t2.redhat.com ([199.183.24.243]:16116 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S277729AbRJROuQ>; Thu, 18 Oct 2001 10:50:16 -0400
+Message-ID: <3BCEEC49.90A402A0@redhat.com>
+Date: Thu, 18 Oct 2001 15:50:49 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-4smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Martin Donnelly <md@uklinux.net>, linux-kernel@vger.kernel.org
+Subject: Re: Non-GPL modules
+In-Reply-To: <Pine.LNX.3.95.1011018091343.32746A-100000@chaos.analogic.com> 
+		<20011018090412.I22296@0xd6.org> <1003415874.4004.45.camel@inchgower>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-begin  Horst von Brand quotation:
-> =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr> said:
-> 
-> > Be very careful not to modify a multi-linked file, or
-> > it will be damaged in all trees and won't be seen by
-> > diff. your editor must unlink before saving.
-> 
-> Most don't. ed(1), vi(1) and emacs(1) are careful tro write to the
-> very same file. jed(1) is the only outlier I'm aware of...
 
-If Emacs is configured to save backups (it is shipped with this option
-on by default) the existing file is renamed to the backup name and the
-new, changed file is saved in a fresh file.  Thus the trick of diffing
-two co-linked trees of files should work as expected.
+> Perhaps a less blunt tool could be used to encourage people to release
+> GPL compatibly licensed code for their previously binary modules? I
+> think you risk manufacturers withdrawing the support they have given by
+> saying if they don't release their code we won't support anything to do
+> with it.
 
-Emacs users should look in the info node "(emacs)Backup Copying" for
-complete information on this.
+This has been the case for a long time already (so long that I can't
+remember
+if/when it started:), so how did this change recently ? It didn't...
+And vendors who supply binary only modules know already that they get to
+do 
+all the support as rules of the game. That didn't change either.
 
--- 
- /////////////////  |                  | The spark of a pin
-<sneakums@zork.net> |  (require 'gnu)  | dropping, falling feather-like.
- \\\\\\\\\\\\\\\\\  |                  | There is too much noise.
+It's just that it's now easier for the people who get to handle
+bugreports
+to ask "which modules do you use" as first question if the tainted flag
+is set,
+instead of spending hours investigating a weird oops. 
+
+Greetings,
+   Arjan van de Ven
+   (and yes, I do get a fair share of bugreports and really like to know
+which 
+    reports I should be suspicious of and ask for module lists etc)

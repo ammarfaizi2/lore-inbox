@@ -1,36 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261721AbTAATrr>; Wed, 1 Jan 2003 14:47:47 -0500
+	id <S261693AbTAATrd>; Wed, 1 Jan 2003 14:47:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261723AbTAATrr>; Wed, 1 Jan 2003 14:47:47 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:55686
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261721AbTAATrq>; Wed, 1 Jan 2003 14:47:46 -0500
-Subject: Re: ide-scsi CD-recorder error reading burned disks
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Guennadi Liakhovetski <lyakh@mail.ru>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1030101105132.14470B-100000@gatekeeper.tmr.com>
-References: <Pine.LNX.3.96.1030101105132.14470B-100000@gatekeeper.tmr.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 01 Jan 2003 20:37:44 +0000
-Message-Id: <1041453464.21708.5.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S261721AbTAATrd>; Wed, 1 Jan 2003 14:47:33 -0500
+Received: from tomts13.bellnexxia.net ([209.226.175.34]:19957 "EHLO
+	tomts13-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S261693AbTAATrc>; Wed, 1 Jan 2003 14:47:32 -0500
+Date: Wed, 1 Jan 2003 14:55:01 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@dell
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: observations on 2.5 config screens
+Message-ID: <Pine.LNX.4.44.0301011435300.27623-100000@dell>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-01-01 at 15:56, Bill Davidsen wrote:
-> On Tue, 31 Dec 2002, Guennadi Liakhovetski wrote:
-> 
-> This is caused by either the way you burn it, or the inability of cdrecord
-> to create a CD which doesn't do this. It's related to read-ahead, but I
-> don't remember the exact detail. In any case, you *may* be able to get rid
-> of the problem by using -pad in mkisofs, or in cdrecord. 
 
-Sounds like a scsi error handling funny more than anything else. The end
-of disk case for cd-r/cd-rw burned disks are a bit fuzzier than normal
-disks. The ide-cd layer knows about this.
+  while i read a recent post stating, essentially, "it's unlikely
+that the overall hierarchy of the config screens is going to 
+change much," i find the 2.5 layout pretty much as confusing
+and illogical as the 2.4 screens.  some petty and not-so-petty
+examples and suggestions:
+
+Loadable module support
+    
+    Does "Module unloading" mean whether or not I can run "rmmod"?
+  And if I deselect this, why can I still select "Forced module
+  unloading"?  Either I can unload or I can't, no?
+
+    And what's the rationale behind making unloading an option,
+  anyway?  If I want loadable module support, is it really a
+  big deal to assume I'll want the ability to unload them as
+  well?  Just curious, that's all.  Under what circumstances
+  would I explicitly *not* want the ability to rmmod?  Tight
+  space embedded kernels, possibly?
+
+Processor family
+
+    It seems that the final option, "Preemptible kernel", does
+  not belong there.  In fact, there seem to be a number of 
+  kernel-related, kind of hacking/debugging options, that
+  could be collected in one place, like preemption, sysctl,
+  hacking, executable file formats, etc.  "Low-level kernel
+  options", perhaps?
+
+Bus options (PCI, PCMCIA, EISA, MCA, ISA)
+
+    First, there's no hint from that heading that hot-pluggable
+  settings are hidden under there as well.
+
+    In addition, why does "Bus options" not include the USB bus,
+  the I2C bus, FireWire, etc?  A bus is a bus, isn't it?
+
+Multimedia devices
+
+    How come "Sound" is not here?  And (as we've already 
+  established), Radio Adapters is not a sub-entry of Video for
+  Linux. :-)  (And is there a reason why Amateur Radio Support
+  and Radio Adapters are so far apart in the config menus?
+
+Wireless networking/protocols
+
+   Yes, I realize there's no such category, but there *should*
+  be, which would include:
+
+	Wireless LAN (non ham-radio)
+	Bluetooth
+	IrDA
+
+
+  anyway, just some observations from someone who doesn't
+know any better.
+
+rday
+	
 

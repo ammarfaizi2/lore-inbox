@@ -1,87 +1,156 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264083AbRFUCnf>; Wed, 20 Jun 2001 22:43:35 -0400
+	id <S264723AbRFUDCo>; Wed, 20 Jun 2001 23:02:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264715AbRFUCnQ>; Wed, 20 Jun 2001 22:43:16 -0400
-Received: from shell.ca.us.webchat.org ([216.152.64.152]:49381 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S264083AbRFUCnN>; Wed, 20 Jun 2001 22:43:13 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Davide Libenzi" <davidel@xmailserver.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Why use threads ( was: Alan Cox quote?)
-Date: Wed, 20 Jun 2001 19:43:09 -0700
-Message-ID: <NCBBLIEPOCNJOAEKBEAKCEPBPPAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <XFMail.20010620192245.davidel@xmailserver.org>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0005
+	id <S264724AbRFUDCe>; Wed, 20 Jun 2001 23:02:34 -0400
+Received: from vger.timpanogas.org ([207.109.151.240]:38410 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S264723AbRFUDC3>; Wed, 20 Jun 2001 23:02:29 -0400
+Date: Wed, 20 Jun 2001 21:06:56 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Trevor Hemsley <Trevor-Hemsley@dial.pipex.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: aic7xxx oops with 2.4.5-ac13
+Message-ID: <20010620210656.A27103@vger.timpanogas.org>
+In-Reply-To: <20010621010814Z264340-17720+6179@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010621010814Z264340-17720+6179@vger.kernel.org>; from Trevor-Hemsley@dial.pipex.com on Thu, Jun 21, 2001 at 02:08:17AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Just to summarize :
-
-> 1) You said to handle 16000 sessions with 10 threads
-
-> 2) I said: "Humm, you've to select() about 1600 fds ..."
-
-> 3) You said : "Who said anything about 'select'?"
-
-	You can use any I/O model you want. I've suggested several.
-
-> The stuff above looks like select() to me.
-
-	I'm not sure what that has to do with anything.
-
-> About the scale factor of select()/poll() my agreement is only partial.
-> Have You ecer observed that Your processes tend to become a bit
-> CPU bound when
-> stocking a lot of fds inside a poll ?
-
-	Okay, let's compare two servers.
-
-	Server one is handling 10 file descriptors. The cost of a single call to
-poll is 3 microseconds. Assume that the server is coded to get back to
-'poll' as quickly as it can, but due to load the code manages to call 'poll'
-every 100 microseconds, so the overhead of poll is 3% of the available CPU.
-
-	Now server two, with identical hardware and software, is handling 10,000
-file descriptors. The cost of a single call to poll is now 3,000
-microseconds (assuming 'poll' scales linearly, it actually scales slightly
-better than linearly). Since this code is 1,000 times busier, assume it gets
-around to calling 'poll' every 100,000 microseconds. Note that, percentage
-wise, the overhead of poll is the same, 3%.
-
-	It is actually even better than this. For one thing, in the second case,
-the less-frequent calls to poll mean that you do more I/O per poll call per
-connection, because there is more time in between calls to 'recv' for data
-to go into the buffers. This also means more 'full reads' and fewer 'partial
-reads' which improves your buffer handling signifantly. Same is true for
-your 'write' calls, the less often you call 'write' the more often
-(percentage wise) you'll write all you tried to write.
+On Thu, Jun 21, 2001 at 02:08:17AM +0000, Trevor Hemsley wrote:
 
 
-	Now this assumes no clever tricks to improve poll's scalability. This
-doesn't even consider the fact that calling 'poll' less often means that a
-higher percentage of sockets will be discovered per call to poll.
+Ditto.  I am also seeing this oops calling the sg driver for a 
+robotic tape library, and it also seems to happen on 2.4.4.
 
-	Again, the problems with select/poll are not about scalability, they're
-about performance (in terms of absolute CPU consumption) at low load levels
-with large numbers of file descriptors.
+Jeff
 
-	In contrast, if you had 1,600 execution vehicles instead of 10, you would
-suffer more context switches, more memory overhead for stacks, and you would
-incur one kernel/user transition for each socket discovered instead of far
-fewer. In addition, a much higher percentage of your I/O operations would
-block, and blocking operations are more expensive than those that don't
-result in a block.
 
-	DS
-
+> Just upgraded from 2.4.3 to 2.4.5-ac13 and get an aiee, killing interrupt 
+> handler on boot as aic7xxx.o is loaded. I have an Adaptec 2906 PCI card 
+> with a Nikon CoolscanIII and an HP optical drive attached. Works ok on 
+> aic7xxx_old. Works with an initial bus reset on 2.4.3. Dies a horrible death 
+> on 2.4.5-ac13.
+> 
+> trevor@trevor4:/tmp > /sbin/lspci                                                  
+> 00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge (rev 03)  
+> 00:01.0 PCI bridge: Intel Corporation 440BX/ZX - 82443BX/ZX AGP bridge (rev 03)    
+> 00:07.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)                   
+> 00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)                
+> 00:07.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01)               
+> 00:07.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 02)                      
+> 00:09.0 SCSI storage controller: Adaptec AHA-7850 (rev 03)                         
+> 00:0a.0 SCSI storage controller: Initio Corporation 360P (rev 02)                  
+> 00:0b.0 Network controller: Compaq Computer Corporation Netelligent 10/100 (rev 10)
+> 00:0c.0 Ethernet controller: 3Com Corporation 3c900 Combo [Boomerang]              
+> 01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G200 AGP (rev 01)     
+> 
+> On 2.4.3 I get the following errors when aic7xxx loads
+> 
+> ahc_pci:0:9:0: WARNING no command for scb 0 (cmdcmplt)         
+> QOUTPOS = 0                                                    
+> scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.1.5
+>         <Adaptec 2902/04/10/15/20/30C SCSI adapter>            
+>         aic7850: Single Channel A, SCSI Id=7, 3/255 SCBs       
+>                                                                
+> scsi1:0:2:0: Attempting to queue an ABORT message              
+> (scsi1:A:2:0): Queuing a recovery SCB                          
+> scsi1:0:2:0: Device is disconnected, re-queuing SCB            
+> Recovery code sleeping                                         
+> (scsi1:A:2:0): Abort Message Sent                              
+> (scsi1:A:2:0): SCB 3 - Abort Completed.                        
+> Recovery SCB completes                                         
+> Recovery code awake                                            
+> aic7xxx_abort returns 8194                                     
+> 
+> It then carries on and works.
+> 
+> Ksymoops output follows but may not be entirely reliable 
+> because it's from a hand written file and /proc/ksyms and /proc/modules are
+> from 2.4.3.
+> trevor@trevor4:/tmp > more decoded-245-ksymoops                                
+> ksymoops 2.4.0 on i686 2.4.3.  Options used                                    
+>      -V (default)                                                              
+>      -k /proc/ksyms (default)                                                  
+>      -l /proc/modules (default)                                                
+>      -o /lib/modules/2.4.5-ac13/ (specified)                                   
+>      -m /l243/System.map-2.4.5-ac13 (specified)                                
+>                                                                                
+> Unable to handle kernel NULL pointer dereference at virtual address 00000004   
+> c018d250                                                                       
+> *pde = 00000000                                                                
+> Oops: 0000                                                                     
+> CPU: 0                                                                         
+> EIP: 0010:[<c018d250>]                                                         
+> Using defaults from ksymoops -t elf32-i386 -a i386                             
+> EFLAGS: 00010057                                                               
+> eax: 00000000 ebx: 00000012 ecx: 00000001 edx: 00000000                        
+> esi: ffffffff edi: d74f0600 ebp: 00000000 esp: c0233dc0                        
+> ds: 0018 es: 0018 ss: 0018                                                     
+> Process swapper (pid 0, stackpage=c0233000)                                    
+> Stack: d9133058 00000000 00000000 00000012 00000000 d74f0600 00000000 414f0600 
+>        d74f0600 00000001 00000001 d91356ee d74f0600 d74f0690 00000000 00000000 
+>        00000003 d913e18f d74f0600 00000012 00000000 d74f0600 00000000 00000010 
+> Call Trace: [<d9133058>] [<d91356ee>] [<d913e18f>] [<d913e4fd>] [<d913e539>]   
+>  [<c0115b98>] [<c0110000>] [<d9136b89>] [<e6948262>] [<c019c9a2>] [<c011c635>] 
+>  [<d9132ad4>] [<c0108301>] [<c01084e6>] [<c0105160>] [<c0105160>] [<c010a82e>] 
+>  [<c0105160>] [<c0105160>] [<c0100018>] [<c010518d>] [<c01051f2>] [<c0105000>] 
+>  [<c01001cf>]                                                                  
+> Code: 8b 40 04 85 c0 74 15 3b 90 6c 00 00 00 75 07 80 88 fc 00 00              
+>                                                                                
+> >>EIP; c018d250 <scsi_report_bus_reset+8/28>   <=====                          
+> Trace; d9133058 <[serial].bss.end+18d5/18dd>                                   
+> Trace; d91356ee <[aic7xxx]ahc_filter_command+20a/2a4>                          
+> Trace; d913e18f <[aic7xxx]ahc_reset+37/470>                                    
+> Trace; d913e4fd <[aic7xxx]ahc_reset+3a5/470>                                   
+> Trace; d913e539 <[aic7xxx]ahc_reset+3e1/470>                                   
+> Trace; c0115b98 <release_console_sem+94/98>                                    
+> Trace; c0110000 <mtrr_close+34/c8>                                             
+> Trace; d9136b89 <[aic7xxx]ahc_pci_map_registers+1c5/254>                       
+> Trace; e6948262 <END_OF_CODE+d78b186/????>                                     
+> Trace; c019c9a2 <cursor_timer_handler+22/28>                                   
+> Trace; c011c635 <timer_bh+259/2b0>                                             
+> Trace; d9132ad4 <[serial].bss.end+1351/18dd>                                   
+> Trace; c0108301 <handle_IRQ_event+4d/78>                                       
+> Trace; c01084e6 <do_IRQ+a6/f4>                                                 
+> Trace; c0105160 <default_idle+0/34>                                            
+> Trace; c0105160 <default_idle+0/34>                                            
+> Trace; c010a82e <call_do_IRQ+5/b>                                              
+> Trace; c0105160 <default_idle+0/34>                                            
+> Trace; c0105160 <default_idle+0/34>                                                           
+> Trace; c0100018 <startup_32+18/cb>                                                            
+> Trace; c010518d <default_idle+2d/34>                                                          
+> Trace; c01051f2 <cpu_idle+3e/54>                                                              
+> Trace; c0105000 <prepare_namespace+0/8>                                                       
+> Trace; c01001cf <L6+0/2>                                                                      
+> Code;  c018d250 <scsi_report_bus_reset+8/28>                                                  
+> 00000000 <_EIP>:                                                                              
+> Code;  c018d250 <scsi_report_bus_reset+8/28>   <=====                                         
+>    0:   8b 40 04                  mov    0x4(%eax),%eax   <=====                              
+> Code;  c018d253 <scsi_report_bus_reset+b/28>                                                  
+>    3:   85 c0                     test   %eax,%eax                                            
+> Code;  c018d255 <scsi_report_bus_reset+d/28>                                                  
+>    5:   74 15                     je     1c <_EIP+0x1c> c018d26c <scsi_report_bus_reset+24/28>
+> Code;  c018d257 <scsi_report_bus_reset+f/28>                                                  
+>    7:   3b 90 6c 00 00 00         cmp    0x6c(%eax),%edx                                      
+> Code;  c018d25d <scsi_report_bus_reset+15/28>                                                 
+>    d:   75 07                     jne    16 <_EIP+0x16> c018d266 <scsi_report_bus_reset+1e/28>
+> Code;  c018d25f <scsi_report_bus_reset+17/28>                                                 
+>    f:   80 88 fc 00 00 00 00      orb    $0x0,0xfc(%eax)                                      
+>                                                                                               
+>  <0> Kernel panic: Aiee, killing interrupt handler!                                           
+>                                                                                               
+> 1070 warnings issued.  Results may not be reliable.                                           
+> 
+> 
+> Trevor Hemsley, Brighton, UK.
+> Trevor-Hemsley@dial.pipex.com
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270625AbUJUFJo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270647AbUJUFI4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270625AbUJUFJo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 01:09:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270658AbUJUFJm
+	id S270647AbUJUFI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 01:08:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270651AbUJUFIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 01:09:42 -0400
-Received: from fw.osdl.org ([65.172.181.6]:22155 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270625AbUJUFJN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 01:09:13 -0400
-Date: Wed, 20 Oct 2004 22:07:00 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Jones <davej@redhat.com>
-Cc: james4765@verizon.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Structural changes for Documentation directory
-Message-Id: <20041020220700.4636104f.akpm@osdl.org>
-In-Reply-To: <20041021050528.GA26814@redhat.com>
-References: <4176CFE3.2030306@verizon.net>
-	<20041020153058.6de41ed8.akpm@osdl.org>
-	<4176EBD8.3050306@verizon.net>
-	<20041021042036.GB14189@redhat.com>
-	<41773D3F.2040801@verizon.net>
-	<20041020220037.2e209907.akpm@osdl.org>
-	<20041021050528.GA26814@redhat.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 21 Oct 2004 01:08:53 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:3732 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S270647AbUJUFHb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 01:07:31 -0400
+Message-ID: <417743EF.90604@nortelnetworks.com>
+Date: Wed, 20 Oct 2004 23:06:55 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: Michael Clark <michael@metaparadigm.com>, linux-kernel@vger.kernel.org
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+References: <20041016062512.GA17971@mark.mielke.cc> <MDEHLPKNGKAHNMBLJOLKMEONPAAA.davids@webmaster.com> <20041017133537.GL7468@marowsky-bree.de> <cl6lfq$jlg$1@terminus.zytor.com> <4176DF84.4050401@nortelnetworks.com> <4176E001.1080104@zytor.com> <41772674.50403@metaparadigm.com> <417736C0.8040102@zytor.com>
+In-Reply-To: <417736C0.8040102@zytor.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@redhat.com> wrote:
->
-> On Wed, Oct 20, 2004 at 10:00:37PM -0700, Andrew Morton wrote:
->  > >  The other possibility is to have a TODO file with a list of out-of-date 
->  > >  files, and have the removal of the file listing in the TODO file be part 
->  > >  of the patch submission.
->  > 
->  > It all sounds too complex.  ./docs/ is fine.
-> 
-> asides from bloating up interdiffs, what does moving stuff around
-> gain us over just fixing stuff in place ?  Do we really have
-> that much out of date documentation to justify this ?
-> 
+H. Peter Anvin wrote:
 
-Well I was thinking of it as a simple way of tracking what has and hasn't
-been done.  But yeah, that could just as easily be tracked via a new
-checklist file.
+> The whole point is that it doesn't break the *documented* interface.
 
+In my view (and apparently others, as has been verified in current apps using 
+blocking sockets), current behaviour *does* break the documented interface.
+
+The man page for select says:
+
+"Those  listed  in  readfds  will  be watched  to  see if characters become 
+available for reading (more precisely, to see if a read will not block..."
+
+If I'm the only one touching the socket, select returns with it readable, and I 
+block when calling recvmsg, then by definition that behaviour does not match the 
+documented interface.
+
+Chris

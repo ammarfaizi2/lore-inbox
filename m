@@ -1,77 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132022AbQKXHAy>; Fri, 24 Nov 2000 02:00:54 -0500
+        id <S132047AbQKXHFZ>; Fri, 24 Nov 2000 02:05:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132082AbQKXHAp>; Fri, 24 Nov 2000 02:00:45 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:60174
-        "EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-        id <S132022AbQKXHA2>; Fri, 24 Nov 2000 02:00:28 -0500
-Date: Thu, 23 Nov 2000 22:30:08 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Ion Badulescu <ionut@moisil.cs.columbia.edu>,
-        Guest section DW <dwguest@win.tue.nl>, linux-kernel@vger.kernel.org
-Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
-In-Reply-To: <Pine.GSO.4.21.0011240103021.12702-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.10.10011232216270.4479-100000@master.linux-ide.org>
-MIME-Version: 1.0
+        id <S131987AbQKXHFP>; Fri, 24 Nov 2000 02:05:15 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:2571 "EHLO
+        wire.cadcamlab.org") by vger.kernel.org with ESMTP
+        id <S132047AbQKXHFC>; Fri, 24 Nov 2000 02:05:02 -0500
+Date: Fri, 24 Nov 2000 00:31:11 -0600
+To: Greg KH <greg@wirex.com>, f5ibh <f5ibh@db0bm.ampr.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18pre, usb mouse messages
+Message-ID: <20001124003111.E8881@wire.cadcamlab.org>
+In-Reply-To: <200011232132.WAA29552@db0bm.ampr.org> <20001123134804.C28923@wirex.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001123134804.C28923@wirex.com>; from greg@wirex.com on Thu, Nov 23, 2000 at 01:48:04PM -0800
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Nov 2000, Alexander Viro wrote:
 
-> 
-> 
-> On Thu, 23 Nov 2000, Andre Hedrick wrote:
-> 
-> > What the F*** does that have to do with the price of eggs in china, heh?
-> > Just maybe if you could follow a thread, you would see that that Alex Viro
-> > has pointed out that changes in the FS layer as dorked things.
-> 
-> ?
-> If you have a l-k feed from future - please share. I'm not saying that
+> > usb-uhci.c: interrupt, status 3, frame# 212
+> > hub.c: already running port 2 disabled by hub (EMI?), re-enabling...
 
-Date: Thu, 23 Nov 2000 04:37:21 -0500 (EST)
+[Greg KH]
+> The messages are harmless debug messages.  Anyone want to whip up a
+> patch to turn them off (like was recently done for 2.4.0-test)?
 
-> fs/* is not the source of that stuff, but I sure as hell had not said
-> that it is. I simply don't know yet.
+Is this what you mean?
 
-You were pointing out changes to reproduce the effect.
-
-> > Since there have been not kernel changes to the driver that effect the
-> > code since 2.4.0-test5 or test6 and it now randomly shows up after five or
-> > six revisions out from the change, and the changes were chipset only.
-> 
-> generic_unplug_device() was changed more or less recently. I doubt that
-> it is relevant, but...
-
-Cool, the issue was that I get tried of people blaming the ATA subsystem
-for things that it does not do or has control over.  Basically, I kill
-bogus threads that try to tag me with an old problem of the past that was
-a hardware issue.
-
-Given the latest stats that more than 90% of the linux install base is
-hinged on me getting the low-level engine core correct, I go on benders
-when cheap shots are take across the bow.
-
-Now the only issue that is even on the radar map is a potential 1GB cross
-copy execution where I have a single report that md5sums do not match.
-I have yet to reproduce it even with the identical hardware sent to me.
-
-I questioned _A_ about this and there may be a case that is OS independent
-which is more important to me than other.  This is a non-fixable for
-6->12 months, until I kick some tail in the standards committee meetings
-over this point.  If it is a reality, Linux and Microsoft will join as the
-OS's represented there and force the change.  Only because there are
-potentical side-bars that NT is effected also in these rare cases.
-
-Cheers,
-
-Andre Hedrick
-Linux ATA Development
+Peter
 
 
+diff -urk.bak 2.2.18-19/drivers/usb/hub.c.bak 2.2.18-19/drivers/usb/hub.c
+--- 2.2.18-19/drivers/usb/hub.c.bak	Fri Nov  3 19:20:45 2000
++++ 2.2.18-19/drivers/usb/hub.c	Fri Nov 24 00:29:50 2000
+@@ -530,11 +530,8 @@
+ 				// be shutdown by the hub, this hack enables them again.
+ 				// Works at least with mouse driver. 
+ 				if (!(portstatus & USB_PORT_STAT_ENABLE) && 
+-				    (portstatus & USB_PORT_STAT_CONNECTION) && (dev->children[i])) {
+-					err("already running port %i disabled by hub (EMI?), re-enabling...",
+-						i + 1);
++				    (portstatus & USB_PORT_STAT_CONNECTION) && (dev->children[i]))
+ 					usb_hub_port_connect_change(dev, i);
+-				}
+ 			}
+ 
+ 			if (portstatus & USB_PORT_STAT_SUSPEND) {
+diff -urk.bak 2.2.18-19/drivers/usb/usb-uhci.c.bak 2.2.18-19/drivers/usb/usb-uhci.c
+--- 2.2.18-19/drivers/usb/usb-uhci.c.bak	Fri Nov  3 19:20:46 2000
++++ 2.2.18-19/drivers/usb/usb-uhci.c	Fri Nov 24 00:21:16 2000
+@@ -2538,16 +2538,10 @@
+ 
+ 	dbg("interrupt");
+ 
+-	if (status != 1) {
+-		warn("interrupt, status %x, frame# %i", status, 
+-		     UHCI_GET_CURRENT_FRAME(s));
++	// remove host controller halted state
++	if ((status&0x20) && (s->running))
++		outw (USBCMD_RS | inw(io_addr + USBCMD), io_addr + USBCMD);
+ 
+-		// remove host controller halted state
+-		if ((status&0x20) && (s->running)) {
+-			outw (USBCMD_RS | inw(io_addr + USBCMD), io_addr + USBCMD);
+-		}
+-		//uhci_show_status (s);
+-	}
+ 	/*
+ 	 * traverse the list in *reverse* direction, because new entries
+ 	 * may be added at the end.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,66 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263782AbTFVHgy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 03:36:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263802AbTFVHgx
+	id S263802AbTFVHut (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 03:50:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263865AbTFVHut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 03:36:53 -0400
-Received: from co239024-a.almel1.ov.home.nl ([217.120.226.100]:9347 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S263782AbTFVHgw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 03:36:52 -0400
-Date: Sun, 22 Jun 2003 09:49:55 +0200 (CEST)
-From: Aschwin Marsman <a.marsman@aYniK.com>
-X-X-Sender: marsman@localhost.localdomain
-To: Jay Denebeim <denebeim@deepthot.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Redhat 2.4.20 kernel problems
-In-Reply-To: <slrnbfakn7.hsl.denebeim@hotblack.deepthot.org>
-Message-ID: <Pine.LNX.4.44.0306220944210.1832-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 22 Jun 2003 03:50:49 -0400
+Received: from home.linuxhacker.ru ([194.67.236.68]:40341 "EHLO linuxhacker.ru")
+	by vger.kernel.org with ESMTP id S263802AbTFVHus (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 03:50:48 -0400
+Date: Sun, 22 Jun 2003 12:03:01 +0400
+From: Oleg Drokin <green@linuxhacker.ru>
+To: Joern Nettingsmeier <nettings@folkwang-hochschule.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: severe FS corruption w/ reiserfs and 2.5.72-bk3
+Message-ID: <20030622080301.GA17062@linuxhacker.ru>
+References: <3EF4C0CC.6090100@folkwang-hochschule.de> <200306212021.h5LKLGdv004822@car.linuxhacker.ru> <3EF4DDF1.2010101@folkwang-hochschule.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EF4DDF1.2010101@folkwang-hochschule.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 22 Jun 2003, Jay Denebeim wrote:
+Hello!
 
-> In case anyone is still interested, I finally got around to trying a
-> kernel.org 2.4.20 version.  No problem.  So it's not in the kernel
-> tree.  I compiled it using the /boot/config-2.4.20(whatever) that
-> Redhat shipped, so it's not a module/option issue.  The kernel was
-> signifigantly smaller than the redhat one as well by several hundred
-> K.
-> 
-> The problem was this, under the redhat kernel shipped on CD for redhat
-> 9 and updated for redhat 8 my SO's computer locks up when she moves
-> her mouse after booting.  It's a USB mouse.  The system just freezes.
-> 
-> I haven't seen an Ooops or anything like that.  The syslog is
-> forwarded over tcp to my system, so I may see it even with the lock
-> up.
-> 
-> I assume the problem is a lost interrupt or something along that line,
-> but this is just a gut feeling.
-> 
-> How should I contact redhat about this issue?  It's going to be a
-> problem upgrading her system if she can't run a stock kernel.  I tried
-> writing a friend of mine at Redhat Erik Troan, but his old redhat
-> address doesn't work any more.
+On Sun, Jun 22, 2003 at 12:36:33AM +0200, Joern Nettingsmeier wrote:
 
-Have you already updated your system to the latest errata kernel and
-packages?
+> >JN> i just completely and utterly trashed my filesystems with 2.5.72-bk2 
+> >and JN> reiserfs. there are metric shitloads of errors on journal replay 
+> >and i JN> end up in repair mode. did a couple of --rebuild-tree's, but new 
+> >errors JN> cropped up after every reboot.
+> >JN> happens both on scsi and ide drives and ate almost all of my machine...
+> >Hm. Can I ask for your kernel config, and kernel logs (if possible),
+> >reiserfsck /dev/device -l /somewhere/device.log , and send those logs to
+> >me too.
+> sorry, i can't really get anything in and out of that box.
+> i've been able to extract some parts of the fsck log, they look like this:
+> vpf-10680: The file [2406 26400] has the wrong block count in the 
+> (8), should be (1)
 
-You could try to send an email to a Red Hat mailing list:
-http://www.redhat.com/support/forums/
+These are not looking dangerous, probably some symlinks created long ago.
+(we changed block accounting for symlinks some time ago).
 
-> Jay
- 
-Have a nice weekend,
- 
-Aschwin Marsman
- 
---
-aYniK Software Solutions         all You need is Knowledge
-P.O. box 134                     NL-7600 AC Almelo - the Netherlands
-telephone: +31 (0)546-581400     fax: +31 (0)546-581401
+> it tells me it can fix it with the --fixable option, done that a couple 
+> of times, new errors after that.
 
+You mean new errors of the same kind?
+
+> it's an smp box with 2 p3s, intel bx chipset, aic7xxx scsi, ide and scsi 
+> compiled into the kernel, reiserfs too. tagged queuing enabled, ignore 
+
+Well, TQ was broken on IDE some time ago, but then Jens Axboe said he
+fixed that, anyway that does not explain why all the disks got eaten.
+
+> >JN> if anyone wants me to do some forensics on the machine, speak up. 
+> >JN> otherwise i'll swipe it clean and start over from scratch.
+> >I wonder if you can create clean fs, copy some stuff there with 2.5.72-mm2
+> >and see what happens?
+> /var is totally FUBAR, the system won't boot into my fallback kernel. i 
+> don't have a second machine around to compile another kernel on... sorry.
+
+Sigh.
+
+> i might be able to put the ide disk into another box tomorrow and try 
+> another reiserfsck with proper logging, but i have no place to check the 
+> scsi disks. i'll keep you posted when i get it done.
+
+Ok, perhaps you can put some kind of rescue system on that IDE disk,
+and try to boot it in original box?
+
+Bye,
+    Oleg

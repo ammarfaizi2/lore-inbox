@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbUJaCmo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbUJaCoi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261480AbUJaCmo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 22:42:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbUJaCmo
+	id S261481AbUJaCoi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 22:44:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbUJaCoh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 22:42:44 -0400
-Received: from c3p0.cc.swin.edu.au ([136.186.1.30]:29968 "EHLO swin.edu.au")
-	by vger.kernel.org with ESMTP id S261480AbUJaCmm (ORCPT
+	Sat, 30 Oct 2004 22:44:37 -0400
+Received: from smtpout.mac.com ([17.250.248.89]:54219 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261481AbUJaCoW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 22:42:42 -0400
-To: Ken Moffat <ken@kenmoffat.uklinux.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-From: Tim Connors <tconnors+linuxkernel1099190446@astro.swin.edu.au>
-Subject: Re: [OT] Re: code bloat [was Re: Semaphore assembly-code bug]
-In-reply-to: <Pine.LNX.4.58.0410310155080.11293@ppg_penguin.kenmoffat.uklinux.net>
-References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel>  <200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua>  <20041030222720.GA22753@hockin.org>  <200410310213.37712.vda@port.imtp.ilyichevsk.odessa.ua>  <1099178405.1441.7.camel@krustophenia.net> <1099176751.25194.12.camel@localhost.localdomain> <Pine.LNX.4.58.0410310155080.11293@ppg_penguin.kenmoffat.uklinux.net>
-X-test-to: Ken Moffat <ken@kenmoffat.uklinux.net>
-X-cc-to: Alan Cox <alan@lxorguk.ukuu.org.uk>, Lee Revell <rlrevell@joe-job.com>, Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>, Tim Hockin <thockin@hockin.org>, Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-X-reply-to-bofh-messageid: <2Vcy3-7un-13@gated-at.bofh.it>
-X-Face: +*%dmR:3=9i\[:8fga\UgZT#@`f=DU0(wQqI'AR2/r0sBMO}Ax\,V*cWaW-owRlUmuz&=v\KItx0:gRCBg1&z_"4x&-N#Di7))]~p2('`6|5.c3&:Z?VLU`Zt5Kb,~uC6<y}P'~7A+^'|'+iAd4t43:P;tPiT<q=9P$MO]u^@OHn1_4#qP7,XiSo21SkgI`:5=i$,t&uNN_\LfuLyH`)8!:Tb]Z
-Message-ID: <slrn-0.9.7.4-21646-32676-200410311340-tc@hexane.ssi.swin.edu.au>
-Date: Sun, 31 Oct 2004 13:42:34 +1100
+	Sat, 30 Oct 2004 22:44:22 -0400
+In-Reply-To: <31064.65.208.227.246.1099168970.squirrel@www.lrsehosting.com>
+References: <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org> <Pine.LNX.4.61.0410252350240.17266@scrub.home> <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org> <Pine.LNX.4.61.0410270223080.877@scrub.home> <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org> <4180B9E9.3070801@andrew.cmu.edu> <20041028135348.GA18099@work.bitmover.com> <1098972379.3109.24.camel@gonzales> <20041028151004.GA3934@work.bitmover.com> <41827B89.4070809@hispalinux.es> <20041029173642.GA5318@work.bitmover.com> <41828707.3050803@hispalinux.es> <57875.65.208.227.246.1099074830.squirrel@www.lrsehosting.com> <4182923D.5040500@hispalinux.es> <40231.65.208.227.246.1099077274.squirrel@www.lrsehosting.com> <2540F67A-2A31-11D9-857E-000393ACC76E@mac.com> <31064.65.208.227.246.1099168970.squirrel@www.lrsehosting.com>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <BC0CDBA6-2AE6-11D9-857E-000393ACC76E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: James Bruce <bruce@andrew.cmu.edu>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       =?ISO-8859-1?Q?Ram=F3n_Rey_Vicente?= <ramon.rey@hispalinux.es>,
+       Xavier Bestel <xavier.bestel@free.fr>,
+       Linus Torvalds <torvalds@osdl.org>, Larry McVoy <lm@bitmover.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Andrea Arcangeli <andrea@novell.com>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: BK kernel workflow
+Date: Sat, 30 Oct 2004 22:44:06 -0400
+To: Scott Lockwood <lkml@www.lrsehosting.com>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ken Moffat <ken@kenmoffat.uklinux.net> said on Sun, 31 Oct 2004 01:09:54 +0000 (GMT):
-> and the time to load it is irrelevant.  Since then I've had an anecdotal
-> report that -Os is known to cause problems with gnome.  I s'pose people
-> will say it serves me right for doing my initial testing on ppc which
-> didn't have this problem ;)  The point is that -Os is *much* less tested
-> than -O2 at the moment.
+On Oct 30, 2004, at 16:42, Scott Lockwood wrote:
+> Now read:
+>
+> http://www.freedom-to-tinker.com/doc/2004/bnetd_30sep.pdf
 
-Because people suck, and don't use it and hence test it.
+I stand corrected.  I am familiar with the bnetd case but I was not
+aware that it had been decided.  However, I _do_ have a copy of
+bnetd on my HDD that I do not distribute.  I use it to host a server
+for my LAN parties on the basis that I can do whatever I want
+(excepting distribution) with the stuff that I own (IE: the bits on the
+CD.  If Vivendi feels like suing me because I have a copy of stuff
+they never had copyright on in the first place which I may or may
+not be using, then they can go ahead and call my lawyer.  The
+bnetd staff may have been distributing stuff they aren't allowed
+to due to license infringement, but I have a right to circumvent
+my _own_ damn computer in any way I please.
 
-Ie, test it!
+Cheers,
+Kyle Moffett
 
-I can't, because I prefer to stay away from gnome instead.
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
 
--- 
-TimC -- http://astronomy.swin.edu.au/staff/tconnors/
-"Warning: Do not look into laser with remaining eye" -- a physics experiment
-"Press emergency laser shutdown button with remaining hand" -- J.D.Baldwin @ ASR
+

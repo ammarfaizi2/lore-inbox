@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286886AbRL1Mkf>; Fri, 28 Dec 2001 07:40:35 -0500
+	id <S286893AbRL1MlP>; Fri, 28 Dec 2001 07:41:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286878AbRL1MkZ>; Fri, 28 Dec 2001 07:40:25 -0500
-Received: from [61.152.250.207] ([61.152.250.207]:6062 "HELO mail.etang.com")
-	by vger.kernel.org with SMTP id <S286885AbRL1MkO>;
-	Fri, 28 Dec 2001 07:40:14 -0500
-Date: Fri, 28 Dec 2001 20:40:45 +0800
-From: jz <jzintswift@etang.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Problem in 2.4.17 & 2.4.1 & 2.5.2-pre3
-X-mailer: FoxMail 3.11 Release [cn]
-Mime-Version: 1.0
-Content-Type: text/plain; charset="GB2312"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20011228124301.237461C80DF53@mail.etang.com>
+	id <S286889AbRL1Mk4>; Fri, 28 Dec 2001 07:40:56 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:20229 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S286887AbRL1Mkg>;
+	Fri, 28 Dec 2001 07:40:36 -0500
+Date: Fri, 28 Dec 2001 10:40:26 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: <isp01ljl@taurus.zsu.edu.cn>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: whether the thread   is implemented in the kernel ?
+In-Reply-To: <586590797.20001228140112@student.zsu.edu.cn>
+Message-ID: <Pine.LNX.4.33L.0112281039380.24031-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  I had some problem in running kernel:
-1)2.4.17
-  When booting & runing,show the following message:
-  spurious 8259A interrupt:IRQ7
-2)2.5.1
-  When I reboot the box, the system stop at
-  Sending all processes the TERM signal...
-3)2.5.2-pre3
-  show the message:
-  kmod failed to exec /sbin/modprobe -s -k nls-GB2312,errno=2
-  Kernel panic:Out of memory and no killable proceses.
+On Thu, 28 Dec 2000 isp01ljl@taurus.zsu.edu.cn wrote:
 
-My box is  KT233 and athlon 1.2G with LFS-3.1 system(reiserfs).
+>     I encountered a interesting problem , that is whether the thread
+>  is implemented in the kernel ?  if yes , then what is the system
+>  call to generate a thread ?  is it similar to fork() ?
 
-            jz
-            jzintswift@etang.com
+clone(2), which is the exact same code path as fork().
+
+For more information, see
+	man 2 clone
+	kernel/fork.c::do_fork()
+
+regards,
+
+Rik
+-- 
+Shortwave goes a long way:  irc.starchat.net  #swl
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

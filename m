@@ -1,37 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261927AbREMVoC>; Sun, 13 May 2001 17:44:02 -0400
+	id <S261922AbREMVto>; Sun, 13 May 2001 17:49:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261922AbREMVnw>; Sun, 13 May 2001 17:43:52 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:23816 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261924AbREMVnu>; Sun, 13 May 2001 17:43:50 -0400
-Subject: Re: PROBLEM: IDE dma_intr error on VIA chipset
-To: yann.chachkoff@mailandnews.com (gros)
-Date: Sun, 13 May 2001 22:39:53 +0100 (BST)
-Cc: andre@linux-ide.org, linux-kernel@vger.kernel.org
-In-Reply-To: <01051022565000.01576@Terminus.magellan.fpms.ac.be> from "gros" at May 10, 2001 10:56:50 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S261928AbREMVte>; Sun, 13 May 2001 17:49:34 -0400
+Received: from mail.libertysurf.net ([213.36.80.91]:33574 "EHLO
+	mail.libertysurf.net") by vger.kernel.org with ESMTP
+	id <S261922AbREMVt3>; Sun, 13 May 2001 17:49:29 -0400
+Date: Sun, 13 May 2001 23:49:43 +0200
+From: Gab <korsani@hydromail.com>
+X-Mailer: The Bat! (v1.51) Personal
+Reply-To: Gab <korsani@hydromail.com>
+X-Priority: 3 (Normal)
+Message-ID: <10317892883.20010513234943@hydromail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: "clock timer configuration lost" error?
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14z3aj-0006zE-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  Whenever a hard disk access is attempted, I get the following messages:
+Interesting.  This is a KA7 with all power management turned off in the
+latest Abit BIOS.
+
+> The kernel puts the timer back and life appears happy again
+
+Ahhh.  The kernel *is* god.
+
+
+Alan Cox wrote:
 > 
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> > Feb 26 00:19:52 abit kernel: probable hardware bug: clock timer
+> > configuration lost - probably a VIA686a.
+> > Feb 26 00:19:52 abit kernel: probable hardware bug: restoring chip
+> > configuration.
+> > Feb 26 00:26:53 abit xntpd[886]: synchronized to 132.239.254.5,
+> > stratum=2
+> > ...
+> 
+> Small number of VIA 686 boxes randomly jump from 100Hz back to the DOS 18Hz
+> timeout. We dont know if its hardware or maybe APM bios bugs. The kernel puts
+> the timer back and life appears happy again
 
-That is a cable problem
+Well, I have a pentium 66 (o/c @ 100) with a probably very old HP bios,
+and I have the problem... and I don't think my Computer have a
+VIA686a...
+Fun...
 
-> This error did not appear under previous versions of the kernel (2.2.x).
+-- 
 
-2.2.x doesnt attempt UDMA
+V
 
-> The hard disk does not show any sign of hardware failure under other 
-> operating systems.
+Gab
 
-and windows fails down to lower speeds without telling you
+

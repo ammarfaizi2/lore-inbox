@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319399AbSIFU7g>; Fri, 6 Sep 2002 16:59:36 -0400
+	id <S319391AbSIFUxl>; Fri, 6 Sep 2002 16:53:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319396AbSIFU57>; Fri, 6 Sep 2002 16:57:59 -0400
-Received: from vitelus.com ([64.81.243.207]:62222 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S319397AbSIFU5t>;
-	Fri, 6 Sep 2002 16:57:49 -0400
-Date: Fri, 6 Sep 2002 14:02:14 -0700
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Nikita Danilov <Nikita@Namesys.COM>, "Stephen C. Tweedie" <sct@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ext3 throughput woes on certain (possibly heavily fragmented) files
-Message-ID: <20020906210214.GA25666@vitelus.com>
-References: <20020903092419.GA5643@vitelus.com> <20020906170614.A7946@redhat.com> <15736.57972.202889.872554@laputa.namesys.com> <3D78E44E.5020107@namesys.com>
+	id <S319389AbSIFUxh>; Fri, 6 Sep 2002 16:53:37 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:3712 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S319391AbSIFUwK>;
+	Fri, 6 Sep 2002 16:52:10 -0400
+Date: Fri, 6 Sep 2002 12:53:26 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: junkio@cox.net
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: Re: [TRIVIAL] strlen("literal string") -> (sizeof("literal string")-1)
+Message-ID: <20020906125326.G39@toy.ucw.cz>
+References: <fa.iks3ohv.1flge08@ifi.uio.no> <200208282131.g7SLVVGx024191@siamese.dyndns.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D78E44E.5020107@namesys.com>
-User-Agent: Mutt/1.5.1i
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <200208282131.g7SLVVGx024191@siamese.dyndns.org>; from junkio@cox.net on Wed, Aug 28, 2002 at 02:31:31PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 06, 2002 at 09:22:22PM +0400, Hans Reiser wrote:
-> I think I prefer that we implement a repacker for reiser4 though, as 
-> that, combined with delayed allocation, will be a balanced and thorough 
-> solution.
 
-How does current ReiserFS fare against extreme fragmentation? What
-about XFS? Without trying to risk a flamewar, what Linux filesystems
-are the most preventive of fragmentation?
+Hi!
 
-The filesystem could make a huge difference on a machine like a mail
-server...
+> Here is a patch that does the same as what Keith Owens did in
+> his patch recently.
+> 
+>     Message-ID: <fa.iks3ohv.1flge08@ifi.uio.no>
+>     From: Keith Owens <kaos@ocs.com.au>
+>     Subject: [patch] 2.4.19 Generate better code for nfs_sillyrename
+>     Date: Wed, 28 Aug 2002 07:08:17 GMT
+> 
+>     Using strlen() generates an unnecessary inline function expansion plus
+>     dynamic stack adjustment.  For constant strings, strlen() == sizeof()-1
+>     and the object code is better.
+
+Gcc should be able to do this itself.
+
+> The patch is against 2.4.19.
+> 
+
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+

@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261390AbRE2ITU>; Tue, 29 May 2001 04:19:20 -0400
+	id <S261425AbRE2IuU>; Tue, 29 May 2001 04:50:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261355AbRE2ITK>; Tue, 29 May 2001 04:19:10 -0400
-Received: from ncc1701.cistron.net ([195.64.68.38]:29456 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S261351AbRE2ITA>; Tue, 29 May 2001 04:19:00 -0400
-From: dth@trinity.hoho.nl (Danny ter Haar)
-Subject: Re: BUG REPORT: 2.4.4 hang on large network transfers with RTL-8139
-Date: Tue, 29 May 2001 08:19:01 +0000 (UTC)
-Organization: Holland Hosting
-Message-ID: <9evm1l$el7$1@voyager.cistron.net>
-In-Reply-To: <20010529142019.C757@ws17.krasu.ru>
-X-Trace: voyager.cistron.net 991124341 15015 195.64.82.84 (29 May 2001 08:19:01 GMT)
-X-Complaints-To: abuse@cistron.nl
-To: linux-kernel@vger.kernel.org
+	id <S261449AbRE2IuK>; Tue, 29 May 2001 04:50:10 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:773 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S261425AbRE2It5> convert rfc822-to-8bit; Tue, 29 May 2001 04:49:57 -0400
+Date: Tue, 29 May 2001 04:13:25 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+Cc: "G. Hugh Song" <ghsong@kjist.ac.kr>, linux-kernel@vger.kernel.org
+Subject: Re: Plain 2.4.5 VM...
+In-Reply-To: <20010529061039.D29962@unthought.net>
+Message-ID: <Pine.LNX.4.21.0105290407350.1660-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Voloshin  <vav@isv.ru> wrote:
->2.4.3 works Ok, 2.4.4 and 2.4.5 both has this problem.
->Lamer's assumption: maybe troubles with sendfile() after zero-copy patches?
 
-no, the patch in 2.4.3-ac7 caused a lot of problems for
-a lot of people. Simply compile 8139too.c from an old
-kernel on to the latest/greatest and you have best
-of both worlds ;-)
 
-People are working on this issue!
+On Tue, 29 May 2001, Jakob Østergaard wrote:
 
-Danny
--- 
-Holland Hosting
-www.hoho.nl      info@hoho.nl
+> 
+> It's not a bug.  It's a feature.  It only breaks systems that are run with "too
+> little" swap, and the only difference from 2.2 till now is, that the definition
+> of "too little" changed.
+
+Its just a balancing change, actually. You can tune the code to reap cache
+aggressively.
+
+"just put more swap and you're OK" is not the answer, IMO. 
 

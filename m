@@ -1,49 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262136AbVAOCMX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262139AbVAOCMI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262136AbVAOCMX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 21:12:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbVAOCMW
+	id S262139AbVAOCMI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 21:12:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262137AbVAOCMI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 21:12:22 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:31402 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262136AbVAOCMH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 21:12:07 -0500
-Date: Sat, 15 Jan 2005 13:09:08 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Jakob Oestergaard <jakob@unthought.net>,
-       David Greaves <david@dgreaves.com>,
-       Christoph Hellwig <hch@infradead.org>, Jan Kasprzak <kas@fi.muni.cz>,
-       linux-kernel@vger.kernel.org, kruty@fi.muni.cz
-Subject: Re: XFS: inode with st_mode == 0
-Message-ID: <20050115130908.A1336757@wobbly.melbourne.sgi.com>
-References: <20041209125918.GO9994@fi.muni.cz> <20041209135322.GK347@unthought.net> <20041209215414.GA21503@infradead.org> <20041221184304.GF16913@fi.muni.cz> <20041222084158.GG347@unthought.net> <20041222182344.GB14586@infradead.org> <41E80C1F.3070905@dgreaves.com> <20050114182308.GE347@unthought.net>
+	Fri, 14 Jan 2005 21:12:08 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51436 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262115AbVAOCLs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 21:11:48 -0500
+Date: Fri, 14 Jan 2005 21:17:12 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Steffen Moser <lists@steffen-moser.de>
+Cc: linux-kernel@vger.kernel.org, David Dyck <david.dyck@fluke.com>
+Subject: Re: Linux 2.4.29-rc2
+Message-ID: <20050114231712.GH3336@logos.cnet>
+References: <20050112151334.GC32024@logos.cnet> <20050114225555.GA17714@steffen-moser.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050114182308.GE347@unthought.net>; from jakob@unthought.net on Fri, Jan 14, 2005 at 07:23:09PM +0100
+In-Reply-To: <20050114225555.GA17714@steffen-moser.de>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 14, 2005 at 07:23:09PM +0100, Jakob Oestergaard wrote:
-> > Is there a 2.6.10 patch that I could apply? Or do you have any other 
-> > suggestions.
+
+David, this also fix your problem.
+
+On Fri, Jan 14, 2005 at 11:55:55PM +0100, Steffen Moser wrote:
+> Hi Marcelo,
 > 
-> AFAIK the best you can do is to get the most recent XFS kernel from
-> SGI's CVS (this one is based on 2.6.10).
+> * On Wed, Jan 12, 2005 at 01:13 PM (-0200), Marcelo Tosatti wrote:
+> 
+> > Here goes the second release candidate of v2.4.29.
+> 
+> I've just encountered a little problem with both "linux-2.4.29-rc1" 
+> and "linux-2.4.29-rc2" on one of two machines. 
+> 
+> 
+> [1.] One line summary of the problem: 
+> 
+> Kernel module "serial.o" cannot be loaded
+> 
+> 
+> [2.] Full description of the problem/report:
+> 
+> I cannot load the module "serial.o" anymore, so I won't have serial 
+> port support (which is needed to have the machine communicating with
+> the UPS):
+> 
+>  | fsa01:~ # modprobe serial
+>  | /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o: unresolved symbol tty_ldisc_flush
+>  | /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o: unresolved symbol tty_wakeup
+>  | /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o: insmod /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o failed
+>  | /lib/modules/2.4.29-rc2/kernel/drivers/char/serial.o: insmod serial failed
 
-The -mm tree also has these fixes; we'll get them merged into
-mainline soon.
+Steffen, 
 
-> If you run that kernel, then most of the former problems will be gone;
-> *) I only have one undeletable directory on my system - so it seems that
-> this error is no longer common   ;)
+Please try this:
 
-You may need to run xfs_repair to clean that up..?  Or does
-the problem persist after a repair?
-
-cheers.
-
--- 
-Nathan
+--- a/drivers/char/tty_io.c.orig	2005-01-14 21:11:58.002189784 -0200
++++ b/drivers/char/tty_io.c	2005-01-14 21:12:53.743715784 -0200
+@@ -718,7 +718,7 @@
+ 	wake_up_interruptible(&tty->write_wait);
+ }
+ 
+-EXPORT_SYMBOL_GPL(tty_wakeup);
++EXPORT_SYMBOL(tty_wakeup);
+ 
+ void tty_ldisc_flush(struct tty_struct *tty)
+ {
+@@ -730,7 +730,7 @@
+ 	}
+ }
+ 
+-EXPORT_SYMBOL_GPL(tty_ldisc_flush);
++EXPORT_SYMBOL(tty_ldisc_flush);
+ 
+ void do_tty_hagup(void *data)
+ {

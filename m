@@ -1,66 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261957AbVAYOgf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261963AbVAYOhx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbVAYOgf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 09:36:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVAYOgf
+	id S261963AbVAYOhx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 09:37:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVAYOhr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 09:36:35 -0500
-Received: from fsmlabs.com ([168.103.115.128]:31635 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261957AbVAYOgd (ORCPT
+	Tue, 25 Jan 2005 09:37:47 -0500
+Received: from [83.102.214.158] ([83.102.214.158]:40910 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S261962AbVAYOhX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 09:36:33 -0500
-Date: Tue, 25 Jan 2005 07:36:57 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: 2.6.11-rc2-mm1 kernel BUG at kernel/workqueue.c:104
-In-Reply-To: <20050125001424.481a9a19.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0501250736330.3010@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.61.0501242144120.3010@montezuma.fsmlabs.com>
- <20050124214356.6bed35ac.akpm@osdl.org> <Pine.LNX.4.61.0501250020320.3010@montezuma.fsmlabs.com>
- <20050125001424.481a9a19.akpm@osdl.org>
+	Tue, 25 Jan 2005 09:37:23 -0500
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Alex Tomas <alex@clusterfs.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       <ext2-devel@lists.sourceforge.net>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [Ext2-devel] [PATCH] JBD: journal_release_buffer()
+References: <m3wtu9v3il.fsf@bzzz.home.net>
+	<1106604342.2103.395.camel@sisko.sctweedie.blueyonder.co.uk>
+	<m3brbebh43.fsf@bzzz.home.net>
+	<1106609725.2103.616.camel@sisko.sctweedie.blueyonder.co.uk>
+From: Alex Tomas <alex@clusterfs.com>
+Organization: HOME
+Date: Tue, 25 Jan 2005 17:36:08 +0300
+In-Reply-To: <1106609725.2103.616.camel@sisko.sctweedie.blueyonder.co.uk> (Stephen
+ C. Tweedie's message of "Mon, 24 Jan 2005 23:35:26 +0000")
+Message-ID: <m3sm4p8tk7.fsf@bzzz.home.net>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Jan 2005, Andrew Morton wrote:
 
-> OK, thanks.  I get what appears to be a use-after-free error. 
-> CONFIG_DEBUG_PAGEALLOC is set:
-> 
-> Program received signal SIGEMT, Emulation trap.
-> 0xc0272bc2 in kbd_keycode (keycode=57, down=1, hw_raw=0, regs=0xc0673f9c)
->     at drivers/char/keyboard.c:1035
-> 1035            if (tty && (!tty->driver_data)) {
-> (gdb) p tty
-> $1 = (struct tty_struct *) 0xce3c4000
-> (gdb) p *tty
-> Cannot access memory at address 0xce3c4000
-> (gdb) bt
-> #0  0xc0272bc2 in kbd_keycode (keycode=57, down=1, hw_raw=0, regs=0xc0673f9c)
->     at drivers/char/keyboard.c:1035
-> #1  0xc0272ee4 in kbd_event (handle=0xcf150674, event_type=1, event_code=57, 
->     value=1) at drivers/char/keyboard.c:1162
-> #2  0xc03081d8 in input_event (dev=0xcf19b090, type=1, code=57, value=1)
->     at drivers/input/input.c:188
-> #3  0xc030a71a in atkbd_report_key (dev=0xcf19b090, regs=0xc1235000, code=57, 
->     value=0) at drivers/input/keyboard/atkbd.c:239
-> #4  0xc030ab8b in atkbd_interrupt (serio=0xcf771df8, data=57 '9', flags=0, 
->     regs=0xc0673f9c) at drivers/input/keyboard/atkbd.c:392
-> #5  0xc0279dd9 in serio_interrupt (serio=0xcf771df8, data=57 '9', dfl=0, 
->     regs=0xc1235000) at drivers/input/serio/serio.c:681
-> #6  0xc027a96f in i8042_interrupt (irq=1, dev_id=0xc06cb3a0, regs=0xc1235000)
->     at drivers/input/serio/i8042.c:481
-> #7  0xc013b7e5 in handle_IRQ_event (irq=1, regs=0xc0673f9c, action=0xcf0ee85c)
->     at kernel/irq/handle.c:90
-> #8  0xc013b913 in __do_IRQ (irq=1, regs=0xc0673f9c) at kernel/irq/handle.c:177
-> #9  0xc0104eee in do_IRQ (regs=0x0) at arch/i386/kernel/irq.c:105
-> #10 0xc010375a in common_interrupt () at arch/i386/kernel/semaphore.c:177
-> 
-> Roman, binary searching indicates that the bug was introduced by
-> merge-vt_struct-into-vc_data.patch.  The latest version.
+Hi, could you review the following solution?
 
-Thanks for narrowing it down Andrew.
+
+ t_outstanding_credits - number of _modified_ blocks in the transaction
+ t_reserved - number of blocks all running handle reserved
+
+ transaction size = t_outstanding_credits + t_reserved;
+
+ 
+
+
+
+#define TSIZE(t)	((t)->t_outstanding_credits + (t)->t_reserved)
+
+journal_start(blocks)
+{
+	if (TSIZE(transaction) + blocks > MAX)
+		wait_for_space(journal);
+		
+	transaction->t_reserved += blocks;
+	handle->h_buffer_credits = blocks;
+}
+
+
+journal_get_write_access(handle, bh)
+{
+	if (jh->b_tcount >= 0)
+		jh->b_tcount++;
+}
+
+journal_dirty_metadata(handle, bh)
+{
+	transaction->t_reserved--;
+	handle->h_buffer_credits--;
+	if (jh->b_tcount > 0) {
+                /* modifed, no need to track it any more */
+		transaction->t_outstanding_credits++;
+		jh->b_tcount = -1;
+	}
+}
+
+journal_release_buffer(handle, bh)
+{
+	if (jh->b_tcount > 0) {
+                /* it's not modified yet */
+		jh->b_tcount--;
+                if (jh->b_tcount == 0) {
+                       /* remove from the transaction */
+                }
+        }
+}
+
+journal_stop(handle)
+{
+	transaction->t_outstanding_credits -= handle->h_buffer_credits;
+}
+
+
+thanks, Alex
+
 

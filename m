@@ -1,76 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262629AbTDETcq (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 14:32:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262631AbTDETcq (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 14:32:46 -0500
-Received: from modemcable011.162-200-24.mtl.mc.videotron.ca ([24.200.162.11]:16002
-	"HELO chezsoi") by vger.kernel.org with SMTP id S262629AbTDETco (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Apr 2003 14:32:44 -0500
-From: "James Watkins-Harvey" <james.watkins-harvey.1@ens.etsmtl.ca>
-To: "Anant Aneja" <anantaneja@rediffmail.com>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: poweroff problem
-Date: Sat, 5 Apr 2003 14:44:58 -0500
-Message-ID: <FAEHLJECFOOHNNMFHACOKEIECDAA.james.watkins-harvey.1@ens.etsmtl.ca>
+	id S262637AbTDETqF (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 14:46:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262639AbTDETqF (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 14:46:05 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:37392
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S262637AbTDETqB (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 5 Apr 2003 14:46:01 -0500
+Date: Sat, 5 Apr 2003 11:52:28 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: "Mudama, Eric" <eric_mudama@maxtor.com>
+cc: "'Chuck Ebbert '" <76306.1226@compuserve.com>,
+       "'linux-kernel '" <linux-kernel@vger.kernel.org>
+Subject: RE: PATCH: Fixes for ide-disk.c
+In-Reply-To: <785F348679A4D5119A0C009027DE33C102E0D066@mcoexc04.mlm.maxtor.com>
+Message-ID: <Pine.LNX.4.10.10304051146440.29290-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20030405060804.31946.qmail@webmail5.rediffmail.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
 
-> I've got a problem with my 2.4.2-2 kernel.
+Eric,
 
-  [...]
+Ask Leroy in Longmont how it should behave.
 
-> i know that the kernel is old but i dont want to update
-> cos my modem has a low download speed
+6-10 seconds is a nice idea, the reality as we both know it is up to 30
+seconds to return because of OOB seeks to write on reallocations.
 
-  [...]
+FLUSH CACHE/FLUSH CACHE EXT ...
 
-> can anyone help me ?
+If you have a drive that is not larger than 28-bit in geometry regardless
+if it supports the 48-bit feature set, if it fails to comply with 28-bit
+flush cache it is a "BAD DEVICE", period.  You will not be allowed to push
+off the 48-bit feature set rules.  Regardless if the new smart data is
+set the the GPL and not Smart Logs.
 
+If you are suggesting a pole for completion on the FLUSH, say so.
+Otherwise, standard non-data INTQ completion is default.
 
-For sure!  You can probably help yourself (and people on the list) by
-upgrading your kernel to something a bit newer.  No one still have a box
-with such installation, anyway.
+Cheers,
 
-Common, your modem is that slow?  Ok, let's say you have a 28.8 KBps...
-Should be about 2 hours to download the file; give it a try yourself:
-http://internetservices.cnet.com/g/bm/dl/0001.asp?filename=Linux+Kernel+2.4.
-20+(tar.bz2)&sd=26.1MB&size=27421046 .  Of course, make sure to download the
-bzip version, not the gzip one (
-ftp://ftp.kernel.org/pub/linux/kernel/v2.4/linux-2.4.20.tar.bz2 ).
+On Sat, 5 Apr 2003, Mudama, Eric wrote:
 
-Once installed, make sure to keep a clean version of the kernel tree, so in
-the future you can regularly download incremental updates; kernel's patch
-are about 1 MB per development month.
+> 
+> If you guys see a problem with how the bits are set on a Maxtor drive,
+> please let me know so I can fix them.
+> 
+> If you try to spin down, the drive shouldn't allow that to happen with dirty
+> write data, period.
+> 
+> To ensure the cache is flushed, you must issue FLUSH CACHE (EXT).  That is
+> the only "according to spec" method.  I know of other things you can do (on
+> a Maxtor drive) that have cache flush as a side effect, but that is the only
+> specified way.
+> 
+> Once the flush cache has returned 0x50 status, there can be no dirty data
+> left in the drive.  Note that this FLUSH CACHE can easily take 6-10 seconds
+> depending on drive cache size and workload pattern.
+> 
+>  
+> 
+> -----Original Message-----
+> From: Andre Hedrick
+> To: Chuck Ebbert
+> Cc: linux-kernel
+> Sent: 4/5/03 4:30 AM
+> Subject: Re: PATCH: Fixes for ide-disk.c
+> 
+> 
+> If the drive is compliant it will issue an abort if not supported.
+> Otherwise one should check the identify page; however, there are several
+> cases where the bits are improperly set.  Another double edge sword to
+> make the driver more interesting.
+> 
+> Cheers,
+> 
+> On Sat, 5 Apr 2003, Chuck Ebbert wrote:
+> 
+> > 
+> > John Bradford wrote:
+> > 
+> > 
+> > >Did we ever establish what the best way to ensure
+> > >that the write cache is flushed, is?  An explicit
+> > >cache flush and spin down are both necessary, but
+> > >I had problems with drives spinning back up when
+> > >we did the spindown first.
+> > 
+> > 
+> > Disks that don't support flush should be sent an IDLE command, IIRC.
+> > 
+> > 
+> > 
+> > --
+> >  Chuck
+> >  I am not a number!
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> 
+> Andre Hedrick
+> LAD Storage Consulting Group
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Give it a try, then if it still not works, it could be useful to mention it
-on LKML.  But then, be preapared to do testing by yourself, cause it seems
-like you're the only one experiencing such problems.
-
-
-> also i cant give u the complete listing of the cpu
-> registers since it occurs at the last stage
-> of shutdown and i cant copy it to a file
-> and am too lazy to write it down
-
-
-Sorry to say it, but i don't think Linux is a good place for laziness;
-actually I know about an operating system developped by lazy programmers for
-lazy users...  Don't remember the name ;)
-
-
-
-
-James
+Andre Hedrick
+LAD Storage Consulting Group
 

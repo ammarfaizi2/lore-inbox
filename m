@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268921AbRG0S56>; Fri, 27 Jul 2001 14:57:58 -0400
+	id <S268916AbRG0S76>; Fri, 27 Jul 2001 14:59:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268916AbRG0S5s>; Fri, 27 Jul 2001 14:57:48 -0400
-Received: from mail.clemson.edu ([130.127.28.87]:52461 "EHLO CLEMSON.EDU")
-	by vger.kernel.org with ESMTP id <S268921AbRG0S5d>;
-	Fri, 27 Jul 2001 14:57:33 -0400
-Message-ID: <000901c116cd$c67b4a40$3cac7f82@crb50>
-From: "Hai Xu" <xhai@CLEMSON.EDU>
-To: <linux-kernel@vger.kernel.org>
-Subject: question about libc.a libgcc.a
-Date: Fri, 27 Jul 2001 14:55:59 -0400
+	id <S268925AbRG0S7s>; Fri, 27 Jul 2001 14:59:48 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:61200 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S268916AbRG0S7i>;
+	Fri, 27 Jul 2001 14:59:38 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200107271859.WAA24210@ms2.inr.ac.ru>
+Subject: Re: 2.4.7 softirq incorrectness.
+To: maxk@qualcomm.com (Maksim Krasnyanskiy)
+Date: Fri, 27 Jul 2001 22:59:14 +0400 (MSK DST)
+Cc: andrea@suse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <4.3.1.0.20010727112236.03454b30@mail1> from "Maksim Krasnyanskiy" at Jul 27, 1 11:31:22 am
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2479.0006
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Dear all,
+Hello!
 
-I am focus on a device driver. I compile it to a model.o and try to insmod
-it to kernel. But when do so, I will get:
+> Applied to 2.4.8-pre1. Didn't make any difference.
 
-unresolved symbol: __udividi3
-unresolved symbol: __umoddi3
+Yes, that hole is mostly theoretical. At least, on intel. Seems, gcc is still
+not enough clever to reorder atomic operations.
 
-As someone tell me, I have to link the libgcc.a to my model.o. I did it but
-I when I try to insmod the model.o, I will get segamentation fault.
 
-The following are my link libraries.
-#LIBS    =
-$(MATLAB_ROOT)/rtw/c/lib/$(ARCH)/lrtwLib.a -L/usr/lib/gcc-lib/i386-redhat-li
-nux/2.96 -lgcc -L/usr/lib -lm -lc $(EXT_LIB) $(S_FUNCTIONS_LIB)
-$(INSTRUMENT_LIBS)
+> Also it doesn't fix the scenario that I described (reschedule while running). I'm still wondering why don't I hit that trylock/BUG 
+> in tasklet_action.
 
-Please give me some ideas about it.
+How old the problem is? Was it always present?
 
-Thanks in advance
-Hai Xu
+To be honest, this is too strong bug to believe to this at all. :-)
 
+Alexey

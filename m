@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262154AbSIZDOc>; Wed, 25 Sep 2002 23:14:32 -0400
+	id <S262161AbSIZDXv>; Wed, 25 Sep 2002 23:23:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262155AbSIZDOb>; Wed, 25 Sep 2002 23:14:31 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:3343 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262154AbSIZDOb>;
-	Wed, 25 Sep 2002 23:14:31 -0400
-From: Randy Dunlap <rddunlap@osdl.org>
-Message-ID: <1243.4.64.197.173.1033010387.squirrel@www.osdl.org>
-Date: Wed, 25 Sep 2002 20:19:47 -0700 (PDT)
-Subject: Re: [PATCH]: 2.5.38uc1 (MMU-less support)
-To: <gerg@snapgear.com>
-In-Reply-To: <3D927278.6040205@snapgear.com>
-References: <20020925151943.B25721@parcelfarce.linux.theplanet.co.uk>
-        <3D927278.6040205@snapgear.com>
-X-Priority: 3
-Importance: Normal
-Cc: <willy@debian.org>, <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.8)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S262160AbSIZDXv>; Wed, 25 Sep 2002 23:23:51 -0400
+Received: from thunk.org ([140.239.227.29]:39327 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S262161AbSIZDXt>;
+	Wed, 25 Sep 2002 23:23:49 -0400
+Date: Wed, 25 Sep 2002 23:28:30 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Aaron Lehmann <aaronl@vitelus.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
+Message-ID: <20020926032830.GB4072@think.thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Aaron Lehmann <aaronl@vitelus.com>, linux-kernel@vger.kernel.org
+References: <E17uINs-0003bG-00@think.thunk.org> <20020926005020.GA4587@vitelus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020926005020.GA4587@vitelus.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> * You're defining CONFIG_* variables in the .c file.  I don't know
->> whether
->>   this is something we're still trying to avoid doing ... Greg, you
->> seem to be CodingStyle enforcer, what's the word?
->
-> I missed this the first time through :-)
-> I am not sure what you mean, CodingStyle enforcer?
-> Can you elaborate for me?
+On Wed, Sep 25, 2002 at 05:50:20PM -0700, Aaron Lehmann wrote:
+> On Wed, Sep 25, 2002 at 04:03:44PM -0400, tytso@mit.edu wrote:
+> > In order to use the new directory indexing feature, please update your
+> > e2fsprogs to 1.29.  Existing filesystem can be updated to use directory
+> > indexing using the command "tune2fs -O dir_index /dev/hdXXX".
+> 
+> Do new filesystems created with e2fsprogs 1.29 use this feature by
+> default?
 
+Yes, they do.  The "tune2fs -O dir_index" command is only needed for
+filesystems created before 1.29.
 
-Willy is talking about Greg Kroah-Hartman here, not you.
-
-~Randy
-
-
-
+						- Ted

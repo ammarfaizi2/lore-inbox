@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269543AbRHLXAI>; Sun, 12 Aug 2001 19:00:08 -0400
+	id <S269549AbRHLXFS>; Sun, 12 Aug 2001 19:05:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269544AbRHLW77>; Sun, 12 Aug 2001 18:59:59 -0400
-Received: from neon-gw.transmeta.com ([63.209.4.196]:49420 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269543AbRHLW7v>; Sun, 12 Aug 2001 18:59:51 -0400
-Date: Sun, 12 Aug 2001 15:59:21 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Manuel McLure <manuel@mclure.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Hang problem on Tyan K7 Thunder resolved -- SB Live! heads-up
-In-Reply-To: <20010812155520.A935@ulthar.internal.mclure.org>
-Message-ID: <Pine.LNX.4.33.0108121557060.2102-100000@penguin.transmeta.com>
+	id <S269547AbRHLXFI>; Sun, 12 Aug 2001 19:05:08 -0400
+Received: from oe18.law11.hotmail.com ([64.4.16.122]:58638 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S269546AbRHLXEz>;
+	Sun, 12 Aug 2001 19:04:55 -0400
+X-Originating-IP: [24.10.60.231]
+From: "Dan Mann" <daniel_b_mann@hotmail.com>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0108121506100.18332-100000@druid.if.uj.edu.pl>
+Subject: Re: VM nuisance
+Date: Sun, 12 Aug 2001 19:05:11 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Message-ID: <OE18Y30kkZIhTrBoe2U00004e33@hotmail.com>
+X-OriginalArrivalTime: 12 Aug 2001 23:05:02.0627 (UTC) FILETIME=[37C28F30:01C12383]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rik Said:
 
-On Sun, 12 Aug 2001, Manuel McLure wrote:
+> > No.  The problem is that whenever I change something to
+> > the OOM killer I get flamed.
 > >
-> > Can you try just adding the line
+> > Both by the people for whom the OOM killer kicks in too
+> > early and by the people for whom the OOM killer now doesn't
+> > kick in.
 > >
-> > 	if (!woinst)
-> > 		return;
-> >
-> > to the top of the function (just before the "spin_lock_irqsave()"). Does
-> > that fix it for you?
-> >
-> > 		Linus
->
-> So far so good - however I don't have a consistent way to reproduce this.
-> I'll just keep running and see if the Oops happens again.
+> > I haven't got the faintest idea how to come up with an OOM
+> > killer which does the right thing for everybody.
 
-Mind trying an alternate approach: remove the "if (!woinst)" thing, and
-instead move the line that initializes the tasklets down two lines
-(there's two places, they look something like
+Would there be a way that you could have a proc interface to adjust the
+sensitivity of the OOM killer so that users could raise or lower the
+threshold that causes OOM killer activation?  Hopefully you wouldn't get any
+flak for that unless users start blaming you for their own settings :-)
 
-                tasklet_init(&wiinst->timer.tasklet, emu10k1_wavein_bh,  (unsigned long) wave_dev);
-                wave_dev->wiinst = wiinst;
-                emu10k1_wavein_setformat(wave_dev, &wiinst->format);
+Most people would just use the standard setting that you provide...but
+others that felt the need could change it on their system.
 
-and they _should_ do the "tasklet_init()" _after_ the other
-initializations, ie move that line down a bit, like so:
-
-                wave_dev->wiinst = wiinst;
-                emu10k1_wavein_setformat(wave_dev, &wiinst->format);
-                tasklet_init(&wiinst->timer.tasklet, emu10k1_wavein_bh, (unsigned long) wave_dev);
-
-Does that also fix it?
-
-And sure, I realize that you want to run it for a while..
-
-		Linus
-
+Dan

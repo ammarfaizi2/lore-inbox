@@ -1,107 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261633AbVBVTKO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261520AbVBVTKs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261633AbVBVTKO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 14:10:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbVBVTKM
+	id S261520AbVBVTKs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 14:10:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbVBVTKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 14:10:12 -0500
-Received: from smtp.zipmail.com.br ([200.221.11.147]:34524 "EHLO
-	www.zipmail.com.br") by vger.kernel.org with ESMTP id S261497AbVBVTHh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 14:07:37 -0500
-Message-ID: <421AE68600001A5B@www.zipmail.com.br>
-Date: Tue, 22 Feb 2005 19:56:19 +0100
-From: kwhit_60@zipmail.com.br
-Subject: =?iso-8859-1?Q?Urgent=20Request=20for=20your=20Business=20Co=2Doperation=21?=
-MIME-Version: 1.0
+	Tue, 22 Feb 2005 14:10:47 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:47256
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261520AbVBVTIL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 14:08:11 -0500
+Date: Tue, 22 Feb 2005 11:07:22 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: mlists@danielinux.net, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org, ccaini@deis.unibo.it,
+       rfirrincieli@arces.unibo.it
+Subject: Re: [PATCH] TCP-Hybla proposal
+Message-Id: <20050222110722.0a9fd761.davem@davemloft.net>
+In-Reply-To: <20050222094219.0a8efbe1@dxpl.pdx.osdl.net>
+References: <200502221534.42948.mlists@danielinux.net>
+	<20050222094219.0a8efbe1@dxpl.pdx.osdl.net>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-To: unlisted-recipients:; (no To-header on input)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kelly White,
+On Tue, 22 Feb 2005 09:42:19 -0800
+Stephen Hemminger <shemminger@osdl.org> wrote:
 
-Please,copy reply to all of the following email addresses: 
-k_whity60@yahoo.com,whitkel2@netscape.net,kwhity@37.com,kwhity@outgun.com,kwhit60@uboot.com
+> The protocol choices are mutually exclusive, if you walk through the code
+> (or do experiments), you find that that only one gets used.  As part of the
+> longer term plan, I would like to:
+> 	- have one sysctl
+> 	- choice by route and destination
+> 	- union for fields in control block
 
-Dear Sir,
+Let's take a first baby step and make the congestion control
+algorithm a single enumeration instead of all of this
+tp->foo_cong_ctrl_on, tp->bar_cong_ctrl_on stuff.  Then make
+the union to shrink the tcp_sock size, we could even use an
+anonymous union to make the patch a lot smaller.
 
-IN DESPERATE NEED OF YOUR CO-OPERATION!
- 
-I write you this letter to solicit your help from Prison, as I am in
-dire need. 
-I am Kelly 
-White, a Captain in The British Army deployed to help facilitate the forceful
-change of the Sadam HUSSEIN Regime in Iraq. I have been serving in Iraq
-sincethe beginning 
-of the war. I was previously attached to a British Military Base in Germany
-before my deployment to Iraq. I do hope you are not confused and distracted
-by the fact that a strange person is writting you in confidence. 
-In the course of my stay in Iraq,I have withnessed so much
-looting from which many colleagues have benefited (in excess of some Billions
-of Dollars)and we have also benefit from. I
-decided that I cannot afford to be left out of this great 
-opportunity to become a success, after a long hesitation. 
-This money is a part of the money that the regime of Sadam
-Hussein,their friends and cronies had stolen and hidden in various parts
-of Iraq before the war.It was now the responsibility of the U.S and British
-soldiers to search
-for,recover this money and plough back into the governance of Iraq. In the
-proccess,we were able to keep some away for
-ourselves. Thats how the money came about.
-Everything went well until I was accused arrested in 2004 alongside other
-colleagues suspected to have abused inmates of prisons under the control
-of Allied Forces in Iraq.
-I initially thought that my stay in prison awaiting trial would be brief
-but I have spent some months here without any change in my hopeless situation!
-Now that I dont know how long I would stay here,and faced with the possibility
-of dismissal from
-the Army if I am found guilty,I have come to reason that it is only proper
-to try and make some kind of reliable contact who could help me pick up
-and safe-keep this money so
-that I dont lose everything I have saved during my stay in Iraq.Who knows;such
-an opportunity,they say, comes once in a lifetime!
-My friends who did it before advised me that I just needed a contact(any
-contact) outside Iraq to assure me that he could handle such an amount of
-money,after which I would order it to be sent through for safe-keeping.
-I have (hidden safely in Iraq) presently,the sum of US$21.7m. I only need
-you,Sir,to guarantie me that I can still get this money back,if it is 
-remitted to you. I only need a person I can trust to safeguard this money
-since it is not possible to leave here and do it myself. All the arragerment
-to transfer it to you has been made by me before my arrest.Your only part
-is to receive and safeguard it. We would further discuss on how the money
-should be disbursed afterwards.
-For your role in this business,I wish to compensate you
-handsomely on successful conclussion of this assignment.I must only not
-forget to tell you that secrecy and confidentiality in this business is
-very important to both parties. It could put us in serious danger and even
-compound my already complex problem, if this information is leaked to a
-third
-party!It is therefore a matter of great importance to keep this secret strictly
-between us even after the successful conclussion of this transaction. I
-did not include my phone contact because any other contact is for the military
-prison and therefore,tapped.This e-mail is the only private contact I
-have here.
-I implore you to consider this proposal as urgently as possible and give
-me a feedback. If you are in favour of my
-proposal,please,do include your PRIVATE contact
-information - phone,fax,e-mail to facilitate a more effective and confidential
-communication.
-I implore you to ponder over this proposal as urgently as possible and get
-back to me.
-Do not forget to pray fervently for my acquitance.I wish you the bestas
-I await your reply.
-Thanks,
-Best Regards,
-Kelly White(Capt).
+We can't just get rid of all the existing sysctls.  We can
+add a new one that just makes the choice as you describe.
+We could therefore do something like this:
 
+enum tcp_congctrl_alg tcp_global_congctrl_alg;
 
+And then we use a special sysctl handler for all the individual
+sysctl_tcp_bic et al. enablers that does something like:
 
+	if (tcp_global_congctrl_alg == TCP_CONGCTRL_BIC)
+		return 1;
+	return 0;
 
-------------------------------------------
-Use o melhor sistema de busca da Internet
-Radar UOL - http://www.radaruol.com.br
-
-
-
+and setting just does the necessary assignment to
+tcp_global_congctrl_alg.  Well... I hope the sysctl framework
+allows something like this :-)  If not, it should not be hard to
+add.

@@ -1,76 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261940AbUL0TUG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261949AbUL0T0J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261940AbUL0TUG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 14:20:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261949AbUL0TUG
+	id S261949AbUL0T0J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 14:26:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbUL0T0J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 14:20:06 -0500
-Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:25714 "HELO
-	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261940AbUL0TTt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 14:19:49 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
+	Mon, 27 Dec 2004 14:26:09 -0500
+Received: from mout1.freenet.de ([194.97.50.132]:55683 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S261949AbUL0T0E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 14:26:04 -0500
+Date: Mon, 27 Dec 2004 20:25:08 +0100
+From: Michelle Konzack <linux4michelle@freenet.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [bk patches] Long delayed input update
-Date: Mon, 27 Dec 2004 14:19:43 -0500
-User-Agent: KMail/1.6.2
-Cc: Vojtech Pavlik <vojtech@suse.cz>, torvalds@osld.org, akpm@osdl.org
-References: <20041227142821.GA5309@ucw.cz>
-In-Reply-To: <20041227142821.GA5309@ucw.cz>
-MIME-Version: 1.0
+Subject: Re: About NFS4 in kernel 2.6.9
+Message-ID: <20041227192508.GC18869@freenet.de>
+References: <d5a95e6d04122711183596d0c8@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/qNnUp0NPtZJWkzn"
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200412271419.46143.dtor_core@ameritech.net>
+In-Reply-To: <d5a95e6d04122711183596d0c8@mail.gmail.com>
+X-Message-Flag: Improper configuration of Outlook is a breeding ground for viruses. Please take care your Client is configured correctly. Greetings Michelle.
+X-Disclaimer-DE: Eine weitere Verwendung oder die Veroeffentlichung dieser Mail oder dieser Mailadresse ist nur mit der Einwilligung des Autors gestattet.
+Organisation: Michelle's Selbstgebrautes
+X-Operating-System: Linux samba3.private 2.4.27-1-386
+X-Uptime: 20:23:37 up 7 days, 19:31,  4 users,  load average: 0.95, 0.55, 0.26
+X-Homepage: http://www.debian.tamay-dogan.homelinux.net/
+User-Agent: Mutt/1.5.6+20040907i
+X-Warning: freenet.de is listed at abuse.rfc-ignorant.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 27 December 2004 09:28 am, Vojtech Pavlik wrote:
-> ChangeSet@1.1957.1.21, 2004-10-21 23:52:36-05:00, dtor_core@ameritech.net
-> ? Input: i8042 - allow turning debugging on and off "on-fly"
-> ? ? ? ? ?so people do not have to recompile their kernels to
-> ? ? ? ? ?provide debug info.
-> ? 
-> ? ? ? ? ?Adds new parameter i8042.debug also accessible through
-> ? ? ? ? ?sysfs. 
-> ? 
-> ? Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
-Hi,
+--/qNnUp0NPtZJWkzn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This one needs the patch below to correct permissions braindamage.
+Hello Diego,=20
 
--- 
-Dmitry
+Am 2004-12-27 16:18:00, schrieb Diego:
 
+> Iniciando NFS4 idmapd: FATAL: Module sunrpc not found.
+> FATAL: Error running install command for sunrpc
+>=20
+> I dont know what is the problem, whem i recompile the kernel, i
+> compile support to NFSv4. Somebody help me, please.
+> Thanks for your help.
 
-===================================================================
+The output told you that it does not find "sunrpc" so you
+need ot compile it for your kernel. What do you mean ?
 
+> Diego.
 
-ChangeSet@1.1968, 2004-11-25 00:33:20-05:00, dtor_core@ameritech.net
-  Input: i8042 - fix "debug" parameter sysfs permissions.
-  
-  Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+Greetings
+Michelle
 
+--=20
+Linux-User #280138 with the Linux Counter, http://counter.li.org/=20
+Michelle Konzack   Apt. 917                  ICQ #328449886
+                   50, rue de Soultz         MSM LinuxMichi
+0033/3/88452356    67100 Strasbourg/France   IRC #Debian (irc.icq.com)
 
- i8042.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+--/qNnUp0NPtZJWkzn
+Content-Type: application/pgp-signature; name="signature.pgp"
+Content-Description: Digital signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-===================================================================
+iD8DBQFB0GGUC0FPBMSS+BIRApuEAJ0dQHyEf9O+tutqAhn4+t7nYD6mLACeOGEe
+sLtL0tzJbcW9CoQgxZVSVjE=
+=ju3w
+-----END PGP SIGNATURE-----
 
-
-
-diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
---- a/drivers/input/serio/i8042.c	2004-11-25 01:27:15 -05:00
-+++ b/drivers/input/serio/i8042.c	2004-11-25 01:27:15 -05:00
-@@ -68,7 +68,7 @@
- #define DEBUG
- #ifdef DEBUG
- static int i8042_debug;
--module_param_named(debug, i8042_debug, bool, 600);
-+module_param_named(debug, i8042_debug, bool, 0600);
- MODULE_PARM_DESC(debug, "Turn i8042 debugging mode on and off");
- #endif
- 
+--/qNnUp0NPtZJWkzn--

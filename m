@@ -1,63 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262723AbTIAHH0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 03:07:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbTIAHHZ
+	id S262734AbTIAHPf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 03:15:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262738AbTIAHPf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 03:07:25 -0400
-Received: from chello080108023209.34.11.vie.surfer.at ([80.108.23.209]:48512
-	"HELO leto2.endorphin.org") by vger.kernel.org with SMTP
-	id S262723AbTIAHG6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 03:06:58 -0400
-Date: Mon, 1 Sep 2003 09:07:32 +0200
-To: Christian Jaeger <christian.jaeger@ethlife.ethz.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cryptoloop on 2.4.22/ppc doesn't work
-Message-ID: <20030901070732.GA7557@leto2.endorphin.org>
+	Mon, 1 Sep 2003 03:15:35 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:22673 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262734AbTIAHPX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 03:15:23 -0400
+Date: Mon, 1 Sep 2003 00:06:15 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: mfedyk@matchmail.com, lm@bitmover.com, linux-kernel@vger.kernel.org
+Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
+Message-Id: <20030901000615.28d93760.davem@redhat.com>
+In-Reply-To: <20030901064231.GJ748@mail.jlokier.co.uk>
+References: <20030829053510.GA12663@mail.jlokier.co.uk>
+	<20030829154101.GB16319@work.bitmover.com>
+	<20030829230521.GD3846@matchmail.com>
+	<20030830221032.1edf71d0.davem@redhat.com>
+	<20030831224937.GA29239@mail.jlokier.co.uk>
+	<20030831223102.3affcb34.davem@redhat.com>
+	<20030901064231.GJ748@mail.jlokier.co.uk>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5mCyUwZo2JvN/JJP"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Fruhwirth Clemens <clemens-dated-1063264053.c002@endorphin.org>
-X-Delivery-Agent: TMDA/0.51 (Python 2.1.3 on Linux/i686)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 1 Sep 2003 07:42:31 +0100
+Jamie Lokier <jamie@shareable.org> wrote:
 
---5mCyUwZo2JvN/JJP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> David S. Miller wrote:
+> > On Sun, 31 Aug 2003 23:49:37 +0100
+> > Jamie Lokier <jamie@shareable.org> wrote:
+> > 
+> > > It uses POSIX shared memory and (necessarily) MAP_SHARED, which
+> > > doesn't constrain the mapping alignment.
+> > 
+> > That's wrong.  If a platform needs to, it should properly
+> > align the mapping when MAP_SHARED is used on a file.
+> > 
+> > If you look in arch/sparc64/kernel/sys_sparc.c, you'll see
+> > that when we're mmap()'ing a file and MAP_SHARED is specified,
+> > we align things to SHMLBA.
+> 
+> Then you have a bug in the Sparc code.  It looks like it should return
+> -EINVAL when a misaligned mapping is used with MAP_FIXED|MAP_SHARED,
+> but the test program is clearly getting mappings that aren't aligned
+> to SHMLBA.
 
-On Thu, Feb 15, 2001 at 01:35:46PM +0100, Christian Jaeger wrote:
->=20
-> I cannot seem to get crypto loopback to run.
+I disagree, MAP_FIXED means "I know what I am doing don't override
+this unless the mapping area is not available in my address space."
+You should never specify MAP_FIXED unless you _REALLY_ know what you
+are doing.
 
-=2E.
+> Thus I have three Sparc-specific questions:
+> 
+> 	1. How does userspace find out the value of SHMLBA?
+> 	   On Sparc, it is not a compile-time constant.
 
-> This is Debian woody, /sbin/losetup from mount package 2.11m-1
->=20
-> Why doesn't it work?
+Don't specify MAP_FIXED for MAP_SHARED mapping if you want
+proper coherency, that's my answer for this one.
 
-You need to update util-linux. 2.12pre is recommend in addition to jari's
-crypto patches:=20
+> 	2. Is flushing part of the data cache something I can do from
+> 	   userspace?  (I'll figure out the exact machine instructions
+> 	   myself if I need to do this, but it'd be nice to know if
+> 	   it's possible before I have a go).
 
-http://www.kerneli.org/pipermail/cryptoapi-devel/2003-June/000578.html
+There is no efficient way to do this from userspace, only the
+kernel has access to the more efficient cache flushing instructions.
+You'd need to flush via loads to displace the aliasing cache lines.
 
-Regards, Clemens
+> 	3. Is there a kernel bug on Sparc, because the test program
+> 	   is either getting mappings that aren't aligned to run time
+> 	   SHMLBA, or the kernel's run time SHMLBA value is not correct.
 
---5mCyUwZo2JvN/JJP
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+No, the user is allowed to hang himself with MAP_FIXED.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE/UvA0W7sr9DEJLk4RAvC9AJ91T+xNXWR4QXsRhIbLAscvx5cq9QCeOXsm
-W4oek4S5qJPtYj0dc/IUGzo=
-=Zpcf
------END PGP SIGNATURE-----
-
---5mCyUwZo2JvN/JJP--
+The bug is in your code :)

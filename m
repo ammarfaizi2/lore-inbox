@@ -1,144 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288853AbSAEQSF>; Sat, 5 Jan 2002 11:18:05 -0500
+	id <S288855AbSAEQUf>; Sat, 5 Jan 2002 11:20:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288855AbSAEQRq>; Sat, 5 Jan 2002 11:17:46 -0500
-Received: from e120116.upc-e.chello.nl ([213.93.120.116]:25362 "EHLO
-	stempel.dhs.org") by vger.kernel.org with ESMTP id <S288853AbSAEQRo>;
-	Sat, 5 Jan 2002 11:17:44 -0500
-Date: Sat, 5 Jan 2002 17:17:28 +0100 (CET)
-From: Edward Stempel <eazstempel@cal009001.student.utwente.nl>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Edward Stempel <eazstempel@cal009001.student.utwente.nl>,
-        linux-kernel mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: DMA conflicts with soundcard for ide driver via82cxxx
-In-Reply-To: <20020101232022.A7608@suse.cz>
-Message-ID: <Pine.LNX.4.21.0201051708250.11947-100000@nieuw3.stempel.dhs.org>
+	id <S288856AbSAEQUZ>; Sat, 5 Jan 2002 11:20:25 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:60582 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S288855AbSAEQUT>;
+	Sat, 5 Jan 2002 11:20:19 -0500
+Message-ID: <3C37172E.2020306@athlon.maya.org>
+Date: Sat, 05 Jan 2002 16:09:34 +0100
+From: Andreas Hartmann <andihartmann@freenet.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020105
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+CC: Stephan von Krawczynski <skraw@ithnet.com>, brownfld@irridia.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <Pine.LNX.4.33.0201050355300.11089-100000@shell1.aracnet.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Jan 2002, Vojtech Pavlik wrote:
+M. Edward (Ed) Borasky wrote:
 
-> On Tue, Jan 01, 2002 at 11:03:52PM +0100, Edward Stempel wrote:
-> > In my BIOS-setup there is an option "PCI latency" which defaults to
-> > 32. First I changed it to 128. That worked perfect. Later I have decreased
-> > it to 64, 48 and 40. But 40 still gave some problems (a little bit
-> > distortion of my sound). After that I tried 44, but the disk was to slow
-> > with this setting (30 MB/s instead of 40 MB/s). So now I have a PCI
-> > latency of 48. The strange thing is that it seems not to work
-> > directly. After the system boot when I do hdparm -t, I get about 5
-> > MB/s. But then when I switch using_dma off and on again using hdparm, I
-> > get the full 40 MB/s and no distortion of my es1371. Any ideas what might
-> > cause this?
-> 
-> You'd have to tell me all other settings in your setup first so I can
-> guess the cause. What options do you use? Is DMA enabled automatically?
-> Etc, etc ...
-
-I am not sure which settings you need. But I compiled a kernel with:
-- Generic PCI IDE chipset support
-- Sharing PCI IDE interrupt support
-- Generic PCI bus-master DMA support
-- Use PCI DMA by default when available
-- VIA82CXXX chipset support
-
-After booting this kernel hdparm -v reports that I am using dma, but
-hdparm -t only reports about 5 MB/s data transfer rate. When I switch the
-using of dma off and on with hdparm -d the transfer rate becomes about
-40MB/s
-
-The PCI latency is set in the BIOS setup, and according to /proc/pci this
-latency is applied to all PCI devices except my matrox G550 video card,
-which has a latency of 64.
-
-
-I hope this explains something.
-
-
-
-> 
-> > 
-> > Regards,
-> > 
-> > Edward  
-> >  
-> > 
-> > 
-> > 
-> > ---------- Forwarded message ----------
-> > Date: Tue, 1 Jan 2002 18:14:41 +0100
-> > From: Vojtech Pavlik <vojtech@suse.cz>
-> > To: Edward Stempel <eazstempel@cal009001.student.utwente.nl>
-> > Cc: linux-kernel mailinglist <linux-kernel@vger.kernel.org>
-> > Subject: Re: DMA conflicts with soundcard for ide driver via82cxxx
-> > 
-> > On Fri, Dec 28, 2001 at 05:10:43PM +0100, Edward Stempel wrote:
-> > 
-> > > Excellent! That solved my problem.
-> > 
-> > What exactly did you have to change? It might be worth to include the
-> > changing of the latency setting in the kernel.
-> > 
-> > > 
-> > > Thankx
-> > > 
-> > > Edward
-> > > 
-> > > 
-> > > 
-> > > 
-> > > Date: Fri, 28 Dec 2001 10:15:05 +0100
-> > > From: Vojtech Pavlik <vojtech@suse.cz>
-> > > To: Edward Stempel <eazstempel@cal009001.student.utwente.nl>
-> > > Cc: linux-kernel mailinglist <linux-kernel@vger.kernel.org>
-> > > Subject: Re: DMA conflicts with soundcard for ide driver via82cxxx
-> > > 
-> > > On Fri, Dec 28, 2001 at 03:32:34AM +0100, Edward Stempel wrote:
-> > > 
-> > > > I have an Asus a7v266 mother board and an Ensoniq sound card in it. 
-> > > > The ide chipset is a VIA VT8233 that is capable of UDMA100. So I built a
-> > > > kernel with the es1371 sound driver and the via82cxxx ide driver
-> > > > configured in it. Actually I tried the kernel 2.4.17 first, and the latest
-> > > > I tried is 4.5.1 with the latest patch (patch-2.5.2-pre3) applied to it.
-> > > > I also tried the kernel 2.5.1 with Vojtech  patch (via-3.33.diff from
-> > > > his email dated 2001-12-23 23:20:48) applied to it, with the same
-> > > > (negative) results.
-> > > > 
-> > > > The good thing is that hdparm reports appr. 40 MB/sec when using DMA and
-> > > > about 6 MB/sec when not using DMA.
-> > > > Unfortunately using DMA for ide results in some ugly distortion of the
-> > > > sound from my soundcard whenever some IO to the disk is done.  :((
-> > > > 
-> > > > I have assigned different interrupts to the PCI-cards (ide is 
-> > > > on-board) and I even changed the sound card's PCI slot, so it shared
-> > > > its interrupt with another device (acpi instead of USB). It did not solve
-> > > > the problem. Because the problem only occurs when switching on using_dma
-> > > > on the ide driver, I think it is a DMA problem with the ide driver. It may
-> > > > be the es1371 driver as well off course, but I suspect it is the ide
-> > > > driver (or chipset).
-> > > >   
-> > > > Reading the list archive from linux-kernel, I discovered there have been
-> > > > more problems with DMA using this chipset, but I did not find anyone
-> > > > having the same problem as I have now.
-> > > > 
-> > > > Has someone also dealt with these problems, or can someone help me
-> > > > solving this problem? Please help!  
-> > > > 
-> > > > Below are some outputs using kernel 5.1 with patch-2.5.2-pre3.
-> > > 
-> > > You may try changing the PCI latency settings on either the IDE
-> > > controller or the sound card. Other than that, I don't know how to help.
-> > > 
-> > > -- 
-> > > Vojtech Pavlik
-> > > SuSE Labs
-> > 
-> > -- 
-> > Vojtech Pavlik
-> > SuSE Labs
+> On Sat, 5 Jan 2002, Andreas Hartmann wrote:
 > 
 > 
+>>I don't like special test-programs. They seldom show up the reality.
+>>What we need is a kernel that behaves fine in reality - not in
+>>testcases.  And before starting the test, take care, that most of ram
+>>is already used for cache or buffers or applications.
+>>
+> 
+> OK, here's some pseduo-code for a real-world test case. I haven't had a
+> chance to code it up, but I'm guessing I know what it's going to do. I'd
+> *love* to be proved wrong :).
 
+
+I would like to try it with the oom-patch, which needed less swap in my 
+tests. It could be a good test to verify the results of the rsync-test.
+
+
+> # build and boot a kernel with "Magic SysRq" turned on
+> # echo  1 > /proc/sys/kernel/sysrq
+> # fire up "nice --19 top" as "root"
+> # read "MemTotal" from /proc/meminfo
+> 
+> # now start the next two jobs concurrently
+> 
+> # write a disk file with "MemTotal" data or more in it
+> 
+> # perform a 2D in-place FFT of total size at least "MemTotal/2" but less
+> # than "MemTotal"
+> 
+> Watch the "top" window like a hawk. "Cached" will grow because of the
+> disk write and "free" will drop because the page cache is growing and
+> the 2D FFT is using *its* memory.
+
+
+Could you please tell me a programm, that does 2D FFT? I would like to 
+do this test, too!
+
+Regards,
+Andreas Hartmann
 

@@ -1,73 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290056AbSBFElM>; Tue, 5 Feb 2002 23:41:12 -0500
+	id <S290017AbSBFEkc>; Tue, 5 Feb 2002 23:40:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290028AbSBFElE>; Tue, 5 Feb 2002 23:41:04 -0500
-Received: from gear.torque.net ([204.138.244.1]:30478 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S290020AbSBFEk5>;
-	Tue, 5 Feb 2002 23:40:57 -0500
-Message-ID: <3C60B3B6.B2103C33@torque.net>
-Date: Tue, 05 Feb 2002 23:40:22 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Ralf Oehler <R.Oehler@GDAmbH.com>, Scsi <linux-scsi@vger.kernel.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: one-line-patch against SCSI-Read-Error-BUG()
-In-Reply-To: <XFMail.20020205153210.R.Oehler@GDAmbH.com> <20020205152434.A16105@suse.de>
+	id <S290020AbSBFEkW>; Tue, 5 Feb 2002 23:40:22 -0500
+Received: from alcove.wittsend.com ([130.205.0.10]:50115 "EHLO
+	alcove.wittsend.com") by vger.kernel.org with ESMTP
+	id <S290017AbSBFEkL>; Tue, 5 Feb 2002 23:40:11 -0500
+Date: Tue, 5 Feb 2002 23:40:09 -0500
+From: "Michael H. Warfield" <mhw@wittsend.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.18-pre8 - Good news and bad news...
+Message-ID: <20020205234009.A6268@alcove.wittsend.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> 
-> On Tue, Feb 05 2002, Ralf Oehler wrote:
-> > Hi, List
-> >
-> > I think, I found a very simple solution for this annoying BUG().
-> 
-> You fail to understand that the BUG triggering indicates that their is a
-> BUG _somewhere_ -- the triggered BUG is not the bug itself, of course,
-> that would be stupid :-)
-> 
-> > Since at least kernel 2.4.16 there is a BUG() in pci.h,
-> > that crashes the kernel on any attempt to read a SCSI-Sector
-> > from an erased MO-Medium and on any attempt to read
-> > a sector from a SCSI-disk, which returns "Read-Error".
-> >
-> > There seems to be a thinko in the corresponding code, which
-> > does not take into account the case where a SCSI-READ
-> > does not return any data because of a "sense code: read error"
-> > or a "sense code: blank sector".
-> >
-> > I simply commented out this BUG() statement (see below)
-> > and everything worked well from there on. The BUG()
-> > seems to be inadequate.
-> 
-> The BUG is dangerous, because it means mapping DMA to a 0 address (plus
-> offset). Naturally there is no way in hell your "fix" will be applied,
-> since it a pretty bad bandaid.
-> 
-> A safer solution for you right now would be to just terminate the
-> mapping when you encounter this. So something ala
-> 
->         if (!sg[i].page && !sg[i].address)
->                 return i;
-> 
-> That's not a bug fix either, but at least it's safer than your version.
-> Stock kernel won't be patched until the real problem is found, though.
+All,
 
-Jens,
-The sg driver was tripping that BUG() and I have submitted
-a patch for that. However Ralf probably wasn't using sg
-to read his MO disk.
+	I've been trying to work around a problem since 2.4.16 where
+the kernel would Oops on my gateway system with the EIP = 0010:5a5a5a5a.
 
-There are several uses of "sgpnt[i].address" in scsi_lib.c that
-you might like to look at. Can't see any other uses in sd, sr
-or the mid level. Another possibility is a missing memset or
-explicit NULL initialisation on a scatterlist array.
+	Several people had excellent suggestions, most of which had
+no effect beyond eliminating the innocent (which is what I would hope
+for anyways).  My thanks to all.
 
-Doug Gilbert
+	One person asked if I was using DevFS.  I was, since I also work
+on and test the Computone Multiport drivers and need to have that working
+with DevFS.  They suggested disabling DevFS which I did and which had
+absolutely no effect on the 5a5a5a5a problem.
+
+	After seeing a post from Alan Cox about 2.4.18-pre7, I compiled
+that up and started the gateway on it.  After it ran for a day (which
+previous versions had NOT done) I left it to run for the week I was
+in New York for LinuxWorld Expo.  OK, So I'm a DAMN IDIOT who likes to
+live dangerously.  My SO knew how to reboot the gateway in case it went
+tits up, which it did almost a week later.  It was set up to reboot to
+a safe kernel (2.2.20) till I could get back and autopsy the corpse.
+No problem...  :-)
+
+	The good news...  The 5a5a5a5a Oops seems to be gone.  The Oops
+in 2.4.18-pre7 was different and took a LOT longer to blow.  I didn't
+try to reproduce it, since 2.4.18-pre8 was out.
+
+	Now for the bad news...
+
+	I build a new kernel with 2.4.18-pre8 and the latest FreeS/WAN
+(1.95).  The only reason I mention FreeS/WAN is that this is the only
+kernel mod from the stock tree and patches.  I also turned DevFS back
+on, so I could test that.  I discovered that 2.4.18-pre8 would only
+come up about (actually exactly) 50% of the time.  If it was a clean
+reboot, I would get an Oops in the scheduler pretty early during
+initialization.  The EIP in the Oops seemed different every time.
+If it had to fsck the file systems, it wouldn't generate an Oops and
+would boot, but I had trouble with a site which was logging into my
+gateway over PPP and the Computone board.  There seem to be no traffic
+after the initial "CONNECT" (which occurs with CF unaccerted).  Problems
+just seemed to be bizzare and unpredicatable beyond the "every other boot"
+weirdness.
+
+	A little more investigation indicated that the every-other boot
+Oops was occuring EXACTLY when the system was mounting "other filesystems"
+which, in this case, meant DevFS and usbdevfs.  That's when I remembered
+re-enabling DevFS in the build.  I re-disabled DevFS, rebuilt the kernel,
+and then the system booted and my remote site managed to log in successfully,
+first time, no problem.  This was after MULTIPLE failures with DevFS enabled.
+(Hours of time shot.)
+
+	Sooo...
+
+	Good news...  My reported 5a5a5a5a Oops appears to have evaporated
+with the changes that went in around 2.4.18-pre7.  Congrats and thanks!
+
+	Bad news...  DevFS SEEMS to have problems.  Since I disabled it
+early in the 2.4.18-pre series and could never get 2.4.17 stable, I have
+no idea where the problem was introduced.  I did NOT see this in 2.4.16.
+
+	I'm not looking for suggestions this time around, just reporting
+observations.  My gateway is now running 2.4.18-pre8 and I'll report any
+Oops if and when it occurs and deal with that then.  I may see if the
+DevFS problem exists on my other systems, but my high traffic gateway
+has been the only system to exhibit some of these problems to date.
+
+	Mike
+-- 
+ Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
+  /\/\|=mhw=|\/\/       |  (678) 463-0932   |  http://www.wittsend.com/mhw/
+  NIC whois:  MHW9      |  An optimist believes we live in the best of all
+ PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!

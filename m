@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288827AbSAUWzG>; Mon, 21 Jan 2002 17:55:06 -0500
+	id <S288914AbSAUW6G>; Mon, 21 Jan 2002 17:58:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288842AbSAUWy4>; Mon, 21 Jan 2002 17:54:56 -0500
-Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:33437 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S288827AbSAUWyj>; Mon, 21 Jan 2002 17:54:39 -0500
-Date: Mon, 21 Jan 2002 17:54:36 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Rainer Krienke <krienke@uni-koblenz.de>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
-        nfs@lists.sourceforge.net
-Subject: Re: 2.4.17:Increase number of anonymous filesystems beyond 256?
-Message-ID: <20020121175436.B11889@devserv.devel.redhat.com>
-In-Reply-To: <mailman.1011275640.16596.linux-kernel2news@redhat.com> <200201171855.g0HIt1314492@devserv.devel.redhat.com> <200201181212.g0ICCGq14563@bliss.uni-koblenz.de>
+	id <S288882AbSAUW55>; Mon, 21 Jan 2002 17:57:57 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:21520 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S288842AbSAUW5p>; Mon, 21 Jan 2002 17:57:45 -0500
+Date: Mon, 21 Jan 2002 23:57:43 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Andre Hedrick <andre@linuxdiskcert.org>
+Cc: Jens Axboe <axboe@suse.de>, Davide Libenzi <davidel@xmailserver.org>,
+        Anton Altaparmakov <aia21@cam.ac.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.3-pre1-aia1
+Message-ID: <20020121235743.A28134@suse.cz>
+In-Reply-To: <20020121184433.C1018@suse.de> <Pine.LNX.4.10.10201211133310.15703-100000@master.linux-ide.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200201181212.g0ICCGq14563@bliss.uni-koblenz.de>; from krienke@uni-koblenz.de on Fri, Jan 18, 2002 at 01:12:16PM +0100
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10201211133310.15703-100000@master.linux-ide.org>; from andre@linuxdiskcert.org on Mon, Jan 21, 2002 at 12:18:21PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 18, 2002 at 01:12:16PM +0100, Rainer Krienke wrote:
-> On Thursday, 17. January 2002 19:55, Pete Zaitcev wrote:
-> >
-> > I am surprised anyone is interested. If you need more than 800
-> > mounts I think your system planning may be screwed.
+On Mon, Jan 21, 2002 at 12:18:21PM -0800, Andre Hedrick wrote:
 
-> ease administration we chose the approach to mount each user directory 
-> direcly (via automount configured by NIS) on a NFS client where the user 
-> wants to access his data. The most 
-> important effect of this is, that each users directory is always reachable 
-> under the path /home/<user>.
+> > > Again, the HOST(Linux) is not following the device side rules so expect
+> > > difficulty when we depart.  The Brain Damage is how to talk to the
+> > > hardware, and it is clear we are not doing it right because we are bending
+> > > the rules stuff it into and API that not acceptable.  However we are
+> > > stuck.  Again, simplicity works, generate a MEMPOOL for PIO such that the
+> > > buffer pages are contigious and the 4k page dance is a NOOP.  Until that
+> > > time we will be fussing about.
+> > 
+> > Andre,
+> > 
+> > Do you know how to say "I was wrong"? You are walking off-track again.
+> > It's clearly the way that Vojtech and I describe, otherwise current code
+> > would just not work. And 2.4, 2.2, 2.0 neither.
+> 
+> I will and have done so in the past when I am, and it would be nice if you
+> and Linus could do the same.  However since both are going to enforce the
+> partial completion of IO on page boundaries or 4k, and you are not
+> allowed to pause or stop in the middle of a command execution to play
+> memory games under ATA/IDE PIO rules, period.
 
-This is not an unusual setup, but normally servers and
-workstations do not need to mount enormous number of volumes.
-So, I did the same because it's very useful, but I prohibited
-~/.forward. Instead, requests for vacation messages were
-submitted centrally and processed with the help of /etc/aliases
-and automation scripts. This way mailing loops were under control,
-and, as a side effect, sending something to a mailing list
-did not require the mailserver to mount a gazillion of home
-directories in order to fetch ~/.forward for each recipient.
+Maybe I'm again totally off-the-track, but I see no reason why I
+couldn't stop in the middle of a PIO transfer (that is anytime, not even
+on a sector boundary), do whatever I wish, like change the destination
+buffer or whatever, and then continue. Sure, I can't send ANY commands
+to the drive, and reading the status might not be a good idea either,
+but I believe I can do anything else on the system. Is there a reason
+why this shouldn't be possible?
 
-> So I think it would be really good to have at least the option to have more 
-> than 256 NFS mounts even if one has to use unsecure ports for this purpose. 
-
-Sure... The thing is, the 1279 mounts that I did is not
-even close to being adequate to combat .forward or something
-like separate mounted mail spools for large ISPs. You
-really need 10,000 of mounts, at which point the whole idea of
-anonymous device numbers falls apart.
-
--- Pete
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270429AbTGUQUX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 12:20:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270440AbTGUQUX
+	id S270472AbTGUQ20 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 12:28:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270478AbTGUQ20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 12:20:23 -0400
-Received: from athmta04.forthnet.gr ([193.92.150.25]:5732 "EHLO forthnet.gr")
-	by vger.kernel.org with ESMTP id S270429AbTGUQUU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 12:20:20 -0400
-Date: Mon, 21 Jul 2003 19:35:17 +0300
-From: michaelm <admin@www0.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test1 won't go further than "uncompressing" on a p1/32MB pc
-Message-ID: <20030721163517.GA597@www0.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Mon, 21 Jul 2003 12:28:26 -0400
+Received: from law11-oe21.law11.hotmail.com ([64.4.16.125]:49680 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S270472AbTGUQ2Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 12:28:25 -0400
+X-Originating-IP: [165.98.111.210]
+X-Originating-Email: [bmeneses_beltran@hotmail.com]
+From: "Viaris" <bmeneses_beltran@hotmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Problems with kernel 2.5.75 (Urgent)
+Date: Mon, 21 Jul 2003 10:43:25 -0600
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-ID: <Law11-OE21KRfcjcMzf0000fbd6@hotmail.com>
+X-OriginalArrivalTime: 21 Jul 2003 16:43:27.0340 (UTC) FILETIME=[359202C0:01C34FA7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-.config: http://www0.org/config
+Hi all,
 
-That is on a p1 150MMX 32MB PC, specifically an IBM ThinkPad 560E. It
-will keep showing "booting the kernel, uncompressing" without going
-any further. There will be some disk activity for at least 5-7 minutes
-after that on a 5-10 seconds interval period, without change on the
-screen. I tried removing framebuffer support or keep it but set
-CONFIG_VIDEO_SELECT to 'n', but there is still the same output.
+I compiled kernel version 2.5.75, before I had kernel 2.4.20, the problem is
+that I need to enable SCSI DC395x, but when I execute lsmod I not found
+neither modules loaded, only appear:
+Module                  Size  Used by
 
-The bzimage is around 919Kb, I tried to make it as modular and small
-as it gets to be "usefull" since I suspect this is too old to run 2.5,
-but the bzimage still can't be less than 800-810 kilobytes.
+If I mount manually a module (insmod
+/lib/modules/2.5.75/kernel/drivers/scsi/dc395x.ko) the following message
+appear: Error inserting
+'/lib/modules/2.5.75/kernel/drivers/scsi/dc395x.ko': -1 Unknown symbol in
+module, I have my modules.conf in the directory /lib/modules/2.5.75/ but
+this kernel no load automatically the modules.
 
--michael
+I need to load this module because Ineed to use the tape backup, I have a
+backu that I need urgent.
+
+How can I do it?
+
+Thanks,

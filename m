@@ -1,62 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135203AbRD0Pdl>; Fri, 27 Apr 2001 11:33:41 -0400
+	id <S136092AbRD0PrM>; Fri, 27 Apr 2001 11:47:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135974AbRD0Pdb>; Fri, 27 Apr 2001 11:33:31 -0400
-Received: from betty.magenta-netlogic.com ([193.37.229.181]:7176 "HELO
-	betty.magenta-netlogic.com") by vger.kernel.org with SMTP
-	id <S135203AbRD0PdR>; Fri, 27 Apr 2001 11:33:17 -0400
-Message-ID: <3AE9913B.6090208@magenta-netlogic.com>
-Date: Fri, 27 Apr 2001 16:33:15 +0100
-From: Tony Hoyle <tmh@magenta-netlogic.com>
-Organization: Magenta Logic
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.8.1+) Gecko/20010423
-X-Accept-Language: en
+	id <S136091AbRD0PrC>; Fri, 27 Apr 2001 11:47:02 -0400
+Received: from medusa.sparta.lu.se ([194.47.250.193]:30982 "EHLO
+	medusa.sparta.lu.se") by vger.kernel.org with ESMTP
+	id <S136097AbRD0Pqv>; Fri, 27 Apr 2001 11:46:51 -0400
+Date: Fri, 27 Apr 2001 16:31:05 +0200 (MET DST)
+From: Bjorn Wesen <bjorn@sparta.lu.se>
+To: Padraig Brady <padraig@antefacto.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ramdisk/tmpfs/ramfs/memfs ?
+In-Reply-To: <3AE99CE8.BD325F52@antefacto.com>
+Message-ID: <Pine.LNX.3.96.1010427162631.4416A-100000@medusa.sparta.lu.se>
 MIME-Version: 1.0
-To: jason <jason@lacan.dabney.caltech.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel panic with 2.4.x and reiserfs
-In-Reply-To: <Pine.LNX.4.10.10104270104010.7570-100000@lacan.dabney.caltech.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jason wrote:
+On Fri, 27 Apr 2001, Padraig Brady wrote:
+> for a partition. If I understand correctly ramfs just points
+> to the file data which are pages in the cache marked not to be
 
-> Hello,
-> 
-> As the subject would imply, I've been having problems with 2.4.x. I have
-> my root partition (/dev/hda1) as reiserfs and also have another harddrive
-> with a reiserfs partition (/dev/hdc1). Several programs write (e.g. save
-> files to) /dev/hdc1, and I also store files there. Under 2.4.2, whenever
-> manually copying files from hda1 to hdc1, I would get a kernel panic, the
+It does not even do that - as of 2.4, the VFS in the kernel also knows how
+to cache a filestructure itself. It's in the dentry-cache. So ramfs just
+provides the thin mapping between VFS operations and the VFS caches
+(dentries, inodes, pages) like any other 2.4 filesystem - with the
+difference that ramfs does not need to know anything about actually
+transferring the cache entries to a backing store (a physical filesystem).
 
+Take a look at fs/ramfs/inode.c, it's just some hundred odd lines of
+code and worth reading to find out more about how 2.4's VFS works.
 
-Reiserfs doesn't cope well with crashes....  Under 2.4 I wouldn't 
-recommend using it on any kind of critical server - it seems to 
-progressively corrupt itself (I'm looking at the second reformat and 
-reinstall in a week, and I'm not a happy bunny).
+> uncached. Doh! is ramfs supported in 2.2?
 
-As the warning on reiserfsck says, the rebuild-tree option is a last 
-resort.  It's as likely to make the problem worse then improve it (It 
-rounds all the file lengths up to a block size, padding with zeros, 
-which breaks lots of stuff).  Backup what you can first.
+Don't think so, for the above reason.
 
-I find that if you run reiserfsck -x /dev/hda1 a couple of dozen times 
-it slowly fixes stuff that it couldn't fix on the previous pass.One 
-thing that can't fix is the bug that seems to make random files on the 
-FS unreadable even for root.The only way I've found around that one is a 
-periodic format/reinstall.
-
-Tony
-
--- 
-Where a calculator on the ENIAC is equpped with 18,000 vaccuum
-tubes and weighs 30 tons, computers in the future may have only
-1,000 vaccuum tubes and perhaps weigh 1 1\2 tons.
--- Popular Mechanics, March 1949
-
-tmh@magenta-netlogic.com
-
+-BW
 

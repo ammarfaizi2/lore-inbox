@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266305AbUANF3X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 00:29:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266304AbUANF3X
+	id S266301AbUANF2J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 00:28:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266302AbUANF2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 00:29:23 -0500
-Received: from delerium.codemonkey.org.uk ([81.187.208.145]:15831 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S266305AbUANF3W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 00:29:22 -0500
-Date: Wed, 14 Jan 2004 05:27:43 +0000
-From: Dave Jones <davej@redhat.com>
-To: Nick Craig-Wood <ncw1@axis.demon.co.uk>
-Cc: Paul Symons <PaulS@paradigmgeo.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: kernel oops 2.4.24
-Message-ID: <20040114052743.GD23845@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Nick Craig-Wood <ncw1@axis.demon.co.uk>,
-	Paul Symons <PaulS@paradigmgeo.com>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-References: <798DD0DBF172864C8CC752175CF42BA326C8B2@pat.aberdeen.paradigmgeo.com> <20040113185948.GA17867@axis.demon.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040113185948.GA17867@axis.demon.co.uk>
-User-Agent: Mutt/1.4.1i
+	Wed, 14 Jan 2004 00:28:09 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:23005 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S266301AbUANF2H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 00:28:07 -0500
+Message-ID: <002901c3da5f$7d8da910$fd0eb609@srikrishnan>
+From: "srikrish" <srikrish@in.ibm.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Sparse LUN support
+Date: Wed, 14 Jan 2004 11:00:12 +0530
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 13, 2004 at 06:59:48PM +0000, Nick Craig-Wood wrote:
+We need to add these devices to the black list - to handle sparse LUNs properly. 
+Srikrishnan
 
- > > I am trying to run Gentoo on this hardware, and have had problems from the
- > > start, with respect to compiling things like Gentoo. The hardware is a
- > > little bit of an oddity, because i read that it is classed as i686, yet it
- > > doesn't support the cmov opcode. All my compile optimisations have been at
- > > best i586 as a result.
- > 
- > I wonder if you are thinking of the Nehemiah (the C3 mark 2) rather
- > than the Samuel which is on that board.  As far as I'm aware its only
- > safe to use i386 code and that is what we've been using very
- > succesfully (with a Debian/stable installation).
-
-Samuel (and all other pre-Nehemiah CPUs) can run i586 just fine.
-As the original poster said, they're i686 with missing CMOV extension,
-which in gcc-speak, is i586.
-
-		Dave
+--- linux-2.4.23/drivers/scsi/scsi_scan.c	2004-01-13 11:04:53.000000000 +0530
++++ linux-2.4.23.patched/drivers/scsi/scsi_scan.c	2004-01-13 11:04:36.000000000 +0530
+@@ -206,6 +206,9 @@
+ 	{"SMSC", "USB 2 HS", "*", BLIST_SPARSELUN | BLIST_LARGELUN}, 
+ 	{"XYRATEX", "RS", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
+ 	{"NEC", "iStorage", "*", BLIST_SPARSELUN | BLIST_LARGELUN | BLIST_FORCELUN},
++        {"IBM", "2105800", "*", BLIST_SPARSELUN},
++        {"IBM", "2105F20", "*", BLIST_SPARSELUN},
++        {"IBM", "2145", "*", BLIST_SPARSELUN},
+ 
+ 	/*
+ 	 * Must be at end of list...
 

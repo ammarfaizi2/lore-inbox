@@ -1,76 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262844AbTDIFtc (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 01:49:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262845AbTDIFtc (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 01:49:32 -0400
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:37016 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S262844AbTDIFta (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 01:49:30 -0400
-Date: Wed, 9 Apr 2003 08:01:00 +0200
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Justin T. Gibbs" <gibbs@scsiguy.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] aic7* claims all checked EISA io ranges (was: [MAILER-DAEMON@rumms.uni-mannheim.de: Returned mail: see transcript for details])
-Message-ID: <20030409060100.GA28105@schiele.local>
-References: <20030408071845.GA10002@schiele.local> <3566580000.1049834178@aslan.btc.adaptec.com> <20030408205136.GA8144@schiele.local> <1049833118.8939.0.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6c2NcOVqGQ03X4Wi"
-Content-Disposition: inline
-In-Reply-To: <1049833118.8939.0.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-From: Robert Schiele <rschiele@uni-mannheim.de>
+	id S262778AbTDIFqr (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 01:46:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262811AbTDIFqq (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 01:46:46 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:60390 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S262778AbTDIFqo (for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Apr 2003 01:46:44 -0400
+Date: Tue, 8 Apr 2003 22:58:22 -0700
+From: David Mosberger <davidm@napali.hpl.hp.com>
+Message-Id: <200304090558.h395wMiQ004136@napali.hpl.hp.com>
+To: akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org
+Subject: kmalloc_sizes.h breakage
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Reply-To: davidm@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Someone forgot that the cache_sizes array needs to be NULL terminated.
+This, combined with the NFSD 64-bit binary compatibility breakage
+caused instant kernel death because kmalloc() (via NFSD) would attempt
+to alloc a huge chunk of memory and run past the end of the
+cache_sizes array.  In other words, a fun evening chasing down bugs.
+Not.
 
---6c2NcOVqGQ03X4Wi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+(The patch also gets rid of some trailing whitespace, in case you
+ wonder about those "invisible" changes.)
 
-On Tue, Apr 08, 2003 at 09:18:39PM +0100, Alan Cox wrote:
-> On Maw, 2003-04-08 at 21:51, Robert Schiele wrote:
-> > Thanks for your note.  Hope you didn't feel offended.  At least this wa=
-s not
-> > my intention.  I just wanted to notify all people related to the affect=
-ed
-> > driver.
-> >=20
-> > So it's up to the kernel tree maintainers to bring this fix into their =
-trees.
->=20
-> Maintainers submit changes to the Linux kernel tree, not vice versa. Its
-> push not pull
+	--david
 
-Well, the reason why I sent the patch to both, the maintainer of the driver
-and the maintainers of the trees, is that the maintainers of the trees have
-the opportunity to fix one of the more important drivers before they releas=
-e a
-new "official" version that is broken here, and I think that the change is
-quite obvious.
-
-To clarify this: I don't care whether and when the fix goes to the official
-trees, because I have the fix for my personal kernel builds and Hubert Mant=
-el
-has it for the SuSE builds, so it Works-For-Me(TM).
-
-Robert
-
---=20
-Robert Schiele			Tel.: +49-621-181-2517
-Dipl.-Wirtsch.informatiker	mailto:rschiele@uni-mannheim.de
-
---6c2NcOVqGQ03X4Wi
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
-
-iD8DBQE+k7ccxcDFxyGNGNcRArsaAJ9ebs/6v1yfIrthqwWF/ARnYx8RVwCg07w1
-ZE89ldPcgCHYD8Aivf1GEPw=
-=O6kw
------END PGP SIGNATURE-----
-
---6c2NcOVqGQ03X4Wi--
-
+===== mm/slab.c 1.73 vs edited =====
+--- 1.73/mm/slab.c	Thu Mar 27 21:16:47 2003
++++ edited/mm/slab.c	Tue Apr  8 17:52:44 2003
+@@ -387,14 +387,15 @@
+ };
+ 
+ /* Must match cache_sizes above. Out of line to keep cache footprint low. */
+-static struct { 
+-	char *name; 
++static struct {
++	char *name;
+ 	char *name_dma;
+-} cache_names[] = { 
++} cache_names[] = {
+ #define CACHE(x) { .name = "size-" #x, .name_dma = "size-" #x "(DMA)" },
+ #include <linux/kmalloc_sizes.h>
++	{ 0, }
+ #undef CACHE
+-}; 
++};
+ 
+ struct arraycache_init initarray_cache __initdata = { { 0, BOOT_CPUCACHE_ENTRIES, 1, 0} };
+ struct arraycache_init initarray_generic __initdata = { { 0, BOOT_CPUCACHE_ENTRIES, 1, 0} };

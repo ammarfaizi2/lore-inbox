@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318300AbSHEFk7>; Mon, 5 Aug 2002 01:40:59 -0400
+	id <S318297AbSHEFku>; Mon, 5 Aug 2002 01:40:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318302AbSHEFk7>; Mon, 5 Aug 2002 01:40:59 -0400
-Received: from angband.namesys.com ([212.16.7.85]:46281 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S318300AbSHEFk6>; Mon, 5 Aug 2002 01:40:58 -0400
-Date: Mon, 5 Aug 2002 09:44:29 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: reiserfs blocks long on getdents64() during concurrent write
-Message-ID: <20020805094429.A5897@namesys.com>
-References: <Pine.LNX.4.44.0208041506480.31879-100000@pc40.e18.physik.tu-muenchen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208041506480.31879-100000@pc40.e18.physik.tu-muenchen.de>
-User-Agent: Mutt/1.3.22.1i
+	id <S318300AbSHEFku>; Mon, 5 Aug 2002 01:40:50 -0400
+Received: from cartero.austria.eu.net ([193.154.160.153]:21928 "EHLO
+	cartero.austria.eu.net") by vger.kernel.org with ESMTP
+	id <S318297AbSHEFkt>; Mon, 5 Aug 2002 01:40:49 -0400
+Date: Mon, 5 Aug 2002 07:44:22 +0200
+From: "Clemens 'Gullevek' Schwaighofer" <schwaigl@eunet.at>
+X-Mailer: The Bat! (v1.61) Personal
+Reply-To: "Clemens 'Gullevek' Schwaighofer" <schwaigl@eunet.at>
+Organization: Chaos is just another way of organisation
+X-Priority: 3 (Normal)
+Message-ID: <130123236514.20020805074422@eunet.at>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.19-ac2
+In-Reply-To: <200208042057.57130.Devilkin-LKML@blindguardian.org>
+References: <200208041746.g74Hkgr24437@devserv.devel.redhat.com>
+ <200208042057.57130.Devilkin-LKML@blindguardian.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hello Devilkin, 
 
-On Sun, Aug 04, 2002 at 06:09:34PM +0200, Roland Kuhn wrote:
+Sunday, August 4, 2002, 8:57:57 PM, Devilkin wrote,
+and I answered on Montag, 05. August 2002, 07:39:48 with this ...
 
-> The first call to getdents64 takes 4.7s! I captured the task status and 
-> got this:
 
-[call traces skipped]
+> There seems to be some problem with VIA IDE IRQ's on 2.4.19-ac2.
 
-> writer is a shell script calling dd with a blocksize of 1M. The problem of 
-> course vanishes when using noatime, but it still makes me wonder why a 
-> single write request is delayed so long. The other possibility to avoid 
+> With 2.4.19-ac2 i get the following message in the logs:
 
-It seems that your kernel performs writes slowly.
+> PCI: No IRQ known for interrupt pin A of device 00:07.1. Please try using 
+> pci=biosirq.
 
-> this is to use a sync mount, and there I discovered something really 
-> strange: 2.4.19 gives me about 17MB/s while 2.4.18-3 (RedHat) was creeping 
-> slow with 10kB/s!
+> 00:07.1 is the IDE Interface on my mainboard!
 
-2.4.18-3 is particularly bad know for this exact problem (slow write speed),
-you should consider upgrading to at least 2.4.18-5 kernel from redhat updates.
+Well, with my VIA Crap here I can't confirm this problem. I see
+nothing in my logs. I have a VT82Cx86 (is KT133 ?? or something) stuff in
+here. But I will try tocompile 2.4.19-ac2 at my office computer where
+I have a KT233 VIA chipset.
 
-For me on plain 2.4.18 the problem is not visible that bad as for you.
-I.e. ls on a directory where I write this big file finishes in under
-half a second.
+best regards, Clemens
+-- 
+_________/\_____________________              ^_^             ()~()
+Clemens 'Gullevek' Schwaighofer \_______ @_@       ^_~       //@ @\\
+ICQ#: 9646646        I AM FROM AUSTRIA! \______________ °_° //\ ~ /\\
+http://www.animeundmanga.at | http://www.gullevek.org  \_____________
 
-> If you have any thoughts on the cause of this behaviour and/or on how to 
-> fix it, I would be glad to hear them. If it's not too complicated I could 
-> even code something up myself, and I for sure can do any testing needed.
-
-You said 2.4.19 writes stuff faster for you, how about testing ls on that
-kernel?
-
-Bye,
-    Oleg

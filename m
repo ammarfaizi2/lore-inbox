@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287130AbRL2WJo>; Sat, 29 Dec 2001 17:09:44 -0500
+	id <S287199AbRL2WKz>; Sat, 29 Dec 2001 17:10:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286933AbRL2WJf>; Sat, 29 Dec 2001 17:09:35 -0500
-Received: from bitmover.com ([192.132.92.2]:22184 "EHLO bitmover.bitmover.com")
-	by vger.kernel.org with ESMTP id <S286794AbRL2WJP>;
-	Sat, 29 Dec 2001 17:09:15 -0500
-Date: Sat, 29 Dec 2001 14:09:14 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Oliver Xymoron <oxymoron@waste.org>
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The direction linux is taking
-Message-ID: <20011229140914.B13883@work.bitmover.com>
-Mail-Followup-To: Oliver Xymoron <oxymoron@waste.org>,
-	Larry McVoy <lm@bitmover.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011229120451.E19306@work.bitmover.com> <Pine.LNX.4.43.0112291410080.18183-100000@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.43.0112291410080.18183-100000@waste.org>; from oxymoron@waste.org on Sat, Dec 29, 2001 at 02:30:36PM -0600
+	id <S286933AbRL2WKp>; Sat, 29 Dec 2001 17:10:45 -0500
+Received: from dsl-213-023-043-128.arcor-ip.net ([213.23.43.128]:44295 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S286794AbRL2WKb>;
+	Sat, 29 Dec 2001 17:10:31 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Edgar Toernig <froese@gmx.de>, Larry McVoy <lm@bitmover.com>
+Subject: Re: RFC: Linux Bug Tracking & Feature Tracking DB
+Date: Sat, 29 Dec 2001 23:13:47 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Timothy Covell <timothy.covell@ashavan.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200112290657.fBT6vMSr008000@svr3.applink.net> <20011229105525.C19306@work.bitmover.com> <3C2E14AB.69CEA694@gmx.de>
+In-Reply-To: <3C2E14AB.69CEA694@gmx.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16KRjh-0000GP-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 29, 2001 at 02:30:36PM -0600, Oliver Xymoron wrote:
-> Nonsense. X is a release. At a minimum, a submitted patch should apply to
-> the current globally visible kernel release. If you want your patch to
-> go in, it has to be current, otherwise no use bothering the
-> maintainer. And it ought to compile. 
+On December 29, 2001 08:08 pm, Edgar Toernig wrote:
+> Larry McVoy wrote:
+> >
+> > The data in it is the current BitKeeper bug list (feel free to fix
+> > some :-)
+> 
+> Bah!  Debugging and patching binaries isn't fun!
 
-OK, so this glorious patchbot is going to make sure that a patch patches
-cleanly against a known version and compiles.  And that buys me exactly
-what?  Not a heck of a lot.  Especially since, as is obvious, if you send
-in stuff that doesn't compile consistently, your patches are likely to go
-to the back of the line or just get dropped.
+Check the site, he provides the source.
 
-> The purpose of the patchbot is to bounce patches that don't
-> apply/compile/meet whatever baseline before Maintainer ever has to look at
-> them, thus reducing the 'black hole effect' of the overloaded maintainer.
-
-I'd suggest you go try this idea out.  It's funny how often people suggest
-that they are going to make the problems go away, it's always this same
-proposal, typically nobody does any work, when they do it doesn't get used,
-could it be there is a reason for that?
-
-I'm prepared to be wrong, but I don't hear the maintainers asking for this
-patchbot.  Why not?
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+--
+Daniel

@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130664AbRBLS40>; Mon, 12 Feb 2001 13:56:26 -0500
+	id <S131173AbRBLS60>; Mon, 12 Feb 2001 13:58:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131029AbRBLS4I>; Mon, 12 Feb 2001 13:56:08 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:3341 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S130664AbRBLSzq>;
-	Mon, 12 Feb 2001 13:55:46 -0500
-To: Ion Badulescu <ionut@cs.columbia.edu>
-Cc: Manfred Spraul <manfred@colorfullife.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, Alan Cox <alan@redhat.com>,
-        <linux-kernel@vger.kernel.org>, Donald Becker <becker@scyld.com>
-Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
-In-Reply-To: <Pine.LNX.4.30.0102091349410.31024-100000@age.cs.columbia.edu>
-From: Jes Sorensen <jes@linuxcare.com>
-Date: 12 Feb 2001 19:54:57 +0100
-In-Reply-To: Ion Badulescu's message of "Fri, 9 Feb 2001 13:52:01 -0800 (PST)"
-Message-ID: <d3vgqfafzy.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S131276AbRBLS6Q>; Mon, 12 Feb 2001 13:58:16 -0500
+Received: from jump-isi.interactivesi.com ([207.8.4.2]:33775 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S131173AbRBLS6E>; Mon, 12 Feb 2001 13:58:04 -0500
+Date: Mon, 12 Feb 2001 12:58:02 -0600
+From: Timur Tabi <ttabi@interactivesi.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.32.0102121344060.1070-100000@viper.haque.net>
+In-Reply-To: <200102121525.KAA16906@mah21awu.cas.org>
+Subject: Re: lkml subject line
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+Message-ID: <VrfrVB.A.43D.6IDi6@dinero.interactivesi.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Ion" == Ion Badulescu <ionut@cs.columbia.edu> writes:
+** Reply to message from "Mohammad A. Haque" <mhaque@haque.net> on Mon, 12 Feb
+2001 13:45:42 -0500 (EST)
 
-Ion> On 9 Feb 2001, Jes Sorensen wrote:
->>  Inefficient, my patch will make the unused code path disappear
->> during compilation, what you suggest results in an extra branch and
->> unused code.
 
-Ion> Yes, but I'd rather let people turn off the always-copy behavior
-Ion> by simply changing rx_copybreak. The unused code is not really
-Ion> that much of a deal, it's only a few lines.
+> Is there a mail reader nowadays that doesn't let you do some sort of
+> filtering?
 
-However, it is in the hot path code where it hurts the most.
+Yes, and most of them are for Linux.  Just go to Freshmeat and browse through
+the email client section.  You'll see lots of in-development email clients, and
+most of them have "filtering" on the to-do list.
 
-Jes
+In fact, I was unable to find an full-featured GUI email client for Linux, so
+I'm using Polarbar, which is an all-Java client.
+
+
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
+
+When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

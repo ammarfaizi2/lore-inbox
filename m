@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264056AbUEEIhe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263932AbUEEIrT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264056AbUEEIhe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 04:37:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264340AbUEEIhe
+	id S263932AbUEEIrT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 04:47:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264272AbUEEIrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 04:37:34 -0400
-Received: from ozlabs.org ([203.10.76.45]:1206 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S264056AbUEEIhb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 04:37:31 -0400
-Subject: Re: [PATCH] Fix deadlock in __create_workqueue
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040503122316.GA7143@in.ibm.com>
-References: <20040430113751.GA18296@in.ibm.com>
-	 <20040430192712.2e085895.akpm@osdl.org>  <20040503122316.GA7143@in.ibm.com>
-Content-Type: text/plain
-Message-Id: <1083746224.14112.7.camel@bach>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 05 May 2004 18:37:04 +1000
-Content-Transfer-Encoding: 7bit
+	Wed, 5 May 2004 04:47:10 -0400
+Received: from relay.dada.it ([195.110.100.8]:50590 "EHLO relay.dada.it")
+	by vger.kernel.org with ESMTP id S263932AbUEEIrD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 04:47:03 -0400
+From: Fabio Coatti <cova@ferrara.linux.it>
+Organization: FerraraLUG
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.6-rc3-mm2
+Date: Wed, 5 May 2004 10:46:56 +0200
+User-Agent: KMail/1.6.2
+References: <20040505013135.7689e38d.akpm@osdl.org>
+In-Reply-To: <20040505013135.7689e38d.akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200405051046.57344.cova@ferrara.linux.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-05-03 at 22:23, Srivatsa Vaddagiri wrote:
-> On Fri, Apr 30, 2004 at 07:27:12PM -0700, Andrew Morton wrote:
-> > Can we not simply do:
-> > 
-> > 
-> > diff -puN kernel/workqueue.c~a kernel/workqueue.c
-> > --- 25/kernel/workqueue.c~a	2004-04-30 19:26:32.003303600 -0700
-> > +++ 25-akpm/kernel/workqueue.c	2004-04-30 19:26:44.492404968 -0700
-> > @@ -334,6 +334,7 @@ struct workqueue_struct *__create_workqu
-> >  				destroy = 1;
-> >  		}
-> >  	}
-> > +	unlock_cpu_hotplug();
-> >  
-> >  	/*
-> >  	 * Was there any error during startup? If yes then clean up:
-> > @@ -342,7 +343,6 @@ struct workqueue_struct *__create_workqu
-> >  		destroy_workqueue(wq);
-> >  		wq = NULL;
-> >  	}
-> > -	unlock_cpu_hotplug();
-> >  	return wq;
-> >  }
-> 
-> I didn't do this because I introduced a break at the first instance
-> when create_workqueue_thread failed. Breaking out of the loop
-> like that appeared to be more efficient rather than going back and
-> trying to create threads for rest of the online cpus, because most
-> likely thread creation will fail for other cpus also and anyway
-> the workqueue will be destroyed down the line.
+Alle 10:31, mercoledì 5 maggio 2004, hai scritto:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6-rc3/2.6
+>.6-rc3-mm2/
 
-The logic was not the way I would have done it, but it *is* neater.  I
-prefer the akpm fix I think.
+hm.. I've found only 2.6.6-rc3-mm3.gz  in 
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6-rc3/2.6.6-rc3-mm2/
 
-Rusty.
+Wrong filename?
+
+
 -- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
+Fabio Coatti       http://www.ferrara.linux.it/members/cova     
+Ferrara Linux Users Group           http://ferrara.linux.it
+GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
+Old SysOps never die... they simply forget their password.
 

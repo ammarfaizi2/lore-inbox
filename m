@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313571AbSGQOpm>; Wed, 17 Jul 2002 10:45:42 -0400
+	id <S315168AbSGQOeN>; Wed, 17 Jul 2002 10:34:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313711AbSGQOpm>; Wed, 17 Jul 2002 10:45:42 -0400
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:56196 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S313571AbSGQOpl>; Wed, 17 Jul 2002 10:45:41 -0400
-From: Philipp Thomas <philippt@t-online.de>
-To: linux-kernel@vger.kernel.org
-Cc: jack.bloch@icn.siemens.com
-Subject: Re: No Licence on driver load
-Date: Wed, 17 Jul 2002 16:48:24 +0200
-Message-ID: <md0bju0ihlf2oc54osda68dlpv251tqa87@4ax.com>
-References: <180577A42806D61189D30008C7E632E879399C@boca213a.boca.ssc.siemens.com>
-In-Reply-To: <180577A42806D61189D30008C7E632E879399C@boca213a.boca.ssc.siemens.com>
-X-Mailer: Forte Agent 1.91/32.564
+	id <S315162AbSGQOeN>; Wed, 17 Jul 2002 10:34:13 -0400
+Received: from imr2.ericy.com ([198.24.6.3]:33463 "EHLO imr2.ericy.com")
+	by vger.kernel.org with ESMTP id <S314938AbSGQOeM>;
+	Wed, 17 Jul 2002 10:34:12 -0400
+Message-ID: <7B2A7784F4B7F0409947481F3F3FEF8303A070F6@eammlnt051.lmc.ericsson.se>
+From: "Philippe Veillette (LMC)" <Philippe.Veillette@ericsson.ca>
+To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: question about the receiving ip path
+Date: Wed, 17 Jul 2002 10:37:04 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2655.55)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jack.Bloch@icn.siemens.com [ Wed, 17 Jul 2002 09:35:29 -0400]:
+Hi
 
->I load my own device driver into a 2.4.18-3 Kernel and get the following
->message.
->
->"Warning Loading Icdeva0s.o will taint the Kernel : No Licence"
->
->How do you stop this?
+With the lsm hook, I have found that each time I receive a packet (a UDP
+packet) it's allocating a sk_buff, after, it's cloning it, then it free
+it!!!, then i receive the first skbuff and then it's freed.  Should i add
+that i didn't see the cloned sk_buff.
 
-By adding a statement that states the license of your code:
+Ok, i know that there should be something done with the cloned sk_buff,
+since if it's not the case, if only slowing the receving side for no good
+reason...
 
-MODULE_LICENSE("<license>");
+I would like to know if the cloned sk_buff is really needed, and also what
+is the path used, (how to find it, since it's a maze to try to figure out
+the receiving path, by looking at place where sk_buff are cloned, since I
+don't know the entry function).  At least knowing the entry function could
+help a lot.
 
-to your driver. See include/linux/module.h for the possible values
-<license> may have.
-
-Philipp
-
--- 
-Philipp Thomas                             work: pthomas@suse.de
-Development SuSE Linux AG               private: philippt@t-online.de
+Philippe

@@ -1,71 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265484AbSJXPS5>; Thu, 24 Oct 2002 11:18:57 -0400
+	id <S265483AbSJXPPq>; Thu, 24 Oct 2002 11:15:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265485AbSJXPS5>; Thu, 24 Oct 2002 11:18:57 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:35579 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265484AbSJXPS4>; Thu, 24 Oct 2002 11:18:56 -0400
-Date: Thu, 24 Oct 2002 21:01:05 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: maneesh@in.ibm.com, linux-kernel@vger.kernel.org,
-       Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@zip.com.au>
-Subject: Re: [long]2.5.44-mm3 UP went into unexpected trashing
-Message-ID: <20021024210105.A20822@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <3DB7A581.9214EFCC@aitel.hist.no> <3DB7A80C.7D13C750@digeo.com> <3DB7AC97.D31A3CB2@digeo.com> <20021024171528.D5311@in.ibm.com> <20021024114740.78FD37CD3@oscar.casa.dyndns.org> <20021024180809.D11418@in.ibm.com>
+	id <S265484AbSJXPPp>; Thu, 24 Oct 2002 11:15:45 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:61379 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265483AbSJXPPp>; Thu, 24 Oct 2002 11:15:45 -0400
+Subject: Re: [PATCH] New ARPHRD types
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Solomon Peachy <solomon@linux-wlan.com>
+Cc: "David S. Miller" <davem@rth.ninka.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021024145822.GA11876@linux-wlan.com>
+References: <20021021221936.GA32390@linux-wlan.com>
+	<1035330936.16084.23.camel@rth.ninka.net>
+	<20021023141651.GA6644@linux-wlan.com>
+	<1035433080.9629.8.camel@rth.ninka.net> 
+	<20021024145822.GA11876@linux-wlan.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 24 Oct 2002 16:38:56 +0100
+Message-Id: <1035473936.9867.60.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021024180809.D11418@in.ibm.com>; from dipankar@in.ibm.com on Thu, Oct 24, 2002 at 06:08:09PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 24, 2002 at 06:08:09PM +0530, Dipankar Sarma wrote:
-> On Thu, Oct 24, 2002 at 12:01:31PM +0000, Ed Tomlinson wrote:
-> > Would this affect UP systems?  Had the dentry leak on a UP box with 512m 
-> > memory.  About 400m ended up in unfreeable dentries...
-> 
-> It does affect UP systems.
-> 
-> A quick look at /proc/rcu in a leaky system indicated that somehow
-> despite having a batch of RCUs, they are not getting started.
-> 
->  /* Fake initialization required by compiler */
-> @@ -106,10 +106,11 @@ static void rcu_start_batch(long newbatc
->  		rcu_ctrlblk.maxbatch = newbatch;
->  	}
->  	if (rcu_batch_before(rcu_ctrlblk.maxbatch, rcu_ctrlblk.curbatch) ||
-> -	    (rcu_ctrlblk.rcu_cpu_mask != 0)) {
-> +	    (find_first_bit(rcu_ctrlblk.rcu_cpu_mask, NR_CPUS) != NR_CPUS)) {
->  		return;
->  	}
-> -	rcu_ctrlblk.rcu_cpu_mask = cpu_online_map;
-> +	memcpy(rcu_ctrlblk.rcu_cpu_mask, cpu_online_map,
-> +	       sizeof(rcu_ctrlblk.rcu_cpu_mask));
->  }
-> 
-> Either find_first_bit() is not returning NR_CPUS when the bitmask has no
-> bit set or memcpy is not working on the UP version of cpu_online_map. Will
-> dig a little bit more.
+On Thu, 2002-10-24 at 15:58, Solomon Peachy wrote:
+> 1) audit the use of hard_header_len in net/* and submit fixes
 
-OK, I think I know why this one didn't work.
+We've handled variable length headers for years so that bit I do trust.
+AX.25 even has variable length headers on ARP frames 8)
 
-If the bit_mask is 0, find_first_bit() returns 32 or BITS_PER_LONG.
-That works fine as long as NR_CPUS is 32, but when it isn't things
-are broken.
+> 2) write an 802.11 equivalent of the code in eth.c
 
-    (find_first_bit(rcu_ctrlblk.rcu_cpu_mask, NR_CPUS) != BITS_PER_LONG)) {
-		return;
+That may be much cleaner and easier to get right. Its also easier to
+maintain
 
-should probably work here.
 
-I guess we need to audit all bitmask tests and fix them to check for
-the right value. 
-
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.

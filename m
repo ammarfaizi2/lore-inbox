@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266263AbUFYUj1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266599AbUFYUm5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266263AbUFYUj1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 16:39:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266281AbUFYUj1
+	id S266599AbUFYUm5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 16:42:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266615AbUFYUm4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 16:39:27 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:20491 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S266263AbUFYUj0 (ORCPT
+	Fri, 25 Jun 2004 16:42:56 -0400
+Received: from fw.osdl.org ([65.172.181.6]:5577 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266599AbUFYUmz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 16:39:26 -0400
-Date: Fri, 25 Jun 2004 22:39:14 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: "Makhlis, Lev" <Lev_Makhlis@bmc.com>
-Cc: "'Andries Brouwer'" <aebr@win.tue.nl>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [SYSVIPC] Change shm_tot from int to size_t
-Message-ID: <20040625203914.GA5504@pclin040.win.tue.nl>
-References: <F12B6443B4A38748AFA644D1F8EF3532147332@bos-ex-01.adprod.bmc.com>
+	Fri, 25 Jun 2004 16:42:55 -0400
+Date: Fri, 25 Jun 2004 13:45:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: jbarnes@engr.sgi.com, erikj@subway.americas.sgi.com, pfg@sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6] Altix serial driver
+Message-Id: <20040625134537.072d17b9.akpm@osdl.org>
+In-Reply-To: <20040625155335.GA30427@infradead.org>
+References: <Pine.SGI.3.96.1040623094239.19458C-100000@fsgi900.americas.sgi.com>
+	<Pine.SGI.4.53.0406242153360.343801@subway.americas.sgi.com>
+	<20040625083130.GA26557@infradead.org>
+	<200406251110.07383.jbarnes@engr.sgi.com>
+	<20040625155335.GA30427@infradead.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <F12B6443B4A38748AFA644D1F8EF3532147332@bos-ex-01.adprod.bmc.com>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 25, 2004 at 12:42:26PM -0500, Makhlis, Lev wrote:
-
-> > Thirdly, shm_tot is transmitted to userspace (via the SHM_INFO ioctl)
-> > as an unsigned long. If it is necessary to make it larger, then we
-> > must do something with this ioctl. For example, return -1 there
-> > in case the actual value does not fit in an unsigned long.
+Christoph Hellwig <hch@infradead.org> wrote:
+>
+> On Fri, Jun 25, 2004 at 11:10:07AM -0400, Jesse Barnes wrote:
+> > But LANANA doesn't assign minors, right?  And Linus hasn't banned those, so 
+> > the patch to devices.txt should be sufficient, right?  (Please let the answer 
+> > be yes!)  Moreover, isn't this Andrew's decision as the 2.6 maintainer?
 > 
-> The SHM_INFO shmctl is actually how I found it in the first place.
-> But we have the same situation with many other values.  For example,
-> shm_ctlmax, shm_ctlall and shm_segsz can all potentially be 64-bit wide
-> in the kernel and are exported into potentially 32-bit userspace values.
-> We don't return -1 for any of those if they don't fit.  Is there a
-> special reason to do it in this case?
+> For the misc major LANANA also assigns minors.
 
-There is a good reason to do it always.
-If one truncates, then the result is always unreliable.
-If one replaces a too large value by -1, then any other value is reliable.
+I don't think we did that for /dev/kmsg.
+
+I haven't followed the politics or the history of this much, but if LANANA
+are being unresponsive and/or are ignoring 2.6 kernels, don't we need to
+either fix them up or route around them?
+
+Maybe John is on vacation or something - it's that time of year.

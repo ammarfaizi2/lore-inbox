@@ -1,88 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268504AbUILHOC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268505AbUILHSc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268504AbUILHOC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 03:14:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268505AbUILHOB
+	id S268505AbUILHSc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 03:18:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268506AbUILHSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 03:14:01 -0400
-Received: from mailgate2.mysql.com ([213.136.52.47]:7143 "EHLO
-	mailgate.mysql.com") by vger.kernel.org with ESMTP id S268504AbUILHNy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 03:13:54 -0400
-Subject: Re: Linux 2.4.27 SECURITY BUG - TCP Local (probable Remote) Denial
-	of Service
-From: Peter Zaitsev <peter@mysql.com>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: "David S. Miller" <davem@davemloft.net>,
-       Wolfpaw - Dale Corse <admin@wolfpaw.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040912065608.GC1444@alpha.home.local>
-References: <022601c49866$9e8aa8f0$0300a8c0@s>
-	 <000001c49872$99333460$0200a8c0@wolf>
-	 <20040911204710.4aa7abed.davem@davemloft.net>
-	 <1094970424.29211.489.camel@sphere.site>
-	 <20040912065608.GC1444@alpha.home.local>
-Content-Type: text/plain
-Message-Id: <1094973089.29211.507.camel@sphere.site>
+	Sun, 12 Sep 2004 03:18:32 -0400
+Received: from fw.osdl.org ([65.172.181.6]:58519 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268505AbUILHSa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 03:18:30 -0400
+Date: Sun, 12 Sep 2004 00:16:26 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, len.brown@intel.com
+Subject: Re: Possible dcache BUG
+Message-Id: <20040912001626.759e2d17.akpm@osdl.org>
+In-Reply-To: <20040912000354.7243a328@laptop.delusion.de>
+References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org>
+	<20040808113930.24ae0273.akpm@osdl.org>
+	<200408100012.08945.gene.heskett@verizon.net>
+	<200408102342.12792.gene.heskett@verizon.net>
+	<Pine.LNX.4.58.0408102044220.1839@ppc970.osdl.org>
+	<20040810211849.0d556af4@laptop.delusion.de>
+	<Pine.LNX.4.58.0408102201510.1839@ppc970.osdl.org>
+	<Pine.LNX.4.58.0408102213250.1839@ppc970.osdl.org>
+	<20040812180033.62b389db@laptop.delusion.de>
+	<Pine.LNX.4.58.0408121813190.1839@ppc970.osdl.org>
+	<20040912000354.7243a328@laptop.delusion.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 12 Sep 2004 00:11:30 -0700
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-09-11 at 23:56, Willy Tarreau wrote:
-> Hi Peter,
+"Udo A. Steinberg" <us15@os.inf.tu-dresden.de> wrote:
+>
+>  However, then as slab usage went skyrocket after 3 days, I started logging
+>  these:
 > 
-> On Sat, Sep 11, 2004 at 11:27:05PM -0700, Peter Zaitsev wrote:
->  
-> > I do not care about TIME_WAIT  connection on client site itself, what
-> > concerns me is, until connection is not fully closed server side does
-> > not seems to be informed connection is dead and so  server resources are
-> > not deallocated.    
-> > 
-> > Any ideas ? 
-> 
-> TIME_WAIT status does not eat much resource, since they're in a separate
-> list. I've already had several *millions* of while stressing some equipment,
-> and I can assure you that it's really not a problem as long as you increase
-> your tcp_max_tw_buckets accordingly. There is even no performance impact
-> (I could still get 40000 hits/s with this number of time-waits). As David
-> said, the connection has been closed when it enters TIME_WAIT, so it has
-> been detached from apache.
+>   [<c013e98f>] __kmalloc+0x6f/0x80
+>   [<c0217af9>] acpi_os_allocate+0xa/0xb
+>   [<c022b9b6>] acpi_ut_callocate+0x30/0x7a
+>   [<c022b840>] acpi_ut_acquire_from_cache+0x9d/0xaa
+>   [<c022c7d8>] acpi_ut_create_generic_state+0xa/0x12
+>   [<c021b0b2>] acpi_ds_result_stack_push+0x8/0x25
+>   [<c021b268>] acpi_ds_create_walk_state+0x53/0x70
+>   [<c0227913>] acpi_ps_delete_parse_tree+0x20/0x89
+>   [<c0227238>] acpi_ps_parse_loop+0x550/0x7bb
+>   [<c02274f0>] acpi_ps_parse_aml+0x4d/0x1a1
+>   [<c0219dd4>] acpi_ds_call_control_method+0xd3/0x1b3
+>   [<c0227505>] acpi_ps_parse_aml+0x62/0x1a1
+>   [<c0227d1f>] acpi_psx_execute+0x13b/0x194
+>   [<c0225212>] acpi_ns_execute_control_method+0x3b/0x47
+>   [<c02251c0>] acpi_ns_evaluate_by_handle+0x6f/0x86
+>   [<c02250cd>] acpi_ns_evaluate_relative+0xa9/0xc3
+>   [<c02249c3>] acpi_evaluate_object+0xf3/0x1a0
+>   [<c0160f56>] link_path_walk+0xbe6/0xe70
+>   [<c022f496>] acpi_battery_get_status+0x68/0x102
+>   [<c022f9b6>] acpi_battery_read_state+0x88/0x275
+>   [<c018124b>] proc_file_read+0xbb/0x250
+>   [<c0152ea1>] vfs_read+0xd1/0x130
+>   [<c0153171>] sys_read+0x41/0x70
+>   [<c01040db>] syscall_call+0x7/0xb
 
-Once again,
+great, thanks for working that out.
 
-I do not care about resources on Client side (Apache/PHP). My concern is
-Server side (MySQL).  MySQL will close connection after timeout, which
-is normally large (hours) to support interactive clients, or when it is
-informed socket is closed.   This last part is getting very delayed,
-300+ seconds for some reason.
+Random guess: acpi_evaluate_object() is returning an error but is
+allocating memory anyway.
 
+In acpi_battery_get_status():
 
-> 
-> I think you confuse it with CLOSE_WAIT. This is a very common case on web
-> servers when the client does not support HTTP keep-alive and does a
-> shutdown(WRITE) after sending its request. The server receives the FIN, and
-> passes from ESTABLISHED to CLOSE_WAIT during all the time it sends its data
-> to the client, then closes the connection, making it TIME_WAIT.
+	status = acpi_evaluate_object(battery->handle, "_BST", NULL, &buffer);
+	if (ACPI_FAILURE(status)) {
+		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Error evaluating _BST\n"));
+		return_VALUE(-ENODEV);
+	}
 
-I'm not speaking about   HTTP server in this case at all but about
-Apache/PHP to MySQL  part only.  
-
-It is quite typical for each page load to establish connection so we can
-end up with pretty large number of connections. 
-
-To be honest I can't truly explain exactly when this happens - in many
-cases I can see connections  closed on the server as soon as client
-closes them, in other cases they are dangling for quite a time. 
-
-
-
-
-
--- 
-Peter Zaitsev, Senior Support Engineer
-MySQL AB, www.mysql.com
-
-
-
+Is that failure path being taken?

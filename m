@@ -1,54 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132488AbRCaUH3>; Sat, 31 Mar 2001 15:07:29 -0500
+	id <S132502AbRCaUZc>; Sat, 31 Mar 2001 15:25:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132492AbRCaUHT>; Sat, 31 Mar 2001 15:07:19 -0500
-Received: from dial053.za.nextra.sk ([195.168.64.53]:4 "HELO Boris.SHARK")
-	by vger.kernel.org with SMTP id <S132488AbRCaUHM>;
-	Sat, 31 Mar 2001 15:07:12 -0500
-Date: Sat, 31 Mar 2001 23:04:54 +0200
-From: Boris Pisarcik <boris@acheron.sk>
+	id <S132503AbRCaUZX>; Sat, 31 Mar 2001 15:25:23 -0500
+Received: from linux.kappa.ro ([194.102.255.131]:64969 "EHLO linux.kappa.ro")
+	by vger.kernel.org with ESMTP id <S132502AbRCaUZM>;
+	Sat, 31 Mar 2001 15:25:12 -0500
+X-RAV-AntiVirus: This e-mail has been scanned for viruses on host: linux.kappa.ro
+Date: Sat, 31 Mar 2001 23:24:10 +0300
+From: Mircea Damian <dmircea@kappa.ro>
 To: linux-kernel@vger.kernel.org
-Subject: Question about SysRq
-Message-ID: <20010331230454.A801@Boris>
+Subject: Re: OOPS: Resend - more info
+Message-ID: <20010331232410.A21869@linux.kappa.ro>
+In-Reply-To: <20010330124319.C20854@linux.kappa.ro>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010330124319.C20854@linux.kappa.ro>; from dmircea@kappa.ro on Fri, Mar 30, 2001 at 12:43:19PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-I managed fullowing situation: user with no ulimits will run script like
-this:
-
-#! /usr/bin/perl
-
-while (1)
-{
-  fork();
-};
-
-on say tty2. The processes get created pretty fast. After a short while
-I supposed a single solution to this to kill all session by alt+sysrq+k,
-but nothing happened. Under normal averagely loaded situation, this will
-imidiately kill all processes on current vt and bring getty prompt. 
-Shouldn't it function similiarily in former case ? I see all processes on vt 
-get SIGKILL, so what's hapenned ? Maybe I had to wait
-a bit longer for kernel to accomplish that ? Killing all processes with init 
-(alt+sysrq+i) seems to be immediate.
-
-
-Thought, i really love all sysrq properties of linux, so i need less often
-to make hardware resets an then await and fear, what fsck will print.
-One more property, that i'd like to have should be request key to force the
-most basic text mode (say 80x25) on the console, when eg. X freezes and 
-i kill its session, then last gfx mode resides on the screen and see no way 
-to restore back the text mode - /usr/bin/reset or something alike will not 
-do it. But it seems to be not a good idea at all, does it ? 
-
-Cheers                                                                 B.
+??
 
 
 -- 
+Mircea Damian
+E-mails: dmircea@kappa.ro, dmircea@roedu.net
+WebPage: http://taz.mania.k.ro/~dmircea/

@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265707AbRFXCag>; Sat, 23 Jun 2001 22:30:36 -0400
+	id <S265711AbRFXCtr>; Sat, 23 Jun 2001 22:49:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265709AbRFXCaQ>; Sat, 23 Jun 2001 22:30:16 -0400
-Received: from lithium.nac.net ([64.21.52.68]:56073 "HELO lithium.nac.net")
-	by vger.kernel.org with SMTP id <S265707AbRFXCaL>;
-	Sat, 23 Jun 2001 22:30:11 -0400
-Date: Sat, 23 Jun 2001 22:29:55 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Possible freezing bug located after ac13
-Message-ID: <20010623222954.A9031@debian>
-Mime-Version: 1.0
+	id <S265715AbRFXCth>; Sat, 23 Jun 2001 22:49:37 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:57102 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S265712AbRFXCt1>;
+	Sat, 23 Jun 2001 22:49:27 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200106240249.f5O2nIF07215@saturn.cs.uml.edu>
+Subject: Re: Shared memory quantity not being reflected by /proc/meminfo
+To: allan.d@bigpond.com (Allan Duncan)
+Date: Sat, 23 Jun 2001 22:49:18 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3B3486C7.7A39478@bigpond.com> from "Allan Duncan" at Jun 23, 2001 10:08:39 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.18i
-From: <tcm@nac.net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've recently been going slightly nuts with the fact ac15, 16, and 17
-all like deadlocking/slowing to a crawl for seconds/minutes on my K6-III
-with 64MB of ram and a swap space of 128MB...
+Allan Duncan writes:
 
-Recently I noticed something VERY odd, I'd been keeping an eye on
-gkrellm while I was doing stupid things to produce the problem (a du
-as root in X of / generally would always make it pop up) ... And swap
-was doing I/O at the time *JUST* before when I'd either deadlock or slow
-down to a crawl, and if it recovered, swap would do more I/O...
+> Since the 2.4.x advent of shm as tmpfs or thereabouts,
+> /proc/meminfo shows shared memory as 0.  It is in
+> reality not zero, and is being allocated, and shows
+> up in /proc/sysvipc/shm and /proc/sys/kernel/shmall
+> etc..
+> Neither 2.4.6-pre5 nor 2.4.5-ac17 have the correct
+> display.
 
-So. I tried unmounting all swap, and suddenly everything worked fine,
-although I couldn't exactly do everythign I wanted of course.
+You misunderstood what 2.2.xx kernels were reporting.
+The "shared" memory in /proc/meminfo refers to something
+completely unrelated to SysV shared memory. This is no
+longer calculated because the computation was too costly.
 
-I regression tested this, ac 16,15 and even 14 do this. ac 13 does *not*
-- IMHO I think the dead swap patches introduced into 14 may be related
-to the problem.
-
-Just my two cents.
-
-Tim

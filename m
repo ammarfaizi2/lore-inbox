@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262941AbUDUOIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262794AbUDUONP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262941AbUDUOIg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 10:08:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262923AbUDUOIg
+	id S262794AbUDUONP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 10:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262923AbUDUONP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 10:08:36 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:32156
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S262931AbUDUOIe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 10:08:34 -0400
-Message-ID: <4086803A.5000308@redhat.com>
-Date: Wed, 21 Apr 2004 07:07:54 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a) Gecko/20040420
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-CC: Arjan van de Ven <arjanv@redhat.com>
-Subject: [PATCH} Add missing __initdata
-X-Enigmail-Version: 0.83.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------080400090902050209060005"
+	Wed, 21 Apr 2004 10:13:15 -0400
+Received: from main.gmane.org ([80.91.224.249]:4003 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262794AbUDUONM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 10:13:12 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: [PATCH 6/15] New set of input patches: atkbd soften accusation
+Date: Wed, 21 Apr 2004 16:13:00 +0200
+Message-ID: <MPG.1af09f787ecab63989697@news.gmane.org>
+References: <200404210049.17139.dtor_core@ameritech.net> <200404210054.23583.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ppp-107-142.29-151.libero.it
+X-Newsreader: MicroPlanet Gravity v2.60
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080400090902050209060005
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Dmitry Torokhov wrote:
+> +				printk(KERN_WARNING "atkbd.c: Unknown key %s "
+> +				       "(%s set %d, code %#x on %s).\n",
+> +				       atkbd->release ? "released" : "pressed",
+> +				       atkbd->translated ? "translated" : "raw",
+> +				       atkbd->set, code, serio->phys);
+> +				printk(KERN_WARNING "atkbd.c: Use 'setkeycodes %s%02x <keycode>' "
+> +				       "to make it known.\n",
+> +				       code & 0x80 ? "e0" : "", code & 0x7f);
 
-One of the stack size optimizations introduced a new static variable in
-a function marked with __init.  The problem is the variable is not
-marked appropriately and so 1k of data is not freed.  The attached patch
-fixes the problem.
+By the way, until the atkbd.c / keyboard.c interaction is fixed, using setkeycodes might 
+*not* make the keys known *properly*. (example: try setkeycodes e001 129: you'll notice 
+that a key whose raw code is 0x81 will not produce keycode 129, because the raw mode 
+emulation will actually turn the 0x81 in a 0x85.)
+
+(See also the temporary patch I posted recently).
 
 -- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+Giuseppe "Oblomov" Bilotta
 
---------------080400090902050209060005
-Content-Type: text/plain;
- name="d-nfsroot"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="d-nfsroot"
+Can't you see
+It all makes perfect sense
+Expressed in dollar and cents
+Pounds shillings and pence
+                  (Roger Waters)
 
-LS0tIGZzL25mcy9uZnNyb290LmMtb2xkCTIwMDQtMDQtMTkgMTQ6MTE6MTcuMDAwMDAwMDAw
-IC0wNzAwCisrKyBmcy9uZnMvbmZzcm9vdC5jCTIwMDQtMDQtMjEgMDY6NDg6MjMuMDAwMDAw
-MDAwIC0wNzAwCkBAIC0yNzMsNyArMjczLDcgQEAgc3RhdGljIGludCBfX2luaXQgcm9vdF9u
-ZnNfcGFyc2UoY2hhciAqbgogICovCiBzdGF0aWMgaW50IF9faW5pdCByb290X25mc19uYW1l
-KGNoYXIgKm5hbWUpCiB7Ci0Jc3RhdGljIGNoYXIgYnVmW05GU19NQVhQQVRITEVOXTsKKwlz
-dGF0aWMgY2hhciBidWZbTkZTX01BWFBBVEhMRU5dIF9faW5pdGRhdGE7CiAJY2hhciAqY3A7
-CiAKIAkvKiBTZXQgc29tZSBkZWZhdWx0IHZhbHVlcyAqLwo=
---------------080400090902050209060005--

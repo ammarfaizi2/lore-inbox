@@ -1,58 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271201AbTGWSvF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 14:51:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271213AbTGWSvF
+	id S271197AbTGWSxP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 14:53:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271214AbTGWSxO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 14:51:05 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:57106
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S271201AbTGWSvA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 14:51:00 -0400
-Date: Wed, 23 Jul 2003 11:58:06 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Erik Andersen <andersen@codepoet.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Promise SATA driver GPL'd
-In-Reply-To: <1058956331.5520.13.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10307231154110.13376-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 23 Jul 2003 14:53:14 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:58004 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S271197AbTGWSwJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 14:52:09 -0400
+Date: Wed, 23 Jul 2003 12:04:57 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Glenn Fowler <gsf@research.att.com>
+Cc: gsf@research.att.com, dgk@research.att.com, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: kernel bug in socketpair()
+Message-Id: <20030723120457.206dc02d.davem@redhat.com>
+In-Reply-To: <200307231854.OAA90112@raptor.research.att.com>
+References: <200307231428.KAA15254@raptor.research.att.com>
+	<20030723074615.25eea776.davem@redhat.com>
+	<200307231656.MAA69129@raptor.research.att.com>
+	<20030723100043.18d5b025.davem@redhat.com>
+	<200307231724.NAA90957@raptor.research.att.com>
+	<20030723103135.3eac4cd2.davem@redhat.com>
+	<200307231814.OAA74344@raptor.research.att.com>
+	<20030723112307.5b8ae55c.davem@redhat.com>
+	<200307231854.OAA90112@raptor.research.att.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 23 Jul 2003 14:54:49 -0400 (EDT)
+Glenn Fowler <gsf@research.att.com> wrote:
 
-Alan,
-
-It is also more interesting that it has sensitive touch spots where they
-state there is no problem and no errata.  So I am glad to see you have
-stepped up to replace me, and don't be surprized when you hard lock the
-card and the system because the feature does not exist.
-
-This is the stuff nobody talks about and the value I added and created,
-good luck in finding the folks who deploy various asics and are willing to
-discuss in confidence solutions against the variations.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On 23 Jul 2003, Alan Cox wrote:
-
-> On Mer, 2003-07-23 at 02:59, Andre Hedrick wrote:
-> > I have already cut all ties with Promise so here is the deal.
-> > I no longer have to count the number of fingers on my hand between hand
-> > shakes.  IE no extras and not shortages.
+> On Wed, 23 Jul 2003 11:23:07 -0700 David S. Miller wrote:
+> > On Wed, 23 Jul 2003 14:14:57 -0400 (EDT)
+> > Glenn Fowler <gsf@research.att.com> wrote:
 > 
-> Thats ok - now they are doing GPL drivers themselves they don't need
-> you any more.
+> > > named sockets seem a little heavyweight for this application
 > 
-> Promise did a SCSI CAM driver because their hardware can queue commands
-> without TCQ - which drivers/ide can't cope with. Otherwise I'd just have
-> used the same type of changes the FreeBSD people did for 2037x.
+> > I think it'll be cheaper than unnamed unix sockets and
+> > groveling in /proc/*/fd/
 > 
-> Its also interesting because it has a hardware XOR engine.
+> > And even if there is a minor performance issue, you'll more than get
+> > that back due to the portability gain. :-)
 > 
+> named unix sockets reside in the fs namespace, no?
 
+Right.
+
+> so they must be linked to a dir before use and unlinked after use
+> the unlink after use would be particularly tricky for the parent process
+> implementing
+> 	cmd <(cmd ...) ...
+
+Hmmm... true.
+
+I honestly don't know what to suggest you use, sorry :(
+
+Is bash totally broken because of all this?  Or does the problem only
+trigger when using (cmd) subprocesses in a certain way?

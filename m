@@ -1,60 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261235AbTEALq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 07:46:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbTEALq2
+	id S261237AbTEALsR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 07:48:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbTEALsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 07:46:28 -0400
-Received: from wsip-68-15-8-100.sd.sd.cox.net ([68.15.8.100]:48516 "EHLO
-	gnuppy") by vger.kernel.org with ESMTP id S261235AbTEALpV (ORCPT
+	Thu, 1 May 2003 07:48:17 -0400
+Received: from main.gmane.org ([80.91.224.249]:49321 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261243AbTEALsL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 07:45:21 -0400
-Date: Thu, 1 May 2003 04:57:20 -0700
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Gerrit Huizenga <gh@us.ibm.com>, Robert Love <rml@tech9.net>,
-       viro@parcelfarce.linux.theplanet.co.uk, Andrew Morton <akpm@digeo.com>,
-       Rick Lindsley <ricklind@us.ibm.com>, solt@dns.toxicfilms.tv,
-       linux-kernel@vger.kernel.org, frankeh@us.ibm.com,
-       "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
-Subject: Re: must-fix list for 2.6.0
-Message-ID: <20030501115720.GA3645@gnuppy.monkey.org>
-References: <E19B2IS-0007wx-00@w-gerrit2> <3EB0B346.1080805@us.ibm.com>
+	Thu, 1 May 2003 07:48:11 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Thomas Backlund <tmb@iki.fi>
+Subject: Re: [PATCH 2.4.21-rc1] vesafb with large memory
+Date: Thu, 01 May 2003 15:00:29 +0300
+Message-ID: <b8r26l$he0$1@main.gmane.org>
+References: <3EB0413D.2050200@superonline.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EB0B346.1080805@us.ibm.com>
-User-Agent: Mutt/1.5.4i
-From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: KNode/0.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 30, 2003 at 10:40:22PM -0700, Dave Hansen wrote:
-> Gerrit Huizenga wrote:
-> > Which affects JVM in most cases.  NPTL based JVMs will possibly
-> > obviate that problem.  My guess is that in the JVM case, they have
-> > a bad locking model (er, a simpler 2-tier locking model instead of
-> > a more correct and complex 3-tier locking model) for their threading
-> > operations.  As a result, they use either sched_yield() or used
-> > to use pause() to relinquish the processor so the world could change
-> > and they could acquire the locks they wanted.
+O.Sezer wrote:
+
+> So far, so good...
 > 
-> The JVM's extensive use of sched_yield(), plus the HT scheduler causes
-> some pretty undesirable behaviour in SPECjbb(tm) (see disclaimer).  It
-> starves some pieces of the benchmark so badly, that the benchmark
-> results are invalid.  We also start to get tons of idle time as the load
-> goes up.
+> I can happily boot, halt, play some opengl games, perform my daily
+> routines, etc.  This should also be related to the bug recorded at
+> Mandrake-bugzilla: http://qa.mandrakesoft.com/show_bug.cgi?id=3198 .
+> I also reported this to kernel@mandrakesoft.com .
+> 
 
-Have the Blackdown folks fix that. The Solaris Threads implementation
-suppresses the actual call to a yield in the HotSpot VM if it gets too
-many of them bunched together in short period of time. It's really a problem
-not with the JVM itself, but the Linux implementaion of their threading
-glue logic... Make'm fix it. :)
+No need ;-)....
+We already have a (IMHO) better patch in current Cooker...
+(and if you need it to install MDK 9.1, head over to www.iki.fi/tmb,
+ grab the install disks, and follow the instructions...)
 
-I've heard that a number of folks in Blackdown want to try out the new
-threading model, so this might be a good opportunity to do that... add
-special thread suspension support, etc...
+The problem with the patch you discussed, is that it allocates
+framebuffer memory only according to the display mode...,
+but there are programs that benefits from the "extra" memory...
+this according to Antonino Daplas...
+(AFAIK double/triple buffering is one thing...)
 
-:)
+The patch that we have in current Cooker, allows the user to
+request the size himself by a command line option...
+and it does not change the setup/configuration for users that
+does not suffer from this problem...
 
-bill
+
+the patch works like this:
+
+you request the framebuffer size with "video=vesa:vram:32"
+where 32 is the requested size in MB... 
+(you can choose the size yourself)
+but a gemeric rule IMHO is to not go beyond the amount
+of video memory you have... 
+
+and when the system boots:
+
+- if no vram option, boot as normal (like without the patch)
+- if probed memory > requested, use requested
+- if probed memory < requested, use probed (like without the patch)
+
+As a test I used this "video=vesa:vram:32" on a card
+with 64MB of ram, and on a card with only 4MB of ram
+to se if I could mess it up, with the following results:
+
+64MB card: allocated FB -> 32MB
+(this is also confirmed on a 128MB card, by other Cooker users)
+ 4MB card: allocated FB ->  4MB 
+(here the original probe worked, so we use it...)
+
+
+So this way we wont break current systems, 
+but have an option for those cards that has problem...
+(seems to be AGP + >=128MB VideoRAM + >=1024MB system RAM only)
+
+and finally... the patch itself:
+
+----- cut -----
+diff -Naru tmb7/Documentation/fb/vesafb.txt tmb9/Documentation/fb/vesafb.txt
+--- tmb7/Documentation/fb/vesafb.txt    2000-07-28 22:50:51.000000000 +0300
++++ tmb9/Documentation/fb/vesafb.txt    2003-04-03 10:48:50.000000000 +0300
+@@ -146,6 +146,10 @@
+
+ mtrr   setup memory type range registers for the vesafb framebuffer.
+
++vram:n  remap 'n' MiB of video RAM. If 0 or not specified, remap all
++        available video RAM. (2.5.66 patch by Antonino Daplas backported
++       to 2.4 by tmb@iki.fi)
++
+
+ Have fun!
+
+diff -Naru tmb7/drivers/video/vesafb.c tmb9/drivers/video/vesafb.c
+--- tmb7/drivers/video/vesafb.c 2002-11-29 01:53:15.000000000 +0200
++++ tmb9/drivers/video/vesafb.c 2003-04-03 10:46:52.000000000 +0300
+@@ -94,6 +94,7 @@
+
+ static int             inverse   = 0;
+ static int             mtrr      = 0;
++static int      vram __initdata = 0; /* needed for vram boot option */
+ static int             currcon   = 0;
+
+ static int             pmi_setpal = 0; /* pmi for palette changes ??? */
+@@ -479,6 +480,10 @@
+                        pmi_setpal=1;
+                else if (! strcmp(this_opt, "mtrr"))
+                        mtrr=1;
++               /* checks for vram boot option */
++               else if (! strncmp(this_opt, "vram:", 5))
++                       vram = simple_strtoul(this_opt+5, NULL, 0);
++
+                else if (!strncmp(this_opt, "font:", 5))
+                        strcpy(fb_info.fontname, this_opt+5);
+        }
+@@ -521,6 +526,9 @@
+        video_height        = screen_info.lfb_height;
+        video_linelength    = screen_info.lfb_linelength;
+        video_size          = screen_info.lfb_size * 65536;
++       /* sets video_size according to boot option */
++        if (vram && vram * 1024 * 1024 < video_size)
++                video_size = vram * 1024 * 1024;
+        video_visual = (video_bpp == 8) ?
+                FB_VISUAL_PSEUDOCOLOR : FB_VISUAL_TRUECOLOR;
+----- cut -----
+
+
+Best Regards
+
+Thomas Backlund
+
+tmb@iki.fi
+www.iki.fi/tmb
 

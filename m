@@ -1,51 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbVDEIeL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261619AbVDEIiq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261675AbVDEIeL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 04:34:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbVDEId6
+	id S261619AbVDEIiq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 04:38:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbVDEIiq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 04:33:58 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:19595 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261675AbVDEIco (ORCPT
+	Tue, 5 Apr 2005 04:38:46 -0400
+Received: from tornado.reub.net ([60.234.136.108]:51089 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S261626AbVDEIel (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 04:32:44 -0400
-Date: Tue, 5 Apr 2005 10:30:01 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+	Tue, 5 Apr 2005 04:34:41 -0400
+Message-ID: <42524D83.1080104@reub.net>
+Date: Tue, 05 Apr 2005 20:34:11 +1200
+From: Reuben Farrelly <reuben-lkml@reub.net>
+User-Agent: Mozilla Thunderbird 1.0+ (Windows/20050404)
+MIME-Version: 1.0
+Newsgroups: fa.linux.kernel
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: 2.6.12-rc2-mm1
-Message-ID: <20050405083001.GA28068@elte.hu>
-References: <20050405000524.592fc125.akpm@osdl.org> <425240C5.1050706@ens-lyon.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <425240C5.1050706@ens-lyon.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+References: <fa.gcqu6i7.1o6qrhn@ifi.uio.no>
+In-Reply-To: <fa.gcqu6i7.1o6qrhn@ifi.uio.no>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Brice Goglin <Brice.Goglin@ens-lyon.org> wrote:
-
-> Andrew Morton a écrit :
-> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm1/
+Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm1/
 > 
-> Hi Andrew,
+> - x86 NMI handling seems to be bust in 2.6.12-rc2.  Try using
+>   `nmi_watchdog=0' if you experience weird crashes.
 > 
-> printk timing seems broken.
-> It always shows [ 0.000000] on my Compaq Evo N600c.
+> - The possible kernel-timer related hangs might possibly be fixed.  We
+>   haven't heard yet.
+> 
+> - Nobody said anything about the PM resume and DRI behaviour in
+>   2.6.12-rc1-mm4.  So it's all perfect now?
+> 
+> - Various fixes and updates.  Nothing earth-shattering.
+> 
+> 
+> 
+> Changes since 2.6.12-rc1-mm4:
+> 
+> 
+>  bk-acpi.patch
+>  bk-agpgart.patch
+>  bk-cifs.patch
+>  bk-cpufreq.patch
+>  bk-cryptodev.patch
+>  bk-driver-core.patch
+>  bk-drm.patch
+>  bk-drm-via.patch
+>  bk-ia64.patch
+>  bk-audit.patch
+>  bk-input.patch
+>  bk-jfs.patch
+>  bk-kbuild.patch
+>  bk-mtd.patch
+>  bk-netdev.patch
+>  bk-nfs.patch
+>  bk-ntfs.patch
+>  bk-scsi.patch
+>  bk-watchdog.patch
+> 
+>  Latest versions of subsystem trees
 
-could you send the full bootlog (starting at the 'gcc...' line)? I'm not 
-sure whether TSC calibration was done on your CPU. If cyc2ns_scale is 
-not set up then sched_clock() will return 0, and this could result in 
-that printk symptom.
+Hrm. Something changed between the last -mm release which compiled 
+through, and this one..
 
-	Ingo
+  CHK     include/linux/compile.h
+   CHK     usr/initramfs_list
+   GEN     .version
+   CHK     include/linux/compile.h
+   UPD     include/linux/compile.h
+   CC      init/version.o
+   LD      init/built-in.o
+   LD      .tmp_vmlinux1
+arch/i386/kernel/built-in.o(.init.text+0x1823): In function `setup_arch':
+: undefined reference to `acpi_boot_table_init'
+arch/i386/kernel/built-in.o(.init.text+0x1828): In function `setup_arch':
+: undefined reference to `acpi_boot_init'
+make: *** [.tmp_vmlinux1] Error 1
+[root@tornado linux-2.6]#
+
+Backing out bk-acpi.patch works around it..
+
+reuben
+
+

@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261300AbUDNTXP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 15:23:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUDNTXP
+	id S261340AbUDNT34 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 15:29:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUDNT34
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 15:23:15 -0400
-Received: from ns.suse.de ([195.135.220.2]:46243 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261300AbUDNTXO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 15:23:14 -0400
-Date: Wed, 14 Apr 2004 21:21:45 +0200
-From: Andi Kleen <ak@suse.de>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: READONLY_EXEC is a curious name
-Message-Id: <20040414212145.707555f6.ak@suse.de>
-In-Reply-To: <20040414190653.GB12105@mail.shareable.org>
-References: <20040414190653.GB12105@mail.shareable.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Apr 2004 15:29:56 -0400
+Received: from mail0-96.ewetel.de ([212.6.122.96]:12679 "EHLO mail0.ewetel.de")
+	by vger.kernel.org with ESMTP id S261340AbUDNT3y convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 15:29:54 -0400
+Date: Wed, 14 Apr 2004 21:29:51 +0200 (CEST)
+From: Pascal Schmidt <der.eremit@email.de>
+To: Guillaume =?iso-8859-15?q?Lac=F4te?= <Guillaume@Lacote.name>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Using compression before encryption in device-mapper
+In-Reply-To: <200404141725.31660.Guillaume@Lacote.name>
+Message-ID: <Pine.LNX.4.58.0404142122050.1541@neptune.local>
+References: <1KykU-4VD-17@gated-at.bofh.it> <1KTfJ-5gK-25@gated-at.bofh.it>
+ <E1BDluf-00007s-PB@localhost> <200404141725.31660.Guillaume@Lacote.name>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Apr 2004 20:06:53 +0100
-Jamie Lokier <jamie@shareable.org> wrote:
+On Wed, 14 Apr 2004, Guillaume [iso-8859-15] Lacôte wrote:
 
-> This is not important.
-> 
-> PAGE_READONLY_EXEC is defined in <asm-x86_64/pgtable.h>.
-> 
-> Does anyone else think PAGE_READONLY_EXEC is an odd name for a set of
-> flags which enables read _and_ execute permission?  What about
-> PAGE_READEXEC instead?
+> You are right that in this very case, the per-bit entropy will be
+> (1 - 1/(1+1/8) ) ~ 12% lower than in the original text. The point is
+> that this case (which has nothing to do with the case where a text can
+> be well compressed or not, this is the worst _relative_ performance of
+> dynamic versus static encoding) does not happen "too often".
 
-It just follows the pattern there (default is with NX and _EXEC is the variant
-without NX). I don't care much either ways.
+I was only pointing out a corner case where your argument doesn't
+hold. I completely agree that it is rather unlikely to happen with
+real world data.
 
--Andi 
+There is one exception, though: data that has already been compressed
+before on a higher level; by the user, for example. However, in
+that case you could say that what you're trying to accomplish has already
+happened before during the original compression run.
+
+-- 
+Ciao,
+Pascal

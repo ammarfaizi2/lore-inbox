@@ -1,40 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261376AbTKXWmK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 17:42:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbTKXWmK
+	id S261500AbTKXWpW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 17:45:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbTKXWpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 17:42:10 -0500
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:4551 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261376AbTKXWmI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 17:42:08 -0500
-Date: Mon, 24 Nov 2003 17:40:52 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Remi Colinet <remi.colinet@wanadoo.fr>
-cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test9-mm5 : compile error
-In-Reply-To: <3FBF99E6.1070402@wanadoo.fr>
-Message-ID: <Pine.LNX.4.58.0311241740160.8180@montezuma.fsmlabs.com>
-References: <3FBF5C79.5050409@wanadoo.fr> <Pine.LNX.4.53.0311220946280.2498@montezuma.fsmlabs.com>
- <3FBF99E6.1070402@wanadoo.fr>
+	Mon, 24 Nov 2003 17:45:22 -0500
+Received: from web40908.mail.yahoo.com ([66.218.78.205]:12297 "HELO
+	web40908.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261500AbTKXWpP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 17:45:15 -0500
+Message-ID: <20031124224514.56242.qmail@web40908.mail.yahoo.com>
+Date: Mon, 24 Nov 2003 14:45:14 -0800 (PST)
+From: Bradley Chapman <kakadu_croc@yahoo.com>
+Subject: Re: What exactly are the issues with 2.6.0-test10 preempt?
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0311241429330.15101@home.osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 22 Nov 2003, Remi Colinet wrote:
+Mr. Torvalds,
 
-> #include <asm/tlbflush.h>
-> #include <asm/cpu.h>
->
-> My original processs.c file seems to be a little be bit different from
-> yours (?).
-> The following line was already in the process.c file.
->
-> +#include <asm/atomic_kmap.h>
+--- Linus Torvalds <torvalds@osdl.org> wrote:
+> 
+> 
+> On Mon, 24 Nov 2003, Bradley Chapman wrote:
+> >
+> > What sort of information would you like me to provide, sir? The bug you're
+> > discussing here isn't affecting me; CONFIG_PREEMPT has been solid on
+> 2.6.0-test10.
+> > This is on a Gateway 600S laptop with a P4-M 2Ghz processor and an i845
+> Brookdale
+> > chipset.
+> 
+> Basically, there's something strange going on, which _seems_ to be memory
+> corruption, and seems to correlate reasonable well (but not 100%) with
+> CONFIG_PREEMPT.
 
-Yes i appear to have botched my local -mm5 tree.
+Ah, I see. I thought there was a definite issue with a certain subsystem that
+just hadn't been fixed yet when CONFIG_PREEMPT=y.
 
-Thanks for testing it,
-	Zwane
+> 
+> It's actually unlikely to be preemption itself that is broken: it's much
+> more likely that some driver or other subsystem is broken, and preempt is
+> just better at triggering it by making some race conditions much easier to
+> see due to bigger windows for them to happen.
+> 
+> The problem is finding enough of a pattern to the reports to make sense of
+> what seems to be the common thread. A lot of people use preemption without
+> any trouble.
+
+Indeed. Do the same subsystems usually show the memory corruption issue with
+preempt active, or does it just pop up all over the place, unpredictably?
+
+> 
+> 		Linus
+
+Brad
+
+
+=====
+
+
+__________________________________
+Do you Yahoo!?
+Free Pop-Up Blocker - Get it now
+http://companion.yahoo.com/

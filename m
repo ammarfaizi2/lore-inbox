@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293186AbSBWSWe>; Sat, 23 Feb 2002 13:22:34 -0500
+	id <S293176AbSBWSXy>; Sat, 23 Feb 2002 13:23:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293173AbSBWSWQ>; Sat, 23 Feb 2002 13:22:16 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58377 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S293174AbSBWSWL>; Sat, 23 Feb 2002 13:22:11 -0500
-Date: Sat, 23 Feb 2002 10:20:04 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Rusty Russell <rusty@rustcorp.com.au>,
-        Matthew Kirkwood <matthew@hairy.beasts.org>,
-        Benjamin LaHaise <bcrl@redhat.com>, David Axmark <david@mysql.com>,
-        William Lee Irwin III <wli@holomorphy.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Lightweight userspace semaphores...
-In-Reply-To: <Pine.LNX.4.33.0202231551300.4173-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0202231017310.9185-100000@home.transmeta.com>
+	id <S293172AbSBWSXr>; Sat, 23 Feb 2002 13:23:47 -0500
+Received: from mustard.heime.net ([194.234.65.222]:5856 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S293185AbSBWSWe>; Sat, 23 Feb 2002 13:22:34 -0500
+Date: Sat, 23 Feb 2002 19:22:32 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Promise 20269 support?
+Message-ID: <Pine.LNX.4.30.0202231921440.13172-100000@mustard.heime.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi
 
+Does anyone know when (or if) the PDC20269 driver will be merged into the
+official 2.4 kernel?
 
-On Sat, 23 Feb 2002, Ingo Molnar wrote:
->
-> On Sat, 23 Feb 2002, Rusty Russell wrote:
->
-> > 1) Interface is: open /dev/usem, pread, pwrite.
->
-> i like the patch, but the interface is ugly IMO. Why not new syscalls?
+roy
 
-I agree - I dislike magic device files a whole lot more than just abotu
-every alternative.
+--
+Roy Sigurd Karlsbakk, Datavaktmester
 
-Also, one thing possibly worth looking into is to just put the actual
-semaphore contents into a regular file backed setup.
-
-		Linus
+Computers are like air conditioners.
+They stop working when you open Windows.
 

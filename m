@@ -1,39 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129112AbQKISpi>; Thu, 9 Nov 2000 13:45:38 -0500
+	id <S129618AbQKITBf>; Thu, 9 Nov 2000 14:01:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129209AbQKISp2>; Thu, 9 Nov 2000 13:45:28 -0500
-Received: from u-97.karlsruhe.ipdial.viaginterkom.de ([62.180.21.97]:20996
-	"EHLO u-97.karlsruhe.ipdial.viaginterkom.de") by vger.kernel.org
-	with ESMTP id <S129112AbQKISpU>; Thu, 9 Nov 2000 13:45:20 -0500
-Date: Thu, 9 Nov 2000 13:22:51 +0100
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Keith Owens <kaos@ocs.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Persistent module storage - modutils design
-Message-ID: <20001109132250.A1106@bacchus.dhis.org>
-In-Reply-To: <200011071330.eA7DUdw26230@pincoya.inf.utfsm.cl> <E13t9EH-0007Ra-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <E13t9EH-0007Ra-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Nov 07, 2000 at 01:55:59PM +0000
-X-Accept-Language: de,en,fr
+	id <S129858AbQKITBZ>; Thu, 9 Nov 2000 14:01:25 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:3201 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129618AbQKITBK>; Thu, 9 Nov 2000 14:01:10 -0500
+Date: Thu, 9 Nov 2000 14:00:49 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Module open() problems, Linux 2.4.0
+Message-ID: <Pine.LNX.3.95.1001109135504.14703A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 07, 2000 at 01:55:59PM +0000, Alan Cox wrote:
 
-> > Note! This _has_ to be in the / filesystem so it works before mounting the
-> > rest of the stuff (if ever). This would rule out /var, and leave just
-> > /lib/modules/<version>. Makes me quite unhappy...
-> 
-> The /lib filesystem is likely not writable so /var is the right default. 
+`lsmod` shows that a device is open twice when using Linux-2.4.0-test9
+when, in fact, it has been opened only once.
 
-In theory yes.  In practice /var is often a mounted filesyste so for
-modules loaded before /var is mounted this solution gets somewhat ugly.
+lsmod is version 2.3.15, the latest-and-greatest.
 
-  Ralf
+Here are the open/close routines for a module.
+
+/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+/*
+ *  Open the device.
+ */
+static int device_open(struct inode *inp, struct file *fp)
+{
+    DEB(printk("%s open\n", info->dev));
+    MOD_INC_USE_COUNT;                         /* Increment usage count */
+    return 0;
+} 
+/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+/*
+ *  Close the device.
+ */
+static int device_close(struct inode *inp, struct file *fp)
+{
+    DEB(printk("%s close\n", info->dev));
+    MOD_DEC_USE_COUNT;                         /* Decrement usage count */
+    return 0;
+} 
+
+When the module is closed, the use-count goes to zero as expected.
+However, a single open() causes the use-count to be 2.
+
+In a possibly-related observation, during the change-root from
+an initial RAM disk to the root file system during boot, the
+d_count used to be reported as '1'. It is now '3'.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

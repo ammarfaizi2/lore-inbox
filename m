@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261645AbUJaOqC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbUJaOsQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261645AbUJaOqC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 09:46:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261636AbUJaOpR
+	id S261641AbUJaOsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 09:48:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbUJaOro
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 09:45:17 -0500
-Received: from baikonur.stro.at ([213.239.196.228]:4743 "EHLO baikonur.stro.at")
-	by vger.kernel.org with ESMTP id S261635AbUJaOpC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 09:45:02 -0500
-Date: Sun, 31 Oct 2004 15:44:42 +0100
+	Sun, 31 Oct 2004 09:47:44 -0500
+Received: from baikonur.stro.at ([213.239.196.228]:45206 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S261643AbUJaOpx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 09:45:53 -0500
+Date: Sun, 31 Oct 2004 15:45:24 +0100
 From: maximilian attems <janitor@sternwelten.at>
 To: Jeff Garzik <jgarzik@pobox.com>
 Cc: Margit Schubert-While <margitsw@t-online.de>,
@@ -17,8 +17,8 @@ Cc: Margit Schubert-While <margitsw@t-online.de>,
        mcgrof@studorgs.rutgers.edu, kernel-janitors@lists.osdl.org,
        netdev@oss.sgi.com, Domen Puncer <domen@coderock.org>,
        linux-kernel@vger.kernel.org
-Subject: [patch 2/6] libata remove duplicate definition msecs_to_jiffies()
-Message-ID: <20041031144442.GC28667@stro.at>
+Subject: [patch 6/6] libata remove msleep_libata()
+Message-ID: <20041031144524.GG28667@stro.at>
 Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
 	Margit Schubert-While <margitsw@t-online.de>,
 	Nishanth Aravamudan <nacc@us.ibm.com>, hvr@gnu.org,
@@ -36,30 +36,70 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-remove duplicate definition of msecs_to_jiffies().
-already includes delay.h
+
+remove msleep_libata(), now that msleep() is backported.
+also remove duplicate msleep() definition.
+delay.h is already included.
 
 Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 
 
+
 ---
 
- linux-2.4.28-rc1-max/include/linux/libata.h |    5 -----
- 1 files changed, 5 deletions(-)
+ linux-2.4.28-rc1-max/drivers/scsi/libata-core.c |   23 -----------------------
+ linux-2.4.28-rc1-max/include/linux/libata.h     |    1 -
+ 2 files changed, 24 deletions(-)
 
-diff -puN include/linux/libata.h~remove-msecs_to_jiffies-libata.h include/linux/libata.h
---- linux-2.4.28-rc1/include/linux/libata.h~remove-msecs_to_jiffies-libata.h	2004-10-31 13:33:52.000000000 +0100
-+++ linux-2.4.28-rc1-max/include/linux/libata.h	2004-10-31 13:36:16.000000000 +0100
-@@ -419,11 +419,6 @@ extern int ata_std_bios_param(Disk * dis
- extern void libata_msleep(unsigned long msecs);
+diff -puN drivers/scsi/libata-core.c~remove-libata_msleep drivers/scsi/libata-core.c
+--- linux-2.4.28-rc1/drivers/scsi/libata-core.c~remove-libata_msleep	2004-10-31 14:06:49.000000000 +0100
++++ linux-2.4.28-rc1-max/drivers/scsi/libata-core.c	2004-10-31 14:08:41.000000000 +0100
+@@ -67,28 +67,6 @@ MODULE_DESCRIPTION("Library module for A
+ MODULE_LICENSE("GPL");
  
- 
--static inline unsigned long msecs_to_jiffies(unsigned long msecs)
+ /**
+- *	msleep - sleep for a number of milliseconds
+- *	@msecs: number of milliseconds to sleep
+- *
+- *	Issues schedule_timeout call for the specified number
+- *	of milliseconds.
+- *
+- *	LOCKING:
+- *	None.
+- */
+-
+-static void msleep(unsigned long msecs)
 -{
--	return ((HZ * msecs + 999) / 1000);
+-	set_current_state(TASK_UNINTERRUPTIBLE);
+-	schedule_timeout(msecs_to_jiffies(msecs) + 1);
 -}
 -
+-void libata_msleep(unsigned long msecs)
+-{
+-	msleep(msecs);
+-}
+-
+-/**
+  *	ata_tf_load - send taskfile registers to host controller
+  *	@ap: Port to which output is sent
+  *	@tf: ATA taskfile register set
+@@ -3697,7 +3675,6 @@ EXPORT_SYMBOL_GPL(ata_scsi_queuecmd);
+ EXPORT_SYMBOL_GPL(ata_scsi_error);
+ EXPORT_SYMBOL_GPL(ata_scsi_detect);
+ EXPORT_SYMBOL_GPL(ata_add_to_probe_list);
+-EXPORT_SYMBOL_GPL(libata_msleep);
+ EXPORT_SYMBOL_GPL(ata_scsi_release);
+ EXPORT_SYMBOL_GPL(ata_host_intr);
+ EXPORT_SYMBOL_GPL(ata_dev_classify);
+diff -puN include/linux/libata.h~remove-libata_msleep include/linux/libata.h
+--- linux-2.4.28-rc1/include/linux/libata.h~remove-libata_msleep	2004-10-31 14:06:49.000000000 +0100
++++ linux-2.4.28-rc1-max/include/linux/libata.h	2004-10-31 14:09:08.000000000 +0100
+@@ -416,7 +416,6 @@ extern void ata_qc_complete(struct ata_q
+ extern void ata_eng_timeout(struct ata_port *ap);
+ extern void ata_add_to_probe_list (struct ata_probe_ent *probe_ent);
+ extern int ata_std_bios_param(Disk * disk, kdev_t dev, int *ip);
+-extern void libata_msleep(unsigned long msecs);
+ 
+ 
  static inline unsigned int ata_tag_valid(unsigned int tag)
- {
- 	return (tag < ATA_MAX_QUEUE) ? 1 : 0;
 _

@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263183AbTEINnE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 09:43:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263253AbTEINnE
+	id S262493AbTEINlN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 09:41:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263179AbTEINlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 09:43:04 -0400
-Received: from [203.124.139.208] ([203.124.139.208]:43460 "EHLO
-	pcsbom.patni.com") by vger.kernel.org with ESMTP id S263183AbTEINnD
+	Fri, 9 May 2003 09:41:13 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:35834 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S262493AbTEINlM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 09:43:03 -0400
-Message-ID: <00b401c31632$d19b7d30$f1bba5cc@pc5579>
-From: "Chandan S Pansare \(pcsbom\)" <chandan.pansare@patni.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: kernel enhancement for stale NFS file handle?
-Date: Fri, 9 May 2003 19:26:11 +0530
+	Fri, 9 May 2003 09:41:12 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: The disappearing sys_call_table export.
+Date: Fri, 9 May 2003 08:53:04 -0500
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <200305081546_MC3-1-3809-363E@compuserve.com>
+In-Reply-To: <200305081546_MC3-1-3809-363E@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6600
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
+Message-Id: <03050908530400.11221@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thursday 08 May 2003 14:43, Chuck Ebbert wrote:
+> > Have you tried catching the display IO ???
+>
+>   Not in a million years -- display drivers work by pure magic AFAIC.
+>
+> > HSM has existed on UNIX based machines for a long time.
+>
+>   Show me three HSM implementations for Linux and I'll show you three
+> different mechanisms. :)
 
-I am trying to configure Veritas Cluster server on RHAS2.1 (2 node
-configuration).  Every thing works fine till I configure NFS service group.
-Once the service is up I am able to mount exported FS on my client machine.
-But once I switch over the service from one node to another, I get *stale
-NFS file handle*  error for any open file (eg while doing dd if=/dev/zero
-of=<mntd_FS>/<file> I get stale handle for <file>) but I am able to do any
-new operation like ls, cd or dd without any need for unmounting/mounting the
-FS.
-This requires some kernel enhancement and is implemented in RHAS2.1 (kernel
-2.4.9-e.3) but still I am facing this problem.
-I had same trouble with RED HAT CLUSTER MANAGER but somehow it got resolved.
-[ and I am not sure how :-( ]
-Any idea how this can be resolved??
+Actually... I think they all use the same one (Even the Solaris/IRIX/Cray ones
+do that). All of them provide a filesystem interface via VFS. The Linux ones
+were implemented via the "userfs" core or NFS.
 
-Regards
-Chandan
-
+There is also OpenAFS which gives access to a remote HSM... but that can
+be considered just a NFS equivalent.

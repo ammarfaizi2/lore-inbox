@@ -1,61 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261400AbUCUWIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 17:08:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbUCUWIP
+	id S261419AbUCUWIt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 17:08:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUCUWIt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 17:08:15 -0500
-Received: from postfix4-1.free.fr ([213.228.0.62]:33745 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S261405AbUCUWIL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 17:08:11 -0500
-Message-ID: <405E124D.9030306@free.fr>
-Date: Sun, 21 Mar 2004 23:08:13 +0100
-From: Eric Valette <eric.valette@free.fr>
-Reply-To: eric.valette@free.fr
-Organization: HOME
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040116
-X-Accept-Language: en
+	Sun, 21 Mar 2004 17:08:49 -0500
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:21260 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261419AbUCUWIn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 17:08:43 -0500
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: [PATCH] gcc3 does not inline some functions
+Date: Sun, 21 Mar 2004 23:57:34 +0200
+User-Agent: KMail/1.5.4
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: eric.valette@free.fr, Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.5-rc2-mm1 does not boot. 2.6.5-rc1-mm2 + small fix from axboe
- was fine
-References: <405DFA02.8090504@free.fr> <Pine.LNX.4.58.0403211555110.28727@montezuma.fsmlabs.com> <405E07A1.9000609@free.fr> <405E0DA8.1060802@free.fr>
-In-Reply-To: <405E0DA8.1060802@free.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_O/gXAs1J4PVoIdQ"
+Message-Id: <200403212357.34290.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Valette wrote:
-> Eric Valette wrote:
-> 
->> Zwane Mwaikambo wrote:
->>
->>> How about the following patch?
-> 
-> 
-> Does not help. But I guess I've found the problem : the 
-> initramfs-search-for init.patch is incorrectly applied in 2.6.5-rc1-mm2 
-> patch...
 
-Its a little late here : as you suggested to revert the 
-initramfs-search-for-init.patch, I did but got rejected becasue a second 
-patch is applied on top of it...
+--Boundary-00=_O/gXAs1J4PVoIdQ
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-So I will try your patch again on the original rc1-mm2 file. Sorry for 
-the trouble (11 PM here)...
+# cut 2.4.25/System.map -d' ' -f3 | sort | uniq -c | sort -r | head -10
+    216 __constant_c_and_count_memset
+    120 __constant_memcpy
+     67 __constant_copy_to_user
+     66 __constant_copy_from_user
+     50 version
+     23 debug
+     17 max_interrupt_work
+     16 rx_copybreak
+     16 options
+     16 mdio_write
 
+Fix is below. Backported from 2.6. Untested.
+--
+vda
 
--- 
-    __
-   /  `                   	Eric Valette
-  /--   __  o _.          	6 rue Paul Le Flem
-(___, / (_(_(__         	35740 Pace
+--Boundary-00=_O/gXAs1J4PVoIdQ
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="24_inline.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="24_inline.patch"
 
-Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
-E-mail: eric.valette@free.fr
+--- linux-2.4.25/include/linux/compiler.h.orig	Sun Mar 21 23:50:13 2004
++++ linux-2.4.25/include/linux/compiler.h	Sun Mar 21 23:51:06 2004
+@@ -13,4 +13,12 @@
+ #define likely(x)	__builtin_expect((x),1)
+ #define unlikely(x)	__builtin_expect((x),0)
+ 
++#if __GNUC__ == 3
++#if __GNUC_MINOR__ >= 1
++# define inline         __inline__ __attribute__((always_inline))
++# define __inline__     __inline__ __attribute__((always_inline))
++# define __inline       __inline__ __attribute__((always_inline))
++#endif
++#endif
++
+ #endif /* __LINUX_COMPILER_H */
 
-
+--Boundary-00=_O/gXAs1J4PVoIdQ--
 

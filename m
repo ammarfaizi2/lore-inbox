@@ -1,34 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbUE0DxI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbUE0ExQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbUE0DxI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 23:53:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbUE0DxI
+	id S261321AbUE0ExQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 00:53:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUE0ExQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 23:53:08 -0400
-Received: from fw.osdl.org ([65.172.181.6]:9168 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261563AbUE0DxG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 23:53:06 -0400
-Date: Wed, 26 May 2004 20:52:25 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Antonio Larrosa =?ISO-8859-1?B?Smlt6W5leg==?= <antlarr@tedial.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: iowait problems on 2.6, not on 2.4
-Message-Id: <20040526205225.7a0866aa.akpm@osdl.org>
-In-Reply-To: <200405261743.28111.antlarr@tedial.com>
-References: <200405261743.28111.antlarr@tedial.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Thu, 27 May 2004 00:53:16 -0400
+Received: from mx4.cs.washington.edu ([128.208.4.190]:27360 "EHLO
+	mx4.cs.washington.edu") by vger.kernel.org with ESMTP
+	id S261321AbUE0ExP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 00:53:15 -0400
+Date: Wed, 26 May 2004 21:53:14 -0700 (PDT)
+From: Vadim Lobanov <vadim@cs.washington.edu>
+To: linux-kernel@vger.kernel.org
+Subject: epoll question
+Message-ID: <20040526214852.I23529-100000@attu3.cs.washington.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Antonio Larrosa Jiménez <antlarr@tedial.com> wrote:
->
-> My next test will be to do the "dd tests" on one of the internal hard disks 
->  and use it for the data instead of the external raid.
+Hi,
 
-That's a logical next step.  The reduced read bandwith on the raid array
-should be fixed up before we can go any further.  I don't recall any
-reports of qlogic fc-scsi performance regressions though.
+I have a quick question about the behavior of epoll. My usage scenario is 
+as follows:
+
+I add multiple fd's to the epoll set. Some of the fd's will have a lot of 
+data coming in, while others will have noticeably less.
+I start to epoll for events, only letting it return one event at a time
+
+In this case, will the lesser-active fd's be starved out by the 
+constantly-active fd's, or will they still be reliably seen?
+
+-Vadim Lobanov
+

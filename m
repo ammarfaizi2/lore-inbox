@@ -1,48 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262559AbUCJI4l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 03:56:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262561AbUCJI4l
+	id S262283AbUCJJCt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 04:02:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbUCJJCt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 03:56:41 -0500
-Received: from smtp-out7.blueyonder.co.uk ([195.188.213.10]:17439 "EHLO
-	smtp-out7.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S262559AbUCJI4j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 03:56:39 -0500
-Message-ID: <404ED845.7070804@blueyonder.co.uk>
-Date: Wed, 10 Mar 2004 08:56:37 +0000
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.4-rc2-mm1 lockup with NVIDIA driver
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Mar 2004 08:56:38.0600 (UTC) FILETIME=[994F3480:01C4067D]
+	Wed, 10 Mar 2004 04:02:49 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:53914 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262283AbUCJJCo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 04:02:44 -0500
+Date: Wed, 10 Mar 2004 10:02:41 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Mike Christie <michaelc@cs.wisc.edu>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] set request fastfail bit
+Message-ID: <20040310090241.GB4949@suse.de>
+References: <404EB824.1030806@cs.wisc.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <404EB824.1030806@cs.wisc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SuSE 9.0 Pro on Athlon XP2200+, 2.6.4-rc2-mm1 seemed to cause some 
-filesystem corruption with the nvidia driver, using the distributed nv 
-driver is OK.
-Booted to runlevel 3, installed the latest nvidia 5336 package, init 5 
-and video switched to a black screen and there is a hard lockup. No 
-problems up to  2.6.3-mm kernels.  Rebooting to 2.6.3-mm4 which had been 
-OK now gave a hard lockup.
-Did a reiserfsck --rebuild-tree, a number of files fixed, but the 
-problem did not go away. Also when starting vi or saving a file edited 
-with vi, I get this garbage, the file is however fine.
-E575: viminfo: Illegal starting char in line: ADD 3925868551 "def" 
-"/apps/gnome-settings/ggv" 
-"IOR:01eeffbf1700000049444c3a436f6e6669674c697374656e65723a312e300000030000000054424f580000000101026205000000554e495800000000090000006261727261626173000000002d0000002f746d702f6f726269742d6c616e63656c6f742f6c696e632d6664382d302d3666333639616464376366653100652f7300000000caaedfba58000000010102002d0000002f746d702f6f726269742d6c616e63656c6f742f6c696e632d6664382d302d36663336396164643763666531000000001c00000000000000e8aa2c20e00768a8dc2928282828282804000000ff9f55c101
-E575: viminfo: Illegal starting char in line: ADD 3942645768 "def" 
-"/apps/ggv/gtkgs" 
-"IOR:01eeffbf1700000049444c3a436f6e6669674c697374656e65723a312e300000030000000054424f580000000101020005000000554e495800646573090000006261727261626173007465722d0000002f746d702f6f726269742d6c616e63656c6f742f6c696e632d6664382d302d3666333639616464376366653100652f7300000000caaedfba58000000010102002d0000002f746d702f6f726269742d6c616e63656c6f742f6c696e632d6664382d302d36663336396164643763666531000000001c00000000000000e8aa2c20e00768a8dc2928282828282804000000ff9f55c101000000480
-Regards
-Sid.
+On Tue, Mar 09 2004, Mike Christie wrote:
+> The first three bio and request flags are no longer identical.
+> The bio barrier and rw flags are getting set in __make_request
+> and get_request respectively, and failfast is getting
+> left out. The attached patch (built against 2.6.4-rc3)
+> sets the request's failfast flag in __make_request when the bio's
+> flag is set.
+> 
+> Mike Chrisite
+
+> --- linux-2.6.4-rc3-orig/drivers/block/ll_rw_blk.c	2004-03-09 22:21:26.819208694 -0800
+> +++ linux-2.6.4-rc3-ff/drivers/block/ll_rw_blk.c	2004-03-09 22:37:02.395169904 -0800
+> @@ -2121,11 +2121,14 @@ get_rq:
+>  		goto again;
+>  	}
+>  
+> +	req->flags |= REQ_CMD;
+> +
+>  	/*
+> -	 * first three bits are identical in rq->flags and bio->bi_rw,
+> -	 * see bio.h and blkdev.h
+> +	 * inherit FAILFAST from bio and don't stack up
+> +	 * retries for read ahead
+>  	 */
+> -	req->flags = (bio->bi_rw & 7) | REQ_CMD;
+> +	if (ra || test_bit(BIO_RW_FAILFAST, &bio->bi_rw))	
+> +		req->flags |= REQ_FAILFAST;
+>  
+>  	/*
+>  	 * REQ_BARRIER implies no merging, but lets make it explicit
+> @@ -2133,12 +2136,6 @@ get_rq:
+>  	if (barrier)
+>  		req->flags |= (REQ_HARDBARRIER | REQ_NOMERGE);
+>  
+> -	/*
+> -	 * don't stack up retries for read ahead
+> -	 */
+> -	if (ra)
+> -		req->flags |= REQ_FAILFAST;
+> -
+>  	req->errors = 0;
+>  	req->hard_sector = req->sector = sector;
+>  	req->hard_nr_sectors = req->nr_sectors = nr_sectors;
+
+Thanks Mike, patch looks good.
 
 -- 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-Linux Only Shop.
+Jens Axboe
 

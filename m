@@ -1,41 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVBZDl1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVBZEY4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261448AbVBZDl1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 22:41:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbVBZDlN
+	id S261413AbVBZEY4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 23:24:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbVBZEYz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 22:41:13 -0500
-Received: from fire.osdl.org ([65.172.181.4]:3046 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261406AbVBZDlH (ORCPT
+	Fri, 25 Feb 2005 23:24:55 -0500
+Received: from mail.kroah.org ([69.55.234.183]:9101 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261413AbVBZEYx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 22:41:07 -0500
-Date: Fri, 25 Feb 2005 19:42:00 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: nuclearcat <nuclearcat@nuclearcat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: pty_chars_in_buffer NULL pointer (kernel oops)
-In-Reply-To: <20050225230432.GD15251@logos.cnet>
-Message-ID: <Pine.LNX.4.58.0502251935420.9237@ppc970.osdl.org>
-References: <1567604259.20050218105653@nuclearcat.com> <20050225230432.GD15251@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 25 Feb 2005 23:24:53 -0500
+Date: Fri, 25 Feb 2005 20:24:28 -0800
+From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
+Cc: Aurelien Jarno <aurelien@aurel32.net>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: [PATCH] USB: Fix usbfs regression
+Message-ID: <20050226042428.GA10783@kroah.com>
+References: <20050226022510.GA7870@bode.aurel32.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050226022510.GA7870@bode.aurel32.net>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+You are correct, the patch is valid, nice catch.  Linus, please apply.
 
+------------
 
-On Fri, 25 Feb 2005, Marcelo Tosatti wrote:
-> 
-> BTW, I fail to see any drivers/char/pty.c change related to the race which triggers
-> the pty_chars_in_buffer->0 oops.
+I have just tested kernel version 2.6.11-rc5 and noticed it is not
+possible to do an USB transfer by submitting an URB to an output 
+endpoint. This breaks newest versions of libusb and thus SANE, 
+gphoto2, and a lot of software.
 
-Indeed, I don't think 2.6.x got that merged, because it was never really 
-clear _which_ fix was the right one (the extra locking was absolutely 
-deadly for performance, the hacky one was a tad _too_ hacky ;)
+The bug has been introduced in version 2.6.11-rc1 and is due to a 
+wrong comparison.
 
-Alan, did you ever decide what the proper locking would be? I've applied
-the hacky "works by hiding the problem" patch for 2.6.11 which didn't have 
-any subtle performance issues associated with it.
+Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-		Linus
+diff -urN linux-2.6.11-rc5.orig/drivers/usb/core/devio.c linux-2.6.11-rc5/drivers/usb/core/devio.c
+--- linux-2.6.11-rc5.orig/drivers/usb/core/devio.c	2005-02-26 03:15:14.000000000 +0100
++++ linux-2.6.11-rc5/drivers/usb/core/devio.c	2005-02-26 03:16:15.000000000 +0100
+@@ -841,7 +841,7 @@
+ 		if ((ret = checkintf(ps, ifnum)))
+ 			return ret;
+ 	}
+-	if ((uurb.endpoint & ~USB_ENDPOINT_DIR_MASK) != 0)
++	if ((uurb.endpoint & USB_ENDPOINT_DIR_MASK) != 0)
+ 		ep = ps->dev->ep_in [uurb.endpoint & USB_ENDPOINT_NUMBER_MASK];
+ 	else
+ 		ep = ps->dev->ep_out [uurb.endpoint & USB_ENDPOINT_NUMBER_MASK];
+		
+

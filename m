@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbULHTHL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbULHTGu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261318AbULHTHL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 14:07:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbULHTHL
+	id S261315AbULHTGu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 14:06:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbULHTGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 14:07:11 -0500
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:60841 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S261318AbULHTHE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 14:07:04 -0500
-Subject: Re: [2.6 patch] selinux: possible cleanups
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: James Morris <jmorris@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
-       selinux@tycho.nsa.gov
-In-Reply-To: <1102089296.29971.110.camel@moss-spartans.epoch.ncsc.mil>
-References: <20041128190139.GD4390@stusta.de>
-	 <1102089296.29971.110.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1102532326.26951.129.camel@moss-spartans.epoch.ncsc.mil>
+	Wed, 8 Dec 2004 14:06:50 -0500
+Received: from mail.tmr.com ([216.238.38.203]:34571 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S261315AbULHTGo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 14:06:44 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Limiting program swap
+Date: Wed, 08 Dec 2004 14:07:36 -0500
+Organization: TMR Associates, Inc
+Message-ID: <cp7iqj$57n$1@gatekeeper.tmr.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 08 Dec 2004 13:58:46 -0500
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1102532243 5367 192.168.12.100 (8 Dec 2004 18:57:23 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-12-03 at 10:54, Stephen Smalley wrote:
-> - Shouldn't the AVC_CALLBACK_* definitions other than RESET be removed
-> since you are removing the other avc_ss interfaces?
+I have several machine of various memory sizes which suffer from really 
+poor performance when doing backups. This appears to be because all the 
+programs other than the backup quickly get swapped to make room for i/o 
+buffers.
 
-Actually, we'd have to keep at least the GRANT definition as well, since
-that is used from avc_has_perm_noaudit() for the permissive mode case,
-and I suppose we might as well leave the others alone and not disturb
-the avc_update_node() code.  So the only changes I'd suggest are
-removing the security_member_sid diffs (as it is now used) and including
-your follow-up diff for making avtab_insert static.
+Is there some standard portable way to prevent this, either by reserving 
+some memory for programs which will not get swapped regardless of i/o 
+pressure, or alternatively limiting the total memory used for i/o 
+buffers, dcache, and similar things?
+
+I did a crude hack for 2.4.17, but if I'm missing some obvious trick I'd 
+rather not do something which can't go in the mainline kernel. Anyone 
+care to show me what I missed, or is this just a characteristic of Linux?
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268084AbRGVWVy>; Sun, 22 Jul 2001 18:21:54 -0400
+	id <S268093AbRGVWnP>; Sun, 22 Jul 2001 18:43:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268085AbRGVWVp>; Sun, 22 Jul 2001 18:21:45 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:26688 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S268084AbRGVWVc>; Sun, 22 Jul 2001 18:21:32 -0400
-Date: Mon, 23 Jul 2001 00:21:58 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Herbert Valerio Riedel <hvr@hvrlab.org>
-Cc: linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: RFC: block/loop.c & crypto
-Message-ID: <20010723002158.A23517@athlon.random>
-In-Reply-To: <20010722170313.B30813@athlon.random> <Pine.LNX.4.33.0107222031390.3517-100000@janus.txd.hvrlab.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0107222031390.3517-100000@janus.txd.hvrlab.org>; from hvr@hvrlab.org on Sun, Jul 22, 2001 at 08:53:50PM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S268094AbRGVWnG>; Sun, 22 Jul 2001 18:43:06 -0400
+Received: from juicer13.bigpond.com ([139.134.6.21]:47303 "EHLO
+	mailin1.bigpond.com") by vger.kernel.org with ESMTP
+	id <S268093AbRGVWmx>; Sun, 22 Jul 2001 18:42:53 -0400
+Message-Id: <m15OQ5D-000CDBC@localhost>
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrea Arcangeli <andrea@suse.de>, torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: 2.4.7 softirq incorrectness.
+Date: Mon, 23 Jul 2001 06:44:10 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sun, Jul 22, 2001 at 08:53:50PM +0200, Herbert Valerio Riedel wrote:
-> I haven't told you how the cryptoloop.c module contains the necessary
-> logic... :-)
+This current code is bogus.  Consider:
+	spin_lock_irqsave(flags);	
+	cpu_raise_softirq(this_cpu, NET_RX_SOFTIRQ);
+	spin_unlock_irqrestore(flags);
 
-I see now ;).
+Oops... softirq not run until the next interrupt.  So, EITHER:
 
-> security is not the issue; it's more of practical terms... since 512 byte
-> seems to be the closest practical transfer size (there isn't any smaller
-> blocksize supported with linux) it seems natural to use that one....
+1) make local_irq_restore check for pending softirqs in as we do for
+   local_bh_enable(), and get rid of the wakeup_softirqd() in
+   cpu_raise_softirq().  ie. all "exits" from in_interrupt == true are
+   symmetrical.
 
-to me it sounds more natural to use the 1k blocksize that seems to be
-backwards compatible automatically (without the special case), the only
-disavantage of 1k compared to 512bytes is the decreased security, so if
-the decreased security is not your concern I'd suggest to use the 1k
-fixed granularity for the IV. 1k is also the default BLOCK_SIZE I/O
-granularity used by old linux (which incidentally is why it seems
-backwards compatible automatically).
+*OR*
 
-Andrea
+2) Change the check in cpu_raise_softirq to:
+	if (!in_hw_irq_handler(cpu))
+		wakeup_softirqd(cpu);
+
+   and implement in_hw_irq_handler() on all platforms.  Then get rid of
+   the test in local_bh_enable().
+
+Please pick one approach or the other, and stick with it!  The current
+code does half of each, badly. 8(
+
+Thanks,
+Rusty.
+--
+Premature optmztion is rt of all evl. --DK

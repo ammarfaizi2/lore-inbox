@@ -1,99 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275211AbRJJKTN>; Wed, 10 Oct 2001 06:19:13 -0400
+	id <S275255AbRJJKXE>; Wed, 10 Oct 2001 06:23:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275224AbRJJKTD>; Wed, 10 Oct 2001 06:19:03 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27655 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S275211AbRJJKTA>; Wed, 10 Oct 2001 06:19:00 -0400
-Date: Wed, 10 Oct 2001 03:18:23 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-cc: <linux-kernel@vger.kernel.org>, Paul McKenney <paul.mckenney@us.ibm.com>
-Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists
- with insertion
-In-Reply-To: <20011010153613.A17580@in.ibm.com>
-Message-ID: <Pine.LNX.4.33.0110100302560.1555-100000@penguin.transmeta.com>
+	id <S275265AbRJJKW4>; Wed, 10 Oct 2001 06:22:56 -0400
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:57993 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S275255AbRJJKWn>; Wed, 10 Oct 2001 06:22:43 -0400
+Message-ID: <3BC4219F.6020604@wipro.com>
+Date: Wed, 10 Oct 2001 15:53:27 +0530
+From: "BALBIR SINGH" <balbir.singh@wipro.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] register_blkdev and unregister_blkdev
+Content-Type: multipart/mixed;
+	boundary="------------InterScan_NT_MIME_Boundary"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 10 Oct 2001, Dipankar Sarma wrote:
->
-> How does locking inside the kernel help you here ? You could face
-> the same situation even if you protect the data by locking.
-> Perhaps, I am missing something here. So, a specific example would help.
+This is a multi-part message in MIME format.
 
-Oh, absolutely.
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-In the kernel, the regular usage is that we
+I was looking at the code for register_blkdev and unregister_blkdev. I 
+found that no
+locking (spinlocks) are used to protect the blkdevs struture in these 
+functions. I suspect
+we have not seen a problem till now since
 
-	lock
-	lookup
-	increment usage count
-	unlock
+Either
 
-and then the freeing is done with either
+1. register_blkdev is called from modules, and only module 
+initialization is protected.
+2. register_blkdev is called during init time for drivers in the kernel 
+and I am not sure
+    about whether calls to register_blkdev at this time are implicitly 
+serialized, since only
+    1 CPU is active during initialization
 
-	if (atomic_dec_and_lock()) {
-		unhash
-		unlock;
-		free
-	}
+Anway, what I needed to know was if (1) and (2) are enough to ensure 
+safety in register_blkdev
+and unregister_blkdev.
 
-or
+May be I am missing something, there is already some lock which is held 
+before these routines
+are invoked, I could not find any.
 
-	lock
-	unhash
-	unlock
-	if (atomic_dec()) {
-		free
-	}
+Comments
 
-that's the basic pattern for most data structures.
+Thanks,
+Balbir Singh.
 
-Yes, there are data structures that don't have refcounts. They aren't on
-any global lists either, or they are buggy.
 
-Now, with the lockless approach, the issue is that you _cannot_ just free
-the thing on next schedule. You have to honor the reference count, which
-means that either you have different "bins" for all different kinds of
-users of RCU data structures (different "free" functions), or they all
-have the reference count in a generic place for RCU.
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain;
+	name="Wipro_Disclaimer.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="Wipro_Disclaimer.txt"
 
-The latter is probably pretty doable.
+----------------------------------------------------------------------------------------------------------------------
+Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
+is intended for use only by the individual or entity to which it is
+addressed, and may contain information that is privileged, confidential or
+exempt from disclosure under applicable law. If you are not the intended
+recipient or it appears that this mail has been forwarded to you without
+proper authority, you are notified that any use or dissemination of this
+information in any manner is strictly prohibited. In such cases, please
+notify us immediately at mailto:mailadmin@wipro.com and delete this mail
+from your records.
+----------------------------------------------------------------------------------------------------------------------
 
-> Only relevant issue I can see here is preemption - if you hold
-> a reference and get preempted out it is still a context switch
-> and the logic of "when the data can be really deleted" must take
-> into account such context switches. Alternatively, you could
-> disable preemption while traversing such lists.
 
-You have to disable pre-emption some way. The kernel does that by default
-by not pre-empting kernel space, but it's easy enough to do other ways.
-And you can (have to, in fact) use cpu-local data structures for it.
-
-Locking does the same thing.
-
-For RCU to work, it has to do all the things that locking guarantees. It
-can try to do more of them locally, but that reference count increment
-_is_ going to be a global atomic update, so it's not as if you can avoid
-them all.
-
-However, it should be noted that even if you add refcounts to RCU, which
-makes them useful outside of atomic readers, you'll still find that most
-of the really core kernel data structures need locking anyway: locking not
-only protects the list traversal, it also is used to guarantee uniqueness
-which is important for a lot of the data structures - inodes, buffers,
-pages, etc all absolutely depend on the fact that the data structure is
-unique (ie there had better _not_ be two pages in the page cache with the
-same indexes, even if one process removes an old version at the same time
-as another process tries to look it up and create it if necessary).
-
-So I'm still at a loss for what this could actually be _used_. IP routing?
-Certainly not sockets (which have uniqueness requirements).
-
-		Linus
-
+--------------InterScan_NT_MIME_Boundary--

@@ -1,45 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262585AbUJ0RoD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262527AbUJ0Rhz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262585AbUJ0RoD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 13:44:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262579AbUJ0RoB
+	id S262527AbUJ0Rhz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 13:37:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262586AbUJ0Rg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 13:44:01 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:59279 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262591AbUJ0Rhm (ORCPT
+	Wed, 27 Oct 2004 13:36:58 -0400
+Received: from waste.org ([209.173.204.2]:39808 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262577AbUJ0Rat (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 13:37:42 -0400
-Date: Wed, 27 Oct 2004 10:36:48 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       "Randy.Dunlap" <rddunlap@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>, Jens Axboe <axboe@suse.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: news about IDE PIO HIGHMEM bug (was: Re: 2.6.9-mm1)
-Message-ID: <30640000.1098898608@flay>
-In-Reply-To: <417FC5CB.9040204@pobox.com>
-References: <58cb370e041027074676750027@mail.gmail.com> <417FBB6D.90401@pobox.com> <1246230000.1098892359@[10.10.2.4]> <417FC5CB.9040204@pobox.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	Wed, 27 Oct 2004 13:30:49 -0400
+Date: Wed, 27 Oct 2004 12:30:31 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Jeff Moyer <jmoyer@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: netpoll_setup questions
+Message-ID: <20041027173031.GO31237@waste.org>
+References: <16767.50093.59665.83462@segfault.boston.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <16767.50093.59665.83462@segfault.boston.redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Unfortunately, it's not.
+On Wed, Oct 27, 2004 at 11:50:05AM -0400, Jeff Moyer wrote:
+> Hi, Matt,
 > 
-> The block layer just tells us "it's a contiguous run of memory", which implies nothing really about the allocation size.
+> The section of code in the body of this if statement:
 > 
-> Bart and I (and others?) essentially need a "page+1" thing (for 2.4.x too!), that won't break in the face of NUMA/etc.
+> 	if (!(ndev->flags & IFF_UP)) {
 > 
-> Alternatively (or additionally), we may need to make sure the block layer doesn't merge across zones or NUMA boundaries or whatnot.
+> is a bit broken.  First, upon discussion with jgarzik, it seems we should
+> not check for IFF_UP, but instead do netif_running.
 
+Well I cribbed it from the nfsroot code, which is perhaps not up on
+fashion.
 
-The latter would be rather more efficient. I don't know how often you 
-end up doing each operation though ... the page+1 vs the attemtped merge.
-Depends on the ratio,  I guess.
+> However, I'm wondering why we try to force the interface up in the
+> first place?
 
-M.
+Uh, so we can send packets before userspace has configured the network?
+
+> Just because we force it up doesn't mean that it will get an IP
+> address.
+
+I don't expect it does. Usually we have our own IP address from the
+command line, but if we don't, we will check if there's an in_dev
+connected to the device and if so, look up the device's IP. This is
+useful for the modular case where the network is up before we start
+and we have a handy default for local IP.
+
+> And, in the case where it doesn't, you will get an oops further on
+> when dereferencing the ifa_list.
+
+Does this actually happen? I'm checking in_dev for null already, but
+perhaps I need to check ifa_list as well.
+
+> So, why does this section of code exist at all? If it has a good
+> purpose, can we replace it with a call to ndev->open?
+
+Maybe. We should probably revisit the nfsroot code as well.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

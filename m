@@ -1,30 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130520AbRC0ESY>; Mon, 26 Mar 2001 23:18:24 -0500
+	id <S129381AbRC0FM7>; Tue, 27 Mar 2001 00:12:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130519AbRC0ESO>; Mon, 26 Mar 2001 23:18:14 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:57616 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130515AbRC0ER4>; Mon, 26 Mar 2001 23:17:56 -0500
-Subject: Re: "mount -o loop" lockup issue
-To: dek_ml@konerding.com (David Konerding)
-Date: Tue, 27 Mar 2001 05:19:09 +0100 (BST)
-Cc: jmadden@spock.shacknet.nu (Jason Madden), linux-kernel@vger.kernel.org
-In-Reply-To: <3AC00E05.47C264D9@konerding.com> from "David Konerding" at Mar 26, 2001 07:50:29 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S130516AbRC0FMt>; Tue, 27 Mar 2001 00:12:49 -0500
+Received: from [209.250.53.66] ([209.250.53.66]:11268 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S129381AbRC0FMp>; Tue, 27 Mar 2001 00:12:45 -0500
+Date: Mon, 26 Mar 2001 23:16:27 -0600
+From: Steven Walter <srwalter@yahoo.com>
+To: linux-kernel@vger.kernel.org
+Subject: Strange lockups on 2.4.2
+Message-ID: <20010326231627.A468@hapablap.dyn.dhs.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14hkwq-0002y0-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Uptime: 11:05pm  up 1 min,  1 user,  load average: 1.67, 0.57, 0.20
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's a bug in Linux 2.4.2, fixed in later versions.  Regression/quality control
-> testing would
-> have caught this, but the developers usually just break things and wait for people
-> to complain
-> as their "Regression" testers.
+This has happened twice, now, though I don't believe its completely
+reproduceable.  What happens is an Oops, which drops me into kdb.  I've
+been in X both times, however, which makes kdb rather useless.  I
+blindly type "go", and interrupts get reenabled, at least (I know
+because my mp3 stops looping and begins playing again).  This almost
+must mean at least part of userspace survives.  Probably only X dies,
+since VT switching and numlock-toggling doesn't work.  I can Ctrl+SysRq
+S-U-B, though.
 
-Hardly. We knew it was broken since well before 2.4.0. It just got a little
-interesting to fix.
+The thing I find most interesting about this is that only 4 lines of the
+oops gets into the log.  4 lines, both times.  This time, those lines
+were:
+
+ printing eip:
+c0112e1f
+Oops: 0002
+CPU:    0
+
+This corresponds to schedule according to System.map (that's the nearest
+symbol without going over).  Before I believe it was path_walk.  If
+anyone's got an idea, it'd be helpful.  Btw, this machine consistently
+passes memtest, most recently ran 2 passes of all tests with no errors
+found.
+-- 
+-Steven
+Freedom is the freedom to say that two plus two equals four.

@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264261AbUEICRe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264258AbUEICUr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264261AbUEICRe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 22:17:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264262AbUEICRe
+	id S264258AbUEICUr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 22:20:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbUEICUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 22:17:34 -0400
-Received: from mail.kroah.org ([65.200.24.183]:65440 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264261AbUEICRc (ORCPT
+	Sat, 8 May 2004 22:20:47 -0400
+Received: from vinc17.net1.nerim.net ([62.4.18.82]:49257 "EHLO ay.vinc17.org")
+	by vger.kernel.org with ESMTP id S264258AbUEICUp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 22:17:32 -0400
-Date: Sat, 8 May 2004 19:16:52 -0700
-From: Greg KH <greg@kroah.com>
-To: dongzai007@sohu.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: vid&pid problems in usb_probe()
-Message-ID: <20040509021652.GA11738@kroah.com>
-Reply-To: linux-usb-devel@lists.sourceforge.net
-References: <6918778.1084068239397.JavaMail.postfix@mx0.mail.sohu.com>
+	Sat, 8 May 2004 22:20:45 -0400
+Date: Sun, 9 May 2004 04:20:43 +0200
+From: Vincent Lefevre <vincent@vinc17.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.26] overcommit_memory documentation clarification
+Message-ID: <20040509022043.GE23263@ay.vinc17.org>
+Mail-Followup-To: Vincent Lefevre <vincent@vinc17.org>,
+	linux-kernel@vger.kernel.org
+References: <20040509001045.GA23263@ay.vinc17.org> <Pine.LNX.4.53.0405082142100.25076@chaos>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <6918778.1084068239397.JavaMail.postfix@mx0.mail.sohu.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.53.0405082142100.25076@chaos>
+X-Mailer-Info: http://www.vinc17.org/mutt/
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 09, 2004 at 10:03:54AM +0800, dongzai007@sohu.com wrote:
-> Sorry, I forgot to tell you, I have copied all the header files in 
-> "linux2.4.18/include/linux" to "/usr/include/linux". I am sure that
-> there is no difference between "linux2.4.18/include/linux" and "/usr/include/linux"
-> 
-> I build this driver like this:
-> 
-> #gcc -c usb.c
-> #insmod -f usb.o  //due to version dismatch, i should use -f
-> 
-> then plug a usb device.
+On 2004-05-08 22:04:30 -0400, Richard B. Johnson wrote:
+> What made you think that malloc would return 0 if the system
+> was "out of memory??" Malloc will return NULL, which is not 0 BTW,
+> if you are out of address-space or have corrupted it by writing
+> past a previous allocation. Malloc's return value is a void *. It
+> should be compared against NULL, not zero.
 
-That is _not_ the proper way to build a kernel module.  Please read the
-Linux Device Drivers for examples of how to do this the correct way
-(it's availble online for free.)
+You are wrong. They are the same value (this is required by the ISO C
+standard), i.e. both NULL == (void *) 0 and NULL == 0 must be true.
 
-> Could you help me test this program? Do you have an usb device? You can write a program 
-> like this, and test if it can report the right vid & pid.
-> I downloaded a new kernel 2.6.5, after i started with the new kernel, lots of modules
-> can not be loaded, so i changed back to 2.4.18, then I found my X-windows can not
-> start. Did this error have something to do with this unstablity?
+> When malloc() needs new "memory". It just asks the kernel to
+> set the new break address or, in the case of mmap() mallocs, asks
+> to extend a mapped region. Until somebody actually uses those
+> regions, you haven't used any memory. So there is no way for
+> malloc() to "know" ahead of time.
 
-Did you read the release notes about how to move to the 2.6 kernel?  I
-recommend using that one for development, as the USB interface is nicer,
-and faster, and the build process is _vastly_ simpler.
+Again, you are wrong. The goal of malloc is to reserve memory.
+This can be seen as used memory. If the implementation behaves
+differently, then it is broken.
 
-Also, this belongs on the linux-usb-devel mailing list, not here.
+> If you run a malloc() bomb from the root account you should
+> end up killing off a lot of processes. If you run it from
+> a normal user account, and you have set the user's resource
+> quotas properly, only the user should get into trouble.
 
-greg k-h
+The quotas are set properly (i.e. there are no quotas).
+
+-- 
+Vincent Lefèvre <vincent@vinc17.org> - Web: <http://www.vinc17.org/>
+100% validated (X)HTML - Acorn / RISC OS / ARM, free software, YP17,
+Championnat International des Jeux Mathématiques et Logiques, etc.
+Work: CR INRIA - computer arithmetic / SPACES project at LORIA

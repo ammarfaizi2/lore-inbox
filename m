@@ -1,60 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVAYIhD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261617AbVAYIiR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261607AbVAYIhD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 03:37:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVAYIhD
+	id S261617AbVAYIiR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 03:38:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbVAYIiR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 03:37:03 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:54994 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261607AbVAYIg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 03:36:58 -0500
-To: linux-kernel@vger.kernel.org
-Cc: Len Brown <len.brown@intel.com>, Andrew Morton <akpm@osdl.org>,
-       fastboot@lists.osdl.org, Dave Jones <davej@redhat.com>
-Subject: Re: [PATCH 4/29] x86-i8259-shutdown
-References: <x86-i8259-shutdown-11061198973856@ebiederm.dsl.xmission.com>
-	<1106623970.2399.205.camel@d845pe> <20050125035930.GG13394@redhat.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 25 Jan 2005 01:35:00 -0700
-In-Reply-To: <20050125035930.GG13394@redhat.com>
-Message-ID: <m1sm4phpor.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
+	Tue, 25 Jan 2005 03:38:17 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:44248 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261617AbVAYIiI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 03:38:08 -0500
+Date: Tue, 25 Jan 2005 09:37:24 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Jack O'Quin" <joq@io.com>
+Cc: Paul Davis <paul@linuxaudiosystems.com>, Con Kolivas <kernel@kolivas.org>,
+       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
+       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
+       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [patch, 2.6.11-rc2] sched: /proc/sys/kernel/rt_cpu_limit tunable
+Message-ID: <20050125083724.GA4812@elte.hu>
+References: <200501201542.j0KFgOwo019109@localhost.localdomain> <87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu> <87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu> <87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu> <20050124125814.GA31471@elte.hu> <87k6q2umla.fsf@sulphur.joq.us>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87k6q2umla.fsf@sulphur.joq.us>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@redhat.com> writes:
 
-> On Mon, Jan 24, 2005 at 10:32:50PM -0500, Len Brown wrote:
->  > On Wed, 2005-01-19 at 02:31, Eric W. Biederman wrote:
->  > > From: Eric W. Biederman <ebiederm@xmission.com>
->  > > 
->  > > This patch disables interrupt generation from the legacy pic on
->  > > reboot.  Now that there is a sys_device class it should not be called
->  > > while drivers are still using interrupts.
->  > > 
->  > > There is a report about this breaking ACPI power off on some systems.
->  > > http://bugme.osdl.org/show_bug.cgi?id=4041
->  > > However the final comment seems to exhonorate this code.  So until
->  > > I get more information I believe that was a false positive.
->  > 
->  > No, the last comment in the bug report
->  > (davej says that there were poweroff problems in FC)
->  > does not exhonerate this patch.
->  > All it says is that there are additional poweroff bugs out there.
+* Jack O'Quin <joq@io.com> wrote:
 
-So I will ask again, as I did when Andrew first pointed this in my
-direction.  What code path in the kernel could possibly care if we
-disable the i8259 after we have disabled all of the other hardware in
-the system.
+> > It would be very interesting to see how jackd/jack_test performs with
+> > this patch applied, and rt_cpu_limit is set to different percentages,
+> > compared against unpatched SCHED_FIFO performance.
+> 
+> It works great...
+> 
+>   http://www.joq.us/jack/benchmarks/rt_cpu_limit
+>   http://www.joq.us/jack/benchmarks/rt_cpu_limit+compile
+>   http://www.joq.us/jack/benchmarks/.SUMMARY
+> 
+> I'll experiment with it some more, but this seems to meet all my
+> needs.  As one would expect, the results are indistinguishable from
+> SCHED_FIFO...
+> 
+> # rt_cpu_limit
+> Delay Maximum . . . . . . . . :   290   usecs
+> Delay Maximum . . . . . . . . :   443   usecs
+> Delay Maximum . . . . . . . . :   232   usecs
+> 
+> # rt_cpu_limit+compile
+> Delay Maximum . . . . . . . . :   378   usecs
+> Delay Maximum . . . . . . . . :   206   usecs
+> Delay Maximum . . . . . . . . :   528   usecs
 
-The i8259 is a system device so everything else is shutoff first
-(by design).  I have one vague reference that this is a/the
-problem but I don't have anything to go on with respect to fixing it.
+very good. Could you try another thing, and set the rt_cpu_limit to less
+than the CPU utilization 'top' reports during the test (or to less than
+the DSP CPU utilization in the stats), to deliberately trigger the
+limiting code? This both tests the limit and shows the effects it has. 
+(there should be xruns and a large Delay Maximum.)
 
-I don't have a system that reproduces this.
-
-Eric
-
+	Ingo

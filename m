@@ -1,74 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263423AbTEMMKu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 08:10:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263650AbTEMMKu
+	id S263653AbTEMMMz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 08:12:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263656AbTEMMMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 08:10:50 -0400
-Received: from angband.namesys.com ([212.16.7.85]:10377 "EHLO
-	angband.namesys.com") by vger.kernel.org with ESMTP id S263423AbTEMMKt
+	Tue, 13 May 2003 08:12:55 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:8186 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S263653AbTEMMMw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 08:10:49 -0400
-Date: Tue, 13 May 2003 16:23:29 +0400
-From: Oleg Drokin <green@namesys.com>
-To: jdike@karaya.com, akpm@digeo.com, roland@redhat.com,
-       linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: build problems on architectures where FIXADDR_* stuff is not constant
-Message-ID: <20030513122329.GA31609@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Tue, 13 May 2003 08:12:52 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: Chuck Ebbert <76306.1226@compuserve.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: The disappearing sys_call_table export.
+Date: Tue, 13 May 2003 07:24:49 -0500
+X-Mailer: KMail [version 1.2]
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200305122200_MC3-1-3890-B10B@compuserve.com>
+In-Reply-To: <200305122200_MC3-1-3890-B10B@compuserve.com>
+MIME-Version: 1.0
+Message-Id: <03051307244901.19075@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Monday 12 May 2003 20:57, Chuck Ebbert wrote:
+> Alan Cox wrote:
+> > 1. Base Linux is not C2 certified
+>
+>   That could be fixed... (right?)  Filesystems returning data past the
+> end of what the user wrote might be a big problem though -- this must
+> be guaranteed even in obscure corner cases.
 
-   Since there are architectures where FIXADDR_* stuff is not constant (e.g. UML),
-   I propose this patch that allows such architectures to build. (now compilation
-   dies with complaints about using not constant value as struct initialiser).
-   Here is my proposed patch, or may be there is a better way?
+No - C2 evaluation has not been done for almost 3 years. That makes it
+impossible to get a C2 evaluation.
 
-   This is against latest 2.5 bk tree.
+> > 2. C2 is obsolete
+>
+>   Obsolete or not, it is mandatory for some people.  No check box,
+> no purchase order (or no certificate of operation.)
 
-Bye,
-    Oleg
+Bullshit - NO OS is C2 anymore. The last certification was given to MS for
+NT 4 - about 3 years ago. NONE of the current systems are C2. The best you
+can get is "C2 like capability", and that is not a verified operation. And
+"C2 like capability" Linux does just as well as M$. Are the log files as
+pretty as would be desired? No. But they are acceptable for all US usage
+where a UNIX system is acceptable. (And don't even try to claim M$ produces
+a secured box... I haven't even been able to find the "trusted facility 
+manual" for the released systems... which is a requirement for operation.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1094  -> 1.1095 
-#	         mm/memory.c	1.123   -> 1.124  
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/05/13	green@angband.namesys.com	1.1095
-# memory.c:
-#   Well, not everyone have these FIXADDR_* as constants. UML have those as computed value.
-#   So we need to assign those not in struct initializer.
-# --------------------------------------------
-#
-diff -Nru a/mm/memory.c b/mm/memory.c
---- a/mm/memory.c	Tue May 13 16:18:28 2003
-+++ b/mm/memory.c	Tue May 13 16:18:28 2003
-@@ -696,15 +696,15 @@
- 				   ones, we can make this be "&init_mm" or
- 				   something.  */
- 				.vm_mm = NULL,
--				.vm_start = FIXADDR_START,
--				.vm_end = FIXADDR_TOP,
--				.vm_page_prot = PAGE_READONLY,
- 				.vm_flags = VM_READ | VM_EXEC,
- 			};
- 			unsigned long pg = start & PAGE_MASK;
- 			pgd_t *pgd;
- 			pmd_t *pmd;
- 			pte_t *pte;
-+			fixmap_vma.vm_start = FIXADDR_START;
-+			fixmap_vma.vm_end = FIXADDR_TOP;
-+			fixmap_vma.vm_page_prot = PAGE_READONLY;
- 			pgd = pgd_offset_k(pg);
- 			if (!pgd)
- 				return i ? : -EFAULT;
+> > 3. NSA SELinux can do the needed stuff from scanning the code
+>
+>   But will it get merged?
+
+I don't know, but I hope so. (2.7 maybe?)
+
+> > 4. Even then data erasure is not guaranteed because of the drive logic
+>
+>   People who really care require the drive be reduced to pieces small
+> enough to fit through a sieve with ~2mm holes in it before it leaves
+> their sight.  For the rest, overwrite of the swap data is a useful if
+> not 100% reliable step to take.  Legitimate users with servers locked
+> up in secure areas don't really worry about someone unplugging the box
+> and walking away with it either.
+
+These are also the same people that will not (or should not) accept laptops in
+their environement.

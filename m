@@ -1,93 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263760AbTAJHaI>; Fri, 10 Jan 2003 02:30:08 -0500
+	id <S263837AbTAJHZt>; Fri, 10 Jan 2003 02:25:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264610AbTAJH2C>; Fri, 10 Jan 2003 02:28:02 -0500
-Received: from adsl-67-121-154-100.dsl.pltn13.pacbell.net ([67.121.154.100]:4320
-	"EHLO kanoe.ludicrus.net") by vger.kernel.org with ESMTP
-	id <S263760AbTAJH0w>; Fri, 10 Jan 2003 02:26:52 -0500
-Date: Thu, 9 Jan 2003 23:35:30 -0800
-To: linux-kernel@vger.kernel.org
-Subject: nForce IDE in 2.5?
-Message-ID: <20030110073530.GA6681@kamui>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="E39vaYmALEf/7YXx"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: "Joshua M. Kwan" <joshk@ludicrus.ath.cx>
+	id <S263342AbTAJHYv>; Fri, 10 Jan 2003 02:24:51 -0500
+Received: from dp.samba.org ([66.70.73.150]:5100 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S263366AbTAJHYo>;
+	Fri, 10 Jan 2003 02:24:44 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Miles Bader <miles@gnu.org>
+Cc: linux-kernel@vger.kernel.org, rth@twiddle.net
+Subject: Re: [PATCH] Embed __this_module in module itself. 
+In-reply-to: Your message of "07 Jan 2003 14:36:54 +0900."
+             <buoadid1pxl.fsf@mcspd15.ucom.lsi.nec.co.jp> 
+Date: Wed, 08 Jan 2003 22:51:24 +1100
+Message-Id: <20030110073328.A53D02C0DF@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <buoadid1pxl.fsf@mcspd15.ucom.lsi.nec.co.jp> you write:
+> Miles Bader <miles@lsi.nec.co.jp> writes:
+> > When I try to build modules using 2.5.54, the resulting .ko files lack
+> > the .gnu.linkonce.* sections, which causes the kernel module loader to
+> > fail on them -- those sections _are_ present in the .o files, but the
+> > linker apparently removes them!
+> 
+> Ok, I found out why this is happening -- the v850 default linker
+> scripts, for whatever reason, merge any section called `.gnu.linker.t*'
+> with .text.
 
---E39vaYmALEf/7YXx
-Content-Type: multipart/mixed; boundary="OXfL5xGRrasGEqWY"
-Content-Disposition: inline
+That's about as wierdass as it comes.
 
+> I can prevent this by adding the option `--unique=.gnu.linkonce.this_module'
+> to the linker flags (specifically, to LDFLAGS_MODULE in the top-level
+> Makefile).  I suppose another way to do it would be to rename the
+> section something that doesn't match `.gnu.linker.t*'.
 
---OXfL5xGRrasGEqWY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Or you could add this flag in arch/v850/Makefile.
 
-It's missing a PCI identifier variable for the chipset itself, and if I=20
-knew what its value is supposed to be, or where to put it, I would make=20
-a patch for it.. =3D\
+> What's the right way to handle this?
+> 
+> [from perusing the ld srcs, a few other archs seem to have the same
+> `feature,' though the only that I think has linux support is `cris']
 
-Attached is the error log from the build. I am using 2.5.x-current...
+I think:
+	LDFLAGS_MODULE += -T arch/v850/module.lds
 
-Regards
-Josh
+And include a linker script there which works.
 
---OXfL5xGRrasGEqWY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="nforce.fail.log"
-
-In file included from drivers/ide/pci/nvidia.c:29:
-drivers/ide/pci/nvidia.h:35: `PCI_DEVICE_ID_NVIDIA_NFORCE_IDE' undeclared here (not in a function)
-drivers/ide/pci/nvidia.h:35: initializer element is not constant
-drivers/ide/pci/nvidia.h:35: (near initialization for `nvidia_chipsets[0].device')
-drivers/ide/pci/nvidia.h:43: initializer element is not constant
-drivers/ide/pci/nvidia.h:43: (near initialization for `nvidia_chipsets[0].enablebits[0]')
-drivers/ide/pci/nvidia.h:43: initializer element is not constant
-drivers/ide/pci/nvidia.h:43: (near initialization for `nvidia_chipsets[0].enablebits[1]')
-drivers/ide/pci/nvidia.h:43: initializer element is not constant
-drivers/ide/pci/nvidia.h:43: (near initialization for `nvidia_chipsets[0].enablebits')
-drivers/ide/pci/nvidia.h:46: initializer element is not constant
-drivers/ide/pci/nvidia.h:46: (near initialization for `nvidia_chipsets[0]')
-drivers/ide/pci/nvidia.c: In function `nforce_ratemask':
-drivers/ide/pci/nvidia.c:79: `PCI_DEVICE_ID_NVIDIA_NFORCE_IDE' undeclared (first use in this function)
-drivers/ide/pci/nvidia.c:79: (Each undeclared identifier is reported only once
-drivers/ide/pci/nvidia.c:79: for each function it appears in.)
-drivers/ide/pci/nvidia.c: In function `ata66_nforce':
-drivers/ide/pci/nvidia.c:288: `PCI_DEVICE_ID_NVIDIA_NFORCE_IDE' undeclared (first use in this function)
-drivers/ide/pci/nvidia.c: In function `nforce_init_one':
-drivers/ide/pci/nvidia.c:338: warning: `_MOD_INC_USE_COUNT' is deprecated (declared at include/linux/module.h:419)
-drivers/ide/pci/nvidia.c: At top level:
-drivers/ide/pci/nvidia.c:343: `PCI_DEVICE_ID_NVIDIA_NFORCE_IDE' undeclared here (not in a function)
-drivers/ide/pci/nvidia.c:343: initializer element is not constant
-drivers/ide/pci/nvidia.c:343: (near initialization for `nforce_pci_tbl[0].device')
-drivers/ide/pci/nvidia.c:343: initializer element is not constant
-drivers/ide/pci/nvidia.c:343: (near initialization for `nforce_pci_tbl[0]')
-drivers/ide/pci/nvidia.c:344: initializer element is not constant
-drivers/ide/pci/nvidia.c:344: (near initialization for `nforce_pci_tbl[1]')
-make[3]: *** [drivers/ide/pci/nvidia.o] Error 1
-make[2]: *** [drivers/ide/pci] Error 2
-make[1]: *** [drivers/ide] Error 2
-make: *** [drivers] Error 2
-
---OXfL5xGRrasGEqWY--
-
---E39vaYmALEf/7YXx
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+HnfC6TRUxq22Mx4RAkxpAJ9J4zLtYDaAGI3zSY7Hhdmml0VnwQCguJ/5
-j/zJrCpcQNXmHop5XsCyeqg=
-=2DpH
------END PGP SIGNATURE-----
-
---E39vaYmALEf/7YXx--
+Thanks for finding this...
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275344AbTHGO1K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 10:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275345AbTHGO1K
+	id S275278AbTHGO3I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 10:29:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275352AbTHGO3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 10:27:10 -0400
-Received: from verein.lst.de ([212.34.189.10]:26839 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S275344AbTHGO1H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 10:27:07 -0400
-Date: Thu, 7 Aug 2003 16:26:24 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mitch@0Bits.COM,
-       Erik Andersen <andersen@codepoet.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.22-pre10-ac1 DRI doesn't work with
-Message-ID: <20030807142624.GA29208@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Mitch@0Bits.COM,
-	Erik Andersen <andersen@codepoet.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1060256649.3169.20.camel@dhcp22.swansea.linux.org.uk> <Pine.LNX.4.44.0308071023040.6818-200000@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308071023040.6818-200000@logos.cnet>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.5 () IN_REP_TO,QUOTED_EMAIL_TEXT,REFERENCES,REPLY_WITH_QUOTES,USER_AGENT_MUTT
+	Thu, 7 Aug 2003 10:29:08 -0400
+Received: from WWW.CS.ubishops.ca ([206.167.194.132]:28809 "EHLO
+	cs.ubishops.ca") by vger.kernel.org with ESMTP id S275278AbTHGO2Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 10:28:25 -0400
+Message-ID: <3F3261A2.9000405@cs.ubishops.ca>
+Date: Thu, 07 Aug 2003 10:26:42 -0400
+From: Patrick McLean <pmclean@cs.ubishops.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030731
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Interactivity improvements
+X-Enigmail-Version: 0.76.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I dont understand how the vmap change can break DRM. 
-> 
-> The vmap patch only changes internal mm/vmalloc.c code (vmalloc() call
-> acts exactly the same way as before AFAICS).
-> 
-> Anyway, Mitch (or Erik who's seeing the problem), can please revert the
-> vmap() change to check if its causing the mentioned problem? 
+I have a few ideas about the interactivity problem that I thought i 
+would share.
 
-vmap() doesn't break DRM.  The external drm code just detects that
-vmap is present and then uses the new interface, but this new code
-also expects a new exported symbol.
+First, the whole problem with interactive tasks turning into CPU hogs, 
+and vice-versa. The current implementation is fairly good at estimating 
+the interactivity of a new process isn't it? I assume it keeps some sort 
+of statitistice on what a process has been doing in the past, so if a 
+process starts to deviate from it's previous behavior quite a bit (say 
+an interactive task starts finishing time slices, or a CPU hog starts 
+sleeping a lot) couldn't we reset the priority, etc and let the 
+interactivity estimator re-estimate the interactivity as if it was a new 
+task. That way no task would get a real chance to starve others, while 
+keeping interactive tasks interactive (interactive tasks that become CPU 
+hogs for short peroids of time would have a pretty good chance to 
+smarten up before they really get penalized).
 
-The DRM code in your tree is completly unaffected.
+Another point is compilers, they tend to do a lot of disk I/O then 
+become major CPU hogs, could we have some sort or heuristic that reduces 
+the bonuses for sleeping on block I/O rather than other kinds of I/O 
+(say pipes and network I/O in the case of X). This would prevent tasks 
+like compilers from getting real bonuses for reading alot of files at 
+startup.
+
+Finally, the interactivity estimator seems to be quite a bit of code, 
+which certain people have no real useful (in servers for example) and I 
+would imagine that it does reduce throughput, which is not a big deal in 
+desktops, but in a server environment it's not good, so maybe a 
+CONFIG_INTERACTIVE_ESTIMATOR or something similar would be an idea to 
+keep the server people happy, just have an option to completely get rid 
+of the extra overhead of having a really nice interactivity estimator. I 
+could be an idiot though, and I imagine that I will be needing some 
+asbestos for saying this, but I thought I would voice my opinion.
 

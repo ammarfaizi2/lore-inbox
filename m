@@ -1,33 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131825AbRAXPbI>; Wed, 24 Jan 2001 10:31:08 -0500
+	id <S129401AbRAXPhs>; Wed, 24 Jan 2001 10:37:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132113AbRAXPa6>; Wed, 24 Jan 2001 10:30:58 -0500
-Received: from smtp7.us.dell.com ([143.166.224.233]:8457 "EHLO
-	smtp7.us.dell.com") by vger.kernel.org with ESMTP
-	id <S131825AbRAXPaq>; Wed, 24 Jan 2001 10:30:46 -0500
-Date: Wed, 24 Jan 2001 09:30:39 -0600 (CST)
-From: Matt Domsch <Matt_Domsch@dell.com>
-Reply-To: Matt Domsch <Matt_Domsch@dell.com>
-To: I Lee Hetherington <ilh@sls.lcs.mit.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: No SCSI Ultra 160 with Adaptec Controller
-In-Reply-To: <3A6EEA1B.87732D70@sls.lcs.mit.edu>
-Message-ID: <Pine.LNX.4.30.0101240929310.16045-100000@localhost.localdomain>
+	id <S129830AbRAXPhi>; Wed, 24 Jan 2001 10:37:38 -0500
+Received: from mx2out.umbc.edu ([130.85.253.52]:36245 "EHLO mx2out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S129401AbRAXPhU>;
+	Wed, 24 Jan 2001 10:37:20 -0500
+Date: Wed, 24 Jan 2001 10:37:18 -0500
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: Matthew Jacob <mjacob@feral.com>
+cc: <Matt_Domsch@Dell.com>, <ttsig@tuxyturvy.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: RE: No SCSI Ultra 160 with Adaptec Controller
+In-Reply-To: <Pine.BSF.4.21.0101232041310.5712-100000@beppo.feral.com>
+Message-ID: <Pine.SGI.4.31L.02.0101241034560.313738-100000@irix2.gl.umbc.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->      /dev/sda:
->       Timing buffered disk reads:  64 MB in  1.59 seconds =40.25 MB/sec
->
-> They can do more like 40MB/s, so only two disks could saturate the 80MB/s.
+On Tue, 23 Jan 2001, Matthew Jacob wrote:
 
-Apparently I was misinformed as to the speed of these disks.  My
-apologies for the confusion this caused.
--Matt
+> Actually, aren't a number of newer drives getting upwards of 30MB/s?
 
+It depends .... tests I've done here, with scsi/160 and FC on seagate
+drives, the read/write speeds start at ~35MB/s, and peter off to ~22MB/s.
+
+I admit my methodology was crude, but I was more curious than scientificly
+precise.
+
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,80 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315611AbSFERoh>; Wed, 5 Jun 2002 13:44:37 -0400
+	id <S315717AbSFERqr>; Wed, 5 Jun 2002 13:46:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315720AbSFERog>; Wed, 5 Jun 2002 13:44:36 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:523 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S315611AbSFERof> convert rfc822-to-8bit; Wed, 5 Jun 2002 13:44:35 -0400
-Date: Wed, 5 Jun 2002 10:42:42 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Kasper Dupont <kasperd@daimi.au.dk>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ALi IDE problem
-In-Reply-To: <3CFC9C08.9D73FF62@daimi.au.dk>
-Message-ID: <Pine.LNX.4.10.10206051042201.23643-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S315718AbSFERqq>; Wed, 5 Jun 2002 13:46:46 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:34800 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315717AbSFERqp>; Wed, 5 Jun 2002 13:46:45 -0400
+Subject: Re: promise PDC20267 onboard supermicro P3TDDE
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: William Thompson <wt@electro-mechanical.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020605132018.A4803@coredump.electro-mechanical.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 05 Jun 2002 19:39:16 +0100
+Message-Id: <1023302356.2443.25.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-I am away for the week, but will get back to you.
-
-
-On Tue, 4 Jun 2002, Kasper Dupont wrote:
-
-> Kasper Dupont wrote:
-> > 
-> > Andre Hedrick wrote:
-> > >
-> > > Kasper,
-> > >
-> > > http://www.linuxdiskcert.org/ide-2.4.19-p8-ac1.all.convert.10.patch.bz2
-> > > http://www.linuxdiskcert.org/ide-2.4.19-p7.all.convert.10.patch.bz2
-> > >
-> > > Please try this on top of a stock 2.4.19-pre8-ac1 plus patch.
-> > > Also try a stock 2.4.19-pre7 plus patch.
-> > >
-> > > First, at line 553.
-> > >
-> > > #define ALI_INIT_CODE_TEST
-> > >
-> > > Change to
-> > >
-> > > #undef ALI_INIT_CODE_TEST
-> > 
-> > Many hourse of kernel compilations later:
-> > 
-> > The following works:
-> > -pre7
-> > -pre8-ac1
-> > -pre8-ac2
-> > 
-> > The following fails:
-> > -pre7 with ide patch
-> > -pre8-ac1 with ide patch
-> > -pre8-ac3
-> > -pre8-ac4
-> > -pre8-ac5
-> > 
-> > Changing ALI_INIT_CODE_TEST doesn't help.
-> > It fails both with #define and #undef.
-> > 
-> > Perhaps I should try reverting the patch
-> > against -pre9-ac3?
+On Wed, 2002-06-05 at 18:20, William Thompson wrote:
+> Removing the hdd from the controller and it boots just fine.  I tried a
+> Quantum fireball lct10 05 and a seagate st34311a with the same results.
 > 
-> Reverting the patch against 2.4.19-pre9-ac3 seems to solve my
-> problem. Now DMA works. (A single hunk got rejected and had
-> to be applied by hand.)
-> 
-> -- 
-> Kasper Dupont -- der bruger for meget tid på usenet.
-> For sending spam use mailto:razor-report@daimi.au.dk
-> 
+> The bios on the pdc controller is v1.31
 
-Andre Hedrick
-LAD Storage Consulting Group
+When 2.4.19pre10-ac2 appears please try that. I've merged a couple of
+small fixes from Promise (not all the ones they want sorting - some of
+it is a bit hairy so I'll let Andre do that 8))
+
+Alan
 

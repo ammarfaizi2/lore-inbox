@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265567AbTFRWOc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 18:14:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265569AbTFRWOb
+	id S265570AbTFRWQN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 18:16:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265566AbTFRWQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 18:14:31 -0400
-Received: from mail.gmx.net ([213.165.64.20]:62145 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265567AbTFRWOa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 18:14:30 -0400
-Message-Id: <5.2.0.9.2.20030618234400.0277b448@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Thu, 19 Jun 2003 00:32:48 +0200
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: O(1) scheduler starvation
-Cc: davidm@hpl.hp.com, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1055971842.585.2.camel@teapot.felipe-alfaro.com>
-References: <5.2.0.9.2.20030618163055.02758e18@pop.gmx.net>
- <5.2.0.9.2.20030618113653.0277d780@pop.gmx.net>
- <5.2.0.9.2.20030618113653.0277d780@pop.gmx.net>
- <5.2.0.9.2.20030618163055.02758e18@pop.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Wed, 18 Jun 2003 18:16:13 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:54258 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S265570AbTFRWPb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 18:15:31 -0400
+Message-ID: <3EF0E7AC.60007@mvista.com>
+Date: Wed, 18 Jun 2003 15:29:00 -0700
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: joe.korty@ccur.com
+CC: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: O(1) scheduler seems to lock up on sched_FIFO and sched_RR tasks
+References: <3EF0979C.8060603@mvista.com> <20030618193053.GA15576@tsunami.ccur.com>
+In-Reply-To: <20030618193053.GA15576@tsunami.ccur.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 11:30 PM 6/18/2003 +0200, Felipe Alfaro Solana wrote:
->On Wed, 2003-06-18 at 17:54, Mike Galbraith wrote:
-> > >To make XMMS skip, just force the X server to do a lot of repainting,
-> > >for example, by dragging a big window slowly enough over another one
-> > >which requires a lot of painting (Evolution, for example, is a good
-> > >candidate as it requires a lot of CPU to repaint uncovered areas). It's
-> > >easy to reproduce just after launching XMMS. However, after a while, it
-> > >gets difficult to make XMMS to skip sound (it seems the scheduler
-> > >adjusts priorities well enough). This is on a PIII 700Mhz laptop with no
-> > >niced processes at all.
-> >
-> > Thanks.  I don't have evolution on my linux box (pine/vi/procmail
-> > rules).  ImageMagic ought to give X more than enough spurts of frenetic
-> > activity though.  Do you have that, and does image manipulation make xmms
-> > stutter as well?  Just moving windows around and changing backgrounds
-> > doesn't do anything here.  (500mhz piii/128mb ram btw)
->
->In fact, I can only make XMMS skip sound for a very brief period, just
->after starting it up. After a few seconds, it seems the dynamic
->priorities are adjusted and I can't make XMMS skip sound anymore. To
->reproduce it, open up a big window, then launch XMMS and make it play
->some MP3 file. Then, start moving the big window around. For me, this
->causes XMMS to skip sound for a brief period of time (~5 seconds,
->approx).
+Joe Korty wrote:
+> On Wed, Jun 18, 2003 at 09:47:24AM -0700, george anzinger wrote:
+> 
+>>It seems that once a SCHED_FIFO or SCHED_RR tasks gets control it does 
+>>not yield to other tasks of higher priority.
+>>
+>>Attached is a test program (busyloop) that just loops doing 
+>>gettimeofday() for the requested time and a little utility (rt) to run 
+>>programs at real time priorities.
+>>
+>>Here is an annotated example of the problem:
+>>
+>>First, become root then:
+>>
+>>>rt 90 bash        <-- run bash at priority 90 SCHED_RR
+>>>rt -f 30 busyloop 10 &  <-- busyloop 10 at priority 30 SCHED_FIFO
+>>
+>>At this point the bash at priority 90 should be available, but is not. 
+>> When the 10 second busyloop completes, bash returns.
+> 
+> 
+> 
+> Hi George,
+>  When I boost the priority of each of the per-cpu 'events/%d' daemon to
+> 96, the problem goes away.
 
-If you bump CHILD_PENALTY up (to say 75) you should see a marked improvement.
+Seems like your saying that the events workqueues are involved in the 
+scheduler in some ugly way.  Certainly not what your average rt 
+programmer would expect :(  What is going on here?
 
-         -Mike 
+> 
+> Joe
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

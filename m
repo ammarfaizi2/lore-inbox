@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265002AbRFZPir>; Tue, 26 Jun 2001 11:38:47 -0400
+	id <S265001AbRFZPuJ>; Tue, 26 Jun 2001 11:50:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264999AbRFZPi2>; Tue, 26 Jun 2001 11:38:28 -0400
-Received: from m355-mp1-cvx1c.col.ntl.com ([213.104.77.99]:45956 "EHLO
-	[213.104.77.99]") by vger.kernel.org with ESMTP id <S264994AbRFZPiP>;
-	Tue, 26 Jun 2001 11:38:15 -0400
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: VM tuning through fault trace gathering [with actual code]
-In-Reply-To: <Pine.LNX.4.21.0106261031150.850-100000@freak.distro.conectiva>
-From: John Fremlin <vii@users.sourceforge.net>
-Date: 26 Jun 2001 16:38:07 +0100
-In-Reply-To: <Pine.LNX.4.21.0106261031150.850-100000@freak.distro.conectiva> (Marcelo Tosatti's message of "Tue, 26 Jun 2001 10:52:16 -0300 (BRT)")
-Message-ID: <m2vgljb6ao.fsf@boreas.yi.org.>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.1 (GTK)
-MIME-Version: 1.0
+	id <S265003AbRFZPtu>; Tue, 26 Jun 2001 11:49:50 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:18810 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S265001AbRFZPtj>;
+	Tue, 26 Jun 2001 11:49:39 -0400
+Message-ID: <20010626174942.A24389@win.tue.nl>
+Date: Tue, 26 Jun 2001 17:49:42 +0200
+From: Guest section DW <dwguest@win.tue.nl>
+To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] wrong disk index in /proc/stat
+In-Reply-To: <20010626045614.A24248@win.tue.nl> <Pine.LNX.4.30.0106261605200.13052-100000@biker.pdb.fsc.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <Pine.LNX.4.30.0106261605200.13052-100000@biker.pdb.fsc.net>; from Martin Wilck on Tue, Jun 26, 2001 at 04:07:33PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo@conectiva.com.br> writes:
+On Tue, Jun 26, 2001 at 04:07:33PM +0200, Martin Wilck wrote:
 
-> ####################################################################
-> Event     	          Time                   PID     Length Description
-> ####################################################################
+> > static inline unsigned int disk_index (kdev_t dev)
+> > {
+> >         struct gendisk *g = get_gendisk(dev);
+> >         return g ? (MINOR(dev) >> g->minor_shift) : 0;
+> > }
 > 
-> Trap entry              991,299,585,597,016     678     12      TRAP: page fault; EIP : 0x40067785
+> Well,
+> 
+> a) this is not in the official kernel,
+> b) the original genhd.h says that's too slow (is it really slower?)
 
-That looks like just the generic interrupt handling. It does not do
-what I want to do, i.e. record some more info about the fault saying
-where it comes from.
+Ad a): true.
+Ad b): if you only make this change then it will be faster or slower
+  depending on how many disks you have (because get_gendisk() used
+  to be a linear search through a list that has as length the number
+  of disk majors); however, my get_gendisk today is
 
--- 
+	static inline struct gendisk *
+	get_gendisk(kdev_t dev) {
+	        return blk_gendisk[MAJOR(dev)];
+	}
 
-	http://ape.n3.net
+  hence is faster.
+
+Andries
+
+[go to ftp://ftp.XX.kernel.org/pub/linux/kernel/people/aeb/ or so
+and get patches 01*, 02*, ... and apply them successively to 2.4.6pre5.
+complain to aeb@cwi.nl if anything is wrong]

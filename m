@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261826AbTIEBW5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 21:22:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbTIEBW5
+	id S262014AbTIEB2B (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 21:28:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbTIEB2B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 21:22:57 -0400
-Received: from fw.osdl.org ([65.172.181.6]:2466 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261826AbTIEBWz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 21:22:55 -0400
-Message-ID: <32935.4.4.25.4.1062724973.squirrel@www.osdl.org>
-Date: Thu, 4 Sep 2003 18:22:53 -0700 (PDT)
-Subject: Re: [PATCH] ikconfig - resolve rebuild permissions
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: <sam@ravnborg.org>
-In-Reply-To: <32901.4.4.25.4.1062724109.squirrel@www.osdl.org>
-References: <20030904113133.3f950a51.shemminger@osdl.org>
-        <20030904191353.GA10448@mars.ravnborg.org>
-        <32901.4.4.25.4.1062724109.squirrel@www.osdl.org>
-X-Priority: 3
-Importance: Normal
-Cc: <shemminger@osdl.org>, <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.11)
+	Thu, 4 Sep 2003 21:28:01 -0400
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:18833 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262014AbTIEB15 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 21:27:57 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] fix remap of shared read only mappings
+Date: Fri, 5 Sep 2003 03:31:38 +0200
+User-Agent: KMail/1.5.3
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Jamie Lokier <jamie@shareable.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0309041748290.13736-100000@home.osdl.org> <1062724028.23305.14.camel@dhcp23.swansea.linux.org.uk>
+In-Reply-To: <1062724028.23305.14.camel@dhcp23.swansea.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309050331.38597.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> On Thu, Sep 04, 2003 at 11:31:33AM -0700, Stephen Hemminger wrote:
->>> This patch fixes it by removing the configs.o file when
->>> needed.
->>
->> A better approach would be to remove the need for compile.h from
->> configs.c. See attached patch for the makefile change.
->> It just took the relevant part from mk_compile and
->> used it in the Makefile.
->> Example only - I expect Randy to integrate it properly.
+On Friday 05 September 2003 03:07, Alan Cox wrote:
+> On Gwe, 2003-09-05 at 01:49, Linus Torvalds wrote:
+> > What really matters is that mmap() under Linux is 100% coherent, as far
+> > as the hardware just allows. We haven't taken the easy way out. We
+> > shouldn't start now.
 >
-> configs.o also wants UTS_RELEASE from compile.h, and
+> NFS ?
 
-UTS_RELEASE is not from compile.h....
-so Sam's patch looks reasonable, working on it now.
+NFS doesn't attempt to implement local Posix semantics, but a DFS should.  
+Anyway, Linus has ruled we're being held to the higher standard of "Linux 
+semantics".
 
-> I really dislike generating the same data in multiple places,
-> so I prefer to continue to use compile.h.
-> I'll see about other options or using Steve's patch.
+> The problem with OpenGFS is that it is a network file system so
+> implementing "perfect" shared mmap semantics might actually reduce it
+> from handy to useless. Right now the worst we have to do is mark pages
+> uncached in some weird shared map cases, with pages being bounced across
+> firewire its a bit different.
 
-~Randy
+Sistina has been doing it the "perfect" way for some time now, and it's worked 
+out OK.  This relies on writes being rare.
 
+Things will definitely slow to a crawl if several nodes keep writing little 
+bits into the same mmap, but that's a case of "doctor it hurts" I think.  If 
+there's a common application that does this, I'd appreciate knowing about it.
 
+Regards,
+
+Daniel
 

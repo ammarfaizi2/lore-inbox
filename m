@@ -1,106 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261780AbUK2UDJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261771AbUK2UFO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261780AbUK2UDJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 15:03:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261782AbUK2UB7
+	id S261771AbUK2UFO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 15:05:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbUK2UD6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 15:01:59 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:55545 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261788AbUK2UBU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 15:01:20 -0500
-Message-ID: <41AB7FFC.1010705@mvista.com>
-Date: Mon, 29 Nov 2004 12:01:00 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: Matt Mackall <mpm@selenic.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: nanosleep interrupted by ignored signals
-References: <20041124213521.GJ2460@waste.org> <41A54731.2040607@mvista.com> <20041125030627.GK2460@waste.org> <20041125080953.GB15315@logos.cnet>
-In-Reply-To: <20041125080953.GB15315@logos.cnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Nov 2004 15:03:58 -0500
+Received: from hera.kernel.org ([63.209.29.2]:50905 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261776AbUK2UBy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 15:01:54 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+Date: Mon, 29 Nov 2004 20:01:39 +0000 (UTC)
+Organization: Mostly alphabetical, except Q, which We do not fancy
+Message-ID: <cofv73$us3$1@terminus.zytor.com>
+References: <19865.1101395592@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1101758499 31620 127.0.0.1 (29 Nov 2004 20:01:39 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Mon, 29 Nov 2004 20:01:39 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> On Wed, Nov 24, 2004 at 07:06:27PM -0800, Matt Mackall wrote:
+Followup to:  <19865.1101395592@redhat.com>
+By author:    David Howells <dhowells@redhat.com>
+In newsgroup: linux.dev.kernel
 > 
->>On Wed, Nov 24, 2004 at 06:45:05PM -0800, George Anzinger wrote:
->>
->>>Matt Mackall wrote:
->>>
->>>>Take the following trivial program:
->>>>
->>>>#include <unistd.h>
->>>>
->>>>int main(void)
->>>>{
->>>>	sleep(10);
->>>>	return 0;
->>>>}
->>>>
->>>>Run it in an xterm. Note that resizing the xterm has no effect on the
->>>>process. Now do the same with strace:
->>>>
->>>>brk(0x80495bc)                          = 0x80495bc
->>>>brk(0x804a000)                          = 0x804a000
->>>>rt_sigprocmask(SIG_BLOCK, [CHLD], [], 8) = 0
->>>>rt_sigaction(SIGCHLD, NULL, {SIG_DFL}, 8) = 0
->>>>rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
->>>>nanosleep({10, 0}, 0xbffff548)          = -1 EINTR (Interrupted system
->>>>call)
->>>>--- SIGWINCH (Window changed) ---
->>>>_exit(0)                                = ?
->>>>
->>>>In short, nanosleep is getting interrupted by signals that are
->>>>supposedly ignored when a process is being praced. This appears to be
->>>>a long-standing bug.
->>>>
->>>>It also appears to be a long-known bug. I found some old discussion of this
->>>>problem here but no sign of any resolution:
->>>>
->>>>http://www.ussg.iu.edu/hypermail/linux/kernel/0108.1/1448.html
->>>>
->>>>What's the current thinking on this?
->>>
->>>This should have been resolved with the 2.6 changes, in particular, the 
->>>restart code.  What kernel are you using?
->>
->>Indeed it is. Forgot I still had 2.4 on the box in question, didn't
->>notice the restart bit when comparing the 2.6 code against the thread
->>above. Mea culpa.
+> What we've come up with is this:
 > 
+>  (1) Create new directories in the linux sources to shadow existing include
+>      directories:
 > 
-> George, 
+> 	NEW DIRECTORY		DIRECTORY SHADOWED
+> 	=============		==================
+> 	include/user/		include/linux/
+> 	include/user-*/		include/asm-*/
 > 
-> Is it worth/necessary to fix this bug in v2.4 ?
+>      Note that this doesn't take account of the other directories under
+>      include/, but I don't think they're relevant.
 > 
-> Quoting yourself
-> 
-> "This is an issue for debugging also (same ptrace...). The fix is to fix
-> nano_sleep to match the standard which says it should only return on a
-> signal if the signal is delivered to the program (i.e. not on internal
-> "do nothing" signals). Signal in the kernel returns 1 if it calls the
-> task and 0 otherwise, thus nano sleep might be changed as follows: "
-> 
-Hmm,  wise fellow, that :)  We (MontaVista) have back ported this fix to our 
-kernels as part of the HRT patch, and, in fact, it is in the latest (albeit 
-somewhat out of date) HRT patch on sourceforge.  The main issue is that it 
-requires changes in arch level code and so requires a cooperative effort (in 
-that most folks only have one or two archs to check it out on).
 
-My take on this is that this has been in the kernel since nanosleep() was put in 
-and so, for a mature kernel, it is not really important to change it.  Now if 
-you want to back port POSIX clocks and timers (i.e. clock_nanosleep()) I would 
-argue that you should back port this change as part of that effort.
+I'm not sure if user is a good choice, and user-* is even worse.  Most
+people seem to have suggested include/linux-abi for this; I would
+personally prefer include/linux-abi/arch for the second.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+>  (2) Take each file from the shadowed directory. If it has any userspace
+>      relevant stuff, then:
+> 
+>      (a) Transfer this stuff into a file of the same name in the new
+> 	 directory. So, for example, the syscall number list from
+> 	 include/asm-i386/unistd.h will be transferred to
+> 	 include/user-i386/unistd.h.
 
+I'm not sure you can do such a 1:1 mapping.  In fact, there are cases
+where you definitely don't want to, because the current structure
+doesn't make much sense.
+
+> 
+>      (b) Make kernel file #include the user file. So:
+> 
+> 		[include/asm-i386/unistd.h]
+> 		...
+> 		#include <user-i386/unistd.h>
+> 		...
+
+Good...
+
+>      (c) Where a user header file requires something from another header file
+> 	 (such as a type), that file should include a suitable user header file
+> 	 directly:
+> 
+> 		[include/user-i386/termio.h]
+> 		...
+> 		#include <user/types.h>
+> 		...
+
+Good...
+
+>      (d) stdint types should be used where possible.
+> 
+> 		[include/user-i386/termios.h]
+> 		struct winsize {
+> 			uint16_t ws_row;
+> 			uint16_t ws_col;
+> 			uint16_t ws_xpixel;
+> 			uint16_t ws_ypixel;
+> 		};
+
+Good, except your "struct winsize" is bad; you're stepping on
+namespace which belongs to userspace.  Since we can't use typedefs on
+struct tags, I suggest:
+
+struct __kstruct_winsize {
+       /* ... */
+};
+
+.. and userspace can do:
+
+#define __kstruct_winsize winsize
+
+>      (e) These header files should be bounded with __USER_XXXXX_H conditionals:
+> 
+> 		[include/user-i386/termios.h]
+> 		#ifndef __USER_I386_TERMIOS_H
+> 		#define __USER_I386_TERMIOS_H
+> 		...
+> 		#endif /*  __USER_I386_TERMIOS_H */
+
+Good...
+
+>  (3) Remove all #if(n)def __KERNEL__ clauses.
+> 
+>  (4) Remove the -D__KERNEL__ from the master kernel Makefile.
+
+Bad!  There is code in the kernel which can compile in userspace for
+testing.  This is highly valuable and should be kept.
+
+	-hpa

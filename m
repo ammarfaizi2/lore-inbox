@@ -1,123 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261624AbSLZBLw>; Wed, 25 Dec 2002 20:11:52 -0500
+	id <S261640AbSLZBUY>; Wed, 25 Dec 2002 20:20:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261640AbSLZBLw>; Wed, 25 Dec 2002 20:11:52 -0500
-Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:55210 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S261624AbSLZBLu>; Wed, 25 Dec 2002 20:11:50 -0500
-Message-ID: <20021226000308.31344.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S261642AbSLZBUY>; Wed, 25 Dec 2002 20:20:24 -0500
+Received: from user-24-214-12-221.knology.net ([24.214.12.221]:20155 "EHLO
+	localdomain") by vger.kernel.org with ESMTP id <S261640AbSLZBUW> convert rfc822-to-8bit;
+	Wed, 25 Dec 2002 20:20:22 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ro0tSiEgE <lkml@ro0tsiege.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.4 series: IDE driver
+Date: Wed, 25 Dec 2002 19:31:50 -0600
+User-Agent: KMail/1.4.3
+References: <200212251134.gBPBYxJ29966@oboe.it.uc3m.es>
+In-Reply-To: <200212251134.gBPBYxJ29966@oboe.it.uc3m.es>
+Cc: "Peter T. Breuer" <ptb@it.uc3m.es>
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: akpm@digeo.com, vda@port.imtp.ilyichevsk.odessa.ua, conma@kolivas.net,
-       riel@conectiva.com.br
-Cc: ciarrocchi@linuxmail.org, linux-kernel@vger.kernel.org
-Date: Thu, 26 Dec 2002 08:03:08 +0800
-Subject: Re: Poor performance with 2.5.52, load and process in D state
-X-Originating-Ip: 193.76.202.244
-X-Originating-Server: ws5-1.us4.outblaze.com
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212251931.50379.lkml@ro0tsiege.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew/Rik/Con/all
+I own an HP Pavilion ze4145 notebook, and the ALi5x3 chipset bombs after about 
+30-40mins of use with "hda: lost interrupt" commands, and this continues 
+until I cut the power, though sometimes after about an hour it will reset and 
+go on, but it is very iffy. I noticed that "32-bit I/O" was disabled by 
+default in the BIOS, however I have enabled it. Is this a problem in the 
+kernels ALi drivers or what? The XP install that came with it works fine. 
+What suggestions to fixing this? Thanks
 
-Andrew, I promised you to run a few tests
-using osdb (www.osdb.org with 40M of data)against both 
-2.4.19 and 2.5.52 booting the kernel with the 
-mem=XXM paramter.
+--Ro0tSiEgE
 
-I also played with the /proc/sys/vm/swappiness
-parameter, I've ran all the tests with the standard
-swappiness value (60), with 80 and 100.
-
-100 means the 2.4 behaviour, isn't it ?
-
-Looking at the results it seems that the "standard" 
-value is too low, probably 80 is the best one.
-What do you think ?
-
-There is no a big difference in the Time results
-between 80 and 100 but looking at the top output
-while I was running the tests I saw a big difference
-in the swap usage.
-
-Con, could you please run the contest test against
-2.5.52 or .53 platying with the swappines parameter ?
-
-Below the results of my test, please let me know if 
-you want I run more tests or if you need more information. 
-
-Ciao,
-            Paolo
-            
--- By Memory Size --
-Kernel	Memory	Swappiness	Time
-2.4.19	24	x		3371.98 seconds (0:56:11.98)
-2.5.52	24	60		4585.03 seconds (1:16:25.03)
-2.5.52	24	80		4285.98 seconds (1:11:25.98)
-2.5.52	24	100		3633.64 seconds (1:00:33.64)
-
-2.4.19	40	x		809.39 seconds  (0:13:29.39)
-2.5.52	40	60		3771.85 seconds (1:02:51.85)
-2.5.52	40	80		3342.82 seconds (0:55:42.82)
-2.5.52	40	100		855.22 seconds  (0:14:15.22)
-
-2.4.19	64	x		796.03 seconds  (0:13:16.03)
-2.5.52	64	60		840.41 seconds  (0:14:00.41)
-2.5.52	64	80		828.59 seconds  (0:13:48.59)
-2.5.52	64	100		833.92 seconds  (0:13:53.92)
-
-2.4.19	80	x		790.80 seconds  (0:13:10.80)
-2.5.52	80	60		788.65 seconds  (0:13:08.65)
-2.5.52	80	80		790.54 seconds  (0:13:10.54)
-2.5.52	80	100		793.79 seconds  (0:13:13.79)
-
-2.5.52	96	60		779.54 seconds  (0:12:59.54)
-2.5.52	96	80		782.86 seconds  (0:13:02.86)
-2.5.52	96	100		778.81 seconds  (0:12:58.81)
-
-2.4.19	all	x		778.65 seconds  (0:12:58.65)
-2.5.52	all	60		768.98 seconds  (0:12:48.98)
-2.5.52	all	80		770.43 seconds  (0:12:50.43)
-2.5.52	all	100		771.76 seconds  (0:12:51.76)
-
--- By kernel version --
-2.4.19  24      x               3371.98 seconds (0:56:11.98)
-2.4.19  40      x               809.39 seconds  (0:13:29.39)
-2.4.19  64      x               796.03 seconds  (0:13:16.03)
-2.4.19  80      x               790.80 seconds  (0:13:10.80)
-2.4.19  all     x               778.65 seconds  (0:12:58.65)
-
-2.5.52  24      60              4585.03 seconds (1:16:25.03)
-2.5.52  40      60              3771.85 seconds (1:02:51.85)
-2.5.52  64      60              840.41 seconds  (0:14:00.41)
-2.5.52  80      60              788.65 seconds  (0:13:08.65)
-2.5.52  96      60              779.54 seconds  (0:12:59.54)
-2.5.52  all     60              768.98 seconds  (0:12:48.98)
-
-2.5.52  24      80              4285.98 seconds (1:11:25.98)
-2.5.52  40      80              3342.82 seconds (0:55:42.82)
-2.5.52  64      80              828.59 seconds  (0:13:48.59)
-2.5.52  80      80              790.54 seconds  (0:13:10.54)
-2.5.52	96	80		782.86 seconds  (0:13:02.86)
-2.5.52  all     80              770.43 seconds  (0:12:50.43)
-
-2.5.52  24      100             3633.64 seconds (1:00:33.64)
-2.5.52  40      100             855.22 seconds  (0:14:15.22)
-2.5.52	64	100		833.92 seconds  (0:13:53.92)
-2.5.52  80      100             793.79 seconds  (0:13:13.79)
-2.5.52  96      100             778.81 seconds  (0:12:58.81)
-2.5.52  all     100             771.76 seconds  (0:12:51.76)
+On Wednesday 25 December 2002 05:34, Peter T. Breuer wrote:
+> > Dr. David Alan Gilbert [Tue, Dec 24, 2002 at 11:50:54PM +0000]:
+> >> * Nico Schottelius (schottelius@wdt.de) wrote:
+> >>=20
+> >>
+> >> > If I change the notebook it runs fine.
+> >> > If I change the harddisks it works fine.
+> >> > If I use 2.5 series kernels it works fine.
+> >>
+> >>=20
+> >>
+> >> > ALI15X3: IDE controller at PCI slot 00:10.0
+> >> > ALI15X3: chipset revision 195
+> >> > ALI15X3: not 100% native mode: will probe irqs later
+> >> >     ide0: BM-DMA at 0x6050-0x6057, BIOS settings: hda:DMA, hdb:pio
+> >> >     ide1: BM-DMA at 0x6058-0x605f, BIOS settings: hdc:DMA, hdd:pio
+> >>
+> >> I have heard it said that DMA on the ALI chipset is a bit touchy (not
+> >> sure if driver or hardware) - it is worth trying with the DMA off.
+>
+> That's curious. I have a toshiba portege 4000 with this chipset and
+> yes, dma occasionally conks out on this machine (kernel 2.4.19).
+>
+> It sometimes recovers after disabling dma (automatically, kernel
+> message) and about 20mins of impatience (me) with an ide incomplete
+> command notice
+>
+>   Uniform Multi-Platform E-IDE driver Revision: 6.31
+>   ide: Assuming 33MHz system bus speed for PIO modes; override with
+> idebus=xx ALI15X3: IDE controller on PCI bus 00 dev 20
+>   PCI: No IRQ known for interrupt pin A of device 00:04.0.
+>   ALI15X3: chipset revision 195
+>   ALI15X3: not 100% native mode: will probe irqs later
+>       ide0: BM-DMA at 0xeff0-0xeff7, BIOS settings: hda:DMA, hdb:pio
+>       ide1: BM-DMA at 0xeff8-0xefff, BIOS settings: hdc:DMA, hdd:pio
+>   hda: IC25N020ATDA04-0, ATA DISK drive
+>   ide: Assuming 33MHz system bus speed for PIO modes; override with
+> idebus=xx hdc: TOSHIBA DVD-ROM SD-C2502, ATAPI CD/DVD-ROM drive
+>   ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+>   ide1 at 0x170-0x177,0x376 on irq 15
+>   hda: 39070080 sectors (20004 MB) w/1806KiB Cache, CHS=2432/255/63,
+> UDMA(33) Partition check:
+>    /dev/ide/host0/bus0/target0/lun0: p1 p2 p4 < p5 p6 p7 p8 p9 p10 p11 p12
+> p13 p14 p15 p16 p17 p18 >
+>
+> I'm afraid most of the kernel error messages never makes it to the logs,
+> but it's started with
+>
+>    Dec 24 20:58:00 betty kernel: hda: DMA disabled
+>
+> and then, for example:
+>
+>    Dec 23 11:47:20 betty kernel: hda: DMA disabled
+>    Dec 23 11:47:20 betty kernel: hda: ide_set_handler: handler not null;
+> old=c01c19 e0, new=c01c6d44
+>    Dec 23 11:47:20 betty kernel: bug: kernel timer added twice at c01c1856.
+>    Dec 23 11:48:42 betty kernel: SysRq : Changing Loglevel
+>
+> Here's a recovery, 23 mins later:
+>
+>    Dec 23 12:11:09 betty kernel: hda: dma_intr: status=0x58 { DriveReady
+> SeekComple te DataRequest }
+>    Dec 23 12:12:20 betty last message repeated 3 times
+>    Dec 23 12:12:20 betty kernel: hda: DMA disabled
+>    Dec 23 12:12:20 betty kernel: ide0: reset: success
+>    Dec 23 12:12:20 betty kernel: OK
+>
+> > dma works fine on all other constellations, but I will try it without
+> > dma as soon as 2.4.20 is compiled...
+>
+> I am running with hdpam -d0 for safety.
+>
+>
+> Peter
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 
-
--- 
-______________________________________________
-http://www.linuxmail.org/
-Now with POP3/IMAP access for only US$19.95/yr
-
-Powered by Outblaze

@@ -1,77 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129091AbQKIIJd>; Thu, 9 Nov 2000 03:09:33 -0500
+	id <S129076AbQKIIRZ>; Thu, 9 Nov 2000 03:17:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129193AbQKIIJX>; Thu, 9 Nov 2000 03:09:23 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:62983
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129091AbQKIIJQ>; Thu, 9 Nov 2000 03:09:16 -0500
-Date: Thu, 9 Nov 2000 00:08:55 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Larry McVoy <lm@bitmover.com>
-cc: Christoph Rohland <cr@sap.com>,
-        Michael Rothwell <rothwell@holly-springs.nc.us>,
-        richardj_moore@uk.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
-In-Reply-To: <20001108235312.H22781@work.bitmover.com>
-Message-ID: <Pine.LNX.4.10.10011090003470.7564-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S129187AbQKIIRP>; Thu, 9 Nov 2000 03:17:15 -0500
+Received: from lama.supermedia.pl ([212.75.96.18]:28179 "EHLO
+	lama.supermedia.pl") by vger.kernel.org with ESMTP
+	id <S129076AbQKIIRL>; Thu, 9 Nov 2000 03:17:11 -0500
+Date: Thu, 9 Nov 2000 09:16:52 +0100
+From: Bartek Krajnik <bartek@supermedia.pl>
+To: linux-kernel@vger.kernel.org
+Subject: X crash with kernel 2.4.0-test10 
+Message-ID: <20001109091652.B18068@lama.supermedia.pl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On RedHat 6.2 with X 3.3.6-20:
 
-Second or Third here!!!
+Caught signal 11.
 
-TRG plans to create and publish a native RING 0 kernel and packages.
-This may end up as a bolt on ./arch or something.
-Not everyone in the world needs a SUPERCHARGED, FUEL-INJECTED, ALCOHOL,
-FIRE-BREATHING kernel, but some do!
+Server aborting...
 
-Andre Hedrick
-CTO Timpanogas Research Group
-EVP Linux Development, TRG
-Linux ATA Development
+eip: 0822e4e8   eflags: 00013293
+eax: 00000004   ebx: 4018c608   ecx: 00000004   edx: 00000000
+esi: 00000008   edi: 408a12f4   ebp: bffff860   esp: bffff7d4
+Stack: 438a2008 bffff880 084b7ea8 00000002 408a12f4 00000004 0000000c bffff804
+       40095fba 00000000 084f05d0 0101b278 00000000 00000004 084f05d0 00000000
+       00000000 00000004 00000000 00000000 4018cc48 408a1908 00000001 00000001
+       0000000e 4012c1ec 0000023a 0000022b 0000022b 00000004 084f0518 00000190
+Call Trace: 08228fd5 08295889 08297a28 082900d8 0829d2b7 082900b0 0829d4b7
+       081a9d3f 081ba6f7 081b9db7 081a25bb 08192847 081921e6 0813ebd0 081382c0
+       08133450 0808541f 08292ecb 0829a593 0829b0b9 081a1532 0819a9a3 081920e8
+       081a1155 08082590 080825b1 081a0d10 082f853c 08082590
+Code: 8b 07 89 03 83 c3 04 83 c7 04 89 7d 84 8b 4d 84 8b 01 89 03
 
-
-On Wed, 8 Nov 2000, Larry McVoy wrote:
-
-> On Thu, Nov 09, 2000 at 08:44:11AM +0100, Christoph Rohland wrote:
-> > Hi Michael,
-> > 
-> > On Wed, 08 Nov 2000, Michael Rothwell wrote:
-> > > Sounds great; unfortunately, the core group has spoken out against a
-> > > modular kernel.
-> > > 
-> > > Perhaps IBM should get together with SGI, HP and other interested
-> > > parties and start an Advanced Linux Kernel Project. Then they can
-> > > run off and make their scalable, modular, enterprise kernel and the
-> > > Linus Version can always merge back in features from it.
-> > 
-> > *Are you crazy?* =:-0 
-> > 
-> > Proposing proprietary kernel extensions to establish an enterprise
-> > kernel? No thanks!
-> 
-> Actually, I think this idea is a good one.  I'm a big opponent of all the
-> big iron feature bloat getting into the kernel, and if SGI et al want to
-> go off and do their own thing, that's fine with me.  As long as Linus 
-> continues in his current role, I doubt much of anything that the big iron
-> boys do will really make it back into the generic kernel.  Linus is really
-> smart about that stuff, are least it seems so to me; he seems to be well
-> aware that 99.9999% of the hardware in the world isn't big iron and never
-> will be, so something approximating 99% of the effort should be going towards
-> the common platforms, not the uncommon ones.
-> -- 
-> ---
-> Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
-
-
+-- 
+	System & Network
+			Engineer
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

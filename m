@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293012AbSCDXc0>; Mon, 4 Mar 2002 18:32:26 -0500
+	id <S292754AbSCDXsA>; Mon, 4 Mar 2002 18:48:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293014AbSCDXcO>; Mon, 4 Mar 2002 18:32:14 -0500
-Received: from 64-178-80-34.customer.algx.net ([64.178.80.34]:49397 "HELO
-	mail2.there.com") by vger.kernel.org with SMTP id <S293012AbSCDXcB>;
-	Mon, 4 Mar 2002 18:32:01 -0500
-From: "Eric Ries" <eries@there.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: FPU precision & signal handlers (bug?)
-Date: Mon, 4 Mar 2002 15:31:26 -0800
-Message-ID: <KPEDLFEJBNHDLFEEOIIMCELKCEAA.eries@there.com>
+	id <S292764AbSCDXru>; Mon, 4 Mar 2002 18:47:50 -0500
+Received: from callisto.affordablehost.com ([64.23.37.14]:36016 "HELO
+	callisto.affordablehost.com") by vger.kernel.org with SMTP
+	id <S292754AbSCDXrn>; Mon, 4 Mar 2002 18:47:43 -0500
+Message-ID: <3C8407C0.1000503@keyed-upsoftware.com>
+Date: Mon, 04 Mar 2002 17:48:16 -0600
+From: David Stroupe <dstroupe@keyed-upsoftware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Subject: Q:Shared IRQ
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-In-Reply-To: <E16i15h-0000q9-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
-> Sent: Monday, March 04, 2002 2:38 PM
-> To: Eric Ries
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: FPU precision & signal handlers (bug?)
->
->
-> Think about MMX and hopefully it makes sense then.
+I have written a driver for a pci board that uses interrupts.  I install 
+the shared handler with a unique dev_id, or at least it should be unique 
+as it is the address of my driver's internal data struct for that card. 
+ I get not only my interrupts, but also the interrupts of the shared 
+device, namely the network card.  Is this what I should expect?  If I 
+get a notification for the network card, why is the dev_id the same as 
+what I passed?  If I didn't have an interrupt pending bit on my 
+hardware, how would I distinguish between the interrupts?
 
-Yes, I think I understand why this is the case presently.
+TIA
 
-> > strikes me as kind of a hack. Why should the signal handler, alone
-> > among all my functions (excepting main) be responsible for blowing
-> > away the control word?
->
-> Right - I would expect it to be restored at the end of the signal handler
-> for you - is that occuring or not ? I just want to make sure I understand
-> the precise details of the problem here.
+-- 
+Best regards,
+David Stroupe
+Keyed-Up Software 
 
-Yes, my belief is that the kernel undoes the FINIT changes by restoring the
-FPU state after the signal handler returns.
-
-Eric
 

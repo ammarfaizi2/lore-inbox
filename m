@@ -1,69 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276761AbRK0Kv2>; Tue, 27 Nov 2001 05:51:28 -0500
+	id <S282809AbRK0Kxi>; Tue, 27 Nov 2001 05:53:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282904AbRK0KvS>; Tue, 27 Nov 2001 05:51:18 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:21000 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S276761AbRK0KvN>;
-	Tue, 27 Nov 2001 05:51:13 -0500
-Date: Tue, 27 Nov 2001 11:51:03 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Didier Moens <moensd@xs4all.be>
-Cc: rml@tech9.net, Nicolas.Aspert@epfl.ch, linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: Re: OOPS in agpgart (2.4.13, 2.4.15pre7)]
-Message-Id: <20011127115103.2928bd15.skraw@ithnet.com>
-In-Reply-To: <3C02BF41.1010303@xs4all.be>
-In-Reply-To: <linux.kernel.3C021570.4000603@dmb.rug.ac.be>
-	<3C022BB4.7080707@epfl.ch>
-	<1006808870.817.0.camel@phantasy>
-	<3C02BF41.1010303@xs4all.be>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S282904AbRK0Kx2>; Tue, 27 Nov 2001 05:53:28 -0500
+Received: from mout01.kundenserver.de ([195.20.224.132]:26911 "EHLO
+	mout01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S282809AbRK0KxV>; Tue, 27 Nov 2001 05:53:21 -0500
+Date: Tue, 27 Nov 2001 11:57:59 +0100
+From: Heinz Diehl <hd@cavy.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Unresponiveness of 2.4.16
+Message-ID: <20011127105759.GA2273@elfie.cavy.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011127095609.89426.qmail@web20503.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011127095609.89426.qmail@web20503.mail.yahoo.com>
+User-Agent: Mutt/1.3.23.2-current-20011115i (Linux 2.5.1-pre1 i586)
+Organization: private site in Mannheim/Germany
+X-PGP-Key: To get my public-key, send mail with subject 'get pgpkey'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Nov 2001 23:16:33 +0100
-Didier Moens <moensd@xs4all.be> wrote:
+On Tue Nov 27 2001, willy tarreau wrote:
 
-> Dear Robert, Nicolas, Stephan,   :)
-> 
-> I got two patches :
-> 
-> 
-> 1. From Stephan, to test whether my assumption about the secondary 
-> device was right :
-> 
-> Stephan wrote :
-> 
-> But if you want you can check that out pretty simple: just add a "break" 
-> right
-> after the case :
-> 
->                  case PCI_DEVICE_ID_INTEL_830_M_0:
-> ---> break;
-> 
->                          i810_dev = pci_find_device(PCI_VENDOR_ID_INTEL,
-> 
-> 
-> This patch left me with a loaded agpgart, and accelerated X (DRM/DRI). 
-> The acceleration is still not up to par with an ATI Mobility-128 (30% 
-> lower, while it should be at least 200% faster), but I suspect an X 
-> CVS-problem here.
-> 
-> Quitting and restarting X leaves me with a locked black screen.
+> I just tried 2.4.16 with and without your patch.
 
-Can you provide the output provided by the agp module at load time, please?
-This mini-patch of mine should indeed be technically sufficient. Of course I
-will provide a "real-world" patch working for all i830 agp-chipsets (M or MG)
-as soon as it is clear, that the detection still works.
-I am a bit bothered by your X setup. Can you stabilize this somehow? Maybe
-using some known-to-work (older) X version for your graphics card.
+I applied Andrew's patch to 2.5.1-pre1.
 
-It looks solvable.
+> Without your patch, I could easily
+> reproduce the slugginess other people report, mostly
+> at the login prompt. But when I applied your patch, I can
+> log in immediately, so yes, I can say that your patch
+> improves things dramatically.
 
-Regards,
-Stephan
+The same thing here: with the patch applied, things improved, without
+I can also easily reproduce unresponsiveness. It definitely fixes
+the problem....
 
+-- 
+# Heinz Diehl, 68259 Mannheim, Germany

@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266810AbTBVEzm>; Fri, 21 Feb 2003 23:55:42 -0500
+	id <S267132AbTBVFP1>; Sat, 22 Feb 2003 00:15:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266851AbTBVEzm>; Fri, 21 Feb 2003 23:55:42 -0500
-Received: from bitmover.com ([192.132.92.2]:52639 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S266810AbTBVEzm>;
-	Fri, 21 Feb 2003 23:55:42 -0500
-Date: Fri, 21 Feb 2003 21:05:14 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Larry McVoy <lm@bitmover.com>, Hanna Linder <hannal@us.ibm.com>,
-       lse-tech@lists.sf.et, linux-kernel@vger.kernel.org
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030222050514.GA3148@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Larry McVoy <lm@bitmover.com>, Hanna Linder <hannal@us.ibm.com>,
-	lse-tech@lists.sf.et, linux-kernel@vger.kernel.org
-References: <96700000.1045871294@w-hlinder> <20030222001618.GA19700@work.bitmover.com> <306820000.1045874653@flay> <20030222024721.GA1489@work.bitmover.com> <14450000.1045888349@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <14450000.1045888349@[10.10.2.4]>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+	id <S267653AbTBVFP1>; Sat, 22 Feb 2003 00:15:27 -0500
+Received: from ns.suse.de ([213.95.15.193]:34319 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S267132AbTBVFP0>;
+	Sat, 22 Feb 2003 00:15:26 -0500
+To: richard.brunner@amd.com
+Cc: prandal@herefordshire.gov.uk, sowadski@umr.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20 amd speculative caching
+References: <99F2150714F93F448942F9A9F112634C013857BF@txexmtae.amd.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 22 Feb 2003 06:25:33 +0100
+In-Reply-To: richard.brunner@amd.com's message of "22 Feb 2003 01:14:46 +0100"
+Message-ID: <p73vfzc999u.fsf@amdsimf.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 21, 2003 at 08:32:30PM -0800, Martin J. Bligh wrote:
-> > "fixing it", huh?  Your "fixes" may be great for your tiny segment of 
-> > the market but they are not going to be welcome if they turn Linux into
-> > BloatOS 9.8.
+richard.brunner@amd.com writes:
+
+> The best and reliable way to go is by the output of CPUID
+> (or cat /proc/cpuinfo)
 > 
-> They won't - the maintainers would never allow us to do that.
-
-The path to hell is paved with good intentions.  
-
-> > Really?  How about some figures?  You'd need HUGE profit margins to 
-> > justify your position, how about some actual hard cold numbers?
+> if (((family == 6)  && (model >= 6)) || (family == 15)) {
+>     printk(KERN_INFO "Advanced speculative caching feature present\n");
+>     return 1;
+> }
 > 
-> I don't have them to hand, but if you think anyone's making money on
-> PCs nowadays, you're delusional (with respect to hardware). 
+> If your AMD processor meets the above CPUID family and model, then
+> you need the patch. The decoder ring from any random
+> Product name to CPUID family and model number is not yet available ;-)
+> 
+When you have such a CPU you either need the old patch or the new patch
+for change_page_attr which is in since 2.4.20 and fixes the underlying
+bug of linux using conflicting cache attributes. The change_page_attr
+solution is much faster because it doesn't prevent the kernel from
+using 4MB pages (= less tlb misses) and also of course because it won't
+cripple your CPU by disabling hardware prefetch.
 
-Let's see, Dell has a $66B market cap, revenues of $8B/quarter and 
-$500M/quarter in profit.    
+However when the change_page_attr() approach is used you need to make
+sure that the the agpgart driver that comes with the kernel is used
+(which actually calls change_page_attr). Unfortunately it looks like
+some versions of the ATI binary 3d driver install their own agpgart driver
+and they don't have the change_page_attr() fixes.
 
-Lots of people working for companies who haven't figured out how to do
-it as well as Dell *say* it can't be done but numbers say differently.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+So when you use the ATI driver with 2.4.20+ you need to make sure you
+don't use their agpgart driver. Better would be to get ATI to fix their
+agpgart included or better not ship an own agpgart at all for these
+kernels.
+
+Really there isn't much the linux kernel can do about third
+party vendors replacing working included drivers with buggy own drivers.
+
+If someone has contacts at ATI it would be good to ask them
+to release a new driver with this issue fixed.
+
+-Andi

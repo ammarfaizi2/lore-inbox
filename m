@@ -1,93 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261485AbSJHWOS>; Tue, 8 Oct 2002 18:14:18 -0400
+	id <S261731AbSJHWbB>; Tue, 8 Oct 2002 18:31:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261429AbSJHWN5>; Tue, 8 Oct 2002 18:13:57 -0400
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:61757 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S261485AbSJHWNP>;
-	Tue, 8 Oct 2002 18:13:15 -0400
-From: <Hell.Surfers@cwctv.net>
-To: riel@conectiva.com.br, robertopeon@sportvision.com, nico@cam.org,
-       alan@lxorguk.ukuu.org.uk, pavel@suse.cz, drepper@redhat.com,
-       lm@bitmover.com, linux-kernel@vger.kernel.org
-Date: Tue, 8 Oct 2002 23:18:19 +0100
-Subject: RE= New BK License Problem?
-MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1034115499263"
-Message-ID: <0250139162208a2DTVMAIL7@smtp.cwctv.net>
+	id <S261644AbSJHWa3>; Tue, 8 Oct 2002 18:30:29 -0400
+Received: from employees.nextframe.net ([212.169.100.200]:39919 "EHLO
+	sexything.nextframe.net") by vger.kernel.org with ESMTP
+	id <S261731AbSJHW3q>; Tue, 8 Oct 2002 18:29:46 -0400
+Date: Wed, 9 Oct 2002 00:43:16 +0200
+From: Morten Helgesen <morten.helgesen@nextframe.net>
+To: linux-kernel@vger.kernel.org
+Subject: [OOPS 2.5.41] - Unable to handle kernel paging request ... EIP is at move_one_page+0x26/0x1bc
+Message-ID: <20021009004316.A111@sexything>
+Reply-To: morten.helgesen@nextframe.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-Editor: VIM - Vi IMproved 6.0
+X-Keyboard: PFU Happy Hacking Keyboard
+X-Operating-System: Slackware Linux (of course)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, 
 
---1034115499263
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+I`m seing this one on my P3 600 ... the kernel is a 2.5.41 with 
+IDE TCQ (does not look like this has anything to do with the
+oops, though).
 
-doesnt stop them from flogging boxed copies...
+Haven`t seen this one posted to the list yet. 
 
-Cheers, Dean.
+Unable to handle kernel paging request at virtual address 5a5a5a8e
+ printing eip:
+c01381a6
+*pde = 00000000
+Oops: 0000
 
-On 	Tue, 8 Oct 2002 15:32:06 -0300 (BRT) Rik van Riel <riel@conectiva.com.br> wrote:
+CPU:    0
+EIP:    0060:[move_one_page+38/444]    Not tainted
+EFLAGS: 00010202
+EIP is at move_one_page+0x26/0x1bc
+eax: c266c000   ebx: 5a5a5a8a   ecx: 403e7000   edx: 403eb000
+esi: 00001000   edi: 5a5a5a5a   ebp: 403e7000   esp: c266df24
+ds: 0068   es: 0068   ss: 0068
+Process opera (pid: 572, threadinfo=c266c000 task=c17dc800)
+Stack:  00000000 00001000 403e7000 c39d62cc c266df64 00000000 c0138369 c39d62cc
+	403eb000 403e7000 00000000 c463b1ec c463b1bc c39d62cc c0138b4e c39d62cc
+	403e7000 403eb000 00001000 c463b1bc c266c000 00000000 c463b1d8 c4320f90
+Call Trace:
+ [move_page_tables+45/112] move_page_tables+0x2d/0x70
+ [do_mremap+1954/2392] do_mremap+0x7a2/0x958
+ [sys_mremap+83/116] sys_mremap+0x53/0x74
+ [syscall_call+7/11] syscall_call+0x7/0xb
 
---1034115499263
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Code: 81 7b 04 ad 4e ad de 74 1a 68 a6 81 13 c0 68 fd 22 30 c0 e8
+ <6>note: opera[572] exited with preempt_count 1
 
-Received: from perninha.conectiva.com.br ([200.250.58.156]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Tue, 8 Oct 2002 19:30:46 +0100
-Received: from burns.conectiva (burns.conectiva [10.0.0.4])
-	by perninha.conectiva.com.br (Postfix) with SMTP id 47F37474EA
-	for <Hell.Surfers@cwctv.net>; Tue,  8 Oct 2002 15:32:23 -0300 (BRT)
-Received: (qmail 10408 invoked by uid 0); 8 Oct 2002 18:33:36 -0000
-Received: from duckman.distro.conectiva (10.0.17.2)
-  by burns.conectiva with SMTP; 8 Oct 2002 18:33:36 -0000
-Received: (from localhost user: 'riel', uid#500) by duckman.distro.conectiva
-	with ESMTP id <S77051AbSJHScK>; Tue, 8 Oct 2002 15:32:10 -0300
-Date: Tue, 8 Oct 2002 15:32:06 -0300 (BRT)
-Sender: Rik van Riel <riel@conectiva.com.br>
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Roberto Peon <robertopeon@sportvision.com>
-Cc: Hell.Surfers@cwctv.net, <nico@cam.org>,
-	<alan@lxorguk.ukuu.org.uk>, <pavel@suse.cz>, <drepper@redhat.com>,
-	<lm@bitmover.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Re: New BK License Problem?
-In-Reply-To: <200210081114.03483.robertopeon@sportvision.com>
-Message-ID: <Pine.LNX.4.44L.0210081530220.1648-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-Path: riel@conectiva.com.br
 
-On Tue, 8 Oct 2002, Roberto Peon wrote:
+== Morten
 
-> Good thing Linus was attached to the "Its amazing what you can do when
-> you don't know you can't do it" philosophy instead of the "If it could
-> have been done, it would have been done" POS philosophy.
-
-It all depends on how much risk you want to take and how
-much you have to lose.
-
-If all you can lose is some of your own time and energy
-there's nothing wrong with attempting something where
-everybody else has failed over the last 15 years.
-
-On the other hand, I wouldn't take that risk if I were
-running a business and had to make money to live...
-
-regards,
-
-Rik
 -- 
-A: No.
-Q: Should I include quotations after my reply?
 
-http://www.surriel.com/		http://distro.conectiva.com/
+"Livet er ikke for nybegynnere" - sitat fra en klok person.
 
---1034115499263--
-
-
+mvh
+Morten Helgesen 
+UNIX System Administrator & C Developer 
+Nextframe AS
+admin@nextframe.net / 93445641
+http://www.nextframe.net

@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262100AbVBPWCm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262101AbVBPWOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262100AbVBPWCm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 17:02:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262111AbVBPWCk
+	id S262101AbVBPWOk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 17:14:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbVBPWOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 17:02:40 -0500
-Received: from mail.charite.de ([160.45.207.131]:64652 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S262100AbVBPWAI (ORCPT
+	Wed, 16 Feb 2005 17:14:40 -0500
+Received: from mail.Space.Net ([195.30.0.8]:37132 "HELO mail.space.net")
+	by vger.kernel.org with SMTP id S262101AbVBPWOi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 17:00:08 -0500
-Date: Wed, 16 Feb 2005 23:00:07 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+	Wed, 16 Feb 2005 17:14:38 -0500
+From: bernd@rhm.de
+Message-Id: <200502162214.XAA29751@node130.rhm.de>
+Subject: Login on 2.6.x: can't reopen tty
 To: linux-kernel@vger.kernel.org
-Subject: Re: Oops in 2.6.10-ac12 in kjournald (journal_commit_transaction)
-Message-ID: <20050216220007.GQ19871@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20050215145618.GP24211@charite.de> <20050216153338.GA26953@atrey.karlin.mff.cuni.cz> <20050216200441.GH19871@charite.de> <1108590885.17089.17.camel@dale.velocity.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1108590885.17089.17.camel@dale.velocity.net>
-User-Agent: Mutt/1.5.6+20040907i
+Date: Wed, 16 Feb 2005 23:14:30 +0100 (MEZ)
+X-Mailer: ELM [version [Version 2.3.rh] PL0]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Dale Blount <linux-kernel@dale.us>:
-
-> This looks very similar (at least to me) to an OOPS I posted with 2.6.9
-> on 12/03/2004.
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=110210705504716&w=2
-
-Could be.
-
-> My system is also a dual Xeon using SMP and Hyperthreading
-> (/proc/cpuinfo shows 4 cpus).
-
-Same system here.
-
-> Mine, like Ralf's, is also a mail server running postfix using ext3 for
-> the spool directory.
-
-Same here.
-
-> I've actually hit this bug (assuming it's the same) with 2.6.10 also.  I
-> had to power cycle remotely and unfortunately didn't have the serial
-> console logging enabled when it happened with 2.6.10.  I upgraded from
-> 2.4.23 to 2.6.8.1 and crashed within a week, and continued to crash at
-> least monthly after that.  It had been running 2.4.23 for 200+ days with
-> no problems.
-> 
-> Hope this helps trace it back.
-
-Me too
-
-
--- 
-Ralf Hildebrandt (i.A. des IT-Zentrum)          Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
-IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de
+Hi all, hope I'm not of topic here but had no response elsewhere...
+                                     
+we observe a problem with login starting with kernel 2.6. Actually
+the problem still exists in 2.6.11-rc3-bk3-20050206171922-bigsmp
+which we loaded from SuSE. We never saw this problem before and
+we used nearly every release in the past. The problem:
+                                                               
+When we try to login to a remote machine with telnet or rsh we
+sometimes fall back immediately with the message 'connection closed'.
+When we try again the login mostly succeeds. The ratio of bad/good
+attempts over all is 1/10. It doesn't depend on the state of the 
+machines e.g. type if hardware or load. It happens on laptops as
+well as smp-machines. In messages we see:
+                                                           
+ "login[xxx]: FATAL: can't reopen tty: No such file or directory"
+                                                                 
+We debugged login and tracked the problem down to the fopen of
+/dev/pts/nn in function opentty() just after a call to the kernel
+function vhangup().
+                              
+The questions:
+ 
+   - why does /dev/pts/nn disappear (and never comes back)?
+   - is this a kernel bug? is there something wrong in vhangup()?
+   - is anybody else aware of this problem?
+     (there's only one additional posting from Yehavi Bourvine)
+   - is there a solution (pending)?
+                                       
+Thanks in advance for any hint, we are pretty losts...
+                              
+Greetings
+Bernd Rieke

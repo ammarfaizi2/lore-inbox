@@ -1,58 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277396AbRJJUJz>; Wed, 10 Oct 2001 16:09:55 -0400
+	id <S277395AbRJJUKP>; Wed, 10 Oct 2001 16:10:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277394AbRJJUJq>; Wed, 10 Oct 2001 16:09:46 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:52706 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S277397AbRJJUJ2>; Wed, 10 Oct 2001 16:09:28 -0400
-Date: Wed, 10 Oct 2001 22:09:52 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: "attempt to access beyond end of device" in 2.4.10ac10
-In-Reply-To: <20011010125939.A524@mikef-linux.matchmail.com>
-Message-ID: <Pine.NEB.4.40.0110102205470.16121-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277400AbRJJUKK>; Wed, 10 Oct 2001 16:10:10 -0400
+Received: from h226-58.adirondack.albany.edu ([169.226.226.58]:6879 "EHLO
+	bouncybouncy.net") by vger.kernel.org with ESMTP id <S277395AbRJJUJw>;
+	Wed, 10 Oct 2001 16:09:52 -0400
+Date: Wed, 10 Oct 2001 16:10:12 -0400
+From: Justin A <justin@bouncybouncy.net>
+To: Dieter N?tzel <Dieter.Nuetzel@hamburg.de>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.10-ac10-preempt lmbench output.
+Message-ID: <20011010161012.A5967@bouncybouncy.net>
+In-Reply-To: <200110100358.NAA17519@isis.its.uow.edu.au> <20011010120009.851921E7C9@Cantor.suse.de> <20011010153653.Q726@athlon.random> <20011010155953Z277295-760+23277@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011010155953Z277295-760+23277@vger.kernel.org>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Oct 2001, Mike Fedyk wrote:
-
-> > I had a crash with 2.4.10-ac10 (the computer was totally frozen - I had to
-> > push the reset button). I found the following in syslog:
+On Wed, Oct 10, 2001 at 05:37:40PM +0200, Dieter N?tzel wrote:
+> Am Mittwoch, 10. Oktober 2001 05:25 schrieb Justin A:
+> > On Tue, Oct 09, 2001 at 08:36:56PM -0400, safemode wrote:
+> > > Heavily io bound processes (dbench 32)  still causes something as light as
+> > > an mp3 player to skip, though.   That probably wont be fixed intil 2.5,
+> > > since 
 > >
+> > What buffer size are you using in your mp3 player?  I have xmms set to
+> > 5000ms or so and it never skips.
+> 
+> OK, I'll give xmms with this buffer size a go, too.
+> 
+> > mpg321(esd or oss) also never skips no matter what I do,
+> 
+> Do you have link to the mpg321 (oss) version for me?
+
+It should be in the same version:
+
+   -o dt    Set output devicetype to dt [esd,alsa,arts,sun,oss]
+   
+> 
+> > but the original mpg123-oss will with even light load
+> > on the cpu/disk.
+> 
+> I get the hiccup with mpg123 and noatun (artsd, KDE-2.2.1).
+
+Have you tried the -b option in mpg123?
+
+-b n  output buffer: n Kbytes [0]
+
+Even maxed out it has no effect on the quality of the playback.
+> 
 > >
-> > Oct 10 19:03:05 r063144 kernel: attempt to access beyond end of device
-> > Oct 10 19:03:05 r063144 kernel: 03:06: rw=0, want=2147449990, limit=1959898
->
-> Did you try earlier kernels with success?
+> > This is with 2.4.10-ac9+preempt on an athlon 700
+> 
+> Here with Linus tree.
+> 
+> -Dieter
 
-I didn't have this problem before - and I use 2.4(-ac) kernels since
-2.4.0-test times.
+This behavior(xmms and mpg321 fine, mpg123 skipping) has always been the
+same for me. xmms was a more reliable player on my pentium 100.  It may
+just be a better design in mpg321 and xmms.
 
-> Are your partitions setup correctly?
-
-Yes.
-
-> Which file system(s) was/were on this drive?
-
-Several ext2 partitions are on the drive.
-
-> Any idea what was happening at the time?
-
-No.
-
-> Mike
-
-cu
-Adrian
-
--- 
-
-Get my GPG key: finger bunk@debian.org | gpg --import
-
-Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
+-Justin
 

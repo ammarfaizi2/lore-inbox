@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264100AbTIINZz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 09:25:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264108AbTIINZz
+	id S264099AbTIINeh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 09:34:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264097AbTIINeh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 09:25:55 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:20869 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264100AbTIINZx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 09:25:53 -0400
-Subject: Re: New ATI FireGL driver supports 2.6 kernel
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dave Jones <davej@redhat.com>
-Cc: Dennis Freise <Cataclysm@final-frontier.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030909075023.GA8065@redhat.com>
-References: <001a01c3765b$1f1ad6e0$0419a8c0@firestarter.shnet.org>
-	 <20030908225401.GD681@redhat.com>
-	 <1063069344.28622.53.camel@dhcp23.swansea.linux.org.uk>
-	 <20030909075023.GA8065@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1063113878.30109.11.camel@dhcp23.swansea.linux.org.uk>
+	Tue, 9 Sep 2003 09:34:37 -0400
+Received: from kiuru.kpnet.fi ([193.184.122.21]:38572 "EHLO kiuru.kpnet.fi")
+	by vger.kernel.org with ESMTP id S264099AbTIINee (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 09:34:34 -0400
+Subject: Nforce2
+From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
+To: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-UXCRa1qoc4/gPjO3hIRD"
+Message-Id: <1063114472.589.4.camel@midux>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
-Date: Tue, 09 Sep 2003 14:24:39 +0100
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 09 Sep 2003 16:34:32 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-09-09 at 08:50, Dave Jones wrote:
->  > If all the code they include is their own then they could have dual
->  > licensed it. If not and they are modifying core kernel code to add hooks
->  > for their code they aren't likely to get past the preliminary arguments 
->  > about a GPL violation and it being a derivative work.
-> 
-> For one it links in the GPL'd nvidia GART module.
 
-I suggest you raise that with Nvidia ;)
+--=-UXCRa1qoc4/gPjO3hIRD
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
+
+Still problems with nvidia-agp on 2.6.0-test5(-mm1). I can't track down
+the problem because my box needs a hard reboot. My card is nvidia. So
+they should work together. On 2.4.23-pre3, there's no problem anymore.
+Works fine, but why not in 2.6.0-test5? Any ideas why it crashes? Any
+fix? If you need me to investigate more. Tell me how.
+--=20
+----
+Markus H=E4stbacka <midian@ihme.org>
+
+--=-UXCRa1qoc4/gPjO3hIRD
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/Xdbo3+NhIWS1JHARAk2rAKCe5xwXjBjM0K980wzz4XB+WM6IoACgyGuc
+hHQsqkeKu1Y7LXlSP1IfwCY=
+=VbW3
+-----END PGP SIGNATURE-----
+
+--=-UXCRa1qoc4/gPjO3hIRD--
 

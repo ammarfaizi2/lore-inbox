@@ -1,66 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130407AbQKGIqz>; Tue, 7 Nov 2000 03:46:55 -0500
+	id <S130414AbQKGIuq>; Tue, 7 Nov 2000 03:50:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130414AbQKGIqw>; Tue, 7 Nov 2000 03:46:52 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:39685 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S130407AbQKGIqk>;
-	Tue, 7 Nov 2000 03:46:40 -0500
-Date: Tue, 7 Nov 2000 10:46:34 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Lyle Coder <x_coder@hotmail.com>
-Cc: David Schwartz <davids@webmaster.com>, RAJESH BALAN <atmproj@yahoo.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: malloc(1/0) ??
-Message-ID: <20001107104634.G13151@mea-ext.zmailer.org>
-In-Reply-To: <NCBBLIEPOCNJOAEKBEAKEEAJLMAA.davids@webmaster.com> <OE28zGnClQwSaY2lsLR00001672@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OE28zGnClQwSaY2lsLR00001672@hotmail.com>; from x_coder@hotmail.com on Tue, Nov 07, 2000 at 12:09:09AM -0800
+	id <S130495AbQKGIug>; Tue, 7 Nov 2000 03:50:36 -0500
+Received: from shell.webmaster.com ([209.133.28.73]:60893 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S130414AbQKGIu2>; Tue, 7 Nov 2000 03:50:28 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Andrej Hosna" <hosna@ibl.sk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: malloc(1/0) ??
+Date: Tue, 7 Nov 2000 00:50:26 -0800
+Message-ID: <NCBBLIEPOCNJOAEKBEAKMEAPLMAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+In-Reply-To: <00110709373507.05397@adino>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 07, 2000 at 12:09:09AM -0800, Lyle Coder wrote:
-> When a program does a malloc... the glibc gets atleast on page (brk)
-> [actually, glibs determins of it needs to brk more memory from the kernel...
-> because it maintains it;s own pool].. so if you malloc 4 byts, you can copy
-> to that pointer more than 4 bytes (upto a page size, ex 4K)... hope that
-> answers one of your questions... as far as why malloc(0) works... I dunno
 
-Maybe following extract from  glibc's malloc/malloc.c  beginning
-comments can help you there:
+> > The program can't possibly work because it invokes undefined
+> behavior. It
+> > is impossible to determine what a program that invokes
+> undefined behavior is
+> > 'supposed to do'.
+>
+> I dont think it's undefined behaviour ...
 
+	You are correct. This is bahavior that is undefined by the C language, but
+defined by the implementation. So determining what the program was supposed
+to do requires determining whether the person who wrote it was familiar with
+the implementation on which it is being used. Amusingly, this means the
+program is supposed to do different things depending upon what
+implementation of malloc you have.
 
-  Minimum overhead per allocated chunk: 4 or 8 bytes
-       Each malloced chunk has a hidden overhead of 4 bytes holding size
-       and status information.
+	IIRC, malloc(0) is defined to return a unique block of memory that it is
+valid to pass to free. However, doing anything with this memory (read/write)
+is undefined by the C standard.
 
-  Minimum allocated size: 4-byte ptrs:  16 bytes    (including 4 overhead)
-                          8-byte ptrs:  24/32 bytes (including, 4/8 overhead)
+	DS
 
-       When a chunk is freed, 12 (for 4byte ptrs) or 20 (for 8 byte
-       ptrs but 4 byte size) or 24 (for 8/8) additional bytes are
-       needed; 4 (8) for a trailing size field
-       and 8 (16) bytes for free list pointers. Thus, the minimum
-       allocatable size is 16/24/32 bytes.
-
-       Even a request for zero bytes (i.e., malloc(0)) returns a
-       pointer to something of the minimum allocatable size.
-
-  Maximum allocated size: 4-byte size_t: 2^31 -  8 bytes
-                          8-byte size_t: 2^63 - 16 bytes
-
-
-
-Other systems (malloc libraries) may have different strategies on this
-allocation management issue, thus allocating anything smaller than the
-needed size is bound to get user burned.   malloc(0)  is insane thing
-(IMO), but at least glibc supports it for some reason.  Likely just due
-to padding and minimum size issues.
-
-> Best Wishes,
-> Lyle
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135353AbRDZMJg>; Thu, 26 Apr 2001 08:09:36 -0400
+	id <S135344AbRDZMJq>; Thu, 26 Apr 2001 08:09:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135346AbRDZMJ0>; Thu, 26 Apr 2001 08:09:26 -0400
-Received: from corp2.cbn.net.id ([202.158.3.25]:23304 "HELO corp2.cbn.net.id")
-	by vger.kernel.org with SMTP id <S135344AbRDZMJT>;
-	Thu, 26 Apr 2001 08:09:19 -0400
-Date: Thu, 26 Apr 2001 19:11:24 +0700 (JAVT)
-From: <imel96@trustix.co.id>
-To: John Cavan <johnc@damncats.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Single user linux
-In-Reply-To: <3AE741EA.561BE01F@damncats.org>
-Message-ID: <Pine.LNX.4.33.0104261836130.1677-100000@tessy.trustix.co.id>
+	id <S135346AbRDZMJg>; Thu, 26 Apr 2001 08:09:36 -0400
+Received: from cr803443-a.flfrd1.on.wave.home.com ([24.156.64.178]:46978 "EHLO
+	fxian.jukie.net") by vger.kernel.org with ESMTP id <S135344AbRDZMJb>;
+	Thu, 26 Apr 2001 08:09:31 -0400
+Date: Thu, 26 Apr 2001 08:09:06 -0400 (EDT)
+From: Feng Xian <fxian@fxian.jukie.net>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: <linux-kernel@vger.kernel.org>, Feng Xian <fxian@chrysalis-its.com>
+Subject: Re: __alloc_pages: 4-order allocation failed
+In-Reply-To: <Pine.LNX.4.21.0104252247480.1088-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.30.0104260807001.6221-100000@tiger>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 25 Apr 2001, Marcelo Tosatti wrote:
 
-On Wed, 25 Apr 2001, John Cavan wrote:
-
-> Several distributions (Red Hat and Mandrake certainly) offer auto-login
-> tools. In conjunction with those tools, take the approach that Apple
-> used with OS X and setup "sudo" for administrative tasks on the machine.
-> This allows the end user to generally administer the machine without all
-> the need to hack the kernel, modify login, operate as root, etc. You can
-> even restrict their actions with it and log what they do.
 >
-> In the end though, I really don't see the big deal with having a root
-> user for general home use. Even traditionally stand-alone operating
+>
+> On Wed, 25 Apr 2001, Feng Xian wrote:
+>
+> > Hi,
+> >
+> > I am running linux-2.4.3 on a Dell dual PIII machine with 128M memory.
+> > After the machine runs a while, dmesg shows,
+> >
+> > __alloc_pages: 4-order allocation failed.
+> > __alloc_pages: 3-order allocation failed.
+> > __alloc_pages: 4-order allocation failed.
+> > __alloc_pages: 4-order allocation failed.
+> > __alloc_pages: 4-order allocation failed.
+> > __alloc_pages: 4-order allocation failed.
+> >
+> >
+> > and sometime the system will crash. I looked into the memory info,
+> > there still has some free physical memory (20M) left and swap space is
+> > almost not in use. (250M swap)
+> >
+> > I didn't have this problem when I ran 2.4.0 (I even didn't see it on
+> > 2.4.2) could anybody tell me what's wrong or where should I look into this
+> > problem?
+>
+> Feng,
+>
+> Which apps are you running when this happens ?
+
+It looks like the X consumes most of the memory (almost used up all the
+physical memory, more than 100M), it uses NVidia driver. I was also
+running pppoe but that took less memory.
+
+>
+> Thanks
+>
 >
 
-you're right, we could do it in more than one way. like copying
-with mcopy without mounting a fat disk. the question is where to put it.
-why we do it is an important thing.
-taking place as a clueless user, i think i should be able to do anything.
-i'd be happy to accept proof that multi-user is a solution for
-clueless user, not because it's proven on servers. but because it is
-a solution by definition.
-
-
-
-		imel
-
+-- 
+ Feng Xian
 

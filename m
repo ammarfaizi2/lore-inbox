@@ -1,41 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262574AbUG1TJh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262547AbUG1TTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262574AbUG1TJh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 15:09:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbUG1TJh
+	id S262547AbUG1TTE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 15:19:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262905AbUG1TTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 15:09:37 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:55786 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262574AbUG1TJb (ORCPT
+	Wed, 28 Jul 2004 15:19:04 -0400
+Received: from opersys.com ([64.40.108.71]:25617 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S262547AbUG1TTA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 15:09:31 -0400
-Date: Wed, 28 Jul 2004 15:09:13 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@dhcp83-76.boston.redhat.com
-To: Robert Olsson <Robert.Olsson@data.slu.se>
-cc: Pasi Sjoholm <ptsjohol@cc.jyu.fi>, Francois Romieu <romieu@fr.zoreil.com>,
-       H?ctor Mart?n <hector@marcansoft.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
-       <netdev@oss.sgi.com>, <brad@brad-x.com>, <shemminger@osdl.org>
-Subject: Re: ksoftirqd uses 99% CPU triggered by network traffic (maybe
- RLT-8139 related)
-In-Reply-To: <16647.61953.158512.433946@robur.slu.se>
-Message-ID: <Xine.LNX.4.44.0407281508450.12082-100000@dhcp83-76.boston.redhat.com>
+	Wed, 28 Jul 2004 15:19:00 -0400
+Message-ID: <4107FA93.3030801@opersys.com>
+Date: Wed, 28 Jul 2004 15:12:19 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Scott Wood <scott@timesys.com>, Ingo Molnar <mingo@elte.hu>,
+       "La Monte H.P. Yarroll" <piggy@timesys.com>,
+       Manas Saksena <manas.saksena@timesys.com>,
+       Philippe Gerum <rpm@xenomai.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] IRQ threads
+References: <20040727225040.GA4370@yoda.timesys>	 <4107CA18.4060204@opersys.com> <1091039327.747.26.camel@mindpipe>
+In-Reply-To: <1091039327.747.26.camel@mindpipe>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jul 2004, Robert Olsson wrote:
 
-> And maybe we should take the experiment disussions off the list.
+Lee Revell wrote:
+> This is obvious FUD from someone who is selling something.  Please keep
+> this crap off LKML.
 
-This is what netdev is for :-)
+"selling something" ??? I don't know what you're talking about. There
+is an entire history behind Adeos and its endorsement by a slew of open
+source organizations and individuals. You probably want to go read the
+LKML archives on the topic.
 
+Please keep your uneducated self off the LKML.
 
-- James
+Thanks,
+
+Karim
 -- 
-James Morris
-<jmorris@redhat.com>
-
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546
 

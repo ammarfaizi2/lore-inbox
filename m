@@ -1,45 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262627AbSJBWHC>; Wed, 2 Oct 2002 18:07:02 -0400
+	id <S262676AbSJBWPL>; Wed, 2 Oct 2002 18:15:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262673AbSJBWHC>; Wed, 2 Oct 2002 18:07:02 -0400
-Received: from se1.cogenit.fr ([195.68.53.173]:49643 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S262627AbSJBWHA>;
-	Wed, 2 Oct 2002 18:07:00 -0400
-Date: Thu, 3 Oct 2002 00:12:28 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cli()/sti() fix for drivers/net/depca.c
-Message-ID: <20021003001228.A18629@fafner.intra.cogenit.fr>
-References: <200210022005.g92K5Fp31816@Port.imtp.ilyichevsk.odessa.ua> <20021002224059.A18518@fafner.intra.cogenit.fr> <200210022133.g92LX0p32156@Port.imtp.ilyichevsk.odessa.ua>
+	id <S262684AbSJBWPK>; Wed, 2 Oct 2002 18:15:10 -0400
+Received: from msp-65-29-16-62.mn.rr.com ([65.29.16.62]:64687 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S262676AbSJBWPJ>; Wed, 2 Oct 2002 18:15:09 -0400
+Date: Wed, 2 Oct 2002 17:19:46 -0500
+From: Shawn <core@enodev.com>
+To: Kevin Corry <corryk@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
+Subject: Re: EVMS Submission for 2.5
+Message-ID: <20021002171946.A31527@q.mn.rr.com>
+References: <02100216332002.18102@boiler>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200210022133.g92LX0p32156@Port.imtp.ilyichevsk.odessa.ua>; from vda@port.imtp.ilyichevsk.odessa.ua on Thu, Oct 03, 2002 at 12:26:53AM -0200
-X-Organisation: Marie's fan club - III
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <02100216332002.18102@boiler>; from corryk@us.ibm.com on Wed, Oct 02, 2002 at 04:33:20PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> :
-[...]
-> Ho to do it properly? Make a copy on stack under lock, release lock,
-> proceed with copy_to_user? That's 88 bytes at least...
 
-Please see ETHTOOL_GSTATS usage in drivers/net/8139cp.c.
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > - on SMP, pktStat can be updated while the copy progresses, see depca_rx().
-> 
-> Should I place these pktStat updates under lp->lock?
+I don't know about everyone else, but I'm hoping this gets included.
 
-You may.
+I wonder where volume mgmt is going for (2.6|3.0)? I hope it does not
+die a terrible neglected death.
 
-depca_rx() looks strange:
-buf = skb_put(skb, len);
-[...]
-netif_rx(skb);
-[...]
-if (buf[0] & ...)
+Given the history of interaction between the LVM team's maintenance
+style and Linus, I wonder if he'll give EVMS a go...
 
--- 
-Ueimor
+(For those of you who weren't watching the debates about LVM updates
+never appearing in mainline, that's what I'm referring to...)
+
+On 10/02, Kevin Corry said something like:
+> Linus,
+>=20
+> On behalf of the EVMS team, I'd like to submit the Enterprise Volume
+> Management System for inclusion in the 2.5 Linux kernel tree.
+
+--
+Shawn Leas
+core@enodev.com
+
+My grandfather invented Cliff's Notes. It all started back in 1912...
+well, to make a long story short...
+						-- Stephen Wright
+
+--BXVAT5kNtrzKuDFl
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9m3EAubgCGkrWpN4RAoVEAJ9DXkit7DtX3tAwHcEfXNHypNsaZQCeJ3zS
+316RBt9Sz4VIMnmDeGlxzZk=
+=8Ixx
+-----END PGP SIGNATURE-----
+
+--BXVAT5kNtrzKuDFl--

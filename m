@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261799AbSJNCgL>; Sun, 13 Oct 2002 22:36:11 -0400
+	id <S261795AbSJNCjX>; Sun, 13 Oct 2002 22:39:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261802AbSJNCgL>; Sun, 13 Oct 2002 22:36:11 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:12042 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S261799AbSJNCgK>; Sun, 13 Oct 2002 22:36:10 -0400
-Message-ID: <3DAA2EF9.2090408@namesys.com>
-Date: Mon, 14 Oct 2002 06:42:01 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
-X-Accept-Language: en-us, en
+	id <S261802AbSJNCjX>; Sun, 13 Oct 2002 22:39:23 -0400
+Received: from smtp02.iprimus.net.au ([210.50.76.70]:22801 "EHLO
+	smtp02.iprimus.net.au") by vger.kernel.org with ESMTP
+	id <S261795AbSJNCjW>; Sun, 13 Oct 2002 22:39:22 -0400
+Message-ID: <3DAA2FE1.7040308@users.sourceforge.net>
+Date: Mon, 14 Oct 2002 12:45:53 +1000
+From: James Courtier-Dutton <jcdutton@users.sourceforge.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: Rob Landley <landley@trommello.org>, Nick LeRoy <nleroy@cs.wisc.edu>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
-Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not
- 3.0 - (NUMA)) (fwd)
-References: <Pine.GSO.4.21.0210132107020.9247-100000@steklov.math.psu.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: John Levon <levon@movementarian.org>
+CC: linux-kernel@vger.kernel.org, mikpe@csd.uu.se
+Subject: Re: kernel api for application profiling
+References: <200210132217.AAA07121@harpo.it.uu.se> <20021013222636.GA2289@compsoc.man.ac.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Oct 2002 02:45:12.0467 (UTC) FILETIME=[B7D36E30:01C2732B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
+John Levon wrote:
 
+>I agree that it doesn't make sense to split up the resources (though at
+>some point I'd like to maintain the watchdog functionality even with
+>oprofile running). In fact, for now, I think the simple exclusive CONFIG
+>solution is the simplest - the things don't get on together, after all.
+>
+>regards
+>john
 >  
 >
->>Logically, the second /var mount should be "mount --move /initrd/var /var", 
->>followed by "umount /initrd" to free up the initrd memory.  Right now it's 
->>doing "mount -n --bind /initrd/var /var", because /etc is a symlink into /var 
->>(has to remain editable, you see), and this way the information about which 
->>partition var actually is can be kept in one place.  (This is an 
->>implementation detail: I could have used volume labels instead.)
->>
->>The point is, right now I can't free the initial ramdisk because it has an 
->>active mount point under it..
->>    
->>
->
->umount -l
->mount --move
->
->
->
->
->  
->
-It seems Linux evolves faster than I can track.  These are nice features.:)
+Speaking as the potential user of these tools, having to run a different 
+kernel (My translation of exclusive CONFIG) to swich these features on 
+and off would be annoying. I would prefer the simple loading/unloading 
+of a kernel module to do the job. Having looked at a fair bit of kernel 
+module code, I at first think that the kernel module api cannot achieve 
+this, but other people on this list might think/know otherwise.
+ From the user point of view it is adding/removing a kernel feature so a 
+module would seem appropriate, but from a programmers point of view, the 
+profiling code would have to be spread about all the kernel code in 
+order to accurately catch the profiling information.
 
-Hans
+Summary: -
+Please try to create a profiling kernel runtime loadable module instead 
+of an exclusive CONFIG item.
+
+Cheers
+James
 
 

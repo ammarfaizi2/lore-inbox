@@ -1,45 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262618AbULPBZS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262613AbULPBZS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262618AbULPBZS (ORCPT <rfc822;willy@w.ods.org>);
+	id S262613AbULPBZS (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 15 Dec 2004 20:25:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbULPBVe
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262545AbULPBVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 20:21:34 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:41089 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262557AbULPBKr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 20:10:47 -0500
-Subject: Re: arch/xen is a bad idea
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@suse.de>
-Cc: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>, Rik van Riel <riel@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
-       Keir.Fraser@cl.cam.ac.uk
-In-Reply-To: <20041215044927.GF27225@wotan.suse.de>
-References: <p73acsg1za1.fsf@bragg.suse.de>
-	 <E1CeLLB-0000Sl-00@mta1.cl.cam.ac.uk>
-	 <20041215044927.GF27225@wotan.suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1103155782.3585.29.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 16 Dec 2004 00:09:44 +0000
+	Wed, 15 Dec 2004 20:21:20 -0500
+Received: from mail.dif.dk ([193.138.115.101]:22438 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262612AbULPBFq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 20:05:46 -0500
+Date: Thu, 16 Dec 2004 02:16:11 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linux Kernel Trivial Patch Monkey <trivial@rustcorp.com.au>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 0/30] return statement cleanup - kill pointless parentheses
+In-Reply-To: <20041216010012.GB6285@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.61.0412160213140.3864@dragon.hygekrogen.localhost>
+References: <Pine.LNX.4.61.0412160010550.3864@dragon.hygekrogen.localhost>
+ <20041216010012.GB6285@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-12-15 at 04:49, Andi Kleen wrote:
-> I think that's definitely the wrong way. Also in Linux 
-> the standard strategy is to first clean up and restructure/refactor 
-> code and then merge, not the other way round.
+On Thu, 16 Dec 2004, Pavel Machek wrote:
 
-Must be two different Linux OS's out there then. I thought it was
-- get interfaces right
-- get working
-- get correct
-- merge
-- evolve
+> Hi!
+> 
+> > Ok, here's the first batch of return statement cleanups (*many* to go).
+> > 
+> > The following patches clean up return statements of the forms
+> > 	return(foo);
+> > 	return ( fn() );
+> > 	return (123);
+> > 	return(a + b);
+> > etc. To be instead
+> > 	return foo;
+> > 	return fn();
+> > 	return 123
+> > 	return a + b;
+> 
+> Yes, I like that. Please also go through drivers/acpi -- there's lot
+> of annoying parenthesis there ;-).
+> 								Pavel
 
-If we did it as you describe we'd still not have a SATA layer merged for
-example.
+Sure thing, I'll add that to my must_do list :)
+There seems to be very mixed feelings about this, so I think what I'll do 
+is to pick a few files from different dirs and submit patches for them, if 
+I then get positive feedback I'll do more in that dir, if not I'll just 
+leave it.
+Thank you for responding. 
+
+-- 
+Jesper Juhl
+

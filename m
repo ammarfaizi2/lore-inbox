@@ -1,27 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263626AbUHSHqN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263093AbUHSHsn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263626AbUHSHqN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 03:46:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbUHSHps
+	id S263093AbUHSHsn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 03:48:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbUHSHsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 03:45:48 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:10665 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263093AbUHSHpo (ORCPT
+	Thu, 19 Aug 2004 03:48:43 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:10632 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263093AbUHSHsb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 03:45:44 -0400
-Date: Thu, 19 Aug 2004 09:47:02 +0200
+	Thu, 19 Aug 2004 03:48:31 -0400
+Date: Thu, 19 Aug 2004 09:49:46 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: Thomas Charbonnel <thomas@undata.org>
 Cc: Lee Revell <rlrevell@joe-job.com>, Florian Schmidt <mista.tapas@gmx.net>,
        linux-kernel <linux-kernel@vger.kernel.org>,
        Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
 Subject: Re: [patch] voluntary-preempt-2.6.8.1-P2
-Message-ID: <20040819074702.GA2075@elte.hu>
-References: <20040816032806.GA11750@elte.hu> <20040816033623.GA12157@elte.hu> <1092627691.867.150.camel@krustophenia.net> <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu> <1092831726.5777.160.camel@localhost>
+Message-ID: <20040819074946.GB2075@elte.hu>
+References: <20040816032806.GA11750@elte.hu> <20040816033623.GA12157@elte.hu> <1092627691.867.150.camel@krustophenia.net> <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu> <1092741974.14015.17.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1092831726.5777.160.camel@localhost>
+In-Reply-To: <1092741974.14015.17.camel@localhost>
 User-Agent: Mutt/1.4.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -36,28 +36,24 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 * Thomas Charbonnel <thomas@undata.org> wrote:
 
-> The next problem I have relates to irq sharing. 
-> On my laptop I can't avoid it :
->  10:    1070631          XT-PIC  yenta, yenta, uhci_hcd, Intel
-> 82801CA-ICH3, hdsp, eth0
-> If I set the sound card's interrupt to be non threaded, then I get a
-> rather long non preemptible section :
-> http://www.undata.org/~thomas/irq_sharing.trace
+> When entering check_preempt_timing, preempt_thresh was 0, and
+> preempt_max_latency had been freshly reset to 100. It should have
+> triggered this code :
+>
+> 		if (latency < preempt_max_latency)
+> 			goto out;
+>
+> but for some reason it didn't (or there is a problem in the tracing
+> code, not showing events that would have increased 'latency').
 
-i'm not sure the IRQ sharing problem can be solved.
+there is one case where we could 'miss' a new latency: when
+/proc/latency_trace is accessed. For the duration of /proc/latency_trace
+access, the updating of the max latency is stopped:
 
-we could execute certain handlers immediately, and defer others to an
-IRQ thread. But when we defer an IRQ we must keep the IRQ masked - which
-prevents further interrupts (possibly from a high-prio non-threaded
-handler) to be executed. So we'd see similar (or in fact worse, due to
-the redirection cost) latencies than with the current 'all or nothing'
-approach.
+        if (down_trylock(&max_mutex))
+                goto out;
 
-now in theory we only have to keep the IRQ line masked for level
-triggered interrupts (most APIC interrupts are level-triggered). 
-Edge-triggered interrupts (such as the XT-PIC ones you have) could be
-acked immediately. I'll try to do something later, but right now there
-are still some IRQ problems (USB issues, PS2 mouse/keyboard issues) so
-i'd not like to complicate the design just yet.
+this is not really a practical problem and fixing it would be quite 
+complex.
 
 	Ingo

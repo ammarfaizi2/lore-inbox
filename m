@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261463AbSI2Rz1>; Sun, 29 Sep 2002 13:55:27 -0400
+	id <S261468AbSI2R40>; Sun, 29 Sep 2002 13:56:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261468AbSI2Rz1>; Sun, 29 Sep 2002 13:55:27 -0400
-Received: from pa90.banino.sdi.tpnet.pl ([213.76.211.90]:56846 "EHLO
-	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
-	id <S261463AbSI2Rz0>; Sun, 29 Sep 2002 13:55:26 -0400
-Subject: Re: [patch] fix parport_serial / serial link order (for 2.4.20-pre8)
-In-Reply-To: <Pine.LNX.4.44.0209280021030.32347-100000@montezuma.mastecende.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Date: Sun, 29 Sep 2002 20:00:41 +0200 (CEST)
-CC: Marek Michalkiewicz <marekm@amelek.gda.pl>, twaugh@redhat.com,
-       serial24@macrolink.com, Linux Kernel <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL95 (25)]
+	id <S261543AbSI2R4X>; Sun, 29 Sep 2002 13:56:23 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48904 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261468AbSI2Rzs>; Sun, 29 Sep 2002 13:55:48 -0400
+Date: Sun, 29 Sep 2002 10:48:41 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Jens Axboe <axboe@suse.de>, <jbradford@dial.pipex.com>,
+       <jdickens@ameritech.net>, <mingo@elte.hu>, <jgarzik@pobox.com>,
+       <kessler@us.ibm.com>, <linux-kernel@vger.kernel.org>,
+       <saw@saw.sw.com.sg>, <rusty@rustcorp.com.au>,
+       <richardj_moore@uk.ibm.com>, <andre@master.linux-ide.org>
+Subject: Re: v2.6 vs v3.0
+In-Reply-To: <1033311400.13001.5.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0209291047420.2240-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <E17viMz-0006UO-00@alf.amelek.gda.pl>
-From: Marek Michalkiewicz <marekm@amelek.gda.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Piece-Of-Shh... ;)
 
-Hmm, works fine here so far, though I only have tested the parallel
-port in polling mode (that's how it is set up by default).
+On 29 Sep 2002, Alan Cox wrote:
+> 
+> Its very hard to make that assessment when the audio layer still doesnt
+> work,
 
-> 00:0e.0 Communication controller: NetMos Technology 222N-2 I/O Card (2S+1P) (rev 01)
+Which reminds me: it would be good to have somebody try to merge stuff
+from the ALSA tree.
 
-Mine is "ST Lab PCI 2S1P IO Controller Card" - which has no serial
-configuration EEPROM (there is an empty place for it on the PCB).
-The 9710:9835 numbers are the generic defaults hardwired in the
-NM9835 chip, not specific to any board type like "222N-2".
+ALSA never got out of their CVS mentality, and apparently nobody bothers 
+to do incrementeal merges. Is anybody interested and listening?
 
-> I have been using this setup for a while now.
-
-I haven't heard anything from the kernel people yet - any chances of
-getting these changes into the official 2.4.x source?  I can make
-a second patch (NetMos support) after the first one is accepted...
-
-Marek
+		Linus
 

@@ -1,64 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261527AbVALWzj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261377AbVAMAaW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261527AbVALWzj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 17:55:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbVALWzL
+	id S261377AbVAMAaW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 19:30:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVALWsA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 17:55:11 -0500
-Received: from mail.kroah.org ([69.55.234.183]:60651 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261527AbVALWwl (ORCPT
+	Wed, 12 Jan 2005 17:48:00 -0500
+Received: from fw.osdl.org ([65.172.181.6]:58256 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261543AbVALWqP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 17:52:41 -0500
-Date: Wed, 12 Jan 2005 14:16:33 -0800
-From: Greg KH <greg@kroah.com>
-To: Dave Jones <davej@redhat.com>, Roland Dreier <roland@topspin.com>,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: debugfs directory structure
-Message-ID: <20050112221632.GA14230@kroah.com>
-References: <52d5watlqs.fsf@topspin.com> <20050112210945.GN24518@redhat.com> <20050112214108.GA13801@kroah.com> <20050112220142.GO24518@redhat.com>
+	Wed, 12 Jan 2005 17:46:15 -0500
+Date: Wed, 12 Jan 2005 14:46:09 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Florian Weimer <fw@deneb.enyo.de>
+Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: thoughts on kernel security issues
+Message-ID: <20050112144609.W24171@build.pdx.osdl.net>
+References: <20050112094807.K24171@build.pdx.osdl.net> <87r7kqe8ms.fsf@deneb.enyo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050112220142.GO24518@redhat.com>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <87r7kqe8ms.fsf@deneb.enyo.de>; from fw@deneb.enyo.de on Wed, Jan 12, 2005 at 08:43:07PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 12, 2005 at 05:01:43PM -0500, Dave Jones wrote:
-> On Wed, Jan 12, 2005 at 01:41:08PM -0800, Greg KH wrote:
->  > On Wed, Jan 12, 2005 at 04:09:45PM -0500, Dave Jones wrote:
->  > > On Wed, Jan 12, 2005 at 12:50:51PM -0800, Roland Dreier wrote:
->  > >  > Hi Greg,
->  > >  > 
->  > >  > Now that debugfs is merged into Linus's tree, I'm looking at using it
->  > >  > to replace the IPoIB debugging pseudo-filesystem (ipoib_debugfs).  Is
->  > >  > there any guidance on what the structure of debugfs should look like?
->  > >  > Right now I'm planning on putting all the debug info files under an
->  > >  > ipoib/ top level directory.  Does that sound reasonable?
->  > > 
->  > > How about mirroring the toplevel kernel source structure ?
->  > > 
->  > > Ie, you'd make drivers/infiniband/ulp/ipoib ?
->  > 
->  > But who would be in charge of createing the "drivers/" subdirectory?
->  > debugfs can't handle "/" in a directory name, like procfs does.
+* Florian Weimer (fw@deneb.enyo.de) wrote:
+> * Chris Wright:
 > 
-> maybe it should ?
-
-Right now debugfs is dentry based, not string based.  If someone wants
-to send me patches to change it, I'll reconsider it :)
-
->  > > It could get ugly quickly without some structure at least to
->  > > the toplevel dir.
->  > I say ipoib/ is fine, remember, this is for debugging stuff, it will
->  > quickly get ugly anyway :)
+> > This same discussion is taking place in a few forums.  Are you opposed to
+> > creating a security contact point for the kernel for people to contact
+> > with potential security issues?
 > 
-> with no heirarchy, what happens when two drivers want to make
-> the same directory / filenames ?
+> Would this be anything but a secretary in front of vendor-sec?
 
-The second call will fail.  Code should always check return values,
-right?
+Yes, it'd be the primary contact for handling kernel security issues.
+Handling vendor coordination is only one piece of a handling security
+issue.
+
+> > http://www.wiretrip.net/rfp/policy.html
+> >
+> > Right now most things come in via 1) lkml, 2) maintainers, 3) vendor-sec.
+> > It would be nice to have a more centralized place for all of this
+> > information to help track it, make sure things don't fall through
+> > the cracks, and make sure of timely fix and disclosure.
+> 
+> You mean, like issuing *security* *advisories*? *gasp*
+
+Yes, although we're not even tracking things well, let alone advisories.
+
+> I think this is an absolute must (and we are certainly not alone!),
+> but this project does not depend on the way the initial initial
+> contact is handled.
+> 
+> > +      If it is a security bug, please copy the Security Contact listed
+> > +in the MAINTAINERS file.  They can help coordinate bugfix and disclosure.
+> 
+> If this is about delayed disclosure, a few more details are required,
+> IMHO.  Otherwise, submitters will continue to use their
+> well-established channels.  Most people hesitate before posting stuff
+> they view sensitive to a mailing list.
+
+Yes, that's the point of coordinating the fix _and_ the disclosure.
 
 thanks,
-
-greg k-h
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

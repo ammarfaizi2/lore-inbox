@@ -1,86 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266327AbUANXQS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 18:16:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266329AbUANXOj
+	id S263370AbUANXUn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 18:20:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266352AbUANXSB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 18:14:39 -0500
-Received: from mrout1.yahoo.com ([216.145.54.171]:12039 "EHLO mrout1.yahoo.com")
-	by vger.kernel.org with ESMTP id S266315AbUANXND (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 18:13:03 -0500
-Message-ID: <4005CCCB.4030003@bigfoot.com>
-Date: Wed, 14 Jan 2004 15:12:11 -0800
-From: Erik Steffl <steffl@bigfoot.com>
-User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.5) Gecko/20031111
+	Wed, 14 Jan 2004 18:18:01 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:52718 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S266336AbUANXQl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 18:16:41 -0500
+Message-ID: <4005A827.80704@mvista.com>
+Date: Wed, 14 Jan 2004 12:35:51 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Greg Stark <gsstark@mit.edu>
-CC: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: Serial ATA (SATA) for Linux status report
-References: <20031203204445.GA26987@gtf.org> <87hdyyxjgl.fsf@stark.xeocode.com>
-In-Reply-To: <87hdyyxjgl.fsf@stark.xeocode.com>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+CC: Matt Mackall <mpm@selenic.com>, Pavel Machek <pavel@ucw.cz>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: kgdb cleanups
+References: <20040109183826.GA795@elf.ucw.cz> <20040112064923.GX18208@waste.org> <40045AC7.2070300@mvista.com> <200401141834.51536.amitkale@emsyssoft.com>
+In-Reply-To: <200401141834.51536.amitkale@emsyssoft.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg Stark wrote:
-> Jeff Garzik <jgarzik@pobox.com> writes:
+Amit S. Kale wrote:
+> On Wednesday 14 Jan 2004 2:23 am, George Anzinger wrote:
 > 
-> 
->>Intel ICH5
 >>
->>Issue #2: Excessive interrupts are seen in some configurations.
+>>>>An alternate possibility is an array of pointer to struct kgdb_hook
+>>>>which allows one to define the struct contents as below and to build the
+>>>>array, all at compile/link time.  A legal entry MUST define get and put,
+>>>>but why not define them all, using dummy functions for the ones that
+>>>>make no sense in a particular interface.
+>>>
+>>>Throwing all the stubs in a special section could work well too. Then
+>>>we could add an avail() function so that early boot debugging could
+>>>discover if each one was available. The serial code could use this to
+>>>kickstart itself while the eth code could test a local initialized
+>>>flag and say "not a chance". Which gives us all the architecture to
+>>>throw in other trivial interfaces (parallel, bus-snoopers, etc.).
+>>
+>>I am thinking of something more like what was done with the x86 timer code.
+>>Each timer option sets up a structure with an array of pointers to each
+>>option. There it is done at compile time, and the runtime code tries each. 
+>>There it is done in order, but here we want to do it a bit differently.
+>>
+>>Maybe we could have an "available" flag or just assume that the address
+>>being !=0 for getdebugchar means it is "available".  I think there should
+>>be a prefered intface set at config time.  Possibly over ride this with the
+>>command line.  Then have a back up order in case kgdb wants to communicate
+>>prior to the prefered one being available.
+>>
+>>We would also have a rule that the command line over ride only works if
+>>communication has not yet been established.  Here, we would also like
+>>control from gdb/kgdb so we could switch to a different interface, but
+>>under gdb control at this point.  Either a maintaince command or setting
+>>the "channel" with a memory modify command.  We would want this to take
+>>effect only after the current command is acknowledged.
 > 
 > 
-> I guess I'm seeing this problem. I'm trying to get my P4P800 motherboard with
-> an ICH5 chipset working completely. So far I've been living without the cdrom
-> or DVD players. I see lots of other posts on linux-kernel about the same
-> problems:
-> 
-> Whenever I try to access the cdrom my system becomes unusable. Due to high
-> interrupts, typically over 150k/s. I thought libata would help, but I don't
-> understand how to use the PATA drive and the cdrom drives while I'm using it.
-> 
-> The situation is that I have two SATA drives, a PATA drive and two cdrom
-> drives (actually one CD burner and one DVD drive). They are 
-> 
-> Primary Master:   PATA Drive
-> Secondary Master: CD Burner
-> Secondary Slave:  DVD-Rom
-> SATA-1:           SATA Drive
-> SATA-2:           SATA Drive
-> 
-> I've tried 2.4.23pre4 (no libata), 2.6.1 (IDE drivers), and 2.6.1 (with scsi
-> libata drivers) with the following results:
-> 
-> 2.4.23pre4: as soon as the cdrom is touched I see bursts of 150k interrupts
->     per second and the system becomes unresponsive momentarily every few
->     seconds.
-> 
-> 2.6.1 with regular IDE drivers: same as above except the system feels
->     responsive except for disk i/o. I see printks of "Disabling interrupt #18"
->     and all disk i/o freezes for a few seconds.
-> 
-> 2.6.1 with scsi ata_piix driver: the SATA drives show up and work fine but the
->     PATA drive and the cdroms doesn't show up at all. This is true even when I
->     compile with the CONFIG_IDE, CONFIG_BLK_DEV_IDE, and CONFIG_BLK_DEV_IDECD
->     enabled.
+> I have something similar in my patches.
+> Each interface has kgdb_hook function, which returns failure if an interface 
+> isn't ready.
 
-   I have intel D865PERL, three IDE HDs, one CD burner, one SATA disk, 
-using scsi ata, kernel 2.4.21-ac4 with libata5 patches (libata patches 
-needed beacause SATA driver is over 133GB), seems to be working fine, I 
-am not using CD burner very often but I didn't see any instability when 
-I used it (read or burn CDs).
+Keep in mind that an interface may be ready to communicate and still not able to 
+handle the ^C break.  The reason is that the ^C requires interrupt support which 
+is not available until rather late in the bring up.  In particular, trying to 
+register an interrupt routine prior to the memory subsystem being able to do an 
+alloc causes failure to register the interrupt function, which does cause and 
+error return from request_irq().  The version in the common.patch seems to keep 
+this information but does nothing with it.  I think it would be better to try 
+again later and to keep trying until the request is successful.  See for 
+example, the kgdb patch in Andrew's mm breakout.
 
-   When I use cdparanoia to rip audio CDs the system is quite slow but 
-that was always the case (even with different MB, no SATA, different 
-kernels etc.)
 
-   Using SATA disk as IDE disk caused the system to freeze during boot 
-(right after the HDs were detected)
 
-	erik
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

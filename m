@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267491AbUHDWzX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267493AbUHDW4I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267491AbUHDWzX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 18:55:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267493AbUHDWzX
+	id S267493AbUHDW4I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 18:56:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267454AbUHDW4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 18:55:23 -0400
-Received: from omx3-ext.SGI.COM ([192.48.171.20]:26050 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S267491AbUHDWzV (ORCPT
+	Wed, 4 Aug 2004 18:56:08 -0400
+Received: from mail.kroah.org ([69.55.234.183]:4545 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267493AbUHDWzs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 18:55:21 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Greg Howard <ghoward@sgi.com>
-Subject: Re: [PATCH] [2.6.8-rc2-mm2] More Altix system controller changes
-Date: Wed, 4 Aug 2004 15:53:42 -0700
-User-Agent: KMail/1.6.2
-Cc: akpm@osdl.org, hch@infradead.org, linux-kernel@vger.kernel.org
-References: <Pine.SGI.4.58.0408031041220.10767@gallifrey.americas.sgi.com>
-In-Reply-To: <Pine.SGI.4.58.0408031041220.10767@gallifrey.americas.sgi.com>
-MIME-Version: 1.0
+	Wed, 4 Aug 2004 18:55:48 -0400
+Date: Wed, 4 Aug 2004 15:38:36 -0700
+From: Greg KH <greg@kroah.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: dsaxena@plexity.net, linux-kernel@vger.kernel.org, ralf@linux-mips.org,
+       akpm@osdl.org
+Subject: Re: [PATCH][5/3][ARM] PCI quirks update for ARM
+Message-ID: <20040804223835.GA10284@kroah.com>
+References: <1091554419.4383.1611.camel@hades.cambridge.redhat.com> <20040803193716.GA16737@plexity.net> <1091625077.4383.2728.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408041553.42689.jbarnes@engr.sgi.com>
+In-Reply-To: <1091625077.4383.2728.camel@hades.cambridge.redhat.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, August 3, 2004 9:02 am, Greg Howard wrote:
->  config SGI_SNSC
->  	bool "SGI Altix system controller communication support"
-> -	depends on CONFIG_IA64_SGI_SN2
-> +	depends on IA64_SGI_SN2
+On Wed, Aug 04, 2004 at 02:11:18PM +0100, David Woodhouse wrote:
+> On Tue, 2004-08-03 at 12:37 -0700, Deepak Saxena wrote:
+> > On Aug 03 2004, at 18:33, David Woodhouse was caught saying:
+> > > It's a pain in the arse to set up platform-specific PCI quirks -- you
+> > > have to put your platform-specific quirk into the generic (or at least
+> > > the architecture) array. This patch fixes that, allowing you to
+> > > DECLARE_PCI_FIXUP_HEADER() or DECLARE_PCI_FIXUP_FINAL() anywhere you
+> > > like.
+> > 
+> > Good idea.  Following is ARM patch.
+> 
+> Thanks. I did the rest of the architectures too -- it's all at 
+> bk://linux-mtd.bkbits.net/quirks-2.6
+> 
+> It probably doesn't want to go to Linus until after 2.6.8 is released,
+> but perhaps we could put it in the -mm tree until then?
 
-This should be
+Thanks, I've pulled all of these into my pci bk tree, and will send them
+off to Linus after 2.6.8 is out.
 
--	depends on CONFIG_IA64_SGI_SN2
-+	depends on (IA64_SGI_SN2 || IA64_GENERIC)
-
-instead, since we'll want the driver in generic kernels too (IA64_SGI_SN2 
-won't be set if IA64_GENERIC is set).
-
-Thanks,
-Jesse
+greg k-h

@@ -1,37 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268098AbTGLRuD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 13:50:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268123AbTGLRuD
+	id S268171AbTGLRwW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 13:52:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268177AbTGLRwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 13:50:03 -0400
-Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:63864 "HELO
-	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268098AbTGLRuB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 13:50:01 -0400
-From: Bob Johnson <livewire_@ameritech.net>
-Reply-To: livewire_@Ameritech.net
+	Sat, 12 Jul 2003 13:52:22 -0400
+Received: from 12-240-128-156.client.attbi.com ([12.240.128.156]:12470 "EHLO
+	carlthompson.net") by vger.kernel.org with ESMTP id S268171AbTGLRwU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 13:52:20 -0400
+Message-ID: <1058033214.b54312e58db2a@carlthompson.net>
+X-Priority: 3 (Normal)
+Date: Sat, 12 Jul 2003 11:06:54 -0700
+From: Carl Thompson <cet@carlthompson.net>
 To: linux-kernel@vger.kernel.org
-Subject: siimage in 2.5
-Date: Sat, 12 Jul 2003 13:03:02 -0500
-User-Agent: KMail/1.5.2
+Subject: Fwd: Temporary "lock-up" with snd-ali5451 driver
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Disposition: inline
-Message-Id: <200307121303.02950.livewire_@ameritech.net>
+Content-Transfer-Encoding: 7bit
+User-Agent: Internet Messaging Program (IMP) 4.0-cvs
+X-Originating-IP: 192.168.0.163
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am not on the kernel mailing list so please CC me with any responses.
 
-echo "max_kb_per_request:15" >/proc/ide/hde/settings
+I am forwarding this to the kernel list because
+  1. adding printk()s to the driver suggests the lock-up happens before
+     module_init() is called
+  2. this driver is now part of the kernel
+  3. I got no response on the ALSA list
 
-Works for 2.4.21 kernels to keep from locking up when enabling
-the proper mode and dma when using a siimage and seagate sata drives.
+----- Forwarded Message -----
 
-Is there a equivalent command for 2.5, or a way hard code this?
+Hello, I have a problem the answer to which I have not found with a search
+of the list archives or google.
+
+My laptop (emachines M5305 Widescreen) has an Ali M5451 audio controller.
+Whenever is insert the snd-ali5451 driver, the whole computer hangs for
+about 10 seconds.  The screen does not change, the keyboard does not work,
+the mouse pointer does not move.  It looks very much like the system has
+locked up.  After this long pause things start working including sound
+which then works fine.  In fact, events seem to be queued while the system
+is unresponsive.
+
+This happens with both the module compiled from 0.9.4 for use with Linux
+2.4.21 and with the module from Linux 2.5.72.
+
+Changes to my IRQ routing settings have no effect.
+
+The sound card shares interrupts with the usb ports.  I'm not sure if it can
+be told to use a different interrupt (but it should share correctly,
+right?).
+
+Loading the OSS trident driver does not cause any problems [except on 2.5
+where the trident driver causes my hard disks to stop working!?].
+
+I am certain the problem happens when inserting the actual snd-ali5451
+module and not one of the other modules.
+
+No syslog messages of any kind seem to be generated.
+
+Does anyone have any idea what the problem could be?
+
+Thank you,
+Carl Thompson
+
+----- End Forwarded Message -----
 
 
-					Bob
 

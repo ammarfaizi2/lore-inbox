@@ -1,97 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261313AbTIKNxf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 09:53:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbTIKNxf
+	id S261344AbTIKODs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 10:03:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbTIKODs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 09:53:35 -0400
-Received: from dyn-ctb-203-221-74-143.webone.com.au ([203.221.74.143]:34823
-	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
-	id S261313AbTIKNxc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 09:53:32 -0400
-Message-ID: <3F607E4F.8070200@cyberone.com.au>
-Date: Thu, 11 Sep 2003 23:53:19 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Thu, 11 Sep 2003 10:03:48 -0400
+Received: from gherkin.frus.com ([192.158.254.49]:20609 "EHLO gherkin.frus.com")
+	by vger.kernel.org with ESMTP id S261344AbTIKODo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 10:03:44 -0400
+Subject: [PATCH] linux/fs/ufs/namei.c
+To: linux-kernel@vger.kernel.org
+Date: Thu, 11 Sep 2003 09:03:43 -0500 (CDT)
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
 MIME-Version: 1.0
-To: habanero@us.ibm.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
-References: <200309102155.16407.habanero@us.ibm.com> <3F6056CD.6040402@cyberone.com.au> <200309110805.02334.habanero@us.ibm.com>
-In-Reply-To: <200309110805.02334.habanero@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: multipart/mixed; boundary=ELM754070711-4970-0_
 Content-Transfer-Encoding: 7bit
+Message-Id: <20030911140343.28348DBDB@gherkin.frus.com>
+From: rct@gherkin.frus.com (Bob Tracy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--ELM754070711-4970-0_
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 
-Andrew Theurer wrote:
+The attached patch fixes a compilation problem (syntax) that
+arises when using the recommended minimum (according to
+linux/Documentation/Changes) gcc-2.95.3 compiler to build
+2.6.0-test5.  Would have found this sooner, but my
+Slackware 8.0 laptop has been in use at a remote location
+for the past several months :-).
 
->On Thursday 11 September 2003 06:04, Nick Piggin wrote:
->
->>Andrew Theurer wrote:
->>
->>>Robert Love <rml@tech9.net> wrote:
->>>
->>>>>There are a _lot_ of scheduler changes in 2.6-mm, and who knows which
->>>>>ones are an improvement, a detriment, and a noop?
->>>>>
->>>>We know that sched-2.6.0-test2-mm2-A3.patch caused the regression, and
->>>>we now that sched-CAN_MIGRATE_TASK-fix.patch mostly fixed it up.
->>>>
->>>>
->>>>What we don't know is whether the thing which
->>>>sched-CAN_MIGRATE_TASK-fix.patch
->>>>fixed was the thing which sched-2.6.0-test2-mm2-A3.patch broke.
->>>>
->>>Sorry for jumping into this late.  I didn't even know the can_migrate
->>>patch was being discussed, let alone in -mm :).  And to be fair, this
->>>really is Ingo's aggressive idle steal patch.
->>>
->>>Anyway, these patches are somewhat related.  It would seem that A3's
->>>shortening the tasks' run time would not only slow performance beacuse of
->>>cache thrash, but could possibly break CAN_MIGRATE's cache warmth check,
->>>right?  That in turn would stop load balancing from working well, leading
->>>to more idle time, which the CAN_MIGRATE patch sort of bypassed for idle
->>>cpus.
->>>
->>Yeah thats probably right. Good thinking.
->>
->>
->>>I see Nick's balance patch as somewhat harmless, at least combined with A3
->>>patch.  However, one concern is that the "ping-pong" steal interval is not
->>>really 200ms, but 200ms/(nr_cpus-1), which without A3, could show up as a
->>>problem, especially on an 8 way box.  In addition, I do think there's a
->>>problem with num tasks we steal.  It should not be imbalance/2, it should
->>>be: max_load - (node_nr_running / num_cpus_node).  If we steal any more
->>>than this, which is quite possible with imbalance/2, then it's likely
->>>this_cpu now has too many tasks, and some other cpu will steal again. 
->>>Using *imbalance/2 works fine on 2-way smp, but I'm pretty sure we "over
->>>steal" tasks on 4 way and up.  Anyway, I'm getting off topic here...
->>>
->>IIRC max_load is supposed to be the number of tasks on the runqueue
->>being stolen from, isn't it?
->>
->
->Yes, but I think I still got this wrong.  Ideally, once we finish stealing, 
->the busiest runqueue should not have more than node_nr_runing/nr_cpus_node, 
->but more importantly, this_cpu should not have more than  
->node_nr_running/nr_cpus_node, so maybe it should be:
->
->min(a,b) where
->a = max_load - load_average	How much we are over the load_average
->b = load_average - this_load	How much we are under the load_average
->load_average = node_nr_runing / nr_cpus_node.
->node_nr_running can be summed as we look for the busiest queue, so it should 
->not be too costly.
->if min(a,b) is neagtive (this_cpu's runqueue length was greater than 
->load_average) we don't steal at all. 
->
+<old_fart_mode><gasoline><match>
+Don't much care for whatever C language standard revision
+that allows this kind of sloppiness.  However, gcc-3.2.2
+handles it just fine.
+</match></gasoline></old_fart_mode>
 
-Oh OK you're thinking about balancing across the entire NUMA. I was just
-thinking it will eventually settle down, but you're right: its probably
-better to overdampen the balancing than to underdampen it.
+-- 
+-----------------------------------------------------------------------
+Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
+rct@frus.com
+-----------------------------------------------------------------------
 
+--ELM754070711-4970-0_
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: attachment; filename=patch00t5_ufs
 
+--- linux/fs/ufs/namei.c.orig	Wed Sep 10 10:23:03 2003
++++ linux/fs/ufs/namei.c	Wed Sep 10 21:45:30 2003
+@@ -113,10 +113,11 @@
+ static int ufs_mknod (struct inode * dir, struct dentry *dentry, int mode, dev_t rdev)
+ {
+ 	struct inode * inode;
++	int err;
+ 	if (!old_valid_dev(rdev))
+ 		return -EINVAL;
+ 	inode = ufs_new_inode(dir, mode);
+-	int err = PTR_ERR(inode);
++	err = PTR_ERR(inode);
+ 	if (!IS_ERR(inode)) {
+ 		init_special_inode(inode, mode, rdev);
+ 		/* NOTE: that'll go when we get wide dev_t */
+
+--ELM754070711-4970-0_--

@@ -1,37 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262274AbUKDQPY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262278AbUKDQSF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262274AbUKDQPY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 11:15:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbUKDQPX
+	id S262278AbUKDQSF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 11:18:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbUKDQSF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 11:15:23 -0500
-Received: from ns1.digitalpath.net ([65.164.104.5]:45465 "HELO
-	mail.digitalpath.net") by vger.kernel.org with SMTP id S262274AbUKDQPT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 11:15:19 -0500
-Date: Thu, 4 Nov 2004 08:14:30 -0800
-From: Ray Van Dolson <rayvd@digitalpath.net>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at mm/prio_tree.c:377
-Message-ID: <20041104161430.GA11607@digitalpath.net>
-References: <20041104003639.GA9671@digitalpath.net> <1099555455.16640.1.camel@laptop.fenrus.org>
+	Thu, 4 Nov 2004 11:18:05 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:10134 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262278AbUKDQR7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 11:17:59 -0500
+Date: Thu, 4 Nov 2004 17:17:56 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.1
+Message-ID: <20041104161756.GA2002@elte.hu>
+References: <OFBDA242F0.2AF7EADB-ON86256F42.00585112-86256F42.0058514C@raytheon.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1099555455.16640.1.camel@laptop.fenrus.org>
+In-Reply-To: <OFBDA242F0.2AF7EADB-ON86256F42.00585112-86256F42.0058514C@raytheon.com>
 User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
+	BAYES_00 -4.90, SORTED_RECIPS 2.70
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ppp_mppe patch from the pppd package.  Lots of people use it without
-problems.  If it is the source of troubles, that won't be good as we need
-it for our clients to connect. :)
 
-On Thu, Nov 04, 2004 at 09:04:16AM +0100, Arjan van de Ven wrote:
-> On Wed, 2004-11-03 at 16:36 -0800, Ray Van Dolson wrote:
-> > Description of problem:
-> > Running on an HP DL140, w/ Dual 2.4GHz Xeon's. 1GB of ECC DDR. Fedora
-> > Core 2.
-> > EIP: 0060:[<021425de>] Tainted: P
-> Which binary only driver are you using ?
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
+
+> >does the ping phenomenon go away if you chrt both the networking IRQ
+> >thread and both ksoftirqd's to above the RT task's priority?
+> 
+> For the most part, yes. I reran the test with -V0.7.7 and had
+> continuous ping responses until the system locked up with yet another
+> deadlock. This did NOT fix the display / mouse movement lockups. All
+> IRQ and ksoftirqd tasks were RT 99 priority for this test. latencytest
+> ran at RT 30 priority.
+
+another method would be to set all smp_affinity values in /proc/irq/*/
+to 1 (i.e. let CPU#0 handle all IRQs), and start latencytest on CPU#1,
+via 'taskset'. In theory this should ensure that no hardirq workload
+runs on CPU#1 and thus ksoftirqd would not be active there either. (with
+the exception of kernel timers started on that CPU, by latencytest.)
+
+	Ingo

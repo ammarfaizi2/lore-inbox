@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272696AbRHaOMj>; Fri, 31 Aug 2001 10:12:39 -0400
+	id <S272700AbRHaORT>; Fri, 31 Aug 2001 10:17:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272700AbRHaOMa>; Fri, 31 Aug 2001 10:12:30 -0400
-Received: from relay1.zonnet.nl ([62.58.50.37]:31192 "EHLO relay1.zonnet.nl")
-	by vger.kernel.org with ESMTP id <S272696AbRHaOMN>;
-	Fri, 31 Aug 2001 10:12:13 -0400
-Message-ID: <3B8F9B48.80F513AA@linux-m68k.org>
-Date: Fri, 31 Aug 2001 16:12:24 +0200
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8 i686)
-X-Accept-Language: en
+	id <S272701AbRHaOQ7>; Fri, 31 Aug 2001 10:16:59 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38409 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S272700AbRHaOQs>; Fri, 31 Aug 2001 10:16:48 -0400
+Subject: Re: Apollo KT266 ide question
+To: D.vanOosten@phys.uu.nl (Dries van Oosten)
+Date: Fri, 31 Aug 2001 15:20:11 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.OSF.4.33.0108311150060.10727-100000@itpuu.phys.uu.nl> from "Dries van Oosten" at Aug 31, 2001 11:58:03 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: ptb@it.uc3m.es
-CC: "Patrick J. LoPresti" <patl@cag.lcs.mit.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-In-Reply-To: <200108311329.PAA12559@nbd.it.uc3m.es>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15cp9X-0003J1-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> and was reading the kernel archives. I gathered that there was trouble
+> with the IDE controller (running only in UDMA/33 mode) and something about
 
-"Peter T. Breuer" wrote:
+The IDE ought to be full speed in current trees
 
-> As I said, nobody has been too precise about the bugs to me either!
+> combining the chipset with a SB Live soundcard. From the Changelog I
+> understand that a lot is going on, but I would like to know how much of
 
-So let's be precise first! Please?
-I've asked Linus about examples, so far I've seen only buggy
-implementations of min() or an example, where min() shouldn't be used in
-first place. Maybe I missed something, then I'm deeply sorry for this,
-but all I want to know is, what are we fixing here?
-
-> Stanford checker? Is that a programmable C type checker? If so, lemmee
-> at it. Have you a URL, btw?
-
-http://verify.stanford.edu/SVC/
-You should search the archive to look for some good examples, how it can
-help.
-
-bye, Roman
+VIA provided a workaround to the public for the buggy chips that had
+issues with SBLive! and the like. That is now in our tree.

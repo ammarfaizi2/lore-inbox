@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278042AbRKVMdL>; Thu, 22 Nov 2001 07:33:11 -0500
+	id <S278509AbRKVMiv>; Thu, 22 Nov 2001 07:38:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278428AbRKVMdB>; Thu, 22 Nov 2001 07:33:01 -0500
-Received: from pat.uio.no ([129.240.130.16]:44474 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S278042AbRKVMcv>;
-	Thu, 22 Nov 2001 07:32:51 -0500
-To: Samuel Maftoul <maftoul@esrf.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS problem
-In-Reply-To: <20011122095251.A18254@pcmaftoul.esrf.fr>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 22 Nov 2001 13:32:45 +0100
-In-Reply-To: <20011122095251.A18254@pcmaftoul.esrf.fr>
-Message-ID: <shsd72bgf4i.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S278584AbRKVMil>; Thu, 22 Nov 2001 07:38:41 -0500
+Received: from carlsberg.amagerkollegiet.dk ([194.182.238.3]:11529 "HELO
+	carlsberg.amagerkollegiet.dk") by vger.kernel.org with SMTP
+	id <S278509AbRKVMii>; Thu, 22 Nov 2001 07:38:38 -0500
+Date: Thu, 22 Nov 2001 13:38:37 +0100 (CET)
+From: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Disabling FPU, MMX, SSE units?
+In-Reply-To: <Pine.GSO.3.96.1011122120030.29116A-100000@delta.ds2.pg.gda.pl>
+Message-ID: <Pine.LNX.4.33.0111221337530.1397-100000@grignard.amagerkollegiet.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Samuel Maftoul <maftoul@esrf.fr> writes:
+On Thu, 22 Nov 2001, Maciej W. Rozycki wrote:
 
-     > I thought that NFS's underlying FS do not have any effect on
-     > NFS performances, and that the client is not aware of the
-     > ("local") remote FS. Am I wrong ? Does anybody have an idea to
-     > fix the problem ?
- 
-Why do you think that something on the client is 'aware' of the remote
-fs?
+> On Wed, 21 Nov 2001, Pavel Machek wrote:
+> 
+> > Is there way not to let linux use FPU, MMX, SSE and similar fancy
+> > units? I have athlon processor, but would like to turn FPU (and
+> > similar fancy stuff) off...
+> 
+>  You may use "no387" to disable FPU and MMX (they are controlled by a
+> single bit in cr0).  No idea about SSE.
 
-My guess is that you need to redo your test using a TCP mount for the
-Linux machine (that's what your Solaris client is doing). My guess is
-that you are hitting a UDP transport reliability problem in the
-DirectIO case...
+Running a kernel optimized for 386 should leave out MMX, SSE and similar 
+fancy instrucion sets IIRC.
 
-     > Is it a bug in NFS's implementation of linux kernel ?
+Rasmus
 
-No.
+-- 
+-- [ Rasmus 'Møffe' Bøg Hansen ] ---------------------------------------
+DISCLAIMER: Microsoft, Windows, Windows 98, Bugs, Lacking features, IRQ
+conflicts, System crashes, Non-functional multitasking, the Y2K problem
+and the Blue Screen of Death are registered trademarks of
+Microsoft, Corp., Redmond, USA.
+--------------------------------- [ moffe at amagerkollegiet dot dk ] --
 
-Cheers,
-   Trond

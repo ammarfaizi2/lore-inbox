@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263045AbTDYGTi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 02:19:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263050AbTDYGTi
+	id S263071AbTDYGnU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 02:43:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263075AbTDYGnU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 02:19:38 -0400
-Received: from web20409.mail.yahoo.com ([66.163.169.97]:34057 "HELO
-	web20421.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263045AbTDYGTh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 02:19:37 -0400
-Message-ID: <20030425063147.9206.qmail@web20421.mail.yahoo.com>
-Date: Thu, 24 Apr 2003 23:31:47 -0700 (PDT)
-From: devnetfs <devnetfs@yahoo.com>
-Subject: compiling modules with gcc 3.2
-To: linux-kernel@vger.kernel.org
+	Fri, 25 Apr 2003 02:43:20 -0400
+Received: from sinfonix.rz.tu-clausthal.de ([139.174.2.33]:52871 "EHLO
+	sinfonix.rz.tu-clausthal.de") by vger.kernel.org with ESMTP
+	id S263071AbTDYGnT convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 02:43:19 -0400
+From: "Hemmann, Volker Armin" <volker.hemmann@heim9.tu-clausthal.de>
+To: Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: [Patch?] SiS 746 AGP-Support
+Date: Fri, 25 Apr 2003 08:55:25 +0200
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
+References: <200304250224.50431.volker.hemmann@heim9.tu-clausthal.de> <200304250302.26791.volker.hemmann@heim9.tu-clausthal.de> <20030425020530.GA18673@suse.de>
+In-Reply-To: <20030425020530.GA18673@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200304250855.25655.volker.hemmann@heim9.tu-clausthal.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Friday 25 April 2003 04:05, Dave Jones wrote:
+> On Fri, Apr 25, 2003 at 03:02:26AM +0200, Hemmann, Volker Armin wrote:
+>  > I have only a AGP 2 (geforce 4-mx) card, so I missed that(and with one I
+>  > would only to be able to say 'it doesn't work' so thanks for your
+>  > explanation). But without this changes I won't even able to use dga,
+>  > because the first dga-enabled app completely locks up my box.
+>  > And to have working AGP2 and non working APG3 looks a lot better for me
+>  > than no AGP-support at all.
+>
+> Sure, I wasn't objecting per'se to the patch, but people should be made
+> aware it's not going to help them a tiny bit if they have an AGP3 card.
+> It may just abort nicely, it may take down the machine in horrible ways
+> depending on how well SiS handles reads/writes to disabled registers.
+>
+> 		Dave
 
-Will kernel modules compiled with gcc 3.2 load in kernel compiled with
-gcc 2.96 (RH system)?  The RH 8.0 release notes state that 2.96
-compiled modules can't be loaded on RH8.0 (as its compiled using gcc
-3.2). So
-does the reverse also hold true?
+Enabling FastWrites with the nvidia-module kills X and the box instantly at 
+boot, but is ok when X was running without FastWirties, is shut down, 
+reloading the modules with FastWrites and starting X. So there are even some 
+odd things with APG2
 
-Either way why is this so? AFAIK gcc 3.2 has abi incompatiblities
-w.r.t. C++ and not C (which the kernel+modules are written in). I did
-try searching on google but could not find the exact set of
-incompatibilies w.r.t C. Can somebody *please* point me to a link or a
-thread.
+I am sorry that I can't help very much, despite of testing,  I am not afraid 
+of building a lot of kernels, because my knowledge of C tends to zero. I came 
+to the first mentioned changes by grepping for SiS stuff in the kernel 
+sources, meditating about the stuff, and than simple copied what seems to be 
+ok for me.
 
-Thanks a lot in advamce
+If you or somebody else wants me to test SiS related stuff, I am quite happy 
+to help, except of that I am just an user with too little knowledge about C 
+or kernel stuff. 
 
-Regards,
-A.
-
-PS: I am not subscribed to lkml. please Cc: me the replies.
-
-
-__________________________________________________
-Do you Yahoo!?
-The New Yahoo! Search - Faster. Easier. Bingo
-http://search.yahoo.com
+Glück Auf,
+Volker

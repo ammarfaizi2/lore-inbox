@@ -1,85 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261968AbVCLQNz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261812AbVCLQYi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261968AbVCLQNz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 11:13:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261949AbVCLQKT
+	id S261812AbVCLQYi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 11:24:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbVCLQYh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 11:10:19 -0500
-Received: from host218-153.pool80183.interbusiness.it ([80.183.153.218]:50442
-	"HELO gg.mine.nu") by vger.kernel.org with SMTP id S261955AbVCLQHI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 11:07:08 -0500
-Message-ID: <20050312160704.22527.qmail@gg.mine.nu>
-From: "Guido Villa" <piribillo@yahoo.it>
-To: linux-kernel@vger.kernel.org
-Subject: Error with Sil3112A SATA controller and Maxtor 300GB HDD
-Date: Sat, 12 Mar 2005 17:07:04 +0100
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 12 Mar 2005 11:24:37 -0500
+Received: from 70-56-134-246.albq.qwest.net ([70.56.134.246]:60296 "EHLO
+	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S261812AbVCLQYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 11:24:35 -0500
+Date: Sat, 12 Mar 2005 09:25:13 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: George Anzinger <george@mvista.com>
+cc: Andrew Morton <akpm@osdl.org>, "J. Bruce Fields" <bfields@fieldses.org>,
+       Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: spin_lock error in arch/i386/kernel/time.c on APM resume
+In-Reply-To: <4233111A.5070807@mvista.com>
+Message-ID: <Pine.LNX.4.61.0503120918130.2166@montezuma.fsmlabs.com>
+References: <20050312131143.GA31038@fieldses.org> <4233111A.5070807@mvista.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, 
+On Sat, 12 Mar 2005, George Anzinger wrote:
 
-I have an error as described in subject.
-I couldn't find a previous report for this kind of error, so maybe you are 
-interested in it. 
+> Looks like we need the irq on the read clock also.  This is true both before
+> and  after the prior cmos_time changes.
+> 
+> The attached replaces the patch I sent yesterday.
+> 
+> For those wanting to fix the kernel with out those patches, all that is needed
+> its the chunk that applies, i.e. the _irq on the get_cmos_time() spinlocks.
+> 
+> And more... That this occures implies we are attempting to update the cmos
+> clock on resume seems wrong.  One would presume that the time is wrong at this
+> time and we are about to save that wrong time.  Possibly the APM code should
+> change time_status to STA_UNSYNC on the way into the sleep (or what ever it is
+> called).  Who should we ping with this?
 
-Motherboard: ASUS TUV4X, BIOS rev. 1005
-SATA controller: Silicon Image 3112A, bios rev. 4.2.50
-Hard disk: Maxtor Maxtor 6B300S0 (300GB, SATA) 
+timer_resume, which appears to be the problem, wants to calculate amount 
+of time was spent suspended, also your unconditional irq enable in 
+get_cmos_time breaks the atomicity of device_power_up and would deadlock 
+in sections of code which call get_time_diff() with xtime_lock held. I 
+sent a patch subject "APM: fix interrupts enabled in device_power_up" 
+which should address this.
 
-This is the only HDD attached to the controller. It is not the boot device, 
-I have other HDDs on the IDE channels, but I don't think it matters. 
-
-Kernels: 2.6.9, 2.6.10, 2.6.11.2
-I also patched the 2.6.11.2 by adding this Maxtor disk to the sata_sil.c 
-blacklist (once with the SIL_QUIRK_MOD15WRITE and once with the 
-SIL_QUIRK_UDMA5MAX), but the behaviour did not change. 
-
-Problem:
-I create a single partition on the hard disk, I format it with ext2, I mount 
-it, I begin writing onto the partition. After seconds (or minutes) of 
-copying, I get this error: 
-
-EXT2-fs error (device sda1): ext2_new_block: Allocating block in system zone 
- - block = 22413316 
-
-I have also tried with ext3, in this case it prints more error messages: 
-
-EXT3-fs error (device sda1): ext3_new_block: Allocating block in system zone 
- - block = 61997060
-Aborting journal on device sda1.
-EXT3-fs error (device sda1) in ext3_prepare_write: Journal has aborted
-__journal_remove_journal_head: freeing b_committed_data
-__journal_remove_journal_head: freeing b_frozen_data
-__journal_remove_journal_head: freeing b_committed_data
-__journal_remove_journal_head: freeing b_frozen_data
-__journal_remove_journal_head: freeing b_committed_data
-__journal_remove_journal_head: freeing b_frozen_data
-__journal_remove_journal_head: freeing b_committed_data
-__journal_remove_journal_head: freeing b_frozen_data
-__journal_remove_journal_head: freeing b_frozen_data
-ext3_abort called.
-EXT3-fs error (device sda1): ext3_journal_start_sb: Detected aborted journal
-Remounting filesystem read-only
-EXT3-fs error (device sda1) in start_transaction: Journal has aborted 
-
- 
-
-When the disk is formatted and mounted as ext3, the error happens earlier 
-that when formatted with ext2. 
-
-Running badblocks on the disk gives random results, every time it finds a 
-few bad blocks in different positions.
-The powermax utility from Maxtor says that the HDD is ok, and there are no 
-bad blocks, actually I do not think it is an hardware problem, but a problem 
-with the SATA controller driver (and mybe some incompatibility with the 
-Maxtor drive). 
-
-Please let me know if you need any more information. 
-
-Good bye,
-Guido 
+Thanks,
+	Zwane
 

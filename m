@@ -1,136 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268821AbRG0KSB>; Fri, 27 Jul 2001 06:18:01 -0400
+	id <S268819AbRG0KNv>; Fri, 27 Jul 2001 06:13:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268822AbRG0KRv>; Fri, 27 Jul 2001 06:17:51 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:44553 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S268821AbRG0KRk>; Fri, 27 Jul 2001 06:17:40 -0400
-Message-ID: <3B61414E.72F39AFF@zip.com.au>
-Date: Fri, 27 Jul 2001 20:24:14 +1000
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Sean Hunter <sean@dev.sportingbet.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Strange remount behaviour with ext3-2.4-0.9.4
-In-Reply-To: <3B5FC7FB.D5AF0932@zip.com.au>,
-		<3B5FC7FB.D5AF0932@zip.com.au>; from akpm@zip.com.au on Thu, Jul 26, 2001 at 05:34:19PM +1000 <20010727103221.F18669@dev.sportingbet.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S268821AbRG0KNm>; Fri, 27 Jul 2001 06:13:42 -0400
+Received: from abba.synaptique.co.uk ([213.86.145.226]:1120 "HELO
+	host.domain.name") by vger.kernel.org with SMTP id <S268819AbRG0KN0>;
+	Fri, 27 Jul 2001 06:13:26 -0400
+Date: Fri, 27 Jul 2001 11:13:13 +0100
+From: Samuel Dupas <samuel@dupas.com>
+To: linux-kernel@vger.kernel.org
+Subject: swap_free: swap-space map bad (entry 00000100)
+Message-Id: <20010727111313.1da63aca.samuel@dupas.com>
+X-Mailer: Sylpheed version 0.5.0 (GTK+ 1.2.8; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Sean Hunter wrote:
-> 
-> Following the announcement on lkml, I have started using ext3 on one of my
-> servers.  Since the server in question is a farily security-sensitive box, my
-> /usr partition is mounted read only except when I remount rw to install
-> packages.
-> 
-> I converted this partition to run ext3 with the mount options
-> "nodev,ro,data=writeback,defaults" figuring that when I need to install new
-> packages etc, that I could just mount rw as before and that metadata-only
-> journalling would be ok for this partition as it really sees very little write
-> activity.
-> 
-> When I try to remount it r/w I get a log message saying:
-> Jul 27 09:54:29 henry kernel: EXT3-fs: cannot change data mode on remount
-> 
-> ...even if I give the full mount option list with the remount instruction.
+Hi every body,
 
-hmm..  The mount option handling there is a bit bogus.
+I have theses lines in /var/log/messages
 
-What we *should* do on remount is check that the requested
-journalling mode is equal to the current mode.  ext3 won't
-allow you to change the journalling mode on-the-fly.
+Is it a kernel problem, a hardware problem ?
 
-So...  you will have to omit the `data=xxx' portion of the
-mount options when remounting.  It's being invisibly added
-by /bin/mount.
+On the archives on mailling lists I found nothing interresting (I mean,
+only the same question but no response)
+Please help me.
 
-/bin/mount tries to be smart.  If, for example you have
+It's on a Cobalt Raq4, 512 Mb RAM, kernel 2.2.16C27_III
 
-	/dev/hdf12 /mnt/hdf12 ext3 noauto,ro,data=writeback 1
+The machine write theses lines for a week, but the system doesn't work
+like usual (It's very slow).
 
-in /etc/fstab and then type
+Thanks for any advice.
 
-	mount /dev/hdf12 -o remount,rw
+(I'm not subscribed to the list, can you add my address in CC please ?)
 
-then /bin/mount runs off and looks up the fstab entry and
-inserts the mount options.  However if you instead type
+/var/log/messages
+--------------------------------------------------------------------
+Jul 25 02:05:12 euro kernel: Unable to handle kernel NULL pointer
+dereference at virtual address 00000114 
+Jul 25 02:05:12 euro kernel: current->tss.cr3 = 0f0be000, %%cr3 = 0f0be000
 
-	mount /dev/hdf12 /mnt/hdf12 -o remount,rw          (1)
+Jul 25 02:05:12 euro kernel: *pde = 00000000 
+Jul 25 02:05:12 euro kernel: Oops: 0000 
+Jul 25 02:05:12 euro kernel: CPU:    0 
+Jul 25 02:05:12 euro kernel: EIP:    0010:[try_to_free_buffers+18/136] 
+Jul 25 02:05:12 euro kernel: EFLAGS: 00010206 
+Jul 25 02:05:12 euro kernel: eax: 00000100   ebx: c055e360   ecx: 0001207c
+  edx: 00040000 
+Jul 25 02:05:12 euro kernel: esi: 00000100   edi: 00000100   ebp: c055e360
+  esp: da98be90 
+Jul 25 02:05:12 euro kernel: ds: 0018   es: 0018   ss: 0018 
+Jul 25 02:05:12 euro kernel: Process rsync (pid: 28186, process nr: 12,
+stackpage=da98b000) 
+Jul 25 02:05:12 euro kernel: Stack: 00000006 00000013 c011c146 c055e360
+da98a000 00000005 c0120faa 00000006  
+Jul 25 02:05:12 euro kernel:        00000013 da98a000 00000013 00000000
+00004000 00000001 00000008 c0121110  
+Jul 25 02:05:12 euro kernel:        00000013 c01218d2 00000013 00003000
+db2c6bb0 00000000 00004000 00490ad4  
+Jul 25 02:05:12 euro kernel: Call Trace: [shrink_mmap+218/304]
+[do_try_to_free_pages+78/232] [try_to_free_pages+20/24]
+[__get_free_pages+122/812] [try_
+to_read_ahead+254/276] [try_to_read_ahead+47/276]
+[do_generic_file_read+750/1508]  
+Jul 25 02:05:12 euro kernel:        [generic_file_read+99/124]
+[file_read_actor+0/80] [sys_read+174/196] [system_call+52/56]  
+Jul 25 02:05:12 euro kernel: Code: 8b 76 14 83 78 20 00 75 06 f6 40 18 46
+74 0f 6a 00 e8 70 01  
+Jul 25 04:02:44 euro kernel: swap_duplicate at c01222f4: entry 00000100,
+unused page 
+Jul 25 04:02:44 euro kernel: VM: killing process httpd 
+Jul 25 04:02:44 euro kernel: swap_free: swap-space map bad (entry
+00000100) 
+Jul 25 04:02:44 euro kernel: swap_free: swap-space map bad (entry
+00000100) 
+Jul 25 04:02:44 euro kernel: swap_duplicate at c01222f4: entry 00000100,
+unused page 
+Jul 25 04:02:44 euro kernel: VM: killing process httpd 
+Jul 25 04:02:44 euro kernel: swap_free: swap-space map bad (entry
+00000100) 
+Jul 25 04:02:44 euro kernel: swap_free: swap-space map bad (entry
+00000100) 
+Jul 25 04:02:44 euro kernel: swap_duplicate at c01222f4: entry 00000100,
+unused page 
+Jul 25 04:02:44 euro kernel: VM: killing process httpd 
+Jul 25 04:02:44 euro kernel: swap_free: swap-space map bad (entry
+00000100) 
+Jul 25 04:02:44 euro kernel: swap_free: swap-space map bad (entry
+00000100) 
+Jul 25 04:02:44 euro kernel: swap_duplicate at c01222f4: entry 00000100,
+unused page 
+------------------------------------------------------------------------------------
 
-then /bin/mount does *not* look up the fstab entry, and
-the remount succeeds.
-
-ho-hum.  For the while you'll have to fiddle with the mount
-usage to get things working right.   Equation (1) above will
-work fine.  Or apply the appended patch.
-
-> I can, however, remount it as ext2 read-write, but when I try to remount as
-> ext3 (even read only) I get the same problem.
-
-You can't switch between ext2 and ext3 with a remount - unmount
-is needed.
-
-> Wierdly, "mount" lists it as being still an ext3 partition even though it has
-> been remounted as ext2.  I can't umount /usr because kjournald is currently
-> listed as using the partition.
-
-That sounds very weird.  Could you please describe the steps
-you took to create this state?
-
-Sometimes /etc/mtab gets out of sync - especially for the
-root fs.  It's more reliable to look in /proc/mounts
-
-
-
-Here's the fix for the data= handling on remount:
-
-
-
-Index: fs/ext3/super.c
-===================================================================
-RCS file: /cvsroot/gkernel/ext3/fs/ext3/super.c,v
-retrieving revision 1.31
-diff -u -r1.31 super.c
---- fs/ext3/super.c	2001/07/19 14:43:08	1.31
-+++ fs/ext3/super.c	2001/07/27 10:14:48
-@@ -513,12 +513,6 @@
- 
- 			if (want_value(value, "data"))
- 				return 0;
--			if (is_remount) {
--				printk ("EXT3-fs: cannot change data mode "
--						"on remount\n");
--				return 0;
--			}
--
- 			if (!strcmp (value, "journal"))
- 				data_opt = EXT3_MOUNT_JOURNAL_DATA;
- 			else if (!strcmp (value, "ordered"))
-@@ -529,9 +523,18 @@
- 				printk ("EXT3-fs: Invalid data option: %s\n",
- 					value);
- 				return 0;
-+			}
-+			if (is_remount) {
-+				if ((*mount_options & EXT3_MOUNT_DATA_FLAGS) !=
-+							data_opt) {
-+					printk("EXT3-fs: cannot change data "
-+						"mode on remount\n");
-+					return 0;
-+				}
-+			} else {
-+				*mount_options &= ~EXT3_MOUNT_DATA_FLAGS;
-+				*mount_options |= data_opt;
- 			}
--			*mount_options &= ~EXT3_MOUNT_DATA_FLAGS;
--			*mount_options |= data_opt;
- 		} else {
- 			printk ("EXT3-fs: Unrecognized mount option %s\n",
- 					this_char);
+Samuel Dupas

@@ -1,73 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269321AbTHGTGS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 15:06:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269661AbTHGTGS
+	id S269661AbTHGTWU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 15:22:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270065AbTHGTWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 15:06:18 -0400
-Received: from maile.telia.com ([194.22.190.16]:41174 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id S269321AbTHGTGR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 15:06:17 -0400
-X-Original-Recipient: <linux-kernel@vger.kernel.org>
-From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6: More about interactivity
-Date: Thu, 7 Aug 2003 21:08:45 +0200
-User-Agent: KMail/1.5.9
-References: <1060280139.1406.17.camel@teapot.felipe-alfaro.com>
-In-Reply-To: <1060280139.1406.17.camel@teapot.felipe-alfaro.com>
-MIME-Version: 1.0
+	Thu, 7 Aug 2003 15:22:20 -0400
+Received: from mail.kroah.org ([65.200.24.183]:43456 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269661AbTHGTWP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 15:22:15 -0400
+Date: Thu, 7 Aug 2003 12:22:14 -0700
+From: Greg KH <greg@kroah.com>
+To: Fridtjof Busse <fbusse@gmx.de>, usb-storage@one-eyed-alien.net
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+Subject: Re: Linux 2.4.22-rc1
+Message-ID: <20030807192214.GB12055@kroah.com>
+References: <200308071205.06906@fbunet.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200308072108.45723.roger.larsson@skelleftea.mail.telia.com>
+In-Reply-To: <200308071205.06906@fbunet.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 07 August 2003 20.15, Felipe Alfaro Solana wrote:
-> Just wanted to throw a few thoughts I have about the current scheduler
-> and my experiences with it (well, with my specific workloads and
-> applications on my little 700 Mhz PIII laptop).
->
-> I feel that 2.6.0-test2-mm5 is not as smooth as 2.6.0-test2-mm2 (O10int)
-> was. I am experiencing sound skips, but this time I'm not using XMMS,
-> but Juk, a KDE player which uses the aRTS sound daemon, which in turn, I
-> assume it uses the OSS API.
+On Thu, Aug 07, 2003 at 12:05:06PM +0200, Fridtjof Busse wrote:
+> * Marcelo Tosatti <marcelo@conectiva.com.br>:
+> > Hello, 
+> > 
+> > Here goes the first release candidate of 2.4.22.
+> > 
+> > Please test it extensively.
+> 
+> Still the same USB-problem I reported for pre5 and pre10:
 
-Arts uses whatever you have - i think ALSA is preferred.
+The usb-storage people should look into this (I've copied them on this.)
 
->
-> With X reniced at +0, the system feels not as smooth as 2.6.0-test2-mm2,
-> but at least there are no sound skips. However, to gain on smoothness, I
-> have chosen to renice X to -20. Renicing X to -20 makes Juk skip like
-> crazy simply by dragging a window over the screen. Also, with X at -20,
-> opening a long Bookmarks Konqueror menu also causes sound skips (even
-> with XMMS). By now, I'm sticking at +0, but I really miss those times
-> when I was running O10int and the desktop was as smooth as silk.
+Hint, hint...
 
-Wait a minute!
+thanks,
 
-Arts (I think JuK only tells Arts what to play) is a realtime task - if it 
-does not meet its deadline you get drop outs. X is not a realtime task 
-(unless you display video using it - is X even involved in video/3D?).
+greg k-h
 
-But you run X at a higher priority than Arts!? Don't you? You have told the
-scheduler that X is more important than Arts - and you are surpriced that
-you get dropouts?
 
-Arts should really run as SCHED_FIFO or SCHED_RR but that opens another
-can of worms - audio plugins can busy lock the computer... We need 
-SCHED_SOFTRR now!
 
-But you can try to prioritize arts higher than X (arts at -20, X at -15).
-Or set suid root on artswrapper to get SCHED_FIFO, and then enable realtime 
-scheduling in configuration.
-
-/RogerL
-
--- 
-Roger Larsson
-Skellefteå
-Sweden
+> 
+> kernel: hub.c: new USB device 00:02.2-2, assigned address 4
+> kernel: scsi1 : SCSI emulation for USB Mass Storage devices
+> kernel:   Vendor: Maxtor 6  Model: Y120L0            Rev: 0811
+> kernel:   Type:   Direct-Access                   ANSI SCSI revision: 02
+> kernel: Attached scsi disk sda at scsi1, channel 0, id 0, lun 0
+> kernel: SCSI device sda: 240121728 512-byte hdwr sectors (122942 MB)
+> kernel:  /dev/scsi/host1/bus0/target0/lun0: p1
+> kernel: WARNING: USB Mass Storage data integrity not assured
+> kernel: USB Mass Storage device found at 4
+> 
+> Now I start 'dump':
+> 
+> kernel: usb_control/bulk_msg: timeout
+> kernel: usb_control/bulk_msg: timeout
+> kernel: usb_control/bulk_msg: timeout
+> kernel: usb.c: USB disconnect on device 00:02.2-2 address 4
+> kernel: usb-storage: host_reset() requested but not implemented
+> kernel: scsi: device set offline - command error recover failed: host 1 
+> channel 0 id 0 lun 0
+> kernel: 192
+> kernel:  I/O error: dev 08:01, sector 81655440
+> lots of I/O errors following
+> 
+> Works fine with 2.4.21.
+> Could someone please fix that before 2.4.22 becomes stable?
+> 
+> Please CC me, thanks
+> 
+> -- 
+> Fridtjof Busse
+>    I like to say "quark"! Quark, quark, quark, quark!
+> 		  -- Calvin
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

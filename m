@@ -1,191 +1,266 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265767AbTIKBeU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 21:34:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265891AbTIKBeU
+	id S265907AbTIKBQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 21:16:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265916AbTIKBQ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 21:34:20 -0400
-Received: from ns.suse.de ([195.135.220.2]:46734 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265767AbTIKBeP (ORCPT
+	Wed, 10 Sep 2003 21:16:57 -0400
+Received: from dp.samba.org ([66.70.73.150]:22402 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265907AbTIKBQq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 21:34:15 -0400
-Date: Thu, 11 Sep 2003 03:34:12 +0200
-From: Andi Kleen <ak@suse.de>
-To: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com.br
-Subject: [PATCH] Athlon/Opteron prefetch workaround for 2.4/i386
-Message-ID: <20030911013412.GE3134@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Wed, 10 Sep 2003 21:16:46 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] add kobject to struct module 
+In-reply-to: Your message of "Wed, 10 Sep 2003 08:26:41 MST."
+             <Pine.LNX.4.33.0309100807430.1012-100000@localhost.localdomain> 
+Date: Thu, 11 Sep 2003 11:13:25 +1000
+Message-Id: <20030911011644.DA21C2C335@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <Pine.LNX.4.33.0309100807430.1012-100000@localhost.localdomain> you write:
+> kernel/module.c owns the attribute code. (The same code and attribute 
+> structure is reused for each object its exported for, so the owner field 
+> must be set to the owner of the code itself.) 
 
-Patch for 2.4.22/i386 to work around the Athlon/Opteron prefetch errata.
+Right, then the current code is correct.
 
-Sometimes these CPUs incorrectly report page faults on prefetches.
-For a more detailed description see Richard Brunner's mail on linux-kernel.
+> > > But in looking at your patch, I don't see why you want to separate the
+> > > module from the kobject?  What benefit does it have?
+> > 
+> > The lifetimes are separate, each controlled by their own reference
+> > count.  I *know* this will work even if someone holds a reference to
+> > the kobject (for some reason in the future) even as the module is
+> > removed.
+> 
+> Correct me if I'm wrong, but this sounds similar to the networking 
+> refcount problem. The reference on the containing object is the 
+> interesting one, as far as visibility goes. As long as its positive, the 
+> module is active. 
 
-It checks in the page fault handler if the faulting instruction
-was a prefetch and if yes just returns. This patch only changes
-the slow path (when the kernel would oops or send a signal anyways),
-so it has no performance impact.
+There are basically two choices: ensure that the reference count is
+taken using try_module_get() (kobject doesn't have an owner field, so
+it does not match this one), or ensure that an object isn't ever
+referenced after the module cleanup function is called.
 
-One small behaviour change: when a kernel *_user causes a SIGBUS
-it is not delivered to user space anymore. Instead it is just reported
-as a EFAULT as normally. Fixing that would require a per CPU exception
-recursion counter which seemed too complicated.
+In this context, that means that the module cleanup must pause until
+the reference count of the kobject hits zero, so it can be freed.
 
-x86-64 needs a similar patch which I'm sending separately.
+Implementation below.
 
-Please consider applying,
+BTW, The *real* answer IMHO is (this is 2.7 stuff:)
 
--Andi
+1) Adopt a faster, smaller implementation of alloc_percpu (this patch
+   exists, needs some arch-dependent love for ia64).
+2) Use it to generalize the current module reference count scheme to
+   a "bigref_t" (I have a couple of these)
+3) Use that in kobjects.
+4) Decide that module removal is not as important as it was, and not
+   all modules need be removable (at least in finite time).
+5) Use the kobject reference count everywhere, including modules.
 
-Index: linux/arch/i386/mm/fault.c
-===================================================================
-RCS file: /home/cvs/Repository/linux/arch/i386/mm/fault.c,v
-retrieving revision 1.6
-diff -u -u -r1.6 fault.c
---- linux/arch/i386/mm/fault.c	2002/11/30 04:20:26	1.6
-+++ linux/arch/i386/mm/fault.c	2003/09/03 14:17:06
-@@ -94,6 +94,78 @@
+This would make everything faster, except for the case where someone
+is actually waiting for a refcount to hit zero: for long-lived objects
+like kobjects, this seems the right tradeoff.
+
+Cheers!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+
+Name: Modules in sysfs
+Author: Greg KH <greg@kroah.com>
+Status: Tested on 2.6.0-test5-bk1
+
+D: This patch adds basic kobject support to struct module, and it creates a
+D: /sys/module directory which contains all of the individual modules.
+D: Each module currently exports only one file, the module refcount:
+D: 	$ tree /sys/module/
+D: 	/sys/module/
+D: 	|-- ehci_hcd
+D: 	|   `-- refcount
+D: 	|-- hid
+D: 	|   `-- refcount
+D: 	|-- parport
+D: 	|   `-- refcount
+D: 	|-- parport_pc
+D: 	|   `-- refcount
+D: 	|-- uhci_hcd
+D: 	|   `-- refcount
+D: 	`-- usbcore
+D: 	    `-- refcount
+D: 
+D: Rusty: We ensure that the kobject embedded in the module has a shorter
+D: lifetime than the module itself by waiting for its reference count
+D: to reach zero before freeing the module structure.
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .28943-linux-2.6.0-test5/include/linux/module.h .28943-linux-2.6.0-test5.updated/include/linux/module.h
+--- .28943-linux-2.6.0-test5/include/linux/module.h	2003-07-31 01:50:19.000000000 +1000
++++ .28943-linux-2.6.0-test5.updated/include/linux/module.h	2003-09-11 09:19:42.000000000 +1000
+@@ -16,6 +16,7 @@
+ #include <linux/kmod.h>
+ #include <linux/elf.h>
+ #include <linux/stringify.h>
++#include <linux/kobject.h>
+ #include <asm/local.h>
  
- extern spinlock_t timerlist_lock;
+ #include <asm/module.h>
+@@ -184,6 +185,8 @@ enum module_state
  
-+/* Sometimes the CPU reports invalid exceptions on prefetch.
-+   Check that here and ignore.
-+   Opcode checker based on code by Richard Brunner */
-+static int is_prefetch(struct pt_regs *regs, unsigned long addr)
-+{ 
-+	unsigned char *instr = (unsigned char *)(regs->eip);
-+	int scan_more = 1;
-+	int prefetch = 0; 
-+	unsigned char *max_instr = instr + 15;
+ struct module
+ {
++	struct kobject	kobj;
 +
-+	/* Avoid recursive faults. This is just an optimization,
-+	   they must be handled correctly too */
-+	if (regs->eip == addr)
-+		return 0; 
+ 	enum module_state state;
+ 
+ 	/* Member of list of modules */
+@@ -230,6 +233,9 @@ struct module
+ 	/* Am I GPL-compatible */
+ 	int license_gplok;
+ 
++	/* Who is waiting for us to be unloaded, or kobject to be unused. */
++	struct task_struct *waiter;
 +
-+	while (scan_more && instr < max_instr) { 
-+		unsigned char opcode;
-+		unsigned char instr_hi;
-+		unsigned char instr_lo;
+ #ifdef CONFIG_MODULE_UNLOAD
+ 	/* Reference counts */
+ 	struct module_ref ref[NR_CPUS];
+@@ -237,9 +243,6 @@ struct module
+ 	/* What modules depend on me? */
+ 	struct list_head modules_which_use_me;
+ 
+-	/* Who is waiting for us to be unloaded */
+-	struct task_struct *waiter;
+-
+ 	/* Destruction function. */
+ 	void (*exit)(void);
+ #endif
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .28943-linux-2.6.0-test5/kernel/module.c .28943-linux-2.6.0-test5.updated/kernel/module.c
+--- .28943-linux-2.6.0-test5/kernel/module.c	2003-09-09 10:35:05.000000000 +1000
++++ .28943-linux-2.6.0-test5.updated/kernel/module.c	2003-09-11 09:35:51.000000000 +1000
+@@ -702,6 +702,7 @@ sys_delete_module(const char __user *nam
+ 			goto out;
+ 		}
+ 	}
 +
-+		if (__get_user(opcode, instr))
-+			break; 
+ 	/* Stop the machine so refcounts can't move: irqs disabled. */
+ 	DEBUGP("Stopping refcounts...\n");
+ 	ret = stop_refcounts();
+@@ -1071,6 +1072,96 @@ static unsigned long resolve_symbol(Elf_
+ 	return ret;
+ }
+ 
++/* sysfs stuff */
++struct module_attribute {
++	struct attribute attr;
++	ssize_t (*show)(struct module *mod, char *);
++	ssize_t (*store)(struct module *mod, const char *, size_t);
++};
++#define to_module_attr(n) container_of(n, struct module_attribute, attr);
++#define to_module(n) container_of(n, struct module, kobj)
 +
-+		instr_hi = opcode & 0xf0; 
-+		instr_lo = opcode & 0x0f; 
-+		instr++;
-+
-+		switch (instr_hi) { 
-+		case 0x20:
-+		case 0x30:
-+			/* Values 0x26,0x2E,0x36,0x3E are valid x86
-+			   prefixes.  In long mode, the CPU will signal
-+			   invalid opcode if some of these prefixes are
-+			   present so we will never get here anyway */
-+			scan_more = ((instr_lo & 7) == 0x6);
-+			break;
-+			
-+		case 0x40:
-+			/* May be valid in long mode (REX prefixes) */
-+			break; 
-+			
-+		case 0x60:
-+			/* 0x64 thru 0x67 are valid prefixes in all modes. */
-+			scan_more = (instr_lo & 0xC) == 0x4;
-+			break;		
-+		case 0xF0:
-+			/* 0xF0, 0xF2, and 0xF3 are valid prefixes in all modes. */
-+			scan_more = !instr_lo || (instr_lo>>1) == 1;
-+			break;			
-+		case 0x00:
-+			/* Prefetch instruction is 0x0F0D or 0x0F18 */
-+			scan_more = 0;
-+			if (__get_user(opcode, instr)) 
-+				break;
-+			prefetch = (instr_lo == 0xF) &&
-+				(opcode == 0x0D || opcode == 0x18);
-+			break;			
-+		default:
-+			scan_more = 0;
-+			break;
-+		} 
-+	}
-+
-+#if 0
-+	if (prefetch)
-+		printk("%s: prefetch caused page fault at %lx/%lx\n", current->comm,
-+		       regs->eip, addr);
-+#endif
-+	return prefetch;
++static ssize_t module_attr_show(struct kobject *kobj, struct attribute *attr, char *buf)
++{
++	struct module *slot = to_module(kobj);
++	struct module_attribute *attribute = to_module_attr(attr);
++	return attribute->show ? attribute->show(slot, buf) : 0;
 +}
 +
++static ssize_t module_attr_store(struct kobject *kobj, struct attribute *attr, const char *buf, size_t len)
++{
++	struct module *slot = to_module(kobj);
++	struct module_attribute *attribute = to_module_attr(attr);
++	return attribute->store ? attribute->store(slot, buf, len) : 0;
++}
 +
- /*
-  * Unlock any spinlocks which will prevent us from getting the
-  * message out (timerlist_lock is acquired through the
-@@ -181,7 +253,7 @@
- 	 * context, we must not take the fault..
- 	 */
- 	if (in_interrupt() || !mm)
--		goto no_context;
-+		goto bad_area_nosemaphore;
- 
- 	down_read(&mm->mmap_sem);
- 
-@@ -267,8 +339,12 @@
- bad_area:
- 	up_read(&mm->mmap_sem);
- 
-+bad_area_nosemaphore:
- 	/* User mode accesses just cause a SIGSEGV */
- 	if (error_code & 4) {
-+		if (is_prefetch(regs, address))
-+			return;
++static struct sysfs_ops module_sysfs_ops = {
++	.show = module_attr_show,
++	.store = module_attr_store,
++};
 +
- 		tsk->thread.cr2 = address;
- 		tsk->thread.error_code = error_code;
- 		tsk->thread.trap_no = 14;
-@@ -301,6 +377,9 @@
- 		return;
- 	}
- 
-+ 	if (is_prefetch(regs, address))
-+ 		return;
++/* remove_kobject_wait is waiting for this (called when kobj->refcount
++ * hits zero) */
++static void module_release(struct kobject *kobj)
++{
++	struct module *mod = to_module(kobj);
++	wake_up_process(mod->waiter);
++}
 +
- /*
-  * Oops. The kernel tried to access some bad page. We'll have to
-  * terminate things with extreme prejudice.
-@@ -346,10 +425,13 @@
- do_sigbus:
- 	up_read(&mm->mmap_sem);
- 
--	/*
--	 * Send a sigbus, regardless of whether we were in kernel
--	 * or user mode.
--	 */
-+	/* Kernel mode? Handle exceptions or die */
-+	if (!(error_code & 4))
-+		goto no_context;
++static struct kobj_type module_ktype = {
++	.sysfs_ops =	&module_sysfs_ops,
++	.release =	&module_release,
++};
++static decl_subsys(module, &module_ktype, NULL);
 +
-+	if (is_prefetch(regs, address))
-+		return;
++static int __init module_subsys_init(void)
++{
++	return subsystem_register(&module_subsys);
++}
++core_initcall(module_subsys_init);
 +
- 	tsk->thread.cr2 = address;
- 	tsk->thread.error_code = error_code;
- 	tsk->thread.trap_no = 14;
-@@ -358,10 +440,6 @@
- 	info.si_code = BUS_ADRERR;
- 	info.si_addr = (void *)address;
- 	force_sig_info(SIGBUS, &info, tsk);
--
--	/* Kernel mode? Handle exceptions or die */
--	if (!(error_code & 4))
--		goto no_context;
- 	return;
++static ssize_t show_mod_refcount(struct module *mod, char *buf)
++{
++	return sprintf(buf, "%d\n", module_refcount(mod));
++}
++
++static struct module_attribute mod_refcount = {
++	.attr = {.name = "refcount", .mode = S_IRUGO},
++	.show = show_mod_refcount,
++};
++
++/* Remove kobject and block until refcount hits zero. */
++static void remove_kobject_wait(struct module *mod)
++{
++	mod->waiter = current;
++	set_task_state(current, TASK_UNINTERRUPTIBLE);
++	kobject_unregister(&mod->kobj);
++	schedule();
++}
++
++static int mod_kobject_init(struct module *mod)
++{
++	int retval;
++
++	retval = kobject_set_name(&mod->kobj, mod->name);
++	if (retval < 0)
++		return retval;
++	kobj_set_kset_s(mod, module_subsys);
++	retval = kobject_register(&mod->kobj);
++	if (retval)
++		return retval;
++	retval = sysfs_create_file(&mod->kobj, &mod_refcount.attr);
++	if (retval < 0)
++		remove_kobject_wait(mod);
++	return retval;
++}
++
++static void mod_kobject_remove(struct module *mod)
++{
++	sysfs_remove_file(&mod->kobj, &mod_refcount.attr);
++	remove_kobject_wait(mod);
++}
++
+ /* Free a module, remove from lists, etc (must hold module mutex). */
+ static void free_module(struct module *mod)
+ {
+@@ -1079,6 +1170,8 @@ static void free_module(struct module *m
+ 	list_del(&mod->list);
+ 	spin_unlock_irq(&modlist_lock);
  
- vmalloc_fault:
++	mod_kobject_remove(mod);
++
+ 	/* Arch-specific cleanup. */
+ 	module_arch_cleanup(mod);
+ 
+@@ -1655,6 +1748,10 @@ static struct module *load_module(void _
+ 	if (err < 0)
+ 		goto cleanup;
+ 
++	err = mod_kobject_init(mod);
++	if (err < 0)
++		goto cleanup;
++
+ 	/* Get rid of temporary copy */
+ 	vfree(hdr);
+ 

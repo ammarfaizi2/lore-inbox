@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293589AbSBZMEA>; Tue, 26 Feb 2002 07:04:00 -0500
+	id <S293590AbSBZMJc>; Tue, 26 Feb 2002 07:09:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293590AbSBZMDu>; Tue, 26 Feb 2002 07:03:50 -0500
-Received: from mtao3.east.cox.net ([68.1.17.242]:1248 "EHLO lakemtao03.cox.net")
-	by vger.kernel.org with ESMTP id <S293589AbSBZMDd>;
-	Tue, 26 Feb 2002 07:03:33 -0500
-Message-ID: <009201c1bebd$7a5f5910$a7eb0544@CX535256D>
+	id <S293591AbSBZMJW>; Tue, 26 Feb 2002 07:09:22 -0500
+Received: from mtao4.east.cox.net ([68.1.17.241]:24310 "EHLO
+	lakemtao04.cox.net") by vger.kernel.org with ESMTP
+	id <S293590AbSBZMJH>; Tue, 26 Feb 2002 07:09:07 -0500
+Message-ID: <009c01c1bebe$41321730$a7eb0544@CX535256D>
 From: "Barubary" <barubary@cox.net>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <E16fgL7-0000R4-00@the-village.bc.nu>
+To: "Rainer Ellinger" <rainer@ellinger.de>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <006001c1beb9$ea412690$a7eb0544@CX535256D> <3C7B7908.1040508@ellinger.de>
 Subject: Re: ISO9660 bug and loopback driver bug
-Date: Tue, 26 Feb 2002 04:02:34 -0800
+Date: Tue, 26 Feb 2002 04:08:08 -0800
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -24,19 +24,43 @@ X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Thats actually locale dependant, but yes. I'll fix that one.
+Can you try a file between 2^31 and 2^32-1, inclusive?  Maybe it's a
+sign-related bug in the loopback driver, not a 64 bit I/O bug.
 
-Why is it locale-dependent?  All ISO9660 file times are stored as Gregorian
-calendar dates regardless of who made them, and the target (UNIX file time)
-isn't locale-dependent either.  Why would it affect the calculation if the
-local system used the Muslim calendar?
+The file I tried to mount is this on an NTFS partition:
 
-You're probably right, but I just want to know why so I'll know for the
-future.
+12/10/2001  20:13     3,522,562,048 dvd.iso
 
-Shouldn't there be a gregorian_date_to_unix_time() function in the kernel so
-that every driver that needs such conversion can share that implementation?
-It would keep date processing consistent and make it easy to spot date bugs.
+"losetup" fails too, meaning it's the loopback driver (and possibly the NTFS
+driver) that is glitching, not the ISO driver.
+
+Maybe trying to mount *anything* from an NTFS driver doesn't work?  I'll
+have to check that possibility too...
 
 -- Barubary
+
+----- Original Message -----
+From: "Rainer Ellinger" <rainer@ellinger.de>
+To: "Barubary" <barubary@cox.net>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Tuesday, February 26, 2002 4:01 AM
+Subject: Re: ISO9660 bug and loopback driver bug
+
+
+> Barubary wrote:
+>
+> > Now the loopback bug.  Files whose size is greater than 2^31-1 don't
+work
+> > with the loopback driver.
+>
+> Can't reproduce. I can mount 4.7GB DVD-Images and i'm currently working
+with an 48GB File mounted via loop, and a 100GB partition
+> mounted via loop. I'm using loop-AES encryption patch with 2.4.17/18-rc4.
+I'm not aware if there's a fix in this patch. afaik it
+> should also work with vanilla loop.c.
+>
+> --
+> rainer@ellinger.de
+>
+>
 

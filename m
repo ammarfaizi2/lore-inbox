@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261863AbTJIBLL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 21:11:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbTJIBLL
+	id S261861AbTJIBDO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 21:03:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbTJIBDO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 21:11:11 -0400
-Received: from [202.107.117.28] ([202.107.117.28]:52447 "EHLO smtp.neusoft.com")
-	by vger.kernel.org with ESMTP id S261863AbTJIBLJ (ORCPT
+	Wed, 8 Oct 2003 21:03:14 -0400
+Received: from [202.107.117.28] ([202.107.117.28]:58307 "EHLO smtp.neusoft.com")
+	by vger.kernel.org with ESMTP id S261861AbTJIBDN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 21:11:09 -0400
-Date: Thu, 09 Oct 2003 09:10:26 +0800
+	Wed, 8 Oct 2003 21:03:13 -0400
+Date: Thu, 09 Oct 2003 09:02:47 +0800
 From: "Bill J.Xu" <xujz@neusoft.com>
-Subject: a kernel panic question
+Subject: 
 To: linux-kernel@vger.kernel.org
-Message-id: <00bc01c38e02$1fb4d790$2a02010a@avwindows>
+Message-id: <00a101c38e01$0e2d30e0$2a02010a@avwindows>
 MIME-version: 1.0
 X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.3790.0
 X-Mailer: Microsoft Outlook Express 6.00.3790.0
@@ -23,8 +23,6 @@ X-Priority: 3
 X-MSMail-priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-
-SORRY,forget to write title!
 
 Hi all,
 
@@ -36,10 +34,6 @@ Rebooting in 180 seconds..
 
 THANKS
 
-
-
-
-Bill J.Xu
 
 
 

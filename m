@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280603AbRKBIwx>; Fri, 2 Nov 2001 03:52:53 -0500
+	id <S280612AbRKBJAx>; Fri, 2 Nov 2001 04:00:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280607AbRKBIwo>; Fri, 2 Nov 2001 03:52:44 -0500
-Received: from mailer.zib.de ([130.73.108.11]:31106 "EHLO mailer.zib.de")
-	by vger.kernel.org with ESMTP id <S280603AbRKBIwc>;
-	Fri, 2 Nov 2001 03:52:32 -0500
-Date: Fri, 2 Nov 2001 09:52:28 +0100
-From: Sebastian Heidl <heidl@zib.de>
-To: Lost Logic <lostlogic@toughguy.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: how to create the right kind of diffs to submit
-Message-ID: <20011102095228.F528@csr-pc1.zib.de>
-In-Reply-To: <3BE2599A.1090405@toughguy.net>
-Mime-Version: 1.0
+	id <S280607AbRKBJAo>; Fri, 2 Nov 2001 04:00:44 -0500
+Received: from mx6.port.ru ([194.67.57.16]:16147 "EHLO smtp6.port.ru")
+	by vger.kernel.org with ESMTP id <S280606AbRKBJAb>;
+	Fri, 2 Nov 2001 04:00:31 -0500
+From: Samium Gromoff <_deepfire@mail.ru>
+Message-Id: <200111020902.fA292A818161@vegae.deep.net>
+Subject: OOM /proc logging
+To: andrea@suse.de
+Date: Fri, 2 Nov 2001 12:02:06 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org, riel@surriel.com
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BE2599A.1090405@toughguy.net>; from lostlogic@toughguy.net on Fri, Nov 02, 2001 at 02:30:18AM -0600
-X-www.distributed.net: 27 OGR packets (3.56 Tnodes) [4.21 Mnodes/s]
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 02, 2001 at 02:30:18AM -0600, Lost Logic wrote:
->     Ok, this may seem pathetic... but I'd like to start fixing my own 
-> bugs in the kernel as I find them, but as my education thus far has been 
-> coding and not *nix related, I do not know how to create a diff to 
-> submit in the correct format for inclusion in the kernel, any help, or 
-> suggestions where to get help or any such?  TIA
+        Hello folks...
+     After another complain on #kernelnewbies about the OOM killer doing
+  strange thingss, by killing small processes when its really not needed,
+  and not doing anything when its really OOM i ran out of nerves and came out
+  with an idea, which i believe already settled down is some brains.
+    I speak about providing in /proc list of process badnesses, possibly with
+  some additional info...
+    Its just a shame to have a stable kernel randomly killing processes even when 
+  its not needed...
 
-http://www.tux.org/lkml/#s1-14
+  (this message was planned as answer to Linus request for any kind of VM bitchig....)
 
-;-)
-_sh_
-
+regards, Samium Gromoff

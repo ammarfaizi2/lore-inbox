@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267287AbTAPVjL>; Thu, 16 Jan 2003 16:39:11 -0500
+	id <S267286AbTAPVhg>; Thu, 16 Jan 2003 16:37:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267285AbTAPVjK>; Thu, 16 Jan 2003 16:39:10 -0500
-Received: from delphin.mathe.tu-freiberg.de ([139.20.24.12]:56264 "EHLO
-	delphin.mathe.tu-freiberg.de") by vger.kernel.org with ESMTP
-	id <S267284AbTAPVjJ> convert rfc822-to-8bit; Thu, 16 Jan 2003 16:39:09 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Michael Dreher <dreher@math.tu-freiberg.de>
-To: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
-Subject: Re: hda has changed heads [solved]
-Date: Thu, 16 Jan 2003 22:49:13 +0100
-User-Agent: KMail/1.4.3
-References: <200301112249.11624.dreher@math.tu-freiberg.de> <200301162151.34206.dreher@math.tu-freiberg.de> <20030116212109.GB22359@win.tue.nl>
-In-Reply-To: <20030116212109.GB22359@win.tue.nl>
+	id <S267285AbTAPVhg>; Thu, 16 Jan 2003 16:37:36 -0500
+Received: from s142-179-222-244.ab.hsia.telus.net ([142.179.222.244]:22422
+	"EHLO bluetooth.WNI.AD") by vger.kernel.org with ESMTP
+	id <S267286AbTAPVhf>; Thu, 16 Jan 2003 16:37:35 -0500
+Message-ID: <3E2728CA.9010805@WirelessNetworksInc.com>
+Date: Thu, 16 Jan 2003 14:48:58 -0700
+From: Herman Oosthuysen <Herman@WirelessNetworksInc.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301162249.13124.dreher@math.tu-freiberg.de>
+To: John Bradford <john@grabjohn.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Open source hardware
+References: <200301161711.h0GHBKMS001969@darkstar.example.net>
+In-Reply-To: <200301161711.h0GHBKMS001969@darkstar.example.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Jan 2003 21:46:32.0498 (UTC) FILETIME=[BBEF6920:01C2BDA8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 16. Januar 2003 22:21 schrieb Andries Brouwer:
-> On Thu, Jan 16, 2003 at 09:51:34PM +0100, Michael Dreher wrote:
+www.opencores.org
 
-> > My solution is: reboot into 2.5.50. run lilo there. reboot into
-> > 2.5.58. 
-> >
-> > This is annoying. Any ideas how to solve this ?
->
-> You have not revealed your lilo version.
+John Bradford wrote:
+> I've been reading some of the threads about the GPL, and binary-only
+> drivers, and I'm suprised that nobody has brought up open source
+> hardware, (or rather, the lack of it).
+> 
 
-The old version was 22.1. Now I have upgraded to 22.3.2, and it works:
 
-karpfen:/home/dreher # lilo
-Warning: Kernel & BIOS return differing head/sector geometries for device 
-0x80
-    Kernel: 14120 cylinders, 16 heads, 63 sectors
-      BIOS: 1024 cylinders, 255 heads, 63 sectors
-Added testing *
-Added linux
-Added failsafe
-Added linux-2.5.56
-Added linux-2.5.50
-Added windows
-
-Very good. Thank you very much for your quick help.
-
-Michael
 

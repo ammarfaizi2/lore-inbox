@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262331AbTKVPri (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Nov 2003 10:47:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbTKVPri
+	id S262323AbTKVPkp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Nov 2003 10:40:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbTKVPkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Nov 2003 10:47:38 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:25102 "EHLO w.ods.org")
-	by vger.kernel.org with ESMTP id S262331AbTKVPrh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Nov 2003 10:47:37 -0500
-Date: Sat, 22 Nov 2003 16:47:20 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Marcelo Tosatti <marcelo@cyclades.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <sensors@Stimpy.netroedge.com>, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 2.4] Trivial changes to I2C stuff
-Message-ID: <20031122154720.GA18110@alpha.home.local>
-References: <20031122161510.7d5b4d20.khali@linux-fr.org>
-Mime-Version: 1.0
+	Sat, 22 Nov 2003 10:40:45 -0500
+Received: from obsidian.spiritone.com ([216.99.193.137]:45290 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S262323AbTKVPko (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Nov 2003 10:40:44 -0500
+Date: Sat, 22 Nov 2003 07:40:27 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Christoph Hellwig <hch@infradead.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [Lse-tech] 2.6.0-test9-mjb3
+Message-ID: <1006410000.1069515626@[10.10.2.4]>
+In-Reply-To: <20031122081121.A29987@infradead.org>
+References: <944600000.1069458966@flay> <20031122081121.A29987@infradead.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031122161510.7d5b4d20.khali@linux-fr.org>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+> On Fri, Nov 21, 2003 at 03:56:06PM -0800, Martin J. Bligh wrote:
+>> + protocol254					Paul Mackerras / Omkhar 
+>> 	Allow protocol 254
+> 
+> What's protocol 254 and why do you need it?
 
-On Sat, Nov 22, 2003 at 04:15:10PM +0100, Jean Delvare wrote:
-> The changes are only white space and comment changes, and line reordering.
+IBM VPN software needs it for a hacked on version of freeswan. 
+Don't blame me for that bright idea ... we have to live with it
+somehow ;-)
 
-<...>
-
-> @@ -199,7 +199,7 @@
->  #define I2C_HW_SMBUS_AMD756	0x05
->  #define I2C_HW_SMBUS_SIS5595	0x06
->  #define I2C_HW_SMBUS_ALI1535	0x07
-> -#define I2C_HW_SMBUS_W9968CF	0x08
-> +#define I2C_HW_SMBUS_W9968CF	0x0d
-
-Is this one intentionnal or just a typo ?
-
-Cheers,
-Willy
+M.
 

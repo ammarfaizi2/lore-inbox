@@ -1,37 +1,76 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313025AbSDTSlW>; Sat, 20 Apr 2002 14:41:22 -0400
+	id <S313027AbSDTSsE>; Sat, 20 Apr 2002 14:48:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313132AbSDTSlV>; Sat, 20 Apr 2002 14:41:21 -0400
-Received: from panic.tn.gatech.edu ([130.207.137.62]:48779 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S313025AbSDTSlU>;
-	Sat, 20 Apr 2002 14:41:20 -0400
-Date: Sat, 20 Apr 2002 14:41:19 -0400
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@transmeta.com>,
-        Anton Altaparmakov <aia21@cantab.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Message-ID: <20020420144119.A7756@havoc.gtf.org>
-In-Reply-To: <Pine.LNX.4.33.0204201006280.11450-100000@penguin.transmeta.com> <E16ycFR-0000Vg-00@starship> <20020420105125.B29646@work.bitmover.com> <E16yd71-0000X4-00@starship>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S313087AbSDTSsD>; Sat, 20 Apr 2002 14:48:03 -0400
+Received: from [137.112.40.22] ([137.112.40.22]:2554 "EHLO
+	hermes.cs.rose-hulman.edu") by vger.kernel.org with ESMTP
+	id <S313027AbSDTSsD>; Sat, 20 Apr 2002 14:48:03 -0400
+Date: Sat, 20 Apr 2002 13:46:38 -0500 (EST)
+From: "Leslie F. Donaldson" <donaldlf@cs.rose-hulman.edu>
+X-X-Sender: <donaldlf@voodoo>
+To: <axp-kernel-list@redhat.com>
+cc: <linux-kernel@vger.kernel.org>, <ldonald@nw.verizonwireless.com>
+Subject: Re: Booting on a raid/lvm combination?
+In-Reply-To: <Pine.GSO.4.33.0204180909540.17436-100000@voodoo>
+Message-ID: <Pine.GSO.4.33.0204201343130.2981-100000@voodoo>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 19, 2002 at 08:27:58PM +0200, Daniel Phillips wrote:
-> The missing part is watching the mail go by.  It's the discourse, where
-> has it gone?  What happened to the times when patches were actually
-> discussed before going into the tree?  Can we somehow have that and
-> bitkeeper too... and a fairy castle... 
+I still can't seem to make it work sigh. The raid
+seems to initialize but the lvm wacks.
 
-The level of discussion of my own patches is exactly the same, pre- and
-post-BitKeeper.
+boot sda1:/vmlinux.ga root=/dev/lvm00/idsk0 initrd=initrd.gz
 
-What patches do you think are being sneaked into the tree?
+It appears my problem is the kerenl is trying to load
+initrd off of the lvm volume but in order for the
+lvm volume to be activated the initrd needs to go first.
 
-	Jeff
+sda1 is a msdos disk with the kernel and the initrd,gz ball.
 
+Any suggestions or manuals out there?
+
+Leslie Donaldson
+
+On Thu, 18 Apr 2002, Leslie F. Donaldson wrote:
+
+> Hello,
+>   After loseing my hard drive to e2fs corruption I decided
+> to build the drive system up, so I am laying out an
+>
+> raid-5 --> LVM --> reiserfs
+>
+> Distribution is 7.1 (soon to be upgraded to rawhide)
+>
+> My problem is I boot with milo and I can't get it to work.
+> I have my kernel on a dos part at sda1 and I have added
+> a file initrd.gz to that disk. My real root system is sda3
+> which is the raid.
+>
+> I boot using (or try to boot)
+>
+> boot sda1:/vmlinux.gz root=/dev/sda3 initrd=/initrd.gz
+>
+> but it can't find the file because it's on the lvm drive which
+> is no active yet. I tried something along the lines of
+>
+> boot sda1:/vmlinux.gz root=/dev/sda3 initrd=sda1:/initrd.gz
+>
+> Does anyone have a clue I can use?
+>
+> Please reply to me directly ad without my drives working
+> it's a terminal session to my email account <sigh>
+>
+> Leslie Donaldson
+>
+>
+>
+>
+> _______________________________________________
+> Axp-kernel-list mailing list
+> Axp-kernel-list@redhat.com
+> https://listman.redhat.com/mailman/listinfo/axp-kernel-list
+>
 

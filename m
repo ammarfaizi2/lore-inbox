@@ -1,152 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbVCaQKm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbVCaQOY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261528AbVCaQKm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 11:10:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbVCaQKl
+	id S261531AbVCaQOY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 11:14:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbVCaQOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 11:10:41 -0500
-Received: from colo.lackof.org ([198.49.126.79]:1457 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S261528AbVCaQKU (ORCPT
+	Thu, 31 Mar 2005 11:14:24 -0500
+Received: from rzfoobar.is-asp.com ([217.11.194.155]:51074 "EHLO mail.isg.de")
+	by vger.kernel.org with ESMTP id S261531AbVCaQOR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 11:10:20 -0500
-Date: Thu, 31 Mar 2005 09:12:06 -0700
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Jim Gifford <maillist@jg555.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
-Subject: Re: 64bit build of tulip driver
-Message-ID: <20050331161206.GB19219@colo.lackof.org>
-References: <424AE9E0.8040601@jg555.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <424AE9E0.8040601@jg555.com>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 31 Mar 2005 11:14:17 -0500
+Message-ID: <424C21D7.5010302@is-teledata.com>
+Date: Thu, 31 Mar 2005 18:14:15 +0200
+From: Lutz Vieweg <lutz.vieweg@is-teledata.com>
+Organization: Innovative Software AG
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040322 wamcom.org
+X-Accept-Language: de, German, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: Re: select() not returning though pipe became readable
+References: <4242E0E2.4050407@is-teledata.com> <20050324170731.70a31f99.akpm@osdl.org>
+In-Reply-To: <20050324170731.70a31f99.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 30, 2005 at 10:03:12AM -0800, Jim Gifford wrote:
-> Under 32bit the tulip driver works fine, but under 64 bit it gives me a 
-> lot if problems.
+Lutz Vieweg <lutz.vieweg@is-teledata.com> wrote:
 
-Sorry - I'm not seeing issues on either ia64 or parisc 64-bit systems.
-But I'm only using HP 100BT cards (4-port, occasionally variants of
-single port cards, and built-in on parisc workstations/servers).
+>I'm currently investigating the following problem, which seems to indicate
+>a misbehaviour of the kernel:
+>
+>A server software we implemented is sporadically "hanging" in a select()
+>call since we upgraded from kernel 2.4 to (currently) 2.6.9 (we have to wait
+>for 2.6.12 before we can upgrade again due to the shared-mem-not-dumped-into-
+>core-files problem addressed there).
+>
+>What's suspicious is that whenever we attach with gdb to such a hanging process,
+>we can see that a pipe, whose file-descriptor is definitely included in the
+>fd_set "readfds" (and "n" is also high enough) has a byte in it available for
+>reading - and just leaving gdb again is enough to let the server continue just
+>fine.
+>
+>We are using that pipe, which is known only to the same one process, to cause
+>select() to return immediately if a signal (SIGUSR1) had been delivered to the
+>process (by another process), there's a signal handler installed that does
+>nothing but a (non-blocking) write of 1 byte to the writing end of the pipe.
+>
+>This mechanism worked fine before kernel 2.6, and it is still working in 99.99% of
+>the cases, but under heavy load, every few hours, we'll see the hanging select()
+>as mentioned above.
 
-2.6.12-rc1 bits seem to work fine on a500 (aka rp2470).
+Following up on my own (yes, still using kernel 2.6.9, we will try it with .12 later -
+but I wanted to share the latest results on my investigation nevertheless):
+
+We found that when the server process hangs inside the select() call, the
+kernel structure flags indicate a situation where select() shall indeed return:
+
+The result of
+ > ps -eo cmd,pid,sig_pend,sig_block,sig_catch,sig_ignore
+
+for the hanging process is:
+
+  CMD                PID           SIGNAL          BLOCKED          CATCHED          IGNORED
+  ./csn io_child   10972 0000000000000200 0000000000000000 000000001181764b 0000000000000000
+
+which means that SIGUSR1 is known to be pending (and of course SIGUSR1 is also catched
+as there's a signal handler installed as described above).
+
+Correct me if I'm wrong, but isn't it a clear sign of something being wrong
+with select() if it does not return in this situation?
+
+Sending the hanging process another "kill -s SIGUSR1 10972" does not change the
+situation, the process keeps hanging and the values printed above do not change.
+
+Sending a different signal or attaching/detaching gdb causes select() to return,
+with the pending value returning to 0 as expected.
+
+So my suspicion is that there's a race condition where select() goes to sleep
+even though SIGUSR1 just arrives.
+
+Will follow up once we could upgrade to 2.6.12 or gained significant news,
+I'm thankful for any ideas on this issue at any time.
+
+Regards,
+
+Lutz Vieweg
 
 
-> I updated the tulip to what is in the current repository, and the issue
-> still exists. Any suggestions.
-> 
-> First off it continually sends data out the network interface and never 
-> negotiates is speed and duplex.
-> Second in the log files all I see is an uninformative message 
-> 0000:00:07.0: tulip_stop_rxtx() failed
-> 
-> Here is all the bootup information differences I can find on the driver
-
-Are there any config option differences? 
-e.g. MWI or MMIO options enabled on 64-bit but not 32-bit?
-
-> 64 bit
-> Dec 31 16:01:29 lfs tulip0: ***WARNING***: No MII transceiver found!
-> Dec 31 16:01:29 lfs tulip1: ***WARNING***: No MII transceiver found!
-
-You'll have to add printk's until you can sort out why the MII transceiver
-isn't responding. Odds are 64-bit code runs faster than 32-bit on
-the same machine (more registers or something).
-
-> 32 bit
-> Dec 31 16:01:16 lfs tulip0:  MII transceiver #1 config 1000 status 7809 
-> advertising 01e1
-> Dec 31 16:01:16 lfs tulip1:  MII transceiver #1 config 1000 status 7809 
-> advertising 01e1.
-> 
-> Complete boot log - yes I know the date and time are off.
-> Under a 64 bit compile
-> Dec 31 16:01:29 lfs Linux Tulip driver version 1.1.13 (May 11, 2002)
-
-Interesting My source tree says:
-#define DRV_RELDATE     "December 15, 2004"
-(same version # though)
-
-> Dec 31 16:01:29 lfs PCI: Enabling device 0000:00:07.0 (0045 -> 0047)
-> Dec 31 16:01:29 lfs tulip0: Old format EEPROM on 'Cobalt Microserver' 
-> board.  Using substitute media control info.
-> Dec 31 16:01:29 lfs tulip0:  EEPROM default media type Autosense.
-> Dec 31 16:01:29 lfs tulip0:  Index #0 - Media MII (#11) described by a 
-> 21142 MII PHY (3) block.
-> Dec 31 16:01:29 lfs tulip0: ***WARNING***: No MII transceiver found!
-> Dec 31 16:01:29 lfs eth0: Digital DS21143 Tulip rev 65 at 
-> ffffffffb0001400, 00:10:E0:00:32:DE, IRQ 19.
-
-HP is using exactly this chip. Difference seems to be with the phy/MII.
-
-> Dec 31 16:01:29 lfs PCI: Enabling device 0000:00:0c.0 (0005 -> 0007)
-> Dec 31 16:01:29 lfs tulip1: Old format EEPROM on 'Cobalt Microserver' 
-> board.  Using substitute media control info.
-> Dec 31 16:01:29 lfs tulip1:  EEPROM default media type Autosense.
-> Dec 31 16:01:29 lfs tulip1:  Index #0 - Media MII (#11) described by a 
-> 21142 MII PHY (3) block.
-> Dec 31 16:01:29 lfs tulip1: ***WARNING***: No MII transceiver found!
-> Dec 31 16:01:29 lfs eth1: Digital DS21143 Tulip rev 65 at 
-> ffffffffb0001480, 00:10:E0:00:32:DF, IRQ 20.
-> Dec 31 16:01:29 lfs bootlog:  Bringing up the eth0 interface...[  OK  ]
-> Dec 31 16:01:30 lfs bootlog:  Adding IPv4 address 172.16.0.99 to the 
-> eth0 interface...[  OK  ]
-> Dec 31 16:01:31 lfs bootlog:  Setting up default gateway...[  OK  ]
-> Dec 31 16:01:32 lfs 0000:00:07.0: tulip_stop_rxtx() failed
-> Dec 31 16:01:38 lfs 0000:00:07.0: tulip_stop_rxtx() failed
-> Dec 31 16:01:44 lfs 0000:00:07.0: tulip_stop_rxtx() failed
-> Dec 31 16:01:50 lfs 0000:00:07.0: tulip_stop_rxtx() failed
-> Dec 31 16:01:56 lfs 0000:00:07.0: tulip_stop_rxtx() failed
-> Dec 31 16:02:02 lfs 0000:00:07.0: tulip_stop_rxtx() failed
-> Dec 31 16:02:08 lfs 0000:00:07.0: tulip_stop_rxtx() failed
-
-ISTR to remember submitting a patch so additional data
-gets printed in tulip_stop_rxtx. Here is a reference to the patch
-but I don't think it is relevant to the this problem:
-	http://lkml.org/lkml/2004/12/15/119
-
-grant
-
-> Under 32 bit
-> Dec 31 16:01:16 lfs Linux Tulip driver version 1.1.13 (May 11, 2002)
-> Dec 31 16:01:16 lfs PCI: Enabling device 0000:00:07.0 (0045 -> 0047)
-> Dec 31 16:01:16 lfs tulip0: Old format EEPROM on 'Cobalt Microserver' 
-> board.  Using substitute media control info.
-> Dec 31 16:01:16 lfs tulip0:  EEPROM default media type Autosense.
-> Dec 31 16:01:16 lfs tulip0:  Index #0 - Media MII (#11) described by a 
-> 21142 MII PHY (3) block.
-> Dec 31 16:01:16 lfs tulip0:  MII transceiver #1 config 1000 status 7809 
-> advertising 01e1.
-> Dec 31 16:01:16 lfs eth0: Digital DS21143 Tulip rev 65 at b0001400, 
-> 00:10:E0:00:32:DE, IRQ 19.
-> Dec 31 16:01:16 lfs tulip1: Old format EEPROM on 'Cobalt Microserver' 
-> board.  Using substitute media control info.
-> Dec 31 16:01:16 lfs tulip1:  EEPROM default media type Autosense.
-> Dec 31 16:01:16 lfs tulip1:  Index #0 - Media MII (#11) described by a 
-> 21142 MII PHY (3) block.
-> Dec 31 16:01:16 lfs tulip1:  MII transceiver #1 config 1000 status 7809 
-> advertising 01e1.
-> Dec 31 16:01:16 lfs eth1: Digital DS21143 Tulip rev 65 at b0001480, 
-> 00:10:E0:00:32:DF, IRQ 20.
-> Dec 31 16:01:17 lfs bootlog:  Bringing up the eth0 interface...[  OK  ]
-> Dec 31 16:01:17 lfs bootlog:  Adding IPv4 address 172.16.0.99 to the 
-> eth0 interface...[  OK  ]
-> Dec 31 16:01:18 lfs bootlog:  Setting up default gateway...[  OK  ]
-> Dec 31 16:01:20 lfs eth0: Setting full-duplex based on MII#1 link 
-> partner capability of 45e1.
-> 
-> -- 
-> ----
-> Jim Gifford
-> maillist@jg555.com
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 

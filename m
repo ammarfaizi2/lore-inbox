@@ -1,30 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270495AbRIAMcz>; Sat, 1 Sep 2001 08:32:55 -0400
+	id <S270640AbRIAMlP>; Sat, 1 Sep 2001 08:41:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270619AbRIAMcp>; Sat, 1 Sep 2001 08:32:45 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54032 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270495AbRIAMcg>; Sat, 1 Sep 2001 08:32:36 -0400
-Subject: Re: Adaptec ASR2100s support?
-To: roy@karlsbakk.net (Roy Sigurd Karlsbakk)
-Date: Sat, 1 Sep 2001 13:35:56 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0109011422400.7322-100000@mustard.heime.net> from "Roy Sigurd Karlsbakk" at Sep 01, 2001 02:23:49 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S270649AbRIAMlH>; Sat, 1 Sep 2001 08:41:07 -0400
+Received: from gecius-0.dsl.speakeasy.net ([216.254.67.146]:3314 "EHLO
+	maniac.gecius.de") by vger.kernel.org with ESMTP id <S270640AbRIAMky>;
+	Sat, 1 Sep 2001 08:40:54 -0400
+To: linux-kernel@vger.kernel.org
+Subject: ide problem on 2.2.17?
+From: Jens Gecius <jens@gecius.de>
+Date: 01 Sep 2001 08:41:13 -0400
+Message-ID: <874rqnf5hy.fsf@maniac.gecius.de>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.4 (Artificial Intelligence)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15dA0C-0004uH-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Does any of you know if there's support for the Adaptec ASR2100s
-> controller? It seems to be an old DPT chipset, although I don't know the
-> exact values of anything.
+Hi folks!
 
-DPT wrote drivers and after some cycles of them cleaning them up they are in
-the 2.4.9-ac kernel and targetted for Linus tree.
+Recently, my stock debian potato system (2.2.17) sent me a whole bunch
+of messages. I don't really get the meaning of them, so might be one
+of you guys has an idea:
 
-Alan
+Sep  1 02:07:46 torriac kernel: attempt to access beyond end of device
+Sep  1 02:07:46 torriac kernel: 03:02: rw=0, want=8421508, limit=779152
+Sep  1 02:07:46 torriac kernel: dev 03:02 blksize=4096 blocknr=538976288 sector=16843008 size=4096 count=1
+Sep  1 02:07:46 torriac kernel: attempt to access beyond end of device
+Sep  1 02:07:46 torriac kernel: 03:02: rw=0, want=1283506308, limit=779152
+Sep  1 02:07:46 torriac kernel: dev 03:02 blksize=4096 blocknr=1394618400 sector=-1727954688 size=4096 count=1
+Sep  1 02:07:46 torriac kernel: attempt to access beyond end of device
+Sep  1 02:07:46 torriac kernel: 03:02: rw=0, want=75616648, limit=779152
+Sep  1 02:07:46 torriac kernel: dev 03:02 blksize=4096 blocknr=1092645985 sector=151233288 size=4096 count=1
+Sep  1 02:07:46 torriac kernel: attempt to access beyond end of device
+Sep  1 02:07:46 torriac kernel: 03:02: rw=0, want=1149356484, limit=779152
+Sep  1 02:07:46 torriac kernel: dev 03:02 blksize=4096 blocknr=824210032 sector=-1996254336 size=4096 count=1
+
+What is going on?? I found something for older 2.2 kernels (broken ide
+driver), but 2.2.17?
+
+Does this cause problems accessing certain files (because my apache
+doesn't find any htpasswd-files for limited access on certain pages)?
+
+-- 
+Tschoe,                    Get my gpg-public-key here
+ Jens                     http://gecius.de/gpg-key.txt

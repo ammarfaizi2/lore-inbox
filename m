@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285585AbRLRFos>; Tue, 18 Dec 2001 00:44:48 -0500
+	id <S281004AbRLRKgg>; Tue, 18 Dec 2001 05:36:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285591AbRLRFok>; Tue, 18 Dec 2001 00:44:40 -0500
-Received: from nat.transgeek.com ([66.92.79.28]:19187 "HELO smtp.transgeek.com")
-	by vger.kernel.org with SMTP id <S285585AbRLRFo3>;
-	Tue, 18 Dec 2001 00:44:29 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Craig Christophel <merlin@transgeek.com>
-To: Alexander Viro <viro@math.psu.edu>
-Subject: Re: Booting a modular kernel through a multiple streams file
-Date: Tue, 18 Dec 2001 00:46:01 -0500
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <Pine.GSO.4.21.0112172059510.6100-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0112172059510.6100-100000@weyl.math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
+	id <S281360AbRLRKg1>; Tue, 18 Dec 2001 05:36:27 -0500
+Received: from ext-ch1gw-1.online-age.net ([216.34.191.35]:37595 "EHLO
+	ext-ch1gw-1.online-age.net") by vger.kernel.org with ESMTP
+	id <S281004AbRLRKgO>; Tue, 18 Dec 2001 05:36:14 -0500
+Message-ID: <2025E70FDF44D511918D00508B650D940410C452@ban03xbindge.geind.ge.com>
+From: "Das, Diya (MED)" <Diya.Das@geind.ge.com>
+To: linux-kernel@vger.kernel.org
+Subject: scsihosts option
+Date: Tue, 18 Dec 2001 16:06:07 +0530
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20011218014358.C1ACBC7382@smtp.transgeek.com>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 17 December 2001 21:31, Alexander Viro wrote:
-> There is a word for that and that word is "crap".
->
-> Let loader leave an archive to be unpacked into rootfs?  Sure.  Let kernel
-> exec /init on rootfs and leave the rest to it?  Absolutely.  But let's
-> stop adding userland stuff into the kernel. 
+
+Hi,
+
+   Does the scsihosts boot time option used to override the default host
+adapter numbering, work in linux 2.4.3 kernel? If not is there a patch
+available for the same in the 2.4 patch releases.
+
+diya.
 
 
-I agree 100%.  there are several other popular systems that try to do 
-everything in-kernel and it adds to the instability overall, besides it gives 
-less freedom to customize with standard tools.
+"THIS E-MAIL MESSAGE ALONG WITH ANY ATTACHMENTS IS INTENDED ONLY FOR THE
+ADDRESSEE and may contain confidential and privileged information.
+If the reader of this message is not the intended recipient,
+you are notified that any dissemination, distribution or copy of this 
+communication is strictly Prohibited. 
+If you have received this message by error, please notify us 
+immediately, return the original mail to the sender and delete the 
+message from your system."
 
-
-
-Craig.
-
-
- Loading modules _can_ be
-> done from userland - insmod does it just fine.  And that's where it should
-> be done.

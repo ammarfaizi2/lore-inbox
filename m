@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbVABUZa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbVABUZp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261317AbVABUZa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 15:25:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVABUZa
+	id S261318AbVABUZp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 15:25:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVABUZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 15:25:30 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:23990 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261317AbVABUZ0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 15:25:26 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Vincent ETIENNE <ve@vetienne.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       discuss@x86-64.org
-Subject: Re: AMD64-AGP pb with AGP APERTURE on IWILL DK8N
-References: <200412282049.48616.ve@vetienne.net> <m13bxnli1x.fsf@muc.de>
-	<1104674059.14712.42.camel@localhost.localdomain>
-From: Andi Kleen <ak@muc.de>
-Date: Sun, 02 Jan 2005 21:25:25 +0100
-In-Reply-To: <1104674059.14712.42.camel@localhost.localdomain> (Alan Cox's
- message of "Sun, 02 Jan 2005 14:36:40 +0000")
-Message-ID: <m1r7l3y3wq.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Sun, 2 Jan 2005 15:25:44 -0500
+Received: from holomorphy.com ([207.189.100.168]:36245 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261318AbVABUZj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 15:25:39 -0500
+Date: Sun, 2 Jan 2005 12:25:29 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jens Axboe <axboe@suse.de>, riel@redhat.com, andrea@suse.de,
+       linux-kernel@vger.kernel.org, Robert_Hentosh@Dell.com,
+       kernel@kolivas.org
+Subject: Re: [PATCH][1/2] adjust dirty threshold for lowmem-only mappings
+Message-ID: <20050102202529.GK29332@holomorphy.com>
+References: <Pine.LNX.4.61.0412231420260.5468@chimarrao.boston.redhat.com> <20041224160136.GG4459@dualathlon.random> <Pine.LNX.4.61.0412241118590.11520@chimarrao.boston.redhat.com> <20041224164024.GK4459@dualathlon.random> <Pine.LNX.4.61.0412241711180.11520@chimarrao.boston.redhat.com> <20041225020707.GQ13747@dualathlon.random> <Pine.LNX.4.61.0412251253090.18130@chimarrao.boston.redhat.com> <20041225190710.GZ771@holomorphy.com> <20050102151147.GA1930@suse.de> <20050102120324.2b52a848.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050102120324.2b52a848.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+At some point in the past, I wrote:
+>>> Lifting the artificial lowmem restrictions on blockdev mappings
+>>> (thereby nuking mapping->gfp_mask altogether) would resolve a number of
+>>> problems, not that anything making that much sense could ever happen.
 
-> On Iau, 2004-12-30 at 19:09, Andi Kleen wrote:
->> Vincent ETIENNE <ve@vetienne.net> writes:
->> There is already code to do this at the end of the function. A better
->> patch would be the attached one.
->> 
->> This would also handle the case of a wrong aper_base.
->> 
->> Untested, uncompiled right now.
->
-> Please make the final version complain in printk as well. That helps
-> motivate vendors to fix BIOS problems.
+Jens Axboe <axboe@suse.de> wrote:
+>>  It should be lifted for block devices, it doesn't make any sense.
 
-The code below complains loudly anyways about a broken aperture.
+On Sun, Jan 02, 2005 at 12:03:24PM -0800, Andrew Morton wrote:
+> Before we can permit blockdev pagecache to use highmem we must convert
+> every piece of code which accesses the cache to use kmap/kmap_atomic.  If
+> you grep around for b_data you'll see there are a lot of such places.
+> Probably the migration could be done on a per-fs basis.
 
--Andi
+I'd regard such an incremental conversion strategy as a prerequisite, and
+would have no trouble working within such constraints.
+
+
+-- wli

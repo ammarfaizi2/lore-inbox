@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267374AbTAHQrK>; Wed, 8 Jan 2003 11:47:10 -0500
+	id <S267153AbTAHQnk>; Wed, 8 Jan 2003 11:43:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267387AbTAHQrK>; Wed, 8 Jan 2003 11:47:10 -0500
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:17679 "EHLO
-	ns.higherplane.net") by vger.kernel.org with ESMTP
-	id <S267374AbTAHQrJ>; Wed, 8 Jan 2003 11:47:09 -0500
-Date: Thu, 9 Jan 2003 03:55:17 +1100
-From: john slee <indigoid@higherplane.net>
-To: John Bradford <john@grabjohn.com>
-Cc: jeff-lk@gerard.st, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][TRIVIAL] menuconfig color sanity
-Message-ID: <20030108165517.GG18508@higherplane.net>
-References: <20030108155623.GA26882@kanoe.ludicrus.net> <200301081609.h08G929Q001835@darkstar.example.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200301081609.h08G929Q001835@darkstar.example.net>
-User-Agent: Mutt/1.3.28i
+	id <S267374AbTAHQnk>; Wed, 8 Jan 2003 11:43:40 -0500
+Received: from m170.net195-132-235.noos.fr ([195.132.235.170]:19973 "EHLO
+	loge2") by vger.kernel.org with ESMTP id <S267153AbTAHQnh>;
+	Wed, 8 Jan 2003 11:43:37 -0500
+From: mathieu <yeupou@coleumes.org>
+To: linux-kernel@vger.kernel.org
+Subject: Problem fixed: USB with vt8233a southbrigde not recognized
+X-PGP-Fingerprint: 6B60 6F7C 39D6 B03C 9024  CD52 365F 7FF7 2DA1 99B9
+Date: 08 Jan 2003 17:52:46 +0100
+Message-ID: <m3ptr7shwh.fsf@gnu.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 08, 2003 at 04:09:02PM +0000, John Bradford wrote:
-> > using yellow and green text with a "white" background in
-> > menuconfig works all right on console
-> 
-> I have seen the original problem, where the first letter is not
-> visible in an xterm.
-> 
-> Just add a colour/monochrome toggle, that way people can choose which
-> they prefer.
+I wrote yesterday about a problem with USB on vt8233a southbrigde
+http://marc.theaimsgroup.com/?l=linux-kernel&m=104192831201282&w=2
 
-'export TERM=xterm-mono' works fine here
+I finally found out that it was a BIOS issue.
 
-j.
+Now it's ok, and it run well. Sorry for the wasted bandwith.
+
+Happy new year,
 
 -- 
-toyota power: http://indigoid.net/
+mathieu
+  
+  [ http://humeur.coleumes.org    : Epistémologie moderne ]
+  [ http://stock.coleumes.org/gpg : clef GnuPG ]

@@ -1,68 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269771AbUJVIL4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270065AbUJVIQi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269771AbUJVIL4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 04:11:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269743AbUJVILz
+	id S270065AbUJVIQi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 04:16:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269695AbUJVINm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 04:11:55 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:62428 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S269848AbUJVIHn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 04:07:43 -0400
-Message-ID: <4178BFCC.50804@free.fr>
-Date: Fri, 22 Oct 2004 10:07:40 +0200
-From: Eric Valette <eric.valette@free.fr>
-Reply-To: eric.valette@free.fr
-Organization: HOME
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: SCSI adaptec 2940 : problem since 2.6.9 and up to 2.6.9-bk6
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Oct 2004 04:13:42 -0400
+Received: from mail.kroah.org ([69.55.234.183]:22979 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269748AbUJSQfI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 12:35:08 -0400
+Date: Tue, 19 Oct 2004 09:34:29 -0700
+From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [BK PATCH] Driver Core patches for 2.6.9
+Message-ID: <20041019163429.GA2402@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is the log message I get :
+Hi,
 
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
-         <Adaptec 2940 Ultra SCSI adapter>
-         aic7880: Ultra Wide Channel A, SCSI Id=7, 16/253 SCBs
+Here are a bunch of driver core 2.6.9.  They have all been in the -mm
+tree for a number of weeks.  They contain:
+	- add /sys/kernel for kernel stuff (like the hotplug sequence
+	  number).
+	- add the kevent code.
+	- change the export type of the sysfs and driver core symbols.
+	- other good stuff (see below for full list)
 
-(scsi0:A:3:0): Unexpected busfree in Message-out phase
-SEQADDR == 0x16f
-(scsi0:A:3:0): Unexpected busfree in Message-out phase
-SEQADDR == 0x16f
-(scsi0:A:3:0): Unexpected busfree in Message-out phase
-SEQADDR == 0x16f
+Please pull from:
+	bk://kernel.bkbits.net/gregkh/linux/driver-2.6
 
-several ten's of such lines removed
-...
+thanks,
 
-The second different model works fine though :
+greg k-h
 
-scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
-         <Adaptec 29160 Ultra160 SCSI adapter>
-         aic7892: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
+p.s. I'll send these as patches in response to this email to lkml for
+those who want to see them.
 
-(scsi1:A:6): 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-   Vendor: QUANTUM   Model: ATLAS10K3_36_WLS  Rev: 020W
-   Type:   Direct-Access                      ANSI SCSI revision: 03
-scsi1:A:6:0: Tagged Queuing enabled.  Depth 64
+ drivers/base/bus.c             |   32 +--
+ drivers/base/class.c           |   34 +--
+ drivers/base/core.c            |   25 +-
+ drivers/base/driver.c          |   14 -
+ drivers/base/firmware.c        |    4 
+ drivers/base/firmware_class.c  |    4 
+ drivers/base/platform.c        |   16 -
+ drivers/base/power/main.c      |    2 
+ drivers/base/power/resume.c    |    4 
+ drivers/base/power/suspend.c   |    4 
+ drivers/base/sys.c             |   16 -
+ drivers/pci/pci-driver.c       |    2 
+ drivers/usb/core/usb.c         |   61 ++----
+ drivers/usb/serial/bus.c       |    1 
+ fs/super.c                     |   51 +++++
+ fs/sysfs/bin.c                 |    4 
+ fs/sysfs/dir.c                 |    6 
+ fs/sysfs/file.c                |    6 
+ fs/sysfs/group.c               |    4 
+ fs/sysfs/symlink.c             |    4 
+ include/linux/device.h         |    2 
+ include/linux/kobject.h        |   74 ++++---
+ include/linux/kobject_uevent.h |   64 +++++-
+ include/linux/module.h         |   21 +-
+ include/linux/netlink.h        |    1 
+ include/linux/pci.h            |    2 
+ init/Kconfig                   |   38 +++
+ kernel/Makefile                |   11 -
+ kernel/ksysfs.c                |   64 ++++++
+ kernel/module.c                |   21 ++
+ lib/Makefile                   |    6 
+ lib/kobject.c                  |  149 +--------------
+ lib/kobject_uevent.c           |  393 ++++++++++++++++++++++++++++++++++++++---
+ 33 files changed, 804 insertions(+), 336 deletions(-)
+-----
 
+<kay.sievers:vrfy.org>:
+  o export of SEQNUM to userspace (creates /sys/kernel)
 
-Furthermore, my HP DAT allthough correctly detected/probed by SCSI BIOS 
-is no more detected...
+Andrew Morton:
+  o ksysfs warning fix
+  o kobject_uevent warning fix
 
--- 
-    __
-   /  `                   	Eric Valette
-  /--   __  o _.          	6 rue Paul Le Flem
-(___, / (_(_(__         	35740 Pace
+Greg Kroah-Hartman:
+  o kevent: add __bitwise kobject_action to help the compiler check for misusages
+  o PCI: add "struct module *" to struct pci_driver to show symlink in sysfs for pci drivers
+  o USB: add support for symlink from usb and usb-serial driver to its module in sysfs
+  o Put symbolic links between drivers and modules in the sysfs tree
+  o kevent: add block mount and umount support
+  o kevent: standardize on the event types
+  o Kobject Userspace Event Notification
+  o ksyms: don't implement /sys/kernel/hotplug_seqnum if CONFIG_HOTPLUG is not enabled
+  o kobject: hotplug_seqnum is not 64 bits on all platforms, so fix it
+  o kobject: fix build error if CONFIG_HOTPLUG is not enabled
+  o ksysfs: don't build ksysfs if CONFIG_SYSFS is not enabled
+  o kobject: adjust hotplug_seqnum increment to keep userspace and kernel agreeing
 
-Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
-E-mail: eric.valette@free.fr
+Hannes Reinecke:
+  o Driver Core: Handle NULL arg for put_device()
 
+Ingo Molnar:
+  o module.h build fix
 
+Patrick Mochel:
+  o [driver core] Change symbol exports to GPL only in power/suspend.c
+  o [driver core] Change symbol exports to GPL only in power/resume.c
+  o [driver core] Change symbol exports to GPL only in power/main.c
+  o [sysfs] Change symbol exports to GPL only in symlink.c
+  o [sysfs] Change symbol exports to GPL only in group.c
+  o [sysfs] Change symbol exports to GPL only in file.c
+  o [sysfs] Change symbol exports to GPL only in dir.c
+  o [sysfs] Change symbol exports to GPL only in bin.c
+  o [driver model] Change symbol exports to GPL only in sys.c
+  o [driver model] Change symbol exports to GPL only in platform.c
+  o [driver model] Change symbol exports to GPL only in firmware.c
+  o [driver model] Change symbol exports to GPL only in driver.c
+  o [driver model] Change symbol exports to GPL only in core.c
+  o [driver model] Change sybmols exports to GPL only in class.c
+  o [driver model] Change symbol exports to GPL only in drivers/base/bus.c
+
+Roland Dreier:
+  o USB: use add_hotplug_env_var() in core/usb.c
+  o kobject: add add_hotplug_env_var()
 

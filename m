@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264138AbUESLVJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264124AbUESLWq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264138AbUESLVJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 07:21:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUESLUw
+	id S264124AbUESLWq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 07:22:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263711AbUESLVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 07:20:52 -0400
-Received: from blackbox.ecweb.com ([199.72.99.40]:1549 "EHLO
-	blackbox.ecweb.com") by vger.kernel.org with ESMTP id S264138AbUESLPr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 07:15:47 -0400
-Subject: Re: Trivial Comment Patch: 2.6.6-mm3
-From: Danny Cox <Danny.Cox@ECWeb.com>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040518200742.GA20835@taniwha.stupidest.org>
-References: <1084885737.17460.3.camel@vom>
-	 <20040518200742.GA20835@taniwha.stupidest.org>
-Content-Type: text/plain
-Organization: Electronic Commerce Systems
-Message-Id: <1084965494.17460.60.camel@vom>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 19 May 2004 07:18:14 -0400
-Content-Transfer-Encoding: 7bit
+	Wed, 19 May 2004 07:21:34 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:5008 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264124AbUESLS5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 07:18:57 -0400
+Date: Wed, 19 May 2004 07:18:46 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Albert Cahalan <albert@users.sourceforge.net>
+cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: pte_addr_t size reduction for 64 GB case?
+In-Reply-To: <1084941731.955.836.camel@cube>
+Message-ID: <Pine.LNX.4.44.0405190717330.22258-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris,
+On 19 May 2004, Albert Cahalan wrote:
 
-On Tue, 2004-05-18 at 16:07, Chris Wedgwood wrote:
-> On Tue, May 18, 2004 at 09:08:57AM -0400, Danny Cox wrote:
-> 
-> > This fixes a comment in the stack overflow check that's wrong with
-> > 4K stacks.
-> 
-> >  #ifdef CONFIG_DEBUG_STACKOVERFLOW
-> > -	/* Debugging check for stack overflow: is there less than 1KB free? */
-> > +	/* Debugging check for stack overflow: is there less than 512B free? */
-> >  	{
-> >  		long esp;
-> 
-> akpm, how about just yank the line? the comment's sanity depends on a
-> CONFIG option and also a value in another file from a far off land.
+> When handling 64 GB on i386, pte_addr_t really only
+> needs 33 bits to find the PTE. It sure doesn't need
+> the full 64 bits it is using.
 
-	IMHO, I'd say keep the line, but remove the offensive part (everything
-past the ':', inclusive).
+Alternatively, limit the amount of memory supported to
+32GB ;)
+
+With only 1GB of lowmem you can't support much more
+than that anyway.  The RHEL3 -smp kernel limits itself
+to 32GB in order to have a smaller pte_addr_t.
+
+For larger systems there's the -hugemem kernel, which
+has Ingo's 4:4 split enabled.
 
 -- 
-Daniel S. Cox
-Electronic Commerce Systems
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

@@ -1,59 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316773AbSFVRWi>; Sat, 22 Jun 2002 13:22:38 -0400
+	id <S316768AbSFVRYO>; Sat, 22 Jun 2002 13:24:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316649AbSFVRWh>; Sat, 22 Jun 2002 13:22:37 -0400
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:64762 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
-	id <S316608AbSFVRWf>; Sat, 22 Jun 2002 13:22:35 -0400
-Date: Sat, 22 Jun 2002 10:24:31 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [PATCH] /proc/scsi/map
-To: Nick Bellinger <nickb@attheoffice.org>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Message-id: <3D14B2CF.90002@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+	id <S316789AbSFVRYN>; Sat, 22 Jun 2002 13:24:13 -0400
+Received: from out010pub.verizon.net ([206.46.170.133]:20940 "EHLO
+	out010.verizon.net") by vger.kernel.org with ESMTP
+	id <S316768AbSFVRYK>; Sat, 22 Jun 2002 13:24:10 -0400
+Message-ID: <3D14B311.80802@verizon.net>
+Date: Sat, 22 Jun 2002 13:25:37 -0400
+From: Emre Tezel <emre.tezel@verizon.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011126 Netscape6/6.2.1
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: ide-floppy problem - 2.4.19-pre10
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On the other hand there is the obvious fact that an iSCSI initiator
-> driver is not attached to a bus, and assuming /root/iSCSI.target/disk1
-> etc, is out of the question.  There is a real need for a solution to
-> handle virtual devices (as stated your previous message) that are not
-> assoicated with any physical connectors.  
+Dear Kernel Hackers,
 
-There are those who see the IP stack as a kind of logical bus ... :)
-It's just not tied any specific hardware interface; it's "multipathed" in
-some sense. Linking it to an eth0 entry in $DRIVERFS/root/pci0/00:10.0
-would be wrong, since it can also be accessed through eth2.
+I am running kernel 2.4.19-pre10. I am experiencing a problem with my 
+internal ATAPI Zip 100 Drive. Currently I am using the ide-floppy 
+driver. The device is attached to my secondry slave (/dev/hdd). Whenever 
+I try to do any I/O, my system eventually comes to a full stop. I 
+managed to extract the following kernel log messages.
 
-Why shouldn't there be a $DRIVERFS/net/ipv4@10.42.135.99/... style hookup
-for iSCSI devices?  Using whatever physical addressing the kernel uses
-there, which I assume wouldn't necessarily be restricted to ipv4.  (And
-not exposing physical network topology -- routing! -- in driverfs.)
+Jun 21 01:17:09 hori kernel: ide-scsi: CoD != 0 in idescsi_pc_intr
+Jun 21 01:17:09 hori kernel: hdd: ATAPI reset complete
+Jun 21 01:17:09 hori kernel: hdd: lost interrupt
+Jun 21 01:17:09 hori kernel: ide-scsi: CoD != 0 in idescsi_pc_intr
+Jun 21 01:17:09 hori kernel: hdd: ATAPI reset complete
+Jun 21 01:17:11 hori kernel: hdd: lost interrupt
+Jun 21 01:17:11 hori kernel: ide-scsi: CoD != 0 in idescsi_pc_intr
+Jun 21 01:17:11 hori kernel: scsi : aborting command due to timeout : 
+pid 4498, scsi0, channel 0, id 0, lun 0 Write (10) 00 00 00 00 df 00 00 
+07 00
+Jun 21 01:17:11 hori kernel: SCSI host 0 abort (pid 4498) timed out - 
+resetting
+Jun 21 01:17:11 hori kernel: SCSI bus is being reset for host 0 channel 0.
+Jun 21 01:17:11 hori kernel: scsi : aborting command due to timeout : 
+pid 4499, scsi0, channel 0, id 0, lun 0 Write (10) 00 00 00 01 04 00 00 
+03 00
+Jun 21 01:17:11 hori kernel: SCSI host 0 abort (pid 4499) timed out - 
+resetting
+Jun 21 01:17:11 hori kernel: SCSI bus is being reset for host 0 channel 0.
+Jun 21 01:17:11 hori kernel: hdd: ATAPI reset complete
+Jun 21 01:17:11 hori kernel: hdd: lost interrupt
+Jun 21 01:17:11 hori kernel: ide-scsi: CoD != 0 in idescsi_pc_intr
+Jun 21 01:17:11 hori kernel: hdd: ATAPI reset complete
+Jun 21 01:17:11 hori kernel: hdd: lost interrupt
+Jun 22 02:18:04 hori syslogd 1.4.1: restart.
 
+These messages keep repeating itself until forever.
 
-On a related topic ... if driverfs is going to be providing a nice unique
-ID for the controller ($DRIVERFS/root/pci0/00:02.0/02:0f.0/03:07.0 for
-Linus' behind-two-bridges case), why are people talking as if the SCSI
-layer's arbitrary "controller number" should still be getting pushed as
-part of user visible names?
+I also tried to use the ide-scsi driver instead, but I am running into 
+the same problem. Is this a known bug in the latest stable kernel or am 
+I having a bad hardware ?
 
-That is, I'd sure hope the standard policy for assigning driverfs names
-would avoid _all_ IDs that are derived from enumeration order.  Otherwise
-it'll be hard to store those names for (re)use by user mode tools.
-
-To be sure, those IDs can still be exposed when needed, since in the
-"very big picture" attribute-based names end up being the only really
-scalable model.  But putting unstable attributes into path names just
-causes trouble.  (Much like putting device types in path names.)  If
-they're really necessary (why?) driverfs makes it easy to expose them
-in better ways.
-
-- Dave
-
+Thank You,
+Emre
 

@@ -1,33 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135625AbREBQdL>; Wed, 2 May 2001 12:33:11 -0400
+	id <S135630AbREBQgb>; Wed, 2 May 2001 12:36:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135630AbREBQdC>; Wed, 2 May 2001 12:33:02 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60012 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S135623AbREBQcr>; Wed, 2 May 2001 12:32:47 -0400
-To: "Alex Huang" <alexjoy@sis.com.tw>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: How can do to disable the L1 cache in linux ?
-In-Reply-To: <00a601c0d2b4$a8571740$d9d113ac@sis.com.tw>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 02 May 2001 10:30:39 -0600
-In-Reply-To: "Alex Huang"'s message of "Wed, 2 May 2001 11:04:52 +0800"
-Message-ID: <m1itjjpvbk.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+	id <S135404AbREBQgV>; Wed, 2 May 2001 12:36:21 -0400
+Received: from sgi.SGI.COM ([192.48.153.1]:6745 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S135632AbREBQgD>;
+	Wed, 2 May 2001 12:36:03 -0400
+Message-ID: <3AF036FA.42D94C1D@sgi.com>
+Date: Wed, 02 May 2001 09:34:02 -0700
+From: LA Walsh <law@sgi.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: en, en-US, en-GB, fr
 MIME-Version: 1.0
+To: "Mohammad A. Haque" <mhaque@haque.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.4 code breaks compile of VMWare network bridging
+In-Reply-To: <Pine.LNX.4.33.0105021227500.26270-100000@viper.haque.net>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Alex Huang" <alexjoy@sis.com.tw> writes:
+"Mohammad A. Haque" wrote:
 
-> Dear All,
->  How can do to disable the L1 cache in linux ?
-> Are there some commands or directives to disable it ??
+> This was answered several hours ago. Check the list archives.
 
-Play with the MTRR's and disable caching on memory.
+---
+    Many thanks -- it was in my neverending backlog....
 
-Stupid but it should get what you want.
+-l
 
-Eric

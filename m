@@ -1,72 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264679AbTFLBSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 21:18:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264682AbTFLBSQ
+	id S264683AbTFLBXT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 21:23:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264690AbTFLBXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 21:18:16 -0400
-Received: from dyn-ctb-210-9-241-68.webone.com.au ([210.9.241.68]:19716 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S264679AbTFLBSG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 21:18:06 -0400
-Message-ID: <3EE7D7F5.3070803@cyberone.com.au>
-Date: Thu, 12 Jun 2003 11:31:33 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: Robert Love <rml@tech9.net>, bos@serpentine.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] as-iosched divide by zero fix
-References: <1055369849.1084.4.camel@serpentine.internal.keyresearch.com>	<20030611154122.55570de0.akpm@digeo.com>	<1055374476.673.1.camel@localhost>	<1055377120.665.6.camel@localhost>	<20030611172444.76556d5d.akpm@digeo.com>	<1055380257.662.8.camel@localhost> <20030611182249.0f1168e4.akpm@digeo.com>
-In-Reply-To: <20030611182249.0f1168e4.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Jun 2003 21:23:19 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:29594
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S264683AbTFLBXL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 21:23:11 -0400
+Date: Thu, 12 Jun 2003 03:37:36 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Chris Mason <mason@suse.com>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Georg Nikodym <georgn@somanetworks.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
+Subject: Re: [PATCH] io stalls
+Message-ID: <20030612013736.GI1500@dualathlon.random>
+References: <1055292839.24111.180.camel@tiny.suse.com> <20030611010628.GO26270@dualathlon.random> <1055296630.23697.195.camel@tiny.suse.com> <20030611021030.GQ26270@dualathlon.random> <1055353360.23697.235.camel@tiny.suse.com> <20030611181217.GX26270@dualathlon.random> <1055356032.24111.240.camel@tiny.suse.com> <20030611183503.GY26270@dualathlon.random> <3EE7D1AA.30701@cyberone.com.au> <20030612012951.GG1500@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030612012951.GG1500@dualathlon.random>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 12, 2003 at 03:29:51AM +0200, Andrea Arcangeli wrote:
+> static void get_request_wait_wakeup(request_queue_t *q, int rw)
+> {
+> 	/*
+> 	 * avoid losing an unplug if a second __get_request_wait did the
+> 	 * generic_unplug_device while our __get_request_wait was
+> 	 * running
+> 	 * w/o the queue_lock held and w/ our request out of the queue.
+> 	 */
+> 	if (waitqueue_active(&q->wait_for_requests))
+> 		run_task_queue(&tq_disk);
 
+btw, that was the old version, Chris did it right
+s/run_task_queue(&tq_disk)/__generic_unplug_device(q)/
 
-Andrew Morton wrote:
-
->Robert Love <rml@tech9.net> wrote:
->
->>Fix as-iosched divide-by-zero bug.
->>
->
->hrm, OK.  Still not convinced about `batch'.
->
->How about this?
->
-
-Yeah, thats the way to do it, of course. It was too
-jumpy at that setting though, so make it batch*3
-(or <<1+batch if you don't want the multiply).
-
->
->--- 25/drivers/block/as-iosched.c~as-div-by-zero-fix	2003-06-11 18:17:04.000000000 -0700
->+++ 25-akpm/drivers/block/as-iosched.c	2003-06-11 18:20:58.000000000 -0700
->@@ -930,13 +930,12 @@ void update_write_batch(struct as_data *
-> 		write_time = 0;
-> 
-> 	if (write_time > batch + 5 && !ad->write_batch_idled) {
->-		if (write_time / batch > 2)
->+		if (write_time > batch * 2)
-> 			ad->write_batch_count /= 2;
-> 		else
-> 			ad->write_batch_count--;
->-		
-> 	} else if (write_time + 5 < batch && ad->current_write_count == 0) {
->-		if (batch / write_time > 2)
->+		if (batch > write_time * 2)
-> 			ad->write_batch_count *= 2;
-> 		else
-> 			ad->write_batch_count++;
->
->_
->
->
->  
->
-
+Andrea

@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129436AbRBGMT1>; Wed, 7 Feb 2001 07:19:27 -0500
+	id <S129444AbRBGMR2>; Wed, 7 Feb 2001 07:17:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129602AbRBGMTR>; Wed, 7 Feb 2001 07:19:17 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:65221 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129436AbRBGMTE>;
-	Wed, 7 Feb 2001 07:19:04 -0500
-Date: Wed, 7 Feb 2001 12:16:04 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: David Howells <dhowells@redhat.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Jens Axboe <axboe@suse.de>,
-        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-Message-ID: <20010207121604.A7254@redhat.com>
-In-Reply-To: <Pine.LNX.4.10.10102061741050.2193-100000@penguin.transmeta.com> <22688.981537032@warthog.cambridge.redhat.com>
+	id <S129462AbRBGMRR>; Wed, 7 Feb 2001 07:17:17 -0500
+Received: from passion.cambridge.redhat.com ([172.16.18.67]:44673 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S129110AbRBGMRD>; Wed, 7 Feb 2001 07:17:03 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <200102071212.f17CC3518463@mail006.syd.optusnet.com.au> 
+In-Reply-To: <200102071212.f17CC3518463@mail006.syd.optusnet.com.au> 
+To: "BaRT" <bart11@dingoblue.net.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1 Kernel Crash 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <22688.981537032@warthog.cambridge.redhat.com>; from dhowells@redhat.com on Wed, Feb 07, 2001 at 09:10:32AM +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Wed, 07 Feb 2001 12:16:35 +0000
+Message-ID: <8078.981548195@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Wed, Feb 07, 2001 at 09:10:32AM +0000, David Howells wrote:
-> 
-> I presume that correct_size will always be a power of 2...
+bart11@dingoblue.net.au said:
+>  On one of my linux boxen, that is used as an ISDN router after a 3
+> days of up time I get this: 
 
-Yes.
+Read http://www.tux.org/lkml/#s4-3
 
---Stephen
+Particularly the "Don't even bother..." part.
+
+--
+dwmw2
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,36 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265248AbUG0MdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265226AbUG0MdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265248AbUG0MdM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 08:33:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265215AbUG0MdL
+	id S265226AbUG0MdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 08:33:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265215AbUG0MdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 08:33:11 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:21955 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S265315AbUG0Ma2 (ORCPT
+	Tue, 27 Jul 2004 08:33:08 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:140 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S265226AbUG0M3l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 08:30:28 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Marcin Owsiany <marcin@owsiany.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: "swap_free: Unused swap offset entry 00000100" but no crash? 
-In-reply-to: Your message of "Tue, 27 Jul 2004 02:21:54 +0200."
-             <20040727002154.GA21628@melina.ds14.agh.edu.pl> 
-Mime-Version: 1.0
+	Tue, 27 Jul 2004 08:29:41 -0400
+Message-ID: <41064BB8.4F8B7543@tv-sign.ru>
+Date: Tue, 27 Jul 2004 16:34:00 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+Cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] prio_tree iterator cleanup.
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 27 Jul 2004 22:30:02 +1000
-Message-ID: <3808.1090931402@ocs3.ocs.com.au>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jul 2004 02:21:54 +0200, 
-Marcin Owsiany <marcin@owsiany.pl> wrote:
->    kernel: swap_free: Unused swap offset entry 00000100
->Also, I would be grateful if someone could explain what is that number in the
->message supposed to be? An address?
+Hello Rajesh,
 
-It is a swap partition number, but I doubt that you have 256 swap
-partitions in your system.  Single bit set in a word that is meant to
-be 0, most likely to be caused by a hardware single bit error.  Run
-memtest, burn86 or other memory verification checks.
+Rajesh Venkatasubramanian wrote:
+>
+> If you can post your 2nd and 3rd patches independent of your
+> first patch, that will be great.
 
+Ok, i'll do it at weekend.
+
+> Please covert vma_prio_tree_next in arch/* directories if you
+> plan to post a new version of your 3rd patch.
+
+Oh, sorry. I promise, i will read man grep 3 times.
+
+> However, your 1st patch is intrusive and I am not convinced
+> that it improves the code very much.
+> Overall I am inclined to leave the prio_tree code as it is.
+
+Yes, i understand, it changes working code without real gain.
+However, i will send it as 3rd patch, in the case you will
+change you mind.
+
+Thank you,
+Oleg.

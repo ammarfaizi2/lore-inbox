@@ -1,92 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267612AbUI1HFh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267601AbUI1HTV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267612AbUI1HFh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 03:05:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267614AbUI1HFh
+	id S267601AbUI1HTV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 03:19:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267614AbUI1HTV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 03:05:37 -0400
-Received: from cantor.suse.de ([195.135.220.2]:19124 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267612AbUI1HFe (ORCPT
+	Tue, 28 Sep 2004 03:19:21 -0400
+Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:15972 "HELO
+	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267601AbUI1HTT convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 03:05:34 -0400
-Message-ID: <41590CB9.8060405@suse.de>
-Date: Tue, 28 Sep 2004 09:03:21 +0200
-From: Hannes Reinecke <hare@suse.de>
-Organization: SuSE Linux AG
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.6) Gecko/20040114
-X-Accept-Language: en-us, en
+	Tue, 28 Sep 2004 03:19:19 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [BUG: 2.6.9-rc2-bk11] input completely dead in X
+Date: Tue, 28 Sep 2004 02:19:16 -0500
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, Micha Feigin <michf@post.tau.ac.il>,
+       Peter Osterlund <petero2@telia.com>
+References: <20040926210450.GA2960@luna.mooo.com> <200409280126.19919.dtor_core@ameritech.net> <20040928070107.GC1834@ucw.cz>
+In-Reply-To: <20040928070107.GC1834@ucw.cz>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: hotplug <linux-hotplug-devel@lists.sourceforge.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] NULL arg for get_device() / put_device()
-References: <415805DD.4040708@suse.de> <20040928012801.GA11125@kroah.com>
-In-Reply-To: <20040928012801.GA11125@kroah.com>
-Content-Type: multipart/mixed;
- boundary="------------050905060005070201040605"
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200409280219.16976.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050905060005070201040605
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+On Tuesday 28 September 2004 02:01 am, Vojtech Pavlik wrote:
+> On Tue, Sep 28, 2004 at 01:26:19AM -0500, Dmitry Torokhov wrote:
+> > Resending as I forgot to CC Vojtech and Peter first time around...
+> > 
+> > On Monday 27 September 2004 10:46 pm, Micha Feigin wrote:
+> > > > Or better yet, use the auto-dev feature, which should work if you have
+> > > > a new enough X driver and kernel patch.
+> > > > 
+> > > 
+> > > auto-dev doesn't work for me and I don't have time to check it
+> > > out.
+> > 
+> > Addition of Kensington ThinkingMouse / ExpertMouse support caused Synaptics
+> > and ALPS protocol numbers to move to 8 and 9 respectively which broke Peter's
+> > auto-dev detection. 
+> 
+> Ouch. I suspected something bad will happen.
+> 
+> > Vojtech, we need to keep protcol numbers stable, I propose something like this:
+> > 
+> > enum psmouse_type {
+> >         PSMOUSE_PS2             = 0,
+> >         PSMOUSE_PS2PP,
+> >         PSMOUSE_THINKPS,
+> >         PSMOUSE_GENPS           = 64,   /* 4 byte protocol start */
+> >         PSMOUSE_IMPS,
+> >         PSMOUSE_IMEX,
+> >         PSMOUSE_SYNAPTICS       = 128,  /* 5+ byte protocols start */
+> >         PSMOUSE_ALPS,
+> > };
+> 
+> No, we really need to keep backwards compatibility with the numbering
+> here and solve the packetsize issue elsewhere. Probably the best would
+> be for each of the protocols to have its own packet collection routine,
+> like the Synaptics and ALPS already have. It could be shared among the
+> simpler protocols.
+> 
+> We'll need this anyway for a heuristic resynchronizer.
+>
 
-Greg KH wrote:
-> On Mon, Sep 27, 2004 at 02:21:49PM +0200, Hannes Reinecke wrote:
-> 
->>Hi all,
->>
->>is there a specific reason that get_device accepts NULL as argument,
->>whereas put_device() does not?
-> 
-> 
-> Um, I guess I never thought about it :)
-> 
-> I don't see why it wouldn't take it, feel free to send a patch.
-> 
-Here it is. Please apply.
+Ok, for now I am killing PS2TPP which is not really useful and will allow
+THINKPS take it's spot moving SYNAPTICS and ALPS to their former numbers. 
 
-Cheers,
-
-Hannes
 -- 
-Dr. Hannes Reinecke			hare@suse.de
-SuSE Linux AG				S390 & zSeries
-Maxfeldstraße 5				+49 911 74053 688
-90409 Nürnberg				http://www.suse.de
-
---------------050905060005070201040605
-Content-Type: text/x-patch;
- name="null-argument-for-put_device.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="null-argument-for-put_device.patch"
-
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/09/28 08:59:54+02:00 hare@lammermuir.suse.de 
-#   Since get_device() accepts a NULL argument, put_device() should do so, too.
-#   
-#   Signed-off-by: Hannes Reinecke <hare@suse.de>
-# 
-# drivers/base/core.c
-#   2004/09/28 08:59:49+02:00 hare@lammermuir.suse.de +2 -1
-#   put_device() should accept a NULL argument.
-# 
-diff -Nru a/drivers/base/core.c b/drivers/base/core.c
---- a/drivers/base/core.c	2004-09-28 09:01:20 +02:00
-+++ b/drivers/base/core.c	2004-09-28 09:01:20 +02:00
-@@ -293,7 +293,8 @@
-  */
- void put_device(struct device * dev)
- {
--	kobject_put(&dev->kobj);
-+	if (dev)
-+		kobject_put(&dev->kobj);
- }
- 
- 
-
---------------050905060005070201040605--
+Dmitry

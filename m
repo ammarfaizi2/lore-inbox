@@ -1,35 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261894AbTBSVqT>; Wed, 19 Feb 2003 16:46:19 -0500
+	id <S261874AbTBSVoS>; Wed, 19 Feb 2003 16:44:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261934AbTBSVqT>; Wed, 19 Feb 2003 16:46:19 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:19651 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261894AbTBSVqS>;
-	Wed, 19 Feb 2003 16:46:18 -0500
-Date: Wed, 19 Feb 2003 13:39:06 -0800 (PST)
-Message-Id: <20030219.133906.127189630.davem@redhat.com>
-To: toml@us.ibm.com
-Cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IPSec protocol application order
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <OF8FC87DCF.42F7A5C1-ON86256CD2.007686FA-86256CD2.0077C5EA@pok.ibm.com>
-References: <OF8FC87DCF.42F7A5C1-ON86256CD2.007686FA-86256CD2.0077C5EA@pok.ibm.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S261894AbTBSVoS>; Wed, 19 Feb 2003 16:44:18 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:15825 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261874AbTBSVoR>;
+	Wed, 19 Feb 2003 16:44:17 -0500
+Subject: 2.5.62-dcl2
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Open Source Devlopment Lab
+Message-Id: <1045691660.17584.173.camel@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 19 Feb 2003 13:54:20 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Tom Lendacky" <toml@us.ibm.com>
-   Date: Wed, 19 Feb 2003 15:48:14 -0600
 
-   So if you would prefer to not do this in the kernel you can ignore
-   the patch, but then the setkey application needs to be fixed.
+The 2.5.62-dcl2 is available at  http://sourceforge.net/projects/osdldcl
 
-In one sense yes, but in another no.
+or BitKeeper 
+       Common    bk://bk.osdl.org/linux-2.5-osdl  {TAG v2.5.62-osdl2)
+           + DCL:bk://bk.osdl.org/linux-2.5-dcl   (TAG v2.5.62-dcl2)
 
-setkey is for manual keying and debugging.  Therefore, disallowing
-experimenting with non-rfc-compliant orderings seems to lack purpose
-to me.
+or OSDL Patch Lifecycle Manager (http://www.osdl.org/cgi-bin/plm/)
+	osdl-2.5.62	PLM # 1572
+	dcl-2.5.62      PLM # 1573
+
+2.5.62-osdl2:
+o Update to Megaraid 2 driver		(Mark Haverkamp, Matt Domsch)
+
+2.5.62-osdl1:
+o Cpu Hot Plug				(Zwane Mwaikambo)
+o CFQ disk scheduler			(Jens Axboe)
+o Pentium Performance Counters		(Mikael Pettersson)
+o Linux Kernel Crash Dump (LKCD)        (Matt Robinson, LKCD team)
+o Linux Trace Toolkit (LTT)             (Karim Yaghmour)
+o Kernel Config (ikconfig)		(Randy Dunlap)
+
+2.5.62-dcl2:
+o Bug fix for flock and threads 	(Matthew Wilcox)
+
+2.5.62-dcl1:
+o Improved boot time TSC synchronization (Jim Houston)
+o RCU statistics               		(Dipankar Sarma)
+o Scheduler tunables            	(Robert Love)
+
+
+Project information:
+        http://www.osdl.org/projects/dcl/
+
+
+
+
+

@@ -1,68 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129485AbRAPIHu>; Tue, 16 Jan 2001 03:07:50 -0500
+	id <S129431AbRAPIl1>; Tue, 16 Jan 2001 03:41:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130397AbRAPIHk>; Tue, 16 Jan 2001 03:07:40 -0500
-Received: from proxy.bspc.sk ([195.80.172.1]:33043 "HELO proxy.bspc.sk")
-	by vger.kernel.org with SMTP id <S129485AbRAPIHX>;
-	Tue, 16 Jan 2001 03:07:23 -0500
-Date: Tue, 16 Jan 2001 09:08:38 +0100
-From: Bobo Rajec <bobo@bspc.sk>
-To: linux-kernel@vger.kernel.org
-Cc: daryll@users.sourceforge.net
-Subject: 2.4.0 bug: file /proc/dri 4 times in ls listing
-Message-ID: <20010116090838.A6283@bspc.sk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-OriginalArrivalTime: 16 Jan 2001 08:07:51.0303 (UTC) FILETIME=[6BDE6170:01C07F93]
+	id <S129523AbRAPIlQ>; Tue, 16 Jan 2001 03:41:16 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:41202 "EHLO
+	fungus.svenskatest.se") by vger.kernel.org with ESMTP
+	id <S129431AbRAPIlE>; Tue, 16 Jan 2001 03:41:04 -0500
+Date: Tue, 16 Jan 2001 09:40:47 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+To: Rainer Mager <rmager@vgkk.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Oops with 4GB memory setting in 2.4.0 stable
+In-Reply-To: <NEBBJBCAFMMNIHGDLFKGCENGCMAA.rmager@vgkk.com>
+Message-ID: <Pine.LNX.4.30.0101160927130.10663-100000@cola.teststation.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 16 Jan 2001, Rainer Mager wrote:
 
-Hi,
+> Hi all,
+>
+> 	I have a 100% reproducable bug in all of the 2.4.0 kernels including the
+> latest stable one. The issue is that if I compile the kernel to support 4GB
+> RAM (I have 1 GB) and then try to access a samba mount I get an oops. This
 
-I'm running kernel 2.4.0 on Redhat 7.0. I tried to get direct
-rendering running (it failed, but that's another story). Today I
-noticed something strange in /proc: dri appears there 4 times.
+I'll have a look tonight or so. It works for you on non-bigmem?
 
-ls /proc:
-...
--r--r--r--    1 root     root            0 Jan 16 08:57 dma
-dr-xr-xr-x    3 root     root            0 Jan 16 08:57 dri
-dr-xr-xr-x    3 root     root            0 Jan 16 08:57 dri
-dr-xr-xr-x    3 root     root            0 Jan 16 08:57 dri
-dr-xr-xr-x    3 root     root            0 Jan 16 08:57 dri
-dr-xr-xr-x    2 root     root            0 Jan 16 08:57 driver
-...
+> ALWAYS happens. Usually after this the system is frozen (although the magic
+> SYSREQ still works). If the system isn't frozen then any commands that
+> access the disk will freeze. Fortunately GPM worked and I was able to paste
+> the oops to a file via telnet.
 
-Chdir /proc/dri/0 works fine:
+smb_rename suggests mv, but the process is ls ... er? What commands where
+you running on smbfs when it crashed?
 
-bobo:/proc/dri/0>ls
-bufs  clients  histo  mem  name  queues  vm  vma
+Could this be a symbol mismatch? Keith Owens suggested a less manual way
+to get module symbol output. Do you get the same results using that?
 
-No dri modules, everything is linked in (I know I don't need all of
-these, but I have lots of memory, so...).
+/Urban
 
-...
-CONFIG_AGP=y
-CONFIG_AGP_INTEL=y
-CONFIG_AGP_I810=y
-CONFIG_AGP_VIA=y
-CONFIG_AGP_AMD=y
-CONFIG_AGP_SIS=y
-CONFIG_AGP_ALI=y
-CONFIG_DRM=y
-CONFIG_DRM_TDFX=y
-CONFIG_DRM_GAMMA=y
-CONFIG_DRM_R128=y
-CONFIG_DRM_I810=y
-CONFIG_DRM_MGA=y
-...
-
-Regards,
-	bobo
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

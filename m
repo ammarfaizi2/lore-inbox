@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317416AbSGXRZb>; Wed, 24 Jul 2002 13:25:31 -0400
+	id <S317426AbSGXR0u>; Wed, 24 Jul 2002 13:26:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317422AbSGXRZb>; Wed, 24 Jul 2002 13:25:31 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:45004 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S317416AbSGXRZa>;
-	Wed, 24 Jul 2002 13:25:30 -0400
-Date: Wed, 24 Jul 2002 19:28:23 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200207241728.TAA28800@harpo.it.uu.se>
-To: jamesclv@us.ibm.com, zwane@linuxpower.ca
-Subject: Re: 2.4.19-rc3-ac2 SMP
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+	id <S317427AbSGXR0u>; Wed, 24 Jul 2002 13:26:50 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:13542 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S317426AbSGXR0t>;
+	Wed, 24 Jul 2002 13:26:49 -0400
+Date: Wed, 24 Jul 2002 13:30:01 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Jens Axboe <axboe@suse.de>
+cc: Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org
+Subject: Re: DAC960 Bitrot
+In-Reply-To: <20020724170227.GD15201@suse.de>
+Message-ID: <Pine.GSO.4.21.0207241327250.13170-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Jul 2002 17:26:49 +0200 (SAST), Zwane Mwaikambo wrote:
->i'd vote for that =) except for one thing.
->
->+       /* APICs tend to spasm when they get errors.  Disable the error intr. */
->+       apic_write_around(APIC_LVTERR, ERROR_APIC_VECTOR | APIC_LVT_MASKED);
->
->Isn't that a bit drastic?
 
-Drastic is an understatement. Try "gross". Sane machines running correct
-code shouldn't throw local APIC errors. If something's causing errors,
-that something should be fixed, not hidden.
 
-I hope that was just a temporary debug hack and not part of the design...
+On Wed, 24 Jul 2002, Jens Axboe wrote:
 
-/Mikael
+> > 3) DAC960.  Eep.  At some point it's all going to be SCSI, right?
+> 
+> Nah not really, at some point it will just be the 'disk' sub system.
+> BTW, you also forgot at least cpqarray and cciss :-)
+
+... along with paride.  And assorted floppies.  And oddball CDROMs.
+And nbd.  And...
+
+IOW, Daniel would really benefit from learning to use grep...
+

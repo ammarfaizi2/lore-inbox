@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264226AbTEOT6o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 15:58:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264227AbTEOT6n
+	id S264196AbTEOUCf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 16:02:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbTEOUBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 15:58:43 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:14502 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S264226AbTEOT6C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 15:58:02 -0400
-Date: Thu, 15 May 2003 13:10:21 -0700 (PDT)
-Message-Id: <20030515.131021.104054490.davem@redhat.com>
-To: chas@locutus.cmf.nrl.navy.mil
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] add reference counting to atm_dev 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200305151439.h4FEdQGi012649@locutus.cmf.nrl.navy.mil>
-References: <20030514.213014.91331736.davem@redhat.com>
-	<200305151439.h4FEdQGi012649@locutus.cmf.nrl.navy.mil>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 15 May 2003 16:01:21 -0400
+Received: from magic-mail.adaptec.com ([208.236.45.100]:27536 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP id S264227AbTEOUBF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 16:01:05 -0400
+Date: Thu, 15 May 2003 14:13:53 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Looking for some BK assistance
+Message-ID: <267360000.1053029633@aslan.btc.adaptec.com>
+X-Mailer: Mulberry/3.0.3 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: chas williams <chas@locutus.cmf.nrl.navy.mil>
-   Date: Thu, 15 May 2003 10:39:26 -0400
-   
-   any other ideas or preferences?
-   
-Hold the RTNL semaphore when making any changes, therefore
-you know no items can be removed/added while you hold this
-semaphore.
+I'm trying to merge my 2.4.X BK tree with Marcelo's tree.  In the end,
+I want to have a tree that I can "bk send" to Marcelo that backs out
+the recent backout of the aic7xxx driver and puts the aic79xx driver
+back into its original location.  I understand how to override incoming
+content changes during the merge process, but the documentation on
+undoing renames is a bit vague.  During the merge process, my local
+file name is already a deleted name that is slightly different than
+the name in the parent repository.  If I try to resolve the rename by
+putting the file back into its original location, BK complains that that
+name already exists.  The documentation also warns that renames should
+only be performed in the master repository.  Can someone with BK clue
+point me in the right direction on this one?
 
-I mean, this is the most fundamental part of how the networking
-locks configuration changes, I'm actually baffled that ATM
-doesn't make use of it :-(
+Thanks,
+Justin
 
-Please, look at how netdevice objects are managed.

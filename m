@@ -1,64 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292650AbSBZSXd>; Tue, 26 Feb 2002 13:23:33 -0500
+	id <S292648AbSBZSUW>; Tue, 26 Feb 2002 13:20:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292420AbSBZSWr>; Tue, 26 Feb 2002 13:22:47 -0500
-Received: from [213.188.83.99] ([213.188.83.99]:46926 "EHLO lsinitam")
-	by vger.kernel.org with ESMTP id <S292650AbSBZSUi> convert rfc822-to-8bit;
-	Tue, 26 Feb 2002 13:20:38 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Laurent <laurent@augias.org>
-To: linux-kernel@vger.kernel.org
-Subject: read_proc issue
-Date: Tue, 26 Feb 2002 19:21:16 +0100
-X-Mailer: KMail [version 1.3.2]
+	id <S292643AbSBZSRJ>; Tue, 26 Feb 2002 13:17:09 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:36370 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292633AbSBZSPG>; Tue, 26 Feb 2002 13:15:06 -0500
+Subject: Re: ext3 and undeletion
+To: dalecki@evision-ventures.com (Martin Dalecki)
+Date: Tue, 26 Feb 2002 18:24:01 +0000 (GMT)
+Cc: mfedyk@matchmail.com (Mike Fedyk), hpa@zytor.com (H. Peter Anvin),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3C7BBDE2.8050207@evision-ventures.com> from "Martin Dalecki" at Feb 26, 2002 05:54:58 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16fmE1-0000Mu-00@lsinitam>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16fmGg-0001Wv-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone, hope I don't disturb too much.
+> So the pain for the sysadmin will certainly not be decreased. Quite
+> contrary for what he expects. For the educated user it was always a pain
+> in the you know where, to constantly run out of quota space due to
+> file versioning.
 
-I'm developping a module which uses an entry in /proc (read-only)
-Currently my (*read_proc) function just write a integer in my /proc entry  
-and increments it. Here is the code:
-
-static int number_read_procmem(char *buf, char **start, off_t offset, int 
-count, int *eof, void *data)
-{
-        int len = 0;
-
-        len = sprintf(buf, "%d\n", number_current++);
-        *eof = 1;
-        return len;
-}
-
-the function is registered in init_module with this:
-create_proc_read_entry("number", 0, NULL, number_read_procmem, NULL);
-
-Problem is:
-when I 'cat /proc/number' multiple times, instead of getting
-0
-1
-2
-3
-...
-
-I get
-0
-2
-4
-6
-...
-
-I've searched the Net for an answer to this but in vain. I'm not sure I 
-should post this to this list (and I'm very sorry if I indeed shouldn't have) 
-but this list is my last hope :(
-
-Please can you CC: me the answers to this post as I'm not on the list.
-Then again, sorry if I'm intruding and thanks for any help.
-
-Regards,
-Laurent Sinitambirivoutin
-laurent@augias.org
+Netware was somewhat more sensible. Digging out an old file took running
+a tool which had a little irritation factor. In addition stuff got
+automatically recycled over time and as disk space was needed.

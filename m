@@ -1,87 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267474AbUHZFYl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267645AbUHZFcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267474AbUHZFYl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 01:24:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267645AbUHZFYf
+	id S267645AbUHZFcM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 01:32:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267664AbUHZFcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 01:24:35 -0400
-Received: from mail.shareable.org ([81.29.64.88]:49605 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S267474AbUHZFYS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 01:24:18 -0400
-Date: Thu, 26 Aug 2004 06:23:19 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Nicholas Miell <nmiell@gmail.com>, Wichert Akkerman <wichert@wiggy.net>,
-       Jeremy Allison <jra@samba.org>, Andrew Morton <akpm@osdl.org>,
-       Spam <spam@tnonline.net>, torvalds@osdl.org, reiser@namesys.com,
-       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826052319.GA28857@mail.shareable.org>
-References: <412CEE38.1080707@namesys.com> <20040825152805.45a1ce64.akpm@osdl.org> <112698263.20040826005146@tnonline.net> <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org> <1453698131.20040826011935@tnonline.net> <20040825163225.4441cfdd.akpm@osdl.org> <20040825233739.GP10907@legion.cup.hp.com> <20040825234629.GF2612@wiggy.net> <1093480940.2748.35.camel@entropy> <20040826044425.GL5414@waste.org>
+	Thu, 26 Aug 2004 01:32:12 -0400
+Received: from mail006.syd.optusnet.com.au ([211.29.132.63]:2537 "EHLO
+	mail006.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S267645AbUHZFcJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 01:32:09 -0400
+References: <A850C6B3EB02F044907B475259FFF56501724A18@jsc-mail08.jsc.nasa.gov>
+Message-ID: <cone.1093498322.335520.27013.502@pc.kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: =?ISO-8859-1?B?SE9MVFos?= CORBIN
+	 =?ISO-8859-1?B?TC4gKEpTQy1FUikgKExNKQ==?= 
+	<corbin.l.holtz1@jsc.nasa.gov>
+Cc: =?ISO-8859-1?B?J2xpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcn?= 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: Disable kscand/Normal?
+Date: Thu, 26 Aug 2004 15:32:02 +1000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
 Content-Disposition: inline
-In-Reply-To: <20040826044425.GL5414@waste.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall wrote:
-> > Anything that currently stores a file's metadata in another file really
-> > wants this right now. Things like image thumbnails, document summaries,
-> > digital signatures, etc.
+HOLTZ, CORBIN L. (JSC-ER) (LM) writes:
+
+> Hello,
 > 
-> That is _highly_ debatable. I would much rather have my cp and grep
-> and cat and tar and such continue to work than have to rewrite every
-> tool because we've thrown the file-is-a-stream-of-bytes concept out
-> the window. Never mind that I've got thumbnails, document summaries,
-> and digital signatures already.
+> Sorry to post to the list without being subscribed, but I've searched the
+> web for information on this and I can't find anything useful.  I'm currenty
+> building a realtime visualization system for a Space Shuttle landing
+> simulator at NASA.  I'm using a small network of 5 Pentium 4 computers
+> running RedHat's 2.4.20-31.9 kernel.  I'm easily running 60 frames/second on
+> my systems, but I'm having a problem because the kscand/Normal thread comes
+> in every 25 seconds and causes me to drop a frame (very annoying).  I've
+> looked into the kernel source and found where the kscand threads are
+> spawned.  I also see where the 25 second period is coming from.  What I'm
+> wondering is what would happen if I disabled the kscand/Normal thread?  I've
+> got plenty of memory, and my process is the only thing running on the
+> system.  Would I eventually see problems, or would I be OK since I'm not
+> running low on memory?  What if I modified the kernel to allow me to
+> temporarily disable the thread while my application is running (using a
+> /proc file or something similar)?  Sorry if this is a bad question, but I
+> figure the people on this list are the best source of info.
 > 
-> While the number of annoying properties of files with forks is
-> practically endless, the biggest has got to be utter lack of
-> portability. How do you stick the thing in an attachment or on an ftp
-> site? Well you can't because it's NOT A FILE. 
-> 
-> A file is a stream of bytes.
+> Please CC: me directly since I'm not subscribed to the list. 
 
-I couldn't agree more.  Metadata which is easily lost is a terrible
-place to put a "document summary".
+That vendor kernel that you're running has the rmap vm which has the kscand 
+daemon. If you build a newer vanilla kernel it will not have the kscand 
+daemon. Alternatively, you can manually nice the the kscand daemon as root 
+to a lower value (not sure what it is by default) say nice +19. You can also 
+rebuild your vendor's kernel and edit the code to set the nice level 
+on spawning the daemon (obviously this requires more knowledge than the 
+previous options).
 
-However, it's not a bad place to put thumbnails which are generated
-from the file contents, if they can be regenerated after transporting.
-It's slightly better than a ".thumbnails" directory because the latter
-won't follow renames and things like that.
+Cheers,
+Con
 
-It's a very good place to put metadata which is semantically bound to
-the file in special ways not intended for transport, such as security
-attributes, auto-invalidated digests of the file's contents, an
-auto-unpacked view of an archive, a virtual tree of an XML or other
-structured file, or an auto-generated textual representation of a
-binary file.
-
-The key concept is "not intended for transport".
-
-Generally that means permissions metadata, and things which are
-re-generated from the file's contents on demand.*
-
-It's a very bad place to put an abstract of a text document, or the
-names of authors, or the MIME content type, or the character encoding
-of the document, or the name of the shell to run the file as a script,
-unless these things are also deducible from the file's contents.
-However, sometimes the content doesn't give any clue, and then
-something like the character encoding of a text file is usefully
-stored in the metadata simply because that's better than nothing.
-
-Of course the facility can be abused.  What does Windows XP do?  Does
-it only store the appropriate kind of metadata in the alternate
-streams?  Even Windows XP users expect files transfered over HTTP or
-WebDAV to work, don't they?
-
--- Jamie
-
-* - By my definition, modification time arguably shouldn't be metadata.
-    Personally I like downloads to be stamped with their source's
-    modification time, which is why I don't use Mozilla's download
-    manager but cut-and-paste URLs to "wget -N" instead.

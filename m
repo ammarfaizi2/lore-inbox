@@ -1,302 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbUJZA45@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbUJZA6S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261833AbUJZA45 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 20:56:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbUJZA44
+	id S261835AbUJZA6S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 20:58:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbUJZA6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 20:56:56 -0400
-Received: from gate.crashing.org ([63.228.1.57]:45782 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261833AbUJZA4n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 20:56:43 -0400
-Subject: [PATCH] ppc64: Improve PCI config accessors
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Tue, 26 Oct 2004 10:53:51 +1000
-Message-Id: <1098752032.17887.2.camel@gaston>
+	Mon, 25 Oct 2004 20:58:17 -0400
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:22704 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S261835AbUJZA5z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 20:57:55 -0400
+Date: Tue, 26 Oct 2004 02:58:27 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Matthias Urlichs <smurf@smurf.noris.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BK kernel workflow
+Message-ID: <20041026005827.GQ14325@dualathlon.random>
+References: <4d8e3fd304102403241e5a69a5@mail.gmail.com> <20041024144448.GA575@work.bitmover.com> <4d8e3fd304102409443c01c5da@mail.gmail.com> <20041024233214.GA9772@work.bitmover.com> <20041025114641.GU14325@dualathlon.random> <1098707342.7355.44.camel@localhost.localdomain> <20041025133951.GW14325@dualathlon.random> <20041025162022.GA27979@work.bitmover.com> <20041025164732.GE14325@dualathlon.random> <pan.2004.10.25.19.51.30.753221@smurf.noris.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <pan.2004.10.25.19.51.30.753221@smurf.noris.de>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch improves the config space access routines on G5, by adding
-a generic helper function to locate the pci_controller structure (to
-be used by an upcoming new platform too) and cleaning up the pmac
-routines. It includes the fix to skip devices that aren't present
-in the OF tree that is necessary for newer G5 desktop models.
+On Mon, Oct 25, 2004 at 09:51:31PM +0200, Matthias Urlichs wrote:
+> Wrong. Since when does usage constitute "tainted" knowledge?
+> You get tainted knowledge by looking at source code, not by usage.
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+come on, as someone stated in other thread the licence doesn't even
+appear legal in europe, so what do you expect?
 
+> By the same token, users of MS Office, which is even more restrictively
+> licensed than BK (no free use whatsoever, remember?), couldn't work on
+> OpenOffice.org.
 
-Index: linux-work/arch/ppc64/kernel/pmac.h
-===================================================================
---- linux-work.orig/arch/ppc64/kernel/pmac.h	2004-10-17 12:07:07.000000000 +1000
-+++ linux-work/arch/ppc64/kernel/pmac.h	2004-10-26 10:38:38.799817160 +1000
-@@ -18,7 +18,6 @@
- extern void pmac_pcibios_fixup(void);
- extern void pmac_pci_init(void);
- extern void pmac_setup_pci_dma(void);
--extern void fixup_k2_sata(struct pci_dev* dev);
- extern void pmac_check_ht_link(void);
- 
- extern void pmac_setup_smp(void);
-Index: linux-work/include/asm-ppc64/pci-bridge.h
-===================================================================
---- linux-work.orig/include/asm-ppc64/pci-bridge.h	2004-10-26 08:30:21.000000000 +1000
-+++ linux-work/include/asm-ppc64/pci-bridge.h	2004-10-26 10:38:38.800817008 +1000
-@@ -101,5 +101,22 @@
- 
- extern void phbs_remap_io(void);
- 
-+static inline struct pci_controller *pci_bus_to_host(struct pci_bus *bus)
-+{
-+	struct device_node *busdn;
-+
-+	busdn = bus->sysdata;
-+	if (busdn == 0) {
-+		struct pci_bus *b;
-+		for (b = bus->parent; b && bus->sysdata == 0; b = b->parent)
-+			;
-+		busdn = b->sysdata;
-+	}
-+	if (busdn == NULL)
-+		return NULL;
-+	return busdn->phb;
-+}
-+
-+
- #endif
- #endif /* __KERNEL__ */
-Index: linux-work/arch/ppc64/kernel/pmac_pci.c
-===================================================================
---- linux-work.orig/arch/ppc64/kernel/pmac_pci.c	2004-10-17 12:07:07.000000000 +1000
-+++ linux-work/arch/ppc64/kernel/pmac_pci.c	2004-10-26 10:38:38.803816552 +1000
-@@ -46,7 +46,6 @@
-  * assuming we won't have both UniNorth and Bandit */
- static int has_uninorth;
- static struct pci_controller *u3_agp;
--u8 pci_cache_line_size;
- struct pci_dev *k2_skiplist[2];
- 
- static int __init fixup_one_level_bus_range(struct device_node *node, int higher)
-@@ -150,16 +149,9 @@
- 				      int offset, int len, u32 *val)
- {
- 	struct pci_controller *hose;
--	struct device_node *busdn;
- 	unsigned long addr;
- 
--	if (bus->self)
--		busdn = pci_device_to_OF_node(bus->self);
--	else
--		busdn = bus->sysdata;	/* must be a phb */
--	if (busdn == NULL)
--		return PCIBIOS_DEVICE_NOT_FOUND;
--	hose = busdn->phb;
-+	hose = pci_bus_to_host(bus);
- 	if (hose == NULL)
- 		return PCIBIOS_DEVICE_NOT_FOUND;
- 
-@@ -188,16 +180,9 @@
- 				       int offset, int len, u32 val)
- {
- 	struct pci_controller *hose;
--	struct device_node *busdn;
- 	unsigned long addr;
- 
--	if (bus->self)
--		busdn = pci_device_to_OF_node(bus->self);
--	else
--		busdn = bus->sysdata;	/* must be a phb */
--	if (busdn == NULL)
--		return PCIBIOS_DEVICE_NOT_FOUND;
--	hose = busdn->phb;
-+	hose = pci_bus_to_host(bus);
- 	if (hose == NULL)
- 		return PCIBIOS_DEVICE_NOT_FOUND;
- 
-@@ -236,14 +221,44 @@
-  * implement self-view of the HT host yet
-  */
- 
--static int skip_k2_device(struct pci_bus *bus, unsigned int devfn)
-+/*
-+ * This function deals with some "special cases" devices.
-+ *
-+ *  0 -> No special case
-+ *  1 -> Skip the device but act as if the access was successfull
-+ *       (return 0xff's on reads, eventually, cache config space
-+ *       accesses in a later version)
-+ * -1 -> Hide the device (unsuccessful acess)
-+ */
-+static int u3_ht_skip_device(struct pci_controller *hose,
-+			     struct pci_bus *bus, unsigned int devfn)
- {
-+	struct device_node *busdn, *dn;
- 	int i;
- 
-+	/*
-+	 * When a device in K2 is powered down, we die on config
-+	 * cycle accesses. Fix that here.
-+	 */
- 	for (i=0; i<2; i++)
- 		if (k2_skiplist[i] && k2_skiplist[i]->bus == bus &&
- 		    k2_skiplist[i]->devfn == devfn)
- 			return 1;
-+
-+	/* We only allow config cycles to devices that are in OF device-tree
-+	 * as we are apparently having some weird things going on with some
-+	 * revs of K2 on recent G5s
-+	 */
-+	if (bus->self)
-+		busdn = pci_device_to_OF_node(bus->self);
-+	else
-+		busdn = hose->arch_data;
-+	for (dn = busdn->child; dn; dn = dn->sibling)
-+		if (dn->devfn == devfn)
-+			break;
-+	if (dn == NULL)
-+		return -1;
-+
- 	return 0;
- }
- 
-@@ -259,8 +274,7 @@
- {
- 	if (bus == hose->first_busno) {
- 		/* For now, we don't self probe U3 HT bridge */
--		if (PCI_FUNC(devfn) != 0 || PCI_SLOT(devfn) > 7 ||
--		    PCI_SLOT(devfn) < 1)
-+		if (PCI_SLOT(devfn) == 0)
- 			return 0;
- 		return ((unsigned long)hose->cfg_data) + U3_HT_CFA0(devfn, offset);
- 	} else
-@@ -271,39 +285,21 @@
- 				    int offset, int len, u32 *val)
- {
- 	struct pci_controller *hose;
--	struct device_node *busdn, *dn;
- 	unsigned long addr;
- 
--	if (bus->self)
--		busdn = pci_device_to_OF_node(bus->self);
--	else
--		busdn = bus->sysdata;	/* must be a phb */
--	if (busdn == NULL)
--		return PCIBIOS_DEVICE_NOT_FOUND;
--	hose = busdn->phb;
--	if (hose == NULL)
--		return PCIBIOS_DEVICE_NOT_FOUND;
- 
--	/* We only allow config cycles to devices that are in OF device-tree
--	 * as we are apparently having some weird things going on with some
--	 * revs of K2 on recent G5s
--	 */
--	for (dn = busdn->child; dn; dn = dn->sibling)
--		if (dn->devfn == devfn)
--			break;
--	if (dn == NULL)
-+	hose = pci_bus_to_host(bus);      
-+	if (hose == NULL)
- 		return PCIBIOS_DEVICE_NOT_FOUND;
- 
- 	addr = u3_ht_cfg_access(hose, bus->number, devfn, offset);
- 	if (!addr)
- 		return PCIBIOS_DEVICE_NOT_FOUND;
--	/*
--	 * When a device in K2 is powered down, we die on config
--	 * cycle accesses. Fix that here. We may ultimately want
--	 * to cache the config space for those instead of returning
--	 * 0xffffffff's to make life easier to HW detection tools
--	 */
--	if (skip_k2_device(bus, devfn)) {
-+
-+	switch (u3_ht_skip_device(hose, bus, devfn)) {
-+	case 0:
-+		break;
-+	case 1:
- 		switch (len) {
- 		case 1:
- 			*val = 0xff; break;
-@@ -313,6 +309,8 @@
- 			*val = 0xfffffffful; break;
- 		}
- 		return PCIBIOS_SUCCESSFUL;
-+	default:
-+		return PCIBIOS_DEVICE_NOT_FOUND;
- 	}
- 
- 	/*
-@@ -337,28 +335,24 @@
- 				     int offset, int len, u32 val)
- {
- 	struct pci_controller *hose;
--	struct device_node *busdn;
- 	unsigned long addr;
- 
--	if (bus->self)
--		busdn = pci_device_to_OF_node(bus->self);
--	else
--		busdn = bus->sysdata;	/* must be a phb */
--	if (busdn == NULL)
--		return PCIBIOS_DEVICE_NOT_FOUND;
--	hose = busdn->phb;
-+	hose = pci_bus_to_host(bus);
- 	if (hose == NULL)
- 		return PCIBIOS_DEVICE_NOT_FOUND;
- 
- 	addr = u3_ht_cfg_access(hose, bus->number, devfn, offset);
- 	if (!addr)
- 		return PCIBIOS_DEVICE_NOT_FOUND;
--	/*
--	 * When a device in K2 is powered down, we die on config
--	 * cycle accesses. Fix that here.
--	 */
--	if (skip_k2_device(bus, devfn))
-+
-+	switch (u3_ht_skip_device(hose, bus, devfn)) {
-+	case 0:
-+		break;
-+	case 1:
- 		return PCIBIOS_SUCCESSFUL;
-+	default:
-+		return PCIBIOS_DEVICE_NOT_FOUND;
-+	}
- 
- 	/*
- 	 * Note: the caller has already checked that offset is
-@@ -675,7 +669,6 @@
- 	pci_fix_bus_sysdata();
- 
- 	iommu_setup_u3();
--
- }
- 
- static void __init pmac_fixup_phb_resources(void)
-@@ -750,11 +743,6 @@
- 	/* Tell pci.c to use the common resource allocation mecanism */
- 	pci_probe_only = 0;
- 	
--	/* HT don't do more than 64 bytes transfers. FIXME: Deal with
--	 * the exception of U3/AGP (hook into pci_set_mwi)
--	 */
--	pci_cache_line_size = 16; /* 64 bytes */
--
- 	/* Allow all IO */
- 	io_page_mask = -1;
- }
-@@ -763,7 +751,7 @@
-  * Disable second function on K2-SATA, it's broken
-  * and disable IO BARs on first one
-  */
--void fixup_k2_sata(struct pci_dev* dev)
-+static void fixup_k2_sata(struct pci_dev* dev)
- {
- 	int i;
- 	u16 cmd;
+Note that if I would be buying a BK non-free licence the "restrictions"
+would go away AFIK. However Miles (on the arch list) tries to buy one
+(exactly so he could test BK) and he failed to get one.
 
+"no free use" may be less restrictive than the "free licence". You pay
+to get more freedom, which sounds fair.
 
+> The license says that, if you work on a competing system, you cannot use
+> BK. It cannot prevent somebody who has used BK sometime in the past, from
+> writing an SCM sometime in the future, since the license governs only your
+> use of BK, but not whatever else you're doing. It's a license for
+> BitKeeper and not for anybody's brain, after all.
+
+either you're completely wrong or Larry did not protect any IP.
+
+Larry said in an earlier email today: "we have to protect our IP.
+Rightly or wrongly, we feel we did some new work that is worth
+protecting.".
+
+don't get me wrong, I've nothing against protecting IP, but my point is
+how can he protect IP if I can use BK, learn all the features, then the
+next day I stop using them and contribute to another SCM after the
+knowledge learned? I mean, there must be a delay between the two events
+otherwise what a protection is that. I can use BK the next second I stop
+using BK and I make a patch to arch, the next second I use BK again.
+
+I would be *very* happy if you were right in the way you interpret the
+licence, if Larry could confirm you didn't misread the licence, I could
+sure use bitkeeper too (at least to try it once, you know I may be
+curious about testing bk speed after all these talks).
+
+But I'm not attempting that unless Larry confirms I can learn using bk
+and immediatly after I can contribute to arch or some other SCM to
+possibly implement overlapping features (and so far I clearly understood
+this was not possible, and this is also why it didn't look legal in
+europe but IANAL).

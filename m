@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267472AbTBUOnZ>; Fri, 21 Feb 2003 09:43:25 -0500
+	id <S267482AbTBUOsO>; Fri, 21 Feb 2003 09:48:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267476AbTBUOnZ>; Fri, 21 Feb 2003 09:43:25 -0500
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:47614 "EHLO
-	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S267474AbTBUOnX>; Fri, 21 Feb 2003 09:43:23 -0500
-Message-ID: <3E563D53.8020102@nortelnetworks.com>
-Date: Fri, 21 Feb 2003 09:53:07 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: jamesbuch@iprimus.com.au
-Cc: Rik van Riel <riel@imladris.surriel.com>,
-       Tomas Szepe <szepe@pinerecords.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux kernel rant
-References: <200302211551.28222.jamesbuch@iprimus.com.au> <200302211717.23993.jamesbuch@iprimus.com.au> <Pine.LNX.4.50L.0302201519210.2329-100000@imladris.surriel.com> <200302211725.58197.jamesbuch@iprimus.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267484AbTBUOsO>; Fri, 21 Feb 2003 09:48:14 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:33726 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S267482AbTBUOsN>;
+	Fri, 21 Feb 2003 09:48:13 -0500
+Date: Fri, 21 Feb 2003 15:10:32 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Thomas Schlichter <schlicht@uni-mannheim.de>,
+       Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5] replace flush_map() in arch/i386/mm/pageattr.c w ith flush_tlb_all()
+Message-ID: <20030221151032.GD22285@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Hugh Dickins <hugh@veritas.com>,
+	Thomas Schlichter <schlicht@uni-mannheim.de>,
+	Andrew Morton <akpm@digeo.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20030221142039.GA21532@codemonkey.org.uk> <Pine.LNX.4.44.0302211439590.1669-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0302211439590.1669-100000@localhost.localdomain>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Buchanan wrote:
-> On Fri, 21 Feb 2003 05:19 am, Rik van Riel wrote:
-> 
->>No IDE disks or modern SCSI controllers in your machine ?
->>
-> 
-> The ones I use are not forbidden to be seen by me, written under an 
-> NDA or otherwise.  No, no modern SCSI controllers.
+On Fri, Feb 21, 2003 at 02:52:38PM +0000, Hugh Dickins wrote:
 
-I think what you're missing is that many drivers are *written* under an 
-NDA but then the resulting code is released under an open license.
+ > Of course that's much much better.  But I think rather better as
+ > static inline void on_each_cpu(void (*func) (void *info), void *info)
+ > passing info to func instead of assuming NULL.  inline? maybe.
 
-You're free to use the resulting driver, but the writer can't talk about 
-exactly how it works.
+Sounds good to me. As for inline - This thing will be generating lots
+of IPIs on SMP, so its hardly going to be performance critical, so
+we could leave it out of line IMO.
 
-Chris
+		Dave
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

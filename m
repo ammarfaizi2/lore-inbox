@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262529AbUCHRxj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 12:53:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262535AbUCHRxj
+	id S262517AbUCHRwh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 12:52:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262711AbUCHRwg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 12:53:39 -0500
-Received: from smtp-ft4.fr.colt.net ([213.41.78.203]:33739 "EHLO
-	smtp-ft4.fr.colt.net") by vger.kernel.org with ESMTP
-	id S262529AbUCHRxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 12:53:37 -0500
-Date: Mon, 8 Mar 2004 18:53:33 +0100 (MET)
-Message-Id: <200403081753.i28HrXM16239@mail.voyages-sncf.com>
-To: linux-kernel@vger.kernel.org
-Auto-Submitted: auto-replied
-X-Mailer: vacation 1.46
-Content-Type: text/plain; charset=iso-8859-1
+	Mon, 8 Mar 2004 12:52:36 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:22409 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S262712AbUCHRvz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 12:51:55 -0500
+Subject: Re: 2.6.4-rc2-mm1
+From: Redeeman <redeeman@redeeman.linux.dk>
+To: LKML Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040308174109.GA784@balram.gotdns.org>
+References: <20040308174109.GA784@balram.gotdns.org>
+Content-Type: text/plain
+Message-Id: <1078768312.5724.17.camel@redeeman.linux.dk>
 Mime-Version: 1.0
-From: "Voyages-SNCF.com" <reply@voyages-sncf.com>
-Subject: Retour Mail de confirmation
-Content-Transfer-Encoding: 8bit
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 08 Mar 2004 18:51:52 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Madame, Monsieur,
+On Mon, 2004-03-08 at 18:41, Balram Adlakha wrote:
+> Was the DMA patch for CDROMREADAUDIO reading? I don't seem any speed
+> increase while ripping with cdparanoia.
+i didnt notice anything either, but that is because mine went to 32x
+anyway, which is my cdrom maximum ;)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Regards, Redeeman
+redeeman@metanurb.dk
 
-Vous nous avez envoyé un message en utilisant la touche "reply" ou "répondre" de votre logiciel de messagerie à partir de votre mail de confirmation. 
-
-Les mails de confirmation sont gérés par un automate et ces messages ne sont donc pas traités.
-
-Pour obtenir une réponse à vos mails dans les meilleurs délais, nous vous conseillons d'aller à l'adresse suivante :
-
-http://www.voyages-sncf.com/go/expedia/contact.htm
-
-Ceci est un message automatique, merci de ne pas répondre.
-
-Cordialement,
-
-L'Equipe Voyages-SNCF.com

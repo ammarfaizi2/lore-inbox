@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265428AbSJaW3Z>; Thu, 31 Oct 2002 17:29:25 -0500
+	id <S265400AbSJaWWx>; Thu, 31 Oct 2002 17:22:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265432AbSJaW3Z>; Thu, 31 Oct 2002 17:29:25 -0500
-Received: from paloma17.e0k.nbg-hannover.de ([62.181.130.17]:13752 "HELO
-	paloma17.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S265428AbSJaW15> convert rfc822-to-8bit; Thu, 31 Oct 2002 17:27:57 -0500
-From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [BK][PATCH] Reiser4, will double Linux FS performance, please apply
-Date: Thu, 31 Oct 2002 23:34:18 +0100
-User-Agent: KMail/1.4.7
-Cc: Hans Reiser <reiser@namesys.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, Reiserfs-List@namesys.com
-References: <3DC19F61.5040007@namesys.com>
-In-Reply-To: <3DC19F61.5040007@namesys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	id <S265416AbSJaWWw>; Thu, 31 Oct 2002 17:22:52 -0500
+Received: from AGrenoble-101-1-6-18.abo.wanadoo.fr ([80.11.197.18]:5275 "EHLO
+	awak") by vger.kernel.org with ESMTP id <S265400AbSJaWWw> convert rfc822-to-8bit;
+	Thu, 31 Oct 2002 17:22:52 -0500
+Subject: Re: What's left over.
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Alexander Viro <viro@math.psu.edu>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021031225729.GD4331@elf.ucw.cz>
+References: <Pine.LNX.4.44.0210301823120.1396-100000@home.transmeta.com>
+	<Pine.GSO.4.21.0210302135150.13031-100000@weyl.math.psu.edu> 
+	<20021031225729.GD4331@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200210312334.18146.Dieter.Nuetzel@hamburg.de>
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 31 Oct 2002 23:28:54 +0100
+Message-Id: <1036103335.25512.40.camel@bip>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 31. Oktober 2002 22:05 schrieb Jeff Garzik:
-> Hans Reiser wrote:
->
-> > If you want to talk about 2.6 then you should talk about reiser4 not 
-> > reiserfs v3, and reiser4 is 7.6 times the write performance of ext3 
-> > for 30 copies of the linux kernel source code using modern IDE drives 
-> > and modern processors on a dual-CPU box, so I don't think any amount 
-> > of improved scalability will make ext3 competitive with reiser4 for 
-> > performance usages. 
->
-> What is the read performance like?
+Le jeu 31/10/2002 à 23:57, Pavel Machek a écrit :
 
->From his mentioned paper http://www.namesys.com/v4/fast_reiser4.html, it is 
-more then doubled compared to ext3 and ReiserFS v3.
+> This seems like a pretty common situation to me, and current solutions
+> are not nice. [I guess ~/bin/ with --x and
+> ~/bin/my-secret-password-only-jarka-and-mj-knows/phonebook would solve
+> the problem, but...!]
 
-To be fair he should explain if it was compared to the latest ext3 (htree) 
-stuff or not, yet.
+Can't even this be spied from /proc/*/fd ?
 
-It looks truly impressive.
 
-Regards,
-	Dieter
--- 
-Dieter Nützel
-Graduate Student, Computer Science
-
-University of Hamburg
-Department of Computer Science
-@home: Dieter.Nuetzel at hamburg.de (replace at with @)

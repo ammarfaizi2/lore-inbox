@@ -1,45 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261609AbSJYVcR>; Fri, 25 Oct 2002 17:32:17 -0400
+	id <S261612AbSJYVdn>; Fri, 25 Oct 2002 17:33:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261611AbSJYVcR>; Fri, 25 Oct 2002 17:32:17 -0400
-Received: from packet.digeo.com ([12.110.80.53]:61367 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261609AbSJYVcQ>;
-	Fri, 25 Oct 2002 17:32:16 -0400
-Message-ID: <3DB9B9D1.D049C730@digeo.com>
-Date: Fri, 25 Oct 2002 14:38:25 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: Alexander Viro <viro@math.psu.edu>, "Adam J. Richter" <adam@yggdrasil.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i_blkbits inconsistency
-References: <Pine.LNX.4.44.0210252158020.1213-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
+	id <S261613AbSJYVdn>; Fri, 25 Oct 2002 17:33:43 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:5133
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S261612AbSJYVdl>; Fri, 25 Oct 2002 17:33:41 -0400
+Subject: Re: [PATCH] hyper-threading information in /proc/cpuinfo
+From: Robert Love <rml@tech9.net>
+To: Robert Love <rml@tech9.net>
+Cc: "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "'Dave Jones'" <davej@codemonkey.org.uk>,
+       "'akpm@digeo.com'" <akpm@digeo.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'chrisl@vmware.com'" <chrisl@vmware.com>,
+       "'Martin J. Bligh'" <mbligh@aracnet.com>
+In-Reply-To: <1035581420.734.3873.camel@phantasy>
+References: <F2DBA543B89AD51184B600508B68D4000EA1718C@fmsmsx103.fm.intel.com> 
+	<1035581420.734.3873.camel@phantasy>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Oct 2002 21:38:25.0486 (UTC) FILETIME=[D95E06E0:01C27C6E]
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 25 Oct 2002 17:39:55 -0400
+Message-Id: <1035581995.1501.3906.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
-> 
-> Fix premature -EIO from blkdev_get_block: bdget initialize bd_block_size
-> consistent with bd_inode->i_blkbits (assigned by new_inode).  Otherwise,
-> subsequent set_blocksize can find bd_block_size doesn't need updating,
-> and skip updating i_blkbits, leaving them inconsistent.
-> 
-> --- 2.5.44/fs/block_dev.c       Sat Oct 19 07:14:45 2002
-> +++ linux/fs/block_dev.c        Fri Oct 25 21:30:41 2002
-> @@ -310,6 +310,7 @@
->                         new_bdev->bd_queue = NULL;
->                         new_bdev->bd_contains = NULL;
->                         new_bdev->bd_inode = inode;
-> +                       new_bdev->bd_block_size = (1 << inode->i_blkbits);
->                         new_bdev->bd_part_count = 0;
->                         new_bdev->bd_invalidated = 0;
->                         inode->i_mode = S_IFBLK;
+On Fri, 2002-10-25 at 17:30, Robert Love wrote:
 
-Thanks, sleuth.   Wondering if we can we remove bd_block_size
-and simply use (1 << bdev->bd_inode->i_blkbits) everywhere?
+> 	- wrap print in "if (cpu_has_ht) { ... }"   (Dave Jones)
+> 	- remove initdata from phys_proc_id         (Jun Nakajima)
+> 	- match field names in latest 2.4-ac        (Alan Cox)
+
+missing this last bit, sorry..
+
+	Robert Love
+
+ cpu/proc.c |    7 +++++++
+ smpboot.c  |    2 +-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+
+diff -urN linux-2.5.44/arch/i386/kernel/cpu/proc.c linux/arch/i386/kernel/cpu/proc.c
+--- linux-2.5.44/arch/i386/kernel/cpu/proc.c	2002-10-19 00:02:29.000000000 -0400
++++ linux/arch/i386/kernel/cpu/proc.c	2002-10-25 15:18:03.000000000 -0400
+@@ -17,6 +17,7 @@
+ 	 * applications want to get the raw CPUID data, they should access
+ 	 * /dev/cpu/<cpu_nr>/cpuid instead.
+ 	 */
++	extern int phys_proc_id[NR_CPUS];
+ 	static char *x86_cap_flags[] = {
+ 		/* Intel-defined */
+ 	        "fpu", "vme", "de", "pse", "tsc", "msr", "pae", "mce",
+@@ -74,6 +75,12 @@
+ 	/* Cache size */
+ 	if (c->x86_cache_size >= 0)
+ 		seq_printf(m, "cache size\t: %d KB\n", c->x86_cache_size);
++#ifdef CONFIG_SMP
++	if (cpu_has_ht) {
++		seq_printf(m, "physical id\t: %d\n", phys_proc_id[n]);
++		seq_printf(m, "siblings\t: %d\n", smp_num_siblings);
++	}
++#endif
+ 	
+ 	/* We use exception 16 if we have hardware math and we've either seen it or the CPU claims it is internal */
+ 	fpu_exception = c->hard_math && (ignore_irq13 || cpu_has_fpu);
+diff -urN linux-2.5.44/arch/i386/kernel/smpboot.c linux/arch/i386/kernel/smpboot.c
+--- linux-2.5.44/arch/i386/kernel/smpboot.c	2002-10-19 00:01:53.000000000 -0400
++++ linux/arch/i386/kernel/smpboot.c	2002-10-25 17:24:26.000000000 -0400
+@@ -58,7 +58,7 @@
+ 
+ /* Number of siblings per CPU package */
+ int smp_num_siblings = 1;
+-int __initdata phys_proc_id[NR_CPUS]; /* Package ID of each logical CPU */
++int phys_proc_id[NR_CPUS]; /* Package ID of each logical CPU */
+ 
+ /* Bitmask of currently online CPUs */
+ unsigned long cpu_online_map;
+

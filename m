@@ -1,63 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317561AbSFIGcl>; Sun, 9 Jun 2002 02:32:41 -0400
+	id <S317332AbSFIGdj>; Sun, 9 Jun 2002 02:33:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317572AbSFIGck>; Sun, 9 Jun 2002 02:32:40 -0400
-Received: from mail.parknet.co.jp ([210.134.213.6]:45836 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S317561AbSFIGcj>; Sun, 9 Jun 2002 02:32:39 -0400
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: linux-kernel@vger.kernel.org, chaffee@cs.berkeley.edu
-Subject: Re: [patch] fat/msdos/vfat crud removal
-In-Reply-To: <200206090603.g5963FA458690@saturn.cs.uml.edu>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sun, 09 Jun 2002 15:32:26 +0900
-Message-ID: <87r8jhc685.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S317567AbSFIGdi>; Sun, 9 Jun 2002 02:33:38 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:48390 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S317332AbSFIGdf>;
+	Sun, 9 Jun 2002 02:33:35 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200206090633.g596XZI472183@saturn.cs.uml.edu>
+Subject: Re: PCI DMA to small buffers on cache-incoherent arch
+To: davem@redhat.com (David S. Miller)
+Date: Sun, 9 Jun 2002 02:33:35 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020608.222942.111546622.davem@redhat.com> from "David S. Miller" at Jun 08, 2002 10:29:42 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
+David S. Miller writes:
+> From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
 
-> OGAWA Hirofumi writes:
-> > "Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
-> >> OGAWA Hirofumi writes:
-> >>> "Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
-> 
-> >>>> - * Conversion from and to little-endian byte order. (no-op on i386/i486)
-> >>>> - *
-> >>>> - * Naming: Ca_b_c, where a: F = from, T = to, b: LE = little-endian,
-> >>>> - * BE = big-endian, c: W = word (16 bits), L = longword (32 bits)
-> >>>> - */
-> >>>> -
-> >>>> -#define CF_LE_W(v) le16_to_cpu(v)
-> >>>> -#define CF_LE_L(v) le32_to_cpu(v)
-> >>>> -#define CT_LE_W(v) cpu_to_le16(v)
-> >>>> -#define CT_LE_L(v) cpu_to_le32(v)
-> >>>
-> >>> Personally I think this patch makes code readable. But please don't
-> >>> remove Cx_LE_x macros. Cx_LE_x is used from dosfsck.
-> >>
-> >> Then the macros should be put in dosfsck, which is not
-> >> part of the kernel.
-> >
-> > Why do we throw away backward compatible?
-> 
-> 1. app source code isn't supposed to use raw kernel headers
-> 2. existing executables are not affected
-> 3. the 2.5.xx series has already broken much more
-> 4. it's crud for the kernel; it's crud for user code
-> 5. the kernel shouldn't contain misc. user app code
+>> On a non-SMP system, would it be OK to map all the memory
+>> without memory coherency enabled? You seem to be implying that
+>> one only needs to implement some mechanism in pci_map_single()
+>> to handle flushing cache lines (write back, then invalidate).
+>>
+>> This would be useful for Macs.
+>
+> It's just avoiding flushing by effecting flushing the cache after
+> every load/store the cpu does, so of course it would work.
+>
+> It would be slow as hell, but it would work.
 
-Why is there __KERNEL__ macro?
+I don't see why it would have to be slow. Mapping the memory
+with coherency disabled will reduce bus traffic for all the
+regular kernel code doing non-DMA stuff. (coherency requires
+that the CPU generate address-only bus operations)
 
-> Use the packed attribute on the struct, along with
-> the right types. I don't think you need get_unaligned
-> with a packed struct, because gcc will know that it
-> needs to emit code for unaligned data.
+The obvious concern is that some kernel code might touch
+a cache line after the invalidate but before the DMA is
+done. If that could be considered a bug, then every non-SMP
+Mac could gain some speed by turning off coherency.
+Maybe the x86 MTRRs allow for something similar.
 
-OK. Please send patch.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+For device --> memory DMA:
+
+1. write back cache lines that cross unaligned boundries
+2. start the DMA
+3. invalidate the above cache lines
+4. invalidate cache lines that are fully inside the DMA
+
+For memory --> device DMA:
+
+1. write back all cache lines affected by the DMA
+2. start the DMA
+3. invalidate the above cache lines
+

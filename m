@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317360AbSGVN62>; Mon, 22 Jul 2002 09:58:28 -0400
+	id <S315856AbSGVDgl>; Sun, 21 Jul 2002 23:36:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317375AbSGVN62>; Mon, 22 Jul 2002 09:58:28 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:12811 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S317360AbSGVN60>; Mon, 22 Jul 2002 09:58:26 -0400
-Date: Mon, 22 Jul 2002 11:00:29 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-cc: Andrew Morton <akpm@zip.com.au>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-       <linux-mm@kvack.org>, Ed Tomlinson <tomlins@cam.org>, <bcrl@redhat.com>
-Subject: Re: [PATCH][1/2] return values shrink_dcache_memory etc
-In-Reply-To: <7146496.1027297237@[10.10.2.3]>
-Message-ID: <Pine.LNX.4.44L.0207221057280.3086-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S315921AbSGVDgl>; Sun, 21 Jul 2002 23:36:41 -0400
+Received: from moutvdomng0.kundenserver.de ([195.20.224.130]:64998 "EHLO
+	moutvdomng0.schlund.de") by vger.kernel.org with ESMTP
+	id <S315856AbSGVDgl>; Sun, 21 Jul 2002 23:36:41 -0400
+Date: Sun, 21 Jul 2002 21:39:41 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Marcel Holtmann <marcel@holtmann.org>
+cc: Linus Torvalds <torvalds@transmeta.com>, Dave Jones <davej@suse.de>,
+       Maksim Krasnyanskiy <maxk@qualcomm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       BlueZ Mailing List <bluez-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] Bluetooth Subsystem PC Card drivers for 2.5.27
+In-Reply-To: <1027251227.2009.16.camel@pegasus>
+Message-ID: <Pine.LNX.4.44.0207212139150.3309-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Jul 2002, Martin J. Bligh wrote:
+Hi,
 
-> > Was it purely Oracle which drove pte-highmem, or do you think
->
-> I don't see you can get into pathalogical crap without heavy
-> sharing of large amounts of data .... without sharing, you're at
-> a fixed percentage of phys mem - with sharing, I can have more
-> PTEs needed that I have phys mem.
+On 21 Jul 2002, Marcel Holtmann wrote:
+> this patch updates the PC Card drivers of the Bluetooth subsystem. It
+> modifies the following files: 
 
-... for which pte_highmem wouldn't fix the problem, either.
+Please don't use EXPORT_NO_SYMBOLS where it's avoidable.
 
->From what I can see we really want/need 2 complementary
-solutions to fix this problem:
-
-1) large pages and/or shared page tables to reduce page
-   table overhead, which is a real "solution"
-
-2) page table garbage collection, to reduce the amount
-   of (resident?) page tables when the shit hits the fan;
-   this is an "emergency" thing to have and we wouldn't
-   want to use it continously, but it might be important
-   to keep the box alive
-
-Since I've heard that (1) is already in use by some people
-I've started working on (2) the moment Linus asked me to put
-the dentry/icache pages in the LRU ;)))
-
-cheers,
-
-Rik
+							Regards,
+							Thunder
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

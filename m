@@ -1,96 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269715AbUHZWEF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269635AbUHZVXp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269715AbUHZWEF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 18:04:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269712AbUHZWDz
+	id S269635AbUHZVXp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 17:23:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269641AbUHZVJ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 18:03:55 -0400
-Received: from warden3-p.diginsite.com ([208.147.64.186]:23977 "HELO
-	warden3.diginsite.com") by vger.kernel.org with SMTP
-	id S269675AbUHZVY2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 17:24:28 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: David Masover <ninja@slaphack.com>
-Cc: Christophe Saout <christophe@saout.de>, Rik van Riel <riel@redhat.com>,
-       Jamie Lokier <jamie@shareable.org>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Christer Weinigel <christer@weinigel.se>, Spam <spam@tnonline.net>,
-       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
-       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Date: Thu, 26 Aug 2004 14:17:46 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
+	Thu, 26 Aug 2004 17:09:26 -0400
+Received: from mail.shareable.org ([81.29.64.88]:12999 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S269642AbUHZVAr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 17:00:47 -0400
+Date: Thu, 26 Aug 2004 22:00:27 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Will Dyson <will_dyson@pobox.com>, Chris Wedgwood <cw@f00f.org>,
+       viro@parcelfarce.linux.theplanet.co.uk,
+       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
 Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <412E2E86.8050909@slaphack.com>
-Message-ID: <Pine.LNX.4.60.0408261414100.27825@dlang.diginsite.com>
-References: <Pine.LNX.4.44.0408261152340.27909-100000@chimarrao.boston.redhat.com>
- <1093536282.5482.6.camel@leto.cs.pocnet.net> <412E2E86.8050909@slaphack.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Message-ID: <20040826210027.GD5733@mail.shareable.org>
+References: <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org> <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk> <20040826001152.GB23423@mail.shareable.org> <20040826003055.GO21964@parcelfarce.linux.theplanet.co.uk> <20040826010049.GA24731@mail.shareable.org> <20040826100530.GA20805@taniwha.stupidest.org> <20040826110258.GC30449@mail.shareable.org> <412E06B2.7060106@pobox.com> <1093552705.5678.96.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1093552705.5678.96.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Aug 2004, David Masover wrote:
+Lee Revell wrote:
+> Same here.  This always seemed like something the kernel should be able
+> to handle.  It seems to me that if reiser4 had been available at the
+> time the Gnome and KDE developers would not have needed to do this.
 
-> Christophe Saout wrote:
->
-> | Yes, the main compound stream unaware applications would see would just
-> | be a writable view of its contents. Probably not trivial to implement
-> | but doable.
->
-> Not the main stream, I think, but we do need a way to make "eight-stream
-> octopus" files portable.  But there needs to be a copy(2) syscall, and
-> apps need to start supporting it.  After all, copy-on-write was planned
-> for Reiser4, now 4.1*.  And don't anyone dare suggest "userland library".
->
-> | It should be a simple format. Something simliar to tar. The worst thing
->
-> Simple, yes.  Similar to tar, no.
->
-> How about a serializer plugin?  foo.mp3/serialize (say) should return
-> some single stream which contains all of foo.mp3.  It could work for
-> directories as well, recursively, at least on the same filesystem --
-> you'd back up by doing
->
-> cp /serialize /backup/20040826
->
-> This has two potential problems.  One is security -- I want to be able
-> to serialize foo.mp3 without being root, but root doesn't want me to be
-> able to serialize /etc and thus get access to shadow.
->
-> The second problem is that in order to actually be used for backup, we
-> need snapshots, which are not done yet*.  Currently, it'd have to lock
-> the file/directory (recursively), which you don't want to do to entire
-> live filesystems...  So, no massive backups of live systems yet, but
-> definitely useful for sending around mp3s and such.
->
-> | that can happen is people start writing plugins for every existing
-> | compound format out there. It should be the other way around, agree on a
-> | simple compound format and encourage applications to use this one if the
-> | want to use this advantage.
->
-> For the format, I vote for whatever format we're using at the storage
-> layer.  It'd be a lot faster that way, both in execution time (I think)
-> and in development time (I'm sure).  Plus, imagine the restore:
->
-> cat /backup/20040826 > /dev/hda5
-> resizefs_reiser4 /dev/hda5
->
+reiser4 has prompted the discussion again, but it doesn't provide the
+virtual filesystem capabilities that we're talking about, which Gnome
+and KDE implement in userspace.  The FUSE project is much more
+relevant for that.
 
-one of the virtual metatags should be something about the method to 
-serialize the data
+We had file-as-directory discussions years ago, and 5 years ago I was
+experimenting with doing virtual filesystems with that capability over NFS.
 
-if you are viewing a tarfile as a directory the VFS/Filesystem shoud know 
-that the link between the whole thing and the contents is tar, and it 
-should be possible for userspace programs to find this out by reading teh 
-appropriate thing inside the virtual directory (and eventually change it 
-as well, which would trigger regeneration of the base object, or at least 
-noting that the current version is wrong and needs to be regenerated)
+podfuk offered something close to Gnome and KDE but in kernel space:
+virtual filesytems accessible through the kernel, but it didn't get
+too popular.  It was based on Midnight Commander's VFS (which has
+evolved into Gnome's VFS), using the CODA filesystem interface to
+provide the kernel hooks.  It had some problems, and was a bit fiddly
+to use.  We still don't have something that's particularly nice to use
+for ordinary users.
 
-David Lang
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+-- Jamie

@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291141AbSBGPA1>; Thu, 7 Feb 2002 10:00:27 -0500
+	id <S291151AbSBGPDR>; Thu, 7 Feb 2002 10:03:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291151AbSBGPAH>; Thu, 7 Feb 2002 10:00:07 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:35090 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S291141AbSBGO7x>;
-	Thu, 7 Feb 2002 09:59:53 -0500
-Date: Thu, 7 Feb 2002 15:59:53 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Oleg Drokin <green@namesys.com>
-cc: reiserfs-dev@namesys.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [reiserfs-dev] oops with reiserfs and kernel 2.5.4-pre1 on
- sparc64
-In-Reply-To: <20020207130356.A18577@namesys.com>
-Message-ID: <Pine.LNX.4.44.0202071557350.27176-100000@Expansa.sns.it>
+	id <S291152AbSBGPDH>; Thu, 7 Feb 2002 10:03:07 -0500
+Received: from dsl-213-023-038-235.arcor-ip.net ([213.23.38.235]:64395 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S291151AbSBGPDC>;
+	Thu, 7 Feb 2002 10:03:02 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Subject: Re: The IBM order relaxation patch
+Date: Thu, 7 Feb 2002 16:07:39 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, <zaitcev@redhat.com>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0202071254430.17850-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.33L.0202071254430.17850-100000@imladris.surriel.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Yq9D-0000bD-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-IT says that the kernel BUG is at buffer.c at line 2243; that is:
+On February 7, 2002 03:55 pm, Rik van Riel wrote:
+> On Thu, 7 Feb 2002, Daniel Phillips wrote:
+> 
+> > > This looks hard to fix with the current mm layer.  Maybe Rik's
+> > > rmap method could help here, because with reverse mappings we
+> > > can at least try to free adjacent areas (because we then at least
+> > > *know* who's using the pages).
+> >
+> > Yes, that's one of leading reasons for wanting rmap.  (Number one and
+> > two reasons are: allow forcible unmapping of multiply referenced pages
+> > for swapout; get more reliable hardware ref bit readings.)
+> 
+> It's still on my TODO list.  Patches are very much welcome
+> though ;)
 
- /* Size must be within 512 bytes and PAGE_SIZE */
-        if (size < 512 || size > PAGE_SIZE)
-                BUG();
+I'd rather see rmap go in in its simplest possible form, outperforming the
+current virtual scanning method on basic page replacement performance, rather 
+that using the other things we know rmap can do as the argument for inclusion.
+It's for this reason that I'm concentrating on the fork speedup.
 
-Luigi
-
-On Thu, 7 Feb 2002, Oleg Drokin wrote:
-
-> Hello!
->
-> On Thu, Feb 07, 2002 at 10:58:27AM +0100, Luigi Genoni wrote:
->
-> > > Can any of sparc64 people comment on what kind of exception will one
-> > > get for __builtin_trap?
-> > > Second BUG() seems to be out of the question, though.
-> > > Do you have CONFIG_DEBUG_BUGVERBOSE enabled?
-> > No, I have not
-> If you'd enable it, you'd get a message on a next crash, where this BUG()
-> happened exactly (so that we can verify my guess)
->
-> Bye,
->     Oleg
->
-
+-- 
+Daniel

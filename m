@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264523AbRFUBxI>; Wed, 20 Jun 2001 21:53:08 -0400
+	id <S264616AbRFUBy2>; Wed, 20 Jun 2001 21:54:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264544AbRFUBwt>; Wed, 20 Jun 2001 21:52:49 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:38156 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264523AbRFUBwq>; Wed, 20 Jun 2001 21:52:46 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: is there a linux running on jvm arch ?
-Date: 20 Jun 2001 18:52:24 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9grk0o$3sf$1@cesium.transmeta.com>
-In-Reply-To: <3B311519.3090401@free.fr> <E15CqCJ-0000Co-00@the-village.bc.nu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+	id <S264595AbRFUByS>; Wed, 20 Jun 2001 21:54:18 -0400
+Received: from toscano.org ([64.50.191.142]:31944 "HELO bubba.toscano.org")
+	by vger.kernel.org with SMTP id <S264591AbRFUByH>;
+	Wed, 20 Jun 2001 21:54:07 -0400
+Date: Wed, 20 Jun 2001 21:53:02 -0400
+From: Pete Toscano <pete@toscano.org>
+To: Ted Gervais <ve1drg@ve1drg.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ip_tables/ipchains
+Message-ID: <20010620215302.A4636@bubba.toscano.org>
+Mail-Followup-To: Pete Toscano <pete@toscano.org>,
+	Ted Gervais <ve1drg@ve1drg.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0106200804160.2944-100000@ve1drg.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0106200804160.2944-100000@ve1drg.com>; from ve1drg@ve1drg.com on Wed, Jun 20, 2001 at 08:05:41AM -0300
+X-Unexpected: The Spanish Inquisition
+X-Uptime: 9:52pm  up 10 min,  2 users,  load average: 1.10, 0.54, 0.24
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <E15CqCJ-0000Co-00@the-village.bc.nu>
-By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
-In newsgroup: linux.dev.kernel
-> 
-> The JVM is very very bad from a C language point of view. You can convert C
-> code to it and there have been some very experimental demos of this. However
-> it is a very non trivial problem
-> 
+I had a similar problem with this yesterday.  Try moving your .config
+file to a safe place, making mrproper, then moving your .config back and
+rebuilding.  I did this and all was well.
 
-Note that PicoJava is basically the JVM with a few extensions to run C
-code reasonably.  It might be a better target.
+HTH,
+pete
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+On Wed, 20 Jun 2001, Ted Gervais wrote:
+
+> Wondering something..
+> I ran insmod to bring up ip_tables.o and I received the following error:
+> 
+> /lib/modules/2.4.5/kernel/net/ipv4/netfilter/ip_tables.o: unresolved
+> symbol nf_unregister_sockopt
+> /lib/modules/2.4.5/kernel/net/ipv4/netfilter/ip_tables.o: unresolved
+> symbol nf_register_sockopt
+> 
+> This is with kernel 2.4.5 and Slackware 7.1 is the distribution.
+> Does anyone know what these unresolved symbols are about??

@@ -1,62 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282824AbRK0Gkl>; Tue, 27 Nov 2001 01:40:41 -0500
+	id <S282052AbRK0Gmj>; Tue, 27 Nov 2001 01:42:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282823AbRK0Gk3>; Tue, 27 Nov 2001 01:40:29 -0500
-Received: from zero.tech9.net ([209.61.188.187]:40201 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S282824AbRK0GkV>;
-	Tue, 27 Nov 2001 01:40:21 -0500
-Subject: Re: [PATCH] proc-based cpu affinity user interface
-From: Robert Love <rml@tech9.net>
-To: Andreas Dilger <adilger@turbolabs.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011126232515.V730@lynx.no>
-In-Reply-To: <1006831902.842.0.camel@phantasy>  <20011126232515.V730@lynx.no>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
-Date: 27 Nov 2001 01:40:48 -0500
-Message-Id: <1006843248.971.21.camel@phantasy>
-Mime-Version: 1.0
+	id <S282825AbRK0Gma>; Tue, 27 Nov 2001 01:42:30 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:2788 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S282052AbRK0GmV>;
+	Tue, 27 Nov 2001 01:42:21 -0500
+Date: Tue, 27 Nov 2001 09:40:04 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Robert Love <rml@tech9.net>
+Cc: Ryan Cumming <bodnar42@phalynx.dhs.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sched_[set|get]_affinity() syscall, 2.4.15-pre9
+In-Reply-To: <1006832357.1385.3.camel@icbm>
+Message-ID: <Pine.LNX.4.33.0111270930470.3061-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2001-11-27 at 01:25, Andreas Dilger wrote:
-> On Nov 26, 2001  22:31 -0500, Robert Love wrote:
-> > Reading and writing /proc/<pid>/affinity will get and set the affinity.
-> > 
-> > Security is implemented: the writer must possess CAP_SYS_NICE or be the
-> > same uid as the task in question.  Anyone can read the data.
-> 
-> Hmm, now that I think about it, anyone should be able to restrict the
-> CPUs that their processes should run on, but like "nice", you should
-> have CAP_SYS_NICE in order to increase the number of CPUs your process
-> can run on.  This makes it possible to "throttle" a user so that they
-> can only max out a single CPU.
-> 
-> Why would you do that?  Maybe because "ulimit" and friends only allow
-> you to set an absolute limit on the number of CPU seconds you can use
-> per process, but not a "percentage" of a processor or some equivalent
-> "cycles per second" unit.
-> 
-> Not that I see this as being hugely necessary, but it may as well be
-> consistent with current behaviour (c.f. nice, ulimit, etc, can all go
-> down, but not necessarily up).
 
-I thought about this too, and I realized that cpus_allowed is by default
-0xffffffff (i.e., all procs in the system).  That means this is only an
-issue when the administrator explicitly changed affinity.
+your comments about syscall vs. procfs:
 
-And that would occur in the situation you describe ... personally, I
-think users should be able to set their masks but I completely see your
-argument.
+> This patch comes about as an alternative to Ingo Molnar's
+> syscall-implemented version.  Ingo's code is nice; however I and
+> others expressed discontent as yet another syscall. [...]
 
-I suppose we could count the bits in cpus_allowed and make sure they are
-less than or equal to the new_mask bits.  This seems overkill, though. 
-We could just not allow users to change their own affinity without
-CAP_SYS_NICE, and allow root to do anything (via CAP_SYS_ADMIN).
+i do express discontent over yet another procfs bloat. What if procfs is
+not mounted in a high security installation? Are affinities suddenly
+unavailable? Such kind of dependencies are unacceptable IMO - if we want
+to export the setting of affinities to user-space, then it should be a
+system call.
 
-Anyone else have an opinion?
+(Also procfs is visibly slower than a system-call - i can well imagine
+this to be an issue in some sort of threaded environment that creates and
+destroys threads at a high rate, and wants to have a different affinity
+for every new thread.)
 
-	Robert Love
+> [...] Other benefits include the ease with which to set the affinity
+> of tasks that are unaware of the new interface [...]
+
+this was a red herring - see chaff.c.
+
+> [...] and that with this approach applications don't need to hackishly
+> check for the existence of a syscall.
+
+uhm, what check? A nonexistent system call does not have to be checked
+for.
+
+(so far no legitimate technical point has been made against the
+syscall-based setting of affinities.)
+
+	Ingo
 

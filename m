@@ -1,82 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288632AbSADOGC>; Fri, 4 Jan 2002 09:06:02 -0500
+	id <S288638AbSADOMM>; Fri, 4 Jan 2002 09:12:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288640AbSADOFw>; Fri, 4 Jan 2002 09:05:52 -0500
-Received: from [217.200.21.164] ([217.200.21.164]:20387 "HELO
-	markolaptop.markoer.net") by vger.kernel.org with SMTP
-	id <S288632AbSADOFp>; Fri, 4 Jan 2002 09:05:45 -0500
-Date: Fri, 4 Jan 2002 15:04:22 +0100
-From: Marco Ermini <markoer@firenze.linux.it>
-To: Tommi Kyntola <kynde@ts.ray.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: [patch] Re: Framebuffer...Why oh Why???
-Message-Id: <20020104150422.3dc4117c.markoer@firenze.linux.it>
-In-Reply-To: <Pine.LNX.4.33.0201041522030.1702-100000@behemoth.ts.ray.fi>
-In-Reply-To: <20020103232614.26f2f5af.markoer@markoer.org>
-	<Pine.LNX.4.33.0201041522030.1702-100000@behemoth.ts.ray.fi>
-X-Mailer: Sylpheed version 0.6.6claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +"Lyz`Yqn/[+nPre_'A|Svg7k)orL^8-Ry6&@(Al;#ibq)H/"{g<eE,VkFB2lW_"!['Y0;c n~/~.$Y~(MLz'=#v;V9OuYhg9QH:`M5xNTS-V[7~`{M&wQKq#27w,_kNPxyF__Ppk\`h)-9
+	id <S288639AbSADOMC>; Fri, 4 Jan 2002 09:12:02 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:60270 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S288638AbSADOLp>; Fri, 4 Jan 2002 09:11:45 -0500
+Date: Fri, 4 Jan 2002 15:11:27 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "M.H.VanLeeuwen" <vanl@megsinet.net>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>, andihartmann@freenet.de,
+        riel@conectiva.com.br, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-ID: <20020104151127.L1561@athlon.random>
+In-Reply-To: <Pine.LNX.4.33L.0112292256490.24031-100000@imladris.surriel.com> <3C2F04F6.7030700@athlon.maya.org> <3C309CDC.DEA9960A@megsinet.net> <20011231185350.1ca25281.skraw@ithnet.com> <3C351012.9B4D4D6@megsinet.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=.vs4j_MfU5TfFHg"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <3C351012.9B4D4D6@megsinet.net>; from vanl@megsinet.net on Thu, Jan 03, 2002 at 08:14:42PM -0600
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.vs4j_MfU5TfFHg
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-
-On Fri, 4 Jan 2002 15:27:03 +0200 (EET), Tommi Kyntola <kynde@ts.ray.fi>
-wrote:
-
-[...]
-> > A similar things happened to me. I have a Toshiba Satellite 4080 XCDT, and
-> > switching from XFree to console and back to XFree becomed impossibile with
-> > the upgrade to Redhat 7.x and XFree 4. The problem is that the apm script
-> > use to switch to console mode when I suspend (es. closing the laptop) and
-> > when it resumes it tries to switch to XFree again, but this messes the
-> > screen. I am still able to come back to console and killall X, but of
-> > course I'll lose my current not saved works under X.
+On Thu, Jan 03, 2002 at 08:14:42PM -0600, M.H.VanLeeuwen wrote:
+> Stephan von Krawczynski wrote:
 > > 
-> > Under XFree 3 I could switch from X to console and back without problems -
-> > anyway, after a couple of switches my laptop used to hang. I think X
-> > writes to the uncorrect memory regions causing my laptop to hang.
+> > On Mon, 31 Dec 2001 11:14:04 -0600
+> > "M.H.VanLeeuwen" <vanl@megsinet.net> wrote:
+> > 
+> > > [...]
+> > > vmscan patch:
+> > >
+> > > a. instead of calling swap_out as soon as max_mapped is reached, continue to
+> > try>    to free pages.  this reduces the number of times we hit
+> > try_to_free_pages() and>    swap_out().
+> > 
+> > I experimented with this some time ago, but found out it hit performance and
+> > (to my own surprise) did not do any good at all. Have you tried this
+> > stand-alone/on top of the rest to view its results?
+> > 
+> > Regards,
+> > Stephan
 > 
-> This really is offtopic, because the above symptoms are caused solely by 
-> XFree 4.1. The was discussion about this in XFree mailing lists.
+> Stephan,
 > 
-> A quick fix is to get a newer RedHat Rawhide XFree86 rpm (atleast
-> 4.1.0-8 and later have that bug fixed) or better yet get a newer 
-> tarball of X from xfree86.org 
+> Here is what I've run thus far.  I'll add nfs file copy into the mix also...
+> 
+> System: SMP 466 Celeron 192M RAM, running KDE, xosview, and other minor apps.
+> 
+> Each run after clean & cache builds has 1 more setiathome client running upto a
+> max if 8 seti clients.  No, this isn't my normal way of running setiathome, but
+> each instance uses a nice chunk of memory.
+> 
+> Note: this is a single run for each of the columns using "make -j2 bzImage" each time.
+> 
+> I will try to run aa and rmap this evening and/or tomorrow.
 
-Anyway, thanks. I'll try it when I'll have a fast connection next week (it's
-more than 18 MB download).
+The design changes Linus did was explicitly to left the mapped pages
+into the inactive list so we learn when we should trigger swapout. Also
+it is nicer to swapout over the shrinking. rc2aa2 should work just fine.
+Have a look at how such logic is implemented there. (btw, I will shortly
+sync with 18pre, 2.2 and 2.5)
 
-> yers,
->  another member of "Linux on a Toshiba Satellite 4080xcdt (TM)" :)
-
-You are missing "proud" ;-)
-
-
-thanks
-
--- 
-Marco Ermini
-http://www.markoer.org
-Never attribute to malice that which is adequately explained
-by stupidity. (a sig from Slashdot postings)
-
---=.vs4j_MfU5TfFHg
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iD8DBQE8NbZqDT6FNtZ+AP4RAnqKAJ9P7Ogp0CoBC6PS6hiOaYYGHFF8lACfUtW2
-nHPG4bsMhnergO3Q6IbUxWo=
-=T5oL
------END PGP SIGNATURE-----
-
---=.vs4j_MfU5TfFHg--
-
+Andrea

@@ -1,62 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262073AbTELMWZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 08:22:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbTELMWZ
+	id S262090AbTELM0j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 08:26:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbTELM0j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 08:22:25 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:20637 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262073AbTELMWY
+	Mon, 12 May 2003 08:26:39 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:8914 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP id S262090AbTELM0h
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 08:22:24 -0400
-Date: Mon, 12 May 2003 14:34:19 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Jeremy Jackson <jerj@coplanar.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Switch ide parameters to new-style and make them unique.
-In-Reply-To: <20030512063812.EEDAF2C0F5@lists.samba.org>
-Message-ID: <Pine.SOL.4.30.0305121423540.7978-100000@mion.elka.pw.edu.pl>
+	Mon, 12 May 2003 08:26:37 -0400
+Message-ID: <3EBF95F3.1090507@quark.didntduck.org>
+Date: Mon, 12 May 2003 08:39:15 -0400
+From: Brian Gerst <bgerst@quark.didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>, dave_matthew@yahoo.com
+Subject: Re: [Bug 703] New: Security vulnerability in "ioperm" system call
+References: <17400000.1052708613@[10.10.2.4]>
+In-Reply-To: <17400000.1052708613@[10.10.2.4]>
+Content-Type: multipart/mixed;
+ boundary="------------040308020002050906070100"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------040308020002050906070100
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, 12 May 2003, Rusty Russell wrote:
+Martin J. Bligh wrote:
+> http://bugme.osdl.org/show_bug.cgi?id=703
+> 
+>            Summary: Security vulnerability in "ioperm" system call
+>     Kernel Version: 2.5.69
+>             Status: NEW
+>           Severity: low
+>              Owner: mbligh@aracnet.com
+>          Submitter: dave_matthew@yahoo.com
+> 
+> 
+> Problem Description:
+> The "ioperm" system call allows an unprivileged user to gain read and write
+> access to I/O ports on the system.  When used by a privileged process, the
+> "ioperm" system call also fails to properly restrict privileges.
 
-> In message <003f01c31828$c8e9f480$7c07a8c0@kennet.coplanar.net> you write:
-> > Cool stuff.
-> >
-> > As far as making the parameters easy to parse, I think you would want to
-> > have a single static tag before the = (equal) sign.  The kernel command line
-> > parsing stuff provides parsing up to that point and dispatches to each
-> > subsystem (or at least it used to), so:
-> >
-> > ata.dev_noprobe=hda
-> >
-> > should be
-> >
-> > ata=dev_noprobe:hda,if_io_irq:0,0x1f0,7
-> >
-> > or some such to use the generic code that's already there.
-
-Already there? :-)
-Generic code to do this would be nice.
-
-> Sure, some more complex generic parsing thing certainly makes sense.
-> I think whoever produces the code will probably get to decide what it
-> looks like.
-
-For the beginning generic helper which grabs table of strings
-(driver params) and pointers to parsing functions ('char *s' arg,
-'int' return) would be useful for many drivers...
+This patch makes sure that the ioperm bitmap in the TSS is correctly set 
+up during the first ioperm() call.  Without this the TSS bitmap contains 
+random garbage until the next context switch.
 
 --
-Bartlomiej
+				Brian Gerst
 
-> Cheers!
-> Rusty.
-> --
->   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+--------------040308020002050906070100
+Content-Type: text/plain;
+ name="iobitmap-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="iobitmap-1"
+
+diff -urN linux-2.5.64-bk5/arch/i386/kernel/ioport.c linux/arch/i386/kernel/ioport.c
+--- linux-2.5.64-bk5/arch/i386/kernel/ioport.c	2003-02-24 14:59:03.000000000 -0500
++++ linux/arch/i386/kernel/ioport.c	2003-03-14 10:19:48.000000000 -0500
+@@ -84,15 +84,17 @@
+ 		t->ts_io_bitmap = bitmap;
+ 	}
+ 
+-	tss = init_tss + get_cpu();
+-	if (bitmap)
+-		tss->bitmap = IO_BITMAP_OFFSET;	/* Activate it in the TSS */
+-
+ 	/*
+ 	 * do it in the per-thread copy and in the TSS ...
+ 	 */
+ 	set_bitmap(t->ts_io_bitmap, from, num, !turn_on);
+-	set_bitmap(tss->io_bitmap, from, num, !turn_on);
++	tss = init_tss + get_cpu();
++	if (tss->bitmap == IO_BITMAP_OFFSET) { /* already active? */
++		set_bitmap(tss->io_bitmap, from, num, !turn_on);
++	} else {
++		memcpy(tss->io_bitmap, t->ts_io_bitmap, IO_BITMAP_BYTES);
++		tss->bitmap = IO_BITMAP_OFFSET;	/* Activate it in the TSS */
++	}
+ 	put_cpu();
+ out:
+ 	return ret;
+
+--------------040308020002050906070100--
 

@@ -1,87 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263745AbUDOFMX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 01:12:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263807AbUDOFMX
+	id S263641AbUDOFoL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 01:44:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263828AbUDOFoL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 01:12:23 -0400
-Received: from [210.8.79.18] ([210.8.79.18]:23731 "EHLO dreamcraft.com.au")
-	by vger.kernel.org with ESMTP id S263745AbUDOFMU (ORCPT
+	Thu, 15 Apr 2004 01:44:11 -0400
+Received: from ozlabs.org ([203.10.76.45]:44500 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S263641AbUDOFoH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 01:12:20 -0400
-Date: Thu, 15 Apr 2004 15:12:15 +1000
-To: Dave Jones <davej@redhat.com>, walt <wa1ter@myrealbox.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6.5-bk]  'modules_install' failed to install modules
-Message-ID: <20040415051215.GC1472@himi.org>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	walt <wa1ter@myrealbox.com>, linux-kernel@vger.kernel.org
-References: <407D5B7F.107@myrealbox.com> <20040414161827.GA2229@mars.ravnborg.org> <20040414170010.GA23419@redhat.com> <20040414202554.GA12020@mars.ravnborg.org>
+	Thu, 15 Apr 2004 01:44:07 -0400
+Date: Thu, 15 Apr 2004 13:54:46 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org
+Subject: PPC64 hugepage cleanup
+Message-ID: <20040415035446.GA25560@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linuxppc64-dev@lists.linuxppc.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oTHb8nViIGeoXxdp"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040414202554.GA12020@mars.ravnborg.org>
 User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: simon@himi.org (Simon Fowler)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew, please apply.  This is a small cleanup to the PPC64 hugepage
+code.  It removes an unhelpful function, removing some studlyCaps in
+the process.  It was originally this way to match the normal page
+path, but that has all been rewritten since.
 
---oTHb8nViIGeoXxdp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Index: working-2.6/arch/ppc64/mm/hugetlbpage.c
+===================================================================
+--- working-2.6.orig/arch/ppc64/mm/hugetlbpage.c	2004-04-13 11:42:35.000000000 +1000
++++ working-2.6/arch/ppc64/mm/hugetlbpage.c	2004-04-14 15:04:28.512784264 +1000
+@@ -609,15 +609,6 @@
+ 	}
+ }
+ 
+-static inline unsigned long computeHugeHptePP(unsigned int hugepte)
+-{
+-	unsigned long flags = 0x2;
+-
+-	if (! (hugepte & _HUGEPAGE_RW))
+-		flags |= 0x1;
+-	return flags;
+-}
+-
+ int hash_huge_page(struct mm_struct *mm, unsigned long access,
+ 		   unsigned long ea, unsigned long vsid, int local)
+ {
+@@ -671,7 +662,7 @@
+ 	old_pte = *ptep;
+ 	new_pte = old_pte;
+ 
+-	hpteflags = computeHugeHptePP(hugepte_val(new_pte));
++	hpteflags = 0x2 | (! (hugepte_val(new_pte) & _HUGEPAGE_RW));
+ 
+ 	/* Check if pte already has an hpte (case 2) */
+ 	if (unlikely(hugepte_val(old_pte) & _HUGEPAGE_HASHPTE)) {
 
-On Wed, Apr 14, 2004 at 10:25:54PM +0200, Sam Ravnborg wrote:
-> On Wed, Apr 14, 2004 at 06:00:10PM +0100, Dave Jones wrote:
-> >=20
-> > Make this the third.  I just saw it happen here too.
-> > 'make bzImage ; make modules ; make modules_install' fails in the above=
- way.
-> > Doing a 'make' seems to work.
->=20
-> I think I tracked it down now.
-> During 'make bzImage' the directory .tmp_versions was deleted and created.
-> This is only supposed to happen when building modules.
->=20
-> This does not match your failure report 100%.
-> I assume what you did was something like:
->=20
-> make bzImage
-> make modules
-> make install		<=3D This would trigger the above case
-> make modules_install
->=20
-> Or maybe you inverted the two:
-> make modules
-> make bzImage
->=20
-> Anyway here is the fix.
-> Please let me know if you still se problems.
->=20
-This patch fixed the problem for me - 'make install modules_install'
-now does what it's supposed to do.
 
-Simon
 
---=20
-PGP public key Id 0x144A991C, or http://himi.org/stuff/himi.asc
-(crappy) Homepage: http://himi.org
-doe #237 (see http://www.lemuria.org/DeCSS)=20
-My DeCSS mirror: ftp://himi.org/pub/mirrors/css/=20
-
---oTHb8nViIGeoXxdp
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAfhmvQPlfmRRKmRwRAg9KAKCWftr4XRzQNmQ+4BY8qAj2qsB/uwCg0urs
-/3s3eAbvLJX1OT+c/6wYQDQ=
-=EYEN
------END PGP SIGNATURE-----
-
---oTHb8nViIGeoXxdp--
+-- 
+David Gibson			| For every complex problem there is a
+david AT gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

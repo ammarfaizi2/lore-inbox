@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265543AbTCEMCB>; Wed, 5 Mar 2003 07:02:01 -0500
+	id <S266064AbTCEMKG>; Wed, 5 Mar 2003 07:10:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265637AbTCEMCB>; Wed, 5 Mar 2003 07:02:01 -0500
-Received: from sysdoor.net ([62.212.103.239]:15116 "EHLO celia")
-	by vger.kernel.org with ESMTP id <S265543AbTCEMCA>;
-	Wed, 5 Mar 2003 07:02:00 -0500
-Date: Wed, 5 Mar 2003 13:11:16 +0100
-From: Michael Vergoz <mvergoz@sysdoor.com>
-To: "Reed, Timothy A" <timothy.a.reed@lmco.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: High Mem Options
-Message-Id: <20030305131116.0556f3a5.mvergoz@sysdoor.com>
-In-Reply-To: <9EFD49E2FB59D411AABA0008C7E675C00DCDFE01@emss04m10.ems.lmco.com>
-References: <9EFD49E2FB59D411AABA0008C7E675C00DCDFE01@emss04m10.ems.lmco.com>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S266069AbTCEMKG>; Wed, 5 Mar 2003 07:10:06 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:22723 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S266064AbTCEMJd>; Wed, 5 Mar 2003 07:09:33 -0500
+X-Envelope-From: news@bytesex.org
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Gerd Knorr <kraxel@bytesex.org>
+Newsgroups: lists.linux.kernel
+Subject: Re: reducing stack usage in v4l?
+Date: 05 Mar 2003 13:28:30 +0100
+Organization: SuSE Labs, Berlin
+Message-ID: <87llzugfpt.fsf@bytesex.org>
+References: <32833.4.64.238.61.1046841945.squirrel@www.osdl.org> <87u1eigomv.fsf@bytesex.org> <1046865047.2310.33.camel@nirvana.flat>
+NNTP-Posting-Host: localhost
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-Trace: bytesex.org 1046867310 16998 127.0.0.1 (5 Mar 2003 12:28:30 GMT)
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Tim,
+mdew <mdew@mdew.dyndns.org> writes:
 
-Every system can NOT manage more than 4GB memory on x86 processor (32 bits processor).
-Because the system addressing is limited to 32Bits, well memory > 4GB is used generaly for memory spare...
+> On the topic of v4l, Ive had complete lockups on recent 2.5.x kernels
+> when loading a v4l application Zapping.
 
-Best regards,
-Michael
+There are a few known issues, pushing updates to Linus is on my todo list.
+If it still happens with the latest bits from http://bytesex.org/snapshot/
+I'd like to know.
 
-On Wed, 05 Mar 2003 06:28:36 -0500
-"Reed, Timothy A" <timothy.a.reed@lmco.com> wrote:
+  Gerd
 
-> Hello all,
-> 	Yet another quick question...is there any down side to using the
-> 64GB option over the 4GB option if the machine only has 2GB of RAM onboard??
-> I would think this would be a performance issue?  Does the kernel only use
-> the translation table if it has to access any memory location over 4GB?
-> 
-> TIA
-> Tim Reed
-> Email: timothy.a.reed@lmco.com
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+/join #zonenkinder

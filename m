@@ -1,68 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129115AbRCWCue>; Thu, 22 Mar 2001 21:50:34 -0500
+	id <S129078AbRCWCjz>; Thu, 22 Mar 2001 21:39:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129624AbRCWCuY>; Thu, 22 Mar 2001 21:50:24 -0500
-Received: from stanis.onastick.net ([207.96.1.49]:8709 "EHLO
-	stanis.onastick.net") by vger.kernel.org with ESMTP
-	id <S129115AbRCWCuM>; Thu, 22 Mar 2001 21:50:12 -0500
-Date: Thu, 22 Mar 2001 21:49:20 -0500
-From: Disconnect <lkml@sigkill.net>
-To: linux-kernel@vger.kernel.org
-Subject: thunderbird 1.2G + kk266 + 2.4.x oops and crash
-Message-ID: <20010322214920.B24336@sigkill.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S129084AbRCWCjp>; Thu, 22 Mar 2001 21:39:45 -0500
+Received: from dentin.eaze.net ([216.228.128.151]:58130 "EHLO xirr.com")
+	by vger.kernel.org with ESMTP id <S129078AbRCWCjd>;
+	Thu, 22 Mar 2001 21:39:33 -0500
+Date: Thu, 22 Mar 2001 20:38:18 -0600 (CST)
+From: SodaPop <soda@xirr.com>
+To: <egger@suse.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Only 10 MB/sec with via 82c686b - FIXED
+In-Reply-To: <20010321143956.917977A94@Nicole.muc.suse.de>
+Message-ID: <Pine.LNX.4.30.0103222015490.25766-100000@xirr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Long and short is I have a new mobo/cpu/ram (see below) that runs great
-under Win98 and passes memtest86 (3 extended runs as pc133/cas2, 3
-standard runs as pc100/cas3) but oops's almost immediately under Linux
-2.4.x (2.4.2 and 2.4.1 at the least.)
 
-With a few rare exceptions (usually kupdated) all of the oops's are in
-kswapd (I can manually decode the call stack/etc if someone lets me know
-which info they need and confirms for me real quick how to get all the
-info out.  I do have the system.map on another machine, so just a
-pointer/url/etc is cool.)
+Regarding the overclocking of the PCI bus, I was not aware of this.  The
+documentation led me to believe the pci clock was fixed, however further
+experimentation indicates that's clearly not the case.  Thanks.
 
-I have tried a couple of kernel builds, with no change.  HD access doesn't
-seem to affect it (at least, e2fsck on a 10 gig partition doesn't bomb)
-but doing actual work does.  (Work like, say, booting w/o init=/bin/sh ;)
-..)
+Regarding the fix:  I installed an Ensonique AudioPci sound card, and
+experienced horrible distortion, crackling, and high pitched chirps any
+time I tried to use the device.  I noticed that various interrupts were
+causing chunks of the real audio to sometimes slip through; on a whim I
+tried ping flooding a nearby machine and the sound quality improved
+greatly.
 
-Hardware list:
-1.2G AMD Thunderbird
-Iwill kk266 (not ide-raid) mobo, via apollo kt133a - specs url below)
-2 256M pc133/cas2 amd-approved dimms
-new amd-approved power supply (bios and windows list voltages/cooling as
-reasonable)
-bunch of pci cards that don't seem to affect things either way (only one I
-haven't pulled is voodoo3, since there is no onboard video)
+Putting two and two together, it occurred to me that the motherboard was
+having irq/interrupt routing problems.  The disks could not get reasonable
+throughput because the interrupts were getting choked or held up, and the
+sound card couldn't properly function either.
 
-Mobo is jumpered to 100mhz FSB (which is correct for the chip) and
-multiplier/voltage/etc is set to 'auto'.
+Wonder of wonders, I flashed the bios to the latest and greatest version.
+Current data transfer rates are 35.7 MB/sec on both udma drives, exactly
+as expected and darn close to the continuous read limits of the disks.
+The audio also started working, flawlessly.
 
-Things tried:
-memtest86, passed
-win98, runs fine
-set speed down (1150 and 1100), no change
-set ide to paranoid (noautotune, no dma, no blockmode, etc), no change
-bang head on wall, no change
+There are other issues however - the athlon now runs significantly hotter
+at idle for one, but the most serious is that the K7 kernel optimizations
+cause horrendous kernel panics and crashes.  I'm running now on a kernel
+compiled for 386, which seems to be stable.  I'll attempt to build other
+kernels to see if I can figure out whats going on.
+
+Net result:  IWill KK266 motherboards have bios problems, it may be a good
+idea to upgrade the bios.
+
+-dennis T
 
 
-Full mobo specs:
-http://www.iwillusa.com/products/spec.asp?ModelName=KK266&SupportID=
+On Wed, 21 Mar 2001 egger@suse.de wrote:
 
-Any help much appreciated.
+> On 20 Mar, SodaPop wrote:
+>
+> > I have an IWill KK-266R motherboard with an athlon-c 1200
+> > processor in it, and for the life of me I can't get more than
+> > 10 MB/sec through the on-board ide controller.  Yes, all the
+> > appropriate support is turned on in the kernel to enable dma
+> > and specific chipset support, and yes, I think I have all
+> > relevant patches and a reasonable kernel.
+>
+>  Yes, actually I'm seeing the same on a KT133 board from Elitegroup.
+>  Although here I get a bit more: 15 MB/s
+>
+> > I noted a number of other interesting things;  one, that -X33,
+> > -X34, and -X64 through -X69 all have the same 10 MB/sec transfer
+> > rate, and two, that the 10 MB/sec transfer rate can be linearly
+> > increased to 12 MB/sec by raising the system bus from 100 mhz to
+> > 120 mhz (all components are safely rated at 133, no overclocking
+> > involved.)
+>
+>  Duh, before making such a claim you should consider the fact that
+>  this is overclocking your PCI/AGP bus and I have yet to see any
+>  graphic cards/IDE controllers/other devices which are rated for
+>  37MHz PCI bus speed.
+>
+> --
+>
+> Servus,
+>        Daniel
+>
 
----
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1 [www.ebb.org/ungeek]
-GIT/CC/CM/AT d--(-)@ s+:-- a-->? C++++$ ULBS*++++$ P+>+++ L++++>+++++ 
-E--- W+++ N+@ o+>$ K? w--->+++++ O- M V-- PS+() PE Y+@ PGP++() t 5--- 
-X-- R tv+@ b++++>$ DI++++ D++(+++) G++ e* h(-)* r++ y++
-------END GEEK CODE BLOCK------

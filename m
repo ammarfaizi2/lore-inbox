@@ -1,54 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263020AbUFWXtu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262837AbUFWXzN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263020AbUFWXtu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 19:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbUFWXtt
+	id S262837AbUFWXzN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 19:55:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263041AbUFWXzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 19:49:49 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:63419 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S263001AbUFWXtd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 19:49:33 -0400
-Message-ID: <40DA16E8.6070902@nortelnetworks.com>
-Date: Wed, 23 Jun 2004 19:48:56 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mariusz Mazur <mmazur@kernel.pl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.7.0
-References: <200406240102.23162.mmazur@kernel.pl>
-In-Reply-To: <200406240102.23162.mmazur@kernel.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Jun 2004 19:55:13 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:30359 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id S262837AbUFWXzL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 19:55:11 -0400
+Date: Thu, 24 Jun 2004 09:54:49 +1000 (EST)
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+Message-Id: <200406232354.i5NNsnCL029470@supreme.pcug.org.au>
+To: greg@kroah.com, jeremy.katz@gmail.com
+Cc: akpm@osdl.org, jgarzik@pobox.com, katzj@redhat.com,
+       linux-kernel@vger.kernel.org, sfr@canb.auug.org.au, torvalds@osdl.org
+Subject: Re: [PATCH] PPC64 iSeries viodasd proc file
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mariusz Mazur wrote:
+From: Greg KH <greg@kroah.com>
+> 
+> I agree, I don't think that many things have disappeared from /proc just
+> yet, right?  You should just have more information than what you
+> previously did, right?  Or did scsi drop their /proc support fully?
 
-> I'm interested in guidelines, not discussion :)
-> Kernel guys had a couple of years since 2.4 for discussing this so 
-> something
-> *must* have been agreed upon.
+What started this discussion is that I had to drop all the proc support
+from the iSeries virtual devices while attempting to get the drivers
+into the mainline kernel.
 
-After a bit of googling...
-
-Andries Brouwer suggested include/linuxabi with arch-specific dirs
-H. Peter Anvin apparently suggested putting them in include/abi, with 
-arch-specific dirs.  However, he thinks its too much work for 2.6 and sees it as 
-an early 2.7 thing.
-Matthew Wilcox apparently suggested something similar
-Jeff Garzik approved the idea
-Rob Landley suggested moving your headers there and then cleaning up the other 
-headers, and expressed willingness to submit patches.
-Sam Ravnborg supported the idea
-Eric Biederman supported the idea, suggested linux-only namespace and 
-version-based naming, figured it was 2.7 work
-David Miller approved the idea
-
-
-Maybe this should be a topic for the kernel summit or a BOF session at OLS?
-
-Chris
+Cheers,
+Stephen

@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262214AbTCHVQQ>; Sat, 8 Mar 2003 16:16:16 -0500
+	id <S262137AbTCHVXP>; Sat, 8 Mar 2003 16:23:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262215AbTCHVQQ>; Sat, 8 Mar 2003 16:16:16 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:5128 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262214AbTCHVQP>; Sat, 8 Mar 2003 16:16:15 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] register_blkdev
-Date: 8 Mar 2003 13:26:37 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b4dn6d$go8$1@cesium.transmeta.com>
-References: <UTC200303080057.h280v0o28591.aeb@smtp.cwi.nl> <20030308073407.A24272@infradead.org> <20030308192908.GB26374@kroah.com> <20030308194331.A31291@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+	id <S262215AbTCHVXP>; Sat, 8 Mar 2003 16:23:15 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:49843
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262137AbTCHVXO>; Sat, 8 Mar 2003 16:23:14 -0500
+Subject: Re: 2.4.21-pre5-ac2:  kernel oops with "swapoff -a"
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: walt <wa1ter@myrealbox.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E69CEF9.9050808@myrealbox.com>
+References: <3E69CEF9.9050808@myrealbox.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1047163205.26745.1.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 08 Mar 2003 22:40:06 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20030308194331.A31291@infradead.org>
-By author:    Christoph Hellwig <hch@infradead.org>
-In newsgroup: linux.dev.kernel
-> 
-> So people should have started working on it sooner.  If people really think
-> they need a 32bit dev_t for their $BIGNUM of disks (and I still don't buy
-> that argument) we should just introduce it and use it only for block devices
-> (which already are fixed up for this) and stay with the old 8+8 split for
-> character devices.  Note that Linux is about doing stuff right, not fast.
-> 
+On Sat, 2003-03-08 at 11:07, walt wrote:
+> When I do "swapoff -a" I still see the kernel oops that began with -pre4-ac7
+> and has propagated to every 'ac' kernel since then.
 
-We need it if anything even more for character devices.  Character
-devices are under even more allocation pressure, and just look at the
-ugly hacks we've already had to play for e.g. tty devices.
+Yes. There is a nasty bug in the original 2.4 code (and maybe 2.5).
+There is a fix in the -ac tree but the fix has a different bug it seems.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+> Plain 2.4.21-pre5 does NOT show this problem, so it seems to be a patch that
+> was specifically introduced in -pre4-ac7 and I don't know enough to narrow
+> it any further than that.  I'm not an accomplished kernel debugger so I
+> can't offer much more info than that, but I'd like to help if you can give
+> me some hints what kind of information you might need to find the problem.
+
+The patch is staying in -ac until I find out why you hit it. I've had no
+other reports so far, but it just be the way your system is calling it.
+
+Can you send me an strace swapoff -a ?
+

@@ -1,85 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265543AbUFDCRI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265552AbUFDCUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265543AbUFDCRI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 22:17:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265548AbUFDCRH
+	id S265552AbUFDCUs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 22:20:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265548AbUFDCUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 22:17:07 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:51779 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S265543AbUFDCRC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 22:17:02 -0400
-Date: Thu, 3 Jun 2004 19:25:18 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de, greg@kroah.com
-Subject: Re: [PATCH] fix sys cpumap for > 352 NR_CPUS
-Message-Id: <20040603192518.2e21e6e4.pj@sgi.com>
-In-Reply-To: <1086311544.7991.868.camel@bach>
-References: <20040602161115.1340f698.pj@sgi.com>
-	<1086222156.29391.337.camel@bach>
-	<20040602212547.448c7cc7.pj@sgi.com>
-	<1086243997.29390.527.camel@bach>
-	<20040603012728.42713a30.pj@sgi.com>
-	<1086311544.7991.868.camel@bach>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 3 Jun 2004 22:20:48 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:7672 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S265554AbUFDCUm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 22:20:42 -0400
+Message-ID: <40BFDD4F.5080408@elegant-software.com>
+Date: Thu, 03 Jun 2004 22:24:15 -0400
+From: Russell Leighton <russ@elegant-software.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: Re: Fw: F_SETSIG broken/changed in 2.6 for UDP and TCP sockets?
+References: <20040531151843.7144dfce.akpm@osdl.org>
+In-Reply-To: <20040531151843.7144dfce.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Honestly, I dislike the static check altogether ...
 
-  The build time check was your idea in the first place, as I recall.
-  I hadn't added it to my variants.  Apparently we agree not to add it.
-  Ok.
+Thanks to all that helped me troubleshoot.
 
-> Because now you have silently truncated, which is much worse than
+Of the 2 issues I had with FedoraCore2, one problem is solved:
 
-  I absolutely agree with your dislike of hidden intermittent failures.
+    * Multicast issues were solved by using another NIC. It seems that
+      the driver for the NatSemi DP8381[56] does not receive mutlicast
+      properly.
+    * F_SETSIG still seems broken for TCP for me when my process sets up
+      more than a few fd's...I will try the latest kernel to see if this
+      goes away
 
-  For a constant failure such as this, even if everyone misses the
-  botch for the first few times that SGI boots a bazillion CPU system
-  in the lab, it will get noticed soon enough.  This is in fact
-  exactly what happened with the 99 char limit that was there now.
 
-> 	len = cpumask_scnprintf(buf, PAGE_SIZE, mask);
-> 	if (len == PAGE_SIZE)
-> 		return -ENOMEM;
+Russ
 
-  That looks nice.
+Andrew Morton wrote:
 
-  If you want me to add the "if (len ..."  check, let me know.
-  Or if you want to send Andrew a patch that adds it, I'll
-  gladly support that.
+>Begin forwarded message:
+>
+>Date: Mon, 31 May 2004 14:45:08 -0400
+>From: Russell Leighton <russ@elegant-software.com>
+>To: linux-kernel@vger.kernel.org
+>Subject: F_SETSIG broken/changed in 2.6 for UDP and TCP sockets?
+>
+>
+>
+>I have a program that works fine under stock rh9 (2.4.2-8) but has 
+>issues getting signaled under FedoraCore2 (2.6.5-1.358)
+>using SETSIG to a Posix RT signal.
+>
+>The program does the standard:
+>
+>  /* hook to process */
+>  if ( fcntl(fdcallback->fd, F_SETOWN, mon->handler_q.thread->pid) == -1 ) {
+>    aw_log(fdcallback->handler->logger, AW_ERROR_LOG_LEVEL,
+>       "cannot set owner on fd (%s)",
+>       strerror(errno));
+>  }/* end if */
+>
+>  /* make async */
+>  if ( fcntl(fdcallback->fd, F_SETFL, (O_NONBLOCK | O_ASYNC) ) == -1 ) {
+>    aw_log(fdcallback->handler->logger, AW_ERROR_LOG_LEVEL,
+>       "cannot set async on fd (%s)",
+>       strerror(errno));
+>  }/* end if */
+>
+>  /* hook to signal */
+>  if ( fcntl(fdcallback->fd, F_SETSIG, AW_SIG_FD) == -1 ) {
+>    aw_log(fdcallback->handler->logger, AW_ERROR_LOG_LEVEL,
+>       "cannot set signal on fd (%s)",
+>       strerror(errno));
+>  }/* end if */
+>
+>Under Fedora things work well for raw sockets (much lower latency than 
+>in 2.4!) but are inconsistent with udp or tcp sockets.
+>
+>In the udp case, I when I listen for multicast packets my app only 
+>receives them when I am running a tcpdump (bizarre!).
+>
+>In the tcp case, I don't get signaled if I do the F_SETSIG on more than 
+>1 fd.
+>
+>Any tips on tracking this down would be much appreciated.
+>
+>Thx
+>
+>Russ
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>  
+>
 
-  ==> Do note that I had to change the -1UL to PAGE_SIZE, in a
-      patch to Andrew about 12 hours ago.  The *scnprintf()
-      family of fine formatting functions suppresses all requested
-      output if handed a length with the high bit set.
-
-> That would be extremely unusual; we tend not to panic ...
-
-  Yup - I think it was Greg who said the same thing.  Clearly this is
-  not a panic.
-
-  I was wrong to suggest panic'ing here.
-
-> I'll do it; seems like we need negotiation with Greg-KH, too.
-
-  Ok - have fun.
-
-> I question anyone's ability to produce a perfectly balanced solution
-> without any external input.
-
-  Whatever ... my view of who was saying and doing what here doesn't
-  entirely match yours.
-
-  So be it.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373

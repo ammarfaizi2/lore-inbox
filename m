@@ -1,40 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271711AbTGRGHa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 02:07:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271713AbTGRGH3
+	id S271713AbTGRGJu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 02:09:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271720AbTGRGJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 02:07:29 -0400
-Received: from webhosting.rdsbv.ro ([213.157.185.164]:12710 "EHLO
-	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S271711AbTGRGH2
+	Fri, 18 Jul 2003 02:09:50 -0400
+Received: from mail.convergence.de ([212.84.236.4]:9182 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S271713AbTGRGJs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 02:07:28 -0400
-Date: Fri, 18 Jul 2003 09:22:22 +0300 (EEST)
-From: Catalin BOIE <util@deuroconsult.ro>
-X-X-Sender: util@hosting.rdsbv.ro
-To: tea4two <tea4two@tin.it>
-cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: dma_timer_expiry on SATA siimage 3112 under 2.6.0-test1-ac1
-In-Reply-To: <bf72m5$2p5$1@main.gmane.org>
-Message-ID: <Pine.LNX.4.53.0307180919480.19703@hosting.rdsbv.ro>
-References: <1058389994.3220.20.camel@daedalus.samhome.net> <bf6nb0$c3$1@main.gmane.org>
- <1058466147.3220.62.camel@daedalus.samhome.net> <bf72m5$2p5$1@main.gmane.org>
+	Fri, 18 Jul 2003 02:09:48 -0400
+Message-ID: <3F1792AA.70704@convergence.de>
+Date: Fri, 18 Jul 2003 08:24:42 +0200
+From: Michael Hunold <hunold@convergence.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.4) Gecko/20030715
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] Add two drivers for USB based DVB-T adapters
+References: <10582891731946@convergence.de> <20030715212005.GA5458@kroah.com>
+In-Reply-To: <20030715212005.GA5458@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I can't explain why it's work....
-> I've made a lot of tries and the only way to work at 50.5 Mb/s (for me) is
-> to run: hdparm -d1 -Xudma2 /dev/hde
+Hello Greg,
 
-Same controler here, same crashes if I enable dma.
-But I found a solution:
-I modified ide-iops.c, function ide_ata66_check to return 0, without
-testing the controller registers.
-I booted and I issue: hdparm -d1 -u1 -Xudma6 /dev/hda and the speed is
-50MB/s, without problems.
+>>+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+>>+static void *ttusb_probe(struct usb_device *udev, unsigned int ifnum,
+>>+		  const struct usb_device_id *id)
+>>+{
 
----
-Catalin(ux) BOIE
-catab@deuroconsult.ro
+> Ick, you don't really want to try to support all of the USB changes in
+> the same driver, now do you?  Why not just live with two different
+> drivers.
+
+Because I'm the poor guy that has to test it with 2.4 and 2.5 and who's 
+submitting the patches. 8-)
+
+The author is mainly working with 2.4, I'm trying to compile it and test 
+it for 2.5.
+
+> The ALSA people eventually gave up trying to do this... :)
+
+I agree, I'll separate the stuff now that it has gone into Linus' tree.
+
+>>+#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,5,69))
+>>+#undef devfs_remove
+>>+#define devfs_remove(x)	devfs_unregister(ttusb->stc_devfs_handle);
+>>+#endif
+>>+#if 0
+>>+	devfs_remove(TTUSB_BUDGET_NAME);
+>>+#endif
+
+> You end up with crud like this because of trying to support old kernels.
+> Why do you care about kernels prior to 2.5.69?  If so, your USB kernel
+> checks are wrong, as 2.5.0 didn't have those API changes :)
+
+I already wrote Linus that I'll remove this compatibility crap with the 
+next patchset.
+
+> thanks,
+> greg k-h
+
+Thanks for your feedback!
+
+CU
+Michael.
+

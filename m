@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262142AbUDRQu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 12:50:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbUDRQu6
+	id S262176AbUDRRFb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 13:05:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbUDRRFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 12:50:58 -0400
-Received: from ns.suse.de ([195.135.220.2]:43723 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262142AbUDRQu5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 12:50:57 -0400
-Date: Sun, 18 Apr 2004 18:50:55 +0200
-From: Olaf Hering <olh@suse.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: [PATCH] ppc64: Fix CPU hot unplug deadlock]
-Message-ID: <20040418165055.GC28807@suse.de>
-References: <1082266724.2500.327.camel@gaston>
+	Sun, 18 Apr 2004 13:05:31 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:54492 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262176AbUDRRF0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Apr 2004 13:05:26 -0400
+Date: Sun, 18 Apr 2004 22:36:13 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: rusty@au1.ibm.com, Ingo Molnar <mingo@elte.hu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       lhcs-devel@lists.sourceforge.net
+Subject: CPU Hotplug broken -mm5 onwards
+Message-ID: <20040418170613.GA21769@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1082266724.2500.327.camel@gaston>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Sun, Apr 18, Benjamin Herrenschmidt wrote:
+Hi,
+	I found that I can't boot with CONFIG_HOTPLUG_CPU defined in both
+mm5 and mm6. Debugging this revealed it to be because exec path can now require 
+cpu hotplug sem (sched_migrate_task) and this has lead to a deadlock between 
+flush_workqueue and __call_usermodehelper. 
 
-> My RTAS locking fixes incorrectly added a spinlock around the function
-> used to stop a CPU, that function never returns, thus the lock becomes
-> stale. The correct fix is to disable interrupts instead (the RTAS params
-> beeing per-CPU, this should be safe enough)
-> 
-> Ben.
-> 
-> diff -urN linux-2.5/arch/ppc64/kernel/rtas.c ppc64-linux-2.5/arch/ppc64/kernel/rtas.c
-> --- linux-2.5/arch/ppc64/kernel/rtas.c	2004-04-17 12:39:03.253986984 +1000
-> +++ ppc64-linux-2.5/arch/ppc64/kernel/rtas.c	2004-04-18 15:35:41.871029480 +1000
-> @@ -504,9 +504,9 @@
->  void rtas_stop_self(void)
->  {
->  	struct rtas_args *rtas_args = &(get_paca()->xRtas);
-> -	unsigned long s;
->  
-> -	spin_lock_irqsave(&rtas.lock, s);
-> +	local_irq_disable(s);
+flush_workqueue takes cpu hotplug sem and blocks until workqueue is flushed.
+__call_usermodehelper, one of the queued work function, blocks because it
+also needs cpu hotplug sem during exec.  As of result of this, exec does not 
+progress and system does not boot.
 
-did that compile ok for you?
+I feel we can fix this by converting cpucontrol to a reader-writer semaphore or 
+big-reader-lock(?). One problem with reader-writer semaphore is there does not
+seem to be any down_write_interruptible, which is needed by cpu_down/up.
+
+Comments?
+
+BTW, I think a cpu_is_offline check is needed in sched_migrate_task, since
+dest_cpu could have been downed by the time it has acquired the semaphore. 
+In which case, we could end up adding the task to dead cpu's runqueue?
+An alternate solution would be to put the same check in __migrate_task.
+
+
 
 -- 
-USB is for mice, FireWire is for men!
 
-sUse lINUX ag, nÜRNBERG
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

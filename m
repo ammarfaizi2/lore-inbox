@@ -1,110 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263888AbTDVWlS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 18:41:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263884AbTDVWlS
+	id S263889AbTDVWre (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 18:47:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263890AbTDVWre
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 18:41:18 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:50671 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S263888AbTDVWlP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 18:41:15 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780C263B3E@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Tom Zanussi'" <zanussi@us.ibm.com>
-Cc: "'karim@opersys.com'" <karim@opersys.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] printk subsystems
-Date: Tue, 22 Apr 2003 15:53:04 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Tue, 22 Apr 2003 18:47:34 -0400
+Received: from aneto.able.es ([212.97.163.22]:53498 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S263889AbTDVWrc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 18:47:32 -0400
+Date: Wed, 23 Apr 2003 00:59:31 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-rc1
+Message-ID: <20030422225931.GA9066@werewolf.able.es>
+References: <Pine.LNX.4.53L.0304211545580.12940@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.53L.0304211545580.12940@freak.distro.conectiva>; from marcelo@conectiva.com.br on Mon, Apr 21, 2003 at 20:47:32 +0200
+X-Mailer: Balsa 2.0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> From: Tom Zanussi [mailto:zanussi@us.ibm.com]
-> Perez-Gonzalez, Inaky writes:
->  > > From: Tom Zanussi [mailto:zanussi@us.ibm.com]
->  > >
->  > > In relayfs, the event can be generated directly into the space
->  > > reserved for it - in fact this is exactly what LTT does.  There
-aren't
->  > > two separate steps, one 'generating' the event and another copying it
->  > > to the relayfs buffer, if that's what you mean.
->  >
->  > In this case, what happens if the user space, through mmap, copies
->  > while the message is half-baked (ie, from another CPU) ... won't it
->  > be inconsistent?
+On 04.21, Marcelo Tosatti wrote:
 > 
-> There's a count kept, per sub-buffer, that's updated after each write.
-> If this count doesn't match the expected size of the sub-buffer, the
-> reader can ignore the incomplete buffer and come back to it later.
-> The count is maintained automatically by relay_write(); if you're
-> writing directly into the channel as LTT does though, part of the task
-> is to call relay_commit() after the write, which updates the count and
-> maintains consistency.
-
-Hmmm, scratch, scratch ... there is something I still don't get here. 
-I am in lockless_commit() - for what you say, and what I read, I would 
-then expect the length of the sub-buffer would be mapped to user space, 
-so I can memcpy out of the mmaped area and then take only the part that
-is guaranteed to be consistent. But the atomic_add() is done on the 
-rchan->scheme.lockless.fillcount[buffer_number]. So, I don't see how
-that count pops out to user space, as rchan->buf to rchan->buf + rchan->
-alloc_size is what is mapped, and rchan is a kernel-only struct that
-is not exposed through mmap().
-
-Where is the Easter bunny I am missing? Would you mind to give a little bit
-of pseudocode? I am trying to understand how to do this:
-
-/* in userspace */
-
-char *buf;
-int fd; /* for the channel */
-int log_fd; /* for permanent storage */
-
-/* open, blah ... */
-
-buf = mmap (... fd ... 1M ...);
-
-if (new stuff is ready /* how to detect, select() on fd? */) {
-	/* bring the data to safety, copy only what is consistent */
-	real_size = /* or where do I get this from? */
-	write (log_fd, buf, real_size);
-}
-
-And then, once I have this, next time I read I don't want to read
-what I already did; I guess I can advance my buf pointer to 
-buf+real_size, but then how do I wrap around - meaning, how do I
-detect when do I have to wrap?
-
->  > Yes, you have to guarantee the existence of the event data structures
->  > (the 'struct kue', the embedded 'struct kue_user' and the event data
->  > itself); if they are embedded into another structure that will dissa-
->  > pear, you can choose to:
->  > ...
+> Here goes the first candidate for 2.4.21.
 > 
-> Well, kmalloc() seems like the most straightforward and convenient way
-> of managing space for all these individual events, if not the most
-> efficient.  Are you thinking that sub-allocating them out of a larger
-> buffer might make more sense, for instance?  If so, I'd suggest
-> relayfs for that. ;-) Just kidding, ...
+> Please test it extensively.
+> 
 
-Good try :) As I said somewhere else, that'd be up to the client. Wanna
-use kmalloc()? or kmem_cache_alloc()? or something else? I guess it'd 
-be convenient to provide a pre-implemented circular buffer thingie ready
-to use.
+binfmt_elf.c is still buggy wrt HT cpus when setting AT_PLATFORM.
+This patch corrects it and also optimizes stack usage changing from
+fixed 64 cpus to NR_CPUS (unless I misunderstood what the '64' stands for...)
 
-I guess the suballocation makes sense when you have a fixed message size
-and you want to optimize the allocation; for that matter, kmalloc is no
-different to any other pool, as they are just pools of base-2 sizes. In
-some other sense, you are doing the same in relayfs, managing kind of
-an allocation pool, but not as flexible (and thus probably faster) because
-the usage model doesn't pose as many requirements as the memory pools have.
+--- linux/fs/binfmt_elf.c.orig	2002-12-28 00:12:32.000000000 +0100
++++ linux/fs/binfmt_elf.c	2002-12-28 00:32:37.000000000 +0100
+@@ -116,11 +116,14 @@
+ 	elf_caddr_t *argv;
+ 	elf_caddr_t *envp;
+ 	elf_addr_t *sp, *csp;
++	char *stack_top;
+ 	char *k_platform, *u_platform;
+ 	long hwcap;
+ 	size_t platform_len = 0;
+ 	size_t len;
+ 
++	stack_top = p;
++
+ 	/*
+ 	 * Get hold of platform and hardware capabilities masks for
+ 	 * the machine we are running on.  In some cases (Sparc), 
+@@ -135,8 +138,8 @@
+ 		platform_len = strlen(k_platform) + 1;
+ 		u_platform = p - platform_len;
+ 		__copy_to_user(u_platform, k_platform, platform_len);
+-	} else
+-		u_platform = p;
++		stack_top = u_platform;
++	}
+ 
+ #if defined(__i386__) && defined(CONFIG_SMP)
+ 	/*
+@@ -149,15 +152,14 @@
+ 	 * processors. This keeps Mr Marcelo Person happier but should be
+ 	 * removed for 2.5
+ 	 */
+-	 
+ 	if(smp_num_siblings > 1)
+-		u_platform = u_platform - ((current->pid % 64) << 7);
++		stack_top -= ((current->pid % NR_CPUS) << 7);
+ #endif	
+ 
+ 	/*
+ 	 * Force 16 byte _final_ alignment here for generality.
+ 	 */
+-	sp = (elf_addr_t *)(~15UL & (unsigned long)(u_platform));
++	sp = (elf_addr_t *)(~15UL & (unsigned long)(stack_top));
+ 	csp = sp;
+ 	csp -= (1+DLINFO_ITEMS)*2 + (k_platform ? 2 : 0);
+ #ifdef DLINFO_ARCH_ITEMS
 
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)
 
+
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.21-rc1-jam1 (gcc 3.2.2 (Mandrake Linux 9.2 3.2.2-5mdk))

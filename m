@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272924AbTHKULS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 16:11:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272948AbTHKULS
+	id S273015AbTHKUTV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 16:19:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273052AbTHKUTV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 16:11:18 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:40861 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S272924AbTHKULR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 16:11:17 -0400
-Date: Mon, 11 Aug 2003 13:14:58 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: ak@suse.de
-Subject: [Bug 1083] New: JFS corrupts file systems on 64bit architectures 
-Message-ID: <872950000.1060632898@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	Mon, 11 Aug 2003 16:19:21 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:22409 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S273015AbTHKUTT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 16:19:19 -0400
+Date: Mon, 11 Aug 2003 22:11:18 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: "HABBINGA,ERIK (HP-Loveland,ex1)" <erik.habbinga@hp.com>
+Cc: linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: [BUG] 2.6.0-test3 and cciss driver (or blk_queue_hardsect_size)
+Message-ID: <20030811221118.B1246@electric-eye.fr.zoreil.com>
+References: <F341E03C8ED6D311805E00902761278C0C35E6DF@xfc04.fc.hp.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <F341E03C8ED6D311805E00902761278C0C35E6DF@xfc04.fc.hp.com>; from erik.habbinga@hp.com on Mon, Aug 11, 2003 at 03:28:51PM -0400
+X-Organisation: Hungry patch-scripts (c) users
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=1083
+Greetings,
 
-           Summary: JFS corrupts file systems on 64bit architectures
-    Kernel Version: 2.6.0test2
-            Status: NEW
-          Severity: high
-             Owner: shaggy@austin.ibm.com
-         Submitter: ak@suse.de
-
-
-On AMD64 JFS seems to corrupt file systems quickly. I created a JFS
-file system, rsync'ed an BKCVS kernel checkout from another box then
-did two cvs updates. Result was that several directory inodes in the 
-kernel tree were unreadable on the next access (always returned EPERM 
-even for a stat). I did a fsck then, which found some bad inodes and 
-resulted in a endless lost+found (ls ran out of memory trying to list it)
-
-2.4 JFS still worked. I also got feedback from one user that they are
-seeing similar problems on sparc64.
+HABBINGA,ERIK (HP-Loveland,ex1) <erik.habbinga@hp.com> :
+> I'm wondering if anyone else is having problems with 2.6.0-test3 and the
+> cciss driver, or with the function blk_queue_hardsect_size.  I was able to
+> successfully boot 2.6.0-test2 in previous weeks, but trying 2.6.0-test3
+> today gave me:
 
 
+Jens, does the following patch make sense ?
+
+hba[i]->queue went from 'struct request_queue queue' to
+'struct request_queue *queue' and it now needs to be explicitly set.
+
+
+ drivers/block/cciss.c |    1 +
+ 1 files changed, 1 insertion(+)
+
+diff -puN drivers/block/cciss.c~oops-cciss drivers/block/cciss.c
+--- linux-2.6.0-test3/drivers/block/cciss.c~oops-cciss	Mon Aug 11 21:53:11 2003
++++ linux-2.6.0-test3-fr/drivers/block/cciss.c	Mon Aug 11 22:00:55 2003
+@@ -2537,6 +2537,7 @@ err_all:
+ 	cciss_procinit(i);
+ 
+         q->queuedata = hba[i];
++	hba[i]->queue = q;
+ 	blk_queue_bounce_limit(q, hba[i]->pdev->dma_mask);
+ 
+ 	/* This is a hardware imposed limit. */
+
+_

@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283718AbRLOVCe>; Sat, 15 Dec 2001 16:02:34 -0500
+	id <S283719AbRLOVcb>; Sat, 15 Dec 2001 16:32:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283719AbRLOVCV>; Sat, 15 Dec 2001 16:02:21 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:41741 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S283718AbRLOVCI>; Sat, 15 Dec 2001 16:02:08 -0500
-Date: Sat, 15 Dec 2001 22:02:00 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-X-X-Sender: <puw@cola.teststation.com>
-To: Petr Titera <P.Titera@century.cz>
-cc: <linux-kernel@vger.kernel.org>
+	id <S283770AbRLOVcM>; Sat, 15 Dec 2001 16:32:12 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:5455 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S283719AbRLOVb4>; Sat, 15 Dec 2001 16:31:56 -0500
+Date: Sat, 15 Dec 2001 23:31:34 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Urban Widmark <urban@teststation.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: 4GB file size limit on SMBFS
-In-Reply-To: <3C19A3CC.7020501@century.cz>
-Message-ID: <Pine.LNX.4.33.0112151705010.12939-100000@cola.teststation.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20011215233133.I12063@niksula.cs.hut.fi>
+In-Reply-To: <3C19A3CC.7020501@century.cz> <Pine.LNX.4.33.0112151705010.12939-100000@cola.teststation.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0112151705010.12939-100000@cola.teststation.com>; from urban@teststation.com on Sat, Dec 15, 2001 at 10:02:00PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Dec 2001, Petr Titera wrote:
-
-> simple
-> 	dd if=/dev/zero of=test bs=1024k count=8000
+On Sat, Dec 15, 2001 at 10:02:00PM +0100, you [Urban Widmark] claimed:
+> On Fri, 14 Dec 2001, Petr Titera wrote:
 > 
-> gives 4GB file on server without any error. I cannot what would whappen 
-> if I use real file as my test machine has only 2GB of disk space :( So 
-> portions of output file can be rewriten.
+> The first patch was incomplete. It contained a calculation bug on the
+> smbfs side limiting the possible offset to 32bits unsigned.
+> 
+> New patch vs 2.4.16 (and others) available here:
+>     http://www.hojdpunkten.ac.se/054/samba/lfs.html
 
-The first patch was incomplete. It contained a calculation bug on the
-smbfs side limiting the possible offset to 32bits unsigned.
-
-New patch vs 2.4.16 (and others) available here:
-    http://www.hojdpunkten.ac.se/054/samba/lfs.html
-
-
-The annoying thing is that someone pointed that bug out to me some time
-ago in an earlier version. I made the change and verified it then, but now
-I used an unfixed patch as base for the 2.4.15-pre version ... grr.
-
-I have successfully tested this with a winXP machine someone had. Not the
-'dd test' but truncating it to 4.5G (less network transfer time), writing
-something above the 4G mark and then checking that it doesn't end up
-below. Also works with samba.
-
-(But not with win2k and FAT, which all win2k users around here seems to be
- using, that gives ENOSPC after 4G. Should perhaps be EFBIG ... or not)
+BTW: the fsx test Dave Jones just pointed out pretty quickly fails on smbfs
+on 2.4.8ac2 (mounting a share from NT4SP6a). I don't have anything never to
+play with just now (1), but if you can't immediately reproduce it, I can
+compile a newer kernel for the left over box and give it a longer whirl.
 
 
-Let me know if this works better for you.
+-- v --
 
-/Urban
+v@iki.fi
 
+(1) I have a 2.4.16/ia64 on the corner, but fsx fails on IA64 with any fs
+    ("mmap: Invalid argument"). Smbfs seems to work on ia64 otherwise...

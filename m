@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbTFXJbL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 05:31:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbTFXJbL
+	id S261265AbTFXJq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 05:46:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbTFXJq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 05:31:11 -0400
-Received: from mn.miryuna.net ([203.141.146.63]:40832 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261249AbTFXJbJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 05:31:09 -0400
-Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-From: David Blomber <dblomber@davelinux.com>
-To: Larry McVoy <lm@bitmover.com>, kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030623140943.GE6715@work.bitmover.com>
-References: <20030620142436.GB14404@work.bitmover.com>
-	<20030620143012.GC14404@work.bitmover.com>
-	<20030620163349.GG17563@work.bitmover.com>
-	<20030621142048.2ae63afa.skraw@ithnet.com>
-	<20030621133831.GA10089@work.bitmover.com>
-	<1056358467.29264.41.camel@passion.cambridge.redhat.com>
-	<20030623132231.GC6715@work.bitmover.com>
-	<1056375161.29264.178.camel@passion.cambridge.redhat.com>
-	<20030623133714.GB4302@work.bitmover.com>
-	<1056377073.29264.200.camel@passion.cambridge.redhat.com> 
-	<20030623140943.GE6715@work.bitmover.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 24 Jun 2003 18:51:03 +0900
-Message-Id: <1056448263.1243.5.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Tue, 24 Jun 2003 05:46:58 -0400
+Received: from [213.196.40.44] ([213.196.40.44]:6316 "EHLO blackstar.nl")
+	by vger.kernel.org with ESMTP id S261265AbTFXJq6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 05:46:58 -0400
+Date: Tue, 24 Jun 2003 11:50:05 +0200 (CEST)
+From: Bas Vermeulen <bvermeul@blackstar.nl>
+To: John M Flinchbaugh <glynis@butterfly.hjsoft.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Problems with PCMCIA/Orinoco
+In-Reply-To: <20030624005912.GA23266@butterfly.hjsoft.com>
+Message-ID: <Pine.LNX.4.33.0306241148450.14587-100000@devel.blackstar.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 23 Jun 2003, John M Flinchbaugh wrote:
 
-> The difference is that I can charge a price for the word processor which
-> gives me enough profit to build the spread sheet application.  If you are
-> trying to do the same thing but your app is GPLed, you can forget about it.
-> The market won't pay $300 for something they can download for free.
-> -- 
-> ---
-> Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
-> -
-Yes but a word processor is not worth $300.  I am all for anyone making
-a profit, but not when they hold the rest of us over a barrel and
-railroad us with proprietary products that are vastly overpriced and
-marginally better.  (and yes I put my money where my mouth is I actually
-buy the distros and software I use and donate to GNU)
+> On Mon, Jun 23, 2003 at 10:38:15AM +0100, Russell King wrote:
+> > > unregister_netdevice: waiting for eth1 to become free. Usage count 
+> = 1
+> > Is this still an outstanding problem in 2.5.73?
+> 
+> i still see it with both my 3c574_cs and my orinoco_cs in 2.5.73.
+> this one is elusive, isn't it?  if i were smarter, i'd try to track it
+> down.  maybe i'll look at it again, not that i know anything.
+
+Still see it here as well. I'll try to track it down tonight, when I've 
+got some free time on my hands.
+
+Bas Vermeulen
+
+-- 
+"God, root, what is difference?" 
+	-- Pitr, User Friendly
+
+"God is more forgiving." 
+	-- Dave Aronson
 

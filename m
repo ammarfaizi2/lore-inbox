@@ -1,68 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263270AbSKJDTs>; Sat, 9 Nov 2002 22:19:48 -0500
+	id <S263276AbSKJDYI>; Sat, 9 Nov 2002 22:24:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263276AbSKJDTs>; Sat, 9 Nov 2002 22:19:48 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27720 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S263270AbSKJDTr>; Sat, 9 Nov 2002 22:19:47 -0500
-To: Werner Almesberger <wa@almesberger.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>,
+	id <S263279AbSKJDYI>; Sat, 9 Nov 2002 22:24:08 -0500
+Received: from almesberger.net ([63.105.73.239]:32267 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S263276AbSKJDYH>; Sat, 9 Nov 2002 22:24:07 -0500
+Date: Sun, 10 Nov 2002 00:30:27 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Suparna Bhattacharya <suparna@in.ibm.com>,
        Jeff Garzik <jgarzik@pobox.com>,
        "Matt D. Robinson" <yakker@aparity.com>,
        Rusty Russell <rusty@rustcorp.com.au>, Andy Pfiffer <andyp@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Mike Galbraith <efault@gmx.de>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
 Subject: Re: [lkcd-devel] Re: What's left over.
-References: <Pine.LNX.4.44.0211091510060.1571-100000@home.transmeta.com>
-	<m1of8ycihs.fsf@frodo.biederman.org>
-	<1036894347.22173.6.camel@irongate.swansea.linux.org.uk>
-	<m1k7jmcgo5.fsf@frodo.biederman.org>
-	<20021110000346.B31205@almesberger.net>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 09 Nov 2002 20:23:50 -0700
-In-Reply-To: <20021110000346.B31205@almesberger.net>
-Message-ID: <m13cqacdkp.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+Message-ID: <20021110003027.C31205@almesberger.net>
+References: <Pine.LNX.4.44.0211070731200.5567-100000@home.transmeta.com> <m1u1iqcpjg.fsf@frodo.biederman.org> <20021109223142.A31205@almesberger.net> <m17kfmce6c.fsf@frodo.biederman.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m17kfmce6c.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sat, Nov 09, 2002 at 08:10:51PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Werner Almesberger <wa@almesberger.net> writes:
+Eric W. Biederman wrote:
+> What I was thinking is that the process would for and exec
+> something like "/etc/rc 6" or maybe "/etc/rc 7" to be clean.
+> And that script would do all of the user space shutdown.
 
-> Eric W. Biederman wrote:
-> > So my gut impression at least says an interface that ignores where
-> > the image wants to live just adds complexity in other places,
-> 
-> Linus' alloc_kernel_pages function would actually be able to handle
-> this, provided that the "validity callback" checks if the allocated
-> page happens to be in one of the destination areas.
-> 
-> I'm not so sure if this implementation is really that much more
-> compact than your current conflict resolution, though. Also, it may
-> be hairy in scenarios where you actually expect to fill more than
-> 50% of system memory. (But your concerns about a 128MB limit scare
-> me, too. I realize that people have taken initrds to extremes I
-> never quite imagined, but that still looks a little excessive :-)
+Yes, but init also does a kill(-1,...) to get rid of all processes,
+before the last steps of system shutdown. So you have to somehow
+make your "page holding" process survive beyond this point.
 
-I have not heard of more than about 90MB.  One of the things I would
-not be surprised to see in the next couple of years as memory gets
-cheaper is diskless systems that don't even bother doing NFS root and
-just put everything in an initrd.  But that is not the main concern.
+> My feel is that kexec-on-panic is a rather different problem.
 
-Since there are more polite ways of allocating memory already
-implemented.  Sucking up a 16MB hunk of some ones  vmalloc space is
-quite rude.  Currently the limit is pretty much 50% of system memory
-or 1GB whichever is less because the code must be loaded into user
-space first, and I don't touch high memory.  Although I guess if it
-was mmaped read only the limit may be higher. 
+You make it a different problem by assuming that you'd have a
+kernel that is specifically built for running at a "safe"
+location. If you assume that you're just using your normal
+kernel, the two problems converge again. There are still a
+few things that are different, like the checksumming, but
+they can safely be added at a later time.
 
-I don't expect to come to close to using all of system memory
-except on limited memory systems.  But it is always nice to be
-polite.
+- Werner
 
-Eric
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

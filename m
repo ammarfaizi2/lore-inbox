@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132534AbRCZSLX>; Mon, 26 Mar 2001 13:11:23 -0500
+	id <S132519AbRCZSRx>; Mon, 26 Mar 2001 13:17:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132530AbRCZSLG>; Mon, 26 Mar 2001 13:11:06 -0500
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:26382 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S132505AbRCZSK7>; Mon, 26 Mar 2001 13:10:59 -0500
-Date: Mon, 26 Mar 2001 19:10:11 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: idalton@ferret.phonewave.net
+	id <S132522AbRCZSRo>; Mon, 26 Mar 2001 13:17:44 -0500
+Received: from isolaweb.it ([213.82.132.2]:25605 "EHLO web.isolaweb.it")
+	by vger.kernel.org with ESMTP id <S132519AbRCZSR2>;
+	Mon, 26 Mar 2001 13:17:28 -0500
+Message-Id: <4.3.2.7.2.20010326201155.00bfa8d0@mail.tekno-soft.it>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Mon, 26 Mar 2001 20:13:49 +0200
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+From: Roberto Fichera <kernel@tekno-soft.it>
+Subject: Re: Adaptec Array1000 
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: paride error, aparantly with VFS
-Message-ID: <20010326191011.I11451@redhat.com>
-In-Reply-To: <20010325213738.A18626@ferret.phonewave.net>
+In-Reply-To: <200103261752.f2QHpxs51474@aslan.scsiguy.com>
+In-Reply-To: <Your message of "Mon, 26 Mar 2001 19:23:38 +0200." <4.3.2.7.2.20010326191531.00e68220@mail.tekno-soft.it>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="8X7/QrJGcKSMr1RN"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010325213738.A18626@ferret.phonewave.net>; from idalton@ferret.phonewave.net on Sun, Mar 25, 2001 at 09:37:38PM -0800
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 10.51 26/03/01 -0700, Justin T. Gibbs wrote:
 
---8X7/QrJGcKSMr1RN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> >Hi all,
+> >
+> >Does anyone know how to configure this controller (chipset AAA-133U2
+> >aka AIC-78xx) with one RAID5 hardware volume ? The kernel 2.2.16 see
+> >all the disks (4x18Gb) but don't see the unique volume.
+>
+>These boards are not currently supported in RAID mode.  Your
+>best bet is Linux MD.
 
-On Sun, Mar 25, 2001 at 09:37:38PM -0800, idalton@ferret.phonewave.net wrote:
+Ok! As I was thinking, I must configure it with Linux MD.
 
-> do_pd_read_drq: status = 0x10050 = SEEK READY TMO
+Thanks.
 
-Please try a recent -ac kernel and let me know if the problem persists
-or goes away.
 
-Tim.
-*/
+Roberto Fichera.
 
---8X7/QrJGcKSMr1RN
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6v4YDONXnILZ4yVIRAvQVAJ9FJGvu6AvsFNRSFjGT3lx3QvlaUwCbBKL9
-zlZz6Pz1olwwhN2C8AQz23M=
-=rAYO
------END PGP SIGNATURE-----
-
---8X7/QrJGcKSMr1RN--

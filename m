@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267431AbSLSAeM>; Wed, 18 Dec 2002 19:34:12 -0500
+	id <S267508AbSLSAjN>; Wed, 18 Dec 2002 19:39:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267432AbSLSAeM>; Wed, 18 Dec 2002 19:34:12 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:63493 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S267431AbSLSAeL>;
-	Wed, 18 Dec 2002 19:34:11 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200212190053.gBJ0rJPu008648@darkstar.example.net>
-Subject: Re: Freezing.. (was Re: Intel P6 vs P7 system call performance)
-To: alan@redhat.com (Alan Cox)
-Date: Thu, 19 Dec 2002 00:53:19 +0000 (GMT)
-Cc: lm@bitmover.com, torvalds@transmeta.com, davej@codemonkey.org.uk,
-       vonbrand@inf.utfsm.cl, linux-kernel@vger.kernel.org, akpm@digeo.com
-In-Reply-To: <200212190008.gBJ08vw02314@devserv.devel.redhat.com> from "Alan Cox" at Dec 18, 2002 07:08:57 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S267512AbSLSAjM>; Wed, 18 Dec 2002 19:39:12 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:33530 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S267508AbSLSAjH>; Wed, 18 Dec 2002 19:39:07 -0500
+Message-ID: <A46BBDB345A7D5118EC90002A5072C7806CACA2A@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'Robert Love'" <rml@tech9.net>
+Cc: torvalds@transmeta.org, linux-kernel@vger.kernel.org
+Subject: RE: [PATCH 2.5.52] Use __set_current_state() instead of current->
+	state = (take 1)
+Date: Wed, 18 Dec 2002 16:46:00 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I don't understand why BK is part of the conversation.  It has nothing to
-> > do with it.  If every time I post to this list the assumption is that it's
-> > "time to beat larry up about BK" then it's time for me to get off the list.
-> > 
-> > I can understand it when we're discussing BK; other than that, it's pretty
-> > friggin lame.  If that's what was behind your posts, Alan, there is an
-> > easy procmail fix for that.
+
+> > In fs/*.c, many functions manually set the task state directly
+> > accessing current->state, or with a macro, kind of
+> > inconsistently. This patch changes all of them to use
+> > [__]set_current_state().
 > 
-> It wasnt me who brought up bitkeeper
+> Some of these should probably be set_current_state().  I 
+> realize the current code is equivalent to __set_current_state()
+> but it might as well be done right.
+
+Agreed; however, I also don't want to introduce unnecessary
+bloat, so I need to understand first what cases need it - it
+is kind of hard for me. Care to let me know some gotchas?
+
+> > -	current->state = TASK_INTERRUPTIBLE;
+> > +	__set_current_state (TASK_INTERRUPTIBLE);
+> >  	add_wait_queue(fl_wait, &wait);
+> >  	if (timeout == 0)
 > 
+> At least this guy should be set_current_state(), on quick glance.
 
-No, it's my fault - I was skimming through list traffic, and not
-concentrating, (proof of this is the fact that I've had sendmail
-configured incorrectly all day, and been posting from the wrong
-address, and only just realised :-) ).
+Is that because it is called lockless? ... grunt, in some areas
+is kind of very obscure to guess if it is or not.
 
-I saw Larry mention kernel.bkbits.net, and Alan say, "We've got one -
-its called linux-kernel", (in a separate message without quoting
-anything, so it's really your fault :-) :-) :-) ), and assumed that a
-BK argument was imminent, and I made a joke comment that it, (an
-argument), was not a 2.6 required feature.
+Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my
+fault]
 
-Sorry about the wasted bandwidth, I'll stop posting as it's now past
-midnight, and I obviously need sleep.
-
-Oh, 2.4.20-pre2 compiled OK for me, I hope that proves I've done
-something useful tonight.
-
-John.

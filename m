@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264319AbTLBTVE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 14:21:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264321AbTLBTVE
+	id S264329AbTLBTXt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 14:23:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264327AbTLBTXC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 14:21:04 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:21154 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S264319AbTLBTVB
+	Tue, 2 Dec 2003 14:23:02 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:46588 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264323AbTLBTWU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 14:21:01 -0500
-Date: Tue, 2 Dec 2003 17:12:53 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Larry McVoy <lm@work.bitmover.com>,
-       Murthy Kambhampaty <murthy.kambhampaty@goeci.com>,
-       "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
-       Russell Cattelan <cattelan@xfs.org>, Nathan Scott <nathans@sgi.com>,
-       <linux-kernel@vger.kernel.org>, <linux-xfs@oss.sgi.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: XFS for 2.4
-In-Reply-To: <20031202182746.A27964@infradead.org>
-Message-ID: <Pine.LNX.4.44.0312021712160.13692-100000@logos.cnet>
+	Tue, 2 Dec 2003 14:22:20 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: shal <shal@free.fr>
+Subject: Re: via82cxxx, DMA and performance problem
+Date: Tue, 2 Dec 2003 20:23:57 +0100
+User-Agent: KMail/1.5.4
+References: <3FCCB0F4.9010907@free.fr>
+In-Reply-To: <3FCCB0F4.9010907@free.fr>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312022023.57528.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hi,
 
-On Tue, 2 Dec 2003, Christoph Hellwig wrote:
+You trying to load VIA IDE chipset driver but your IDE devices
+are already handled by generic IDE driver, thus you can't enable DMA.
 
-> On Tue, Dec 02, 2003 at 06:23:46PM +0000, Christoph Hellwig wrote:
-> > On Tue, Dec 02, 2003 at 10:20:37AM -0800, Larry McVoy wrote:
-> > > So what's wrong with asking $VFS_MAINTAINER to refresh Marcelo's memory
-> > > about that?
-> > 
-> > There is no such thing as a VFS maintainer.  At least Al doesn't want
-> > to be in that position and I guess no one else would qualify (maybe
-> > akpm)
-> 
-> And akpm queued up most of these patches in -mm and revieved them
-> before they went into 2.5, but he is (fortunately for him :))  on
-> vacation so you shouldn't expect any respone from him here.
+Changing host drivers on the fly is unsupported.
 
-Ok, Christoph agreed to review the changes. He has a clue about VFS.
+If you want to use IDE chipset modules you should use IDE as module.
 
-If he is OK with them, I'll merge the generic XFS changes.
+--bart
 
-
+> kernel message:
+> VP_IDE: IDE controller at PCI slot 0000:00:11.1
+> ACPI: No IRQ known for interrupt pin A of device 0000:00:11.1 - using
+> IRQ 255
+> VP_IDE: chipset revision 6
+> VP_IDE: not 100% native mode: will probe irqs later
+> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+> VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci0000:00:11.1
+>      ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:DMA, hdb:DMA
+>      ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:DMA, hdd:pio
+> ide0: I/O resource 0x3F6-0x3F6 not free.
+> hda: ERROR, PORTS ALREADY IN USE
+> hdb: ERROR, PORTS ALREADY IN USE
+> register_blkdev: cannot get major 3 for ide0
+> ide1: I/O resource 0x376-0x376 not free.
+> hdc: ERROR, PORTS ALREADY IN USE
+> register_blkdev: cannot get major 22 for ide1
+> Module via82cxxx cannot be unloaded due to unsafe usage in
+> include/linux/module.h:483
 

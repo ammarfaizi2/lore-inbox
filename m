@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271084AbUJUXRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271082AbUJUXRN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271084AbUJUXRN (ORCPT <rfc822;willy@w.ods.org>);
+	id S271082AbUJUXRN (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 21 Oct 2004 19:17:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271115AbUJUXQA
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271113AbUJUXPw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 19:16:00 -0400
-Received: from gprs214-34.eurotel.cz ([160.218.214.34]:44931 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S271079AbUJUXAm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 19:00:42 -0400
-Date: Fri, 22 Oct 2004 01:00:27 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Cc: Kendall Bennett <KendallB@scitechsoft.com>, linux-kernel@vger.kernel.org,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: [Linux-fbdev-devel] Re: Generic VESA framebuffer driver and Video card BOOT?
-Message-ID: <20041021230027.GA24762@elf.ucw.cz>
-References: <88056F38E9E48644A0F562A38C64FB600328792F@scsmsx403.amr.corp.intel.com>
+	Thu, 21 Oct 2004 19:15:52 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:36586 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S271056AbUJUXCY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 19:02:24 -0400
+Date: Fri, 22 Oct 2004 00:58:25 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9 - e1000 - page allocation failed
+Message-ID: <20041021225825.GA10844@electric-eye.fr.zoreil.com>
+References: <20041021221622.GA11607@mail.muni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <88056F38E9E48644A0F562A38C64FB600328792F@scsmsx403.amr.corp.intel.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20041021221622.GA11607@mail.muni.cz>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Lukas Hejtmanek <xhejtman@mail.muni.cz> :
+[page allocation failure with e1000]
 
-> >The rest of the code you have above seems superfluous to me as we have 
-> >never needed to do that. Then again we boot the card using the BIOS 
-> >emulator, which is different because it runs within a 
-> >protected machine 
-> >state.
-> >
-> >Have you taken a look at the X.org code? They have code in 
-> >there to POST 
-> >the video card also (either using vm86() or the BIOS emulator).
-> >
-> 
-> I have done some experiments with this video post stuff.
-> I think this should be done using x86 emulator rather than doing 
-> in real mode. The reason being, with an userlevel emulator we can call
-> it at different times during resume. The current real mode videopost
-> does 
+If you are using TSO, try patch below by Herbert Xu (available
+from http://marc.theaimsgroup.com/?l=linux-netdev&m=109799935603132&w=3)
 
-Actually Ole Rohne has patch that allows you to call real mode any
-time you want.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+--- 1.67/net/ipv4/tcp_output.c	2004-10-01 13:56:45 +10:00
++++ edited/net/ipv4/tcp_output.c	2004-10-17 18:58:47 +10:00
+@@ -455,8 +455,12 @@
+ {
+ 	struct tcp_opt *tp = tcp_sk(sk);
+ 	struct sk_buff *buff;
+-	int nsize = skb->len - len;
++	int nsize;
+ 	u16 flags;
++
++	nsize = skb_headlen(skb) - len;
++	if (nsize < 0)
++		nsize = 0;
+ 
+ 	if (skb_cloned(skb) &&
+ 	    skb_is_nonlinear(skb) &&
+

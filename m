@@ -1,57 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265810AbUA1Cxs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 21:53:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265814AbUA1Cxr
+	id S265820AbUA1Cze (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 21:55:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265817AbUA1Cze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 21:53:47 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:10 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S265810AbUA1Cxq (ORCPT
+	Tue, 27 Jan 2004 21:55:34 -0500
+Received: from fw.osdl.org ([65.172.181.6]:56010 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265815AbUA1CzX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 21:53:46 -0500
-Date: Wed, 28 Jan 2004 03:53:33 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: viro@parcelfarce.linux.theplanet.co.uk
-cc: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@osdl.org>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: PATCH: (as177)  Add class_device_unregister_wait() and
- platform_device_unregister_wait() to the driver model core
-In-Reply-To: <20040128021719.GV21151@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.58.0401280336120.7851@serv>
-References: <Pine.LNX.4.44L0.0401251224530.947-100000@ida.rowland.org>
- <Pine.LNX.4.58.0401251054340.18932@home.osdl.org> <Pine.LNX.4.58.0401261435160.7855@serv>
- <20040127202944.GE27240@kroah.com> <Pine.LNX.4.58.0401280252120.7851@serv>
- <20040128021719.GV21151@parcelfarce.linux.theplanet.co.uk>
+	Tue, 27 Jan 2004 21:55:23 -0500
+Date: Tue, 27 Jan 2004 18:55:17 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Hironobu Ishii <ishii.hironobu@jp.fujitsu.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-ia64 <linux-ia64@vger.kernel.org>
+Subject: Re: [RFC/PATCH, 2/4] readX_check() performance evaluation
+In-Reply-To: <00a301c3e541$c13a6350$2987110a@lsd.css.fujitsu.com>
+Message-ID: <Pine.LNX.4.58.0401271847440.10794@home.osdl.org>
+References: <00a301c3e541$c13a6350$2987110a@lsd.css.fujitsu.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Wed, 28 Jan 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
 
-> > Recovery of the scsi core is IMO one the smallest problems, but how do you
-> > recover at the block layer? The point is that you have here theoretically
-> > more one recovery strategy, but simply pulling out the module leaves you
-> > not much room for a controlled recovery.
+On Wed, 28 Jan 2004, Hironobu Ishii wrote:
 >
-> Block layer is not too big issue.  We have almost everything in the tree
-> already - the main problem is to get check_disk_change() use regularized.
-> Now, sound and character devices in general...
+> This is a readX_check() prototype patch to evaluate
+> the performance disadvantage.
 
-Hmm, I more meant "user controlled recovery", the simplest strategy is of
-course to throw everything away and that should be indeed not too
-difficult, but I don't really think that this is user prefered strategy if
-he accidentally unplugs/plugs a device. OTOH that the simple strategy
-works reliably is of course a prerequisite to even think about an any more
-advanced recovery.
-But with the current module infrastructure the user has not much choice
-anyway, without any indication of module usage state the user can only
-guess what will happen when he tries to unload a module, so that currently
-the best advice is indeed: don't do it.
+Quite frankly, I'd much rather have something more like this:
 
-bye, Roman
+	clear_pcix_errors(dev);
+	..
+	x = readX_check(dev, offset);	/* Maybe several ones, maybe in a loop */
+	..
+	error = read_pcix_errors(dev);
+	if (error)
+		take_pcix_offline(dev);
+
+in other words, I'd rather _not_ see the "readX_check()" code itself have 
+the retry logic and error value handling.
+
+Why? Because on a number of architectures it is entirely possible that the 
+error comes as a _asynchronous_ machine exception or similar. So I'd much 
+rather have the interfaces be designed for that. Also, it's likely to 
+perform a lot better, and result in much clearer code this way (ie you can 
+try to set up the whole command before reading the error just once).
+
+It is _also_ going to be a hell of a lot easier to disable the code if you 
+want to, with just a
+
+	#ifndef CONFIG_PCI_RECOVERY
+	  #define clear_pcix_errors(dev) do { } while (0)
+	  #define read_pcix_errors(dev)  (0)
+	  #define take_pcix_offline(dev) do { } while (0)
+	#endif
+
+in a header file for architectures that don't support it.
+
+Does anybody see any downsides to something like this?
+
+			Linus

@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272616AbRHaF4K>; Fri, 31 Aug 2001 01:56:10 -0400
+	id <S272618AbRHaF6L>; Fri, 31 Aug 2001 01:58:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272613AbRHaFz7>; Fri, 31 Aug 2001 01:55:59 -0400
-Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:21688 "EHLO
-	pga.intervu.net") by vger.kernel.org with ESMTP id <S272612AbRHaFzt>;
-	Fri, 31 Aug 2001 01:55:49 -0400
-Message-ID: <3B8F287A.D3717C07@randomlogic.com>
-Date: Thu, 30 Aug 2001 23:02:34 -0700
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Athlon doesn't like Athlon optimisation?
-In-Reply-To: <Pine.LNX.4.30.0108302117150.16904-100000@anime.net>
+	id <S272617AbRHaF5y>; Fri, 31 Aug 2001 01:57:54 -0400
+Received: from fe030.worldonline.dk ([212.54.64.197]:41997 "HELO
+	fe030.worldonline.dk") by vger.kernel.org with SMTP
+	id <S272615AbRHaF5A>; Fri, 31 Aug 2001 01:57:00 -0400
+Date: Fri, 31 Aug 2001 07:57:08 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jonathan Lahr <lahr@us.ibm.com>
+Cc: Eric Youngdale <eric@andante.org>,
+        =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>,
+        linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: io_request_lock/queue_lock patch
+Message-ID: <20010831075708.B2855@suse.de>
+In-Reply-To: <20010830232228.C2120-100000@gerard> <008801c1319d$57f16970$4d0310ac@fairfax.mkssoftware.com> <20010830160708.G23680@us.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20010830160708.G23680@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Hollis wrote:
+On Thu, Aug 30 2001, Jonathan Lahr wrote:
 > 
-> On Thu, 30 Aug 2001, Albert D. Cahalan wrote:
-> > Don't go blaming Linux when power supply upgrades sometimes
-> > make this problem go away. You could also try one of the
-> > recent SiS or ALi chipsets.
-> > I just saw a reference (maybe www.tomshardware.com) to AMD's new
-> > chips having trouble on VIA boards -- I'd guess that the Palimino
-> > core can push the motherboard too hard without fancy Athlon code.
-> 
-> So what happens when someone is able to duplicate the problem on say AMD
-> 760MP chipset with registered ECC PC2100 ram and 450W power supply?
-> 
-> Not to say it has happened yet (I havent got my dual Tyan Tiger MP yet :-)
-> but where would the finger start pointing then?
-> 
+> Is there an estimate on when the 2.5 i/o subsystem will be released?
 
-My Dual Athlon (1.4GHz) works just fine (with the exception of the ATA 100 - I have to disable DMA).
+I've at least put up incremental patches of what I'm doing here:
 
-It's been running 24/7 for weeks at 100% CPU usage (on both CPUs).
+kernel.org/pub/linux/kernel/people/axboe/v2.5
 
-My A7V133 is another story (also a 1.4GHz). It used to work with RH 7.1, now I can't even get the OS to install.
-
-PGA
+bio-14 will be final next week.
 
 -- 
-Paul G. Allen
-UNIX Admin II/Programmer
-Akamai Technologies, Inc.
-www.akamai.com
-Work: (858)909-3630
-Cell: (858)395-5043
+Jens Axboe
+

@@ -1,78 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbVBTN0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261829AbVBTN1d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbVBTN0H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Feb 2005 08:26:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbVBTN0H
+	id S261829AbVBTN1d (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Feb 2005 08:27:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbVBTN1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Feb 2005 08:26:07 -0500
-Received: from ipp23-131.piekary.net ([80.48.23.131]:32441 "EHLO spock.one.pl")
-	by vger.kernel.org with ESMTP id S261827AbVBTN0B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Feb 2005 08:26:01 -0500
-Date: Sun, 20 Feb 2005 14:26:00 +0100
-From: Michal Januszewski <spock@gentoo.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: Bootsplash for 2.6.11-rc4
-Message-ID: <20050220132600.GA19700@spock.one.pl>
-References: <20050218165254.GA1359@elf.ucw.cz> <20050219011433.GA5954@spock.one.pl> <20050219230326.GB13135@kroah.com> <20050219232519.GC1372@elf.ucw.cz>
+	Sun, 20 Feb 2005 08:27:33 -0500
+Received: from rayleigh.systella.fr ([213.41.173.141]:15786 "EHLO
+	rayleigh.systella.fr") by vger.kernel.org with ESMTP
+	id S261829AbVBTN1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Feb 2005 08:27:08 -0500
+Date: Sun, 20 Feb 2005 14:27:05 +0100
+From: BERTRAND =?iso-8859-1?Q?Jo=EBl?= <mt1@systella.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.4.29 (Sparc64) and iproute
+Message-ID: <20050220132705.GC20204@rayleigh.systella.fr>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8t9RHnE3ZwKMSgU+"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050219232519.GC1372@elf.ucw.cz>
-X-PGP-Key: http://dev.gentoo.org/~spock/spock.gpg
-User-Agent: Mutt/1.5.8i
+User-Agent: Mutt/1.5.6+20040907i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (rayleigh.systella.fr [127.0.0.1]); Sun, 20 Feb 2005 14:27:05 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Hello,
 
---8t9RHnE3ZwKMSgU+
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+	I'm trying to use iproute (20041019) with 2.4.29 official kernel on
+	a UltraSparc 1E. I have marked all packets that come from an
+	intranet server (192.168.0.130:3000 / tcp) like this :
 
-On Sun, Feb 20, 2005 at 12:25:19AM +0100, Pavel Machek wrote:
+Chain PREROUTING (policy ACCEPT 13344 packets, 1830K bytes)
+ pkts bytes target     prot opt in     out     source
+destination         
+   89  5340 MARK       tcp  --  *      *       192.168.0.130
+0.0.0.0/0           tcp spts:3000:3001 MARK set 0x1 
 
-Hi,
-=20
-> Yes, I agree, almost anything is more sane than code I posted :-(. My
-> only requirement is that it works with radeonfb and similar low-level
-> drivers (so that I can get suspend-to-ram to work) and that it gets
-> past our branding people...  =20
+	And I have logged the result of iptables. All packets are marked.
+	So, I have written a new rule with iproute :
 
-I don't know about the branding people, but suspend-to-ram and radeonfb
-shouldn't be a problem for fbsplash :)
-=20
-> How many distros do use some variant of bootsplash? SuSE does, from
-> above url I guess gentoo does, too... Does RedHat do something
-> similar? [Or do they just set log-level to very high giving them clean
-> look?] What about Debian?
+Root kant:[/var/log] > ip rule show
+0:      from all lookup local 
+100:    from 192.168.1.1 lookup intranet 
+101:    from all fwmark 0x1 lookup intranet 
+32766:  from all lookup main 
+32767:  from all lookup default 
+Root kant:[/var/log] > ip route show table intranet
+default via 192.168.1.254 dev eth2 
+Root kant:[/var/log] > 
 
-As far as I know: SuSE uses bootsplash, Gentoo and PLD use fbsplash,
-RedHat uses rhgb (100% userspace solution, based on xvesa, doesn't
-provide graphical backgrounds on vt's - for that a kernel patch like
-bootsplash or fbsplash is necessary). I don't know about Debian - they
-probably have some (possibly unofficial) support for both bootsplash
-and fbsplash.
+	My intranet table is ignored. But I can use the second interface. If
+	I replace "from all fwmark 0x1 lookup intranet" by ""from
+	192.168.0.130 lookup intranet", all packets coming from my intranet
+	server all redirected conforming to intranet table. Any idea ? Is
+	iproute broken with 2.4.29 ?
 
-Live long and prosper.
---=20
-Michal 'Spock' Januszewski                        Gentoo Linux Developer
-cell: +48504917690                         http://dev.gentoo.org/~spock/
-JID: spock@im.gentoo.org               freenode: #gentoo-dev, #gentoo-pl
+	Thanks in advance,
 
-
---8t9RHnE3ZwKMSgU+
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCGI/oaQ0HSaOUe+YRAnvYAJ9XBzuBEjqRA9aKstcgGmzmYrCfTwCgoP8x
-JcNUDt076KcuBHX3rLnD76A=
-=j6Po
------END PGP SIGNATURE-----
-
---8t9RHnE3ZwKMSgU+--
+	JKB

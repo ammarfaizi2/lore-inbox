@@ -1,97 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130768AbRCTUUd>; Tue, 20 Mar 2001 15:20:33 -0500
+	id <S130873AbRCTUde>; Tue, 20 Mar 2001 15:33:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130793AbRCTUUX>; Tue, 20 Mar 2001 15:20:23 -0500
-Received: from smtp011.mail.yahoo.com ([216.136.173.31]:65032 "HELO
-	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S130768AbRCTUUO>; Tue, 20 Mar 2001 15:20:14 -0500
-X-Apparently-From: <quintaq@yahoo.co.uk>
-Date: Tue, 20 Mar 2001 20:21:41 +0000
-From: quintaq@yahoo.co.uk
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: UDMA 100 / PIIX4 question
-In-Reply-To: <3AB79464.A7A95A54@coplanar.net>
-In-Reply-To: <20010318165246Z131240-406+1417@vger.kernel.org> <3AB65C51.3DF150E5@bigfoot.com> <3AB65F14.26628BEF@coplanar.net> <20010319222113Z131588-406+1752@vger.kernel.org> <3AB7811D.97601E82@internet-factory.de>
-	<3AB79464.A7A95A54@coplanar.net>
-Reply-To: <linux-kernel@vger.kernel.org>
-X-Mailer: Sylpheed version 0.4.62 (GTK+ 1.2.8; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20010320202020Z130768-406+2207@vger.kernel.org>
+	id <S130831AbRCTUdY>; Tue, 20 Mar 2001 15:33:24 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:54725 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S130777AbRCTUdR>;
+	Tue, 20 Mar 2001 15:33:17 -0500
+Date: Tue, 20 Mar 2001 14:29:01 -0600 (CST)
+From: Josh Grebe <squash@primary.net>
+To: Jan Harkes <jaharkes@cs.cmu.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Question about memory usage in 2.4 vs 2.2
+In-Reply-To: <20010320135449.A24252@cs.cmu.edu>
+Message-ID: <Pine.LNX.4.21.0103201403440.2405-100000@scarface.primary.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+slabinfo reports:
 
-First, thank you very much Mark, Tim, Jeremy and Holger for your continuing contributions which, I think, are at last casting some light on my "problem".
+inode_cache       189974 243512    480 30439 30439    1 :  124   62
+dentry_cache      201179 341940    128 11398 11398    1 :  252  126
 
-> Yes this is why I originally replied to the post... but he's not using a
-> PIIXx at
-> all,
-> but the IDE chip on an Intel 815 motherboard.  I'm not sure if they use
-> the same
-> driver
-> , but I don't think so.
+However, I am hard pressed to find documentation on how to actually read
+this data, especially on a SMP box. Could someone give me a brief
+runwdown? 
+
+Also, if this memory is cached, wouldn't it make sense if it were reported
+as part of the total cached memory in /proc/meminfo?  And can this
+behavior be tuned so that it uses less of the overall memory?
+
+Thanks,
+
+Josh
+
+---
+Josh Grebe
+Senior Unix Systems Administrator
+Primary Network, an MPower Company
+http://www.primary.net
+
+On Tue, 20 Mar 2001, Jan Harkes wrote:
+
+> On Tue, Mar 20, 2001 at 11:01:52AM -0600, Josh Grebe wrote:
+> > Greetings,
+> > 
+> > I have a server farm made of identical hardware running pop3 and imap mail
+> > functions. recently, we upgraded all the machines to kernel 2.4.2, but we
+> > noticed that according to free, our memory utilization went way up. Here
+> > is the output of free on the 2.4.2 machine:
+> >              total       used       free     shared    buffers     cached
+> > Mem:        513192     492772      20420          0       1684     263188
+> > -/+ buffers/cache:     227900     285292
+> > Swap:       819304        540     818764
+> > 
+> > 
+> > On the 2.2..18 machine:
+> >              total       used       free     shared    buffers     cached
+> > Mem:        517256     351280     165976      19920      82820     186836
+> > -/+ buffers/cache:      81624     435632
+> > Swap:       819304          0     819304
+> > 
+> > 
+> > Doing the math, the 2.4 machine is using 44% of available memory, while
+> > the 2.2 is using only about 14%.
+> 
+> What does /proc/slabinfo report for the number of pages locked down in
+> the inode and dentry caches? My machine has pretty much every inode in
+> memory and is using close to 50% of my memory for these (214MB/512MB).
+> 
+> These caches do not seem to be counted towards 'reclaimable' memory by
+> the new VM and are only pruned when _all_ other attempts to free up
+> memory have failed.
+> 
+> This becomes very noticeable on a not very fast, small memory machine
+> (i.e. 48MB sparc-IPC), where 2.2 stays relatively snappy, but 2.4
+> becomes unusable after an updatedb run.
+> 
+> Jan
 > 
 
-I found a helpful post from Peter Denison on 6th January this year which suggests that it is at least the same driver.
 
-"Description:
-Includes new PCI device IDs for the Intel i815E chipset, and corrects some
-of the names for the associated parts of the chipset. This has effects in
-the EEPro100 network driver and the PCI IDE driver.
-Detail & Justification:
-The Intel ICH2 (I/O Controller Hub 2) is used in several chipsets, not
-just the 820 (Camino) chipset it is accredited to in the PCI ID database.
-Nor is the IDE portion of the ICH2 really a PIIX4 chip, though it is very
-similar and PIIX driver works on both. These changes are just
-internal macro naming and minor user interface tweaks."
-
-
-> try hdparm -t /dev/hda1 instead of hda5 (if those are on opposite ends
-> of the
-> disk)
-> 
-> include output of fdisk so we can see partition layout, and results of
-> hdparm on
-> different areas.
-
-Here is my fdisk output :
-
-Disk /dev/hda: 255 heads, 63 sectors, 3737 cylinders
-Units = cylinders of 16065 * 512 bytes
-
-   Device Boot    Start       End    Blocks   Id  System
-/dev/hda1   *         1       932   7486258+   b  Win95 FAT32
-/dev/hda2           933      3737  22531162+   5  Extended
-/dev/hda5           933       935     24066   83  Linux
-/dev/hda6           936       952    136521   82  Linux swap
-/dev/hda7           953      3737  22370481   83  Linux
-
-
-I also ran hdparm -tT /dev/hda1:
- 
-Timing buffer-cache reads:   128 MB in  1.28 seconds =100.00 MB/sec
- Timing buffered disk reads:  64 MB in  4.35 seconds = 14.71 MB/sec
-
-Which obviously gives much the same result as my usual hdparm -tT /dev/hda
-
-I then tried hdparm -tT /dev/hda7:
-
- Timing buffer-cache reads:   128 MB in  1.28 seconds =100.00 MB/sec
- Timing buffered disk reads:  64 MB in  2.12 seconds = 30.19 MB/sec
-
-As you would expect, I get almost identical results with several repetitions.
-
-Does this solve the mystery ?
-
-Regards,
-
-Geoff
-
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
 

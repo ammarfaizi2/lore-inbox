@@ -1,150 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267693AbUHENyZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267701AbUHENyY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267693AbUHENyZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 09:54:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267698AbUHENwj
+	id S267701AbUHENyY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 09:54:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267693AbUHENxD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 09:52:39 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:58553 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S267693AbUHENtX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 09:49:23 -0400
-Date: Thu, 5 Aug 2004 15:48:47 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Message-Id: <200408051348.i75DmlGD004576@burner.fokus.fraunhofer.de>
-To: axboe@suse.de, schilling@fokus.fraunhofer.de
-Cc: kernel@wildsau.enemy.org, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+	Thu, 5 Aug 2004 09:53:03 -0400
+Received: from colin2.muc.de ([193.149.48.15]:38148 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S267694AbUHENvY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 09:51:24 -0400
+Date: 5 Aug 2004 15:51:12 +0200
+Date: Thu, 5 Aug 2004 15:51:12 +0200
+From: Andi Kleen <ak@muc.de>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: prasanna@in.ibm.com, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       akpm@osdl.org
+Subject: Re: [1/3] kprobes-func-args-268-rc3.patch
+Message-ID: <20040805135112.GA92798@muc.de>
+References: <2pMJz-13N-9@gated-at.bofh.it> <m3acx9yh6t.fsf@averell.firstfloor.org> <20040805122431.GA4411@in.ibm.com> <20040805125423.GA63682@muc.de> <20040805133348.GA4471@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040805133348.GA4471@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Jens Axboe <axboe@suse.de>
+On Thu, Aug 05, 2004 at 07:03:48PM +0530, Suparna Bhattacharya wrote:
+> On Thu, Aug 05, 2004 at 02:54:23PM +0200, Andi Kleen wrote:
+> > On Thu, Aug 05, 2004 at 05:54:31PM +0530, Suparna Bhattacharya wrote:
+> > > > I think you misunderstood Linus' suggestion.  The problem with
+> > > > modifying arguments on the stack frame is always there because the C
+> > > > ABI allows it. One suggested solution was to use a second function
+> > > 
+> > > I did realise that it is the ABI which allows this, but I thought
+> > > that the only situation in which we know gcc to actually clobber
+> > > arguments from the callee in practice is for tailcall optimization. 
+> > 
+> > It just breaks the most common workaround. 
+> 
+> Just curious, do you know if other cases/optimizations where the
+> callee clobbers arguments on stack ?
 
+gcc can do it all the time. tail call is just a special case.
 
->> In 1998, I did send a patch against the sg.c driver that introduced
->> everything that is needed for Generic SCSI transport. I am still
->> waiting for even the needed features to appear........
+It happens relatively rarely because often it caches the data
+in registers. But when there is enough register pressure it can
+be written back to the original argument slot.
 
->If you have issues with SG_IO, please feel free to address them. If they
->are valid, I'd love to help you get it fixed.
+If you pass a structure by value it happens more often
+(at least in older gccs, 3.5 now loads this into registers too) 
 
+On -O0 code I would also expect it to happen often.
 
-Here is the current list of problems with CD/DVD writing on Linux:
+> 
+> > 
+> > > I'm not sure if that can be guaranteed and yes saving bytes from
+> > > stack would avoid the problem totally (hence the comment) and make
+> > > it less tied to expected innards of the compiler. The only issue 
+> > > with that is deciding the maximum number of arguments so it is 
+> > > generic enough. 
+> > 
+> > 64bytes, aka 16 arguments seem far enough.
+> 
+> OK, is there is consensus on this ? 
 
--	Linux sometimes bastardizes the SCSI commands sent to ATAPI drives.
+I think there is a clear consensus that anybody who uses 16 arguments
+in a kernel function already did something very wrong.
 
-	Some people report that they cannot blank their CD-RW media for
-	this reason. See:
+Passing structures by value may be reasonable, but not supporting
+that for big structures is a reasonable restriction.
 
-	http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=186099
+> We'd have to make the code check for stack boundary etc and probably 
+> compare and copy back only if there has been a change.
 
-	Similar things happen when trying to read defective "CD-DA" media
-	created by the "Music Mafia". If you use a Plextor drive, everything
-	works fine. If you use a Pioneer drive, the SCSI command "READ FULL TOC"
-	aborts with "illegal field in CDB", rebooting the same PC to
-	SCO UnixWare makes the problem go away.
+Why? And what stack boundary?
 
-	This problem has not yet been reported because I got the impression 
-	that nobody on LKML is interested in fixing CD/DVD writing related 
-	bugs. 
+The probe is not supposed to modify the arguments, isn't it, so I don't
+see why you ever want to copy back.  
 
-	Time to fix: unknown - may be more than 2 weeks.
+I would write the trampoline in assembly btw, doing such things in C is usually
+very fragile.
 
--	ide-scsi does not use DMA if the "DMA size" is not a multiple of 512.
-	This bug has been reported many times! Last time was when you introduced
-	the unneeded SCSI transport via /dev/hd*. This interface initially
-	did have the same bug - it has been fixed. The same bug in ide-scsi
-	has not been fixed although I send several related mails :-(
+> > > > >  
+> > > 
+> > > Even with CONFIG_REGPARM, if you have a large 
+> > > number of arguments for example, is spill over into stack 
+> > > a possibility ?
+> > 
+> > Yes. For more than three (Linux uses -mregparm=3) 
+> > Also varargs arguments will be always on the stack I think.
+> 
+> Right, so making the copy dependent on !CONFIG_REGPARM wouldn't
+> make sense would it ?
 
-	Time to fix: less than a day (for Jens)
+Yes, it wouldn't.
 
--	Parallel (50 bin) SCSI (unknown HBA) on Linux-2.6 does not work if
-	DMA size is not a multiple of 4. The data transferred from the SCSI
-	device is OK for the first part that is a multiple of 4.
-	The remainder of bytes arrive as binary zeroes.
-
-	This is a new bug (I received the related information this week).
-
-	Time to fix: approx. one day
-
--	ioctl(f, SCSI_IOCTL_GET_IDLUN, &sg_id)) and ioctl(f, SCSI_IOCTL_GET_BUS_NUMBER, &Bus)
-	do not return instance numbers if applied to a fd from /dev/hd*
-
-	This bug has been reported 2 years ago.
-
-	Time to fix: 10 minutes
-
--	DMA residual count is not returned (reported in 1998).
-	This is extremely important - it prevents me from unsing Linux as a
-	development platform.
-
-	Time to fix: about one month to rework the whole SCSI driver stack.
-
--	Only the first 14 bytes of SCSI Sense data is returned (reported in 1998)
-	This is extremely important - it prevents me from unsing Linux as a
-	development platform.	
-
-	Time to fix: about one month to rework the whole SCSI driver stack.
-	With good luck, this may be done on 2 days.
-
--	Unclear documentation whether DID_TIME_OUT should apply to a selection
-	time out, a SCSI command timeout or both.
-
-	Time to fix: one day
-
--	It seems that the only way to find out whether a SCSI command did time 
-	out is to meter the time it takes and guess for any unclear return
-	codes that coincidence with a command time >= the set up timeout to
-	assume a SCSI command timeout.
-
-	Time to fix: one day
-
--	Many unclear problem reports lead me to the assumption that Linux-2.6
-	does not set up the SCSI command timeout properly. See previous point!
-
-	Time to fix: 
-
--	Linux Kernel include files (starting with Linux-2.5) are buggy and 
-	prevent compilation. Many files may be affected but let me name
-	the most important files for me:
-
-	-	/usr/src/linux/include/scsi/scsi.h depends on a nonexistant
-		type "u8". The correct way to fix this would be to replace
-		any "u8" by "uint8_t". A quick and dirty fix is to call:
-
-			"change u8 __u8 /usr/src/linux/include/scsi/scsi.h"
-
-		ftp://ftp.berlios.de/pub/change/
-
-	-	/usr/src/linux/include/scsi/sg.h includes "extra text" "__user"
-		in some structure definitions. This may be fixed by adding
-		#include <linux/compiler.h> somewhere at the beginning of
-		/usr/src/linux/include/scsi/sg.h
-
-	This bug has been reported several times (starting with Linux-2.5).
-
-	Time to fix: 5 minutes.
-	
-There may be other problems that I do not remember now. If I would get the 
-impression that LKML is interested in fixing CD/DVD writing related bugs, I 
-would report more.....
-
->From the current number of problem reports, it looks like Linux-2.6 is not yet 
-ready for general use as too many problems only appear on Linux-2.6. I 
-currently give peeople the advise to either go back to Linux-2.4 or to check
-Solaris (see http://wwws.sun.com/software/solaris/solaris-express/get.html).
-
-As my previous experiences with discussions on LKML have not been very 
-fruitful, I would propose to suspend the current discussion to a time after
-at least some bugs from the list above have been fixed.
-
-
-
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily
+-Andi

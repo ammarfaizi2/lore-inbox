@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268702AbRHLAQx>; Sat, 11 Aug 2001 20:16:53 -0400
+	id <S268903AbRHLA6Q>; Sat, 11 Aug 2001 20:58:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268903AbRHLAQn>; Sat, 11 Aug 2001 20:16:43 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:34571 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268702AbRHLAQa>; Sat, 11 Aug 2001 20:16:30 -0400
-Subject: Re: [Emu10k1-devel] [PATCH] EMU10K1: Juha Rjola's AC3 Passthrough for
-To: d.bertrand@ieee.org (Daniel Bertrand)
-Date: Sun, 12 Aug 2001 01:18:27 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        crimsun@email.unc.edu (Daniel T. Chen), linux-kernel@vger.kernel.org,
-        emu10k1-devel@opensource.creative.com (emu10k1-devel)
-In-Reply-To: <Pine.LNX.4.33.0108111637080.1234-100000@kilrogg> from "Daniel Bertrand" at Aug 11, 2001 04:53:24 PM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15VixX-0003b7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S268905AbRHLA54>; Sat, 11 Aug 2001 20:57:56 -0400
+Received: from maild.telia.com ([194.22.190.101]:10957 "EHLO maild.telia.com")
+	by vger.kernel.org with ESMTP id <S268903AbRHLA5x>;
+	Sat, 11 Aug 2001 20:57:53 -0400
+Date: Sun, 12 Aug 2001 02:58:10 +0200
+From: =?iso-8859-1?Q?Andr=E9?= Dahlqvist <andre.dahlqvist@telia.com>
+To: linux-kernel@vger.kernel.org
+Subject: __alloc_pages: 3-order allocation failed.
+Message-ID: <20010812025810.A2972@telia.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We have ac97 volumes _and_ other volumes handle with emu10k1 code. We want
-> to use the ac97_codec functions for it's OSS mixer handling for both
-> (storing volumes values, handling queries, etc). Those simple 2 lines
-> allow us to do that. Else, we have to intercept everything and write our
-> own functions to handle it.
+Hi guys,
 
-That is fine by me.
+With recent kernel, 2.4.7 and 2.4.8 my syslog file has been filled with
+these messages:
 
-There are really two ways we approach this
+Aug 12 02:08:58 sledgehammer kernel: __alloc_pages: 3-order allocation failed.
+Aug 12 02:08:58 sledgehammer kernel: __alloc_pages: 2-order allocation failed.
+Aug 12 02:08:58 sledgehammer kernel: __alloc_pages: 1-order allocation failed.
+Aug 12 02:08:58 sledgehammer kernel: __alloc_pages: 3-order allocation failed.
 
-1.	You add two methods for volume control into your code
+I have not yet found a pattern for when it happens but it doesn't seam to
+affect my system all that much. Let me know if you want further info or if
+this is a known thing.
+-- 
 
-2.	We make ac97_codec into audio_codec and we add things to the 
-	codec_ops structure for volume and mixer control.
-
-For 2.4 #1 seems a lot easier
-
+André Dahlqvist <andre.dahlqvist@telia.com>

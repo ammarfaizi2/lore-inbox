@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293680AbSIPGGj>; Mon, 16 Sep 2002 02:06:39 -0400
+	id <S311025AbSIPGOX>; Mon, 16 Sep 2002 02:14:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310190AbSIPGGj>; Mon, 16 Sep 2002 02:06:39 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:22484 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S293680AbSIPGGj>;
-	Mon, 16 Sep 2002 02:06:39 -0400
-Date: Mon, 16 Sep 2002 08:18:25 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] thread-exec-2.5.34-B1, BK-curr
-In-Reply-To: <1032140276.27001.27.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0209160813530.16470-100000@localhost.localdomain>
+	id <S310190AbSIPGOX>; Mon, 16 Sep 2002 02:14:23 -0400
+Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:42172 "HELO
+	pc.kolivas.net") by vger.kernel.org with SMTP id <S311025AbSIPGOW>;
+	Mon, 16 Sep 2002 02:14:22 -0400
+Message-ID: <1032157154.3d8577e224791@kolivas.net>
+Date: Mon, 16 Sep 2002 16:19:14 +1000
+From: Con Kolivas <conman@kolivas.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: System response benchmarks in performance patches
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Bill
 
-On 16 Sep 2002, Alan Cox wrote:
+Quoting Bill Davidsen <davidsen@tmr.com>:
 
-> There is code that depends on clone()/exec() not killing other threads
-> in the group - some threaded web servers for example.
+> On Sat, 14 Sep 2002, Con Kolivas wrote:
+> 
+> > 
+> > I came up with a very simple way of measuring responsiveness that gives
+> me
+> > numbers that are meaningful to me. What I've done is the old faithful
+> kernel
+> > compile and measured it under different loads to simulate the pc's ability
+> to
+> > perform under various loads. I have so far benchmarked 2.4.19 versus
+> 2.4.19-ck7,
+> >  2.4.19-ck7-rmap and 2.4.18-6mdk(mandrake's kernel in 8.2). 2.5.34 has a
+> dead
+> > keyboard for me so I'm unable to test it as yet.
+> 
+> If that's a real kernel compile in <2 minutes I'm impressed!
 
-all the new 'thread group' semantics (group exit, group-broadcast and
-group-balanced signals, group exec(), soon-to-come group coredump) are
-connected to the CLONE_THREAD property which is a relatively new clone
-bit. All the other thread properties (such as CLONE_VM, CLONE_SIGHAND) are
-not affected by all the recent threading related changes. [well, they got
-significantly faster, but no behavioral change.]
+If you look at my README in the tarball you'll see that I suggest using a
+minimal kernel config (ie almost nothing enabled) and include just such a
+.config. So, yes, it is a real kernel compile on a 1133Mhz pIII.
 
-	Ingo
-
+Con.

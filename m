@@ -1,47 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261253AbTH2OR0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 10:17:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbTH2ORY
+	id S261257AbTH2OYh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 10:24:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbTH2OYh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 10:17:24 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:46000 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261244AbTH2ORW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 10:17:22 -0400
-Date: Fri, 29 Aug 2003 09:17:10 -0500
-Subject: Re: 2.6.0-test4: Unable to handle kernel NULL pointer dereference
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v552)
-Cc: linux-kernel@vger.kernel.org
-To: Andrew Morton <akpm@osdl.org>
-From: Hollis Blanchard <hollisb@us.ibm.com>
-In-Reply-To: <20030828131019.69a9f3b9.akpm@osdl.org>
-Message-Id: <7AB2E883-DA2B-11D7-BFD3-000A95A0560C@us.ibm.com>
+	Fri, 29 Aug 2003 10:24:37 -0400
+Received: from user-0cal2fl.cable.mindspring.com ([24.170.137.245]:6053 "EHLO
+	bender.davehollis.com") by vger.kernel.org with ESMTP
+	id S261257AbTH2OYe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 10:24:34 -0400
+Message-ID: <3F4F6233.5050809@davehollis.com>
+Date: Fri, 29 Aug 2003 10:24:51 -0400
+From: David T Hollis <dhollis@davehollis.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ext2 -> ext3 on the fly?
+References: <20030829141619.GA12564@rdlg.net>
+In-Reply-To: <20030829141619.GA12564@rdlg.net>
+X-Enigmail-Version: 0.76.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.552)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, Aug 28, 2003, at 15:10 US/Central, Andrew Morton wrote:
+Robert L. Harris wrote:
+
+>I have a number of servers which are currently mounting /usr as ext2.  I 
+>have a means of doing an tune2fs -j on all of them remotely en mass but
+>I'd rather not reboot them all to enable journaling on machines that are
+>up and not having issues.  I've tried to do a:
 >
-> --- 25/include/asm-i386/processor.h~disable-athlon-prefetch	2003-08-23 
-> 13:48:16.000000000 -0700
-> +++ 25-akpm/include/asm-i386/processor.h	2003-08-23 13:48:16.000000000 
-> -0700
-> @@ -578,6 +578,8 @@ static inline void rep_nop(void)
->  #define ARCH_HAS_PREFETCH
->  extern inline void prefetch(const void *x)
->  {
-> +	if (cpu_data[0].x86_vendor == X86_VENDOR_AMD)
-> +		return;
->  	alternative_input(ASM_NOP4,
->  			  "prefetchnta (%1)",
->  			  X86_FEATURE_XMM,
-
-Without a comment explaining the problem?
-
--- 
-Hollis Blanchard
-IBM Linux Technology Center
+>mount -t ext3 -o remount /usr
+>
+>as well as just a mount -o remount after changing the fstab.
+>
+>on a test box but it just blows out a usage message.  Is there a way to
+>do this remount without a complete reboot that'll be transparant to
+>users?
+>
+>
+>If not, is it dangerous to tune2fs the filesystems, change the fstab and
+>then leave the box up for 2-6 months and let them reboot through
+>atrrition, upgrades, etc?
+>
+>Current kernel is 2.4.21-ac3, getting outages and upgrades is a rather
+>long process involving regression testing, etc.
+>
+>Robert
+>
+>:wq!
+>---------------------------------------------------------------------------
+>Robert L. Harris                     | GPG Key ID: E344DA3B
+>                                         @ x-hkp://pgp.mit.edu
+>DISCLAIMER:
+>      These are MY OPINIONS ALONE.  I speak for no-one else.
+>
+>Life is not a destination, it's a journey.
+>  Microsoft produces 15 car pileups on the highway.
+>    Don't stop traffic to stand and gawk at the tragedy.
+>  
+>
+I would be inclined to say it's not safe not from a code perspective but 
+an administration perspective.  If you make a change as significant as 
+the file system format but don't test it until you reboot the box six 
+months from now (when you aren't thinking about how you changed it six 
+months ago) problems are likely to happen.  Could be a simple typo or 
+something else, but it can definitely come back to bite you in the 
+backside.  Granted, if you forgot to change your fstab to ext3, you'd 
+still boot and be fine running as ext2, you just never can tell what 
+could happen.  Murphy always likes to visit on those occasions.
 

@@ -1,48 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263587AbTEOBW4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 21:22:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263585AbTEOBW4
+	id S263338AbTEOBZR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 21:25:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263441AbTEOBZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 21:22:56 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:17794
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S263582AbTEOBWy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 21:22:54 -0400
-Date: Wed, 14 May 2003 21:26:18 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Andrew Theurer <habanero@us.ibm.com>
-cc: anton@samba.org, "" <colpatch@us.ibm.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Dave Hansen <haveblue@us.ibm.com>, Bill Hartner <bhartner@us.ibm.com>,
-       Andrew Morton <akpm@zip.com.au>, Robert Love <rml@tech9.net>,
-       "" <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Re: Bug 619 - sched_best_cpu does not pick best cpu
- (1/1)
-In-Reply-To: <200305142029.45413.habanero@us.ibm.com>
-Message-ID: <Pine.LNX.4.50.0305142124440.19782-100000@montezuma.mastecende.com>
-References: <3EB70EEC.9040004@us.ibm.com> <200305142029.45413.habanero@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 14 May 2003 21:25:17 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:30403 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263338AbTEOBZP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 21:25:15 -0400
+Date: Wed, 14 May 2003 18:39:25 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: ch@murgatroid.com, inaky.perez-gonzalez@intel.com, hch@infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.68 FUTEX support should be optional
+Message-Id: <20030514183925.67a538fc.akpm@digeo.com>
+In-Reply-To: <Pine.LNX.4.44.0305141827200.28093-100000@home.transmeta.com>
+References: <20030514182526.36823e2b.akpm@digeo.com>
+	<Pine.LNX.4.44.0305141827200.28093-100000@home.transmeta.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 May 2003 01:37:59.0227 (UTC) FILETIME=[9DD098B0:01C31A82]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 May 2003, Andrew Theurer wrote:
+Linus Torvalds <torvalds@transmeta.com> wrote:
+>
+> Yes. We can make tit a CONFIG option, and then force it to always be "y" 
+>  in the .config file. And then the people who really know and really care 
+>  can turn the "y" to a "n".
 
-> +int nr_cpus_in_node[MAX_NUMNODES] = { [0 ... (MAX_NUMNODES -1)] = 0};
-[snip...]
-> +static inline int nr_cpus_node(int node)
-> +{
-> +	return nr_cpus_in_node[node];
-> +}
-> +
->  static inline int cpu_to_node(int cpu)
->  {
->  	int node;
 
-How about an hweight() on node_to_cpumask?
+I did it the below way.  Or are you suggesting that a manual edit of
+.config should be required?   It may not get tested at all that way?
 
-	Zwane
--- 
-function.linuxpower.ca
+
+
+--- 25/init/Kconfig~CONFIG_FUTEX	Wed May 14 12:43:16 2003
++++ 25-akpm/init/Kconfig	Wed May 14 13:06:15 2003
+@@ -108,8 +108,17 @@ config LOG_BUF_SHIFT
+ 		     13 =>  8 KB
+ 		     12 =>  4 KB
+ 
++menu "Size reduced kernel"
++
++config FUTEX
++	bool "Futex support"
++	default y
++	---help---
++	Say Y if you want support for Fast Userspace Mutexes (Futexes).
++	WARNING: disabling futex support will probably cause glibc to fail.
+ endmenu
+ 
++endmenu
+ 
+ menu "Loadable module support"
+ 
+
+

@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262821AbSJTO7n>; Sun, 20 Oct 2002 10:59:43 -0400
+	id <S262959AbSJTPCV>; Sun, 20 Oct 2002 11:02:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262824AbSJTO7n>; Sun, 20 Oct 2002 10:59:43 -0400
-Received: from mail.hometree.net ([212.34.181.120]:11684 "EHLO
+	id <S262977AbSJTPCV>; Sun, 20 Oct 2002 11:02:21 -0400
+Received: from mail.hometree.net ([212.34.181.120]:16036 "EHLO
 	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S262821AbSJTO7m>; Sun, 20 Oct 2002 10:59:42 -0400
+	id <S262959AbSJTPCU>; Sun, 20 Oct 2002 11:02:20 -0400
 To: linux-kernel@vger.kernel.org
 Path: forge.intermeta.de!not-for-mail
 From: "Henning P. Schmiedehausen" <hps@intermeta.de>
 Newsgroups: hometree.linux.kernel
 Subject: Re: Bitkeeper outrage, old and new
-Date: Sun, 20 Oct 2002 15:05:47 +0000 (UTC)
+Date: Sun, 20 Oct 2002 15:08:24 +0000 (UTC)
 Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <aougob$sts$1@forge.intermeta.de>
-References: <aot5a4$894$1@main.gmane.org> <Pine.LNX.4.44.0210200155580.4306-100000@chopper.slackworks.com>
+Message-ID: <aougt8$svb$1@forge.intermeta.de>
+References: <aot5a4$894$1@main.gmane.org> <Pine.LNX.4.44.0210200155580.4306-100000@chopper.slackworks.com> <20021020084056.GD5064@mark.mielke.cc> <20021020090015.GE25042@vitelus.com>
 Reply-To: hps@intermeta.de
 NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1035126347 30612 212.34.181.4 (20 Oct 2002 15:05:47 GMT)
+X-Trace: tangens.hometree.net 1035126504 30697 212.34.181.4 (20 Oct 2002 15:08:24 GMT)
 X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Sun, 20 Oct 2002 15:05:47 +0000 (UTC)
+NNTP-Posting-Date: Sun, 20 Oct 2002 15:08:24 +0000 (UTC)
 X-Copyright: (C) 1996-2002 Henning Schmiedehausen
 X-No-Archive: yes
 X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zac Hansen <xaxxon@chopper.slackworks.com> writes:
+Aaron Lehmann <aaronl@vitelus.com> writes:
 
->I disagree with your statement that his rants are off topic.  Unless you 
->believe that the purpose of Linux isn't the advancement of Free software, 
+>On Sun, Oct 20, 2002 at 04:40:56AM -0400, Mark Mielke wrote:
+>> Ask Richard if GCC was ever initially bootstrapped using a non-GPL
+>> compiler suite.
 
-No, it is not. This was stated again and again. Linux is fun. If it
-succeeds in "world domination", fine. If not, fine, too. 
+>Ah, but that's the point!
 
-As far as I understood Linux, it is not about politics. Else, none of
-the core developers would have agreed to bk.
+>The bitkeeper license won't allow you to bootstrap a competing project
+>using bitkeeper. If the same clauses existed in the licenses of these
+>commercial compilers, we wouldn't have GCC.
+
+WRONG! 
+
+IT DOES. YOU JUST HAVE TO BUY BK. Same as RMS might have to buy the
+compiler he used to bootstrap gcc (Or MIT did buy it).
+
+There is no clause where Larry said "You might not use bk at all to write
+SCM software". That's why I asked about "free beer" a while ago.
 
 	Regards
 		Henning
-
 
 -- 
 Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer

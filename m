@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129260AbQK0SBq>; Mon, 27 Nov 2000 13:01:46 -0500
+        id <S129340AbQK0SD0>; Mon, 27 Nov 2000 13:03:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129340AbQK0SBg>; Mon, 27 Nov 2000 13:01:36 -0500
-Received: from ife.ee.ethz.ch ([129.132.29.2]:25841 "EHLO ife.ee.ethz.ch")
-        by vger.kernel.org with ESMTP id <S129260AbQK0SB0>;
-        Mon, 27 Nov 2000 13:01:26 -0500
-Date: Mon, 27 Nov 2000 18:31:20 +0100 (MET)
-From: Thomas Sailer <sailer@ife.ee.ethz.ch>
-Message-Id: <200011271731.eARHVKv05965@eldrich.ee.ethz.ch>
-To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: [PATCH]: USB Audio 2.2.18pre
+        id <S129581AbQK0SDQ>; Mon, 27 Nov 2000 13:03:16 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:50387 "EHLO
+        delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+        id <S129340AbQK0SDE>; Mon, 27 Nov 2000 13:03:04 -0500
+Date: Mon, 27 Nov 2000 18:30:48 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: "Mr. Big" <mrbig@sneaker.sch.bme.hu>
+cc: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PROBLEM: crashing kernels
+In-Reply-To: <Pine.LNX.3.96.1001126164611.8011A-100000@sneaker.sch.bme.hu>
+Message-ID: <Pine.GSO.3.96.1001127182529.13774T-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds a workaround for the Dallas chip; the chip tags
-its 8bit formats with PCM8 but expects signed data.
+On Sun, 26 Nov 2000, Mr. Big wrote:
 
---- drivers/usb/audio.c.orig	Mon Oct  2 15:23:28 2000
-+++ drivers/usb/audio.c	Mon Nov 27 00:08:54 2000
-@@ -89,6 +89,9 @@
-  *              Somewhat peculiar due to OSS interface limitations. Only works
-  *              for channels where a "slider" is already in front of it (i.e.
-  *              a MIXER unit or a FEATURE unit with volume capability).
-+ * 2000-11-26:  Thomas Sailer
-+ *              Workaround for Dallas DS4201. The DS4201 uses PCM8 as format tag for
-+ *              its 8 bit modes, but expects signed data (and should therefore have used PCM).
-  *
-  */
- 
-@@ -1551,6 +1554,7 @@
- 		       dev->devnum, u->interface, fmt->altsetting, d->srate, data[0] | (data[1] << 8) | (data[2] << 16)));
- 		d->srate = data[0] | (data[1] << 8) | (data[2] << 16);
- 	}
-+	dprintk((KERN_DEBUG "usbaudio: set_format_in: USB format 0x%x, DMA format 0x%x srate %u\n", u->format, d->format, d->srate));
- 	return 0;
- }
- 
-@@ -1647,6 +1651,7 @@
- 		       dev->devnum, u->interface, fmt->altsetting, d->srate, data[0] | (data[1] << 8) | (data[2] << 16)));
- 		d->srate = data[0] | (data[1] << 8) | (data[2] << 16);
- 	}
-+	dprintk((KERN_DEBUG "usbaudio: set_format_out: USB format 0x%x, DMA format 0x%x srate %u\n", u->format, d->format, d->srate));
- 	return 0;
- }
- 
-@@ -2851,6 +2856,9 @@
- 				continue;
- 			}
- 			format = (fmt[5] == 2) ? (AFMT_U16_LE | AFMT_U8) : (AFMT_S16_LE | AFMT_S8);
-+			/* Dallas DS4201 workaround */
-+			if (dev->descriptor.idVendor == 0x04fa && dev->descriptor.idProduct == 0x4201)
-+				format = (AFMT_S16_LE | AFMT_S8);
- 			fmt = find_csinterface_descriptor(buffer, buflen, NULL, FORMAT_TYPE, asifout, i);
- 			if (!fmt) {
- 				printk(KERN_ERR "usbaudio: device %u interface %u altsetting %u FORMAT_TYPE descriptor not found\n", 
+> How could an APIC 'forget' how to deliver the interrupts? Could this mean
+> a problem with the mainboard, or with the CPU?
+
+ Do you have an USB host controller in your system?  If so, could you
+please send me an output of `/sbin/lspci' and the contents of
+/proc/interrupts?  I wonder if this might be the reason...
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

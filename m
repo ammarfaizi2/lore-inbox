@@ -1,43 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274803AbRJJFYW>; Wed, 10 Oct 2001 01:24:22 -0400
+	id <S274813AbRJJF0W>; Wed, 10 Oct 2001 01:26:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274813AbRJJFYE>; Wed, 10 Oct 2001 01:24:04 -0400
-Received: from [208.129.208.52] ([208.129.208.52]:17682 "EHLO xmailserver.org")
-	by vger.kernel.org with ESMTP id <S274803AbRJJFXs>;
-	Wed, 10 Oct 2001 01:23:48 -0400
-Date: Tue, 9 Oct 2001 22:29:36 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: BALBIR SINGH <balbir.singh@wipro.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists
- with insertion
-In-Reply-To: <3BC3D9ED.6050901@wipro.com>
-Message-ID: <Pine.LNX.4.40.0110092227140.3396-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S274832AbRJJF0F>; Wed, 10 Oct 2001 01:26:05 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:42793 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S274813AbRJJFZv>; Wed, 10 Oct 2001 01:25:51 -0400
+Date: Wed, 10 Oct 2001 07:26:07 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Robert Love <rml@tech9.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.10-ac10-preempt lmbench output.
+Message-ID: <20011010072607.P726@athlon.random>
+In-Reply-To: <200110100358.NAA17519@isis.its.uow.edu.au> <3BC3D916.B0284E00@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BC3D916.B0284E00@zip.com.au>; from akpm@zip.com.au on Tue, Oct 09, 2001 at 10:13:58PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Oct 2001, BALBIR SINGH wrote:
+On Tue, Oct 09, 2001 at 10:13:58PM -0700, Andrew Morton wrote:
+> I don't understand why Andrea is pointing at write throttling?  xmms
+> doesn't do any disk writes, does it??
 
-> What about cases like the pci device list or any other such list. Sometimes
-> you do not care if somebody added something, while you were looking through
-> the list as long as you do not get illegal addresses or data.
-> Wouldn't this be very useful there? Most of these lists come up
-> at system startup and change rearly, but we look through them often.
->
-> Me too, Did I miss something?
+Of course it doesn't. You're right it could be just because of I/O
+bandwith shortage. But it could really be also because of vm write
+throttling.
 
-What means that changes rarely that you're going to use rarely_lock() ?
-If you're going to remove even only 1 element in 1000000 jiffies then
-you've to lock.
-If your list can only grow, that's different.
+xmms can end waiting I/O completion for I/O submitted by other I/O bound
+tasks. This because xmms is reading from disk and in turn it is
+allocating cache and in turn it is allocating memory. While allocating
+memory it may need to write throttle.
 
+Copying the file to /dev/shm fixed the problem but that would cover both
+the write throttling and the disk bandwith problems at the same time and
+I guess it's a mixed effect of both things.
 
+> Andrea's VM has a rescheduling point in shrink_cache(), which is the
+> analogue of the other VM's page_launder().  This rescheduling point
+> is *absolutely critial*, because it opens up what is probably the
+> longest-held spinlock in the kernel (under common use).  If there
+> were a similar reschedulig point in page_launder(), comparisons
+> would be more valid...
 
+Indeed.
 
-- Davide
+> I would imagine that for a (very) soft requirement such as audio
+> playback, the below patch, combined with mlockall and renicing
+> should fix the problems.  I would expect that this patch will
+> give effects which are similar to the preempt patch.  This is because
 
+I didn't checked the patch in the detail yet but it seems you covered
+read/write some bits in /proc and a lru list during buffer flushing. I
+agree that it should be enough to give the same effects of the preempt
+patch.
 
+> most of the other latency problems are under locks - icache/dcache
+> shrinking and zap_page_range(), etc.
+
+Exactly.
+
+> This patch should go into the stock 2.4 kernel.
+> 
+> Oh.  And always remember to `renice -19' your X server.  
+
+I don't renice my X server (I rather renice all cpu hogs to +19 and I
+left -20 for something that really needs to run as fast as possible
+regardless of the X server).
+
+Andrea

@@ -1,57 +1,171 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311271AbSCWUvm>; Sat, 23 Mar 2002 15:51:42 -0500
+	id <S311273AbSCWUxW>; Sat, 23 Mar 2002 15:53:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311272AbSCWUvc>; Sat, 23 Mar 2002 15:51:32 -0500
-Received: from mailhost.cs.clemson.edu ([130.127.48.6]:7342 "EHLO
-	cs.clemson.edu") by vger.kernel.org with ESMTP id <S311271AbSCWUvX>;
-	Sat, 23 Mar 2002 15:51:23 -0500
-Message-ID: <3C9CEAC6.7315C86@cs.clemson.edu>
-Date: Sat, 23 Mar 2002 15:51:18 -0500
-From: Mike Westall <westall@cs.clemson.edu>
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en
+	id <S311275AbSCWUxP>; Sat, 23 Mar 2002 15:53:15 -0500
+Received: from ep09.kernel.pl ([212.87.11.162]:1394 "EHLO ep09.kernel.pl")
+	by vger.kernel.org with ESMTP id <S311273AbSCWUxB>;
+	Sat, 23 Mar 2002 15:53:01 -0500
+Date: Sat, 23 Mar 2002 21:52:56 +0100 (CET)
+From: Witek Krecicki <adasi@kernel.pl>
+To: linux-kernel@vger.kernel.org
+Subject: [2.5.7] Oops while connecting a device to USB port (khubd)
+Message-ID: <Pine.LNX.4.44.0203232149240.18904-200000@ep09.kernel.pl>
 MIME-Version: 1.0
-To: murble <murble-atmbits@yuri.org.uk>, westall@cs.clemson.edu,
-        linux-kernel@vger.kernel.org, linux-atm-general@lists.sourceforge.net
-Subject: Re: [Linux-ATM-General] Oops: Linux ATM Interphase card.
-In-Reply-To: <20020323010130.GA20579@yuri.org.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="1473552907-1421559304-1016916776=:18904"
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since you did such a fine job of describing the problem,
-I can actually tell what the trouble is and how to fix 
-it even though I'm not currently using that driver.  
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-The problem begins with the fact that <all> ioctls are
-vectored to the ioctl entry point of the atmdev that is registered
-on the interface in question.  In this case, all 
-are vectored to ia_ioctl().  Right near the
-beginning of that ia_ioctl() you will see: 
-   
-   if (!dev->phy->ioctl) return(-EINVAL);
+--1473552907-1421559304-1016916776=:18904
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-In "theory" the dev->phy pointer was set in suni_init()
-to point to the suni ioctl handler. 
+Oops is happening when I'm loading a module while having scanner 
+connected to USB (HP SJ 4470c) or when the module is already loaded and 
+i'm connecting the scanner. It does not depend on usb modularization: if 
+usb is in core, oopsa happens at boot time.
+WK
+P.S. ksymoops output in attachment
 
-However, in reality, if you look around line 2528 in iphase.c
-you will see that suni_init is NOT called if the phy is
-25mbps, DS3, or E3 (as yours is).  
+--1473552907-1421559304-1016916776=:18904
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="oops.dec"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0203232152560.18904@ep09.kernel.pl>
+Content-Description: 
+Content-Disposition: attachment; filename="oops.dec"
 
-Thus phy = 0 at the time of the call and the attempt to
-evaluate dev->phy->ioctl causes the seg fault shown below.
-(eax is holding what should be phy). 
+a3N5bW9vcHMgMi40LjQgb24gaTY4NiAyLjUuNy4gIE9wdGlvbnMgdXNlZA0K
+ICAgICAtViAoZGVmYXVsdCkNCiAgICAgLWsgL3Byb2Mva3N5bXMgKGRlZmF1
+bHQpDQogICAgIC1sIC9wcm9jL21vZHVsZXMgKGRlZmF1bHQpDQogICAgIC1v
+IC9saWIvbW9kdWxlcy8yLjUuNy8gKGRlZmF1bHQpDQogICAgIC1tIC9ib290
+L1N5c3RlbS5tYXAtMi41LjcgKGRlZmF1bHQpDQoNCldhcm5pbmc6IFlvdSBk
+aWQgbm90IHRlbGwgbWUgd2hlcmUgdG8gZmluZCBzeW1ib2wgaW5mb3JtYXRp
+b24uICBJIHdpbGwNCmFzc3VtZSB0aGF0IHRoZSBsb2cgbWF0Y2hlcyB0aGUg
+a2VybmVsIGFuZCBtb2R1bGVzIHRoYXQgYXJlIHJ1bm5pbmcNCnJpZ2h0IG5v
+dyBhbmQgSSdsbCB1c2UgdGhlIGRlZmF1bHQgb3B0aW9ucyBhYm92ZSBmb3Ig
+c3ltYm9sIHJlc29sdXRpb24uDQpJZiB0aGUgY3VycmVudCBrZXJuZWwgYW5k
+L29yIG1vZHVsZXMgZG8gbm90IG1hdGNoIHRoZSBsb2csIHlvdSBjYW4gZ2V0
+DQptb3JlIGFjY3VyYXRlIG91dHB1dCBieSB0ZWxsaW5nIG1lIHRoZSBrZXJu
+ZWwgdmVyc2lvbiBhbmQgd2hlcmUgdG8gZmluZA0KbWFwLCBtb2R1bGVzLCBr
+c3ltcyBldGMuICBrc3ltb29wcyAtaCBleHBsYWlucyB0aGUgb3B0aW9ucy4N
+Cg0KV2FybmluZyAoY29tcGFyZV9tYXBzKToga3N5bXNfYmFzZSBzeW1ib2wg
+aWRsZV9jcHVfUl9fdmVyX2lkbGVfY3B1IG5vdCBmb3VuZCBpbiBTeXN0ZW0u
+bWFwLiAgSWdub3Jpbmcga3N5bXNfYmFzZSBlbnRyeQ0KV2FybmluZyAoY29t
+cGFyZV9tYXBzKToga3N5bXNfYmFzZSBzeW1ib2wgaXBfY3RfYXR0YWNoX1Jf
+X3Zlcl9pcF9jdF9hdHRhY2ggbm90IGZvdW5kIGluIFN5c3RlbS5tYXAuICBJ
+Z25vcmluZyBrc3ltc19iYXNlIGVudHJ5DQpXYXJuaW5nIChjb21wYXJlX21h
+cHMpOiBrc3ltc19iYXNlIHN5bWJvbCBpcF9yb3V0ZV9tZV9oYXJkZXJfUl9f
+dmVyX2lwX3JvdXRlX21lX2hhcmRlciBub3QgZm91bmQgaW4gU3lzdGVtLm1h
+cC4gIElnbm9yaW5nIGtzeW1zX2Jhc2UgZW50cnkNCldhcm5pbmcgKGNvbXBh
+cmVfbWFwcyk6IGtzeW1zX2Jhc2Ugc3ltYm9sIG5ldGxpbmtfYXR0YWNoX1Jf
+X3Zlcl9uZXRsaW5rX2F0dGFjaCBub3QgZm91bmQgaW4gU3lzdGVtLm1hcC4g
+IElnbm9yaW5nIGtzeW1zX2Jhc2UgZW50cnkNCldhcm5pbmcgKGNvbXBhcmVf
+bWFwcyk6IGtzeW1zX2Jhc2Ugc3ltYm9sIG5ldGxpbmtfZGV0YWNoX1JfX3Zl
+cl9uZXRsaW5rX2RldGFjaCBub3QgZm91bmQgaW4gU3lzdGVtLm1hcC4gIEln
+bm9yaW5nIGtzeW1zX2Jhc2UgZW50cnkNCldhcm5pbmcgKGNvbXBhcmVfbWFw
+cyk6IGtzeW1zX2Jhc2Ugc3ltYm9sIG5ldGxpbmtfcG9zdF9SX192ZXJfbmV0
+bGlua19wb3N0IG5vdCBmb3VuZCBpbiBTeXN0ZW0ubWFwLiAgSWdub3Jpbmcg
+a3N5bXNfYmFzZSBlbnRyeQ0KV2FybmluZyAoY29tcGFyZV9tYXBzKToga3N5
+bXNfYmFzZSBzeW1ib2wgbmZfZ2V0c29ja29wdF9SX192ZXJfbmZfZ2V0c29j
+a29wdCBub3QgZm91bmQgaW4gU3lzdGVtLm1hcC4gIElnbm9yaW5nIGtzeW1z
+X2Jhc2UgZW50cnkNCldhcm5pbmcgKGNvbXBhcmVfbWFwcyk6IGtzeW1zX2Jh
+c2Ugc3ltYm9sIG5mX2hvb2tfc2xvd19SX192ZXJfbmZfaG9va19zbG93IG5v
+dCBmb3VuZCBpbiBTeXN0ZW0ubWFwLiAgSWdub3Jpbmcga3N5bXNfYmFzZSBl
+bnRyeQ0KV2FybmluZyAoY29tcGFyZV9tYXBzKToga3N5bXNfYmFzZSBzeW1i
+b2wgbmZfaG9va3NfUl9fdmVyX25mX2hvb2tzIG5vdCBmb3VuZCBpbiBTeXN0
+ZW0ubWFwLiAgSWdub3Jpbmcga3N5bXNfYmFzZSBlbnRyeQ0KV2FybmluZyAo
+Y29tcGFyZV9tYXBzKToga3N5bXNfYmFzZSBzeW1ib2wgbmZfcmVnaXN0ZXJf
+aG9va19SX192ZXJfbmZfcmVnaXN0ZXJfaG9vayBub3QgZm91bmQgaW4gU3lz
+dGVtLm1hcC4gIElnbm9yaW5nIGtzeW1zX2Jhc2UgZW50cnkNCldhcm5pbmcg
+KGNvbXBhcmVfbWFwcyk6IGtzeW1zX2Jhc2Ugc3ltYm9sIG5mX3JlZ2lzdGVy
+X3F1ZXVlX2hhbmRsZXJfUl9fdmVyX25mX3JlZ2lzdGVyX3F1ZXVlX2hhbmRs
+ZXIgbm90IGZvdW5kIGluIFN5c3RlbS5tYXAuICBJZ25vcmluZyBrc3ltc19i
+YXNlIGVudHJ5DQpXYXJuaW5nIChjb21wYXJlX21hcHMpOiBrc3ltc19iYXNl
+IHN5bWJvbCBuZl9yZWdpc3Rlcl9zb2Nrb3B0X1JfX3Zlcl9uZl9yZWdpc3Rl
+cl9zb2Nrb3B0IG5vdCBmb3VuZCBpbiBTeXN0ZW0ubWFwLiAgSWdub3Jpbmcg
+a3N5bXNfYmFzZSBlbnRyeQ0KV2FybmluZyAoY29tcGFyZV9tYXBzKToga3N5
+bXNfYmFzZSBzeW1ib2wgbmZfcmVpbmplY3RfUl9fdmVyX25mX3JlaW5qZWN0
+IG5vdCBmb3VuZCBpbiBTeXN0ZW0ubWFwLiAgSWdub3Jpbmcga3N5bXNfYmFz
+ZSBlbnRyeQ0KV2FybmluZyAoY29tcGFyZV9tYXBzKToga3N5bXNfYmFzZSBz
+eW1ib2wgbmZfc2V0c29ja29wdF9SX192ZXJfbmZfc2V0c29ja29wdCBub3Qg
+Zm91bmQgaW4gU3lzdGVtLm1hcC4gIElnbm9yaW5nIGtzeW1zX2Jhc2UgZW50
+cnkNCldhcm5pbmcgKGNvbXBhcmVfbWFwcyk6IGtzeW1zX2Jhc2Ugc3ltYm9s
+IG5mX3VucmVnaXN0ZXJfaG9va19SX192ZXJfbmZfdW5yZWdpc3Rlcl9ob29r
+IG5vdCBmb3VuZCBpbiBTeXN0ZW0ubWFwLiAgSWdub3Jpbmcga3N5bXNfYmFz
+ZSBlbnRyeQ0KV2FybmluZyAoY29tcGFyZV9tYXBzKToga3N5bXNfYmFzZSBz
+eW1ib2wgbmZfdW5yZWdpc3Rlcl9xdWV1ZV9oYW5kbGVyX1JfX3Zlcl9uZl91
+bnJlZ2lzdGVyX3F1ZXVlX2hhbmRsZXIgbm90IGZvdW5kIGluIFN5c3RlbS5t
+YXAuICBJZ25vcmluZyBrc3ltc19iYXNlIGVudHJ5DQpXYXJuaW5nIChjb21w
+YXJlX21hcHMpOiBrc3ltc19iYXNlIHN5bWJvbCBuZl91bnJlZ2lzdGVyX3Nv
+Y2tvcHRfUl9fdmVyX25mX3VucmVnaXN0ZXJfc29ja29wdCBub3QgZm91bmQg
+aW4gU3lzdGVtLm1hcC4gIElnbm9yaW5nIGtzeW1zX2Jhc2UgZW50cnkNCldh
+cm5pbmcgKGNvbXBhcmVfbWFwcyk6IGtzeW1zX2Jhc2Ugc3ltYm9sIHZtYWxs
+b2NfdG9fcGFnZV9SX192ZXJfdm1hbGxvY190b19wYWdlIG5vdCBmb3VuZCBp
+biBTeXN0ZW0ubWFwLiAgSWdub3Jpbmcga3N5bXNfYmFzZSBlbnRyeQ0KT29w
+czogMDAwMA0KQ1BVOiAgICAwDQpFSVA6ICAgIDAwMTA6WzxlMzkxYTNmZj5d
+ICAgIE5vdCB0YWludGVkDQpVc2luZyBkZWZhdWx0cyBmcm9tIGtzeW1vb3Bz
+IC10IGVsZjMyLWkzODYgLWEgaTM4Ng0KRUZMQUdTOiAwMDAxMDA4Mg0KZWF4
+OiBhN2E3YTdhNyAgIGVieDogYTdhN2E3ZDMgICBlY3g6IGRmMjQzMzljICAg
+ZWR4OiBkZTkwYzAzMA0KZXNpOiBkZTkwZjE4YyAgIGVkaTogZGU5MGMwMzAg
+ICBlYnA6IGRlOTBjMDMwICAgZXNwOiBkZTlkOWUxOA0KZHM6IDAwMTggICBl
+czogMDAxOCAgIHNzOiAwMDE4DQpTdGFjazogZGU5ZDgwMDAgMDAwMDAwNDYg
+ZmZlODAwNjkgMDAwMDAwMDAgZTM5MWE0YTMgZGYyNDMzOWMgZGU5MGMwMzAN
+CmRmNTUzY2Y0DQogICAgICAgMDBlMDAwMmQgZGU5MGQyMTAgZTM5MWFmNDcg
+ZGYyNDMzOWMgZGU5MGMwMzAgZGY1NTNjZjQgZGU5MGMwYzANCmRmNTUzY2Y0
+DQogICAgICAgMDAwMDAwMDEgZGYyNDkwMDAgZGY1NTNjZjQgZmZmZmZmZWEg
+MDAwMDAyODYgMDAwMDAwMDAgMDAwMDAwMDgNCjE4ODAwMDAwDQpDYWxsIFRy
+YWNlOiBbPGUzOTFhNGEzPl0gWzxlMzkxYWY0Nz5dIFs8ZTM5MWJlZDY+XSBb
+PGUzOTA5Y2NiPl0gWzxlMzkwOWRkZj5dDQogICBbPGUzOTA5ZjVmPl0gWzxl
+MzkwOWZmYj5dIFs8ZTM5MGFkYjI+XSBbPGUzOTBiODBlPl0gWzxlMzkwZDBm
+Yj5dDQpbPGUzOTE3MTA0Pl0NCiAgIFs8ZTM5MGQyYjk+XSBbPGUzOTE1M2Nh
+Pl0gWzxlMzkxNzEyYz5dIFs8ZTM5MGQ0Nzc+XSBbPGMwMTA3MTg4Pl0NCkNv
+ZGU6IDhiIDQ4IDJjIDM5IGNiIDc0IDE2IDhkIDQxIGQ0IDhiIDUwIDEwIDhi
+IDQ2IDEwIDhiIDA5IDhiIDQwDQoNCj4+RUlQOyBlMzkxYTNmZiA8W3VoY2ld
+X3VoY2lfaW5zZXJ0X3FoKzFmL2EwPiAgIDw9PT09PQ0KVHJhY2U7IGUzOTFh
+NGEzIDxbdWhjaV11aGNpX2luc2VydF9xaCsyMy80MD4NClRyYWNlOyBlMzkx
+YWY0NyA8W3VoY2lddWhjaV9zdWJtaXRfY29udHJvbCsyNTcvMjgwPg0KVHJh
+Y2U7IGUzOTFiZWQ2IDxbdWhjaV11aGNpX3N1Ym1pdF91cmIrMTY2LzJiMD4N
+ClRyYWNlOyBlMzkwOWNjYiA8W3VzYmNvcmVddXNiX3N1Ym1pdF91cmIrMmIv
+NDA+DQpUcmFjZTsgZTM5MDlkZGYgPFt1c2Jjb3JlXXVzYl9zdGFydF93YWl0
+X3VyYis5Zi8xYzA+DQpUcmFjZTsgZTM5MDlmNWYgPFt1c2Jjb3JlXXVzYl9p
+bnRlcm5hbF9jb250cm9sX21zZys1Zi84MD4NClRyYWNlOyBlMzkwOWZmYiA8
+W3VzYmNvcmVddXNiX2NvbnRyb2xfbXNnKzdiL2EwPg0KVHJhY2U7IGUzOTBh
+ZGIyIDxbdXNiY29yZV11c2Jfc2V0X2FkZHJlc3MrMjIvMzA+DQpUcmFjZTsg
+ZTM5MGI4MGUgPFt1c2Jjb3JlXXVzYl9uZXdfZGV2aWNlKzFlLzFiMD4NClRy
+YWNlOyBlMzkwZDBmYiA8W3VzYmNvcmVddXNiX2h1Yl9wb3J0X2Nvbm5lY3Rf
+Y2hhbmdlKzIxYi8yYzA+DQpUcmFjZTsgZTM5MTcxMDQgPFt1c2Jjb3JlXXVz
+Yl9hZGRyZXNzMF9zZW0rMC8xND4NClRyYWNlOyBlMzkwZDJiOSA8W3VzYmNv
+cmVddXNiX2h1Yl9ldmVudHMrMTE5LzJhMD4NClRyYWNlOyBlMzkxNTNjYSA8
+W3VzYmNvcmVdLnJvZGF0YS5zdGFydCsxZjRhLzFmNGM+DQpUcmFjZTsgZTM5
+MTcxMmMgPFt1c2Jjb3JlXWtodWJkX3dhaXQrNC9jPg0KVHJhY2U7IGUzOTBk
+NDc3IDxbdXNiY29yZV11c2JfaHViX3RocmVhZCszNy85MD4NClRyYWNlOyBj
+MDEwNzE4OCA8a2VybmVsX3RocmVhZCsyOC80MD4NCkNvZGU7ICBlMzkxYTNm
+ZiA8W3VoY2ldX3VoY2lfaW5zZXJ0X3FoKzFmL2EwPg0KMDAwMDAwMDAgPF9F
+SVA+Og0KQ29kZTsgIGUzOTFhM2ZmIDxbdWhjaV1fdWhjaV9pbnNlcnRfcWgr
+MWYvYTA+ICAgPD09PT09DQogICAwOiAgIDhiIDQ4IDJjICAgICAgICAgICAg
+ICAgICAgbW92ICAgIDB4MmMoJWVheCksJWVjeCAgIDw9PT09PQ0KQ29kZTsg
+IGUzOTFhNDAyIDxbdWhjaV1fdWhjaV9pbnNlcnRfcWgrMjIvYTA+DQogICAz
+OiAgIDM5IGNiICAgICAgICAgICAgICAgICAgICAgY21wICAgICVlY3gsJWVi
+eA0KQ29kZTsgIGUzOTFhNDA0IDxbdWhjaV1fdWhjaV9pbnNlcnRfcWgrMjQv
+YTA+DQogICA1OiAgIDc0IDE2ICAgICAgICAgICAgICAgICAgICAgamUgICAg
+IDFkIDxfRUlQKzB4MWQ+IGUzOTFhNDFjIDxbdWhjaV1fdWhjaV9pbnNlcnRf
+cWgrM2MvYTA+DQpDb2RlOyAgZTM5MWE0MDYgPFt1aGNpXV91aGNpX2luc2Vy
+dF9xaCsyNi9hMD4NCiAgIDc6ICAgOGQgNDEgZDQgICAgICAgICAgICAgICAg
+ICBsZWEgICAgMHhmZmZmZmZkNCglZWN4KSwlZWF4DQpDb2RlOyAgZTM5MWE0
+MDkgPFt1aGNpXV91aGNpX2luc2VydF9xaCsyOS9hMD4NCiAgIGE6ICAgOGIg
+NTAgMTAgICAgICAgICAgICAgICAgICBtb3YgICAgMHgxMCglZWF4KSwlZWR4
+DQpDb2RlOyAgZTM5MWE0MGMgPFt1aGNpXV91aGNpX2luc2VydF9xaCsyYy9h
+MD4NCiAgIGQ6ICAgOGIgNDYgMTAgICAgICAgICAgICAgICAgICBtb3YgICAg
+MHgxMCglZXNpKSwlZWF4DQpDb2RlOyAgZTM5MWE0MGYgPFt1aGNpXV91aGNp
+X2luc2VydF9xaCsyZi9hMD4NCiAgMTA6ICAgOGIgMDkgICAgICAgICAgICAg
+ICAgICAgICBtb3YgICAgKCVlY3gpLCVlY3gNCkNvZGU7ICBlMzkxYTQxMSA8
+W3VoY2ldX3VoY2lfaW5zZXJ0X3FoKzMxL2EwPg0KICAxMjogICA4YiA0MCAw
+MCAgICAgICAgICAgICAgICAgIG1vdiAgICAweDAoJWVheCksJWVheA0KDQoN
+CjE5IHdhcm5pbmdzIGlzc3VlZC4gIFJlc3VsdHMgbWF5IG5vdCBiZSByZWxp
+YWJsZS4NCg==
+--1473552907-1421559304-1016916776=:18904--
 
-
-> Code;  c8842bee <[iphase]ia_ioctl+2a/52c>   <=====
->    0:   83 78 04 00               cmpl   $0x0,0x4(%eax)   <=====
-
-The obvious simple solution is to insert
-
-   if (!dev->phy) return(-EINVAL)
-
-(or I suppose you could also add a phy driver for your interface)
-
-Mike

@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262500AbULRArW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262506AbULRAo5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262500AbULRArW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 19:47:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262793AbULRArW
+	id S262506AbULRAo5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 19:44:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbULRAo4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 19:47:22 -0500
-Received: from holomorphy.com ([207.189.100.168]:35802 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262500AbULRArK (ORCPT
+	Fri, 17 Dec 2004 19:44:56 -0500
+Received: from fmr19.intel.com ([134.134.136.18]:43984 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262506AbULRAou convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 19:47:10 -0500
-Date: Fri, 17 Dec 2004 16:47:03 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Brent Casavant <bcasavan@sgi.com>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: Oops on 2.4.x invalid procfs i_ino value
-Message-ID: <20041218004703.GE771@holomorphy.com>
-References: <Pine.SGI.4.61.0412171611120.27132@kzerza.americas.sgi.com> <20041218003835.GD771@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041218003835.GD771@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Fri, 17 Dec 2004 19:44:50 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH]PCI Express Port Bus Driver
+Date: Fri, 17 Dec 2004 16:44:48 -0800
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E5024074742E2@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH]PCI Express Port Bus Driver
+Thread-Index: AcTklVIZX01d0RhTSZ6Jb8kFP6PmRgABHiQw
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Greg KH" <greg@kroah.com>
+Cc: <linux-kernel@vger.kernel.org>, "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+X-OriginalArrivalTime: 18 Dec 2004 00:44:49.0290 (UTC) FILETIME=[C74B16A0:01C4E49A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 17, 2004 at 04:49:44PM -0600, Brent Casavant wrote:
->> On a related note, if it matters, on about half the crash dumps I've
->> looked at, I see a pid of 0 has been assigned to a user process,
->> tripping this same problem.  I suspect there's another bug somewhere
->> that's allowing a pid of 0 to be chosen in the first place -- but I
->> don't totally discount that this problem may lay in SGI's patches to
->> this particular kernel -- I'll need to take a more thorough look.
+Friday, December 17, 2004 4:06 PM, Greg KH wrote:  
+>Hm, I get a oops message at boot time, on a non-pci express box, with
+>PCI_GOMMCONFIG enabled and your patch.  Something down in the ACPI
+>subsystem. 
+>
+> Have you tested this kind of configuration?
 
-On Fri, Dec 17, 2004 at 04:38:35PM -0800, William Lee Irwin III wrote:
-> That's rather ominous. I'll pore over pid.c and see what's going on.
-> Also, does the pid.c in your kernel version match 2.6.x-CURRENT?
+No, we've not tested this kind of configuration on a non-pci express
+box.
+We'll test it on a non-pci express box and let you know the result
+later.
 
-Ouch, 2.4.21; this will be trouble. So next, what patches atop 2.4.21?
+> I'll hold off on applying the patch for now due to this :)
+Agree.
 
-
--- wli
+Thanks,
+Long

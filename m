@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272493AbTGaOpC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 10:45:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272494AbTGaOpC
+	id S272494AbTGaO4z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 10:56:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272368AbTGaO4y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 10:45:02 -0400
-Received: from skunk.physik.uni-erlangen.de ([131.188.163.240]:44517 "EHLO
-	skunk.physik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S272493AbTGaOo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 10:44:59 -0400
-From: Christian Vogel <vogel@skunk.physik.uni-erlangen.de>
-Date: Thu, 31 Jul 2003 16:44:57 +0200
-To: Charles Lepple <clepple@ghz.cc>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.6.0-test2: Never using pm_idle (CPU wasting power)
-Message-ID: <20030731164457.A6993@skunk.physik.uni-erlangen.de>
-References: <20030731150722.A5938@skunk.physik.uni-erlangen.de> <17207.216.12.38.216.1059660771.squirrel@www.ghz.cc>
-Mime-Version: 1.0
+	Thu, 31 Jul 2003 10:56:54 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:36277 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S272503AbTGaO4c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 10:56:32 -0400
+Date: Thu, 31 Jul 2003 07:56:06 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test2-mm1 results
+Message-ID: <58530000.1059663364@[10.10.2.4]>
+In-Reply-To: <200307310128.50189.kernel@kolivas.org>
+References: <5110000.1059489420@[10.10.2.4]> <170360000.1059513518@flay> <17830000.1059577281@[10.10.2.4]> <200307310128.50189.kernel@kolivas.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <17207.216.12.38.216.1059660771.squirrel@www.ghz.cc>; from clepple@ghz.cc on Thu, Jul 31, 2003 at 10:12:51AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--Con Kolivas <kernel@kolivas.org> wrote (on Thursday, July 31, 2003 01:28:49 +1000):
 
-On Thu, Jul 31, 2003 at 10:12:51AM -0400, Charles Lepple wrote:
-> about this (haven't instrumented it all the way), it also appears that
-> pm_idle is not being called (for up to an hour, in some cases). Sometimes
-> it takes only a few minutes, and other times, it appears to kick in after
-> heavy CPU usage (kernel compiles, cpuburn, etc.).
+> On Thu, 31 Jul 2003 01:01, Martin J. Bligh wrote:
+>> OK, so test2-mm1 fixes the panic I was seeing in test1-mm1.
+>> Only noticeable thing is that -mm tree is consistently a little slower
+>> at kernbench
+> 
+> Could conceivably be my hacks throwing the cc cpu hogs onto the expired array 
+> more frequently.
 
-Yes, exactly. Up to the first time need_resched() returns true and
-the outer while(1){ } loop loops to update the idle-variable. Unfortunately
-this never was the case on my system for a long time...
+Kernbench: (make -j vmlinux, maximal tasks)
+                              Elapsed      System        User         CPU
+              2.6.0-test2       46.05      115.20      571.75     1491.25
+          2.6.0-test2-con       46.98      121.02      583.55     1498.75
+          2.6.0-test2-mm1       46.95      121.18      582.00     1497.50
 
-Probably the idle loop uses this local variable to be more cache-friendly,
-but then any module updating pm_idle should probably set need_resched
-to force an update of the idle function pointer?
+Good guess ;-)
 
-	Chris
+Does this help interactivity a lot, or was it just an experiment?
+Perhaps it could be less agressive or something?
 
--- 
-Read the OSI protocol specifications? I can't even *lift* them!
+M.
+

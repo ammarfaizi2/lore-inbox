@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281855AbRKRG2I>; Sun, 18 Nov 2001 01:28:08 -0500
+	id <S281513AbRKRG3i>; Sun, 18 Nov 2001 01:29:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281531AbRKRG16>; Sun, 18 Nov 2001 01:27:58 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:24187 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S281513AbRKRG1t>; Sun, 18 Nov 2001 01:27:49 -0500
-Date: Sun, 18 Nov 2001 07:27:44 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.>=13 VM/kswapd/shmem/Oracle issue (was Re: Google's mm problems)
-Message-ID: <20011118072743.B25232@athlon.random>
-In-Reply-To: <20011117165441.S1381@athlon.random> <Pine.LNX.4.33.0111180711260.644-100000@mikeg.weiden.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.33.0111180711260.644-100000@mikeg.weiden.de>; from mikeg@wen-online.de on Sun, Nov 18, 2001 at 07:17:02AM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S281531AbRKRG33>; Sun, 18 Nov 2001 01:29:29 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32263 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281513AbRKRG3U>; Sun, 18 Nov 2001 01:29:20 -0500
+Date: Sat, 17 Nov 2001 22:24:44 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: <ehrhardt@mathematik.uni-ulm.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: VM-related Oops: 2.4.15pre1
+In-Reply-To: <20011118051023.A25232@athlon.random>
+Message-ID: <Pine.LNX.4.33.0111172220300.1290-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 18, 2001 at 07:17:02AM +0100, Mike Galbraith wrote:
-> On Sat, 17 Nov 2001, Andrea Arcangeli wrote:
-> 
-> > If all your hardware is PCI nobody will make an allocation from the
-> > ZONE_DMA classzone and so kswapd will never loop on the ZONE_DMA, as
-> > instead can happen with -ac as soon as the ZONE_DMA becomes unfreeable
-> > and under the low watermark (and "unfreeable" of course also means all
-> > anon not locked memory but no swap installed in the machine).
-> 
-> We don't fallback to ZONE_DMA anymore?  (good)
 
-we still fallback on the ZONE_DMA, otherwise mem=17m wouldn't boot :)
+On Sun, 18 Nov 2001, Andrea Arcangeli wrote:
+>
+> I also agree the patch shouldn't matter, but one suspect thing is the
+> fact add_to_swap_cache goes to clobber in a non atomic manner the page
+> lock.
 
-what we don't do is to try to balance the dma zone if nobody is asking
-memory explicitly from the dma zone [isa users].
+.. you mean __add_to_page_cache(), not add_to_swap_cache().
 
-Andrea
+And nope, not really. It does use plain stores to page->flags, and I agree
+that it is ugly, but if the page was locked before calling it, all the
+stores will be with the PG_lock bit set - and even plain stores _are_
+documented to be atomic on x86 (and on all other reasonable architectures
+too).
+
+> so yes, we hold the page lock both in swap_out and in
+> shrink_cache, but swap_out can drop it for a moment and then later
+> pretend to be the onwer again without a real trylock.
+
+No, it doesn't get dropped for a moment. The bit is always set, and
+somebody else who tries to lock the page will never see it clear, and can
+never succeed in locking it.
+
+Is the __add_to_page_cache() playing with the page flags ugly? It sure is.
+I'd _almost_ call it buggy, but not because of PG_locked, but because of
+all the other bits it does horrible things to. It's one of those
+borderline cases, but I don't think it's borderline wrt the lock bit.
+
+		Linus
+

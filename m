@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318487AbSIBVpw>; Mon, 2 Sep 2002 17:45:52 -0400
+	id <S318529AbSIBVr4>; Mon, 2 Sep 2002 17:47:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318503AbSIBVpv>; Mon, 2 Sep 2002 17:45:51 -0400
-Received: from mail.zmailer.org ([62.240.94.4]:23456 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S318487AbSIBVpv>;
-	Mon, 2 Sep 2002 17:45:51 -0400
-Date: Tue, 3 Sep 2002 00:50:19 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: linux-kernel@vger.kernel.org
-Subject: Stupid anti-spam testings...
-Message-ID: <20020902215019.GB5834@mea-ext.zmailer.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S318526AbSIBVr4>; Mon, 2 Sep 2002 17:47:56 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54537 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318503AbSIBVrz>; Mon, 2 Sep 2002 17:47:55 -0400
+Date: Mon, 2 Sep 2002 15:00:27 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andries.Brouwer@cwi.nl
+cc: aebr@win.tue.nl, <linux-kernel@vger.kernel.org>,
+       <linux-raid@vger.kernel.org>, <neilb@cse.unsw.edu.au>
+Subject: Re: PATCH - change to blkdev->queue calling triggers BUG in md.c
+In-Reply-To: <UTC200209022141.g82LfMV21308.aeb@smtp.cwi.nl>
+Message-ID: <Pine.LNX.4.44.0209021459030.1401-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quite a many of vger's recipients are doing return-path verification
-testing for SMTP's MAIL FROM address.
 
-I would not mind that, EXCEPT that those bloody stupid things don't
-have any sane caches at all!    VGER is sending 300+ messages per
-day to 3500+ recipients of linux-kernel list EVERY DAY, and every
-outgoing message is now getting oodles of those probes!
+On Mon, 2 Sep 2002 Andries.Brouwer@cwi.nl wrote:
+> 
+> No, my suggested changes would not break a single Linux installation
+> in the world.
 
-Folks,  when you deploy that kind of testers, DO VERIFY THAT THEY
-HAVE SANE CACHES!  A positive result shall be cached for at least
-two hours, a negative result shall be cached for at least 30 minutes.
+.. by making your suggested behaviour not be used. Yes.
 
-That would send a dozen back-probes towards vger from recipient
-system, instead of present 300+ !
+But if that is the case, then we _still_ need to fix the media change and 
+partition read issue. Right? Which brings back _all_ my points for why it 
+should be done at open time, and by the generic routine. Agreed?
 
+		Linus
 
-/Matti Aarnio -- who considers some cures worse than the original problem...

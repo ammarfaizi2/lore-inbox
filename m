@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135504AbREEWMO>; Sat, 5 May 2001 18:12:14 -0400
+	id <S135506AbREEWOY>; Sat, 5 May 2001 18:14:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135506AbREEWMF>; Sat, 5 May 2001 18:12:05 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:8087 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S135504AbREEWLu>;
-	Sat, 5 May 2001 18:11:50 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S135509AbREEWOO>; Sat, 5 May 2001 18:14:14 -0400
+Received: from neve.performancemagic.com ([203.79.83.134]:46095 "EHLO
+	neve.local.performancemagic.com") by vger.kernel.org with ESMTP
+	id <S135506AbREEWOF>; Sat, 5 May 2001 18:14:05 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Greg <greg@performancemagic.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: dhcp problem with realtek 8139 clone with rh 7.1
+Date: Sun, 6 May 2001 10:14:02 +1200
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15092.31381.395563.889405@pizda.ninka.net>
-Date: Sat, 5 May 2001 15:11:33 -0700 (PDT)
-To: "Svenning Soerensen" <svenning@post5.tele.dk>
-Cc: <linux-kernel@vger.kernel.org>, <linux-ipsec@freeswan.org>
-Subject: RE: Problem with PMTU discovery on ICMP packets
-In-Reply-To: <015401c0d56e$ee293250$1400a8c0@sss.intermate.com>
-In-Reply-To: <15091.59308.315685.312632@pizda.ninka.net>
-	<015401c0d56e$ee293250$1400a8c0@sss.intermate.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Message-Id: <01050610140200.00185@jane>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Svenning Soerensen writes:
- > Yes, I see your point. I guess I made an incorrect assumption about it
- > being changed between reboots. It could be related to routing or something
- > instead. I'll have to dig a bit further to find a pattern. 
- > 
- > However, even if I *do* find the pattern, I still think it is reasonable
- > to turn off PMTU discovery for ICMP explicitly, instead of based on the
- > setting of ipv4_config:
+joining this conversation after reading it on an archive (so am not too sure 
+how far it has progressed.)
 
-I totally agree with you.
+Me too!
 
-But I first want to know the real story behind this reboot anomaly.
-Then we will fix any new bug we discover, and apply the icmp patch as
-well.
+I am having the same problem as you describe.
 
-Later,
-David S. Miller
-davem@redhat.com
+After booting and an initial (try) use of dhcp (which will fail)
+everything works fine.
+
+Until I shutdown then I get something along the lines of "too much work on 
+interrupt."
+
+Damn how annoying that was, it's been a while since I have had issues like 
+this with a release of a kernel.
+
+Oh well, I'll keep looking into this.
+
+Seeya
+-- 
+Greg
+Wellington
+New Zealand
+ICQ# 19058919
+
+Rome did not create a great empire by having meetings....
+  They did it by killing all those who opposed them.

@@ -1,41 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261897AbVDAG3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262017AbVDAGdZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261897AbVDAG3F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 01:29:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbVDAG3F
+	id S262017AbVDAGdZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 01:33:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262110AbVDAGdZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 01:29:05 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:49090
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261897AbVDAG3D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 01:29:03 -0500
-Date: Thu, 31 Mar 2005 22:27:50 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [patch] xfrm_policy destructor fix
-Message-Id: <20050331222750.3ad1293a.davem@davemloft.net>
-In-Reply-To: <E1DEzq5-0006Bf-00@gondolin.me.apana.org.au>
-References: <20050325092813.20e00ef9.davem@davemloft.net>
-	<E1DEzq5-0006Bf-00@gondolin.me.apana.org.au>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Apr 2005 01:33:25 -0500
+Received: from general.keba.co.at ([193.154.24.243]:33100 "EHLO
+	helga.keba.co.at") by vger.kernel.org with ESMTP id S262017AbVDAGdT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 01:33:19 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [BUG] 2.6.11: Random SCSI/USB errors when reading from USB memory stick
+Date: Fri, 1 Apr 2005 08:33:17 +0200
+Message-ID: <AAD6DA242BC63C488511C611BD51F3673231D3@MAILIT.keba.co.at>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [BUG] 2.6.11: Random SCSI/USB errors when reading from USB memory stick
+Thread-Index: AcU2FGVM/7a7npvbShytYmk1zWdh/gAbgjiw
+From: "kus Kusche Klaus" <kus@keba.com>
+To: "Alan Stern" <stern@rowland.harvard.edu>
+Cc: <linux-usb-users@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 Mar 2005 12:11:45 +1100
-Herbert Xu <herbert@gondor.apana.org.au> wrote:
-
-> So here is a patch to simplify xfrm_policy_kill() by moving the
-> GC linking after the write_unlock_bh().
+> > > Latency is the subject of a separate email.  Does this 
+> > > increase in latency 
+> > > occur only when you see the errors, or whenever you do a 
+> large data 
+> > > transfer?  In fact, I would suspect the errors to _decrease_ 
+> > > the latency 
+> > > with respect to a normal transfer.
+> > 
+> > I observe from <1 to 2 ms on successful transfers, and around 15 ms
+> > latency when things go wrong.
 > 
-> Actually, as the code stands, xfrm_policy_kill() should/will never
-> be called twice on the same policy.  So we can add a warning to
-> catch that.
-> 
-> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+> I hate to ask this question; it sounds an awful lot like 
+> "Monty Python and
+> the Holy Grail", but...  Is that IRQ latency or application latency?
 
-Applied, thanks Herbert.
+With Ingo's RT kernels, it is not possible for me to tell the 
+difference, because IRQ handlers are also running as kernel threads,
+scheduled by the scheduler according to their rt prio
+(which is around 50 by default, 95 for the RTC IRQ in my case).
+
+I can tell for sure that the RTC IRQ handler was not executed
+in that time, but I can't tell if that's because IRQs were blocked
+or because it didn't get scheduled.
+
+> I can't think of any reason why IRQ latency should change 
+> during the error 
+> handling.  Application latency might change because the SCSI 
+> error handler 
+> could start using up a lot of CPU time.  I don't know what 
+> priority it 
+> runs at; you can check with ps.
+
+Ingo just suggested that error handling (writing kernel messages
+to console/disk) in general is causing the trouble. 
+I'll check that and post the results.
+
+-- 
+Klaus Kusche
+Entwicklung Software - Steuerung
+Software Development - Control
+
+KEBA AG
+A-4041 Linz
+Gewerbepark Urfahr
+Tel +43 / 732 / 7090-3120
+Fax +43 / 732 / 7090-8919
+E-Mail: kus@keba.com
+www.keba.com

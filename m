@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261896AbTIEBIS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 21:08:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261909AbTIEBIS
+	id S261826AbTIEBW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 21:22:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbTIEBW5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 21:08:18 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:33499 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261896AbTIEBIR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 21:08:17 -0400
-Subject: Re: [PATCH] fix remap of shared read only mappings
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Daniel Phillips <phillips@arcor.de>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Jamie Lokier <jamie@shareable.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0309041748290.13736-100000@home.osdl.org>
-References: <Pine.LNX.4.44.0309041748290.13736-100000@home.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1062724028.23305.14.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
-Date: Fri, 05 Sep 2003 02:07:09 +0100
+	Thu, 4 Sep 2003 21:22:57 -0400
+Received: from fw.osdl.org ([65.172.181.6]:2466 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261826AbTIEBWz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 21:22:55 -0400
+Message-ID: <32935.4.4.25.4.1062724973.squirrel@www.osdl.org>
+Date: Thu, 4 Sep 2003 18:22:53 -0700 (PDT)
+Subject: Re: [PATCH] ikconfig - resolve rebuild permissions
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: <sam@ravnborg.org>
+In-Reply-To: <32901.4.4.25.4.1062724109.squirrel@www.osdl.org>
+References: <20030904113133.3f950a51.shemminger@osdl.org>
+        <20030904191353.GA10448@mars.ravnborg.org>
+        <32901.4.4.25.4.1062724109.squirrel@www.osdl.org>
+X-Priority: 3
+Importance: Normal
+Cc: <shemminger@osdl.org>, <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.11)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-09-05 at 01:49, Linus Torvalds wrote:
-> What really matters is that mmap() under Linux is 100% coherent, as far as 
-> the hardware just allows. We haven't taken the easy way out. We shouldn't 
-> start now.
+>> On Thu, Sep 04, 2003 at 11:31:33AM -0700, Stephen Hemminger wrote:
+>>> This patch fixes it by removing the configs.o file when
+>>> needed.
+>>
+>> A better approach would be to remove the need for compile.h from
+>> configs.c. See attached patch for the makefile change.
+>> It just took the relevant part from mk_compile and
+>> used it in the Makefile.
+>> Example only - I expect Randy to integrate it properly.
+>
+> configs.o also wants UTS_RELEASE from compile.h, and
 
-NFS ?
+UTS_RELEASE is not from compile.h....
+so Sam's patch looks reasonable, working on it now.
 
-The problem with OpenGFS is that it is a network file system so
-implementing "perfect" shared mmap semantics might actually reduce it
-from handy to useless. Right now the worst we have to do is mark pages
-uncached in some weird shared map cases, with pages being bounced across
-firewire its a bit different.
+> I really dislike generating the same data in multiple places,
+> so I prefer to continue to use compile.h.
+> I'll see about other options or using Steve's patch.
+
+~Randy
+
+
 

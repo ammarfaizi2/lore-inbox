@@ -1,66 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264085AbTCXD6I>; Sun, 23 Mar 2003 22:58:08 -0500
+	id <S264090AbTCXD7O>; Sun, 23 Mar 2003 22:59:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264086AbTCXD6I>; Sun, 23 Mar 2003 22:58:08 -0500
-Received: from crack.them.org ([65.125.64.184]:58858 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S264085AbTCXD6H>;
-	Sun, 23 Mar 2003 22:58:07 -0500
-Date: Sun, 23 Mar 2003 23:09:08 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Rajesh Rajamani <raj@cs.wisc.edu>
-Cc: linux-kernel@vger.kernel.org, zandy@cs.wisc.edu
-Subject: Re: [PATCH] ptrace on stopped processes (2.4)
-Message-ID: <20030324040908.GA19754@nevyn.them.org>
-Mail-Followup-To: Rajesh Rajamani <raj@cs.wisc.edu>,
-	linux-kernel@vger.kernel.org, zandy@cs.wisc.edu
-References: <1047936295.3e763d273307c@www-auth.cs.wisc.edu>
-Mime-Version: 1.0
+	id <S264091AbTCXD7O>; Sun, 23 Mar 2003 22:59:14 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:6340 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S264090AbTCXD7F>; Sun, 23 Mar 2003 22:59:05 -0500
+Date: Sun, 23 Mar 2003 20:10:05 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.65-mm4
+Message-ID: <11750000.1048479004@[10.10.2.4]>
+In-Reply-To: <20030323191744.56537860.akpm@digeo.com>
+References: <20030323020646.0dfcc17b.akpm@digeo.com>
+ <9590000.1048475057@[10.10.2.4]> <20030323191744.56537860.akpm@digeo.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1047936295.3e763d273307c@www-auth.cs.wisc.edu>
-User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 17, 2003 at 03:24:55PM -0600, Rajesh Rajamani wrote:
-> Hi All,
-> I'm working on adding a function 
+>> profile from SDET 64:
 > 
-> void debugbreak(void);
+> SDET is rather irritating because a) nobody has a copy and b) we don't
+> even know what it does.
+
+Yeah, I know. sorry ... I'm trying to get aim7 done instead.
+
+> and b) we don't even know what it does.
+
+Lots of shell scripty stuff, I think.
+
+>> 82303 __down
+>> 42835 schedule
+>> 31323 __wake_up
+>> 26435 .text.lock.sched
+>> 15924 .text.lock.transaction
 > 
-> to glibc.  I got the inspiration for this from Windows.  Windows has a
-> DebugBreak() function, which when invoked from  a process, spawns a
-> debugger, which then attaches to the process.  I think this would be
-> invaluable to linux developers in situations where they currently have to
-> put an infinite loop and attach to a running process (say, to stop in a
-> library that has been LD_PRELOADed).
+> But judging by this, it's a rebadged dbench.  The profile is identical.
+
+Not sure what dbench does. But I'm probably doing lots of small reads
+and writes inside pagecache.
+ 
+> Note that the lock_kernel() contention has been drastically reduced and
+> we're now hitting semaphore contention.
 > 
-> To this end, I've been experimenting and found out that gdb can't attach
-> to a process that has been stopped.  I'd like to send a SIGSTOP as soon as
-> debugbreak() is invoked, so that all threads are stopped in a state close
-> to the one they were in, when the debugbreak() was invoked. 
+> Running `dbench 32' on the quad Xeon, this patch took the context switch
+> rate from 500/sec up to 125,000/sec.
 > 
-> I spoke to Vic Zandy about this and he informed me that he had submitted a patch
->  that would allow ptrace to attach to stopped processes also (the thread of
-> discussion is pasted below).  I believe the patch was not accepted at that time.
->    I was wondering what the official line on this is?  If there are no serious
-> objections, will the community consider accepting the patch?  It would go a long
-> way in helping me accomplish my goal.
+> I've asked Alex to put together a patch for spinlock-based locking in the
+> block allocator (cut-n-paste from ext2).
 
-The question is, what _should_ happen when yu attach to a stopped
-process?  If the tracer receives the same one SIGSTOP that it normally
-would, then it will just resume the program as if it weren't stopped. 
-Does that make sense or not?
+OK, sounds like a plan. Made a huge impact for ext2, and might enable
+us to actually be able to see the rest of it through the sem cloud.
+ 
+> That will fix up lock_super(), but I suspect the main problem is the
+> lock_journal() in journal_start().  I haven't thought about that one yet.
 
-As for Vic's patch, the SIGSTOP leaving processes stopped bit is
-already fixed in 2.5, I believe.  We need to decide what should happen
-when attaching to a stopped process before that half can be considered.
+Thanks,
 
-(And the patch itself is wrong; send_sig is too broad a hammer for
-this, it should probably be something more like force_sig_specific; but
-I'm not sure that's the right approach.  I'll think about it.)
+M.
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer

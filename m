@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261889AbULLTus@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262095AbULLTtn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261889AbULLTus (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 14:50:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbULLTus
+	id S262095AbULLTtn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 14:49:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbULLTtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 14:50:48 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:55569 "HELO
+	Sun, 12 Dec 2004 14:49:42 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:51217 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262096AbULLTtP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 14:49:15 -0500
-Date: Sun, 12 Dec 2004 20:49:03 +0100
+	id S262095AbULLTsA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Dec 2004 14:48:00 -0500
+Date: Sun, 12 Dec 2004 20:47:50 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: netdev@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] remove unused net/sunrpc/svcauth_des.c
-Message-ID: <20041212194903.GG22324@stusta.de>
+To: Andy Adamson <andros@umich.edu>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] remove unused net/sunrpc/auth_gss/gss_pseudoflavors.c
+Message-ID: <20041212194750.GF22324@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -26,228 +26,250 @@ I wasn't able to find any usage of this file.
 
 
 diffstat output:
- net/sunrpc/svcauth_des.c |  215 ---------------------------------------
- 1 files changed, 215 deletions(-)
+ net/sunrpc/auth_gss/gss_pseudoflavors.c |  237 ------------------------
+ 1 files changed, 237 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc2-mm4-full/net/sunrpc/svcauth_des.c	2004-10-18 23:54:37.000000000 +0200
+--- linux-2.6.10-rc2-mm4-full/net/sunrpc/auth_gss/gss_pseudoflavors.c	2004-10-18 23:54:08.000000000 +0200
 +++ /dev/null	2004-11-25 03:16:25.000000000 +0100
-@@ -1,215 +0,0 @@
+@@ -1,237 +0,0 @@
 -/*
-- * linux/net/sunrpc/svcauth_des.c
+- *  linux/net/sunrpc/gss_union.c
 - *
-- * Server-side AUTH_DES handling.
-- * 
-- * Copyright (C) 1996, 1997 Olaf Kirch <okir@monad.swb.de>
+- *  Adapted from MIT Kerberos 5-1.2.1 lib/gssapi/generic code
+- *
+- *  Copyright (c) 2001 The Regents of the University of Michigan.
+- *  All rights reserved.
+- *
+- *  Andy Adamson   <andros@umich.edu>
+- *
 - */
+-
+-/*
+- * Copyright 1993 by OpenVision Technologies, Inc.
+- *
+- * Permission to use, copy, modify, distribute, and sell this software
+- * and its documentation for any purpose is hereby granted without fee,
+- * provided that the above copyright notice appears in all copies and
+- * that both that copyright notice and this permission notice appear in
+- * supporting documentation, and that the name of OpenVision not be used
+- * in advertising or publicity pertaining to distribution of the software
+- * without specific, written prior permission. OpenVision makes no
+- * representations about the suitability of this software for any
+- * purpose.  It is provided "as is" without express or implied warranty.
+- *
+- * OPENVISION DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+- * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
+- * EVENT SHALL OPENVISION BE LIABLE FOR ANY SPECIAL, INDIRECT OR
+- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF
+- * USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+- * OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+- * PERFORMANCE OF THIS SOFTWARE.
+- */ 
 -
 -#include <linux/types.h>
--#include <linux/sched.h>
--#include <linux/sunrpc/types.h>
--#include <linux/sunrpc/xdr.h>
--#include <linux/sunrpc/svcauth.h>
--#include <linux/sunrpc/svcsock.h>
+-#include <linux/slab.h>
+-#include <linux/socket.h>
+-#include <linux/sunrpc/gss_asn1.h>
+-#include <linux/sunrpc/auth_gss.h>
 -
--#define RPCDBG_FACILITY	RPCDBG_AUTH
--
--/*
-- * DES cedential cache.
-- * The cache is indexed by fullname/key to allow for multiple sessions
-- * by the same user from different hosts.
-- * It would be tempting to use the client's IP address rather than the
-- * conversation key as an index, but that could become problematic for
-- * multi-homed hosts that distribute traffic across their interfaces.
-- */
--struct des_cred {
--	struct des_cred *	dc_next;
--	char *			dc_fullname;
--	u32			dc_nickname;
--	des_cblock		dc_key;		/* conversation key */
--	des_cblock		dc_xkey;	/* encrypted conv. key */
--	des_key_schedule	dc_keysched;
--};
--
--#define ADN_FULLNAME		0
--#define ADN_NICKNAME		1
--
--/*
-- * The default slack allowed when checking for replayed credentials
-- * (in milliseconds).
-- */
--#define DES_REPLAY_SLACK	2000
--
--/*
-- * Make sure we don't place more than one call to the key server at
-- * a time.
-- */
--static int			in_keycall;
--
--#define FAIL(err) \
--	{ if (data) put_cred(data);			\
--	  *authp = rpc_autherr_##err;			\
--	  return;					\
--	}
--
--void
--svcauth_des(struct svc_rqst *rqstp, u32 *statp, u32 *authp)
--{
--	struct svc_buf	*argp = &rqstp->rq_argbuf;
--	struct svc_buf	*resp = &rqstp->rq_resbuf;
--	struct svc_cred	*cred = &rqstp->rq_cred;
--	struct des_cred	*data = NULL;
--	u32		cryptkey[2];
--	u32		cryptbuf[4];
--	u32		*p = argp->buf;
--	int		len   = argp->len, slen, i;
--
--	*authp = rpc_auth_ok;
--
--	if ((argp->len -= 3) < 0) {
--		*statp = rpc_garbage_args;
--		return;
--	}
--
--	p++;					/* skip length field */
--	namekind = ntohl(*p++);			/* fullname/nickname */
--
--	/* Get the credentials */
--	if (namekind == ADN_NICKNAME) {
--		/* If we can't find the cached session key, initiate a
--		 * new session. */
--		if (!(data = get_cred_bynick(*p++)))
--			FAIL(rejectedcred);
--	} else if (namekind == ADN_FULLNAME) {
--		p = xdr_decode_string(p, &fullname, &len, RPC_MAXNETNAMELEN);
--		if (p == NULL)
--			FAIL(badcred);
--		cryptkey[0] = *p++;		/* get the encrypted key */
--		cryptkey[1] = *p++;
--		cryptbuf[2] = *p++;		/* get the encrypted window */
--	} else {
--		FAIL(badcred);
--	}
--
--	/* If we're just updating the key, silently discard the request. */
--	if (data && data->dc_locked) {
--		*authp = rpc_autherr_dropit;
--		_put_cred(data);	/* release but don't unlock */
--		return;
--	}
--
--	/* Get the verifier flavor and length */
--	if (ntohl(*p++) != RPC_AUTH_DES && ntohl(*p++) != 12)
--		FAIL(badverf);
--
--	cryptbuf[0] = *p++;			/* encrypted time stamp */
--	cryptbuf[1] = *p++;
--	cryptbuf[3] = *p++;			/* 0 or window - 1 */
--
--	if (namekind == ADN_NICKNAME) {
--		status = des_ecb_encrypt((des_block *) cryptbuf,
--					 (des_block *) cryptbuf,
--					 data->dc_keysched, DES_DECRYPT);
--	} else {
--		/* We first have to decrypt the new session key and
--		 * fill in the UNIX creds. */
--		if (!(data = get_cred_byname(rqstp, authp, fullname, cryptkey)))
--			return;
--		status = des_cbc_encrypt((des_cblock *) cryptbuf,
--					 (des_cblock *) cryptbuf, 16,
--					 data->dc_keysched,
--					 (des_cblock *) &ivec,
--					 DES_DECRYPT);
--	}
--	if (status) {
--		printk("svcauth_des: DES decryption failed (status %d)\n",
--				status);
--		FAIL(badverf);
--	}
--
--	/* Now check the whole lot */
--	if (namekind == ADN_FULLNAME) {
--		unsigned long	winverf;
--
--		data->dc_window = ntohl(cryptbuf[2]);
--		winverf = ntohl(cryptbuf[2]);
--		if (window != winverf - 1) {
--			printk("svcauth_des: bad window verifier!\n");
--			FAIL(badverf);
--		}
--	}
--
--	/* XDR the decrypted timestamp */
--	cryptbuf[0] = ntohl(cryptbuf[0]);
--	cryptbuf[1] = ntohl(cryptbuf[1]);
--	if (cryptbuf[1] > 1000000) {
--		dprintk("svcauth_des: bad usec value %u\n", cryptbuf[1]);
--		if (namekind == ADN_NICKNAME)
--			FAIL(rejectedverf);
--		FAIL(badverf);
--	}
--	
--	/*
--	 * Check for replayed credentials. We must allow for reordering
--	 * of requests by the network, and the OS scheduler, hence we
--	 * cannot expect timestamps to be increasing monotonically.
--	 * This opens a small security hole, therefore the replay_slack
--	 * value shouldn't be too large.
--	 */
--	if ((delta = cryptbuf[0] - data->dc_timestamp[0]) <= 0) {
--		switch (delta) {
--		case -1:	
--			delta = -1000000;
--		case 0:
--			delta += cryptbuf[1] - data->dc_timestamp[1];
--			break;
--		default:
--			delta = -1000000;
--		}
--		if (delta < DES_REPLAY_SLACK)
--			FAIL(rejectedverf);
--#ifdef STRICT_REPLAY_CHECKS
--		/* TODO: compare time stamp to last five timestamps cached
--		 * and reject (drop?) request if a match is found. */
+-#ifdef RPC_DEBUG
+-# define RPCDBG_FACILITY        RPCDBG_AUTH
 -#endif
+-
+-static LIST_HEAD(registered_triples);
+-static spinlock_t registered_triples_lock = SPIN_LOCK_UNLOCKED;
+-
+-/* The following must be called with spinlock held: */
+-static struct sup_sec_triple *
+-do_lookup_triple_by_pseudoflavor(u32 pseudoflavor)
+-{
+-	struct sup_sec_triple *pos, *triple = NULL;
+-
+-	list_for_each_entry(pos, &registered_triples, triples) {
+-		if (pos->pseudoflavor == pseudoflavor) {
+-			triple = pos;
+-			break;
+-		}
 -	}
--
--	now = xtime;
--	now.tv_secs -= data->dc_window;
--	if (now.tv_secs < cryptbuf[0] ||
--	    (now.tv_secs == cryptbuf[0] && now.tv_usec < cryptbuf[1]))
--		FAIL(rejectedverf);
--
--	/* Okay, we're done. Update the lot */
--	if (namekind == ADN_FULLNAME)
--		data->dc_valid = 1;
--	data->dc_timestamp[0] = cryptbuf[0];
--	data->dc_timestamp[1] = cryptbuf[1];
--
--	put_cred(data);
--	return;
--garbage:
--	*statp = rpc_garbage_args;
--	return;
+-	return triple;
 -}
 -
--/*
-- * Call the keyserver to obtain the decrypted conversation key and
-- * UNIX creds. We use a Linux-specific keycall extension that does
-- * both things in one go.
-- */
--static struct des_cred *
--get_cred_byname(struct svc_rqst *rqstp, u32 *authp, char *fullname, u32 *cryptkey)
--{
--	static int	in_keycall;
--	struct des_cred	*cred;
+-/* XXX Need to think about reference counting of triples and of mechs.
+- * Currently we do no reference counting of triples, and I think that's
+- * probably OK given the reference counting on mechs, but there's probably
+- * a better way to do all this. */
 -
--	if (in_keycall) {
--		*authp = rpc_autherr_dropit;
--		return NULL;
+-int
+-gss_register_triple(u32 pseudoflavor, struct gss_api_mech *mech,
+-			  u32 qop, u32 service)
+-{
+-	struct sup_sec_triple *triple;
+-
+-	if (!(triple = kmalloc(sizeof(*triple), GFP_KERNEL))) {
+-		printk("Alloc failed in gss_register_triple");
+-		goto err;
 -	}
--	in_keycall = 1;
--	in_keycall = 0;
--	return cred;
+-	triple->pseudoflavor = pseudoflavor;
+-	triple->mech = gss_mech_get_by_OID(&mech->gm_oid);
+-	triple->qop = qop;
+-	triple->service = service;
+-
+-	spin_lock(&registered_triples_lock);
+-	if (do_lookup_triple_by_pseudoflavor(pseudoflavor)) {
+-		printk(KERN_WARNING "RPC: Registered pseudoflavor %d again\n",
+-				pseudoflavor);
+-		goto err_unlock;
+-	}
+-	list_add(&triple->triples, &registered_triples);
+-	spin_unlock(&registered_triples_lock);
+-	dprintk("RPC:      registered pseudoflavor %d\n", pseudoflavor);
+-
+-	return 0;
+-
+-err_unlock:
+-	kfree(triple);
+-	spin_unlock(&registered_triples_lock);
+-err:
+-	return -1;
+-}
+-
+-int
+-gss_unregister_triple(u32 pseudoflavor)
+-{
+-	struct sup_sec_triple *triple;
+-
+-	spin_lock(&registered_triples_lock);
+-	if (!(triple = do_lookup_triple_by_pseudoflavor(pseudoflavor))) {
+-		spin_unlock(&registered_triples_lock);
+-		printk("Can't unregister unregistered pseudoflavor %d\n",
+-		       pseudoflavor);
+-		return -1;
+-	}
+-	list_del(&triple->triples);
+-	spin_unlock(&registered_triples_lock);
+-	gss_mech_put(triple->mech);
+-	kfree(triple);
+-	return 0;
+-
+-}
+-
+-void
+-print_sec_triple(struct xdr_netobj *oid,u32 qop,u32 service)
+-{
+-	dprintk("RPC: print_sec_triple:\n");
+-	dprintk("                     oid_len %d\n  oid :\n",oid->len);
+-	print_hexl((u32 *)oid->data,oid->len,0);
+-	dprintk("                     qop %d\n",qop);
+-	dprintk("                     service %d\n",service);
+-}
+-
+-/* Function: gss_get_cmp_triples
+- *
+- * Description: search sec_triples for a matching security triple
+- * return pseudoflavor if match, else 0
+- * (Note that 0 is a valid pseudoflavor, but not for any gss pseudoflavor
+- * (0 means auth_null), so this shouldn't cause confusion.)
+- */
+-u32
+-gss_cmp_triples(u32 oid_len, char *oid_data, u32 qop, u32 service)
+-{
+-	struct sup_sec_triple *triple;
+-	u32 pseudoflavor = 0;
+-	struct xdr_netobj oid;
+-
+-	oid.len = oid_len;
+-	oid.data = oid_data;
+-
+-	dprintk("RPC:      gss_cmp_triples\n");
+-	print_sec_triple(&oid,qop,service);
+-
+-	spin_lock(&registered_triples_lock);
+-	list_for_each_entry(triple, &registered_triples, triples) {
+-		if((g_OID_equal(&oid, &triple->mech->gm_oid))
+-		    && (qop == triple->qop)
+-		    && (service == triple->service)) {
+-			pseudoflavor = triple->pseudoflavor;
+-			break;
+-		}
+-	}
+-	spin_unlock(&registered_triples_lock);
+-	dprintk("RPC:      gss_cmp_triples return %d\n", pseudoflavor);
+-	return pseudoflavor;
+-}
+-
+-u32
+-gss_get_pseudoflavor(struct gss_ctx *ctx, u32 qop, u32 service)
+-{
+-	return gss_cmp_triples(ctx->mech_type->gm_oid.len,
+-			       ctx->mech_type->gm_oid.data,
+-			       qop, service);
+-}
+-
+-/* Returns nonzero iff the given pseudoflavor is in the supported list.
+- * (Note that without incrementing a reference count or anything, this
+- * doesn't give any guarantees.) */
+-int
+-gss_pseudoflavor_supported(u32 pseudoflavor)
+-{
+-	struct sup_sec_triple *triple;
+-
+-	spin_lock(&registered_triples_lock);
+-	triple = do_lookup_triple_by_pseudoflavor(pseudoflavor);
+-	spin_unlock(&registered_triples_lock);
+-	return (triple ? 1 : 0);
+-}
+-
+-u32
+-gss_pseudoflavor_to_service(u32 pseudoflavor)
+-{
+-	struct sup_sec_triple *triple;
+-
+-	spin_lock(&registered_triples_lock);
+-	triple = do_lookup_triple_by_pseudoflavor(pseudoflavor);
+-	spin_unlock(&registered_triples_lock);
+-	if (!triple) {
+-		dprintk("RPC:      gss_pseudoflavor_to_service called with unsupported pseudoflavor %d\n",
+-				pseudoflavor);
+-		return 0;
+-	}
+-	return triple->service;
+-}
+-
+-struct gss_api_mech *
+-gss_pseudoflavor_to_mech(u32 pseudoflavor) {
+-	struct sup_sec_triple *triple;
+-	struct gss_api_mech *mech = NULL;
+-
+-	spin_lock(&registered_triples_lock);
+-	triple = do_lookup_triple_by_pseudoflavor(pseudoflavor);
+-	spin_unlock(&registered_triples_lock);
+-	if (triple)
+-		mech = gss_mech_get(triple->mech);
+-	else
+-		dprintk("RPC:      gss_pseudoflavor_to_mech called with unsupported pseudoflavor %d\n",
+-				pseudoflavor);
+-	return mech;
+-}
+-
+-int
+-gss_pseudoflavor_to_mechOID(u32 pseudoflavor, struct xdr_netobj * oid)
+-{
+-	struct gss_api_mech *mech;
+-
+-	mech = gss_pseudoflavor_to_mech(pseudoflavor);
+-	if (!mech)  {
+-		dprintk("RPC:      gss_pseudoflavor_to_mechOID called with unsupported pseudoflavor %d\n",
+-				pseudoflavor);
+-		        return -1;
+-	}
+-	oid->len = mech->gm_oid.len;
+-	if (!(oid->data = kmalloc(oid->len, GFP_KERNEL)))
+-		return -1;
+-	memcpy(oid->data, mech->gm_oid.data, oid->len);
+-	gss_mech_put(mech);
+-	return 0;
 -}
 

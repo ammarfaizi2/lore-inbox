@@ -1,46 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265797AbSLIRTy>; Mon, 9 Dec 2002 12:19:54 -0500
+	id <S265857AbSLIQ6o>; Mon, 9 Dec 2002 11:58:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265798AbSLIRTy>; Mon, 9 Dec 2002 12:19:54 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:16585 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S265797AbSLIRTy>;
-	Mon, 9 Dec 2002 12:19:54 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id <S265863AbSLIQ6o>; Mon, 9 Dec 2002 11:58:44 -0500
+Received: from sccrmhc03.attbi.com ([204.127.202.63]:50371 "EHLO
+	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
+	id <S265857AbSLIQ6n> convert rfc822-to-8bit; Mon, 9 Dec 2002 11:58:43 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Matt Young <wz6b@arrl.net>
+Reply-To: wz6b@arrl.net
+To: linux-kernel@vger.kernel.org
+Subject: Having fun with 2.5.50
+Date: Mon, 9 Dec 2002 09:05:53 -0800
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15860.53866.127553.424553@napali.hpl.hp.com>
-Date: Mon, 9 Dec 2002 09:27:06 -0800
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Daniel Jacobowitz <dan@debian.org>, george anzinger <george@mvista.com>,
-       Jim Houston <jim.houston@ccur.com>,
-       Stephen Rothwell <sfr@canb.auug.org.au>,
-       LKML <linux-kernel@vger.kernel.org>, <anton@samba.org>,
-       "David S. Miller" <davem@redhat.com>, <ak@muc.de>, <davidm@hpl.hp.com>,
-       <schwidefsky@de.ibm.com>, <ralf@gnu.org>, <willy@debian.org>
-Subject: Re: [PATCH] compatibility syscall layer (lets try again)
-In-Reply-To: <Pine.LNX.4.44.0212090828460.3397-100000@home.transmeta.com>
-References: <20021209154142.GA22901@nevyn.them.org>
-	<Pine.LNX.4.44.0212090828460.3397-100000@home.transmeta.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200212090905.53172.wz6b@arrl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Mon, 9 Dec 2002 08:48:13 -0800 (PST), Linus Torvalds <torvalds@transmeta.com> said:
+Compiling with different configs to see what compiles and what doesn't.
 
-  Linus> Architecture maintainers, can you comment on how easy/hard it
-  Linus> is to do the same thing on your architectures? I _assume_
-  Linus> it's trivial (akin to the three-liner register state change
-  Linus> in i386/kernel/signal.c).
+Whan is the minimal kernel config for a AMD k6 with IDE?
+Can I run with my PCI and ISA disabled? (IDE only)
+If so, what is the minimal IDE config?
 
-It's not trivial on ia64: we keep the syscall arguments in registers
-(the stacked registers, to be precise), so to modify them, we need to
-(a) flush the stacked registers to memory and (b) find the frame that
-contains the syscall arguments, (c) patch the values in memory, and
-(d) reload the stacked registers.  It's doable (like you say, ptrace()
-does it already), but that's about the best I can say about it...
-
-	--david

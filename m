@@ -1,81 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263932AbUFFSKd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263943AbUFFSOG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263932AbUFFSKd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 14:10:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263943AbUFFSKd
+	id S263943AbUFFSOG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 14:14:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263942AbUFFSOG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 14:10:33 -0400
-Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:65412 "HELO
-	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263932AbUFFSKV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 14:10:21 -0400
-Message-ID: <40C35E36.305@yahoo.fr>
-Date: Sun, 06 Jun 2004 20:11:02 +0200
-From: Eric BEGOT <eric_begot@yahoo.fr>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
+	Sun, 6 Jun 2004 14:14:06 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20931 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263943AbUFFSOB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 14:14:01 -0400
+Message-ID: <40C35ED7.1080000@pobox.com>
+Date: Sun, 06 Jun 2004 14:13:43 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.27-pre5
-References: <20040603022432.GA6039@logos.cnet> <40C08A0D.9010003@yahoo.fr> <20040604225247.GH7744@fs.tum.de> <40C19EDE.10405@yahoo.fr> <20040606121545.GB5830@fs.tum.de>
-In-Reply-To: <20040606121545.GB5830@fs.tum.de>
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Manfred Spraul <manfred@colorfullife.com>, ktech@wanadoo.es,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.7-rc1 breaks forcedeth
+References: <E1BWmws-0005aN-Nw@mb04.in.mad.eresmas.com> <Pine.LNX.4.58.0406051958150.7010@ppc970.osdl.org> <40C2D780.4010009@colorfullife.com> <Pine.LNX.4.58.0406060957410.7010@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0406060957410.7010@ppc970.osdl.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
+Linus Torvalds wrote:
+> But it's usually a good thing to try to reset a device as much as possible 
+> when you probe for it. If for no other reason than the fact that then 
+> you'll have it in a "known state", and hopefully there won't be as many 
+> surprises..
 
->>>On Fri, Jun 04, 2004 at 04:41:17PM +0200, Eric BEGOT wrote:
->>>
->>>
->>>      
->>>
->>>>when compiling linux-2.4.27-pre5 under a x86 architecture, I've a lot of 
->>>>warnings :
->>>>
->>>>In file included from 
->>>>/usr/src/devel//usr/src/devel/include/linux/modules/i386_ksyms.ver:127:1: 
->>>>warning: "__ver_atomic_dec_and_lock" redefined
->>>>In file included from /usr/src/devel/include/linux/modversions.h:70,
->>>>             from <command line>:8:
->>>>/usr/src/devel/include/linux/modules/dec_and_lock.ver:1:1: warning: this 
->>>>is the location of the previous definition
->>>>
->>>>__ver_atomic_dec_and_lock is declared two times. Maybe it lacks a #ifdef 
->>>>somewhere in the modversions.h no ?
->>>>The compilation doesn't fail bu it's not very nice :)
->>>>        
->>>>
->
->
->I can't reproduce your problem with your .config .
->
->Did you do something like patching the kernel or changing the SMP option
->without running "make oldconfig" afterwards?
->  
->
-no
 
->What are the values of __ver_atomic_dec_and_lock at the two places
->mentiones in the warnings?
->  
->
-in /usr/src/devel/include/linux/modules/i386_ksyms.ver :
-#define __ver_atomic_dec_and_lock smp_d43e6bde
-in /usr/src/devel/include/linux/modules/dec_and_lock.ver :
-#define __ver_atomic_dec_and_lock smp_ad7738e3
+Strongly agreed.  I stress this, in Linux driver writing talks and 
+rants, to whomever will listen as "the proper way to do things in Linux".
 
->Does a
->  cp .config /tmp
->  make mrproper
->  mv /tmp/.config
->  make oldconfig
->  make bzImage
->fix this problem?
->  
->
-apparently the mrproper fixed this problem. Sorry I've maybe forgotten 
-to rebuild the configuration after applying the 2.4.27-pre5 patch.
+Presuming things about a device's state upon entry to the driver has led 
+to bugs in the past.  Popular bugs include assuming (a) MAC address 
+registers hold a valid/useful value or (b) ethernet NIC's DMA engine is 
+not active.  Both of these are quite often not true when you take into 
+account driver re-loads, warm reboots, and firmware features such as USB 
+kbd/mouse/storage or PXE booting from a network.
+
+A good driver unconditionally makes sure the device is inactive in its 
+probe function (struct pci_driver::probe), before registering itself 
+with any kernel subsystems.  This must also be done before request_irq 
+and before enabling the bus-mastering bit in PCI_COMMAND register.
+
+	Jeff
+
+

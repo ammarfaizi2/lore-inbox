@@ -1,40 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275309AbTHGM1i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 08:27:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275310AbTHGM1i
+	id S275315AbTHGM2w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 08:28:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275317AbTHGM2w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 08:27:38 -0400
-Received: from mail.gondor.com ([212.117.64.182]:43793 "EHLO moria.gondor.com")
-	by vger.kernel.org with ESMTP id S275309AbTHGM1h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 08:27:37 -0400
-Date: Thu, 7 Aug 2003 14:27:36 +0200
-From: Jan Niehusmann <jan@gondor.com>
-To: linux-kernel@vger.kernel.org
-Subject: LBA48 on Promise 20265
-Message-ID: <20030807122736.GA32523@gondor.com>
-References: <20030806150335.GA5430@gondor.com> <20030807110641.GA31809@gondor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030807110641.GA31809@gondor.com>
-X-Request-PGP: http://gondor.com/key.asc
-User-Agent: Mutt/1.5.4i
+	Thu, 7 Aug 2003 08:28:52 -0400
+Received: from alpha.cpe.ku.ac.th ([158.108.32.31]:9669 "EHLO
+	alpha.cpe.ku.ac.th") by vger.kernel.org with ESMTP id S275315AbTHGM2v
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 08:28:51 -0400
+Date: Thu, 7 Aug 2003 19:28:46 +0700 (ICT)
+From: Theewara Vorakosit <g4685034@alpha.cpe.ku.ac.th>
+To: <linux-kernel@vger.kernel.org>
+Subject: sendfile system call on tmpfs
+Message-ID: <Pine.LNX.4.33.0308071831240.16498-100000@alpha.cpe.ku.ac.th>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 07, 2003 at 01:06:41PM +0200, Jan Niehusmann wrote:
-> Are there any known problems with huge hard disks (250GB) on Promise
-> IDE?
-
-Further investigating this, I found the following posting:
-http://lkml.org/lkml/2002/9/6/22
-
-And indeed, even with 2.4.21, /proc/ide/ide2/hdf/settings shows that
-'address' is 0, meaning that LBA48 is turned of, if I understand this
-correctly. But that would mean that a 250GB hard disk should not work as
-expected, right? May that explain my disk corruption problems?
-
-Jan
+Dear All,
+	I use linux redhat 9 with kernal 2.4.20-13.9smp. I try to use
+sendfile system. I found that on ext3 file system, it works fine.
+However, on tmpfs, it error with "Invalid argument". Does sendfile()
+support on tmpfs or other filesystem?
+Thanks,
+Theewara
 

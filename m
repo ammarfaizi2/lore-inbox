@@ -1,52 +1,222 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135569AbRDXMUN>; Tue, 24 Apr 2001 08:20:13 -0400
+	id <S135572AbRDXMbE>; Tue, 24 Apr 2001 08:31:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135572AbRDXMTx>; Tue, 24 Apr 2001 08:19:53 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:38502 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S135569AbRDXMTm>; Tue, 24 Apr 2001 08:19:42 -0400
-Date: Tue, 24 Apr 2001 14:19:28 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: David Howells <dhowells@warthog.cambridge.redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: rwsem benchmark [was Re: [PATCH] rw_semaphores, optimisations try #3]
-Message-ID: <20010424141928.C8253@athlon.random>
-In-Reply-To: <20010424121747.A1682@athlon.random> <6252.988108393@warthog.cambridge.redhat.com> <20010424124621.D1682@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010424124621.D1682@athlon.random>; from andrea@suse.de on Tue, Apr 24, 2001 at 12:46:21PM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S135573AbRDXMaz>; Tue, 24 Apr 2001 08:30:55 -0400
+Received: from mail.axisinc.com ([193.13.178.2]:38159 "EHLO roma.axis.se")
+	by vger.kernel.org with ESMTP id <S135572AbRDXMan>;
+	Tue, 24 Apr 2001 08:30:43 -0400
+Date: Tue, 24 Apr 2001 14:29:44 +0200 (CEST)
+From: Bjorn Wesen <bjorn.wesen@axis.com>
+To: andre@linux-ide.org
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] drivers/ide/ide.c to work with more IDE controllers
+Message-ID: <Pine.LNX.4.21.0104241349480.17009-400000@godzilla.axis.se>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="218787593-339488899-988115384=:17009"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a bug in both the C version and asm version of my rwsem
-and it is the slow path where I forgotten to drop the _irq part
-from the spinlock calls ;) Silly bug. (I inherit it also in the
-asm fast path version because I started hacking the same C slow path)
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-I catched it now because it locks hard my alpha as soon as I play with
-any rwsem testcase, not sure why x86 is apparently immune by the hard lockup.
+--218787593-339488899-988115384=:17009
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-then I also added your trick of returning the semaphore so I can declare "a"
-(sem) as read only (that is an improvement for the fast path).
+Hi!
 
-Because of that changes I rerun all the benchmarks. I finished now to
-re-benchmark the asm version as it runs even faster than before in the write
-contention, the other numbers are basically unchanged. the read down fast path
-now runs exactly like yours (so yes it seems the "+a" was giving a no sensical
-improvement to my code for the down read fast path).
+Problem description:
 
-Of course my down write fast path remains significantly faster than yours and that
-really make sense because my smarter algorithm allows me to avoid all your
-cmpxchg stuff.
+  * drivers/ide/ide.c assumes the IDE controller is mapped in such a way
+    that it can access it by "hardcoded" I/O commands (IN_BYTE/OUT_BYTE)
 
-I'm starting the benchmarks of the C version and I will post a number update
-and a new patch in a few minutes.
+  * drivers/ide/ide.c assumes that polled ide/atapi transfers should be
+    done the way a PC would
 
-If you can ship me the testcase (also theorical) that breaks my algorihtm in the
-next few minutes that would help.
+  * drivers/ide/Makefile assumes that all IDE DMA controllers are PCI
 
-Andrea
+This makes it impossible to use for example the IDE-driver for the Etrax
+controller (arch/cris) which is not memory-mapped and is not PCI-based.
+
+The following trivial patches (against 2.4.4-pre6 but are probably
+appliable to any 2.4.3-ac as well) fix the problem:
+
+  * In include/linux/ide.h, do #ifdef HAVE_ARCH_IN_BYTE etc. around the
+    definitions of IN_BYTE and OUT_BYTE (allowing include/asm/ide.h to
+    bypass the standard definition - see asm-cris/ide.h for an example)
+
+  * Add the "ideproc" entry in the HW driver structure, and let 
+    ide_input_bytes and friends in ide.c test that first. If it exists,
+    it uses it, otherwise just do the normal PC transfer
+
+  * In the Makefile, let ide-dma.c (which is really PCI DMA only) be
+    included by CONFIG_BLK_DEV_IDEDMA_PCI instead of just
+    CONFIG_BLK_DEV_IDEDMA
+
+  * (Un)related addition: add ide_etrax100 as a chipset enum and an init
+    call to the etrax IDE driver under #ifdef CONFIG_ETRAX_IDE
+
+Please comment. It should all be trivial but there is one thing I'm unsure
+about and that is if it's guaranteed that the HWIF's structures are nulled
+upon creation (or maybe, if the primordial HWIF is nulled when copies are
+made). Obviously the above patch depends on any HWIF to have NULL as
+'ideproc' if it does not need any alternative function there.
+
+Regards,
+Bjorn
+
+
+--218787593-339488899-988115384=:17009
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ide.c.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.21.0104241429440.17009@godzilla.axis.se>
+Content-Description: 
+Content-Disposition: attachment; filename="ide.c.patch"
+
+LS0tIC9ob21lL2Jqb3Judy90bXAvbGludXgvZHJpdmVycy9pZGUvaWRlLmMJ
+VHVlIEFwciAyNCAxMzozMDo0NiAyMDAxDQorKysgbGludXgvZHJpdmVycy9p
+ZGUvaWRlLmMJV2VkIEFwciAgNCAxMzoyMDo1MyAyMDAxDQpAQCAtMzc0LDcg
+KzM3NCwxOSBAQA0KICAqLw0KIHZvaWQgaWRlX2lucHV0X2RhdGEgKGlkZV9k
+cml2ZV90ICpkcml2ZSwgdm9pZCAqYnVmZmVyLCB1bnNpZ25lZCBpbnQgd2Nv
+dW50KQ0KIHsNCi0JYnl0ZSBpb18zMmJpdCA9IGRyaXZlLT5pb18zMmJpdDsN
+CisJYnl0ZSBpb18zMmJpdDsNCisNCisJLyogZmlyc3QgY2hlY2sgaWYgdGhp
+cyBjb250cm9sbGVyIGhhcyBkZWZpbmVkIGEgc3BlY2lhbCBmdW5jdGlvbg0K
+KwkgKiBmb3IgaGFuZGxpbmcgcG9sbGVkIGlkZSB0cmFuc2ZlcnMNCisJICov
+DQorDQorCWlmKEhXSUYoZHJpdmUpLT5pZGVwcm9jKSB7DQorCQlIV0lGKGRy
+aXZlKS0+aWRlcHJvYyhpZGVwcm9jX2lkZV9pbnB1dF9kYXRhLA0KKwkJCQkg
+ICAgIGRyaXZlLCBidWZmZXIsIHdjb3VudCk7DQorCQlyZXR1cm47DQorCX0N
+CisNCisJaW9fMzJiaXQgPSBkcml2ZS0+aW9fMzJiaXQ7DQogDQogCWlmIChp
+b18zMmJpdCkgew0KICNpZiBTVVBQT1JUX1ZMQl9TWU5DDQpAQCAtNDA3LDcg
+KzQxOSwxNSBAQA0KICAqLw0KIHZvaWQgaWRlX291dHB1dF9kYXRhIChpZGVf
+ZHJpdmVfdCAqZHJpdmUsIHZvaWQgKmJ1ZmZlciwgdW5zaWduZWQgaW50IHdj
+b3VudCkNCiB7DQotCWJ5dGUgaW9fMzJiaXQgPSBkcml2ZS0+aW9fMzJiaXQ7
+DQorCWJ5dGUgaW9fMzJiaXQ7DQorDQorCWlmKEhXSUYoZHJpdmUpLT5pZGVw
+cm9jKSB7DQorCQlIV0lGKGRyaXZlKS0+aWRlcHJvYyhpZGVwcm9jX2lkZV9v
+dXRwdXRfZGF0YSwNCisJCQkJICAgICBkcml2ZSwgYnVmZmVyLCB3Y291bnQp
+Ow0KKwkJcmV0dXJuOw0KKwl9DQorDQorCWlvXzMyYml0ID0gZHJpdmUtPmlv
+XzMyYml0Ow0KIA0KIAlpZiAoaW9fMzJiaXQpIHsNCiAjaWYgU1VQUE9SVF9W
+TEJfU1lOQw0KQEAgLTQ0NCw2ICs0NjQsMTIgQEANCiAgKi8NCiB2b2lkIGF0
+YXBpX2lucHV0X2J5dGVzIChpZGVfZHJpdmVfdCAqZHJpdmUsIHZvaWQgKmJ1
+ZmZlciwgdW5zaWduZWQgaW50IGJ5dGVjb3VudCkNCiB7DQorCWlmKEhXSUYo
+ZHJpdmUpLT5pZGVwcm9jKSB7DQorCQlIV0lGKGRyaXZlKS0+aWRlcHJvYyhp
+ZGVwcm9jX2F0YXBpX2lucHV0X2J5dGVzLA0KKwkJCQkgICAgIGRyaXZlLCBi
+dWZmZXIsIGJ5dGVjb3VudCk7DQorCQlyZXR1cm47DQorCX0NCisNCiAJKyti
+eXRlY291bnQ7DQogI2lmIGRlZmluZWQoQ09ORklHX0FUQVJJKSB8fCBkZWZp
+bmVkKENPTkZJR19RNDApDQogCWlmIChNQUNIX0lTX0FUQVJJIHx8IE1BQ0hf
+SVNfUTQwKSB7DQpAQCAtNDU5LDYgKzQ4NSwxMiBAQA0KIA0KIHZvaWQgYXRh
+cGlfb3V0cHV0X2J5dGVzIChpZGVfZHJpdmVfdCAqZHJpdmUsIHZvaWQgKmJ1
+ZmZlciwgdW5zaWduZWQgaW50IGJ5dGVjb3VudCkNCiB7DQorCWlmKEhXSUYo
+ZHJpdmUpLT5pZGVwcm9jKSB7DQorCQlIV0lGKGRyaXZlKS0+aWRlcHJvYyhp
+ZGVwcm9jX2F0YXBpX291dHB1dF9ieXRlcywNCisJCQkJICAgICBkcml2ZSwg
+YnVmZmVyLCBieXRlY291bnQpOw0KKwkJcmV0dXJuOw0KKwl9DQorDQogCSsr
+Ynl0ZWNvdW50Ow0KICNpZiBkZWZpbmVkKENPTkZJR19BVEFSSSkgfHwgZGVm
+aW5lZChDT05GSUdfUTQwKQ0KIAlpZiAoTUFDSF9JU19BVEFSSSB8fCBNQUNI
+X0lTX1E0MCkgew0KQEAgLTIwOTIsNiArMjEyMyw3IEBADQogCWh3aWYtPm1h
+c2twcm9jCQk9IG9sZF9od2lmLm1hc2twcm9jOw0KIAlod2lmLT5xdWlya3By
+b2MJCT0gb2xkX2h3aWYucXVpcmtwcm9jOw0KIAlod2lmLT5yd3Byb2MJCT0g
+b2xkX2h3aWYucndwcm9jOw0KKwlod2lmLT5pZGVwcm9jCQk9IG9sZF9od2lm
+LmlkZXByb2M7DQogCWh3aWYtPmRtYXByb2MJCT0gb2xkX2h3aWYuZG1hcHJv
+YzsNCiAJaHdpZi0+ZG1hX2Jhc2UJCT0gb2xkX2h3aWYuZG1hX2Jhc2U7DQog
+CWh3aWYtPmRtYV9leHRyYQkJPSBvbGRfaHdpZi5kbWFfZXh0cmE7DQpAQCAt
+MzE5Myw2ICszMjI1LDEyIEBADQogCX0NCiAjZW5kaWYgLyogQ09ORklHX1BD
+SSAqLw0KIA0KKyNpZmRlZiBDT05GSUdfRVRSQVhfSURFDQorCXsNCisJCWV4
+dGVybiB2b2lkIGluaXRfZTEwMF9pZGUodm9pZCk7DQorCQlpbml0X2UxMDBf
+aWRlKCk7DQorCX0NCisjZW5kaWYgLyogQ09ORklHX0VUUkFYX0lERSAqLw0K
+ICNpZmRlZiBDT05GSUdfQkxLX0RFVl9DTUQ2NDANCiAJew0KIAkJZXh0ZXJu
+IHZvaWQgaWRlX3Byb2JlX2Zvcl9jbWQ2NDB4KHZvaWQpOw0K
+--218787593-339488899-988115384=:17009
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ide.h.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.21.0104241429441.17009@godzilla.axis.se>
+Content-Description: 
+Content-Disposition: attachment; filename="ide.h.patch"
+
+LS0tIC9ob21lL2Jqb3Judy90bXAvbGludXgvaW5jbHVkZS9saW51eC9pZGUu
+aAlUaHUgSmFuICA0IDIzOjUxOjIxIDIwMDENCisrKyBsaW51eC9pbmNsdWRl
+L2xpbnV4L2lkZS5oCVdlZCBBcHIgMTggMTM6NDk6NTQgMjAwMQ0KQEAgLTEz
+MywxNCArMTMzLDYgQEANCiAjZGVmaW5lIElERV9CQ09VTlRMX1JFRwkJSURF
+X0xDWUxfUkVHDQogI2RlZmluZSBJREVfQkNPVU5USF9SRUcJCUlERV9IQ1lM
+X1JFRw0KIA0KLSNpZmRlZiBSRUFMTFlfRkFTVF9JTw0KLSNkZWZpbmUgT1VU
+X0JZVEUoYixwKQkJb3V0YigoYiksKHApKQ0KLSNkZWZpbmUgSU5fQllURShw
+KQkJKGJ5dGUpaW5iKHApDQotI2Vsc2UNCi0jZGVmaW5lIE9VVF9CWVRFKGIs
+cCkJCW91dGJfcCgoYiksKHApKQ0KLSNkZWZpbmUgSU5fQllURShwKQkJKGJ5
+dGUpaW5iX3AocCkNCi0jZW5kaWYgLyogUkVBTExZX0ZBU1RfSU8gKi8NCi0N
+CiAjZGVmaW5lIEdFVF9FUlIoKQkJSU5fQllURShJREVfRVJST1JfUkVHKQ0K
+ICNkZWZpbmUgR0VUX1NUQVQoKQkJSU5fQllURShJREVfU1RBVFVTX1JFRykN
+CiAjZGVmaW5lIEdFVF9BTFRTVEFUKCkJCUlOX0JZVEUoSURFX0NPTlRST0xf
+UkVHKQ0KQEAgLTI1NSw2ICsyNDcsMjcgQEANCiAjaW5jbHVkZSA8YXNtL2lk
+ZS5oPg0KIA0KIC8qDQorICogSWYgdGhlIGFyY2gtZGVwZW5kYW50IGlkZS5o
+IGRpZCBub3QgZGVjbGFyZS9kZWZpbmUgYW55IE9VVF9CWVRFDQorICogb3Ig
+SU5fQllURSBmdW5jdGlvbnMsIHdlIG1ha2Ugc29tZSBkZWZhdWx0cyBoZXJl
+Lg0KKyAqLw0KKw0KKyNpZm5kZWYgSEFWRV9BUkNIX09VVF9CWVRFDQorI2lm
+ZGVmIFJFQUxMWV9GQVNUX0lPDQorI2RlZmluZSBPVVRfQllURShiLHApICAg
+ICAgICAgIG91dGIoKGIpLChwKSkNCisjZWxzZQ0KKyNkZWZpbmUgT1VUX0JZ
+VEUoYixwKSAgICAgICAgICBvdXRiX3AoKGIpLChwKSkNCisjZW5kaWYNCisj
+ZW5kaWYNCisNCisjaWZuZGVmIEhBVkVfQVJDSF9JTl9CWVRFDQorI2lmZGVm
+IFJFQUxMWV9GQVNUX0lPDQorI2RlZmluZSBJTl9CWVRFKHApICAgICAgICAg
+ICAgIChieXRlKWluYl9wKHApDQorI2Vsc2UNCisjZGVmaW5lIElOX0JZVEUo
+cCkgICAgICAgICAgICAgKGJ5dGUpaW5iKHApDQorI2VuZGlmDQorI2VuZGlm
+DQorDQorLyoNCiAgKiBOb3cgZm9yIHRoZSBkYXRhIHdlIG5lZWQgdG8gbWFp
+bnRhaW4gcGVyLWRyaXZlOiAgaWRlX2RyaXZlX3QNCiAgKi8NCiANCkBAIC0z
+NzMsNiArMzg2LDIzIEBADQogdHlwZWRlZiBpbnQgKGlkZV9kbWFwcm9jX3Qp
+KGlkZV9kbWFfYWN0aW9uX3QsIGlkZV9kcml2ZV90ICopOw0KIA0KIC8qDQor
+ICogQW4gaWRlX2lkZXByb2NfdCgpIHBlcmZvcm1zIENQVS1wb2xsZWQgdHJh
+bnNmZXJzIHRvL2Zyb20gYSBkcml2ZS4NCisgKiBBcmd1bWVudHMgYXJlOiB0
+aGUgZHJpdmUsIHRoZSBidWZmZXIgcG9pbnRlciwgYW5kIHRoZSBsZW5ndGgg
+KGluIGJ5dGVzIG9yDQorICogd29yZHMgZGVwZW5kaW5nIG9uIGlmIGl0J3Mg
+YW4gSURFIG9yIEFUQVBJIGNhbGwpLg0KKyAqDQorICogSWYgaXQgaXMgbm90
+IGRlZmluZWQgZm9yIGEgY29udHJvbGxlciwgc3RhbmRhcmQtY29kZSBpcyB1
+c2VkIGZyb20gaWRlLmMuDQorICoNCisgKiBDb250cm9sbGVycyB3aGljaCBh
+cmUgbm90IG1lbW9yeS1tYXBwZWQgaW4gdGhlIHN0YW5kYXJkIHdheSBuZWVk
+IHRvIA0KKyAqIG92ZXJyaWRlIHRoYXQgbWVjaGFuaXNtIHVzaW5nIHRoaXMg
+ZnVuY3Rpb24gdG8gd29yay4NCisgKg0KKyAqLw0KK3R5cGVkZWYgZW51bSB7
+IGlkZXByb2NfaWRlX2lucHV0X2RhdGEsICAgIGlkZXByb2NfaWRlX291dHB1
+dF9kYXRhLA0KKwkgICAgICAgaWRlcHJvY19hdGFwaV9pbnB1dF9ieXRlcywg
+aWRlcHJvY19hdGFwaV9vdXRwdXRfYnl0ZXMNCit9IGlkZV9pZGVfYWN0aW9u
+X3Q7DQorDQordHlwZWRlZiB2b2lkIChpZGVfaWRlcHJvY190KShpZGVfaWRl
+X2FjdGlvbl90LCBpZGVfZHJpdmVfdCAqLCB2b2lkICosIHVuc2lnbmVkIGlu
+dCk7DQorDQorLyoNCiAgKiBBbiBpZGVfdHVuZXByb2NfdCgpIGlzIHVzZWQg
+dG8gc2V0IHRoZSBzcGVlZCBvZiBhbiBJREUgaW50ZXJmYWNlDQogICogdG8g
+YSBwYXJ0aWN1bGFyIFBJTyBtb2RlLiAgVGhlICJieXRlIiBwYXJhbWV0ZXIg
+aXMgdXNlZA0KICAqIHRvIHNlbGVjdCB0aGUgUElPIG1vZGUgYnkgbnVtYmVy
+ICgwLDEsMiwzLDQsNSksIGFuZCBhIHZhbHVlIG9mIDI1NQ0KQEAgLTQwNSw3
+ICs0MzUsNyBAQA0KIAkJaWRlX3FkNjU4MCwJaWRlX3VtYzg2NzIsCWlkZV9o
+dDY1NjBiLA0KIAkJaWRlX3BkYzQwMzAsCWlkZV9yejEwMDAsCWlkZV90cm0y
+OTAsDQogCQlpZGVfY21kNjQ2LAlpZGVfY3k4MmM2OTMsCWlkZV80ZHJpdmVz
+LA0KLQkJaWRlX3BtYWMNCisJCWlkZV9wbWFjLCAgICAgICBpZGVfZXRyYXgx
+MDANCiB9IGh3aWZfY2hpcHNldF90Ow0KIA0KICNpZmRlZiBDT05GSUdfQkxL
+X0RFVl9JREVQQ0kNCkBAIC00MzMsNiArNDYzLDcgQEANCiAJaWRlX21hc2tw
+cm9jX3QJKm1hc2twcm9jOwkvKiBzcGVjaWFsIGhvc3QgbWFza2luZyBmb3Ig
+ZHJpdmUgc2VsZWN0aW9uICovDQogCWlkZV9xdWlya3Byb2NfdAkqcXVpcmtw
+cm9jOwkvKiBjaGVjayBob3N0J3MgZHJpdmUgcXVpcmsgbGlzdCAqLw0KIAlp
+ZGVfcndfcHJvY190CSpyd3Byb2M7CS8qIGFkanVzdCB0aW1pbmcgYmFzZWQg
+dXBvbiBycS0+Y21kIGRpcmVjdGlvbiAqLw0KKwlpZGVfaWRlcHJvY190ICAg
+KmlkZXByb2M7ICAgICAgIC8qIENQVS1wb2xsZWQgdHJhbnNmZXIgcm91dGlu
+ZSAqLw0KIAlpZGVfZG1hcHJvY190CSpkbWFwcm9jOwkvKiBkbWEgcmVhZC93
+cml0ZS9hYm9ydCByb3V0aW5lICovDQogCXVuc2lnbmVkIGludAkqZG1hdGFi
+bGVfY3B1OwkvKiBkbWEgcGh5c2ljYWwgcmVnaW9uIGRlc2NyaXB0b3IgdGFi
+bGUgKGNwdSB2aWV3KSAqLw0KIAlkbWFfYWRkcl90CWRtYXRhYmxlX2RtYTsJ
+LyogZG1hIHBoeXNpY2FsIHJlZ2lvbiBkZXNjcmlwdG9yIHRhYmxlIChkbWEg
+dmlldykgKi8NCg==
+--218787593-339488899-988115384=:17009
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ide-makefile.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.21.0104241429442.17009@godzilla.axis.se>
+Content-Description: 
+Content-Disposition: attachment; filename="ide-makefile.patch"
+
+LS0tIC9ob21lL2Jqb3Judy90bXAvbGludXgvZHJpdmVycy9pZGUvTWFrZWZp
+bGUJRnJpIERlYyAyOSAyMzowNzoyMiAyMDAwDQorKysgbGludXgvZHJpdmVy
+cy9pZGUvTWFrZWZpbGUJV2VkIEphbiAxMCAyMDozNDoxNSAyMDAxDQpAQCAt
+NDIsNyArNDIsNyBAQA0KIGlkZS1vYmotJChDT05GSUdfQkxLX0RFVl9IUFQz
+NjYpCSs9IGhwdDM2Ni5vDQogaWRlLW9iai0kKENPTkZJR19CTEtfREVWX0hU
+NjU2MEIpCSs9IGh0NjU2MGIubw0KIGlkZS1vYmotJChDT05GSUdfQkxLX0RF
+Vl9JREVfSUNTSURFKQkrPSBpY3NpZGUubw0KLWlkZS1vYmotJChDT05GSUdf
+QkxLX0RFVl9JREVETUEpCSs9IGlkZS1kbWEubw0KK2lkZS1vYmotJChDT05G
+SUdfQkxLX0RFVl9JREVETUFfUENJKQkrPSBpZGUtZG1hLm8NCiBpZGUtb2Jq
+LSQoQ09ORklHX0JMS19ERVZfSURFUENJKQkrPSBpZGUtcGNpLm8NCiBpZGUt
+b2JqLSQoQ09ORklHX0JMS19ERVZfSVNBUE5QKQkrPSBpZGUtcG5wLm8NCiBp
+ZGUtb2JqLSQoQ09ORklHX0JMS19ERVZfSURFX1BNQUMpCSs9IGlkZS1wbWFj
+Lm8NCg==
+--218787593-339488899-988115384=:17009--

@@ -1,45 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261784AbSJIOu1>; Wed, 9 Oct 2002 10:50:27 -0400
+	id <S261755AbSJIOtW>; Wed, 9 Oct 2002 10:49:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261787AbSJIOu1>; Wed, 9 Oct 2002 10:50:27 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:49669 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S261784AbSJIOu0>; Wed, 9 Oct 2002 10:50:26 -0400
-Date: Wed, 9 Oct 2002 16:55:43 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Brendan J Simon <brendan.simon@bigpond.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       kbuild-devel <kbuild-devel@lists.sourceforge.net>
-Subject: Re: [kbuild-devel] Re: linux kernel conf 0.8
-In-Reply-To: <3DA43C3A.2060608@bigpond.com>
-Message-ID: <Pine.LNX.4.44.0210091646540.8911-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261758AbSJIOtW>; Wed, 9 Oct 2002 10:49:22 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:36085 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S261755AbSJIOtV>; Wed, 9 Oct 2002 10:49:21 -0400
+X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20021009144414.GZ26771@phunnypharm.org> 
+References: <20021009144414.GZ26771@phunnypharm.org>  <20021009.045845.87764065.davem@redhat.com> <18079.1034115320@passion.cambridge.redhat.com> <20021008.175153.20269215.davem@redhat.com> <200210091149.g99BnWQ5000628@pool-141-150-241-241.delv.east.verizon.net> <7908.1034165878@passion.cambridge.redhat.com> <3DA4392B.8070204@pobox.com> 
+To: Ben Collins <bcollins@debian.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: BK kernel commits list 
+Mime-Version: 1.0
+Content-Type: multipart/mixed ;
+	boundary="==_Exmh_-9483239040"
+Date: Wed, 09 Oct 2002 15:55:00 +0100
+Message-ID: <27367.1034175300@passion.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multipart MIME message.
 
-On Thu, 10 Oct 2002, Brendan J Simon wrote:
+--==_Exmh_-9483239040
+Content-Type: text/plain; charset=us-ascii
 
-> As you can see there are soooooo many guis to choose/use and everyone
-> has there favourite.  I suggest that the real work be done outside of
-> the GUI program.  ie. seperate GUI and application guts as much as
-> possible.  I would use python as the main language but C or even C++
-> could be used instead as a lot of people hate interpreters, or hate
-> python (prefer perl, php or something else).
->
-> I'm pretty sure there is no one solution and it comes down to the
-> politics and preferences of the final decision makers up the heirarchy.
 
-Because of this I'm planning to make the config backend available as
-shared library, so it can be loaded by external programs. My QT app then
-would be basically just the reference implementation.
-I also want to add a SWIG interface file, so you can even access the
-config database with your preferred script language.
+bcollins@debian.org said:
+>  Just please make sure that the changeset info where it describes all
+> the files in the delta. I.e. the ones that are moved, deleted, new.
+> There's no way to deduce moves from the patch. 
 
-bye, Roman
+This bit?
+
+# This patch includes the following deltas:
+#                  ChangeSet    1.713   -> 1.714
+#       arch/i386/math-emu/poly.h       1.3     -> 1.4
+#
+
+Any idea how to get it other than 'bk export -tpatch | sed' ?
+
+I need to do some real work... play with ths script and sort it out between 
+yourselves :)
+
+
+--
+dwmw2
+
+
+--==_Exmh_-9483239040
+Content-Type: application/x-sh ; name="mailcset.sh"
+Content-Description: mailcset.sh
+Content-Disposition: attachment; filename="mailcset.sh"
+
+#!/bin/sh
+# $Id: mailcset.sh,v 1.6 2002/10/09 14:53:29 dwmw2 Exp $
+
+CSET=$1
+
+# Hmmm. How to get just the first line in a dspec without 'head -1'?
+echo -n "Subject: " ; bk changes -r$CSET -d'$each(:C:){(:C:)\n}' | head -1
+
+# Grrr. bk prs needs an 'rfc822 datestamp' keyword.
+DATE="`bk changes -r$CSET -d':D: :T: :TZ: \n' | sed 's/\([+-]..\):/\1/'`"
+# How can I preserve timezone information?
+echo -n "Date: " ; date -d "$DATE" -R -u
+echo "X-BK-Repository: `hostname`:`pwd`"
+echo "X-BK-ChangeSetKey: `bk changes -r$CSET -d:CSETKEY:`"
+echo "From: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>"
+echo "To: BK Commits List: ;"
+echo
+bk changes -r$CSET -d':G: :I:, :D: :T::TZ:, :USER:@:HOST:\n\n$each(:C:){\t(:C:)\n}'
+echo
+echo
+bk export -h -tpatch -r$CSET > ~/tmp/bkpatch.$$
+diffstat < ~/tmp/bkpatch.$$
+echo
+echo
+cat ~/tmp/bkpatch.$$
+rm ~/tmp/bkpatch.$$
+
+--==_Exmh_-9483239040--
+
 

@@ -1,75 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264428AbUBEGFc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 01:05:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264485AbUBEGFc
+	id S261539AbUBEGR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 01:17:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264498AbUBEGR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 01:05:32 -0500
-Received: from dp.samba.org ([66.70.73.150]:40105 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264428AbUBEGF3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 01:05:29 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Fw: rc3-mm1: oops in keventd_stop_kthread 
-In-reply-to: Your message of "Wed, 04 Feb 2004 23:04:10 +0300."
-             <20040204200410.GA3802@localhost.localdomain> 
-Date: Thu, 05 Feb 2004 16:09:29 +1100
-Message-Id: <20040205060543.09B542C270@lists.samba.org>
+	Thu, 5 Feb 2004 01:17:29 -0500
+Received: from outbound03.telus.net ([199.185.220.222]:61675 "EHLO
+	priv-edtnes11-hme0.telusplanet.net") by vger.kernel.org with ESMTP
+	id S261539AbUBEGR1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 01:17:27 -0500
+Subject: Re: psmouse.c, throwing 3 bytes away
+From: Bob Gill <gillb4@telusplanet.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1075961885.15135.17.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 04 Feb 2004 23:18:05 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20040204200410.GA3802@localhost.localdomain> you write:
-> On Wed, Feb 04, 2004 at 02:00:06PM +1100, Rusty Russell wrote:
-> > Um, why is ALSA using kthread?
-> > 
-> > Is there a modprobe -r in your script somewhere?
-> 
-> yes. not sure why it is called though.
+Aha!  So it isn't just me or the mouse getting old!  Ok.  My mouse is a
+ps/2 style HP wheel mouse.  I'm running 2.6.2 with Fedora Core (updated
+with yum).  I have the same problem as others have described --mouse
+goes crazy (usually left/right, not up/down), apps pop open, mouse
+pointer moves very fast.  /var/log/messages gives:
+Feb  4 20:34:10 localhost kernel: psmouse.c: Wheel Mouse at
+isa0060/serio1/input0 lost synchronization, throwing 3 bytes away.
+Feb  4 22:07:12 localhost kernel: psmouse.c: Wheel Mouse at
+isa0060/serio1/input0 lost synchronization, throwing 3 bytes away.
 
-Reproduced using your config, and fixed.  Classic use-after-free bug:
-another victory for DEBUG_PAGEALLOC.
+After a second or two, the mouse regains it's footing and all is well. 
+My mobo is Soyo P4S Dragon Ultra c/w SiS 645 chipset.
+Mouse build is:
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+# CONFIG_INPUT_JOYDEV is not set
+# CONFIG_INPUT_TSDEV is not set
+CONFIG_INPUT_EVDEV=m
+# CONFIG_INPUT_EVBUG is not set
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+# CONFIG_KEYBOARD_SUNKBD is not set
+# CONFIG_KEYBOARD_XTKBD is not set
+# CONFIG_KEYBOARD_NEWTON is not set
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
 
-Thanks Andrey!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+and XF86Config has
+(in Section "ServerLayout")
+InputDevice    "Mouse0" "CorePointer"
+(in Section "InputDevice")
+Identifier  "Mouse0"
+        Driver      "mouse"
+        Option      "Protocol" "IMPS/2"
+        Option      "Device" "/dev/psaux"
+        Option      "ZAxisMapping" "4 5"
+        Option      "Buttons" "3"
+        Option      "Resolution" "250"
 
-Name: Kthread waitpid Race II
-Author: Rusty Russell
-Status: Tested on 2.6.2-rc3
-Depends: Hotcpu/kthread-wait-race.patch.gz
+...and yes...I taint Feisty Dunnart with an NVidia binary for my video. 
+The system runs at 1.8GHz and I'm not overclocking.  TIA
 
-We can't compare waitpid() result with stop->k->tgid, since the thread
-will be gone by then (thanks to Andrey Borzenkov and
-CONFIG_DEBUG_PAGEALLOC!
+Bob
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.2-rc3-mm1/kernel/kthread.c tmp/kernel/kthread.c
---- linux-2.6.2-rc3-mm1/kernel/kthread.c	2004-02-04 12:29:18.000000000 +1100
-+++ tmp/kernel/kthread.c	2004-02-05 15:56:07.000000000 +1100
-@@ -107,7 +112,7 @@ static void adopt_kthread(struct task_st
- static void keventd_stop_kthread(void *_stop)
- {
- 	struct kthread_stop_info *stop = _stop;
--	int status;
-+	int status, pid;
- 	sigset_t blocked;
- 	struct k_sigaction sa;
- 
-@@ -119,11 +124,14 @@ static void keventd_stop_kthread(void *_
- 	allow_signal(SIGCHLD);
- 
- 	adopt_kthread(stop->k);
-+	/* Grab pid now: after waitpid(), stop->k is invalid. */
-+	pid = stop->k->tgid;
-+
- 	/* All signals are blocked, hence the force. */
- 	force_sig(SIGTERM, stop->k);
- 	/* Other threads might exit: if we ask for one pid that
- 	 * returns -ERESTARTSYS. */
--	while (waitpid(-1, &status, __WALL) != stop->k->tgid)
-+	while (waitpid(-1, &status, __WALL) != pid)
- 		flush_signals(current);
- 	stop->result = -((status >> 8) & 0xFF);
- 	complete(&stop->done);

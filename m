@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274598AbRITSaq>; Thu, 20 Sep 2001 14:30:46 -0400
+	id <S274627AbRITUKH>; Thu, 20 Sep 2001 16:10:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274602AbRITSag>; Thu, 20 Sep 2001 14:30:36 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:5255 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S274598AbRITSaX>;
-	Thu, 20 Sep 2001 14:30:23 -0400
-Date: Thu, 20 Sep 2001 11:30:37 -0700 (PDT)
-Message-Id: <20010920.113037.59650292.davem@redhat.com>
-To: greearb@candelatech.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pre12 fails to compile: wakeup_bdflush issues
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3BAA2BA8.34873B27@candelatech.com>
-In-Reply-To: <3BAA2BA8.34873B27@candelatech.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+	id <S274628AbRITUJ5>; Thu, 20 Sep 2001 16:09:57 -0400
+Received: from [194.213.32.137] ([194.213.32.137]:1796 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S274627AbRITUJs>;
+	Thu, 20 Sep 2001 16:09:48 -0400
+Date: Thu, 20 Sep 2001 09:23:14 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Stelian Pop <stelian.pop@fr.alcove.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Knut.Neumann@rz.uni-duesseldorf.de
+Subject: Re: SonyPI Driver
+Message-ID: <20010920092313.A38@toy.ucw.cz>
+In-Reply-To: <20010918182011.G14639@come.alcove-fr>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010918182011.G14639@come.alcove-fr>; from stelian.pop@fr.alcove.com on Tue, Sep 18, 2001 at 06:20:11PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Ben Greear <greearb@candelatech.com>
-   Date: Thu, 20 Sep 2001 10:47:20 -0700
+Hi!
 
-   I get this error:
-   
-   sysrq.c:35: conflicting types for 'wakeup_bdflush'
-   /root/linux/include/linux/fs.h:1347: previous declaration of 'wakeup_bdflush'
-   
-   One says it takes a void argument, the other  an int......
+> > I noticed that when running the sonypi driver on my VAIO z600tek, APM Suspend
+> > does no longer work: The power button (to suspend) does no longer work and -
+> > well - it will still suspend if I force it to, by apm -s but it does not
+> > resume (powers on, but blank screen and no input gets processed).
+> 
+> Yep, using the sonypi driver switches the laptop in a pseudo acpi
+> mode and APM based suspend will get disabled.
+...
+> You'll have to wait for ACPI suspend support in the kernel
+> (some support will get into the 2.5 kernel series) or choose between
+> the sonypi driver and APM suspend.
 
-The fix is simple:
+Patrick Mochel has some patches for ACPI to enable suspend-to-ram
+[problems with vesafb nd evices, otherwise ok], and
+I'm currently working on suspend-to-disk [will work in easy cases].
+See acpi list.
+								Pavel
 
---- drivers/char/sysrq.c.~1~	Wed Sep 19 14:30:53 2001
-+++ drivers/char/sysrq.c	Thu Sep 20 11:29:30 2001
-@@ -32,7 +32,6 @@
- 
- #include <asm/ptrace.h>
- 
--extern void wakeup_bdflush(int);
- extern void reset_vc(unsigned int);
- extern struct list_head super_blocks;
- 
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+

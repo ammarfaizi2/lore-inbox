@@ -1,48 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289326AbSA3Ps4>; Wed, 30 Jan 2002 10:48:56 -0500
+	id <S289335AbSA3Py0>; Wed, 30 Jan 2002 10:54:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289327AbSA3Psq>; Wed, 30 Jan 2002 10:48:46 -0500
-Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:17156 "EHLO
-	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S289326AbSA3Psh>; Wed, 30 Jan 2002 10:48:37 -0500
-Date: Wed, 30 Jan 2002 16:48:14 +0100 (CET)
-From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Rob Landley <landley@trommello.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <Pine.LNX.4.33.0201291324560.3610-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0201301635370.13037-100000@rudy.mif.pg.gda.pl>
+	id <S289334AbSA3PyQ>; Wed, 30 Jan 2002 10:54:16 -0500
+Received: from ip68-4-176-16.oc.oc.cox.net ([68.4.176.16]:14220 "EHLO
+	drc.dhs.org") by vger.kernel.org with ESMTP id <S289335AbSA3PyC> convert rfc822-to-8bit;
+	Wed, 30 Jan 2002 10:54:02 -0500
+Subject: Catching modifier keys after kernel boot
+Date: Wed, 30 Jan 2002 07:53:57 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 8BIT
+Message-ID: <BBD0383DC5A68543ABDBF429FE64B4200141FB@DILBERT.drc.dhs.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
+Thread-Topic: Catching modifier keys after kernel boot
+Thread-Index: AcGpplLxrJxHqrdwSB+myQxN56OiZQ==
+From: "David Christensen" <dave@drc.dhs.org>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jan 2002, Ingo Molnar wrote:
-[..]
-> 1) cleanliness
-> 
-> code cleanliness is a well-know issue, see Documentation/CodingStyle.  If
-> a patch has such problems then maintainers are very likely to help - Linus
-> probably wont and shouldnt.
+I'm working on a system recovery mechanism that runs in the linuxrc file
+that will restore a corrupted system.  I need to do it by detecting that
+the user is pressing a certain key sequence (such as
+CTRL-ALT-BACKSPACE).  Since the user may start pressing that key
+sequence while the kernel is booting, how can I detect the make codes
+for the CTRL and ALT keys?  (The BACKSPACE key is easy enough to see
+since the keyboard in autorepeat mode repeats the last key pressed.)
+I'm already reading from the keyboard in RAW mode, but is there another
+way to check the state of the modifier keys?
 
-I think place in each directory .indent.pro file with proper coding style
-configuration and reduce Documentation/CodingStyle to how to use indent
-tool can will solve many currunt problems with proper patches form and
-will probaly take smaller amout disk space (or aprox the same) than
-current Documentation/CodingStyle. Even if current indent can't handle
-correctly current kernel coding style IMHO it will be better inves few
-minutes on some changes to current indent behavior for bring this tool
-abilities for reindent source code in way described in
-Documentation/CodingStyle .. (?)
-
-kloczek
--- 
------------------------------------------------------------
-*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
------------------------------------------------------------
-Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
-
+David Christensen

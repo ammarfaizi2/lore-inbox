@@ -1,86 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129505AbQJZTz2>; Thu, 26 Oct 2000 15:55:28 -0400
+	id <S129089AbQJZUMU>; Thu, 26 Oct 2000 16:12:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129629AbQJZTzS>; Thu, 26 Oct 2000 15:55:18 -0400
-Received: from mail1.digital.com ([204.123.2.50]:53516 "EHLO mail1.digital.com")
-	by vger.kernel.org with ESMTP id <S129628AbQJZTzF> convert rfc822-to-8bit;
-	Thu, 26 Oct 2000 15:55:05 -0400
-Date: Thu, 26 Oct 2000 12:51:23 -0700 (PDT)
-From: jg@pa.dec.com (Jim Gettys)
-Message-Id: <200010261951.MAA18919@pachyderm.pa.dec.com>
-X-Mailer: Pachyderm (client pachyderm.pa-x.dec.com, user jg)
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Dan Kegel <dank@alumni.caltech.edu>,
-        "Eric W. Biederman" <ebiederm@biederman.org>,
-        Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10010260936330.2460-100000@penguin.transmeta.com>
-Subject: Re: Linux's implementation of poll() not scalable?
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S129251AbQJZUMK>; Thu, 26 Oct 2000 16:12:10 -0400
+Received: from r109m245.cybercable.tm.fr ([195.132.109.245]:1540 "HELO
+	alph.dyndns.org") by vger.kernel.org with SMTP id <S129089AbQJZUL4>;
+	Thu, 26 Oct 2000 16:11:56 -0400
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Possible critical VIA vt82c686a chip bug (private question)
+In-Reply-To: <20001026190309.A372@suse.cz>
+	<Pine.LNX.3.95.1001026134131.13342A-100000@chaos.analogic.com>
+	<20001026200220.A492@suse.cz>
+From: Yoann Vandoorselaere <yoann@mandrakesoft.com>
+Date: 26 Oct 2000 22:11:54 +0200
+In-Reply-To: Vojtech Pavlik's message of "Thu, 26 Oct 2000 20:02:20 +0200"
+Message-ID: <878zrbl5v9.fsf@alph.dyndns.org>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Vojtech Pavlik <vojtech@suse.cz> writes:
 
-Note that there is another aspect to the efficiency / performance of the 
-select/poll style of interfaces not immediately obvious, but which occurs 
-as a result of how some (streaming/batching) protocols work.
+> On Thu, Oct 26, 2000 at 01:42:29PM -0400, Richard B. Johnson wrote:
+> 
+> > > > ../drivers/block/ide.c, line 162, on version 2.2.17 does bad things
+> > > > to the timer. It writes 0 to the control-word for timer 0. This
+> > > > does the following:
+> > [Snipped...]
+> > >  
+> > > Well, at least on 2.4.0-test9, the above timing code is #ifed to
+> > > DISK_RECOVERY_TIME > 0, which in turn is #defined to 0 in
+> > > include/linux/ide.h.
+> > > 
+> > > So this is not our problem here. Anyway I guess it's time to hunt for
+> > > i8259 accesses in the kernel that lack the necessary spinlock, even when
+> > > they're not probably the cause of the problem we see here.
+> > 
+> > Okay, good.
+> 
+> Ok, here is a list of places within the kernel that access the PIT
+> timer, plus the method of locking (i386 arch only):
 
-An X server does not call select all that often (probably one of the two items most frequently used that care; 
-though I believe getting the Apache case right is more important).
+[...]
 
-X is such a streaming protocol: it is a feature that I don't have to do 
-extra reads or system calls to deal with more data arriving from a client.  
-An X server doesn't want one event generated for each incoming TCP segment: 
-it merely needs to know there is data available on a file descriptor as 
-a binary condition.  I really don't want to have to do one operation per 
-segment; this is less efficient than the current situation.
+Ok, I just tested if the problem was always present without
+the IDE subsystem...
 
-Similarly, it is a feature that with one call I can find out that there
-is work to do on multiple file descriptors.
+The answer is it is not... so it isn't an IDE problem.
 
-In short, the X server does a select, and then loops across all the file
-descriptors with work to do before doing another select: the system call
-overhead gets amortized across multiple clients and buffers received from
-the client.  As the server gets busier, it is more and more likely
-that there is more than one client with work to do, and/or multiple
-TCP segments have arrived to process (in the common single client
-is busy case).  So we make the system call less and less often
-as a fraction of work done.
-
-This has the happy consequence that the select caused overhead DROPS as
-a fraction of total work as the X server gets busier, and X is most efficient
-at the point in time you care the most: when you have the most work to
-do.  The system call is returning more information each time it is called,
-and some of that information is aggregated as well (additional data arriving).
-It doesn't practically matter how efficient the X server is when
-you aren't busy, after all.
-
-This aggregation property is therefore important, and there needs to be
-some way to achieve this, IMHO.
-
-Web servers often have similar behavior, though since most current
-HTTP clients don't implement streaming behavior, the benefit is currently
-much lower (would that HTTP clients start driving HTTP servers the
-way the HTTP/1.1 protocol allows...  Sigh...).  Right now, scaling
-to large numbers of descriptors is most urgent for big web servers.
-
-So I want an interface in which I can get as many events as possible
-at once, and one in which the events themselves can have appropriate
-aggregation behavior.  It isn't quite clear to me if the proposed interface
-would have this property.
-
-As I said in early talks about X: "X is an exercise in avoiding system
-calls"....
-
-			- Jim Gettys
---
-Jim Gettys
-Technology and Corporate Development
-Compaq Computer Corporation
-jg@pa.dec.com
-
+-- 
+		-- Yoann http://www.mandrakesoft.com/~yoann/
+   An engineer from NVidia, while asking him to release cards specs said :
+	"Actually, we do write our drivers without documentation."
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,66 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310450AbSCBUtD>; Sat, 2 Mar 2002 15:49:03 -0500
+	id <S310452AbSCBVAN>; Sat, 2 Mar 2002 16:00:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310452AbSCBUsy>; Sat, 2 Mar 2002 15:48:54 -0500
-Received: from charger.oldcity.dca.net ([207.245.82.76]:28853 "EHLO
-	charger.oldcity.dca.net") by vger.kernel.org with ESMTP
-	id <S310450AbSCBUsr>; Sat, 2 Mar 2002 15:48:47 -0500
-Date: Sat, 2 Mar 2002 15:48:39 -0500
-From: christophe =?iso-8859-15?Q?barb=E9?= 
-	<christophe.barbe.ml@online.fr>
-To: linux-kernel@vger.kernel.org
-Cc: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Subject: Re: [PATCH] 3c509 Power Management (take 2)
-Message-ID: <20020302204839.GA4958@ufies.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-In-Reply-To: <Pine.LNX.4.44.0203010826180.26745-100000@netfinity.realnet.co.sz> <Pine.LNX.4.44.0203011222010.31530-100000@netfinity.realnet.co.sz> <20020301093317.I22608@lynx.adilger.int>
+	id <S310453AbSCBVAD>; Sat, 2 Mar 2002 16:00:03 -0500
+Received: from zero.tech9.net ([209.61.188.187]:13070 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S310452AbSCBU74>;
+	Sat, 2 Mar 2002 15:59:56 -0500
+Subject: Re: 2.4.19pre1aa1
+From: Robert Love <rml@tech9.net>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+        Bill Davidsen <davidsen@tmr.com>, Mike Fedyk <mfedyk@matchmail.com>,
+        linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>
+In-Reply-To: <20020302214739.B20606@dualathlon.random>
+In-Reply-To: <Pine.LNX.3.96.1020228221750.3310D-100000@gatekeeper.tmr.com>
+	<200203021958.g22JwKq08818@Port.imtp.ilyichevsk.odessa.ua> 
+	<20020302214739.B20606@dualathlon.random>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 02 Mar 2002 15:58:21 -0500
+Message-Id: <1015102702.14000.17.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qDbXVdCdHGoSgWSk"
-Content-Disposition: inline
-In-Reply-To: <20020301093317.I22608@lynx.adilger.int>
-User-Agent: Mutt/1.3.27i
-X-Operating-System: debian SID Gnu/Linux 2.4.18 on i586
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2002-03-02 at 15:47, Andrea Arcangeli wrote:
 
---qDbXVdCdHGoSgWSk
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Sat, Mar 02, 2002 at 09:57:49PM -0200, Denis Vlasenko wrote:
+>
+> > If rmap is really better than current VM, it will be merged into head 
+> > development branch (2.5). There is no anti-rmap conspiracy :-)
+> 
+> Indeed.
 
-On Fri, Mar 01, 2002 at 09:33:17AM -0700, Andreas Dilger wrote:
-> PS - any chance you can fix this for xirc2ps_cs?  I can test if you want,
->      as my current card always fails to word after APM suspend (needs a
->      "cardctl eject; cardctl insert" to work again.
+Of note: I don't think anyone "loses" if one VM is merged or not.  A
+reverse mapping VM is a significant redesign of our current VM approach
+and if it proves better, yes, I suspect (and hope) it will be merged
+into 2.5.
 
-It looks like there is a general problem concerning PM for pcmcia cards.
-I have a similar problem with a 3c59x card (which is managed by hotplug)
-and I am convinced that the problem is not in the driver code.
+But that doesn't mean the 2.4 VM is worse, per se.
 
-Christophe
+	Robert Love
 
---=20
-Christophe Barb=E9 <christophe.barbe@ufies.org>
-GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
-
-People that hate cats will come back as mice in their next life.
---Faith Resnick
-
---qDbXVdCdHGoSgWSk
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Pour information voir http://www.gnupg.org
-
-iD8DBQE8gTqnj0UvHtcstB4RAvgpAJ9S3fQvi3btjCDjinmu02ZzowPtugCdF+eX
-kU2Af7Vll5z+puqHr4fATE0=
-=IOhw
------END PGP SIGNATURE-----
-
---qDbXVdCdHGoSgWSk--

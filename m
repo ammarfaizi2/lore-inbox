@@ -1,407 +1,667 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274174AbRJRGXG>; Thu, 18 Oct 2001 02:23:06 -0400
+	id <S275790AbRJRGgX>; Thu, 18 Oct 2001 02:36:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275790AbRJRGW6>; Thu, 18 Oct 2001 02:22:58 -0400
-Received: from toad.com ([140.174.2.1]:52230 "EHLO toad.com")
-	by vger.kernel.org with ESMTP id <S274174AbRJRGWp>;
-	Thu, 18 Oct 2001 02:22:45 -0400
-Message-ID: <3BCE7568.1DAB9FF0@mandrakesoft.com>
-Date: Thu, 18 Oct 2001 02:23:36 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Patrick Mochel <mochelp@infinity.powertie.org>
-CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [RFC] New Driver Model for 2.5
-In-Reply-To: <Pine.LNX.4.21.0110171617460.15653-100000@marty.infinity.powertie.org>
+	id <S277325AbRJRGgP>; Thu, 18 Oct 2001 02:36:15 -0400
+Received: from e23.nc.us.ibm.com ([32.97.136.229]:29358 "EHLO
+	e23.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S275790AbRJRGgE>; Thu, 18 Oct 2001 02:36:04 -0400
+Date: Thu, 18 Oct 2001 12:11:24 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Chip Salzenberg <chip@pobox.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.13pre3aa1: expand_fdset() may use invalid pointer
+Message-ID: <20011018121124.L11266@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+In-Reply-To: <20011017113245.A3849@perlsupport.com> <20011017204204.C2380@athlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011017204204.C2380@athlon.random>; from andrea@suse.de on Wed, Oct 17, 2001 at 08:42:04PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mochel wrote:
-> 
-> One July afternoon, while hacking on the pm_dev layer for the purpose of
-> system-wide power management support, I decided that I was quite tired of
-> trying to make this layer look like a tree and feel like a tree, but not
-> have any real integration with the actual device drivers..
-> 
-> I had read the accounts of what the goals were for 2.5. And, after some
-> conversations with Linus and the (gasp) ACPI guys, I realized that I had a
-> good chunk of the infrastructural code written; it was a matter of working
-> out a few crucial details and massaging it in nicely.
-> 
-> I have had the chance this week (after moving and vacationing) to update
-> the (read: write some) documentation for it. I will not go into details,
-> and will let the document speak for itself.
-> 
-> With all luck, this should go into the early stages of 2.5, and allow a
-> significant cleanup of many drivers. Such a model will also allow for neat
-> tricks like full device power management support, and Plug N Play
-> capabilities.
-> 
-> In order to support the new driver model, I have written a small in-memory
-> filesystem, called ddfs, to export a unified interface to userland. It is
-> mentioned in the doc, and is pretty self-explanatory. More information
-> will be available soon.
-> 
-> There is code available for the model and ddfs at:
-> 
-> http://kernel.org/pub/linux/kernel/people/mochel/device/
-> 
-> but there are some fairly large caveats concerning it.
-> 
-> First, I feel comfortable with the device layer code and the ddfs
-> code. Though, the PCI code is still work in progress. I am still working
-> out some of the finer details concerning it.
-> 
-> Next is the environment under which I developed it all. It was on an ia32
-> box, with only PCI support, and using ACPI. The latter didn't have too
-> much of an effect on the development, but there are a few items explicitly
-> inspired by it..
-> 
-> I am hoping both the PCI code, and the structure and in general can be
-> further improved based on the input of the driver maintainers.
-> 
-> This model is not final, and may be way off from what most people actually
-> want. It has gotten tentative blessing from all those that have seen it,
-> though they number but a few. It's definitely not the only solution...
-> 
-> That said, enjoy; and have at it.
-> 
->         -pat
-> 
-> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> 
-> The (New) Linux Kernel Driver Model
-> 
-> Version 0.01
-> 
-> 17 October 2001
-> 
-> Overview
-> ~~~~~~~~
-> 
-> This driver model is a unification of all the current, disparate driver models
-> that are currently in the kernel. It is intended is to augment the
-> bus-specific drivers for bridges and devices by consolidating a set of data
-> and operations into globally accessible data structures.
-> 
-> Current driver models implement some sort of tree-like structure (sometimes
-> just a list) for the devices they control. But, there is no linkage between
-> the different bus types.
-> 
-> A common data structure can provide this linkage with little overhead: when a
-> bus driver discovers a particular device, it can insert it into the global
-> tree as well as its local tree. In fact, the local tree becomes just a subset
-> of the global tree.
-> 
-> Common data fields can also be moved out of the local bus models into the
-> global model. Some of the manipulation of these fields can also be
-> consolidated. Most likely, manipulation functions will become a set
-> of helper functions, which the bus drivers wrap around to include any
-> bus-specific items.
-> 
-> The common device and bridge interface currently reflects the goals of the
-> modern PC: namely the ability to do seamless Plug and Play, power management,
-> and hot plug. (The model dictated by Intel and Microsoft (read: ACPI) ensures
-> us that any device in the system may fit any of these criteria.)
-> 
-> In reality, not every bus will be able to support such operations. But, most
-> buses will support a majority of those operations, and all future buses will.
-> In other words, a bus that doesn't support an operation is the exception,
-> instead of the other way around.
-> 
-> Drivers
-> ~~~~~~~
-> 
-> The callbacks for bridges and devices are intended to be singular for a
-> particular type of bus. For each type of bus that has support compiled in the
-> kernel, there should be one statically allocated structure with the
-> appropriate callbacks that each device (or bridge) of that type share.
-> 
-> Each bus layer should implement the callbacks for these drivers. It then
-> forwards the calls on to the device-specific callbacks. This means that
-> device-specific drivers must still implement callbacks for each operation.
-> But, they are not called from the top level driver layer.
-> 
-> This does add another layer of indirection for calling one of these functions,
-> but there are benefits that are believed to outweigh this slowdown.
-> 
-> First, it prevents device-specific drivers from having to know about the
-> global device layer. This speeds up integration time incredibly. It also
-> allows drivers to be more portable across kernel versions. Note that the
-> former was intentional, the latter is an added bonus.
-> 
-> Second, this added indirection allows the bus to perform any additional logic
-> necessary for its child devices. A bus layer may add additional information to
-> the call, or translate it into something meaningful for its children.
-> 
-> This could be done in the driver, but if it happens for every object of a
-> particular type, it is best done at a higher level.
-> 
-> Recap
-> ~~~~~
-> 
-> Instances of devices and bridges are allocated dynamically as the system
-> discovers their existence. Their fields describe the individual object.
-> Drivers - in the global sense - are statically allocated and singular for a
-> particular type of bus. They describe a set of operations that every type of
-> bus could implement, the implementation following the bus's semantics.
-> 
-> Downstream Access
-> ~~~~~~~~~~~~~~~~~
-> 
-> Common data fields have been moved out of individual bus layers into a common
-> data structure. But, these fields must still be accessed by the bus layers,
-> and
-> sometimes by the device-specific drivers.
-> 
-> Other bus layers are encouraged to do what has been done for the PCI layer.
-> struct pci_dev now looks like this:
-> 
-> struct pci_dev {
->         ...
-> 
->         struct device device;
-> };
-> 
-> Note first that it is statically allocated. This means only one allocation on
-> device discovery. Note also that it is at the _end_ of struct pci_dev. This is
-> to make people think about what they're doing when switching between the bus
-> driver and the global driver; and to prevent against mindless casts between
-> the two.
-> 
-> The PCI bus layer freely accesses the fields of struct device. It knows about
-> the structure of struct pci_dev, and it should know the structure of struct
-> device. PCI devices that have been converted generally do not touch the fields
-> of struct device. More precisely, device-specific drivers should not touch
-> fields of struct device unless there is a strong compelling reason to do so.
-> 
-> This abstraction is prevention of unnecessary pain during transitional phases.
-> If the name of the field changes or is removed, then every downstream driver
-> will break. On the other hand, if only the bus layer (and not the device
-> layer) accesses struct device, it is only those that need to change.
-> 
-> User Interface
-> ~~~~~~~~~~~~~~
-> 
-> By virtue of having a complete hierarchical view of all the devices in the
-> system, exporting a complete hierarchical view to userspace becomes relatively
-> easy. Whenever a device is inserted into the tree, a file or directory can be
-> created for it.
-> 
-> In this model, a directory is created for each bridge and each device. When it
-> is created, it is populated with a set of default files, first at the global
-> layer, then at the bus layer. The device layer may then add its own files.
-> 
-> These files export data about the driver and can be used to modify behavior of
-> the driver or even device.
-> 
-> For example, at the global layer, a file named 'status' is created for each
-> device. When read, it reports to the user the name of the device, its bus ID,
-> its current power state, and the name of the driver its using.
-> 
-> By writing to this file, you can have control over the device. By writing
-> "suspend 3" to this file, one could place the device into power state "3".
-> Basically, by writing to this file, the user has access to the operations
-> defined in struct device_driver.
-> 
-> The PCI layer also adds default files. For devices, it adds a "resource" file
-> and a "wake" file. The former reports the BAR information for the device; the
-> latter reports the wake capabilities of the device.
-> 
-> The device layer could also add files for device-specific data reporting and
-> control.
-> 
-> The dentry to the device's directory is kept in struct device. It also keeps a
-> linked list of all the files in the directory, with pointers to their read and
-> write callbacks. This allows the driver layer to maintain full control of its
-> destiny. If it desired to override the default behavior of a file, or simply
-> remove it, it could easily do so. (It is assumed that the files added upstream
-> will always be a known quantity.)
-> 
-> These features were initially implemented using procfs. However, after one
-> conversation with Linus, a new filesystem - ddfs - was created to implement
-> these features. It is an in-memory filesystem, based heavily off of ramfs,
-> though it uses procfs as inspiration for its callback functionality.
-> 
-> Device Structures
-> ~~~~~~~~~~~~~~~~~
-> 
-> struct device {
->         struct list_head        bus_list;
->         struct io_bus           *parent;
->         struct io_bus           *subordinate;
-> 
->         char                    name[DEVICE_NAME_SIZE];
->         char                    bus_id[BUS_ID_SIZE];
-> 
->         struct dentry           *dentry;
->         struct list_head        files;
-> 
->         struct  semaphore       lock;
-> 
->         struct device_driver    *driver;
->         void                    *driver_data;
->         void                    *platform_data;
-> 
->         u32                     current_state;
->         unsigned char           *saved_state;
-> };
-> 
-> bus_list:
->         List of all devices on a particular bus; i.e. the device's siblings
-> 
-> parent:
->         The parent bridge for the device.
-> 
-> subordinate:
->         If the device is a bridge itself, this points to the struct io_bus that is
->         created for it.
-> 
-> name:
->         Human readable (descriptive) name of device. E.g. "Intel EEPro 100"
-> 
-> bus_id:
->         Parsable (yet ASCII) bus id. E.g. "00:04.00" (PCI Bus 0, Device 4, Function
->         0). It is necessary to have a searchable bus id for each device; making it
->         ASCII allows us to use it for its directory name without translating it.
-> 
-> dentry:
->         Pointer to driver's ddfs directory.
-> 
-> files:
->         Linked list of all the files that a driver has in its ddfs directory.
-> 
-> lock:
->         Driver specific lock.
-> 
-> driver:
->         Pointer to a struct device_driver, the common operations for each device. See
->         next section.
-> 
-> driver_data:
->         Private data for the driver.
->         Much like the PCI implementation of this field, this allows device-specific
->         drivers to keep a pointer to a device-specific data.
-> 
-> platform_data:
->         Data that the platform (firmware) provides about the device.
->         For example, the ACPI BIOS or EFI may have additional information about the
->         device that is not directly mappable to any existing kernel data structure.
->         It also allows the platform driver (e.g. ACPI) to a driver without the driver
->         having to have explicit knowledge of (atrocities like) ACPI.
-> 
-> current_state:
->         Current power state of the device. For PCI and other modern devices, this is
->         0-3, though it's not necessarily limited to those values.
-> 
-> saved_state:
->         Pointer to driver-specific set of saved state.
->         Having it here allows modules to be unloaded on system suspend and reloaded
->         on resume and maintain state across transitions.
->         It also allows generic drivers to maintain state across system state
->         transitions.
->         (I've implemented a generic PCI driver for devices that don't have a
->         device-specific driver. Instead of managing some vector of saved state
->         for each device the generic driver supports, it can simply store it here.)
-> 
-> struct device_driver {
->         int     (*probe)        (struct device *dev);
->         int     (*remove)       (struct device *dev);
-> 
->         int     (*init)         (struct device *dev);
->         int     (*shutdown)     (struct device *dev);
-> 
->         int     (*save_state)   (struct device *dev, u32 state);
->         int     (*restore_state)(struct device *dev);
-> 
->         int     (*suspend)      (struct device *dev, u32 state);
->         int     (*resume)       (struct device *dev);
-> }
-> 
-> probe:
->         Check for device existence and associate driver with it.
-> 
-> remove:
->         Dissociate driver with device. Releases device so that it could be used by
->         another driver. Also, if it is a hotplug device (hotplug PCI, Cardbus), an
->         ejection event could take place here.
-> 
-> init:
->         Initialise the device - allocate resources, irqs, etc.
-> 
-> shutdown:
->         "De-initialise" the device - release resources, free memory, etc.
-> 
-> save_state:
->         Save current device state before entering suspend state.
-> 
-> restore_state:
->         Restore device state, after coming back from suspend state.
-> 
-> suspend:
->         Physically enter suspend state.
-> 
-> resume:
->         Physically leave suspend state and re-initialise hardware.
-> 
-> Initially, the probe/remove sequence followed the PCI semantics exactly, but
-> have since been broken up into a four-stage process: probe(), remove(),
-> init(), and shutdown().
-> 
-> While it's not entirely necessary in all environments, breaking them up so
-> each routine does only one thing makes sense.
-> 
-> Hot-pluggable devices may also benefit from this model, especially ones that
-> can be subjected to suprise removals - only the remove function would be
-> called, and the driver could easily know if the there was still hardware there
-> to shutdown.
-> 
-> Drivers that are controlling failing, or buggy, hardware, by allowing the user
-> to trigger a removal of the driver from userspace, without trying to shutdown
-> down the device.
-> 
-> In each case that remove() is called without a shutdown(), it's important to
-> note that resources will still need to be freed; it's only the hardware that
-> cannot be assumed to be present.
+On Wed, Oct 17, 2001 at 08:42:04PM +0200, Andrea Arcangeli wrote:
+> On Wed, Oct 17, 2001 at 11:32:45AM -0700, Chip Salzenberg wrote:
+> > In 2.4.13pre3aa1, expand_fdset() in fs/file.c has a couple of
+> > execution paths that call kfree() on a pointer that hasn't yet been
+> > initialized.  A minimal patch is attached.
+> 
+> Good spotting! Thanks for the fix!! applied.
+> 
+> CC'ed Maneesh since he's maintaining the rcu_fdset patch AFIK.
+> 
+> > -- 
+> > Chip Salzenberg               - a.k.a. -              <chip@pobox.com>
+> >  "We have no fuel on board, plus or minus 8 kilograms."  -- NEAR tech
+> 
+> > 
+> > Index: linux/fs/file.c
+> > --- linux/fs/file.c.old	Tue Oct 16 23:28:16 2001
+> > +++ linux/fs/file.c	Wed Oct 17 00:29:43 2001
+> > @@ -203,5 +203,5 @@
+> >  	fd_set *new_openset = 0, *new_execset = 0;
+> >  	int error, nfds = 0;
+> > -	struct rcu_fd_set *arg;
+> > +	struct rcu_fd_set *arg = NULL;
+> >  
+> >  	error = -EMFILE;
 
-So, remove() might be called without a shutdown(), and then asked to
-perform the duties normally performed by shutdown()?  That sounds like
-API dain bramage.  :)
+I also removed some un-necessary diffs from the patch. The updated patch is as 
+below.
 
-Your proposal sounds ok, my one objection is separating probe/remove
-further into init/shutdown.  Can you give real-life cases where this
-will be useful?  I don't see it causing much except headache.
-
-The preferred way of doing things (IMHO) is to do some simply sanity
-checking of the h/w device at probe time, and then perform lots of
-initialization and such at device/interface open time.  You ideally want
-a device driver lifecycle to look like
-
-probe:
-	register interface
-	sanity check h/w to make sure it's there and alive
-	stop DMA/interrupts/etc., just in case
-	start timer to powerdown h/w in N seconds
-
-dev_open:
-	wake up device, if necessary
-	init device
-
-dev_close:
-	stop DMA/interrupts/etc.
-	start timer to powerdown h/w in N seconds
-
-With that in mind, init -really- happens at device open, and in
-additional is driven more through normal user interaction via standard
-APIs, than the PCI and PM subsystems.
+Thanks,
+Maneesh
 
 -- 
-Jeff Garzik      | "Mind if I drive?" -Sam
-Building 1024    | "Not if you don't mind me clawing at the dash
-MandrakeSoft     |  and shrieking like a cheerleader." -Max
+Maneesh Soni
+IBM Linux Technology Center, 
+IBM India Software Lab, Bangalore.
+Phone: +91-80-5262355 Extn. 3999 email: maneesh@in.ibm.com
+http://lse.sourceforge.net/locking/rcupdate.html
+
+diff -urN linux-2.4.12/drivers/char/tty_io.c linux-2.4.12-fs-05/drivers/char/tty_io.c
+--- linux-2.4.12/drivers/char/tty_io.c	Thu Oct 18 11:44:21 2001
++++ linux-2.4.12-fs-05/drivers/char/tty_io.c	Thu Oct 18 10:33:41 2001
+@@ -1847,7 +1847,6 @@
+ 		}
+ 		task_lock(p);
+ 		if (p->files) {
+-			read_lock(&p->files->file_lock);
+ 			for (i=0; i < p->files->max_fds; i++) {
+ 				filp = fcheck_files(p->files, i);
+ 				if (filp && (filp->f_op == &tty_fops) &&
+@@ -1856,7 +1855,6 @@
+ 					break;
+ 				}
+ 			}
+-			read_unlock(&p->files->file_lock);
+ 		}
+ 		task_unlock(p);
+ 	}
+diff -urN linux-2.4.12/fs/exec.c linux-2.4.12-fs-05/fs/exec.c
+--- linux-2.4.12/fs/exec.c	Thu Oct 18 11:44:21 2001
++++ linux-2.4.12-fs-05/fs/exec.c	Thu Oct 18 10:33:41 2001
+@@ -482,7 +482,7 @@
+ {
+ 	long j = -1;
+ 
+-	write_lock(&files->file_lock);
++	spin_lock(&files->file_lock);
+ 	for (;;) {
+ 		unsigned long set, i;
+ 
+@@ -494,16 +494,16 @@
+ 		if (!set)
+ 			continue;
+ 		files->close_on_exec->fds_bits[j] = 0;
+-		write_unlock(&files->file_lock);
++		spin_unlock(&files->file_lock);
+ 		for ( ; set ; i++,set >>= 1) {
+ 			if (set & 1) {
+ 				sys_close(i);
+ 			}
+ 		}
+-		write_lock(&files->file_lock);
++		spin_lock(&files->file_lock);
+ 
+ 	}
+-	write_unlock(&files->file_lock);
++	spin_unlock(&files->file_lock);
+ }
+ 
+ /*
+diff -urN linux-2.4.12/fs/fcntl.c linux-2.4.12-fs-05/fs/fcntl.c
+--- linux-2.4.12/fs/fcntl.c	Thu Oct 18 11:44:21 2001
++++ linux-2.4.12-fs-05/fs/fcntl.c	Thu Oct 18 10:33:41 2001
+@@ -64,7 +64,7 @@
+ 	int error;
+ 	int start;
+ 
+-	write_lock(&files->file_lock);
++	spin_lock(&files->file_lock);
+ 	
+ repeat:
+ 	/*
+@@ -110,7 +110,7 @@
+ {
+ 	FD_SET(fd, files->open_fds);
+ 	FD_CLR(fd, files->close_on_exec);
+-	write_unlock(&files->file_lock);
++	spin_unlock(&files->file_lock);
+ 	fd_install(fd, file);
+ }
+ 
+@@ -126,7 +126,7 @@
+ 	return ret;
+ 
+ out_putf:
+-	write_unlock(&files->file_lock);
++	spin_unlock(&files->file_lock);
+ 	fput(file);
+ 	return ret;
+ }
+@@ -137,7 +137,7 @@
+ 	struct file * file, *tofree;
+ 	struct files_struct * files = current->files;
+ 
+-	write_lock(&files->file_lock);
++	spin_lock(&files->file_lock);
+ 	if (!(file = fcheck(oldfd)))
+ 		goto out_unlock;
+ 	err = newfd;
+@@ -168,7 +168,7 @@
+ 	files->fd[newfd] = file;
+ 	FD_SET(newfd, files->open_fds);
+ 	FD_CLR(newfd, files->close_on_exec);
+-	write_unlock(&files->file_lock);
++	spin_unlock(&files->file_lock);
+ 
+ 	if (tofree)
+ 		filp_close(tofree, files);
+@@ -176,11 +176,11 @@
+ out:
+ 	return err;
+ out_unlock:
+-	write_unlock(&files->file_lock);
++	spin_unlock(&files->file_lock);
+ 	goto out;
+ 
+ out_fput:
+-	write_unlock(&files->file_lock);
++	spin_unlock(&files->file_lock);
+ 	fput(file);
+ 	goto out;
+ }
+diff -urN linux-2.4.12/fs/file.c linux-2.4.12-fs-05/fs/file.c
+--- linux-2.4.12/fs/file.c	Thu Oct 18 11:44:21 2001
++++ linux-2.4.12-fs-05/fs/file.c	Thu Oct 18 11:24:03 2001
+@@ -13,7 +13,20 @@
+ #include <linux/vmalloc.h>
+ 
+ #include <asm/bitops.h>
++#include <linux/rcupdate.h>
+ 
++struct rcu_fd_array {
++	struct rcu_head rh;
++	struct file **array;   
++	int nfds;
++};
++
++struct rcu_fd_set {
++	struct rcu_head rh;
++	fd_set *openset;
++	fd_set *execset;
++	int nfds;
++};
+ 
+ /*
+  * Allocate an fd array, using kmalloc or vmalloc.
+@@ -48,6 +61,13 @@
+ 		vfree(array);
+ }
+ 
++static void fd_array_callback(void *arg) 
++{
++	struct rcu_fd_array *a = (struct rcu_fd_array *) arg; 
++	free_fd_array(a->array, a->nfds);
++	kfree(arg); 
++}
++
+ /*
+  * Expand the fd array in the files_struct.  Called with the files
+  * spinlock held for write.
+@@ -57,6 +77,7 @@
+ {
+ 	struct file **new_fds;
+ 	int error, nfds;
++	struct rcu_fd_array *arg;
+ 
+ 	
+ 	error = -EMFILE;
+@@ -64,7 +85,7 @@
+ 		goto out;
+ 
+ 	nfds = files->max_fds;
+-	write_unlock(&files->file_lock);
++	spin_unlock(&files->file_lock);
+ 
+ 	/* 
+ 	 * Expand to the max in easy steps, and keep expanding it until
+@@ -88,18 +109,17 @@
+ 
+ 	error = -ENOMEM;
+ 	new_fds = alloc_fd_array(nfds);
+-	write_lock(&files->file_lock);
+-	if (!new_fds)
++	arg = (struct rcu_fd_array *) kmalloc(sizeof(arg), GFP_ATOMIC);
++
++	spin_lock(&files->file_lock);
++	if (!new_fds || !arg)
+ 		goto out;
+ 
+ 	/* Copy the existing array and install the new pointer */
+ 
+ 	if (nfds > files->max_fds) {
+-		struct file **old_fds;
+-		int i;
+-		
+-		old_fds = xchg(&files->fd, new_fds);
+-		i = xchg(&files->max_fds, nfds);
++		struct file **old_fds = files->fd;
++		int i = files->max_fds;
+ 
+ 		/* Don't copy/clear the array if we are creating a new
+ 		   fd array for fork() */
+@@ -108,16 +128,27 @@
+ 			/* clear the remainder of the array */
+ 			memset(&new_fds[i], 0,
+ 			       (nfds-i) * sizeof(struct file *)); 
++		}
+ 
+-			write_unlock(&files->file_lock);
+-			free_fd_array(old_fds, i);
+-			write_lock(&files->file_lock);
++		/* mem barrier needed for Alpha*/
++		files->fd = new_fds;
++		/* mem barrier needed for Alpha*/
++		files->max_fds = nfds;
++		
++		if (i) {
++			arg->array = old_fds;
++			arg->nfds = i;
++			call_rcu(&arg->rh, fd_array_callback, arg);
++		}
++		else {
++			kfree(arg);
+ 		}
+ 	} else {
+ 		/* Somebody expanded the array while we slept ... */
+-		write_unlock(&files->file_lock);
++		spin_unlock(&files->file_lock);
+ 		free_fd_array(new_fds, nfds);
+-		write_lock(&files->file_lock);
++		kfree(arg);
++		spin_lock(&files->file_lock);
+ 	}
+ 	error = 0;
+ out:
+@@ -157,6 +188,14 @@
+ 		vfree(array);
+ }
+ 
++static void fd_set_callback (void *arg)
++{
++	struct rcu_fd_set *a = (struct rcu_fd_set *) arg; 
++	free_fdset(a->openset, a->nfds);
++	free_fdset(a->execset, a->nfds);
++	kfree(arg);
++}
++
+ /*
+  * Expand the fdset in the files_struct.  Called with the files spinlock
+  * held for write.
+@@ -165,13 +204,14 @@
+ {
+ 	fd_set *new_openset = 0, *new_execset = 0;
+ 	int error, nfds = 0;
++	struct rcu_fd_set *arg = NULL;
+ 
+ 	error = -EMFILE;
+ 	if (files->max_fdset >= NR_OPEN || nr >= NR_OPEN)
+ 		goto out;
+ 
+ 	nfds = files->max_fdset;
+-	write_unlock(&files->file_lock);
++	spin_unlock(&files->file_lock);
+ 
+ 	/* Expand to the max in easy steps */
+ 	do {
+@@ -187,46 +227,56 @@
+ 	error = -ENOMEM;
+ 	new_openset = alloc_fdset(nfds);
+ 	new_execset = alloc_fdset(nfds);
+-	write_lock(&files->file_lock);
+-	if (!new_openset || !new_execset)
++	arg = (struct rcu_fd_set *) kmalloc(sizeof(arg), GFP_ATOMIC);
++	spin_lock(&files->file_lock);
++	if (!new_openset || !new_execset || !arg)
+ 		goto out;
+ 
+ 	error = 0;
+ 	
+ 	/* Copy the existing tables and install the new pointers */
+ 	if (nfds > files->max_fdset) {
+-		int i = files->max_fdset / (sizeof(unsigned long) * 8);
+-		int count = (nfds - files->max_fdset) / 8;
++		fd_set * old_openset = files->open_fds;
++		fd_set * old_execset = files->close_on_exec;
++		int old_nfds = files->max_fdset;
++		int i = old_nfds / (sizeof(unsigned long) * 8);
++		int count = (nfds - old_nfds) / 8;
+ 		
+ 		/* 
+ 		 * Don't copy the entire array if the current fdset is
+ 		 * not yet initialised.  
+ 		 */
+ 		if (i) {
+-			memcpy (new_openset, files->open_fds, files->max_fdset/8);
+-			memcpy (new_execset, files->close_on_exec, files->max_fdset/8);
++			memcpy (new_openset, old_openset, old_nfds/8);
++			memcpy (new_execset, old_execset, old_nfds/8);
+ 			memset (&new_openset->fds_bits[i], 0, count);
+ 			memset (&new_execset->fds_bits[i], 0, count);
+ 		}
+ 		
+-		nfds = xchg(&files->max_fdset, nfds);
+-		new_openset = xchg(&files->open_fds, new_openset);
+-		new_execset = xchg(&files->close_on_exec, new_execset);
+-		write_unlock(&files->file_lock);
+-		free_fdset (new_openset, nfds);
+-		free_fdset (new_execset, nfds);
+-		write_lock(&files->file_lock);
++		/* mem barrier needed for Alpha*/
++		files->open_fds =  new_openset;
++		files->close_on_exec = new_execset;
++		/* mem barrier needed for Alpha*/
++		files->max_fdset = nfds;
++
++		arg->openset = old_openset;
++		arg->execset = old_execset;
++		arg->nfds = nfds;
++		call_rcu(&arg->rh, fd_set_callback, arg);
++
+ 		return 0;
+ 	} 
+ 	/* Somebody expanded the array while we slept ... */
+ 
+ out:
+-	write_unlock(&files->file_lock);
++	spin_unlock(&files->file_lock);
+ 	if (new_openset)
+ 		free_fdset(new_openset, nfds);
+ 	if (new_execset)
+ 		free_fdset(new_execset, nfds);
+-	write_lock(&files->file_lock);
++	if (arg)
++		kfree(arg);
++	spin_lock(&files->file_lock);
+ 	return error;
+ }
+ 
+diff -urN linux-2.4.12/fs/file_table.c linux-2.4.12-fs-05/fs/file_table.c
+--- linux-2.4.12/fs/file_table.c	Thu Oct 18 11:44:21 2001
++++ linux-2.4.12-fs-05/fs/file_table.c	Thu Oct 18 10:33:41 2001
+@@ -129,13 +129,22 @@
+ struct file * fget(unsigned int fd)
+ {
+ 	struct file * file;
+-	struct files_struct *files = current->files;
+ 
+-	read_lock(&files->file_lock);
+ 	file = fcheck(fd);
+-	if (file)
++	if (file) {
+ 		get_file(file);
+-	read_unlock(&files->file_lock);
++
++        	/* before returning check again if someone (as of now sys_close)
++                 * has nullified the fd_array entry, if yes then we might have 
++                 * failed fput call for him by doing get_file() so do the 
++                 * favour of doing fput for him.
++                 */
++
++        	if (!(fcheck(fd))) {
++                	fput(file);      
++			return NULL;
++		}
++	}                                               
+ 	return file;
+ }
+ 
+diff -urN linux-2.4.12/fs/open.c linux-2.4.12-fs-05/fs/open.c
+--- linux-2.4.12/fs/open.c	Thu Oct 18 11:44:21 2001
++++ linux-2.4.12-fs-05/fs/open.c	Thu Oct 18 10:33:41 2001
+@@ -702,7 +702,7 @@
+ 	int fd, error;
+ 
+   	error = -EMFILE;
+-	write_lock(&files->file_lock);
++	spin_lock(&files->file_lock);
+ 
+ repeat:
+  	fd = find_next_zero_bit(files->open_fds, 
+@@ -751,7 +751,7 @@
+ 	error = fd;
+ 
+ out:
+-	write_unlock(&files->file_lock);
++	spin_unlock(&files->file_lock);
+ 	return error;
+ }
+ 
+@@ -832,7 +832,7 @@
+ 	struct file * filp;
+ 	struct files_struct *files = current->files;
+ 
+-	write_lock(&files->file_lock);
++	spin_lock(&files->file_lock);
+ 	if (fd >= files->max_fds)
+ 		goto out_unlock;
+ 	filp = files->fd[fd];
+@@ -841,11 +841,11 @@
+ 	files->fd[fd] = NULL;
+ 	FD_CLR(fd, files->close_on_exec);
+ 	__put_unused_fd(files, fd);
+-	write_unlock(&files->file_lock);
++	spin_unlock(&files->file_lock);
+ 	return filp_close(filp, files);
+ 
+ out_unlock:
+-	write_unlock(&files->file_lock);
++	spin_unlock(&files->file_lock);
+ 	return -EBADF;
+ }
+ 
+diff -urN linux-2.4.12/fs/proc/base.c linux-2.4.12-fs-05/fs/proc/base.c
+--- linux-2.4.12/fs/proc/base.c	Thu Oct 18 11:44:21 2001
++++ linux-2.4.12-fs-05/fs/proc/base.c	Thu Oct 18 10:33:41 2001
+@@ -754,12 +754,10 @@
+ 	task_unlock(task);
+ 	if (!files)
+ 		goto out_unlock;
+-	read_lock(&files->file_lock);
+ 	file = inode->u.proc_i.file = fcheck_files(files, fd);
+ 	if (!file)
+ 		goto out_unlock2;
+ 	get_file(file);
+-	read_unlock(&files->file_lock);
+ 	put_files_struct(files);
+ 	inode->i_op = &proc_pid_link_inode_operations;
+ 	inode->i_size = 64;
+@@ -775,7 +773,6 @@
+ 
+ out_unlock2:
+ 	put_files_struct(files);
+-	read_unlock(&files->file_lock);
+ out_unlock:
+ 	iput(inode);
+ out:
+diff -urN linux-2.4.12/fs/select.c linux-2.4.12-fs-05/fs/select.c
+--- linux-2.4.12/fs/select.c	Thu Oct 18 11:44:21 2001
++++ linux-2.4.12-fs-05/fs/select.c	Thu Oct 18 10:33:41 2001
+@@ -167,9 +167,7 @@
+ 	int retval, i, off;
+ 	long __timeout = *timeout;
+ 
+- 	read_lock(&current->files->file_lock);
+ 	retval = max_select_fd(n, fds);
+-	read_unlock(&current->files->file_lock);
+ 
+ 	if (retval < 0)
+ 		return retval;
+diff -urN linux-2.4.12/include/linux/file.h linux-2.4.12-fs-05/include/linux/file.h
+--- linux-2.4.12/include/linux/file.h	Thu Oct 18 11:44:21 2001
++++ linux-2.4.12-fs-05/include/linux/file.h	Thu Oct 18 10:33:41 2001
+@@ -12,21 +12,19 @@
+ {
+ 	struct files_struct *files = current->files;
+ 	int res;
+-	read_lock(&files->file_lock);
+ 	res = FD_ISSET(fd, files->close_on_exec);
+-	read_unlock(&files->file_lock);
+ 	return res;
+ }
+ 
+ static inline void set_close_on_exec(unsigned int fd, int flag)
+ {
+ 	struct files_struct *files = current->files;
+-	write_lock(&files->file_lock);
++	spin_lock(&files->file_lock);
+ 	if (flag)
+ 		FD_SET(fd, files->close_on_exec);
+ 	else
+ 		FD_CLR(fd, files->close_on_exec);
+-	write_unlock(&files->file_lock);
++	spin_unlock(&files->file_lock);
+ }
+ 
+ static inline struct file * fcheck_files(struct files_struct *files, unsigned int fd)
+@@ -66,9 +64,9 @@
+ {
+ 	struct files_struct *files = current->files;
+ 
+-	write_lock(&files->file_lock);
++	spin_lock(&files->file_lock);
+ 	__put_unused_fd(files, fd);
+-	write_unlock(&files->file_lock);
++	spin_unlock(&files->file_lock);
+ }
+ 
+ /*
+@@ -88,11 +86,11 @@
+ {
+ 	struct files_struct *files = current->files;
+ 	
+-	write_lock(&files->file_lock);
++	spin_lock(&files->file_lock);
+ 	if (files->fd[fd])
+ 		BUG();
+ 	files->fd[fd] = file;
+-	write_unlock(&files->file_lock);
++	spin_unlock(&files->file_lock);
+ }
+ 
+ void put_files_struct(struct files_struct *fs);
+diff -urN linux-2.4.12/include/linux/sched.h linux-2.4.12-fs-05/include/linux/sched.h
+--- linux-2.4.12/include/linux/sched.h	Thu Oct 18 11:44:21 2001
++++ linux-2.4.12-fs-05/include/linux/sched.h	Thu Oct 18 11:13:12 2001
+@@ -171,7 +171,7 @@
+  */
+ struct files_struct {
+ 	atomic_t count;
+-	rwlock_t file_lock;	/* Protects all the below members.  Nests inside tsk->alloc_lock */
++	spinlock_t file_lock;	/* Protects all the below members.  Nests inside tsk->alloc_lock */
+ 	int max_fds;
+ 	int max_fdset;
+ 	int next_fd;
+@@ -186,7 +186,7 @@
+ #define INIT_FILES \
+ { 							\
+ 	count:		ATOMIC_INIT(1), 		\
+-	file_lock:	RW_LOCK_UNLOCKED, 		\
++	file_lock:	SPIN_LOCK_UNLOCKED, 		\
+ 	max_fds:	NR_OPEN_DEFAULT, 		\
+ 	max_fdset:	__FD_SETSIZE, 			\
+ 	next_fd:	0, 				\
+diff -urN linux-2.4.12/kernel/fork.c linux-2.4.12-fs-05/kernel/fork.c
+--- linux-2.4.12/kernel/fork.c	Thu Oct 18 11:44:21 2001
++++ linux-2.4.12-fs-05/kernel/fork.c	Thu Oct 18 11:44:45 2001
+@@ -440,7 +440,7 @@
+ 
+ 	atomic_set(&newf->count, 1);
+ 
+-	newf->file_lock	    = RW_LOCK_UNLOCKED;
++	newf->file_lock     = SPIN_LOCK_UNLOCKED; 
+ 	newf->next_fd	    = 0;
+ 	newf->max_fds	    = NR_OPEN_DEFAULT;
+ 	newf->max_fdset	    = __FD_SETSIZE;
+@@ -453,13 +453,12 @@
+ 	size = oldf->max_fdset;
+ 	if (size > __FD_SETSIZE) {
+ 		newf->max_fdset = 0;
+-		write_lock(&newf->file_lock);
++		spin_lock(&newf->file_lock);
+ 		error = expand_fdset(newf, size-1);
+-		write_unlock(&newf->file_lock);
++		spin_unlock(&newf->file_lock);
+ 		if (error)
+ 			goto out_release;
+ 	}
+-	read_lock(&oldf->file_lock);
+ 
+ 	open_files = count_open_files(oldf, size);
+ 
+@@ -470,15 +469,13 @@
+ 	 */
+ 	nfds = NR_OPEN_DEFAULT;
+ 	if (open_files > nfds) {
+-		read_unlock(&oldf->file_lock);
+ 		newf->max_fds = 0;
+-		write_lock(&newf->file_lock);
++		spin_lock(&newf->file_lock);
+ 		error = expand_fd_array(newf, open_files-1);
+-		write_unlock(&newf->file_lock);
++		spin_unlock(&newf->file_lock);
+ 		if (error) 
+ 			goto out_release;
+ 		nfds = newf->max_fds;
+-		read_lock(&oldf->file_lock);
+ 	}
+ 
+ 	old_fds = oldf->fd;
+@@ -493,7 +490,6 @@
+ 			get_file(f);
+ 		*new_fds++ = f;
+ 	}
+-	read_unlock(&oldf->file_lock);
+ 
+ 	/* compute the remainder to be cleared */
+ 	size = (newf->max_fds - open_files) * sizeof(struct file *);
+diff -urN linux-2.4.12/net/ipv4/netfilter/ipt_owner.c linux-2.4.12-fs-05/net/ipv4/netfilter/ipt_owner.c
+--- linux-2.4.12/net/ipv4/netfilter/ipt_owner.c	Thu Oct 18 11:44:21 2001
++++ linux-2.4.12-fs-05/net/ipv4/netfilter/ipt_owner.c	Thu Oct 18 10:33:41 2001
+@@ -25,16 +25,13 @@
+ 	task_lock(p);
+ 	files = p->files;
+ 	if(files) {
+-		read_lock(&files->file_lock);
+ 		for (i=0; i < files->max_fds; i++) {
+ 			if (fcheck_files(files, i) == skb->sk->socket->file) {
+-				read_unlock(&files->file_lock);
+ 				task_unlock(p);
+ 				read_unlock(&tasklist_lock);
+ 				return 1;
+ 			}
+ 		}
+-		read_unlock(&files->file_lock);
+ 	}
+ 	task_unlock(p);
+ out:
+@@ -58,14 +55,12 @@
+ 		task_lock(p);
+ 		files = p->files;
+ 		if (files) {
+-			read_lock(&files->file_lock);
+ 			for (i=0; i < files->max_fds; i++) {
+ 				if (fcheck_files(files, i) == file) {
+ 					found = 1;
+ 					break;
+ 				}
+ 			}
+-			read_unlock(&files->file_lock);
+ 		}
+ 		task_unlock(p);
+ 		if(found)

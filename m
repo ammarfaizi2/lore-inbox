@@ -1,60 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264746AbUEETp5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264751AbUEETqb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264746AbUEETp5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 15:45:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264751AbUEETp4
+	id S264751AbUEETqb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 15:46:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264755AbUEETqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 15:45:56 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:6410 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S264746AbUEETpz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 15:45:55 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Lucas Nussbaum <lucas@lucas-nussbaum.net>,
-       "Richard B. Johnson" <root@chaos.analogic.com>
-Subject: Re: ne2k-pci uncorrectly detecting collisions ?
-Date: Wed, 5 May 2004 22:45:39 +0300
-User-Agent: KMail/1.5.4
+	Wed, 5 May 2004 15:46:31 -0400
+Received: from mailout.zma.compaq.com ([161.114.64.104]:64517 "EHLO
+	zmamail04.zma.compaq.com") by vger.kernel.org with ESMTP
+	id S264751AbUEETqX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 15:46:23 -0400
+Date: Wed, 5 May 2004 13:59:50 -0500
+From: mikem@beardog.cca.cpqcorp.net
+To: akpm@osdl.org, axboe@suse.de
 Cc: linux-kernel@vger.kernel.org
-References: <20040505123532.GA3011@blop.info> <Pine.LNX.4.53.0405050855290.16355@chaos> <20040505131006.GA3412@blop.info>
-In-Reply-To: <20040505131006.GA3412@blop.info>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+Subject: cciss update for 2.6.6
+Message-ID: <20040505185950.GA29293@beardog.cca.cpqcorp.net>
+Reply-To: mike.miller@hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200405052245.39405.vda@port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 05 May 2004 16:10, Lucas Nussbaum wrote:
-> On Wed, May 05, 2004 at 09:00:50AM -0400, "Richard B. Johnson" <root@chaos.analogic.com> wrote:
-> > > I have experienced problem with the ne2k-pci driver. The symptoms were
-> > > extremly poor performance with TCP. After some investigations, I
-> > > believe it might be caused by problems with detecting collisions.
-> >
-> > But software doesn't detect collisions. It just records what
-> > hardware said it did. It looks like you have a 10 Mb/s card
-> > on a 100 Mb/s network. The collisions reported are how the
-> > hardware throttles the difference in physical-link speed.
->
-> The hub is a 10/100 one, and the 3 RTL8029 are 10 Mbps only.
->
-> > It is possible that software didn't initialize a 100 Mb/s
-> > device and instead initialized it to 10 Mb/s, but you
-> > don't have any evidence of that presented.
->
-> No, because RTL8029 are 10 mbps only (they are BNC/RJ45 NICs).
->
-> But what I thought was that maybe, they were initialised as full duplex,
-> not half duplex. But again, I don't know where I can check that. I added
-> some printks and determined that the code used to init them full duplex
-> was never used. And there's no way to force them half duplex with this
-> driver.
+This patch adds support for 2 new controllers. The first is a PCI-Express version of the 6400. The second is actually a SATA controller using the cciss interface. Please consider this for inclusion.
 
-There is a DOS utility which configure duplex settings for RTL8029.
+mikem
+-------------------------------------------------------------------------------
+ Documentation/cciss.txt |    2 ++
+ drivers/block/cciss.c   |   12 +++++++++---
+ 2 files changed, 11 insertions(+), 3 deletions(-)
 
-Also check /proc/interrupts and /proc/ioports for IRQ/ioport collisions.
---
-vda
-
+diff -burpN lx266-rc3.orig/Documentation/cciss.txt lx266-rc3/Documentation/cciss.txt
+--- lx266-rc3.orig/Documentation/cciss.txt	2004-04-03 21:36:24.000000000 -0600
++++ lx266-rc3/Documentation/cciss.txt	2004-05-05 13:37:33.000000000 -0500
+@@ -14,6 +14,8 @@ This driver is known to work with the fo
+ 	* SA 6400
+ 	* SA 6400 U320 Expansion Module
+ 	* SA 6i
++	* SA 6422
++	* SA V100
+ 
+ If nodes are not already created in the /dev/cciss directory
+ 
+diff -burpN lx266-rc3.orig/drivers/block/cciss.c lx266-rc3/drivers/block/cciss.c
+--- lx266-rc3.orig/drivers/block/cciss.c	2004-05-05 13:27:25.000000000 -0500
++++ lx266-rc3/drivers/block/cciss.c	2004-05-05 13:32:33.000000000 -0500
+@@ -45,12 +45,12 @@
+ #include <linux/completion.h>
+ 
+ #define CCISS_DRIVER_VERSION(maj,min,submin) ((maj<<16)|(min<<8)|(submin))
+-#define DRIVER_NAME "Compaq CISS Driver (v 2.6.0)"
+-#define DRIVER_VERSION CCISS_DRIVER_VERSION(2,6,0)
++#define DRIVER_NAME "Compaq CISS Driver (v 2.6.2)"
++#define DRIVER_VERSION CCISS_DRIVER_VERSION(2,6,2)
+ 
+ /* Embedded module documentation macros - see modules.h */
+ MODULE_AUTHOR("Hewlett-Packard Company");
+-MODULE_DESCRIPTION("Driver for HP Controller SA5xxx SA6xxx version 2.6.0");
++MODULE_DESCRIPTION("Driver for HP Controller SA5xxx SA6xxx version 2.6.2");
+ MODULE_SUPPORTED_DEVICE("HP SA5i SA5i+ SA532 SA5300 SA5312 SA641 SA642 SA6400"
+ 			" SA6i");
+ MODULE_LICENSE("GPL");
+@@ -79,6 +79,10 @@ const struct pci_device_id cciss_pci_dev
+ 		0x0E11, 0x409D, 0, 0, 0},
+ 	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSC,
+ 		0x0E11, 0x4091, 0, 0, 0},
++	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSC,
++		0x0E11, 0x409E, 0, 0, 0},
++	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSC,
++		0x103C, 0x3211, 0, 0, 0},
+ 	{0,}
+ };
+ MODULE_DEVICE_TABLE(pci, cciss_pci_device_id);
+@@ -99,6 +103,8 @@ static struct board_type products[] = {
+ 	{ 0x409C0E11, "Smart Array 6400", &SA5_access},
+ 	{ 0x409D0E11, "Smart Array 6400 EM", &SA5_access},
+ 	{ 0x40910E11, "Smart Array 6i", &SA5_access},
++	{ 0x409E0E11, "Smart Array 6422", &SA5_access},
++	{ 0x3211103C, "Smart Array V100", &SA5_access},
+ };
+ 
+ /* How long to wait (in millesconds) for board to go into simple mode */

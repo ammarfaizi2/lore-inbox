@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLORtB>; Fri, 15 Dec 2000 12:49:01 -0500
+	id <S129652AbQLOR6o>; Fri, 15 Dec 2000 12:58:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129289AbQLORsv>; Fri, 15 Dec 2000 12:48:51 -0500
-Received: from ip252.uni-com.net ([205.198.252.252]:26887 "HELO www.nondot.org")
-	by vger.kernel.org with SMTP id <S129183AbQLORsn>;
-	Fri, 15 Dec 2000 12:48:43 -0500
-Date: Fri, 15 Dec 2000 09:54:49 -0600 (CST)
-From: Chris Lattner <sabre@nondot.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
-In-Reply-To: <20001214210245.B468@bug.ucw.cz>
-Message-ID: <Pine.LNX.4.21.0012150953050.29507-100000@www.nondot.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129614AbQLOR6f>; Fri, 15 Dec 2000 12:58:35 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:10633 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129289AbQLOR6W>;
+	Fri, 15 Dec 2000 12:58:22 -0500
+Date: Fri, 15 Dec 2000 09:11:31 -0800
+Message-Id: <200012151711.JAA20826@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: andrea@suse.de
+CC: ink@jurassic.park.msu.ru, ezolt@perf.zko.dec.com, axp-list@redhat.com,
+        rth@twiddle.net, Jay.Estabrook@compaq.com,
+        linux-kernel@vger.kernel.org, clinux@zk3.dec.com,
+        wcarr@perf.zko.dec.com, linux-alpha@vger.kernel.org
+In-Reply-To: <20001215164626.C16586@inspiron.random> (message from Andrea
+	Arcangeli on Fri, 15 Dec 2000 16:46:26 +0100)
+Subject: Re: mm->context[NR_CPUS] and pci fix check [was Re: Alpha SCSI error on 2.4.0-test11]
+In-Reply-To: <20001201004049.A980@jurassic.park.msu.ru> <Pine.OSF.3.96.1001130171941.32335D-100000@perf.zko.dec.com> <20001130233742.A21823@athlon.random> <20001201145619.A553@jurassic.park.msu.ru> <20001201151842.C30653@athlon.random> <200012011819.KAA02951@pizda.ninka.net> <20001201201444.A2098@inspiron.random> <20001215164626.C16586@inspiron.random>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > For one of our demos, we ran a file server on a remote linux box (that we 
-> > just had a user account on), mounted it on a kORBit'ized box, and ran
-> > programs on SPARC Solaris that accessed the kORBit'ized linux box's file
-> > syscalls.  If nothing else, it's pretty nifty what you can do in little
-> > code...
-> 
-> Cool!
-> 
-> However, can you do one test for me? Do _heavy_ writes on kORBit-ized
-> box. That might show you some problems. Oh, and try to eat atomic
-> memory by ping -f kORBit-ized box.
+   Date: Fri, 15 Dec 2000 16:46:26 +0100
+   From: Andrea Arcangeli <andrea@suse.de>
 
-I'll give that a try when I get a chance.  :)
+   This one breaks all archs but i386 and alpha. If some arch maintainer likes me
+   to update its arch blindly implementing mm_arch structure as an `unsigned long
+   context' and fixing up the miscompilation I will do.
 
-> I've always wanted to do this: redirect /dev/dsp from one machine to
-> another. (Like, I have development machine and old 386. I want all
-> programs on devel machine use soundcard from 386. Can you do that?)
+Can you name the mm_struct member "context" still instead of
+"mm_arch"?  Because many ports will simply:
 
-Yes.  Definately.  There are probably other ways of doing that... but one
-of the things we implemented was a "generic" character device... and we
-tested it by having a chardev server that basically reads from a
-"local" (to the server) character device, and forward it over CORBA.  So
-this is already implemented!  :)
+typedef unsigned long mm_arch_t;
 
--Chris
+Then all the code changes will make the accesses look less
+meaningful.  Consider:
 
-http://www.nondot.org/~sabre/os/
-http://www.nondot.org/MagicStats/
-http://korbit.sourceforge.net/
+	if (CTX_VALID(mm->mm_arch))
 
+whereas before the code said:
+
+	if (CTX_VALID(mm->context))
+
+which tells the reader lot more.  In fact, retaining the "context" member
+name allows most ports to operate with only one change, creating
+the asm/mm_arch.h header.  You can in fact do this for all ports
+which care about MMU tlb contexts (a simple grep such as
+egrep -e "m->context" `find . -type f -name "*.[ch]"`
+will show you which ports care).
+
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,122 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbUKVLcu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbUKVLfi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261263AbUKVLcu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 06:32:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbUKVLcu
+	id S261248AbUKVLfi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 06:35:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbUKVLfR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 06:32:50 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:20631 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261263AbUKVLcY (ORCPT
+	Mon, 22 Nov 2004 06:35:17 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:12744 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261286AbUKVLdl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 06:32:24 -0500
-Date: Mon, 22 Nov 2004 12:31:51 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Alan Chandler <alan@chandlerfamily.org.uk>
+	Mon, 22 Nov 2004 06:33:41 -0500
+Date: Mon, 22 Nov 2004 06:33:28 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: ide-cd problem
-Message-ID: <20041122113150.GF10463@suse.de>
-References: <200411201842.15091.alan@chandlerfamily.org.uk> <200411211025.11629.alan@chandlerfamily.org.uk> <200411211613.54713.alan@chandlerfamily.org.uk> <200411220752.28264.alan@chandlerfamily.org.uk> <20041122080122.GM26240@suse.de> <E1CWBSN-0003mF-4s@home.chandlerfamily.org.uk> <20041122105157.GB10463@suse.de> <E1CWCOC-0003so-Ao@home.chandlerfamily.org.uk>
+Subject: Re: var args in kernel?
+Message-ID: <20041122113328.GQ10340@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <20041109211107.GB5892@stusta.de> <1100037358.1519.6.camel@lb.loomes.de> <20041110082407.GA23090@bytesex> <1100085569.1591.6.camel@lb.loomes.de> <20041118165853.GA22216@bytesex> <419E689A.5000704@backtobasicsmgmt.com> <20041122094312.GC29305@bytesex> <20041122101646.GP10340@devserv.devel.redhat.com> <20041122102933.GG29305@bytesex> <Pine.LNX.4.53.0411221155330.31785@yvahk01.tjqt.qr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1CWCOC-0003so-Ao@home.chandlerfamily.org.uk>
+In-Reply-To: <Pine.LNX.4.53.0411221155330.31785@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 22 2004, Alan Chandler wrote:
-> Jens Axboe writes: 
+On Mon, Nov 22, 2004 at 12:03:56PM +0100, Jan Engelhardt wrote:
+> >>  What you can't do is e.g.
+> >>   va_list ap;
+> >>   va_start (ap, x);
+> >>   bar (x, ap);
+> >>   bar (x, ap);
+> >>   va_end (ap);
 > 
-> >On Mon, Nov 22 2004, Alan Chandler wrote:
-> >>Jens Axboe writes:  
-> >>
-> >>>On Mon, Nov 22 2004, Alan Chandler wrote:
-> >>>>On Sunday 21 November 2004 16:13, Alan Chandler wrote:
-> >>>>...
-> >>>>>
-> >>>>> This seems to be some combination of frequently occuring timing 
-> >>problem,
-> >>>>> and the difference treatment in cdrom_newpc_intr to cdrom_pc_intr 
-> >>>>
-> >>>>I put a ndelay(400) at the head of cdrom_newpc_intr and the problem of
-> >>>>DRQ being set when there was no data to transfer disappeared.  It
-> >>>>appears that my hardware is too slow. 
-> >>>>
-> >>>>I have been reading the ATA/ATAPI - 6 spec, and it implies that the
-> >>>>state of DRQ line need one pio cycle before being correct and that you
-> >>>>should read the alternative status register to achieve this.  I tried
-> >>>>a simple 
-> >>>>
-> >>>>HWIF(drive)->INB( IDE_ALTSTATUS_REG); 
-> >>>>
-> >>>>But that made no difference.
-> >>>
-> >>>ALTSTATUS read should be fine as well, but the implicit delay is
-> >>>probably better. 
-> >>> 
-> >>
-> >>I don't know why, but the ALTSTATUS read did NOT work when I tried it 
-> >>yesterday (am currently at work using web mail to access my mail - can't 
-> >>do more until this evening).  Its possible I put it in the wrong place 
-> >>(ie after the cdrom_decode_status call, but I don't think so.  
-> >>
-> >>The ndelay(400) did work.  
-> >>
-> >>>Is this enough to fix it? For ->drq_interrupt we already should have
-> >>>an adequate delay, Alan fixed this one recently. 
-> >>> 
-> >>
-> >>Yes, I had included this patch quite early in my process of tracking
-> >>the problem down (when I corrected it like you have (add the drive
-> >>parameter to the OUTBSYNC macro like you have, you also need to
-> >>declare an unsigned long flags at the head of the routine that was
-> >>also not in that patch).  Indeed it was this that was the inspiration
-> >>for the 400 nanosecs in my change.  I have no idea what the right
-> >>number should be 
-> >
-> >400ns is the correctl value. Your writing is a little unclear to me -
-> >did it work or not, with that change alone? 
-> >
-> 
-> To be clear ... 
-> 
-> 
-> I have modified ide-cd.c with 
-> 
-> 1) ndelay(400) at the head of cdrom_newpc_intr() 
-> 
-> 2) Alan Cox's patch in the place he originally identified for it to go 
-> 
-> 3) Some printk's in cdrom_newpc_intr() after the point where it reads the 
-> status and IREASON and length registers and just for the purposes of 
-> diagnostics. 
-> 
-> With only those changes it now works. 
+> In theory, you can't. But the way how GCC (and probably other compilers)
+> implement it, you can. Because "ap" is just a pointer (which fits into a
+> register, if I may add). As such, you can copy it, pass it multiple times, use
+> it multiple times, and whatever you like.
 
-You are not answering my question :-)
+That's exactly the wrong assumption.
+On some Linux architectures you can, on others you can't.
+Architectures where va_list is a char or void pointer include e.g.:
+i386, sparc*, ppc64, ia64
+Architectures where va_list is something different, usually struct { ... } va_list[1];
+or something similar:
+x86_64, ppc32, alpha, s390, s390x
 
-Here's is Alans patch as I posted some mails ago. Does it work with that
-alone?? I'm curious of it is enough. It should not be necessary to incur
-extra delay in the interrupt handler, if it is invoked from a real irq.
+In the latter case, you obviously can't do va_list dest = src and
+if you do bar (x, ap); the content of the struct pointed by ap is changed
+after the call, therefore you can't use it for other routines
+(as it depends on where exactly the called function stopped with va_arg).
 
-===== drivers/ide/ide-cd.c 1.97 vs edited =====
---- 1.97/drivers/ide/ide-cd.c	2004-11-07 02:54:41 +01:00
-+++ edited/drivers/ide/ide-cd.c	2004-11-22 08:58:15 +01:00
-@@ -890,8 +890,13 @@
- 		ide_execute_command(drive, WIN_PACKETCMD, handler, ATAPI_WAIT_PC, cdrom_timer_expiry);
- 		return ide_started;
- 	} else {
-+		unsigned long flags;
-+
- 		/* packet command */
--		HWIF(drive)->OUTB(WIN_PACKETCMD, IDE_COMMAND_REG);
-+		spin_lock_irqsave(&ide_lock, flags);
-+		HWIF(drive)->OUTBSYNC(drive, WIN_PACKETCMD, IDE_COMMAND_REG);
-+		ndelay(400);
-+		spin_unlock_irqrestore(&ide_lock, flags);
- 		return (*handler) (drive);
- 	}
- }
-
--- 
-Jens Axboe
-
+	Jakub

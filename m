@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289017AbSAUDWZ>; Sun, 20 Jan 2002 22:22:25 -0500
+	id <S289024AbSAUDnm>; Sun, 20 Jan 2002 22:43:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289021AbSAUDWQ>; Sun, 20 Jan 2002 22:22:16 -0500
-Received: from jik-0.dsl.speakeasy.net ([66.92.77.120]:8832 "EHLO
-	jik.kamens.brookline.ma.us") by vger.kernel.org with ESMTP
-	id <S289017AbSAUDWH>; Sun, 20 Jan 2002 22:22:07 -0500
-Date: Sun, 20 Jan 2002 22:21:55 -0500
-From: Jonathan Kamens <jik@kamens.brookline.ma.us>
-Message-Id: <200201210321.g0L3Lt602171@jik.kamens.brookline.ma.us>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.18-pre3-ac2 messing up CMOS clock?
+	id <S289025AbSAUDnc>; Sun, 20 Jan 2002 22:43:32 -0500
+Received: from rj.sgi.com ([204.94.215.100]:20380 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S289024AbSAUDnM>;
+	Sun, 20 Jan 2002 22:43:12 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Subject: Re: Hardwired drivers are going away? 
+In-Reply-To: Your message of "Sun, 20 Jan 2002 18:56:34 -0800."
+             <3C4B8362.8B249698@zip.com.au> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 21 Jan 2002 14:43:00 +1100
+Message-ID: <1032.1011584580@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there any possibility that something in 2.4.18-pre3-ac2 might be
-missing up the CMOS clock on my machine (SuperMicro S2DGU motherboard)
-where 2.2.19+IDE wasn't?
+On Sun, 20 Jan 2002 18:56:34 -0800, 
+Andrew Morton <akpm@zip.com.au> wrote:
+>I'm not aware of anyone getting kgdb working fully with modules.
 
-I'm asking because two odd things started happening recently: (1) my
-clock started drifting a lot (i.e., ntpd is resetting it frequently)
-and (2) I kept getting BIOS errors during boot about the CMOS clock
-being unset.
+kgdb has a script that tells gdb where each module is loaded.  AFAIK it
+uses add-symbol-file FILENAME -sSECTION ADDRESS, the __insmod entries
+contain enough data to tell gdb what is going on.
 
-I assumed that the problem was caused by a dead clock battery, so I
-replaced the battery.  But it just happened again.
+>Proper crash analysis needs to know the load address of each module
+>at the time of the crash.  We should print them out at Oops time.
 
-This leaves me with three guesses for what may be causing the problem:
-(1) something different about the kernel I started running recently;
-(2) something different about Red Hat Rawhide software I just
-installed on my machine; or (3) a broken motherboard.
+You need 13 bits of data per module.  Where each of text, rodata, data
+and bss sections were loaded, you cannot assume they are contiguous.
+The length of those four sections.  Where the module is on disk, you
+cannot assume the object name is the same as the module name, insmod
+-o.  The timestamp and kernel version of the module when it was loaded,
+to detect updates after the event.  All of that is encoded in the
+__insmod entries in /proc/ksyms, 5 lines per module.
 
-I'd like to try to eliminate (1) or (2) as a possibility before trying
-to get SuperMicro and/or the company that sold me the computer to say
-anything useful about (3) :-).
+>> That is a different problem.  Saying that modular kernels cause
+>> problems for debugging is not a good enough reason to deprecate modular
+>> kernels, all the problems have been solved.
+>
+>They are patently *not* solved, because we continue to get a
+>stream of partially and competely useless oops reports.
 
-Thanks for any advice you can provide.
+Rule 1.  Users do not read documentation.
+Rule 2.  You can't do anything about rule 1.
+
+If you want complete bug reports, write a script that forces the user
+to submit all the required data.  Why do I feel the "Linux should have
+a bug reporting system" thread starting again?
+

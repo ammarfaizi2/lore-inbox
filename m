@@ -1,75 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263834AbTDYKWB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 06:22:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263854AbTDYKWB
+	id S263857AbTDYK3a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 06:29:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263858AbTDYK33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 06:22:01 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:43168 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263834AbTDYKWA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 06:22:00 -0400
-Date: Fri, 25 Apr 2003 12:33:42 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Alexander Atanasov <alex@ssi.bg>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC/PATCH] IDE Power Management try 1
-Message-ID: <20030425103342.GJ1012@suse.de>
-References: <1051189194.13267.23.camel@gaston> <3EA90176.2080304@ssi.bg>
+	Fri, 25 Apr 2003 06:29:29 -0400
+Received: from almesberger.net ([63.105.73.239]:33804 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S263857AbTDYK32 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 06:29:28 -0400
+Date: Fri, 25 Apr 2003 07:41:16 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Pat Suwalski <pat@suwalski.net>
+Cc: Jamie Lokier <jamie@shareable.org>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Matthias Schniedermeyer <ms@citd.de>, Marc Giger <gigerstyle@gmx.ch>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 623] New: Volume not remembered.
+Message-ID: <20030425074116.V3557@almesberger.net>
+References: <20030423214332.H3557@almesberger.net> <20030424011137.GA27195@mail.jlokier.co.uk> <20030423231149.I3557@almesberger.net> <25450000.1051152052@[10.10.2.4]> <20030424003742.J3557@almesberger.net> <20030424071439.GB28253@mail.jlokier.co.uk> <20030424103858.M3557@almesberger.net> <20030424213632.GK30082@mail.jlokier.co.uk> <20030424205515.T3557@almesberger.net> <3EA87BE1.1070107@suwalski.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3EA90176.2080304@ssi.bg>
+In-Reply-To: <3EA87BE1.1070107@suwalski.net>; from pat@suwalski.net on Thu, Apr 24, 2003 at 08:05:53PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 25 2003, Alexander Atanasov wrote:
-> 		Hello,
-> 
-> Benjamin Herrenschmidt wrote:
-> 
-> 
-> >The point is to pipe the power management requests through the request
-> >queue for proper locking. Since those requests involve several
-> >operations that have to be tied together with the queue beeing locked
-> >for further 'user' requests, they are implemented as a state machine
-> >with specific callbacks in the subdrivers
-> >
-> [cut]
-> >
-> >One thing that should probably be cleaned up is the difference between
-> >the suspend and the resume request. I didn't want to implement 2
-> >different request bits to avoid using too much of that bit-space, and
-> >because most of the core handling is the same. So right now, I carry in
-> >the special structure attached to the request, 2 fields. An int
-> >indicating if we are doing a suspend or a resume op, and an int that is
-> >the actual state machine step.
-> 
-> > ===== include/linux/blkdev.h 1.100 vs edited =====
-> > --- 1.100/include/linux/blkdev.h	Sun Apr 20 18:20:10 2003
-> > +++ edited/include/linux/blkdev.h	Thu Apr 24 14:30:50 2003
-> > @@ -116,6 +116,7 @@
-> >  	__REQ_DRIVE_CMD,
-> >  	__REQ_DRIVE_TASK,
-> >  	__REQ_DRIVE_TASKFILE,
-> > +	__REQ_POWER_MANAGEMENT,
-> >  	__REQ_NR_BITS,	/* stops here */
-> >  };
-> 
-> 
-> 		What about this - add __REQ_DRIVE_INTERNAL, and carry args 
-> 		in rq->cmd[16] [0] = PM, [1] = SUSPEND/RESUME, [2]= STATE ? IDE can use it 
-> for power managment, error handling (do not do it from interrupt 
-> context, but queue it), may be more. This way it would really makes 
-> things a bit better with the complicated IDE locking. SCSI and probably 
-> other block devices can benefit from this internal requests too, so the 
-> bit is not wasted.
+Pat Suwalski wrote:
+> For that, refer to my other bug: 
+> http://bugzilla.kernel.org/show_bug.cgi?id=622
 
-There are already lots of "INTERNAL" - basically take your pick from all
-the ones you quote above (DRIVE_TASK, DRIVE_CMD, DRIVE_TASKFILE - it's a
-MESS). A power management special request makes sense to me.
+Okay, so there is a case for OSS. Not sure who is maintaining it,
+and if they care about making it act like ALSA. It would certainly
+be nice to be consistent, and I'm sure that OSS users won't mind
+getting rid of the occasional rude wakeup call.
+
+(Oh, another nice scenario: if they ask you to turn on your
+notebook at airport security. Great setting for demonstrating that
+loud alarm-like feedback loop :-)
+
+- Werner
 
 -- 
-Jens Axboe
-
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

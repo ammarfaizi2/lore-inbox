@@ -1,64 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268016AbTBRSY1>; Tue, 18 Feb 2003 13:24:27 -0500
+	id <S268045AbTBRSo5>; Tue, 18 Feb 2003 13:44:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268015AbTBRSXZ>; Tue, 18 Feb 2003 13:23:25 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55561 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268011AbTBRSWk>; Tue, 18 Feb 2003 13:22:40 -0500
-Subject: PATCH: fix some escaped globals
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Date: Tue, 18 Feb 2003 18:33:02 +0000 (GMT)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E18lCYA-0006Du-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S268051AbTBRSo5>; Tue, 18 Feb 2003 13:44:57 -0500
+Received: from numenor.qualcomm.com ([129.46.51.58]:36579 "EHLO
+	numenor.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S268045AbTBRSou>; Tue, 18 Feb 2003 13:44:50 -0500
+Message-Id: <5.1.0.14.2.20030218101309.048d4288@mail1.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 18 Feb 2003 10:50:49 -0800
+To: "David S. Miller" <davem@redhat.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Jean Tourrilhes <jt@bougret.hpl.hp.com>,
+       Rusty Russell <rusty@rustcorp.com.au>
+From: Max Krasnyansky <maxk@qualcomm.com>
+Subject: Re: [PATCH/RFC] New module refcounting for net_proto_family
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030217.194612.131926469.davem@redhat.com>
+References: <Pine.LNX.4.33.0301180439480.10820-100000@champ.qualcomm.com>
+ <Pine.LNX.4.33.0301020341140.2038-100000@champ.qualcomm.com>
+ <Pine.LNX.4.33.0301180439480.10820-100000@champ.qualcomm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.61/drivers/ide/pci/cy82c693.c linux-2.5.61-ac2/drivers/ide/pci/cy82c693.c
---- linux-2.5.61/drivers/ide/pci/cy82c693.c	2003-02-10 18:38:01.000000000 +0000
-+++ linux-2.5.61-ac2/drivers/ide/pci/cy82c693.c	2003-02-18 18:06:19.000000000 +0000
-@@ -1,5 +1,5 @@
- /*
-- * linux/drivers/ide/cy82c693.c		Version 0.40	Sep. 10, 2002
-+ * linux/drivers/ide/pci/cy82c693.c		Version 0.40	Sep. 10, 2002
-  *
-  *  Copyright (C) 1998-2000 Andreas S. Krebs (akrebs@altavista.net), Maintainer
-  *  Copyright (C) 1998-2002 Andre Hedrick <andre@linux-ide.org>, Integrater
-@@ -335,7 +335,7 @@
- /*
-  * this function is called during init and is used to setup the cy82c693 chip
-  */
--unsigned int __init init_chipset_cy82c693(struct pci_dev *dev, const char *name)
-+static unsigned int __init init_chipset_cy82c693(struct pci_dev *dev, const char *name)
- {
- 	if (PCI_FUNC(dev->devfn) != 1)
- 		return 0;
-@@ -387,7 +387,7 @@
- /*
-  * the init function - called for each ide channel once
-  */
--void __init init_hwif_cy82c693(ide_hwif_t *hwif)
-+static void __init init_hwif_cy82c693(ide_hwif_t *hwif)
- {
- 	hwif->autodma = 0;
- 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.61/drivers/ide/pci/cy82c693.h linux-2.5.61-ac2/drivers/ide/pci/cy82c693.h
---- linux-2.5.61/drivers/ide/pci/cy82c693.h	2003-02-10 18:38:15.000000000 +0000
-+++ linux-2.5.61-ac2/drivers/ide/pci/cy82c693.h	2003-02-17 18:57:51.000000000 +0000
-@@ -64,9 +64,9 @@
- 	u8	time_8;		/* clocks for 8bit (0xF0=Active/data, 0x0F=Recovery) */
- } pio_clocks_t;
- 
--extern unsigned int init_chipset_cy82c693(struct pci_dev *, const char *);
--extern void init_hwif_cy82c693(ide_hwif_t *);
--extern void init_iops_cy82c693(ide_hwif_t *);
-+static unsigned int init_chipset_cy82c693(struct pci_dev *, const char *);
-+static void init_hwif_cy82c693(ide_hwif_t *);
-+static void init_iops_cy82c693(ide_hwif_t *);
- 
- static ide_pci_device_t cy82c693_chipsets[] __devinitdata = {
- 	{	/* 0 */
+At 07:46 PM 2/17/2003, David S. Miller wrote:
+
+>After talking to Alexey, I don't like this patch.
+>
+>The new module subsystem was supposed to deal with things
+>like this cleanly, and this patch is merely a hack to cover
+>up for it's shortcomings.
+No it's not. Are you guys saying that module refcounting in net/core/dev.c 
+is a hack too ? Patch that I sent implements exactly the same logic.
+Grab module reference before creating net family socket and release
+module when socket is gone. Where is the hack here ?
+
+>To be honest, I'd rather just disallow module unloading or
+>let them stay buggy than put this hack into the tree.
+This comment makes no sense to me. Especially "let them stay buggy" part ;-).
+(I wonder what Alex could have told you).
+
+>Special hacks are for 2.4.x where things like full cleanups are not allowed.
+It's not a special hack. If it has problems let's fix them.
+I want to keep Bluetooth socket modules loadable and unloadable. And I'm sure
+Jean and other folks want's the same thing for IrDA and other subsystems with sockets. 
+So, you guys would have to come with a better argument than "ohh it's an ugly hack" ;-).
+
+Alexey, could you please post what you told Dave here ?
+Rusty, any comments from you ?
+
+Here is the link to the patch that I sent
+        http://marc.theaimsgroup.com/?l=linux-kernel&m=104308300808557&w=2
+
+and here is some explanation about protocol families
+        http://marc.theaimsgroup.com/?l=linux-kernel&m=104317832227499&w=2
+
+Dave, Alex, seriously let's come up with the solution rather than ignoring
+the problem. I think my patch is a good solution. If you don't like overhead 
+or whatever else let's fix that.
+
+Thanks
+Max
+

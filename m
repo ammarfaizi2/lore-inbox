@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262596AbSJBVNW>; Wed, 2 Oct 2002 17:13:22 -0400
+	id <S262609AbSJBVSv>; Wed, 2 Oct 2002 17:18:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262602AbSJBVNV>; Wed, 2 Oct 2002 17:13:21 -0400
-Received: from lab1.ISTS.dartmouth.edu ([129.170.248.130]:52865 "EHLO
-	karaya.com") by vger.kernel.org with ESMTP id <S262596AbSJBVMq>;
-	Wed, 2 Oct 2002 17:12:46 -0400
-Message-Id: <200210022120.g92LKqG26981@karaya.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Bring UML up to 2.5.40
+	id <S262608AbSJBVRs>; Wed, 2 Oct 2002 17:17:48 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:32275 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S262604AbSJBVR2>;
+	Wed, 2 Oct 2002 17:17:28 -0400
+Date: Wed, 2 Oct 2002 23:22:20 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: tim <tim@holymonkey.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: include/asm/irq_vectors.h not found
+Message-ID: <20021002232220.A2244@mars.ravnborg.org>
+Mail-Followup-To: tim <tim@holymonkey.com>,
+	linux-kernel@vger.kernel.org
+References: <20021002135939.129a6a5f.tim@holymonkey.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 02 Oct 2002 17:20:52 -0400
-From: Jeff Dike <jdike@karaya.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021002135939.129a6a5f.tim@holymonkey.com>; from tim@holymonkey.com on Wed, Oct 02, 2002 at 01:59:39PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please pull http://jdike.stearns.org:5000/updates-2.5
+On Wed, Oct 02, 2002 at 01:59:39PM -0700, tim wrote:
+> when installing dri drivers for my gfx card (r200-20020927-linux.i386) i get the following error during kernel module compilation:
+> 
+> cc -O2 -Wall -Wwrite-strings -Wpointer-arith -Wcast-align -Wstrict-prototypes -Wnested-externs -Wpointer-arith -D__KERNEL__ -DMODULE -fomit-frame-pointer -DCONFIG_AGP -DCONFIG_AGP_MODULE -DCONFIG_DRM_SIS -DMODVERSIONS -include /lib/modules/2.5.39/build/include/linux/modversions.h -DEXPORT_SYMTAB -I/lib/modules/2.5.39/build/include -c radeon_drv.c -o radeon_drv.o
+> In file included from /lib/modules/2.5.39/build/include/linux/irq.h:19,
+>                  from /lib/modules/2.5.39/build/include/asm/hardirq.h:6,
+>                  from /lib/modules/2.5.39/build/include/linux/interrupt.h:44,
+>                  from drm_os_linux.h:3,
+>                  from drmP.h:75,
+>                  from radeon_drv.c:32:
+> /lib/modules/2.5.39/build/include/asm/irq.h:16: irq_vectors.h: No such file or directory
+> make: *** [radeon_drv.o] Error 1
 
-It makes a number of small changes to make the 2.5.40 UML build and run -
-	fixes a Makefile bug
-	changes queue_task to schedule_task
-	fixes some compilation buglets in the ubd driver
-	changes sigcontext_struct to sigcontext
-	changes sigmask_lock to sig->siglock
+Try changing the line in irq.h from:
+#include "irq_vectors.h"
+to
+#include <irq_vectors.h>
 
-				Jeff
+This should make it locate the file in arch/i386/mach-generic/irq_vectors.h
 
- arch/um/Makefile                        |    5 -----
- arch/um/drivers/chan_kern.c             |    2 +-
- arch/um/drivers/ubd_kern.c              |    7 ++++---
- arch/um/include/sysdep-ppc/sigcontext.h |    4 ++--
- arch/um/kernel/signal_kern.c            |   20 ++++++++++----------
- arch/um/kernel/trap_user.c              |    2 +-
- 6 files changed, 18 insertions(+), 22 deletions(-)
-
-ChangeSet@1.665, 2002-10-02 10:14:48-04:00, jdike@uml.karaya.com
-  Small changes to bring UML up to date with 2.5.40.
-
-
+	Sam

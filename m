@@ -1,71 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbVATUYl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbVATUZI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261586AbVATUYl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 15:24:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbVATUYl
+	id S261823AbVATUZI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 15:25:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbVATUZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 15:24:41 -0500
-Received: from ra.tuxdriver.com ([24.172.12.4]:50700 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S261586AbVATUYd (ORCPT
+	Thu, 20 Jan 2005 15:25:08 -0500
+Received: from fw.osdl.org ([65.172.181.6]:39842 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261823AbVATUYy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 15:24:33 -0500
-Date: Thu, 20 Jan 2005 15:22:59 -0500
-From: "John W. Linville" <linville@tuxdriver.com>
-To: linux-kernel@vger.kernel.org
-Cc: tv@lio96.de, herbert@gondor.apana.org.au, jgarzik@pobox.com,
-       marcelo.tosatti@cyclades.com
-Subject: [patch 2.4.29] i810_audio: offset LVI from CIV to avoid stalled start
-Message-ID: <20050120202258.GA7687@tuxdriver.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org, tv@lio96.de,
-	herbert@gondor.apana.org.au, jgarzik@pobox.com,
-	marcelo.tosatti@cyclades.com
+	Thu, 20 Jan 2005 15:24:54 -0500
+Date: Thu, 20 Jan 2005 12:24:20 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Daniel Drake <dsd@gentoo.org>
+Cc: helge.hafting@hist.no, rddunlap@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk, jhf@rivenstone.net,
+       linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au,
+       opengeometry@yahoo.ca
+Subject: Re: [PATCH] Configurable delay before mounting root device
+Message-Id: <20050120122420.05ed47cc.akpm@osdl.org>
+In-Reply-To: <41F01ADA.60605@gentoo.org>
+References: <20050114002352.5a038710.akpm@osdl.org>
+	<20050116005930.GA2273@zion.rivenstone.net>
+	<41EC7A60.9090707@gentoo.org>
+	<20050118003413.GA26051@parcelfarce.linux.theplanet.co.uk>
+	<41EC5207.3030003@osdl.org>
+	<41ECC8AF.9020404@hist.no>
+	<20050118004935.7bd4a099.akpm@osdl.org>
+	<41F01ADA.60605@gentoo.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Offset LVI past CIV when starting DAC/ADC in order to prevent
-stalled start.
+Daniel Drake <dsd@gentoo.org> wrote:
+>
+> +	if (root_delay) {
+>  +		printk(KERN_INFO "Waiting %dsec before mounting root device...\n",
+>  +		       root_delay);
+>  +		ssleep(root_delay);
+>  +	}
 
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Acked-by: Thomas Voegtle <tv@lio96.de>
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
----
-This fixes a "no sound" problem with Wolfenstein Enemy Territory and
-(apparently) other games using the Quake3 engine.  It probably affects
-some other OSS applications as well.
+Totally sad, but it's hard to see how that could break anything.
 
-This recreates some code that had been removed from the i810_audio
-driver around 5/2004.
-
- drivers/sound/i810_audio.c |   10 ++++++++++
- 1 files changed, 10 insertions(+)
-
---- i810_audio-2.4/drivers/sound/i810_audio.c.orig	2005-01-20 14:41:43.914734688 -0500
-+++ i810_audio-2.4/drivers/sound/i810_audio.c	2005-01-20 14:41:43.916734414 -0500
-@@ -1062,10 +1062,20 @@
- 	if (count < fragsize)
- 		return;
- 
-+	/* if we are currently stopped, then our CIV is actually set to our
-+	 * *last* sg segment and we are ready to wrap to the next.  However,
-+	 * if we set our LVI to the last sg segment, then it won't wrap to
-+	 * the next sg segment, it won't even get a start.  So, instead, when
-+	 * we are stopped, we set both the LVI value and also we increment
-+	 * the CIV value to the next sg segment to be played so that when
-+	 * we call start, things will operate properly
-+	 */
- 	if (!dmabuf->enable && dmabuf->ready) {
- 		if (!(dmabuf->trigger & trigger))
- 			return;
- 
-+		CIV_TO_LVI(state->card, port, 1);
-+
- 		start(state);
- 		while (!(inb(port + OFF_CR) & ((1<<4) | (1<<2))))
- 			;
--- 
-John W. Linville
-linville@tuxdriver.com
+You owe me an update to Documentation/kernel-parameters.txt ;)

@@ -1,41 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266041AbSL1WQs>; Sat, 28 Dec 2002 17:16:48 -0500
+	id <S265880AbSL1WPw>; Sat, 28 Dec 2002 17:15:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266100AbSL1WQs>; Sat, 28 Dec 2002 17:16:48 -0500
-Received: from 217-126-141-228.uc.nombres.ttd.es ([217.126.141.228]:30992 "HELO
-	smtp.cespedes.org") by vger.kernel.org with SMTP id <S266041AbSL1WQp>;
-	Sat, 28 Dec 2002 17:16:45 -0500
-Date: Sat, 28 Dec 2002 23:25:01 +0100
-From: Juan Cespedes <cespedes@debian.org>
-To: Miles Bader <miles@gnu.org>
-Cc: "Garst R. Reese" <reese@isn.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: romfs
-Message-ID: <20021228222501.GB1395@gizmo.thehackers.org>
-References: <3DF7CC90.99585A8C@isn.net> <buo4r9k7zz3.fsf@mcspd15.ucom.lsi.nec.co.jp> <3DF8929F.437F6858@isn.net> <20021212141843.GB19641@gnu.org>
+	id <S266041AbSL1WPw>; Sat, 28 Dec 2002 17:15:52 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:38162 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S265880AbSL1WPv>; Sat, 28 Dec 2002 17:15:51 -0500
+Message-Id: <200212282224.gBSMO5h03843@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>, Andrew Morton <akpm@digeo.com>
+cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] aic7xxx bouncing over 4G 
+In-Reply-To: Message from "Justin T. Gibbs" <gibbs@scsiguy.com> 
+   of "Sat, 28 Dec 2002 13:50:51 MST." <770128112.1041108651@aslan.scsiguy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021212141843.GB19641@gnu.org>
-User-Agent: Mutt/1.4i
+Content-Type: multipart/mixed ;
+	boundary="==_Exmh_8987307530"
+Date: Sat, 28 Dec 2002 16:24:05 -0600
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 12, 2002 at 09:18:43AM -0500, Miles Bader wrote:
-> On Thu, Dec 12, 2002 at 09:43:59AM -0400, Garst R. Reese wrote:
-> > >    http://romfs.sourceforge.net
-> 
-> Hmmm, you might try asking the debian genromfs maintainer; I seem to recall
-> him being in contact with the author before:
-> 
->    Juan Cespedes <cespedes@debian.org>
+This is a multipart MIME message.
 
-The romfs maintainer is Janos Farkas <chexum@shadow.banki.hu>, but I
-don't know if he is still around.  I have not had any news from him
-since April 2002.
+--==_Exmh_8987307530
+Content-Type: text/plain; charset=us-ascii
 
--- 
-    .+'''+.         .+'''+.         .+'''+.         .+'''+.         .+''
- Juan Cespedes     /       \       /       \      cespedes@debian.org
-.+'         `+...+'         `+...+'         `+...+'         `+...+'
+gibbs@scsiguy.com said:
+> Hmm.  The only previous bug report I had in this area was related to a
+> missing cast.  That was fixed, but I guess it wasn't enough to solve
+> the problem. 
+
+It looks like possibly a config option that doesn't exist (and a possibly 
+improper reliance on the dma_mask default value---which should work almost all 
+the time, but it's safer to set it).
+
+Andrew, could you try the attached (untested) patch and see if the problem 
+goes away.
+
+James
+
+
+--==_Exmh_8987307530
+Content-Type: text/plain ; name="tmp.diff"; charset=us-ascii
+Content-Description: tmp.diff
+Content-Disposition: attachment; filename="tmp.diff"
+
+===== aic7xxx_osm.c 1.7 vs edited =====
+--- 1.7/drivers/scsi/aic7xxx/aic7xxx_osm.c	Fri Dec 20 18:59:50 2002
++++ edited/aic7xxx_osm.c	Sat Dec 28 16:18:40 2002
+@@ -1297,14 +1297,12 @@
+ 	 */
+ 	.max_sectors		= 8192,
+ #endif
+-#if defined CONFIG_HIGHIO
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,18)
+ /* Assume RedHat Distribution with its different HIGHIO conventions. */
+ 	.can_dma_32		= 1,
+ 	.single_sg_okay		= 1,
+ #else
+ 	.highmem_io		= 1,
+-#endif
+ #endif
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
+ 	.name			= "aic7xxx",
+===== aic7xxx_osm_pci.c 1.3 vs edited =====
+--- 1.3/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c	Thu Dec 12 14:44:00 2002
++++ edited/aic7xxx_osm_pci.c	Sat Dec 28 15:47:14 2002
+@@ -166,6 +166,9 @@
+ 		ahc->flags |= AHC_39BIT_ADDRESSING;
+ 		ahc->platform_data->hw_dma_mask =
+ 		    (bus_addr_t)(0x7FFFFFFFFFULL & (bus_addr_t)~0);
++	} else {
++		ahc_pci_set_dma_mask(pdev, 0xffffffffULL);
++		ahc->platform_data->hw_dma_mask = 0xffffffffULL;
+ 	}
+ #endif
+ 	ahc->dev_softc = pci;
+
+--==_Exmh_8987307530--
+
+

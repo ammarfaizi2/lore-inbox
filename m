@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270746AbTGUWYQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 18:24:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270748AbTGUWYQ
+	id S270748AbTGUWsR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 18:48:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270753AbTGUWsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 18:24:16 -0400
-Received: from law11-oe66.law11.hotmail.com ([64.4.16.201]:54283 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S270746AbTGUWYP
+	Mon, 21 Jul 2003 18:48:17 -0400
+Received: from law15-f43.law15.hotmail.com ([64.4.23.43]:46342 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S270748AbTGUWsQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 18:24:15 -0400
-X-Originating-IP: [165.98.111.210]
-X-Originating-Email: [bmeneses_beltran@hotmail.com]
-From: "Viaris" <bmeneses_beltran@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Kernel 2.5.75 OK but tape backup not work
-Date: Mon, 21 Jul 2003 16:39:16 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-ID: <Law11-OE66yNP29M5f8000100c8@hotmail.com>
-X-OriginalArrivalTime: 21 Jul 2003 22:39:17.0741 (UTC) FILETIME=[EB66A9D0:01C34FD8]
+	Mon, 21 Jul 2003 18:48:16 -0400
+X-Originating-IP: [212.152.91.179]
+X-Originating-Email: [ef057@hotmail.com]
+From: "Bryan K." <ef057@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: MTRRs question
+Date: Mon, 21 Jul 2003 23:03:18 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <Law15-F43PuZ91Bo1At0002a457@hotmail.com>
+X-OriginalArrivalTime: 21 Jul 2003 23:03:18.0713 (UTC) FILETIME=[46498A90:01C34FDC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+I have an athlon-tbird cpu with 768MB and I am doing some experiments with 
+MTRRs. I want to have the first 512 MB of ram write-back and the rest 256 
+uncachable. So i (would like to) do:
 
-My problem was resuelt (I installed  module inits again), now I can see all
-modules loaded, but I have problems, when I want to see my backup, I can't ,
-I execute tar tvf /dev/st0 and the follwing message appear:
+echo "base=0x00000000 size=0x20000000 type=write-back" > /proc/mtrr
+echo "base=0x20000000 size=0x10000000 type=uncachable" > /proc/mtrr
 
-tar: /dev/st0: Cannot open: No such device
-tar: Error is not recoverable: exiting now
+But after the execution of the first command and before I complete the 
+typing of the second the system hangs.
+What is really a mystery for me is that if i do the echos in the opposite 
+order, meaning
 
-I believe that my server not know this device, but I  execute lsmod the
-driver of my SCSI card is loaded:
+echo "base=0x20000000 size=0x10000000 type=uncachable" > /proc/mtrr
+echo "base=0x00000000 size=0x20000000 type=write-back" > /proc/mtrr
 
-scsi_mod              115892  2 dc395x,ide_scsi
+everyting works as expected.
+I would be grateful if someone cound give me some explanation of this.
+Thank you in advance.
 
-I need to know that others test i can do it.
-
-Thanks, You are very kind.
+_________________________________________________________________
+Protect your PC - get McAfee.com VirusScan Online 
+http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963
 

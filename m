@@ -1,70 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317488AbSFDXaC>; Tue, 4 Jun 2002 19:30:02 -0400
+	id <S317528AbSFDXdC>; Tue, 4 Jun 2002 19:33:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317500AbSFDXaB>; Tue, 4 Jun 2002 19:30:01 -0400
-Received: from nameservices.net ([208.234.17.10]:12567 "EHLO linuxfrost.org")
-	by vger.kernel.org with ESMTP id <S317488AbSFDXaA>;
-	Tue, 4 Jun 2002 19:30:00 -0400
-Message-ID: <009301c20c1f$bf5a4980$0101c80a@sashastation>
-From: "Alexandr Sandler" <rookie@linuxfrost.org>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Requests never returning?
-Date: Wed, 5 Jun 2002 01:29:26 +0200
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S317529AbSFDXdB>; Tue, 4 Jun 2002 19:33:01 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:53498 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S317528AbSFDXdB>; Tue, 4 Jun 2002 19:33:01 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Tue, 4 Jun 2002 17:31:24 -0600
+To: Andrew Morton <akpm@zip.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc] "laptop mode"
+Message-ID: <20020604233124.GA18668@turbolinux.com>
+Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CFD453A.B6A43522@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi list.
+On Jun 04, 2002  15:54 -0700, Andrew Morton wrote:
+> laptop_writeback_centisecs
+> --------------------------
+> 
+> This tunable determines the maximum age of dirty data when the machine
+> is operating in Laptop mode.  The default value is 30000 - five
+> minutes.  This means that if applications are generating a small amount
+> of write traffic, the disk will spin up once per five minutes.
 
-I am working on a logical volume manager (yep, another one) driver for
-Linux. I implemented block device driver that used to receive requests and
-to redirect them to scsi disks (by changing bh->b_rdev and bh->b_rsector). I
-am experiencing a problem with my driver and I was wondering if anyone can
-help me with it.
+Just FYI, this is probably an optimally bad choice for the default disk
+spinup interval, as many laptops spindown timers in the same ballpark.
+I would say 15-20 minutes or more, unless there is a huge amount of
+VM pressure or something.  Otherwise, you will quickly have a dead
+laptop harddrive from the overly-frequent spinup/down cycles.
 
-Notice that scsi disks sitting on SAN.
+Yes, minutae, I know.  Otherwise a nice idea.
 
-The driver, as it is, seems to be quite stable. I confident it can run for
-weeks under the most heavy stress test, despite I only tried 48 hours tests.
-But sometimes, very rarely, something goes wrong and process doing I/O (on
-the logical volume + file system) getting stacked. Call trace (from kdb)
-looks like this. Process trying to do generic_file_read() (or ..._write())
-and, eventually, getting into lock_page() - this is where it's getting
-stacked. What seems to be obvious (for me - correct me if I am wrong), is
-that process supposed to succeed locking page, but buffer_head using this
-page is never getting it's b_end_io() and here we go - it's stacked.
-
-This is happening, usually, when one or several computers on SAN getting
-restarted and as a result making a lot of noise (LIPs) on fiber. And it's
-even more strange because I made special tests to reveal the conditions
-needed for this to happen. I caused hundreds of LIPs, but Linux box was
-stable and test was running - it was couple of month ago. And now it
-happened once again - when I rebooted some lame NetWare host.
-
-I think the problem is not with my driver (yes, I know it's better to be
-paranoiac in this things), despite I never tried to do some stress tests
-with scsi disks - without my driver.
-
-So, my question is like this. Is there any condition, under which I/O
-requests may not return (even with error), when working with SAN?
-
-Here are some specs:
-It's Pentium III 800 MHz UP with 256Mb of RAM. Kernel 2.4.16 (as far as I
-remember there was no major changes and bugfixes in scsi layer in 2.4.17 and
-2.4.18, so I think it doesn't really matter if I use 2.4.16 or 2.4.18 - once
-again, correct me if I am wrong) . I am using RedHat 7.1 distro. Two Qlogic
-2200 optical HBAs powered by qlogic 4.27b driver (this part may seem to be
-crucial - I never tried to work with other versions of their drivers. On the
-other hand, I never had a reason to doubt stability of this version). SAN
-sitting on Gadzoox Capellix 3000 - arbitrated loop (I got the same behavour
-with Brocade switch - don't remember the model).
-
-Thanks in advance for any help.
-
-Alexandr Sandler.
-
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 

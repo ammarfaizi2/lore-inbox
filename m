@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131151AbRCGW7S>; Wed, 7 Mar 2001 17:59:18 -0500
+	id <S131128AbRCGWls>; Wed, 7 Mar 2001 17:41:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131177AbRCGW7J>; Wed, 7 Mar 2001 17:59:09 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:39128 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S131151AbRCGW6z>;
-	Wed, 7 Mar 2001 17:58:55 -0500
-Importance: Normal
-Subject: Kernel upgrading problems, please help...
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3  March 21, 2000
-Message-ID: <OFC064046E.71D78FEE-ON85256A08.007C770F@somers.hqregion.ibm.com>
-From: "Jie Zhou" <jiezhou@us.ibm.com>
-Date: Wed, 7 Mar 2001 17:58:32 -0500
-X-MIMETrack: Serialize by Router on D02ML231/02/M/IBM(Release 5.0.6a |January 17, 2001) at
- 03/07/2001 05:58:33 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S131129AbRCGWlj>; Wed, 7 Mar 2001 17:41:39 -0500
+Received: from niwot.scd.ucar.edu ([128.117.8.223]:59031 "EHLO
+	niwot.scd.ucar.edu") by vger.kernel.org with ESMTP
+	id <S131128AbRCGWld>; Wed, 7 Mar 2001 17:41:33 -0500
+Date: Wed, 7 Mar 2001 15:41:01 -0700
+From: Craig Ruff <cruff@ucar.edu>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Microsoft ZERO Sector Virus, Result of Taskfile WAR
+Message-ID: <20010307154101.A1206@bells.scd.ucar.edu>
+In-Reply-To: <20010307150506.A1046@bells.scd.ucar.edu> <Pine.LNX.4.10.10103071430351.19253-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <Pine.LNX.4.10.10103071430351.19253-100000@master.linux-ide.org>; from andre@linux-ide.org on Wed, Mar 07, 2001 at 02:35:56PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I did an upgrade from  kernel-2.2.16 to the latest version-2.4.2.
-During the "make bzImage"step, I got bunch of this warning:
-"pasting would not give a valid preprocessing token". then I just ignored
-it and after all done
-rebooted the linux and got into the new kernel successfully. However, when
-I tried to
-mount my DVD RAM using the command mount -t udf /dev/hdb /mnt/dvd
-(I did choose the support for udf filesystem), the command completed with a
-promp appears.but
-after the 'busy' light on the DVD catridge gets on, it never gets off any
-more, and
-the computer froze then. I thought it might be because I haven't unmount
-the DVD
-, so I restarted the computer and use the 'dmesg' command to see what
-happens, then I found a lot of
-"Unable to identify CD-ROM Format" messages in it. so I did a 'mount'
-command to check whether it's
- mounted or not, and the result shows that the /dev/hdb(which is the DVD on
-my computer) is not mounted
-yet.So I did the mount -t udf /dev/hdb /mnt/dvd again, same thing happens
-again-the computer froze with the DVD light on.
-I read in the book "Running Linux", the author said
-"If any errors or warnings occur while compiling, you cannot expect the
-resulting
-kernel to work correctly..." I'm wondering if it's because of the the
-warning I got during
-the process of compiling the image file-"pasting would not give a valid
-preprocessing token"
-that the mount command fails.
-Any kind of suggestions are appreciated..
+On Wed, Mar 07, 2001 at 02:35:56PM -0800, Andre Hedrick wrote:
+> So basically you are pointing out that there is now a sequencer reject in
+> linux?  Because this used to effect and wipe drives, but you are showing
+> that Linux now does scsi commands check for execution on the /dev/sdxx?
 
--Jie
+Nope, there is a "sequencer reject" is not present.  SCSI drives do not store
+sensitive, driver controller private, information in a user accessible
+location.
 
+Now, it may be possible to really mess up a drive with the write buffer
+command to attempt to download new firmware.  One hopes that the
+manufacturers include some sanity checking to prevent short firmware
+writes, bad checksum, etc from rendering the drive useless.
 
+Typically what happens is that the user confuses a partition table overwrite
+with the drive having been rendered useless.  Of course, there is always
+a chance for firmware bugs, but I've never been bit by one.

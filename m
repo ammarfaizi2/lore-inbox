@@ -1,64 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261817AbTJHXSX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 19:18:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbTJHXSX
+	id S261823AbTJHXYS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 19:24:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbTJHXYS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 19:18:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:59300 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261817AbTJHXSW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 19:18:22 -0400
-Subject: Re: 2.6.0-test6-mm4 - oops in __aio_run_iocbs()
-From: Daniel McNeil <daniel@osdl.org>
-To: Andrew Morton <akpm@osdl.org>, Suparna Bhattacharya <suparna@in.ibm.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>
-In-Reply-To: <20031005013326.3c103538.akpm@osdl.org>
-References: <20031005013326.3c103538.akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1065655095.1842.34.camel@ibm-c.pdx.osdl.net>
+	Wed, 8 Oct 2003 19:24:18 -0400
+Received: from devil.servak.biz ([209.124.81.2]:44488 "EHLO devil.servak.biz")
+	by vger.kernel.org with ESMTP id S261823AbTJHXYR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 19:24:17 -0400
+Subject: Re: Software RAID5 with 2.6.0-test
+From: Torrey Hoffman <thoffman@arnor.net>
+To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <yw1xoewrfizk.fsf@users.sourceforge.net>
+References: <yw1xoewrfizk.fsf@users.sourceforge.net>
+Content-Type: text/plain; charset=iso-8859-15
+Message-Id: <1065655452.13572.50.camel@torrey.et.myrio.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 08 Oct 2003 16:18:15 -0700
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 08 Oct 2003 16:24:12 -0700
+Content-Transfer-Encoding: 8BIT
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - devil.servak.biz
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - arnor.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm been testing AIO on test6-mm4 using a ext3 file system and
-copying a 88MB file to an already existing preallocated file of 88MB.
-I been using my aiocp program to copy the file using i/o sizes of
-1k to 512k and outstanding aio requests of between 1 and 64 using
-O_DIRECT, O_SYNC and O_DIRECT & O_SYNC.  Everything works as long
-as the file is pre-allocated.  When copying the file to a new file
-(O_CREAT|O_DIRECT), I get the following oops:
+My experience:
 
+I'm running 2.6.0-test6 on a dual pentium 3 with software raid-5 across
+5 disks on two different IDE hardware controllers (VIA and Promise). 
+I've got a 224 GB reiserfs partition on that.  
 
-Unable to handle kernel paging request at virtual address 6b6b6b6b
- printing eip:
-c018fa34
-*pde = 00000000
-Oops: 0000 [#1]
-SMP
-CPU:    1
-EIP:    0060:[<c018fa34>]    Not tainted VLI
-EFLAGS: 00010002
-EIP is at __aio_run_iocbs+0x19/0xa2
-eax: 00000000   ebx: d443b318   ecx: d4055c78   edx: 6b6b6b6b
-esi: d4055c78   edi: d4055cb0   ebp: dfd6df48   esp: dfd6df34
-ds: 007b   es: 007b   ss: 0068
-Process aio/1 (pid: 16, threadinfo=dfd6c000 task=dfd71340)
-Stack: 00010000 dfd71914 d4055c78 d4055c9c dfd72790 dfd6df68 c018faf6 d4055c78
-       dfd6df54 dfd6df54 dfd6c000 d4055cfc 00000287 dfd6dfec c0138ad8 d4055c78
-       dfd6dfa0 00000000 5a5a5a5a dfd727b8 dfd727a8 d4055c78 c018fabd dfd727a0
+After 8 days uptime, it doesn't seem to have blown up yet.  However I
+don't stress it heavily - just a nightly rsync or two which does a lot
+of reading and writing, and I export my music collection on it via NFS,
+which is a low level of read activity.  
 
-Call Trace:
- [<c018faf6>] aio_kick_handler+0x39/0x96
- [<c0138ad8>] worker_thread+0x1e6/0x346
- [<c018fabd>] aio_kick_handler+0x0/0x96
- [<c0122041>] default_wake_function+0x0/0x2e
+I mirror the RAID to an external firewire drive nightly for backup,
+since I don't trust it 100% either, yet.  
 
+I'd also be interested to know if there are known problems with software
+RAID5 in 2.6.
 
-Daniel
+Hope that helps,
+
+Torrey Hoffman
+thoffman@arnor.net
+
+On Wed, 2003-10-08 at 15:43, Måns Rullgård wrote:
+> Is software RAID5 stable in Linux 2.6.0-test7?  A while back I tried
+> running a software RAID5 with a 2.6.0-test kernel, and had to spend
+> the evening running fsck.  The corruption could have been caused by
+> something other than the RAID layer.  So, is it considered safe to use
+> RAID5 in 2.6.0 kernels?  I sort of dislike the try and see approach
+> with matters like this.
+-- 
+Torrey Hoffman <thoffman@arnor.net>
 

@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262379AbTJISld (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 14:41:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbTJISld
+	id S262387AbTJISfQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 14:35:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbTJISfQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 14:41:33 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:36414 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262379AbTJISlc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 14:41:32 -0400
-To: Cherry George Mathew <cherry@sdf.lonestar.org>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, fastboot@osdl.org,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Fastboot] kexec update (2.6.0-test7)
-References: <20031008172235.70d6b794.rddunlap@osdl.org>
-	<Pine.NEB.4.58.0310090401310.17767@sdf.lonestar.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 09 Oct 2003 12:40:22 -0600
-In-Reply-To: <Pine.NEB.4.58.0310090401310.17767@sdf.lonestar.org>
-Message-ID: <m1y8vufe5l.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 9 Oct 2003 14:35:16 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:34576 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262387AbTJISfM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 14:35:12 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Who changed /proc/<pid>/ in 2.6.0-test5-bk9?
+Date: 9 Oct 2003 18:25:30 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bm496q$5c4$1@gatekeeper.tmr.com>
+References: <Pine.LNX.4.58.0310071931570.19619@dlang.diginsite.com> <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAG15dxRiudEualTNpHNYqMgEAAAAA@casabyte.com>
+X-Trace: gatekeeper.tmr.com 1065723930 5508 192.168.12.62 (9 Oct 2003 18:25:30 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cherry George Mathew <cherry@sdf.lonestar.org> writes:
+In article <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAG15dxRiudEualTNpHNYqMgEAAAAA@casabyte.com>,
+Robert White <rwhite@casabyte.com> wrote:
+| Actually, the point I am trying to _make_ is that Linux allows you to share
+| or not share each item (already) but making a coherent "thread" implies a
+| unity of interface over the entities.  We already have VM and Signals in
+| that unity, but not file descriptors.  I think that's bad.  Since the old
+| way lets me have this 2/3-of-a-thread already.  When I ask for a thread I
+| should get a thread, not just a composite of otherwise identical shareable
+| options.
 
-> On Wed, 8 Oct 2003, Randy.Dunlap wrote:
-> 
-> > You'll need to update the kexec-syscall.c file for the correct
-> > kexec syscall number (274).
-> 
-> Is there a consensus about what the syscall number will finally be ? We've
-> jumped from 256 to 274 over the 2.5.x+  series kernels. Or is it the law
-> the Jungle ?
+I think you have wrapped yourself in nomenclature, and by using your own
+definitions of terms in strictly traditional meanings you have  created
+problems which aren't really there.
 
-So far the law of the jungle.  Regardless of the rest it looks like it
-is time to submit a place keeping patch.
-
-Eric
+If you don't like it don't use it. If you insist on your own definition
+of "thread" then your paragraph above may have meaning, but since your
+definition doesn't seem to match the way Linux is going to work, I'm not
+sure it's meaningful in any relevant context.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

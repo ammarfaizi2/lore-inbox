@@ -1,60 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316672AbSHJIQP>; Sat, 10 Aug 2002 04:16:15 -0400
+	id <S316675AbSHJIkr>; Sat, 10 Aug 2002 04:40:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316673AbSHJIQP>; Sat, 10 Aug 2002 04:16:15 -0400
-Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:10698 "EHLO
-	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S316672AbSHJIQO>; Sat, 10 Aug 2002 04:16:14 -0400
-Message-ID: <3D54CC7F.3C758EDB@wanadoo.fr>
-Date: Sat, 10 Aug 2002 10:19:11 +0200
-From: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i586)
-X-Accept-Language: fr-FR, en
-MIME-Version: 1.0
+	id <S316677AbSHJIkr>; Sat, 10 Aug 2002 04:40:47 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:24734 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S316675AbSHJIkq>;
+	Sat, 10 Aug 2002 04:40:46 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.20-pre1-ac1 does not compile
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Subject: Re: kernel BUG at /usr/src/linux-2.5.30/include/linux/dcache.h:261! 
+In-reply-to: Your message of "Sat, 10 Aug 2002 09:08:04 +0100."
+             <20020810090803.A7235@flint.arm.linux.org.uk> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 10 Aug 2002 18:44:22 +1000
+Message-ID: <11683.1028969062@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And here are the messages :
-gcc -D__KERNEL__ -I/usr/src/kernel-source-2.4.20-pre1-ac1/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=k6  
--nostdinc -I /usr/lib/gcc-lib/i386-linux/2.95.4/include
--DKBUILD_BASENAME=apm  -c -o apm.o apm.c
-apm.c: In function `apm_bios_call':
-apm.c:605: called object is not a function
-apm.c:605: warning: unused variable `cpus'
-apm.c: In function `apm_bios_call_simple':
-apm.c:654: called object is not a function
-apm.c:654: warning: unused variable `cpus'
-apm.c: In function `apm_power_off':
-apm.c:938: called object is not a function
-{entrée standard}: Messages de l'assembleur:
-{entrée standard}:239: AVERTISSEMENT:indirect lcall sans « * »
-{entrée standard}:333: AVERTISSEMENT:indirect lcall sans « * »
-make[2]: *** [apm.o] Erreur 1
-make[2]: Leaving directory
-`/usr/src/kernel-source-2.4.20-pre1-ac1/arch/i386/kernel'
-make[1]: *** [_dir_arch/i386/kernel] Erreur 2
+On Sat, 10 Aug 2002 09:08:04 +0100, 
+Russell King <rmk@arm.linux.org.uk> wrote:
+>In 2.5, I changed ARM to indicate the last word as the EIP (so we get more
+>context as Andrew Morton suggests.)  However, ksymoops now seems to ignore
+>the '()' !
+>
+>At some point I plan to check what happens if its the second to last.  I
+>suspect ksymoops is looking for the strings ' (' and ') ', the second of
+>which obviously doesn't exist.
 
-2.4.20-pre1 compiles fine
+ksymoops is scanning for (oops.c line 361)
 
-And here my apm related config :
-CONFIG_APM=y
-# CONFIG_APM_IGNORE_USER_SUSPEND is not set
-# CONFIG_APM_DO_ENABLE is not set
-CONFIG_APM_CPU_IDLE=y
-CONFIG_APM_DISPLAY_BLANK=y
-CONFIG_APM_RTC_IS_GMT=y
-# CONFIG_APM_ALLOW_INTS is not set
-# CONFIG_APM_REAL_MODE_POWER_OFF is not set
+              "([<(]?)"                 /* 2 */
+              "([0-9a-fA-F]+)"          /* 3 */
+              "[)>]?"
+              " *"
 
-----
-regards
-        Jean-Luc
+The trailing [)>] is required but any space after that is optional.  It
+works for me.
 
-(I'm not on the list)
+Code: e7973108 e1a02423 e5c42001 e5c43000 (e1a02823)
+
+Code;  c00160b8 No symbols available
+00000000 <_EIP>:
+Code;  c00160b8 No symbols available
+0:   08 31                     or     %dh,(%ecx)
+Code;  c00160ba No symbols available
+2:   97                        xchg   %eax,%edi
+Code;  c00160bb No symbols available
+3:   e7 23                     out    %eax,$0x23
+Code;  c00160bd No symbols available
+5:   24 a0                     and    $0xa0,%al
+Code;  c00160bf No symbols available
+7:   e1 01                     loope  a <_EIP+0xa> c00160c2 No symbols available
+Code;  c00160c1 No symbols available
+9:   20 c4                     and    %al,%ah
+Code;  c00160c3 No symbols available
+b:   e5 00                     in     $0x0,%eax
+Code;  c00160c5 No symbols available
+d:   30 c4                     xor    %al,%ah
+Code;  c00160c7 No symbols available   <=====
+f:   e5 23                     in     $0x23,%eax   <=====
+Code;  c00160c9 No symbols available
+11:   28 a0 e1 00 00 00         sub    %ah,0xe1(%eax)
+
+Disassembling arm as i386 is pointless, but it shows that ksymoops
+2.4.5 recognises () as the last code fragment.
+

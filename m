@@ -1,53 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130188AbRAYR0e>; Thu, 25 Jan 2001 12:26:34 -0500
+	id <S130887AbRAYR1Y>; Thu, 25 Jan 2001 12:27:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130887AbRAYR00>; Thu, 25 Jan 2001 12:26:26 -0500
-Received: from lochinvar.ece.neu.edu ([129.10.60.161]:45775 "EHLO
-	lochinvar.ece.neu.edu") by vger.kernel.org with ESMTP
-	id <S130188AbRAYR0U> convert rfc822-to-8bit; Thu, 25 Jan 2001 12:26:20 -0500
-Date: Thu, 25 Jan 2001 12:26:12 -0500 (EST)
-From: Mauricio Martinez <mmartine@ECE.NEU.EDU>
+	id <S133029AbRAYR1F>; Thu, 25 Jan 2001 12:27:05 -0500
+Received: from quechua.inka.de ([212.227.14.2]:13096 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S130887AbRAYR0t>;
+	Thu, 25 Jan 2001 12:26:49 -0500
+From: Bernd Eckenfels <inka-user@lina.inka.de>
 To: linux-kernel@vger.kernel.org
-Subject: Can't umount floppies/zip in Kernel 2.4.0
-Message-ID: <Pine.GSO.4.21.0101251212320.14420-100000@bach>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+Subject: Re: hotmail not dealing with ECN
+Message-Id: <E14LqAf-0000Dx-00@sites.inka.de>
+Date: Thu, 25 Jan 2001 18:26:53 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <Pine.LNX.4.21.0101250041440.1498-100000@srv2.ecropolis.com> you wrote:
+> Just curious if others have noticed that hotmail is unable to deal with
+> ECN and wondering if this is a standard that should be encouraged, as in
+> should I tell hotmail that perhaps they should look into supporting it, or
+> should I not waste my breath and echo 0 > /proc/sys/net/ipv4/tcp_ecn?
 
-I've just upgraded from 2.2.16 to 2.4.0 (after taking care of the upgrades
-in the Documentation/Changes file)
+I told them by mail that they have a small problem which will get bigger. I
+think it is best if everyone who has problems with it tell them.
 
-I got the following behavior with fdutils (as a non-root user):
-
----
-mixcoac:~> fdmount
-fdmount (/dev/fd0): mounted msdos 1440K-disk (read/write) on /fd0
-
-mixcoac:~> fdumount
-fdumount (/dev/fd0): failed to unmount: Invalid argument
----
-
-Disk can only be unmounted by root. The mountpoint has the right owner 
-(the user) and permissions. Also I've checked /etc/mtab to be ok.
-
-The same occurs to jaZip (an utility to mount/unmount ZIP disks as
-non-root user).
-
-If I boot with kernel 2.2.16 everything works ok.
-
-What changed from 2.2 to 2.4? Am I missing something?
-
----------------------------------------------------------------------------
-Mauricio Martínez      Northeastern University    mmartine@ece.neu.edu
-                              CDSP Center
-
-...con la espuma de los dias abriré un paréntesis de tiempo ifinitesimal
----------------------------------------------------------------------------
-
+Greetings
+Bernd
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

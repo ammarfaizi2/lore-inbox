@@ -1,42 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318919AbSHEWfT>; Mon, 5 Aug 2002 18:35:19 -0400
+	id <S318907AbSHEWb1>; Mon, 5 Aug 2002 18:31:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318920AbSHEWfT>; Mon, 5 Aug 2002 18:35:19 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:46351 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S318919AbSHEWfT>;
-	Mon, 5 Aug 2002 18:35:19 -0400
-Date: Mon, 5 Aug 2002 15:36:20 -0700
-From: Greg KH <greg@kroah.com>
-To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] [PATCH] usb_string fix
-Message-ID: <20020805223620.GC29396@kroah.com>
-References: <UTC200208052142.g75Lg9C25845.aeb@smtp.cwi.nl>
+	id <S318912AbSHEWb0>; Mon, 5 Aug 2002 18:31:26 -0400
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:13955 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S318907AbSHEWbU>; Mon, 5 Aug 2002 18:31:20 -0400
+Date: Tue, 6 Aug 2002 00:34:19 +0200
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: Richard Zidlicky <rz@linux-m68k.org>
+Cc: jdike@karaya.com, alan@redhat.com, mingo@elte.hu,
+       linux-kernel@vger.kernel.org
+Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user mode
+Message-Id: <20020806003419.3457fcb9.us15@os.inf.tu-dresden.de>
+In-Reply-To: <20020805224415.A579@linux-m68k.org>
+References: <200208031233.g73CXUB02612@devserv.devel.redhat.com>
+	<200208031529.KAA01655@ccure.karaya.com>
+	<20020805154607.7c021c56.us15@os.inf.tu-dresden.de>
+	<20020805224415.A579@linux-m68k.org>
+Organization: Disorganized
+X-Mailer: Sylpheed version 0.7.8claws (GTK+ 1.2.10; )
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <UTC200208052142.g75Lg9C25845.aeb@smtp.cwi.nl>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Mon, 08 Jul 2002 21:20:41 -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 05, 2002 at 11:42:09PM +0200, Andries.Brouwer@cwi.nl wrote:
-> 
-> [I thought I sent this yesterday night, but don't see it on l-k,
-> maybe I forgot. Sorry if I send it twice.]
-> 
-> Things are indeed as conjectured, and I can reproduce the situation
-> where usb_string() returns -EPIPE. Now that this is an internal
-> error code for the USB subsystem, and not meant to get out to the
-> user, I made these driverfs files empty in case of error.
-> (While if there is no error but the string has length 0,
-> the file will consist of a single '\n'.)
-> 
-> One fewer random memory corruption. Unfortunately, there are more.
+On Mon, 5 Aug 2002 22:44:15 +0200
+Richard Zidlicky <rz@linux-m68k.org> wrote:
 
-Thanks for the fix, I've applied it to my trees.
+> very interesting, what is the handiest way to do "syscalls" in this model?
+> Ptrace is still basically signal driven so I would expect it has still some 
+> unnecessary overhead?
 
-greg k-h
+Task wants to do a syscall (i.e. int 0x30 in Fiasco), the kernel process tracing
+the task sees the signal in its SIGCHLD handler. It pulls the registers out of the
+task's address space using PTRACE_GETREGS and sets up an interrupt frame on the
+kernel stack. EIP and ESP in the saved signal context are frobbed in a way that
+the signal handler falls right into the correct interrupt gate when it returns.
+iret works the other way round. SIGSEGV handler in the kernel process copies registers
+back to task and restarts the task's process after restoring kernel state.
+
+> > I would also very much like an extension that would allow one process to modify
+> > the MM of another, possibly via an extended ptrace interface or a new syscall.
+> > Also it would be nice if there was an alternate way to get at the cr2 register,
+> > trap number and error code other than from a SIGSEGV handler.
+> 
+> that's what signals are for, too bad they are slow.
+
+As it is now, in order to get at the page fault address one has to invoke a SIGSEGV
+handler in the task, then look at the task's signal context to determine the pagefault
+address, trapno etc. It would be much faster if the kernel could cancel the SIGSEGV signal
+in the task's process and read out the the pagefault info from the TCB via a ptrace
+extension. Saves the cost of a running a signal handler in the task and a bunch of context
+switches.
+
+> they are very expensive because of the way ptrace accesses the other process
+> memory, did you try a piece of shared memory ?
+
+Yes, trampoline page is shared between kernel and task. Nevertheless there are
+context switches that wouldn't be necessary if the kernel could tweak the task's
+mm directly.
+
+-Udo.

@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270212AbTHGPpb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 11:45:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269736AbTHGPn5
+	id S270203AbTHGPqE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 11:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270066AbTHGPqC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 11:43:57 -0400
-Received: from mail-in-02.arcor-online.net ([151.189.21.42]:16018 "EHLO
-	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
-	id S270326AbTHGPkM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 11:40:12 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: rob@landley.net, Ed Sweetman <ed.sweetman@wmich.edu>,
-       Eugene Teo <eugene.teo@eugeneteo.net>
-Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
-Date: Thu, 7 Aug 2003 16:42:55 +0100
-User-Agent: KMail/1.5.3
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel@kolivas.org,
-       Davide Libenzi <davidel@xmailserver.org>
-References: <1059211833.576.13.camel@teapot.felipe-alfaro.com> <200307271046.30318.phillips@arcor.de> <200308061728.04447.rob@landley.net>
-In-Reply-To: <200308061728.04447.rob@landley.net>
+	Thu, 7 Aug 2003 11:46:02 -0400
+Received: from CS.ubishops.ca ([206.167.194.132]:650 "EHLO cs.ubishops.ca")
+	by vger.kernel.org with ESMTP id S270203AbTHGPol (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 11:44:41 -0400
+Message-ID: <3F327382.5000200@cs.ubishops.ca>
+Date: Thu, 07 Aug 2003 11:42:58 -0400
+From: Patrick McLean <pmclean@cs.ubishops.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030731
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Re: Interactivity improvements
+References: <3F3261A2.9000405@cs.ubishops.ca> <20030807152418.GA509@malvern.uk.w2k.superh.com>
+In-Reply-To: <20030807152418.GA509@malvern.uk.w2k.superh.com>
+X-Enigmail-Version: 0.76.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308071642.55517.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 06 August 2003 22:28, Rob Landley wrote:
-> So, how does SCHED_SOFTRR fail?  Theoretically there is a minimum timeslice
-> you can hand out, yes?  And an upper bound on scheduling latency.  So
-> logically, there is some maximum number "N" of SCHED_SOFTRR tasks running
-> at once where you wind up round-robining with minimal timeslices and the
-> system is saturated.  At N+1, you fall over.  (And in reality, there are
-> interrupts and kernel threads and other things going on that get kind of
-> cramped somewhere below N.)
 
-The upper bound for softrr realtime scheduling isn't based on number of tasks, 
-it's a global slice of cpu time: so long as the sum of running times of all 
-softrr tasks in the system lies below limit, softrr tasks will be scheduled 
-as SCHED_RR, otherwise they will be SCHED_NORMAL.
 
-> In theory, the real benefit of SCHED_SOFTRR is that an attempt to switch to
-> it can fail with -EMYBRAINISMELTING up front, so you know when it won't
-> work at the start, rather than having it glitch halfway through the run. 
-
-Not as implemented.  Anyway, from the user's point of view, that would be an 
-unpleasant way for a sound player to fail.  What we want is something more 
-like a little red light that comes on (in the form of error statistics, say) 
-any time a softrr process gets demoted.  Granted, there may be situations 
-where what you want is the right behavior, but it's (as you say) a separate 
-issue of resource allocation.
-
-Regards,
-
-Daniel
+Richard Curnow wrote:
+> * Patrick McLean <pmclean@cs.ubishops.ca> [2003-08-07]:
+> 
+>>Another point is compilers, they tend to do a lot of disk I/O then 
+>>become major CPU hogs, could we have some sort or heuristic that reduces 
+>>the bonuses for sleeping on block I/O rather than other kinds of I/O 
+>>(say pipes and network I/O in the case of X).
+> 
+> 
+> What about compilers chewing on source files coming in over NFS rather
+> than resident on local block devices?  The network waits need to be
+> broken out into NFS versus other, or UDP versus TCP or something.  e.g.
+> waits due to the user not having typed anything yet, or moved the mouse,
+> are going to be on TCP connections.
+> 
+Maybe if we had it reduce sleeping bonuses if it's waiting on filesystem 
+access, this would cover NFS as the kernel does consider it a 
+filesystem, this would cover SMB, AFS, etc as well.
 

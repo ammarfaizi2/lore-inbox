@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268286AbRIHJVr>; Sat, 8 Sep 2001 05:21:47 -0400
+	id <S268861AbRIHJnI>; Sat, 8 Sep 2001 05:43:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268848AbRIHJVg>; Sat, 8 Sep 2001 05:21:36 -0400
-Received: from femail25.sdc1.sfba.home.com ([24.254.60.15]:61605 "EHLO
-	femail25.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S268286AbRIHJVU>; Sat, 8 Sep 2001 05:21:20 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <tegeran@home.com>
-Reply-To: tegeran@home.com
-To: Floydsmith@aol.com, hpa@transmeta.com
-Subject: Re: Re1: LOADLIN and 2.4 kernels
-Date: Sat, 8 Sep 2001 02:21:05 -0700
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <109.548ddae.28cb3697@aol.com>
-In-Reply-To: <109.548ddae.28cb3697@aol.com>
+	id <S268896AbRIHJm6>; Sat, 8 Sep 2001 05:42:58 -0400
+Received: from [144.137.83.84] ([144.137.83.84]:27381 "EHLO e4.eyal.emu.id.au")
+	by vger.kernel.org with ESMTP id <S268861AbRIHJms>;
+	Sat, 8 Sep 2001 05:42:48 -0400
+Message-ID: <3B99E5C8.AEAEF207@eyal.emu.id.au>
+Date: Sat, 08 Sep 2001 19:32:56 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01090802210500.00424@c779218-a>
-Content-Transfer-Encoding: 7BIT
+To: Josh McKinney <forming@home.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10-pre5
+In-Reply-To: <3B99A8C2.56E88CE3@isn.net> <003001c1382d$f483d9d0$010da8c0@uglypunk> <20010908014643.A846@home.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 08 September 2001 01:53 am, Floydsmith@aol.com wrote:
-> >Hi everyone,
-> >
-> >I got a bug report of LOADLIN not working with recent -ac kernels, and
-> >thought it might have something to do with my recent A20 changes that
-> >were added to -ac.  However, in trying to reproduce this bug, I have
-> >been completely unable to boot *any* 2.4 kernel with LOADLIN-1.6,
-> > trying this from Win98 DOS mode.
-> >
-> >Anyone have any insight into this?  I really don't understand how the
-> >A20 changes could affect LOADLIN, and it's starting to look to me that
-> >there is some other problem going on...
-> >
-> >        -hpa
->
+Josh McKinney wrote:
+> 
+> On approximately Sat, Sep 08, 2001 at 03:44:31PM +0930, Kingsley Foreman wrote:
+> > Yes i got this too
+> > anyone got a fix
+> Don't use gcc-3.0
 
-<snip>
+No need to jump the gun, this is a real problem, unrelated to gcc-3.0.
 
-> loads the 2.4.x kernel into a buffer. The kernel then attempts boot
-> just the "boot" sector stuff. This again probes for the total amount of
-> system ram (64MB). But, because of the much greater size of 2.4.x
-> kernels some memory location that himem uses (I think - maybe BIOS
+I get the same error with Debian stable 2.2.r3
+	$ gcc --version
+	2.95.2
 
-Sounds like something booting to Safe Mode Command Prompt Only would fix, 
-as opposed to booting to plain command prompt mode
-command prompt mode will load some drivers (such as himem), better not to 
-load them when using LOADLIN. Safe Mode Command Prompt Only boots 
-straight to the command prompt, very similar to setting init to /bin/sh 
-for a completely bare single-user mode.
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>

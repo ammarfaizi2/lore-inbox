@@ -1,42 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264231AbUE2Jqt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264238AbUE2JxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264231AbUE2Jqt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 05:46:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbUE2Jqt
+	id S264238AbUE2JxX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 05:53:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264239AbUE2JxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 05:46:49 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:59572 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S264231AbUE2Jqr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 05:46:47 -0400
-Message-ID: <40B85C05.5080302@colorfullife.com>
-Date: Sat, 29 May 2004 11:46:45 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sat, 29 May 2004 05:53:23 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:12502 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S264238AbUE2JxW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 May 2004 05:53:22 -0400
+Date: Sat, 29 May 2004 11:52:38 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC,PATCH] use nonatomic bitops for cpumask_t
-References: <40B85071.8090402@colorfullife.com>
-In-Reply-To: <40B85071.8090402@colorfullife.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: Recommended compiler version
+Message-ID: <20040529115238.A17267@electric-eye.fr.zoreil.com>
+References: <20040529111616.A16627@electric-eye.fr.zoreil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040529111616.A16627@electric-eye.fr.zoreil.com>; from romieu@fr.zoreil.com on Sat, May 29, 2004 at 11:16:16AM +0200
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
+Francois Romieu <romieu@fr.zoreil.com> :
+[...]
 
-> Hi,
->
-> I'm checking for callers that rely on the atomicity of the bitops, but 
-> so far everyone has it's own locks.
+I forgot to mention: 2.95.3 does not compile correctly the 2.6.6 r8169
+driver.
 
-One exception is the x86 tlb flush code, thus my patch is wrong. We 
-could add nonatomic __cpu_set and __cpu_clear bitops, but I'm not sure 
-if it's worth the effort, cpu bitops aren't that common 
-(kernel/rcupdate.c and balance_node could use the __ versions).
+The archive does not make clear what should be used. The whole 2.95.[234]
+family seems flaky. :o/
 
-Sorry for the noise (and don't check who wrote the x86 tlb flush code)
 --
-    Manfred
-
+Ueimor

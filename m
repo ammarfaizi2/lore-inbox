@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280088AbRKLJfm>; Mon, 12 Nov 2001 04:35:42 -0500
+	id <S278046AbRKLJdm>; Mon, 12 Nov 2001 04:33:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281368AbRKLJfc>; Mon, 12 Nov 2001 04:35:32 -0500
-Received: from sun.fadata.bg ([80.72.64.67]:5898 "HELO fadata.bg")
-	by vger.kernel.org with SMTP id <S280088AbRKLJfX>;
-	Mon, 12 Nov 2001 04:35:23 -0500
-To: Mathijs Mohlmann <mathijs@webflex.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix loop with disabled tasklets
-In-Reply-To: <XFMail.20011112101120.mathijs@webflex.nl>
-From: Momchil Velikov <velco@fadata.bg>
-In-Reply-To: <XFMail.20011112101120.mathijs@webflex.nl>
-Date: 12 Nov 2001 11:41:05 +0200
-Message-ID: <87d72ojphq.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S280088AbRKLJdc>; Mon, 12 Nov 2001 04:33:32 -0500
+Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:30340 "EHLO
+	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S278046AbRKLJdU>; Mon, 12 Nov 2001 04:33:20 -0500
+Date: Mon, 12 Nov 2001 09:33:18 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+To: Bernd Petrovitsch <bernd@gams.at>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [Very-OT] Re: Nazi kernels 
+In-Reply-To: <200111120913.fAC9D7C20810@frodo.gams.co.at>
+Message-ID: <Pine.SOL.3.96.1011112093015.27188A-100000@virgo.cus.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Mathijs" == Mathijs Mohlmann <mathijs@webflex.nl> writes:
+On Mon, 12 Nov 2001, Bernd Petrovitsch wrote:
 
-Mathijs> On 12-Nov-2001 Momchil Velikov wrote:
->> In this patch, the first thing is to deschedule the tasklet. So,
->> the changes to interrupt.h are needed in order to put back the
->> tasklet in the queue.
-Mathijs> I know, but Andrea suggested not to allow scheduling of
-Mathijs> disabled tasklets Also, enableing the tasklet will result in
+> In message <Pine.SOL.3.96.1011111120107.21134C-100000@libra.cus.cam.ac.uk>, Ant
+> on Altaparmakov wrote:
+> >I think we ought to do the same with closed source drivers. It's true
+> >after all... The whole point of tainting the kernel is so we can just yell
+> >at users to go and bug the vendor. So the modprobe executable could warn
+> >the user "hey, you are loading a binary only module, it can break the
+> >system, are you sure?". If the module is autoloaded we don't do jumping
+> >through hoops asking questions so the systen runs smoothly.
+> 
+> Un*x admins know what they are doing by definition. So this is not 
+> necessary.
+> Now you see what some Seattle area company think of admins of theirs
+> (so called) OS.
 
-Disabled tasklets are not scheduled by enable_tasklet (). A disabled
-tasklet may temporarily appear in the queue, but nevertheless
-tasklet_action will remove it. It seems gross to traverse the list in
-order to remove a tasklet at the first disable.
+Admins know what they are doing. Your average person trying Linux for the
+first time doesn't... You are forgetting that Linux is actually becoming
+useful as a desktop OS and a wider audience is starting to use it.
 
-Mathijs> a scheduled tasklet, regardless whether it was
-Mathijs> scheduled.
+But considering you already get a warning message on insertion that will
+do fine, no need to ask are you sure. GUI configuration tools can always
+do the "are you sure bit" if they want to. 
 
-Hmm, if it isn't scheduled, there is not much sense in disabling it at
-all.
+Best regards,
 
-Mathijs> Plus, we are not sure if it is scheduled on the
-Mathijs> same cpu that did the tasklet_schedule (but i might be the
-Mathijs> only one who cares about this ;)
-
-Mathijs> thisone we should add some comments to interrupt.h warning
-Mathijs> about deadlocks etc.
->> What deadlocks ? ;)
-Mathijs> well, loops. Dont use tasklet_kill on disabled tasklet or on
-Mathijs> not scheduled tasklets.
-
-Hmm, if TASKLET_STATE_SCHED is not set tasklet_kill will not deadlock.
-And tasklet_kill yields (?). Doesn't that mean that tasklet_action
-will be called eventually ?
-
-Regards,
--velco
-
-
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268733AbUJUQEX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266613AbUJUQD7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268733AbUJUQEX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 12:04:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270687AbUJUQDJ
+	id S266613AbUJUQD7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 12:03:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270759AbUJUQDO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 12:03:09 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:950 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S268733AbUJUP6r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 11:58:47 -0400
-Date: Thu, 21 Oct 2004 18:00:01 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U9
-Message-ID: <20041021160001.GB10107@elte.hu>
-References: <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <4177D93B.3030807@stud.feec.vutbr.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4177D93B.3030807@stud.feec.vutbr.cz>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 21 Oct 2004 12:03:14 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:29958 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S266613AbUJUP6n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 11:58:43 -0400
+Message-ID: <4177DF6E.9010304@techsource.com>
+Date: Thu, 21 Oct 2004 12:10:22 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Kurt Wall <kwall@kurtwerks.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+References: <4176E08B.2050706@techsource.com> <20041021022957.GB2282@kurtwerks.com>
+In-Reply-To: <20041021022957.GB2282@kurtwerks.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
 
-> Ingo Molnar wrote:
-> >
-> > - netconsole fixes from Michal Schmidt
-> >
+Kurt Wall wrote:
+
+>>(5) What's most important to you, performance, price, or stability?
 > 
-> The #ifdef is not right. Patch attached.
+> 
+> Stability, followed by performance. I'm less price sensitive than I used to
+> be.
+> 
 
-indeed - i've added this to -U9.2 too.
 
-	Ingo
+But only if there are lots of people and/or system integrators who feel 
+the same would we have a viable product.
+

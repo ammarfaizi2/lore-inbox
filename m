@@ -1,65 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287750AbSAGHQI>; Mon, 7 Jan 2002 02:16:08 -0500
+	id <S287817AbSAGH0A>; Mon, 7 Jan 2002 02:26:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287817AbSAGHPs>; Mon, 7 Jan 2002 02:15:48 -0500
-Received: from ns2.auctionwatch.com ([64.14.24.2]:64010 "EHLO
-	whitestar.auctionwatch.com") by vger.kernel.org with ESMTP
-	id <S287750AbSAGHPq>; Mon, 7 Jan 2002 02:15:46 -0500
-Date: Sun, 6 Jan 2002 23:15:31 -0800
-From: Petro <petro@auctionwatch.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: andihartmann@freenet.de, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020107071531.GC20760@auctionwatch.com>
-In-Reply-To: <200201040019.BAA30736@webserver.ithnet.com> <3C360D6E.9020207@athlon.maya.org> <20020105092442.GC26154@auctionwatch.com> <20020105164405.5d9f5232.skraw@ithnet.com>
-Mime-Version: 1.0
+	id <S288969AbSAGHZu>; Mon, 7 Jan 2002 02:25:50 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:64264 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S287817AbSAGHZi>; Mon, 7 Jan 2002 02:25:38 -0500
+Message-ID: <3C394C36.C9041722@zip.com.au>
+Date: Sun, 06 Jan 2002 23:20:22 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: Ivan Passos <ivan@cyclades.com>, linux-kernel@vger.kernel.org
+Subject: Re: Serial Driver Name Question (kernels 2.4.x)
+In-Reply-To: <3C38BC19.72ECE86@zip.com.au>,
+		<3C34024A.EDA31D24@zip.com.au>
+		<3C33E0D3.B6E932D6@zip.com.au>
+		<3C33BCF3.20BE9E92@cyclades.com>
+		<200201030637.g036bxe03425@vindaloo.ras.ucalgary.ca>
+		<200201062012.g06KCIu16158@vindaloo.ras.ucalgary.ca>
+		<3C38BC19.72ECE86@zip.com.au> <200201070636.g076asR25565@vindaloo.ras.ucalgary.ca>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020105164405.5d9f5232.skraw@ithnet.com>
-User-Agent: Mutt/1.3.24i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 05, 2002 at 04:44:05PM +0100, Stephan von Krawczynski wrote:
-> On Sat, 5 Jan 2002 01:24:42 -0800
-> Petro <petro@auctionwatch.com> wrote:
+Richard Gooch wrote:
 > 
-> > "We" (Auctionwatch.com) are experiencing problems that appear to be
-> > related to VM, I realize that this question was not directed at me:
+> > > Why exactly is just "ttyS" broken?
+> >
+> > umm..  Because it doesn't tell the user which serial port the
+> > message pertains to?
 > 
-> And how exactly do the problems look like?
+> Exactly where is it broken? I look at my dmesg output and things look
+> fine.
+> 
 
-    After some time, ranging from 1 to 48 hours, mysql quits in an
-    unclean fashion (dies leaving tables improperly closed) with a dump
-    in the mysql log file that looks like: 
+Try disabling devfs.
 
-> Here is the stack dump:
-> 0x807b75f handle_segfault__Fi + 383
-> 0x812bcaa pthread_sighandler + 154
-> 0x815059c chunk_free + 596
-> 0x8152573 free + 155
-> 0x811579c my_no_flags_free + 16
-> 0x80764d5 _._5ilink + 61
-> 0x807b48d end_thread__FP3THDb + 53
-> 0x80809cc handle_one_connection__FPv + 996
-
-    Which the Mysql support team says appears to be memory corruption.
-    Since this has happened on 4 different machines, and one of them had
-    memtest86 run on it (coming up clean), they seem (witness Sasha's
-    post) to think this may have something to do with the memory
-    handling in the kernel. 
-
-    I haven't run it on a kernel that has debugging enabled yet,
-    partially because I've been tracing a completely unrelated problems
-    with our hard drives (IBM GXP 75G drives made in Hungary during the
-    first 3 months of 2001), and partially because the only way to get
-    this to happen is to put the database in production, which results
-    in a crash, which takes our site offline, which costs us money and
-    pisses off our users. Right now we're running on a sun e4500, and
-    it's stable, so until we get the other problem worked out, we're
-    waiting to see on this one. 
+At the head-of-thread, Ivan said:
 
 
--- 
-Share and Enjoy. 
+> This was spotted by a Cyclades customer who was getting overrun msgs
+> as:
+> 
+> ttyC: 1 input overrun(s)
+> 
+> After he changed the driver.name to be "ttyC%d", he started to get
+> properly formatted msgs, such as:
+> 
+> ttyC39: 1 input overrun(s)
+> 
+> This problem would happen on any msg that used the function
+> tty_name() to get the TTY name, and after the change the problem
+> disappeared completely.
+
+-

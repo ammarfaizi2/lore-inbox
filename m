@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291518AbSBUJ5T>; Thu, 21 Feb 2002 04:57:19 -0500
+	id <S291473AbSBUJ7h>; Thu, 21 Feb 2002 04:59:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291473AbSBUJ5K>; Thu, 21 Feb 2002 04:57:10 -0500
-Received: from mta01-svc.ntlworld.com ([62.253.162.41]:2995 "EHLO
-	mta01-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S291400AbSBUJ4x>; Thu, 21 Feb 2002 04:56:53 -0500
-Date: Thu, 21 Feb 2002 09:56:53 +0000
-From: Peter Christy <christy@attglobal.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: via686/AD1886/Soundmax drivers
-Message-Id: <20020221095653.02b0edf8.christy@attglobal.net>
-In-Reply-To: <20020219132500.A18055@suse.cz>
-In-Reply-To: <20020219090303.4d5ef5f3.christy@attglobal.net>
-	<20020219132500.A18055@suse.cz>
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S291565AbSBUJ7c>; Thu, 21 Feb 2002 04:59:32 -0500
+Received: from [210.19.28.11] ([210.19.28.11]:4480 "EHLO dZuRa.Vault-ID.com")
+	by vger.kernel.org with ESMTP id <S291449AbSBUJ6R>;
+	Thu, 21 Feb 2002 04:58:17 -0500
+Date: Thu, 21 Feb 2002 17:55:37 +0800
+From: Corporal Pisang <Corporal_Pisang@Counter-Strike.com.my>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.5final compile error
+Message-Id: <20020221175537.4b499781.Corporal_Pisang@Counter-Strike.com.my>
+Organization: CS Malaysia
+X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+User-Agent: Half Life (Build 1760)
+X-Operating-System: FreeBSD 5.0
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Feb 2002 13:25:00 +0100
-Vojtech Pavlik <vojtech@suse.cz> wrote:
+Hi,
 
-> It's simple, they're "ADS" ...
+I get this compile error while compiling 2.5.5final.
 
-????? Forgive my ignorance, but that doesn't mean much to me!
+make[4]: Entering directory `/usr/src/linux/drivers/video/riva'
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon    -DKBUILD_BASENAME=fbdev  -c -o fbdev.o fbdev.c
+fbdev.c: In function `riva_set_fbinfo':
+fbdev.c:1814: incompatible types in assignment
+make[4]: *** [fbdev.o] Error 1
+make[4]: Leaving directory `/usr/src/linux/drivers/video/riva'
+make[3]: *** [first_rule] Error 2
+make[3]: Leaving directory `/usr/src/linux/drivers/video/riva'
+make[2]: *** [_subdir_riva] Error 2
+make[2]: Leaving directory `/usr/src/linux/drivers/video'
+make[1]: *** [_subdir_video] Error 2
+make[1]: Leaving directory `/usr/src/linux/drivers'
+make: *** [_dir_drivers] Error 2
 
-Have you had any success with these chips? SuSE Live Eval 7.3 correctly
-identifies the chips, but still doesn't produce any sound!
 
---
-Pete
-christy@attglobal.net
- 
+-Ubaida-

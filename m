@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262797AbTEGDJz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 23:09:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262801AbTEGDJz
+	id S262793AbTEGDH4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 23:07:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262797AbTEGDH4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 23:09:55 -0400
-Received: from oceanic.wsisiz.edu.pl ([213.135.44.33]:2859 "EHLO
-	oceanic.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id S262797AbTEGDJy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 23:09:54 -0400
-From: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Aic7xxx and Aic79xx Driver Updates
-In-Reply-To: <2274070000.1051897888@aslan.btc.adaptec.com>
-X-Newsgroups: wsisiz.linux-kernel
-X-PGP-Key-Fingerprint: E233 4EB2 BC46 44A7 C5FC  14C7 54ED 2FE8 FEB9 8835
-X-Key-ID: 829B1533
-User-Agent: tin/1.5.17-20030407 ("Peephole") (UNIX) (Linux/2.4.21-pre6 (i686))
-Message-Id: <20030507032226.4AEC833266E@oceanic.wsisiz.edu.pl>
-Date: Wed,  7 May 2003 05:22:26 +0200 (CEST)
+	Tue, 6 May 2003 23:07:56 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:23731 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262793AbTEGDHz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 23:07:55 -0400
+Message-ID: <1401.4.64.196.31.1052277628.squirrel@www.osdl.org>
+Date: Tue, 6 May 2003 20:20:28 -0700 (PDT)
+Subject: RE: PATCH: Replace current->state with set_current_state in 2.5.6 8
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: <inaky.perez-gonzalez@intel.com>
+In-Reply-To: <A46BBDB345A7D5118EC90002A5072C780C8FDF0C@orsmsx116.jf.intel.com>
+References: <A46BBDB345A7D5118EC90002A5072C780C8FDF0C@orsmsx116.jf.intel.com>
+X-Priority: 3
+Importance: Normal
+Cc: <acme@conectiva.com.br>, <gh@us.ibm.com>, <rddunlap@osdl.org>,
+       <devenyga@mcmaster.ca>, <rml@tech9.net>, <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.11)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <2274070000.1051897888@aslan.btc.adaptec.com> you wrote:
->> I thought it was an sr problem, but it doesn't seem to show up on
->> anything other than adaptec controllers?  Thanks.
-> 
-> I've just updated the bug.
+>
+>> From: Arnaldo Carvalho de Melo [mailto:acme@conectiva.com.br]
+>>
+>> > > And I don't really want to review a 176 KB patch (although I did
+> already
+>> > > look over most of it a few days ago).  Do people want to take portions
+>> of it for review and then see about Alan merging it, e.g.?
+>
+> As long as they use set_current_state() and not the __ counterpart, then
+> they are ok [the memory barrier being to blame for the lost
+> performance if any is found].
 
-Have You updated it on page too?
-Drivers taken from http://people.freebsd.org/~gibbs/linux/SRC/
+Yes, last week at least the patch did use set_current_state() almost
+exclusively, even when it didn't need to -- most likely.
 
-Adaptec AIC79xx driver version: 1.3.8
-Adaptec AIC7902 Ultra320 SCSI adapter
-aic7902: Ultra320 Wide Channel A, SCSI Id=7, PCI-X 67-100Mhz, 512 SCBs
+>> > Hmm.  Has anyone considered a "Kernel Janitor's" tree?  More
+> specifically,
+>> > a patch set, much like -ac or -mm, with the current cleanups so they can
+>> be tested, pulled, run through automated batch testing, etc.?
+>>
+>> That is an interesting idea, I'll probably start one.
 
-During running slocate/updatedb:
+Yay!
+Thanks, acme.
 
-bash-2.05b$ uptime
-05:07:28  up 1 day,  8:09,  4 users,  load average: 67.07, 30.93, 12.51
-                                                    ^^^^^^^^^^^^^^^^^^^
+~Randy
 
--- 
-*[ £ukasz Tr±biñski ]*
+
+

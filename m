@@ -1,58 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262718AbSI1FTw>; Sat, 28 Sep 2002 01:19:52 -0400
+	id <S261661AbSI1FWJ>; Sat, 28 Sep 2002 01:22:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262719AbSI1FTw>; Sat, 28 Sep 2002 01:19:52 -0400
-Received: from netcore.fi ([193.94.160.1]:22276 "EHLO netcore.fi")
-	by vger.kernel.org with ESMTP id <S262718AbSI1FTu>;
-	Sat, 28 Sep 2002 01:19:50 -0400
-Date: Sat, 28 Sep 2002 08:24:58 +0300 (EEST)
-From: Pekka Savola <pekkas@netcore.fi>
-To: kuznet@ms2.inr.ac.ru
-cc: davem@redhat.com, <yoshfuji@linux-ipv6.org>,
-       <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>,
-       <usagi@linux-ipv6.org>
+	id <S262719AbSI1FWJ>; Sat, 28 Sep 2002 01:22:09 -0400
+Received: from sex.inr.ac.ru ([193.233.7.165]:2757 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S261661AbSI1FWI>;
+	Sat, 28 Sep 2002 01:22:08 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200209280526.JAA03028@sex.inr.ac.ru>
 Subject: Re: [PATCH] IPv6: Improvement of Source Address Selection
-In-Reply-To: <200209280500.JAA02974@sex.inr.ac.ru>
-Message-ID: <Pine.LNX.4.44.0209280813030.8846-100000@netcore.fi>
+To: yoshfuji@linux-ipv6.org (YOSHIFUJI Hideaki /
+	=?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?=)
+Date: Sat, 28 Sep 2002 09:26:57 +0400 (MSD)
+Cc: usagi@linux-ipv6.org, davem@redhat.com, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+In-Reply-To: <20020928.141407.110833680.yoshfuji@linux-ipv6.org> from "YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?=" at Sep 28, 2 02:14:07 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 28 Sep 2002 kuznet@ms2.inr.ac.ru wrote:
-> > route, as there would have to be at least two candidates there.
-> ...
-> > Am I missing something obvious here?
-> 
-> Yes. You select some one of the candidates eventually, do not you? :-)
+Hello!
 
-But can there be more candidates for one route, in which case one would 
-run something similar to this algorithm then?
+> we need per application (per socket) interface
+> for privacy extension (public address vs temporary address) and 
+> mobile ip (home address vs care-of address).
 
-Or would you have an already-sorted list of possible candidate addresses 
-for each route in the order of preference?  And recalculate always when 
-address changes?
+OK. It is natural user-friendly generalization of bind(). I do not see
+problems.
 
-Or..?
+Though, please, explain, to avoid misunderstanding. Let's take the second
+case for simplicity. Is that true that it is supposed to add
+to each application a switch "home or care-of"? This sound strange enough,
+taking into account that only a few of applications have switch sort of -b
+in openssh despite of age of plain bind() is equal to age of internet. :-)
 
-> And when you have some special preference for a subnet you create
-> a route for it.
-
-This is IMO a wrong approach from user's perspective.  Perhaps not if the 
-algorithm was run and e.g. additional, temporary "address selection" 
-routes were created by kernel.
- 
-> > (stuff that's network prefix -independent
-> 
-> I am sorry, I feel I do not understand what you mean.
-
-Hmm.. this depends on the interpretation of the concept above.  If the
-list is refreshed always when addresses change or change state, this could
-perhaps work..
-
--- 
-Pekka Savola                 "Tell me of difficulties surmounted,
-Netcore Oy                   not those you stumble over and fall"
-Systems. Networks. Security.  -- Robert Jordan: A Crown of Swords
-
+Alexey

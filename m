@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286232AbRLJLhQ>; Mon, 10 Dec 2001 06:37:16 -0500
+	id <S286233AbRLJLoP>; Mon, 10 Dec 2001 06:44:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286233AbRLJLhG>; Mon, 10 Dec 2001 06:37:06 -0500
-Received: from [63.172.78.150] ([63.172.78.150]:30913 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S286232AbRLJLgs>;
-	Mon, 10 Dec 2001 06:36:48 -0500
-Date: Mon, 10 Dec 2001 03:36:32 -0800 (PST)
-From: Dan Hollis <goemon@anime.net>
-To: Todd Harrington <THarrington@trilogicsystems.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: w83782d hangs during modprobe on Tyan
-In-Reply-To: <01Dec7.142641est.119045@bouncer.trilogic.com>
-Message-ID: <Pine.LNX.4.30.0112100336120.13493-100000@anime.net>
+	id <S286234AbRLJLoF>; Mon, 10 Dec 2001 06:44:05 -0500
+Received: from mail0.epfl.ch ([128.178.50.57]:46860 "HELO mail0.epfl.ch")
+	by vger.kernel.org with SMTP id <S286233AbRLJLnz>;
+	Mon, 10 Dec 2001 06:43:55 -0500
+Message-ID: <3C149FF9.407@epfl.ch>
+Date: Mon, 10 Dec 2001 12:43:53 +0100
+From: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
+Organization: LTS-DE-EPFL
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Patches in 2.4.17-pre2 that aren't in 2.5.1-pre8
+In-Reply-To: <linux.kernel.E16DNNu-0001VB-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Dec 2001, Todd Harrington wrote:
-> > We are using a Tyan 2688 motherboard (WinBond w83782d). The problem that I
-> > am having is the lm_sensors package is hanging when I load the w83781d
-> > (modprobe w83781d) driver.
+Hello all
 
-http://www2.lm-sensors.nu/~lm78/readticket.cgi?ticket=697
 
-Do what it says at the bottom.
 
--Dan
+> 
+> In many cases that isnt true, and for a lot of the pending patches its
+> pointless merging them into 2.5 until 2.5 gets into better shape. Going back
+> over them as you have done is something that does need doing, but not until
+> the block layer has some semblance of completion about it
+
+Well I just saw the opposite ;-) ... A patch I had submitted a few weeks 
+ago for Intel 830MP agp support has been intgrated in 2.5.1-pre3, but is 
+still not in the 2.4 branch... Several users have reported success with 
+this patch, so unless somebody shows storng opposition, I would suggest 
+to merge it...
+Get it here : http://ltswww.epfl.ch/~aspert/patches/patch-agp_i830mp-2.4.16
+
+Best regards
 -- 
-[-] Omae no subete no kichi wa ore no mono da. [-]
+Nicolas Aspert      Signal Processing Laboratory (LTS)
+Swiss Federal Institute of Technology (EPFL)
 

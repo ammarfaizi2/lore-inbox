@@ -1,55 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264703AbSJUCe3>; Sun, 20 Oct 2002 22:34:29 -0400
+	id <S264702AbSJUCga>; Sun, 20 Oct 2002 22:36:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264702AbSJUCe0>; Sun, 20 Oct 2002 22:34:26 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:58375 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S264699AbSJUCeY>; Sun, 20 Oct 2002 22:34:24 -0400
-Date: Sun, 20 Oct 2002 22:40:15 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "J.A. Magallon" <jamagallon@able.es>
-cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Any hope of fixing shutdown power off for SMP?
-In-Reply-To: <20021021010327.GC14334@werewolf.able.es>
-Message-ID: <Pine.LNX.3.96.1021020223545.1655B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264704AbSJUCga>; Sun, 20 Oct 2002 22:36:30 -0400
+Received: from bitmover.com ([192.132.92.2]:56018 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S264702AbSJUCg3>;
+	Sun, 20 Oct 2002 22:36:29 -0400
+Date: Sun, 20 Oct 2002 19:42:32 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Larry McVoy <lm@bitmover.com>, Richard Stallman <rms@gnu.org>,
+       hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: Bitkeeper outrage, old and new
+Message-ID: <20021020194232.A15648@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Larry McVoy <lm@bitmover.com>, Richard Stallman <rms@gnu.org>,
+	hch@infradead.org, linux-kernel@vger.kernel.org
+References: <E180rX3-0005dL-00@fencepost.gnu.org> <20021014170248.A19897@infradead.org> <E181WHl-00010N-00@fencepost.gnu.org> <20021015193138.A4010@infradead.org> <200210161856.g9GIu57t013710@santafe.santafe.edu> <20021016201328.A24882@infradead.org> <E1832Lh-0004xH-00@fencepost.gnu.org> <20021019161201.A26017@work.bitmover.com> <m1d6q4wzwb.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <m1d6q4wzwb.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sun, Oct 20, 2002 at 03:42:28PM -0600
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Oct 2002, J.A. Magallon wrote:
-
+> > Just admit that the GPL forces people to do things just the same as a
+> > traditional license forces people to do things.  You speak of freedom
+> > yet you took that freedom away with the GPL.  If you really believed
+> > in freedom then the GPL would just be the same as the public domain.
+> > *That's* freedom.  The BSD license is far closer to a truly free license,
+> > the GPL isn't even remotely close to a free license.
 > 
-> On 2002.10.21 Bill Davidsen wrote:
-
-> >I'm kind of out of time to play any more, I think I'm going to leave
-> >2.5.43 where it is (lots of stuff not working), send the patches to -mm3
-> >and think about 2.5.44. That should be less volatile since Linus is out.
-> >
-> >I can't get apm to even load, it whines in depmod about missing stuff, and
-> >I've got about two days of my so-called vacation in what I do hve working,
-> >so a good time to call it a version.
-> >
-> >Thanks for the pointer, I'll try -aa and -ac kernels again at .44.
-> >
+> Hogwash.  The BSD license has not provisions to keep the source code
+> freely available.  Consider what the world would be like if anyone was
+> allowed to do anything to you they wanted, if murder was legal.
 > 
-> Oops, you talk about 2.5...
-> My pointers were about 2.4. Anyways, perhaps it is the same problem. Both
-> trees did not shutdown properly because shutdown waited inifinitely for
-> the apm task to schedule on cpu 0 due to bad interaction with O1
-> scheduler.
+> The GPL forces people to respect others freedom to use a work so
+> covered.  That is still a power, but used in a good way.  The power
+> to silence criticism is definitely not a power that enhances anyones
+> freedom.
 
-I got a patch for that which *almost* works. The disks spin down, but the
-console is still there. But when I hit the power button I don't have to
-hold it, the system goes down like a rock, so it's doing more than it did.
+Hogwash indeed.  Free means the freedom to do whatever you want.
+Consider the US free speech.  Nobody says "this sort of speech is good
+for the world, therefor it is the sanctioned form of free speech and
+all other forms are prohibited".  That's not freedom, that's someone
+playing God.  The GPL is *not* about freedom it is about forcing the
+source code to be freely available.  And it does a fairly poor job of
+that, if it really wanted to do so it would be far more simplistic about
+it and say "any changes you make must be published within 24 hours or
+your license is revoked".
 
-In uni mode it goes all the way down, and I'm not sure the patch is quite
-right, I just haven't had time to fight with it. Every once in a while I
-have to do some work to keep the lights on.
-
+All you are doing is saying that your goals are better than other goals.
+That's not freedom, that is you deciding what is best for the world.
+You may well be right, your goals may be what is best for the world.
+None the less, that's not freedom.  That's Big Brother making decisions
+for all "the little people" in the world.  And, surprise surprise, you
+may not be right.  Freedom is about everyone have equal rights to make
+their own choices, nobody died and elected you God.
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

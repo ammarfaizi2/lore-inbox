@@ -1,465 +1,976 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263826AbTDGXNV (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 19:13:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263863AbTDGXMm (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 19:12:42 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:60288
+	id S263921AbTDGXdt (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 19:33:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263918AbTDGXdX (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 19:33:23 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:19585
 	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263824AbTDGXGP (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 19:06:15 -0400
-Date: Tue, 8 Apr 2003 01:25:09 +0100
+	id S263748AbTDGXVm (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 19:21:42 -0400
+Date: Tue, 8 Apr 2003 01:40:33 +0100
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200304080025.h380P9uA009113@hraefn.swansea.linux.org.uk>
+Message-Id: <200304080040.h380eXEJ009312@hraefn.swansea.linux.org.uk>
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: Update lp486e for 2.5
+Subject: PATCH: lots more version and C99 for audio
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/drivers/net/lp486e.c linux-2.5.67-ac1/drivers/net/lp486e.c
---- linux-2.5.67/drivers/net/lp486e.c	2003-02-10 18:38:11.000000000 +0000
-+++ linux-2.5.67-ac1/drivers/net/lp486e.c	2003-04-07 19:14:53.000000000 +0100
-@@ -56,7 +56,7 @@
- All other communication is through memory!
- */
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/sound/oss/cs4281/cs4281m.c linux-2.5.67-ac1/sound/oss/cs4281/cs4281m.c
+--- linux-2.5.67/sound/oss/cs4281/cs4281m.c	2003-02-10 18:39:00.000000000 +0000
++++ linux-2.5.67-ac1/sound/oss/cs4281/cs4281m.c	2003-04-03 23:52:57.000000000 +0100
+@@ -58,7 +58,6 @@
+ //#define NOT_CS4281_PM 1 
  
--#define SLOW_DOWN_IO udelay(5);
-+#define SLOW_DOWN_IO udelay(5)
- 
+ #include <linux/list.h>
+-#include <linux/version.h>
  #include <linux/module.h>
- #include <linux/init.h>
-@@ -195,7 +195,7 @@
- typedef u32 phys_addr;
+ #include <linux/string.h>
+ #include <linux/ioport.h>
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/sound/oss/cs46xx.c linux-2.5.67-ac1/sound/oss/cs46xx.c
+--- linux-2.5.67/sound/oss/cs46xx.c	2003-03-26 20:00:02.000000000 +0000
++++ linux-2.5.67-ac1/sound/oss/cs46xx.c	2003-04-03 23:52:57.000000000 +0100
+@@ -77,7 +77,6 @@
+  
+ #include <linux/interrupt.h>
+ #include <linux/list.h>
+-#include <linux/version.h>
+ #include <linux/module.h>
+ #include <linux/string.h>
+ #include <linux/ioport.h>
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/sound/oss/dmasound/dmasound_atari.c linux-2.5.67-ac1/sound/oss/dmasound/dmasound_atari.c
+--- linux-2.5.67/sound/oss/dmasound/dmasound_atari.c	2003-02-10 18:38:15.000000000 +0000
++++ linux-2.5.67-ac1/sound/oss/dmasound/dmasound_atari.c	2003-04-03 23:34:57.000000000 +0100
+@@ -767,39 +767,39 @@
  
- static inline phys_addr
--va_to_pa(volatile void *x) {
-+va_to_pa(void *x) {
- 	return x ? virt_to_bus(x) : I596_NULL;
- }
  
-@@ -341,14 +341,15 @@
- 	unsigned long tdr_stat;	/* directly follows tdr */
- 
- 	int last_restart;
--	volatile struct i596_rbd *rbd_list;
--	volatile struct i596_rbd *rbd_tail;
--	volatile struct i596_rfd *rx_tail;
--	volatile struct i596_cmd *cmd_tail;
--	volatile struct i596_cmd *cmd_head;
-+	struct i596_rbd *rbd_list;
-+	struct i596_rbd *rbd_tail;
-+	struct i596_rfd *rx_tail;
-+	struct i596_cmd *cmd_tail;
-+	struct i596_cmd *cmd_head;
- 	int cmd_backlog;
- 	unsigned long last_cmd;
- 	struct net_device_stats stats;
-+	spinlock_t cmd_lock;
+ static TRANS transTTNormal = {
+-	ct_ulaw:	ata_ct_law,
+-	ct_alaw:	ata_ct_law,
+-	ct_s8:		ata_ct_s8,
+-	ct_u8:		ata_ct_u8,
++	.ct_ulaw	= ata_ct_law,
++	.ct_alaw	= ata_ct_law,
++	.ct_s8		= ata_ct_s8,
++	.ct_u8		= ata_ct_u8,
  };
  
- static char init_setup[14] = {
-@@ -386,7 +387,7 @@
+ static TRANS transTTExpanding = {
+-	ct_ulaw:	ata_ctx_law,
+-	ct_alaw:	ata_ctx_law,
+-	ct_s8:		ata_ctx_s8,
+-	ct_u8:		ata_ctx_u8,
++	.ct_ulaw	= ata_ctx_law,
++	.ct_alaw	= ata_ctx_law,
++	.ct_s8		= ata_ctx_s8,
++	.ct_u8		= ata_ctx_u8,
+ };
  
- static int
- i596_timeout(struct net_device *dev, char *msg, int ct) {
--	volatile struct i596_private *lp;
-+	struct i596_private *lp;
- 	int boguscnt = ct;
+ static TRANS transFalconNormal = {
+-	ct_ulaw:	ata_ct_law,
+-	ct_alaw:	ata_ct_law,
+-	ct_s8:		ata_ct_s8,
+-	ct_u8:		ata_ct_u8,
+-	ct_s16be:	ata_ct_s16be,
+-	ct_u16be:	ata_ct_u16be,
+-	ct_s16le:	ata_ct_s16le,
+-	ct_u16le:	ata_ct_u16le
++	.ct_ulaw	= ata_ct_law,
++	.ct_alaw	= ata_ct_law,
++	.ct_s8		= ata_ct_s8,
++	.ct_u8		= ata_ct_u8,
++	.ct_s16be	= ata_ct_s16be,
++	.ct_u16be	= ata_ct_u16be,
++	.ct_s16le	= ata_ct_s16le,
++	.ct_u16le	= ata_ct_u16le
+ };
  
- 	lp = (struct i596_private *) dev->priv;
-@@ -398,13 +399,14 @@
- 			return 1;
- 		}
- 		udelay(5);
-+		barrier();
- 	}
- 	return 0;
+ static TRANS transFalconExpanding = {
+-	ct_ulaw:	ata_ctx_law,
+-	ct_alaw:	ata_ctx_law,
+-	ct_s8:		ata_ctx_s8,
+-	ct_u8:		ata_ctx_u8,
+-	ct_s16be:	ata_ctx_s16be,
+-	ct_u16be:	ata_ctx_u16be,
+-	ct_s16le:	ata_ctx_s16le,
+-	ct_u16le:	ata_ctx_u16le,
++	.ct_ulaw	= ata_ctx_law,
++	.ct_alaw	= ata_ctx_law,
++	.ct_s8		= ata_ctx_s8,
++	.ct_u8		= ata_ctx_u8,
++	.ct_s16be	= ata_ctx_s16be,
++	.ct_u16be	= ata_ctx_u16be,
++	.ct_s16le	= ata_ctx_s16le,
++	.ct_u16le	= ata_ctx_u16le,
+ };
+ 
+ 
+@@ -1495,81 +1495,81 @@
+ /*** Machine definitions *****************************************************/
+ 
+ static SETTINGS def_hard_falcon = {
+-	format: AFMT_S8,
+-	stereo: 0,
+-	size: 8,
+-	speed: 8195
++	.format		= AFMT_S8,
++	.stereo		= 0,
++	.size		= 8,
++	.speed		= 8195
+ } ;
+ 
+ static SETTINGS def_hard_tt = {
+-	format: AFMT_S8,
+-	stereo: 0,
+-	size: 8,
+-	speed: 12517
++	.format	= AFMT_S8,
++	.stereo	= 0,
++	.size	= 8,
++	.speed	= 12517
+ } ;
+ 
+ static SETTINGS def_soft = {
+-	format: AFMT_U8,
+-	stereo: 0,
+-	size: 8,
+-	speed: 8000
++	.format	= AFMT_U8,
++	.stereo	= 0,
++	.size	= 8,
++	.speed	= 8000
+ } ;
+ 
+ static MACHINE machTT = {
+-	name:		"Atari",
+-	name2:		"TT",
+-	open:		AtaOpen,
+-	release:	AtaRelease,
+-	dma_alloc:	AtaAlloc,
+-	dma_free:	AtaFree,
+-	irqinit:	AtaIrqInit,
++	.name		= "Atari",
++	.name2		= "TT",
++	.open		= AtaOpen,
++	.release	= AtaRelease,
++	.dma_alloc	= AtaAlloc,
++	.dma_free	= AtaFree,
++	.irqinit	= AtaIrqInit,
+ #ifdef MODULE
+-	irqcleanup:	AtaIrqCleanUp,
++	.irqcleanup	= AtaIrqCleanUp,
+ #endif /* MODULE */
+-	init:		TTInit,
+-	silence:	TTSilence,
+-	setFormat:	TTSetFormat,
+-	setVolume:	TTSetVolume,
+-	setBass:	AtaSetBass,
+-	setTreble:	AtaSetTreble,
+-	setGain:	TTSetGain,
+-	play:		AtaPlay,
+-	mixer_init:	TTMixerInit,
+-	mixer_ioctl:	TTMixerIoctl,
+-	write_sq_setup:	AtaWriteSqSetup,
+-	sq_open:	AtaSqOpen,
+-	state_info:	TTStateInfo,
+-	min_dsp_speed:	6258,
+-	version:	((DMASOUND_ATARI_REVISION<<8) | DMASOUND_ATARI_EDITION),
+-	hardware_afmts:	AFMT_S8,  /* h'ware-supported formats *only* here */
+-	capabilities:	 DSP_CAP_BATCH	/* As per SNDCTL_DSP_GETCAPS */
++	.init		= TTInit,
++	.silence	= TTSilence,
++	.setFormat	= TTSetFormat,
++	.setVolume	= TTSetVolume,
++	.setBass	= AtaSetBass,
++	.setTreble	= AtaSetTreble,
++	.setGain	= TTSetGain,
++	.play		= AtaPlay,
++	.mixer_init	= TTMixerInit,
++	.mixer_ioctl	= TTMixerIoctl,
++	.write_sq_setup	= AtaWriteSqSetup,
++	.sq_open	= AtaSqOpen,
++	.state_info	= TTStateInfo,
++	.min_dsp_speed	= 6258,
++	.version	= ((DMASOUND_ATARI_REVISION<<8) | DMASOUND_ATARI_EDITION),
++	.hardware_afmts	= AFMT_S8,  /* h'ware-supported formats *only* here */
++	.capabilities	=  DSP_CAP_BATCH	/* As per SNDCTL_DSP_GETCAPS */
+ };
+ 
+ static MACHINE machFalcon = {
+-	name:		"Atari",
+-	name2:		"FALCON",
+-	dma_alloc:	AtaAlloc,
+-	dma_free:	AtaFree,
+-	irqinit:	AtaIrqInit,
++	.name		= "Atari",
++	.name2		= "FALCON",
++	.dma_alloc	= AtaAlloc,
++	.dma_free	= AtaFree,
++	.irqinit	= AtaIrqInit,
+ #ifdef MODULE
+-	irqcleanup:	AtaIrqCleanUp,
++	.irqcleanup	= AtaIrqCleanUp,
+ #endif /* MODULE */
+-	init:		FalconInit,
+-	silence:	FalconSilence,
+-	setFormat:	FalconSetFormat,
+-	setVolume:	FalconSetVolume,
+-	setBass:	AtaSetBass,
+-	setTreble:	AtaSetTreble,
+-	play:		AtaPlay,
+-	mixer_init:	FalconMixerInit,
+-	mixer_ioctl:	FalconMixerIoctl,
+-	write_sq_setup:	AtaWriteSqSetup,
+-	sq_open:	AtaSqOpen,
+-	state_info:	FalconStateInfo,
+-	min_dsp_speed:	8195,
+-	version:	((DMASOUND_ATARI_REVISION<<8) | DMASOUND_ATARI_EDITION),
+-	hardware_afmts:	(AFMT_S8 | AFMT_S16_BE), /* h'ware-supported formats *only* here */
+-	capabilities:	 DSP_CAP_BATCH	/* As per SNDCTL_DSP_GETCAPS */
++	.init		= FalconInit,
++	.silence	= FalconSilence,
++	.setFormat	= FalconSetFormat,
++	.setVolume	= FalconSetVolume,
++	.setBass	= AtaSetBass,
++	.setTreble	= AtaSetTreble,
++	.play		= AtaPlay,
++	.mixer_init	= FalconMixerInit,
++	.mixer_ioctl	= FalconMixerIoctl,
++	.write_sq_setup	= AtaWriteSqSetup,
++	.sq_open	= AtaSqOpen,
++	.state_info	= FalconStateInfo,
++	.min_dsp_speed	= 8195,
++	.version	= ((DMASOUND_ATARI_REVISION<<8) | DMASOUND_ATARI_EDITION),
++	.hardware_afmts	= (AFMT_S8 | AFMT_S16_BE), /* h'ware-supported formats *only* here */
++	.capabilities	=  DSP_CAP_BATCH	/* As per SNDCTL_DSP_GETCAPS */
+ };
+ 
+ 
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/sound/oss/dmasound/dmasound_awacs.c linux-2.5.67-ac1/sound/oss/dmasound/dmasound_awacs.c
+--- linux-2.5.67/sound/oss/dmasound/dmasound_awacs.c	2003-03-06 17:04:39.000000000 +0000
++++ linux-2.5.67-ac1/sound/oss/dmasound/dmasound_awacs.c	2003-04-03 23:34:57.000000000 +0100
+@@ -2405,45 +2405,45 @@
+ /*** Machine definitions *****************************************************/
+ 
+ static SETTINGS def_hard = {
+-	format: AFMT_S16_BE,
+-	stereo: 1,
+-	size: 16,
+-	speed: 44100
++	.format	= AFMT_S16_BE,
++	.stereo	= 1,
++	.size	= 16,
++	.speed	= 44100
+ } ;
+ 
+ static SETTINGS def_soft = {
+-	format: AFMT_S16_BE,
+-	stereo: 1,
+-	size: 16,
+-	speed: 44100
++	.format	= AFMT_S16_BE,
++	.stereo	= 1,
++	.size	= 16,
++	.speed	= 44100
+ } ;
+ 
+ static MACHINE machPMac = {
+-	name:		awacs_name,
+-	name2:		"PowerMac Built-in Sound",
+-	open:		PMacOpen,
+-	release:	PMacRelease,
+-	dma_alloc:	PMacAlloc,
+-	dma_free:	PMacFree,
+-	irqinit:	PMacIrqInit,
++	.name		= awacs_name,
++	.name2		= "PowerMac Built-in Sound",
++	.open		= PMacOpen,
++	.release	= PMacRelease,
++	.dma_alloc	= PMacAlloc,
++	.dma_free	= PMacFree,
++	.irqinit	= PMacIrqInit,
+ #ifdef MODULE
+-	irqcleanup:	PMacIrqCleanup,
++	.irqcleanup	= PMacIrqCleanup,
+ #endif /* MODULE */
+-	init:		PMacInit,
+-	silence:	PMacSilence,
+-	setFormat:	PMacSetFormat,
+-	setVolume:	PMacSetVolume,
+-	play:		PMacPlay,
+-	record:		NULL,		/* default to no record */
+-	mixer_init:	PMacMixerInit,
+-	mixer_ioctl:	PMacMixerIoctl,
+-	write_sq_setup:	PMacWriteSqSetup,
+-	read_sq_setup:	PMacReadSqSetup,
+-	state_info:	PMacStateInfo,
+-	abort_read:	PMacAbortRead,
+-	min_dsp_speed:	7350,
+-	max_dsp_speed:	44100,
+-	version:	((DMASOUND_AWACS_REVISION<<8) + DMASOUND_AWACS_EDITION)
++	.init		= PMacInit,
++	.silence	= PMacSilence,
++	.setFormat	= PMacSetFormat,
++	.setVolume	= PMacSetVolume,
++	.play		= PMacPlay,
++	.record		= NULL,		/* default to no record */
++	.mixer_init	= PMacMixerInit,
++	.mixer_ioctl	= PMacMixerIoctl,
++	.write_sq_setup	= PMacWriteSqSetup,
++	.read_sq_setup	= PMacReadSqSetup,
++	.state_info	= PMacStateInfo,
++	.abort_read	= PMacAbortRead,
++	.min_dsp_speed	= 7350,
++	.max_dsp_speed	= 44100,
++	.version	= ((DMASOUND_AWACS_REVISION<<8) + DMASOUND_AWACS_EDITION)
+ };
+ 
+ 
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/sound/oss/dmasound/dmasound_core.c linux-2.5.67-ac1/sound/oss/dmasound/dmasound_core.c
+--- linux-2.5.67/sound/oss/dmasound/dmasound_core.c	2003-03-06 17:04:39.000000000 +0000
++++ linux-2.5.67-ac1/sound/oss/dmasound/dmasound_core.c	2003-04-03 23:34:57.000000000 +0100
+@@ -367,11 +367,11 @@
+ 
+ static struct file_operations mixer_fops =
+ {
+-	owner:		THIS_MODULE,
+-	llseek:		no_llseek,
+-	ioctl:		mixer_ioctl,
+-	open:		mixer_open,
+-	release:	mixer_release,
++	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
++	.ioctl		= mixer_ioctl,
++	.open		= mixer_open,
++	.release	= mixer_release,
+ };
+ 
+ static void __init mixer_init(void)
+@@ -1325,15 +1325,15 @@
+ 
+ static struct file_operations sq_fops =
+ {
+-	owner:		THIS_MODULE,
+-	llseek:		no_llseek,
+-	write:		sq_write,
+-	poll:		sq_poll,
+-	ioctl:		sq_ioctl,
+-	open:		sq_open,
+-	release:	sq_release,
++	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
++	.write		= sq_write,
++	.poll		= sq_poll,
++	.ioctl		= sq_ioctl,
++	.open		= sq_open,
++	.release	= sq_release,
+ #ifdef HAS_RECORD
+-	read:		NULL	/* default to no read for compat mode */
++	.read		= NULL	/* default to no read for compat mode */
+ #endif
+ };
+ 
+@@ -1548,11 +1548,11 @@
  }
  
- static inline int
- init_rx_bufs(struct net_device *dev, int num) {
--	volatile struct i596_private *lp;
-+	struct i596_private *lp;
- 	struct i596_rfd *rfd;
- 	int i;
- 	// struct i596_rbd *rbd;
-@@ -517,8 +519,8 @@
- /* selftest or dump */
- static void
- i596_port_do(struct net_device *dev, int portcmd, char *cmdname) {
--	volatile struct i596_private *lp = dev->priv;
--	volatile u16 *outp;
-+	struct i596_private *lp = dev->priv;
-+	u16 *outp;
- 	int i, m;
+ static struct file_operations state_fops = {
+-	owner:		THIS_MODULE,
+-	llseek:		no_llseek,
+-	read:		state_read,
+-	open:		state_open,
+-	release:	state_release,
++	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
++	.read		= state_read,
++	.open		= state_open,
++	.release	= state_release,
+ };
  
- 	memset((void *)&(lp->dump), 0, sizeof(struct i596_dump));
-@@ -541,7 +543,7 @@
+ static int __init state_init(void)
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/sound/oss/dmasound/dmasound_paula.c linux-2.5.67-ac1/sound/oss/dmasound/dmasound_paula.c
+--- linux-2.5.67/sound/oss/dmasound/dmasound_paula.c	2003-02-10 18:37:55.000000000 +0000
++++ linux-2.5.67-ac1/sound/oss/dmasound/dmasound_paula.c	2003-04-03 23:34:57.000000000 +0100
+@@ -298,14 +298,14 @@
  
- static int
- i596_scp_setup(struct net_device *dev) {
--	volatile struct i596_private *lp = dev->priv;
-+	struct i596_private *lp = dev->priv;
- 	int boguscnt;
  
- 	/* Setup SCP, ISCP, SCB */
-@@ -608,6 +610,7 @@
- 			return 1;
- 		}
- 		udelay(5);
-+		barrier();
- 	}
- 	/* I find here boguscnt==100, so no delay was required. */
+ static TRANS transAmiga = {
+-	ct_ulaw:	ami_ct_ulaw,
+-	ct_alaw:	ami_ct_alaw,
+-	ct_s8:		ami_ct_s8,
+-	ct_u8:		ami_ct_u8,
+-	ct_s16be:	ami_ct_s16be,
+-	ct_u16be:	ami_ct_u16be,
+-	ct_s16le:	ami_ct_s16le,
+-	ct_u16le:	ami_ct_u16le,
++	.ct_ulaw	= ami_ct_ulaw,
++	.ct_alaw	= ami_ct_alaw,
++	.ct_s8		= ami_ct_s8,
++	.ct_u8		= ami_ct_u8,
++	.ct_s16be	= ami_ct_s16be,
++	.ct_u16be	= ami_ct_u16be,
++	.ct_s16le	= ami_ct_s16le,
++	.ct_u16le	= ami_ct_u16le,
+ };
  
-@@ -616,7 +619,7 @@
+ /*** Low level stuff *********************************************************/
+@@ -681,44 +681,44 @@
+ /*** Machine definitions *****************************************************/
  
- static int
- init_i596(struct net_device *dev) {
--	volatile struct i596_private *lp;
-+	struct i596_private *lp;
+ static SETTINGS def_hard = {
+-	format: AFMT_S8,
+-	stereo: 0,
+-	size: 8,
+-	speed: 8000
++	.format	= AFMT_S8,
++	.stereo	= 0,
++	.size	= 8,
++	.speed	= 8000
+ } ;
  
- 	if (i596_scp_setup(dev))
- 		return 1;
-@@ -641,6 +644,8 @@
- 	lp->scb.command = RX_START;
- 	CA();
+ static SETTINGS def_soft = {
+-	format: AFMT_U8,
+-	stereo: 0,
+-	size: 8,
+-	speed: 8000
++	.format	= AFMT_U8,
++	.stereo	= 0,
++	.size	= 8,
++	.speed	= 8000
+ } ;
  
-+	barrier();
-+	
- 	if (lp->scb.command && i596_timeout(dev, "Receive Unit start", 100))
- 		return 1;
+ static MACHINE machAmiga = {
+-	name:		"Amiga",
+-	name2:		"AMIGA",
+-	open:		AmiOpen,
+-	release:	AmiRelease,
+-	dma_alloc:	AmiAlloc,
+-	dma_free:	AmiFree,
+-	irqinit:	AmiIrqInit,
++	.name		= "Amiga",
++	.name2		= "AMIGA",
++	.open		= AmiOpen,
++	.release	= AmiRelease,
++	.dma_alloc	= AmiAlloc,
++	.dma_free	= AmiFree,
++	.irqinit	= AmiIrqInit,
+ #ifdef MODULE
+-	irqcleanup:	AmiIrqCleanUp,
++	.irqcleanup	= AmiIrqCleanUp,
+ #endif /* MODULE */
+-	init:		AmiInit,
+-	silence:	AmiSilence,
+-	setFormat:	AmiSetFormat,
+-	setVolume:	AmiSetVolume,
+-	setTreble:	AmiSetTreble,
+-	play:		AmiPlay,
+-	mixer_init:	AmiMixerInit,
+-	mixer_ioctl:	AmiMixerIoctl,
+-	write_sq_setup:	AmiWriteSqSetup,
+-	state_info:	AmiStateInfo,
+-	min_dsp_speed:	8000,
+-	version:	((DMASOUND_PAULA_REVISION<<8) | DMASOUND_PAULA_EDITION),
+-	hardware_afmts:	(AFMT_S8 | AFMT_S16_BE), /* h'ware-supported formats *only* here */
+-        capabilities:   DSP_CAP_BATCH          /* As per SNDCTL_DSP_GETCAPS */
++	.init		= AmiInit,
++	.silence	= AmiSilence,
++	.setFormat	= AmiSetFormat,
++	.setVolume	= AmiSetVolume,
++	.setTreble	= AmiSetTreble,
++	.play		= AmiPlay,
++	.mixer_init	= AmiMixerInit,
++	.mixer_ioctl	= AmiMixerIoctl,
++	.write_sq_setup	= AmiWriteSqSetup,
++	.state_info	= AmiStateInfo,
++	.min_dsp_speed	= 8000,
++	.version	= ((DMASOUND_PAULA_REVISION<<8) | DMASOUND_PAULA_EDITION),
++	.hardware_afmts	= (AFMT_S8 | AFMT_S16_BE), /* h'ware-supported formats *only* here */
++	.capabilities	= DSP_CAP_BATCH          /* As per SNDCTL_DSP_GETCAPS */
+ };
  
-@@ -649,7 +654,7 @@
  
- /* Receive a single frame */
- static inline int
--i596_rx_one(struct net_device *dev, volatile struct i596_private *lp,
-+i596_rx_one(struct net_device *dev, struct i596_private *lp,
- 	    struct i596_rfd *rfd, int *frames) {
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/sound/oss/dmasound/dmasound_q40.c linux-2.5.67-ac1/sound/oss/dmasound/dmasound_q40.c
+--- linux-2.5.67/sound/oss/dmasound/dmasound_q40.c	2003-02-10 18:37:55.000000000 +0000
++++ linux-2.5.67-ac1/sound/oss/dmasound/dmasound_q40.c	2003-04-03 23:34:57.000000000 +0100
+@@ -584,39 +584,39 @@
+ /*** Machine definitions *****************************************************/
  
- 	if (rfd->stat & RFD_STAT_OK) {
-@@ -703,14 +708,14 @@
+ static SETTINGS def_hard = {
+-	format: AFMT_U8,
+-	stereo: 0,
+-	size: 8,
+-	speed: 10000
++	.format	= AFMT_U8,
++	.stereo	= 0,
++	.size	= 8,
++	.speed	= 10000
+ } ;
  
- static int
- i596_rx(struct net_device *dev) {
--	volatile struct i596_private *lp = (struct i596_private *) dev->priv;
-+	struct i596_private *lp = (struct i596_private *) dev->priv;
- 	struct i596_rfd *rfd;
- 	int frames = 0;
+ static SETTINGS def_soft = {
+-	format: AFMT_U8,
+-	stereo: 0,
+-	size: 8,
+-	speed: 8000
++	.format	= AFMT_U8,
++	.stereo	= 0,
++	.size	= 8,
++	.speed	= 8000
+ } ;
  
- 	while (1) {
- 		rfd = pa_to_va(lp->scb.pa_rfd);
- 		if (!rfd) {
--			printk("i596_rx: NULL rfd?\n");
-+			printk(KERN_ERR "i596_rx: NULL rfd?\n");
- 			return 0;
- 		}
- #if 1
-@@ -725,6 +730,7 @@
- 		lp->rx_tail->cmd = 0;
- 		lp->rx_tail = rfd;
- 		lp->scb.pa_rfd = rfd->pa_next;
-+		barrier();
- 	}
+ static MACHINE machQ40 = {
+-	name:		"Q40",
+-	name2:		"Q40",
+-	open:		Q40Open,
+-	release:	Q40Release,
+-	dma_alloc:	Q40Alloc,
+-	dma_free:	Q40Free,
+-	irqinit:	Q40IrqInit,
++	.name		= "Q40",
++	.name2		= "Q40",
++	.open		= Q40Open,
++	.release	= Q40Release,
++	.dma_alloc	= Q40Alloc,
++	.dma_free	= Q40Free,
++	.irqinit	= Q40IrqInit,
+ #ifdef MODULE
+-	irqcleanup:	Q40IrqCleanUp,
++	.irqcleanup	= Q40IrqCleanUp,
+ #endif /* MODULE */
+-	init:		Q40Init,
+-	silence:	Q40Silence,
+-	setFormat:	Q40SetFormat,
+-	setVolume:	Q40SetVolume,
+-	play:		Q40Play,
+- 	min_dsp_speed:	10000,
+-	version:	((DMASOUND_Q40_REVISION<<8) | DMASOUND_Q40_EDITION),
+-	hardware_afmts:	AFMT_U8, /* h'ware-supported formats *only* here */
+-        capabilities:	DSP_CAP_BATCH  /* As per SNDCTL_DSP_GETCAPS */
++	.init		= Q40Init,
++	.silence	= Q40Silence,
++	.setFormat	= Q40SetFormat,
++	.setVolume	= Q40SetVolume,
++	.play		= Q40Play,
++ 	.min_dsp_speed	= 10000,
++	.version	= ((DMASOUND_Q40_REVISION<<8) | DMASOUND_Q40_EDITION),
++	.hardware_afmts	= AFMT_U8, /* h'ware-supported formats *only* here */
++	.capabilities	= DSP_CAP_BATCH  /* As per SNDCTL_DSP_GETCAPS */
+ };
  
- 	return frames;
-@@ -732,7 +738,7 @@
  
- static void
- i596_cleanup_cmd(struct net_device *dev) {
--	volatile struct i596_private *lp;
-+	struct i596_private *lp;
- 	struct i596_cmd *cmd;
- 
- 	lp = (struct i596_private *) dev->priv;
-@@ -770,6 +776,7 @@
- 				break;
- 			}
- 		}
-+		barrier();
- 	}
- 
- 	if (lp->scb.command && i596_timeout(dev, "i596_cleanup_cmd", 100))
-@@ -778,9 +785,7 @@
- 	lp->scb.pa_cmd = va_to_pa(lp->cmd_head);
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/sound/oss/emu10k1/audio.c linux-2.5.67-ac1/sound/oss/emu10k1/audio.c
+--- linux-2.5.67/sound/oss/emu10k1/audio.c	2003-03-26 20:00:02.000000000 +0000
++++ linux-2.5.67-ac1/sound/oss/emu10k1/audio.c	2003-04-03 23:52:57.000000000 +0100
+@@ -33,7 +33,6 @@
+ #include <linux/module.h>
+ #include <linux/poll.h>
+ #include <linux/slab.h>
+-#include <linux/version.h>
+ #include <linux/bitops.h>
+ #include <asm/io.h>
+ #include <linux/sched.h>
+@@ -1020,7 +1019,7 @@
  }
  
--static inline void
--i596_reset(struct net_device *dev,
--	   volatile struct i596_private *lp, int ioaddr) {
-+static void i596_reset(struct net_device *dev, struct i596_private *lp, int ioaddr) {
+ struct vm_operations_struct emu10k1_mm_ops = {
+-	nopage:         emu10k1_mm_nopage,
++	.nopage         = emu10k1_mm_nopage,
+ };
  
- 	if (lp->scb.command && i596_timeout(dev, "i596_reset", 100))
- 		;
-@@ -789,7 +794,8 @@
- 
- 	lp->scb.command = CUC_ABORT | RX_ABORT;
- 	CA();
--
-+	barrier();
-+	
- 	/* wait for shutdown */
- 	if (lp->scb.command && i596_timeout(dev, "i596_reset(2)", 400))
- 		;
-@@ -803,7 +809,7 @@
+ static int emu10k1_audio_mmap(struct file *file, struct vm_area_struct *vma)
+@@ -1558,13 +1557,13 @@
  }
  
- static void i596_add_cmd(struct net_device *dev, struct i596_cmd *cmd) {
--	volatile struct i596_private *lp = dev->priv;
-+	struct i596_private *lp = dev->priv;
- 	int ioaddr = dev->base_addr;
- 	unsigned long flags;
+ struct file_operations emu10k1_audio_fops = {
+-	owner:		THIS_MODULE,
+-	llseek:		no_llseek,
+-	read:		emu10k1_audio_read,
+-	write:		emu10k1_audio_write,
+-	poll:		emu10k1_audio_poll,
+-	ioctl:		emu10k1_audio_ioctl,
+-	mmap:		emu10k1_audio_mmap,
+-	open:		emu10k1_audio_open,
+-	release:	emu10k1_audio_release,
++	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
++	.read		= emu10k1_audio_read,
++	.write		= emu10k1_audio_write,
++	.poll		= emu10k1_audio_poll,
++	.ioctl		= emu10k1_audio_ioctl,
++	.mmap		= emu10k1_audio_mmap,
++	.open		= emu10k1_audio_open,
++	.release	= emu10k1_audio_release,
+ };
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/sound/oss/emu10k1/main.c linux-2.5.67-ac1/sound/oss/emu10k1/main.c
+--- linux-2.5.67/sound/oss/emu10k1/main.c	2003-03-26 20:00:02.000000000 +0000
++++ linux-2.5.67-ac1/sound/oss/emu10k1/main.c	2003-04-03 23:52:57.000000000 +0100
+@@ -86,7 +86,6 @@
+  *********************************************************************/
  
-@@ -811,8 +817,8 @@
- 	cmd->command |= (CMD_EOL | CMD_INTR);
- 	cmd->pa_next = I596_NULL;
+ /* These are only included once per module */
+-#include <linux/version.h>
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/init.h>
+@@ -1144,10 +1143,10 @@
+ MODULE_LICENSE("GPL");
  
--	save_flags(flags);
--	cli();
-+	spin_lock_irqsave(&lp->cmd_lock, flags);
-+	
- 	if (lp->cmd_head) {
- 		lp->cmd_tail->pa_next = va_to_pa(cmd);
- 	} else {
-@@ -827,64 +833,45 @@
- 	lp->cmd_backlog++;
+ static struct pci_driver emu10k1_pci_driver = {
+-	name:		"emu10k1",
+-	id_table:	emu10k1_pci_tbl,
+-	probe:		emu10k1_probe,
+-	remove:		__devexit_p(emu10k1_remove),
++	.name		= "emu10k1",
++	.id_table	= emu10k1_pci_tbl,
++	.probe		= emu10k1_probe,
++	.remove		= __devexit_p(emu10k1_remove),
+ };
  
- 	lp->cmd_head = pa_to_va(lp->scb.pa_cmd);
--	restore_flags(flags);
-+	spin_unlock_irqrestore(&lp->cmd_lock, flags);
+ static int __init emu10k1_init_module(void)
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/sound/oss/emu10k1/midi.c linux-2.5.67-ac1/sound/oss/emu10k1/midi.c
+--- linux-2.5.67/sound/oss/emu10k1/midi.c	2003-03-26 20:00:02.000000000 +0000
++++ linux-2.5.67-ac1/sound/oss/emu10k1/midi.c	2003-04-03 23:52:57.000000000 +0100
+@@ -32,7 +32,6 @@
+ #include <linux/module.h>
+ #include <linux/poll.h>
+ #include <linux/slab.h>
+-#include <linux/version.h>
+ #include <linux/sched.h>
+ #include <linux/smp_lock.h>
+ #include <asm/uaccess.h>
+@@ -465,12 +464,12 @@
  
- 	if (lp->cmd_backlog > 16) {
- 		int tickssofar = jiffies - lp->last_cmd;
--		if (tickssofar < 25) return;
-+		if (tickssofar < HZ/4)
-+			return;
+ /* MIDI file operations */
+ struct file_operations emu10k1_midi_fops = {
+-	owner:		THIS_MODULE,
+-	read:		emu10k1_midi_read,
+-	write:		emu10k1_midi_write,
+-	poll:		emu10k1_midi_poll,
+-	open:		emu10k1_midi_open,
+-	release:	emu10k1_midi_release,
++	.owner		= THIS_MODULE,
++	.read		= emu10k1_midi_read,
++	.write		= emu10k1_midi_write,
++	.poll		= emu10k1_midi_poll,
++	.open		= emu10k1_midi_open,
++	.release	= emu10k1_midi_release,
+ };
  
--		printk("%s: command unit timed out, status resetting.\n",
--		       dev->name);
-+		printk(KERN_WARNING "%s: command unit timed out, status resetting.\n", dev->name);
- 		i596_reset(dev, lp, ioaddr);
- 	}
+ 
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/sound/oss/emu10k1/mixer.c linux-2.5.67-ac1/sound/oss/emu10k1/mixer.c
+--- linux-2.5.67/sound/oss/emu10k1/mixer.c	2003-03-26 20:00:02.000000000 +0000
++++ linux-2.5.67-ac1/sound/oss/emu10k1/mixer.c	2003-04-03 23:52:57.000000000 +0100
+@@ -31,7 +31,6 @@
+  */
+ 
+ #include <linux/module.h>
+-#include <linux/version.h>
+ #include <asm/uaccess.h>
+ #include <linux/fs.h>
+ 
+@@ -675,9 +674,9 @@
  }
  
--static int
--i596_open(struct net_device *dev) {
-+static int i596_open(struct net_device *dev) 
-+{
- 	int i;
+ struct file_operations emu10k1_mixer_fops = {
+-	owner:		THIS_MODULE,
+-	llseek:		no_llseek,
+-	ioctl:		emu10k1_mixer_ioctl,
+-	open:		emu10k1_mixer_open,
+-	release:	emu10k1_mixer_release,
++	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
++	.ioctl		= emu10k1_mixer_ioctl,
++	.open		= emu10k1_mixer_open,
++	.release	= emu10k1_mixer_release,
+ };
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/sound/oss/emu10k1/passthrough.c linux-2.5.67-ac1/sound/oss/emu10k1/passthrough.c
+--- linux-2.5.67/sound/oss/emu10k1/passthrough.c	2003-03-26 20:00:02.000000000 +0000
++++ linux-2.5.67-ac1/sound/oss/emu10k1/passthrough.c	2003-04-03 23:52:57.000000000 +0100
+@@ -32,7 +32,6 @@
+ #include <linux/module.h>
+ #include <linux/poll.h>
+ #include <linux/slab.h>
+-#include <linux/version.h>
+ #include <linux/bitops.h>
+ #include <asm/io.h>
+ #include <linux/sched.h>
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/sound/oss/es1370.c linux-2.5.67-ac1/sound/oss/es1370.c
+--- linux-2.5.67/sound/oss/es1370.c	2003-02-15 03:39:36.000000000 +0000
++++ linux-2.5.67-ac1/sound/oss/es1370.c	2003-04-03 23:52:57.000000000 +0100
+@@ -140,7 +140,6 @@
  
- 	i = request_irq(dev->irq, &i596_interrupt, SA_SHIRQ, dev->name, dev);
- 	if (i) {
--		printk("%s: IRQ %d not free\n", dev->name, dev->irq);
-+		printk(KERN_ERR "%s: IRQ %d not free\n", dev->name, dev->irq);
- 		return i;
- 	}
- 
- 	if ((i = init_rx_bufs(dev, RX_RING_SIZE)) < RX_RING_SIZE)
--		printk("%s: only able to allocate %d receive buffers\n",
--		       dev->name, i);
-+		printk(KERN_ERR "%s: only able to allocate %d receive buffers\n", dev->name, i);
- 
- 	if (i < 4) {
--// release buffers
- 		free_irq(dev->irq, dev);
- 		return -EAGAIN;
- 	}
--
- 	netif_start_queue(dev);
--
- 	init_i596(dev);
--
- 	return 0;			/* Always succeed */
+ /*****************************************************************************/
+       
+-#include <linux/version.h>
+ #include <linux/interrupt.h>
+ #include <linux/module.h>
+ #include <linux/string.h>
+@@ -1054,11 +1053,11 @@
  }
  
--static int
--i596_start_xmit (struct sk_buff *skb, struct net_device *dev) {
--	volatile struct i596_private *lp = dev->priv;
-+static int i596_start_xmit (struct sk_buff *skb, struct net_device *dev) {
-+	struct i596_private *lp = dev->priv;
- 	struct tx_cmd *tx_cmd;
- 	short length;
+ static /*const*/ struct file_operations es1370_mixer_fops = {
+-	owner:		THIS_MODULE,
+-	llseek:		no_llseek,
+-	ioctl:		es1370_ioctl_mixdev,
+-	open:		es1370_open_mixdev,
+-	release:	es1370_release_mixdev,
++	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
++	.ioctl		= es1370_ioctl_mixdev,
++	.open		= es1370_open_mixdev,
++	.release	= es1370_release_mixdev,
+ };
  
--	/* If some higher level thinks we've missed a tx-done interrupt
--	   we are passed NULL. n.b. dev_tint handles the cli()/sti()
--	   itself. */
--	if (skb == NULL) {
--		printk ("What about dev_tint\n");
--		/* dev_tint(dev); */
--		return 0;
--	}
--
--	/* shouldn't happen */
--	if (skb->len <= 0)
--		return 0;
--
- 	length = skb->len;
- 	
- 	if (length < ETH_ZLEN) {
-@@ -896,14 +883,10 @@
- 	
- 	dev->trans_start = jiffies;
- 
--	tx_cmd = (struct tx_cmd *)
--	    kmalloc ((sizeof (struct tx_cmd)
--		      + sizeof (struct i596_tbd)), GFP_ATOMIC);
-+	tx_cmd = (struct tx_cmd *) kmalloc ((sizeof (struct tx_cmd) + sizeof (struct i596_tbd)), GFP_ATOMIC);
- 	if (tx_cmd == NULL) {
--		printk ("%s: i596_xmit Memory squeeze, dropping packet.\n",
--			dev->name);
-+		printk(KERN_WARNING "%s: i596_xmit Memory squeeze, dropping packet.\n", dev->name);
- 		lp->stats.tx_dropped++;
--
- 		dev_kfree_skb (skb);
- 	} else {
- 		struct i596_tbd *tx_cmd_tbd;
-@@ -934,11 +917,11 @@
- 
- static void
- i596_tx_timeout (struct net_device *dev) {
--	volatile struct i596_private *lp = dev->priv;
-+	struct i596_private *lp = dev->priv;
- 	int ioaddr = dev->base_addr;
- 
- 	/* Transmitter timeout, serious problems. */
--	printk ("%s: transmit timed out, status resetting.\n", dev->name);
-+	printk(KERN_WARNING "%s: transmit timed out, status resetting.\n", dev->name);
- 	lp->stats.tx_errors++;
- 
- 	/* Try to restart the adaptor */
-@@ -957,8 +940,8 @@
- 	netif_wake_queue(dev);
+ /* --------------------------------------------------------------------- */
+@@ -1816,15 +1815,15 @@
  }
  
--static void
--print_eth(char *add) {
-+static void print_eth(char *add) 
-+{
- 	int i;
+ static /*const*/ struct file_operations es1370_audio_fops = {
+-	owner:		THIS_MODULE,
+-	llseek:		no_llseek,
+-	read:		es1370_read,
+-	write:		es1370_write,
+-	poll:		es1370_poll,
+-	ioctl:		es1370_ioctl,
+-	mmap:		es1370_mmap,
+-	open:		es1370_open,
+-	release:	es1370_release,
++	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
++	.read		= es1370_read,
++	.write		= es1370_write,
++	.poll		= es1370_poll,
++	.ioctl		= es1370_ioctl,
++	.mmap		= es1370_mmap,
++	.open		= es1370_open,
++	.release	= es1370_release,
+ };
  
- 	printk ("Dest  ");
-@@ -975,9 +958,8 @@
- 		(unsigned char) add[12], (unsigned char) add[13]);
+ /* --------------------------------------------------------------------- */
+@@ -2240,14 +2239,14 @@
  }
  
--int __init
--lp486e_probe(struct net_device *dev) {
--	volatile struct i596_private *lp;
-+int __init lp486e_probe(struct net_device *dev) {
-+	struct i596_private *lp;
- 	unsigned char eth_addr[6] = { 0, 0xaa, 0, 0, 0, 0 };
- 	unsigned char *bios;
- 	int i, j;
-@@ -996,14 +978,14 @@
- 	/*
- 	 * Allocate working memory, 16-byte aligned
- 	 */
--	dev->mem_start = (unsigned long)
--		kmalloc(sizeof(struct i596_private) + 0x0f, GFP_KERNEL);
-+	dev->mem_start = (unsigned long) kmalloc(sizeof(struct i596_private) + 0x0f, GFP_KERNEL);
- 	if (!dev->mem_start)
- 		goto err_out;
- 	dev->priv = (void *)((dev->mem_start + 0xf) & 0xfffffff0);
- 	lp = (struct i596_private *) dev->priv;
- 	memset((void *)lp, 0, sizeof(struct i596_private));
--
-+	spin_lock_init(&lp->cmd_lock);
-+	
- 	/*
- 	 * Do we really have this thing?
- 	 */
-@@ -1071,14 +1053,16 @@
+ static /*const*/ struct file_operations es1370_dac_fops = {
+-	owner:		THIS_MODULE,
+-	llseek:		no_llseek,
+-	write:		es1370_write_dac,
+-	poll:		es1370_poll_dac,
+-	ioctl:		es1370_ioctl_dac,
+-	mmap:		es1370_mmap_dac,
+-	open:		es1370_open_dac,
+-	release:	es1370_release_dac,
++	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
++	.write		= es1370_write_dac,
++	.poll		= es1370_poll_dac,
++	.ioctl		= es1370_ioctl_dac,
++	.mmap		= es1370_mmap_dac,
++	.open		= es1370_open_dac,
++	.release	= es1370_release_dac,
+ };
  
- static inline void
- i596_handle_CU_completion(struct net_device *dev,
--			  volatile struct i596_private *lp,
-+			  struct i596_private *lp,
- 			  unsigned short status,
- 			  unsigned short *ack_cmdp) {
--	volatile struct i596_cmd *cmd;
-+	struct i596_cmd *cmd;
- 	int frames_out = 0;
- 	int commands_done = 0;
- 	int cmd_val;
-+	unsigned long flags;
- 
-+	spin_lock_irqsave(&lp->cmd_lock, flags);
- 	cmd = lp->cmd_head;
- 
- 	while (lp->cmd_head && (lp->cmd_head->status & CMD_STAT_C)) {
-@@ -1160,31 +1144,29 @@
- 			lp->last_cmd = jiffies;
- 			
- 		}
-+		barrier();
- 	}
- 
- 	cmd = lp->cmd_head;
- 	while (cmd && (cmd != lp->cmd_tail)) {
- 		cmd->command &= 0x1fff;
- 		cmd = pa_to_va(cmd->pa_next);
-+		barrier();
- 	}
- 
- 	if (lp->cmd_head)
- 		*ack_cmdp |= CUC_START;
- 	lp->scb.pa_cmd = va_to_pa(lp->cmd_head);
-+	spin_unlock_irqrestore(&lp->cmd_lock, flags);
+ /* --------------------------------------------------------------------- */
+@@ -2513,13 +2512,13 @@
  }
  
- static void
- i596_interrupt (int irq, void *dev_instance, struct pt_regs *regs) {
- 	struct net_device *dev = (struct net_device *) dev_instance;
--	volatile struct i596_private *lp;
-+	struct i596_private *lp;
- 	unsigned short status, ack_cmd = 0;
- 	int frames_in = 0;
+ static /*const*/ struct file_operations es1370_midi_fops = {
+-	owner:		THIS_MODULE,
+-	llseek:		no_llseek,
+-	read:		es1370_midi_read,
+-	write:		es1370_midi_write,
+-	poll:		es1370_midi_poll,
+-	open:		es1370_midi_open,
+-	release:	es1370_midi_release,
++	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
++	.read		= es1370_midi_read,
++	.write		= es1370_midi_write,
++	.poll		= es1370_midi_poll,
++	.open		= es1370_midi_open,
++	.release	= es1370_midi_release,
+ };
  
--	if (dev == NULL) {
--		printk ("i596_interrupt(): irq %d for unknown device.\n", irq);
--		return;
--	}
--
- 	lp = (struct i596_private *) dev->priv;
+ /* --------------------------------------------------------------------- */
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/sound/oss/es1371.c linux-2.5.67-ac1/sound/oss/es1371.c
+--- linux-2.5.67/sound/oss/es1371.c	2003-03-06 17:04:39.000000000 +0000
++++ linux-2.5.67-ac1/sound/oss/es1371.c	2003-04-03 23:52:57.000000000 +0100
+@@ -109,7 +109,6 @@
  
- 	/*
-@@ -1251,7 +1233,7 @@
+ /*****************************************************************************/
+       
+-#include <linux/version.h>
+ #include <linux/interrupt.h>
+ #include <linux/module.h>
+ #include <linux/string.h>
+@@ -1243,11 +1242,11 @@
  }
  
- static int i596_close(struct net_device *dev) {
--	volatile struct i596_private *lp = dev->priv;
-+	struct i596_private *lp = dev->priv;
+ static /*const*/ struct file_operations es1371_mixer_fops = {
+-	owner:		THIS_MODULE,
+-	llseek:		no_llseek,
+-	ioctl:		es1371_ioctl_mixdev,
+-	open:		es1371_open_mixdev,
+-	release:	es1371_release_mixdev,
++	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
++	.ioctl		= es1371_ioctl_mixdev,
++	.open		= es1371_open_mixdev,
++	.release	= es1371_release_mixdev,
+ };
  
- 	netif_stop_queue(dev);
+ /* --------------------------------------------------------------------- */
+@@ -2004,15 +2003,15 @@
+ }
  
-@@ -1284,7 +1266,7 @@
- */
+ static /*const*/ struct file_operations es1371_audio_fops = {
+-	owner:		THIS_MODULE,
+-	llseek:		no_llseek,
+-	read:		es1371_read,
+-	write:		es1371_write,
+-	poll:		es1371_poll,
+-	ioctl:		es1371_ioctl,
+-	mmap:		es1371_mmap,
+-	open:		es1371_open,
+-	release:	es1371_release,
++	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
++	.read		= es1371_read,
++	.write		= es1371_write,
++	.poll		= es1371_poll,
++	.ioctl		= es1371_ioctl,
++	.mmap		= es1371_mmap,
++	.open		= es1371_open,
++	.release	= es1371_release,
+ };
  
- static void set_multicast_list(struct net_device *dev) {
--	volatile struct i596_private *lp = dev->priv;
-+	struct i596_private *lp = dev->priv;
- 	struct i596_cmd *cmd;
+ /* --------------------------------------------------------------------- */
+@@ -2418,14 +2417,14 @@
+ }
  
- 	if (i596_debug > 1)
-@@ -1294,12 +1276,9 @@
- 	if (dev->mc_count > 0) {
- 		struct dev_mc_list *dmi;
- 		char *cp;
--		cmd = (struct i596_cmd *)
--			kmalloc(sizeof(struct i596_cmd)+2+dev->mc_count*6,
--				GFP_ATOMIC);
-+		cmd = (struct i596_cmd *)kmalloc(sizeof(struct i596_cmd)+2+dev->mc_count*6, GFP_ATOMIC);
- 		if (cmd == NULL) {
--			printk ("%s: set_multicast Memory squeeze.\n",
--				dev->name);
-+			printk (KERN_ERR "%s: set_multicast Memory squeeze.\n", dev->name);
- 			return;
- 		}
- 		cmd->command = CmdMulticastList;
-@@ -1316,8 +1295,7 @@
- 		if (lp->set_conf.pa_next != I596_NULL) {
- 			return;
- 		}
--		if (dev->mc_count == 0 &&
--		    !(dev->flags & (IFF_PROMISC | IFF_ALLMULTI))) {
-+		if (dev->mc_count == 0 && !(dev->flags & (IFF_PROMISC | IFF_ALLMULTI))) {
- 			if (dev->flags & IFF_ALLMULTI)
- 				dev->flags |= IFF_PROMISC;
- 			lp->i596_config[8] &= ~0x01;
+ static /*const*/ struct file_operations es1371_dac_fops = {
+-	owner:		THIS_MODULE,
+-	llseek:		no_llseek,
+-	write:		es1371_write_dac,
+-	poll:		es1371_poll_dac,
+-	ioctl:		es1371_ioctl_dac,
+-	mmap:		es1371_mmap_dac,
+-	open:		es1371_open_dac,
+-	release:	es1371_release_dac,
++	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
++	.write		= es1371_write_dac,
++	.poll		= es1371_poll_dac,
++	.ioctl		= es1371_ioctl_dac,
++	.mmap		= es1371_mmap_dac,
++	.open		= es1371_open_dac,
++	.release	= es1371_release_dac,
+ };
+ 
+ /* --------------------------------------------------------------------- */
+@@ -2690,13 +2689,13 @@
+ }
+ 
+ static /*const*/ struct file_operations es1371_midi_fops = {
+-	owner:		THIS_MODULE,
+-	llseek:		no_llseek,
+-	read:		es1371_midi_read,
+-	write:		es1371_midi_write,
+-	poll:		es1371_midi_poll,
+-	open:		es1371_midi_open,
+-	release:	es1371_midi_release,
++	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
++	.read		= es1371_midi_read,
++	.write		= es1371_midi_write,
++	.poll		= es1371_midi_poll,
++	.open		= es1371_midi_open,
++	.release	= es1371_midi_release,
+ };
+ 
+ /* --------------------------------------------------------------------- */
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/sound/oss/esssolo1.c linux-2.5.67-ac1/sound/oss/esssolo1.c
+--- linux-2.5.67/sound/oss/esssolo1.c	2003-02-10 18:37:59.000000000 +0000
++++ linux-2.5.67-ac1/sound/oss/esssolo1.c	2003-04-03 23:52:57.000000000 +0100
+@@ -87,7 +87,6 @@
+ 
+ /*****************************************************************************/
+       
+-#include <linux/version.h>
+ #include <linux/interrupt.h>
+ #include <linux/module.h>
+ #include <linux/string.h>
+@@ -951,11 +950,11 @@
+ }
+ 
+ static /*const*/ struct file_operations solo1_mixer_fops = {
+-	owner:		THIS_MODULE,
+-	llseek:		no_llseek,
+-	ioctl:		solo1_ioctl_mixdev,
+-	open:		solo1_open_mixdev,
+-	release:	solo1_release_mixdev,
++	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
++	.ioctl		= solo1_ioctl_mixdev,
++	.open		= solo1_open_mixdev,
++	.release	= solo1_release_mixdev,
+ };
+ 
+ /* --------------------------------------------------------------------- */
+@@ -1650,15 +1649,15 @@
+ }
+ 
+ static /*const*/ struct file_operations solo1_audio_fops = {
+-	owner:		THIS_MODULE,
+-	llseek:		no_llseek,
+-	read:		solo1_read,
+-	write:		solo1_write,
+-	poll:		solo1_poll,
+-	ioctl:		solo1_ioctl,
+-	mmap:		solo1_mmap,
+-	open:		solo1_open,
+-	release:	solo1_release,
++	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
++	.read		= solo1_read,
++	.write		= solo1_write,
++	.poll		= solo1_poll,
++	.ioctl		= solo1_ioctl,
++	.mmap		= solo1_mmap,
++	.open		= solo1_open,
++	.release	= solo1_release,
+ };
+ 
+ /* --------------------------------------------------------------------- */
+@@ -2001,13 +2000,13 @@
+ }
+ 
+ static /*const*/ struct file_operations solo1_midi_fops = {
+-	owner:		THIS_MODULE,
+-	llseek:		no_llseek,
+-	read:		solo1_midi_read,
+-	write:		solo1_midi_write,
+-	poll:		solo1_midi_poll,
+-	open:		solo1_midi_open,
+-	release:	solo1_midi_release,
++	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
++	.read		= solo1_midi_read,
++	.write		= solo1_midi_write,
++	.poll		= solo1_midi_poll,
++	.open		= solo1_midi_open,
++	.release	= solo1_midi_release,
+ };
+ 
+ /* --------------------------------------------------------------------- */
+@@ -2189,11 +2188,11 @@
+ }
+ 
+ static /*const*/ struct file_operations solo1_dmfm_fops = {
+-	owner:		THIS_MODULE,
+-	llseek:		no_llseek,
+-	ioctl:		solo1_dmfm_ioctl,
+-	open:		solo1_dmfm_open,
+-	release:	solo1_dmfm_release,
++	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
++	.ioctl		= solo1_dmfm_ioctl,
++	.open		= solo1_dmfm_open,
++	.release	= solo1_dmfm_release,
+ };
+ 
+ /* --------------------------------------------------------------------- */

@@ -1,114 +1,133 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273014AbRIIS6J>; Sun, 9 Sep 2001 14:58:09 -0400
+	id <S273016AbRIITNW>; Sun, 9 Sep 2001 15:13:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273015AbRIIS5u>; Sun, 9 Sep 2001 14:57:50 -0400
-Received: from h24-76-60-12.vf.shawcable.net ([24.76.60.12]:13440 "HELO
-	g-box.vf.shawcable.net") by vger.kernel.org with SMTP
-	id <S273014AbRIIS52>; Sun, 9 Sep 2001 14:57:28 -0400
-Date: Sun, 9 Sep 2001 11:57:24 -0700 (PDT)
-From: grue@lakesweb.com
-Reply-To: grue@lakesweb.com
-Subject: Re: Feedback on preemptible kernel patch
-To: rml@tech9.net
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <999928066.903.18.camel@phantasy>
+	id <S273015AbRIITNM>; Sun, 9 Sep 2001 15:13:12 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:11024 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S273016AbRIITNA>; Sun, 9 Sep 2001 15:13:00 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Andreas Dilger <adilger@turbolabs.com>
+Subject: Re: linux-2.4.10-pre5
+Date: Sun, 9 Sep 2001 21:19:28 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Andrea Arcangeli <andrea@suse.de>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0109091019460.14365-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0109091019460.14365-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
-Message-Id: <20010909185727.586B1597C5@g-box.vf.shawcable.net>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010909191317Z16475-26183+635@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rob,
+On September 9, 2001 07:31 pm, Linus Torvalds wrote:
+> On Sun, 9 Sep 2001, Andreas Dilger wrote:
+> >
+> > I think this fits in with your overall strategy as well - remove the buffer
+> > as a "cache" object, and only use it as an I/O object, right?  With this
+> > change, all of the cache functionality is in the page cache, and the buffers
+> > are only used as handles for I/O.
+> 
+> Absolutely. It would be wonderful to get rid of the buffer hashes, and
+> just replace them with walking the page hash instead (plus walking the
+> per-page bh list if we have non-page-sized buffers at non-zero offset). It
+> would also clearly make the page cache be the allocation unit and VM
+> entity.
+> 
+> The interesting thing is that once you remove the buffer hash entries,
+> there's not a lot inside "struct buffer_head" that isn't required for IO
+> anyway.
 
-Just finished running some benchmarks on my workstation.
-Dual P3-550, 256MB ram, no swap, both kernels with CONFIG_SMP=y, 440BX,
-2-20GB 5400rpm drives.
+Let me take inventory here, grouping the fields:
 
-All benchmarks running in an Eterm on E on XF86-4.1.0-DRI with xmms running to
-listen for latency probs. Benchmarks run as root, everything else as regular
-user.
+Needed for basic IO functionality:
+        atomic_t b_count;               /* users using this block */
+        unsigned long b_state;          /* buffer state bitmap (see above) */
+        unsigned long b_blocknr;        /* block number */
+        unsigned long b_flushtime;      /* Time when (dirty) buffer should be written */
+        struct page *b_page;            /* the page this bh is mapped to */
+        struct buffer_head *b_reqnext;  /* request queue */
+        wait_queue_head_t b_wait;
 
-linux-2.4.10-pre6 with rml-netdev-random patch and rml-preempt patch (pre5 patches
-applied to pre6), with CONFIG_PREEMPT=y
+Can get from mapping:
+        unsigned short b_size;          /* block size */
+        kdev_t b_dev;                   /* device (B_FREE = free) */
+        void (*b_end_io)(struct buffer_head *bh, int uptodate); /* I/O completion */
+        struct inode * b_inode;
 
-dbench 16
-Throughput 23.4608 MB/sec (NB=29.326 MB/sec  234.608 MBit/sec)
-Throughput 22.6915 MB/sec (NB=28.3644 MB/sec  226.915 MBit/sec) - .5sec hiccup in xmms
-Throughput 20.4314 MB/sec (NB=25.5392 MB/sec  204.314 MBit/sec) - .5sec hiccup in xmms
-Throughput 27.2849 MB/sec (NB=34.1061 MB/sec  272.849 MBit/sec) - .5sec hiccup in xmms
-Throughput 20.5148 MB/sec (NB=25.6435 MB/sec  205.148 MBit/sec) - 2sec and .5sec in xmms
-loadavg around 14
+Not needed with variable page size:
+        unsigned short b_size;          /* block size */
+        struct buffer_head *b_this_page;/* circular list of buffers in one page */
+        char * b_data;                  /* pointer to data block */
+        struct list_head b_inode_buffers;   /* doubly linked list of inode dirty buffers */
 
-Bonnie
-              -------Sequential Output-------- ---Sequential Input-- --Random--
-              -Per Char- --Block--- -Rewrite-- -Per Char- --Block--- --Seeks---
-Machine    MB K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU  /sec %CPU
-         1024  9002 98.0 15893 15.1  6519 10.8  6101 78.6 23330 24.4 104.3  2.2
+Could possibly get rid of (with a page cache mapping):
+        struct buffer_head *b_next;     /* Hash queue list */
+        struct buffer_head **b_pprev;   /* doubly linked list of hash-queue */
 
-linux-2.4.10-pre6
+Used by raid, loop and highmem, could move to request struct:
+        void *b_private;                /* reserved for b_end_io */
 
-dbench 16
-Throughput 18.1821 MB/sec (NB=22.7276 MB/sec  181.821 MBit/sec)
-Throughput 22.4247 MB/sec (NB=28.0309 MB/sec  224.247 MBit/sec) - .5sec hiccup in xmms
-Throughput 20.2662 MB/sec (NB=25.3328 MB/sec  202.662 MBit/sec) - 2sec hiccup in xmms
-Throughput 28.4072 MB/sec (NB=35.5089 MB/sec  284.072 MBit/sec) - 3sec hiccup in xmms
-Throughput 24.0549 MB/sec (NB=30.0686 MB/sec  240.549 MBit/sec)
-loadavg around 14
+Should die:
+        kdev_t b_rdev;                  /* Real device */
+        unsigned long b_rsector;        /* Real buffer location on disk */
+        struct buffer_head *b_next_free;/* lru/free list linkage */
+        struct buffer_head *b_prev_free;/* doubly linked list of buffers */
 
-Bonnie
-              -------Sequential Output-------- ---Sequential Input-- --Random--
-              -Per Char- --Block--- -Rewrite-- -Per Char- --Block--- --Seeks---
-Machine    MB K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU  /sec %CPU
-         1024  9173 99.4 16104 14.5  6488 10.2  6139 78.9 23260 22.1 105.1  2.3
+(Note b_size appears twice in the list above.)  So it's about evenly split
+between fields we needed even if the buffer just becomes an IO tag, and
+fields that could be gotten rid of.  The b_wait field could go since we're
+really waiting on an IO request, which has its own wait field.
 
-There's no real difference in speed with either kernel, the hard drives
-seem to be the bottleneck on this system.
--(root@g-box)-(~)-
-->hdparm /dev/hda
+> Maybe we could do without bh->b_count, but it is at least
+> currently required for backwards compatibility with all the code that
+> thinks buffer heads are autonomous entities. But I actually suspect it
+> makes a lot of sense even for a stand-alone IO entity (I'm a firm believer
+> in reference counting as a way to avoid memory management trouble).
 
-/dev/hda:
- multcount    = 16 (on)
- I/O support  =  1 (32-bit)
- unmaskirq    =  1 (on)
- using_dma    =  1 (on)
- keepsettings =  1 (on)
- nowerr       =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 2491/255/63, sectors = 40031712, start = 0
+Maybe.  We might be able to tell from the state flags and the page use count
+that the buffer head is really freeable.
 
-The throughput from bonnie is very close to the max physical throughput
-of the drives, so I'm not to concerned that there isn't much of a
-difference in speed.
+> The LRU list and page list is needed for VM stuff, and could be cleanly
+> separated out (nothing to do with actual IO). Same goes for b_inode and
+> b_inode_buffers.
 
-The biggest difference is in the usability of the system under the load.
-With 2.4.10-pre6 vanilla, dbench seriously affects the interactivity of
-X, as well as causes some long interuptions in xmms. With preempt
-enabled, this is much improved. Still some interuptions in xmms, but the
-system is still usable, although a little sluggish. On the vanilla
-kernel, even bonnie caused a couple of hiccups in xmms, with preempt
-enabled, bonnie didn't affect xmms at all. all programs were run without
-altering nice values at all.
+We can easily get rid of b_inode, since it's in the page->mapping.
 
-For a workstation, I like the difference, my system is still usable even
-with the load upwards of 14, without preempt, it's like looking at a
-couple of screenshots. This is not something that I would recommend for
-a server, but for a workstation, it works great.
+> And b_data could be removed, as the information is implied in b_page and
+> the position there-in, but at the same time it's probably useful enough
+> for low-level IO to leave.
+>
+> So I'd like to see this kind of cleanup, especially as it would apparently
+> both clean up a higher-level memory management issue _and_ make it much
+> easier to make the transition to a page-cache for the user accesses (which
+> is just _required_ for mmap and friends to work on physical devices).
+> 
+> Dan, how much of this do you have?
 
-Out of morbid curiousity, I ran a make -j bzImage to see how well this
-would handle being driven into the ground. No oopsen, the OOM killer
-worked great, killed everything that wasn't being used. The only prob is
-that it hosed my console and killed my ssh daemon. oops ;) Sending a
-sysrq-SAK and then a 3-finger-salute rebooted the system perfectly, no
-fsck or anything.
+Working code?  Just the page cache version of ext2_getblk in the directory
+indexing patch.  This seems to have worked out fairly well.  Though Al
+finds it distasteful on philosophical grounds it does seem to be a pragmatic
+way to cut through the current complexity, and combines well with Al's
+straight-up page cache code without apparent breakage.
 
-I couldn't build that latency test for my system, so no results from it.
-I haven't had a chance to look at it's source, so I'm not sure if I can
-make it work here or not.
+I have put considerable thought into how to move all the rest of the
+remaining Ext2 buffer code into page cache, but this is still at the design
+stage.  Most of it is easy: group descriptors, block/inode bitmaps,
+superblocks.  The hard part is ext2_get_block and specifically the indirect
+blocks, if we want "page cache style" usage and not just transplanted
+buffer-style coding.  I've started on this but don't have working code yet.
 
-I'll keep up with your patches and keep you posted.
+One observation: the buffer hash link is currently unused for page cache
+buffers.  We could possibly use that for reverse mapping from logical inode
+blocks to physical device blocks, to combat aliasing.  A spin-off benefit
+is, the same mechanism could be used to implement a physical readahead
+cache which can do things that logical readahead can't.  For example, it
+could do readahead through a group of small files without knowing anything
+about the metadata, which we might not have read yet.
 
 --
-Gregory Finch
-
+Daniel

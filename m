@@ -1,32 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S290271AbUKBIGy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S382002AbUKBIRj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S290271AbUKBIGy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 03:06:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S277576AbUKBIGx
+	id S382002AbUKBIRj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 03:17:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S382003AbUKBIRh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 03:06:53 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:59790 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S275943AbUKBIG2 (ORCPT
+	Tue, 2 Nov 2004 03:17:37 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:18114 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S382516AbUKBIQ5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 03:06:28 -0500
-Date: Tue, 2 Nov 2004 09:07:31 +0100
+	Tue, 2 Nov 2004 03:16:57 -0500
+Date: Tue, 2 Nov 2004 09:17:50 +0100
 From: Ingo Molnar <mingo@elte.hu>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Lee Revell <rlrevell@joe-job.com>,
-       Paul Davis <paul@linuxaudiosystems.com>,
+To: Paul Davis <paul@linuxaudiosystems.com>
+Cc: Florian Schmidt <mista.tapas@gmx.net>, Lee Revell <rlrevell@joe-job.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
        LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
        Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
        Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
        Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
        Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
        Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>
 Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-Message-ID: <20041102080731.GC21359@elte.hu>
-References: <20041031134016.GA24645@elte.hu> <20041031162059.1a3dd9eb@mango.fruits.de> <20041031165913.2d0ad21e@mango.fruits.de> <20041031200621.212ee044@mango.fruits.de> <20041101134235.GA18009@elte.hu> <20041101135358.GA19718@elte.hu> <20041101140630.GA20448@elte.hu> <1099324040.3337.32.camel@thomas> <20041101184615.GB32009@elte.hu> <20041101233037.314337c8@mango.fruits.de>
+Message-ID: <20041102081750.GD21359@elte.hu>
+References: <20041101143049.GA22221@elte.hu> <200411011930.iA1JULiQ009302@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041101233037.314337c8@mango.fruits.de>
+In-Reply-To: <200411011930.iA1JULiQ009302@localhost.localdomain>
 User-Agent: Mutt/1.4.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -39,28 +40,49 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Florian Schmidt <mista.tapas@gmx.net> wrote:
+* Paul Davis <paul@linuxaudiosystems.com> wrote:
 
-> > also, there are no "arbitrary load" latency guarantees with
-> > DEADLOCK_DETECTION turned on, since we search the list of all held locks
-> > during task-exit time - this can generate pretty bad latencies e.g.
-> > during hackbench.
+> >poll() is quite complex and with a good number of locks in the path the
+> >maximum latency increases accordingly.
 > 
-> btw: i see the same build failure as Rui with lock debugging disabled.
+> how can poll(2) be more complex than read/write? if it is, it
+> shouldn't be ;)
 
-(just remove the offending call to show_all_locks())
+poll() is fundamentally more complex: it has to watch multiple channels,
+while read()/write() has to watch only a single event channel. The fact
+that read()/write() also has to do some actual IO makes little
+difference to complexity, as poll() already has to do most of the
+locking read()/write() has to do, to figure out that it _could_ do the
+read()/write().
 
-> Since the lock debugging can screw timings, will this be fixed in [one
-> of] the next version[s]?
+> >btw., couldnt jackd use a separate input and output thread (of identical
+> >priority), to be purely read()/write() based? This method should also
+> >solve the priority problems of poll(): the thread woken up later will do
+> >the work later. (hence the _earlier_ interrupt source will be handled
+> >first.) With poll() how do you tell which fd needs attention first, if
+> >both are set?
+> 
+> we don't really care which one needs attention "first". [...]
 
-yeah, i think so. Right now i've increased the complexity of the checks
-to root out bugs as clearly there's a stability problem. Once things
-have calmed down i think we can remove the 'check all locks at exit
-time' portion that is the problematic one.
+well, order of processing can make a difference under a high event load.
+Couldnt capture and playback interrupts be separate and differently
+timed? I understand your previous points that the audio 'channels' are
+highly coupled and cannot be considered separate 'event sources', but is
+the same true for all the fds that jackd passes into poll()? Is it true
+if multiple cards are used?
 
-note that you really need some insane loads with thousands of tasks in
-the runqueue (hackbench) to really trigger that kind of overhead. Normal
-loads are not supposed to trigger any of this, even with full debugging
-turned on.
+the scenario that could trigger problems is that if an event (or group
+of events) triggers some processing in the highprio thread, and two more
+events arrive, one at the beginning of the previous processing, one at
+the end of it. Once the highprio thread calls poll() again, the timing
+of the two events has been lost - and jackd could end up processing the
+_later_ event.
+
+while this should normally make no difference with low audio loads, i
+can very much see this causing problem as the number of cards/events
+increases. What is typically the longest amount of time the highprio
+thread can spend 'processing' without being actively poll()-ing? I know
+it is typically short, but what is roughly the longest amount of time?
+(is it the 1.4 msecs displayed in one of Rui's earlier testresults?)
 
 	Ingo

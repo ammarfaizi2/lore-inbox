@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130138AbQLKWbo>; Mon, 11 Dec 2000 17:31:44 -0500
+	id <S130658AbQLKWff>; Mon, 11 Dec 2000 17:35:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130658AbQLKWbX>; Mon, 11 Dec 2000 17:31:23 -0500
-Received: from innerfire.net ([208.181.73.33]:55047 "HELO innerfire.net")
-	by vger.kernel.org with SMTP id <S130902AbQLKWbP>;
-	Mon, 11 Dec 2000 17:31:15 -0500
-Date: Mon, 11 Dec 2000 14:03:46 -0800 (PST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        John Fremlin <vii@penguinpowered.com>, scole@lanl.gov,
+	id <S131010AbQLKWfZ>; Mon, 11 Dec 2000 17:35:25 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:2186 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S130658AbQLKWfN>;
+	Mon, 11 Dec 2000 17:35:13 -0500
+Date: Mon, 11 Dec 2000 13:48:34 -0800
+Message-Id: <200012112148.NAA24830@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: groudier@club-internet.fr
+CC: mj@suse.cz, lk@tantalophile.demon.co.uk, davej@suse.de,
         linux-kernel@vger.kernel.org
-Subject: Re: UP 2.2.18 makes kernels 3% faster than UP 2.4.0-test12
-In-Reply-To: <E145Xy6-0008HA-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10012111357430.21909-100000@innerfire.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <Pine.LNX.4.10.10012112116250.2023-100000@linux.local> (message
+	from Gérard Roudier on Mon, 11 Dec 2000 21:49:52 +0100 (CET))
+Subject: Re: pdev_enable_device no longer used ?
+In-Reply-To: <Pine.LNX.4.10.10012112116250.2023-100000@linux.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Dec 2000, Alan Cox wrote:
+   Date: 	Mon, 11 Dec 2000 21:49:52 +0100 (CET)
+   From: Gérard Roudier <groudier@club-internet.fr>
 
-> > Doing a 'make bzImage' is NOT VM-intensive. Using this as a test
-> > for the VM doesn't make any sense since it doesn't really excercise
-> > the VM in any way...
-> 
-> Its an interesting demo that 2.4 has some performance problems since 2.2
-> is slower than 2.0 although nowdays not much.
+   If now, the PCI stuff is claimed to be cleaned up, then _all_ the
+   hacks have to be removed definitely.  As a result, the driver will
+   not work anymore on Sparc64, neither on PPC and I am not sure it
+   will still work on Alpha, in my opinion.
 
-How much of that is due to the fact that the 2.4.0 scheduler interrupts
-processes more often than 2.2.x?  Is the better interactivity worth the
-slight drop in performance?
+Actually Gerard, in your current 2.4.x NCR53c8xx and SYM53c8XX drivers
+only real ifdefs for sparc64 are printf format strings for PCI interrupt
+numbers :-)
 
-	Gerhard
+Really, in 2.4.x sparc64 requires PCI config space hackery no longer.
 
-
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
-
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

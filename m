@@ -1,55 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263181AbTKWB6R (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Nov 2003 20:58:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263176AbTKWB6R
+	id S263176AbTKWB7u (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Nov 2003 20:59:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbTKWB7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Nov 2003 20:58:17 -0500
-Received: from clem.clem-digital.net ([68.16.168.10]:61188 "EHLO
-	clem.clem-digital.net") by vger.kernel.org with ESMTP
-	id S263158AbTKWB6P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Nov 2003 20:58:15 -0500
-From: Pete Clements <clem@clem.clem-digital.net>
-Message-Id: <200311230158.UAA13162@clem.clem-digital.net>
-Subject: Re: 2.6.0-test9-bk26 fails boot -- aic7890 detection
-In-Reply-To: <1069546688.2667.11.camel@mulgrave> from James Bottomley at "Nov 22, 2003  6:18: 7 pm"
-To: James.Bottomley@SteelEye.com (James Bottomley)
-Date: Sat, 22 Nov 2003 20:58:12 -0500 (EST)
-Cc: clem@clem.clem-digital.net, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL48 (25)]
+	Sat, 22 Nov 2003 20:59:49 -0500
+Received: from fw.osdl.org ([65.172.181.6]:2792 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263176AbTKWB7r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Nov 2003 20:59:47 -0500
+Date: Sat, 22 Nov 2003 17:59:43 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Marco d'Itri" <md@Linux.IT>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: irq 15: nobody cared! with KT600 chipset and 2.6.0-test9
+In-Reply-To: <20031122235539.GA14576@wonderland.linux.it>
+Message-ID: <Pine.LNX.4.44.0311221741250.2379-100000@home.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting James Bottomley
-  > On Sat, 2003-11-22 at 15:09, Pete Clements wrote:
-  > > Quoting James Bottomley
-  > >   > On Sat, 2003-11-22 at 09:09, Pete Clements wrote:
-  > >   > > 2.6.0-test9-bk26 boot hangs after ide detection. Next detect normally
-  > >   > > scsi AIC7XXX.  Has been good for all prior test9-bk's.
-  > >   > 
-  > >   > I'm assuming bk26 contains the latest set of SCSI diffs (they were
-  > >   > merged on 21 Nov around 14:00 PST)?
-  > >   > 
-  > >   > I've never successfully managed to get the aic7xxx driver to work on my
-  > >   > parisc platform.  However, both with and without the latest SCSI diffs
-  > >   > the behaviour seems the same (it does print out the driver banner before
-  > >   > failing to connect to the drives).  I take it you aren't seeing this
-  > >   > banner?
-  > > 
-  > > Correct, no banner and bk26 has a scsi_scan change.
-  > 
-  > Hmm, I can't reproduce this.  However, when I alter the aic7xxx driver
-  > actually to work on my 2944W card, I do see a kobject badness error
-  > (although it still boots up for me).
-  > 
-  > Could you try this patch (from Mike Anderson).  It makes the kobject
-  > badness go away for me, and so may fix your problem.  If it doesn't,
-  > I'll have to defer to people who have aic cards and x86 hardware.
 
-Patch applied, no change, same hang.
--- 
-Pete Clements 
+Oops.
+
+ I read your report lazily, and didn't do it right. I just noticed that it
+isn't actually irq3 and the raid controller at 0:0f.0 that is the problem
+at all: the problem is the regular legacy stuff on 0:0f.1: hdc/hdd that is
+on irq15.
+
+The IRQ probe for hdc fails, for some silly reason. 
+But we actually correctly _notice_ that it's on irq15, so I
+
+Note how we say:
+
+	kernel: hdc: IRQ probe failed (0x3cfa)
+
+but then a few lines later we _have_ figured it out and say
+
+	kernel: ide1 at 0x170-0x177,0x376 on irq 15
+
+The problem _appears_ to be the fact that we already registered irq15 for 
+the IDE driver, which will cause the probe to fail (you can't probe 
+something that is already in use).
+
+Can you try this patch, and see if it makes a difference? I'd also like to 
+see the full "dmesg" output (regardless of whether it works or not).
+
+		Linus
+
+-----
+===== drivers/ide/ide-probe.c 1.65 vs edited =====
+--- 1.65/drivers/ide/ide-probe.c	Wed Sep  3 09:52:16 2003
++++ edited/drivers/ide/ide-probe.c	Sat Nov 22 17:59:04 2003
+@@ -413,24 +413,17 @@
+ 		udelay(5);
+ 		irq = probe_irq_off(cookie);
+ 		if (!hwif->irq) {
+-			if (irq > 0) {
+-				hwif->irq = irq;
+-			} else {
+-				/* Mmmm.. multiple IRQs..
+-				 * don't know which was ours
+-				 */
+-				printk("%s: IRQ probe failed (0x%lx)\n",
+-					drive->name, cookie);
+-#ifdef CONFIG_BLK_DEV_CMD640
+-#ifdef CMD640_DUMP_REGS
+-				if (hwif->chipset == ide_cmd640) {
+-					printk("%s: Hmmm.. probably a driver "
+-						"problem.\n", drive->name);
+-					CMD640_DUMP_REGS;
+-				}
+-#endif /* CMD640_DUMP_REGS */
+-#endif /* CONFIG_BLK_DEV_CMD640 */
++			/* Mmmm.. multiple IRQs, and we don't know
++			 * which was ours. We'd better guess.
++			 */
++			if (irq <= 0) {
++				int guess = hwif->channel ? 15 : 14;
++
++				printk("%s: IRQ probe failed (0x%lx: %d). Guessing at %d\n",
++					drive->name, cookie, irq, guess);
++				irq = guess;
+ 			}
++			hwif->irq = irq;
+ 		}
+ 	}
+ 	return retval;
+

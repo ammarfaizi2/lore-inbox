@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277164AbRJHV7Z>; Mon, 8 Oct 2001 17:59:25 -0400
+	id <S277162AbRJHWCf>; Mon, 8 Oct 2001 18:02:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277163AbRJHV7P>; Mon, 8 Oct 2001 17:59:15 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:5137 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S277162AbRJHV7E>; Mon, 8 Oct 2001 17:59:04 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: zisofs doesn't compile in 2.4.10-ac7
-Date: 8 Oct 2001 14:59:25 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9pt7jt$5e9$1@cesium.transmeta.com>
-In-Reply-To: <25078.1002465565@ocs3.intra.ocs.com.au> <18514.1002555168@redhat.com>
+	id <S277165AbRJHWCZ>; Mon, 8 Oct 2001 18:02:25 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49938 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277162AbRJHWCN>; Mon, 8 Oct 2001 18:02:13 -0400
+Subject: Re: A note on APIC bus latency
+To: jlundell@pobox.com (Jonathan Lundell)
+Date: Mon, 8 Oct 2001 23:08:13 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <p0510030bb7e7ca4c5533@[207.213.214.37]> from "Jonathan Lundell" at Oct 08, 2001 02:51:19 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15qiZJ-00023i-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <18514.1002555168@redhat.com>
-By author:    David Woodhouse <dwmw2@infradead.org>
-In newsgroup: linux.dev.kernel
+> A message exchange (IO-APIC sends an interrupt message; CPU sends 
+> back an EOI message) requires from 35 to 48 APIC bus clocks, or 2-3 
+> microseconds. That gets to be pretty significant compared to packet 
+> times, especially at Gbit speeds, but even at 100 MHz, and is the 
+> time required to burst a thousand bytes or more at faster PCI rates.
 > 
-> While we're at it, why not move $(TOPDIR)/fs/inflate_fs/ to $(TOPDIR)/lib/zlib
-> too? It's not really a filesystem-specific piece of library code, is it?
-> 
+> It's also likely to be significant for inter-processor interrupts, 
+> though I don't know what the implications are here.
 
-It's at the best questionable if it is actually usable for anything
-else.  Unfortunately the memory management issues for various clients
-of zlib are rather painful.
+The big implication so far has been some extremely horrible to debug 
+irq handling bugs where drivers such as the i810 audio assumed that the
+disable of an irq on the pci device was immediate once then pci write
+and a pci read to force posting completed. 
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+There are impacts on things like TLB shootdowns where the latency impacts
+an SMP crosscall. I'm not sure how bad the impact is on the bigger numa
+boxes as I notice Martin uses multiple sends for that
+
+Alan

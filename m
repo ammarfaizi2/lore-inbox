@@ -1,77 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269683AbRHMBfh>; Sun, 12 Aug 2001 21:35:37 -0400
+	id <S269674AbRHMBif>; Sun, 12 Aug 2001 21:38:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269672AbRHMBaW>; Sun, 12 Aug 2001 21:30:22 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:656 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S269655AbRHMB3B>;
-	Sun, 12 Aug 2001 21:29:01 -0400
-Date: Sun, 12 Aug 2001 21:29:13 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fs/super.c fixes - second series (9/11)
-In-Reply-To: <Pine.GSO.4.21.0108122128400.7092-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0108122129000.7092-100000@weyl.math.psu.edu>
+	id <S269682AbRHMBiQ>; Sun, 12 Aug 2001 21:38:16 -0400
+Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:11904 "EHLO
+	keroon.dmz.dreampark.com") by vger.kernel.org with ESMTP
+	id <S269674AbRHMBiK>; Sun, 12 Aug 2001 21:38:10 -0400
+Message-ID: <3B772E5A.392C37E8@randomlogic.com>
+Date: Sun, 12 Aug 2001 18:33:14 -0700
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+Organization: Akamai Technologies, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-ac10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Hang problem on Tyan K7 Thunder resolved -- SB Live! heads-up
+In-Reply-To: <20010812155520.A935@ulthar.internal.mclure.org> <Pine.LNX.4.33.0108121557060.2102-100000@penguin.transmeta.com> <20010812161544.A947@ulthar.internal.mclure.org> <200108130100.f7D10YH07664@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
+> 
+> In article <3B772126.F23DB1D7@randomlogic.com> you write:
+> >Call me dumb, but what was wrong with the SB Live! code in the 2.4.7
+> >trees? Mine works fine and has since I first installed RH 7.1 on this
+> >system. The only problem I had was when I compiled it into the kernel
+> >(instead of compiling as a module), sound would not work and I could not
+> >configure it with sndconfig.
+> 
+> Well, the fact that it didn't work when compiled into the kernel means
+> (for me), that it doesn't work at all.
 
-Part 9/11
+It is annoying not to be able to compile it as part of the kernel, but
+it works as a module. I had thought that the maintainer would fix this,
+but as you noted, apparently there is no longer a maintainer.
 
-Cleanup: invalidate_dquot() can rely on the fact that struct superblock is
-not reused.
+> 
+> Also, if you followed the other thread on the Tyan Thunder lockup,
+> you'll have noticed that it locked up under heavy PCI loads. At least on
+> that machine it stopped with the 2.4.8 driver.
 
-diff -urN S9-pre1-kern_mnt/fs/dquot.c S9-pre1-dquot/fs/dquot.c
---- S9-pre1-kern_mnt/fs/dquot.c	Sat Aug 11 14:59:24 2001
-+++ S9-pre1-dquot/fs/dquot.c	Sun Aug 12 20:45:51 2001
-@@ -325,7 +325,7 @@
-         memset(&dquot->dq_dqb, 0, sizeof(struct dqblk));
- }
- 
--static void invalidate_dquots(kdev_t dev, short type)
-+static void invalidate_dquots(struct super_block *sb, short type)
- {
- 	struct dquot *dquot, *next;
- 	int need_restart;
-@@ -335,12 +335,10 @@
- 	need_restart = 0;
- 	while ((dquot = next) != NULL) {
- 		next = dquot->dq_next;
--		if (dquot->dq_dev != dev)
-+		if (dquot->dq_sb != sb)
- 			continue;
- 		if (dquot->dq_type != type)
- 			continue;
--		if (!dquot->dq_sb)	/* Already invalidated entry? */
--			continue;
- 		if (dquot->dq_flags & DQ_LOCKED) {
- 			__wait_on_dquot(dquot);
- 
-@@ -349,12 +347,10 @@
- 			/*
- 			 * Make sure it's still the same dquot.
- 			 */
--			if (dquot->dq_dev != dev)
-+			if (dquot->dq_sb != sb)
- 				continue;
- 			if (dquot->dq_type != type)
- 				continue;
--			if (!dquot->dq_sb)
--				continue;
- 		}
- 		/*
- 		 *  Because inodes needn't to be the only holders of dquot
-@@ -1409,7 +1405,7 @@
- 
- 		/* Note: these are blocking operations */
- 		remove_dquot_ref(sb, cnt);
--		invalidate_dquots(sb->s_dev, cnt);
-+		invalidate_dquots(sb, cnt);
- 
- 		/* Wait for any pending IO - remove me as soon as invalidate is more polite */
- 		down(&dqopt->dqio_sem);
+I hadn't read the entire thread, but I did see that heavy loads seemed
+to be a problem. I am running a GeForce 3 and when I play games or do
+other graphics related things - I have a few OpenGL projects I've been
+working on - I try sqeak every bit of detail and piece of "eye candy" I
+can out of the system, as well as the best available sound. I'd say
+running Quake 3 at 1600x1200x32 in multiplayer should be a heavy load on
+everything, including PCI.
 
+> 
+> Does the new driver not work for you? There seems to be a bug at close()
+> time, in that the driver uses "tasklet_unlock_wait()" instead of
+> "tasklet_kill()" to kill the tasklets, and that wouldn't work reliably.
+> 
+> Anything else you can find?
+> 
 
+I had just gotten the 2.4.7-ac10 kernel compiled and tweaked when the
+2.4.8 kernel was released. I haven't had a chance to install 2.4.8 yet,
+it's next on my ToDo list. Until now (reference my other post about
+possible UDMA/ATA issues) I haven't been able to get a stable system for
+any length of time with any kernel (save for the 5 - 6 other, older,
+linux machines I have here all running RH 6.0 - 6.2).
+
+When I get a 2.4.8 kernel installed I'll see how that works.
+
+PGA
+
+-- 
+Paul G. Allen
+UNIX Admin II/Network Security
+Akamai Technologies, Inc.
+www.akamai.com

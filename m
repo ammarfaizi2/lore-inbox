@@ -1,30 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261928AbUDSVzM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbUDSV45@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbUDSVzM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 17:55:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbUDSVzL
+	id S261932AbUDSV45 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 17:56:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbUDSV45
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 17:55:11 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:12305 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S261928AbUDSVzA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 17:55:00 -0400
-Date: Mon, 19 Apr 2004 23:54:50 +0200
-From: Willy TARREAU <w@w.ods.org>
-To: Joe Korty <joe.korty@ccur.com>
-Cc: cramerj@intel.com, scott.feldman@intel.com, linux-kernel@vger.kernel.org
+	Mon, 19 Apr 2004 17:56:57 -0400
+Received: from mailgate.Cadence.COM ([158.140.2.1]:16027 "EHLO
+	mailgate.Cadence.COM") by vger.kernel.org with ESMTP
+	id S261932AbUDSV4u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 17:56:50 -0400
 Subject: Re: [BUG] e1000 fails on 2.4.26+bk with CONFIG_SMP=y
-Message-ID: <20040419215450.GA331@pcw.home.local>
-References: <20040416224422.GA19095@tsunami.ccur.com> <20040417072455.GD596@alpha.home.local> <20040419165425.GA3988@tsunami.ccur.com> <20040419193930.GA28340@alpha.home.local> <20040419214247.GA5273@tsunami.ccur.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+From: Chris Croswhite <csc@cadence.com>
+Reply-To: csc@cadence.com
+To: joe.korty@ccur.com
+Cc: Willy Tarreau <w@w.ods.org>, cramerj@intel.com, scott.feldman@intel.com,
+       linux-kernel@vger.kernel.org
 In-Reply-To: <20040419214247.GA5273@tsunami.ccur.com>
-User-Agent: Mutt/1.4i
+References: <20040416224422.GA19095@tsunami.ccur.com>
+	 <20040417072455.GD596@alpha.home.local>
+	 <20040419165425.GA3988@tsunami.ccur.com>
+	 <20040419193930.GA28340@alpha.home.local>
+	 <20040419214247.GA5273@tsunami.ccur.com>
+Content-Type: text/plain
+Organization: Cadence Design Systems, Inc
+Message-Id: <1082412219.5804.241.camel@d158140025182.Cadence.COM>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 19 Apr 2004 15:03:39 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 19, 2004 at 05:42:47PM -0400, Joe Korty wrote:
+FYI, using the dual 85540 board w/e1000 works fine on a quad SMP w/APIC
+support.
+
+However, if I try to bond, I get immediate detonation.
+
+
+On Mon, 2004-04-19 at 14:42, Joe Korty wrote:
 > On Mon, Apr 19, 2004 at 09:39:30PM +0200, Willy Tarreau wrote:
 > > On Mon, Apr 19, 2004 at 12:54:25PM -0400, Joe Korty wrote:
 > >> 
@@ -41,33 +54,21 @@ On Mon, Apr 19, 2004 at 05:42:47PM -0400, Joe Korty wrote:
 > 
 > I just verified that the Quad Ethernet board works with 2.6.5 SMP, so it
 > is unlikely to be a bridge or other hardware problem.
-
-Sorry that was not what I meant. I meant that the 2.4.26 irq routing or
-I don't know what might experience difficulties due to the presence of
-a PCI bridge on this board, and potentially this one particularly. I once
-encountered such a problem in a desktop machine which would only see 3 out
-of the 4 ports on an adaptec quad board, depending on the PCI slot it was
-fit in ! It turned out to be a problem with region alignment or something
-like this which was not correctly forwarded through the bridge (bios bug
-or so at initialization).
-
+> 
 > For 2.4.26, the Dell 650 has an Intel 82545EM Gigabit Ethernet Controller
 > soldered in, which also uses the e1000 driver, and that works fine, so
 > we know the 2.4.26 e1000 driver works with some of these Intel chips.
-
-OK, same here.
-
+> 
 > When the Quad board works, it negotiates down to 10 MBits/sec Half Duplex.
 > Not sure yet if this is what it is supposed to be doing in our environment.
-
-I remember something like this not long ago. It was what ethtool reported, but
-the card was running either gigabit or a forced 100FDX without auto-neg on the
-other side, I don't remember. Can you try a simple 4-pairs cable between two
-ports on the quad to check what media is negociated ?
-
-Also, can you cat /proc/interrupts with and without io/apic, and try without
-ACPI as Zwane suggested ?
-
-Cheers,
-Willy
+> 
+> Regards,
+> Joe
+> 
+> PS: do you CC'ed Intel guys have some insights or data for us?
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

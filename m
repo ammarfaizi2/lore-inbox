@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261352AbTFJJv3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 05:51:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbTFJJv1
+	id S261365AbTFJJwJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 05:52:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbTFJJwJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 05:51:27 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:25085 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261352AbTFJJvY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 05:51:24 -0400
-Date: Tue, 10 Jun 2003 15:37:46 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Misc 2.5 Fixes: x25-facilities-parse
-Message-ID: <20030610100746.GC2194@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20030610100527.GA2194@in.ibm.com> <20030610100643.GB2194@in.ibm.com>
+	Tue, 10 Jun 2003 05:52:09 -0400
+Received: from adsl-67-124-159-170.dsl.pltn13.pacbell.net ([67.124.159.170]:992
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id S261365AbTFJJwD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 05:52:03 -0400
+Date: Tue, 10 Jun 2003 03:05:44 -0700
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Misc 2.5 Fixes: Summary
+Message-ID: <20030610100544.GA12542@triplehelix.org>
+References: <20030610100527.GA2194@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qDbXVdCdHGoSgWSk"
 Content-Disposition: inline
-In-Reply-To: <20030610100643.GB2194@in.ibm.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20030610100527.GA2194@in.ibm.com>
+User-Agent: Mutt/1.5.4i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--qDbXVdCdHGoSgWSk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Fix parsing of options for X.25 facilities
+On Tue, Jun 10, 2003 at 03:35:27PM +0530, Dipankar Sarma wrote:
+> This set of patches fix various problems mostly related to
+> copy/user problems and leaks. I worked based on Alan's list and
 
+What set of patches?
 
- net/x25/x25_facilities.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+-Josh
 
-diff -puN net/x25/x25_facilities.c~x25-facilities-parse net/x25/x25_facilities.c
---- linux-2.5.70-ds/net/x25/x25_facilities.c~x25-facilities-parse	2003-06-08 00:39:39.000000000 +0530
-+++ linux-2.5.70-ds-dipankar/net/x25/x25_facilities.c	2003-06-08 00:40:28.000000000 +0530
-@@ -105,8 +105,8 @@ int x25_parse_facilities(struct sk_buff 
- 			printk(KERN_DEBUG "X.25: unknown facility %02X, "
- 			       "length %d, values %02X, %02X, %02X, %02X\n",
- 			       p[0], p[1], p[2], p[3], p[4], p[5]);
--			p   += p[1] + 2;
- 			len -= p[1] + 2;
-+			p   += p[1] + 2;
- 			break;
- 		}
- 	}
+--=20
+New PGP public key: 0x27AFC3EE
 
-_
+--qDbXVdCdHGoSgWSk
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+5a14T2bz5yevw+4RAjztAJ9CXwSHchmhe+6ykfcm36T1nHhodgCfcXeL
++yjR7sIdCZ5Bb/kK45GhbVU=
+=Kw4Y
+-----END PGP SIGNATURE-----
+
+--qDbXVdCdHGoSgWSk--

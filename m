@@ -1,93 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317671AbSFLIY3>; Wed, 12 Jun 2002 04:24:29 -0400
+	id <S317674AbSFLI0w>; Wed, 12 Jun 2002 04:26:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317672AbSFLIY2>; Wed, 12 Jun 2002 04:24:28 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:48393 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S317671AbSFLIYY>; Wed, 12 Jun 2002 04:24:24 -0400
-Message-Id: <5.1.0.14.2.20020612090736.04192860@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 12 Jun 2002 09:25:17 +0100
-To: Rusty Russell <rusty@rustcorp.com.au>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: [PATCH] 2.5.21 Nonlinear CPU support 
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        k-suganuma@mvj.biglobe.ne.jp
-In-Reply-To: <E17I39U-00054u-00@wagner.rustcorp.com.au>
+	id <S317673AbSFLI0v>; Wed, 12 Jun 2002 04:26:51 -0400
+Received: from mail.zmailer.org ([62.240.94.4]:52888 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S317674AbSFLI0r>;
+	Wed, 12 Jun 2002 04:26:47 -0400
+Date: Wed, 12 Jun 2002 11:26:45 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Alan <alan@clueserver.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Status of FAT CVF?
+Message-ID: <20020612112645.A19520@mea-ext.zmailer.org>
+In-Reply-To: <1023856708.2934.9.camel@summanulla.clueserver.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 09:06 12/06/02, Rusty Russell wrote:
->In message <5.1.0.14.2.20020612084157.041970e0@pop.cus.cam.ac.uk> you write:
-> > >Now, you *could* only allocate buffers for cpus where cpu_possible(i)
-> > >is true, once the rest of the patch goes in.  That would be a valid
-> > >optimization.
-> >
-> > Please explain. What is cpu_possible()?
->
-> >From Hotcpu/hotcpu-boot-i386.patch.gz:
->
->--- working-2.5.19-pre-hotcpu/include/asm-i386/smp.h    Tue Jun  4 
->15:37:09 2002
->+++ working-2.5.19-hotcpu/include/asm-i386/smp.h        Mon Jun  3 
->18:00:09 2002
->@@ -93,6 +94,8 @@
->  #define smp_processor_id() (current_thread_info()->cpu)
->
->  #define cpu_online(cpu) (cpu_online_map & (1<<(cpu)))
->+
->+#define cpu_possible(cpu) (phys_cpu_present_map & (1<<(cpu)))
->
->  extern inline unsigned int num_online_cpus(void)
->  {
->
->ie. "Can this CPU number *ever* exist?", for exactly this kind of
->optimization.
+On Tue, Jun 11, 2002 at 09:38:27PM -0700, Alan wrote:
+> What is the status of fat_cvf in 2.4.x?  Is the code abandoned?
+> Supported? Working? Not working? Pining for the fnords?
 
-Aha, now we are talking! This looks like it will restore the current memory 
-usage just fine.
+  Over about past week there has been some talk with that topic.
+  The conclusion appeared to be "kernel driver is abandoned, future
+  support belongs into  mtools".
 
->   It looks like it was a mistake to leave that to a later
->patch, but I didn't appreciate the 64k-per-cpu buffer for NTFS (what
->is it for, by the way?  per-cpu buffering for a filesystem seems, um,
->wierd).
+  Thread Subject was something like  "fat/msdos/...".
+  Go see the archives.
 
-It is used by the NTFS decompression engine. When implementing 
-decompression I went for using a single linear buffer holding the 
-compressed data to avoid having to switch pages midstream of memcpy()s 
-multi byte assignments, etc. (It could be argued that I was lazy but I 
-think it makes sense from a performance point of view.) After making that 
-decision I saw three choices:
+  (And having word "fat" in message subject does cause several
+   sites to consider even this message to be spam...)
 
-1) Use a single buffer and lock it so once one file is under decompression 
-no other files can be and if multiple compressed files are being accessed 
-simultaneously on different CPUs only one CPU would be decompressing. The 
-others would be waiting for the lock. (Obviously scheduling and doing other 
-stuff.)
+> Thanks!
 
-2) Use multiple buffers and allocate a buffer every time the decompression 
-engine is used. Note this means a vmalloc()+vfree() in EVERY ->readpage() 
-for a compressed file!
-
-3) Use one buffer for each CPU and use a critical section during 
-decompression (disable preemption, don't sleep). Allocated at mount time of 
-first partition supporting compression. Freed at umount time of last 
-partition supporting compression.
-
-I think it is obvious why I went for 3)...
-
-Best regards,
-
-         Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+/Matti Aarnio

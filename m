@@ -1,69 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264560AbUEELuU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264569AbUEEL4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264560AbUEELuU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 07:50:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264569AbUEELuU
+	id S264569AbUEEL4T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 07:56:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264585AbUEEL4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 07:50:20 -0400
-Received: from kluizenaar.xs4all.nl ([213.84.184.247]:40514 "EHLO samwel.tk")
-	by vger.kernel.org with ESMTP id S264560AbUEELuP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 07:50:15 -0400
-Message-ID: <4098D4EB.8070002@samwel.tk>
-Date: Wed, 05 May 2004 13:50:03 +0200
-From: Bart Samwel <bart@samwel.tk>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: nl, en-us, en
+	Wed, 5 May 2004 07:56:19 -0400
+Received: from postfix3-2.free.fr ([213.228.0.169]:23256 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S264569AbUEEL4P
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 07:56:15 -0400
+Message-ID: <4098D65D.9010107@free.fr>
+Date: Wed, 05 May 2004 13:56:13 +0200
+From: Eric Valette <eric.valette@free.fr>
+Reply-To: eric.valette@free.fr
+Organization: HOME
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040501
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Libor Vanek <libor@conet.cz>
-CC: "Richard B. Johnson" <root@chaos.analogic.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Read from file fails
-References: <20040503000004.GA26707@Loki> <Pine.LNX.4.53.0405030852220.10896@chaos> <20040503150606.GB6411@Loki> <Pine.LNX.4.53.0405032020320.12217@chaos> <20040504011957.GA20676@Loki> <4097A94C.8060403@samwel.tk> <20040505095406.GC5767@Loki> <4098BC2B.4080601@samwel.tk> <20040505101902.GB6979@Loki> <4098C5DE.70401@samwel.tk> <20040505112218.GA7733@Loki>
-In-Reply-To: <20040505112218.GA7733@Loki>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE : 2.6.6-rc3-mm2 : REGPARAM forced => no external module with some
+ object code only
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 127.0.0.1
-X-SA-Exim-Mail-From: bart@samwel.tk
-X-SA-Exim-Scanned: No (on samwel.tk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew,
+
+The Changelog says nothing really important but forcing REGPARAM is 
+rather important : it breaks any external module using object only code 
+that calls a kernel function.
+
+I do not want to enter the "binary module" debate just reports facts so 
+that people be aware of the problem.
+
+I have a bewan PCI ST ADSL modem. They provide a linux driver that works 
+with 2.6 like a charm but contains an object file. And of course code 
+located in this object only file breaks because it calls alloc_obj:
+
+alloc_obj:kmalloc failed,size=-742088876,type=abc0
+
+Complete stack trace attached... (that shows they do not expect kmalloc 
+to fail :-( )
+
+Do not blame Bewan  : they have always been very responsive and do 
+provide an almost GPL compliant module that works with 2.4 and 2.6 
+kernels like a charm. In particular, fixing the code to support 2.6 
+module generation scheme has only taken in a couple of weeks after I 
+politely asked to the maintainer sending an initial patch. They are just 
+dependent on STMicro (if I remember correctly) for the library that 
+drives the ATM chipset and apparently they failed to ask them to open up 
+their code...
+
+Maybe they can just ask them to compile with regpram=3 but anyway as an 
+end-user I have no solution...
+
+I will report the bug to my contact...
+
+-- 
+    __
+   /  `                   	Eric Valette
+  /--   __  o _.          	6 rue Paul Le Flem
+(___, / (_(_(__         	35740 Pace
+
+Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
+E-mail: eric.valette@free.fr
 
 
-Libor Vanek wrote:
 
->>>>>OK - how can I "notify" userspace process? Signals are "weak" - I need
->>>>>to send some data (filename etc.) to process. One solution is "on this
->>>>>signal call this syscall and result of this syscall will be data you
->>>>>need" - but I'd prefer to handle this in one "action".
->>>>
->>>>My first thoughts are to make it a blocking call.
->>>
->>>You mean like:
->>>- send signal to user-space process
->>>- wait until user-space process pick ups data (filename etc.), creates 
->>>copy of file (or whatever) and calls another system call that he's finished
->>>- let kernel to continue syscall I blocked
->>>?
->>
->>No, more like:
->>- user-space process calls syscall, which blocks.
->>- kernel captures a file write event, puts the info in some kind of 
->>queue, wakes up the user-space process and then waits for some kind of 
->>acknowledgement to be returned so that it may continue.
->>- user-space process wakes up, the syscall completes, and passes a 
->>filename etc. to user-space. Copies the file, and calls a syscall to 
->>signify "hey, I'm done with that file". This syscall wakes up the kernel 
->>stuff that was waiting for this acknowledgement.
->>- file write event continues
->>- repeat from start
-> 
-> OK - I'm thinking of using semaphores to "block" system call - is there something why this is not a good idea?
-
-Semaphores are useful to protect a shared resource (and you might want 
-to use those to protect your queue of filenames to copy), but not for 
-transferring control between threads. I think you might want to look at 
-wait_queue, wait_event, wake_up and things like that.
-
---Bart

@@ -1,43 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263138AbSJBQWj>; Wed, 2 Oct 2002 12:22:39 -0400
+	id <S263150AbSJBQ3x>; Wed, 2 Oct 2002 12:29:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263141AbSJBQWj>; Wed, 2 Oct 2002 12:22:39 -0400
-Received: from 62-190-203-8.pdu.pipex.net ([62.190.203.8]:12292 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S263138AbSJBQWi>; Wed, 2 Oct 2002 12:22:38 -0400
-Date: Wed, 2 Oct 2002 17:36:32 +0100
-From: jbradford@dial.pipex.com
-Message-Id: <200210021636.g92GaWEp000312@darkstar.example.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Bodge up serial support in 2.5.40
+	id <S263152AbSJBQ3w>; Wed, 2 Oct 2002 12:29:52 -0400
+Received: from dsl-213-023-022-021.arcor-ip.net ([213.23.22.21]:15490 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S263150AbSJBQ3w>;
+	Wed, 2 Oct 2002 12:29:52 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] dump_stack() cleanup, BK-curr
+Date: Wed, 2 Oct 2002 18:35:33 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0210021112020.6201-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0210021112020.6201-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17wmTG-0001Zn-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Standard 8250/16550 UART support is broken in 2.5.40, and I needed it, so following a bit of advice from Russell King, I've prepared this patch.
+On Wednesday 02 October 2002 11:22, Ingo Molnar wrote:
+> The attached (tested) patch modifies x86's dump_stack() to print out the
+> much friendlier backtrace.
 
-I thought I'd post it, just incase anybody else out there actually uses serial ports, (seems they don't).  Before you apply it, bear in mind that the last C I did was a hello world program :-), (only half kidding).
+How about calling it backtrace(), since that's now what it is.
 
-This is a bodge up patch only, NOT an official solution.
-
-John.
-
---- linux-2.5.40-orig/drivers/serial/core.c	2002-10-02 15:07:21.000000000 +0100
-+++ linux-2.5.40/drivers/serial/core.c	2002-10-02 15:09:38.000000000 +0100
-@@ -1604,8 +1604,6 @@
- 	return retval;
- }
- 
--#ifdef CONFIG_PROC_FS
--
- static const char *uart_type(struct uart_port *port)
- {
- 	const char *str = NULL;
-@@ -1708,7 +1706,6 @@
- 	*start = page + (off - begin);
- 	return (count < begin + len - off) ? count : (begin + len - off);
- }
--#endif
- 
- #ifdef CONFIG_SERIAL_CORE_CONSOLE
- /*
+-- 
+Daniel

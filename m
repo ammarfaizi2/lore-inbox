@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282391AbRKXHak>; Sat, 24 Nov 2001 02:30:40 -0500
+	id <S282388AbRKXHe3>; Sat, 24 Nov 2001 02:34:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282388AbRKXHaa>; Sat, 24 Nov 2001 02:30:30 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:25738 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S282391AbRKXHaS>;
-	Sat, 24 Nov 2001 02:30:18 -0500
-Date: Sat, 24 Nov 2001 02:30:15 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: 2.4.15-pre9 breakage (inode.c)
-In-Reply-To: <20011124081217.A1419@athlon.random>
-Message-ID: <Pine.GSO.4.21.0111240213450.4000-100000@weyl.math.psu.edu>
+	id <S282389AbRKXHeT>; Sat, 24 Nov 2001 02:34:19 -0500
+Received: from www.transvirtual.com ([206.14.214.140]:26892 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S282388AbRKXHeF>; Sat, 24 Nov 2001 02:34:05 -0500
+Date: Fri, 23 Nov 2001 23:33:51 -0800 (PST)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+cc: Linux console project <linuxconsole-dev@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: First new fbdev driver
+Message-ID: <Pine.LNX.4.10.10111232320130.20244-100000@www.transvirtual.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hi folks!!!
 
-On Sat, 24 Nov 2001, Andrea Arcangeli wrote:
+   As some might know I have been working for the last year in my spare
+time on the linux console project. Well it ended up as a total rewrite of
+the tty/console layer. In the new design the the tty/console layer is
+composed of seperate subsystems which can exist independently outside of
+the tty layer. Thus the tty layer is constructed from these subsystems.
+This makes for a cleaner mor emodular design. Some of things done are:
 
-> if the method or the s_op isn't defined it will do nothing, if it is
-> defined it'd better do something not wrong because the fs just did an
-> iget within read_super. I don't see obvious troubles and the above looks
-> better than making iput more complex (and nitpicking slower 8).
+1) New framebuffer api. This new api allows the fbramebuffer layer to
+   exist without a framebuffer console. This makes for a much simpler 
+   api and much smaller code. Plus on embedded devices like a iPAQ have
+   a VT console doesn't make sense. Okay a stowaway does change that. 
+   But it would be nice if the VT system was modular and loadable :-)
+   This is what we are working at. Pretty much complete.
 
-2.4.15-pre8:
+2) Moving all the keyboards and other input devices over to the input
+   api. Also makes for a nice modular design. Alot of work done.
 
-	if (!list_empty(&inode->i_hash)) {
-		FOO
-		return;
-	} else {
-		BAR
-	}
+3) Rewrite of the serial layer to be more like the parport layer. Here
+   we have a hardware layer that registers ports and then we bind
+   device interface drivers to specific ports. It makes no sense to use
+   a serial tty to talk to a serial joystick for example. Plus their is a
+   extra cost of going threw needless layers. This is partially complete
+   but needs alot fo work.
 
-2.4.15+patch:
-	
-	if (!list_empty(&inode->i_hash)) {
-		FOO
-		if (!sb || sb->s_flags & MS_ACTIVE)
-			return;
-		write_inode_now(inode, 1);
-		spin_lock(&inode_lock);
-		inodes_stat.nr_unused--;
-		list_del_init(&inode->i_hash);
-	}
-	BAR
+So expect patches. I also look forward to working with people to port
+devices over to these new APIs. Thank you.
 
-Notice that it fixes _all_ problems with stale inodes, with only one rule
-for fs code - "don't call iput() when ->clear_inode() doesn't work".  Your
-variant requires funnier things - "if at some point ->clear_inode()
-may stop working make sure to call invalidate_inodes()" in addition to
-the rule above.
-
-Frankly, I'd prefer fix that provides less possibilities for fsckup
-in fs code and requires less analysis.
 

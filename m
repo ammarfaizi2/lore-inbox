@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290769AbSBFTfy>; Wed, 6 Feb 2002 14:35:54 -0500
+	id <S290753AbSBFTho>; Wed, 6 Feb 2002 14:37:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290767AbSBFTfp>; Wed, 6 Feb 2002 14:35:45 -0500
-Received: from chmls20.ne.ipsvc.net ([24.147.1.156]:8928 "EHLO
-	chmls20.mediaone.net") by vger.kernel.org with ESMTP
-	id <S290753AbSBFTfd>; Wed, 6 Feb 2002 14:35:33 -0500
-From: "Guillaume Boissiere" <boissiere@mediaone.net>
-To: Davide Libenzi <davidel@xmailserver.org>
-Date: Wed, 6 Feb 2002 14:35:03 -0500
-MIME-Version: 1.0
-Subject: Re: [STATUS 2.5]  February 6, 2002
-CC: linux-kernel@vger.kernel.org
-Message-ID: <3C613F17.9147.31A2FD6@localhost>
-In-Reply-To: <3C60FAE5.19451.20FCF5E@localhost>
-In-Reply-To: <Pine.LNX.4.40.0202061006430.1590-100000@blue1.dev.mcafeelabs.com>
-X-mailer: Pegasus Mail for Windows (v4.01)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+	id <S290772AbSBFThf>; Wed, 6 Feb 2002 14:37:35 -0500
+Received: from ns.suse.de ([213.95.15.193]:52234 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S290767AbSBFTha>;
+	Wed, 6 Feb 2002 14:37:30 -0500
+Date: Wed, 6 Feb 2002 20:37:29 +0100
+From: Dave Jones <davej@suse.de>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RFC] List of maintainers (draft #2)
+Message-ID: <20020206203729.F11277@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200202061008.g16A8Ct29437@Port.imtp.ilyichevsk.odessa.ua> <20020206193300.GA314@mis-mike-wstn>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020206193300.GA314@mis-mike-wstn>; from mfedyk@matchmail.com on Wed, Feb 06, 2002 at 11:33:00AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, I will update the list for next week to keep you out of 
-trouble ;-)
+On Wed, Feb 06, 2002 at 11:33:00AM -0800, Mike Fedyk wrote:
 
--- Guillaume
+ > > H. Peter Anvin <hpa@zytor.com> [5 feb 2002]
+ > > 	?
+ > Kernel.org sysadmin.  Contact me if you notice something breaks, or if you
+ > want a change make sure you give me at least 1-2 weeks...
 
+ hpa also maintains a handful of drivers/core code.
+ MAINTAINERS actually lists this, but I guess that would be too
+ obvious a place to look 8-)
 
-On 6 Feb 2002 at 11:13, Davide Libenzi wrote:
-
-> On Wed, 6 Feb 2002, Guillaume Boissiere wrote:
-> 
-> > o Merged     New scheduler for improved scalability          (Ingo Molnar, Davide Libenzi)
-> 
-> Ingo did most of the job, it's not right for me to be here.
-> And my Co. might think that since i've too much spare time, they'll be
-> able to push me more :-)
-> 
-> 
-> 
-> 
-> - Davide
-> 
-> 
-> 
-
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

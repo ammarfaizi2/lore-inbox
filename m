@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267388AbRGLAqH>; Wed, 11 Jul 2001 20:46:07 -0400
+	id <S267390AbRGLAzr>; Wed, 11 Jul 2001 20:55:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267389AbRGLAp6>; Wed, 11 Jul 2001 20:45:58 -0400
-Received: from adsl-204-0-249-112.corp.se.verio.net ([204.0.249.112]:15350
-	"EHLO tabby.cats-chateau.net") by vger.kernel.org with ESMTP
-	id <S267388AbRGLApn>; Wed, 11 Jul 2001 20:45:43 -0400
-From: Jesse Pollard <jesse@cats-chateau.net>
-Reply-To: jesse@cats-chateau.net
-To: Kip Macy <kmacy@netapp.com>, Paul Jakma <paul@clubi.ie>
-Subject: Re: Switching Kernels without Rebooting?
-Date: Wed, 11 Jul 2001 19:31:22 -0500
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-Cc: Helge Hafting <helgehaf@idb.hist.no>, "C. Slater" <cslater@wcnet.org>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.10.10107111545130.14769-100000@clifton-fe.eng.netapp.com>
-In-Reply-To: <Pine.GSO.4.10.10107111545130.14769-100000@clifton-fe.eng.netapp.com>
+	id <S267391AbRGLAz1>; Wed, 11 Jul 2001 20:55:27 -0400
+Received: from web14402.mail.yahoo.com ([216.136.174.59]:33553 "HELO
+	web14402.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S267390AbRGLAzW>; Wed, 11 Jul 2001 20:55:22 -0400
+Message-ID: <20010712005520.20851.qmail@web14402.mail.yahoo.com>
+Date: Wed, 11 Jul 2001 17:55:20 -0700 (PDT)
+From: Rajeev Bector <rajeev_bector@yahoo.com>
+Subject: Re: new IPC mechanism ideas
+To: "H. Peter Anvin" <hpa@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, hpa@zytor.com
+In-Reply-To: <3B4CF429.D0B3B473@transmeta.com>
 MIME-Version: 1.0
-Message-Id: <01071119453600.23085@tabby>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Jul 2001, Kip Macy wrote:
->In the future when Linux is more heavily used at the enterprise level
->there will likely be upgrade/revert modules to allow such a transition to
->take place.
+If your driver is in the kernel,
+then you dont need that. All processes
+use system-calls (or ioctls) to send
+messages and when they do recv(),
+they get a pointer to a location
+(where they are mapped to via mmap)
+and they can read directly. In this
+scheme, you dont need any traditional
+UNIX IPC mechanism to work.
 
-I use some of the largest UNIX supercomputers ever built (IBM SP, Cray T3E,
-SV1, YMP, XMP, J90, SGI Origin). None of them can start of a new kernel from an
-earlier version. There are too many things that will fail:
+Thanks,
+Rajeev
 
-	Any network activity
-	Active disk I/O
-	Locked memory
-	File modification
-	File structures
-	Disk structures (yes they change...)
-	Clock Synchronization (SMP and cluster)
-	Shared memory (SMP and cluster)
-	semaphores (SMP and cluster)
-	login sessions
-	device status
-	shared disks and distributed file systems (cluster)
-	pipes
+--- "H. Peter Anvin" <hpa@transmeta.com> wrote:
+> Rajeev Bector wrote:
+> > 
+> > Thanks for your comment, Peter.
+> > The problem with using a "driver"
+> > process is that now you need
+> > another mechanism to communicate
+> > with that driver - either
+> > message queues or shared
+> > memory or something.
+> > 
+> 
+> You need that anyway.
+> 
+> 	-hpa
 
-Before you even try switching kernels, first implement a process
-checkpoint/restart. The process must be resumed after a boot using the same
-kernel, with all I/O resumed. Now get it accepted into the kernel.
 
-Anything else is just another name for "reboot using new kernel".
-	
-
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: jesse@cats-chateau.net
-
-Any opinions expressed are solely my own.
+__________________________________________________
+Do You Yahoo!?
+Get personalized email addresses from Yahoo! Mail
+http://personal.mail.yahoo.com/

@@ -1,35 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266505AbUHaEWS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266517AbUHaE2M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266505AbUHaEWS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 00:22:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266513AbUHaEWS
+	id S266517AbUHaE2M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 00:28:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266519AbUHaE2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 00:22:18 -0400
-Received: from nevyn.them.org ([66.93.172.17]:37310 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S266505AbUHaEWR (ORCPT
+	Tue, 31 Aug 2004 00:28:12 -0400
+Received: from fw.osdl.org ([65.172.181.6]:51098 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266517AbUHaE2J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 00:22:17 -0400
-Date: Tue, 31 Aug 2004 00:22:06 -0400
-From: Daniel Jacobowitz <dan@debian.org>
+	Tue, 31 Aug 2004 00:28:09 -0400
+Date: Mon, 30 Aug 2004 21:27:54 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
 To: Roland McGrath <roland@redhat.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] cleanup ptrace stops and remove notify_parent
-Message-ID: <20040831042206.GA10577@nevyn.them.org>
-Mail-Followup-To: Roland McGrath <roland@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200408310325.i7V3Pklo020920@magilla.sf.frob.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408310325.i7V3Pklo020920@magilla.sf.frob.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <200408310411.i7V4B8Vs027772@magilla.sf.frob.com>
+Message-ID: <Pine.LNX.4.58.0408302119110.2295@ppc970.osdl.org>
+References: <200408310411.i7V4B8Vs027772@magilla.sf.frob.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 30, 2004 at 08:25:46PM -0700, Roland McGrath wrote:
-> This patch is against Linus's current tree.
+
+
+On Mon, 30 Aug 2004, Roland McGrath wrote:
 > 
 > This adds a new state TASK_TRACED that is used in place of TASK_STOPPED
 > when a thread stops because it is ptraced.  Now ptrace operations are only
@@ -39,16 +35,18 @@ On Mon, Aug 30, 2004 at 08:25:46PM -0700, Roland McGrath wrote:
 > you can do any ptrace operations on it.  (The SIGCONT will be reported to
 > ptrace and then you can discard it instead of passing it through when you
 > call PTRACE_CONT et al.)
-> 
-> If a traced child gets orphaned while in TASK_TRACED state, it morphs into
-> TASK_STOPPED state.  This makes it again possible to resume or destroy the
-> process with SIGCONT or SIGKILL.
 
-Nice.
+Ok, I definitely agree with the approach (I've not become schizofrenic
+yet, but as others can attest, I obviously change my mind occasionally, so 
+sometimes I disagree even with my own suggestions ;)
 
-Unless it's been changed since I last pulled, you should also fix up
-has_stopped_jobs.  I think it's broken by the introduction of
-TASK_TRACED.
+Looks pretty clean as an implementation. The question is whether we should 
+aim for 2.6.9 or 2.6.10 - if the first, then I should probably take it 
+now, otherwise it should go into -mm first and be merged early after 2.6.9 
+has been released, for the first -rc.
 
--- 
-Daniel Jacobowitz
+I _looks_ pretty safe, and it's hopefully much less likely to have subtle
+bugs and races than our old approach had, but I have a hard time judging. 
+I assume you ran all your gdb tests on the result? What's your gut feel?
+
+		Linus

@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315958AbSEGTyZ>; Tue, 7 May 2002 15:54:25 -0400
+	id <S315959AbSEGUB6>; Tue, 7 May 2002 16:01:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315959AbSEGTyY>; Tue, 7 May 2002 15:54:24 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:21376 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S315958AbSEGTyX>;
-	Tue, 7 May 2002 15:54:23 -0400
-Message-ID: <3CD830BE.CAB7FA96@vnet.ibm.com>
-Date: Tue, 07 May 2002 14:53:34 -0500
-From: Dave Engebretsen <engebret@vnet.ibm.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-12 i686)
-X-Accept-Language: en
+	id <S315960AbSEGUB5>; Tue, 7 May 2002 16:01:57 -0400
+Received: from air-2.osdl.org ([65.201.151.6]:20879 "EHLO segfault.osdl.org")
+	by vger.kernel.org with ESMTP id <S315959AbSEGUB5>;
+	Tue, 7 May 2002 16:01:57 -0400
+Date: Tue, 7 May 2002 12:58:22 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.14 IDE 56
+In-Reply-To: <200205071921.g47JLAV00682@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.LNX.4.33.0205071248450.6307-100000@segfault.osdl.org>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Memory Barrier Definitions
-In-Reply-To: <3CD825E4.6950ED92@vnet.ibm.com> <E175AyE-0008NR-00@the-village.bc.nu>
-X-MIMETrack: Itemize by SMTP Server on d27ml101/27/M/IBM(Release 5.0.10 |March 22, 2002) at
- 05/07/2002 02:53:36 PM,
-	Serialize by Router on d27ml101/27/M/IBM(Release 5.0.10 |March 22, 2002) at
- 05/07/2002 02:53:37 PM,
-	Serialize complete at 05/07/2002 02:53:37 PM
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > A solution was pointed out by Rusty Russell that we should probabily be
-> > using smp_*mb() for system memory ordering and reserve the *mb() calls
-> 
-> For pure compiler level ordering we have barrier()
-> 
-> Alan
-> 
 
-Sure, but none of these issues I think need disscussion are a compiler
-reordering.  Perhaps you are just pointing out another barrier primitive
-to provide a more complete listing?  There are some others, such as the
-*before_atomic* that will require a seperate discussion, I think.
+> Oh, it's certainly more that 6 hours of work. But it *will* get done.
 
-In case my point was not clear, I'll restate: where PowerPC (at a
-minimum) gets into trouble is with the seperate ordering between
-references to system memory and to I/O space with respect to the various
-forms of processor memory barrier instructions.  It is _very_ expensive
-to blindly force all memory references to be ordered completely to the
-seperate spaces.  The use of wmb(), rmb(), and mb() is overloaded in the
-context of PowerPC.
+Even the mtrr driver was a good 8 hours to clean up, make readable and 
+more object-oriented. I wish you luck, as well as anyone that has to 
+attempt to decipher it. 
 
-Dave.
+> > > At that point devfs will mostly be:
+> > > - an API
+> > > - a way fo supporting the devfsd protocol.
+> > 
+> > I argue that you shouldn't need a separate daemon. We already have
+> > the /sbin/hotplug interface. It's simple and sweet. We shouldn't
+> > need to rely on an entirely separate daemon.
+> 
+> The devfsd protocol is more lightweight. Plus it doesn't require
+> fork(2)+execve(2) overheads. And more importantly, you can capture
+> lookup() events.
+
+These events are not performance critical, so the overhead is less 
+important. Besides, almost all systems have /sbin/hotplug, since it can be 
+anything - a shell script, a perl script, a tiny C executable. 
+
+The hotplug interface doesn't rely on any particular implementation. It 
+only relies on something on the other side implementing a particular 
+interface. The implementation can be replaced, as well as the format of 
+the policy, based on the constratints of the system or the whims of 
+the distro. 
+
+It also doesn't rely on a process running to capture events. What happens 
+if the devfsd process is killed?
+
+	-pat
+

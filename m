@@ -1,118 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbVC0JJo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVC0JO4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261480AbVC0JJo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 04:09:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVC0JJo
+	id S261485AbVC0JO4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 04:14:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVC0JO4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 04:09:44 -0500
-Received: from mail.dif.dk ([193.138.115.101]:28896 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261480AbVC0JJ2 (ORCPT
+	Sun, 27 Mar 2005 04:14:56 -0500
+Received: from mail.dif.dk ([193.138.115.101]:59616 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261485AbVC0JOy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 04:09:28 -0500
-Date: Sun, 27 Mar 2005 11:11:27 +0200 (CEST)
+	Sun, 27 Mar 2005 04:14:54 -0500
+Date: Sun, 27 Mar 2005 11:16:55 +0200 (CEST)
 From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Zwane Mwaikambo <zwane@fsmlabs.com>, Ingo Molnar <mingo@redhat.com>,
-       Robert Love <rml@tech9.net>, Jesper Juhl <juhl-lkml@dif.dk>
-Subject: Re: [RFC] spinlock_t & rwlock_t break_lock member initialization
- (patch seeking comments included)
-In-Reply-To: <Pine.LNX.4.62.0503202205480.2508@dragon.hyggekrogen.localhost>
-Message-ID: <Pine.LNX.4.62.0503271108140.2388@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0503202205480.2508@dragon.hyggekrogen.localhost>
+To: Jan Harkes <jaharkes@cs.cmu.edu>
+Cc: linux-kernel@vger.kernel.org, Jesper Juhl <juhl-lkml@dif.dk>,
+       "H. Peter Anvin" <hpa@zytor.com>, Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Squashfs without ./..
+In-Reply-To: <20050327040518.GA12072@delft.aura.cs.cmu.edu>
+Message-ID: <Pine.LNX.4.62.0503271116010.2388@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.61.0503221645560.25571@yvahk01.tjqt.qr>
+ <20050323174925.GA3272@zero> <Pine.LNX.4.62.0503241855350.18295@numbat.sonytel.be>
+ <20050324133628.196a4c41.Tommy.Reynolds@MegaCoder.com> <d1v67l$4dv$1@terminus.zytor.com>
+ <3e74c9409b6e383b7b398fe919418d54@mac.com> <424324E4.9000003@zytor.com>
+ <Pine.LNX.4.62.0503251444060.2498@dragon.hyggekrogen.localhost>
+ <20050327040518.GA12072@delft.aura.cs.cmu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 26 Mar 2005, Jan Harkes wrote:
 
-I've now been running kernels (both PREEMPT, SMP, both and without both) 
-with the patch below applied for a few days and I see no ill effects. I'm 
-still interrested in comments about wether or not something like this 
-makes sense and is acceptable ?
+> On Fri, Mar 25, 2005 at 02:59:14PM +0100, Jesper Juhl wrote:
+> > On Thu, 24 Mar 2005, H. Peter Anvin wrote:
+> > > Note that Linux always accepts . and .. so it's just a matter of making them
+> > > appear in readdir.
+> > > 
+> > I'm working on that, but it's a learning experience for me, so it's going 
+> > a bit slow - but I'll get there.
+> 
+> Check the top of coda_venus_readdir in fs/coda/dir.c.
+> 
+Very useful info you provide. Thank you.
 
 -- 
-Jesper Juhl
+Jesper
 
-
-On Sun, 20 Mar 2005, Jesper Juhl wrote:
-
-> 
-> I'm often building the tree with gcc -W to look for potential trouble 
-> spots, and of course I see a lot of warning messages. I'm well aware that 
-> most of these don't indicate actual problems and should just be ignored, 
-> but the less warnings there are the easier it is to zoom in on the ones 
-> that might actually matter, so I try to also locate those that can be 
-> silenced safely even when they don't indicate a real problem - just to cut 
-> down on the number of warnings I have to sift through.
-> One class of warnings that belong in the "not really a problem but I 
-> believe I can silence it without doing any harm" category are these : 
-> 
-> include/linux/wait.h:82: warning: missing initializer
-> include/linux/wait.h:82: warning: (near initialization for `(anonymous).break_lock')
-> 
-> include/asm/rwsem.h:88: warning: missing initializer
-> include/asm/rwsem.h:88: warning: (near initialization for `(anonymous).break_lock')
-> 
-> These stem from the fact that when you enable CONFIG_PREEMPT spinlock_t 
-> and rwlock_t each gain an extra member "break_lock", but the lock 
-> initialization code neglects to initialize this extra member in that case.
-> 
-> If you enable CONFIG_PREEMPT and build with gcc -W you'll see a *lot* of 
-> those, since spinlocks and rwlocks are used all over the place.
-> 
-> I've come up with a patch to that silence those warnings by making sure 
-> the "break_lock" member will be initialized when CONFIG_PREEMPT is 
-> enabled.
-> 
-> I would like to know if a patch like this is welcome or just considered 
-> clutter for no real gain. I would also like to know if I've overlooked 
-> some implications of doing this - it seems to me that this should be 
-> completely safe to do and without significant overhead, but I'm also well 
-> aware that my knowledge of this code is quite shallow, so I need comments 
-> (especially since lock performance is quite performance critical, so I 
-> don't want to screw up here).
-> 
-> Here's the patch I came up with - comments are very welcome.
-> 
-> 
-> (no Signed-off-by since this is not intended to be merged just yet)
-> 
-> --- linux-2.6.11-mm4-orig/include/asm-i386/spinlock.h	2005-03-02 08:37:50.000000000 +0100
-> +++ linux-2.6.11-mm4/include/asm-i386/spinlock.h	2005-03-20 22:40:46.000000000 +0100
-> @@ -32,7 +32,13 @@
->  #define SPINLOCK_MAGIC_INIT	/* */
->  #endif
->  
-> -#define SPIN_LOCK_UNLOCKED (spinlock_t) { 1 SPINLOCK_MAGIC_INIT }
-> +#ifdef CONFIG_PREEMPT
-> +#define SPINLOCK_BREAK_INIT	, 0
-> +#else
-> +#define SPINLOCK_BREAK_INIT	/* */
-> +#endif
-> +
-> +#define SPIN_LOCK_UNLOCKED (spinlock_t) { 1 SPINLOCK_MAGIC_INIT SPINLOCK_BREAK_INIT }
->  
->  #define spin_lock_init(x)	do { *(x) = SPIN_LOCK_UNLOCKED; } while(0)
->  
-> @@ -182,7 +188,13 @@
->  #define RWLOCK_MAGIC_INIT	/* */
->  #endif
->  
-> -#define RW_LOCK_UNLOCKED (rwlock_t) { RW_LOCK_BIAS RWLOCK_MAGIC_INIT }
-> +#ifdef CONFIG_PREEMPT
-> +#define RWLOCK_BREAK_INIT	, 0
-> +#else
-> +#define RWLOCK_BREAK_INIT	/* */
-> +#endif
-> +
-> +#define RW_LOCK_UNLOCKED (rwlock_t) { RW_LOCK_BIAS RWLOCK_MAGIC_INIT RWLOCK_BREAK_INIT }
->  
->  #define rwlock_init(x)	do { *(x) = RW_LOCK_UNLOCKED; } while(0)
->  
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 

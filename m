@@ -1,104 +1,619 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266442AbUGOWrp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266443AbUGOWuh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266442AbUGOWrp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 18:47:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266443AbUGOWrp
+	id S266443AbUGOWuh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 18:50:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266445AbUGOWuh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 18:47:45 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:5848 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266442AbUGOWrh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 18:47:37 -0400
-Date: Fri, 16 Jul 2004 00:47:26 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: James.Bottomley@SteelEye.com
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] SCSI tmscsim.c: fix inline compile errors
-Message-ID: <20040715224726.GQ25633@fs.tum.de>
+	Thu, 15 Jul 2004 18:50:37 -0400
+Received: from mail3.absamail.co.za ([196.35.40.69]:45716 "EHLO absamail.co.za")
+	by vger.kernel.org with ESMTP id S266443AbUGOWts (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jul 2004 18:49:48 -0400
+Subject: [2.6.7-mm5 ACPI] Error: Looking up [SERN] in namespace
+From: Niel Lambrechts <antispam@absamail.co.za>
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1089931816.9446.19.camel@ksyrium.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 16 Jul 2004 00:50:17 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trying to compile drivers/scsi/tmscsim.c in 2.6.8-rc1-mm1 using gcc 3.4 
-results in compile errors starting with the following:
+Hi,
 
-<--  snip  -->
+I get the following (repetitive) dmesg on my Thinkpad R50P:
 
-...
-  CC      drivers/scsi/tmscsim.o
-In file included from drivers/scsi/tmscsim.c:1477:
-drivers/scsi/scsiiom.c: In function `do_DC390_Interrupt':
-drivers/scsi/tmscsim.c:295: sorry, unimplemented: inlining failed in 
-call to 'dc390_InvalidCmd': function body not available
-drivers/scsi/scsiiom.c:279: sorry, unimplemented: called from here
-drivers/scsi/tmscsim.c:296: sorry, unimplemented: inlining failed in 
-call to 'dc390_EnableMsgOut_Abort': function body not available
-drivers/scsi/scsiiom.c:317: sorry, unimplemented: called from here
-make[2]: *** [drivers/scsi/tmscsim.o] Error 1
+ dswload-0292: *** Error: Looking up [SERN] in namespace, AE_ALREADY_EXISTS
+ psparse-0597 [86051] ps_parse_loop         : During name lookup/catalog, AE_ALREADY_EXISTS
+ psparse-1133: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.GBIF] (Node c1567fa8), AE_ALREADY_EXISTS
+     osl-0899 [86055] os_wait_semaphore     : Failed to acquire semaphore[dff5e580|1|0], AE_TIME
+ dswload-0641: *** Error: Looking up [SERN] in namespace, AE_NOT_FOUND
+ psparse-0597 [86064] ps_parse_loop         : During name lookup/catalog, AE_NOT_FOUND
+ psparse-1133: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.GBIF] (Node c1567fa8), AE_NOT_FOUND
+ psparse-1133: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BAT0._BIF] (Node c1567928), AE_NOT_FOUND
+acpi_battery-0146 [86057] acpi_battery_get_info : Error evaluating _BIF
+     osl-0899 [87427] os_wait_semaphore     : Failed to acquire semaphore[dff5e580|1|0], AE_TIME
+     osl-0899 [95484] os_wait_semaphore     : Failed to acquire semaphore[dff5e580|1|0], AE_TIME
+     osl-0899 [96766] os_wait_semaphore     : Failed to acquire semaphore[dff5e580|1|0], AE_TIME
+     osl-0899 [98886] os_wait_semaphore     : Failed to acquire semaphore[dff5e580|1|0], AE_TIME
+     osl-0899 [101057] os_wait_semaphore     : Failed to acquire semaphore[dff5e580|1|0], AE_TIME
 
-<--  snip  -->
+The last line is especially repetitive.
+
+I also notice:
+acpi_battery-0146 [86057] acpi_battery_get_info : Error evaluating _BIF
+
+Any ideas?
+
+Regards,
+Niel
+
+1. .config
+
+# Power management options (ACPI, APM)
+# ACPI (Advanced Configuration and Power Interface) Support
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_SLEEP_PROC_FS=y
+CONFIG_ACPI_AC=m
+CONFIG_ACPI_BATTERY=m
+CONFIG_ACPI_BUTTON=m
+CONFIG_ACPI_FAN=m
+CONFIG_ACPI_PROCESSOR=m
+CONFIG_ACPI_THERMAL=m
+CONFIG_ACPI_ASUS=m
+CONFIG_ACPI_TOSHIBA=m
+CONFIG_ACPI_DEBUG=y
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_X86_ACPI_CPUFREQ=m
+# CONFIG_X86_ACPI_CPUFREQ_PROC_INTF is not set
+CONFIG_X86_SPEEDSTEP_CENTRINO_ACPI=y
+CONFIG_HOTPLUG_PCI_ACPI=m
+# CONFIG_SERIAL_8250_ACPI is not set
+
+2. dmidecode
+# dmidecode 2.3
+SMBIOS 2.33 present.
+61 structures occupying 2127 bytes.
+Table at 0x000E0010.
+Handle 0x0000
+        DMI type 0, 20 bytes.
+        BIOS Information
+                Vendor: IBM
+                Version: 1RETCDWW (3.06f)
+                Release Date: 06/18/2004
+                Address: 0xDC000
+                Runtime Size: 144 kB
+                ROM Size: 1024 kB
+                Characteristics:
+                        PCI is supported
+                        PC Card (PCMCIA) is supported
+                        PNP is supported
+                        APM is supported
+                        BIOS is upgradeable
+                        BIOS shadowing is allowed
+                        ESCD support is available
+                        Boot from CD is supported
+                        Selectable boot is supported
+                        EDD is supported
+                        3.5"/720 KB floppy services are supported (int 13h)
+                        Print screen service is supported (int 5h)
+                        8042 keyboard services are supported (int 9h)
+                        Serial services are supported (int 14h)
+                        Printer services are supported (int 17h)
+                        CGA/mono video services are supported (int 10h)
+                        ACPI is supported
+                        USB legacy is supported
+                        AGP is supported
+                        BIOS boot specification is supported
+Handle 0x0001
+        DMI type 1, 25 bytes.
+        System Information
+                Manufacturer: IBM
+                Product Name: 183222G
+                Version: ThinkPad R50p
+                Serial Number: 99DP179
+                UUID: 488D8601-4591-11CB-BB1A-CEF2045A099E
+                Wake-up Type: Power Switch
+Handle 0x0002
+        DMI type 2, 8 bytes.
+        Base Board Information
+                Manufacturer: IBM
+                Product Name: 183222G
+                Version: Not Available
+                Serial Number: J1UCT3C715Y
+Handle 0x0003
+        DMI type 3, 17 bytes.
+        Chassis Information
+                Manufacturer: IBM
+                Type: Notebook
+                Lock: Not Present
+                Version: Not Available
+                Serial Number: Not Available
+                Asset Tag: No Asset Information
+                Boot-up State: Unknown
+                Power Supply State: Unknown
+                Thermal State: Unknown
+                Security Status: Unknown
+                OEM Information: 0x00000000
+Handle 0x0004
+        DMI type 126, 17 bytes.
+        Inactive
+Handle 0x0005
+        DMI type 126, 17 bytes.
+        Inactive
+Handle 0x0006
+        DMI type 4, 35 bytes.
+        Processor Information
+                Socket Designation: None
+                Type: Central Processor
+                Family: Pentium M
+                Manufacturer: GenuineIntel
+                ID: 95 06 00 00 BF F9 E9 A7
+                Signature: Type 0, Family 6, Model 9, Stepping 5
+                Flags:
+                        FPU (Floating-point unit on-chip)
+                        VME (Virtual mode extension)
+                        DE (Debugging extension)
+                        PSE (Page size extension)
+                        TSC (Time stamp counter)
+                        MSR (Model specific registers)
+                        MCE (Machine check exception)
+                        CX8 (CMPXCHG8 instruction supported)
+                        SEP (Fast system call)
+                        MTRR (Memory type range registers)
+                        PGE (Page global enable)
+                        MCA (Machine check architecture)
+                        CMOV (Conditional move instruction supported)
+                        PAT (Page attribute table)
+                        CLFSH (CLFLUSH instruction supported)
+                        DS (Debug store)
+                        ACPI (ACPI supported)
+                        MMX (MMX technology supported)
+                        FXSR (Fast floating-point save and restore)
+                        SSE (Streaming SIMD extensions)
+                        SSE2 (Streaming SIMD extensions 2)
+                        TM (Thermal monitor supported)
+                        SBF (Signal break on FERR)
+                Version: Intel(R) Pentium(R) M processor
+                Voltage: 1.5 V
+                External Clock: 400 MHz
+                Max Speed: 1700 MHz
+                Current Speed: 1700 MHz
+                Status: Populated, Enabled
+                Upgrade: None
+                L1 Cache Handle: 0x000A
+                L2 Cache Handle: 0x000B
+                L3 Cache Handle: Not Provided
+                Serial Number: Not Specified
+                Asset Tag: Not Specified
+                Part Number: Not Specified
+Handle 0x0007
+        DMI type 5, 20 bytes.
+        Memory Controller Information
+                Error Detecting Method: None
+                Error Correcting Capabilities:
+                        None
+                Supported Interleave: One-way Interleave
+                Current Interleave: One-way Interleave
+                Maximum Memory Module Size: 1024 MB
+                Maximum Total Memory Size: 2048 MB
+                Supported Speeds:
+                        Other
+                Supported Memory Types:
+                        DIMM
+                        SDRAM
+                Memory Module Voltage: 2.9 V
+                Associated Memory Slots: 2
+                        0x0008
+                        0x0009
+                Enabled Error Correcting Capabilities:
+                        None
+Handle 0x0008
+        DMI type 6, 12 bytes.
+        Memory Module Information
+                Socket Designation: DIMM Slot 1
+                Bank Connections: 0 1
+                Current Speed: Unknown
+                Type: DIMM SDRAM
+                Installed Size: 512 MB (Double-bank Connection)
+                Enabled Size: 512 MB (Double-bank Connection)
+                Error Status: OK
+Handle 0x0009
+        DMI type 6, 12 bytes.
+        Memory Module Information
+                Socket Designation: DIMM Slot 2
+                Bank Connections: 2 3
+                Current Speed: Unknown
+                Type: DIMM SDRAM
+                Installed Size: Not Installed (Single-bank Connection)
+                Enabled Size: Not Installed (Single-bank Connection)
+                Error Status: OK
+Handle 0x000A
+        DMI type 7, 19 bytes.
+        Cache Information
+                Socket Designation: Internal L1 Cache
+                Configuration: Enabled, Socketed, Level 1
+                Operational Mode: Write Back
+                Location: Internal
+                Installed Size: 32 KB
+                Maximum Size: 32 KB
+                Supported SRAM Types:
+                        Synchronous
+                Installed SRAM Type: Synchronous
+                Speed: Unknown
+                Error Correction Type: Unknown
+                System Type: Other
+                Associativity: 8-way Set-associative
+Handle 0x000B
+        DMI type 7, 19 bytes.
+        Cache Information
+                Socket Designation: Internal L2 Cache
+                Configuration: Enabled, Socketed, Level 2
+                Operational Mode: Write Back
+                Location: Internal
+                Installed Size: 1024 KB
+                Maximum Size: 1024 KB
+                Supported SRAM Types:
+                        Burst
+                Installed SRAM Type: Burst
+                Speed: Unknown
+                Error Correction Type: Multi-bit ECC
+                System Type: Unified
+                Associativity: 8-way Set-associative
+Handle 0x000C
+        DMI type 126, 9 bytes.
+        Inactive
+Handle 0x000D
+        DMI type 8, 9 bytes.
+        Port Connector Information
+                Internal Reference Designator: Not Available
+                Internal Connector Type: None
+                External Reference Designator: Infrared
+                External Connector Type: Infrared
+                Port Type: Other
+Handle 0x000E
+        DMI type 8, 9 bytes.
+        Port Connector Information
+                Internal Reference Designator: Not Available
+                Internal Connector Type: None
+                External Reference Designator: Parallel
+                External Connector Type: DB-25 female
+                Port Type: Parallel Port ECP/EPP
+Handle 0x000F
+        DMI type 8, 9 bytes.
+        Port Connector Information
+                Internal Reference Designator: Not Available
+                Internal Connector Type: None
+                External Reference Designator: External Monitor
+                External Connector Type: DB-15 female
+                Port Type: Video Port
+Handle 0x0010
+        DMI type 126, 9 bytes.
+        Inactive
+Handle 0x0011
+        DMI type 126, 9 bytes.
+        Inactive
+Handle 0x0012
+        DMI type 126, 9 bytes.
+        Inactive
+Handle 0x0013
+        DMI type 126, 9 bytes.
+        Inactive
+Handle 0x0014
+        DMI type 126, 9 bytes.
+        Inactive
+Handle 0x0015
+        DMI type 8, 9 bytes.
+        Port Connector Information
+                Internal Reference Designator: Not Available
+                Internal Connector Type: None
+                External Reference Designator: Microphone Jack
+                External Connector Type: Mini Jack (headphones)
+                Port Type: Audio Port
+Handle 0x0016
+        DMI type 8, 9 bytes.
+        Port Connector Information
+                Internal Reference Designator: Not Available
+                Internal Connector Type: None
+                External Reference Designator: Headphone Jack
+                External Connector Type: Mini Jack (headphones)
+                Port Type: Audio Port
+Handle 0x0017
+        DMI type 8, 9 bytes.
+        Port Connector Information
+                Internal Reference Designator: Not Available
+                Internal Connector Type: None
+                External Reference Designator: S-Video-Out
+                External Connector Type: Other
+                Port Type: Video Port
+Handle 0x0018
+        DMI type 126, 9 bytes.
+        Inactive
+Handle 0x0019
+        DMI type 8, 9 bytes.
+        Port Connector Information
+                Internal Reference Designator: Not Available
+                Internal Connector Type: None
+                External Reference Designator: Modem
+                External Connector Type: RJ-11
+                Port Type: Modem Port
+Handle 0x001A
+        DMI type 8, 9 bytes.
+        Port Connector Information
+                Internal Reference Designator: Not Available
+                Internal Connector Type: None
+                External Reference Designator: Ethernet
+                External Connector Type: RJ-45
+                Port Type: Network Port
+Handle 0x001B
+        DMI type 8, 9 bytes.
+        Port Connector Information
+                Internal Reference Designator: Not Available
+                Internal Connector Type: None
+                External Reference Designator: USB 1
+                External Connector Type: Access Bus (USB)
+                Port Type: USB
+Handle 0x001C
+        DMI type 8, 9 bytes.
+        Port Connector Information
+                Internal Reference Designator: Not Available
+                Internal Connector Type: None
+                External Reference Designator: USB 2
+                External Connector Type: Access Bus (USB)
+                Port Type: USB
+Handle 0x001D
+        DMI type 126, 9 bytes.
+        Inactive
+Handle 0x001E
+        DMI type 126, 9 bytes.
+        Inactive
+Handle 0x001F
+        DMI type 126, 9 bytes.
+        Inactive
+Handle 0x0020
+        DMI type 126, 9 bytes.
+        Inactive
+Handle 0x0021
+        DMI type 126, 9 bytes.
+        Inactive
+Handle 0x0022
+        DMI type 9, 13 bytes.
+        System Slot Information
+                Designation: CardBus Slot 1
+                Type: 32-bit PC Card (PCMCIA)
+                Current Usage: Available
+                Length: Other
+                ID: Adapter 0, Socket 0
+                Characteristics:
+                        5.0 V is provided
+                        3.3 V is provided
+                        PC Card-16 is supported
+                        Cardbus is supported
+                        Zoom Video is supported
+                        Modem ring resume is supported
+                        PME signal is supported
+                        Hot-plug devices are supported
+Handle 0x0023
+        DMI type 9, 13 bytes.
+        System Slot Information
+                Designation: CardBus Slot 2
+                Type: 32-bit PC Card (PCMCIA)
+                Current Usage: Available
+                Length: Other
+                ID: Adapter 1, Socket 0
+                Characteristics:
+                        5.0 V is provided
+                        3.3 V is provided
+                        PC Card-16 is supported
+                        Cardbus is supported
+                        Zoom Video is supported
+                        Modem ring resume is supported
+                        PME signal is supported
+                        Hot-plug devices are supported
+Handle 0x0024
+        DMI type 126, 13 bytes.
+        Inactive
+Handle 0x0025
+        DMI type 126, 13 bytes.
+        Inactive
+Handle 0x0026
+        DMI type 9, 13 bytes.
+        System Slot Information
+                Designation: Mini-PCI Slot 1
+                Type: 32-bit PCI
+                Current Usage: Available
+                Length: Other
+                ID: 1
+                Characteristics:
+                        5.0 V is provided
+                        3.3 V is provided
+                        PME signal is supported
+                        SMBus signal is supported
+Handle 0x0027
+        DMI type 126, 13 bytes.
+        Inactive
+Handle 0x0028
+        DMI type 10, 6 bytes.
+        On Board Device Information
+                Type: Other
+                Status: Disabled
+                Description: IBM Embedded Security hardware
+Handle 0x0029
+        DMI type 11, 5 bytes.
+        OEM Strings
+                String 1: IBM ThinkPad Embedded Controller -[1RHT69WW-3.02    ]-
+Handle 0x002A
+        DMI type 13, 22 bytes.
+        BIOS Language Information
+                Installable Languages: 1
+                        enUS
+                Currently Installed Language: enUS
+Handle 0x002B
+        DMI type 15, 25 bytes.
+        System Event Log
+                Area Length: 0 bytes
+                Header Start Offset: 0x0000
+                Header Length: 16 bytes
+                Data Start Offset: 0x0010
+                Access Method: General-purpose non-volatile data functions
+                Access Address: 0x0000
+                Status: Invalid, Not Full
+                Change Token: 0x00000000
+                Header Format: Type 1
+                Supported Log Type Descriptors: 1
+                Descriptor 1: POST error
+                Data Format 1: POST results bitmap
+Handle 0x002C
+        DMI type 16, 15 bytes.
+        Physical Memory Array
+                Location: System Board Or Motherboard
+                Use: System Memory
+                Error Correction Type: None
+                Maximum Capacity: 1 GB
+                Error Information Handle: Not Provided
+                Number Of Devices: 2
+Handle 0x002D
+        DMI type 17, 27 bytes.
+        Memory Device
+                Array Handle: 0x002C
+                Error Information Handle: No Error
+                Total Width: 64 bits
+                Data Width: 64 bits
+                Size: 512 MB
+                Form Factor: SODIMM
+                Set: None
+                Locator: DIMM 1
+                Bank Locator: Bank 0/1
+                Type: DDR
+                Type Detail: Synchronous
+                Speed: Unknown
+                Manufacturer: Not Specified
+                Serial Number: Not Specified
+                Asset Tag: Not Specified
+                Part Number: Not Specified
+Handle 0x002E
+        DMI type 17, 27 bytes.
+        Memory Device
+                Array Handle: 0x002C
+                Error Information Handle: No Error
+                Total Width: Unknown
+                Data Width: Unknown
+                Size: No Module Installed
+                Form Factor: SODIMM
+                Set: None
+                Locator: DIMM 2
+                Bank Locator: Bank 2/3
+                Type: DDR
+                Type Detail: Synchronous
+                Speed: Unknown
+                Manufacturer: Not Specified
+                Serial Number: Not Specified
+                Asset Tag: Not Specified
+                Part Number: Not Specified
+Handle 0x002F
+        DMI type 18, 23 bytes.
+        32-bit Memory Error Information
+                Type: OKBad Read
+                Granularity: Unknown
+                Operation: Unknown
+                Vendor Syndrome: Unknown
+                Memory Array Address: Unknown
+                Device Address: Unknown
+                Resolution: Unknown
+Handle 0x0030
+        DMI type 19, 15 bytes.
+        Memory Array Mapped Address
+                Starting Address: 0x00000000000
+                Ending Address: 0x0001FFFFFFF
+                Range Size: 512 MB
+                Physical Array Handle: 0x002C
+                Partition Width: 0
+Handle 0x0031
+        DMI type 20, 19 bytes.
+        Memory Device Mapped Address
+                Starting Address: 0x00000000000
+                Ending Address: 0x0001FFFFFFF
+                Range Size: 512 MB
+                Physical Device Handle: 0x002D
+                Memory Array Mapped Address Handle: 0x0030
+                Partition Row Position: 1
+Handle 0x0032
+        DMI type 126, 19 bytes.
+        Inactive
+Handle 0x0033
+        DMI type 21, 7 bytes.
+        Built-in Pointing Device
+                Type: Track Point
+                Interface: PS/2
+                Buttons: 3
+Handle 0x0034
+        DMI type 21, 7 bytes.
+        Built-in Pointing Device
+                Type: Touch Pad
+                Interface: PS/2
+                Buttons: 0
+Handle 0x0035
+        DMI type 24, 5 bytes.
+        Hardware Security
+                Power-On Password Status: Disabled
+                Keyboard Password Status: Disabled
+                Administrator Password Status: Disabled
+                Front Panel Reset Status: Unknown
+Handle 0x0036
+        DMI type 32, 11 bytes.
+        System Boot Information
+                Status: No errors detected
+Handle 0x0037
+        DMI type 131, 102 bytes.
+        OEM-specific Type
+                Header and Data:
+                        83 66 37 00 01 00 00 00 00 01 72 03 40 00 AE 80
+                        00 02 00 00 00 00 00 2A 00 40 2A 00 00 00 00 00
+                        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                        00 00 00 00 00 00 00 00 00 00 16 00 80 16 00 00
+                        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                        00 00 00 00 00 00
+                Strings:
+                        IBMCFGDATA
+Handle 0x0038
+        DMI type 131, 17 bytes.
+        OEM-specific Type
+                Header and Data:
+                        83 11 38 00 01 02 03 FF FF 1F 00 00 00 00 00 02
+                        00
+                Strings:
+                        BOOTINF 20h
+                        BOOTDEV 21h
+                        KEYPTRS 23h
+Handle 0x0039
+        DMI type 132, 7 bytes.
+        OEM-specific Type
+                Header and Data:
+                        84 07 39 00 01 D8 36
+Handle 0x003A
+        DMI type 133, 5 bytes.
+        OEM-specific Type
+                Header and Data:
+                        85 05 3A 00 01
+                Strings:
+                        KHOIHGIUCCHHII
+Handle 0x003B
+        DMI type 126, 13 bytes.
+        Inactive
+Handle 0x003C
+        DMI type 127, 4 bytes.
+        End Of Table
 
 
-The patch below removes the inlines from the affected functions.
 
-An alternative approach would be to move the functions above the place  
-where they are called the first time.
-
-
-
-diffstat output:
- drivers/scsi/scsiiom.c |    6 +++---
- drivers/scsi/tmscsim.c |    6 +++---
- 2 files changed, 6 insertions(+), 6 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.6.7-mm6-full-gcc3.4/drivers/scsi/scsiiom.c.old	2004-07-09 01:31:13.000000000 +0200
-+++ linux-2.6.7-mm6-full-gcc3.4/drivers/scsi/scsiiom.c	2004-07-09 01:33:35.000000000 +0200
-@@ -594,7 +594,7 @@
- }
- 
- /* abort command */
--static void __inline__
-+static void
- dc390_EnableMsgOut_Abort ( struct dc390_acb* pACB, struct dc390_srb* pSRB )
- {
-     pSRB->MsgOutBuf[0] = ABORT; 
-@@ -1656,7 +1656,7 @@
- }
- 
- 
--static void __inline__
-+static void
- dc390_RequestSense( struct dc390_acb* pACB, struct dc390_dcb* pDCB, struct dc390_srb* pSRB )
- {
-     struct scsi_cmnd *pcmd;
-@@ -1696,7 +1696,7 @@
- 
- 
- 
--static void __inline__
-+static void
- dc390_InvalidCmd( struct dc390_acb* pACB )
- {
-     if( pACB->pActiveDCB->pActiveSRB->SRBState & (SRB_START_+SRB_MSGOUT) )
---- linux-2.6.7-mm6-full-gcc3.4/drivers/scsi/tmscsim.c.old	2004-07-09 01:29:36.000000000 +0200
-+++ linux-2.6.7-mm6-full-gcc3.4/drivers/scsi/tmscsim.c	2004-07-09 01:33:46.000000000 +0200
-@@ -291,9 +291,9 @@
- static void dc390_DoingSRB_Done( struct dc390_acb* pACB, struct scsi_cmnd * cmd);
- static void dc390_ScsiRstDetect( struct dc390_acb* pACB );
- static void dc390_ResetSCSIBus( struct dc390_acb* pACB );
--static void __inline__ dc390_RequestSense( struct dc390_acb* pACB, struct dc390_dcb* pDCB, struct dc390_srb* pSRB );
--static void __inline__ dc390_InvalidCmd( struct dc390_acb* pACB );
--static void __inline__ dc390_EnableMsgOut_Abort (struct dc390_acb*, struct dc390_srb*);
-+static void dc390_RequestSense( struct dc390_acb* pACB, struct dc390_dcb* pDCB, struct dc390_srb* pSRB );
-+static void dc390_InvalidCmd( struct dc390_acb* pACB );
-+static void dc390_EnableMsgOut_Abort (struct dc390_acb*, struct dc390_srb*);
- static irqreturn_t do_DC390_Interrupt( int, void *, struct pt_regs *);
- 
- static int    dc390_initAdapter(struct Scsi_Host *psh, unsigned long io_port, u8 Irq, u8 index );
 

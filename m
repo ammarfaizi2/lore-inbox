@@ -1,103 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318743AbSHWK66>; Fri, 23 Aug 2002 06:58:58 -0400
+	id <S318758AbSHWLDT>; Fri, 23 Aug 2002 07:03:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318751AbSHWK66>; Fri, 23 Aug 2002 06:58:58 -0400
-Received: from fysh.org ([212.47.68.126]:1176 "EHLO bowl.fysh.org")
-	by vger.kernel.org with ESMTP id <S318743AbSHWK65>;
-	Fri, 23 Aug 2002 06:58:57 -0400
-Date: Fri, 23 Aug 2002 12:01:52 +0100
-From: Athanasius <link@gurus.tf>
-To: Rob Speer <rob@twcny.rr.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.20-pre2-ac4 IDE is slow
-Message-ID: <20020823110152.GA8561@miggy.org.uk>
-Mail-Followup-To: Athanasius <link@gurus.tf>, Rob Speer <rob@twcny.rr.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20020822175945.GA743@twcny.rr.com>
+	id <S318761AbSHWLDT>; Fri, 23 Aug 2002 07:03:19 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19985 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318758AbSHWLDS>; Fri, 23 Aug 2002 07:03:18 -0400
+Date: Fri, 23 Aug 2002 12:07:27 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Jeff Garzik <jgarzik@mandrakesoft.com>,
+       "'Linux Kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: IDE-flash device and hard disk on same controller
+Message-ID: <20020823120727.B20963@flint.arm.linux.org.uk>
+References: <m1ofbupfe1.fsf@frodo.biederman.org> <Pine.LNX.4.10.10208222016350.13077-100000@master.linux-ide.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020822175945.GA743@twcny.rr.com>
-User-Agent: Mutt/1.3.28i
-X-gpg-fingerprint: 95DFC4A7
-X-gpg-key: http://www.fysh.org/~athan/gpg-key
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.10.10208222016350.13077-100000@master.linux-ide.org>; from andre@linux-ide.org on Thu, Aug 22, 2002 at 08:19:18PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Aug 22, 2002 at 08:19:18PM -0700, Andre Hedrick wrote:
+> Oh and it is only useful for borken things like LINBIOS and other
+> braindead systems like ARM that violate the 31 second rule of POST.
 
---UlVJffcvxoiEqYs2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Umm, there are no such ARM based Linux devices that violate this.
+Certainly none using boot loaders I've written.
 
-On Thu, Aug 22, 2002 at 01:59:45PM -0400, Rob Speer wrote:
-> I'm going from 2.4.19 to 2.4.20-pre2-ac4 and the hard drive is noticably
-> slower in the new version. (It doesn't use DMA in either version - I
-> wish it did in ac4, but that's a separate problem.)
->=20
-> What I seem to remember from the other message is that there's some
-> parameter that can be changed to bring the speed back up. Could someone
-> tell me what it is?
->=20
->=20
-> If it helps: output of hdparm /dev/hda
->=20
-> /dev/hda:
->  multcount    =3D  0 (off)
->  IO_support   =3D  0 (default 16-bit)
+> RMK, don't take it personally, but ARM is a headache of the nth degree.
+> You and I know it, otherwise I would not have a raw TTL IDE PCI card to
+> mimic your arch.
 
-  This could be part of the problem too?  I don't think I set anything
-specific to get to 32bit on my system.  Hmmm, the multcount too?
-I'm starting to think, if this is your output from 2.4.20-pre2-ac4 that
-you're hitting a bug in the current code which is REALLY not doing the
-right thing for your controller.
+You're talking crap here.
 
->  unmaskirq    =3D  0 (off)
-   ^^^^^^^^^^^^^^^^^^^^^^^
+That machine doesn't get anywhere near Linux until the drives are fully
+up and running.  This is more or less guaranteed since the kernel comes
+off its one and only hard drive.  Therefore, by definition the drive
+must have completed its diagnostics before Linux boots.
 
-  Try hdparm -u1 /dev/hda
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
->  using_dma    =3D  0 (off)
-
-  And may as well use -d1 too if it works on the device (yes, I know you
-said neither kernel enabled it per default).  Then you're after finding
-which DMA mode the IDE bus and drive can do, 'man hdparm' for the
-possible values (like -X69 if it's all ATA100 capable for UDMA5).
-  With a 60GB Maxtor and an 80pin cable I use:
-
-	/sbin/hdparm -u1 -d1 -X69 /dev/hda
-
-root@emelia:~# hdparm -t -T /dev/hda
-
-/dev/hda:
- Timing buffer-cache reads:   128 MB in  0.52 seconds =3D246.15 MB/sec
- Timing buffered disk reads:  64 MB in  2.03 seconds =3D 31.53 MB/sec
-
-Although I'm wondering if with ATA100 and UDMA5 I should be seeing even
-better than that.
-
-HTH,
-
--Ath
---=20
-- Athanasius =3D Athanasius(at)miggy.org.uk / http://www.clan-lovely.org/~a=
-than/
-                  Finger athan(at)fysh.org for PGP key
-	   "And it's me who is my enemy. Me who beats me up.
-Me who makes the monsters. Me who strips my confidence." Paula Cole - ME
-
---UlVJffcvxoiEqYs2
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAj1mFiAACgkQzbc+I5XfxKc38wCdEUb/v/45lDwBXMKfd6Ts9ryM
-QAYAniC50tMU7Nk0QnrTr+twV/DpYpEO
-=zVWq
------END PGP SIGNATURE-----
-
---UlVJffcvxoiEqYs2--

@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270447AbTHBXUD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 19:20:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270448AbTHBXUD
+	id S270445AbTHBXTI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 19:19:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270447AbTHBXTI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 19:20:03 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:28690 "EHLO
+	Sat, 2 Aug 2003 19:19:08 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:27154 "EHLO
 	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S270447AbTHBXUA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 19:20:00 -0400
+	id S270445AbTHBXTG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 19:19:06 -0400
 From: Marc-Christian Petersen <m.c.p@wolk-project.de>
 Organization: Working Overloaded Linux Kernel
-To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [PATCH] O11int for interactivity
-Date: Sun, 3 Aug 2003 01:19:47 +0200
+To: Carsten Otto <c-otto@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: e1000 statistics timer
+Date: Sun, 3 Aug 2003 01:14:25 +0200
 User-Agent: KMail/1.5.2
-Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <200307301038.49869.kernel@kolivas.org> <200308022327.45282.m.c.p@wolk-project.de> <20030802225513.GE32488@holomorphy.com>
-In-Reply-To: <20030802225513.GE32488@holomorphy.com>
+References: <3F2C14BF.9060505@gmx.de>
+In-Reply-To: <3F2C14BF.9060505@gmx.de>
 MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200308030110.48695.m.c.p@wolk-project.de>
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308030119.47474.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 03 August 2003 00:55, William Lee Irwin III wrote:
+On Saturday 02 August 2003 21:45, Carsten Otto wrote:
 
-Hi William,
+Hi Carsten,
 
-> > mail again, you are interested in vmstat 1 if an mp3 skip occurs. I have
-> > to say, that I never ever got an mp3 skip with your tree (-wli1 I am
-> > using). and now? :)
-> I actually wanted it from a kernel that behaved pathologically so I can
-> tell what issue it is.
+well, Zwane already said all needed things, so ... :)
 
-aah, ic. OK. Compiling 2.6.0-test2 mainline now.
+> My kernel is 2.4.20 wolk4.2s
+
+cool! BTW: 4.4s is actual ;) ... 4.4 has updated e1000 driver though it won't 
+fix your "problem".
 
 ciao, Marc
 

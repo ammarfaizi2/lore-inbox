@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131219AbQKRCpC>; Fri, 17 Nov 2000 21:45:02 -0500
+	id <S129091AbQKRDGi>; Fri, 17 Nov 2000 22:06:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131341AbQKRCox>; Fri, 17 Nov 2000 21:44:53 -0500
-Received: from freya.yggdrasil.com ([209.249.10.20]:62369 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S131219AbQKRCog>; Fri, 17 Nov 2000 21:44:36 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Fri, 17 Nov 2000 18:14:24 -0800
-Message-Id: <200011180214.SAA06997@adam.yggdrasil.com>
-To: jgarzik@mandrakesoft.com
-Subject: Re: sunhme.c patch for new PCI interface (UNTESTED)
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org, willy@meta-x.org,
-        wtarreau@yahoo.fr
+	id <S129097AbQKRDG2>; Fri, 17 Nov 2000 22:06:28 -0500
+Received: from jalon.able.es ([212.97.163.2]:54934 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129091AbQKRDGQ>;
+	Fri, 17 Nov 2000 22:06:16 -0500
+Date: Sat, 18 Nov 2000 03:36:09 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Errors in aa2
+Message-ID: <20001118033609.C4381@werewolf.able.es>
+Reply-To: jamagallon@able.es
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
->[...] the cost of incorrectly
->using __initdata when __devinitdata was correct is that the user's
->KERNEL WILL CRASH when the notebook is inserted or removed from such a
->docking station, even when the kernel is built with CONFIG_HOTPLUG.
+Hi everyone.
 
-	 My statement above, without some missing qualification, is wrong.
-I should have qualified this statement more carefully.  (I'm sure the
-flames are already in the mail about this.)  The kernel will crash in
-any case if the relevant driver does not support hot plugging.and the
-notebook is being removed with the PCI driver still loaded.
+When compiling Andreas aa2 patch I got:
 
-	For drivers that do not support hot plugging, we could use
-__initdata instead of __devinitdata, since they will crash in any
-case.  However, violating the instructions in Documentation/pci.txt
-("The ID table array should be marked __devinitdata") in this way
-will provoke a slew of driver bugs as the over one hundred remaining
-PCI drivers are converted to the new PCI interface and some authors
-overlook the need to change the MODULE_DEVICE_TABLE storage class.
+/usr/bin/kgcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
+-O4 -fomit-frame-pointer -fno-strict-aliasing -D__SMP__ -pipe
+-fno-strength-reduce -march=i686 -malign-loops=2 -malign-jumps=2
+-malign-functions=2 -DCPU=686   -c -o time.o time.c
+time.c: In function `do_gettimeofday':
+time.c:727: fixed or forbidden register 0 (ax) was spilled for class AREG.
+This may be due to a compiler bug or to impossible asm
+statements or clauses.
 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+The only difference is the inclusion of timeval_normalize.
+
+If I get time.c from 2.2.18-pre21 compiles fine.
+But I don't see any strange asm round there...
+
+-- 
+Juan Antonio Magallon Lacarta                                 #> cd /pub
+mailto:jamagallon@able.es                                     #> more beer
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

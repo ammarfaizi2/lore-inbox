@@ -1,44 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282581AbRKZVgL>; Mon, 26 Nov 2001 16:36:11 -0500
+	id <S282568AbRKZVkX>; Mon, 26 Nov 2001 16:40:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282582AbRKZVgD>; Mon, 26 Nov 2001 16:36:03 -0500
-Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:19328 "EHLO
-	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S282580AbRKZVf1>;
-	Mon, 26 Nov 2001 16:35:27 -0500
-Message-ID: <3C02B5E3.8060004@stesmi.com>
-Date: Mon, 26 Nov 2001 22:36:35 +0100
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
+	id <S282583AbRKZVjJ>; Mon, 26 Nov 2001 16:39:09 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:58885
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S282598AbRKZViJ>; Mon, 26 Nov 2001 16:38:09 -0500
+Date: Mon, 26 Nov 2001 13:36:06 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Steve Brueggeman <xioborg@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Journaling pointless with today's hard disks?
+In-Reply-To: <b0b50u0s566g9fusmrfs275lsjvr0dd0hu@4ax.com>
+Message-ID: <Pine.LNX.4.10.10111261323270.9208-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: David Weinehall <tao@acc.umu.se>
-CC: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCEMENT] Linux 2.0.40-pre3
-In-Reply-To: <20011126215828.P5770@khan.acc.umu.se> <3C02B464.4030100@stesmi.com> <20011126223254.S5770@khan.acc.umu.se>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Mon, 26 Nov 2001, Steve Brueggeman wrote:
 
->>>Here comes another one. Unless I receive some more patches, the next
->>>patch will be the first release-candidate for v2.0.40
->>>
->>>
->>>2.0.40pre3
->>>
->>Didn't you just say that you do -preN _with_ a leading "-" ?
->>
->>Mail subject and mail contents is different.
->>
+> Well, since you don't clearify what part you object to, I'll have to
+> assume that you object to my statement that the disk drive will not
+> auto-reallocate when it cannot recover the data.
 > 
-> I mean that I use it in the Makefile EXTRAVERSION
+> If you think that a disk drive should auto-reallocate a sector (ARRE
+> enabled in the mode pages) that it cannot recover the original data
+> from, than you can dream on.  I seriously hope this is not what you're
 
-Why not use it everywhere ? Or do you consider there to be a valid 
-difference?
+One has to go read the general purpose error logs to determine the
+location of the original platter assigned sector of the relocated LBA.
 
-// Stefan
+Reallocation generally occurs on write to media not read, and you should
+know that point.
 
+> recommending for ATA.  If a disk drive were to auto-reallocate a
+> sector that it couldn't get valid data from, you'd have serious
+> corruptions probelms!!!  Tell me, what data should exist in the sector
+> that gets reallocated if it cannot retrieve the data the system
+> believes to be there???  If the reallocated sector has random data,
+> and the next read to it doesn't return an error, than the system will
+> get no indication that it should not be using that data.
+> 
+> If the unrecoverable error happens durring a write, the disk drive
+> still has the data in the buffer, so auto-reallocation on writes (AWRE
+> enabled in the mode pages), is usually OK
+
+By the time an ATA device gets to generating this message, either the bad
+block list is full or all reallocation sectors are used.  Unlike SCSI
+which has to be hand held, 90% of all errors are handle by the device.
+Good or Bad -- that is how it does it.
+
+Well there is an additional problem in all of storage, that drives do
+reorder and do not always obey the host-driver.  Thus if the device is
+suffering from performance and you have disabled WB-Cache, it may elect to
+self enable.  Now you have the device returning ack to platter that may
+not be true.  Most host-drivers (all of Linux, mine include) release and
+dequeue the request once the ack has been presented.  This is dead wrong.
+If a flush cache fails I get back the starting lba of the write request,
+and if the request is dequeued -- well you know -- bye bye data!  SCSI
+will do the same, even with TCQ.  Once the sense is cleared to platter and
+the request is dequeued, and a hiccup happens -- bye bye data!
+
+> That said, it'd be my bet that most disk drives still have a window of
+> opportunity durring the reallocation operation, where if the drive
+> lost power, they'd end up doing bad things.
+
+That is a given.
+
+> You can force a reallocation, but the data you get when you first read
+> that unreadable reallocated sector is usually undefined, and often is
+> the data pattern written when the drive was low-level formatted.
+> 
+> That IS what is done, my knowledge is also first hand.
+
+Excellent to see another Storage Industry person here.
+
+> I have no descrepency with your description of how spare sectors are
+> dolled out.
+
+Cool.
+
+Question -- are you up to fixing the low-level drivers and all the stuff
+above ?
+
+> Steve Brueggeman
+> 
+> 
+> On Mon, 26 Nov 2001 12:36:02 -0800 (PST), you wrote:
+> 
+> >
+> >Steve,
+> >
+> >Dream on fellow, it is SOP that upon media failure the device logs the
+> >failure and does an internal re-allocation in the slip-sector stream.
+> >If the media is out of slip-sectors then it does an out-of-bounds
+> >re-allocation.  Once the total number of out-of-bounds sectors are gone
+> >you need to deal with getting new media or exectute a seek and purge
+> >operation; however, if the badblock list is full you are toast.
+> >
+> >That is what is done - knowledge is first hand.
+
+Regards,
+
+Andre Hedrick
+CEO/President, LAD Storage Consulting Group
+Linux ATA Development
+Linux Disk Certification Project
 

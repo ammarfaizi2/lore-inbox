@@ -1,74 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbVBWAZh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVBWA3j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbVBWAZh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 19:25:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVBWAZh
+	id S261362AbVBWA3j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 19:29:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbVBWA3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 19:25:37 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:42387 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261358AbVBWAZ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 19:25:29 -0500
-Message-ID: <421BCD6E.3080105@nortel.com>
-Date: Tue, 22 Feb 2005 18:25:18 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
+	Tue, 22 Feb 2005 19:29:39 -0500
+Received: from relay.axxeo.de ([213.239.199.237]:20631 "EHLO relay.axxeo.de")
+	by vger.kernel.org with ESMTP id S261362AbVBWA3h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 19:29:37 -0500
+From: Ingo Oeser <ioe-lkml@axxeo.de>
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch 4/6] Bind Mount Extensions 0.06
+Date: Wed, 23 Feb 2005 01:29:30 +0100
+User-Agent: KMail/1.7.1
+References: <20050222121233.GE3682@mail.13thfloor.at>
+In-Reply-To: <20050222121233.GE3682@mail.13thfloor.at>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
 MIME-Version: 1.0
-To: linux-os@analogic.com
-CC: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Anthony DiSante <theant@nodivisions.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: uninterruptible sleep lockups
-References: <421A3414.2020508@nodivisions.com> <200502211945.j1LJjgbZ029643@turing-police.cc.vt.edu> <421A4375.9040108@nodivisions.com> <421B12DB.70603@aitel.hist.no> <421B14A8.3000501@nodivisions.com> <Pine.LNX.4.61.0502220824440.25089@chaos.analogic.com> <421B9018.7020007@nodivisions.com> <200502222024.j1MKOtlZ007512@laptop11.inf.utfsm.cl> <421B9C86.8090800@nortel.com> <Pine.LNX.4.61.0502221619330.5460@chaos.analogic.com> <421BBD75.6040504@nortel.com> <Pine.LNX.4.61.0502221835190.5814@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0502221835190.5814@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502230129.30225.ioe-lkml@axxeo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os wrote:
+Hi,
 
-Before I get into the reply, I just want to make it clear that I'm not 
-arguing that we *should* do any of this, just that it is not technically 
-impossible.  It's a thought experiment, not a design suggestion.
+Herbert Poetzl wrote:
+> +static inline int mnt_may_unlink(struct vfsmount *mnt, struct inode *dir,
+> struct dentry *child) { +       if (!child->d_inode)
+> +               return -ENOENT;
+> +       if (MNT_IS_RDONLY(mnt))
+> +               return -EROFS;
+> +       return 0;
+> +}
 
-> All wonderful. However, it dosn't fix the problem. You are,
-> again, assuming that the problem is the symptom! The problem
-> is that some piece of code is not handling an exception
-> properly. It is waiting forever for something that will
-> never happen. It's that CODE that needs to be fixed.
+The argument "dir" is not used. Please remove it and fix the callers.
 
-Absolutely. I'm just theorizing that it is possible to devise a system 
-that would be able to deal with such a situation, analogous to the way 
-the kernel can deal with bugs in userspace processes (segfaults, traps, 
-etc.).
 
-> "Cleaning" up the immediate symptoms doesn't let
-> the next thread that acquires the "cleaned up" lock
-> use the hardware because it has jammed code between
-> that thread and the hardware.
+Regards
 
-If the system is designed such that all resources are tracked, then you 
-could clean them up when the "hung" entity is killed (the way we do it 
-for userspace resources).  In this case there is no more jammed code. 
-The next guy to aquire the mutex knows the hardware is in an 
-undetermined state, and is responsable for reinitializing it to a known 
-state.  This would be horribly complicated, but I don't think it would 
-be impossible.
-
-> The bad code needs to be fixed. If the bad code is
-> fixed, you will __never__ have a process stuck
-> in 'D' state unless you run for the 1000 years
-> that could statistically result in a bit in
-> the semaphore getting flipped.
-
-I don't disagree with you on this.  I think that fixing the bad code is 
-absolutely the way to go.  I'm  simply indulging in a thought experiment 
-as to whether or not it is theoretically possible to create a system 
-that would be able to clean up after this sort of thing once it has 
-happened.
-
-Chris
+Ingo Oeser
 

@@ -1,59 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264461AbTGBTtR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 15:49:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264456AbTGBTtR
+	id S264465AbTGBTxW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 15:53:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264456AbTGBTxW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 15:49:17 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:19829 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264461AbTGBTtQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 15:49:16 -0400
-Date: Wed, 2 Jul 2003 12:58:22 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] cryptoloop
-Message-Id: <20030702125822.329463f5.akpm@digeo.com>
-In-Reply-To: <UTC200307021942.h62Jg1L20419.aeb@smtp.cwi.nl>
-References: <UTC200307021942.h62Jg1L20419.aeb@smtp.cwi.nl>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 2 Jul 2003 15:53:22 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:25756 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264465AbTGBTxT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 15:53:19 -0400
+Date: Wed, 02 Jul 2003 12:56:03 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.73-mm3
+Message-ID: <537120000.1057175763@flay>
+In-Reply-To: <20030701221829.3e0edf3a.akpm@digeo.com>
+References: <20030701203830.19ba9328.akpm@digeo.com><15570000.1057122469@[10.10.2.4]> <20030701221829.3e0edf3a.akpm@digeo.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Jul 2003 20:03:41.0133 (UTC) FILETIME=[088017D0:01C340D5]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
->
-> (Usually I plan a track and submit individual steps.
-> When they get applied I continue.
-> If not, there is not need to waste time on the rest.)
+Spiffy - works now.
 
-As someone who is on the receiving end of this process I must say that it
-is not comfortable.
+Kernbench: (make -j N vmlinux, where N = 2 x num_cpus)
+                              Elapsed      System        User         CPU
+                   2.5.73       45.08       98.30      568.56     1479.00
+               2.5.73-mm3       44.39       92.72      563.04     1476.25
+              2.5.73-mjb1       43.70       75.71      564.62     1465.00
 
-It really helps to be able to see the whole thing laid out all at the same
-time.  So we can see that it works, so that we can see that the end result
-is the right one, etc.
+Kernbench: (make -j N vmlinux, where N = 16 x num_cpus)
+                              Elapsed      System        User         CPU
+                   2.5.73       45.99      115.34      571.60     1493.00
+               2.5.73-mm3       45.36      111.71      565.71     1493.75
+              2.5.73-mjb1       43.88       88.37      570.41     1500.75
 
-Whereas receiving a long drawn out trickle of patches is quite confusing. 
-One doesn't know where it is leading, nor where it will end, nor when to
-get down and actually start testing it, etc.  Nor whether this ongoing
-churn is stomping on someone else's development effort.
-
-And there is the risk that you get halfway through and then suddenly "no
-way, we don't want to do that".  Then what?  Argue?  Revert?
+Kernbench: (make -j vmlinux, maximal tasks)
+                              Elapsed      System        User         CPU
+                   2.5.73       46.01      115.06      571.66     1491.75
+               2.5.73-mm3       45.38      114.91      565.81     1497.75
+              2.5.73-mjb1       43.93       85.48      570.47     1492.25
 
 
-So for everyone except the guy who's writing the code it is best to have
-all the work in place and reviewable at the same time.
+DISCLAIMER: SPEC(tm) and the benchmark name SDET(tm) are registered
+trademarks of the Standard Performance Evaluation Corporation. This 
+benchmarking was performed for research purposes only, and the run results
+are non-compliant and not-comparable with any published results.
 
-For the author, yes, there is a risk that more code than necessary will be
-tossed away.  We can minimise that by discussing things beforehand, getting
-understanding and agreement from the relevant people on the intended
-direction.  I think we have done that for cryptoloop.  We still have not
-really done it for 64-bit dev_t.
+Results are shown as percentages of the first set displayed
+
+SDET 1  (see disclaimer)
+                           Throughput    Std. Dev
+                   2.5.73       100.0%         2.5%
+               2.5.73-mm3       105.3%         2.2%
+              2.5.73-mjb1       112.8%         0.0%
+
+SDET 2  (see disclaimer)
+                           Throughput    Std. Dev
+                   2.5.73       100.0%         7.1%
+               2.5.73-mm3        99.3%         3.4%
+              2.5.73-mjb1       108.8%         4.7%
+
+SDET 4  (see disclaimer)
+                           Throughput    Std. Dev
+                   2.5.73       100.0%         0.5%
+               2.5.73-mm3       102.5%         2.2%
+              2.5.73-mjb1       132.3%         0.0%
+
+SDET 8  (see disclaimer)
+                           Throughput    Std. Dev
+                   2.5.73       100.0%         1.4%
+               2.5.73-mm3        96.7%         0.7%
+              2.5.73-mjb1       122.5%         0.3%
+
+SDET 16  (see disclaimer)
+                           Throughput    Std. Dev
+                   2.5.73       100.0%         0.5%
+               2.5.73-mm3       101.8%         0.3%
+              2.5.73-mjb1       122.3%         0.9%
+
+SDET 32  (see disclaimer)
+                           Throughput    Std. Dev
+                   2.5.73       100.0%         0.1%
+               2.5.73-mm3       103.6%         0.8%
+              2.5.73-mjb1       123.2%         0.8%
+
+SDET 64  (see disclaimer)
+                           Throughput    Std. Dev
+                   2.5.73       100.0%         0.2%
+               2.5.73-mm3       104.1%         0.2%
+              2.5.73-mjb1       123.8%         0.1%
+
+SDET 128  (see disclaimer)
+                           Throughput    Std. Dev
+                   2.5.73       100.0%         0.2%
+               2.5.73-mm3       103.5%         0.1%
+              2.5.73-mjb1       122.6%         0.3%
 
 

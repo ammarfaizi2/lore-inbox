@@ -1,49 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263098AbTCUAAj>; Thu, 20 Mar 2003 19:00:39 -0500
+	id <S263056AbTCTXzw>; Thu, 20 Mar 2003 18:55:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263114AbTCUAAi>; Thu, 20 Mar 2003 19:00:38 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:63492 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S263098AbTCUAAd>; Thu, 20 Mar 2003 19:00:33 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200303210013.h2L0D0jx000566@81-2-122-30.bradfords.org.uk>
+	id <S263025AbTCTXzv>; Thu, 20 Mar 2003 18:55:51 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:17325 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S263012AbTCTXzt>; Thu, 20 Mar 2003 18:55:49 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Adrian Knoth <adi@drcomp.erfurt.thur.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Date: Thu, 20 Mar 2003 16:04:37 -0800 (PST)
 Subject: Re: Release of 2.4.21
-To: akpm@digeo.com (Andrew Morton)
-Date: Fri, 21 Mar 2003 00:13:00 +0000 (GMT)
-Cc: hch@infradead.org, jgarzik@pobox.com, linux-kernel@vger.kernel.org,
-       marcelo@conectiva.com.br
-In-Reply-To: <20030320175532.3ef85c1b.akpm@digeo.com> from "Andrew Morton" at Mar 20, 2003 05:55:32 PM
-X-Mailer: ELM [version 2.5 PL6]
+In-Reply-To: <1048208493.4031.3.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0303201600370.18719-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > For critical fixes, release a 2.4.20.1, 2.4.20.2, etc.  Don't disrupt
-> > > the 2.4.21-pre cycle, that would be less productive than just patching
-> > > 2.4.20 and rolling a separate release off of that.
-> > 
-> > I think the naming is illogical.  If there's a bugfix-only release
-> > it whould have normal incremental numbers.  So if marcelo want's
-> > it he should clone a tree of at 2.4.20, apply the essential patches
-> > and bump the version number in the normal 2.4 tree to 2.4.22-pre1
-> 
-> No point in making things too complex.  2.4.20-post1 is something people can
-> easily understand.
-> 
-> I needed that for the ext3 problems which popped up shortly after 2.4.20 was
-> released - I was reduced to asking people to download fixes from my web page.
-> 
-> And having a -post stream may allow us to be a bit more adventurous in the
-> -pre stream.
+if official kernels were being released more rapidly then they are it
+wouldn't be much of a problem (I can wait a week or two for this with no
+problem) but it's currently several months between releases, and since
+there are so many changes there is the potential that a new kernel could
+be worse then what you are running.
 
-Why can't we just make all releases smaller and more frequent?
+yes I could download a patch and fix the kernel that way, but while I
+understand how simple that is I can already hear the crys from management
+about haphazardly patching things that then get put into production.
 
-Why do we need 2.4.x-pre at all, anyway - why can't we just test
-things in the -[a-z][a-z] trees, and _start_ with -rc1?
+and as for the vendor kernels, I don't use them becouse they all make a
+ton of changes that I don't want to deal with.
 
-Why can't we just do bugfixes for 2.4, and speed up 2.5 development?
+the stable kernel releases are a vendor for this situation and this
+'vendor' has chosen to consider this bug not critical (along with a couple
+others) which is a decision being questioned by folks.
 
-John.
+David Lang
+
+
+ On 21 Mar 2003, Alan Cox wrote:
+
+> Date: 21 Mar 2003 01:01:34 +0000
+> From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> To: Adrian Knoth <adi@drcomp.erfurt.thur.de>
+> Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+> Subject: Re: Release of 2.4.21
+>
+> On Thu, 2003-03-20 at 19:56, Adrian Knoth wrote:
+> > (and glibc as well) to do the same. You cannot call 2.4.20 a stable kernel
+> > with such a bug, so as a leader of the 2.4.x-series you cannot call the
+> > whole branch "stable".
+> >
+> > World needs to update, best way to enforce is by a new release.
+>
+> The vendors have released updated kernels. Whats the problem ?
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,68 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262201AbREQWmY>; Thu, 17 May 2001 18:42:24 -0400
+	id <S262199AbREQWmO>; Thu, 17 May 2001 18:42:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262202AbREQWmP>; Thu, 17 May 2001 18:42:15 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:53008 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262203AbREQWl6>; Thu, 17 May 2001 18:41:58 -0400
-Date: 17 May 2001 23:23:00 +0200
+	id <S262204AbREQWmE>; Thu, 17 May 2001 18:42:04 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:21009 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262200AbREQWly>; Thu, 17 May 2001 18:41:54 -0400
+Date: 17 May 2001 22:33:00 +0200
 From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-Message-ID: <811opRpHw-B@khms.westfalen.de>
-In-Reply-To: <p05100316b7272cdfd50c@[207.213.214.37]>
+Message-ID: <811oo7Xmw-B@khms.westfalen.de>
+In-Reply-To: <Pine.LNX.4.21.0105151328160.2470-100000@penguin.transmeta.com>
 Subject: Re: LANANA: To Pending Device Number Registrants
 X-Mailer: CrossPoint v3.12d.kh6 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <Pine.LNX.4.21.0105151107290.2112-100000@penguin.transmeta.com> <Pine.LNX.4.21.0105151107290.2112-100000@penguin.transmeta.com> <p05100316b7272cdfd50c@[207.213.214.37]>
+In-Reply-To: <Pine.GSO.4.21.0105151607100.21081-100000@weyl.math.psu.edu> <Pine.LNX.4.21.0105151328160.2470-100000@penguin.transmeta.com>
 X-No-Junk-Mail: I do not want to get *any* junk mail.
 Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
 X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jlundell@pobox.com (Jonathan Lundell)  wrote on 15.05.01 in <p05100316b7272cdfd50c@[207.213.214.37]>:
+torvalds@transmeta.com (Linus Torvalds)  wrote on 15.05.01 in <Pine.LNX.4.21.0105151328160.2470-100000@penguin.transmeta.com>:
 
-> What about:
+> They might also be exactly the same channel, except with certain magic
+> bits set. The example peter gave was fine: tty devices could very usefully
+> be opened with something like
 >
-> 1 (network domain). I have two network interfaces that I connect to
-> two different network segments, eth0 & eth1; they're ifconfig'd to
-> the appropriate IP and MAC addresses. I really do need to know
-> physically which (physical) hole to plug my eth0 cable into.
+> 	fd = open("/dev/tty00/nonblock,9600,n8", O_RDWR);
+>
+> where we actually open up exactly the same channel as if we opened up
+> /dev/cua00, we just set the speed etc at the same time. Which makes things
+> a hell of a lot more readable, AND they are again easily done from
+> scripts. The above is exactly the kind of thing that UNIX has not done
+> well, and some others have done better (let's face it, even _DOS_ did it
+> better, for chrissake! Those callout devices and those ioctl's are a pain
+> in the ass, for no really good reason).
 
-Sorry, the software doesn't know that. Never has, for that matter.
+Umm ... where to begin.
 
-> (Extension: same situation, but it's a firewall and I've got 12 ports
-> to connect.) (Extension #2: if I add a NIC to the system and reboot,
-> I'd really prefer that the NICs already in use didn't get renumbered.)
+1. No, DOS didn't do it better - DOS devices were mostly a bad copy of  
+Xenix devices.
 
-Make your config script look at the hardware MAC addresses. Those don't  
-change.
+2. DOS definitely didn't do it better for serial ports. Serial ports are  
+the single most broken devices that DOS supports by default, so much so  
+that literally *no* serious program that needed the serial ports used the  
+built-in driver. Only toy programs did that. Because those drivers weren't  
+anything but toys themselves.
 
-> 2 (disk domain). I have multiple spindles on multiple SCSI adapters.
-> I want to allocate them to more than one RAID0/1/5 set, with the
-> usual considerations of putting mirrors on different adapters,
-> spreading my RAID5 drives optimally, ditto stripes. I need (eg) SCSI
-> paths to config all this, and I further need real physical locations
-> to identify failed drives that need to be hot-replaced. The mirror
-> members will move around as drives are replaced and hot spares come
-> into play.
-
-Use partition UUIDs, or SCSI serial numbers, or whatever. This works  
-today.
-
-> Seems like more that merely informational.
-
-The *location*? Nope. Some unique id for the device, if available at all:  
-sure.
-
-> (A side observation: PCI or SCSI bus/device/lun/etc paths are not
-> physical locations; you also need external hardware-specific
-> knowledge to be able to talk about real physical locations in a way
-> that does the system operator any good.)
-
-And those you typically do not have.
+I know this the hard way. I used serial ports under DOS for something like  
+ten years.
 
 MfG Kai

@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263279AbSKRRSx>; Mon, 18 Nov 2002 12:18:53 -0500
+	id <S263794AbSKRRWg>; Mon, 18 Nov 2002 12:22:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263313AbSKRRSx>; Mon, 18 Nov 2002 12:18:53 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48146 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263279AbSKRRSv>;
-	Mon, 18 Nov 2002 12:18:51 -0500
-Message-ID: <3DD9227E.5030204@pobox.com>
-Date: Mon, 18 Nov 2002 12:25:18 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
-X-Accept-Language: en-us, en
+	id <S263837AbSKRRWg>; Mon, 18 Nov 2002 12:22:36 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:49793 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S263794AbSKRRWf>;
+	Mon, 18 Nov 2002 12:22:35 -0500
+Date: Mon, 18 Nov 2002 18:29:17 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Pavel Machek <pavel@suse.cz>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] swsusp duplicates
+Message-ID: <Pine.GSO.4.21.0211181827190.11448-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-To: Ducrot Bruno <poup@poupinou.org>
-CC: Vergoz Michael <mvergoz@sysdoor.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 8139too.c patch for kernel 2.4.19
-References: <028901c28ead$10dfbd20$76405b51@romain> <3DD89813.9050608@pobox.com> <003b01c28edf$9e2b1530$76405b51@romain> <20021118170447.GB27595@poup.poupinou.org>
-In-Reply-To: <028901c28ead$10dfbd20$76405b51@romain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ducrot Bruno wrote:
 
-> On Mon, Nov 18, 2002 at 09:50:50AM +0100, Vergoz Michael wrote:
->
-> >Hi Jeff,
-> >
-> >What i see is the current driver _doesn't_ work on my realtek 8139C.
-> >With this one it work fine.
->
->
-> The question was (as I understand the changes you made and the
-> answer from Jeff) : did your card work with 8139cp or not?
->
-> If not, you have to modify 8139cp, which is the right place for C+ 
-> support.
+Some software suspend declarations from suspend.h are duplicated in reboot.h.
+Especially the `extern void software_suspend(void)' conflicts with the static
+dummy one when software suspend is disabled.
 
+--- linux-2.5.48/include/linux/reboot.h	Sat May 25 14:28:53 2002
++++ linux-m68k-2.5.48/include/linux/reboot.h	Mon Nov 18 15:19:22 2002
+@@ -48,13 +48,6 @@
+ extern void machine_halt(void);
+ extern void machine_power_off(void);
+ 
+-/*
+- * Architecture-independent suspend facility
+- */
+-
+-extern void software_suspend(void);
+-extern unsigned char software_suspend_enabled;
+-
+ #endif
+ 
+ #endif /* _LINUX_REBOOT_H */
 
+Gr{oetje,eeting}s,
 
-Agreed.  However from the above quoted, "8139C" chip would indicate that 
-he needs to use 8139too not 8139cp.
+						Geert
 
-I am hoping (please!) that Michael will post some info that will help us 
-debug his problem.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Regards,
-
-	Jeff
-
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

@@ -1,62 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263747AbTKXKI5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 05:08:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263751AbTKXKI5
+	id S263697AbTKXKEf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 05:04:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263700AbTKXKEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 05:08:57 -0500
-Received: from [194.118.56.16] ([194.118.56.16]:63928 "EHLO mia.0xff.at")
-	by vger.kernel.org with ESMTP id S263747AbTKXKIz (ORCPT
+	Mon, 24 Nov 2003 05:04:35 -0500
+Received: from mail.x-plor.com ([196.37.99.211]:65199 "EHLO
+	x-plor-mail.jhb-xplor") by vger.kernel.org with ESMTP
+	id S263697AbTKXKEd convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 05:08:55 -0500
-Subject: LSI53C1030 (Fustion MPT) performance
-From: Karl Pitrich <pit@0xff.at>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1069668564.2372.127.camel@warp.fabafsc.fabagl.fabasoft.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 24 Nov 2003 11:09:24 +0100
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Nov 2003 05:04:33 -0500
+content-class: urn:content-classes:message
+Subject: RE: New model of SanDisk compact flash not working
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Mon, 24 Nov 2003 12:08:55 +0200
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4417.0
+Message-ID: <0887314A0D67E14C8C255BEF09FC3D99501158@x-plor-mail.jhb-xplor>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: New model of SanDisk compact flash not working
+Thread-Index: AcOycP6zHXdTdpBXRSOTH8eFU9rrmwAAUFSA
+From: "gmlinux" <gmlinux@x-plor.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 24 Nov 2003 10:08:55.0890 (UTC) FILETIME=[F855E320:01C3B272]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+Michael,
 
-i got a new ibm intellistation z pro dual xeon (6221-49G) with on board 
-Fusion MPT chipset (LSI53C1030) and fast U160 disks.
+The original SanDisk I checked passed 100%, it has been running in the
+field now for about 6 months without any hassles. It is just this new
+model that they have released.
+The major problem is I have a release in about 2 weeks, which means I do
+not have time to do testing on a new product, and we cannot get any of
+the older versions.
 
-2.4.20-8 (redhat) and 2.6.0-test9-vanilla 
-(each customer compiled minimal kernels) 
-both yield very poor disk performance.
+hdc=flash is used to make the kernel scan for a slave when it detects a
+flash disk. We are already using this option because we have two
+SanDisks on the same bus, master and slave.
 
-i didn't do specific benkchmarking, but mv'ing a 3GB $HOME to another
-partition takes at least 4x the time as on my old P4 workstation with
-IDE drive.
+I thought IDE was a standard that a single driver would work with all
+devices? I cannot understand how a new controller (if it really does
+conform to the standards), cannot work.
+It is working a little, because it responds to all the ATA interface
+commands and returns readable information if you for example query the
+status. Also, the kernel does detect the SANDISK CFB info string
+correctly on boot.
 
-is poor performance with this controller a known problem?
-could that have to do something with smp?
-
-in 2.6.0, the driver's cvs-versions seem to match the ones in the
-sources offered by LSI for download.
-lkml-archives and google weren't all too helpful.
-
-any info/help apreciated,
-
-
- / karl
-
-
-PS: in the course of this i studied dmesg and found:
-
-  calibrating APIC timer ...
-  ..... CPU clock speed is 3066.0234 MHz.
-  ..... host bus clock speed is 133.0314 MHz.
-
-is 'host bus clock speed' != front side bus speed?
-this shows up also on other p4 machines with much faster FSB than 133
-mhz.
+Regards
+  Garth
 
 
 
+-----Original Message-----
+From: Michael C. B. Ashley [mailto:mcba@phys.unsw.edu.au]
+Sent: Monday, November 24, 2003 11:50 AM
+To: gmlinux
+Subject: re: New model of SanDisk compact flash not working
 
+
+Hi Garth,
+
+I have had lots of trouble with SanDisk CF disks. So much so that I have
+given up on them and am using an alternative IDE solid state drive
+(M-Systems IDE Plus - seems to work, I'm getting 8MB/sec from hdparm
+-tT).
+
+Have you tried "hdc=flash"?
+
+If you search for "flash" in the IDE code you will find cryptic comments
+about flash drives not properly implementing standards.
+
+Good luck!
+Michael

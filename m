@@ -1,45 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbUFEUVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbUFEUVt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261943AbUFEUVm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 16:21:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbUFEUVm
+	id S261947AbUFEUVt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 16:21:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbUFEUVs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 16:21:42 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:11669 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261943AbUFEUVl (ORCPT
+	Sat, 5 Jun 2004 16:21:48 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6298 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261947AbUFEUVr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 16:21:41 -0400
-Message-ID: <40C22B4E.5080806@colorfullife.com>
-Date: Sat, 05 Jun 2004 22:21:34 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Russell Leighton <russ@elegant-software.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Fw: F_SETSIG broken/changed in 2.6 for UDP and TCP sockets?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 5 Jun 2004 16:21:47 -0400
+Date: Sat, 5 Jun 2004 13:19:23 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Pekka Pietikainen <pp@ee.oulu.fi>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: Dealing with buggy hardware (was: b44 and 4g4g)
+Message-Id: <20040605131923.232f8950.davem@redhat.com>
+In-Reply-To: <20040605200643.GA2210@ee.oulu.fi>
+References: <20040531202104.GA8301@ee.oulu.fi>
+	<20040605200643.GA2210@ee.oulu.fi>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell Leighton wrote:
+On Sat, 5 Jun 2004 23:06:44 +0300
+Pekka Pietikainen <pp@ee.oulu.fi> wrote:
 
->> Thanks to all that helped me troubleshoot.
->>
->> Of the 2 issues I had with FedoraCore2, one problem is solved:
->>
->>    * Multicast issues were solved by using another NIC. It seems that
->>      the driver for the NatSemi DP8381[56] does not receive mutlicast
->>      properly.
->  
->
+> +	if(virt_to_bus(skb->data) + skb->len > B44_PCI_DMA_MAX) {
 
-Odd. I've just tried the driver from 2.6.7-rc2 and multicast receive 
-works: the hardware correctly accepts packets for the requested group 
-and skips packets for all other groups.
-Which app do you use for multicast receive/send? Which nic do you use 
-now instead of natsemi?
+You can't use this non-portable interface, you have to:
 
---
-    Manfred
+1) pci_map the data
+2) test the dma_addr_t returned

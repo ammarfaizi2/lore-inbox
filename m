@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262094AbVBPSfb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262095AbVBPSfx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262094AbVBPSfb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 13:35:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbVBPSfb
+	id S262095AbVBPSfx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 13:35:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262096AbVBPSfx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 13:35:31 -0500
-Received: from itapoa.terra.com.br ([200.154.55.227]:45234 "EHLO
-	itapoa.terra.com.br") by vger.kernel.org with ESMTP id S262094AbVBPSf1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 13:35:27 -0500
-X-Terra-Karma: -2%
-X-Terra-Hash: b2615c5c22826682933e1c96c2334abe
-Message-ID: <42139203.3070903@terra.com.br>
-Date: Wed, 16 Feb 2005 16:33:39 -0200
-From: Felipe W Damasio <felipewd@terra.com.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20050204
-X-Accept-Language: pt-br, en-us, en
-MIME-Version: 1.0
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: a.hocquel@oreka.com, linux-kernel@vger.kernel.org
-Subject: Re: strange bug with realtek 8169 card
-References: <3xSPL-6F2-55@gated-at.bofh.it> <3y6g1-KN-23@gated-at.bofh.it>	<42138AA5.3040506@oreka.com> <20050216181949.GA17159@electric-eye.fr.zoreil.com>
-In-Reply-To: <20050216181949.GA17159@electric-eye.fr.zoreil.com>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 16 Feb 2005 13:35:53 -0500
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:42707 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S262095AbVBPSfr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 13:35:47 -0500
+Subject: Re: [rfc/rft] Fujitsu B-Series Lifebook PS/2 TouchScreen driver
+From: Kenan Esau <kenan.esau@conan.de>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: harald.hoyer@redhat.de, dtor_core@ameritech.net,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+In-Reply-To: <20050215134308.GE7250@ucw.cz>
+References: <20050211201013.GA6937@ucw.cz>
+	 <1108457880.2843.5.camel@localhost>  <20050215134308.GE7250@ucw.cz>
+Content-Type: text/plain
+Date: Wed, 16 Feb 2005 19:34:52 +0100
+Message-Id: <1108578892.2994.2.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Dienstag, den 15.02.2005, 14:43 +0100 schrieb Vojtech Pavlik:
+> On Tue, Feb 15, 2005 at 09:57:59AM +0100, Kenan Esau wrote:
+> > Am Freitag, den 11.02.2005, 21:10 +0100 schrieb Vojtech Pavlik:
+
+[...]
+
+> > +
+> > +        /* 
+> > +           Enable absolute output -- ps2_command fails always but if
+> > +           you leave this call out the touchsreen will never send
+> > +           absolute coordinates
+> > +        */ 
+> > +        param = 0x07;
+> > +        ps2_command(ps2dev, &param, PSMOUSE_CMD_SETRES);
+> 
+> Have you checked whether really the touchscreen sends a 0xfe error back,
+> or some other value, or timeout? i8042.debug=1 is your friend here.
+
+Yes the answer is 0xfe. 
 
 
-Francois Romieu wrote:
-> Please try:
-> http://www.fr.zoreil.com/~francois/misc/20050202-2.4.29-r8169.c-test.patch
-
-	404 Not Found
-
-Felipe Damasio

@@ -1,57 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbVCFUdR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbVCFU6U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261494AbVCFUdR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 15:33:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbVCFUdR
+	id S261503AbVCFU6U (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 15:58:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbVCFU6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 15:33:17 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:38646 "EHLO
-	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S261494AbVCFUcr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 15:32:47 -0500
-Date: Sun, 06 Mar 2005 13:32:20 -0700
-From: Jeremy Nickurak <atrus@lkml.spam.rifetech.com>
-Subject: Re: Logitech MX1000 Horizontal Scrolling
-In-reply-to: <1110088883.24801.3.camel@localhost>
-To: Aaron Gyes <floam@sh.nu>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <1110141140.4727.3.camel@localhost>
-MIME-version: 1.0
-X-Mailer: Evolution 2.1.3.2
-Content-type: multipart/signed; boundary="=-xdSuamt2vD+xdvlKQi8g";
- protocol="application/pgp-signature"; micalg=pgp-sha1
-References: <1110088883.24801.3.camel@localhost>
+	Sun, 6 Mar 2005 15:58:20 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:43525 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261504AbVCFU54 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 15:57:56 -0500
+Date: Sun, 6 Mar 2005 21:57:54 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: davem@davemloft.net
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] net/802/fc.c: #if 0 fc_type_trans
+Message-ID: <20050306205754.GO5070@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The only user of fc_type_trans (drivers/net/fc/iph5526.c) is BROKEN in 
+2.6 and removed in -mm.
 
---=-xdSuamt2vD+xdvlKQi8g
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-On sab, 2005-03-05 at 22:01 -0800, Aaron Gyes wrote:
->I worked around the weird two button thing by disabling cruise control.
+---
 
-Unfortunately:
-1) This requires third-party software to work
-2) This also disables the up/down scrolling cruise control buttons. The
-buttons above and below the scroll wheel are supposed to not only be
-remapped to buttons 4 and 5, but also have a auto-repeat added when held
-down. (The same auto-repeat is also required by the horizontal
-scrollers, unless it's to be dictated that user-space software needs to
-apply their own repeat mechanism)
+ include/linux/fcdevice.h |    2 --
+ net/802/fc.c             |    2 ++
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
+--- linux-2.6.11-mm1-full/include/linux/fcdevice.h.old	2005-03-06 21:40:36.000000000 +0100
++++ linux-2.6.11-mm1-full/include/linux/fcdevice.h	2005-03-06 21:41:07.000000000 +0100
+@@ -24,12 +24,10 @@
+ #define _LINUX_FCDEVICE_H
+ 
+ 
+ #include <linux/if_fc.h>
+ 
+ #ifdef __KERNEL__
+-extern unsigned short	fc_type_trans(struct sk_buff *skb, struct net_device *dev); 
+-
+ extern struct net_device *alloc_fcdev(int sizeof_priv);
+ #endif
+ 
+ #endif	/* _LINUX_FCDEVICE_H */
+--- linux-2.6.11-mm1-full/net/802/fc.c.old	2005-03-06 21:41:12.000000000 +0100
++++ linux-2.6.11-mm1-full/net/802/fc.c	2005-03-06 21:41:35.000000000 +0100
+@@ -94,12 +94,13 @@
+ 	return arp_find(fch->daddr, skb);
+ #else
+ 	return 0;
+ #endif
+ }
+ 
++#if 0
+ unsigned short
+ fc_type_trans(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct fch_hdr *fch = (struct fch_hdr *)skb->data;
+ 	struct fcllc *fcllc;
+ 
+@@ -127,12 +128,13 @@
+ 		skb_pull(skb, sizeof (struct fcllc));
+ 		return fcllc->ethertype;
+ 	}
+ 
+ 	return ntohs(ETH_P_802_2);
+ }
++#endif  /*  0  */
+ 
+ static void fc_setup(struct net_device *dev)
+ {
+ 	dev->hard_header	= fc_header;
+ 	dev->rebuild_header	= fc_rebuild_header;
+                 
 
---=-xdSuamt2vD+xdvlKQi8g
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCK2jUtjFmtbiy5uYRAiuMAJ4lC6IYJ+a4uaHbQtjNlHQqNVpsUgCggTUb
-Av2rl47MWHwj0njQJz5rQ+E=
-=gEKi
------END PGP SIGNATURE-----
-
---=-xdSuamt2vD+xdvlKQi8g--

@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261912AbUC0XDp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 18:03:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbUC0XDp
+	id S261919AbUC0XMT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 18:12:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbUC0XMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 18:03:45 -0500
-Received: from fep02-mail.bloor.is.net.cable.rogers.com ([66.185.86.72]:15374
-	"EHLO fep02-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id S261912AbUC0XDn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 18:03:43 -0500
-From: "Shawn Starr" <shawn.starr@rogers.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.6.x strangeness with large buffer usage via network transfer/disk and SEGV processes
-Date: Sat, 27 Mar 2004 18:07:38 -0500
-Message-ID: <000001c41450$4c6c1f30$030aa8c0@PANIC>
+	Sat, 27 Mar 2004 18:12:18 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8115 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261925AbUC0XMQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Mar 2004 18:12:16 -0500
+Message-ID: <40660A3D.3020300@pobox.com>
+Date: Sat, 27 Mar 2004 18:11:57 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Stefan Smietanowski <stesmi@stesmi.com>
+CC: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] speed up SATA
+References: <4066021A.20308@pobox.com> <40660877.3090302@stesmi.com>
+In-Reply-To: <40660877.3090302@stesmi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep02-mail.bloor.is.net.cable.rogers.com from [67.60.40.239] using ID <shawn.starr@rogers.com> at Sat, 27 Mar 2004 18:02:37 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't get something maybe someone can explain why this is happening:
+Stefan Smietanowski wrote:
+> What will happen when a PATA disk lies behind a Marvel(ous) bridge, as
+> in most SATA disks today?
 
-1) When using a large amount of buffers via sending say a 800MB file from
-one PC to another, the Linux system will segfault processes but not preform
-an OOM. Even though the system itself has not touched swap memory. Why is
-the kernel killing/or why are the processes dying with Segfault?
+Larger transfers work fine in PATA, too.
 
-I see this happening when I extract a Linux source tarball and have certain
-processes running, while tar extracts the process will just receive a
-segmentation fault w/o core.
+WRT bridges, it is generally the best idea to limit to UDMA/100 (udma), 
+but larger transfers are OK.
 
-When using a virtual OS emulator, the emulator will just die.
 
-I don't remember this behaviour in 2.4 at all and I don't think this is
-correct. I have PREEMPT enabled as well.
+> Is large transfers mandatory in the LBA48 spec and is LBA48 really
+> mandatory in SATA?
 
-Is this a problem or is this correct behavour?
+Yes and no, in that order :)  SATA doesn't mandate lba48, but it is 
+highly unlikely that you will see SATA disk without lba48.
 
-Thanks
+Regardless, libata supports what the drive supports.  Older disks still 
+work just fine.
 
-Shawn S.
+	Jeff
+
+
 

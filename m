@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268781AbUIXO1B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268769AbUIXOau@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268781AbUIXO1B (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 10:27:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268786AbUIXO07
+	id S268769AbUIXOau (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 10:30:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268786AbUIXOau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 10:26:59 -0400
-Received: from coltrane.tcs.informatik.uni-muenchen.de ([129.187.228.100]:2506
-	"EHLO coltrane.tcs.informatik.uni-muenchen.de") by vger.kernel.org
-	with ESMTP id S268803AbUIXO0g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 10:26:36 -0400
-Date: Fri, 24 Sep 2004 16:26:31 +0200
-From: "Oliver M. Bolzer" <oliver@fakeroot.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: qla2xxx: frequent total lockups (2.6.8, 2.6.9-rc{1-mm5,2})
-Message-ID: <20040924142631.GA15004@magi.fakeroot.net>
-Reply-To: linux-kernel@vger.kernel.org
-References: <20040915231657.GA2005@magi.fakeroot.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040915231657.GA2005@magi.fakeroot.net>
-User-Agent: Mutt/1.5.4i
+	Fri, 24 Sep 2004 10:30:50 -0400
+Received: from webapps.arcom.com ([194.200.159.168]:60423 "EHLO
+	webapps.arcom.com") by vger.kernel.org with ESMTP id S268769AbUIXOar
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 10:30:47 -0400
+Message-ID: <41542F96.2000700@arcom.com>
+Date: Fri, 24 Sep 2004 15:30:46 +0100
+From: David Vrabel <dvrabel@arcom.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040912)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+CC: rmk+serial@arm.linux.org.uk
+Subject: Serial: Request resources if not autoconfiguring new ports
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Sep 2004 14:34:58.0906 (UTC) FILETIME=[AB0693A0:01C4A243]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Thu, Sep 16, 2004 at 01:16:59AM +0200, "Oliver M. Bolzer" <oliver@fakeroot.net> wrote...
- 
->As soon as there is I/O load on the HBA, I start seeing
-> 
->qla2300 0000:01:03.0: qla2xxx_eh_abort: cmd already done sp=0000000000000000
-> 
->messages every few seconds, eventually leading to complete system lockups after
->several minutes up to several hours, due to kernel NULL pointer dereferences
->in qla2x00_cmd_timeout().
- 
-> I've tested and reproduced the error on the following kernels, all
-> compiled for x86_64.
-> 2.6.8.1
-> 2.6.9-rc1-mm5 (with dma_fixups patch posted by Andrew Vasquez on 13.9)
-> 2.6.9-rc2 
+This makes serial core request resources when adding new ports if the 
+port isn't to be autoconfigured (UPF_BOOT_AUTOCONF is not set).  This 
+also means the UPF_IOREMAP flag now works.
 
-2.6.9-rc2-mm2 seems to have fixed the problem.
-It is rather puzzling since the difference in the qla2xxx driver between
-2.6.9-rc1-mm5+qlogic-oops-fix and 2.6.9-rc2-mm2 is rather minimal. Maybe
-the problem was caused by some other part of the kernel that has now
-been fixed.
+--- linux-2.6-armbe.orig/drivers/serial/serial_core.c	2004-09-23 
+15:04:08.000000000 +0100
++++ linux-2.6-armbe/drivers/serial/serial_core.c	2004-09-24 
+15:27:01.000000000 +0100
+@@ -2007,7 +2007,8 @@
+  	if (port->flags & UPF_BOOT_AUTOCONF) {
+  		port->type = PORT_UNKNOWN;
+  		port->ops->config_port(port, flags);
+-	}
++	} else
++		port->ops->request_port(port);
 
+  	if (port->type != PORT_UNKNOWN) {
+  		unsigned long flags;
 
-
+David Vrabel
 -- 
-	Oliver M. Bolzer
-	oliver@gol.com
+David Vrabel, Design Engineer
 
-GPG (PGP) Fingerprint = 621B 52F6 2AC1 36DB 8761  018F 8786 87AD EF50 D1FF
+Arcom, Clifton Road           Tel: +44 (0)1223 411200 ext. 3233
+Cambridge CB1 7EA, UK         Web: http://www.arcom.com/

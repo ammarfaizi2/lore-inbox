@@ -1,66 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265135AbTGCG0u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 02:26:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265182AbTGCG0u
+	id S265398AbTGCGlj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 02:41:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265287AbTGCGlj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 02:26:50 -0400
-Received: from dp.samba.org ([66.70.73.150]:36557 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S265135AbTGCG0t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 02:26:49 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       trivial@rustcorp.com.au
-Subject: [PATCH] Per-cpu variable in mm/slab.c
-Date: Thu, 03 Jul 2003 16:23:32 +1000
-Message-Id: <20030703064115.3F6922C04B@lists.samba.org>
+	Thu, 3 Jul 2003 02:41:39 -0400
+Received: from remt19.cluster1.charter.net ([209.225.8.29]:59077 "EHLO
+	remt19.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S265398AbTGCGli (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 02:41:38 -0400
+Message-ID: <3F03D387.8000501@mrs.umn.edu>
+Date: Thu, 03 Jul 2003 01:56:07 -0500
+From: Grant Miner <mine0057@mrs.umn.edu>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: New idea for file-based mounts
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.  From Zwane.
+Instead of using mount/umount syscalls, have a file that exists 
+per-directory named, say, ..mount.  Then, to mount /dev/sda at /home, 
+you issue the command
+echo "/dev/sda rw" > /home/..mount
+(Almost the same syntax as mtab.) The OS takes action (upon modification 
+of the ..mounts file) and attempts the mount.  Reading back the file 
+would show:
+/dev/sda rw
 
-Name: Make slab.c reap_timers per-cpu
-Author: Zwane Mwaikambo
-Status: Tested on 2.5.73
+if the mount suceeded, otherwise it would be null if there is an error.  
+To unmount the file system, remove that line from the ..mounts file.
 
-D: Rather trivial conversion.  Tested on SMP.
+Now, if you want to do layered mounts, a la plan 9, you could search 
+from the top line through the last line.  Say you had a directory, 
+/programs.  You want to make a union of directories together, so you 
+make /programs/..mounts look like:
+/home/root/bin rw
+/bin ro
+/sbin ro
+/usr/bin ro
 
-Index: linux-2.5/mm/slab.c
-===================================================================
-RCS file: /home/cvs/linux-2.5/mm/slab.c,v
-retrieving revision 1.91
-diff -u -p -B -r1.91 slab.c
---- linux-2.5/mm/slab.c	28 Jun 2003 21:10:44 -0000	1.91
-+++ linux-2.5/mm/slab.c	3 Jul 2003 01:34:36 -0000
-@@ -441,7 +441,7 @@ enum {
- 	FULL
- } g_cpucache_up;
- 
--static struct timer_list reap_timers[NR_CPUS];
-+static DEFINE_PER_CPU(struct timer_list, reap_timers);
- 
- static void reap_timer_fnc(unsigned long data);
- 
-@@ -491,7 +491,7 @@ static void __slab_error(const char *fun
-  */
- static void start_cpu_timer(int cpu)
- {
--	struct timer_list *rt = &reap_timers[cpu];
-+	struct timer_list *rt = &per_cpu(reap_timers, cpu);
- 
- 	if (rt->function == NULL) {
- 		init_timer(rt);
-@@ -2382,7 +2382,7 @@ next:
- static void reap_timer_fnc(unsigned long data)
- {
- 	int cpu = smp_processor_id();
--	struct timer_list *rt = &reap_timers[cpu];
-+	struct timer_list *rt = &__get_cpu_var(reap_timers);
- 
- 	cache_reap();
- 	mod_timer(rt, jiffies + REAPTIMEOUT_CPUC + cpu);
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Since /home/root/bin rw is read-write, any newly written files in 
+/programs really go in /home/root/bin.  But you see files from each of 
+the four directories (unless they have duplicate names, then higher in 
+the list takes precedence) due to the unioning.
+
+Why do this? A few reasons: one could set unix permissions/acl's on the 
+..mounts file--you could easily let non-root users perform mount 
+operations on certain directories.  Then you don't need mount and 
+unmount commands as well.
+
 

@@ -1,85 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266166AbUHNHOS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268105AbUHNHQx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266166AbUHNHOS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 03:14:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266185AbUHNHOS
+	id S268105AbUHNHQx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 03:16:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266189AbUHNHPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 03:14:18 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:47042 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S266166AbUHNHOQ (ORCPT
+	Sat, 14 Aug 2004 03:15:46 -0400
+Received: from mail.xor.ch ([212.55.210.163]:24845 "HELO mail.xor.ch")
+	by vger.kernel.org with SMTP id S266185AbUHNHPf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 03:14:16 -0400
-Date: Sat, 14 Aug 2004 09:15:46 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
-Message-ID: <20040814071546.GB4355@elte.hu>
-References: <2rfT9-5wi-17@gated-at.bofh.it> <2rF1c-6Iy-7@gated-at.bofh.it> <2sxEs-46P-1@gated-at.bofh.it> <2sCkH-7i5-15@gated-at.bofh.it> <2sHu9-2EW-31@gated-at.bofh.it> <m31xibtf4e.fsf@averell.firstfloor.org> <20040813121502.GA18860@elte.hu> <20040813121800.GA68967@muc.de> <20040813135109.GA20638@elte.hu> <411D9A2A.1000202@grupopie.com>
-Mime-Version: 1.0
+	Sat, 14 Aug 2004 03:15:35 -0400
+Message-ID: <411DBC0C.7FE46F9C@orpatec.ch>
+Date: Sat, 14 Aug 2004 09:15:24 +0200
+From: Otto Wyss <otto.wyss@orpatec.ch>
+Reply-To: otto.wyss@orpatec.ch
+X-Mailer: Mozilla 4.78 (Macintosh; U; PPC)
+X-Accept-Language: de,en
+MIME-Version: 1.0
+To: Andreas Dilger <adilger@clusterfs.com>
+CC: "Theodore Ts'o" <tytso@mit.edu>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: New concept of ext3 disk checks
+References: <411BAFCA.92217D16@orpatec.ch> <20040812223907.GA7720@thunk.org> <20040813003403.GK18216@schnapps.adilger.int>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <411D9A2A.1000202@grupopie.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Aug 12, 2004  18:39 -0400, Theodore Ts'o wrote:
+> > - Instead of checks forced during startup checks are done during runtime
+> > (at low priority). It has to be determined if these checks are _only_
+> > checks or if they also include possible fixes. Possible solution might
+> > distinct between the severity of any discovered problem.
+>
+> This is something that doesn't require any kernel patches, or any
+> other C coding for that matter, so it would be a great first project
+> for someone who wanted to learn how to use the device-mapper snapshot
+> feature. Basically, what you do is the following in a shell script
+> which is fired off by cron once a week at 3am (or some other
+> appropriate time):
 
-* Paulo Marques <pmarques@grupopie.com> wrote:
+Instead of a daily cron job I envision a solution where writes to the
+disk are checked for correctness within a short time lag after they have
+been done. Assume this time lag is set to a few minutes, on a high
+performance system not each write of a certain node gets checked while
+on a desktop system most probably each single write is. Choosing the
+right time lag gives a balance of discovering problems fast against
+additional disk access.
 
-> >yeah. Maybe someone will find the time to improve the algorithm. But
-> >it's not a highprio thing.
-> 
-> Well, I found some time and decided to give it a go :)
+Okay, such tests could be done by a constantly running background task
+in user space. But since journalling just should guarantee that any disk
+access is done correct, even in case of problems, it should be
+considered if such test can be integrated there. This has the advantage
+that if journalling is able to guarantee correctness by other means
+these test aren't needed at all and may be completely remove.
 
-great, your patch is looking really good!
+What I want to achieve with this new concept is that the file system
+itself not only tries to prevent any data corruption but also tries to
+detect and report it if corruption still has happened anyway. 
 
-> The original algorithm took, on average, 1340us per lookup on my P4
-> 2.8GHz. The compile settings for the test are not the same on the
-> kernel, so this can be only compared against other results from the
-> same setup.
+O. Wyss
 
-ouch. I consider fixing this a quality of implementation issue.
-
-> With the attached patch it takes 14us per lookup. This is almost a
-> 100x improvement.
-
-wow! I have tried your patch and /proc/latency_trace now produces
-instantaneous output.
-
-> There are still a few issues with this approach. The biggest issue is
-> that this is clearly a speed/space trade-off, and maybe we don't want
-> to waste the space on a code path that is not supposed to be "hot". If
-> this is the case, I can make a smaller patch, that fixes just the name
-> "decompression" strcpy's.
-
-your patch doesnt add all that much of code. It adds 288 bytes to .text
-and 64 bytes to .data. A typical .config generates 180K of compressed
-kallsyms data (with !KALLSYMS_ALL), so your patch increases the kallsyms
-overhead by a mere 0.2%. So it's really not an issue - especially since
-kallsyms can be disabled in .config. 
-
-i've put your patch into the -O8 patch:
-
- http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc4-O8
-
-i'd strongly recommend merging this patch upstream as well.
-
-> Just one side note: gcc gives a warning about 2 variables that might
-> be used before initialization. I know they are not, and it didn't seem
-> a good idea to put extra code just to shut up gcc. What is the
-> standard way to convince gcc that those vars are ok?
-
-the standard way is to add the extra initializers. The gcc folks feel
-that those rare cases where gcc gets it wrong justify the benefit of
-catching lots of real bugs. I've added the extra initialization to -O8.
-
-	Ingo
+-- 
+See a huge pile of work at "http://wyodesktop.sourceforge.net/"

@@ -1,57 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262981AbTDFOf1 (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 10:35:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262982AbTDFOf1 (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 10:35:27 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:13763 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id S262981AbTDFOf0 (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 10:35:26 -0400
-Date: Sun, 6 Apr 2003 17:46:55 +0200
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: Stephen Rothwell <sfr@canb.auug.org.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: poweroff problem
-Message-Id: <20030406174655.592b7f60.us15@os.inf.tu-dresden.de>
-In-Reply-To: <20030407002703.16993dc4.sfr@canb.auug.org.au>
-References: <20030405060804.31946.qmail@webmail5.rediffmail.com>
-	<20030406233319.042878d3.sfr@canb.auug.org.au>
-	<20030406155814.68c5c908.us15@os.inf.tu-dresden.de>
-	<20030407002703.16993dc4.sfr@canb.auug.org.au>
-Organization: Disorganized
-X-Mailer: Sylpheed version 0.8.11claws3 (GTK+ 1.2.10; Linux 2.4.21-pre6)
-X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
-X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.6i+ZmWFM_)6Nfq"
+	id S262985AbTDFOjI (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 10:39:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbTDFOjI (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 10:39:08 -0400
+Received: from wall.ttu.ee ([193.40.254.238]:51973 "EHLO wall.ttu.ee")
+	by vger.kernel.org with ESMTP id S262985AbTDFOjF (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 10:39:05 -0400
+Date: Sun, 6 Apr 2003 17:50:18 +0300 (EET DST)
+From: Siim Vahtre <siim@pld.ttu.ee>
+To: linux-kernel@vger.kernel.org
+Subject: i810fb problems with 2.5.66-bk10
+Message-ID: <Pine.GSO.4.53.0304061743050.17774@pitsa.pld.ttu.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.6i+ZmWFM_)6Nfq
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-On Mon, 7 Apr 2003 00:27:03 +1000 Stephen Rothwell (SR) wrote:
+First of all, the cursor is playing fool. Sometimes it disappears when I
+am writing and sometimes it looks normal. Pretty annoying.
 
-SR> I was asuming the original report was from a kernel using APM not ACPI.
-SR> Did 2.4.2 have ACPI?
+And when I did:
 
-Err no, so he must have been using APM.
+modprobe i810fb mtrr=1 accel=1 xres=640 yres=480 hsync1=30 hsync2=60 vsync1=50 vsync2=100 bpp=16 dcolor=1
+modprobe fbcon
 
-2.4.2+APM has the problem, 2.4.21-pre+ACPI has the problem. Do APM and
-ACPI both share the same code to power off a machine? If so that seems to
-be the culprit.
+I got:
 
--Udo.
+PCI: Found IRQ 11 for device 00:02.0
+I810FB: fb0         : Intel(R) 815 (Internal Graphics with AGP)
+Framebuffer Device v0.9.0
+I810FB: Video RAM   : 4096K
+I810FB: Monitor     : H: 30-60 KHz V: 50-100 Hz
+I810FB: Mode        : 640x480-16bpp@99Hz
+Unable to handle kernel paging request at virtual address c895d008
+ printing eip:
+c01d5a60
+*pde = 011cd067
+*pte = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c01d5a60>]    Not tainted
+EFLAGS: 00010292
+EIP is at pci_bus_match+0x30/0xb0
+eax: 00008086   ebx: c7e5b000   ecx: c895d008   edx: 20202020
+esi: c7e5b04c   edi: ffffffed   ebp: c8985488   esp: c78a9f28
+ds: 007b   es: 007b   ss: 0068
+Process modprobe (pid: 148, threadinfo=c78a8000 task=c13c4680)
+Stack: c8985488 c021343f c7e5b04c c8985488 c7e5b054 c7e5b04c c02feb30
+c021357c
+       c7e5b04c c8985488 c89854a4 c02feae0 00000000 c02feaa0 c0213870
+c8985488
+       c02f8c50 c02f8c38 c8985b40 c02f8c38 c0213ce8 c8985488 00000019
+c7a72860
+Call Trace:
+ [<c8985488>] +0x28/0x94 [i810fb]
+ [<c021343f>] bus_match+0x2f/0x80
+ [<c8985488>] +0x28/0x94 [i810fb]
+ [<c021357c>] driver_attach+0x5c/0x70
+ [<c8985488>] +0x28/0x94 [i810fb]
+ [<c89854a4>] +0x44/0x94 [i810fb]
+ [<c0213870>] bus_add_driver+0xd0/0xe0
+ [<c8985488>] +0x28/0x94 [i810fb]
+ [<c8985b40>] +0x0/0xe0 [i810fb]
+ [<c0213ce8>] driver_register+0x38/0x40
+ [<c8985488>] +0x28/0x94 [i810fb]
+ [<c01d59db>] pci_register_driver+0x4b/0x60
+ [<c8985488>] +0x28/0x94 [i810fb]
+ [<c895c02a>] init_module+0x3a/0x57 [i810fb]
+ [<c8985460>] +0x0/0x94 [i810fb]
+ [<c0131cad>] sys_init_module+0x11d/0x1d0
+ [<c8985b40>] +0x0/0xe0 [i810fb]
+ [<c01092bb>] syscall_call+0x7/0xb
 
---=.6i+ZmWFM_)6Nfq
-Content-Type: application/pgp-signature
+Code: 8b 01 85 c0 89 c2 75 e8 8b 41 08 85 c0 75 e1 8b 41 14 85 c0
+ Console: switching to colour frame buffer device 80x30
+agp_allocate_memory: c6e36c60
+agp_allocate_memory: 00000000
+agp_allocate_memory: c6e36c20
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.3.1 (GNU/Linux)
+It didn't stop working, though... and everything else (like switching to X
+and back) looks nice. (except the cursor..)
+---
+CONFIG_FB=y
+CONFIG_FB_I810=m
+CONFIG_FB_I810_GTF=y
+CONFIG_FRAMEBUFFER_CONSOLE=m
 
-iD8DBQE+kEvxnhRzXSM7nSkRAk5rAJ9hDj9zFLHkGWtiH0TcY3fuuMlb8wCfeXcR
-KGFZaup74V9sZPsKqaNkgO4=
-=5kOO
------END PGP SIGNATURE-----
-
---=.6i+ZmWFM_)6Nfq--

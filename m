@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270769AbTG0N0D (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 09:26:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270774AbTG0N0C
+	id S270774AbTG0NaW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 09:30:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270775AbTG0NaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 09:26:02 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:41707 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S270769AbTG0N0B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 09:26:01 -0400
-Date: Sun, 27 Jul 2003 15:40:42 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] sched-2.6.0-test1-G6, interactivity changes
-Message-ID: <Pine.LNX.4.44.0307271535590.22937-100000@localhost.localdomain>
+	Sun, 27 Jul 2003 09:30:22 -0400
+Received: from galaxy.lunarpages.com ([64.235.234.165]:63661 "EHLO
+	galaxy.lunarpages.com") by vger.kernel.org with ESMTP
+	id S270774AbTG0NaV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 09:30:21 -0400
+Message-ID: <3F23DB4E.1000203@genebrew.com>
+Date: Sun, 27 Jul 2003 10:01:50 -0400
+From: Rahul Karnik <rahul@genebrew.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030706
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew de Quincey <adq_dvb@lidskialf.net>
+CC: Marcelo Penna Guerra <eu@marcelopenna.org>,
+       lkml <linux-kernel@vger.kernel.org>, Laurens <masterpe@xs4all.nl>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] nvidia nforce 1.0-261 nvnet for kernel 2.5
+References: <200307262309.20074.adq_dvb@lidskialf.net> <200307271222.13649.adq_dvb@lidskialf.net> <3F23BC1D.7070804@genebrew.com> <200307271301.41660.adq_dvb@lidskialf.net>
+In-Reply-To: <200307271301.41660.adq_dvb@lidskialf.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - galaxy.lunarpages.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - genebrew.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew de Quincey wrote:
 
-my latest scheduler patchset can be found at:
+> I've just dumped the mmapped IO space on mine. The MAC address shows up at 
+> offset 0xa8, but the amd8111e driver is looking for it at 0x160 (there's just 
+> loads of 0x00 there).
 
-	redhat.com/~mingo/O(1)-scheduler/sched-2.6.0-test1-G6
+Hmmmm, with this info I am able to get amd8111e to read the correct MAC 
+address, but the network connection does not seem to work anyway. How 
+would we know if this is the right driver anyway?
 
-this version takes a shot at more scheduling fairness - i'd be interested
-how it works out for others.
-
-Changes since -G3:
-
- - fix the timeslice granularity inconsistency found by Con
-
- - further increase timeslice granularity
-
- - decrease sleep average interval to 1 second
-
- - fix starvation detection, increase fairness
-
-Reports, testing feedback and comments are welcome,
-
-	Ingo
+-Rahul
+-- 
+Rahul Karnik
+rahul@genebrew.com
 

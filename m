@@ -1,129 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263326AbTAJHMq>; Fri, 10 Jan 2003 02:12:46 -0500
+	id <S263544AbTAJHZt>; Fri, 10 Jan 2003 02:25:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263333AbTAJHMq>; Fri, 10 Jan 2003 02:12:46 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:38075 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S263326AbTAJHMp>; Fri, 10 Jan 2003 02:12:45 -0500
-Date: Thu, 09 Jan 2003 23:21:22 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: lse-tech <lse-tech@lists.sourceforge.net>
-Subject: 2.5.55-mjb1 (scalability / NUMA patchset)
-Message-ID: <922170000.1042183282@titus>
-In-Reply-To: <676880000.1042101078@titus>
-References: <19270000.1038270642@flay><134580000.1039414279@titus><32230000.1039502522@titus><568990000.1040112629@titus><21380000.1040717475@titus> <821470000.1041579423@titus> <214500000.1041821919@titus> <676880000.1042101078@titus>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S263837AbTAJHYs>; Fri, 10 Jan 2003 02:24:48 -0500
+Received: from dp.samba.org ([66.70.73.150]:3820 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S263342AbTAJHYo>;
+	Fri, 10 Jan 2003 02:24:44 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Miles Bader <miles@gnu.org>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] Make `obsolete params' work correctly if MODULE_SYMBOL_PREFIX is non-empty 
+In-reply-to: Your message of "Tue, 07 Jan 2003 15:32:39 +0900."
+             <20030107063239.F1ED73745@mcspd15.ucom.lsi.nec.co.jp> 
+Date: Wed, 08 Jan 2003 22:56:51 +1100
+Message-Id: <20030110073328.D41A52C310@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patchset contains mainly scalability and NUMA stuff, and anything 
-else that stops things from irritating me. It's meant to be pretty stable, 
-not so much a testing ground for new stuff.
+In message <20030107063239.F1ED73745@mcspd15.ucom.lsi.nec.co.jp> you write:
+> Since these are just symbols in the module object, they need symbol name
+> munging to find the symbol from the parameter name.
 
-I'd be very interested in feedback from anyone willing to test on any
-platform, however large or small.
+Good point.  Linus, please apply.
 
-http://www.aracnet.com/~fletch/linux/2.5.55/patch-2.5.55-mjb1.bz2
+> [I guess using the stack is bad in general, but parameter names should be
+> very short, and hey if they're obsolete, it seems pointless to spend
+> much effort.]
 
-Since 2.5.54-mjb3
+Should be fine here.  I removed the spaces between the funcname and
+the brackets tho.
 
-merged with Linus:
-- kallsyms					Andi Kleen / Daniel Ritz
-- apicid_to_node				Martin Bligh
-- i386_topo					Matt Dobson
-- do_boot_error					James Cleverdon
-- more_numaq1					James Cleverdon / Martin Bligh
-- cleanup_cpu_apicid				Martin J. Bligh
-- smpboot_cam					Martin J. Bligh
-- nuke_clustered_apic				Martin J. Bligh
-- fix_starfire_warning				Martin J. Bligh
+Thanks!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-Other:
-~ summit2					James Cleverdon / John Stultz
-- shpte						Dave McCracken
-		(dropped temporarily until Dave merges up with 2.5.55)
-~ interrupt_stacks				Dave Hansen / Ben LaHaise
-~ stack_usage_check				Dave Hansen / Ben LaHaise
-+ ksymsoff					Hugh Dickins
+Name: Make obsolete module parameters work with MODULE_SYMBOL_PREFIX
+Author: Miles Bader
+Status: Trivial
 
-Pending:
-Speed up page init on boot (Bill Irwin)
-Notsc automatic enablement
-scheduler callers profiling (Anton)
-PPC64 NUMA patches (Anton)
-Scheduler tunables (rml)
-Lockless xtime structures (Andi)
-P4 oprofile support (movement)
+D: Since these are just symbols in the module object, they need symbol name
+D: munging to find the symbol from the parameter name.
 
-summit1						James Cleverdon / John Stultz
-	Summit support part 1
-
-summit2						James Cleverdon / John Stultz
-	Summit support part 2
-
-summit3						James Cleverdon / John Stultz
-	Summit support part 3
-
-summit4						James Cleverdon / John Stultz
-	Summit support part 4
-
-dcache_rcu					Dipankar / Maneesh
-	Use RCU type locking for the dentry cache.
+diff -ruN -X../cludes linux-2.5.54-moo.orig/kernel/module.c linux-2.5.54-moo/kernel/module.c
+--- linux-2.5.54-moo.orig/kernel/module.c	2003-01-06 10:51:20.000000000 +0900
++++ linux-2.5.54-moo/kernel/module.c	2003-01-07 14:31:53.000000000 +0900
+@@ -666,13 +666,18 @@
+ 		       num, obsparm[i].name, obsparm[i].type);
  
-early_printk					Dave Hansen et al.
-	Allow printk before console_init
-
-confighz					Andrew Morton / Dave Hansen
-	Make HZ a config option of 100 Hz or 1000 Hz
-
-config_page_offset				Dave Hansen / Andrea
-	Make PAGE_OFFSET a config option
-
-vmalloc_stats					Dave Hansen
-	Expose useful vmalloc statistics
-
-numasched1					Erich Focht
-	Numa scheduler general foundation work + pooling
-
-numasched2					Michael Hohnbaum
-	Numa scheduler lightweight initial load balancing.
-
-local_pgdat					Bill Irwin
-	Move the pgdat structure into the remapped space with lmem_map
-
-thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
-	Prep work to reduce kernel stacks to 4K
-	
-interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
-	Create a per-cpu interrupt stack.
-
-stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
-	Check for kernel stack overflows.
-
-4k_stack            (4K stacks pt 4)		Dave Hansen
-	Config option to reduce kernel stacks to 4K
-
-notsc						Martin Bligh
-	Enable notsc option for NUMA-Q (new version for new config system)
-
-numameminfo					Martin Bligh / Keith Mannthey
-	Expose NUMA meminfo information under /proc/meminfo.numa
-
-kgdb						Andrew Morton / Various People
-	The older version of kgdb, synched with 2.5.54-mm1
-
-noframeptr					Martin Bligh
-	Disable -fomit_frame_pointer
-
-ksymoff						Hugh Dickins
-	Fix off by one error in kksymoops
-
--mjb						Martin Bligh
-	Add a tag to the makefile
-
+ 	for (i = 0; i < num; i++) {
++		char sym_name[strlen(obsparm[i].name) + 2];
++
++		strcpy(sym_name, MODULE_SYMBOL_PREFIX);
++		strcat(sym_name, obsparm[i].name);
++
+ 		kp[i].name = obsparm[i].name;
+ 		kp[i].perm = 000;
+ 		kp[i].set = set_obsolete;
+ 		kp[i].get = NULL;
+ 		obsparm[i].addr
+ 			= (void *)find_local_symbol(sechdrs, symindex, strtab,
+-						    obsparm[i].name);
++						    sym_name);
+ 		if (!obsparm[i].addr) {
+ 			printk("%s: falsely claims to have parameter %s\n",
+ 			       name, obsparm[i].name);

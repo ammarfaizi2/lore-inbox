@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317807AbSGKJzZ>; Thu, 11 Jul 2002 05:55:25 -0400
+	id <S317805AbSGKJyA>; Thu, 11 Jul 2002 05:54:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317811AbSGKJzW>; Thu, 11 Jul 2002 05:55:22 -0400
-Received: from Morgoth.ESIWAY.NET ([193.194.16.157]:24074 "EHLO
-	Morgoth.esiway.net") by vger.kernel.org with ESMTP
-	id <S317807AbSGKJye>; Thu, 11 Jul 2002 05:54:34 -0400
-Date: Thu, 11 Jul 2002 11:57:17 +0200 (CEST)
-From: Marco Colombo <marco@esi.it>
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: kernel-janitor-discuss 
-	<kernel-janitor-discuss@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: BKL removal
-In-Reply-To: <20020710164645.GR25360@holomorphy.com>
-Message-ID: <Pine.LNX.4.44.0207111128480.728-100000@Megathlon.ESI>
+	id <S317806AbSGKJx7>; Thu, 11 Jul 2002 05:53:59 -0400
+Received: from dsl-213-023-038-138.arcor-ip.net ([213.23.38.138]:3212 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S317805AbSGKJx5>;
+	Thu, 11 Jul 2002 05:53:57 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH][RFT](2) minimal rmap for 2.5 - akpm tested
+Date: Thu, 11 Jul 2002 11:58:01 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Rik van Riel <riel@conectiva.com.br>,
+       Sebastian Droege <sebastian.droege@gmx.de>,
+       linux-kernel@vger.kernel.org, akpm@zip.com.au, linux-mm@kvack.org
+References: <Pine.LNX.4.44L.0207101741380.14432-100000@imladris.surriel.com> <E17SPS5-00028e-00@starship> <20020711064712.GE1059@suse.de>
+In-Reply-To: <20020711064712.GE1059@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17Sai1-0002T7-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Jul 2002, William Lee Irwin III wrote:
-
-> On Wed, Jul 10, 2002 at 12:03:08PM +0200, Marco Colombo wrote:
-> >> Larry, there's something I've always wanted to ask you about your
-> >> idea of the "locking cliff": when you're counting the number of locks,
-> >> are you looking at the running image of an OS or at the source? 
+On Thursday 11 July 2002 08:47, Jens Axboe wrote:
+> On Wed, Jul 10 2002, Daniel Phillips wrote:
+> > ...I'd be testing right
+> > now to see if you're right, if the DAC960 driver compiled successfully.
+> > But it doesn't, and since my test machine won't boot without it... given a
+> > choice between diving into the driver and going back to work on directory
+> > hashing on 2.4...
 > 
-> On Wed, Jul 10, 2002 at 03:40:03PM +0100, Matthew Wilcox wrote:
-> > Larry normally talks about the number of conceptual locks.  So in order
-> > to manipulate a `struct file', it really doesn't matter whether you have
-> > to grab the BKL, the files_struct lock or the filp->lock.  There's a big
-> > difference if you have to grab the filp->pos_lock, the filp->ra_lock and
-> > the filp->iobuf_lock.  You'd have to know what order to grab them in,
-> > for a start.
-> 
-> This is called "lock depth" and is not related to the total number of
-> locks declared in the source. AFAIK no one wants to increase lock depth.
+> Leonard has promised me to convert DAC960 to the "new" pci dma api for
+> years (or so it seems, actual date may vary, no purchase necessary). I
+> do have a Mylex controller here myself these days, so it's not
+> completely impossible that I may do it on a rainy day.
 
-Not directly of course. But with one BKL, depth is limited to one.
-With one lock per subsystem, it's hardly more than one. But with 10000
-locks spread into the source, it's quite unlikely you can do *anything*
-without holding two locks at least. I think one of the point of Larry's
-"locking cliff" idea is that when the lock depth grows beyond your
-ability (or time) to really handle it, the only solution is to create
-"your own" lock, just to play safe. But this way you increase both the
-global number of locks *and* the lock depth of your code (by one at least).
+Well, tell me what the new api is and I'll dive in there.  For the record,
+what happened to the old one?  Backwards compatibility dropped recently?
+Mea culpa for not knowing, but those dma api threads were just so bushy.
 
-I don't fully agree with Larry: I blame the lack of a clean locking model.
-If you start from one BKL and push it "down", just increasing the number
-of locks everytime you feel you need to, you get a mess. Locking should be
-done globally at the same level: either at top (BKL), at the top of
-each subsystem, or at "object" level.
+I wouldn't be surprised if some other little things have rotted as well.
 
-But I realize I'm speaking out of imagination, Larry out of experience.
-And it really makes a difference (to me, at least).
-
-.TM.
-
+-- 
+Daniel

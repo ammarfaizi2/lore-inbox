@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274727AbRIUBDE>; Thu, 20 Sep 2001 21:03:04 -0400
+	id <S273135AbRIUBUq>; Thu, 20 Sep 2001 21:20:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274729AbRIUBCo>; Thu, 20 Sep 2001 21:02:44 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18704 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S274727AbRIUBCn>; Thu, 20 Sep 2001 21:02:43 -0400
-Subject: Re: [PATCH] Preemption Latency Measurement Tool
-To: roger.larsson@norran.net (Roger Larsson)
-Date: Fri, 21 Sep 2001 02:03:37 +0100 (BST)
-Cc: oxymoron@waste.org (Oliver Xymoron),
-        Dieter.Nuetzel@hamburg.de (Dieter =?iso-8859-1?q?N=FCtzel?=),
-        stefan@space.twc.de (Stefan Westerfeld), rml@tech9.net (Robert Love),
-        andrea@suse.de (Andrea Arcangeli),
-        linux-kernel@vger.kernel.org (linux-kernel),
-        reiserfs-list@namesys.com (ReiserFS List)
-In-Reply-To: <200109210047.f8L0lkv26045@maile.telia.com> from "Roger Larsson" at Sep 21, 2001 02:42:56 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S274733AbRIUBUg>; Thu, 20 Sep 2001 21:20:36 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:11276 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S274731AbRIUBUb>; Thu, 20 Sep 2001 21:20:31 -0400
+Message-ID: <3BAA95E0.5BEB8990@zip.com.au>
+Date: Thu, 20 Sep 2001 18:20:32 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: george anzinger <george@mvista.com>
+CC: Andrea Arcangeli <andrea@suse.de>, Robert Love <rml@tech9.net>,
+        "Dieter =?iso-8859-1?Q?N=FCtzel?=" <Dieter.Nuetzel@hamburg.de>,
+        Chris Mason <mason@suse.com>, Beau Kuiper <kuib-kl@ljbc.wa.edu.au>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: [PATCH] Significant performace improvements on reiserfs systems
+In-Reply-To: <20010920170812.CCCACE641B@ns1.suse.com> <3BAA29C2.A9718F49@zip.com.au> <1001019170.6090.134.camel@phantasy> <200109202112.f8KLCXG16849@zero.tech9.net> <1001024694.6048.246.camel@phantasy> <20010921003742.I729@athlon.random> <1001026597.6048.278.camel@phantasy> <20010921011514.M729@athlon.random> <3BAA8BDA.5EED2879@mvista.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15kEjB-0006n9-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If this analysis is correct:
-> We really need to run RT processes with RT priorities!
+george anzinger wrote:
 > 
-> It is also possible that multimedia applications needs to be rewritten =
-> to
+> ...
+> Actually, I rather think that the problem is lock granularity.  These
+> issues are present in the SMP systems as well.  A good solution would be
+> one that shortened the spinlock time.  No horrid preempt code, just
+> tight fast code.
+> 
 
-I dont believe this is an application problem. Applications allocating
-memory can end up doing page outs for other people. Its really important
-they dont get stuck doing a huge amount of pageout work for someone else.
-Thats one thing I seem to be seeing with the 10pre11 VM.
+This may not be practical.
 
-Sound cards have a lot of buffering, we are talking 64-128Kbytes + on card
-buffers. Thats 0.25-0.5 seconds at 48Khz 16bit stereo
+Take, for example, zap_page_range().   It simply has a lot
+of work to do, and it does it inside a spinlock.  By doing
+it in a tight loop, it's optimal.
 
-Alan
+There is no way to speed this function up by two or three orders
+of magnitude.  (Well, there is: don't take the lock at all if
+the mm isn't shared, but this is merely an example.  There are
+other instances).
+
+It seems that for a preemptive kernel to be successful, we need
+to globally alter the kernel so that it never holds locks for
+more than 500 microseconds.  Which is what the conditional_schedule()
+(aka cooperative multitasking :)) patches do.
+
+It seems that there are no magic bullets, and low latency will
+forever have a global impact on kernel design, unless a way is
+found to reschedule with locks held.  I recall that a large
+part of the MontaVista patch involved turning spinlocks into
+semaphores, yes?  That would seem to be the way to go.

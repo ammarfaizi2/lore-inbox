@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbTEKPig (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 11:38:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbTEKPig
+	id S261706AbTEKPgB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 11:36:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbTEKPgB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 11:38:36 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:44555 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S261710AbTEKPif (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 11:38:35 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: crion@gmx.de, Christian Muenscher <cmuenscher@crion.de>, mec@shout.net
-Subject: Re: Menuconfig crash @ line 832
-Date: Sun, 11 May 2003 17:50:50 +0200
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <200305111705.51550.cmuenscher@crion.de>
-In-Reply-To: <200305111705.51550.cmuenscher@crion.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 11 May 2003 11:36:01 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:21460 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S261706AbTEKPgB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 11:36:01 -0400
+Date: Sun, 11 May 2003 11:16:00 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Atari Atyfb fixes
+Message-ID: <20030511151600.GA458@phunnypharm.org>
+References: <200305111030.h4BAUBhO019633@callisto.of.borg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305111750.50714.m.c.p@wolk-project.de>
+In-Reply-To: <200305111030.h4BAUBhO019633@callisto.of.borg>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 11 May 2003 17:05, Christian Muenscher wrote:
+On Sun, May 11, 2003 at 12:30:11PM +0200, Geert Uytterhoeven wrote:
+> Atyfb fixes for Atari (got reversed in 2.5.69):
+>   - Add missing allocation of default_par
+>   - Kill warnings in assignments
 
-Hi Chriss,
+Thanks for the Cc. The patch looked pretty safe, but I tested it on
+sparc64 anyway, and it didn't break anything.
 
-> My "make menuconfig" - Session on Kernel Mandrake 2.4.21-0.1mdkcustom
-> failed when selecting "Advanced Linux Sound Architecture" within the
-> "Sound" - Menu.
-bug Mandrake about this. ALSA isn't in 2.4.
-
-ciao, Marc
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

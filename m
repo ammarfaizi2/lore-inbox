@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbVDDIeW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVDDIe2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261170AbVDDIeW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 04:34:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbVDDIeW
+	id S261174AbVDDIe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 04:34:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbVDDIe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 04:34:22 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:56232 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261170AbVDDIeS (ORCPT
+	Mon, 4 Apr 2005 04:34:28 -0400
+Received: from box3.punkt.pl ([217.8.180.76]:18957 "HELO box.punkt.pl")
+	by vger.kernel.org with SMTP id S261174AbVDDIeS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 4 Apr 2005 04:34:18 -0400
-Date: Mon, 4 Apr 2005 14:05:07 +0530
-From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-To: piotr@slc01.tohoku.grp.ricoh.co.jp, linux-kernel@vger.kernel.org
-Cc: Keith Owens <kaos@sgi.com>
-Subject: Re: module for controlling kprobes with /proc
-Message-ID: <20050404083507.GG1715@in.ibm.com>
-Reply-To: prasanna@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Message-ID: <4250FD08.1020509@punkt.pl>
+Date: Mon, 04 Apr 2005 10:38:32 +0200
+From: |TEcHNO| <techno@punkt.pl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a5) Gecko/20041122
+X-Accept-Language: en-gb, en-us, en-ca, en-au, ja, pl
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: [SCSI] Driver broken in 2.6.x?
+References: <424EB65A.8010600@punkt.pl> <Pine.LNX.4.62.0504022301430.2525@dragon.hyggekrogen.localhost> <424F0BFF.6020402@punkt.pl> <Pine.LNX.4.62.0504022322150.2525@dragon.hyggekrogen.localhost> <42502EB2.3080802@punkt.pl> <20050403235726.GE3953@stusta.de>
+In-Reply-To: <20050403235726.GE3953@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Piotr,
+>>As told, I tested it w/o nvidia module loaded, here's what I found:
+>>1. It now doesn't hang on scanning for devices.
+>>2. It now hangs on acquiring preview, logs will follow.
+>>...
+>>Apr  3 15:54:27 techno kernel: Unable to handle kernel NULL pointer
+>>dereference at virtual address 0000014c
+>>Apr  3 15:54:27 techno kernel:  printing eip:
+>>Apr  3 15:54:27 techno kernel: c03d8143
+>>Apr  3 15:54:27 techno kernel: *pde = 00000000
+>>Apr  3 15:54:27 techno kernel: Oops: 0000 [#1]
+>>Apr  3 15:54:27 techno kernel: PREEMPT
+>>Apr  3 15:54:27 techno kernel: Modules linked in: nvidia
+>>...
 
-Good way to make kprobes useful, but I have some comments.
-
->I have programmed a universal module to register/remove kprobes handlers
->by interacting with /proc with simple commands.
->
-
-why /proc ?
-
-You can use a combination of SysRq key to enter a kprobe command line prompt.
-Initially you can define a dummy breakpoint for command line prompt and accept
-commands from thereon.
-Later display the list of features add/remove/display breakpoint, backtrace etc.
-Also once you hit a breakpoint you give a command line prompt and user can backtrace/ dump some global memory, dump registers etc.
-
-Let me know if you need more information.
-
-Thanks
-Prasanna
+> Still with nvidia.
+> 
+> An Oops with the nvidia module loaded since the last boot is simply not 
+> debuggable for anyone except nvidia.
+Em, there's also the same (w/o oops) with out that module, each of that 
+situations was separated by a reset. It was working well in 2.4.x so I 
+guess it'a a problem with the card's (00:0c.0 SCSI storage controller: 
+DTC Technology Corp. Domex 536) driver.
 
 -- 
-
-Prasanna S Panchamukhi
-Linux Technology Center
-India Software Labs, IBM Bangalore
-Ph: 91-80-25044636
-<prasanna@in.ibm.com>
+pozdrawiam     |"Help me master, I felt the burning twilight behind
+techno@punkt.pl|those gates of stell..." --Perihelion, Prophecy Sequence

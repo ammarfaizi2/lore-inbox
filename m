@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267497AbTAQNDb>; Fri, 17 Jan 2003 08:03:31 -0500
+	id <S267499AbTAQNSf>; Fri, 17 Jan 2003 08:18:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267498AbTAQNDa>; Fri, 17 Jan 2003 08:03:30 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:22001 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S267497AbTAQNDa>; Fri, 17 Jan 2003 08:03:30 -0500
-X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.4.33L2.0301171425070.19816-100000@vipe.technion.ac.il> 
-References: <Pine.LNX.4.33L2.0301171425070.19816-100000@vipe.technion.ac.il> 
-To: Shlomi Fish <shlomif@vipe.technion.ac.il>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ANN: LKMB (Linux Kernel Module Builder) version 0.1.16 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 17 Jan 2003 13:12:24 +0000
-Message-ID: <25160.1042809144@passion.cambridge.redhat.com>
+	id <S267500AbTAQNSf>; Fri, 17 Jan 2003 08:18:35 -0500
+Received: from h-64-105-35-85.SNVACAID.covad.net ([64.105.35.85]:15810 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S267499AbTAQNSe>; Fri, 17 Jan 2003 08:18:34 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Fri, 17 Jan 2003 05:27:23 -0800
+Message-Id: <200301171327.FAA05948@adam.yggdrasil.com>
+To: linux-kernel@vger.kernel.org, mikpe@csd.uu.se
+Subject: Re: 2.5.59 vmlinux.lds.S change broke modules
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	I believe I'm experiencing the same problem that Mikael Pettersson
+reported, although the symptom is normally a hang with SMP, because
+the bad pointer dereference in __find_symbol results in the fault
+hanndler calling search_exception_tables, which calls search_module_extable,
+which tries to grab the modlist_lock spinlock, but that lock was
+already taken by resolve_symbol (which called __find_symbol in the first
+place).
 
->   print MAKEFILE "CFLAGS = -I/usr/src/linux/include -O2 -Wall -DMODULE -D__KERNEL__ -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2\n\n";
+	Somone else on irc reported a similar problem when I asked.
 
-That's broken. you need to get the proper kernel CFLAGS, and you shouldn't 
-assume there's anything useful in /usr/src/linux.
+	Thanks Mikael, for posting the kernel oops listing.  You
+probably just saved me about 45 minutes of switching over to a
+non-SMP kernel to check for that oops.
 
-Use "/lib/modules/`uname -r`/build" as a default kernel directory, but 
-allow it to be overridden somehow from the command line. Then do something 
-like...
-
-	make -C $(LINUXDIR) SUBDIRS=`pwd` modules
-
-... to build your module. That way, all the kernel build stuff will be 
-correct; it'll be just as if you were in a normal subdirectory of the 
-kernel tree during a 'make modules' run.
-
---
-dwmw2
-
-
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

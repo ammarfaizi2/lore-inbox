@@ -1,65 +1,141 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263806AbTLXTGB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 14:06:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263809AbTLXTGB
+	id S263788AbTLXT1X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 14:27:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263796AbTLXT1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 14:06:01 -0500
-Received: from mx2.mail.ru ([194.67.23.22]:57872 "EHLO mx2.mail.ru")
-	by vger.kernel.org with ESMTP id S263806AbTLXTF6 (ORCPT
+	Wed, 24 Dec 2003 14:27:23 -0500
+Received: from pooh.lsc.hu ([195.56.172.131]:64214 "EHLO pooh.lsc.hu")
+	by vger.kernel.org with ESMTP id S263788AbTLXT1U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 14:05:58 -0500
-Message-ID: <3FE9E391.7060702@mail.ru>
-Date: Wed, 24 Dec 2003 14:05:53 -0500
-From: Yaroslav Klyukin <skintwin@mail.ru>
-User-Agent: Mozilla/5.0 (ICQ: 1045670, AIM: infiniteparticle)
-X-Accept-Language: ru, en-us, en
-MIME-Version: 1.0
-To: Mark Haverkamp <markh@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: aacraid issues
-References: <1648C-3LJ-9@gated-at.bofh.it> <164in-3Zu-25@gated-at.bofh.it>
-In-Reply-To: <164in-3Zu-25@gated-at.bofh.it>
-X-Enigmail-Version: 0.82.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigDB71B501F91045151B454EEC"
-X-Spam: Not detected
+	Wed, 24 Dec 2003 14:27:20 -0500
+Date: Wed, 24 Dec 2003 20:12:58 +0100
+From: GCS <gcs@lsc.hu>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Peter Osterlund <petero2@telia.com>
+Subject: Re: 2.6.0-mm1
+Message-ID: <20031224191258.GA19528@lsc.hu>
+References: <20031224095921.GA8147@lsc.hu> <20031224115342.GA10350@lsc.hu> <20031224122342.GA11399@lsc.hu> <200312241017.44225.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+In-Reply-To: <200312241017.44225.dtor_core@ameritech.net>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: GNU/Linux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigDB71B501F91045151B454EEC
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, Dec 24, 2003 at 10:17:43AM -0500, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> May we see your dmegs, XF86Config and the parameters you are passing
+> to GPM please?
+ Sure, sorry for not doing it earlier:
+-- dmesg --
+i8042.c: Detected active multiplexing controller, rev 1.1.
+serio: i8042 AUX0 port at 0x60,0x64 irq 12
+serio: i8042 AUX1 port at 0x60,0x64 irq 12
+serio: i8042 AUX2 port at 0x60,0x64 irq 12
+serio: i8042 AUX3 port at 0x60,0x64 irq 12
+Synaptics Touchpad, model: 1
+ Firmware: 5.6
+ 180 degree mounted touchpad
+ Sensor: 18
+ new absolute packet format
+ Touchpad has extended capability bits
+ -> four buttons
+ -> multifinger detection
+ -> palm detection
+input: SynPS/2 Synaptics TouchPad on isa0060/serio4
+serio: i8042 KBD port at 0x60,0x64 irq 1
+input: AT Translated Set 2 keyboard on isa0060/serio0
+-- dmesg --
 
-Mark Haverkamp wrote:
-> Try this, someone else with a 2200 had a similar problem that this patch
-> fixed. It will apply to 2.6.0.
+-- XF86Config-4 --
+Section "Module"
+        Load    "GLcore"
+        Load    "bitmap"
+        Load    "dbe"
+        Load    "ddc"
+        Load    "dri"
+        Load    "extmod"
+        Load    "glx"
+        Load    "int10"
+        Load    "record"
+        Load    "speedo"
+        Load    "type1"
+        Load    "vbe"
+        Load    "xtt"
+        Load    "synaptics"
+EndSection
 
-Thanks for the patch.
-The RAID seems to work now without I/O errors.
+Section "InputDevice"
+        Driver        "synaptics"
+        Identifier    "Configured Mouse"
+        Option        "Device"        "/dev/gpmdata"
+        Option        "Protocol"      "auto-dev"
+        Option        "LeftEdge"      "1900"
+        Option        "RightEdge"     "5400"
+        Option        "TopEdge"       "1900"
+        Option        "BottomEdge"    "4000"
+        Option        "FingerLow"     "25"
+        Option        "FingerHigh"    "30"
+        Option        "MaxTapTime"    "180"
+        Option        "MaxTapMove"    "220"
+        Option        "VertScrollDelta" "100"
+        Option        "MinSpeed"      "0.02"
+        Option        "MaxSpeed"      "0.18"
+        Option        "AccelFactor" "0.0010"
+        Option        "SHMConfig"     "on"
+#       Option       "Repeater"      "/dev/ps2mouse"
+EndSection
+-- XF86Config-4 --
 
+The Synaptics driver used is 0.12.2, compiled for myself, evdev is in
+module, but ofcourse it's loaded before XFree86 starts. (I have stripped
+down the files a bit, if you would like to see the whole files or other
+parts, please ask - I thought it would be easier to see the relevant
+lines only). gpm is configured by /etc/gpm.conf , but it should be:
+gpm -m /dev/psaux -t ps2 -R raw
+Also, the XFree86 Synaptics driver prints this while starting and
+switching between console and XFree86:
+Synaptics DeviceInit called
+SynapticsCtrl called.
+Synaptics DeviceOn called
+Synaptics DeviceOff called
+[the last two repeated more times]
 
-> ===== drivers/scsi/aacraid/aachba.c 1.20 vs edited =====
-> --- 1.20/drivers/scsi/aacraid/aachba.c	Fri May  2 12:30:49 2003
-> +++ edited/drivers/scsi/aacraid/aachba.c	Wed Dec  3 15:10:22 2003
+> Btw, what version of GPM are you using?
+ I am running Debian Sid, thus I also thought gpm is the newest; as I
+do understand I should use 1.20.1, which is the latest AFAIK. Thus I was
+shocked a bit on what 'dpkg -l gpm' gives:
+ii  gpm            1.19.6-12.1    General Purpose Mouse Interface
+More than a year old! Already filed an important bug on this. Sorry, it
+seems to be the problem, or at least produces strange behavior:
+I plugged in an USB mouse, which works while the touchpad still not
+under XFree86 (both works at the same time under console - even if I did
+not specified any additional config for gpm). The config for XFree86:
+-- XF86Config-4 --
+Section "InputDevice"
+        Identifier      "USB Mouse"
+        Driver          "mouse"
+        Option          "CorePointer"
+        Option          "Device"                "/dev/input/mice"
+        Option          "Protocol"              "imps/2"
+        Option          "Emulate3Buttons"       "true"
+        Option          "ZAxisMapping"          "4 5"
+EndSection
+-- XF86Config-4 --
 
+Made it the only one pointer input. Now, if I kill gpm with 'gpm -k',
+then the touchpad begins to work! Sometimes if I release it, then the
+pointer jumps a bit from where I pointed it, but that's all. I'm not
+good in mice stuff, so I can't explain this. Anyway, I will try to
+compile a newer gpm, change it's device, so play a bit; maybe I can come
+up with something.
 
+> As far as reverting patches I would start with
+> input-08-synaptics-protocol-discovery.patch
+ It did not help. :-(
 
---------------enigDB71B501F91045151B454EEC
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE/6eORXtaNP/qDgm8RAlEJAJ9H+5YBn1MA1XVu4PMCNGOfehWLZgCfWgBU
-Pux3tGkHCWBuGOzt8As3G1o=
-=ay0A
------END PGP SIGNATURE-----
-
---------------enigDB71B501F91045151B454EEC--
-
+Thanks, and Merry Christmas!
+GCS

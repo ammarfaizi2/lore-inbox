@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263978AbTDWHmP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 03:42:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263979AbTDWHmP
+	id S263980AbTDWHrZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 03:47:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263981AbTDWHrZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 03:42:15 -0400
-Received: from nmail1.systems.pipex.net ([62.241.160.130]:54219 "EHLO
-	nmail1.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S263978AbTDWHmP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 03:42:15 -0400
-To: <greg@kroah.com>
-Subject: Re: Re: [RFC] Device class rework [0/5]
-Message-ID: <1051084444.3ea6469c044ef@netmail.pipex.net>
-Date: Wed, 23 Apr 2003 08:54:04 +0100
-From: "Shaheed R. Haque" <srhaque@iee.org>
-Cc: <linux-kernel@vger.kernel.org>, <with@dsl.pipex.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: PIPEX NetMail 2.2.0-pre13
-X-PIPEX-username: aozw65%dsl.pipex.com
-X-Originating-IP: 195.166.116.245
-X-Usage: Use of PIPEX NetMail is subject to the PIPEX Terms and Conditions of use
+	Wed, 23 Apr 2003 03:47:25 -0400
+Received: from [81.80.245.157] ([81.80.245.157]:42968 "EHLO smtp.alcove-fr")
+	by vger.kernel.org with ESMTP id S263980AbTDWHrY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 03:47:24 -0400
+Date: Wed, 23 Apr 2003 09:59:17 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Ben Collins <bcollins@debian.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: IEEE-1394 problem on init [ was Re: Linux 2.4.21-rc1 ]
+Message-ID: <20030423075917.GC820@hottah.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Ben Collins <bcollins@debian.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.53L.0304211545580.12940@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53L.0304211545580.12940@freak.distro.conectiva>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Apr 21, 2003 at 03:47:32PM -0300, Marcelo Tosatti wrote:
 
-Hi Greg,
+> Here goes the first candidate for 2.4.21.
+> 
+> Please test it extensively.
+[...]
+> Ben Collins <bcollins@debian.org>:
+>   o IEEE-1394/Firewire update
 
-I support the intent of this patch, but would it not be a better idea to rename 
-the struct something like "device_class"? Rationale:
+Something gone wrong with this changes. My Sony Vaio Picturebook C1VE
+hangs on boot when the firewire controller is probed by the init
+scripts.
 
-1. See the title of your patch (!!)
+This happens exactly in the sequence:
+	modprobe ohci1394
+	grep something /proc/bus/ieee1394/devices
+I'm not sure yet if the lockup is related to the ohci1394 initialisation
+or the read in /proc possibly eariler than the driver expects.
 
-2. The word "class" is too generic and conveys no sense that is is to do with 
-devices.
+The kernel still reacts to sysrq (umount/sync etc), however task/memory/pc
+sysrq function do NOT work...
 
-3. I know that C++ is never going to make it into the kernel, but...
+I'll investigate a bit further on this today.
 
-Thanks, Shaheed
-
-
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

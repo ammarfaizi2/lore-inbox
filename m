@@ -1,51 +1,123 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130985AbRBVViy>; Thu, 22 Feb 2001 16:38:54 -0500
+	id <S130570AbRBVVmZ>; Thu, 22 Feb 2001 16:42:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130999AbRBVVio>; Thu, 22 Feb 2001 16:38:44 -0500
-Received: from fmfdns02.fm.intel.com ([132.233.247.11]:65254 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S130985AbRBVVid>; Thu, 22 Feb 2001 16:38:33 -0500
-Message-ID: <4148FEAAD879D311AC5700A0C969E8905DE6C5@orsmsx35.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Petr Vandrovec'" <vandrove@vc.cvut.cz>, linux-kernel@vger.kernel.org
-Cc: mingo@redhat.com
-Subject: RE: Using ACPI to get PCI routing info?
-Date: Thu, 22 Feb 2001 13:38:10 -0800
+	id <S129688AbRBVVmS>; Thu, 22 Feb 2001 16:42:18 -0500
+Received: from www.microgate.com ([216.30.46.105]:52239 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP
+	id <S129981AbRBVVl7>; Thu, 22 Feb 2001 16:41:59 -0500
+Message-ID: <003f01c09d18$4e037800$0c00a8c0@diemos>
+From: "Paul Fulghum" <paulkf@microgate.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <pschulz@foursticks.com>
+In-Reply-To: <E14W38P-0001OZ-00@mars.foursticks.com.au>
+Subject: Re: (my) kgdb patch brakes compile.
+Date: Thu, 22 Feb 2001 15:42:07 -0600
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
 Content-Type: text/plain;
-	charset="ISO-8859-1"
+	charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are definitely plans to do this, and in fact on IA64 ACPI is already
-used to obtain PCI routing. However, IA32 ACPI efforts have been focused on
-other things, since we assumed MPS tables would be around for a while
-longer. I guess that is no longer a correct assumption.
+I think your problem is removing all optimization
+(removing '-O2' when kgdb option is enabled).
 
-So yes, there are plans. ;-)
+I realize that debugging is easier with no optimization
+but the kernel compile always spilled registers for me
+when using -O0. I can do -O1 or -O2 with no problem.
 
-Regards -- Andy
+Paul Fulghum paulkf@microgate.com
+Microgate Corporation www.microgate.com
 
-> Hi,
->   Gigabyte (and/or AMI and/or VIA) decided that it is not worth 
-> of effort to create full mptable and since version F5a for 6VXD7 
-> they do not report PCI interrupts as 16-19, but only as traditional 
-> 0-15 (and they do not report them as conforms/conforms, but as 
-> active-lo/level).
-> 
->   For now I hardwired correct routing table into my kernel, as
-> I have other uses for IRQ < 16, but after some investigation I 
-> found that ACPI _SB_.PCI0._PRT element returns correct routing 
-> table (using IRQ 16-19). So my question is, are there any plans 
-> to use ACPI tables to get IRQ routing tables, or should I complain 
-> to Gigabyte that I'm not satisfied (I'll complain anyway, but...)?
-> 
-> 					Thanks,
-> 						Petr Vandrovec
-> 						vandrove@vc.cvut.cz
-> 
-> P.S.: No, there is no MPS1.1/MPS1.4 switch in BIOS (anymore) :-(
-> And no, there is no way to disable ACPI in that BIOS :-((
+
+----- Original Message -----
+From: "Paul Schulz" <pschulz@foursticks.com.au>
+To: <linux-kernel@vger.kernel.org>
+Cc: <pschulz@foursticks.com>
+Sent: Thursday, February 22, 2001 3:18 PM
+Subject: (my) kgdb patch brakes compile.
+
+
+> Greetings,
+>
+> I have been sucessfully able to take Amit S. Kale (akale@veritas.com)
+> kgdb patch for 2.4.0-test9, and create a patch for 2.4.0-test12.
+>
+> I am trying to create a patch for 2.4.1.. but gcc barfs with the
+> following:
+>
+> ---------------------------------------------------------------------
+> make[3]: Entering directory `/usr/src/linux-2.4.1-kgdb/kernel'
+>
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.1-kgdb/include -Wall -Wstrict-prototyp
+es -g -pipe -mpreferred-stack-boundary=2 -march=i686    -fno-omit-frame-poin
+ter -c -o sched.o sched.c
+> sched.c: In function `schedule':
+> sched.c:648: Invalid `asm' statement:
+> sched.c:648: fixed or forbidden register 6 (bp) was spilled for class
+GENERAL_REGS.
+> make[3]: *** [sched.o] Error 1
+> make[3]: Leaving directory `/usr/src/linux-2.4.1-kgdb/kernel'
+> make[2]: *** [first_rule] Error 2
+> make[2]: Leaving directory `/usr/src/linux-2.4.1-kgdb/kernel'
+> make[1]: *** [_dir_kernel] Error 2
+> make[1]: Leaving directory `/usr/src/linux-2.4.1-kgdb'
+> make: *** [stamp-build] Error 2
+> ---------------------------------------------------------------------
+> This can be traced to include/asm_i386/system.h.. (switch_to)
+> ---------------------------------------------------------------------
+> #define prepare_to_switch() do { } while(0)
+> #Define switch_to(prev,next,last) do { \
+> asm volatile("pushl %%esi\n\t" \
+>      "pushl %%edi\n\t" \
+>      "pushl %%ebp\n\t" \
+>      "movl %%esp,%0\n\t" /* save ESP */ \
+>      "movl %3,%%esp\n\t" /* restore ESP */ \
+>      "movl $1f,%1\n\t" /* save EIP */ \
+>      "pushl %4\n\t" /* restore EIP */ \
+>      "jmp __switch_to\n" \
+>      "1:\t" \
+>      "popl %%ebp\n\t" \
+>      "popl %%edi\n\t" \
+>      "popl %%esi\n\t" \
+>      :"=m" (prev->thread.esp),"=m" (prev->thread.eip), \
+>       "=b" (last) \
+>      :"m" (next->thread.esp),"m" (next->thread.eip), \
+>       "a" (prev), "d" (next), \
+>       "b" (prev)); \
+> } while (0)
+> ---------------------------------------------------------------------
+> Can someone explain what is the problem here? I'm assuming that it's
+> one of the compile options.
+>
+> The kgdb patch puts the following in the top level makefile...
+> and put a switch for $(CONFIG_X86_REMOTE_DEBUG) in the config tool.
+>
+> The kernel compiles fine without the patch, and with the patch,
+> with the option turned off.
+> ---------------------------------------------------------------------
+> CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes
+> ifeq ($(CONFIG_X86_REMOTE_DEBUG),y)
+> CFLAGS += -g
+> else
+> CFLAGS += -fomit-frame-pointer -O2 -fno-strict-aliasing
+> endif
+> --------------------------------------------------------------------
+>
+> Thanks,
+> Paul Schulz
+>
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

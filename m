@@ -1,94 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268309AbTBMWz5>; Thu, 13 Feb 2003 17:55:57 -0500
+	id <S268310AbTBMWvJ>; Thu, 13 Feb 2003 17:51:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268311AbTBMWz4>; Thu, 13 Feb 2003 17:55:56 -0500
-Received: from mail.scram.de ([195.226.127.117]:34502 "EHLO mail.scram.de")
-	by vger.kernel.org with ESMTP id <S268309AbTBMWzy>;
-	Thu, 13 Feb 2003 17:55:54 -0500
-Date: Fri, 14 Feb 2003 00:05:24 +0100 (CET)
-From: Jochen Friedrich <jochen@scram.de>
-X-X-Sender: jochen@gfrw1044.bocc.de
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Linus Torvalds <torvalds@transmeta.com>, Jeff Garzik <jgarzik@pobox.com>,
-       <mike_phillips@urscorp.com>, <phillim2@comcast.net>
-Subject: Re: [BUG] smctr.c changes in latest BK 
-In-Reply-To: <Pine.LNX.4.44.0302132335540.28838-100000@gfrw1044.bocc.de>
-Message-ID: <Pine.LNX.4.44.0302140001160.28838-100000@gfrw1044.bocc.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268308AbTBMWu0>; Thu, 13 Feb 2003 17:50:26 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:45243 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S268311AbTBMWtn>;
+	Thu, 13 Feb 2003 17:49:43 -0500
+Subject: Re: 2.5.60 cheerleading...
+From: Paul Larson <plars@linuxtestproject.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Valdis.Kletnieks@vt.edu, lkml <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>, edesio@task.com.br
+In-Reply-To: <20030213144318.3ddcf2a6.rddunlap@osdl.org>
+References: <200302132154.h1DLs3ar012874@darkstar.example.net>
+	<1045173477.28494.66.camel@plars>
+	<200302132220.h1DMKtFT011682@turing-police.cc.vt.edu> 
+	<20030213144318.3ddcf2a6.rddunlap@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-2Ldsy0GegY9rJjw8Aa1J"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 13 Feb 2003 16:53:52 -0600
+Message-Id: <1045176833.28493.78.camel@plars>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Thu, 13 Feb 2003, Jochen Friedrich wrote:
+--=-2Ldsy0GegY9rJjw8Aa1J
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> Hi,
->
-> ===== smctr.c 1.15 vs 1.16 =====
-> --- 1.15/drivers/net/tokenring/smctr.c  Thu Nov 21 23:06:12 2002
-> +++ 1.16/drivers/net/tokenring/smctr.c  Thu Feb 13 07:23:32 2003
-> @@ -3064,7 +3064,7 @@
->          __u8 r;
->
->          /* Check if node address has been specified by user. (non-0) */
-> -        for(i = 0; ((i < 6) && (dev->dev_addr[i] == 0)); i++);
-> +        for(i = 0; ((i < 6) && (dev->dev_addr[i] == 0)); i++)
->          {
->                  if(i != 6)
->                  {
->
-> Please revert this one as it is just wrong. As already mentioned here in
-> LKML (IIRC it was Alan), the semicolon is really intended here.
->
-> The above loop just runs until a non-zero byte is found in the MAC
-> address or all 6 bytes have been checked. A value of i=6 will then
-> indicate an all-zero MAC address.
+On Thu, 2003-02-13 at 16:43, Randy.Dunlap wrote:
+> Yes, I agree, that would be helpful.
+>=20
+> I try to keep current lkml/etc patches for fixes/cleanups to the
+> latest kernel, and I've thought about a way to post them, but it's
+> too time-consuming a task, especially when it's not one's job
+> to do that.
+We'll see how time-consuming it is, I'll try my best to keep up!
 
-After taking a second look, i just recognized that both cases (MAC adress
-all-zero or not) are handled exactly the same (by duplicated code), so the
-whole stuff is unnecessary.
-
-The whole function just reduces to a simple copy loop:
-
-===== smctr.c 1.17 vs edited =====
---- 1.17/drivers/net/tokenring/smctr.c  Thu Feb 13 22:47:11 2003
-+++ edited/smctr.c      Fri Feb 14 00:07:33 2003
-@@ -3057,28 +3057,12 @@
-         unsigned int i;
-         __u8 r;
-
--        /* Check if node address has been specified by user. (non-0) */
--        for(i = 0; ((i < 6) && (dev->dev_addr[i] == 0)); i++)
-+        for(i = 0; i < 6; i++)
-         {
--                if(i != 6)
--                {
--                        for(i = 0; i < 6; i++)
--                        {
--                                r = inb(ioaddr + LAR0 + i);
--                                dev->dev_addr[i] = (char)r;
--                        }
--                        dev->addr_len = 6;
--                }
--                else    /* Node addr. not given by user, read it from board. */
--                {
--                        for(i = 0; i < 6; i++)
--                        {
--                                r = inb(ioaddr + LAR0 + i);
--                                dev->dev_addr[i] = (char)r;
--                        }
--                        dev->addr_len = 6;
--                }
-+                r = inb(ioaddr + LAR0 + i);
-+                dev->dev_addr[i] = (char)r;
-         }
-+        dev->addr_len = 6;
-
-         return (0);
- }
+Could you send me what you have collected for 2.5.60?  I've set up a
+placeholder on the ltp website, you can either go to ltp.sf.net and
+click on "Kernel Errata" or the direct URL is
+http://ltp.sourceforge.net/errata but there's nothing there yet.  I'll
+try to put some data out there tonight.
 
 Thanks,
---jochen
+Paul Larson
+
+--=-2Ldsy0GegY9rJjw8Aa1J
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEABECAAYFAj5MIgAACgkQbkpggQiFDqevAQCfYkESshMAi9pBhrxWudlgOpa9
+FycAnj6WzfbQMd060/eSWrKZOZl/eFMt
+=eKbY
+-----END PGP SIGNATURE-----
+
+--=-2Ldsy0GegY9rJjw8Aa1J--
 

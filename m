@@ -1,41 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263893AbTEOJNz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 05:13:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263897AbTEOJNz
+	id S263898AbTEOJQh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 05:16:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263902AbTEOJQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 05:13:55 -0400
-Received: from tag.witbe.net ([81.88.96.48]:6407 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S263893AbTEOJNw (ORCPT
+	Thu, 15 May 2003 05:16:37 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:58623 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S263898AbTEOJQd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 05:13:52 -0400
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Dean McEwan'" <dean_mcewan@linuxmail.org>, <core@enodev.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Digital Rights Management - An idea
-Date: Thu, 15 May 2003 11:25:59 +0200
-Message-ID: <011201c31ac3$ffa7d580$3f00a8c0@witbe>
+	Thu, 15 May 2003 05:16:33 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-In-Reply-To: <20030514154028.12556.qmail@linuxmail.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+Message-ID: <16067.24042.126672.10150@gargle.gargle.HOWL>
+Date: Thu, 15 May 2003 11:29:14 +0200
+From: mikpe@csd.uu.se
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       Pavel Machek <pavel@suse.cz>
+Subject: Re: 2.5.69-mm5: CONFIG_ACPI_SLEEP compile error
+In-Reply-To: <20030514214536.GK1346@fs.tum.de>
+References: <20030514012947.46b011ff.akpm@digeo.com>
+	<20030514214536.GK1346@fs.tum.de>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > How exactly would you do this specifically for "downloaded" files 
-> > except by snooping into every ftp/http, much less having to decrypt 
-> > the protocols like https or scp?
-> 
-> Files would be recompiled for DRM...
-> 
-Which would make it impossible to import even the simplest text data
-file on such a machine ????
+Adrian Bunk writes:
+ > It seems the following problem comes from Linus' tree:
+ > 
+ > <--  snip  -->
+ > 
+ > ...
+ > ... --end-group  -o .tmp_vmlinux1
+ > arch/i386/kernel/built-in.o(.data+0x1fae): In function `do_suspend_lowlevel':
+ > : undefined reference to `saved_context_esp'
+ > arch/i386/kernel/built-in.o(.data+0x1fb3): In function `do_suspend_lowlevel':
+ > : undefined reference to `saved_context_eax'
+ > arch/i386/kernel/built-in.o(.data+0x1fb9): In function `do_suspend_lowlevel':
+ > : undefined reference to `saved_context_ebx'
 
-Paul
+My fault, sorry. When I grepped for these variables I failed to notice
+the references in acpi/wakeup.S. This patch fixes this.
 
+/Mikael
+
+--- linux-2.5.69-bk9/arch/i386/kernel/suspend_asm.S.~1~	2003-05-15 11:07:04.000000000 +0200
++++ linux-2.5.69-bk9/arch/i386/kernel/suspend_asm.S	2003-05-15 11:09:29.000000000 +0200
+@@ -7,6 +7,12 @@
+ #include <asm/page.h>
+ 
+ 	.data
++	.align	4
++	.globl	saved_context_eax, saved_context_ebx
++	.globl	saved_context_ecx, saved_context_edx
++	.globl	saved_context_esp, saved_context_ebp
++	.globl	saved_context_esi, saved_context_edi
++	.globl	saved_context_eflags
+ saved_context_eax:
+ 	.long	0
+ saved_context_ebx:

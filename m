@@ -1,39 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272244AbTHDWFw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 18:05:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272265AbTHDWFw
+	id S272266AbTHDWIS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 18:08:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272268AbTHDWIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 18:05:52 -0400
-Received: from tandu.perlsupport.com ([66.220.6.226]:22217 "EHLO
-	tandu.perlsupport.com") by vger.kernel.org with ESMTP
-	id S272244AbTHDWFv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 18:05:51 -0400
-Date: Mon, 4 Aug 2003 18:05:34 -0400
-From: Chip Salzenberg <chip@pobox.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.22pre10: fs/aio.c should include <linux/poll.h>
-Message-ID: <20030804220534.GE1751@perlsupport.com>
-References: <20030804170900.GA8221@perlsupport.com> <20030804230213.B6566@infradead.org>
+	Mon, 4 Aug 2003 18:08:18 -0400
+Received: from mx2.undergrid.net ([64.174.245.170]:13478 "EHLO
+	mail.undergrid.net") by vger.kernel.org with ESMTP id S272266AbTHDWIL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 18:08:11 -0400
+Date: Mon, 4 Aug 2003 15:05:51 -0700
+From: "Jeremy T. Bouse" <Jeremy.Bouse@UnderGrid.net>
+To: linux-kernel@vger.kernel.org, breed@users.sourceforge.net
+Subject: Re: PROBLEM: Problem with wireless PCMCIA card insertion on 2.6.0-test2
+Message-ID: <20030804220551.GA3864@UnderGrid.net>
+Mail-Followup-To: "Jeremy T. Bouse" <Jeremy.Bouse@UnderGrid.net>,
+	linux-kernel@vger.kernel.org, breed@users.sourceforge.net
+References: <20030804171858.GA3215@UnderGrid.net> <20030804190133.D25847@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="xHFwDpU9dbj6ez1V"
 Content-Disposition: inline
-In-Reply-To: <20030804230213.B6566@infradead.org>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030804190133.D25847@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-According to Christoph Hellwig:
-> On Mon, Aug 04, 2003 at 01:09:00PM -0400, Chip Salzenberg wrote:
-> > Since fs/aio.c calls async_poll(), it should include <linux/poll.h> to
-> > get its declaration.
-> 
-> There is no fs/aio.c in 2.4.22-pre10.
 
-Oops.  It must be an 'aa' thing.  I'll take this off line with Andrea.
--- 
-Chip Salzenberg               - a.k.a. -               <chip@pobox.com>
-"I wanted to play hopscotch with the impenetrable mystery of existence,
-    but he stepped in a wormhole and had to go in early."  // MST3K
+--xHFwDpU9dbj6ez1V
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+	After recompiling with 2.6.0-test2-bk4 I am still unable to use
+the CardBus 802.11b wireless cards (don't know about any other cardbus
+device as this is currently the only device I'm using). The Orinoco Gold
+will load the module and does not crash but it also does not allow it to
+be fully usuable. It is unable to be configured for the ESSID and WEP
+key. The Cisco Aironet 350 locks the whole system up but now with -bk4
+does not produce any entries in /var/log/kern.log as I was finding
+before.
+
+	Regards,
+	Jeremy
+
+--xHFwDpU9dbj6ez1V
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+
+iD8DBQE/Lti+VExIaGLb32IRAk3mAJ97HRi8o0nB2mGti2ZQNWZ+fyjniACfZyVP
+1iHUdaJccHSS1DqoocNGUiU=
+=QFP5
+-----END PGP SIGNATURE-----
+
+--xHFwDpU9dbj6ez1V--

@@ -1,37 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317443AbSF1OZt>; Fri, 28 Jun 2002 10:25:49 -0400
+	id <S317440AbSF1Oh6>; Fri, 28 Jun 2002 10:37:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317444AbSF1OZs>; Fri, 28 Jun 2002 10:25:48 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:40430 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S317443AbSF1OZr>;
-	Fri, 28 Jun 2002 10:25:47 -0400
-Message-ID: <3D1C7236.68630D2A@mvista.com>
-Date: Fri, 28 Jun 2002 07:27:02 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Is there an "interrups_on()" function
-Content-Type: text/plain; charset=us-ascii
+	id <S317444AbSF1Oh5>; Fri, 28 Jun 2002 10:37:57 -0400
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:42438 "EHLO
+	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S317440AbSF1Oh4>; Fri, 28 Jun 2002 10:37:56 -0400
+Subject: Re: [PATCH] compile fix for 2.5 kdev_t compatibility macros
+From: Steven Cole <elenstev@mesatop.com>
+To: Stephen Lord <lord@sgi.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1025272233.1168.21.camel@n236>
+References: <1025272233.1168.21.camel@n236>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 28 Jun 2002 08:37:56 -0600
+Message-Id: <1025275076.27133.131.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I need an interrupts on test function that works for all
-platforms.  Has this been done yet?
+On Fri, 2002-06-28 at 07:50, Stephen Lord wrote:
+> 
+> 
+> Marcelo,
+> 
+> We started using these for XFS, and found a missing bracket, patch
+> against 2.4.19-rc1.
+> 
+> Steve
+> 
+> *** linux-2.4.19-rc1/include/linux/kdev_t.h	Fri Jun 28 08:40:22 2002
+> --- linux/include/linux/kdev_t.h	Fri Jun 28 07:05:32 2002
+> ***************
+> *** 81,87 ****
+>   #define minor(d)	MINOR(d)
+>   #define kdev_same(a,b)	((a) == (b))
+>   #define kdev_none(d)	(!(d))
+> ! #define kdev_val(d)	((unsigned int)(d)
+>   #define val_to_kdev(d)	((kdev_t(d))
+>   
+>   /*
+> --- 81,87 ----
+>   #define minor(d)	MINOR(d)
+>   #define kdev_same(a,b)	((a) == (b))
+>   #define kdev_none(d)	(!(d))
+> ! #define kdev_val(d)	((unsigned int)(d))
+>   #define val_to_kdev(d)	((kdev_t(d))
+>   
+>   /*
 
-Alternatively, __save_flags() seems to exist for all
-platforms.  Is the need "mask" to test for interrupts on
-defined for all platforms?  Or will this even work?  (One
-can imagine that some platforms use inverted interrupt
-enabled bits).
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Real time sched:  http://sourceforge.net/projects/rtsched/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+That's an odd-looking patch.  Is this what you meant?
+
+Steven
+
+--- linux-2.4.19-rc1/include/linux/kdev_t.h.orig	Fri Jun 28 08:31:27 2002
++++ linux-2.4.19-rc1/include/linux/kdev_t.h	Fri Jun 28 08:32:36 2002
+@@ -81,7 +81,7 @@
+ #define minor(d)	MINOR(d)
+ #define kdev_same(a,b)	((a) == (b))
+ #define kdev_none(d)	(!(d))
+-#define kdev_val(d)	((unsigned int)(d)
++#define kdev_val(d)	((unsigned int)(d))
+ #define val_to_kdev(d)	((kdev_t(d))
+ 
+ /*
+
+

@@ -1,54 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262105AbTIRTs3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 15:48:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbTIRTs3
+	id S262046AbTIRTrF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 15:47:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbTIRTrF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 15:48:29 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:58005 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262105AbTIRTs2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 15:48:28 -0400
-Date: Thu, 18 Sep 2003 20:48:00 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Nick Piggin <piggin@cyberone.com.au>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       richard.brunner@amd.com
-Subject: Re: [PATCH] Athlon/Opteron Prefetch Fix for 2.6.0test5 + numbers
-Message-ID: <20030918194800.GA8572@mail.jlokier.co.uk>
-References: <20030917202100.GC4723@wotan.suse.de> <Pine.LNX.4.44.0309171332200.2523-100000@laptop.osdl.org> <20030917211200.GA5997@wotan.suse.de> <20030918153831.GA7548@mail.jlokier.co.uk> <20030918160456.GC7548@mail.jlokier.co.uk> <20030918170629.GC7917@wotan.suse.de>
-Mime-Version: 1.0
+	Thu, 18 Sep 2003 15:47:05 -0400
+Received: from web14205.mail.yahoo.com ([216.136.172.151]:36215 "HELO
+	web14205.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262046AbTIRTrC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 15:47:02 -0400
+Message-ID: <20030918194701.25323.qmail@web14205.mail.yahoo.com>
+X-RocketYMMF: cregentin
+Date: Thu, 18 Sep 2003 12:47:01 -0700 (PDT)
+From: Curtis Regentin <cregentin@penguincomputing.com>
+Reply-To: cregentin@penguincomputing.com
+Subject: [PATCH] 2.4.23 Failure to reload partitions past 1TB
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030918170629.GC7917@wotan.suse.de>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> > My point is simply that non-zero base GDT segments are possible in
-> > userspace, and whatever code you add later to add the base should
-> > be aware of that.
-> 
-> I don't see how a non standard GDT is possible in user space. The GDT 
-> is only managed by the kernel. 2.6 offers to change it for NPTL, but
-> that only applies to data segments.
+parted fails when creating partitions > 1TB.
 
-I don't see anything in set_thread_area() which restricts them to data
-segments.  Btw, NPTL isn't the only userspace code which uses this
-function.
+If anyone doesn't like my assumption of 32bit long,
+feel free to fix it, or tell me the apropriate method.
+ Enough assumptions are made about that in this code
+that I don't feel too bad, and no MAXULONG seems
+defined in the kernel tree.
 
-Admittedly it would be quite odd to use set_thread_area() to create
-and use a GDT code segment - but given that you can do it, it would be
-_really_ odd if prefetch instructions gave spurious faults in these
-segments yet were fixed up elsewhere.
+Please CC me on replies.
 
-> In vm86 mode the user can load a different base without LDT, but that
-> should not matter here (although it may be better to check for VM86 mode
-> too) 
+ --- SNIP ---
+--- linux-2.4.22.old/drivers/block/blkpg.c	2003-09-18
+11:48:04.000000000 -0700
++++ linux-2.4.22/drivers/block/blkpg.c	2003-09-18
+12:19:25.000000000 -0700
+@@ -63,21 +63,20 @@
+  *                 or has the same number as an
+existing one
+  *          0: all OK.
+  */
++
+ int add_partition(kdev_t dev, struct blkpg_partition
+*p) {
+ 	struct gendisk *g;
+-	long long ppstart, pplength;
+-	long pstart, plength;
++	unsigned long long pstart, plength;
+ 	int i, drive, first_minor, end_minor, minor;
++	unsigned long maxblock = 0xffffffffUL;
+ 
+ 	/* convert bytes to sectors, check for fit in a
+hd_struct */
+-	ppstart = (p->start >> 9);
+-	pplength = (p->length >> 9);
+-	pstart = ppstart;
+-	plength = pplength;
+-	if (pstart != ppstart || plength != pplength
+-	    || pstart < 0 || plength < 0)
++	pstart = (p->start >> 9);
++	plength = (p->length >> 9);
++	if (pstart > maxblock || plength > maxblock ||
+(pstart+plength) > maxblock)
+ 		return -EINVAL;
+ 
++
+ 	/* find the drive major */
+ 	g = get_gendisk(dev);
+ 	if (!g)
 
-Shouldn't spurious faults in prefetch instructions in vm86 mode be
-fixed up too?
-
--- Jamie

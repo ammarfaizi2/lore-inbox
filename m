@@ -1,164 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbVAWVMO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVAWVZx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbVAWVMO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 16:12:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVAWVMO
+	id S261359AbVAWVZx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 16:25:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbVAWVZx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 16:12:14 -0500
-Received: from novell.stoldgods.nu ([193.45.238.241]:41123 "EHLO
-	novell.stoldgods.nu") by vger.kernel.org with ESMTP id S261358AbVAWVMA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 16:12:00 -0500
-From: Magnus =?iso-8859-1?q?M=E4=E4tt=E4?= <novell@kiruna.se>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Linux 2.6.11-rc2
-Date: Sun, 23 Jan 2005 22:11:45 +0100
-User-Agent: KMail/1.7.1
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0501211806130.3053@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0501211806130.3053@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 23 Jan 2005 16:25:53 -0500
+Received: from are.twiddle.net ([64.81.246.98]:18048 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id S261359AbVAWVZs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 16:25:48 -0500
+Date: Sun, 23 Jan 2005 13:24:55 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: vlobanov <vlobanov@speakeasy.net>
+Cc: Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org,
+       Neil Brown <neilb@cse.unsw.edu.au>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>, Olaf Kirch <okir@suse.de>,
+       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
+       Buck Huppmann <buchk@pobox.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 1/13] Qsort
+Message-ID: <20050123212455.GA8055@twiddle.net>
+Mail-Followup-To: vlobanov <vlobanov@speakeasy.net>,
+	Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org,
+	Neil Brown <neilb@cse.unsw.edu.au>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Olaf Kirch <okir@suse.de>,
+	"Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
+	Buck Huppmann <buchk@pobox.com>, Andrew Morton <akpm@osdl.org>
+References: <20050122203326.402087000@blunzn.suse.de> <20050122203618.962749000@blunzn.suse.de> <Pine.LNX.4.58.0501221257440.1982@shell3.speakeasy.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501232211.45924.novell@kiruna.se>
+In-Reply-To: <Pine.LNX.4.58.0501221257440.1982@shell3.speakeasy.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Sat, Jan 22, 2005 at 01:00:24PM -0800, vlobanov wrote:
+> #define SWAP(a, b, size)			\
+>     do {					\
+> 	register size_t __size = (size);	\
+> 	register char * __a = (a), * __b = (b);	\
+> 	do {					\
+> 	    *__a ^= *__b;			\
+> 	    *__b ^= *__a;			\
+> 	    *__a ^= *__b;			\
+> 	    __a++;				\
+> 	    __b++;				\
+> 	} while ((--__size) > 0);		\
+>     } while (0)
+> 
+> What do you think? :)
 
-On Saturday 22 January 2005 03.13, Linus Torvalds wrote:
-> Ok, trying to calm things down again for a 2.6.11 release.
->
-> Tons of small cleanups, annotations and fixes here. Driver updates,
-> cpufreq, ppc, parisc, arm.. Pls check that I got it all.
->
->   Linus
->
-
-It doesn't compile here, here's the error:
-
-  CC      net/sched/sch_generic.o
-net/sched/sch_generic.c: In function `qdisc_restart':
-net/sched/sch_generic.c:128: error: label `requeue' used but not 
-defined
-make[2]: *** [net/sched/sch_generic.o] Error 1
-make[1]: *** [net/sched] Error 2
-make: *** [net] Error 2
+I think you'll confuse the compiler and get worse results.
 
 
->From .config:
-CONFIG_NET_KEY=m
-CONFIG_IP_MULTICAST=y
-CONFIG_NET_IPIP=m
-CONFIG_INET_AH=m
-CONFIG_INET_ESP=m
-CONFIG_INET_IPCOMP=m
-CONFIG_INET_TUNNEL=m
-CONFIG_IP_TCPDIAG=y
-CONFIG_IPV6=m
-CONFIG_IPV6_PRIVACY=y
-CONFIG_INET6_IPCOMP=m
-CONFIG_IPV6_TUNNEL=m
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_CT_PROTO_SCTP=m
-CONFIG_IP_NF_FTP=m
-CONFIG_IP_NF_IRC=m
-CONFIG_IP_NF_TFTP=m
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_IPRANGE=m
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_PKTTYPE=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_RECENT=m
-CONFIG_IP_NF_MATCH_ECN=m
-CONFIG_IP_NF_MATCH_DSCP=m
-CONFIG_IP_NF_MATCH_AH_ESP=m
-CONFIG_IP_NF_MATCH_LENGTH=m
-CONFIG_IP_NF_MATCH_TTL=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-CONFIG_IP_NF_MATCH_HELPER=m
-CONFIG_IP_NF_MATCH_STATE=m
-CONFIG_IP_NF_MATCH_CONNTRACK=m
-CONFIG_IP_NF_MATCH_OWNER=m
-CONFIG_IP_NF_MATCH_PHYSDEV=m
-CONFIG_IP_NF_MATCH_SCTP=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_ULOG=m
-CONFIG_IP_NF_TARGET_TCPMSS=m
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-CONFIG_IP_NF_TARGET_NETMAP=m
-CONFIG_IP_NF_TARGET_SAME=m
-CONFIG_IP_NF_NAT_SNMP_BASIC=m
-CONFIG_IP_NF_NAT_IRC=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_NAT_TFTP=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_ECN=m
-CONFIG_IP_NF_TARGET_DSCP=m
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_CLASSIFY=m
-CONFIG_IP_NF_ARPTABLES=m
-CONFIG_IP_NF_ARPFILTER=m
-CONFIG_IP_NF_ARP_MANGLE=m
-CONFIG_IP6_NF_QUEUE=m
-CONFIG_IP6_NF_IPTABLES=m
-CONFIG_IP6_NF_MATCH_LIMIT=m
-CONFIG_IP6_NF_MATCH_MAC=m
-CONFIG_IP6_NF_MATCH_RT=m
-CONFIG_IP6_NF_MATCH_OPTS=m
-CONFIG_IP6_NF_MATCH_FRAG=m
-CONFIG_IP6_NF_MATCH_HL=m
-CONFIG_IP6_NF_MATCH_MULTIPORT=m
-CONFIG_IP6_NF_MATCH_OWNER=m
-CONFIG_IP6_NF_MATCH_MARK=m
-CONFIG_IP6_NF_MATCH_IPV6HEADER=m
-CONFIG_IP6_NF_MATCH_AHESP=m
-CONFIG_IP6_NF_MATCH_LENGTH=m
-CONFIG_IP6_NF_MATCH_EUI64=m
-CONFIG_IP6_NF_FILTER=m
-CONFIG_IP6_NF_TARGET_LOG=m
-CONFIG_IP6_NF_MANGLE=m
-CONFIG_IP6_NF_TARGET_MARK=m
-CONFIG_BRIDGE_EBT_T_NAT=m
-CONFIG_BRIDGE_EBT_IP=m
-CONFIG_BRIDGE_EBT_DNAT=m
-CONFIG_BRIDGE_EBT_SNAT=m
-CONFIG_IP_SCTP=m
-CONFIG_NET_SCHED=y
-CONFIG_NET_SCH_CLK_JIFFIES=y
-CONFIG_NET_SCH_CBQ=m
-CONFIG_NET_SCH_HTB=m
-CONFIG_NET_SCH_HFSC=m
-CONFIG_NET_SCH_PRIO=m
-CONFIG_NET_SCH_RED=m
-CONFIG_NET_SCH_SFQ=m
-CONFIG_NET_SCH_TEQL=m
-CONFIG_NET_SCH_TBF=m
-CONFIG_NET_SCH_GRED=m
-CONFIG_NET_SCH_DSMARK=m
-CONFIG_NET_SCH_INGRESS=m
-CONFIG_NET_QOS=y
-CONFIG_NET_ESTIMATOR=y
-CONFIG_NET_CLS=y
-CONFIG_NET_CLS_TCINDEX=m
-CONFIG_NET_CLS_ROUTE4=m
-CONFIG_NET_CLS_ROUTE=y
-CONFIG_NET_CLS_FW=m
-CONFIG_NET_CLS_U32=m
-CONFIG_NET_CLS_RSVP=m
-CONFIG_NET_CLS_RSVP6=m
-CONFIG_NET_CLS_POLICE=y
-CONFIG_NET_PKTGEN=m
-CONFIG_NET_POLL_CONTROLLER=y
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_TULIP=y
+r~

@@ -1,66 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265805AbTLINbo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 08:31:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265796AbTLINbo
+	id S265768AbTLIN2J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 08:28:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265797AbTLIN2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 08:31:44 -0500
-Received: from pop.gmx.net ([213.165.64.20]:64218 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265805AbTLINbc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 08:31:32 -0500
-Date: Tue, 9 Dec 2003 14:31:30 +0100 (MET)
-From: "Martin Schaffner" <schaffner@gmx.li>
-To: linux-kernel@vger.kernel.org
+	Tue, 9 Dec 2003 08:28:09 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:11160 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S265768AbTLIN2E
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 08:28:04 -0500
+Date: Tue, 9 Dec 2003 11:15:08 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Joe Thornber <thornber@sistina.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Device-mapper submission for 2.4
+In-Reply-To: <20031209115806.GA472@reti>
+Message-ID: <Pine.LNX.4.44.0312091113510.1289-100000@logos.cnet>
 MIME-Version: 1.0
-Subject: [PATCH 2.4.23, 2.6.0-test11] avoid the use of unportable "expr length"
-X-Priority: 3 (Normal)
-X-Authenticated: #1892127
-Message-ID: <14502.1070976690@www62.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-I tried to cross-compile from Mac OS X, which failed because the Makefile
-uses the "length" feature of GNU expr, which is not found in BSD expr. Here's a
-fix.
-
-Please CC me when replying.
-
---- a/Makefile	2003-12-09 13:54:50.000000000 +0100
-+++ b/Makefile	2003-12-09 13:56:39.000000000 +0100
-@@ -640,7 +640,7 @@
- uts_len := 64
- 
- define filechk_version.h
--	if expr length "$(KERNELRELEASE)" \> $(uts_len) >/dev/null ; then \
-+	if expr "$(KERNELRELEASE)" : '.*' \> $(uts_len) >/dev/null ; then \
- 	  echo '"$(KERNELRELEASE)" exceeds $(uts_len) characters' >&2; \
- 	  exit 1; \
- 	fi; \
 
 
---- a/Makefile   2003-12-09 14:27:56.000000000 +0100
-+++ b/Makefile   2003-12-09 14:28:37.000000000 +0100
-@@ -353,7 +353,7 @@
-        @rm -f .ver1
+On Tue, 9 Dec 2003, Joe Thornber wrote:
 
- include/linux/version.h: ./Makefile
--       @expr length "$(KERNELRELEASE)" \<= $(uts_len) > /dev/null || \
-+       @expr "$(KERNELRELEASE)" : '.*' \<= $(uts_len) > /dev/null || \
-          (echo KERNELRELEASE \"$(KERNELRELEASE)\" exceeds $(uts_len)
-characters >&2; false)
-        @echo \#define UTS_RELEASE \"$(KERNELRELEASE)\" > .ver
-        @echo \#define LINUX_VERSION_CODE `expr $(VERSION) \\* 65536 +
-$(PATCHLEVEL) \\* 256 + $(SUBLEVEL)` >> .ver
+> Marcello,
+> 
+> This set of patches is the core of device mapper for 2.4.  I would
+> appreciate it if you could merge these into 2.4.24 please.
 
--- 
-+++ GMX - die erste Adresse für Mail, Message, More +++
-Neu: Preissenkung für MMS und FreeMMS! http://www.gmx.net
+Joe, 
 
+I believe 2.6 is the right place for the device mapper. 
 

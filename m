@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263544AbSLJSXJ>; Tue, 10 Dec 2002 13:23:09 -0500
+	id <S265222AbSLJSYu>; Tue, 10 Dec 2002 13:24:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263589AbSLJSXJ>; Tue, 10 Dec 2002 13:23:09 -0500
-Received: from willow.compass.com.ph ([202.70.96.38]:30219 "EHLO
-	willow.compass.com.ph") by vger.kernel.org with ESMTP
-	id <S263544AbSLJSXI>; Tue, 10 Dec 2002 13:23:08 -0500
-Subject: Re: [BUG]: agpgart for i810 chipsets broken in 2.5.51
-From: Antonino Daplas <adaplas@pol.net>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021210182120.GD577@codemonkey.org.uk>
-References: <1039522886.1041.17.camel@localhost.localdomain>
-	<20021210131143.GA26361@suse.de>
-	<1039538881.2025.2.camel@localhost.localdomain>
-	<20021210140301.GC26361@suse.de>
-	<1039547210.1071.26.camel@localhost.localdomain>
-	<20021210172320.A4586@suse.de>
-	<1039539977.14251.40.camel@irongate.swansea.linux.org.uk>
-	<20021210170542.GB577@codemonkey.org.uk>
-	<1039553986.1054.7.camel@localhost.localdomain> 
-	<20021210182120.GD577@codemonkey.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 11 Dec 2002 02:23:21 +0500
-Message-Id: <1039555433.1054.11.camel@localhost.localdomain>
+	id <S265236AbSLJSYu>; Tue, 10 Dec 2002 13:24:50 -0500
+Received: from texas.pobox.com ([64.49.223.111]:35478 "EHLO texas.pobox.com")
+	by vger.kernel.org with ESMTP id <S265222AbSLJSYp>;
+	Tue, 10 Dec 2002 13:24:45 -0500
+Date: Wed, 11 Dec 2002 00:02:18 +0530
+From: Joshua N Pritikin <vishnu@pobox.com>
+To: linux-kernel@vger.kernel.org
+Cc: robm@flipturn.org
+Subject: Re: longrun not working
+Message-ID: <20021210183218.GB1521@always.joy.eth.net>
+References: <20021208160349.GA712@always.joy.eth.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021208160349.GA712@always.joy.eth.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-12-10 at 23:21, Dave Jones wrote:
-> On Wed, Dec 11, 2002 at 02:00:47AM +0500, Antonino Daplas wrote:
-> I did something similar in my pending tree, but I just made it
-> unconditional instead of littering lots of ifdefs.
+On Sun, Dec 08, 2002 at 09:33:49PM +0530, Joshua N Pritikin wrote:
+> i have a Fujitsu P-Series laptop (TM5800 CPU @ 800MHz) running Linux
+> 2.4.20 (debian) with devfs, CONFIG_MCRUSOE, CONFIG_X86_MSR, and
+> CONFIG_X86_CPUID.
+> 
+> emit:/usr/src/pseries/longrun# ls -l /dev/cpu/0/
+> total 0
+> crw-rw----    1 root     root     203,   0 Dec  8  2002 cpuid
+> crw-rw----    1 root     root     202,   0 Dec  8  2002 msr
+> 
+> When i try longrun 0.9, i get a failure at the first call to
+> read_cpuid() in check_cpu(), line 186.
+> 
+> (Actually longrun was working on my laptop about a month ago
+> then it mysterious started failing, as described.  i don't
+> know what changed.)
+> 
+> Who is maintaining longrun?  What more information can i provide
+> to help in debugging?
 
-That's great.  Thanks. 
+This problem was due to some problem in the debian unstable
+version of libc6.  i am filing a bug report with debian.
 
-Tony
-
-
+-- 
+Victory to the Divine Mother!!         after all,
+  http://sahajayoga.org                  http://why-compete.org

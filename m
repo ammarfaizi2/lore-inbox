@@ -1,77 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268737AbTGOQXT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 12:23:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268745AbTGOQXT
+	id S268577AbTGOQZk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 12:25:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268586AbTGOQZj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 12:23:19 -0400
-Received: from auth22.inet.co.th ([203.150.14.104]:14611 "EHLO
-	auth22.inet.co.th") by vger.kernel.org with ESMTP id S268737AbTGOQXP
+	Tue, 15 Jul 2003 12:25:39 -0400
+Received: from host81-136-144-97.in-addr.btopenworld.com ([81.136.144.97]:21376
+	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP id S268577AbTGOQZa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 12:23:15 -0400
-From: Michael Frank <mflt1@micrologica.com.hk>
-To: Russell King <rmk@arm.linux.org.uk>
-Subject: Re: 2.5.75-mm1 yenta-socket lsPCI IRQ reads incorrect
-Date: Wed, 16 Jul 2003 00:09:07 +0800
-User-Agent: KMail/1.5.2
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@suse.cz>,
-       John Belmonte <jvb@prairienet.org>
-References: <200307141333.03911.mflt1@micrologica.com.hk> <20030715085622.A32119@flint.arm.linux.org.uk> <200307151734.46616.mflt1@micrologica.com.hk>
-In-Reply-To: <200307151734.46616.mflt1@micrologica.com.hk>
-X-OS: KDE 3 on GNU/Linux
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200307160009.08605.mflt1@micrologica.com.hk>
+	Tue, 15 Jul 2003 12:25:30 -0400
+Subject: Re: [RFC][PATCH 0/5] relayfs
+From: Gianni Tedesco <gianni@scaramanga.co.uk>
+To: Tom Zanussi <zanussi@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, karim@opersys.com, bob@watson.ibm.com
+In-Reply-To: <16148.9560.602996.872584@gargle.gargle.HOWL>
+References: <16148.6807.578262.720332@gargle.gargle.HOWL>
+	 <1058282847.375.3.camel@sherbert>
+	 <16148.9560.602996.872584@gargle.gargle.HOWL>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-CCqHi25c7n2OODcVekSF"
+Message-Id: <1058287227.377.17.camel@sherbert>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
+Date: 15 Jul 2003 17:40:27 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 July 2003 17:34, Michael Frank wrote:
-> I believe it is not here now, we need to look elsewhere, as interrupts
-> stay dead also after reloading modules (see logs).
->
-> Jul 15 17:06:43 mhfl2 kernel: Socket status: ffffffff
 
-FFFFFFFF!!!!
+--=-CCqHi25c7n2OODcVekSF
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-This returns ffffffff too:
-  cb_writel(socket, CB_SOCKET_MASK, 0x0);
-  if ((temp = cb_readl(socket, CB_SOCKET_MASK)) != 0)
-    printk("Yenta: probe can't write socket mask %x\n",temp);
+On Tue, 2003-07-15 at 17:01, Tom Zanussi wrote:
+> Gianni Tedesco writes:
+>  > On Tue, 2003-07-15 at 16:15, Tom Zanussi wrote:
+>  > > The following 5 patches implement relayfs, adding a dynamic channel
+>  > > resizing capability to the previously posted version.
+>  > >=20
+>  > > relayfs is a filesystem designed to provide an efficient mechanism f=
+or
+>  > > tools and facilities to relay large amounts of data from kernel spac=
+e
+>  > > to user space.  Full details can be found in Documentation/filesyste=
+ms/
+>  > > relayfs.txt.  The current version can always be found at
+>  > > http://www.opersys.com/relayfs.
+>  >=20
+>  > Could this be used to replace mmap() packet socket, how does it compar=
+e?
+>=20
+> I think so - you could send high volumes of packet traffic to a bulk
+> relayfs channel and read it from the mmap'ed relayfs file in user
+> space.  The Linux Trace Toolkit does the same thing with large volumes
+> of trace data - you could look at that code as an example
+> (http://www.opersys.com/relayfs/ltt-on-relayfs.html).
 
-because the device is somewhat "passive" after a suspend....
+What are the semantics of the mmap'ing the buffer? With mmaped packet
+socket the userspace (read-side) requires no sys-calls apart from when
+the buffer is empty, it then uses poll(2) to sleep until something new
+is put in the buffer. Can relayfs do a similar thing? poll is not
+mentioned in the docs...
 
-Should we save all registers? - it has 128
+Thanks.
 
-It sits on the same bus with ide, e100 which work, so it won't
-be pci related - OK?.
-
-Another thing, even lspci returns crap after suspend because 
-data come from RAM rather than device(s).
-
-I would like to do generic pci_save_state/pci_restore_state 
-centraly in the pci driver. It would reduce other driver side 
-work too.
-
-What is the possible downside of this approach and your 
-opinion in general?
+--=20
+// Gianni Tedesco (gianni at scaramanga dot co dot uk)
+lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
+8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
 
 
-Regards
-Michael
+--=-CCqHi25c7n2OODcVekSF
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
--- 
-Powered by linux-2.5.75-mm1. Compiled with gcc-2.95-3 - mature and rock solid
+iD8DBQA/FC57kbV2aYZGvn0RAlPZAJ4ubrqgHYwGHycpyQYy16mNH6dd0gCePcXm
+hPmi3faMe+ckTimEC/t1J1Y=
+=Cn0u
+-----END PGP SIGNATURE-----
 
-My current linux related activities:
-- 2.5 yenta_socket testing
-- Test development and testing of swsusp for 2.4/2.5 and ACPI S3 of 2.5 kernel 
-- Everyday usage of 2.5 kernel
-
-More info on 2.5 kernel: http://www.codemonkey.org.uk/post-halloween-2.5.txt
-More info on swsusp: http://sourceforge.net/projects/swsusp/
-
+--=-CCqHi25c7n2OODcVekSF--
 

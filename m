@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269331AbRHCINJ>; Fri, 3 Aug 2001 04:13:09 -0400
+	id <S269349AbRHCIby>; Fri, 3 Aug 2001 04:31:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269345AbRHCINA>; Fri, 3 Aug 2001 04:13:00 -0400
-Received: from d122251.upc-d.chello.nl ([213.46.122.251]:3590 "EHLO
-	arnhem.blackstar.nl") by vger.kernel.org with ESMTP
-	id <S269336AbRHCIMs>; Fri, 3 Aug 2001 04:12:48 -0400
-From: bvermeul@devel.blackstar.nl
-Date: Fri, 3 Aug 2001 10:15:41 +0200 (CEST)
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Chris Vandomelen <chrisv@b0rked.dhs.org>,
-        Nerijus Baliunas <nerijus@users.sourceforge.net>,
-        Guest section DW <dwguest@win.tue.nl>, <linux-kernel@vger.kernel.org>
-Subject: Re: Re[2]: cannot copy files larger than 40 MB from CD
-In-Reply-To: <E15SKBL-0000qt-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0108031011500.28108-100000@devel.blackstar.nl>
+	id <S269345AbRHCIbp>; Fri, 3 Aug 2001 04:31:45 -0400
+Received: from web10401.mail.yahoo.com ([216.136.130.93]:65040 "HELO
+	web10401.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S269342AbRHCIba>; Fri, 3 Aug 2001 04:31:30 -0400
+Message-ID: <20010803083139.40320.qmail@web10401.mail.yahoo.com>
+Date: Fri, 3 Aug 2001 18:31:39 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: PROBLEM 2.4.7-ac4 ext3 non recoverable !
+To: kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Aug 2001, Alan Cox wrote:
+Hi,
 
-> > > Tried vfat, ext2 and reiserfs.
-> > >
-> > > BTW, kernel is compiled with gcc-2.96-85, glibc-2.2.2-10 (RH 7.1) if
-> >                                ^^^^^^^^^^^
-> > > that matters.
-> >
-> > Have you tried compiling your kernel using kgcc?
-> >
-> > gcc-2.96.* is known to compile code incorrectly AFAIK, and shouldn't be
-> > used for compiling kernels. (kgcc is egcs-1.1.2, I think.)
->
-> [x86 hat on]
->
-> egcs-1.1.2 aka kgcc wont build 2.4.7 it seems. gcc 2.96 >= 2.96.75 or so is
-> just fine, gcc 2.95-2/3 is fine, gcc 3.0 seems to be doing the right thing
+I can reproduce this on my machine reliably
 
-egcs-1.1.3 *does* build 2.4.7, if you use the right binutils
-(2.10.91.0.2 worked for me). I'm running 2.4.7-ac3 with ext3 patches on an
-old dual P200. Haven't had a crash yet, been up 2 days and counting.
+After a power off the computer without unmounting the
+system (Just my socket is overloaded and the breaker
+jumped :-) ) When startup the kernel stop at the
+message
 
-Bas Vermeulen
+EXT3-fs: INFO: recovery required on readonly file
+system
+EXT3-fs write access will be enable during recovery
 
--- 
-"God, root, what is difference?"
-	-- Pitr, User Friendly
+then hang 
 
-"God is more forgiving."
-	-- Dave Aronson
 
+No disk activity , nothing  
+
+So I have to power off again and this time using 2.4.6
+( I also test with 2.4.7 ) ; no problem about recovery
+ext3 file system.)
+
+I am pleased to supply or do whatever for  more
+information if required
+
+Regards
+
+
+
+
+=====
+S.KIEU
+
+_____________________________________________________________________________
+http://messenger.yahoo.com.au - Yahoo! Messenger
+- Voice chat, mail alerts, stock quotes and favourite news and lots more!

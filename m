@@ -1,73 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129406AbQKFX2C>; Mon, 6 Nov 2000 18:28:02 -0500
+	id <S129223AbQKFXiF>; Mon, 6 Nov 2000 18:38:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129496AbQKFX1x>; Mon, 6 Nov 2000 18:27:53 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:12561 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129406AbQKFX1m>;
-	Mon, 6 Nov 2000 18:27:42 -0500
-Date: Mon, 6 Nov 2000 15:28:30 -0800 (PST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: "James A. Sutherland" <jas88@cam.ac.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-In-Reply-To: <00110617370400.24534@dax.joh.cam.ac.uk>
-Message-ID: <Pine.LNX.4.10.10011061521200.30217-100000@innerfire.net>
+	id <S129531AbQKFXhz>; Mon, 6 Nov 2000 18:37:55 -0500
+Received: from mail.tripledental.com ([208.129.192.28]:55557 "EHLO
+	imail.ipns.com") by vger.kernel.org with ESMTP id <S129223AbQKFXhj>;
+	Mon, 6 Nov 2000 18:37:39 -0500
+From: "Dan Browning" <danb@cyclonecomputers.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <mingo@redhat.com>
+Subject: 2.2.18pre19 + raid-2.2.18-AX?
+Date: Mon, 6 Nov 2000 15:37:32 -0800
+Message-ID: <002601c0484a$894eda80$6700000a@danb>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Nov 2000, James A. Sutherland wrote:
+I can't get raid-2.2.18-A2 to apply cleanly on 2.2.18pre19.  Does
+anyone know of a newer raid-2.2.18preX patch?  (pre18 or pre19 would
+be great).
 
-> Except this isn't possible with the hardware in question! If it were, there
-> would be no problem. In cases where the hardware doesn't support the
-> functionality userspace "needs", why put the kludge in the kernel?
-> 
-> If userspace wants to know what settings it set last time, it should store
-> those values somewhere.
-> 
-> > jas88@cam.ac.uk said:
-> > >  The right thing in this context is not to screw with hardware
-> > > settings unless and until it is given settings to set. Do not set
-> > > values arbitrarily: set only the values you are explicitly given.
-> > > Anything else is simply a bug in your driver. 
-> > 
-> > It is unwise to assume that the hardware is in a sane state when the driver 
-> > has been unloaded and reloaded. I agree that you should set the values that 
-> > were explicitly given. That's why we should remember them.
-> 
-> No values are being explicitly given. Loading the driver should not cause
-> any settings to be changed: changing the settings should do that!
-> 
-> There is no need for the drivers to change any settings. If the settings need
-> to be (re)set, let userspace do it.
->  
-> 
-> James. 
+Here's the output I get...
 
-Sure .. lets see you start a laptop in class or buisness meeting and have
-everyone turn to look at you wondering why your laptop let off an ear
-piercing shreak because the hardware defaults to all settings max.
+[root@server linux]# patch -p1 < raid-2.2.18-A2
+patching file init/main.c
+Hunk #4 succeeded at 1631 (offset 4 lines).
+patching file include/linux/raid/hsm.h
+patching file include/linux/raid/hsm_p.h
+patching file include/linux/raid/linear.h
+patching file include/linux/raid/md.h
+patching file include/linux/raid/md_compatible.h
+patching file include/linux/raid/md_k.h
+patching file include/linux/raid/md_p.h
+patching file include/linux/raid/md_u.h
+patching file include/linux/raid/raid0.h
+patching file include/linux/raid/raid1.h
+patching file include/linux/raid/raid5.h
+patching file include/linux/raid/translucent.h
+patching file include/linux/raid/xor.h
+patching file include/linux/blkdev.h
+Hunk #1 succeeded at 91 (offset -2 lines).
+patching file include/linux/fs.h
+Hunk #2 succeeded at 781 (offset 9 lines).
+Hunk #4 succeeded at 828 (offset 9 lines).
+Hunk #6 succeeded at 938 (offset 9 lines).
+patching file include/linux/md.h
+patching file include/linux/raid0.h
+patching file include/linux/raid1.h
+patching file include/linux/raid5.h
+patching file include/linux/sysctl.h
+Hunk #1 succeeded at 433 (offset 2 lines).
+patching file include/asm-i386/md.h
+patching file include/asm-alpha/md.h
+patching file include/asm-m68k/md.h
+patching file include/asm-sparc/md.h
+patching file include/asm-ppc/md.h
+patching file include/asm-sparc64/md.h
+patching file drivers/block/Config.in
+patching file drivers/block/Makefile
+patching file drivers/block/genhd.c
+patching file drivers/block/hsm.c
+patching file drivers/block/linear.c
+patching file drivers/block/linear.h
+patching file drivers/block/ll_rw_blk.c
+Hunk #3 succeeded at 589 (offset -68 lines).
+Hunk #4 succeeded at 908 (offset -2 lines).
+Hunk #5 succeeded at 862 (offset -68 lines).
+patching file drivers/block/md.c
+patching file drivers/block/raid0.c
+patching file drivers/block/raid1.c
+Hunk #7 FAILED at 146.
+Hunk #10 FAILED at 287.
+2 out of 15 hunks FAILED -- saving rejects to file
+drivers/block/raid1.c.rej
+patching file drivers/block/raid5.c
+patching file drivers/block/translucent.c
+patching file drivers/block/xor.c
+patching file arch/i386/defconfig
+patching file arch/sparc/config.in
+patching file arch/sparc/defconfig
+Hunk #1 succeeded at 88 with fuzz 2.
+patching file arch/sparc64/config.in
+patching file arch/sparc64/defconfig
+Hunk #1 succeeded at 107 with fuzz 2 (offset 1 line).
+patching file Documentation/Configure.help
+Hunk #1 succeeded at 1017 (offset 44 lines).
+patching file Makefile
+Hunk #1 FAILED at 1.
+1 out of 1 hunk FAILED -- saving rejects to file Makefile.rej
 
-And you will _STILL_ have that shriek for 1/2 - 1 second before the
-userspace app loads.
 
-And no we couldn't unplug either the mike or the speakers since they come
-embedded in the laptop's case. 
+Best regards,
 
-I don't see in any of your trolling an answer for this problem.
-
-	Gerhard
-
- 
-
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
+Dan Browning
+Network/DB Admin
+Cyclone Computer Systems
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

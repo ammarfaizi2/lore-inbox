@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313150AbSC1NOJ>; Thu, 28 Mar 2002 08:14:09 -0500
+	id <S313152AbSC1NVJ>; Thu, 28 Mar 2002 08:21:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313151AbSC1NN7>; Thu, 28 Mar 2002 08:13:59 -0500
-Received: from plintus.lcm.msu.ru ([193.232.113.219]:10254 "EHLO
-	plintus.lcm.msu.ru") by vger.kernel.org with ESMTP
-	id <S313150AbSC1NNn>; Thu, 28 Mar 2002 08:13:43 -0500
-Message-Id: <200203281313.g2SDDdB16981@gw.dorms.msu.ru>
-Content-Type: text/plain; charset=US-ASCII
-From: "Alexander V. Inyukhin" <shurick@pisem.net>
-Reply-To: shurick@pisem.net
-Organization: MSU
+	id <S313149AbSC1NVA>; Thu, 28 Mar 2002 08:21:00 -0500
+Received: from zork.zork.net ([66.92.188.166]:51464 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id <S313148AbSC1NUk>;
+	Thu, 28 Mar 2002 08:20:40 -0500
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] IBM USB Memory Key support
-Date: Thu, 28 Mar 2002 16:16:56 +0300
-X-Mailer: KMail [version 1.3.1]
+Subject: Re: ssh won't work from initial ram disk in 2.4.18
+In-Reply-To: <20020328124257.99FD54FF@merlin.webofficenow.com>
+From: Sean Neakums <sneakums@zork.net>
+X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
+X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
+X-Message-Flag: Message text advisory: DISCLOSURE OF TRADE SECRET(S),
+ HACKING
+X-Mailer: Norman
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Thu, 28 Mar 2002 13:20:39 +0000
+Message-ID: <6uadssbzh4.fsf@zork.zork.net>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.1
+ (i386-debian-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch against 2.4.18 for IBM USB Memory Key support.
+commence  Rob Landley quotation:
 
---- linux-2.4.18/drivers/usb/storage/unusual_devs.h	Thu Mar 28 16:14:22 2002
-+++ linux/drivers/usb/storage/unusual_devs.h	Thu Mar 28 16:03:46 2002
-@@ -451,6 +451,12 @@
-  		US_SC_SCSI, US_PR_CB, NULL,
- 		US_FL_MODE_XLATE ),
- 
-+UNUSUAL_DEV(  0x0a16, 0x8888, 0x0100, 0x0100,
-+		"IBM",
-+		"IBM USB Memory Key",
-+		US_SC_SCSI, US_PR_BULK, NULL,
-+		US_FL_FIX_INQUIRY ),
-+		
- #ifdef CONFIG_USB_STORAGE_ISD200
- UNUSUAL_DEV(  0x0bf6, 0xa001, 0x0100, 0x0110,
-                 "ATI",
+> If this is an ssh problem I'll be happy to go bug those guys, but
+> why would it be different from initrd than from an actual mounted
+> partition?  (Permissions are the same, I checked.)
+
+Have you tried running ssh with the -v switch?  That will dump a bunch
+of debug info that's often very helpful with investigating problems
+such as these.
+
+-- 
+ /////////////////  |                  | The spark of a pin
+<sneakums@zork.net> |  (require 'gnu)  | dropping, falling feather-like.
+ \\\\\\\\\\\\\\\\\  |                  | There is too much noise.

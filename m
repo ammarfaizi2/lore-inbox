@@ -1,39 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265033AbUD3APV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263000AbUD3AZA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265033AbUD3APV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 20:15:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265034AbUD3APV
+	id S263000AbUD3AZA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 20:25:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265034AbUD3AZA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 20:15:21 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:19628
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S265033AbUD3APR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 20:15:17 -0400
-Date: Fri, 30 Apr 2004 02:15:21 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: marcelo.tosatti@cyclades.com, jmoyer@redhat.com, carson@taltos.org,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, davem@redhat.com
-Subject: Re: kernel BUG at page_alloc.c:98 -- compiling with distcc
-Message-ID: <20040430001521.GV29954@dualathlon.random>
-References: <382320000.1082759593@taltos.ny.ficc.gs.com> <16527.4259.174536.629347@segfault.boston.redhat.com> <20040429210951.GB20453@logos.cnet> <20040429142807.1fa4c5ea.akpm@osdl.org> <20040429224936.GT29954@dualathlon.random> <20040429162632.689fa7fe.akpm@osdl.org>
+	Thu, 29 Apr 2004 20:25:00 -0400
+Received: from holomorphy.com ([207.189.100.168]:19584 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263000AbUD3AY7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 20:24:59 -0400
+Date: Thu, 29 Apr 2004 17:24:55 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       James.Bottomley@steeleye.com
+Subject: Re: 2.6.6-rc2-mm2
+Message-ID: <20040430002455.GA996@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	James.Bottomley@steeleye.com
+References: <20040426013944.49a105a8.akpm@osdl.org> <20040429184126.GB783@holomorphy.com> <20040429134546.5e9515d8.akpm@osdl.org> <20040429211825.GC783@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040429162632.689fa7fe.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+In-Reply-To: <20040429211825.GC783@holomorphy.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 29, 2004 at 04:26:32PM -0700, Andrew Morton wrote:
-> The only application which we know will exercise that code is the distcc
-> server.  Making that little change while testing the patch will increase
-> the chance of shaking out any problems.
+On Thu, Apr 29, 2004 at 01:45:46PM -0700, Andrew Morton wrote:
+>> bk-scsi.patch will be the one to try.
 
-if you're scared it has bugs I think it'd be more useful to change it to
-"|| 1" and run it under some stress test, and then remove the "|| 1".
-the aio code in unmap_kvec is also a big user of that.  a schedule every
-40M of ram freed isn't too nice to my eyes (but I doubt it can be
-measured).
+On Thu, Apr 29, 2004 at 02:18:25PM -0700, William Lee Irwin III wrote:
+> Is there a split-up version of that anywhere I can do bisection search on?
+
+I finished bisecting. It was this:
+
+$ head -80 patches/bk-scsi.patch | tail -5 | egrep -v '^#[      ]+$'
+# ChangeSet
+#   2004/04/25 09:10:30-05:00 akpm@osdl.org 
+#   [PATCH] aic7xxx: fix oops whe hardware is not present
+#   From: Herbert Xu <herbert@gondor.apana.org.au>
+
+
+-- wli

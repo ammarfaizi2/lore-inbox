@@ -1,38 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265264AbUGCVKe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265261AbUGCVXj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265264AbUGCVKe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 17:10:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265261AbUGCVKe
+	id S265261AbUGCVXj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 17:23:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265266AbUGCVXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 17:10:34 -0400
-Received: from gprs214-161.eurotel.cz ([160.218.214.161]:15490 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S265264AbUGCVJg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 17:09:36 -0400
-Date: Sat, 3 Jul 2004 23:08:41 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Dario <ddario@tiscali.it>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: CPU fan
-Message-ID: <20040703210840.GA1459@elf.ucw.cz>
-References: <007a01c45edd$2f2b3280$5c00a8c0@itia.local>
+	Sat, 3 Jul 2004 17:23:39 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57758 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265261AbUGCVXi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jul 2004 17:23:38 -0400
+Date: Sat, 3 Jul 2004 18:04:27 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: "Marcelo W. Tosatti" <marcelo.tosatti@cyclades.com.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] building linux-2.4 with gcc 3.3.3
+Message-ID: <20040703210427.GC13076@logos.cnet>
+References: <20040629153452.5a03ab5e@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <007a01c45edd$2f2b3280$5c00a8c0@itia.local>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040629153452.5a03ab5e@dell_ss3.pdx.osdl.net>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Jun 29, 2004 at 03:34:52PM -0700, Stephen Hemminger wrote:
+> It appears linux-2.4 won't build with gcc 3.3.3 (SuSe) because it is picky about
+> the attributes matching the prototype which shows up on the FASTCALL() usage.
 
-> Sorry for the previou wrong subject :-(
+Right, I think its OK to incorporate Mikael's gcc-3.4.0 fixes in 2.4.28-pre1, 
+which already include the fastcall fixes:
 
-echo 0 > /proc/acpi/.../fan/..., if you are lucky and your laptop
-supports it.
+http://user.it.uu.se/~mikpe/linux/patches/2.4/patch-gcc340-fixes-2.4.27-rc2
 
-							Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+I had a couple of doubts about it and asked Mikael privately, but no big deal.

@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272639AbTHPIjE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 04:39:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272647AbTHPIjE
+	id S272671AbTHPIoN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 04:44:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272672AbTHPIoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 04:39:04 -0400
-Received: from pop018pub.verizon.net ([206.46.170.212]:23170 "EHLO
-	pop018.verizon.net") by vger.kernel.org with ESMTP id S272639AbTHPIjC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 04:39:02 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None that appears to be detectable by casual observers
+	Sat, 16 Aug 2003 04:44:13 -0400
+Received: from mail.suse.de ([213.95.15.193]:17929 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S272671AbTHPIoK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 04:44:10 -0400
+Date: Sat, 16 Aug 2003 10:44:09 +0200
+From: Olaf Hering <olh@suse.de>
 To: linux-kernel@vger.kernel.org
-Subject: increased verbosity in dmesg
-Date: Sat, 16 Aug 2003 04:38:59 -0400
-User-Agent: KMail/1.5.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Subject: scsi proc_info called unconditionally
+Message-ID: <20030816084409.GA8038@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Message-Id: <200308160438.59489.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at pop018.verizon.net from [151.205.12.137] at Sat, 16 Aug 2003 03:39:01 -0500
+Content-Transfer-Encoding: 8bit
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
 
-The recently increased verbosity in the dmesg file is causeing the 
-"ring buffer" to overflow, and I am not now seeing the first few 
-pages of the reboot in the dmesg file.
+Why is ->proc_info() called when the function pointer is NULL?
 
-I understand this 'ring' buffer has been expanded to about 16k but 
-that was way back in 2.1 days when that occured according to the 
-Documentation.
+(none):/# mount proc
+(none):/# cat /proc/scsi/
+53c94        device_info  scsi
+(none):/# cat /proc/scsi/53c94/0
+proc_scsi_read: 00000000 called
+Oops: kernel access of bad area, sig: 11 [#1]
+NIP: 00000000 LR: C00EC6C8 SP: C03BBE90 REGS: c03bbde0 TRAP: 0401    Not tainted
+MSR: 40009030 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+TASK = c027b7e0[16] 'cat' Last syscall: 3
+GPR00: C00EC6A0 C03BBE90 C027B7E0 C4705400 C43B5000 C03BBEC8 00000000 00000C00
+GPR08: 00000000 00000000 C01C6E8F C01B0000 0000000D
+Call trace:
+ [c007a254] proc_file_read+0xb8/0x2cc
+ [c004d97c] vfs_read+0xdc/0x128
+ [c004dbe8] sys_read+0x40/0x74
+ [c000780c] ret_from_syscall+0x0/0x4c
+Segmentation fault
 
-Is there any quick and dirty way to increase this to at least 32k, or 
-maybe even to 64k?  With half a gig of memory, this shouldn't be a 
-problem should it?
-
-I've done some grepping, but it appears I'm not grepping for the right 
-var name, so I'm coming up blank and need some help.
 
 -- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+USB is for mice, FireWire is for men!
 
+sUse lINUX ag, nÜRNBERG

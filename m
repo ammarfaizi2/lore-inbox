@@ -1,44 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268315AbUJURTO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263778AbUJURTN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268315AbUJURTO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 13:19:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270746AbUJURQv
+	id S263778AbUJURTN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 13:19:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270692AbUJURRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 13:16:51 -0400
-Received: from fw.osdl.org ([65.172.181.6]:27290 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270692AbUJURKy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 13:10:54 -0400
-Date: Thu, 21 Oct 2004 10:10:19 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Len Brown <len.brown@intel.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Versioning of tree
-In-Reply-To: <4177E8A0.2090508@pobox.com>
-Message-ID: <Pine.LNX.4.58.0410211005320.2171@ppc970.osdl.org>
-References: <1098254970.3223.6.camel@gaston> <1098256951.26595.4296.camel@d845pe>
- <Pine.LNX.4.58.0410200728040.2317@ppc970.osdl.org> <4177E8A0.2090508@pobox.com>
+	Thu, 21 Oct 2004 13:17:20 -0400
+Received: from yacht.ocn.ne.jp ([222.146.40.168]:44031 "EHLO
+	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
+	id S269116AbUJURKq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 13:10:46 -0400
+From: Akinobu Mita <amgta@yacht.ocn.ne.jp>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] schedstat: fix schedule() statistics
+Date: Fri, 22 Oct 2004 02:12:42 +0900
+User-Agent: KMail/1.5.4
+Cc: ricklind@us.ibm.com, akpm@osdl.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410220212.42881.amgta@yacht.ocn.ne.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
+
+The number of times schedule() left the processor idle in the /proc/schedstat
+(runqueue.sched_goidle) seems to be wrong.
+
+The schedule() statistics should satisfy the equation:
+	sched_cnt == sched_noswitch + sched_switch + sched_goidle
+
+(http://eaglet.rain.com/rick/linux/schedstat/v10/format-10.html)
+
+The below patch fix this, and I have confirmed to be fixed with:
+	# grep ^cpu /proc/schedstat | awk '{print $6+$7+$9, $8}'
+
+--- 2.6-mm/kernel/sched.c.orig	2004-10-22 01:09:38.391429584 +0900
++++ 2.6-mm/kernel/sched.c	2004-10-22 01:23:18.590740336 +0900
+@@ -2809,7 +2809,6 @@ go_idle:
+ 		}
+ 	} else {
+ 		if (dependent_sleeper(cpu, rq)) {
+-			schedstat_inc(rq, sched_goidle);
+ 			next = rq->idle;
+ 			goto switch_tasks;
+ 		}
+@@ -2853,6 +2852,8 @@ go_idle:
+ 	}
+ 	next->activated = 0;
+ switch_tasks:
++	if (next == rq->idle)
++		schedstat_inc(rq, sched_goidle);
+ 	prefetch(next);
+ 	clear_tsk_need_resched(prev);
+ 	rcu_qsctr_inc(task_cpu(prev));
 
 
-On Thu, 21 Oct 2004, Jeff Garzik wrote:
-> 
-> The nightly snapshots have been exporting this info since Day One, based 
-> on your request ;-)
 
-Yes. But that doesn't help the people who actually use the native BK trees 
-themselves, or the people who use the CVS exports. That was what Ben was 
-complaining about. 
-
-We already have the concept of "localversion*" files that get appended to 
-the build. So the only thing that would be needed is some Makefile magic 
-to create a "localversion-bk-version" file if the top-of-tree isn't 
-tagged, and we'd get some unique ID for native BK users too.
-
-		Linus

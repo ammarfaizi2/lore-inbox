@@ -1,27 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132000AbQLJTMt>; Sun, 10 Dec 2000 14:12:49 -0500
+	id <S132136AbQLJTPK>; Sun, 10 Dec 2000 14:15:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132136AbQLJTMk>; Sun, 10 Dec 2000 14:12:40 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:60681 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132000AbQLJTMY>; Sun, 10 Dec 2000 14:12:24 -0500
-Subject: 2.4.0test12pre8 MD5sum
-To: linux-kernel@vger.kernel.org
-Date: Sun, 10 Dec 2000 18:44:20 +0000 (GMT)
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S132401AbQLJTPA>; Sun, 10 Dec 2000 14:15:00 -0500
+Received: from piglet.twiddle.net ([207.104.6.26]:55311 "EHLO
+	piglet.twiddle.net") by vger.kernel.org with ESMTP
+	id <S132136AbQLJTOr>; Sun, 10 Dec 2000 14:14:47 -0500
+Date: Sun, 10 Dec 2000 10:44:13 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Abramo Bagnara <abramo@alsa-project.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [2*PATCH] alpha I/O access and mb()
+Message-ID: <20001210104413.A31257@twiddle.net>
+In-Reply-To: <3A31F094.480AAAFB@alsa-project.org> <20001209161013.A30555@twiddle.net> <3A334F7C.3205A3DF@alsa-project.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E145BSQ-0006r0-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <3A334F7C.3205A3DF@alsa-project.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-MDsum:
-734052d6e6f2a74d8537b9a805261ea0  test12-pre8.bz2
+On Sun, Dec 10, 2000 at 10:40:12AM +0100, Abramo Bagnara wrote:
+> And this would be the only core_*.h files where this intention is
+> expressed?
+
+Not at all.  See core_lca.h, jensen.h, core_cia.h, core_mcpcia.h.
 
 
+r~
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,72 +1,167 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269287AbTCDGDp>; Tue, 4 Mar 2003 01:03:45 -0500
+	id <S269289AbTCDGFB>; Tue, 4 Mar 2003 01:05:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269288AbTCDGDp>; Tue, 4 Mar 2003 01:03:45 -0500
-Received: from ip-202-60-228-171.cyberec.com ([202.60.228.171]:62476 "HELO
-	ip-202-60-228-171.cyberec.com") by vger.kernel.org with SMTP
-	id <S269287AbTCDGDo>; Tue, 4 Mar 2003 01:03:44 -0500
-Message-ID: <2536431085olqx{0nhuqhoCyjhu1nhuqho1ruj@infoart.ru>
-From: "yakineta" <guesswho_new1937sezol@yahoo.com>
-To: "" <linux-kernel@vger.kernel.org>
-Date: Mon, 3 Mar 2003 23:17:21 -0800
-Subject: =?ISO-8859-1?Q?=EF=D0=CC=C1=D4=C1?= =?ISO-8859-1?Q?=D4=D2=D5=C4=C1:?= =?ISO-8859-1?Q?=C2=D5=C8=C7=C1=CC=D4=C5=D2=D3=CB=C9=CA?= =?ISO-8859-1?Q?=C9?= =?ISO-8859-1?Q?=CE=C1=CC=CF=C7=CF=D7=D9=CA?= =?ISO-8859-1?Q?=C1=D3=D0=C5=CB=D4.?=
-X-Mailer: Microsoft Outlook Express 4.72.3110.1
-MIME-Version: 1.0
-Content-Type: multipart/related;
-  boundary="----=_NextPart_000_0003_7BB97D2D.065E0D78"
+	id <S269290AbTCDGFB>; Tue, 4 Mar 2003 01:05:01 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:32141 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S269289AbTCDGEz>;
+	Tue, 4 Mar 2003 01:04:55 -0500
+Date: Tue, 4 Mar 2003 17:15:12 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: ralf@gnu.org
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: [PATCH][COMPAT] compat_sys_fcntl{,64} 7/9 MIPS64 part
+Message-Id: <20030304171512.61956434.sfr@canb.auug.org.au>
+In-Reply-To: <20030304165812.7141f7c0.sfr@canb.auug.org.au>
+References: <20030304165812.7141f7c0.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_NextPart_000_0003_7BB97D2D.065E0D78
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: base64
+Hi Ralf,
 
-8M8gzc7Px8/eydPMxc7O2c0g0NLP09jCwc0g0M/X1M/S0cXNINPFzcnOwdI6Cgoi7/Ds4fTh
-IPTy9eThOiDC1cjHwczUxdLTy8nKIMkgzsHMz8fP19nKIMHT0MXL1CIgLSAxMSDNwdLUwQoK
-MS4gIPDSwdfP19nFIM/Tzs/X2SDP0MzB1Nkg1NLVxMEgLSDe1M8gzs/Xz8fPPyAo1yDT18XU
-xSDQz8zP1sXOycog9Osg8uYgCiAgICDJINMg1d7F1M/NINDP08zFxM7JyCDJ2s3FzsXOycop
-LgoyLiAg79DMwdTBINrBIM/U0sHCz9TBzs7PxSDX0sXN0ToKLSAgIM3JzsnNwczYztnKINLB
-2s3F0iDP0MzB1Nkg1NLVxMEsCi0gICDawdLBws/UzsHRINDMwdTBLCDUwdLJxsnLwcPJ0SDS
-wcLP1CwKLSAgIMTP0MzB1NkgySDOwcTCwdfLySwKLSAgIMfB0sHO1MnJIMkgy8/N0MXO08HD
-yckuCjMuICDv0MzB1MEg2sEgzsXP1NLBws/Uwc7Oz8Ug19LFzdE6Ci0gICDP0MzB1MEgz9TQ
-1dPLz9csCi0gICDP0MzB1MEgzNjHz9TO2cgg3sHTz9csCi0gICDLz83Qxc7TwcPJ0SDSwcLP
-1M7Jy8HNLCDTz9fNxd3BwN3JzSDSwcLP1NUg0yDV3sXCz8osCi0gICDP0MzB1MEg0NLJINfZ
-0M/MzsXOyckgx8/T1cTB0tPU18XOztnIIMkgz8LdxdPU18XOztnIIM/C0drBzs7P09TFyi4K
-NC4gIOTS1cfJxSDX2dDMwdTZINLBws/UzsnLwc0uIAo1LiAg8sHT3sXU2SDQ0skg1dfPzNjO
-xc7JySDSwcLP1M7Jy8EuCjYuICD1xMXS1sHOydEgydog2sHSwcLP1M7PyiDQzMHU2ToKLSAg
-IM7BzM/HIM7BIMTPyM/E2SDGydrJ3sXTy8nIIMzJwywKLSAgINXExdLWwc7JxSDXINDPx8Hb
-xc7JxSDawcTPzNbFzs7P09TJINLBws/Uz8TB1MXMwCwKLSAgINXExdLWwc7JxSDQzyDJ09DP
-zM7J1MXM2M7ZzSDEz8vVzcXO1MHNIMkgxNIuCjcuICDi1cjHwczUxdLTy8nKIMkgzsHMz8fP
-19nKINXexdQg0sHT3sXUz9cg0M8gz9DMwdTFINTS1cTBLgo4LiAg88HOy8PJySDawSDOwdLV
-28XOycUg1NLVxM/Xz8fPIMkgzsHMz8fP18/HzyDawcvPzs/EwdTFzNjT1NfBINcg08bF0sUg
-CiAgICDP0MzB1Nkg1NLVxMEuCjkuICDzzM/WztnFINfP0NLP09kgySDUydDJ3s7ZxSDP28nC
-y8kg1yDSwdPexdTByCDQzyDP0MzB1MUg1NLVxMEuCiAK7sEg08XNyc7B0sUg19nT1NXQwcXU
-IOvMyc3P18Eg7cHSyc7BIOHSy8HE2MXXzsEsIMsu3C7OLiwg0NLPxsXT08nPzsHM2M7ZyiAK
-wtXIx8HM1MXSLCDB19TP0iDLzsnHICLuwczPxyDOwSDEz8jPxNkgxsnayd7F08vJyCDMycMi
-LCAgIuvByyDQ0sHXyczYzs8gCs/Gz9LNydTYINXexdTO1cAg0M/MydTJy9Ugz9LHwc7J2sHD
-yckiLCAi5M/L1c3FztTPz8LP0s/UINcgwtXIx8HM1MXS08vPzSAK1d7F1MUiLCAi9NLVxM/X
-z8og68/ExcvTIPLmOiDQz9PUwdTFys7ZyiDLz83Nxc7UwdLJyiIsICAi+sHSwcLP1M7B0SDQ
-zMHUwTogCtDSwcvUyd7F08vPxSDS1cvP18/E09TXzyIsICAi5M/Hz9fP0tkgx9LB1sTBztPL
-zy3Q0sHXz9fPx88gyMHSwcvUxdLBOiAK2sHLzMDexc7JxSwg1d7F1CDJIM7BzM/Hz8/CzM/W
-xc7JxSIK88XNyc7B0tkg0NLPyM/E0dQg1yDtz9PL18UgKM0uIOHLwcTFzcnexdPLwdEsIDIg
-zcnO1dTZIM/UIM3F1NLPINDF28vPzSkuIArv0sfBzsnawdTP0iDTxc3JzsHSz9cg7cXWxNXO
-wdLPxM7ZyiDDxc7U0iDPwtXexc7J0S4K68/O1MHL1M7ZxSDUxczFxs/O2SAoMDk1KSAyMDct
-MjYtMjEsIDc3Mi05Mi00Ni4gCvDSySDV3sHT1MnJIM/Ezs/HzyDexczP18XLwSDT1M/Jzc/T
-1NggIMzAws/HzyDTxc3JzsHSwSDTz9PUwdfM0cXUIDOaOTAwINLVwi4sIArTINXexdTPzSDu
-5PMuIPDSySDV3sHT1MnJINcgMiDTxc3JzsHSwcggKMnMySAyIN7FzM/Xxcsg1yDPxM7PzSDT
-xc3JzsHSxSkgCtDSxcTP09TB18zRxdTT0SAxMCUg08vJxMvBLCDQ0skg1d7B09TJySDXIDMg
-08XNyc7B0sHIICjJzMkgMyDexczP18XLKSwgCt7F1NfF0tTZyiAtINcg0M/EwdLPyy4g8NLJ
-INXewdPUyckg1yA0INPFzcnOwdLByCAo3sXU18XS1NnKIMLF09DMwdTOzykgCtDSz8bF09PJ
-z87BzNjO2c0gwtXIx8HM1MXSwc0g19nEwcXU09Eg08XS1MnGycvB1CDPINDSz8jP1sTFzsnJ
-INDSz8fSwc3N2SAKxdbFx8/Ezs/KINDF0sXQz8THz9TP18vJIOnw4iDXIM/C38XNxSA0MCDe
-wdPP1y4g8NLJINLFx8nT1NLBw8nJINPPz8LdydTFIArOz83F0iDezMXO08vPx88gwsnMxdTB
-IOnw4iDJIMTB1NUg1dDMwdTZIN7Mxc7Ty8nIINfazs/Tz9cuCg==
+Here is the MIPS64 part.
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-
+diff -ruN 2.5.63-32bit.1/arch/mips64/kernel/linux32.c 2.5.63-32bit.2/arch/mips64/kernel/linux32.c
+--- 2.5.63-32bit.1/arch/mips64/kernel/linux32.c	2003-02-25 14:35:17.000000000 +1100
++++ 2.5.63-32bit.2/arch/mips64/kernel/linux32.c	2003-02-25 14:35:59.000000000 +1100
+@@ -1068,50 +1068,6 @@
+ 	return sys_setsockopt(fd, level, optname, optval, optlen);
+ }
+ 
+-extern asmlinkage long
+-sys_fcntl(unsigned int fd, unsigned int cmd, unsigned long arg);
 -
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-------=_NextPart_000_0003_7BB97D2D.065E0D78--
+-asmlinkage long
+-sys32_fcntl(unsigned int fd, unsigned int cmd, unsigned long arg)
+-{
+-	switch (cmd) {
+-	case F_GETLK:
+-	case F_SETLK:
+-	case F_SETLKW:
+-		{
+-			struct flock f;
+-			mm_segment_t old_fs;
+-			long ret;
+-			
+-			if (get_compat_flock(&f, (struct compat_flock *)arg))
+-				return -EFAULT;
+-			old_fs = get_fs(); set_fs (KERNEL_DS);
+-			ret = sys_fcntl(fd, cmd, (unsigned long)&f);
+-			set_fs (old_fs);
+-			if (put_compat_flock(&f, (struct compat_flock *)arg))
+-				return -EFAULT;
+-			return ret;
+-		}
+-	default:
+-		return sys_fcntl(fd, cmd, (unsigned long)arg);
+-	}
+-}
+-
+-asmlinkage long
+-sys32_fcntl64(unsigned int fd, unsigned int cmd, unsigned long arg)
+-{
+-	switch (cmd) {
+-	case F_GETLK64:
+-		return sys_fcntl(fd, F_GETLK, arg);
+-	case F_SETLK64:
+-		return sys_fcntl(fd, F_SETLK, arg);
+-	case F_SETLKW64:
+-		return sys_fcntl(fd, F_SETLKW, arg);
+-	}
+-
+-	return sys32_fcntl(fd, cmd, arg);
+-}
+-
+ struct msgbuf32 { s32 mtype; char mtext[1]; };
+ 
+ struct ipc_perm32
+diff -ruN 2.5.63-32bit.1/arch/mips64/kernel/scall_o32.S 2.5.63-32bit.2/arch/mips64/kernel/scall_o32.S
+--- 2.5.63-32bit.1/arch/mips64/kernel/scall_o32.S	2003-02-25 14:35:17.000000000 +1100
++++ 2.5.63-32bit.2/arch/mips64/kernel/scall_o32.S	2003-02-25 14:35:59.000000000 +1100
+@@ -288,7 +288,7 @@
+ 	sys	sys_umount	2
+ 	sys	sys_ni_syscall	0
+ 	sys	sys32_ioctl	3
+-	sys	sys32_fcntl	3			/* 4055 */
++	sys	compat_sys_fcntl	3		/* 4055 */
+ 	sys	sys_ni_syscall	2
+ 	sys	sys_setpgid	2
+ 	sys	sys_ni_syscall, 0
+@@ -453,7 +453,7 @@
+ 	sys	sys_mincore	3
+ 	sys	sys_madvise	3
+ 	sys	sys_getdents64	3
+-	sys	sys32_fcntl64	3			/* 4220 */
++	sys	compat_sys_fcntl64	3		/* 4220 */
+ 	sys	sys32_gettid	0
+ 	sys	sys32_tkill	2
+ 	.endm
+diff -ruN 2.5.63-32bit.1/include/asm-mips64/compat.h 2.5.63-32bit.2/include/asm-mips64/compat.h
+--- 2.5.63-32bit.1/include/asm-mips64/compat.h	2003-02-25 14:35:17.000000000 +1100
++++ 2.5.63-32bit.2/include/asm-mips64/compat.h	2003-02-25 14:35:59.000000000 +1100
+@@ -62,8 +62,21 @@
+ 	short		l_whence;
+ 	compat_off_t	l_start;
+ 	compat_off_t	l_len;
++	s32		l_sysid;	/* ABI junk, unused on Linux */
++	compat_pid_t	l_pid;
++	s32		pad[4];		/* ABI junk, unused on Linux */
++};
++
++#define F_GETLK64	33	/*  using 'struct flock64' */
++#define F_SETLK64	34
++#define F_SETLKW64	35
++
++struct compat_flock64 {
++	short		l_type;
++	short		l_whence;
++	compat_loff_t	l_start;
++	compat_loff_t	l_len;
+ 	compat_pid_t	l_pid;
+-	short		__unused;
+ };
+ 
+ struct compat_statfs {
+@@ -87,4 +100,7 @@
+ 
+ typedef u32		compat_sigset_word;
+ 
++#define COMPAT_OFF_T_MAX	0x7fffffff
++#define COMPAT_LOFF_T_MAX	0x7fffffffffffffffL
++
+ #endif /* _ASM_MIPS64_COMPAT_H */
+diff -ruN 2.5.63-32bit.1/include/asm-mips64/fcntl.h 2.5.63-32bit.2/include/asm-mips64/fcntl.h
+--- 2.5.63-32bit.1/include/asm-mips64/fcntl.h	2001-09-10 03:43:02.000000000 +1000
++++ 2.5.63-32bit.2/include/asm-mips64/fcntl.h	2003-02-25 14:35:59.000000000 +1100
+@@ -43,12 +43,6 @@
+ #define F_SETSIG	10	/*  for sockets. */
+ #define F_GETSIG	11	/*  for sockets. */
+ 
+-#ifdef __KERNEL__
+-#define F_GETLK64	33	/*  using 'struct flock64' */
+-#define F_SETLK64	34
+-#define F_SETLKW64	35
+-#endif
+-
+ /* for F_[GET|SET]FL */
+ #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
+ 
+@@ -86,10 +80,6 @@
+ 	long  pad[4];			/* ZZZZZZZZZZZZZZZZZZZZZZZZZZ */
+ } flock_t;
+ 
+-#ifdef __KERNEL__
+-#define flock64		flock
+-#endif
+-
+ #define F_LINUX_SPECIFIC_BASE	1024
+ 
+ #endif /* _ASM_FCNTL_H */

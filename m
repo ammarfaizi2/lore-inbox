@@ -1,40 +1,156 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129406AbRAJUs5>; Wed, 10 Jan 2001 15:48:57 -0500
+	id <S130018AbRAJUuh>; Wed, 10 Jan 2001 15:50:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130018AbRAJUsj>; Wed, 10 Jan 2001 15:48:39 -0500
-Received: from mail.sun.ac.za ([146.232.128.1]:56332 "EHLO mail.sun.ac.za")
-	by vger.kernel.org with ESMTP id <S129406AbRAJUsX>;
-	Wed, 10 Jan 2001 15:48:23 -0500
-Date: Wed, 10 Jan 2001 22:48:17 +0200 (SAST)
-From: Hans Grobler <grobh@sun.ac.za>
-To: Nathan Walp <faceprint@faceprint.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Oops in 2.4.0-ac5
-In-Reply-To: <3A5CC4B2.74B911BD@faceprint.com>
-Message-ID: <Pine.LNX.4.30.0101102243010.30013-100000@prime.sun.ac.za>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135595AbRAJUu1>; Wed, 10 Jan 2001 15:50:27 -0500
+Received: from monza.monza.org ([209.102.105.34]:32009 "EHLO monza.monza.org")
+	by vger.kernel.org with ESMTP id <S135561AbRAJUuO>;
+	Wed, 10 Jan 2001 15:50:14 -0500
+Date: Wed, 10 Jan 2001 12:49:58 -0800
+From: Tim Wright <timw@splhi.com>
+To: JP Navarro <navarro@mcs.anl.gov>
+Cc: Ken Brunsen/Iris <kenbo@iris.com>, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.0 scsi problems on NetFinity servers
+Message-ID: <20010110124958.A3493@scutter.internal.splhi.com>
+Reply-To: timw@splhi.com
+Mail-Followup-To: JP Navarro <navarro@mcs.anl.gov>,
+	Ken Brunsen/Iris <kenbo@iris.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <OF0CDA4866.9019CFB7-ON852569CF.006D12FC@lotus.com> <3A5B7DB3.F29D02CE@mcs.anl.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A5B7DB3.F29D02CE@mcs.anl.gov>; from navarro@mcs.anl.gov on Tue, Jan 09, 2001 at 03:08:03PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Jan 2001, Nathan Walp wrote:
-> Here it is... I opted to cut out the 1200-odd warnings, which from the
-> look of them were all because i'm running it under 2.4.0-ac4 (which
-> boots fine).
+Hmmm...
+it's actually not quite that simple. The card on it's own doesn't cause any
+problems. It's when the NMI watchdog stuff is enabled that all hell breaks
+loose at least on my 8500R. Basically, every CPU in the system gets hammered
+with NMIs (1000's per second). The system is slower than it should be, and in
+my case it hangs after ~45 minutes (~256,000 NMIs per cpu). Booting with
+nmi_watchdog=0 makes the problem go away and the machine is stable, so there's
+some kind of nasty interaction with the card.
 
-Thanks! My local mirror does not have -ac5 yet so I can't help
-immediately. From the -ac5 log & the oops it looks as if Ingo's change
-isn't quite complete yet...
+It seems a little unlikely that this is related to SCSI problems, but I could
+be wrong. Anyway, I am trying to find more information on the adapter to find
+out where the problem may lie.
 
-  o       Uniprocessor APIC support/NMI wdog etc          (Ingo Molnar)
+Regards,
 
-Until then, what about disabling APIC support and trying again. This
-will help confirm it... although it looks pretty definite.
+Tim
 
--- Hans
+On Tue, Jan 09, 2001 at 03:08:03PM -0600, JP Navarro wrote:
+> One possibility:
+> 
+> When we first tested 2.4.0-test8 on NetFinity 7000s we had random crashes,
+> typically within an hour of booting. The problem was identified as a Wiseman
+> Systems Management adapter generated hardware interrupt that 2.4 doesn't handle
+> (this was not a problem with 2.2.x).
+> 
+> If you have these adapters installed, remove them.
+> 
+> JP Navarro
+> -- 
+> John-Paul Navarro                                           (630) 252-1233
+> Mathematics & Computer Science Division
+> Argonne National Laboratory                            navarro@mcs.anl.gov
+> Argonne, IL 60439                          http://www.mcs.anl.gov/~navarro
+> 
+> 
+> Ken Brunsen/Iris wrote:
+> > 
+> > Hello all,
+> > 
+> >      I've been sorta pulling the 2.4 kernel and testing with it now for
+> > awhile on my IBM NetFinity 5500 and since the test12 I've been having a
+> > continuous issue with crashing the OS during a pull of source code across
+> > the network (>1Gb files).  I've been trying to figure out what it may be
+> > related to, but I'm relatively new with debugging the kernel so thought I'd
+> > see if y'all could help.  From looking at the archives, I did not see that
+> > anyone else had been seeing these issues either.  Basically, I've got 2
+> > different machines which I'm working with - a NetFinity Quad CPU 5500 M20
+> > with 2Gb Ram and Raid and a NetFinity Dual CPU 5500 M10 with 1Gb Ram and
+> > Raid.  Both machines exhibit the same behavior.  Initially, both machines
+> > had RH 6.0, now one is RH 7.0 (and I know about the compiler issue) and the
+> > other is SuSE 7.0.  I downloaded the 2.4.0 release and still got the issue,
+> > so thought it was time to bring it here.  Here is a stack of one crash:
+> > 
+> >      Started getting Scsi errors on controller during NFS transfer of >1Gb
+> > worth of files
+> > 
+> > SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 70000
+> > I/O error: dev 08:05, sector 31731256
+> > SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 70000
+> > I/O error: dev 08:05, sector 31731264
+> > SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 70000
+> > I/O error: dev 08:05, sector 31731272
+> > SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 70000
+> > I/O error: dev 08:05, sector 31731280
+> > .
+> > .
+> > .
+> > 
+> >      (the sector varies from run to run, is never consistent), and then
+> > kernel panics with the following
+> > 
+> > (ips0) Resetting controller.
+> > NMI Watchdog detected LOCKUP on CPU1, registers:
+> > CPU: 1
+> > EIP: 0010:[<c0246544>]
+> > EFLAGS: 00000002
+> > eax: 003e240   ebx: 000612b0  ecx: 5a21a2f5   edx: 00000063
+> > esi: 00000004  edi: 00000000  ebp:f7de2a78    esp: f7ddbf00
+> > ds: 0018  es: 0018  ss: 0018
+> > Process scsi_eh_0 (pid: 8, stackpage=f7ddb000)
+> > Stack:    000003e6 c0246587 000612b0 c02465f5 000612b0 c01df470 00418570
+> > ffffffff
+> >      f7de2a78 00000082 00000001 200012b0 f7ddbf36 000612b0 c01dfa7c
+> > f7de2a78
+> >      f7de2ab8 f7de2a78 f7db1400 f7de2ab8 c01dc4ae f7de2a78 c0296220
+> > c0295c67
+> > Call Trace: [<c0246587>] [<c02465f5>] [<c01df470>] [<c01dfa7c>]
+> > [<c01dc4ae>]
+> >      [<c01bda9c>] [<c01be1db>] [<c01be4e6>] [<c01074c4>]
+> > 
+> > Code: 39 d8 72 f8 5b c3 89 f6 8b 44 24 04 eb 0e 8d b4 26 00 00 00
+> > console shuts up ...
+> > 
+> > Thinking it could be memory related - since I see the Cache fill up and the
+> > system go to just over 1mb free prior to crash - i disabled highmem
+> > support.  I then disabled NFSv3 and automounter v4 support, jic.  In the
+> > last test, I disabled swap - since one thing I've noticed is that the 2.4
+> > kernel never touches my swap at all.  None of these changes have affected
+> > the outcome; the closest I've gotten is by contintually doing "sync" in
+> > another window which sometimes keeps it from crashing on a run, although
+> > I'll still end up with a few of the SCSI disk error messages (although not
+> > nearly as many as I get before a failure).  Since this happens on multiple
+> > machines, I do not believe it is.  We're also seeing failures of this same
+> > type when we try to do heavy database loading on the machine, ie., intense
+> > disk accesses.  Any help would be greatly appreciated, as we are really
+> > needing to get this 2.4 kernel working
+> > 
+> > Since I only get the archive list, please CC me with any responses!
+> > 
+> > Thanks!
+> > 
+> > kenbo
+> > 
+> > ______________________
+> > Firebirds rule, `stangs serve!
+> > 
+> > Kenneth "kenbo" Brunsen
+> > Iris Associates
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
-
+-- 
+Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+IBM Linux Technology Center, Beaverton, Oregon
+"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

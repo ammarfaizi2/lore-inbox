@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262013AbTINW3Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 18:29:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbTINW3Y
+	id S262011AbTINWkj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 18:40:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbTINWkj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 18:29:24 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:7073 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262013AbTINW3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 18:29:23 -0400
-Subject: Re: 2.7 block ramblings (was Re: DMA for ide-scsi?)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030913021117.GA16296@tux.linuxdev.us.dell.com>
-References: <3F64A5AC.8020901@pobox.com>
-	 <20030913021117.GA16296@tux.linuxdev.us.dell.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1063578413.2479.18.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
-Date: Sun, 14 Sep 2003 23:26:54 +0100
+	Sun, 14 Sep 2003 18:40:39 -0400
+Received: from ns.suse.de ([195.135.220.2]:9442 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262011AbTINWki (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 18:40:38 -0400
+To: Russell Miller <rmiller@duskglow.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [SUMMARY] rebooting problem solved - athlon/SiS incompatibility.
+References: <20030914205429.GA3535@www.duskglow.com.suse.lists.linux.kernel>
+	<20030914210429.GA26027@redhat.com.suse.lists.linux.kernel>
+	<20030914214132.GA1833@www.duskglow.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 15 Sep 2003 00:39:47 +0200
+In-Reply-To: <20030914214132.GA1833@www.duskglow.com.suse.lists.linux.kernel>
+Message-ID: <p738yoratak.fsf@nielsen.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2003-09-13 at 17:11, Matt Domsch wrote:
-> system-unique disk signature to the boot disk (int13 device 80h)
-> "BOOT" or something - we've got 4 bytes available in the msdos label
-> for it
+Russell Miller <rmiller@duskglow.com> writes:
 
-int 13 is still available during the 16bit boot up phase of the kernel.
-It does strike me as playing with fire, but an alternative approach
-might work. Read the first 4K off the boot disk, stuff it somewhere 
-temporary and then in 32bit compare it with the disk starts..
+> On Sun, Sep 14, 2003 at 10:04:29PM +0100, Dave Jones wrote:
+> 
+> ...
+> 
+> Note the words "an athlon thunderbird processor".  The documentation says, as
+> I remember, that turning on SMP on a UP board should have no appreciable effect.
 
+It has the effect of turning on the IO-APIC, which often causes problems.
+
+Check if you can boot with noapic with the SMP kernel
+
+-Andi

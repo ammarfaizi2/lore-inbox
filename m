@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284245AbRLTLgH>; Thu, 20 Dec 2001 06:36:07 -0500
+	id <S284243AbRLTLj1>; Thu, 20 Dec 2001 06:39:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284322AbRLTLfr>; Thu, 20 Dec 2001 06:35:47 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:28806 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S284245AbRLTLfj>;
-	Thu, 20 Dec 2001 06:35:39 -0500
-Date: Thu, 20 Dec 2001 03:34:58 -0800 (PST)
-Message-Id: <20011220.033458.79429530.davem@redhat.com>
-To: riel@conectiva.com.br
-Cc: torvalds@transmeta.com, bcrl@redhat.com, alan@lxorguk.ukuu.org.uk,
-        davidel@xmailserver.org, linux-kernel@vger.kernel.org
-Subject: Re: Scheduler ( was: Just a second ) ...
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33L.0112200928110.15741-100000@imladris.surriel.com>
-In-Reply-To: <20011219.213956.26276011.davem@redhat.com>
-	<Pine.LNX.4.33L.0112200928110.15741-100000@imladris.surriel.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S284246AbRLTLjR>; Thu, 20 Dec 2001 06:39:17 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:20484 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S284243AbRLTLjO>;
+	Thu, 20 Dec 2001 06:39:14 -0500
+Date: Thu, 20 Dec 2001 12:39:04 +0100
+From: Jens Axboe <axboe@suse.de>
+To: A Guy Called Tyketto <tyketto@wizard.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 'eject' process stuck in "D" state
+Message-ID: <20011220123904.B710@suse.de>
+In-Reply-To: <20011220111249.GA15692@wizard.com> <20011220122325.A710@suse.de> <20011220113654.GA1271@wizard.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011220113654.GA1271@wizard.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Rik van Riel <riel@conectiva.com.br>
-   Date: Thu, 20 Dec 2001 09:29:28 -0200 (BRST)
+On Thu, Dec 20 2001, A Guy Called Tyketto wrote:
+> On Thu, Dec 20, 2001 at 12:23:25PM +0100, Jens Axboe wrote:
+> > On Thu, Dec 20 2001, A Guy Called Tyketto wrote:
+> > > 
+> > >         Hate to be an old bugger and bring this up again, but I just had this 
+> > > old problem show up again, with 2.5.1-dj3. The scoop:
+> > 
+> > Were you using sr or ide-cd when this happened? There seems to be stuff
+> > missing from the kernel messages you included, could you please check
+> > dmesg for all of it.
+> > 
+> > Don't worry, it's no shocker if eject isn't working :-)
+> 
+>         Sorry.. forgot to include that as well. Here's my lsmod output 
+> revelant to the problem, at the time of it happening:
+> 
+> ide-cd                 26816   0 (autoclean)
+> sr_mod                 13524   0 (autoclean) (unused)
+> cdrom                  29344   0 (autoclean) [ide-cd sr_mod]
+> scsi_mod               71544   1 (autoclean) [sr_mod]
+> 
+>         I manually tried the CD drive's eject button, and of course,
+>         it didn't work. The kernel hadn't freed up the device, so
+>         there's no reason why it wouldn't have worked.
 
-   On Wed, 19 Dec 2001, David S. Miller wrote:
-   > Sending files over sockets are %99 of what most network servers are
-   > actually doing today, it is much more than 0.1% :-)
-   
-   The same could be said for AIO, there are a _lot_ of
-   server programs which are heavily overthreaded because
-   of a lack of AIO...
+Great so it could be either, you're really not giving any new
+information here :-)
 
-If you read my most recent responses to Ingo's postings, you'll see
-that I'm starting to completely agree with you :-)
+Please tell me what /dev/* is opened by the cd player program and please
+include the kernel message as asked, thanks.
+
+-- 
+Jens Axboe
+

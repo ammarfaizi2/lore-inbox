@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271053AbVBEUOL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262484AbVBEUZH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271053AbVBEUOL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 15:14:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271020AbVBEUOK
+	id S262484AbVBEUZH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 15:25:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264322AbVBEUZH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 15:14:10 -0500
-Received: from mail.tmr.com ([216.238.38.203]:46340 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S273561AbVBEUM5 (ORCPT
+	Sat, 5 Feb 2005 15:25:07 -0500
+Received: from h01.hostsharing.net ([212.42.230.152]:61919 "EHLO
+	pima.hostsharing.net") by vger.kernel.org with ESMTP
+	id S271349AbVBEUYm convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 15:12:57 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: 2.6.11-rc3: intel8x0 alsa outputs no sound
-Date: Sat, 05 Feb 2005 15:28:13 -0500
-Organization: TMR Associates, Inc
-Message-ID: <42052C5D.3010203@tmr.com>
-References: <20050204213337.GA12347@butterfly.hjsoft.com>
+	Sat, 5 Feb 2005 15:24:42 -0500
+Date: Sat, 5 Feb 2005 21:24:32 +0100
+From: Elimar Riesebieter <riesebie@lxtec.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.11-rc3: No vmlinux on ppc
+Message-ID: <20050205202432.GA25459@aragorn.home.lxtec.de>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1107633728 27495 192.168.12.10 (5 Feb 2005 20:02:08 GMT)
-X-Complaints-To: abuse@tmr.com
-Cc: linux-kernel@vger.kernel.org
-To: John M Flinchbaugh <john@hjsoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
-In-Reply-To: <20050204213337.GA12347@butterfly.hjsoft.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+Organization: LXTEC
+X-gnupg-key-fingerprint: BE65 85E4 4867 7E9B 1F2A  B2CE DC88 3C6E C54F 7FB0
+User-Agent: Mutt/1.5.6+lxtec-20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John M Flinchbaugh wrote:
-> i'm using a thinkpad r40 w/ intel8x0 sound card.  it worked with 2.6.10.
-> 
-> % ogg123 -d alsa09 file.ogg
-> 
-> i can get no sound through either alsa or oss emulation.
-> 
-> it appears to be playing but nothing can be heard.  i've poked around at
-> the mixers for mutes, master, and pcm volume.
+Hi all,
 
-I have the same problem and have been posting to other lists and groups 
-without results. Under FC2 my ASUS 1681 had both sound and wireless. 
-With recent kernels, nothing, both FC3 and kernel.org.
+I tried to built the above Kernel on my powerbook:
 
-If you have system-config-soundcard (ie. FCx) try to configure. I get a 
-response saying the rate locks at 48000 instead 44100 as requested.
+...
+  GEN     .version
+  CHK     include/linux/compile.h
+  UPD     include/linux/compile.h
+  CC      init/version.o
+  LD      init/built-in.o
+  LD      .tmp_vmlinux1
+mm/built-in.o(.rodata.cst4+0x0): relocation truncated to fit: R_PPC_ADDR32 empty_zero_page+40000000
+make[1]: *** [.tmp_vmlinux1] Error 1
+
+GNU ld version 2.15
+gcc (GCC) 3.4.4 20041218 (prerelease) (Debian 3.4.3-7)
+
+
+Please cc me as I am not subscribed.
+
+THX Elimar
 
 -- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+  The path to source is always uphill!
+                                -unknown-
+

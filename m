@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289233AbSANN3m>; Mon, 14 Jan 2002 08:29:42 -0500
+	id <S289231AbSANNgb>; Mon, 14 Jan 2002 08:36:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289231AbSANN3W>; Mon, 14 Jan 2002 08:29:22 -0500
-Received: from mail006.syd.optusnet.com.au ([203.2.75.230]:953 "EHLO
-	mail006.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id <S289233AbSANN3R>; Mon, 14 Jan 2002 08:29:17 -0500
-Subject: Re: slowdown with new scheduler.
-From: Antony Suter <antonysuter@optusnet.com.au>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020114124541.A32412@suse.de>
-In-Reply-To: <20020114124541.A32412@suse.de>
+	id <S289234AbSANNgV>; Mon, 14 Jan 2002 08:36:21 -0500
+Received: from zero.tech9.net ([209.61.188.187]:30739 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S289231AbSANNgJ>;
+	Mon, 14 Jan 2002 08:36:09 -0500
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+From: Robert Love <rml@tech9.net>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <akpm@zip.com.au>, jogi@planetzork.ping.de,
+        Ed Sweetman <ed.sweetman@wmich.edu>, yodaiken@fsmlabs.com,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, nigel@nrg.org,
+        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020114125619.E10227@athlon.random>
+In-Reply-To: <20020112121315.B1482@inspiron.school.suse.de>
+	<20020112160714.A10847@planetzork.spacenet>
+	<20020112095209.A5735@hq.fsmlabs.com>
+	<20020112180016.T1482@inspiron.school.suse.de>
+	<005301c19b9b$6acc61e0$0501a8c0@psuedogod> <3C409B2D.DB95D659@zip.com.au>
+	<20020113184249.A15955@planetzork.spacenet>
+	<1010946178.11848.14.camel@phantasy> <3C41E415.9D3DA253@zip.com.au>
+	<1010952276.12125.59.camel@phantasy>  <20020114125619.E10227@athlon.random>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 15 Jan 2002 00:27:31 +1100
-Message-Id: <1011014852.5220.19.camel@gestalt.localdomain>
+X-Mailer: Evolution/1.0.1 
+Date: 14 Jan 2002 08:38:54 -0500
+Message-Id: <1011015540.4137.1.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-01-14 at 23:45, Dave Jones wrote:
-> Hi Ingo,
->  After adding H7 to 2.4.18pre3, I noticed that kernel compiles
-> on one of my test boxes got much slower.
-> Uniprocessor system (Cyrix 3) building a 2.4.18pre3 tree,
-> with the same .config, and a distclean before starting the compile.
+On Mon, 2002-01-14 at 06:56, Andrea Arcangeli wrote:
+> On Sun, Jan 13, 2002 at 03:04:35PM -0500, Robert Love wrote:
+> > user system.  But things like (ack!) dbench 16 show a marked
+> > improvement.
 > 
-> 2.4.18pre3        13.38s                       
-> 2.4.18pre+H7      17.53s
-> 
-> I see similar slowdown when running H7 on 2.5 on this box.
+> please try again on top of -aa, and I've to specify this : benchmarked
+> in a way that can be trusted and compared, so we can make some use of
+> this information.  This mean with -18pre2aa2 alone and only -preempt on
+> top of -18pre2aa2.
 
-Another anecdote: my dnetc client (niced at 19) scores went from 4.2
-Mkeys/s to 4.0 Mkeys/s. (Athlon 1.2GHz tbird).
+I realize the test isn't directly comparing what we want, so I asked him
+for ll+O(1) benchmark, which he gave.  Another set would be to do
+preempt and ll alone.
 
--- 
-- Antony Suter  (antonysuter@optusnet.com.au)  "Examiner" 
-openpgp:7916EE67
-- "Savahnah River. K Reactor. 1968. It was a very good year."
+	Robert Love
 

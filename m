@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262928AbTEGGjN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 02:39:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262930AbTEGGjN
+	id S262934AbTEGGnV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 02:43:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262942AbTEGGnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 02:39:13 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:57325 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262928AbTEGGjM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 02:39:12 -0400
-Date: Tue, 06 May 2003 22:44:05 -0700 (PDT)
-Message-Id: <20030506.224405.26296708.davem@redhat.com>
-To: hch@infradead.org
-Cc: thomas@horsten.com, voidcartman@yahoo.com, marcelo@conectiva.com.br,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.21-rc1: byteorder.h breaks with __STRICT_ANSI__
- defined (trivial)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030507074557.A9197@infradead.org>
-References: <200305070850.59912.voidcartman@yahoo.com>
-	<200305070744.27207.thomas@horsten.com>
-	<20030507074557.A9197@infradead.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 7 May 2003 02:43:21 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:26060 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S262934AbTEGGnS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 02:43:18 -0400
+Message-ID: <A46BBDB345A7D5118EC90002A5072C780C8FDF5C@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'James Stevenson'" <james@stev.org>,
+       "'joe briggs'" <jbriggs@briggsmedia.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: software reset
+Date: Tue, 6 May 2003 23:55:41 -0700 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Christoph Hellwig <hch@infradead.org>
-   Date: Wed, 7 May 2003 07:45:57 +0100
-   
-   That's highly broken because his libc was compiled against 2.2
-   headers.  You must never use different headers in
-   /usr/include/Pasm,linux} then those your libc was compiled against.
-   
-While I understand this problem, this line of reasoning simply does
-not apply for headers that libc/glibc/whatever are agnostic about.
+
+> From: James Stevenson [mailto:james@stev.org]
+>
+> 1 way to get a garentee reboot is to use a 2nd computer a parrell port
+> and a resistor + relay and get the relay to short the reset pins
+> on the MB of the machine you wish to reboot.
+> 
+> You could set this up to reboot up 2 8 machine usign cheap hardware
+> like a 486 or something.
+
+Or you can always resort to a meatware solution ... scalable to
+as many machines as you want [supposing you provide displacement
+means if the distances grow too high ] :)
+
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+(and my fault)

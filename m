@@ -1,34 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318536AbSGaW4c>; Wed, 31 Jul 2002 18:56:32 -0400
+	id <S318526AbSGaW4l>; Wed, 31 Jul 2002 18:56:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318538AbSGaW4c>; Wed, 31 Jul 2002 18:56:32 -0400
-Received: from vitelus.com ([64.81.243.207]:24335 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S318536AbSGaW4b>;
-	Wed, 31 Jul 2002 18:56:31 -0400
-Date: Wed, 31 Jul 2002 15:59:54 -0700
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ATAPI CD-R lags system to hell burning in DAO mode; but not in TAO
-Message-ID: <20020731225953.GA29020@vitelus.com>
-References: <20020731203008.GA27702@vitelus.com> <3D48511A.C31443A3@zip.com.au>
+	id <S318538AbSGaW4l>; Wed, 31 Jul 2002 18:56:41 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:46610 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318526AbSGaW4k>; Wed, 31 Jul 2002 18:56:40 -0400
+Date: Thu, 1 Aug 2002 00:00:03 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: Re: [PATCH] console part 2.
+Message-ID: <20020801000003.A24516@flint.arm.linux.org.uk>
+References: <Pine.LNX.4.44.0207311523540.21567-100000@www.transvirtual.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3D48511A.C31443A3@zip.com.au>
-User-Agent: Mutt/1.5.0i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0207311523540.21567-100000@www.transvirtual.com>; from jsimmons@transvirtual.com on Wed, Jul 31, 2002 at 03:27:57PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 31, 2002 at 02:05:30PM -0700, Andrew Morton wrote:
-> This is presumably because the machine is full of memory which
-> is dirty against a slooow device.
+On Wed, Jul 31, 2002 at 03:27:57PM -0700, James Simmons wrote:
+> Here is the second patch. It has many fixes and alot of major changes
+> internally.
 
-I don't seem to have sysctl support in my kernel right now, so I can't
-verify this until I reboot.
+A quick read through reveals:
 
-I did notice that both cdrdao and cdrdao set realtime scheduling
-priority. I thought this would surely answer everything, but burning
-as an unprivileged user causes the same interactvity (and NFS
-throughput) problems as before.
+-		printk("mdacon: MDA card not detected.\n");
++		printk("KERN_WARNING mdacon: MDA card not detected.\n");
+
+KERN_WARNING and friends should be outside the quotes.
+
+Secondly, the absolutely gigantic "switch (vc_state) {" stuff with
+extra layers of switch statements below it in decvte.c - I find this
+rather disgusting to read.  I bet the resulting asm is also disgusting.
+Isn't there a cleaner solution to this?  (I've been carrying around
+since 2.2 patches to the console layer to split this up mainly because
+some older versions of ARM gcc choked on it.  I'm not certain about
+current versions though.)
+
+Also, something that should probably be fixed one day, but I wouldn't
+call it a show stopper:
+
+-#define SIZE(x) (sizeof(x)/sizeof((x)[0]))
++#define SIZE(x)	(sizeof(x)/sizeof((x)[0]))
+
+We have ARRAY_SIZE(x) in linux/kernel.h which does this already.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

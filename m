@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265463AbSJSBu2>; Fri, 18 Oct 2002 21:50:28 -0400
+	id <S265465AbSJSBwe>; Fri, 18 Oct 2002 21:52:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265464AbSJSBu2>; Fri, 18 Oct 2002 21:50:28 -0400
-Received: from thunk.org ([140.239.227.29]:2518 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id <S265463AbSJSBu0>;
-	Fri, 18 Oct 2002 21:50:26 -0400
+	id <S265466AbSJSBwe>; Fri, 18 Oct 2002 21:52:34 -0400
+Received: from thunk.org ([140.239.227.29]:4822 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S265465AbSJSBwa>;
+	Fri, 18 Oct 2002 21:52:30 -0400
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Ext2/3 forward compatibility: inode size
+Subject: [Ext2-devel] [PATCH] Ext2/3 forward compatibility: on-line resizing
 From: tytso@mit.edu
 Phone: (781) 391-3464
-Message-Id: <E182iqp-000160-00@think.thunk.org>
-Date: Fri, 18 Oct 2002 21:56:27 -0400
+Message-Id: <E182isq-00017v-00@think.thunk.org>
+Date: Fri, 18 Oct 2002 21:58:32 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -202,3 +202,4 @@ _______________________________________________
 Ext2-devel mailing list
 Ext2-devel@lists.sourceforge.net
 https://lists.sourceforge.net/lists/listinfo/ext2-devel
+

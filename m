@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130188AbRBZHqe>; Mon, 26 Feb 2001 02:46:34 -0500
+	id <S130191AbRBZHjO>; Mon, 26 Feb 2001 02:39:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130194AbRBZHqY>; Mon, 26 Feb 2001 02:46:24 -0500
-Received: from mail.isis.co.za ([196.15.218.226]:57611 "EHLO mail.isis.co.za")
-	by vger.kernel.org with ESMTP id <S130188AbRBZHqJ>;
-	Mon, 26 Feb 2001 02:46:09 -0500
-Message-Id: <4.3.2.7.0.20010226094002.00af9f00@192.168.0.18>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Mon, 26 Feb 2001 09:45:32 +0200
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Pat Verner <pat@isis.co.za>
-Subject: Re: PROBLEM: Network hanging - Tulip driver with Netgear
-  (Lite-On)
+	id <S130194AbRBZHjD>; Mon, 26 Feb 2001 02:39:03 -0500
+Received: from isunix.it.ilstu.edu ([138.87.124.103]:61956 "EHLO
+	isunix.it.ilstu.edu") by vger.kernel.org with ESMTP
+	id <S130191AbRBZHit>; Mon, 26 Feb 2001 02:38:49 -0500
+From: Tim Hockin <thockin@isunix.it.ilstu.edu>
+Message-Id: <200102260728.BAA28731@isunix.it.ilstu.edu>
+Subject: Re: IDE not fully found (2.4.2) PDC20265
+To: andre@linux-ide.org (Andre Hedrick)
+Date: Mon, 26 Feb 2001 01:28:54 -0600 (CST)
 Cc: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+In-Reply-To: <Pine.LNX.4.10.10101152228320.12967-100000@master.linux-ide.org> from "Andre Hedrick" at Jan 15, 2001 10:29:13 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-26 Feb 2001:
-Rebuilt the kernel to version 2.4.2-ac4, to include the latest tulip patches.
+> On Mon, 15 Jan 2001, Tim Hockin wrote:
+> 
+> > Motherboard (MSI 694D-AR) has Via Apollo Pro chipset, those IDE drives seem
+> > fine.  Board also has a promise PDC20265  RAID/ATA100 controller.  On each
+> > channel of this controller I have an IBM 45 GB ATA100 drive as master.
+> > (hde and hdg).  BIOS sees these drives fine.  Linux only see hde and never
+> > hdg (ide[012] but not ide3).  I thought I'd post it here, in case anyone
 
-The performance is better,  but it is still not quite right; this time it 
-received just over 48 MBytes before hanging :-(
+So I have a clue - pci-ide.c is looking at a PCI register to determine if
+ide channels are enabled.  It seems that the BIOS on this board is not
+enabling the second channel of the promise controller in this register.
+There are other "enabled" bits, apparently.  pdc202xx.c checks some IO
+registers from one of the base addresses to determine status.
 
-Using a 3C590B card on Friday, I ran IPTRAF for about 6 hours, and several 
-GBytes of data with no problems at all.  Unfortunately I have only one such 
-card available, and our suppliers are quoting mid-March for delivery.
-=Pat
+Unfortunately, the enabled bit of this register seems to be
+write-protected.  There must be an unlock bit in another register.  Anyone
+have a datasheet for a pdc202x?  How do I unprotect PCI reg 0x50 
 
+If I bypass the test for the enabled bit in ide-pci.c, I get all my drives
+properly.  
 
-At 10:42 AM 22/02/2001 +0000, Alan Cox wrote:
-> > three Netgear NICs and am experiencing considerable trouble with the=20
-> > combination:
-> >
-> > Kernel 2.4.[01]:        ifconfig shows that the card see's traffic on t=
-> > he=20
-> > network, but does not transmit anything (no response to ping).
->
->Use a current 2.4.*-ac. Jeff and co fixed this we think.
->
->Alan
-
---
-Pat Verner				E-Mail:  pat@isis.co.za
-           Isis Information Systems (Pty) Ltd
-           PO Box 281, Irene, 0062, South Africa
-Phone: +27-12-667-1411	      	Fax: +27-12-667-3800
-
+Tim
